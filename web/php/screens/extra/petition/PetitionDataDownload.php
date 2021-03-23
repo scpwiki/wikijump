@@ -1,6 +1,14 @@
 <?php
-use DB\PetitionCampaignPeer;
-use DB\PetitionSignaturePeer;
+
+namespace Wikidot\Screens\Extra\Petition;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\SmartyScreen;
+use Wikidot\DB\PetitionCampaignPeer;
+use Wikidot\DB\PetitionSignaturePeer;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class PetitionDataDownload extends SmartyScreen
 {

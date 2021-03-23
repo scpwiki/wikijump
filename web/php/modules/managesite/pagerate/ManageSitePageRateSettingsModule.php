@@ -1,5 +1,10 @@
 <?php
-use DB\CategoryPeer;
+
+namespace Wikidot\Modules\ManageSite\PageRate;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSitePageRateSettingsModule extends ManageSiteBaseModule
 {

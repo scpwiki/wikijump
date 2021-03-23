@@ -8,6 +8,9 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 
+use Ozone\Framework\Ozone;
+use Wikidot\Utils\LatexRenderer;
+
 /**
  * Math equation.
  *

@@ -19,7 +19,10 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 
-use DB\FilePeer;
+use Wikidot\DB\FilePeer;
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+use Wikidot\Utils\FlickrHandler;
 
 class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 
@@ -195,7 +198,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
     		// get page first
 
     		$site = $GLOBALS['site'];
-    		$page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+    		$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
     		if($page == null){
     			return '<div class="error-block">Error selecting page.</div>';
     		}

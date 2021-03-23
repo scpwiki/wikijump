@@ -1,7 +1,13 @@
 <?php
-use DB\OzoneUserPeer;
-use DB\MemberPeer;
-use DB\AdminPeer;
+
+namespace Wikidot\Modules\Users;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\MemberPeer;
+use Wikidot\DB\AdminPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class UserInfoWinModule extends SmartyModule
 {

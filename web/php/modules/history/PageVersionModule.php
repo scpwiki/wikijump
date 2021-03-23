@@ -1,5 +1,12 @@
 <?php
-use DB\PageRevisionPeer;
+
+namespace Wikidot\Modules\History;
+
+use Wikidot\DB\PageRevisionPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WikiTransformation;
 
 class PageVersionModule extends SmartyModule
 {

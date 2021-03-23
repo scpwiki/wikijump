@@ -1,6 +1,10 @@
 <?php
-use DB\SitePeer;
-use DB\PagePeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\PagePeer;
 
 class Backuper
 {

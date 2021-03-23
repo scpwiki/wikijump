@@ -1,5 +1,14 @@
 <?php
-use DB\ForumThreadPeer;
+
+namespace Wikidot\Modules\Forum\Sub;
+
+
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\ForumThreadPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ForumEditThreadBlockModule extends SmartyModule
 {

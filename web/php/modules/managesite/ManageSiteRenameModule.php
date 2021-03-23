@@ -1,6 +1,11 @@
 <?php
-use DB\AdminPeer;
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\AdminPeer;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteRenameModule extends ManageSiteBaseModule
 {

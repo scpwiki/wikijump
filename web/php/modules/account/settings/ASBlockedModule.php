@@ -1,5 +1,13 @@
 <?php
-use DB\PrivateUserBlockPeer;
+
+namespace Wikidot\Modules\Account\Settings;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PrivateUserBlockPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class ASBlockedModule extends AccountBaseModule
 {

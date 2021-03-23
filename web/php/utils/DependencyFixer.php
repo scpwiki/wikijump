@@ -1,8 +1,12 @@
 <?php
-use DB\PageSource;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\ODate;
+use Wikidot\DB\PageSource;
 
 /**
- * This class handles source changes looking for inslusions and links and
+ * This Class handles source changes looking for inslusions and links and
  * tries to change them upon destinatin (or included) page name change.
  */
 class DependencyFixer

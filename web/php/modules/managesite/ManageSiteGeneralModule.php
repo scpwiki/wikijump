@@ -1,5 +1,10 @@
 <?php
-use DB\SiteTagPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\SiteTagPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteGeneralModule extends ManageSiteBaseModule
 {

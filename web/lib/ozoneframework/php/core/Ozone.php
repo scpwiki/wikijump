@@ -1,6 +1,11 @@
 <?php
 
+namespace Ozone\Framework;
 
+
+
+use Wikidot\Utils\GlobalProperties;
+use Memcache;
 
 /**
  * Core object for the OZONE Framework.

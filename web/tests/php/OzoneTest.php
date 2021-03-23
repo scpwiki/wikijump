@@ -4,24 +4,37 @@
 namespace Tests;
 
 
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\ODate;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\Page;
+use Wikidot\DB\PageCompiled;
+use Wikidot\DB\PageMetadata;
+use Wikidot\DB\PageRevision;
+use Wikidot\DB\PageSource;
+use Wikidot\DB\SitePeer;
+use Wikidot\Utils\Outdater;
+
 class OzoneTest
 {
     public function addPage ( $ncat , $unixName , $source , $title ) {
 
         $now = new ODate ( ) ;
 
-        $nsource = new DB_PageSource ( ) ;
+        $nsource = new PageSource ( ) ;
         $nsource->setText ( $source ) ;
         $nsource->save () ;
 
-        $nmeta = new DB_PageMetadata ( ) ;
+        $nmeta = new PageMetadata ( ) ;
         $nmeta->setTitle ( $title ) ;
         $nmeta->setUnixName ( $unixName ) ;
 
         $nmeta->setOwnerUserId ( 1 ) ;
         $nmeta->save () ;
 
-        $nrev = new DB_PageRevision ( ) ;
+        $nrev = new PageRevision ( ) ;
         $nrev->setSiteId ( 1 ) ;
         $nrev->setSourceId ( $nsource->getSourceId () ) ;
         $nrev->setMetadataId ( $nmeta->getMetadataId () ) ;
@@ -30,7 +43,7 @@ class OzoneTest
         $nrev->setUserId ( 1 ) ;
         $nrev->obtainPK () ;
 
-        $npage = new DB_Page ( ) ;
+        $npage = new Page ( ) ;
         $npage->setSiteId ( 1 ) ;
         $npage->setCategoryId ( $ncat->getCategoryId () ) ;
         $npage->setRevisionId ( $nrev->getRevisionId () ) ;
@@ -47,7 +60,7 @@ class OzoneTest
         $nrev->setPageId ( $npage->getPageId () ) ;
         $nrev->save () ;
 
-        $ncomp = new DB_PageCompiled ( ) ;
+        $ncomp = new PageCompiled ( ) ;
         $ncomp->setPageId ( $npage->getPageId () ) ;
         $ncomp->setDateCompiled ( $now ) ;
         $ncomp->save () ;
@@ -63,7 +76,7 @@ class OzoneTest
         $db->begin () ;
 
         $od = new Outdater ( ) ;
-        $od->recompileWholeSite ( DB_SitePeer::instance ()->selectByPrimaryKey ( 1 ) ) ;
+        $od->recompileWholeSite ( SitePeer::instance ()->selectByPrimaryKey ( 1 ) ) ;
 
 //        $db->commit () ;
 //        $db->begin () ;
@@ -72,11 +85,11 @@ class OzoneTest
         $c->add("name", "auth");
         $c->add("site_id", 1);
 
-        if (DB_CategoryPeer::instance()->selectOne($c)) {
+        if (CategoryPeer::instance()->selectOne($c)) {
             die("The auth category already exists!\n\n");
         }
 
-        $ncat = DB_CategoryPeer::instance ()->selectByPrimaryKey ( 1 ) ;
+        $ncat = CategoryPeer::instance ()->selectByPrimaryKey ( 1 ) ;
         $ncat->setNew ( true ) ;
         $ncat->setCategoryId ( null ) ;
         $ncat->setName ( "auth" ) ;
@@ -84,7 +97,7 @@ class OzoneTest
 
         addPage ( $ncat, "test", "Test page.", "Test page" ) ;
 
-        $od->recompileWholeSite ( DB_SitePeer::instance ()->selectByPrimaryKey ( 1 ) ) ;
+        $od->recompileWholeSite ( SitePeer::instance ()->selectByPrimaryKey ( 1 ) ) ;
 
 //        $db->commit () ;
         $db->rollback();

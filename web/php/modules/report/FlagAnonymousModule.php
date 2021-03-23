@@ -1,5 +1,13 @@
 <?php
-use DB\AnonymousAbuseFlagPeer;
+
+namespace Wikidot\Modules\Report;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\AnonymousAbuseFlagPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionException;
 
 class FlagAnonymousModule extends SmartyModule
 {

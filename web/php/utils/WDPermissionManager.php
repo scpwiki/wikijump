@@ -1,19 +1,25 @@
 <?php
 
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
-use DB\Site;
-use DB\SitePeer;
-use DB\AdminPeer;
-use DB\ModeratorPeer;
-use DB\MemberPeer;
-use DB\Page;
-use DB\PagePeer;
-use DB\UserSettingsPeer;
-use DB\ContactPeer;
-use DB\PrivateUserBlockPeer;
-use DB\IpBlockPeer;
-use DB\UserBlockPeer;
+namespace Wikidot\Utils;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\OzoneUser;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\Site;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\AdminPeer;
+use Wikidot\DB\ModeratorPeer;
+use Wikidot\DB\MemberPeer;
+use Wikidot\DB\Page;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\UserSettingsPeer;
+use Wikidot\DB\ContactPeer;
+use Wikidot\DB\PrivateUserBlockPeer;
+use Wikidot\DB\IpBlockPeer;
+use Wikidot\DB\UserBlockPeer;
 
 class WDPermissionManager
 {
@@ -783,7 +789,7 @@ class WDPermissionManager
         $c->add("site_id", $site->getSiteId());
         $c->add("user_id", $user->getUserId());
 
-        if (MemberPeer::instance()->selectOne($c)) { // user is a member of the wiki
+        if (MemberPeer::instance()->selectOne($c)) { // user is a member of the Wiki
             return true;
         }
 

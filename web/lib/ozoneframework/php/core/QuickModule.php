@@ -1,11 +1,13 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
 
 /**
- * Abstract class for a quick module.
+ * Abstract Class for a quick module.
  */
 abstract class QuickModule {
 	/**

@@ -1,4 +1,11 @@
 <?php
+
+namespace Wikidot\Modules\Editor;
+
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\FlickrHandler;
+
 class FlickrCheckModule extends SmartyModule
 {
 

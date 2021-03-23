@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\ManageSite\Abuse;
+
+use Ozone\Framework\Database\Database;
+use Wikidot\Utils\ManageSiteBaseModule;
+
 class ManageSitePageAbuseModule extends ManageSiteBaseModule
 {
 

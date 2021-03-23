@@ -1,4 +1,7 @@
 <?php
+
+namespace Wikidot\Utils;
+
 class MailFormUtils
 {
 

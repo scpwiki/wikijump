@@ -1,6 +1,14 @@
 <?php
-use DB\OzoneUserPeer;
-use DB\UserAbuseFlagPeer;
+
+namespace Wikidot\Modules\Report;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\UserAbuseFlagPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionException;
 
 class FlagUserModule extends SmartyModule
 {

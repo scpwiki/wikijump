@@ -1,4 +1,12 @@
 <?php
+
+namespace Wikidot\Modules\Wiki\Image;
+
+
+use Wikidot\Utils\CacheableModule;
+use Wikidot\Utils\FlickrHandler;
+use Wikidot\Utils\ProcessException;
+
 class FlickrGalleryModule extends CacheableModule
 {
 

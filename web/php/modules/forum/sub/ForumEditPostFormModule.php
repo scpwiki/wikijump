@@ -1,7 +1,17 @@
 <?php
-use DB\ForumPostPeer;
-use DB\ModeratorPeer;
-use DB\AdminPeer;
+
+namespace Wikidot\Modules\Forum\Sub;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumPostPeer;
+use Wikidot\DB\ModeratorPeer;
+use Wikidot\DB\AdminPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ForumEditPostFormModule extends SmartyModule
 {

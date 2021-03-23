@@ -1,4 +1,11 @@
 <?php
+
+namespace Wikidot\Modules\Login;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\UploadedFileFlowController;
+
 class FileAuthScriptModule extends SmartyModule
 {
 

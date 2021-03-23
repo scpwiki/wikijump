@@ -1,5 +1,10 @@
 <?php
-abstract class ManageSiteBaseModule extends SmartyModule
+
+namespace Wikidot\Utils;
+
+abstract use Ozone\Framework\SmartyModule;
+
+class ManageSiteBaseModule extends SmartyModule
 {
 
     public function isAllowed($runData)

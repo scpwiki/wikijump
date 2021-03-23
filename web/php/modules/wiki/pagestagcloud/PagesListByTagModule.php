@@ -1,6 +1,14 @@
 <?php
-use DB\CategoryPeer;
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Wiki\PagesTagCloud;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class PagesListByTagModule extends SmartyModule
 {

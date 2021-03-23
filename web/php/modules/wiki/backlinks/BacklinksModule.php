@@ -1,5 +1,12 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Wiki\Backlinks;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class BacklinksModule extends SmartyModule
 {

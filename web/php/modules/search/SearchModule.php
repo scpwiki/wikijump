@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\Search;
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\SmartyModule;
+
 class SearchModule extends SmartyModule
 {
 

@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Exception;
+
 class ProcessException extends Exception
 {
 

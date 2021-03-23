@@ -1,5 +1,7 @@
 <?php
 
+use Ozone\Framework\PathManager;
+
 
 /**
  * Macro definition block for Smarty.

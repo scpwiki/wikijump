@@ -1,11 +1,13 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
 
 /**
- * Module utility helper class.
+ * Module utility helper Class.
  *
  */
 class ModuleHelpers {

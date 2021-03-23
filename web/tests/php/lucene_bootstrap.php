@@ -1,6 +1,6 @@
 <?php
 require_once ("../php/setup.php");
 
-$lucene = new Wikijump\Search\Lucene();
+$lucene = new Wikidot\Search\Lucene();
 $lucene->createIndex();
 $lucene->indexAllSitesVerbose();

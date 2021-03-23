@@ -1,5 +1,11 @@
 <?php
-use DB\Page;
+
+namespace Wikidot\Modules\SiteTools;
+
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\Page;
+
+use Ozone\Framework\SmartyModule;
 
 class WantedPagesModule extends SmartyModule
 {

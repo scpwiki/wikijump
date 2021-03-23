@@ -1,9 +1,14 @@
 <?php
 
+namespace Ozone\Framework\Database;
 
+
+
+use mysql_xdevapi\DatabaseObject;
+use Ozone\Framework\ODate;
 
 /**
- * Base peer class.
+ * Base peer Class.
  *
  */
 abstract class BaseDBPeer {

@@ -1,5 +1,10 @@
 <?php
-abstract class CacheableModule extends SmartyModule
+
+namespace Wikidot\Utils;
+
+abstract use Ozone\Framework\Ozone;use Ozone\Framework\SmartyModule;
+
+class CacheableModule extends SmartyModule
 {
 
     protected $timeOut = 0;
@@ -7,7 +12,7 @@ abstract class CacheableModule extends SmartyModule
     protected $maxTimeOut = 86400; // --||--
 
     /**
-     * Whether timeout can be changed e.g. by passing timeout="1212" parameter in wiki source.
+     * Whether timeout can be changed e.g. by passing timeout="1212" parameter in Wiki source.
      */
     protected $allowChangeTimeOut = false;
 

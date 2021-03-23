@@ -1,5 +1,14 @@
 <?php
-use DB\AdminPeer;
+
+namespace Wikidot\Modules\Account\Membership;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\JSONService;
+use Wikidot\DB\AdminPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class AccountDeletedSitesModule extends AccountBaseModule
 {

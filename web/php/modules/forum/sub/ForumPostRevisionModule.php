@@ -1,5 +1,13 @@
 <?php
-use DB\ForumPostRevisionPeer;
+
+namespace Wikidot\Modules\Forum\Sub;
+
+
+use Wikidot\DB\ForumPostRevisionPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WikiTransformation;
 
 class ForumPostRevisionModule extends SmartyModule
 {

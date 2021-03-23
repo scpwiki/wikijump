@@ -1,6 +1,15 @@
 <?php
-use DB\SitePeer;
-use DB\PagePeer;
+
+namespace Wikidot\Modules\CreateAccount;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\CryptUtils;
+use Wikidot\Utils\ProcessException;
 
 class AcceptTOSModule extends SmartyModule
 {

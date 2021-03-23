@@ -1,11 +1,22 @@
 <?php
 
-use DB\CategoryPeer;
-use DB\PageTagPeer;
-use DB\PagePeer;
-use DB\PageRevisionPeer;
-use DB\OzoneUserPeer;
-use DB\ForumThreadPeer;
+namespace Wikidot\Modules\List;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\ODate;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PageTagPeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\PageRevisionPeer;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\ForumThreadPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WikiTransformation;
 
 class ListPagesModule extends SmartyModule
 {
@@ -44,7 +55,7 @@ class ListPagesModule extends SmartyModule
         /* Check if recursive. */
         foreach ($this->_moduleChain as $m) {
             if (get_class($m) == 'ListPagesModule') {// && $m->parameterHash == $parmHash){
-                return '<div class="error-block">The ListPages module does not work recursively.</div>';
+                return '<div Class="error-block">The ListPages module does not work recursively.</div>';
             }
         }
 
@@ -270,7 +281,7 @@ class ListPagesModule extends SmartyModule
                 $skipCurrent = true;
             }
 
-            /* Create extra conditions to the SELECT */
+            /* Create Extra conditions to the SELECT */
 
             /* ANY */
             if (count($tagsAny) > 0) {
@@ -594,8 +605,8 @@ class ListPagesModule extends SmartyModule
                 $wt->setMode("list");
                 $wt->setPage($page);
                 $b = $wt->processSource($b);
-                $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
-                //$b = "[[div class=\"list-pages-item\"]]\n".$b."\n[[/div]]";
+                $b = "<div Class=\"list-pages-item\">\n" . $b . "</div>";
+                //$b = "[[div Class=\"list-pages-item\"]]\n".$b."\n[[/div]]";
             }
 
 
@@ -618,7 +629,7 @@ class ListPagesModule extends SmartyModule
          */
 
         /* Fix dates. */
-        //$dateString = '<span class="odate">'.$thread->getDateStarted()->getTimestamp().'|%e %b %Y, %H:%M %Z|agohover</span>';
+        //$dateString = '<span Class="odate">'.$thread->getDateStarted()->getTimestamp().'|%e %b %Y, %H:%M %Z|agohover</span>';
         $itemsContent = preg_replace_callback('/%%date\|([0-9]+)(\|.*?)?%%/', array(
             $this, '_formatDate'), $itemsContent);
 
@@ -688,7 +699,7 @@ class ListPagesModule extends SmartyModule
         } else {
             $format = '|%e %b %Y, %H:%M %Z|agohover';
         }
-        $dateString = '<span class="odate">' . $m[1] . $format . '</span>';
+        $dateString = '<span Class="odate">' . $m[1] . $format . '</span>';
         return $dateString;
     }
 

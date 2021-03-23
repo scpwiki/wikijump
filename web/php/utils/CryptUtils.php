@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Exception;
+
 class CryptUtils
 {
     private static $keyFile = 'conf/ssl/key.pem';

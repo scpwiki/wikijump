@@ -1,5 +1,13 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Wiki\SitesActivity;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class RecentWPageRevisionsModule extends SmartyModule
 {

@@ -1,4 +1,8 @@
 <?php
+
+use Ozone\Framework\OzoneLogger;
+use Wikidot\Utils\FeedFlowController;
+
 require ('../php/setup.php');
 
 // to avoid caching

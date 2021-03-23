@@ -1,12 +1,16 @@
 <?php
 
+namespace Ozone\Framework;
 
+
+use Smarty;
+use Wikidot\Utils\GlobalProperties;
 
 define('SMARTY_DIR', WIKIJUMP_ROOT.'/lib/smarty/libs/');
 require_once (SMARTY_DIR.'Smarty.class.php');
 
 /**
- * Wrapper for the Smarty class.
+ * Wrapper for the Smarty Class.
  *
  */
 class OzoneSmarty extends Smarty{
@@ -24,7 +28,7 @@ class OzoneSmarty extends Smarty{
 		$this->cache_dir = PathManager::smartyCacheDir();
 
 		$this->plugins_dir = array(PathManager::smartyPluginDir(), PathManager::smartyOzonePluginDir());
-		//extra dir for application extensions
+		//Extra dir for application extensions
 		$this->plugins_dir[] = WIKIJUMP_ROOT.'/php/smarty_plugins/';
 
 		$this->load_filter('pre', 'defmacrohelp');

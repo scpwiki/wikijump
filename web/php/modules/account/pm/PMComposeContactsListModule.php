@@ -1,5 +1,13 @@
 <?php
-use DB\ContactPeer;
+
+namespace Wikidot\Modules\Account\PM;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ContactPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class PMComposeContactsListModule extends AccountBaseModule
 {

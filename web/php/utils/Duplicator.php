@@ -1,19 +1,25 @@
 <?php
-use DB\AdminPeer;
-use DB\Admin;
-use DB\Member;
-use DB\ThemePeer;
-use DB\CategoryPeer;
-use DB\PagePeer;
-use DB\ForumGroupPeer;
-use DB\ForumCategoryPeer;
-use DB\FilePeer;
-use DB\PageSource;
-use DB\PageMetadata;
-use DB\PageRevision;
-use DB\Page;
-use DB\PageCompiled;
-use DB\PageTagPeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\ODate;
+use Wikidot\DB\AdminPeer;
+use Wikidot\DB\Admin;
+use Wikidot\DB\Member;
+use Wikidot\DB\ThemePeer;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\ForumGroupPeer;
+use Wikidot\DB\ForumCategoryPeer;
+use Wikidot\DB\FilePeer;
+use Wikidot\DB\PageSource;
+use Wikidot\DB\PageMetadata;
+use Wikidot\DB\PageRevision;
+use Wikidot\DB\Page;
+use Wikidot\DB\PageCompiled;
+use Wikidot\DB\PageTagPeer;
 
 class Duplicator
 {

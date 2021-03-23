@@ -1,9 +1,13 @@
 <?php
 
+namespace Ozone\Framework;
 
+
+
+use Wikidot\Utils\GlobalProperties;
 
 /**
- * Default email class.
+ * Default email Class.
  *
  */
 class OzoneEmail extends SmartyEmail{
@@ -13,7 +17,7 @@ class OzoneEmail extends SmartyEmail{
 	public function __construct(){
 		parent::__construct();
 		// set default values
-		$this->setSMTP(); // telling the class to use SMTP
+		$this->setSMTP(); // telling the Class to use SMTP
 		$this->setHost(GlobalProperties::$DEFAULT_SMTP_HOST); // SMTP server
 		if(GlobalProperties::$DEFAULT_SMTP_AUTH){
 			$this->setSMTPAuth(GlobalProperties::$DEFAULT_SMTP_AUTH);

@@ -1,5 +1,10 @@
 <?php
-use DB\EmailListPeer;
+
+namespace Wikidot\Modules\ManageSite\Elists;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\EmailListPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteEmailListsModule extends ManageSiteBaseModule
 {

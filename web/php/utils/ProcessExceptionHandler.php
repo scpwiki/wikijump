@@ -1,6 +1,12 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\OzoneLogger;
+
 /**
- * This class is responsible for handling exceptions which are thrown
+ * This Class is responsible for handling exceptions which are thrown
  * when processing modules/screens.
  */
 class ProcessExceptionHandler
@@ -11,11 +17,11 @@ class ProcessExceptionHandler
         // rollback the transaction
         $db = Database::connection();
         $db->rollback();
-        $out.= '<div class="error-block">';
+        $out.= '<div Class="error-block">';
         if ($exception instanceof ProcessException) {
             $out.=nl2br($exception->getMessage());
         } elseif ($exception instanceof WDPermissionException) {
-            $out.='<div class="title">Permission error</div>';
+            $out.='<div Class="title">Permission error</div>';
             $out.=nl2br($exception->getMessage());
         } else {
             $out.="An error occured when processing your request.";

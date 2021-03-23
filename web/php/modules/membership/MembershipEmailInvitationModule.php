@@ -1,7 +1,13 @@
 <?php
-use DB\EmailInvitationPeer;
-use DB\SitePeer;
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\Membership;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\EmailInvitationPeer;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\OzoneUserPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class MembershipEmailInvitationModule extends SmartyModule
 {

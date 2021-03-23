@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Ozone;
+
 define("MAGPIE_DIR", WIKIJUMP_ROOT."/lib/magpierss/");
 define("MAGPIE_CACHE_ON", false);
 define("MAGPIE_OUTPUT_ENCODING", "UTF-8");

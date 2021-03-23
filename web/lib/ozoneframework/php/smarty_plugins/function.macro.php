@@ -1,5 +1,8 @@
 <?php
 
+use Ozone\Framework\Ozone;
+use Ozone\Framework\PathManager;
+
 
 /**
  * Macro calling method for Smarty.

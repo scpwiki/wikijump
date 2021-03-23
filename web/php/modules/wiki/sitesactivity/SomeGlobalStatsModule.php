@@ -1,4 +1,12 @@
 <?php
+
+namespace Wikidot\Modules\Wiki\SitesActivity;
+
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\SmartyModule;
+
 class SomeGlobalStatsModule extends SmartyModule
 {
 

@@ -1,13 +1,23 @@
 <?php
-use DB\MemberPeer;
-use DB\SiteViewerPeer;
-use DB\PagePeer;
-use DB\CategoryPeer;
-use DB\PageTagPeer;
-use DB\ForumThreadPeer;
-use DB\OpenidEntryPeer;
-use DB\NotificationPeer;
-use DB\PrivateMessagePeer;
+
+namespace Wikidot\Screens\Wiki;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\PathManager;
+use Ozone\Framework\Screen;
+use Wikidot\DB\MemberPeer;
+use Wikidot\DB\SiteViewerPeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PageTagPeer;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\OpenidEntryPeer;
+use Wikidot\DB\NotificationPeer;
+use Wikidot\DB\PrivateMessagePeer;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\WDStringUtils;
 
 class WikiScreen extends Screen
 {
@@ -59,7 +69,7 @@ class WikiScreen extends Screen
         $wikiPage = WDStringUtils::toUnixName($wikiPage);
         $runData->setTemp("pageUnixName", $wikiPage);
 
-        $memcache = \Ozone::$memcache;
+        $memcache = Ozone::$memcache;
         if ($runData->getAction() == null
                 && $runData->getRequestMethod() == "GET"
 
@@ -104,7 +114,7 @@ class WikiScreen extends Screen
 
         $settings = $site->getSettings();
 
-        // get wiki page from the database
+        // get Wiki page from the database
         $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
 
         if ($page == null) {
@@ -252,7 +262,7 @@ class WikiScreen extends Screen
             }
         }
 
-        $templateFile = PathManager::screenTemplate("wiki/WikiScreen");
+        $templateFile = PathManager::screenTemplate("Wiki/WikiScreen");
         $screenContent = $smarty->fetch($templateFile);
 
         $smarty->assign("screen_placeholder", $screenContent);

@@ -1,5 +1,16 @@
 <?php
-use DB\SitePeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\ModuleProcessor;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\OzoneLogger;
+use Ozone\Framework\OzoneLoggerFileOutput;
+use Ozone\Framework\PathManager;
+use Ozone\Framework\RunData;
+use Ozone\Framework\WebFlowController;
+use Wikidot\DB\SitePeer;
 
 class WDDefaultFlowController extends WebFlowController
 {
@@ -24,10 +35,10 @@ class WDDefaultFlowController extends WebFlowController
         Ozone :: setRunData($runData);
         $logger->debug("RunData object created and initialized");
 
-        // check if site (wiki) exists!
+        // check if site (Wiki) exists!
         $siteHost = $_SERVER["HTTP_HOST"];
 
-        $memcache = \Ozone::$memcache;
+        $memcache = Ozone::$memcache;
         if (preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $siteHost, $matches)==1) {
             $siteUnixName=$matches[1];
             // select site based on the unix name
@@ -60,7 +71,7 @@ class WDDefaultFlowController extends WebFlowController
         }
 
         if ($site == null) {
-            $runData->setScreenTemplate("wiki/SiteNotFound");
+            $runData->setScreenTemplate("Wiki/SiteNotFound");
             exit(1);
         } else {
             $runData->setTemp("site", $site);
@@ -128,7 +139,7 @@ class WDDefaultFlowController extends WebFlowController
         $template = $runData->getScreenTemplate();
         $classFile = $runData->getScreenClassPath();
         $className = $runData->getScreenClassName();
-        $logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
+        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
 
         require_once($classFile);
         $screen = new $className();
@@ -141,11 +152,11 @@ class WDDefaultFlowController extends WebFlowController
                 // $screen->isAllowed() should set the error template!!! if not -
                 // default NotAllowed is used
 
-                // reload the class again - we do not want the unsecure screen to render!
+                // reload the Class again - we do not want the unsecure screen to render!
                 $classFile = $runData->getScreenClassPath();
 
                 $className = $runData->getScreenClassName();
-                $logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
+                $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
                 require_once($classFile);
                 $screen = new $className();
                 $runData->setAction(null);
@@ -198,7 +209,7 @@ class WDDefaultFlowController extends WebFlowController
         if ($template != $runData->getScreenTemplate) {
             $classFile = $runData->getScreenClassPath();
             $className = $runData->getScreenClassName();
-            $logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
+            $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
 
             require_once($classFile);
             $screen = new $className();

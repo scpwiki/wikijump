@@ -1,4 +1,8 @@
 <?php
+
+use Ozone\Framework\Database\Database;
+use Wikidot\Utils\GlobalProperties;
+
 require ('../php/setup.php');
 
 header('Content-type: image/png');

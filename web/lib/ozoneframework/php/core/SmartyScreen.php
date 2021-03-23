@@ -1,9 +1,11 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 /**
- * Abstract class for smarty-based screens.
+ * Abstract Class for smarty-based screens.
  */
 abstract class SmartyScreen extends Screen{
 

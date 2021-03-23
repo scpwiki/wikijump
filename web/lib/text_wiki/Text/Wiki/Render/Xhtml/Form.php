@@ -49,7 +49,7 @@ class Text_Wiki_Render_Xhtml_Form extends Text_Wiki_Render {
             return '</table>';
         }
 
-        $field = Wikidot_Form_Field::field($options['field']);
+        $field = Wikidot\Form\Field::field($options['field']);
         $h_label = htmlspecialchars($options['field']['label']);
         $h_value = $field->renderView();
 

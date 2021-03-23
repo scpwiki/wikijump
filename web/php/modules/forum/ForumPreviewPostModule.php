@@ -1,5 +1,14 @@
 <?php
-use DB\ForumPost;
+
+namespace Wikidot\Modules\Forum;
+
+
+use Ozone\Framework\ODate;
+use Wikidot\DB\ForumPost;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WikiTransformation;
 
 class ForumPreviewPostModule extends SmartyModule
 {

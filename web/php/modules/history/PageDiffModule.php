@@ -1,7 +1,13 @@
 <?php
-use DB\PageRevisionPeer;
-use DB\PagePeer;
-use Wikijump\Util\Diff;
+
+namespace Wikidot\Modules\History;
+
+use Wikidot\DB\PageRevisionPeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\Utils\Diff;
+use Wikidot\Utils\ProcessException;
+
+use Ozone\Framework\SmartyModule;
 
 class PageDiffModule extends SmartyModule
 {

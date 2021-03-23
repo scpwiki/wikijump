@@ -1,10 +1,16 @@
 <?php
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\Users;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneUserPeer;
 
 /**
- * This class searches for users given the query string and results in
+ * This Class searches for users given the query string and results in
  * an array of matches.
  */
+use Ozone\Framework\SmartyModule;
+
 class UserSearchModule extends SmartyModule
 {
 

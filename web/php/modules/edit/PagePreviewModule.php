@@ -1,6 +1,14 @@
 <?php
-use DB\PagePeer;
-use DB\CategoryPeer;
+
+namespace Wikidot\Modules\Edit;
+
+
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\CategoryPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WikiTransformation;
 
 class PagePreviewModule extends SmartyModule
 {

@@ -1,6 +1,12 @@
 <?php
 
+namespace Ozone\Framework\Database;
 
+
+
+
+use Ozone\Framework\OzoneSmarty;
+use Ozone\Framework\PathManager;
 
 /**
  * Database table generator.

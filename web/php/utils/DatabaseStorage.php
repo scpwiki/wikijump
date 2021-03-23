@@ -1,6 +1,11 @@
 <?php
-use DB\StorageItemPeer;
-use DB\StorageItem;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\ODate;
+use Wikidot\DB\StorageItemPeer;
+use Wikidot\DB\StorageItem;
 
 class DatabaseStorage
 {

@@ -1,7 +1,12 @@
 <?php
-use DB\OzoneUserPeer;
-use DB\SitePeer;
-use DB\PagePeer;
+
+namespace Wikidot\Modules\UserInfo;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\Utils\SmartyLocalizedModule;
 
 class UserInfoProfileModule extends SmartyLocalizedModule
 {

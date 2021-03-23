@@ -1,5 +1,11 @@
 <?php
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\UserInfo;
+
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\SmartyLocalizedModule;
+use Wikidot\Utils\WDPermissionException;
 
 class UserAddToContactsModule extends SmartyLocalizedModule
 {

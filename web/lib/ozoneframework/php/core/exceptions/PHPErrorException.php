@@ -1,7 +1,9 @@
 <?php
 
+namespace Ozone\Framework\Exceptions;
 
 
+use Exception;
 
 /**
  * PHP error exception.

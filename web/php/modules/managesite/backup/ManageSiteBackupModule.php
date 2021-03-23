@@ -1,5 +1,11 @@
 <?php
-use DB\SiteBackupPeer;
+
+namespace Wikidot\Modules\ManageSite\Backup;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\SiteBackupPeer;
+use Wikidot\Utils\FileHelper;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteBackupModule extends ManageSiteBaseModule
 {

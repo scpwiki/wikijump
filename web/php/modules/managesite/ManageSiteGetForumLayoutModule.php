@@ -1,6 +1,11 @@
 <?php
-use DB\ForumGroupPeer;
-use DB\ForumCategoryPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumGroupPeer;
+use Wikidot\DB\ForumCategoryPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteGetForumLayoutModule extends ManageSiteBaseModule
 {

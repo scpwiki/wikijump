@@ -1,4 +1,11 @@
 <?php
+
+namespace Wikidot\Modules\Wiki\Redirect;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDStringUtils;
+
 class PageRedirectModule extends SmartyModule
 {
 

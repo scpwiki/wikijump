@@ -1,6 +1,13 @@
 <?php
-use DB\NotificationPeer;
-use DB\PrivateMessagePeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\OzoneEmail;
+use Wikidot\DB\NotificationPeer;
+use Wikidot\DB\PrivateMessagePeer;
 
 class WDDigestSender
 {

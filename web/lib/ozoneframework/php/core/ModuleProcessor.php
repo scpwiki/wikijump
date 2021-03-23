@@ -1,6 +1,13 @@
 <?php
 
+namespace Ozone\Framework;
 
+
+
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\ProcessExceptionHandler;
+use Wikidot\Utils\WDPermissionException;
+use Exception;
 
 /**
  * Module processing tool.

@@ -1,4 +1,11 @@
 <?php
+
+namespace Wikidot\Modules\CreateAccount;
+
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+
 class CreateAccount2Module extends SmartyModule
 {
 

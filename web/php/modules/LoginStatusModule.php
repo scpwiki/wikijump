@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Modules;
+use Ozone\Framework\Module;
+use Wikidot\Utils\GlobalProperties;
+
 class LoginStatusModule extends Module
 {
 
@@ -56,7 +61,7 @@ class LoginStatusModule extends Module
             $userId = $user->getUserId();
             $linkInner = 'href="' . $url_prefix . '/user:info/'.$user->getUnixName().'" onclick="Wikijump.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
 
-            $out = '<span class="printuser"><a '.$linkInner.'><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="avatar"';
+            $out = '<span Class="printuser"><a '.$linkInner.'><img Class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="avatar"';
             /* karma: */
             $out .= ' style="background-image:url(' . $url_prefix . '/userkarma.php?u=' .$userId  . ')"';
             /* end of karma */

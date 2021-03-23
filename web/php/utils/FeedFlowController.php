@@ -1,7 +1,17 @@
 <?php
-use DB\SitePeer;
-use DB\MemberPeer;
-use DB\SiteViewerPeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\OzoneLogger;
+use Ozone\Framework\OzoneLoggerFileOutput;
+use Ozone\Framework\RunData;
+use Ozone\Framework\SecurityManager;
+use Ozone\Framework\WebFlowController;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\MemberPeer;
+use Wikidot\DB\SiteViewerPeer;
 
 class FeedFlowController extends WebFlowController
 {
@@ -25,10 +35,10 @@ class FeedFlowController extends WebFlowController
         Ozone :: setRunData($runData);
         $logger->debug("RunData object created and initialized");
 
-        // check if site (wiki) exists!
+        // check if site (Wiki) exists!
         $siteHost = $_SERVER["HTTP_HOST"];
 
-        $memcache = \Ozone::$memcache;
+        $memcache = Ozone::$memcache;
         if (preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN . "$/", $siteHost, $matches)==1) {
             $siteUnixName=$matches[1];
             // select site based on the unix name
@@ -105,7 +115,7 @@ class FeedFlowController extends WebFlowController
         $template = $runData->getScreenTemplate();
         $classFile = $runData->getScreenClassPath();
         $className = $runData->getScreenClassName();
-        $logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
+        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
 
         require_once($classFile);
         $screen = new $className();

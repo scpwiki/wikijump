@@ -1,5 +1,14 @@
 <?php
-use DB\CategoryPeer;
+
+namespace Wikidot\Modules\Wiki\PagesTagCloud;
+
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\CategoryPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class PagesTagCloudModule extends SmartyModule
 {

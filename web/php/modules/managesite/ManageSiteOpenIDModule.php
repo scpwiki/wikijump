@@ -1,5 +1,11 @@
 <?php
-use DB\OpenidEntryPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\JSONService;
+use Wikidot\DB\OpenidEntryPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteOpenIDModule extends ManageSiteBaseModule
 {

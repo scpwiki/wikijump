@@ -1,8 +1,15 @@
 <?php
 
-use DB\Site;
-use DB\SitePeer;
-use DB\MemberPeer;
+namespace Wikidot\Utils;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\WebFlowController;
+use Wikidot\DB\OzoneUser;
+use Wikidot\DB\Site;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\MemberPeer;
 
 abstract class WikijumpController extends WebFlowController
 {
@@ -21,7 +28,7 @@ abstract class WikijumpController extends WebFlowController
     protected function siteFromHost($siteHost, $customDomains = false, $uploadDomain = false)
     {
 
-        $memcache = \Ozone::$memcache;
+        $memcache = Ozone::$memcache;
 
         if ($uploadDomain) {
             $regexp = "/^([a-zA-Z0-9\-]+)\.(" . GlobalProperties::$URL_DOMAIN_PREG . "|" . GlobalProperties::$URL_UPLOAD_DOMAIN_PREG . ")$/";
@@ -145,8 +152,8 @@ abstract class WikijumpController extends WebFlowController
     /**
      * checks if the user is a member of a site
      *
-     * @param DB\OzoneUser $user
-     * @param DB\Site $site
+     * @param OzoneUser $user
+     * @param Site $site
      * @return boolean
      */
     protected function member($user, $site)
@@ -159,7 +166,7 @@ abstract class WikijumpController extends WebFlowController
         $c->add("site_id", $site->getSiteId());
         $c->add("user_id", $user->getUserId());
 
-        if (MemberPeer::instance()->selectOne($c)) { // user is a member of the wiki
+        if (MemberPeer::instance()->selectOne($c)) { // user is a member of the Wiki
             return true;
         }
 

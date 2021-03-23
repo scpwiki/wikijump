@@ -1,7 +1,13 @@
 <?php
-use DB\AdminPeer;
-use DB\ModeratorPeer;
-use DB\MemberPeer;
+
+namespace Wikidot\Modules\Membership;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\AdminPeer;
+use Wikidot\DB\ModeratorPeer;
+use Wikidot\DB\MemberPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class MembersListModule extends SmartyModule
 {

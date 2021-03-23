@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\OzoneLogger;
+
 class WDEditUtils
 {
 
@@ -49,7 +54,7 @@ class WDEditUtils
         $totalLines = count($s1);
         $wt = new WikiTransformation();
 
-        // strip the wiki processing
+        // strip the Wiki processing
         $wt->wiki->rules =  array(
             'Include',
         'Prefilter',

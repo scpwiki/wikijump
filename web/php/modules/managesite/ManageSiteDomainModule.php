@@ -1,5 +1,10 @@
 <?php
-use DB\DomainRedirectPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\DomainRedirectPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteDomainModule extends ManageSiteBaseModule
 {

@@ -1,9 +1,21 @@
 <?php
-use DB\ForumCategoryPeer;
-use DB\SitePeer;
-use DB\ForumThreadPeer;
-use DB\FrontForumFeedPeer;
-use DB\FrontForumFeed;
+
+namespace Wikidot\Modules\Forum;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\ForumCategoryPeer;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\FrontForumFeedPeer;
+use Wikidot\DB\FrontForumFeed;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDRenderUtils;
+use Wikidot\Utils\WDStringUtils;
+use Wikidot\Utils\WikiTransformation;
 
 class FrontForumModule extends SmartyModule
 {
@@ -184,9 +196,9 @@ class FrontForumModule extends SmartyModule
 
             $b = str_ireplace("%%author%%", WDRenderUtils::renderUser($thread->getUserOrString(), array("image"=>true)), $b);
 
-            $dateString = '<span class="odate">'.$thread->getDateStarted()->getTimestamp().'|%e %b %Y, %H:%M %Z|agohover</span>';
+            $dateString = '<span Class="odate">'.$thread->getDateStarted()->getTimestamp().'|%e %b %Y, %H:%M %Z|agohover</span>';
             $b = str_ireplace('%%date%%', $dateString, $b);
-            $b = preg_replace('/%%date\|(.*?)%%/i', '<span class="odate">'.preg_quote_replacement($thread->getDateStarted()->getTimestamp()).'|\\1</span>', $b);
+            $b = preg_replace('/%%date\|(.*?)%%/i', '<span Class="odate">'.preg_quote_replacement($thread->getDateStarted()->getTimestamp()).'|\\1</span>', $b);
 
             $b = str_ireplace("%%comments%%", '<a href="/forum/t-'.$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'">'._('Comments').': '.($thread->getNumberPosts()-1).'</a>', $b);
             $b = str_ireplace("%%link%%", '/forum/t-'.$thread->getThreadId().'/'.$thread->getUnixifiedTitle(), $b);

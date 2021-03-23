@@ -1,5 +1,12 @@
 <?php
-use DB\ProfilePeer;
+
+namespace Wikidot\Modules\Account\Profile;
+
+
+
+
+use Wikidot\DB\ProfilePeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class APAboutModule extends AccountBaseModule
 {

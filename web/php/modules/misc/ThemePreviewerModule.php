@@ -1,6 +1,13 @@
 <?php
-use DB\ThemePeer;
-use DB\Theme;
+
+namespace Wikidot\Modules\Misc;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ThemePeer;
+use Wikidot\DB\Theme;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class ThemePreviewerModule extends SmartyModule
 {

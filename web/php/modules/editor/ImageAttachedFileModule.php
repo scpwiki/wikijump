@@ -1,5 +1,12 @@
 <?php
-use DB\FilePeer;
+
+namespace Wikidot\Modules\Editor;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\FilePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class ImageAttachedFileModule extends SmartyModule
 {

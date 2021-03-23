@@ -1,5 +1,13 @@
 <?php
-use DB\PrivateMessage;
+
+namespace Wikidot\Modules\Account\PM;
+
+
+
+
+use Wikidot\DB\PrivateMessage;
+use Wikidot\Utils\AccountBaseModule;
+use Wikidot\Utils\WikiTransformation;
 
 class PMPreviewModule extends AccountBaseModule
 {

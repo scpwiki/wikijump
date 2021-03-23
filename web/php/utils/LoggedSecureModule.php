@@ -1,5 +1,10 @@
 <?php
-abstract class LoggedSecureModule extends SmartyModule
+
+namespace Wikidot\Utils;
+
+abstract use Ozone\Framework\SmartyModule;
+
+class LoggedSecureModule extends SmartyModule
 {
 
     public function isAllowed($runData)

@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Modules\ManageSite;
+
+use Wikidot\Utils\ManageSiteBaseModule;
+
 class ManageSiteMembersModule extends ManageSiteBaseModule
 {
 

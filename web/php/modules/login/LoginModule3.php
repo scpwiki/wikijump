@@ -1,5 +1,11 @@
 <?php
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\Login;
+
+use Wikidot\DB\OzoneUserPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
 
 class LoginModule3 extends SmartyModule
 {

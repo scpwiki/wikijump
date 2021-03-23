@@ -1,10 +1,12 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 /**
- * A gelper class for XML data storage (definition) of the forms. The only
- * reason for this class is to make the Form object lighter and to store only
+ * A gelper Class for XML data storage (definition) of the forms. The only
+ * reason for this Class is to make the Form object lighter and to store only
  * necessary information and NOT parsed xml with the form definition.
  */
 class FormXMLStorage {

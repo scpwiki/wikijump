@@ -1,6 +1,9 @@
 <?php
 
-require_once(WIKIJUMP_ROOT . '/php/modules/list/NextPageModule.php');
+namespace Wikidot\Modules\List;
+
+
+require_once(WIKIJUMP_ROOT . '/php/Modules/List/NextPageModule.php');
 
 class PreviousPageModule extends NextPageModule
 {

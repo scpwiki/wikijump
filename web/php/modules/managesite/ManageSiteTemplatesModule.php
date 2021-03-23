@@ -1,6 +1,11 @@
 <?php
-use DB\CategoryPeer;
-use DB\PagePeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteTemplatesModule extends ManageSiteBaseModule
 {

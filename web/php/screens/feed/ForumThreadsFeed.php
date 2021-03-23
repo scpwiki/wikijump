@@ -1,5 +1,12 @@
 <?php
-use DB\ForumThreadPeer;
+
+namespace Wikidot\Screens\Feed;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\Utils\FeedScreen;
+use Wikidot\Utils\GlobalProperties;
 
 class ForumThreadsFeed extends FeedScreen
 {

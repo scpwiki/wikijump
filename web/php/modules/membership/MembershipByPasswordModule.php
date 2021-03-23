@@ -1,5 +1,11 @@
 <?php
-use DB\MemberPeer;
+
+namespace Wikidot\Modules\Membership;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\MemberPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class MembershipByPasswordModule extends SmartyModule
 {

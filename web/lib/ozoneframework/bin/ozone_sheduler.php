@@ -1,6 +1,11 @@
 <?php
 
 
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\PathManager;
+use Ozone\Framework\Scheduler;
+use Wikidot\Utils\GlobalProperties;
+
 $applicationDir = $argv[1];
 echo "The application dir is: " .$applicationDir."\n";
 
@@ -23,7 +28,7 @@ $db = Database::connection();
 
 $scheduler = new Scheduler();
 
-$scheduler->setClassPath($applicationDir."/php/jobs");
+$scheduler->setClassPath($applicationDir."/php/Jobs");
 
 $schedulerFiles = ls($applicationDir."/conf/scheduler", "*-jobs.xml");
 

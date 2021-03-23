@@ -1,5 +1,11 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\List;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class PageTreeModule extends SmartyModule
 {

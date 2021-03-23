@@ -1,5 +1,10 @@
 <?php
-use DB\UserBlockPeer;
+
+namespace Wikidot\Modules\ManageSite\Blocks;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\UserBlockPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteUserBlocksModule extends ManageSiteBaseModule
 {

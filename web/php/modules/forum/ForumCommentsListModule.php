@@ -1,12 +1,23 @@
 <?php
-use DB\PagePeer;
-use DB\ForumThreadPeer;
-use DB\ForumCategoryPeer;
-use DB\ForumCategory;
-use DB\ForumGroupPeer;
-use DB\ForumGroup;
-use DB\ForumThread;
-use DB\ForumPostPeer;
+
+namespace Wikidot\Modules\Forum;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\ODate;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\ForumCategoryPeer;
+use Wikidot\DB\ForumCategory;
+use Wikidot\DB\ForumGroupPeer;
+use Wikidot\DB\ForumGroup;
+use Wikidot\DB\ForumThread;
+use Wikidot\DB\ForumPostPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\ProcessException;
 
 class ForumCommentsListModule extends SmartyModule
 {

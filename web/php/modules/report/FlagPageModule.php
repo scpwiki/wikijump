@@ -1,5 +1,13 @@
 <?php
-use DB\PageAbuseFlagPeer;
+
+namespace Wikidot\Modules\Report;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PageAbuseFlagPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionException;
 
 class FlagPageModule extends SmartyModule
 {

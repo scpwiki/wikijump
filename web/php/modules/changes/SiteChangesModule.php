@@ -1,5 +1,10 @@
 <?php
-use DB\CategoryPeer;
+
+namespace Wikidot\Modules\Changes;
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\CategoryPeer;
+
+use Wikidot\Utils\CacheableModule;
 
 class SiteChangesModule extends CacheableModule
 {

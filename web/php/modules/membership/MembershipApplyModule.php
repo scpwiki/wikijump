@@ -1,6 +1,12 @@
 <?php
-use DB\MemberPeer;
-use DB\MemberApplicationPeer;
+
+namespace Wikidot\Modules\Membership;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\MemberPeer;
+use Wikidot\DB\MemberApplicationPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class MembershipApplyModule extends SmartyModule
 {

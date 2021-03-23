@@ -1,5 +1,11 @@
 <?php
-use DB\FilePeer;
+
+namespace Wikidot\Modules\Files;
+
+
+use Wikidot\DB\FilePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class FileInformationWinModule extends SmartyModule
 {

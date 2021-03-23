@@ -28,15 +28,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Wikijump\\": "app/",
+            "Wikijump\\": "app",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Wikidot\\": "php",
+            "Ozone\\Framework\\": "lib/ozoneframework/php/core",
+            "Ozone\\Framework\\Template\\": "lib/ozoneframework/php/Template"
         },
         "classmap": ["lib/"]
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/php"
         }
     },
     "minimum-stability": "dev",

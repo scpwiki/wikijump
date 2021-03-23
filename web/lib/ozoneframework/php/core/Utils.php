@@ -1,11 +1,15 @@
 <?php
 
+namespace Ozone\Framework;
 
 
 
+
+
+use Wikidot\Utils\GlobalProperties;
 
 /**
- * Utility class.
+ * Utility Class.
  *
  */
 class Utils {

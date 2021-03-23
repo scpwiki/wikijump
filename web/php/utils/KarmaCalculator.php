@@ -1,7 +1,12 @@
 <?php
-use DB\UserKarmaPeer;
-use DB\UserKarma;
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\UserKarmaPeer;
+use Wikidot\DB\UserKarma;
+use Wikidot\DB\OzoneUserPeer;
 
 class KarmaCalculator
 {
@@ -12,7 +17,7 @@ class KarmaCalculator
     public function __construct()
     {
         /* Init rules. */
-        $rulesPath  = WIKIJUMP_ROOT.'/php/utils/karmarules/';
+        $rulesPath  = WIKIJUMP_ROOT.'/php/Utils/KarmaRules/';
         $files = ls($rulesPath, '*.php');
         foreach ($files as $f) {
             require_once($rulesPath.'/'.$f);

@@ -1,4 +1,11 @@
 <?php
+
+namespace Wikidot\Modules\Account;
+
+
+use Wikidot\Utils\AccountBaseModule;
+use Wikidot\Utils\CryptUtils;
+
 class AccountModule extends AccountBaseModule
 {
 

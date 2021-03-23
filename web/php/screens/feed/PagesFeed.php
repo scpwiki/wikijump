@@ -1,7 +1,15 @@
 <?php
-use DB\CategoryPeer;
-use DB\PagePeer;
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Screens\Feed;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\Utils\FeedScreen;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\WikiTransformation;
 
 class PagesFeed extends FeedScreen
 {
@@ -143,7 +151,7 @@ class PagesFeed extends FeedScreen
                 }
             }
 
-            /* Create extra conditions to the SELECT */
+            /* Create Extra conditions to the SELECT */
 
             /* ANY */
             if (count($tagsAny) > 0) {

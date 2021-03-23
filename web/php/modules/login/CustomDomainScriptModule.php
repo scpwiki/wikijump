@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\Login;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
+
 class CustomDomainScriptModule extends SmartyModule
 {
 

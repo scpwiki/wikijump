@@ -1,9 +1,11 @@
 <?php
 
+namespace Ozone\Framework\Database;
 
 
-use DB\IdBrokerPeer;
-use DB\IdBroker;
+
+use Ozone\Framework\DB\IdBrokerPeer;
+use Ozone\Framework\IdBroker;
 
 /**
  * Database generator.
@@ -118,7 +120,7 @@ class DBGeneratorDatabase {
 
 	/**
 	 * Updates references between tables. It is required before the SQL and
-	 * class genetation.
+	 * Class genetation.
 	 */
 	public function updateReferences(){
 //

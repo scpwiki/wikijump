@@ -1,5 +1,11 @@
 <?php
-use DB\NotificationPeer;
+
+namespace Wikidot\Modules\Account;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\NotificationPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class AccountNotificationsListModule extends AccountBaseModule
 {

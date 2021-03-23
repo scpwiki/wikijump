@@ -1,14 +1,18 @@
 <?php
 
+namespace Ozone\Framework;
 
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ScreenCache;
+use Wikidot\DB\ScreenCachePeer;
 
 /**
  * Simple db-based screen cache manager.
  *
  */
 
-use DB\ScreenCache;
-use DB\ScreenCachePeer;
 
 class ScreenCacheManager {
 

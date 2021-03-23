@@ -1,5 +1,10 @@
 <?php
-use DB\ModeratorPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Wikidot\DB\ModeratorPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
+use Wikidot\Utils\ProcessException;
 
 class ManageSiteModeratorPermissionsModule extends ManageSiteBaseModule
 {

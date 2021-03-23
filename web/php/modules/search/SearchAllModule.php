@@ -1,5 +1,12 @@
 <?php
-use DB\Site;
+
+namespace Wikidot\Modules\Search;
+
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\Site;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
 
 class SearchAllModule extends SmartyModule
 {

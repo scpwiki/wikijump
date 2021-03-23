@@ -1,4 +1,11 @@
 <?php
+
+namespace Wikidot\Modules\Files\Manager;
+
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\FileHelper;
+
 class FileManagerModule extends SmartyModule
 {
 

@@ -1,6 +1,14 @@
 <?php
-use DB\PrivateMessagePeer;
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\Account\PM;
+
+
+
+
+use Wikidot\DB\PrivateMessagePeer;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\Utils\AccountBaseModule;
+use Wikidot\Utils\ProcessException;
 
 class PMComposeModule extends AccountBaseModule
 {

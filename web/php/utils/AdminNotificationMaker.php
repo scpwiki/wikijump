@@ -1,6 +1,10 @@
 <?php
-use DB\SitePeer;
-use DB\AdminNotification;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\ODate;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\AdminNotification;
 
 class AdminNotificationMaker
 {
@@ -32,7 +36,7 @@ class AdminNotificationMaker
         $extra = array();
         $extra['application_id'] = $application->getApplicationId();
         $extra['from_user_id'] = $user->getUserId();
-        //$extra['urls'] = array(   array('check pending applications','http://'.$site->getDomain().'/admin:manage/start/ma')
+        //$Extra['urls'] = array(   array('check pending applications','http://'.$site->getDomain().'/admin:manage/start/ma')
 
         /*
          * format for urls is:
@@ -58,7 +62,7 @@ class AdminNotificationMaker
 
         $extra = array();
         $extra['user_id'] = $user->getUserId();
-        //$extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
+        //$Extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
         $not->setExtra($extra);
 
         $not->save();
@@ -78,7 +82,7 @@ class AdminNotificationMaker
 
         $extra = array();
         $extra['user_id'] = $user->getUserId();
-        //$extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
+        //$Extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
         $not->setExtra($extra);
 
         $not->save();
@@ -96,7 +100,7 @@ class AdminNotificationMaker
 
         $extra = array();
         $extra['user_id'] = $user->getUserId();
-        //$extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
+        //$Extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
         $not->setExtra($extra);
 
         $not->save();
@@ -114,7 +118,7 @@ class AdminNotificationMaker
 
         $extra = array();
         $extra['user_id'] = $user->getUserId();
-        //$extra['urls'] = array(   array('site moderators','http://'.$site->getDomain().'/admin:manage/start/moderators'),
+        //$Extra['urls'] = array(   array('site moderators','http://'.$site->getDomain().'/admin:manage/start/moderators'),
         //  array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
         $not->setExtra($extra);
 
@@ -132,7 +136,7 @@ class AdminNotificationMaker
         $not->setDate(new ODate());
 
         $extra = array();
-        //$extra['urls'] = array(   array('site adminitrators','http://'.$site->getDomain().'/admin:manage/start/admins'),
+        //$Extra['urls'] = array(   array('site adminitrators','http://'.$site->getDomain().'/admin:manage/start/admins'),
         //  array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
         $extra['user_id'] = $user->getUserId();
         $not->setExtra($extra);
@@ -150,7 +154,7 @@ class AdminNotificationMaker
         $not->setDate(new ODate());
 
         $extra = array();
-        //$extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
+        //$Extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
         $extra['user_id'] = $user->getUserId();
         $not->setExtra($extra);
 
@@ -167,7 +171,7 @@ class AdminNotificationMaker
 
         $extra = array();
         $extra['user_id'] = $user->getUserId();
-        //$extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
+        //$Extra['urls'] = array(   array('site members','http://'.$site->getDomain().'/admin:manage/start/members-list')
         $not->setExtra($extra);
 
         $not->save();

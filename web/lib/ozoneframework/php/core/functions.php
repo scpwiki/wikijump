@@ -2,6 +2,11 @@
 
 
 
+
+use Ozone\Framework\Exceptions\PHPErrorException;
+use SimpleXMLElement;
+use Wikidot\Utils\GlobalProperties;
+
 /**
  * File list utility function.
  * ls(dir,pattern) return file list in "dir" folder matching "pattern"
@@ -131,7 +136,7 @@ function mkdirfull($dir) {
 
 /**
  * Handle proper string escaping for use in SQL statements for different databases.
- * Type of the database is taken from the GlobalProperties class and appropriate escaping
+ * Type of the database is taken from the GlobalProperties Class and appropriate escaping
  * function is used on the input argument.
  * @param string $val input (unescaped) string
  * @return string escaped string

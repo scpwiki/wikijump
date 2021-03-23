@@ -1,10 +1,23 @@
 <?php
-use DB\PagePeer;
-use DB\CategoryPeer;
-use DB\PageEditLock;
-use Wikijump\Form;
-use Wikijump\Form\Renderer;
-use DB\PageEditLockPeer;
+
+namespace Wikidot\Modules\Edit;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\ODate;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PageEditLock;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDEditUtils;
+use Wikidot\Utils\WDPermissionManager;
+use Wikidot\Utils\WDStringUtils;
+use Wikidot\Form;
+use Wikidot\Form\Renderer;
+use Wikidot\DB\PageEditLockPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class PageEditModule extends SmartyModule
 {

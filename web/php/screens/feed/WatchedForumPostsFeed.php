@@ -1,5 +1,13 @@
 <?php
-use DB\ForumPostPeer;
+
+namespace Wikidot\Screens\Feed;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\ForumPostPeer;
+use Wikidot\Utils\FeedScreen;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\WDRenderUtils;
 
 class WatchedForumPostsFeed extends FeedScreen
 {
@@ -111,7 +119,7 @@ class WatchedForumPostsFeed extends FeedScreen
                 $content
             );
 
-            // add extra info.
+            // add Extra info.
 
             $content .= '<br/><hr/>';
             $content .= _('Site').': <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'">'.htmlspecialchars($site->getName()).'</a><br/>';

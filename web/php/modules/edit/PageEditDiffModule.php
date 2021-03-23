@@ -1,6 +1,13 @@
 <?php
-use DB\PageRevisionPeer;
-use Wikijump\Util\Diff;
+
+namespace Wikidot\Modules\Edit;
+
+
+use Wikidot\DB\PageRevisionPeer;
+
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\Diff;
 
 class PageEditDiffModule extends SmartyModule
 {

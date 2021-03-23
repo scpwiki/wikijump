@@ -1,8 +1,19 @@
 <?php
-use DB\ForumThreadPeer;
-use DB\ModeratorPeer;
-use DB\AdminPeer;
-use DB\ForumPostPeer;
+
+namespace Wikidot\Modules\Forum\Sub;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\ModeratorPeer;
+use Wikidot\DB\AdminPeer;
+use Wikidot\DB\ForumPostPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ForumNewPostFormModule extends SmartyModule
 {

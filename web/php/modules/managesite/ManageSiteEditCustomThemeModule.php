@@ -1,5 +1,11 @@
 <?php
-use DB\ThemePeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ThemePeer;
+use Wikidot\Utils\ManageSiteBaseModule;
+use Wikidot\Utils\ProcessException;
 
 class ManageSiteEditCustomThemeModule extends ManageSiteBaseModule
 {

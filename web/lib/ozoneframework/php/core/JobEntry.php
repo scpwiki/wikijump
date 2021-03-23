@@ -1,5 +1,7 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 /**
  * Job entry for the cron.

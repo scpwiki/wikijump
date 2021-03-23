@@ -1,5 +1,11 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\CreateAccount;
+
+
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class CreateAccountModule extends SmartyModule
 {

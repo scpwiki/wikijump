@@ -1,11 +1,13 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
 
 /**
- * Abstract class for smarty's template services.
+ * Abstract Class for smarty's template services.
  *
  */
 abstract class TemplateService {

@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\Users;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+
 class AnonymousInfoWinModule extends SmartyModule
 {
 

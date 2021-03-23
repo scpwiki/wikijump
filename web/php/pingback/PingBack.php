@@ -1,4 +1,17 @@
 <?php
+
+namespace Wikidot\Pingback;
+
+use Exception;
+use DOMDocument;
+use SimpleXMLElement;
+use Zend_Http_Client;
+use Zend_Http_Client_Adapter_Exception;
+use Zend_Http_Client_Exception;
+use Zend_Http_Response;
+use Zend_XmlRpc_Client;
+use Zend_XmlRpc_Client_FaultException;
+
 require_once('Zend/Http/Client.php');
 require_once('Zend/XmlRpc/Client.php');
 require_once('Zend/XmlRpc/Client/FaultException.php');
@@ -6,13 +19,13 @@ require_once('Zend/Http/Client/Adapter/Exception.php');
 require_once('Zend/Http/Response.php');
 
 /**
- * The Wikijump PingBack class.
+ * The Wikijump PingBack Class.
  *
  * Use it, to ping external services, and process other services ping requests
  * using PingBackServer as a frontend to this
  *
  */
-class PingBack
+class Pingback
 {
 
     /**
@@ -59,7 +72,7 @@ class PingBack
         if ($this->isValidWikijumpURI($wikijumpURI)) {
             $this->wikijumpURI = $wikijumpURI;
         } else {
-            throw new PingBackException("The specified target URI cannot be used as a target", 33);
+            throw new PingbackException("The specified target URI cannot be used as a target", 33);
         }
         $this->externalURI = $externalURI;
     }
@@ -255,19 +268,19 @@ class PingBack
         // Strip tags but "a"
         $ret = strip_tags($ret, "<a>");
 
-        // Sanitize "a" and add class delete
-        $ret = preg_replace("|<a[^>]*href=\"([^\"]*)\"[^>]*>([^<]*)</a>|s", "<a class=\"delete\" href=\"\\1\">\\2</a>", $ret);
+        // Sanitize "a" and add Class delete
+        $ret = preg_replace("|<a[^>]*href=\"([^\"]*)\"[^>]*>([^<]*)</a>|s", "<a Class=\"delete\" href=\"\\1\">\\2</a>", $ret);
 
-        // Find THE "a" tag and add a pingback class to it
+        // Find THE "a" tag and add a pingback Class to it
         $xml = new SimpleXMLElement("<context>$ret</context>");
         $node = $this->xpath1($xml, "//a[@href=\"" . $href . "\"][1]");
         if ($node) {
-            $node["class"] = "pingback";
+            $node["Class"] = "pingback";
         }
         $ret = strip_tags($xml->asXML(), "<a>");
 
-        // Delete any "a" with class delete
-        $ret = preg_replace("|<a[^>]*class=\"delete\"[^>]*>([^<]*)</a>|s", "\\1", $ret);
+        // Delete any "a" with Class delete
+        $ret = preg_replace("|<a[^>]*Class=\"delete\"[^>]*>([^<]*)</a>|s", "\\1", $ret);
 
         // Fine cut the context
         $ret = preg_replace('|.*(.{' . self::$CONTEXT_BYTES . '}<a)|s', "\\1", $ret);

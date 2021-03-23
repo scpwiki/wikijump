@@ -1,5 +1,10 @@
 <?php
-class PingBackException extends Exception
+
+namespace Wikidot\Pingback;
+
+use Exception;
+
+class PingbackException extends Exception
 {
 
 }

@@ -1,6 +1,16 @@
 <?php
-use DB\SitePeer;
-use Wikijump\Search\Highlighter;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\ModuleProcessor;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\OzoneLogger;
+use Ozone\Framework\OzoneLoggerFileOutput;
+use Ozone\Framework\RunData;
+use Ozone\Framework\WebFlowController;
+use Wikidot\DB\SitePeer;
+use Wikidot\Search\Highlighter;
 
 class WikiFlowController extends WebFlowController
 {
@@ -30,10 +40,10 @@ class WikiFlowController extends WebFlowController
         Ozone :: setRunData($runData);
         $logger->debug("RunData object created and initialized");
 
-        // check if site (wiki) exists!
+        // check if site (Wiki) exists!
         $siteHost = $_SERVER["HTTP_HOST"];
 
-        $memcache = \Ozone::$memcache;
+        $memcache = Ozone::$memcache;
         if (preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $siteHost, $matches)==1) {
             $siteUnixName=$matches[1];
 
@@ -158,7 +168,7 @@ class WikiFlowController extends WebFlowController
         $template = $runData->getScreenTemplate();
         $classFile = $runData->getScreenClassPath();
         $className = $runData->getScreenClassName();
-        $logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
+        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
 
         require_once($classFile);
         $screen = new $className();

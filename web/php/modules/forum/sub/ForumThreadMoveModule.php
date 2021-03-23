@@ -1,7 +1,17 @@
 <?php
-use DB\ForumThreadPeer;
-use DB\ForumGroupPeer;
-use DB\ForumCategoryPeer;
+
+namespace Wikidot\Modules\Forum\Sub;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\ForumGroupPeer;
+use Wikidot\DB\ForumCategoryPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ForumThreadMoveModule extends SmartyModule
 {

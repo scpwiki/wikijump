@@ -1,5 +1,10 @@
 <?php
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSitePrivateSettingsModule extends ManageSiteBaseModule
 {

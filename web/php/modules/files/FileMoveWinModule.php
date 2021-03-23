@@ -1,6 +1,14 @@
 <?php
-use DB\FilePeer;
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Files;
+
+
+use Wikidot\DB\FilePeer;
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class FileMoveWinModule extends SmartyModule
 {

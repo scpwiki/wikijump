@@ -1,5 +1,10 @@
 <?php
-abstract class SmartyLocalizedModule extends SmartyModule
+
+namespace Wikidot\Utils;
+
+abstract use Ozone\Framework\SmartyModule;
+
+class SmartyLocalizedModule extends SmartyModule
 {
 
     public function render($runData)

@@ -1,8 +1,11 @@
 <?php
 
-use DB\PagePeer;
-use Wikijump\Form;
-use Wikijump\Template;
+namespace Wikidot\Utils;
+
+
+use Wikidot\DB\PagePeer;
+use Wikidot\Form;
+use Wikidot\Template;
 
 class CodeblockExtractor
 {

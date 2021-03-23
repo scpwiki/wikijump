@@ -1,5 +1,12 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\List;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class ChildPagesModule extends SmartyModule
 {

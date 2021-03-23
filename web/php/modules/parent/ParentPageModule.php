@@ -1,5 +1,12 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Parent;
+
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ParentPageModule extends SmartyModule
 {

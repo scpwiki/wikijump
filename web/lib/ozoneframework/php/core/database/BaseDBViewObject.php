@@ -1,6 +1,10 @@
 <?php
 
+namespace Ozone\Framework\Database;
 
+
+
+use Ozone\Framework\Exceptions\OzoneException;
 
 /**
  * Base object for all database OM objects representing views. It implements

@@ -1,5 +1,10 @@
 <?php
-use DB\MemberApplicationPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\MemberApplicationPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteMembersApplicationsModule extends ManageSiteBaseModule
 {

@@ -1,5 +1,13 @@
 <?php
-use DB\MemberPeer;
+
+namespace Wikidot\Modules\Account\Membership;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\MemberPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class AccountMemberOfModule extends AccountBaseModule
 {

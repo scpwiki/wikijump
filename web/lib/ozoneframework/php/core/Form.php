@@ -1,5 +1,7 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 /**
@@ -118,7 +120,7 @@ class Form {
 	}
 
 	/**
-	 * Returns additional field attribute as defined in the <extra attribute="value".../> tag
+	 * Returns additional field attribute as defined in the <Extra attribute="value".../> tag
 	 * for a given field.
 	 * @param string $fieldName
 	 * @param string $attributeName

@@ -1,14 +1,15 @@
 <?php
 
+namespace Ozone\Framework;
 
 
-
-use DB\OzoneUserPeer;
-use DB\OzoneGroupPeer;
-use DB\OzonePermissionPeer;
-use DB\OzoneUserGroupRelation;
-use DB\OzoneUserGroupRelationPeer;
-use DB\OzoneGroup;
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneGroup;
+use Wikidot\DB\OzoneGroupPeer;
+use Wikidot\DB\OzonePermissionPeer;
+use Wikidot\DB\OzoneUserGroupRelation;
+use Wikidot\DB\OzoneUserGroupRelationPeer;
+use Wikidot\DB\OzoneUserPeer;
 
 /**
  * Security (ACL) manager.

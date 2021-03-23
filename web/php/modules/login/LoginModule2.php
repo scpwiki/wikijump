@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\Login;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+
 class LoginModule2 extends SmartyModule
 {
 

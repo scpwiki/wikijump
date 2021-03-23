@@ -1,6 +1,11 @@
 <?php
 
-require_once(WIKIJUMP_ROOT . '/php/modules/list/ListPagesModule.php');
+namespace Wikidot\Modules\List;
+
+
+use Ozone\Framework\RunData;
+
+require_once(WIKIJUMP_ROOT . '/php/Modules/List/ListPagesModule.php');
 
 class NextPageModule extends ListPagesModule
 {

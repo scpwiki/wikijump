@@ -1,4 +1,7 @@
 <?php
+
+use Ozone\Framework\OzoneLogger;
+
 require ('../php/setup.php');
 
 try {

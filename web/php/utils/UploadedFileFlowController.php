@@ -1,5 +1,13 @@
 <?php
 
+namespace Wikidot\Utils;
+
+
+use Ozone\Framework\Ozone;
+use Ozone\Framework\RunData;
+use Wikidot\DB\OzoneUser;
+use Wikidot\DB\Site;
+
 class UploadedFileFlowController extends WikijumpController
 {
 
@@ -26,7 +34,7 @@ class UploadedFileFlowController extends WikijumpController
     /**
      * Build URL from site name, domain and file name
      *
-     * @param DB\Site $site site to get name from
+     * @param Site $site site to get name from
      * @param string $domain domain to use
      * @param string $file file to redirect to
      */
@@ -42,7 +50,7 @@ class UploadedFileFlowController extends WikijumpController
     }
 
     /**
-     * checks whether file is from a public area (public wiki or non-restricted directory)
+     * checks whether file is from a public area (public Wiki or non-restricted directory)
      *
      * @param DB\Site $site
      * @param string $file
@@ -71,8 +79,8 @@ class UploadedFileFlowController extends WikijumpController
      *
      * public because FilesAuthScriptModule needs it
      *
-     * @param DB\OzoneUser $user
-     * @param DB\Site $site
+     * @param OzoneUser $user
+     * @param Site $site
      * @param string $file
      * @return bool
      */

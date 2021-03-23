@@ -1,5 +1,14 @@
 <?php
-use DB\PetitionCampaignPeer;
+
+namespace Wikidot\Modules\Extra\Petition\Admin;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PetitionCampaignPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ViewPetitionCampaignModule extends SmartyModule
 {

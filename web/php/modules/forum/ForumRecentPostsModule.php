@@ -1,6 +1,13 @@
 <?php
-use DB\ForumGroupPeer;
-use DB\ForumCategoryPeer;
+
+namespace Wikidot\Modules\Forum;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumGroupPeer;
+use Wikidot\DB\ForumCategoryPeer;
+
+use Wikidot\Utils\CacheableModule;
 
 class ForumRecentPostsModule extends CacheableModule
 {

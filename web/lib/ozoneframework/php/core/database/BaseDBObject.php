@@ -1,5 +1,10 @@
 <?php
 
+namespace Ozone\Framework\Database;
+
+
+
+use Ozone\Framework\ODate;
 
 /**
  * Base object for all database OM objects representing tables. It implements

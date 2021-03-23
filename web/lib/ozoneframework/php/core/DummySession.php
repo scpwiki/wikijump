@@ -1,9 +1,11 @@
 <?php
 
+namespace Ozone\Framework;
 
 
 
-use DB\OzoneSessionBase;
+
+use Wikidot\DB\OzoneSessionBase;
 
 /**
  * The Dummy Session Object

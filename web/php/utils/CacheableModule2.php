@@ -1,8 +1,13 @@
 <?php
+
+namespace Wikidot\Utils;
+
 /**
  * A better way to cache
  */
-abstract class CacheableModule2 extends SmartyModule
+abstract use Ozone\Framework\Ozone;use Ozone\Framework\SmartyModule;
+
+class CacheableModule2 extends SmartyModule
 {
 
     protected $keyBase;

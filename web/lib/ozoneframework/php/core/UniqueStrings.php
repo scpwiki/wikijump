@@ -1,11 +1,15 @@
 <?php
 
+namespace Ozone\Framework;
 
 
-use DB\UniqueStringBrokerPeer;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\DB\UniqueStringBrokerPeer;
 
 /**
- * Utility class for providing unique strings.
+ * Utility Class for providing unique strings.
  *
  */
 class UniqueStrings {

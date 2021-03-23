@@ -17,7 +17,7 @@ $user = null;
 if (isset($_SERVER['PHP_AUTH_USER'])) {
 	$app = $_SERVER['PHP_AUTH_USER'];
 	$key = $_SERVER['PHP_AUTH_PW'];
-	$user = DB\ApiKeyPeer::instance()->getUserByKey($key);
+	$user = Wikidot\DB\ApiKeyPeer::instance()->getUserByKey($key);
 }
 
 if (! $user) {
@@ -36,10 +36,10 @@ if (! $user) {
 
 // construct facade objects
 $server = new Zend_XmlRpc_Server();
-$server->setClass(new Wikijump\Facade_Site($user, $app), 'site');
-$server->setClass(new Wikijump\Facade_Page($user, $app), 'page');
-$server->setClass(new Wikijump\Facade_Forum($user, $app), 'forum');
-$server->setClass(new Wikijump\Facade_User($user, $app), 'user');
+$server->setClass(new Wikidot\Facade\Site($user, $app), 'site');
+$server->setClass(new Wikidot\Facade\Page($user, $app), 'page');
+$server->setClass(new Wikidot\Facade\Forum($user, $app), 'forum');
+$server->setClass(new Wikidot\Facade\User($user, $app), 'user');
 
 // map Wikijump\Facade\Exception to XML-RPC faults
 Zend_XmlRpc_Server_Fault::attachFaultException('Wikijump\Facade\Exception');

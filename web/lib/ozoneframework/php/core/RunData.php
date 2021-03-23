@@ -1,10 +1,14 @@
 <?php
 
-
-use DB\OzoneSession;
-use DB\OzoneSessionPeer;
+namespace Ozone\Framework;
 
 
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneSession;
+use Wikidot\DB\OzoneSessionPeer;
+use Wikidot\Utils\GlobalProperties;
 
 /**
  * Class containing most important properties of the request/response.
@@ -321,7 +325,7 @@ class RunData {
 	}
 
 	/**
-	 * Finds class given the template name.
+	 * Finds Class given the template name.
 	 */
 	private function findClass() {
 		if(!$this->ajaxMode){

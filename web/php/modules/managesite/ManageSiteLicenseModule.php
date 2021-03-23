@@ -1,6 +1,11 @@
 <?php
-use DB\CategoryPeer;
-use DB\LicensePeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\LicensePeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteLicenseModule extends ManageSiteBaseModule
 {

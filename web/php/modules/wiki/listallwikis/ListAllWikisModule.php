@@ -1,5 +1,11 @@
 <?php
-use DB\SitePeer;
+
+namespace Wikidot\Modules\Wiki\ListAllWikis;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\SitePeer;
+
+use Wikidot\Utils\CacheableModule;
 
 class ListAllWikisModule extends CacheableModule
 {

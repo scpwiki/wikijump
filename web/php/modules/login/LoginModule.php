@@ -1,6 +1,13 @@
 <?php
 
-use DB\OzoneUserPeer;
+namespace Wikidot\Modules\Login;
+
+
+use Wikidot\DB\OzoneUserPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\ProcessException;
 
 class LoginModule extends SmartyModule
 {

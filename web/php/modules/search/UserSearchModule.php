@@ -1,5 +1,11 @@
 <?php
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\Search;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneUserPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class UserSearchModule extends SmartyModule
 {

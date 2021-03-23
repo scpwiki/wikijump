@@ -1,5 +1,7 @@
 <?php
 
+namespace Ozone\Framework\Database;
+
 
 
  /* PostgreSQL database query result.

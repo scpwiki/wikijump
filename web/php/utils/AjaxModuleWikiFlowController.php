@@ -1,7 +1,21 @@
 <?php
-use DB\SitePeer;
-use DB\MemberPeer;
-use DB\SiteViewerPeer;
+
+namespace Wikidot\Utils;
+
+use Exception;
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\JSONService;
+use Ozone\Framework\ModuleProcessor;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\OzoneLogger;
+use Ozone\Framework\OzoneLoggerFileOutput;
+use Ozone\Framework\PathManager;
+use Ozone\Framework\RunData;
+use Ozone\Framework\WebFlowController;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\MemberPeer;
+use Wikidot\DB\SiteViewerPeer;
 
 class AjaxModuleWikiFlowController extends WebFlowController
 {
@@ -27,7 +41,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
         $runData->init();
 
-        // extra return array - just for ajax handling
+        // Extra return array - just for ajax handling
         $runData->ajaxResponseAdd("status", "ok");
 
         Ozone :: setRunData($runData);
@@ -44,10 +58,10 @@ class AjaxModuleWikiFlowController extends WebFlowController
             $callbackIndex = $runData->getParameterList()->getParameterValue('callbackIndex');
             $runData->getParameterList()->delParameter('callbackIndex');
 
-            // check if site (wiki) exists!
+            // check if site (Wiki) exists!
             $siteHost = $_SERVER["HTTP_HOST"];
 
-            $memcache = \Ozone::$memcache;
+            $memcache = Ozone::$memcache;
             if (preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $siteHost, $matches)==1) {
                 $siteUnixName=$matches[1];
 
@@ -187,7 +201,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
             $template = $runData->getModuleTemplate();
             $classFile = $runData->getModuleClassPath();
             $className = $runData->getModuleClassName();
-            $logger->debug("processing template: ".$runData->getModuleTemplate().", class: $className");
+            $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
 
             require_once($classFile);
             $module = new $className();
@@ -238,7 +252,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
             if ($template != $runData->getModuleTemplate()) {
                 $classFile = $runData->getModuleClassPath();
                 $className = $runData->getModuleClassName();
-                $logger->debug("processing template: ".$runData->getModuleTemplate().", class: $className");
+                $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
 
                 require_once($classFile);
                 $module = new $className();
