@@ -8,6 +8,7 @@ use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessExceptionHandler;
 use Wikidot\Utils\WDPermissionException;
 use Exception;
+use Wikijump\Helpers\LegacyTools;
 
 /**
  * Module processing tool.
@@ -99,15 +100,11 @@ class ModuleProcessor {
 	public function renderModule($templateName, $parameters=null){
 
 		$ttt = ModuleHelpers::findModuleClass($templateName);
-		$className = $ttt[0];
+//		$className = $ttt[0];
 		$classPath = $ttt[1];
-		// TODO: Refactor to be more aware of the concept of namespaces.
-        $classNamespace = strstr($ttt[1], "/Modules/");
-        $classNamespace = "Wikidot\\" . preg_replace("/^\/(.*)\/(?:.*).php$/", "$1", $classNamespace);
-        $classNamespace = str_replace('/', '\\', $classNamespace);
-        $className = $classNamespace . "\\" . $className;
 		require_once($classPath);
-		$moduleClass = new $className();
+		$class = LegacyTools::getNamespacedClassFromPath($classPath);
+		$moduleClass = new $class();
 		$moduleClass->setModuleChain($this->_moduleChain);
 		$runData = $this->runData;
 		$runData->setModuleTemplate($templateName);

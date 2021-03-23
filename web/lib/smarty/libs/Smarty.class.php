@@ -1455,19 +1455,14 @@ class Smarty
     function _compile_source($resource_name, &$source_content, &$compiled_content, $cache_include_path=null)
     {
         if (file_exists(SMARTY_DIR . $this->compiler_file)) {
-//            require_once(SMARTY_DIR . $this->compiler_file);
+            require_once(SMARTY_DIR . $this->compiler_file);
         } else {
             // use include_path
-//            require_once($this->compiler_file);
+            require_once($this->compiler_file);
         }
 
-        // TODO: Refactor this so we don't have to hardcode the namespace to use.
-        $namespace = "Ozone\Framework\\";
-        if (!strstr($this->compiler_class, $namespace)) {
-            $this->compiler_class = $namespace . $this->compiler_class;
-        }
-
-        $smarty_compiler = new $this->compiler_class;
+        $class = \Wikijump\Helpers\LegacyTools::getNamespacedClassFromPath($this->compiler_file);
+        $smarty_compiler = new $class;
 
         $smarty_compiler->template_dir      = $this->template_dir;
         $smarty_compiler->compile_dir       = $this->compile_dir;

@@ -6,6 +6,7 @@ namespace Ozone\Framework;
 
 use Wikidot\Utils\GlobalProperties;
 use Memcache;
+use Wikijump\Helpers\LegacyTools;
 
 /**
  * Core object for the OZONE Framework.
@@ -69,8 +70,7 @@ class Ozone {
 		$serviceFiles = ls($audir, "*.php");
 		foreach ($serviceFiles as $sf){
 			require_once ($audir.$sf);
-            // TODO refactor this jank to not hardcode class paths.
-			$class = "Ozone\Framework\Template\Services\Autoload\\".str_replace('.php', '', $sf);
+			$class = LegacyTools::getNamespacedClassFromPath($audir.$sf);
 			$service = new $class(self::$runData);
 			self :: $smarty->assign($service->serviceName(), $service);
 		}
