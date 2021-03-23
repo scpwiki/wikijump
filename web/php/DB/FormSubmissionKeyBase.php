@@ -16,7 +16,7 @@ class FormSubmissionKeyBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='form_submission_key';
-        $this->peerName = 'DB\\FormSubmissionKeyPeer';
+        $this->peerName = 'Wikidot\\DB\\FormSubmissionKeyPeer';
         $this->primaryKeyName = 'key_id';
         $this->fieldNames = array( 'key_id' ,  'date_submitted' );
 

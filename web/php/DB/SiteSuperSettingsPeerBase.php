@@ -17,7 +17,7 @@ class SiteSuperSettingsPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='site_super_settings';
-        $this->objectName='DB\\SiteSuperSettings';
+        $this->objectName='Wikidot\\DB\\SiteSuperSettings';
         $this->primaryKeyName = 'site_id';
         $this->fieldNames = array( 'site_id' ,  'can_custom_domain' );
         $this->fieldTypes = array( 'site_id' => 'int',  'can_custom_domain' => 'boolean');
@@ -27,7 +27,7 @@ class SiteSuperSettingsPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\SiteSuperSettingsPeer";
+            $className = 'Wikidot\\DB\\SiteSuperSettingsPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

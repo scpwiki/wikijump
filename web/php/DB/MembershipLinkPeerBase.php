@@ -17,7 +17,7 @@ class MembershipLinkPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='membership_link';
-        $this->objectName='DB\\MembershipLink';
+        $this->objectName='Wikidot\\DB\\MembershipLink';
         $this->primaryKeyName = 'link_id';
         $this->fieldNames = array( 'link_id' ,  'site_id' ,  'by_user_id' ,  'user_id' ,  'date' ,  'type' );
         $this->fieldTypes = array( 'link_id' => 'serial',  'site_id' => 'int',  'by_user_id' => 'int',  'user_id' => 'int',  'date' => 'timestamp',  'type' => 'varchar(20)');
@@ -27,7 +27,7 @@ class MembershipLinkPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\MembershipLinkPeer";
+            $className = 'Wikidot\\DB\\MembershipLinkPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

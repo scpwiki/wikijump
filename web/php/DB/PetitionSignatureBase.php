@@ -16,7 +16,7 @@ class PetitionSignatureBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='petition_signature';
-        $this->peerName = 'DB\\PetitionSignaturePeer';
+        $this->peerName = 'Wikidot\\DB\\PetitionSignaturePeer';
         $this->primaryKeyName = 'signature_id';
         $this->fieldNames = array( 'signature_id' ,  'campaign_id' ,  'first_name' ,  'last_name' ,  'address1' ,  'address2' ,  'zip' ,  'city' ,  'state' ,  'country' ,  'country_code' ,  'comments' ,  'email' ,  'confirmed' ,  'confirmation_hash' ,  'confirmation_url' ,  'date' );
 

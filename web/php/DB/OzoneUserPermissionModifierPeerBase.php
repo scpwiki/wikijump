@@ -17,7 +17,7 @@ class OzoneUserPermissionModifierPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='ozone_user_permission_modifier';
-        $this->objectName='DB\\OzoneUserPermissionModifier';
+        $this->objectName='Wikidot\\DB\\OzoneUserPermissionModifier';
         $this->primaryKeyName = 'user_permission_id';
         $this->fieldNames = array( 'user_permission_id' ,  'user_id' ,  'permission_id' ,  'modifier' );
         $this->fieldTypes = array( 'user_permission_id' => 'serial',  'user_id' => 'int',  'permission_id' => 'varchar(20)',  'modifier' => 'int');
@@ -27,7 +27,7 @@ class OzoneUserPermissionModifierPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\OzoneUserPermissionModifierPeer";
+            $className = 'Wikidot\\DB\\OzoneUserPermissionModifierPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

@@ -45,7 +45,7 @@ class RecentWPageRevisionsModule extends SmartyModule
         $c->addOrderDescending("page_revision.revision_id");
         $c->setLimit(30);
 
-        $revs = DB_PageRevisionPeer::instance()->select($c);
+        $revs = Wikidot_DB_PageRevisionPeer::instance()->select($c);
 
         // check for duplications
         $revs2 = array();

@@ -4,7 +4,7 @@
 /**
  * Base peer class mapped to the database table <{$tableName}>.
  */
-class DB_<{$className}>PeerBase extends BaseDBPeer {
+class Wikidot_DB_<{$className}>PeerBase extends BaseDBPeer {
 	public static $peerInstance;
 	
 	protected function internalInit(){
@@ -18,7 +18,7 @@ class DB_<{$className}>PeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_<{$className}>Peer";
+			$className = "Wikidot_DB_<{$className}>Peer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

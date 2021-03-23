@@ -17,7 +17,7 @@ class PageCompiledPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='page_compiled';
-        $this->objectName='DB\\PageCompiled';
+        $this->objectName='Wikidot\\DB\\PageCompiled';
         $this->primaryKeyName = 'page_id';
         $this->fieldNames = array( 'page_id' ,  'text' ,  'date_compiled' );
         $this->fieldTypes = array( 'page_id' => 'int',  'text' => 'text',  'date_compiled' => 'timestamp');

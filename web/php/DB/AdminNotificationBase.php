@@ -16,7 +16,7 @@ class AdminNotificationBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='admin_notification';
-        $this->peerName = 'DB\\AdminNotificationPeer';
+        $this->peerName = 'Wikidot\\DB\\AdminNotificationPeer';
         $this->primaryKeyName = 'notification_id';
         $this->fieldNames = array( 'notification_id' ,  'site_id' ,  'body' ,  'type' ,  'viewed' ,  'date' ,  'Extra' ,  'notify_online' ,  'notify_feed' ,  'notify_email' );
 

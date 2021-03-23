@@ -94,7 +94,7 @@ class Page extends PageBase
      public function getLicenseText(){
         $category = $this->getCategory();
         i
-        return DB_LicensePeer::instance()->selectById($category->getLicenseId
+        return Wikidot_DB_LicensePeer::instance()->selectById($category->getLicenseId
     }
     */
 

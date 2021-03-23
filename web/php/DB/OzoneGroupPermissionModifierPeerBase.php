@@ -17,7 +17,7 @@ class OzoneGroupPermissionModifierPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='ozone_group_permission_modifier';
-        $this->objectName='DB\\OzoneGroupPermissionModifier';
+        $this->objectName='Wikidot\\DB\\OzoneGroupPermissionModifier';
         $this->primaryKeyName = 'group_permission_id';
         $this->fieldNames = array( 'group_permission_id' ,  'group_id' ,  'permission_id' ,  'modifier' );
         $this->fieldTypes = array( 'group_permission_id' => 'serial',  'group_id' => 'varchar(20)',  'permission_id' => 'varchar(20)',  'modifier' => 'int');
@@ -27,7 +27,7 @@ class OzoneGroupPermissionModifierPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\OzoneGroupPermissionModifierPeer";
+            $className = 'Wikidot\\DB\\OzoneGroupPermissionModifierPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

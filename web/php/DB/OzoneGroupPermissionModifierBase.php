@@ -17,7 +17,7 @@ class OzoneGroupPermissionModifierBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='ozone_group_permission_modifier';
-        $this->peerName = 'DB\\OzoneGroupPermissionModifierPeer';
+        $this->peerName = 'Wikidot\\DB\\OzoneGroupPermissionModifierPeer';
         $this->primaryKeyName = 'group_permission_id';
         $this->fieldNames = array( 'group_permission_id' ,  'group_id' ,  'permission_id' ,  'modifier' );
 
@@ -42,7 +42,7 @@ class OzoneGroupPermissionModifierBase extends BaseDBObject
                 }
             }
         }
-                $foreignPeerClassName = 'DB\\OzoneGroupPeer';
+                $foreignPeerClassName = 'Wikidot\\DB\\OzoneGroupPeer';
                 $fpeer = new $foreignPeerClassName();
 
                 $criteria = new Criteria();
@@ -73,7 +73,7 @@ class OzoneGroupPermissionModifierBase extends BaseDBObject
                 }
             }
         }
-                $foreignPeerClassName = 'DB\\OzonePermissionPeer';
+                $foreignPeerClassName = 'Wikidot\\DB\\OzonePermissionPeer';
                 $fpeer = new $foreignPeerClassName();
 
                 $criteria = new Criteria();

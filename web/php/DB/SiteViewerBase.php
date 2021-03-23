@@ -16,7 +16,7 @@ class SiteViewerBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='site_viewer';
-        $this->peerName = 'DB\\SiteViewerPeer';
+        $this->peerName = 'Wikidot\\DB\\SiteViewerPeer';
         $this->primaryKeyName = 'viewer_id';
         $this->fieldNames = array( 'viewer_id' ,  'site_id' ,  'user_id' );
 

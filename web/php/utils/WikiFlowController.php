@@ -11,6 +11,8 @@ use Ozone\Framework\RunData;
 use Ozone\Framework\WebFlowController;
 use Wikidot\DB\SitePeer;
 use Wikidot\Search\Highlighter;
+// The ones below are called programmatically and must be namespaced.
+use Wikidot\Screens\Wiki\WikiScreen;
 
 class WikiFlowController extends WebFlowController
 {
@@ -167,7 +169,8 @@ class WikiFlowController extends WebFlowController
 
         $template = $runData->getScreenTemplate();
         $classFile = $runData->getScreenClassPath();
-        $className = $runData->getScreenClassName();
+        // TODO refactor this jank to not hardcode class paths.
+        $className = "Wikidot\Screens\Wiki\\".$runData->getScreenClassName();
         $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
 
         require_once($classFile);

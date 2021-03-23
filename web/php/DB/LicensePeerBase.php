@@ -17,7 +17,7 @@ class LicensePeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='license';
-        $this->objectName='DB\\License';
+        $this->objectName='Wikidot\\DB\\License';
         $this->primaryKeyName = 'license_id';
         $this->fieldNames = array( 'license_id' ,  'name' ,  'description' ,  'sort' );
         $this->fieldTypes = array( 'license_id' => 'serial',  'name' => 'varchar(100)',  'description' => 'text',  'sort' => 'int');
@@ -27,7 +27,7 @@ class LicensePeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\LicensePeer";
+            $className = 'Wikidot\\DB\\LicensePeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

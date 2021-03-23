@@ -16,7 +16,7 @@ class UserSettingsBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='user_settings';
-        $this->peerName = 'DB\\UserSettingsPeer';
+        $this->peerName = 'Wikidot\\DB\\UserSettingsPeer';
         $this->primaryKeyName = 'user_id';
         $this->fieldNames = array( 'user_id' ,  'receive_invitations' ,  'receive_pm' ,  'receive_newsletter' ,  'receive_digest' ,  'notify_online' ,  'notify_feed' ,  'notify_email' ,  'allow_site_newsletters_default' ,  'max_sites_admin' );
 

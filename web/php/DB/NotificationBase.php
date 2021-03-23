@@ -16,7 +16,7 @@ class NotificationBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='notification';
-        $this->peerName = 'DB\\NotificationPeer';
+        $this->peerName = 'Wikidot\\DB\\NotificationPeer';
         $this->primaryKeyName = 'notification_id';
         $this->fieldNames = array( 'notification_id' ,  'user_id' ,  'body' ,  'type' ,  'viewed' ,  'date' ,  'Extra' ,  'notify_online' ,  'notify_feed' ,  'notify_email' );
 

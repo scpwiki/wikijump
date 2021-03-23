@@ -16,7 +16,7 @@ class CommentRevisionBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='comment_revision';
-        $this->peerName = 'DB\\CommentRevisionPeer';
+        $this->peerName = 'Wikidot\\DB\\CommentRevisionPeer';
         $this->primaryKeyName = 'revision_id';
         $this->fieldNames = array( 'revision_id' ,  'comment_id' ,  'user_id' ,  'user_string' ,  'text' ,  'title' ,  'date' );
 

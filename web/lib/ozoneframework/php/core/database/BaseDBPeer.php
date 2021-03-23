@@ -21,7 +21,7 @@ abstract class BaseDBPeer {
 	public $defaultValues;
 
 	public static function peerForTable($tableName){
-		$className = 'DB\\'.capitalizeFirstLetter(underscoreToLowerCase($tableName)).'Peer';
+		$className = 'Wikidot\\DB\\'.capitalizeFirstLetter(underscoreToLowerCase($tableName)).'Peer';
 		return new $className;
 	}
 

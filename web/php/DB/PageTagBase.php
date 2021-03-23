@@ -16,7 +16,7 @@ class PageTagBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='page_tag';
-        $this->peerName = 'DB\\PageTagPeer';
+        $this->peerName = 'Wikidot\\DB\\PageTagPeer';
         $this->primaryKeyName = 'tag_id';
         $this->fieldNames = array( 'tag_id' ,  'site_id' ,  'page_id' ,  'tag' );
 

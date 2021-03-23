@@ -496,7 +496,7 @@ class ListPagesModule extends SmartyModule
             //$c = new Criteria();
             //$c->add('page_id', $page->getPageId());
             //$c->addOrderAscending('revision_id');
-            //$firstRevision = DB_PageRevisionPeer::instance()->selectOne($c);
+            //$firstRevision = Wikidot_DB_PageRevisionPeer::instance()->selectOne($c);
             $b = $format;
 
             /* A series of substitutions. */

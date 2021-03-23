@@ -16,7 +16,7 @@ class PageLinkBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='page_link';
-        $this->peerName = 'DB\\PageLinkPeer';
+        $this->peerName = 'Wikidot\\DB\\PageLinkPeer';
         $this->primaryKeyName = 'link_id';
         $this->fieldNames = array( 'link_id' ,  'site_id' ,  'from_page_id' ,  'to_page_id' ,  'to_page_name' );
 

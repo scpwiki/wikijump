@@ -17,7 +17,7 @@ class ForumGroupPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='forum_group';
-        $this->objectName='DB\\ForumGroup';
+        $this->objectName='Wikidot\\DB\\ForumGroup';
         $this->primaryKeyName = 'group_id';
         $this->fieldNames = array( 'group_id' ,  'name' ,  'description' ,  'sort_index' ,  'site_id' ,  'visible' );
         $this->fieldTypes = array( 'group_id' => 'serial',  'name' => 'varchar(80)',  'description' => 'text',  'sort_index' => 'int',  'site_id' => 'int',  'visible' => 'boolean');
@@ -27,7 +27,7 @@ class ForumGroupPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\ForumGroupPeer";
+            $className = 'Wikidot\\DB\\ForumGroupPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

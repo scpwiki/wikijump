@@ -16,7 +16,7 @@ class MemberInvitationBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='member_invitation';
-        $this->peerName = 'DB\\MemberInvitationPeer';
+        $this->peerName = 'Wikidot\\DB\\MemberInvitationPeer';
         $this->primaryKeyName = 'invitation_id';
         $this->fieldNames = array( 'invitation_id' ,  'site_id' ,  'user_id' ,  'by_user_id' ,  'date' ,  'body' );
 

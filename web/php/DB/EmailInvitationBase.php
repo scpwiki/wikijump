@@ -16,7 +16,7 @@ class EmailInvitationBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='email_invitation';
-        $this->peerName = 'DB\\EmailInvitationPeer';
+        $this->peerName = 'Wikidot\\DB\\EmailInvitationPeer';
         $this->primaryKeyName = 'invitation_id';
         $this->fieldNames = array( 'invitation_id' ,  'hash' ,  'email' ,  'name' ,  'user_id' ,  'site_id' ,  'become_member' ,  'to_contacts' ,  'message' ,  'attempts' ,  'accepted' ,  'delivered' ,  'date' );
 

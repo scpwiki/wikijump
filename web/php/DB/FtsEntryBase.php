@@ -16,7 +16,7 @@ class FtsEntryBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='fts_entry';
-        $this->peerName = 'DB\\FtsEntryPeer';
+        $this->peerName = 'Wikidot\\DB\\FtsEntryPeer';
         $this->primaryKeyName = 'fts_id';
         $this->fieldNames = array( 'fts_id' ,  'page_id' ,  'title' ,  'unix_name' ,  'thread_id' ,  'site_id' ,  'text' ,  'vector' );
 

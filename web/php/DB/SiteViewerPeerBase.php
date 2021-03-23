@@ -17,7 +17,7 @@ class SiteViewerPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='site_viewer';
-        $this->objectName='DB\\SiteViewer';
+        $this->objectName='Wikidot\\DB\\SiteViewer';
         $this->primaryKeyName = 'viewer_id';
         $this->fieldNames = array( 'viewer_id' ,  'site_id' ,  'user_id' );
         $this->fieldTypes = array( 'viewer_id' => 'serial',  'site_id' => 'int',  'user_id' => 'int');
@@ -27,7 +27,7 @@ class SiteViewerPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\SiteViewerPeer";
+            $className = 'Wikidot\\DB\\SiteViewerPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

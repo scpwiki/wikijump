@@ -16,7 +16,7 @@ class ThemeBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='theme';
-        $this->peerName = 'DB\\ThemePeer';
+        $this->peerName = 'Wikidot\\DB\\ThemePeer';
         $this->primaryKeyName = 'theme_id';
         $this->fieldNames = array( 'theme_id' ,  'name' ,  'unix_name' ,  'abstract' ,  'extends_theme_id' ,  'variant_of_theme_id' ,  'custom' ,  'site_id' ,  'use_side_bar' ,  'use_top_bar' ,  'sort_index' ,  'sync_page_name' ,  'revision_number' );
 

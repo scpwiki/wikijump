@@ -2,7 +2,7 @@
 
 namespace Wikidot\Utils;
 
-
+use Exception;
 use Wikidot\DB\PagePeer;
 use Wikidot\Form;
 use Wikidot\Template;

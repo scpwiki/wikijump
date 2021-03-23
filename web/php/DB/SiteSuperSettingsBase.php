@@ -16,7 +16,7 @@ class SiteSuperSettingsBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='site_super_settings';
-        $this->peerName = 'DB\\SiteSuperSettingsPeer';
+        $this->peerName = 'Wikidot\\DB\\SiteSuperSettingsPeer';
         $this->primaryKeyName = 'site_id';
         $this->fieldNames = array( 'site_id' ,  'can_custom_domain' );
 

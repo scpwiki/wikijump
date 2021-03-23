@@ -6,7 +6,7 @@ namespace Ozone\Framework;
 
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\OzoneSession;
+use Ozone\Framework\DB\OzoneSession;
 use Wikidot\DB\OzoneSessionPeer;
 use Wikidot\Utils\GlobalProperties;
 

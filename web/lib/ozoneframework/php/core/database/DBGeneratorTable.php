@@ -113,7 +113,7 @@ class DBGeneratorTable{
 		$smarty->assign('primaryKeyName', $this->pkColumnName);
 
 		// peer name
-		$peerName = "DB_".$this->getNameLowercaseFirstCapitalized()."Peer";
+		$peerName = "Wikidot_DB_".$this->getNameLowercaseFirstCapitalized()."Peer";
 		$smarty->assign('peerName', $peerName);
 
 		//default values
@@ -133,11 +133,11 @@ class DBGeneratorTable{
 
 		$templateFile = OZONE_ROOT ."/files/dbtemplates/DB_ObjectBaseTemplate.tpl";
 		$out = $smarty->fetch($templateFile);
-		$cn = 'DB_'.$this->getNameLowercaseFirstCapitalized().'Base';
+		$cn = 'Wikidot_DB_'.$this->getNameLowercaseFirstCapitalized().'Base';
 		file_put_contents(PathManager::dbClass('/base/'.$cn), $out);
 
 		//see if file exists!
-		$cn = 'DB_'.$this->getNameLowercaseFirstCapitalized();
+		$cn = 'Wikidot_DB_'.$this->getNameLowercaseFirstCapitalized();
 		if(!file_exists(PathManager::dbClass($cn))){
 
 			$templateFile = OZONE_ROOT ."/files/dbtemplates/DB_ObjectTemplate.tpl";
@@ -145,16 +145,16 @@ class DBGeneratorTable{
 			file_put_contents(PathManager::dbClass($cn), $out);
 		}
 
-		$objectName = "DB_".$this->getNameLowercaseFirstCapitalized();
+		$objectName = "Wikidot_DB_".$this->getNameLowercaseFirstCapitalized();
 		$smarty->assign('objectName', $objectName);
 
 		$templateFilePeer = OZONE_ROOT ."/files/dbtemplates/DB_ObjectPeerBaseTemplate.tpl";
 		$out = $smarty->fetch($templateFilePeer);
-		$cn = 'DB_'.$this->getNameLowercaseFirstCapitalized().'PeerBase';
+		$cn = 'Wikidot_DB_'.$this->getNameLowercaseFirstCapitalized().'PeerBase';
 		file_put_contents(PathManager::dbClass('/base/'.$cn), $out);
 
 		//see if file exists!
-		$cn = 'DB_'.$this->getNameLowercaseFirstCapitalized().'Peer';
+		$cn = 'Wikidot_DB_'.$this->getNameLowercaseFirstCapitalized().'Peer';
 		if(!file_exists(PathManager::dbClass($cn))){
 			$templateFile = OZONE_ROOT ."/files/dbtemplates/DB_ObjectPeerTemplate.tpl";
 			$out = $smarty->fetch($templateFile);

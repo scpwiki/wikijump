@@ -17,7 +17,7 @@ class PageInclusionPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='page_inclusion';
-        $this->objectName='DB\\PageInclusion';
+        $this->objectName='Wikidot\\DB\\PageInclusion';
         $this->primaryKeyName = 'inclusion_id';
         $this->fieldNames = array( 'inclusion_id' ,  'site_id' ,  'including_page_id' ,  'included_page_id' ,  'included_page_name' );
         $this->fieldTypes = array( 'inclusion_id' => 'serial',  'site_id' => 'int',  'including_page_id' => 'int',  'included_page_id' => 'int',  'included_page_name' => 'varchar(128)');
@@ -27,7 +27,7 @@ class PageInclusionPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\PageInclusionPeer";
+            $className = 'Wikidot\\DB\\PageInclusionPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

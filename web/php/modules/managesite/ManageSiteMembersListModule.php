@@ -19,7 +19,7 @@ class ManageSiteMembersListModule extends ManageSiteBaseModule
         $c->add("member.user_id", "ozone_user.user_id", "=", false);
         $c->addOrderAscending("nick_name");
 
-        $members = DB_OzoneUserPeer::instance()->select($c);
+        $members = Wikidot_DB_OzoneUserPeer::instance()->select($c);
 
         $runData->contextAdd("members", $members);
 

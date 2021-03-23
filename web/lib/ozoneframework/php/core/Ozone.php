@@ -62,13 +62,15 @@ class Ozone {
 		self::$smartyInitialized = true;
 
 	}
+
 	public static function initServices() {
 		//load resources to the smarty's context from autoload dir
 		$audir = PathManager::ozonePhpServiceAutoloadDir();
 		$serviceFiles = ls($audir, "*.php");
 		foreach ($serviceFiles as $sf){
 			require_once ($audir.$sf);
-			$class = str_replace('.php', '', $sf);
+            // TODO refactor this jank to not hardcode class paths.
+			$class = "Ozone\Framework\Template\Services\Autoload\\".str_replace('.php', '', $sf);
 			$service = new $class(self::$runData);
 			self :: $smarty->assign($service->serviceName(), $service);
 		}

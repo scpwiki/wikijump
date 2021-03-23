@@ -17,7 +17,7 @@ class UniqueStringBrokerPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='unique_string_broker';
-        $this->objectName='DB\\UniqueStringBroker';
+        $this->objectName='Wikidot\\DB\\UniqueStringBroker';
         $this->primaryKeyName = '';
         $this->fieldNames = array( 'last_index' );
         $this->fieldTypes = array( 'last_index' => 'int');
@@ -27,7 +27,7 @@ class UniqueStringBrokerPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\UniqueStringBrokerPeer";
+            $className = 'Wikidot\\DB\\UniqueStringBrokerPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

@@ -16,7 +16,7 @@ class PageAbuseFlagBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='page_abuse_flag';
-        $this->peerName = 'DB\\PageAbuseFlagPeer';
+        $this->peerName = 'Wikidot\\DB\\PageAbuseFlagPeer';
         $this->primaryKeyName = 'flag_id';
         $this->fieldNames = array( 'flag_id' ,  'user_id' ,  'site_id' ,  'path' ,  'site_valid' ,  'global_valid' );
 

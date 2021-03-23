@@ -17,7 +17,7 @@ class UserAbuseFlagPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='user_abuse_flag';
-        $this->objectName='DB\\UserAbuseFlag';
+        $this->objectName='Wikidot\\DB\\UserAbuseFlag';
         $this->primaryKeyName = 'flag_id';
         $this->fieldNames = array( 'flag_id' ,  'user_id' ,  'target_user_id' ,  'site_id' ,  'site_valid' ,  'global_valid' );
         $this->fieldTypes = array( 'flag_id' => 'serial',  'user_id' => 'int',  'target_user_id' => 'int',  'site_id' => 'int',  'site_valid' => 'boolean',  'global_valid' => 'boolean');
@@ -27,7 +27,7 @@ class UserAbuseFlagPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\UserAbuseFlagPeer";
+            $className = 'Wikidot\\DB\\UserAbuseFlagPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

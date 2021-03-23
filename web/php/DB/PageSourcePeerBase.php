@@ -17,7 +17,7 @@ class PageSourcePeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='page_source';
-        $this->objectName='DB\\PageSource';
+        $this->objectName='Wikidot\\DB\\PageSource';
         $this->primaryKeyName = 'source_id';
         $this->fieldNames = array( 'source_id' ,  'text' );
         $this->fieldTypes = array( 'source_id' => 'serial',  'text' => 'text');
@@ -27,7 +27,7 @@ class PageSourcePeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\PageSourcePeer";
+            $className = 'Wikidot\\DB\\PageSourcePeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

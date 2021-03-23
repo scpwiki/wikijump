@@ -16,7 +16,7 @@ class PageRateVoteBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='page_rate_vote';
-        $this->peerName = 'DB\\PageRateVotePeer';
+        $this->peerName = 'Wikidot\\DB\\PageRateVotePeer';
         $this->primaryKeyName = 'rate_id';
         $this->fieldNames = array( 'rate_id' ,  'user_id' ,  'page_id' ,  'rate' ,  'date' );
 

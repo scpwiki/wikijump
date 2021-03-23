@@ -16,7 +16,7 @@ class StorageItemBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='storage_item';
-        $this->peerName = 'DB\\StorageItemPeer';
+        $this->peerName = 'Wikidot\\DB\\StorageItemPeer';
         $this->primaryKeyName = 'item_id';
         $this->fieldNames = array( 'item_id' ,  'date' ,  'timeout' ,  'data' );
 

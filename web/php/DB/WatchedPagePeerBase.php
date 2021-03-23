@@ -17,7 +17,7 @@ class WatchedPagePeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='watched_page';
-        $this->objectName='DB\\WatchedPage';
+        $this->objectName='Wikidot\\DB\\WatchedPage';
         $this->primaryKeyName = 'watched_id';
         $this->fieldNames = array( 'watched_id' ,  'user_id' ,  'page_id' );
         $this->fieldTypes = array( 'watched_id' => 'serial',  'user_id' => 'int',  'page_id' => 'int');
@@ -27,7 +27,7 @@ class WatchedPagePeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\WatchedPagePeer";
+            $className = 'Wikidot\\DB\\WatchedPagePeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

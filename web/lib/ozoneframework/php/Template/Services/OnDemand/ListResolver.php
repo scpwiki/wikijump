@@ -37,7 +37,7 @@ class ListResolver extends TemplateService{
 		// table must have columns: key, text and sort_index
 		// the row with option_id = null indicates the "please select" value
 
-		$peerName = $peerName = "DB_". capitalizeFirstLetter(underscoreToLowerCase($tableName))."Peer";
+		$peerName = $peerName = "Wikidot_DB_". capitalizeFirstLetter(underscoreToLowerCase($tableName))."Peer";
 		$peer = new $peerName();
 		$c = new Criteria();
 		$c->add("key", null);

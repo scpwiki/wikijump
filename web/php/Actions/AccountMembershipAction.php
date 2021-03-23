@@ -14,6 +14,7 @@ use Wikidot\DB\MemberApplicationPeer;
 use Wikidot\DB\AdminPeer;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\Utils\AdminNotificationMaker;
+use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDStringUtils;

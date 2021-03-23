@@ -95,7 +95,7 @@ class PageEditModule extends SmartyModule
 
             if ($category == null) {
                 // get the default!
-                //$category = DB_CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
+                //$category = Wikidot_DB_CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
                 $category = $this->createTempCategory($categoryName, $site);
             }
 

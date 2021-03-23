@@ -16,7 +16,7 @@ class OzoneGroupBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='ozone_group';
-        $this->peerName = 'DB\\OzoneGroupPeer';
+        $this->peerName = 'Wikidot\\DB\\OzoneGroupPeer';
         $this->primaryKeyName = 'group_id';
         $this->fieldNames = array( 'group_id' ,  'parent_group_id' ,  'name' ,  'description' );
 

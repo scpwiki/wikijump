@@ -17,7 +17,7 @@ class OpenidEntryPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='openid_entry';
-        $this->objectName='DB\\OpenidEntry';
+        $this->objectName='Wikidot\\DB\\OpenidEntry';
         $this->primaryKeyName = 'openid_id';
         $this->fieldNames = array( 'openid_id' ,  'site_id' ,  'page_id' ,  'type' ,  'user_id' ,  'url' ,  'server_url' );
         $this->fieldTypes = array( 'openid_id' => 'serial',  'site_id' => 'int',  'page_id' => 'int',  'type' => 'varchar(10)',  'user_id' => 'int',  'url' => 'varchar(100)',  'server_url' => 'varchar(100)');
@@ -27,7 +27,7 @@ class OpenidEntryPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\OpenidEntryPeer";
+            $className = 'Wikidot\\DB\\OpenidEntryPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

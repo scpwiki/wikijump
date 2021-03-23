@@ -4,7 +4,8 @@
 
 
 use Ozone\Framework\Exceptions\PHPErrorException;
-use SimpleXMLElement;
+use Ozone\Framework\ODate;
+use Ozone\Framework\Ozone;
 use Wikidot\Utils\GlobalProperties;
 
 /**

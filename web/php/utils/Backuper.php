@@ -55,13 +55,13 @@ class Backuper
             mkdirfull($wdir.'/files');
         /*  $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
-            $pages = DB_PagePeer::instance()->select($c);
+            $pages = Wikidot_DB_PagePeer::instance()->select($c);
 
             foreach($pages as $page){
                 // get the files
                 $c = new Criteria();
                 $c->add("page_id", $page->getPageId());
-                $files = DB_FilePeer::instance()->select($c);
+                $files = Wikidot_DB_FilePeer::instance()->select($c);
                 if(count($files)>0){
                     $path = $wdir.'/files/'.$page->getUnixName();
                     mkdirfull($path);

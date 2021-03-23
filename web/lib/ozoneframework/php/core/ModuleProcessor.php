@@ -101,7 +101,11 @@ class ModuleProcessor {
 		$ttt = ModuleHelpers::findModuleClass($templateName);
 		$className = $ttt[0];
 		$classPath = $ttt[1];
-
+		// TODO: Refactor to be more aware of the concept of namespaces.
+        $classNamespace = strstr($ttt[1], "/Modules/");
+        $classNamespace = "Wikidot\\" . preg_replace("/^\/(.*)\/(?:.*).php$/", "$1", $classNamespace);
+        $classNamespace = str_replace('/', '\\', $classNamespace);
+        $className = $classNamespace . "\\" . $className;
 		require_once($classPath);
 		$moduleClass = new $className();
 		$moduleClass->setModuleChain($this->_moduleChain);

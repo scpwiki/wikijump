@@ -29,7 +29,7 @@ class OzoneSmarty extends Smarty{
 
 		$this->plugins_dir = array(PathManager::smartyPluginDir(), PathManager::smartyOzonePluginDir());
 		//Extra dir for application extensions
-		$this->plugins_dir[] = WIKIJUMP_ROOT.'/php/smarty_plugins/';
+		$this->plugins_dir[] = WIKIJUMP_ROOT.'/php/smarty/plugins/';
 
 		$this->load_filter('pre', 'defmacrohelp');
 

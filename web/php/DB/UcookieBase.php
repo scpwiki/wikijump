@@ -17,7 +17,7 @@ class UcookieBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='ucookie';
-        $this->peerName = 'DB\\UcookiePeer';
+        $this->peerName = 'Wikidot\\DB\\UcookiePeer';
         $this->primaryKeyName = 'ucookie_id';
         $this->fieldNames = array( 'ucookie_id' ,  'site_id' ,  'session_id' ,  'date_granted' );
 
@@ -42,7 +42,7 @@ class UcookieBase extends BaseDBObject
                 }
             }
         }
-                $foreignPeerClassName = 'DB\\SitePeer';
+                $foreignPeerClassName = 'Wikidot\\DB\\SitePeer';
                 $fpeer = new $foreignPeerClassName();
 
                 $criteria = new Criteria();
@@ -73,7 +73,7 @@ class UcookieBase extends BaseDBObject
                 }
             }
         }
-                $foreignPeerClassName = 'DB\\OzoneSessionPeer';
+                $foreignPeerClassName = 'Wikidot\\DB\\OzoneSessionPeer';
                 $fpeer = new $foreignPeerClassName();
 
                 $criteria = new Criteria();

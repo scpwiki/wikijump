@@ -16,7 +16,7 @@ class PrivateMessageBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='private_message';
-        $this->peerName = 'DB\\PrivateMessagePeer';
+        $this->peerName = 'Wikidot\\DB\\PrivateMessagePeer';
         $this->primaryKeyName = 'message_id';
         $this->fieldNames = array( 'message_id' ,  'from_user_id' ,  'to_user_id' ,  'subject' ,  'body' ,  'date' ,  'flag' ,  'flag_new' );
 

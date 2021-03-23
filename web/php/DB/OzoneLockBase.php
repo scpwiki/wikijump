@@ -16,7 +16,7 @@ class OzoneLockBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='ozone_lock';
-        $this->peerName = 'DB\\OzoneLockPeer';
+        $this->peerName = 'Wikidot\\DB\\OzoneLockPeer';
         $this->primaryKeyName = 'key';
         $this->fieldNames = array( 'key' );
 

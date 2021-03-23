@@ -17,7 +17,7 @@ class OzoneSessionBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='ozone_session';
-        $this->peerName = 'DB\\OzoneSessionPeer';
+        $this->peerName = 'Wikidot\\DB\\OzoneSessionPeer';
         $this->primaryKeyName = 'session_id';
         $this->fieldNames = array( 'session_id' ,  'started' ,  'last_accessed' ,  'ip_address' ,  'ip_address_ssl' ,  'ua_hash' ,  'check_ip' ,  'infinite' ,  'user_id' ,  'serialized_datablock' );
 
@@ -42,7 +42,7 @@ class OzoneSessionBase extends BaseDBObject
                 }
             }
         }
-                $foreignPeerClassName = 'DB\\OzoneUserPeer';
+                $foreignPeerClassName = 'Wikidot\\DB\\OzoneUserPeer';
                 $fpeer = new $foreignPeerClassName();
 
                 $criteria = new Criteria();

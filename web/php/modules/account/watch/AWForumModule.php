@@ -40,7 +40,7 @@ class AWForumModule extends AccountBaseModule
         $c->add("watched_forum_thread.user_id", $user->getUserId());
         $c->addOrderDescending("post_id");
         $c->setLimit($count, $offset);
-        $posts = DB_ForumPostPeer::instance()->select($c);
+        $posts = Wikidot_DB_ForumPostPeer::instance()->select($c);
 
         $counted = count($posts);
         $pagerData = array();

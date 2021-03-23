@@ -17,7 +17,7 @@ class SiteTagPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='site_tag';
-        $this->objectName='DB\\SiteTag';
+        $this->objectName='Wikidot\\DB\\SiteTag';
         $this->primaryKeyName = 'tag_id';
         $this->fieldNames = array( 'tag_id' ,  'site_id' ,  'tag' );
         $this->fieldTypes = array( 'tag_id' => 'serial',  'site_id' => 'int',  'tag' => 'varchar(64)');
@@ -27,7 +27,7 @@ class SiteTagPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\SiteTagPeer";
+            $className = 'Wikidot\\DB\\SiteTagPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

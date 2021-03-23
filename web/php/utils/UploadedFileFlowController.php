@@ -52,7 +52,7 @@ class UploadedFileFlowController extends WikijumpController
     /**
      * checks whether file is from a public area (public Wiki or non-restricted directory)
      *
-     * @param DB\Site $site
+     * @param Site $site
      * @param string $file
      * @return boolean
      */
@@ -105,7 +105,7 @@ class UploadedFileFlowController extends WikijumpController
     /**
      * builds the path to local file
      *
-     * @param DB\Site $site
+     * @param Site $site
      * @param string $file
      * @return string
      */
@@ -147,7 +147,7 @@ class UploadedFileFlowController extends WikijumpController
     /**
      * Serves a code extracted from the page
      *
-     * @param DB\Site $site
+     * @param Site $site
      * @param string $fileName code/pagename/number
      * @param int $expires timeout in seconds
      */

@@ -16,7 +16,7 @@ class AnonymousAbuseFlagBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='anonymous_abuse_flag';
-        $this->peerName = 'DB\\AnonymousAbuseFlagPeer';
+        $this->peerName = 'Wikidot\\DB\\AnonymousAbuseFlagPeer';
         $this->primaryKeyName = 'flag_id';
         $this->fieldNames = array( 'flag_id' ,  'user_id' ,  'address' ,  'proxy' ,  'site_id' ,  'site_valid' ,  'global_valid' );
 

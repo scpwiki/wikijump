@@ -16,7 +16,7 @@ class SiteTagBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='site_tag';
-        $this->peerName = 'DB\\SiteTagPeer';
+        $this->peerName = 'Wikidot\\DB\\SiteTagPeer';
         $this->primaryKeyName = 'tag_id';
         $this->fieldNames = array( 'tag_id' ,  'site_id' ,  'tag' );
 

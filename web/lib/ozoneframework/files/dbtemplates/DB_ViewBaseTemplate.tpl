@@ -1,5 +1,5 @@
 <?php
-class DB_<{$className}>Base extends BaseDBViewObject {
+class Wikidot_DB_<{$className}>Base extends BaseDBViewObject {
 
 	protected function internalInit(){
 		$this->tableName='<{$tableName}>';

@@ -16,7 +16,7 @@ class DomainRedirectBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='domain_redirect';
-        $this->peerName = 'DB\\DomainRedirectPeer';
+        $this->peerName = 'Wikidot\\DB\\DomainRedirectPeer';
         $this->primaryKeyName = 'redirect_id';
         $this->fieldNames = array( 'redirect_id' ,  'site_id' ,  'url' );
 

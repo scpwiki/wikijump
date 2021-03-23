@@ -16,6 +16,7 @@ use Ozone\Framework\WebFlowController;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
+use Wikijump\Helpers\LegacyTools;
 
 class AjaxModuleWikiFlowController extends WebFlowController
 {
@@ -202,9 +203,9 @@ class AjaxModuleWikiFlowController extends WebFlowController
             $classFile = $runData->getModuleClassPath();
             $className = $runData->getModuleClassName();
             $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
-
             require_once($classFile);
-            $module = new $className();
+            $class = LegacyTools::getNamespacedClassFromPath($classFile);
+            $module = new $class();
 
             // module security check
             if (!$module->isAllowed($runData)) {
@@ -225,10 +226,10 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
             if ($actionClass) {
                 require_once(PathManager :: actionClass($actionClass));
-                $tmpa1 = explode('/', $actionClass);
-                $actionClassStripped = end($tmpa1);
 
-                $action = new $actionClassStripped();
+                $class = LegacyTools::getNamespacedClassFromPath(PathManager::actionClass($actionClass));
+
+                $action = new $class();
 
                 $classFile = $runData->getModuleClassPath();
                 if (!$action->isAllowed($runData)) {

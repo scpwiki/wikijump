@@ -11,14 +11,14 @@ $apath = WIKIJUMP_ROOT;
 
 $classpath = array();
 
-$classpath[] = $opath."/php/core/Database";
-$classpath[] = $opath."/php/core";
-$classpath[] = $opath."/php/core/Exceptions";
-$classpath[] = $apath."/php/Utils";
-$classpath[] = $apath."/php/DB";
-$classpath[] = $apath."/php/pingback";
+//$classpath[] = $opath."/php/core/Database";
+//$classpath[] = $opath."/php/core";
+//$classpath[] = $opath."/php/core/Exceptions";
+//$classpath[] = $apath."/php/Utils";
+//$classpath[] = $apath."/php/DB";
+//$classpath[] = $apath."/php/pingback";
 $classpath[] = $apath."/conf";
-$classpath[] = $apath."/lib/zf/library";
+//$classpath[] = $apath."/lib/zf/library";
 
 $GLOBALS['classpath'] = $classpath;
 

@@ -16,7 +16,7 @@ class ModeratorBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='moderator';
-        $this->peerName = 'DB\\ModeratorPeer';
+        $this->peerName = 'Wikidot\\DB\\ModeratorPeer';
         $this->primaryKeyName = 'moderator_id';
         $this->fieldNames = array( 'moderator_id' ,  'site_id' ,  'user_id' ,  'permissions' );
 

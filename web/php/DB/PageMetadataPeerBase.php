@@ -17,7 +17,7 @@ class PageMetadataPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='page_metadata';
-        $this->objectName='DB\\PageMetadata';
+        $this->objectName='Wikidot\\DB\\PageMetadata';
         $this->primaryKeyName = 'metadata_id';
         $this->fieldNames = array( 'metadata_id' ,  'parent_page_id' ,  'title' ,  'unix_name' ,  'owner_user_id' );
         $this->fieldTypes = array( 'metadata_id' => 'serial',  'parent_page_id' => 'int',  'title' => 'varchar(256)',  'unix_name' => 'varchar(80)',  'owner_user_id' => 'int');
@@ -27,7 +27,7 @@ class PageMetadataPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\PageMetadataPeer";
+            $className = 'Wikidot\\DB\\PageMetadataPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

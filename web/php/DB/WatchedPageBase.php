@@ -16,7 +16,7 @@ class WatchedPageBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='watched_page';
-        $this->peerName = 'DB\\WatchedPagePeer';
+        $this->peerName = 'Wikidot\\DB\\WatchedPagePeer';
         $this->primaryKeyName = 'watched_id';
         $this->fieldNames = array( 'watched_id' ,  'user_id' ,  'page_id' );
 

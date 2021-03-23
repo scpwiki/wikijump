@@ -16,7 +16,7 @@ class FileBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='file';
-        $this->peerName = 'DB\\FilePeer';
+        $this->peerName = 'Wikidot\\DB\\FilePeer';
         $this->primaryKeyName = 'file_id';
         $this->fieldNames = array( 'file_id' ,  'page_id' ,  'site_id' ,  'filename' ,  'mimetype' ,  'description' ,  'description_short' ,  'comment' ,  'size' ,  'date_added' ,  'user_id' ,  'user_string' ,  'has_resized' );
 

@@ -17,7 +17,7 @@ class UserKarmaPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='user_karma';
-        $this->objectName='DB\\UserKarma';
+        $this->objectName='Wikidot\\DB\\UserKarma';
         $this->primaryKeyName = 'user_id';
         $this->fieldNames = array( 'user_id' ,  'points' ,  'level' );
         $this->fieldTypes = array( 'user_id' => 'int',  'points' => 'int',  'level' => 'int');
@@ -27,7 +27,7 @@ class UserKarmaPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\UserKarmaPeer";
+            $className = 'Wikidot\\DB\\UserKarmaPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;

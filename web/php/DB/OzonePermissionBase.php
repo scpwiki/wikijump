@@ -16,7 +16,7 @@ class OzonePermissionBase extends BaseDBObject
     protected function internalInit()
     {
         $this->tableName='ozone_permission';
-        $this->peerName = 'DB\\OzonePermissionPeer';
+        $this->peerName = 'Wikidot\\DB\\OzonePermissionPeer';
         $this->primaryKeyName = 'permission_id';
         $this->fieldNames = array( 'permission_id' ,  'name' ,  'description' );
 

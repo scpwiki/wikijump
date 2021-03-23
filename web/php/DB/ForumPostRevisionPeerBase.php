@@ -17,7 +17,7 @@ class ForumPostRevisionPeerBase extends BaseDBPeer
     protected function internalInit()
     {
         $this->tableName='forum_post_revision';
-        $this->objectName='DB\\ForumPostRevision';
+        $this->objectName='Wikidot\\DB\\ForumPostRevision';
         $this->primaryKeyName = 'revision_id';
         $this->fieldNames = array( 'revision_id' ,  'post_id' ,  'user_id' ,  'user_string' ,  'text' ,  'title' ,  'date' );
         $this->fieldTypes = array( 'revision_id' => 'serial',  'post_id' => 'int',  'user_id' => 'int',  'user_string' => 'varchar(80)',  'text' => 'text',  'title' => 'varchar(256)',  'date' => 'timestamp');
@@ -27,7 +27,7 @@ class ForumPostRevisionPeerBase extends BaseDBPeer
     public static function instance()
     {
         if (self::$peerInstance == null) {
-            $className = "DB\\ForumPostRevisionPeer";
+            $className = 'Wikidot\\DB\\ForumPostRevisionPeer';
             self::$peerInstance = new $className();
         }
         return self::$peerInstance;
