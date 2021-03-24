@@ -114,7 +114,7 @@ Each of the blocks will be described in more detail below:
 **HTML Output:** `<a>`
 
 **Arguments:**
-* TODO
+* All accepted attributes are passed as-is
 
 **Example:**
 
@@ -132,7 +132,7 @@ Each of the blocks will be described in more detail below:
 **HTML Output:** `<blockquote>`
 
 **Arguments:**
-* TODO
+* All accepted attributes are passed as-is
 
 **Example:**
 
