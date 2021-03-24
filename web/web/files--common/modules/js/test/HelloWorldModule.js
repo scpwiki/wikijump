@@ -8,7 +8,7 @@ Wikijump.modules.HelloWorldModule.listener = {
 		var p = new Object();
 		p.action = "NewSiteAction";
 		p.event = "..."
-		OZONE.ajax.requestModule("test/HelloWorld2Module", p,Wikijump.modules.HelloWorldModule.callbacks.click );
+		OZONE.ajax.requestModule("Test/HelloWorld2Module", p,Wikijump.modules.HelloWorldModule.callbacks.click );
 	}
 
 }

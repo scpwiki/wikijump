@@ -93,12 +93,12 @@ Wikijump.modules.APAvatarModule.callbacks = {
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Your buddy icon has been changed!";
 		w.show();
-		setTimeout('OZONE.ajax.requestModule("account/profile/APAvatarModule", null, Wikijump.modules.AccountModule.callbacks.menuClick)', 1500);
+		setTimeout('OZONE.ajax.requestModule("Account/Profile/APAvatarModule", null, Wikijump.modules.AccountModule.callbacks.menuClick)', 1500);
 
 	},
 	deleteAvatar: function(r){
 		// simply reload this module.
-		OZONE.ajax.requestModule('account/profile/APAvatarModule', null, Wikijump.modules.AccountModule.callbacks.menuClick)
+		OZONE.ajax.requestModule('Account/Profile/APAvatarModule', null, Wikijump.modules.AccountModule.callbacks.menuClick)
 	},
 	uploadUri: function(r){
 		if(r.status != "ok"){

@@ -31,7 +31,7 @@
  	<script type="text/javascript" src="/common--javascript/crypto/rsa.js"></script>
 
  	{if $useCustomDomainScript}
- 		{module name="login/CustomDomainScriptModule"}
+ 		{module name="Login/CustomDomainScriptModule"}
  	{/if}
    	<style type="text/css" id="internal-style">
 

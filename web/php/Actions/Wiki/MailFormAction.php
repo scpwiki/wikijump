@@ -139,7 +139,7 @@ class MailFormAction extends SmartyAction
 
         switch ($format) {
             case 'csv':
-                $emailTemplate = 'Wiki/mailform/MailFormCSV';
+                $emailTemplate = 'Wiki/MailForm/MailFormCSV';
                 // fix the values (escape)
                 foreach ($fields as &$field) {
                     $value = $field['value'];
@@ -151,7 +151,7 @@ class MailFormAction extends SmartyAction
                 }
                 break;
             default:
-                $emailTemplate = 'Wiki/mailform/MailForm';
+                $emailTemplate = 'Wiki/MailForm/MailForm';
                 break;
         }
 

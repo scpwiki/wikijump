@@ -4,11 +4,11 @@ Wikijump.modules.NewSiteModule = {};
 
 Wikijump.modules.NewSiteModule.listeners = {
 	next1: function(e){
-		OZONE.ajax.requestModule("newsite/NewSite1Module", null, Wikijump.modules.NewSiteModule.callbacks.next1);
+		OZONE.ajax.requestModule("NewSite/NewSite1Module", null, Wikijump.modules.NewSiteModule.callbacks.next1);
 	},
 
 	next2: function(e){
-		OZONE.ajax.requestModule("newsite/NewSite2Module", null, Wikijump.modules.NewSiteModule.callbacks.next2);
+		OZONE.ajax.requestModule("NewSite/NewSite2Module", null, Wikijump.modules.NewSiteModule.callbacks.next2);
 	},
 
 	next3: function(e){

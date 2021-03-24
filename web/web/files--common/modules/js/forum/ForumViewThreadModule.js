@@ -99,7 +99,7 @@ Wikijump.modules.ForumViewThreadModule.listeners = {
 		var p = new Object();
 		p.postId = postId;
 		p.threadId = Wikijump.forumThreadId;
-		OZONE.ajax.requestModule('forum/sub/ForumNewPostFormModule', p, Wikijump.modules.ForumViewThreadModule.callbacks.newPost);
+		OZONE.ajax.requestModule('Forum/Sub/ForumNewPostFormModule', p, Wikijump.modules.ForumViewThreadModule.callbacks.newPost);
 	},
 	editPost: function(e, postId){
 		if(Wikijump.Editor.editElementId){
@@ -113,13 +113,13 @@ Wikijump.modules.ForumViewThreadModule.listeners = {
 		var p = new Object();
 		p.postId = postId;
 		p.threadId = Wikijump.forumThreadId;
-		OZONE.ajax.requestModule('forum/sub/ForumEditPostFormModule', p, Wikijump.modules.ForumViewThreadModule.callbacks.editPost);
+		OZONE.ajax.requestModule('Forum/Sub/ForumEditPostFormModule', p, Wikijump.modules.ForumViewThreadModule.callbacks.editPost);
 
 	},
 
 	deletePost: function(e, postId){
 
-		OZONE.ajax.requestModule("forum/sub/ForumDeletePostModule", {postId: postId}, Wikijump.modules.ForumViewThreadModule.callbacks.deletePost);
+		OZONE.ajax.requestModule("Forum/Sub/ForumDeletePostModule", {postId: postId}, Wikijump.modules.ForumViewThreadModule.callbacks.deletePost);
 
 	},
 
@@ -138,7 +138,7 @@ Wikijump.modules.ForumViewThreadModule.listeners = {
 	showHistory: function(e, postId){
 		var p = new Object();
 		p.postId = postId;
-		OZONE.ajax.requestModule("forum/sub/ForumPostRevisionsModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.showHistory);
+		OZONE.ajax.requestModule("Forum/Sub/ForumPostRevisionsModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.showHistory);
 	},
 	hideHistory: function(e, postId){
 		var postDiv = $("post-"+postId);
@@ -150,7 +150,7 @@ Wikijump.modules.ForumViewThreadModule.listeners = {
 	showRevision: function(e, revisionId){
 		var p = new Object();
 		p.revisionId = revisionId;
-		OZONE.ajax.requestModule("forum/sub/ForumPostRevisionModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.showRevision);
+		OZONE.ajax.requestModule("Forum/Sub/ForumPostRevisionModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.showRevision);
 		// clear active
 
 		var t = YAHOO.util.Event.getTarget(e);
@@ -171,22 +171,22 @@ Wikijump.modules.ForumViewThreadModule.listeners = {
 	editThreadMeta: function(e){
 		var p = new Object();
 		p.threadId = Wikijump.forumThreadId;
-		OZONE.ajax.requestModule("forum/sub/ForumEditThreadMetaModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.editThreadMeta);
+		OZONE.ajax.requestModule("Forum/Sub/ForumEditThreadMetaModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.editThreadMeta);
 	},
 	editThreadStickiness: function(e){
 		var p = new Object();
 		p.threadId = Wikijump.forumThreadId;
-		OZONE.ajax.requestModule("forum/sub/ForumEditThreadStickinessModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.editThreadStickiness);
+		OZONE.ajax.requestModule("Forum/Sub/ForumEditThreadStickinessModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.editThreadStickiness);
 	},
 	editThreadBlock: function(e){
 		var p = new Object();
 		p.threadId = Wikijump.forumThreadId;
-		OZONE.ajax.requestModule("forum/sub/ForumEditThreadBlockModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.editThreadBlock);
+		OZONE.ajax.requestModule("Forum/Sub/ForumEditThreadBlockModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.editThreadBlock);
 	},
 	moveThread: function(e){
 		var p = new Object();
 		p.threadId = Wikijump.forumThreadId;
-		OZONE.ajax.requestModule("forum/sub/ForumThreadMoveModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.moveThread);
+		OZONE.ajax.requestModule("Forum/Sub/ForumThreadMoveModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.moveThread);
 	},
 
 	watchThread: function(e){

@@ -14,7 +14,7 @@ Wikijump.modules.MostActiveForumsModule.listeners = {
 			Wikijump.modules.MostActiveForumsModule.vars['box'] = box;
 		}
 
-		OZONE.ajax.requestModule('wiki/sitesactivity/MostActiveForumsModule', {range: range}, Wikijump.modules.MostActiveForumsModule.callbacks.changeTime);
+		OZONE.ajax.requestModule('Wiki/SitesActivity/MostActiveForumsModule', {range: range}, Wikijump.modules.MostActiveForumsModule.callbacks.changeTime);
 
 	}
 

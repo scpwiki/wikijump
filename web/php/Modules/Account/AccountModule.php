@@ -20,7 +20,7 @@ class AccountModule extends AccountBaseModule
     public function build($runData)
     {
         if (!$runData->getUser()) {
-            $runData->setModuleTemplate('account/AccountNotLoggedInModule');
+            $runData->setModuleTemplate('Account/AccountNotLoggedInModule');
             return;
         }
 

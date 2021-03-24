@@ -8,14 +8,14 @@ Wikijump.modules.CreateAccount1Module.listeners = {
 	},
 
 	backClick: function(e){
-		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, Wikijump.modules.CreateAccount1Module.callbacks.backClick);
+		OZONE.ajax.requestModule("CreateAccount/CreateAccount0Module", null, Wikijump.modules.CreateAccount1Module.callbacks.backClick);
 	},
 
 	nextClick: function(e){
 		var p = new Object();
 		p.action = "CreateAccountAction";
 		p.event = "sendEmailVer";
-		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, Wikijump.modules.CreateAccount1Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("CreateAccount/CreateAccount2Module", p, Wikijump.modules.CreateAccount1Module.callbacks.nextClick);
 
 	}
 }

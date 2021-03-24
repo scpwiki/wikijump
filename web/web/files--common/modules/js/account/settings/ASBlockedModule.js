@@ -98,7 +98,7 @@ Wikijump.modules.ASBlockedModule.callbacks = {
 		w.content = "User blocked.";
 		w.show();
 		// refresh the screen too
-		setTimeout('OZONE.ajax.requestModule("account/settings/ASBlockedModule", null, Wikijump.modules.AccountModule.callbacks.menuClick)', 1500);
+		setTimeout('OZONE.ajax.requestModule("Account/Settings/ASBlockedModule", null, Wikijump.modules.AccountModule.callbacks.menuClick)', 1500);
 
 	},
 	deleteBlock: function(r){
@@ -107,7 +107,7 @@ Wikijump.modules.ASBlockedModule.callbacks = {
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "User block removed.";
 		w.show();
-		setTimeout('OZONE.ajax.requestModule("account/settings/ASBlockedModule", null, Wikijump.modules.AccountModule.callbacks.menuClick)', 1500);
+		setTimeout('OZONE.ajax.requestModule("Account/Settings/ASBlockedModule", null, Wikijump.modules.AccountModule.callbacks.menuClick)', 1500);
 	}
 }
 

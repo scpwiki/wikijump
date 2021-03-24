@@ -16,7 +16,7 @@ Wikijump.modules.WhoInvitedModule.listeners = {
 		}
 		var p = new Object();
 		p.userId = userId;
-		OZONE.ajax.requestModule("wiki/invitations/WhoInvitedResultsModule", p, Wikijump.modules.WhoInvitedModule.callbacks.lookUp);
+		OZONE.ajax.requestModule("Wiki/Invitations/WhoInvitedResultsModule", p, Wikijump.modules.WhoInvitedModule.callbacks.lookUp);
 		YAHOO.util.Event.preventDefault(e);
 	}
 

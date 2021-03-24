@@ -15,7 +15,7 @@ Wikijump.modules.WikiCategoriesModule.listeners = {
 				p.category_id = categoryId;
 				d.style.display = "block";
 				d.innerHTML = '<div class="wait-block">loading page list...</div>';
-				OZONE.ajax.requestModule('list/WikiCategoriesPageListModule', p, Wikijump.modules.WikiCategoriesModule.callbacks.listPages);
+				OZONE.ajax.requestModule('List/WikiCategoriesPageListModule', p, Wikijump.modules.WikiCategoriesModule.callbacks.listPages);
 			}else{
 				d.style.display = "block";
 			}

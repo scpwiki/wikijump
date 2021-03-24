@@ -14,7 +14,7 @@ Wikijump.modules.ManageSiteCustomThemesModule.listeners = {
 			p['themeId'] = themeId;
 		}
 		Wikijump.modules.ManageSiteCustomThemesModule.vars.editThemeId = themeId;
-		OZONE.ajax.requestModule("managesite/ManageSiteEditCustomThemeModule", p, Wikijump.modules.ManageSiteCustomThemesModule.callbacks.editTheme);
+		OZONE.ajax.requestModule("ManageSite/ManageSiteEditCustomThemeModule", p, Wikijump.modules.ManageSiteCustomThemesModule.callbacks.editTheme);
 
 	},
 

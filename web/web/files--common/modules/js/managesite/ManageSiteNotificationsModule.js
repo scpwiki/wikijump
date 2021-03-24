@@ -6,7 +6,7 @@ Wikijump.modules.ManageSiteNotificationsModule.listeners = {
 	loadList: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("managesite/ManageSiteNotificationsListModule", p, Wikijump.modules.ManageSiteNotificationsModule.callbacks.loadList);
+		OZONE.ajax.requestModule("ManageSite/ManageSiteNotificationsListModule", p, Wikijump.modules.ManageSiteNotificationsModule.callbacks.loadList);
 	}
 }
 

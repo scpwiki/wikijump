@@ -258,7 +258,7 @@ Wikijump.modules.ManageSiteForumLayoutModule.listeners = {
 	},
 	cancel: function(e){
 		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
-//		OZONE.ajax.requestModule("managesite/ManageSiteModule", null, Wikijump.modules.ManageSiteForumLayoutModule.callbacks.cancel)
+//		OZONE.ajax.requestModule("ManageSite/ManageSiteModule", null, Wikijump.modules.ManageSiteForumLayoutModule.callbacks.cancel)
 	},
 	save: function(e){
 		var p = new Object();
@@ -286,7 +286,7 @@ Wikijump.modules.ManageSiteForumLayoutModule.callbacks = {
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Structure saved.";
 		w.show();
-		OZONE.ajax.requestModule("managesite/ManageSiteGetForumLayoutModule",null,Wikijump.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
+		OZONE.ajax.requestModule("ManageSite/ManageSiteGetForumLayoutModule",null,Wikijump.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
 	},
 
 	getLayout: function(r){
@@ -363,7 +363,7 @@ Wikijump.modules.ManageSiteForumLayoutModule.init = function(){
 
 	// get layout:
 
-	OZONE.ajax.requestModule("managesite/ManageSiteGetForumLayoutModule",null,Wikijump.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
+	OZONE.ajax.requestModule("ManageSite/ManageSiteGetForumLayoutModule",null,Wikijump.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
 
 }
 

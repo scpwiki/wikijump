@@ -4,10 +4,10 @@ Wikijump.modules.SiteToolsModule = {};
 
 Wikijump.modules.SiteToolsModule.listeners = {
 	wantedPages: function(e){
-		OZONE.ajax.requestModule("sitetools/WantedPagesModule", null, Wikijump.modules.SiteToolsModule.callbacks.setContent);
+		OZONE.ajax.requestModule("SiteTools/WantedPagesModule", null, Wikijump.modules.SiteToolsModule.callbacks.setContent);
 	},
 	orphanedPages: function(e){
-		OZONE.ajax.requestModule("sitetools/OrphanedPagesModule", null, Wikijump.modules.SiteToolsModule.callbacks.setContent);
+		OZONE.ajax.requestModule("SiteTools/OrphanedPagesModule", null, Wikijump.modules.SiteToolsModule.callbacks.setContent);
 	}
 }
 

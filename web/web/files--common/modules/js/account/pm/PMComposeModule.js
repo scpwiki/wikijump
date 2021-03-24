@@ -21,7 +21,7 @@ Wikijump.modules.PMComposeModule.listeners = {
 		if(Wikijump.modules.PMComposeModule.vars.recipientId){
 			p['to_user_id'] = Wikijump.modules.PMComposeModule.vars.recipientId;
 		}
-		OZONE.ajax.requestModule("account/pm/PMPreviewModule", p, Wikijump.modules.PMComposeModule.callbacks.preview);
+		OZONE.ajax.requestModule("Account/PM/PMPreviewModule", p, Wikijump.modules.PMComposeModule.callbacks.preview);
 	},
 
 	saveDraft: function(e){
@@ -60,7 +60,7 @@ Wikijump.modules.PMComposeModule.listeners = {
 	},
 
 	showContactsList: function(e){
-		OZONE.ajax.requestModule("account/pm/PMComposeContactsListModule", null, Wikijump.modules.PMComposeModule.callbacks.showContactsList);
+		OZONE.ajax.requestModule("Account/PM/PMComposeContactsListModule", null, Wikijump.modules.PMComposeModule.callbacks.showContactsList);
 	}
 
 }

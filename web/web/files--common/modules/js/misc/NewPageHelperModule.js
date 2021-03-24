@@ -18,7 +18,7 @@ Wikijump.modules.NewPageHelperModule.listeners = {
 			return;
 		}
 		var p = OZONE.utils.formToArray(f);
-		p.action = 'misc/NewPageHelperAction';
+		p.action = 'Misc/NewPageHelperAction';
 		p.event = 'createNewPage';
 		OZONE.ajax.requestModule(null, p, Wikijump.modules.NewPageHelperModule.callbacks.create);
 		return false;

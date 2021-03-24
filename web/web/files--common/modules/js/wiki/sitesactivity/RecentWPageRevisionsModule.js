@@ -6,7 +6,7 @@ Wikijump.modules.RecentWPageRevisionsModule.vars = {};
 
 Wikijump.modules.RecentWPageRevisionsModule.listeners = {
 	update: function(){
-		OZONE.ajax.requestModule('wiki/sitesactivity/RecentWPageRevisionsModule', null, Wikijump.modules.RecentWPageRevisionsModule.callbacks.update);
+		OZONE.ajax.requestModule('Wiki/SitesActivity/RecentWPageRevisionsModule', null, Wikijump.modules.RecentWPageRevisionsModule.callbacks.update);
 	}
 }
 

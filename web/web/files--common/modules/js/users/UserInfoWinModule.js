@@ -4,11 +4,11 @@ Wikijump.modules.UserInfoWinModule = {};
 
 Wikijump.modules.UserInfoWinModule.listeners = {
 	flagUser: function(e, userId){
-		OZONE.ajax.requestModule('report/FlagUserModule', {targetUserId: userId}, Wikijump.modules.UserInfoWinModule.callbacks.flagUser);
+		OZONE.ajax.requestModule('Report/FlagUserModule', {targetUserId: userId}, Wikijump.modules.UserInfoWinModule.callbacks.flagUser);
 
 	},
 	addContact: function(e, userId){
-		OZONE.ajax.requestModule('userinfo/UserAddToContactsModule', {userId: userId}, Wikijump.modules.UserInfoWinModule.callbacks.addContact);
+		OZONE.ajax.requestModule('UserInfo/UserAddToContactsModule', {userId: userId}, Wikijump.modules.UserInfoWinModule.callbacks.addContact);
 	}
 
 }

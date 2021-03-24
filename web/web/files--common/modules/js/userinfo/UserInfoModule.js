@@ -23,12 +23,12 @@ Wikijump.modules.UserInfoModule.listeners = {
   	},
 
   	flagUser: function(e, userId){
-		OZONE.ajax.requestModule('report/FlagUserModule', {targetUserId: userId}, Wikijump.modules.UserInfoModule.callbacks.flagUser);
+		OZONE.ajax.requestModule('Report/FlagUserModule', {targetUserId: userId}, Wikijump.modules.UserInfoModule.callbacks.flagUser);
 
 	},
 
 	addContact: function(e, userId){
-		OZONE.ajax.requestModule('userinfo/UserAddToContactsModule', {userId: userId}, Wikijump.modules.UserInfoModule.callbacks.addContact);
+		OZONE.ajax.requestModule('UserInfo/UserAddToContactsModule', {userId: userId}, Wikijump.modules.UserInfoModule.callbacks.addContact);
 	}
 
 }
@@ -61,12 +61,12 @@ Wikijump.modules.UserInfoModule.init = function(){
 	YAHOO.util.Event.addListener(tabIds, "click", Wikijump.modules.UserInfoModule.listeners.tabClick);
 
 	var mm = new Array();
-	mm['ui-profile-b'] = "userinfo/UserInfoProfileModule";
-	mm['ui-member-b'] = "userinfo/UserInfoMemberOfModule";
-	mm['ui-admin-b'] = "userinfo/UserInfoAdminOfModule";
-	mm['ui-moderator-b'] = "userinfo/UserInfoModeratorOfModule";
-	mm['ui-contrib-b'] = "userinfo/UserChangesModule";
-	mm['ui-posts-b'] = "userinfo/UserRecentPostsModule";
+	mm['ui-profile-b'] = "UserInfo/UserInfoProfileModule";
+	mm['ui-member-b'] = "UserInfo/UserInfoMemberOfModule";
+	mm['ui-admin-b'] = "UserInfo/UserInfoAdminOfModule";
+	mm['ui-moderator-b'] = "UserInfo/UserInfoModeratorOfModule";
+	mm['ui-contrib-b'] = "UserInfo/UserChangesModule";
+	mm['ui-posts-b'] = "UserInfo/UserRecentPostsModule";
 	// etc...
 	Wikijump.modules.UserInfoModule.vars.modulesMapping = mm;
 

@@ -10,7 +10,7 @@ Wikijump.modules.PMSentModule.listeners = {
 	loadList: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMSentModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("Account/PM/PMSentModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 		if(e){	Wikijump.modules.AccountMessagesModule.utils.highlightTab(e);}
 	},
 

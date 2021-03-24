@@ -10,7 +10,7 @@ Wikijump.modules.MembershipEmailInvitationModule.listeners = {
 		p.event = 'acceptEmailInvitation';
 		p.hash = hash;
 
-		OZONE.ajax.requestModule('membership/MembershipEmailInvitationCongratulationModule', p, Wikijump.modules.MembershipEmailInvitationModule.callbacks.accept);
+		OZONE.ajax.requestModule('Membership/MembershipEmailInvitationCongratulationModule', p, Wikijump.modules.MembershipEmailInvitationModule.callbacks.accept);
 
 	}
 

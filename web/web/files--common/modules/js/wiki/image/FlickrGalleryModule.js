@@ -24,14 +24,14 @@ Wikijump.modules.FlickrGalleryModules.listeners = {
 		p.pageNumber = pageNumber;
 		p.contentOnly = true;
 
-		OZONE.ajax.requestModule("wiki/image/FlickrGalleryModule", p, Wikijump.modules.FlickrGalleryModules.callbacks.loadPage);
+		OZONE.ajax.requestModule("Wiki/Image/FlickrGalleryModule", p, Wikijump.modules.FlickrGalleryModules.callbacks.loadPage);
 	},
 
 	showPhoto: function(e, photoId){
 		YAHOO.util.Event.stopEvent(e);
 		p = new Object();
 		p.photoId = photoId;
-		OZONE.ajax.requestModule("wiki/image/FlickrGalleryViewPhotoModule", p, Wikijump.modules.FlickrGalleryModules.callbacks.showPhoto);
+		OZONE.ajax.requestModule("Wiki/Image/FlickrGalleryViewPhotoModule", p, Wikijump.modules.FlickrGalleryModules.callbacks.showPhoto);
 		var box = YAHOO.util.Event.getTarget(e);
 		do{
 			box = box.parentNode;

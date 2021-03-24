@@ -6,7 +6,7 @@ Wikijump.modules.AccountNotificationsModule.listeners = {
 	loadList: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/AccountNotificationsListModule", p, Wikijump.modules.AccountNotificationsModule.callbacks.loadList);
+		OZONE.ajax.requestModule("Account/AccountNotificationsListModule", p, Wikijump.modules.AccountNotificationsModule.callbacks.loadList);
 	}
 }
 

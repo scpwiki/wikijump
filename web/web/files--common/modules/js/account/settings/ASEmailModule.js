@@ -21,7 +21,7 @@ Wikijump.modules.ASEmailModule.listeners = {
 		p.email = email;
 		p.action = "AccountSettingsAction";
 		p.event = "changeEmail1";
-		OZONE.ajax.requestModule("account/settings/email/ASChangeEmail2Module", p, Wikijump.modules.ASEmailModule.callbacks.next1);
+		OZONE.ajax.requestModule("Account/Settings/Email/ASChangeEmail2Module", p, Wikijump.modules.ASEmailModule.callbacks.next1);
 
 	},
 
@@ -32,7 +32,7 @@ Wikijump.modules.ASEmailModule.listeners = {
 		p.action = "AccountSettingsAction";
 		p.event = "changeEmail2";
 		p.evercode = evcode;
-		OZONE.ajax.requestModule("account/settings/email/ASChangeEmail3Module", p, Wikijump.modules.ASEmailModule.callbacks.next2);
+		OZONE.ajax.requestModule("Account/Settings/Email/ASChangeEmail3Module", p, Wikijump.modules.ASEmailModule.callbacks.next2);
 
 	}
 }

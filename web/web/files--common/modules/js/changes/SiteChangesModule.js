@@ -28,7 +28,7 @@ Wikijump.modules.SiteChangesModule.listeners = {
 
 		//Wikijump.modules.PageHistoryModule.vars.params = p; // for pagination
 
-		OZONE.ajax.requestModule("changes/SiteChangesListModule", p, Wikijump.modules.SiteChangesModule.callbacks.updateList);
+		OZONE.ajax.requestModule("Changes/SiteChangesListModule", p, Wikijump.modules.SiteChangesModule.callbacks.updateList);
 	}
 }
 

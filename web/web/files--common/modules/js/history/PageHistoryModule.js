@@ -25,7 +25,7 @@ Wikijump.modules.PageHistoryModule.listeners = {
 
 		Wikijump.modules.PageHistoryModule.vars.params = p; // for pagination
 
-		OZONE.ajax.requestModule("history/PageRevisionListModule", p, Wikijump.modules.PageHistoryModule.callbacks.updateList);
+		OZONE.ajax.requestModule("History/PageRevisionListModule", p, Wikijump.modules.PageHistoryModule.callbacks.updateList);
 	},
 
 	compareClick: function(e){
@@ -47,7 +47,7 @@ Wikijump.modules.PageHistoryModule.listeners = {
 		parms['from_revision_id']=selected_from;
 		parms['to_revision_id']=selected_to;
 		parms['show_type'] = 'inline';
-		OZONE.ajax.requestModule("history/PageDiffModule",parms,Wikijump.modules.PageHistoryModule.callbacks.compareClick);
+		OZONE.ajax.requestModule("History/PageDiffModule",parms,Wikijump.modules.PageHistoryModule.callbacks.compareClick);
 	},
 
 	closeActionArea: function(e){
@@ -203,7 +203,7 @@ Wikijump.modules.PageHistoryModule.utils = {
 function showVersion(revisionId){
 	var parms = new Object();
 	parms['revision_id'] = revisionId;
-	OZONE.ajax.requestModule("history/PageVersionModule",parms,Wikijump.modules.PageHistoryModule.callbacks.showVersionClick);
+	OZONE.ajax.requestModule("History/PageVersionModule",parms,Wikijump.modules.PageHistoryModule.callbacks.showVersionClick);
 }
 
 /**
@@ -214,7 +214,7 @@ function showSource(revisionId){
 
 	var parms = new Array();
 	parms['revision_id'] = revisionId;
-	OZONE.ajax.requestModule("history/PageSourceModule",parms,Wikijump.modules.PageHistoryModule.callbacks.showSource);
+	OZONE.ajax.requestModule("History/PageSourceModule",parms,Wikijump.modules.PageHistoryModule.callbacks.showSource);
 }
 
 /**
@@ -228,7 +228,7 @@ function revertTo(revisionId){
 function updatePagedList(pageNo){
 	var p = Wikijump.modules.PageHistoryModule.vars.params;
 	p['page'] = pageNo;
-	OZONE.ajax.requestModule("history/PageRevisionListModule", p, Wikijump.modules.PageHistoryModule.callbacks.updatePageList);
+	OZONE.ajax.requestModule("History/PageRevisionListModule", p, Wikijump.modules.PageHistoryModule.callbacks.updatePageList);
 
 }
 

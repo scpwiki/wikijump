@@ -24,7 +24,7 @@ Wikijump.modules.ChangeScreenNameModule.callbacks = {
 		w.content = "Your screen name has been changed!";
 		w.show();
 
-		OZONE.ajax.requestModule('account/profile/ChangeScreenNameModule', null, Wikijump.modules.AccountModule.callbacks.menuClick);
+		OZONE.ajax.requestModule('Account/Profile/ChangeScreenNameModule', null, Wikijump.modules.AccountModule.callbacks.menuClick);
 
 	}
 }

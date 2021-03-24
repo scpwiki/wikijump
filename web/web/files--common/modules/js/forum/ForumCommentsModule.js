@@ -11,7 +11,7 @@ Wikijump.modules.ForumCommentsModule.listeners = {
 			tc.innerHTML = '<div class="wait-block">Loading comments...</div>';
 			var p = new Object();
 			p.pageId = WIKIREQUEST.info.pageId;
-			OZONE.ajax.requestModule("forum/ForumCommentsListModule", p, Wikijump.modules.ForumCommentsModule.callbacks.showComments);
+			OZONE.ajax.requestModule("Forum/ForumCommentsListModule", p, Wikijump.modules.ForumCommentsModule.callbacks.showComments);
 		}else{
 			tc.style.display="block";
 			$("comments-options-hidden").style.display="none";

@@ -69,7 +69,7 @@ class PageEditModule extends SmartyModule
                 throw new ProcessException(_("The page you want to create already exists. Please refresh the page in your browser to see it."));
             /*  $runData->ajaxResponseAdd("pageExists", true);
                 $runData->ajaxResponseAdd("locked", true); //well, it is somehow locked...
-                $runData->setModuleTemplate("edit/NewPageExistsWinModule");
+                $runData->setModuleTemplate("Edit/NewPageExistsWinModule");
                 $db->commit();
                 return; */
             }
@@ -123,7 +123,7 @@ class PageEditModule extends SmartyModule
                     $conflicts = $lock->getConflicts();
                     if ($conflicts != null) {
                         $runData->ajaxResponseAdd("locked", true);
-                        $runData->setModuleTemplate("edit/NewPageLockedWinModule");
+                        $runData->setModuleTemplate("Edit/NewPageLockedWinModule");
                         $runData->contextAdd("locks", $conflicts);
                         return;
                     }
@@ -268,7 +268,7 @@ class PageEditModule extends SmartyModule
             $blocklocks = $lock->getConflicts();
             if ($blocklocks != null) {
                 // conflicting locks exist.
-                $runData->setModuleTemplate("edit/LockExistsWinModule");
+                $runData->setModuleTemplate("Edit/LockExistsWinModule");
                 $runData->ajaxResponseAdd("locked", true);
                 $runData->contextAdd("locks", $blocklocks);
                 return;

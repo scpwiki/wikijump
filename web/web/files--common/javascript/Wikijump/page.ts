@@ -56,7 +56,7 @@ export const page = {
         Wikijump.page.vars.forceLockFlag = false;
         parms.force_lock = 'yes';
       }
-      OZONE.ajax.requestModule("edit/PageEditModule", parms, Wikijump.page.callbacks.editClick);
+      OZONE.ajax.requestModule("Edit/PageEditModule", parms, Wikijump.page.callbacks.editClick);
     },
 
     append: function (_event: Event): void {
@@ -64,7 +64,7 @@ export const page = {
         page_id: WIKIREQUEST.info.pageId,
         mode: 'append'
       };
-      OZONE.ajax.requestModule("edit/PageEditModule", parms, Wikijump.page.callbacks.editClick);
+      OZONE.ajax.requestModule("Edit/PageEditModule", parms, Wikijump.page.callbacks.editClick);
     },
 
     editSection: function (_event: Event): void {
@@ -75,28 +75,28 @@ export const page = {
         mode: 'section',
         section: sectionNumber
       };
-      OZONE.ajax.requestModule("edit/PageEditModule", parms, Wikijump.page.callbacks.editClick);
+      OZONE.ajax.requestModule("Edit/PageEditModule", parms, Wikijump.page.callbacks.editClick);
     },
 
     historyClick: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         page_id: WIKIREQUEST.info.pageId
       };
-      OZONE.ajax.requestModule("history/PageHistoryModule", parms, Wikijump.page.callbacks.historyClick);
+      OZONE.ajax.requestModule("History/PageHistoryModule", parms, Wikijump.page.callbacks.historyClick);
     },
 
     filesClick: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         page_id: WIKIREQUEST.info.pageId
       };
-      OZONE.ajax.requestModule("files/PageFilesModule", parms, Wikijump.page.callbacks.filesClick);
+      OZONE.ajax.requestModule("Files/PageFilesModule", parms, Wikijump.page.callbacks.filesClick);
     },
 
     blockClick: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         page_id: WIKIREQUEST.info.pageId
       };
-      OZONE.ajax.requestModule("pageblock/PageBlockModule", parms, Wikijump.page.callbacks.blockClick);
+      OZONE.ajax.requestModule("PageBlock/PageBlockModule", parms, Wikijump.page.callbacks.blockClick);
     },
 
     moreOptionsClick: function (_event: Event): void {
@@ -163,14 +163,14 @@ export const page = {
 
       // let p = new Object();
       // if(resetRemember){ p.reset = "yes"; }
-      // OZONE.ajax.requestModule("login/LoginModule2", p, Wikijump.page.callbacks.loginClick);
+      // OZONE.ajax.requestModule("Login/LoginModule2", p, Wikijump.page.callbacks.loginClick);
     },
 
     createAccount: function (_event: Event): void {
       const url = HTTP_SCHEMA + "://" + URL_HOST + '/auth:newaccount?origUrl=' + encodeURIComponent(window.location.href);
       window.location.href = url;
 
-      // OZONE.ajax.requestModule("createaccount/CreateAccountModule", null, Wikijump.page.callbacks.createAccount);
+      // OZONE.ajax.requestModule("CreateAccount/CreateAccountModule", null, Wikijump.page.callbacks.createAccount);
     },
 
     toggleEditSections: function (_event?: Event): void {
@@ -241,24 +241,24 @@ export const page = {
       const parms: RequestModuleParameters = {
         pageId: WIKIREQUEST.info.pageId
       };
-      OZONE.ajax.requestModule("pagetags/PageTagsModule", parms, Wikijump.page.callbacks.editTags);
+      OZONE.ajax.requestModule("PageTags/PageTagsModule", parms, Wikijump.page.callbacks.editTags);
     },
 
     siteTools: function (_event: Event): void {
-      OZONE.ajax.requestModule("sitetools/SiteToolsModule", {}, Wikijump.page.callbacks.siteTools);
+      OZONE.ajax.requestModule("SiteTools/SiteToolsModule", {}, Wikijump.page.callbacks.siteTools);
     },
 
     backlinksClick: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         pageId: WIKIREQUEST.info.pageId
       };
-      OZONE.ajax.requestModule("backlinks/BacklinksModule", parms, Wikijump.page.callbacks.backlinksClick);
+      OZONE.ajax.requestModule("Backlinks/BacklinksModule", parms, Wikijump.page.callbacks.backlinksClick);
     },
     viewSourceClick: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         pageId: WIKIREQUEST.info.pageId
       };
-      OZONE.ajax.requestModule("viewsource/ViewSourceModule", parms, Wikijump.page.callbacks.viewSourceClick);
+      OZONE.ajax.requestModule("ViewSource/ViewSourceModule", parms, Wikijump.page.callbacks.viewSourceClick);
     },
 
     closeActionArea: function (_event: Event): void {
@@ -279,28 +279,28 @@ export const page = {
       const parms: RequestModuleParameters = {
         user_id: userId
       };
-      OZONE.ajax.requestModule("users/UserInfoWinModule", parms, Wikijump.page.callbacks.userInfo);
+      OZONE.ajax.requestModule("Users/UserInfoWinModule", parms, Wikijump.page.callbacks.userInfo);
     },
 
     anonymousUserInfo: function (userString: string): void {
       const parms: RequestModuleParameters = {
         userString: userString
       };
-      OZONE.ajax.requestModule("users/AnonymousInfoWinModule", parms, Wikijump.page.callbacks.userInfo);
+      OZONE.ajax.requestModule("Users/AnonymousInfoWinModule", parms, Wikijump.page.callbacks.userInfo);
     },
 
     renamePage: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         pageId: WIKIREQUEST.info.pageId
       };
-      OZONE.ajax.requestModule("rename/RenamePageModule", parms, Wikijump.page.callbacks.renamePage);
+      OZONE.ajax.requestModule("Rename/RenamePageModule", parms, Wikijump.page.callbacks.renamePage);
     },
     deletePage: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         pageId: WIKIREQUEST.info.pageId,
         delete: "yes"
       };
-      OZONE.ajax.requestModule("rename/RenamePageModule", parms, Wikijump.page.callbacks.renamePage);
+      OZONE.ajax.requestModule("Rename/RenamePageModule", parms, Wikijump.page.callbacks.renamePage);
     },
     createPageDiscussion: function (_event: Event): void {
       const parms: RequestModuleParameters = {
@@ -315,25 +315,25 @@ export const page = {
       const parms: RequestModuleParameters = {
         path: window.location.pathname
       };
-      OZONE.ajax.requestModule('report/FlagPageModule', parms, Wikijump.page.callbacks.flagPageObjectionable);
+      OZONE.ajax.requestModule('Report/FlagPageModule', parms, Wikijump.page.callbacks.flagPageObjectionable);
     },
     pageBugReport: function (_event: Event): void {
-      OZONE.ajax.requestModule('report/BugReportModule', {}, Wikijump.page.callbacks.pageBugReport);
+      OZONE.ajax.requestModule('Report/BugReportModule', {}, Wikijump.page.callbacks.pageBugReport);
     },
     pageRate: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         pageId: WIKIREQUEST.info.pageId
       };
-      OZONE.ajax.requestModule('pagerate/PageRateModule', parms, Wikijump.page.callbacks.pageRate);
+      OZONE.ajax.requestModule('PageRate/PageRateModule', parms, Wikijump.page.callbacks.pageRate);
     },
     parentClick: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         page_id: WIKIREQUEST.info.pageId
       };
-      OZONE.ajax.requestModule("parent/ParentPageModule", parms, Wikijump.page.callbacks.parentClick);
+      OZONE.ajax.requestModule("Parent/ParentPageModule", parms, Wikijump.page.callbacks.parentClick);
     },
     passwordRecoveryClick: function (_event: Event): void {
-      OZONE.ajax.requestModule("passwordrecovery/PasswordRecoveryModule", {}, Wikijump.page.callbacks.passwordRecovery);
+      OZONE.ajax.requestModule("PasswordRecovery/PasswordRecoveryModule", {}, Wikijump.page.callbacks.passwordRecovery);
     },
 
     foldToc: function (_event: Event): void {

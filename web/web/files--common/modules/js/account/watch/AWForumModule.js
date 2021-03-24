@@ -4,7 +4,7 @@ Wikijump.modules.AWForumModule = {};
 
 Wikijump.modules.AWForumModule.listeners = {
 	showWatchedThreads: function(e){
-		OZONE.ajax.requestModule("/account/watch/AWThreadsListModule", null, Wikijump.modules.AWForumModule.callbacks.showWatchedThreads);
+		OZONE.ajax.requestModule("/Account/Watch/AWThreadsListModule", null, Wikijump.modules.AWForumModule.callbacks.showWatchedThreads);
 	},
 	hideWatchedThreads: function(e){
 		$("watched-threads-list").innerHTML="";
@@ -28,7 +28,7 @@ Wikijump.modules.AWForumModule.listeners = {
 			p.page = 1;
 		}
 
-		OZONE.ajax.requestModule("account/watch/AWForumListModule", p, Wikijump.modules.AWForumModule.callbacks.updateList);
+		OZONE.ajax.requestModule("Account/Watch/AWForumListModule", p, Wikijump.modules.AWForumModule.callbacks.updateList);
 	}
 }
 

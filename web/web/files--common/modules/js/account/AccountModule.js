@@ -79,25 +79,25 @@ Wikijump.modules.AccountModule.init = function(){
 	YAHOO.util.Event.addListener("account-side", "click", Wikijump.modules.AccountModule.listeners.clickMenu);
 
 	var mm = new Object();
-	mm['am-welcome'] = "account/AccountWelcomeModule";
-	mm['am-messages'] = "account/AccountMessagesModule";
-	mm['am-notifications'] = "account/AccountNotificationsModule";
-	mm['am-contacts'] = "account/contacts/AccountContactsModule";
-	mm['am-profile'] = "account/AccountProfileModule";
-	mm['am-adminof'] = "account/membership/AccountAdminOfModule";
-	mm['am-moderatorof'] = "account/membership/AccountModeratorOfModule";
-	mm['am-memberof'] = "account/membership/AccountMemberOfModule";
-	mm['am-invitations'] = "account/membership/AccountInvitationsModule";
-	mm['am-applications'] = "account/membership/AccountApplicationsModule";
-	mm['am-recentcontrib'] = "userinfo/UserChangesModule";//"account/AccountRecentContribModule";
-	mm['am-recentposts'] = "userinfo/UserRecentPostsModule";//"account/AccountRecentPostsModule";
-	mm['am-stats'] = "account/AccountStatisticsModule";
-	mm['am-settings'] = "account/AccountSettingsModule";
-	mm['am-watched-changes'] = "account/watch/AWChangesModule";
-	mm['am-watched-forum'] = "account/watch/AWForumModule";
-	mm['am-watched-feed'] = "account/watch/AWFeedModule";
-	mm['am-wiki-newsletters'] = "account/membership/AccountWikiNewslettersModule";
-	mm['am-deletedsites'] = "account/membership/AccountDeletedSitesModule";
+	mm['am-welcome'] = "Account/AccountWelcomeModule";
+	mm['am-messages'] = "Account/AccountMessagesModule";
+	mm['am-notifications'] = "Account/AccountNotificationsModule";
+	mm['am-contacts'] = "Account/Contacts/AccountContactsModule";
+	mm['am-profile'] = "Account/AccountProfileModule";
+	mm['am-adminof'] = "Account/Membership/AccountAdminOfModule";
+	mm['am-moderatorof'] = "Account/Membership/AccountModeratorOfModule";
+	mm['am-memberof'] = "Account/Membership/AccountMemberOfModule";
+	mm['am-invitations'] = "Account/Membership/AccountInvitationsModule";
+	mm['am-applications'] = "Account/Membership/AccountApplicationsModule";
+	mm['am-recentcontrib'] = "UserInfo/UserChangesModule";//"Account/AccountRecentContribModule";
+	mm['am-recentposts'] = "UserInfo/UserRecentPostsModule";//"Account/AccountRecentPostsModule";
+	mm['am-stats'] = "Account/AccountStatisticsModule";
+	mm['am-settings'] = "Account/AccountSettingsModule";
+	mm['am-watched-changes'] = "Account/Watch/AWChangesModule";
+	mm['am-watched-forum'] = "Account/Watch/AWForumModule";
+	mm['am-watched-feed'] = "Account/Watch/AWFeedModule";
+	mm['am-wiki-newsletters'] = "Account/Membership/AccountWikiNewslettersModule";
+	mm['am-deletedsites'] = "Account/Membership/AccountDeletedSitesModule";
 
 	Wikijump.modules.AccountModule.mapping = mm;
 

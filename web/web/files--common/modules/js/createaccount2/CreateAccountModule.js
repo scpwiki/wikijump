@@ -17,7 +17,7 @@ Wikijump.modules.CreateAccountModule.listeners = {
 
 		p.action = "CreateAccount2Action";
 		p.event = "step0";
-		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, Wikijump.modules.CreateAccountModule.callbacks.nextClick);
+		OZONE.ajax.requestModule("CreateAccount/CreateAccount2Module", p, Wikijump.modules.CreateAccountModule.callbacks.nextClick);
 
 	}
 }

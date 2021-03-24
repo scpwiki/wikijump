@@ -52,7 +52,7 @@ class Text_Wiki_Parse_Social extends Text_Wiki_Parse {
 
        	$d = utf8_encode("\xFE");
 
-       	$out = $d."module \"wiki/social/SocialBookmarksModule\"";
+       	$out = $d."module \"Wiki/Social/SocialBookmarksModule\"";
 	    	if($sites!==null && $sites!=='') {$out.=" ".urlencode('sites="'.$sites.'"')." ";}
 	    	$out.=$d;
 

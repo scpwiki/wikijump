@@ -20,7 +20,7 @@ Wikijump.modules.CreateAccount0Module.listeners = {
 		p['password2'] = linebrk(hex2b64(rsa.encrypt('__'+p['password2'])),64);
 		p.action = "CreateAccountAction";
 		p.event = "step0";
-		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, Wikijump.modules.CreateAccount0Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("CreateAccount/CreateAccount2Module", p, Wikijump.modules.CreateAccount0Module.callbacks.nextClick);
 
 	}
 }

@@ -60,7 +60,7 @@ class RateAction extends SmartyAction
             $v = PageRateVotePeer::instance()->selectOne($c);
             if ($v) {
                 $runData->ajaxResponseAdd("status", "already_voted");
-                $runData->setModuleTemplate("pagerate/AlreadyRatedModule");
+                $runData->setModuleTemplate("PageRate/AlreadyRatedModule");
                 $runData->contextAdd("points", $points);
                 $runData->contextAdd("rate", $v->getRate());
                 return;

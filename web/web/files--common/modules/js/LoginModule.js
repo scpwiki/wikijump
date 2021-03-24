@@ -12,7 +12,7 @@ Wikijump.modules.LoginModule.listeners = {
 			return false;
 		}
 
-		OZONE.ajax.requestModule("login/QuickLoginModule", parms, Wikijump.modules.LoginModule.callbacks.loginClick);
+		OZONE.ajax.requestModule("Login/QuickLoginModule", parms, Wikijump.modules.LoginModule.callbacks.loginClick);
 	}
 }
 

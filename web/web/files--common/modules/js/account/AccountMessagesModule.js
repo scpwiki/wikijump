@@ -8,7 +8,7 @@ Wikijump.modules.AccountMessagesModule.listeners = {
 	inbox: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMInboxModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("Account/PM/PMInboxModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 		var tp = $("account-top-tabs");
 		var as = tp.getElementsByTagName('a');
 		for(var i=0; i<as.length; i++){
@@ -23,7 +23,7 @@ Wikijump.modules.AccountMessagesModule.listeners = {
 	sent: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMSentModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("Account/PM/PMSentModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 		var tp = $("account-top-tabs");
 		var as = tp.getElementsByTagName('a');
 		for(var i=0; i<as.length; i++){
@@ -35,7 +35,7 @@ Wikijump.modules.AccountMessagesModule.listeners = {
 	drafts: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMDraftsModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("Account/PM/PMDraftsModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 		var tp = $("account-top-tabs");
 		var as = tp.getElementsByTagName('a');
 		for(var i=0; i<as.length; i++){
@@ -50,7 +50,7 @@ Wikijump.modules.AccountMessagesModule.listeners = {
 		if(userId != null){
 			p['toUserId'] = userId;
 		}
-		OZONE.ajax.requestModule("account/pm/PMComposeModule", p, Wikijump.modules.AccountMessagesModule.callbacks.compose);
+		OZONE.ajax.requestModule("Account/PM/PMComposeModule", p, Wikijump.modules.AccountMessagesModule.callbacks.compose);
 		var tp = $("account-top-tabs");
 		var as = tp.getElementsByTagName('a');
 		for(var i=0; i<as.length; i++){
@@ -65,14 +65,14 @@ Wikijump.modules.AccountMessagesModule.listeners = {
 	viewInboxMessage: function(messageId){
 		var p = new Object();
 		p['message_id'] = messageId;
-		OZONE.ajax.requestModule("account/pm/PMInboxMessageModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("Account/PM/PMInboxMessageModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 	},
 	replyInboxMessage: function(e, messageId){
 		var p = new Object();
 		if(messageId){
 			p.replyMessageId = messageId;
 		}
-		OZONE.ajax.requestModule("account/pm/PMComposeModule", p, Wikijump.modules.AccountMessagesModule.callbacks.replyInboxMessage);
+		OZONE.ajax.requestModule("Account/PM/PMComposeModule", p, Wikijump.modules.AccountMessagesModule.callbacks.replyInboxMessage);
 
 	},
 
@@ -87,12 +87,12 @@ Wikijump.modules.AccountMessagesModule.listeners = {
 	viewSentMessage: function(messageId){
 		var p = new Object();
 		p['message_id'] = messageId;
-		OZONE.ajax.requestModule("account/pm/PMSentMessageModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("Account/PM/PMSentMessageModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 	},
 	viewDraftsMessage: function(messageId){
 		var p = new Object();
 		p['message_id'] = messageId;
-		OZONE.ajax.requestModule("account/pm/PMDraftsMessageModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("Account/PM/PMDraftsMessageModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 	},
 	cancelCompose: function(e){
 

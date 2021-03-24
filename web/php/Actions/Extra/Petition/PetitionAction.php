@@ -203,7 +203,7 @@ class PetitionAction extends SmartyAction
         $oe->contextAdd("campaignName", $camp->getName());
         $oe->contextAdd("sig", $pet);
 
-        $oe->setBodyTemplate('Wiki/petition/PetitionConfirmation');
+        $oe->setBodyTemplate('Wiki/Petition/PetitionConfirmation');
 
         if (!$oe->Send()) {
             throw new ProcessException(_("Confirmation email cannot be delivered to the specified address."));
@@ -215,7 +215,7 @@ class PetitionAction extends SmartyAction
 
         $db->commit();
 
-        $runData->setModuleTemplate("Extra/petition/ConfirmationSentModule");
+        $runData->setModuleTemplate("Extra/Petition/ConfirmationSentModule");
 
         $runData->sessionAdd("keep", true);
     }
@@ -271,7 +271,7 @@ class PetitionAction extends SmartyAction
         if ($thankYouPage) {
             $runData->ajaxResponseAdd("thankYouPage", $thankYouPage);
         } else {
-            $runData->setModuleTemplate("Extra/petition/SignatureConfirmedModule");
+            $runData->setModuleTemplate("Extra/Petition/SignatureConfirmedModule");
         }
 
         $db->commit();
@@ -310,7 +310,7 @@ class PetitionAction extends SmartyAction
 
         PetitionSignaturePeer::instance()->deleteByPrimaryKey($pet->getSignatureId());
 
-        $runData->setModuleTemplate("Extra/petition/SignatureCancelledModule");
+        $runData->setModuleTemplate("Extra/Petition/SignatureCancelledModule");
 
         $db->commit();
     }
