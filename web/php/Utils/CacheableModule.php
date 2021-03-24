@@ -2,9 +2,9 @@
 
 namespace Wikidot\Utils;
 
-abstract use Ozone\Framework\Ozone;use Ozone\Framework\SmartyModule;
+use Ozone\Framework\Ozone;
 
-class CacheableModule extends SmartyModule
+abstract class CacheableModule extends SmartyModule
 {
 
     protected $timeOut = 0;
