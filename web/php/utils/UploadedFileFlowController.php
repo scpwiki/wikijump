@@ -8,7 +8,7 @@ use Ozone\Framework\RunData;
 use Wikidot\DB\OzoneUser;
 use Wikidot\DB\Site;
 
-class UploadedFileFlowController extends WikijumpController
+class UploadedFileFlowController extends WikidotController
 {
 
     /**

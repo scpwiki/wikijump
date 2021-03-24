@@ -17,11 +17,11 @@ class ProcessExceptionHandler
         // rollback the transaction
         $db = Database::connection();
         $db->rollback();
-        $out.= '<div Class="error-block">';
+        $out.= '<div class="error-block">';
         if ($exception instanceof ProcessException) {
             $out.=nl2br($exception->getMessage());
         } elseif ($exception instanceof WDPermissionException) {
-            $out.='<div Class="title">Permission error</div>';
+            $out.='<div class="title">Permission error</div>';
             $out.=nl2br($exception->getMessage());
         } else {
             $out.="An error occured when processing your request.";

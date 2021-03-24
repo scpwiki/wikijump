@@ -278,14 +278,14 @@ class WikiTransformation
 
         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_text', '');
         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'css_new', 'newpage');
-        $wiki->setRenderConf($this->transformationFormat, 'table', 'css_table', 'Wiki-content-table');
+        $wiki->setRenderConf($this->transformationFormat, 'table', 'css_table', 'wiki-content-table');
 
         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'exists_callback', 'wikiPageExists');
 
         $interWikis = array(
-            'wikipedia'    => 'http://en.wikipedia.org/Wiki/%s',
-            'wikipedia.pl'    => 'http://pl.wikipedia.org/Wiki/%s',
-            'pl.wikipedia'    => 'http://pl.wikipedia.org/Wiki/%s',
+            'wikipedia'    => 'http://en.wikipedia.org/wiki/%s',
+            'wikipedia.pl'    => 'http://pl.wikipedia.org/wiki/%s',
+            'pl.wikipedia'    => 'http://pl.wikipedia.org/wiki/%s',
             'google'    => 'http://www.google.com/search?q=%s',
             'dictionary' => 'http://dictionary.reference.com/browse/%s'
         );

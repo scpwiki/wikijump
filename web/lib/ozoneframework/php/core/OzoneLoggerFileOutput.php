@@ -24,7 +24,7 @@ class OzoneLoggerFileOutput implements OzoneLoggerOutput {
 		$debugLevelString = array_search($event['level'], OzoneLogger::$LEVELS);
 		$out = sprintf("[%s] %s, %s%s%s, line %d:  %s\n", $debugLevelString,
 			date("Y.m.d G:i:s T", $event['timestamp']),
-			$event['Class'], $event['type'], $event['function'],
+			$event['class'], $event['type'], $event['function'],
 			$event['line'],
 			$event['message']);
 		// quickly open file.

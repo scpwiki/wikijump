@@ -11,7 +11,7 @@ use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\MemberPeer;
 
-abstract class WikijumpController extends WebFlowController
+abstract class WikidotController extends WebFlowController
 {
 
     protected static $HTML_MIME_TYPES = ";^text/html|^application/xhtml+xml|^application/xml|^text/xml;";

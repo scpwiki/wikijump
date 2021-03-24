@@ -58,14 +58,14 @@ class PageOptionsBottomModule extends Module
         if ($page) {
             $otext .=   '<div id="page-info">'.
                     _('page_revision').': '.$page->getRevisionNumber().', '.
-                    _('last_edited').': <span Class="odate">'.
+                    _('last_edited').': <span class="odate">'.
                     $page->getDateLastEdited()->getTimestamp().
                     '|%e %b %Y, %H:%M %Z (%O '._('ago').')</span>'.
                     '</div>';
         }
 
         $otext .= '
-<div id="page-options-bottom"  Class="page-options-bottom">
+<div id="page-options-bottom"  class="page-options-bottom">
 	<a href="javascript:;" id="edit-button">'._('edit').'</a>';
 
         if ($showRate&&$page) {
@@ -92,7 +92,7 @@ class PageOptionsBottomModule extends Module
         }
         $otext .= '<a href="javascript:;" id="more-options-button">+&nbsp;'._('options').'</a>
 </div>
-<div id="page-options-bottom-2" Class="page-options-bottom" style="display:none">
+<div id="page-options-bottom-2" class="page-options-bottom" style="display:none">
 	<a href="javascript:;" id="edit-sections-button">'._('edit sections').'</a>
 	<a href="javascript:;" id="edit-append-button">'._('append').'</a>
 	<a href="javascript:;" id="backlinks-button">'._('backlinks').'</a>

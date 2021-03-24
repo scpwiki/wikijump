@@ -233,16 +233,16 @@ class GlobalProperties
         self::$LOGGER_FILE              = $_ENV["WIKIJUMP_LOGGER_FILE"] ?? self::fromIni("log", "file", "wikijump.log"); // TODO: use this setting
 
         // other settings
-        self::$CACHE_FILES_FOR          = $_ENV["WIKIJUMP_CACHE_FILES_FOR"] ?? self::fromIni("Misc", "cache_files_for", 0);
-        self::$URL_DOCS                 = $_ENV["WIKIJUMP_URL_DOCS"] ?? self::fromIni("Misc", "doc_url", self::$HTTP_SCHEMA. "://" . self::$URL_HOST . "/doc");
-        self::$IP_HOST                  = $_ENV["WIKIJUMP_IP_HOST"] ?? self::fromIni("Misc", "ip", "127.0.0.1");
-        self::$USE_CUSTOM_DOMAINS       = $_ENV["WIKIJUMP_USE_CUSTOM_DOMAINS"] ?? self::fromIni("Misc", "custom_domains", true);
-        self::$MODULES_JS_PATH          = $_ENV["WIKIJUMP_MODULES_JS_PATH"] ?? self::fromIni("Misc", "modules_js_path", "web/files--common/modules/js");
-        self::$MODULES_JS_URL           = $_ENV["WIKIJUMP_MODULES_JS_URL"] ?? self::fromIni("Misc", "modules_js_url", "/common--modules/js");
-        self::$MODULES_CSS_PATH         = $_ENV["WIKIJUMP_MODULES_CSS_PATH"] ?? self::fromIni("Misc", "modules_css_path", "web/files--common/modules/css");
-        self::$MODULES_CSS_URL          = $_ENV["WIKIJUMP_MODULES_CSS_URL"] ?? self::fromIni("Misc", "modules_css_url", "/common--modules/css");
-        self::$XSENDFILE_USE            = $_ENV["WIKIJUMP_XSENDFILE_USE"] ?? self::fromIni("Misc", "xsendfile", false);
-        self::$XSENDFILE_HEADER         = $_ENV["WIKIJUMP_XSENDFILE_HEADER"] ?? self::fromIni("Misc", "xsendfile_header", "X-LIGHTTPD-send-file");
+        self::$CACHE_FILES_FOR          = $_ENV["WIKIJUMP_CACHE_FILES_FOR"] ?? self::fromIni("misc", "cache_files_for", 0);
+        self::$URL_DOCS                 = $_ENV["WIKIJUMP_URL_DOCS"] ?? self::fromIni("misc", "doc_url", self::$HTTP_SCHEMA. "://" . self::$URL_HOST . "/doc");
+        self::$IP_HOST                  = $_ENV["WIKIJUMP_IP_HOST"] ?? self::fromIni("misc", "ip", "127.0.0.1");
+        self::$USE_CUSTOM_DOMAINS       = $_ENV["WIKIJUMP_USE_CUSTOM_DOMAINS"] ?? self::fromIni("misc", "custom_domains", true);
+        self::$MODULES_JS_PATH          = $_ENV["WIKIJUMP_MODULES_JS_PATH"] ?? self::fromIni("misc", "modules_js_path", "web/files--common/modules/js");
+        self::$MODULES_JS_URL           = $_ENV["WIKIJUMP_MODULES_JS_URL"] ?? self::fromIni("misc", "modules_js_url", "/common--modules/js");
+        self::$MODULES_CSS_PATH         = $_ENV["WIKIJUMP_MODULES_CSS_PATH"] ?? self::fromIni("misc", "modules_css_path", "web/files--common/modules/css");
+        self::$MODULES_CSS_URL          = $_ENV["WIKIJUMP_MODULES_CSS_URL"] ?? self::fromIni("misc", "modules_css_url", "/common--modules/css");
+        self::$XSENDFILE_USE            = $_ENV["WIKIJUMP_XSENDFILE_USE"] ?? self::fromIni("misc", "xsendfile", false);
+        self::$XSENDFILE_HEADER         = $_ENV["WIKIJUMP_XSENDFILE_HEADER"] ?? self::fromIni("misc", "xsendfile_header", "X-LIGHTTPD-send-file");
 
         self::$FLICKR_API_KEY           = $_ENV["WIKIJUMP_FLICKR_API_KEY"] ?? self::fromIni("keys", "flickr", "");
 

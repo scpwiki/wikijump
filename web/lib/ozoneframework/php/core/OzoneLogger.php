@@ -78,7 +78,7 @@ class OzoneLogger {
 			$event = array();
 			// now some tricking-around
 			$event['timestamp'] = time();
-			$event['Class'] = $backtrace[2]['Class'];
+			$event['class'] = $backtrace[2]['class'];
 			$event['function'] = $backtrace[2]['function'];
 			$event['type'] = $backtrace[2]['type'];
 			$event['line'] = $backtrace[1]['line'];

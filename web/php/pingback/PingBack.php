@@ -269,18 +269,18 @@ class Pingback
         $ret = strip_tags($ret, "<a>");
 
         // Sanitize "a" and add Class delete
-        $ret = preg_replace("|<a[^>]*href=\"([^\"]*)\"[^>]*>([^<]*)</a>|s", "<a Class=\"delete\" href=\"\\1\">\\2</a>", $ret);
+        $ret = preg_replace("|<a[^>]*href=\"([^\"]*)\"[^>]*>([^<]*)</a>|s", "<a class=\"delete\" href=\"\\1\">\\2</a>", $ret);
 
         // Find THE "a" tag and add a pingback Class to it
         $xml = new SimpleXMLElement("<context>$ret</context>");
         $node = $this->xpath1($xml, "//a[@href=\"" . $href . "\"][1]");
         if ($node) {
-            $node["Class"] = "pingback";
+            $node["class"] = "pingback";
         }
         $ret = strip_tags($xml->asXML(), "<a>");
 
         // Delete any "a" with Class delete
-        $ret = preg_replace("|<a[^>]*Class=\"delete\"[^>]*>([^<]*)</a>|s", "\\1", $ret);
+        $ret = preg_replace("|<a[^>]*class=\"delete\"[^>]*>([^<]*)</a>|s", "\\1", $ret);
 
         // Fine cut the context
         $ret = preg_replace('|.*(.{' . self::$CONTEXT_BYTES . '}<a)|s', "\\1", $ret);

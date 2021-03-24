@@ -11,6 +11,6 @@ class Text extends Base
     }
     public function renderEdit()
     {
-        return '<input Class="text" type="text" value="' . $this->hvalue() . '" name="field_' . $this->field['name'] . '"/>';
+        return '<input class="text" type="text" value="' . $this->hvalue() . '" name="field_' . $this->field['name'] . '"/>';
     }
 }

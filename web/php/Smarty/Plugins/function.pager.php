@@ -96,8 +96,8 @@ function smarty_function_pager($params, &$smarty)
     }
 
     $out = "";
-    $out .= '<div Class="pager">';
-    $out .= '<span Class="pager-no">'._('page').' '.$current;
+    $out .= '<div class="pager">';
+    $out .= '<span class="pager-no">'._('page').' '.$current;
     if ($total) {
         $out .= ' '._('of').' '.$total;
     }
@@ -108,7 +108,7 @@ function smarty_function_pager($params, &$smarty)
             if ($p[2] == true) {
                 // current page
                 $class = 'current';
-                $out .= '<span Class="'.$class.'">'.$p[0].'</span>';
+                $out .= '<span class="'.$class.'">'.$p[0].'</span>';
             } else {
                 $class = 'target';
                 if ($jsfunction) {
@@ -117,13 +117,13 @@ function smarty_function_pager($params, &$smarty)
                     } else {
                         $js =   $jsfunction.'('.$p[1].')';
                     }
-                    $out .= '<span Class="'.$class.'"><a href="javascript:;" onclick="'.$js.'">'.$p[0].'</a></span>';
+                    $out .= '<span class="'.$class.'"><a href="javascript:;" onclick="'.$js.'">'.$p[0].'</a></span>';
                 } elseif ($url) {
-                    $out .= '<span Class="'.$class.'"><a href="'.sprintf(preg_replace('/%([A-E0-9]{2,2})/i', '%%\\1', $url), $p[1]).'">'.$p[0].'</a></span>';
+                    $out .= '<span class="'.$class.'"><a href="'.sprintf(preg_replace('/%([A-E0-9]{2,2})/i', '%%\\1', $url), $p[1]).'">'.$p[0].'</a></span>';
                 }
             }
         } else {
-            $out .= '<span Class="dots">'.$p[0].'</span>';
+            $out .= '<span class="dots">'.$p[0].'</span>';
         }
     }
 

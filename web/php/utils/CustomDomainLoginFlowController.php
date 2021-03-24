@@ -6,7 +6,7 @@ namespace Wikidot\Utils;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
 
-class CustomDomainLoginFlowController extends WikijumpController
+class CustomDomainLoginFlowController extends WikidotController
 {
 
     public static $controllerUrl = "/domainauth.php";

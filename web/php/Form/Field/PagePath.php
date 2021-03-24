@@ -93,16 +93,16 @@ class PagePath extends WikiBase
             $selectsEnd .= '</span>';
         }
 
-        return '<div Class="field-pagepath-chooser">' .
-            '<input Class="value" type="hidden" name="field_' . $this->field['name'] . '" value="' . $this->hvalue() . '"/>' .
-            '<input Class="category" type="hidden" value="' . $this->field['category'] . '"/>' .
-            '<input Class="new_page_parent" type="hidden" name="newpageparent_' . $this->field['name'] . '" value=""/>' .
-            '<input Class="new_page_title" type="hidden" name="newpagetitle_' . $this->field['name'] . '" value=""/>' .
+        return '<div class="field-pagepath-chooser">' .
+            '<input class="value" type="hidden" name="field_' . $this->field['name'] . '" value="' . $this->hvalue() . '"/>' .
+            '<input class="category" type="hidden" value="' . $this->field['category'] . '"/>' .
+            '<input class="new_page_parent" type="hidden" name="newpageparent_' . $this->field['name'] . '" value=""/>' .
+            '<input class="new_page_title" type="hidden" name="newpagetitle_' . $this->field['name'] . '" value=""/>' .
             '<span>' . implode("<span> / ", $selects) . '<span></span>' . $selectsEnd . '</span>' .
         '</div>';
         /*
         in the end we get something like this:
-            <div Class="field-pagepath-choser">
+            <div class="field-pagepath-choser">
                 <input type="hidden" value="" name=""/>
                 <span>
                     <select> <option/> <option/> ... </select> <span>

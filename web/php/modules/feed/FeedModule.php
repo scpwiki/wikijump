@@ -146,7 +146,7 @@ class FeedModule extends CacheableModule
             // fix dates
             $item['timestamp'] = MagpieFeed::getUnixTimestamp($item);
             if ($item['timestamp'] != '') {
-                $dateString = '<span Class="odate">'.$item['timestamp'].'|%e %b %Y, %H:%M %Z|agohover</span>';
+                $dateString = '<span class="odate">'.$item['timestamp'].'|%e %b %Y, %H:%M %Z|agohover</span>';
             } else {
                 $dateString = '';
             }
@@ -167,7 +167,7 @@ class FeedModule extends CacheableModule
             $b = preg_replace('/%%((content)|(long)|(body))%%/i', preg_quote_replacement($full), $b);
 
             $b = str_ireplace('%%date%%', $dateString, $b);
-            $b = preg_replace('/%%date\|(.*?)%%/i', '<span Class="odate">'.$item['timestamp'].'|\\1</span>', $b);
+            $b = preg_replace('/%%date\|(.*?)%%/i', '<span class="odate">'.$item['timestamp'].'|\\1</span>', $b);
 
             // start removing ads block!!!
 
