@@ -8,7 +8,7 @@ Wikijump.modules.CreateAccount2Module.listeners = {
 	},
 
 	backClick: function(e){
-		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, Wikijump.modules.CreateAccount2Module.callbacks.backClick);
+		OZONE.ajax.requestModule("CreateAccount/CreateAccount0Module", null, Wikijump.modules.CreateAccount2Module.callbacks.backClick);
 	},
 
 	nextClick: function(e){

@@ -6,7 +6,7 @@ Wikijump.modules.CreateAccountModule.vars = {};
 
 Wikijump.modules.CreateAccountModule.listeners = {
 	createClick: function(e){
-		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null,Wikijump.modules.CreateAccountModule.callbacks.createClick );
+		OZONE.ajax.requestModule("CreateAccount/CreateAccount0Module", null,Wikijump.modules.CreateAccountModule.callbacks.createClick );
 	},
 	cancel: function(e){
 		var p = new Object();

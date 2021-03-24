@@ -7,7 +7,7 @@ Wikijump.modules.MembershipApplyModule.listeners = {
 		var parms = OZONE.utils.formToArray("membership-by-apply-form");
 		parms['action'] = "MembershipApplyAction";
 		parms['event'] = "apply";
-		OZONE.ajax.requestModule("membership/MembershipApplySuccessModule", parms, Wikijump.modules.MembershipApplyModule.callbacks.apply);
+		OZONE.ajax.requestModule("Membership/MembershipApplySuccessModule", parms, Wikijump.modules.MembershipApplyModule.callbacks.apply);
 	}
 }
 

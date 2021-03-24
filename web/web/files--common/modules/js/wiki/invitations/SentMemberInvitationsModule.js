@@ -36,7 +36,7 @@ Wikijump.modules.SentMemberInvitationsModule.listeners = {
 	},
 
 	sendMore: function(e){
-		OZONE.ajax.requestModule("wiki/invitations/InviteMembersModule", null, Wikijump.modules.SentMemberInvitationsModule.callbacks.sendMore);
+		OZONE.ajax.requestModule("Wiki/Invitations/InviteMembersModule", null, Wikijump.modules.SentMemberInvitationsModule.callbacks.sendMore);
 	}
 
 }
@@ -61,7 +61,7 @@ Wikijump.modules.SentMemberInvitationsModule.callbacks = {
 
 Wikijump.modules.SentMemberInvitationsModule.utils = {
 	reload: function(){
-		OZONE.ajax.requestModule("wiki/invitations/SentMemberInvitationsModule",null,
+		OZONE.ajax.requestModule("Wiki/Invitations/SentMemberInvitationsModule",null,
 			Wikijump.modules.SentMemberInvitationsModule.utils.reloadCallback);
 	},
 

@@ -5,7 +5,7 @@ Wikijump.modules.ForumNewPostFormModule = {};
 Wikijump.modules.ForumNewPostFormModule.listeners = {
 	preview: function(e){
 		var p = OZONE.utils.formToArray("new-post-form");
-		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, Wikijump.modules.ForumNewPostFormModule.callbacks.preview);
+		OZONE.ajax.requestModule("Forum/ForumPreviewPostModule", p, Wikijump.modules.ForumNewPostFormModule.callbacks.preview);
 	},
 	cancel: function(e){
 		// remove form

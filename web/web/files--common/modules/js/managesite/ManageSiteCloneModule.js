@@ -12,7 +12,7 @@ Wikijump.modules.ManageSiteCloneModule.listeners = {
 		var p = OZONE.utils.formToArray($("clone-site-form"));
 		p.action = "ManageSiteCloneAction";
 		p.event = "cloneSite";
-		OZONE.ajax.requestModule("managesite/ManageSiteClone2Module", p, Wikijump.modules.ManageSiteCloneModule.callbacks.cloneSite);
+		OZONE.ajax.requestModule("ManageSite/ManageSiteClone2Module", p, Wikijump.modules.ManageSiteCloneModule.callbacks.cloneSite);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Cloning site...";
 		w.show();

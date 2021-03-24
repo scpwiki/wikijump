@@ -38,6 +38,6 @@
 		</div>
 	</form>
 	<div class="changes-list" id="site-changes-list">
-		{module name="userinfo/UserChangesListModule" userId=$userId}
+		{module name="UserInfo/UserChangesListModule" userId=$userId}
 	</div>
 </div>

@@ -58,7 +58,7 @@ Wikijump.modules.RenamePageModule.listeners = {
 		var pageId = WIKIREQUEST.info.pageId;
 		var parms = new Object();
 		parms['page_id'] = pageId;
-		OZONE.ajax.requestModule("rename/RenameBacklinksModule",parms,Wikijump.modules.RenamePageModule.callbacks.showBacklinks);
+		OZONE.ajax.requestModule("Rename/RenameBacklinksModule",parms,Wikijump.modules.RenamePageModule.callbacks.showBacklinks);
 	},
 	hideBacklinks: function(e){
 

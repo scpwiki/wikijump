@@ -5,5 +5,5 @@
 </p>
 
 <div id="notifications-area">
-	{module name="account/AccountNotificationsListModule"}
+	{module name="Account/AccountNotificationsListModule"}
 </div>

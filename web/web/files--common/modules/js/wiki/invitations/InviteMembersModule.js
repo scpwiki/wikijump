@@ -154,7 +154,7 @@ Wikijump.modules.InviteMembersModule.listeners = {
 	},
 
 	viewHistory: function(e){
-		OZONE.ajax.requestModule("wiki/invitations/SentMemberInvitationsModule", null, Wikijump.modules.InviteMembersModule.callbacks.viewHistory);
+		OZONE.ajax.requestModule("Wiki/Invitations/SentMemberInvitationsModule", null, Wikijump.modules.InviteMembersModule.callbacks.viewHistory);
 	}
 
 }
@@ -206,7 +206,7 @@ Wikijump.modules.InviteMembersModule.utils = {
 	},
 
 	reload: function(){
-		OZONE.ajax.requestModule("wiki/invitations/InviteMembersModule",null,
+		OZONE.ajax.requestModule("Wiki/Invitations/InviteMembersModule",null,
 			Wikijump.modules.InviteMembersModule.utils.reloadCallback);
 	},
 

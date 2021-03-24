@@ -48,6 +48,6 @@
 		</div>
 	</form>
 	<div class="changes-list" id="site-changes-list">
-		{module name="changes/SiteChangesListModule"}
+		{module name="Changes/SiteChangesListModule"}
 	</div>
 </div>

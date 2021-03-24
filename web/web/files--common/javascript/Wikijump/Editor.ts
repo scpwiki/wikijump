@@ -566,7 +566,7 @@ export const Editor = {
 
     updateAttachements: function (): void {
       OZONE.ajax.requestModule(
-        "editor/ImageAttachedFileModule",
+        "Editor/ImageAttachedFileModule",
         { pageId: WIKIREQUEST.info.pageId! },
         Editor.imageWizard.updateAttachementsCallback
       );
@@ -609,7 +609,7 @@ export const Editor = {
 
       p.flickr_id = flickrId;
 
-      OZONE.ajax.requestModule("editor/FlickrCheckModule", p, Editor.imageWizard.checkFlickrImageCallback);
+      OZONE.ajax.requestModule("Editor/FlickrCheckModule", p, Editor.imageWizard.checkFlickrImageCallback);
     },
     checkFlickrImageCallback: function (response: YahooResponse): void {
       const res = document.getElementById("wd-ed-imagewizard-checkresult")!;

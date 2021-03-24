@@ -6,7 +6,7 @@ Wikijump.modules.PageRateModule.listeners = {
 	showWho: function(e, pageId){
 		var p = new Object();
 		p.pageId = WIKIREQUEST.info.pageId;
-		OZONE.ajax.requestModule("pagerate/WhoRatedPageModule", p, Wikijump.modules.PageRateModule.callbacks.showWho);
+		OZONE.ajax.requestModule("PageRate/WhoRatedPageModule", p, Wikijump.modules.PageRateModule.callbacks.showWho);
 	}
 }
 

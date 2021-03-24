@@ -9,7 +9,7 @@ Wikijump.modules.CreateSite0Module.listeners = {
 
 	nextClick: function(e){
 		params = OZONE.utils.formToArray('new-site1');
-		OZONE.ajax.requestModule("createsite/CreateSite1Module", params, Wikijump.modules.CreateSite0Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("CreateSite/CreateSite1Module", params, Wikijump.modules.CreateSite0Module.callbacks.nextClick);
 
 	},
 

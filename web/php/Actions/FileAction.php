@@ -55,7 +55,7 @@ class FileAction extends SmartyAction
             $runData->ajaxResponseAdd("exists", false);
         } else {
             $runData->ajaxResponseAdd("exists", true);
-            $runData->setModuleTemplate("files/FileUploadExistsWinModule");
+            $runData->setModuleTemplate("Files/FileUploadExistsWinModule");
             $runData->contextAdd("file", $file);
             $runData->contextAdd("destinationPage", $page);
 
@@ -369,7 +369,7 @@ class FileAction extends SmartyAction
             // file already exists!!! ask what to do!
             $runData->contextAdd("newFile", $conflictFile);
             $runData->contextAdd("file", $file);
-            $runData->setModuleTemplate("files/FileRenameExistsWinModule");
+            $runData->setModuleTemplate("Files/FileRenameExistsWinModule");
 
             $runData->contextAdd("hasPermission", $overwritePermission);
             $db->commit();
@@ -502,7 +502,7 @@ class FileAction extends SmartyAction
             $runData->contextAdd("page", $page);
             $runData->contextAdd("destinationPage", $destinationPage);
             $runData->contextAdd("file", $file);
-            $runData->setModuleTemplate("files/FileMoveExistsWinModule");
+            $runData->setModuleTemplate("Files/FileMoveExistsWinModule");
 
             $runData->contextAdd("hasPermission", $overwritePermission);
             $runData->ajaxResponseAdd("status", "file_exists");

@@ -19,7 +19,7 @@ class NextPageModule extends ListPagesModule
      */
     public function render($runData)
     {
-        $runData->setModuleTemplate("list/ListPagesModule");
+        $runData->setModuleTemplate("List/ListPagesModule");
 
         $pl = $runData->getParameterList();
         $by = $pl->getParameterValue('by');

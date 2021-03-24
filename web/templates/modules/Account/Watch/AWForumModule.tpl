@@ -6,4 +6,4 @@
 
 <h2>Recent posts:</h2>
 
-<div id="watched-forum-list">{module name="account/watch/AWForumListModule"}</div>
+<div id="watched-forum-list">{module name="Account/Watch/AWForumListModule"}</div>

@@ -11,5 +11,5 @@
 </div>
 
 <div id="email-change-area" style="border: 1px solid #BBB; padding: 1em;margin: 0.5em;">
-{module name="account/settings/email/ASChangeEmailModule"}
+{module name="Account/Settings/Email/ASChangeEmailModule"}
 </div>

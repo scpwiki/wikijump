@@ -32,7 +32,7 @@ Wikijump.modules.PasswordRecoveryModule.listeners = {
 		p.email = email;
 		p.action = "PasswordRecoveryAction";
 		p.event = "step1";
-		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery2Module", p, Wikijump.modules.PasswordRecoveryModule.callbacks.next1);
+		OZONE.ajax.requestModule("PasswordRecovery/PasswordRecovery2Module", p, Wikijump.modules.PasswordRecoveryModule.callbacks.next1);
 	}	,
 
 	next2: function(e){
@@ -53,7 +53,7 @@ Wikijump.modules.PasswordRecoveryModule.listeners = {
 		// p.password = linebrk(hex2b64(rsa.encrypt('__'+p.password)),64);
 		// p.password2 = linebrk(hex2b64(rsa.encrypt('__'+p.password2)),64);
 
-		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery3Module", p, Wikijump.modules.PasswordRecoveryModule.callbacks.next2);
+		OZONE.ajax.requestModule("PasswordRecovery/PasswordRecovery3Module", p, Wikijump.modules.PasswordRecoveryModule.callbacks.next2);
 	}
 }
 

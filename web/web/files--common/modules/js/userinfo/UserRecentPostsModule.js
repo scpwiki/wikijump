@@ -15,7 +15,7 @@ Wikijump.modules.UserRecentPostsModule.listeners = {
 
 		//Wikijump.modules.PageHistoryModule.vars.params = p; // for pagination
 
-		OZONE.ajax.requestModule("userinfo/UserRecentPostsListModule", p, Wikijump.modules.UserRecentPostsModule.callbacks.updateList);
+		OZONE.ajax.requestModule("UserInfo/UserRecentPostsListModule", p, Wikijump.modules.UserRecentPostsModule.callbacks.updateList);
 	}
 }
 

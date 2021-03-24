@@ -6,5 +6,5 @@
 <h2>List of recent changes:</h2>
 
 <div id="watched-changes-list" class="changes-list">
-	{module name="account/watch/AWChangesListModule"}
+	{module name=Account/Watch/AWChangesListModule"}
 </div>

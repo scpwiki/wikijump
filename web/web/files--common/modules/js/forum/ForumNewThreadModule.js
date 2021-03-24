@@ -8,7 +8,7 @@ Wikijump.modules.ForumNewThreadModule.listeners = {
 	},
 	preview: function(e){
 		var p = OZONE.utils.formToArray("new-thread-form");
-		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, Wikijump.modules.ForumNewThreadModule.callbacks.preview);
+		OZONE.ajax.requestModule("Forum/ForumPreviewPostModule", p, Wikijump.modules.ForumNewThreadModule.callbacks.preview);
 	},
 	post: function(e){
 		var p = OZONE.utils.formToArray("new-thread-form");

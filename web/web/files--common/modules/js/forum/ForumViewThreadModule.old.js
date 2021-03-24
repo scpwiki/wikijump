@@ -113,7 +113,7 @@ Wikijump.modules.ForumViewThreadModule.listeners = {
 	preview: function(e){
 
 		var p = OZONE.utils.formToArray("p-new-post-form");
-		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.preview);
+		OZONE.ajax.requestModule("Forum/ForumPreviewPostModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.preview);
 
 	},
 	closePreview: function(e){

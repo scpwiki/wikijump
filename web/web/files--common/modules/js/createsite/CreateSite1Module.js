@@ -11,12 +11,12 @@ Wikijump.modules.CreateSite1Module.listeners = {
 		parms = new Array();
 		parms['action']='CreateSiteAction';
 		parms['event']='finalize';
-		OZONE.ajax.requestModule("createsite/CreateSite2Module", parms, Wikijump.modules.CreateSite1Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("CreateSite/CreateSite2Module", parms, Wikijump.modules.CreateSite1Module.callbacks.nextClick);
 
 	},
 
 	backClick: function(e){
-		OZONE.ajax.requestModule("createsite/CreateSite0Module", null, Wikijump.modules.CreateSite1Module.callbacks.backClick);
+		OZONE.ajax.requestModule("CreateSite/CreateSite0Module", null, Wikijump.modules.CreateSite1Module.callbacks.backClick);
 
 	}
 

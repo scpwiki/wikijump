@@ -6,7 +6,7 @@
 
 {*<div id="notifications-area"><div class="wait-block">please wait...</div></div>*}
 <div id="notifications-area">
-	{module name="managesite/ManageSiteNotificationsListModule"}
+	{module name="ManageSite/ManageSiteNotificationsListModule"}
 </div>
 
 

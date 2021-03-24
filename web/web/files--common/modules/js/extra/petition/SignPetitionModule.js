@@ -6,7 +6,7 @@ Wikijump.modules.SignPetitionModule.listeners = {
 
 	sign: function(e){
 		var p = OZONE.utils.formToArray("sign-petition-form");
-		p.action = "extra/petition/PetitionAction";
+		p.action = "Extra/Petition/PetitionAction";
 		p.event = "sign";
 		p.petitionUrl = WIKIREQUEST.info.pageUnixName;
 		OZONE.ajax.requestModule(null, p, Wikijump.modules.SignPetitionModule.callbacks.sign );
@@ -14,7 +14,7 @@ Wikijump.modules.SignPetitionModule.listeners = {
 
 	confirmSignature: function(e, campaignId, hash){
 		var p = new Object();
-		p.action = "extra/petition/PetitionAction";
+		p.action = "Extra/Petition/PetitionAction";
 		p.event = "confirm";
 		p.hash = hash;
 		p.campaignId = campaignId;
@@ -24,7 +24,7 @@ Wikijump.modules.SignPetitionModule.listeners = {
 
 	cancelSignature: function(e, campaignId, hash){
 		var p = new Object();
-		p.action = "extra/petition/PetitionAction";
+		p.action = "Extra/Petition/PetitionAction";
 		p.event = "cancel";
 		p.hash = hash;
 		p.campaignId = campaignId;

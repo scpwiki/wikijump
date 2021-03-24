@@ -39,7 +39,7 @@ Wikijump.modules.PageEditModule.listeners = {
 			params['pageId'] = WIKIREQUEST.info.pageId;
 		}
 
-		OZONE.ajax.requestModule("edit/PagePreviewModule",params,Wikijump.modules.PageEditModule.callbacks.preview);
+		OZONE.ajax.requestModule("Edit/PagePreviewModule",params,Wikijump.modules.PageEditModule.callbacks.preview);
 	},
 
 	save: function(e){
@@ -193,7 +193,7 @@ Wikijump.modules.PageEditModule.listeners = {
 			} else {
 				var p = new Object();
 				p['page_id'] = templateId;
-				OZONE.ajax.requestModule("edit/TemplateSourceModule", p,Wikijump.modules.PageEditModule.callbacks.templateChange );
+				OZONE.ajax.requestModule("Edit/TemplateSourceModule", p,Wikijump.modules.PageEditModule.callbacks.templateChange );
 			}
 
 		}else{
@@ -208,7 +208,7 @@ Wikijump.modules.PageEditModule.listeners = {
 			params['range_start'] = Wikijump.page.vars.editlock.rangeStart;
 			params['range_end'] = Wikijump.page.vars.editlock.rangeEnd;
 		}
-		OZONE.ajax.requestModule("edit/PageEditDiffModule",params,Wikijump.modules.PageEditModule.callbacks.viewDiff);
+		OZONE.ajax.requestModule("Edit/PageEditDiffModule",params,Wikijump.modules.PageEditModule.callbacks.viewDiff);
 
 	},
 	confirmExpiration: function(e){
@@ -563,7 +563,7 @@ Wikijump.modules.PageEditModule.utils = {
 	lockExpired: function(){
 		Wikijump.modules.PageEditModule.utils.timerStop();
 
-		OZONE.ajax.requestModule("edit/LockExpiredWinModule", null, Wikijump.modules.PageEditModule.callbacks.lockExpired);
+		OZONE.ajax.requestModule("Edit/LockExpiredWinModule", null, Wikijump.modules.PageEditModule.callbacks.lockExpired);
 	}
 }
 

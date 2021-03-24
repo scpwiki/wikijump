@@ -9,7 +9,7 @@ Wikijump.modules.AcceptTOSModule.listeners = {
 		var p = OZONE.utils.formToArray('accept-tos-form');
 		p.action="CreateAccountAction";
 		p.event = "acceptRules";
-		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", p, Wikijump.modules.AcceptTOSModule.callbacks.nextClick);
+		OZONE.ajax.requestModule("CreateAccount/CreateAccount0Module", p, Wikijump.modules.AcceptTOSModule.callbacks.nextClick);
 
 	}
 }

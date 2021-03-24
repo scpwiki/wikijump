@@ -163,7 +163,7 @@ class WikiPageAction extends SmartyAction
                         $runData->ajaxResponseAdd("noLockError", "other_locks");
                         $runData->ajaxResponseAdd("pageExists", true);
                         $runData->ajaxResponseAdd("locked", true); //well, it is somehow locked...
-                        $runData->setModuleTemplate("edit/NewPageExistsWinModule");
+                        $runData->setModuleTemplate("Edit/NewPageExistsWinModule");
                         $runData->contextAdd("nonrecoverable", true);
                         $runData->ajaxResponseAdd("nonrecoverable", true);
                         $db->commit();
@@ -199,7 +199,7 @@ class WikiPageAction extends SmartyAction
                         $runData->ajaxResponseAdd('timeLeft', 60*15);
                     } else {
                         $runData->ajaxResponseAdd("noLockError", "other_locks");
-                        $runData->setModuleTemplate("edit/LockInterceptedWinModule");
+                        $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
                         $runData->contextAdd("locks", $conflictLocks);
                         $db->commit();
                         return;
@@ -333,7 +333,7 @@ class WikiPageAction extends SmartyAction
                     // author should stop editing now!!!
                     OzoneLogger::instance()->debug("page changed");
                     $runData->ajaxResponseAdd("noLockError", "page_changed");
-                    $runData->setModuleTemplate("edit/LockInterceptedWinModule");
+                    $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
                     $runData->contextAdd("nonrecoverable", true);
                     $runData->ajaxResponseAdd("nonrecoverable", true);
                     $db->commit();
@@ -373,7 +373,7 @@ class WikiPageAction extends SmartyAction
                     $runData->ajaxResponseAdd('timeLeft', 60*15);
                 } else {
                     $runData->ajaxResponseAdd("noLockError", "other_locks");
-                    $runData->setModuleTemplate("edit/LockInterceptedWinModule");
+                    $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
                     $runData->contextAdd("locks", $conflictLocks);
                     $db->commit();
                     return;
@@ -643,14 +643,14 @@ class WikiPageAction extends SmartyAction
                 // this is nonrecoverable.
                 // author should stop editing now!!!
                 $runData->ajaxResponseAdd("noLockError", "page_changed");
-                $runData->setModuleTemplate("edit/LockInterceptedWinModule");
+                $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
                 $runData->contextAdd("nonrecoverable", true);
                 $runData->ajaxResponseAdd("nonrecoverable", true);
             } elseif ($page == null && PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null) {
                 // page exists!
                 $runData->ajaxResponseAdd("noLockError", "page_exists");
                 $runData->ajaxResponseAdd("nonrecoverable", true);
-                $runData->setModuleTemplate("edit/NewPageExistsWinModule");
+                $runData->setModuleTemplate("Edit/NewPageExistsWinModule");
             } else {
                 // ok, see if there are conflicts and is it possible to
                 // recreate the lock.
@@ -689,7 +689,7 @@ class WikiPageAction extends SmartyAction
                     $runData->ajaxResponseAdd('timeLeft', $timeLeft);
                 } else {
                     $runData->ajaxResponseAdd("noLockError", "other_locks");
-                    $runData->setModuleTemplate("edit/LockInterceptedWinModule");
+                    $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
                     $runData->contextAdd("locks", $conflictLocks);
                 }
             }
@@ -726,7 +726,7 @@ class WikiPageAction extends SmartyAction
             }
         }
         if ($page != null && $page->getRevisionId() != $pl->getParameterValue("revision_id")) {
-            $runData->setModuleTemplate("edit/LockPageChangedWinModule");
+            $runData->setModuleTemplate("Edit/LockPageChangedWinModule");
             $runData->ajaxResponseAdd("nonrecoverable", true);
             return;
         }
@@ -734,7 +734,7 @@ class WikiPageAction extends SmartyAction
         if ($page == null && PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null) {
             $runData->ajaxResponseAdd("noLockError", "page_exists");
             $runData->ajaxResponseAdd("nonrecoverable", true);
-            $runData->setModuleTemplate("edit/NewPageExistsWinModule");
+            $runData->setModuleTemplate("Edit/NewPageExistsWinModule");
         }
 
         // delete outdated locks...
@@ -795,15 +795,15 @@ class WikiPageAction extends SmartyAction
 
         // means page has changed...
         if ($runData->contextGet("nonrecoverable") == true) {
-            $runData->setModuleTemplate("edit/LockPageChangedWinModule");
+            $runData->setModuleTemplate("Edit/LockPageChangedWinModule");
             $runData->ajaxResponseAdd("nonrecoverable", true);
             $runData->ajaxResponseAdd("pageChanged", true);
             return;
         }
 
         // means there are conflicting locks
-        if ($runData->getModuleTemplate() == "edit/LockInterceptedWinModule") {
-            $runData->setModuleTemplate("edit/LockExpiredConflictWinModule");
+        if ($runData->getModuleTemplate() == "Edit/LockInterceptedWinModule") {
+            $runData->setModuleTemplate("Edit/LockExpiredConflictWinModule");
             $runData->ajaxResponseAdd("conflicts", true);
             return;
         }
@@ -875,7 +875,7 @@ class WikiPageAction extends SmartyAction
         if (count($locks)>0) {
             $runData->ajaxResponseAdd("locks", true);
             $runData->contextAdd("locks", $locks);
-            $runData->setModuleTemplate("rename/PageLockedWin");
+            $runData->setModuleTemplate("Rename/PageLockedWin");
             $db->rollback();
             return;
         }
@@ -1073,7 +1073,7 @@ class WikiPageAction extends SmartyAction
         $pagesI = PagePeer::instance()->select($c);
 
         if (count($pages)>0 || count($pagesI)>0) {
-            $runData->setModuleTemplate("rename/LeftDepsModule");
+            $runData->setModuleTemplate("Rename/LeftDepsModule");
             $runData->contextAdd("pagesI", $pagesI);
             $runData->contextAdd("pages", $pages);
 
@@ -1263,7 +1263,7 @@ class WikiPageAction extends SmartyAction
         if (count($locks)>0) {
             $runData->ajaxResponseAdd("locks", true);
             $runData->contextAdd("locks", $locks);
-            $runData->setModuleTemplate("history/RevertPageLockedWin");
+            $runData->setModuleTemplate("History/RevertPageLockedWin");
             $db->rollback();
             return;
         }

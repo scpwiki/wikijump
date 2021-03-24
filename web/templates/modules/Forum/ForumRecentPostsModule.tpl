@@ -19,7 +19,7 @@
 	</form>
 
 	<div id="forum-recent-posts-list">
-		{module name="forum/ForumRecentPostsListModule"}
+		{module name="Forum/ForumRecentPostsListModule"}
 	</div>
 
 </div>

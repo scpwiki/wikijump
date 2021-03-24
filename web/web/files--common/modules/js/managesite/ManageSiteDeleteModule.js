@@ -10,7 +10,7 @@ Wikijump.modules.ManagerSiteDeleteModule.listeners = {
 	deleteSite: function(event){
 		var p = new Object();
 
-		OZONE.ajax.requestModule("managesite/ManageSiteDelete2Module", p, Wikijump.modules.ManagerSiteDeleteModule.callbacks.deleteSite);
+		OZONE.ajax.requestModule("ManageSite/ManageSiteDelete2Module", p, Wikijump.modules.ManagerSiteDeleteModule.callbacks.deleteSite);
 	},
 	deleteSite2: function(event){
 		var p = new Object();

@@ -42,8 +42,8 @@
  	</script>
 
 
- 	{module name="login/CustomDomainScriptModule"}
-	{module name="login/FileAuthScriptModule"}
+ 	{module name="Login/CustomDomainScriptModule"}
+	{module name="Login/FileAuthScriptModule"}
 
 
  	<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>

@@ -10,7 +10,7 @@ Wikijump.modules.PMDraftsModule.listeners = {
 	loadList: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMDraftsModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("Account/PM/PMDraftsModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 		if(e){	Wikijump.modules.AccountMessagesModule.utils.highlightTab(e);}
 	},
 
@@ -63,7 +63,7 @@ Wikijump.modules.PMDraftsModule.listeners = {
 		if(messageId){
 			p.continueMessageId = messageId;
 		}
-		OZONE.ajax.requestModule("account/pm/PMComposeModule", p, Wikijump.modules.PMDraftsModule.callbacks.editDraftMessage);
+		OZONE.ajax.requestModule("Account/PM/PMComposeModule", p, Wikijump.modules.PMDraftsModule.callbacks.editDraftMessage);
 
 	}
 }

@@ -4,7 +4,7 @@ Wikijump.modules.AnonymousInfoWinModule = {};
 
 Wikijump.modules.AnonymousInfoWinModule.listeners = {
 	flagAnonymous: function(e, userString){
-		OZONE.ajax.requestModule('report/FlagAnonymousModule', {userString: userString}, Wikijump.modules.AnonymousInfoWinModule.callbacks.flagAnonymous);
+		OZONE.ajax.requestModule('Report/FlagAnonymousModule', {userString: userString}, Wikijump.modules.AnonymousInfoWinModule.callbacks.flagAnonymous);
 
 	}
 }

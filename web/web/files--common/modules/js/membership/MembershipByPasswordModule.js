@@ -7,7 +7,7 @@ Wikijump.modules.MembershipByPasswordModule.listeners = {
 		var parms = OZONE.utils.formToArray("membership-by-password-form");
 		parms['action'] = "MembershipApplyAction";
 		parms['event'] = "applyByPassword";
-		OZONE.ajax.requestModule("membership/MembershipByPasswordResultModule", parms, Wikijump.modules.MembershipByPasswordModule.callbacks.apply);
+		OZONE.ajax.requestModule("Membership/MembershipByPasswordResultModule", parms, Wikijump.modules.MembershipByPasswordModule.callbacks.apply);
 	}
 }
 

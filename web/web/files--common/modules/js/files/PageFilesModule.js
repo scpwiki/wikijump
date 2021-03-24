@@ -10,11 +10,11 @@ Wikijump.modules.PageFilesModule.vars = {
 Wikijump.modules.PageFilesModule.listeners = {
 
 	fileManager: function(e){
-		OZONE.ajax.requestModule("files/manager/FileManagerModule",{pageId:WIKIREQUEST.info.pageId} ,Wikijump.modules.PageFilesModule.callbacks.showUploadClick);
+		OZONE.ajax.requestModule("Files/Manager/FileManagerModule",{pageId:WIKIREQUEST.info.pageId} ,Wikijump.modules.PageFilesModule.callbacks.showUploadClick);
 	},
 
 	showUploadClick: function(e){
-		OZONE.ajax.requestModule("files/FileUploadModule",{pageId:WIKIREQUEST.info.pageId} ,Wikijump.modules.PageFilesModule.callbacks.showUploadClick);
+		OZONE.ajax.requestModule("Files/FileUploadModule",{pageId:WIKIREQUEST.info.pageId} ,Wikijump.modules.PageFilesModule.callbacks.showUploadClick);
 	},
 
 	fileMoreInfo: function(e, fileId){
@@ -22,7 +22,7 @@ Wikijump.modules.PageFilesModule.listeners = {
 
 		var p = new Object();
 		p['file_id'] = fileId;
-		OZONE.ajax.requestModule("files/FileInformationWinModule", p, Wikijump.modules.PageFilesModule.callbacks.fileMoreInfo);
+		OZONE.ajax.requestModule("Files/FileInformationWinModule", p, Wikijump.modules.PageFilesModule.callbacks.fileMoreInfo);
 
 	},
 	renameFile: function(e){
@@ -30,7 +30,7 @@ Wikijump.modules.PageFilesModule.listeners = {
 		if(fileId == null){return;}
 		var p = new Object();
 		p['file_id'] = fileId;
-		OZONE.ajax.requestModule("files/FileRenameWinModule", p, Wikijump.modules.PageFilesModule.callbacks.renameFile);
+		OZONE.ajax.requestModule("Files/FileRenameWinModule", p, Wikijump.modules.PageFilesModule.callbacks.renameFile);
 
 	},
 	renameFile2: function(e, force){
@@ -52,7 +52,7 @@ Wikijump.modules.PageFilesModule.listeners = {
 		if(fileId == null){return;}
 		var p = new Object();
 		p['file_id'] = fileId;
-		OZONE.ajax.requestModule("files/FileMoveWinModule", p, Wikijump.modules.PageFilesModule.callbacks.moveFile);
+		OZONE.ajax.requestModule("Files/FileMoveWinModule", p, Wikijump.modules.PageFilesModule.callbacks.moveFile);
 
 	},
 	moveFile2: function(e, force){
@@ -198,7 +198,7 @@ Wikijump.modules.PageFilesModule.callbacks = {
 	deleteFile2: function(r){
 		if(r.status == 'ok'){
 			var t2 = new OZONE.dialogs.SuccessBox();
-			t2.content="The file has beed deleted!";
+			t2.content="The file has been deleted!";
 			t2.show();
 			setTimeout('OZONE.dialog.cleanAll();Wikijump.page.listeners.filesClick(null)', 1000);
 		}else{

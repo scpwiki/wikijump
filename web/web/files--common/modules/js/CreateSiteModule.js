@@ -4,7 +4,7 @@ Wikijump.CreateSiteModule = {};
 
 Wikijump.CreateSiteModule.listeners = {
 	createClick: function(e){
-		OZONE.ajax.requestModule("createsite/CreateSite0Module", null,Wikijump.CreateSiteModule.callbacks.createClick );
+		OZONE.ajax.requestModule("CreateSite/CreateSite0Module", null,Wikijump.CreateSiteModule.callbacks.createClick );
 	}
 }
 

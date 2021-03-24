@@ -130,7 +130,7 @@ Wikijump.modules.ManageSiteEmailListsModule.listeners = {
 	showSubscribers: function(event, listId){
 		var p = {};
 		p.listId = listId;
-		OZONE.ajax.requestModule("managesite/elists/ManageSiteEmailListSubscribersModule", p, Wikijump.modules.ManageSiteEmailListsModule.callbacks.showSubscribers);
+		OZONE.ajax.requestModule("ManageSite/Elists/ManageSiteEmailListSubscribersModule", p, Wikijump.modules.ManageSiteEmailListsModule.callbacks.showSubscribers);
 	},
 
 	reloadMain: function(event){
@@ -143,7 +143,7 @@ Wikijump.modules.ManageSiteEmailListsModule.listeners = {
 		p.listId = listId;
 		p.action = 'ManageSiteEmailListsAction';
 		p.event  = 'unsubscribe';
-		OZONE.ajax.requestModule("managesite/elists/ManageSiteEmailListSubscribersModule", p, Wikijump.modules.ManageSiteEmailListsModule.callbacks.showSubscribers);
+		OZONE.ajax.requestModule("ManageSite/Elists/ManageSiteEmailListSubscribersModule", p, Wikijump.modules.ManageSiteEmailListsModule.callbacks.showSubscribers);
 	}
 
 }

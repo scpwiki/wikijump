@@ -11,7 +11,7 @@
 				avatar: <div style="text-align:center">
 				<img src="/common--images/avatars/default/a48.png" alt=""/>.
 				</div>
-				{t escape=no}Go to <em>my profile</em>{/t} >> <em><a href="javascript:;" onclick="OZONE.ajax.requestModule('account/profile/APAvatarModule', null, Wikijump.modules.AccountModule.callbacks.menuClick)">{t}my buddy icon{/t}</a></em> {t}to upload your very own image{/t}.
+				{t escape=no}Go to <em>my profile</em>{/t} >> <em><a href="javascript:;" onclick="OZONE.ajax.requestModule('Account/Profile/APAvatarModule', null, Wikijump.modules.AccountModule.callbacks.menuClick)">{t}my buddy icon{/t}</a></em> {t}to upload your very own image{/t}.
 			</li>
 		{/if}
 	</ul>

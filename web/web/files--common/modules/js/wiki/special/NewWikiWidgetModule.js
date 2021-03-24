@@ -20,7 +20,7 @@ Wikijump.modules.NewWikiWidgetModule.listeners = {
 			return;
 		}
 		var p = new Object();
-		p.action = 'wiki/special/NewWikiWidgetAction';
+		p.action = 'Wiki/Special/NewWikiWidgetAction';
 		p.event = 'newWiki';
 		p.siteName = siteName;
 		OZONE.ajax.requestModule(null, p, Wikijump.modules.NewWikiWidgetModule.callbacks.submitCallback);

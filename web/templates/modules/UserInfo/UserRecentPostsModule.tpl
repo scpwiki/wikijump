@@ -5,7 +5,7 @@
 	{*<input type="hidden" id="recent-posts-user-id" value="{$userId}"/>*}
 
 	<div id="forum-recent-posts-list">
-		{module name="userinfo/UserRecentPostsListModule" userId=$userId}
+		{module name="UserInfo/UserRecentPostsListModule" userId=$userId}
 	</div>
 
 </div>

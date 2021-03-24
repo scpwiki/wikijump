@@ -14,7 +14,7 @@ Wikijump.modules.ManagerSiteMembersModule.listeners = {
 
 	},
 	cancel: function(e){
-		OZONE.ajax.requestModule("managesite/ManageSiteModule", null, Wikijump.modules.ManagerSiteMembersModule.callbacks.cancel)
+		OZONE.ajax.requestModule("ManageSite/ManageSiteModule", null, Wikijump.modules.ManagerSiteMembersModule.callbacks.cancel)
 	}
 }
 

@@ -15,7 +15,7 @@ Wikijump.modules.ManagerSiteMembersInviteModule.listeners = {
 		}
 		var parms = new Object();
 		parms['query'] = query;
-		OZONE.ajax.requestModule("users/UserSearchModule", parms, Wikijump.modules.ManagerSiteMembersInviteModule.callbacks.searchClick);
+		OZONE.ajax.requestModule("Users/UserSearchModule", parms, Wikijump.modules.ManagerSiteMembersInviteModule.callbacks.searchClick);
 
 	},
 

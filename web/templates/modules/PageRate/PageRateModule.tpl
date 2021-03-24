@@ -5,7 +5,7 @@
 </p>
 
 <div style="text-align: center">
-	{module name="pagerate/PageRateWidgetModule" pageId=$pageId}
+	{module name="PageRate/PageRateWidgetModule" pageId=$pageId}
 </div>
 
 {if $visibility == 'v'}

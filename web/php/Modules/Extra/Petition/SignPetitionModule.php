@@ -90,7 +90,7 @@ class SignPetitionModule extends SmartyModule
                 header("Location: /".$thankYouPage);
                 exit();
             } else {
-                $runData->setModuleTemplate("Extra/petition/SignatureConfirmedModule");
+                $runData->setModuleTemplate("Extra/Petition/SignatureConfirmedModule");
             }
         }
     }

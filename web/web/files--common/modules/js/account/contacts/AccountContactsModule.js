@@ -70,11 +70,11 @@ Wikijump.modules.AccountContactsModule.listeners = {
 			return;
 		}
 		var p = new Object();
-		OZONE.ajax.requestModule('userinfo/UserAddToContactsModule', {userId: Wikijump.modules.AccountContactsModule.vars.currentUserId}, Wikijump.modules.AccountContactsModule.callbacks.addContact);
+		OZONE.ajax.requestModule('UserInfo/UserAddToContactsModule', {userId: Wikijump.modules.AccountContactsModule.vars.currentUserId}, Wikijump.modules.AccountContactsModule.callbacks.addContact);
 	},
 
 	showBack: function(e){
-		OZONE.ajax.requestModule("account/contacts/AccountBackContactsModule", null, Wikijump.modules.AccountContactsModule.callbacks.showBack);
+		OZONE.ajax.requestModule("Account/Contacts/AccountBackContactsModule", null, Wikijump.modules.AccountContactsModule.callbacks.showBack);
 	},
 
 	removeContact: function(e, userId){

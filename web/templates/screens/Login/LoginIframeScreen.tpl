@@ -1,7 +1,7 @@
 {$page->setLayout('IframeOverlay')}
 
 
-{module name="login/LoginModule3" backUrl=$url reset=$reset}
+{module name="Login/LoginModule3" backUrl=$url reset=$reset}
 
 
 

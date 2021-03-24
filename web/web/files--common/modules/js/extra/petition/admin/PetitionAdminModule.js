@@ -22,7 +22,7 @@ Wikijump.modules.PetitionAdminModule.listeners = {
 	createCampaign: function(e){
 		// read data from the form
 		var p = OZONE.utils.formToArray($("petition-new-campain-form"));
-		p.action = "extra/petition/PetitionAdminAction";
+		p.action = "Extra/Petition/PetitionAdminAction";
 		p.event = "createCampaign";
 
 		OZONE.ajax.requestModule(null, p, Wikijump.modules.PetitionAdminModule.callbacks.createCampaign);
@@ -30,29 +30,29 @@ Wikijump.modules.PetitionAdminModule.listeners = {
 	viewCampaignClick: function(e, campaignId){
 		var p = new Object();
 		p.campaignId = campaignId;
-		OZONE.ajax.requestModule("extra/petition/admin/ViewPetitionCampaignModule", p, Wikijump.modules.PetitionAdminModule.callbacks.viewCampaign);
+		OZONE.ajax.requestModule("Extra/Petition/Admin/ViewPetitionCampaignModule", p, Wikijump.modules.PetitionAdminModule.callbacks.viewCampaign);
 		setTimeout('OZONE.visuals.scrollTo("petition-admin-module-box");', 300);
 	},
 
 	viewList: function(e){
 		var p = new Object();
 		p.withoutBox = true;
-		OZONE.ajax.requestModule("extra/petition/admin/PetitionAdminModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
+		OZONE.ajax.requestModule("Extra/Petition/Admin/PetitionAdminModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
 	},
 
 	suspendCampaign: function(e, campaignId){
 		var p = new Object();
-		p.action="extra/petition/PetitionAdminAction";
+		p.action="Extra/Petition/PetitionAdminAction";
 		p.event="suspendCampaign";
 		p.campaignId = campaignId;
-		OZONE.ajax.requestModule("extra/petition/admin/ViewPetitionCampaignModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
+		OZONE.ajax.requestModule("Extra/Petition/Admin/ViewPetitionCampaignModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
 	},
 	resumeCampaign: function(e, campaignId){
 		var p = new Object();
-		p.action="extra/petition/PetitionAdminAction";
+		p.action="Extra/Petition/PetitionAdminAction";
 		p.event="resumeCampaign";
 		p.campaignId = campaignId;
-		OZONE.ajax.requestModule("extra/petition/admin/ViewPetitionCampaignModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
+		OZONE.ajax.requestModule("Extra/Petition/Admin/ViewPetitionCampaignModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
 	},
 
 	deleteCampaign: function(e, campaignId){
@@ -60,10 +60,10 @@ Wikijump.modules.PetitionAdminModule.listeners = {
 				"associated signatures?");
 		if(con){
 			p = new Object();
-			p.action="extra/petition/PetitionAdminAction";
+			p.action="Extra/Petition/PetitionAdminAction";
 			p.event="deleteCampaign";
 			p.campaignId = campaignId;
-			OZONE.ajax.requestModule("extra/petition/admin/PetitionAdminModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
+			OZONE.ajax.requestModule("Extra/Petition/Admin/PetitionAdminModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
 
 		}
 	},
@@ -77,7 +77,7 @@ Wikijump.modules.PetitionAdminModule.listeners = {
 		$("petition-admin-view-browse").style.display = "block";
 		$("petition-admin-view-download").style.display = "none";
 
-		OZONE.ajax.requestModule("extra/petition/admin/BrowsePetitionSignaturesModule", {campaignId: campaignId},Wikijump.modules.PetitionAdminModule.callbacks.browseTabClick);
+		OZONE.ajax.requestModule("Extra/Petition/Admin/BrowsePetitionSignaturesModule", {campaignId: campaignId},Wikijump.modules.PetitionAdminModule.callbacks.browseTabClick);
 
 	},
 	downloadTabClick: function(e, campaignId){
@@ -92,7 +92,7 @@ Wikijump.modules.PetitionAdminModule.listeners = {
 
 	saveCollectSettings: function(e, campaignId){
 		var p = OZONE.utils.formToArray("petition-collect-form");
-		p.action="extra/petition/PetitionAdminAction";
+		p.action="Extra/Petition/PetitionAdminAction";
 		p.event="saveCollect";
 		p.campaignId = campaignId;
 		OZONE.ajax.requestModule(null, p, Wikijump.modules.PetitionAdminModule.callbacks.saveCollectSettings);
@@ -133,12 +133,12 @@ Wikijump.modules.PetitionAdminModule.listeners = {
 			return;
 		}
 		p = new Object();
-		p.action="extra/petition/PetitionAdminAction";
+		p.action="Extra/Petition/PetitionAdminAction";
 		p.event = "removeSignatures";
 		p.ids = ids.join(',');
 		p.campaignId = campaignId;
 
-		OZONE.ajax.requestModule("extra/petition/admin/BrowsePetitionSignaturesModule", p,Wikijump.modules.PetitionAdminModule.callbacks.browseTabClick);
+		OZONE.ajax.requestModule("Extra/Petition/Admin/BrowsePetitionSignaturesModule", p,Wikijump.modules.PetitionAdminModule.callbacks.browseTabClick);
 
 	}
 

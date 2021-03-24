@@ -4,7 +4,7 @@ Wikijump.modules.AWChangesModule = {};
 
 Wikijump.modules.AWChangesModule.listeners = {
 	showWatchedPages: function(e){
-		OZONE.ajax.requestModule("/account/watch/AWPagesListModule", null, Wikijump.modules.AWChangesModule.callbacks.showWatchedPages);
+		OZONE.ajax.requestModule("/Account/Watch/AWPagesListModule", null, Wikijump.modules.AWChangesModule.callbacks.showWatchedPages);
 	},
 	hideWatchedPages: function(e){
 		$("watched-pages-list").innerHTML="";
@@ -28,7 +28,7 @@ Wikijump.modules.AWChangesModule.listeners = {
 			p.page = 1;
 		}
 
-		OZONE.ajax.requestModule("account/watch/AWChangesListModule", p, Wikijump.modules.AWChangesModule.callbacks.updateList);
+		OZONE.ajax.requestModule("Account/Watch/AWChangesListModule", p, Wikijump.modules.AWChangesModule.callbacks.updateList);
 	}
 }
 

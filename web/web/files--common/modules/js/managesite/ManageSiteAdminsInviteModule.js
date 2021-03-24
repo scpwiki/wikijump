@@ -10,7 +10,7 @@ Wikijump.modules.ManagerSiteAdminsInviteModule.listeners = {
 		var query = document.getElementById("sm-ad-search-f").value;
 		var parms = new Array();
 		parms['query'] = query;
-		OZONE.ajax.requestModule("users/UserSearchModule", parms, Wikijump.modules.ManagerSiteAdminsInviteModule.callbacks.searchClick);
+		OZONE.ajax.requestModule("Users/UserSearchModule", parms, Wikijump.modules.ManagerSiteAdminsInviteModule.callbacks.searchClick);
 	},
 
 	inviteAdmin: function(e){

@@ -32,8 +32,8 @@
 {/strip}
 <div id="user-info-area">
 
-{module name="userinfo/UserInfoProfileModule" user_id="$userId"}
-{* {$module->render("userinfo/UserInfoProfileModule", 'user_id="$userUnixName"')} *}
+{module name="UserInfo/UserInfoProfileModule" user_id="$userId"}
+{* {$module->render("UserInfo/UserInfoProfileModule", 'user_id="$userUnixName"')} *}
 
 </div>
 

@@ -21,10 +21,10 @@ class PageRateModule extends SmartyModule
 
         $runData->contextAdd("pageId", $page->getPageId());
 
-        $uri = GlobalProperties::$MODULES_CSS_URL.'/pagerate/PageRateWidgetModule.css';
+        $uri = GlobalProperties::$MODULES_CSS_URL.'/PageRate/PageRateWidgetModule.css';
         $this->extraCss[] = $uri;
 
-        $uri = GlobalProperties::$MODULES_JS_URL.'/pagerate/PageRateWidgetModule.js';
+        $uri = GlobalProperties::$MODULES_JS_URL.'/PageRate/PageRateWidgetModule.js';
         $this->extraJs[] = $uri;
 
         //check if voters visible

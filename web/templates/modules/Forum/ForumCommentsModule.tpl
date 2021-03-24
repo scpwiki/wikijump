@@ -13,7 +13,7 @@
 
 	<div id="thread-container" class="thread-container" style="margin-top: 1em">
 		{if $showComments}
-			{module name="forum/ForumCommentsListModule"}
+			{module name="Forum/ForumCommentsListModule"}
 		{/if}
 	</div>
 

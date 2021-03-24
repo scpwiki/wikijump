@@ -27,7 +27,7 @@ Wikijump.modules.ManageSiteModeratorsModule.listeners = {
 	moderatorPermissions: function(e,moderatorId){
 		var p = new Object();
 		p.moderatorId = moderatorId;
-		OZONE.ajax.requestModule("managesite/ManageSiteModeratorPermissionsModule", p, Wikijump.modules.ManageSiteModeratorsModule.callbacks.moderatorPermissions);
+		OZONE.ajax.requestModule("ManageSite/ManageSiteModeratorPermissionsModule", p, Wikijump.modules.ManageSiteModeratorsModule.callbacks.moderatorPermissions);
 	},
 
 	cancelPermissions: function(e, moderatorId){
