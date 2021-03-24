@@ -1,5 +1,10 @@
 <?php
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\Report;
+
+use Wikidot\DB\OzoneUserPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class UserAbuseReportModule extends SmartyModule
 {

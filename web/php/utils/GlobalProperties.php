@@ -1,11 +1,16 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Exception;
+
 class GlobalPropertiesException extends Exception
 {
 
 }
 
 /**
- * The Wikijump GlobalProperties class is used to parse
+ * The Wikijump GlobalProperties Class is used to parse
  * the ini file and access any settings and properties
  *
  */

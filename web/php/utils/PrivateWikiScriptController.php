@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Ozone;
+use Ozone\Framework\RunData;
+
 class PrivateWikiScriptController extends UploadedFileFlowController
 {
 

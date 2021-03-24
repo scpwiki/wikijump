@@ -1,5 +1,10 @@
 <?php
-use DB\ForumPostPeer;
+
+namespace Wikidot\Modules\UserInfo;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumPostPeer;
+use Wikidot\Utils\SmartyLocalizedModule;
 
 class UserRecentPostsListModule extends SmartyLocalizedModule
 {

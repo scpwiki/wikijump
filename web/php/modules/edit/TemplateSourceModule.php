@@ -1,5 +1,11 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Edit;
+
+
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class TemplateSourceModule extends SmartyModule
 {

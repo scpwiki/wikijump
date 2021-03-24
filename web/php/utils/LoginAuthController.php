@@ -1,6 +1,13 @@
 <?php
 
-use DB\OzoneSessionPeer;
+namespace Wikidot\Utils;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\RunData;
+use Ozone\Framework\WebFlowController;
+use Wikidot\DB\OzoneSessionPeer;
 
 class LoginAuthController extends WebFlowController
 {

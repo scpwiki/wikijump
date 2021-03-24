@@ -1,7 +1,12 @@
 <?php
+
+namespace Wikidot\Utils;
+
 /**
  * A better way to cache
  */
+use Ozone\Framework\SmartyModule;
+
 abstract class CacheableModule2 extends SmartyModule
 {
 

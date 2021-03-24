@@ -1,5 +1,15 @@
 <?php
-use DB\ForumPostPeer;
+
+namespace Wikidot\Modules\Forum\Sub;
+
+
+use Exception;
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumPostPeer;
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ForumDeletePostModule extends SmartyModule
 {

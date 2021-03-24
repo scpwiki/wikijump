@@ -1,6 +1,11 @@
 <?php
 
+namespace Ozone\Framework\Database;
 
+
+
+use Ozone\Framework\OzoneSmarty;
+use Ozone\Framework\PathManager;
 
 /**
  * Database view generator.
@@ -59,16 +64,16 @@ class DBGeneratorView{
 		$smarty->assign('columns', $this->columnNames);
 
 		// peer name
-		$peerName = "DB_".$this->getNameLowercaseFirstCapitalized()."Peer";
+		$peerName = "Wikidot_DB_".$this->getNameLowercaseFirstCapitalized()."Peer";
 		$smarty->assign('peerName', $peerName);
 
 		$templateFile = OZONE_ROOT ."/files/dbtemplates/DB_ViewBaseTemplate.tpl";
 		$out = $smarty->fetch($templateFile);
-		$cn = 'DB_'.$this->getNameLowercaseFirstCapitalized().'Base';
+		$cn = 'Wikidot_DB_'.$this->getNameLowercaseFirstCapitalized().'Base';
 		file_put_contents(PathManager::dbClass('/base/'.$cn), $out);
 
 		//see if file exists!
-		$cn = 'DB_'.$this->getNameLowercaseFirstCapitalized();
+		$cn = 'Wikidot_DB_'.$this->getNameLowercaseFirstCapitalized();
 		if(!file_exists(PathManager::dbClass($cn))){
 
 			$templateFile = OZONE_ROOT ."/files/dbtemplates/DB_ViewTemplate.tpl";
@@ -76,16 +81,16 @@ class DBGeneratorView{
 			file_put_contents(PathManager::dbClass($cn), $out);
 		}
 
-		$objectName = "DB_".$this->getNameLowercaseFirstCapitalized();
+		$objectName = "Wikidot_DB_".$this->getNameLowercaseFirstCapitalized();
 		$smarty->assign('objectName', $objectName);
 
 		$templateFilePeer = OZONE_ROOT ."/files/dbtemplates/DB_ViewPeerBaseTemplate.tpl";
 		$out = $smarty->fetch($templateFilePeer);
-		$cn = 'DB_'.$this->getNameLowercaseFirstCapitalized().'PeerBase';
+		$cn = 'Wikidot_DB_'.$this->getNameLowercaseFirstCapitalized().'PeerBase';
 		file_put_contents(PathManager::dbClass('/base/'.$cn), $out);
 
 		//see if file exists!
-		$cn = 'DB_'.$this->getNameLowercaseFirstCapitalized().'Peer';
+		$cn = 'Wikidot_DB_'.$this->getNameLowercaseFirstCapitalized().'Peer';
 		if(!file_exists(PathManager::dbClass($cn))){
 			$templateFile = OZONE_ROOT ."/files/dbtemplates/DB_ViewPeerTemplate.tpl";
 			$out = $smarty->fetch($templateFile);

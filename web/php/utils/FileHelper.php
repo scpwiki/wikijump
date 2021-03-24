@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Database;
+
 class FileHelper
 {
 

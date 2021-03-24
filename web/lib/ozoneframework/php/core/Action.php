@@ -1,11 +1,13 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
 
 /**
- * Action class.
+ * Action Class.
  *
  */
 abstract class Action {

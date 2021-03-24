@@ -1,4 +1,7 @@
 <?php
+
+namespace Wikidot\Utils;
+
 class LatexRenderer
 {
     private $latexPath = "/usr/bin/latex";

@@ -1,9 +1,14 @@
 <?php
 
+namespace Ozone\Framework\Database;
 
+
+
+use mysql_xdevapi\DatabaseObject;
+use Ozone\Framework\ODate;
 
 /**
- * Base peer class.
+ * Base peer Class.
  *
  */
 abstract class BaseDBPeer {
@@ -16,7 +21,7 @@ abstract class BaseDBPeer {
 	public $defaultValues;
 
 	public static function peerForTable($tableName){
-		$className = 'DB\\'.capitalizeFirstLetter(underscoreToLowerCase($tableName)).'Peer';
+		$className = 'Wikidot\\DB\\'.capitalizeFirstLetter(underscoreToLowerCase($tableName)).'Peer';
 		return new $className;
 	}
 

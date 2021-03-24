@@ -1,5 +1,13 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Files;
+
+
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\FileHelper;
+use Wikidot\Utils\ProcessException;
 
 class PageFilesModule extends SmartyModule
 {

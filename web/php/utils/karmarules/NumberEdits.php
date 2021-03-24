@@ -1,5 +1,10 @@
 <?php
-use DB\PageRevisionPeer;
+
+namespace Wikidot\Utils\KarmaRules;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PageRevisionPeer;
+use Wikidot\Utils\KarmaRuleInterface;
 
 class NumberEdits implements KarmaRuleInterface
 {

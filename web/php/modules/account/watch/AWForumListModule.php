@@ -1,5 +1,13 @@
 <?php
-use DB\ForumPostPeer;
+
+namespace Wikidot\Modules\Account\Watch;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumPostPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class AWForumListModule extends AccountBaseModule
 {

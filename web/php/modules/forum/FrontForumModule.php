@@ -1,9 +1,21 @@
 <?php
-use DB\ForumCategoryPeer;
-use DB\SitePeer;
-use DB\ForumThreadPeer;
-use DB\FrontForumFeedPeer;
-use DB\FrontForumFeed;
+
+namespace Wikidot\Modules\Forum;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\ForumCategoryPeer;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\FrontForumFeedPeer;
+use Wikidot\DB\FrontForumFeed;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDRenderUtils;
+use Wikidot\Utils\WDStringUtils;
+use Wikidot\Utils\WikiTransformation;
 
 class FrontForumModule extends SmartyModule
 {

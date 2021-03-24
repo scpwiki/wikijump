@@ -1,5 +1,14 @@
 <?php
-use DB\SitePeer;
+
+namespace Wikidot\Modules\Wiki\SitesActivity;
+
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\ODate;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\SitePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class MostActiveForumsModule extends SmartyModule
 {

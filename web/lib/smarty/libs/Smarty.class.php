@@ -1461,8 +1461,8 @@ class Smarty
             require_once($this->compiler_file);
         }
 
-
-        $smarty_compiler = new $this->compiler_class;
+        $class = \Wikijump\Helpers\LegacyTools::getNamespacedClassFromPath($this->compiler_file);
+        $smarty_compiler = new $class;
 
         $smarty_compiler->template_dir      = $this->template_dir;
         $smarty_compiler->compile_dir       = $this->compile_dir;

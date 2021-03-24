@@ -1,6 +1,14 @@
 <?php
-use DB\SitePeer;
-use DB\EmailListPeer;
+
+namespace Wikidot\Modules\Account\Elists;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\EmailListPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class AccountEmailListsModule extends AccountBaseModule
 {

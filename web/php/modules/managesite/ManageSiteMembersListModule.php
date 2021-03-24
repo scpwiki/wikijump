@@ -1,5 +1,10 @@
 <?php
-use DB\MemberPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\MemberPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteMembersListModule extends ManageSiteBaseModule
 {
@@ -14,7 +19,7 @@ class ManageSiteMembersListModule extends ManageSiteBaseModule
         $c->add("member.user_id", "ozone_user.user_id", "=", false);
         $c->addOrderAscending("nick_name");
 
-        $members = DB_OzoneUserPeer::instance()->select($c);
+        $members = Wikidot_DB_OzoneUserPeer::instance()->select($c);
 
         $runData->contextAdd("members", $members);
 

@@ -1,6 +1,12 @@
 <?php
+
+namespace Wikidot\Pingback;
+
 /* TODO: static? */
-class PingBackServer
+
+use Zend_XmlRpc_Server_Fault;
+
+class PingbackServer
 {
     /**
      * ping method for pingback xmlrpc server
@@ -13,7 +19,7 @@ class PingBackServer
     public static function ping($sourceURI, $targetURI)
     {
 
-        $pb = new PingBack($sourceURI, $targetURI);
+        $pb = new Pingback($sourceURI, $targetURI);
 
         Zend_XmlRpc_Server_Fault::attachFaultException("PingBackException");
 

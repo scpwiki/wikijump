@@ -1,8 +1,17 @@
 <?php
 
-use DB\CategoryPeer;
-use DB\PageTagPeer;
-use DB\PagePeer;
+namespace Wikidot\Modules\List;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PageTagPeer;
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class PageCalendarModule extends SmartyModule
 {

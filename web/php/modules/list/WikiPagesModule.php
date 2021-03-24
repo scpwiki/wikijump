@@ -1,6 +1,13 @@
 <?php
-use DB\CategoryPeer;
-use DB\PagePeer;
+
+namespace Wikidot\Modules\List;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PagePeer;
+
+use Wikidot\Utils\CacheableModule;
+use Wikidot\Utils\ProcessException;
 
 class WikiPagesModule extends CacheableModule
 {

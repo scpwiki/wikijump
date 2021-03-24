@@ -1,5 +1,13 @@
 <?php
-use DB\ForumThreadPeer;
+
+namespace Wikidot\Modules\Account\Watch;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class AWThreadsListModule extends AccountBaseModule
 {

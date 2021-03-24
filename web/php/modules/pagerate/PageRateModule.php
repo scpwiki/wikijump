@@ -1,5 +1,11 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\PageRate;
+
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
 
 class PageRateModule extends SmartyModule
 {

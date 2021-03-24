@@ -1,5 +1,10 @@
 <?php
-use DB\EmailInvitationPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\EmailInvitationPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteInvitationsHistoryModule extends ManageSiteBaseModule
 {

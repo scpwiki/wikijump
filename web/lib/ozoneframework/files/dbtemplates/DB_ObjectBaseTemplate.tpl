@@ -4,7 +4,7 @@
 /**
  * Base class mapped to the database table <{$tableName}>.
  */
-class DB_<{$className}>Base extends BaseDBObject {
+class Wikidot_DB_<{$className}>Base extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='<{$tableName}>';
@@ -26,7 +26,7 @@ class DB_<{$className}>Base extends BaseDBObject {
 		}
 		$criteria->addAnd("<{$mrel.foreignKeyName}>",$this->fieldValues['<{$mrel.localKeyName}>'] );
 	
-		$foreignPeerClassName = 'DB_<{$mrel.foreignTmp}>Peer';
+		$foreignPeerClassName = 'Wikidot_DB_<{$mrel.foreignTmp}>Peer';
 		
 		$result = $fpeer->selectByCriteria($criteria);
 		return $result;
@@ -38,7 +38,7 @@ class DB_<{$className}>Base extends BaseDBObject {
 				if(in_array('<{$mrel.foreignTableName}>', $this->prefetchedObjects)){
 					return $this->prefetchedObjects['<{$mrel.foreignTableName}>'];
 				} else {
-					$obj = new DB_<{$mrel.foreignTmp}>($this->sourceRow);
+					$obj = new Wikidot_DB_<{$mrel.foreignTmp}>($this->sourceRow);
 					$obj->setNew(false);
 					//$obj->prefetched = $this->prefetched;
 					//$obj->sourceRow = $this->sourceRow;
@@ -48,7 +48,7 @@ class DB_<{$className}>Base extends BaseDBObject {
 				}
 			}
 		}
-		$foreignPeerClassName = 'DB_<{$mrel.foreignTmp}>Peer';
+		$foreignPeerClassName = 'Wikidot_DB_<{$mrel.foreignTmp}>Peer';
 		$fpeer = new $foreignPeerClassName();
 		
 		if($criteria0 == null){
@@ -82,7 +82,7 @@ class DB_<{$className}>Base extends BaseDBObject {
 					return $this->prefetchedObjects['<{$frel.foreignTableName}>'];
 				} else {
 					
-					$obj = new DB_<{$frel.foreignTmp}>($this->sourceRow);
+					$obj = new Wikidot_DB_<{$frel.foreignTmp}>($this->sourceRow);
 					$obj->setNew(false);
 					//$obj->prefetched = $this->prefetched;
 					//$obj->sourceRow = $this->sourceRow;
@@ -91,7 +91,7 @@ class DB_<{$className}>Base extends BaseDBObject {
 				}
 			}
 		}
-		$foreignPeerClassName = 'DB_<{$frel.foreignTmp}>Peer';	
+		$foreignPeerClassName = 'Wikidot_DB_<{$frel.foreignTmp}>Peer';
 		$fpeer = new $foreignPeerClassName();
 		
 		$criteria = new Criteria();

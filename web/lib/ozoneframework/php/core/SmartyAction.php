@@ -1,9 +1,11 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 /**
- * Abstract class for the smarty action.
+ * Abstract Class for the smarty action.
  *
  */
 abstract class SmartyAction extends Action{}

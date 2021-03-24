@@ -1,6 +1,13 @@
 <?php
-use DB\AdminPeer;
-use DB\AdminNotificationPeer;
+
+namespace Wikidot\Screens\Feed;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\AdminPeer;
+use Wikidot\DB\AdminNotificationPeer;
+use Wikidot\Utils\FeedScreen;
+use Wikidot\Utils\GlobalProperties;
 
 class AdminNotificationsFeed extends FeedScreen
 {

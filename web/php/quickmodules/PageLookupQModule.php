@@ -1,4 +1,11 @@
-<?
+<?php
+
+namespace Wikidot\QuickModules;
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\QuickModule;
+use Wikidot\Utils\WDStringUtils;
+
 class PageLookupQModule extends QuickModule {
 
 	public function process($data){

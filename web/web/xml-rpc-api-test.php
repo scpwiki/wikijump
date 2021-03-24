@@ -14,7 +14,7 @@ error_reporting(E_ALL & ~E_NOTICE | E_STRICT);
 //set_error_handler('errorHandler', E_ALL & ~E_NOTICE);
 ini_set("display_errors", true);
 
-$user = DB\OzoneUserPeer::instance()->selectByPrimaryKey(1);
+$user = Wikidot\DB\OzoneUserPeer::instance()->selectByPrimaryKey(1);
 
-$page = new Wikijump\Facade_Page($user);
+$page = new Wikidot\Facade\Page($user);
 print_r($page->files(array("site" => "www", "page" => "start")));

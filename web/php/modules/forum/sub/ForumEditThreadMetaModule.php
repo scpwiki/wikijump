@@ -1,7 +1,18 @@
 <?php
-use DB\ForumThreadPeer;
-use DB\ModeratorPeer;
-use DB\AdminPeer;
+
+namespace Wikidot\Modules\Forum\Sub;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\ModeratorPeer;
+use Wikidot\DB\AdminPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ForumEditThreadMetaModule extends SmartyModule
 {

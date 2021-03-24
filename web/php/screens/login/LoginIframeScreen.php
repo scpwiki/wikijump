@@ -1,6 +1,12 @@
 <?php
-use DB\SitePeer;
-use DB\ThemePeer;
+
+namespace Wikidot\Screens\Login;
+
+use Ozone\Framework\SmartyScreen;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\ThemePeer;
+use Wikidot\Utils\CryptUtils;
+use Wikidot\Utils\ProcessException;
 
 class LoginIframeScreen extends SmartyScreen
 {

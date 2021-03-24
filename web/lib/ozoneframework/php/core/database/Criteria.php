@@ -1,6 +1,10 @@
 <?php
 
+namespace Ozone\Framework\Database;
 
+
+
+use Ozone\Framework\ODate;
 
 /**
  * Database criteria object.

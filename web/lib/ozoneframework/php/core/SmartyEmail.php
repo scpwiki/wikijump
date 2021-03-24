@@ -1,9 +1,11 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 /**
- * Email class that uses Smarty and PHPMailer.
+ * Email Class that uses Smarty and PHPMailer.
  *
  */
 class SmartyEmail extends PHPMailerWrap{

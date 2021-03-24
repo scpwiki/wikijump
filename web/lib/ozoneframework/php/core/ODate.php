@@ -1,11 +1,13 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
 
 /**
- * Simple date class.
+ * Simple date Class.
  */
 class ODate {
 	private $timestamp;

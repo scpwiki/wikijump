@@ -1,16 +1,18 @@
 <?php
 
-namespace DB;
+namespace Ozone\Framework\DB;
+
+
 
 use DB\IdBrokerPeerBase;
-use \Database;
+use Ozone\Framework\Database\Database;
 
 
 
 
 
 /**
- * Id broker peer class.
+ * Id broker peer Class.
  *
  */
 class IdBrokerPeer extends IdBrokerPeerBase {

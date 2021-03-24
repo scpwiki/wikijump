@@ -1,5 +1,12 @@
 <?php
-use DB\ForumThreadPeer;
+
+namespace Wikidot\Modules\Forum\Mini;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumThreadPeer;
+
+use Wikidot\Utils\CacheableModule;
 
 class ForumMiniRecentThreadsModule extends CacheableModule
 {

@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\Wiki\Invitations;
+
+
+use Ozone\Framework\SmartyModule;
+
 class InviteMembersModule extends SmartyModule
 {
 
@@ -8,7 +14,7 @@ class InviteMembersModule extends SmartyModule
         // check if logged in
         $user = $runData->getUser();
         if (!$user) {
-            $runData->setModuleTemplate("misc/AskToLoginModule");
+            $runData->setModuleTemplate("Misc/AskToLoginModule");
             return;
         }
 

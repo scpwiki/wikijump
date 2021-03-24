@@ -1,8 +1,12 @@
 <?php
 
+namespace Ozone\Framework;
+
+
+use PHPMailer;
 
 /**
- * A wrapper class around PHPMailer to conform to the coding standards.
+ * A wrapper Class around PHPMailer to conform to the coding standards.
  */
 class PHPMailerWrap {
 	private $phpMailer;

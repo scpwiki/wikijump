@@ -1,5 +1,8 @@
 <?php
-class PingBackNotAvailableException extends PingBackException
+
+namespace Wikidot\Pingback;
+
+class PingbackNotAvailableException extends PingBackException
 {
 
 }

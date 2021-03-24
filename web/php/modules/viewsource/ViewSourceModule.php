@@ -1,5 +1,11 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\ViewSource;
+
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class ViewSourceModule extends SmartyModule
 {

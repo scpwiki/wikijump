@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\SmartyModule;
+
 class ModeratorBaseModule extends SmartyModule
 {
 

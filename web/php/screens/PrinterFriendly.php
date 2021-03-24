@@ -1,7 +1,17 @@
 <?php
-use DB\MemberPeer;
-use DB\SiteViewerPeer;
-use DB\PagePeer;
+
+namespace Wikidot\Screens;
+
+use Exception;
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\PathManager;
+use Ozone\Framework\Screen;
+use Wikidot\DB\MemberPeer;
+use Wikidot\DB\SiteViewerPeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDStringUtils;
 
 class PrinterFriendly extends Screen
 {
@@ -38,7 +48,7 @@ class PrinterFriendly extends Screen
                     }
                 }
                 if ($user == null) {
-                    throw new ProcessException("This is a private wiki. Access is limited to selected users.");
+                    throw new ProcessException("This is a private Wiki. Access is limited to selected users.");
                 }
             }
 
@@ -49,7 +59,7 @@ class PrinterFriendly extends Screen
             }
 
             $runData->contextAdd("wikiPageName", $wikiPage);
-            // get wiki page from the database
+            // get Wiki page from the database
 
             $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
 

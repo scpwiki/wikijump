@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Modules;
+use Ozone\Framework\Module;
+use Wikidot\Utils\GlobalProperties;
+
 class LoginStatusModule extends Module
 {
 

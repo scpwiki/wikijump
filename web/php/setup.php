@@ -1,4 +1,7 @@
 <?php
+
+use Wikidot\Utils\GlobalProperties;
+
 if (!defined('WIKIJUMP_SETUP_COMPLETED')) {
     // assume that computer's clock runs in UTC
     putenv("TZ=UTC");
@@ -15,7 +18,7 @@ if (!defined('WIKIJUMP_SETUP_COMPLETED')) {
         define('OZONE_ROOT', WIKIJUMP_ROOT.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'ozoneframework');
     }
 
-    require_once(WIKIJUMP_ROOT.DIRECTORY_SEPARATOR."php/utils/GlobalProperties.php");
+    require_once(WIKIJUMP_ROOT.DIRECTORY_SEPARATOR."php/Utils/GlobalProperties.php");
     require_once(WIKIJUMP_ROOT.DIRECTORY_SEPARATOR."vendor/autoload.php");
     require_once(WIKIJUMP_ROOT.DIRECTORY_SEPARATOR."lib/ozoneframework/php/core/functions.php");
     require_once(WIKIJUMP_ROOT.DIRECTORY_SEPARATOR."lib/ozoneframework/php/core/autoload.inc.php");

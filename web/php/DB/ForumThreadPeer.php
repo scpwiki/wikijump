@@ -1,0 +1,18 @@
+<?php
+
+namespace Wikidot\DB;
+
+
+
+
+
+
+
+/**
+ * Object Model Class.
+ *
+ */
+class ForumThreadPeer extends ForumThreadPeerBase
+{
+
+}

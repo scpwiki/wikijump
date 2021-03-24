@@ -12,6 +12,8 @@
  *
  */
 
+use Wikidot\DB\PagePeer;
+
 /**
  *
  * Creates a conditional, tag-based block.
@@ -60,7 +62,7 @@ class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
     	if(!$page){
     		$pageName = $this->wiki->vars['pageName'];
 	    	$site = $GLOBALS['site'];
-	    	$page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+	    	$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
     	}
     	if(!$page) {
     		return;

@@ -1,5 +1,12 @@
 <?php
-use DB\EmailInvitationPeer;
+
+namespace Wikidot\Modules\Wiki\Invitations;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\EmailInvitationPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class SentMemberInvitationsModule extends SmartyModule
 {
@@ -12,7 +19,7 @@ class SentMemberInvitationsModule extends SmartyModule
         $user = $runData->getUser();
 
         if (!$user) {
-            $runData->setModuleTemplate("misc/AskToLoginModule");
+            $runData->setModuleTemplate("Misc/AskToLoginModule");
             return;
         }
 

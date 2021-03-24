@@ -1,11 +1,22 @@
 <?php
 
-use DB\CategoryPeer;
-use DB\PageTagPeer;
-use DB\PagePeer;
-use DB\PageRevisionPeer;
-use DB\OzoneUserPeer;
-use DB\ForumThreadPeer;
+namespace Wikidot\Modules\List;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\ODate;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PageTagPeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\PageRevisionPeer;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\ForumThreadPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WikiTransformation;
 
 class ListPagesModule extends SmartyModule
 {
@@ -270,7 +281,7 @@ class ListPagesModule extends SmartyModule
                 $skipCurrent = true;
             }
 
-            /* Create extra conditions to the SELECT */
+            /* Create Extra conditions to the SELECT */
 
             /* ANY */
             if (count($tagsAny) > 0) {
@@ -485,7 +496,7 @@ class ListPagesModule extends SmartyModule
             //$c = new Criteria();
             //$c->add('page_id', $page->getPageId());
             //$c->addOrderAscending('revision_id');
-            //$firstRevision = DB_PageRevisionPeer::instance()->selectOne($c);
+            //$firstRevision = Wikidot_DB_PageRevisionPeer::instance()->selectOne($c);
             $b = $format;
 
             /* A series of substitutions. */

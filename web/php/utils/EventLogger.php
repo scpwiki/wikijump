@@ -1,5 +1,10 @@
 <?php
-use DB\LogEvent;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\ODate;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\LogEvent;
 
 class EventLogger
 {

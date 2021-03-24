@@ -1,4 +1,7 @@
 <?php
+
+use Wikidot\Utils\UploadedFileFlowController;
+
 require ('../php/setup.php');
 
 try {

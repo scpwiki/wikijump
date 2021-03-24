@@ -1,5 +1,11 @@
 <?php
-use DB\SitePeer;
+
+namespace Wikidot\Screens\Login;
+
+use Ozone\Framework\SmartyScreen;
+use Wikidot\DB\SitePeer;
+use Wikidot\Utils\CustomDomainLoginFlowController;
+use Wikidot\Utils\GlobalProperties;
 
 class CustomDomainScript extends SmartyScreen
 {

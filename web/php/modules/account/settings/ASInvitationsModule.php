@@ -1,5 +1,12 @@
 <?php
-use DB\UserSettingsPeer;
+
+namespace Wikidot\Modules\Account\Settings;
+
+
+
+
+use Wikidot\DB\UserSettingsPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class ASInvitationsModule extends AccountBaseModule
 {

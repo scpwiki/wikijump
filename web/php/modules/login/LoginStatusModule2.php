@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Modules\Login;
+
+use Ozone\Framework\SmartyModule;
+
 class LoginStatusModule2 extends SmartyModule
 {
 

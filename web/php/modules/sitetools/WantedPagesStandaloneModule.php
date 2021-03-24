@@ -1,5 +1,11 @@
 <?php
-use DB\Page;
+
+namespace Wikidot\Modules\SiteTools;
+
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\Page;
+
+use Wikidot\Utils\CacheableModule;
 
 class WantedPagesStandaloneModule extends CacheableModule
 {

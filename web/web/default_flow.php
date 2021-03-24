@@ -1,4 +1,8 @@
 <?php
+
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\WDDefaultFlowController;
+
 require ('../php/setup.php');
 
 // to avoid caching

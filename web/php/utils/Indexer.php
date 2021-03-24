@@ -1,11 +1,16 @@
 <?php
-use DB\FtsEntryPeer;
-use DB\FtsEntry;
-use DB\PageTagPeer;
-use DB\ForumPostPeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\FtsEntryPeer;
+use Wikidot\DB\FtsEntry;
+use Wikidot\DB\PageTagPeer;
+use Wikidot\DB\ForumPostPeer;
 
 /**
- * Full text search handler class.
+ * Full text search handler Class.
  */
 class Indexer
 {

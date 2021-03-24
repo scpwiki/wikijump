@@ -1,5 +1,7 @@
 <?php
 
+use Ozone\Framework\PathManager;
+
 
 /**
  * Macro loader for Smarty.

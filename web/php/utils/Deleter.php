@@ -1,7 +1,12 @@
 <?php
-use DB\SitePeer;
-use DB\PagePeer;
-use DB\CategoryPeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\SitePeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\CategoryPeer;
 
 class Deleter
 {

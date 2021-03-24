@@ -1,4 +1,13 @@
 <?php
+
+namespace Wikidot\Modules\Feed;
+
+use Exception;
+use Wikidot\Utils\CacheableModule;
+use Wikidot\Utils\MagpieFeed;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WikiTransformation;
+
 class FeedModule extends CacheableModule
 {
 
@@ -252,7 +261,7 @@ class FeedModule extends CacheableModule
             "on[a-z]+",
             "id",
             "xmlns"
-        //  "class"
+        //  "Class"
         );
 
         $text = preg_replace("/<script.*?>.*?<\/script>/si", '', $text);

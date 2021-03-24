@@ -1,7 +1,15 @@
 <?php
-use DB\PagePeer;
-use DB\ModeratorPeer;
-use DB\AdminPeer;
+
+namespace Wikidot\Modules\PageBlock;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\ModeratorPeer;
+use Wikidot\DB\AdminPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionException;
 
 class PageBlockModule extends SmartyModule
 {

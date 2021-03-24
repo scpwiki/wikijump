@@ -1,4 +1,12 @@
 <?php
+
+namespace Wikidot\Modules\Account\Profile;
+
+
+
+
+use Wikidot\Utils\AccountBaseModule;
+
 class APAvatarModule extends AccountBaseModule
 {
 

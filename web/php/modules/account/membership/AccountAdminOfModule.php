@@ -1,5 +1,13 @@
 <?php
-use DB\AdminPeer;
+
+namespace Wikidot\Modules\Account\Membership;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\AdminPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class AccountAdminOfModule extends AccountBaseModule
 {

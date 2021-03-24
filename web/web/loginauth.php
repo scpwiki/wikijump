@@ -1,4 +1,8 @@
 <?php
+
+use Wikidot\Utils\LoginAuthController;
+use Wikidot\Utils\ProcessException;
+
 require ('../php/setup.php');
 
 // to avoid caching

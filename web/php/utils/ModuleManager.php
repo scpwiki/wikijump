@@ -1,4 +1,7 @@
 <?php
+
+namespace Wikidot\Utils;
+
 /**
  * Module controlls permissions, resolves module names etc.
  */
@@ -19,7 +22,7 @@ class ModuleManager
     }
 
     /**
-     * Takes module name used in wiki source and returns template name
+     * Takes module name used in Wiki source and returns template name
      */
     public function resolveWikiModuleName($name)
     {

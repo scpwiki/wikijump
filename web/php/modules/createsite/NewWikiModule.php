@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\CreateSite;
+
+
+use Ozone\Framework\SmartyModule;
+
 class NewWikiModule extends SmartyModule
 {
 
@@ -11,7 +17,7 @@ class NewWikiModule extends SmartyModule
             $runData->contextAdd("login_form", $form);
             $runData->setModuleTemplate("NewWiki/NotLoggedModule");
         } else {
-            // can create new wiki now!!!
+            // can create new Wiki now!!!
             $ft = $runData->formTool();
             $form = $ft->getForm("new_site");
             $runData->contextAdd("form", $form);

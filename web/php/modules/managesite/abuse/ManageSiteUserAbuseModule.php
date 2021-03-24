@@ -1,6 +1,12 @@
 <?php
-use DB\OzoneUserPeer;
-use DB\MemberPeer;
+
+namespace Wikidot\Modules\ManageSite\Abuse;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\MemberPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteUserAbuseModule extends ManageSiteBaseModule
 {

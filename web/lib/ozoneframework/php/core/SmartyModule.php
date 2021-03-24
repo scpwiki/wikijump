@@ -1,9 +1,11 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 /**
- * Abstract class for smarty-based modules.
+ * Abstract Class for smarty-based modules.
  *
  */
 abstract class SmartyModule extends Module{

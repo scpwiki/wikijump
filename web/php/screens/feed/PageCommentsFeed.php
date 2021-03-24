@@ -1,7 +1,15 @@
 <?php
-use DB\PagePeer;
-use DB\ForumThreadPeer;
-use DB\ForumPostPeer;
+
+namespace Wikidot\Screens\Feed;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\ForumPostPeer;
+use Wikidot\Utils\FeedScreen;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\ProcessException;
 
 class PageCommentsFeed extends FeedScreen
 {

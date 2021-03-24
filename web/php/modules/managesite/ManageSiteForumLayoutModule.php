@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\ManageSite;
+
+use Wikidot\Utils\ManageSiteBaseModule;
+use Wikidot\Utils\ProcessException;
+
 class ManageSiteForumLayoutModule extends ManageSiteBaseModule
 {
 

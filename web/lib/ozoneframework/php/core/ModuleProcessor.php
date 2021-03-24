@@ -1,6 +1,14 @@
 <?php
 
+namespace Ozone\Framework;
 
+
+
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\ProcessExceptionHandler;
+use Wikidot\Utils\WDPermissionException;
+use Exception;
+use Wikijump\Helpers\LegacyTools;
 
 /**
  * Module processing tool.
@@ -92,11 +100,11 @@ class ModuleProcessor {
 	public function renderModule($templateName, $parameters=null){
 
 		$ttt = ModuleHelpers::findModuleClass($templateName);
-		$className = $ttt[0];
+//		$className = $ttt[0];
 		$classPath = $ttt[1];
-
 		require_once($classPath);
-		$moduleClass = new $className();
+		$class = LegacyTools::getNamespacedClassFromPath($classPath);
+		$moduleClass = new $class();
 		$moduleClass->setModuleChain($this->_moduleChain);
 		$runData = $this->runData;
 		$runData->setModuleTemplate($templateName);

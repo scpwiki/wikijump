@@ -1,5 +1,13 @@
 <?php
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\Wiki\SitesActivity;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\OzoneUserPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class NewWUsersModule extends SmartyModule
 {

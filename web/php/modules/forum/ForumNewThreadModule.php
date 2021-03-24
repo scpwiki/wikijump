@@ -1,5 +1,14 @@
 <?php
-use DB\ForumCategoryPeer;
+
+namespace Wikidot\Modules\Forum;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumCategoryPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ForumNewThreadModule extends SmartyModule
 {

@@ -1,5 +1,7 @@
 <?php
 
+use Wikidot\Utils\GlobalProperties;
+
 require_once ("../php/setup.php");
 
 if (! isset($argv[1])) {
@@ -16,7 +18,7 @@ if (isset($argv[2]) && $argv[2] == 'java') {
 	GlobalProperties::$SEARCH_USE_JAVA = false;
 }
 
-$lucene = new Wikijump\Search\Lucene();
+$lucene = new Wikidot\Search\Lucene();
 $hits = $lucene->rawQuery($argv[1]);
 
 $i = 0;

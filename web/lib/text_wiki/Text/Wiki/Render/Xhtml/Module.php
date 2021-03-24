@@ -8,6 +8,8 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 
+use Wikidot\Utils\ModuleManager;
+
 /**
  * Module.
  *

@@ -1,5 +1,10 @@
 <?php
-use DB\AdminPeer;
+
+namespace Wikidot\Modules\UserInfo;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\AdminPeer;
+use Wikidot\Utils\SmartyLocalizedModule;
 
 class UserInfoAdminOfModule extends SmartyLocalizedModule
 {

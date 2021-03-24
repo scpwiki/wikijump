@@ -1,5 +1,7 @@
 <?php
 
+use Ozone\Framework\Ozone;
+
 
 /**
  * Language-variant block for Smarty.

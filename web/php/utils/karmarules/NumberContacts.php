@@ -1,5 +1,10 @@
 <?php
-use DB\ContactPeer;
+
+namespace Wikidot\Utils\KarmaRules;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ContactPeer;
+use Wikidot\Utils\KarmaRuleInterface;
 
 class NumberContacts implements KarmaRuleInterface
 {

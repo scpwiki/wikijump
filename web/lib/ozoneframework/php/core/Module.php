@@ -1,11 +1,13 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
 
 /**
- * Abstract class for the web flow modules.
+ * Abstract Class for the web flow modules.
  *
  */
 abstract class Module {

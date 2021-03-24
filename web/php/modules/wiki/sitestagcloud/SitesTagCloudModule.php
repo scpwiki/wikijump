@@ -1,4 +1,11 @@
 <?php
+
+namespace Wikidot\Modules\Wiki\SitesTagCloud;
+
+
+use Ozone\Framework\Database\Database;
+use Wikidot\Utils\CacheableModule;
+
 class SitesTagCloudModule extends CacheableModule
 {
 

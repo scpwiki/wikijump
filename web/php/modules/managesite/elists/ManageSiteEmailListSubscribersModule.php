@@ -1,6 +1,13 @@
 <?php
-use DB\EmailListPeer;
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\ManageSite\Elists;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\EmailListPeer;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
+use Wikidot\Utils\ProcessException;
 
 class ManageSiteEmailListSubscribersModule extends ManageSiteBaseModule
 {

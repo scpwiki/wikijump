@@ -1,4 +1,11 @@
 <?php
+
+namespace Wikidot\Modules\PasswordRecovery;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\CryptUtils;
+use Wikidot\Utils\ProcessException;
+
 class PasswordRecoveryModule extends SmartyModule
 {
 

@@ -1,6 +1,12 @@
 <?php
 
+namespace Ozone\Framework\Database;
 
+
+
+use Ozone\Framework\Exceptions\OzoneDatabaseException;
+use Ozone\Framework\OzoneLogger;
+use Wikidot\Utils\GlobalProperties;
 
 /**
  * PostgreSQL databse connection resource.

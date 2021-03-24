@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\Account;
+
+
+use Wikidot\Utils\AccountBaseModule;
+
 class AccountSettingsModule extends AccountBaseModule
 {
 

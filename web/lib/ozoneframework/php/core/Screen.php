@@ -1,11 +1,13 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
 
 /**
- * Abstract class for screens.
+ * Abstract Class for screens.
  */
 abstract class Screen {
 

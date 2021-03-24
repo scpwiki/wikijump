@@ -1,5 +1,12 @@
 <?php
-use DB\NotificationPeer;
+
+namespace Wikidot\Screens\Feed;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\NotificationPeer;
+use Wikidot\Utils\FeedScreen;
+use Wikidot\Utils\GlobalProperties;
 
 class AccountNotificationsFeed extends FeedScreen
 {

@@ -1,5 +1,11 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\SiteTools;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+
+use Wikidot\Utils\CacheableModule;
 
 class OrphanedPagesStandaloneModule extends CacheableModule
 {

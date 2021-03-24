@@ -1,5 +1,11 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\SiteTools;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class OrphanedPagesModule extends SmartyModule
 {

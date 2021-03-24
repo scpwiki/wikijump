@@ -1,4 +1,7 @@
 <?php
+
+use Wikidot\Utils\PrivateWikiScriptController;
+
 require ('../php/setup.php');
 // to avoid caching
 header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1

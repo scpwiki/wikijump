@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Screens;
+
+use Ozone\Framework\SmartyScreen;
+
 class DefaultScreen extends SmartyScreen
 {
 

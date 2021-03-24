@@ -1,4 +1,13 @@
 <?php
+
+namespace Wikidot\Modules\Wiki\HotTags;
+
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\Ozone;
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+
 class GlobalHotTagsModule extends SmartyModule
 {
 

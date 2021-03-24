@@ -1,6 +1,12 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\OzoneLogger;
+
 /**
- * This class is responsible for handling exceptions which are thrown
+ * This Class is responsible for handling exceptions which are thrown
  * when processing modules/screens.
  */
 class ProcessExceptionHandler

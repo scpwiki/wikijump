@@ -1,5 +1,7 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 /**
@@ -7,8 +9,9 @@
  *
  */
 
-use DB\FormSubmissionKey;
-use DB\FormSubmissionKeyPeer;
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\FormSubmissionKey;
+use Wikidot\DB\FormSubmissionKeyPeer;
 
 class FormTool {
 

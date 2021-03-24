@@ -1,6 +1,10 @@
 <?php
 
+namespace Ozone\Framework;
 
+
+
+use Wikidot\Utils\GlobalProperties;
 
 /**
  * Flow controller for AJAX requests.
@@ -28,7 +32,7 @@ class AjaxModuleWebFlowController extends WebFlowController {
 
 		$runData->init();
 
-		// extra return array - just for ajax handling
+		// Extra return array - just for ajax handling
 		$runData->ajaxResponseAdd("status", "OK");
 
 		Ozone :: setRunData($runData);
@@ -40,7 +44,7 @@ class AjaxModuleWebFlowController extends WebFlowController {
 		$template = $runData->getModuleTemplate();
 		$classFile = $runData->getModuleClassPath();
 		$className = $runData->getModuleClassName();
-		$logger->debug("processing template: ".$runData->getModuleTemplate().", class: $className");
+		$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
 
 		require_once ($classFile);
 		$module = new $className ();
@@ -53,11 +57,11 @@ class AjaxModuleWebFlowController extends WebFlowController {
 				// $module->isAllowed() should set the error template!!! if not -
 				// default NotAllowed is used
 
-				// reload the class again - we do not want the unsecure module to render!
+				// reload the Class again - we do not want the unsecure module to render!
 				$classFile = $runData->getModuleClassPath();
 
 				$className = $runData->getModuleClassName();
-				$logger->debug("processing template: ".$runData->getModuleTemplate().", class: $className");
+				$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
 				require_once ($classFile);
 				$module = new $className ();
 				$runData->setAction(null);
@@ -125,7 +129,7 @@ class AjaxModuleWebFlowController extends WebFlowController {
 		if($template != $runData->getModuleTemplate){
 			$classFile = $runData->getModuleClassPath();
 			$className = $runData->getModuleClassName();
-			$logger->debug("processing template: ".$runData->getModuleTemplate().", class: $className");
+			$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
 
 			require_once ($classFile);
 			$module = new $className ();

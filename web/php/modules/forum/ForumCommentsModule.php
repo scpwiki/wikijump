@@ -1,5 +1,12 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Forum;
+
+
+use Wikidot\DB\PagePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class ForumCommentsModule extends SmartyModule
 {

@@ -1,5 +1,11 @@
 <?php
-use DB\CategoryPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
+use Wikidot\Utils\ProcessException;
 
 class ManageSitePerPageDiscussionModule extends ManageSiteBaseModule
 {

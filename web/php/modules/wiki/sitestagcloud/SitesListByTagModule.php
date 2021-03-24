@@ -1,5 +1,12 @@
 <?php
-use DB\SitePeer;
+
+namespace Wikidot\Modules\Wiki\SitesTagCloud;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\SitePeer;
+
+use Wikidot\Utils\CacheableModule;
 
 class SitesListByTagModule extends CacheableModule
 {

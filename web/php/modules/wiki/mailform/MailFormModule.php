@@ -1,4 +1,12 @@
 <?php
+
+namespace Wikidot\Modules\Wiki\MailForm;
+
+use Wikidot\Utils\CacheableModule;
+use Wikidot\Utils\DatabaseStorage;
+use Wikidot\Utils\MailFormUtils;
+use Wikidot\Utils\ProcessException;
+
 class MailFormModule extends CacheableModule
 {
  //SmartyModule {

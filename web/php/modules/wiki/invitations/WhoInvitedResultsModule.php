@@ -1,7 +1,15 @@
 <?php
-use DB\OzoneUserPeer;
-use DB\MemberPeer;
-use DB\MembershipLinkPeer;
+
+namespace Wikidot\Modules\Wiki\Invitations;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\MemberPeer;
+use Wikidot\DB\MembershipLinkPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class WhoInvitedResultsModule extends SmartyModule
 {

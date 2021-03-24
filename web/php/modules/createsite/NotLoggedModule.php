@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Modules\CreateSite;
+
+
+use Ozone\Framework\SmartyModule;
+
 class NotLoggedModule extends SmartyModule
 {
 

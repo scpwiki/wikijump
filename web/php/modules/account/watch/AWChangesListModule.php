@@ -1,5 +1,13 @@
 <?php
-use DB\PageRevisionPeer;
+
+namespace Wikidot\Modules\Account\Watch;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PageRevisionPeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class AWChangesListModule extends AccountBaseModule
 {

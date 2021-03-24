@@ -1,4 +1,8 @@
 <?php
+
+use Ozone\Framework\OzoneLogger;
+use Wikidot\Utils\AjaxModuleWikiFlowController;
+
 require ('../php/setup.php');
 
 // to avoid caching

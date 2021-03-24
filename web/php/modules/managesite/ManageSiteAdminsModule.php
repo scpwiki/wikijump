@@ -1,5 +1,10 @@
 <?php
-use DB\AdminPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\AdminPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteAdminsModule extends ManageSiteBaseModule
 {

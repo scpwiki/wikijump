@@ -1,4 +1,10 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Ozone;
+use phpFlickr;
+
 class FlickrHandler extends phpFlickr
 {
 

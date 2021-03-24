@@ -1,4 +1,10 @@
-<?
+<?php
+
+namespace Wikidot\QuickModules;
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\QuickModule;
+
 class UserLookupQModule extends QuickModule {
 
 	public function process($data){

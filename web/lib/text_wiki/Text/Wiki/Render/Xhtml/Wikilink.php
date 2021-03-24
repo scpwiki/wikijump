@@ -26,7 +26,8 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 
-use DB\PagePeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\Utils\GlobalProperties;
 
 class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 

@@ -1,6 +1,14 @@
 <?php
-use DB\PetitionCampaignPeer;
-use DB\PetitionSignaturePeer;
+
+namespace Wikidot\Modules\Extra\Petition;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PetitionCampaignPeer;
+use Wikidot\DB\PetitionSignaturePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class PetitionListModule extends SmartyModule
 {

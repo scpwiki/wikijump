@@ -1,22 +1,24 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 // define autoload paths
+use Wikidot\Utils\GlobalProperties;
+
 $opath = OZONE_ROOT;
 $apath = WIKIJUMP_ROOT;
 
 $classpath = array();
 
-$classpath[] = $opath."/php/core/database";
-$classpath[] = $opath."/php/core";
-$classpath[] = $opath."/php/core/exceptions";
-$classpath[] = $apath."/php/utils";
-$classpath[] = $apath."/php/db";
-$classpath[] = $apath."/php/db/base";
-$classpath[] = $apath."/php/class";
-$classpath[] = $apath."/php/pingback";
+//$classpath[] = $opath."/php/core/Database";
+//$classpath[] = $opath."/php/core";
+//$classpath[] = $opath."/php/core/Exceptions";
+//$classpath[] = $apath."/php/Utils";
+//$classpath[] = $apath."/php/DB";
+//$classpath[] = $apath."/php/pingback";
 $classpath[] = $apath."/conf";
-$classpath[] = $apath."/lib/zf/library";
+//$classpath[] = $apath."/lib/zf/library";
 
 $GLOBALS['classpath'] = $classpath;
 
@@ -27,8 +29,8 @@ $paths = implode(PATH_SEPARATOR, $paths);
 set_include_path($paths);
 
 /**
- * Function responsible for including .php files containing class definitions.
- * @param string $className name of the class
+ * Function responsible for including .php files containing Class definitions.
+ * @param string $className name of the Class
  */
 /* spl_autoload_register( function($className) {
 	trigger_error("Autoloading ".$className);
@@ -54,6 +56,6 @@ spl_autoload_register(function ($class) {
             }
                 return true;
 	    }
-//	    trigger_error("Failed to load $file for $class");
+//	    trigger_error("Failed to load $file for $Class");
             return false;
         });

@@ -1,4 +1,12 @@
 <?php
+
+namespace Wikidot\Modules\Account\Settings;
+
+
+
+
+use Wikidot\Utils\AccountBaseModule;
+
 class ASNotificationsModule extends AccountBaseModule
 {
 

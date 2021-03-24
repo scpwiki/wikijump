@@ -1,12 +1,14 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
 
 /**
  * Implements a set of default rules for form validation. You can easily extend
- * this class and write own rules following the scheme for
+ * this Class and write own rules following the scheme for
  * creating new methods: <rulename>Rule($fieldValue, $ruleValue).
  */
 class BaseFormValidator {

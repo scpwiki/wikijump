@@ -1,14 +1,22 @@
 <?php
-use DB\PageCompiledPeer;
-use DB\PagePeer;
-use DB\PageLinkPeer;
-use DB\PageLink;
-use DB\PageExternalLinkPeer;
-use DB\PageExternalLink;
-use DB\PageInclusionPeer;
-use DB\PageInclusion;
-use DB\CategoryPeer;
-use DB\SitePeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\ODate;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\Page;
+use Wikidot\DB\PageCompiledPeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\PageLinkPeer;
+use Wikidot\DB\PageLink;
+use Wikidot\DB\PageExternalLinkPeer;
+use Wikidot\DB\PageExternalLink;
+use Wikidot\DB\PageInclusionPeer;
+use Wikidot\DB\PageInclusion;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\SitePeer;
 
 class Outdater
 {
@@ -176,7 +184,7 @@ class Outdater
     /**
      * This is the place where pages are compiled!
      *
-     * @param Db\Page $page
+     * @param Page $page
      */
     private function recompilePage($page)
     {
@@ -497,7 +505,7 @@ class Outdater
     public function outdatePageCache($page)
     {
         // both levels!
-        $memcache = \Ozone::$memcache;
+        $memcache = Ozone::$memcache;
         $site = $GLOBALS['site'];
         $now = time();
         if (is_string($page)) {

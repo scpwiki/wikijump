@@ -26,7 +26,10 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 
-use DB\FilePeer;
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\FilePeer;
+use Wikidot\DB\PagePeer;
+use Wikidot\Utils\FlickrHandler;
 
 class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
 
@@ -60,7 +63,7 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
         $postVars = $this->getConf("post_vars");
 
         if (preg_match('/^:first/', $src)) {
-    		$page = DB\PagePeer::instance()->selectByName($GLOBALS['site']->getSiteId(), $this->wiki->vars['pageName']);
+    		$page = PagePeer::instance()->selectByName($GLOBALS['site']->getSiteId(), $this->wiki->vars['pageName']);
     		if (! $page) {
     			return "";
     		}

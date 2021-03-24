@@ -1,7 +1,13 @@
 <?php
-use DB\PagePeer;
-use DB\CategoryPeer;
-use DB\PageRateVotePeer;
+
+namespace Wikidot\Modules\PageRate;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PageRateVotePeer;
+
+use Ozone\Framework\SmartyModule;
 
 class PageRateWidgetModule extends SmartyModule
 {

@@ -1,5 +1,12 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Rename;
+
+use Wikidot\DB\PagePeer;
+use Exception;
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class RenamePageModule extends SmartyModule
 {

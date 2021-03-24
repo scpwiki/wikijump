@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Ozone;
+
 class WikiditorUtils
 {
 
@@ -6,7 +11,7 @@ class WikiditorUtils
     {
         $smarty = OZONE::getSmartyPlain();
 
-        $toolbarTemplateFile = WIKIJUMP_ROOT.'/templates/misc/wikiditor/PageEditToolbar.tpl';
+        $toolbarTemplateFile = WIKIJUMP_ROOT.'/templates/Misc/wikiditor/PageEditToolbar.tpl';
 
         $out = $smarty->fetch($toolbarTemplateFile);
 

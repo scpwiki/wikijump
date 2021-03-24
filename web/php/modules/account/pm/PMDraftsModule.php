@@ -1,5 +1,13 @@
 <?php
-use DB\PrivateMessagePeer;
+
+namespace Wikidot\Modules\Account\PM;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PrivateMessagePeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class PMDraftsModule extends AccountBaseModule
 {

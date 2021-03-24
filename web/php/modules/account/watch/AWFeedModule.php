@@ -1,4 +1,12 @@
 <?php
+
+namespace Wikidot\Modules\Account\Watch;
+
+
+
+
+use Wikidot\Utils\AccountBaseModule;
+
 class AWFeedModule extends AccountBaseModule
 {
 

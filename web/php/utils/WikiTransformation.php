@@ -1,7 +1,14 @@
 <?php
-use DB\OzoneUserPeer;
-use DB\ForumThreadPeer;
-use DB\PageTagPeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\Ozone;
+use Text_Wiki;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\PageTagPeer;
 
 //use Text_Antiwiki;  # What is this? I can't even find "text_antiwiki on google.
 
@@ -262,7 +269,7 @@ class WikiTransformation
 
     public function resetWiki()
     {
-        // initialize wiki engine with default values
+        // initialize Wiki engine with default values
         $wiki = new Text_Wiki();
         $viewUrl = "/%s";
         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'view_url', $viewUrl);
@@ -379,7 +386,7 @@ class WikiTransformation
             case 'awiki':
                 break;
             default:
-                throw Exception("Invalid wiki engine mode.");
+                throw Exception("Invalid Wiki engine mode.");
                 break;
         }
     }
@@ -399,8 +406,8 @@ class WikiTransformation
         // clean the code!!!
         $doc = $this->purifyHtml($doc);
 
-        // no extra parameters, just GO GO GO
-        // $wiki = new Text_Antiwiki();  # Is this supposed to convert Html to wikijump markup?
+        // no Extra parameters, just GO GO GO
+        // $Wiki = new Text_Antiwiki();  # Is this supposed to convert Html to wikijump markup?
         $out = $wiki->transform($doc, 'Wiki');
 
         return $out;

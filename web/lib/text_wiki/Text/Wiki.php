@@ -14,6 +14,8 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 
+use Wikidot\Utils\ProcessException;
+
 /**
  * Parse structured wiki text and render into arbitrary formats such as XHTML.
  *

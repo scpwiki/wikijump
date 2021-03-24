@@ -1,6 +1,10 @@
 <?php
 
+namespace Ozone\Framework;
 
+
+
+use Wikidot\Utils\GlobalProperties;
 
 /**
  * Default web flow controller.
@@ -33,7 +37,7 @@ class DefaultWebFlowController extends WebFlowController {
 		$template = $runData->getScreenTemplate();
 		$classFile = $runData->getScreenClassPath();
 		$className = $runData->getScreenClassName();
-		$logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
+		$logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
 
 		require_once ($classFile);
 		$screen = new $className ();
@@ -46,11 +50,11 @@ class DefaultWebFlowController extends WebFlowController {
 				// $screen->isAllowed() should set the error template!!! if not -
 				// default NotAllowed is used
 
-				// reload the class again - we do not want the unsecure screen to render!
+				// reload the Class again - we do not want the unsecure screen to render!
 				$classFile = $runData->getScreenClassPath();
 
 				$className = $runData->getScreenClassName();
-				$logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
+				$logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
 				require_once ($classFile);
 				$screen = new $className ();
 				$runData->setAction(null);
@@ -127,7 +131,7 @@ class DefaultWebFlowController extends WebFlowController {
 		if($template != $runData->getScreenTemplate){
 			$classFile = $runData->getScreenClassPath();
 			$className = $runData->getScreenClassName();
-			$logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
+			$logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
 
 			require_once ($classFile);
 			$screen = new $className ();

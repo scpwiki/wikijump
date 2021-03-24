@@ -1,8 +1,13 @@
 <?php
 
+namespace Ozone\Framework\Database;
+
+
+use Ozone\Framework\IdBroker;
+use Wikidot\Utils\GlobalProperties;
 
 /**
- * Database object (class) holds the main database connection.
+ * Database object (Class) holds the main database connection.
  */
 class Database {
 	public static $connection;

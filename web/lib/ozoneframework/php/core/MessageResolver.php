@@ -1,5 +1,9 @@
 <?php
 
+namespace Ozone\Framework;
+
+
+use Wikidot\Utils\GlobalProperties;
 
 /**
  * Message resolver.

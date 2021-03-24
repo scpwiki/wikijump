@@ -1,11 +1,13 @@
 <?php
 
+namespace Ozone\Framework\Database;
+
 
 
 
 
 /**
- * String utility class.
+ * String utility Class.
  *
  */
 class StringHelper {

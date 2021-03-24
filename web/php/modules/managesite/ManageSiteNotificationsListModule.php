@@ -1,5 +1,10 @@
 <?php
-use DB\AdminNotificationPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\AdminNotificationPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteNotificationsListModule extends ManageSiteBaseModule
 {

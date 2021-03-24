@@ -1,11 +1,11 @@
 <?php
 
-namespace DB;
-
-use \Database;
+namespace Ozone\Framework\DB;
 
 
 
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\UniqueStringBrokerPeerBase;
 
 
 /**

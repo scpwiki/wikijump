@@ -1,6 +1,15 @@
 <?php
-use DB\PetitionCampaignPeer;
-use DB\PetitionSignaturePeer;
+
+namespace Wikidot\Modules\Extra\Petition;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Database\Database;
+use Wikidot\DB\PetitionCampaignPeer;
+use Wikidot\DB\PetitionSignaturePeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class SignPetitionModule extends SmartyModule
 {
@@ -81,7 +90,7 @@ class SignPetitionModule extends SmartyModule
                 header("Location: /".$thankYouPage);
                 exit();
             } else {
-                $runData->setModuleTemplate("extra/petition/SignatureConfirmedModule");
+                $runData->setModuleTemplate("Extra/petition/SignatureConfirmedModule");
             }
         }
     }

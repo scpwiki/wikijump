@@ -1,5 +1,7 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 /**
  * Scheduler.
@@ -147,7 +149,7 @@ class Scheduler {
 				$jobEntry->setDayOfWeek($dayOfWeek);
 			}
 
-			// load class
+			// load Class
 			$classFile = $this->classPath."/".$jobName.".php";
 			require_once($classFile);
 			$object = new $jobName();

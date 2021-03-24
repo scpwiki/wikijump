@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Screens\Misc;
+
+use Ozone\Framework\SmartyScreen;
+
 class Captcha extends SmartyScreen
 {
 

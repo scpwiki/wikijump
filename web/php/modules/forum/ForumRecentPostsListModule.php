@@ -1,5 +1,13 @@
 <?php
-use DB\ForumPostPeer;
+
+namespace Wikidot\Modules\Forum;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\ForumPostPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class ForumRecentPostsListModule extends SmartyModule
 {

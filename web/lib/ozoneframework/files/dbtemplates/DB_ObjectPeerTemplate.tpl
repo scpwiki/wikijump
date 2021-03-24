@@ -1,6 +1,6 @@
 <?php 
 //please extend this class
-class DB_<{$className}>Peer extends DB_<{$className}>PeerBase {
+class Wikidot_DB_<{$className}>Peer extends Wikidot_DB_<{$className}>PeerBase {
 
 }
 

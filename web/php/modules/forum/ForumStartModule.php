@@ -1,6 +1,14 @@
 <?php
-use DB\ForumGroupPeer;
-use DB\ForumCategoryPeer;
+
+namespace Wikidot\Modules\Forum;
+
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\ForumGroupPeer;
+use Wikidot\DB\ForumCategoryPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class ForumStartModule extends SmartyModule
 {

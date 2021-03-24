@@ -1,5 +1,12 @@
 <?php
-use DB\OzoneUserPeer;
+
+namespace Wikidot\Modules\UserInfo;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\SmartyLocalizedModule;
 
 class UserInfoModule extends SmartyLocalizedModule
 {

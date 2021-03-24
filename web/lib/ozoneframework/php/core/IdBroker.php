@@ -1,8 +1,11 @@
 <?php
 
+namespace Ozone\Framework;
 
 
-use DB\IdBrokerPeer;
+
+use Ozone\Framework\Database\Database;
+use Ozone\Framework\DB\IdBrokerPeer;
 
 /**
  * Id broker utility.

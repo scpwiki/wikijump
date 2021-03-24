@@ -1,14 +1,16 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
 
 /**
- * Db locker class.
+ * Db locker Class.
  *
  */
-class OzonePGLocker {
+class OzoneLocker {
 	// use separate database connection
 	public static $connection;
 

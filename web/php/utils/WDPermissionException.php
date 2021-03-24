@@ -1,5 +1,8 @@
 <?php
 
+namespace Wikidot\Utils;
+
+use Exception;
 
 class WDPermissionException extends Exception
 {

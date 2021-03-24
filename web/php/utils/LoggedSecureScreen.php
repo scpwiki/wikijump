@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\SmartyScreen;
+
 abstract class LoggedSecureScreen extends SmartyScreen
 {
 

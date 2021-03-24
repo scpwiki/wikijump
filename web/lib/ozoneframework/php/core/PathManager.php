@@ -1,5 +1,7 @@
 <?php
 
+namespace Ozone\Framework;
+
 
 
 
@@ -19,19 +21,19 @@ class PathManager{
 	}
 
 	public static function ozonePhpServiceAutoloadDir(){
-		return OZONE_ROOT."/php/template_services/autoload/";
+		return OZONE_ROOT."/php/Template/Services/Autoload/";
 	}
 
 	public static function ozoneApplicationPhpServiceAutoloadDir(){
-		return WIKIJUMP_ROOT."/php/template_services/autoload/";
+		return WIKIJUMP_ROOT."/php/Template/Services/Autoload/";
 	}
 
 	public static function ozonePhpServiceOnDemandDir(){
-		return OZONE_ROOT."/php/template_services/ondemand/";
+		return OZONE_ROOT."/php/Template/Services/OnDemand/";
 	}
 
 	public static function ozoneApplicationPhpServiceOnDemandDir(){
-		return WIKIJUMP_ROOT."/php/template_services/ondemand/";
+		return WIKIJUMP_ROOT."/php/Template/Services/OnDemand/";
 	}
 
 	public static function smartyDir(){
@@ -87,15 +89,15 @@ class PathManager{
 
 	public static function screenClass($className){
 		$className = str_replace(',', '/', $className);
-		return 	WIKIJUMP_ROOT."/php/screens/".$className.".php";
+		return 	WIKIJUMP_ROOT."/php/Screens/".$className.".php";
 	}
 
 	public static function screenClassDir(){
-		return 	WIKIJUMP_ROOT."/php/screens/";
+		return 	WIKIJUMP_ROOT."/php/Screens/";
 	}
 
 	public static function actionClass($className){
-		return 	WIKIJUMP_ROOT."/php/actions/".$className.".php";
+		return 	WIKIJUMP_ROOT."/php/Actions/".$className.".php";
 	}
 
 	public static function moduleTemplate($name){
@@ -103,11 +105,11 @@ class PathManager{
 	}
 
 	public static function moduleClass($className){
-		return 	WIKIJUMP_ROOT."/php/modules/".$className.".php";
+		return 	WIKIJUMP_ROOT."/php/Modules/".$className.".php";
 	}
 
 	public static function moduleClassDir(){
-		return 	WIKIJUMP_ROOT."/php/modules/";
+		return 	WIKIJUMP_ROOT."/php/Modules/";
 	}
 
 	public static function macroDir(){
@@ -119,7 +121,7 @@ class PathManager{
 	}
 
 	public static function dbClass($className){
-		return 	WIKIJUMP_ROOT."/php/db/".$className.".php";
+		return 	WIKIJUMP_ROOT."/php/DB/".$className.".php";
 	}
 
 	public static function formSpecFile($formName){

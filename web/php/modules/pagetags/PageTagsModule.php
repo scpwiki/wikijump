@@ -1,6 +1,14 @@
 <?php
-use DB\PagePeer;
-use DB\PageTagPeer;
+
+namespace Wikidot\Modules\PageTags;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\PageTagPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class PageTagsModule extends SmartyModule
 {

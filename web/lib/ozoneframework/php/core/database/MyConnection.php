@@ -1,5 +1,11 @@
 <?php
 
+namespace Ozone\Framework\Database;
+
+
+use Ozone\Framework\Exceptions\OzoneDatabaseException;
+use Ozone\Framework\OzoneLogger;
+use Exception;
 
 /**
  * MySQL database connection resource.

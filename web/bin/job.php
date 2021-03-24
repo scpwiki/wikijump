@@ -1,4 +1,10 @@
 <?php
+
+use Ozone\Framework\Ozone;
+use Ozone\Framework\OzoneLogger;
+use Ozone\Framework\OzoneLoggerFileOutput;
+use Ozone\Framework\RunData;
+
 chdir(dirname(__FILE__)); // unifies CLI/CGI cwd handling
 require ('../php/setup.php');
 
@@ -26,7 +32,7 @@ textdomain($gdomain);
 
 $jobName = $argv[1];
 
-$classFile = WIKIJUMP_ROOT.'/php/jobs/'.$jobName.'.php';
+$classFile = WIKIJUMP_ROOT.'/php/Jobs/'.$jobName.'.php';
 
 require_once $classFile;
 

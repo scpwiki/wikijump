@@ -1,5 +1,10 @@
 <?php
-use DB\ModeratorPeer;
+
+namespace Wikidot\Modules\ManageSite;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ModeratorPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteModeratorsModule extends ManageSiteBaseModule
 {

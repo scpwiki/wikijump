@@ -1,5 +1,13 @@
 <?php
-use DB\PageRevisionPeer;
+
+namespace Wikidot\Screens\Feed;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\PageRevisionPeer;
+use Wikidot\Utils\FeedScreen;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\WDRenderUtils;
 
 class WatchedPageChangesFeed extends FeedScreen
 {

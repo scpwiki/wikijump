@@ -1,6 +1,13 @@
 <?php
-use DB\OzoneUserPeer;
-use DB\PageRevisionPeer;
+
+namespace Wikidot\Modules\UserInfo;
+
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\JSONService;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\DB\PageRevisionPeer;
+use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\SmartyLocalizedModule;
 
 class UserChangesListModule extends SmartyLocalizedModule
 {

@@ -1,5 +1,13 @@
 <?php
-use DB\PagePeer;
+
+namespace Wikidot\Modules\Account\Watch;
+
+
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\PagePeer;
+use Wikidot\Utils\AccountBaseModule;
 
 class AWPagesListModule extends AccountBaseModule
 {

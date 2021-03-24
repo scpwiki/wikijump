@@ -1,6 +1,10 @@
 <?php
-use DB\Notification;
-use DB\SitePeer;
+
+namespace Wikidot\Utils;
+
+use Ozone\Framework\ODate;
+use Wikidot\DB\Notification;
+use Wikidot\DB\SitePeer;
 
 class NotificationMaker
 {
@@ -37,7 +41,7 @@ class NotificationMaker
         $extra['subject'] = $message->getSubject();
         $extra['preview'] = $message->getPreview();
 
-        //$extra['urls'] = array(   array('read the message','https://www.wikijump.com/account:you/start/messages/inboxmessage/'.$message->getMessageId()),
+        //$Extra['urls'] = array(   array('read the message','https://www.wikijump.com/account:you/start/messages/inboxmessage/'.$message->getMessageId()),
 
         /*
          * format for urls is:

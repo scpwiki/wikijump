@@ -1,6 +1,12 @@
 <?php
 
-class CustomDomainLoginFlowController extends WikijumpController
+namespace Wikidot\Utils;
+
+
+use Ozone\Framework\Ozone;
+use Ozone\Framework\RunData;
+
+class CustomDomainLoginFlowController extends WikidotController
 {
 
     public static $controllerUrl = "/domainauth.php";

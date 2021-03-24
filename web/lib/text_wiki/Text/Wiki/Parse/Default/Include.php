@@ -16,6 +16,10 @@
 *
 */
 
+use Ozone\Framework\Ozone;
+use Wikidot\DB\PagePeer;
+use Wikidot\Utils\WDStringUtils;
+
 /**
 *
 * This class implements a Text_Wiki_Parse to include the results of a
@@ -89,7 +93,7 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
      	$runData = Ozone::getRunData();
      	$site = $runData->getTemp("site");
 
-    		$page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+    		$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 
 			if($page == null){
 				$pageNameHtml = htmlspecialchars($pageName);

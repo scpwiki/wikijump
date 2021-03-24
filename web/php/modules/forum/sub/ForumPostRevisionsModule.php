@@ -1,6 +1,14 @@
 <?php
-use DB\ForumPostPeer;
-use DB\ForumPostRevisionPeer;
+
+namespace Wikidot\Modules\Forum\Sub;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumPostPeer;
+use Wikidot\DB\ForumPostRevisionPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class ForumPostRevisionsModule extends SmartyModule
 {

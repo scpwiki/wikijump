@@ -1,5 +1,11 @@
 <?php
-use DB\CategoryPeer;
+
+namespace Wikidot\Modules\List;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\CategoryPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class WikiCategoriesModule extends SmartyModule
 {

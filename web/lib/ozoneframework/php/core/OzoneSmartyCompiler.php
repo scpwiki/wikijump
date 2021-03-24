@@ -1,6 +1,10 @@
 <?php
 
+namespace Ozone\Framework;
 
+
+
+use Smarty_Compiler;
 
 require_once (SMARTY_DIR . '/Smarty_Compiler.class.php');
 

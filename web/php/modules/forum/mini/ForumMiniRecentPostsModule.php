@@ -1,6 +1,14 @@
 <?php
-use DB\ForumCategoryPeer;
-use DB\ForumPostPeer;
+
+namespace Wikidot\Modules\Forum\Mini;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\ForumCategoryPeer;
+use Wikidot\DB\ForumPostPeer;
+
+use Wikidot\Utils\CacheableModule;
+use Wikidot\Utils\ProcessException;
 
 class ForumMiniRecentPostsModule extends CacheableModule
 {

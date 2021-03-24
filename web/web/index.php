@@ -1,4 +1,10 @@
 <?php
+
+use Ozone\Framework\Exceptions\OzoneDatabaseException;
+use Ozone\Framework\OzoneLogger;
+use Wikidot\Utils\GlobalProperties;
+use Wikidot\Utils\WikiFlowController;
+
 require ('../php/setup.php');
 
 // to avoid caching

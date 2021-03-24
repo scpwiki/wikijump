@@ -1,5 +1,12 @@
 <?php
-use DB\PageRevisionPeer;
+
+namespace Wikidot\Modules\Changes;
+use Ozone\Framework\Database\Criteria;
+use Ozone\Framework\JSONService;
+use Ozone\Framework\Ozone;
+use Wikidot\DB\PageRevisionPeer;
+
+use Ozone\Framework\SmartyModule;
 
 class SiteChangesListModule extends SmartyModule
 {

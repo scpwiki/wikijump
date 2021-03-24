@@ -1,5 +1,14 @@
 <?php
-use DB\OzoneSessionPeer;
+
+namespace Wikidot\Modules\CreateAccount2;
+
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\Actions\CreateAccount2Action;
+use Wikidot\DB\OzoneSessionPeer;
+
+use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\ProcessException;
 
 class CreateAccount2Module extends SmartyModule
 {
@@ -42,7 +51,7 @@ class CreateAccount2Module extends SmartyModule
                 }
 
                 /* Complete the registration. */
-                require_once(WIKIJUMP_ROOT . '/php/actions/CreateAccount2Action.php');
+                require_once(WIKIJUMP_ROOT . '/php/Actions/CreateAccount2Action.php');
                 $action = new CreateAccount2Action();
                 $action->finalizeEvent($runData, true);
 

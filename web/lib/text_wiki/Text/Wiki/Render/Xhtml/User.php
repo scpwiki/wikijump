@@ -13,6 +13,11 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\OzoneUserPeer;
+use Wikidot\Utils\WDRenderUtils;
+use Wikidot\Utils\WDStringUtils;
+
 /**
  * This class renders a user info.
  *
@@ -45,7 +50,7 @@ class Text_Wiki_Render_Xhtml_User extends Text_Wiki_Render {
         $unixName = WDStringUtils::toUnixName($userName);
         $c = new Criteria();
         $c->add("unix_name", $unixName);
-        $user = DB\OzoneUserPeer::instance()->selectOne($c);
+        $user = OzoneUserPeer::instance()->selectOne($c);
 
         if ($user == null) {
             return '<span class="error-inline">' . sprintf(_('User <em>%s</em> cannot be found.'), $userName) . '</span>';

@@ -1,5 +1,10 @@
 <?php
-use DB\IpBlockPeer;
+
+namespace Wikidot\Modules\ManageSite\Blocks;
+
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\IpBlockPeer;
+use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteIpBlocksModule extends ManageSiteBaseModule
 {

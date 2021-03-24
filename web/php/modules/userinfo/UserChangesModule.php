@@ -1,4 +1,9 @@
 <?php
+
+namespace Wikidot\Modules\UserInfo;
+
+use Wikidot\Utils\SmartyLocalizedModule;
+
 class UserChangesModule extends SmartyLocalizedModule
 {
 

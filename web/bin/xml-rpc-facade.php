@@ -1,6 +1,11 @@
 #!/usr/bin/env php
 <?php
 
+use Wikidot\Facade\Forum;
+use Wikidot\Facade\Page;
+use Wikidot\Facade\Site;
+use Wikidot\Facade\User;
+
 chdir(dirname(__FILE__));
 require_once('../php/setup.php');
 
@@ -16,10 +21,10 @@ set_error_handler('errorHandler', E_ALL & ~E_NOTICE);
 
 // construct facade objects
 $server = new Zend_XmlRpc_Server();
-$server->setClass(new Wikijump\Facade_User(), 'user');
-$server->setClass(new Wikijump\Facade_Site(), 'site');
-$server->setClass(new Wikijump\Facade_Page(), 'page');
-$server->setClass(new Wikijump\Facade_Forum(), 'forum');
+$server->setClass(new User(), 'user');
+$server->setClass(new Site(), 'site');
+$server->setClass(new Page(), 'page');
+$server->setClass(new Forum(), 'forum');
 Zend_XmlRpc_Server_Cache::save('/tmp/xmlrpcapi.cache', $server);
 
 // map Wikijump\Facade_Exception to XML-RPC faults
