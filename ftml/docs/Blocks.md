@@ -203,6 +203,29 @@ This text is **not** rendered as Wikitext, but output as-is!
 [[/code]]
 ```
 
+### Collapsible
+
+**Accepts variants:**
+* Newlines
+
+**Abstract Syntax Tree Output:** `Element::Collapsible`
+
+**HTML Output:** `<div class="collapsible-block">`
+
+**Arguments:**
+* `show` &emdash; The text to present when text is collapsed (i.e. can be shown)
+* `hide` &emdash; The text to present when text is expanded (i.e. can be hidden)
+* `folded` &emdash; Boolean. `true` means start collapsed (default), `false` means start expanded
+* `hideLocation` &emdash; One of `top`, `bottom`, `both`, or `neither`. Shows in what locations the hide collapsible link in.
+
+**Example:**
+
+```
+[[collapsible show="+ Spoilers for Ouroboros" hide="- Spoilers!" hideLocation="bottom"]]
+Overseers die.
+[[/collapsible]]
+```
+
 ## Modules
 
 The table below follows essentially the same schema as for blocks in general, with a few changes. [As noted above](#blocks), all modules accept separate newlines and do not accept special or variant flags. Additionally, the list of accepted names is the same as the module name (but case-insensitive).
