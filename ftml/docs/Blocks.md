@@ -542,7 +542,7 @@ Favorite kind of music:
 **HTML Output:** `<span style="font-size: XXX;">`
 
 **Arguments:**
-* All accepted attributes
+* None
 
 **Example:**
 
