@@ -201,8 +201,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
             $template = $runData->getModuleTemplate();
             $classFile = $runData->getModuleClassPath();
-            $className = $runData->getModuleClassName();
-            $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
+            $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
             require_once($classFile);
             $class = LegacyTools::getNamespacedClassFromPath($classFile);
             $module = new $class();
@@ -252,11 +251,11 @@ class AjaxModuleWikiFlowController extends WebFlowController
             // check if template has been changed by the module. if so...
             if ($template != $runData->getModuleTemplate()) {
                 $classFile = $runData->getModuleClassPath();
-                $className = $runData->getModuleClassName();
-                $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
+                $class = LegacyTools::getNamespacedClassFromPath($runData->getModuleClassPath());
+                $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
 
                 require_once($classFile);
-                $module = new $className();
+                $module = new $class();
             }
 
             $module->setTemplate($template);

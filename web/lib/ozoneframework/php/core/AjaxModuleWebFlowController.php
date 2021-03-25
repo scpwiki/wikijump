@@ -5,6 +5,7 @@ namespace Ozone\Framework;
 
 
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Helpers\LegacyTools;
 
 /**
  * Flow controller for AJAX requests.
@@ -43,11 +44,11 @@ class AjaxModuleWebFlowController extends WebFlowController {
 
 		$template = $runData->getModuleTemplate();
 		$classFile = $runData->getModuleClassPath();
-		$className = $runData->getModuleClassName();
-		$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
+		$class = LegacyTools::getNamespacedClassFromPath($runData->getModuleClassPath());
+		$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
 
 		require_once ($classFile);
-		$module = new $className ();
+		$module = new $class();
 
 		// module security check
 		if(!$module->isAllowed($runData)){
@@ -59,11 +60,10 @@ class AjaxModuleWebFlowController extends WebFlowController {
 
 				// reload the Class again - we do not want the unsecure module to render!
 				$classFile = $runData->getModuleClassPath();
-
-				$className = $runData->getModuleClassName();
-				$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
+                $class = LegacyTools::getNamespacedClassFromPath($runData->getModuleClassPath());
+				$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
 				require_once ($classFile);
-				$module = new $className ();
+				$module = new $class();
 				$runData->setAction(null);
 			}
 		}
@@ -87,10 +87,8 @@ class AjaxModuleWebFlowController extends WebFlowController {
 		while ($actionClass != null) {
 
 			require_once (PathManager :: actionClass($actionClass));
-			$tmpa1 = explode('/', $actionClass);
-            $actionClassStripped = end($tmpa1);
-
-			$action = new $actionClassStripped();
+            $class = LegacyTools::getNamespacedClassFromPath(PathManager :: actionClass($actionClass));
+			$action = new $class();
 
 			// action security check
 			$classFile = $runData->getModuleClassPath();
@@ -126,13 +124,13 @@ class AjaxModuleWebFlowController extends WebFlowController {
 		// end action process
 
 		// check if template has been changed by the module. if so...
-		if($template != $runData->getModuleTemplate){
+		if($template != $runData->getModuleTemplate()){
 			$classFile = $runData->getModuleClassPath();
-			$className = $runData->getModuleClassName();
-			$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $className");
+			$class = LegacyTools::getNamespacedClassFromPath($runData->getModuleClassPath());
+			$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
 
 			require_once ($classFile);
-			$module = new $className ();
+			$module = new $class();
 		}
 
 		$module->setTemplate($template);

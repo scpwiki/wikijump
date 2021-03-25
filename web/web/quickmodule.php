@@ -1,6 +1,7 @@
 <?php
 
 use Ozone\Framework\JSONService;
+use Wikijump\Helpers\LegacyTools;
 
 require ('../php/setup.php');
 
@@ -24,8 +25,8 @@ $moduleName = $_GET['module'];
 $modulePath = WIKIJUMP_ROOT . "/php/QuickModules/" . $moduleName . ".php";
 if (file_exists($modulePath)) {
     require_once ($modulePath);
-
-    $module = new $moduleName();
+    $class = LegacyTools::getNamespacedClassFromPath($modulePath);
+    $module = new $class();
     $response = $module->process($parsedData);
 
     if ($parsedData['callbackIndex'] !== null) {

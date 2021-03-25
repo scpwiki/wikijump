@@ -3,6 +3,8 @@
 namespace Ozone\Framework;
 
 
+use Wikijump\Helpers\LegacyTools;
+
 /**
  * Scheduler.
  *
@@ -152,7 +154,8 @@ class Scheduler {
 			// load Class
 			$classFile = $this->classPath."/".$jobName.".php";
 			require_once($classFile);
-			$object = new $jobName();
+			$class = LegacyTools::getNamespacedClassFromPath($classFile);
+			$object = new $class();
 			$jobEntry->setJobObject($object);
 
 			$this->addJob($jobEntry);

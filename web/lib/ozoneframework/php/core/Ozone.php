@@ -80,7 +80,7 @@ class Ozone {
 		$serviceFiles = ls($audir, "*.php");
 		foreach ($serviceFiles as $sf){
 			require_once ($audir.$sf);
-			$class = str_replace('.php', '', $sf);
+            $class = LegacyTools::getNamespacedClassFromPath($audir.$sf);
 			$service = new $class(self::$runData);
 			self :: $smarty->assign($service->serviceName(), $service);
 		}

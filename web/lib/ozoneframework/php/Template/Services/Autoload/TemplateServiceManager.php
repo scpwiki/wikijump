@@ -6,6 +6,7 @@ namespace Ozone\Framework\Template\Services\Autoload;
 
 use Ozone\Framework\PathManager;
 use Ozone\Framework\TemplateService;
+use Wikijump\Helpers\LegacyTools;
 
 /**
  * TemplateServiceManager is a TemplateService for accessing
@@ -20,13 +21,14 @@ class TemplateServiceManager extends TemplateService{
 		$this->runData = $runData;
 	}
 
-	public function getService($className){
-		if(isset($this->storage["$className"])){
-			return 	$this->storage["$className"];
+	public function getService($class){
+		if(isset($this->storage["$class"])){
+			return 	$this->storage["$class"];
 		} else {
-			require_once PathManager::ozonePhpServiceOnDemandDir().$className.".php";
-			$instance = new $className($this->runData);
-			$this->storage["$className"] = $instance;
+			require_once PathManager::ozonePhpServiceOnDemandDir().$class.".php";
+			$class = LegacyTools::getNamespacedClassFromPath(PathManager::ozonePhpServiceOnDemandDir().$class.".php");
+			$instance = new $class($this->runData);
+			$this->storage["$class"] = $instance;
 			return $instance;
 		}
 	}

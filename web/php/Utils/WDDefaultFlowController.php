@@ -11,6 +11,7 @@ use Ozone\Framework\PathManager;
 use Ozone\Framework\RunData;
 use Ozone\Framework\WebFlowController;
 use Wikidot\DB\SitePeer;
+use Wikijump\Helpers\LegacyTools;
 
 class WDDefaultFlowController extends WebFlowController
 {
@@ -138,11 +139,11 @@ class WDDefaultFlowController extends WebFlowController
 
         $template = $runData->getScreenTemplate();
         $classFile = $runData->getScreenClassPath();
-        $className = $runData->getScreenClassName();
-        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
+        $class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
+        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
 
         require_once($classFile);
-        $screen = new $className();
+        $screen = new $class();
 
         // screen security check
         if (!$screen->isAllowed($runData)) {
@@ -154,11 +155,10 @@ class WDDefaultFlowController extends WebFlowController
 
                 // reload the Class again - we do not want the unsecure screen to render!
                 $classFile = $runData->getScreenClassPath();
-
-                $className = $runData->getScreenClassName();
-                $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
+                $class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
+                $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
                 require_once($classFile);
-                $screen = new $className();
+                $screen = new $class();
                 $runData->setAction(null);
             }
         }
@@ -169,10 +169,8 @@ class WDDefaultFlowController extends WebFlowController
         $logger->debug("processing action $actionClass");
         while ($actionClass != null) {
             require_once(PathManager :: actionClass($actionClass));
-            $tmpa1 = explode('/', $actionClass);
-            $actionClassStripped = end($tmpa1);
-
-            $action = new $actionClassStripped();
+            $class = LegacyTools::getNamespacedClassFromPath(PathManager :: actionClass($actionClass));
+            $action = new $class();
 
             $classFile = $runData->getScreenClassPath();
             if (!$action->isAllowed($runData)) {
@@ -208,11 +206,11 @@ class WDDefaultFlowController extends WebFlowController
         // check if template has been changed by the action. if so...
         if ($template != $runData->getScreenTemplate) {
             $classFile = $runData->getScreenClassPath();
-            $className = $runData->getScreenClassName();
-            $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
+            $class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
+            $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
 
             require_once($classFile);
-            $screen = new $className();
+            $screen = new $class();
         }
 
         $rendered = $screen->render($runData);

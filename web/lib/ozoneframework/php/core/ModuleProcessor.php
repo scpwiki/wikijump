@@ -100,7 +100,6 @@ class ModuleProcessor {
 	public function renderModule($templateName, $parameters=null){
 
 		$ttt = ModuleHelpers::findModuleClass($templateName);
-//		$className = $ttt[0];
 		$classPath = $ttt[1];
 		require_once($classPath);
 		$class = LegacyTools::getNamespacedClassFromPath($classPath);
