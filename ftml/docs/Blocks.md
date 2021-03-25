@@ -509,6 +509,137 @@ This text is [[mark]]highlighted![[/mark]]
 [[tt]]This output looks like it came from a typewriter or computer terminal.[[/tt]]
 ```
 
+### Radio
+
+**Accepts variants:**
+* Special &emdash; Element starts selected
+
+**Abstract Syntax Tree Output:** `Element::RadioButton`
+
+**HTML Output:** `<input type="radio">`
+
+**Arguments:**
+* All accepted attributes
+
+**Example:**
+
+```
+Favorite kind of music:
+
+[[radio]] Disco
+[[radio]] Dance
+[[radio]] Rap
+[[*radio]] Noise
+```
+
+### Size
+
+**Accepts variants:**
+* None
+
+**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Size)`
+
+**HTML Output:** `<span style="font-size: XXX;">`
+
+**Arguments:**
+* All accepted attributes
+
+**Example:**
+
+```
+This text is regular, but [[size 250%]]this text is much larger[[/size]].
+```
+
+### Span
+
+**Accepts variants:**
+* Modifier &emdash; Strips leading and trailing newlines
+
+**Abstract Syntax Tree Output:** `Element::Span`
+
+**HTML Output:** `<span>`
+
+**Arguments:**
+* All accepted attributes
+
+**Example:**
+
+```
+This text is in a span: [[span class="fruit"]]banana[[/span]]
+```
+
+### Strikethrough
+
+**Accepts variants:**
+* None
+
+**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Strikethrough)`
+
+**HTML Output:** `<s>`
+
+**Arguments:**
+* All accepted attributes
+
+**Example:**
+
+```
+This text is [[s]]struck through![[/s]]
+```
+
+### Subscript
+
+**Accepts variants:**
+* None
+
+**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Subscript)`
+
+**HTML Output:** `<sub>`
+
+**Arguments:**
+* All accepted attributes
+
+**Example:**
+
+```
+Let this variable be called x[[sub]]A[[/sub]].
+```
+
+### Superscript
+
+**Accepts variants:**
+* None
+
+**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Superscript)`
+
+**HTML Output:** `<sup>`
+
+**Arguments:**
+* All accepted attributes
+
+**Example:**
+
+```
+Thus, the result is n[[sup]]2[[/sup]].
+```
+
+### Underline
+
+**Accepts variants:**
+* None
+
+**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Underline)`
+
+**HTML Output:** `<u>`
+
+**Arguments:**
+* All accepted attributes
+
+**Example:**
+
+```
+[[u]]Testing log 7192-45:[[/u]]
+```
+
 ## Modules
 
 The table below follows essentially the same schema as for blocks in general, with a few changes. [As noted above](#blocks), all modules accept separate newlines and do not accept special or variant flags. Additionally, the list of accepted names is the same as the module name (but case-insensitive).
