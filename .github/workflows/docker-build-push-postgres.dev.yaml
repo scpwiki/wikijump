@@ -1,4 +1,4 @@
-name: '[backend] Docker build'
+name: '[backend] Docker build PSQL'
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - name: Checkout
-          uses: actions/checkout@v2
+          uses: actions/checkout@v2g
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v1
           with:

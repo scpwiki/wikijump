@@ -1,4 +1,4 @@
-name: '[backend] Docker build'
+name: '[backend] Docker build PHP-FPM'
 
 on:
   push:
