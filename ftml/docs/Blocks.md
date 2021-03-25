@@ -109,7 +109,7 @@ Each of the blocks will be described in more detail below:
 ### Anchor
 
 **Accepts variants:**
-* Modifier &emdash; Strips leading and trailing newlines.
+* Modifier &mdash; Strips leading and trailing newlines.
 
 **Abstract Syntax Tree Output:** `Element::Anchor`
 
@@ -165,7 +165,7 @@ Some [[b]]text![[/b]]
 ### Checkbox
 
 **Accepts variants:**
-* Special &emdash; Element starts checked
+* Special &mdash; Element starts checked
 
 **Abstract Syntax Tree Output:** `Element::CheckBox`
 
@@ -193,7 +193,7 @@ Some [[b]]text![[/b]]
 **HTML Output:** `<div class="code">`
 
 **Arguments:**
-* `type` &emdash; What language this block is in, both for its Content-Type and syntax highlighting.
+* `type` &mdash; What language this block is in, both for its Content-Type and syntax highlighting.
 
 **Example:**
 
@@ -213,10 +213,10 @@ This text is **not** rendered as Wikitext, but output as-is!
 **HTML Output:** `<div class="collapsible-block">`
 
 **Arguments:**
-* `show` &emdash; The text to present when text is collapsed (i.e. can be shown)
-* `hide` &emdash; The text to present when text is expanded (i.e. can be hidden)
-* `folded` &emdash; Boolean. `true` means start collapsed (default), `false` means start expanded
-* `hideLocation` &emdash; One of `top`, `bottom`, `both`, or `neither`. Shows in what locations the hide collapsible link in.
+* `show` &mdash; The text to present when text is collapsed (i.e. can be shown)
+* `hide` &mdash; The text to present when text is expanded (i.e. can be hidden)
+* `folded` &mdash; Boolean. `true` means start collapsed (default), `false` means start expanded
+* `hideLocation` &mdash; One of `top`, `bottom`, `both`, or `neither`. Shows in what locations the hide collapsible link in.
 
 **Example:**
 
@@ -269,7 +269,7 @@ I [[del]]don't[[/del]] like that haircut.
 ### Div
 
 **Accepts variants:**
-* Modifier &emdash; Strips leading and trailing newlines
+* Modifier &mdash; Strips leading and trailing newlines
 * Newlines
 
 **Abstract Syntax Tree Output:** `Element::Container(ContainerType::Div)`
@@ -445,7 +445,7 @@ This text is regular, but [[em]]this text is emphasized[[/em]].
 **HTML Output:** `<br>`
 
 **Arguments:**
-* Value: positive integer &emdash; Number of line breaks to output
+* Value: positive integer &mdash; Number of line breaks to output
 
 **Example:**
 
@@ -512,7 +512,7 @@ This text is [[mark]]highlighted![[/mark]]
 ### Radio
 
 **Accepts variants:**
-* Special &emdash; Element starts selected
+* Special &mdash; Element starts selected
 
 **Abstract Syntax Tree Output:** `Element::RadioButton`
 
@@ -553,7 +553,7 @@ This text is regular, but [[size 250%]]this text is much larger[[/size]].
 ### Span
 
 **Accepts variants:**
-* Modifier &emdash; Strips leading and trailing newlines
+* Modifier &mdash; Strips leading and trailing newlines
 
 **Abstract Syntax Tree Output:** `Element::Span`
 
