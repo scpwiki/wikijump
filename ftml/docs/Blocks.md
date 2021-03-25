@@ -97,7 +97,7 @@ Here is a table showing the options each block has with regards to its construct
 | Module      | `module`                         | No       | No        | Yes       | (See below)   | (See below) |
 | Monospace   | `tt`, `mono`, `monospace`        | No       | No        | No        | Map           | Elements  |
 | Radio       | `radio`, `radio-button`          | Yes      | No        | No        | Name + Map    | None      |
-| Size        | `size`                           | No       | No        | No        | Map           | Elements  |
+| Size        | `size`                           | No       | No        | No        | Value         | Elements  |
 | Span        | `span`                           | No       | Yes       | No        | Map           | Elements  |
 | Strikethrough | `s`, `strikethrough`           | No       | No        | No        | Map           | Elements  |
 | Subscript   | `sub`, `subscript`               | No       | No        | No        | Map           | Elements  |
