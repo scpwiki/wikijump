@@ -8,7 +8,7 @@
 
 
 <form id="file-upload-form" enctype="multipart/form-data"
-	action="/default--flow/files__UploadTarget" target="_upload_iframe" method="POST">
+	action="/default--flow/Files__UploadTarget" target="_upload_iframe" method="POST">
 	<div style="text-align: center">
 
 		<input type="hidden" name="action" value="FileAction"/>

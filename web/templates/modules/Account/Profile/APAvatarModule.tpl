@@ -32,7 +32,7 @@
 
 <div id="file-upload-div"  style="display: none">
 	<form id="file-upload-form" enctype="multipart/form-data"
-		action="/default--flow/account__AvatarUploadTarget" target="_upload_iframe" method="POST"
+		action="/default--flow/Account__AvatarUploadTarget" target="_upload_iframe" method="POST"
 		onsubmit="Wikijump.modules.APAvatarModule.listeners.startUpload(event)"
 		>
 		<input type="hidden" name="action" value="AccountProfileAction"/>

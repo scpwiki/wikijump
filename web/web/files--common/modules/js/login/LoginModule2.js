@@ -7,9 +7,9 @@ function logininit(){
 		return;
 	}
 
-	var url=window.location.protocol+'//'+URL_HOST+'/default_flow.php?login__LoginIframeScreen';
+	var url=window.location.protocol+'//'+URL_HOST+'/default_flow.php?Login__LoginIframeScreen';
 	if(YAHOO.env.ua.ie > 0){
-		url = '/default_flow.php?login__LoginIframeScreen';
+		url = '/default_flow.php?Login__LoginIframeScreen';
 	}
 	url += '/siteId/'+WIKIREQUEST.info.siteId;
 	url += '/categoryId/'+WIKIREQUEST.info.categoryId;

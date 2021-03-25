@@ -261,6 +261,6 @@
 		OpenOffice Calc, Gnumeric or Excel.{/t}
 	</p>
 	<p style="text-align: center">
-		<a href="/default--flow/extra__petition__PetitionDataDownload/campaignId/{$campaign->getCampaignId()}/{$campaign->getIdentifier()}.csv">{$campaign->getIdentifier()}.csv</a>
+		<a href="/default--flow/Extra__Petition__PetitionDataDownload/campaignId/{$campaign->getCampaignId()}/{$campaign->getIdentifier()}.csv">{$campaign->getIdentifier()}.csv</a>
 	</p>
 </div>

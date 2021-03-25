@@ -142,7 +142,7 @@ export const page = {
       const sIfr = document.createElement('iframe');
       sIfr.id = "login-iframe";
       // TODO: De-Wikijump.com-ize - parameter
-      let url = window.location.protocol + '//www.wikijump.com/default--flow/login__LoginIframeScreen';
+      let url = window.location.protocol + '//www.wikijump.com/default--flow/Login__LoginIframeScreen';
       url += '/siteId/' + WIKIREQUEST.info.siteId;
       url += '/categoryId/' + WIKIREQUEST.info.categoryId;
       url += '/themeId/' + WIKIREQUEST.info.themeId;
