@@ -12,6 +12,7 @@ use Ozone\Framework\WebFlowController;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
+use Wikijump\Helpers\LegacyTools;
 
 class FeedFlowController extends WebFlowController
 {
@@ -114,11 +115,11 @@ class FeedFlowController extends WebFlowController
 
         $template = $runData->getScreenTemplate();
         $classFile = $runData->getScreenClassPath();
-        $className = $runData->getScreenClassName();
-        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $className");
+        $class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
+        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
 
         require_once($classFile);
-        $screen = new $className();
+        $screen = new $class();
 
         // check if requires authentication
         if ($screen->getRequiresAuthentication() || $site->getPrivate()) {
