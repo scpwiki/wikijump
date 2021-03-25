@@ -7,7 +7,7 @@ on:
     paths:
       - 'web/**'
       - 'install/aws/dev/docker/php-fpm/**'
-      - '.github/workflows/docker-build-push-php.dev.yml'
+      - '.github/workflows/docker-build-push-php.dev.yaml'
 jobs:
   build:
     runs-on: ubuntu-latest
