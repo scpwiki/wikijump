@@ -62,13 +62,10 @@
 						{t}Are you a human?{/t}
 					</td>
 					<td>
-						<img src="/default--flow/Misc__Captcha/rand/{$rand}" alt="turing code"/>
-						<br/>
-						<input class="text" type="text" name="captcha" size="10" />
-						<div class="sub">
-							{t}Please write the code you can see above. Upper/lowercase does not matter.{/t}
-							<br/>{t}This is to prevent automated bots.{/t}
-						</div>
+						<script type="module" src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.8.3/widget.module.min.js" async defer></script>
+						<script nomodule src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.8.3/widget.min.js" async defer></script>
+						<div class="frc-captcha" data-sitekey="{$captchaSiteKey}"></div>
+						<!-- former home of Misc__Captcha -->
 					</td>
 				</tr>
 				<tr>
