@@ -108,7 +108,7 @@ Each of the blocks will be described in more detail below:
 
 ### Anchor
 
-**Accepts:**
+**Accepts variants:**
 * Modifier &emdash; Strips leading and trailing newlines.
 
 **Abstract Syntax Tree Output:** `Element::Anchor`
@@ -126,7 +126,7 @@ Each of the blocks will be described in more detail below:
 
 ### Blockquote
 
-**Accepts:**
+**Accepts variants:**
 * Newlines
 
 **Abstract Syntax Tree Output:** `Element::Container(ContainerType::Blockqote)`
@@ -146,7 +146,7 @@ Some text here.
 
 ### Bold
 
-**Accepts:**
+**Accepts variants:**
 * (none)
 
 **Abstract Syntax Tree Output:** `Element::Bold`
@@ -164,7 +164,7 @@ Some [[b]]text![[/b]]
 
 ### Checkbox
 
-**Accepts:**
+**Accepts variants:**
 * Special &emdash; Element starts checked
 
 **Abstract Syntax Tree Output:** `Element::CheckBox`
@@ -185,7 +185,7 @@ Some [[b]]text![[/b]]
 
 ### Code
 
-**Accepts:**
+**Accepts variants:**
 * Newlines
 
 **Abstract Syntax Tree Output:** `Element::Code`
