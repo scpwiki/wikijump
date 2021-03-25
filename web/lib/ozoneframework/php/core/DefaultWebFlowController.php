@@ -91,10 +91,8 @@ class DefaultWebFlowController extends WebFlowController {
 		while ($actionClass != null) {
 
 			require_once (PathManager :: actionClass($actionClass));
-			$tmpa1 = explode('/', $actionClass);
-            $actionClassStripped = end($tmpa1);
-
-			$action = new $actionClassStripped();
+			$class = LegacyTools::getNamespacedClassFromPath(PathManager :: actionClass($actionClass));
+			$action = new $class();
 
 			$classFile = $runData->getScreenClassPath();
 			if(!$action->isAllowed($runData)){

@@ -176,7 +176,8 @@ class Form {
 			if($this->validatorName == null) {
 				$this -> validatorName = "BaseFormValidator";
 			}
-
+			// As far as I can tell there's only the BaseFormValidator but I might be wrong.
+            $this->validatorName = "Ozone\Framework\\".$this->validatorName;
 			foreach($chain as $rule){
 				$this->isValidArray["$fieldName"]=true;
 				$ruleName = $rule['name'];

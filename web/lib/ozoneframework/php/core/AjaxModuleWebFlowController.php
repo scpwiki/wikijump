@@ -87,10 +87,8 @@ class AjaxModuleWebFlowController extends WebFlowController {
 		while ($actionClass != null) {
 
 			require_once (PathManager :: actionClass($actionClass));
-			$tmpa1 = explode('/', $actionClass);
-            $actionClassStripped = end($tmpa1);
-
-			$action = new $actionClassStripped();
+            $class = LegacyTools::getNamespacedClassFromPath(PathManager :: actionClass($actionClass));
+			$action = new $class();
 
 			// action security check
 			$classFile = $runData->getModuleClassPath();

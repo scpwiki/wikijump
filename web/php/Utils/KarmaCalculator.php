@@ -7,6 +7,7 @@ use Ozone\Framework\Database\Database;
 use Wikidot\DB\UserKarmaPeer;
 use Wikidot\DB\UserKarma;
 use Wikidot\DB\OzoneUserPeer;
+use Wikijump\Helpers\LegacyTools;
 
 class KarmaCalculator
 {
@@ -21,8 +22,8 @@ class KarmaCalculator
         $files = ls($rulesPath, '*.php');
         foreach ($files as $f) {
             require_once($rulesPath.'/'.$f);
-            $cn = str_replace('.php', '', basename($f));
-            $this->_rules[] = new $cn();
+            $class = LegacyTools::getNamespacedClassFromPath($rulesPath.'/'.$f);
+            $this->_rules[] = new $class();
         }
     }
 
