@@ -114,7 +114,7 @@ Each of the blocks will be described in more detail below:
 **HTML Output:** `<a>`
 
 **Arguments:**
-* All accepted attributes are passed as-is
+* All accepted attributes
 
 **Example:**
 
@@ -132,7 +132,7 @@ Each of the blocks will be described in more detail below:
 **HTML Output:** `<blockquote>`
 
 **Arguments:**
-* All accepted attributes are passed as-is
+* All accepted attributes
 
 **Example:**
 
@@ -140,6 +140,65 @@ Each of the blocks will be described in more detail below:
 [[blockquote]]
 Some text here.
 [[/blockquote]]
+```
+
+### Bold
+
+**Accepts:**
+* (none)
+
+**Abstract Syntax Tree Output:** `Element::Bold`
+
+**HTML Output:** `<strong>`
+
+**Arguments:**
+* All accepted attributes
+
+**Example:**
+
+```
+Some [[b]]text![[/b]]
+```
+
+### Checkbox
+
+**Accepts:**
+* Special &emdash; Element starts checked
+
+**Abstract Syntax Tree Output:** `Element::CheckBox`
+
+**HTML Output:** `<input type="checkbox">`
+
+**Arguments:**
+* All accepted attributes
+
+**Example:**
+
+```
+[[checkbox Apple]]
+[[*checkbox Blueberry]]
+[[checkbox Cherry]]
+[[checkbox Durian]]
+```
+
+### Code
+
+**Accepts:**
+* Newlines
+
+**Abstract Syntax Tree Output:** `Element::Code`
+
+**HTML Output:** `<div class="code">`
+
+**Arguments:**
+* `type` &emdash; What language this block is in, both for its Content-Type and syntax highlighting.
+
+**Example:**
+
+```
+[[code]]
+This text is **not** rendered as Wikitext, but output as-is!
+[[/code]]
 ```
 
 ## Modules
