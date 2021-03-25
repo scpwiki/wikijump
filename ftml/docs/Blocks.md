@@ -652,3 +652,5 @@ The table below follows essentially the same schema as for blocks in general, wi
 | Join         | `Module::Join`       | `<div class="join-box">`                  | |
 | PageTree     | `Module::PageTree`   | `<div class="pagetree-module-box"> <ul>`  | |
 | Rate         | `Module::Rate`       | `<div class="page-rate-widget-box">`      | |
+
+TODO: add individual doc sections for each module
