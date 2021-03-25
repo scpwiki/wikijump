@@ -72,7 +72,7 @@
 						{t}Are you a human?{/t}
 					</td>
 					<td>
-						<img src="/default--flow/misc__Captcha/rand/{$rand}" alt="turing code"/>
+						<img src="/default--flow/Misc__Captcha/rand/{$rand}" alt="turing code"/>
 						<br/>
 						<input class="text" type="text" name="captcha" size="10" />
 						<div class="sub">

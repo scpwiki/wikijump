@@ -40,7 +40,7 @@
 </div>
 
 <div id="invitation-addresses-upload-box" style="display: none">
-	<form id="file-upload-form" enctype="multipart/form-data" action="/default--flow/managesite__ContactUploadTarget" target="_upload_iframe" method="POST"
+	<form id="file-upload-form" enctype="multipart/form-data" action="/default--flow/ManageSite__ContactUploadTarget" target="_upload_iframe" method="POST"
 		onsubmit="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.startUpload(event)"
 	>
 
