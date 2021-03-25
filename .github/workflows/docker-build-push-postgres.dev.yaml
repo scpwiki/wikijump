@@ -1,13 +1,12 @@
-name: '[backend] Docker build PHP-FPM'
+name: '[backend] Docker build PSQL'
 
 on:
   push:
     branches:
       - develop
     paths:
-      - 'web/**'
-      - 'install/aws/dev/docker/php-fpm/**'
-      - '.github/workflows/docker-build-push-php.dev.yaml'
+      - 'install/aws/dev/docker/postgres/**'
+      - '.github/workflows/docker-build-push-postgres.dev.yaml'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,14 +24,14 @@ jobs:
           uses: aws-actions/amazon-ecr-login@v1
         - name: Build, tag, and push image to Amazon ECR
           id: build-image
-          working-directory: ./install/aws/dev/docker/php-fpm
+          working-directory: ./install/aws/dev/docker/postgres
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: wikijump-dev/php-fpm
+            ECR_REPOSITORY: wikijump-dev/postgres
             IMAGE_TAG: ${{ github.sha }}
           run: |
             set -ex
-            docker build --build-arg WIKIJUMP_REPO_BRANCH=${GITHUB_REF##*/} --build-arg MAIN_DOMAIN=wikijump.dev --build-arg FILES_DOMAIN=wjfiles.dev -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker build --build-arg FILES_DOMAIN="wjfiles.dev" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
         - name: Download task definition
@@ -43,7 +42,7 @@ jobs:
           uses: aws-actions/amazon-ecs-render-task-definition@v1
           with:
             task-definition: task-definition.json
-            container-name: php-fpm
+            container-name: database
             image: ${{ steps.build-image.outputs.image }}
         - name: Deploy Amazon ECS task definition
           uses: aws-actions/amazon-ecs-deploy-task-definition@v1
