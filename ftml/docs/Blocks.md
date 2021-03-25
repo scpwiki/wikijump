@@ -147,7 +147,7 @@ Some text here.
 ### Bold
 
 **Accepts variants:**
-* (none)
+* None
 
 **Abstract Syntax Tree Output:** `Element::Bold`
 
@@ -224,6 +224,28 @@ This text is **not** rendered as Wikitext, but output as-is!
 [[collapsible show="+ Spoilers for Ouroboros" hide="- Spoilers!" hideLocation="bottom"]]
 Overseers die.
 [[/collapsible]]
+```
+
+### CSS
+
+**Accepts variants:**
+* Newlines
+
+**Abstract Syntax Tree Output:** None. Appends to list of styles.
+
+**HTML Output:** `<style>`
+
+**Arguments:**
+* None
+
+**Example:**
+
+```
+[[css]]
+#page-title {
+    color: purple;
+}
+[[/css]]
 ```
 
 ## Modules
