@@ -5,6 +5,7 @@
 
 	{if $user}
 		{t}Hello{/t}, <span style="font-size:130%; font-weight: bold">{$user->getNickName()|escape}</span>
+        <input type="hidden" name="name" value="{$user->getNickName()|escape}" id="login-form-name"/>
 		<br/>
 		<br/>
 	{else}
