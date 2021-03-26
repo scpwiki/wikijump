@@ -4,7 +4,7 @@ namespace Wikidot\DB;
 
 
 
-
+use Ozone\Framework\DB\OzoneSession;
 use Ozone\Framework\Database\BaseDBObject;
 use Ozone\Framework\Database\Criteria;
 
