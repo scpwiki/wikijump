@@ -2,7 +2,7 @@
 
 namespace Wikidot\DB;
 
-
+use Ozone\Framework\DB\OzoneSession;
 
 
 //please extend this Class
