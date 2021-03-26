@@ -43,8 +43,7 @@ class CreateAccountModule extends SmartyModule
             $runData->sessionAdd("captchaCode", $code);
         }
         $runData->contextAdd('evcode', $code);
-        $runData->contextAdd("rand", rand(0, 1000));
-
+        $runData->contextAdd('captchaSiteKey', 'FCMT74J3ULGV4PI8'); // TODO: get this dynamically based on environment (dev vs prod)
         $runData->sessionAdd("rstep", 0);
 
         $pl = $runData->getParameterList();

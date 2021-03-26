@@ -33,5 +33,7 @@ class NewSiteModule extends SmartyModule
         $c->addOrderAscending('site_id');
         $templates = SitePeer::instance()->select($c);
         $runData->contextAdd('templates', $templates);
+
+        $runData->contextAdd('captchaSiteKey', 'FCMT74J3ULGV4PI8'); // TODO: get this dynamically based on environment (dev vs prod)
     }
 }
