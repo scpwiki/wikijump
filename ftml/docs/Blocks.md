@@ -72,7 +72,7 @@ Of note that while `[[module]]` is its own block, it requires specifying a modul
 
 See [Modules](Modules.md) for information on each module currently implemented.
 
-## Blocks
+## List of Blocks
 
 Here is a table showing the options each block has with regards to its construction:
 
