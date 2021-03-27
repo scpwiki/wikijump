@@ -2,7 +2,7 @@
 
 ftml uses the term "block" to refer to the syntactical construction beginning in `[[`, containing some text, and ending in `]]`. Examples include `[[div]]`, `[[module]]`, and `[[span]]`.
 
-The text after the `[[` is the name of the block. These are always case-insensitive.
+The text after the `[[` is the name of the block. This is always case-insensitive.
 
 Blocks have five variable properties worth noting:
 
