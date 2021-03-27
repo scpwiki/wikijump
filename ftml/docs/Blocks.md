@@ -70,6 +70,8 @@ How the bodies of a block are interpreted depend on its type. They fall into one
 
 Of note that while `[[module]]` is its own block, it requires specifying a module name, and this behaves similarly to other blocks in that their attributes are determined by the module name.
 
+See [Modules](Modules.md) for information on each module currently implemented.
+
 ## Blocks
 
 Here is a table showing the options each block has with regards to its construction:
