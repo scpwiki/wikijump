@@ -4,7 +4,7 @@ ftml uses the term "module" to refer any name accepted by the `[[module]]` block
 
 The text before the first space or end of the block head is the "name", and designates which module should be used. This is always case-insensitive.
 
-See [Blocks](Blocks.md) for an explanation for common concepts in Wikidot blocks, such as arguments and bodies.  This document assumes knowledge of those terms.
+See [Blocks](Blocks.md) for an explanation for common concepts in Wikidot blocks, such as arguments and bodies.  This document assumes knowledge of those terms. See also [Wikidot's documentation on modules](https://www.wikidot.com/doc-modules:start), not all of which are implemented here.
 
 ## List of Modules
 
