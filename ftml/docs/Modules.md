@@ -19,4 +19,26 @@ The table below follows essentially the same schema as for blocks in general, wi
 | [PageTree](#pagetree)     | `Module::PageTree`   | `<div class="pagetree-module-box"> <ul>`  | |
 | [Rate](#rate)             | `Module::Rate`       | `<div class="page-rate-widget-box">`      | |
 
-TODO: add individual doc sections for each module
+### Backlinks
+
+%
+
+### Categories
+
+%
+
+### CSS
+
+%
+
+### Join
+
+%
+
+### PageTree
+
+%
+
+### Rate
+
+%
