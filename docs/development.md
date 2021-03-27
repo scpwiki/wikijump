@@ -161,3 +161,9 @@ Some changes (e.g. to `lib/`) require that the container be rebuilt:
 ```
 $ docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml build
 ```
+
+## Recommended Reading
+
+Here is a list of some shorter resources that may be helpful if you wish to contribute to Wikijump's source:
+
+* [Blade templating documentation](https://laravel.com/docs/8.x/blade)
