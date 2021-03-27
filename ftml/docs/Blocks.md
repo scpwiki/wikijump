@@ -411,7 +411,7 @@ Example:
 This text is [[mark]]highlighted![[/mark]]
 ```
 
-### Modules
+### Module
 
 Output: `Element::Module` / Depends on the module type
 
