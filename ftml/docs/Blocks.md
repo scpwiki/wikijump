@@ -7,10 +7,10 @@ The text after the `[[` is the name of the block. These are always case-insensit
 Blocks have five variable properties worth noting:
 
 1. The block may start with `[[*` rather than `[[`. This is referred to as the "special" flag.
-2. Their name may end in `_`. This is referred to as the "modifier" flag. This underscore is ignored if found in the tail.
+2. Their name may end in `_`. This is referred to as the "modifier" flag. This underscore is ignored if found in the foot.
 3. The block may have some arguments before ending in `]]`.
 4. The block may accept delimited newlines. This is explained in more detail [below](#newlines).
-5. The block may have a body. It has contents that is terminated by `[[/name]]` (where `name` is the block name), referred to as the tail.
+5. The block may have a body. It has contents that is terminated by `[[/name]]` (where `name` is the block name), referred to as the block footer or tail.
 
 Whether particular blocks accept these variables is noted in the table below. If a block does not permit that variance, then it will fail to parse.
 
