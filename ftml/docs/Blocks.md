@@ -108,17 +108,14 @@ Each of the blocks will be described in more detail below:
 
 ### Anchor
 
-**Accepts variants:**
-* Modifier &mdash; Strips leading and trailing newlines.
+Outputs: `Element::Anchor` / `<a>`
 
-**Abstract Syntax Tree Output:** `Element::Anchor`
+Accepts `_` modifier: Strips leading and trailing newlines.
 
-**HTML Output:** `<a>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 [[a href="/scp-4000/noredirect/true" target="_blank" class="dual-link"]]Fae[[/a]]
@@ -126,17 +123,14 @@ Each of the blocks will be described in more detail below:
 
 ### Blockquote
 
-**Accepts variants:**
-* Newlines
+Outputs: `Element::Container(ContainerType::Blockqote)` / `<blockquote>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Blockqote)`
+Accepts newline separation.
 
-**HTML Output:** `<blockquote>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 [[blockquote]]
@@ -146,17 +140,12 @@ Some text here.
 
 ### Bold
 
-**Accepts variants:**
-* None
+Outputs: `Element::Container(ContainerType::Bold)` / `<strong>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Bold)`
-
-**HTML Output:** `<strong>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 Some [[b]]text![[/b]]
@@ -164,17 +153,14 @@ Some [[b]]text![[/b]]
 
 ### Checkbox
 
-**Accepts variants:**
-* Special &mdash; Element starts checked
+Outputs: `Element::CheckBox` / `<input type="checkbox">`
 
-**Abstract Syntax Tree Output:** `Element::CheckBox`
+Accepts `*` special: Element starts checked.
 
-**HTML Output:** `<input type="checkbox">`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 [[checkbox Apple]]
@@ -185,17 +171,14 @@ Some [[b]]text![[/b]]
 
 ### Code
 
-**Accepts variants:**
-* Newlines
+Outputs: `Element::Code` / `<div class="code">`
 
-**Abstract Syntax Tree Output:** `Element::Code`
+Accepts newline separation.
 
-**HTML Output:** `<div class="code">`
-
-**Arguments:**
+Arguments:
 * `type` &mdash; What language this block is in, both for its Content-Type and syntax highlighting.
 
-**Example:**
+Example:
 
 ```
 [[code]]
@@ -205,20 +188,17 @@ This text is **not** rendered as Wikitext, but output as-is!
 
 ### Collapsible
 
-**Accepts variants:**
-* Newlines
+Output: `Element::Collapsible` / `<div class="collapsible-block">`
 
-**Abstract Syntax Tree Output:** `Element::Collapsible`
+Accepts newline separation.
 
-**HTML Output:** `<div class="collapsible-block">`
-
-**Arguments:**
+Arguments:
 * `show` &mdash; The text to present when text is collapsed (i.e. can be shown)
 * `hide` &mdash; The text to present when text is expanded (i.e. can be hidden)
 * `folded` &mdash; Boolean. `true` means start collapsed (default), `false` means start expanded
 * `hideLocation` &mdash; One of `top`, `bottom`, `both`, or `neither`. Shows in what locations the hide collapsible link in.
 
-**Example:**
+Example:
 
 ```
 [[collapsible show="+ Spoilers for Ouroboros" hide="- Spoilers!" hideLocation="bottom"]]
@@ -228,17 +208,14 @@ Overseers die.
 
 ### CSS
 
-**Accepts variants:**
-* Newlines
+Output: None / `<style>`
 
-**Abstract Syntax Tree Output:** None. Appends to list of styles.
+Accepts newline separation.
 
-**HTML Output:** `<style>`
-
-**Arguments:**
+Arguments:
 * None
 
-**Example:**
+Example:
 
 ```
 [[css]]
@@ -250,17 +227,12 @@ Overseers die.
 
 ### Deletion
 
-**Accepts variants:**
-* None
+Output: `Element::Container(ContainerType::Deletion)` / `<del>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Deletion)`
-
-**HTML Output:** `<del>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 I [[del]]don't[[/del]] like that haircut.
@@ -268,18 +240,15 @@ I [[del]]don't[[/del]] like that haircut.
 
 ### Div
 
-**Accepts variants:**
-* Modifier &mdash; Strips leading and trailing newlines
-* Newlines
+Output: `Element::Container(ContainerType::Div)` / `<div>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Div)`
+Accepts `_` modifier: Strips leading and trailing newlines.  
+Accepts newline separation.
 
-**HTML Output:** `<div>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 [[div_ class="blockquote" style="border: none;"]]
@@ -289,17 +258,14 @@ Some text __here!__
 
 ### Hidden
 
-**Accepts variants:**
-* Newlines
+Output: `Element::Container(ContainerType::Hidden)` / `<span class="hidden">`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Hidden)`
+Accepts newline separation.
 
-**HTML Output:** `<span class="hidden">`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 This text is **visible**.
@@ -311,17 +277,14 @@ This text is not.
 
 ### HTML
 
-**Accepts variants:**
-* Newlines
+Output: `Element::Html` / `<iframe>`
 
-**Abstract Syntax Tree Output:** `Element::Html`
+Accepts newline separation.
 
-**HTML Output:** `<iframe>`
-
-**Arguments:**
+Arguments:
 * None
 
-**Example:**
+Example:
 
 ```
 [[html]]
@@ -335,17 +298,14 @@ This HTML will appear in an iframe hosted on wjfiles!
 
 ### Iframe
 
-**Accepts variants:**
-* Newlines
+Output:`Element::Iframe` /`<iframe>`
 
-**Abstract Syntax Tree Output:** `Element::Iframe`
+Accepts newline separation.
 
-**HTML Output:** `<iframe>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 My website:
@@ -355,19 +315,16 @@ My website:
 
 ### Include
 
-This is not a typical block, as it is handled in the preprocessor. Parsing here is handled differently.
+This is not a typical block, as it is handled in the preprocessor. Parsing here is handled differently, but this block is still documented for completion sake.
 
-**Accepts variants:**
-* Newlines
+Output: N/A
 
-**Abstract Syntax Tree Output:** N/A
+Accepts newline separation.
 
-**HTML Output:** N/A
-
-**Arguments:**
+Arguments:
 * All arguments are passed as variables to the included page
 
-**Example:**
+Example:
 
 ```
 [[include theme:black-highlighter-theme]]
@@ -381,17 +338,12 @@ This is not a typical block, as it is handled in the preprocessor. Parsing here 
 
 ### Insertion
 
-**Accepts variants:**
-* None
+Output: `Element::Container(ContainerType::Insertion)` / `<ins>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Insertion)`
-
-**HTML Output:** `<ins>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 I would like some [[ins]]anchovy[[/ins]] pizza please, thank you.
@@ -399,17 +351,14 @@ I would like some [[ins]]anchovy[[/ins]] pizza please, thank you.
 
 ### Invisible
 
-**Accepts variants:**
-* Newlines
+Output: `Element::Container(ContainerType::Invisible)` / `<span class="invisible">`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Invisible)`
+Accepts newline separation.
 
-**HTML Output:** `<span class="invisible">`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 This text appears [[invisible]]but still takes up space, and can be selected.[[/invisible]]
@@ -419,17 +368,12 @@ More correct and much more portable than setting the font color to "white".
 
 ### Italics
 
-**Accepts variants:**
-* None
+Output: `Element::Container(ContainerType::Italics)` / `<em>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Italics)`
-
-**HTML Output:** `<em>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 This text is regular, but [[em]]this text is emphasized[[/em]].
@@ -437,17 +381,14 @@ This text is regular, but [[em]]this text is emphasized[[/em]].
 
 ### Lines
 
-**Accepts variants:**
-* Newlines
+Output: `Element::LineBreaks` / `<br>`
 
-**Abstract Syntax Tree Output:** `Element::LineBreaks`
+Accepts newline separation.
 
-**HTML Output:** `<br>`
-
-**Arguments:**
+Arguments:
 * Value: positive integer &mdash; Number of line breaks to output
 
-**Example:**
+Example:
 
 ```
 [[newlines 4]]
@@ -457,17 +398,12 @@ This text is regular, but [[em]]this text is emphasized[[/em]].
 
 ### Mark
 
-**Accepts variants:**
-* None
+Output: `Element::Container(ContainerType::Mark)` / `<mark>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Mark)`
-
-**HTML Output:** `<mark>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 This text is [[mark]]highlighted![[/mark]]
@@ -475,17 +411,14 @@ This text is [[mark]]highlighted![[/mark]]
 
 ### Modules
 
-**Accepts variants:**
-* Newlines
+Output: `Element::Module` / Depends on the module type
 
-**Abstract Syntax Tree Output:** Depends on the module type
+Accepts newline separation.
 
-**HTML Output:** Depends on the module type
-
-**Arguments:**
+Arguments:
 * See documentation for specific modules
 
-**Example:**
+Example:
 
 ```
 [[module NameOfModuleHere someArgument="yes"]]
@@ -493,17 +426,12 @@ This text is [[mark]]highlighted![[/mark]]
 
 ### Monospace
 
-**Accepts variants:**
-* None
+Output: `Element::Container(ContainerType::Monospace)` / `<tt>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Monospace)`
-
-**HTML Output:** `<tt>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 [[tt]]This output looks like it came from a typewriter or computer terminal.[[/tt]]
@@ -511,17 +439,14 @@ This text is [[mark]]highlighted![[/mark]]
 
 ### Radio
 
-**Accepts variants:**
-* Special &mdash; Element starts selected
+Accepts `*` special: Element starts selected.
 
-**Abstract Syntax Tree Output:** `Element::RadioButton`
+Output: `Element::RadioButton` / `<input type="radio">`
 
-**HTML Output:** `<input type="radio">`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 Favorite kind of music:
@@ -534,17 +459,12 @@ Favorite kind of music:
 
 ### Size
 
-**Accepts variants:**
+Output: `Element::Container(ContainerType::Size)` / `<span style="font-size: XXX;">`
+
+Arguments:
 * None
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Size)`
-
-**HTML Output:** `<span style="font-size: XXX;">`
-
-**Arguments:**
-* None
-
-**Example:**
+Example:
 
 ```
 This text is regular, but [[size 250%]]this text is much larger[[/size]].
@@ -552,17 +472,14 @@ This text is regular, but [[size 250%]]this text is much larger[[/size]].
 
 ### Span
 
-**Accepts variants:**
-* Modifier &mdash; Strips leading and trailing newlines
+Output:`Element::Span` / `<span>`
 
-**Abstract Syntax Tree Output:** `Element::Span`
+Accepts `_` modifier: Strips leading and trailing newlines.
 
-**HTML Output:** `<span>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 This text is in a span: [[span class="fruit"]]banana[[/span]]
@@ -570,17 +487,12 @@ This text is in a span: [[span class="fruit"]]banana[[/span]]
 
 ### Strikethrough
 
-**Accepts variants:**
-* None
+Output: `Element::Container(ContainerType::Strikethrough)` / `<s>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Strikethrough)`
-
-**HTML Output:** `<s>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 This text is [[s]]struck through![[/s]]
@@ -588,17 +500,12 @@ This text is [[s]]struck through![[/s]]
 
 ### Subscript
 
-**Accepts variants:**
-* None
+Output: `Element::Container(ContainerType::Subscript)` / `<sub>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Subscript)`
-
-**HTML Output:** `<sub>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 Let this variable be called x[[sub]]A[[/sub]].
@@ -606,17 +513,12 @@ Let this variable be called x[[sub]]A[[/sub]].
 
 ### Superscript
 
-**Accepts variants:**
-* None
+Output: `Element::Container(ContainerType::Superscript)` / `<sup>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Superscript)`
-
-**HTML Output:** `<sup>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 Thus, the result is n[[sup]]2[[/sup]].
@@ -624,17 +526,12 @@ Thus, the result is n[[sup]]2[[/sup]].
 
 ### Underline
 
-**Accepts variants:**
-* None
+Output: `Element::Container(ContainerType::Underline)` / `<u>`
 
-**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Underline)`
-
-**HTML Output:** `<u>`
-
-**Arguments:**
+Arguments:
 * All accepted attributes
 
-**Example:**
+Example:
 
 ```
 [[u]]Testing log 7192-45:[[/u]]
@@ -644,7 +541,7 @@ Thus, the result is n[[sup]]2[[/sup]].
 
 The table below follows essentially the same schema as for blocks in general, with a few changes. [As noted above](#blocks), all modules accept separate newlines and do not accept special or variant flags. Additionally, the list of accepted names is the same as the module name (but case-insensitive).
 
-| Module Name  | AST Output           | HTML Output                               | Notes |
+| Module Name  | AST Output           | htmlOutput                               | Notes |
 |--------------|----------------------|-------------------------------------------|-------|
 | Backlinks    | `Module::Backlinks`  | `<div class="backlinks-module-box"> <ul>` | |
 | Categories   | `Module::Categories` | `<div class="categories-module-box">`     | |
