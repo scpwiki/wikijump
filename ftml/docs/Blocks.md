@@ -195,10 +195,10 @@ Output: `Element::Collapsible` / `<div class="collapsible-block">`
 Accepts newline separation.
 
 Arguments:
-* `show` &mdash; The text to present when text is collapsed (i.e. can be shown)
-* `hide` &mdash; The text to present when text is expanded (i.e. can be hidden)
-* `folded` &mdash; Boolean. `true` means start collapsed (default), `false` means start expanded
-* `hideLocation` &mdash; One of `top`, `bottom`, `both`, or `neither`. Shows in what locations the hide collapsible link in.
+* `show` &mdash; (Boolean) The text to present when text is collapsed (i.e. can be shown).
+* `hide` &mdash; (Boolean) The text to present when text is expanded (i.e. can be hidden).
+* `folded` &mdash; (Boolean) `true` means start collapsed (default), `false` means start expanded.
+* `hideLocation` &mdash; (Enum: One of `top`, `bottom`, `both`, or `neither`) Shows in what locations the hide collapsible link in.
 
 Example:
 
@@ -388,7 +388,7 @@ Output: `Element::LineBreaks` / `<br>`
 Accepts newline separation.
 
 Arguments:
-* Value: positive integer &mdash; Number of line breaks to output
+Value &mdash; (Positive integer) Number of line breaks to output
 
 Example:
 
@@ -464,7 +464,7 @@ Favorite kind of music:
 Output: `Element::Container(ContainerType::Size)` / `<span style="font-size: XXX;">`
 
 Arguments:
-* None
+Value &mdash; (String) The CSS string denoting what size should be used here.
 
 Example:
 
