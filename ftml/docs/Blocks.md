@@ -112,6 +112,8 @@ Each of the blocks will be described in more detail below:
 
 Outputs: `Element::Anchor` / `<a>`
 
+Body: Elements
+
 Accepts `_` modifier: Strips leading and trailing newlines.
 
 Arguments:
@@ -126,6 +128,8 @@ Example:
 ### Blockquote
 
 Outputs: `Element::Container(ContainerType::Blockqote)` / `<blockquote>`
+
+Body: Elements
 
 Accepts newline separation.
 
@@ -144,6 +148,8 @@ Some text here.
 
 Outputs: `Element::Container(ContainerType::Bold)` / `<strong>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -156,6 +162,8 @@ Some [[b]]text![[/b]]
 ### Checkbox
 
 Outputs: `Element::CheckBox` / `<input type="checkbox">`
+
+Body: None
 
 Accepts `*` special: Element starts checked.
 
@@ -175,6 +183,8 @@ Example:
 
 Outputs: `Element::Code` / `<div class="code">`
 
+Body: Raw
+
 Accepts newline separation.
 
 Arguments:
@@ -191,6 +201,8 @@ This text is **not** rendered as Wikitext, but output as-is!
 ### Collapsible
 
 Output: `Element::Collapsible` / `<div class="collapsible-block">`
+
+Body: Elements
 
 Accepts newline separation.
 
@@ -212,6 +224,8 @@ Overseers die.
 
 Output: None / `<style>`
 
+Body: Raw
+
 Accepts newline separation.
 
 Arguments:
@@ -231,6 +245,8 @@ Example:
 
 Output: `Element::Container(ContainerType::Deletion)` / `<del>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -243,6 +259,8 @@ I [[del]]don't[[/del]] like that haircut.
 ### Div
 
 Output: `Element::Container(ContainerType::Div)` / `<div>`
+
+Body: Elements
 
 Accepts `_` modifier: Strips leading and trailing newlines.  
 Accepts newline separation.
@@ -262,6 +280,8 @@ Some text __here!__
 
 Output: `Element::Container(ContainerType::Hidden)` / `<span class="hidden">`
 
+Body: Elements
+
 Accepts newline separation.
 
 Arguments:
@@ -280,6 +300,8 @@ This text is not.
 ### HTML
 
 Output: `Element::Html` / `<iframe>`
+
+Body: Raw
 
 Accepts newline separation.
 
@@ -302,6 +324,8 @@ This HTML will appear in an iframe hosted on wjfiles!
 
 Output:`Element::Iframe` /`<iframe>`
 
+Body: None
+
 Accepts newline separation.
 
 Arguments:
@@ -320,6 +344,8 @@ My website:
 This is not a typical block, as it is handled in the preprocessor. Parsing here is handled differently, but this block is still documented for completion sake.
 
 Output: N/A
+
+Body: None
 
 Accepts newline separation.
 
@@ -342,6 +368,8 @@ Example:
 
 Output: `Element::Container(ContainerType::Insertion)` / `<ins>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -354,6 +382,8 @@ I would like some [[ins]]anchovy[[/ins]] pizza please, thank you.
 ### Invisible
 
 Output: `Element::Container(ContainerType::Invisible)` / `<span class="invisible">`
+
+Body: Elements
 
 Accepts newline separation.
 
@@ -372,6 +402,8 @@ More correct and much more portable than setting the font color to "white".
 
 Output: `Element::Container(ContainerType::Italics)` / `<em>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -384,6 +416,8 @@ This text is regular, but [[em]]this text is emphasized[[/em]].
 ### Lines
 
 Output: `Element::LineBreaks` / `<br>`
+
+Body: None
 
 Accepts newline separation.
 
@@ -402,6 +436,8 @@ Example:
 
 Output: `Element::Container(ContainerType::Mark)` / `<mark>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -413,7 +449,9 @@ This text is [[mark]]highlighted![[/mark]]
 
 ### Module
 
-Output: `Element::Module` / Depends on the module type
+Output: `Element::Module` / Depends on module type
+
+Body: Depends on module type
 
 Accepts newline separation.
 
@@ -430,6 +468,8 @@ Example:
 
 Output: `Element::Container(ContainerType::Monospace)` / `<tt>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -442,6 +482,8 @@ Example:
 ### Radio
 
 Accepts `*` special: Element starts selected.
+
+Body: None
 
 Output: `Element::RadioButton` / `<input type="radio">`
 
@@ -463,6 +505,8 @@ Favorite kind of music:
 
 Output: `Element::Container(ContainerType::Size)` / `<span style="font-size: XXX;">`
 
+Body: Elements
+
 Arguments:
 Value &mdash; (String) The CSS string denoting what size should be used here.
 
@@ -475,6 +519,8 @@ This text is regular, but [[size 250%]]this text is much larger[[/size]].
 ### Span
 
 Output:`Element::Span` / `<span>`
+
+Body: Elements
 
 Accepts `_` modifier: Strips leading and trailing newlines.
 
@@ -491,6 +537,8 @@ This text is in a span: [[span class="fruit"]]banana[[/span]]
 
 Output: `Element::Container(ContainerType::Strikethrough)` / `<s>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -503,6 +551,8 @@ This text is [[s]]struck through![[/s]]
 ### Subscript
 
 Output: `Element::Container(ContainerType::Subscript)` / `<sub>`
+
+Body: Elements
 
 Arguments:
 * All accepted attributes
@@ -517,6 +567,8 @@ Let this variable be called x[[sub]]A[[/sub]].
 
 Output: `Element::Container(ContainerType::Superscript)` / `<sup>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -529,6 +581,8 @@ Thus, the result is n[[sup]]2[[/sup]].
 ### Underline
 
 Output: `Element::Container(ContainerType::Underline)` / `<u>`
+
+Body: Elements
 
 Arguments:
 * All accepted attributes
