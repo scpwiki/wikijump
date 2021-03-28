@@ -23,6 +23,8 @@ The table below follows essentially the same schema as for blocks in general, wi
 
 Provides a list of pages which link to the page in question.
 
+Body: None
+
 Arguments:
 * `page` &mdash; (Optional) The page to retrieve the back links to. Default: current page.
 
@@ -36,6 +38,8 @@ Example:
 
 Lists all categories on the site, and for each, a collapsible containing a list of each page within that category.
 
+Body: None
+
 Arguments:
 * `includeHidden` &mdash; (Optional, Boolean) Whether hidden categories (those beginning with `_`) should be shown. Default: false.
 
@@ -48,6 +52,8 @@ Example:
 ### CSS
 
 Adds CSS styling that will be applied to the current page. An alias of `[[css]]`.
+
+Body: Raw
 
 Arguments:
 * None
@@ -66,6 +72,8 @@ Example:
 
 A button which permits users to join or apply to the current site.
 
+Body: None
+
 Arguments:
 * `button` &mdash; (Optional, String) The text that should be present on the button.
 * All accepted attributes.
@@ -73,6 +81,8 @@ Arguments:
 ### PageTree
 
 Lists all the child pages of the page in question, including their children, in a hierarchical tree.
+
+Body: None
 
 Arguments:
 * `root` &mdash; (Optional, Slug) The page to retrieve children for. Default: current page.
@@ -86,6 +96,8 @@ Example:
 ```
 
 ### Rate
+
+Body: None
 
 Provides a rating module, which enables votes to be cast on a page.
 
