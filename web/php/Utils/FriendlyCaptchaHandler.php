@@ -14,7 +14,7 @@ class FriendlyCaptchaHandler
             'POST',
             'https://friendlycaptcha.com/api/v1/siteverify',
             [
-                'form_params' => [
+                'json' => [
                     'solution' => $solution,
                     'secret' => GlobalProperties::$FR_CAPTCHA_API_KEY,
                     'sitekey' => GlobalProperties::$FR_CAPTCHA_SITE_KEY,
