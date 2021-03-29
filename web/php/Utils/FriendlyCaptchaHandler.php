@@ -7,31 +7,22 @@ use Wikidot\Utils\GlobalProperties;
 class FriendlyCaptchaHandler
 {
     public static function verifySolution($solution) {
-        $request = array(
-            'solution' => $solution,
-            'secret' => GlobalProperties::$FR_CAPTCHA_API_KEY,
-            'sitekey' => GlobalProperties::$FR_CAPTCHA_SITE_KEY,
-        );
+        $client = new GuzzleHttp\Client();
 
-        // TODO(aismallard): verify result with FriendlyCaptcha
-        // see https://docs.friendlycaptcha.com/#/installation?id=_3-verifying-the-captcha-solution-on-the-server
-
-        // TODO have this actually POST lol
-        $response = doPostSomehow(
+        // Send POST request
+        $response = $client->request(
+            'POST',
             'https://friendlycaptcha.com/api/v1/siteverify',
-            $request,
+            [
+                'form_params' => [
+                    'solution' => $solution,
+                    'secret' => GlobalProperties::$FR_CAPTCHA_API_KEY,
+                    'sitekey' => GlobalProperties::$FR_CAPTCHA_SITE_KEY,
+                ],
+            ],
         );
 
-        $response = array(
-            'success' => true,
-            'errorCodes' => ['invalid_solution'],
-        );
-
-        if (!$response->success) {
-            // TODO: log $response->errorCodes
-        }
-
-        if ($responseCode != 200) {
+        if ($response->getStatusCode() != 200) {
             // FriendlyCaptcha will always send 200 OK if the request was properly formed,
             // regardless of whether
             //
@@ -43,6 +34,12 @@ class FriendlyCaptchaHandler
             // See https://docs.friendlycaptcha.com/#/verification_api
 
             // TODO: log big bad error thing
+            return true;
+        }
+
+        $body = $response->json();
+        if (!$body->success) {
+            // TODO log $body->errorCodes
         }
 
         return $response->success;
