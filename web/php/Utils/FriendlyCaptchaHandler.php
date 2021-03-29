@@ -16,6 +16,12 @@ class FriendlyCaptchaHandler
         // TODO(aismallard): verify result with FriendlyCaptcha
         // see https://docs.friendlycaptcha.com/#/installation?id=_3-verifying-the-captcha-solution-on-the-server
 
+        // TODO have this actually POST lol
+        $response = doPostSomehow(
+            'https://friendlycaptcha.com/api/v1/siteverify',
+            $request,
+        );
+
         $response = array(
             'success' => true,
             'errorCodes' => ['invalid_solution'],
