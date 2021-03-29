@@ -111,7 +111,6 @@ class CreateAccount2Action extends SmartyAction
         }
 
         // captcha
-        // verify reslt with FriendlyCaptcha
         $captchaValid = FriendlyCaptchaHandler::verifySolution($captcha);
         if (!$captchaValid) {
             $errors['captcha'] = _("Account creation failed: CAPTCHA was invalid.");
