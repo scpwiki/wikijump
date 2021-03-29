@@ -97,6 +97,8 @@ class GlobalProperties
 
     // third-party keys
     public static $FLICKR_API_KEY;
+    public static $FR_CAPTCHA_SITE_KEY;
+    public static $FR_CAPTCHA_API_KEY;
 
     // non-configurable properties
     public static $DATABASE_TYPE;
@@ -245,6 +247,8 @@ class GlobalProperties
         self::$XSENDFILE_HEADER         = $_ENV["WIKIJUMP_XSENDFILE_HEADER"] ?? self::fromIni("misc", "xsendfile_header", "X-LIGHTTPD-send-file");
 
         self::$FLICKR_API_KEY           = $_ENV["WIKIJUMP_FLICKR_API_KEY"] ?? self::fromIni("keys", "flickr", "");
+        self::$FR_CAPTCHA_SITE_KEY      = $_ENV["WIKIJUMP_FR_CAPTCHA_SITE_KEY"] ?? self::fromIni("keys", "friendlycaptcha-site-key", "");
+        self::$FR_CAPTCHA_API_KEY       = $_ENV["WIKIJUMP_FR_CAPTCHA_API_KEY"] ?? self::fromIni("keys", "friendlycaptcha-api-key", "");
 
         // non-configurable properties
         self::$DATABASE_TYPE            = "pgsql";

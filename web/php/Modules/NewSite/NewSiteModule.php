@@ -6,6 +6,7 @@ use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\SitePeer;
 
 use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WDStringUtils;
 
 class NewSiteModule extends SmartyModule
@@ -33,5 +34,7 @@ class NewSiteModule extends SmartyModule
         $c->addOrderAscending('site_id');
         $templates = SitePeer::instance()->select($c);
         $runData->contextAdd('templates', $templates);
+
+        $runData->contextAdd('captchaSiteKey', GlobalProperties::$FR_CAPTCHA_SITE_KEY);
     }
 }

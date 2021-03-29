@@ -14,6 +14,7 @@ use Wikidot\DB\SitePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\Utils\Duplicator;
+use Wikidot\Utils\FriendlyCaptchaHandler;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
@@ -41,12 +42,11 @@ class CreateAccount2Action extends SmartyAction
 
         // do it manually. change of rules.
         $pl = $runData->getParameterList();
-        $name = ($pl->getParameterValue("name"));
-        $email = ($pl->getParameterValue("email"));
-        $password = ($pl->getParameterValue("password"));
-        $password2 = ($pl->getParameterValue("password2"));
-
-        $captcha = trim($pl->getParameterValue("captcha"));
+        $name = $pl->getParameterValue("name");
+        $email = $pl->getParameterValue("email");
+        $password = $pl->getParameterValue("password");
+        $password2 = $pl->getParameterValue("password2");
+        $captcha = $pl->getParameterValue("frc-captcha-solution");
 
         // validate now.
 
@@ -111,10 +111,9 @@ class CreateAccount2Action extends SmartyAction
         }
 
         // captcha
-        $captcha = str_replace('0', 'O', $captcha);
-        $captcha = strtoupper($captcha);
-        if ($captcha != strtoupper($runData->sessionGet("captchaCode"))) {
-            $errors['captcha'] = _("Account creation failed: CAPTCHA does not match.");
+        $captchaValid = FriendlyCaptchaHandler::verifySolution($captcha);
+        if (!$captchaValid) {
+            $errors['captcha'] = _("Account creation failed: CAPTCHA was invalid.");
         }
 
         if (!$pl->getParameterValue("tos")) {
