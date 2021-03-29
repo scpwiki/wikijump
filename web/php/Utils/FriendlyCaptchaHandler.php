@@ -21,6 +21,24 @@ class FriendlyCaptchaHandler
             'errorCodes' => ['invalid_solution'],
         );
 
+        if (!$response->success) {
+            // TODO: log $response->errorCodes
+        }
+
+        if ($responseCode != 200) {
+            // FriendlyCaptcha will always send 200 OK if the request was properly formed,
+            // regardless of whether
+            //
+            // If another code (e.g. 401) is received, it indicates an error on our end or
+            // FriendlyCaptcha's end. In such a case it is recommended we be permissive and
+            // let them proceed anyways, otherwise we're breaking a core site feature until
+            // the outage is resolved.
+            //
+            // See https://docs.friendlycaptcha.com/#/verification_api
+
+            // TODO: log big bad error thing
+        }
+
         return $response->success;
     }
 }
