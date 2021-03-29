@@ -41,11 +41,10 @@ class CreateAccount2Action extends SmartyAction
 
         // do it manually. change of rules.
         $pl = $runData->getParameterList();
-        $name = ($pl->getParameterValue("name"));
-        $email = ($pl->getParameterValue("email"));
-        $password = ($pl->getParameterValue("password"));
-        $password2 = ($pl->getParameterValue("password2"));
-
+        $name = $pl->getParameterValue("name");
+        $email = $pl->getParameterValue("email");
+        $password = $pl->getParameterValue("password");
+        $password2 = $pl->getParameterValue("password2");
         $captcha = trim($pl->getParameterValue("captcha"));
 
         // validate now.
