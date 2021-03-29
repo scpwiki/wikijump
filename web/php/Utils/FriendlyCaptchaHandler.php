@@ -41,6 +41,18 @@ class FriendlyCaptchaHandler
         $body = $response->getBody();
         $result = json_decode($body);
 
+        // The JSON response looks like the following:
+        //
+        // {
+        //     "success": false,
+        //     "errorCodes": [
+        //         "invalid_solution",
+        //         "timeout_or_duplicate"
+        //     ]
+        // }
+        //
+        // The "errorCodes" field may be absent if "success" is true.
+
         if (!$result->success) {
             // TODO log $result->errorCodes
         }
