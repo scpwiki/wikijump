@@ -110,11 +110,10 @@ class CreateAccount2Action extends SmartyAction
         }
 
         // captcha
-        // TODO(aismallard): verify result with FriendlyCaptcha
-        $captcha = str_replace('0', 'O', $captcha);
-        $captcha = strtoupper($captcha);
-        if ($captcha != strtoupper($runData->sessionGet("captchaCode"))) {
-            $errors['captcha'] = _("Account creation failed: CAPTCHA does not match.");
+        // verify reslt with FriendlyCaptcha
+        $captchaValid = FriendlyCaptchaHandler::verifySolution($captcha);
+        if (!$captchaValid) {
+            $errors['captcha'] = _("Account creation failed: CAPTCHA was invalid.");
         }
 
         if (!$pl->getParameterValue("tos")) {
