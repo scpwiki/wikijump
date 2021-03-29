@@ -88,8 +88,6 @@ class PageOptionsBottomModule extends Module
 	<a href="javascript:;" id="files-button">'._('files').'</a> ' .
         '<a href="javascript:;" id="print-button">'._('print').'</a> ' .
         '<a href="javascript:;" id="site-tools-button">'._('site tools').'</a>';
-        if ($site->getPrivate()) {
-        }
         $otext .= '<a href="javascript:;" id="more-options-button">+&nbsp;'._('options').'</a>
 </div>
 <div id="page-options-bottom-2" class="page-options-bottom" style="display:none">
