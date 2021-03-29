@@ -2,15 +2,15 @@
 
 ftml uses the term "block" to refer to the syntactical construction beginning in `[[`, containing some text, and ending in `]]`. Examples include `[[div]]`, `[[module]]`, and `[[span]]`.
 
-The text after the `[[` is the name of the block. These are always case-insensitive.
+The text after the `[[` is the name of the block. This is always case-insensitive.
 
 Blocks have five variable properties worth noting:
 
 1. The block may start with `[[*` rather than `[[`. This is referred to as the "special" flag.
-2. Their name may end in `_`. This is referred to as the "modifier" flag. This underscore is ignored if found in the tail.
+2. Their name may end in `_`. This is referred to as the "modifier" flag. This underscore is ignored if found in the foot.
 3. The block may have some arguments before ending in `]]`.
 4. The block may accept delimited newlines. This is explained in more detail [below](#newlines).
-5. The block may have a body. It has contents that is terminated by `[[/name]]` (where `name` is the block name), referred to as the tail.
+5. The block may have a body. It has contents that is terminated by `[[/name]]` (where `name` is the block name), referred to as the block footer or tail.
 
 Whether particular blocks accept these variables is noted in the table below. If a block does not permit that variance, then it will fail to parse.
 
@@ -70,45 +70,49 @@ How the bodies of a block are interpreted depend on its type. They fall into one
 
 Of note that while `[[module]]` is its own block, it requires specifying a module name, and this behaves similarly to other blocks in that their attributes are determined by the module name.
 
-## Blocks
+See [Modules](Modules.md) for information on each module currently implemented.
+
+## List of Blocks
 
 Here is a table showing the options each block has with regards to its construction:
 
-| Block Name  | Accepted Names                   | Special? | Modifier? | Newlines? | Argument Type | Body Type |
-|-------------|----------------------------------|----------|-----------|-----------|---------------|-----------|
-| Anchor      | `a`, `anchor`                    | No       | Yes       | No        | Map           | Elements  |
-| Blockquote  | `blockquote`, `quote`            | No       | No        | Yes       | Map           | Elements  |
-| Bold        | `b`, `bold`, `strong`            | No       | No        | No        | Map           | Elements  |
-| Checkbox    | `checkbox`                       | Yes      | No        | No        | Map           | None      |
-| Code        | `code`                           | No       | No        | Yes       | Map           | Raw       |
-| Collapsible | `collapsible`                    | No       | No        | Yes       | Map           | Elements  |
-| CSS         | `css`                            | No       | No        | Yes       | None          | Raw       |
-| Deletion    | `del`, `deletion`                | No       | No        | No        | Map           | Elements  |
-| Div         | `div`                            | No       | Yes       | Yes       | Map           | Elements  |
-| Hidden      | `hidden`                         | No       | No        | Yes       | Map           | Elements  |
-| HTML        | `html`                           | No       | No        | Yes       | Map           | Raw       |
-| Iframe      | `iframe`                         | No       | No        | Yes       | None          | None      |
-| Include     | `include`                        | No       | No        | Yes       | Name + Map    | None      |
-| Insertion   | `ins`, `insertion`               | No       | No        | No        | Map           | Elements  |
-| Invisible   | `invisible`                      | No       | No        | Yes       | Map           | Elements  |
-| Italics     | `i`, `italics`, `em`, `emphasis` | No       | No        | No        | Map           | Elements  |
-| Lines       | `lines`, `newlines`              | No       | No        | Yes       | Value         | None      |
-| Mark        | `mark`, `highlight`              | No       | No        | No        | Map           | Elements  |
-| Module      | `module`                         | No       | No        | Yes       | (See below)   | (See below) |
-| Monospace   | `tt`, `mono`, `monospace`        | No       | No        | No        | Map           | Elements  |
-| Radio       | `radio`, `radio-button`          | Yes      | No        | No        | Name + Map    | None      |
-| Size        | `size`                           | No       | No        | No        | Value         | Elements  |
-| Span        | `span`                           | No       | Yes       | No        | Map           | Elements  |
-| Strikethrough | `s`, `strikethrough`           | No       | No        | No        | Map           | Elements  |
-| Subscript   | `sub`, `subscript`               | No       | No        | No        | Map           | Elements  |
-| Superscript | `sup`, `super`, `superscript`    | No       | No        | No        | Map           | Elements  |
-| Underline   | `u`, `underline`                 | No       | No        | No        | Map           | Elements  |
+| Block Name                      | Accepted Names                   | Special? | Modifier? | Newlines? | Argument Type | Body Type |
+|---------------------------------|----------------------------------|----------|-----------|-----------|---------------|-----------|
+| [Anchor](#anchor)               | `a`, `anchor`                    | No       | Yes       | No        | Map           | Elements  |
+| [Blockquote](#blockquote)       | `blockquote`, `quote`            | No       | No        | Yes       | Map           | Elements  |
+| [Bold](#bold)                   | `b`, `bold`, `strong`            | No       | No        | No        | Map           | Elements  |
+| [Checkbox](#checkbox)           | `checkbox`                       | Yes      | No        | No        | Map           | None      |
+| [Code](#code)                   | `code`                           | No       | No        | Yes       | Map           | Raw       |
+| [Collapsible](#collapsible)     | `collapsible`                    | No       | No        | Yes       | Map           | Elements  |
+| [CSS](#css)                     | `css`                            | No       | No        | Yes       | None          | Raw       |
+| [Deletion](#deletion)           | `del`, `deletion`                | No       | No        | No        | Map           | Elements  |
+| [Div](#div)                     | `div`                            | No       | Yes       | Yes       | Map           | Elements  |
+| [Hidden](#hidden)               | `hidden`                         | No       | No        | Yes       | Map           | Elements  |
+| [HTML](#html)                   | `html`                           | No       | No        | Yes       | Map           | Raw       |
+| [Iframe](#iframe)               | `iframe`                         | No       | No        | Yes       | None          | None      |
+| [Include](#include)             | `include`                        | No       | No        | Yes       | Name + Map    | None      |
+| [Insertion](#insertion)         | `ins`, `insertion`               | No       | No        | No        | Map           | Elements  |
+| [Invisible](#invisible)         | `invisible`                      | No       | No        | Yes       | Map           | Elements  |
+| [Italics](#italics)             | `i`, `italics`, `em`, `emphasis` | No       | No        | No        | Map           | Elements  |
+| [Lines](#lines)                 | `lines`, `newlines`              | No       | No        | Yes       | Value         | None      |
+| [Mark](#mark)                   | `mark`, `highlight`              | No       | No        | No        | Map           | Elements  |
+| [Module](#module)               | `module`                         | No       | No        | Yes       | (See below)   | (See below) |
+| [Monospace](#monospace)         | `tt`, `mono`, `monospace`        | No       | No        | No        | Map           | Elements  |
+| [Radio](#radio)                 | `radio`, `radio-button`          | Yes      | No        | No        | Name + Map    | None      |
+| [Size](#size)                   | `size`                           | No       | No        | No        | Value         | Elements  |
+| [Span](#span)                   | `span`                           | No       | Yes       | No        | Map           | Elements  |
+| [Strikethrough](#strikethrough) | `s`, `strikethrough`             | No       | No        | No        | Map           | Elements  |
+| [Subscript](#subscript)         | `sub`, `subscript`               | No       | No        | No        | Map           | Elements  |
+| [Superscript](#superscript)     | `sup`, `super`, `superscript`    | No       | No        | No        | Map           | Elements  |
+| [Underline](#underline)         | `u`, `underline`                 | No       | No        | No        | Map           | Elements  |
 
 Each of the blocks will be described in more detail below:
 
 ### Anchor
 
 Outputs: `Element::Anchor` / `<a>`
+
+Body: Elements
 
 Accepts `_` modifier: Strips leading and trailing newlines.
 
@@ -124,6 +128,8 @@ Example:
 ### Blockquote
 
 Outputs: `Element::Container(ContainerType::Blockqote)` / `<blockquote>`
+
+Body: Elements
 
 Accepts newline separation.
 
@@ -142,6 +148,8 @@ Some text here.
 
 Outputs: `Element::Container(ContainerType::Bold)` / `<strong>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -154,6 +162,8 @@ Some [[b]]text![[/b]]
 ### Checkbox
 
 Outputs: `Element::CheckBox` / `<input type="checkbox">`
+
+Body: None
 
 Accepts `*` special: Element starts checked.
 
@@ -173,6 +183,8 @@ Example:
 
 Outputs: `Element::Code` / `<div class="code">`
 
+Body: Raw
+
 Accepts newline separation.
 
 Arguments:
@@ -190,13 +202,15 @@ This text is **not** rendered as Wikitext, but output as-is!
 
 Output: `Element::Collapsible` / `<div class="collapsible-block">`
 
+Body: Elements
+
 Accepts newline separation.
 
 Arguments:
-* `show` &mdash; The text to present when text is collapsed (i.e. can be shown)
-* `hide` &mdash; The text to present when text is expanded (i.e. can be hidden)
-* `folded` &mdash; Boolean. `true` means start collapsed (default), `false` means start expanded
-* `hideLocation` &mdash; One of `top`, `bottom`, `both`, or `neither`. Shows in what locations the hide collapsible link in.
+* `show` &mdash; (Boolean) The text to present when text is collapsed (i.e. can be shown).
+* `hide` &mdash; (Boolean) The text to present when text is expanded (i.e. can be hidden).
+* `folded` &mdash; (Boolean) `true` means start collapsed (default), `false` means start expanded.
+* `hideLocation` &mdash; (Enum: One of `top`, `bottom`, `both`, or `neither`) Shows in what locations the hide collapsible link in.
 
 Example:
 
@@ -209,6 +223,8 @@ Overseers die.
 ### CSS
 
 Output: None / `<style>`
+
+Body: Raw
 
 Accepts newline separation.
 
@@ -229,6 +245,8 @@ Example:
 
 Output: `Element::Container(ContainerType::Deletion)` / `<del>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -241,6 +259,8 @@ I [[del]]don't[[/del]] like that haircut.
 ### Div
 
 Output: `Element::Container(ContainerType::Div)` / `<div>`
+
+Body: Elements
 
 Accepts `_` modifier: Strips leading and trailing newlines.  
 Accepts newline separation.
@@ -260,6 +280,8 @@ Some text __here!__
 
 Output: `Element::Container(ContainerType::Hidden)` / `<span class="hidden">`
 
+Body: Elements
+
 Accepts newline separation.
 
 Arguments:
@@ -278,6 +300,8 @@ This text is not.
 ### HTML
 
 Output: `Element::Html` / `<iframe>`
+
+Body: Raw
 
 Accepts newline separation.
 
@@ -300,6 +324,8 @@ This HTML will appear in an iframe hosted on wjfiles!
 
 Output:`Element::Iframe` /`<iframe>`
 
+Body: None
+
 Accepts newline separation.
 
 Arguments:
@@ -318,6 +344,8 @@ My website:
 This is not a typical block, as it is handled in the preprocessor. Parsing here is handled differently, but this block is still documented for completion sake.
 
 Output: N/A
+
+Body: None
 
 Accepts newline separation.
 
@@ -340,6 +368,8 @@ Example:
 
 Output: `Element::Container(ContainerType::Insertion)` / `<ins>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -352,6 +382,8 @@ I would like some [[ins]]anchovy[[/ins]] pizza please, thank you.
 ### Invisible
 
 Output: `Element::Container(ContainerType::Invisible)` / `<span class="invisible">`
+
+Body: Elements
 
 Accepts newline separation.
 
@@ -370,6 +402,8 @@ More correct and much more portable than setting the font color to "white".
 
 Output: `Element::Container(ContainerType::Italics)` / `<em>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -383,10 +417,12 @@ This text is regular, but [[em]]this text is emphasized[[/em]].
 
 Output: `Element::LineBreaks` / `<br>`
 
+Body: None
+
 Accepts newline separation.
 
 Arguments:
-* Value: positive integer &mdash; Number of line breaks to output
+Value &mdash; (Positive integer) Number of line breaks to output
 
 Example:
 
@@ -400,6 +436,8 @@ Example:
 
 Output: `Element::Container(ContainerType::Mark)` / `<mark>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -409,14 +447,16 @@ Example:
 This text is [[mark]]highlighted![[/mark]]
 ```
 
-### Modules
+### Module
 
-Output: `Element::Module` / Depends on the module type
+Output: `Element::Module` / Depends on module type
+
+Body: Depends on module type
 
 Accepts newline separation.
 
 Arguments:
-* See documentation for specific modules
+* [See documentation for specific modules](Modules.md)
 
 Example:
 
@@ -427,6 +467,8 @@ Example:
 ### Monospace
 
 Output: `Element::Container(ContainerType::Monospace)` / `<tt>`
+
+Body: Elements
 
 Arguments:
 * All accepted attributes
@@ -440,6 +482,8 @@ Example:
 ### Radio
 
 Accepts `*` special: Element starts selected.
+
+Body: None
 
 Output: `Element::RadioButton` / `<input type="radio">`
 
@@ -461,8 +505,10 @@ Favorite kind of music:
 
 Output: `Element::Container(ContainerType::Size)` / `<span style="font-size: XXX;">`
 
+Body: Elements
+
 Arguments:
-* None
+Value &mdash; (String) The CSS string denoting what size should be used here.
 
 Example:
 
@@ -473,6 +519,8 @@ This text is regular, but [[size 250%]]this text is much larger[[/size]].
 ### Span
 
 Output:`Element::Span` / `<span>`
+
+Body: Elements
 
 Accepts `_` modifier: Strips leading and trailing newlines.
 
@@ -489,6 +537,8 @@ This text is in a span: [[span class="fruit"]]banana[[/span]]
 
 Output: `Element::Container(ContainerType::Strikethrough)` / `<s>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -501,6 +551,8 @@ This text is [[s]]struck through![[/s]]
 ### Subscript
 
 Output: `Element::Container(ContainerType::Subscript)` / `<sub>`
+
+Body: Elements
 
 Arguments:
 * All accepted attributes
@@ -515,6 +567,8 @@ Let this variable be called x[[sub]]A[[/sub]].
 
 Output: `Element::Container(ContainerType::Superscript)` / `<sup>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -528,6 +582,8 @@ Thus, the result is n[[sup]]2[[/sup]].
 
 Output: `Element::Container(ContainerType::Underline)` / `<u>`
 
+Body: Elements
+
 Arguments:
 * All accepted attributes
 
@@ -536,18 +592,3 @@ Example:
 ```
 [[u]]Testing log 7192-45:[[/u]]
 ```
-
-## Modules
-
-The table below follows essentially the same schema as for blocks in general, with a few changes. [As noted above](#blocks), all modules accept separate newlines and do not accept special or variant flags. Additionally, the list of accepted names is the same as the module name (but case-insensitive).
-
-| Module Name  | AST Output           | htmlOutput                               | Notes |
-|--------------|----------------------|-------------------------------------------|-------|
-| Backlinks    | `Module::Backlinks`  | `<div class="backlinks-module-box"> <ul>` | |
-| Categories   | `Module::Categories` | `<div class="categories-module-box">`     | |
-| CSS          | N/A                  | `<style>`                                 | Outputs contents as CSS. Alias for `[[css]]`. |
-| Join         | `Module::Join`       | `<div class="join-box">`                  | |
-| PageTree     | `Module::PageTree`   | `<div class="pagetree-module-box"> <ul>`  | |
-| Rate         | `Module::Rate`       | `<div class="page-rate-widget-box">`      | |
-
-TODO: add individual doc sections for each module
