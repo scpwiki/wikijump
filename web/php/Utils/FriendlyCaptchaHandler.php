@@ -25,7 +25,7 @@ class FriendlyCaptchaHandler
 
         if ($response->getStatusCode() != 200) {
             // FriendlyCaptcha will always send 200 OK if the request was properly formed,
-            // regardless of whether
+            // regardless of whether the CAPTCHA was considered valid or not.
             //
             // If another code (e.g. 401) is received, it indicates an error on our end or
             // FriendlyCaptcha's end. In such a case it is recommended we be permissive and
