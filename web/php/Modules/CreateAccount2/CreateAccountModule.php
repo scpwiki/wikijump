@@ -4,6 +4,7 @@ namespace Wikidot\Modules\CreateAccount2;
 
 
 use Ozone\Framework\SmartyModule;
+use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 
 class CreateAccountModule extends SmartyModule
@@ -43,7 +44,7 @@ class CreateAccountModule extends SmartyModule
             $runData->sessionAdd("captchaCode", $code);
         }
         $runData->contextAdd('evcode', $code);
-        $runData->contextAdd('captchaSiteKey', 'FCMT74J3ULGV4PI8'); // TODO: get this dynamically based on environment (dev vs prod)
+        $runData->contextAdd('captchaSiteKey', GlobalProperties::$FR_CAPTCHA_SITE_KEY);
         $runData->sessionAdd("rstep", 0);
 
         $pl = $runData->getParameterList();

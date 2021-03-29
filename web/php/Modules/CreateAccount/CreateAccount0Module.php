@@ -5,6 +5,7 @@ namespace Wikidot\Modules\CreateAccount;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\CryptUtils;
+use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 
 class CreateAccount0Module extends SmartyModule
@@ -36,7 +37,7 @@ class CreateAccount0Module extends SmartyModule
             $runData->sessionAdd("captchaCode", $code);
         }
 
-        $runData->contextAdd('captchaSiteKey', 'FCMT74J3ULGV4PI8'); // TODO: get this dynamically based on environment (dev vs prod)
+        $runData->contextAdd('captchaSiteKey', GlobalProperties::$FR_CAPTCHA_SITE_KEY);
 
         $runData->sessionAdd("rstep", 0);
         $this->extraJs[] = '/common--javascript/crypto/rsa.js';
