@@ -2,12 +2,13 @@
 
 namespace Wikidot\Utils;
 
+use GuzzleHttp\Client;
 use Wikidot\Utils\GlobalProperties;
 
 class FriendlyCaptchaHandler
 {
     public static function verifySolution($solution) {
-        $client = new GuzzleHttp\Client();
+        $client = new Client();
 
         // Send POST request
         $response = $client->request(
@@ -37,11 +38,13 @@ class FriendlyCaptchaHandler
             return true;
         }
 
-        $body = $response->json();
-        if (!$body->success) {
-            // TODO log $body->errorCodes
+        $body = $response->getBody();
+        $result = json_decode($body);
+
+        if (!$result->success) {
+            // TODO log $result->errorCodes
         }
 
-        return $response->success;
+        return $result->success;
     }
 }
