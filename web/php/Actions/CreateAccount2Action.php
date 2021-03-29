@@ -111,6 +111,7 @@ class CreateAccount2Action extends SmartyAction
         }
 
         // captcha
+        // TODO(aismallard): verify result with FriendlyCaptcha
         $captcha = str_replace('0', 'O', $captcha);
         $captcha = strtoupper($captcha);
         if ($captcha != strtoupper($runData->sessionGet("captchaCode"))) {
