@@ -14,5 +14,13 @@ class FriendlyCaptchaHandler
         );
 
         // TODO(aismallard): verify result with FriendlyCaptcha
+        // see https://docs.friendlycaptcha.com/#/installation?id=_3-verifying-the-captcha-solution-on-the-server
+
+        $response = array(
+            'success' => true,
+            'errorCodes' => ['invalid_solution'],
+        );
+
+        return $response->success;
     }
 }
