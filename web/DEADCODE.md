@@ -111,3 +111,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Where it was: `lib/ozoneframework/php/code/ListResolver.php`
 * What it did: Strictly less than `lib/ozoneframework/php/template_services/ondemand/ListResolver.php` which was the intended file and Class to use.
 * Why it was removed: The two files occupied the same namespace and caused Composer to complain when dumping the autoloader.
+
+## PHP: `php/Screens/Misc/Captcha.php`
+* Relevant Issues: [WJ-388](https://scuttle.atlassian.net/browse/WJ-388)
+* Where it was: [Misc/Captcha.php](https://github.com/scpwiki/wikijump/blob/229d806a0fb13ee5af27317fd139257f05f6f4f6/web/php/Screens/Misc/Captcha.php)
+* What it did: Wikidot's custom captcha implementation
+* Why it was removed: Worked poorly, had security flaws, and was being replaced with a third-party captcha provider.
