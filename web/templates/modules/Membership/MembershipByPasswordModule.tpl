@@ -13,7 +13,7 @@
 				{t}Password{/t}:
 			</td>
 			<td>
-				<input class="text" type="password" name="password" size="40" maxlength="50"/><br/>
+				<input class="text" type="password" name="password" size="40" maxlength="1024"/><br/>
 			</td>
 		</tr>
 	</table>
