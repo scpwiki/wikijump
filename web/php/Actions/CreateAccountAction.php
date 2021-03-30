@@ -143,8 +143,8 @@ class CreateAccountAction extends SmartyAction
         // check password
         if (strlen8($password)<8) {
             $errors['password'] = _("Please provide a password at least 8 characters long.");
-        } elseif (strlen8($password)>20) {
-            $errors['password'] = _("Password should not be longer than 20 characters.");
+        } elseif (strlen8($password)>1024) {
+            $errors['password'] = _("Password should not be longer than 1024 characters.");
         } elseif ($password2 != $password) {
             $errors['password2'] = _("Passwords are not identical.");
         }
