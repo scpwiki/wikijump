@@ -117,3 +117,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Where it was: [Misc/Captcha.php](https://github.com/scpwiki/wikijump/blob/229d806a0fb13ee5af27317fd139257f05f6f4f6/web/php/Screens/Misc/Captcha.php)
 * What it did: Wikidot's custom captcha implementation
 * Why it was removed: Worked poorly, had security flaws, and was being replaced with a third-party captcha provider.
+
+## PHP: `web/lib/zf`
+* Relevant Issues: [WJ-428](https://scuttle.atlassian.net/browse/WJ-428)
+* Where it was: [web/lib/zf/\*](https://github.com/scpwiki/wikijump/tree/3246cd5d72b7d4358b57eb9c78fd5515b7a39cb6/web/lib/zf)
+* What it did: The entire Zend framework.
+* Why it was removed: In addition to being vendor code in the repo, it was only used for search (broken) and pingbacks (obsolete).
