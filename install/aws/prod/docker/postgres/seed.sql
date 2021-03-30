@@ -3826,25 +3826,25 @@ COPY public.anonymous_abuse_flag (flag_id, user_id, address, proxy, site_id, sit
 
 COPY public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url) FROM stdin;
 6	2	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
-7	3	_default	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	f	1	\N	f	nav:top	nav:side	\N	\N	t	\N
-9	3	admin	f	21	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
+7	3	_default	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	f	1	\N	f	nav:top	nav:side	\N	\N	t	\N	\N	\N
+9	3	admin	f	21	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
 11	3	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
-14	2	search	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
+14	2	search	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
 15	1	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
-2	2	_default	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N
-13	2	admin	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
-17	2	forum	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
-12	2	system	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
-1	1	_default	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N
-4	1	account	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
-3	1	admin	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
-16	1	search	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
-5	1	user	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
-8	3	profile	f	20	f	e:o;c:;m:;d:;a:;r:;z:;o:o	t	1	\N	f	nav:top	nav:profile-side	\N	\N	t	\N
-18	2	profile	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
-19	1	system-all	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N
-20	1	system	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N
-21	1	auth	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N
+2	2	_default	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N
+13	2	admin	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+17	2	forum	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+12	2	system	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+1	1	_default	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N
+4	1	account	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+3	1	admin	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+16	1	search	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+5	1	user	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+8	3	profile	f	20	f	e:o;c:;m:;d:;a:;r:;z:;o:o	t	1	\N	f	nav:top	nav:profile-side	\N	\N	t	\N	\N	\N
+18	2	profile	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+19	1	system-all	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+20	1	system	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+21	1	auth	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N
 \.
 
 
