@@ -22,7 +22,7 @@ find=${1:-preg_}
 echo "Finding: $find"
 
 # Find all the files that match the regex
-readarray -t matching_files < <(ag $find . -l --ignore lib/zf)
+readarray -t matching_files < <(ag $find . -l)
 echo "Found ${#matching_files[@]} matching files"
 
 # Get the file with the list of completed files

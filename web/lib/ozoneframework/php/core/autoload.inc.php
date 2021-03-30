@@ -18,7 +18,6 @@ $classpath = array();
 //$classpath[] = $apath."/php/DB";
 //$classpath[] = $apath."/php/pingback";
 $classpath[] = $apath."/conf";
-//$classpath[] = $apath."/lib/zf/library";
 
 $GLOBALS['classpath'] = $classpath;
 
