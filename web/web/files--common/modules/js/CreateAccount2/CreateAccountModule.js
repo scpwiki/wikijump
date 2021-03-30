@@ -56,7 +56,6 @@ Wikijump.modules.CreateAccountModule.init = function(){
 		document.forms.caform['password'].value=p['password'];
 		document.forms.caform['password2'].value=p['password2'];
 		document.forms.caform['email'].value=p['email'];
-		document.forms.caform['captcha'].value=p['captcha'];
 		if(p['language'] == 'en'){
 			$("new-site-lang-en").checked = true;
 		}else{
