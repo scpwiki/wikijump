@@ -33,8 +33,12 @@ class CreateAccountModule extends SmartyModule
             exit();
         }
 
+        // some random value wikidot wants to know you're in a flow
+        $evcode = md5(random_int(0, 10000));
+
         $runData->contextAdd('captchaSiteKey', GlobalProperties::$FR_CAPTCHA_SITE_KEY);
-        $runData->sessionAdd("rstep", 0);
+        $runData->contextAdd('evcode', $evcode);
+        $runData->sessionAdd('rstep', 0);
 
         $pl = $runData->getParameterList();
         $originalUrl = $pl->getParameterValue('origUrl');
