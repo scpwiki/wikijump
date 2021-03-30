@@ -15,6 +15,7 @@ use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\Utils\CryptUtils;
 use Wikidot\Utils\Duplicator;
+use Wikidot\Utils\FriendlyCaptchaHandler;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
