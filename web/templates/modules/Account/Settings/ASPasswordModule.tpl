@@ -18,7 +18,7 @@
 			<td>
 				<input class="text" type="password" name="new_password1" size="20" maxlength="40"/>
 				<div class="sub">
-					Min. 6 characters, max. 20.
+					Min. 8 characters, max. 20.
 				</div>
 			</td>
 		</tr>
