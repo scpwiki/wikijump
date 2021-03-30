@@ -154,9 +154,6 @@ class NewSiteAction extends SmartyAction
 
         $db->commit();
 
-        // clear captcha code
-        $runData->sessionDel("captchaCode");
-
         $runData->ajaxResponseAdd("siteUnixName", $unixName);
     }
 }
