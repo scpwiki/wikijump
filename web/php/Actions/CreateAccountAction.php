@@ -77,6 +77,7 @@ class CreateAccountAction extends SmartyAction
         $email = $pl->getParameterValue("email");
         $password = $pl->getParameterValue("password");
         $password2 = $pl->getParameterValue("password2");
+        $captcha = $pl->getParameterValue("frc-captcha-solution");
 
         // decrypt
         $email = trim(CryptUtils::rsaDecrypt($email));
