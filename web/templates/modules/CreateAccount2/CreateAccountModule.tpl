@@ -20,7 +20,7 @@
 						{t}Your email address{/t}:
 					</td>
 					<td>
-						<input class="text" type="text"  maxlength="50" size="25" name="email"/>
+						<input class="text" type="text" maxlength="50" size="25" name="email"/>
 					</td>
 				</tr>
 				<tr>
@@ -43,9 +43,9 @@
 						{t}Password{/t}:
 					</td>
 					<td>
-						 <input class="text" type="password" name="password" maxlength="30" size="15"/>
+						 <input class="text" type="password" name="password" maxlength="1024" size="15"/>
 						 <div class="sub">
-						 	{t}Between 6 and 20 characters{/t}.
+						 	{t}Between 8 and 1024 characters{/t}.
 						 </div>
 					</td>
 				</tr>
@@ -54,7 +54,7 @@
 						{t}Password (repeat){/t}:
 					</td>
 					<td>
-						 <input class="text" type="password" name="password2" maxlength="30" size="15"/>
+						 <input class="text" type="password" name="password2" maxlength="1024" size="15"/>
 					</td>
 				</tr>
 				<tr>

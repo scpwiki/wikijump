@@ -27,9 +27,9 @@
 						Password:
 					</td>
 					<td>
-						 <input class="text" type="password" name="password" maxlength="30" size="15"/>
+						 <input class="text" type="password" name="password" maxlength="1024" size="15"/>
 						 <div class="sub">
-						 	Between 6 and 20 characters.
+						 	Between 8 and 1024 characters.
 						 </div>
 					</td>
 				</tr>
@@ -38,7 +38,7 @@
 						Password (repeat):
 					</td>
 					<td>
-						 <input class="text" type="password" name="password2" maxlength="30" size="15"/>
+						 <input class="text" type="password" name="password2" maxlength="1024" size="15"/>
 					</td>
 				</tr>
 			</table>

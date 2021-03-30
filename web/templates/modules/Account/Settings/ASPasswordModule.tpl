@@ -11,21 +11,21 @@
 	<table class="form">
 		<tr>
 			<td>Your current password:</td>
-			<td><input class="text" type="password" name="old_password" size="20" maxlength="40"/></td>
+			<td><input class="text" type="password" name="old_password" size="20" maxlength="1024"/></td>
 		</tr>
 		<tr>
 			<td>New password:</td>
 			<td>
-				<input class="text" type="password" name="new_password1" size="20" maxlength="40"/>
+				<input class="text" type="password" name="new_password1" size="20" maxlength="1024"/>
 				<div class="sub">
-					Min. 6 characters, max. 20.
+					Min. 8 characters, max. 1024.
 				</div>
 			</td>
 		</tr>
 		<tr>
 			<td>New password (repeat):</td>
 			<td>
-				<input class="text" type="password" name="new_password2" size="20" maxlength="40"/>
+				<input class="text" type="password" name="new_password2" size="20" maxlength="1024"/>
 				<div class="sub">
 					Please repeat to prevent typos.
 				</div>
