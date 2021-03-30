@@ -2986,8 +2986,7 @@ CREATE TABLE public.site_settings (
     ssl_mode character varying(20),
     openid_enabled boolean DEFAULT false,
     allow_members_invite boolean DEFAULT false,
-    max_upload_file_size integer DEFAULT 10485760,
-    enable_all_pingback_out boolean DEFAULT true
+    max_upload_file_size integer DEFAULT 10485760
 );
 
 
@@ -4671,10 +4670,10 @@ COPY public.site_backup (backup_id, site_id, status, backup_source, backup_files
 -- Data for Name: site_settings; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
-COPY public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, openid_enabled, allow_members_invite, max_upload_file_size, enable_all_pingback_out) FROM stdin;
-1	t	f	\N	1073741824	f	system:join	50	20	t	\N	f	f	10485760	t
-2	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760	t
-3	t	f	\N	314572800	f	system:join	50	20	t	\N	f	f	10485760	t
+COPY public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, openid_enabled, allow_members_invite, max_upload_file_size) FROM stdin;
+1	t	f	\N	1073741824	f	system:join	50	20	t	\N	f	f	10485760
+2	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760
+3	t	f	\N	314572800	f	system:join	50	20	t	\N	f	f	10485760
 \.
 
 
