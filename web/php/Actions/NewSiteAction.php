@@ -9,6 +9,7 @@ use Wikidot\DB\SitePeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\PagePeer;
 use Wikidot\Utils\Duplicator;
+use Wikidot\Utils\FriendlyCaptchaHandler;
 use Wikidot\Utils\Indexer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
@@ -44,6 +45,8 @@ class NewSiteAction extends SmartyAction
         $templateId = $pl->getParameterValue("template");
 
         $private = (bool) $pl->getParameterValue("private");
+
+        $captcha = $pl->getParameterValue("frc-captcha-solution");
 
         // validate form data:
 
@@ -92,6 +95,12 @@ class NewSiteAction extends SmartyAction
 
         if (strlen8($tagline)>50) {
             $errors['tagline']   = _("Tagline should not be longer than 50 characters");
+        }
+
+        // captcha
+        $captchaValid = FriendlyCaptchaHandler::verifySolution($captcha);
+        if (!$captchaValid) {
+            $errors['captcha'] = _("Account creation failed: CAPTCHA was invalid.");
         }
 
         // TOS
@@ -153,9 +162,6 @@ class NewSiteAction extends SmartyAction
         }
 
         $db->commit();
-
-        // clear captcha code
-        $runData->sessionDel("captchaCode");
 
         $runData->ajaxResponseAdd("siteUnixName", $unixName);
     }

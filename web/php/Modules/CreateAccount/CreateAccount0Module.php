@@ -24,21 +24,8 @@ class CreateAccount0Module extends SmartyModule
     public function build($runData)
     {
 
-        $code =  $runData->sessionGet('captchaCode');
-
-        $runData->ajaxResponseAdd("key", CryptUtils::modulus());
-
-        if ($code === null) {
-            srand((double)microtime()*1000000);
-            $string = md5(rand(0, 9999));
-            $code = substr($string, 2, 4);
-            $code = str_replace('0', 'O', $code);
-            $code = strtoupper($code);
-            $runData->sessionAdd("captchaCode", $code);
-        }
-
+        $runData->ajaxResponseAdd("key", CryptUtils::modulus()); // TODO: what does this do?
         $runData->contextAdd('captchaSiteKey', GlobalProperties::$FR_CAPTCHA_SITE_KEY);
-
         $runData->sessionAdd("rstep", 0);
         $this->extraJs[] = '/common--javascript/crypto/rsa.js';
     }

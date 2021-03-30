@@ -16,10 +16,8 @@ class NewSiteModule extends SmartyModule
     {
         if ($runData->getUser() == null) {
             $runData->contextAdd("notLogged", true);
-        } else {
-//
-//
         }
+
         $pl = $runData->getParameterList();
         $siteUnixName = WDStringUtils::toUnixName($pl->getParameterValue('address'));
         $runData->contextAdd('unixName', $siteUnixName);

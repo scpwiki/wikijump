@@ -33,19 +33,8 @@ class CreateAccountModule extends SmartyModule
             exit();
         }
 
-        $code =  $runData->sessionGet('captchaCode');
-
-        if ($code === null) {
-            srand((double)microtime()*1000000);
-            $string = md5(rand(0, 9999));
-            $code = substr($string, 2, 4);
-            $code = str_replace('0', 'O', $code);
-            $code = strtoupper($code);
-            $runData->sessionAdd("captchaCode", $code);
-        }
-        $runData->contextAdd('evcode', $code);
         $runData->contextAdd('captchaSiteKey', GlobalProperties::$FR_CAPTCHA_SITE_KEY);
-        $runData->sessionAdd("rstep", 0);
+        $runData->sessionAdd('rstep', 0);
 
         $pl = $runData->getParameterList();
         $originalUrl = $pl->getParameterValue('origUrl');
