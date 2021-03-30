@@ -73,12 +73,10 @@ class CreateAccountAction extends SmartyAction
 
         // do it manually. change of rules.
         $pl = $runData->getParameterList();
-        $name = ($pl->getParameterValue("name"));
-        $email = ($pl->getParameterValue("email"));
-        $password = ($pl->getParameterValue("password"));
-        $password2 = ($pl->getParameterValue("password2"));
-
-        $captcha = trim($pl->getParameterValue("captcha"));
+        $name = $pl->getParameterValue("name");
+        $email = $pl->getParameterValue("email");
+        $password = $pl->getParameterValue("password");
+        $password2 = $pl->getParameterValue("password2");
 
         // decrypt
         $email = trim(CryptUtils::rsaDecrypt($email));
