@@ -18,7 +18,7 @@ class PageExternalLinkBase extends BaseDBObject
         $this->tableName='page_external_link';
         $this->peerName = 'Wikidot\\DB\\PageExternalLinkPeer';
         $this->primaryKeyName = 'link_id';
-        $this->fieldNames = array( 'link_id' ,  'site_id' ,  'page_id' ,  'to_url' ,  'pinged' ,  'ping_status' ,  'date' );
+        $this->fieldNames = array( 'link_id' ,  'site_id' ,  'page_id' ,  'to_url' ,  'date' );
 
         //$this->fieldDefaultValues=
     }
@@ -69,28 +69,6 @@ class PageExternalLinkBase extends BaseDBObject
     public function setToUrl($v1, $raw = false)
     {
         $this->setFieldValue('to_url', $v1, $raw);
-    }
-
-
-    public function getPinged()
-    {
-        return $this->getFieldValue('pinged');
-    }
-
-    public function setPinged($v1, $raw = false)
-    {
-        $this->setFieldValue('pinged', $v1, $raw);
-    }
-
-
-    public function getPingStatus()
-    {
-        return $this->getFieldValue('ping_status');
-    }
-
-    public function setPingStatus($v1, $raw = false)
-    {
-        $this->setFieldValue('ping_status', $v1, $raw);
     }
 
 

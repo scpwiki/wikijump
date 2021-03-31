@@ -2361,8 +2361,6 @@ CREATE TABLE public.page_external_link (
     site_id integer,
     page_id integer,
     to_url character varying(512),
-    pinged boolean DEFAULT false,
-    ping_status character varying(256),
     date timestamp without time zone
 );
 
@@ -4326,7 +4324,7 @@ COPY public.page_edit_lock (lock_id, page_id, mode, section_id, range_start, ran
 -- Data for Name: page_external_link; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
-COPY public.page_external_link (link_id, site_id, page_id, to_url, pinged, ping_status, date) FROM stdin;
+COPY public.page_external_link (link_id, site_id, page_id, to_url, date) FROM stdin;
 \.
 
 
