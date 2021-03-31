@@ -882,8 +882,6 @@ CREATE TABLE public.category (
     rating character varying(10),
     category_template_id integer,
     theme_external_url character varying(512),
-    enable_pingback_out boolean DEFAULT true,
-    enable_pingback_in boolean DEFAULT false,
     autonumerate boolean DEFAULT false,
     page_title_template character varying(256)
 );
@@ -2363,8 +2361,6 @@ CREATE TABLE public.page_external_link (
     site_id integer,
     page_id integer,
     to_url character varying(512),
-    pinged boolean DEFAULT false,
-    ping_status character varying(256),
     date timestamp without time zone
 );
 
@@ -2988,8 +2984,7 @@ CREATE TABLE public.site_settings (
     ssl_mode character varying(20),
     openid_enabled boolean DEFAULT false,
     allow_members_invite boolean DEFAULT false,
-    max_upload_file_size integer DEFAULT 10485760,
-    enable_all_pingback_out boolean DEFAULT true
+    max_upload_file_size integer DEFAULT 10485760
 );
 
 
@@ -3827,27 +3822,27 @@ COPY public.anonymous_abuse_flag (flag_id, user_id, address, proxy, site_id, sit
 -- Data for Name: category; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
-COPY public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, enable_pingback_out, enable_pingback_in) FROM stdin;
-6	2	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-7	3	_default	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	f	1	\N	f	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-9	3	admin	f	21	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-11	3	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-14	2	search	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-15	1	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-2	2	_default	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N	t	f
-13	2	admin	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-17	2	forum	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-12	2	system	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-1	1	_default	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N	t	f
-4	1	account	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-3	1	admin	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-16	1	search	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-5	1	user	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-8	3	profile	f	20	f	e:o;c:;m:;d:;a:;r:;z:;o:o	t	1	\N	f	nav:top	nav:profile-side	\N	\N	t	\N	\N	\N	t	f
-18	2	profile	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-19	1	system-all	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-20	1	system	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
-21	1	auth	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N	t	f
+COPY public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url) FROM stdin;
+6	2	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+7	3	_default	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	f	1	\N	f	nav:top	nav:side	\N	\N	t	\N	\N	\N
+9	3	admin	f	21	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+11	3	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+14	2	search	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+15	1	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+2	2	_default	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N
+13	2	admin	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+17	2	forum	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+12	2	system	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+1	1	_default	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N
+4	1	account	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+3	1	admin	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+16	1	search	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+5	1	user	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+8	3	profile	f	20	f	e:o;c:;m:;d:;a:;r:;z:;o:o	t	1	\N	f	nav:top	nav:profile-side	\N	\N	t	\N	\N	\N
+18	2	profile	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+19	1	system-all	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+20	1	system	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
+21	1	auth	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N
 \.
 
 
@@ -4330,7 +4325,7 @@ COPY public.page_edit_lock (lock_id, page_id, mode, section_id, range_start, ran
 -- Data for Name: page_external_link; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
-COPY public.page_external_link (link_id, site_id, page_id, to_url, pinged, ping_status, date) FROM stdin;
+COPY public.page_external_link (link_id, site_id, page_id, to_url, date) FROM stdin;
 \.
 
 
@@ -4673,10 +4668,10 @@ COPY public.site_backup (backup_id, site_id, status, backup_source, backup_files
 -- Data for Name: site_settings; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
-COPY public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, openid_enabled, allow_members_invite, max_upload_file_size, enable_all_pingback_out) FROM stdin;
-1	t	f	\N	1073741824	f	system:join	50	20	t	\N	f	f	10485760	t
-2	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760	t
-3	t	f	\N	314572800	f	system:join	50	20	t	\N	f	f	10485760	t
+COPY public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, openid_enabled, allow_members_invite, max_upload_file_size) FROM stdin;
+1	t	f	\N	1073741824	f	system:join	50	20	t	\N	f	f	10485760
+2	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760
+3	t	f	\N	314572800	f	system:join	50	20	t	\N	f	f	10485760
 \.
 
 

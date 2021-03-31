@@ -16,7 +16,6 @@ $classpath = array();
 //$classpath[] = $opath."/php/core/Exceptions";
 //$classpath[] = $apath."/php/Utils";
 //$classpath[] = $apath."/php/DB";
-//$classpath[] = $apath."/php/pingback";
 $classpath[] = $apath."/conf";
 
 $GLOBALS['classpath'] = $classpath;

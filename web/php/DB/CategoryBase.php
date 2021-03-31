@@ -18,7 +18,7 @@ class CategoryBase extends BaseDBObject
         $this->tableName='category';
         $this->peerName = 'Wikidot\\DB\\CategoryPeer';
         $this->primaryKeyName = 'category_id';
-        $this->fieldNames = array( 'category_id' ,  'site_id' ,  'name' ,  'theme_default' ,  'theme_id' ,  'theme_external_url' ,  'permissions_default' ,  'permissions' ,  'license_default' ,  'license_id' ,  'license_other' ,  'nav_default' ,  'top_bar_page_name' ,  'side_bar_page_name' ,  'template_id' ,  'per_page_discussion' ,  'per_page_discussion_default' ,  'rating' ,  'category_template_id' ,  'autonumerate' ,  'page_title_template' ,  'enable_pingback_out' ,  'enable_pingback_in' );
+        $this->fieldNames = array( 'category_id' ,  'site_id' ,  'name' ,  'theme_default' ,  'theme_id' ,  'theme_external_url' ,  'permissions_default' ,  'permissions' ,  'license_default' ,  'license_id' ,  'license_other' ,  'nav_default' ,  'top_bar_page_name' ,  'side_bar_page_name' ,  'template_id' ,  'per_page_discussion' ,  'per_page_discussion_default' ,  'rating' ,  'category_template_id' ,  'autonumerate' ,  'page_title_template' );
 
         //$this->fieldDefaultValues=
     }
@@ -256,27 +256,5 @@ class CategoryBase extends BaseDBObject
     public function setPageTitleTemplate($v1, $raw = false)
     {
         $this->setFieldValue('page_title_template', $v1, $raw);
-    }
-
-
-    public function getEnablePingbackOut()
-    {
-        return $this->getFieldValue('enable_pingback_out');
-    }
-
-    public function setEnablePingbackOut($v1, $raw = false)
-    {
-        $this->setFieldValue('enable_pingback_out', $v1, $raw);
-    }
-
-
-    public function getEnablePingbackIn()
-    {
-        return $this->getFieldValue('enable_pingback_in');
-    }
-
-    public function setEnablePingbackIn($v1, $raw = false)
-    {
-        $this->setFieldValue('enable_pingback_in', $v1, $raw);
     }
 }

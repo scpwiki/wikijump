@@ -19,7 +19,7 @@ class SiteSettingsBase extends BaseDBObject
         $this->tableName='site_settings';
         $this->peerName = 'Wikidot\\DB\\SiteSettingsPeer';
         $this->primaryKeyName = 'site_id';
-        $this->fieldNames = array( 'site_id' ,  'allow_membership_by_apply' ,  'allow_membership_by_password' ,  'membership_password' ,  'private_landing_page' ,  'hide_navigation_unauthorized' ,  'max_private_members' ,  'max_private_viewers' ,  'ssl_mode' ,  'file_storage_size' ,  'max_upload_file_size' ,  'openid_enabled' ,  'allow_members_invite' ,  'enable_all_pingback_out' );
+        $this->fieldNames = array( 'site_id' ,  'allow_membership_by_apply' ,  'allow_membership_by_password' ,  'membership_password' ,  'private_landing_page' ,  'hide_navigation_unauthorized' ,  'max_private_members' ,  'max_private_viewers' ,  'ssl_mode' ,  'file_storage_size' ,  'max_upload_file_size' ,  'openid_enabled' ,  'allow_members_invite' );
 
         //$this->fieldDefaultValues=
     }
@@ -179,16 +179,5 @@ class SiteSettingsBase extends BaseDBObject
     public function setAllowMembersInvite($v1, $raw = false)
     {
         $this->setFieldValue('allow_members_invite', $v1, $raw);
-    }
-
-
-    public function getEnableAllPingbackOut()
-    {
-        return $this->getFieldValue('enable_all_pingback_out');
-    }
-
-    public function setEnableAllPingbackOut($v1, $raw = false)
-    {
-        $this->setFieldValue('enable_all_pingback_out', $v1, $raw);
     }
 }
