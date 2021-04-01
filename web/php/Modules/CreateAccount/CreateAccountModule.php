@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikidot\Modules\CreateAccount2;
+namespace Wikidot\Modules\CreateAccount;
 
 
 use Ozone\Framework\SmartyModule;
