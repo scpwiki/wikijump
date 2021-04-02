@@ -4,7 +4,7 @@ namespace Wikidot\Config;
 
 class ForbiddenNames {
 
-    public static $siteNames = [
+    public static $sites = [
         '/^www[0-9]*$/',
         '/^[0-9]*www$/',
         '/^www\-/',
@@ -54,7 +54,7 @@ class ForbiddenNames {
         '/^api[0-9]*/',
     ];
 
-    public static $userNames = [
+    public static $users = [
         '/^www[0-9]*$/',
         '/^[0-9]*www$/',
         '/^mail$/',
