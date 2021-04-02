@@ -6,6 +6,7 @@ use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\OzoneEmail;
 use Ozone\Framework\SmartyAction;
+use Wikidot\Config\ForbiddenUserNames;
 use Wikidot\DB\OzoneUserPeer;
 use Wikidot\DB\OzoneUser;
 use Wikidot\DB\Profile;
@@ -66,9 +67,8 @@ class CreateAccount2Action extends SmartyAction
             //handle forbidden names
             $unixName = WDStringUtils::toUnixName($name);
 
-            $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT.'/conf/forbidden_user_names.conf'));
-            foreach ($forbiddenUnixNames as $f) {
-                if (preg_match($f, $unixName) >0) {
+            foreach ($forbiddenUserNames as $regex) {
+                if (preg_match($regex, $unixName) > 0) {
                     $errors['name'] = _('Account creation failed: Username is blocked from registration.');
                 }
             }

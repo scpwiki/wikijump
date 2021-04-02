@@ -5,6 +5,7 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
+use Wikidot\Config\ForbiddenSiteNames;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\PagePeer;
@@ -71,10 +72,9 @@ class NewSiteAction extends SmartyAction
 
             if (!$runData->getUser()->getSuperAdmin()) {
                 //  handle forbidden names
-                $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT.'/conf/forbidden_site_names.conf'));
-                foreach ($forbiddenUnixNames as $f) {
-                    if (preg_match($f, $unixName) >0) {
-                        $errors['unixname'] = _('For some reason this web address is not allowed or is reserved for future use.');
+                foreach ($forbiddenSiteNames as $regex) {
+                    if (preg_match($regex, $unixName) > 0) {
+                        $errors['unixname'] = _('This web address is not allowed or reserved.');
                     }
                 }
             }

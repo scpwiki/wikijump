@@ -4,6 +4,7 @@ namespace Wikidot\Actions;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\SmartyAction;
+use Wikidot\Config\ForbiddenUserNames;
 use Wikidot\DB\ProfilePeer;
 use Wikidot\DB\OzoneUserPeer;
 use Wikidot\DB\SitePeer;
@@ -298,10 +299,9 @@ class AccountProfileAction extends SmartyAction
         //handle forbidden names
         $unixName = WDStringUtils::toUnixName($name);
 
-        $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT . '/conf/forbidden_user_names.conf'));
-        foreach ($forbiddenUnixNames as $f) {
-            if (preg_match($f, $unixName) > 0) {
-                throw new ProcessException(_('For some reason this name is not allowed or is reserved for future use.'));
+        foreach ($forbiddenUserNames as $regex) {
+            if (preg_match($regex, $unixName) > 0) {
+                throw new ProcessException(_('Account creation failed: Username is blocked from registration.'));
             }
         }
 

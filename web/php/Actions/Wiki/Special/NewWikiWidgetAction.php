@@ -3,6 +3,7 @@
 namespace Wikidot\Actions\Wiki\Special;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyAction;
+use Wikidot\Config\ForbiddenSiteNames;
 use Wikidot\DB\SitePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
@@ -40,10 +41,9 @@ class NewWikiWidgetAction extends SmartyAction
 
         if (!$runData->getUser() || !$runData->getUser()->getSuperAdmin()) {
             //  handle forbidden names
-            $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT.'/conf/forbidden_site_names.conf'));
-            foreach ($forbiddenUnixNames as $f) {
-                if (preg_match($f, $unixName) >0) {
-                    throw new ProcessException(_('For some reason this web address is not allowed or is reserved for future use.'));
+            foreach ($forbiddenSiteNames as $regex) {
+                if (preg_match($regex, $unixName) > 0) {
+                    throw new ProcessException(_('This web address is not allowed or reserved.'));
                 }
             }
         }
