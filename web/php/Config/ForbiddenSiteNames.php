@@ -2,7 +2,7 @@
 
 namespace Wikidot\Config;
 
-const forbiddenSiteNames = [
+$forbiddenSiteNames = [
     '/^www[0-9]*$/',
     '/^[0-9]*www$/',
     '/^www\-/',

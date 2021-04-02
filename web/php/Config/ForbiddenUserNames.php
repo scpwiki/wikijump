@@ -2,7 +2,7 @@
 
 namespace Wikidot\Config;
 
-const forbiddenUserNames = [
+$forbiddenUserNames = [
     '/^www[0-9]*$/',
     '/^[0-9]*www$/',
     '/^mail$/',
