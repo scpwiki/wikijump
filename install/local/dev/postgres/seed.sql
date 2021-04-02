@@ -4307,9 +4307,9 @@ COPY public.page_compiled (page_id, text, date_compiled) FROM stdin;
 49	\n\nþmodule "Login/LoginModule"þ	2008-08-19 16:25:59
 47	\n\nþmodule "Wiki/PagesTagCloud/PagesTagCloudModule" limit%3D%22200%22+target%3D%22system%3Apage-tags%22 þ	2008-08-19 16:25:59
 48	\n\n<div style="float:right; width: 50%;">þmodule "Wiki/PagesTagCloud/PagesTagCloudModule" limit%3D%22200%22+target%3D%22system%3Apage-tags%22 þ</div>\nþmodule "Wiki/PagesTagCloud/PagesListByTagModule"þ	2008-08-19 16:25:59
-50	\n\nþmodule "CreateAccount2/CreateAccountModule"þ	2008-08-19 16:25:59
-51	\n\nþmodule "CreateAccount2/CreateAccount2Module"þ	2008-08-19 16:25:59
-52	\n\nþmodule "CreateAccount2/CreateAccount3Module"þ	2008-08-19 16:25:59
+50	\n\nþmodule "CreateAccount/CreateAccountModule"þ	2008-08-19 16:25:59
+51	\n\nþmodule "CreateAccount/CreateAccount2Module"þ	2008-08-19 16:25:59
+52	\n\nþmodule "CreateAccount/CreateAccount3Module"þ	2008-08-19 16:25:59
 \.
 
 
