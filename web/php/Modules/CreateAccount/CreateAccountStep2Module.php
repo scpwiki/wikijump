@@ -10,7 +10,7 @@ use Wikidot\DB\OzoneSessionPeer;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 
-class CreateAccount2Module extends SmartyModule
+class CreateAccountStep2Module extends SmartyModule
 {
 
     public function isAllowed($runData)
@@ -51,8 +51,8 @@ class CreateAccount2Module extends SmartyModule
                 }
 
                 /* Complete the registration. */
-                require_once(WIKIJUMP_ROOT . '/php/Actions/CreateAccount2Action.php');
-                $action = new CreateAccount2Action();
+                require_once(WIKIJUMP_ROOT . '/php/Actions/CreateAccountStep2Action.php');
+                $action = new CreateAccountStep2Action();
                 $action->finalizeEvent($runData, true);
 
                 $runData->contextAdd('fromEmail', true);

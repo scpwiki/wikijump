@@ -7,7 +7,7 @@ use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 
-class CreateAccountModule extends SmartyModule
+class CreateAccountStep1Module extends SmartyModule
 {
 
     public function isAllowed($runData)

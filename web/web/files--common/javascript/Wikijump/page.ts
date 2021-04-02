@@ -170,7 +170,7 @@ export const page = {
       const url = HTTP_SCHEMA + "://" + URL_HOST + '/auth:newaccount?origUrl=' + encodeURIComponent(window.location.href);
       window.location.href = url;
 
-      // OZONE.ajax.requestModule("CreateAccount/CreateAccountModule", null, Wikijump.page.callbacks.createAccount);
+      // OZONE.ajax.requestModule("CreateAccount/CreateAccountStep1Module", null, Wikijump.page.callbacks.createAccount);
     },
 
     toggleEditSections: function (_event?: Event): void {

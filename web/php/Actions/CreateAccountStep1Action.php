@@ -22,7 +22,7 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
 
-class CreateAccountAction extends SmartyAction
+class CreateAccountStep1Action extends SmartyAction
 {
 
     public function perform($runData)

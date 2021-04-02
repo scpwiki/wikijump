@@ -21,7 +21,7 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
 
-class CreateAccount2Action extends SmartyAction
+class CreateAccountStep2Action extends SmartyAction
 {
 
     protected static $EVCODE_SEED = 'someseed';

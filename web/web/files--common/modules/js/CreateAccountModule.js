@@ -4,7 +4,7 @@ Wikijump.CreateAccountModule = {};
 
 Wikijump.CreateAccountModule.listeners = {
 	createClick: function(e){
-		OZONE.ajax.requestModule("CreateAccount/AcceptTOSModule", null,Wikijump.CreateAccountModule.callbacks.createClick );
+		OZONE.ajax.requestModule("CreateAccount/AcceptTOSModule", null, Wikijump.CreateAccountModule.callbacks.createClick );
 	}
 }
 
