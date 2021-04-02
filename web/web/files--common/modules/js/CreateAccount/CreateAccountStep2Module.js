@@ -8,19 +8,19 @@ Wikijump.modules.CreateAccount2Module.listeners = {
 	},
 
 	backClick: function(e){
-		OZONE.ajax.requestModule("CreateAccount/CreateAccount0Module", null, Wikijump.modules.CreateAccount2Module.callbacks.backClick);
+		OZONE.ajax.requestModule("CreateAccount/CreateAccountStep1Module", null, Wikijump.modules.CreateAccountStep2Module.callbacks.backClick);
 	},
 
 	nextClick: function(e){
 		var p = new Object();
 		p.evcode = $("ca-evercode").value;
-		p.action = "CreateAccount2Action";
+		p.action = "CreateAccountStep2Action";
 		p.event = "finalize";
-		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.CreateAccount2Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.CreateAccountStep2Module.callbacks.nextClick);
 
 	}
 }
-Wikijump.modules.CreateAccount2Module.callbacks = {
+Wikijump.modules.CreateAccountStep2Module.callbacks = {
 	nextClick: function(r){
 		if(r.status == "invalid_code"){
 			$("ca-error-block").innerHTML = r.message;

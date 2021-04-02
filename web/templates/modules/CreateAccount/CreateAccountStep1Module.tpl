@@ -86,8 +86,8 @@
 		{*DEBUG: evcode: {$evcode}*}
 
 	<div class="buttons">
-		<input type="button" class="button" onclick="Wikijump.modules.CreateAccountModule.listeners.cancel(event)" value="{t}cancel{/t}"/>
-		<input type="button" class="button" onclick="Wikijump.modules.CreateAccountModule.listeners.nextClick(event)" value="{t}next{/t}"/>
+		<input type="button" class="button" onclick="Wikijump.modules.CreateAccountStep1Module.listeners.cancel(event)" value="{t}cancel{/t}"/>
+		<input type="button" class="button" onclick="Wikijump.modules.CreateAccountStep1Module.listeners.nextClick(event)" value="{t}next{/t}"/>
 	</div>
 </form>
 

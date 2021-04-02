@@ -4307,9 +4307,9 @@ COPY public.page_compiled (page_id, text, date_compiled) FROM stdin;
 49	\n\nþmodule "Login/LoginModule"þ	2008-08-19 16:25:59
 47	\n\nþmodule "Wiki/PagesTagCloud/PagesTagCloudModule" limit%3D%22200%22+target%3D%22system%3Apage-tags%22 þ	2008-08-19 16:25:59
 48	\n\n<div style="float:right; width: 50%;">þmodule "Wiki/PagesTagCloud/PagesTagCloudModule" limit%3D%22200%22+target%3D%22system%3Apage-tags%22 þ</div>\nþmodule "Wiki/PagesTagCloud/PagesListByTagModule"þ	2008-08-19 16:25:59
-50	\n\nþmodule "CreateAccount/CreateAccountModule"þ	2008-08-19 16:25:59
-51	\n\nþmodule "CreateAccount/CreateAccount2Module"þ	2008-08-19 16:25:59
-52	\n\nþmodule "CreateAccount/CreateAccount3Module"þ	2008-08-19 16:25:59
+50	\n\nþmodule "CreateAccount/CreateAccountStep1Module"þ	2008-08-19 16:25:59
+51	\n\nþmodule "CreateAccount/CreateAccountStep2Module"þ	2008-08-19 16:25:59
+52	\n\nþmodule "CreateAccount/CreateAccountStep3Module"þ	2008-08-19 16:25:59
 \.
 
 
@@ -4582,9 +4582,9 @@ COPY public.page_source (source_id, text) FROM stdin;
 57	[[module TagCloud limit="200" target="system:page-tags"]]\n\n[!--\n\nYou can edit parameters of the TagCloud module as described in http://www.wikidot.com/doc:tagcloud-module\nBut if you want to keep the tag functionality working - do not remove these modules.\n\n--]
 58	[[div style="float:right; width: 50%;"]]\n[[module TagCloud limit="200" target="system:page-tags"]]\n[[/div]]\n[[module PagesByTag]]\n\n[!--\n\nYou can edit parameters of the TagCloud module as described in http://www.wikidot.com/doc:tagcloud-module\nBut if you want to keep the tag functionality working - do not remove these modules.\n\n--]
 59	[[module LoginModule]]
-60	[[module CreateAccount]]
-61	[[module CreateAccount2]]
-62	[[module CreateAccount3]]
+60	[[module CreateAccountStep1]]
+61	[[module CreateAccountStep2]]
+62	[[module CreateAccountStep3]]
 \.
 
 

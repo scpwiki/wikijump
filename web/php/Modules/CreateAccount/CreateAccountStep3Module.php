@@ -6,7 +6,7 @@ namespace Wikidot\Modules\CreateAccount;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 
-class CreateAccount3Module extends SmartyModule
+class CreateAccountStep3Module extends SmartyModule
 {
 
     public function build($runData)

@@ -14,7 +14,6 @@ use Wikidot\DB\UserSettings;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
-use Wikidot\Utils\CryptUtils;
 use Wikidot\Utils\Duplicator;
 use Wikidot\Utils\FriendlyCaptchaHandler;
 use Wikidot\Utils\GlobalProperties;
@@ -22,8 +21,10 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
 
-class CreateAccountAction extends SmartyAction
+class CreateAccountStep2Action extends SmartyAction
 {
+
+    protected static $EVCODE_SEED = 'someseed';
 
     public function perform($runData)
     {
@@ -33,7 +34,7 @@ class CreateAccountAction extends SmartyAction
     {
         $accept = $runData->getParameterList()->getParameterValue("acceptrules");
         if (!$accept) {
-            throw new ProcessException(_("You must accept Terms of Service before proceeding."), "must_accept");
+            throw new ProcessException(_("You must accept the Terms of Service before proceeding."), "must_accept");
         }
     }
 
@@ -47,15 +48,6 @@ class CreateAccountAction extends SmartyAction
         $password = $pl->getParameterValue("password");
         $password2 = $pl->getParameterValue("password2");
         $captcha = $pl->getParameterValue("frc-captcha-solution");
-
-        // decrypt
-        $email = trim(CryptUtils::rsaDecrypt($email));
-        $password = trim(CryptUtils::rsaDecrypt($password));
-        $password2 = trim(CryptUtils::rsaDecrypt($password2));
-
-        $email = preg_replace("/^__/", '', $email);
-        $password = preg_replace("/^__/", '', $password);
-        $password2 = preg_replace("/^__/", '', $password2);
 
         // validate now.
 
@@ -86,34 +78,30 @@ class CreateAccountAction extends SmartyAction
             $c->add("unix_name", $unixified);
             $u = OzoneUserPeer::instance()->selectOne($c);
             if ($u != null) {
-                $errors['name'] = _("A user with this screen name (or very similar) already exists.");
+                $errors['name'] = _("Account creation failed: A user with this screen name (or very similar) already exists.");
             }
         }
 
         // now check email
-        if (strlen($email)<5) {
-            $errors['email'] = _("Please provide a valid email address.");
-        } elseif (strlen($email)>50) {
-            $errors['email'] = _("Please provide a valid email address - this one seems is to long.");
-        } elseif (preg_match("/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/", $email) ==0) {
-            $errors['email'] = _("Please provide a valid email address.");
+        if (filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) == false) {
+            $errors['email'] = _("Account creation failed: Invalid email address.");
         } else {
             // check if email is unique
             $c = new Criteria();
             $c->add("lower(email)", strtolower($email));
             $u = OzoneUserPeer::instance()->selectOne($c);
             if ($u != null) {
-                $errors['email'] = _("A user with this email already exists.");
+                $errors['email'] = _("Account creation failed: A user with this email already exists.");
             }
         }
 
         // check password
         if (strlen8($password)<8) {
-            $errors['password'] = _("Please provide a password at least 8 characters long.");
-        } elseif (strlen8($password)>1024) {
-            $errors['password'] = _("Password should not be longer than 1024 characters.");
+            $errors['password'] = _("Account creation failed: Password minimum is 8 characters.");
+        } elseif (strlen8($password)>256) {
+            $errors['password'] = _("Account creation failed: Maximum password length is 256 characters to avoid denial of service.");
         } elseif ($password2 != $password) {
-            $errors['password2'] = _("Passwords are not identical.");
+            $errors['password2'] = _("Account creation failed: Passwords are not identical.");
         }
 
         // check language
@@ -129,7 +117,7 @@ class CreateAccountAction extends SmartyAction
         }
 
         if (!$pl->getParameterValue("tos")) {
-            $errors['tos'] = _("Please read and agree to the Terms of Service.");
+            $errors['tos'] = _("Account creation failed: Please read and agree to the Terms of Service.");
         }
 
         if (count($errors)>0) {
@@ -160,16 +148,17 @@ class CreateAccountAction extends SmartyAction
         if (!$evcode) {
             srand((double)microtime()*1000000);
             $string = md5(rand(0, 9999));
-            $evcode = substr($string, 2, 6);
+            $evcode = substr($string, 2, 9);
         }
 
         //send a confirmation email to the user.
         $oe = new OzoneEmail();
         $oe->addAddress($email);
-        $oe->setSubject(sprintf(_("%s- email verification"), GlobalProperties::$SERVICE_NAME));
+        $oe->setSubject(sprintf(_("%s - email verification"), GlobalProperties::$SERVICE_NAME));
         $oe->contextAdd('name', $name);
         $oe->contextAdd('email', $email);
         $oe->contextAdd('evcode', $evcode);
+        $oe->contextAdd('sessionHash', md5($runData->getSession()->getSessionId() . self::$EVCODE_SEED));
 
         $oe->setBodyTemplate('RegistrationEmailVerification');
 
@@ -211,16 +200,19 @@ class CreateAccountAction extends SmartyAction
         $runData->sessionAdd('evcode', $evcode);
     }
 
-    public function finalizeEvent($runData)
+    public function finalizeEvent($runData, $skipEvcode = false)
     {
         // get the form data
         $pl = $runData->getParameterList();
-        $evcode = $pl->getParameterValue("evcode", "AMODULE");
 
-        //check if the email vercode is correct
-        $evcode2 = $runData->sessionGet('evcode');
-        if ($evcode !== $evcode2) {
-            throw new ProcessException(_("Invalid email verification code."), "invalid_code");
+        if (!$skipEvcode) {
+            $evcode = $pl->getParameterValue("evcode", "AMODULE");
+
+            //check if the email vercode is correct
+            $evcode2 = $runData->sessionGet('evcode');
+            if ($evcode !== $evcode2) {
+                throw new ProcessException(_("Invalid email verification code."), "invalid_code");
+            }
         }
 
         $data = $runData->sessionGet("ca_data");
@@ -240,8 +232,7 @@ class CreateAccountAction extends SmartyAction
         $u = OzoneUserPeer::instance()->selectOne($c);
         if ($u != null) {
             $runData->resetSession();
-            throw new ProcessException(_("A user with this email already exists. Must have been created meanwhile... " .
-                    "Unfortunately you have to repeat the whole procedure. :-("), "user_exists");
+            throw new ProcessException(_("Account creation failed: A user with this email already exists."), "user_exists");
         }
 
         $unixified = WDStringUtils::toUnixName($name);
@@ -250,8 +241,7 @@ class CreateAccountAction extends SmartyAction
         $u = OzoneUserPeer::instance()->selectOne($c);
         if ($u != null) {
             $runData->resetSession();
-            throw new ProcessException(_("A user with this name (or very similar) already exists. Must have been created meanwhile... " .
-                    "Unfortunately you have to repeat the whole procedure. :-("), "user_exists");
+            throw new ProcessException(_("Account creation failed: A user with this name (or very similar) already exists."), "user_exists");
         }
 
         // add new user!!!
@@ -286,10 +276,6 @@ class CreateAccountAction extends SmartyAction
         // profile page
 
         $c = new Criteria();
-        $c->add("unix_name", "template-en");
-        $tsite = SitePeer::instance()->selectOne($c);
-
-        $c = new Criteria();
         $c->add("unix_name", "profiles");
         $nsite = SitePeer::instance()->selectOne($c);
         $ncategory = CategoryPeer::instance()->selectByName('profile', $nsite->getSiteId());
@@ -298,7 +284,7 @@ class CreateAccountAction extends SmartyAction
         $dup->setOwner($nuser);
 
         $dup->duplicatePage(
-            PagePeer::instance()->selectByName($tsite->getSiteId(), 'profile:template'),
+            PagePeer::instance()->selectByName($nsite->getSiteId(), 'template:profile'),
             $nsite,
             $ncategory,
             'profile:'.$nuser->getUnixName()
@@ -311,10 +297,19 @@ class CreateAccountAction extends SmartyAction
 
         $db->commit();
 
+        /* Handle originalUrl. */
+        $originalUrl = $runData->sessionGet('loginOriginalUrl');
+        if ($originalUrl) {
+            $runData->ajaxResponseAdd('originalUrl', $originalUrl);
+            if ($runData->sessionGet('loginOriginalUrlForce')) {
+                $runData->ajaxResponseAdd('originalUrlForce', true);
+            }
+        }
         // reset session etc.
         $runData->resetSession();
         $runData->getSession()->setUserId($nuser->getUserId());
         setcookie("welcome", $nuser->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+        setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, "/");
     }
 
     public function cancelEvent($runData)

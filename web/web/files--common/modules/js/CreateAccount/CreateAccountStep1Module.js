@@ -1,27 +1,27 @@
 
 
-Wikijump.modules.CreateAccountModule = {};
+Wikijump.modules.CreateAccountStep1Module = {};
 
-Wikijump.modules.CreateAccountModule.vars = {};
+Wikijump.modules.CreateAccountStep1Module.vars = {};
 
-Wikijump.modules.CreateAccountModule.listeners = {
+Wikijump.modules.CreateAccountStep1Module.listeners = {
 	cancel: function(e){
 		window.location.href = HTTP_SCHEMA+"://"+window.location.hostname;
 	},
 
 	nextClick: function(e){
 
-		Wikijump.modules.CreateAccountModule.vars.formData = OZONE.utils.formToArray("createaccount-form0");
+		Wikijump.modules.CreateAccountStep1Module.vars.formData = OZONE.utils.formToArray("createaccount-form0");
 
 		var p = OZONE.utils.formToArray("createaccount-form0");
 
-		p.action = "CreateAccount2Action";
+		p.action = "CreateAccountStep2Action";
 		p.event = "step0";
-		OZONE.ajax.requestModule("CreateAccount/CreateAccount2Module", p, Wikijump.modules.CreateAccountModule.callbacks.nextClick);
+		OZONE.ajax.requestModule("CreateAccount/CreateAccountStep2Module", p, Wikijump.modules.CreateAccountStep1Module.callbacks.nextClick);
 
 	}
 }
-Wikijump.modules.CreateAccountModule.callbacks = {
+Wikijump.modules.CreateAccountStep1Module.callbacks = {
 	nextClick: function(r){
 		if(r.status=="form_errors"){
 			var inner = "The data you have submitted contains following errors:" +
@@ -48,10 +48,10 @@ Wikijump.modules.CreateAccountModule.callbacks = {
 
 }
 
-Wikijump.modules.CreateAccountModule.init = function(){
+Wikijump.modules.CreateAccountStep1Module.init = function(){
 	// 	if form data already exists - fill the forms
-	if(Wikijump.modules.CreateAccountModule.vars.formData != null){
-		p = Wikijump.modules.CreateAccountModule.vars.formData;
+	if(Wikijump.modules.CreateAccountStep1Module.vars.formData != null){
+		p = Wikijump.modules.CreateAccountStep1Module.vars.formData;
 		document.forms.caform['name'].value=p['name'];
 		document.forms.caform['password'].value=p['password'];
 		document.forms.caform['password2'].value=p['password2'];
@@ -72,4 +72,4 @@ Wikijump.modules.CreateAccountModule.init = function(){
 	}, "dummy-ondomready-block");
 }
 
-Wikijump.modules.CreateAccountModule.init();
+Wikijump.modules.CreateAccountStep1Module.init();
