@@ -17,6 +17,7 @@ members = ["ftml-http"]
 
 [lib]
 name = "ftml"
+crate-type = ["cdylib", "lib"]
 
 [dependencies]
 cfg-if = "1"
