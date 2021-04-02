@@ -54,6 +54,7 @@ docker-php-ext-install \
 	"-j$cores" \
 		opcache \
 		pgsql \
+		pdo_pgsql \
 		tidy \
 		gd \
 		gettext
