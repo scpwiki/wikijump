@@ -120,6 +120,12 @@ If possible, add to this log in the same commit in which the code is removed.
 
 ## PHP: `web/lib/zf`
 * Relevant Issues: [WJ-428](https://scuttle.atlassian.net/browse/WJ-428)
-* Where it was: [web/lib/zf/\*](https://github.com/scpwiki/wikijump/tree/3246cd5d72b7d4358b57eb9c78fd5515b7a39cb6/web/lib/zf)
+* Where it was: [web/lib/zf/](https://github.com/scpwiki/wikijump/tree/3246cd5d72b7d4358b57eb9c78fd5515b7a39cb6/web/lib/zf)
 * What it did: The entire Zend framework.
 * Why it was removed: In addition to being vendor code in the repo, it was only used for search (broken) and pingbacks (obsolete).
+
+## PHP: `web/php/Modules/CreateAccount`, `web/templates/modules/CreateAccount`, `web/web/files--common/modules/js/CreateAccount`
+* Relevant Issues:
+* Where it was: [web/php/Modules/CreateAccount/](https://github.com/scpwiki/wikijump/tree/64b94cda1ff4e941da45621f0255bba19adae4ee/web/php/Modules/CreateAccount), [web/templates/modules/CreateAccount/](https://github.com/scpwiki/wikijump/tree/64b94cda1ff4e941da45621f0255bba19adae4ee/web/templates/modules/CreateAccount), [web/web/files--common/modules/js/CreateAccount/](https://github.com/scpwiki/wikijump/tree/64b94cda1ff4e941da45621f0255bba19adae4ee/web/web/files--common/modules/js/CreateAccount)
+* What it did: The legacy `CreateAccount` module.
+* Why it was removed: Unused.
