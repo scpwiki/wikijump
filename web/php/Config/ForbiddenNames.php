@@ -13,7 +13,7 @@ class ForbiddenNames {
         '/^http[s]?$/',
         '/^\-/',
         '/\-$/',
-        '/^_/'
+        '/^_/',
         '/_$/',
         '/^dev$/',
         '/^staging$/',
