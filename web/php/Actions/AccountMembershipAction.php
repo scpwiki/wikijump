@@ -5,6 +5,7 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
+use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\MemberInvitationPeer;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\MemberPeer;
@@ -21,40 +22,6 @@ use Wikidot\Utils\WDStringUtils;
 
 class AccountMembershipAction extends SmartyAction
 {
-
-    public static $forbiddenUnixNames = array(
-        '/^www[0-9]*$/',
-        '/^[0-9]*www$/',
-        '/^www\-/',
-        '/^community\-/',
-        '/^mail$/',
-        '/^\-/',
-        '/\-$/',
-        '/^lab(s)?$/',
-        '/^open$/',
-        '/^dev$/',
-        '/^blog$/',
-        '/wikidot/',
-        '/wikijump/',
-        '/^pro$/',
-        '/^mail$/',
-        '/michalfrackowiak/',
-        '/michal\-frackowiak/',
-        '/^film$/',
-        '/^web$/',
-        '/^ssl$/',
-        '/^payment[s]?$/',
-        '/^pay$/',
-        '/^service[s]?$/',
-        '/^redbeard$/',
-        '/^photo$/',
-        '/^img$/',
-        '/^fotoforum$/',
-        '/^stat[s]?$/',
-        '/^your\-?site$/',
-        '/^template\-/'
-
-        );
 
     public function isAllowed($runData)
     {
@@ -317,10 +284,9 @@ class AccountMembershipAction extends SmartyAction
 
             if (!$runData->getUser()->getSuperAdmin()) {
                 //  handle forbidden names
-                $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT.'/conf/forbidden_site_names.conf'));
-                foreach ($forbiddenUnixNames as $f) {
-                    if (preg_match($f, $unixName) >0) {
-                        $errors['unixname'] = _('For some reason this web address is not allowed or is reserved for future use.');
+                foreach (ForbiddenNames::$sites as $regex) {
+                    if (preg_match($regex, $unixName) > 0) {
+                        $errors['unixname'] = _('This web address is not allowed or reserved.');
                     }
                 }
             }

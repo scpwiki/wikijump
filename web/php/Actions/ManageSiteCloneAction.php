@@ -3,6 +3,7 @@
 namespace Wikidot\Actions;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyAction;
+use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\SitePeer;
 use Wikidot\Utils\Duplicator;
 use Wikidot\Utils\ProcessException;
@@ -62,10 +63,9 @@ class ManageSiteCloneAction extends SmartyAction
 
             if (!$runData->getUser()->getSuperAdmin()) {
                 //  handle forbidden names
-                $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT.'/conf/forbidden_site_names.conf'));
-                foreach ($forbiddenUnixNames as $f) {
-                    if (preg_match($f, $unixName) >0) {
-                        $errors['unixname'] = _('For some reason this web address is not allowed or is reserved for future use.');
+                foreach (ForbiddenNames::$sites as $regex) {
+                    if (preg_match($regex, $unixName) > 0) {
+                        $errors['unixname'] = _('This web address is not allowed or reserved.');
                     }
                 }
             }
