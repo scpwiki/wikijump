@@ -24,39 +24,6 @@ use Wikidot\Utils\WDStringUtils;
 class CreateAccountAction extends SmartyAction
 {
 
-    public static $forbiddenUnixNames = array(
-        '/^www[0-9]*$/',
-        '/^[0-9]*www$/',
-        '/^mail$/',
-        '/^\-/',
-        '/\-$/',
-        '/^lab(s)?$/',
-        '/^open$/',
-        '/^dev$/',
-        '/^blog$/',
-        '/wikidot/',
-        '/wikijump/',
-        '/^pro$/',
-        '/^mail$/',
-        '/michalfrackowiak/',
-        '/michal\-frackowiak/',
-        '/^film$/',
-        '/^web$/',
-        '/^ssl$/',
-        '/^payment[s]?$/',
-        '/^pay$/',
-        '/^service[s]?$/',
-        '/^redbeard$/',
-        '/^photo$/',
-        '/^img$/',
-        '/^fotoforum$/',
-        '/^admin$/i',
-        '/^moderator$/',
-        '/^anonymous$/',
-        '/^member$/'
-
-    );
-
     public function perform($runData)
     {
     }

@@ -22,40 +22,6 @@ use Wikidot\Utils\WDStringUtils;
 class AccountMembershipAction extends SmartyAction
 {
 
-    public static $forbiddenUnixNames = array(
-        '/^www[0-9]*$/',
-        '/^[0-9]*www$/',
-        '/^www\-/',
-        '/^community\-/',
-        '/^mail$/',
-        '/^\-/',
-        '/\-$/',
-        '/^lab(s)?$/',
-        '/^open$/',
-        '/^dev$/',
-        '/^blog$/',
-        '/wikidot/',
-        '/wikijump/',
-        '/^pro$/',
-        '/^mail$/',
-        '/michalfrackowiak/',
-        '/michal\-frackowiak/',
-        '/^film$/',
-        '/^web$/',
-        '/^ssl$/',
-        '/^payment[s]?$/',
-        '/^pay$/',
-        '/^service[s]?$/',
-        '/^redbeard$/',
-        '/^photo$/',
-        '/^img$/',
-        '/^fotoforum$/',
-        '/^stat[s]?$/',
-        '/^your\-?site$/',
-        '/^template\-/'
-
-        );
-
     public function isAllowed($runData)
     {
         $userId = $runData->getUserId();
