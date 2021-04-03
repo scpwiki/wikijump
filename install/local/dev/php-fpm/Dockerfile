@@ -52,6 +52,7 @@ RUN /src/setup-memcached.sh
 
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
+# !! Put your IP for debugging here.
 RUN echo "xdebug.mode = debug" >> ${XDEBUG_INI} \
  && echo "xdebug.client_host = 192.168.42.128" >> ${XDEBUG_INI}
 
@@ -59,6 +60,10 @@ RUN echo "xdebug.mode = debug" >> ${XDEBUG_INI} \
 
 # Install the Wikijump repository
 WORKDIR /var/www
+
+# !! Workaround for WSL2-enabled development with exposed host volumes, comment out if not needed.
+RUN apk add shadow && usermod -u 1000 www-data && groupmod -g 1000 www-data
+
 RUN git clone \
     --depth 10 \
     --branch "${WIKIJUMP_REPO_BRANCH}" \
@@ -95,7 +100,9 @@ RUN npm install && \
 
 # Cleanup
 RUN rm -rf /src
-RUN chown -R www-data:www-data .
+
+# !! Enable this line if you're getting access denied-type errors.
+#RUN chown -R www-data:www-data .
 
 # Install nginx config files
 COPY etc/nginx/ /etc/nginx/
