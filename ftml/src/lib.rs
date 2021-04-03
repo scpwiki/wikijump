@@ -90,7 +90,7 @@ pub mod tokenizer;
 pub mod tree;
 
 #[cfg(test)]
-pub use self::log::{build_console_logger, build_logger, build_null_logger};
+pub use self::log::{build_logger, build_null_logger, build_terminal_logger};
 
 pub use self::includes::include;
 pub use self::parsing::parse;
