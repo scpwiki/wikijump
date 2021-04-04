@@ -106,11 +106,15 @@ RUN rm -rf /src
 
 # Install nginx config files
 COPY etc/nginx/ /etc/nginx/
+COPY etc/php/ /usr/local/etc/php/conf.d/
 
 # Enable wikijump site in nginx
 RUN mkdir /etc/nginx/sites-enabled && \
     cp /etc/nginx/sites-available/wikijump /etc/nginx/sites-enabled/wikijump && \
-    rm -f /etc/nginx/sites-enabled/default
+    rm -f /etc/nginx/sites-enabled/default && \
+    mkdir -p /var/log/php && \
+    touch /var/log/php/fpm-error.log && \
+    echo "access.format = \"[%t] %m %{REQUEST_SCHEME}e://%{HTTP_HOST}e%{REQUEST_URI}e %f pid:%p took:%ds mem:%{mega}Mmb cpu:%C%% status:%s {%{HTTP_X_REAL_IP}e|%{HTTP_USER_AGENT}e}\"" >> /usr/local/etc/php-fpm.d/docker.conf
 
 RUN install -m 400 -o www-data -g www-data .env.example .env && php artisan key:generate
 
