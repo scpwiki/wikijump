@@ -20,7 +20,6 @@ name = "ftml"
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
-cfg-if = "1"
 enum-map = "0.6"
 lazy_static = "1"
 maplit = "1"
