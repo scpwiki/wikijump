@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use self::log::{CONSOLE_LOGGER, NULL_LOGGER};
 use crate::info;
 use ouroboros::self_referencing;
 use std::sync::Arc;
@@ -27,7 +28,23 @@ mod log;
 
 pub use self::log::ConsoleLogger;
 
+fn get_logger(should_log: bool) -> &'static slog::Logger {
+    if should_log {
+        &*CONSOLE_LOGGER
+    } else {
+        &*NULL_LOGGER
+    }
+}
+
 #[wasm_bindgen]
 pub fn version() -> String {
     info::VERSION.clone()
+}
+
+#[wasm_bindgen]
+pub fn preprocess(mut text: String, should_log: bool) -> String {
+    let log = get_logger(should_log);
+
+    crate::preprocess(log, &mut text);
+    text
 }

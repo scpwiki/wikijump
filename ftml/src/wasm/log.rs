@@ -18,9 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use slog::Drain;
 use void::Void;
 use wasm_bindgen::JsValue;
 use web_sys::console;
+
+lazy_static! {
+    pub static ref NULL_LOGGER: slog::Logger = {
+        slog::Logger::root(slog::Discard, o!()) //
+    };
+    pub static ref CONSOLE_LOGGER: slog::Logger = {
+        slog::Logger::root(ConsoleLogger.fuse(), o!()) //
+    };
+}
 
 type ConsoleLogFn = fn(&JsValue);
 
