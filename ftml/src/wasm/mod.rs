@@ -18,6 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::info;
+use ouroboros::self_referencing;
+use std::sync::Arc;
+use wasm_bindgen::prelude::*;
+
 mod log;
 
 pub use self::log::ConsoleLogger;
+
+#[wasm_bindgen]
+pub fn version() -> String {
+    info::VERSION.clone()
+}
