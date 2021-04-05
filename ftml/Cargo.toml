@@ -38,6 +38,9 @@ unicase = "2"
 void = "1"
 wikidot-normalize = "0.7"
 
+[build-dependencies]
+built = { version = "0.4", features = ["chrono", "git2"] }
+
 [dev-dependencies]
 sloggers = "1"
 

@@ -484,6 +484,7 @@ dependencies = [
 name = "ftml"
 version = "0.5.0"
 dependencies = [
+ "built",
  "enum-map",
  "lazy_static",
  "maplit",
@@ -511,7 +512,6 @@ dependencies = [
 name = "ftml-http"
 version = "0.5.0"
 dependencies = [
- "built",
  "clap",
  "ftml",
  "hostname",
