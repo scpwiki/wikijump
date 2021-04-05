@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::prefix('wikijump')->group(function () {
+Route::prefix('wikijump--next')->group(function () {
     Route::get('/', function () {
         return view('welcome');
     });
