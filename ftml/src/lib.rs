@@ -68,6 +68,14 @@ cfg_if! {
     }
 }
 
+cfg_if! {
+    if #[cfg(target_arch = "wasm32")] {
+        extern crate ouroboros;
+        extern crate wasm_bindgen;
+        extern crate web_sys;
+    }
+}
+
 #[cfg(test)]
 mod test;
 
@@ -81,6 +89,9 @@ mod non_empty_vec;
 mod preproc;
 mod span_wrap;
 mod text;
+
+#[cfg(target_arch = "wasm32")]
+pub mod wasm;
 
 pub mod data;
 pub mod includes;
