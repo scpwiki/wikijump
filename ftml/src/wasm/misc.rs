@@ -1,5 +1,5 @@
 /*
- * wasm/mod.rs
+ * wasm/misc.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,19 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod log;
-mod misc;
-mod parsing;
-mod preproc;
-mod tokenizer;
+use super::prelude::*;
+use crate::info;
 
-mod prelude {
-    pub use super::log::get_logger;
-    pub use wasm_bindgen::prelude::*;
+#[wasm_bindgen]
+pub fn version() -> String {
+    info::VERSION.clone()
 }
-
-pub use self::log::ConsoleLogger;
-pub use self::misc::version;
-pub use self::parsing::parse;
-pub use self::preproc::preprocess;
-pub use self::tokenizer::{tokenize, Tokenization};

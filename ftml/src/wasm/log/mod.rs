@@ -1,5 +1,5 @@
 /*
- * wasm/log.rs
+ * wasm/log/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,10 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod console;
+
 use slog::Drain;
-use void::Void;
-use wasm_bindgen::JsValue;
-use web_sys::console;
+
+pub use self::console::ConsoleLogger;
 
 lazy_static! {
     pub static ref NULL_LOGGER: slog::Logger = {
@@ -32,41 +33,10 @@ lazy_static! {
     };
 }
 
-type ConsoleLogFn = fn(&JsValue);
-
-#[derive(Debug)]
-pub struct ConsoleLogger;
-
-impl slog::Drain for ConsoleLogger {
-    type Ok = ();
-    type Err = Void;
-
-    fn log(
-        &self,
-        record: &slog::Record,
-        _values: &slog::OwnedKVList,
-    ) -> Result<(), Void> {
-        let console_log_fn = get_console_fn(record.level());
-
-        let message = record.msg().to_string();
-
-        // TODO actually serialize values, don't just drop them
-        // you'll need to use debug_2, log_2, etc variants to pass (string, object)
-
-        console_log_fn(&JsValue::from_str(&message));
-        Ok(())
-    }
-}
-
-fn get_console_fn(level: slog::Level) -> ConsoleLogFn {
-    use slog::Level::*;
-
-    match level {
-        Trace => console::debug_1,
-        Debug => console::log_1,
-        Info => console::info_1,
-        Warning => console::warn_1,
-        Error => console::error_1,
-        Critical => console::error_1,
+pub fn get_logger(should_log: bool) -> &'static slog::Logger {
+    if should_log {
+        &*CONSOLE_LOGGER
+    } else {
+        &*NULL_LOGGER
     }
 }
