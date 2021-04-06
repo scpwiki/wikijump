@@ -50,8 +50,8 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'root' => '/var/www/wikijump/web/web/files--common',
+            'url' => env('ASSET_URL'),
             'visibility' => 'public',
         ],
 
