@@ -48,3 +48,40 @@ pub fn preprocess(mut text: String, should_log: bool) -> String {
     crate::preprocess(log, &mut text);
     text
 }
+
+#[self_referencing]
+#[derive(Debug)]
+struct TokenizationInner {
+    text: String,
+
+    #[borrows(text)]
+    #[covariant]
+    inner: crate::Tokenization<'this>,
+}
+
+#[wasm_bindgen]
+#[derive(Debug, Clone)]
+pub struct Tokenization(Arc<TokenizationInner>);
+
+#[wasm_bindgen]
+impl Tokenization {
+    pub fn tokens(&self) -> Result<JsValue, JsValue> {
+        self.0.with_inner(|inner| {
+            let tokens = inner.tokens();
+            let js = serde_wasm_bindgen::to_value(&tokens)?;
+            Ok(js)
+        })
+    }
+}
+
+#[wasm_bindgen]
+pub fn tokenize(mut text: String, should_log: bool) -> Tokenization {
+    let log = get_logger(should_log);
+
+    let inner = TokenizationInnerBuilder {
+        text,
+        inner_builder: |text: &str| crate::tokenize(&log, text),
+    };
+
+    Tokenization(Arc::new(inner.build()))
+}
