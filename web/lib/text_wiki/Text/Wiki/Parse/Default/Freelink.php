@@ -17,6 +17,8 @@
 *
 */
 
+use Wikidot\Utils\WDStringUtils;
+
 /**
 *
 * Parses for freelinked page links.
@@ -76,7 +78,7 @@ class Text_Wiki_Parse_Freelink extends Text_Wiki_Parse {
     *
     * @param array &$matches The array of matches from parse().
     *
-    * @return A delimited token to be used as a placeholder in
+    * @return mixed A delimited token to be used as a placeholder in
     * the source text, plus any text priot to the match.
     *
     */

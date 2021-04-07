@@ -87,7 +87,7 @@ class Text_Wiki_Parse_List extends Text_Wiki_Parse {
     *
     * @param array &$matches The array of matches from parse().
     *
-    * @return A series of text and delimited tokens marking the different
+    * @return mixed A series of text and delimited tokens marking the different
     * list text and list elements.
     *
     */

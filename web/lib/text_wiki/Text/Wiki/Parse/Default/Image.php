@@ -80,12 +80,12 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
      * We override the constructor to build up the url regex from config
      *
      * @param object &$obj the base conversion handler
-     * @return The parser object
+     * @return void The parser object
      * @access public
      */
-    function Text_Wiki_Parse_Image(&$obj) {
+    function __construct(&$obj) {
         $default = $this->conf;
-        parent::Text_Wiki_Parse($obj);
+        parent::__construct($obj);
 
         // convert the list of recognized schemes to a regex OR,
         $schemes = $this->getConf('schemes', $default['schemes']);
@@ -104,7 +104,7 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
      *
      * @param array &$matches The array of matches from parse().
      *
-     * @return A delimited token number to be used as a placeholder in
+     * @return mixed|string A delimited token number to be used as a placeholder in
      * the source text.
      *
      */

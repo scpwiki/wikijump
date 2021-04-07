@@ -88,13 +88,13 @@ class Text_Wiki_Parse_Smiley extends Text_Wiki_Parse {
      * We override the constructor to build up the regex from config
      *
      * @param object &$obj the base conversion handler
-     * @return The parser object
+     * @return Text_Wiki_Parse_Smiley The parser object
      * @access public
      */
-    function Text_Wiki_Parse_Smiley(&$obj)
+    function __construct(&$obj)
     {
         $default = $this->conf;
-        parent::Text_Wiki_Parse($obj);
+        parent::__construct($obj);
 
         // read the list of smileys to sort out variantes and :xxx: while building the regexp
         $this->_smileys = $this->getConf('smileys', $default['smileys']);

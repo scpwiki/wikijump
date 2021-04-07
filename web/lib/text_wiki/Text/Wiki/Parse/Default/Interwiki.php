@@ -79,7 +79,7 @@ class Text_Wiki_Parse_Interwiki extends Text_Wiki_Parse {
      *
      * @param array &$matches The array of matches from parse().
      *
-     * @return A delimited token to be used as a placeholder in
+     * @return mixed A delimited token to be used as a placeholder in
      * the source text, plus any text priot to the match.
      *
      */
@@ -117,7 +117,7 @@ class Text_Wiki_Parse_Interwiki extends Text_Wiki_Parse {
      *
      * @param array &$matches The array of matches from parse().
      *
-     * @return A delimited token to be used as a placeholder in
+     * @return mixed A delimited token to be used as a placeholder in
      * the source text, plus any text priot to the match.
      *
      */

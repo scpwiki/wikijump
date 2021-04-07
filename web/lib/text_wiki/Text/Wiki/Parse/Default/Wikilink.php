@@ -63,7 +63,7 @@ class Text_Wiki_Parse_Wikilink extends Text_Wiki_Parse {
 
     function Text_Wiki_Parse_Wikilink(&$obj)
     {
-        parent::Text_Wiki_Parse($obj);
+        parent::__construct($obj);
 
         if ($this->getConf('ext_chars')) {
         	// use an extended character set; this should
@@ -140,7 +140,7 @@ class Text_Wiki_Parse_Wikilink extends Text_Wiki_Parse {
     *
     * @param array &$matches The array of matches from parse().
     *
-    * @return A delimited token to be used as a placeholder in
+    * @return mixed A delimited token to be used as a placeholder in
     * the source text, plus any text priot to the match.
     *
     */
@@ -167,12 +167,12 @@ class Text_Wiki_Parse_Wikilink extends Text_Wiki_Parse {
     *
     * @param array &$matches The array of matches from parse().
     *
-    * @return A delimited token to be used as a placeholder in
+    * @return string A delimited token to be used as a placeholder in
     * the source text, plus any text prior to the match.
     *
     */
 
-    function process(&$matches)
+    function process(&$matches) : string
     {
         // when prefixed with !, it's explicitly not a wiki link.
         // return everything as it was.

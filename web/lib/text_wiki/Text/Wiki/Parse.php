@@ -101,7 +101,7 @@ class Text_Wiki_Parse {
     *
     */
 
-    function Text_Wiki_Parse(&$obj)
+    function __construct(&$obj)
     {
         // this allows us access to the shared source text, token
         // array, etc.

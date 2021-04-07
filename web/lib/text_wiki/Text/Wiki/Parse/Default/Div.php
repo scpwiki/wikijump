@@ -56,7 +56,7 @@ class Text_Wiki_Parse_Div extends Text_Wiki_Parse {
      *
      * @param array &$matches The array of matches from parse().
      *
-     * @return A delimited token number to be used as a placeholder in
+     * @return mixed A delimited token number to be used as a placeholder in
      * the source text.
      *
      */
