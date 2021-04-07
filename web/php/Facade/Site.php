@@ -17,10 +17,10 @@ class Site extends Base
      *  site: site to get pages from
      *  category: category to get pages from (optional)
      *
-     * @param struct $args
-     * @return struct
+     * @param array $args
+     * @return array
      */
-    public function pages($args)
+    public function pages(array $args) : array
     {
         $this->parseArgs($args, array("performer", "site"));
 
@@ -46,10 +46,10 @@ class Site extends Base
      * Argument array keys:
      *  site: site to get categories from
      *
-     * @param struct $args
-     * @return struct
+     * @param array $args
+     * @return array
      */
-    public function categories($args)
+    public function categories(array $args) : array
     {
         $this->parseArgs($args, array("performer", "site"));
 

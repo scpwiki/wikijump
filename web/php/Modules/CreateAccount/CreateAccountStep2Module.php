@@ -4,7 +4,7 @@ namespace Wikidot\Modules\CreateAccount;
 
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\Actions\CreateAccount2Action;
+use Wikidot\Actions\CreateAccountStep2Action;
 use Wikidot\DB\OzoneSessionPeer;
 
 use Ozone\Framework\SmartyModule;

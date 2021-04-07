@@ -85,12 +85,12 @@ class Text_Wiki_Parse_Table extends Text_Wiki_Parse {
     *
     * @param array &$matches The array of matches from parse().
     *
-    * @return A series of text and delimited tokens marking the different
+    * @return string A series of text and delimited tokens marking the different
     * table elements and cell text.
     *
     */
 
-    function process(&$matches)
+    function process(&$matches) : string
     {
         // our eventual return value
         $return = '';

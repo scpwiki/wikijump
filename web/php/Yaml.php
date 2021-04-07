@@ -40,7 +40,7 @@ class Yaml
     {
         // using the slow (but very compatible) symfony YAML dumper
         $ret = sfYaml::dump($object, 999);
-        if (substr($string, 0, 3) == '---') {
+        if (substr($ret, 0, 3) == '---') {
             return substr($ret, 4);
         }
         return $ret;

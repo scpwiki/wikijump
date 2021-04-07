@@ -889,7 +889,7 @@ class ManageSiteAction extends SmartyAction
     /**
      * Marks the site as "deleted" and invalidates all the cache related to the site.
      *
-     * @param unknown_type $runData
+     * @param mixed $runData
      */
     public function deleteSiteEvent($runData)
     {
@@ -958,7 +958,7 @@ class ManageSiteAction extends SmartyAction
     /**
      * Changes the "unix name" of the site and effectively its URL address.
      *
-     * @param unknown_type $runData
+     * @param mixed $runData
      */
     public function renameSiteEvent($runData)
     {

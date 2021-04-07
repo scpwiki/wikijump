@@ -1298,18 +1298,13 @@ class Text_Wiki {
     *
     * @param string $message The error message.
     *
-    * @return object PEAR_Error
+    * @return ProcessException
     *
     */
 
     function &error($message)
     {
     	throw new ProcessException($message);
-    	// FIX?
-    	if (! class_exists('PEAR_Error')) {
-    		include_once 'PEAR.php';
-    	}
-    	return PEAR::throwError($message);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Wikidot\Utils;
 
 use Ozone\Framework\Ozone;
+use Ozone\Framework\SmartyModule;
 
 abstract class CacheableModule extends SmartyModule
 {

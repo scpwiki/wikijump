@@ -15,9 +15,9 @@ require_once ("../php/core/functions.php");
 
 $tz = GlobalProperties::$SERVER_TIMEZONE;
 putenv("TZ=$tz");
-require_once('/usr/lib/php/Date.php');
-require_once('/usr/lib/php/Date/TimeZone.php');
-require_once('/usr/lib/php/Date/Span.php');
+require_once(WIKIJUMP_ROOT.'/lib/date/Date.php');
+require_once(WIKIJUMP_ROOT.'/lib/date/Date/TimeZone.php');
+require_once(WIKIJUMP_ROOT.'/lib/date/Date/Span.php');
 
 define('SMARTY_DIR', PathManager :: smartyDir());
 require_once (SMARTY_DIR.'Smarty.class.php');

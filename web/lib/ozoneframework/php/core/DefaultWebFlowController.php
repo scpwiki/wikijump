@@ -68,7 +68,7 @@ class DefaultWebFlowController extends WebFlowController {
 		$cacheSettings = $screen->getScreenCacheSettings();
 		$updateLayoutContentLater = false;
 		if($runData->getRequestMethod() == "GET" && $runData->getAction() == null && $cacheSettings != null && $cacheSettings->isLayoutCacheable($runData)){
-			$content = ScreenCacheManager::instance()->cachedLayout($runData, $screen->getScreenCacheSettings());
+			$content = ScreenCacheManager::instance();
 			if($content != null && $content != ""){
 				// process modules!!!
 				// process modules...
@@ -145,9 +145,6 @@ class DefaultWebFlowController extends WebFlowController {
 
 		}
 
-		if($updateLayoutContentLater == true){
-			ScreenCacheManager::instance()->updateCachedLayout($runData, $rendered);
-		}
 		$runData->handleSessionEnd();
 
 		echo $out;

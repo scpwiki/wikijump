@@ -41,7 +41,7 @@ class NewWikiWidgetAction extends SmartyAction
 
         if (!$runData->getUser() || !$runData->getUser()->getSuperAdmin()) {
             //  handle forbidden names
-            foreach (ForbiddenSiteNames::$sites as $regex) {
+            foreach (ForbiddenNames::$sites as $regex) {
                 if (preg_match($regex, $unixName) > 0) {
                     throw new ProcessException(_('This web address is not allowed or reserved.'));
                 }

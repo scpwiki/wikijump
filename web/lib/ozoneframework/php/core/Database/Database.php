@@ -2,8 +2,6 @@
 
 namespace Ozone\Framework\Database;
 
-
-use Ozone\Framework\IdBroker;
 use Wikidot\Utils\GlobalProperties;
 
 /**
@@ -11,19 +9,13 @@ use Wikidot\Utils\GlobalProperties;
  */
 class Database {
 	public static $connection;
-	public static $idBroker;
 
 	/**
 	 * Initialize the database connection.
 	 */
 	public static function init(){
 
-		if(GlobalProperties :: $DATABASE_TYPE=="mysql"){
-			$db = new MyConnection();
-		}
-		if(GlobalProperties :: $DATABASE_TYPE=="pgsql"){
-			$db = new PgConnection();
-		}
+        $db = new PgConnection();
 		$db->setServer(GlobalProperties :: $DATABASE_SERVER);
 		$db->setPort(GlobalProperties :: $DATABASE_PORT);
 		$db->setUser(GlobalProperties :: $DATABASE_USER);
@@ -31,8 +23,6 @@ class Database {
 		$db->setDatabase(GlobalProperties :: $DATABASE_NAME);
 		$db->connect();
 		self :: $connection = $db;
-
-		self::$idBroker = new IdBroker();
 
 	}
 
@@ -46,10 +36,4 @@ class Database {
 		return self::$connection;
 	}
 
-	/**
-	 * Returns an instance of IdBroker object.
-	 */
-	public static function idBroker(){
-		return self::$idBroker;
-	}
 }

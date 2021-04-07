@@ -49,7 +49,7 @@ class Text_Wiki_Parse_Delimiter extends Text_Wiki_Parse {
 
     function Text_Wiki_Parse_delimiter(&$obj)
     {
-        parent::Text_Wiki_Parse($obj);
+        parent::__construct($obj);
         $this->regex = '/' . $this->wiki->delim . '/';
     }
 
@@ -63,7 +63,7 @@ class Text_Wiki_Parse_Delimiter extends Text_Wiki_Parse {
     *
     * @param array &$matches The array of matches from parse().
     *
-    * @return A delimited token number to be used as a placeholder in
+    * @return mixed A delimited token number to be used as a placeholder in
     * the source text.
     *
     */

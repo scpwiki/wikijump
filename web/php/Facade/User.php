@@ -13,8 +13,8 @@ class User extends Base
     /**
      * Just check if user exists and has access to the API.
      *
-     * @param struct $args
-     * @return struct
+     * @param array $args
+     * @return array
      */
     public function valid($args)
     {
@@ -24,8 +24,8 @@ class User extends Base
     /**
      * Get sites of a user. This is a fake one!
      *
-     * @param struct $args
-     * @return struct
+     * @param array $args
+     * @return array
      */
     public function sites($args)
     {

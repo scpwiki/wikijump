@@ -15,10 +15,10 @@ class Diff
     /**
      * Implementation of unified diff of two strings
      *
-     * @param $fromString the first string to create diff from
-     * @param $toString the second string to create diff from
-     * @param $contextLines the number of lines of context
-     * @param $minimal whether to find the minimal diff or just any good
+     * @param $fromString string the first string to create diff from
+     * @param $toString string the second string to create diff from
+     * @param $contextLines int the number of lines of context
+     * @param $minimal bool whether to find the minimal diff or just any good
      * @return string the unified diff
      */
     public static function unifiedDiff($fromString, $toString, $contextLines = 3, $minimal = false)

@@ -51,7 +51,7 @@ class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
     *
     * @param array &$matches The array of matches from parse().
     *
-    * @return A delimited token number to be used as a placeholder in
+    * @return mixed A delimited token number to be used as a placeholder in
     * the source text.
     *
     */
@@ -68,7 +68,6 @@ class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
     		return;
     	}
 
-    	$tag0 = $tags0[0];
     	$tags = $page->getTagsAsArray();
 
     	$tags0 = preg_split('/[, ]+/', trim($matches[1]));

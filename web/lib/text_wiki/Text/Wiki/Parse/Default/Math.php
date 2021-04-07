@@ -14,6 +14,8 @@
 *
 */
 
+use Wikidot\Utils\ProcessException;
+
 /**
 *
 * Parses for text marked as a math block.
@@ -67,12 +69,12 @@ class Text_Wiki_Parse_Math extends Text_Wiki_Parse {
     *
     * @param array &$matches The array of matches from parse().
     *
-    * @return A delimited token number to be used as a placeholder in
+    * @return string A delimited token number to be used as a placeholder in
     * the source text.
     *
     */
 
-    function process(&$matches){
+    function process(&$matches) : string {
 
         if($this->wiki->vars['math_id'] == null){
     			$this->wiki->vars['math_id'] = 1;
@@ -83,7 +85,7 @@ class Text_Wiki_Parse_Math extends Text_Wiki_Parse {
 	    $label = trim($matches[1]);
 	    $content = trim($matches[3]);
 
-	    if(preg_match('/\include\s*\{|\input\s*\{/is', $content)){
+	    if(preg_match('/include\s*{|input\s*{/is', $content)){
 	    	throw new ProcessException("Invalid LaTeX expression(s) found.");
 	    }
 
