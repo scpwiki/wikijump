@@ -10,7 +10,6 @@ use Ozone\Framework\OzoneLoggerFileOutput;
 use Ozone\Framework\RunData;
 use Ozone\Framework\WebFlowController;
 use Wikidot\DB\SitePeer;
-use Wikidot\Search\Highlighter;
 use Wikijump\Helpers\LegacyTools;
 
 class WikiFlowController extends WebFlowController
@@ -211,10 +210,6 @@ class WikiFlowController extends WebFlowController
                 $renderedOld = $rendered;
                 $rendered = preg_replace(';(<style\s+[^>]*>.*?@import url\()http(://' . GlobalProperties::$URL_HOST_PREG . '.*?</style>);si', '\\1https\\2', $rendered);
             } while ($renderedOld != $rendered);
-        }
-
-        if (GlobalProperties::$SEARCH_HIGHLIGHT) {
-            $rendered = Highlighter::highlightIfSuitable($rendered, $_SERVER["REQUEST_URI"], $_SERVER["HTTP_REFERER"]);
         }
 
         echo str_replace("%%%CURRENT_TIMESTAMP%%%", time(), $rendered);
