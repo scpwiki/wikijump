@@ -38,6 +38,11 @@ pub struct Tokenization(Arc<TokenizationInner>);
 
 #[wasm_bindgen]
 impl Tokenization {
+    #[inline]
+    pub(crate) fn borrow_inner(&self) -> &crate::Tokenization {
+        self.0.borrow_inner()
+    }
+
     #[wasm_bindgen]
     pub fn tokens(&self) -> Result<JsValue, JsValue> {
         self.0.with_inner(|inner| {
