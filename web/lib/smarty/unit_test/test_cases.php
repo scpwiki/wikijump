@@ -1,8 +1,9 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+
 require_once './config.php';
 require_once SMARTY_DIR . 'Smarty.class.php';
-require_once 'PHPUnit.php';
 
 class Obj {
     public $val = 'val';
@@ -19,21 +20,21 @@ class Obj {
 }
 
 
-class SmartyTest extends PHPUnit_TestCase {
+class SmartyTest extends TestCase {
     // contains the object handle of the string class
     public $abc;
     // contains the last triggered error's errorlevel
     public $errorlevel;
 
     // constructor of the test suite
-    function SmartyTest($name) {
-       $this->PHPUnit_TestCase($name);
+    function __construct($name) {
+       parent::__construct($name);
     }
 
     // called before the test functions will be executed
     // this function is defined in PHPUnit_TestCase and overwritten
     // here
-    function setUp() {
+    function setUp() : void {
         // create a new instance of String with the
         // string 'abc'
         $this->smarty = new Smarty;
@@ -41,7 +42,7 @@ class SmartyTest extends PHPUnit_TestCase {
     // called after the test functions are executed
     // this function is defined in PHPUnit_TestCase and overwritten
     // here
-    function tearDown() {
+    function tearDown() : void {
         // delete your instance
         unset($this->smarty);
     }
