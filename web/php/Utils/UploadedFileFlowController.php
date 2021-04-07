@@ -16,7 +16,7 @@ class UploadedFileFlowController extends WikidotController
      * i.e. if files is in the array, /local--files is restricted
      * otherwise files in /local--files/ are allways public (for private wikis too)
      *
-     * @var unknown_type
+     * @var array
      */
     protected static $RESTRICTED_AREAS = array("resized-images", "files", "code", "auth");
 
