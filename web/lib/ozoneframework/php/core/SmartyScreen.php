@@ -48,7 +48,7 @@ abstract class SmartyScreen extends Screen{
 					&& $cacheSettings != null
 					&& $cacheSettings->isScreenCacheable($runData)){
 
-	 			$content = ScreenCacheManager::instance()->cachedScreen($runData, $this->getScreenCacheSettings());
+	 			$content = ScreenCacheManager::instance();
 				if($content != null && $content != ""){
 					$mainContent = $content;
 				} else {
@@ -91,11 +91,6 @@ abstract class SmartyScreen extends Screen{
 
 	 	if($mainContent == null){
 	 		$mainContent = $smarty->fetch($templateFile);
-	 	}
-
-	 	if($updateScreenContentLater){
-	 		// update the cached content in the database
-	 		ScreenCacheManager::instance()->updateCachedScreen($runData, $mainContent);
 	 	}
 
 	 	$layoutFile = PathManager::layoutTemplate($page->getLayout());
