@@ -29,10 +29,10 @@ class Page extends Base
      *  site: site to get page from
      *  page: page to get (full_name)
      *
-     * @param struct $args
-     * @return struct
+     * @param array $args
+     * @return array
      */
-    public function get($args)
+    public function get($args) : array
     {
         $this->parseArgs($args, array("performer", "site", "page"));
 
@@ -48,8 +48,8 @@ class Page extends Base
      *  site: site to get page from
      *  page: page to get (full_name) files from
      *
-     * @param struct $args
-     * @return struct
+     * @param array $args
+     * @return array
      */
     public function files($args)
     {
