@@ -5,6 +5,8 @@ namespace Wikidot\Utils;
 /**
  * A better way to cache
  */
+
+use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyModule;
 
 abstract class CacheableModule2 extends SmartyModule
@@ -36,7 +38,7 @@ abstract class CacheableModule2 extends SmartyModule
             $tkey = $this->keyBase.'_lc..'.$site->getSiteId(); // last change timestamp
         }
 
-        $mc = OZONE::$memcache;
+        $mc = Ozone::$memcache;
         $struct = $mc->get($key);
 
         $cacheTimestamp = $struct['timestamp'];
