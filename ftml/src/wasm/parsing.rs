@@ -70,6 +70,7 @@ impl ParseWarnings {
 pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsValue> {
     let log = get_logger(should_log);
 
+    // Borrow and perform parsing
     let tokenization = tokens.borrow_inner();
     let (syntax_tree, warnings) = crate::parse(log, tokenization).into();
 
@@ -82,6 +83,7 @@ pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsV
         syntax_tree
     };
 
+    // Build JS-compatible objects
     let syntax_tree = SyntaxTree(Arc::new(syntax_tree));
     let warnings = ParseWarnings(Arc::new(warnings.into_iter().collect()));
 
