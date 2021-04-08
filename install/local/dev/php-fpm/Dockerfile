@@ -18,8 +18,7 @@ ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
 
 # Configure timezone
-RUN ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
-    mkdir /src
+RUN ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
 WORKDIR /src
 
@@ -36,8 +35,6 @@ RUN apk add --update --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     imagemagick \
-    nodejs \
-    npm \
     git \
     html2text \
     libmemcached-libs \
@@ -85,12 +82,9 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
         --no-progress \
         --prefer-dist && \
 
-    # Run NPM
-    npm install && \
-        npm run build && \
-
     # Cleanup
     rm -rf /src && \
+    rm -f /usr/bin/composer && \
 
     # Create tmp folders
     mkdir -p \
@@ -111,11 +105,6 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     php artisan key:generate && \
     chown -R www-data:www-data .
 
-RUN apk add shadow && usermod -u 1000 www-data && groupmod -g 1000 www-data
-
 COPY etc/php/ /usr/local/etc/php/conf.d/
-# Main process
-# Let the upstream ENTRYPOINT handle running php-fpm
-#ADD ./entrypoint.sh /usr/local/bin/
 
 CMD ["php-fpm"]
