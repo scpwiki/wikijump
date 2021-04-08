@@ -20,9 +20,7 @@
 
 use super::prelude::*;
 use super::tokenizer::Tokenization;
-use crate::parsing::{
-    ParseOutcome as RustParseOutcome, ParseWarning as RustParseWarning,
-};
+use crate::parsing::ParseWarning as RustParseWarning;
 use crate::tree::SyntaxTree as RustSyntaxTree;
 use wasm_bindgen::JsValue;
 
@@ -62,12 +60,17 @@ pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsV
     let log = get_logger(should_log);
 
     let tokenization = tokens.borrow_inner();
-    let RustParseOutcome {
-        value: syntax_tree,
-        warnings,
-    } = crate::parse(log, tokenization);
+    let (syntax_tree, warnings) = crate::parse(log, tokenization).into();
 
-    // TODO clone Cow into owned version
+    // HACK: instead of implementing an exhaustive
+    // to_owned() clone for all of the sub-objects,
+    // we're just going to serialize/deserialize.
+    let syntax_tree = {
+        let syntax_tree_js = serde_wasm_bindgen::to_value(&syntax_tree)?;
+        let syntax_tree = serde_wasm_bindgen::from_value(syntax_tree_js)?;
+        syntax_tree
+    };
+
     let syntax_tree = SyntaxTree(Arc::new(syntax_tree));
     let warnings = ParseWarnings(Arc::new(warnings.into_iter().collect()));
 
