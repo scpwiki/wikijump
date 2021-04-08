@@ -46,7 +46,9 @@ impl JsonRender {
 impl Render for JsonRender {
     type Output = String;
 
-    fn render(&self, tree: &SyntaxTree) -> String {
+    fn render(&self, log: &slog::Logger, tree: &SyntaxTree) -> String {
+        info!(log, "Running JSON logger on syntax tree"; "pretty" => self.pretty);
+
         let writer = if self.pretty {
             serde_json::to_string_pretty
         } else {

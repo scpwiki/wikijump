@@ -30,8 +30,9 @@ use crate::render::Render;
 pub struct HtmlOutput(RustHtmlOutput);
 
 #[wasm_bindgen]
-pub fn render_html(syntax_tree: SyntaxTree) -> HtmlOutput {
+pub fn render_html(syntax_tree: SyntaxTree, should_log: bool) -> HtmlOutput {
+    let log = get_logger(should_log);
     let tree = syntax_tree.get();
-    let html = HtmlRender.render(tree);
+    let html = HtmlRender.render(&log, tree);
     HtmlOutput(html)
 }

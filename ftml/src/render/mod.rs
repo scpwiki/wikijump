@@ -49,5 +49,5 @@ pub trait Render {
     /// This is the main method of the trait, causing this
     /// renderer instance to perform whatever operations
     /// it requires to produce the output string.
-    fn render(&self, tree: &SyntaxTree) -> Self::Output;
+    fn render(&self, log: &slog::Logger, tree: &SyntaxTree) -> Self::Output;
 }
