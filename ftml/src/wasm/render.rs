@@ -1,5 +1,5 @@
 /*
- * wasm/parsing.rs
+ * wasm/render.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -19,18 +19,18 @@
  */
 
 use super::prelude::*;
-use super::tokenizer::Tokenization;
-use wasm_bindgen::JsValue;
+use crate::render::{html::HtmlRender, Render};
+use crate::tree::SyntaxTree;
 
-// Return type here is really Result<ParseOutcome<SyntaxTree>, serde_wasm_bindgen::Error>,
+// TODO render isn't implemented yet, this is mostly a stub
+
+// Return type here is really Result<HtmlOutput, serde_wasm_bindgen::Error>,
 // but converted into JsValue.
 
 #[wasm_bindgen]
-pub fn parse(tokens: Tokenization, should_log: bool) -> Result<JsValue, JsValue> {
-    let log = get_logger(should_log);
-
-    let tokenization = tokens.borrow_inner();
-    let outcome = crate::parse(log, tokenization);
-    let outcome_js = serde_wasm_bindgen::to_value(&outcome)?;
-    Ok(outcome_js)
+pub fn render_html(syntax_tree: JsValue) -> Result<JsValue, JsValue> {
+    let tree: SyntaxTree = serde_wasm_bindgen::from_value(syntax_tree)?;
+    let output = HtmlRender.render(&tree);
+    let output_js = serde_wasm_bindgen::to_value(&output)?;
+    Ok(output_js)
 }

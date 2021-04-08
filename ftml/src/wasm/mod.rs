@@ -22,6 +22,7 @@ mod log;
 mod misc;
 mod parsing;
 mod preproc;
+mod render;
 mod tokenizer;
 
 mod prelude {
@@ -33,4 +34,5 @@ pub use self::log::ConsoleLogger;
 pub use self::misc::version;
 pub use self::parsing::parse;
 pub use self::preproc::preprocess;
+pub use self::render::render_html;
 pub use self::tokenizer::{tokenize, Tokenization};
