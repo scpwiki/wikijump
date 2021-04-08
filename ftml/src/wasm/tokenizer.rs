@@ -19,8 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::Tokenization as RustTokenization;
 use ouroboros::self_referencing;
-use std::sync::Arc;
 
 #[self_referencing]
 #[derive(Debug)]
@@ -29,7 +29,7 @@ struct TokenizationInner {
 
     #[borrows(text)]
     #[covariant]
-    inner: crate::Tokenization<'this>,
+    inner: RustTokenization<'this>,
 }
 
 #[wasm_bindgen]
@@ -39,7 +39,7 @@ pub struct Tokenization(Arc<TokenizationInner>);
 #[wasm_bindgen]
 impl Tokenization {
     #[inline]
-    pub(crate) fn borrow_inner(&self) -> &crate::Tokenization {
+    pub(crate) fn borrow_inner(&self) -> &RustTokenization {
         self.0.borrow_inner()
     }
 

@@ -27,6 +27,7 @@ mod tokenizer;
 
 mod prelude {
     pub use super::log::get_logger;
+    pub use std::sync::Arc;
     pub use wasm_bindgen::prelude::*;
 }
 

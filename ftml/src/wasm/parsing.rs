@@ -20,17 +20,61 @@
 
 use super::prelude::*;
 use super::tokenizer::Tokenization;
+use crate::parsing::{
+    ParseOutcome as RustParseOutcome, ParseWarning as RustParseWarning,
+};
+use crate::tree::SyntaxTree as RustSyntaxTree;
 use wasm_bindgen::JsValue;
 
-// Return type here is really Result<ParseOutcome<SyntaxTree>, serde_wasm_bindgen::Error>,
+// Return type here is really Result<RustParseOutcome<SyntaxTree>, serde_wasm_bindgen::Error>,
 // but converted into JsValue.
 
 #[wasm_bindgen]
-pub fn parse(tokens: Tokenization, should_log: bool) -> Result<JsValue, JsValue> {
+#[derive(Debug, Clone)]
+pub struct ParseOutcome {
+    syntax_tree: SyntaxTree,
+    warnings: ParseWarnings,
+}
+
+#[wasm_bindgen]
+impl ParseOutcome {
+    #[wasm_bindgen]
+    pub fn syntax_tree(&self) -> SyntaxTree {
+        self.syntax_tree.clone()
+    }
+
+    #[wasm_bindgen]
+    pub fn warnings(&self) -> ParseWarnings {
+        self.warnings.clone()
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Debug, Clone)]
+pub struct SyntaxTree(Arc<RustSyntaxTree<'static>>);
+
+#[wasm_bindgen]
+#[derive(Debug, Clone)]
+pub struct ParseWarnings(Arc<Vec<RustParseWarning>>);
+
+#[wasm_bindgen]
+pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsValue> {
     let log = get_logger(should_log);
 
     let tokenization = tokens.borrow_inner();
-    let outcome = crate::parse(log, tokenization);
-    let outcome_js = serde_wasm_bindgen::to_value(&outcome)?;
-    Ok(outcome_js)
+    let RustParseOutcome {
+        value: syntax_tree,
+        warnings,
+    } = crate::parse(log, tokenization);
+
+    // TODO clone Cow into owned version
+    let syntax_tree = SyntaxTree(Arc::new(syntax_tree));
+    let warnings = ParseWarnings(Arc::new(warnings.into_iter().collect()));
+
+    let outcome = ParseOutcome {
+        syntax_tree,
+        warnings,
+    };
+
+    Ok(outcome)
 }
