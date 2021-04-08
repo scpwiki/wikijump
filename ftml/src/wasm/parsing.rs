@@ -24,9 +24,6 @@ use crate::parsing::ParseWarning as RustParseWarning;
 use crate::tree::SyntaxTree as RustSyntaxTree;
 use wasm_bindgen::JsValue;
 
-// Return type here is really Result<RustParseOutcome<SyntaxTree>, serde_wasm_bindgen::Error>,
-// but converted into JsValue.
-
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct ParseOutcome {
@@ -51,9 +48,23 @@ impl ParseOutcome {
 #[derive(Debug, Clone)]
 pub struct SyntaxTree(Arc<RustSyntaxTree<'static>>);
 
+impl SyntaxTree {
+    #[inline]
+    pub fn get(&self) -> &RustSyntaxTree<'static> {
+        &*self.0
+    }
+}
+
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct ParseWarnings(Arc<Vec<RustParseWarning>>);
+
+impl ParseWarnings {
+    #[inline]
+    pub fn get(&self) -> &[RustParseWarning] {
+        &*self.0
+    }
+}
 
 #[wasm_bindgen]
 pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsValue> {

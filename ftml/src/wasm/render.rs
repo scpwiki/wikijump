@@ -18,19 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::parsing::SyntaxTree;
 use super::prelude::*;
-use crate::render::{html::HtmlRender, Render};
-use crate::tree::SyntaxTree;
+use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
+use crate::render::Render;
 
 // TODO render isn't implemented yet, this is mostly a stub
 
-// Return type here is really Result<HtmlOutput, serde_wasm_bindgen::Error>,
-// but converted into JsValue.
+#[wasm_bindgen]
+#[derive(Debug, Clone)]
+pub struct HtmlOutput(RustHtmlOutput);
 
 #[wasm_bindgen]
-pub fn render_html(syntax_tree: JsValue) -> Result<JsValue, JsValue> {
-    let tree: SyntaxTree = serde_wasm_bindgen::from_value(syntax_tree)?;
-    let output = HtmlRender.render(&tree);
-    let output_js = serde_wasm_bindgen::to_value(&output)?;
-    Ok(output_js)
+pub fn render_html(syntax_tree: SyntaxTree) -> HtmlOutput {
+    let tree = syntax_tree.get();
+    let html = HtmlRender.render(tree);
+    HtmlOutput(html)
 }
