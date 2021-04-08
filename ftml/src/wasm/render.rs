@@ -23,8 +23,6 @@ use super::prelude::*;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::Render;
 
-// TODO render isn't implemented yet, this is mostly a stub
-
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct HtmlOutput(RustHtmlOutput);
