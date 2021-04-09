@@ -3,7 +3,7 @@ module "cache" {
 
   container_name               = "cache"
   container_image              = var.ecs_cache_image
-  container_memory_reservation = var.ecs_cache_memory / 4
+  container_memory_reservation = var.ecs_cache_memory / 5
   essential                    = true
   environment                  = []
 
@@ -22,7 +22,7 @@ module "database" {
 
   container_name               = "database"
   container_image              = "${data.aws_ssm_parameter.DB_ECR_URL.value}:develop"
-  container_memory_reservation = var.ecs_db_memory / 4
+  container_memory_reservation = var.ecs_db_memory / 5
   essential                    = true
   environment                  = []
 
@@ -36,12 +36,48 @@ module "database" {
   }
 }
 
+module "nginx" {
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+
+  container_name               = "nginx"
+  container_image              = "${data.aws_ssm_parameter.NGINX_ECR_URL.value}:develop"
+  container_memory_reservation = var.ecs_nginx_memory / 5
+  essential                    = true
+  environment                  = []
+
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      "awslogs-group"         = "ecs/nginx-${var.environment}"
+      "awslogs-region"        = var.region
+      "awslogs-stream-prefix" = "ecs"
+    }
+  }
+
+  links = ["php-fpm:php-fpm"]
+
+  docker_labels = {
+    "traefik.enable"                                = "true"
+    "traefik.http.routers.php-fpm.rule"             = "Host(`${var.web_domain}`,`www.${var.web_domain}`,`${var.files_domain}`,`www.${var.files_domain}`)"
+    "traefik.http.routers.php-fpm.tls"              = "true"
+    "traefik.http.routers.php-fpm.tls.certresolver" = "mytlschallenge"
+  }
+
+  healthcheck = {
+    command     = ["CMD-SHELL", "curl -f http://localhost"]
+    interval    = 30
+    timeout     = 5
+    retries     = 3
+    startPeriod = 15
+  }
+}
+
 module "php-fpm" {
   source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
   container_name               = "php-fpm"
-  container_image              = "${data.aws_ssm_parameter.WEB_ECR_URL.value}:develop"
-  container_memory_reservation = var.ecs_php_memory / 4
+  container_image              = "${data.aws_ssm_parameter.PHP_ECR_URL.value}:develop"
+  container_memory_reservation = var.ecs_php_memory / 5
   essential                    = true
   environment                  = []
 
@@ -70,21 +106,6 @@ module "php-fpm" {
       valueFrom = "wikijump-dev-DB_HOST"
     }
   ]
-
-  docker_labels = {
-    "traefik.enable"                                = "true"
-    "traefik.http.routers.php-fpm.rule"             = "Host(`${var.web_domain}`,`www.${var.web_domain}`,`${var.files_domain}`,`www.${var.files_domain}`)"
-    "traefik.http.routers.php-fpm.tls"              = "true"
-    "traefik.http.routers.php-fpm.tls.certresolver" = "mytlschallenge"
-  }
-
-  healthcheck = {
-    command     = ["CMD-SHELL", "curl -f http://localhost"]
-    interval    = 30
-    timeout     = 5
-    retries     = 3
-    startPeriod = 15
-  }
 }
 
 module "reverse-proxy" {
@@ -92,7 +113,7 @@ module "reverse-proxy" {
 
   container_name               = "reverse-proxy"
   container_image              = var.ecs_traefik_image
-  container_memory_reservation = var.ecs_traefik_memory / 4
+  container_memory_reservation = var.ecs_traefik_memory / 5
   essential                    = true
   environment = [
     {
@@ -118,7 +139,7 @@ module "reverse-proxy" {
     }
   }
 
-  links = ["php-fpm:php-fpm"]
+  links = ["nginx:nginx"]
 
   port_mappings = [
     {
@@ -164,7 +185,7 @@ module "reverse-proxy" {
 
   container_depends_on = [
     {
-      containerName = "php-fpm"
+      containerName = "nginx"
       condition     = "HEALTHY"
     }
   ]
@@ -183,6 +204,11 @@ output "database_json" {
 output "php-fpm_json" {
   description = "Container definition in JSON format"
   value       = module.php-fpm.json_map_encoded_list
+}
+
+output "nginx_json" {
+  description = "Container definition in JSON format"
+  value       = module.nginx.json_map_encoded_list
 }
 
 output "reverse-proxy_json" {

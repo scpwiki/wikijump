@@ -74,6 +74,16 @@ variable "ecs_php_memory" {
   default = 768
 }
 
+variable "ecs_nginx_memory" {
+  type    = number
+  default = 512
+}
+
+variable "ecs_nginx_cpu" {
+  type    = number
+  default = 512
+}
+
 variable "ecs_php_cpu" {
   type    = number
   default = 1024
