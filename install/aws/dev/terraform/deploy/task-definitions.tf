@@ -95,15 +95,15 @@ module "php-fpm" {
   secrets = [
     {
       name      = "WIKIJUMP_URL_DOMAIN"
-      valueFrom = "wikijump-dev-URL_DOMAIN"
+      valueFrom = aws_ssm_parameter.URL_DOMAIN.name
     },
     {
       name      = "WIKIJUMP_URL_UPLOAD_DOMAIN"
-      valueFrom = "wikijump-dev-URL_UPLOAD_DOMAIN"
+      valueFrom = aws_ssm_parameter.URL_UPLOAD_DOMAIN.name
     },
     {
       name      = "WIKIJUMP_DB_HOST"
-      valueFrom = "wikijump-dev-DB_HOST"
+      valueFrom = aws_ssm_parameter.DB_HOST.name
     }
   ]
 }
