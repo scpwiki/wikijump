@@ -193,30 +193,25 @@ module "reverse-proxy" {
 
 output "cache_json" {
   description = "Container definition in JSON format"
-  value       = module.cache.sensitive_json_map_encoded_list
-  sensitive   = true
+  value       = module.cache.json_map_encoded_list
 }
 
 output "database_json" {
   description = "Container definition in JSON format"
-  value       = module.database.sensitive_json_map_encoded_list
-  sensitive   = true
+  value       = module.database.json_map_encoded_list
 }
 
 output "php-fpm_json" {
   description = "Container definition in JSON format"
-  value       = module.php-fpm.sensitive_json_map_encoded_list
-  sensitive   = true
+  value       = module.php-fpm.json_map_encoded_list
 }
 
 output "nginx_json" {
   description = "Container definition in JSON format"
-  value       = module.nginx.sensitive_json_map_encoded_list
-  sensitive   = true
+  value       = module.nginx.json_map_encoded_list
 }
 
 output "reverse-proxy_json" {
   description = "Container definition in JSON format"
-  value       = module.reverse-proxy.sensitive_json_map_encoded_list
-  sensitive   = true
+  value       = module.reverse-proxy.json_map_encoded_list
 }
