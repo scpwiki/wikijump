@@ -1,22 +1,19 @@
 resource "aws_ssm_parameter" "URL_DOMAIN" {
-  name      = "wikijump-${var.environment}-URL_DOMAIN"
-  type      = "String"
-  value     = var.web_domain
-  sensitive = true
+  name  = "wikijump-${var.environment}-URL_DOMAIN"
+  type  = "String"
+  value = var.web_domain
 }
 
 resource "aws_ssm_parameter" "DB_HOST" {
-  name      = "wikijump-${var.environment}-DB_HOST"
-  type      = "String"
-  value     = "database"
-  sensitive = true
+  name  = "wikijump-${var.environment}-DB_HOST"
+  type  = "String"
+  value = "database"
 }
 
 resource "aws_ssm_parameter" "URL_UPLOAD_DOMAIN" {
-  name      = "wikijump-${var.environment}-URL_UPLOAD_DOMAIN"
-  type      = "String"
-  value     = var.files_domain
-  sensitive = true
+  name  = "wikijump-${var.environment}-URL_UPLOAD_DOMAIN"
+  type  = "String"
+  value = var.files_domain
 }
 
 data "aws_ssm_parameter" "PHP_ECR_URL" {
