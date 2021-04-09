@@ -23,7 +23,8 @@ variable "container_subnet" {
 }
 
 variable "cf_auth_token" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "region" {
@@ -112,9 +113,11 @@ variable "redeploy_ecs_on_tf_apply" {
 }
 
 variable "route53_access_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "route53_secret_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
