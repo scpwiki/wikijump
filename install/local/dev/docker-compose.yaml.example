@@ -9,7 +9,24 @@ services:
       context: ./postgres
       args:
         FILES_DOMAIN: 'wjfiles.test'
+    ports:
+      - "5432:5432"
     restart: always
+  nginx:
+    build:
+      context: ./nginx
+    links:
+      - php-fpm
+    depends_on:
+      - php-fpm
+# If you wish to map the web files to a local working copy uncomment whichever makes sense below.
+#    volumes:
+#      - C:\wikijump:/var/www/wikijump
+#      - ~/wikijump:/var/www/wikijump
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.php-fpm.tls=true
+      - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
   php-fpm:
     build:
       context: ./php-fpm
@@ -23,16 +40,12 @@ services:
     depends_on:
       - cache
       - database
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.php-fpm.tls=true
-      - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`) # Poor man's default route
-    # If you wish to map the web files to a local working copy uncomment whichever makes sense below.
-    # volumes:
-    #   - C:\wikijump:/var/www/wikijump
-    #   - /var/www/wikijump:/var/www
+# If you wish to map the web files to a local working copy uncomment whichever makes sense below.
+#    volumes:
+#      - C:\wikijump:/var/www/wikijump
+#      - ~/wikijump:/var/www/wikijump
   reverse-proxy:
-    image: traefik:v2.3
+    image: traefik:v2.4
     command:
       - --providers.docker
       - --entrypoints.web.address=:80
@@ -45,9 +58,9 @@ services:
       - "80:80"
       - "443:443"
     links:
-      - php-fpm
+      - nginx
     depends_on:
-      - php-fpm
+      - nginx
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock:ro
