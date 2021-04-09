@@ -1,5 +1,5 @@
 module "cache" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.56.0"
 
   container_name               = "cache"
   container_image              = var.ecs_cache_image
@@ -18,7 +18,7 @@ module "cache" {
 }
 
 module "database" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.56.0"
 
   container_name               = "database"
   container_image              = "${data.aws_ssm_parameter.DB_ECR_URL.value}:develop"
@@ -37,7 +37,7 @@ module "database" {
 }
 
 module "nginx" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.56.0"
 
   container_name               = "nginx"
   container_image              = "${data.aws_ssm_parameter.NGINX_ECR_URL.value}:develop"
@@ -73,7 +73,7 @@ module "nginx" {
 }
 
 module "php-fpm" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.56.0"
 
   container_name               = "php-fpm"
   container_image              = "${data.aws_ssm_parameter.PHP_ECR_URL.value}:develop"
@@ -109,7 +109,7 @@ module "php-fpm" {
 }
 
 module "reverse-proxy" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.56.0"
 
   container_name               = "reverse-proxy"
   container_image              = var.ecs_traefik_image
