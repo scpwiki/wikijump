@@ -19,14 +19,14 @@ services:
       - php-fpm
     depends_on:
       - php-fpm
+# If you wish to map the web files to a local working copy uncomment whichever makes sense below.
 #    volumes:
-#      #      - C:\wikijump:/var/www/wikijump
+#      - C:\wikijump:/var/www/wikijump
 #      - ~/wikijump:/var/www/wikijump
     labels:
       - traefik.enable=true
       - traefik.http.routers.php-fpm.tls=true
       - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
-      # If you wish to map the web files to a local working copy uncomment whichever makes sense below.
   php-fpm:
     build:
       context: ./php-fpm
@@ -40,9 +40,10 @@ services:
     depends_on:
       - cache
       - database
-    volumes:
-      #      - C:\wikijump:/var/www/wikijump
-      - ~/wikijump:/var/www/wikijump
+# If you wish to map the web files to a local working copy uncomment whichever makes sense below.
+#    volumes:
+#      - C:\wikijump:/var/www/wikijump
+#      - ~/wikijump:/var/www/wikijump
   reverse-proxy:
     image: traefik:v2.4
     command:
