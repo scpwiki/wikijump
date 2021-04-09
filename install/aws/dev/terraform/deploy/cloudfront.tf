@@ -93,7 +93,7 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
 
     forwarded_values {
       query_string = true
-      headers = ["Host"]
+      headers      = ["Host"]
 
       cookies {
         forward = "all"
