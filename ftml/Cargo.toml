@@ -46,6 +46,5 @@ sloggers = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 ouroboros = "0.8"
-serde-wasm-bindgen = "0.1"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 web-sys = { version = "0.3", features = ["console"] }

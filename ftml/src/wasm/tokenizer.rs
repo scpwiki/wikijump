@@ -47,7 +47,7 @@ impl Tokenization {
     pub fn tokens(&self) -> Result<JsValue, JsValue> {
         self.0.with_inner(|inner| {
             let tokens = inner.tokens();
-            let js = serde_wasm_bindgen::to_value(&tokens)?;
+            let js = JsValue::from_serde(&tokens).map_err(error_to_js)?;
             Ok(js)
         })
     }

@@ -494,7 +494,6 @@ dependencies = [
  "ref-map",
  "regex",
  "serde",
- "serde-wasm-bindgen",
  "serde_json",
  "slog",
  "sloggers",
@@ -1759,18 +1758,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "558dc50e1a5a5fa7112ca2ce4effcb321b0300c0d4ccf0776a9f60cd89031171"
 dependencies = [
  "serde_derive",
-]
-
-[[package]]
-name = "serde-wasm-bindgen"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ee6f12f7ed0e7ad2e55200da37dbabc2cadeb942355c5b629aa3771f5ac5636"
-dependencies = [
- "fnv",
- "js-sys",
- "serde",
- "wasm-bindgen",
 ]
 
 [[package]]

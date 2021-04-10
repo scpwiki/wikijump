@@ -78,8 +78,8 @@ pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsV
     // to_owned() clone for all of the sub-objects,
     // we're just going to serialize/deserialize.
     let syntax_tree = {
-        let syntax_tree_js = serde_wasm_bindgen::to_value(&syntax_tree)?;
-        let syntax_tree = serde_wasm_bindgen::from_value(syntax_tree_js)?;
+        let syntax_tree_js = JsValue::from_serde(&syntax_tree).map_err(error_to_js)?;
+        let syntax_tree = JsValue::into_serde(&syntax_tree_js).map_err(error_to_js)?;
         syntax_tree
     };
 

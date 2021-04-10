@@ -1,5 +1,5 @@
 /*
- * wasm/mod.rs
+ * wasm/error.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,24 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod error;
-mod log;
-mod misc;
-mod parsing;
-mod preproc;
-mod render;
-mod tokenizer;
+use std::error::Error;
+use wasm_bindgen::JsValue;
 
-mod prelude {
-    pub use super::error::error_to_js;
-    pub use super::log::get_logger;
-    pub use std::sync::Arc;
-    pub use wasm_bindgen::prelude::*;
+pub fn error_to_js<E: Error>(error: E) -> JsValue {
+    JsValue::from_str(&error.to_string())
 }
-
-pub use self::log::ConsoleLogger;
-pub use self::misc::version;
-pub use self::parsing::parse;
-pub use self::preproc::preprocess;
-pub use self::render::render_html;
-pub use self::tokenizer::{tokenize, Tokenization};
