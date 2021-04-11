@@ -22,6 +22,20 @@ use super::prelude::*;
 use crate::Tokenization as RustTokenization;
 use ouroboros::self_referencing;
 
+#[wasm_bindgen(typescript_custom_section)]
+const TS_APPEND_CONTENT: &str = r#"
+
+export interface IToken {
+    token: string;
+    slice: string;
+    span: {
+        start: number;
+        end: number;
+    };
+}
+
+"#;
+
 #[self_referencing]
 #[derive(Debug)]
 struct TokenizationInner {
@@ -43,7 +57,7 @@ impl Tokenization {
         self.0.borrow_inner()
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(typescript_type = "IToken[]")]
     pub fn tokens(&self) -> Result<JsValue, JsValue> {
         self.0.with_inner(|inner| {
             let tokens = inner.tokens();
