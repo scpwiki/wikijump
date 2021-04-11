@@ -23,9 +23,17 @@ use super::prelude::*;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::Render;
 
+// Typescript declarations
+
+// TODO
+
+// Wrapper structures
+
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct HtmlOutput(RustHtmlOutput);
+
+// Exported functions
 
 #[wasm_bindgen]
 pub fn render_html(syntax_tree: SyntaxTree, should_log: bool) -> HtmlOutput {
