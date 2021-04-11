@@ -18,26 +18,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod console;
-mod context;
-
-use slog::Drain;
-
-pub use self::console::ConsoleLogger;
+use cfg_if::cfg_if;
 
 lazy_static! {
     pub static ref NULL_LOGGER: slog::Logger = {
         slog::Logger::root(slog::Discard, o!()) //
     };
-    pub static ref CONSOLE_LOGGER: slog::Logger = {
-        slog::Logger::root(ConsoleLogger.fuse(), o!()) //
-    };
 }
 
-pub fn get_logger(should_log: bool) -> &'static slog::Logger {
-    if should_log {
-        &*CONSOLE_LOGGER
+cfg_if! {
+    if #[cfg(feature = "wasm-log")] {
+        mod console;
+        mod context;
+
+        pub use self::console::ConsoleLogger;
+
+        lazy_static! {
+            pub static ref CONSOLE_LOGGER: slog::Logger = {
+                use slog::Drain;
+
+                slog::Logger::root(ConsoleLogger.fuse(), o!())
+            };
+        }
+
+        pub fn get_logger(should_log: bool) -> &'static slog::Logger {
+            if should_log {
+                &*CONSOLE_LOGGER
+            } else {
+                &*NULL_LOGGER
+            }
+        }
     } else {
-        &*NULL_LOGGER
+        #[inline]
+        pub fn get_logger(_should_log: bool) -> &'static slog::Logger {
+            &*NULL_LOGGER
+        }
     }
 }

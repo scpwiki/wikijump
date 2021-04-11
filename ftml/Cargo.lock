@@ -485,6 +485,7 @@ name = "ftml"
 version = "0.5.0"
 dependencies = [
  "built",
+ "cfg-if 1.0.0",
  "enum-map",
  "lazy_static",
  "maplit",

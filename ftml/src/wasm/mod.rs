@@ -35,7 +35,9 @@ mod prelude {
     pub use wasm_bindgen::JsCast;
 }
 
+#[cfg(feature = "wasm-log")]
 pub use self::log::ConsoleLogger;
+
 pub use self::misc::version;
 pub use self::parsing::{parse, ParseOutcome, SyntaxTree};
 pub use self::preproc::preprocess;
