@@ -1,0 +1,3758 @@
+openapi: 3.0.3
+
+# TODO: document navigable url construction
+# TODO: /query
+# TODO: /ftml
+
+# TODO: upgrade to OpenAPI 3.1.x (when tools are updated for VSCode, ReDoc, etc.)
+
+# Delegated to Query:
+# - Search
+# - User, Page, and Site activity
+# - Member Listing
+
+# For some next API version:
+# - Watching
+
+info:
+  title: Wikijump
+  description: |
+    ## Introduction
+
+    This page documents the Wikijump API, which is a HTTP interface
+    that lets you easily interact with Wikijump programatically.
+
+    The API is defined as a OpenAPI 3.0.3 schema file.
+    The implementation of this API in the Wikijump backend very closely matches this schema.
+
+    Wikijump (including this API) is subject to change as the project evolves.
+
+    ## Usage
+
+    The Wikijump API is centered around the JSON format for both sending and receiving.
+    The data expected/returned by the API will always be wrapped inside an object, even if that object contains only
+    a single property. The following code-block demonstrates an example payload:
+    ```json
+    {
+      "login": "fake@example.com",
+      "password": "pa$$word"
+    }
+    ```
+
+    The only exceptions to the 'JSON only' standard are files and avatars, which are sent directly.
+
+    If you plan to use this API with some sort of service, e.g. an IRC bot, it should be noted that this API is
+    fundamentally geared towards supporting frontends. Endpoints usually point to individual resources or
+    interactions, which means that any sort of service requesting information on many resources will have to send
+    a large amount of API requests if it were to use this API as a frontend would.
+
+    However, the Wikijump API has a special endpoint, `/query`, which allows complex and "closer to the metal"
+    transactions with the Wikijump database. Services, but also frontends, can use this endpoint to
+    request information efficiently on a multitude of resources without excessive API requests and bandwidth usage.
+
+    The `/query` endpoint is currently not available.
+
+    ## Changes from Wikidot
+
+    > Breaking changes to previously private components of the Wikidot interface or API
+    will not be mentioned in this section.
+
+    The following features have been deprecated, removed, or rendered nonfunctional:
+    - Contacts
+    - Account types (pro accounts)
+    - OneSignal
+    - Advertising
+    - XML-RPC API
+    - Pingbacks
+    - Twitter integration ("Tweet My Wiki")
+    - Site traffic statistics (Google Analytics is still available!)
+    - Per-site user profiles
+    - Inter-site promotion
+    - Custom layouts
+    - Custom footer
+
+    The following features have been made available universally:
+    - HTTPS (required - Wikijump is designed to use HTTPS only)
+    - Blocking site cloning
+    - Disabling the display of karma site-wide
+
+    These changes reflect Wikijump's transition away from Wikidot's business model and outdated infrastructure.
+
+    Finally, the following features **will be supported**, but aren't quite available in this API yet:
+    - Watching
+    - Activity pages (user, site, etc.) (requires `/query`)
+    - Searching (requires `/query`)
+
+    ## Constructing Navigable URLS
+
+    (todo)
+
+  contact:
+    name: Wikijump Github
+    url: https://github.com/scpwiki/wikijump
+
+  license:
+    name: GNU Affero General Public License 3.0 (AGPL 3.0)
+    url: http://www.gnu.org/licenses/agpl-3.0.html
+
+  version: 0.1.0
+
+  x-logo: # redoc
+    url: https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo.min.svg
+    altText: Wikijump Logo
+
+servers:
+- url: https://wikijump.com/api--v1
+  description: Contextless Public API
+- url: https://{site}.wikijump.com/api--v1
+  description: Site Context Public API
+  variables:
+    site:
+      default: www
+      description: >
+        The site instance that the API should interact with.
+        Requests will generally be "relative" to the site specified.
+
+tags:
+# -- CATEGORICAL
+- name: query
+  description: Make 'closer to the metal' transactions with Wikijump.
+- name: util
+  description: Utility endpoints for handling Wikijump resources.
+- name: auth
+  description: Handle account authentication state.
+- name: account
+  description: Retrieve or update details relating to a personal account.
+- name: notification
+  description: Retrieve and update client notifications.
+- name: user
+  description: Retrieve details about users.
+- name: membership
+  description: Retrieve and update user membership status.
+- name: category
+  description: Retrieve and update category metadata.
+- name: page
+  description: Retrieve and update pages.
+- name: revision
+  description: Retrieve details about revisions.
+- name: tag
+  description: Retrieve details about tags.
+- name: vote
+  description: Retrieve voting details and cast votes on pages.
+- name: file
+  description: Retrieve and upload files.
+- name: report
+  description: Report users and pages to the staff of a site.
+- name: abuse
+  description: Report sites, users, and pages to the platform administrators.
+- name: message
+  description: Send and retrieve private messages.
+- name: forum
+  description: Manage and interact with a site's forums.
+  x-traitTag: true
+- name: forum-misc
+- name: forum-group
+- name: forum-category
+- name: forum-thread
+- name: forum-post
+- name: moderation
+  description: Report and manage a site's users and content.
+- name: site
+  description: Manage and configure a site.
+# -- TRAITS
+- { name: paginated,      x-traitTag: true }
+- { name: not-json,       x-traitTag: true }
+- { name: avatars,        x-traitTag: true }
+- { name: platform-admin, x-traitTag: true }
+
+# redoc
+x-tagGroups:
+- name: Query
+  tags: [query]
+- name: Utility
+  tags: [util]
+- name: Client
+  tags: [auth, account, notification, message]
+- name: Users
+  tags: [user, membership]
+- name: Content
+  tags: [category, page, revision, tag, vote, file]
+- name: Forum
+  tags: [forum, forum-misc, forum-group, forum-category, forum-thread, forum-post]
+- name: Site Management
+  tags: [report, abuse, moderation, site]
+
+paths:
+
+  # -- QUERY
+
+  /query:
+    post:
+      description: INCOMPLETE - STUB
+      tags: [query]
+      operationId: queryRequest
+      security:
+      - QueryAPIAccess: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- UTIL
+
+  /util/resolveid/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Resolves an ID and returns what type of object it refers to.
+      tags: [util]
+      operationId: utilResolveID
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [type],
+            properties: { type: { $ref: '#/components/schemas/ReferenceTypes' } }
+          }}}
+        400: { description: Bad Request }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- AUTH
+
+  /auth/login:
+    post:
+      description: Logs in a user.
+      tags: [auth]
+      operationId: authLogin
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [login, password],
+          properties: {
+            login:    { $ref: '#/components/schemas/LoginSpecifier' },
+            password: { type: string, format: password  },
+            remember: { type: boolean }
+          }
+        }}}
+      responses:
+        200:
+          description: OK
+          headers:
+            Set-Cookie:
+              description: >
+                Sets the user's session cookie.
+                This cookie must be sent with subsequent requests to authorize actions.
+              schema: { type: string }
+        400: { description: Invalid email or password. }
+        500: { description: Unexpected Error }
+
+  /auth/logout:
+    delete:
+      description: Logs the client out.
+      tags: [auth]
+      operationId: authLogout
+      security:
+      - AccountSession: []
+      responses:
+        default: { description: OK }
+        500:     { description: Unexpected Error }
+
+  /auth/check:
+    post:
+      description: Gets the authentication state of the client.
+      tags: [auth]
+      operationId: authCheck
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [sessionValid, authed, expires],
+            properties: {
+              sessionValid: { type: boolean },
+              authed:       { type: boolean },
+              expires:      { type: string, format: date-time }
+            }
+          }}}
+        500: { description: Unexpected Error }
+
+  /auth/refresh:
+    post:
+      description: Refreshes the client's access token.
+      tags: [auth]
+      operationId: authRefresh
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          headers:
+            Set-Cookie:
+              description: >
+                Sets the user's session cookie.
+                This cookie must be sent with subsequent requests to authorize actions.
+              schema: { type: string }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  # -- ACCOUNT
+
+  /account/register:
+    post:
+      description: >
+        Registers an account.
+        Does not automatically login. Email validation will be required.
+      tags: [account]
+      operationId: accountRegister
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [username, email, password],
+          properties: {
+            username: { $ref: '#/components/schemas/Username' },
+            email:    { $ref: '#/components/schemas/Email' },
+            password: { type: string, format: password }
+          }
+        }}}
+      responses:
+        202: { description: Accepted }
+        403: { description: Email already in use. }
+        500: { description: Unexpected Error }
+
+  /account/request-deletion:
+    post:
+      description: >
+        Starts the deletion process for an account.
+        Requires additional email validation for the process to complete.
+      tags: [account]
+      operationId: accountRequestDeletion
+      security:
+      - AccountSession: []
+      responses:
+        202: { description: Accepted }
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  /account/start-recovery:
+    post:
+      description: Starts the password recovery routine.
+      tags: [account]
+      operationId: accountStartRecovery
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [email],
+          properties: {
+            email: { $ref: '#/components/schemas/Email' }
+          }
+        }}}
+      responses:
+        202: { description: Accepted }
+        404: { description: Email isn't in use. }
+        500: { description: Unexpected Error }
+
+  /account/email:
+    get:
+      description: Gets the current email address.
+      tags: [account]
+      operationId: accountGetEmail
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [email],
+            properties: {
+              email: { $ref: '#/components/schemas/Email' }
+            }
+          }}}
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+    put:
+      description: >
+        Updates the current email address.
+        Does not immediately change the email, as the change must be verified
+        through a link that is sent to the requested email.
+      tags: [account]
+      operationId: accountUpdateEmail
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [oldEmail, newEmail],
+          properties: {
+            oldEmail: { $ref: '#/components/schemas/Email' },
+            newEmail: { $ref: '#/components/schemas/Email' }
+          }
+        }}}
+      responses:
+        202: { description: Accepted }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  /account/password:
+    put:
+      description: Updates the current password.
+      tags: [account]
+      operationId: accountUpdatePassword
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [oldPassword, newPassword],
+          properties: {
+            oldPassword: { type: string, format: password },
+            newPassword: { type: string, format: password }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  /account/username:
+    get:
+      description: Gets the current username.
+      tags: [account]
+      operationId: accountGetUsername
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [username],
+            properties: {
+              username: { $ref: '#/components/schemas/Username' }
+            }
+          }}}
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+    put:
+      description: Updates the current username.
+      tags: [account]
+      operationId: accountUpdateUsername
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [username],
+          properties: {
+            username: { $ref: '#/components/schemas/Username' }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  /account/settings:
+    get:
+      description: Gets the current account settings.
+      tags: [account]
+      operationId: accountGetSettings
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/AccountSettings' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Update (patch) the client's user details.
+      tags: [account]
+      operationId: accountUpdateSettings
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AccountSettingsPatch' }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  # -- NOTIFICATION
+
+  /notification:
+    get:
+      description: Gets the client's current notifications.
+      tags: [notification]
+      operationId: notificationGet
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/NotificationList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Dismisses all of the client's notifications.
+      tags: [notification]
+      operationId: notificationDismissAll
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  # -- USER
+
+  /user:
+    get:
+      description: Gets the client's user details.
+      tags: [user, avatars]
+      operationId: userClientGet
+      parameters:
+      - $ref: '#/components/parameters/UserDetailsType'
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200: { $ref: '#/components/responses/UserGet' }
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Update (patch) the client's user details.
+      tags: [user]
+      operationId: userClientUpdateProfile
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UserProfilePatch' }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  /user/avatar:
+    get:
+      description: Gets the client's avatar.
+      tags: [user, not-json]
+      operationId: userClientGetAvatar
+      responses:
+        200:
+          description: OK
+          content: { application/octet-stream: {
+            example: FFD8FFDB00430006040506050406060506070706...,
+            schema: { allOf: [$ref: '#/components/schemas/File'], nullable: true }
+          }}
+        401: { description: Missing or invalid authentication credentials. }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    put:
+      description: Sets the client's avatar.
+      tags: [user, not-json]
+      operationId: userClientSetAvatar
+      security:
+      - AccountSession: []
+      requestBody: { content: { application/octet-stream: {
+        example: FFD8FFDB00430006040506050406060506070706...,
+        schema: { $ref: '#/components/schemas/File' }
+      }}}
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Removes the client's avatar.
+      tags: [user]
+      operationId: userClientRemoveAvatar
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /user/blocked:
+    get:
+      description: Gets the list of users the client has blocked.
+      tags: [user]
+      operationId: userClientGetBlocked
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/UserBlockedList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+
+  /user/{path_type}/{path}:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets a user's details.
+      tags: [user, avatars]
+      operationId: userGet
+      parameters:
+      - $ref: '#/components/parameters/UserDetailsType'
+      responses:
+        200: { $ref: '#/components/responses/UserGet' }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: |
+        Resets a user's profile.
+
+        > This endpoint is only available to platform administrators.
+      tags: [user, moderation, platform-admin]
+      operationId: userResetProfile
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /user/{path_type}/{path}/avatar:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    get:
+      description: Gets a user's avatar.
+      tags: [user, not-json]
+      operationId: userGetAvatar
+      responses:
+        200:
+          description: OK
+          content: { application/octet-stream: {
+            example: FFD8FFDB00430006040506050406060506070706...,
+            schema: { allOf: [$ref: '#/components/schemas/File'], nullable: true }
+          }}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: |
+        Removes a user's avatar.
+
+        > This endpoint is only available to platform administrators.
+      tags: [user, moderation, platform-admin]
+      operationId: userRemoveAvatar
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /user/{path_type}/{path}/block:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    get:
+      description: Gets whether or not the client has a user blocked.
+      tags: [user]
+      operationId: userGetBlocked
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: {
+            required: [blocked],
+            properties: { blocked: { type: boolean } }
+          }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    put:
+      description: Updates whether or not the client has a user blocked.
+      tags: [user]
+      operationId: userUpdateBlocked
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: {
+          required: [blocked],
+          properties: { blocked: { type: boolean } }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+
+  # -- MEMBERSHIP
+
+  /membership:
+    get:
+      description: Gets the sites the client is a member of.
+      tags: [membership]
+      operationId: membershipGetList
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/MembershipList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  /membership/applications:
+    get:
+      description: Gets the sites the client has requested to join.
+      tags: [membership]
+      operationId: membershipGetApplications
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSendList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  /membership/invites:
+    get:
+      description: Gets the sites the client has been invited to join.
+      tags: [membership]
+      operationId: membershipGetInvites
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/InviteList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  /membership/site/{site}:
+    parameters:
+    - { name: site, in: path, required: true, schema: { type: string }}
+
+    get:
+      description: Gets the client membership status for a site.
+      tags: [membership]
+      operationId: membershipSiteGet
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: {
+            nullable: true,
+            allOf: [$ref: '#/components/schemas/Membership']
+          }}}
+        401: { description: Missing or invalid authentication credentials. }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Requests to join a site (application).
+      tags: [membership]
+      operationId: membershipSiteApply
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSend' }}}
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Leaves a site.
+      tags: [membership]
+      operationId: membershipSiteLeave
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        500: { description: Unexpected Error }
+
+  /member/{path_type}/{path}/membership:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    get:
+      description: Gets the sites a user is a member of.
+      tags: [membership]
+      operationId: membershipUserGetList
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/MembershipList' }}}
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /member/{path_type}/{path}/membership/{site}:
+    parameters:
+    - { name: site, in: path, required: true, schema: { type: string }}
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    get:
+      description: Gets a user's membership status for a site.
+      tags: [membership]
+      operationId: membershipUserSiteGet
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: {
+            nullable: true,
+            allOf: [$ref: '#/components/schemas/Membership']
+          }}}
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /member/{path_type}/{path}/role:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    get:
+      description: Gets the role of a user.
+      tags: [membership]
+      operationId: membershipUserGetRole
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/MembershipRole' }}}
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Sets the role of a user.
+      tags: [membership]
+      operationId: membershipUserSetRole
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/MembershipRole' }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /member/{path_type}/{path}/invite:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    post:
+      description: Invites a user to join a site.
+      tags: [membership]
+      operationId: membershipUserInvite
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/InviteSend' }}}
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- PAGE
+
+  /page:
+    post:
+      description: Creates a new page.
+      tags: [page]
+      operationId: pageCreate
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [slug],
+          properties: {
+            slug:     { $ref: '#/components/schemas/Slug' },
+            title:    { type: string },
+            wikitext: { $ref: '#/components/schemas/Wikitext' }
+          }
+        }}}
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: The requested path cannot be used. }
+        500: { description: Unexpected Error }
+
+  /page/{path_type}/{path}:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+
+    get:
+      description: Gets a page.
+      tags: [page, avatars]
+      operationId: pageGet
+      parameters:
+      - $ref: '#/components/parameters/PageType'
+      - $ref: '#/components/parameters/Avatars'
+      responses:
+        200: { $ref: '#/components/responses/PageGet' }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Updates a page.
+      tags: [page]
+      operationId: pageUpdate
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            title:    { type: string },
+            wikitext: { $ref: '#/components/schemas/Wikitext' }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Deletes a page.
+      tags: [page]
+      operationId: pageDelete
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /page/id/{path}/restore:
+    parameters:
+    - description: Specifies the ID to be used to identify a page.
+      name: path
+      in: path
+      required: true
+      schema: { title: id, $ref: '#/components/schemas/Reference' }
+
+    post:
+      description: Restores a previously deleted page.
+      tags: [page]
+      operationId: pageRestore
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [slug],
+          properties: { slug: { $ref: '#/components/schemas/Slug' }}
+        }}}
+      responses:
+        201: { description: Created }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /page/{path_type}/{path}/rename:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+
+    post:
+      description: Changes the path/slug/name of a page.
+      tags: [page]
+      operationId: pageRename
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [slug],
+          properties: { slug: { $ref: '#/components/schemas/Slug' }}
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: The requested path cannot be used. }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- REVISION
+
+  /page/{path_type}/{path}/revision:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+    - $ref: '#/components/parameters/Cursor'
+    - $ref: '#/components/parameters/Limit'
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets the update/revision history of a page.
+      tags: [revision, paginated, avatars]
+      operationId: revisionPageGetHistory
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/RevisionHistory' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /page/{path_type}/{path}/revision/{revision}:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+    - { name: revision, in: path, required: true, schema: { type: integer }}
+
+    get:
+      description: Gets the page corresponding to a revision.
+      tags: [revision, avatars]
+      operationId: revisionGet
+      parameters:
+      - $ref: '#/components/parameters/PageType'
+      - $ref: '#/components/parameters/Avatars'
+      responses:
+        200: { $ref: '#/components/responses/PageGet' }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Updates the metadata of a revision.
+      tags: [revision]
+      operationId: revisionUpdateMetadata
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            hidden:  { type: boolean },
+            message: { type: string }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Resets a page to a past revision.
+      tags: [revision]
+      operationId: revisionResetToRevision
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- TAG
+
+  /page/{path_type}/{path}/tags:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+
+    get:
+      description: Gets the tags of a page.
+      tags: [tag]
+      operationId: tagPageGet
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [tags],
+            properties: { tags: { $ref: '#/components/schemas/TagList' }}
+          }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    put:
+      description: Updates the tags of a page.
+      tags: [tag]
+      operationId: tagPageUpdate
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [tags],
+          properties: { tags: { $ref: '#/components/schemas/TagList' }}
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- VOTE
+
+  /page/{path_type}/{path}/score:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+
+    get:
+      description: Gets the score of a page.
+      tags: [vote]
+      operationId: votePageGetScore
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/Score' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /page/{path_type}/{path}/voters:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+    - $ref: '#/components/parameters/Cursor'
+    - $ref: '#/components/parameters/Limit'
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets the voters and votes of a page.
+      tags: [vote, paginated, avatars]
+      operationId: votePageGetVoters
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/VoterList' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /page/{path_type}/{path}/vote:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+
+    get:
+      description: Gets the client's voting state on a page, if any.
+      tags: [vote]
+      operationId: votePageGet
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [vote],
+            properties: { vote: { allOf: [$ref: '#/components/schemas/CastVote'], nullable: true }}
+          }}}
+        401: { description: Missing or invalid authentication credentials. }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    put:
+      description: Updates/sets the client's voting state on a page.
+      tags: [vote]
+      operationId: votePageUpdateVote
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [vote],
+          properties: { vote: { $ref: '#/components/schemas/CastVote' }}
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Page has scoring disabled. }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Removes the client's voting state on a page.
+      tags: [vote]
+      operationId: votePageRemoveVote
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- FILE
+
+  /page/{path_type}/{path}/file:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+
+    get:
+      description: Gets metadata on all files attached to a page.
+      tags: [file, avatars]
+      operationId: filePageGetMetadata
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [files],
+            properties: { files: { type: array, items: { $ref: '#/components/schemas/FileMetadata' }}}
+          }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Adds a new file to a page.
+      tags: [file, not-json]
+      operationId: filePageAdd
+      security:
+      - AccountSession: []
+      requestBody: { content: { multipart/form-data: { schema: { $ref: '#/components/schemas/FileUpload' }}}}
+      responses:
+        201: { description: Created }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /file:
+    get:
+      description: |
+        Gets metadata on the files attached directly to the site instance.
+
+        > This does not include files attached to _pages_.
+      tags: [file, paginated, avatars]
+      operationId: fileSiteGetMetadata
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [files],
+            allOf: [$ref: '#/components/schemas/Paginated'],
+            properties: { files: { type: array, items: { $ref: '#/components/schemas/FileMetadata' }}}
+          }}}
+        500: { description: Unexpected Error }
+
+    post:
+      description: Adds a new file to a site instance.
+      tags: [file, not-json]
+      operationId: fileSiteAdd
+      security:
+      - AccountSession: []
+      requestBody: { content: { multipart/form-data: {
+        example: FFD8FFDB00430006040506050406060506070706...,
+        schema: { $ref: '#/components/schemas/FileUpload' }
+      }}}
+      responses:
+        201: { description: Created }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /file/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets a file.
+      tags: [file, not-json]
+      operationId: fileGet
+      responses:
+        200:
+          description: OK
+          content: { application/octet-stream: {
+            example: FFD8FFDB00430006040506050406060506070706...,
+            schema: { $ref: '#/components/schemas/File' }
+          }}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Deletes a file.
+      tags: [file]
+      operationId: fileDelete
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /file/metadata:
+
+    get:
+      description: Gets the site's file-system metadata, e.g. remaining file space.
+      tags: [file]
+      operationId: fileGetSiteMetadata
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/FileSiteMetadata' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+
+  /file/{id}/metadata:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets a file's metadata.
+      tags: [file, avatars]
+      operationId: fileGetMetadata
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/FileMetadata' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- REPORT
+
+  /user/{path_type}/{path}/report:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    get:
+      description: Gets the reports against a user.
+      tags: [report, avatars]
+      operationId: reportUserGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Reports a user.
+      tags: [report]
+      operationId: reportUserSend
+      security:
+      - AccountSession: []
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
+      responses:
+        201: { description: Created }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /page/{path_type}/{path}/report:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+
+    get:
+      description: Gets a page's reports.
+      tags: [report, avatars]
+      operationId: reportPageGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Reports a page.
+      tags: [report]
+      operationId: reportPageSend
+      security:
+      - AccountSession: []
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
+      responses:
+        201: { description: Created }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /report/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets a report.
+      tags: [report, avatars]
+      operationId: reportGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/Report' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- ABUSE
+
+  /abuse:
+    get:
+      description: |
+        Gets the reports against a site.
+
+        > This endpoint is only available to platform administrators.
+      tags: [abuse, platform-admin, avatars]
+      operationId: abuseSiteGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Reports a site.
+      tags: [abuse]
+      operationId: abuseSiteSend
+      security:
+      - AccountSession: []
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
+      responses:
+        201: { description: Created }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /user/{path_type}/{path}/abuse:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    get:
+      description: |
+        Gets the reports against a user.
+
+        > This endpoint is only available to platform administrators.
+      tags: [abuse, platform-admin, avatars]
+      operationId: abuseUserGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Reports a user.
+      tags: [abuse]
+      operationId: abuseUserSend
+      security:
+      - AccountSession: []
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
+      responses:
+        201: { description: Created }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /page/{path_type}/{path}/abuse:
+    parameters:
+    - $ref: '#/components/parameters/PagePathType'
+    - $ref: '#/components/parameters/PagePath'
+
+    get:
+      description: |
+        Gets a page's reports.
+
+        > This endpoint is only available to platform administrators.
+      tags: [abuse, platform-admin, avatars]
+      operationId: abusePageGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ReportList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Reports a page.
+      tags: [abuse]
+      operationId: abusePageSend
+      security:
+      - AccountSession: []
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ReportSend' }}}}
+      responses:
+        201: { description: Created }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /abuse/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: |
+        Gets a report.
+
+        > This endpoint is only available to platform administrators.
+      tags: [abuse, platform-admin, avatars]
+      operationId: abuseGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/Report' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- MESSAGE
+
+  /message:
+    parameters:
+    - $ref: '#/components/parameters/Cursor'
+    - $ref: '#/components/parameters/Limit'
+    - $ref: '#/components/parameters/MessageDetail'
+
+    get:
+      description: Gets all of the client's messages.
+      tags: [message, paginated, avatars]
+      operationId: messageGetList
+      parameters:
+      - $ref: '#/components/parameters/MessageArchived'
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/MessageList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /message/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets a message.
+      tags: [message, avatars]
+      operationId: messageGet
+      parameters:
+      - $ref: '#/components/parameters/MessageDetail'
+      - $ref: '#/components/parameters/Avatars'
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Updates the metadata of a message, such as read or unread.
+      tags: [message]
+      operationId: messageUpdate
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            read:     { type: boolean },
+            archived: { type: boolean }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Deletes a message.
+      tags: [message]
+      operationId: messageDelete
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /user/{path_type}/{path}/message:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    post:
+      description: Messages a user.
+      tags: [message]
+      operationId: messageSend
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/MessageSend' }}}
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- FORUM
+
+  /forum:
+    parameters:
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets the groups and categories of a forum.
+      tags: [forum, forum-misc, avatars]
+      operationId: forumGet
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/Forum' }}}
+        500: { description: Unexpected Error }
+
+  /forum/group:
+    parameters:
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets the groups of a forum.
+      tags: [forum, forum-group, avatars]
+      operationId: forumGroupGetList
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumGroupList' }}}
+        500: { description: Unexpected Error }
+
+  /forum/group/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets a group.
+      tags: [forum, forum-group, avatars]
+      operationId: forumGroupGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumGroup' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Updates a group.
+      tags: [forum, forum-group]
+      operationId: forumGroupUpdate
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            title:   { type: string },
+            summary: { type: string },
+            order:   { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Reference' } }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Creates a new category inside of a group.
+      tags: [forum, forum-group]
+      operationId: forumGroupAddCategory
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            title:   { type: string },
+            summary: { type: string }
+          }
+        }}}
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Deletes a group.
+      tags: [forum, forum-group]
+      operationId: forumGroupDelete
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /forum/group/{id}/categories:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets the categories of a group.
+      tags: [forum, forum-group, avatars]
+      operationId: forumGroupGetCategories
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategoryList' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /forum/category:
+    parameters:
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets the categories of a forum.
+      tags: [forum, forum-category, avatars]
+      operationId: forumCategoryGetList
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategoryList' }}}
+        500: { description: Unexpected Error }
+
+  /forum/category/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets a category.
+      tags: [forum, forum-category, avatars]
+      operationId: forumCategoryGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumCategory' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Updates a category.
+      tags: [forum, forum-category]
+      operationId: forumCategoryUpdate
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            title:   { type: string },
+            summary: { type: string }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Creates a new thread inside of a category.
+      tags: [forum, forum-category]
+      operationId: forumCategoryAddThread
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            title:   { type: string },
+            summary: { type: string }
+          }
+        }}}
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Deletes a category.
+      tags: [forum, forum-category]
+      operationId: forumCategoryDelete
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /forum/category/{id}/threads:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/Cursor'
+    - $ref: '#/components/parameters/Limit'
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets the threads of a category.
+      tags: [forum, forum-category, paginated, avatars]
+      operationId: forumCategoryGetThreads
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumThreadList' }}}
+        500: { description: Unexpected Error }
+
+  /forum/thread/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets a thread.
+      tags: [forum, forum-thread, avatars]
+      operationId: forumThreadGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumThread' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Updates a thread.
+      tags: [forum, forum-thread]
+      operationId: forumThreadUpdate
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            title:    { type: string },
+            summary:  { type: string },
+            stickied: { type: boolean },
+            locked:   { type: boolean }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Creates a new post inside of a thread.
+      tags: [forum, forum-thread]
+      operationId: forumThreadAddPost
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            title:    { type: string },
+            wikitext: { $ref: '#/components/schemas/Wikitext' }
+          }
+        }}}
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Deletes a thread.
+      tags: [forum, forum-thread]
+      operationId: forumThreadDelete
+      parameters:
+      - $ref: '#/components/parameters/ForumDeletionType'
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /forum/thread/{id}/posts:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/Cursor'
+    - $ref: '#/components/parameters/Limit'
+    - $ref: '#/components/parameters/ForumPostDetail'
+    - $ref: '#/components/parameters/ForumReplyDepth'
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets the posts of a thread.
+      tags: [forum, forum-thread, paginated, avatars]
+      operationId: forumThreadGetPosts
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostList' }}}
+        500: { description: Unexpected Error }
+
+  /forum/post/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets a post.
+      tags: [forum, forum-post, avatars]
+      operationId: forumPostGet
+      parameters:
+      - $ref: '#/components/parameters/ForumPostDetail'
+      - $ref: '#/components/parameters/ForumReplyDepth'
+      - $ref: '#/components/parameters/Avatars'
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumPost' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Updates a post.
+      tags: [forum, forum-post]
+      operationId: forumPostUpdate
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            title:    { type: string },
+            wikitext: { $ref: '#/components/schemas/Wikitext' }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Replies to a post with another post.
+      tags: [forum, forum-post]
+      operationId: forumPostReply
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            title:    { type: string },
+            wikitext: { $ref: '#/components/schemas/Wikitext' }
+          }
+        }}}
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Deletes a post.
+      tags: [forum, forum-post]
+      operationId: forumPostDelete
+      parameters:
+      - $ref: '#/components/parameters/ForumDeletionType'
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /forum/post/{id}/replies:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/Cursor'
+    - $ref: '#/components/parameters/Limit'
+    - $ref: '#/components/parameters/ForumPostDetail'
+    - $ref: '#/components/parameters/ForumReplyDepth'
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets the replies to a post.
+      tags: [forum, forum-post, paginated, avatars]
+      operationId: forumPostGetReplies
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumPostList' }}}
+        500: { description: Unexpected Error }
+
+  /forum/post/{id}/revision:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - $ref: '#/components/parameters/Cursor'
+    - $ref: '#/components/parameters/Limit'
+    - $ref: '#/components/parameters/Avatars'
+
+    get:
+      description: Gets the update/revision history of a post.
+      tags: [forum, forum-post, paginated, avatars]
+      operationId: forumPostRevisionGetHistory
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/RevisionHistory' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /forum/post/{id}/revision/{revision}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+    - { name: revision, in: path, required: true, schema: { type: integer }}
+
+    get:
+      description: Gets the post corresponding to a revision.
+      tags: [forum, forum-post, avatars]
+      operationId: forumPostRevisionGet
+      parameters:
+      - $ref: '#/components/parameters/Avatars'
+      - $ref: '#/components/parameters/ForumPostDetail'
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ForumPost' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Updates the metadata of a revision.
+      tags: [forum, forum-post]
+      operationId: forumPostRevisionUpdateMetadata
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          properties: {
+            hidden:  { type: boolean },
+            message: { type: string }
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Resets a forum post to a past revision.
+      tags: [forum, forum-post]
+      operationId: forumPostResetToRevision
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- MODERATION
+
+  /user/{path_type}/{path}/kick:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    put:
+      description: Kicks a user from a site.
+      tags: [moderation]
+      operationId: moderationKick
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [reason],
+          properties: { reason: { type: string } }
+        }}}
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /moderation/banned:
+    get:
+      description: Gets the list of users banned from a site.
+      tags: [moderation]
+      operationId: moderationBanGetList
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [banned],
+            properties: {
+              banned: {
+                type: array,
+                uniqueItems: true,
+                items: {
+                  type: object,
+                  required: [user, until, reason],
+                  properties: {
+                    user:   { $ref: '#/components/schemas/UserIdentity' },
+                    until:  { type: string, format: date-time, nullable: true },
+                    reason: { type: string }
+                  }
+                }
+              }
+            }
+          }}}
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /user/{path_type}/{path}/ban:
+    parameters:
+    - $ref: '#/components/parameters/UserPathType'
+    - $ref: '#/components/parameters/UserPath'
+
+    get:
+      description: Gets if a user is banned.
+      tags: [moderation]
+      operationId: moderationBanGet
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: object,
+            required: [banned, until, reason],
+            properties: {
+              banned: { type: boolean },
+              until:  { type: string, format: date-time, nullable: true },
+              reason: { type: string }
+            }
+          }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    put:
+      description: Bans a user. Providing `null` for `until` describes a perma-ban.
+      tags: [moderation]
+      operationId: moderationBan
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [until, reason],
+          properties: {
+            until:  { type: string, format: date-time, nullable: true },
+            reason: { type: string }
+          }
+        }}}
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Unbans a user, if they were banned to begin with.
+      tags: [moderation]
+      operationId: moderationUnban
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- CATEGORY
+
+  /category:
+    get:
+      description: Gets the list of categories on a site.
+      tags: [category]
+      operationId: categoryGetList
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/CategoryList' }}}
+        500: { description: Unexpected Error }
+
+  /category/default:
+    get:
+      description: Gets the default category.
+      tags: [category]
+      operationId: categoryDefaultGet
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/CategoryDefault' }}}
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Update (patch) the default category.
+      tags: [category]
+      operationId: categoryDefaultPatch
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CategoryDefaultPatch' }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /category/id/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets a category.
+      tags: [category]
+      operationId: categoryGet
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/Category' }}}
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Update (patch) a category.
+      tags: [category]
+      operationId: categoryPatch
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CategoryPatch' }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  # -- SITE
+
+  /site/settings:
+    get:
+      description: Gets the site's settings.
+      tags: [site]
+      operationId: siteSettingsGet
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/SiteSettings' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+    patch:
+      description: Update (patch) the site's settings.
+      tags: [site]
+      operationId: siteSettingsPatch
+      security:
+      - AccountSession: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/SiteSettingsPatch' }}}
+      responses:
+        200: { description: OK }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /site/application:
+    parameters:
+    - $ref: '#/components/parameters/Cursor'
+    - $ref: '#/components/parameters/Limit'
+
+    get:
+      description: Gets the site's pending applications.
+      tags: [site, paginated]
+      operationId: siteApplicationGetList
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /site/application/{id}:
+    parameters:
+    - { name: id, in: path, required: true, schema: { $ref: '#/components/schemas/Reference' }}
+
+    get:
+      description: Gets an application.
+      tags: [site]
+      operationId: siteApplicationGet
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/Application' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    post:
+      description: Accepts an application.
+      tags: [site]
+      operationId: siteApplicationAccept
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Rejects an application.
+      tags: [site]
+      operationId: siteApplicationReject
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        404: { description: Not Found }
+        500: { description: Unexpected Error }
+
+  /site/backup:
+    get:
+      description: Gets a backup of the site.
+      tags: [site, not-json]
+      operationId: siteBackupGet
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/octet-stream: {
+            example: FFD8FFDB00430006040506050406060506070706...,
+            schema: { $ref: '#/components/schemas/File' }
+          }}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /site/create:
+    post:
+      description: Creates a new site.
+      tags: [site]
+      operationId: siteCreate
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateSiteSettings' }}}
+      security:
+      - AccountSession: []
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /site/request-deletion:
+    post:
+      description: >
+        Starts the deletion process for the site.
+        Requires additional email validation for the process to complete.
+      tags: [site]
+      operationId: siteRequestDeletion
+      security:
+      - AccountSession: []
+      responses:
+        202: { description: Accepted }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /site/clone:
+    post:
+      description: Clones the current site and creates a new one.
+      tags: [site]
+      operationId: siteClone
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateSiteSettings' }}}
+      security:
+      - AccountSession: []
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /site/notification:
+    get:
+      description: Gets the site's current notifications.
+      tags: [site]
+      operationId: siteNotificationGet
+      security:
+      - AccountSession: []
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/NotificationList' }}}
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+    delete:
+      description: Dismisses all of the site's notifications.
+      tags: [site]
+      operationId: siteNotificationDismissAll
+      security:
+      - AccountSession: []
+      responses:
+        200: { description: OK }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /site/newsletter:
+    post:
+      description: Sends a site newsletter.
+      tags: [site]
+      operationId: siteNewsletterSend
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/SiteNewsletter' }}}
+      security:
+      - AccountSession: []
+      responses:
+        201: { description: Created }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+  /site/transfer:
+    post:
+      description: Transfers the site master-admin status to another user.
+      tags: [site]
+      operationId: siteTransfer
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/SiteTransfer' }}}
+      security:
+      - AccountSession: []
+      responses:
+        202: { description: Accepted }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Forbidden }
+        500: { description: Unexpected Error }
+
+components:
+
+  parameters:
+
+    Limit:
+      description: Specifies how many entries a paginated response should return in a single page.
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+
+    Cursor:
+      description: Specifies which page a paginated response should return.
+      name: cursor
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+
+    PageType:
+      description: >
+        Specifies what data to retrieve from the page.
+        Default is to retrieve no data.
+      name: type
+      in: query
+      schema:
+        type: string
+        enum: [all, metadata-html, metadata, wikitext, html, syntaxtree, none]
+        default: none
+
+    PagePathType:
+      description: Specifies whether to find a page by its ID or slug.
+      name: path_type
+      in: path
+      required: true
+      schema: { type: string, enum: [id, slug] }
+
+    PagePath:
+      description: Specifies the ID or slug to be used to identify a page.
+      name: path
+      in: path
+      required: true
+      schema: { oneOf: [
+        { title: path, $ref: '#/components/schemas/Slug' },
+        { title: id,   $ref: '#/components/schemas/Reference' }
+      ]}
+
+    UserDetailsType:
+      description: Specifies the level of detail requested for a user.
+      name: detail
+      in: query
+      schema: { type: string, enum: [identity, info, profile], default: identity }
+
+    UserPathType:
+      description: Specifies whether to find a user by their ID or name.
+      name: path_type
+      in: path
+      required: true
+      schema: { type: string, enum: [id, name] }
+
+    UserPath:
+      description: Specifies the ID or name to be used to identify a user.
+      name: path
+      in: path
+      required: true
+      schema: { oneOf: [
+        { title: name, $ref: '#/components/schemas/Username' },
+        { title: id,   $ref: '#/components/schemas/Reference' }
+      ]}
+
+    MessageDetail:
+      description: Specifies the level of detail requested for a message.
+      name: detail
+      in: query
+      schema: { type: string, enum: [with-html, metadata], default: metadata }
+
+    MessageArchived:
+      description: Specifies if the request should only return archived messages.
+      name: archived
+      in: query
+      schema: { type: boolean, default: false }
+
+    ForumPostDetail:
+      description: Specifies the level of detail desired for a requested post.
+      name: detail
+      in: query
+      schema: { type: string, enum: [none, metadata, with-html, full], default: none }
+
+    ForumDeletionType:
+      description: Specifies thread/post deletion should result in permanent deletion rather than archival.
+      name: permanent
+      in: query
+      schema: { type: boolean, default: false }
+
+    ForumReplyDepth:
+      description: Specifies the maximum number of replies (sub-posts) included with any retrieved post.
+      name: depth
+      in: query
+      schema: { type: integer, minimum: 0, default: 0 }
+
+    Avatars:
+      description: >
+        Endpoints that may return user details will have those details sent with 16x16 avatars.
+        These are meant for display on a frontend.
+        This parameter allows you to disable this behavior if you do not need the avatars.
+      name: avatars
+      in: query
+      schema: { type: boolean, default: true }
+
+  responses:
+
+    UserGet:
+      description: OK
+      content: { application/json: { schema: { oneOf: [
+        $ref: '#/components/schemas/UserIdentity',
+        $ref: '#/components/schemas/UserInfo',
+        $ref: '#/components/schemas/UserProfile'
+      ]}}}
+
+    PageGet:
+      description: OK
+      content: { application/json: { schema: { oneOf: [
+        $ref: '#/components/schemas/Page',
+        $ref: '#/components/schemas/WikitextObj',
+        $ref: '#/components/schemas/HTMLObj',
+        $ref: '#/components/schemas/FTMLSyntaxTree'
+      ]}}}
+
+  schemas:
+
+    # -- BASIC
+
+    Paginated:
+      description: Describes the pagination property present with all paginated responses.
+      type: object
+      required: [pagination]
+      properties:
+        pagination:
+          type: object
+          required: [cursor, limit, pages]
+          properties:
+            cursor: { type: integer, minimum: 1, default: 1 }
+            limit:  { type: integer, minimum: 1, maximum: 200, default: 20 }
+            pages:  { type: integer, minimum: 1, default: 1 }
+
+    ReferenceTypes:
+      type: string
+      enum:
+      - user
+      - page
+      - message
+      - file
+      - report
+      - abuse
+      - forum-group
+      - forum-category
+      - forum-thread
+      - forum-post
+
+    Slug:
+      description: >
+        Describes a page _slug_, a string consisting of an optional category and name.
+        It is formatted as `category:name` if a category is included.
+        If a category is not included, it is simply `name`.
+      type: string
+      format: slug
+      example: 'category:page'
+
+    SiteName:
+      title: Site Name
+      type: string
+      example: mywiki
+
+    Username:
+      title: Username
+      type: string
+      example: ExampleUsername
+
+    Email:
+      title: Email
+      type: string
+      format: email
+
+    Reference:
+      title: Reference
+      description: An integer that uniquely points to a resource.
+      type: integer
+      example: 1234
+
+    File:
+      description: A binary chunk of data representing a file.
+      title: Binary Data
+      type: string
+      format: binary
+      example: FFD8FFDB00430006040506050406060506070706...
+
+    Base64:
+      description: A base64 encoded chunk of data.
+      type: string
+      format: byte
+      example: Y3VyaW91cyBhcmVuJ3QgeW91
+
+    Wikitext:
+      description: A chunk of text in FTML format.
+      externalDocs:
+        url: https://github.com/scpwiki/wikijump/tree/develop/ftml
+      type: string
+      format: ftml
+      example: '[[div]]/some wikitext/[[/div]]'
+
+    HTML:
+      description: A chunk of text in HTML format.
+      type: string
+      format: html
+      example: '<div><i>some html</i></div>'
+
+
+    # -- QUERY
+
+    # -- AUTH
+
+    LoginSpecifier:
+      oneOf:
+      - { $ref: '#/components/schemas/Email' }
+      - { $ref: '#/components/schemas/Username' }
+
+    # -- ACCOUNT
+
+    AccountSettings:
+      description: Private account settings that can govern some of Wikijump's behavior.
+      type: object
+      required: [acceptsInvites, language, allowMessages]
+      properties:
+        acceptsInvites: { type: boolean }
+        language:       { type: string }
+        allowMessages:  { type: string, enum: [registered, co-members, nobody] }
+
+    AccountSettingsPatch:
+      description: Private account settings that can govern some of Wikijump's behavior.
+      type: object
+      properties:
+        acceptsInvites: { type: boolean }
+        language:       { type: string }
+        allowMessages:  { type: string, enum: [registered, co-members, nobody] }
+
+    # -- NOTIFICATION
+
+    Notification:
+      description: Describes a notification intended to inform a user of some sort of event.
+      type: object
+      required: [level, type, name, source, time, payload]
+      properties:
+        level:  { type: string, enum: [trivial, info, important, error] }
+        type:   { type: string, enum: [account, pm, site, forum, page, other] }
+        name:   { type: string }
+        source: { type: string }
+        time:   { type: string, format: date-time }
+        payload:
+          required: [message]
+          properties:
+            message: { type: string }
+
+    NotificationList:
+      type: object
+      required: [notifications]
+      properties:
+        notifications:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Notification' }
+
+    # -- USER
+
+    UserRole:
+      description: Describes a user's administrative role and membership status.
+      type: string
+      enum: [guest, registered, member, moderator, admin, master-admin, platform-admin]
+
+    UserIdentity:
+      description: Basic level of information needed to describe a user.
+      type: object
+      required: [id, username, karma, tinyavatar, role]
+      properties:
+        id:         { $ref: '#/components/schemas/Reference' }
+        username:   { $ref: '#/components/schemas/Username' }
+        tinyavatar: { allOf: [$ref: '#/components/schemas/Base64'], nullable: true}
+        karma:      { type: integer, minimum: 0, maximum: 5 }
+        role:       { $ref: '#/components/schemas/UserRole' }
+
+    UserInfo:
+      description: Describes a user in an intermediate amount of detail.
+      type: object
+      allOf: [$ref: '#/components/schemas/UserIdentity']
+      required: [about, avatar, signature, since, lastActive, blocked]
+      properties:
+        about:      { type: string }
+        avatar:     { type: string, format: url, example: /users/1234/avatar, nullable: true }
+        signature:  { allOf: [$ref: '#/components/schemas/HTML'], nullable: true }
+        since:      { type: string, format: date-time }
+        lastActive: { type: string, format: date-time }
+        blocked:    { type: boolean }
+
+    UserProfile:
+      description: Fully describes a user and their personalization preferences.
+      type: object
+      allOf: [$ref: '#/components/schemas/UserInfo']
+      required: [realname, gender, birthday, location, links]
+      properties:
+        realname:  { type: string }
+        gender:    { type: string,               nullable: true }
+        birthday:  { type: string, format: date, nullable: true }
+        location:  { type: string,               nullable: true }
+        links:
+          type: object
+          uniqueItems: true
+          additionalProperties:
+            type: string
+            format: url
+
+    UserProfilePatch:
+      description: Partial object that is used to update a user's profile.
+      type: object
+      properties:
+        about:     { type: string }
+        signature: { $ref: '#/components/schemas/Wikitext' }
+        gender:    { type: string }
+        birthday:  { type: string, format: date }
+        location:  { type: string }
+        links:
+          type: object
+          uniqueItems: true
+          additionalProperties:
+            type: string
+            format: url
+
+    UserBlockedList:
+      type: object
+      required: [users]
+      properties:
+        users:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/UserIdentity' }
+
+    # -- MEMBERSHIP
+
+    Membership:
+      type: object
+      required: [site, role]
+      properties:
+        site: { $ref: '#/components/schemas/SiteName' }
+        role: { $ref: '#/components/schemas/UserRole' }
+
+    MembershipList:
+      type: object
+      required: [memberships]
+      properties:
+        memberships:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Membership' }
+
+    MembershipRole:
+      type: object
+      required: [role]
+      properties:
+        role: { type: string, enum: [member, moderator, admin] }
+
+    Application:
+      type: object
+      required: [sender, message, time]
+      properties:
+        id:      { $ref: '#/components/schemas/Reference' }
+        sender:  { $ref: '#/components/schemas/UserIdentity' }
+        message: { type: string }
+        time:    { type: string, format: date-time }
+
+    ApplicationList:
+      type: object
+      allOf: [$ref: '#/components/schemas/Paginated']
+      required: [applications]
+      properties:
+        applications:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Application' }
+
+    ApplicationSend:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+
+    ApplicationSendList:
+      type: object
+      required: [applications]
+      properties:
+        applications:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            required: [site, message]
+            properties:
+              site:    { $ref: '#/components/schemas/SiteName' }
+              message: { type: string }
+
+    Invite:
+      type: object
+      required: [sender, site, message, time]
+      properties:
+        sender:   { $ref: '#/components/schemas/UserIdentity' }
+        site:     { $ref: '#/components/schemas/SiteName' }
+        messsage: { type: string }
+        time:     { type: string, format: date-time }
+
+    InviteList:
+      type: object
+      required: [invites]
+      properties:
+        invites:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Invite' }
+
+    InviteSend:
+      type: object
+      required: [site, message]
+      properties:
+        site:    { $ref: '#/components/schemas/SiteName' }
+        message: { type: string }
+
+    # -- PAGE
+
+    FTMLSyntaxTree:
+      description: Represents an FTML syntax tree.
+      externalDocs:
+        url: https://github.com/scpwiki/wikijump/blob/develop/ftml/docs/Serialization.md
+      type: object
+      format: ftmltree
+      additionalProperties: true
+
+    WikitextObj:
+      type: object
+      required: [wikitext]
+      properties: { wikitext: { $ref: '#/components/schemas/Wikitext' }}
+
+    HTMLObj:
+      type: object
+      required: [html]
+      properties: { html: { $ref: '#/components/schemas/HTML' } }
+
+    Page:
+      type: object
+      required: [
+        id, slug, category, parent, children, title, tags, score, revision,
+        created, creator, updated, updater
+      ]
+      properties:
+        id:       { $ref: '#/components/schemas/Reference' }
+        slug:     { $ref: '#/components/schemas/Slug' }
+        category: { $ref: '#/components/schemas/Reference' }
+        parent:   { allOf: [$ref: '#/components/schemas/Slug'], nullable: true }
+        children: { type: array, items: { $ref: '#/components/schemas/Slug' }}
+        title:    { type: string }
+        tags:     { $ref: '#/components/schemas/TagList' }
+        score:    { type: number }
+        revision: { type: integer }
+        created:  { type: string,  format: date-time }
+        creator:  { $ref: '#/components/schemas/UserIdentity' }
+        updated:  { type: string,  format: date-time }
+        updater:  { $ref: '#/components/schemas/UserIdentity' }
+        # optional
+        html:     { $ref: '#/components/schemas/HTML' }
+        wikitext: { $ref: '#/components/schemas/Wikitext' }
+
+    # -- REVISION
+
+    Revision:
+      type: object
+      required: [revision, updated, updater, hidden, message, flags]
+      properties:
+        revision: { type: integer }
+        updated:  { type: string,  format: date-time }
+        updater:  { $ref: '#/components/schemas/UserIdentity' }
+        hidden:   { type: boolean }
+        message:  { type: string }
+        flags:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            enum: [created, content, file, title, revert, tag, slug]
+
+    RevisionHistory:
+      type: object
+      allOf: [$ref: '#/components/schemas/Paginated']
+      required: [revisions, history]
+      properties:
+        revisions: { type: integer }
+        history:   { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Revision' }}
+
+    # -- TAG
+
+    TagList:
+      type: array
+      uniqueItems: true
+      items: { type: string }
+
+    # -- VOTE
+
+    CastVotePlus:
+      type: integer
+      enum: [0, 1]
+
+    CastVotePlusMinus:
+      type: integer
+      enum: [-1, 0, 1]
+
+    CastVoteStar:
+      type: integer
+      enum: [1, 2, 3, 4, 5]
+
+    CastVote:
+      oneOf:
+      - $ref: '#/components/schemas/CastVotePlusMinus'
+      - $ref: '#/components/schemas/CastVoteStar'
+
+    Score:
+      description: |
+        Describes the score/rating of a page.
+
+        > Wikijump has three different ways of rating a page:
+        > - `plus`
+        > - `plusminus`
+        > - `star`
+        >
+        > You will find the format used in the `format` property.
+      oneOf:
+      - type: object
+        required: [format, score, count, totals]
+        properties:
+          format: { type: string, enum: [plus] }
+          score:  { type: number }
+          count:  { type: integer }
+          totals:
+            type: object
+            required: ['0', '1']
+            properties:
+              0:  { type: integer }
+              1:  { type: integer }
+      - type: object
+        required: [format, score, count, totals]
+        properties:
+          format: { type: string, enum: [plusminus] }
+          score:  { type: number }
+          count:  { type: integer }
+          totals:
+            type: object
+            required: ['-1', '0', '1']
+            properties:
+              -1: { type: integer }
+              0:  { type: integer }
+              1:  { type: integer }
+      - type: object
+        required: [format, score, count, totals]
+        properties:
+          format: { type: string, enum: [star] }
+          score:  { type: number }
+          count:  { type: integer }
+          totals:
+            type: object
+            required: ['1', '2', '3', '4', '5']
+            properties:
+              1: { type: integer }
+              2: { type: integer }
+              3: { type: integer }
+              4: { type: integer }
+              5: { type: integer }
+
+    Vote:
+      type: object
+      allOf: [$ref: '#/components/schemas/UserIdentity']
+      oneOf:
+      - type: object
+        required: [format, time, vote]
+        properties:
+          format: { type: string, enum: [plus] }
+          time:   { type: string, format: date-time }
+          vote:   { $ref: '#/components/schemas/CastVotePlus' }
+      - type: object
+        required: [format, time, vote]
+        properties:
+          format: { type: string, enum: [plusminus] }
+          time:   { type: string, format: date-time }
+          vote:   { $ref: '#/components/schemas/CastVotePlusMinus' }
+      - type: object
+        required: [format, time, vote]
+        properties:
+          format: { type: string, enum: [star] }
+          time:   { type: string, format: date-time }
+          vote:   { $ref: '#/components/schemas/CastVoteStar' }
+
+    VoterList:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Paginated'
+      - $ref: '#/components/schemas/Score'
+      required: [voters]
+      properties:
+        voters:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Vote' }
+
+    # -- FILE
+
+    Mime:
+      description: A file MIME type and description.
+      type: object
+      required: [type, description]
+      properties:
+        type:        { type: string }
+        description: { type: string }
+
+    FileMetadata:
+      type: object
+      required: [id, size, comment, mime, uploader, uploaded, url]
+      properties:
+        id:       { $ref: '#/components/schemas/Reference' }
+        size:     { type: integer, example: 20kb }
+        comment:  { type: string }
+        mime:     { $ref: '#/components/schemas/Mime' }
+        uploader: { $ref: '#/components/schemas/UserIdentity' }
+        uploaded: { type: string, format: date-time }
+        url:      { type: string, format: url }
+
+    FileSiteMetadata:
+      type: object
+      required: [max, used, count, available]
+      properties:
+        max:       { type: integer }
+        used:      { type: integer }
+        count:     { type: integer }
+        available: { type: integer }
+
+    FileUpload:
+      type: object
+      required: [filename, comment, content]
+      properties:
+        filename: { type: string }
+        comment:  { type: string }
+        content:  { $ref: '#/components/schemas/File' }
+
+    # -- REPORT / ABUSE
+
+    ReportSend:
+      type: object
+      required: [reason]
+      properties:
+        reason: { type: string }
+
+    Report:
+      type: object
+      required: [id, sender, reason, time]
+      properties:
+        id:     { $ref: '#/components/schemas/Reference' }
+        target: { $ref: '#/components/schemas/Reference' }
+        sender: { $ref: '#/components/schemas/UserIdentity' }
+        reason: { type: string }
+        time:   { type: string, format: date-time }
+
+    ReportList:
+      type: object
+      required: [reports]
+      properties:
+        reports:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Report' }
+
+    # -- MESSAGE
+
+    Message:
+      type: object
+      required: [id, read, time, from, subject]
+      properties:
+        id:       { $ref: '#/components/schemas/Reference' }
+        read:     { type: boolean }
+        archived: { type: boolean }
+        time:     { type: string, format: date-time }
+        from:     { $ref: '#/components/schemas/UserIdentity' }
+        subject:  { type: string }
+        # optional
+        html:     { $ref: '#/components/schemas/HTML' }
+
+    MessageList:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Paginated'
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Message' }
+
+    MessageSend:
+      type: object
+      required: [subject, body]
+      properties:
+        subject:  { type: string }
+        wikitext: { $ref: '#/components/schemas/Wikitext' }
+
+    #-- FORUM
+
+    ForumSortingTypes:
+      type: string
+      enum: [newest, oldset]
+
+    ForumCreationContext:
+      type: object
+      required: [by, time]
+      properties:
+        by:   { $ref: '#/components/schemas/UserIdentity' }
+        time: { type: string, format: date-time }
+
+    Forum:
+      type: object
+      required: [threadCount, postCount, groups]
+      properties:
+        threadCount: { type: integer }
+        postCount:   { type: integer }
+        groups:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/ForumGroup' }
+
+    ForumGroup:
+      type: object
+      required: [id, title, summary, categories]
+      properties:
+        id:      { $ref: '#/components/schemas/Reference' }
+        title:   { type: string }
+        summary: { type: string }
+        categories:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/ForumCategory' }
+
+    ForumCategory:
+      type: object
+      required: [id, group, title, summary, threadCount, postCount, last]
+      properties:
+        id:          { $ref: '#/components/schemas/Reference' }
+        group:       { $ref: '#/components/schemas/Reference' }
+        title:       { type: string }
+        summary:     { type: string }
+        threadCount: { type: integer }
+        postCount:   { type: integer }
+        last:        { $ref: '#/components/schemas/ForumCreationContext' }
+        permissions:
+          type: object
+          nullable: true
+          required: [createPosts, createThreads, edit]
+          properties:
+            createPosts:   { type: array, items: { type: string, enum: [guest, registered, member] } }
+            createThreads: { type: array, items: { type: string, enum: [guest, registered, member] } }
+            edit:          { type: array, items: { type: string, enum: [guest, registered, member, author] } }
+
+    ForumThread:
+      type: object
+      required: [id, category, group, title, stickied, locked, postCount, created, last]
+      properties:
+        id:        { $ref: '#/components/schemas/Reference' }
+        category:  { $ref: '#/components/schemas/Reference' }
+        group:     { $ref: '#/components/schemas/Reference' }
+        title:     { type: string }
+        stickied:  { type: boolean }
+        locked:    { type: boolean }
+        postCount: { type: integer }
+        created:   { $ref: '#/components/schemas/ForumCreationContext' }
+        last:      { $ref: '#/components/schemas/ForumCreationContext' }
+
+    ForumPost:
+      type: object
+      required: [id, thread, category, group, parent, created, revision, replyCount]
+      properties:
+        id:         { $ref: '#/components/schemas/Reference' }
+        category:   { $ref: '#/components/schemas/Reference' }
+        group:      { $ref: '#/components/schemas/Reference' }
+        thread:     { $ref: '#/components/schemas/Reference' }
+        parent:     { allOf: [$ref: '#/components/schemas/Reference'], nullable: true }
+        created:    { $ref: '#/components/schemas/ForumCreationContext' }
+        revision:   { type: integer}
+        replyCount: { type: integer }
+        # optional
+        html:      { $ref: '#/components/schemas/HTML' }
+        wikitext:  { $ref: '#/components/schemas/Wikitext' }
+        replies:   { $ref: '#/components/schemas/ForumPostList' }
+
+    ForumGroupList:
+      type: object
+      required: [groups]
+      properties:
+        groups:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/ForumGroup' }
+
+    ForumCategoryList:
+      type: object
+      required: [categories]
+      properties:
+        categories:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/ForumCategory' }
+
+    ForumThreadList:
+      type: object
+      allOf: [$ref: '#/components/schemas/Paginated']
+      required: [order, threads]
+      properties:
+        order: { $ref: '#/components/schemas/ForumSortingTypes' }
+        threads:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/ForumThread' }
+
+    ForumPostList:
+      type: object
+      allOf: [$ref: '#/components/schemas/Paginated']
+      required: [order, posts]
+      properties:
+        order: { $ref: '#/components/schemas/ForumSortingTypes' }
+        posts:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/ForumPost' }
+
+    # -- CATEGORY
+
+    Category:
+      type: object
+      required: [id, name, license, ratings, discussions, autonumber, permissions]
+      properties:
+        id:          { $ref: '#/components/schemas/Reference' }
+        name:        { type: string }
+        license:     { type: string,  nullable: true }
+        ratings:     { type: string,  nullable: true, enum: [disabled, plus, plusminus, star] }
+        discussions: { type: boolean, nullable: true }
+        autonumber:  { type: boolean, default: false }
+        permissions:
+          type: object
+          nullable: true
+          required: [createPages, renamePages, deletePages, uploadFiles, changeFiles, showOptions, edit]
+          properties:
+            createPages: { type: array, items: { type: string, enum: [guest, registered, member] } }
+            renamePages: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            deletePages: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            uploadFiles: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            changeFiles: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            showOptions: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            edit:        { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+
+    CategoryDefault:
+      type: object
+      required: [id, name, license, ratings, discussions, autonumber, permissions]
+      properties:
+        id:          { $ref: '#/components/schemas/Reference' }
+        name:        { type: string, enum: [_default] }
+        license:     { type: string }
+        ratings:     { type: string, enum: [disabled, plus, plusminus, star] }
+        discussions: { type: boolean }
+        autonumber:  { type: boolean, enum: [false] }
+        permissions:
+          type: object
+          required: [createPages, renamePages, deletePages, uploadFiles, changeFiles, showOptions, edit]
+          properties:
+            createPages: { type: array, items: { type: string, enum: [guest, registered, member] } }
+            renamePages: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            deletePages: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            uploadFiles: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            changeFiles: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            showOptions: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            edit:        { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+
+    CategoryPatch:
+      type: object
+      properties:
+        license:     { type: string,  nullable: true }
+        ratings:     { type: string,  nullable: true, enum: [disabled, plus, plusminus, star] }
+        discussions: { type: boolean, nullable: true }
+        autonumber:  { type: boolean, default: false }
+        permissions:
+          type: object
+          nullable: true
+          properties:
+            createPages: { type: array, items: { type: string, enum: [guest, registered, member] } }
+            renamePages: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            deletePages: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            uploadFiles: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            changeFiles: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            showOptions: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            edit:        { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+
+    CategoryDefaultPatch:
+      type: object
+      properties:
+        license:     { type: string }
+        ratings:     { type: string, enum: [disabled, plus, plusminus, star] }
+        discussions: { type: boolean }
+        autonumber:  { type: boolean, enum: [false] }
+        permissions:
+          type: object
+          properties:
+            createPages: { type: array, items: { type: string, enum: [guest, registered, member] } }
+            renamePages: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            deletePages: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            uploadFiles: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            changeFiles: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            showOptions: { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+            edit:        { type: array, items: { type: string, enum: [guest, registered, member, creator] } }
+
+    CategoryList:
+      type: object
+      allOf: [$ref: '#/components/schemas/Paginated']
+      required: [categories]
+      properties:
+        categories:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Category' }
+
+    # -- SITE
+
+    SiteSettings:
+      type: object
+      required: [general, integrations, security, appearance, forum]
+      properties:
+
+        general:
+          type: object
+          required: [address, title, subtitle, language, description, defaultPage, welcomePage]
+          properties:
+            address:     { type: string }
+            title:       { type: string }
+            subtitle:    { type: string }
+            language:    { type: string }
+            description: { type: string }
+            defaultPage: { $ref: '#/components/schemas/Slug' }
+            welcomePage: { $ref: '#/components/schemas/Slug' }
+
+        integrations:
+          type: object
+          required: [googleAnalytics]
+          properties:
+            googleAnalytics: { type: string, nullable: true }
+
+        security:
+          type: object
+          oneOf:
+          - type: object
+            required: [policy, cloning, fileHotLinking]
+            properties:
+              policy:         { type: string, enum: [open] }
+              cloning:        { type: boolean }
+              fileHotLinking: { type: boolean }
+          - type: object
+            required: [policy, cloning, fileHotLinking, usersCanApply, sitePassword]
+            properties:
+              policy:         { type: string, enum: [closed] }
+              cloning:        { type: boolean }
+              fileHotLinking: { type: boolean }
+              usersCanApply:  { type: boolean }
+              sitePassword:   { type: string }
+          - type: object
+            required: [policy, usersCanApply, sitePassword, guestDefaultPage, guestHideNav, extraUsers]
+            properties:
+              policy:           { type: string, enum: [private] }
+              usersCanApply:    { type: boolean }
+              sitePassword:     { type: string }
+              guestDefaultPage: { $ref: '#/components/schemas/Slug' }
+              guestHideNav:     { type: boolean }
+              extraUsers:
+                type: array
+                uniqueItems: true
+                items: { $ref: '#/components/schemas/UserIdentity' }
+          required: [guestAllowLinks, userLinkMinKarma]
+          properties:
+            guestAllowLinks:  { type: boolean }
+            userLinkMinKarma: { type: boolean }
+
+        appearance:
+          type: object
+          required: [userKarma, toolbar]
+          properties:
+            userKarma: { type: boolean }
+            toolbar:
+              type: object
+              required: [top, bottom]
+              properties:
+                top:    { type: boolean }
+                bottom: { type: boolean }
+
+        forum:
+          type: object
+          required: [nestingDepth, permissions]
+          properties:
+            nestingDepth: { type: integer }
+            permissions:
+              type: object
+              required: [createPosts, createThreads, edit]
+              properties:
+                createPosts:   { type: array, items: { type: string, enum: [guest, registered, member] } }
+                createThreads: { type: array, items: { type: string, enum: [guest, registered, member] } }
+                edit:          { type: array, items: { type: string, enum: [guest, registered, member, author] } }
+
+    SiteSettingsPatch:
+      type: object
+      properties:
+
+        general:
+          type: object
+          properties:
+            address:     { type: string }
+            title:       { type: string }
+            subtitle:    { type: string }
+            language:    { type: string }
+            description: { type: string }
+            defaultPage: { $ref: '#/components/schemas/Slug' }
+            welcomePage: { $ref: '#/components/schemas/Slug' }
+
+        integrations:
+          type: object
+          properties:
+            googleAnalytics: { type: string, nullable: true }
+
+        security:
+          type: object
+          oneOf:
+          - type: object
+            properties:
+              policy:         { type: string, enum: [open] }
+              cloning:        { type: boolean }
+              fileHotLinking: { type: boolean }
+          - type: object
+            properties:
+              policy:         { type: string, enum: [closed] }
+              cloning:        { type: boolean }
+              fileHotLinking: { type: boolean }
+              usersCanApply:  { type: boolean }
+              sitePassword:   { type: string }
+          - type: object
+            properties:
+              policy:           { type: string, enum: [private] }
+              usersCanApply:    { type: boolean }
+              sitePassword:     { type: string }
+              guestDefaultPage: { $ref: '#/components/schemas/Slug' }
+              guestHideNav:     { type: boolean }
+              extraUsers:
+                type: array
+                uniqueItems: true
+                items: { $ref: '#/components/schemas/Reference' }
+          properties:
+            guestAllowLinks:  { type: boolean }
+            userLinkMinKarma: { type: boolean }
+
+        appearance:
+          type: object
+          properties:
+            userKarma: { type: boolean }
+            toolbar:
+              type: object
+              properties:
+                top:    { type: boolean }
+                bottom: { type: boolean }
+
+        forum:
+          type: object
+          properties:
+            nestingDepth: { type: integer }
+            permissions:
+              type: object
+              properties:
+                createPosts:   { type: array, items: { type: string, enum: [guest, registered, member] } }
+                createThreads: { type: array, items: { type: string, enum: [guest, registered, member] } }
+                edit:          { type: array, items: { type: string, enum: [guest, registered, member, author] } }
+
+    CreateSiteSettings:
+      type: object
+      required: [address, title, subtitle, language, description, defaultPage, welcomePage, policy]
+      properties:
+        address:     { type: string }
+        title:       { type: string }
+        subtitle:    { type: string }
+        language:    { type: string }
+        description: { type: string }
+        defaultPage: { $ref: '#/components/schemas/Slug' }
+        welcomePage: { $ref: '#/components/schemas/Slug' }
+        policy:      { type: string, enum: [open, closed, private] }
+
+    SiteNewsletter:
+      type: object
+      required: [to, title, wikitext]
+      properties:
+        to:       { type: array, items: { type: string, enum: [member, moderator, admin] }}
+        title:    { type: string }
+        wikitext: { $ref: '#/components/schemas/Wikitext' }
+
+    SiteTransfer:
+      type: object
+      required: [site, current, next]
+      properties:
+        site:    { $ref: '#/components/schemas/SiteName' }
+        current: { $ref: '#/components/schemas/Reference' }
+        next:    { $ref: '#/components/schemas/Reference' }
+
+  securitySchemes:
+    QueryAPIAccess:
+      description: '`/query` API access key.'
+      name: x-api-key
+      type: apiKey
+      in: header
+
+    AccountSession:
+      description: |
+        Session token used to identify users.
+
+        > This cookie is used to obtain the access token needed for requests.
+        It does not immediately grant access.
+      name: WIKIJUMP_SESSION_ID
+      type: apiKey
+      in: cookie
