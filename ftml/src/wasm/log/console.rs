@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use void::Void;
+use serde_json::Error as JsonError;
+use std::collections::HashMap;
+use std::fmt;
 use wasm_bindgen::JsValue;
 use web_sys::console;
 
@@ -29,21 +31,19 @@ pub struct ConsoleLogger;
 
 impl slog::Drain for ConsoleLogger {
     type Ok = ();
-    type Err = Void;
+    type Err = JsonError;
 
     fn log(
         &self,
         record: &slog::Record,
-        _values: &slog::OwnedKVList,
-    ) -> Result<(), Void> {
+        values: &slog::OwnedKVList,
+    ) -> Result<(), JsonError> {
         let console_log_fn = get_console_fn(record.level());
 
         let message = record.msg().to_string();
+        let context = build_context(values)?;
 
-        // TODO actually serialize values, don't just drop them
-        // you'll need to use debug_2, log_2, etc variants to pass (string, object)
-
-        console_log_fn(&JsValue::from_str(&message), &JsValue::null());
+        console_log_fn(&JsValue::from_str(&message), &context);
         Ok(())
     }
 }
@@ -58,5 +58,31 @@ fn get_console_fn(level: slog::Level) -> ConsoleLogFn {
         Warning => console::warn_2,
         Error => console::error_2,
         Critical => console::error_2,
+    }
+}
+
+fn build_context(values: &slog::OwnedKVList) -> Result<JsValue, JsonError> {
+    let mut context = ContextSerializer::default();
+    todo!();
+
+    let context_js = JsValue::from_serde(&context.0)?;
+    Ok(context_js)
+}
+
+#[derive(Serialize, Debug)]
+#[serde(untagged)]
+enum JsonValue {
+    String(String),
+}
+
+#[derive(Debug, Default)]
+struct ContextSerializer<'a>(HashMap<&'a str, JsonValue>);
+
+impl<'a> slog::Serializer for ContextSerializer<'a> {
+    fn emit_arguments(&mut self, key: slog::Key, value: &fmt::Arguments) -> slog::Result {
+        let value = value.to_string();
+        let value_json = JsonValue::String(value);
+        self.0.insert(key, value_json);
+        Ok(())
     }
 }
