@@ -46,13 +46,15 @@ impl<'a> slog::Serializer for ContextSerializer<'a> {
     }
 
     fn emit_usize(&mut self, key: slog::Key, value: usize) -> slog::Result {
-        let value_json = JsonValue::Number(value as f64);
+        let value = value as f64;
+        let value_json = JsonValue::Number(value);
         self.0.insert(key, value_json);
         Ok(())
     }
 
     fn emit_isize(&mut self, key: slog::Key, value: isize) -> slog::Result {
-        let value_json = JsonValue::Number(value as f64);
+        let value = value as f64;
+        let value_json = JsonValue::Number(value);
         self.0.insert(key, value_json);
         Ok(())
     }
@@ -106,6 +108,40 @@ impl<'a> slog::Serializer for ContextSerializer<'a> {
 
     fn emit_i32(&mut self, key: slog::Key, value: i32) -> slog::Result {
         let value = f64::from(value);
+        let value_json = JsonValue::Number(value);
+        self.0.insert(key, value_json);
+        Ok(())
+    }
+
+    fn emit_u64(&mut self, key: slog::Key, value: u64) -> slog::Result {
+        let value = value as f64;
+        let value_json = JsonValue::Number(value);
+        self.0.insert(key, value_json);
+        Ok(())
+    }
+
+    fn emit_i64(&mut self, key: slog::Key, value: i64) -> slog::Result {
+        let value = value as f64;
+        let value_json = JsonValue::Number(value);
+        self.0.insert(key, value_json);
+        Ok(())
+    }
+
+    fn emit_f64(&mut self, key: slog::Key, value: f64) -> slog::Result {
+        let value_json = JsonValue::Number(value);
+        self.0.insert(key, value_json);
+        Ok(())
+    }
+
+    fn emit_u128(&mut self, key: slog::Key, value: u128) -> slog::Result {
+        let value = value as f64;
+        let value_json = JsonValue::Number(value);
+        self.0.insert(key, value_json);
+        Ok(())
+    }
+
+    fn emit_i128(&mut self, key: slog::Key, value: i128) -> slog::Result {
+        let value = value as f64;
         let value_json = JsonValue::Number(value);
         self.0.insert(key, value_json);
         Ok(())
