@@ -20,51 +20,93 @@
 
 use super::prelude::*;
 use super::tokenizer::Tokenization;
-use crate::parsing::ParseWarning as RustParseWarning;
+use crate::parsing::ParseOutcome as RustParseOutcome;
 use crate::tree::SyntaxTree as RustSyntaxTree;
-use wasm_bindgen::JsValue;
+
+// Typescript declarations
+
+#[wasm_bindgen(typescript_custom_section)]
+const TS_APPEND_CONTENT: &str = r#"
+
+export interface IElement {
+    element: string;
+    data?: any;
+}
+
+export interface ISyntaxTree {
+    elements: IElement[];
+    styles: string[];
+}
+
+export interface IParseWarning {
+    token: string;
+    rule: string;
+    span: {
+        start: number;
+        end: number;
+    };
+    kind: string;
+}
+
+"#;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "ISyntaxTree")]
+    pub type ISyntaxTree;
+
+    #[wasm_bindgen(typescript_type = "IParseWarning[]")]
+    pub type IParseWarningArray;
+}
+
+// Wrapper structures
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct ParseOutcome {
-    syntax_tree: SyntaxTree,
-    warnings: ParseWarnings,
-}
+pub struct ParseOutcome(RustParseOutcome<RustSyntaxTree<'static>>);
 
 #[wasm_bindgen]
 impl ParseOutcome {
-    #[wasm_bindgen]
-    pub fn syntax_tree(&self) -> SyntaxTree {
-        self.syntax_tree.clone()
+    #[wasm_bindgen(typescript_type = "ISyntaxTree")]
+    pub fn syntax_tree(&self) -> Result<ISyntaxTree, JsValue> {
+        let tree = self.0.value();
+        let js = JsValue::from_serde(tree).map_err(error_to_js)?;
+        Ok(js.unchecked_into())
     }
 
     #[wasm_bindgen]
-    pub fn warnings(&self) -> ParseWarnings {
-        self.warnings.clone()
+    pub fn syntax_tree_object(&self) -> SyntaxTree {
+        SyntaxTree(self.0.value().clone())
+    }
+
+    #[wasm_bindgen(typescript_type = "IParseWarning")]
+    pub fn warnings(&self) -> Result<IParseWarningArray, JsValue> {
+        let warnings = self.0.warnings();
+        let js = JsValue::from_serde(warnings).map_err(error_to_js)?;
+        Ok(js.unchecked_into())
     }
 }
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct SyntaxTree(Arc<RustSyntaxTree<'static>>);
+pub struct SyntaxTree(RustSyntaxTree<'static>);
 
+#[wasm_bindgen]
 impl SyntaxTree {
     #[inline]
-    pub fn get(&self) -> &RustSyntaxTree<'static> {
-        &*self.0
+    pub(crate) fn borrow(&self) -> &RustSyntaxTree<'static> {
+        &self.0
+    }
+
+    #[wasm_bindgen(typescript_type = "ISyntaxTree")]
+    pub fn tree(&self) -> Result<ISyntaxTree, JsValue> {
+        let tree = &self.0;
+        let js = JsValue::from_serde(tree).map_err(error_to_js)?;
+        Ok(js.unchecked_into())
     }
 }
 
-#[wasm_bindgen]
-#[derive(Debug, Clone)]
-pub struct ParseWarnings(Arc<Vec<RustParseWarning>>);
-
-impl ParseWarnings {
-    #[inline]
-    pub fn get(&self) -> &[RustParseWarning] {
-        &*self.0
-    }
-}
+// Exported functions
 
 #[wasm_bindgen]
 pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsValue> {
@@ -83,14 +125,5 @@ pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsV
         syntax_tree
     };
 
-    // Build JS-compatible objects
-    let syntax_tree = SyntaxTree(Arc::new(syntax_tree));
-    let warnings = ParseWarnings(Arc::new(warnings.into_iter().collect()));
-
-    let outcome = ParseOutcome {
-        syntax_tree,
-        warnings,
-    };
-
-    Ok(outcome)
+    Ok(ParseOutcome(RustParseOutcome::new(syntax_tree, warnings)))
 }

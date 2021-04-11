@@ -30,7 +30,7 @@ pub struct HtmlOutput(RustHtmlOutput);
 #[wasm_bindgen]
 pub fn render_html(syntax_tree: SyntaxTree, should_log: bool) -> HtmlOutput {
     let log = get_logger(should_log);
-    let tree = syntax_tree.get();
+    let tree = syntax_tree.borrow();
     let html = HtmlRender.render(&log, tree);
     HtmlOutput(html)
 }
