@@ -21,6 +21,9 @@
 use super::prelude::*;
 use crate::Tokenization as RustTokenization;
 use ouroboros::self_referencing;
+use wasm_bindgen::JsCast;
+
+// Typescript declarations
 
 #[wasm_bindgen(typescript_custom_section)]
 const TS_APPEND_CONTENT: &str = r#"
@@ -35,6 +38,14 @@ export interface IToken {
 }
 
 "#;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "IToken[]")]
+    pub type ITokenArray;
+}
+
+// Wrapper structures
 
 #[self_referencing]
 #[derive(Debug)]
@@ -57,15 +68,17 @@ impl Tokenization {
         self.0.borrow_inner()
     }
 
-    #[wasm_bindgen(typescript_type = "IToken[]")]
-    pub fn tokens(&self) -> Result<JsValue, JsValue> {
+    #[wasm_bindgen(typescript_type = "ITokenArray")]
+    pub fn tokens(&self) -> Result<ITokenArray, JsValue> {
         self.0.with_inner(|inner| {
             let tokens = inner.tokens();
             let js = JsValue::from_serde(&tokens).map_err(error_to_js)?;
-            Ok(js)
+            Ok(js.unchecked_into())
         })
     }
 }
+
+// Exported functions
 
 #[wasm_bindgen]
 pub fn tokenize(text: String, should_log: bool) -> Tokenization {
