@@ -18,9 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::context::{Context, ContextSerializer};
 use serde_json::Error as JsonError;
-use std::collections::HashMap;
-use std::fmt;
 use wasm_bindgen::JsValue;
 use web_sys::console;
 
@@ -62,27 +61,10 @@ fn get_console_fn(level: slog::Level) -> ConsoleLogFn {
 }
 
 fn build_context(values: &slog::OwnedKVList) -> Result<JsValue, JsonError> {
-    let mut context = ContextSerializer::default();
+    let mut serializer = ContextSerializer::default();
     todo!();
 
-    let context_js = JsValue::from_serde(&context.0)?;
+    let context: Context = serializer.into();
+    let context_js = JsValue::from_serde(&context)?;
     Ok(context_js)
-}
-
-#[derive(Serialize, Debug)]
-#[serde(untagged)]
-enum JsonValue {
-    String(String),
-}
-
-#[derive(Debug, Default)]
-struct ContextSerializer<'a>(HashMap<&'a str, JsonValue>);
-
-impl<'a> slog::Serializer for ContextSerializer<'a> {
-    fn emit_arguments(&mut self, key: slog::Key, value: &fmt::Arguments) -> slog::Result {
-        let value = value.to_string();
-        let value_json = JsonValue::String(value);
-        self.0.insert(key, value_json);
-        Ok(())
-    }
 }

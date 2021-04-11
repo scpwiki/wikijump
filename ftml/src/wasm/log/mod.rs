@@ -19,6 +19,7 @@
  */
 
 mod console;
+mod context;
 
 use slog::Drain;
 
