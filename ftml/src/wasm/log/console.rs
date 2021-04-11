@@ -19,7 +19,6 @@
  */
 
 use super::context::{Context, ContextSerializer};
-use serde_json::Error as JsonError;
 use wasm_bindgen::JsValue;
 use web_sys::console;
 
@@ -30,17 +29,17 @@ pub struct ConsoleLogger;
 
 impl slog::Drain for ConsoleLogger {
     type Ok = ();
-    type Err = JsonError;
+    type Err = ConsoleDrainError;
 
     fn log(
         &self,
         record: &slog::Record,
         values: &slog::OwnedKVList,
-    ) -> Result<(), JsonError> {
+    ) -> Result<(), ConsoleDrainError> {
         let console_log_fn = get_console_fn(record.level());
 
         let message = record.msg().to_string();
-        let context = build_context(values)?;
+        let context = build_context(record, values)?;
 
         console_log_fn(&JsValue::from_str(&message), &context);
         Ok(())
@@ -60,11 +59,36 @@ fn get_console_fn(level: slog::Level) -> ConsoleLogFn {
     }
 }
 
-fn build_context(values: &slog::OwnedKVList) -> Result<JsValue, JsonError> {
+fn build_context(
+    record: &slog::Record,
+    values: &slog::OwnedKVList,
+) -> Result<JsValue, ConsoleDrainError> {
+    use slog::KV;
+
     let mut serializer = ContextSerializer::default();
-    todo!();
+    values.serialize(record, &mut serializer)?;
 
     let context: Context = serializer.into();
     let context_js = JsValue::from_serde(&context)?;
     Ok(context_js)
+}
+
+#[derive(Debug)]
+pub enum ConsoleDrainError {
+    Json(serde_json::Error),
+    Logging(slog::Error),
+}
+
+impl From<serde_json::Error> for ConsoleDrainError {
+    #[inline]
+    fn from(error: serde_json::Error) -> ConsoleDrainError {
+        ConsoleDrainError::Json(error)
+    }
+}
+
+impl From<slog::Error> for ConsoleDrainError {
+    #[inline]
+    fn from(error: slog::Error) -> ConsoleDrainError {
+        ConsoleDrainError::Logging(error)
+    }
 }

@@ -22,7 +22,6 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
-use wasm_bindgen::JsValue;
 
 #[derive(Serialize, Debug)]
 #[serde(untagged)]
@@ -167,14 +166,18 @@ impl<'a> slog::Serializer for ContextSerializer<'a> {
         Ok(())
     }
 
-    fn emit_error(&mut self, key: slog::Key, value: &(dyn Error + 'static)) -> slog::Result {
+    fn emit_error(
+        &mut self,
+        key: slog::Key,
+        value: &(dyn Error + 'static),
+    ) -> slog::Result {
         use std::fmt::Write;
 
         let mut traceback = value.to_string();
         let mut last = value;
 
         while let Some(error) = last.source() {
-            write!(&mut traceback, "\n{}", error);
+            write!(&mut traceback, "\n{}", error).expect("Formatting failed");
 
             last = error;
         }
