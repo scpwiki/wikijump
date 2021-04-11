@@ -1,5 +1,5 @@
 /*
- * wasm/mod.rs
+ * wasm/macros.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,26 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[macro_use]
-mod macros;
+use super::error::error_to_js;
 
-mod error;
-mod log;
-mod misc;
-mod parsing;
-mod preproc;
-mod render;
-mod tokenizer;
-
-mod prelude {
-    pub use super::log::get_logger;
-    pub use wasm_bindgen::prelude::*;
-    pub use wasm_bindgen::JsCast;
+macro_rules! rust_to_js {
+    ($object:expr) => {{
+        let js = JsValue::from_serde(&$object).map_err(error_to_js)?;
+        Ok(js.unchecked_into())
+    }};
 }
-
-pub use self::log::ConsoleLogger;
-pub use self::misc::version;
-pub use self::parsing::{parse, ParseOutcome, SyntaxTree};
-pub use self::preproc::preprocess;
-pub use self::render::render_html;
-pub use self::tokenizer::{tokenize, Tokenization};

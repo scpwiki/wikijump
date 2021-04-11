@@ -67,23 +67,14 @@ pub struct ParseOutcome(RustParseOutcome<RustSyntaxTree<'static>>);
 
 #[wasm_bindgen]
 impl ParseOutcome {
-    #[wasm_bindgen(typescript_type = "ISyntaxTree")]
-    pub fn syntax_tree(&self) -> Result<ISyntaxTree, JsValue> {
-        let tree = self.0.value();
-        let js = JsValue::from_serde(tree).map_err(error_to_js)?;
-        Ok(js.unchecked_into())
-    }
-
     #[wasm_bindgen]
-    pub fn syntax_tree_object(&self) -> SyntaxTree {
+    pub fn syntax_tree(&self) -> SyntaxTree {
         SyntaxTree(self.0.value().clone())
     }
 
     #[wasm_bindgen(typescript_type = "IParseWarning")]
     pub fn warnings(&self) -> Result<IParseWarningArray, JsValue> {
-        let warnings = self.0.warnings();
-        let js = JsValue::from_serde(warnings).map_err(error_to_js)?;
-        Ok(js.unchecked_into())
+        rust_to_js!(self.0.warnings())
     }
 }
 
@@ -99,10 +90,8 @@ impl SyntaxTree {
     }
 
     #[wasm_bindgen(typescript_type = "ISyntaxTree")]
-    pub fn tree(&self) -> Result<ISyntaxTree, JsValue> {
-        let tree = &self.0;
-        let js = JsValue::from_serde(tree).map_err(error_to_js)?;
-        Ok(js.unchecked_into())
+    pub fn get(&self) -> Result<ISyntaxTree, JsValue> {
+        rust_to_js!(self.0)
     }
 }
 

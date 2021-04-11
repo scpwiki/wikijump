@@ -64,13 +64,14 @@ impl Tokenization {
         self.borrow_inner()
     }
 
+    #[wasm_bindgen]
+    pub fn text(&self) -> String {
+        self.borrow_text().clone()
+    }
+
     #[wasm_bindgen(typescript_type = "ITokenArray")]
     pub fn tokens(&self) -> Result<ITokenArray, JsValue> {
-        self.with_inner(|inner| {
-            let tokens = inner.tokens();
-            let js = JsValue::from_serde(&tokens).map_err(error_to_js)?;
-            Ok(js.unchecked_into())
-        })
+        self.with_inner(|inner| rust_to_js!(inner.tokens()))
     }
 }
 
