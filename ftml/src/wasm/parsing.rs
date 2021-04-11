@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::error::error_to_js;
 use super::prelude::*;
 use super::tokenizer::Tokenization;
 use crate::parsing::ParseOutcome as RustParseOutcome;

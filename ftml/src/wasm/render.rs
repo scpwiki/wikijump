@@ -25,13 +25,52 @@ use crate::render::Render;
 
 // Typescript declarations
 
-// TODO
+#[wasm_bindgen(typescript_custom_section)]
+const TS_APPEND_CONTENT: &str = r#"
+
+export interface IHtmlOutput {
+    html: string;
+    style: string;
+    meta: IHtmlMeta[];
+}
+
+export interface IHtmlMeta {
+    tag_type: string;
+    name: string;
+    value: string;
+}
+
+"#;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "IHtmlMeta[]")]
+    pub type IHtmlMetaArray;
+}
 
 // Wrapper structures
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct HtmlOutput(RustHtmlOutput);
+
+#[wasm_bindgen]
+impl HtmlOutput {
+    #[wasm_bindgen]
+    pub fn html(&self) -> String {
+        self.0.html.clone()
+    }
+
+    #[wasm_bindgen]
+    pub fn style(&self) -> String {
+        self.0.style.clone()
+    }
+
+    #[wasm_bindgen(typescript_type = "IHtmlMetaArray")]
+    pub fn html_meta(&self) -> Result<IHtmlMetaArray, JsValue> {
+        rust_to_js!(self.0.meta)
+    }
+}
 
 // Exported functions
 
