@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use serde::Serialize;
 use std::collections::HashMap;
+use std::error::Error;
 use std::fmt;
 use wasm_bindgen::JsValue;
 
@@ -144,6 +146,40 @@ impl<'a> slog::Serializer for ContextSerializer<'a> {
         let value = value as f64;
         let value_json = JsonValue::Number(value);
         self.0.insert(key, value_json);
+        Ok(())
+    }
+
+    fn emit_str(&mut self, key: slog::Key, value: &str) -> slog::Result {
+        let value_json = JsonValue::String(str!(value));
+        self.0.insert(key, value_json);
+        Ok(())
+    }
+
+    fn emit_unit(&mut self, key: slog::Key) -> slog::Result {
+        let value_json = JsonValue::Null(());
+        self.0.insert(key, value_json);
+        Ok(())
+    }
+
+    fn emit_none(&mut self, key: slog::Key) -> slog::Result {
+        let value_json = JsonValue::Null(());
+        self.0.insert(key, value_json);
+        Ok(())
+    }
+
+    fn emit_error(&mut self, key: slog::Key, value: &(dyn Error + 'static)) -> slog::Result {
+        use std::fmt::Write;
+
+        let mut traceback = value.to_string();
+        let mut last = value;
+
+        while let Some(error) = last.source() {
+            write!(&mut traceback, "\n{}", error);
+
+            last = error;
+        }
+
+        self.0.insert(key, JsonValue::String(traceback));
         Ok(())
     }
 }
