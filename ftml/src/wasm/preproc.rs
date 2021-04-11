@@ -21,8 +21,8 @@
 use super::prelude::*;
 
 #[wasm_bindgen]
-pub fn preprocess(mut text: String, should_log: bool) -> String {
-    let log = get_logger(should_log);
+pub fn preprocess(mut text: String) -> String {
+    let log = &*LOGGER;
 
     crate::preprocess(log, &mut text);
     text

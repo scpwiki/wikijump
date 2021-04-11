@@ -30,7 +30,7 @@ mod render;
 mod tokenizer;
 
 mod prelude {
-    pub use super::log::get_logger;
+    pub use super::log::LOGGER;
     pub use wasm_bindgen::prelude::*;
     pub use wasm_bindgen::JsCast;
 }

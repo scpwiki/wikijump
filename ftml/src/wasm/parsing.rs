@@ -99,8 +99,8 @@ impl SyntaxTree {
 // Exported functions
 
 #[wasm_bindgen]
-pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsValue> {
-    let log = get_logger(should_log);
+pub fn parse(tokens: Tokenization) -> Result<ParseOutcome, JsValue> {
+    let log = &*LOGGER;
 
     // Borrow and perform parsing
     let tokenization = tokens.borrow();

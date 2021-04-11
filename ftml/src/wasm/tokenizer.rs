@@ -78,8 +78,8 @@ impl Tokenization {
 // Exported functions
 
 #[wasm_bindgen]
-pub fn tokenize(text: String, should_log: bool) -> Tokenization {
-    let log = get_logger(should_log);
+pub fn tokenize(text: String) -> Tokenization {
+    let log = &*LOGGER;
     let builder = TokenizationBuilder {
         text,
         inner_builder: |text: &str| crate::tokenize(&log, text),

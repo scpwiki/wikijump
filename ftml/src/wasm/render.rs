@@ -75,8 +75,8 @@ impl HtmlOutput {
 // Exported functions
 
 #[wasm_bindgen]
-pub fn render_html(syntax_tree: SyntaxTree, should_log: bool) -> HtmlOutput {
-    let log = get_logger(should_log);
+pub fn render_html(syntax_tree: SyntaxTree) -> HtmlOutput {
+    let log = &*LOGGER;
     let tree = syntax_tree.borrow();
     let html = HtmlRender.render(&log, tree);
     HtmlOutput(html)

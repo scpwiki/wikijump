@@ -20,11 +20,6 @@
 
 use cfg_if::cfg_if;
 
-lazy_static! {
-    pub static ref NULL_LOGGER: slog::Logger = {
-        slog::Logger::root(slog::Discard, o!()) //
-    };
-}
 
 cfg_if! {
     if #[cfg(feature = "wasm-log")] {
@@ -34,24 +29,17 @@ cfg_if! {
         pub use self::console::ConsoleLogger;
 
         lazy_static! {
-            pub static ref CONSOLE_LOGGER: slog::Logger = {
+            pub static ref LOGGER: slog::Logger = {
                 use slog::Drain;
 
                 slog::Logger::root(ConsoleLogger.fuse(), o!())
             };
         }
-
-        pub fn get_logger(should_log: bool) -> &'static slog::Logger {
-            if should_log {
-                &*CONSOLE_LOGGER
-            } else {
-                &*NULL_LOGGER
-            }
-        }
     } else {
-        #[inline]
-        pub fn get_logger(_should_log: bool) -> &'static slog::Logger {
-            &*NULL_LOGGER
+        lazy_static! {
+            pub static ref LOGGER: slog::Logger = {
+                slog::Logger::root(slog::Discard, o!()) //
+            };
         }
     }
 }
