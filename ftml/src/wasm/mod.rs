@@ -29,8 +29,8 @@ mod tokenizer;
 mod prelude {
     pub use super::error::error_to_js;
     pub use super::log::get_logger;
-    pub use std::sync::Arc;
     pub use wasm_bindgen::prelude::*;
+    pub use wasm_bindgen::JsCast;
 }
 
 pub use self::log::ConsoleLogger;
