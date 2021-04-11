@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::clone::elements_to_owned;
 use super::Element;
 use strum_macros::IntoStaticStr;
 
@@ -34,6 +35,17 @@ pub enum ListItem<'t> {
     ///
     /// That is, it's another, or deeper list within the list.
     SubList(Element<'t>),
+}
+
+impl ListItem<'_> {
+    pub fn to_owned(&self) -> ListItem<'static> {
+        match self {
+            ListItem::Elements(elements) => {
+                ListItem::Elements(elements_to_owned(&elements))
+            }
+            ListItem::SubList(element) => ListItem::SubList(element.to_owned()),
+        }
+    }
 }
 
 #[derive(

@@ -20,6 +20,7 @@
 
 mod safe;
 
+use super::clone::string_to_owned;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{self, Debug};
@@ -56,6 +57,19 @@ impl<'t> AttributeMap<'t> {
         }
 
         will_insert
+    }
+
+    pub fn to_owned(&self) -> AttributeMap<'static> {
+        let mut inner = HashMap::new();
+
+        for (key, value) in self.inner.iter() {
+            let key = string_to_owned(key);
+            let value = string_to_owned(value);
+
+            inner.insert(key, value);
+        }
+
+        AttributeMap { inner }
     }
 }
 

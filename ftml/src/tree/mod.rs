@@ -20,6 +20,7 @@
 
 mod anchor;
 mod attribute;
+mod clone;
 mod container;
 mod element;
 mod heading;
@@ -38,10 +39,11 @@ pub use self::list::*;
 pub use self::module::*;
 pub use self::tag::*;
 
+use self::clone::{elements_to_owned, strings_to_owned};
 use crate::parsing::{ParseOutcome, ParseWarning};
-use std::borrow::{Borrow, Cow};
+use std::borrow::Cow;
 
-#[derive(Serialize, Deserialize, Debug, Default, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct SyntaxTree<'t> {
     /// The list of elements that compose this tree.
@@ -68,37 +70,11 @@ impl<'t> SyntaxTree<'t> {
         let tree = SyntaxTree { elements, styles };
         ParseOutcome::new(tree, warnings)
     }
-}
 
-/// Wrapper structure to implement `ToOwned` for `SyntaxTree`.
-///
-/// The `ToOwned` implementation converts all the underlying
-/// `Cow`s into their owned version, thus the `'static` lifetime.
-///
-/// However because `Borrow<T>` for `T` is already implemented, we need
-/// to implement for a wrapper to avoid this.
-/// Then we just unwrap it and we have the cloned tree.
-///
-/// A `Borrow` implementation is also needed for `ToOwned`.
-#[derive(Debug, Default)]
-pub struct SyntaxTreeOwned(pub SyntaxTree<'static>);
-
-impl<'t> Borrow<SyntaxTree<'t>> for SyntaxTreeOwned {
-    #[inline]
-    fn borrow(&self) -> &SyntaxTree<'t> {
-        &self.0
-    }
-}
-
-impl<'t> ToOwned for SyntaxTreeOwned {
-    type Owned = SyntaxTreeOwned;
-
-    fn to_owned(&self) -> SyntaxTreeOwned {
-        let inner = SyntaxTree {
-            elements: self.0.elements.iter().map(ToOwned::to_owned).collect(),
-            styles: self.0.styles.iter().map(ToOwned::to_owned).collect(),
-        };
-
-        SyntaxTreeOwned(inner)
+    pub fn to_owned(&self) -> SyntaxTree<'static> {
+        SyntaxTree {
+            elements: elements_to_owned(&self.elements),
+            styles: strings_to_owned(&self.styles),
+        }
     }
 }
