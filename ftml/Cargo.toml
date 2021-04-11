@@ -20,7 +20,7 @@ name = "ftml"
 crate-type = ["cdylib", "lib"]
 
 [features]
-wasm-log = []
+wasm-log = [] # Enables console.log() logging. Spams your browser, caveat emptor!
 
 [dependencies]
 enum-map = "0.6"
