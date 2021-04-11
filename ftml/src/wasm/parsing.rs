@@ -113,7 +113,7 @@ pub fn parse(tokens: Tokenization, should_log: bool) -> Result<ParseOutcome, JsV
     let log = get_logger(should_log);
 
     // Borrow and perform parsing
-    let tokenization = tokens.get();
+    let tokenization = tokens.borrow();
     let (syntax_tree, warnings) = crate::parse(log, tokenization).into();
 
     // HACK: instead of implementing an exhaustive
