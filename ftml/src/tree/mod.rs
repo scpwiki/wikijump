@@ -95,10 +95,9 @@ impl<'t> ToOwned for SyntaxTreeOwned {
 
     fn to_owned(&self) -> SyntaxTreeOwned {
         let inner = SyntaxTree {
-            //elements: self.elements.iter().map(ToOwned::to_owned).collect(),
+            //elements: self.0.elements.iter().map(ToOwned::to_owned).collect(),
             elements: vec![],
-            //styles: self.styles.iter().map(ToOwned::to_owned).collect(),
-            styles: vec![],
+            styles: self.0.styles.iter().map(ToOwned::to_owned).collect(),
         };
 
         SyntaxTreeOwned(inner)
