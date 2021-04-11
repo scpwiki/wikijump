@@ -22,7 +22,7 @@ use void::Void;
 use wasm_bindgen::JsValue;
 use web_sys::console;
 
-type ConsoleLogFn = fn(&JsValue);
+type ConsoleLogFn = fn(&JsValue, &JsValue);
 
 #[derive(Debug)]
 pub struct ConsoleLogger;
@@ -43,7 +43,7 @@ impl slog::Drain for ConsoleLogger {
         // TODO actually serialize values, don't just drop them
         // you'll need to use debug_2, log_2, etc variants to pass (string, object)
 
-        console_log_fn(&JsValue::from_str(&message));
+        console_log_fn(&JsValue::from_str(&message), &JsValue::null());
         Ok(())
     }
 }
@@ -52,11 +52,11 @@ fn get_console_fn(level: slog::Level) -> ConsoleLogFn {
     use slog::Level::*;
 
     match level {
-        Trace => console::debug_1,
-        Debug => console::log_1,
-        Info => console::info_1,
-        Warning => console::warn_1,
-        Error => console::error_1,
-        Critical => console::error_1,
+        Trace => console::debug_2,
+        Debug => console::log_2,
+        Info => console::info_2,
+        Warning => console::warn_2,
+        Error => console::error_2,
+        Critical => console::error_2,
     }
 }
