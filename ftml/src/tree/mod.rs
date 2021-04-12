@@ -20,6 +20,7 @@
 
 mod anchor;
 mod attribute;
+mod clone;
 mod container;
 mod element;
 mod heading;
@@ -38,6 +39,7 @@ pub use self::list::*;
 pub use self::module::*;
 pub use self::tag::*;
 
+use self::clone::{elements_to_owned, strings_to_owned};
 use crate::parsing::{ParseOutcome, ParseWarning};
 use std::borrow::Cow;
 
@@ -68,4 +70,25 @@ impl<'t> SyntaxTree<'t> {
         let tree = SyntaxTree { elements, styles };
         ParseOutcome::new(tree, warnings)
     }
+
+    pub fn to_owned(&self) -> SyntaxTree<'static> {
+        SyntaxTree {
+            elements: elements_to_owned(&self.elements),
+            styles: strings_to_owned(&self.styles),
+        }
+    }
+}
+
+#[test]
+fn borrowed_to_owned<'a>() {
+    use std::mem;
+
+    let tree_1: SyntaxTree<'a> = SyntaxTree::default();
+    let tree_2: SyntaxTree<'static> = tree_1.to_owned();
+
+    mem::drop(tree_1);
+
+    let tree_3: SyntaxTree<'static> = tree_2.clone();
+
+    mem::drop(tree_3);
 }

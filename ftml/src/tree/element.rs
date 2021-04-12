@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::clone::{
+    elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
+};
 use super::{
     AnchorTarget, AttributeMap, Container, LinkLabel, ListItem, ListType, Module,
 };
@@ -176,6 +179,90 @@ impl Element<'_> {
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
             Element::HorizontalRule => "HorizontalRule",
+        }
+    }
+
+    /// Deep-clones the object, making it an owned version.
+    ///
+    /// Note that `.to_owned()` on `Cow` just copies the pointer,
+    /// it doesn't make an `Cow::Owned(_)` version like its name
+    /// suggests.
+    pub fn to_owned(&self) -> Element<'static> {
+        match self {
+            Element::Container(container) => Element::Container(container.to_owned()),
+            Element::Module(module) => Element::Module(module.to_owned()),
+            Element::Text(text) => Element::Text(string_to_owned(text)),
+            Element::Raw(text) => Element::Raw(string_to_owned(text)),
+            Element::Email(email) => Element::Email(string_to_owned(email)),
+            Element::Anchor {
+                elements,
+                attributes,
+                target,
+            } => Element::Anchor {
+                elements: elements_to_owned(&elements),
+                attributes: attributes.to_owned(),
+                target: *target,
+            },
+            Element::Link { url, label, target } => Element::Link {
+                url: string_to_owned(&url),
+                label: label.to_owned(),
+                target: *target,
+            },
+            Element::List { ltype, items } => Element::List {
+                ltype: *ltype,
+                items: list_items_to_owned(&items),
+            },
+            Element::RadioButton {
+                name,
+                checked,
+                attributes,
+            } => Element::RadioButton {
+                name: string_to_owned(&name),
+                checked: *checked,
+                attributes: attributes.to_owned(),
+            },
+            Element::CheckBox {
+                checked,
+                attributes,
+            } => Element::CheckBox {
+                checked: *checked,
+                attributes: attributes.to_owned(),
+            },
+            Element::Collapsible {
+                elements,
+                attributes,
+                start_open,
+                show_text,
+                hide_text,
+                show_top,
+                show_bottom,
+            } => Element::Collapsible {
+                elements: elements_to_owned(&elements),
+                attributes: attributes.to_owned(),
+                start_open: *start_open,
+                show_text: option_string_to_owned(&show_text),
+                hide_text: option_string_to_owned(&hide_text),
+                show_top: *show_top,
+                show_bottom: *show_bottom,
+            },
+            Element::Color { color, elements } => Element::Color {
+                color: string_to_owned(&color),
+                elements: elements_to_owned(&elements),
+            },
+            Element::Code { contents, language } => Element::Code {
+                contents: string_to_owned(&contents),
+                language: option_string_to_owned(&language),
+            },
+            Element::Html { contents } => Element::Html {
+                contents: string_to_owned(&contents),
+            },
+            Element::Iframe { url, attributes } => Element::Iframe {
+                url: string_to_owned(&url),
+                attributes: attributes.to_owned(),
+            },
+            Element::LineBreak => Element::LineBreak,
+            Element::LineBreaks(amount) => Element::LineBreaks(*amount),
+            Element::HorizontalRule => Element::HorizontalRule,
         }
     }
 }

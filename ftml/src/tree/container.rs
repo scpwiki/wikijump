@@ -20,6 +20,7 @@
 
 //! Representation of generic syntax elements which wrap other elements.
 
+use super::clone::elements_to_owned;
 use super::{AttributeMap, Element, HeadingLevel, HtmlTag};
 use strum_macros::IntoStaticStr;
 
@@ -59,6 +60,14 @@ impl<'t> Container<'t> {
     #[inline]
     pub fn attributes(&self) -> &AttributeMap<'t> {
         &self.attributes
+    }
+
+    pub fn to_owned(&self) -> Container<'static> {
+        Container {
+            ctype: self.ctype,
+            elements: elements_to_owned(&self.elements),
+            attributes: self.attributes.to_owned(),
+        }
     }
 }
 

@@ -18,9 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::clone::{option_string_to_owned, string_to_owned};
 use std::borrow::Cow;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Hash, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum LinkLabel<'a> {
     /// Custom text link label.
@@ -38,4 +39,14 @@ pub enum LinkLabel<'a> {
     ///
     /// The label for this link is whatever the page's title is.
     Page,
+}
+
+impl LinkLabel<'_> {
+    pub fn to_owned(&self) -> LinkLabel<'static> {
+        match self {
+            LinkLabel::Text(text) => LinkLabel::Text(string_to_owned(text)),
+            LinkLabel::Url(url) => LinkLabel::Url(option_string_to_owned(url)),
+            LinkLabel::Page => LinkLabel::Page,
+        }
+    }
 }
