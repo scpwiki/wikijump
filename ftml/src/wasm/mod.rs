@@ -1,5 +1,5 @@
 /*
- * render/html/test.rs
+ * wasm/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,15 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use super::HtmlRender;
+#[macro_use]
+mod macros;
 
-#[test]
-fn html() {
-    let log = crate::build_logger();
-    let result = SyntaxTree::from_element_result(vec![], vec![], vec![]);
-    let (tree, _) = result.into();
-    if false {
-        let _output = HtmlRender.render(&log, &tree);
-    }
+mod error;
+mod log;
+mod misc;
+mod parsing;
+mod preproc;
+mod render;
+mod tokenizer;
+
+mod prelude {
+    pub use super::log::LOGGER;
+    pub use wasm_bindgen::prelude::*;
+    pub use wasm_bindgen::JsCast;
 }
+
+#[cfg(feature = "wasm-log")]
+pub use self::log::ConsoleLogger;
+
+pub use self::misc::version;
+pub use self::parsing::{parse, ParseOutcome, SyntaxTree};
+pub use self::preproc::preprocess;
+pub use self::render::render_html;
+pub use self::tokenizer::{tokenize, Tokenization};

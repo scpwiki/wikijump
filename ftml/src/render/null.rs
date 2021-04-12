@@ -32,14 +32,15 @@ impl Render for NullRender {
     type Output = ();
 
     #[inline]
-    fn render(&self, _tree: &SyntaxTree) {}
+    fn render(&self, _log: &slog::Logger, _tree: &SyntaxTree) {}
 }
 
 #[test]
 fn null() {
+    let log = crate::build_logger();
     let result = SyntaxTree::from_element_result(vec![], vec![], vec![]);
     let (tree, _) = result.into();
-    let output = NullRender.render(&tree);
+    let output = NullRender.render(&log, &tree);
 
     assert_eq!(output, (), "Null render didn't produce the unit type");
 }

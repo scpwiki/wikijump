@@ -49,7 +49,7 @@ pub struct HtmlRender;
 impl Render for HtmlRender {
     type Output = HtmlOutput;
 
-    fn render(&self, _tree: &SyntaxTree) -> HtmlOutput {
+    fn render(&self, _log: &slog::Logger, _tree: &SyntaxTree) -> HtmlOutput {
         todo!()
     }
 }

@@ -21,39 +21,9 @@
 use std::ffi::OsString;
 use std::net::SocketAddr;
 
-#[allow(unused)]
-mod build {
-    include!(concat!(env!("OUT_DIR"), "/built.rs"));
-}
-
-pub use self::build::{
-    BUILT_TIME_UTC, CFG_ENV, CFG_OS, CFG_TARGET_ARCH, CI_PLATFORM, DEBUG,
-    GIT_COMMIT_HASH, PKG_LICENSE, PKG_NAME, PKG_REPOSITORY, PKG_VERSION, RUSTC_VERSION,
-};
+pub use ftml::info::*;
 
 lazy_static! {
-    pub static ref VERSION: String = {
-        format!(
-            "{} v{} [{}]",
-            PKG_NAME,
-            PKG_VERSION,
-            GIT_COMMIT_HASH_SHORT.unwrap_or("nohash"),
-        )
-    };
-
-    pub static ref TARGET_TRIPLET: String = {
-        format!(
-            "{}-{}-{}",
-            CFG_TARGET_ARCH,
-            CFG_ENV,
-            CFG_OS,
-        )
-    };
-
-    pub static ref GIT_COMMIT_HASH_SHORT: Option<&'static str> = {
-        GIT_COMMIT_HASH.map(|s| &s[..8])
-    };
-
     pub static ref HOSTNAME: String = {
         // There don't seem to be any errors possible
         // based on the gethostname(3p) man page.

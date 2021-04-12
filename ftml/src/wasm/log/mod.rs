@@ -1,5 +1,5 @@
 /*
- * render/html/test.rs
+ * wasm/log/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,15 +18,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use super::HtmlRender;
+use cfg_if::cfg_if;
 
-#[test]
-fn html() {
-    let log = crate::build_logger();
-    let result = SyntaxTree::from_element_result(vec![], vec![], vec![]);
-    let (tree, _) = result.into();
-    if false {
-        let _output = HtmlRender.render(&log, &tree);
+cfg_if! {
+    if #[cfg(feature = "wasm-log")] {
+        mod console;
+        mod context;
+
+        pub use self::console::ConsoleLogger;
+
+        lazy_static! {
+            pub static ref LOGGER: slog::Logger = {
+                use slog::Drain;
+
+                slog::Logger::root(ConsoleLogger.fuse(), o!())
+            };
+        }
+    } else {
+        lazy_static! {
+            pub static ref LOGGER: slog::Logger = {
+                slog::Logger::root(slog::Discard, o!()) //
+            };
+        }
     }
 }

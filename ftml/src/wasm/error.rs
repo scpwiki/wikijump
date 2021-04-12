@@ -1,5 +1,5 @@
 /*
- * render/html/test.rs
+ * wasm/error.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,15 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use super::HtmlRender;
+use std::error::Error;
+use wasm_bindgen::JsValue;
 
-#[test]
-fn html() {
-    let log = crate::build_logger();
-    let result = SyntaxTree::from_element_result(vec![], vec![], vec![]);
-    let (tree, _) = result.into();
-    if false {
-        let _output = HtmlRender.render(&log, &tree);
-    }
+pub fn error_to_js<E: Error>(error: E) -> JsValue {
+    JsValue::from_str(&error.to_string())
 }

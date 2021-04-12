@@ -52,7 +52,7 @@ pub fn route_render_html(
 
             let tokenization = tokenize(&log, &text);
             let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
-            let HtmlOutput { html, style, meta } = HtmlRender.render(&syntax_tree);
+            let HtmlOutput { html, style, meta } = HtmlRender.render(&log, &syntax_tree);
 
             let resp = Response::ok(HtmlRenderOutput {
                 pages_included,
@@ -95,7 +95,7 @@ pub fn route_render_debug(
 
             let tokenization = tokenize(&log, &text);
             let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
-            let output = DebugRender.render(&syntax_tree);
+            let output = DebugRender.render(&log, &syntax_tree);
 
             let resp = Response::ok(DebugRenderOutput {
                 pages_included,

@@ -98,7 +98,7 @@ impl<'t> ParagraphStack<'t> {
         }
 
         // Pull out gathered elements, then make a new paragraph container
-        let elements = mem::replace(&mut self.current, Vec::new());
+        let elements = mem::take(&mut self.current);
         let container =
             Container::new(ContainerType::Paragraph, elements, AttributeMap::new());
         let element = Element::Container(container);

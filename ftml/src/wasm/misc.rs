@@ -1,5 +1,5 @@
 /*
- * render/html/test.rs
+ * wasm/misc.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,15 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use super::HtmlRender;
+//! Miscellaneous exports to Javascript.
 
-#[test]
-fn html() {
-    let log = crate::build_logger();
-    let result = SyntaxTree::from_element_result(vec![], vec![], vec![]);
-    let (tree, _) = result.into();
-    if false {
-        let _output = HtmlRender.render(&log, &tree);
-    }
+use super::prelude::*;
+use crate::info;
+
+#[wasm_bindgen]
+pub fn version() -> String {
+    info::VERSION.clone()
 }

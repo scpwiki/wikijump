@@ -1,5 +1,5 @@
 /*
- * render/html/test.rs
+ * wasm/preproc.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -19,14 +19,11 @@
  */
 
 use super::prelude::*;
-use super::HtmlRender;
 
-#[test]
-fn html() {
-    let log = crate::build_logger();
-    let result = SyntaxTree::from_element_result(vec![], vec![], vec![]);
-    let (tree, _) = result.into();
-    if false {
-        let _output = HtmlRender.render(&log, &tree);
-    }
+#[wasm_bindgen]
+pub fn preprocess(mut text: String) -> String {
+    let log = &*LOGGER;
+
+    crate::preprocess(log, &mut text);
+    text
 }

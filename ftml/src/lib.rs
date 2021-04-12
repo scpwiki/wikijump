@@ -29,8 +29,8 @@
 //! while also maintaining the flexibility and lax parsing that
 //! Wikidot permits.
 
-#[macro_use]
-extern crate cfg_if;
+// Only list crates which we want global macro imports.
+// Rest are implicit based on Cargo.toml
 
 #[macro_use]
 extern crate enum_map;
@@ -40,33 +40,20 @@ extern crate lazy_static;
 
 #[macro_use]
 extern crate maplit;
-extern crate pest;
 
 #[macro_use]
 extern crate pest_derive;
-extern crate ref_map;
-extern crate regex;
 
 #[macro_use]
 extern crate serde;
-extern crate serde_json;
 
 #[macro_use]
 extern crate slog;
 
 #[macro_use]
 extern crate str_macro;
-extern crate strum;
-extern crate strum_macros;
-extern crate unicase;
-extern crate void;
-extern crate wikidot_normalize;
 
-cfg_if! {
-    if #[cfg(test)] {
-        extern crate sloggers;
-    }
-}
+// Library top-level modules
 
 #[cfg(test)]
 mod test;
@@ -82,15 +69,19 @@ mod preproc;
 mod span_wrap;
 mod text;
 
+#[cfg(target_arch = "wasm32")]
+pub mod wasm;
+
 pub mod data;
 pub mod includes;
+pub mod info;
 pub mod parsing;
 pub mod render;
 pub mod tokenizer;
 pub mod tree;
 
 #[cfg(test)]
-pub use self::log::{build_console_logger, build_logger, build_null_logger};
+pub use self::log::{build_logger, build_null_logger, build_terminal_logger};
 
 pub use self::includes::include;
 pub use self::parsing::parse;

@@ -29,7 +29,9 @@ impl Render for DebugRender {
     type Output = String;
 
     #[inline]
-    fn render(&self, tree: &SyntaxTree) -> String {
+    fn render(&self, log: &slog::Logger, tree: &SyntaxTree) -> String {
+        info!(log, "Running debug logger on syntax tree");
+
         format!("{:#?}", tree)
     }
 }
@@ -62,6 +64,8 @@ fn debug() {
     ],
 }"#;
 
+    let log = crate::build_logger();
+
     // Syntax tree construction
     let elements = vec![
         text!("apple"),
@@ -79,7 +83,7 @@ fn debug() {
     let (tree, _) = result.into();
 
     // Perform rendering
-    let output = DebugRender.render(&tree);
+    let output = DebugRender.render(&log, &tree);
     assert_eq!(
         output, OUTPUT,
         "Pretty JSON syntax tree output doesn't match",

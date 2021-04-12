@@ -50,7 +50,7 @@ mod loggers {
         slog::Logger::root(slog::Discard, o!())
     }
 
-    pub fn build_console_logger() -> slog::Logger {
+    pub fn build_terminal_logger() -> slog::Logger {
         use sloggers::terminal::TerminalLoggerBuilder;
         use sloggers::types::Severity;
         use sloggers::Build;
@@ -63,4 +63,4 @@ mod loggers {
 }
 
 #[cfg(test)]
-pub use self::loggers::{build_console_logger, build_logger, build_null_logger};
+pub use self::loggers::{build_logger, build_null_logger, build_terminal_logger};
