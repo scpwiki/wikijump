@@ -43,7 +43,12 @@ pub fn option_string_to_owned(
 }
 
 #[inline]
+#[allow(clippy::ptr_arg)]
 pub fn string_to_owned(string: &Cow<'_, str>) -> Cow<'static, str> {
+    // Clippy complains about us using &Cow<str>, which is normally valid,
+    // but here we specifically want to convert the Cow into an owned form,
+    // and we get a reference to Cow that we want to turn into an owned Cow.
+
     Cow::Owned(string.clone().into_owned())
 }
 
