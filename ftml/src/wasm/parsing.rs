@@ -106,14 +106,8 @@ pub fn parse(tokens: Tokenization) -> Result<ParseOutcome, JsValue> {
     let tokenization = tokens.borrow();
     let (syntax_tree, warnings) = crate::parse(log, tokenization).into();
 
-    // HACK: instead of implementing an exhaustive
-    // to_owned() clone for all of the sub-objects,
-    // we're just going to serialize/deserialize.
-    let syntax_tree = {
-        let syntax_tree_js = JsValue::from_serde(&syntax_tree).map_err(error_to_js)?;
-        let syntax_tree = JsValue::into_serde(&syntax_tree_js).map_err(error_to_js)?;
-        syntax_tree
-    };
+    // Deep-clone AST to make it owned, so it can be safely passed to JS.
+    let syntax_tree = syntax_tree.to_owned();
 
     Ok(ParseOutcome(RustParseOutcome::new(syntax_tree, warnings)))
 }
