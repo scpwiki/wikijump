@@ -64,6 +64,8 @@ fn debug() {
     ],
 }"#;
 
+    let log = crate::build_logger();
+
     // Syntax tree construction
     let elements = vec![
         text!("apple"),
@@ -81,7 +83,7 @@ fn debug() {
     let (tree, _) = result.into();
 
     // Perform rendering
-    let output = DebugRender.render(&tree);
+    let output = DebugRender.render(&log, &tree);
     assert_eq!(
         output, OUTPUT,
         "Pretty JSON syntax tree output doesn't match",

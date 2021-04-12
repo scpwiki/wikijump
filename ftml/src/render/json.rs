@@ -93,6 +93,8 @@ fn json() {
 
     const COMPACT_OUTPUT: &str = "{\"elements\":[{\"element\":\"text\",\"data\":\"apple\"},{\"element\":\"text\",\"data\":\" \"},{\"element\":\"container\",\"data\":{\"type\":\"bold\",\"elements\":[{\"element\":\"text\",\"data\":\"banana\"}],\"attributes\":{}}}],\"styles\":[\"span.hidden-text { display: none; }\"]}";
 
+    let log = crate::build_logger();
+
     // Syntax tree construction
     let elements = vec![
         text!("apple"),
@@ -110,13 +112,13 @@ fn json() {
     let (tree, _) = result.into();
 
     // Perform renderings
-    let output = JsonRender::pretty().render(&tree);
+    let output = JsonRender::pretty().render(&log, &tree);
     assert_eq!(
         output, PRETTY_OUTPUT,
         "Pretty JSON syntax tree output doesn't match",
     );
 
-    let output = JsonRender::compact().render(&tree);
+    let output = JsonRender::compact().render(&log, &tree);
     assert_eq!(
         output, COMPACT_OUTPUT,
         "Compact JSON syntax tree output doesn't match",
