@@ -29,6 +29,9 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: 'latest'
       - run: cd ftml && cargo build --target wasm32-unknown-unknown --release
       - run: cd ftml && cargo test --target wasm32-unknown-unknown -- --nocapture --test-threads 1
       - run: cd ftml && wasm-pack build
