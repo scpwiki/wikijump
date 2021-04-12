@@ -20,6 +20,7 @@
 
 //! Representation of Wikidot modules, along with their context.
 
+use super::clone::option_string_to_owned;
 use super::AttributeMap;
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -63,5 +64,33 @@ impl Module<'_> {
     #[inline]
     pub fn name(&self) -> &'static str {
         self.into()
+    }
+
+    pub fn to_owned(&self) -> Module<'static> {
+        match self {
+            Module::Backlinks { page } => Module::Backlinks {
+                page: option_string_to_owned(page),
+            },
+            Module::Categories { include_hidden } => Module::Categories {
+                include_hidden: *include_hidden,
+            },
+            Module::Join {
+                button_text,
+                attributes,
+            } => Module::Join {
+                button_text: option_string_to_owned(button_text),
+                attributes: attributes.to_owned(),
+            },
+            Module::PageTree {
+                root,
+                show_root,
+                depth,
+            } => Module::PageTree {
+                root: option_string_to_owned(root),
+                show_root: *show_root,
+                depth: *depth,
+            },
+            Module::Rate => Module::Rate,
+        }
     }
 }
