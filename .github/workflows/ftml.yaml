@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: wasm32
+          toolchain: wasm32-unknown-unknown
       - run: cd ftml && cargo build --release
       - run: cd ftml && cargo test -- --nocapture --test-threads 1
       - run: cd ftml && wasm-pack build
