@@ -61,7 +61,7 @@ class Text_Wiki_Parse_Wikilink extends Text_Wiki_Parse {
     *
     */
 
-    function Text_Wiki_Parse_Wikilink(&$obj)
+    function __construct(&$obj)
     {
         parent::__construct($obj);
 

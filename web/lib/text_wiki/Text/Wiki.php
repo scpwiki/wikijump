@@ -371,7 +371,7 @@ class Text_Wiki {
     *
     */
 
-    function Text_Wiki($rules = null)
+    function __construct($rules = null)
     {
         if (is_array($rules)) {
             $this->rules = $rules;

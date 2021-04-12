@@ -85,7 +85,7 @@ class Text_Wiki_Render {
     *
     */
 
-    function Text_Wiki_Render(&$obj)
+    function __construct(&$obj)
     {
         // keep a reference to the calling Text_Wiki object
         $this->wiki =& $obj;

@@ -48,7 +48,7 @@ class Text_Wiki_Render_Xhtml_Mathinline extends Text_Wiki_Render {
             mkdirfull($dir);
         }
 
-        $tmpDir = WIKIDOT_ROOT . '/tmp/math';
+        $tmpDir = WIKIJUMP_ROOT . '/tmp/math';
         if (!file_exists($tmpDir)) {
             mkdirfull($tmpDir);
         }
