@@ -12,6 +12,8 @@ If the address is for a `wjfiles.com` subdomain, it will instead hit a CloudFron
 
 Deployment was designed to need a minimum of work done outside the scope of this package. All that should be required is storing some AWS credentials to the CI/CD provider of your choosing.
 
+*Note: Deploying the software via the docker and terraform packages is the only supported configuration. You can certainly deploy another way if you're able, but we likely won't be able to help you troubleshoot it. In particular, modifying the deployment around SSL configuration is highly discouraged, and we cannot offer support on insecure deployments.*
+
 1. You will need [Terraform](https://www.terraform.io) as well as a place to store Terraform state files. We use Terraform Cloud which is free for teams of up to 5 users, but you can also do things like storing the state files in S3.
 2. You will need to make an IAM user for Terraform to use to create and update everything. A JSON file for the IAM Policy is forthcoming.
 3. You will need to make an IAM user for your CI/CD (GitHub Actions for us) to use to push Docker images. A JSON file for the IAM policy is forthcoming.

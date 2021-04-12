@@ -176,7 +176,7 @@ class GlobalProperties
 
         // security settings
         self::$SECRET                   = $_ENV["WIKIJUMP_SECRET"] ?? self::fromIni("security", "secret", md5('secret'));
-        self::$ALLOW_ANY_HTTP           = $_ENV["WIKIJUMP_ALLOW_ANY_HTTP"] ?? self::fromIni("security", "allow_http", false);
+        self::$ALLOW_ANY_HTTP           = $_ENV["WIKIJUMP_ALLOW_ANY_HTTP"] ?? self::fromIni("security", "allow_http", true);
         self::$USE_SSL                  = $_ENV["WIKIJUMP_USE_SSL"] ?? self::fromIni("security", "ssl", false);
         self::$HTTP_SCHEMA              = $_ENV["WIKIJUMP_HTTP_SCHEMA"] ?? self::fromIni("security", "schema", "https");
         self::$SECRET_DOMAIN_LOGIN      = $_ENV["WIKIJUMP_SECRET_DOMAIN_LOGIN"] ?? self::fromIni("security", "secret_login", self::$SECRET . "_custom_domain_login");
