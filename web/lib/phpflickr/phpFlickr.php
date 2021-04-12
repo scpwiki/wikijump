@@ -58,7 +58,7 @@ if ( !class_exists('phpFlickr') ) {
          */
         var $max_cache_rows = 1000;
 
-        function phpFlickr ($api_key, $secret = NULL, $die_on_error = false) {
+        function __construct($api_key, $secret = NULL, $die_on_error = false) {
             //The API Key must be set before any calls can be made.  You can
             //get your own at https://www.flickr.com/services/api/misc.api_keys.html
             $this->api_key = $api_key;

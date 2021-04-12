@@ -113,7 +113,7 @@ class POP3
    *
    * @return POP3
    */
-  function POP3 ()
+  function __construct()
     {
       $this->pop_conn = 0;
       $this->connected = false;
