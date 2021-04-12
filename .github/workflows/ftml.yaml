@@ -21,6 +21,19 @@ jobs:
           toolchain: stable
       - run: cd ftml && cargo build --all-features --release
       - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
+  wasm:
+    name: WebASM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: wasm32
+      - run: cd ftml && cargo build --release
+      - run: cd ftml && cargo test -- --nocapture --test-threads 1
+      - run: cd ftml && wasm-pack build
+      - run: cd ftml && cargo build --all-features --release
+      - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
   http_build:
     name: Server
     runs-on: ubuntu-latest
