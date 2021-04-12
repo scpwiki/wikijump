@@ -2,9 +2,9 @@
 
 namespace Wikidot\Utils;
 
-abstract use Ozone\Framework\SmartyModule;
+use Ozone\Framework\SmartyModule;
 
-class SmartyLocalizedModule extends SmartyModule
+abstract class SmartyLocalizedModule extends SmartyModule
 {
 
     public function render($runData)
