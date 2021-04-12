@@ -2927,10 +2927,10 @@ components:
       description: Fully describes a user and their personalization preferences.
       type: object
       allOf: [$ref: '#/components/schemas/UserInfo']
-      required: [realname, gender, birthday, location, links]
+      required: [realname, pronouns, birthday, location, links]
       properties:
         realname:  { type: string }
-        gender:    { type: string,               nullable: true }
+        pronouns:  { type: string,               nullable: true }
         birthday:  { type: string, format: date, nullable: true }
         location:  { type: string,               nullable: true }
         links:

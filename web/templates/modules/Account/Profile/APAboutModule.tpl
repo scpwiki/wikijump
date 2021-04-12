@@ -16,11 +16,9 @@
 				<td><input class="text" name="real_name" type="text" size="40" maxlength="80" value="{$profile->getRealName()|escape}"/></td>
 			</tr>
 			<tr>
-				<td>Gender:</td>
+				<td>Pronouns:</td>
 				<td>
-					<input class="radio" name="gender" type="radio" value="m" {if $profile->getGender() == "m"}checked="checked"{/if}/> {t}male{/t}<br/>
-					<input class="radio" name="gender" type="radio" value="f" {if $profile->getGender() == "f"}checked="checked"{/if}/> {t}female{/t}<br/>
-					<input class="radio" name="gender" type="radio" value="" {if $profile->getGender() == ""}checked="checked"{/if}/> {t}do not tell{/t}
+                    <input class="text" name="pronouns" type="text" size="40" maxlength="30" value="{$profile->getPronouns()|escape}"/>
 				</td>
 			</tr>
 

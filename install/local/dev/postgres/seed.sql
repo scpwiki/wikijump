@@ -2850,20 +2850,15 @@ ALTER SEQUENCE public.private_user_block_block_id_seq OWNED BY public.private_us
 CREATE TABLE public.profile (
     user_id integer NOT NULL,
     real_name character varying(70),
-    gender character(1),
+    pronouns character varying(30),
     birthday_day integer,
     birthday_month integer,
     birthday_year integer,
     about text,
     location character varying(70),
     website character varying(100),
-    im_aim character varying(100),
-    im_gadu_gadu character varying(100),
-    im_google_talk character varying(100),
     im_icq character varying(100),
     im_jabber character varying(100),
-    im_msn character varying(100),
-    im_yahoo character varying(100),
     change_screen_name_count integer DEFAULT 0
 );
 

@@ -7,8 +7,8 @@
 	{if $profile->getRealName()}
 		{t}Real name{/t}: {$profile->getRealName()}<br/>
 	{/if}
-	{if $profile->getGender() == "m" || $profile->getGender() == "f"}
-		{t}Gender{/t}: {if $profile->getGender() == "m"}male{else}female{/if}<br/>
+	{if $profile->getPronouns()}
+		{t}Pronouns{/t}: {$profile->getPronouns()}<br/>
 	{/if}
 	{if $profile->getBirthdayDay()}
 		{t}Birthday{/t}: {$profile->getBirthdayDate()}<br/>
