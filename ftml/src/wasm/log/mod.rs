@@ -20,7 +20,6 @@
 
 use cfg_if::cfg_if;
 
-
 cfg_if! {
     if #[cfg(feature = "wasm-log")] {
         mod console;
