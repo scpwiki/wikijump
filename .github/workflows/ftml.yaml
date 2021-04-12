@@ -28,12 +28,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: wasm32-unknown-unknown
-      - run: cd ftml && cargo build --release
-      - run: cd ftml && cargo test -- --nocapture --test-threads 1
+          toolchain: stable
+      - run: cd ftml && cargo build --target wasm32-unknown-unknown --release
+      - run: cd ftml && cargo test --target wasm32-unknown-unknown -- --nocapture --test-threads 1
       - run: cd ftml && wasm-pack build
-      - run: cd ftml && cargo build --all-features --release
-      - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
+      - run: cd ftml && cargo build --target wasm32-unknown-unknown --all-features --release
+      - run: cd ftml && cargo test --target wasm32-unknown-unknown --all-features -- --nocapture --test-threads 1
   http_build:
     name: Server
     runs-on: ubuntu-latest
