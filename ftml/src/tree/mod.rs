@@ -87,5 +87,8 @@ fn borrowed_to_owned<'a>() {
     let tree_2: SyntaxTree<'static> = tree_1.to_owned();
 
     mem::drop(tree_1);
-    mem::drop(tree_2);
+
+    let tree_3: SyntaxTree<'static> = tree_2.clone();
+
+    mem::drop(tree_3);
 }
