@@ -51,7 +51,7 @@ class Text_Wiki_Parse_Tabview extends Text_Wiki_Parse {
                             '\[\[\/tab\]\]' .                  # Tab closing tag
                             '\s*' .
                             ')+' .                             # Require at least one tab
-                        ')' .
+                        ')?' .
                         '\[\[\/(?:tabview|tabs)\]\]\s*' .      # Tabview closing tag
                         '/msix';
 
@@ -67,7 +67,7 @@ class Text_Wiki_Parse_Tabview extends Text_Wiki_Parse {
 
         $elId = self::$_counter;
 
-        $content = $matches[2];
+        $content = $matches[2] ?? '';
 
         $attr = $this->getAttrs(trim($matches[1]));
 
