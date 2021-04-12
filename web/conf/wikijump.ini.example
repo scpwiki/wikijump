@@ -72,11 +72,13 @@ ssl = false
 schema = https
 
 ; [allow_http]
-; Purpose: Choose whether or not to allow ANY insecure traffic anywhere on your wiki farm. This is only recommended for
-;   local development where using SSL is tricky. The expectation in production is SSL is enabled everywhere.
+; Purpose: Choose whether or not to allow ANY insecure traffic anywhere on your Wiki farm. You will need this set to
+; true if another service (Traefik, ELB, etc.) is handling SSL termination in front of Wikijump to avoid redirect loops.
+; If you are running a simpler (unsupported) deployment or doing your own thing, setting this to false will basically
+; redirect any requests from http to https.
 ; GlobalProperties Reference: $ALLOW_ANY_HTTP
-; Default: false
-allow_http = false
+; Default: true
+allow_http = true
 
 ; [upload_separate_domain]
 ; Purpose: Determine whether uploaded files should be served off the same domain as your trusted content. It is STRONGLY
