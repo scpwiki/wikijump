@@ -35,7 +35,7 @@ jobs:
       - run: cd ftml && wasm-pack build
       - run: cd ftml && wasm-pack build -- --features wasm-log
   http_build:
-    name: Server
+    name: HTTP
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
