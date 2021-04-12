@@ -31,15 +31,14 @@
 
 use super::element::Element;
 use super::list::ListItem;
+use ref_map::OptionRefMap;
 use std::borrow::Cow;
 
+#[inline]
 pub fn option_string_to_owned(
     option_string: &Option<Cow<'_, str>>,
 ) -> Option<Cow<'static, str>> {
-    match option_string {
-        Some(string) => Some(string_to_owned(string)),
-        None => None,
-    }
+    option_string.ref_map(|s| string_to_owned(s))
 }
 
 #[inline]
