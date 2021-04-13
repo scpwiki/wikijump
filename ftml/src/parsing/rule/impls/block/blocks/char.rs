@@ -121,3 +121,26 @@ fn strip_entity(s: &str) -> &str {
         s
     }
 }
+
+#[test]
+fn test_strip_entity() {
+    macro_rules! check {
+        ($input:expr, $expected:expr $(,)?) => {{
+            let actual = strip_entity($input);
+            let expected = $expected;
+
+            assert_eq!(
+                actual,
+                expected,
+                "Actual stripped entity value didn't match expected",
+            );
+        }};
+    }
+
+    check!("", "");
+    check!("abc", "abc");
+    check!("legumes1", "legumes1");
+    check!("&amp;", "amp");
+    check!("&#100;", "#100");
+    check!("&xdeadbeef;", "xdeadbeef");
+}
