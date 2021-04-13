@@ -11,9 +11,10 @@ The design of this monorepo is incomplete. Agreement on linting rules, testing f
 TODO: NPM, Node requirements
 
 ```
-$ npm i
-$ npm run bootstrap
+$ npm run update
 ```
+
+This command will install dependencies, clean package modules, bootstrap, and then build all packages.
 
 Run `npm run bootstrap` any time you need to ensure that packages have their dependencies sorted out.
 
@@ -32,16 +33,12 @@ $ npm run dev
 Development mode will begin with a full build in order to ensure that dependency resolution succeeds. After that, a development process will be started and packages will be rebuilt every time a file of theirs changes.
 
 ### Commands
-```
-$ npm run boostrap    Link packages together, hoist shared dependencies.
-$ npm run clean       Cleanup packages node_modules and TSC build data.
-$ npm run build       Build all packages.
-$ npm run dev         Start a devlopment server for rebuilding packages when they change.
-```
+
+See [`useful-commands.md`.](docs/useful-commands.md)
 
 ### Creating a Package
 
-Creating a package is very simple. Navigate to the `docs/package-template` folder. There, you will find a premade template package that can be dropped into `packages/`. Make sure to edit the `package.json` to fit the package you intend to create, e.g. `name` and `description` fields.
+Creating a package is very simple. Navigate to the `templates/package-template` folder. There, you will find a premade template package that can be dropped into `packages/`. Make sure to edit the `package.json` to fit the package you intend to create, e.g. `name` and `description` fields.
 
 One fairly manual tweak you need to make is adding the package directory to the `references` field in the root `tsconfig.json`. This is to make sure that `.d.ts` declarations are compiled - which are essential to typecheck the monorepo.
 
