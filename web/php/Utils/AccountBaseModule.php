@@ -2,9 +2,9 @@
 
 namespace Wikidot\Utils;
 
-abstract use Ozone\Framework\SmartyModule;
+use Ozone\Framework\SmartyModule;
 
-class AccountBaseModule extends SmartyModule
+abstract class AccountBaseModule extends SmartyModule
 {
 
     public function isAllowed($runData)
