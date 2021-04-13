@@ -125,6 +125,34 @@ fn get_char(value: &str, radix: u32) -> Option<Cow<str>> {
     Some(Cow::Owned(ch.to_string()))
 }
 
+#[test]
+fn test_get_char() {
+    macro_rules! check {
+        ($value:expr, $radix:expr, $expected:expr $(,)?) => {{
+            let actual = get_char($value, $radix);
+            let expected = $expected;
+
+            assert_eq!(
+                actual,
+                expected,
+                "Actual character value doesn't match expected",
+            );
+        }};
+    }
+
+    // Decimal
+    check!("32", 10, Some(Cow::Owned(str!(' '))));
+    check!("200", 10, Some(Cow::Owned(str!('\u{c8}'))));
+    check!("128175", 10, Some(Cow::Owned(str!('💯'))));
+    check!("2097151", 10, None);
+
+    // Hex
+    check!("20", 16, Some(Cow::Owned(str!(' '))));
+    check!("c8", 16, Some(Cow::Owned(str!('\u{c8}'))));
+    check!("1f4af", 16, Some(Cow::Owned(str!('💯'))));
+    check!("1fffff", 16, None);
+}
+
 /// If a string starts with `&` and ends with `;`, those are removed.
 /// First trims the string.
 fn strip_entity(s: &str) -> &str {
@@ -162,4 +190,11 @@ fn test_strip_entity() {
     check!("&amp;", "amp");
     check!("&#100;", "#100");
     check!("&xdeadbeef;", "xdeadbeef");
+
+    check!(" ", "");
+    check!(" abc", "abc");
+    check!(" legumes1", "legumes1");
+    check!(" &amp;", "amp");
+    check!(" &#100;", "#100");
+    check!(" &xdeadbeef;", "xdeadbeef");
 }
