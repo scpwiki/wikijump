@@ -40,7 +40,7 @@ services:
     depends_on:
       - cache
       - database
-# If you wish to map the web files to a local working copy uncomment whichever makes sense below.
+# Similar to above, you may add local volums:
 #    volumes:
 #      - C:\wikijump:/var/www/wikijump
 #      - ~/wikijump:/var/www/wikijump
