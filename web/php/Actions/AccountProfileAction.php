@@ -213,25 +213,20 @@ class AccountProfileAction extends SmartyAction
 
         // now manually get all files...
         $realName = $pl->getParameterValue("real_name");
-        $gender = $pl->getParameterValue("gender");
+        $pronouns = $pl->getParameterValue("pronouns");
         $birthdayDay = $pl->getParameterValue("birthday_day");
         $birthdayMonth = $pl->getParameterValue("birthday_month");
         $birthdayYear = $pl->getParameterValue("birthday_year");
 
         $about = $pl->getParameterValue("about");
         $website = $pl->getParameterValue("website");
-        $imAim = $pl->getParameterValue("im_aim");
-        $imGaduGadu = $pl->getParameterValue("im_gadu_gadu");
-        $imGoogleTalk = $pl->getParameterValue("im_google_talk");
         $imIcq = $pl->getParameterValue("im_icq");
         $imJabber = $pl->getParameterValue("im_jabber");
-        $imMsn = $pl->getParameterValue("im_msn");
-        $imYahoo = $pl->getParameterValue("im_yahoo");
 
         $location = $pl->getParameterValue("location");
 
         $profile->setRealName($realName);
-        $profile->setGender($gender);
+        $profile->setPronouns($pronouns);
 
         // check date
         $d = getdate();
@@ -247,13 +242,8 @@ class AccountProfileAction extends SmartyAction
             $profile->setWebsite($website);
         }
 
-        $profile->setImAim($imAim);
-        $profile->setImGaduGadu($imGaduGadu);
-        $profile->setImGoogleTalk($imGoogleTalk);
         $profile->setImIcq($imIcq);
         $profile->setImJabber($imJabber);
-        $profile->setImMsn($imMsn);
-        $profile->setImYahoo($imYahoo);
 
         $profile->setLocation($location);
 

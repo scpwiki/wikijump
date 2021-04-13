@@ -10,8 +10,8 @@
 		{if $profile->getRealName()}
 		{t}Real name{/t}: {$profile->getRealName()}<br/>
 		{/if}
-		{if $profile->getGender() == "m" || $profile->getGender() == "f"}
-		{t}Gender{/t}: {if $profile->getGender() == "m"}{t}male{/t}{else}{t}female{/t}{/if}<br/>
+		{if $profile->getPronouns()}
+		{t}Pronouns{/t}: {$profile->getPronouns()}<br/>
 		{/if}
 		{if $profile->getBirthdayDay()}
 		{t}Birthday{/t}: {$profile->getBirthdayDate()}<br/>
@@ -20,7 +20,7 @@
 			{t}From{/t}: {$profile->getLocation()|escape}<br/>
 		{/if}
 		{if $profile->getWebsite()}
-			{t}Website{/t}: <a href="{$profile->getWebsite()|escape}">{$profile->getWebsite()|replace:{$HTTP_SCHEMA}://:''|escape}</a><br/>
+			{t}Website{/t}: <a href="{$profile->getWebsite()|escape}">{$profile->getWebsite()|escape}</a><br/>
 		{/if}
 
 		{t 1=$SERVICE_NAME}User of %1 since{/t}:  <span class="odate">{$user->getRegisteredDate()->getTimestamp()}|%e %b %Y, %H:%M %Z (%O {t}ago{/t})</span><br/>
