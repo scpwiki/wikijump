@@ -105,6 +105,43 @@ fn find_entity(entity: &str) -> Option<Cow<str>> {
     None
 }
 
+#[test]
+fn test_get_entity() {
+    macro_rules! check {
+        ($input:expr, $expected:expr $(,)?) => {{
+            let actual = find_entity($input);
+            let expected = $expected;
+
+            assert_eq!(
+                actual,
+                expected,
+                "Actual entity string doesn't match expected",
+            );
+        }};
+    }
+
+    check!("", None);
+
+    // Names
+    check!("amp", Some(cow!("&")));
+    check!("lt", Some(cow!("<")));
+    check!("gt", Some(cow!(">")));
+    check!("copy", Some(cow!("©")));
+    check!("xxxzzz", None);
+
+    // Decimal
+    check!("#32", Some(cow!(" ")));
+    check!("#255", Some(cow!("\u{ff}")));
+    check!("#128175", Some(cow!("💯")));
+    check!("#2097151", None);
+
+    // Hex
+    check!("#x20", Some(cow!(" ")));
+    check!("#xff", Some(cow!("\u{ff}")));
+    check!("#x1f4af", Some(cow!("💯")));
+    check!("#x1fffff", None);
+}
+
 /// Gets the appropriate character from the number specified in the string.
 ///
 /// Using the passed radix, it gets the integer value, then finds the appropriate
@@ -142,13 +179,13 @@ fn test_get_char() {
 
     // Decimal
     check!("32", 10, Some(Cow::Owned(str!(' '))));
-    check!("200", 10, Some(Cow::Owned(str!('\u{c8}'))));
+    check!("255", 10, Some(Cow::Owned(str!('\u{ff}'))));
     check!("128175", 10, Some(Cow::Owned(str!('💯'))));
     check!("2097151", 10, None);
 
     // Hex
     check!("20", 16, Some(Cow::Owned(str!(' '))));
-    check!("c8", 16, Some(Cow::Owned(str!('\u{c8}'))));
+    check!("ff", 16, Some(Cow::Owned(str!('\u{ff}'))));
     check!("1f4af", 16, Some(Cow::Owned(str!('💯'))));
     check!("1fffff", 16, None);
 }
