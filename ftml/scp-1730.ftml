@@ -1,0 +1,2731 @@
+[[include component:info-ayers
+|lang=en[!-- EN/RU/KO/CN/FR/PL/ES/TH/JP/DE/IT/UA/PTBR --]
+|page=scp-1730[!-- url of your page on the scp wiki --]
+|authorPage=http://www.scp-wiki.net/djkaktus[!-- link to your author page --]
+|comments=SCP-1730 - What Happened to Site-13? 
+]]
+[[include theme:black-highlighter-theme]]
+[[include component:bhl-dark-sidebar]]
+[[module CSS]]
+sup { 
+
+vertical-align: top; position: relative; top: -0.5em; 
+}
+@media (max-width: 1600px) {
+   .desktop-only{ display: none; visibility:hidden }
+}
+:root{ 
+--cutColour: #fafafa;
+--barColour: #590505;
+}
+
+.info-container .collapsible-block-folded a{
+color: #FFF;}
+.info-container .collapsible-block-unfolded-link a{
+color: #FFF;}
+
+[[/module]]
+[[>]]
+[[module Rate]]
+[[/>]]
+
+[[=]]
+[[image 1730warning.png width=100%]]
+[[/=]]
+
+[[include component:anomaly-class-bar-source
+|item-number= 1730
+|clearance= 3
+|container-class= neutralized
+|secondary-class= none
+|disruption-class= none
+|risk-class= none
+]]
+-----
+[[include component:image-block name=warehouse.png|align=center|width=100%|caption=Main office of SCP-1730. Primary access to basement levels is below this structure.]]
+
+-----
+
+[[include component:image-block name=location.png|align=right|width=30%|caption=Big Bend Ranch State Park, TX, USA.]]
+
+[[# SCP]]
+**Special Containment Procedures:** A circular perimeter has been established 2km from SCP-1730, and a quarantine zone has been established 1km from SCP-1730. Personnel who are to enter SCP-1730 must first undergo Class VII Hazardous Contact preparation measures, including the application of a modified "Maxwell-Harden" hazardous material reinforced airtight suit. The application of these protective measures may only take place at the Provisional Site-23 quarantine main gate. 
+
+Individuals attempting to exit the quarantined area must first submit to thorough decontamination protocols as administered by the quarantine security staff. Individuals failing to meet the quarantine extraction parameters are to be held for further decontamination or, in the event decontamination becomes unfeasible, termination.
+
+[[div style="display: block; border : dashed 1px #444444 ; background :#f5f5f5; margin-left : auto ; margin-right : auto ; width : auto ; padding:10px"]]
+**Containment Update ██/██/████:** Dangerous biological and cognitohazardous entities have resulted in high casualties of security rescue teams. Mobile Task Force Zeta-9 "Mole Rats" has been assigned to all current exploration efforts.
+[[/div]]
+@@@@
+[[div style="display: block; border : dashed 1px #444444 ; background :#f5f5f5; margin-left : auto ; margin-right : auto ; width : auto ; padding:10px"]]
+**Containment Update ██/██/████:** Due to the events detailed in Exploration Log 7, all future exploration of SCP-1730 has been suspended indefinitely, pending Overseer approval.
+[[/div]]
+@@@@
+[[div style="display: block; border : dashed 1px #444444 ; background :#f5f5f5; margin-left : auto ; margin-right : auto ; width : auto ; padding:10px"]]
+**Containment Update 02/01/2016:** Due to information gathered by Foundation surveillance teams, exploration and recovery efforts into Site-13 are no longer indefinitely suspended. Details will be available on a need-to-know basis. Assigned Mobile Task Force units will be alerted by their superior officers.
+[[/div]]
+@@@@
+[[div style="display: block; border : dashed 1px #444444 ; background :#f5f5f5; margin-left : auto ; margin-right : auto ; width : auto ; padding:10px"]]
+**Containment Update 05/15/2017:** Mobile Task Forces Apollo-3 "Game Wardens" and Tau-5 "Samsara" are activated, and assigned to exploration of SCP-1730. See //Addendum 1730.8// for details.
+[[/div]]
+@@@@
+[[div style="display: block; border : dashed 1px #444444 ; background :#f5f5f5; margin-left : auto ; margin-right : auto ; width : auto ; padding:10px"]]
+**Containment Update 06/22/2017:** Due to the events detailed in Addendum 1730.9, SCP-1730 has been reclassified as NEUTRALIZED. Additional research efforts are ongoing. Debriefing reports will become available as they are declassified.
+[[/div]]
+@@@@
+[[div style="display: block; border : dashed 1px #444444 ; background :#f7f9c0; margin-left : auto ; margin-right : auto ; width : auto ; padding:10px"]]
+[[=]]
+[[size 80%]]**FILESERV NOTICE:**[[/size]]
+-----
+THE FOLLOWING IS THE SCP-1730 DATA FILE AS IT APPEARED BEFORE ITS RECLASSIFICATION AS NEUTRALIZED. SOME INCONSISTENCIES MAY PERSIST.
+[[/=]]
+[[/div]]
+
+[[# Description]]
+**Description:** SCP-1730 is a large complex of structures 15km northwest of the US/Mexico border within Big Bend Ranch State Park that was discovered on June 5th, ████. Due to the isolated nature of the complex, and the low survival rate of individuals who come in contact with it, it is possible that SCP-1730 had been previously discovered but unreported. 
+
+SCP-1730 bears identifying markings and contains documents to support the claim that SCP-1730 was at one point Foundation Site-13, originally located near Nome, Alaska. This conflicts with current records, which show that Site-13 was a project that, while intended to be constructed in Nome, was scrapped for the larger and more advanced Site-19 and never completed. Flora located on-site have been traced back to those native to the Alaskan region. How SCP-1730 came to be at its current location is unknown.
+
+[[include component:image-block name=power.jpg|caption=The SCP-1730 power station.]]
+
+SCP-1730 is in a severe state of disrepair, and appears to have been left abandoned for an extended period of time. The site power generator has continued to operate in a damaged state, despite a number of fuel leaks and fires throughout the facility. This has resulted in intermittent power failures throughout the site, hindering exploration and rescue efforts.
+
+The origin of SCP-1730 is unknown, as is the nature of many of the anomalous entities contained within. It is confirmed that the 2nd through 15th[[footnote]]While records indicate that these floors were utilized for containment of entities, it is uncertain how far down the facility actually extends.[[/footnote]] basement levels were utilized for entity containment, though the state of that containment has deteriorated significantly. 
+
+[[include component:image-block name=bleed.jpg|caption=Message located on SW stairwell leading to third basement level.]]
+
+It is believed that a contingent of human survivors exists somewhere deep in the lower basement levels of the facility. Messages written in English have been discovered throughout the site, consisting of warnings such as "danger" and "death here", and other messages such as "not my body" and "bleed". A recurring message, "What happened to Site-13?", has been found in several different locations in the basements.
+
+Several logs of data have been collected by the remaining functional site terminals, the relevant data of which is contained in the addendums below. Worth noting is that inconsistencies exist between the logs and what has been determined through exploration, including site layout, staff makeup, and contained anomalies.
+
+[[# Add1]]
+**Addendum 1730.1:** Recovered Log
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/cylog1.log" hide="- Close File"]]
+
+> **██/██/████**
+> 
+> **Team:** Charlie Yukon
+> 
+> **Assignment:** Site-13 Recovery
+> 
+> **Lead:** CY-1
+> 
+> **[BEGIN LOG]**
+> 
+> We found it. Watched it kill Dailey earlier. Crawled right into his mouth and next thing you know, Dailey's got blood leaking out of his ears. Puking it up, shitting it out, everywhere. Blood looked funny, too. Too dark. It was running out of his hair, like through the follicles. His hair fell out right with it. 
+> 
+> Once it was over, the thing that crawled inside him crawled back out with a buddy. One of them, can't say which, drinks up all this blood like a leech. The other one crawls back inside Dailey and he stands up. Turns around, starts coming at us. I can see that thing inside him when he opens his mouth. So I put a bullet in his face. Then another. We emptied our magazines into him. He didn't get up after that.
+> 
+> We're not going to be too much longer, though. Found another one of those messages down here, you know, [COGNITOHAZARD EXPUNGED]. Just a matter of time before it starts. We strapped some C4 to it and blew the wall, and I think it's pretty illegible at this point, but it doesn't matter. Jones already went quiet like the others. We shoved him down an elevator shaft earlier. Didn't hear the body hit the ground. 
+> 
+> Think I just heard them start up Thresher. Wish we would've known about that sooner.
+> 
+> Oh well. 
+[[/collapsible]]
+
+[[# Add2]]
+**Addendum 1730.2:** Recovered Automated Message
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/recmes.log" hide="- Close File"]]
+
+//The following message was recovered from SCP-1730's emergency warning system. Logs on file indicate that it was transmitted moments prior to a major electrical disturbance, and three minutes before an explosion within the site power relay.//
+
+> ++ GENERAL NOTICE
+> 
+> **Site 13 has experienced a gross breach of containment systems.**
+> 
+> **[COGNITOHAZARD EXPUNGED] has breached containment during testing.**
+> 
+> **On-Site nuclear device is non-responsive. Thresher Protocol has been activated.**
+> 
+> -----
+> 
+> **Life Support Systems:** Online ##green|●## 
+> 
+> **Electrical Systems:** Offline ##red|●## 
+> 
+> **Fire Control Systems:** Offline ##red|●##
+> 
+> **Flood Control Systems:** Offline ##red|●##
+> 
+> **Reactor Status:** Critical ##orange|●## 
+> 
+> **Euclid Class Containment Status:** Critical ##orange|●## 
+> 
+> **Keter Class Containment Status:** Compromised ##red|●##
+[[/collapsible]]
+
+[[# Add3]]
+**Addendum 1730.3:** Exploration Log Transcripts
+
+[[collapsible show="+ Access fileserv:/S:/1730/exploration/log1.log" hide="- Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+**Initial Exploration Video Log Transcript**
+
+**Date:** ██/██/████
+
+**Exploration Team:** Mobile Task Force D-12 "Mud Slingers"
+
+**Subject:** SCP-1730
+
+**Team Lead:** D12-Cap
+
+**Team Members:** D12-1 / D12-2 / D12-3 / D12-4 / D12-5
+-----
+
+[BEGIN LOG]
+
+**D12-Cap:** Recorder's on. Everybody check your mics.
+
+**D12-1:** Check.
+
+**D12-4:** Check.
+
+**D12-3:** Check.
+
+**D12-5:** Check check.
+
+**D12-2:** And check makes five. 
+
+**D12-Cap:** Right. Command, you hear us clear?
+
+**SiteCommand:** Roger that, Team Lead.
+
+**D12-Cap:** Alright. Keep weapons locked, no idea what we're going to see in there. (//Pause//) Yep, we're set. Let's move in, those doors.
+
+(//Team moves into main SCP-1730 structure through front doors. Doors found to be unlocked.//)
+
+**D12-Cap:** Keep your eyes open.
+
+**D12-3:** Dark in here. Switching lights.
+
+**D12-Cap:** Good call. 
+
+(//Team switches on shoulder mounted lights.//)
+
+**D12-1:** Something written on the wall over here.
+
+**D12-2:** Yeah, here too. 
+
+**D12-Cap:** What you got?
+
+**D12-1:** "get below", and "don't look at the walls" next to it.
+
+**D12-4:** Little late for that.
+
+**D12-Cap:** What about you, Two?
+
+**D12-2:** "What did we do?"
+
+**D12-Cap:** You see that, Command?
+
+**SiteCommand:** Yes.
+
+**D12-Cap:** Alright, let's move on out. (//Pause//) Service elevator over there. Five, check if it has power.
+
+**D12-5:** (//Pause//) Yep. This'll work.
+
+**D12-Cap:** Let's see how far it'll take us, then.
+
+(//Team enters service elevator. Video indicates lit control panel with various floor buttons. D12-Cap hits button labeled B3.//)
+
+**D12-1:** And away we go.
+
+(//Elevator descends briefly. Stops upon reaching the third basement level. Door opens to reveal a dark hallway. A single light is on at a bend in the hall, roughly 50m from the elevator.//)
+
+**D12-Cap:** OK. Let's clear this level first, then we can go from there. One and Three, take that hallway there, myself and Four can check the rooms in this hallway, and Two and Five stay here, make sure our elevator sticks around.
+
+[[include component:image-block name=exploration.jpg|caption=Image taken from D12-5's shoulder mounted camera.]]
+
+(//Team splits up. D12-1 and D12-3 move towards the light at the end of the hallway. D12-Cap begins checking rooms on the left side of the hallway, D12-4 checks the right side.//)
+
+**D12-4:** Rooms are filthy. What is this?
+
+**D12-Cap:** Yeah, I see it too. Is it mud?
+
+**D12-4:** Feels like it. Some kind of sludge. Smells metallic. (//Pulls test tube from belt//) I'll send this back up, Site Command. Let you guys poke around in it.
+
+**SiteCommand:** Acknowledged. Try and keep out of it as much as you can until we figure out what it is.
+
+**D12-Cap:** Sure thing.
+
+**D12-1:** We're at the end of this hallway. Another hallway here, looks like there's some kind of barricade at the end. Bunch of tables and desks all piled up. 
+
+**SiteCommand:** Can you approach the barricade, One?
+
+(//D12-1 and D12-3 approach barricade.//)
+
+**D12-4:** More of the sludge in this room. Caked on the walls-- found a body.
+
+**D12-Cap:** Hang tight, One, don't move. I'm coming, Four.
+
+(//D12-Cap enters the room. A visible humanoid body is seen half submerged in the thick black material in a corner. The head and neck are not visible.//)
+
+**D12-Cap:** Yep. Any kind of identification?
+
+**D12-4:** He's got a spot on his belt for a badge, but it's missing. Looks pulled off, maybe to unlock a door somewhere?
+
+**D12-Cap:** Maybe. Go ahead and proceed, One.
+
+**D12-1:** Aye. (//Pauses//) Cap, more bodies here. That sludge is all over the back of this barricade. 
+
+**D12-3:** Shit, that one moved.
+
+**D12-1:** There's something else in this pile. Get a light on it.
+
+**D12-Cap:** Moving your way, guys.
+
+**D12-1:** Ah, there! Fuck!
+
+(//Gunshots//)
+
+**D12-Cap:** Report, guys. We're getting to you.
+
+**D12-3:** Thing crawled out of one of their mouths. Some kind of snake, I think... a lot of teeth. Can't really tell what it is, now.
+
+**D12-1:** Look here. You hit that body, see that?
+
+**D12-3:** Fuck. It's hollow.
+
+(//D12-Cap and D12-4 arrive at barricade.//)
+
+**D12-Cap:** You seeing this, Command?
+
+**SiteCommand:** Affirmative. 
+
+**D12-Cap:** Alright. Watch for that then, I guess. Weapons hot, if they aren't already.
+
+**D12-4:** Aye aye.
+
+**D12-Cap:** Let's head back to the elevator, see if we can't get down to the next level. Is that door un-- yeah, I thought so. Let's just do that, then.
+
+(//D12-Cap, D12-1, D12-3 and D12-4 move back down hallway.//)
+
+**D12-4:** Wait a second.
+
+**D12-1:** Didn't this turn left earlier?
+
+**D12-4:** Sure fucking did. Where's the elevator?
+
+**D12-Cap:** Two, Five, you read me?
+
+(//Silence.//)
+
+**D12-4:** Here we go.
+
+**D12-Cap:** Shut it. Alright, shit. Command, you read us?
+
+**SiteCommand:** Sure do, Captain. 
+
+**D12-Cap:** You got a read on Two and Five?
+
+**SiteCommand:** Should be about forty-five meters to your twelve. 
+
+**D12-Cap:** There's a wall here... looks like it's always been here. Either we're hallucinating or the building is doing something fucky, either way. (//Pauses//) Can you get a hold of either of them?
+
+**SiteCommand:** A moment.
+
+(//SiteCommand attempts to communicate with D12-2 and D12-5, neither of whom are responsive.//)
+
+**SiteCommand:** No go. 
+
+**D12-Cap:** Ah, shit. Let's find a way up and get out of here, then.
+
+(//D12 team proceeds down hallway. Notable, hallway is much longer than any on any recovered schematic of the site.//)
+
+**D12-1:** Got something else on this door.
+
+**D12-Cap:** What's that?
+
+**D12-1:** Says "silence". We trying to check this?
+
+**D12-Cap:** Is this a containment cell? That's just an office door.
+
+**D12-4:** This whole floor just looks like offices.
+
+**D12-Cap:** Alright, then. Get in there.
+
+(//D12-1 attempts to open door.//)
+
+**D12-1:** It's locked. I can't get it open.
+
+**D12-Cap:** Knock the door down, then.
+
+**D12-3:** You hear that?
+
+**D12-1:** 1... 2... 
+
+**D12-3:** It sounds like somebody shushing--
+
+**D12-1:** 3!
+
+(//D12-1 kicks door down. Video records three frames of a naked human with what appears to be fire burning out of its ears staring fearfully at the door.//)
+
+**D12-3:** Fu--
+
+(//There is an intense white light, and the sound of searing meat. All camera lenses are damaged and become non-functional. All microphones except for that on D12-3 stop working.//)
+
+**SiteCommand:** What happened? Captain? D12 team? 
+
+(//SiteCommand attempts to communicate with D12-Cap for an additional thirty seconds, before realizing that D12-3's mic is still operational.//)
+
+**SiteCommand:** D12-3, can you hear us?
+
+**D12-3:** (//Static//)
+
+**SiteCommand:** D12-3?
+
+**D12-3:** (//Static, and then the sound of slithering.//)
+
+**SiteCommand:** D12-3?
+
+**D12-3:** (//A cry, then the sound of choking. This continues for 43 seconds, and then the sound of liquid leaking, then pouring, accompanied by the sound of vomit. Large, wet objects can be overheard hitting the floor. A dull, low, approaching sound accompanies this. Mic cuts out suddenly.//)
+
+**SiteCommand:** D12-3? Shit. 
+
+**D12-2:** Oh shit, hey Site Command. 
+
+**D12-5:** Jesus Christ.
+
+**SiteCommand:** Wha-- D12-2, where are you right now?
+
+**D12-2:** By the elevator. We assumed our radios had stopped working down here, we're just waiting for them to get back.
+
+**SiteCommand:** The rest of the team is compromised. Hang on, we're trying to establish a link to your video.
+
+**D12-5:** No need for that, it's probably just interference. Can you send a team down here to get us?
+
+**SiteCommand:** Hang on, video coming up.
+
+**D12-2:** Don't--
+
+**SiteCommand:** Got it, you--
+
+(//Mounted cameras on both individuals do not show the hallway they had been standing in, but what looks like a large utility room. Boilers are visible in the near distance, and a wall appears to have been caved in. D12-2 appears to be hanging upside down, facing D12-5, both of whom are stark white and unmoving. Their faces are covered in blood that looks to have originated from their mouth, nostrils, and eyes.//)
+
+(//A large object is seen moving quickly behind D12-2, accompanied by the sound of slithering from many different sources. D12-5 opens his eyes. Two frames later, the video and audio feed cuts out. No additional responses are picked up from the D12 team.//)
+
+[END LOG]
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/exploration/log3.log" hide="- Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+**Initial Exploration Video Log Transcript**
+
+**Date:** ██/██/████
+
+**Exploration Team:** Mobile Task Force Y-24 "Gulliver's Travelers"
+
+**Subject:** SCP-1730
+
+**Team Lead:** Y24-Cap
+
+**Team Members:** Y24-1 / Y24-2 
+
+**Notes:** //Initial exploration of the main site structure proved too dangerous for an additional attempt without additional resources. The only remaining mobile task force on hand was MTF Y-24, a three man team, who was charged with entering the site power station and assessing the damage.//
+-----
+
+[BEGIN LOG]
+
+**SiteCommand:** Coming online.
+
+(//Video and audio feed for all three members comes online simultaneously. Ahead of them is the entrance to the SCP-1730 power station.//)
+
+**Y24-Cap:** You can hear us?
+
+**SiteCommand:** Affirmative. 
+
+**Y24-Cap:** Good. Anything else we should know?
+
+**SiteCommand:** Thermal scans read one of the cores as being superheated. Might be on the verge of an explosion. Stay as far away from them as you can. You can use the microdrones if you need to; don't worry about trying to get them back.
+
+**Y24-Cap:** Right. OK, good. Let's get on.
+
+(//Y24 team enters power station. First room appears to be a security station.//)
+
+**Y24-1:** There's our first problem. Doors are locked.
+
+**Y24-2:** These are pretty solid, too. Is that glass bulletproof?
+
+**Y24-Cap:** Check it.
+
+(//Loud thump.//)
+
+**Y24-2:** Guess that answers that.
+
+**Y24-Cap:** Command, are we cleared to use explosives in here?
+
+**SiteCommand:** Negative. Structure is pretty weak all over. You'll risk caving yourself in.
+
+**Y24-Cap:** Well shit. There's no other way in.
+
+**Y24-1:** Hang on. We have anybody on-site with a level 4 clearance card? One that can override breach lockdowns?
+
+**SiteCommand:** Dr. Edwards is with a team over at the containment bay--
+
+**Y24-1:** No, no. It would have to be somebody older. Edwards has only been around like, what, ten years? Somebody who has had the clearance for a long time.
+
+**SiteCommand:** Standby.
+
+**SiteCommand:** Director Jameson is currently on assignment at Site-65.
+
+**Y24-1:** Eh, that's three hours from here, we won't--
+
+**Y24-Cap:** No, you've got the right idea. Get Director Jameson on the phone, Command. Ask him what his clearance code was in... when was Site-19 built? 1960?
+
+**SiteCommand:** Standby.
+
+(//Ten minutes pass, extraneous logs removed.//)
+
+**SiteCommand:** Alright, you ready?
+
+**Y24-1:** Go ahead.
+
+**SiteCommand:** [REDACTED]
+
+**Y24-2:** Well I'll be damned.
+
+**Y24-Cap:** "Hello, Researcher Jameson." Will you look at that.
+
+**SiteCommand:** We'll send the director your regards.
+
+**Y24-Cap:** Please do. Good work, One. Let's get in here.
+
+(//Team enters power station main concourse.//)
+
+**SiteCommand:** Can you see the damaged core?
+
+**Y24-Cap:** No, they all look fine. Let's switch to the thermal lens.
+
+**Y24-2:** There it is. 
+
+**Y24-1:** Are we missing something? That core looks fine. 
+
+**SiteCommand:** We need to get closer to it, guys.
+
+**Y24-Cap:** Right. Releasing microdrone, Command.
+
+(//Y24-Cap releases microdrone. Drone approaches power station cores and begins to circle them. 12 cores are accounted for, seven of them damaged beyond repair. Three have not been brought up to power, and two are operating at full capacity. One of the two is the superheated core, which aside from its abnormal temperature shows no other sign of damage.//)
+
+**SiteCommand:** It looks fine. Can you get closer to that, Captain?
+
+**Y24-Cap:** Sure.
+
+(//Y24 team approaches the superheated core. Temperature readings begin to rise as they grow closer.//)
+
+**Y24-1:** It's hot enough, anyway.
+
+**Y24-2:** What's this shit?
+
+**Y24-Cap:** It's really thick. Is that sludge? Some kind of waste?
+
+**SiteCommand:** Try and avoid that, team. Captain, can you get a vial of it on the microdrone and send it back out the way you came?
+
+**Y24-Cap:** Yeah, hang on. Two, grab one of-- yeah, you got it. (//Pause//) Sample's on the way, Command.
+
+**SiteCommand:** Thanks. Be careful, guys. Try and get around to the other side of it.
+
+**Y24-1:** I'm over here. Nothing looks-- ah, fuck. Look.
+
+**Y24-Cap:** Jesus.
+
+(//Y24-1 camera shows no fewer than ten human bodies bound to the side of the superheated core with wire. All of the bodies appear similarly to the bodies found by the D12 team: stark white, blood leaking from all orifices, non-responsive.//)
+
+**Y24-2:** Something written underneath them. Is that blood?
+
+**Y24-Cap:** "What happened to Site-13?"
+
+**Y24-1:** These lines don't run to the main structure. See here? They're running below us.
+
+**Y24-Cap:** Any kind of identifier?
+
+**Y24-1:** Let me see... Yeah. They're all labeled "body pit". They run straight into the ground over there.
+
+**Y24-Cap:** Looks like we're going below, then. Command, you copy all that?
+
+**SiteCommand:** We do. Just received your sample back, as well. Going to get a report on that in just a few minutes.
+
+**Y24-Cap:** Alright, good. Let's get down there.
+
+**Y24-2:** There's a stairwell over here. 
+
+(//Y24 team approaches stairwell and begins to descend. Lighting is absent in the stairwell, and all team members switch on their shoulder lights.//)
+
+**Y24-Cap:** These doors are all hard locked. 
+
+(//Y24 team descends to the bottom of the stairwell. The door there is open.//)
+
+**Y24-1:** This has been pried open, looks like somebody was trying to get... out? Not in.
+
+**Y24-Cap:** Something else written on the wall here. "Fuck SCP".
+
+**Y24-2:** That's polite.
+
+(//Team enters the doorway.//)
+
+**Y24-1:** You smell that? 
+
+**Y24-2:** Fuck, yeah. That's disgusting. What is it?
+
+**Y24-Cap:** Whatever is on the other end of this hall, I'd imagine. Watch the blown radiator here, guys.
+
+**SiteCommand:** Team, take note that we are losing video feed. Something's interfering with our signal here.
+
+**Y24-Cap:** Roger that, we--
+
+(//Audio feed cuts out. Positioning system stays active for a few more moments as Site Command attempts to reconnect with Y24 team. Intermittent communications are received for an additional 15 minutes.//)
+
+**Y24-1:** Some of these are human.
+
+**Y24-Cap:** That same... it's all over the inside, that black shit, smells like iron--
+
+**Y24-1:** Something crawled out, look.
+
+**Y24-2:** Do you hear--
+
+**Y24-1:** We need to get--
+
+**Y24-Cap:** There's a light over there. Can you see it?
+
+**Y24-2:** Hello? Are you OK? Do you need help? We can--
+
+(//Audio cuts completely. Recovery efforts are halted. No communications are received from the Y24 team for an additional 24 hours, after which the team is determined to be lost. Sample that was returned with the microdrone is revealed to be blood and power core residual runoff, mixed with some kind of additional biological matter. Study into the substance is ongoing.//)
+
+(//After one week, Y24-1's video feed becomes active again for thirteen seconds. No audio is transmitted, and the video shows a group of humans standing around and looking down at a table. One of the humans turns to look at the camera, and the video cuts. No additional communications are received from the team at any point afterward.//)
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/exploration/log6.log" hide="- Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+**Initial Exploration Video Log Transcript**
+
+**Date:** ██/██/████
+
+**Exploration Team:** Mobile Access Drone
+
+**Subject:** SCP-1730
+
+**Team Lead:** N/A
+
+**Team Members:** N/A
+
+**Notes:** //While waiting for additional resources to arrive at SCP-1730, an unmanned ground-based drone was launched into the main site complex, through the same door that the D12 team had entered. The planned goal of the mission was to investigate lower floors and attempt to recover information relating to the origins of SCP-1730.//
+-----
+
+[BEGIN LOG]
+
+//Drone approaches main office building and enters through front door. A moment is spent observing the writing on the walls in the interior lobby before moving across to the service elevator.//
+
+//Drone enters elevator and turns to floor selection. There are selections for five floors above the ground level, and fifteen below. Drone moves to select B15 level. Elevator begins to descend.//
+
+//After seven floors, elevator suddenly stops. After a few moments of time, it is determined this is due to an intermittent power failure. Drone uses suitable utility to open the forward facing elevator door. The open elevator shaft is visible, and the drone is unable to determine the depth of the shaft. Using its winch, the drone descends below the stopped elevator to the first available floor. After prying open the door, the drone swings into the opening and retracts the winch.//
+
+//A sign on the wall just inside the doorway indicates that this is the 8th basement level, and that it is a Euclid-class containment wing. Lights on this floor remain dark. The drone is instructed to move down the main hallway and look for a suitable area to descend to the next floor.//
+
+//Drone moves towards a side hallway and is instructed to explore down it. It is noted that a number of messages are written on the walls, including "don't look at the walls" and "kill the quiet ones". After inspecting a number of rooms and finding them to only be empty offices, the drone returns to the main hallway.//
+
+[[include component:image-block name=camera.jpg|caption=fileserv:/S:/1730/exploration/drone139.jpg]]
+
+//Drone ceases movement upon seeing a large, vaguely humanoid entity standing near the end of the hallway (**See exploration file drone139.jpg**). This entity appears to glide slowly down the hallways, seemingly not noticing the drone. After it passes, the drone is instructed to follow the entity.//
+
+//Entity enters a maintenance closet near the end of the initial hallway. Drone observes as entity extends a long arm from beneath its outer layer and touches the floor. Upon further observation, the entity is noted to have picked up some of the thick, dark material previously identified as blood and power station runoff with what is identified as its primary "finger" appendage. Entity then begins to make slow movements towards the wall behind it. This is obscured from the drone's view.//
+
+[[include component:image-block name=writing.jpg|caption=fileserv:/S:/1730/exploration/drone144. Cognitohazard has been expunged.]]
+
+//The entity ceases movement, and then slowly turns to leave the room. The drone is instructed to move towards the wall and take note of any changes. It is noted that the entity left behind a number of unique symbols, such as [COGNITOHAZARD EXPUNGED]. The drone takes several flash photographs of these symbols and transmits them back to site command.//
+
+//Drone is then instructed to continue to follow the large entity; however, the entity has disappeared from the hallway. It is noted that the entity left no apparent footprints, even in the thick material covering parts of the floors. Drone is instructed to continue on regardless.//
+
+//Drone reaches what appears to be a series of several containment cells. The first cell is open. A placard on the side of the doorway reads "Entity 324, Scheduled for Termination 12/13/1975". The drone enters the doorway and observes a spacious containment cell. Thick rubber padding is all along the walls. The drone notices a human form in the corner of the room, covered in the thick, dark sludge. As the drone approaches the form, small sparks fire from its fingertips towards the drone. The drone takes several photographs, then leaves.//
+
+//The next three cells are all empty with no placards. The fourth cell is closed, and its placard is smashed. Drone is instructed to attempt to open the door with its cutting torch. After a few moments, it is able to do so. The drone enters the room.//
+
+//In the corner of the room is the emaciated body of a human female, roughly aged at 34 years. The body shows no signs of life. A chain is seen around the neck, descending into the shirt. Notable is the lack of sludge within this cell, possible as a result of the inhabitant closing the door and locking it from the interior. The drone searches the corpse for an identification badge, and finds one. The name reads "Jack Bright". Drone is then instructed to search the neck chain, but the chain is discovered to be broken. The drone then leaves the room.//
+
+//The drone traverses a short way until it finds a stairwell. The drone descends to the next floor. A sign by the doorway reads "5th Floor". The drone turns to view the stairwell it had previously descended from, but finds it nonexistent. After some short discussion at site command, the drone is instructed to enter the doorway.//
+
+//The drone enters into a large, spacious office floor, lit by sunlight. Several terminals are nearby, though all of them have been destroyed. The drone approaches the least damaged terminal and attempts to power it on. The terminal does not power on, though whether this is due to a power outage or damage to the machine is unknown.// 
+
+//The drone maneuvers across the room. Papers litter the floor, and many look to have been burned or shredded. The drone reaches a terminal labeled "M. Hadley" which appears mostly undamaged and attempts to power it on. The terminal powers on, and the drone then attempts to connect with the computer. The computer is running the same Foundation base system as the current model, albeit a number of generations older. The drone is instructed to transmit every file it is capable of accessing to site command. The drone begins to do this.//
+
+> **Note:** At this point in the operation, site command lost contact with the drone. Several members of the operation team suddenly showed symptoms of some kind of anomalous influence, growing silent and beginning to burn from their ears. After the onset of symptoms, any sound would trigger what appeared to be a silent explosion that shook site command and destroyed most of its communicative equipment. 
+> 
+> It was later discovered that the only individuals influenced by this were those who had viewed the symbols created by the large entity in the basement storage closet. Further examination by Foundation cognitohazard specialists and screening technology ascertained that the symbols themselves were a sort of pyroclastic cognitohazard. Any individual becoming aware of the symbols would inevitably succumb to the effects of the hazard, making any additional exploration of the site hazardous. 
+> 
+> The drone was left unattended for several days thereafter, though it did complete its task of transmitting the terminal contents. The contents of this search can be accessed in **Addendum 1730.5.** Attempts to reconnect with the drone were unsuccessful, and drone surveillance of the site from outside of the building showed that all of the floors above ground level in the primary structure were entirely empty. The drone was not located.
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/exploration/log7.log" hide="- Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+**Initial Exploration Video Log Transcript**
+
+**Date:** ██/██/████
+
+**Exploration Team:** Mobile Task Force Z-9 "Mole Rats"
+
+**Subject:** SCP-1730
+
+**Team Lead:** Z9-Cap
+
+**Team Members:** Z9-1 / Z9-2 / Z9-3 / Z9-4 / Z9-Sup
+
+**Notes:** Due to high casualties sustained by previous exploration attempts, it was decided that a team experienced in exploration of anomalous structures would be called in to continue operations at SCP-1730. To that end, MTF Z-9 "Mole Rats" was assigned to SCP-1730. The team consisted of five explorative members, and one support member who would stay at Site Command and monitor fluctuations in local reality.
+
+-----
+
+[BEGIN LOG]
+
+**Z9-Cap:** We're online. Let us know when you've got a link, Support.
+
+**Z9-Sup:** Coming up now. I'm loading your displays with what //should// be a pretty accurate map of what you should see in there, but--
+
+**Z9-3:** Don't bet on it, right?
+
+**Z9-Sup:** Like always. It's fully possible that there's a Type Green in there, alongside the other nasties. 
+
+**Z9-Cap:** Alright, Command. What's the worst of it?
+
+**SiteCommand:** There is at least one cognitohazardous entity writing hazards on the walls. Your displays should be able to filter out any and all messages written on the walls, so we don't take any chances. As for the rest, it's a containment site. 
+
+**Z9-1:** Awesome.
+
+**Z9-Cap:** There you have it, guys. Load up, let's get in there.
+
+**Z9-3:** Yes ma'am.
+
+(//Z9 team enters the main structure, but search the upper floors first. As observed by the flying drones, the floors are empty. There is no sign of the previous exploration drone.//)
+
+**Z9-Cap:** We're clean here. How are we looking, Support?
+
+**Z9-Sup:** Holding steady, captain. Nothing out of the ordinary. (//Pause//) Tell Four that he needs to adjust his channel frequency, I'm having trouble connecting to that module.
+
+**Z9-Cap:** Will do. Four, check your frequency, you're falling out.
+
+(//Team descends to main level. After ascertaining the functionality of their hazard-blocking displays, the team moves towards a descending stairwell instead of the service elevator.//)
+
+**Z9-Cap:** Going down now. Starting to see some of that sludge. Any idea where it comes from?
+
+**SiteCommand:** Part of the mixture is power station runoff, but it's mostly blood and some other biological residue, like pus. As for where it comes from, your guess is as good as ours. 
+
+**Z9-Cap:** Guess that's what we're here to find out.
+
+**SiteCommand:** That's the one.
+
+**Z9-2:** This stuff doesn't stink like you'd think it would. Just smells like pennies.
+
+**Z9-Cap:** Tighten up, all. We're going into the dark.
+
+(//Team descends several levels until they reach the 6th basement level, marked as a Euclid containment wing. Z9-Cap motions to enter the floor.//)
+
+**Z9-1:** Lot of bodies in here, Cap.
+
+**Z9-Cap:** I see em. Not all human, are they?
+
+**Z9-2:** Nope. They've all got that look to em though, from the briefing. Blood on their faces.
+
+**SiteCommand:** Stay alert, guys. 
+
+**Z9-Cap:** Copy that. Let's keep moving.
+
+(//Team moves forward for a short time, investigating the mostly empty floor. Suddenly, a rumbling is heard. All team members stop and wait for the noise to end. There is a crash, and Z9-4 shouts.//)
+
+**Z9-Cap:** So what was that?
+
+**SiteCommand:** Came from below you. Notice any structural damage?
+
+**Z9-3:** Sure fucking did. Floor collapsed under Randall. He's down below us. I can see him.
+
+**Z9-Cap:** Four, you read me?
+
+**Z9-4:** Yeah cap. I'm alright, but my leg is pretty fucked. I don't know if I can get up.
+
+**Z9-Cap:** Alright, stay there. We're going to get down to you. Three, you stay here with Randall. One, Two, move with me. Let's find a stairwell down.
+
+**Z9-Sup:** Captain, something fluctuating below you. You copy?
+
+(//Z9-Cap does not respond. Site Command also attempts to communicate with Z9 team, and fails to do so. Communications continue to be transmitted from the team.//)
+
+**Z9-4:** Where are they?
+
+**Z9-3:** Should be on their way. 
+
+**Z9-4:** Anyway you can get down here?
+
+**Z9-3:** Not without breaking my legs.
+
+**Z9-4:** You sure? I think I can hear something down here.
+
+**Z9-3:** (//Pauses//) I can't hear anything. It's probably just the pipes.
+
+**Z9-4:** [[[http://www.scp-wiki.net/transcript-epsilon-12-1555|Fucking pipes...]]]
+
+(//From Z9-4's perspective, the floor is shrouded in darkness beyond 4 meters. The only illumination is coming from the floor above.//)
+
+**Z9-4**: No, it's definitely something, it's— //(Pauses)// fuck, Brett, it's slithering. There's something down here.
+
+**Z9-3:** Hang on, mate. Cap, you read me? (//No response//) Cap? One? Two? Anybody? Goddammit.
+
+**Z9-4:** Brett, shit, it's right here. I can hear it. (//To something offscreen//) Get the fuck away from me, you slimy asshole! (//Gunshots//) I said get the fuck back!
+
+**Z9-3:** Don't shoot anything, Randall, you'll--
+
+(//Z9-4 cries out. Z9-3's camera observes what appears to be a black, leech-like creature, approximately the length and width of an adult human arm, moving slowly towards Z9-4. Z9-4 continues to fire wildly, causing Z9-3 to run behind the opening in the floor for cover. Suddenly the gunfire stops, and Z9-3 looks back over the edge.//)
+
+**Z9-3:** Randall, Jesus fuck, I--
+
+(//The creature has now entered Z9-4's open mouth, and is moving slowly down his throat. Z9-4's mic picks up muffled cries and a low grinding noise, like chewing. Z9-3 aims his weapon at the creature and fires, missing it when Z9-4 twitches. Z9-3 fires again, striking Z9-4 in the arm.//)
+
+**Z9-3:** Oh fuck, oh fuck, oh-- Captain! Permission to fire on Randall!
+
+(//No response//)
+
+**Z9-3:** Goddammit, captain! Permission to fire on Four?
+
+(//No response//)
+
+**Z9-3:** Fuck, fuck, Randall, I'm--
+
+**Z9-4:** (//Choking//) Please. 
+
+(//Z9-3 raises weapon and fires at Z9-4. There is another rumble, and the ground beneath Z9-3 gives way. Z9-3 falls onto the concrete below and is crushed by additional falling debris. Z9-3's camera and microphone disconnect.//)
+
+(//Z9-4's microphone continues to pick up Z9-4 choking and vomiting for an additional five minutes, after which Z9-4 grows silent. Another leech creature emerges from his mouth and disappears. Z9-4 stands and picks up Z9-3's weapon. Z9-4's camera disconnects.//)
+
+> **Note:** At this point, Z9 team was in full disconnect. Two members were assumed KIA, while the other three were not accounted for. After three hours of non-communication, Site Command contacted Overwatch Command to request a full stop to all explorative efforts into SCP-1730. While waiting for a response, Z9-1's microphone came back online.
+
+**Z9-1:** You didn't look, did you?
+
+**Z9-1:** Yeah, me neither. Cap?
+
+**Z9-1:** It was over there, against that wall. Is it not there anymore?
+
+**Z9-1:** I can get it open.
+
+**Z9-1:** We need fucking bullets. 
+
+**Z9-1:** I think they're gone, yeah, but I don't want to wait around, for--
+
+**Z9-1:** Lower?
+
+**Z9-1:** What floor are we on right now, anyway?
+
+**Z9-1:** I thought there were only supposed to be fifteen. Fuck.
+
+**Z9-1:** Alright.
+
+(//Z9-4's camera suddenly comes online, showing a massive room, dimly lit by many small flames. Further observation of the footage shows that the small flames all originate from the ears of many humanoids, standing quietly around the walls. In the center pit is a large creature that appears to be covered in many smaller creatures. It is barely distinguishable in the low lighting. Several large pipes over the creature have been cut and are draining onto the center of the room. The camera cuts out.//)
+
+**Z9-1:** "What happened to Site-13." This is like the fifth time.
+
+**Z9-1:** I don't fucking know, how am--
+
+**Z9-1:** Right.
+
+**Z9-1:** Wait.
+
+**Z9-1:** Yeah, I do too. It's coming from over there.
+
+**Z9-1:** This shit is everywhere, fuck, look.
+
+**Z9-1:** Open that door, a-- //shhhhhh//.
+
+(//Z9-1 is silent.//)
+
+**Z9-1:** No, I--
+
+**Z9-1:** //Shhhhhhh// stay quiet. We need to get back upstairs.
+
+**Z9-1:** Hey, who's that?
+
+(//Z9-1's mic disconnects.//)
+
+> **Note:** With the entire team once again unresponsive, Site Command ordered an emergency termination of all explorative efforts into SCP-1730 while waiting for confirmation from the O5 council. Four hours pass with no response, before Z9-Cap's camera begins transmitting. Microphone comes online shortly after.
+
+//Z9-Cap is standing in a very tall room, looking at some kind of large and intricate machine. She approaches the machine slowly before settling over some kind of input console with a backlit screen. Z9-Cap wipes dust off of a label just above the screen. The word "Thresher" is clearly visible.//
+
+//Z9-Cap's hands hover over the keyboard at the console. Another distant sound can be heard over the microphone, later identified as footsteps. Z9-Cap turns quickly to face the darkness behind her. As she turns, her shoulder mounted light strikes something on the machine behind her, and goes out.//
+
+//The footsteps grows closer. Z9-Cap begins to breathe heavily, and starts running through the dark. She trips and falls, and the noises begin to close in.//
+
+**Z9-Cap:** No, fuck you, get--
+
+(//Z9-Cap's camera disconnects. No additional transmissions are received from the Z9 team.//)
+
+[[/div]]
+[[/collapsible]] 
+
+[[# Add4]]
+**Addendum 1730.4:** Recovered Data from Power Station Terminal
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/thresher.log" hide="- Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+[[div class="scp-image-block" style="width:{$width};"]]
+[[image http://scp-wiki.wdfiles.com/local--files/scp-1730/graph.jpg link="*http://scp-wiki.wdfiles.com/local--files/scp-1730/graph.jpg" style="width:300;"]]
+[[div class="scp-image-caption" style="width:300;"]]
+Image recovered from power station terminal.
+[[/div]]
+[[div class="scp-image-caption" style="width:300; border: none"]]
+[click image to enlarge]
+[[/div]]
+[[/div]]
+
+Dr. Hadley,
+
+As you can see, the power output to the Thresher device has been adjusted to your specifications. At your command, the reactors will surge to the full 55GW required to activate the device. 
+
+Like I mentioned in our previous correspondence, the reactors will likely not survive this kind of power surge. The core dedicated to the body pit might, given its reinforced construction, but there will likely be significant damage to all the rest.
+
+Additionally, and you'll forgive me for speaking out of place since I'm not assigned to the Thresher device, but the device is still wildly unstable. The tests have been encouraging on smaller subjects, and it might someday be an applicable piece of technology, but at this moment it is only considered a measure for very final attempts. Utilization of the device could make local reality unstable here, as well as wherever the device ends up. In other words, I hope you know what you're doing.
+
+Best of luck,
+
+Engineer 242
+
+[[/div]]
+[[/collapsible]]
+
+[[# Add5]]
+**Addendum 1730.5:** Collected Data Logs
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/commlog1.log" hide="- Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+Dear Dr. Hadley (340),
+
+We have received your communication, and thank you for taking the time to contact us. We have considered your request, but at this time we cannot approve any transfers. If you are at Site-13, you are there because of your superb level of professionalism and aptitude in your profession, and we cannot afford to have you anywhere else. You may speak to your site pharmacist about an amnestic regimen if you like, but we will not allow you to transfer from Site-13.
+
+As for your concerns about Director Emerson's Mortuary Protocol, we understand your complaints. However, you must understand that anomalies, especially those classified as "humanoid", are not human beings. Human beings fall into a very specific category of non-anomalous lifeforms. Humanoid anomalies may appear to be human, but are simply "humanoid". As such, they are not entitled to the rights and privileges afforded to human beings by the Ethics Committee.
+
+Our job as researchers is to identify where anomalies come from, and then to identify how to best utilize those anomalies for the benefit of mankind. We are protectors, and we cannot protect unless we know everything there is to know about the threat at hand. Once we have learned what we can learn, we neutralize the threat.
+
+If you have any other questions, please do not hesitate to contact our offices.
+
+Sincerely,
+
+Peter Grenwald
+
+SCP Foundation Ethics Committee Chair
+Global Occult Coalition Ethics Board Head
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/3421testlog.log" hide="- Close File"]]
+
+> **Test Log**
+> 
+> **Entity-3421**
+> 
+> **Administrator:** Dr. 1343
+> 
+> **Test Purpose:** To identify Class VIII entity's ability to bend reality while exposed to dangerous conditions and to Scranton-Mollius Inhibitor Device. Use of SCP-████ to reanimate entity between tests.
+> 
+> -----
+> 
+> **Test 1:** Exposure to Temperature (-35C)
+> 
+> **Result:** Entity loses energy, becomes less hostile. Extended exposure results in low external temperature and decay of skin layer. Entity expires after 1 hour of sustained exposure.
+> 
+> **Test 2:** Exposure to Temperature (150C)
+> 
+> **Result:** Entity quickly succumbs to heat stroke. Body shows signs of burning across all surfaces. Organ damage as a result of extreme temperature. Entity unable to change reality to save itself. 
+> 
+> **Test 5:** Submerge in Water
+> 
+> **Result:** [DATA NOT FOUND]
+> 
+> **Notes:** Water seems to interfere with Scranton-Mollius device. 
+> 
+> **Test 13:** Exposure to Electricity
+> 
+> **Result:** Entity unable to save itself. Body no longer salvageable. Entity moved to body pit for incineration.
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/129comm1.log" hide="- Close File"]]
+
+> **To:** Engineer 242
+> 
+> **From:** Engineer 129
+> 
+> **Subject:** Control of Hazardous Toxins In Reactor Core
+> 
+> We're having some trouble controlling the waste backup in the pit. The runoff is supposed to be piped off-site, but it keeps getting sucked back up the air intake into the reactor. The stuff is seriously toxic; I don't want to send any of my guys in there to clean it up. Either we shut off the reactor long enough to go down there and clean it up by hand, or we're going to have a pretty serious issue here in a while. 
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/terminationlog1.log" hide="- Close File"]]
+> **[DATA NOT FOUND]**
+> 
+> **Summary of Events:** Entity showed unwillingness to submit to further testing, and as such was swiftly terminated by way of electrocution. Entity moved to body pit for incineration. 
+> 
+> Noting here that additional orders have come in from Director Emerson requesting a fullscale termination of the entire humanoid wing. Those will be processed at your convenience, and we can begin to empty out those floors. 
+> 
+> Sincerely,
+> 
+> Dr. 790
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/unknownlog3.log" hide="- Close File"]]
+
+> [COGNITOHAZARD EXPUNGED] //has shown some tenacity, but will soon break under the mental pressure applied to it by the Orators. This is not uncommon; many entities arriving for their initial inspection will resist exposure to treatment in some way, but it cannot be sustained for the duration of their time here. Entity does have a particularly interesting effect on [COGNITOHAZARD EXPUNGED] which leads me to believe that we could repurpose that aspect of the entity by removing the face, neck, upper chest area and arms, and applying it to a Mark-XII using the [COGNITOHAZARD EXPUNGED]. I will send this notice to Dr. 874 posthaste, and move forward with this project.//
+> 
+> //Sincerely,//
+> 
+> //Dr. 720//
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/unknownlog12.log" hide="- Close File"]]
+
+> **To:** Dr. Hadley
+> 
+> **From:** Engineer 242
+> 
+> They took your --blood-- leech boy down to the pit today. I made sure to alter his termination record accordingly, and made sure that output is still blocked up. I don't know what you've got planned for him, but that pit's pretty noxious now. It's not going to be good.
+[[/collapsible]]
+ 
+[[collapsible show="+ Access fileserv:/S:/1730/files/hadleyletter.log" hide="- Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+Director Emerson,
+
+Before we get started, let me just say that the number thing was always bullshit. If you want to properly dehumanize your researchers, you put them in cubicles. The numbers were a joke from the beginning. 
+
+If you're reading this, then you're left with a decision. What did you think was going to happen, throwing the bodies of anomalies into that pit? Did you think that their being alive made them anomalous? Hell, being alive is the least anomalous part of our humanity. I thought you might've seen that, but then, things have changed.
+
+The containment breach was my fault, I won't lie to you. In my research, I had the pleasure of analyzing a young boy. His name was Elijah, he subsisted only on blood, and he could siphon it through others with his mouth, right through their skin. Like a leech. He had no mental capacity beyond two years, and yet, he deserved the same chance to live as the rest of us. He did not choose to be the way he was.
+
+Then you decided to have him burned, like the rest of them. 
+
+So I modified his record. The fires of your pit won't have incinerated him, just agitated him. And that sludge that's been building up? I'm glad you cared to get it cleaned up. I'm sure you're glad too. It's pretty awful down there.
+
+Anyway, your decision. The containment breach was inevitable, and whether it was something that crawled out of the pit that did it or my hand on a button makes no difference. You have a choice to make; either stay your course and //certainly// be devoured by the creatures you have been torturing for the last fifteen years, or activate the Thresher device and hope it dumps you out in a more hospitable reality than your own. Either way, our world will be rid of you and your filth, and will be better for it.
+
+This is your death camp, Elliott. You made your bed, and now you get to die in it.
+
+Sincerely,
+
+Hadley
+
+P.S. Amazing how much can change in just a few years, isn't it? All because you were chasing a promotion. Incredible. I hope it was worth it.
+
+Oh yeah, and if you decide you want to talk this out, I'll be down in the basement with Elijah. I've got a nice warm spot for him to get setup when he arrives. You've made sure there will be plenty of blood.
+
+[[/div]]
+[[/collapsible]]
+
+[[# Add6]]
+**Addendum 1730.6:** Received Audio Transmission
+
+The following audio transmission was picked up on monitoring equipment on the morning of February 1st, 2016. The transmission, both speech and an encrypted signal that followed, has been repeating on a continuous loop since it was first detected. The contents of the transmission are accessible below.
+
+[[collapsible show="+ Access fileserv:/S:/1730/files/020116audio.mp3" hide="- Close File"]]
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+[[include :snippets:html5player
+|type=audio
+|url=http://scp-wiki.wdfiles.com/local--files/scp-1730/SOS.mp3]]
+
+[BEGIN TRANSMISSION]
+
+Hello,
+
+My name is Doctor Mohammad Scott, and I am a researcher within the SCP Foundation's Site-13 Temporal Studies division.
+
+Myself and my team were abandoned within Site-13 during a recent catastrophic event, the full details of which we do not know.
+
+We are currently surrounded by hostile entities and other hazardous anomalies. Of the original thirty members of my team, only twelve remain.
+
+To any Foundation operatives listening on this channel, we are asking for assistance. Our supplies are dangerously low, as is our ammunition. Without aid, it is unlikely that we will last more than another month.
+
+Following this message will be an encrypted, adjusted VMS transmission, decipherable by standard 1980's Foundation technology. The information within that transmission will contain our location, as well as we can describe it. 
+
+The transmission is wired by dead man's switch to myself, and will be played on a continuous loop until such time that I die.
+
+Please help us. Thank you.
+
+[ENCRYPTED INFORMATION]
+
+[END TRANSMISSION]
+
+[[/div]]
+[[/collapsible]]
+
+[[include component:image-block name=explo.jpg|caption=SCP-1730 research area access.]]
+
+[[# Add7]]
+**Addendum 1730.7:** Updated Exploration Memorandum 
+
+In light of recent information gathered by [[[http://www.scp-wiki.net/scp-2664|Foundation surveillance teams]]], it has been deemed pertinent to once again send exploration and recovery teams into Site-13. By order of Overwatch Command, SCP-1730's containment procedures have been updated. [[[http://www.scp-wiki.net/avatara|Mobile Task Force Tau-5 ("Samsara")]]] is currently under consideration for deployment. Details to follow.
+
+[[# Add8]]
+**Addendum 1730.8:** Exploration and Recovery Log Transcripts
+
+[[collapsible show="+ Access fileserv:/S:/1730/exploration/log1.log" hide="Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+Exploration Video Log Transcript
+Date: ██/██/████
+Exploration Team: Mobile Task Force Apollo-3 “Game Wardens”
+Subject: SCP-1730
+Team Lead: AP-3 Ross
+Team Members: AP-3 Houston / AP-3 Noah / AP-3 Ohalo / AP-3 Vigo
+
+-----
+
+[BEGIN LOG]
+
+**AP-3 Ross:** Radio’s live. Everybody good?
+
+**AP-3 Vigo:** Hang on.
+
+**SiteCommand:** Sixty seconds to insertion.
+
+**AP-3 Ross:** Copy. Vigo, you good?
+
+**AP-3 Vigo:** Yeah, I got it. 
+
+**AP-3 Ross:** We set?
+
+**AP-3 Houston:** We’re good.
+
+**AP-3 Ross:** Alright, stay cool, keep your lights on, and if you see anything suspect, hit your visors[[footnote]]Each member of the AP-3 team was equipped with a SCRAMBLE visor unit, which was capable of processing and filtering out known anomalous memetic devices in near-realtime. These devices, which had been previously tested on other anomalous memes and active visual hazards, would passively filter out all known hazards, and could be “activated” to filter out all written language, drawings, symbols, diagrams, etc, if they were believed to be a potential hazard.[[/footnote]] and give everyone else the heads up. Remember, the internal topography of this place is unstable, so there’s a pretty good chance we’ll get separated. If we do, stay put until the place stabilizes, and somebody will come pick you up. Use your broadcasters if nobody is responding, and shoot anything that moves. (//Pauses//) Unless it’s one of us, probably.
+
+**AP-3 Noah:** Then //definitely// shoot.
+
+(//Team laughs//)
+
+**SiteCommand:** Thirty seconds to insertion.
+
+**AP-3 Ross:** Houston, you take lead. Our information suggests this entrance leads down a pretty long staircase, but there shouldn’t be any other doors we encounter until we hit the bottom, so we should be more or less safe until we get there. Got it?
+
+
+**AP-3 Houston:** Got it.
+
+**AP-3 Ross:** Any other questions? Ohalo, you’re quiet back there.
+
+**AP-3 Ohalo:** I’m good, boss.
+
+**AP-3 Ross:** Alright, that’s what I want to hear.
+
+**SiteCommand:** Ten seconds to insertion.
+
+**AP-3 Vigo:** Here we go.
+
+//Pause//
+
+**SiteCommand:** Game Wardens, you are clear to begin operation. 
+
+**AP-3 Ross:** Let’s roll.
+
+//Team enters SCP-1730. As expected, initial interior space is a long descending staircase. AP-3 Houston takes lead.//
+
+**SiteCommand:** Team, we’re monitoring you from here, but let us know if you hear, see, or experience anything unexpected.
+
+**AP-3 Ross:** Copy.
+
+//Team descends for three minutes. Interior of SCP-1730 is unlit, with the only luminescence coming from the shoulder-mounted lights of MTF AP-3.//
+
+**AP-3 Ross:** How we looking?
+
+**AP-3 Houston:** Pretty good, we-- (//pauses//) I see a door up here, on the landing.
+
+**AP-3 Vigo:** I see it.
+
+**AP-3 Ross:** Alright, that’s unfortunate. Ohalo, Noah, keep an eye on our backs when we pass it. Hang on.
+
+//Team stops at the landing. AP-3 Houston tries the door, but it is locked.//
+
+**AP-3 Ohalo:** There’s air blowing under the door here. See where the dust is kicked up?
+
+**AP-3 Ross:** Yeah. Vigo, let’s see that thermal camera.
+
+**AP-3 Vigo:** Alright, hang on. (//Pauses//) Here it is.
+
+//10 second silence.//
+
+**AP-3 Ross:** Yeah, no, I don’t [RADIO STATIC] not even going to begin to fuck with that. Let’s keep going.
+
+**SiteCommand:** Team Lead, you copy? Is everything alright?
+
+**AP-3 Ross:** Uh-- yeah, we’re good. Still descending.
+
+**SiteCommand:** Affirmative. Just got some static, wanted to make sure you were good.
+
+//Team continues to descend for three more minutes.//
+
+**AP-3 Ohalo:** Light, look.
+
+**AP-3 Ross:** Yeah, Command, there’s a light up ahead. Might be our exit. Eyes open.
+
+//Team descends for two minutes.//
+
+**AP-3 Noah:** Shit.
+
+**AP-3 Vigo:** Whoa, what the fuck is that--
+
+**AP-3 Ross:** Goddammit. Alright, Command, be advised that the bottom of this stairwell is just missing. I don’t know where the light we saw is coming from, but we go down about three more steps and we’re in some sort of void. I don’t see a bottom to it.
+
+**SiteCommand:** Copy that. Hang tight, team, we’re taking a look at this.
+
+**AP-3 Ohalo:** What if we drop something in it? See how far down it goes?
+
+**AP-3 Vigo:** I mean I can see how far down it goes, and it sort of looks like forever. 
+
+//AP-3 Ohalo shrugs.//
+
+**SiteCommand:** Game Wardens, go ahead and proceed back up. We’ll see about another insertion point.
+
+**AP-3 Houston:** Dammit.
+
+**AP-3 Ross:** It’s alright, we’ll just--
+
+**AP-3 Vigo:** Ross, look. It’s not a void, it’s a liquid. It’s just not reflecting light, like, at all. It’s pitch black.
+
+**AP-3 Houston:** Looks sort of like water.
+
+**AP-3 Ross:** Hang on. (//Pauses//) Yeah, we’re not going to fuck with that either. Command, how far are we to the bottom of this stairwell?
+
+**SiteCommand:** One moment. (//Silence//) You’re about fifteen meters below where we expected the stairwell to end.
+
+**AP-3 Ross:** Stellar. The topography is off here. Let’s head back up a ways and see if we can find a different exit. 
+
+**SiteCommand:** Team Lead, hold position for a moment. We’re trying to determine your location right now.
+
+**AP-3 Noah:** Hey chief.
+
+**AP-3 Ross:** Hold on.
+
+**AP-3 Noah:** No, look, it’s--
+
+**AP-3 Ross:** Shut up, I’m--
+
+**AP-3 Houston:** Oh fuck, it’s rising.
+
+**AP-3 Ross:** Shit. Alright boys, time to go, fuck.
+
+//Black liquid begins to quickly rise behind MTF AP-3. Team moves quickly up the stairwell in relative silence.//
+
+**AP-3 Vigo:** It’s gaining on us, fuck, come on.
+
+**AP-3 Houston:** Jesus Christ, I--
+
+**AP-3 Ohalo:** Houston! Grab him, Ross, help!
+
+**AP-3 Ross:** Shit, don’t--
+
+**AP-3 Houston:** My legs, fuck, fuck, fuck, my legs, I--
+
+**AP-3 Noah:** There’s another door up here! Hurry!
+
+**AP-3 Ross:** Hang on.
+
+//Team enters door on the next landing. Door is slammed closed.//
+
+**AP-3 Noah:** Holy Jesus what happened to his legs?
+
+**AP-3 Ross:** Shit, Houston, are you--
+
+**AP-3 Houston:** I… uh, wait.
+
+**AP-3 Vigo:** What?
+
+**SiteCommand:** What’s happening? Do you read us?
+
+**AP-3 Ross:** Yeah, sorry Command, that all happened quickly. Houston fell coming up the stairs and his legs got covered in that… stuff… and now they’re just gone. One clean cut, like they weren’t there.
+
+**AP-3 Houston:** I can actually still feel them, guys. Like, (//pauses//) I can see they’re not there, but it doesn’t hurt, and I think I can stand up.
+
+**AP-3 Ohalo:** What the fuck.
+
+//AP-3 Houston proceeds to stand up. He is missing his legs from his knees down, but appears to be floating, as if they were still there. AP-3 Vigo waves his hand underneath Houston’s legs, which passes through the space unimpeded.//
+
+**AP-3 Noah:** Uh.
+
+**AP-3 Ross:** Alright, so there’s that. You aren’t hurting, Houston?
+
+**AP-3 Houston:** Nothing feels different.
+
+**AP-3 Ross:** OK. That’s fucking crazy. Command, do we know anything about this?
+
+**SiteCommand:** Negative.
+
+**AP-3 Ross:** Alright. Let’s keep going, then. Command, it looks like we’re in a maintenance hallway, or something similar. We’ve got pipes running up and down the walls, gauges and such. It’s pretty warm here.
+
+**AP-3 Ohalo:** There, on the wall. “What Happened to Site-13?”
+
+**AP-3 Ross:** It’s a recurring phrase that keeps showing up written on the walls here. Command, do we know that’s not a meme?
+
+**SiteCommand:** It isn’t. None of the studies we ran uncovered any anomalous effects related to that phrase. We’re still not sure why we keep finding it, though.
+
+**AP-3 Ross:** Noted. Down this hall.
+
+//Team continues in silence for four minutes. During this time, AP-3 Noah’s camera disconnects suddenly. This information was not promptly relayed to the task force.//
+
+**AP-3 Houston:** There’s something up ahead, see? There at the corner.
+
+**AP-3 Vigo:** Is that a person?
+
+**AP-3 Ross:** Approach with caution, safeties off.
+
+//Team approaches target in silence. Upon reaching target, video feed shows a severely disfigured, rotted human corpse, age unknown, partially conjoined to the wall behind it. Several other spatial distortions are evident nearby, such as the ceiling and wall appearing to pull back into each other, but this is unnoticed by AP-3.//
+
+**AP-3 Ross:** Ah, shit. Good to finally see a familiar face. Guys, it’s just Zachary.
+
+**AP-3 Ohalo:** Thank god. Zachary, how’d you get down here?
+
+//Silence//
+
+**AP-3 Houston:** Us too, man. This place is fucked up. Look at my fucking legs, man. Look at this shit.
+
+**SiteCommand:** Team Lead, please be advised that you are under the effects of a powerful cognitohazard. We are attempting to upload a filter to your SCRAMBLE visors, one moment. 
+
+**AP-3 Vigo:** Nah, Command, it’s alright. It’s just Zachary. We go way back, don’t we buddy?
+
+//AP-3 Vigo playfully punches the corpse, dislodging its jaw. The corpse does not respond.//
+
+**AP-3 Ross:** Zachary, we’re looking for some other people trapped in here. Do you know how to get to the lower levels?
+
+//Silence//
+
+**AP-3 Ohalo:** Shit.
+
+**AP-3 Ross:** OK, OK, so wait. What’s below that?
+
+//Silence//
+
+**AP-3 Ross:** Uh huh. 
+
+//Silence//
+
+**AP-3 Houston:** Shit, he’s right. Where’s Noah?
+
+//The team turns, and AP-3 Noah is not seen.//
+
+**AP-3 Ross:** Ah, shit. Zachary, stay here. Noah, do you read me? (//Pauses//) Noah, it’s Ross. Do you hear me at all? (//Pause//) Command, where the fuck is Noah?
+
+**SiteCommand:** That’s uncertain, Team Lead. Be advised, the upload is complete. Please restart your visors for the filter to take effect.
+
+//Team restarts their visors.//
+
+**AP-3 Ross:** There we go. What was it that-- oh, gross. Command, there’s a body in the wall down here. Looks like it’s been fused into it or something. Our visors are ticking like crazy, too.
+
+**SiteCommand:** Acknowledged, Team Lead. Proceed.
+
+**AP-3 Houston:** Wait, look, back there. You see shimmering?
+
+**AP-3 Vigo:** Is that gas? It looks like a gas leak.
+
+**AP-3 Ohalo:** Oh fuck, no, look at the floor. Look behind it, fuck. Fuck!
+
+**AP-3 Houston:** Shit, Noah, shit--
+
+//Approaching MTF AP-3 is a shimmering, transparent, humanoid construct, apparently the source of the spatial anomalies in this area. As its feet touch the ground, the floor begins to warp within space around them, stabilizing after the entity passes by. MTF AP-Noah is visible hanging behind the entity, though the nature of the agent is uncertain, as the spatial anomaly he is caught in appears to be extremely severe and very few of his features can be made out. Noah is seen attempting to move slightly, but continues to be twisted by the anomaly as it moves.//
+
+**AP-3 Ross:** Fucking shoot it, goddamn it. Open fucking fire, shit!
+
+//MTF AP-3 fires on the entity. As the bullets approach, their trajectory changes and they twist and spin around the entity before falling harmless on the floor or lodging in the ceiling.//
+
+**AP-3 Ohalo:** This isn’t working chief, we--
+
+**AP-3 Vigo:** My fucking arm! Shit!
+
+//AP-3 Vigo is seen turning and attempting to pull away from an unseen force. From AP-3 Ohalo’s camera a long, shimmering, transparent appendage is seen stretching towards AP-3 Vigo, abstracting the wall closest to it as it moves. It wraps around AP-3 Vigo’s left arm, which begins to visibly distort. Vigo screams.//
+
+**AP-3 Ross:** Houston! The anchor! 
+
+**AP-3 Houston:** Oh, yeah!
+
+//AP-3 Houston produces a miniature, portable Scranton Reality Anchor, which he powers on and lobs towards the entity. There is a flash of red light, and for a split second the entity becomes visible as an extremely disfigured, grotesquely elongated humanoid, which exists for only a second before the spatial distortions surrounding it are anchored and violently reset, creating a massive pressure wave in the confined space. The team is momentarily incapacitated.//
+
+**AP-3 Vigo:** Oh, my arm...
+
+//AP-3 Vigo's left arm is bright red, but otherwise unscathed. AP-3 Ohalo assesses it.//
+
+**AP-3 Ohalo:** The color will go away, that's just the anchor cooling down. You good?
+
+**AP-3 Vigo:** Yeah, I'm alright. Thanks.
+
+**AP-3 Ross:** Jesus… Noah? Noah, are you there?
+
+//Silence//
+
+**AP-3 Ross:** Can any of you see Noah?
+
+**AP-3 Vigo:** Ross, here, look. In the wall.
+
+//As dust clears, AP-3 Noah becomes visible, partially fused with the wall, ceiling, and floor across ten meters of hallway. The agent is unmoving.//
+
+**AP-3 Houston:** (//Retches//)
+
+**AP-3 Ohalo:** (//Indistinct muttering//)
+
+**AP-3 Ross:** God… Command, do you read me? Hello?
+
+**SiteCommand:** We read you, Team Lead.
+
+**AP-3 Ross:** We’ve lost Noah, he's... in the wall. Do you want us to proceed?
+
+**SiteCommand:** One moment.
+
+//Silence//
+
+**SiteCommand:** Team Lead, do you feel as if returning to the surface will be more dangerous than continuing your mission.
+
+**AP-3 Ross:** I-- I have no way of knowing that. We have no way of knowing what's in here. Everything in here is so fucked it's incredible. I don't even know if we //can// get back, if we wanted to. None of the other teams have, have they?
+
+**SiteCommand:** That is correct.
+
+**AP-3 Ross:** (//Pause//) Honestly, whatever happens down here can't be any worse than whatever we'd see on our way back. It probably doesn't make a difference. (//Pause//) Whatever. Let's keep going.
+
+**SiteCommand:** Affirmative. Team Lead, we are preparing another team to evac you, in the event that you reach your target. Insertion time is in four hours.
+
+**AP-3 Ross:** You're sending another task force in here? What idiots volunteered for that gig?
+
+**SiteCommand:** Samsara.
+
+**AP-3 Ross:** Oh. (//Pause//) Alright, cool. I copy.
+
+//Team continues on for a short time, unimpeded. They pass through several other areas, including a ransacked infirmary, a cafeteria space melted into slag, and a wing of containment units identified as "Olympia Class" that are no less than 100m in height. Eventually, the team enters a room off of the main hallway that appears to be a telecommunications center. A single television is illuminated on a wall across from them.//
+
+**AP-3 Houston:** This is weird.
+
+**AP-3 Ross:** Stay cool, guys. Search this room, see if there's anything we can collect that they could use topside.
+
+**AP-3 Vigo:** These terminals have power, I'll collect a backup.
+
+//There is a sound on the other end of the room, like static. Ohalo and Houston move towards the illuminated television.//
+
+**AP-3 Ohalo:** Is something broadcasting through this?
+
+//The screen flickers, and an image appears. The interior of a standard containment cell is shown, though it is devoid of any comforts or belongings. A single red light behind the camera is on, poorly illuminating the space. A long figure is huddled in the corner.//
+
+**AP-3 Houston:** Hang on, is that...?
+
+**AP-3 Ohalo:** Holy shit, it is.
+
+**AP-3 Ross:** What is it?
+
+**AP-3 Houston:** It's Bobble the fucking clown.
+
+//At the mention of the name, the figure in the corner looks towards the camera.//
+
+**Unidentified Figure:** What? What do you want? Who is it?
+
+**AP-3 Ross:** Jesus-- my name is Ephram Ross, I'm an agent with the-- actually, hang on. Who are you?
+
+//The figure shifts sideways, and more of its body becomes visible through the darkness. The red light illuminates its eyes, though little else of the figure can be made out.//
+
+**Unidentified Figure:** Mmmmmmmm... you're different. You smell different. You know I can smell you, even from here? You don't know that, though. They did, but you're not //like// them. They went to great lengths to figure that out. They knew, they know, they will know, mmmmmmmm.
+
+**AP-3 Ross:** You're Bobble the Clown, yeah?
+
+//The figure slides slowly across the wall of the cell, just out of range of the red light. Its movements are noticeably erratic. It comes closer to the camera.//
+
+**Unidentified Figure:** They had a number for me once, when I was Bobble. But your friends didn't like the number. Said we identified with the numbers. Mmmmmmmm... I am not Bobble, but I am a thing that used to be Bobble. (//Pauses//) You're not where you're supposed to be, gun buddy. You don't //match the air// in here. You're out of place, just like I am. Just like we are.
+
+**AP-3 Ross:** Uh huh. What happened here?
+
+**Unidentified Figure:** Daddy Emerson played a tricky little game with the strings of the universe. He walked on them like a tight rope, and was surprised when he fell. Tricky little Emerson. Didn't just want boxes, no no no. He wanted boxes full of ideas. Ideas like pain, horror, death. He worked very hard to stack those boxes on his string and broke the whole thing, and we all came tumbling down with him (//laughs, and trails off//)
+
+**AP-3 Ross:** How many other entities are in here? What else do you know?
+
+**Unidentified Figure:** How many, hee hee hee, how many entities were swallowed by Site-13? (//Laughs//) You silly silly out of place boy. Silly little boy. Everything made its way into Site-13. If the Foundation could find it and the Coalition could catch it, it was fed into the //meat grinder down here//. Everything. They mulched us all, if there was nothing to gain. Some got lucky. Bobble got lucky. Stuffed in a funny box and played with. Toyed with. Experimented with. To see what sounds we made when we wanted to die. Others were not so lucky. (//Pauses//) They burned the Library, you know. Held it upside down like a can of soup and let the contents run out into the furnace, and burned the whole place up. They did other things, too. Worse things. Daddy Emerson liked it. He watched it all, everytime. Got his //jollies off watching it//. (//Spits//)
+
+**AP-3 Ross:** What worse things?
+
+//The unidentified figure approaches the camera and comes fully into view, illuminated by the red light. A significant portion of its body is distorted by video static that moves as it moves. This static appears to be cutting into the tissue of the figure's body, creating large lacerations that ooze a dark yellow fluid. As it moves, the figure appears to be sloughing off large portions of its mass, which are replaced with static. Half of its face sloughs off as it nears the camera, and one eye becomes shrouded in static.//
+
+**Unidentified Figure:** Every worse thing.
+
+**AP-3 Vigo:** Chief, we're picking something up on the radio. I think it's the survivor's signal, we must be getting close.
+
+**AP-3 Ross:** (//Pauses//) Alright. Let's keep moving.
+
+**Unidentified Figure:** Have fun, boys. Don't let the dead bugs bite. (//Laughs//) If you see Daddy Emerson down there... (//pauses//) //rape him to death for me.//
+
+//AP-3 team passes out of the telecommunications room and into the main hallway. Following the strength of the signal discovered by AP-3 Vigo, they near an area that appears to be a cryogenic containment unit, similar to those utilized in the defunct Cryogenics Y-Wing of Site-19. As they pass through this area, Command loses the signal of each member of the team, with only intermittent static being broadcast. This continues for thirty minutes before a signal is received again.//
+
+**AP-3 Houston:** Command? Command? Are you there? Do you read me?
+
+**SiteCommand:** Houston? We read you, are you alright? Is everyone alright?
+
+**AP-3 Houston:** Oh shit, thank God. We've been trying to reach you forever. Yeah, we found the survivors. They're holed up down here in... I don't know what you'd call this place, but it's not conducive to habitation. We're looking at twenty, maybe thirty people? We found some other agents of ours, too. A few Mole Rats, and a guy from the Travelers. They all ended up down here.
+
+**SiteCommand:** Are you prepared to evac?
+
+**AP-3 Houston:** Uh, yeah, so... that's not going to happen the way I think we wanted to, not currently. It's a whole lot worse here than we had anticipated, Command. I don't know how they ever locked some of this stuff up, but suffice to say that every single containment cell is broken open, and this shit is real. Like, really real. We keep hearing things down the hallways nearby, I think whatever is out there is looking for us. I think they're angry. If they find us, we don't have the bullets to keep them down, let alone get these people out. 
+
+**SiteCommand:** Where is Ross?
+
+**AP-3 Houston:** He's been trying to get some defenses ready with the others, in case they come tonight. It's not looking good, you know? I don't know if you guys have a backup plan, but we'll take any ideas.
+
+**SiteCommand:** How long have you been down there?
+
+**AP-3 Houston:** Uh... (//pauses//) maybe three days?
+
+**SiteCommand:** Affirmative. Apollo-3 Team, be advised that we are activating and inserting Tau-5 for rescue and recovery.
+
+**AP-3 Houston:** Fuck yes. Tell them to hurry.
+
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/recovery/reclog1.log" hide="Close File"]]
+
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+
+Extraction and Recovery Video Log Transcript
+Date: ██/██/████
+Exploration Team: Mobile Task Force Tau-5 “Samsara”
+Subject: SCP-1730
+Team Lead: T-5 Irantu
+Team Members: T-5 Munru, T-5 Onru, T-5 Nanku
+
+**Notes:** //The following is an audio/video transcript of an extraction and recovery mission carried out by the members of Mobile Task Force Tau-5 “Samsara”, after contact by MTF AP-3 “Game Wardens” with human survivors within SCP-1730. The AP-3 team had requested assistance in extracting the survivors due to the large number of hostile entities within the site.//
+
+//Each member of MTF Tau-5 was outfitted with a number of cybernetic enhancements per the specifications of their design, including arm-mounted incendiary cannons, shock-absorbing leg extensions, heat-resistant plating, built-in SCRAMBLE adaptations within the eyes, and others.//
+
+//Tau-5’s insertion point was a drainage gate near the secondary entrance that the AP-3 team had inserted through.//
+
+-----
+
+[BEGIN LOG]
+
+**T-5 Irantu:** We’re plugged in. SiteCommand, do you read me?
+
+**SiteCommand:** We do. 60 seconds to insertion.
+
+**T-5 Nanku:** So. How dangerous should this mission be considered?
+
+**T-5 Munru:** Not a single person they’ve sent in has come out yet. Considerably.
+
+**T-5 Nanku:** Acknowledged. This should be engaging.
+
+**T-5 Irantu:** Team, check your optics; the last thing we need is somebody succumbing to a memetic hazard.
+
+**T-5 Nanku:** Understood. (//Pause//) I’m good.
+
+**T-5 Munru:** Also good.
+
+**T-5 Onru:** I’m good.
+
+**T-5 Irantu:** Good. Remember, all we’re looking to do here is extract the survivors. We’re not attempting to contain anything, so if you see something nasty, put it down. 
+
+**T-5 Nanku:** As always.
+
+**T-5 Munru:** I don’t need to be convinced.
+
+**SiteCommand:** Team, you are 30 seconds to insertion.
+
+**SiteCommand:** 10 seconds to insertion.
+
+**SiteCommand:** Tau-5, you are cleared to begin extraction and recovery.
+
+**T-5 Irantu:** Let’s go.
+
+//T-5 team enters SCP-1730 through a drainage gate under the secondary office structure. Each team member activates their shoulder-mounted lamp, illuminating the tunnel. After a short time, the team reaches another gate. Several large drainage pipes are visible behind the gate.//
+
+**T-5 Munru:** Look. Up against the gate. Bodies.
+
+//No fewer than twenty charred humanoid forms in varying stages of destruction are pushed up against the bottom of the gate. Several arms are pushed through the grate and are reaching out towards the tunnel.//
+
+**T-5 Nanku:** These look… very burned. Where do you think they came from?
+
+**T-5 Irantu:** Hard to say. I can’t imagine they would’ve made it far in this condition.
+
+**T-5 Munru:** There’s an incinerator near here, right? Near that body pit we keep hearing about? Maybe they came from there.
+
+**T-5 Nanku:** An incinerator?
+
+**T-5 Irantu:** As good a place to start as any. Let’s get into those pipes there.
+
+//T-5 team cuts through the gate and scales the wall behind it to the largest of three drainage pipes. Team continues on for a short time.//
+
+**T-5 Onru:** The temperature is rising.
+
+**T-5 Irantu:** I noticed it, as well. We must be getting close.
+
+**T-5 Munru:** We’re descending right now, too. (//Pauses//) This is strange. Shouldn’t a drainage pipe run out, not in?
+
+**T-5 Nanku:** Maybe. Maybe it's affected by the topographical abnormalities.
+
+**T-5 Irantu:** Likely.
+
+**T-5 Onru:** Irantu, the wall is weak here. I can hear echoing on the other side of it. 
+
+**T-5 Irantu:** What’s over there?
+
+**T-5 Onru:** Hang on. (//Pauses//) A hallway, I think. 
+
+**T-5 Irantu:** I see. (//Pauses//) Alright. We’ll split up here. Munru, you and Nanku see where this tunnel lets out. Onru and I will go through this wall and see what’s on the other side. 
+
+**T-5 Nanku:** And if we get killed?
+
+**T-5 Irantu:** Don’t get killed.
+
+**T-5 Nanku:** Understood.
+
+//T-5 team splits up, with T-5 Nanku and Munru following the drainage pipe towards the source of the heat, and T-5 Irantu and Onru going through the thin wall to the hallway beyond.//
+
+//Irantu and Onru manage to break down the concrete wall between the drainage pipe and the hallway beyond. Within the hallway are several bare offices, barely lit by dim overhead lights. The entire area appears to have been abandoned for some time. Irantu and Onru look for an elevator or stair access, but find nothing.//
+
+//After a short time, Onru finds a door that opens into a control room. A large glass observation window is obscured by some dark material. Many of the controls in this room have been destroyed.//
+
+**T-5 Onru:** This is the control room for the incinerator, see? It says “Incinerator #1” over there. And below it, it says… “body pit access below”.
+
+**T-5 Irantu:** I’ve never heard of a furnace that needed its own control room. What’s blocking the window there? Blast shields?
+
+**T-5 Onru:** No. (//Pauses//) No. (//Approaches the window//) These are bodies. And garbage. Refuse. Congealed and coagulated. Look, you can see faces.
+
+**T-5 Irantu:** I see it. (//Pauses//) Our intel said that one of the engineers had blocked up the drainage pipes out of here. Nanku and Munru are probably going to run into that. (//Pauses//) I wonder if there’s another way down from here. I thought we’d be able to go down through the incinerator.
+
+**T-5 Onru:** Hang on. 
+
+//Onru proceeds to look over the controls on a relatively undamaged controller near the observation window. As she does, Nanku and Munru appear at the door.//
+
+**T-5 Munru:** It’s blocked. Something has turned the end of that pipe into slag. We tried to punch through it, but it’s pretty thick.
+
+**T-5 Nanku:** I broke my hand on it, look. (//Holds up her hand, which is undamaged.//) It //was// broken, I mean.
+
+**T-5 Irantu:** Quiet. Onru is looking for someth--
+
+**T-5 Onru:** Got it.
+
+//Onru throws a large switch and turns several nearby knobs. There is an immense groaning sound, and the mass in front of the window begins to spin slowly.//
+
+**T-5 Nanku:** Interesting. 
+
+//There is a jolt, as if something has broken free, and the mass begins to spin rapidly and slowly descend. There is the distinct sound of a turbine spooling up. The team’s internal temperature gauges begin to register a steady increase in heat.//
+
+**T-5 Munru:** It’s dropping. Look down there, see?
+
+//The mass has cleared the window, revealing a massive cylindrical chamber on the other side, at least 300m in diameter and roughly 400m deep. At the center of the chamber is a massive shaft, extending the full height of the chamber, attached to several large turbines. As the turbines spin, the matter within the chamber is turned into a slurry. Near the top of the chamber are several pilot lights. Large holes are present around the outside of the chamber.//
+
+**T-5 Onru:** Alright, and then…
+
+//Onru throws another switch, and the pilot lights are ignited. Enormous streaks of fire cascade down from the ceiling of the chamber, scorching the mass below. Additional jets of flame begin to emit from the walls of the chamber.//
+
+**T-5 Irantu:** Look, down near the bottom. There’s a sluice gate that looks like it’s leading away from here. Over there, see? Can you get that door open?
+
+**T-5 Onru:** Yes. (//Pauses//) Got it.
+
+//A large circular door opens near the bottom of the pit, above the level of the matter within.//
+
+**T-5 Munru:** Excellent, though I still don’t know how you think we’re going to get in there, the pipe is block--
+
+//Nanku extends her arm, and fires several rounds from a wrist-mounted projectile weapon at the glass window in front of them. The glass cracks and shatters, exposing the room around them to the heat of the chamber.//
+
+**T-5 Munru:** Straightforward.
+
+**T-5 Nanku:** One does, what one can.
+
+//The team enters the incinerator and jumps down onto a ledge below, near another drainage pipe. They make their way through the vast chamber, avoiding the spinning blades and ever descending biological slurry around them.//
+
+**T-5 Munru:** Something unpleasant took place here.
+
+**T-5 Nanku:** Oh?
+
+**T-5 Munru:** Yes, in fact. (//Shoots a glance at Nanku//) All of this has to be draining somewhere, likely out below us, through one of these fissures. 
+
+**T-5 Irantu:** We don’t have time to find out. We’ll follow this pipe down and see where it goes.
+
+//Team enters the open door and descends down the drainage pipe a short distance, before it empties into a large cistern. The team enters the cistern, which is lit from above by a large, glowing, plant-like structure.//
+
+**T-5 Nanku:** Interesting. What do you think that is?
+
+**T-5 Onru:** I-- (//pauses//) I don’t know.
+
+//At the sound of their voices, the glowing structure begins to shake slowly, and thousands of glowing, spinning pods are released from its body. As they fall, they brightly illuminate the entire chamber.//
+
+**T-5 Munru:** Look. The shadows.
+
+//The glowing pods create vaguely humanoid shadows on the walls of the cistern, which act in an anomalous manner. These shadows appear to reach their hands up or forward, as if towards the team. As the pods reach the slurry below, they extinguish, and the shadows disappear.//
+
+**T-5 Irantu:** Alright. Which way do we go?
+
+**T-5 Munru:** This is a drainage pipe, leading away from the incinerator. The incinerator is underneath the power station, which is to the east of the compound. So far as we can tell, we need to go northwest from there, so… (//pauses//) hang on. Look over there.
+
+**T-5 Nanku:** At what?
+
+**T-5 Munru:** At the wall. Something is seeping through it. Was that there before?
+
+**T-5 Onru:** No.
+
+**T-5 Irantu:** (//Approaches the wall//) It’s black, and shiny and definitely seeping. Something is pushing through.
+
+**T-5 Nanku:** What does that mean? What is it? Drainage?
+
+**T-5 Munru:** Unlikely. It’s probably runoff from the reactor, or--
+
+**T-5 Onru:** (//Approaches the wall//) No, it’s blood. It’s leeches.
+
+**T-5 Irantu:** What?
+
+**T-5 Onru:** Look.
+
+//Onru points at a spot on the wall, illuminated by their shoulder mounted lamps. At that spot, a thick flow of black fluid is seeping between a crack in the wall, and something small is wriggling within the crack. The team zooms in on the spot, revealing a small, writhing leech pushing its way through the spot. It breaks through, and falls to the ground.//
+
+**T-5 Nanku:** Huh. It’s a leech. What does that mean?
+
+**T-5 Munru:** Nothing good.
+
+//The small leech moves towards the biological slurry at their feet, and begins to ingest it. As it does, the leech slowly begins to grow in size.//
+
+**T-5 Onru:** More of them. In the wall, there, pushing through.
+
+//The team looks back towards the wall, where several spouts of black fluid are beginning to pour through various cracks along its surface. Several more small leeches are squirming through these cracks.//
+
+**T-5 Irantu:** Onru, what do you see?
+
+**T-5 Onru:** (//Pauses//) There’s something below us. It’s huge. Covered in other people's blood. Reaching up towards us. These are like fingers, they all communicate back to the host, the-- (//pauses//) Bring me a leech.
+
+**T-5 Munru:** What?
+
+**T-5 Nanku:** You’re kidding.
+
+**T-5 Onru:** No, bring me one. They’re telepathic, they’re communicating that way. I need a leech.
+
+//Irantu moves across the room before grabbing a leech off of the ground. As he pulls it away from the liquid, it struggles and squirms, biting several large chunks out of his hand.//
+
+**T-5 Irantu:** Peculiar. (//Pauses to look at the leech//) Here.
+
+**T-5 Onru:** Alright, one moment.
+
+//Onru extends her left hand towards the leech, which opens up to reveal a series of long, delicate, metallic rods with pointed tips. She maneuvers the rods into the flesh of the creature, near the base of the brain.//
+
+**T-5 Onru:** There. Let’s see. (//Pauses//) They heard the incinerator activate. They’re hungry. They’re coming up here to eat, a lot of them. The host is down below us, but I can’t see that far down. (//Pauses//) If I look at the neural activity of the entire network of entities, I can map out the areas they’re in. Let me see if I can do something with that. (//Pauses//) There we go. You should all have it on your retinas now.
+
+**T-5 Irantu:** Clever.
+
+**T-5 Nanku:** So we’re looking at a map? It seems too distorted to be a map.
+
+**T-5 Onru:** Ongoing topographical changes. Means that, despite the changes in the structure of the site, it’s all still located within our local reality. It’s just unstable. 
+
+**T-5 Munru:** Do we know where this Thresher device is?
+
+**T-5 Onru:** Probably something to do with this section, here. If you follow a logical structural design plan based on the evidence provided in this map, there should be a whole extra wing here, but there aren’t any of the leeches down that way. (//Pauses//) Yes, I can see conduit running to that area. That’s where the Thresher machine is.
+
+//Silence.//
+
+**T-5 Irantu:** What about our recovery?
+
+**T-5 Onru:** This area, here. Several corridors lead to a large research wing, but most of them have been blocked off. Every now and then, one of the ends of the network goes dark here. (//Pauses//) The survivors are in there. 
+
+**T-5 Irantu:** What’s the fastest way in from where we’re at now?
+
+**T-5 Onru:** One moment. (//Pauses//) Three paths to choose from, each with different potential hazards. The first takes us further down this pipeline, until we reach a waste treatment facility within the plant. This is the longest route, but from that facility it’s a fairly direct shot towards the survivors. The second path drops us into another cistern below this, which leads directly to this large chamber here. (//Pauses//) The leech is in there. I can hear it right now, it’s wondering why this one hasn’t come back. 
+
+**T-5 Irantu:** And the third?
+
+**T-5 Onru:** The third route takes us through this area here, which… is queer. I can hear the leeches as they move around the site. They’re noisy, uncoordinated, acting on impulse and without much… finesse. But in this area, they’re all very quiet. They go in and out for… something… but they do it very, //very// quietly. 
+
+**T-5 Nanku:** (//Motions towards the ground at her feet//) Look at this leech. It’s the size of a cat already.
+
+**T-5 Munru:** Are there any other entities in there?
+
+**T-5 Onru:** I can’t tell. The leeches follow a single path in, and a single path out. They don’t stray from it, and-- (//pauses//) they don’t look around.
+
+**T-5 Irantu:** Which is the fastest path?
+
+**T-5 Onru:** The last one is the fastest. We follow this tunnel towards a service door, and follow a staircase towards the bottom. Once we’re there, there’s another hallway off to the left that takes us past that area, or through it, maybe, and on the other side is the back entrance to our research wing.
+
+**T-5 Irantu:** Alright. (//Pauses//) That’s the one we’ll take, then.
+
+**T-5 Nanku:** A shame. Here I thought we’d be shooting leeches.
+
+**T-5 Irantu:** You’ll have plenty of chances to on our way out, I’m sure. We need to get these people out quickly. Onru, does it feel to you like the leeches are trying to get into the wing where the survivors are?
+
+**T-5 Onru:** Yes. There is plenty of blood in this site, but not all of it is still warm. They’ll be coming for them soon.
+
+//Team leaves cistern and follows drainage pipe west. Eventually the team reaches a service door, lit by a single flickering lamp.//
+
+**T-5 Munru:** There’s something written on this door. “Blood”. 
+
+**T-5 Nanku:** Here on the wall, too. Look. What’s it written in?
+
+**T-5 Irantu:** Wait.
+
+**T-5 Onru:** Look.
+
+//Onru amplifies her shoulder mounted spotlight, illuminating the entire wall of the tunnel. The word “blood” is repeated over and over, scrawled across the surface of the wall in a thick, black substance. Onru turns left, illuminating several dessicated corpses in a corner at the end of the tunnel, all of which are covered in and seeping the same fluid.//
+
+**T-5 Nanku:** Unsettling.
+
+**T-5 Irantu:** Come on. Don’t waste time.
+
+//The team enters the service door, revealing a partial staircase. The stairs above them are intact, but the stairs below have been destroyed. The walls of the stairwell are coated in cracks, through which seeps the black fluid. Munru lights a flare and drops it, and the team watches it fall. After a short time, the flare lands with a slight splash, revealing the floor below.//
+
+**T-5 Nanku:** How large is this site?
+
+**T-5 Onru:** (//Pauses//) Site-19 has at least 50 underground floors, and no fewer than 80 individual wings. Considering what we know about Site-13, it’s likely that there are at least twice as many of each, if not more. The Euclid-Class containment cells alone are as large as the entirety of Site-81.
+
+**T-5 Munru:** Which means there could be worse things down there nobody has seen yet.
+
+**T-5 Irantu:** It’s almost a certainty.
+
+//Irantu leaps from the landing and lands near the flare, his implants absorbing the majority of the impact. The rest of the team follows suit. At the bottom of the stairwell is another door into a hallway, and the team enters it.//
+
+**T-5 Irantu:** Where to now?
+
+**T-5 Onru:** About 200m down this hallway, on the right. There are several security doors, but I think they’ve all been disabled. Through there is… I think it’s a data storage center. It’s big, and lined with vents that lead to the cooling towers at the surface.
+
+**T-5 Munru:** Where do the leeches start acting strange?
+
+**T-5 Onru:** In there.
+
+**T-5 Munru:** Wonderful..
+
+//Team moves down the hallway, Nanku at point, flanked by Onru and Manru, and Irantu watching the rear. As they pass, they check each door to see if they are locked. Most doors lead to network maintenance areas, though notably one door leads to the telecommunications room previously visited by the AP-3 team. One screen on the far wall appears to have been busted from the inside out.//
+
+**T-5 Nanku:** Look here. This is the door to the server area.
+
+**T-5 Munru:** What’s that door there?
+
+**T-5 Irantu:** It’s marked as “Stairs to Cryonics”. (//Pauses//) If I had to guess, I’d say it probably goes up to the next levels, and it’s seated right on top of this room. Acts as insulation for the data center.
+
+**T-5 Munru:** Can we go through it?
+
+**T-5 Irantu:** Which way is faster, Onru?
+
+**T-5 Onru:** The only way I can see is through the server room. There weren’t any leeches up there. (//Pauses//) That is very strange. There are certainly plenty of access points to that room. (//Pauses//) Very strange.
+
+**T-5 Irantu:** Through the server room, then. Come on.
+
+//Team enters through the door of the server room. They pass through several more security doors, all of which are unlocked. As they do so, the external temperature drops severely, and stays steady at roughly -20 °C. Irantu motions for the team to activate their internal heating coils, protecting their internal organs from damage due to exposure.//
+
+//As the team proceeds down the hallways into the server room, T-5 Nanku’s SCRAMBLE optical implant begins to activate, signalling that an anomalous meme is being filtered out. However, T-5 Nanku had previously disabled the visual cue for the warning on her optical overlay, instead relying on the audio cue that accompanied the implant. The audio warning does not trigger at all.//
+
+//It is not until the team enters the primary server room that T-5 Onru realizes that no sound is audible at all, regardless of the source. Thinking at first that it might be her auditory implant, Onru removes the implant and restarts it, but after establishing that it is functioning properly, she attempts to communicate this with Irantu.//
+
+//Irantu motions for the team to hold and attempt to discern the source of the anomalous influence. As they do, each other team member receives the warning that their SCRAMBLE filters are being triggered. Munru motions towards the door they entered through, but Irantu motions towards the back of the server area, towards the research wing.//
+
+//It is during this silent discussion that Nanku first notices movement across the large room. Motioning for her teammates to stay still, each team member begins to hear a quiet whining sound, which slowly grows in intensity. As they huddle up, Munru notices writing on one of the server racks, written in black fluid, that says “SILENCE” and then “DON’T LOOK”. He motions towards the racks, and the team acknowledges it.//
+
+//Irantu motions for the team to move towards the far wall, and they slowly proceed between the server racks towards the back exit. Suddenly, Onru catches a momentary glimpse of a large entity across the room, and stops her teammates from advancing. She looks around the corner, and sees the entity again as it comes back into view.//
+
+//The entity is a massive, multi-limbed figure. The primary structure of the entity is a floating, cross-legged, humanoid construct with six legs, eighteen arms, and thirty-six forearms attached to seventy-two hands. Each limb moves independently, gesturing and posing in constant, sudden, jerking movements. The entity does not have a head, but instead has a large, flat, circular structure attached to its upper chest that is covered in a large number of symbols and glyphs, which glow with bright white light against the entity’s dark grey-brown skin. On each of the entity’s arms are a gold band, attached to a chain, which drags the ground when not being pulled around in one of the entity’s gestures. The golden bands are etched with glyphs later identified as being powerful antikinetohazards[[footnote]]From the Site-13 research file on 86243AR-001 “Malidramagiuan”, “//Study of the activated 86243AR-001 has led to the advent of Kinetology, the study of Kinetocism. Kinetoglyphs, or kinetohazards, are mental and physical hazards that occur when an entity performs specific gestures and motions that interact with multiple spatial dimensions simultaneously, often with disastrous consequences. An antikinetohazard, designed to negate the effect of the active kinetohazard, is typically the “inverse” of the kinetoglyph being performed, though this can take the form of certain symbols and glyphs, instead of just the inverse of the actual gesture (as doing so with entities such as 86243AR-001 would be impossible)//.” See Addendum 1730.9 for more details.[[/footnote]], though the chains are broken and the antikinetohazards are inactive. Most notably, a single severely emaciated, severely charred human figure is bound to the flat circular structure of the entity’s head. This figure twists against its restraints, and appears to be screaming, likely the whining sound heard through the entity’s muting kinetohazard[[footnote]]From the Site-13 research file on kinetohazards, “Using seven of its hands, 86243AR-001 is capable of producing an advanced kinetoglyph named “Aillili” in the Sacred Hratak of Azt, which silences all but the most intense sounds in an area.[[/footnote]]. As the entity performs its gestures, the glyphs on its head illuminate rapidly, often causing burns where the human’s skin comes in contact with them, creating further distress and increasing the volume of the whining.//
+
+//T-5 Onru also notices that some aspect of the entity is creating a severe malfunction in her optical implants, singeing the circuits responsible for handling the SCRAMBLE calculations. She looks away, ejecting the implants before they damage her retinas, and motions to the rest of the Tau-5 team to not look at the entity directly. The team acknowledges, and they continue to move forward.//
+
+//Suddenly, the whining becomes dramatically louder, and begins to draw closer to the team. Munru drops a proximity mine from his pack, and then another a short distance away. As they flee away from the entity, streaks of blue electricity begins to arc between the server racks, and the ground beneath them begins to shift as if it was made of sand. As Nanku threatens to fall into the ground, there is a muffled wave of pressure behind them as the first proximity mine detonates, and the ground solidifies.//
+
+//The team turns a corner, and the back entrance to the room comes into view. From above them, they can see a hole in the ceiling exposed to the cryonics laboratory, and briefly a complicated containment cell is visible, though it is thoroughly destroyed. The team moves swiftly towards the door, as white-hot glyphs begin to appear on the ground beneath them and in the air around them. The team manages to duck and weave through the symbols, but T-5 Nanku catches her left arm on a glyph in the air and it bursts into flames. Irantu, having seen this from his position behind Nanku, fires his weapon at her shoulder, removing the arm. It falls to the ground and explodes into a cinder.//
+
+//Munru reaches the door first and throws it open, and Onru follows immediately afterwards. Nanku stumbles through, collapsing on the other side, and Irantu comes up last. Just before closing the door, Irantu turns to look at the entity closing in behind them, which at this point was a barely visible blur of gestures, fiery glyphs, and an inhuman whine. As the door swings closed, Irantu zooms in on the humanoid figure strapped to the entity’s head, enough to see the word “EMERSON” seared into the flesh of the figure, as if from a melted patch of fabric. Irantu slams the door closed, and immediately ejects his optical implants.//
+
+//The team rushes down the corridor away from the security door, and slowly the sound of footsteps can be heard around them. They reach a large open space in between several hallways, and stop to catch their breath.//
+
+**T-5 Munru:** I… (//Pauses//) I don’t believe I know how to respond to whatever that was. (//Pauses//) What was that?
+
+**T-5 Irantu:** I have no idea. I’ve never seen anything like it.
+
+**T-5 Onru:** There was a human strapped to its head. Did you see that?
+
+**T-5 Nanku:** I did. I think it was shouting. (//Pauses, and looks at the stump of her arm//) I’ll likely miss that arm later.
+
+**T-5 Irantu:** You’ll be alright. Just be careful. 
+
+**T-5 Nanku:** (//Scoffs//) Like I needed it anyway. I’ve got another. Besides, (//Nanku swings her shoulder mounted flamethrower to her left shoulder, and detaches it so it hangs below where her missing arm should be//) what was I really going to use that arm for anyway?
+
+**T-5 Irantu:** Noted. (//Pauses//) Everybody alright?
+
+**T-5 Munru:** No worse for wear.
+
+**T-5 Nanku:** I’m fine.
+
+**T-5 Onru:** I’m alright, too. (//Pauses//) We’re here. Look.
+
+//The team turns to see the hallway to their immediate east, which has been barricaded and filled with a substantial amount of explosives and incendiary equipment.//
+
+**T-5 Irantu:** Good. (//He approaches the barricade//) Hello? This is Tau-5 Irantu, is anyone there? We’re here to get you out. Hello?
+
+//Silence.//
+
+**T-5 Munru:** Maybe we’re too late.
+
+**T-5 Irantu:** We’re not too late. Hello? Is anyone there? Can you--
+
+//There is a shuffling sound, and a large wooden crate is moved slightly. A dark face can be seen in the space between the crate and the wall.//
+
+**T-5 Munru:** (//Laughs//)
+
+**T-5 Irantu:** Captain.
+
+//[New connection to local transmission network: Zeta-9 “Mole Rats” Captain Hollis]//
+
+**Z-9 Hollis:** Oh boy. The goddamn Power Rangers. They told me about you. (//Pauses to survey the team//) You look like you’ve been hit by a train.
+
+**T-5 Munru:** Something like that.
+
+**Z-9 Hollis:** (//Nods//) Well, come on, then. We don’t have much time left. 
+
+//Team moves towards the opening in the crates. As Munru and Nanku pass through, Onru pauses. Irantu notices this, and turns to look.//
+
+**T-5 Onru:** Irantu, look. Leeches.
+
+//Black cracks have begun to form on the walls of the atrium behind them, and wriggling black leeches start to fall out of them, accompanied by a thick, black fluid.//
+
+**T-5 Irantu:** (//Pauses//) Ah. 
+
+[[/div]]
+[[/collapsible]]
+
+[[# Add9]]
+**Addendum 1730.9:** Extraction Log Transcripts
+
+[[collapsible show="+ Access fileserv:/S:/1730/recovery/extlog1.log" hide="Close File"]]
+ 
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+ 
+**Extraction Video Log Transcript**
+**Date:** ██/██/████
+**Recovery Team:** Mobile Task Force Tau-5 “Samsara”
+**Exploration Team:** Mobile Task Force Apollo-3 “Game Wardens”
+**Exploration Team:** Mobile Task Force Z-9 "Mole Rats"
+**Subject:** SCP-1730
+**Team Lead:** T-5 Irantu / Z-9 Hollis /AP-3 Ross
+**Team Members:** T-5 Munru, T-5 Onru, T-5 Nanku, AP-3 Houston, AP-3 Vigo, AP-3 Ohalo, Z-9 Moros, Z-9 Willow
+ 
+**Notes:** //The following is an audio/video transcript of an extraction and recovery mission carried out by the members of Mobile Task Force Tau-5 “Samsara” after having made contact with surviving members of MTF Apollo-3 and MTF Zeta-9.//
+ 
+//Aside from the members of the mobile task forces, the team was tasked with recovering twenty-seven surviving members of Site-13 staff, including Dr. Mohammad Scott, a Site-13 assistant director of Temporal Studies. Several of these individuals had sustained significant injuries, further increasing the difficulty of extraction efforts.//
+ 
+//Members of Mobile Task Force Alpha-20 “Holy Divers” were stationed above ground, and were prepared to move in to aid in extraction efforts once the recovery team had escaped the lower levels of the site.//
+ 
+-----
+ 
+[BEGIN LOG]
+ 
+**T-5 Irantu:** Mics on. 
+ 
+**AP-3 Vigo:** Are we really worried about recording all of this?
+
+**AP-3 Ross:** Hey Vigo? Shut the fuck up. Do what he says.
+
+**Z-9 Hollis:** Your lead, power ranger.
+
+**T-5 Irantu:** Thank you. Onru has prepared an evacuation plan; I will let her explain it.
+
+**T-5 Onru:** Our travel paths from this position are compromised, by the entity in the data center and the creature in the atrium. After speaking with Dr. Scott and his team, we have devised a route that leads us as far away from the current major threats as possible. Unfortunately, our information on all threats is incomplete; even Dr. Scott was not privy to information on all contained entities within the site. As such… (//pauses//) we should still proceed with extreme caution. (//Pauses//) This is likely already well understood.
+
+**AP-3 Houston:** Yeah, just a bit.
+
+**Z-9 Willow:** Alright, so what’s the route we’re taking?
+
+**T-5 Onru:** (//Produces a topographical map//) Our entry routes are here and here. The largest obstacles we are experiencing currently are the spatial instabilities within the lower levels of this site. On the suggestion of Dr. Scott, and Captain Hollis, our route will first travel to this section of the facility, where the Thresher device is contained. This device is the cause of the... instabilities, and while it is not possible to completely disable the device without risking our own lives or the lives of above-ground personnel, we should be able to reduce power to the device long enough for us to create a stable path to the surface, following this route, here. 
+
+**Z-9 Hollis:** I got lost once shortly after our insertion and ended up in that room. I was attacked by a number of creatures that were difficult to perceive, likely due to some latent antimemetic effects. I was able to escape them, but they’re no doubt still there. That machine draws a frankly impossible amount of energy from some energy source elsewhere in the site, and those creatures I saw feed off of it. So… there’s that.
+
+**AP-3 Vigo:** Why don’t we send a team ahead to disable the machine, and then meet up with them before heading up?
+
+**T-5 Irantu:** We will not have enough time, and the probability of our success drops dramatically if we split up our team. Once the device is powered down, it is likely that we will have less than an hour to make our escape before it trips its failsafes and powers back up again. We will just have to make our push from there, hoping that it buys us enough time. 
+
+**AP-3 Vigo:** Alright, cool.
+
+**T-5 Irantu:** Your assignments are as follows: Tau-5 will take point, Apollo-3 will take the right and left flanks, and Zeta-9 will take up the rear. The healthiest survivors will stay near the back, and those with more serious injuries will be near the front near Tau-5. In the event that we are flanked or assaulted, follow typical multi-force defensive assignments, while allowing Tau-5 to intercept the higher threats. 
+
+**T-5 Munru:** Maintain clear lines of communication. Tau-5 and the task force captains have channel priority. Keep chatter to a minimum, you will all have plenty of time to speak once we reach the surface.
+
+**Z-9 Hollis:** Our priority now is extracting these people, and staying alive. Unless you’re in Samsara, in which case I guess you guys are free to do what you want. For the rest of us mortals, it doesn’t help us to let the power rangers get mulched, since we’re likely shit out of luck if they go belly up.
+
+**T-5 Irantu:** Agreed. Does everyone understand our mission?
+
+//All task force members are in agreement.//
+
+**T-5 Irantu:** Acceptable. I will take point. We need to move quickly. Gather your things, prepare the civilians, and we will leave shortly.
+
+//Teams break to assemble in their formation. Civilian survivors are briefed on the mission plan, and positioned in the middle of the block.//
+
+**Z-9 Willow:** Captain, at the main door! There are leeches coming under the door.
+
+**Z-9 Hollis:** Shit. Irantu, we need to roll. 
+
+**T-5 Irantu:** Agreed. Let’s move out. Munru, Nanku, collapse the main door. We will exit expediently out the side.
+
+**T-5 Nanku:** Gladly.
+
+//The block moves out of a side door towards a side hallway. T-5 Nanku and Munru hang back to set explosive charges around the door frame. Leeches are beginning to work their way under the door frame and through cracks in the walls. As they step away from the door, Nanku opens her flamethrower on the leeches.//
+
+**T-5 Munru:** I cannot say that you are making a difference, Nanku. There are likely many more leeches elsewhere.
+
+**T-5 Nanku:** This is very satisfying to me. (//Continues to burn leeches coming through the walls//) It is delicious.
+
+//Munru and Nanku move quickly to join the rest of the group, which has begun moving down the side hallway. As they pass through the first door there is an explosion, and the building around them shakes. From beneath the group, a loud, uncanny screaming sound is heard.//
+
+**AP-3 Ross:** Think they know we’re moving?
+
+**T-5 Irantu:** Undoubtedly. 
+
+//The group continues down a series of hallways towards a stairwell, stopping occasionally to check for hostile entities. After a short time, T-5 Munru calls a halt.//
+
+**T-5 Munru:** My optics are pinging. (//Pauses//) Strange. Move everyone back, I will scout ahead.
+
+//T-5 Munru comes around the corner of the hallway, weapon drawn. His SCRAMBLE optical implant highlights a dangerous meme on the wall. At the far end of the hallway, a vaguely humanoid entity, the same entity as seen during a previous remote drone exploration of SCP-1730, is seen drawing on a wall with a long, curved finger. Munru projects an image of the entity to Nanku, who rounds the corner behind Munru.//
+
+**T-5 Munru:** Hold.
+
+//Suddenly, the entity turns towards Munru and Nanku and opens a single white eye, which is immediately processed and blocked by the SCRAMBLE units. The entity begins to move very quickly down the hallway, changing dramatically as it moves; the entity becomes considerably larger, and its long robe flares out to either side, exposing additional hazards that are blocked by the SCRAMBLE units. Munru and Nanku raise their weapons and fire. The creature reels backwards as it is struck by bullets, with large holes opening across its flesh. Munru reloads, loading incendiary rounds, and fires again, setting the creature on fire. As it staggers backwards, the entity begins to scratch madly against the wall to the right, seemingly attempting to dig through the wall away from the gunfire. Nanku takes one more shot, striking the entity in its eye and causing it to collapse onto the ground.//
+
+**T-5 Irantu:** Is everything alright?
+
+**T-5 Munru:** It appears so. We--
+
+//Suddenly, the hallway shakes violently. The floor beneath the collapsed humanoid entity crumbles and falls away, revealing a large hole beneath the floor. Within the hole is a long, slick, black creature covered in blood red eyes with a mouth full of many rows of long, sharp teeth. As it bursts through the floor, a cascade of small leeches are propelled into the hallway. The humanoid entity slips through the destroyed floor and falls into the mouth of the large creature, which lets out a loud scream as it devours the entity. Long, wet appendages snake into the hallway as Nanku and Munru begin to retreat. Nanku opens her flamethrower again, warding off the approaching smaller leeches.//
+ 
+**Z-9 Hollis:** What’s going on?
+
+**T-5 Nanku:** We will need to find a different route, quickly.
+
+**T-5 Irantu:** Follow me.
+
+//The group moves past the collapsed hallway as Munru and Nanku provide cover fire. They pass through a custodial dormitory and exit into a maintenance area behind it.//
+
+**T-5 Onru:** Over there. We can take this path towards the machine.
+
+**T-5 Munru:** We are right behind you, but I am beginning to think this creature is far larger than we anticipated. (//Gunfire//)
+
+**T-5 Irantu:** Onru, take the point. We will move now.
+
+//Team moves down the long maintenance hallway. The hallway curves to the left, opening out into a large space full of loading equipment and machines. Several large loading docks are visible in the back of the room, though each one is collapsed and destroyed.//
+
+**Z-9 Hollis:** Irantu, the walls in here are seeping. We can’t stay here long.
+
+**T-5 Irantu:** One moment. Munru, Nanku, how far back are you?
+
+//Silence.//
+
+**T-5 Irantu:** Munru, Nanku, please report.
+
+**T-5 Munru:** Irantu, Nanku is damaged. We are not going to be able to (//gunfire//) rendezvous with you immediately. Onru, do keep us updated on your position, and I will let you know when we can regroup.
+
+**T-5 Irantu:** Understood. 
+
+//The group moves to the far end of the maintenance warehouse, exiting through a pair of doors leading into a staff break room. Black fluid seeps through the walls. The group has to stop briefly to bandage up a survivor whose wound had begun bleeding again. A loud screeching sound is heard nearby, and the group begins moving again.//
+
+//They enter into another hallway leading in the direction of the Thresher wing. As they move through the hall, Onru hears a distinct sound.//
+
+**T-5 Onru:** Irantu. Wings.
+
+**T-5 Irantu:** How many?
+
+**T-5 Onru:** (//Pauses//) Many. More than I can count. They are… very small, but there is a great multitude of them.
+
+**Z-9 Hollis:** You got anything else useful, power girl?
+
+**T-5 Onru:** A tinkling sound. Like crystal on crystal.
+
+**AP-3 Ross:** Fuck. Crystal butterflies. It has to be that. We’ll get shredded.
+
+**T-5 Irantu:** Unlikely.
+
+//The group moves towards the sound, which continues to grow louder until it becomes a cacophonous sound that seems to be right above them.//
+
+**AP-3 Houston:** God, where’s that coming from?
+
+**AP-3 Ross:** Steady now, stead--
+
+**T-5 Onru:** Irantu, the vent.
+
+//In front of them, a grate on a ceiling vent falls to the floor, and a cloud of sparkling crystal butterflies begins to fill the hallway. Irantu sees the butterflies, and turns back to the group.//
+
+**T-5 Irantu:** Everybody down, please.
+
+//As the group drops to the ground, Irantu runs towards the cloud of butterflies. He disappears briefly. After a short moment, there is a burst of flame that arcs upwards into the vent, and the sound of shattering crystal can be heard above them. As the smoke clears, Irantu becomes visible again. The majority of his flesh has been shredded by the wings of the butterflies, and his entire body is scorched. Significant amounts of flesh hang loose from his body. The skin on his back is blackened and blistered, and a thick metal implement is now visible through the scorched flesh. Onru stands and approaches him.//
+
+**T-5 Onru:** Are you able to continue?
+
+**T-5 Irantu:** Of course.
+
+**AP-3 Houston:** Jesus fucking Christ, man, are you alright? 
+
+**T-5 Irantu:** Yes. Why wouldn’t I be?
+
+//The group moves through another hall seeping with black fluid, and then another, but the third hallway is clean and relatively untouched. They ascend a short staircase before coming to a stop before a thick, vault door.//
+
+**Z-9 Hollis:** The machine is behind this door. I came out this way, but the door sealed behind me. I don’t know how to unlock it.
+
+**T-5 Irantu:** Dr. Scott, do you know how to open this door?
+
+**Dr. Mohammad Scott:** (//Audible through Z-9 Hollis’ mic//) No, I never had access to this chamber.
+
+**T-5 Onru:** I was hoping Munru would be here. I do not think I can open this door.
+
+//Suddenly, there is a resounding click, and the door in front of them slowly opens. A monitor next to the door illuminates, and a dark room is visible on it. In the back of the room, hidden in shadows, an indistinct humanoid entity waves. A harsh, electronic static sound, vaguely reminiscent of laughter, can be heard through an unseen loudspeaker.//
+
+**Unidentified Figure:** Hee hee. Hee hah. You're welcome. Heehee. Oh, oh, (//as if in pain//) Tanny, oh Tanny, it's so long down here with us. It's so long and sharp, Tanny. Why did you make me hurt, hee hee. Oh- (//voice fades as the screen is covered in static//)
+
+//The screen powers off.//
+
+**AP-3 Ross:** That’s a pretty fucked up clown.
+
+**T-5 Irantu:** Come. Hurry.
+
+//The group enters the chamber beyond. The room is very dark, with a multitude of dim, green lights visible on the walls of the room. Based on the luminescence of the lights and the apparent distance of them from each other, the room appears to be several hundred meters in diameter. Near the back of the room, a tower of circling green lights is visible.//
+
+**Z-9 Hollis:** Hey, power rangers. Can you see anything in here? You have dark vision or something, yeah? My visor is shot.
+
+**T-5 Irantu:** Onru and I were forced to eject our implants after they were damaged by a powerful memetic entity. 
+
+**AP-3 Ross:** My visor works. Hang on. (//Pauses//) Alright. So there’s a… some kind of machine near the back of the room, under those lights. I can’t really make any of it out from here, but it’s there. I don’t see-- oh shit, yeah I do. On the ceiling, there are… fuck, there are a lot of those things.
+
+**Z-9 Hollis:** What are they?
+
+**AP-3 Ross:** (//Whispering//) I honestly don’t know, I can’t make them out. They’re definitely fucking with perception. I don’t… I don’t think they’ve seen us. Seriously though, there might be five hundred of these things. 
+
+**T-5 Irantu:** That would be more than Onru and myself can deal with. (//Pauses//) We need to make a decision; either attempt to disable the machine without attracting their attention, or find a way to dispatch the creatures. (//Pauses//) I am, of course, willing to accept ideas.
+
+**AP-3 Vigo:** I mean… we could blow them up. Houston has explosives. (//Pauses//) That’s a lot of them to try and get all at once, though.
+
+**Z9-Moros:** Hang on. They’re feeding on the power from this thing, aren’t they? Why don’t we try and get that machine to draw a lot of power to some unnecessary system first, and shock them. Like flexing when a mosquito bites you. 
+
+**T-5 Onru:** Maybe, but it is more likely that--
+
+//Suddenly, there is a massive disturbance beneath the chamber. To the left of a group, roughly 100m away, there is an explosion and the wall falls away. From within the wall emerges a long, slick, black appendage, covered in red eyes. The eyes open simultaneously.//
+
+**AP-3 Houston:** Fuck.
+
+//There is a screeching sound, and from above them many hundreds of short, imperceptible entities fall from the ceiling. The black entity in the wall begins to lash out at the smaller entities, attempting to pull them in towards a mouth that has appeared on its front. The creatures fly towards the larger creature and begin to tear at it with claws, though many are shoveled into the open mouth of the creature.//
+
+**T-5 Irantu:** Huh. (//Pauses//) That works as well. Onru, get to the machine. The rest of you, get back to the hallway. We will not have much time.
+
+//The group retreats into the hallway outside of the large room. Onru sprints across the chamber as more and more of the smaller entities fall from the ceiling and attack the black creature. Several of them begin to move towards Onru, only to be dispatched by weapon fire from Irantu. As she reaches the manual control panel of the machine, Onru inputs the information provided to her by members of Dr. Scott’s team. Lights around the room illuminate, exposing an enormous, vastly complicated machine that encompasses the entire back wall of the room. More and more of the hostile entities peel off towards Onru, who pauses to open fire on those who come too close.//
+
+//From beneath the room there is another disturbance, and the floor in the middle of the room falls away. Another long, black entity emerges from the hole in the floor and long tendrils snake out towards Onru. From behind Irantu comes gunfire, and the entire AP-3 team has emerged from the door and begun firing at the entity. The creature recoils, black fluid spilling from gunshot wounds. The tendrils whip around towards them, gripping AP-3 Vigo and tossing him into the air. He strikes the wall and his body falls to the ground, where the first black entity grabs it with a tendril and pulls it into the mouth.//
+
+//Suddenly, small black leeches begin to pour from the hole in the floor, and move quickly towards Irantu. Houston and Ohalo open fire on the leeches, and Ross moves to pull Irantu away from the hole. As he does, he tosses an incendiary grenade into the hole and pulls Irantu to the ground. There is an explosion, and flame erupts around the black entity, which rears back and flails before collapsing into the hole.//
+
+//From deep below them, the group can hear a very loud screaming sound, and suddenly the entire room is shaking. The other black entity retracts into its hole, collapsing the wall behind it as it does. The remaining creatures from the ceiling are dispatched by the AP-3 and Z-9 teams. As they do, and as the room begins to shake more violently, several lights affixed to the machine in the back begin to flash and then dim, and the sound of something winding down is heard over the gunfire.//
+
+**AP-3 Ross:** Fuck! Goddammit Vigo. Fuck!
+
+//T-5 Onru approaches from across the room.//
+
+**T-5 Onru:** The loss of Vigo is disappointing. I am sorry. We do not have a substantial amount of time to grieve. We must keep moving.
+
+//Onru, Ross, Houston, Ohalo, and Irantu leave from the chamber. More rumbling is felt beneath them, and occasional loud screeching sounds punctuate the machine noise from this section of the facility. They reach a stairwell, and Houston throws the door open.//
+
+**AP-3 Houston:** Whoa, fuck! What?
+
+**T-5 Irantu:** What is the matter?
+
+**AP-3 Houston:** There’s nothing here. The door just opens up into… nothing. It’s just dark, as far down as I can see.
+
+**T-5 Onru:** It is likely that disabling the Thresher device has altered our previous escape route. We will need to devise another path to the surface.
+
+**T-5 Irantu:** Yes. One moment. (//Pauses//) Munru. Where are you?
+
+**T-5 Munru:** Difficult to say, unfortunately. Have you powered down the machine?
+
+**T-5 Irantu:** We just did.
+
+**T-5 Munru:** Fine timing, then. We were being pursued by a creature and then suddenly there was a wall where the creature had been. The local topography appears to have reset itself.
+
+**T-5 Irantu:** Stay in one place. We will come to find you. Our escape begins now.
+
+**T-5 Munru:** Fantastic.
+
+//The main group leaves the empty stairwell and turns back down the hallway they came through. Passing by the Thresher access hallway again, they turn and begin to climb another staircase. As they reach the top, Irantu pauses. The hallway in front of them is covered ankle high in water. As they begin to move slowly through the water, one of the researchers behind them screams.//
+
+**T-5 Irantu:** What is it?
+
+**Researcher:** Bodies. Look.
+
+//Just below the surface of the water, pale human corpses are visible, appearing to be floating roughly a half meter down.//
+
+**T-5 Onru:** Do not attempt to look at them. You do not recognize them. Move quickly, come on.
+
+//The team hurries from the hallway towards another set of doors at the end, where written on the wall are the words “WHAT HAPPENED TO SITE-13” with the word “WHAT” covered by the word “EMERSON”, and the words “HAVE WE BECOME BLASPHEMOUS” beneath that.//
+
+//The group proceeds without incident for a short while longer, slowly ascending as safe routes become available. After roughly eight minutes of travel, the group enters a large mechanical garage, where several pieces of large machinery sit in various states of repair. They pause to secure one of the injured survivors, while Onru attempts to devise a new route. Suddenly, a loud banging sound is heard, and a piece of machinery flies across the room, narrowly missing AP-3 Ross, who shouts.//
+
+**AP-3 Ross:** Whoa! Fuck! Where’d that come from?
+
+//In the corner of the room, a stack of mechanical parts is seen moving, rising up and self-assembling into a quasi-humanoid entity. Attached to the top of the large mechanical construct is a small, crudely constructed, toy robot. The entity begins to move towards them, and a voice is heard from an unknown source within the entity.//
+
+**Mechanical Entity:** (//Deep laughter//) I am reborn to breathe devastation upon this fetid Earth. Pitiful humans. You will feel the dark sting of my neverending torment. (//The small robot on top of the construct is seen waving its arms wildly//)
+
+**T-5 Irantu:** This is… annoying. Onru, get these people out. Ross, to me. 
+
+**Mechanical Entity:** I am the herald of your destruction. Embrace death.
+
+//T-5 Irantu, AP-3 Ross, Houston, and Ohalo open fire on the entity, to little effect. The entity lifts another large piece of equipment and throws it towards the group, missing them wide. Ohalo throws a fragmentary grenade at the entity, which it catches in one of its outstretched hands and grips tightly. The grenade explodes, shattering the creature’s hand and causing it to stagger sideways.//
+
+**Mechanical Entity:** How dare you. I will tread upon you like--
+
+//T-5 Onru is seen sprinting towards the entity. As she approaches it, she leaps into the air, sailing over the top of it in a tall arc. As she reaches the top of the arc, she reaches out and grabs the small toy robot on top of the construct, causing it to collapse. As she flips towards the ground, she tosses the robot towards the wall.//
+
+**Robot:** No! I am the harbinger! I am--
+
+//The toy robot strikes the wall and is shattered.//
+
+**T-5 Munru:** Irantu, is that you? We just heard something crashing.
+
+**T-5 Irantu:** You must be near. Stay where you are, we are en route.
+
+//The group moves out of the garage, and towards a larger atrium section. From around the corner come T-5 Munru and Nanku. Munru appears to have sustained burns to his lower body, but is otherwise undamaged. Nanku is missing the lower half of her jaw, and black fluid covers the front of her body suit. She waves with her remaining hand as the group approaches.//
+
+**T-5 Onru:** You look well.
+
+**T-5 Munru:** Admittedly, morale has increased in the group since Nanku found herself unable to talk.
+
+(//T-5 Nanku points at Munru with her flamethrower, seemingly forgetting she is missing an arm on that side. Realizing this, she makes an obscene gesture towards Munru with her remaining hand.//)
+
+**Z-9 Hollis:** This is a cute reunion, but let’s get back to this shit. How far are we from the entrance?
+
+**T-5 Munru:** This is a main atrium. If we follow this hallway here, it will lead towards a processing station, and past that we should find access points to the surface.
+
+**Z-9 Hollis:** Exceptional. Let’s get the lead out then, and--
+
+//From below them, there is a very loud crashing sound and more screaming. The floor beneath the group begins to buckle.//
+
+**Z-9 Hollis:** Fuck! Run!
+
+//The group flees towards the hallway Munru had identified, but are stopped when the floor there also collapses. A plume of smoke erupts from the destroyed floor, and one researcher slips on the collapsing ground and slides into it. T-5 Onru leads the group away from the atrium as the floor there completely collapses. Irantu stops to turn and look down inside the hole.//
+
+//Beneath the hole is an incredibly large chamber, appearing to have been dug through dozens of layers of subterranean floors. Within the chamber are many small lights around the outside, and at the bottom is a massive, black mass, with several other large black masses extending from it. As he is pulled away, Irantu sees red eyes open across the entire mass of the creature, and hears more screaming.//
+
+//The group flees down a side hallway, but are pursued by long black tendrils snaking out of the hole. AP-3 Ross and Houston open fire on the tendrils, halting them momentarily, but they are quickly replaced by more. Z-9 Moros is seen slipping on a patch of black fluid and falling, before being consumed by the ends of one of the tendrils. There are the sounds of metal crashing and rock and concrete being crushed as the structure around them heaves violently. Black leeches begin to pour out of the walls around them, and Nanku opens her flamethrower at them.//
+
+//They round a corner to find a dead end, and turning back are confronted with another black tendril that has burst through a hole in the wall.//
+
+**AP-3 Ohalo:** Holy fuck, we’re trapped. This is it. This is it. Holy fuck.
+
+**T-5 Irantu:** Onru, we need a way out.
+
+**T-5 Onru:** I… I am having difficulty… (//gunfire//) I…
+
+**Z-9 Hollis:** Wait. Wait. I have an idea. I think I know where we are, I have an idea. Come on, you fuckers, we’re not dying here!
+
+//The group follows Hollis towards a descending stairwell and move quickly down it. Hollis tosses an incendiary grenade towards the encroaching tendrils, and slams the door shut behind her as it explodes. The screams from below them intensify as they descend, and the stairwell begins to shake. Holes in the stairwell open and more leeches begin to pour out of them. All task force members open fire as long tendrils snake through the holes as well. Upon reaching a landing, Hollis motions the group in the door.//
+
+**Z-9 Hollis:** Here! In here! Go go go!
+
+//The group enters a hallway and sprints towards the other end. As they do, they pass a sign on the wall that reads “Stairs to Cryonics”. Munru notices this as they pass.//
+
+**T-5 Munru:** Captain Hollis… what are you doing?
+
+**Z-9 Hollis:** You’re going to have to trust me here, Blue Ranger. I’ve been doing this a long time.
+
+**T-5 Munru:** I-- (//pauses//) Hah. OK. I think this will work. 
+
+//The group exits the hallway into a large observation section, passing many large windows with blast protectors down across them. The team stops in front of one window, overlooking a massive chamber lined with huge steel doors. Overhead are the words “Olympia Class Testing Observation”.//
+
+**T-5 Irantu:** Hollis, what do you have in mind?
+
+**Z-9 Hollis:** Call it a hunch. We need to get downstairs, come on.
+
+//The group runs towards a stairwell at the end of the room and quickly descend to the main level of this wing. As they exit onto the floor of the Olympia Class containment chamber, the wall behind them begins to buckle, and leeches begin to pour out of it.//
+
+**Z-9 Hollis:** Pink ranger, that panel over there. You need to get that door open.
+
+**T-5 Onru:** Wha-- what? 
+
+**Z-9 Hollis:** I said open the goddamn door, hurry! What the fuck are you waiting for? Go!
+
+//T-5 Onru runs towards a control panel near one of the tall steel doors. The wall behind them continues to buckle.//
+
+**Z-9 Hollis:** Munru, that one. Get that one open too!
+
+**T-5 Munru:** Yes, absolutely.
+
+//T-5 Munru attempts to access the door controls. Z-9 Hollis turns towards the group.//
+
+**Z-9 Hollis:** Everyone else, listen to me. You civilians need to get to the far end of this room, as far as it goes. Just keep running. There’s an access point to the power station above this part of the facility, you need to just keep climbing until you get there. Once you’re there, you need to blow a wall, that’ll get you out. But you need to hurry, shit is about to pop off in a pretty major way down here. Ross, you and your boys just fire at anything that comes out of that wall. I’ll tell you when we can go. Irantu, you stay with me. This is going to get pretty messy.
+
+**T-5 Irantu:** Understood.
+
+**Z-9 Hollis:** Alright. (//Pauses//) Fucking go! Come on!
+
+//The group flees down the main pathway through the chamber, away from the buckling wall. Behind them, the wall finally gives way, and a gargantuan, black, slick entity pours into the chamber. It is as least 200m in height, covered in black tendrils and dark red eyes. When it sees the group, it opens a massive mouth full of rows of long yellow teeth. In the center of the mouth, a naked human woman is visibly conjoined in some way to a sort of prehensile tongue with the creature. As it opens its mouth, it lets out a piercing scream and begins to move towards the group.//
+
+//Every available task force member opens fire on the creature, emptying their remaining magazines and throwing every possible incendiary weapon towards it. The creature is deterred slightly, but for every place it is pierced by weapons fire, black fluid and more black leeches begin to pour from its body. Several long tendrils begin to snake towards the group of task force members.//
+
+**T-5 Onru:** I have it. I have it, Captain Hollis. 
+
+**Z-9 Hollis:** Come on, then, girl. Throw the fucking thing!
+
+//T-5 Onru steps away from the control panel and runs back towards the group in the middle of the chamber, as a loud groaning is heard behind her. The rest of the team sees the huge metal doors begin to slide open. A thick cloud of ice cold fog rolls out of the chamber, obscuring the interior from view.//
+
+**AP-3 Ross:** What’s in there?
+
+**Z-9 Hollis:** Munru, you got yours?
+
+**T-5 Munru:** Hang on. (//Pauses//) Yeah, I think that will do--
+
+//Suddenly, the door behind Munru begins to glow bright red, then white, and then the center of it buckles and the door collapses. As Munru hurries away, a colossal, motionless, flaming humanoid entity floats out of the chamber. In its unmoving hands is a huge sword. As it exits the collapsed doorway, enormous, flaming wings unfurl from its back. The black creature screams, and its tendrils begin to lash at this creature.//
+
+//As the tendrils come close, long streaks of fire erupt from the sword towards them, rupturing them and sending black fluid and scorched leeches flying across the room. The massive black creature screams, and dozens of other tendrils fly towards the flaming humanoid. As the two engage, there is another sound, like a long whining, and then suddenly the room is silent.//
+
+//From within the cold, foggy room, a towering, vaguely cervine creature steps out into the main chamber. It is composed of a body covered in light green and cream colored hair, a long, thin neck ending in a hairless, somewhat humanoid face, and vast, intertwined white and black antlers that pulse with streaks of blue light. Floating above its head are nine concentric rings of glowing, rotating crystals and metallic spheres.//
+
+//The creature slowly steps out of the containment cell and turns to look at the team on the ground below. It opens its mouth and a long, droning sound is heard through the room. Around its body, several large, metallic, cylindrical structures appear followed by a distinct cracking sound. It begins to step towards the team of task force members, but is struck from behind by three black tendrils that wrap around its neck. The creature lets out another drone, and suddenly the sound returns to the chamber as long streaks of fire arc across the space. The cylindrical constructs turn lengthwise and speed across the room towards the black creature, striking it in its central mass. From all around the cervine entity, more and more metallic spheres appear and fly towards both the black creature and the flaming humanoid, which in turn begin to attack each other.//
+
+**Z-9 Hollis:** Fucking-- yes! Go get em, big guy! (//To the team//) Time to fucking go, kids. Let’s go!
+
+//The team begins to sprint after the group of civilians towards the far wall, as jets of fire strike the ground around them. T-5 Nanku catches the end of a dismembered black tendril in her shoulder, throwing her off balance. She falls to the ground, firing openly with her weapon as she is engulfed in fire. AP-3 Houston pauses briefly to turn towards her, but is grabbed by Irantu.//
+
+**T-5 Irantu:** We do not have time. 
+
+//As they near the group of survivors, all of whom are huddled near an exit door at the end of the chamber, there is a crashing sound, and they turn to see the cervine entity standing up from where it had been thrown across the room. The black creature whips at it as more metallic spheres appear and arc back towards it. There is an eruption of fire as the flaming humanoid is struck by another several tendrils, which try to pull the humanoid towards the mouth of the black entity. The team reaches the survivors, and quickly exit through the door. The group begins to quickly ascend the staircase within.//
+
+**Z-9 Hollis:** Alright, just like I said. Up! We need to go up! Over--
+
+//A long, thin metallic cylinder crashes through the wall of the stairwell, narrowly missing one of the researchers and Dr. Scott. A second cylinder comes through the wall, striking Irantu and obliterating him as it contacts the wall behind him. As the group continues to ascend, fire fills the stairwell below them, and another long, loud, droning sound can be heard, followed by silence, and then followed by a thick bursting sound that shakes the entire facility. The group reaches a landing, and begins to move towards another staircase at the end of the hallway. Z-9 Hollis hangs behind.//
+
+**T-5 Munru:** What are you doing?
+
+**Z-9 Hollis:** Giving you some more time. And… something else, I think. Get these people out of here, go!
+
+**T-5 Munru:** I can stay behind, Hollis. Your life is finite.
+
+**Z-9 Hollis:** Yeah, yeah, I get the spiel, power ranger. But right now, you need to get these people out of here. Let me do my thing, alright? I’ll catch up with you later.
+
+**T-5 Munru:** I understand. Good looking out, Hollis.
+
+**Z-9 Hollis:** (//Laughs//) You almost sounded like a person there for a second, Munru.
+
+//Z-9 Hollis runs away from the group. T-5 Munru catches up to the rest of the group, who reach another staircase and begin to ascend.//
+
+//For the next ten minutes, the group continues to ascend through the facility, several times narrowly avoiding debris and falling rubble as the lower levels of the site begin to collapse. The sounds of the entities below continue to be heard, and several times the creatures become visible through large gaps in the walls or floors. At one point, AP-3 Ross catches sight of the unmoving, flaming humanoid, nearly completely covered in metal, as long streaks of fire burst through open seams in its encasement. Shortly afterwards there is a two-minute break in all video footage, followed by a shot of the head of the cervine creature smashing through a wall in front of the group. As they turn to run away from it, the head turns towards them, and two researchers are instantly transmuted into hexagonal columns of an unknown, yellow-green material.//
+
+//After a short time longer, AP-3 Ross picks up a signal from SiteCommand.//
+
+**SiteCommand:** Team lead, this is SiteCommand. Do you read us?
+
+**AP-3 Ross:** Holy fuck, yes, yeah I do. Do you hear me?
+
+**SiteCommand:** We do. You have appeared on our geolocating systems, Ross, you’re not far from the exit. Where is Captain Hollis and Irantu?
+
+**AP-3 Ross:** Irantu is dead, Hollis… she ran off a while back. We haven’t seen her since then.
+
+**SiteCommand:** Understood. What about the rest?
+
+**AP-3 Ross:** We’ve suffered some casualties, some-- (//gunfire//) Fuck! We lost a few of the civilians, and Vigo and a few others. It’s really bad in here right now, Command, we’re going to need all the help we can get. We-- Munru, where’s Onru? 
+
+**T-5 Munru:** She… oh. She was behind us. Where is she?
+
+**SiteCommand:** Don’t worry about that now. We’re marking an extraction point on your visor. The extraction team is waiting for you there; we’re going to get you all out.
+
+//The group hurries towards the extraction point as the site continues to collapse around them. Above ground, aerial surveillance captures footage of large sections of the site sliding into the ground, and smoke beginning to billow from the power station and nearby mechanical facilities. Jets of flame become visible as the earth beneath SCP-1730 begins to give way.// 
+
+//Mobile Task Force Alpha-20 “Holy Divers” enters the site near the crumbling power station. The group of survivors comes into view, and are immediately moved towards the access point, and then away from the site, by members of MTF A-20. As the rest of the task force members are pulled away from the site, a separate transmission reaches SiteCommand originating from T-5 Onru.//
+
+//T-5 Onru and Z-9 Hollis are standing in front of the Thresher device, which roars with activity behind them. They are firing their weapons at an encroaching black mass in front of them, which is punctured by streaks of fire. In the background, the cervine entity can be seen tearing through black tendrils with its antlers, as long rods of flaming metal streak across the room towards the black entity. Hollis turns towards the camera and is visibly laughing, firing her weapon openly. She has removed her helmet. The hum of the machine behind them grows noticeably louder, eventually overtaking all other sounds in the room. Streaks of electricity arc across the ceiling above them. She smiles and turns towards Onru, who looks down to find her torso has been destroyed by a jet of flame.//
+
+//As Onru slumps to the side, the last shot is of Z-9 Hollis, laughing hysterically and wildly firing her weapon as the enormous machine behind her begins to glow bright white. There is a flash, and the transmission ends.//
+
+//Outside, as MTF A-20 continues to move 1730 researchers and personnel to safety, there is a deafening crackling sound, and a loud hum fills the air. The area around the site begins to visibly distort, as if being seen through water, and then suddenly SCP-1730 is gone. In its place is an immense crater, over 1km in diameter. No other transmissions are received from within the site. No other anomalous activity is detected.//
+
+[END LOG]
+ 
+[[/div]]
+
+//Note: In the wake of the events detailed in this log, SCP-1730 has been reclassified as NEUTRALIZED. Further investigation is ongoing. Debriefing reports will become available as soon as they are declassified.//
+[[/collapsible]]
+
+[[# Add10]]
+**Addendum 1730.10:** Extraction Mission Debriefing Report
+
+[[collapsible show="+ Access fileserv:/S:/1730/recovery/extDEBRIEFINTERVIEW1.log" hide="Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+**Mission Debrief Interview**
+**Date:** ██/██/████
+**Interviewee:** Cpt. Ephram Ross, Mobile Task Force Apollo-3 “Game Wardens” Team Lead 
+**Interviewer:** Dr. Peter Vincent
+**Mission Debrief:** SCP-1730 Extraction 
+**Subject:** SCP-1730
+
+**Notes:** //The following is an audio transcript excerpt of an interview conducted by Provisional Site-23 personnel regarding SCP-1730. The information contained in this file is unconfirmed and under further review. For the full file, please contact the Information and Records Administrator at Site-17.//
+
+-----
+
+[BEGIN LOG]
+
+**Dr. Vincent:** Please state your name for the transcript.
+
+**AP-3 Ross:** Captain Ephram Ross, Mobile Task Force Apollo-3. Game Wardens.
+
+**Dr. Vincent:** Thank you, Captain Ross… alright, let’s see. Your team was directed to infiltrate SCP-1730 and search for the source of the radio signal we were receiving, is that correct?
+
+**AP-3 Ross:** It is.
+
+**Dr. Vincent:** Tell me about your initial incursion.
+
+**AP-3 Ross:** You’ve listened to the logs?
+
+**Dr. Vincent:** I haven’t myself, no. They’re still being processed.
+
+**AP-3 Ross:** (//Pauses//) It wasn’t good in there. Best I can tell, wherever Site-13 came from, they were using it as a sort of… “end of the line” processing facility. Every so often we’d see placards up on these containment cells, about how certain things were due for termination. Judging by what the Samsara team saw, that was about the case. They were bringing in anomalies, doing some… invasive investigations to them, and then destroying them. 
+
+**Dr. Vincent:** What sort of anomalies were being housed there, could you tell?
+
+**AP-3 Ross:** I mean, shit… it was really hard to tell. Somewhere along the line the power had gone out, and it had gone all Jurassic Park in there. Of just what we encountered, there was some kind of… encroaching blackness, that fucked up Houston’s legs, and… have you seen Houston? Is he alright?
+
+**Dr. Vincent:** He’s being looked at by medical right now, they’re going to bring him over here soon. I think he’s probably alright.
+
+**AP-3 Ross:** That’s good… yeah, I mean, but other than that, there was also this thing, I don’t know if it was a person or not, but it sort of bent space around it, and Noah… (//Pauses//)
+
+**Dr. Vincent:** It’s OK, we can--
+
+**AP-3 Ross:** No, this needs to be done. (//Pauses//) We took some losses, on all of the teams. It was bad. Based on what we saw at the end, it could’ve gotten a lot worse, too. 
+
+**Dr. Vincent:** At the end?
+
+**AP-3 Ross:** You didn’t see it? No, you haven’t seen the video. They had these cells down below the site, they must have been the size of a football stadium each. Hollis had them open a few up so we could make our retreat, and the things inside… one of them looked at me, like I might look at an ant. It was like a god, and they had them in //boxes//… I counted twenty of those cells, but that chamber went on a lot further past what I could see. (//Pauses//) What were they keeping in those? How were they keeping them in there?
+
+[END LOG]
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/recovery/extDEBRIEFINTERVIEW2.log" hide="Close File" ]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+**Mission Debrief Interview**
+**Date:** ██/██/████
+**Interviewee:** Agent Liam Ohalo, Mobile Task Force Apollo-3 “Game Wardens”
+**Interviewer:** Dr. Peter Vincent
+**Mission Debrief:** SCP-1730 Extraction 
+**Subject:** SCP-1730
+
+**Notes:** //The following is an audio transcript excerpt of an interview conducted by Provisional Site-23 personnel regarding SCP-1730. The information contained in this file is unconfirmed and under further review. For the full file, please contact the Information and Records Administrator at Site-17.//
+
+[BEGIN LOG]
+
+**Dr. Vincent:** Alright, if you could, please state your name for the official transcript.
+
+**AP-3 Ohalo:** (//Silence//)
+
+**Dr. Vincent:** Agent Ohalo?
+
+**AP-3 Ohalo:** (//Silence//)
+
+**Dr. Vincent:** Is there something--
+
+**AP-3 Ohalo:** We should’ve died in there. (//Pauses//) This isn’t real. This isn’t real. We were supposed to die in there.
+
+**Dr. Vincent:** Agent, we really have to file this report, if you could just cooperate with me for a moment so I can get your official testimony, we have counselors on-site who you can speak to afterwards.
+
+**AP-3 Ohalo:** (//Silence//)
+
+**Dr. Vincent:** Ohalo?
+
+**AP-3 Ohalo:** (//Silence//)
+
+[END LOG]
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/recovery/extDEBRIEFINTERVIEW3.log" hide="Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+**Mission Debrief Interview**
+**Date:** ██/██/████
+**Interviewee:** Irantu, Mobile Task Force Tau-5 “Samsara” Team Lead
+**Interviewer:** Dr. Isha Saint Claire
+**Mission Debrief:** SCP-1730 Extraction 
+**Subject:** SCP-1730
+
+**Notes:** //The following is an audio transcript excerpt of an interview conducted by a member of the Mobile Task Force Tau-5 research team regarding SCP-1730. The information contained in this file is unconfirmed and under further review. For the full file, please contact the Information and Records Administrator at Site-17.//
+
+[BEGIN LOG]
+
+**Dr. Saint Claire:** State your name for the record, please.
+
+**T-5 Irantu:** I am Irantu, lead of Mobile Task Force Tau-5, Samsara.
+
+**Dr. Saint Claire:** In your own words, please describe the events that took place while you were within SCP-1730.
+
+**T-5 Irantu:** Of course. The Tau-5 team inserted into SCP-1730, and began to move towards the source of the broadcast. Onru was able to track the location of the survivors, and plotted a course towards them that would expose us to the fewest spatial hazards possible. Several times our course had to be adjusted due to unforeseen obstacles, but nothing that we were not able to overcome. Shortly after rendezvous with Captain Hollis and the survivors, our extraction efforts led us through the section of the facility containing the Thresher machine, which we believe is what resulted in SCP-1730’s existence within our universe. Shortly thereafter, during our retreat, I was terminated.
+
+**Dr. Saint Claire:** I see. As for Agents Moros, Vigo, and the others?
+
+**T-5 Irantu:** They were also terminated.
+
+**Dr. Saint Claire:** Terminated?
+
+**T-5 Irantu:** Expired. Succumbed to their injuries.
+
+**Dr. Saint Claire:** I know what it means, Irantu, I just… I can’t help but feel as if you feel good about this.
+
+**T-5 Irantu:** I feel neither good nor bad, only satisfied at the outcome. 
+
+**Dr. Saint Claire:** (//Pauses//) What?
+
+**T-5 Irantu:** Our extraction mission was a success. With minimal loss of life, our team was able to infiltrate an extremely hazardous and volatile spatial anomaly and extract several high-value persons of interest. 
+
+**Dr. Saint Claire:** (//Silence//)
+
+**T-5 Irantu:** I do not know what else you would like me to say. We were exposed to a number of dangerous anomalies and were able to successfully carry out our mission. There were regrettable losses of capable and experienced personnel, but not outside of our margin of error. On the contrary, our team performed better than our preliminary models predicted. 
+
+**Dr. Saint Claire:** I see. (//Pauses//) Thank you, Irantu, I will be sure to include your remarks in the report.
+
+**T-5 Irantu:** You are welcome. (//Pauses//) As is required by cooperative mission protocol, I would like the opportunity to debrief with Zeta-9 Captain Hollis.
+
+**Dr. Saint Claire:** Captain Hollis was killed within SCP-1730.
+
+**T-5 Irantu:** (//Silence//)
+
+**Dr. Saint Claire:** Irantu?
+
+**T-5 Irantu:** Regrettable. Captain Hollis expressed great resilience in the face of near-certain failure. (//Pauses//) As protocol dictates, I will file my report instead with Captain Hollis’ assigned Site administrator’s office. Thank you for your time, doctor.
+
+[END LOG]
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/recovery/medex1.log"  hide="Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+**Medical Examination Interview**
+**Date:** ██/██/████
+**Interviewee:** Agent Cotter Houston, Mobile Task Force Apollo-3 “Game Wardens”
+**Interviewer:** Dr. Ian Harris
+**Mission Debrief:** SCP-1730 Extraction 
+**Subject:** Agent Cotter Houston
+
+**Notes:** //The following is an audio transcript excerpt of an interview conducted by Provisional Site-23 personnel regarding SCP-1730. The information contained in this file is unconfirmed and under further review. For the full file, please contact the Information and Records Administrator at Site-17.//
+
+[BEGIN LOG]
+
+**Dr. Harris:** Alright, first off I need your name for our logs.
+
+**AP-3 Houston:** Sure, I’m Cotter Houston, member of the Apollo-3 team. 
+
+**Dr. Harris:** Good, good, now, Agent Houston, describe to me your affliction here, as much as you can.
+
+**AP-3 Houston:** Well, I’m sure it’s pretty clear, but I don’t seem to have, uh, shins, anymore. There’s a… there’s a line, where the thing that covered them up came up to, and you can sort of… sort of see the inside of the leg there, like it’s been replaced with a flat piece of glass, or something… but I can still, you know, I can still walk. It doesn’t really //feel// like I’m missing anything down there, it just looks like it. And you can, yeah, you can sort of run your hand through where they should be, obviously, because they’re not there, but… but I don’t feel that, either, so… yeah.
+
+**Dr. Harris:** I see. What can you tell me about this material you said you stepped in?
+
+**AP-3 Houston:** Fell in, actually. Or rather, I tripped, and it sort of just kept coming. It was, shit… we opened a door, and it looked like there wasn’t anything on the other side of it. Then it started to… like, it started to rise through the door, and up the stairwell. You ever played video games? It was like, some sort of graphical glitch. It wasn’t rising fast or anything, just steady. We eventually got to a door, but that was after I fell, and… then this.
+
+**Dr. Harris:** Can you tell me anything about the initial sensation?
+
+**AP-3 Houston:** Initial sensation?
+
+**Dr. Harris:** Did it hurt?
+
+**AP-3 Houston:** Oh. No, I mean, I didn’t realize what was happening at first. Everybody else was panicking, and then I looked down and saw they were gone and //I// started panicking, but… I mean, obviously I was alright. It never hurt, no. It just feels normal. (//Pauses//) Well, not normal. It’s obviously weird, my legs are missing, and I think I might be in shock, but… every now and then, I can sort of feel something sort of… brush past them.
+
+**Dr. Harris:** Brush past them?
+
+**AP-3 Houston:** Yeah. I mean, the parts that are missing down there. I thought I was imagining it at first, like guys who have phantom pain, but it’s… I mean, I can actually feel my legs, so I don’t think it’s that. It’s like there’s something sort of furry and kind of wet that just… just barely brushes past them. Who knows.
+
+[END LOG]
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/recovery/extDEBRIEFINTERVIEW4.log" hide="Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+**Mission Debrief Interview**
+**Date:** ██/██/████
+**Interviewee:** Munru, Mobile Task Force Tau-5 “Samsara”
+**Interviewer:** Captain Elliott O’Neil, Mobile Task Force D-26 “Time Cops”
+**Mission Debrief:** SCP-1730 Extraction 
+**Subject:** SCP-1730
+
+**Notes:** //The following is an audio transcript excerpt of an interview conducted by Provisional Site-23 personnel regarding SCP-1730. The information contained in this file is unconfirmed and under further review. For the full file, please contact the Information and Records Administrator at Site-17.//
+
+[BEGIN LOG]
+
+**Cpt. O’Neil:** When did you lose track of Captain Hollis?
+
+**T-5 Munru:** In the chaos of our retreat, Captain Hollis was separated from us. I do not know when.
+
+**Cpt. O’Neil:** Munru, your camera was undamaged. We know you spoke to her before she left.
+
+**T-5 Munru:** Damn. (//Pauses//) I am not very good at that.
+
+**Cpt. O’Neil:** Why didn’t you keep her from leaving your group?
+
+**T-5 Munru:** (//Pauses//) I only knew Captain Hollis for a handful of hours, but in that time she proved to be an experienced and capable agent. I assumed that any decision she would make in regards to her own personal behaviour would be made with her experiences and training in mind, both of which exceeded my own. Additionally, she outranked me. 
+
+**Cpt. O’Neil:** Your mission parameters forbade you from allowing other team members from putting themselves in harm's way, and required that you do everything you could to mitigate loss of life. How do you reconcile your actions with those requirements?
+
+**T-5 Munru:** Technically speaking, nothing I did allowed Captain Hollis to put herself in any danger. I could not foresee the outcome of her actions, and used my best judgement to justify my own. For all I knew, she could have been moving to a safer location.
+
+**Cpt. O’Neil:** Away from the group?
+
+**T-5 Munru:** It would be illogical to assume that an agent with her level of experience would purposefully endanger themselves in an unpredictable situation.
+
+**Cpt. O’Neil:** And you believe your justifications are an acceptable interpretation of your mission protocols?
+
+**T-5 Munru:** Of course.
+
+**Cpt. O’Neil:** Very well. When you return to holding, you will be meeting with Irantu to discuss this. I hope your arguments hold up.
+
+**T-5 Munru:** As do I.
+
+[END LOG]
+[[/div]]
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/recovery/extDEBRIEFINTERVIEW5.log"  hide="Close File"]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+**Mission Debrief Interview**
+**Date:** ██/██/████
+**Interviewee:** Onru, Mobile Task Force Tau-5 “Samsara”
+**Interviewer:** Dr. Darian Arnold
+**Mission Debrief:** SCP-1730 Extraction 
+**Subject:** SCP-1730
+
+**Notes:** //The following is an audio transcript excerpt of an interview conducted by a member of the Mobile Task Force Tau-5 research team regarding SCP-1730. The information contained in this file is unconfirmed and under further review. For the full file, please contact the Information and Records Administrator at Site-17.//
+
+[BEGIN LOG]
+
+**Dr. Arnold:** Why did you pursue Captain Hollis?
+
+**T-5 Onru:** I believed I understood Captain Hollis’ intentions before she left the group, based on her discussions with the team leads before we began our extraction. I feared that she might have not been capable of returning along our previous course without my assistance.
+
+**Dr. Arnold:** Your recording equipment went dark for a long period before becoming active again in the Thresher area. What happened during that time?
+
+**T-5 Onru:** (//Silence//)
+
+**Dr. Arnold:** Onru, I am going to need an answer.
+
+**T-5 Onru:** I disabled the equipment. There was… (//pauses//) there was a room we passed through that was different than it had been before. It was the server room, above the Olympia containment cells. I do not… I do not know how our path ended there, I had not intended it to. It was a mistake. When we entered, it was on the room it had been, but… 
+
+**Dr. Arnold:** What do you mean?
+
+**T-5 Onru:** I am sorry, it is difficult to describe. When we entered the door, I could see the servers around me, but superimposed over them was… we were standing on a precipice, overlooking an area the size of which I cannot estimate. Below us were humans, screaming, their arms ending at their wrists, crying to the silent sky for restitution, and then… the sky burned. It was like a star had fallen, and I had to look away. Hollis could not. When I turned back I could see scorched corpses on the ground, billions of them, but billions of other living beings who came rushing towards the fallen star with their arms outstretched, and hanging in that star like a twisted marionette was… at Site-13, they called it Malidramagiuan. In this place, they called it another name. A hateful name. 
+
+**Dr. Arnold:** Why did you disable your recording equipment?
+
+**T-5 Onru:** When I first encountered this entity, it created anomalous memetic and cognitive hazards powerful enough to burn the SCRAMBLE units out of my eyes. I do not know what it would have done to anyone who was not otherwise protected.
+
+**Dr. Arnold:** What did it do to you?
+
+**T-5 Onru:** It… showed us things. Visions. Coils of fire and a sky made light with a storm of souls. A hole at the center of the universe that screamed at me. A god of nightmares, something long and lean, slowly walking between endless rows of crucifixions, and then… it showed something to Hollis, that I did not see. When it did, the runes across its… its head, began to burn and pulse, and the man who is strapped there began to blister and fester. When it was done, I saw an ocean behind it, and a blue sky. Our sky. It turned towards the ocean, and sank into it. When it was gone, the visions faded, and the room was empty.
+
+**Dr. Arnold:** I see. After that?
+
+**T-5 Onru:** Hollis ran. I followed her. She said nothing until we reached the machine. She told me that she had been there, alone, for some time. She said she knew how to turn it on. She said that she did not know where she would go, but that she needed to take the things she saw and bury them in the darkness. Before she could start the machine, the creatures from the containment cells came into that chamber, and I was terminated. 
+
+**Dr. Arnold:** Did Captain Hollis say anything to you before you died?
+
+**T-5 Onru:** No, she only laughed. And wept.
+
+[END LOG]
+[[/div]]
+
+[[/collapsible]]
+
+[[collapsible show="+ Access fileserv:/S:/1730/recovery/extDEBRIEFINTERVIEW6.log" hide="Close File" ]]
+
+[[div style="display: inline-block; border-radius: 10px; border:dashed 1px #444444; background:#F5F5F5; float:top; width:96.5%; padding:10px"]]
+
+**Mission Debrief Interview**
+**Date:** ██/██/████
+**Interviewee:** Dr. Mohammad Scott, Site-13 Assistant Director of Temporal Studies
+**Interviewer:** Director Willam Vesterland
+**Mission Debrief:** SCP-1730 Extraction 
+**Subject:** SCP-1730
+
+**Notes:** //The following is an audio transcript excerpt of an interview conducted by Provisional Site-23 personnel regarding SCP-1730. The information contained in this file is unconfirmed and under further review. For the full file, please contact the Information and Records Administrator at Site-17.//
+
+[BEGIN LOG]
+
+**Dir. Vesterland:** Please state your name for the record.
+
+**Dr. Scott:** My name is Doctor Mohammad Scott.
+
+**Dir. Vesterland:** You seem to be a little out of place, Dr. Scott.
+
+**Dr. Scott:** (//Laughs//) Only a little. Our two timelines were not so different, I think.
+
+**Dir. Vesterland:** Except for the one thing.
+
+**Dr. Scott:** Yes, there is that.
+
+**Dir. Vesterland:** Tell me about Site-13.
+
+**Dr. Scott:** Site-13… do you want the brief version, or...?
+
+**Dir. Vesterland:** As thorough as you can be.
+
+**Dr. Scott:** Very well. Originally, there were plans to build a large containment facility in the American midwest, but that was before… let me back up. In 1964, the Foundation discovered a massive, dead sea creature washed up on the shore near the Indian/Bangladeshi border. No facility in the region had the kind of infrastructure it took to hold the body of this entity, let alone study it, so several ships were dispatched and it was dragged through the ocean back towards the United States. Prior to this, the plan was to build Site-19 in the American midwest, but afterwards it was decided that there was no way to conceal a creature of this size and shuttle it across the US mainland. So after some deliberation, the Site-19 plans were scrapped and the focus was given to another facility, near Nome, Alaska. That was Site-13. Even in the beginning, it was massive. Considerably larger than any other site the Foundation managed, and it quickly became our premiere containment facility. It was remote, fortified, and best of all, easily concealed in the snow and ice. After the Soviet Union collapsed in ‘85, we learned that they didn’t even know Site-13 existed, let alone where it was. 
+
+**Dir. Vesterland:** I see. When did you join the Foundation, Dr. Scott?
+
+**Dr. Scott:** Oh, in… ‘76. I joined straight out of university, recruited by one of the administrators at my school. That was back when we were still independent, I worked at Site-22 in Bermuda. The best job I ever had. (//Laughs//) It was a much different Foundation.
+
+**Dir. Vesterland:** Tell me about what happened to the Foundation.
+
+**Dr. Scott:** (//Pauses//) Site-13 was very expensive to operate, and there were some… financial difficulties. In 1994, a Marxist extremist from the Ukraine detonated a bomb in the basement of the Manchester Financial Tower[[footnote]]The Willis Tower, formerly the Sears Tower.[[/footnote]] in Chicago. A fire started at the base of the building, and eventually the tower collapsed at its base and fell over on its side. Thousands died. The United States government was enraged at the Foundation after it was discovered that the extremist in question had used an anomaly to enter the basement and get past security. Thought that the billions of dollars that the United States were funneling to the Foundation were being wasted. After the 1996 election, President Dole decided to cut all funding for Foundation sites in the States. All available funding went to keeping those sites afloat, and with the weight of Site-13… the situation was dire. 
+
+**Dir. Vesterland:** So what happened?
+
+**Dr. Scott:** A compromise. A former Dole staffer named Paul Manafort was appointed as the Secretary General of the Global Occult Coalition, and came to us with a solution. We group our resources with the Coalition’s, combining our efforts to protect normalcy under their leadership. We would keep our name and our Sites, but directors would be appointed by the UN Security Council. We would once again receive funding from the United States, as well as that generated by the United Nations, and would be able to keep the lights on. 
+
+**Dir. Vesterland:** But…
+
+**Dr. Scott:** But the Overseer Council refused. They hunkered down at Overwatch Command and refused to bend the knee. Then, a few years later, a site in Portland, Oregon collapsed due to crumbling infrastructure and a creature we called the dream whale was spotted floating down the California coast. This was very early internet days, but that didn’t stop film cameras, and… it was a disaster. The Overseers mobilized all of our task forces in the area, but we didn’t even have the money for the amnestics. In a day it would be over San Francisco, and that would basically be the end of it. (//Pause//) Then we got an internet email that the Overseer Council had been disbanded and that the Foundation was now under the operation of the GOC. Secretary General Manafort and the Security Council established a new board of directors overnight, and before the sun rose the dream whale was recontained and every loose end was tied up. 
+
+**Dir. Vesterland:** Nobody resisted the change in leadership?
+
+
+**Dr. Scott:** Why would we? We suddenly had money. We were suddenly no longer having to decide between taking notes on the backs of our hands or not taking them at all. Secretary General Manafort installed a new Foundation Administrator, Vice President Jack Kemp, but he was little more than a figurehead. New directors were appointed, most of them from our own site staffs, so… it looked good, honestly. We were finally able to carry out our mission to its fullest. We had technology, we had personnel, it was wonderful. (//Pause//) And then we started to hear about people being reassigned. Anomalies being shipped off-site and never returning. You would hear people talk about “oh, so-and-so is in trouble now, they’re going to be sent to Site-13.” I thought most of it was just talk, and then I was reassigned, in 2003.
+
+**Dir. Vesterland:** What was it like?
+
+**Dr. Scott:** Cold. Site-13 was immense and the lights stayed on, but that facility was //always// cold. They were always working on the site, more and more construction underground, and they kept leaving exterior doors open. At first it wasn’t so bad. I was able to keep doing my research, and I had more funding than ever. Temporal/Spatial studies, you know. The director then was Jack Bright, one of the old doctors from back in the day. Very charismatic. The staff loved him. He had a medallion he wore, some anomaly from way back that made him immortal. So long as he had it on, he wouldn’t age. Anyway, things were great for a few years. Then one day, another popular doctor is found dead in her office. Cynthia Light. The story we all get is that Bright had fancied her, but when he found she was with another man he went and killed her in a fit of passion. Bright is summarily locked up, and Elliott Emerson is installed as the director of Site-13. He… 
+
+**Dir. Vesterland:** What’s that?
+
+**Dr. Scott:** Emerson was on one of Bright’s research teams when he was assigned to Site-15. He wasn’t a popular doctor, but he was a good administrator and helped make sure that the important projects stayed afloat during the financial crisis. He was on the short list of people to become the director of Site-13 after the reorganization, but Bright got picked over him. Some people said he felt slighted. A lot of people said he framed Bright. I think Manafort didn’t like Bright’s anti-Coalition sentiments, had him made out to be some dangerous anomaly that had to be contained, then put Emerson up because nobody would complain about Emerson. He was very middle-of-the-road. Didn’t stand out much. Elliott ended up… doing some terrible things, but I truly believe he was only doing them because Manafort demanded it. 
+
+**Dir. Vesterland:** What kind of terrible things?
+
+**Dr. Scott:** I didn’t see much until years later, but… we always heard about things happening deeper below the site. They were building all of the new containment cells, and research facilities. Then they built the incinerator. Originally it was made so they could dispose of the body of that sea monster from before, but then they just started using it for… everything. At first they were doing some invasive testing on anomalous animals. Then on humans. Then the vivisections began. The Ethics Committee tried to step in, but they were removed. They dragged the old chairman, Jeremiah Cimmerian, out into the commons at Site-17 and shot him in the head for being a traitor. Peter Grenwald became the new Foundation/GOC Ethics Head, and of course all of the new tests were approved. I don’t know what they were testing for, but… if you were anomalous and you weren’t found to have it, you went into the body pit. We kept hearing “it’s for the greater good, it’s for the protection of mankind”, what were we supposed to do? Speak out and end up like Cimmerian? (//Pauses//) Maybe for a braver man. But I knew the work I was doing was good, so I kept my head down and carried on. Then… well, (//laughs//) it sounds silly now. In 2010 we contained God. Not just any god, either. The Abrahamic God. The actual, thunder and lightning, Y-H-W-H, fire and brimstone god. I don’t know how they managed it; some technology developed by the Coalition, I’m sure. And that was just the first. They filled Site-13 to the brim with everything they could get their hands on.
+
+**Dir. Vesterland:** (//Pauses//) Well. That is… a lot. I guess the only other question I have immediately is… what happened to Site-13?
+
+**Dr. Scott:** Vera Hadley. Doctor of Internal Medicine from some site in Italy. For a few years, she was the site’s Chief Biologist. The Security Council made her the Assistant Director of Anomalous Biology at the same time I was promoted to the same position for Temporal Studies. She and Elliott had been… together… and she pretty adamantly opposed everything he was making us do. Elliott kept his tail between his legs, but Manafort wouldn’t have it. He had her stripped of her position after just three months, and demoted to junior researcher after that. One night after staging some kind of demonstration, some guards showed up and… well… they stripped her naked and inspected her for contraband, right in the middle of the main corridor. When they were done and satisfied, they nearly beat her to death and left her there. Myself and a few other doctors took her to the medical center and she recovered, but she never really //recovered//. Something inside her had died, or been replaced with something else. She did something, hatched some scheme. She sent me an email about it, the night before she did it, but I didn’t pay any attention. When it happened, and when that… thing, attacked the site, Emerson came and begged me to turn on the Thresher. It was supposed to be an absolutely last ditch effort to protect the world, a wholly untested piece of technology that was just as likely to have burned the world than saved it. Its entire existence was the result of a //joke//, one that I might have taken too seriously at the time, but either way. I refused, told him the risk was too great, that even if it worked, we were just creating a problem for another world, but… he was inconsolable. He told me that staying and facing the Secretary General would be a fate worse than death. He pulled a gun on me, demanded I do it. I fled. Went to gather my team in the hopes that we could escape, but before we could even leave our lab, it happened. (//Pauses//) It…
+
+**Dir. Vesterland:** Are you alright?
+
+**Dr. Scott:** Yes. The Thresher was a complicated machine. I guess I should count myself lucky that we survived at all, but… we may very well have been in that strange space between worlds for a thousand years. When we awoke, we were still in Site-13, but the cells were thrown open and the inmates were loose. If you had not come down for us, we would have died. (//Pause//) I am certain of this.
+
+**Dir. Vesterland:** Do you know where Site-13 has gone?
+
+**Dr. Scott:** There is no way to predict it. Chances are it will be a place like this, but then, it may not. It could be any number of strange and unknown worlds. (//Pauses//) You knew someone who was left within.
+
+**Dir. Vesterland:** I do.
+
+**Dr. Scott:** As do I. We were not the only survivors, though there were not many of us. They… well. They did not fare as well as we did. It is a tragedy, but there is nothing that can be done now. (//Pauses//) I only hope… maybe… I hope that after all this, Emerson has found some peace. He truly was a great doctor, and he was my friend.
+
+**Dir. Vesterland:** I… of course. Thank you for your time, Dr. Scott. We’ll speak again soon.
+
+[END LOG]
+[[/div]]
+[[/collapsible]]
+
+[[footnoteblock]]
+
+[[include component:wikimodule |normal= --]]]
+[[div class="footer-wikiwalk-nav"]]
+[[=]]
+<< [[[SCP-1729]]] | SCP-1730 | [[[SCP-1731]]] >>
+[[/=]]
+[[/div]]
