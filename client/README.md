@@ -41,7 +41,7 @@ $ npm run dev         Start a devlopment server for rebuilding packages when the
 
 ### Creating a Package
 
-Creating a package is very simple. Navigate to the `docs/vscode-template` folder. There, you will find a premade template package that can be dropped into `packages/`. Make sure to edit the `package.json` to fit the package you intend to create, e.g. `name` and `description` fields.
+Creating a package is very simple. Navigate to the `docs/package-template` folder. There, you will find a premade template package that can be dropped into `packages/`. Make sure to edit the `package.json` to fit the package you intend to create, e.g. `name` and `description` fields.
 
 One fairly manual tweak you need to make is adding the package directory to the `references` field in the root `tsconfig.json`. This is to make sure that `.d.ts` declarations are compiled - which are essential to typecheck the monorepo.
 
