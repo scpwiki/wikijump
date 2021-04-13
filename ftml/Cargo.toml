@@ -23,6 +23,7 @@ crate-type = ["cdylib", "lib"]
 wasm-log = [] # Enables console.log() logging. Spams your browser, caveat emptor!
 
 [dependencies]
+entities = "1"
 enum-map = "0.6"
 lazy_static = "1"
 maplit = "1"

@@ -81,6 +81,7 @@ Here is a table showing the options each block has with regards to its construct
 | [Anchor](#anchor)               | `a`, `anchor`                    | No       | Yes       | No        | Map           | Elements  |
 | [Blockquote](#blockquote)       | `blockquote`, `quote`            | No       | No        | Yes       | Map           | Elements  |
 | [Bold](#bold)                   | `b`, `bold`, `strong`            | No       | No        | No        | Map           | Elements  |
+| [Char](#char)                   | `char`, `character`              | No       | No        | No        | Value         | None      |
 | [Checkbox](#checkbox)           | `checkbox`                       | Yes      | No        | No        | Map           | None      |
 | [Code](#code)                   | `code`                           | No       | No        | Yes       | Map           | Raw       |
 | [Collapsible](#collapsible)     | `collapsible`                    | No       | No        | Yes       | Map           | Elements  |
@@ -157,6 +158,21 @@ Example:
 
 ```
 Some [[b]]text![[/b]]
+```
+
+### Char
+
+Outputs: `Element::Text`
+
+Body: None
+
+Arguments:
+Value &mdash; (String) The HTML entity to place here.
+
+Example:
+
+```
+This file is [[char copy]] 2021 Team Wikijump.
 ```
 
 ### Checkbox
