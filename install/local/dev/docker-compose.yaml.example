@@ -40,7 +40,7 @@ services:
     depends_on:
       - cache
       - database
-# Similar to above, you may add local volums:
+# Similar to above, you may add local volumes:
 #    volumes:
 #      - C:\wikijump:/var/www/wikijump
 #      - ~/wikijump:/var/www/wikijump
