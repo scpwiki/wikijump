@@ -21,6 +21,7 @@ crate-type = ["cdylib", "lib"]
 
 [[bench]]
 name = "perf"
+path = "src/bench.rs"
 harness = false
 
 [features]
