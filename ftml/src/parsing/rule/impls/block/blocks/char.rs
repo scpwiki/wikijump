@@ -21,8 +21,8 @@
 use super::prelude::*;
 use entities::ENTITIES;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::char;
+use std::collections::HashMap;
 
 lazy_static! {
     static ref ENTITY_MAPPING: HashMap<&'static str, &'static str> = {
@@ -125,7 +125,6 @@ fn get_char(value: &str, radix: u32) -> Option<Cow<str>> {
     Some(Cow::Owned(ch.to_string()))
 }
 
-
 /// If a string starts with `&` and ends with `;`, those are removed.
 /// First trims the string.
 fn strip_entity(s: &str) -> &str {
@@ -152,8 +151,7 @@ fn test_get_entity() {
             let expected = $expected;
 
             assert_eq!(
-                actual,
-                expected,
+                actual, expected,
                 "Actual entity string doesn't match expected",
             );
         }};
@@ -189,8 +187,7 @@ fn test_get_char() {
             let expected = $expected;
 
             assert_eq!(
-                actual,
-                expected,
+                actual, expected,
                 "Actual character value doesn't match expected",
             );
         }};
@@ -217,8 +214,7 @@ fn test_strip_entity() {
             let expected = $expected;
 
             assert_eq!(
-                actual,
-                expected,
+                actual, expected,
                 "Actual stripped entity value didn't match expected",
             );
         }};
