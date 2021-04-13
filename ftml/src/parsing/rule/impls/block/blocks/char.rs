@@ -227,6 +227,11 @@ fn test_strip_entity() {
     check!("&#100;", "#100");
     check!("&xdeadbeef;", "xdeadbeef");
 
+    check!("&amp", "amp");
+    check!("amp;", "amp");
+    check!("&#100", "#100");
+    check!("#100;", "#100");
+
     check!(" ", "");
     check!(" abc", "abc");
     check!(" legumes1", "legumes1");
