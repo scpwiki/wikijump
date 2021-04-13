@@ -22,7 +22,7 @@
     "url": "git+https://github.com/scpwiki/wikijump.git"
   },
   "bugs": {
-    "url": "https://github.com/scpwiki/wikijump/issues"
+    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
   },
   "homepage": "https://github.com/scpwiki/wikijump#readme",
   "devDependencies": {
