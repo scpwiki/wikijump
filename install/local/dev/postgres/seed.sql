@@ -4627,8 +4627,8 @@ COPY public.private_user_block (block_id, user_id, blocked_user_id) FROM stdin;
 -- Data for Name: profile; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
-COPY public.profile (user_id, real_name, gender, birthday_day, birthday_month, birthday_year, about, location, website, im_aim, im_gadu_gadu, im_google_talk, im_icq, im_jabber, im_msn, im_yahoo, change_screen_name_count) FROM stdin;
-1	\N	\N	\N	\N	\N	Wikidot administrator.	\N	\N	\N	\N	\N	\N	\N	\N	\N	0
+COPY public.profile (user_id, real_name, pronouns, birthday_day, birthday_month, birthday_year, about, location, website, im_icq, im_jabber, change_screen_name_count) FROM stdin;
+1	\N	\N	\N	\N	\N	Wikidot administrator.	\N	\N	\N	\N	0
 \.
 
 

@@ -35,7 +35,9 @@
             "Ozone\\Framework\\": "lib/ozoneframework/php/core",
             "Ozone\\Framework\\Template\\": "lib/ozoneframework/php/Template"
         },
-        "classmap": ["lib/"]
+        "classmap": ["lib/"],
+        "files": ["lib/ozoneframework/php/core/functions.php",
+                    "php/setup.php"]
     },
     "autoload-dev": {
         "psr-4": {
