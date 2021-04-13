@@ -22,9 +22,10 @@ use super::prelude::*;
 use entities::ENTITIES;
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::char;
 
 lazy_static! {
-    static ref ENTITY_MAPPING: HashMap<&str, &str> = {
+    static ref ENTITY_MAPPING: HashMap<&'static str, &'static str> = {
         let mut mapping = HashMap::new();
 
         for entity in &ENTITIES {
@@ -58,10 +59,25 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Char doesn't allow special variant");
     assert_block_name(&BLOCK_CHAR, name);
 
-    let entity = parser.get_head_value(&BLOCK_CHAR, in_head, parse_count)?;
-    let result = find_entity(strip_entity(entity));
+    // Parse the entity and get the string
+    let string = parser.get_head_value(&BLOCK_CHAR, in_head, parse_entity)?;
 
-    ok!(Element::Text(result))
+    ok!(Element::Text(string))
+}
+
+fn parse_entity<'r, 't>(
+    parser: &Parser<'r, 't>,
+    argument: Option<&'t str>,
+) -> Result<Cow<'t, str>, ParseWarning> {
+    let argument = match argument {
+        Some(arg) => strip_entity(arg),
+        None => return Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+    };
+
+    match find_entity(argument) {
+        Some(string) => Ok(string),
+        None => Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments)),
+    }
 }
 
 /// Find the string corresponding to the passed entity, if any.
@@ -106,11 +122,14 @@ fn get_char(value: &str, radix: u32) -> Option<Cow<str>> {
         None => return None,
     };
 
-    Some(Cow::Borrowed(ch.to_string()))
+    Some(Cow::Owned(ch.to_string()))
 }
 
 /// If a string starts with `&` and ends with `;`, those are removed.
+/// First trims the string.
 fn strip_entity(s: &str) -> &str {
+    let s = s.trim();
+
     if s.starts_with('&') && s.ends_with(';') {
         // Strip first and last characters
 
