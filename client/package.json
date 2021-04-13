@@ -12,7 +12,7 @@
     "build": "run-s -s clean build:dts build-all:es",
     "dev:es": "node build.js -w -g",
     "dev:dts": "tsc -b -w",
-    "dev": "npm -s run build && run-p -s dev:*"
+    "dev": "npm -s run build:dts && run-p -s dev:*"
   },
   "workspaces": [
     "packages/*"
