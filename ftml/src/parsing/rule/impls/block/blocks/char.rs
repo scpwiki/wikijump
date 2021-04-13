@@ -125,20 +125,20 @@ fn get_char(value: &str, radix: u32) -> Option<Cow<str>> {
     Some(Cow::Owned(ch.to_string()))
 }
 
-/// If a string starts with `&` and ends with `;`, those are removed.
-/// First trims the string.
-fn strip_entity(s: &str) -> &str {
-    let s = s.trim();
+/// If a string starts with `&` or ends with `;`, those are removed.
+/// First trims the string of whitespace.
+fn strip_entity(mut s: &str) -> &str {
+    s = s.trim();
 
-    if s.starts_with('&') && s.ends_with(';') {
-        // Strip first and last characters
-
-        &s[1..s.len() - 1]
-    } else {
-        // Leave unchanged
-
-        s
+    if let Some(stripped) = s.strip_prefix('&') {
+        s = stripped;
     }
+
+    if let Some(stripped) = s.strip_suffix(';') {
+        s = stripped;
+    }
+
+    s
 }
 
 /* Tests */
