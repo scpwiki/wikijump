@@ -58,6 +58,7 @@ mod prelude {
 mod anchor;
 mod blockquote;
 mod bold;
+mod char;
 mod checkbox;
 mod code;
 mod collapsible;
@@ -87,6 +88,7 @@ mod underline;
 pub use self::anchor::BLOCK_ANCHOR;
 pub use self::blockquote::BLOCK_BLOCKQUOTE;
 pub use self::bold::BLOCK_BOLD;
+pub use self::char::BLOCK_CHAR;
 pub use self::checkbox::BLOCK_CHECKBOX;
 pub use self::code::BLOCK_CODE;
 pub use self::collapsible::BLOCK_COLLAPSIBLE;
