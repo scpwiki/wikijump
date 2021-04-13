@@ -1,0 +1,72 @@
+{
+    "input": "[[collapsible]]\nApple\n[[collapsible show=\"+ More Fruit\" hide=\"- Hide Fruit\"]]\nBanana\n[[/collapsible]]\n[[/collapsible]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "collapsible",
+                            "data": {
+                                "attributes": {},
+                                "start-open": false,
+                                "show-text": null,
+                                "hide-text": null,
+                                "show-top": true,
+                                "show-bottom": false,
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                },
+                                                {
+                                                    "element": "collapsible",
+                                                    "data": {
+                                                        "attributes": {},
+                                                        "start-open": false,
+                                                        "show-text": "+ More Fruit",
+                                                        "hide-text": "- Hide Fruit",
+                                                        "show-top": true,
+                                                        "show-bottom": false,
+                                                        "elements": [
+                                                            {
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "paragraph",
+                                                                    "attributes": {},
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "Banana"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

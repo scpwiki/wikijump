@@ -1,0 +1,36 @@
+{
+    "input": "--Fail Strikethrough",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "\u2014"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Strikethrough"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

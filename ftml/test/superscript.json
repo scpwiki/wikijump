@@ -1,0 +1,41 @@
+{
+    "input": "^^Superscript^^ Text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "superscript",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Superscript"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Text"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

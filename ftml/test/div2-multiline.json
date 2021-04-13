@@ -1,0 +1,40 @@
+{
+    "input": "[[div_]]\nApple\nBanana\n[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "div",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    },
+                                    {
+                                        "element": "line-break"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

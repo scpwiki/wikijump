@@ -1,0 +1,37 @@
+{
+    "input": "[[del id=\"banana\" class=\"fruit\" style=\"color: yellow;\" disallowed-attr=\"blocked\"]]Banana[[/del]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "deletion",
+                                "attributes": {
+                                    "id": "banana",
+                                    "class": "fruit",
+                                    "style": "color: yellow;"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

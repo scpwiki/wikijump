@@ -1,0 +1,33 @@
+{
+    "input": "[[module Categories INCLUDEhidden= \"no\"]]\nApple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "module",
+                            "data": {
+                                "module": "categories",
+                                "data": {
+                                    "include-hidden": false
+                                }
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

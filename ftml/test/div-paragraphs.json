@@ -1,0 +1,75 @@
+{
+    "input": "[[div]]\nApple\n\nBanana\nCherry\n\nDurian\n[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "div",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Banana"
+                                                },
+                                                {
+                                                    "element": "line-break"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "Cherry"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "attributes":{},
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Durian"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

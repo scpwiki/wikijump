@@ -1,0 +1,41 @@
+{
+    "input": "[[hidden]]Hidden[[/hidden]] Text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "hidden",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Hidden"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Text"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

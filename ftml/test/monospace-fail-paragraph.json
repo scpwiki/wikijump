@@ -1,0 +1,63 @@
+{
+    "input": "{{Fail\n\nMonospace}}",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "{{"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Monospace"
+                        },
+                        {
+                            "element": "text",
+                            "data": "}}"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "paragraph-break",
+            "rule": "monospace",
+            "span": [6, 8],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "left-monospace",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-monospace",
+            "rule": "fallback",
+            "span": [17, 19],
+            "kind": "no-rules-match"
+        }
+    ]
+}

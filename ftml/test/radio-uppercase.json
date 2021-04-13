@@ -1,0 +1,77 @@
+{
+    "input": "[[RADIO fruit]] Apple\n[[Radio fruit]] Banana\n[[raDIo vegetable]] Celery\n[[raDIO vegetable]] Zucchini",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "radio-button",
+                            "data": {
+                                "name": "fruit",
+                                "checked": false,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "radio-button",
+                            "data": {
+                                "name": "fruit",
+                                "checked": false,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Banana"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "radio-button",
+                            "data": {
+                                "name": "vegetable",
+                                "checked": false,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Celery"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "radio-button",
+                            "data": {
+                                "name": "vegetable",
+                                "checked": false,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Zucchini"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

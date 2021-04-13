@@ -1,0 +1,46 @@
+{
+    "input": "[[collapsible]]\nApple\n[[/collapsible]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "collapsible",
+                            "data": {
+                                "attributes": {},
+                                "start-open": false,
+                                "show-text": null,
+                                "hide-text": null,
+                                "show-top": true,
+                                "show-bottom": false,
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

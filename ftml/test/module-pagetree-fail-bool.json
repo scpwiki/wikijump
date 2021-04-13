@@ -1,0 +1,106 @@
+{
+    "input": "[[module PageTree root=\"scp-001\" showRoot=\"nope\" depth=\"2\"]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "module"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "PageTree"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "root"
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"scp-001\""
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "showRoot"
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"nope\""
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "depth"
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"2\""
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "module-page-tree",
+            "span": [60, 60],
+            "kind": "block-malformed-arguments"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [58, 60],
+            "kind": "no-rules-match"
+        }
+    ]
+}

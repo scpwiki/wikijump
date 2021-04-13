@@ -1,0 +1,116 @@
+{
+    "input": "[[include multiline name = consuelo|\n contents = the chorizo stew is almost finished cooking \n i cannot just stop cooking my chorizo stew in order to talk to you about an i.r.c. channel, friends \nshit i am sorry i did not mean to rejoin]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "<"
+                        },
+                        {
+                            "element": "text",
+                            "data": "INCLUDED"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "PAGE"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "multiline"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "{"
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"contents\""
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"the chorizo stew is almost finished cooking \\n i cannot just stop cooking my chorizo stew in order to talk to you about an i.r.c. channel, friends \\nshit i am sorry i did not mean to rejoin\""
+                        },
+                        {
+                            "element": "text",
+                            "data": ","
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"name\""
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"consuelo\""
+                        },
+                        {
+                            "element": "text",
+                            "data": "}"
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

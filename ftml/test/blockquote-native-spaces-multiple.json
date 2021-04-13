@@ -1,0 +1,56 @@
+{
+    "input": ">Apple\n>Banana\n>Cherry",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "blockquote",
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                },
+                                                {
+                                                    "element": "line-break"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "Banana"
+                                                },
+                                                {
+                                                    "element": "line-break"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "Cherry"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "attributes": {}
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

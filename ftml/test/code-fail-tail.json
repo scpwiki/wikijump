@@ -1,0 +1,92 @@
+{
+    "input": "a { display: none; } [[/code]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "a"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "{"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "display"
+                        },
+                        {
+                            "element": "text",
+                            "data": ":"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "none"
+                        },
+                        {
+                            "element": "text",
+                            "data": ";"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "}"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "[[/"
+                        },
+                        {
+                            "element": "text",
+                            "data": "code"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "left-block-end",
+            "rule": "fallback",
+            "span": [21, 24],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [28, 30],
+            "kind": "no-rules-match"
+        }
+    ]
+}

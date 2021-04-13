@@ -1,0 +1,30 @@
+{
+    "input": "[[module Rate]]\nApple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "module",
+                            "data": {
+                                "module": "rate"
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

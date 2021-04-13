@@ -1,0 +1,26 @@
+{
+    "input": "[[html]]\n[[div]]\ntest\n[[/div]]\n[[/html]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "html",
+                            "data": {
+                                "contents": "[[div]]\ntest\n[[/div]]"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

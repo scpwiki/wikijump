@@ -1,0 +1,50 @@
+{
+    "input": "* A\n* B\n* C\n]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "items": [
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "A"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "B"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "C"
+                                        }
+                                    ]
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

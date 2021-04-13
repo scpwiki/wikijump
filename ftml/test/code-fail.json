@@ -1,0 +1,73 @@
+{
+    "input": "[[code]]\nno ending block",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "code"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "no"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "ending"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "block"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "block-code",
+            "span": [24, 24],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [6, 8],
+            "kind": "no-rules-match"
+        }
+    ]
+}

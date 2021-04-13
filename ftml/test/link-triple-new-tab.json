@@ -1,0 +1,30 @@
+{
+    "input": "[[[*SCP-001]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "SCP-001",
+                                "label": {
+                                    "url": null
+                                },
+                                "target": "new-tab"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

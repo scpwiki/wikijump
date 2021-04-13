@@ -1,0 +1,35 @@
+{
+    "input": "[[module PageTree]]\nApple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "module",
+                            "data": {
+                                "module": "page-tree",
+                                "data": {
+                                    "root": null,
+                                    "show-root": false,
+                                    "depth": null
+                                }
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

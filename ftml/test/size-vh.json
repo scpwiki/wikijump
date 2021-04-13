@@ -1,0 +1,35 @@
+{
+    "input": "[[size 2vh]]Apple[[/size]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "size",
+                                "attributes": {
+                                    "style": "font-size: 2vh;"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

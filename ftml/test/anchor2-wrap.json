@@ -1,0 +1,50 @@
+{
+    "input": "[[a_]]Internal **elements**[[/a]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "anchor",
+                            "data": {
+                                "attributes": {},
+                                "target": null,
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Internal"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "bold",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "elements"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

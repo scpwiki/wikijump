@@ -1,0 +1,86 @@
+{
+    "input": "[[size 12pt]]Durian[[/sz]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "size"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "12pt"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Durian"
+                        },
+                        {
+                            "element": "text",
+                            "data": "[[/"
+                        },
+                        {
+                            "element": "text",
+                            "data": "sz"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "block-size",
+            "span": [26, 26],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [11, 13],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "left-block-end",
+            "rule": "fallback",
+            "span": [19, 22],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [24, 26],
+            "kind": "no-rules-match"
+        }
+    ]
+}

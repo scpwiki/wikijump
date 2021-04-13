@@ -1,0 +1,40 @@
+{
+    "input": "A\n[[div_]]\n[[/div]]\nB",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        },
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "div",
+                                "attributes": {},
+                                "elements": [
+                                ]
+                            }
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "B"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

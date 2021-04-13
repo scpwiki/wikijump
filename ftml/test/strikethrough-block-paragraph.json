@@ -1,0 +1,40 @@
+{
+    "input": "[[s]]Paragraph\n\nStrikethrough[[/s]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "strikethrough",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Paragraph"
+                                    },
+                                    {
+                                        "element": "line-break"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Strikethrough"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

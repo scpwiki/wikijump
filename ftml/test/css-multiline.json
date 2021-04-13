@@ -1,0 +1,12 @@
+{
+    "input": "[[css]]\nh1 {\n    margin-top: .7em\n    padding: 0;\n    font-weight: bold;\n}\n[[/css]]",
+    "tree": {
+        "elements": [
+        ],
+        "styles": [
+            "h1 {\n    margin-top: .7em\n    padding: 0;\n    font-weight: bold;\n}"
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -1,0 +1,124 @@
+{
+    "input": "[[html type=\"css\"]]\n<div></div>\n[[/html]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "html"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "type"
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"css\""
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "<"
+                        },
+                        {
+                            "element": "text",
+                            "data": "div"
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        },
+                        {
+                            "element": "text",
+                            "data": "<"
+                        },
+                        {
+                            "element": "text",
+                            "data": "/"
+                        },
+                        {
+                            "element": "text",
+                            "data": "div"
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "[[/"
+                        },
+                        {
+                            "element": "text",
+                            "data": "html"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "identifier",
+            "rule": "block-html",
+            "span": [7, 11],
+            "kind": "block-missing-close-brackets"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [17, 19],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "left-block-end",
+            "rule": "fallback",
+            "span": [32, 35],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [39, 41],
+            "kind": "no-rules-match"
+        }
+    ]
+}

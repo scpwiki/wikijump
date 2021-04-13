@@ -1,0 +1,50 @@
+{
+    "input": "[[hidden]]\n[[div_]]\nHidden div\n[[/div]]\n[[/hidden]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "hidden",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "div",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Hidden"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": " "
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "div"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

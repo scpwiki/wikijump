@@ -1,0 +1,50 @@
+{
+    "input": "[[invisible]]\n[[div_]]\nInvisible div\n[[/div]]\n[[/invisible]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "invisible",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "div",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Invisible"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": " "
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "div"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

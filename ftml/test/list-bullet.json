@@ -1,0 +1,42 @@
+{
+    "input": "[\n* A\n]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        },
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "items": [
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "A"
+                                        }
+                                    ]
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

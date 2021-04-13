@@ -1,0 +1,30 @@
+{
+    "input": "[[iframe https://example.com id=\"my-iframe\" class=\"example\"]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "iframe",
+                            "data": {
+                                "url": "https://example.com",
+                                "attributes": {
+                                    "id": "my-iframe",
+                                    "class": "example"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

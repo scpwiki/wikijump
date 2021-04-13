@@ -1,0 +1,62 @@
+{
+    "input": "[[i]]Fail Italics",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "i"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Italics"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "block-italics",
+            "span": [17, 17],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [3, 5],
+            "kind": "no-rules-match"
+        }
+    ]
+}

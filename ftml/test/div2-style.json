@@ -1,0 +1,36 @@
+{
+    "input": "[[div_ style=\"display: flex\" data-fruit=\"red\"]]\nApple\n[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "div",
+                                "attributes": {
+                                    "style": "display: flex",
+                                    "data-fruit": "red"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

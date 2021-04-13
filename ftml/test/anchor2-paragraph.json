@@ -1,0 +1,40 @@
+{
+    "input": "[[a_]]Apple\n\nBanana[[/a]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "anchor",
+                            "data": {
+                                "attributes": {},
+                                "target": null,
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    },
+                                    {
+                                        "element": "line-break"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

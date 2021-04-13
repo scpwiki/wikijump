@@ -1,0 +1,28 @@
+{
+    "input": "[[[*some-page|]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "some-page",
+                                "label": "page",
+                                "target": "new-tab"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

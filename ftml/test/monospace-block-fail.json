@@ -1,0 +1,62 @@
+{
+    "input": "[[tt]]Fail Monospace",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "tt"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Monospace"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "block-monospace",
+            "span": [20, 20],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [4, 6],
+            "kind": "no-rules-match"
+        }
+    ]
+}

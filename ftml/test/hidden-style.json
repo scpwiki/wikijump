@@ -1,0 +1,44 @@
+{
+    "input": "[[hidden id=\"my-span\" style=\"line-height: 1em;\"]]Hidden[[/hidden]] Text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "hidden",
+                                "attributes": {
+                                    "id": "my-span",
+                                    "style": "line-height: 1em;"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Hidden"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Text"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

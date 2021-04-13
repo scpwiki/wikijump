@@ -1,0 +1,108 @@
+{
+    "input": "[[div]]\nA\n[[div]]\nB\n[[div]]\nC\n[[div]]\nD\n[[/div]]\n[[/div]]\n[[/div]]\n[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "div",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "A"
+                                                },
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": "div",
+                                                        "attributes": {},
+                                                        "elements": [
+                                                            {
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "paragraph",
+                                                                    "attributes": {},
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "B"
+                                                                        },
+                                                                        {
+                                                                            "element": "container",
+                                                                            "data": {
+                                                                                "type": "div",
+                                                                                "attributes": {},
+                                                                                "elements": [
+                                                                                    {
+                                                                                        "element": "container",
+                                                                                        "data": {
+                                                                                            "type": "paragraph",
+                                                                                            "attributes": {},
+                                                                                            "elements": [
+                                                                                                {
+                                                                                                    "element": "text",
+                                                                                                    "data": "C"
+                                                                                                },
+                                                                                                {
+                                                                                                    "element": "container",
+                                                                                                    "data": {
+                                                                                                        "type": "div",
+                                                                                                        "attributes": {},
+                                                                                                        "elements": [
+                                                                                                            {
+                                                                                                                "element": "container",
+                                                                                                                "data": {
+                                                                                                                    "type": "paragraph",
+                                                                                                                    "attributes": {},
+                                                                                                                    "elements": [
+                                                                                                                        {
+                                                                                                                            "element": "text",
+                                                                                                                            "data": "D"
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                }
+                                                                                                            }
+                                                                                                        ]
+                                                                                                    }
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

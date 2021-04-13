@@ -1,0 +1,30 @@
+{
+    "input": "[/page Some page]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "/page",
+                                "label": {
+                                    "text": "Some page"
+                                },
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

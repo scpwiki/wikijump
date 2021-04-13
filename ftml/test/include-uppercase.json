@@ -1,0 +1,68 @@
+{
+    "input": "[[INCLUde my-PAGE]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "<"
+                        },
+                        {
+                            "element": "text",
+                            "data": "INCLUDED"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "PAGE"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "my"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "PAGE"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "{"
+                        },
+                        {
+                            "element": "text",
+                            "data": "}"
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

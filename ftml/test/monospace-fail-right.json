@@ -1,0 +1,42 @@
+{
+    "input": "}}Fail Monospace",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "}}"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Monospace"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "right-monospace",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        }
+    ]
+}

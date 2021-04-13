@@ -1,0 +1,60 @@
+{
+    "input": "[[code type=\"css\"  ",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "code"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "type"
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"css\""
+                        },
+                        {
+                            "element": "text",
+                            "data": "  "
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "block-code",
+            "span": [19, 19],
+            "kind": "block-malformed-arguments"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        }
+    ]
+}

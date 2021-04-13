@@ -1,0 +1,38 @@
+{
+    "input": "[[mark id=\"banana\" class=\"fruit\" style=\"color: yellow;\" onclick=\"javascript is blocked\" autocapitalize=\"yes\"]]Banana[[/mark]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "mark",
+                                "attributes": {
+                                    "id": "banana",
+                                    "class": "fruit",
+                                    "style": "color: yellow;",
+                                    "autocapitalize": "yes"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

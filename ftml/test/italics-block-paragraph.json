@@ -1,0 +1,40 @@
+{
+    "input": "[[i]]Paragraph\n\nItalics[[/i]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "italics",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Paragraph"
+                                    },
+                                    {
+                                        "element": "line-break"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Italics"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

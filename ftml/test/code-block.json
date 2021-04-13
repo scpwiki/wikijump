@@ -1,0 +1,27 @@
+{
+    "input": "[[code]]\n[[div]]\ntest\n[[/div]]\n[[/code]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "code",
+                            "data": {
+                                "contents": "[[div]]\ntest\n[[/div]]",
+                                "language": null
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

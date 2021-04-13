@@ -1,0 +1,46 @@
+{
+    "input": "[[collapsible hidelocation=\"neither\"]]\nCherry\n[[/collapsible]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "collapsible",
+                            "data": {
+                                "attributes": {},
+                                "start-open": false,
+                                "show-text": null,
+                                "hide-text": null,
+                                "show-top": false,
+                                "show-bottom": false,
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Cherry"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

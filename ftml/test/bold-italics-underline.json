@@ -1,0 +1,85 @@
+{
+    "input": "**Apple //Banana __Cherry__ Durian//** Pineapple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "attributes": {},
+                            "data": {
+                                "type": "bold",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "container",
+                                        "attributes": {},
+                                        "data": {
+                                            "type": "italics",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Banana"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": " "
+                                                },
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": "underline",
+                                                        "attributes": {},
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "Cherry"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": " "
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "Durian"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Pineapple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

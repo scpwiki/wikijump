@@ -1,0 +1,32 @@
+{
+    "input": "[[html]]\n<p>Paragraph 1</p>\n[[/html]]\n[[html]]\n<p>Paragraph 2</p>[[/html]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "html",
+                            "data": {
+                                "contents": "<p>Paragraph 1</p>"
+                            }
+                        },
+                        {
+                            "element": "html",
+                            "data": {
+                                "contents": "<p>Paragraph 2</p>"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

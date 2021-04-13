@@ -1,0 +1,26 @@
+{
+    "input": "[[html]]My <bold>text</bold>![[/html]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "html",
+                            "data": {
+                                "contents": "My <bold>text</bold>!"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

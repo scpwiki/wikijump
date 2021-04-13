@@ -1,0 +1,35 @@
+{
+    "input": "[[size 12pt]]Apple[[/size]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "size",
+                                "attributes": {
+                                    "style": "font-size: 12pt;"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

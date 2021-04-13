@@ -1,0 +1,64 @@
+[package]
+name = "ftml"
+description = "Foundation Text Markup Language - a library to render Wikidot text as HTML"
+repository = "https://github.com/scpwiki/wikijump/tree/develop/ftml"
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
+categories = []
+exclude = [".gitignore", ".github"]
+
+version = "0.5.0"
+authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
+edition = "2018" # this refers to the Cargo.toml version
+
+[workspace]
+members = ["ftml-http"]
+
+[lib]
+name = "ftml"
+crate-type = ["cdylib", "lib"]
+
+[features]
+wasm-log = [] # Enables console.log() logging. Spams your browser, caveat emptor!
+
+[dependencies]
+entities = "1"
+enum-map = "0.6"
+lazy_static = "1"
+maplit = "1"
+pest = "2"
+pest_derive = "2"
+ref-map = "0.1"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+slog = { version = "2.7", features = ["max_level_trace"] }
+str-macro = "1"
+strum = "0.20"
+strum_macros = "0.20"
+tinyvec = "1"
+unicase = "2"
+void = "1"
+wikidot-normalize = "0.7"
+
+[build-dependencies]
+built = { version = "0.4", features = ["chrono", "git2"] }
+
+[dev-dependencies]
+sloggers = "1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+cfg-if = "1"
+ouroboros = "0.8"
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+web-sys = { version = "0.3", features = ["console"] }
+
+# Performance options
+
+[profile.release]
+lto = true
+#opt-level = 's' # Uncomment when building WASM
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ['-O4']

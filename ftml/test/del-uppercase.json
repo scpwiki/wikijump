@@ -1,0 +1,37 @@
+{
+    "input": "[[DEl ID =  \"apple\" clASS =\"fruit\" stylE=\"color: red;\"      ]]Apple[[/ DEL  ]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "deletion",
+                                "attributes": {
+                                    "ID": "apple",
+                                    "clASS": "fruit",
+                                    "stylE": "color: red;"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

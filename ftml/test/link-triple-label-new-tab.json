@@ -1,0 +1,30 @@
+{
+    "input": "[[[*some-page|Label]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "some-page",
+                                "label": {
+                                    "text": "Label"
+                                },
+                                "target": "new-tab"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

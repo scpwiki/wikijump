@@ -1,0 +1,39 @@
+{
+    "input": "[[module Join id=\"join-btn\" CLASS =\"join-module\" stYLe= \"display: inline-block;\" data-join=\"\"]]\nApple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "module",
+                            "data": {
+                                "module": "join",
+                                "data": {
+                                    "button-text": null,
+                                    "attributes": {
+                                        "id": "join-btn",
+                                        "CLASS": "join-module",
+                                        "stYLe": "display: inline-block;",
+                                        "data-join": ""
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

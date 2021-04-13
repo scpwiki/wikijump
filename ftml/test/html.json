@@ -1,0 +1,26 @@
+{
+    "input": "[[html]]\n<p><div>My HTML <tt>code</tt> here!</div></p>\n[[/html]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "html",
+                            "data": {
+                                "contents": "<p><div>My HTML <tt>code</tt> here!</div></p>"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

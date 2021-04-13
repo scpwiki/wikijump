@@ -1,0 +1,27 @@
+{
+    "input": "[[iframe http://scp-wiki.wikidot.com/scp-1000 ]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "iframe",
+                            "data": {
+                                "url": "http://scp-wiki.wikidot.com/scp-1000",
+                                "attributes": {}
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

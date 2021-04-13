@@ -1,0 +1,69 @@
+{
+    "input": "__Fail\n\nUnderline__",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "__"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Underline"
+                        },
+                        {
+                            "element": "text",
+                            "data": "__"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "paragraph-break",
+            "rule": "underline",
+            "span": [6, 8],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "underline",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "input-end",
+            "rule": "underline",
+            "span": [19, 19],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "underline",
+            "rule": "fallback",
+            "span": [17, 19],
+            "kind": "no-rules-match"
+        }
+    ]
+}

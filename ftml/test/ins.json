@@ -1,0 +1,40 @@
+{
+    "input": "Apple\n[[ins]]Banana[[/ins]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "insertion",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
