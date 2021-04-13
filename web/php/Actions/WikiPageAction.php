@@ -92,15 +92,15 @@ class WikiPageAction extends SmartyAction
         $db->begin();
 
         // remove old locks.
-        if (strlen8($title)>128) {
+        if (strlen($title)>128) {
             throw new ProcessException(_("Title of the page should not be longer than 128 characters."), "title_too_long");
         }
         // if page source not too long...
-        if (strlen8($source)>200000) {
+        if (strlen($source)>200000) {
             throw new ProcessException(_("Source of the page should not be longer than 200 000 characters which is large enough. Pages longer than that can indicate improper usage 	of the Wiki site."), "source_too_long");
         }
         // if comment too long
-        if (strlen8($comments)>210) {
+        if (strlen($comments)>210) {
             throw new ProcessException(_("The changes comment is longer than 200 characters. Please keep this description short and informative. And no longer than this limit please..."), "comment_too_long");
         }
 
