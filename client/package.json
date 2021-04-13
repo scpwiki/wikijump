@@ -1,0 +1,44 @@
+{
+  "name": "root",
+  "license": "agpl-3.0-or-later",
+  "private": true,
+  "description": "Private root package for the Wikijump client monorepo.",
+  "scripts": {
+    "bootstrap": "lerna bootstrap --hoist",
+    "link": "lerna link",
+    "clean": "lerna run --stream --parallel clean",
+    "build:es": "lerna run --stream build",
+    "build:dts": "tsc --build --force",
+    "build": "run-s -s clean build:dts build:es",
+    "dev:es": "node build.js -w -g",
+    "dev:dts": "tsc --build --watch",
+    "dev": "npm -s run build && run-p -s dev:*",
+    "dev-no-ts": "npm -s run build:es && npm -s run dev:es"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scpwiki/wikijump.git"
+  },
+  "bugs": {
+    "url": "https://github.com/scpwiki/wikijump/issues"
+  },
+  "homepage": "https://github.com/scpwiki/wikijump#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "@typescript-eslint/typescript-estree": "^4.22.0",
+    "esbuild": "^0.11.9",
+    "esbuild-node-externals": "^1.1.0",
+    "eslint": "^7.24.0",
+    "eslint-plugin-clean-regex": "^0.5.1",
+    "eslint-plugin-svelte3": "^3.1.2",
+    "estrella": "^1.4.0",
+    "lerna": "^4.0.0",
+    "npm-run-all": "^4.1.5",
+    "trash-cli": "^4.0.0",
+    "typescript": "4.2.4"
+  }
+}

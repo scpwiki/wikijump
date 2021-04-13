@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "**/.npm": true,
+    "**/node_modules": true,
+    // may be desirable to have dist if you wish to see compiled output
+    // "**/dist/": true
+  },
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+}
