@@ -18,9 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO! remove when this is implemented
-#![allow(dead_code)]
-
 #[cfg(test)]
 mod test;
 
