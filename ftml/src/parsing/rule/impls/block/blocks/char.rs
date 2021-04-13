@@ -105,6 +105,45 @@ fn find_entity(entity: &str) -> Option<Cow<str>> {
     None
 }
 
+/// Gets the appropriate character from the number specified in the string.
+///
+/// Using the passed radix, it gets the integer value, then finds the appropriate
+/// character, if one exists.
+///
+/// Then converts the character into a string with only that value.
+fn get_char(value: &str, radix: u32) -> Option<Cow<str>> {
+    let codepoint = match u32::from_str_radix(value, radix) {
+        Ok(codepoint) => codepoint,
+        Err(_) => return None,
+    };
+
+    let ch = match char::from_u32(codepoint) {
+        Some(ch) => ch,
+        None => return None,
+    };
+
+    Some(Cow::Owned(ch.to_string()))
+}
+
+
+/// If a string starts with `&` and ends with `;`, those are removed.
+/// First trims the string.
+fn strip_entity(s: &str) -> &str {
+    let s = s.trim();
+
+    if s.starts_with('&') && s.ends_with(';') {
+        // Strip first and last characters
+
+        &s[1..s.len() - 1]
+    } else {
+        // Leave unchanged
+
+        s
+    }
+}
+
+/* Tests */
+
 #[test]
 fn test_get_entity() {
     macro_rules! check {
@@ -142,26 +181,6 @@ fn test_get_entity() {
     check!("#x1fffff", None);
 }
 
-/// Gets the appropriate character from the number specified in the string.
-///
-/// Using the passed radix, it gets the integer value, then finds the appropriate
-/// character, if one exists.
-///
-/// Then converts the character into a string with only that value.
-fn get_char(value: &str, radix: u32) -> Option<Cow<str>> {
-    let codepoint = match u32::from_str_radix(value, radix) {
-        Ok(codepoint) => codepoint,
-        Err(_) => return None,
-    };
-
-    let ch = match char::from_u32(codepoint) {
-        Some(ch) => ch,
-        None => return None,
-    };
-
-    Some(Cow::Owned(ch.to_string()))
-}
-
 #[test]
 fn test_get_char() {
     macro_rules! check {
@@ -188,22 +207,6 @@ fn test_get_char() {
     check!("ff", 16, Some(Cow::Owned(str!('\u{ff}'))));
     check!("1f4af", 16, Some(Cow::Owned(str!('💯'))));
     check!("1fffff", 16, None);
-}
-
-/// If a string starts with `&` and ends with `;`, those are removed.
-/// First trims the string.
-fn strip_entity(s: &str) -> &str {
-    let s = s.trim();
-
-    if s.starts_with('&') && s.ends_with(';') {
-        // Strip first and last characters
-
-        &s[1..s.len() - 1]
-    } else {
-        // Leave unchanged
-
-        s
-    }
 }
 
 #[test]
