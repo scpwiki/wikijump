@@ -88,15 +88,15 @@ fn find_entity(entity: &str) -> Option<Cow<str>> {
     }
 
     // Hexadecimal entity
-    if entity.starts_with("#x") {
-        if let Some(result) = get_char(&entity[2..], 16) {
+    if let Some(value) = entity.strip_prefix("#x") {
+        if let Some(result) = get_char(value, 16) {
             return Some(result);
         }
     }
 
     // Decimal entity
-    if entity.starts_with('#') {
-        if let Some(result) = get_char(&entity[1..], 10) {
+    if let Some(value) = entity.strip_prefix('#') {
+        if let Some(result) = get_char(value, 10) {
             return Some(result);
         }
     }
