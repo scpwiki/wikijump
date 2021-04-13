@@ -6,8 +6,6 @@ use Wikidot\DB\OzoneUser;
 use Wikidot\DB\OzoneUserPeer;
 use Wikidot\DB\Profile;
 use Wikidot\DB\ProfilePeer;
-use Wikidot\DB\ProfilePeerBase;
-use Wikidot\Modules\Users\UserInfoWinModule;
 use PHPUnit\Framework\TestCase;
 
 class UserInfoWinModuleTest extends TestCase
