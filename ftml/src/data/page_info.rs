@@ -66,6 +66,23 @@ pub struct PageInfo<'a> {
     pub tags: Vec<Cow<'a, str>>,
 }
 
+impl PageInfo<'_> {
+    /// Generate a dummy PageInfo instance for tests.
+    #[cfg(test)]
+    pub fn dummy() -> Self {
+        PageInfo {
+            slug: cow!("some-page"),
+            category: None,
+            title: cow!("A page for the age"),
+            alt_title: None,
+            header: None,
+            subheader: None,
+            rating: 69.0,
+            tags: vec![cow!("tale"), cow!("_cc")],
+        }
+    }
+}
+
 #[derive(
     Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
 )]
