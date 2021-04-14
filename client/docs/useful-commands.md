@@ -1,5 +1,3 @@
-Here is some useful commands for using and managing this monorepo.
-
 ```
 # Basic
 $ npm run update      Install dependencies, clean packages, boostrap, then build.
