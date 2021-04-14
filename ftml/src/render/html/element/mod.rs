@@ -34,10 +34,10 @@ use self::module::render_module;
 use super::HtmlContext;
 use crate::tree::Element;
 
-pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
+pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Element) {
     match element {
-        Element::Container(container) => render_container(ctx, container),
-        Element::Module(module) => render_module(ctx, module),
+        Element::Container(container) => render_container(log, ctx, container),
+        Element::Module(module) => render_module(log, ctx, module),
         _ => todo!(),
     }
 }

@@ -75,7 +75,7 @@ impl Render for HtmlRender {
 
         // Crawl through elements and generate HTML
         for element in &tree.elements {
-            render_element(&mut ctx, element);
+            render_element(log, &mut ctx, element);
         }
 
         // Build and return HtmlOutput

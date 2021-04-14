@@ -21,6 +21,6 @@
 use super::prelude::*;
 use crate::tree::Module;
 
-pub fn render_module(ctx: &mut HtmlContext, module: &Module) {
+pub fn render_module(log: &slog::Logger, ctx: &mut HtmlContext, module: &Module) {
     todo!()
 }

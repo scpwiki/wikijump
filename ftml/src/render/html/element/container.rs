@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::tree::Container;
 
-pub fn render_container(ctx: &mut HtmlContext, container: &Container) {
+pub fn render_container(log: &slog::Logger, ctx: &mut HtmlContext, container: &Container) {
     // Get HTML tag type for this type of container
     let tag_spec = container.ctype().html_tag();
 
@@ -37,7 +37,7 @@ pub fn render_container(ctx: &mut HtmlContext, container: &Container) {
     // Add container internals
     tag.contents(|ctx| {
         for inner_element in container.elements() {
-            render_element(ctx, inner_element);
+            render_element(log, ctx, inner_element);
         }
     });
 }
