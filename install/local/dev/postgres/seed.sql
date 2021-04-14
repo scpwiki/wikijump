@@ -3748,6 +3748,9 @@ ALTER TABLE ONLY public.watched_page ALTER COLUMN watched_id SET DEFAULT nextval
 --
 
 COPY public.admin (admin_id, site_id, user_id, founder) FROM stdin;
+1   1   1   t
+2   2   1   t
+3   3   1   t
 \.
 
 
