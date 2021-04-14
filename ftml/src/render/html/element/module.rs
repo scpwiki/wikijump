@@ -22,5 +22,7 @@ use super::prelude::*;
 use crate::tree::Module;
 
 pub fn render_module(log: &slog::Logger, ctx: &mut HtmlContext, module: &Module) {
+    debug!(log, "Rendering module"; "module" => module.name());
+
     todo!()
 }

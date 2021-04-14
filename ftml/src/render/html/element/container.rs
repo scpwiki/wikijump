@@ -21,7 +21,13 @@
 use super::prelude::*;
 use crate::tree::Container;
 
-pub fn render_container(log: &slog::Logger, ctx: &mut HtmlContext, container: &Container) {
+pub fn render_container(
+    log: &slog::Logger,
+    ctx: &mut HtmlContext,
+    container: &Container,
+) {
+    debug!(log, "Rendering container"; "container" => container.ctype().name());
+
     // Get HTML tag type for this type of container
     let tag_spec = container.ctype().html_tag();
 

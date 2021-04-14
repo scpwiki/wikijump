@@ -35,6 +35,8 @@ use super::HtmlContext;
 use crate::tree::Element;
 
 pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Element) {
+    debug!(log, "Rendering element"; "element" => element.name());
+
     match element {
         Element::Container(container) => render_container(log, ctx, container),
         Element::Module(module) => render_module(log, ctx, module),
