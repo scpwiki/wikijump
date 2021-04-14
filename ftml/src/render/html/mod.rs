@@ -95,8 +95,9 @@ fn render_container(ctx: &mut HtmlContext, container: &Container) {
     // Build the tag
     let mut tag = ctx.html().tag(tag_spec.tag());
 
+    // Merge the class attribute with the container's class, if it conflicts
     match tag_spec.class() {
-        Some(class) => tag.attr_map_merge(container.attributes(), &[("class", class)]),
+        Some(class) => tag.attr_map_merge(container.attributes(), ("class", class)),
         None => tag.attr_map(container.attributes()),
     };
 

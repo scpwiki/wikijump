@@ -159,29 +159,34 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         self
     }
 
-    #[inline]
     pub fn attr_map(&mut self, map: &AttributeMap) -> &mut Self {
-        self.attr_map_merge(map, &[])
+        for (key, value) in map.borrow() {
+            self.attr(&key, &[value]);
+        }
+
+        self
     }
 
-    pub fn attr_map_merge(&mut self, map: &AttributeMap, extra: &[(&str, &str)]) -> &mut Self {
-        let find_extra = |key2| {
-            for (key, value) in extra {
-                if key.eq_ignore_ascii_case(key2) {
-                    return Some(value);
-                }
-            }
-
-            None
-        };
-
+    pub fn attr_map_merge(
+        &mut self,
+        map: &AttributeMap,
+        (extra_key, extra_value): (&str, &str),
+    ) -> &mut Self {
+        let mut merged = false;
         for (key, value) in map.borrow() {
-            // If there's a matching key, then merge the value
+            // If this key matches, then merge it
             // Otherwise, just pass in the value
-            match find_extra(key) {
-                Some(extra_value) => self.attr(&key, &[value, " ", extra_value]),
-                None => self.attr(&key, &[value]),
-            };
+            if key.eq_ignore_ascii_case(extra_key) {
+                merged = true;
+                self.attr(&key, &[value, " ", extra_value]);
+            } else {
+                self.attr(&key, &[value]);
+            }
+        }
+
+        // If we haven't already added this attribute, then do so now
+        if !merged {
+            self.attr(extra_key, &[extra_value]);
         }
 
         self
