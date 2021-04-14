@@ -94,11 +94,11 @@ fn render_container(ctx: &mut HtmlContext, container: &Container) {
 
     // Build the tag
     let mut tag = ctx.html().tag(tag_spec.tag());
-    tag.attr_map(container.attributes());
 
-    if let Some(class) = tag_spec.class() {
-        tag.attr("class", &[class]);
-    }
+    match tag_spec.class() {
+        Some(class) => tag.attr_map_merge(container.attributes(), &[("class", class)]),
+        None => tag.attr_map(container.attributes()),
+    };
 
     // Add container internals
     tag.contents(|ctx| {
