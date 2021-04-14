@@ -16,6 +16,18 @@ function prefixKeys(prefix, obj) {
 
 const rules = {
 
+  editorconfig: {
+    ...prefixKeys('editorconfig/', {
+      ...useDefault('warn', [
+        'charset',
+        'eol-last',
+        // 'indent' // unstable with typescript, unfortunately
+        'linebreak-style',
+        'no-trailing-spaces'
+      ])
+    })
+  },
+
   code: {
     ...useDefault('error', [
       'eqeqeq',
@@ -88,8 +100,6 @@ const rules = {
       'space-before-function-paren': ['warn', { anonymous: 'always', named: 'never', asyncArrow: 'always' }]
     }),
     'object-curly-spacing': ['warn', 'always'],
-    // unfortunately, typescript-eslint can't handle indentation very well.
-    // 'indent': ['warn', 2, { SwitchCase: 1 }],
     'key-spacing': ['warn', { mode: 'minimum' }],
     'quote-props': ['warn', 'consistent-as-needed'],
     'arrow-parens': ['warn', 'as-needed', { requireForBlockBody: true }]
@@ -188,13 +198,13 @@ const rules = {
   }
 }
 
-const baseRules = { ...rules.code, ...rules.restrict, ...rules.style, ...rules.regex }
+const baseRules = { ...rules.editorconfig, ...rules.code, ...rules.restrict, ...rules.style, ...rules.regex }
 const typeRules = { ...rules.typescript, ...rules.typeChecked }
 
 module.exports = {
   root: true,
   ignorePatterns: ['**/node_modules/**', '**/dist/**'],
-  plugins: ['svelte3', '@typescript-eslint', 'clean-regex'],
+  plugins: ['editorconfig', 'svelte3', '@typescript-eslint', 'clean-regex'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     sourceType: 'module',

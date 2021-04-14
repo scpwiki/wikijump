@@ -16,7 +16,9 @@
     "dev:modules:dts": "tsc -b -w | node quiet-tsc.js",
     "dev:modules": "npm -s run build:modules:dts && run-p -s dev:modules:*",
     "dev": "npm -s run dev:modules",
-    "update": "npm i && run-s clean-node bootstrap build"
+    "update": "npm i && run-s clean-node bootstrap build",
+    "eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
+    "eslint-fix": "npm -s run eslint -- --fix"
   },
   "workspaces": [
     "modules/*"
@@ -37,6 +39,7 @@
     "esbuild-node-externals": "^1.1.0",
     "eslint": "^7.24.0",
     "eslint-plugin-clean-regex": "^0.5.1",
+    "eslint-plugin-editorconfig": "^3.0.2",
     "eslint-plugin-svelte3": "^3.1.2",
     "estrella": "^1.4.0",
     "lerna": "^4.0.0",
