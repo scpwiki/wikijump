@@ -159,9 +159,29 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         self
     }
 
+    #[inline]
     pub fn attr_map(&mut self, map: &AttributeMap) -> &mut Self {
+        self.attr_map_merge(map, &[])
+    }
+
+    pub fn attr_map_merge(&mut self, map: &AttributeMap, extra: &[(&str, &str)]) -> &mut Self {
+        let find_extra = |key2| {
+            for (key, value) in extra {
+                if key.eq_ignore_ascii_case(key2) {
+                    return Some(value);
+                }
+            }
+
+            None
+        };
+
         for (key, value) in map.borrow() {
-            self.attr(&key, &[value]);
+            // If there's a matching key, then merge the value
+            // Otherwise, just pass in the value
+            match find_extra(key) {
+                Some(extra_value) => self.attr(&key, &[value, " ", extra_value]),
+                None => self.attr(&key, &[value]),
+            };
         }
 
         self
