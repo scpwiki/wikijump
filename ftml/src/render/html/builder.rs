@@ -20,7 +20,7 @@
 
 use super::context::HtmlContext;
 use super::escape::escape_char;
-use super::render::ElementRender;
+use super::render::ItemRender;
 
 macro_rules! tag_method {
     ($tag:tt) => {
@@ -166,7 +166,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     }
 
     #[inline]
-    pub fn inner(&mut self, component: &dyn ElementRender) -> &mut Self {
+    pub fn inner(&mut self, component: &dyn ItemRender) -> &mut Self {
         self.content_start();
         component.render(self.ctx);
 

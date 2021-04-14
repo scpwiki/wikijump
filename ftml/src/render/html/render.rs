@@ -20,11 +20,11 @@
 
 use super::context::HtmlContext;
 
-pub trait ElementRender {
+pub trait ItemRender {
     fn render(&self, ctx: &mut HtmlContext);
 }
 
-impl ElementRender for &'_ str {
+impl ItemRender for &'_ str {
     fn render(&self, ctx: &mut HtmlContext) {
         ctx.push_escaped(self);
     }
