@@ -18,6 +18,7 @@ for (const target of browserslist()) {
   const result = DEMANGLE_TARGET_REGEX.exec(target)
   if (!result) continue
   let [, browser, version] = result
+  // rewrite mobile browser versions into what esbuild understands
   if (browser === "ios_saf") browser = "ios"
   else if (browser === "and_chr") browser = "chrome"
   else if (browser === "and_ff") browser = "firefox"
