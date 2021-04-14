@@ -81,16 +81,6 @@ impl Render for JsonRender {
 fn json() {
     // Expected outputs
     const PRETTY_OUTPUT: &str = r#"{
-  "page_info": {
-    "slug": "some-page",
-    "category": null,
-    "title": "A page for the age",
-    "alt_title": null,
-    "header": null,
-    "subheader": null,
-    "rating": 69.0,
-    "tags": ["tale", "_cc"]
-  },
   "syntax_tree": {
     "elements": [
       {
@@ -118,12 +108,26 @@ fn json() {
     "styles": [
       "span.hidden-text { display: none; }"
     ]
+  },
+  "page_info": {
+    "slug": "some-page",
+    "category": null,
+    "title": "A page for the age",
+    "alt-title": null,
+    "header": null,
+    "subheader": null,
+    "rating": 69.0,
+    "tags": [
+      "tale",
+      "_cc"
+    ]
   }
 }"#;
 
-    const COMPACT_OUTPUT: &str = "{\"elements\":[{\"element\":\"text\",\"data\":\"apple\"},{\"element\":\"text\",\"data\":\" \"},{\"element\":\"container\",\"data\":{\"type\":\"bold\",\"elements\":[{\"element\":\"text\",\"data\":\"banana\"}],\"attributes\":{}}}],\"styles\":[\"span.hidden-text { display: none; }\"]}";
+    const COMPACT_OUTPUT: &str = r#"{"syntax_tree":{"elements":[{"element":"text","data":"apple"},{"element":"text","data":" "},{"element":"container","data":{"type":"bold","elements":[{"element":"text","data":"banana"}],"attributes":{}}}],"styles":["span.hidden-text { display: none; }"]},"page_info":{"slug":"some-page","category":null,"title":"A page for the age","alt-title":null,"header":null,"subheader":null,"rating":69.0,"tags":["tale","_cc"]}}"#;
 
     let log = crate::build_logger();
+    let page_info = PageInfo::dummy();
 
     // Syntax tree construction
     let elements = vec![
@@ -142,13 +146,13 @@ fn json() {
     let (tree, _) = result.into();
 
     // Perform renderings
-    let output = JsonRender::pretty().render(&log, &tree);
+    let output = JsonRender::pretty().render(&log, &page_info, &tree);
     assert_eq!(
         output, PRETTY_OUTPUT,
         "Pretty JSON syntax tree output doesn't match",
     );
 
-    let output = JsonRender::compact().render(&log, &tree);
+    let output = JsonRender::compact().render(&log, &page_info, &tree);
     assert_eq!(
         output, COMPACT_OUTPUT,
         "Compact JSON syntax tree output doesn't match",

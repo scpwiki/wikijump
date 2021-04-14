@@ -52,7 +52,10 @@ fn debug() {
     header: None,
     subheader: None,
     rating: 69.0,
-    tags: ["tale", "_cc"],
+    tags: [
+        "tale",
+        "_cc",
+    ],
 }
 SyntaxTree {
     elements: [
