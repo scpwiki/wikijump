@@ -152,7 +152,10 @@ const typeRules = { ...rules.typescript, ...rules.typeChecked }
 module.exports = {
   root: true,
   ignorePatterns: ["**/node_modules/**", "**/dist/**"],
-  plugins: ["prettier", "svelte3", "@typescript-eslint", "clean-regex"],
+
+  extends: ["plugin:compat/recommended"],
+  plugins: ["prettier", "@typescript-eslint", "svelte3", "clean-regex"],
+
   parser: "@typescript-eslint/parser",
   parserOptions: {
     sourceType: "module",
@@ -164,6 +167,7 @@ module.exports = {
     ],
     extraFileExtensions: [".svelte"]
   },
+
   overrides: [
     // JavaScript (Node)
     {
