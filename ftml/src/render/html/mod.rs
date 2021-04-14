@@ -40,7 +40,7 @@ use super::prelude;
 use self::context::HtmlContext;
 use crate::data::PageInfo;
 use crate::render::Render;
-use crate::tree::{Element, SyntaxTree};
+use crate::tree::{Container, Element, SyntaxTree};
 
 #[derive(Debug)]
 pub struct HtmlRender;
@@ -82,5 +82,28 @@ impl Render for HtmlRender {
 }
 
 fn render_element(ctx: &mut HtmlContext, element: &Element) {
-    todo!();
+    match element {
+        Element::Container(container) => render_container(ctx, container),
+        _ => todo!(),
+    }
+}
+
+fn render_container(ctx: &mut HtmlContext, container: &Container) {
+    // Get HTML tag type for this type of container
+    let tag_spec = container.ctype().html_tag();
+
+    // Build the tag
+    let mut tag = ctx.html().tag(tag_spec.tag());
+    tag.attr_map(container.attributes());
+
+    if let Some(class) = tag_spec.class() {
+        tag.attr("class", &[class]);
+    }
+
+    // Add container internals
+    tag.contents(|ctx| {
+        for inner_element in container.elements() {
+            render_element(ctx, inner_element);
+        }
+    });
 }
