@@ -2,9 +2,27 @@ const { build, cliopts, basename, stdoutStyle: styl, fmtDuration } = require("es
 const { nodeExternalsPlugin } = require("esbuild-node-externals")
 const { readdirSync, realpathSync } = require("fs")
 const { performance } = require("perf_hooks")
+const browserslist = require("browserslist")
+
+const [opts] = cliopts.parse(["self", "Compiles the calling module package only."])
 
 const dev = Boolean(cliopts.watch)
-const [opts] = cliopts.parse(["self", "Compiles the calling module package only."])
+const self = opts.self ?? false
+
+// demangle browserslist versions
+// prettier-ignore
+const DEMANGLE_TARGET_REGEX =
+  /^(chrome|and_(?:ff|chr)|edge|firefox|ios_saf|safari)\s+([\d.]+)/
+const targets = new Set()
+for (const target of browserslist()) {
+  const result = DEMANGLE_TARGET_REGEX.exec(target)
+  if (!result) continue
+  let [, browser, version] = result
+  if (browser === "ios_saf") browser = "ios"
+  else if (browser === "and_chr") browser = "chrome"
+  else if (browser === "and_ff") browser = "firefox"
+  targets.add(browser + version)
+}
 
 const SETTINGS_COMMON = {
   // esbuild settings
@@ -17,10 +35,11 @@ const SETTINGS_COMMON = {
   format: "esm",
   sourcemap: true,
   sourcesContent: true,
+  target: [...targets],
 
   // estrella settings
   tslint: false, // disables estrella's built-in typechecker
-  silent: true // silences estrella's logging, as we use our own logging
+  quiet: true // silences estrella's logging, as we use our own logging
 }
 
 function directoriesOf(source) {
@@ -30,8 +49,6 @@ function directoriesOf(source) {
 }
 
 function buildModule(name) {
-  const self = !name // undefined or empty
-
   let dir, index, package
 
   if (self) {
@@ -85,5 +102,5 @@ function buildModule(name) {
 }
 
 // check if we're building all or just a single package
-if (opts.self) buildModule()
+if (self) buildModule()
 else directoriesOf("./modules").forEach(name => buildModule(name))
