@@ -135,3 +135,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-436](https://scuttle.atlassian.net/browse/WJ-436)
 * What it did: Nothing, all of these extended classes that did not appear in the codebase.
 * Why it was removed: Unused code, throwing code inspection alerts.
+
+## PHP and SQL: OpenID Support
+* Where it was: All `seed.sql` files, `web/php/Actions/ManageSiteOpenIDAction`, `web/php/DB/Openid(Entry, Base, Peer, PeerBase)`, `web/php/Modules/ManageSite/ManageSiteOpenIDModule`, `web/templates/modules/ManageSite/ManageSiteOpenIDModule`, `web/web/files--common/modules/js/ManageSite/ManageSiteOpenIDModule`
+* Relevant Issues: [WJ-314](https://scuttle.atlassian.net/browse/WJ-314)
+* What it did: OpenID was apparently an IdP that was in greater use in 2008, a predecessor of sorts to OAuth. 
+* Why it was removed: It has a number of unresolved security holes. We will be using alternate identity providers.
