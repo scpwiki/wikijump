@@ -77,11 +77,6 @@
 			<li><a href="javascript:;" id="sm-backup">{t}Backup{/t}</a></li>
 		</ul>
 		<hr/>
-		<ul>
-			<li><a href="javascript:;" id="sm-openid">OpenID</a></li>
-		</ul>
-
-		<hr/>
 
 		<ul>
 			<li><a href="javascript:;">{t}Extreme actions{/t}</a>

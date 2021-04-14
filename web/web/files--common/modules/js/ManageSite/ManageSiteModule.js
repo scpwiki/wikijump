@@ -145,7 +145,6 @@ Wikijump.modules.ManagerSiteModule.init = function(){
 	mm['sm-notifications'] = "ManageSite/ManageSiteNotificationsModule";
 	mm['sm-backup'] = "ManageSite/backup/ManageSiteBackupModule";
 	mm['sm-ssl'] = "ManageSite/ManageSiteSecureAccessModule";
-	mm['sm-openid'] = "ManageSite/ManageSiteOpenIDModule";
 	mm['sm-users-email-invitations'] = "ManageSite/ManageSiteLetUsersInviteModule";
 	mm['sm-renamesite'] = "ManageSite/ManageSiteRenameModule";
 	mm['sm-deletesite'] = "ManageSite/ManageSiteDeleteModule";

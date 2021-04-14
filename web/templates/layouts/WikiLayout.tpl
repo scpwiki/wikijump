@@ -60,13 +60,6 @@
     <link rel="shortcut icon" href="/common--theme/base/images/favicon.gif"/>
     <link rel="icon" type="image/gif" href="/common--theme/base/images/favicon.gif"/>
 
-    {* OpenID part *}
-    {if $openId && $openId.enabled}
-    	<link rel="openid.server" href="{$openId.server}" />
-  		<link rel="openid.delegate" href="{$openId.identity}" />
-  		<meta http-equiv="X-XRDS-Location" content="{$openId.identity}/xrds" />
-    {/if}
-
 </head>
 
   <body id="html-body">
