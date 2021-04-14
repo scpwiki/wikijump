@@ -50,11 +50,44 @@ impl Render for HtmlRender {
 
     fn render(
         &self,
-        _log: &slog::Logger,
+        log: &slog::Logger,
         page_info: &PageInfo,
-        _tree: &SyntaxTree,
+        tree: &SyntaxTree,
     ) -> HtmlOutput {
+        info!(
+            log,
+            "Rendering syntax tree";
+            "slug" => page_info.slug.as_ref(),
+            "category" => match &page_info.category {
+                Some(category) => category.as_ref(),
+                None => "_default",
+            },
+        );
+
         let mut context = HtmlContext::new(page_info, &());
-        todo!()
+
+        // Merge styles
+        let style = {
+            let mut all_styles = String::new();
+
+            for (i, style) in tree.styles.iter().enumerate() {
+                all_styles.push_str(style);
+
+                // Add comment separator between styls.
+                if i < tree.styles.len() - 1 {
+                    all_styles.push_str("\n/*****/\n");
+                }
+            }
+
+            all_styles
+        };
+
+        // Crawl through elements and generate HTML
+        for element in &tree.elements {
+            todo!();
+        }
+
+        // Build and return HtmlOutput
+        context.into()
     }
 }
