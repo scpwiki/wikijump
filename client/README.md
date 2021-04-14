@@ -8,13 +8,15 @@ The design of this monorepo is incomplete. Agreement on a testing framework and 
 
 ### Getting Started
 
-TODO: NPM, Node requirements
+You should be running a recent version of Node and NPM. Specifically, this repo has been made with Node v15 and NPM v7. It'll likely work on some earlier versions, regardless.
+
+To actually setup the repo, run this command:
 
 ```
 $ npm run update
 ```
 
-This command will install dependencies, clean package modules, bootstrap, and then build all packages.
+This will install dependencies, clean package modules, bootstrap, and then build all packages.
 
 Run `npm run bootstrap` any time you need to ensure that packages have their dependencies sorted out.
 
