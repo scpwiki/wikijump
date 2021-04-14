@@ -66,21 +66,10 @@ impl Render for HtmlRender {
 
         let mut context = HtmlContext::new(page_info, &());
 
-        // Merge styles
-        let style = {
-            let mut all_styles = String::new();
-
-            for (i, style) in tree.styles.iter().enumerate() {
-                all_styles.push_str(style);
-
-                // Add comment separator between styls.
-                if i < tree.styles.len() - 1 {
-                    all_styles.push_str("\n/*****/\n");
-                }
-            }
-
-            all_styles
-        };
+        // Add styles
+        for style in &tree.styles {
+            context.add_style(style);
+        }
 
         // Crawl through elements and generate HTML
         for element in &tree.elements {

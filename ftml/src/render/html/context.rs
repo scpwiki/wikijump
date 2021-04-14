@@ -101,7 +101,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     #[inline]
     pub fn add_style(&mut self, style: &str) {
         if !self.style.is_empty() {
-            self.style.push('\n');
+            self.style.push_str("\n/*****/\n");
         }
 
         self.style.push_str(style);
