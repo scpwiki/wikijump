@@ -1,5 +1,5 @@
 /*
- * render/html/element/mod.rs
+ * render/html/element/module.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,26 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Module that implements HTML rendering for `Element` and its children.
+use super::prelude::*;
+use crate::tree::Module;
 
-mod container;
-mod module;
-
-mod prelude {
-    pub use super::super::context::HtmlContext;
-    pub use super::render_element;
-    pub use crate::tree::{Element, SyntaxTree};
-}
-
-use self::container::render_container;
-use self::module::render_module;
-use super::HtmlContext;
-use crate::tree::Element;
-
-pub fn render_element(ctx: &mut HtmlContext, element: &Element) {
-    match element {
-        Element::Container(container) => render_container(ctx, container),
-        Element::Module(module) => render_module(ctx, module),
-        _ => todo!(),
-    }
+pub fn render_module(ctx: &mut HtmlContext, module: &Module) {
+    todo!()
 }
