@@ -59,6 +59,11 @@ impl<'t> AttributeMap<'t> {
         will_insert
     }
 
+    #[inline]
+    pub fn borrow(&self) -> &HashMap<Cow<'t, str>, Cow<'t, str>> {
+        &self.inner
+    }
+
     pub fn to_owned(&self) -> AttributeMap<'static> {
         let mut inner = HashMap::new();
 

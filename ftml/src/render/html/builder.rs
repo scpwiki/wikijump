@@ -21,6 +21,7 @@
 use super::context::HtmlContext;
 use super::escape::escape_char;
 use super::render::ItemRender;
+use crate::tree::AttributeMap;
 
 macro_rules! tag_method {
     ($tag:tt) => {
@@ -154,6 +155,14 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             index += ch.len_utf8();
         }
         self.ctx.push_raw('"');
+
+        self
+    }
+
+    pub fn attr_map(&mut self, map: &AttributeMap) -> &mut Self {
+        for (key, value) in map.borrow() {
+            self.attr(&key, &[value]);
+        }
 
         self
     }
