@@ -19,7 +19,7 @@ class SiteSettingsBase extends BaseDBObject
         $this->tableName='site_settings';
         $this->peerName = 'Wikidot\\DB\\SiteSettingsPeer';
         $this->primaryKeyName = 'site_id';
-        $this->fieldNames = array( 'site_id' ,  'allow_membership_by_apply' ,  'allow_membership_by_password' ,  'membership_password' ,  'private_landing_page' ,  'hide_navigation_unauthorized' ,  'max_private_members' ,  'max_private_viewers' ,  'ssl_mode' ,  'file_storage_size' ,  'max_upload_file_size' ,  'openid_enabled' ,  'allow_members_invite' );
+        $this->fieldNames = array( 'site_id' ,  'allow_membership_by_apply' ,  'allow_membership_by_password' ,  'membership_password' ,  'private_landing_page' ,  'hide_navigation_unauthorized' ,  'max_private_members' ,  'max_private_viewers' ,  'ssl_mode' ,  'file_storage_size' ,  'max_upload_file_size' ,   'allow_members_invite' );
 
         //$this->fieldDefaultValues=
     }
@@ -158,18 +158,6 @@ class SiteSettingsBase extends BaseDBObject
     {
         $this->setFieldValue('max_upload_file_size', $v1, $raw);
     }
-
-
-    public function getOpenidEnabled()
-    {
-        return $this->getFieldValue('openid_enabled');
-    }
-
-    public function setOpenidEnabled($v1, $raw = false)
-    {
-        $this->setFieldValue('openid_enabled', $v1, $raw);
-    }
-
 
     public function getAllowMembersInvite()
     {

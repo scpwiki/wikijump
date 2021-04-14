@@ -1946,44 +1946,6 @@ ALTER SEQUENCE public.notification_notification_id_seq OWNED BY public.notificat
 
 
 --
--- Name: openid_entry; Type: TABLE; Schema: public; Owner: wikijump
---
-
-CREATE TABLE public.openid_entry (
-    openid_id integer NOT NULL,
-    site_id integer,
-    page_id integer,
-    type character varying(10),
-    user_id integer,
-    url character varying(100),
-    server_url character varying(100)
-);
-
-
-ALTER TABLE public.openid_entry OWNER TO wikijump;
-
---
--- Name: openid_entry_openid_id_seq; Type: SEQUENCE; Schema: public; Owner: wikijump
---
-
-CREATE SEQUENCE public.openid_entry_openid_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.openid_entry_openid_id_seq OWNER TO wikijump;
-
---
--- Name: openid_entry_openid_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wikijump
---
-
-ALTER SEQUENCE public.openid_entry_openid_id_seq OWNED BY public.openid_entry.openid_id;
-
-
---
 -- Name: ozone_group; Type: TABLE; Schema: public; Owner: wikijump
 --
 
@@ -2982,7 +2944,6 @@ CREATE TABLE public.site_settings (
     max_private_viewers integer DEFAULT 20,
     hide_navigation_unauthorized boolean DEFAULT true,
     ssl_mode character varying(20),
-    openid_enabled boolean DEFAULT false,
     allow_members_invite boolean DEFAULT false,
     max_upload_file_size integer DEFAULT 10485760
 );
@@ -3571,13 +3532,6 @@ ALTER TABLE ONLY public.notification ALTER COLUMN notification_id SET DEFAULT ne
 
 
 --
--- Name: openid_entry openid_id; Type: DEFAULT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.openid_entry ALTER COLUMN openid_id SET DEFAULT nextval('public.openid_entry_openid_id_seq'::regclass);
-
-
---
 -- Name: ozone_group group_id; Type: DEFAULT; Schema: public; Owner: wikijump
 --
 
@@ -3799,6 +3753,9 @@ ALTER TABLE ONLY public.watched_page ALTER COLUMN watched_id SET DEFAULT nextval
 --
 
 COPY public.admin (admin_id, site_id, user_id, founder) FROM stdin;
+1   1   1   t
+2   2   1   t
+3   3   1   t
 \.
 
 
@@ -4113,14 +4070,6 @@ COPY public.moderator (moderator_id, site_id, user_id, permissions) FROM stdin;
 --
 
 COPY public.notification (notification_id, user_id, body, type, viewed, date, extra, notify_online, notify_feed, notify_email) FROM stdin;
-\.
-
-
---
--- Data for Name: openid_entry; Type: TABLE DATA; Schema: public; Owner: wikijump
---
-
-COPY public.openid_entry (openid_id, site_id, page_id, type, user_id, url, server_url) FROM stdin;
 \.
 
 
@@ -4668,10 +4617,10 @@ COPY public.site_backup (backup_id, site_id, status, backup_source, backup_files
 -- Data for Name: site_settings; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
-COPY public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, openid_enabled, allow_members_invite, max_upload_file_size) FROM stdin;
-1	t	f	\N	1073741824	f	system:join	50	20	t	\N	f	f	10485760
-2	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760
-3	t	f	\N	314572800	f	system:join	50	20	t	\N	f	f	10485760
+COPY public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, allow_members_invite, max_upload_file_size) FROM stdin;
+1	t	f	\N	1073741824	f	system:join	50	20	t	\N	f	10485760
+2	f	f		314572800	f	system:join	50	20	t	\N	f	10485760
+3	t	f	\N	314572800	f	system:join	50	20	t	\N	f	10485760
 \.
 
 
@@ -5030,13 +4979,6 @@ SELECT pg_catalog.setval('public.moderator_moderator_id_seq', 1, false);
 --
 
 SELECT pg_catalog.setval('public.notification_notification_id_seq', 2, true);
-
-
---
--- Name: openid_entry_openid_id_seq; Type: SEQUENCE SET; Schema: public; Owner: wikijump
---
-
-SELECT pg_catalog.setval('public.openid_entry_openid_id_seq', 1, false);
 
 
 --
@@ -5566,14 +5508,6 @@ ALTER TABLE ONLY public.moderator
 
 ALTER TABLE ONLY public.notification
     ADD CONSTRAINT notification_pkey PRIMARY KEY (notification_id);
-
-
---
--- Name: openid_entry openid_entry_pkey; Type: CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.openid_entry
-    ADD CONSTRAINT openid_entry_pkey PRIMARY KEY (openid_id);
 
 
 --
@@ -6920,14 +6854,6 @@ CREATE RULE get_pkey_on_insert AS
 
 CREATE RULE get_pkey_on_insert AS
     ON INSERT TO public.site_viewer DO  SELECT currval('public.site_viewer_viewer_id_seq'::regclass) AS id;
-
-
---
--- Name: openid_entry get_pkey_on_insert; Type: RULE; Schema: public; Owner: wikijump
---
-
-CREATE RULE get_pkey_on_insert AS
-    ON INSERT TO public.openid_entry DO  SELECT currval('public.openid_entry_openid_id_seq'::regclass) AS id;
 
 
 --

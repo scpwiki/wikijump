@@ -43,9 +43,7 @@ export const ajax = {
      * @param options: ??
      */
     OZONE.visuals.cursorWait();
-    if (parameters === null) {
-      parameters = {};
-    }
+    parameters ??= {}
     if (moduleName === null || moduleName === '') {
       moduleName = 'Empty';
     }

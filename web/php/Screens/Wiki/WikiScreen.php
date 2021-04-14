@@ -13,7 +13,6 @@ use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\ForumThreadPeer;
-use Wikidot\DB\OpenidEntryPeer;
 use Wikidot\DB\NotificationPeer;
 use Wikidot\DB\PrivateMessagePeer;
 use Wikidot\Utils\GlobalProperties;
@@ -219,30 +218,6 @@ class WikiScreen extends Screen
                     $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
                     $runData->contextAdd("topBarContent", $ccc);
                 }
-            }
-        }
-
-        // OpenID stuff now !!!
-
-        if ($settings->getOpenidEnabled() && $page) {
-            // find a page
-            $c = new Criteria();
-            $c->add("site_id", $site->getSiteId());
-
-            if ($_SERVER['REQUEST_URI'] == "/") {
-                $c->add("page_id", null);
-            } else {
-                $c->add("page_id", $page->getPageId());
-            }
-
-            $oentry = OpenidEntryPeer::instance()->selectOne($c);
-
-            if ($oentry) {
-                $openId = array();
-                $openId['enabled'] = true;
-                $openId['identity'] = $oentry->getUrl();
-                $openId['server'] = $oentry->getServerUrl();
-                $runData->contextAdd("openId", $openId);
             }
         }
 
