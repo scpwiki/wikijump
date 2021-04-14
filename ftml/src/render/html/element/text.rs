@@ -1,0 +1,39 @@
+/*
+ * render/html/element/text.rs
+ *
+ * ftml - Library to parse Wikidot text
+ * Copyright (C) 2019-2021 Wikijump Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+use super::super::escape::escape_char;
+use super::prelude::*;
+
+pub fn render_wikitext_raw(log: &slog::Logger, ctx: &mut HtmlContext, text: &str) {
+    debug!(log, "Escaping raw string"; "text" => text);
+
+    for ch in text.chars() {
+        match (ch, escape_char(ch)) {
+            // Turn spaces into non-breaking spaces
+            (' ', _) => ctx.push_raw_str("&nbsp;"),
+
+            // Escape the character
+            (_, Some(escaped)) => ctx.push_raw_str(escaped),
+
+            // Character doesn't need escaping
+            (_, None) => ctx.push_raw(ch),
+        }
+    }
+}
