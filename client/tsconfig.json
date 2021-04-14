@@ -29,12 +29,12 @@
     "preserveWatchOutput": true
   },
 
-  // Packages must be added here in order for their types to be compiled.
+  // Modules must be added here in order for their types to be compiled.
   // Unfortunately, there isn't a decent way to do this automatically.
   // The performance benefits are worth it, regardless.
   "references": [
-    { "path": "./packages/wj-util" },
-    { "path": "./packages/cm-tarnation" }
+    { "path": "./modules/wj-util" },
+    { "path": "./modules/cm-tarnation" }
   ],
 
   "typeAcquisition": {

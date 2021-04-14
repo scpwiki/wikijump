@@ -5,18 +5,21 @@
   "description": "Private root package for the Wikijump client monorepo.",
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
-    "clean-modules": "lerna clean --yes",
+    "clean-node": "lerna clean --yes",
     "clean": "lerna run --parallel clean",
-    "build:es": "node build.js",
-    "build:dts": "tsc -b --force",
-    "build": "run-s -s clean build:dts build:es",
-    "dev:es": "node build.js -w -g",
-    "dev:dts": "tsc -b -w",
-    "dev": "npm -s run build:dts && run-p -s dev:*",
-    "update": "npm i && run-s clean-modules bootstrap build"
+    "echo-ts": "echo [tsc] Compiling declarations...",
+    "build:modules:es": "node build-modules.js",
+    "build:modules:dts": "tsc -b --force",
+    "build:modules": "run-s -s echo-ts build:modules:dts build:modules:es",
+    "build": "run-s -s clean build:modules",
+    "dev:modules:es": "node build-modules.js -w -g",
+    "dev:modules:dts": "tsc -b -w",
+    "dev:modules": "npm -s run build:modules:dts && run-p -s dev:modules:*",
+    "dev": "npm -s run dev:modules",
+    "update": "npm i && run-s clean-node bootstrap build"
   },
   "workspaces": [
-    "packages/*"
+    "modules/*"
   ],
   "repository": {
     "type": "git",

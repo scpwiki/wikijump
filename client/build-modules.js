@@ -4,11 +4,12 @@ const { readdirSync, realpathSync } = require('fs')
 const { performance } = require('perf_hooks')
 
 const dev = !!cliopts.watch
-const [opts] = cliopts.parse(['self', 'Compiles the calling package.'])
+const [opts] = cliopts.parse(['self', 'Compiles the calling module package only.'])
 
 const SETTINGS_COMMON = {
-  // esbuild options
+  // esbuild settings
   outdir: 'dist',
+  // minify: true // estrella implicitly toggles minify depending on the `--debug` flag
   bundle: true,
   treeShaking: true,
   splitting: true,
@@ -16,48 +17,62 @@ const SETTINGS_COMMON = {
   format: 'esm',
   sourcemap: true,
   sourcesContent: true,
-  // estrella options
-  tslint: false,
-  silent: true
+
+  // estrella settings
+  tslint: false, // disables estrella's built-in typechecker
+  silent: true   // silences estrella's logging, as we use our own logging
 }
 
-function getDirectories(source) {
+function directoriesOf(source) {
   return readdirSync(source, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name)
 }
 
-function buildPackage(name) {
-  // figure out our paths based on if the package is self-compiling or not
+function buildModule(name) {
   const self = !name // undefined or empty
-  const dir = self ? process.cwd() : realpathSync('./packages/' + name)
-  const index = (self ? '.' : dir) + '/src/index.ts'
-  const package = (self ? '.' : dir) + '/package.json'
+
+  let dir, index, package
+
+  if (self) {
+    dir = process.cwd()
+    index = './src/index.ts'
+    package = './package.json'
+  } else {
+    dir = realpathSync('./modules/' + name)
+    index = dir + '/src/index.ts'
+    package = dir + '/package.json'
+  }
 
   name = basename(dir)
 
   if (!dev) console.log(styl.blue(`[${name}]`), 'Building!')
   let start = performance.now()
 
-  // build the darn thing
   build({
     ...SETTINGS_COMMON,
+
+    // esbuild settings
     absWorkingDir: dir,
-    entry: [index],
     tsconfig: package,
     plugins: [nodeExternalsPlugin({ packagePath: package })],
+
+    // estrella settings
+    entry: index,
     cwd: dir,
-    // estrella uses Chokidar, so this property uses the Chokidar watch options interface
-    watch: dev && {
-      cwd: dir
-    },
+    // estrella uses Chokidar, so this property uses the Chokidar watch settings interface
+    // we need to make sure that Chokidar is watching the module directory
+    watch: dev && { cwd: dir },
+
     // logging handlers
+
     onStart(_, changed) {
       if (dev && changed && changed.length) {
         start = performance.now()
         console.log(styl.blue(`[${name}]`), 'Rebuilding!', styl.orange(`[${changed.join(', ')}]`))
       }
     },
+
     onEnd() {
       const elapsed = fmtDuration(performance.now() - start)
       console.log(styl.blue(`[${name}]`), 'Finished.', styl.green(`${elapsed}`))
@@ -66,8 +81,5 @@ function buildPackage(name) {
 }
 
 // check if we're building all or just a single package
-if (opts.self) {
-  buildPackage()
-} else {
-  getDirectories('./packages').forEach(name => buildPackage(name))
-}
+if (opts.self) buildModule()
+else directoriesOf('./modules').forEach(name => buildModule(name))
