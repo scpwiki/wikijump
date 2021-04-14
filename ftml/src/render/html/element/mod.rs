@@ -30,7 +30,7 @@ mod prelude {
 }
 
 use self::container::render_container;
-use self::text::render_wikitext_raw;
+use self::text::{render_email, render_wikitext_raw};
 use super::HtmlContext;
 use crate::tree::Element;
 
@@ -42,6 +42,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         Element::Module(module) => ctx.handle().render_module(log, ctx, module),
         Element::Text(text) => ctx.push_escaped(text),
         Element::Raw(text) => render_wikitext_raw(log, ctx, text),
+        Element::Email(email) => render_email(log, ctx, email),
         _ => todo!(),
     }
 }

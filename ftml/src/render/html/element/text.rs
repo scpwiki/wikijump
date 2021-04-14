@@ -37,3 +37,16 @@ pub fn render_wikitext_raw(log: &slog::Logger, ctx: &mut HtmlContext, text: &str
         }
     }
 }
+
+pub fn render_email(log: &slog::Logger, ctx: &mut HtmlContext, email: &str) {
+    debug!(log, "Rendering email address"; "email" => email);
+
+    // Since our usecase doesn't typically have emails as real,
+    // but rather as fictional elements, we're just rendering as text.
+
+    ctx.html()
+        .span()
+        .attr("class", &["email"])
+        .attr("style", &["word-break: keep-all;"])
+        .inner(&email);
+}
