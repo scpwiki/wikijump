@@ -1,24 +1,26 @@
-import { search, SearchOpts } from 'wj-util'
-import { TokenizerStack, SerializedTokenizerStack } from './tokenizer'
-import { ParserElementStack, ParserStack, SerializedEmbedded } from './parser'
-import type { Tree } from 'lezer-tree'
+import { search, SearchOpts } from "wj-util"
+import { TokenizerStack, SerializedTokenizerStack } from "./tokenizer"
+import { ParserElementStack, ParserStack, SerializedEmbedded } from "./parser"
+import type { Tree } from "lezer-tree"
 
 // ---- CONTEXT
 
 /** State storage class for Tarnation.
- *  The parser and tokenizer should be able to restart if given the information available in this object. */
+ *  The parser and tokenizer should be able to restart if given
+ *  the information available in this object. */
 export class Context {
   constructor(
     public pos: number,
     public tokenizer: TokenizerStack = new TokenizerStack(),
     public parser: ParserStack = new ParserStack(),
     public embed: SerializedEmbedded = { pending: [], parsers: [] }
-  ) {  }
+  ) {}
 }
 
 // ---- BUFFER
 
-/** Represents a Lezer token. The `tree` value is for storing a reusable form of this token and its children. */
+/** Represents a Lezer token.
+ *  The `tree` value is for storing a reusable form of this token and its children. */
 type TokenData = [id: number, from: number, to: number, children: number, tree?: Tree]
 
 /** @see Buffer */
@@ -27,7 +29,6 @@ type BufferElement = BufferToken | Checkpoint
 /** Stores the token and checkpoint information about the previous parse.
  *  New tokens, and context snapshots ({@link Checkpoint}), are stored in this buffer. */
 export class Buffer {
-
   /** The latest (by position) checkpoint in the buffer. */
   declare lastCheckpoint?: Checkpoint
 
@@ -36,12 +37,15 @@ export class Buffer {
     public buffer: BufferElement[] = [],
     /** The previous `Buffer` linked, if any. */
     public prev: Buffer | null = null
-  ) {  }
+  ) {}
 
   /** Number of elements in the buffer. */
-  get length() { return this.buffer.length }
+  get length() {
+    return this.buffer.length
+  }
 
-  /** Fully compiles the buffer's data into a {@link Tree `Tree.build`} compatible format. */
+  /** Fully compiles the buffer's data
+   *  into a {@link Tree `Tree.build`} compatible format. */
   compile() {
     // verbose approach to maximize speed
     const buffer: number[] = []
@@ -107,21 +111,24 @@ export class Buffer {
   }
 
   /** {@link search} comparator function.  */
-  private static _searchComparator = ({ pos }: BufferElement, target: number) => pos === target ? true : pos - target
+  private static _searchComparator = ({ pos }: BufferElement, target: number) =>
+    pos === target ? true : pos - target
 
   /** Searches for the closest element to the given position. */
   search(pos: number, opts?: SearchOpts) {
     return search(this.buffer, pos, Buffer._searchComparator, opts)
   }
 
-  /** Finds the closest {@link Context} behind the given `before` value, but after the given `start` value. */
+  /** Finds the closest {@link Context} behind the given `before` value,
+   *  but after the given `start` value. */
   findContext(start: number, before: number) {
     // binary search for closest position to `before`
     let idx = this.search(before, { precise: false })?.index ?? this.buffer.length
     for (; idx >= start; idx--) {
       const node = this.buffer[idx]
-      if (node instanceof Checkpoint && node.pos <= before)
+      if (node instanceof Checkpoint && node.pos <= before) {
         return { context: node.context, index: idx }
+      }
     }
     return null
   }
@@ -195,9 +202,9 @@ export class Buffer {
 //   }
 // }
 
-/** {@link WeakMap} wrapper for accessing a cached {@link Buffer} from a CodeMirror syntax tree. */
+/** {@link WeakMap} wrapper for accessing a
+ *  cached {@link Buffer} from a CodeMirror syntax tree. */
 export class BufferCache {
-
   private map: WeakMap<Tree, Buffer> = new WeakMap()
 
   /** Associates the given {@link Buffer} to the given tree. */
@@ -221,14 +228,13 @@ export class BufferCache {
  *
  *  In a {@link Buffer} all positional data is relative to the previous `Checkpoint`. */
 export class Checkpoint {
-
   declare offset: number
   declare prev?: Checkpoint
 
-  declare private last: number
-  declare private _tokenizer: SerializedTokenizerStack
-  declare private _parser: ParserElementStack
-  declare private _embed: SerializedEmbedded
+  private declare last: number
+  private declare _tokenizer: SerializedTokenizerStack
+  private declare _parser: ParserElementStack
+  private declare _embed: SerializedEmbedded
 
   constructor(context: Context, prev?: Checkpoint) {
     this.prev = prev
@@ -241,29 +247,33 @@ export class Checkpoint {
     }
   }
 
-  /** Ensures that all positions in the checkpoint chain are fresh by recalculating them. */
+  /** Ensures that all positions in the checkpoint chain are fresh
+   *  by recalculating them. */
   update() {
     if (this.prev) {
       this.prev.update()
       this.last = this.prev.pos
-    }
-    else this.last = 0
+    } else this.last = 0
   }
 
-  get pos() { return this.last + this.offset }
+  get pos() {
+    return this.last + this.offset
+  }
   set pos(pos: number) {
     const offset = pos - this.last
     if (offset < 0) throw new Error(`Bad offset position set (${pos} -> ${offset})`)
     this.offset = offset
   }
 
-  get tokenizer() { return new TokenizerStack(this._tokenizer) }
+  get tokenizer() {
+    return new TokenizerStack(this._tokenizer)
+  }
   set tokenizer(tokenizer: TokenizerStack) {
     this._tokenizer = tokenizer.serialize()
   }
 
   get parser() {
-    const stack = this._parser.map((element) => {
+    const stack = this._parser.map(element => {
       const clone = [...element]
       clone[1] = this.last + clone[1]
       return clone
@@ -273,7 +283,7 @@ export class Checkpoint {
   }
   set parser(parser: ParserStack) {
     const stack = parser.serialize()
-    stack.forEach(element => element[1] -= this.last)
+    stack.forEach(element => (element[1] -= this.last))
     this._parser = stack
   }
 
@@ -282,7 +292,10 @@ export class Checkpoint {
     const pos = this.pos
     return {
       pending: [...pending],
-      parsers: parsers.map(([token, { lang, start, end }]) => [token, { lang, start: start + pos, end: end + pos  }])
+      parsers: parsers.map(([token, { lang, start, end }]) => [
+        token,
+        { lang, start: start + pos, end: end + pos }
+      ])
     }
   }
   set embed(embed: SerializedEmbedded) {
@@ -290,7 +303,10 @@ export class Checkpoint {
     const last = this.last
     this._embed = {
       pending: [...pending],
-      parsers: parsers.map(([token, { lang, start, end }]) => [token, { lang, start: start - last, end: end - last  }])
+      parsers: parsers.map(([token, { lang, start, end }]) => [
+        token,
+        { lang, start: start - last, end: end - last }
+      ])
     }
   }
 
@@ -302,19 +318,20 @@ export class Checkpoint {
 /** Represents a parsed token in the {@link Buffer}.
  *  Tokens are positionally relative to the previous {@link Checkpoint} object. */
 export class BufferToken {
-
   declare checkpoint?: Checkpoint
 
-  declare private token: TokenData
-  declare private lastOffset?: number
-  declare private lastCompile?: TokenData
+  private declare token: TokenData
+  private declare lastOffset?: number
+  private declare lastCompile?: TokenData
 
   constructor(token: TokenData, checkpoint?: Checkpoint) {
     if (checkpoint) this.checkpoint = checkpoint
     this.token = this.compile(token, -(this.checkpoint?.pos ?? 0))
   }
 
-  get pos() { return this.token[1] + (this.checkpoint?.pos ?? 0) }
+  get pos() {
+    return this.token[1] + (this.checkpoint?.pos ?? 0)
+  }
 
   set tree(tree: Tree | undefined) {
     this.token[4] = tree
@@ -324,7 +341,12 @@ export class BufferToken {
   compile(_token = this.token, offset = this.checkpoint?.pos ?? 0) {
     // verbose, fast, and cached approach. this function is executed _very_ often
     if (offset === this.lastOffset && this.lastCompile) return this.lastCompile
-    const token: TokenData = [_token[0], _token[1] + offset, _token[2] + offset, _token[3]]
+    const token: TokenData = [
+      _token[0],
+      _token[1] + offset,
+      _token[2] + offset,
+      _token[3]
+    ]
     if (_token[4]) token[4] = _token[4]
     this.lastOffset = offset
     this.lastCompile = token

@@ -1,10 +1,10 @@
-import { perfy } from 'wj-util'
-import { Context, Buffer, BufferToken, BufferCache } from './buffer'
-import { EditorParseContext, LanguageDescription } from '@codemirror/language'
-import { Input, PartialParse, Tree } from 'lezer-tree'
-import { klona } from 'klona'
-import type { State } from './index'
-import type { EmbeddedRange, Tokenizer } from './tokenizer'
+import { perfy } from "wj-util"
+import { Context, Buffer, BufferToken, BufferCache } from "./buffer"
+import { EditorParseContext, LanguageDescription } from "@codemirror/language"
+import { Input, PartialParse, Tree } from "lezer-tree"
+import { klona } from "klona"
+import type { State } from "./index"
+import type { EmbeddedRange, Tokenizer } from "./tokenizer"
 
 export type ParserElementStack = [name: number, start: number, children: number][]
 
@@ -14,12 +14,11 @@ export interface SerializedEmbedded {
 }
 
 export class Parser {
-
-  declare private caching: boolean
-  declare private context: Context
-  declare private embed: EmbeddedHandler
-  declare private tokenizer: Tokenizer
-  declare private viewport?: { from: number, to: number }
+  private declare caching: boolean
+  private declare context: Context
+  private declare embed: EmbeddedHandler
+  private declare tokenizer: Tokenizer
+  private declare viewport?: { from: number; to: number }
 
   private buffer = new Buffer()
 
@@ -40,7 +39,7 @@ export class Parser {
     private start: number,
     private editorContext?: EditorParseContext
   ) {
-    this.caching = !!(editorContext?.state)
+    this.caching = !!editorContext?.state
 
     if (this.caching) {
       this.viewport = editorContext!.viewport
@@ -73,14 +72,16 @@ export class Parser {
     this.tokenizer = state.tokenizer
     this.tokenizer.context = this.context
 
-    if (this.debug) this.logPerf = perfy('parser', 2.5)
+    if (this.debug) this.logPerf = perfy("parser", 2.5)
   }
 
   private get doc() {
     return this.editorContext?.state.doc ?? null
   }
 
-  private get ended() { return this.pos >= this.input.length }
+  private get ended() {
+    return this.pos >= this.input.length
+  }
 
   private skipped = false
   private get skipping() {
@@ -89,8 +90,8 @@ export class Parser {
 
     const { viewport, start, pos } = this
 
-    // viewport diff hopefully adds enough of a buffer so that you don't see the unparsed sections
-    if (start <= viewport!.to && pos >= (viewport!.to + (viewport!.to - viewport!.from))) {
+    // viewport diff hopefully adds enough buffer
+    if (start <= viewport!.to && pos >= viewport!.to + (viewport!.to - viewport!.from)) {
       this.skipped = true
       return true
     }
@@ -98,14 +99,22 @@ export class Parser {
     return false
   }
 
-  private static findBuffer(cache: BufferCache, tree: Tree, startPos: number, before: number, off = 0): Buffer | null {
-    const buffer = off >= startPos && off + tree.length >= before ? cache.get(tree) : undefined
+  private static findBuffer(
+    cache: BufferCache,
+    tree: Tree,
+    startPos: number,
+    before: number,
+    off = 0
+  ): Buffer | null {
+    const buffer =
+      off >= startPos && off + tree.length >= before ? cache.get(tree) : undefined
     if (buffer) return buffer
     // check children
     for (let i = tree.children.length - 1; i >= 0; i--) {
       const child = tree.children[i]
       const pos = off + tree.positions[i]
-      const found = child instanceof Tree && pos < before && this.findBuffer(cache, child, startPos, before, pos)
+      if (!(child instanceof Tree && pos < before)) continue
+      const found = this.findBuffer(cache, child, startPos, before, pos)
       if (found) return found
     }
     return null
@@ -118,7 +127,7 @@ export class Parser {
 
     // filthy
     // not sure why this is needed, to be honest
-    // for some reason, the length of the document can somehow be disjointed from the input length
+    // the length of the document can somehow be disjointed from the input length
     // this causes issues when remapping the tree, apparently
     if (doc && doc.length < length) length = doc.length
 
@@ -134,7 +143,7 @@ export class Parser {
     // handle unfinished stack
     while (stack.length) {
       const [startid, startpos, children] = stack.pop()!
-      buffer.add([startid, startpos, pos, (children * 4) + 4])
+      buffer.add([startid, startpos, pos, children * 4 + 4])
       stack.increment()
     }
 
@@ -142,7 +151,9 @@ export class Parser {
 
     const tree = this.compileTree()
     if (this.debug && this.logPerf) this.logPerf()
-    // if (this.debug && editorContext) console.log(`ending at: ${editorContext.state.doc.lineAt(this.pos).number}`)
+    // if (this.debug && editorContext) {
+    //   console.log(`ending at: ${editorContext.state.doc.lineAt(this.pos).number}`)
+    // }
     return tree
   }
 
@@ -155,43 +166,49 @@ export class Parser {
 
       const { tokens, popped, length } = tokenizer.exec(input, pos) ?? {}
 
-      if (tokens) for (const token of tokens) {
-        const [type, from, to, open, close] = token
-        if (type === -1) {
-          const token = buffer.add([0, from, to, -1, Tree.empty]) as BufferToken
-          stack.increment()
-          embed.push(token)
-          continue
-        }
+      if (tokens) {
+        for (const token of tokens) {
+          const [type, from, to, open, close] = token
+          if (type === -1) {
+            const token = buffer.add([0, from, to, -1, Tree.empty]) as BufferToken
+            stack.increment()
+            embed.push(token)
+            continue
+          }
 
-        // opening
-        if (open) open.forEach(([id, inclusive]) => {
-          stack.push(id, inclusive ? from : to, type ? inclusive ? 0 : -1 : 0)
-        })
+          // opening
+          if (open) {
+            open.forEach(([id, inclusive]) => {
+              stack.push(id, inclusive ? from : to, type ? (inclusive ? 0 : -1) : 0)
+            })
+          }
 
-        // closing
-        let pushed = false
-        if (close && stack.length) close.forEach(([id, inclusive]) => {
-          const idx = stack.last(id)
-          if (idx !== null) {
-            // cuts off anything past our closing stack element
-            stack.close(idx)
-            // if we're inclusive of the end token we need to include it before we end the state
-            if (type && inclusive && !pushed) {
-              buffer.add([type, from, to, 4])
-              stack.increment()
-              pushed = true
-            }
-            const [startid, startpos, children] = stack.pop()!
-            buffer.add([startid, startpos, inclusive ? to : from, (children * 4) + 4])
+          // closing
+          let pushed = false
+          if (close && stack.length) {
+            close.forEach(([id, inclusive]) => {
+              const idx = stack.last(id)
+              if (idx !== null) {
+                // cuts off anything past our closing stack element
+                stack.close(idx)
+                // if we're inclusive of the end token we need to push the token early
+                if (type && inclusive && !pushed) {
+                  buffer.add([type, from, to, 4])
+                  stack.increment()
+                  pushed = true
+                }
+                const [startid, startpos, children] = stack.pop()!
+                buffer.add([startid, startpos, inclusive ? to : from, children * 4 + 4])
+                stack.increment()
+              }
+            })
+          }
+
+          // token itself
+          if (type && !pushed) {
+            buffer.add([type, from, to, 4])
             stack.increment()
           }
-        })
-
-        // token itself
-        if (type && !pushed) {
-          buffer.add([type, from, to, 4])
-          stack.increment()
         }
       }
 
@@ -206,7 +223,11 @@ export class Parser {
       context.pos = pos
       context.embed = embed.serialize()
 
-      if (this.caching && !ended && (pos - this.lastCheckpointPos >= this.checkpointSpacing)) {
+      if (
+        this.caching &&
+        !ended &&
+        pos - this.lastCheckpointPos >= this.checkpointSpacing
+      ) {
         this.lastCheckpointPos = pos
         buffer.add(context)
       }
@@ -221,7 +242,7 @@ export class Parser {
 
     // if we're very close to the end, we'll finish the parse anyways
     // this catches some flukey behavior
-    if ((input.length - pos) < 500) {
+    if (input.length - pos < 500) {
       let done: Tree | null = null
       while (!(done = this.advance())) {}
       return done
@@ -231,7 +252,6 @@ export class Parser {
   }
 
   advance() {
-
     for (let step = this.steps; step > 0; step--) this.step()
 
     if ((this.ended || this.skipping) && this.embed.done) return this.finish()
@@ -240,14 +260,15 @@ export class Parser {
 }
 
 export class ParserStack {
-
   declare stack: ParserElementStack
 
   constructor(stack: ParserElementStack = []) {
     this.stack = stack.map(element => [...element])
   }
 
-  get length() { return this.stack.length }
+  get length() {
+    return this.stack.length
+  }
 
   /** Add a child to every element. */
   increment() {
@@ -283,11 +304,14 @@ export class ParserStack {
 }
 
 export class EmbeddedHandler {
-
-  declare private start: number
+  private declare start: number
 
   private pending: BufferToken[] = []
-  private parsers: { token: BufferToken, lang: EmbeddedLanguage, parser?: PartialParse }[] = []
+  private parsers: {
+    token: BufferToken
+    lang: EmbeddedLanguage
+    parser?: PartialParse
+  }[] = []
 
   fullyLoaded = true
 
@@ -300,15 +324,22 @@ export class EmbeddedHandler {
     this.start = this.context.pos
     const embed = this.context.embed
     this.pending = [...embed.pending]
-    this.parsers = embed.parsers.map(([token, range]) => ({ token, lang: new EmbeddedLanguage(this.state, range) }))
+    this.parsers = embed.parsers.map(([token, range]) => ({
+      lang: new EmbeddedLanguage(this.state, range),
+      token
+    }))
   }
 
-  get done() { return this.parsers.length === 0 }
+  get done() {
+    return this.parsers.length === 0
+  }
 
   push(embed: BufferToken | EmbeddedRange) {
     if (embed instanceof BufferToken) this.pending.push(embed)
     else {
-      if (this.pending.length === 0) throw new Error('Attempted to push an unassigned language!')
+      if (this.pending.length === 0) {
+        throw new Error("Attempted to push an unassigned language!")
+      }
       const token = this.pending.shift()!
       const lang = new EmbeddedLanguage(this.state, embed)
       this.parsers.push({ token, lang })
@@ -327,7 +358,11 @@ export class EmbeddedHandler {
       return null
     }
 
-    const parser = parsers[0].parser ||= lang.parse(this.input.clip(end), start, editorContext)
+    const parser = (parsers[0].parser ||= lang.parse(
+      this.input.clip(end),
+      start,
+      editorContext
+    ))
 
     // effectively marks the tree as stale
     if (token.tree !== Tree.empty) token.tree = Tree.empty
@@ -350,28 +385,28 @@ export class EmbeddedHandler {
   }
 }
 
-/** Fake {@link PartialParse} implementation that immediately returns a specified {@link Tree}. */
+/** Fake {@link PartialParse} implementation that
+ *  immediately returns a specified {@link Tree}. */
 class FakeParse {
-  constructor(
-    private input: Input,
-    private tree: Tree
-  ) {  }
-  get pos()     { return this.input.length }
-  advance()     { return this.tree }
-  forceFinish() { return this.tree }
+  constructor(private input: Input, private tree: Tree) {}
+  get pos() {
+    return this.input.length
+  }
+  advance() {
+    return this.tree
+  }
+  forceFinish() {
+    return this.tree
+  }
 }
 
 class EmbeddedLanguage {
-
-  declare private loading
-  declare private parser
+  private declare loading
+  private declare parser
 
   lang: LanguageDescription | null = null
 
-  constructor(
-    public state: State,
-    public range: EmbeddedRange
-  ) {
+  constructor(public state: State, public range: EmbeddedRange) {
     if (state.nestLanguages.length) {
       this.lang = LanguageDescription.matchLanguageName(state.nestLanguages, range.lang)
       if (this.lang?.support) this.parser = this.bindParser()
@@ -379,10 +414,12 @@ class EmbeddedLanguage {
     }
   }
 
-  get ready() { return !!this.parser }
+  get ready() {
+    return Boolean(this.parser)
+  }
 
   private bindParser() {
-    if (!this.lang?.support) throw new Error('Could not bind unloaded language!')
+    if (!this.lang?.support) throw new Error("Could not bind unloaded language!")
     const parser = this.lang.support.language.parser
     return parser.startParse.bind(parser)
   }
@@ -391,14 +428,15 @@ class EmbeddedLanguage {
     if (!lang) this.parser = input => new FakeParse(input, Tree.empty)
     else {
       await lang.load()
-      return this.parser = this.bindParser()
+      return (this.parser = this.bindParser())
     }
   }
 
   private fallbackParser(context?: EditorParseContext) {
     return !context
       ? (input: Input) => new FakeParse(input, Tree.empty)
-      : EditorParseContext.getSkippingParser(this.loading).startParse
+      : // eslint-disable-next-line @typescript-eslint/unbound-method
+        EditorParseContext.getSkippingParser(this.loading).startParse
   }
 
   parse(input: Input, start: number, context?: EditorParseContext) {

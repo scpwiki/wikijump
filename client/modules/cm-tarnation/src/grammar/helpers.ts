@@ -1,15 +1,16 @@
-import { pointsMatch, toPoints } from 'wj-util'
-import type * as DF from './definition'
+import { pointsMatch, toPoints } from "wj-util"
+import type * as DF from "./definition"
 
 const REGEX_SPLIT = /^([^]*)\/([^]+)\/([^]*)$/
 
 /** Safely compiles a regular expression.
  *  @example
- *  const regex = re`/(?<=\d)\w+/d` // returns null if features aren't supported (e.g. Safari) */
+ *  // returns null if features aren't supported (e.g. Safari)
+ *  const regex = re`/(?<=\d)\w+/d` */
 export function re(str: TemplateStringsArray) {
   const split = REGEX_SPLIT.exec(str.raw[0])
   if (!split) return null
-  const [,, src = '', flags = ''] = split
+  const [, , src = "", flags = ""] = split
   if (!src) return null
   try {
     return new RegExp(src, flags)
@@ -23,9 +24,9 @@ export function re(str: TemplateStringsArray) {
  *  The function does not match the entire string.
  *  Instead, it will find the first match for the start of the string.
  *
- *  It is safe to use overlapping values - longer strings will be tried before shorter ones. */
+ *  It's safe to use overlap values - longer strings are tried before shorter ones. */
 export function lkup(arr: string[]): DF.MatchFunction {
-  if (arr.length === 0) throw new Error('Empty string array!')
+  if (arr.length === 0) throw new Error("Empty string array!")
 
   // longest string first
   const sorted = [...arr].sort((a, b) => b.length - a.length)
@@ -35,8 +36,10 @@ export function lkup(arr: string[]): DF.MatchFunction {
 
   return (_cx, str, pos) => {
     const against = toPoints(str.slice(pos, pos + max))
-    for (const points of set) if (pointsMatch(points, against, 0)) {
-      return [String.fromCodePoint(...points)]
+    for (const points of set) {
+      if (pointsMatch(points, against, 0)) {
+        return [String.fromCodePoint(...points)]
+      }
     }
     return null
   }
@@ -52,8 +55,8 @@ function createMatcher(str: string, behind = false): CompiledMatcher {
     // compile string
     if (!split) {
       if (str) {
-        if (str.startsWith('\\!')) str = str.slice(2)
-        const negated = str.startsWith('!')
+        if (str.startsWith("\\!")) str = str.slice(2)
+        const negated = str.startsWith("!")
         if (negated) str = str.slice(1)
 
         const len = behind ? str.length : 0
@@ -68,12 +71,12 @@ function createMatcher(str: string, behind = false): CompiledMatcher {
     }
 
     // compile regex
-    const [, offsetStr = '', src = '', flags = ''] = split
+    const [, offsetStr = "", src = "", flags = ""] = split
     if (!src) return null
 
-    const negated = offsetStr.startsWith('!')
+    const negated = offsetStr.startsWith("!")
     const offset = behind ? parseInt(negated ? offsetStr.slice(1) : offsetStr) : 0
-    const regex = new RegExp(src, flags + (flags.indexOf('y') !== -1 ? '' : 'y'))
+    const regex = new RegExp(src, flags + (flags.indexOf("y") !== -1 ? "" : "y"))
 
     return (input, pos) => {
       regex.lastIndex = pos - offset
@@ -85,10 +88,12 @@ function createMatcher(str: string, behind = false): CompiledMatcher {
   }
 }
 
-/** Lookahead utility. Given a `RegExp` or `string` (in `string` form, keep in mind), it will create
+/** Lookahead utility.
+ *  Given a `RegExp` or `string` (in `string` form, keep in mind), it will create
  *  a function that will determine if the input ahead of the search position matches.
  *
- *  Lead the `RegExp` or `string` with a `!` to negate the result. `RegExp` inputs can be given flags.
+ *  Lead the `RegExp` or `string` with a `!` to negate the result.
+ *  `RegExp` inputs can be given flags.
  *
  *  @example
  *  matcher = la`foo`
@@ -98,16 +103,19 @@ function createMatcher(str: string, behind = false): CompiledMatcher {
 export function la({ raw: [str] }: TemplateStringsArray): DF.MatchFunction | null {
   const matcher = createMatcher(str)
   if (!matcher) return null
-  return (_cx, input, pos) => matcher(input, pos) ? [] : null
+  return (_cx, input, pos) => (matcher(input, pos) ? [] : null)
 }
 
-/** Lookbehind utility. Given a `RegExp` or `string` (in `string` form, keep in mind), it will create
+/** Lookbehind utility.
+ *  Given a `RegExp` or `string` (in `string` form, keep in mind), it will create
  *  a function that will determine if the input behind of the search position matches.
  *
- *  Unlike a `RegExp` lookbehind, the compiled function cannot traverse infinitely far behind. Instead,
- *  it must be given an offset. This is given in front of the `/` character.
+ *  Unlike a `RegExp` lookbehind, the compiled function cannot traverse infinitely far
+ *  behind. Instead, it must be given an offset.
+ *  This is given in front of the `/` character.
  *
- *  Lead the `RegExp` or `string` with a `!` to negate the result. `RegExp` inputs can be given flags.
+ *  Lead the `RegExp` or `string` with a `!` to negate the result.
+ *  `RegExp` inputs can be given flags.
  *
  *  @example
  *  matcher = lb`foo`
@@ -117,5 +125,5 @@ export function la({ raw: [str] }: TemplateStringsArray): DF.MatchFunction | nul
 export function lb({ raw: [str] }: TemplateStringsArray): DF.MatchFunction | null {
   const matcher = createMatcher(str, true)
   if (!matcher) return null
-  return (_cx, input, pos) => matcher(input, pos) ? [] : null
+  return (_cx, input, pos) => (matcher(input, pos) ? [] : null)
 }

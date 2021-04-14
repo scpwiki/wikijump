@@ -1,13 +1,22 @@
-import { createID, escapeRegExp, has, hasSigil, pointsMatch, unSigil, removeUndefined, toPoints } from 'wj-util'
-import { styleTags, tags } from '@codemirror/highlight'
-import { NodeProp, NodePropSource } from 'lezer-tree'
-import { isArray, isFunction, isRegExp, isString } from 'is-what'
-import { demangleGrammar } from './demangler'
-import { klona } from 'klona'
-import type * as DF from './definition'
-import type * as DM from './demangler'
+import {
+  createID,
+  escapeRegExp,
+  has,
+  hasSigil,
+  pointsMatch,
+  unSigil,
+  removeUndefined,
+  toPoints
+} from "wj-util"
+import { styleTags, tags } from "@codemirror/highlight"
+import { NodeProp, NodePropSource } from "lezer-tree"
+import { isArray, isFunction, isRegExp, isString } from "is-what"
+import { demangleGrammar } from "./demangler"
+import { klona } from "klona"
+import type * as DF from "./definition"
+import type * as DM from "./demangler"
 
-/** Stores contextual information about the current state of the {@link Grammar Grammar's} match. */
+/** Stores information about the current state of the {@link Grammar Grammar's} match. */
 export interface GrammarContext {
   state: string
   context: DF.Context
@@ -38,8 +47,7 @@ const SUB_REGEX = /\$(?:S|#|\d+)|::\S+/g
 const BRACKET_REGEX = /@BR(\/[OC])?(?::(.+))?/
 
 export class Grammar {
-
-  declare private grammar: DM.Grammar
+  private declare grammar: DM.Grammar
 
   declare ignoreCase: boolean
   declare variables: Record<string, DF.Variable>
@@ -49,7 +57,7 @@ export class Grammar {
   types = new Set<string>()
   props: NodePropSource[] = []
 
-  declare private global: Set<number>
+  private declare global: Set<number>
 
   private brackets = new Map<string, Action>()
   private rules = new Map<number, Rule>()
@@ -59,7 +67,7 @@ export class Grammar {
 
   constructor(def: DF.Grammar) {
     const grammar = demangleGrammar(def)
-    const { ignoreCase = false, variables = {}, start = 'root' } = grammar
+    const { ignoreCase = false, variables = {}, start = "root" } = grammar
 
     this.grammar = grammar
     this.ignoreCase = ignoreCase
@@ -89,19 +97,22 @@ export class Grammar {
 
   // PUBLIC UTILITY METHODS
 
-  static sub({ context = {}, state = '', last: [total = '', ...captures] = [] }: GrammarContext, str: string) {
+  static sub(
+    { context = {}, state = "", last: [total = "", ...captures] = [] }: GrammarContext,
+    str: string
+  ) {
     return str.replace(SUB_REGEX, (sub: string) => {
-      if (sub === '$#') return total
-      if (sub === '$S') return state
-      if (sub.startsWith('::')) return context[sub.slice(2)] ?? ''
-      return [total, ...captures][parseInt(sub.slice(1))] ?? ''
+      if (sub === "$#") return total
+      if (sub === "$S") return state
+      if (sub.startsWith("::")) return context[sub.slice(2)] ?? ""
+      return [total, ...captures][parseInt(sub.slice(1))] ?? ""
     })
   }
 
   static variableForRegex(variable?: DF.Variable | null) {
     if (isString(variable)) return escapeRegExp(variable)
     if (isRegExp(variable)) return variable.source
-    if (isArray(variable)) return variable.map(str => escapeRegExp(str)).join('|')
+    if (isArray(variable)) return variable.map(str => escapeRegExp(str)).join("|")
     return null
   }
 
@@ -115,15 +126,15 @@ export class Grammar {
   static expand(vars: Record<string, DF.Variable>, input: string | RegExp) {
     const regex = isRegExp(input)
     let count = 0
-    let str = regex ? (input as RegExp).source : input as string
+    let str = regex ? (input as RegExp).source : (input as string)
     while (/@\w/.test(str) && count < 5) {
       count++
       str = str.replace(/@(\w+)/g, (_, ident: string) => {
         const variable = regex
           ? this.variableForRegex(vars[ident])
           : this.variableForString(vars[ident])
-        if (!variable) return ''
-        return regex ? '(?:' + variable + ')' : variable
+        if (!variable) return ""
+        return regex ? `(?:${variable})` : variable
       })
     }
     return str
@@ -133,23 +144,25 @@ export class Grammar {
 
   // str_::_mode_::_hint
   private static makeBracketString(str: string, mode: boolean | null, hint: string) {
-    return `${str}${mode !== null ? '_::_' + (mode ? 'open' : 'close') : ''}${hint ? '_::_' + hint : ''}`
+    return `${str}${mode !== null ? `_::_${mode ? "open" : "close"}` : ""}${
+      hint ? `_::_${hint}` : ""
+    }`
   }
 
   findBracket(str: string, type: string) {
     if (!BRACKET_REGEX.test(type)) return null
-    const [, modeStr, hint = ''] = BRACKET_REGEX.exec(type)!
-    const mode = modeStr === '/O' ? true : modeStr === '/C' ? false : null
+    const [, modeStr, hint = ""] = BRACKET_REGEX.exec(type)!
+    const mode = modeStr === "/O" ? true : modeStr === "/C" ? false : null
     const bracket = Grammar.makeBracketString(str, mode, hint)
     return this.brackets.get(bracket) ?? null
   }
 
-  private addBracket({ name, pair, hint = '', tag, parented }: DF.Bracket) {
-    if (name.indexOf('_::_') !== -1) throw new Error('Invalid bracket name!')
+  private addBracket({ name, pair, hint = "", tag, parented }: DF.Bracket) {
+    if (name.indexOf("_::_") !== -1) throw new Error("Invalid bracket name!")
 
-    const tagged = hasSigil(name, 't.')
-    const openType = tagged ? unSigil(name, 't.') : name + 'Open' as DF.Type
-    const closeType = tagged ? unSigil(name, 't.') : name + 'Close' as DF.Type
+    const tagged = hasSigil(name, "t.")
+    const openType = tagged ? unSigil(name, "t.") : (`${name}Open` as DF.Type)
+    const closeType = tagged ? unSigil(name, "t.") : (`${name}Close` as DF.Type)
 
     if (pair) {
       const [open, close] = isString(pair) ? [pair, pair] : pair
@@ -165,20 +178,24 @@ export class Grammar {
       this.brackets.set(Grammar.makeBracketString(open, true, hint), openAction)
       this.brackets.set(Grammar.makeBracketString(close, false, hint), closeAction)
     } else {
-      this.types.add(unSigil(openType, 't.'))
-      this.types.add(unSigil(closeType, 't.'))
+      this.types.add(unSigil(openType, "t."))
+      this.types.add(unSigil(closeType, "t."))
     }
 
     if (!tagged) {
       if (parented === undefined && !pair) parented = true
-      const parentStr = parented ? name + '/' : ''
+      const parent = parented ? `${name}/` : ""
       this.props.push(
         NodeProp.openedBy.add({ [closeType]: [openType] }),
         NodeProp.closedBy.add({ [openType]: [closeType] })
       )
-      if (tag) this.props.push(styleTags({
-        [`${parentStr}${openType} ${parentStr}${closeType}`]: (tags as any)[tag.slice(2)]!
-      }))
+      if (tag) {
+        this.props.push(
+          styleTags({
+            [`${parent}${openType} ${parent}${closeType}`]: (tags as any)[tag.slice(2)]!
+          })
+        )
+      }
     }
   }
 
@@ -199,76 +216,78 @@ export class Grammar {
 
     for (const rule of rules) {
       // include directive
-      if ('include' in rule) {
+      if ("include" in rule) {
         this.addState(rule.include)
         includes.add(rule.include)
       }
       // props directive
-      else if ('props' in rule) {
+      else if ("props" in rule) {
         this.props.push(...rule.props)
       }
       // style directive
-      else if ('style' in rule) {
+      else if ("style" in rule) {
         this.props.push(styleTags(removeUndefined(rule.style)))
       }
       // brackets directive
-      else if ('brackets' in rule) {
+      else if ("brackets" in rule) {
         for (const bracket of rule.brackets) this.addBracket(bracket)
       }
       // variables directive
-      else if ('variables' in rule) {
+      else if ("variables" in rule) {
         Object.assign(this.variables, rule.variables)
       }
       // rule state
-      else if ('begin' in rule) try {
-        const state = createID('rule-state')
+      else if ("begin" in rule) {
+        try {
+          const state = createID("rule-state")
 
-        const { embedded, type, rules } = rule
+          const { embedded, type, rules } = rule
 
-        const begin = klona(rule.begin)
-        const end = klona(rule.end)
+          const begin = klona(rule.begin)
+          const end = klona(rule.end)
 
-        begin.action ??= {}
-        end.action ??= {}
+          begin.action ??= {}
+          end.action ??= {}
 
-        if (type) {
-          begin.action.open ??= []
-          end.action.close ??= []
-          begin.action.open.unshift([type, 1])
-          end.action.close.push([type, 1])
+          if (type) {
+            begin.action.open ??= []
+            end.action.close ??= []
+            begin.action.open.unshift([type, 1])
+            end.action.close.push([type, 1])
+          }
+
+          if (embedded || rules) {
+            begin.action.next = state
+            end.action.next = "@pop"
+          }
+
+          if (embedded) {
+            begin.action.embedded = embedded.slice(0, embedded.length - 1)
+            end.action.embedded = "@pop"
+          }
+
+          if (embedded) {
+            this.states.set(state, new Set([this.addRule(end).id]))
+          } else if (rules) {
+            const stateRules = [end, ...(isString(rules) ? [{ include: rules }] : rules)]
+            this.states.set(state, this.addRules(stateRules as any))
+          }
+
+          ids.add(this.addRule(begin).id)
+          if (!embedded && !rules) ids.add(this.addRule(end).id)
+        } catch (err) {
+          console.warn("Grammar: Failed to add rule state. Ignoring...")
+          console.info(rule)
         }
-
-        if (embedded || rules) {
-          begin.action.next = state
-          end.action.next = '@pop'
-        }
-
-        if (embedded) {
-          begin.action.embedded = embedded.slice(0, embedded.length - 1)
-          end.action.embedded = '@pop'
-        }
-
-        if (embedded) {
-          this.states.set(state, new Set([this.addRule(end).id]))
-        }
-        else if (rules) {
-          const stateRules = [end, ...(isString(rules) ? [{ include: rules }] : rules)]
-          this.states.set(state, this.addRules(stateRules as any))
-        }
-
-        ids.add(this.addRule(begin).id)
-        if (!embedded && !rules) ids.add(this.addRule(end).id)
-
-      } catch (err) {
-        console.warn('Grammar: Failed to add rule state. Ignoring...')
-        console.info(rule)
       }
       // normal rule
-      else try {
-        ids.add(this.addRule(rule).id)
-      } catch (err) {
-        console.warn('Grammar: Failed to add rule. Ignoring...')
-        console.info(rule)
+      else {
+        try {
+          ids.add(this.addRule(rule).id)
+        } catch (err) {
+          console.warn("Grammar: Failed to add rule. Ignoring...")
+          console.info(rule)
+        }
       }
     }
     return ids
@@ -280,18 +299,25 @@ export class Grammar {
     if (this.states.has(name)) return this.states.get(name)!
     const states = this.grammar.states
     const state = states[name]
-    if (!state) throw new Error('Undefined state specified in grammar!')
+    if (!state) throw new Error("Undefined state specified in grammar!")
+
     this.states.set(name, new Set()) // prevents cyclic
     const ids = this.addRules(state)
     this.states.set(name, ids)
+
     return ids
   }
 
-  addSubstate(substate: SubState, rules: (DF.Directive | DM.Rule | DM.RuleState)[] | Set<number>) {
+  addSubstate(
+    substate: SubState,
+    rules: (DF.Directive | DM.Rule | DM.RuleState)[] | Set<number>
+  ) {
     if (this.states.has(substate)) return this.states.get(substate)!
+
     this.states.set(substate, new Set()) // prevents cyclic
     const ids = rules instanceof Set ? rules : this.addRules(rules)
     this.states.set(substate, ids)
+
     return ids
   }
 
@@ -299,7 +325,7 @@ export class Grammar {
 
   match(cx: GrammarContext, str: string, pos: number, offset = 0): Matched | null {
     const ids = this.states.get(cx.substate ?? cx.state)
-    if (!ids) throw new Error('Undefined state specified in grammar!')
+    if (!ids) throw new Error("Undefined state specified in grammar!")
 
     for (const id of ids) {
       const rule = this.rules.get(id)!
@@ -310,13 +336,15 @@ export class Grammar {
       return matches
     }
 
-    if (!cx.substate?.strict) for (const id of this.global) {
-      const rule = this.rules.get(id)!
-      const matches = rule.exec(cx, str, pos)
-      if (!matches) continue
-      if (offset !== pos) matches.offset = offset
-      if (rule.log) console.log(rule.log)
-      return matches
+    if (!cx.substate?.strict) {
+      for (const id of this.global) {
+        const rule = this.rules.get(id)!
+        const matches = rule.exec(cx, str, pos)
+        if (!matches) continue
+        if (offset !== pos) matches.offset = offset
+        if (rule.log) console.log(rule.log)
+        return matches
+      }
     }
 
     if (this.fallback) return new Matched(str[pos], this.fallback, offset, cx.context)
@@ -326,21 +354,20 @@ export class Grammar {
 }
 
 export class Rule {
-
   declare log?: string
 
-  declare private target?: DF.SubRuleTarget
-  declare private matcher: Matcher | '@DEFAULT'
-  declare private action: Action
+  private declare target?: DF.SubRuleTarget
+  private declare matcher: Matcher | "@DEFAULT"
+  private declare action: Action
 
   constructor(grammar: Grammar, public id: number, rule: DM.Rule) {
     const { target, match, action } = rule
 
-    if (!match) throw new Error('Rule must have a Match!')
+    if (!match) throw new Error("Rule must have a Match!")
 
     if (target) this.target = target
 
-    if (match === '@DEFAULT') this.matcher = '@DEFAULT'
+    if (match === "@DEFAULT") this.matcher = "@DEFAULT"
     else this.matcher = new Matcher(grammar, match)
 
     this.action = new Action(grammar, action)
@@ -348,9 +375,8 @@ export class Rule {
   }
 
   exec(cx: GrammarContext, str: string, pos: number) {
-
     // always match entire str past pos
-    if (this.matcher === '@DEFAULT') {
+    if (this.matcher === "@DEFAULT") {
       return this.action.exec(cx, [str.slice(pos)], pos)
     }
 
@@ -362,7 +388,7 @@ export class Rule {
     if (!found) return null
 
     if (this.target) {
-      if (!cx.last) throw new Error('Rule target specified, but no last match!')
+      if (!cx.last) throw new Error("Rule target specified, but no last match!")
       return this.action.exec(cx, cx.last, pos)
     } else {
       if (!cx.last || !cx.substate) cx.last = found
@@ -380,73 +406,79 @@ const enum MatcherType {
   Function
 }
 
+// prettier-ignore
 type MatcherElement =
-  | { matcher: DF.MatchFunction, type: MatcherType.Function }
-  | { matcher: RegExp,           type: MatcherType.RegExp }
-  | { matcher: DF.Substitute,    type: MatcherType.Substitute }
-  | { matcher: number[],         type: MatcherType.Points, source: string }
+  | { matcher: DF.MatchFunction; type: MatcherType.Function }
+  | { matcher: RegExp;           type: MatcherType.RegExp }
+  | { matcher: DF.Substitute;    type: MatcherType.Substitute }
+  | { matcher: number[];         type: MatcherType.Points; source: string }
 
 export class Matcher {
-
-  declare private elements?: MatcherElement[]
+  private declare elements?: MatcherElement[]
 
   constructor(grammar: Grammar, matchers: DF.Match) {
-
     if (!isArray(matchers)) matchers = [matchers]
 
-    const compiled = matchers.map((matcher) => {
-      if (!matcher) throw new Error('Null matcher given! A helper function likely errored.')
-      else if (isFunction(matcher)) return matcher
-      else if (hasSigil<DF.Substitute>(matcher, ['$', '::'])) return matcher
+    const compiled = matchers.map(matcher => {
+      if (!matcher) {
+        throw new Error("Null matcher given! A helper function likely errored.")
+      } else if (isFunction(matcher)) return matcher
+      else if (hasSigil<DF.Substitute>(matcher, ["$", "::"])) return matcher
       else return Matcher.compile(grammar, matcher!)
     })
 
-    this.elements = compiled.map((matcher) => {
+    this.elements = compiled.map(matcher => {
       let type: MatcherType
 
-      if (isFunction(matcher))                 type = MatcherType.Function
-      else if (isRegExp(matcher))              type = MatcherType.RegExp
-      else if (hasSigil(matcher, ['$', '::'])) type = MatcherType.Substitute
-      else                                     type = MatcherType.Points
+      if (isFunction(matcher)) type = MatcherType.Function
+      else if (isRegExp(matcher)) type = MatcherType.RegExp
+      else if (hasSigil(matcher, ["$", "::"])) type = MatcherType.Substitute
+      else type = MatcherType.Points
 
       if (type === MatcherType.Points) {
-        return { matcher, type, source: String.fromCodePoint(...matcher as number[]) } as MatcherElement
+        const source = String.fromCodePoint(...(matcher as number[]))
+        return { matcher, type, source } as MatcherElement
       }
 
       return { matcher, type } as MatcherElement
     })
   }
 
-  private static compile({ variables, ignoreCase }: Grammar, matcher: RegExp | string):
-    RegExp | DF.MatchFunction | number[] {
+  private static compile(
+    { variables, ignoreCase }: Grammar,
+    matcher: RegExp | string
+  ): RegExp | DF.MatchFunction | number[] {
     if (isRegExp(matcher)) {
       const str = Grammar.expand(variables, matcher)
-      const flags = 'ym' +
-        (matcher.dotAll ? 's' : '') +
-        (matcher.unicode ? 'u' : '') +
-        (ignoreCase || matcher.ignoreCase ? 'i' : '')
+      // prettier-ignore
+      // eslint-disable-next-line
+      const flags = "ym" +
+        (matcher.dotAll ? "s" : "") +
+        (matcher.unicode ? "u" : "") +
+        (ignoreCase || matcher.ignoreCase ? "i" : "")
       return new RegExp(str, flags)
     } else {
       // entire string is a variable
       if (/^@\w+$/.test(matcher)) {
         const variable = variables[matcher.slice(1)]
         if (isFunction(variable)) return variable
-        else if (isRegExp(variable)) return this.compile({ variables, ignoreCase } as Grammar, variable)
+        else if (isRegExp(variable)) {
+          return this.compile({ variables, ignoreCase } as Grammar, variable)
+        }
       }
       return toPoints(Grammar.expand(variables, matcher))
     }
   }
 
   exec(cx: GrammarContext, str: string, pos: number): string[] | null {
-
     if (!this.elements) return null
 
     if (cx.target && cx.last) {
       const { state, last, target, context } = cx
-      if (hasSigil(target, '$')) {
-        if (target === '$#') str
-        else if (target === '$S') str = state
-        else str = last[parseInt(target.slice(1))] ?? ''
+      if (hasSigil(target, "$")) {
+        if (target === "$#") str
+        else if (target === "$S") str = state
+        else str = last[parseInt(target.slice(1))] ?? ""
       } else {
         const prop = context[str.slice(2)]
         if (!prop) return null
@@ -454,19 +486,17 @@ export class Matcher {
       }
     }
 
-    const found: string[] = ['']
+    const found: string[] = [""]
     const start = pos
 
     // for loop is faster and doesn't invoke iterator methods needlessly
     for (let i = 0; i < this.elements.length; i++) {
-
       let total: string | null = null
       let match: string[] | null = null
 
       const element = this.elements[i]
 
       switch (element.type) {
-
         case MatcherType.Function: {
           match = element.matcher(cx, str, pos)
           break
@@ -487,12 +517,15 @@ export class Matcher {
         }
 
         case MatcherType.Points: {
-          if (pointsMatch(element.matcher, str, pos))
+          if (pointsMatch(element.matcher, str, pos)) {
             match = [element.source]
+          }
           break
         }
 
-        default: return null
+        default: {
+          return null
+        }
       }
 
       if (!total && !match) return null
@@ -508,16 +541,13 @@ export class Matcher {
       if (match?.length) {
         if (!total) found[0] = found[0].concat(...match)
         found.push(...match)
-      }
-
-      else if (total) {
+      } else if (total) {
         found.push(total)
       }
 
       if (found[0] && found.length === 1) found[1] = found[0]
 
       pos = start + found[0].length
-
     }
 
     if (!found.length || (found.length === 1 && !found[0])) return null
@@ -535,7 +565,6 @@ const enum ActionMode {
 }
 
 export class Action {
-
   declare type: string
   declare group?: Action[]
   declare next?: string
@@ -546,29 +575,33 @@ export class Action {
   declare embedded?: string
   declare context?: DF.Context
 
-  declare private substate?: SubState
+  private declare substate?: SubState
 
   declare mode: ActionMode
 
   constructor(private grammar: Grammar, action?: DM.Action) {
-
-    this.type = ''
+    this.type = ""
 
     if (action) {
       const { type, next, open, close, log, switchTo, embedded, context } = action
-      Object.assign(this, removeUndefined({ type, next, open, close, log, switchTo, embedded, context }))
-      if (has('rules', action)) this.substate = new SubState(grammar, action)
-      else if (action.group) this.group = action.group.map(act => new Action(grammar, act))
+      Object.assign(
+        this,
+        removeUndefined({ type, next, open, close, log, switchTo, embedded, context })
+      )
+      if (has("rules", action)) this.substate = new SubState(grammar, action)
+      else if (action.group) {
+        this.group = action.group.map(act => new Action(grammar, act))
+      }
     }
 
-    if (this.substate)                   this.mode = ActionMode.SubState
-    else if (hasSigil(this.type, '@RE')) this.mode = ActionMode.Rematch
-    else if (hasSigil(this.type, '@BR')) this.mode = ActionMode.Bracket
-    else if (this.group)                 this.mode = ActionMode.Group
-    else                                 this.mode = ActionMode.Normal
+    if (this.substate) this.mode = ActionMode.SubState
+    else if (hasSigil(this.type, "@RE")) this.mode = ActionMode.Rematch
+    else if (hasSigil(this.type, "@BR")) this.mode = ActionMode.Bracket
+    else if (this.group) this.mode = ActionMode.Group
+    else this.mode = ActionMode.Normal
 
     // add types
-    if (this.type && !hasSigil(this.type, '@')) grammar.types.add(this.type)
+    if (this.type && !hasSigil(this.type, "@")) grammar.types.add(this.type)
     if (this.open) for (const [type] of this.open) grammar.types.add(type)
     if (this.close) for (const [type] of this.close) grammar.types.add(type)
   }
@@ -580,15 +613,13 @@ export class Action {
       const prop = this.context[key]
       if (prop) added[key] = Grammar.sub(cx, prop)
     }
-    return cx.context = { ...cx.context, ...added }
+    return (cx.context = { ...cx.context, ...added })
   }
 
   exec(cx: GrammarContext, found: string[], pos: number): Matched | null {
-
     const matched = new Matched(found[0], this, pos)
 
     switch (this.mode) {
-
       case ActionMode.Normal: {
         matched.context = this.setContext(cx)
         return matched
@@ -602,7 +633,7 @@ export class Action {
       }
 
       case ActionMode.Rematch: {
-        return new Matched('', this, pos, this.setContext(cx))
+        return new Matched("", this, pos, this.setContext(cx))
       }
 
       case ActionMode.SubState: {
@@ -617,8 +648,9 @@ export class Action {
         let offset = pos
         const group: (Matched | null)[] = []
         for (let i = 0; i < captures.length; i++) {
-          const capture = captures[i], action = this.group![i]
-          if (!action) throw new Error('Disjointed match group count and action group count!')
+          const capture = captures[i]
+          const action = this.group![i]
+          if (!action) throw new Error("Disjointed match group count!")
           if (!capture) continue
           group.push(action.exec(cx, [capture], offset))
           offset += capture.length
@@ -627,20 +659,24 @@ export class Action {
         return Matched.extend(matched, group)
       }
 
-      default: return null
+      default: {
+        return null
+      }
     }
   }
 }
 
 export class SubState {
-
   declare repeat: boolean
   declare optional: boolean
   declare all: boolean
   declare strict: boolean
 
-  constructor(public grammar: Grammar, { strict = true, repeat, optional, all, rules }: DM.Action) {
-    if (!rules) throw new Error('Substate must have rules!')
+  constructor(
+    public grammar: Grammar,
+    { strict = true, repeat, optional, all, rules }: DM.Action
+  ) {
+    if (!rules) throw new Error("Substate must have rules!")
 
     this.repeat = strict ? false : repeat ?? true
     this.optional = strict ? false : optional ?? true
@@ -659,8 +695,14 @@ export class SubState {
 
     let offset = 0
     let match: Matched | null = null
-    while (offset < str.length && ((match = this.grammar.match(cx, str, offset)) || (!this.all && this.repeat))) {
-      if (!match) { offset += 1; continue }
+    // prettier-ignore
+    while (offset < str.length &&
+      ((match = this.grammar.match(cx, str, offset)) || (!this.all && this.repeat))
+    ) {
+      if (!match) {
+        offset += 1
+        continue
+      }
       match.offset = pos + offset
       matches.push(match)
       offset += match.length
@@ -687,7 +729,7 @@ export function createToken({ from, to, action, context }: Matched): GrammarToke
   return { type, from, to, empty, open, close, next, switchTo, embedded, context }
 }
 
-/** Wraps a list of {@link GrammarToken GrammarTokens} with the token data of a {@link Match}.
+/** Wraps a list of {@link GrammarToken} with the token data of a {@link Match}.
  *
  *  Effectively, this mutates the list of tokens as if the given {@link Match}
  *  "was" the list of tokens. If the token data of the match were to cause
@@ -703,15 +745,17 @@ export function wrapTokens(
   if (context) last.context = { ...last.context, ...context }
 
   if (next || switchTo) {
-    tokens.unshift(createToken({
-      from: last.to,
-      to: last.to,
-      action: { type: '', next, switchTo }
-    } as Matched))
+    tokens.unshift(
+      createToken({
+        from: last.to,
+        to: last.to,
+        action: { type: "", next, switchTo }
+      } as Matched)
+    )
   }
 
-  if (embedded && !embedded.endsWith('!')) {
-    if (embedded === '@pop') first.embedded = embedded
+  if (embedded && !embedded.endsWith("!")) {
+    if (embedded === "@pop") first.embedded = embedded
     else last.embedded = embedded
   }
 
@@ -751,7 +795,13 @@ export class Matched {
   declare to: number
   declare context?: DF.Context
 
-  constructor(total: string, action: Action, offset: number, context?: DF.Context, captures?: Matched[]) {
+  constructor(
+    total: string,
+    action: Action,
+    offset: number,
+    context?: DF.Context,
+    captures?: Matched[]
+  ) {
     this.total = total
     this.action = action
     this.captures = new Set(captures)
@@ -776,8 +826,10 @@ export class Matched {
     if (!this.size) return [createToken(this)]
 
     const tokens: GrammarToken[] = []
-    for (const match of this.captures) for (const token of match.compile()) {
-      tokens.push(token)
+    for (const match of this.captures) {
+      for (const token of match.compile()) {
+        tokens.push(token)
+      }
     }
 
     return wrapTokens(tokens, this)

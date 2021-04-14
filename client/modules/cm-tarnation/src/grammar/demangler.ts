@@ -1,7 +1,7 @@
-import { isArray, isObjectLike, isString } from 'is-what'
-import { klona } from 'klona'
-import { has, hasSigil, removeUndefined, unSigil } from 'wj-util'
-import type * as DF from './definition'
+import { isArray, isObjectLike, isString } from "is-what"
+import { klona } from "klona"
+import { has, hasSigil, removeUndefined, unSigil } from "wj-util"
+import type * as DF from "./definition"
 
 export type ParserAction = [type: string, inclusive: number][]
 
@@ -39,10 +39,10 @@ export interface Action {
   embedded?: string
   context?: string
   log?: string
-  repeat?: boolean,
-  optional?: boolean,
-  all?: boolean,
-  strict?: boolean,
+  repeat?: boolean
+  optional?: boolean
+  all?: boolean
+  strict?: boolean
   rules?: string | (DF.Directive | Rule | RuleState)[]
 }
 
@@ -53,8 +53,10 @@ export function demangleGrammar(grammar: DF.Grammar): Grammar {
 
   // demangle states
   const newStates: Record<string, (DF.Directive | Rule | RuleState)[]> = {}
-  if (states) for (const state in states) {
-    newStates[state] = states[state].map(rule => demangleRule(rule))
+  if (states) {
+    for (const state in states) {
+      newStates[state] = states[state].map(rule => demangleRule(rule))
+    }
   }
 
   // merge what we can
@@ -67,19 +69,29 @@ export function demangleGrammar(grammar: DF.Grammar): Grammar {
 }
 
 export function demangleRule(rule: RuleDefs): DF.Directive | Rule | RuleState {
-  if ('include' in rule || 'props' in rule || 'style' in rule || 'brackets' in rule || 'variables' in rule) {
-    if ('include' in rule) return { include: unSigil(rule.include, '#') }
+  if (
+    "include" in rule ||
+    "props" in rule ||
+    "style" in rule ||
+    "brackets" in rule ||
+    "variables" in rule
+  ) {
+    if ("include" in rule) return { include: unSigil(rule.include, "#") }
     return rule
   }
 
-  if ('begin' in rule) {
+  if ("begin" in rule) {
     const { begin, end, type, embedded, rules } = rule
     return removeUndefined({
       begin: demangleRule(begin) as Rule,
       end: demangleRule(end) as Rule,
       type: demangleType(type),
       embedded,
-      rules: rules ? isString(rules) ? demangleNext(rules) : rules.map(rule => demangleRule(rule)) : undefined
+      rules: rules
+        ? isString(rules)
+          ? demangleNext(rules)
+          : rules.map(rule => demangleRule(rule))
+        : undefined
     })
   }
 
@@ -88,24 +100,26 @@ export function demangleRule(rule: RuleDefs): DF.Directive | Rule | RuleState {
   let action!: string | DF.Action | DF.ActionObject | DF.SubState | []
 
   if (isArray(rule)) {
-    if (isSubRule(rule))
-      [ target, match, ...action ] = rule
-    else
-      [ match, ...action ] = rule
-  } else if (isSubRule(rule))
-      ({ target, match, ...action } = rule)
-    else
-      ({ match, ...action } = rule)
+    if (isSubRule(rule)) [target, match, ...action] = rule
+    else [match, ...action] = rule
+  } else if (isSubRule(rule)) {
+    ;({ target, match, ...action } = rule)
+  } else {
+    ;({ match, ...action } = rule)
+  }
 
   return removeUndefined({ target, match, action: demangleAction(action) })
 }
 
-export function demangleAction(action: string | DF.Action | DF.ActionObject | DF.SubState | []): Action {
+export function demangleAction(
+  action: string | DF.Action | DF.ActionObject | DF.SubState | []
+): Action {
   if (isString(action)) return { type: demangleType(action) }
 
   let parsed: any = {}
 
-  if (!isArray(action)) parsed = klona(action) as Action // incompatible types are addressed later
+  if (!isArray(action)) parsed = klona(action) as Action
+  // incompatible types are addressed later
   else {
     const [idx0, idx1, idx2] = klona(action)
 
@@ -119,7 +133,7 @@ export function demangleAction(action: string | DF.Action | DF.ActionObject | DF
     else {
       // find action object - if it exists
       const last = action[action.length - 1]
-      if (last && !isString(last) && !isArray(last) && !has('rules', last)) {
+      if (last && !isString(last) && !isArray(last) && !has("rules", last)) {
         parsed = klona(last) as DF.ActionObject
       }
 
@@ -141,7 +155,7 @@ export function demangleAction(action: string | DF.Action | DF.ActionObject | DF
   // demangle group
   if (parsed.group) {
     const groups: Action[] = []
-    for (const action of (parsed.group as DF.Group)) {
+    for (const action of parsed.group as DF.Group) {
       groups.push(demangleAction(action))
     }
     parsed.group = groups
@@ -169,37 +183,37 @@ export function demangleAction(action: string | DF.Action | DF.ActionObject | DF
 
   // unmangle shorthands and sigil characters
   const { type, next, switchTo } = parsed as Action
-  if (type) parsed.type = unSigil(type, 't.')
-  if (next) parsed.next = unSigil(next, '#')
-  if (switchTo) parsed.switchTo = unSigil(switchTo, '#')
+  if (type) parsed.type = unSigil(type, "t.")
+  if (next) parsed.next = unSigil(next, "#")
+  if (switchTo) parsed.switchTo = unSigil(switchTo, "#")
 
   return removeUndefined(parsed)
 }
 
 function demangleType(str?: string) {
   if (!str) return undefined
-  return unSigil(str, 't.')
+  return unSigil(str, "t.")
 }
 
 function demangleNext(str?: string) {
   if (!str) return undefined
-  return unSigil(str, '#')
+  return unSigil(str, "#")
 }
 
 function demangleParser(parser: DF.ParserTarget | DF.ParserTarget[]) {
   const open: ParserAction = []
   const close: ParserAction = []
-  ;(isArray(parser) ? parser : [parser]).forEach((parse) => {
-    const opening = parse[2] !== '/'
-    const inclusive = +hasSigil(parse, '>>')
-    const type = unSigil(parse, ['t.', '>>', '<<', '/']) as any
-    (opening ? open : close).push([type, inclusive])
+  ;(isArray(parser) ? parser : [parser]).forEach(parse => {
+    const opening = parse[2] !== "/"
+    const inclusive = +hasSigil(parse, ">>")
+    const type = unSigil(parse, ["t.", ">>", "<<", "/"]) as any
+    ;(opening ? open : close).push([type, inclusive])
   })
   return { open, close }
 }
 
 function isSubRule(rule: DF.Directive | DF.Rule | DF.SubRule): rule is DF.SubRule {
   if (!rule) return false
-  if (isArray(rule)) return hasSigil(rule[0], ['$', '::'])
-  return 'target' in rule
+  if (isArray(rule)) return hasSigil(rule[0], ["$", "::"])
+  return "target" in rule
 }
