@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "clean": "trash dist .tsbuildinfo",
-    "build": "node ../../build.js -self"
+    "build": "node ../../build-modules.js -self"
   },
   "type": "module",
   "main": "dist/index.js",
