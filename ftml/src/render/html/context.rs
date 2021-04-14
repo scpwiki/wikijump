@@ -30,13 +30,13 @@ pub struct HtmlContext<'i, 'h> {
     html: String,
     style: String,
     meta: Vec<HtmlMeta>,
-    info: PageInfo<'i>,
+    info: &'i PageInfo<'i>,
     handle: &'h (),
 }
 
 impl<'i, 'h> HtmlContext<'i, 'h> {
     #[inline]
-    pub fn new(info: PageInfo<'i>, handle: &'h ()) -> Self {
+    pub fn new(info: &'i PageInfo<'i>, handle: &'h ()) -> Self {
         HtmlContext {
             html: String::new(),
             style: String::new(),

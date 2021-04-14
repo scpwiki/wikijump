@@ -20,6 +20,7 @@
 
 mod prelude {
     pub use super::Render;
+    pub use crate::data::PageInfo;
     pub use crate::tree::{AttributeMap, Container, ContainerType, Element, SyntaxTree};
 }
 
@@ -28,6 +29,7 @@ pub mod html;
 pub mod json;
 pub mod null;
 
+use crate::data::PageInfo;
 use crate::tree::SyntaxTree;
 
 /// Abstract trait for any ftml renderer.
@@ -49,5 +51,10 @@ pub trait Render {
     /// This is the main method of the trait, causing this
     /// renderer instance to perform whatever operations
     /// it requires to produce the output string.
-    fn render(&self, log: &slog::Logger, tree: &SyntaxTree) -> Self::Output;
+    fn render(
+        &self,
+        log: &slog::Logger,
+        info: &PageInfo,
+        tree: &SyntaxTree,
+    ) -> Self::Output;
 }

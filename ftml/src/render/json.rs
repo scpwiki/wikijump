@@ -46,16 +46,34 @@ impl JsonRender {
 impl Render for JsonRender {
     type Output = String;
 
-    fn render(&self, log: &slog::Logger, tree: &SyntaxTree) -> String {
+    fn render(
+        &self,
+        log: &slog::Logger,
+        page_info: &PageInfo,
+        syntax_tree: &SyntaxTree,
+    ) -> String {
         info!(log, "Running JSON logger on syntax tree"; "pretty" => self.pretty);
 
+        // Get the JSON serializer
         let writer = if self.pretty {
             serde_json::to_string_pretty
         } else {
             serde_json::to_string
         };
 
-        writer(tree).expect("Unable to serialize JSON")
+        // Wrapper struct to provide both page info and the AST in the JSON.
+        #[derive(Serialize, Debug)]
+        struct JsonWrapper<'a> {
+            syntax_tree: &'a SyntaxTree<'a>,
+            page_info: &'a PageInfo<'a>,
+        }
+
+        let output = JsonWrapper {
+            page_info,
+            syntax_tree,
+        };
+
+        writer(&output).expect("Unable to serialize JSON")
     }
 }
 
@@ -63,32 +81,44 @@ impl Render for JsonRender {
 fn json() {
     // Expected outputs
     const PRETTY_OUTPUT: &str = r#"{
-  "elements": [
-    {
-      "element": "text",
-      "data": "apple"
-    },
-    {
-      "element": "text",
-      "data": " "
-    },
-    {
-      "element": "container",
-      "data": {
-        "type": "bold",
-        "elements": [
-          {
-            "element": "text",
-            "data": "banana"
-          }
-        ],
-        "attributes": {}
+  "page_info": {
+    "slug": "some-page",
+    "category": null,
+    "title": "A page for the age",
+    "alt_title": null,
+    "header": null,
+    "subheader": null,
+    "rating": 69.0,
+    "tags": ["tale", "_cc"]
+  },
+  "syntax_tree": {
+    "elements": [
+      {
+        "element": "text",
+        "data": "apple"
+      },
+      {
+        "element": "text",
+        "data": " "
+      },
+      {
+        "element": "container",
+        "data": {
+          "type": "bold",
+          "elements": [
+            {
+              "element": "text",
+              "data": "banana"
+            }
+          ],
+          "attributes": {}
+        }
       }
-    }
-  ],
-  "styles": [
-    "span.hidden-text { display: none; }"
-  ]
+    ],
+    "styles": [
+      "span.hidden-text { display: none; }"
+    ]
+  }
 }"#;
 
     const COMPACT_OUTPUT: &str = "{\"elements\":[{\"element\":\"text\",\"data\":\"apple\"},{\"element\":\"text\",\"data\":\" \"},{\"element\":\"container\",\"data\":{\"type\":\"bold\",\"elements\":[{\"element\":\"text\",\"data\":\"banana\"}],\"attributes\":{}}}],\"styles\":[\"span.hidden-text { display: none; }\"]}";

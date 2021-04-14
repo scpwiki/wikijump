@@ -37,6 +37,8 @@ pub use self::output::HtmlOutput;
 #[cfg(test)]
 use super::prelude;
 
+use self::context::HtmlContext;
+use crate::data::PageInfo;
 use crate::render::Render;
 use crate::tree::SyntaxTree;
 
@@ -46,7 +48,13 @@ pub struct HtmlRender;
 impl Render for HtmlRender {
     type Output = HtmlOutput;
 
-    fn render(&self, _log: &slog::Logger, _tree: &SyntaxTree) -> HtmlOutput {
+    fn render(
+        &self,
+        _log: &slog::Logger,
+        page_info: &PageInfo,
+        _tree: &SyntaxTree,
+    ) -> HtmlOutput {
+        let mut context = HtmlContext::new(page_info, &());
         todo!()
     }
 }
