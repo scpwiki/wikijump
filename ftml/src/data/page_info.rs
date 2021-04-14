@@ -28,7 +28,13 @@ pub struct PageInfo<'a> {
     /// The slug for this page.
     ///
     /// That is, the page component of the URL.
+    /// The component portion is already removed.
     pub slug: Cow<'a, str>,
+
+    /// The component this page is in, if any.
+    ///
+    /// If `None`, then the page is within the `_default` category.
+    pub category: Option<Cow<'a, str>>,
 
     /// The title of this page.
     ///
