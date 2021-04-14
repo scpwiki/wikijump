@@ -41,6 +41,7 @@ use super::prelude;
 
 use self::context::HtmlContext;
 use self::element::render_element;
+use self::handle::Handle;
 use crate::data::PageInfo;
 use crate::render::Render;
 use crate::tree::SyntaxTree;
@@ -67,7 +68,7 @@ impl Render for HtmlRender {
             },
         );
 
-        let mut ctx = HtmlContext::new(page_info, &());
+        let mut ctx = HtmlContext::new(page_info, &Handle);
 
         // Add styles
         for style in &tree.styles {
