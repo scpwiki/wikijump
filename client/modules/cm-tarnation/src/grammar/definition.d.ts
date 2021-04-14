@@ -214,7 +214,7 @@ export type Action =
  * | `switchTo` | Switches to states without pushing additional states on the stack.  |
  * | `embedded` | Informs the parser what language to nest with, or to stop.          |
  * | `parser`   | Directs the parser to open or close syntax blocks.                  |
- * | `context`  | Mutates a persistent context object that the grammar for state.     |
+ * | `context`  | Mutates a persistent context object.                                |
  * | `log`      | Logs a message whenever the associated rule is matched.             */
 export interface ActionObject {
   /** The `type` specifies what node type matched text should be "scoped" or "tagged"
