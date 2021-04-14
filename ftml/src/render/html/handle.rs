@@ -1,5 +1,5 @@
 /*
- * render/html/element/module.rs
+ * render/html/handle.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,11 +18,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::HtmlContext;
 use crate::tree::Module;
 
-pub fn render_module(log: &slog::Logger, ctx: &mut HtmlContext, module: &Module) {
-    debug!(log, "Rendering module"; "module" => module.name());
+#[derive(Debug)]
+pub struct Handle;
 
-    todo!()
+impl Handle {
+    pub fn render_module(
+        &self,
+        log: &slog::Logger,
+        ctx: &mut HtmlContext,
+        module: &Module,
+    ) {
+        debug!(log, "Rendering module"; "module" => module.name());
+
+        // TODO
+        ctx.push_raw_str("<p>TODO: module ");
+        ctx.push_escaped(module.name());
+        ctx.push_raw_str("</p>");
+    }
 }

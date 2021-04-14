@@ -21,7 +21,6 @@
 //! Module that implements HTML rendering for `Element` and its children.
 
 mod container;
-mod module;
 
 mod prelude {
     pub use super::super::context::HtmlContext;
@@ -30,7 +29,6 @@ mod prelude {
 }
 
 use self::container::render_container;
-use self::module::render_module;
 use super::HtmlContext;
 use crate::tree::Element;
 
@@ -39,7 +37,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
 
     match element {
         Element::Container(container) => render_container(log, ctx, container),
-        Element::Module(module) => render_module(log, ctx, module),
+        Element::Module(module) => ctx.handle().render_module(log, ctx, module),
         _ => todo!(),
     }
 }

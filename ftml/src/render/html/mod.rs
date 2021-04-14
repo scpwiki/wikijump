@@ -28,6 +28,7 @@ mod builder;
 mod context;
 mod element;
 mod escape;
+mod handle;
 mod meta;
 mod output;
 mod render;

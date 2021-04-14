@@ -20,6 +20,7 @@
 
 use super::builder::HtmlBuilder;
 use super::escape::escape;
+use super::handle::Handle;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
 use crate::data::PageInfo;
@@ -31,12 +32,12 @@ pub struct HtmlContext<'i, 'h> {
     style: String,
     meta: Vec<HtmlMeta>,
     info: &'i PageInfo<'i>,
-    handle: &'h (),
+    handle: &'h Handle,
 }
 
 impl<'i, 'h> HtmlContext<'i, 'h> {
     #[inline]
-    pub fn new(info: &'i PageInfo<'i>, handle: &'h ()) -> Self {
+    pub fn new(info: &'i PageInfo<'i>, handle: &'h Handle) -> Self {
         HtmlContext {
             html: String::new(),
             style: String::new(),
@@ -88,7 +89,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     }
 
     #[inline]
-    pub fn handle(&self) -> &'h () {
+    pub fn handle(&self) -> &'h Handle {
         self.handle
     }
 
