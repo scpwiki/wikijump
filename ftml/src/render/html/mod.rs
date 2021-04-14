@@ -40,7 +40,7 @@ use super::prelude;
 use self::context::HtmlContext;
 use crate::data::PageInfo;
 use crate::render::Render;
-use crate::tree::SyntaxTree;
+use crate::tree::{Element, SyntaxTree};
 
 #[derive(Debug)]
 pub struct HtmlRender;
@@ -64,19 +64,23 @@ impl Render for HtmlRender {
             },
         );
 
-        let mut context = HtmlContext::new(page_info, &());
+        let mut ctx = HtmlContext::new(page_info, &());
 
         // Add styles
         for style in &tree.styles {
-            context.add_style(style);
+            ctx.add_style(style);
         }
 
         // Crawl through elements and generate HTML
         for element in &tree.elements {
-            todo!();
+            render_element(&mut ctx, element);
         }
 
         // Build and return HtmlOutput
-        context.into()
+        ctx.into()
     }
+}
+
+fn render_element(ctx: &mut HtmlContext, element: &Element) {
+    todo!();
 }
