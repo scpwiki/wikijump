@@ -32,7 +32,7 @@ mod prelude {
     pub use crate::tree::{Element, SyntaxTree};
 }
 
-use self::container::render_container;
+use self::container::{render_color, render_container};
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
@@ -75,6 +75,8 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
             checked,
             attributes,
         } => render_checkbox(log, ctx, *checked, attributes),
+        Element::Collapsible { .. } => todo!(),
+        Element::Color { color, elements } => render_color(log, ctx, color, elements),
         _ => todo!(),
     }
 }

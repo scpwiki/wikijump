@@ -43,3 +43,22 @@ pub fn render_container(
     // Add container internals
     tag.inner(log, &container.elements());
 }
+
+pub fn render_color(
+    log: &slog::Logger,
+    ctx: &mut HtmlContext,
+    color: &str,
+    elements: &[Element],
+) {
+    debug!(
+        log,
+        "Rendering color container";
+        "color" => color,
+        "elements-len" => elements.len(),
+    );
+
+    ctx.html()
+        .span()
+        .attr("style", &["color: ", color, ";"])
+        .inner(log, &elements);
+}
