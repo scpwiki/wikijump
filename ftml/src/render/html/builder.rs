@@ -107,22 +107,35 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         }
     }
 
-    fn attr_key(&mut self, key: &str) {
+    fn attr_key(&mut self, key: &str, has_value: bool) {
         debug_assert!(is_alphanumeric(key));
         debug_assert!(self.in_tag);
 
         self.ctx.push_raw(' ');
         self.ctx.push_escaped(key);
-        self.ctx.push_raw('=');
+
+        if has_value {
+            self.ctx.push_raw('=');
+        }
     }
 
     pub fn attr(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
-        self.attr_key(key);
-        self.ctx.push_raw('"');
-        for part in value_parts {
-            self.ctx.push_escaped(part);
+        // If value_parts is empty, then we just give the key.
+        //
+        // For instance, ("checked", &[]) in input produces
+        // <input checked> rather than <input checked="...">
+
+        let has_value = !value_parts.is_empty();
+
+        self.attr_key(key, has_value);
+
+        if has_value {
+            self.ctx.push_raw('"');
+            for part in value_parts {
+                self.ctx.push_escaped(part);
+            }
+            self.ctx.push_raw('"');
         }
-        self.ctx.push_raw('"');
 
         self
     }
@@ -131,7 +144,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     where
         F: FnMut(&mut HtmlContext),
     {
-        self.attr_key(key);
+        self.attr_key(key, true);
         self.ctx.push_raw('"');
 
         // Read the formatted text and escape it.
