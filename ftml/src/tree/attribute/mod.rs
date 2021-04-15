@@ -60,7 +60,7 @@ impl<'t> AttributeMap<'t> {
     }
 
     #[inline]
-    pub fn borrow(&self) -> &HashMap<Cow<'t, str>, Cow<'t, str>> {
+    pub fn get(&self) -> &HashMap<Cow<'t, str>, Cow<'t, str>> {
         &self.inner
     }
 

@@ -69,8 +69,8 @@ impl Render for JsonRender {
         }
 
         let output = JsonWrapper {
-            page_info,
             syntax_tree,
+            page_info,
         };
 
         writer(&output).expect("Unable to serialize JSON")

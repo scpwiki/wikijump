@@ -188,7 +188,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     }
 
     pub fn attr_map(&mut self, map: &AttributeMap) -> &mut Self {
-        for (key, value) in map.borrow() {
+        for (key, value) in map.get() {
             self.attr(&key, &[value]);
         }
 
@@ -201,7 +201,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         (extra_key, extra_value): (&str, &str),
     ) -> &mut Self {
         let mut merged = false;
-        for (key, value) in map.borrow() {
+        for (key, value) in map.get() {
             // If this key matches, then prepend it
             // Otherwise, just pass in the value
             if key.eq_ignore_ascii_case(extra_key) {
