@@ -22,6 +22,18 @@ use super::context::HtmlContext;
 use super::escape::escape_char;
 use super::render::ItemRender;
 use crate::tree::AttributeMap;
+use std::collections::HashSet;
+
+lazy_static! {
+    // These are HTML tags which do not contain a closing pair.
+    //
+    // For instance, <br>.
+    static ref SOLO_HTML_TAGS: HashSet<&'static str> = hashset![
+        "br",
+        "hr",
+        "input",
+    ];
+}
 
 macro_rules! tag_method {
     ($tag:tt) => {
@@ -239,12 +251,14 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 
 impl<'c, 'i, 'h, 't> Drop for HtmlBuilderTag<'c, 'i, 'h, 't> {
     fn drop(&mut self) {
-        if !self.in_tag {
-            self.ctx.push_raw_str("</");
-            self.ctx.push_raw_str(self.tag);
-        }
+        if should_close_tag(self.tag) {
+            if !self.in_tag {
+                self.ctx.push_raw_str("</");
+                self.ctx.push_raw_str(self.tag);
+            }
 
-        self.ctx.push_raw('>');
+            self.ctx.push_raw('>');
+        }
     }
 }
 
@@ -254,4 +268,9 @@ fn is_alphanumeric(value: &str) -> bool {
     value
         .chars()
         .all(|c| c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '-')
+}
+
+#[inline]
+fn should_close_tag(tag: &str) -> bool {
+    !SOLO_HTML_TAGS.contains(tag)
 }
