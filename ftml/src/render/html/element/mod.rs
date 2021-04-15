@@ -36,9 +36,10 @@ use self::container::{render_color, render_container};
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
-use self::text::{render_email, render_wikitext_raw};
+use self::text::{render_code, render_email, render_wikitext_raw};
 use super::HtmlContext;
 use crate::tree::Element;
+use ref_map::OptionRefMap;
 
 pub fn render_elements(log: &slog::Logger, ctx: &mut HtmlContext, elements: &[Element]) {
     debug!(log, "Rendering elements"; "elements-len" => elements.len());
@@ -77,7 +78,9 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         } => render_checkbox(log, ctx, *checked, attributes),
         Element::Collapsible { .. } => todo!(),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
-        Element::Code { contents, language } => render_code(log, ctx, language, contents),
+        Element::Code { contents, language } => {
+            render_code(log, ctx, language.ref_map(|s| s.as_ref()), contents)
+        }
         _ => todo!(),
     }
 }

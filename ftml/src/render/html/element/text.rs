@@ -54,11 +54,9 @@ pub fn render_email(log: &slog::Logger, ctx: &mut HtmlContext, email: &str) {
 pub fn render_code(
     log: &slog::Logger,
     ctx: &mut HtmlContext,
-    language: Option<Cow<str>>,
+    language: Option<&str>,
     contents: &str,
 ) {
-    let language = language.map(|s| s.as_ref());
-
     debug!(
         log,
         "Rendering code block";
