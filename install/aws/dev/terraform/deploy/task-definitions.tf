@@ -3,7 +3,7 @@ module "cache" {
 
   container_name               = "cache"
   container_image              = var.ecs_cache_image
-  container_memory_reservation = var.ecs_cache_memory
+  container_memory_reservation = var.ecs_cache_memory / 8
   essential                    = true
   environment                  = []
 
@@ -22,7 +22,7 @@ module "database" {
 
   container_name               = "database"
   container_image              = "${data.aws_ssm_parameter.DB_ECR_URL.value}:develop"
-  container_memory_reservation = var.ecs_db_memory
+  container_memory_reservation = var.ecs_db_memory / 8
   essential                    = true
   environment                  = []
 
@@ -41,7 +41,7 @@ module "nginx" {
 
   container_name               = "nginx"
   container_image              = "${data.aws_ssm_parameter.NGINX_ECR_URL.value}:develop"
-  container_memory_reservation = var.ecs_nginx_memory
+  container_memory_reservation = var.ecs_nginx_memory / 8
   essential                    = true
   environment                  = []
 
@@ -77,7 +77,7 @@ module "php-fpm" {
 
   container_name               = "php-fpm"
   container_image              = "${data.aws_ssm_parameter.PHP_ECR_URL.value}:develop"
-  container_memory_reservation = var.ecs_php_memory
+  container_memory_reservation = var.ecs_php_memory / 8
   essential                    = true
   environment                  = []
 
@@ -113,7 +113,7 @@ module "datadog" {
 
   container_name               = "datadog"
   container_image              = "gcr.io/datadoghq/agent:7"
-  container_memory_reservation = var.ecs_datadog_memory
+  container_memory_reservation = var.ecs_datadog_memory / 8
   essential                    = false
   environment                  = []
 
@@ -162,7 +162,7 @@ module "reverse-proxy" {
 
   container_name               = "reverse-proxy"
   container_image              = var.ecs_traefik_image
-  container_memory_reservation = var.ecs_traefik_memory
+  container_memory_reservation = var.ecs_traefik_memory / 8
   essential                    = true
   environment = [
     {
