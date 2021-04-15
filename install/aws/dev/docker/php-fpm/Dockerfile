@@ -46,7 +46,7 @@ RUN apk add --update --no-cache \
 # Install the Wikijump repository
 WORKDIR /var/www
 
-    git clone \
+RUN git clone \
         --depth 10 \
         --branch "${WIKIJUMP_REPO_BRANCH}" \
         "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
