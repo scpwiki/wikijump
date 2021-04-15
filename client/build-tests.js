@@ -19,19 +19,25 @@ function filesOf(source) {
 const tests = filesOf(testDir).map(name => `./tests/${name}`)
 
 if (tests.length) {
-  const build = esbuild.build({
-    absWorkingDir: dir,
-    entryPoints: [...tests],
-    outdir: "./tests/dist",
-    bundle: true,
-    platform: "node",
-    format: "esm",
-    plugins: [nodeExternalsPlugin()]
-  })
-
-  build.then(() =>
-    console.log(`[${name}] Tests compiled. (${(performance.now() - start).toFixed(2)}ms)`)
-  )
+  esbuild
+    .build({
+      absWorkingDir: dir,
+      entryPoints: [...tests],
+      outdir: "./tests/dist",
+      bundle: true,
+      platform: "node",
+      format: "esm",
+      plugins: [nodeExternalsPlugin()]
+    })
+    .then(() =>
+      console.log(
+        `[${name}] Tests compiled. (${(performance.now() - start).toFixed(2)}ms)`
+      )
+    )
+    .catch(err => {
+      console.log(`[${name}] Failed to compile tests!`)
+      console.error(err)
+    })
 } else {
   console.log(`[${name}] No tests, skipping.`)
 }
