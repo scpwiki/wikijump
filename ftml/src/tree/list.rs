@@ -76,4 +76,12 @@ impl ListType {
     pub fn name(self) -> &'static str {
         self.into()
     }
+
+    #[inline]
+    pub fn html_tag(self) -> &'static str {
+        match self {
+            ListType::Bullet | ListType::Generic => "ul",
+            ListType::Numbered => "ol",
+        }
+    }
 }
