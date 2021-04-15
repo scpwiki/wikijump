@@ -43,7 +43,9 @@ impl ListItem<'_> {
             ListItem::Elements(elements) => {
                 ListItem::Elements(elements_to_owned(&elements))
             }
-            ListItem::SubList(element) => ListItem::SubList(element.to_owned()),
+            ListItem::SubList(element) => {
+                ListItem::SubList(element.to_owned()) //
+            }
         }
     }
 }
