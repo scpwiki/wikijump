@@ -38,4 +38,9 @@ impl Handle {
         ctx.push_escaped(module.name());
         ctx.push_raw_str("</p>");
     }
+
+    pub fn get_page_title(&self, slug: &str) -> String {
+        // TODO
+        format!("TODO: actual title ({})", slug)
+    }
 }

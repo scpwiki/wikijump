@@ -31,7 +31,7 @@ mod prelude {
 }
 
 use self::container::render_container;
-use self::link::render_anchor;
+use self::link::{render_anchor, render_link};
 use self::text::{render_email, render_wikitext_raw};
 use super::HtmlContext;
 use crate::tree::Element;
@@ -58,6 +58,9 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
             attributes,
             target,
         } => render_anchor(log, ctx, elements, attributes, *target),
+        Element::Link { url, label, target } => {
+            render_link(log, ctx, &url, label, *target)
+        }
         _ => todo!(),
     }
 }

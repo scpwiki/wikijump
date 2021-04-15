@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, AttributeMap, Element};
+use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel};
 
 pub fn render_anchor(
     log: &slog::Logger,
@@ -38,4 +38,34 @@ pub fn render_anchor(
 
     // Add <a> internals
     tag.inner(log, &elements);
+}
+
+pub fn render_link(
+    log: &slog::Logger,
+    ctx: &mut HtmlContext,
+    url: &str,
+    label: &LinkLabel,
+    target: Option<AnchorTarget>,
+) {
+    let page_title;
+    let label_text = match label {
+        LinkLabel::Text(ref text) => text,
+        LinkLabel::Url(Some(ref text)) => text,
+        LinkLabel::Url(None) => url,
+        LinkLabel::Page => {
+            page_title = ctx.handle().get_page_title(url);
+            &page_title
+        }
+    };
+
+    // Create <a> and set attributes
+    let mut tag = ctx.html().a();
+    tag.attr("href", &[url]);
+
+    if let Some(target) = target {
+        tag.attr("target", &[target.html_attr()]);
+    }
+
+    // Add <a> internals, i.e. the link name
+    tag.inner(log, &label_text);
 }
