@@ -16,8 +16,12 @@ resource "aws_ssm_parameter" "URL_UPLOAD_DOMAIN" {
   value = var.files_domain
 }
 
-data "aws_ssm_parameter" "WEB_ECR_URL" {
-  name = "wikijump-${var.environment}-WEB_ECR_URL"
+data "aws_ssm_parameter" "PHP_ECR_URL" {
+  name = "wikijump-${var.environment}-PHP_ECR_URL"
+}
+
+data "aws_ssm_parameter" "NGINX_ECR_URL" {
+  name = "wikijump-${var.environment}-NGINX_ECR_URL"
 }
 
 data "aws_ssm_parameter" "DB_ECR_URL" {

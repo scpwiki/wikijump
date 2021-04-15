@@ -58,7 +58,7 @@ resource "aws_ecs_capacity_provider" "asg" {
 
 resource "aws_ecs_task_definition" "wikijump_task" {
   family                   = "wikijump-${var.environment}-ec2"
-  container_definitions    = "[${module.cache.json_map_encoded},${module.database.json_map_encoded},${module.php-fpm.json_map_encoded},${module.reverse-proxy.json_map_encoded}]"
+  container_definitions    = "[${module.cache.json_map_encoded},${module.database.sensitive_json_map_encoded},${module.php-fpm.sensitive_json_map_encoded},${module.nginx.sensitive_json_map_encoded},${module.reverse-proxy.sensitive_json_map_encoded},${module.datadog.sensitive_json_map_encoded}]"
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
   execution_role_arn       = aws_iam_role.execution.arn
@@ -66,6 +66,14 @@ resource "aws_ecs_task_definition" "wikijump_task" {
   volume {
     name      = "docker-socket"
     host_path = "/var/run/docker.sock"
+  }
+  volume {
+    name = "proc"
+    host_path = "/proc"
+  }
+  volume {
+    name = "cgroup"
+    host_path = "/cgroup"
   }
   volume {
     name = "letsencrypt"

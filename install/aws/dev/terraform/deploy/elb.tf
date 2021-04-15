@@ -20,11 +20,11 @@ resource "aws_lb" "wikijump_elb" {
 }
 
 resource "aws_lb_target_group" "elb_target_group_80" {
-  name        = "wikijump-tg-80-${var.environment}"
-  port        = 80
-  protocol    = "TCP"
-  vpc_id      = aws_vpc.wikijump_vpc.id
-  target_type = "instance"
+  name                 = "wikijump-tg-80-${var.environment}"
+  port                 = 80
+  protocol             = "TCP"
+  vpc_id               = aws_vpc.wikijump_vpc.id
+  target_type          = "instance"
   deregistration_delay = 3
   health_check {
     enabled = true
@@ -34,11 +34,11 @@ resource "aws_lb_target_group" "elb_target_group_80" {
 }
 
 resource "aws_lb_target_group" "elb_target_group_443" {
-  name        = "wikijump-tg-443-${var.environment}"
-  port        = 443
-  protocol    = "TCP"
-  vpc_id      = aws_vpc.wikijump_vpc.id
-  target_type = "instance"
+  name                 = "wikijump-tg-443-${var.environment}"
+  port                 = 443
+  protocol             = "TCP"
+  vpc_id               = aws_vpc.wikijump_vpc.id
+  target_type          = "instance"
   deregistration_delay = 3
   health_check {
     enabled = true

@@ -1,9 +1,9 @@
 module "cache" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.56.0"
 
   container_name               = "cache"
   container_image              = var.ecs_cache_image
-  container_memory_reservation = var.ecs_cache_memory / 4
+  container_memory_reservation = var.ecs_cache_memory / 8
   essential                    = true
   environment                  = []
 
@@ -18,11 +18,11 @@ module "cache" {
 }
 
 module "database" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "../modules/secure-container-definitions"
 
   container_name               = "database"
   container_image              = "${data.aws_ssm_parameter.DB_ECR_URL.value}:develop"
-  container_memory_reservation = var.ecs_db_memory / 4
+  container_memory_reservation = var.ecs_db_memory / 8
   essential                    = true
   environment                  = []
 
@@ -36,40 +36,25 @@ module "database" {
   }
 }
 
-module "php-fpm" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+module "nginx" {
+  source = "../modules/secure-container-definitions"
 
-  container_name               = "php-fpm"
-  container_image              = "${data.aws_ssm_parameter.WEB_ECR_URL.value}:develop"
-  container_memory_reservation = var.ecs_php_memory / 4
+  container_name               = "nginx"
+  container_image              = "${data.aws_ssm_parameter.NGINX_ECR_URL.value}:develop"
+  container_memory_reservation = var.ecs_nginx_memory / 8
   essential                    = true
   environment                  = []
 
   log_configuration = {
     logDriver = "awslogs"
     options = {
-      "awslogs-group"         = "ecs/php-fpm-${var.environment}"
+      "awslogs-group"         = "ecs/nginx-${var.environment}"
       "awslogs-region"        = var.region
       "awslogs-stream-prefix" = "ecs"
     }
   }
 
-  links = ["cache:cache", "database:database"]
-
-  secrets = [
-    {
-      name      = "WIKIJUMP_URL_DOMAIN"
-      valueFrom = "wikijump-dev-URL_DOMAIN"
-    },
-    {
-      name      = "WIKIJUMP_URL_UPLOAD_DOMAIN"
-      valueFrom = "wikijump-dev-URL_UPLOAD_DOMAIN"
-    },
-    {
-      name      = "WIKIJUMP_DB_HOST"
-      valueFrom = "wikijump-dev-DB_HOST"
-    }
-  ]
+  links = ["php-fpm:php-fpm"]
 
   docker_labels = {
     "traefik.enable"                                = "true"
@@ -87,12 +72,96 @@ module "php-fpm" {
   }
 }
 
+module "php-fpm" {
+  source = "../modules/secure-container-definitions"
+
+  container_name               = "php-fpm"
+  container_image              = "${data.aws_ssm_parameter.PHP_ECR_URL.value}:develop"
+  container_memory_reservation = var.ecs_php_memory / 8
+  essential                    = true
+  environment                  = []
+
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      "awslogs-group"         = "ecs/php-fpm-${var.environment}"
+      "awslogs-region"        = var.region
+      "awslogs-stream-prefix" = "ecs"
+    }
+  }
+
+  links = ["cache:cache", "database:database"]
+
+  secrets = [
+    {
+      name      = "WIKIJUMP_URL_DOMAIN"
+      valueFrom = aws_ssm_parameter.URL_DOMAIN.name
+    },
+    {
+      name      = "WIKIJUMP_URL_UPLOAD_DOMAIN"
+      valueFrom = aws_ssm_parameter.URL_UPLOAD_DOMAIN.name
+    },
+    {
+      name      = "WIKIJUMP_DB_HOST"
+      valueFrom = aws_ssm_parameter.DB_HOST.name
+    }
+  ]
+}
+
+module "datadog" {
+  source = "../modules/secure-container-definitions"
+
+  container_name               = "datadog"
+  container_image              = "gcr.io/datadoghq/agent:7"
+  container_memory_reservation = var.ecs_datadog_memory / 8
+  essential                    = false
+  environment                  = [
+    {
+      name      = "DD_API_KEY"
+      value = var.datadog_api_key
+    },
+    {
+      name      = "DD_SITE"
+      value = var.datadog_site
+    }]
+
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      "awslogs-group"         = "ecs/datadog-${var.environment}"
+      "awslogs-region"        = var.region
+      "awslogs-stream-prefix" = "ecs"
+    }
+  }
+
+  secrets = []
+
+  mount_points = [
+    {
+      sourceVolume  = "docker-socket"
+      containerPath = "/var/run/docker.sock"
+      readOnly      = true
+
+    },
+    {
+      sourceVolume  = "proc"
+      containerPath = "/host/proc"
+      readOnly      = true
+    },
+    {
+      sourceVolume  = "cgroup"
+      containerPath = "/host/sys/fs/cgroup"
+      readOnly      = true
+    }
+  ]
+}
+
 module "reverse-proxy" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "../modules/secure-container-definitions"
 
   container_name               = "reverse-proxy"
   container_image              = var.ecs_traefik_image
-  container_memory_reservation = var.ecs_traefik_memory / 4
+  container_memory_reservation = var.ecs_traefik_memory / 8
   essential                    = true
   environment = [
     {
@@ -118,7 +187,7 @@ module "reverse-proxy" {
     }
   }
 
-  links = ["php-fpm:php-fpm"]
+  links = ["nginx:nginx"]
 
   port_mappings = [
     {
@@ -155,16 +224,18 @@ module "reverse-proxy" {
     {
       sourceVolume  = "docker-socket"
       containerPath = "/var/run/docker.sock"
+      readOnly      = true
     },
     {
       sourceVolume  = "letsencrypt"
       containerPath = "/letsencrypt"
+      readOnly      = false
     }
   ]
 
   container_depends_on = [
     {
-      containerName = "php-fpm"
+      containerName = "nginx"
       condition     = "HEALTHY"
     }
   ]
@@ -177,15 +248,24 @@ output "cache_json" {
 
 output "database_json" {
   description = "Container definition in JSON format"
-  value       = module.database.json_map_encoded_list
+  value       = module.database.sensitive_json_map_encoded_list
+  sensitive   = true
 }
 
 output "php-fpm_json" {
   description = "Container definition in JSON format"
-  value       = module.php-fpm.json_map_encoded_list
+  value       = module.php-fpm.sensitive_json_map_encoded_list
+  sensitive   = true
+}
+
+output "nginx_json" {
+  description = "Container definition in JSON format"
+  value       = module.nginx.sensitive_json_map_encoded_list
+  sensitive   = true
 }
 
 output "reverse-proxy_json" {
   description = "Container definition in JSON format"
-  value       = module.reverse-proxy.json_map_encoded_list
+  value       = module.reverse-proxy.sensitive_json_map_encoded_list
+  sensitive   = true
 }
