@@ -16,6 +16,7 @@
     "dev:modules:dts": "tsc -b -w | node quiet-tsc.js",
     "dev:modules": "npm -s run build:modules:dts && run-p -s dev:modules:*",
     "dev": "npm -s run dev:modules",
+    "test": "lerna run --parallel test:build && uvu modules tests\\\\dist",
     "update": "npm i && run-s clean-node bootstrap build",
     "eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
     "eslint-fix": "npm -s run eslint -- --fix",
@@ -58,6 +59,7 @@
     "prettier": "^2.2.1",
     "svelte": "^3.37.0",
     "trash-cli": "^4.0.0",
-    "typescript": "4.2.4"
+    "typescript": "4.2.4",
+    "uvu": "^0.5.1"
   }
 }

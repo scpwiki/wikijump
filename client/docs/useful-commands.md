@@ -5,6 +5,7 @@ $ npm run boostrap       Link packages together, hoist shared dependencies.
 $ npm run clean          Cleanup packages node_modules and tsc build data.
 $ npm run build          Build all packages.
 $ npm run dev            Start a dev. server for rebuilding packages when they change.
+$ npm run test           Build all tests, and then run them.
 
 # Lerna (not exhaustive)
 $ npx lerna add          See Lerna docs. Adds a dependency to package(s).

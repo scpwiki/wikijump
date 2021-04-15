@@ -8,7 +8,10 @@
   ],
   "scripts": {
     "clean": "trash dist .tsbuildinfo",
-    "build": "node ../../build-modules.js -self"
+    "build": "node ../../build-modules.js -self",
+    "test:build": "trash ./tests/dist/* && node ../../build-tests.js",
+    "test:uvu": "uvu ./tests/dist",
+    "test": "run-s -s test:build test:uvu"
   },
   "type": "module",
   "main": "dist/index.js",

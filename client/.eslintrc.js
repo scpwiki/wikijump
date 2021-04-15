@@ -183,6 +183,13 @@ module.exports = {
       parserOptions: { createDefaultProgram: true },
       rules: baseRules
     },
+    // TypeScript (Testing)
+    {
+      files: ["**/tests/*.ts"],
+      env: { browser: true, es2021: true },
+      parserOptions: { createDefaultProgram: true },
+      rules: { ...baseRules, ...typeRules }
+    },
     // TypeScript (Browser)
     {
       files: ["*.d.ts", "*.ts", "*.tsx"],
