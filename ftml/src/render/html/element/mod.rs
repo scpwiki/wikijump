@@ -33,7 +33,7 @@ mod prelude {
 }
 
 use self::container::render_container;
-use self::input::render_radio_button;
+use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::text::{render_email, render_wikitext_raw};
@@ -71,6 +71,10 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
             checked,
             attributes,
         } => render_radio_button(log, ctx, &name, *checked, attributes),
+        Element::CheckBox {
+            checked,
+            attributes,
+        } => render_checkbox(log, ctx, *checked, attributes),
         _ => todo!(),
     }
 }

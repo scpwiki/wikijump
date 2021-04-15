@@ -48,3 +48,28 @@ pub fn render_radio_button(
 
     tag.attr_map(attributes);
 }
+
+pub fn render_checkbox(
+    log: &slog::Logger,
+    ctx: &mut HtmlContext,
+    checked: bool,
+    attributes: &AttributeMap,
+) {
+    debug!(
+        log,
+        "Creating checkbox";
+        "checked" => checked,
+    );
+
+    // Create <input> tag
+    let mut tag = ctx.html().input();
+
+    // Add attributes
+    tag.attr("type", &["checkbox"]);
+
+    if checked {
+        tag.attr("checked", &[]);
+    }
+
+    tag.attr_map(attributes);
+}
