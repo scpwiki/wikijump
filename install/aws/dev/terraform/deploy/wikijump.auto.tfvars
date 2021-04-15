@@ -25,6 +25,9 @@ ecs_php_cpu    = 1024
 ecs_nginx_memory = 512
 ecs_nginx_cpu    = 512
 
+ecs_datadog_memory = 512
+ecs_datadog_cpu    = 512
+
 ecs_traefik_memory = 512
 ecs_traefik_cpu    = 512
 ecs_traefik_image  = "traefik:v2.4"
