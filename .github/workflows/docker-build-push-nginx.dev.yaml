@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - aws-dev-refactor
     paths:
       - 'web/web/**'
       - 'web/package.json'
