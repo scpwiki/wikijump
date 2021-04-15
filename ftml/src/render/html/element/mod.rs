@@ -22,6 +22,7 @@
 
 mod container;
 mod link;
+mod list;
 mod text;
 
 mod prelude {
@@ -32,6 +33,7 @@ mod prelude {
 
 use self::container::render_container;
 use self::link::{render_anchor, render_link};
+use self::list::render_list;
 use self::text::{render_email, render_wikitext_raw};
 use super::HtmlContext;
 use crate::tree::Element;
@@ -61,6 +63,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         Element::Link { url, label, target } => {
             render_link(log, ctx, &url, label, *target)
         }
+        Element::List { ltype, items } => render_list(log, ctx, *ltype, items),
         _ => todo!(),
     }
 }

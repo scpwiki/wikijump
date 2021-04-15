@@ -39,7 +39,7 @@ impl Handle {
         ctx.push_raw_str("</p>");
     }
 
-    pub fn get_page_title(&self, slug: &str) -> String {
+    pub fn get_page_title(&self, log: &slog::Logger, slug: &str) -> String {
         debug!(log, "Fetching page title"; "slug" => slug);
 
         // TODO
