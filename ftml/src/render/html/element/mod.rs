@@ -77,6 +77,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         } => render_checkbox(log, ctx, *checked, attributes),
         Element::Collapsible { .. } => todo!(),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
+        Element::Code { contents, language } => render_code(log, ctx, language, contents),
         _ => todo!(),
     }
 }

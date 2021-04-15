@@ -50,3 +50,26 @@ pub fn render_email(log: &slog::Logger, ctx: &mut HtmlContext, email: &str) {
         .attr("style", &["word-break: keep-all;"])
         .inner(log, &email);
 }
+
+pub fn render_code(
+    log: &slog::Logger,
+    ctx: &mut HtmlContext,
+    language: Option<Cow<str>>,
+    contents: &str,
+) {
+    let language = language.map(|s| s.as_ref());
+
+    debug!(
+        log,
+        "Rendering code block";
+        "language" => language.unwrap_or("<none>"),
+        "contents" => contents,
+    );
+
+    // TODO: syntax highlighting based on 'language'
+
+    ctx.html()
+        .div()
+        .attr("class", &["code"])
+        .inner(log, &contents);
+}
