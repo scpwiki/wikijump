@@ -1,14 +1,14 @@
 FROM php:7.4-fpm-alpine
 
-EXPOSE 80
+EXPOSE 9000
 
 # Build variables
 ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
 ARG WIKIJUMP_REPO_BRANCH="develop"
 
-ARG MAIN_DOMAIN="wikijump.test"
-ARG FILES_DOMAIN="wjfiles.test"
+ARG MAIN_DOMAIN="wikijump.dev"
+ARG FILES_DOMAIN="wjfiles.dev"
 
 # Derived variables
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
@@ -17,8 +17,6 @@ ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
 # Configure timezone
 RUN ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
-# Preparation
-RUN mkdir /src
 WORKDIR /src
 
 # Copy scripts
@@ -34,74 +32,65 @@ RUN apk add --update --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     imagemagick \
-    nodejs \
-    npm \
     git \
     html2text \
-    nginx \
     libmemcached-libs \
     zlib \
     postgresql-dev \
     tidyhtml-dev \
-    gettext-dev
+    gettext-dev && \
 
-# Memcached PHP lib
-RUN /src/setup-memcached.sh
-
-# TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
+    # Memcached PHP lib
+    /src/setup-memcached.sh
 
 # Install the Wikijump repository
 WORKDIR /var/www
-RUN git clone \
-    --depth 10 \
-    --branch "${WIKIJUMP_REPO_BRANCH}" \
-    "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+
+    git clone \
+        --depth 10 \
+        --branch "${WIKIJUMP_REPO_BRANCH}" \
+        "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
 
 WORKDIR "${WIKIJUMP_DIR}/web"
-RUN mkdir -p \
-    tmp/smarty_templates_c \
-    tmp/lucene_index \
-    tmp/math \
-    tmp/sitebackups \
-    tmp/smarty_cache \
-    tmp/smarty_macro_templates \
-    tmp/htmlpurifier
 
 # Inject values in the wikijump.ini configuration file
 COPY wikijump.ini conf/wikijump.ini
 
-RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini
-RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" conf/wikijump.ini
-RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini
+RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
+    sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" conf/wikijump.ini && \
+    sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini && \
 
-# Run composer install to install the dependencies
-RUN composer install \
-    --no-ansi \
-    --no-interaction \
-    --no-scripts \
-    --no-progress \
-    --prefer-dist
+    # Run composer install to install the dependencies
+    composer install \
+        --no-ansi \
+        --no-interaction \
+        --no-scripts \
+        --no-progress \
+        --prefer-dist && \
 
-# Run NPM
-RUN npm install && \
-    npm run build
+    # Cleanup
+    rm -rf /src && \
+    rm -f /usr/bin/composer && \
 
-# Cleanup
-RUN rm -rf /src
-RUN chown -R www-data:www-data .
-
-# Install nginx config files
-COPY etc/nginx/ /etc/nginx/
+    # Create tmp folders
+    mkdir -p \
+        tmp/smarty_templates_c \
+        tmp/lucene_index \
+        tmp/math \
+        tmp/sitebackups \
+        tmp/smarty_cache \
+        tmp/smarty_macro_templates \
+        tmp/htmlpurifier && \
 
 # Enable wikijump site in nginx
-RUN mkdir /etc/nginx/sites-enabled && \
-    cp /etc/nginx/sites-available/wikijump /etc/nginx/sites-enabled/wikijump && \
-    rm -f /etc/nginx/sites-enabled/default
+    mkdir -p /var/log/php && \
+    touch /var/log/php/fpm-error.log && \
+    echo "access.format = \"[%t] %m %{REQUEST_SCHEME}e://%{HTTP_HOST}e%{REQUEST_URI}e %f pid:%p took:%ds mem:%{mega}Mmb cpu:%C%% status:%s {%{HTTP_X_REAL_IP}e|%{HTTP_USER_AGENT}e}\"" >> /usr/local/etc/php-fpm.d/docker.conf && \
 
-RUN install -m 400 -o www-data -g www-data .env.example .env && php artisan key:generate
+    install -m 400 -o www-data -g www-data .env.example .env && \
+    php artisan key:generate && \
+    chown -R www-data:www-data .
 
-# Main process
-# Let the upstream ENTRYPOINT handle running php-fpm
-ADD ./entrypoint.sh /usr/local/bin/
-CMD ["nginx", "-g", "daemon off;"]
-ENTRYPOINT ["sh", "/usr/local/bin/entrypoint.sh"]
+COPY etc/php/ /usr/local/etc/php/conf.d/
+
+CMD ["php-fpm"]
