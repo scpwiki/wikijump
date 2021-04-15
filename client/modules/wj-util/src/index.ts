@@ -149,10 +149,11 @@ export function pointsMatch(points: number[], str: string | number[], pos: numbe
  *  To use, execute the function and store the returned value.
  *  The returned value is a function that will end the performance timer
  *  and log the measured time to the console. */
-export function perfy(meta: string, threshold: number) {
+export function perfy(meta?: string, threshold?: number): () => number {
   const start = performance.now()
   return () => {
-    const time = performance.now() - start
-    if (time > threshold) console.log(`${meta}: ${time}ms`)
+    const time = parseFloat((performance.now() - start).toFixed(4))
+    if (meta && threshold && time > threshold) console.log(`${meta}: ${time}ms`)
+    return time
   }
 }
