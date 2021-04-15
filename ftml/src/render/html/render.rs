@@ -28,7 +28,7 @@ pub trait ItemRender {
 
 impl ItemRender for &'_ str {
     #[inline]
-    fn render(&self, log: &slog::Logger, ctx: &mut HtmlContext) {
+    fn render(&self, _log: &slog::Logger, ctx: &mut HtmlContext) {
         ctx.push_escaped(self);
     }
 }
