@@ -5,8 +5,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "snowpack dev",
-    "build": "snowpack build",
-    "build:web": "snowpack build"
+    "build": "snowpack build"
   },
   "type": "module",
   "repository": {

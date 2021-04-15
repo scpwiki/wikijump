@@ -7,7 +7,7 @@
     "wikijump"
   ],
   "scripts": {
-    "clean": "trash dist .tsbuildinfo",
+    "clean": "trash dist .ultra.cache.json",
     "build": "node ../../scripts/build-modules.js -self"
   },
   "type": "commonjs",

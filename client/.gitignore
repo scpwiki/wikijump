@@ -11,3 +11,4 @@ npm-debug.log
 # Packages
 dist
 .tsbuildinfo
+.ultra.cache.json
