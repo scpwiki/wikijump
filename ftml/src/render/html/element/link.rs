@@ -53,7 +53,7 @@ pub fn render_link(
         LinkLabel::Url(Some(ref text)) => text,
         LinkLabel::Url(None) => url,
         LinkLabel::Page => {
-            page_title = ctx.handle().get_page_title(url);
+            page_title = ctx.handle().get_page_title(log, url);
             &page_title
         }
     };

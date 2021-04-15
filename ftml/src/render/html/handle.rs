@@ -40,6 +40,8 @@ impl Handle {
     }
 
     pub fn get_page_title(&self, slug: &str) -> String {
+        debug!(log, "Fetching page title"; "slug" => slug);
+
         // TODO
         format!("TODO: actual title ({})", slug)
     }
