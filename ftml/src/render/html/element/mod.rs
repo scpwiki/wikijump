@@ -21,6 +21,7 @@
 //! Module that implements HTML rendering for `Element` and its children.
 
 mod container;
+mod iframe;
 mod input;
 mod link;
 mod list;
@@ -33,6 +34,7 @@ mod prelude {
 }
 
 use self::container::{render_color, render_container};
+use self::iframe::render_iframe;
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
@@ -81,6 +83,8 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         Element::Code { contents, language } => {
             render_code(log, ctx, language.ref_map(|s| s.as_ref()), contents)
         }
+        Element::Html { .. } => todo!(),
+        Element::Iframe { url, attributes } => render_iframe(log, ctx, url, attributes),
         _ => todo!(),
     }
 }
