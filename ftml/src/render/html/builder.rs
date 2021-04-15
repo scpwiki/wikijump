@@ -91,6 +91,7 @@ pub struct HtmlBuilderTag<'c, 'i, 'h, 't> {
     ctx: &'c mut HtmlContext<'i, 'h>,
     tag: &'t str,
     in_tag: bool,
+    in_contents: bool,
 }
 
 impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
@@ -102,6 +103,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             ctx,
             tag,
             in_tag: true,
+            in_contents: false,
         }
     }
 
@@ -197,6 +199,13 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             self.ctx.push_raw('>');
             self.in_tag = false;
         }
+
+        assert_eq!(
+            self.in_contents,
+            false,
+            "Already in tag contents",
+        );
+        self.in_contents = true;
     }
 
     #[inline]
