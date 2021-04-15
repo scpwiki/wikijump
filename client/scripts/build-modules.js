@@ -33,6 +33,7 @@ const SETTINGS_COMMON = {
   treeShaking: true,
   splitting: true,
   format: "esm",
+  platform: "browser",
   sourcemap: true,
   sourcesContent: true,
   target: [...targets],
@@ -73,13 +74,13 @@ function buildModule(name) {
     absWorkingDir: dir,
     tsconfig: package,
     plugins: [nodeExternalsPlugin({ packagePath: package })],
-    platform: "browser",
 
     // node compiling kludge
     // prettier-ignore
     ...(!name.startsWith('node-') ? {} : {
       bundle: false,
       splitting: false,
+      format: "cjs",
       platform: "node"
     }),
 

@@ -163,6 +163,7 @@ module.exports = {
     project: [
       "./tsconfig.json",
       "./modules/*/tsconfig.json",
+      "./web/*/tsconfig.json",
       "./templates/module-template/tsconfig.json"
     ],
     extraFileExtensions: [".svelte"]

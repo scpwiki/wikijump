@@ -12,10 +12,14 @@
     "build:modules:dts": "tsc -b --force",
     "build:modules": "run-p -s echo-ts build:modules:dts build:modules:es",
     "build": "run-s -s clean build:modules",
+    "build:web": "lerna run build --parallel --scope",
+    "build-web": "run-s build \"build:web -- {@}\" --",
     "dev:modules:es": "node scripts/build-modules.js -w -g",
     "dev:modules:dts": "tsc -b -w | node scripts/quiet-tsc.js",
     "dev:modules": "npm -s run build:modules:dts && run-p -s dev:modules:*",
     "dev": "npm -s run dev:modules",
+    "dev:web": "lerna run dev --parallel --scope",
+    "dev-web": "run-p dev \"dev:web -- {@}\" --",
     "test": "lerna run --parallel test:build && uvu modules tests[/\\\\\\\\]dist",
     "update": "npm i && run-s clean-node bootstrap build",
     "eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
@@ -24,7 +28,8 @@
     "prettier-fix": "prettier --write \"./**/*.js\" \"./**/*.ts\""
   },
   "workspaces": [
-    "modules/*"
+    "modules/*",
+    "web/*"
   ],
   "browserslist": [
     "supports es6-module and > 0.2% and last 2 versions",
@@ -41,6 +46,7 @@
   },
   "homepage": "https://github.com/scpwiki/wikijump#readme",
   "devDependencies": {
+    "@snowpack/plugin-svelte": "^3.6.1",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "@typescript-eslint/typescript-estree": "^4.22.0",
@@ -57,7 +63,7 @@
     "noop-stream": "^0.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
-    "snowpack": "^3.3.0",
+    "snowpack": "^3.2.2",
     "svelte": "^3.37.0",
     "trash-cli": "^4.0.0",
     "typescript": "4.2.4",
