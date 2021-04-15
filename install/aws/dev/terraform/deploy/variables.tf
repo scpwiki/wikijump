@@ -100,12 +100,23 @@ variable "ecs_traefik_cpu" {
   default = 512
 }
 
+variable "ecs_datadog_cpu" {
+  type    = number
+  default = 512
+}
+
+variable "ecs_datadog_memory" {
+  type    = number
+  default = 512
+}
+
 variable "ecs_traefik_image" {
   type = string
 }
 
 variable "letsencrypt_email" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "redeploy_ecs_on_tf_apply" {
@@ -120,4 +131,14 @@ variable "route53_access_key" {
 variable "route53_secret_key" {
   type      = string
   sensitive = true
+}
+
+variable "datadog_api_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "datadog_site" {
+  type    = string
+  default = "datadoghq.com"
 }

@@ -22,3 +22,8 @@ resource "aws_cloudwatch_log_group" "traefik" {
   name              = "ecs/traefik-${var.environment}"
   retention_in_days = "7"
 }
+
+resource "aws_cloudwatch_log_group" "datadog" {
+  name              = "ecs/datadog-${var.environment}"
+  retention_in_days = "7"
+}
