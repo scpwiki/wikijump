@@ -145,12 +145,12 @@ module "datadog" {
 
     },
     {
-      sourceVolume  = "/proc"
+      sourceVolume  = "proc"
       containerPath = "/host/proc"
       readOnly      = true
     },
     {
-      sourceVolume  = "/cgroup"
+      sourceVolume  = "cgroup"
       containerPath = "/host/sys/fs/cgroup"
       readOnly      = true
     }

@@ -68,6 +68,14 @@ resource "aws_ecs_task_definition" "wikijump_task" {
     host_path = "/var/run/docker.sock"
   }
   volume {
+    name = "proc"
+    host_path = "/proc"
+  }
+  volume {
+    name = "cgroup"
+    host_path = "/cgroup"
+  }
+  volume {
     name = "letsencrypt"
 
     efs_volume_configuration {
