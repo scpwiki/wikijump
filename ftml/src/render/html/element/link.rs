@@ -1,5 +1,5 @@
 /*
- * render/html/element/container.rs
+ * render/html/element/link.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -19,27 +19,23 @@
  */
 
 use super::prelude::*;
-use crate::tree::Container;
+use crate::tree::{AnchorTarget, AttributeMap, Element};
 
-pub fn render_container(
+pub fn render_anchor(
     log: &slog::Logger,
     ctx: &mut HtmlContext,
-    container: &Container,
+    elements: &[Element],
+    attributes: &AttributeMap,
+    target: Option<AnchorTarget>,
 ) {
-    debug!(log, "Rendering container"; "container" => container.ctype().name());
+    let mut tag = ctx.html().a();
 
-    // Get HTML tag type for this type of container
-    let tag_spec = container.ctype().html_tag();
+    // Set <a> attributes
+    if let Some(target) = target {
+        tag.attr("target", &[target.html_attr()]);
+    }
+    tag.attr_map(attributes);
 
-    // Build the tag
-    let mut tag = ctx.html().tag(tag_spec.tag());
-
-    // Merge the class attribute with the container's class, if it conflicts
-    match tag_spec.class() {
-        Some(class) => tag.attr_map_prepend(container.attributes(), ("class", class)),
-        None => tag.attr_map(container.attributes()),
-    };
-
-    // Add container internals
-    tag.inner(log, &container.elements());
+    // Add <a> internals
+    tag.inner(log, &elements);
 }

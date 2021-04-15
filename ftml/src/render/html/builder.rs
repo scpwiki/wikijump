@@ -200,18 +200,14 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             self.in_tag = false;
         }
 
-        assert_eq!(
-            self.in_contents,
-            false,
-            "Already in tag contents",
-        );
+        assert_eq!(self.in_contents, false, "Already in tag contents");
         self.in_contents = true;
     }
 
     #[inline]
-    pub fn inner(&mut self, component: &dyn ItemRender) -> &mut Self {
+    pub fn inner(&mut self, log: &slog::Logger, item: &dyn ItemRender) -> &mut Self {
         self.content_start();
-        component.render(self.ctx);
+        item.render(log, self.ctx);
 
         self
     }

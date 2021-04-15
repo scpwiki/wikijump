@@ -21,6 +21,7 @@
 //! Module that implements HTML rendering for `Element` and its children.
 
 mod container;
+mod link;
 mod text;
 
 mod prelude {
@@ -30,9 +31,18 @@ mod prelude {
 }
 
 use self::container::render_container;
+use self::link::render_anchor;
 use self::text::{render_email, render_wikitext_raw};
 use super::HtmlContext;
 use crate::tree::Element;
+
+pub fn render_elements(log: &slog::Logger, ctx: &mut HtmlContext, elements: &[Element]) {
+    debug!(log, "Rendering elements"; "elements-len" => elements.len());
+
+    for element in elements {
+        render_element(log, ctx, element);
+    }
+}
 
 pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Element) {
     debug!(log, "Rendering element"; "element" => element.name());
@@ -43,6 +53,11 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         Element::Text(text) => ctx.push_escaped(text),
         Element::Raw(text) => render_wikitext_raw(log, ctx, text),
         Element::Email(email) => render_email(log, ctx, email),
+        Element::Anchor {
+            elements,
+            attributes,
+            target,
+        } => render_anchor(log, ctx, elements, attributes, *target),
         _ => todo!(),
     }
 }

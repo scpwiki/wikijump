@@ -48,5 +48,5 @@ pub fn render_email(log: &slog::Logger, ctx: &mut HtmlContext, email: &str) {
         .span()
         .attr("class", &["email"])
         .attr("style", &["word-break: keep-all;"])
-        .inner(&email);
+        .inner(log, &email);
 }

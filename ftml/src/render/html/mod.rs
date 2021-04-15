@@ -40,7 +40,7 @@ pub use self::output::HtmlOutput;
 use super::prelude;
 
 use self::context::HtmlContext;
-use self::element::render_element;
+use self::element::render_elements;
 use self::handle::Handle;
 use crate::data::PageInfo;
 use crate::render::Render;
@@ -76,9 +76,7 @@ impl Render for HtmlRender {
         }
 
         // Crawl through elements and generate HTML
-        for element in &tree.elements {
-            render_element(log, &mut ctx, element);
-        }
+        render_elements(log, &mut ctx, &tree.elements);
 
         // Build and return HtmlOutput
         ctx.into()
