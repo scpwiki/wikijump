@@ -169,14 +169,14 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         self
     }
 
-    pub fn attr_map_merge(
+    pub fn attr_map_prepend(
         &mut self,
         map: &AttributeMap,
         (extra_key, extra_value): (&str, &str),
     ) -> &mut Self {
         let mut merged = false;
         for (key, value) in map.borrow() {
-            // If this key matches, then merge it
+            // If this key matches, then prepend it
             // Otherwise, just pass in the value
             if key.eq_ignore_ascii_case(extra_key) {
                 merged = true;
