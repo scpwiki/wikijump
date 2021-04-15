@@ -115,7 +115,15 @@ module "datadog" {
   container_image              = "gcr.io/datadoghq/agent:7"
   container_memory_reservation = var.ecs_datadog_memory / 8
   essential                    = false
-  environment                  = []
+  environment                  = [
+    {
+      name      = "DD_API_KEY"
+      value = var.datadog_api_key
+    },
+    {
+      name      = "DD_SITE"
+      value = var.datadog_site
+    }]
 
   log_configuration = {
     logDriver = "awslogs"
@@ -126,16 +134,7 @@ module "datadog" {
     }
   }
 
-  secrets = [
-    {
-      name      = "DD_API_KEY"
-      valueFrom = var.datadog_api_key
-    },
-    {
-      name      = "DD_SITE"
-      valueFrom = var.datadog_site
-    }
-  ]
+  secrets = []
 
   mount_points = [
     {
