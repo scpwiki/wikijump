@@ -21,6 +21,7 @@
 //! Module that implements HTML rendering for `Element` and its children.
 
 mod container;
+mod input;
 mod link;
 mod list;
 mod text;
@@ -32,6 +33,7 @@ mod prelude {
 }
 
 use self::container::render_container;
+use self::input::render_radio_button;
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::text::{render_email, render_wikitext_raw};
@@ -64,6 +66,11 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
             render_link(log, ctx, &url, label, *target)
         }
         Element::List { ltype, items } => render_list(log, ctx, *ltype, items),
+        Element::RadioButton {
+            name,
+            checked,
+            attributes,
+        } => render_radio_button(log, ctx, &name, *checked, attributes),
         _ => todo!(),
     }
 }
