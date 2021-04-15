@@ -85,6 +85,18 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         }
         Element::Html { .. } => todo!(),
         Element::Iframe { url, attributes } => render_iframe(log, ctx, url, attributes),
-        _ => todo!(),
+        Element::LineBreak => {
+            ctx.html().br();
+        }
+        Element::LineBreaks(amount) => {
+            let amount = amount.get();
+
+            for _ in 0..amount {
+                ctx.html().br();
+            }
+        }
+        Element::HorizontalRule => {
+            ctx.html().hr();
+        }
     }
 }
