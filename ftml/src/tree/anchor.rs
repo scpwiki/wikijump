@@ -59,16 +59,6 @@ impl AnchorTarget {
             AnchorTarget::Same => "_same",
         }
     }
-
-    #[inline]
-    pub fn html_attr_needed(self) -> Option<&'static str> {
-        match self {
-            AnchorTarget::NewTab => Some("_blank"),
-            AnchorTarget::Parent => Some("_parent"),
-            AnchorTarget::Top => Some("_top"),
-            AnchorTarget::Same => None,
-        }
-    }
 }
 
 impl<'a> TryFrom<&'a str> for AnchorTarget {
