@@ -32,14 +32,13 @@ const SETTINGS_COMMON = {
   bundle: true,
   treeShaking: true,
   splitting: true,
-  platform: "browser",
   format: "esm",
   sourcemap: true,
   sourcesContent: true,
   target: [...targets],
 
   // estrella settings
-  tslint: false, // disables estrella's built-in typechecker
+  tslint: false, // disables estrella's built-in tsc typechecking
   quiet: true // silences estrella's logging, as we use our own logging
 }
 
@@ -74,6 +73,15 @@ function buildModule(name) {
     absWorkingDir: dir,
     tsconfig: package,
     plugins: [nodeExternalsPlugin({ packagePath: package })],
+    platform: "browser",
+
+    // node compiling kludge
+    // prettier-ignore
+    ...(!name.startsWith('node-') ? {} : {
+      bundle: false,
+      splitting: false,
+      platform: "node"
+    }),
 
     // estrella settings
     entry: index,
