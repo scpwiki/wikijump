@@ -56,6 +56,7 @@ fn debug() {
         "tale",
         "_cc",
     ],
+    locale: "en_US",
 }
 SyntaxTree {
     elements: [
