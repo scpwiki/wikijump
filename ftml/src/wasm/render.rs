@@ -20,6 +20,7 @@
 
 use super::parsing::SyntaxTree;
 use super::prelude::*;
+use crate::data::PageInfo as RustPageInfo;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::Render;
 
@@ -52,6 +53,18 @@ extern "C" {
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
+pub struct PageInfo(RustPageInfo<'static>);
+
+#[wasm_bindgen]
+impl PageInfo {
+    #[inline]
+    pub(crate) fn borrow(&self) -> &RustPageInfo<'static> {
+        &self.0
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Debug, Clone)]
 pub struct HtmlOutput(RustHtmlOutput);
 
 #[wasm_bindgen]
@@ -75,9 +88,10 @@ impl HtmlOutput {
 // Exported functions
 
 #[wasm_bindgen]
-pub fn render_html(syntax_tree: SyntaxTree) -> HtmlOutput {
+pub fn render_html(page_info: PageInfo, syntax_tree: SyntaxTree) -> HtmlOutput {
     let log = &*LOGGER;
+    let page_info = page_info.borrow();
     let tree = syntax_tree.borrow();
-    let html = HtmlRender.render(&log, tree);
+    let html = HtmlRender.render(&log, page_info, tree);
     HtmlOutput(html)
 }
