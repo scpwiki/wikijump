@@ -85,12 +85,12 @@ pub struct SyntaxTree(RustSyntaxTree<'static>);
 #[wasm_bindgen]
 impl SyntaxTree {
     #[inline]
-    pub(crate) fn borrow(&self) -> &RustSyntaxTree<'static> {
+    pub(crate) fn get(&self) -> &RustSyntaxTree<'static> {
         &self.0
     }
 
     #[wasm_bindgen(typescript_type = "ISyntaxTree")]
-    pub fn get(&self) -> Result<ISyntaxTree, JsValue> {
+    pub fn data(&self) -> Result<ISyntaxTree, JsValue> {
         rust_to_js!(self.0)
     }
 }
@@ -102,7 +102,7 @@ pub fn parse(tokens: Tokenization) -> Result<ParseOutcome, JsValue> {
     let log = &*LOGGER;
 
     // Borrow and perform parsing
-    let tokenization = tokens.borrow();
+    let tokenization = tokens.get();
     let (syntax_tree, warnings) = crate::parse(log, tokenization).into();
 
     // Deep-clone AST to make it owned, so it can be safely passed to JS.

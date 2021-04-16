@@ -58,7 +58,7 @@ pub struct PageInfo(RustPageInfo<'static>);
 #[wasm_bindgen]
 impl PageInfo {
     #[inline]
-    pub(crate) fn borrow(&self) -> &RustPageInfo<'static> {
+    pub(crate) fn get(&self) -> &RustPageInfo<'static> {
         &self.0
     }
 }
@@ -90,8 +90,8 @@ impl HtmlOutput {
 #[wasm_bindgen]
 pub fn render_html(page_info: PageInfo, syntax_tree: SyntaxTree) -> HtmlOutput {
     let log = &*LOGGER;
-    let page_info = page_info.borrow();
-    let tree = syntax_tree.borrow();
+    let page_info = page_info.get();
+    let tree = syntax_tree.get();
     let html = HtmlRender.render(&log, page_info, tree);
     HtmlOutput(html)
 }
