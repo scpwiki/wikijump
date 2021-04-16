@@ -123,7 +123,7 @@ pub fn render_collapsible(
                 .attr("class", &["collapsible-block-unfolded"])
                 .attr("style", &[collapsible_style(start_open)])
                 .contents(|ctx| {
-                    // Event-bound div to close
+                    // Top div to close
                     ctx.html()
                         .div()
                         .attr("class", &["collapsible-block-unfolded-link"])
@@ -131,6 +131,7 @@ pub fn render_collapsible(
                             ctx.html()
                                 .a()
                                 .attr("class", &["collapsible-block-link"])
+                                .attr("style", &[collapsible_style(show_top)])
                                 .attr("href", &["javascript:;"])
                                 .inner(log, &hide_text);
                         });
@@ -141,6 +142,19 @@ pub fn render_collapsible(
                         .attr("class", &["collapsible-block-content"])
                         .attr("style", &["display: block;"]) // hardcoded/unconditional style, not in the class
                         .inner(log, &elements);
+
+                    // Bottom div to close
+                    ctx.html()
+                        .div()
+                        .attr("class", &["collapsible-block-unfolded-link"])
+                        .contents(|ctx| {
+                            ctx.html()
+                                .a()
+                                .attr("class", &["collapsible-block-link"])
+                                .attr("style", &[collapsible_style(show_bottom)])
+                                .attr("href", &["javascript:;"])
+                                .inner(log, &hide_text);
+                        });
                 });
         });
 }
