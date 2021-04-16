@@ -109,7 +109,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)
         }
-        Element::Html { .. } => todo!(),
+        Element::Html { .. } => todo!(), // TODO
         Element::Iframe { url, attributes } => render_iframe(log, ctx, url, attributes),
         Element::LineBreak => {
             ctx.html().br();
