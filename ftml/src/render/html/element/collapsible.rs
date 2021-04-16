@@ -124,18 +124,17 @@ pub fn render_collapsible(
                 .attr("style", &[collapsible_style(start_open)])
                 .contents(|ctx| {
                     // Top div to close
-                    if show_top {
-                        ctx.html()
-                            .div()
-                            .attr("class", &["collapsible-block-unfolded-link"])
-                            .contents(|ctx| {
-                                ctx.html()
-                                    .a()
-                                    .attr("class", &["collapsible-block-link"])
-                                    .attr("href", &["javascript:;"])
-                                    .inner(log, &hide_text);
-                            });
-                    }
+                    ctx.html()
+                        .div()
+                        .attr("class", &["collapsible-block-unfolded-link"])
+                        .contents(|ctx| {
+                            ctx.html()
+                                .a()
+                                .attr("class", &["collapsible-block-link"])
+                                .attr("style", &[collapsible_style(show_top)])
+                                .attr("href", &["javascript:;"])
+                                .inner(log, &hide_text);
+                        });
 
                     // Collapsed contents
                     ctx.html()
@@ -145,18 +144,17 @@ pub fn render_collapsible(
                         .inner(log, &elements);
 
                     // Bottom div to close
-                    if show_bottom {
-                        ctx.html()
-                            .div()
-                            .attr("class", &["collapsible-block-unfolded-link"])
-                            .contents(|ctx| {
-                                ctx.html()
-                                    .a()
-                                    .attr("class", &["collapsible-block-link"])
-                                    .attr("href", &["javascript:;"])
-                                    .inner(log, &hide_text);
-                            });
-                    }
+                    ctx.html()
+                        .div()
+                        .attr("class", &["collapsible-block-unfolded-link"])
+                        .contents(|ctx| {
+                            ctx.html()
+                                .a()
+                                .attr("class", &["collapsible-block-link"])
+                                .attr("style", &[collapsible_style(show_bottom)])
+                                .attr("href", &["javascript:;"])
+                                .inner(log, &hide_text);
+                        });
                 });
         });
 }
