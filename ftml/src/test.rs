@@ -23,8 +23,11 @@
 //! Additionally performs some other tests from the parser which are better
 //! in a dedicated test file.
 
+use crate::data::PageInfo;
 use crate::includes::DebugIncluder;
 use crate::parsing::{ParseWarning, ParseWarningKind, Token};
+use crate::render::html::HtmlRender;
+use crate::render::Render;
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
 use std::ffi::OsStr;
@@ -40,6 +43,12 @@ lazy_static! {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("test");
         path
+    };
+}
+
+macro_rules! cow {
+    ($text:expr) => {
+        Cow::Borrowed(&$text)
     };
 }
 
@@ -124,13 +133,27 @@ impl Test<'_> {
 
         println!("+ {}", self.name);
 
+        let page_info = PageInfo {
+            slug: cow!(self.name),
+            category: None,
+            title: cow!(self.name),
+            alt_title: None,
+            header: None,
+            subheader: None,
+            rating: 0.0,
+            tags: vec![],
+            locale: cow!("en_US"),
+        };
+
         let (mut text, _pages) =
             crate::include(log, &self.input, DebugIncluder, || unreachable!())
                 .void_unwrap();
+
         crate::preprocess(log, &mut text);
         let tokens = crate::tokenize(log, &text);
         let result = crate::parse(log, &tokens);
         let (tree, warnings) = result.into();
+        let html_output = HtmlRender.render(log, &page_info, &tree);
 
         fn json<T>(object: &T) -> String
         where
@@ -161,6 +184,17 @@ impl Test<'_> {
                 self.warnings,
                 warnings,
                 json(&warnings),
+                &tree,
+            );
+        }
+
+        if html_output.html != self.html {
+            panic!(
+                "Running test '{}' failed! HTML does not match:\nExpected: {:?}\nActual: {:?}\n\n{}\n\nTree (correct): {:#?}",
+                self.name,
+                self.html,
+                html_output.html,
+                html_output.html,
                 &tree,
             );
         }
