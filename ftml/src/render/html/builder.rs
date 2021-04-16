@@ -251,11 +251,9 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 
 impl<'c, 'i, 'h, 't> Drop for HtmlBuilderTag<'c, 'i, 'h, 't> {
     fn drop(&mut self) {
-        if should_close_tag(self.tag) {
-            if !self.in_tag {
-                self.ctx.push_raw_str("</");
-                self.ctx.push_raw_str(self.tag);
-            }
+        if should_close_tag(self.tag) && !self.in_tag {
+            self.ctx.push_raw_str("</");
+            self.ctx.push_raw_str(self.tag);
         }
 
         self.ctx.push_raw('>');
