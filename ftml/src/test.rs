@@ -110,6 +110,10 @@ impl Test<'_> {
                 );
             }
 
+            if contents.ends_with('\n') {
+                contents.pop();
+            }
+
             contents
         };
 
