@@ -195,7 +195,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             // Otherwise, just pass in the value
             if key.eq_ignore_ascii_case(extra_key) {
                 merged = true;
-                self.attr(&key, &[extra_value, " ", value]); // so the container class is first
+                self.attr(&key, &[extra_value, " ", value]);
             } else {
                 self.attr(&key, &[value]);
             }
