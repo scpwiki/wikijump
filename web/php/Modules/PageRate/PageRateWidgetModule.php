@@ -59,11 +59,6 @@ class PageRateWidgetModule extends SmartyModule
          * misleading widget. Used in PageRateWidgetModule.tpl
          * @see Category::getRatingEnabled()
          */
-        if($category->getRatingEnabled() === false) {
-            $runData->contextAdd("enabled", false);
-        }
-        else {
-            $runData->contextAdd("enabled", true);
-        }
+        $runData->contextAdd("enabled", $category->getRatingEnabled());
     }
 }
