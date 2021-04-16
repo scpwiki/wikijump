@@ -49,13 +49,6 @@ class AjaxModuleWikiFlowController extends WebFlowController
         $logger->debug("RunData object created and initialized");
 
         try {
-            // check security token
-            if ($_COOKIE['wikijump_token7'] == null || $_COOKIE['wikijump_token7'] !== $runData->getParameterList()->getParameterValue('wikijump_token7', 'AMODULE')) {
-                throw new ProcessException("no", "wrong_token7");
-            }
-            //remove token from parameter list!!!
-            $runData->getParameterList()->delParameter('wikijump_token7');
-
             $callbackIndex = $runData->getParameterList()->getParameterValue('callbackIndex');
             $runData->getParameterList()->delParameter('callbackIndex');
 

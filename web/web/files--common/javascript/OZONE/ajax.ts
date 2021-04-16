@@ -59,15 +59,6 @@ export const ajax = {
 
     parameters.callbackIndex = callbackIndex;
 
-    // add token information
-    const token = OZONE.utils.getCookie('wikijump_token7');
-    if (token === null) {
-      alert('Error processing the request.\n\nYou have no valid security token which is required to prevent identity theft.\nPlease enable cookies in your browser if you have this option disabled and reload the page.');
-      OZONE.visuals.cursorClear();
-      return;
-    }
-    parameters.wikijump_token7 = token;
-
     YAHOO.util.Connect.asyncRequest(
       'POST',
       '/ajax-module-connector.php',
@@ -82,13 +73,6 @@ export const ajax = {
       // TODO What is the type of the returned JSON?
       // XXX This is an implicit any - why no error?
       const response = JSON.parse(responseObject.responseText);
-
-      if (response.status === 'wrong_token7') {
-        // TODO: De-Wikijump.com-ize - change
-        alert("Wikijump security error:\n\nYour authentication token in the request is not valid. Please enable cookies in your browser and try to repeat the action.\n\nIf you see this message on the page not associated with the Wikijump wiki hosting it probably means an identity theft attempt or improper use of Wikijump service.");
-        OZONE.visuals.cursorClear();
-        return;
-      }
 
       const callbackIndex = response.callbackIndex;
       if (callbackIndex === null) {
