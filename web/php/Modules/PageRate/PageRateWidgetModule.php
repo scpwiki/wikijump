@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\PageRate;
 
 use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\Category;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageRateVotePeer;
@@ -51,6 +52,18 @@ class PageRateWidgetModule extends SmartyModule
             $rates = PageRateVotePeer::instance()->select($c);
             $votecount = count($rates);
             $runData->contextAdd("votes", $votecount);
+        }
+
+        /**
+         * If voting is disabled, send that to the widget so we don't display a
+         * misleading widget. Used in PageRateWidgetModule.tpl
+         * @see Category::getRatingEnabled()
+         */
+        if($category->getRatingEnabled() === false) {
+            $runData->contextAdd("enabled", false);
+        }
+        else {
+            $runData->contextAdd("enabled", true);
         }
     }
 }

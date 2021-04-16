@@ -5,6 +5,7 @@ namespace Wikidot\DB;
 
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
+use Wikidot\Modules\PageRate\PageRateWidgetModule;
 
 /**
  * Object Model mapped Class.
@@ -157,17 +158,19 @@ class Category extends CategoryBase
         return $ppd;
     }
 
-    public function getRatingEnabled()
+    /**
+     * If the 'e' character is present in this category's `rating` table, return
+     * true. Otherwise, return false.
+     *
+     * @return bool
+     * @see PageRateWidgetModule::build()
+     */
+    public function getRatingEnabled() : bool
     {
         $s = $this->getRating();
-        if (strpos($s, 'e') !== false) {
-            return true;
-        } elseif (strpos($s, 'd') !== false) {
-            return false;
-        } else {
-            return null;
-        }
+        return strpos($s, 'e') !== false;
     }
+
     public function getRatingEnabledEff()
     {
         $s = $this->getRatingString();
