@@ -44,7 +44,11 @@ impl<'t> AttributeMap<'t> {
         let inner = arguments
             .iter()
             .filter(|(&key, _)| is_safe_attribute(key))
-            .map(|(key, value)| (cow!(key.into_inner()), Cow::clone(value)))
+            .map(|(key, value)| {
+                let key = key.into_inner().to_ascii_lowercase();
+
+                (Cow::Owned(key), Cow::clone(value))
+            })
             .collect();
 
         AttributeMap { inner }
