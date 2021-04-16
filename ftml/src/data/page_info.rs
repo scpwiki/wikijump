@@ -64,6 +64,9 @@ pub struct PageInfo<'a> {
 
     /// The current set of tags this page has.
     pub tags: Vec<Cow<'a, str>>,
+
+    /// The locale that this page is being rendered for.
+    pub locale: Cow<'a, str>,
 }
 
 impl PageInfo<'_> {
@@ -79,6 +82,7 @@ impl PageInfo<'_> {
             subheader: None,
             rating: 69.0,
             tags: vec![cow!("tale"), cow!("_cc")],
+            locale: cow!("en_US"),
         }
     }
 }
