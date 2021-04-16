@@ -487,7 +487,7 @@ dependencies = [
 
 [[package]]
 name = "ftml"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "built",
  "cfg-if 1.0.0",
