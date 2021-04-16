@@ -34,7 +34,7 @@ mod prelude {
     pub use crate::tree::{Element, SyntaxTree};
 }
 
-use self::collapsible::render_collapsible;
+use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
 use self::iframe::render_iframe;
 use self::input::{render_checkbox, render_radio_button};
@@ -97,13 +97,15 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         } => render_collapsible(
             log,
             ctx,
-            elements,
-            attributes,
-            *start_open,
-            ref_cow!(show_text),
-            ref_cow!(hide_text),
-            *show_top,
-            *show_bottom,
+            Collapsible::new(
+                elements,
+                attributes,
+                *start_open,
+                ref_cow!(show_text),
+                ref_cow!(hide_text),
+                *show_top,
+                *show_bottom,
+            ),
         ),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {

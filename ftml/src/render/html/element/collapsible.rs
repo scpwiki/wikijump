@@ -21,17 +21,55 @@
 use super::prelude::*;
 use crate::tree::{AttributeMap, Element};
 
+#[derive(Debug, Copy, Clone)]
+pub struct Collapsible<'a> {
+    elements: &'a [Element<'a>],
+    attributes: &'a AttributeMap<'a>,
+    start_open: bool,
+    show_text: Option<&'a str>,
+    hide_text: Option<&'a str>,
+    show_top: bool,
+    show_bottom: bool,
+}
+
+impl<'a> Collapsible<'a> {
+    #[inline]
+    pub fn new(
+        elements: &'a [Element<'a>],
+        attributes: &'a AttributeMap<'a>,
+        start_open: bool,
+        show_text: Option<&'a str>,
+        hide_text: Option<&'a str>,
+        show_top: bool,
+        show_bottom: bool,
+    ) -> Self {
+        Collapsible {
+            elements,
+            attributes,
+            start_open,
+            show_text,
+            hide_text,
+            show_top,
+            show_bottom,
+        }
+    }
+}
+
 pub fn render_collapsible(
     log: &slog::Logger,
     ctx: &mut HtmlContext,
-    elements: &[Element],
-    attributes: &AttributeMap,
-    start_open: bool,
-    show_text: Option<&str>,
-    hide_text: Option<&str>,
-    show_top: bool,
-    show_bottom: bool,
+    collapsible: Collapsible,
 ) {
+    let Collapsible {
+        elements,
+        attributes,
+        start_open,
+        show_text,
+        hide_text,
+        show_top,
+        show_bottom,
+    } = collapsible;
+
     debug!(
         log,
         "Rendering collapsible";
