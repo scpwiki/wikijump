@@ -19,6 +19,7 @@
  */
 
 use super::HtmlContext;
+use crate::data::PageInfo;
 use crate::tree::Module;
 
 #[derive(Debug)]
@@ -73,5 +74,12 @@ impl Handle {
                 ""
             }
         }
+    }
+
+    pub fn post_html(&self, log: &slog::Logger, _info: &PageInfo, _html: &str) -> String {
+        debug!(log, "Submitting HTML to create iframe-able snippet");
+
+        // TODO
+        str!("https://example.com/")
     }
 }

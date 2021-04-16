@@ -35,3 +35,14 @@ pub fn render_iframe(
 
     ctx.html().iframe().attr("src", &[url]).attr_map(attributes);
 }
+
+pub fn render_html(log: &slog::Logger, ctx: &mut HtmlContext, contents: &str) {
+    debug!(
+        log,
+        "Rendering html block (submitting to remote for iframe)";
+        "contents" => contents,
+    );
+
+    let iframe_url = ctx.handle().post_html(log, ctx.info(), contents);
+    ctx.html().iframe().attr("src", &[&iframe_url]);
+}

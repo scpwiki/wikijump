@@ -36,7 +36,7 @@ mod prelude {
 
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
-use self::iframe::render_iframe;
+use self::iframe::{render_html, render_iframe};
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
@@ -111,7 +111,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)
         }
-        Element::Html { .. } => todo!(), // TODO
+        Element::Html { contents } => render_html(log, ctx, contents),
         Element::Iframe { url, attributes } => render_iframe(log, ctx, url, attributes),
         Element::LineBreak => {
             ctx.html().br();
