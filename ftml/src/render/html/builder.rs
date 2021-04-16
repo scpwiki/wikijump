@@ -31,9 +31,7 @@ macro_rules! tag_method {
     };
 }
 
-/// These are HTML tags which do not contain a closing pair.
-///
-/// For instance, <br>.
+/// These are HTML tags which do not need a closing pair.
 const SOLO_HTML_TAGS: [&str; 3] = ["br", "br", "input"];
 
 // Main struct
