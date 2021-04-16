@@ -20,6 +20,7 @@
 
 //! Module that implements HTML rendering for `Element` and its children.
 
+mod collapsible;
 mod container;
 mod iframe;
 mod input;
@@ -33,6 +34,7 @@ mod prelude {
     pub use crate::tree::{Element, SyntaxTree};
 }
 
+use self::collapsible::render_collapsible;
 use self::container::{render_color, render_container};
 use self::iframe::render_iframe;
 use self::input::{render_checkbox, render_radio_button};
@@ -52,6 +54,12 @@ pub fn render_elements(log: &slog::Logger, ctx: &mut HtmlContext, elements: &[El
 }
 
 pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Element) {
+    macro_rules! ref_cow {
+        ($input:expr) => {
+            $input.ref_map(|s| s.as_ref())
+        };
+    }
+
     debug!(log, "Rendering element"; "element" => element.name());
 
     match element {
@@ -78,10 +86,28 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
             checked,
             attributes,
         } => render_checkbox(log, ctx, *checked, attributes),
-        Element::Collapsible { .. } => todo!(),
+        Element::Collapsible {
+            elements,
+            attributes,
+            start_open,
+            show_text,
+            hide_text,
+            show_top,
+            show_bottom,
+        } => render_collapsible(
+            log,
+            ctx,
+            elements,
+            attributes,
+            *start_open,
+            ref_cow!(show_text),
+            ref_cow!(hide_text),
+            *show_top,
+            *show_bottom,
+        ),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
-            render_code(log, ctx, language.ref_map(|s| s.as_ref()), contents)
+            render_code(log, ctx, ref_cow!(language), contents)
         }
         Element::Html { .. } => todo!(),
         Element::Iframe { url, attributes } => render_iframe(log, ctx, url, attributes),

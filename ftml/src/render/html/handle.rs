@@ -45,4 +45,33 @@ impl Handle {
         // TODO
         format!("TODO: actual title ({})", slug)
     }
+
+    pub fn get_message(
+        &self,
+        log: &slog::Logger,
+        locale: &str,
+        message: &str,
+    ) -> &'static str {
+        debug!(
+            log,
+            "Fetching message";
+            "locale" => locale,
+            "message" => message,
+        );
+
+        // TODO
+        match message {
+            "collapsible-open" => "+ open block",
+            "collapsible-close" => "- open block",
+            _ => {
+                error!(
+                    log,
+                    "Unknown message requested";
+                    "message" => message,
+                );
+
+                ""
+            }
+        }
+    }
 }
