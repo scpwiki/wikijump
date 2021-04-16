@@ -65,31 +65,20 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
     }
 
     tag_method!(a);
-    tag_method!(b);
-    tag_method!(blockquote);
     tag_method!(br);
     tag_method!(code);
     tag_method!(div);
-    tag_method!(em);
     tag_method!(hr);
-    tag_method!(i);
     tag_method!(iframe);
     tag_method!(img);
     tag_method!(input);
     tag_method!(li);
-    tag_method!(ol);
-    tag_method!(p);
     tag_method!(script);
     tag_method!(span);
-    tag_method!(strike);
-    tag_method!(strong);
-    tag_method!(sub);
-    tag_method!(sup);
     tag_method!(table);
+    tag_method!(td);
     tag_method!(tr);
     tag_method!(tt);
-    tag_method!(u);
-    tag_method!(ul);
 
     #[inline]
     pub fn text(&mut self, text: &str) {
