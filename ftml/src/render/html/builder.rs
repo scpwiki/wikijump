@@ -22,18 +22,6 @@ use super::context::HtmlContext;
 use super::escape::escape_char;
 use super::render::ItemRender;
 use crate::tree::AttributeMap;
-use std::collections::HashSet;
-
-lazy_static! {
-    // These are HTML tags which do not contain a closing pair.
-    //
-    // For instance, <br>.
-    static ref SOLO_HTML_TAGS: HashSet<&'static str> = hashset![
-        "br",
-        "hr",
-        "input",
-    ];
-}
 
 macro_rules! tag_method {
     ($tag:tt) => {
@@ -42,6 +30,11 @@ macro_rules! tag_method {
         }
     };
 }
+
+/// These are HTML tags which do not contain a closing pair.
+///
+/// For instance, <br>.
+const SOLO_HTML_TAGS: [&str; 3] = ["br", "br", "input"];
 
 // Main struct
 
@@ -259,5 +252,5 @@ fn is_alphanumeric(value: &str) -> bool {
 
 #[inline]
 fn should_close_tag(tag: &str) -> bool {
-    !SOLO_HTML_TAGS.contains(tag)
+    !SOLO_HTML_TAGS.contains(&tag)
 }
