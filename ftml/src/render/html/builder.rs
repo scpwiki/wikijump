@@ -256,9 +256,9 @@ impl<'c, 'i, 'h, 't> Drop for HtmlBuilderTag<'c, 'i, 'h, 't> {
                 self.ctx.push_raw_str("</");
                 self.ctx.push_raw_str(self.tag);
             }
-
-            self.ctx.push_raw('>');
         }
+
+        self.ctx.push_raw('>');
     }
 }
 
