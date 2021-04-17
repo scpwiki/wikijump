@@ -143,7 +143,7 @@ If possible, add to this log in the same commit in which the code is removed.
 * Why it was removed: It has a number of unresolved security holes. We will be using alternate identity providers.
 
 ## PHP: `wikijump_token7`
-* Where it was: [The AJAX module flow controller and cookie setters.](https://github.com/scpwiki/wikijump/pull/193/files)
+* Where it was: [The AJAX module flow controller and cookie setters](https://github.com/scpwiki/wikijump/pull/193/files).
 * Relevant Issues: [WJ-448](https://scuttle.atlassian.net/browse/WJ-448)
 * What it did: Poorly-implemented [Cross Site Request Forgery (CSRF)](https://owasp.org/www-community/attacks/csrf) protection.
 * Why it was removed: There are [recommended and more secure ways](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) of guarding against CSRF attacks.
