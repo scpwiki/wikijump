@@ -1,6 +1,6 @@
 # Monorepo: Modules
 
-Modules are the packages that can be found in the `modules/` folder. They're intended for pure ESM output, and are compiled rapidly using Estrella, an esbuild-based utility. They have an important file structure (don't change it), which looks like the following:
+Modules are the packages that can be found in the `modules/` folder. They're intended for pure ESM output, and are compiled rapidly using [Estrella](https://github.com/rsms/estrella), an [esbuild](https://github.com/evanw/esbuild)-based utility. They have an important file structure (don't change it), which looks like the following:
 
 ```
 module:
