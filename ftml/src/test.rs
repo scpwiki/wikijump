@@ -23,12 +23,16 @@
 //! Additionally performs some other tests from the parser which are better
 //! in a dedicated test file.
 
+use crate::data::PageInfo;
 use crate::includes::DebugIncluder;
 use crate::parsing::{ParseWarning, ParseWarningKind, Token};
+use crate::render::html::HtmlRender;
+use crate::render::Render;
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
 use std::ffi::OsStr;
 use std::fs::{self, File};
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use void::ResultVoidExt;
 
@@ -39,6 +43,12 @@ lazy_static! {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("test");
         path
+    };
+}
+
+macro_rules! cow {
+    ($text:expr) => {
+        Cow::Borrowed(&$text)
     };
 }
 
@@ -55,17 +65,28 @@ struct Test<'a> {
     input: String,
     tree: SyntaxTree<'a>,
     warnings: Vec<ParseWarning>,
+
+    #[serde(skip)]
+    html: String,
 }
 
 impl Test<'_> {
     pub fn load(path: &Path, name: &str) -> Self {
         assert!(path.is_absolute());
 
-        let mut file = match File::open(path) {
-            Ok(file) => file,
-            Err(error) => panic!("Unable to open file '{}': {}", path.display(), error),
-        };
+        macro_rules! open_file {
+            ($path:expr) => {
+                match File::open(&$path) {
+                    Ok(file) => file,
+                    Err(error) => {
+                        panic!("Unable to open file '{}': {}", $path.display(), error)
+                    }
+                }
+            };
+        }
 
+        // Load JSON file
+        let mut file = open_file!(path);
         let mut test: Self = match serde_json::from_reader(&mut file) {
             Ok(test) => test,
             Err(error) => {
@@ -73,7 +94,31 @@ impl Test<'_> {
             }
         };
 
+        // Load HTML output
+        let html = {
+            let mut html_path = PathBuf::from(path);
+            html_path.set_extension("html");
+
+            let mut file = open_file!(html_path);
+            let mut contents = String::new();
+
+            if let Err(error) = file.read_to_string(&mut contents) {
+                panic!(
+                    "Unable to read HTML file '{}': {}",
+                    html_path.display(),
+                    error,
+                );
+            }
+
+            if contents.ends_with('\n') {
+                contents.pop();
+            }
+
+            contents
+        };
+
         test.name = str!(name);
+        test.html = html;
         test
     }
 
@@ -92,13 +137,25 @@ impl Test<'_> {
 
         println!("+ {}", self.name);
 
+        let page_info = PageInfo {
+            slug: cow!(self.name),
+            category: None,
+            title: cow!(self.name),
+            alt_title: None,
+            rating: 0.0,
+            tags: vec![],
+            locale: cow!("en_US"),
+        };
+
         let (mut text, _pages) =
             crate::include(log, &self.input, DebugIncluder, || unreachable!())
                 .void_unwrap();
+
         crate::preprocess(log, &mut text);
         let tokens = crate::tokenize(log, &text);
         let result = crate::parse(log, &tokens);
         let (tree, warnings) = result.into();
+        let html_output = HtmlRender.render(log, &page_info, &tree);
 
         fn json<T>(object: &T) -> String
         where
@@ -132,11 +189,22 @@ impl Test<'_> {
                 &tree,
             );
         }
+
+        if html_output.html != self.html {
+            panic!(
+                "Running test '{}' failed! HTML does not match:\nExpected: {:?}\nActual: {:?}\n\n{}\n\nTree (correct): {:#?}",
+                self.name,
+                self.html,
+                html_output.html,
+                html_output.html,
+                &tree,
+            );
+        }
     }
 }
 
 #[test]
-fn ast() {
+fn ast_and_html() {
     let log = crate::build_logger();
 
     // Warn if any test are being skipped
@@ -172,6 +240,12 @@ fn ast() {
             .expect("Unable to get file stem")
             .to_string_lossy();
 
+        // Don't print, we expect these
+        if path.extension() == Some(OsStr::new("html")) {
+            return None;
+        }
+
+        // Print for other files, unexpected
         if path.extension() != Some(OsStr::new("json")) {
             println!("Skipping non-JSON file {}", file_name!(entry));
             return None;

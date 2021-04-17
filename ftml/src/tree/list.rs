@@ -43,7 +43,9 @@ impl ListItem<'_> {
             ListItem::Elements(elements) => {
                 ListItem::Elements(elements_to_owned(&elements))
             }
-            ListItem::SubList(element) => ListItem::SubList(element.to_owned()),
+            ListItem::SubList(element) => {
+                ListItem::SubList(element.to_owned()) //
+            }
         }
     }
 }
@@ -75,5 +77,13 @@ impl ListType {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
+    }
+
+    #[inline]
+    pub fn html_tag(self) -> &'static str {
+        match self {
+            ListType::Bullet | ListType::Generic => "ul",
+            ListType::Numbered => "ol",
+        }
     }
 }

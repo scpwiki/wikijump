@@ -15,10 +15,10 @@
                                 "data": {
                                     "button-text": null,
                                     "attributes": {
+                                        "class": "join-module",
+                                        "data-join": "",
                                         "id": "join-btn",
-                                        "CLASS": "join-module",
-                                        "stYLe": "display: inline-block;",
-                                        "data-join": ""
+                                        "style": "display: inline-block;"
                                     }
                                 }
                             }

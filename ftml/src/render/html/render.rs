@@ -19,13 +19,30 @@
  */
 
 use super::context::HtmlContext;
+use super::element::{render_element, render_elements};
+use crate::tree::Element;
 
-pub trait ElementRender {
-    fn render(&self, ctx: &mut HtmlContext);
+pub trait ItemRender {
+    fn render(&self, log: &slog::Logger, ctx: &mut HtmlContext);
 }
 
-impl ElementRender for &'_ str {
-    fn render(&self, ctx: &mut HtmlContext) {
+impl ItemRender for &'_ str {
+    #[inline]
+    fn render(&self, _log: &slog::Logger, ctx: &mut HtmlContext) {
         ctx.push_escaped(self);
+    }
+}
+
+impl ItemRender for &'_ Element<'_> {
+    #[inline]
+    fn render(&self, log: &slog::Logger, ctx: &mut HtmlContext) {
+        render_element(log, ctx, self)
+    }
+}
+
+impl ItemRender for &'_ [Element<'_>] {
+    #[inline]
+    fn render(&self, log: &slog::Logger, ctx: &mut HtmlContext) {
+        render_elements(log, ctx, self)
     }
 }

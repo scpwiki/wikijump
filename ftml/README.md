@@ -99,6 +99,17 @@ fn parse<'r, 't>(
     log: &slog::Logger,
     tokenization: &'r Tokenization<'t>,
 ) -> ParseResult<SyntaxTree<'t>>;
+
+trait Render {
+    type Output;
+
+    fn render(
+        &self,
+        log: &slog::Logger,
+        info: &PageInfo,
+        tree: &SyntaxTree,
+    ) -> Self::Output;
+}
 ```
 
 When performing a parse, you will need to first run `preprocess()`, then run `parse()`
@@ -148,6 +159,14 @@ let result = ftml::parse(&log, &tokens);
 // Now we have the final AST, as well as all the issues that
 // occurred during the parsing process.
 let (tree, warnings) = result.into();
+
+// Finally, we render with our renderer. Generally this is `HtmlRender`,
+// but you could have a custom implementation here too.
+//
+// You must provide a `PageInfo` struct, which describes the page being rendered.
+// You must also provide a handle to provide various remote sources, such as
+// module content, but this is not stabilized yet.
+let html_output = HtmlRender.render(&log, &page_info, &tree);
 ```
 
 ### JSON Serialization

@@ -19,7 +19,6 @@
  */
 
 use std::borrow::Cow;
-use strum_macros::IntoStaticStr;
 
 /// Metadata information on the article being rendered.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -28,7 +27,13 @@ pub struct PageInfo<'a> {
     /// The slug for this page.
     ///
     /// That is, the page component of the URL.
+    /// The component portion is already removed.
     pub slug: Cow<'a, str>,
+
+    /// The component this page is in, if any.
+    ///
+    /// If `None`, then the page is within the `_default` category.
+    pub category: Option<Cow<'a, str>>,
 
     /// The title of this page.
     ///
@@ -41,38 +46,28 @@ pub struct PageInfo<'a> {
     /// If this is None then the main title is used instead.
     pub alt_title: Option<Cow<'a, str>>,
 
-    /// The header of this page, if it's setting one.
-    ///
-    /// For regular pages this is "SCP Foundation".
-    /// Previously this value was overriden using custom CSS.
-    pub header: Option<Cow<'a, str>>,
-
-    /// The sub-header of this page, if it's setting one.
-    ///
-    /// For regular pages this is "Secure, Contain, Protect".
-    /// Previously this value was overriden using custom CSS.
-    pub subheader: Option<Cow<'a, str>>,
-
     /// The current rating the page has.
     pub rating: f32,
 
     /// The current set of tags this page has.
     pub tags: Vec<Cow<'a, str>>,
+
+    /// The locale that this page is being rendered for.
+    pub locale: Cow<'a, str>,
 }
 
-#[derive(
-    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
-)]
-#[serde(rename_all = "kebab-case")]
-pub enum InfoField {
-    Title,
-    Header,
-    SubHeader,
-}
-
-impl InfoField {
-    #[inline]
-    pub fn name(self) -> &'static str {
-        self.into()
+impl PageInfo<'_> {
+    /// Generate a dummy PageInfo instance for tests.
+    #[cfg(test)]
+    pub fn dummy() -> Self {
+        PageInfo {
+            slug: cow!("some-page"),
+            category: None,
+            title: cow!("A page for the age"),
+            alt_title: None,
+            rating: 69.0,
+            tags: vec![cow!("tale"), cow!("_cc")],
+            locale: cow!("en_US"),
+        }
     }
 }
