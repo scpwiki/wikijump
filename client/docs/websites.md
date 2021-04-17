@@ -26,7 +26,7 @@ There is a template for making websites, and it can be found in the `templates/w
 
 2. Copy the contents of `templates/website-template` into the new folder.
 
-3. Edit `package.json`, and change the `name` field. It should probably match the name of the folder.
+3. Edit `package.json`, and change the `name` field to the name of this package.
 
 4. You're done!
 
