@@ -36,7 +36,7 @@ Development mode will begin with a full build in order to ensure that dependency
 
 ### Commands
 
-See [`useful-commands.md`.](docs/useful-commands.md)
+See [`useful-commands.md`](docs/useful-commands.md).
 
 ### Modules, Websites
 
