@@ -79,7 +79,11 @@ impl ParseOutcome {
 
     #[wasm_bindgen]
     pub fn syntax_tree(&self) -> SyntaxTree {
-        SyntaxTree(self.inner.value().clone())
+        let tree = self.inner.value().clone();
+
+        SyntaxTree {
+            inner: Arc::new(tree),
+        }
     }
 
     #[wasm_bindgen(typescript_type = "IParseWarning")]
@@ -90,18 +94,27 @@ impl ParseOutcome {
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct SyntaxTree(RustSyntaxTree<'static>);
+pub struct SyntaxTree {
+    inner: Arc<RustSyntaxTree<'static>>,
+}
 
 #[wasm_bindgen]
 impl SyntaxTree {
     #[inline]
     pub(crate) fn get(&self) -> &RustSyntaxTree<'static> {
-        &self.0
+        &self.inner
+    }
+
+    #[wasm_bindgen]
+    pub fn copy(&self) -> SyntaxTree {
+        SyntaxTree {
+            inner: Arc::clone(&self.inner),
+        }
     }
 
     #[wasm_bindgen(typescript_type = "ISyntaxTree")]
     pub fn data(&self) -> Result<ISyntaxTree, JsValue> {
-        rust_to_js!(self.0)
+        rust_to_js!(*self.inner)
     }
 }
 
