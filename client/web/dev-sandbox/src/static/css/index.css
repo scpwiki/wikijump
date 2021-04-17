@@ -36,6 +36,24 @@
   --font-mono:    "Sometype Mono", var(--font-system-mono);
 }
 
+@supports (font-variation-settings: normal) {
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Public Sans";
+    src: url("/static/fonts/variable/PublicSans-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Public Sans";
+    font-style: italic;
+    src: url("/static/fonts/variable/PublicSans-Italic-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+}
+
 @font-face {
   font-weight: normal;
   font-family: "Sometype Mono";
@@ -120,6 +138,7 @@ html {
 html,
 body {
   font-weight: 400;
+  font-family: var(--font-sans);
   text-rendering: optimizeLegibility;
 }
 
