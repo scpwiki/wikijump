@@ -19,7 +19,6 @@
  */
 
 use std::borrow::Cow;
-use strum_macros::IntoStaticStr;
 
 /// Metadata information on the article being rendered.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -47,18 +46,6 @@ pub struct PageInfo<'a> {
     /// If this is None then the main title is used instead.
     pub alt_title: Option<Cow<'a, str>>,
 
-    /// The header of this page, if it's setting one.
-    ///
-    /// For regular pages this is "SCP Foundation".
-    /// Previously this value was overriden using custom CSS.
-    pub header: Option<Cow<'a, str>>,
-
-    /// The sub-header of this page, if it's setting one.
-    ///
-    /// For regular pages this is "Secure, Contain, Protect".
-    /// Previously this value was overriden using custom CSS.
-    pub subheader: Option<Cow<'a, str>>,
-
     /// The current rating the page has.
     pub rating: f32,
 
@@ -78,28 +65,9 @@ impl PageInfo<'_> {
             category: None,
             title: cow!("A page for the age"),
             alt_title: None,
-            header: None,
-            subheader: None,
             rating: 69.0,
             tags: vec![cow!("tale"), cow!("_cc")],
             locale: cow!("en_US"),
         }
-    }
-}
-
-#[derive(
-    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
-)]
-#[serde(rename_all = "kebab-case")]
-pub enum InfoField {
-    Title,
-    Header,
-    SubHeader,
-}
-
-impl InfoField {
-    #[inline]
-    pub fn name(self) -> &'static str {
-        self.into()
     }
 }
