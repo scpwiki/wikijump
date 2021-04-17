@@ -1,7 +1,5 @@
 ## Wikijump Client Monorepo
 
-The design of this monorepo is incomplete. Agreement on a testing framework and architecture, and a few other minor details are needed to advance the design.
-
 ### Relevant Documentation
 
 * [Lerna](https://github.com/lerna/lerna)
