@@ -19,8 +19,4 @@
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   },
-  "dependencies": {
-    "cm-tarnation": "^0.1.0",
-    "wj-util": "^1.0.0"
-  }
 }
