@@ -23,11 +23,8 @@ Other than the inheritance of development dependencies and tooling configuration
 There is a template for making websites, and it can be found in the `templates/website-template` folder.
 
 1. Create a folder in `web/` named the same as the website's package name.
-
 2. Copy the contents of `templates/website-template` into the new folder.
-
 3. Edit `package.json`, and change the `name` field to the name of this package.
-
 4. You're done!
 
 You may want to add a command in the root `package.json` to make it easier to start the build and watch modes for your website package. Look at the `dev-sandbox` scripts, and duplicate how those work.
