@@ -18,7 +18,7 @@ $ npm run update
 
 This will install dependencies, clean package modules, bootstrap, and then build all packages.
 
-Run `npm run bootstrap` any time you need to ensure that packages have their dependencies sorted out.
+'Bootstrap' refers to the process where Lerna symlinks dependencies within this monorepo (as opposed to e.g. uploading each package within this monorepo to NPM and installing with `npm i`). The symlinks are fragile and will break any time a package is reinstalled. Run `npm run bootstrap` in the client monorepo root any time you need to ensure that packages have their dependencies sorted out.
 
 ### Building
 
