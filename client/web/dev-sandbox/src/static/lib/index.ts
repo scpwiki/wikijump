@@ -1,6 +1,6 @@
 import { EditorCore } from "cm-editor-core"
 
-window.addEventListener("DOMContentLoaded", async event => {
+window.addEventListener("DOMContentLoaded", async () => {
   const editor = new EditorCore()
   const res = await fetch("/static/misc/ftml-test.ftml")
   if (!res) return
