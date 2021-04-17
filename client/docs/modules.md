@@ -17,7 +17,7 @@ The `src/` folder is compiled into a `dist/` folder when the module is built. Si
 
 Other than the inheritance of development dependencies and tooling configurations, these modules act like fairly normal NPM packages. If you need to add a dependency to one, you can either navigate to the module and do a normal `npm i <dep>` command, or manually add it to the `package.json`. After you do that, you need to make sure to run the `npm run bootstrap` command at the root. This ensures that all the fragile symlinks get restored by Lerna.
 
-To improve performance of the monorepo, building and watching of modules isn't done per module, but instead globally at root. It is recommended that you just build the entire monorepo rather than trying to build individual packages. This is not an insane recommendation because module building is 100% incremental. If a module has not changed, it won't get rebuilt.
+To improve performance of the monorepo, building and watching of modules isn't done per module, but instead globally at root. It is recommended that you just build the entire monorepo rather than trying to build individual packages. This isn't a performance problem because the repo builds modules incrementally. If a module has not changed, it won't get rebuilt.
 
 There is a template for making modules, and it can be found in the `templates/module-template` folder.
 
