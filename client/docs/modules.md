@@ -30,7 +30,7 @@ Here is how to use that template:
 2. Copy the contents of `templates/module-template` into the new folder.
 
 3. Edit `package.json`.
-  There is a few properties you should edit. They are: `name`, `description`, and `version`. Everything else is fine being left alone.
+  There are a few properties you should edit. They are: `name`, `description`, and `version`. Everything else is fine being left alone.
 
 4. Go into `tests/` and delete, or reuse, the `test-template.ts` file. This is a file demonstrating the basics of how to use the simple [`uvu` testing framework](https://github.com/lukeed/uvu).
 
