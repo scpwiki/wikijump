@@ -37,7 +37,7 @@ interface EditorStore {
   value: string
 }
 
-export class EditorCore {
+export class SheafCore {
   /** The element the editor is attached to. */
   parent!: Element
 
