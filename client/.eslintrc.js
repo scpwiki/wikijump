@@ -44,7 +44,6 @@ const rules = {
   },
 
   style: {
-    "prettier/prettier": ["warn"],
     ...useDefault("warn", [
       "new-parens",
       "no-lonely-if",
@@ -154,7 +153,7 @@ module.exports = {
   ignorePatterns: ["**/node_modules/**", "**/dist/**"],
 
   extends: ["plugin:compat/recommended"],
-  plugins: ["prettier", "@typescript-eslint", "svelte3", "clean-regex"],
+  plugins: ["@typescript-eslint", "svelte3", "clean-regex"],
 
   parser: "@typescript-eslint/parser",
   parserOptions: {

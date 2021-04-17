@@ -6,5 +6,5 @@ trailingComma = "none"
 bracketSpacing = true
 arrowParens = "avoid"
 # let git handle normalizing
-# endOfLine = "lf"
+endOfLine = "auto"
 embeddedLanguageFormatting = "off"
