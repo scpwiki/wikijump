@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::error::error_to_js;
 use super::parsing::SyntaxTree;
 use super::prelude::*;
 use crate::data::PageInfo as RustPageInfo;
@@ -41,12 +42,25 @@ export interface IHtmlMeta {
     value: string;
 }
 
+export interface IPageInfo {
+    slug: string;
+    category: string | null;
+    title: string;
+    alt_title: string | null;
+    rating: number;
+    tags: string[];
+    locale: string;
+}
+
 "#;
 
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(typescript_type = "IHtmlMeta[]")]
     pub type IHtmlMetaArray;
+
+    #[wasm_bindgen(typescript_type = "IPageInfo")]
+    pub type IPageInfo;
 }
 
 // Wrapper structures
@@ -60,6 +74,13 @@ impl PageInfo {
     #[inline]
     pub(crate) fn get(&self) -> &RustPageInfo<'static> {
         &self.0
+    }
+
+    #[wasm_bindgen(constructor, typescript_type = "IPageInfo")]
+    pub fn new(object: IPageInfo) -> Result<PageInfo, JsValue> {
+        let rust_page_info = object.into_serde().map_err(error_to_js)?;
+
+        Ok(PageInfo(rust_page_info))
     }
 }
 
