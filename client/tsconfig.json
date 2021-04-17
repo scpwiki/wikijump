@@ -34,7 +34,8 @@
   // The performance benefits are worth it, regardless.
   "references": [
     { "path": "./modules/wj-util" },
-    { "path": "./modules/node-snowpack-workers" }
+    { "path": "./modules/node-snowpack-workers" },
+    { "path": "./modules/cm-editor-core" }
   ],
 
   "typeAcquisition": {
