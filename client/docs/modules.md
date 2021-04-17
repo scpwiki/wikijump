@@ -34,6 +34,6 @@ Here is how to use that template:
 
 4. Go into `tests/` and delete, or reuse, the `test-template.ts` file. This is a file demonstrating the basics of how to use the simple [`uvu` testing framework](https://github.com/lukeed/uvu).
 
-5. Go to the root `package.json` and edit the `references` property, and add your module to it. This has to be done manually, unfortunately. If you don't do this, your module won't have any `.d.ts` files generated.
+5. Go to the root `tsconfig.json` and edit the `references` property, and add your module to it. This has to be done manually, unfortunately. If you don't do this, your module won't have any `.d.ts` files generated.
 
 6. You're done!
