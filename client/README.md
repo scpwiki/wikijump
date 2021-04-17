@@ -5,6 +5,8 @@ The design of this monorepo is incomplete. Agreement on a testing framework and 
 ### Relevant Documentation
 
 * [Lerna](https://github.com/lerna/lerna)
+* [`uvu`](https://github.com/lukeed/uvu)
+* [Snowpack](https://www.snowpack.dev/)
 
 ### Getting Started
 
@@ -38,10 +40,6 @@ Development mode will begin with a full build in order to ensure that dependency
 
 See [`useful-commands.md`.](docs/useful-commands.md)
 
-### Creating a Package
+### Modules, Websites
 
-Creating a package is very simple. Navigate to the `templates/module-template` folder. There, you will find a premade template package that can be dropped into `modules/`. Make sure to edit the `package.json` to fit the package you intend to create, e.g. `name` and `description` fields.
-
-One fairly manual tweak you need to make is adding the package directory to the `references` field in the root `tsconfig.json`. This is to make sure that `.d.ts` declarations are compiled - which are essential to typecheck the monorepo.
-
-After that, everything else is automatic. Your package will be automatically processed by Lerna.
+See [`modules.md`](docs/modules.md), and [`websites.md`](docs/websites.md).

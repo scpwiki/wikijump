@@ -30,3 +30,5 @@ There is a template for making websites, and it can be found in the `templates/w
 3. Edit `package.json`, and change the `name` field. It should probably match the name of the folder.
 
 4. You're done!
+
+You may want to add a command in the root `package.json` to make it easier to start the build and watch modes for your website package. Look at the `dev-sandbox` scripts, and duplicate how those work.
