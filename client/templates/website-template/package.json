@@ -1,0 +1,22 @@
+{
+  "name": "website-template",
+  "license": "agpl-3.0-or-later",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "snowpack dev",
+    "build": "snowpack build"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scpwiki/wikijump.git"
+  },
+  "bugs": {
+    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
+  },
+  "homepage": "https://github.com/scpwiki/wikijump#readme",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+}

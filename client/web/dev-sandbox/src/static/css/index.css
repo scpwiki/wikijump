@@ -1,0 +1,11 @@
+/* Normalize html, body elements */
+html,
+body {
+  min-width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  font-size: 1rem;
+  line-height: 1.5;
+  touch-action: manipulation;
+  scroll-behavior: smooth;
+}

@@ -1,0 +1,11 @@
+{
+  "files.exclude": {
+    "**/.npm": true,
+    "**/node_modules": true,
+    "**/dist/": true,
+    "**/.ultra.cache.json": true,
+    "**/package-lock.json": true
+  },
+  "typescript.tsdk": "node_modules\\typescript\\lib"
+  // "editor.wordWrapColumn": 90
+}

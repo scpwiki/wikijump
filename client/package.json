@@ -1,0 +1,76 @@
+{
+  "name": "root",
+  "license": "agpl-3.0-or-later",
+  "description": "Private root package for the Wikijump client monorepo.",
+  "private": true,
+  "scripts": {
+    "update": "npm i && run-s clean:* bootstrap build",
+    "bootstrap": "lerna bootstrap --hoist",
+    "clean:node": "lerna clean --yes",
+    "clean:modules": "ultra --no-pretty -r --filter \"+modules/*\" clean",
+    "build:modules": "tsc -b && ultra -r --filter \"+modules/*\" build",
+    "build:web": "ultra -r --filter \"web/*\" build",
+    "build:cmd": "npm run build:modules && npm run build:web",
+    "build": "ultra --build build:cmd",
+    "dev:modules": "tsc -b -w && node scripts/build-modules.js -w -g",
+    "dev": "ultra dev:modules",
+    "test": "node scripts/build-modules.js -tests && uvu modules tests[/\\\\\\\\]dist",
+    "eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
+    "eslint-fix": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
+    "prettier": "prettier --check \"modules/**\" \"web/**\"",
+    "prettier-fix": "prettier --write \"modules/**\" \"web/**\"",
+    "filler-comment": "The scripts below are to help with the individual web/ packages.",
+    "build:dev-sandbox": "ultra --build build:modules && ultra -r --filter \"web/dev-sandbox\" build",
+    "dev:dev-sandbox:cmd": "npm run dev:modules && ultra -r --filter \"web/dev-sandbox\" dev",
+    "dev:dev-sandbox": "ultra dev:dev-sandbox:cmd"
+  },
+  "ultra": {
+    "concurrent": [
+      "dev:modules",
+      "build:modules",
+      "dev:dev-sandbox:cmd"
+    ]
+  },
+  "workspaces": [
+    "modules/*",
+    "web/*"
+  ],
+  "browserslist": [
+    "supports es6-module and > 0.2% and last 2 versions",
+    "Firefox ESR",
+    "not dead",
+    "not ie > 0"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scpwiki/wikijump.git"
+  },
+  "bugs": {
+    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
+  },
+  "homepage": "https://github.com/scpwiki/wikijump#readme",
+  "devDependencies": {
+    "@snowpack/plugin-svelte": "^3.6.1",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "@typescript-eslint/typescript-estree": "^4.22.0",
+    "browserslist": "^4.16.4",
+    "esbuild": "^0.11.11",
+    "esbuild-node-externals": "^1.2.0",
+    "eslint": "^7.24.0",
+    "eslint-plugin-clean-regex": "^0.5.1",
+    "eslint-plugin-compat": "^3.9.0",
+    "eslint-plugin-svelte3": "^3.1.2",
+    "estrella": "^1.4.0",
+    "lerna": "^4.0.0",
+    "noop-stream": "^0.1.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
+    "snowpack": "^3.3.3",
+    "svelte": "^3.37.0",
+    "trash-cli": "^4.0.0",
+    "typescript": "4.3.0-beta",
+    "ultra-runner": "^3.10.5",
+    "uvu": "^0.5.1"
+  }
+}

@@ -5,6 +5,7 @@ files/modulus.pem
 
 # Editor files
 .idea/
+.vscode/
 .*.sw?
 
 # Miscellaneous
