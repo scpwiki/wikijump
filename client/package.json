@@ -14,7 +14,7 @@
     "build": "ultra --build build:cmd",
     "dev:modules": "tsc -b -w && node scripts/build-modules.js -w -g",
     "dev": "ultra dev:modules",
-    "test": "ultra -r --filter \"modules/*\" test:build && uvu modules tests[/\\\\\\\\]dist",
+    "test": "node scripts/build-modules.js -tests && uvu modules tests[/\\\\\\\\]dist",
     "eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
     "eslint-fix": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "prettier": "prettier --check \"./**/*.js\" \"./**/*.ts\"",

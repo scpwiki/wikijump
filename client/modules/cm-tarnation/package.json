@@ -8,10 +8,7 @@
   ],
   "scripts": {
     "clean": "trash dist .ultra.cache.json",
-    "build": "node ../../scripts/build-modules.js -self",
-    "test:build": "trash ./tests/dist/* && node ../../scripts/build-tests.js",
-    "test:uvu": "uvu ./tests/dist",
-    "test": "run-s -s test:build test:uvu"
+    "build": "node ../../scripts/build-modules.js -self"
   },
   "type": "module",
   "main": "dist/index.js",
