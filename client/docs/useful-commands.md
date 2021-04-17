@@ -1,6 +1,6 @@
 ```
 $ npm run update         Install dependencies, clean packages, bootstrap, then build.
-$ npm i                  Install the root's packages. Be sure to run 'npm run bootstrap'.
+$ npm i                  Install the root's packages. Be sure to run 'npm run bootstrap' afterwards.
 $ npm run bootstrap       Link packages together, hoist shared dependencies.
 $ npm run clean          Clean up packages node_modules and tsc build data.
 $ npm run build          Build all packages.
