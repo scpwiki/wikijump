@@ -1,6 +1,6 @@
 # Monorepo: Websites
 
-This monorepo has special support for website packages, in the `web/` folder. These are quite a bit more complex than module packages. While technically there is no specific restriction on what can be used to build or develop a website package, it is recommended that you use [Snowpack](https://www.snowpack.dev/). This doc. will assume that you're using Snowpack and that you started with the `templates/website-template` configuration.
+This monorepo has special support for website packages, in the `web/` folder. These are quite a bit more complex than module packages. While technically there is no specific restriction on what can be used to build or develop a website package, it is recommended that you use [Snowpack](https://www.snowpack.dev/). This documentation will assume that you're using Snowpack and that you started with the `templates/website-template` configuration.
 
 The file structure will look like this:
 ```
