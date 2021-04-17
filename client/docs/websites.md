@@ -6,10 +6,10 @@ The file structure will look like this:
 ```
 website:
 - public/ (might have to be created)
-  - */**
+  - **/*
 - src/
   - index.html
-  - */**
+  - **/*
 - package.json
 - snowpack.config.cjs
 - tsconfig.json
