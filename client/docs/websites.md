@@ -22,7 +22,7 @@ Other than the inheritance of development dependencies and tooling configuration
 
 There is a template for making websites, and it can be found in the `templates/website-template` folder.
 
-1. Create a folder in `web/` that is the name of your website.
+1. Create a folder in `web/` named the same as the website's package name.
 
 2. Copy the contents of `templates/website-template` into the new folder.
 
