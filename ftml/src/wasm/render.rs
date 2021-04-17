@@ -98,23 +98,32 @@ impl PageInfo {
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct HtmlOutput(RustHtmlOutput);
+pub struct HtmlOutput {
+    inner: Arc<RustHtmlOutput>,
+}
 
 #[wasm_bindgen]
 impl HtmlOutput {
     #[wasm_bindgen]
+    pub fn copy(&self) -> HtmlOutput {
+        HtmlOutput {
+            inner: Arc::clone(&self.inner),
+        }
+    }
+
+    #[wasm_bindgen]
     pub fn html(&self) -> String {
-        self.0.html.clone()
+        self.inner.html.clone()
     }
 
     #[wasm_bindgen]
     pub fn style(&self) -> String {
-        self.0.style.clone()
+        self.inner.style.clone()
     }
 
     #[wasm_bindgen(typescript_type = "IHtmlMetaArray")]
     pub fn html_meta(&self) -> Result<IHtmlMetaArray, JsValue> {
-        rust_to_js!(self.0.meta)
+        rust_to_js!(self.inner.meta)
     }
 }
 
@@ -126,5 +135,8 @@ pub fn render_html(page_info: PageInfo, syntax_tree: SyntaxTree) -> HtmlOutput {
     let page_info = page_info.get();
     let tree = syntax_tree.get();
     let html = HtmlRender.render(&log, page_info, tree);
-    HtmlOutput(html)
+
+    HtmlOutput {
+        inner: Arc::new(html),
+    }
 }
