@@ -19,7 +19,6 @@ The `public` folder is where source files that do not need compiling or transfor
 
 Other than the inheritance of development dependencies and tooling configurations, websites act like fairly normal NPM packages. If you need to add a dependency to one, you can either navigate to the website package and do a normal `npm i <dep>` command, or manually add it to the `package.json`. After you do that, you need to make sure to run the `npm run bootstrap` command at the root. This ensures that all the fragile symlinks get restored by Lerna.
 
-If you are wondering how you actually make a website using Snowpack, I would look into the Snowpack documentation. It's a fairly straightforward process.
 
 There is a template for making websites, and it can be found in the `templates/website-template` folder.
 
