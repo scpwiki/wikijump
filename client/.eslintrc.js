@@ -89,23 +89,25 @@ const rules = {
   },
 
   typechecked: {
-    // code
-    ...useDefault("error", [
-      "no-misused-promises",
-      "no-floating-promises",
-      "require-await",
-      "no-unnecessary-boolean-literal-compare",
-      "no-unnecessary-condition",
-      "no-unnecessary-type-assertion",
-      "no-confusing-void-expression",
-      "no-unnecessary-qualifier",
-      "no-unnecessary-type-arguments",
-      "non-nullable-type-assertion-style",
-      "prefer-includes",
-      "prefer-nullish-coalescing"
-    ]),
-    // style
-    ...useDefault("warn", ["dot-notation"])
+    ...prefixKeys('@typescript-eslint/', {
+      // code
+      ...useDefault("error", [
+        "no-misused-promises",
+        "no-floating-promises",
+        "require-await",
+        "no-unnecessary-boolean-literal-compare",
+        "no-unnecessary-condition",
+        "no-unnecessary-type-assertion",
+        "no-confusing-void-expression",
+        "no-unnecessary-qualifier",
+        "no-unnecessary-type-arguments",
+        "non-nullable-type-assertion-style",
+        "prefer-includes",
+        "prefer-nullish-coalescing"
+      ]),
+      // style
+      ...useDefault("warn", ["dot-notation"])
+    })
   },
 
   regex: {
@@ -163,7 +165,8 @@ module.exports = {
       "./tsconfig.json",
       "./modules/*/tsconfig.json",
       "./web/*/tsconfig.json",
-      "./templates/module-template/tsconfig.json"
+      "./templates/module-template/tsconfig.json",
+      "./templates/website-template/tsconfig.json"
     ],
     extraFileExtensions: [".svelte"]
   },
