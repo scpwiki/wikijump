@@ -24,6 +24,7 @@ use super::prelude::*;
 use crate::data::PageInfo as RustPageInfo;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::Render;
+use std::sync::Arc;
 
 // Typescript declarations
 
@@ -67,20 +68,31 @@ extern "C" {
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct PageInfo(RustPageInfo<'static>);
+pub struct PageInfo {
+    inner: Arc<RustPageInfo<'static>>,
+}
 
 #[wasm_bindgen]
 impl PageInfo {
     #[inline]
     pub(crate) fn get(&self) -> &RustPageInfo<'static> {
-        &self.0
+        &self.inner
+    }
+
+    #[wasm_bindgen]
+    pub fn copy(&self) -> PageInfo {
+        PageInfo {
+            inner: Arc::clone(&self.inner),
+        }
     }
 
     #[wasm_bindgen(constructor, typescript_type = "IPageInfo")]
     pub fn new(object: IPageInfo) -> Result<PageInfo, JsValue> {
         let rust_page_info = object.into_serde().map_err(error_to_js)?;
 
-        Ok(PageInfo(rust_page_info))
+        Ok(PageInfo {
+            inner: Arc::new(rust_page_info),
+        })
     }
 }
 
