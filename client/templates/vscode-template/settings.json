@@ -6,7 +6,6 @@
     "**/.ultra.cache.json": true,
     "**/package-lock.json": true
   },
-  "typescript.tsdk": "node_modules\\typescript\\lib",
-  "files.eol": "\n"
+  "typescript.tsdk": "node_modules\\typescript\\lib"
   // "editor.wordWrapColumn": 90
 }
