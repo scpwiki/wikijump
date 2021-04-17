@@ -22,6 +22,7 @@ use super::prelude::*;
 use super::tokenizer::Tokenization;
 use crate::parsing::ParseOutcome as RustParseOutcome;
 use crate::tree::SyntaxTree as RustSyntaxTree;
+use std::sync::Arc;
 
 // Typescript declarations
 
@@ -63,18 +64,27 @@ extern "C" {
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct ParseOutcome(RustParseOutcome<RustSyntaxTree<'static>>);
+pub struct ParseOutcome {
+    inner: Arc<RustParseOutcome<RustSyntaxTree<'static>>>,
+}
 
 #[wasm_bindgen]
 impl ParseOutcome {
     #[wasm_bindgen]
+    pub fn copy(&self) -> ParseOutcome {
+        ParseOutcome {
+            inner: Arc::clone(&self.inner),
+        }
+    }
+
+    #[wasm_bindgen]
     pub fn syntax_tree(&self) -> SyntaxTree {
-        SyntaxTree(self.0.value().clone())
+        SyntaxTree(self.inner.value().clone())
     }
 
     #[wasm_bindgen(typescript_type = "IParseWarning")]
     pub fn warnings(&self) -> Result<IParseWarningArray, JsValue> {
-        rust_to_js!(self.0.warnings())
+        rust_to_js!(self.inner.warnings())
     }
 }
 
@@ -108,5 +118,8 @@ pub fn parse(tokens: Tokenization) -> Result<ParseOutcome, JsValue> {
     // Deep-clone AST to make it owned, so it can be safely passed to JS.
     let syntax_tree = syntax_tree.to_owned();
 
-    Ok(ParseOutcome(RustParseOutcome::new(syntax_tree, warnings)))
+    // Create inner wrapper
+    let inner = Arc::new(RustParseOutcome::new(syntax_tree, warnings));
+
+    Ok(ParseOutcome { inner })
 }
