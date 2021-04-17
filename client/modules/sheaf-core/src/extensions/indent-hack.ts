@@ -1,3 +1,8 @@
+/**
+ * @file Exports the "indent-hack" for CodeMirror.
+ * This enables elegant, tab-preserving line-wrapping in the editor.
+ */
+
 import { EditorState } from "@codemirror/state"
 import {
   EditorView,

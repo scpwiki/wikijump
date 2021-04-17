@@ -1,3 +1,7 @@
+/**
+ * @file Exports {@link SheafCore}, the core class that wraps around CodeMirror 6.
+ */
+
 import { EditorState, Extension, Compartment } from "@codemirror/state"
 import {
   EditorView,
