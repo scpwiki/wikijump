@@ -32,7 +32,10 @@ macro_rules! tag_method {
 }
 
 /// These are HTML tags which do not need a closing pair.
-const SOLO_HTML_TAGS: [&str; 3] = ["br", "br", "input"];
+const SOLO_HTML_TAGS: [&str; 14] = [
+    "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param",
+    "source", "track", "wbr",
+];
 
 // Main struct
 
