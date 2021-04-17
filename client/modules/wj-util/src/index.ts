@@ -101,7 +101,6 @@ export function hasSigil<T extends string = string>(
 
 /** Removes sigils from a string recursively. */
 export function unSigil<T extends string>(str: T, sigils: string | string[]): T {
-  if (typeof str !== "string") throw new TypeError("str must be a string")
   if (typeof sigils === "string") {
     return (str.startsWith(sigils) ? str.slice(sigils.length) : str) as T
   } else {
