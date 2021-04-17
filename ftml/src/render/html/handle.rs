@@ -21,6 +21,7 @@
 use super::HtmlContext;
 use crate::data::PageInfo;
 use crate::tree::Module;
+use std::num::NonZeroUsize;
 
 #[derive(Debug)]
 pub struct Handle;
@@ -81,5 +82,16 @@ impl Handle {
 
         // TODO
         str!("https://example.com/")
+    }
+
+    pub fn post_code(&self, log: &slog::Logger, index: NonZeroUsize, code: &str) {
+        debug!(
+            log,
+            "Submitting code snippet";
+            "index" => index.get(),
+            "code" => code,
+        );
+
+        // TODO
     }
 }

@@ -64,6 +64,9 @@ pub fn render_code(
         "contents" => contents,
     );
 
+    let index = ctx.next_code_snippet_index();
+    ctx.handle().post_code(log, index, contents);
+
     // TODO: syntax highlighting based on 'language'
 
     ctx.html()

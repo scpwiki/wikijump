@@ -25,6 +25,7 @@ use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
 use crate::data::PageInfo;
 use std::fmt::{self, Write};
+use std::num::NonZeroUsize;
 
 #[derive(Debug)]
 pub struct HtmlContext<'i, 'h> {
@@ -33,6 +34,9 @@ pub struct HtmlContext<'i, 'h> {
     meta: Vec<HtmlMeta>,
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
+
+    // Other fields to track
+    code_snippet_index: NonZeroUsize,
 }
 
 impl<'i, 'h> HtmlContext<'i, 'h> {
@@ -44,6 +48,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
             meta: Self::initial_metadata(&info),
             info,
             handle,
+            code_snippet_index: NonZeroUsize::new(1).unwrap(),
         }
     }
 
@@ -91,6 +96,12 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     #[inline]
     pub fn handle(&self) -> &'h Handle {
         self.handle
+    }
+
+    pub fn next_code_snippet_index(&mut self) -> NonZeroUsize {
+        let index = self.code_snippet_index;
+        self.code_snippet_index = NonZeroUsize::new(index.get() + 1).unwrap();
+        index
     }
 
     // Buffer management
