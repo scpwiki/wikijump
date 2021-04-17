@@ -142,8 +142,6 @@ impl Test<'_> {
             category: None,
             title: cow!(self.name),
             alt_title: None,
-            header: None,
-            subheader: None,
             rating: 0.0,
             tags: vec![],
             locale: cow!("en_US"),

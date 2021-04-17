@@ -49,8 +49,6 @@ fn debug() {
     category: None,
     title: "A page for the age",
     alt_title: None,
-    header: None,
-    subheader: None,
     rating: 69.0,
     tags: [
         "tale",
