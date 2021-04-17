@@ -189,14 +189,10 @@ export function getExtensions() {
       ...foldKeymap,
       ...commentKeymap,
       ...completionKeymap,
-      ...[
-        { key: "Mod-l", run: openLintPanel, preventDefault: true },
-        { key: "F8", run: nextDiagnostic, preventDefault: true }
-      ],
-      ...[
-        { key: "Mod-Shift-z", run: redo, preventDefault: true },
-        { key: "Mod-d", run: copyLineDown, preventDefault: true }
-      ],
+      { key: "Mod-l", run: openLintPanel, preventDefault: true },
+      { key: "F8", run: nextDiagnostic, preventDefault: true },
+      { key: "Mod-Shift-z", run: redo, preventDefault: true },
+      { key: "Mod-d", run: copyLineDown, preventDefault: true },
       defaultTabBinding
     ]),
     confinement
