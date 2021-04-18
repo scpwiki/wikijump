@@ -6,7 +6,11 @@
 # parsing and rendering of wikitext.
 ftml                                @ammongit
 
+# Frontend monorepo
+client                              @Monkatraz @rossjrw
+
 # Frontend files related to browser scripting or styling.
+# (Wikidot legacy)
 web/web/files--common/dialogs       @rossjrw
 web/web/files--common/javascript    @rossjrw
 web/web/files--common/modules       @rossjrw
