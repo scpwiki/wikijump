@@ -234,11 +234,6 @@ class Form {
 		$out.='<input type="hidden" name="formname" value="'.$this->name  .'"/>';
 		$out.='<input type="hidden" name="formkey" value="'.$this->formKey  .'"/>';
 		$out.='<input type="hidden" name="use_formtool" value="yes"/>';
-
-		// put an UNIQUE key to allow resubmission detection
-		$key = UniqueStrings::timeBased();
-		$out.='<input type="hidden" name="form_submission_key" value="'.$key.'"/>';
-
 		return $out;
 	}
 

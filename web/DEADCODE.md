@@ -125,7 +125,7 @@ If possible, add to this log in the same commit in which the code is removed.
 * Why it was removed: In addition to being vendor code in the repo, it was only used for search (broken) and pingbacks (obsolete).
 
 ## PHP: `web/php/Modules/CreateAccount`, `web/templates/modules/CreateAccount`, `web/web/files--common/modules/js/CreateAccount`
-* Relevant Issues:
+* Relevant Issues: (none)
 * Where it was: [web/php/Modules/CreateAccount/](https://github.com/scpwiki/wikijump/tree/64b94cda1ff4e941da45621f0255bba19adae4ee/web/php/Modules/CreateAccount), [web/templates/modules/CreateAccount/](https://github.com/scpwiki/wikijump/tree/64b94cda1ff4e941da45621f0255bba19adae4ee/web/templates/modules/CreateAccount), [web/web/files--common/modules/js/CreateAccount/](https://github.com/scpwiki/wikijump/tree/64b94cda1ff4e941da45621f0255bba19adae4ee/web/web/files--common/modules/js/CreateAccount)
 * What it did: The legacy `CreateAccount` module.
 * Why it was removed: Unused.
@@ -147,3 +147,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-448](https://scuttle.atlassian.net/browse/WJ-448)
 * What it did: Poorly-implemented [Cross Site Request Forgery (CSRF)](https://owasp.org/www-community/attacks/csrf) protection.
 * Why it was removed: There are [recommended and more secure ways](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) of guarding against CSRF attacks.
+
+## PHP: `UniqueStrings::timeBased()`
+* Where it was: [web/lib/ozoneframework/php/core/UniqueStrings.php](https://github.com/scpwiki/wikijump/blob/28b400207d15bbd89da2f273003098fac7ac541b/web/lib/ozoneframework/php/core/UniqueStrings.php)
+* Relevant Issues: [WJ-442](https://scuttle.atlassian.net/browse/WJ-442)
+* What it did: Produced a unique string based on the current time and an incrementing number.
+* Why it was removed: Unused after an unnecessary usage was removed.
