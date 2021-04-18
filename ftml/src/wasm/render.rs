@@ -24,6 +24,7 @@ use super::prelude::*;
 use crate::data::PageInfo as RustPageInfo;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::Render;
+use ref_map::OptionRefMap;
 use std::sync::Arc;
 
 // Typescript declarations
@@ -62,6 +63,9 @@ extern "C" {
 
     #[wasm_bindgen(typescript_type = "IPageInfo")]
     pub type IPageInfo;
+
+    #[wasm_bindgen(typescript_type = "string[]")]
+    pub type ITags;
 }
 
 // Wrapper structures
@@ -93,6 +97,43 @@ impl PageInfo {
         Ok(PageInfo {
             inner: Arc::new(rust_page_info),
         })
+    }
+
+    // Getters
+
+    #[wasm_bindgen(method, getter)]
+    pub fn slug(&self) -> String {
+        self.inner.slug.to_string()
+    }
+
+    #[wasm_bindgen(method, getter)]
+    pub fn category(&self) -> Option<String> {
+        self.inner.category.ref_map(ToString::to_string)
+    }
+
+    #[wasm_bindgen(method, getter)]
+    pub fn title(&self) -> String {
+        self.inner.title.to_string()
+    }
+
+    #[wasm_bindgen(method, getter)]
+    pub fn alt_title(&self) -> Option<String> {
+        self.inner.alt_title.ref_map(ToString::to_string)
+    }
+
+    #[wasm_bindgen(method, getter)]
+    pub fn rating(&self) -> f32 {
+        self.inner.rating
+    }
+
+    #[wasm_bindgen(method, getter, typescript_type = "ITags")]
+    pub fn tags(&self) -> Result<ITags, JsValue> {
+        rust_to_js!(self.inner.tags)
+    }
+
+    #[wasm_bindgen(method, getter)]
+    pub fn locale(&self) -> String {
+        self.inner.locale.to_string()
     }
 }
 
