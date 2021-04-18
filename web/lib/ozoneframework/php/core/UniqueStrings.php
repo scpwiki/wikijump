@@ -6,7 +6,6 @@ namespace Ozone\Framework;
 
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Ozone\Framework\DB\UniqueStringBrokerPeer;
 
 /**
  * Utility Class for providing unique strings.
@@ -20,6 +19,8 @@ class UniqueStrings {
  	 * Returns time-based + int element string.
  	 */
  	public static function timeBased(){
+        // TODO
+
  		$timePart = time().'';
  		// TRANSACTION OR TABLE LOCK SHOULD START HERE
  		$db = Database::connection();
@@ -48,6 +49,7 @@ class UniqueStrings {
  	}
 
  	public static function resetCounter(){
+        // sets last_index = 0
  		UniqueStringBrokerPeer::instance()->reset();
  	}
  }
