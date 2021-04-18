@@ -13,6 +13,6 @@ class ResetUSCounterJob implements SchedulerJob
 
     public function run()
     {
-        UniqueStrings::resetCounter();
+        UniqueStrings::resetTimeBasedCounter();
     }
 }
