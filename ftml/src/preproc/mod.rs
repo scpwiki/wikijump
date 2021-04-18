@@ -27,7 +27,6 @@ mod test;
 /// Run the preprocessor on the given wikitext, which is modified in-place.
 ///
 /// The following modifications are performed:
-/// * Expand instances of `[[include]]`
 /// * Replacing DOS and legacy Mac newlines
 /// * Trimming whitespace lines
 /// * Concatenating lines that end with backslashes
