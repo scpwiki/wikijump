@@ -26,14 +26,8 @@ class Form {
 	private $validated = false;
 
 	private $validatorName = null;
-	private $extraValidatorName = null;
 
 	private $retrieved = false;
-
-	/**
-	 * If the form is resubmitted (by clicking "reload" button).
-	 */
-	private $resubmitted = false;
 
 	public function __construct($formName, $formKey = "_0"){
 		$this->name = $formName;
@@ -46,10 +40,6 @@ class Form {
 
 	public function setName($name){
 		$this->name = $name;
-	}
-
-	public function getFormKey(){
-		return $this->formKey;
 	}
 
 	public function setFormKey($formKey){
@@ -131,20 +121,8 @@ class Form {
 		return $fields["$fieldName"]->extra[0]["$attributeName"];
 	}
 
-	/**
-	 * Returns true if the form has been retrieved via user submission. If
-	 * the form is new - returns false.
-	 */
-	public function isRetrieved(){
-		return $this->retrieved;
-	}
-
 	public function setRetrieved($retrieved){
 		$this->retrieved = $retrieved;
-	}
-
-	public function isNew(){
-		return ! $this->retrieved;
 	}
 
 	public function validate($fieldName = null){
@@ -161,7 +139,6 @@ class Form {
 					$this->isValidAll = false; // one false is enough to spoil the whole form!
 				}
 			}
-
 		} else {
 			//ok, validate the field $fieldName
 			$this->isValidArray["$fieldName"] = true;
@@ -195,7 +172,6 @@ class Form {
 					return;
 				}
 			}
-
 		}
 	}
 
@@ -213,20 +189,12 @@ class Form {
 
 	}
 
-	public function setValid($fieldName, $value){
-		$this->isValidArray["$fieldName"] = $value;
-	}
-
 	public function getErrorMessage($fieldName){
 		return trim($this->errorMessages[$fieldName]);
 	}
 
 	public function getErrorMessages(){
 		return $this->errorMessages;
-	}
-
-	public function setErrorMessage($fieldName, $message){
-		$this->errorMessages[$fieldName] = $message;
 	}
 
 	public function declarations(){
@@ -238,7 +206,6 @@ class Form {
 	}
 
 	public function renderingString($name){
-
 		$fields = FormXMLStorage::getFormFields($this->name);
 		$attributes = $fields[$name]->rendering[0]->attributes();
 		$out = "";
@@ -247,7 +214,6 @@ class Form {
 			if($attributes !== null){
 				foreach($attributes as $key => $value){
 					$out.=' '.$key.'="'.$value.'" ';
-
 				}
 			}
 		}
@@ -258,7 +224,6 @@ class Form {
 					if($key!=type){
 						$out.=' '.$key.'="'.$value.'" ';
 					}
-
 				}
 			}
 		}
@@ -267,20 +232,11 @@ class Form {
 			if($attributes !== null){
 				foreach($attributes as $key => $value){
 					$out.=' '.$key.'="'.$value.'" ';
-
 				}
 			}
 		}
 
 		return $out;
-	}
-
-	public function isValidated(){
-		return $this->validated;
-	}
-
-	public function setValidated($value){
-		$this->validated = $value;
 	}
 
 	public function populateFromParameterArray($parameterArray){
@@ -337,7 +293,7 @@ class Form {
 	}
 
 	public function getFieldNames(){
-		return  FormXMLStorage::getFormFieldNames($this->name);
+		return FormXMLStorage::getFormFieldNames($this->name);
 	}
 
 	/**
@@ -346,7 +302,6 @@ class Form {
 	public function getSelectValueListName($fieldName){
 		$fields = FormXMLStorage::getFormFields($this->name);
 		return $fields["$fieldName"]['valueList'];
-
 	}
 
 	/**
@@ -355,7 +310,6 @@ class Form {
 	public function getSelectValueTableName($fieldName){
 		$fields = FormXMLStorage::getFormFields($this->name);
 		return $fields["$fieldName"]['valueTable'];
-
 	}
 
 	/**
@@ -378,13 +332,5 @@ class Form {
 		}else{
 			return false;
 		}
-	}
-
-	public function setResubmitted($value){
-		$this->resubmitted = $value;
-	}
-
-	public function isResubmitted(){
-		return $this->resubmitted;
 	}
 }
