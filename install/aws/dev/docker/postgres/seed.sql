@@ -1219,19 +1219,6 @@ ALTER TABLE public.files_event_file_event_id_seq OWNER TO wikijump;
 
 ALTER SEQUENCE public.files_event_file_event_id_seq OWNED BY public.files_event.file_event_id;
 
-
---
--- Name: form_submission_key; Type: TABLE; Schema: public; Owner: wikijump
---
-
-CREATE TABLE public.form_submission_key (
-    key_id character varying(90) NOT NULL,
-    date_submitted timestamp without time zone
-);
-
-
-ALTER TABLE public.form_submission_key OWNER TO wikijump;
-
 --
 -- Name: forum_category; Type: TABLE; Schema: public; Owner: wikijump
 --
@@ -3857,14 +3844,6 @@ COPY public.files_event (file_event_id, filename, date, user_id, user_string, ac
 
 
 --
--- Data for Name: form_submission_key; Type: TABLE DATA; Schema: public; Owner: wikijump
---
-
-COPY public.form_submission_key (key_id, date_submitted) FROM stdin;
-\.
-
-
---
 -- Data for Name: forum_category; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
@@ -5296,14 +5275,6 @@ ALTER TABLE ONLY public.file
 
 ALTER TABLE ONLY public.files_event
     ADD CONSTRAINT files_event_pkey PRIMARY KEY (file_event_id);
-
-
---
--- Name: form_submission_key form_submission_key_pkey; Type: CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.form_submission_key
-    ADD CONSTRAINT form_submission_key_pkey PRIMARY KEY (key_id);
 
 
 --
