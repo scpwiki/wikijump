@@ -12,9 +12,6 @@
                             "element": "horizontal-rule"
                         },
                         {
-                            "element": "line-break"
-                        },
-                        {
                             "element": "text",
                             "data": "Horizontal"
                         },
