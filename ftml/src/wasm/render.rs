@@ -123,9 +123,15 @@ impl PageInfo {
         self.inner.rating
     }
 
+    // Psuedo-getter, since we can't pass back Vec<String> :/
     #[wasm_bindgen]
-    pub fn get_tag(&self, index: usize) -> Option<String> {
+    pub fn tag(&self, index: usize) -> Option<String> {
         self.inner.tags.get(index).ref_map(ToString::to_string)
+    }
+
+    #[wasm_bindgen]
+    pub fn tag_length(&self) -> usize {
+        self.inner.tags.len()
     }
 
     #[wasm_bindgen(method, getter)]
