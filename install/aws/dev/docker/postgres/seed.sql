@@ -3137,17 +3137,6 @@ CREATE TABLE public.ucookie (
 ALTER TABLE public.ucookie OWNER TO wikijump;
 
 --
--- Name: unique_string_broker; Type: TABLE; Schema: public; Owner: wikijump
---
-
-CREATE TABLE public.unique_string_broker (
-    last_index integer
-);
-
-
-ALTER TABLE public.unique_string_broker OWNER TO wikijump;
-
---
 -- Name: user_abuse_flag; Type: TABLE; Schema: public; Owner: wikijump
 --
 
@@ -4709,15 +4698,6 @@ COPY public.theme_preview (theme_id, body) FROM stdin;
 --
 
 COPY public.ucookie (ucookie_id, site_id, session_id, date_granted) FROM stdin;
-\.
-
-
---
--- Data for Name: unique_string_broker; Type: TABLE DATA; Schema: public; Owner: wikijump
---
-
-COPY public.unique_string_broker (last_index) FROM stdin;
-127
 \.
 
 
