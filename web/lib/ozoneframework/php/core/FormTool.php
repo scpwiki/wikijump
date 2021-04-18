@@ -9,10 +9,6 @@ namespace Ozone\Framework;
  *
  */
 
-use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\FormSubmissionKey;
-use Wikidot\DB\FormSubmissionKeyPeer;
-
 class FormTool {
 
 	// should become true after a form is substracted from the http request
@@ -63,21 +59,9 @@ class FormTool {
 			$form = $this->getForm($formName, $formKey);
 			//populate the form
 			$form->populateFromParameterArray($parameters);
-			// check if resubmitted
-			$key = $parameters['form_submission_key'];
-			$c = new Criteria();
-			$c->add("key_id", $key);
-			$entry = FormSubmissionKeyPeer::instance()->selectOne($c);
-			if($entry == null){
-				// insert key into database
-				$entry = new FormSubmissionKey();
-				$entry->setKeyId($key);
-				$entry->setDateSubmitted(new ODate());
-				$entry->save();
-			}
 			//save form to the storage
 			$this->formStorage["$formName"] = array();
-			$this->formStorage["$formName"]["$formKey"]=$form;
+			$this->formStorage["$formName"]["$formKey"] = $form;
 		}
 
 	}
