@@ -63,6 +63,9 @@ extern "C" {
 
     #[wasm_bindgen(typescript_type = "IPageInfo")]
     pub type IPageInfo;
+
+    #[wasm_bindgen(typescript_type = "string[]")]
+    pub type ITags;
 }
 
 // Wrapper structures
@@ -123,15 +126,9 @@ impl PageInfo {
         self.inner.rating
     }
 
-    // Psuedo-getter, since we can't pass back Vec<String> :/
-    #[wasm_bindgen]
-    pub fn tag(&self, index: usize) -> Option<String> {
-        self.inner.tags.get(index).ref_map(ToString::to_string)
-    }
-
-    #[wasm_bindgen]
-    pub fn tag_length(&self) -> usize {
-        self.inner.tags.len()
+    #[wasm_bindgen(method, getter, typescript_type = "ITags")]
+    pub fn tags(&self) -> Result<ITags, JsValue> {
+        rust_to_js!(self.inner.tags)
     }
 
     #[wasm_bindgen(method, getter)]
