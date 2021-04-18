@@ -70,7 +70,11 @@ pub fn render_code(
     // TODO: syntax highlighting based on 'language'
 
     ctx.html()
-        .div()
+        .pre()
         .attr("class", &["code"])
-        .inner(log, &contents);
+        .contents(|ctx| {
+            ctx.html()
+                .code()
+                .inner(log, &contents);
+        });
 }
