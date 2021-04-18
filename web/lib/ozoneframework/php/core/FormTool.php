@@ -15,11 +15,9 @@ class FormTool {
 
 	private $formStorage = array();
 
-	public function hasForms(){}
-
 	public function getForm($name, $formKey=null){
 		if($formKey == null) {$formKey = "_0";} // set default formKey
-		if($this->formStorage["$name"] == null || $this->formStorage["$name"]["$formKey"] == null){
+		if($this->formStorage["$name"] == null || $this->formStorage["$name"]["$formKey"] == null) {
 			return $this->newForm($name, $formKey);
 		} else {
 			$form = $this->formStorage["$name"]["$formKey"];
@@ -28,30 +26,14 @@ class FormTool {
 		}
 	}
 
-	public function delForm($formName=null, $formKey=null) {
-		if($formName != null && $formKey != null){
-			unset($this->formStorage["$formName"]["$formKey"]);
-		}
-		if($formName != null && $formKey == null){
-			unset($this->formStorage["$formName"]);
-		}
-		if($formName == null){
-			//clear all
-			$this->formStorage = array();
-		}
-	}
-
 	public function newForm($formName, $formKey="_0") {
-
 		$form = new Form($formName, $formKey);
 		$form->setFormKey($formKey);
-
 		$form->setRetrieved(false);
 		return $form;
-
 	}
 
-	public function processHttpRequest($runData){
+	public function processHttpRequest($runData) {
 		$parameters = $runData->getParameterList()->asArray();
 		if($parameters['use_formtool'] == yes){
 			$formName = $parameters['formname'];
@@ -62,21 +44,6 @@ class FormTool {
 			//save form to the storage
 			$this->formStorage["$formName"] = array();
 			$this->formStorage["$formName"]["$formKey"] = $form;
-		}
-
-	}
-
-	/** Returns the number of stored forms */
-	public function formsNumber(){
-		return count($this->formStorage);
-	}
-
-	/** Resets the state of all stored forms to non-validated. */
-	public function resetFormsToNonvalidated(){
-		foreach ($this->formStorage as $forms2){
-			foreach ($forms2 as $form){
-				$form->setValidated(false);
-			}
 		}
 	}
 }
