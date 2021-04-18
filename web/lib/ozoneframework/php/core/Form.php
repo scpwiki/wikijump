@@ -229,6 +229,14 @@ class Form {
 		$this->errorMessages[$fieldName] = $message;
 	}
 
+	public function declarations(){
+		$out="";
+		$out.='<input type="hidden" name="formname" value="'.$this->name  .'"/>';
+		$out.='<input type="hidden" name="formkey" value="'.$this->formKey  .'"/>';
+		$out.='<input type="hidden" name="use_formtool" value="yes"/>';
+		return $out;
+	}
+
 	public function renderingString($name){
 
 		$fields = FormXMLStorage::getFormFields($this->name);

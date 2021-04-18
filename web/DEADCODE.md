@@ -152,4 +152,4 @@ If possible, add to this log in the same commit in which the code is removed.
 * Where it was: [web/lib/ozoneframework/php/core/UniqueStrings.php](https://github.com/scpwiki/wikijump/blob/28b400207d15bbd89da2f273003098fac7ac541b/web/lib/ozoneframework/php/core/UniqueStrings.php)
 * Relevant Issues: [WJ-442](https://scuttle.atlassian.net/browse/WJ-442)
 * What it did: Produced a unique string based on the current time and an incrementing number.
-* Why it was removed: Unused.
+* Why it was removed: Unused after an unnecessary usage was removed.
