@@ -19,14 +19,7 @@ class FormSubmissionKeyBase extends BaseDBObject
         $this->peerName = 'Wikidot\\DB\\FormSubmissionKeyPeer';
         $this->primaryKeyName = 'key_id';
         $this->fieldNames = array( 'key_id' ,  'date_submitted' );
-
-        //$this->fieldDefaultValues=
     }
-
-
-
-
-
 
     public function getKeyId()
     {
@@ -37,7 +30,6 @@ class FormSubmissionKeyBase extends BaseDBObject
     {
         $this->setFieldValue('key_id', $v1, $raw);
     }
-
 
     public function getDateSubmitted()
     {

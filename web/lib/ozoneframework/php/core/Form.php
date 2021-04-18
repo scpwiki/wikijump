@@ -30,11 +30,6 @@ class Form {
 
 	private $retrieved = false;
 
-	/**
-	 * If the form is resubmitted (by clicking "reload" button).
-	 */
-	private $resubmitted = false;
-
 	public function __construct($formName, $formKey = "_0"){
 		$this->name = $formName;
 		$this->formKey = $formKey;
@@ -378,13 +373,5 @@ class Form {
 		}else{
 			return false;
 		}
-	}
-
-	public function setResubmitted($value){
-		$this->resubmitted = $value;
-	}
-
-	public function isResubmitted(){
-		return $this->resubmitted;
 	}
 }

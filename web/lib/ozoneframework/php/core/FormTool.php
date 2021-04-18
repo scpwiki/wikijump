@@ -69,14 +69,11 @@ class FormTool {
 			$c->add("key_id", $key);
 			$entry = FormSubmissionKeyPeer::instance()->selectOne($c);
 			if($entry == null){
-				$form->setResubmitted(false);
 				// insert key into database
 				$entry = new FormSubmissionKey();
 				$entry->setKeyId($key);
 				$entry->setDateSubmitted(new ODate());
 				$entry->save();
-			} else {
-				$form->setResubmitted(true);
 			}
 			//save form to the storage
 			$this->formStorage["$formName"] = array();
