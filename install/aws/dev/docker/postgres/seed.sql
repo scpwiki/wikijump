@@ -2812,20 +2812,15 @@ ALTER SEQUENCE public.private_user_block_block_id_seq OWNED BY public.private_us
 CREATE TABLE public.profile (
     user_id integer NOT NULL,
     real_name character varying(70),
-    gender character(1),
+    pronouns character varying(30),
     birthday_day integer,
     birthday_month integer,
     birthday_year integer,
     about text,
     location character varying(70),
     website character varying(100),
-    im_aim character varying(100),
-    im_gadu_gadu character varying(100),
-    im_google_talk character varying(100),
     im_icq character varying(100),
     im_jabber character varying(100),
-    im_msn character varying(100),
-    im_yahoo character varying(100),
     change_screen_name_count integer DEFAULT 0
 );
 
@@ -4570,8 +4565,8 @@ COPY public.private_user_block (block_id, user_id, blocked_user_id) FROM stdin;
 -- Data for Name: profile; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
-COPY public.profile (user_id, real_name, gender, birthday_day, birthday_month, birthday_year, about, location, website, im_aim, im_gadu_gadu, im_google_talk, im_icq, im_jabber, im_msn, im_yahoo, change_screen_name_count) FROM stdin;
-1	\N	\N	\N	\N	\N	Wikidot administrator.	\N	\N	\N	\N	\N	\N	\N	\N	\N	0
+COPY public.profile (user_id, real_name, pronouns, birthday_day, birthday_month, birthday_year, about, location, website, im_icq, im_jabber, change_screen_name_count) FROM stdin;
+1	\N	\N	\N	\N	\N	Wikidot administrator.	\N	\N	\N	\N	0
 \.
 
 
