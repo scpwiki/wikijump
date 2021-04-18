@@ -67,6 +67,7 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
     tag_method!(img);
     tag_method!(input);
     tag_method!(li);
+    tag_method!(pre);
     tag_method!(script);
     tag_method!(span);
     tag_method!(table);
