@@ -197,7 +197,7 @@ Example:
 
 ### Code
 
-Outputs: `Element::Code` / `<pre><code>`
+Outputs: `Element::Code` / `<pre class="code"><code>`
 
 Body: Raw
 
