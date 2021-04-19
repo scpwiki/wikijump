@@ -108,6 +108,11 @@ impl<'i, 'h> TextContext<'i, 'h> {
 
     // Invisible mode
     #[inline]
+    fn invisible(&self) -> bool {
+        self.invisible > 0
+    }
+
+    #[inline]
     pub fn enable_invisible(&mut self) {
         self.invisible += 1;
     }
@@ -120,22 +125,22 @@ impl<'i, 'h> TextContext<'i, 'h> {
     // Buffer management
     #[inline]
     pub fn push(&mut self, ch: char) {
-        if self.invisible == 0 {
-            self.output.push(ch);
-        } else {
+        if self.invisible() {
             self.output.push(' ');
+        } else {
+            self.output.push(ch);
         }
     }
 
     #[inline]
     pub fn push_str(&mut self, s: &str) {
-        if self.invisible == 0 {
-            self.output.push_str(s);
-        } else {
+        if self.invisible() {
             let chars = self.output.chars().count();
             for _ in 0..chars {
                 self.output.push(' ');
             }
+        } else {
+            self.output.push_str(s);
         }
     }
 
