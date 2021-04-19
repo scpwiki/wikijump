@@ -27,6 +27,7 @@ use crate::data::PageInfo;
 use crate::includes::DebugIncluder;
 use crate::parsing::{ParseWarning, ParseWarningKind, Token};
 use crate::render::html::HtmlRender;
+use crate::render::text::TextRender;
 use crate::render::Render;
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
@@ -68,6 +69,9 @@ struct Test<'a> {
 
     #[serde(skip)]
     html: String,
+
+    #[serde(skip)]
+    text: String,
 }
 
 impl Test<'_> {
@@ -85,6 +89,31 @@ impl Test<'_> {
             };
         }
 
+        macro_rules! load_output {
+            ($name:expr, $extension:expr) => {{
+                let mut path = PathBuf::from(path);
+                path.set_extension($extension);
+
+                let mut file = open_file!(path);
+                let mut contents = String::new();
+
+                if let Err(error) = file.read_to_string(&mut contents) {
+                    panic!(
+                        "Unable to read {} file '{}': {}",
+                        $name,
+                        path.display(),
+                        error,
+                    );
+                }
+
+                if contents.ends_with('\n') {
+                    contents.pop();
+                }
+
+                contents
+            }};
+        }
+
         // Load JSON file
         let mut file = open_file!(path);
         let mut test: Self = match serde_json::from_reader(&mut file) {
@@ -94,31 +123,9 @@ impl Test<'_> {
             }
         };
 
-        // Load HTML output
-        let html = {
-            let mut html_path = PathBuf::from(path);
-            html_path.set_extension("html");
-
-            let mut file = open_file!(html_path);
-            let mut contents = String::new();
-
-            if let Err(error) = file.read_to_string(&mut contents) {
-                panic!(
-                    "Unable to read HTML file '{}': {}",
-                    html_path.display(),
-                    error,
-                );
-            }
-
-            if contents.ends_with('\n') {
-                contents.pop();
-            }
-
-            contents
-        };
-
         test.name = str!(name);
-        test.html = html;
+        test.html = load_output!("HTML", "html");
+        test.text = load_output!("text", "txt");
         test
     }
 
