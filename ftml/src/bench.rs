@@ -31,10 +31,12 @@ extern crate lazy_static;
 extern crate slog;
 
 use bencher::Bencher;
-use std::fs::File;
-use std::io::prelude::*;
+use ftml::data::PageInfo;
 use ftml::render::html::HtmlRender;
 use ftml::render::Render;
+use std::borrow::Cow;
+use std::fs::File;
+use std::io::prelude::*;
 
 macro_rules! build_logger {
     () => {
@@ -46,14 +48,25 @@ lazy_static! {
     static ref INPUT: String = {
         let mut contents = String::new();
         let mut file = File::open("scp-1730.ftml").expect("Unable to open file");
-        file.read_to_string(&mut contents).expect("Unable to read file");
+        file.read_to_string(&mut contents)
+            .expect("Unable to read file");
         contents
+    };
+    static ref PAGE_INFO: PageInfo<'static> = PageInfo {
+        page: Cow::Borrowed("unknown"),
+        category: None,
+        site: Cow::Borrowed("www"),
+        title: Cow::Borrowed("Unnamed Page"),
+        alt_title: None,
+        rating: 0.0,
+        tags: vec![],
+        locale: Cow::Borrowed("C"),
     };
 }
 
 fn full(bench: &mut Bencher) {
     let log = build_logger!();
-    let page_info = PageInfo::dummy();
+    let page_info = PAGE_INFO.clone();
 
     bench.iter(|| {
         let mut text = INPUT.clone();
@@ -118,7 +131,7 @@ fn parse(bench: &mut Bencher) {
 
 fn render(bench: &mut Bencher) {
     let log = build_logger!();
-    let page_info = PageInfo::dummy();
+    let page_info = PAGE_INFO.clone();
 
     let mut text = INPUT.clone();
 

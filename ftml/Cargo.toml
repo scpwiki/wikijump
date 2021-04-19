@@ -19,6 +19,11 @@ members = ["ftml-http"]
 name = "ftml"
 crate-type = ["cdylib", "lib"]
 
+[[bench]]
+name = "perf"
+path = "src/bench.rs"
+harness = false
+
 [features]
 default  = ["has-log"]
 has-log  = ["slog"] # If removed, then logging is cut out entirely -- replaces slog macros with no-ops.
@@ -49,6 +54,7 @@ wikidot-normalize = "0.8"
 built = { version = "0.4", features = ["chrono", "git2"] }
 
 [dev-dependencies]
+bencher = "*"
 sloggers = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
