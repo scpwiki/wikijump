@@ -40,17 +40,13 @@ Additionally, if you disable the default feature `has-log`, you can remove all `
 This can have performance benefits in certain situations:
 
 ```
-$ RUSTFLAGS=-Aunused_variables cargo check --no-default-features
+$ cargo check --no-default-features
 ```
-
-The `RUSTFLAGS` argument is added to suppress warnings from now-unused variables as a result of logging.
-Work into having the macros consume the elements of the logging call is not a priority given the complexity
-of the underlying slog macros.
 
 If you wish to build the WebAssembly target for ftml, use `wasm-pack`:
 
 ```
-$ RUSTFLAGS=-Aunused_variables wasm-pack build -- --no-default-features
+$ wasm-pack build -- --no-default-features
 ```
 
 This produces a build with no `slog` logging at all, which is helpful for limiting the binary footprint and improving performance.
