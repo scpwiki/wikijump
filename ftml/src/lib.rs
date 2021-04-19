@@ -48,10 +48,11 @@ extern crate pest_derive;
 extern crate serde;
 
 #[macro_use]
-extern crate slog;
-
-#[macro_use]
 extern crate str_macro;
+
+#[cfg(feature = "has-log")]
+#[macro_use]
+extern crate slog;
 
 // Library top-level modules
 
