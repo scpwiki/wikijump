@@ -208,8 +208,14 @@ fn get_full_url<'a>(log: &slog::Logger, ctx: &TextContext, url: &'a str) -> Cow<
     let site = &ctx.info().site;
     let mut full_url = ctx.handle().get_url(log, site);
 
+    // Ensure there is exactly one slash
     if !full_url.ends_with('/') && !url.starts_with('/') {
         full_url.push('/');
+    }
+
+    // Remove duplicate slash, if present
+    if full_url.ends_with('/') && url.starts_with('/') {
+        full_url.pop();
     }
 
     full_url.push_str(url);
