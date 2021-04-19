@@ -97,8 +97,12 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
         }
         Element::Link { url, label, .. } => {
             ctx.handle().get_link_label(log, url, label, |label| {
-                let url = get_full_url(log, ctx, url);
-                str_write!(ctx, "{} [{}]", label, url);
+                ctx.push_str(label);
+
+                if label != url {
+                    let url = get_full_url(log, ctx, url);
+                    str_write!(ctx, " [{}]", url);
+                }
             });
         }
         Element::List { ltype, items } => {
