@@ -118,6 +118,8 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             });
         }
         Element::List { ltype, items } => {
+            ctx.add_newline();
+
             for item in items {
                 match item {
                     ListItem::Elements(elements) => {
@@ -138,6 +140,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
 
                         // Render elements for this list item
                         render_elements(log, ctx, elements);
+                        ctx.add_newline();
                     }
                     ListItem::SubList(list) => {
                         // Update bullet depth
