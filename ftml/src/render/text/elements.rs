@@ -156,10 +156,13 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             let hide_text = get_text!(hide_text, "collapsible-hide");
 
             // Top of collapsible
-            str_write!(ctx, "\n{}\n", show_text);
+            ctx.add_newline();
+            ctx.push_str(show_text);
+            ctx.add_newline();
 
             if *show_top {
-                str_write!(ctx, "{}\n", hide_text);
+                ctx.push_str(hide_text);
+                ctx.add_newline();
             }
 
             // Collapsible contents
@@ -167,7 +170,9 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
 
             // Bottom of collapsible
             if *show_bottom {
-                str_write!(ctx, "{}\n", hide_text);
+                ctx.add_newline();
+                ctx.push_str(hide_text);
+                ctx.add_newline();
             }
         }
         Element::Color { elements, .. } => render_elements(log, ctx, elements),
@@ -190,13 +195,9 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             }
         }
         Element::HorizontalRule => {
-            // Add a newline if the last character wasn't a newline
-            match ctx.buffer().chars().next_back() {
-                Some('\n') | None => (),
-                _ => ctx.push('\n'),
-            }
-
-            ctx.push_str("\n-----\n\n");
+            ctx.add_newline();
+            ctx.push_str("------");
+            ctx.add_newline();
         }
     }
 }
