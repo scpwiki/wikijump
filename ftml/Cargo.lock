@@ -1901,9 +1901,9 @@ dependencies = [
 
 [[package]]
 name = "slog-mock"
-version = "0.1.1"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e12bdfc7a44a33216c1d646ee254ca3d0e58c8fc821626f45eaf5e7c5e14aff0"
+checksum = "a9bec75cb97a5455e573245e7534554fa1fca94da02354aa7379a3c23beca9c5"
 dependencies = [
  "quote",
  "syn",
