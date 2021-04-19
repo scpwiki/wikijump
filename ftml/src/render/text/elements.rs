@@ -23,6 +23,8 @@
 use super::TextContext;
 use crate::render::ModuleRenderMode;
 use crate::tree::{Element, ListItem, ListType};
+use crate::url::url_valid;
+use std::borrow::Cow;
 
 pub fn render_elements(log: &slog::Logger, ctx: &mut TextContext, elements: &[Element]) {
     debug!(log, "Rendering elements"; "elements-len" => elements.len());
@@ -157,4 +159,20 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             ctx.push_str("\n-----\n\n");
         }
     }
+}
+
+fn get_full_url<'a>(log: &slog::Logger, ctx: &TextContext, url: &'a str) -> Cow<'a, str> {
+    if url_valid(url) {
+        return Cow::Borrowed(url);
+    }
+
+    let site = &ctx.info().site;
+    let mut full_url = ctx.handle().get_url(log, site);
+
+    if !full_url.ends_with('/') && !url.starts_with('/') {
+        full_url.push('/');
+    }
+
+    full_url.push_str(url);
+    Cow::Owned(full_url)
 }
