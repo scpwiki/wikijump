@@ -1,0 +1,2 @@
+
+<INCLUDED-PAGE my-page {}>

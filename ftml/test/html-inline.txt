@@ -1,0 +1,4 @@
+
+```html
+My <bold>text</bold>!
+```
