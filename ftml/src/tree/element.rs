@@ -267,6 +267,7 @@ impl Element<'_> {
     }
 }
 
+#[cfg(feature = "has-log")]
 impl slog::Value for Element<'_> {
     fn serialize(
         &self,

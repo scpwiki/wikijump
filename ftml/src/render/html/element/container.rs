@@ -21,11 +21,7 @@
 use super::prelude::*;
 use crate::tree::Container;
 
-pub fn render_container(
-    log: &slog::Logger,
-    ctx: &mut HtmlContext,
-    container: &Container,
-) {
+pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Container) {
     debug!(log, "Rendering container"; "container" => container.ctype().name());
 
     // Get HTML tag type for this type of container
@@ -45,7 +41,7 @@ pub fn render_container(
 }
 
 pub fn render_color(
-    log: &slog::Logger,
+    log: &Logger,
     ctx: &mut HtmlContext,
     color: &str,
     elements: &[Element],

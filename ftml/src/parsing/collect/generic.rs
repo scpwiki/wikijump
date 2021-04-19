@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::span_wrap::SpanWrap;
 
 /// Generic function to parse upcoming tokens until conditions are met.
 ///
@@ -62,7 +61,7 @@ use crate::span_wrap::SpanWrap;
 /// The final token from the collection, one prior to the now-current token,
 /// is returned.
 pub fn collect<'p, 'r, 't, F>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
@@ -71,7 +70,7 @@ pub fn collect<'p, 'r, 't, F>(
     mut process: F,
 ) -> ParseResult<'r, 't, &'r ExtractedToken<'t>>
 where
-    F: FnMut(&slog::Logger, &mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
+    F: FnMut(&Logger, &mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
 {
     // Log collect_until() call
     let log = {

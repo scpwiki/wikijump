@@ -24,8 +24,8 @@ use std::mem;
 
 #[derive(Debug)]
 pub struct ParagraphStack<'t> {
-    /// The `slog::Logger` instance used for logging stack operations.
-    log: slog::Logger,
+    /// The `Logger` instance used for logging stack operations.
+    log: Logger,
 
     /// Elements being accumulated in the current paragraph.
     current: Vec<Element<'t>>,
@@ -39,9 +39,9 @@ pub struct ParagraphStack<'t> {
 
 impl<'t> ParagraphStack<'t> {
     #[inline]
-    pub fn new(log: &slog::Logger) -> Self {
+    pub fn new(log: &Logger) -> Self {
         ParagraphStack {
-            log: slog::Logger::clone(log),
+            log: Logger::clone(log),
             current: Vec::new(),
             finished: Vec::new(),
             exceptions: Vec::new(),

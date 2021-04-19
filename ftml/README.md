@@ -36,15 +36,40 @@ You can use this as a dependency by adding the following to your `Cargo.toml`:
 ftml = "0.4"
 ```
 
+Additionally, if you disable the default feature `has-log`, you can remove all `slog` logging code entirely.
+This can have performance benefits in certain situations:
+
+```
+$ RUSTFLAGS=-Aunused_variables cargo check --no-default-features
+```
+
+The `RUSTFLAGS` argument is added to suppress warnings from now-unused variables as a result of logging.
+Work into having the macros consume the elements of the logging call is not a priority given the complexity
+of the underlying slog macros.
+
+If you wish to build the WebAssembly target for ftml, use `wasm-pack`:
+
+```
+$ RUSTFLAGS=-Aunused_variables wasm-pack build -- --no-default-features
+```
+
+This produces a build with no `slog` logging at all, which is helpful for limiting the binary footprint and improving performance.
+
+However, there is a `wasm-log` feature, which initializes a `console.log()`-based `slog::Logger` for WebASM. Note that this will slam your brower's console hard and is **not** recommended for production, only local testing.
+
+If developing and just want to check that the build passes, use:
+```
+$ cargo check --target wasm32-unknown-unknown
+```
+
 ### Testing
 ```sh
 $ cargo test
 ```
 
 Add `-- --nocapture` to the end if you want to see test output.
-If you wish to see the logging output, you can change `crate::build_logger()`
-to use a different logger creation implementation. Or you can modify the test
-you're inspecting to use a different logger.
+If you wish to see the logging output, you can change `crate::build_logger()` to use a different logger
+creation implementation. Or you can modify the test you're inspecting to use a different logger.
 
 ### Philosophy
 

@@ -21,12 +21,13 @@
 //! Module that implements text rendering for `Element` and its children.
 
 use super::TextContext;
+use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::{ContainerType, Element, ListItem, ListType};
 use crate::url::is_url;
 use std::borrow::Cow;
 
-pub fn render_elements(log: &slog::Logger, ctx: &mut TextContext, elements: &[Element]) {
+pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]) {
     debug!(log, "Rendering elements"; "elements-len" => elements.len());
 
     for element in elements {
@@ -34,7 +35,7 @@ pub fn render_elements(log: &slog::Logger, ctx: &mut TextContext, elements: &[El
     }
 }
 
-pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Element) {
+pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
     debug!(log, "Rendering element"; "element" => element.name());
 
     match element {
@@ -235,7 +236,9 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
     }
 }
 
-fn get_full_url<'a>(log: &slog::Logger, ctx: &TextContext, url: &'a str) -> Cow<'a, str> {
+fn get_full_url<'a>(log: &Logger, ctx: &TextContext, url: &'a str) -> Cow<'a, str> {
+    debug!(log, "Building full URL"; "url" => url);
+
     // TODO: when we remove inline javascript stuff
     if url == "javascript:;" {
         return Cow::Borrowed("#");

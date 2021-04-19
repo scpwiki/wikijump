@@ -28,6 +28,7 @@
 
 mod prelude {
     pub use super::collect;
+    pub use crate::log::prelude::*;
     pub use crate::parsing::condition::ParseCondition;
     pub use crate::parsing::consume::consume;
     pub use crate::parsing::exception::{ParseWarning, ParseWarningKind};

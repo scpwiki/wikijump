@@ -30,7 +30,7 @@ pub const BLOCK_ANCHOR: BlockRule = BlockRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,

@@ -22,6 +22,7 @@ use cfg_if::cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "wasm-log")] {
+        // Use console.log()
         mod console;
         mod context;
 
@@ -34,11 +35,19 @@ cfg_if! {
                 slog::Logger::root(ConsoleLogger.fuse(), o!())
             };
         }
-    } else {
+    } else if #[cfg(feature = "has-log")] {
+        // Use a null logger
         lazy_static! {
             pub static ref LOGGER: slog::Logger = {
                 slog::Logger::root(slog::Discard, o!()) //
             };
+        }
+    } else {
+        // Use dummy logging
+        use crate::log::Logger;
+
+        lazy_static! {
+            pub static ref LOGGER: Logger = Logger;
         }
     }
 }

@@ -29,12 +29,7 @@ impl Render for DebugRender {
     type Output = String;
 
     #[inline]
-    fn render(
-        &self,
-        log: &slog::Logger,
-        page_info: &PageInfo,
-        tree: &SyntaxTree,
-    ) -> String {
+    fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
         info!(log, "Running debug logger on syntax tree");
 
         format!("{:#?}\n{:#?}", page_info, tree)

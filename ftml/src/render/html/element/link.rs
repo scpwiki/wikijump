@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel};
 
 pub fn render_anchor(
-    log: &slog::Logger,
+    log: &Logger,
     ctx: &mut HtmlContext,
     elements: &[Element],
     attributes: &AttributeMap,
@@ -41,7 +41,7 @@ pub fn render_anchor(
 }
 
 pub fn render_link(
-    log: &slog::Logger,
+    log: &Logger,
     ctx: &mut HtmlContext,
     url: &str,
     label: &LinkLabel,

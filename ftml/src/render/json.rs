@@ -48,7 +48,7 @@ impl Render for JsonRender {
 
     fn render(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         page_info: &PageInfo,
         syntax_tree: &SyntaxTree,
     ) -> String {

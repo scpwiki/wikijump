@@ -25,6 +25,7 @@
 
 use crate::data::PageInfo;
 use crate::includes::DebugIncluder;
+use crate::log::prelude::*;
 use crate::parsing::{ParseWarning, ParseWarningKind, Token};
 use crate::render::html::HtmlRender;
 use crate::render::text::TextRender;
@@ -128,7 +129,7 @@ impl Test<'_> {
         test
     }
 
-    pub fn run(&self, log: &slog::Logger) {
+    pub fn run(&self, log: &Logger) {
         info!(
             &log,
             "Running syntax tree test case";

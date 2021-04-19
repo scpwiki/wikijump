@@ -39,7 +39,7 @@ pub const RULE_BLOCK_SKIP: Rule = Rule {
 // Rule implementations
 
 fn block_regular<'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     trace!(log, "Trying to process a block");
@@ -48,7 +48,7 @@ fn block_regular<'r, 't>(
 }
 
 fn block_special<'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     trace!(log, "Trying to process a block (with special)");
@@ -57,7 +57,7 @@ fn block_special<'r, 't>(
 }
 
 fn block_skip<'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     trace!(
@@ -100,7 +100,7 @@ fn block_skip<'r, 't>(
 // Block parsing implementation
 
 fn parse_block<'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &mut Parser<'r, 't>,
     special: bool,
 ) -> ParseResult<'r, 't, Elements<'t>>

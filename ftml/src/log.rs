@@ -18,49 +18,133 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Helper module to add filenames and newlines to slog output.
-//!
-//! See https://github.com/slog-rs/slog/issues/123
+cfg_if! {
+    if #[cfg(feature = "has-log")] {
+        // Re-export main slog logger
+        pub mod prelude {
+            pub use slog::Logger;
+            pub use crate::span_wrap::SpanWrap;
+        }
 
-macro_rules! slog_filename {
-    () => {
-        slog::PushFnValue(|r: &slog::Record, ser: slog::PushFnValueSerializer| {
-            ser.emit(r.file())
-        })
-    };
-}
+        // Helper macros to add filenames and newlines to slog output.
+        // See https://github.com/slog-rs/slog/issues/123
+        macro_rules! slog_filename {
+            () => {
+                slog::PushFnValue(|r: &slog::Record, ser: slog::PushFnValueSerializer| {
+                    ser.emit(r.file())
+                })
+            };
+        }
 
-macro_rules! slog_lineno {
-    () => {
-        slog::PushFnValue(|r: &slog::Record, ser: slog::PushFnValueSerializer| {
-            ser.emit(r.line())
-        })
-    };
-}
+        macro_rules! slog_lineno {
+            () => {
+                slog::PushFnValue(|r: &slog::Record, ser: slog::PushFnValueSerializer| {
+                    ser.emit(r.line())
+                })
+            };
+        }
 
-#[cfg(test)]
-#[allow(dead_code)]
-mod loggers {
-    #[inline]
-    pub fn build_logger() -> slog::Logger {
-        build_null_logger()
+        // Pre-built loggers for testing
+        #[cfg(test)]
+        #[allow(dead_code)]
+        mod loggers {
+            #[inline]
+            pub fn build_logger() -> slog::Logger {
+                build_null_logger()
+            }
+
+            pub fn build_null_logger() -> slog::Logger {
+                slog::Logger::root(slog::Discard, o!())
+            }
+
+            pub fn build_terminal_logger() -> slog::Logger {
+                use sloggers::terminal::TerminalLoggerBuilder;
+                use sloggers::types::Severity;
+                use sloggers::Build;
+
+                TerminalLoggerBuilder::new()
+                    .level(Severity::Trace)
+                    .build()
+                    .expect("Unable to initialize logger")
+            }
+        }
+
+        #[cfg(test)]
+        pub use self::loggers::{build_logger, build_null_logger, build_terminal_logger};
+    } else {
+        // Dummy prelude
+        pub mod prelude {
+            pub use super::Logger;
+        }
+
+        // Dummy logging structure
+        #[derive(Debug, Copy, Clone)]
+        pub struct Logger;
+
+        impl Logger {
+            pub fn new(&self, _: ()) -> &Logger {
+                self
+            }
+        }
+
+        // Helpers
+        pub fn unused<T>(_x: T) {}
+
+        #[macro_use]
+        #[allow(unused_macros)]
+        mod macros {
+            // Dummy filename/lineno macros
+            macro_rules! slog_filename {
+                () => ();
+            }
+
+            macro_rules! slog_lineno {
+                () => ();
+            }
+
+            // Dummy logging macros
+            macro_rules! crit {
+                ($l:expr, $($args:tt)+) => {
+                    crate::log::unused($l)
+                };
+            }
+
+            macro_rules! error {
+                ($l:expr, $($args:tt)+) => {
+                    crate::log::unused($l)
+                };
+            }
+
+            macro_rules! warn {
+                ($l:expr, $($args:tt)+) => {
+                    crate::log::unused($l)
+                };
+            }
+
+            macro_rules! info {
+                ($l:expr, $($args:tt)+) => {
+                    crate::log::unused($l)
+                };
+            }
+
+            macro_rules! debug {
+                ($l:expr, $($args:tt)+) => {
+                    crate::log::unused($l)
+                };
+            }
+
+            macro_rules! trace {
+                ($l:expr, $($args:tt)+) => {
+                    crate::log::unused($l)
+                };
+            }
+
+            // Dummy logging construction macros
+            macro_rules! slog_o {
+                ($($args:tt)+) => {
+                    ()
+                };
+            }
+        }
     }
-
-    pub fn build_null_logger() -> slog::Logger {
-        slog::Logger::root(slog::Discard, o!())
-    }
-
-    pub fn build_terminal_logger() -> slog::Logger {
-        use sloggers::terminal::TerminalLoggerBuilder;
-        use sloggers::types::Severity;
-        use sloggers::Build;
-
-        TerminalLoggerBuilder::new()
-            .level(Severity::Trace)
-            .build()
-            .expect("Unable to initialize logger")
-    }
 }
-
-#[cfg(test)]
-pub use self::loggers::{build_logger, build_null_logger, build_terminal_logger};

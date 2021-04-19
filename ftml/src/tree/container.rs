@@ -136,6 +136,7 @@ impl ContainerType {
     }
 }
 
+#[cfg(feature = "has-log")]
 impl slog::Value for ContainerType {
     fn serialize(
         &self,

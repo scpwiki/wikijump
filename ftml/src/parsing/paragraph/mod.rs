@@ -26,6 +26,7 @@ use super::parser::Parser;
 use super::prelude::*;
 use super::rule::Rule;
 use super::token::Token;
+use crate::log::prelude::*;
 
 /// Wrapper type to satisfy the issue with generic closure types.
 ///
@@ -44,7 +45,7 @@ type CloseConditionFn = fn(&mut Parser) -> Result<bool, ParseWarning>;
 /// extraction deeper in code, such as in the `try_paragraph`
 /// collection helper.
 pub fn gather_paragraphs<'r, 't, F>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &mut Parser<'r, 't>,
     rule: Rule,
     mut close_condition_fn: Option<F>,
