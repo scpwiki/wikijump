@@ -21,6 +21,7 @@
 //! Module that implements text rendering for `Element` and its children.
 
 use super::TextContext;
+use crate::render::ModuleRenderMode;
 use crate::tree::{Element, ListItem, ListType};
 
 pub fn render_elements(log: &slog::Logger, ctx: &mut TextContext, elements: &[Element]) {
@@ -36,7 +37,10 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
 
     match element {
         Element::Container(container) => render_elements(log, ctx, container.elements()),
-        Element::Module(module) => todo!(),
+        Element::Module(module) => {
+            ctx.handle()
+                .render_module(log, ctx.buffer(), module, ModuleRenderMode::Text)
+        }
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
             ctx.push_str(text)
         }
