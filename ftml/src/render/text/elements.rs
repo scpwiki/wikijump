@@ -44,7 +44,13 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
             ctx.push_str(text)
         }
-        Element::Anchor { elements, .. } => render_elements(log, ctx, elements),
+        Element::Anchor { elements, attributes, .. } => {
+            render_elements(log, ctx, elements);
+
+            if let Some(href) = attributes.get().get("href") {
+                str_write!(ctx, " [{}]", href);
+            }
+        }
         Element::Link { url, label, .. } => {
             ctx.handle().get_link_label(log, url, label, |label| {
                 str_write!(ctx, "{} [{}]", label, url);
