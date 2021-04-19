@@ -61,12 +61,10 @@ pub fn render_code(
 
     // TODO: syntax highlighting based on 'language'
 
-    ctx.html()
+    ctx.html() //
         .pre()
         .attr("class", &["code"])
         .contents(|ctx| {
-            ctx.html()
-                .code()
-                .inner(log, &contents);
+            ctx.html().code().inner(log, &contents);
         });
 }
