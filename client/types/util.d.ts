@@ -22,7 +22,7 @@ export declare global {
   /** _Strictly_ represents a `{ 'key': value }` object with only primitives. */
   type PlainObject = Record<string, Primitive>
 
-  /** Represents either the value `T` or the value wrapped in `PromiseLike<T>`. */
+  /** Represents either a value of the given type or a promise that resolves to one. */
   type Promisable<T> = T | PromiseLike<T>
 
   /** Matches a JSON object. */
