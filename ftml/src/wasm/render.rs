@@ -23,6 +23,7 @@ use super::parsing::SyntaxTree;
 use super::prelude::*;
 use crate::data::PageInfo as RustPageInfo;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
+use crate::render::text::TextRender;
 use crate::render::Render;
 use ref_map::OptionRefMap;
 use std::sync::Arc;
@@ -45,8 +46,9 @@ export interface IHtmlMeta {
 }
 
 export interface IPageInfo {
-    slug: string;
+    page: string;
     category: string | null;
+    site: string;
     title: string;
     alt_title: string | null;
     rating: number;
@@ -102,13 +104,18 @@ impl PageInfo {
     // Getters
 
     #[wasm_bindgen(method, getter)]
-    pub fn slug(&self) -> String {
-        self.inner.slug.to_string()
+    pub fn page(&self) -> String {
+        self.inner.page.to_string()
     }
 
     #[wasm_bindgen(method, getter)]
     pub fn category(&self) -> Option<String> {
         self.inner.category.ref_map(ToString::to_string)
+    }
+
+    #[wasm_bindgen(method, getter)]
+    pub fn site(&self) -> String {
+        self.inner.site.to_string()
     }
 
     #[wasm_bindgen(method, getter)]
@@ -180,4 +187,14 @@ pub fn render_html(page_info: PageInfo, syntax_tree: SyntaxTree) -> HtmlOutput {
     HtmlOutput {
         inner: Arc::new(html),
     }
+}
+
+#[wasm_bindgen]
+pub fn render_text(page_info: PageInfo, syntax_tree: SyntaxTree) -> String {
+    let log = &*LOGGER;
+    let page_info = page_info.get();
+    let tree = syntax_tree.get();
+    let text = TextRender.render(&log, page_info, tree);
+
+    text
 }

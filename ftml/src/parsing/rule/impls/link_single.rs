@@ -26,6 +26,7 @@
 
 use super::prelude::*;
 use crate::tree::{AnchorTarget, LinkLabel};
+use crate::url::is_url;
 
 pub const RULE_LINK_SINGLE: Rule = Rule {
     name: "link-single",
@@ -135,29 +136,6 @@ fn try_consume_link<'p, 'r, 't>(
 }
 
 fn url_valid(url: &str) -> bool {
-    const SCHEMES: [&str; 20] = [
-        "blob:",
-        "chrome-extension://",
-        "chrome://",
-        "content://",
-        "data:",
-        "dns:",
-        "feed:",
-        "file://",
-        "ftp://",
-        "git://",
-        "gopher://",
-        "http://",
-        "https://",
-        "irc6://",
-        "irc://",
-        "ircs://",
-        "mailto:",
-        "resource://",
-        "rtmp://",
-        "sftp://",
-    ];
-
     // If url is an empty string
     if url.is_empty() {
         return false;
@@ -169,10 +147,8 @@ fn url_valid(url: &str) -> bool {
     }
 
     // If it's a URL
-    for scheme in &SCHEMES {
-        if url.starts_with(scheme) {
-            return true;
-        }
+    if is_url(url) {
+        return true;
     }
 
     false

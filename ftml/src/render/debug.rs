@@ -45,8 +45,9 @@ impl Render for DebugRender {
 fn debug() {
     // Expected outputs
     const OUTPUT: &str = r#"PageInfo {
-    slug: "some-page",
+    page: "some-page",
     category: None,
+    site: "sandbox",
     title: "A page for the age",
     alt_title: None,
     rating: 69.0,

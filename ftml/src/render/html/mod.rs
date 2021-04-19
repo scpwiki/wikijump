@@ -21,14 +21,10 @@
 #[cfg(test)]
 mod test;
 
-#[macro_use]
-mod macros;
-
 mod builder;
 mod context;
 mod element;
 mod escape;
-mod handle;
 mod meta;
 mod output;
 mod render;
@@ -41,9 +37,8 @@ use super::prelude;
 
 use self::context::HtmlContext;
 use self::element::render_elements;
-use self::handle::Handle;
 use crate::data::PageInfo;
-use crate::render::Render;
+use crate::render::{Handle, Render};
 use crate::tree::SyntaxTree;
 
 #[derive(Debug)]
@@ -61,7 +56,9 @@ impl Render for HtmlRender {
         info!(
             log,
             "Rendering syntax tree";
-            "slug" => page_info.slug.as_ref(),
+            "target" => "html",
+            "site" => page_info.site.as_ref(),
+            "page" => page_info.page.as_ref(),
             "category" => match &page_info.category {
                 Some(category) => category.as_ref(),
                 None => "_default",

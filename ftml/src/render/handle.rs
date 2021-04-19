@@ -1,5 +1,5 @@
 /*
- * render/html/handle.rs
+ * render/handle.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,34 +18,79 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::HtmlContext;
 use crate::data::PageInfo;
+use crate::tree::LinkLabel;
 use crate::tree::Module;
 use std::num::NonZeroUsize;
+use strum_macros::IntoStaticStr;
 
 #[derive(Debug)]
 pub struct Handle;
 
 impl Handle {
+    pub fn get_url(&self, log: &slog::Logger, site_slug: &str) -> String {
+        debug!(
+            log,
+            "Getting URL of this Wikijump instance";
+            "site" => site_slug,
+        );
+
+        // TODO
+        format!("https://{}.wikijump.com/", site_slug)
+    }
+
     pub fn render_module(
         &self,
         log: &slog::Logger,
-        ctx: &mut HtmlContext,
+        buffer: &mut String,
         module: &Module,
+        mode: ModuleRenderMode,
     ) {
-        debug!(log, "Rendering module"; "module" => module.name());
+        debug!(
+            log,
+            "Rendering module";
+            "module" => module.name(),
+            "mode" => mode.name(),
+        );
 
-        // TODO
-        ctx.push_raw_str("<p>TODO: module ");
-        ctx.push_escaped(module.name());
-        ctx.push_raw_str("</p>");
+        match mode {
+            ModuleRenderMode::Html => {
+                str_write!(buffer, "<p>TODO: module {}</p>", module.name());
+            }
+            ModuleRenderMode::Text => {
+                str_write!(buffer, "TODO: module {}", module.name());
+            }
+        }
     }
 
-    pub fn get_page_title(&self, log: &slog::Logger, slug: &str) -> String {
-        debug!(log, "Fetching page title"; "slug" => slug);
+    pub fn get_page_title(&self, log: &slog::Logger, page_slug: &str) -> String {
+        debug!(log, "Fetching page title"; "page" => page_slug);
 
         // TODO
-        format!("TODO: actual title ({})", slug)
+        format!("TODO: actual title ({})", page_slug)
+    }
+
+    pub fn get_link_label<F>(
+        &self,
+        log: &slog::Logger,
+        url: &str,
+        label: &LinkLabel,
+        f: F,
+    ) where
+        F: FnOnce(&str),
+    {
+        let page_title;
+        let label_text = match *label {
+            LinkLabel::Text(ref text) => text,
+            LinkLabel::Url(Some(ref text)) => text,
+            LinkLabel::Url(None) => url,
+            LinkLabel::Page => {
+                page_title = self.get_page_title(log, url);
+                &page_title
+            }
+        };
+
+        f(label_text);
     }
 
     pub fn get_message(
@@ -64,7 +109,7 @@ impl Handle {
         // TODO
         match message {
             "collapsible-open" => "+ open block",
-            "collapsible-close" => "- open block",
+            "collapsible-hide" => "- hide block",
             _ => {
                 error!(
                     log,
@@ -93,5 +138,21 @@ impl Handle {
         );
 
         // TODO
+    }
+}
+
+#[derive(
+    IntoStaticStr, Serialize, Deserialize, Debug, Hash, Copy, Clone, PartialEq, Eq,
+)]
+#[serde(rename_all = "kebab-case")]
+pub enum ModuleRenderMode {
+    Html,
+    Text,
+}
+
+impl ModuleRenderMode {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
     }
 }

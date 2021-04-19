@@ -1,0 +1,1 @@
+<INCLUDED-PAGE multiline {"contents" => "the chorizo stew is almost finished cooking \n i cannot just stop cooking my chorizo stew in order to talk to you about an i.r.c. channel, friends \nshit i am sorry i did not mean to rejoin", "name" => "consuelo"}>

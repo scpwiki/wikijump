@@ -28,7 +28,11 @@ pub mod debug;
 pub mod html;
 pub mod json;
 pub mod null;
+pub mod text;
 
+mod handle;
+
+use self::handle::{Handle, ModuleRenderMode};
 use crate::data::PageInfo;
 use crate::tree::SyntaxTree;
 
@@ -54,7 +58,7 @@ pub trait Render {
     fn render(
         &self,
         log: &slog::Logger,
-        info: &PageInfo,
+        page_info: &PageInfo,
         tree: &SyntaxTree,
     ) -> Self::Output;
 }

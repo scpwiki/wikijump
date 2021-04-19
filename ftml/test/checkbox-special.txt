@@ -1,0 +1,3 @@
+[X] Apple
+[ ] Banana
+[X] Cherry

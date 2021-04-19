@@ -1,0 +1,5 @@
+Apple
+<MISSING-PAGE my-page>
+Banana
+<INCLUDED-PAGE other {}>
+Cherry

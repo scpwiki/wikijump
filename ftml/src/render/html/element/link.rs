@@ -47,16 +47,7 @@ pub fn render_link(
     label: &LinkLabel,
     target: Option<AnchorTarget>,
 ) {
-    let page_title;
-    let label_text = match label {
-        LinkLabel::Text(ref text) => text,
-        LinkLabel::Url(Some(ref text)) => text,
-        LinkLabel::Url(None) => url,
-        LinkLabel::Page => {
-            page_title = ctx.handle().get_page_title(log, url);
-            &page_title
-        }
-    };
+    let handle = ctx.handle();
 
     // Create <a> and set attributes
     let mut tag = ctx.html().a();
@@ -67,5 +58,7 @@ pub fn render_link(
     }
 
     // Add <a> internals, i.e. the link name
-    tag.inner(log, &label_text);
+    handle.get_link_label(log, url, label, |label| {
+        tag.inner(log, &label);
+    });
 }

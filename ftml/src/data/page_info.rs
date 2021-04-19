@@ -28,12 +28,17 @@ pub struct PageInfo<'a> {
     ///
     /// That is, the page component of the URL.
     /// The component portion is already removed.
-    pub slug: Cow<'a, str>,
+    pub page: Cow<'a, str>,
 
     /// The component this page is in, if any.
     ///
     /// If `None`, then the page is within the `_default` category.
     pub category: Option<Cow<'a, str>>,
+
+    /// The slug the site that page is being written for.
+    ///
+    /// That is, the part of the URL in the form `{slug}.wikijump.com`.
+    pub site: Cow<'a, str>,
 
     /// The title of this page.
     ///
@@ -61,8 +66,9 @@ impl PageInfo<'_> {
     #[cfg(test)]
     pub fn dummy() -> Self {
         PageInfo {
-            slug: cow!("some-page"),
+            page: cow!("some-page"),
             category: None,
+            site: cow!("sandbox"),
             title: cow!("A page for the age"),
             alt_title: None,
             rating: 69.0,

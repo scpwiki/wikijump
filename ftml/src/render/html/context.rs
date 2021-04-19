@@ -20,10 +20,10 @@
 
 use super::builder::HtmlBuilder;
 use super::escape::escape;
-use super::handle::Handle;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
 use crate::data::PageInfo;
+use crate::render::Handle;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
@@ -90,7 +90,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     // Field access
     #[inline]
     pub fn info(&self) -> &PageInfo<'i> {
-        &self.info
+        self.info
     }
 
     #[inline]
@@ -141,10 +141,11 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
 }
 
 impl<'i, 'h> From<HtmlContext<'i, 'h>> for HtmlOutput {
-    fn from(context: HtmlContext<'i, 'h>) -> HtmlOutput {
+    #[inline]
+    fn from(ctx: HtmlContext<'i, 'h>) -> HtmlOutput {
         let HtmlContext {
             html, style, meta, ..
-        } = context;
+        } = ctx;
 
         HtmlOutput { html, style, meta }
     }

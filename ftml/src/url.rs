@@ -1,5 +1,5 @@
 /*
- * render/html/macros.rs
+ * url.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,14 +18,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Like `std::write()`, except it asserts the writing succeeded.
-///
-/// This is done because the only failure mode for writing to a `String`
-/// would be insufficient memory, which would cause an abort anyways.
-macro_rules! str_write {
-    ($dest:expr, $($arg:tt)*) => {{
-        use std::fmt::Write;
+pub const URL_SCHEMES: [&str; 20] = [
+    "blob:",
+    "chrome-extension://",
+    "chrome://",
+    "content://",
+    "data:",
+    "dns:",
+    "feed:",
+    "file://",
+    "ftp://",
+    "git://",
+    "gopher://",
+    "http://",
+    "https://",
+    "irc6://",
+    "irc://",
+    "ircs://",
+    "mailto:",
+    "resource://",
+    "rtmp://",
+    "sftp://",
+];
 
-        write!($dest, $($arg)*).expect("Writing to string failed");
-    }};
+pub fn is_url(url: &str) -> bool {
+    // If it's a URL
+    for scheme in &URL_SCHEMES {
+        if url.starts_with(scheme) {
+            return true;
+        }
+    }
+
+    false
 }

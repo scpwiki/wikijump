@@ -27,10 +27,10 @@ use crate::data::PageInfo;
 use crate::includes::DebugIncluder;
 use crate::parsing::{ParseWarning, ParseWarningKind, Token};
 use crate::render::html::HtmlRender;
+use crate::render::text::TextRender;
 use crate::render::Render;
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
-use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -68,6 +68,9 @@ struct Test<'a> {
 
     #[serde(skip)]
     html: String,
+
+    #[serde(skip)]
+    text: String,
 }
 
 impl Test<'_> {
@@ -85,6 +88,31 @@ impl Test<'_> {
             };
         }
 
+        macro_rules! load_output {
+            ($name:expr, $extension:expr, $trim_newline:expr) => {{
+                let mut path = PathBuf::from(path);
+                path.set_extension($extension);
+
+                let mut file = open_file!(path);
+                let mut contents = String::new();
+
+                if let Err(error) = file.read_to_string(&mut contents) {
+                    panic!(
+                        "Unable to read {} file '{}': {}",
+                        $name,
+                        path.display(),
+                        error,
+                    );
+                }
+
+                if $trim_newline && contents.ends_with('\n') {
+                    contents.pop();
+                }
+
+                contents
+            }};
+        }
+
         // Load JSON file
         let mut file = open_file!(path);
         let mut test: Self = match serde_json::from_reader(&mut file) {
@@ -94,31 +122,9 @@ impl Test<'_> {
             }
         };
 
-        // Load HTML output
-        let html = {
-            let mut html_path = PathBuf::from(path);
-            html_path.set_extension("html");
-
-            let mut file = open_file!(html_path);
-            let mut contents = String::new();
-
-            if let Err(error) = file.read_to_string(&mut contents) {
-                panic!(
-                    "Unable to read HTML file '{}': {}",
-                    html_path.display(),
-                    error,
-                );
-            }
-
-            if contents.ends_with('\n') {
-                contents.pop();
-            }
-
-            contents
-        };
-
         test.name = str!(name);
-        test.html = html;
+        test.html = load_output!("HTML", "html", true);
+        test.text = load_output!("text", "txt", false);
         test
     }
 
@@ -138,8 +144,9 @@ impl Test<'_> {
         println!("+ {}", self.name);
 
         let page_info = PageInfo {
-            slug: cow!(self.name),
+            page: cow!(self.name),
             category: None,
+            site: cow!("www"),
             title: cow!(self.name),
             alt_title: None,
             rating: 0.0,
@@ -156,6 +163,7 @@ impl Test<'_> {
         let result = crate::parse(log, &tokens);
         let (tree, warnings) = result.into();
         let html_output = HtmlRender.render(log, &page_info, &tree);
+        let text_output = TextRender.render(log, &page_info, &tree);
 
         fn json<T>(object: &T) -> String
         where
@@ -200,6 +208,17 @@ impl Test<'_> {
                 &tree,
             );
         }
+
+        if text_output != self.text {
+            panic!(
+                "Running test '{}' failed! Text output does not match:\nExpected: {:?}\nActual: {:?}\n\n{}\n\nTree (correct): {:#?}",
+                self.name,
+                self.text,
+                text_output,
+                text_output,
+                &tree,
+            );
+        }
     }
 }
 
@@ -240,18 +259,20 @@ fn ast_and_html() {
             .expect("Unable to get file stem")
             .to_string_lossy();
 
-        // Don't print, we expect these
-        if path.extension() == Some(OsStr::new("html")) {
-            return None;
-        }
+        let extension = path.extension().map(|s| s.to_str()).flatten();
+        match extension {
+            // Load JSON test data
+            Some("json") => Some(Test::load(&path, &stem)),
 
-        // Print for other files, unexpected
-        if path.extension() != Some(OsStr::new("json")) {
-            println!("Skipping non-JSON file {}", file_name!(entry));
-            return None;
-        }
+            // We expect these, don't print anything
+            Some("html") | Some("txt") => None,
 
-        Some(Test::load(&path, &stem))
+            // Print for other, unexpected files
+            _ => {
+                println!("Skipping non-JSON file {}", file_name!(entry));
+                None
+            }
+        }
     });
 
     // Sort tests by name
