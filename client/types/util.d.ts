@@ -6,7 +6,7 @@
 
 export declare global {
   /** Represents any function, without using the {@link Function} object. */
-  type AnyFunction<T = unknown> = (...args: any) => T
+  type AnyFunction<R = unknown> = (...args: any) => R
 
   /** Represents the eventual value of a `Promise`. */
   export type PromiseValue<
