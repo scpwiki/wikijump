@@ -60,7 +60,7 @@ pub fn render_code(
     ctx.handle().post_code(log, index, contents);
 
     let class = {
-        let mut class = format!("code lang-{}", language.unwrap_or("none"));
+        let mut class = format!("code language-{}", language.unwrap_or("none"));
         class.make_ascii_lowercase();
         class
     };
