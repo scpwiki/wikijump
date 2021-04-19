@@ -36,6 +36,11 @@ pub struct TextContext<'i, 'h> {
 
     /// How deep we currently are in the list.
     list_depths: NonEmptyVec<usize>,
+
+    /// Whether we're in "invisible mode".
+    /// When this is non-zero, all non-newline characters
+    /// added are instead replaced with spaces.
+    invisible: usize,
 }
 
 impl<'i, 'h> TextContext<'i, 'h> {
@@ -47,6 +52,7 @@ impl<'i, 'h> TextContext<'i, 'h> {
             handle,
             prefixes: Vec::new(),
             list_depths: NonEmptyVec::new(1),
+            invisible: 0,
         }
     }
 
@@ -99,15 +105,37 @@ impl<'i, 'h> TextContext<'i, 'h> {
         index
     }
 
+    // Invisible mode
+    #[inline]
+    pub fn enable_invisible(&mut self) {
+        self.invisible += 1;
+    }
+
+    #[inline]
+    pub fn disable_invisible(&mut self) {
+        self.invisible -= 1;
+    }
+
     // Buffer management
     #[inline]
     pub fn push(&mut self, ch: char) {
-        self.output.push(ch);
+        if self.invisible == 0 {
+            self.output.push(ch);
+        } else {
+            self.output.push(' ');
+        }
     }
 
     #[inline]
     pub fn push_str(&mut self, s: &str) {
-        self.output.push_str(s);
+        if self.invisible == 0 {
+            self.output.push_str(s);
+        } else {
+            let chars = self.output.chars().count();
+            for _ in 0..chars {
+                self.output.push(' ');
+            }
+        }
     }
 
     pub fn add_newline(&mut self) {

@@ -39,13 +39,19 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
 
     match element {
         Element::Container(container) => {
+            let mut invisible = false;
             let (add_newlines, prefix) = match container.ctype() {
                 // Don't render this at all.
                 ContainerType::Hidden => return,
 
                 // Render it, but invisibly.
                 // Requires setting a special mode in the context.
-                ContainerType::Invisible => todo!(),
+                ContainerType::Invisible => {
+                    ctx.enable_invisible();
+                    invisible = true;
+
+                    (false, None)
+                }
 
                 // If container is "terminating" (e.g. blockquote, p), then add newlines.
                 // Also, determine if we add a prefix.
@@ -74,6 +80,10 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
                 }
 
                 ctx.add_newline();
+            }
+
+            if invisible {
+                ctx.disable_invisible();
             }
         }
         Element::Module(module) => {
