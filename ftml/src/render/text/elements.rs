@@ -219,10 +219,17 @@ fn get_full_url<'a>(log: &slog::Logger, ctx: &TextContext, url: &'a str) -> Cow<
         return Cow::Borrowed("#");
     }
 
+    // Anchor links should just be returned as-is
+    if url.starts_with('#') {
+        return Cow::Borrowed(url);
+    }
+
+    // If it's a URL with a scheme, just return this
     if is_url(url) {
         return Cow::Borrowed(url);
     }
 
+    // Let's build a full URL:
     let site = &ctx.info().site;
     let mut full_url = ctx.handle().get_url(log, site);
 
