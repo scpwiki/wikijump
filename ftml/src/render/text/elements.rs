@@ -58,6 +58,8 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
                 ContainerType::Div | ContainerType::Paragraph => (true, None),
                 ContainerType::Blockquote => (true, Some("    ")),
                 ContainerType::Header(level) => (true, Some(level.prefix())),
+
+                // Inline or miscellaneous container.
                 _ => (false, None),
             };
 
