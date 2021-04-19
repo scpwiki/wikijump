@@ -126,6 +126,11 @@ where
     let (name, in_head) = parser.get_block_name(special)?;
     trace!(log, "Got block name"; "name" => name, "in-head" => in_head);
 
+    let (name, modifier) = match name.strip_suffix('_') {
+        Some(name) => (name, true),
+        None => (name, false),
+    };
+
     // Get the block rule for this name
     let block = match get_block_rule_with_name(name) {
         Some(block) => block,
@@ -147,5 +152,5 @@ where
     // This is responsible for parsing any arguments,
     // and terminating the block (the ']]' token),
     // then processing the body (if any) and tail block.
-    (block.parse_fn)(log, parser, name, special, in_head)
+    (block.parse_fn)(log, parser, name, special, modifier, in_head)
 }
