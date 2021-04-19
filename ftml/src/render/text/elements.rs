@@ -39,9 +39,16 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
 
     match element {
         Element::Container(container) => {
-            // If container is "terminating" (e.g. blockquote, p), then add newlines.
-            // Also, determine if we add a prefix.
             let (add_newlines, prefix) = match container.ctype() {
+                // Don't render this at all.
+                ContainerType::Hidden => return,
+
+                // Render it, but invisibly.
+                // Requires setting a special mode in the context.
+                ContainerType::Invisible => todo!(),
+
+                // If container is "terminating" (e.g. blockquote, p), then add newlines.
+                // Also, determine if we add a prefix.
                 ContainerType::Div | ContainerType::Paragraph => (true, None),
                 ContainerType::Blockquote => (true, Some("    ")),
                 ContainerType::Header(level) => (true, Some(level.prefix())),
