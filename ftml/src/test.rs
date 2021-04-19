@@ -89,7 +89,7 @@ impl Test<'_> {
         }
 
         macro_rules! load_output {
-            ($name:expr, $extension:expr) => {{
+            ($name:expr, $extension:expr, $trim_newline:expr) => {{
                 let mut path = PathBuf::from(path);
                 path.set_extension($extension);
 
@@ -105,7 +105,7 @@ impl Test<'_> {
                     );
                 }
 
-                if contents.ends_with('\n') {
+                if $trim_newline && contents.ends_with('\n') {
                     contents.pop();
                 }
 
@@ -123,8 +123,8 @@ impl Test<'_> {
         };
 
         test.name = str!(name);
-        test.html = load_output!("HTML", "html");
-        test.text = load_output!("text", "txt");
+        test.html = load_output!("HTML", "html", true);
+        test.text = load_output!("text", "txt", false);
         test
     }
 
