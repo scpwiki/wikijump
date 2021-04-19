@@ -29,8 +29,9 @@ pub struct TextContext<'i, 'h> {
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
 
+    //
     // Other fields to track
-
+    //
     /// Strings to prepended to each new line.
     prefixes: Vec<&'static str>,
 
