@@ -33,6 +33,7 @@ pub enum HeadingLevel {
 }
 
 impl HeadingLevel {
+    #[inline]
     pub fn value(self) -> u8 {
         match self {
             HeadingLevel::One => 1,
@@ -41,6 +42,18 @@ impl HeadingLevel {
             HeadingLevel::Four => 4,
             HeadingLevel::Five => 5,
             HeadingLevel::Six => 6,
+        }
+    }
+
+    #[inline]
+    pub fn prefix(self) -> &'static str {
+        match self {
+            HeadingLevel::One => "+",
+            HeadingLevel::Two => "++",
+            HeadingLevel::Three => "+++",
+            HeadingLevel::Four => "++++",
+            HeadingLevel::Five => "+++++",
+            HeadingLevel::Six => "++++++",
         }
     }
 

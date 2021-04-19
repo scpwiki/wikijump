@@ -30,6 +30,11 @@ pub struct TextContext<'i, 'h> {
     handle: &'h Handle,
 
     // Other fields to track
+
+    /// Strings to prepended to each new line.
+    prefixes: Vec<&'static str>,
+
+    /// How deep we currently are in the list.
     list_depths: NonEmptyVec<usize>,
 }
 
@@ -40,11 +45,12 @@ impl<'i, 'h> TextContext<'i, 'h> {
             output: String::new(),
             info,
             handle,
+            prefixes: Vec::new(),
             list_depths: NonEmptyVec::new(1),
         }
     }
 
-    // Getters and setters
+    // Getters
     #[inline]
     pub fn buffer(&mut self) -> &mut String {
         &mut self.output
@@ -60,6 +66,18 @@ impl<'i, 'h> TextContext<'i, 'h> {
         self.handle
     }
 
+    // Prefixes
+    #[inline]
+    pub fn push_prefix(&mut self, prefix: &'static str) {
+        self.prefixes.push(prefix);
+    }
+
+    #[inline]
+    pub fn pop_prefix(&mut self) {
+        self.prefixes.pop();
+    }
+
+    // List depth
     #[inline]
     pub fn list_depth(&self) -> usize {
         self.list_depths.len()
@@ -87,7 +105,12 @@ impl<'i, 'h> TextContext<'i, 'h> {
         self.output.push(ch);
     }
 
-    #[inline]
+    pub fn push_prefixes(&mut self) {
+        for prefix in &self.prefixes {
+            self.output.push_str(prefix);
+        }
+    }
+
     pub fn push_multiple(&mut self, ch: char, count: u32) {
         for _ in 0..count {
             self.output.push(ch);

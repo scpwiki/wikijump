@@ -22,7 +22,7 @@
 
 use super::TextContext;
 use crate::render::ModuleRenderMode;
-use crate::tree::{Element, ListItem, ListType};
+use crate::tree::{ContainerType, Element, ListItem, ListType};
 use crate::url::is_url;
 use std::borrow::Cow;
 
@@ -38,7 +38,37 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
     debug!(log, "Rendering element"; "element" => element.name());
 
     match element {
-        Element::Container(container) => render_elements(log, ctx, container.elements()),
+        Element::Container(container) => {
+            // If container is "terminating" (e.g. blockquote, p), then add newlines.
+            // Also, determine if we add a prefix.
+            let (add_newlines, prefix) = match container.ctype() {
+                ContainerType::Div | ContainerType::Paragraph => (true, None),
+                ContainerType::Blockquote => (true, Some("    ")),
+                ContainerType::Header(level) => (true, Some(level.prefix())),
+                _ => (false, None),
+            };
+
+            if add_newlines {
+                ctx.push('\n');
+
+                // Add prefix, if there's one
+                if let Some(prefix) = prefix {
+                    ctx.push_prefix(prefix);
+                }
+            }
+
+            // Render internal elements
+            render_elements(log, ctx, container.elements());
+
+            if add_newlines {
+                // Pop prefix, if there's one
+                if prefix.is_some() {
+                    ctx.pop_prefix();
+                }
+
+                ctx.push('\n');
+            }
+        }
         Element::Module(module) => {
             ctx.handle()
                 .render_module(log, ctx.buffer(), module, ModuleRenderMode::Text)
@@ -153,7 +183,10 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             str_write!(ctx, "```html\n{}\n```", contents);
         }
         Element::Iframe { url, .. } => str_write!(ctx, "iframe: {}", url),
-        Element::LineBreak => ctx.push('\n'),
+        Element::LineBreak => {
+            ctx.push('\n');
+            ctx.push_prefixes();
+        }
         Element::LineBreaks(amount) => ctx.push_multiple('\n', amount.get()),
         Element::HorizontalRule => {
             // Add a newline if the last character wasn't a newline
