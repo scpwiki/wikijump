@@ -126,10 +126,10 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             }
         }
         Element::RadioButton { checked, .. } => {
-            str_write!(ctx, "({})", if *checked { '*' } else { ' ' })
+            str_write!(ctx, "({}) ", if *checked { '*' } else { ' ' })
         }
         Element::CheckBox { checked, .. } => {
-            str_write!(ctx, "[{}]", if *checked { 'X' } else { ' ' })
+            str_write!(ctx, "[{}] ", if *checked { 'X' } else { ' ' })
         }
         Element::Collapsible {
             elements,
