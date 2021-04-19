@@ -163,6 +163,7 @@ impl Test<'_> {
         let result = crate::parse(log, &tokens);
         let (tree, warnings) = result.into();
         let html_output = HtmlRender.render(log, &page_info, &tree);
+        let text_output = TextRender.render(log, &page_info, &tree);
 
         fn json<T>(object: &T) -> String
         where
@@ -204,6 +205,17 @@ impl Test<'_> {
                 self.html,
                 html_output.html,
                 html_output.html,
+                &tree,
+            );
+        }
+
+        if text_output != self.text {
+            panic!(
+                "Running test '{}' failed! Text output does not match:\nExpected: {:?}\nActual: {:?}\n\n{}\n\nTree (correct): {:#?}",
+                self.name,
+                self.text,
+                text_output,
+                text_output,
                 &tree,
             );
         }
