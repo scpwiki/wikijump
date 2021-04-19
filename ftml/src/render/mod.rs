@@ -28,6 +28,7 @@ pub mod debug;
 pub mod html;
 pub mod json;
 pub mod null;
+pub mod text;
 
 use crate::data::PageInfo;
 use crate::tree::SyntaxTree;
