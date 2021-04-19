@@ -32,11 +32,13 @@ mod prelude {
     pub use super::super::context::HtmlContext;
     pub use super::render_element;
     pub use crate::tree::{Element, SyntaxTree};
+    pub use crate::log::prelude::*;
 }
 
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
 use self::iframe::{render_html, render_iframe};
+use crate::log::prelude::*;
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
@@ -46,7 +48,7 @@ use crate::render::ModuleRenderMode;
 use crate::tree::Element;
 use ref_map::OptionRefMap;
 
-pub fn render_elements(log: &slog::Logger, ctx: &mut HtmlContext, elements: &[Element]) {
+pub fn render_elements(log: &Logger, ctx: &mut HtmlContext, elements: &[Element]) {
     debug!(log, "Rendering elements"; "elements-len" => elements.len());
 
     for element in elements {
@@ -54,7 +56,7 @@ pub fn render_elements(log: &slog::Logger, ctx: &mut HtmlContext, elements: &[El
     }
 }
 
-pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Element) {
+pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
     macro_rules! ref_cow {
         ($input:expr) => {
             $input.ref_map(|s| s.as_ref())

@@ -39,7 +39,7 @@ use crate::tree::{AttributeMap, Container, ContainerType, Element};
 /// Must match the parse rule.
 /// * `container_type`
 pub fn collect_container<'p, 'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     container_type: ContainerType,

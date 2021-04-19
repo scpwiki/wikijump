@@ -36,6 +36,7 @@ mod prelude {
     pub use crate::parsing::rule::Rule;
     pub use crate::parsing::token::{ExtractedToken, Token};
     pub use crate::text::FullText;
+    pub use crate::log::prelude::*;
 }
 
 mod consume;

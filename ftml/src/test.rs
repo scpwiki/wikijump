@@ -29,6 +29,7 @@ use crate::parsing::{ParseWarning, ParseWarningKind, Token};
 use crate::render::html::HtmlRender;
 use crate::render::text::TextRender;
 use crate::render::Render;
+use crate::log::prelude::*;
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
 use std::fs::{self, File};
@@ -128,7 +129,7 @@ impl Test<'_> {
         test
     }
 
-    pub fn run(&self, log: &slog::Logger) {
+    pub fn run(&self, log: &Logger) {
         info!(
             &log,
             "Running syntax tree test case";

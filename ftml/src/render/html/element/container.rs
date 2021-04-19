@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::tree::Container;
 
 pub fn render_container(
-    log: &slog::Logger,
+    log: &Logger,
     ctx: &mut HtmlContext,
     container: &Container,
 ) {
@@ -45,7 +45,7 @@ pub fn render_container(
 }
 
 pub fn render_color(
-    log: &slog::Logger,
+    log: &Logger,
     ctx: &mut HtmlContext,
     color: &str,
     elements: &[Element],

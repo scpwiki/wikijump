@@ -28,16 +28,16 @@ cfg_if! {
         pub use self::console::ConsoleLogger;
 
         lazy_static! {
-            pub static ref LOGGER: slog::Logger = {
+            pub static ref LOGGER: Logger = {
                 use slog::Drain;
 
-                slog::Logger::root(ConsoleLogger.fuse(), o!())
+                Logger::root(ConsoleLogger.fuse(), o!())
             };
         }
     } else {
         lazy_static! {
-            pub static ref LOGGER: slog::Logger = {
-                slog::Logger::root(slog::Discard, o!()) //
+            pub static ref LOGGER: Logger = {
+                Logger::root(slog::Discard, o!()) //
             };
         }
     }

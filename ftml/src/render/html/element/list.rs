@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::tree::{ListItem, ListType};
 
 pub fn render_list(
-    log: &slog::Logger,
+    log: &Logger,
     ctx: &mut HtmlContext,
     ltype: ListType,
     list_items: &[ListItem],

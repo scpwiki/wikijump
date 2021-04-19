@@ -22,6 +22,7 @@ mod prelude {
     pub use super::Render;
     pub use crate::data::PageInfo;
     pub use crate::tree::{AttributeMap, Container, ContainerType, Element, SyntaxTree};
+    pub use crate::log::prelude::*;
 }
 
 pub mod debug;
@@ -35,6 +36,7 @@ mod handle;
 use self::handle::{Handle, ModuleRenderMode};
 use crate::data::PageInfo;
 use crate::tree::SyntaxTree;
+use crate::log::prelude::*;
 
 /// Abstract trait for any ftml renderer.
 ///
@@ -57,7 +59,7 @@ pub trait Render {
     /// it requires to produce the output string.
     fn render(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         page_info: &PageInfo,
         tree: &SyntaxTree,
     ) -> Self::Output;

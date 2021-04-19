@@ -23,6 +23,7 @@ use crate::tree::LinkLabel;
 use crate::tree::Module;
 use std::num::NonZeroUsize;
 use strum_macros::IntoStaticStr;
+use crate::log::prelude::*;
 
 #[derive(Debug)]
 pub struct Handle;
@@ -41,7 +42,7 @@ impl Handle {
 
     pub fn render_module(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         buffer: &mut String,
         module: &Module,
         mode: ModuleRenderMode,
@@ -63,7 +64,7 @@ impl Handle {
         }
     }
 
-    pub fn get_page_title(&self, log: &slog::Logger, page_slug: &str) -> String {
+    pub fn get_page_title(&self, log: &Logger, page_slug: &str) -> String {
         debug!(log, "Fetching page title"; "page" => page_slug);
 
         // TODO
@@ -95,7 +96,7 @@ impl Handle {
 
     pub fn get_message(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         locale: &str,
         message: &str,
     ) -> &'static str {
@@ -122,14 +123,14 @@ impl Handle {
         }
     }
 
-    pub fn post_html(&self, log: &slog::Logger, _info: &PageInfo, _html: &str) -> String {
+    pub fn post_html(&self, log: &Logger, _info: &PageInfo, _html: &str) -> String {
         debug!(log, "Submitting HTML to create iframe-able snippet");
 
         // TODO
         str!("https://example.com/")
     }
 
-    pub fn post_code(&self, log: &slog::Logger, index: NonZeroUsize, code: &str) {
+    pub fn post_code(&self, log: &Logger, index: NonZeroUsize, code: &str) {
         debug!(
             log,
             "Submitting code snippet";

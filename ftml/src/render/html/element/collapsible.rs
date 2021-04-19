@@ -56,7 +56,7 @@ impl<'a> Collapsible<'a> {
 }
 
 pub fn render_collapsible(
-    log: &slog::Logger,
+    log: &Logger,
     ctx: &mut HtmlContext,
     collapsible: Collapsible,
 ) {

@@ -19,7 +19,7 @@
  */
 
 use super::{IncludeRef, PageRef};
-use crate::span_wrap::SpanWrap;
+use crate::log::prelude::*;
 use pest::iterators::Pairs;
 use pest::Parser;
 use std::borrow::Cow;
@@ -30,7 +30,7 @@ use std::collections::HashMap;
 struct IncludeParser;
 
 pub fn parse_include_block<'t>(
-    log: &slog::Logger,
+    log: &Logger,
     text: &'t str,
     start: usize,
 ) -> Option<(IncludeRef<'t>, usize)> {
@@ -72,7 +72,7 @@ pub fn parse_include_block<'t>(
 }
 
 fn process_pairs<'t>(
-    log: &slog::Logger,
+    log: &Logger,
     mut pairs: Pairs<'t, Rule>,
 ) -> Option<IncludeRef<'t>> {
     let page_raw = match pairs.next() {

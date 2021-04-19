@@ -20,7 +20,6 @@
 
 use super::prelude::*;
 use crate::parsing::{process_depths, DepthItem, DepthList};
-use crate::span_wrap::SpanWrap;
 use crate::tree::{AttributeMap, Container, ContainerType};
 
 const MAX_BLOCKQUOTE_DEPTH: usize = 30;
@@ -31,7 +30,7 @@ pub const RULE_BLOCKQUOTE: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing nested native blockquotes");

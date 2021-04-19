@@ -159,6 +159,7 @@ impl ParseWarningKind {
     }
 }
 
+#[cfg(feature = "has-log")]
 impl slog::Value for ParseWarningKind {
     fn serialize(
         &self,

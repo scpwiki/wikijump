@@ -33,6 +33,9 @@
 // Rest are implicit based on Cargo.toml
 
 #[macro_use]
+extern crate cfg_if;
+
+#[macro_use]
 extern crate enum_map;
 
 #[macro_use]
@@ -59,6 +62,9 @@ extern crate slog;
 #[cfg(test)]
 mod test;
 
+#[cfg(feature = "has-log")]
+mod span_wrap;
+
 #[macro_use]
 mod log;
 
@@ -67,7 +73,6 @@ mod macros;
 
 mod non_empty_vec;
 mod preproc;
-mod span_wrap;
 mod text;
 mod url;
 
@@ -83,6 +88,7 @@ pub mod tokenizer;
 pub mod tree;
 
 #[cfg(test)]
+#[cfg(feature = "has-log")]
 pub use self::log::{build_logger, build_null_logger, build_terminal_logger};
 
 pub use self::includes::include;

@@ -27,7 +27,7 @@ use super::prelude::*;
 /// rather than considering them as special elements.
 #[inline]
 pub fn collect_text<'p, 'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
@@ -53,7 +53,7 @@ where
 /// The last token terminating the collection is kept, and returned
 /// to the caller alongside the string slice.
 pub fn collect_text_keep<'p, 'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],

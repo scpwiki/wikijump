@@ -25,6 +25,7 @@ has-log  = ["slog"] # If removed, then logging is cut out entirely -- replaces s
 wasm-log = [] # Enables console.log() logging. Spams your browser, caveat emptor!
 
 [dependencies]
+cfg-if = "1"
 entities = "1"
 enum-map = "1"
 lazy_static = "1"
@@ -51,7 +52,6 @@ built = { version = "0.4", features = ["chrono", "git2"] }
 sloggers = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-cfg-if = "1"
 ouroboros = "0.9"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 web-sys = { version = "0.3", features = ["console"] }

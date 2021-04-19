@@ -43,6 +43,7 @@ mod prelude {
     };
     pub use crate::text::FullText;
     pub use crate::tree::{Element, Elements, ElementsIterator};
+    pub use crate::log::prelude::*;
 }
 
 use self::boolean::parse_boolean;
@@ -54,6 +55,7 @@ use self::string::parse_string;
 use crate::tokenizer::Tokenization;
 use crate::tree::SyntaxTree;
 use std::borrow::Cow;
+use crate::log::prelude::*;
 
 pub use self::exception::{ParseException, ParseWarning, ParseWarningKind};
 pub use self::outcome::ParseOutcome;
@@ -64,7 +66,7 @@ pub use self::token::{ExtractedToken, Token};
 ///
 /// This takes a list of `ExtractedToken` items produced by `tokenize()`.
 pub fn parse<'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     tokenization: &'r Tokenization<'t>,
 ) -> ParseOutcome<SyntaxTree<'t>>
 where

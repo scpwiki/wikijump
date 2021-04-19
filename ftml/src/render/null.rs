@@ -32,7 +32,7 @@ impl Render for NullRender {
     type Output = ();
 
     #[inline]
-    fn render(&self, _log: &slog::Logger, _page_info: &PageInfo, _tree: &SyntaxTree) {}
+    fn render(&self, _log: &Logger, _page_info: &PageInfo, _tree: &SyntaxTree) {}
 }
 
 #[test]

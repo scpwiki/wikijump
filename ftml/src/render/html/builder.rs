@@ -20,6 +20,7 @@
 
 use super::context::HtmlContext;
 use super::escape::escape_char;
+use crate::log::prelude::*;
 use super::render::ItemRender;
 use crate::tree::AttributeMap;
 
@@ -215,7 +216,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     }
 
     #[inline]
-    pub fn inner(&mut self, log: &slog::Logger, item: &dyn ItemRender) -> &mut Self {
+    pub fn inner(&mut self, log: &Logger, item: &dyn ItemRender) -> &mut Self {
         self.content_start();
         item.render(log, self.ctx);
 

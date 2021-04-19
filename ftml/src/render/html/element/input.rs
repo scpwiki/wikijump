@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::tree::AttributeMap;
 
 pub fn render_radio_button(
-    log: &slog::Logger,
+    log: &Logger,
     ctx: &mut HtmlContext,
     name: &str,
     checked: bool,
@@ -50,7 +50,7 @@ pub fn render_radio_button(
 }
 
 pub fn render_checkbox(
-    log: &slog::Logger,
+    log: &Logger,
     ctx: &mut HtmlContext,
     checked: bool,
     attributes: &AttributeMap,

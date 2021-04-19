@@ -31,7 +31,7 @@ impl Render for DebugRender {
     #[inline]
     fn render(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         page_info: &PageInfo,
         tree: &SyntaxTree,
     ) -> String {

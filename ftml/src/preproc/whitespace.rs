@@ -32,6 +32,7 @@
 //! em dashes.
 
 use regex::{Regex, RegexBuilder};
+use crate::log::prelude::*;
 
 lazy_static! {
     static ref WHITESPACE: Regex = {
@@ -44,7 +45,7 @@ lazy_static! {
     static ref TRAILING_NEWLINES: Regex = Regex::new(r"\n+$").unwrap();
 }
 
-pub fn substitute(log: &slog::Logger, text: &mut String) {
+pub fn substitute(log: &Logger, text: &mut String) {
     // Replace DOS and Mac newlines
     str_replace(log, text, "\r\n", "\n");
     str_replace(log, text, "\r", "\n");
@@ -64,7 +65,7 @@ pub fn substitute(log: &slog::Logger, text: &mut String) {
     regex_replace(log, text, &*TRAILING_NEWLINES, "");
 }
 
-fn str_replace(log: &slog::Logger, text: &mut String, pattern: &str, replacement: &str) {
+fn str_replace(log: &Logger, text: &mut String, pattern: &str, replacement: &str) {
     debug!(
         log,
         "Replacing miscellaneous static string";
@@ -81,7 +82,7 @@ fn str_replace(log: &slog::Logger, text: &mut String, pattern: &str, replacement
 }
 
 fn regex_replace(
-    log: &slog::Logger,
+    log: &Logger,
     text: &mut String,
     regex: &Regex,
     replacement: &str,

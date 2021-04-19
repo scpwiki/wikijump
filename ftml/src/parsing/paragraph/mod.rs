@@ -21,6 +21,7 @@
 mod stack;
 
 use self::stack::ParagraphStack;
+use crate::log::prelude::*;
 use super::consume::consume;
 use super::parser::Parser;
 use super::prelude::*;
@@ -44,7 +45,7 @@ type CloseConditionFn = fn(&mut Parser) -> Result<bool, ParseWarning>;
 /// extraction deeper in code, such as in the `try_paragraph`
 /// collection helper.
 pub fn gather_paragraphs<'r, 't, F>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &mut Parser<'r, 't>,
     rule: Rule,
     mut close_condition_fn: Option<F>,

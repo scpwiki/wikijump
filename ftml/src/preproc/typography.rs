@@ -29,6 +29,7 @@
 //! * ... to an ellipsis
 
 use regex::Regex;
+use crate::log::prelude::*;
 
 lazy_static! {
     // ‘ - LEFT SINGLE QUOTATION MARK
@@ -90,7 +91,7 @@ pub enum Replacer {
 }
 
 impl Replacer {
-    fn replace(&self, log: &slog::Logger, text: &mut String, buffer: &mut String) {
+    fn replace(&self, log: &Logger, text: &mut String, buffer: &mut String) {
         use self::Replacer::*;
 
         match *self {
@@ -157,7 +158,7 @@ impl Replacer {
     }
 }
 
-pub fn substitute(log: &slog::Logger, text: &mut String) {
+pub fn substitute(log: &Logger, text: &mut String) {
     let mut buffer = String::new();
 
     debug!(log, "Performing typography substitutions"; "text" => &*text);
