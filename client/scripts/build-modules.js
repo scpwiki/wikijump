@@ -1,5 +1,6 @@
 const { build, cliopts, basename, stdoutStyle: styl, fmtDuration } = require("estrella")
 const { nodeExternalsPlugin } = require("esbuild-node-externals")
+const bundleWASMPlugin = require("./esbuild-bundle-wasm")
 const { readdirSync, realpathSync } = require("fs")
 const { performance } = require("perf_hooks")
 const browserslist = require("browserslist")
@@ -76,18 +77,11 @@ else directoriesOf("./modules").forEach(name => buildModule(name))
 /** Builds the module (a package in `modules/`).
  *  If `-tests` was specified, it'll compile the module's tests, instead. */
 function buildModule(name) {
-  let dir, index, package, tests
+  const dir = SELF ? process.cwd() : realpathSync(`./modules/${name}`)
+  const index = `./src/index.ts`
+  const package = `./package.json`
 
-  if (SELF) {
-    dir = process.cwd()
-    index = "./src/index.ts"
-    package = "./package.json"
-  } else {
-    dir = realpathSync(`./modules/${name}`)
-    index = `${dir}/src/index.ts`
-    package = `${dir}/package.json`
-  }
-
+  let tests
   if (TESTS) {
     try {
       tests = filesOf(`${dir}/tests`).map(name => `./tests/${name}`)
@@ -117,7 +111,7 @@ function buildModule(name) {
     // esbuild
     absWorkingDir: dir,
     tsconfig: package,
-    plugins: [nodeExternalsPlugin({ packagePath: package })],
+    plugins: [nodeExternalsPlugin({ packagePath: package }), bundleWASMPlugin],
     target: [...targets],
 
     // estrella
@@ -145,10 +139,16 @@ function buildModule(name) {
       entry: [...tests],
       outdir: `${dir}/tests/dist`,
       bundle: true,
+      minify: false,
       splitting: false,
+      format: "cjs",
       platform: "node",
       sourcemap: false,
-      target: undefined
+      target: undefined,
+      outExtension: { ".js": ".cjs" },
+      define: {
+        "window": "globalThis"
+      }
     }),
 
     // -- LOGGING HANDLERS
