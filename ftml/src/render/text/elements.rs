@@ -23,7 +23,7 @@
 use super::TextContext;
 use crate::render::ModuleRenderMode;
 use crate::tree::{Element, ListItem, ListType};
-use crate::url::url_valid;
+use crate::url::is_url;
 use std::borrow::Cow;
 
 pub fn render_elements(log: &slog::Logger, ctx: &mut TextContext, elements: &[Element]) {
@@ -168,7 +168,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
 }
 
 fn get_full_url<'a>(log: &slog::Logger, ctx: &TextContext, url: &'a str) -> Cow<'a, str> {
-    if url_valid(url) {
+    if is_url(url) {
         return Cow::Borrowed(url);
     }
 

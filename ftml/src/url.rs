@@ -18,42 +18,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-pub fn url_valid(url: &str) -> bool {
-    const SCHEMES: [&str; 20] = [
-        "blob:",
-        "chrome-extension://",
-        "chrome://",
-        "content://",
-        "data:",
-        "dns:",
-        "feed:",
-        "file://",
-        "ftp://",
-        "git://",
-        "gopher://",
-        "http://",
-        "https://",
-        "irc6://",
-        "irc://",
-        "ircs://",
-        "mailto:",
-        "resource://",
-        "rtmp://",
-        "sftp://",
-    ];
+pub const URL_SCHEMES: [&str; 20] = [
+    "blob:",
+    "chrome-extension://",
+    "chrome://",
+    "content://",
+    "data:",
+    "dns:",
+    "feed:",
+    "file://",
+    "ftp://",
+    "git://",
+    "gopher://",
+    "http://",
+    "https://",
+    "irc6://",
+    "irc://",
+    "ircs://",
+    "mailto:",
+    "resource://",
+    "rtmp://",
+    "sftp://",
+];
 
-    // If url is an empty string
-    if url.is_empty() {
-        return false;
-    }
-
-    // If it's a relative link
-    if url.starts_with('/') {
-        return true;
-    }
-
+pub fn is_url(url: &str) -> bool {
     // If it's a URL
-    for scheme in &SCHEMES {
+    for scheme in &URL_SCHEMES {
         if url.starts_with(scheme) {
             return true;
         }
