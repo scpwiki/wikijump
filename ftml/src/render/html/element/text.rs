@@ -18,24 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::super::escape::escape_char;
 use super::prelude::*;
 
 pub fn render_wikitext_raw(log: &slog::Logger, ctx: &mut HtmlContext, text: &str) {
     debug!(log, "Escaping raw string"; "text" => text);
 
-    for ch in text.chars() {
-        match (ch, escape_char(ch)) {
-            // Turn spaces into non-breaking spaces
-            (' ', _) => ctx.push_raw_str("&nbsp;"),
-
-            // Escape the character
-            (_, Some(escaped)) => ctx.push_raw_str(escaped),
-
-            // Character doesn't need escaping
-            (_, None) => ctx.push_raw(ch),
-        }
-    }
+    ctx.html()
+        .span()
+        .attr("class", &["raw"])
+        .attr("style", &["white-space: pre-wrap;"]) // TODO add this to the "raw" class
+        .inner(&log, &text);
 }
 
 pub fn render_email(log: &slog::Logger, ctx: &mut HtmlContext, email: &str) {
@@ -47,7 +39,7 @@ pub fn render_email(log: &slog::Logger, ctx: &mut HtmlContext, email: &str) {
     ctx.html()
         .span()
         .attr("class", &["email"])
-        .attr("style", &["word-break: keep-all;"])
+        .attr("style", &["word-break: keep-all;"]) // TODO add this to the "email" class
         .inner(log, &email);
 }
 
