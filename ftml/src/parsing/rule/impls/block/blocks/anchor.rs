@@ -25,6 +25,7 @@ pub const BLOCK_ANCHOR: BlockRule = BlockRule {
     name: "block-anchor",
     accepts_names: &["a", "a_", "anchor", "anchor_"],
     accepts_special: true,
+    accepts_modifier: true,
     accepts_newlines: false,
     parse_fn,
 };
@@ -34,6 +35,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -51,7 +53,7 @@ fn parse_fn<'r, 't>(
 
     // "a" means we wrap interpret as-is
     // "a_" means we strip out any newlines or paragraph breaks
-    let strip_line_breaks = name.ends_with('_');
+    let strip_line_breaks = modifier;
 
     // Get anchor target depending on special
     let target = if special {

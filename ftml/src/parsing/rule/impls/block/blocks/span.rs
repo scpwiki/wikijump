@@ -24,6 +24,7 @@ pub const BLOCK_SPAN: BlockRule = BlockRule {
     name: "block-span",
     accepts_names: &["span", "span_"],
     accepts_special: false,
+    accepts_modifier: true,
     accepts_newlines: false,
     parse_fn,
 };
@@ -33,6 +34,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -49,7 +51,7 @@ fn parse_fn<'r, 't>(
 
     // "span" means we wrap interpret as-is
     // "span_" means we strip out any newlines or paragraph breaks
-    let strip_line_breaks = name.ends_with('_');
+    let strip_line_breaks = modifier;
 
     // Get body content, without paragraphs
     let (mut elements, exceptions) = parser.get_body_elements(&BLOCK_SPAN, false)?.into();
