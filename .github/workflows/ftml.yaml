@@ -20,7 +20,9 @@ jobs:
         with:
           toolchain: stable
       - run: cd ftml && cargo build --all-features --release
+        env: RUSTFLAGS: -D warnings
       - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
+        env: RUSTFLAGS: -D warnings
       - run: cd ftml && cargo build --no-default-features --release
         env: RUSTFLAGS: -A unused_variables
   wasm:
@@ -35,7 +37,9 @@ jobs:
         with:
           version: 'latest'
       - run: cd ftml && wasm-pack build
+        env: RUSTFLAGS: -D warnings
       - run: cd ftml && wasm-pack build -- --features wasm-log
+        env: RUSTFLAGS: -D warnings
       - run: cd ftml && wasm-pack build -- --no-default-features
         env: RUSTFLAGS: -A unused_variables
   http_build:
@@ -47,7 +51,9 @@ jobs:
         with:
           toolchain: stable
       - run: cd ftml && cargo build -p ftml-http --all-features --release
+        env: RUSTFLAGS: -D warnings
       - run: cd ftml && cargo test -p ftml-http -- --nocapture --test-threads 1
+        env: RUSTFLAGS: -D warnings
   clippy_lint:
     name: Lint
     runs-on: ubuntu-latest
