@@ -59,11 +59,17 @@ pub fn render_code(
     let index = ctx.next_code_snippet_index();
     ctx.handle().post_code(log, index, contents);
 
+    let class = {
+        let mut class = format!("code lang-{}", language.unwrap_or("none"));
+        class.make_ascii_lowercase();
+        class
+    };
+
     // TODO: syntax highlighting based on 'language'
 
     ctx.html() //
         .pre()
-        .attr("class", &["code"])
+        .attr("class", &[&class])
         .contents(|ctx| {
             ctx.html().code().inner(log, &contents);
         });
