@@ -103,13 +103,18 @@ impl PageInfo {
     // Getters
 
     #[wasm_bindgen(method, getter)]
-    pub fn slug(&self) -> String {
-        self.inner.slug.to_string()
+    pub fn page(&self) -> String {
+        self.inner.page.to_string()
     }
 
     #[wasm_bindgen(method, getter)]
     pub fn category(&self) -> Option<String> {
         self.inner.category.ref_map(ToString::to_string)
+    }
+
+    #[wasm_bindgen(method, getter)]
+    pub fn site(&self) -> String {
+        self.inner.site.to_string()
     }
 
     #[wasm_bindgen(method, getter)]
