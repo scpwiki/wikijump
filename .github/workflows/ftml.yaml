@@ -21,6 +21,8 @@ jobs:
           toolchain: stable
       - run: cd ftml && cargo build --all-features --release
       - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
+      - run: cd ftml && cargo build --no-default-features --release
+        env: RUSTFLAGS: -A unused_variables
   wasm:
     name: WebASM
     runs-on: ubuntu-latest
@@ -34,6 +36,8 @@ jobs:
           version: 'latest'
       - run: cd ftml && wasm-pack build
       - run: cd ftml && wasm-pack build -- --features wasm-log
+      - run: cd ftml && wasm-pack build -- --no-default-features
+        env: RUSTFLAGS: -A unused_variables
   http_build:
     name: HTTP
     runs-on: ubuntu-latest
