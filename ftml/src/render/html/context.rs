@@ -141,10 +141,11 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
 }
 
 impl<'i, 'h> From<HtmlContext<'i, 'h>> for HtmlOutput {
-    fn from(context: HtmlContext<'i, 'h>) -> HtmlOutput {
+    #[inline]
+    fn from(ctx: HtmlContext<'i, 'h>) -> HtmlOutput {
         let HtmlContext {
             html, style, meta, ..
-        } = context;
+        } = ctx;
 
         HtmlOutput { html, style, meta }
     }

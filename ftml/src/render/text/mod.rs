@@ -18,6 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod context;
+mod elements;
+
+use self::context::TextContext;
+use self::elements::render_elements;
 use crate::data::PageInfo;
 use crate::render::Render;
 use crate::tree::SyntaxTree;
@@ -45,6 +50,10 @@ impl Render for TextRender {
             },
         );
 
-        todo!()
+        let mut ctx = TextContext::new(page_info, &());
+
+        render_elements(log, &mut ctx, &tree.elements);
+
+        ctx.into()
     }
 }
