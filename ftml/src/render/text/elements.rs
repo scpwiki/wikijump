@@ -118,7 +118,9 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             });
         }
         Element::List { ltype, items } => {
-            ctx.add_newline();
+            if !ctx.buffer().ends_with('\n') {
+                ctx.add_newline();
+            }
 
             for item in items {
                 match item {
