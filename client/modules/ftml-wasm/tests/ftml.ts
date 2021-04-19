@@ -91,7 +91,7 @@ FTML("parse", async () => {
   })
 })
 
-FTML("render", async () => {
+FTML("render html", async () => {
   await lib.loading
   const str = "//1//"
   // we won't test the `meta` property because
@@ -115,6 +115,13 @@ FTML("render", async () => {
   //   ],
   //   style: ""
   // })
+})
+
+FTML("render text", async () => {
+  await lib.loading
+  const str = "//1//"
+  const text = lib.render(str, { mode: "text" })
+  assert.is(text, "1\n")
 })
 
 FTML("warnings", async () => {
