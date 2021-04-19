@@ -133,7 +133,7 @@ impl<'i, 'h> TextContext<'i, 'h> {
 
     pub fn push_str(&mut self, s: &str) {
         if self.invisible() {
-            let chars = self.output.chars().count();
+            let chars = s.chars().count();
             for _ in 0..chars {
                 self.output.push(' ');
             }
