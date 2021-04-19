@@ -109,7 +109,7 @@ impl Handle {
         // TODO
         match message {
             "collapsible-open" => "+ open block",
-            "collapsible-close" => "- open block",
+            "collapsible-hide" => "- hide block",
             _ => {
                 error!(
                     log,
