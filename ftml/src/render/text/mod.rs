@@ -53,6 +53,12 @@ impl Render for TextRender {
 
         let mut ctx = TextContext::new(page_info, &Handle);
         render_elements(log, &mut ctx, &tree.elements);
+
+        // Remove pointless leading newline
+        if ctx.buffer().starts_with('\n') {
+            ctx.buffer().remove(0);
+        }
+
         ctx.into()
     }
 }
