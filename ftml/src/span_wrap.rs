@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wrapper struct to allow formatting of `Range
+//! Wrapper struct to allow formatting of `Range`.
 
 use std::ops::Range;
 
@@ -39,6 +39,7 @@ impl From<&'_ Range<usize>> for SpanWrap {
     }
 }
 
+#[cfg(feature = "has-log")]
 impl slog::Value for SpanWrap {
     fn serialize(
         &self,

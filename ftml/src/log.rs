@@ -75,6 +75,7 @@ cfg_if! {
         // Dummy prelude
         pub mod prelude {
             pub use super::Logger;
+            pub use crate::span_wrap::SpanWrap;
         }
 
         // Dummy logging structure
@@ -87,63 +88,35 @@ cfg_if! {
             }
         }
 
-        // Helpers
-        pub fn unused<T>(_x: T) {}
-
         #[macro_use]
         #[allow(unused_macros)]
         mod macros {
             // Dummy filename/lineno macros
             macro_rules! slog_filename {
-                () => ();
+                () => {
+                    ()
+                };
             }
 
             macro_rules! slog_lineno {
-                () => ();
-            }
-
-            // Dummy logging macros
-            macro_rules! crit {
-                ($l:expr, $($args:tt)+) => {
-                    crate::log::unused($l)
-                };
-            }
-
-            macro_rules! error {
-                ($l:expr, $($args:tt)+) => {
-                    crate::log::unused($l)
-                };
-            }
-
-            macro_rules! warn {
-                ($l:expr, $($args:tt)+) => {
-                    crate::log::unused($l)
-                };
-            }
-
-            macro_rules! info {
-                ($l:expr, $($args:tt)+) => {
-                    crate::log::unused($l)
-                };
-            }
-
-            macro_rules! debug {
-                ($l:expr, $($args:tt)+) => {
-                    crate::log::unused($l)
-                };
-            }
-
-            macro_rules! trace {
-                ($l:expr, $($args:tt)+) => {
-                    crate::log::unused($l)
+                () => {
+                    ()
                 };
             }
 
             // Dummy logging construction macros
             macro_rules! slog_o {
-                ($($args:tt)+) => {
-                    ()
+                ($($key:expr => $value:expr,)+) => {
+                    slog_o!($($key => $value),+)
                 };
+                ($($key:expr => $value:expr),*) => {{
+                    $(
+                        let _ = $key;
+                        let _ = $value;
+                    )*
+
+                    ()
+                }};
             }
         }
     }

@@ -57,13 +57,14 @@ extern crate str_macro;
 #[macro_use]
 extern crate slog;
 
+#[cfg(not(feature = "has-log"))]
+#[macro_use]
+extern crate slog_mock;
+
 // Library top-level modules
 
 #[cfg(test)]
 mod test;
-
-#[cfg(feature = "has-log")]
-mod span_wrap;
 
 #[macro_use]
 mod log;
@@ -73,6 +74,7 @@ mod macros;
 
 mod non_empty_vec;
 mod preproc;
+mod span_wrap;
 mod text;
 mod url;
 
