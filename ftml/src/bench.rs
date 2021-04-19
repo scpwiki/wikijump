@@ -33,6 +33,8 @@ extern crate slog;
 use bencher::Bencher;
 use std::fs::File;
 use std::io::prelude::*;
+use ftml::render::html::HtmlRender;
+use ftml::render::Render;
 
 macro_rules! build_logger {
     () => {
@@ -51,6 +53,7 @@ lazy_static! {
 
 fn full(bench: &mut Bencher) {
     let log = build_logger!();
+    let page_info = PageInfo::dummy();
 
     bench.iter(|| {
         let mut text = INPUT.clone();
@@ -63,7 +66,10 @@ fn full(bench: &mut Bencher) {
 
         // Run parser
         let result = ftml::parse(&log, &tokens);
-        let (_tree, _errors) = result.into();
+        let (tree, _warnings) = result.into();
+
+        // Run HTML renderer
+        let _html = HtmlRender.render(&log, &page_info, &tree);
     });
 }
 
@@ -110,5 +116,26 @@ fn parse(bench: &mut Bencher) {
     });
 }
 
-benchmark_group!(benches, full, preprocess, tokenize, parse);
+fn render(bench: &mut Bencher) {
+    let log = build_logger!();
+    let page_info = PageInfo::dummy();
+
+    let mut text = INPUT.clone();
+
+    // Run preprocessor
+    ftml::preprocess(&log, &mut text);
+
+    // Run lexer
+    let tokens = ftml::tokenize(&log, &text);
+
+    // Run parser
+    let result = ftml::parse(&log, &tokens);
+    let (tree, _warnings) = result.into();
+
+    bench.iter(|| {
+        // Run HTML renderer
+        let _html = HtmlRender.render(&log, &page_info, &tree);
+    });
+}
+benchmark_group!(benches, full, preprocess, tokenize, parse, render);
 benchmark_main!(benches);
