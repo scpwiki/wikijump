@@ -55,7 +55,7 @@ pub trait Render {
     fn render(
         &self,
         log: &slog::Logger,
-        info: &PageInfo,
+        page_info: &PageInfo,
         tree: &SyntaxTree,
     ) -> Self::Output;
 }
