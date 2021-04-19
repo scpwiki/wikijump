@@ -75,6 +75,7 @@ cfg_if! {
         // Dummy prelude
         pub mod prelude {
             pub use super::Logger;
+            pub use crate::span_wrap::SpanWrap;
         }
 
         // Dummy logging structure
