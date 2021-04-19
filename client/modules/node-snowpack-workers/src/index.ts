@@ -17,9 +17,13 @@ export default function () {
         // sourcemap: true,
         outdir: "./",
         outbase: "./",
-        format: "esm",
+        format: "iife",
         platform: "browser",
-        write: false
+        write: false,
+        define: {
+          "window": "globalThis",
+          "import.meta.url": '""'
+        }
       })
       const ret = { code: result.outputFiles[0].text }
       return { ".worker.js": ret }
