@@ -46,15 +46,21 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
             ctx.push_str(text)
         }
-        Element::Anchor { elements, attributes, .. } => {
+        Element::Anchor {
+            elements,
+            attributes,
+            ..
+        } => {
             render_elements(log, ctx, elements);
 
             if let Some(href) = attributes.get().get("href") {
-                str_write!(ctx, " [{}]", href);
+                let url = get_full_url(log, ctx, href);
+                str_write!(ctx, " [{}]", url);
             }
         }
         Element::Link { url, label, .. } => {
             ctx.handle().get_link_label(log, url, label, |label| {
+                let url = get_full_url(log, ctx, url);
                 str_write!(ctx, "{} [{}]", label, url);
             });
         }
