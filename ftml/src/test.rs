@@ -262,19 +262,17 @@ fn ast_and_html() {
         let extension = path.extension().map(|s| s.to_str()).flatten();
         match extension {
             // Load JSON test data
-            Some("json") => (),
+            Some("json") => Some(Test::load(&path, &stem)),
 
             // We expect these, don't print anything
-            Some("html") | Some("txt") => return None,
+            Some("html") | Some("txt") => None,
 
             // Print for other, unexpected files
             _ => {
                 println!("Skipping non-JSON file {}", file_name!(entry));
-                return None;
+                None
             }
         }
-
-        Some(Test::load(&path, &stem))
     });
 
     // Sort tests by name
