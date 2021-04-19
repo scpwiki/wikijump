@@ -92,15 +92,17 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
 
             if let Some(href) = attributes.get().get("href") {
                 let url = get_full_url(log, ctx, href);
-                str_write!(ctx, " [{}]", url);
+                if &url != href {
+                    str_write!(ctx, " [{}]", url);
+                }
             }
         }
         Element::Link { url, label, .. } => {
             ctx.handle().get_link_label(log, url, label, |label| {
                 ctx.push_str(label);
 
-                if label != url {
-                    let url = get_full_url(log, ctx, url);
+                let url = get_full_url(log, ctx, url);
+                if url != label {
                     str_write!(ctx, " [{}]", url);
                 }
             });
