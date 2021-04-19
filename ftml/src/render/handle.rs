@@ -29,7 +29,7 @@ use crate::log::prelude::*;
 pub struct Handle;
 
 impl Handle {
-    pub fn get_url(&self, log: &slog::Logger, site_slug: &str) -> String {
+    pub fn get_url(&self, log: &Logger, site_slug: &str) -> String {
         debug!(
             log,
             "Getting URL of this Wikijump instance";
@@ -73,7 +73,7 @@ impl Handle {
 
     pub fn get_link_label<F>(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         url: &str,
         label: &LinkLabel,
         f: F,

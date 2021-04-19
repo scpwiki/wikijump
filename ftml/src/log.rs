@@ -88,31 +88,59 @@ cfg_if! {
 
         // Dummy logging macros
         macro_rules! crit {
-            ($l:expr, $($args:tt)+) => ();
+            ($l:expr, $($args:tt)+) => {
+                crate::log::unused($l)
+            };
         }
 
         macro_rules! error {
-            ($l:expr, $($args:tt)+) => ();
+            ($l:expr, $($args:tt)+) => {
+                crate::log::unused($l)
+            };
         }
 
         macro_rules! warn {
-            ($l:expr, $($args:tt)+) => ();
+            ($l:expr, $($args:tt)+) => {
+                crate::log::unused($l)
+            };
         }
 
         macro_rules! info {
-            ($l:expr, $($args:tt)+) => ();
+            ($l:expr, $($args:tt)+) => {
+                crate::log::unused($l)
+            };
         }
 
         macro_rules! debug {
-            ($l:expr, $($args:tt)+) => ();
+            ($l:expr, $($args:tt)+) => {
+                crate::log::unused($l)
+            };
         }
 
         macro_rules! trace {
-            ($l:expr, $($args:tt)+) => ();
+            ($l:expr, $($args:tt)+) => {
+                crate::log::unused($l)
+            };
         }
 
-        // Dummy logging structures
-        #[derive(Debug)]
+        // Dummy logging construction macros
+        macro_rules! slog_o {
+            ($($args:tt)+) => {
+                ()
+            };
+        }
+
+        // Dummy logging structure
+        #[derive(Debug, Copy, Clone)]
         pub struct Logger;
+
+        impl Logger {
+            pub fn new(&self, _: ()) -> &Logger {
+                self
+            }
+        }
+
+        // Helpers
+        pub fn unused<T>(_x: T) {}
     }
 }

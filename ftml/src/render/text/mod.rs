@@ -26,6 +26,7 @@ use self::elements::render_elements;
 use crate::data::PageInfo;
 use crate::render::{Handle, Render};
 use crate::tree::SyntaxTree;
+use crate::log::prelude::*;
 
 #[derive(Debug)]
 pub struct TextRender;
@@ -35,7 +36,7 @@ impl Render for TextRender {
 
     fn render(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         page_info: &PageInfo,
         tree: &SyntaxTree,
     ) -> String {
