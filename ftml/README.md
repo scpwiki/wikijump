@@ -74,7 +74,7 @@ Third is `tokenize`, which takes the input string and returns a wrapper type. Th
 
 Then, borrowing a slice of said tokens, `parse` consumes them and produces a `SyntaxTree` representing the full structure of the parsed wikitext.
 
-Finally, with the syntax tree you `render` it with whatever `Render` instance you need at the time. Most likely you want `HtmlRender`.
+Finally, with the syntax tree you `render` it with whatever `Render` instance you need at the time. Most likely you want `HtmlRender`. There is also `TextRender` for text-only, such as for searching article contents or a "printer-friendly" view.
 
 ```rust
 fn include<'t, I, E>(
