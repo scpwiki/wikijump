@@ -31,7 +31,6 @@ use crate::render::text::TextRender;
 use crate::render::Render;
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
-use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -259,15 +258,23 @@ fn ast_and_html() {
             .expect("Unable to get file stem")
             .to_string_lossy();
 
-        // Don't print, we expect these
-        if path.extension() == Some(OsStr::new("html")) {
-            return None;
-        }
+        let extension = path
+            .extension()
+            .map(|s| s.to_str())
+            .flatten();
 
-        // Print for other files, unexpected
-        if path.extension() != Some(OsStr::new("json")) {
-            println!("Skipping non-JSON file {}", file_name!(entry));
-            return None;
+        match extension {
+            // Load JSON test data
+            Some("json") => (),
+
+            // We expect these, don't print anything
+            Some("html") | Some("txt") => return None,
+
+            // Print for other, unexpected files
+            _ => {
+                println!("Skipping non-JSON file {}", file_name!(entry));
+                return None;
+            }
         }
 
         Some(Test::load(&path, &stem))
