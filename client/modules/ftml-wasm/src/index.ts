@@ -52,6 +52,8 @@ function freeTracked() {
   tracked.clear()
 }
 
+export type PageInfo = Partial<Binding.IPageInfo>
+
 /** Creates a {@link Binding.PageInfo PageInfo} object.
  *  Any properties not provided are mocked. */
 function makeInfo({
@@ -59,11 +61,21 @@ function makeInfo({
   category = null,
   locale = "C",
   rating = 0,
-  slug = "unknown",
+  page = "unknown",
+  site = "www",
   tags = [],
   title = ""
-}: Partial<Binding.IPageInfo> = {}) {
-  return new Binding.PageInfo({ alt_title, category, locale, rating, slug, tags, title })
+}: PageInfo = {}) {
+  return new Binding.PageInfo({
+    alt_title,
+    category,
+    locale,
+    rating,
+    page,
+    site,
+    tags,
+    title
+  })
 }
 
 /** Returns FTML's (the crate) version. */
@@ -120,9 +132,24 @@ export function parse(str: string, preprocess = true) {
   }
 }
 
+export interface RenderOptions {
+  /** Return HTML data or just text? */
+  mode?: "html" | "text"
+  /** Contextual information about the wikitext being rendered.
+   *  Unspecified properties will be mocked. */
+  info?: PageInfo
+  /** Preprocess input before rendering? */
+  preprocess?: boolean
+}
+
+type RenderHTML = { html: string; meta: Binding.IHtmlMeta[]; style: string }
+
 /** Renders a string of wikitext. */
-export function render(str: string, info?: Binding.IPageInfo, preprocess = true) {
+export function render(str: string, opts?: { mode?: "html" } & RenderOptions): RenderHTML
+export function render(str: string, opts?: { mode: "text" } & RenderOptions): string
+export function render(str: string, opts?: RenderOptions) {
   if (!ready) throw new Error("FTML wasn't ready yet!")
+  const { mode = "html", info, preprocess = true } = opts ?? {}
   try {
     str = preprocess ? Binding.preprocess(str) : str
 
@@ -130,15 +157,63 @@ export function render(str: string, info?: Binding.IPageInfo, preprocess = true)
     const parsed = trk(Binding.parse(tokenized))
     const tree = trk(parsed.syntax_tree())
     const pageInfo = trk(makeInfo(info))
-    const rendered = trk(Binding.render_html(pageInfo, tree))
 
-    const html = rendered.html()
-    const meta = rendered.html_meta()
-    const style = rendered.style()
+    const rendered =
+      mode === "html"
+        ? trk(Binding.render_html(pageInfo, tree))
+        : trk(Binding.render_text(pageInfo, tree))
+
+    if (typeof rendered === "object") {
+      const html = rendered.html()
+      const meta = rendered.html_meta()
+      const style = rendered.style()
+      freeTracked()
+      return { html, meta, style }
+    }
 
     freeTracked()
+    return rendered
+  } catch (err) {
+    freeTracked()
+    throw err
+  }
+}
 
-    return { html, meta, style }
+export interface DetailedRenderOptions {
+  mode?: "html" | "text"
+  info?: PageInfo
+}
+
+/** Renders a string of wikitext like the {@link render} function, but this
+ *  function additionally returns every step in the rendering pipeline. */
+export function detailedRender(str: string, opts?: DetailedRenderOptions) {
+  if (!ready) throw new Error("FTML wasn't ready yet!")
+  const { mode = "html", info } = opts ?? {}
+  try {
+    const preprocessed = Binding.preprocess(str)
+    const tokenized = trk(Binding.tokenize(preprocessed))
+    const tokens = tokenized.tokens()
+    const parsed = trk(Binding.parse(tokenized))
+    const tree = trk(parsed.syntax_tree())
+    const ast = tree.data()
+    const warnings = parsed.warnings()
+    const pageInfo = trk(makeInfo(info))
+
+    const rendered =
+      mode === "html"
+        ? trk(Binding.render_html(pageInfo, tree))
+        : trk(Binding.render_text(pageInfo, tree))
+
+    if (typeof rendered === "object") {
+      const html = rendered.html()
+      const meta = rendered.html_meta()
+      const style = rendered.style()
+      freeTracked()
+      return { preprocessed, tokens, ast, warnings, html, meta, style }
+    }
+
+    freeTracked()
+    return { preprocessed, tokens, ast, warnings, text: rendered }
   } catch (err) {
     freeTracked()
     throw err
@@ -157,33 +232,6 @@ export function warnings(str: string) {
     freeTracked()
 
     return warnings
-  } catch (err) {
-    freeTracked()
-    throw err
-  }
-}
-
-/** Renders a string of wikitext like the {@link render} function, but this
- *  function additionally returns every step in the rendering pipeline. */
-export function detailedRender(str: string, info?: Binding.IPageInfo) {
-  if (!ready) throw new Error("FTML wasn't ready yet!")
-  try {
-    const preprocessed = Binding.preprocess(str)
-    const tokenized = trk(Binding.tokenize(preprocessed))
-    const tokens = tokenized.tokens()
-    const parsed = trk(Binding.parse(tokenized))
-    const tree = trk(parsed.syntax_tree())
-    const ast = tree.data()
-    const warnings = parsed.warnings()
-    const pageInfo = trk(makeInfo(info))
-    const rendered = trk(Binding.render_html(pageInfo, tree))
-    const html = rendered.html()
-    const meta = rendered.html_meta()
-    const style = rendered.style()
-
-    freeTracked()
-
-    return { preprocessed, tokens, ast, warnings, html, meta, style }
   } catch (err) {
     freeTracked()
     throw err
