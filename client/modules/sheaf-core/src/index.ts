@@ -8,10 +8,10 @@ import {
   ViewPlugin,
   ViewUpdate,
   drawSelection,
-  keymap
+  keymap,
+  highlightActiveLine,
+  highlightSpecialChars
 } from "@codemirror/view"
-
-import { highlightActiveLine, highlightSpecialChars } from "@codemirror/view"
 import { history, historyKeymap } from "@codemirror/history"
 import { foldGutter, foldKeymap } from "@codemirror/fold"
 import { syntaxTree, indentOnInput } from "@codemirror/language"
