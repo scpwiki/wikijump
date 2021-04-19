@@ -105,21 +105,17 @@ impl<'i, 'h> TextContext<'i, 'h> {
         self.output.push(ch);
     }
 
-    pub fn push_prefixes(&mut self) {
-        for prefix in &self.prefixes {
-            self.output.push_str(prefix);
-        }
-    }
-
-    pub fn push_multiple(&mut self, ch: char, count: u32) {
-        for _ in 0..count {
-            self.output.push(ch);
-        }
-    }
-
     #[inline]
     pub fn push_str(&mut self, s: &str) {
         self.output.push_str(s);
+    }
+
+    pub fn add_newline(&mut self) {
+        self.output.push('\n');
+
+        for prefix in &self.prefixes {
+            self.output.push_str(prefix);
+        }
     }
 }
 

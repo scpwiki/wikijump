@@ -49,12 +49,12 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             };
 
             if add_newlines {
-                ctx.push('\n');
-
                 // Add prefix, if there's one
                 if let Some(prefix) = prefix {
                     ctx.push_prefix(prefix);
                 }
+
+                ctx.add_newline();
             }
 
             // Render internal elements
@@ -66,7 +66,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
                     ctx.pop_prefix();
                 }
 
-                ctx.push('\n');
+                ctx.add_newline();
             }
         }
         Element::Module(module) => {
@@ -183,11 +183,12 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             str_write!(ctx, "```html\n{}\n```", contents);
         }
         Element::Iframe { url, .. } => str_write!(ctx, "iframe: {}", url),
-        Element::LineBreak => {
-            ctx.push('\n');
-            ctx.push_prefixes();
+        Element::LineBreak => ctx.add_newline(),
+        Element::LineBreaks(amount) => {
+            for _ in 0..amount.get() {
+                ctx.add_newline();
+            }
         }
-        Element::LineBreaks(amount) => ctx.push_multiple('\n', amount.get()),
         Element::HorizontalRule => {
             // Add a newline if the last character wasn't a newline
             match ctx.buffer().chars().next_back() {
