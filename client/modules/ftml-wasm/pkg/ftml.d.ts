@@ -6,16 +6,22 @@
 */
 export function parse(tokens: Tokenization): ParseOutcome;
 /**
+* @param {string} text
+* @returns {Tokenization}
+*/
+export function tokenize(text: string): Tokenization;
+/**
 * @param {PageInfo} page_info
 * @param {SyntaxTree} syntax_tree
 * @returns {HtmlOutput}
 */
 export function render_html(page_info: PageInfo, syntax_tree: SyntaxTree): HtmlOutput;
 /**
-* @param {string} text
-* @returns {Tokenization}
+* @param {PageInfo} page_info
+* @param {SyntaxTree} syntax_tree
+* @returns {string}
 */
-export function tokenize(text: string): Tokenization;
+export function render_text(page_info: PageInfo, syntax_tree: SyntaxTree): string;
 /**
 * @returns {string}
 */
@@ -51,6 +57,19 @@ export interface IParseWarning {
 
 
 
+export interface IToken {
+    token: string;
+    slice: string;
+    span: {
+        start: number;
+        end: number;
+    };
+}
+
+
+
+
+
 export interface IHtmlOutput {
     html: string;
     style: string;
@@ -64,26 +83,14 @@ export interface IHtmlMeta {
 }
 
 export interface IPageInfo {
-    slug: string;
+    page: string;
     category: string | null;
+    site: string;
     title: string;
     alt_title: string | null;
     rating: number;
     tags: string[];
     locale: string;
-}
-
-
-
-
-
-export interface IToken {
-    token: string;
-    slice: string;
-    span: {
-        start: number;
-        end: number;
-    };
 }
 
 
@@ -121,6 +128,38 @@ export class PageInfo {
 * @param {IPageInfo} object
 */
   constructor(object: IPageInfo);
+/**
+* @returns {string | undefined}
+*/
+  readonly alt_title: string | undefined;
+/**
+* @returns {string | undefined}
+*/
+  readonly category: string | undefined;
+/**
+* @returns {string}
+*/
+  readonly locale: string;
+/**
+* @returns {string}
+*/
+  readonly page: string;
+/**
+* @returns {number}
+*/
+  readonly rating: number;
+/**
+* @returns {string}
+*/
+  readonly site: string;
+/**
+* @returns {string[]}
+*/
+  readonly tags: string[];
+/**
+* @returns {string}
+*/
+  readonly title: string;
 }
 /**
 */
@@ -175,27 +214,36 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_parseoutcome_free: (a: number) => void;
+  readonly parseoutcome_copy: (a: number) => number;
   readonly parseoutcome_syntax_tree: (a: number) => number;
   readonly parseoutcome_warnings: (a: number) => number;
   readonly __wbg_syntaxtree_free: (a: number) => void;
+  readonly syntaxtree_copy: (a: number) => number;
   readonly syntaxtree_data: (a: number) => number;
   readonly parse: (a: number) => number;
+  readonly __wbg_tokenization_free: (a: number) => void;
+  readonly tokenization_copy: (a: number) => number;
+  readonly tokenization_text: (a: number, b: number) => void;
+  readonly tokenization_tokens: (a: number) => number;
+  readonly tokenize: (a: number, b: number) => number;
   readonly __wbg_pageinfo_free: (a: number) => void;
+  readonly pageinfo_copy: (a: number) => number;
   readonly pageinfo_new: (a: number) => number;
+  readonly pageinfo_page: (a: number, b: number) => void;
+  readonly pageinfo_category: (a: number, b: number) => void;
+  readonly pageinfo_site: (a: number, b: number) => void;
+  readonly pageinfo_title: (a: number, b: number) => void;
+  readonly pageinfo_alt_title: (a: number, b: number) => void;
+  readonly pageinfo_rating: (a: number) => number;
+  readonly pageinfo_tags: (a: number) => number;
+  readonly pageinfo_locale: (a: number, b: number) => void;
   readonly __wbg_htmloutput_free: (a: number) => void;
   readonly htmloutput_copy: (a: number) => number;
   readonly htmloutput_html: (a: number, b: number) => void;
   readonly htmloutput_style: (a: number, b: number) => void;
   readonly htmloutput_html_meta: (a: number) => number;
   readonly render_html: (a: number, b: number) => number;
-  readonly __wbg_tokenization_free: (a: number) => void;
-  readonly tokenization_text: (a: number, b: number) => void;
-  readonly tokenization_tokens: (a: number) => number;
-  readonly tokenize: (a: number, b: number) => number;
-  readonly syntaxtree_copy: (a: number) => number;
-  readonly parseoutcome_copy: (a: number) => number;
-  readonly pageinfo_copy: (a: number) => number;
-  readonly tokenization_copy: (a: number) => number;
+  readonly render_text: (a: number, b: number, c: number) => void;
   readonly version: (a: number) => void;
   readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;

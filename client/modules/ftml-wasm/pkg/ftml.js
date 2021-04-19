@@ -128,6 +128,17 @@ export function parse(tokens) {
 }
 
 /**
+* @param {string} text
+* @returns {Tokenization}
+*/
+export function tokenize(text) {
+    var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len0 = WASM_VECTOR_LEN;
+    var ret = wasm.tokenize(ptr0, len0);
+    return Tokenization.__wrap(ret);
+}
+
+/**
 * @param {PageInfo} page_info
 * @param {SyntaxTree} syntax_tree
 * @returns {HtmlOutput}
@@ -144,14 +155,27 @@ export function render_html(page_info, syntax_tree) {
 }
 
 /**
-* @param {string} text
-* @returns {Tokenization}
+* @param {PageInfo} page_info
+* @param {SyntaxTree} syntax_tree
+* @returns {string}
 */
-export function tokenize(text) {
-    var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
-    var ret = wasm.tokenize(ptr0, len0);
-    return Tokenization.__wrap(ret);
+export function render_text(page_info, syntax_tree) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        _assertClass(page_info, PageInfo);
+        var ptr0 = page_info.ptr;
+        page_info.ptr = 0;
+        _assertClass(syntax_tree, SyntaxTree);
+        var ptr1 = syntax_tree.ptr;
+        syntax_tree.ptr = 0;
+        wasm.render_text(retptr, ptr0, ptr1);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(r0, r1);
+    }
 }
 
 /**
@@ -282,7 +306,7 @@ export class PageInfo {
     * @returns {PageInfo}
     */
     copy() {
-        var ret = wasm.htmloutput_copy(this.ptr);
+        var ret = wasm.pageinfo_copy(this.ptr);
         return PageInfo.__wrap(ret);
     }
     /**
@@ -291,6 +315,118 @@ export class PageInfo {
     constructor(object) {
         var ret = wasm.pageinfo_new(addHeapObject(object));
         return PageInfo.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    get page() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.pageinfo_page(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {string | undefined}
+    */
+    get category() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.pageinfo_category(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            let v0;
+            if (r0 !== 0) {
+                v0 = getStringFromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 1);
+            }
+            return v0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+    * @returns {string}
+    */
+    get site() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.pageinfo_site(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {string}
+    */
+    get title() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.pageinfo_title(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {string | undefined}
+    */
+    get alt_title() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.pageinfo_alt_title(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            let v0;
+            if (r0 !== 0) {
+                v0 = getStringFromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 1);
+            }
+            return v0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+    * @returns {number}
+    */
+    get rating() {
+        var ret = wasm.pageinfo_rating(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {string[]}
+    */
+    get tags() {
+        var ret = wasm.pageinfo_tags(this.ptr);
+        return takeObject(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    get locale() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.pageinfo_locale(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
 }
 /**
@@ -319,7 +455,7 @@ export class ParseOutcome {
     * @returns {ParseOutcome}
     */
     copy() {
-        var ret = wasm.htmloutput_copy(this.ptr);
+        var ret = wasm.parseoutcome_copy(this.ptr);
         return ParseOutcome.__wrap(ret);
     }
     /**
@@ -363,7 +499,7 @@ export class SyntaxTree {
     * @returns {SyntaxTree}
     */
     copy() {
-        var ret = wasm.htmloutput_copy(this.ptr);
+        var ret = wasm.syntaxtree_copy(this.ptr);
         return SyntaxTree.__wrap(ret);
     }
     /**
@@ -400,7 +536,7 @@ export class Tokenization {
     * @returns {Tokenization}
     */
     copy() {
-        var ret = wasm.htmloutput_copy(this.ptr);
+        var ret = wasm.tokenization_copy(this.ptr);
         return Tokenization.__wrap(ret);
     }
     /**
@@ -464,6 +600,10 @@ async function init(input) {
     }
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
+        var ret = getStringFromWasm0(arg0, arg1);
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbindgen_json_parse = function(arg0, arg1) {
         var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
@@ -478,10 +618,6 @@ async function init(input) {
     };
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
-    };
-    imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
-        var ret = getStringFromWasm0(arg0, arg1);
-        return addHeapObject(ret);
     };
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
         throw new Error(getStringFromWasm0(arg0, arg1));
