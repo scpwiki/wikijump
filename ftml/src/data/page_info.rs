@@ -66,8 +66,9 @@ impl PageInfo<'_> {
     #[cfg(test)]
     pub fn dummy() -> Self {
         PageInfo {
-            slug: cow!("some-page"),
+            page: cow!("some-page"),
             category: None,
+            site: cow!("sandbox"),
             title: cow!("A page for the age"),
             alt_title: None,
             rating: 69.0,

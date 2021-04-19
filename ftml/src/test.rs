@@ -144,8 +144,9 @@ impl Test<'_> {
         println!("+ {}", self.name);
 
         let page_info = PageInfo {
-            slug: cow!(self.name),
+            page: cow!(self.name),
             category: None,
+            site: cow!("www"),
             title: cow!(self.name),
             alt_title: None,
             rating: 0.0,

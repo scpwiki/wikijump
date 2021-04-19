@@ -110,8 +110,9 @@ fn json() {
     ]
   },
   "page_info": {
-    "slug": "some-page",
+    "page": "some-page",
     "category": null,
+    "site": "sandbox",
     "title": "A page for the age",
     "alt-title": null,
     "rating": 69.0,
@@ -123,7 +124,7 @@ fn json() {
   }
 }"#;
 
-    const COMPACT_OUTPUT: &str = r#"{"syntax_tree":{"elements":[{"element":"text","data":"apple"},{"element":"text","data":" "},{"element":"container","data":{"type":"bold","elements":[{"element":"text","data":"banana"}],"attributes":{}}}],"styles":["span.hidden-text { display: none; }"]},"page_info":{"slug":"some-page","category":null,"title":"A page for the age","alt-title":null,"rating":69.0,"tags":["tale","_cc"],"locale":"en_US"}}"#;
+    const COMPACT_OUTPUT: &str = r#"{"syntax_tree":{"elements":[{"element":"text","data":"apple"},{"element":"text","data":" "},{"element":"container","data":{"type":"bold","elements":[{"element":"text","data":"banana"}],"attributes":{}}}],"styles":["span.hidden-text { display: none; }"]},"page_info":{"page":"some-page","category":null,"site":"sandbox","title":"A page for the age","alt-title":null,"rating":69.0,"tags":["tale","_cc"],"locale":"en_US"}}"#;
 
     let log = crate::build_logger();
     let page_info = PageInfo::dummy();
