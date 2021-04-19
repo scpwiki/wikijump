@@ -11,7 +11,7 @@ import * as lib from "../src/index"
 globalThis.fetch = fetch
 
 // bundle the module in directly
-const module = require("../pkg/ftml_bg.wasm")
+const module = require("../vendor/ftml_bg.wasm")
 lib.init(module)
 
 const FTML = uvu.suite("ftml-wasm")

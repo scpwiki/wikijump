@@ -2,7 +2,7 @@
  * @file Exports an easy to use wrapper around the FTML (WASM) library.
  */
 
-import initFTML, * as Binding from "../pkg/ftml"
+import initFTML, * as Binding from "../vendor/ftml"
 
 /** Indicates if the WASM binding is loaded. */
 export let ready = false

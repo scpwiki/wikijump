@@ -1,6 +1,15 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @returns {string}
+*/
+export function version(): string;
+/**
+* @param {string} text
+* @returns {string}
+*/
+export function preprocess(text: string): string;
+/**
 * @param {Tokenization} tokens
 * @returns {ParseOutcome}
 */
@@ -22,15 +31,6 @@ export function render_html(page_info: PageInfo, syntax_tree: SyntaxTree): HtmlO
 * @returns {string}
 */
 export function render_text(page_info: PageInfo, syntax_tree: SyntaxTree): string;
-/**
-* @returns {string}
-*/
-export function version(): string;
-/**
-* @param {string} text
-* @returns {string}
-*/
-export function preprocess(text: string): string;
 
 
 export interface IElement {
@@ -213,21 +213,22 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly version: (a: number) => void;
+  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbg_parseoutcome_free: (a: number) => void;
   readonly parseoutcome_copy: (a: number) => number;
   readonly parseoutcome_syntax_tree: (a: number) => number;
   readonly parseoutcome_warnings: (a: number) => number;
   readonly __wbg_syntaxtree_free: (a: number) => void;
-  readonly syntaxtree_copy: (a: number) => number;
   readonly syntaxtree_data: (a: number) => number;
   readonly parse: (a: number) => number;
   readonly __wbg_tokenization_free: (a: number) => void;
-  readonly tokenization_copy: (a: number) => number;
   readonly tokenization_text: (a: number, b: number) => void;
   readonly tokenization_tokens: (a: number) => number;
   readonly tokenize: (a: number, b: number) => number;
+  readonly syntaxtree_copy: (a: number) => number;
+  readonly tokenization_copy: (a: number) => number;
   readonly __wbg_pageinfo_free: (a: number) => void;
-  readonly pageinfo_copy: (a: number) => number;
   readonly pageinfo_new: (a: number) => number;
   readonly pageinfo_page: (a: number, b: number) => void;
   readonly pageinfo_category: (a: number, b: number) => void;
@@ -244,8 +245,7 @@ export interface InitOutput {
   readonly htmloutput_html_meta: (a: number) => number;
   readonly render_html: (a: number, b: number) => number;
   readonly render_text: (a: number, b: number, c: number) => void;
-  readonly version: (a: number) => void;
-  readonly preprocess: (a: number, b: number, c: number) => void;
+  readonly pageinfo_copy: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
