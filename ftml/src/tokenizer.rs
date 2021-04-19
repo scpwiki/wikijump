@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::log::prelude::*;
 use crate::parsing::{ExtractedToken, Token};
 use crate::text::FullText;
 
@@ -47,7 +48,7 @@ impl<'t> From<Tokenization<'t>> for Vec<ExtractedToken<'t>> {
 }
 
 /// Take an input string and produce a list of tokens for consumption by the parser.
-pub fn tokenize<'t>(log: &slog::Logger, text: &'t str) -> Tokenization<'t> {
+pub fn tokenize<'t>(log: &Logger, text: &'t str) -> Tokenization<'t> {
     let log = &log.new(slog_o!(
         "filename" => slog_filename!(),
         "lineno" => slog_lineno!(),

@@ -19,6 +19,7 @@
  */
 
 mod prelude {
+    pub use crate::log::prelude::*;
     pub use crate::parsing::check_step::check_step;
     pub use crate::parsing::collect::*;
     pub use crate::parsing::condition::ParseCondition;

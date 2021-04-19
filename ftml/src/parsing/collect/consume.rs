@@ -27,7 +27,7 @@ use super::prelude::*;
 ///
 /// This call always sets `step_on_final` to `true`.
 pub fn collect_consume<'p, 'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],

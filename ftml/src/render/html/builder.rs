@@ -20,7 +20,9 @@
 
 use super::context::HtmlContext;
 use super::escape::escape_char;
-use super::render::ElementRender;
+use super::render::ItemRender;
+use crate::log::prelude::*;
+use crate::tree::AttributeMap;
 
 macro_rules! tag_method {
     ($tag:tt) => {
@@ -29,6 +31,12 @@ macro_rules! tag_method {
         }
     };
 }
+
+/// These are HTML tags which do not need a closing pair.
+const SOLO_HTML_TAGS: [&str; 14] = [
+    "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param",
+    "source", "track", "wbr",
+];
 
 // Main struct
 
@@ -52,28 +60,21 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
     }
 
     tag_method!(a);
-    tag_method!(b);
-    tag_method!(blockquote);
     tag_method!(br);
     tag_method!(code);
     tag_method!(div);
     tag_method!(hr);
-    tag_method!(i);
     tag_method!(iframe);
     tag_method!(img);
+    tag_method!(input);
     tag_method!(li);
-    tag_method!(ol);
-    tag_method!(p);
+    tag_method!(pre);
     tag_method!(script);
     tag_method!(span);
-    tag_method!(strike);
-    tag_method!(sub);
-    tag_method!(sup);
     tag_method!(table);
+    tag_method!(td);
     tag_method!(tr);
     tag_method!(tt);
-    tag_method!(u);
-    tag_method!(ul);
 
     #[inline]
     pub fn text(&mut self, text: &str) {
@@ -88,6 +89,7 @@ pub struct HtmlBuilderTag<'c, 'i, 'h, 't> {
     ctx: &'c mut HtmlContext<'i, 'h>,
     tag: &'t str,
     in_tag: bool,
+    in_contents: bool,
 }
 
 impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
@@ -99,25 +101,39 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             ctx,
             tag,
             in_tag: true,
+            in_contents: false,
         }
     }
 
-    fn attr_key(&mut self, key: &str) {
+    fn attr_key(&mut self, key: &str, has_value: bool) {
         debug_assert!(is_alphanumeric(key));
         debug_assert!(self.in_tag);
 
         self.ctx.push_raw(' ');
         self.ctx.push_escaped(key);
-        self.ctx.push_raw('=');
+
+        if has_value {
+            self.ctx.push_raw('=');
+        }
     }
 
     pub fn attr(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
-        self.attr_key(key);
-        self.ctx.push_raw('"');
-        for part in value_parts {
-            self.ctx.push_escaped(part);
+        // If value_parts is empty, then we just give the key.
+        //
+        // For instance, ("checked", &[]) in input produces
+        // <input checked> rather than <input checked="...">
+
+        let has_value = !value_parts.is_empty();
+
+        self.attr_key(key, has_value);
+
+        if has_value {
+            self.ctx.push_raw('"');
+            for part in value_parts {
+                self.ctx.push_escaped(part);
+            }
+            self.ctx.push_raw('"');
         }
-        self.ctx.push_raw('"');
 
         self
     }
@@ -126,7 +142,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     where
         F: FnMut(&mut HtmlContext),
     {
-        self.attr_key(key);
+        self.attr_key(key, true);
         self.ctx.push_raw('"');
 
         // Read the formatted text and escape it.
@@ -156,17 +172,53 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         self
     }
 
+    pub fn attr_map(&mut self, map: &AttributeMap) -> &mut Self {
+        for (key, value) in map.get() {
+            self.attr(&key, &[value]);
+        }
+
+        self
+    }
+
+    pub fn attr_map_prepend(
+        &mut self,
+        map: &AttributeMap,
+        (extra_key, extra_value): (&str, &str),
+    ) -> &mut Self {
+        let mut merged = false;
+        for (key, value) in map.get() {
+            // If this key matches, then prepend it
+            // Otherwise, just pass in the value
+            if key.eq_ignore_ascii_case(extra_key) {
+                merged = true;
+                self.attr(&key, &[extra_value, " ", value]);
+            } else {
+                self.attr(&key, &[value]);
+            }
+        }
+
+        // If we haven't already added this attribute, then do so now
+        if !merged {
+            self.attr(extra_key, &[extra_value]);
+        }
+
+        self
+    }
+
     fn content_start(&mut self) {
         if self.in_tag {
             self.ctx.push_raw('>');
             self.in_tag = false;
         }
+
+        assert_eq!(self.in_contents, false, "Already in tag contents");
+        self.in_contents = true;
     }
 
     #[inline]
-    pub fn inner(&mut self, component: &dyn ElementRender) -> &mut Self {
+    pub fn inner(&mut self, log: &Logger, item: &dyn ItemRender) -> &mut Self {
         self.content_start();
-        component.render(self.ctx);
+        item.render(log, self.ctx);
 
         self
     }
@@ -184,12 +236,15 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 
 impl<'c, 'i, 'h, 't> Drop for HtmlBuilderTag<'c, 'i, 'h, 't> {
     fn drop(&mut self) {
-        if !self.in_tag {
-            self.ctx.push_raw_str("</");
-            self.ctx.push_raw_str(self.tag);
+        if self.in_tag && !self.in_contents {
+            self.ctx.push_raw('>');
         }
 
-        self.ctx.push_raw('>');
+        if should_close_tag(self.tag) {
+            self.ctx.push_raw_str("</");
+            self.ctx.push_raw_str(self.tag);
+            self.ctx.push_raw('>');
+        }
     }
 }
 
@@ -199,4 +254,9 @@ fn is_alphanumeric(value: &str) -> bool {
     value
         .chars()
         .all(|c| c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '-')
+}
+
+#[inline]
+fn should_close_tag(tag: &str) -> bool {
+    !SOLO_HTML_TAGS.contains(&tag)
 }

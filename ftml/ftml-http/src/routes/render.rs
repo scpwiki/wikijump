@@ -19,10 +19,18 @@
  */
 
 use super::prelude::*;
+use ftml::data::PageInfo;
 use ftml::render::debug::DebugRender;
 use ftml::render::html::{HtmlMeta, HtmlOutput, HtmlRender};
 use ftml::render::Render;
 use ftml::tree::SyntaxTree;
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+struct RenderInput<'a> {
+    info: PageInfo<'a>,
+    contents: TextInput,
+}
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "kebab-case")]
@@ -45,14 +53,16 @@ pub fn route_render_html(
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
+            let RenderInput { info, contents } = input;
             let (mut text, pages_included) =
-                try_response!(run_include(&log, input)).into();
+                try_response!(run_include(&log, contents)).into();
 
             ftml::preprocess(&log, &mut text);
 
             let tokenization = tokenize(&log, &text);
             let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
-            let HtmlOutput { html, style, meta } = HtmlRender.render(&log, &syntax_tree);
+            let HtmlOutput { html, style, meta } =
+                HtmlRender.render(&log, &info, &syntax_tree);
 
             let resp = Response::ok(HtmlRenderOutput {
                 pages_included,
@@ -88,14 +98,15 @@ pub fn route_render_debug(
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
+            let RenderInput { info, contents } = input;
             let (mut text, pages_included) =
-                try_response!(run_include(&log, input)).into();
+                try_response!(run_include(&log, contents)).into();
 
             ftml::preprocess(&log, &mut text);
 
             let tokenization = tokenize(&log, &text);
             let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
-            let output = DebugRender.render(&log, &syntax_tree);
+            let output = DebugRender.render(&log, &info, &syntax_tree);
 
             let resp = Response::ok(DebugRenderOutput {
                 pages_included,

@@ -23,26 +23,32 @@ use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
 use crate::data::PageInfo;
+use crate::render::Handle;
 use std::fmt::{self, Write};
+use std::num::NonZeroUsize;
 
 #[derive(Debug)]
 pub struct HtmlContext<'i, 'h> {
     html: String,
     style: String,
     meta: Vec<HtmlMeta>,
-    info: PageInfo<'i>,
-    handle: &'h (),
+    info: &'i PageInfo<'i>,
+    handle: &'h Handle,
+
+    // Other fields to track
+    code_snippet_index: NonZeroUsize,
 }
 
 impl<'i, 'h> HtmlContext<'i, 'h> {
     #[inline]
-    pub fn new(info: PageInfo<'i>, handle: &'h ()) -> Self {
+    pub fn new(info: &'i PageInfo<'i>, handle: &'h Handle) -> Self {
         HtmlContext {
             html: String::new(),
             style: String::new(),
             meta: Self::initial_metadata(&info),
             info,
             handle,
+            code_snippet_index: NonZeroUsize::new(1).unwrap(),
         }
     }
 
@@ -84,12 +90,18 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     // Field access
     #[inline]
     pub fn info(&self) -> &PageInfo<'i> {
-        &self.info
+        self.info
     }
 
     #[inline]
-    pub fn handle(&self) -> &'h () {
+    pub fn handle(&self) -> &'h Handle {
         self.handle
+    }
+
+    pub fn next_code_snippet_index(&mut self) -> NonZeroUsize {
+        let index = self.code_snippet_index;
+        self.code_snippet_index = NonZeroUsize::new(index.get() + 1).unwrap();
+        index
     }
 
     // Buffer management
@@ -101,7 +113,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     #[inline]
     pub fn add_style(&mut self, style: &str) {
         if !self.style.is_empty() {
-            self.style.push('\n');
+            self.style.push_str("\n/*****/\n");
         }
 
         self.style.push_str(style);
@@ -129,10 +141,11 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
 }
 
 impl<'i, 'h> From<HtmlContext<'i, 'h>> for HtmlOutput {
-    fn from(context: HtmlContext<'i, 'h>) -> HtmlOutput {
+    #[inline]
+    fn from(ctx: HtmlContext<'i, 'h>) -> HtmlOutput {
         let HtmlContext {
             html, style, meta, ..
-        } = context;
+        } = ctx;
 
         HtmlOutput { html, style, meta }
     }

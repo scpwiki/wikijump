@@ -22,7 +22,7 @@ use super::condition::ParseCondition;
 use super::prelude::*;
 use super::rule::Rule;
 use super::RULE_PAGE;
-use crate::span_wrap::SpanWrap;
+use crate::log::prelude::*;
 use crate::tokenizer::Tokenization;
 use std::ptr;
 
@@ -30,7 +30,7 @@ const MAX_RECURSION_DEPTH: usize = 100;
 
 #[derive(Debug, Clone)]
 pub struct Parser<'r, 't> {
-    log: slog::Logger,
+    log: Logger,
     current: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
@@ -43,8 +43,8 @@ impl<'r, 't> Parser<'r, 't> {
     ///
     /// All other instances should be `.clone()` or `.clone_with_rule()`d from
     /// the main instance used during parsing.
-    pub(crate) fn new(log: &slog::Logger, tokenization: &'r Tokenization<'t>) -> Self {
-        let log = slog::Logger::clone(log);
+    pub(crate) fn new(log: &Logger, tokenization: &'r Tokenization<'t>) -> Self {
+        let log = Logger::clone(log);
         let full_text = tokenization.full_text();
         let (current, remaining) = tokenization
             .tokens()
@@ -63,8 +63,8 @@ impl<'r, 't> Parser<'r, 't> {
 
     // Getters
     #[inline]
-    pub fn log(&self) -> slog::Logger {
-        slog::Logger::clone(&self.log)
+    pub fn log(&self) -> Logger {
+        Logger::clone(&self.log)
     }
 
     #[inline]

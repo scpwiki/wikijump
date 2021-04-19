@@ -12,8 +12,8 @@
                             "element": "collapsible",
                             "data": {
                                 "attributes": {
-                                    "ID": "my-id",
-                                    "CLASS": "my-class"
+                                    "id": "my-id",
+                                    "class": "my-class"
                                 },
                                 "start-open": false,
                                 "show-text": null,

@@ -20,6 +20,7 @@
 
 mod prelude {
     pub use super::super::{Arguments, BlockRule};
+    pub use crate::log::prelude::*;
     pub use crate::parsing::collect::*;
     pub use crate::parsing::condition::ParseCondition;
     pub use crate::parsing::parser::Parser;

@@ -19,10 +19,11 @@
  */
 
 use super::preprocess;
+use crate::log::prelude::*;
 
 pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
 where
-    F: FnMut(&slog::Logger, &mut String),
+    F: FnMut(&Logger, &mut String),
 {
     let mut string = String::new();
     let log = crate::build_logger();

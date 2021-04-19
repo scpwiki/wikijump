@@ -12,8 +12,8 @@ The currently available API routes in the server are:
 | `POST` | `/preprocess` | `TextInput` | `Response<PreprocessOutput>` | Runs the preprocessor on the given input string. |
 | `POST` | `/tokenize` | `TextInput` | `Response<TokenizeOutput>` | Runs the tokenizer on the input string and returns the extracted tokens. |
 | `POST` | `/parse` | `TextInput` | `Response<ParseOutput>` | Runs the parser on the input string and returns the abstract syntax tree. |
-| `POST` | `/render/html` | `TextInput` | `Response<HtmlRenderOutput>` | Performs the full rendering process, from inclusion, preprocessing, tokenization, parsing, and then rendering. |
-| `POST` | `/render/debug` | `TextInput` | `Response<DebugRenderOutput>` | Performs rendering, as above, but uses `ftml::render::DebugRender`. |
+| `POST` | `/render/html` | `RenderInput` | `Response<HtmlRenderOutput>` | Performs the full rendering process, from inclusion, preprocessing, tokenization, parsing, and then rendering. |
+| `POST` | `/render/debug` | `RenderInput` | `Response<DebugRenderOutput>` | Performs rendering, as above, but uses `ftml::render::DebugRender`. |
 
 Where the structures expected are the following:
 
@@ -63,6 +63,29 @@ The number of returned pages should exactly match the order and count of the req
         "page": "theme:black-highlighter-theme"
     },
     "content": "[[module CSS]]\n...\n[[/module]]"
+}
+```
+
+**`RenderInput`** is the object requesting a rendering of a page. It wraps objects we've seen above, plus `PageData`, which is found in `crate::data::page_info`.
+
+```json
+{
+    "info": {
+        "slug": "my-page",
+        "category": "archived",
+        "title": "Special page!",
+        "alt-title": null,
+        "header": null,
+        "subheader": null,
+        "rating": 100,
+        "tags": ["archived", "project"],
+        "locale": "en_US"
+    },
+    "contents": {
+        "text": "**My** //wikitext//!",
+        "callback-url": "http://localhost:8000/includes",
+        "missing-include-template": "Page '{{ page }}' is missing!"
+    }
 }
 ```
 

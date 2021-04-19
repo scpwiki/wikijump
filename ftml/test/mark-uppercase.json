@@ -13,9 +13,9 @@
                             "data": {
                                 "type": "mark",
                                 "attributes": {
-                                    "ID": "apple",
-                                    "clASS": "fruit",
-                                    "stylE": "color: red;"
+                                    "class": "fruit",
+                                    "id": "apple",
+                                    "style": "color: red;"
                                 },
                                 "elements": [
                                     {

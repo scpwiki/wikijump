@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::log::prelude::*;
 use crate::parsing::ExtractedToken;
 
 /// Wrapper for the input string that was tokenized.
@@ -58,7 +59,7 @@ impl<'t> FullText<'t> {
     /// this function will panic.
     pub fn slice(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         start_token: &ExtractedToken,
         end_token: &ExtractedToken,
     ) -> &'t str {
@@ -83,7 +84,7 @@ impl<'t> FullText<'t> {
     /// this function will panic.
     pub fn slice_partial(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         start_token: &ExtractedToken,
         end_token: &ExtractedToken,
     ) -> &'t str {
@@ -95,7 +96,7 @@ impl<'t> FullText<'t> {
 
     fn slice_impl(
         &self,
-        log: &slog::Logger,
+        log: &Logger,
         slice_kind: &'static str,
         start: usize,
         end: usize,

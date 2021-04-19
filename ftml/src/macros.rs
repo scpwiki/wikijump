@@ -35,3 +35,15 @@ macro_rules! text {
         Element::Text(cow!($value))
     }};
 }
+
+/// Like `std::write()`, except it asserts the writing succeeded.
+///
+/// This is done because the only failure mode for writing to a `String`
+/// would be insufficient memory, which would cause an abort anyways.
+macro_rules! str_write {
+    ($dest:expr, $($arg:tt)*) => {{
+        use std::fmt::Write;
+
+        write!($dest, $($arg)*).expect("Writing to string failed");
+    }};
+}

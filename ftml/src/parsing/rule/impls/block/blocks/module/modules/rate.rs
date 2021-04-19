@@ -27,7 +27,7 @@ pub const MODULE_RATE: ModuleRule = ModuleRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     _parser: &mut Parser<'r, 't>,
     name: &'t str,
     _arguments: Arguments<'t>,

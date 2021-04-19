@@ -27,7 +27,7 @@ pub const MODULE_CSS: ModuleRule = ModuleRule {
 };
 
 fn parse_fn<'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     _arguments: Arguments<'t>,

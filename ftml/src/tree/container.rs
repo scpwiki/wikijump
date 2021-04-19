@@ -115,7 +115,7 @@ impl ContainerType {
     pub fn html_tag(self) -> HtmlTag {
         match self {
             ContainerType::Bold => HtmlTag::new("strong"),
-            ContainerType::Italics => HtmlTag::new("italics"),
+            ContainerType::Italics => HtmlTag::new("em"),
             ContainerType::Underline => HtmlTag::new("u"),
             ContainerType::Superscript => HtmlTag::new("sup"),
             ContainerType::Subscript => HtmlTag::new("sub"),
@@ -136,6 +136,7 @@ impl ContainerType {
     }
 }
 
+#[cfg(feature = "has-log")]
 impl slog::Value for ContainerType {
     fn serialize(
         &self,

@@ -32,7 +32,7 @@ mod lexer {
 }
 
 use self::lexer::*;
-use crate::span_wrap::SpanWrap;
+use crate::log::prelude::*;
 use pest::iterators::Pair;
 use pest::Parser;
 use std::ops::Range;
@@ -152,7 +152,7 @@ pub enum Token {
 
 impl Token {
     pub(crate) fn extract_all<'a>(
-        log: &slog::Logger,
+        log: &Logger,
         text: &'a str,
     ) -> Vec<ExtractedToken<'a>> {
         debug!(log, "Running lexer on input");
@@ -189,7 +189,7 @@ impl Token {
     }
 
     /// Converts a single `Pair` from pest into its corresponding `ExtractedToken`.
-    fn convert_pair<'a>(log: &slog::Logger, pair: Pair<'a, Rule>) -> ExtractedToken<'a> {
+    fn convert_pair<'a>(log: &Logger, pair: Pair<'a, Rule>) -> ExtractedToken<'a> {
         // Extract values from the Pair
         let rule = pair.as_rule();
         let slice = pair.as_str();
@@ -303,6 +303,7 @@ impl Token {
     }
 }
 
+#[cfg(feature = "has-log")]
 impl slog::Value for Token {
     fn serialize(
         &self,

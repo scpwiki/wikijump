@@ -24,10 +24,11 @@ mod whitespace;
 #[cfg(test)]
 mod test;
 
+use crate::log::prelude::*;
+
 /// Run the preprocessor on the given wikitext, which is modified in-place.
 ///
 /// The following modifications are performed:
-/// * Expand instances of `[[include]]`
 /// * Replacing DOS and legacy Mac newlines
 /// * Trimming whitespace lines
 /// * Concatenating lines that end with backslashes
@@ -36,7 +37,7 @@ mod test;
 ///
 /// This call always succeeds. The return value designates where issues occurred
 /// to allow programmatic determination of where things were not as expected.
-pub fn preprocess(log: &slog::Logger, text: &mut String) {
+pub fn preprocess(log: &Logger, text: &mut String) {
     let log = &log.new(slog_o!(
         "filename" => slog_filename!(),
         "lineno" => slog_lineno!(),
@@ -52,7 +53,7 @@ pub fn preprocess(log: &slog::Logger, text: &mut String) {
 
 #[test]
 fn fn_type() {
-    type SubstituteFn = fn(&slog::Logger, &mut String);
+    type SubstituteFn = fn(&Logger, &mut String);
 
     let _: SubstituteFn = whitespace::substitute;
     let _: SubstituteFn = typography::substitute;

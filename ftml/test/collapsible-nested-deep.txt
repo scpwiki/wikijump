@@ -1,0 +1,16 @@
+
++ open block
+- hide block
+
+Apple
++ open block
+- hide block
+
+Banana
++ open block
+- hide block
+
+Cherry
+
+
+

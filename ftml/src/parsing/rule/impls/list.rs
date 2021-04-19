@@ -20,7 +20,6 @@
 
 use super::prelude::*;
 use crate::parsing::{process_depths, DepthItem, DepthList};
-use crate::span_wrap::SpanWrap;
 use crate::tree::{ListItem, ListType};
 
 const MAX_LIST_DEPTH: usize = 20;
@@ -39,7 +38,7 @@ pub const RULE_LIST: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // We don't know the list type(s) yet, so just log that we're starting

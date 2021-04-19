@@ -29,7 +29,7 @@ pub use self::includer::{DebugIncluder, FetchedPage, Includer, NullIncluder};
 pub use self::object::{IncludeRef, IncludeVariables, PageRef};
 
 use self::parse::parse_include_block;
-use crate::span_wrap::SpanWrap;
+use crate::log::prelude::*;
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
@@ -44,7 +44,7 @@ lazy_static! {
 }
 
 pub fn include<'t, I, E, F>(
-    log: &slog::Logger,
+    log: &Logger,
     input: &'t str,
     mut includer: I,
     invalid_return: F,

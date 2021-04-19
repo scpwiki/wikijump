@@ -18,17 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO! remove when this is implemented
-#![allow(dead_code)]
-
 #[cfg(test)]
 mod test;
 
-#[macro_use]
-mod macros;
-
 mod builder;
 mod context;
+mod element;
 mod escape;
 mod meta;
 mod output;
@@ -40,7 +35,11 @@ pub use self::output::HtmlOutput;
 #[cfg(test)]
 use super::prelude;
 
-use crate::render::Render;
+use self::context::HtmlContext;
+use self::element::render_elements;
+use crate::data::PageInfo;
+use crate::log::prelude::*;
+use crate::render::{Handle, Render};
 use crate::tree::SyntaxTree;
 
 #[derive(Debug)]
@@ -49,7 +48,35 @@ pub struct HtmlRender;
 impl Render for HtmlRender {
     type Output = HtmlOutput;
 
-    fn render(&self, _log: &slog::Logger, _tree: &SyntaxTree) -> HtmlOutput {
-        todo!()
+    fn render(
+        &self,
+        log: &Logger,
+        page_info: &PageInfo,
+        tree: &SyntaxTree,
+    ) -> HtmlOutput {
+        info!(
+            log,
+            "Rendering syntax tree";
+            "target" => "html",
+            "site" => page_info.site.as_ref(),
+            "page" => page_info.page.as_ref(),
+            "category" => match &page_info.category {
+                Some(category) => category.as_ref(),
+                None => "_default",
+            },
+        );
+
+        let mut ctx = HtmlContext::new(page_info, &Handle);
+
+        // Add styles
+        for style in &tree.styles {
+            ctx.add_style(style);
+        }
+
+        // Crawl through elements and generate HTML
+        render_elements(log, &mut ctx, &tree.elements);
+
+        // Build and return HtmlOutput
+        ctx.into()
     }
 }

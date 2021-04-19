@@ -26,7 +26,7 @@ pub const RULE_DASH: Rule = Rule {
 };
 
 fn try_consume_fn<'p, 'r, 't>(
-    log: &slog::Logger,
+    log: &Logger,
     _parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Consuming token to create an em dash");
