@@ -178,7 +178,8 @@ impl HtmlOutput {
 // Exported functions
 
 #[wasm_bindgen]
-pub fn render_html(page_info: PageInfo, syntax_tree: SyntaxTree) -> HtmlOutput {
+#[allow(non_snake_case)]
+pub fn renderHtml(page_info: PageInfo, syntax_tree: SyntaxTree) -> HtmlOutput {
     let log = &*LOGGER;
     let page_info = page_info.get();
     let tree = syntax_tree.get();
@@ -190,7 +191,8 @@ pub fn render_html(page_info: PageInfo, syntax_tree: SyntaxTree) -> HtmlOutput {
 }
 
 #[wasm_bindgen]
-pub fn render_text(page_info: PageInfo, syntax_tree: SyntaxTree) -> String {
+#[allow(non_snake_case)]
+pub fn renderText(page_info: PageInfo, syntax_tree: SyntaxTree) -> String {
     let log = &*LOGGER;
     let page_info = page_info.get();
     let tree = syntax_tree.get();
