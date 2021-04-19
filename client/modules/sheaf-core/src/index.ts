@@ -77,9 +77,9 @@ export class SheafCore {
         // get active lines
         if (update.selectionSet || update.docChanged) {
           const activeLines: Set<number> = new Set()
-          for (const r of update.state.selection.ranges) {
-            const lnStart = update.state.doc.lineAt(r.from).number
-            const lnEnd = update.state.doc.lineAt(r.to).number
+          for (const range of update.state.selection.ranges) {
+            const lnStart = update.state.doc.lineAt(range.from).number
+            const lnEnd = update.state.doc.lineAt(range.to).number
             if (lnStart === lnEnd) activeLines.add(lnStart - 1)
             else {
               const diff = lnEnd - lnStart
