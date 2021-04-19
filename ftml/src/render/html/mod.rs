@@ -38,9 +38,9 @@ use super::prelude;
 use self::context::HtmlContext;
 use self::element::render_elements;
 use crate::data::PageInfo;
+use crate::log::prelude::*;
 use crate::render::{Handle, Render};
 use crate::tree::SyntaxTree;
-use crate::log::prelude::*;
 
 #[derive(Debug)]
 pub struct HtmlRender;

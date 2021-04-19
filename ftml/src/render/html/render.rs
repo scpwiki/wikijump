@@ -20,8 +20,8 @@
 
 use super::context::HtmlContext;
 use super::element::{render_element, render_elements};
-use crate::tree::Element;
 use crate::log::prelude::*;
+use crate::tree::Element;
 
 pub trait ItemRender {
     fn render(&self, log: &Logger, ctx: &mut HtmlContext);

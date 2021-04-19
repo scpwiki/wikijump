@@ -21,10 +21,10 @@
 //! Module that implements text rendering for `Element` and its children.
 
 use super::TextContext;
+use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::{ContainerType, Element, ListItem, ListType};
 use crate::url::is_url;
-use crate::log::prelude::*;
 use std::borrow::Cow;
 
 pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]) {

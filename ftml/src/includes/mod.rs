@@ -29,8 +29,8 @@ pub use self::includer::{DebugIncluder, FetchedPage, Includer, NullIncluder};
 pub use self::object::{IncludeRef, IncludeVariables, PageRef};
 
 use self::parse::parse_include_block;
-use regex::{Regex, RegexBuilder};
 use crate::log::prelude::*;
+use regex::{Regex, RegexBuilder};
 
 lazy_static! {
     static ref INCLUDE_REGEX: Regex = {

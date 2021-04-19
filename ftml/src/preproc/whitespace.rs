@@ -31,8 +31,8 @@
 //! to prevent typography from converting the `--` in `[!--` and `--]` into
 //! em dashes.
 
-use regex::{Regex, RegexBuilder};
 use crate::log::prelude::*;
+use regex::{Regex, RegexBuilder};
 
 lazy_static! {
     static ref WHITESPACE: Regex = {
@@ -81,12 +81,7 @@ fn str_replace(log: &Logger, text: &mut String, pattern: &str, replacement: &str
     }
 }
 
-fn regex_replace(
-    log: &Logger,
-    text: &mut String,
-    regex: &Regex,
-    replacement: &str,
-) {
+fn regex_replace(log: &Logger, text: &mut String, regex: &Regex, replacement: &str) {
     debug!(
         log,
         "Replacing miscellaneous regular expression";

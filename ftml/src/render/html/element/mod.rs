@@ -31,19 +31,19 @@ mod text;
 mod prelude {
     pub use super::super::context::HtmlContext;
     pub use super::render_element;
-    pub use crate::tree::{Element, SyntaxTree};
     pub use crate::log::prelude::*;
+    pub use crate::tree::{Element, SyntaxTree};
 }
 
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
 use self::iframe::{render_html, render_iframe};
-use crate::log::prelude::*;
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use super::HtmlContext;
+use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::Element;
 use ref_map::OptionRefMap;

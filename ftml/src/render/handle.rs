@@ -19,11 +19,11 @@
  */
 
 use crate::data::PageInfo;
+use crate::log::prelude::*;
 use crate::tree::LinkLabel;
 use crate::tree::Module;
 use std::num::NonZeroUsize;
 use strum_macros::IntoStaticStr;
-use crate::log::prelude::*;
 
 #[derive(Debug)]
 pub struct Handle;
@@ -71,13 +71,8 @@ impl Handle {
         format!("TODO: actual title ({})", page_slug)
     }
 
-    pub fn get_link_label<F>(
-        &self,
-        log: &Logger,
-        url: &str,
-        label: &LinkLabel,
-        f: F,
-    ) where
+    pub fn get_link_label<F>(&self, log: &Logger, url: &str, label: &LinkLabel, f: F)
+    where
         F: FnOnce(&str),
     {
         let page_title;
@@ -94,12 +89,7 @@ impl Handle {
         f(label_text);
     }
 
-    pub fn get_message(
-        &self,
-        log: &Logger,
-        locale: &str,
-        message: &str,
-    ) -> &'static str {
+    pub fn get_message(&self, log: &Logger, locale: &str, message: &str) -> &'static str {
         debug!(
             log,
             "Fetching message";

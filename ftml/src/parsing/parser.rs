@@ -22,9 +22,9 @@ use super::condition::ParseCondition;
 use super::prelude::*;
 use super::rule::Rule;
 use super::RULE_PAGE;
+use crate::log::prelude::*;
 use crate::tokenizer::Tokenization;
 use std::ptr;
-use crate::log::prelude::*;
 
 const MAX_RECURSION_DEPTH: usize = 100;
 

@@ -24,12 +24,12 @@ mod parser;
 mod rule;
 
 use super::prelude;
+use crate::log::prelude::*;
 use crate::parsing::rule::impls::block::Arguments;
 use crate::parsing::rule::Rule;
 use crate::parsing::{ParseResult, Parser};
 use crate::tree::{Elements, Module};
 use std::fmt::{self, Debug};
-use crate::log::prelude::*;
 
 pub use self::rule::BLOCK_MODULE;
 

@@ -20,8 +20,8 @@
 
 use super::context::HtmlContext;
 use super::escape::escape_char;
-use crate::log::prelude::*;
 use super::render::ItemRender;
+use crate::log::prelude::*;
 use crate::tree::AttributeMap;
 
 macro_rules! tag_method {

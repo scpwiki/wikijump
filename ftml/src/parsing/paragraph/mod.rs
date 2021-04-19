@@ -21,12 +21,12 @@
 mod stack;
 
 use self::stack::ParagraphStack;
-use crate::log::prelude::*;
 use super::consume::consume;
 use super::parser::Parser;
 use super::prelude::*;
 use super::rule::Rule;
 use super::token::Token;
+use crate::log::prelude::*;
 
 /// Wrapper type to satisfy the issue with generic closure types.
 ///

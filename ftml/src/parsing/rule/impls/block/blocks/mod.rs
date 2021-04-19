@@ -20,13 +20,13 @@
 
 mod prelude {
     pub use super::super::{Arguments, BlockRule};
+    pub use crate::log::prelude::*;
     pub use crate::parsing::collect::*;
     pub use crate::parsing::condition::ParseCondition;
     pub use crate::parsing::parser::Parser;
     pub use crate::parsing::prelude::*;
     pub use crate::parsing::{ParseWarning, Token};
     pub use crate::tree::{Container, ContainerType, Element};
-    pub use crate::log::prelude::*;
 
     #[cfg(debug)]
     pub fn assert_generic_name(

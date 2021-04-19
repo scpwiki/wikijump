@@ -24,9 +24,9 @@ mod elements;
 use self::context::TextContext;
 use self::elements::render_elements;
 use crate::data::PageInfo;
+use crate::log::prelude::*;
 use crate::render::{Handle, Render};
 use crate::tree::SyntaxTree;
-use crate::log::prelude::*;
 
 #[derive(Debug)]
 pub struct TextRender;
@@ -34,12 +34,7 @@ pub struct TextRender;
 impl Render for TextRender {
     type Output = String;
 
-    fn render(
-        &self,
-        log: &Logger,
-        page_info: &PageInfo,
-        tree: &SyntaxTree,
-    ) -> String {
+    fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
         info!(
             log,
             "Rendering syntax tree";

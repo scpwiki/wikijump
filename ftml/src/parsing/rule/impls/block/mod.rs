@@ -24,12 +24,12 @@
 //! against the upcoming tokens in accordance to how the
 //! various blocks define themselves.
 
+use crate::log::prelude::*;
 use crate::parsing::result::ParseResult;
 use crate::parsing::rule::Rule;
 use crate::parsing::Parser;
 use crate::tree::Elements;
 use std::fmt::{self, Debug};
-use crate::log::prelude::*;
 
 mod arguments;
 mod mapping;

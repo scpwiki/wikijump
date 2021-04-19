@@ -71,10 +71,7 @@ pub fn parse_include_block<'t>(
     }
 }
 
-fn process_pairs<'t>(
-    log: &Logger,
-    mut pairs: Pairs<'t, Rule>,
-) -> Option<IncludeRef<'t>> {
+fn process_pairs<'t>(log: &Logger, mut pairs: Pairs<'t, Rule>) -> Option<IncludeRef<'t>> {
     let page_raw = match pairs.next() {
         Some(pair) => pair.as_str(),
         None => return None,

@@ -28,8 +28,8 @@
 //! * ,, .. '' to fancy lowered double quotes
 //! * ... to an ellipsis
 
-use regex::Regex;
 use crate::log::prelude::*;
+use regex::Regex;
 
 lazy_static! {
     // ‘ - LEFT SINGLE QUOTATION MARK

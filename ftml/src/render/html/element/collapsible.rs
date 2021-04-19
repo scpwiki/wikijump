@@ -55,11 +55,7 @@ impl<'a> Collapsible<'a> {
     }
 }
 
-pub fn render_collapsible(
-    log: &Logger,
-    ctx: &mut HtmlContext,
-    collapsible: Collapsible,
-) {
+pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Collapsible) {
     let Collapsible {
         elements,
         attributes,
