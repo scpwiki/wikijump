@@ -68,6 +68,7 @@ mod non_empty_vec;
 mod preproc;
 mod span_wrap;
 mod text;
+mod url;
 
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
