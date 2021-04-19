@@ -5,12 +5,23 @@ import * as lib from "../src/index"
 
 const Utils = uvu.suite("wj-utils")
 
+// TODO: search tests
+// TODO: toPoints
+// TODO: pointsMatch
+// TODO: sleep
+// TODO: animationFrame
+// TODO: throttle
+// TODO: debounce
+// TODO: waitFor
+// TODO: createLock
+// TODO: createAnimQueued
+// TODO: idleCallback
+// TODO: createIdleQueued
+
 Utils("hash", () => {
   const output = lib.hash("test")
   assert.is(output, 3556498)
 })
-
-// TODO: search tests
 
 Utils("isEmpty", () => {
   const { isEmpty } = lib
@@ -58,9 +69,6 @@ Utils("createID", () => {
   // there isn't really a good test for this lol
   assert.type(createID("foo"), "string")
 })
-
-// TODO: toPoints
-// TODO: pointsMatch
 
 import { performance } from "perf_hooks"
 // a bit hacky, but we have to make sure perfy works in node

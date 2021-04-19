@@ -20,6 +20,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
+    "sheaf-core": "^0.0.0",
     "wj-util": "^1.0.0"
   }
 }
