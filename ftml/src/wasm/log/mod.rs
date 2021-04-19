@@ -29,17 +29,17 @@ cfg_if! {
         pub use self::console::ConsoleLogger;
 
         lazy_static! {
-            pub static ref LOGGER: Logger = {
+            pub static ref LOGGER: slog::Logger = {
                 use slog::Drain;
 
-                Logger::root(ConsoleLogger.fuse(), o!())
+                slog::Logger::root(ConsoleLogger.fuse(), o!())
             };
         }
     } else if #[cfg(feature = "has-log")] {
         // Use a null logger
         lazy_static! {
-            pub static ref LOGGER: Logger = {
-                Logger::root(slog::Discard, o!()) //
+            pub static ref LOGGER: slog::Logger = {
+                slog::Logger::root(slog::Discard, o!()) //
             };
         }
     } else {
