@@ -198,7 +198,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
         Element::Html { contents } => {
             str_write!(ctx, "```html\n{}\n```", contents);
         }
-        Element::Iframe { url, .. } => str_write!(ctx, "iframe: {}", url),
+        Element::Iframe { url, .. } => str_write!(ctx, "[iframe: {}]", url),
         Element::LineBreak => ctx.add_newline(),
         Element::LineBreaks(amount) => {
             for _ in 0..amount.get() {
