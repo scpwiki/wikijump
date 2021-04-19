@@ -67,6 +67,7 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
     tag_method!(img);
     tag_method!(input);
     tag_method!(li);
+    tag_method!(pre);
     tag_method!(script);
     tag_method!(span);
     tag_method!(table);
@@ -234,12 +235,15 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 
 impl<'c, 'i, 'h, 't> Drop for HtmlBuilderTag<'c, 'i, 'h, 't> {
     fn drop(&mut self) {
-        if should_close_tag(self.tag) && !self.in_tag {
-            self.ctx.push_raw_str("</");
-            self.ctx.push_raw_str(self.tag);
+        if self.in_tag && !self.in_contents {
+            self.ctx.push_raw('>');
         }
 
-        self.ctx.push_raw('>');
+        if should_close_tag(self.tag) {
+            self.ctx.push_raw_str("</");
+            self.ctx.push_raw_str(self.tag);
+            self.ctx.push_raw('>');
+        }
     }
 }
 
