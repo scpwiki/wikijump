@@ -45,8 +45,9 @@ export interface IHtmlMeta {
 }
 
 export interface IPageInfo {
-    slug: string;
+    page: string;
     category: string | null;
+    site: string;
     title: string;
     alt_title: string | null;
     rating: number;
