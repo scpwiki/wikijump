@@ -18,4 +18,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use crate::data::PageInfo;
+use crate::render::Render;
+use crate::tree::SyntaxTree;
+
+#[derive(Debug)]
+pub struct TextRender;
+
+impl Render for TextRender {
+    type Output = String;
+
+    fn render(
+        &self,
+        log: &slog::Logger,
+        page_info: &PageInfo,
+        tree: &SyntaxTree,
+    ) -> String {
+        info!(
+            log,
+            "Rendering syntax tree";
+            "target" => "html",
+            "slug" => page_info.slug.as_ref(),
+            "category" => match &page_info.category {
+                Some(category) => category.as_ref(),
+                None => "_default",
+            },
+        );
+
+        todo!()
+    }
+}
