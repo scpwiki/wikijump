@@ -149,6 +149,11 @@ impl<'i, 'h> TextContext<'i, 'h> {
             self.output.push_str(prefix);
         }
     }
+
+    #[inline]
+    pub fn ends_with_newline(&self) -> bool {
+        self.output.ends_with('\n')
+    }
 }
 
 impl<'i, 'h> From<TextContext<'i, 'h>> for String {

@@ -120,7 +120,7 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             });
         }
         Element::List { ltype, items } => {
-            if !ctx.buffer().ends_with('\n') {
+            if !ctx.ends_with_newline() {
                 ctx.add_newline();
             }
 
@@ -225,7 +225,10 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             }
         }
         Element::HorizontalRule => {
-            ctx.add_newline();
+            if !ctx.ends_with_newline() {
+                ctx.add_newline();
+            }
+
             ctx.push_str("------");
             ctx.add_newline();
         }
