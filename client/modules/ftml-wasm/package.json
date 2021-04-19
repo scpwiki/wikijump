@@ -1,0 +1,27 @@
+{
+  "name": "ftml-wasm",
+  "license": "agpl-3.0-or-later",
+  "description": "WASM-JS bindings for FTML.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "scripts": {
+    "clean": "trash dist .ultra.cache.json",
+    "build": "node ../../scripts/build-modules.js -self",
+    "pack-ftml": "cd ../../../ftml && wasm-pack build --release --target web --out-dir ../client/modules/ftml-wasm/pkg && cd ../client/modules/ftml-wasm/pkg && trash .gitignore LICENSE.md package.json README.md"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scpwiki/wikijump.git"
+  },
+  "bugs": {
+    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
+  },
+  "homepage": "https://github.com/scpwiki/wikijump#readme",
+  "eslintConfig": { "extends": "../../.eslintrc.js" },
+  "dependencies": {}
+}

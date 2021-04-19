@@ -1,0 +1,222 @@
+/**
+ * @file Exports an easy to use wrapper around the FTML (WASM) library.
+ */
+
+import initFTML, * as Binding from "../pkg/ftml"
+
+/** Indicates if the WASM binding is loaded. */
+export let ready = false
+
+let resolveLoading: (value?: unknown) => void
+/** Promise that resolves when the WASM binding has loaded. */
+export const loading = new Promise(resolve => {
+  resolveLoading = resolve
+})
+
+// load automatically for browser
+// this is a workaround for testing
+if (window.fetch as any) init()
+
+/** Actual output of the WASM instantiation. */
+export let wasm: Binding.InitOutput | null = null
+
+/** Loads the WASM required for the FTML library. */
+export async function init(path?: string) {
+  wasm = await initFTML(path)
+  ready = true
+  resolveLoading()
+}
+
+/** Safely frees any WASM objects provided. */
+function free(...objs: any) {
+  for (const obj of objs) {
+    if (typeof obj !== "object" || !("ptr" in obj)) continue
+    if (obj.ptr !== 0) obj.free()
+  }
+}
+
+/** This set contains unfreed WASM objects.
+ *  It is separate from any particular function so that
+ *  error recovery can still clear memory. */
+const tracked = new Set<any>()
+
+/** Adds a WASM object to the list of tracked objects. */
+function trk<T>(obj: T): T {
+  tracked.add(obj)
+  return obj
+}
+
+/** Frees all objects being {@link tracked}, and clears the set. */
+function freeTracked() {
+  free(...tracked)
+  tracked.clear()
+}
+
+/** Creates a {@link Binding.PageInfo PageInfo} object.
+ *  Any properties not provided are mocked. */
+function makeInfo({
+  alt_title = null,
+  category = null,
+  locale = "C",
+  rating = 0,
+  slug = "unknown",
+  tags = [],
+  title = ""
+}: Partial<Binding.IPageInfo> = {}) {
+  return new Binding.PageInfo({ alt_title, category, locale, rating, slug, tags, title })
+}
+
+/** Returns FTML's (the crate) version. */
+export function version() {
+  if (!ready) throw new Error("FTML wasn't ready yet!")
+  return Binding.version()
+}
+
+/** Preprocesses a string of wikitext.
+ *  See `ftml/src/preproc/test.rs` for more information. */
+export function preprocess(str: string) {
+  if (!ready) throw new Error("FTML wasn't ready yet!")
+  return Binding.preprocess(str)
+}
+
+/** Tokenizes a string of wikitext. */
+export function tokenize(str: string, preprocess = true) {
+  if (!ready) throw new Error("FTML wasn't ready yet!")
+  try {
+    str = preprocess ? Binding.preprocess(str) : str
+
+    const tokenized = trk(Binding.tokenize(str))
+    const tokens = tokenized.tokens()
+
+    freeTracked()
+
+    return tokens
+  } catch (err) {
+    freeTracked()
+    throw err
+  }
+}
+
+/** Parses a string of wikitext. This returns an AST and warnings list, not HTML.
+ *  @see render*/
+export function parse(str: string, preprocess = true) {
+  if (!ready) throw new Error("FTML wasn't ready yet!")
+  try {
+    str = preprocess ? Binding.preprocess(str) : str
+
+    const tokenized = trk(Binding.tokenize(str))
+    const parsed = trk(Binding.parse(tokenized))
+    const tree = trk(parsed.syntax_tree())
+
+    const ast = tree.data()
+    const warnings = parsed.warnings()
+
+    freeTracked()
+
+    return { ast, warnings }
+  } catch (err) {
+    freeTracked()
+    throw err
+  }
+}
+
+/** Renders a string of wikitext. */
+export function render(str: string, info?: Binding.IPageInfo, preprocess = true) {
+  if (!ready) throw new Error("FTML wasn't ready yet!")
+  try {
+    str = preprocess ? Binding.preprocess(str) : str
+
+    const tokenized = trk(Binding.tokenize(str))
+    const parsed = trk(Binding.parse(tokenized))
+    const tree = trk(parsed.syntax_tree())
+    const pageInfo = trk(makeInfo(info))
+    const rendered = trk(Binding.render_html(pageInfo, tree))
+
+    const html = rendered.html()
+    const meta = rendered.html_meta()
+    const style = rendered.style()
+
+    freeTracked()
+
+    return { html, meta, style }
+  } catch (err) {
+    freeTracked()
+    throw err
+  }
+}
+
+/** Returns the list of warnings emitted when parsing the provided string. */
+export function warnings(str: string) {
+  if (!ready) throw new Error("FTML wasn't ready yet!")
+  try {
+    const tokenized = trk(Binding.tokenize(str))
+    const parsed = trk(Binding.parse(tokenized))
+
+    const warnings = parsed.warnings()
+
+    freeTracked()
+
+    return warnings
+  } catch (err) {
+    freeTracked()
+    throw err
+  }
+}
+
+/** Renders a string of wikitext like the {@link render} function, but this
+ *  function additionally returns every step in the rendering pipeline. */
+export function detailedRender(str: string, info?: Binding.IPageInfo) {
+  if (!ready) throw new Error("FTML wasn't ready yet!")
+  try {
+    const preprocessed = Binding.preprocess(str)
+    const tokenized = trk(Binding.tokenize(preprocessed))
+    const tokens = tokenized.tokens()
+    const parsed = trk(Binding.parse(tokenized))
+    const tree = trk(parsed.syntax_tree())
+    const ast = tree.data()
+    const warnings = parsed.warnings()
+    const pageInfo = trk(makeInfo(info))
+    const rendered = trk(Binding.render_html(pageInfo, tree))
+    const html = rendered.html()
+    const meta = rendered.html_meta()
+    const style = rendered.style()
+
+    freeTracked()
+
+    return { preprocessed, tokens, ast, warnings, html, meta, style }
+  } catch (err) {
+    freeTracked()
+    throw err
+  }
+}
+
+/** Converts a string of wikitext into a pretty-printed list of tokens. */
+export function inspectTokens(str: string, preprocess = true) {
+  if (!ready) throw new Error("FTML wasn't ready yet!")
+  try {
+    str = preprocess ? Binding.preprocess(str) : str
+
+    const tokenized = trk(Binding.tokenize(str))
+    const tokens = tokenized.tokens()
+
+    freeTracked()
+
+    let out = ""
+    for (const {
+      slice,
+      span: { start, end },
+      token
+    } of tokens) {
+      const tokenStr = String(token.padEnd(16))
+      const startStr = String(start).padStart(4, "0")
+      const endStr = String(end).padStart(4, "0")
+      const sliceStr = slice.slice(0, 40).replaceAll("\n", "\\n")
+      out += `[${startStr} <-> ${endStr}]: ${tokenStr} => '${sliceStr}'\n`
+    }
+
+    return out
+  } catch (err) {
+    freeTracked()
+    throw err
+  }
+}

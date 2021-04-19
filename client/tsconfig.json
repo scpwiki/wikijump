@@ -35,7 +35,8 @@
   "references": [
     { "path": "./modules/wj-util" },
     { "path": "./modules/node-snowpack-workers" },
-    { "path": "./modules/sheaf-core" }
+    { "path": "./modules/sheaf-core" },
+    { "path": "./modules/ftml-wasm" }
   ],
 
   "typeAcquisition": {
