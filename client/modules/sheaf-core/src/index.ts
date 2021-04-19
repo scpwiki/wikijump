@@ -83,8 +83,8 @@ export class SheafCore {
             if (lnStart === lnEnd) activeLines.add(lnStart - 1)
             else {
               const diff = lnEnd - lnStart
-              for (let i = 0; i <= diff; i++) {
-                activeLines.add(lnStart + i - 1)
+              for (let lineNo = 0; lineNo <= diff; lineNo++) {
+                activeLines.add(lnStart + lineNo - 1)
               }
             }
           }
