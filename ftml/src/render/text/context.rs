@@ -123,7 +123,6 @@ impl<'i, 'h> TextContext<'i, 'h> {
     }
 
     // Buffer management
-    #[inline]
     pub fn push(&mut self, ch: char) {
         if self.invisible() {
             self.output.push(' ');
@@ -132,7 +131,6 @@ impl<'i, 'h> TextContext<'i, 'h> {
         }
     }
 
-    #[inline]
     pub fn push_str(&mut self, s: &str) {
         if self.invisible() {
             let chars = self.output.chars().count();
