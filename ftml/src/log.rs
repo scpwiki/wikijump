@@ -93,18 +93,30 @@ cfg_if! {
         mod macros {
             // Dummy filename/lineno macros
             macro_rules! slog_filename {
-                () => ();
+                () => {
+                    ()
+                };
             }
 
             macro_rules! slog_lineno {
-                () => ();
+                () => {
+                    ()
+                };
             }
 
             // Dummy logging construction macros
             macro_rules! slog_o {
-                ($($args:tt)+) => {
-                    ()
+                ($($key:expr => $value:expr,)+) => {
+                    slog_o!($($key => $value),+)
                 };
+                ($($key:expr => $value:expr),*) => {{
+                    $(
+                        let _ = $key;
+                        let _ = $value;
+                    )*
+
+                    ()
+                }};
             }
         }
     }
