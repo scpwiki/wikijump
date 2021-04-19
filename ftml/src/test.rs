@@ -258,11 +258,7 @@ fn ast_and_html() {
             .expect("Unable to get file stem")
             .to_string_lossy();
 
-        let extension = path
-            .extension()
-            .map(|s| s.to_str())
-            .flatten();
-
+        let extension = path.extension().map(|s| s.to_str()).flatten();
         match extension {
             // Load JSON test data
             Some("json") => (),

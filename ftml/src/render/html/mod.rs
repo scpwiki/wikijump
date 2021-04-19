@@ -57,7 +57,8 @@ impl Render for HtmlRender {
             log,
             "Rendering syntax tree";
             "target" => "html",
-            "slug" => page_info.slug.as_ref(),
+            "site" => page_info.site.as_ref(),
+            "page" => page_info.page.as_ref(),
             "category" => match &page_info.category {
                 Some(category) => category.as_ref(),
                 None => "_default",

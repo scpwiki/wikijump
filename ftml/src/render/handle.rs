@@ -28,6 +28,17 @@ use strum_macros::IntoStaticStr;
 pub struct Handle;
 
 impl Handle {
+    pub fn get_url(&self, log: &slog::Logger, site_slug: &str) -> String {
+        debug!(
+            log,
+            "Getting URL of this Wikijump instance";
+            "site" => site_slug,
+        );
+
+        // TODO
+        format!("https://{}.wikijump.com/", site_slug)
+    }
+
     pub fn render_module(
         &self,
         log: &slog::Logger,
@@ -52,11 +63,11 @@ impl Handle {
         }
     }
 
-    pub fn get_page_title(&self, log: &slog::Logger, slug: &str) -> String {
-        debug!(log, "Fetching page title"; "slug" => slug);
+    pub fn get_page_title(&self, log: &slog::Logger, page_slug: &str) -> String {
+        debug!(log, "Fetching page title"; "page" => page_slug);
 
         // TODO
-        format!("TODO: actual title ({})", slug)
+        format!("TODO: actual title ({})", page_slug)
     }
 
     pub fn get_link_label<F>(
