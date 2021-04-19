@@ -40,16 +40,17 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
             ctx.push_str(text)
         }
-        Element::Anchor {
-            elements,
-            attributes,
-            target,
-        } => render_elements(log, ctx, elements),
-        Element::Link { url, label, .. } => str_write!(ctx, "{} ({})", label, url),
+        Element::Anchor { elements, .. } => render_elements(log, ctx, elements),
+        Element::Link { url, label, .. } => {
+            ctx.handle().get_link_label(log, url, label, |label| {
+                str_write!(ctx, "{} [{}]", label, url);
+            });
+        }
         Element::List { ltype, items } => {
             for item in items {
                 match item {
                     ListItem::Elements(elements) => {
+                        // Render bullet and its depth
                         let depth = ctx.list_depth();
                         for _ in 0..depth {
                             ctx.push(' ');
@@ -58,12 +59,17 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
                         match *ltype {
                             ListType::Bullet => ctx.push_str("* "),
                             ListType::Numbered => {
-                                str_write!(ctx, "{}. ", ctx.next_list_index())
+                                let index = ctx.next_list_index();
+                                str_write!(ctx, "{}. ", index);
                             }
                             ListType::Generic => (),
                         }
+
+                        // Render elements for this list item
+                        render_elements(log, ctx, elements);
                     }
                     ListItem::SubList(list) => {
+                        // Update bullet depth
                         ctx.incr_list_depth();
                         render_element(log, ctx, list);
                         ctx.decr_list_depth();
@@ -85,14 +91,33 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
             show_bottom,
             ..
         } => {
+            macro_rules! get_text {
+                ($input:expr, $message:expr) => {
+                    match $input {
+                        Some(ref text) => &text,
+                        None => {
+                            let locale = &ctx.info().locale;
+
+                            ctx.handle().get_message(log, locale, $message)
+                        }
+                    }
+                };
+            }
+
+            let show_text = get_text!(show_text, "collapsible-open");
+            let hide_text = get_text!(hide_text, "collapsible-hide");
+
+            // Top of collapsible
             str_write!(ctx, "\n{}\n", show_text);
 
             if *show_top {
                 str_write!(ctx, "{}\n", hide_text);
             }
 
+            // Collapsible contents
             render_elements(log, ctx, elements);
 
+            // Bottom of collapsible
             if *show_bottom {
                 str_write!(ctx, "{}\n", hide_text);
             }

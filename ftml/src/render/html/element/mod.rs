@@ -42,6 +42,7 @@ use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use super::HtmlContext;
+use crate::render::ModuleRenderMode;
 use crate::tree::Element;
 use ref_map::OptionRefMap;
 
@@ -64,7 +65,10 @@ pub fn render_element(log: &slog::Logger, ctx: &mut HtmlContext, element: &Eleme
 
     match element {
         Element::Container(container) => render_container(log, ctx, container),
-        Element::Module(module) => ctx.handle().render_module(log, ctx, module),
+        Element::Module(module) => {
+            ctx.handle()
+                .render_module(log, ctx.buffer(), module, ModuleRenderMode::Html);
+        }
         Element::Text(text) => ctx.push_escaped(text),
         Element::Raw(text) => render_wikitext_raw(log, ctx, text),
         Element::Email(email) => render_email(log, ctx, email),

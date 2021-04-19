@@ -24,7 +24,7 @@ mod elements;
 use self::context::TextContext;
 use self::elements::render_elements;
 use crate::data::PageInfo;
-use crate::render::Render;
+use crate::render::{Handle, Render};
 use crate::tree::SyntaxTree;
 
 #[derive(Debug)]
@@ -50,7 +50,7 @@ impl Render for TextRender {
             },
         );
 
-        let mut ctx = TextContext::new(page_info, &());
+        let mut ctx = TextContext::new(page_info, &Handle);
 
         render_elements(log, &mut ctx, &tree.elements);
 

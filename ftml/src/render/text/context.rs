@@ -20,13 +20,14 @@
 
 use crate::data::PageInfo;
 use crate::non_empty_vec::NonEmptyVec;
+use crate::render::Handle;
 use std::fmt::{self, Write};
 
 #[derive(Debug)]
 pub struct TextContext<'i, 'h> {
     output: String,
     info: &'i PageInfo<'i>,
-    handle: &'h (),
+    handle: &'h Handle,
 
     // Other fields to track
     list_depths: NonEmptyVec<usize>,
@@ -34,7 +35,7 @@ pub struct TextContext<'i, 'h> {
 
 impl<'i, 'h> TextContext<'i, 'h> {
     #[inline]
-    pub fn new(info: &'i PageInfo<'i>, handle: &'h ()) -> Self {
+    pub fn new(info: &'i PageInfo<'i>, handle: &'h Handle) -> Self {
         TextContext {
             output: String::new(),
             info,
@@ -50,7 +51,12 @@ impl<'i, 'h> TextContext<'i, 'h> {
     }
 
     #[inline]
-    pub fn handle(&self) -> &'h () {
+    pub fn info(&self) -> &'i PageInfo<'i> {
+        self.info
+    }
+
+    #[inline]
+    pub fn handle(&self) -> &'h Handle {
         self.handle
     }
 

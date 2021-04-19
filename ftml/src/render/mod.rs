@@ -30,6 +30,9 @@ pub mod json;
 pub mod null;
 pub mod text;
 
+mod handle;
+
+use self::handle::{Handle, ModuleRenderMode};
 use crate::data::PageInfo;
 use crate::tree::SyntaxTree;
 
