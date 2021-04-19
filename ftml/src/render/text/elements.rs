@@ -214,6 +214,11 @@ pub fn render_element(log: &slog::Logger, ctx: &mut TextContext, element: &Eleme
 }
 
 fn get_full_url<'a>(log: &slog::Logger, ctx: &TextContext, url: &'a str) -> Cow<'a, str> {
+    // TODO: when we remove inline javascript stuff
+    if url == "javascript:;" {
+        return Cow::Borrowed("#");
+    }
+
     if is_url(url) {
         return Cow::Borrowed(url);
     }
