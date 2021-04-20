@@ -99,6 +99,7 @@ where
             Token::ParagraphBreak,
             Token::Equals,
         ];
+
         loop {
             let current_token = self.current().token;
             if !tokens.contains(&current_token) {
