@@ -63,15 +63,15 @@ where
         }
     }
 
-    fn get_optional_token(&mut self, token: Token) -> Result<(), ParseWarning> {
+    fn get_optional_token(&mut self, tokens: &[Token]) -> Result<(), ParseWarning> {
         trace!(
             &self.log(),
-            "Looking for optional token {:?}",
-            token;
-            "token" => token,
+            "Looking for optional token (one of {:?})",
+            tokens,
         );
 
-        if self.current().token == token {
+        let current_token = self.current().token;
+        if tokens.contains(&current_token) {
             self.step()?;
         }
 
@@ -80,13 +80,13 @@ where
 
     pub fn get_optional_line_break(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "Looking for optional line break");
-        self.get_optional_token(Token::LineBreak)
+        self.get_optional_token(&[Token::LineBreak])
     }
 
     #[inline]
     pub fn get_optional_space(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "Looking for optional space");
-        self.get_optional_token(Token::Whitespace)
+        self.get_optional_token(&[Token::Whitespace])
     }
 
     pub fn get_block_name(
@@ -96,9 +96,9 @@ where
         debug!(&self.log(), "Looking for identifier");
 
         if special {
-            self.get_optional_token(Token::LeftBlockSpecial)?;
+            self.get_optional_token(&[Token::LeftBlockSpecial])?;
         } else {
-            self.get_optional_token(Token::LeftBlock)?;
+            self.get_optional_token(&[Token::LeftBlock])?;
         }
 
         self.get_optional_space()?;
