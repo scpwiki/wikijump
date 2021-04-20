@@ -1,4 +1,6 @@
 import { SheafCore } from "sheaf-core"
+import { perfy } from "wj-util"
+import * as FTML from "ftml-wasm-worker"
 
 window.addEventListener("DOMContentLoaded", async () => {
   const editor = new SheafCore()
@@ -6,4 +8,11 @@ window.addEventListener("DOMContentLoaded", async () => {
   if (!res) return
   const src = await res.text()
   await editor.init(document.querySelector(".editor-container")!, src)
+  editor.subscribe(({ value }) => {
+    ;(async () => {
+      const log = perfy("ftml-perf", 5)
+      console.log(await FTML.renderHTML(value))
+      log()
+    })()
+  })
 })
