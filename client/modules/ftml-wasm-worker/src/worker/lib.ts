@@ -12,12 +12,12 @@ type TransferInput = string | ArrayBuffer | TypedArray
 const decoder = new TextDecoder()
 const encoder = new TextEncoder()
 
-export { expose } from "threads/worker"
+export { expose, Transfer } from "threads/worker"
 
-export const transfer = (buffer: TransferInput) => {
-  if (typeof buffer === "string") return Transfer(encoder.encode(buffer).buffer)
-  if ("buffer" in buffer) return Transfer(buffer.buffer)
-  if (buffer instanceof ArrayBuffer) return Transfer(buffer)
+export const encode = (buffer: TransferInput) => {
+  if (typeof buffer === "string") return encoder.encode(buffer).buffer
+  if ("buffer" in buffer) return buffer.buffer
+  if (buffer instanceof ArrayBuffer) return buffer
   throw new TypeError("Expected a string, ArrayBuffer, or typed array!")
 }
 

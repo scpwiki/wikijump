@@ -3,7 +3,7 @@
  */
 
 import * as FTML from "ftml-wasm"
-import { expose, transfer, decode } from "./lib"
+import { expose, Transfer, encode, decode } from "./lib"
 
 const ready = FTML.loading
 
@@ -15,13 +15,13 @@ expose({
 
   async version() {
     await ready
-    return transfer(FTML.version())
+    return Transfer(encode(FTML.version()))
   },
 
   async preprocess(raw: ArrayBuffer) {
     await ready
     const str = decode(raw)
-    return transfer(FTML.preprocess(str))
+    return Transfer(encode(FTML.preprocess(str)))
   },
 
   async tokenize(raw: ArrayBuffer) {
@@ -36,25 +36,20 @@ expose({
     return FTML.parse(str)
   },
 
-  async renderHTML(raw: ArrayBuffer) {
+  async render(raw: ArrayBuffer) {
     await ready
     const str = decode(raw)
-    const { html } = FTML.render(str)
-    return transfer(html)
-  },
-
-  async renderStyle(raw: ArrayBuffer) {
-    await ready
-    const str = decode(raw)
-    const { style } = FTML.render(str)
-    return transfer(style)
+    const { html, style } = FTML.render(str)
+    const htmlBuffer = encode(html)
+    const styleBuffer = encode(style)
+    return Transfer([htmlBuffer, styleBuffer], [htmlBuffer, styleBuffer])
   },
 
   async renderText(raw: ArrayBuffer) {
     await ready
     const str = decode(raw)
     const text = FTML.render(str, { mode: "text" })
-    return transfer(text)
+    return Transfer(encode(text))
   },
 
   async detailedRender(raw: ArrayBuffer) {
@@ -72,6 +67,6 @@ expose({
   async inspectTokens(raw: ArrayBuffer) {
     await ready
     const str = decode(raw)
-    return transfer(FTML.inspectTokens(str))
+    return Transfer(encode(FTML.inspectTokens(str)))
   }
 })

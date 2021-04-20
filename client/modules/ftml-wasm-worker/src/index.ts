@@ -131,17 +131,13 @@ export async function parse(str: string) {
 }
 
 /** Renders a string of wikitext to HTML. */
-export async function renderHTML(str: string) {
-  return decode(
-    await invoke<ArrayBuffer>(() => module.worker.renderHTML(transfer(str)))
+export async function render(str: string) {
+  const [htmlBuffer, styleBuffer] = await invoke<[ArrayBuffer, ArrayBuffer]>(() =>
+    module.worker.render(transfer(str))
   )
-}
-
-/** Renders a string of wikitext, and returns the styling for it. */
-export async function renderStyle(str: string) {
-  return decode(
-    await invoke<ArrayBuffer>(() => module.worker.renderStyle(transfer(str)))
-  )
+  const html = decode(htmlBuffer)
+  const style = decode(styleBuffer)
+  return { html, style }
 }
 
 /** Renders a string of wikitext to text. */

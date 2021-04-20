@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   editor.subscribe(({ value }) => {
     ;(async () => {
       const log = perfy("ftml-perf", 5)
-      console.log(await FTML.renderHTML(value))
+      console.log(await FTML.render(value))
       log()
     })()
   })
