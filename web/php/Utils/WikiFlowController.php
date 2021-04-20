@@ -17,6 +17,7 @@ class WikiFlowController extends WebFlowController
 
     public function process()
     {
+//        dd($_GET);
         global $timeStart;
 
         // quick fix to prevent recursive RSS access by Wikijump itself.

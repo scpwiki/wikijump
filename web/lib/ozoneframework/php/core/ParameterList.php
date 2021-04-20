@@ -12,16 +12,16 @@ namespace Ozone\Framework;
  */
 class ParameterList {
 
-	private $parameterArray = array ();
-	private $parameterTypes = array ();
-	private $parameterFrom = array();
+	private $parameterArray = [];
+	private $parameterTypes = [];
+	private $parameterFrom = [];
 
-	private $allParameters = array();
+	private $allParameters = [];
 
 	public function initParameterList($runData) {
 
 		if($runData->isAjaxMode()){
-			$this->allParameters['AMODULE'] = array();
+			$this->allParameters['AMODULE'] = [];
 			foreach ($_POST as $key => $value) {
 				$value = $this->fixNewLines($value);
 
@@ -36,46 +36,49 @@ class ParameterList {
 			$qs =  $_SERVER['QUERY_STRING'];
 			/* Check if there is a "?" char - if so, remove it. */
 			$qs = preg_replace('/\?.*$/', '', $qs);
-			$splited = explode("/",$qs);
+			$splited = explode('/',$qs);
 			if(count($splited)>= 1){
 				$this->parameterArray['template'] = $splited[0];
-				$this->parameterTypes['template'] = "GET";
+				$this->parameterTypes['template'] = 'GET';
 			}
 
-			/* Additionally parse the usual GET parameters. */
-			$uri = $_SERVER['REQUEST_URI'];
-			$uri = preg_replace('/^[^\?]*\?/', '', $uri);
-			$uriPairs = explode('&', $uri);
-			foreach($uriPairs as $uriPair){
-				$u = explode('=', $uriPair);
-				$key = $u[0];
-				$value = $u[1];
-				$this->parameterArray[$key] = urldecode($value);
-				$this->parameterTypes[$key] = "GET";
-				$this->parameterFrom[$key] = 0;
-				$this->allParameters['GET'][$key] = urldecode($value);
-			}
-
+            /**
+             * If an & is present in the URI, split that into key-value pairs.
+             */
+            if(strpos('&',$_SERVER['REQUEST_URI']) !== false) {
+                $uri = $_SERVER['REQUEST_URI'];
+                $uri = preg_replace('/^[^?]*\?/', '', $uri);
+                $uriPairs = explode('&', $uri);
+                foreach ($uriPairs as $uriPair) {
+                    $u = explode('=', $uriPair);
+                    $key = $u[0];
+                    $value = $u[1];
+                    $this->parameterArray[$key] = urldecode($value);
+                    $this->parameterTypes[$key] = 'GET';
+                    $this->parameterFrom[$key] = 0;
+                    $this->allParameters['GET'][$key] = urldecode($value);
+                }
+            }
 			// now populate other parameters...
-			$this->allParameters['GET'] = array();
+			$this->allParameters['GET'] = [];
 			for($i=1; $i<count($splited); $i+=2){
 				$key = $splited[$i];
 				$value=$splited[$i+1];
 				$this->parameterArray[$key] = urldecode($value);
-				$this->parameterTypes[$key] = "GET";
+				$this->parameterTypes[$key] = 'GET';
 				$this->parameterFrom[$key] = 0;
 				$this->allParameters['GET'][$key] = urldecode($value);
 			}
 
 
 			// POST parameters are not affected by mod_rewrite
-			$this->allParameters['POST'] = array();
+			$this->allParameters['POST'] = [];
 			foreach ($_POST as $key => $value) {
 
 				$value = $this->fixNewLines($value);
 
 				$this->parameterArray[$key] = $value;
-				$this->parameterTypes[$key] = "POST";
+				$this->parameterTypes[$key] = 'POST';
 				$this->parameterFrom[$key] = 0;
 				$this->allParameters['POST'][$key] = urldecode($value);
 			}
@@ -84,7 +87,8 @@ class ParameterList {
 
 	}
 
-	public function containsParameter($name) {
+	public function containsParameter($name): bool
+    {
 		return !array_search($name, $this->parameterArray) === false;
 	}
 
@@ -100,10 +104,12 @@ class ParameterList {
 		unset($this->parameterTypes[$key]);
 	}
 
-	/**
-	 * Returns type of the passed parameter: POST or GET.
-	 */
-	public function getParameterType($name) {
+    /**
+     * Returns type of the passed parameter: POST or GET.
+     * @param $name
+     * @return string
+     */
+	public function getParameterType($name) : string {
 		return $this->parameterTypes[$name];
 	}
 
@@ -132,7 +138,7 @@ class ParameterList {
 	}
 
 	public function getParametersByType($type){
-		$out = array();
+		$out = [];
 		foreach($this->parameterArray as $key => $value){
 			if($this->parameterTypes[$key] === $type){
 				$out[$key] = $value;
