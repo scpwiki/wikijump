@@ -1,0 +1,46 @@
+{
+    "input": "[[collapsible\n\tshow=\"+ Show stuff\"\n\thide=\"- Hide stuff\"\n\thideLocation  =  \"both\"\n]]\nApple\n[[/collapsible]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "collapsible",
+                            "data": {
+                                "attributes": {},
+                                "start-open": false,
+                                "show-text": "+ Show stuff",
+                                "hide-text": "- Hide stuff",
+                                "show-top": true,
+                                "show-bottom": true,
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
