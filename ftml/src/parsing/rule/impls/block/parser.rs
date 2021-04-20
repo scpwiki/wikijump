@@ -137,6 +137,8 @@ where
             self.rule(),
             &[
                 ParseCondition::current(Token::Whitespace),
+                ParseCondition::current(Token::LineBreak),
+                ParseCondition::current(Token::ParagraphBreak),
                 ParseCondition::current(Token::RightBlock),
             ],
             &[
@@ -148,7 +150,7 @@ where
         .map(|(name, last)| {
             let name = name.trim();
             let in_head = match last.token {
-                Token::Whitespace => true,
+                Token::Whitespace | Token::LineBreak | Token::ParagraphBreak => true,
                 Token::RightBlock => false,
 
                 // collect_text_keep() already checked the token
