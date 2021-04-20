@@ -89,7 +89,6 @@ where
         self.get_optional_token(&[Token::Whitespace])
     }
 
-    #[inline]
     pub fn get_optional_spaces_any(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "Looking for optional spaces (any)");
 
