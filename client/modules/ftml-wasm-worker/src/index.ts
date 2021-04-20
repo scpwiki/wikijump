@@ -3,7 +3,8 @@ import { sleep } from "wj-util"
 import type * as FTML from "ftml-wasm"
 import type * as Binding from "ftml-wasm/vendor/ftml"
 
-import url from "./worker/ftml.worker.ts"
+import relativeURL from "./worker/ftml.worker.ts"
+const url = new URL(relativeURL, import.meta.url)
 
 interface TypedArray extends ArrayBuffer {
   buffer: ArrayBufferLike
@@ -38,9 +39,9 @@ class WorkerModule {
   url: URL
   worker!: ModuleThread
 
-  constructor(name: string, url: string, opts?: WorkerModuleOpts) {
+  constructor(name: string, url: URL, opts?: WorkerModuleOpts) {
     this.name = name
-    this.url = new URL(url, import.meta.url)
+    this.url = url
     if (opts) {
       if (opts.persist) this.persist = true
       this.timeout = opts.timeout ?? 10000

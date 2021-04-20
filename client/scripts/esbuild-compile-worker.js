@@ -47,7 +47,7 @@ module.exports = {
       } = args
 
       // get what we can from the build options
-      const { abs, outdir, minify = true } = build.initialOptions
+      const { absWorkingDir: abs, outdir, minify = true } = build.initialOptions
 
       // build the worker under IIFE so that it has no exports, no imports
       // should be 100% web-worker compatible

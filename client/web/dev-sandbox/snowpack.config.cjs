@@ -1,3 +1,5 @@
+const sourcemaps = require("rollup-plugin-sourcemaps")
+
 module.exports = {
   workspaceRoot: "../../modules/",
   mount: {
@@ -9,6 +11,9 @@ module.exports = {
     }
   },
   packageOptions: {
+    rollup: {
+      plugins: [sourcemaps()]
+    },
     polyfillNode: true,
     packageLookupFields: ["svelte"]
   },
@@ -33,5 +38,5 @@ module.exports = {
     manifest: true,
     target: "es2020"
   },
-  plugins: ["@snowpack/plugin-svelte", "snowpack-workers"]
+  plugins: ["@snowpack/plugin-svelte"]
 }
