@@ -22,7 +22,7 @@ use super::prelude::*;
 
 pub const BLOCK_SPAN: BlockRule = BlockRule {
     name: "block-span",
-    accepts_names: &["span", "span_"],
+    accepts_names: &["span"],
     accepts_special: false,
     accepts_modifier: true,
     accepts_newlines: false,
