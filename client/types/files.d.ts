@@ -5,6 +5,7 @@
 // -- SPECIAL
 
 declare module "*.css"
+declare module "*.wasm"
 
 // -- URL REFERENCES
 
