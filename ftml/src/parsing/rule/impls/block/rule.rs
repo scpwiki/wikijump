@@ -155,7 +155,7 @@ where
         return Err(parser.make_warn(ParseWarningKind::InvalidModifierBlock));
     }
 
-    parser.get_optional_spaces_any()?;
+    parser.get_optional_space()?;
 
     // Run the parse function until the end.
     //
