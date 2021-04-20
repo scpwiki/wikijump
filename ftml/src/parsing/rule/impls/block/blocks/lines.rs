@@ -25,6 +25,7 @@ pub const BLOCK_LINES: BlockRule = BlockRule {
     name: "block-lines",
     accepts_names: &["lines", "newlines"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -34,11 +35,13 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing newlines block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Lines doesn't allow special variant");
+    assert_eq!(modifier, false, "Lines doesn't allow modifier variant");
     assert_block_name(&BLOCK_LINES, name);
 
     let count = parser.get_head_value(&BLOCK_LINES, in_head, parse_count)?;

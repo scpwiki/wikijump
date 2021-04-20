@@ -62,6 +62,12 @@ pub struct BlockRule {
     /// `[[user aismallard]]` and `[[*user aismallard]]`.
     accepts_special: bool,
 
+    /// Whether this block accepts `_` as a modifier.
+    ///
+    /// For instance, div can be invoked as both
+    /// `[[div]]` and `[[div_]]`.
+    accepts_modifier: bool,
+
     /// Whether this block optionally allows its head and tail to be separated by newlines.
     /// These newlines will be consumed and not be interpreted as line breaks.
     ///
@@ -110,6 +116,7 @@ impl Debug for BlockRule {
             .field("name", &self.name)
             .field("accepts_names", &self.accepts_names)
             .field("accepts_special", &self.accepts_special)
+            .field("accepts_modifier", &self.accepts_modifier)
             .field("accepts_newlines", &self.accepts_newlines)
             .field("parse_fn", &(self.parse_fn as *const ()))
             .finish()
@@ -128,6 +135,7 @@ pub type BlockParseFn = for<'r, 't> fn(
     &Logger,
     &mut Parser<'r, 't>,
     &'t str,
+    bool,
     bool,
     bool,
 ) -> ParseResult<'r, 't, Elements<'t>>;

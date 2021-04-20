@@ -24,6 +24,7 @@ pub const BLOCK_CSS: BlockRule = BlockRule {
     name: "block-css",
     accepts_names: &["css"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -33,11 +34,13 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing CSS block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "Code doesn't allow special variant");
+    assert_eq!(special, false, "CSS doesn't allow special variant");
+    assert_eq!(modifier, false, "CSS doesn't allow modifier variant");
     assert_block_name(&BLOCK_CSS, name);
 
     parser.get_head_none(&BLOCK_CSS, in_head)?;

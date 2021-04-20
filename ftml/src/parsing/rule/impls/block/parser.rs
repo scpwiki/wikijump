@@ -178,6 +178,9 @@ where
             // since it's just more text
             let name = parser.get_end_block()?;
 
+            // Remove underscore for modifier
+            let name = name.strip_suffix('_').unwrap_or(name);
+
             // Check if it's valid
             for end_block_name in block_rule.accepts_names {
                 if name.eq_ignore_ascii_case(end_block_name) {

@@ -62,7 +62,8 @@ lazy_static! {
 
 #[inline]
 pub fn get_block_rule_with_name(name: &str) -> Option<&'static BlockRule> {
-    let name = UniCase::ascii(name);
+    let name = name.strip_suffix('_').unwrap_or(name); // modifier
+    let name = UniCase::ascii(name); // case-insensitive
 
     BLOCK_RULE_MAP.get(&name).copied()
 }

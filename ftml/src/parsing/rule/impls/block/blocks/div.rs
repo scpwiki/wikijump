@@ -22,8 +22,9 @@ use super::prelude::*;
 
 pub const BLOCK_DIV: BlockRule = BlockRule {
     name: "block-div",
-    accepts_names: &["div", "div_"],
+    accepts_names: &["div"],
     accepts_special: false,
+    accepts_modifier: true,
     accepts_newlines: true,
     parse_fn,
 };
@@ -33,6 +34,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -49,7 +51,7 @@ fn parse_fn<'r, 't>(
 
     // "div" means we wrap in paragraphs, like normal
     // "div_" means we don't wrap it
-    let wrap_paragraphs = !name.ends_with('_');
+    let wrap_paragraphs = !modifier;
 
     // Get body content, based on whether we want paragraphs or not
     let (elements, exceptions) = parser

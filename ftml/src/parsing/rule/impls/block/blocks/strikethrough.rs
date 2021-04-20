@@ -24,6 +24,7 @@ pub const BLOCK_STRIKETHROUGH: BlockRule = BlockRule {
     name: "block-strikethrough",
     accepts_names: &["s", "strikethrough"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: false,
     parse_fn,
 };
@@ -33,6 +34,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -45,6 +47,10 @@ fn parse_fn<'r, 't>(
     assert_eq!(
         special, false,
         "Strikethrough doesn't allow special variant",
+    );
+    assert_eq!(
+        modifier, false,
+        "Strikethrough doesn't allow modifier variant",
     );
     assert_block_name(&BLOCK_STRIKETHROUGH, name);
 

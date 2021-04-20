@@ -76,7 +76,7 @@ fn block_skip<'r, 't>(
     // See if there's a block upcoming
     let result = parser.evaluate_fn(|parser| {
         // Make sure this is the start of a block
-        if current.token != Token::LeftBlock && current.token != Token::LeftBlockSpecial {
+        if ![Token::LeftBlock, Token::LeftBlockSpecial].contains(&current.token) {
             return Ok(false);
         }
 
@@ -91,6 +91,11 @@ fn block_skip<'r, 't>(
     });
 
     if result {
+        info!(
+            log,
+            "Skipping newline due to upcoming line-terminated block",
+        );
+
         ok!(Elements::None)
     } else {
         Err(parser.make_warn(ParseWarningKind::RuleFailed))
@@ -126,6 +131,11 @@ where
     let (name, in_head) = parser.get_block_name(special)?;
     trace!(log, "Got block name"; "name" => name, "in-head" => in_head);
 
+    let (name, modifier) = match name.strip_suffix('_') {
+        Some(name) => (name, true),
+        None => (name, false),
+    };
+
     // Get the block rule for this name
     let block = match get_block_rule_with_name(name) {
         Some(block) => block,
@@ -140,6 +150,11 @@ where
         return Err(parser.make_warn(ParseWarningKind::InvalidSpecialBlock));
     }
 
+    // Check if this block allows modifier invocation ('_' after name)
+    if !block.accepts_modifier && modifier {
+        return Err(parser.make_warn(ParseWarningKind::InvalidModifierBlock));
+    }
+
     parser.get_optional_space()?;
 
     // Run the parse function until the end.
@@ -147,5 +162,5 @@ where
     // This is responsible for parsing any arguments,
     // and terminating the block (the ']]' token),
     // then processing the body (if any) and tail block.
-    (block.parse_fn)(log, parser, name, special, in_head)
+    (block.parse_fn)(log, parser, name, special, modifier, in_head)
 }

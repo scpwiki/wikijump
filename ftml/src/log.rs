@@ -59,11 +59,13 @@ cfg_if! {
 
             pub fn build_terminal_logger() -> slog::Logger {
                 use sloggers::terminal::TerminalLoggerBuilder;
-                use sloggers::types::Severity;
+                use sloggers::types::{OverflowStrategy, Severity};
                 use sloggers::Build;
 
                 TerminalLoggerBuilder::new()
                     .level(Severity::Trace)
+                    .overflow_strategy(OverflowStrategy::Block)
+                    .channel_size(4096)
                     .build()
                     .expect("Unable to initialize logger")
             }

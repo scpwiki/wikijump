@@ -33,6 +33,7 @@ pub const BLOCK_INCLUDE: BlockRule = BlockRule {
     name: "block-include",
     accepts_names: &["include"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -42,11 +43,13 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Found invalid include block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Include doesn't allow special variant");
+    assert_eq!(modifier, false, "Include doesn't allow modifier variant");
     assert_block_name(&BLOCK_INCLUDE, name);
 
     // Includes are handled specially, so we should never actually be

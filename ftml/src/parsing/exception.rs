@@ -124,6 +124,9 @@ pub enum ParseWarningKind {
     /// This block does not allow special invocation.
     InvalidSpecialBlock,
 
+    /// This block does not allow modifier invocation.
+    InvalidModifierBlock,
+
     /// This block does not specify a name.
     BlockMissingName,
 

@@ -33,6 +33,7 @@ pub const BLOCK_LATER: BlockRule = BlockRule {
     name: "block-later",
     accepts_names: &["later"],
     accepts_special: true,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -42,6 +43,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     _special: bool,
+    _modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing later block (easter egg)"; "in-head" => in_head);

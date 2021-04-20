@@ -43,6 +43,7 @@ pub const BLOCK_CHAR: BlockRule = BlockRule {
     name: "block-char",
     accepts_names: &["char", "character"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: false,
     parse_fn,
 };
@@ -52,11 +53,13 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing character / HTML entity block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Char doesn't allow special variant");
+    assert_eq!(modifier, false, "Char doesn't allow modifier variant");
     assert_block_name(&BLOCK_CHAR, name);
 
     // Parse the entity and get the string
