@@ -39,7 +39,7 @@ export class Parser {
     private start: number,
     private editorContext?: EditorParseContext
   ) {
-    this.caching = !!editorContext?.state
+    this.caching = Boolean(editorContext?.state)
 
     if (this.caching) {
       this.viewport = editorContext!.viewport
