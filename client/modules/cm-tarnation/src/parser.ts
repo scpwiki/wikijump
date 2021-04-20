@@ -63,7 +63,7 @@ export class Parser {
       }
     }
 
-    if (!this!.context) {
+    if (!this.context) {
       this.context = new Context(this.start)
       this.pos = this.start
     }
