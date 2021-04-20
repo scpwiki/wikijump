@@ -3,8 +3,11 @@ import { sleep } from "wj-util"
 import type * as FTML from "ftml-wasm"
 import type * as Binding from "ftml-wasm/vendor/ftml"
 
-import relativeURL from "./worker/ftml.worker.ts"
-const url = new URL(relativeURL, import.meta.url)
+import workerRelativeURL from "./worker/ftml.worker.ts"
+import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm"
+
+const workerURL = new URL(workerRelativeURL, import.meta.url)
+const wasmURL = new URL(wasmRelativeURL, import.meta.url).toString()
 
 interface TypedArray extends ArrayBuffer {
   buffer: ArrayBufferLike
@@ -30,21 +33,25 @@ const decode = (buffer: ArrayBuffer) => decoder.decode(buffer)
 interface WorkerModuleOpts {
   persist?: boolean
   timeout?: number
+  init?: AnyFunction
 }
 
 class WorkerModule {
   name: string
-  persist = false
-  timeout = 10000
   url: URL
   worker!: ModuleThread
+
+  private persist = false
+  private timeout = 10000
+  private init?: AnyFunction
 
   constructor(name: string, url: URL, opts?: WorkerModuleOpts) {
     this.name = name
     this.url = url
     if (opts) {
-      if (opts.persist) this.persist = true
+      this.persist = opts.persist ?? false
       this.timeout = opts.timeout ?? 10000
+      this.init = opts.init
     }
   }
 
@@ -57,6 +64,7 @@ class WorkerModule {
           type: "classic"
         })
       )
+      if (this.init) await this.init()
     }
   }
 
@@ -86,7 +94,12 @@ class WorkerModule {
   }
 }
 
-const module = new WorkerModule("ftml-wasm-worker", url, { persist: true })
+const module = new WorkerModule("ftml-wasm-worker", workerURL, {
+  persist: true,
+  init() {
+    module.invoke(() => module.worker.init(wasmURL))
+  }
+})
 const invoke = module.invoke.bind(module)
 
 export async function version() {

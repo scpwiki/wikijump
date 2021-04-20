@@ -63,7 +63,7 @@ module.exports = {
         format: "iife",
         platform: "browser",
         write: false,
-        loader: { ".wasm": "binary" },
+        loader: { ".wasm": "file" },
         define: {
           "window": "globalThis",
           "import.meta.url": '""'

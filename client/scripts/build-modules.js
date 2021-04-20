@@ -4,7 +4,6 @@ const { performance } = require("perf_hooks")
 const browserslist = require("browserslist")
 
 const { nodeExternalsPlugin } = require("esbuild-node-externals")
-const bundleWASMPlugin = require("./esbuild-bundle-wasm")
 const compileWorkersPlugin = require("./esbuild-compile-worker")
 
 // -- CONSTANTS, COMMAND LINE ARGUMENTS
@@ -113,11 +112,8 @@ function buildModule(name) {
     // esbuild
     absWorkingDir: dir,
     tsconfig: package,
-    plugins: [
-      nodeExternalsPlugin({ packagePath: package }),
-      bundleWASMPlugin,
-      compileWorkersPlugin
-    ],
+    plugins: [nodeExternalsPlugin({ packagePath: package }), compileWorkersPlugin],
+    loader: { ".wasm": "file" },
     target: [...targets],
 
     // estrella

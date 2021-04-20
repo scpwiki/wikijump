@@ -2,13 +2,21 @@ const sourcemaps = require("rollup-plugin-sourcemaps")
 
 module.exports = {
   workspaceRoot: "../../modules/",
+  exclude: ["**/node_modules/**/*", "**/*.d.ts.map"],
   mount: {
     src: "/",
     public: {
       url: "/",
       static: true,
       resolve: false
+    },
+    "node_modules/ftml-wasm-worker/dist": {
+      url: "/static/lib/ftml-wasm-worker",
+      static: true
     }
+  },
+  alias: {
+    "ftml-wasm-worker": "/static/lib/ftml-wasm-worker/index.js"
   },
   packageOptions: {
     rollup: {
@@ -27,7 +35,6 @@ module.exports = {
     metaUrlPath: "static/snowpack",
     sourcemap: true
   },
-  // alias: {},
   // routes: [],
   optimize: {
     // preload: true,

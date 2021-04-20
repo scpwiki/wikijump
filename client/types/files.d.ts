@@ -5,11 +5,15 @@
 // -- SPECIAL
 
 declare module "*.css"
-declare module "*.wasm"
 
 // -- URL REFERENCES
 
 declare module "*.worker.ts" {
+  const ref: string
+  export default ref
+}
+
+declare module "*.wasm" {
   const ref: string
   export default ref
 }

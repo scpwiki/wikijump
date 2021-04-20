@@ -5,13 +5,14 @@
 import * as FTML from "ftml-wasm"
 import { expose, transfer, decode } from "./lib"
 
-// TODO: figure out if there is a decent way of avoiding bundling here
-import module from "ftml-wasm/vendor/ftml_bg.wasm"
-FTML.init(module as any)
-
 const ready = FTML.loading
 
 expose({
+  async init(wasmURL: string) {
+    await FTML.init(wasmURL)
+    return true
+  },
+
   async version() {
     await ready
     return transfer(FTML.version())
