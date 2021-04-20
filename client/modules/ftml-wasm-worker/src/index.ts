@@ -102,50 +102,69 @@ const module = new WorkerModule("ftml-wasm-worker", workerURL, {
 })
 const invoke = module.invoke.bind(module)
 
+/** Returns FTML's (the crate) version. */
 export async function version() {
   return decode(
     await invoke<ArrayBuffer>(() => module.worker.version())
   )
 }
 
+/** Preprocesses a string of wikitext.
+ *  See `ftml/src/preproc/test.rs` for more information. */
+export async function preprocess(str: string) {
+  return decode(
+    await invoke<ArrayBuffer>(() => module.worker.preprocess(transfer(str)))
+  )
+}
+
+/** Tokenizes a string of wikitext. */
 export async function tokenize(str: string) {
   type Return = Binding.IToken[]
   return await invoke<Return>(() => module.worker.tokenize(transfer(str)))
 }
 
+/** Parses a string of wikitext. This returns an AST and warnings list, not HTML.
+ *  @see renderHTML */
 export async function parse(str: string) {
   type Return = ReturnType<typeof FTML["parse"]>
   return await invoke<Return>(() => module.worker.parse(transfer(str)))
 }
 
+/** Renders a string of wikitext to HTML. */
 export async function renderHTML(str: string) {
   return decode(
     await invoke<ArrayBuffer>(() => module.worker.renderHTML(transfer(str)))
   )
 }
 
+/** Renders a string of wikitext, and returns the styling for it. */
 export async function renderStyle(str: string) {
   return decode(
     await invoke<ArrayBuffer>(() => module.worker.renderStyle(transfer(str)))
   )
 }
 
+/** Renders a string of wikitext to text. */
 export async function renderText(str: string) {
   return decode(
     await invoke<ArrayBuffer>(() => module.worker.renderText(transfer(str)))
   )
 }
 
+/** Renders a string of wikitext like the {@link renderHTML} function, but this
+ *  function additionally returns every step in the rendering pipeline. */
 export async function detailedRender(str: string) {
   type Return = ReturnType<typeof FTML["detailedRender"]>
   return await invoke<Return>(() => module.worker.detailedRender(transfer(str)))
 }
 
+/** Returns the list of warnings emitted when parsing the provided string. */
 export async function warnings(str: string) {
   type Return = Binding.IParseWarning[]
   return await invoke<Return>(() => module.worker.warnings(transfer(str)))
 }
 
+/** Converts a string of wikitext into a pretty-printed list of tokens. */
 export async function inspectTokens(str: string) {
   return decode(
     await invoke<ArrayBuffer>(() => module.worker.inspectTokens(transfer(str)))
