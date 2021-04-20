@@ -26,6 +26,7 @@ pub const BLOCK_SIZE: BlockRule = BlockRule {
     name: "block-size",
     accepts_names: &["size"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: false,
     parse_fn,
 };
@@ -35,6 +36,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -45,6 +47,7 @@ fn parse_fn<'r, 't>(
     );
 
     assert_eq!(special, false, "Size doesn't allow special variant");
+    assert_eq!(modifier, false, "Size doesn't allow modifier variant");
     assert_block_name(&BLOCK_SIZE, name);
 
     let size =

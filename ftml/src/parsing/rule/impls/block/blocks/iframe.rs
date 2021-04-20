@@ -24,6 +24,7 @@ pub const BLOCK_IFRAME: BlockRule = BlockRule {
     name: "block-iframe",
     accepts_names: &["iframe"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -33,11 +34,13 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing iframe block"; "in-head" => in_head);
 
     assert_eq!(special, false, "iframe doesn't allow special variant");
+    assert_eq!(modifier, false, "iframe doesn't allow modifier variant");
     assert_block_name(&BLOCK_IFRAME, name);
 
     let (url, arguments) = parser.get_head_name_map(&BLOCK_IFRAME, in_head)?;

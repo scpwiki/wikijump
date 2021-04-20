@@ -24,6 +24,7 @@ pub const BLOCK_BOLD: BlockRule = BlockRule {
     name: "block-bold",
     accepts_names: &["b", "bold", "strong"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: false,
     parse_fn,
 };
@@ -33,6 +34,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -43,6 +45,7 @@ fn parse_fn<'r, 't>(
     );
 
     assert_eq!(special, false, "Bold doesn't allow special variant");
+    assert_eq!(modifier, false, "Bold doesn't allow modifier variant");
     assert_block_name(&BLOCK_BOLD, name);
 
     let arguments = parser.get_head_map(&BLOCK_BOLD, in_head)?;

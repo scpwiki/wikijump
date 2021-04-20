@@ -24,6 +24,7 @@ pub const BLOCK_CODE: BlockRule = BlockRule {
     name: "block-code",
     accepts_names: &["code"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -33,11 +34,13 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing code block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Code doesn't allow special variant");
+    assert_eq!(modifier, false, "Code doesn't allow modifier variant");
     assert_block_name(&BLOCK_CODE, name);
 
     let mut arguments = parser.get_head_map(&BLOCK_CODE, in_head)?;

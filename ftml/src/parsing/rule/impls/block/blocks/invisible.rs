@@ -24,6 +24,7 @@ pub const BLOCK_INVISIBLE: BlockRule = BlockRule {
     name: "block-invisible",
     accepts_names: &["invisible"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -33,6 +34,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -43,6 +45,7 @@ fn parse_fn<'r, 't>(
     );
 
     assert_eq!(special, false, "Invisible doesn't allow special variant");
+    assert_eq!(modifier, false, "Invisible doesn't allow modifier variant");
     assert_block_name(&BLOCK_INVISIBLE, name);
 
     let arguments = parser.get_head_map(&BLOCK_INVISIBLE, in_head)?;

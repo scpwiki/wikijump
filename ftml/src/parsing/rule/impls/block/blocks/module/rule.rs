@@ -25,6 +25,7 @@ pub const BLOCK_MODULE: BlockRule = BlockRule {
     name: "block-module",
     accepts_names: &["module", "module654"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -34,11 +35,13 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing module block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Module doesn't allow special variant");
+    assert_eq!(modifier, false, "Module doesn't allow modifier variant");
     assert_block_name(&BLOCK_MODULE, name);
 
     // Get module name and arguments

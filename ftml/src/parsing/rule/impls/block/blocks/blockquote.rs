@@ -24,6 +24,7 @@ pub const BLOCK_BLOCKQUOTE: BlockRule = BlockRule {
     name: "block-blockquote",
     accepts_names: &["blockquote", "quote"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -33,11 +34,13 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing blockquote block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "blockquote doesn't allow special variant");
+    assert_eq!(special, false, "Blockquote doesn't allow special variant");
+    assert_eq!(modifier, false, "Blockquote doesn't allow modifier variant");
     assert_block_name(&BLOCK_BLOCKQUOTE, name);
 
     let arguments = parser.get_head_map(&BLOCK_BLOCKQUOTE, in_head)?;

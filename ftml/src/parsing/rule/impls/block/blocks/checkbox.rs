@@ -24,6 +24,7 @@ pub const BLOCK_CHECKBOX: BlockRule = BlockRule {
     name: "block-checkbox",
     accepts_names: &["checkbox"],
     accepts_special: true,
+    accepts_modifier: false,
     accepts_newlines: false,
     parse_fn,
 };
@@ -33,6 +34,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -43,6 +45,7 @@ fn parse_fn<'r, 't>(
         "special" => special,
     );
 
+    assert_eq!(modifier, false, "Checkbox doesn't allow modifier variant");
     assert_block_name(&BLOCK_CHECKBOX, name);
 
     let arguments = parser.get_head_map(&BLOCK_CHECKBOX, in_head)?;

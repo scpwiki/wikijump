@@ -24,6 +24,7 @@ pub const BLOCK_HTML: BlockRule = BlockRule {
     name: "block-html",
     accepts_names: &["html"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -33,11 +34,13 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing HTML block"; "in-head" => in_head);
 
     assert_eq!(special, false, "HTML doesn't allow special variant");
+    assert_eq!(modifier, false, "HTML doesn't allow modifier variant");
     assert_block_name(&BLOCK_HTML, name);
 
     parser.get_head_none(&BLOCK_HTML, in_head)?;

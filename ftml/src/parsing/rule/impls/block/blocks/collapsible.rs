@@ -25,6 +25,7 @@ pub const BLOCK_COLLAPSIBLE: BlockRule = BlockRule {
     name: "block-collapsible",
     accepts_names: &["collapsible"],
     accepts_special: false,
+    accepts_modifier: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -34,6 +35,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -43,6 +45,10 @@ fn parse_fn<'r, 't>(
     );
 
     assert_eq!(special, false, "Collapsible doesn't allow special variant");
+    assert_eq!(
+        modifier, false,
+        "Collapsible doesn't allow modifier variant",
+    );
     assert_block_name(&BLOCK_COLLAPSIBLE, name);
 
     let mut arguments = parser.get_head_map(&BLOCK_COLLAPSIBLE, in_head)?;

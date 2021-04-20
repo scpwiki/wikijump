@@ -24,6 +24,7 @@ pub const BLOCK_RADIO: BlockRule = BlockRule {
     name: "block-radio",
     accepts_names: &["radio", "radio-button"],
     accepts_special: true,
+    accepts_modifier: false,
     accepts_newlines: false,
     parse_fn,
 };
@@ -33,6 +34,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
+    modifier: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -43,6 +45,10 @@ fn parse_fn<'r, 't>(
         "special" => special,
     );
 
+    assert_eq!(
+        modifier, false,
+        "Radio buttons don't allow modifier variant",
+    );
     assert_block_name(&BLOCK_RADIO, name);
 
     let (name, arguments) = parser.get_head_name_map(&BLOCK_RADIO, in_head)?;
