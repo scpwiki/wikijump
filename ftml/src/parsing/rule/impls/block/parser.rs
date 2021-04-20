@@ -93,7 +93,12 @@ where
     pub fn get_optional_spaces_any(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "Looking for optional spaces (any)");
 
-        let tokens = &[Token::Whitespace, Token::LineBreak, Token::ParagraphBreak, Token::Equals];
+        let tokens = &[
+            Token::Whitespace,
+            Token::LineBreak,
+            Token::ParagraphBreak,
+            Token::Equals,
+        ];
         loop {
             let current_token = self.current().token;
             if !tokens.contains(&current_token) {
@@ -377,7 +382,10 @@ where
                             }
 
                             // End parsing argument key
-                            Token::Whitespace | Token::LineBreak | Token::ParagraphBreak | Token::Equals => break,
+                            Token::Whitespace
+                            | Token::LineBreak
+                            | Token::ParagraphBreak
+                            | Token::Equals => break,
 
                             // Continue iterating to gather key
                             _ if ARGUMENT_KEY.is_match(current.slice) => {
