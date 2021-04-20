@@ -89,6 +89,13 @@ where
         self.get_optional_token(&[Token::Whitespace])
     }
 
+    #[inline]
+    pub fn get_optional_space_any(&mut self) -> Result<(), ParseWarning> {
+        debug!(&self.log(), "Looking for optional spaces (any)");
+        let tokens = &[Token::Whitespace, Token::LineBreak, Token::ParagraphBreak, Token::Equals];
+        self.get_optional_token(tokens)
+    }
+
     pub fn get_block_name(
         &mut self,
         special: bool,
@@ -336,7 +343,7 @@ where
         if in_head {
             // Only process if the block isn't done yet
             loop {
-                self.get_optional_space()?;
+                self.get_optional_space_any()?;
 
                 // Try to get the argument key
                 // Allows any token that matches the regular expression
@@ -362,7 +369,7 @@ where
                             }
 
                             // End parsing argument key
-                            Token::Whitespace | Token::Equals => break,
+                            Token::Whitespace | Token::LineBreak | Token::ParagraphBreak | Token::Equals => break,
 
                             // Continue iterating to gather key
                             _ if ARGUMENT_KEY.is_match(current.slice) => {
