@@ -51,12 +51,13 @@ export interface TarnationLanguageDefinition {
   nestLanguages?: LanguageDescription[]
   /** Configuration options for the parser, such as node props. */
   configure?: ParserConfiguration
-  /** A list of aliases for the name of the language. (e.g. 'go' -> ['golang']) */
+  /** A list of aliases for the name of the language. (e.g. 'go' -> `['golang']`) */
   alias?: string[]
-  /** A list of file extensions. (e.g. ['.ts']) */
+  /** A list of file extensions. (e.g. `['.ts']`) */
   extensions?: string[]
-  /** The 'languageData' field for the language.
-   *  CodeMirror plugins use this data to interact with the language. */
+  /** The 'languageData' field inherit to the {@link Language}.
+   *  CodeMirror plugins are defined by, or use, the data in this field.
+   *  e.g. indentation, autocomplete, etc. */
   languageData?: Record<string, any>
   /** Extra extensions to be loaded. */
   supportExtensions?: Extension[]
@@ -204,6 +205,13 @@ export class NodeMap {
       return spec
     }
     if (!(spec instanceof NodeType)) {
+      /*
+       * There is two ways a node can be interpreted:
+       * 1. The node's name is lowercased. That means it is a shortcut for a
+       *    CodeMirror highlighting tag.
+       * 2. The node's name is capitalized. That means it is a custom name,
+       *    and no assumptions will be made about its highlighting or styling.
+       */
       const id = map.size
       const props: (NodePropSource | [NodeProp<any>, any])[] = [...(spec.props ?? [])]
       if (spec.name && spec.name[0].toUpperCase() !== spec.name[0]) {
