@@ -250,7 +250,9 @@ export class Checkpoint {
     if (this.prev) {
       this.prev.update()
       this.last = this.prev.pos
-    } else this.last = 0
+    } else {
+      this.last = 0
+    }
   }
 
   get pos() {
