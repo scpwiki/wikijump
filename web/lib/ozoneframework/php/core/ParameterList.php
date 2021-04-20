@@ -45,7 +45,6 @@ class ParameterList {
             /**
              * If an & is present in the URI, split that into key-value pairs.
              */
-            if(strpos('&',$_SERVER['REQUEST_URI']) !== false) {
                 $uri = $_SERVER['REQUEST_URI'];
                 $uri = preg_replace('/^[^?]*\?/', '', $uri);
                 $uriPairs = explode('&', $uri);
@@ -58,7 +57,6 @@ class ParameterList {
                     $this->parameterFrom[$key] = 0;
                     $this->allParameters['GET'][$key] = urldecode($value);
                 }
-            }
 			// now populate other parameters...
 			$this->allParameters['GET'] = [];
 			for($i=1; $i<count($splited); $i+=2){
