@@ -16,7 +16,6 @@ $runData = new RunData();
 $runData->init();
 Ozone :: setRunData($runData);
 $runData->handleSessionStart();
-//   return \Illuminate\Support\Facades\Auth::user();
 if($runData->getUserId() && Auth::guest()) {
     Auth::login(
         User::findorFail($runData->getUserId())
