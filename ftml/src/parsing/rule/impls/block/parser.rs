@@ -66,8 +66,7 @@ where
     fn get_optional_token(&mut self, token: Token) -> Result<(), ParseWarning> {
         trace!(
             &self.log(),
-            "Looking for optional token {:?}",
-            token;
+            "Looking for optional token";
             "token" => token,
         );
 
@@ -87,6 +86,26 @@ where
     pub fn get_optional_space(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "Looking for optional space");
         self.get_optional_token(Token::Whitespace)
+    }
+
+    pub fn get_optional_spaces_any(&mut self) -> Result<(), ParseWarning> {
+        debug!(&self.log(), "Looking for optional spaces (any)");
+
+        let tokens = &[
+            Token::Whitespace,
+            Token::LineBreak,
+            Token::ParagraphBreak,
+            Token::Equals,
+        ];
+
+        loop {
+            let current_token = self.current().token;
+            if !tokens.contains(&current_token) {
+                return Ok(());
+            }
+
+            self.step()?;
+        }
     }
 
     pub fn get_block_name(
@@ -117,6 +136,8 @@ where
             self.rule(),
             &[
                 ParseCondition::current(Token::Whitespace),
+                ParseCondition::current(Token::LineBreak),
+                ParseCondition::current(Token::ParagraphBreak),
                 ParseCondition::current(Token::RightBlock),
             ],
             &[
@@ -128,7 +149,7 @@ where
         .map(|(name, last)| {
             let name = name.trim();
             let in_head = match last.token {
-                Token::Whitespace => true,
+                Token::Whitespace | Token::LineBreak | Token::ParagraphBreak => true,
                 Token::RightBlock => false,
 
                 // collect_text_keep() already checked the token
@@ -336,7 +357,7 @@ where
         if in_head {
             // Only process if the block isn't done yet
             loop {
-                self.get_optional_space()?;
+                self.get_optional_spaces_any()?;
 
                 // Try to get the argument key
                 // Allows any token that matches the regular expression
@@ -362,7 +383,10 @@ where
                             }
 
                             // End parsing argument key
-                            Token::Whitespace | Token::Equals => break,
+                            Token::Whitespace
+                            | Token::LineBreak
+                            | Token::ParagraphBreak
+                            | Token::Equals => break,
 
                             // Continue iterating to gather key
                             _ if ARGUMENT_KEY.is_match(current.slice) => {

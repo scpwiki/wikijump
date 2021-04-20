@@ -1,0 +1,36 @@
+{
+    "input": "[[span\n\tclass=\"my-class\"\n\tstyle  = \"color: red;\"\n\n]]Banana[[/span]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "span",
+                                "attributes": {
+                                    "class": "my-class",
+                                    "style": "color: red;"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
