@@ -64,6 +64,7 @@ cfg_if! {
 
                 TerminalLoggerBuilder::new()
                     .level(Severity::Trace)
+                    .channel_size(256)
                     .build()
                     .expect("Unable to initialize logger")
             }
