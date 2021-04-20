@@ -91,6 +91,7 @@ fn block_skip<'r, 't>(
     });
 
     if result {
+        info!(log, "Skipping newline due to upcoming line-terminated block");
         ok!(Elements::None)
     } else {
         Err(parser.make_warn(ParseWarningKind::RuleFailed))
