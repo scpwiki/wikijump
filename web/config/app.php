@@ -174,7 +174,6 @@ return [
         // Wikijump\Providers\BroadcastServiceProvider::class,
         Wikijump\Providers\EventServiceProvider::class,
         Wikijump\Providers\RouteServiceProvider::class,
-        Wikijump\Providers\OzoneServiceProvider::class,
 
     ],
 
