@@ -48,7 +48,7 @@
 
  	<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
     <meta http-equiv="content-language" content="{$site->getLanguage()}"/>
-
+    <meta name="csrf-token" content="{php}echo(csrf_token());{/php}"/>
    	<style type="text/css" id="internal-style">
 
    		{foreach from=$theme->getStyleUrls() item=file}
