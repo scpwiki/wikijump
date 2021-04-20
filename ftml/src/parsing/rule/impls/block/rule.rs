@@ -145,6 +145,11 @@ where
         return Err(parser.make_warn(ParseWarningKind::InvalidSpecialBlock));
     }
 
+    // Check if this block allows modifier invocation ('_' after name)
+    if !block.accepts_modifier && modifier {
+        return Err(parser.make_warn(ParseWarningKind::InvalidModifierBlock));
+    }
+
     parser.get_optional_space()?;
 
     // Run the parse function until the end.
