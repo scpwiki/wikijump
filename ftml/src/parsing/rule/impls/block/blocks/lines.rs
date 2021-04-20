@@ -55,9 +55,21 @@ fn parse_count<'r, 't>(
         None => return Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
     };
 
-    argument.parse().map_err(|error| {
-        debug!(&parser.log(), "Invalid numeric expression: {}", error);
+    match argument.parse::<NonZeroU32>() {
+        Ok(value) if value.get() > 100 => {
+            debug!(
+                &parser.log(),
+                "Number of lines is too great (max 100)";
+                "lines" => value.get(),
+            );
 
-        parser.make_warn(ParseWarningKind::BlockMalformedArguments)
-    })
+            Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
+        }
+        Ok(value) => Ok(value),
+        Err(error) => {
+            debug!(&parser.log(), "Invalid numeric expression: {}", error);
+
+            Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
+        }
+    }
 }
