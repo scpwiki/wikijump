@@ -45,7 +45,6 @@ fn parse_fn<'r, 't>(
     );
 
     assert_eq!(special, false, "Span doesn't allow special variant");
-    assert_eq!(modifier, false, "Span doesn't allow modifier variant");
     assert_block_name(&BLOCK_SPAN, name);
 
     let arguments = parser.get_head_map(&BLOCK_SPAN, in_head)?;
