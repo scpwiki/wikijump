@@ -80,17 +80,6 @@ export class Buffer {
     return { buffer, reused }
   }
 
-  // get tokens() {
-  //   // verbose approach to maximize speed
-  //   const tokens: BufferToken[] = []
-  //   for (let i = this.buffer.length - 1; i >= 0; i--) {
-  //     const node = this.buffer[i]
-  //     if (node instanceof Checkpoint) continue
-  //     tokens.unshift(node)
-  //   }
-  //   return tokens
-  // }
-
   /** Add a new token or context snapshot to the buffer. */
   add(node: TokenData | Context) {
     if (node instanceof Context) {
@@ -171,6 +160,14 @@ export class Buffer {
   //   return new BufferCursor(this, index)
   // }
 }
+
+/*
+ * This chunk of code currently won't work with the current Buffer implementation, but
+ * it still may prove useful later. Currently, the functionality provided by this class
+ * is provided by Buffer's compile() function, but if it ever proves that it's desirable
+ * for the Lezer tree builder to use a cursor, rather than a precompiled list, this code
+ * can be adapted for that.
+ */
 
 // export class BufferCursor {
 
