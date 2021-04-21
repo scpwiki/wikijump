@@ -152,7 +152,7 @@ const typeRules = { ...rules.typescript, ...rules.typeChecked }
 
 module.exports = {
   root: true,
-  ignorePatterns: ["**/node_modules/**", "**/dist/**", "**/vendor/**", "/dev/**"],
+  ignorePatterns: ["**/node_modules/**", "**/dist/**", "**/vendor/**", "/misc/**"],
 
   extends: ["plugin:compat/recommended"],
   plugins: ["@typescript-eslint", "svelte3", "clean-regex"],

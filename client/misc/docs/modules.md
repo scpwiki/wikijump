@@ -19,7 +19,7 @@ Other than the inheritance of development dependencies and tooling configuration
 
 To improve performance of the monorepo, building and watching of modules isn't done per module, but instead globally at root. It is recommended that you just build the entire monorepo rather than trying to build individual packages. This isn't a performance problem because the repo builds modules incrementally. If a module has not changed, it won't get rebuilt.
 
-There is a template for making modules, and it can be found in the `dev/templates/module-template` folder.
+There is a template for making modules, and it can be found in the `misc/templates/module-template` folder.
 
 Here is how to use that template:
 
@@ -27,7 +27,7 @@ Here is how to use that template:
   It isn't strictly required that it is the name of your package, but it gets confusing otherwise.
   If you want to build the module as a Node package instead of for the browser, prefix the folder name with `node-`.
 
-2. Copy the contents of `dev/templates/module-template` into the new folder.
+2. Copy the contents of `misc/templates/module-template` into the new folder.
 
 3. Edit `package.json`.
   There are a few properties you should edit. They are: `name`, `description`, and `version`. Everything else is fine being left alone.
