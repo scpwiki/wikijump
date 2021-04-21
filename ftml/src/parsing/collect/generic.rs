@@ -82,8 +82,6 @@ where
             "slice" => str!(slice),
             "span" => SpanWrap::from(span),
             "remaining-len" => parser.remaining().len(),
-            "close-conditions" => format!("{:?}", close_conditions),
-            "invalid-conditions" => format!("{:?}", invalid_conditions),
         ))
     };
 
