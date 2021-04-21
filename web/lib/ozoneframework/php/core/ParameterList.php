@@ -36,7 +36,7 @@ class ParameterList {
 			$qs =  $_SERVER['QUERY_STRING'];
 			/* Check if there is a "?" char - if so, remove it. */
 			$qs = preg_replace('/\?.*$/', '', $qs);
-			$splited = explode('/',$qs);
+			$splited = explode('/', $qs);
 			if(count($splited)>= 1){
 				$this->parameterArray['template'] = $splited[0];
 				$this->parameterTypes['template'] = 'GET';
