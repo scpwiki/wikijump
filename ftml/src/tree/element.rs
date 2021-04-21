@@ -305,6 +305,15 @@ impl slog::Value for Element<'_> {
     }
 }
 
+/// Wrapper for the result of producing element(s).
+///
+/// This has an enum instead of a simple `Vec<Element>`
+/// since the most common output is a single element,
+/// and it makes little sense to heap allocate for every
+/// single return if we can easily avoid it.
+///
+/// It also contains a field marking whether all of the
+/// contents are paragraph-safe or not, used by `ParagraphStack`.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum Elements<'t> {
     Multiple(Vec<Element<'t>>),
@@ -374,6 +383,7 @@ impl<'t> IntoIterator for Elements<'t> {
     }
 }
 
+/// Iterator implementation for `Elements`.
 #[derive(Debug)]
 pub enum ElementsIterator<'t> {
     Multiple(Vec<Element<'t>>),
