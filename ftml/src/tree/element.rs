@@ -339,6 +339,14 @@ impl Elements<'_> {
             Elements::None => 0,
         }
     }
+
+    pub fn paragraph_safe(&self) -> bool {
+        match self {
+            Elements::Multiple(elements) => elements.iter().all(|element| element.paragraph_safe()),
+            Elements::Single(element) => element.paragraph_safe(),
+            Elements::None => true,
+        }
+    }
 }
 
 impl<'t> From<Element<'t>> for Elements<'t> {
