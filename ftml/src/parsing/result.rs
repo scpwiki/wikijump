@@ -51,15 +51,19 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
         }
     }
 
-    pub fn chain(self, all_exceptions: &mut Vec<ParseException<'t>>) -> T {
+    pub fn chain(self, all_exceptions: &mut Vec<ParseException<'t>>, all_paragraph_safe: &mut bool) -> T {
         let ParseSuccess {
             item,
             mut exceptions,
+            paragraph_safe,
             ..
         } = self;
 
         // Append previous exceptions
         all_exceptions.append(&mut exceptions);
+
+        // Update paragraph safety
+        *all_paragraph_safe &= paragraph_safe;
 
         // Return resultant item
         item
