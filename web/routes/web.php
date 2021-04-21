@@ -11,17 +11,18 @@ use Wikijump\Models\User;
  * We are instantiating a RunData object with every route request so we can pull
  * some information related to sessions. Hopefully this won't stay in for long.
  */
-Ozone ::init();
-$runData = new RunData();
-$runData->init();
-Ozone :: setRunData($runData);
-$runData->handleSessionStart();
-if($runData->getUserId() && Auth::guest()) {
-    Auth::login(
-        User::findorFail($runData->getUserId())
-    );
-};
-
+if( php_sapi_name() !== "cli" ) {
+    Ozone::init();
+    $runData = new RunData();
+    $runData->init();
+    Ozone:: setRunData($runData);
+    $runData->handleSessionStart();
+    if ($runData->getUserId() && Auth::guest()) {
+        Auth::login(
+            User::findorFail($runData->getUserId())
+        );
+    };
+}
 
 
 
