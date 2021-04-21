@@ -44,6 +44,10 @@ type CloseConditionFn = fn(&mut Parser) -> Result<bool, ParseWarning>;
 /// Originally in `parse()`, but was moved out to allow paragraph
 /// extraction deeper in code, such as in the `try_paragraph`
 /// collection helper.
+///
+/// This does not necessarily produce a paragraph container.
+/// It may produce multiple or none. Instead the logic iterates
+/// and produces paragraphs or child elements as needed.
 pub fn gather_paragraphs<'r, 't, F>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
@@ -59,7 +63,7 @@ where
     // Update parser rule
     parser.set_rule(rule);
 
-    // Build paragraph stack
+    // Create paragraph stack
     let mut stack = ParagraphStack::new(log);
 
     loop {
