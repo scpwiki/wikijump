@@ -182,6 +182,32 @@ impl Element<'_> {
         }
     }
 
+    /// Determines if this element type is able to be embedded in a paragraph.
+    ///
+    /// It does *not* look into the interiors of the element, it only does a
+    /// surface-level check.
+    ///
+    /// This is to avoid making the call very expensive, but for a complete
+    /// understanding of the paragraph requirements, see the `Elements` return.
+    ///
+    /// See https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#phrasing_content
+    pub fn paragraph_safe(&self) -> bool {
+        match self {
+            Element::Container(container) => container.ctype().paragraph_safe(),
+            Element::Module(_) => false,
+            Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
+            Element::Anchor { .. } | Element::Link { .. } => true,
+            Element::List { .. } => false,
+            Element::RadioButton { .. } | Element::CheckBox { .. } => true,
+            Element::Collapsible { .. } => false,
+            Element::Color { .. } => true,
+            Element::Code { .. } => true,
+            Element::Html { .. } | Element::Iframe { .. } => false,
+            Element::LineBreak | Element::LineBreaks { .. } => false,
+            Element::HorizontalRule => false,
+        }
+    }
+
     /// Deep-clones the object, making it an owned version.
     ///
     /// Note that `.to_owned()` on `Cow` just copies the pointer,
