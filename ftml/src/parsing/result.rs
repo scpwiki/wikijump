@@ -22,7 +22,7 @@ use crate::parsing::exception::{ParseException, ParseWarning};
 use std::marker::PhantomData;
 
 pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseWarning>;
-pub type ParseSuccessTuple<'t, T> = (T, Vec<ParseException<'t>>);
+pub type ParseSuccessTuple<'t, T> = (T, Vec<ParseException<'t>>, bool);
 
 #[must_use]
 #[derive(Debug, Clone)]
@@ -33,6 +33,7 @@ where
 {
     pub item: T,
     pub exceptions: Vec<ParseException<'t>>,
+    pub paragraph_safe: bool,
 
     // Marker field to assert that the 'r lifetime is at least as long as 't.
     #[doc(hidden)]
@@ -41,10 +42,11 @@ where
 
 impl<'r, 't, T> ParseSuccess<'r, 't, T> {
     #[inline]
-    pub fn new(item: T, exceptions: Vec<ParseException<'t>>) -> Self {
+    pub fn new(item: T, exceptions: Vec<ParseException<'t>>, paragraph_safe: bool) -> Self {
         ParseSuccess {
             item,
             exceptions,
+            paragraph_safe,
             _marker: PhantomData,
         }
     }
@@ -73,7 +75,7 @@ where
         F: FnOnce(T) -> U,
     {
         let ParseSuccess {
-            item, exceptions, ..
+            item, exceptions, paragraph_safe, ..
         } = self;
 
         let new_item = f(item);
@@ -81,6 +83,7 @@ where
         ParseSuccess {
             item: new_item,
             exceptions,
+            paragraph_safe,
             _marker: PhantomData,
         }
     }
@@ -105,9 +108,9 @@ impl<'r, 't, T> From<ParseSuccess<'r, 't, T>> for ParseSuccessTuple<'t, T> {
     #[inline]
     fn from(success: ParseSuccess<'r, 't, T>) -> ParseSuccessTuple<'t, T> {
         let ParseSuccess {
-            item, exceptions, ..
+            item, exceptions, paragraph_safe, ..
         } = success;
 
-        (item, exceptions)
+        (item, exceptions, paragraph_safe)
     }
 }
