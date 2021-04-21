@@ -325,17 +325,19 @@ where
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         let mut all_elements = Vec::new();
         let mut all_exceptions = Vec::new();
+        let mut paragraph_safe = true;
         let mut first = true;
 
         loop {
             let result = self.verify_end_block(first, block_rule);
             if result.is_some() {
-                return ok!(all_elements, all_exceptions);
+                return ok!(paragraph_safe; all_elements, all_exceptions);
             }
 
             first = false;
             let old_remaining = self.remaining();
-            let elements = consume(&self.log(), self)?.chain(&mut all_exceptions);
+            let elements = consume(&self.log(), self)?
+                .chain(&mut all_exceptions, &mut paragraph_safe);
             all_elements.extend(elements);
 
             // Step if the rule hasn't moved the pointer itself

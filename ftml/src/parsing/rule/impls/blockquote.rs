@@ -42,10 +42,15 @@ fn try_consume_fn<'p, 'r, 't>(
     );
     parser.step()?;
 
-    // Produce a depth list with elements
+    // Context variables
     let mut depths = Vec::new();
     let mut exceptions = Vec::new();
 
+    // Blockquotes are always paragraph-unsafe,
+    // but we need this binding for chain().
+    let mut paragraph_safe = false;
+
+    // Produce a depth list with elements
     loop {
         let current = parser.current();
         let depth = match current.token {
@@ -92,7 +97,7 @@ fn try_consume_fn<'p, 'r, 't>(
             &[ParseCondition::current(Token::ParagraphBreak)],
             None,
         )?
-        .chain(&mut exceptions);
+        .chain(&mut exceptions, &mut paragraph_safe);
 
         // Add a line break for the end of the line
         elements.push(Element::LineBreak);
@@ -117,7 +122,7 @@ fn try_consume_fn<'p, 'r, 't>(
         .map(|(_, depth_list)| build_blockquote_element(depth_list))
         .collect();
 
-    ok!(elements, exceptions)
+    ok!(paragraph_safe; elements, exceptions)
 }
 
 fn build_blockquote_element(list: DepthList<(), Vec<Element>>) -> Element {

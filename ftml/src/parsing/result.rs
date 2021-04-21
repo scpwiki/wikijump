@@ -42,7 +42,11 @@ where
 
 impl<'r, 't, T> ParseSuccess<'r, 't, T> {
     #[inline]
-    pub fn new(item: T, exceptions: Vec<ParseException<'t>>, paragraph_safe: bool) -> Self {
+    pub fn new(
+        item: T,
+        exceptions: Vec<ParseException<'t>>,
+        paragraph_safe: bool,
+    ) -> Self {
         ParseSuccess {
             item,
             exceptions,
@@ -51,7 +55,11 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
         }
     }
 
-    pub fn chain(self, all_exceptions: &mut Vec<ParseException<'t>>, all_paragraph_safe: &mut bool) -> T {
+    pub fn chain(
+        self,
+        all_exceptions: &mut Vec<ParseException<'t>>,
+        all_paragraph_safe: &mut bool,
+    ) -> T {
         let ParseSuccess {
             item,
             mut exceptions,
@@ -79,7 +87,10 @@ where
         F: FnOnce(T) -> U,
     {
         let ParseSuccess {
-            item, exceptions, paragraph_safe, ..
+            item,
+            exceptions,
+            paragraph_safe,
+            ..
         } = self;
 
         let new_item = f(item);
@@ -112,7 +123,10 @@ impl<'r, 't, T> From<ParseSuccess<'r, 't, T>> for ParseSuccessTuple<'t, T> {
     #[inline]
     fn from(success: ParseSuccess<'r, 't, T>) -> ParseSuccessTuple<'t, T> {
         let ParseSuccess {
-            item, exceptions, paragraph_safe, ..
+            item,
+            exceptions,
+            paragraph_safe,
+            ..
         } = success;
 
         (item, exceptions, paragraph_safe)
