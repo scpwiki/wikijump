@@ -1,21 +1,21 @@
 {
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^7.4",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
-        "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.22",
-        "laravel/tinker": "^2.5",
-        "ezyang/htmlpurifier": "^4.12",
+        "guzzlehttp/guzzle": "^7.3",
+        "laravel/framework": "^8.37",
+        "laravel/tinker": "^2.6",
+        "ezyang/htmlpurifier": "^4.13",
         "cerdic/css-tidy": "^1.7"
     },
     "require-dev": {
-        "facade/ignition": "^2.5",
-        "fakerphp/faker": "^1.9.1",
-        "mockery/mockery": "^1.4.2",
-        "nunomaduro/collision": "^5.0",
-        "phpunit/phpunit": "^9.3.3",
-        "squizlabs/php_codesniffer": "^3.6.0"
+        "facade/ignition": "^2.8",
+        "fakerphp/faker": "^1.14",
+        "mockery/mockery": "^1.4",
+        "nunomaduro/collision": "^5.4",
+        "phpunit/phpunit": "^9.5",
+        "squizlabs/php_codesniffer": "^3.6"
     },
     "config": {
         "optimize-autoloader": true,
