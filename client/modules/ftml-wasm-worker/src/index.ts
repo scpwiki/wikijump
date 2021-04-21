@@ -124,7 +124,7 @@ export async function tokenize(str: string) {
 }
 
 /** Parses a string of wikitext. This returns an AST and warnings list, not HTML.
- *  @see renderHTML */
+ *  @see render */
 export async function parse(str: string) {
   type Return = ReturnType<typeof FTML["parse"]>
   return await invoke<Return>(() => module.worker.parse(transfer(str)))
