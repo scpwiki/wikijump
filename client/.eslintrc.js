@@ -193,6 +193,12 @@ module.exports = {
       parserOptions: { createDefaultProgram: true },
       rules: { ...baseRules, ...typeRules }
     },
+    // TypeScript (Worker)
+    {
+      files: ["*.worker.ts"],
+      env: { worker: true, es2021: true },
+      rules: { ...baseRules, ...typeRules }
+    },
     // TypeScript (Browser)
     {
       files: ["*.d.ts", "*.ts", "*.tsx"],

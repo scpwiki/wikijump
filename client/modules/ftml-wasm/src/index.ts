@@ -13,10 +13,6 @@ export const loading = new Promise(resolve => {
   resolveLoading = resolve
 })
 
-// load automatically for browser
-// this is a workaround for testing
-if (window.fetch as any) init()
-
 /** Actual output of the WASM instantiation. */
 export let wasm: Binding.InitOutput | null = null
 

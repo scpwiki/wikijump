@@ -1,13 +1,18 @@
 {
-  "name": "dev-sandbox",
+  "name": "ftml-wasm-worker",
   "license": "agpl-3.0-or-later",
-  "private": true,
-  "version": "1.0.0",
+  "description": "A web workerized version of ftml-wasm",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
   "scripts": {
-    "dev": "snowpack dev",
-    "build": "snowpack build"
+    "clean": "trash dist .ultra.cache.json",
+    "build": "node ../../scripts/build-modules.js -self"
   },
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git"
@@ -21,8 +26,7 @@
   },
   "dependencies": {
     "ftml-wasm": "^0.0.0",
-    "ftml-wasm-worker": "^0.0.0",
-    "sheaf-core": "^0.0.0",
+    "threads": "^1.6.4",
     "wj-util": "^1.0.0"
   }
 }

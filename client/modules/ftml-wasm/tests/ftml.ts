@@ -6,13 +6,13 @@ import fetch from "node-fetch"
 import toml from "toml"
 
 import * as lib from "../src/index"
+// import wasmURL from "../vendor/ftml_bg.wasm"
 
 // need to polyfill fetch
 globalThis.fetch = fetch
 
-// bundle the module in directly
-const module = require("../vendor/ftml_bg.wasm")
-lib.init(module)
+const wasm = fs.readFile("modules/ftml-wasm/vendor/ftml_bg.wasm")
+lib.init(wasm as any)
 
 const FTML = uvu.suite("ftml-wasm")
 
