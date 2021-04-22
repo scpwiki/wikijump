@@ -4,8 +4,8 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "snowpack dev",
-    "build": "snowpack build"
+    "dev": "vite",
+    "build": "vite build"
   },
   "type": "module",
   "repository": {
@@ -20,6 +20,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
+    "cm-lang-ftml": "^0.0.0",
     "ftml-wasm": "^0.0.0",
     "ftml-wasm-worker": "^0.0.0",
     "sheaf-core": "^0.0.0",

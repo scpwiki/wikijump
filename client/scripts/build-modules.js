@@ -28,7 +28,7 @@ const SETTINGS_COMMON = {
   // minify: true // estrella implicitly toggles minify depending on the `--debug` flag
   bundle: true,
   treeShaking: true,
-  splitting: true,
+  splitting: false,
   format: "esm",
   platform: "browser",
   sourcemap: true,
@@ -111,8 +111,11 @@ function buildModule(name) {
 
     // esbuild
     absWorkingDir: dir,
-    tsconfig: package,
-    plugins: [nodeExternalsPlugin({ packagePath: package }), compileWorkersPlugin],
+    tsconfig: `${dir}/tsconfig.json`,
+    plugins: [
+      nodeExternalsPlugin({ packagePath: `${dir}/package.json` }),
+      compileWorkersPlugin
+    ],
     loader: { ".wasm": "file" },
     target: [...targets],
 

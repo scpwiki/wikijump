@@ -4,7 +4,9 @@ import type * as FTML from "ftml-wasm"
 import type * as Binding from "ftml-wasm/vendor/ftml"
 
 import workerRelativeURL from "./worker/ftml.worker.ts"
-import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm"
+// kinda hacky, but since this gets marked as external,
+// it gets to Vite with the ?url intact
+import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
 
 const workerURL = new URL(workerRelativeURL, import.meta.url)
 const wasmURL = new URL(wasmRelativeURL, import.meta.url).toString()

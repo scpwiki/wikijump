@@ -18,6 +18,12 @@ declare module "*.wasm" {
   export default ref
 }
 
+// WASM loaded as a URL reference (Vite)
+declare module "*.wasm?url" {
+  const ref: string
+  export default ref
+}
+
 declare module "*.svg" {
   const ref: string
   export default ref

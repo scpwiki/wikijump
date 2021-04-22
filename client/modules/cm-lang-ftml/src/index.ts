@@ -2,6 +2,7 @@ import { tags as t } from "@codemirror/highlight"
 import { foldNodeProp } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
 import { TarnationLanguage, lb, re, lkup } from "cm-tarnation"
+// import type { Grammar } from "../../cm-tarnation/src/grammar/definition"
 
 // TODO: figure out indentation
 // TODO: figure out if there is any way to make the block grammar not awful
@@ -520,7 +521,7 @@ export const FTMLLanguage = new TarnationLanguage({
         ],
 
         // block (valmap)
-        [[/(@bs)(@bm?)/, '@blk_valmap', /(@bsf)(\s*\S*)([^]*?)(@be)/], 'BlockNode',
+        [[/(@bs)(@bm?)/, '@blk_valmap', /(@bsf)(\s*[^\]\s]*)([^]*?)(@be)/], 'BlockNode',
           ['@BR', 't.modifier', 'BlockName', 't.modifier', 'BlockValue', 't.string', '@BR']
         ],
 
