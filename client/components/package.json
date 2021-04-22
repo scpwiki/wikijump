@@ -10,7 +10,7 @@
     "clean": "trash dist .ultra.cache.json",
     "dev": "node ../scripts/build-components.js -w",
     "build:cmd": "tsc && node ../scripts/build-components.js",
-    "build": "npm run clean && ultra build:cmd"
+    "build": "ultra build:cmd"
   },
   "ultra": {
     "concurrent": ["build:cmd"]
