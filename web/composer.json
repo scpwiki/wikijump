@@ -1,15 +1,15 @@
 {
     "require": {
         "php": "^7.4",
+        "cerdic/css-tidy": "^1.7",
+        "ezyang/htmlpurifier": "^4.13",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.3",
+        "laravel/fortify": "^1.7",
         "laravel/framework": "^8.37",
-        "laravel/tinker": "^2.6",
-        "ezyang/htmlpurifier": "^4.13",
-        "cerdic/css-tidy": "^1.7",
         "laravel/socialite": "^5.2",
-        "laravel/sanctum": "^2.10"
+        "laravel/tinker": "^2.6"
     },
     "require-dev": {
         "facade/ignition": "^2.8",
