@@ -1,9 +1,6 @@
 const esbuild = require("esbuild")
-const tempDir = require("temp-dir")
 const path = require("path")
 const fs = require("fs/promises")
-
-const dir = `${tempDir}/esbuild-compile-worker/`
 
 /** Makes a folder if it doesn't exist. */
 async function mkdir(dir) {
@@ -31,20 +28,18 @@ module.exports = {
       // path can't be resolved, ignore
       if (args.resolveDir === "") return
 
-      const pathImporter = args.importer
-      const pathWorker = path.join(path.dirname(pathImporter), args.path)
-      const filename = path.basename(pathWorker).replace(/ts$/, "js")
+      const pathWorker = path.join(path.dirname(args.importer), args.path)
 
       return {
-        path: dir + filename,
+        path: args.path,
         namespace: "web-worker",
-        pluginData: { pathWorker, filename }
+        pluginData: { pathWorker }
       }
     })
 
     build.onLoad({ filter: /.*/, namespace: "web-worker" }, async args => {
       const {
-        pluginData: { pathWorker, filename }
+        pluginData: { pathWorker }
       } = args
 
       const { minify = true } = build.initialOptions
@@ -71,10 +66,6 @@ module.exports = {
       const code = built.outputFiles?.[0]?.contents
 
       if (!code) throw new Error("Empty worker build result!")
-
-      // write output to temp dir
-      await mkdir(dir)
-      await fs.writeFile(dir + filename, code)
 
       return {
         contents: code,
