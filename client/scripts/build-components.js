@@ -49,6 +49,7 @@ async function buildComponents() {
 
   build({
     // esbuild settings
+    entryPoints: [index, ...sveltes],
     outdir: "dist",
     bundle: true,
     treeShaking: true,
@@ -64,7 +65,6 @@ async function buildComponents() {
     ],
 
     // estrella settings
-    entry: [index, ...sveltes],
     tslint: false,
     quiet: true,
 
