@@ -6,54 +6,59 @@
 
 declare module "*.css"
 
+declare module "*.worker.ts" {
+  const text: string
+  export default text
+}
+
 // -- URL REFERENCES
 
-declare module "*.worker.ts" {
-  const ref: string
-  export default ref
+declare module "*?url" {
+  const url: string
+  export default url
 }
 
 declare module "*.wasm" {
-  const ref: string
-  export default ref
+  const url: string
+  export default url
 }
 
 declare module "*.svg" {
-  const ref: string
-  export default ref
+  const url: string
+  export default url
 }
 
 declare module "*.bmp" {
-  const ref: string
-  export default ref
+  const url: string
+  export default url
 }
 
 declare module "*.gif" {
-  const ref: string
-  export default ref
+  const url: string
+  export default url
 }
 
 declare module "*.jpg" {
-  const ref: string
-  export default ref
+  const url: string
+  export default url
 }
 
 declare module "*.jpeg" {
-  const ref: string
-  export default ref
+  const url: string
+  export default url
 }
 
 declare module "*.png" {
-  const ref: string
-  export default ref
+  const url: string
+  export default url
 }
 
 declare module "*.webp" {
-  const ref: string
-  export default ref
+  const url: string
+  export default url
 }
 
 declare module "*.avif" {
-  const ref: string
-  export default ref
+  const url: string
+  export default url
 }

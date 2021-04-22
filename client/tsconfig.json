@@ -34,11 +34,11 @@
   // The performance benefits are worth it, regardless.
   "references": [
     { "path": "./modules/wj-util" },
-    { "path": "./modules/node-snowpack-workers" },
     { "path": "./modules/sheaf-core" },
     { "path": "./modules/ftml-wasm" },
     { "path": "./modules/ftml-wasm-worker" },
-    { "path": "./modules/cm-tarnation" }
+    { "path": "./modules/cm-tarnation" },
+    { "path": "./modules/cm-lang-ftml" }
   ],
 
   "typeAcquisition": {

@@ -1,8 +1,8 @@
 {
-  "name": "snowpack-workers",
+  "name": "cm-lang-ftml",
   "license": "agpl-3.0-or-later",
-  "description": "Plugin for Snowpack that handles worker bundling.",
-  "version": "1.0.0",
+  "description": "FTML language extension for CodeMirror 6.",
+  "version": "0.0.0",
   "keywords": [
     "wikijump"
   ],
@@ -10,7 +10,7 @@
     "clean": "trash dist .ultra.cache.json",
     "build": "node ../../scripts/build-modules.js -self"
   },
-  "type": "commonjs",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
@@ -21,6 +21,13 @@
     "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
   },
   "homepage": "https://github.com/scpwiki/wikijump#readme",
-  "eslintConfig": { "extends": "../../.eslintrc.js" },
-  "dependencies": {}
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "dependencies": {
+    "@codemirror/highlight": "^0.18.3",
+    "@codemirror/language": "^0.18.1",
+    "@codemirror/language-data": "^0.18.0",
+    "cm-tarnation": "^0.0.0"
+  }
 }

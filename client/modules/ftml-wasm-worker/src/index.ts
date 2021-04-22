@@ -1,12 +1,14 @@
-import { spawn, Thread, Worker, Transfer, ModuleThread } from "threads"
+import { spawn, Thread, BlobWorker, Transfer, ModuleThread } from "threads"
 import { sleep } from "wj-util"
 import type * as FTML from "ftml-wasm"
 import type * as Binding from "ftml-wasm/vendor/ftml"
 
-import workerRelativeURL from "./worker/ftml.worker.ts"
-import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm"
+// imports the worker as a chunk of text
+import workerText from "./worker/ftml.worker.ts"
 
-const workerURL = new URL(workerRelativeURL, import.meta.url)
+// external import (resolved by Vite)
+// I don't like how non-portable this is, but I also don't know of a better solution
+import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
 const wasmURL = new URL(wasmRelativeURL, import.meta.url).toString()
 
 interface TypedArray extends ArrayBuffer {
@@ -38,16 +40,16 @@ interface WorkerModuleOpts {
 
 class WorkerModule {
   name: string
-  url: URL
+  src: string
   worker!: ModuleThread
 
   private persist = false
   private timeout = 10000
   private init?: AnyFunction
 
-  constructor(name: string, url: URL, opts?: WorkerModuleOpts) {
+  constructor(name: string, src: string, opts?: WorkerModuleOpts) {
     this.name = name
-    this.url = url
+    this.src = src
     if (opts) {
       this.persist = opts.persist ?? false
       this.timeout = opts.timeout ?? 10000
@@ -55,46 +57,42 @@ class WorkerModule {
     }
   }
 
-  private async _ready() {
+  private async ready() {
     if (!this.worker) {
       this.worker = await spawn<ModuleThread>(
-        new Worker(this.url as any, {
-          name: this.name,
-          credentials: "same-origin",
-          type: "classic"
-        })
+        BlobWorker.fromText(this.src, { name: this.name })
       )
       if (this.init) await this.init()
     }
   }
 
-  private async _terminate() {
+  private async terminate() {
     if (this.worker) await Thread.terminate(this.worker)
     this.worker = undefined as any
   }
 
-  private async _restart() {
-    await this._terminate()
-    await this._ready()
+  private async restart() {
+    await this.terminate()
+    await this.ready()
   }
 
   async invoke<T>(fn: () => Promise<T>) {
-    await this._ready()
+    await this.ready()
     const result = this.timeout
       ? await Promise.race([fn(), sleep(this.timeout)])
       : await fn()
     if (result) {
-      if (!this.persist) await this._terminate()
+      if (!this.persist) await this.terminate()
       return result
     } else {
-      if (this.persist) await this._restart()
-      else await this._terminate()
+      if (this.persist) await this.restart()
+      else await this.terminate()
       throw new Error("Worker timed out!")
     }
   }
 }
 
-const module = new WorkerModule("ftml-wasm-worker", workerURL, {
+const module = new WorkerModule("ftml-wasm-worker", workerText, {
   persist: true,
   init() {
     module.invoke(() => module.worker.init(wasmURL))
