@@ -38,7 +38,8 @@
     { "path": "./modules/sheaf-core" },
     { "path": "./modules/ftml-wasm" },
     { "path": "./modules/ftml-wasm-worker" },
-    { "path": "./modules/cm-tarnation" }
+    { "path": "./modules/cm-tarnation" },
+    { "path": "./modules/cm-lang-ftml" }
   ],
 
   "typeAcquisition": {
