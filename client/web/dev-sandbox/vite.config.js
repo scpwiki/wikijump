@@ -7,7 +7,7 @@ const config = {
   build: {
     outDir: "../dist",
     emptyOutDir: true,
-    assetsDir: "static/lib",
+    assetsDir: "static/assets",
     manifest: true,
     sourcemap: true,
     target: "esnext",
