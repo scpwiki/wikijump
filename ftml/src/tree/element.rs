@@ -203,7 +203,7 @@ impl Element<'_> {
             Element::Color { .. } => true,
             Element::Code { .. } => true,
             Element::Html { .. } | Element::Iframe { .. } => false,
-            Element::LineBreak | Element::LineBreaks { .. } => false,
+            Element::LineBreak | Element::LineBreaks { .. } => true,
             Element::HorizontalRule => false,
         }
     }
