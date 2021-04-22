@@ -16,7 +16,7 @@
     "concurrent": ["build:cmd"]
   },
   "type": "module",
-  "svelte": "src/index.ts",
+  "svelte": "src/index.js",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "repository": {
