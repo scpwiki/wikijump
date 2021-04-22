@@ -20,7 +20,8 @@
 
 mod stack;
 
-use self::stack::ParagraphStack;
+pub use self::stack::ParagraphStack;
+
 use super::consume::consume;
 use super::parser::Parser;
 use super::prelude::*;

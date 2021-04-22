@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::parsing::paragraph::ParagraphStack;
 use crate::parsing::{process_depths, DepthItem, DepthList};
 use crate::tree::{AttributeMap, Container, ContainerType};
 
@@ -45,10 +46,6 @@ fn try_consume_fn<'p, 'r, 't>(
     // Context variables
     let mut depths = Vec::new();
     let mut exceptions = Vec::new();
-
-    // Blockquotes are always paragraph-unsafe,
-    // but we need this binding for chain().
-    let mut paragraph_safe = false;
 
     // Produce a depth list with elements
     loop {
@@ -86,6 +83,7 @@ fn try_consume_fn<'p, 'r, 't>(
         }
 
         // Parse elements until we hit the end of the line
+        let mut paragraph_safe = true;
         let mut elements = collect_consume(
             log,
             parser,
@@ -107,8 +105,8 @@ fn try_consume_fn<'p, 'r, 't>(
         // Depth lists expect zero-based list depths, but tokens are one-based.
         // So, we subtract one.
         //
-        // This will not overflow becaus Token::Quote requires at least one ">".
-        depths.push((depth - 1, (), elements))
+        // This will not overflow because Token::Quote requires at least one ">".
+        depths.push((depth - 1, (), (elements, paragraph_safe)))
     }
 
     // This blockquote has no rows, so the rule fails
@@ -119,48 +117,39 @@ fn try_consume_fn<'p, 'r, 't>(
     let depth_lists = process_depths((), depths);
     let elements: Vec<Element> = depth_lists
         .into_iter()
-        .map(|(_, depth_list)| build_blockquote_element(depth_list))
+        .map(|(_, depth_list)| build_blockquote_element(log, depth_list))
         .collect();
 
-    ok!(paragraph_safe; elements, exceptions)
+    ok!(false; elements, exceptions)
 }
 
-fn build_blockquote_element(list: DepthList<(), Vec<Element>>) -> Element {
-    let mut all_elements = Vec::new();
-
-    // Remove this trailing line break, these should
-    // only be between lines in the blockquote.
-    macro_rules! remove_trailing_line_break {
-        () => {
-            if let Some(Element::LineBreak) = all_elements.last() {
-                all_elements.pop();
-            }
-        };
-    }
+fn build_blockquote_element<'t>(
+    log: &Logger,
+    list: DepthList<(), (Vec<Element<'t>>, bool)>,
+) -> Element<'t> {
+    let mut stack = ParagraphStack::new(log);
 
     // Convert depth list into a list of elements
     for item in list {
         match item {
-            DepthItem::Item(mut elements) => all_elements.append(&mut elements),
+            DepthItem::Item((elements, paragraph_safe)) => {
+                for element in elements {
+                    stack.push_element(element, paragraph_safe);
+                }
+            }
             DepthItem::List(_, list) => {
-                remove_trailing_line_break!();
-
-                let element = build_blockquote_element(list);
-                all_elements.push(element);
+                let blockquote = build_blockquote_element(log, list);
+                stack.pop_line_break();
+                stack.push_element(blockquote, false);
             }
         }
     }
 
-    remove_trailing_line_break!();
+    stack.pop_line_break();
 
-    // Wrap blockquote internals in a paragraph, like [[blockquote]] does.
-    let paragraph =
-        Container::new(ContainerType::Paragraph, all_elements, AttributeMap::new());
-
-    // Place paragraph in the blockquote container
     Element::Container(Container::new(
         ContainerType::Blockquote,
-        vec![Element::Container(paragraph)],
+        stack.into_elements(),
         AttributeMap::new(),
     ))
 }
