@@ -12,8 +12,18 @@ async function mkdir(dir) {
   } catch {}
 }
 
-// TODO: redocument
-
+/** esbuild plugin for compiling and inlining web-workers.
+ *  This plugin will take an import like:
+ *  ```ts
+ *  import worker from "./my-worker.worker.ts"
+ *  ```
+ *  and convert that into a constant expression that looks like:
+ *  ```ts
+ *  const worker = "...worker text..."
+ *  ```
+ *  This string can then be used to load a worker from a blob.
+ *  This avoids most of the file import issues present with workers, and makes
+ *  the worker safe to use from inside of a library. */
 module.exports = {
   name: "compile-worker",
   setup(build) {
