@@ -39,5 +39,5 @@ fn parse_fn<'r, 't>(
         .get_bool(parser, "includeHidden")?
         .unwrap_or(false);
 
-    ok!(Some(Module::Categories { include_hidden }))
+    ok!(false; Some(Module::Categories { include_hidden }))
 }

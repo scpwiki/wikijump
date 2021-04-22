@@ -53,8 +53,9 @@ fn parse_fn<'r, 't>(
     // "div_" means we don't wrap it
     let wrap_paragraphs = !modifier;
 
-    // Get body content, based on whether we want paragraphs or not
-    let (elements, exceptions) = parser
+    // Get body content, based on whether we want paragraphs or not.
+    // Discard paragraph_safe, since divs never are.
+    let (elements, exceptions, _) = parser
         .get_body_elements(&BLOCK_DIV, wrap_paragraphs)?
         .into();
 

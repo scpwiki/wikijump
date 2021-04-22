@@ -67,7 +67,7 @@ where
     let mut stack = ParagraphStack::new(log);
 
     loop {
-        let (elements, mut exceptions) = match parser.current().token {
+        let (elements, mut exceptions, paragraph_safe) = match parser.current().token {
             Token::InputEnd => {
                 if close_condition_fn.is_some() {
                     // There was a close condition, but it was not satisfied
@@ -128,7 +128,7 @@ where
         debug!(log, "Tokens consumed to produce element");
 
         // Add new elements to the list
-        push_elements(&mut stack, elements);
+        push_elements(&mut stack, elements, paragraph_safe);
 
         // Process exceptions
         stack.push_exceptions(&mut exceptions);
@@ -137,7 +137,11 @@ where
     stack.into_result()
 }
 
-fn push_elements<'t>(stack: &mut ParagraphStack<'t>, elements: Elements<'t>) {
+fn push_elements<'t>(
+    stack: &mut ParagraphStack<'t>,
+    elements: Elements<'t>,
+    paragraph_safe: bool,
+) {
     stack.reserve_elements(elements.len());
 
     for element in elements {
@@ -146,6 +150,6 @@ fn push_elements<'t>(stack: &mut ParagraphStack<'t>, elements: Elements<'t>) {
             continue;
         }
 
-        stack.push_element(element);
+        stack.push_element(element, paragraph_safe);
     }
 }

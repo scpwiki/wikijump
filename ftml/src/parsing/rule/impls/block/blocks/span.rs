@@ -54,7 +54,8 @@ fn parse_fn<'r, 't>(
     let strip_line_breaks = modifier;
 
     // Get body content, without paragraphs
-    let (mut elements, exceptions) = parser.get_body_elements(&BLOCK_SPAN, false)?.into();
+    let (mut elements, exceptions, paragraph_safe) =
+        parser.get_body_elements(&BLOCK_SPAN, false)?.into();
 
     if strip_line_breaks {
         // Remove leading line breaks
@@ -82,5 +83,5 @@ fn parse_fn<'r, 't>(
         arguments.to_hash_map(),
     ));
 
-    ok!(element, exceptions)
+    ok!(paragraph_safe; element, exceptions)
 }

@@ -59,11 +59,12 @@ impl<'t> ParagraphStack<'t> {
     }
 
     #[inline]
-    pub fn push_element(&mut self, element: Element<'t>) {
+    pub fn push_element(&mut self, element: Element<'t>, paragraph_safe: bool) {
         debug!(
             self.log,
             "Pushing element to stack";
             "element" => element.name(),
+            // TODO paragraph_safe
         );
 
         self.current.push(element);
@@ -132,6 +133,6 @@ impl<'t> ParagraphStack<'t> {
             exceptions,
         } = self;
 
-        ok!(elements, exceptions)
+        ok!(todo!(); elements, exceptions)
     }
 }

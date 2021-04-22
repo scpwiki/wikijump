@@ -51,7 +51,8 @@ fn parse_fn<'r, 't>(
     let arguments = parser.get_head_map(&BLOCK_BOLD, in_head)?;
 
     // Get body content, without paragraphs
-    let (elements, exceptions) = parser.get_body_elements(&BLOCK_BOLD, false)?.into();
+    let (elements, exceptions, paragraph_safe) =
+        parser.get_body_elements(&BLOCK_BOLD, false)?.into();
 
     let element = Element::Container(Container::new(
         ContainerType::Bold,
@@ -59,5 +60,5 @@ fn parse_fn<'r, 't>(
         arguments.to_hash_map(),
     ));
 
-    ok!(element, exceptions)
+    ok!(paragraph_safe; element, exceptions)
 }

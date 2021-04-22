@@ -45,8 +45,8 @@ fn parse_fn<'r, 't>(
 
     let arguments = parser.get_head_map(&BLOCK_BLOCKQUOTE, in_head)?;
 
-    // Get body content, based on whether we want paragraphs or not
-    let (elements, exceptions) =
+    // Get body content, but discard paragraph_safe, since blockquotes never are.
+    let (elements, exceptions, _) =
         parser.get_body_elements(&BLOCK_BLOCKQUOTE, true)?.into();
 
     // Build element and return

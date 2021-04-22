@@ -36,7 +36,7 @@ pub fn collect_consume<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
     let mut all_elements = Vec::new();
 
-    let (_, exceptions) = collect(
+    let (_, exceptions, paragraph_safe) = collect(
         log,
         parser,
         rule,
@@ -49,5 +49,5 @@ pub fn collect_consume<'p, 'r, 't>(
     )?
     .into();
 
-    ok!(all_elements, exceptions)
+    ok!(paragraph_safe; all_elements, exceptions)
 }

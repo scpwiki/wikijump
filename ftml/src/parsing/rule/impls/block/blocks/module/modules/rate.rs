@@ -35,5 +35,5 @@ fn parse_fn<'r, 't>(
     debug!(log, "Parsing categories module");
     assert_module_name(&MODULE_RATE, name);
 
-    ok!(Some(Module::Rate))
+    ok!(false; Some(Module::Rate))
 }

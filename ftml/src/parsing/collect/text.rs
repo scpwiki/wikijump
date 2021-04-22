@@ -71,8 +71,10 @@ where
 
     let (start, mut end) = (parser.current(), None);
 
-    // Iterate and collect the tokens to merge
-    let (last, exceptions) = collect(
+    // Iterate and collect the tokens to merge.
+    //
+    // We know text is always paragraph safe, so we ignore that value.
+    let (last, exceptions, _) = collect(
         log,
         parser,
         rule,
@@ -83,7 +85,7 @@ where
             trace!(log, "Ingesting token in string span");
 
             end = Some(parser.current());
-            ok!(())
+            ok!(true; ())
         },
     )?
     .into();
