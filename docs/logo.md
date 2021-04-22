@@ -15,7 +15,7 @@ The Wikijump Logo was created by EstrellaYoshte (SYwaves) who has graciously agr
 
 <details>
 <summary>Wikijump Logos and Icons</summary>
-<p align="center" color="#444"><img height="200px" src="https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo.inkscape.svg"></p>
-<p align="center" color="#444"><img height="200px" src="https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo-square.inkscape.svg"></p>
-<p align="center" color="#444"><img height="200px" src="https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo-round.inkscape.svg"></p>
+<p align="center" style="background-color: #444; padding: 0.25em;"><img height="200px" src="https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo.inkscape.svg"></p>
+<p align="center" style="background-color: #444; padding: 0.25em;"><img height="200px" src="https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo-square.inkscape.svg"></p>
+<p align="center" style="background-color: #444; padding: 0.25em;"><img height="200px" src="https://raw.githubusercontent.com/scpwiki/wikijump/develop/assets/logo-round.inkscape.svg"></p>
 </details>
