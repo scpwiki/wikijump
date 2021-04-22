@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "clean": "trash dist .ultra.cache.json",
+    "dev": "node ../scripts/build-components.js -w",
     "build": "npm run clean && node ../scripts/build-components.js"
   },
   "type": "module",
