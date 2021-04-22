@@ -24,7 +24,7 @@ class UserFactory extends Factory
      */
     public function definition()
     {
-        $username = $this->faker->userName;
+        $username = $this->faker->unique()->userName;
         return [
             'username' => $username,
             'unix_name' => WDStringUtils::toUnixName($username),
