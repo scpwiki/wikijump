@@ -134,8 +134,10 @@ impl<'t> ParagraphStack<'t> {
             "Converting paragraph parse stack into ParseResult",
         );
 
+        // Finish current paragraph, if any
         self.end_paragraph();
 
+        // Destruct stack
         let ParagraphStack {
             log: _,
             current: _,
@@ -143,6 +145,15 @@ impl<'t> ParagraphStack<'t> {
             exceptions,
         } = self;
 
-        ok!(todo!(); elements, exceptions)
+        // If this has any paragraphs in it, or other incompatible elements,
+        // it's not fit to be wrapped in <p>.
+        //
+        // Otherwise it's just a listing of internal elements.
+        // This is definitely not the common case here, this mostly will happen
+        // if the element list is empty.
+        let paragraph_safe = elements.iter().all(|element| element.paragraph_safe());
+
+        // Return finished element list
+        ok!(paragraph_safe; elements, exceptions)
     }
 }
