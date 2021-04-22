@@ -161,7 +161,12 @@ module.exports = {
   parserOptions: {
     sourceType: "module",
     tsconfigRootDir: __dirname,
-    project: ["./tsconfig.json", "./modules/*/tsconfig.json", "./web/*/tsconfig.json"],
+    project: [
+      "./tsconfig.json",
+      "./components/tsconfig.json",
+      "./modules/*/tsconfig.json",
+      "./web/*/tsconfig.json"
+    ],
     extraFileExtensions: [".svelte"]
   },
 

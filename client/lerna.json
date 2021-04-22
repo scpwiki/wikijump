@@ -1,4 +1,4 @@
 {
-  "packages": ["modules/*", "web/*"],
+  "packages": ["components", "modules/*", "web/*"],
   "version": "independent"
 }
