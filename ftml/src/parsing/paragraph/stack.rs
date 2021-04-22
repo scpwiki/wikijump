@@ -64,10 +64,20 @@ impl<'t> ParagraphStack<'t> {
             self.log,
             "Pushing element to stack";
             "element" => element.name(),
-            // TODO paragraph_safe
+            "paragraph-safe" => paragraph_safe,
         );
 
-        self.current.push(element);
+        if paragraph_safe {
+            // Add it to the current (or new) paragraph. Nothing special.
+
+            self.current.push(element);
+        } else {
+            // This has to be its own "finished" element, outside of any
+            // paragraph wrapper. So finish up what we have, then add this element.
+
+            self.end_paragraph();
+            self.finished.push(element);
+        }
     }
 
     #[inline]
