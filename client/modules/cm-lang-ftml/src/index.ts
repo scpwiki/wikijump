@@ -2,7 +2,8 @@ import { tags as t } from "@codemirror/highlight"
 import { foldNodeProp } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
 import { TarnationLanguage, lb, re, lkup } from "cm-tarnation"
-// import type { Grammar } from "../../cm-tarnation/src/grammar/definition"
+import { FTMLLinter } from "./lint"
+import type { Grammar } from "cm-tarnation/src/grammar/definition"
 
 // TODO: figure out indentation
 // TODO: figure out if there is any way to make the block grammar not awful
@@ -16,7 +17,7 @@ const TexLanguage = new TarnationLanguage({
   },
 
   // prettier-ignore
-  grammar: () => ({
+  grammar: (): Grammar => ({
     start: "root",
 
     variables: {
@@ -71,6 +72,8 @@ export const FTMLLanguage = new TarnationLanguage({
     // autocomplete: completeFTML
   },
 
+  supportExtensions: [FTMLLinter],
+
   configure: {
     props: [
       foldNodeProp.add({
@@ -98,7 +101,7 @@ export const FTMLLanguage = new TarnationLanguage({
    * for now, and can be used to develop extensions for FTML.
    */
   // prettier-ignore
-  grammar: () => ({
+  grammar: (): Grammar => ({
 
     ignoreCase: true,
 
