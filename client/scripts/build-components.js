@@ -26,7 +26,7 @@ async function buildComponents() {
   if (!DEV) console.log(fmt(`[components]`), "Building!")
   let start = performance.now()
 
-  const index = `./src/index.ts`
+  const index = `./src/index.js`
   const sveltes = await globby("./src/**/*.svelte")
 
   let tests
