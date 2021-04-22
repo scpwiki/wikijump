@@ -24,6 +24,9 @@
     "@codemirror/language": "^0.18.1",
     "@codemirror/language-data": "^0.18.0",
     "@codemirror/state": "^0.18.7",
-    "cm-tarnation": "^0.0.0"
+    "@codemirror/lint": "^0.18.2",
+    "@codemirror/view": "^0.18.8",
+    "cm-tarnation": "^0.0.0",
+    "ftml-wasm-worker": "^0.0.0"
   }
 }

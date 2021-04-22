@@ -10,7 +10,7 @@ const config = {
   publicDir: "../public",
   root: "./src",
   resolve: {
-    dedupe: ["@codemirror/state"]
+    dedupe: ["@codemirror/state", "@codemirror/view", "@codemirror/language"]
   },
   build: {
     outDir: "../dist",
