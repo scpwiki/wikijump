@@ -4,7 +4,7 @@
 
 * [Lerna](https://github.com/lerna/lerna)
 * [`uvu`](https://github.com/lukeed/uvu)
-* [Snowpack](https://www.snowpack.dev/)
+* [Vite](https://vitejs.dev/)
 
 ### Getting Started
 
@@ -38,6 +38,6 @@ Development mode will begin with a full build in order to ensure that dependency
 
 See [`useful-commands.md`](misc/docs/useful-commands.md).
 
-### Modules, Websites
+### Modules
 
-See [`modules.md`](misc/docs/modules.md), and [`websites.md`](misc/docs/websites.md).
+See [`modules.md`](misc/docs/modules.md).
