@@ -1,18 +1,19 @@
 <script lang="ts">
   import { onMount } from "svelte"
 
-  let thisElement
-  let tabs = []
-  let tabContents = []
+  let thisElement: HTMLElement
+  let tabs: string[] = []
+  let tabContents: string[] = []
   let selectedTabNumber = 0
 
   onMount(() => {
     // Find all the tab stubs
-    const contents = thisElement.parentElement.querySelectorAll(".wj-tabview-content")
-    for (const contentElement of contents) {
+    const contents = thisElement.parentElement?.querySelectorAll<HTMLElement>(".wj-tabview-content")
+    if (!contents) return
+    contents.forEach(contentElement => {
       // Move them from the DOM into an array
       contentElement.remove()
-      tabs = [...tabs, contentElement.dataset.title]
+      tabs = [...tabs, contentElement.dataset.title ?? ""]
       tabContents = [...tabContents, contentElement.innerHTML]
       // The contents of the tab is stored as innerHTML as a string, which is
       // not super-performant. Ideally, the elements would be stored as
@@ -20,10 +21,10 @@
       // their 'this' property. However, in Svelte, bind:this is one-way,
       // used only to get a reference to a given element, not to set that
       // reference.
-    }
+    })
   })
 
-  function selectTab(tabIndex) {
+  function selectTab(tabIndex: number) {
     console.log("Switching to tab", tabIndex)
     selectedTabNumber = tabIndex
   }
