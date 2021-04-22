@@ -23,6 +23,9 @@ const fmt = TESTS ? styl.orange : styl.blue
 buildComponents()
 
 async function buildComponents() {
+  if (!DEV) console.log(fmt(`[components]`), "Building!")
+  let start = performance.now()
+
   const index = `./src/index.ts`
   const sveltes = await globby("./src/**/*.svelte")
 
@@ -40,9 +43,6 @@ async function buildComponents() {
       return
     }
   }
-
-  if (!DEV) console.log(fmt(`[components]`), "Building!")
-  let start = performance.now()
 
   // see `build-modules.js` for a lot more explanation on this
   // most of this is taken from there
