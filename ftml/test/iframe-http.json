@@ -3,19 +3,10 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "iframe",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "iframe",
-                            "data": {
-                                "url": "http://scp-wiki.wikidot.com/scp-1000",
-                                "attributes": {}
-                            }
-                        }
-                    ]
+                    "url": "http://scp-wiki.wikidot.com/scp-1000",
+                    "attributes": {}
                 }
             }
         ],

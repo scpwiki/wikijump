@@ -3,20 +3,20 @@
     "tree": {
         "elements": [
             {
+                "element": "module",
+                "data": {
+                    "module": "backlinks",
+                    "data": {
+                        "page": "scp-001"
+                    }
+                }
+            },
+            {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "module",
-                            "data": {
-                                "module": "backlinks",
-                                "data": {
-                                    "page": "scp-001"
-                                }
-                            }
-                        },
                         {
                             "element": "text",
                             "data": "Apple"

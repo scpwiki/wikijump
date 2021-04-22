@@ -5,35 +5,26 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": "hidden",
                     "attributes": {},
                     "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "hidden",
+                                "type": "div",
                                 "attributes": {},
                                 "elements": [
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "div",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Hidden"
-                                                },
-                                                {
-                                                    "element": "text",
-                                                    "data": " "
-                                                },
-                                                {
-                                                    "element": "text",
-                                                    "data": "div"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Hidden"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "div"
                                     }
                                 ]
                             }

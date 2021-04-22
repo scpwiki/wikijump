@@ -3,37 +3,28 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "list",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "list",
-                            "data": {
-                                "type": "bullet",
-                                "items": [
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "A"
-                                        }
-                                    ],
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "B"
-                                        }
-                                    ],
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "C"
-                                        }
-                                    ]
-                                ]
+                    "type": "bullet",
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
                             }
-                        }
+                        ],
+                        [
+                            {
+                                "element": "text",
+                                "data": "B"
+                            }
+                        ],
+                        [
+                            {
+                                "element": "text",
+                                "data": "C"
+                            }
+                        ]
                     ]
                 }
             }

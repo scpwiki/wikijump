@@ -3,18 +3,9 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "html",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "html",
-                            "data": {
-                                "contents": "<p><div>My HTML <tt>code</tt> here!</div></p>"
-                            }
-                        }
-                    ]
+                    "contents": "<p><div>My HTML <tt>code</tt> here!</div></p>"
                 }
             }
         ],

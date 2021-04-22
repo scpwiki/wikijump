@@ -5,9 +5,22 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": "blockquote",
                     "attributes": {},
                     "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "paragraph",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        },
                         {
                             "element": "container",
                             "data": {
@@ -22,51 +35,20 @@
                                             "elements": [
                                                 {
                                                     "element": "text",
-                                                    "data": "Apple"
-                                                },
+                                                    "data": "Banana"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "blockquote",
+                                            "attributes": {},
+                                            "elements": [
                                                 {
-                                                    "element": "container",
-                                                    "data": {
-                                                        "type": "blockquote",
-                                                        "attributes": {},
-                                                        "elements": [
-                                                            {
-                                                                "element": "container",
-                                                                "data": {
-                                                                    "type": "paragraph",
-                                                                    "attributes": {},
-                                                                    "elements": [
-                                                                        {
-                                                                            "element": "text",
-                                                                            "data": "Banana"
-                                                                        },
-                                                                        {
-                                                                            "element": "container",
-                                                                            "data": {
-                                                                                "type": "blockquote",
-                                                                                "attributes": {},
-                                                                                "elements": [
-                                                                                    {
-                                                                                        "element": "container",
-                                                                                        "data": {
-                                                                                            "type": "paragraph",
-                                                                                            "attributes": {},
-                                                                                            "elements": [
-                                                                                                {
-                                                                                                    "element": "text",
-                                                                                                    "data": "Cherry"
-                                                                                                }
-                                                                                            ]
-                                                                                        }
-                                                                                    }
-                                                                                ]
-                                                                            }
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
+                                                    "element": "text",
+                                                    "data": "Cherry"
                                                 }
                                             ]
                                         }

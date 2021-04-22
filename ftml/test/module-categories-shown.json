@@ -3,20 +3,20 @@
     "tree": {
         "elements": [
             {
+                "element": "module",
+                "data": {
+                    "module": "categories",
+                    "data": {
+                        "include-hidden": true
+                    }
+                }
+            },
+            {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "module",
-                            "data": {
-                                "module": "categories",
-                                "data": {
-                                    "include-hidden": true
-                                }
-                            }
-                        },
                         {
                             "element": "text",
                             "data": "Apple"

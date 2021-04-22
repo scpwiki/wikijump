@@ -11,19 +11,25 @@
                         {
                             "element": "text",
                             "data": "A"
-                        },
-                        {
-                            "element": "container",
-                            "data": {
-                                "type": "div",
-                                "attributes": {},
-                                "elements": [
-                                ]
-                            }
-                        },
-                        {
-                            "element": "line-break"
-                        },
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "div",
+                    "attributes": {},
+                    "elements": [
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
                         {
                             "element": "text",
                             "data": "B"

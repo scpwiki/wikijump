@@ -3,22 +3,13 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "iframe",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "iframe",
-                            "data": {
-                                "url": "https://example.com",
-                                "attributes": {
-                                    "id": "my-iframe",
-                                    "class": "example"
-                                }
-                            }
-                        }
-                    ]
+                    "url": "https://example.com",
+                    "attributes": {
+                        "id": "my-iframe",
+                        "class": "example"
+                    }
                 }
             }
         ],

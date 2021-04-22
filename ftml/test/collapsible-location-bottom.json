@@ -3,33 +3,24 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "collapsible",
                 "data": {
-                    "type": "paragraph",
                     "attributes": {},
+                    "start-open": false,
+                    "show-text": null,
+                    "hide-text": null,
+                    "show-top": false,
+                    "show-bottom": true,
                     "elements": [
                         {
-                            "element": "collapsible",
+                            "element": "container",
                             "data": {
+                                "type": "paragraph",
                                 "attributes": {},
-                                "start-open": false,
-                                "show-text": null,
-                                "hide-text": null,
-                                "show-top": false,
-                                "show-bottom": true,
                                 "elements": [
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Cherry"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Cherry"
                                     }
                                 ]
                             }

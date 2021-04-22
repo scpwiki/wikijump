@@ -3,25 +3,16 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "list",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "list",
-                            "data": {
-                                "type": "numbered",
-                                "items": [
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "A"
-                                        }
-                                    ]
-                                ]
+                    "type": "numbered",
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
                             }
-                        }
+                        ]
                     ]
                 }
             }

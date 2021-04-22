@@ -5,9 +5,22 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": "div",
                     "attributes": {},
                     "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "paragraph",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "A"
+                                    }
+                                ]
+                            }
+                        },
                         {
                             "element": "container",
                             "data": {
@@ -22,7 +35,29 @@
                                             "elements": [
                                                 {
                                                     "element": "text",
-                                                    "data": "A"
+                                                    "data": "B"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "div",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": "paragraph",
+                                                        "attributes": {},
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "C"
+                                                            }
+                                                        ]
+                                                    }
                                                 },
                                                 {
                                                     "element": "container",
@@ -38,51 +73,7 @@
                                                                     "elements": [
                                                                         {
                                                                             "element": "text",
-                                                                            "data": "B"
-                                                                        },
-                                                                        {
-                                                                            "element": "container",
-                                                                            "data": {
-                                                                                "type": "div",
-                                                                                "attributes": {},
-                                                                                "elements": [
-                                                                                    {
-                                                                                        "element": "container",
-                                                                                        "data": {
-                                                                                            "type": "paragraph",
-                                                                                            "attributes": {},
-                                                                                            "elements": [
-                                                                                                {
-                                                                                                    "element": "text",
-                                                                                                    "data": "C"
-                                                                                                },
-                                                                                                {
-                                                                                                    "element": "container",
-                                                                                                    "data": {
-                                                                                                        "type": "div",
-                                                                                                        "attributes": {},
-                                                                                                        "elements": [
-                                                                                                            {
-                                                                                                                "element": "container",
-                                                                                                                "data": {
-                                                                                                                    "type": "paragraph",
-                                                                                                                    "attributes": {},
-                                                                                                                    "elements": [
-                                                                                                                        {
-                                                                                                                            "element": "text",
-                                                                                                                            "data": "D"
-                                                                                                                        }
-                                                                                                                    ]
-                                                                                                                }
-                                                                                                            }
-                                                                                                        ]
-                                                                                                    }
-                                                                                                }
-                                                                                            ]
-                                                                                        }
-                                                                                    }
-                                                                                ]
-                                                                            }
+                                                                            "data": "D"
                                                                         }
                                                                     ]
                                                                 }
