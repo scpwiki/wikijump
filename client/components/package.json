@@ -7,7 +7,8 @@
     "wikijump"
   ],
   "scripts": {
-    "clean": "trash dist .ultra.cache.json"
+    "clean": "trash dist .ultra.cache.json",
+    "build": "npm run clean && node ../scripts/build-components.js"
   },
   "type": "module",
   "main": "dist/index.js",
