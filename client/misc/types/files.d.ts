@@ -2,6 +2,8 @@
  *  @file Modules for correctly typing imported files.
  */
 
+import type { SvelteComponent } from "svelte"
+
 // -- SPECIAL
 
 declare module "*.css"
@@ -9,6 +11,10 @@ declare module "*.css"
 declare module "*.worker.ts" {
   const text: string
   export default text
+}
+
+declare module "*.svelte" {
+  export * from SvelteComponent
 }
 
 // -- URL REFERENCES
