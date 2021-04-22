@@ -8,7 +8,9 @@
 
   onMount(() => {
     // Find all the tab stubs
-    const contents = thisElement.parentElement?.querySelectorAll<HTMLElement>(".wj-tabview-content")
+    const contents = thisElement.parentElement?.querySelectorAll<HTMLElement>(
+      ".wj-tabview-content"
+    )
     if (!contents) return
     contents.forEach(contentElement => {
       // Move them from the DOM into an array
