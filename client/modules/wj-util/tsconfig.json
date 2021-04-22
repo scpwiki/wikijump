@@ -6,6 +6,6 @@
     "outDir": "./dist",
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "include": ["../../types", "./src"],
+  "include": ["../../misc/types", "./src"],
   "exclude": ["./node_modules"]
 }

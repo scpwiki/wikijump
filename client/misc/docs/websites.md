@@ -1,6 +1,6 @@
 # Monorepo: Websites
 
-This monorepo has special support for website packages, in the `web/` folder. These are quite a bit more complex than module packages. While technically there is no specific restriction on what can be used to build or develop a website package, it is recommended that you use [Snowpack](https://www.snowpack.dev/). This documentation will assume that you're using Snowpack and that you started with the `templates/website-template` configuration.
+This monorepo has special support for website packages, in the `web/` folder. These are quite a bit more complex than module packages. While technically there is no specific restriction on what can be used to build or develop a website package, it is recommended that you use [Snowpack](https://www.snowpack.dev/). This documentation will assume that you're using Snowpack and that you started with the `misc/templates/website-template` configuration.
 
 The file structure will look like this:
 ```
@@ -20,10 +20,10 @@ The `public` folder is where source files that do not need compiling or transfor
 Other than the inheritance of development dependencies and tooling configurations, websites act like fairly normal NPM packages. If you need to add a dependency to one, you can either navigate to the website package and do a normal `npm i <dep>` command, or manually add it to the `package.json`. After you do that, you need to make sure to run the `npm run bootstrap` command at the root. This ensures that all the fragile symlinks get restored by Lerna.
 
 
-There is a template for making websites, and it can be found in the `templates/website-template` folder.
+There is a template for making websites, and it can be found in the `misc/templates/website-template` folder.
 
 1. Create a folder in `web/` named the same as the website's package name.
-2. Copy the contents of `templates/website-template` into the new folder.
+2. Copy the contents of `misc/templates/website-template` into the new folder.
 3. Edit `package.json`, and change the `name` field to the name of this package.
 4. You're done!
 
