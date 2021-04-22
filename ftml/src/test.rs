@@ -37,7 +37,18 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 use void::ResultVoidExt;
 
+/// Temporary measure to not run certain tests.
+///
+/// This is meant to help with development, or in specific circumstances
+/// where it is known functionality is broken while alternatives are
+/// being developed.
 const SKIP_TESTS: &[&str] = &[];
+
+/// Temporary measure to only run certain tests.
+///
+/// This can assist with development, when you only care about specific
+/// tests to check if certain functionality is working as expected.
+const ONLY_TESTS: &[&str] = &[];
 
 lazy_static! {
     static ref TEST_DIRECTORY: PathBuf = {
