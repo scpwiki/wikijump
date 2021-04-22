@@ -5,46 +5,37 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
+                    "type": "blockquote",
                     "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "blockquote",
+                                "type": "paragraph",
+                                "attributes": {},
                                 "elements": [
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Apple"
-                                                },
-                                                {
-                                                    "element": "line-break"
-                                                },
-                                                {
-                                                    "element": "text",
-                                                    "data": "Banana"
-                                                },
-                                                {
-                                                    "element": "line-break"
-                                                },
-                                                {
-                                                    "element": "text",
-                                                    "data": "Cherry"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Apple"
+                                    },
+                                    {
+                                        "element": "line-break"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    },
+                                    {
+                                        "element": "line-break"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Cherry"
                                     }
-                                ],
-                                "attributes": {}
+                                ]
                             }
                         }
-                    ]
+                    ],
+                    "attributes": {}
                 }
             }
         ],
