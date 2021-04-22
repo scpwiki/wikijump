@@ -135,7 +135,8 @@ const confinementTheme = EditorView.theme(
       animation: "cm-tooltip-fadein 0.125s 1 0s backwards ease-out"
     },
 
-    ".cm-tooltip.autocomplete": {
+    ".cm-tooltip-autocomplete": {
+      animation: "none",
       "& > ul > li[aria-selected]": { backgroundColor: background }
     },
 

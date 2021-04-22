@@ -3,6 +3,7 @@ import { foldNodeProp } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
 import { TarnationLanguage, lb, re, lkup } from "cm-tarnation"
 import { FTMLLinter } from "./lint"
+import { completeFTML } from "./autocomplete"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
 
 // TODO: figure out indentation
@@ -68,8 +69,8 @@ export const FTMLLanguage = new TarnationLanguage({
   nestLanguages: [...languages, TexLanguage.description],
 
   languageData: {
-    commentTokens: { block: { open: "[!--", close: "--]" } }
-    // autocomplete: completeFTML
+    commentTokens: { block: { open: "[!--", close: "--]" } },
+    autocomplete: completeFTML
   },
 
   supportExtensions: [FTMLLinter],
@@ -308,7 +309,6 @@ export const FTMLLanguage = new TarnationLanguage({
           'EntityReference': t.character
         } },
 
-        // prettier-ignore
         { brackets: [
           { name: 'EscapedBlock', pair: ['@<', '>@'], tag: 't.processingInstruction' },
           { name: 'Escaped',      pair: '@@',         tag: 't.processingInstruction' },
