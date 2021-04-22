@@ -41,6 +41,21 @@ Route::get('welcome', function () {
 });
 
 /**
+ * Socialite route, null until I"m ready to begin work there.
+ */
+Route::prefix('social--providers')->group(function() {
+
+    Route::get('/callback', function ($provider) {
+        return app()
+            ->call(
+                'Wikijump\Http\Controllers\SocialiteController@callback',
+                ['provider' => $provider]);
+    })->name('socialite-callback');
+
+});
+
+
+/**
  * This fallback route will defer to the OzoneController, which will boot an
  * instance of the legacy WikiFlowController and let it handle the response.
  * Significantly, since the request is being run through Laravel and Ozone's

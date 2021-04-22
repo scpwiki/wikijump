@@ -60,4 +60,32 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
     }
+
+    /**
+     * Used to generate routes that aren't already cached.
+     *
+     * @return void
+     */
+    public function map() : void
+    {
+        $this->mapApiRoutes();
+        $this->mapWebRoutes();
+        $this->mapServiceRoutes();
+    }
+
+    /**
+     * Create needed routes for services, as config is processed before booting
+     * the app.
+     *
+     * @return void
+     */
+    protected function mapServiceRoutes() : void
+    {
+        /**
+         * Socialite routes.
+         */
+        config()->set('services.facebook.redirect', route('socialite-callback', ['provider' => 'facebook']));
+        config()->set('services.twitter.redirect', route('socialite-callback', ['provider' => 'twitter']));
+        config()->set('services.google.redirect', route('socialite-callback', ['provider' => 'google']));
+    }
 }
