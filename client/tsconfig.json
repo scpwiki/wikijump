@@ -33,7 +33,6 @@
   // Unfortunately, there isn't a decent way to do this automatically.
   // The performance benefits are worth it, regardless.
   "references": [
-    { "path": "./components" },
     { "path": "./modules/wj-util" },
     { "path": "./modules/sheaf-core" },
     { "path": "./modules/ftml-wasm" },

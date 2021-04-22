@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist",
+    "declarationDir": "./dist",
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "include": ["../misc/types", "./src"],
