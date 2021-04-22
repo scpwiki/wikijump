@@ -61,7 +61,12 @@ async function buildComponents() {
     plugins: [
       nodeExternalsPlugin(),
       compileWorkersPlugin,
-      sveltePlugin({ preprocess: sveltePreprocess() })
+      sveltePlugin({
+        compileOptions: {
+          css: true
+        },
+        preprocess: sveltePreprocess()
+      })
     ],
 
     // estrella settings
