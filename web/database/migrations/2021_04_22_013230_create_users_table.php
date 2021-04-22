@@ -17,7 +17,7 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('username')->unique();
             $table->string('unix_name')->unique();
-            $table->unsignedSmallInteger('username_changes');
+            $table->unsignedSmallInteger('username_changes')->default(0);
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
