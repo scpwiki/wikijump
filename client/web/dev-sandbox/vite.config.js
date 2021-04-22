@@ -4,6 +4,9 @@
 const config = {
   publicDir: "../public",
   root: "./src",
+  resolve: {
+    dedupe: ["@codemirror/state"]
+  },
   build: {
     outDir: "../dist",
     emptyOutDir: true,
