@@ -71,12 +71,14 @@ mod log;
 #[macro_use]
 mod macros;
 
-mod ffi;
 mod non_empty_vec;
 mod preproc;
 mod span_wrap;
 mod text;
 mod url;
+
+#[cfg(not(target_arch = "wasm32"))]
+pub mod ffi;
 
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
