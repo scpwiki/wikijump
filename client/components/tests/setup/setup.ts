@@ -5,11 +5,11 @@ const { window } = new JSDOM("")
 
 export function setup() {
   // @ts-ignore
-  global.window = window
-  global.document = window.document
-  global.navigator = window.navigator
-  global.getComputedStyle = window.getComputedStyle
-  global.requestAnimationFrame = null
+  globalThis.window = window
+  globalThis.document = window.document
+  globalThis.navigator = window.navigator
+  globalThis.getComputedStyle = window.getComputedStyle
+  globalThis.requestAnimationFrame = null
 }
 
 export function reset() {
