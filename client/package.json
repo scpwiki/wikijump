@@ -21,9 +21,7 @@
     "lint:fix:prettier": "prettier --write \"modules/\" \"web/\"",
     "lint:prettier": "prettier --check \"modules/\" \"web/\"",
     "rebuild": "run-s -s clean build",
-    "test": "npm run test:components && npm run test:modules",
-    "test:components": "node scripts/build-components.js -tests && uvu components tests[/\\\\\\\\]dist",
-    "test:modules": "node scripts/build-modules.js -tests && uvu modules tests[/\\\\\\\\]dist",
+    "test": "node scripts/build-modules.js -tests && node scripts/build-components.js -tests && uvu ./ tests[/\\\\\\\\]dist -i misc",
     "update": "npm i && run-s -s lerna:clean clean bootstrap build",
     "nabs": "nabs"
   },

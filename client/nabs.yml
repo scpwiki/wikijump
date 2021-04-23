@@ -32,12 +32,9 @@ dev: ultra dev:cmd
 # -- TESTING, LINTING
 
 test:
-  modules:
-    - node scripts/build-modules.js -tests
-    - uvu modules tests[/\\\\]dist
-  components:
-    - node scripts/build-components.js -tests
-    - uvu components tests[/\\\\]dist
+  - node scripts/build-modules.js -tests
+  - node scripts/build-components.js -tests
+  - uvu ./ tests[/\\\\]dist -i misc
 
 lint:
   eslint: eslint "./**/*.js" "./**/*.ts"
