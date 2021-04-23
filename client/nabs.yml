@@ -39,9 +39,10 @@ test:
 lint:
   eslint: eslint "./**/*.js" "./**/*.ts"
   prettier: prettier --check "modules/" "web/"
-  fix:
-    eslint: eslint "./**/*.js" "./**/*.ts" --fix
-    prettier: prettier --write "modules/" "web/"
+
+lint:fix:
+  eslint: eslint "./**/*.js" "./**/*.ts" --fix
+  prettier: prettier --write "modules/" "web/"
 
 # -- MISC.
 
