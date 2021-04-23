@@ -35,4 +35,3 @@ these components, and the Blade templates that construct the stub components
 must be sure to follow suit.
 
 - TODO: How are components that replace stub components designated?
-- TODO: [Blocked on some aspects of type generation by this issue.](https://github.com/sveltejs/svelte-preprocess/issues)
