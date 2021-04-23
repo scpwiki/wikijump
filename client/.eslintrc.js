@@ -187,7 +187,7 @@ module.exports = {
     },
     // TypeScript (Testing)
     {
-      files: ["**/tests/*.ts"],
+      files: ["**/tests/**/*.ts"],
       env: { browser: true, es2021: true },
       parserOptions: { createDefaultProgram: true },
       rules: { ...baseRules, ...typeRules }

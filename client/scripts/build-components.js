@@ -1,6 +1,7 @@
 const { build, cliopts, stdoutStyle: styl, fmtDuration } = require("estrella")
 const { readdirSync } = require("fs")
 const { performance } = require("perf_hooks")
+const path = require("path")
 const globby = require("globby")
 
 const { nodeExternalsPlugin } = require("esbuild-node-externals")
@@ -27,13 +28,16 @@ async function buildComponents() {
   if (!DEV) console.log(fmt(`[components]`), "Building!")
   let start = performance.now()
 
+  // tests are ran at root
+  const cwd = TESTS ? path.resolve("./components") : process.cwd()
+
   const index = `./src/index.js`
-  const sveltes = await globby("./src/**/*.svelte")
+  const sveltes = await globby("./src/**/*.svelte", { cwd })
 
   let tests
   if (TESTS) {
     try {
-      tests = filesOf(`./tests`).map(name => `./tests/${name}`)
+      tests = filesOf(`${cwd}/tests`).map(name => `./tests/${name}`)
       if (tests.length === 0) {
         console.log(fmt(`[components]`), "No tests, skipping.")
         return
@@ -50,6 +54,7 @@ async function buildComponents() {
 
   build({
     // esbuild settings
+    absWorkingDir: cwd,
     entryPoints: [index, ...sveltes],
     outdir: "dist",
     bundle: true,
@@ -59,39 +64,41 @@ async function buildComponents() {
     platform: "browser",
     sourcemap: true,
     sourcesContent: true,
-    plugins: [
-      nodeExternalsPlugin(),
-      compileWorkersPlugin,
-      sveltePlugin({
-        compileOptions: {
-          css: true
-        },
-        preprocess: [typescript(), sveltePreprocess({ typescript: false })]
-      })
-    ],
 
     // estrella settings
+    cwd,
     tslint: false,
     quiet: true,
 
     // test compiling
     // prettier-ignore
     ...(!TESTS ? {} : {
-      entry: [...tests],
+      entryPoints: [...tests],
       outdir: `./tests/dist`,
       bundle: true,
-      minify: false,
+      minify: true,
       splitting: false,
       format: "cjs",
       platform: "node",
       sourcemap: false,
       target: undefined,
-      outExtension: { ".js": ".cjs" },
-      define: {
-        "window": "globalThis"
-      }
+      outExtension: { ".js": ".cjs" }
     }),
 
+    // handle plugins
+    plugins: [
+      nodeExternalsPlugin(),
+      compileWorkersPlugin,
+      sveltePlugin({
+        compileOptions: {
+          css: true,
+          // get predictable DOM output in tests
+          cssHash: TESTS ? () => "svelte" : undefined
+        },
+        // render typescript using esbuild rather than tsc
+        preprocess: [typescript(), sveltePreprocess({ typescript: false })]
+      })
+    ],
     // -- LOGGING HANDLERS
 
     onStart(_, changed) {
