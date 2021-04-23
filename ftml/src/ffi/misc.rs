@@ -1,5 +1,5 @@
 /*
- * ffi/mod.rs
+ * ffi/misc.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,6 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod misc;
+//! Miscellaneous exports to C.
 
-pub use self::misc::ftml_version;
+use std::ffi::CString;
+use std::os::raw::c_char;
+
+lazy_static! {
+    static ref VERSION: CString = CString::new(crate::info::VERSION.as_bytes()).unwrap();
+}
+
+/// Returns the version string for this instance of ftml.
+///
+/// The string returned is statically allocated and must not be modified.
+#[no_mangle]
+pub extern "C" fn ftml_version() -> *const c_char {
+    VERSION.as_ptr()
+}
