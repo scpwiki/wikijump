@@ -144,12 +144,13 @@ function buildModule(name) {
       entry: [...tests],
       outdir: `${dir}/tests/dist`,
       bundle: true,
-      minify: false,
+      minify: true,
       splitting: false,
       format: "cjs",
       platform: "node",
       sourcemap: false,
       target: undefined,
+      plugins: [compileWorkersPlugin], // get rid of node externals plugin
       outExtension: { ".js": ".cjs" },
       define: {
         "window": "globalThis"
