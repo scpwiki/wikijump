@@ -34,11 +34,12 @@ test("can render stub", () => {
 test("can select tab", async () => {
   const { container } = render({ tag: Tabview, container: generateStub(2) })
 
-  const button = container.querySelector(".tab-selector")!
+  // second button
+  const button = container.querySelectorAll(".tab-selector")[1]!
   await fire(button, "click")
   assert.snapshot(
     container.innerHTML,
-    `<div class="tabview svelte"><div class="tabs"><div class="tab-selector svelte"> </div><div class="tab-selector svelte"> </div></div> <div class="tab-contents"><div class="tab-content selected svelte">test content </div><div class="tab-content  svelte">test content </div></div></div>`
+    `<div class="tabview svelte"><div class="tabs"><div class="tab-selector svelte"> </div><div class="tab-selector svelte"> </div></div> <div class="tab-contents"><div class="tab-content  svelte">test content </div><div class="tab-content selected svelte">test content </div></div></div>`
   )
 })
 
