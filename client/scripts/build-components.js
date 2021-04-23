@@ -7,6 +7,7 @@ const { nodeExternalsPlugin } = require("esbuild-node-externals")
 const compileWorkersPlugin = require("./esbuild-compile-worker")
 
 const sveltePreprocess = require("svelte-preprocess")
+const { typescript } = require("svelte-preprocess-esbuild")
 const sveltePlugin = require("esbuild-svelte")
 
 // -- CONSTANTS, COMMAND LINE ARGUMENTS
@@ -65,7 +66,7 @@ async function buildComponents() {
         compileOptions: {
           css: true
         },
-        preprocess: sveltePreprocess()
+        preprocess: [typescript(), sveltePreprocess({ typescript: false })]
       })
     ],
 

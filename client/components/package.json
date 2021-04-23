@@ -9,16 +9,18 @@
   "scripts": {
     "clean": "trash dist .ultra.cache.json",
     "dev": "node ../scripts/build-components.js -w",
-    "build:cmd": "tsc && node ../scripts/build-components.js",
+    "build:cmd": "svelte2dts --overwrite --runOnTs ./src && node ../scripts/build-components.js",
     "build": "ultra build:cmd"
   },
   "ultra": {
-    "concurrent": ["build:cmd"]
+    "concurrent": [
+      "build:cmd"
+    ]
   },
   "type": "module",
   "svelte": "src/index.js",
   "main": "dist/index.js",
-  "types": "dist/src/index.d.ts",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git"

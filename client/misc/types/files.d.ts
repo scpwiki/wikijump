@@ -6,8 +6,6 @@
 
 declare module "*.css"
 
-declare module "*.svelte"
-
 declare module "*.worker.ts" {
   const text: string
   export default text

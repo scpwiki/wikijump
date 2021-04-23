@@ -1,7 +1,11 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "allowJs": true,
+    "declaration": true,
+    "declarationMap": true,
     "baseUrl": "./",
+    "rootDir": "./src",
     "outDir": "./dist",
     "declarationDir": "./dist",
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
