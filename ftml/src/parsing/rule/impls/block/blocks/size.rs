@@ -57,7 +57,8 @@ fn parse_fn<'r, 't>(
         })?;
 
     // Get body content, without paragraphs
-    let (elements, exceptions) = parser.get_body_elements(&BLOCK_SIZE, false)?.into();
+    let (elements, exceptions, paragraph_safe) =
+        parser.get_body_elements(&BLOCK_SIZE, false)?.into();
 
     let attributes = {
         let mut map = AttributeMap::new();
@@ -68,5 +69,5 @@ fn parse_fn<'r, 't>(
     let element =
         Element::Container(Container::new(ContainerType::Size, elements, attributes));
 
-    ok!(element, exceptions)
+    ok!(paragraph_safe; element, exceptions)
 }

@@ -15,12 +15,12 @@
                         {
                             "element": "text",
                             "data": " "
-                        },
-                        {
-                            "element": "horizontal-rule"
                         }
                     ]
                 }
+            },
+            {
+                "element": "horizontal-rule"
             }
         ],
         "styles": [

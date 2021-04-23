@@ -57,7 +57,7 @@ fn parse_fn<'r, 't>(
     let arguments = parser.get_head_map(&BLOCK_STRIKETHROUGH, in_head)?;
 
     // Get body content, without paragraphs
-    let (elements, exceptions) = parser
+    let (elements, exceptions, paragraph_safe) = parser
         .get_body_elements(&BLOCK_STRIKETHROUGH, false)?
         .into();
 
@@ -67,5 +67,5 @@ fn parse_fn<'r, 't>(
         arguments.to_hash_map(),
     ));
 
-    ok!(element, exceptions)
+    ok!(paragraph_safe; element, exceptions)
 }

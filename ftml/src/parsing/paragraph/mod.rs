@@ -20,7 +20,8 @@
 
 mod stack;
 
-use self::stack::ParagraphStack;
+pub use self::stack::ParagraphStack;
+
 use super::consume::consume;
 use super::parser::Parser;
 use super::prelude::*;
@@ -44,6 +45,10 @@ type CloseConditionFn = fn(&mut Parser) -> Result<bool, ParseWarning>;
 /// Originally in `parse()`, but was moved out to allow paragraph
 /// extraction deeper in code, such as in the `try_paragraph`
 /// collection helper.
+///
+/// This does not necessarily produce a paragraph container.
+/// It may produce multiple or none. Instead the logic iterates
+/// and produces paragraphs or child elements as needed.
 pub fn gather_paragraphs<'r, 't, F>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
@@ -59,11 +64,11 @@ where
     // Update parser rule
     parser.set_rule(rule);
 
-    // Build paragraph stack
+    // Create paragraph stack
     let mut stack = ParagraphStack::new(log);
 
     loop {
-        let (elements, mut exceptions) = match parser.current().token {
+        let (elements, mut exceptions, paragraph_safe) = match parser.current().token {
             Token::InputEnd => {
                 if close_condition_fn.is_some() {
                     // There was a close condition, but it was not satisfied
@@ -124,7 +129,7 @@ where
         debug!(log, "Tokens consumed to produce element");
 
         // Add new elements to the list
-        push_elements(&mut stack, elements);
+        push_elements(&mut stack, elements, paragraph_safe);
 
         // Process exceptions
         stack.push_exceptions(&mut exceptions);
@@ -133,7 +138,11 @@ where
     stack.into_result()
 }
 
-fn push_elements<'t>(stack: &mut ParagraphStack<'t>, elements: Elements<'t>) {
+fn push_elements<'t>(
+    stack: &mut ParagraphStack<'t>,
+    elements: Elements<'t>,
+    paragraph_safe: bool,
+) {
     stack.reserve_elements(elements.len());
 
     for element in elements {
@@ -142,6 +151,6 @@ fn push_elements<'t>(stack: &mut ParagraphStack<'t>, elements: Elements<'t>) {
             continue;
         }
 
-        stack.push_element(element);
+        stack.push_element(element, paragraph_safe);
     }
 }

@@ -134,6 +134,33 @@ impl ContainerType {
             ContainerType::Header(level) => HtmlTag::new(level.html_tag()),
         }
     }
+
+    /// Determines if this container type is able to be embedded in a paragraph.
+    ///
+    /// See `Element::paragraph_safe()`, as the same caveats apply.
+    #[inline]
+    pub fn paragraph_safe(self) -> bool {
+        match self {
+            ContainerType::Bold => true,
+            ContainerType::Italics => true,
+            ContainerType::Underline => true,
+            ContainerType::Superscript => true,
+            ContainerType::Subscript => true,
+            ContainerType::Strikethrough => true,
+            ContainerType::Monospace => true,
+            ContainerType::Span => true,
+            ContainerType::Div => false,
+            ContainerType::Mark => true,
+            ContainerType::Blockquote => false,
+            ContainerType::Insertion => true,
+            ContainerType::Deletion => true,
+            ContainerType::Hidden => true,
+            ContainerType::Invisible => true,
+            ContainerType::Size => true,
+            ContainerType::Paragraph => false,
+            ContainerType::Header(_) => false,
+        }
+    }
 }
 
 #[cfg(feature = "has-log")]

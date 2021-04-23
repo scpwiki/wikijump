@@ -3,24 +3,15 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "html",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "html",
-                            "data": {
-                                "contents": "<p>Paragraph 1</p>"
-                            }
-                        },
-                        {
-                            "element": "html",
-                            "data": {
-                                "contents": "<p>Paragraph 2</p>"
-                            }
-                        }
-                    ]
+                    "contents": "<p>Paragraph 1</p>"
+                }
+            },
+            {
+                "element": "html",
+                "data": {
+                    "contents": "<p>Paragraph 2</p>"
                 }
             }
         ],

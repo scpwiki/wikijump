@@ -182,6 +182,32 @@ impl Element<'_> {
         }
     }
 
+    /// Determines if this element type is able to be embedded in a paragraph.
+    ///
+    /// It does *not* look into the interiors of the element, it only does a
+    /// surface-level check.
+    ///
+    /// This is to avoid making the call very expensive, but for a complete
+    /// understanding of the paragraph requirements, see the `Elements` return.
+    ///
+    /// See https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#phrasing_content
+    pub fn paragraph_safe(&self) -> bool {
+        match self {
+            Element::Container(container) => container.ctype().paragraph_safe(),
+            Element::Module(_) => false,
+            Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
+            Element::Anchor { .. } | Element::Link { .. } => true,
+            Element::List { .. } => false,
+            Element::RadioButton { .. } | Element::CheckBox { .. } => true,
+            Element::Collapsible { .. } => false,
+            Element::Color { .. } => true,
+            Element::Code { .. } => true,
+            Element::Html { .. } | Element::Iframe { .. } => false,
+            Element::LineBreak | Element::LineBreaks { .. } => true,
+            Element::HorizontalRule => false,
+        }
+    }
+
     /// Deep-clones the object, making it an owned version.
     ///
     /// Note that `.to_owned()` on `Cow` just copies the pointer,
@@ -279,6 +305,15 @@ impl slog::Value for Element<'_> {
     }
 }
 
+/// Wrapper for the result of producing element(s).
+///
+/// This has an enum instead of a simple `Vec<Element>`
+/// since the most common output is a single element,
+/// and it makes little sense to heap allocate for every
+/// single return if we can easily avoid it.
+///
+/// It also contains a field marking whether all of the
+/// contents are paragraph-safe or not, used by `ParagraphStack`.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum Elements<'t> {
     Multiple(Vec<Element<'t>>),
@@ -302,6 +337,16 @@ impl Elements<'_> {
             Elements::Multiple(elements) => elements.len(),
             Elements::Single(_) => 1,
             Elements::None => 0,
+        }
+    }
+
+    pub fn paragraph_safe(&self) -> bool {
+        match self {
+            Elements::Multiple(elements) => {
+                elements.iter().all(|element| element.paragraph_safe())
+            }
+            Elements::Single(element) => element.paragraph_safe(),
+            Elements::None => true,
         }
     }
 }
@@ -348,6 +393,7 @@ impl<'t> IntoIterator for Elements<'t> {
     }
 }
 
+/// Iterator implementation for `Elements`.
 #[derive(Debug)]
 pub enum ElementsIterator<'t> {
     Multiple(Vec<Element<'t>>),

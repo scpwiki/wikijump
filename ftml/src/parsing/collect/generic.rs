@@ -82,14 +82,14 @@ where
             "slice" => str!(slice),
             "span" => SpanWrap::from(span),
             "remaining-len" => parser.remaining().len(),
-            "close-conditions" => format!("{:?}", close_conditions),
-            "invalid-conditions" => format!("{:?}", invalid_conditions),
         ))
     };
 
     info!(log, "Trying to collect tokens for rule {:?}", rule);
 
     let mut exceptions = Vec::new();
+    let mut paragraph_safe = true;
+
     loop {
         // Check current token state to decide how to proceed.
         //
@@ -110,7 +110,7 @@ where
                 parser.step()?;
             }
 
-            return ok!(last, exceptions);
+            return ok!(paragraph_safe; last, exceptions);
         }
 
         // See if the container should be aborted
@@ -135,7 +135,7 @@ where
 
         // Process token(s).
         let old_remaining = parser.remaining();
-        process(log, parser)?.chain(&mut exceptions);
+        process(log, parser)?.chain(&mut exceptions, &mut paragraph_safe);
 
         // If the pointer hasn't moved, we step one token.
         if parser.same_pointer(old_remaining) {

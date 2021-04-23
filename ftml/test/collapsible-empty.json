@@ -3,24 +3,15 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "collapsible",
                 "data": {
-                    "type": "paragraph",
                     "attributes": {},
+                    "start-open": false,
+                    "show-text": null,
+                    "hide-text": null,
+                    "show-top": true,
+                    "show-bottom": false,
                     "elements": [
-                        {
-                            "element": "collapsible",
-                            "data": {
-                                "attributes": {},
-                                "start-open": false,
-                                "show-text": null,
-                                "hide-text": null,
-                                "show-top": true,
-                                "show-bottom": false,
-                                "elements": [
-                                ]
-                            }
-                        }
                     ]
                 }
             }

@@ -113,7 +113,6 @@ impl<'r, 't> Parser<'r, 't> {
         debug!(
             &self.log,
             "Evaluating parser condition";
-            "condition" => format!("{:?}", condition),
             "current-token" => self.current.token,
             "current-slice" => self.current.slice,
             "current-span" => SpanWrap::from(&self.current.span),

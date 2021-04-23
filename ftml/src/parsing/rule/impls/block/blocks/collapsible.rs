@@ -66,8 +66,9 @@ fn parse_fn<'r, 't>(
         None => (true, false),
     };
 
-    // Get body content, with paragraphs
-    let (elements, exceptions) =
+    // Get body content, with paragraphs.
+    // Discard paragraph_safe, since collapsibles never are.
+    let (elements, exceptions, _) =
         parser.get_body_elements(&BLOCK_COLLAPSIBLE, true)?.into();
 
     // Build element and return

@@ -3,19 +3,10 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "iframe",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "iframe",
-                            "data": {
-                                "url": "https://example.com",
-                                "attributes": {}
-                            }
-                        }
-                    ]
+                    "url": "https://example.com",
+                    "attributes": {}
                 }
             }
         ],

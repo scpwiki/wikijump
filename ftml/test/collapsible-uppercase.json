@@ -3,36 +3,27 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "collapsible",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
+                    "attributes": {
+                        "id": "my-id",
+                        "class": "my-class"
+                    },
+                    "start-open": false,
+                    "show-text": null,
+                    "hide-text": null,
+                    "show-top": true,
+                    "show-bottom": false,
                     "elements": [
                         {
-                            "element": "collapsible",
+                            "element": "container",
                             "data": {
-                                "attributes": {
-                                    "id": "my-id",
-                                    "class": "my-class"
-                                },
-                                "start-open": false,
-                                "show-text": null,
-                                "hide-text": null,
-                                "show-top": true,
-                                "show-bottom": false,
+                                "type": "paragraph",
+                                "attributes": {},
                                 "elements": [
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Cherry"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Cherry"
                                     }
                                 ]
                             }

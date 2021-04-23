@@ -5,27 +5,18 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": "div",
                     "attributes": {},
                     "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "div",
+                                "type": "paragraph",
                                 "attributes": {},
                                 "elements": [
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Apple"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Apple"
                                     }
                                 ]
                             }

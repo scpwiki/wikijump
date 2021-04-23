@@ -11,7 +11,21 @@
                         {
                             "element": "text",
                             "data": "["
-                        },
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
+                            }
+                        ],
                         {
                             "element": "list",
                             "data": {
@@ -20,7 +34,7 @@
                                     [
                                         {
                                             "element": "text",
-                                            "data": "A"
+                                            "data": "B"
                                         }
                                     ],
                                     {
@@ -31,29 +45,24 @@
                                                 [
                                                     {
                                                         "element": "text",
-                                                        "data": "B"
+                                                        "data": "C"
                                                     }
-                                                ],
-                                                {
-                                                    "element": "list",
-                                                    "data": {
-                                                        "type": "bullet",
-                                                        "items": [
-                                                            [
-                                                                {
-                                                                    "element": "text",
-                                                                    "data": "C"
-                                                                }
-                                                            ]
-                                                        ]
-                                                    }
-                                                }
+                                                ]
                                             ]
                                         }
                                     }
                                 ]
                             }
-                        },
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
                         {
                             "element": "text",
                             "data": "]"

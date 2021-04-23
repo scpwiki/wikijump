@@ -37,7 +37,18 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 use void::ResultVoidExt;
 
+/// Temporary measure to not run certain tests.
+///
+/// This is meant to help with development, or in specific circumstances
+/// where it is known functionality is broken while alternatives are
+/// being developed.
 const SKIP_TESTS: &[&str] = &[];
+
+/// Temporary measure to only run certain tests.
+///
+/// This can assist with development, when you only care about specific
+/// tests to check if certain functionality is working as expected.
+const ONLY_TESTS: &[&str] = &[];
 
 lazy_static! {
     static ref TEST_DIRECTORY: PathBuf = {
@@ -142,6 +153,11 @@ impl Test<'_> {
             return;
         }
 
+        if !ONLY_TESTS.is_empty() && !ONLY_TESTS.contains(&&*self.name) {
+            println!("+ {} [SKIPPED]", self.name);
+            return;
+        }
+
         println!("+ {}", self.name);
 
         let page_info = PageInfo {
@@ -236,6 +252,22 @@ fn ast_and_html() {
         println!("The following tests are being SKIPPED:");
 
         for test in SKIP_TESTS {
+            println!("- {}", test);
+        }
+
+        println!();
+    }
+
+    // Warn if we're only checking certain tests
+    if !ONLY_TESTS.is_empty() {
+        println!("=========");
+        println!(" WARNING ");
+        println!("=========");
+        println!();
+        println!("Only the following tests are being run.");
+        println!("All others are being SKIPPED!");
+
+        for test in ONLY_TESTS {
             println!("- {}", test);
         }
 

@@ -3,21 +3,21 @@
     "tree": {
         "elements": [
             {
+                "element": "module",
+                "data": {
+                    "module": "join",
+                    "data": {
+                        "button-text": "Join our site!! ;-)",
+                        "attributes": {}
+                    }
+                }
+            },
+            {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "module",
-                            "data": {
-                                "module": "join",
-                                "data": {
-                                    "button-text": "Join our site!! ;-)",
-                                    "attributes": {}
-                                }
-                            }
-                        },
                         {
                             "element": "text",
                             "data": "Apple"
