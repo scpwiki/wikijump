@@ -2,8 +2,6 @@ FROM php:7.4-fpm-alpine
 
 EXPOSE 9000
 
-# TODO: copy from bluesoul's container Dockerfile
-
 # Build variables
 ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
@@ -45,6 +43,11 @@ RUN apk add --update --no-cache \
 
     # Memcached PHP lib
     /src/setup-memcached.sh
+
+# Configure PHP-FFI
+RUN apk add --no-cache --virtual .persistent-deps libffi-dev \
+    && docker-php-ext-configure ffi --with-ffi \
+    && docker-php-ext-install ffi
 
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
