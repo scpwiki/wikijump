@@ -18,6 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Because this module is all about interfacing with C,
+// which is inherently unsafe, we must permit unsafe code.
+//
+// This is only used for FFI, no weird memory tricks are used.
+// So this is the "safe" form of unsafe within Rust.
+#![allow(unsafe_code)]
+
 mod misc;
 
 pub use self::misc::ftml_version;

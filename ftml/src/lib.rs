@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![deny(missing_debug_implementations)]
-#![forbid(unsafe_code)]
+#![deny(missing_debug_implementations, unsafe_code)]
 
 //! A library to parse Wikidot text and produce an abstract syntax tree (AST).
 //!

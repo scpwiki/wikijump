@@ -19,7 +19,7 @@ The goal is to utilize a lexer generator, and consume the tokens in a custom par
 In addition to providing the speed and safety benefits of Rust, this also improves maintainability, and allows exposing an AST to consumers
 for more advanced analysis and transformation.
 
-The lint `#![forbid(unsafe_code)]` is set, and therefore this crate has only safe code. However dependencies may have `unsafe` internals.
+The lint `#![deny(unsafe_code)]` is set, and therefore this crate has only safe code. However dependencies may have `unsafe` internals, and the `ffi` module contains unsafe code to interface with C ABIs.
 
 Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE.md).
 
