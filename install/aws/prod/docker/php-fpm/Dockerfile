@@ -45,6 +45,11 @@ RUN apk add --update --no-cache \
     tidyhtml-dev \
     gettext-dev
 
+# Configure PHP-FFI
+RUN apk add --no-cache --virtual .persistent-deps libffi-dev \
+    && docker-php-ext-configure ffi --with-ffi \
+    && docker-php-ext-install ffi
+
 # Memcached PHP lib
 RUN /src/setup-memcached.sh
 

@@ -43,6 +43,11 @@ RUN apk add --update --no-cache \
     # Memcached PHP lib
     /src/setup-memcached.sh
 
+# Configure PHP-FFI
+RUN apk add --no-cache --virtual .persistent-deps libffi-dev \
+    && docker-php-ext-configure ffi --with-ffi \
+    && docker-php-ext-install ffi
+
 # Install the Wikijump repository
 WORKDIR /var/www
 
