@@ -16,6 +16,7 @@
         "fakerphp/faker": "^1.14",
         "mockery/mockery": "^1.4",
         "nunomaduro/collision": "^5.4",
+        "phpunit/php-code-coverage": "^9.2",
         "phpunit/phpunit": "^9.5",
         "squizlabs/php_codesniffer": "^3.6"
     },
@@ -39,8 +40,9 @@
             "Ozone\\Framework\\Template\\": "lib/ozoneframework/php/Template"
         },
         "classmap": ["lib/"],
-        "files": ["lib/ozoneframework/php/core/functions.php",
-                    "php/setup.php"]
+        "files": [
+            "php/setup.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
