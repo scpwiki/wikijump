@@ -40,18 +40,6 @@ jobs:
       - run: cd ftml && wasm-pack build
       - run: cd ftml && wasm-pack build -- --features wasm-log
       - run: cd ftml && wasm-pack build -- --no-default-features
-  http_build:
-    name: HTTP
-    runs-on: ubuntu-latest
-    env:
-      RUSTFLAGS: -D warnings
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - run: cd ftml && cargo build -p ftml-http --all-features --release
-      - run: cd ftml && cargo test -p ftml-http -- --nocapture --test-threads 1
   clippy_lint:
     name: Lint
     runs-on: ubuntu-latest
