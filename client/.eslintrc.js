@@ -211,7 +211,7 @@ module.exports = {
       env: { browser: true, es2021: true },
       rules: { ...baseRules, ...typeRules },
       settings: {
-        "svelte3/typescript": require("typescript"),
+        "svelte3/typescript": () => require("typescript"),
         "svelte3/ignore-styles": () => true
       }
     }
