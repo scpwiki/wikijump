@@ -5,6 +5,23 @@ import type {
   CompletionContext,
   CompletionResult
 } from "@codemirror/autocomplete"
+import type { Block, Attribute } from "./data/types"
+import { blocks as blocks2, blockNames } from "./data/blocks"
+
+// TODO: info markdown (need a super fast markdown web worker)
+
+const blocksAutocompletion: Completion[] = Object.entries(blocks2).map(
+  ([alias, block]) => {
+    return {
+      label: alias,
+      info: block.info,
+      detail: block.name,
+      type: "type"
+    }
+  }
+)
+
+console.log(blocksAutocompletion)
 
 interface TagSpec {
   info?: string
@@ -182,6 +199,41 @@ const blockData: Record<BlockTypes, Record<string, TagSpec | null>> = {
   }
 }
 
+// module: {
+//   css: null,
+//   listPages: {
+//     attrs: {
+//       pagetype: ["normal", "hidden", "*"],
+//       category: [".", "*", "%%category%%"],
+//       tags: ["-", "=", "=="],
+//       parent: ["-", "=", "-=", "."],
+//       link_to: ["."],
+//       created_at: ["="],
+//       updated_at: null,
+//       created_by: ["=", "-="],
+//       rating: ["="],
+//       votes: ["="],
+//       offset: null,
+//       range: [".", "before", "after", "others"],
+//       name: ["="],
+//       fullname: null,
+//       order: null,
+//       limit: null,
+//       perPage: null,
+//       reverse: ["yes", "no"],
+//       separate: ["yes", "no"],
+//       wrapper: ["yes", "no"],
+//       header: null,
+//       footer: null,
+//       rss: null,
+//       rssDescription: null,
+//       rssHome: null,
+//       rssLimit: null,
+//       rssOnly: null
+//     }
+//   }
+// }
+
 const blocks: Record<string, TagSpec> = {}
 const blockAutocomplete: Completion[] = []
 const modules = blockData.module
@@ -226,7 +278,7 @@ export function completeFTML(context: CompletionContext): CompletionResult | nul
 
   // Tag names
   if (tree.name === "BlockNameUnknown" || tree.name === "BlockName") {
-    return { from: tree.from, to: pos, options: blockAutocomplete }
+    return { from: tree.from, to: pos, options: blocksAutocompletion }
   }
   // Module names
   else if (tree.name === "ModuleName") {

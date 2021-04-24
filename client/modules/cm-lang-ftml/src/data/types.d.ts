@@ -1,9 +1,10 @@
 export interface Block {
   name: string
   aliases: string[]
-  type: "none" | "name" | "map" | "namemap"
+  type: "none" | "value" | "map" | "value+map"
   attrs: Attribute[]
   body: boolean
+  globals?: boolean
   deprecated?: string
   info?: string
 }
