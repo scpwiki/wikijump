@@ -25,7 +25,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^0.18.4",
+    "@codemirror/autocomplete": "^0.18.5",
     "@codemirror/closebrackets": "^0.18.0",
     "@codemirror/commands": "^0.18.1",
     "@codemirror/comment": "^0.18.0",
@@ -44,7 +44,7 @@
     "@codemirror/search": "^0.18.2",
     "@codemirror/state": "^0.18.6",
     "@codemirror/text": "^0.18.0",
-    "@codemirror/view": "^0.18.8",
+    "@codemirror/view": "^0.18.9",
     "lezer": "^0.13.4",
     "lezer-tree": "^0.13.2"
   }
