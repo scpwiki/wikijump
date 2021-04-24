@@ -32,9 +32,7 @@
   }
 
   onMount(async () => {
-    await Editor.init(document.querySelector(".editor-container")!, doc, [
-      FTMLLanguage.load()
-    ])
+    await Editor.init(editorElement, doc, [FTMLLanguage.load()])
   })
 </script>
 

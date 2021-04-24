@@ -39,7 +39,8 @@
     "disableFilenameBasedTypeAcquisition": true,
     "exclude": [
       "agent-base", "https-proxy-agent", "socks-proxy-agent",
-      "dotenv", "source-map"
+      "dotenv", "source-map",
+      "fast-safe-stringify"
     ]
   },
 

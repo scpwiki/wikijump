@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "cm-lang-ftml": "^0.0.0",
+    "components": "^0.0.0",
     "ftml-wasm": "^0.0.0",
     "ftml-wasm-worker": "^0.0.0",
     "sheaf-core": "^0.0.0",
