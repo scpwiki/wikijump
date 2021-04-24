@@ -97,7 +97,6 @@ lazy_static! {
             "poster",
             "preload",
             "readonly",
-            "rel",
             "required",
             "reversed",
             "rows",
