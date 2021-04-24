@@ -1,5 +1,5 @@
 /*
- * ffi/misc.rs
+ * ffi/utils.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,30 +18,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Miscellaneous exports to C.
-
 use super::prelude::*;
+use crate::log::prelude::*;
 
-lazy_static! {
-    static ref VERSION: CString = CString::new(crate::info::VERSION.as_bytes()).unwrap();
+#[inline]
+pub unsafe fn cptr_to_string(input: *const c_char) -> String {
+    let ctext = CStr::from_ptr(input);
+    ctext.to_string_lossy().into_owned()
 }
 
-/// Returns the version string for this instance of ftml.
-///
-/// The string returned is statically allocated and must not be modified.
-#[no_mangle]
-pub extern "C" fn ftml_version() -> *const c_char {
-    VERSION.as_ptr()
+#[cfg(feature = "has-log")]
+pub fn get_logger() -> Logger {
+    use slog::Drain;
+    use std::io;
+    use std::sync::Mutex;
+
+    lazy_static! {
+        static ref LOGGER: Logger = {
+            let drain = slog_bunyan::with_name("ftml", io::stdout())
+                .set_newlines(true)
+                .set_pretty(false)
+                .set_flush(false)
+                .build();
+
+            Logger::root(Mutex::new(drain).fuse(), slog_o!())
+        };
+    }
+
+    Logger::clone(&*LOGGER)
 }
 
-/// Frees a string returned from ftml.
-///
-/// This must be used to avoid memory leaks, as the standard C library `free()`
-/// function cannot be used with a possibly-incompatible memory allocator.
-///
-/// This function must only be used on string buffers returned by
-/// ftml library functions.
-#[no_mangle]
-pub unsafe extern "C" fn ftml_free(ptr: *mut c_char) {
-    mem::drop(CString::from_raw(ptr));
+#[cfg(not(feature = "has-log"))]
+#[inline]
+pub fn get_logger() -> Logger {
+    Logger
 }
