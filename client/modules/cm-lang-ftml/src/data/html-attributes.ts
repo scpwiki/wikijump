@@ -7,7 +7,7 @@ export const htmlAttributes: Attribute[] = [
   { name: "alt" },
   {
     name: "autocapitalize",
-    values: ["off", "none", "on", "sentences", "words", "characters"]
+    enum: ["off", "none", "on", "sentences", "words", "characters"]
   },
   { name: "autoplay", boolean: true },
   // not accessible from HTML, apparently?
@@ -23,16 +23,16 @@ export const htmlAttributes: Attribute[] = [
   { name: "controls", boolean: true },
   { name: "coords" },
   { name: "datetime" },
-  { name: "decoding", values: ["true", "false"] },
+  { name: "decoding", enum: ["true", "false"] },
   { name: "default", boolean: true },
-  { name: "dir", values: ["ltr", "rtl"] },
+  { name: "dir", enum: ["ltr", "rtl"] },
   { name: "dirname" },
   { name: "disabled", boolean: true },
   // can be given without a value, like a boolean
   { name: "download" },
   // not a boolean, apparently
   // empty values aren't true either
-  { name: "draggable", values: ["true", "false"] },
+  { name: "draggable", enum: ["true", "false"] },
   { name: "for" },
   { name: "form" },
   { name: "headers" },
@@ -44,13 +44,13 @@ export const htmlAttributes: Attribute[] = [
   { name: "id" },
   {
     name: "inputmode",
-    values: ["none", "text", "decimal", "numeric", "tel", "search", "email", "url"]
+    enum: ["none", "text", "decimal", "numeric", "tel", "search", "email", "url"]
   },
   { name: "ismap", boolean: true },
   { name: "itemprop" },
   {
     name: "kind",
-    values: ["subtitles", "captions", "descriptions", "chapters", "metadata"]
+    enum: ["subtitles", "captions", "descriptions", "chapters", "metadata"]
   },
   { name: "label" },
   { name: "lang" },
@@ -69,17 +69,17 @@ export const htmlAttributes: Attribute[] = [
   { name: "placeholder" },
   { name: "poster" },
   // empty string is "auto"
-  { name: "preload", values: ["none", "metadata", "auto"] },
+  { name: "preload", enum: ["none", "metadata", "auto"] },
   { name: "readonly", boolean: true },
   { name: "required", boolean: true },
   { name: "reversed", boolean: true },
-  { name: "scope", values: ["row", "col", "rowgroup", "colgroup"] },
+  { name: "scope", enum: ["row", "col", "rowgroup", "colgroup"] },
   { name: "selected", boolean: true },
-  { name: "shape", values: ["rect", "circle", "poly", "default"] },
+  { name: "shape", enum: ["rect", "circle", "poly", "default"] },
   { name: "size" },
   { name: "sizes" },
   // not boolean, but "true"|"false" is _required_
-  { name: "spellcheck", values: ["true", "false"] },
+  { name: "spellcheck", enum: ["true", "false"] },
   { name: "src" },
   { name: "srclang" },
   { name: "srcset" },
@@ -87,15 +87,15 @@ export const htmlAttributes: Attribute[] = [
   { name: "step" },
   { name: "style" },
   { name: "tabindex" },
-  { name: "target", values: ["_self", "_blank", "_parent", "_top"] },
+  { name: "target", enum: ["_self", "_blank", "_parent", "_top"] },
   { name: "title" },
   // this is not a boolean, and it requires "yes"|"no". seriously.
-  { name: "translate", values: ["yes", "no"] },
+  { name: "translate", enum: ["yes", "no"] },
   // this is a union of all the possible values of "type"
   // this is really just a fallback
   {
     name: "type",
-    values: [
+    enum: [
       "submit",
       "reset",
       "button",
@@ -124,13 +124,13 @@ export const htmlAttributes: Attribute[] = [
   },
   { name: "usemap" },
   { name: "width" },
-  { name: "wrap", values: ["hard", "soft", "off"] },
+  { name: "wrap", enum: ["hard", "soft", "off"] },
   // DEPRECATED
   // probably more should go here - but it may depend on the block
   {
     name: "align",
     deprecated: true,
-    values: ["top", "middle", "bottom", "left", "right"]
+    enum: ["top", "middle", "bottom", "left", "right"]
   },
   { name: "background", deprecated: true },
   { name: "bgcolor", deprecated: true },

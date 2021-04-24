@@ -11,7 +11,7 @@ export interface Block {
 export interface Attribute {
   name: string
   boolean?: boolean
-  values?: string[]
+  enum?: string[]
   deprecated?: boolean
   info?: string
 }
