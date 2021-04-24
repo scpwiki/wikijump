@@ -1,5 +1,5 @@
 /*
- * ffi/render.rs
+ * ffi/text.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,4 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use super::prelude::*;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct ftml_text_output {
+    pub text: *mut c_char,
+}
+
+impl ftml_text_output {
+    pub fn write_into(&mut self, text: &str) {
+        self.text = string_to_cstr(text);
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn ftml_destroy_text_output(ptr: *mut ftml_text_output) {
+    let this = &mut *ptr;
+
+    drop_cstr(this.text);
+}

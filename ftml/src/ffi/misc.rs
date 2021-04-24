@@ -33,15 +33,3 @@ lazy_static! {
 pub extern "C" fn ftml_version() -> *const c_char {
     VERSION.as_ptr()
 }
-
-/// Frees a string returned from ftml.
-///
-/// This must be used to avoid memory leaks, as the standard C library `free()`
-/// function cannot be used with a possibly-incompatible memory allocator.
-///
-/// This function must only be used on string buffers returned by
-/// ftml library functions.
-#[no_mangle]
-pub unsafe extern "C" fn ftml_free(ptr: *mut c_char) {
-    mem::drop(CString::from_raw(ptr));
-}

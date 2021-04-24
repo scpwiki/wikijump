@@ -20,12 +20,9 @@
 
 use super::prelude::*;
 use crate::log::prelude::*;
+use std::borrow::Cow;
 
-#[inline]
-pub unsafe fn cptr_to_string(input: *const c_char) -> String {
-    let ctext = CStr::from_ptr(input);
-    ctext.to_string_lossy().into_owned()
-}
+// Logger instances
 
 #[cfg(feature = "has-log")]
 pub fn get_logger() -> Logger {
@@ -53,3 +50,56 @@ pub fn get_logger() -> Logger {
 pub fn get_logger() -> Logger {
     Logger
 }
+
+// C String manipulation
+
+#[inline]
+pub unsafe fn cstr_to_string(ptr: *const c_char) -> String {
+    let c_str = CStr::from_ptr(ptr);
+    c_str.to_string_lossy().into_owned()
+}
+
+#[inline]
+pub unsafe fn cstr_to_string_optional(ptr: *const c_char) -> Option<String> {
+    if ptr.is_null() {
+        None
+    } else {
+        Some(cstr_to_string(ptr))
+    }
+}
+
+#[inline]
+pub unsafe fn cstr_to_cow(ptr: *const c_char) -> Cow<'static, str> {
+    Cow::Owned(cstr_to_string(ptr))
+}
+
+#[inline]
+pub unsafe fn cstr_to_cow_optional(ptr: *const c_char) -> Option<Cow<'static, str>> {
+    cstr_to_string_optional(ptr).map(Cow::Owned)
+}
+
+#[inline]
+pub fn string_to_cstr<S: AsRef<str>>(string: S) -> *mut c_char {
+    CString::new(string.as_ref())
+        .expect("Rust string contains null bytes")
+        .into_raw()
+}
+
+#[inline]
+pub unsafe fn drop_cstr(ptr: *mut c_char) {
+    mem::drop(CString::from_raw(ptr));
+}
+
+// C vector manipulation
+
+// TODO
+
+/*
+#[inline]
+pub fn list_to_cptr<T>(vec: Vec<T>) ->
+
+#[inline]
+pub unsafe fn drop_cptr<T>(ptr: *mut T) {
+    mem::drop(ptr.into_vec())
+}
+*/

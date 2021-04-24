@@ -25,22 +25,19 @@
 // So this is the "safe" form of unsafe within Rust.
 #![allow(unsafe_code)]
 
+// This module uses C naming for its components, mostly snake_case.
+#![allow(non_camel_case_types)]
+
 mod prelude {
-    pub use super::utils::{cptr_to_string, get_logger};
+    pub use super::utils::*;
     pub use std::ffi::{CStr, CString};
-    pub use std::mem;
+    pub use std::{mem, ptr};
     pub use std::os::raw::c_char;
 }
 
+mod exports;
+mod html;
 mod misc;
-mod parsing;
-mod preproc;
-mod render;
-mod tokenizer;
+mod page_info;
+mod text;
 mod utils;
-
-pub use self::misc::{ftml_free, ftml_version};
-//pub use self::parsing::ftml_parse;
-pub use self::preproc::ftml_preprocess;
-//pub use self::render::ftml_render_html;
-//pub use self::tokenizer::ftml_tokenize;
