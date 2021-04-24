@@ -64,6 +64,7 @@ async function buildComponents() {
     platform: "browser",
     sourcemap: true,
     sourcesContent: true,
+    loader: { ".wasm": "file" },
 
     // estrella settings
     cwd,
@@ -87,7 +88,7 @@ async function buildComponents() {
 
     // handle plugins
     plugins: [
-      nodeExternalsPlugin(),
+      nodeExternalsPlugin({ packagePath: `${cwd}/package.json` }),
       compileWorkersPlugin,
       sveltePlugin({
         compileOptions: {
