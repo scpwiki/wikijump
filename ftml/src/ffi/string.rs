@@ -57,3 +57,9 @@ pub fn string_to_cstr<S: AsRef<str>>(string: S) -> *mut c_char {
 pub unsafe fn drop_cstr(ptr: *mut c_char) {
     mem::drop(CString::from_raw(ptr));
 }
+
+#[test]
+fn str() {
+    let cstr = string_to_cstr("test");
+    unsafe { drop_cstr(cstr); }
+}
