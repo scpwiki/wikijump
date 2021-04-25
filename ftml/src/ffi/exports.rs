@@ -48,8 +48,7 @@ fn render<R: Render>(
     crate::preprocess(log, &mut text);
     let tokens = crate::tokenize(log, &text);
     let (tree, _warnings) = crate::parse(log, &tokens).into();
-    let output = renderer.render(log, &page_info, &tree);
-    output
+    renderer.render(log, &page_info, &tree)
 }
 
 /// Runs the entire ftml rendering pipeline for HTML.

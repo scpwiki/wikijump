@@ -38,7 +38,7 @@ pub struct ftml_page_info {
 impl ftml_page_info {
     pub unsafe fn to_page_info<'a>(&self) -> PageInfo<'a> {
         let rust_tags = cptr_to_slice(self.tags_list, self.tags_len)
-            .into_iter()
+            .iter()
             .map(|ptr| cstr_to_cow(*ptr))
             .collect();
 
