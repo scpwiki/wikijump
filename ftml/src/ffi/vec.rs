@@ -20,12 +20,19 @@
 
 use super::prelude::*;
 
-/*
 #[inline]
-pub fn list_to_cptr<T>(vec: Vec<T>) ->
+pub fn vec_to_cptr<T>(vec: Vec<T>) -> (*mut T, usize) {
+    let mut slice = vec.into_boxed_slice(); // shrinks capacity to len
+    let ptr = slice.as_mut_ptr();
+    let len = slice.len();
+
+    // Don't deallocate at end of scope, this belongs to C now
+    mem::forget(slice);
+
+    (ptr, len)
+}
 
 #[inline]
-pub unsafe fn drop_cptr<T>(ptr: *mut T) {
-    mem::drop(ptr.into_vec())
+pub unsafe fn drop_cptr<T>(ptr: *mut T, len: usize) {
+    mem::drop(Vec::from_raw_parts(ptr, len, len))
 }
-*/
