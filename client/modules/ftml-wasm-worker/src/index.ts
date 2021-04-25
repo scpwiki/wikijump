@@ -68,7 +68,8 @@ class WorkerModule {
 
   private async terminate() {
     if (this.worker) await Thread.terminate(this.worker)
-    this.worker = undefined as any
+    // @ts-ignore
+    this.worker = undefined
   }
 
   private async restart() {

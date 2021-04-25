@@ -192,7 +192,8 @@ export class Grammar {
       if (tag) {
         this.props.push(
           styleTags({
-            [`${parent}${openType} ${parent}${closeType}`]: (tags as any)[tag.slice(2)]!
+            // @ts-ignore
+            [`${parent}${openType} ${parent}${closeType}`]: tags[tag.slice(2)]!
           })
         )
       }
@@ -203,7 +204,8 @@ export class Grammar {
 
   private addRule(def: DM.Rule) {
     const id = this.rules.size
-    this.rules.set(id, null as any) // takes the rule slot to avoid rules being overwritten
+    // takes the rule slot to avoid rules being overwritten
+    this.rules.set(id, null as any)
     const rule = new Rule(this, id, def)
     this.rules.set(id, rule)
     return rule
