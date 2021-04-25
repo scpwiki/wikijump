@@ -46,11 +46,6 @@ pub unsafe fn cstr_to_cow_optional(ptr: *const c_char) -> Option<Cow<'static, st
     cstr_to_string_optional(ptr).map(Cow::Owned)
 }
 
-#[inline]
-pub fn str_to_cstr<S: AsRef<str>>(string: S) -> *mut c_char {
-    string_to_cstr(str!(string.as_ref()))
-}
-
 pub fn string_to_cstr(string: String) -> *mut c_char {
     CString::new(string)
         .expect("Rust string contains null bytes")
