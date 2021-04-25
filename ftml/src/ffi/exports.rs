@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use super::html::{ftml_html_meta, ftml_html_output};
+use super::html::ftml_html_output;
 use super::page_info::ftml_page_info;
 use super::text::ftml_text_output;
 use crate::render::Render;
@@ -53,7 +53,7 @@ fn render<R: Render>(c_text: *const c_char, c_page_info: *const ftml_page_info, 
 pub extern "C" fn ftml_render_html(output: *mut ftml_html_output, input: *const c_char, page_info: *const ftml_page_info) {
     let rust_output = render(input, page_info, &HtmlRender);
     let c_output = unsafe { &mut *output };
-    c_output.write_from(&rust_output);
+    c_output.write_from(rust_output);
 }
 
 /// Runs the entire ftml rendering pipeline for text.
@@ -61,5 +61,5 @@ pub extern "C" fn ftml_render_html(output: *mut ftml_html_output, input: *const 
 pub extern "C" fn ftml_render_text(output: *mut ftml_text_output, input: *const c_char, page_info: *const ftml_page_info) {
     let rust_output = render(input, page_info, &TextRender);
     let c_output = unsafe { &mut *output };
-    c_output.write_from(&rust_output);
+    c_output.write_from(rust_output);
 }
