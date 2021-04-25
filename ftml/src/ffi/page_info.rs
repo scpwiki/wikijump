@@ -37,6 +37,11 @@ pub struct ftml_page_info {
 
 impl ftml_page_info {
     pub unsafe fn to_page_info<'a>(&self) -> PageInfo<'a> {
+        let c_tags = cptr_to_slice(self.tags_list, self.tags_len)
+            .into_iter()
+            .map(|ptr| cstr_to_cow(*ptr))
+            .collect();
+
         PageInfo {
             page: cstr_to_cow(self.page),
             category: cstr_to_cow_optional(self.category),
@@ -44,7 +49,7 @@ impl ftml_page_info {
             title: cstr_to_cow(self.title),
             alt_title: cstr_to_cow_optional(self.alt_title),
             rating: self.rating,
-            tags: todo!(), // TODO list stuff
+            tags: c_tags,
             locale: cstr_to_cow(self.locale),
         }
     }
