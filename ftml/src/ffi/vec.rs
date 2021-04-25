@@ -1,5 +1,5 @@
 /*
- * ffi/mod.rs
+ * ffi/vec.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,30 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Because this module is all about interfacing with C,
-// which is inherently unsafe, we must permit unsafe code.
-//
-// This is only used for FFI, no weird memory tricks are used.
-// So this is the "safe" form of unsafe within Rust.
-#![allow(unsafe_code)]
+use super::prelude::*;
 
-// This module uses C naming for its components, mostly snake_case.
-#![allow(non_camel_case_types)]
+/*
+#[inline]
+pub fn list_to_cptr<T>(vec: Vec<T>) ->
 
-mod prelude {
-    pub use super::log::get_logger;
-    pub use super::string::*;
-    pub use super::vec::*;
-    pub use std::ffi::{CStr, CString};
-    pub use std::{mem, ptr};
-    pub use std::os::raw::c_char;
+#[inline]
+pub unsafe fn drop_cptr<T>(ptr: *mut T) {
+    mem::drop(ptr.into_vec())
 }
-
-mod exports;
-mod html;
-mod log;
-mod misc;
-mod page_info;
-mod string;
-mod text;
-mod vec;
+*/
