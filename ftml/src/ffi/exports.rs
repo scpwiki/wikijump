@@ -18,15 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 use super::html::ftml_html_output;
 use super::page_info::ftml_page_info;
+use super::prelude::*;
 use super::text::ftml_text_output;
-use crate::render::Render;
-use crate::render::text::TextRender;
 use crate::render::html::HtmlRender;
+use crate::render::text::TextRender;
+use crate::render::Render;
 
-fn render<R: Render>(c_text: *const c_char, c_page_info: *const ftml_page_info, renderer: &R) -> R::Output {
+fn render<R: Render>(
+    c_text: *const c_char,
+    c_page_info: *const ftml_page_info,
+    renderer: &R,
+) -> R::Output {
     let log = &get_logger();
 
     // Convert data from C to Rust
@@ -50,7 +54,11 @@ fn render<R: Render>(c_text: *const c_char, c_page_info: *const ftml_page_info, 
 
 /// Runs the entire ftml rendering pipeline for HTML.
 #[no_mangle]
-pub extern "C" fn ftml_render_html(output: *mut ftml_html_output, input: *const c_char, page_info: *const ftml_page_info) {
+pub extern "C" fn ftml_render_html(
+    output: *mut ftml_html_output,
+    input: *const c_char,
+    page_info: *const ftml_page_info,
+) {
     let rust_output = render(input, page_info, &HtmlRender);
     let c_output = unsafe { &mut *output };
     c_output.write_from(rust_output);
@@ -58,7 +66,11 @@ pub extern "C" fn ftml_render_html(output: *mut ftml_html_output, input: *const 
 
 /// Runs the entire ftml rendering pipeline for text.
 #[no_mangle]
-pub extern "C" fn ftml_render_text(output: *mut ftml_text_output, input: *const c_char, page_info: *const ftml_page_info) {
+pub extern "C" fn ftml_render_text(
+    output: *mut ftml_text_output,
+    input: *const c_char,
+    page_info: *const ftml_page_info,
+) {
     let rust_output = render(input, page_info, &TextRender);
     let c_output = unsafe { &mut *output };
     c_output.write_from(rust_output);

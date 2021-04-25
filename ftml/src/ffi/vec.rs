@@ -46,5 +46,5 @@ pub unsafe fn drop_cptr<T>(ptr: *mut T, len: usize) {
 fn vec() {
     let v = vec![10, 20, 30];
     let (ptr, len) = vec_to_cptr(v);
-    unsafe { drop_cptr(ptr, len); }
+    unsafe { drop_cptr(ptr, len) };
 }

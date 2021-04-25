@@ -52,7 +52,11 @@ pub struct ftml_html_meta {
 
 impl From<HtmlMeta> for ftml_html_meta {
     fn from(meta: HtmlMeta) -> ftml_html_meta {
-        let HtmlMeta { tag_type, name, value } = meta;
+        let HtmlMeta {
+            tag_type,
+            name,
+            value,
+        } = meta;
 
         ftml_html_meta {
             tag_type: tag_type.into(),
@@ -76,11 +80,7 @@ impl ftml_html_output {
         self.html = string_to_cstr(output.html);
         self.style = string_to_cstr(output.style);
 
-        let c_meta_vec = output
-            .meta
-            .into_iter()
-            .map(ftml_html_meta::from)
-            .collect();
+        let c_meta_vec = output.meta.into_iter().map(ftml_html_meta::from).collect();
 
         let (meta_ptr, meta_len) = vec_to_cptr(c_meta_vec);
         self.meta_list = meta_ptr;
