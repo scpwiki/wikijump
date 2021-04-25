@@ -3,6 +3,8 @@ import { sleep } from "wj-util"
 import type * as FTML from "ftml-wasm"
 import type * as Binding from "ftml-wasm/vendor/ftml"
 
+export * from "./fragment"
+
 // imports the worker as a chunk of text
 import workerText from "./worker/ftml.worker?bundled-worker"
 
