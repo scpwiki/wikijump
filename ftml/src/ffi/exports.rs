@@ -52,6 +52,9 @@ fn render<R: Render>(
 }
 
 /// Runs the entire ftml rendering pipeline for HTML.
+///
+/// The first argument must be a pointer to space where
+/// the output can be written to. It does not need to be initialized.
 #[no_mangle]
 pub extern "C" fn ftml_render_html(
     output: *mut ftml_html_output,
@@ -64,6 +67,9 @@ pub extern "C" fn ftml_render_html(
 }
 
 /// Runs the entire ftml rendering pipeline for text.
+///
+/// The first argument must be a pointer to space where
+/// the output can be written to. It does not need to be initialized.
 #[no_mangle]
 pub extern "C" fn ftml_render_text(
     output: *mut ftml_text_output,
