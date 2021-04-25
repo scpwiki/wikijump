@@ -32,6 +32,7 @@ impl ftml_text_output {
     }
 }
 
+/// Destructs the given ftml_text_output structure, freeing all resources.
 #[no_mangle]
 pub unsafe extern "C" fn ftml_destroy_text_output(ptr: *mut ftml_text_output) {
     let this = &mut *ptr;

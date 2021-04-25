@@ -88,6 +88,7 @@ impl ftml_html_output {
     }
 }
 
+/// Destructs the given ftml_html_output structure, freeing all resources.
 #[no_mangle]
 pub unsafe extern "C" fn ftml_destroy_html_output(ptr: *mut ftml_html_output) {
     let this = &mut *ptr;
