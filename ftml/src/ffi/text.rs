@@ -27,7 +27,7 @@ pub struct ftml_text_output {
 }
 
 impl ftml_text_output {
-    pub fn write_into(&mut self, text: &str) {
+    pub fn write_from(&mut self, text: &str) {
         self.text = string_to_cstr(text);
     }
 }

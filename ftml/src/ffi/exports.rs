@@ -52,12 +52,14 @@ fn render<R: Render>(c_text: *const c_char, c_page_info: *const ftml_page_info, 
 #[no_mangle]
 pub extern "C" fn ftml_render_html(output: *mut ftml_html_output, input: *const c_char, page_info: *const ftml_page_info) {
     let rust_output = render(input, page_info, &HtmlRender);
-    todo!()
+    let c_output = unsafe { &mut *output };
+    c_output.write_from(&rust_output);
 }
 
 /// Runs the entire ftml rendering pipeline for text.
 #[no_mangle]
 pub extern "C" fn ftml_render_text(output: *mut ftml_text_output, input: *const c_char, page_info: *const ftml_page_info) {
     let rust_output = render(input, page_info, &TextRender);
-    todo!()
+    let c_output = unsafe { &mut *output };
+    c_output.write_from(&rust_output);
 }

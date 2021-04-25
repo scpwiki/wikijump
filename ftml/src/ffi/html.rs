@@ -70,7 +70,7 @@ pub struct ftml_html_output {
 }
 
 impl ftml_html_output {
-    pub fn write_into(&mut self, output: &HtmlOutput) {
+    pub fn write_from(&mut self, output: &HtmlOutput) {
         self.html = string_to_cstr(&output.html);
         self.style = string_to_cstr(&output.style);
 
