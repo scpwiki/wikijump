@@ -38,4 +38,6 @@ pub unsafe extern "C" fn ftml_destroy_text_output(ptr: *mut ftml_text_output) {
     let this = &mut *ptr;
 
     drop_cstr(this.text);
+
+    this.text = ptr::null_mut();
 }
