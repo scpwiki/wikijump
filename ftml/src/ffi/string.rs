@@ -59,6 +59,6 @@ pub unsafe fn drop_cstr(ptr: *mut c_char) {
 
 #[test]
 fn str() {
-    let cstr = string_to_cstr("test");
+    let cstr = string_to_cstr(str!("test"));
     unsafe { drop_cstr(cstr) };
 }
