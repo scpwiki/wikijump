@@ -101,7 +101,6 @@ lazy_static! {
             "reversed",
             "rows",
             "rowspan",
-            "sandbox",
             "scope",
             "selected",
             "shape",
