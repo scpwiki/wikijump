@@ -815,10 +815,8 @@ export class Matched {
   }
 
   set offset(offset: number) {
-    let pos = offset
     for (const match of this.captures) {
-      match.offset = pos
-      pos += match.length
+      match.offset = match.from - this.from + offset
     }
     this.from = offset
     this.to = this.total.length + offset
