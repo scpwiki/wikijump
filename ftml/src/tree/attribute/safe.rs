@@ -125,6 +125,47 @@ lazy_static! {
             "wrap",
         ]
     };
+
+    /// List of all HTML5 attributes with special boolean behavior.
+    ///
+    /// That is, you set them to "true" by having the attribute present without
+    /// a value, and "false" by excluding them.
+    ///
+    /// A notable example is "checked" for `<input>`:
+    /// * `<input type="checkbox" checked>` means the checkbox starts checked
+    /// * `<input type="checkbox">` means it starts unchecked
+    ///
+    /// This list includes all such attributes, even if they are not part of
+    /// `SAFE_ATTRIBUTES`.
+    pub static ref BOOLEAN_ATTRIBUTES: HashSet<UniCase<&'static str>> = {
+        hashset_unicase![
+            "allowfullscreen",
+            "allowpaymentrequest",
+            "async",
+            "autofocus",
+            "autoplay",
+            "checked",
+            "controls",
+            "default",
+            "disabled",
+            "formnovalidate",
+            "hidden",
+            "ismap",
+            "itemscope",
+            "loop",
+            "multiple",
+            "muted",
+            "nomodule",
+            "novalidate",
+            "open",
+            "playsinline",
+            "readonly",
+            "required",
+            "reversed",
+            "selected",
+            "truespeed",
+        ]
+    };
 }
 
 pub const SAFE_ATTRIBUTE_PREFIXES: [&str; 1] = ["data-"];
