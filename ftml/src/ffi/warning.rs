@@ -19,7 +19,13 @@
  */
 
 use super::prelude::*;
+use crate::parsing::ParseWarning;
+use std::borrow::Cow;
 
+/// Representation of an ftml parsing warning in C.
+///
+/// All of the strings here are statically allocated.
+/// They are reused and must not be modified or freed.
 #[repr(C)]
 #[derive(Debug)]
 pub struct ftml_warning {
@@ -28,4 +34,21 @@ pub struct ftml_warning {
     pub span_start: usize,
     pub span_end: usize,
     pub kind: *const c_char,
+}
+
+impl From<&'_ ParseWarning> for ftml_warning {
+    fn from(warning: &ParseWarning) -> ftml_warning {
+        let rule_cstr = match warning.rule_raw() {
+            Cow::Borrowed(s) => get_static_cstr(s),
+            Cow::Owned(_) => panic!("Rule string not static, was serialized"),
+        };
+
+        ftml_warning {
+            token: get_static_cstr(warning.token().name()),
+            rule: rule_cstr,
+            span_start: warning.span().start,
+            span_end: warning.span().end,
+            kind: get_static_cstr(warning.kind().name()),
+        }
+    }
 }

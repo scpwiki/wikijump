@@ -89,6 +89,11 @@ impl ParseWarning {
     pub fn kind(&self) -> ParseWarningKind {
         self.kind
     }
+
+    #[inline]
+    pub(crate) fn rule_raw(&self) -> &Cow<'static, str> {
+        &self.rule
+    }
 }
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
