@@ -38,3 +38,9 @@ body = "elements"
 #
 # type: bool, optional
 attributes = true
+
+# Each argument that this module accepts gets its own sub-key.
+# Case-insensitive.
+[module-name.argument-name]
+
+# Schema for arguments is the same as for blocks. See blocks.schema.toml
