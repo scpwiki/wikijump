@@ -228,9 +228,8 @@ where
     {
         trace!(&self.log(), "Running generic in block body parser");
 
-        debug_assert_eq!(
-            block_rule.accepts_names.is_empty(),
-            false,
+        debug_assert!(
+            !block_rule.accepts_names.is_empty(),
             "List of valid end block names is empty, no success is possible",
         );
 

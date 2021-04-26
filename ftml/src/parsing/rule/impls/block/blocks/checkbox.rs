@@ -45,7 +45,7 @@ fn parse_fn<'r, 't>(
         "special" => special,
     );
 
-    assert_eq!(modifier, false, "Checkbox doesn't allow modifier variant");
+    assert!(!modifier, "Checkbox doesn't allow modifier variant");
     assert_block_name(&BLOCK_CHECKBOX, name);
 
     let arguments = parser.get_head_map(&BLOCK_CHECKBOX, in_head)?;

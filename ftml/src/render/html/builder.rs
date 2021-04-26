@@ -217,7 +217,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             self.in_tag = false;
         }
 
-        assert_eq!(self.in_contents, false, "Already in tag contents");
+        assert!(!self.in_contents, "Already in tag contents");
         self.in_contents = true;
     }
 

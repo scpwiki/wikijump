@@ -40,8 +40,8 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing newlines block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "Lines doesn't allow special variant");
-    assert_eq!(modifier, false, "Lines doesn't allow modifier variant");
+    assert!(!special, "Lines doesn't allow special variant");
+    assert!(!modifier, "Lines doesn't allow modifier variant");
     assert_block_name(&BLOCK_LINES, name);
 
     let count = parser.get_head_value(&BLOCK_LINES, in_head, parse_count)?;

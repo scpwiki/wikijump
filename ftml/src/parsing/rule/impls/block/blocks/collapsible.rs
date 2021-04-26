@@ -44,11 +44,8 @@ fn parse_fn<'r, 't>(
         "in-head" => in_head,
     );
 
-    assert_eq!(special, false, "Collapsible doesn't allow special variant");
-    assert_eq!(
-        modifier, false,
-        "Collapsible doesn't allow modifier variant",
-    );
+    assert!(!special, "Collapsible doesn't allow special variant");
+    assert!(!modifier, "Collapsible doesn't allow modifier variant");
     assert_block_name(&BLOCK_COLLAPSIBLE, name);
 
     let mut arguments = parser.get_head_map(&BLOCK_COLLAPSIBLE, in_head)?;

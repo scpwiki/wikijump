@@ -44,8 +44,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Italics doesn't allow special variant");
-    assert_eq!(modifier, false, "Italics doesn't allow modifier variant");
+    assert!(!special, "Italics doesn't allow special variant");
+    assert!(!modifier, "Italics doesn't allow modifier variant");
     assert_block_name(&BLOCK_ITALICS, name);
 
     let arguments = parser.get_head_map(&BLOCK_ITALICS, in_head)?;

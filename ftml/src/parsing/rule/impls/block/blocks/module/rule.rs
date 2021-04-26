@@ -40,8 +40,8 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing module block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "Module doesn't allow special variant");
-    assert_eq!(modifier, false, "Module doesn't allow modifier variant");
+    assert!(!special, "Module doesn't allow special variant");
+    assert!(!modifier, "Module doesn't allow modifier variant");
     assert_block_name(&BLOCK_MODULE, name);
 
     // Get module name and arguments

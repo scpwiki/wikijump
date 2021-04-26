@@ -39,8 +39,8 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing blockquote block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "Blockquote doesn't allow special variant");
-    assert_eq!(modifier, false, "Blockquote doesn't allow modifier variant");
+    assert!(!special, "Blockquote doesn't allow special variant");
+    assert!(!modifier, "Blockquote doesn't allow modifier variant");
     assert_block_name(&BLOCK_BLOCKQUOTE, name);
 
     let arguments = parser.get_head_map(&BLOCK_BLOCKQUOTE, in_head)?;

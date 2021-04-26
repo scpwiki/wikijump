@@ -77,9 +77,8 @@ fn build_block_rule_map(block_rules: &'static [BlockRule]) -> BlockRuleMap {
             "Block name does not start with 'block-'.",
         );
 
-        assert_eq!(
-            block_rule.accepts_names.is_empty(),
-            false,
+        assert!(
+            !block_rule.accepts_names.is_empty(),
             "Rule has no accepted names",
         );
 
