@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use super::warning::ftml_warning;
+use crate::parsing::ParseWarning;
 use crate::render::html::{HtmlMeta, HtmlMetaType, HtmlOutput};
 
 #[repr(C)]
@@ -73,18 +75,24 @@ pub struct ftml_html_output {
     pub style: *mut c_char,
     pub meta_list: *mut ftml_html_meta,
     pub meta_len: usize,
+    pub warning_list: *mut ftml_warning,
+    pub warning_len: usize,
 }
 
 impl ftml_html_output {
-    pub fn write_from(&mut self, output: HtmlOutput) {
+    pub fn write_from(&mut self, output: HtmlOutput, warnings: &[ParseWarning]) {
         self.html = string_to_cstr(output.html);
         self.style = string_to_cstr(output.style);
 
-        let c_meta_vec = output.meta.into_iter().map(ftml_html_meta::from).collect();
-
-        let (meta_ptr, meta_len) = vec_to_cptr(c_meta_vec);
+        let c_meta = output.meta.into_iter().map(ftml_html_meta::from).collect();
+        let (meta_ptr, meta_len) = vec_to_cptr(c_meta);
         self.meta_list = meta_ptr;
         self.meta_len = meta_len;
+
+        let c_warnings = warnings.into_iter().map(ftml_warning::from).collect();
+        let (warning_ptr, warning_len) = vec_to_cptr(c_warnings);
+        self.warning_list = warning_ptr;
+        self.warning_len = warning_len;
     }
 }
 

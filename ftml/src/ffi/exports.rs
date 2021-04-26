@@ -22,6 +22,7 @@ use super::html::ftml_html_output;
 use super::page_info::ftml_page_info;
 use super::prelude::*;
 use super::text::ftml_text_output;
+use crate::parsing::ParseWarning;
 use crate::render::html::HtmlRender;
 use crate::render::text::TextRender;
 use crate::render::Render;
@@ -30,7 +31,7 @@ fn render<R: Render>(
     c_text: *const c_char,
     c_page_info: *const ftml_page_info,
     renderer: &R,
-) -> R::Output {
+) -> (R::Output, Vec<ParseWarning>) {
     let log = &get_logger();
 
     // Convert data from C to Rust
@@ -47,8 +48,9 @@ fn render<R: Render>(
 
     crate::preprocess(log, &mut text);
     let tokens = crate::tokenize(log, &text);
-    let (tree, _warnings) = crate::parse(log, &tokens).into();
-    renderer.render(log, &page_info, &tree)
+    let (tree, warnings) = crate::parse(log, &tokens).into();
+    let output = renderer.render(log, &page_info, &tree);
+    (output, warnings)
 }
 
 /// Runs the entire ftml rendering pipeline for HTML.
@@ -61,9 +63,9 @@ pub extern "C" fn ftml_render_html(
     input: *const c_char,
     page_info: *const ftml_page_info,
 ) {
-    let rust_output = render(input, page_info, &HtmlRender);
+    let (rust_output, rust_warnings) = render(input, page_info, &HtmlRender);
     let c_output = unsafe { &mut *output };
-    c_output.write_from(rust_output);
+    c_output.write_from(rust_output, &rust_warnings);
 }
 
 /// Runs the entire ftml rendering pipeline for text.
@@ -76,7 +78,7 @@ pub extern "C" fn ftml_render_text(
     input: *const c_char,
     page_info: *const ftml_page_info,
 ) {
-    let rust_output = render(input, page_info, &TextRender);
+    let (rust_output, rust_warnings) = render(input, page_info, &TextRender);
     let c_output = unsafe { &mut *output };
-    c_output.write_from(rust_output);
+    c_output.write_from(rust_output, &rust_warnings);
 }

@@ -19,16 +19,25 @@
  */
 
 use super::prelude::*;
+use super::warning::ftml_warning;
+use crate::parsing::ParseWarning;
 
 #[repr(C)]
 #[derive(Debug)]
 pub struct ftml_text_output {
     pub text: *mut c_char,
+    pub warning_list: *mut ftml_warning,
+    pub warning_len: usize,
 }
 
 impl ftml_text_output {
-    pub fn write_from(&mut self, text: String) {
+    pub fn write_from(&mut self, text: String, warnings: &[ParseWarning]) {
         self.text = string_to_cstr(text);
+
+        let c_warnings = warnings.into_iter().map(ftml_warning::from).collect();
+        let (warning_ptr, warning_len) = vec_to_cptr(c_warnings);
+        self.warning_list = warning_ptr;
+        self.warning_len = warning_len;
     }
 }
 
