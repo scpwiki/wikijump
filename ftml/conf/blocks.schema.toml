@@ -85,7 +85,9 @@ special = ""
 
 # Each argument that this block accepts gets its own sub-key.
 # Case-insensitive.
-[block-name.argument-name]
+#
+# For instance, "collapsible.arguments.hideLocation".
+[block-name.arguments.argument-name]
 
 # The high-level type of this argument.
 # If it ends in "[]", then it is a list of that kind.

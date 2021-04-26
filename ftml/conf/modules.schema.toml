@@ -41,6 +41,8 @@ attributes = true
 
 # Each argument that this module accepts gets its own sub-key.
 # Case-insensitive.
-[module-name.argument-name]
+#
+# For instance, "join.arguments.button"
+[module-name.arguments.argument-name]
 
 # Schema for arguments is the same as for blocks. See blocks.schema.toml
