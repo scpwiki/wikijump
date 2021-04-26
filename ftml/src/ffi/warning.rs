@@ -1,5 +1,5 @@
 /*
- * ffi/mod.rs
+ * ffi/warning.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,32 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Because this module is all about interfacing with C,
-// which is inherently unsafe, we must permit unsafe code.
-//
-// This is only used for FFI, no weird memory tricks are used.
-// So this is the "safe" form of unsafe within Rust.
-#![allow(unsafe_code)]
-// This module uses C naming for its components, mostly snake_case.
-#![allow(non_camel_case_types)]
+use super::prelude::*;
 
-mod prelude {
-    pub use super::log::get_logger;
-    pub use super::pool::get_static_cstr;
-    pub use super::string::*;
-    pub use super::vec::*;
-    pub use std::ffi::{CStr, CString};
-    pub use std::os::raw::c_char;
-    pub use std::{mem, ptr};
+#[repr(C)]
+#[derive(Debug)]
+pub struct ftml_warning {
+    pub token: *const c_char,
+    pub rule: *const c_char,
+    pub span_start: usize,
+    pub span_end: usize,
+    pub kind: *const c_char,
 }
-
-mod exports;
-mod html;
-mod log;
-mod misc;
-mod page_info;
-mod pool;
-mod string;
-mod text;
-mod vec;
-mod warning;
