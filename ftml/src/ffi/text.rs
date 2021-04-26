@@ -34,7 +34,7 @@ impl ftml_text_output {
     pub fn write_from(&mut self, text: String, warnings: &[ParseWarning]) {
         self.text = string_to_cstr(text);
 
-        let c_warnings = warnings.into_iter().map(ftml_warning::from).collect();
+        let c_warnings = warnings.iter().map(ftml_warning::from).collect();
         let (warning_ptr, warning_len) = vec_to_cptr(c_warnings);
         self.warning_list = warning_ptr;
         self.warning_len = warning_len;
