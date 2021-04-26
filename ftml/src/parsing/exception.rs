@@ -91,6 +91,7 @@ impl ParseWarning {
     }
 
     #[inline]
+    #[cfg(feature = "ffi")]
     pub(crate) fn rule_raw(&self) -> &Cow<'static, str> {
         &self.rule
     }

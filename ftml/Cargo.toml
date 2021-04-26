@@ -17,9 +17,12 @@ name = "ftml"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default  = ["has-log"]
+default  = ["ffi", "has-log"]
+# If removed, then FFI integrations are not included in the crate.
+# This feature does not build even if included if the target is "wasm32".
+ffi      = ["parking_lot", "slog-bunyan"]
 # If removed, then logging is cut out entirely -- replaces slog macros with no-ops.
-has-log  = ["slog", "slog-bunyan"]
+has-log  = ["slog"]
 # Enables console.log() logging. Spams your browser, caveat emptor!
 wasm-log = []
 
@@ -29,7 +32,7 @@ entities = "1"
 enum-map = "1"
 lazy_static = "1"
 maplit = "1"
-parking_lot = "0.11"
+parking_lot = { version = "0.11", optional = true }
 pest = "2"
 pest_derive = "2"
 ref-map = "0.1"

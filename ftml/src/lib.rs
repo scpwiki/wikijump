@@ -77,6 +77,7 @@ mod span_wrap;
 mod text;
 mod url;
 
+#[cfg(feature = "ffi")]
 #[cfg(not(target_arch = "wasm32"))]
 pub mod ffi;
 
