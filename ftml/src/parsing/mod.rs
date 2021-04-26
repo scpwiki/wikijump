@@ -56,7 +56,7 @@ use crate::tokenizer::Tokenization;
 use crate::tree::SyntaxTree;
 use std::borrow::Cow;
 
-pub use self::boolean::parse_boolean;
+pub use self::boolean::{parse_boolean, NonBooleanValue};
 pub use self::exception::{ParseException, ParseWarning, ParseWarningKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};
