@@ -1,6 +1,6 @@
 # Schema for blocks.toml
 #
-# This describes what properties bloks can have, as mentioned in docs/Blocks.md
+# This describes what properties blocks can have, as mentioned in docs/Blocks.md
 
 [block-name]
 
