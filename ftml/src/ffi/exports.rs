@@ -44,7 +44,6 @@ fn render<R: Render>(
     };
 
     // TODO includer
-    // TODO add warnings to output
 
     crate::preprocess(log, &mut text);
     let tokens = crate::tokenize(log, &text);
