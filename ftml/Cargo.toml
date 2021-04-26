@@ -14,7 +14,7 @@ edition = "2018" # this refers to the Cargo.toml version
 
 [lib]
 name = "ftml"
-crate-type = ["lib", "dylib, "cdylib"]
+crate-type = ["lib", "dylib", "cdylib"]
 
 [features]
 default  = ["ffi", "log"]
