@@ -298,3 +298,25 @@ export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
     }
   }
 }
+
+const domParser = new DOMParser()
+
+/** Takes a string of HTML and creates a {@link DocumentFragment}. */
+export function toFragment(html: string) {
+  const parsed = domParser.parseFromString(html, "text/xml")
+  const fragment = document.createDocumentFragment()
+  fragment.append(parsed.documentElement)
+  return fragment
+}
+
+/** **DOES NOT ESCAPE INPUT**
+ *
+ *  Template string tag that creates a {@link DocumentFragment}. */
+export function html(strings: TemplateStringsArray, ...subs: string[]) {
+  const src = strings.raw.reduce((prev, cur, idx) => {
+    let sub = subs[idx - 1]
+    if (Array.isArray(sub)) sub = sub.join("")
+    return prev + sub + cur
+  })
+  return toFragment(src)
+}

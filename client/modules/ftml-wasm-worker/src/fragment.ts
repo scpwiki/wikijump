@@ -1,13 +1,5 @@
+import { toFragment } from "../../wj-util/dist"
 import * as FTML from "./index"
-
-const parser = new DOMParser()
-
-function toFragment(html: string) {
-  const parsed = parser.parseFromString(html, "text/xml")
-  const fragment = document.createDocumentFragment()
-  fragment.append(parsed)
-  return fragment
-}
 
 export class FTMLFragment {
   private declare style: string
@@ -21,7 +13,7 @@ export class FTMLFragment {
   }
 
   async render() {
-    if (this.ready) return this.unwrap()
+    if (this.ready) return this.unwrap()!
     const { html, style } = await FTML.render(this.src)
     const fragment = toFragment(html)
     this.fragment = fragment
