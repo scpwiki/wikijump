@@ -97,6 +97,7 @@ impl ftml_html_output {
 }
 
 /// Destructs the given ftml_html_output structure, freeing all resources.
+/// The structure must not be used after this point.
 #[no_mangle]
 pub unsafe extern "C" fn ftml_destroy_html_output(ptr: *mut ftml_html_output) {
     let this = &mut *ptr;
@@ -104,9 +105,4 @@ pub unsafe extern "C" fn ftml_destroy_html_output(ptr: *mut ftml_html_output) {
     drop_cstr(this.html);
     drop_cstr(this.style);
     drop_cptr(this.meta_list, this.meta_len);
-
-    this.html = ptr::null_mut();
-    this.style = ptr::null_mut();
-    this.meta_list = ptr::null_mut();
-    this.meta_len = 0;
 }

@@ -35,7 +35,7 @@ mod prelude {
     pub use super::vec::*;
     pub use std::ffi::{CStr, CString};
     pub use std::os::raw::c_char;
-    pub use std::{mem, ptr};
+    pub use std::mem;
 }
 
 mod exports;
