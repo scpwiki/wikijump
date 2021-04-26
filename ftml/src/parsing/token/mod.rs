@@ -303,7 +303,7 @@ impl Token {
     }
 }
 
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 impl slog::Value for Token {
     fn serialize(
         &self,

@@ -52,11 +52,11 @@ extern crate serde;
 #[macro_use]
 extern crate str_macro;
 
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 #[macro_use]
 extern crate slog;
 
-#[cfg(not(feature = "has-log"))]
+#[cfg(not(feature = "log"))]
 #[macro_use]
 extern crate slog_mock;
 
@@ -93,7 +93,7 @@ pub mod tokenizer;
 pub mod tree;
 
 #[cfg(test)]
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 pub use self::log::{build_logger, build_null_logger, build_terminal_logger};
 
 pub use self::includes::include;

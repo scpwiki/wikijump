@@ -20,7 +20,7 @@
 
 use crate::log::prelude::*;
 
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 pub fn get_logger() -> Logger {
     use slog::Drain;
     use std::io;
@@ -41,7 +41,7 @@ pub fn get_logger() -> Logger {
     Logger::clone(&*LOGGER)
 }
 
-#[cfg(not(feature = "has-log"))]
+#[cfg(not(feature = "log"))]
 #[inline]
 pub fn get_logger() -> Logger {
     Logger
