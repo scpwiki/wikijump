@@ -144,11 +144,18 @@ const rules = {
 
       "consistent-match-all-characters": ["warn", { charClass: "[^]" }]
     })
+  },
+
+  import: {
+    ...prefixKeys("import/", {
+      "no-extraneous-dependencies": ["error", {}]
+    })
   }
 }
 
 const baseRules = { ...rules.code, ...rules.restrict, ...rules.style, ...rules.regex }
 const typeRules = { ...rules.typescript, ...rules.typeChecked }
+const importRules = { ...rules.import }
 
 module.exports = {
   root: true,
@@ -160,8 +167,8 @@ module.exports = {
     "/misc/**"
   ],
 
-  extends: ["plugin:compat/recommended"],
-  plugins: ["@typescript-eslint", "svelte3", "clean-regex"],
+  extends: ["plugin:compat/recommended", "plugin:import/typescript"],
+  plugins: ["@typescript-eslint", "import", "svelte3", "clean-regex"],
 
   parser: "@typescript-eslint/parser",
   parserOptions: {
@@ -186,6 +193,13 @@ module.exports = {
       parserOptions: { createDefaultProgram: true },
       rules: baseRules
     },
+    // TypeScript (Browser)
+    {
+      files: ["*.d.ts", "*.ts", "*.tsx"],
+      excludedFiles: "**/tests/**/*.ts",
+      env: { browser: true, es2021: true },
+      rules: { ...baseRules, ...typeRules, ...importRules }
+    },
     // TypeScript (Testing)
     {
       files: ["**/tests/**/*.ts"],
@@ -197,20 +211,14 @@ module.exports = {
     {
       files: ["*.worker.ts"],
       env: { worker: true, es2021: true },
-      rules: { ...baseRules, ...typeRules }
-    },
-    // TypeScript (Browser)
-    {
-      files: ["*.d.ts", "*.ts", "*.tsx"],
-      env: { browser: true, es2021: true },
-      rules: { ...baseRules, ...typeRules }
+      rules: { ...baseRules, ...typeRules, ...importRules }
     },
     // Svelte + TypeScript (Browser)
     {
       files: ["*.svelte"],
       processor: "svelte3/svelte3",
       env: { browser: true, es2021: true },
-      rules: { ...baseRules, ...typeRules },
+      rules: { ...baseRules, ...typeRules, ...importRules },
       settings: {
         "svelte3/typescript": () => require("typescript"),
         "svelte3/ignore-styles": () => true
