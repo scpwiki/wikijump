@@ -122,8 +122,14 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         //
         // For instance, ("checked", &[]) in input produces
         // <input checked> rather than <input checked="...">
+        //
+        // Alternatively, if it's only composed of empty strings,
+        // the same intent is signalled.
+        //
+        // Because .all() is true for empty slices, this expression
+        // checks both:
 
-        let has_value = !value_parts.is_empty();
+        let has_value = !value_parts.iter().all(|s| s.is_empty());
 
         self.attr_key(key, has_value);
 
