@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = []
 exclude = [".gitignore", ".github"]
 
-version = "0.9.0"
+version = "0.10.0"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2018" # this refers to the Cargo.toml version
 
@@ -17,9 +17,14 @@ name = "ftml"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default  = ["has-log"]
-has-log  = ["slog"] # If removed, then logging is cut out entirely -- replaces slog macros with no-ops.
-wasm-log = [] # Enables console.log() logging. Spams your browser, caveat emptor!
+default  = ["ffi", "log"]
+# If removed, then FFI integrations are not included in the crate.
+# This feature does not build even if included if the target is "wasm32".
+ffi      = ["parking_lot", "slog-bunyan"]
+# If removed, then logging is cut out entirely -- replaces slog macros with no-ops.
+log      = ["slog"]
+# Enables console.log() logging. Spams your browser, caveat emptor!
+wasm-log = []
 
 [dependencies]
 cfg-if = "1"
@@ -45,6 +50,7 @@ wikidot-normalize = "0.8"
 
 [build-dependencies]
 built = { version = "0.4", features = ["chrono", "git2"] }
+cbindgen = "0.19"
 
 [dev-dependencies]
 sloggers = "1"
@@ -53,6 +59,10 @@ sloggers = "1"
 ouroboros = "0.9"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 web-sys = { version = "0.3", features = ["console"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+parking_lot = { version = "0.11", optional = true }
+slog-bunyan = { version = "2", optional = true }
 
 # Performance options
 

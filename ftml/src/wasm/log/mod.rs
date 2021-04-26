@@ -35,7 +35,7 @@ cfg_if! {
                 slog::Logger::root(ConsoleLogger.fuse(), o!())
             };
         }
-    } else if #[cfg(feature = "has-log")] {
+    } else if #[cfg(feature = "log")] {
         // Use a null logger
         lazy_static! {
             pub static ref LOGGER: slog::Logger = {

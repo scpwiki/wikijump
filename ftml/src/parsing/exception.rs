@@ -89,6 +89,13 @@ impl ParseWarning {
     pub fn kind(&self) -> ParseWarningKind {
         self.kind
     }
+
+    #[inline]
+    #[cfg(feature = "ffi")]
+    #[cfg(not(target_arch = "wasm32"))]
+    pub(crate) fn rule_raw(&self) -> &Cow<'static, str> {
+        &self.rule
+    }
 }
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
@@ -162,7 +169,7 @@ impl ParseWarningKind {
     }
 }
 
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 impl slog::Value for ParseWarningKind {
     fn serialize(
         &self,

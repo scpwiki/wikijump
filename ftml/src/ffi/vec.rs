@@ -1,5 +1,5 @@
 /*
- * span_wrap.rs
+ * ffi/vec.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,37 +18,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wrapper struct to allow formatting of `Range`.
+use super::prelude::*;
+use std::slice;
 
-use std::ops::Range;
-
-#[derive(Debug, Clone)]
-pub struct SpanWrap(Range<usize>);
-
-impl From<Range<usize>> for SpanWrap {
-    #[inline]
-    fn from(range: Range<usize>) -> Self {
-        SpanWrap(range)
-    }
+#[inline]
+pub unsafe fn cptr_to_slice<'a, T>(ptr: *const T, len: usize) -> &'a [T] {
+    slice::from_raw_parts(ptr, len)
 }
 
-impl From<&'_ Range<usize>> for SpanWrap {
-    #[inline]
-    fn from(range: &'_ Range<usize>) -> Self {
-        SpanWrap(Range::clone(range))
-    }
+pub fn vec_to_cptr<T>(vec: Vec<T>) -> (*mut T, usize) {
+    let mut slice = vec.into_boxed_slice(); // shrinks capacity to len
+    let ptr = slice.as_mut_ptr();
+    let len = slice.len();
+
+    // Don't deallocate at end of scope, this belongs to C now
+    mem::forget(slice);
+
+    (ptr, len)
 }
 
-#[cfg(feature = "log")]
-impl slog::Value for SpanWrap {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        let value = format!("{}..{}", self.0.start, self.0.end);
+#[inline]
+pub unsafe fn drop_cptr<T>(ptr: *mut T, len: usize) {
+    mem::drop(Vec::from_raw_parts(ptr, len, len))
+}
 
-        serializer.emit_str(key, &value)
-    }
+#[test]
+fn vec() {
+    let v = vec![10, 20, 30];
+    let (ptr, len) = vec_to_cptr(v);
+    unsafe { drop_cptr(ptr, len) };
 }

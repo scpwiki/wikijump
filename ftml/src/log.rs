@@ -19,7 +19,7 @@
  */
 
 cfg_if! {
-    if #[cfg(feature = "has-log")] {
+    if #[cfg(feature = "log")] {
         // Re-export main slog logger
         pub mod prelude {
             pub use slog::Logger;

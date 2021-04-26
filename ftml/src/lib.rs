@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![deny(missing_debug_implementations)]
-#![forbid(unsafe_code)]
+#![deny(missing_debug_implementations, unsafe_code)]
 
 //! A library to parse Wikidot text and produce an abstract syntax tree (AST).
 //!
@@ -53,11 +52,11 @@ extern crate serde;
 #[macro_use]
 extern crate str_macro;
 
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 #[macro_use]
 extern crate slog;
 
-#[cfg(not(feature = "has-log"))]
+#[cfg(not(feature = "log"))]
 #[macro_use]
 extern crate slog_mock;
 
@@ -78,6 +77,10 @@ mod span_wrap;
 mod text;
 mod url;
 
+#[cfg(feature = "ffi")]
+#[cfg(not(target_arch = "wasm32"))]
+pub mod ffi;
+
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
 
@@ -90,7 +93,7 @@ pub mod tokenizer;
 pub mod tree;
 
 #[cfg(test)]
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 pub use self::log::{build_logger, build_null_logger, build_terminal_logger};
 
 pub use self::includes::include;

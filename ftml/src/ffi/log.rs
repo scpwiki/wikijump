@@ -1,5 +1,5 @@
 /*
- * span_wrap.rs
+ * ffi/log.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,37 +18,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wrapper struct to allow formatting of `Range`.
-
-use std::ops::Range;
-
-#[derive(Debug, Clone)]
-pub struct SpanWrap(Range<usize>);
-
-impl From<Range<usize>> for SpanWrap {
-    #[inline]
-    fn from(range: Range<usize>) -> Self {
-        SpanWrap(range)
-    }
-}
-
-impl From<&'_ Range<usize>> for SpanWrap {
-    #[inline]
-    fn from(range: &'_ Range<usize>) -> Self {
-        SpanWrap(Range::clone(range))
-    }
-}
+use crate::log::prelude::*;
 
 #[cfg(feature = "log")]
-impl slog::Value for SpanWrap {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        let value = format!("{}..{}", self.0.start, self.0.end);
+pub fn get_logger() -> Logger {
+    use slog::Drain;
+    use std::io;
+    use std::sync::Mutex;
 
-        serializer.emit_str(key, &value)
+    lazy_static! {
+        static ref LOGGER: Logger = {
+            let drain = slog_bunyan::with_name("ftml", io::stdout())
+                .set_newlines(true)
+                .set_pretty(false)
+                .set_flush(false)
+                .build();
+
+            Logger::root(Mutex::new(drain).fuse(), slog_o!())
+        };
     }
+
+    Logger::clone(&*LOGGER)
+}
+
+#[cfg(not(feature = "log"))]
+#[inline]
+pub fn get_logger() -> Logger {
+    Logger
 }

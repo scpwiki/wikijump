@@ -19,7 +19,7 @@ The goal is to utilize a lexer generator, and consume the tokens in a custom par
 In addition to providing the speed and safety benefits of Rust, this also improves maintainability, and allows exposing an AST to consumers
 for more advanced analysis and transformation.
 
-The lint `#![forbid(unsafe_code)]` is set, and therefore this crate has only safe code. However dependencies may have `unsafe` internals.
+The lint `#![deny(unsafe_code)]` is set, and therefore this crate has only safe code. However dependencies may have `unsafe` internals, and the `ffi` module contains unsafe code to interface with C ABIs.
 
 Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE.md).
 
@@ -36,8 +36,16 @@ You can use this as a dependency by adding the following to your `Cargo.toml`:
 ftml = "0.4"
 ```
 
-Additionally, if you disable the default feature `has-log`, you can remove all `slog` logging code entirely.
-This can have performance benefits in certain situations:
+The library comes with two default features, `log` and `ffi`.
+
+The former adds all `slog` logging code, which when removed replaces all of them with no-ops.
+This may be desirable on certain platforms where the performance difference is significant.
+
+The `ffi` feature introduces an FFI interface for ftml, permitting C and C API-compatible code
+to interface with the library.
+
+Note that, when compiling for the `wasm32` target, even if the `ffi` feature is enabled, its
+corresponding code is not built.
 
 ```
 $ cargo check --no-default-features
