@@ -1,5 +1,5 @@
 const path = require("path")
-const toml = require("toml")
+const toml = require("@ltd/j-toml")
 const fs = require("fs/promises")
 
 module.exports = {
@@ -22,7 +22,7 @@ module.exports = {
       const { pathTOML } = args.pluginData
 
       const tomlStr = await fs.readFile(pathTOML, "utf-8")
-      const parsed = toml.parse(tomlStr)
+      const parsed = toml.parse(tomlStr, 1.0, "\n", false, { order: true, null: true })
       // we'll nicely format the JSON so that it's fairly readable
       // in something like a web debugger
       const stringified = JSON.stringify(parsed, undefined, 2)
