@@ -1,11 +1,34 @@
+# Build libftml for parsing and rendering
+
+FROM rust:alpine as rust
+
+# Please note this arg is also defined in the php-fpm layer further down.
+ARG WIKIJUMP_REPO_DIR="wikijump"
+
+ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
+ARG WIKIJUMP_REPO_BRANCH="develop"
+WORKDIR /src
+
+RUN apk add --no-cache git
+
+RUN git clone \
+        --depth 10 \
+        --branch "${WIKIJUMP_REPO_BRANCH}" \
+        "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+
+WORKDIR /src/${WIKIJUMP_REPO_DIR}/ftml
+
+RUN cargo build --release
+
+# Main php-fpm container
+
 FROM php:7.4-fpm-alpine
 
 EXPOSE 9000
 
 # Build variables
-ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
+
 ARG WIKIJUMP_REPO_DIR="wikijump"
-ARG WIKIJUMP_REPO_BRANCH="develop"
 
 ARG MAIN_DOMAIN="wikijump.dev"
 ARG FILES_DOMAIN="wjfiles.dev"
@@ -32,7 +55,6 @@ RUN apk add --update --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     imagemagick \
-    git \
     html2text \
     libmemcached-libs \
     zlib \
@@ -48,13 +70,14 @@ RUN apk add --no-cache --virtual .persistent-deps libffi-dev \
     && docker-php-ext-configure ffi --with-ffi \
     && docker-php-ext-install ffi
 
+# Install libftml
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/ftml.h /usr/local/include/ftml.h
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/libftml.so /usr/local/lib/libftml.so
+
 # Install the Wikijump repository
 WORKDIR /var/www
 
-RUN git clone \
-        --depth 10 \
-        --branch "${WIKIJUMP_REPO_BRANCH}" \
-        "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR} ${WIKIJUMP_DIR}
 
 WORKDIR "${WIKIJUMP_DIR}/web"
 

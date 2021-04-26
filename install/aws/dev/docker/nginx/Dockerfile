@@ -1,3 +1,5 @@
+# Build static assets using npm
+
 FROM node:alpine as npm
 
 # Please note this arg is also defined in the nginx layer further down.
@@ -19,6 +21,8 @@ WORKDIR /src/${WIKIJUMP_REPO_DIR}/web
 
 RUN npm install
 RUN npm run build
+
+# Main nginx container
 
 FROM nginx:alpine
 ARG WIKIJUMP_REPO_DIR="wikijump"
