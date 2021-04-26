@@ -92,6 +92,7 @@ impl ParseWarning {
 
     #[inline]
     #[cfg(feature = "ffi")]
+    #[cfg(not(target_arch = "wasm32"))]
     pub(crate) fn rule_raw(&self) -> &Cow<'static, str> {
         &self.rule
     }
