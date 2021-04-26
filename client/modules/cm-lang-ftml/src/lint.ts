@@ -2,7 +2,7 @@ import { Diagnostic, linter } from "@codemirror/lint"
 import { warnings } from "ftml-wasm-worker"
 import type { EditorView } from "@codemirror/view"
 import { createUTF8PositionMap } from "./utf"
-import { perfy } from "../../wj-util/dist"
+import { perfy } from "wj-util"
 
 interface WarningInfo {
   message: string | ((rule: string, slice: string) => string)
