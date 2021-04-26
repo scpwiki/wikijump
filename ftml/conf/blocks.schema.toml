@@ -93,7 +93,7 @@ special = ""
 # If it ends in "[]", then it is a list of that kind.
 #
 # type: string
-# values: "string", "int", "float"
+# values: "string", "int", "float", "bool"
 type = "string"
 
 # What values this can argument can take, if it's an enum.
