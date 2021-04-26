@@ -44,8 +44,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Underline doesn't allow special variant");
-    assert_eq!(modifier, false, "Underline doesn't allow modifier variant");
+    assert!(!special, "Underline doesn't allow special variant");
+    assert!(!modifier, "Underline doesn't allow modifier variant");
     assert_block_name(&BLOCK_UNDERLINE, name);
 
     let arguments = parser.get_head_map(&BLOCK_UNDERLINE, in_head)?;

@@ -39,8 +39,8 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing CSS block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "CSS doesn't allow special variant");
-    assert_eq!(modifier, false, "CSS doesn't allow modifier variant");
+    assert!(!special, "CSS doesn't allow special variant");
+    assert!(!modifier, "CSS doesn't allow modifier variant");
     assert_block_name(&BLOCK_CSS, name);
 
     parser.get_head_none(&BLOCK_CSS, in_head)?;

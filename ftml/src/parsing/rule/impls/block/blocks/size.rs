@@ -46,8 +46,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Size doesn't allow special variant");
-    assert_eq!(modifier, false, "Size doesn't allow modifier variant");
+    assert!(!special, "Size doesn't allow special variant");
+    assert!(!modifier, "Size doesn't allow modifier variant");
     assert_block_name(&BLOCK_SIZE, name);
 
     let size =

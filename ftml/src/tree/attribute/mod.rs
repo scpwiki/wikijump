@@ -21,12 +21,15 @@
 mod safe;
 
 use super::clone::string_to_owned;
+use crate::parsing::parse_boolean;
 use std::borrow::Cow;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self, Debug};
 use unicase::UniCase;
 
-pub use self::safe::{is_safe_attribute, SAFE_ATTRIBUTES, SAFE_ATTRIBUTE_PREFIXES};
+pub use self::safe::{
+    is_safe_attribute, BOOLEAN_ATTRIBUTES, SAFE_ATTRIBUTES, SAFE_ATTRIBUTE_PREFIXES,
+};
 
 #[derive(Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
 pub struct AttributeMap<'t> {
@@ -44,10 +47,25 @@ impl<'t> AttributeMap<'t> {
         let inner = arguments
             .iter()
             .filter(|(&key, _)| is_safe_attribute(key))
-            .map(|(key, value)| {
+            .filter_map(|(key, mut value)| {
+                // Check for special boolean behavior
+                if BOOLEAN_ATTRIBUTES.contains(key) {
+                    if let Ok(boolean_value) = parse_boolean(value) {
+                        // It's a boolean HTML attribute, like "checked".
+                        if boolean_value {
+                            // true: Have a key-only attribute
+                            value = &cow!("");
+                        } else {
+                            // false: Exclude the key entirely
+                            return None;
+                        }
+                    }
+                }
+
+                // Add key/value pair to map
                 let key = key.into_inner().to_ascii_lowercase();
 
-                (Cow::Owned(key), Cow::clone(value))
+                Some((Cow::Owned(key), Cow::clone(value)))
             })
             .collect();
 

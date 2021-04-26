@@ -58,8 +58,8 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing character / HTML entity block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "Char doesn't allow special variant");
-    assert_eq!(modifier, false, "Char doesn't allow modifier variant");
+    assert!(!special, "Char doesn't allow special variant");
+    assert!(!modifier, "Char doesn't allow modifier variant");
     assert_block_name(&BLOCK_CHAR, name);
 
     // Parse the entity and get the string

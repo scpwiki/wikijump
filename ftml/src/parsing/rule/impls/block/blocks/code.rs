@@ -39,8 +39,8 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing code block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "Code doesn't allow special variant");
-    assert_eq!(modifier, false, "Code doesn't allow modifier variant");
+    assert!(!special, "Code doesn't allow special variant");
+    assert!(!modifier, "Code doesn't allow modifier variant");
     assert_block_name(&BLOCK_CODE, name);
 
     let mut arguments = parser.get_head_map(&BLOCK_CODE, in_head)?;

@@ -44,8 +44,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Hidden doesn't allow special variant");
-    assert_eq!(modifier, false, "Hidden doesn't allow modifier variant");
+    assert!(!special, "Hidden doesn't allow special variant");
+    assert!(!modifier, "Hidden doesn't allow modifier variant");
     assert_block_name(&BLOCK_HIDDEN, name);
 
     let arguments = parser.get_head_map(&BLOCK_HIDDEN, in_head)?;

@@ -39,8 +39,8 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing HTML block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "HTML doesn't allow special variant");
-    assert_eq!(modifier, false, "HTML doesn't allow modifier variant");
+    assert!(!special, "HTML doesn't allow special variant");
+    assert!(!modifier, "HTML doesn't allow modifier variant");
     assert_block_name(&BLOCK_HTML, name);
 
     parser.get_head_none(&BLOCK_HTML, in_head)?;

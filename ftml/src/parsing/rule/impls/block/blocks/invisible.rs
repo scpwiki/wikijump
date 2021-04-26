@@ -44,8 +44,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Invisible doesn't allow special variant");
-    assert_eq!(modifier, false, "Invisible doesn't allow modifier variant");
+    assert!(!special, "Invisible doesn't allow special variant");
+    assert!(!modifier, "Invisible doesn't allow modifier variant");
     assert_block_name(&BLOCK_INVISIBLE, name);
 
     let arguments = parser.get_head_map(&BLOCK_INVISIBLE, in_head)?;

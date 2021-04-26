@@ -44,7 +44,7 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Div doesn't allow special variant");
+    assert!(!special, "Div doesn't allow special variant");
     assert_block_name(&BLOCK_DIV, name);
 
     let arguments = parser.get_head_map(&BLOCK_DIV, in_head)?;

@@ -44,8 +44,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Subscript doesn't allow special variant");
-    assert_eq!(modifier, false, "Subscript doesn't allow modifier variant");
+    assert!(!special, "Subscript doesn't allow special variant");
+    assert!(!modifier, "Subscript doesn't allow modifier variant");
     assert_block_name(&BLOCK_SUBSCRIPT, name);
 
     let arguments = parser.get_head_map(&BLOCK_SUBSCRIPT, in_head)?;

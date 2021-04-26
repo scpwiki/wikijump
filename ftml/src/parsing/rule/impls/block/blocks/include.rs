@@ -48,8 +48,8 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Found invalid include block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "Include doesn't allow special variant");
-    assert_eq!(modifier, false, "Include doesn't allow modifier variant");
+    assert!(!special, "Include doesn't allow special variant");
+    assert!(!modifier, "Include doesn't allow modifier variant");
     assert_block_name(&BLOCK_INCLUDE, name);
 
     // Includes are handled specially, so we should never actually be

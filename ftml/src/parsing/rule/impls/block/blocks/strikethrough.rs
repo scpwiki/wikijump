@@ -44,14 +44,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(
-        special, false,
-        "Strikethrough doesn't allow special variant",
-    );
-    assert_eq!(
-        modifier, false,
-        "Strikethrough doesn't allow modifier variant",
-    );
+    assert!(!special, "Strikethrough doesn't allow special variant");
+    assert!(!modifier, "Strikethrough doesn't allow modifier variant");
     assert_block_name(&BLOCK_STRIKETHROUGH, name);
 
     let arguments = parser.get_head_map(&BLOCK_STRIKETHROUGH, in_head)?;

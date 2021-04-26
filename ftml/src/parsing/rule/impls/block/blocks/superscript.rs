@@ -44,11 +44,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Superscript doesn't allow special variant");
-    assert_eq!(
-        modifier, false,
-        "Superscript doesn't allow modifier variant",
-    );
+    assert!(!special, "Superscript doesn't allow special variant");
+    assert!(!modifier, "Superscript doesn't allow modifier variant");
     assert_block_name(&BLOCK_SUPERSCRIPT, name);
 
     let arguments = parser.get_head_map(&BLOCK_SUPERSCRIPT, in_head)?;
