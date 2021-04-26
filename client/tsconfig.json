@@ -28,7 +28,8 @@
     "exclude": [
       "agent-base", "https-proxy-agent", "socks-proxy-agent",
       "dotenv", "source-map",
-      "fast-safe-stringify"
+      "fast-safe-stringify",
+      "tsconfig-paths"
     ]
   },
   "exclude": ["node_modules", "misc/templates"]
