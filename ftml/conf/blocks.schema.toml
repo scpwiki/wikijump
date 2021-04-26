@@ -48,14 +48,6 @@ head = "map"
 # values: "none", "raw", "elements", "other"
 body = "elements"
 
-# Which arguments (if any) this block accepts.
-# Does not include HTML attributes, see below.
-#
-# Only applies to blocks that have head = "map" or "value+map".
-#
-# type: string[], optional
-arguments = ["hideLocation", "show", "hide"]
-
 # Whether this block accepts safe HTML attributes as arguments.
 # These are then ported to the final HTML element in rendering,
 # with possible changes for safety or correctness.
@@ -90,3 +82,38 @@ html-output = "html,span"
 # type: string, enum, optional
 # values: "", "module"
 special = ""
+
+# Each argument that this block accepts gets its own sub-key.
+# Case-insensitive.
+[block-name.argument-name]
+
+# The high-level type of this argument.
+# If it ends in "[]", then it is a list of that kind.
+#
+# type: string
+# values: "string", "int", "float"
+type = "string"
+
+# What values this can argument can take, if it's an enum.
+# If this field is excluded, then the argument can take any value.
+#
+# type: $argument_type[], optional
+enum = [
+    "top",
+    "bottom",
+    "both",
+    "neither",
+]
+
+# What the maximum and minimum bounds this argument can take, if it's a numerical value.
+# If one or both of these fields are excluded, then there is no upper limit.
+#
+# type: $argument_type, optional
+min-value = 0
+max-value = 500
+
+# What value this argument has by default, if not excluded.
+# Implies that the argument is optional.
+#
+# type: $argument_type, optional
+default = "both"
