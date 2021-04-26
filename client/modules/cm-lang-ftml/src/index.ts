@@ -473,7 +473,7 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // [[math]]
         { begin: [/(@bs)(@bm?)(math)(@bsf)([^]*?)(@be)/, 'BlockNode',
-            ['@BR', 't.modifier', 'BlockName', 't.modifier', 't.string', '@BR']
+            ['@BR', 't.modifier', 'BlockName', 't.modifier', { strict: false, rules: "#block_node_map" }, '@BR']
           ],
           end:   [/(@bsc)(math)(@be)/, 'BlockNode', ['@BR', 'BlockName', '@BR']],
           type: 'BlockNested',
@@ -515,7 +515,7 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // block (map)
         [[/(@bs)(@bm?)/, '@blk_map', /(@bsf)([^]*?)(@be)/], 'BlockNode',
-          ['@BR', 't.modifier', 'BlockName', 't.modifier', 't.string', '@BR']
+          ['@BR', 't.modifier', 'BlockName', 't.modifier', { strict: false, rules: "#block_node_map" }, '@BR']
         ],
 
         // block (value)
@@ -525,7 +525,7 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // block (valmap)
         [[/(@bs)(@bm?)/, '@blk_valmap', /(@bsf)(\s*[^\]\s]*)([^]*?)(@be)/], 'BlockNode',
-          ['@BR', 't.modifier', 'BlockName', 't.modifier', 'BlockValue', 't.string', '@BR']
+          ['@BR', 't.modifier', 'BlockName', 't.modifier', 'BlockValue', { strict: false, rules: "#block_node_map" }, '@BR']
         ],
 
         // block modules
@@ -537,7 +537,7 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // block containers (map, elements)
         { begin: [[/(@bs)(@bm?)/, '@blk_map_el', /(@bsf)([^]*?)(@be)/], 'BlockNode',
-            ['@BR', 't.modifier', 'BlockName', 't.modifier', 't.string', '@BR']
+            ['@BR', 't.modifier', 'BlockName', 't.modifier', { strict: false, rules: "#block_node_map" }, '@BR']
           ],
           end: [[/@bsc/, '@blk_map_el', /@be/], 'BlockNode', ['@BR', 'BlockName', '@BR']],
           type: 'BlockContainer'
@@ -562,7 +562,7 @@ export const FTMLLanguage = new TarnationLanguage({
         // -- UNKNOWN
 
         [/(@bs|@bsc)(@bm?)([^\\#*\s\]]+?)(@bsf)([^]*?)(@be)/, 'BlockNode',
-          ['@BR', 't.modifier', 'BlockNameUnknown', 't.modifier', 't.string', '@BR']
+          ['@BR', 't.modifier', 'BlockNameUnknown', 't.modifier', { strict: false, rules: "#block_node_map" }, '@BR']
         ],
 
         // -- SINGLE LINKS
@@ -579,6 +579,14 @@ export const FTMLLanguage = new TarnationLanguage({
             ['t.keyword', { strict: false, rules: '#inline' }]
           ]
         ] }, '@BR:li']]
+      ],
+
+      block_node_map: [
+        { style: {
+          BlockLabel: t.invalid,
+        } },
+
+        [/(\S+?)(?=$|\s|@be)/, "BlockLabel"]
       ],
 
       include: [
