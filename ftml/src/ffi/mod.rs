@@ -24,6 +24,7 @@
 // This is only used for FFI, no weird memory tricks are used.
 // So this is the "safe" form of unsafe within Rust.
 #![allow(unsafe_code)]
+
 // This module uses C naming for its components, mostly snake_case.
 #![allow(non_camel_case_types)]
 
