@@ -2,11 +2,13 @@
   @component Wikijump's primary page editor.
 -->
 <script lang="ts">
-  import { SheafCore } from "sheaf-core"
+  import { SheafCore, EditorSveltePanel } from "sheaf-core"
   import { FTMLLanguage } from "cm-lang-ftml"
   import { perfy } from "wj-util"
   import * as FTML from "ftml-wasm-worker"
   import { onMount } from "svelte"
+
+  import SheafPanel from "./SheafPanel.svelte"
 
   /** Height of the editor's container. */
   export let height = "100%"
@@ -21,6 +23,8 @@
 
   const Editor = new SheafCore()
 
+  const PerfPanel = new EditorSveltePanel("performance-panel", SheafPanel, true)
+
   $: if ($Editor.value) {
     const report = perfy("ftml-perf", 5)
     FTML.render($Editor.value).then(({ html, style }) => {
@@ -31,7 +35,7 @@
   }
 
   onMount(async () => {
-    await Editor.init(editorElement, doc, [FTMLLanguage.load()])
+    await Editor.init(editorElement, doc, [FTMLLanguage.load(), PerfPanel])
   })
 </script>
 

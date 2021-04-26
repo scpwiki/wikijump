@@ -33,6 +33,7 @@
     "@codemirror/language-data": "^0.18.0",
     "@codemirror/legacy-modes": "^0.18.0",
     "@codemirror/lint": "^0.18.2",
+    "@codemirror/panel": "^0.18.1",
     "@codemirror/matchbrackets": "^0.18.0",
     "@codemirror/rangeset": "^0.18.1",
     "@codemirror/rectangular-selection": "^0.18.0",
