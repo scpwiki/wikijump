@@ -7,264 +7,30 @@ import type {
 } from "@codemirror/autocomplete"
 import type { Block, Attribute } from "./data/types"
 import { blocks as blocks2, blockNames } from "./data/blocks"
-
-// TODO: info markdown (need a super fast markdown web worker)
+import { htmlAttributes } from "./data/html-attributes"
+import { FTMLFragment } from "ftml-wasm-worker"
 
 const blocksAutocompletion: Completion[] = Object.entries(blocks2).map(
   ([alias, block]) => {
-    return {
-      label: alias,
-      info: block.info,
-      detail: block.name,
-      type: "type"
+    if (block.info) {
+      const infoFragment = new FTMLFragment(block.info)
+      return {
+        label: alias,
+        detail: block.name,
+        type: "type",
+        async info() {
+          return (await infoFragment.render()).fragment
+        }
+      }
+    } else {
+      return {
+        label: alias,
+        detail: block.name,
+        type: "type"
+      }
     }
   }
 )
-
-console.log(blocksAutocompletion)
-
-interface TagSpec {
-  info?: string
-  attrs?: Record<string, null | string[]>
-  keywords?: string[]
-}
-
-type BlockTypes = "block" | "module"
-
-const tagAttrs: Record<string, null | string[]> = {
-  id: null,
-  class: null,
-  style: null
-}
-
-const tag: TagSpec = {
-  attrs: tagAttrs
-}
-
-// TODO: fully match FTML
-const blockData: Record<BlockTypes, Record<string, TagSpec | null>> = {
-  block: {
-    // generic blocks
-    "image": null,
-    "rate": null,
-    "toc": null,
-    "footnoteblock": null,
-    "button": {
-      attrs: {
-        text: null,
-        class: null,
-        style: null
-      },
-      keywords: [
-        "set-tags",
-        "edit",
-        "edit-append",
-        "edit-sections",
-        "history",
-        "print",
-        "files",
-        "tags",
-        "source",
-        "backlinks",
-        "talk",
-        "delete",
-        "rename",
-        "site-tools",
-        "edit-meta",
-        "watchers",
-        "parent",
-        "lock-page"
-      ]
-    },
-    // text
-    "date": null,
-    "user": null,
-    "social": null,
-    "#": null,
-    // expr
-    "#expr": null,
-    "#ifexpr": null,
-    "#if": null,
-    "if": null,
-    "else": null,
-    // tags
-    "span": tag,
-    "a": tag,
-    "div": tag,
-    "ul": tag,
-    "ol": tag,
-    "li": tag,
-    "table": tag,
-    "row": tag,
-    "column": tag,
-    "hcell": tag,
-    "cell": tag,
-    // align
-    "=": null,
-    ">": null,
-    "<": null,
-    "==": null,
-    // special
-    "module": null,
-    "include": null,
-    // containers
-    "footnote": null,
-    "note": null,
-    "tabview": null,
-    "tab": null,
-    "bibliography": null,
-    "iftags": null,
-    "head": null,
-    "body": null,
-    "foot": null,
-    "collapsible": {
-      attrs: {
-        show: null,
-        hide: null,
-        hideLocation: ["both", "top", "bottom"],
-        folded: ["yes", "no"]
-      }
-    },
-    // nested
-    "html": null,
-    "embed": null,
-    "embedvideo": null,
-    "embedaudio": null,
-    "form": null,
-    "code": {
-      attrs: {
-        type: null
-      }
-    },
-    "math": {
-      attrs: {
-        type: [
-          "align",
-          "alignat",
-          "aligned",
-          "alingedat",
-          "array",
-          "Bmatrix",
-          "bmatrix",
-          "cases",
-          "eqnarray",
-          "equation",
-          "gather",
-          "gathered",
-          "matrix",
-          "multiline",
-          "pmatrix",
-          "smallmatrix",
-          "split",
-          "subarray",
-          "Vmatrix",
-          "vmatrix"
-        ]
-      }
-    }
-  },
-  module: {
-    css: null,
-    listPages: {
-      attrs: {
-        pagetype: ["normal", "hidden", "*"],
-        category: [".", "*", "%%category%%"],
-        tags: ["-", "=", "=="],
-        parent: ["-", "=", "-=", "."],
-        link_to: ["."],
-        created_at: ["="],
-        updated_at: null,
-        created_by: ["=", "-="],
-        rating: ["="],
-        votes: ["="],
-        offset: null,
-        range: [".", "before", "after", "others"],
-        name: ["="],
-        fullname: null,
-        order: null,
-        limit: null,
-        perPage: null,
-        reverse: ["yes", "no"],
-        separate: ["yes", "no"],
-        wrapper: ["yes", "no"],
-        header: null,
-        footer: null,
-        rss: null,
-        rssDescription: null,
-        rssHome: null,
-        rssLimit: null,
-        rssOnly: null
-      }
-    }
-  }
-}
-
-// module: {
-//   css: null,
-//   listPages: {
-//     attrs: {
-//       pagetype: ["normal", "hidden", "*"],
-//       category: [".", "*", "%%category%%"],
-//       tags: ["-", "=", "=="],
-//       parent: ["-", "=", "-=", "."],
-//       link_to: ["."],
-//       created_at: ["="],
-//       updated_at: null,
-//       created_by: ["=", "-="],
-//       rating: ["="],
-//       votes: ["="],
-//       offset: null,
-//       range: [".", "before", "after", "others"],
-//       name: ["="],
-//       fullname: null,
-//       order: null,
-//       limit: null,
-//       perPage: null,
-//       reverse: ["yes", "no"],
-//       separate: ["yes", "no"],
-//       wrapper: ["yes", "no"],
-//       header: null,
-//       footer: null,
-//       rss: null,
-//       rssDescription: null,
-//       rssHome: null,
-//       rssLimit: null,
-//       rssOnly: null
-//     }
-//   }
-// }
-
-const blocks: Record<string, TagSpec> = {}
-const blockAutocomplete: Completion[] = []
-const modules = blockData.module
-const moduleAutoComplete: Completion[] = []
-
-// TODO: this doesn't need to be like this anymore
-for (const group in blockData) {
-  const specs = blockData[group as BlockTypes] as Record<string, TagSpec>
-  if (group !== "module") {
-    Object.assign(blocks, specs)
-    blockAutocomplete.push(
-      ...Object.keys(specs).map(
-        (name): Completion => ({
-          label: name,
-          info: specs[name]?.info,
-          type: "type"
-        })
-      )
-    )
-  } else {
-    moduleAutoComplete.push(
-      ...Object.keys(specs).map(
-        (name): Completion => ({
-          label: name,
-          info: specs[name]?.info,
-          type: "class"
-        })
-      )
-    )
-  }
-}
 
 export function completeFTML(context: CompletionContext): CompletionResult | null {
   const { state, pos } = context
@@ -281,48 +47,40 @@ export function completeFTML(context: CompletionContext): CompletionResult | nul
     return { from: tree.from, to: pos, options: blocksAutocompletion }
   }
   // Module names
-  else if (tree.name === "ModuleName") {
-    return { from: tree.from, to: pos, options: moduleAutoComplete }
-  }
+  // else if (tree.name === "ModuleName") {
+  //   return { from: tree.from, to: pos, options: moduleAutoComplete }
+  // }
   // Block node attribute names
   else if (tree.name === "BlockLabel") {
-    const tag = text(around.getChild("BlockName"))
+    const name = text(around.getChild("BlockName"))
     const module = text(around.getChild("ModuleName"))
 
-    const attrs: string[] = []
-    const keywords: string[] = []
+    const attributes = new Set<string>()
 
-    // attributes
-
-    if (tag && blocks?.[tag]?.attrs) {
-      attrs.push(...Object.keys(blocks[tag]!.attrs!))
-    } else if (module && modules?.[module]?.attrs) {
-      attrs.push(...Object.keys(modules[module]!.attrs!))
+    if (name && blocks2?.[name]) {
+      const block = blocks2[name]!
+      const { attrs, globals } = block
+      for (const attr of attrs) {
+        attributes.add(attr.name)
+      }
+      if (globals) {
+        for (const attr of htmlAttributes) {
+          attributes.add(attr.name)
+        }
+      }
     }
 
-    // keywords
+    const options: Completion[] = []
 
-    if (tag && blocks?.[tag]?.keywords) {
-      keywords.push(...blocks[tag]!.keywords!)
-    }
-
-    if (module && modules?.[module]?.keywords) {
-      keywords.push(...modules[module]!.keywords!)
-    }
-
-    const options: Completion[] = attrs
-      .map(attr => ({
+    attributes.forEach(attr =>
+      options.push({
         label: attr,
         apply: `${attr}=""`,
         type: "property"
-      }))
-      .concat(
-        keywords.map(keyword => ({
-          label: keyword,
-          apply: keyword,
-          type: "keyword"
-        }))
-      )
+      })
+    )
+
+    console.log(options)
 
     return { from: tree.from, to: pos, options }
   }
@@ -334,26 +92,26 @@ export function completeFTML(context: CompletionContext): CompletionResult | nul
     const module = text(node?.getChild("ModuleName"))
     let values: string[] | null = null
 
-    // tag completion
-    if (prop && tag && blocks?.[tag]?.attrs?.[prop]) {
-      values = blocks[tag]!.attrs![prop]
-    }
+    // // tag completion
+    // if (prop && tag && blocks?.[tag]?.attrs?.[prop]) {
+    //   values = blocks[tag]!.attrs![prop]
+    // }
 
-    // module completion
-    else if (prop && module && modules?.[module]?.attrs?.[prop]) {
-      values = modules[module]!.attrs![prop]!
-    }
+    // // module completion
+    // else if (prop && module && modules?.[module]?.attrs?.[prop]) {
+    //   values = modules[module]!.attrs![prop]!
+    // }
 
-    if (values) {
-      return {
-        from: tree.name === "string" ? tree.from + 1 : tree.from,
-        to: pos,
-        options: values.map(value => ({
-          label: value,
-          type: "enum"
-        }))
-      }
-    }
+    // if (values) {
+    //   return {
+    //     from: tree.name === "string" ? tree.from + 1 : tree.from,
+    //     to: pos,
+    //     options: values.map(value => ({
+    //       label: value,
+    //       type: "enum"
+    //     }))
+    //   }
+    // }
   }
 
   return null

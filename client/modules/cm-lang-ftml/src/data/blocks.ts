@@ -9,7 +9,7 @@ export const blockNames = new Set<string>()
 // translation support
 
 addTag("Anchor", ["a", "anchor"], {
-  info: 'Creates a hyperlink. Use with the "href" attribute.'
+  info: "Creates a hyperlink. Use with the {{href}} attribute."
 })
 
 addTag("Blockquote", ["blockquote", "quote"], {
@@ -73,13 +73,13 @@ addTag("Hidden", ["hidden"], {
 })
 
 addBlock("HTML", {
-  info: "Creates an iframe which wraps around the element's contents.",
+  info: "Creates an {{iframe}} which wraps around the element's contents.",
   aliases: ["html"],
   body: true
 })
 
 addBlock("iframe", {
-  info: "Creates an iframe element.",
+  info: "Creates an {{iframe}} element.",
   aliases: ["iframe"],
   body: true
 })
