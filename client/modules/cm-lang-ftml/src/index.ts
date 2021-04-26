@@ -106,7 +106,7 @@ export const FTMLLanguage = new TarnationLanguage({
 
     ignoreCase: true,
 
-    start: 'root',
+    start: "root",
 
     variables: {
 
@@ -123,11 +123,11 @@ export const FTMLLanguage = new TarnationLanguage({
     },
 
     brackets: [
-      { name: 'BlockComment', pair: ['[!--', '--]'], tag: 't.blockComment' },
+      { name: "BlockComment", pair: ["[!--", "--]"], tag: "t.blockComment" },
 
-      { name: 't.paren',         pair: ['(', ')'] },
-      { name: 't.brace',         pair: ['{', '}'] },
-      { name: 't.squareBracket', pair: ['[', ']'] }
+      { name: "t.paren",         pair: ["(", ")"] },
+      { name: "t.brace",         pair: ["{", "}"] },
+      { name: "t.squareBracket", pair: ["[", "]"] }
     ],
 
     global: [
@@ -138,35 +138,35 @@ export const FTMLLanguage = new TarnationLanguage({
         EscapedCharacter: t.escape
       } },
 
-      [/@esc/, 'EscapedNewline'],
-      [/@escapes/, 'EscapedCharacter'],
-      [/(\[!--)([^]+?)(--\])/, 'BlockComment', ['@BR', '', '@BR']],
+      [/@esc/, "EscapedNewline"],
+      [/@escapes/, "EscapedCharacter"],
+      [/(\[!--)([^]+?)(--\])/, "BlockComment", ["@BR", "", "@BR"]],
       [/@nocontrol+/]
     ],
 
     states: {
 
       root: [
-        { include: '#block_markup' },
-        { include: '#inline' },
-        { include: '#include' },
-        { include: '#block' }
+        { include: "#block_markup" },
+        { include: "#inline" },
+        { include: "#include" },
+        { include: "#block" }
       ],
 
       inline: [
-        { include: '#special' },
-        { include: '#typography' },
-        { include: '#markup' },
-        { include: '#include' },
-        { include: '#block' }
+        { include: "#special" },
+        { include: "#typography" },
+        { include: "#markup" },
+        { include: "#include" },
+        { include: "#block" }
       ],
 
       block_markup: [
 
         { style: {
-          'HeadingMark': t.heading,
-          'CenterMark': t.heading,
-          'BlockquoteMark ListBulletedMark ListNumberedMark': t.keyword
+          "HeadingMark": t.heading,
+          "CenterMark": t.heading,
+          "BlockquoteMark ListBulletedMark ListNumberedMark": t.keyword
         } },
 
         { variables: {
@@ -178,91 +178,91 @@ export const FTMLLanguage = new TarnationLanguage({
         } },
 
         // horizontal rules
-        [/@s@hr/, 't.contentSeparator'],
+        [/@s@hr/, "t.contentSeparator"],
         // headings
-        [/(@s@heading)(.+?)$/, 'Heading',
-          ['HeadingMark', { strict: false, rules: '#inline' }]
+        [/(@s@heading)(.+?)$/, "Heading",
+          ["HeadingMark", { strict: false, rules: "#inline" }]
         ],
         // center rule
-        [/(@s=@ws+)(.+?)$/, 'Center',
-          ['CenterMark', { strict: false, rules: '#inline' }]
+        [/(@s=@ws+)(.+?)$/, "Center",
+          ["CenterMark", { strict: false, rules: "#inline" }]
         ],
 
         // tables
-        { begin: [/@s\|{2}/, '@RE'],
+        { begin: [/@s\|{2}/, "@RE"],
           end: [
             // fallback if we can't use the lookbehind
-            re`/(?<!@esc\s*)(@enl|^((?!\|{2}).)+$)/` ?? /@enl|^((?!\|{2}).)+$/, '@RE'
+            re`/(?<!@esc\s*)(@enl|^((?!\|{2}).)+$)/` ?? /@enl|^((?!\|{2}).)+$/, "@RE"
           ],
-          type: 'Table',
+          type: "Table",
           rules: [
-            [/(\|{2,})([~=]?)/, 'TableMark', ['t.separator', 't.operator']],
-            { include: '#inline' }
+            [/(\|{2,})([~=]?)/, "TableMark", ["t.separator", "t.operator"]],
+            { include: "#inline" }
           ]
         },
 
         // containers
-        { begin: [/@cs/, '@RE'],
-          end: [re`/(?<!@esc\s*)(@enl|(?!@cs)@s)/` ?? /@enl|(?!@cs)@s/, '@RE'],
-          type: 'Container',
+        { begin: [/@cs/, "@RE"],
+          end: [re`/(?<!@esc\s*)(@enl|(?!@cs)@s)/` ?? /@enl|(?!@cs)@s/, "@RE"],
+          type: "Container",
           rules: [
             // horizontal rules
             [/(@s)(>+|[*#])(@ws*@hr)/,
-              ['', { rules: '#container_mark_type' }, 't.contentSeparator']
+              ["", { rules: "#container_mark_type" }, "t.contentSeparator"]
             ],
 
             // headings
             [/(@s)(>+|[*#])(@ws*@heading.+?$)/,
-              ['', { rules: '#container_mark_type' }, { rules: [
-                [/(@ws*@heading)(.+)/, 'Heading',
-                  ['HeadingMark', { strict: false, rules: '#inline' }]
+              ["", { rules: "#container_mark_type" }, { rules: [
+                [/(@ws*@heading)(.+)/, "Heading",
+                  ["HeadingMark", { strict: false, rules: "#inline" }]
                 ]
               ]}]
             ],
 
             // normal container start
-            [/(@s)(>+|[*#])/, ['', { rules: '#container_mark_type' }]],
+            [/(@s)(>+|[*#])/, ["", { rules: "#container_mark_type" }]],
 
-            { include: '#inline' }
+            { include: "#inline" }
           ]
         },
 
         // paragraphs
-        { begin: [/@s(?!@interrupt)\S/, '@RE'],
-          end: [/@s(?:@interrupt)|@enl/, '@RE'],
-          type: 'Paragraph',
-          rules: '#inline'
+        { begin: [/@s(?!@interrupt)\S/, "@RE"],
+          end: [/@s(?:@interrupt)|@enl/, "@RE"],
+          type: "Paragraph",
+          rules: "#inline"
         }
       ],
 
       container_mark_type: [
-        [/>+/, 'BlockquoteMark'],
-        ['*',  'ListBulletedMark'],
-        ['#',  'ListNumberedMark']
+        [/>+/, "BlockquoteMark"],
+        ["*",  "ListBulletedMark"],
+        ["#",  "ListNumberedMark"]
       ],
 
       special: [
         // auto-detect links (huge frickin' regex)
         [/(\*?)((?:\w+:\/\/)?(?:[-\w@:%.+~#=]{2,256}\.(?!\.{3}))+?[a-z]{2,6}\b(?:[-\w@:%+.~#?&/=]*))/,
-          'LinkInline', ['t.keyword', 't.link']
+          "LinkInline", ["t.keyword", "t.link"]
         ],
 
         { brackets: [
-          { name: 'IncludeVariable', pair: ['{$', '}'], hint: 'vi', tag: 't.bracket' },
-          { name: 'PageVariable',    pair: '%%',        hint: 'vp', tag: 't.bracket' }
+          { name: "IncludeVariable", pair: ["{$", "}"], hint: "vi", tag: "t.bracket" },
+          { name: "PageVariable",    pair: "%%",        hint: "vp", tag: "t.bracket" }
         ] },
 
         // include variables
-        [/(\{\$)(.*?)(\})/, 'IncludeVariable', ['@BR:vi', 't.variableName', '@BR:vi']],
+        [/(\{\$)(.*?)(\})/, "IncludeVariable", ["@BR:vi", "t.variableName", "@BR:vi"]],
 
         // page variables
-        [/(%%)(.*?)(%%)/, 'PageVariable', [
-          '@BR/O:vp',
+        [/(%%)(.*?)(%%)/, "PageVariable", [
+          "@BR/O:vp",
           { strict: false, rules: [
-            [/^[^{}]+/, 't.variableName'],
-            [/(\{)(.*?)(\})$/, 'PageVariableAccessor', ['@BR', 't.string', '@BR']]
+            [/^[^{}]+/, "t.variableName"],
+            [/(\{)(.*?)(\})$/, "PageVariableAccessor", ["@BR", "t.string", "@BR"]]
           ] },
-          '@BR/C:vp'
+          "@BR/C:vp"
         ]]
       ],
 
@@ -276,107 +276,107 @@ export const FTMLLanguage = new TarnationLanguage({
         // blame safari
 
         // ``quotation''
-        [re`/\`\`(?=(?!\`\`).+?'')/`, 'Typography'],
-        [re`/(?<=\`\`(?!'').+?)''/`, 'Typography'],
+        [re`/\`\`(?=(?!\`\`).+?'')/`, "Typography"],
+        [re`/(?<=\`\`(?!'').+?)''/`, "Typography"],
 
         // `quotation'
-        [re`/\`(?=(?!\`).+?')/`, 'Typography'],
-        [re`/(?<=\`(?!').+?)'/`, 'Typography'],
+        [re`/\`(?=(?!\`).+?')/`, "Typography"],
+        [re`/(?<=\`(?!').+?)'/`, "Typography"],
 
         // ,,quotation'' (this one is so damn stupid)
-        [re`/,,(?=(?!,,).+?'')/`, 'Typography'],
-        [re`/(?<=,,(?!,,).+?)''/`, 'Typography'],
+        [re`/,,(?=(?!,,).+?'')/`, "Typography"],
+        [re`/(?<=,,(?!,,).+?)''/`, "Typography"],
 
         // <<quotation>>
-        [re`/<<(?=(?!<<).+?>>)/`, 'Typography'],
-        [re`/(?<=<<(?!>>).+?)>>/`, 'Typography'],
+        [re`/<<(?=(?!<<).+?>>)/`, "Typography"],
+        [re`/(?<=<<(?!>>).+?)>>/`, "Typography"],
 
         // >>quotation<<
-        [re`/>>(?=(?!>>).+?<<)/`, 'Typography'],
-        [re`/(?<=>>(?!<<).+?)<</`, 'Typography'],
+        [re`/>>(?=(?!>>).+?<<)/`, "Typography"],
+        [re`/(?<=>>(?!<<).+?)<</`, "Typography"],
 
         // ...
-        [/\.{3}/, 'Typography'],
+        [/\.{3}/, "Typography"],
 
         // --
-        [re`/(?<=\s)--(?=\s)/`, 'Typography']
+        [re`/(?<=\s)--(?=\s)/`, "Typography"]
       ],
 
       markup: [
 
         { style: {
-          'Escaped EscapedBlock': t.escape,
-          'EntityReference': t.character
+          "Escaped EscapedBlock": t.escape,
+          "EntityReference": t.character
         } },
 
         { brackets: [
-          { name: 'EscapedBlock', pair: ['@<', '>@'], tag: 't.processingInstruction' },
-          { name: 'Escaped',      pair: '@@',         tag: 't.processingInstruction' },
-          { name: 'ColorText',    pair: '##',         tag: 't.processingInstruction' }
+          { name: "EscapedBlock", pair: ["@<", ">@"], tag: "t.processingInstruction" },
+          { name: "Escaped",      pair: "@@",         tag: "t.processingInstruction" },
+          { name: "ColorText",    pair: "##",         tag: "t.processingInstruction" }
         ] },
 
         // raw escape block
-        [/(@<)(.+?)(>@)/, 'EscapedBlock',
-          ['@BR', { strict: false, rules: [[/&[\w#]+;/, 'EntityReference']] }, '@BR']
+        [/(@<)(.+?)(>@)/, "EscapedBlock",
+          ["@BR", { strict: false, rules: [[/&[\w#]+;/, "EntityReference"]] }, "@BR"]
         ],
 
         // escape
-        [/(@@)(.*?)(@@)/, 'Escaped', ['@BR/O', '', '@BR/C']],
+        [/(@@)(.*?)(@@)/, "Escaped", ["@BR/O", "", "@BR/C"]],
 
         // colored text
         [/(##)(\w+)(\|)/,
-          ['@BR/O', 't.color', 't.separator'], { parser: '>>ColorText' }
+          ["@BR/O", "t.color", "t.separator"], { parser: ">>ColorText" }
         ],
-        ['##', '@BR/C', { parser: '>>/ColorText' }],
+        ["##", "@BR/C", { parser: ">>/ColorText" }],
 
         // -- FORMATTING
 
         { style: {
-          'Strong/...':        t.strong,
-          'Emphasis/...':      t.emphasis,
-          'Underline/...':     t.special(t.emphasis),
-          'Strikethrough/...': t.special(t.deleted),
-          'Mark/...':          t.special(t.inserted),
-          'Subscript/...':     t.character, // TODO
-          'Superscript/...':   t.character, // TODO
-          'Monospace/...':     t.monospace
+          "Strong/...":        t.strong,
+          "Emphasis/...":      t.emphasis,
+          "Underline/...":     t.special(t.emphasis),
+          "Strikethrough/...": t.special(t.deleted),
+          "Mark/...":          t.special(t.inserted),
+          "Subscript/...":     t.character, // TODO
+          "Superscript/...":   t.character, // TODO
+          "Monospace/...":     t.monospace
         } },
 
 
         { brackets: [
-          { name: 'Strong',        tag: 't.processingInstruction' },
-          { name: 'Emphasis',      tag: 't.processingInstruction' },
-          { name: 'Underline',     tag: 't.processingInstruction' },
-          { name: 'Strikethrough', tag: 't.processingInstruction' },
-          { name: 'Subscript',     tag: 't.processingInstruction' },
-          { name: 'Superscript',   tag: 't.processingInstruction' },
-          { name: 'Monospace',     tag: 't.processingInstruction' }
+          { name: "Strong",        tag: "t.processingInstruction" },
+          { name: "Emphasis",      tag: "t.processingInstruction" },
+          { name: "Underline",     tag: "t.processingInstruction" },
+          { name: "Strikethrough", tag: "t.processingInstruction" },
+          { name: "Subscript",     tag: "t.processingInstruction" },
+          { name: "Superscript",   tag: "t.processingInstruction" },
+          { name: "Monospace",     tag: "t.processingInstruction" }
         ] },
 
         { variables: {
-          formatting: ['**', '//', '__', '--', ',,', '^^', '{{', '}}']
+          formatting: ["**", "//", "__", "--", ",,", "^^", "{{", "}}"]
         } },
 
         // closing formatting
         [[lb`1/\S/`, /(@formatting)(?![^\W\d_])/], { rules: [
-          ['**', 'StrongClose',        { parser: '>>/Strong'        }],
-          ['//', 'EmphasisClose',      { parser: '>>/Emphasis'      }],
-          ['__', 'UnderlineClose',     { parser: '>>/Underline'     }],
-          ['--', 'StrikethroughClose', { parser: '>>/Strikethrough' }],
-          [',,', 'SubscriptClose',     { parser: '>>/Subscript'     }],
-          ['^^', 'SuperscriptClose',   { parser: '>>/Superscript'   }],
-          ['}}', 'MonospaceClose',     { parser: '>>/Monospace'     }]
+          ["**", "StrongClose",        { parser: ">>/Strong"        }],
+          ["//", "EmphasisClose",      { parser: ">>/Emphasis"      }],
+          ["__", "UnderlineClose",     { parser: ">>/Underline"     }],
+          ["--", "StrikethroughClose", { parser: ">>/Strikethrough" }],
+          [",,", "SubscriptClose",     { parser: ">>/Subscript"     }],
+          ["^^", "SuperscriptClose",   { parser: ">>/Superscript"   }],
+          ["}}", "MonospaceClose",     { parser: ">>/Monospace"     }]
         ] }],
 
         // opening formatting
         [[lb`!1/\\|\w/`, /(@formatting)(?=(?!\1)\S|@escapes)/], { rules: [
-          ['**', 'StrongOpen',        { parser: '>>Strong'        }],
-          ['//', 'EmphasisOpen',      { parser: '>>Emphasis'      }],
-          ['__', 'UnderlineOpen',     { parser: '>>Underline'     }],
-          ['--', 'StrikethroughOpen', { parser: '>>Strikethrough' }],
-          [',,', 'SubscriptOpen',     { parser: '>>Subscript'     }],
-          ['^^', 'SuperscriptOpen',   { parser: '>>Superscript'   }],
-          ['{{', 'MonospaceOpen',     { parser: '>>Monospace'     }]
+          ["**", "StrongOpen",        { parser: ">>Strong"        }],
+          ["//", "EmphasisOpen",      { parser: ">>Emphasis"      }],
+          ["__", "UnderlineOpen",     { parser: ">>Underline"     }],
+          ["--", "StrikethroughOpen", { parser: ">>Strikethrough" }],
+          [",,", "SubscriptOpen",     { parser: ">>Subscript"     }],
+          ["^^", "SuperscriptOpen",   { parser: ">>Superscript"   }],
+          ["{{", "MonospaceOpen",     { parser: ">>Monospace"     }]
         ] }]
       ],
 
@@ -407,184 +407,206 @@ export const FTMLLanguage = new TarnationLanguage({
           tls: /\[{3}(?!\[)/,    // triple link start
           tle: /(?!\]{4})\]{3}/, // triple link end
 
-          blk_map: lkup(['checkbox']),
+          blk_map: lkup(["checkbox"]),
 
-          blk_val: lkup(['#', 'lines', 'newlines']),
+          blk_val: lkup(["#", "lines", "newlines"]),
 
-          blk_valmap: lkup(['iframe', 'radio', 'radio-button']),
-
-          blk_map_el: lkup([
-            'a', 'anchor',
-            'blockquote', 'quote',
-            'b', 'bold', 'strong',
-            'collapsible',
-            'del', 'deletion',
-            'div',
-            'hidden',
-            'ins', 'insertion',
-            'invisible',
-            'i', 'italics', 'em', 'emphasis',
-            'mark', 'highlight',
-            'tt', 'mono', 'monospace',
-            'span',
-            's', 'strikethrough',
-            'sub', 'subscript',
-            'sup', 'super', 'superscript',
-            'u', 'underline',
+          blk_valmap: lkup([
+            "iframe", "radio", "radio-button",
             // unofficial
-            'ul', 'ol', 'li'
+            "image"
           ]),
 
-          blk_val_el: lkup(['size']),
+          blk_map_el: lkup([
+            "a", "anchor",
+            "blockquote", "quote",
+            "b", "bold", "strong",
+            "collapsible",
+            "del", "deletion",
+            "div",
+            "hidden",
+            "ins", "insertion",
+            "invisible",
+            "i", "italics", "em", "emphasis",
+            "mark", "highlight",
+            "tt", "mono", "monospace",
+            "span",
+            "s", "strikethrough",
+            "sub", "subscript",
+            "sup", "super", "superscript",
+            "u", "underline",
+            // unofficial
+            "ul", "ol", "li"
+          ]),
+
+          blk_val_el: lkup(["size"]),
 
           blk_el: lkup([
             // unofficial
-            'footnote', '=', '>', '<', '=='
+            "footnote", "=", ">", "<", "=="
           ]),
 
-          mods: lkup(['Backlinks', 'Categories', 'Join', 'PageTree', 'Rate'])
+          mods: lkup(["Backlinks", "Categories", "Join", "PageTree", "Rate"])
         } },
 
         { brackets: [
-          { name: 'LinkTriple', pair: ['[[[',']]]'], hint: 'li', tag: 't.squareBracket' },
-          { name: 'LinkSingle', pair: ['[', ']'],    hint: 'li', tag: 't.squareBracket' },
-          { name: 'BlockNode',  pair: ['[[/', ']]'],             tag: 't.squareBracket' },
-          { name: 'BlockNode',  pair: ['[[', ']]'],              tag: 't.squareBracket' }
+          { name: "LinkTriple", pair: ["[[[","]]]"], hint: "li", tag: "t.squareBracket" },
+          { name: "LinkSingle", pair: ["[", "]"],    hint: "li", tag: "t.squareBracket" },
+          { name: "BlockNode",  pair: ["[[/", "]]"],             tag: "t.squareBracket" },
+          { name: "BlockNode",  pair: ["[[", "]]"],              tag: "t.squareBracket" }
         ] },
 
         // -- TRIPLE LINK
 
-        [/(@tls)([^\n\[\]]+)(@tle)/, 'LinkTriple', ['@BR:li', { rules: [
+        [/(@tls)([^\n\[\]]+)(@tle)/, "LinkTriple", ["@BR:li", { rules: [
           // [[[link | text]]]
           [/^([*#]?)([^|]*)(@ws*\|@ws*)(.*)$/,
-            ['t.keyword', 't.link', 't.separator', { strict: false, rules: '#inline' }]
+            ["t.keyword", "t.link", "t.separator", { strict: false, rules: "#inline" }]
           ],
           // [[[link]]]
-          [/^([*#]?)([^|]+)$/, ['t.keyword', 't.link']]
-        ] }, '@BR:li']],
+          [/^([*#]?)([^|]+)$/, ["t.keyword", "t.link"]]
+        ] }, "@BR:li"]],
 
         // -- EMBEDDED
 
         // unofficial
         // inline math block [[$...$]]
-        [/(@bs)(\$)(.*?)(\$)(@be)/, 'BlockInlineMath',
-          ['@BR', 't.keyword', { embedded: 'wikimath!' }, 't.keyword', '@BR']
+        [/(@bs)(\$)(.*?)(\$)(@be)/, "BlockInlineMath",
+          ["@BR", "t.keyword", { embedded: "wikimath!" }, "t.keyword", "@BR"]
         ],
 
         // [[math]]
-        { begin: [/(@bs)(@bm?)(math)(@bsf)([^]*?)(@be)/, 'BlockNode',
-            ['@BR', 't.modifier', 'BlockName', 't.modifier', { strict: false, rules: "#block_node_map" }, '@BR']
+        { begin: [/(@bs)(@bm?)(math)(@bsf)([^]*?)(@be)/, "BlockNode",
+            ["@BR", "t.modifier", "BlockName", "t.modifier", { strict: false, rules: "#block_node_map" }, "@BR"]
           ],
-          end:   [/(@bsc)(math)(@be)/, 'BlockNode', ['@BR', 'BlockName', '@BR']],
-          type: 'BlockNested',
-          embedded: 'wikimath!'
+          end:   [/(@bsc)(math)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
+          type: "BlockNested",
+          embedded: "wikimath!"
         },
 
         // [[module css]]
-        { begin: [/(@bs)(module)(\s+)(css)(@be)/,  'BlockNode',
-            ['@BR', 'BlockNameModule', '', 'ModuleName', '@BR']
+        { begin: [/(@bs)(module)(\s+)(css)(@be)/,  "BlockNode",
+            ["@BR", "BlockNameModule", "", "ModuleName", "@BR"]
           ],
-          end:   [/(@bsc)(module)(@be)/, 'BlockNode', ['@BR', 'BlockNameModule', '@BR']],
-          type: 'BlockNested',
-          embedded: 'css!'
+          end:   [/(@bsc)(module)(@be)/, "BlockNode", ["@BR", "BlockNameModule", "@BR"]],
+          type: "BlockNested",
+          embedded: "css!"
         },
 
         // [[css]]
-        { begin: [/(@bs)(css)(@be)/,  'BlockNode', ['@BR', 'BlockName', '@BR']],
-          end:   [/(@bsc)(css)(@be)/, 'BlockNode', ['@BR', 'BlockName', '@BR']],
-          type: 'BlockNested',
-          embedded: 'css!'
+        { begin: [/(@bs)(css)(@be)/,  "BlockNode", ["@BR", "BlockName", "@BR"]],
+          end:   [/(@bsc)(css)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
+          type: "BlockNested",
+          embedded: "css!"
         },
 
         // [[html]]
-        { begin: [/(@bs)(html)(@be)/,  'BlockNode', ['@BR', 'BlockName', '@BR']],
-          end:   [/(@bsc)(html)(@be)/, 'BlockNode', ['@BR', 'BlockName', '@BR']],
-          type: 'BlockNested',
-          embedded: 'html!'
+        { begin: [/(@bs)(html)(@be)/,  "BlockNode", ["@BR", "BlockName", "@BR"]],
+          end:   [/(@bsc)(html)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
+          type: "BlockNested",
+          embedded: "html!"
         },
 
         // TODO: make type attribute work
         // [[code]]
-        { begin: [/(@bs)(code)(@be)/,  'BlockNode', ['@BR', 'BlockName', '@BR']],
-          end:   [/(@bsc)(code)(@be)/, 'BlockNode', ['@BR', 'BlockName', '@BR']],
-          type: 'BlockNested',
+        { begin: [/(@bs)(code)(@be)/,  "BlockNode", ["@BR", "BlockName", "@BR"]],
+          end:   [/(@bsc)(code)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
+          type: "BlockNested",
           rules: []
         },
 
         // -- BLOCKS
 
         // block (map)
-        [[/(@bs)(@bm?)/, '@blk_map', /(@bsf)([^]*?)(@be)/], 'BlockNode',
-          ['@BR', 't.modifier', 'BlockName', 't.modifier', { strict: false, rules: "#block_node_map" }, '@BR']
+        [[/(@bs)(@bm?)/, "@blk_map", /(@bsf)([^]*?)(@be)/], "BlockNode",
+          ["@BR", "t.modifier", "BlockName", "t.modifier", { strict: false, rules: "#block_node_map" }, "@BR"]
         ],
 
         // block (value)
-        [[/(@bs)(@bm?)/, '@blk_val', /(@bsf)([^]*?)(@be)/], 'BlockNode',
-          ['@BR', 't.modifier', 'BlockName', 't.modifier', 'BlockValue', '@BR']
+        [[/(@bs)(@bm?)/, "@blk_val", /(@bsf)([^]*?)(@be)/], "BlockNode",
+          ["@BR", "t.modifier", "BlockName", "t.modifier", "BlockValue", "@BR"]
         ],
 
         // block (valmap)
-        [[/(@bs)(@bm?)/, '@blk_valmap', /(@bsf)(\s*[^\]\s]*)([^]*?)(@be)/], 'BlockNode',
-          ['@BR', 't.modifier', 'BlockName', 't.modifier', 'BlockValue', { strict: false, rules: "#block_node_map" }, '@BR']
+        [[/(@bs)(@bm?)/, "@blk_valmap", /(@bsf)(\s*[^\]\s]*)([^]*?)(@be)/], "BlockNode",
+          ["@BR", "t.modifier", "BlockName", "t.modifier", "BlockValue", { strict: false, rules: "#block_node_map" }, "@BR"]
         ],
 
         // block modules
-        [[/(@bs)(@bm?)(module)(@bsf)(\s*)/, '@mods', /([^]*?)(@be)/], 'BlockNode',
-          ['@BR', 't.modifier', 'BlockNameModule', 't.modifier', '', 'ModuleName', 'BlockValue', '@BR']
+        [[/(@bs)(@bm?)(module)(@bsf)(\s*)/, "@mods", /([^]*?)(@be)/], "BlockNode",
+          ["@BR", "t.modifier", "BlockNameModule", "t.modifier", "", "ModuleName", { strict: false, rules: "#block_node_map" }, "@BR"]
         ],
 
         // -- BLOCK CONTAINERS
 
         // block containers (map, elements)
-        { begin: [[/(@bs)(@bm?)/, '@blk_map_el', /(@bsf)([^]*?)(@be)/], 'BlockNode',
-            ['@BR', 't.modifier', 'BlockName', 't.modifier', { strict: false, rules: "#block_node_map" }, '@BR']
+        { begin: [[/(@bs)(@bm?)/, "@blk_map_el", /(@bsf)([^]*?)(@be)/], "BlockNode",
+            ["@BR", "t.modifier", "BlockName", "t.modifier", { strict: false, rules: "#block_node_map" }, "@BR"]
           ],
-          end: [[/@bsc/, '@blk_map_el', /@be/], 'BlockNode', ['@BR', 'BlockName', '@BR']],
-          type: 'BlockContainer'
+          end: [[/@bsc/, "@blk_map_el", /@be/], "BlockNode", ["@BR", "BlockName", "@BR"]],
+          type: "BlockContainer"
         },
 
         // block containers (value, elements)
-        { begin: [[/(@bs)(@bm?)/, '@blk_val_el', /(@bsf)([^]*?)(@be)/], 'BlockNode',
-            ['@BR', 't.modifier', 'BlockName', 't.modifier', 'BlockValue', '@BR']
+        { begin: [[/(@bs)(@bm?)/, "@blk_val_el", /(@bsf)([^]*?)(@be)/], "BlockNode",
+            ["@BR", "t.modifier", "BlockName", "t.modifier", "BlockValue", "@BR"]
           ],
-          end: [[/@bsc/, '@blk_val_el', /@be/], 'BlockNode', ['@BR', 'BlockName', '@BR']],
-          type: 'BlockContainer'
+          end: [[/@bsc/, "@blk_val_el", /@be/], "BlockNode", ["@BR", "BlockName", "@BR"]],
+          type: "BlockContainer"
         },
 
         // block containers (elements)
-        { begin: [[/(@bs)(@bm?)/, '@blk_el', /(@bsf)(@be)/], 'BlockNode',
-            ['@BR', 't.modifier', 'BlockName', 't.modifier', '@BR']
+        { begin: [[/(@bs)(@bm?)/, "@blk_el", /(@bsf)(@be)/], "BlockNode",
+            ["@BR", "t.modifier", "BlockName", "t.modifier", "@BR"]
           ],
-          end: [[/@bsc/, '@blk_el', /@be/], 'BlockNode', ['@BR', 'BlockName', '@BR']],
-          type: 'BlockContainer'
+          end: [[/@bsc/, "@blk_el", /@be/], "BlockNode", ["@BR", "BlockName", "@BR"]],
+          type: "BlockContainer"
         },
 
         // -- UNKNOWN
 
-        [/(@bs|@bsc)(@bm?)([^\\#*\s\]]+?)(@bsf)([^]*?)(@be)/, 'BlockNode',
-          ['@BR', 't.modifier', 'BlockNameUnknown', 't.modifier', { strict: false, rules: "#block_node_map" }, '@BR']
+        [/(@bs|@bsc)(@bm?)([^\\#*\s\]]+?)(@bsf)([^]*?)(@be)/, "BlockNode",
+          ["@BR", "t.modifier", "BlockNameUnknown", "t.modifier", { strict: false, rules: "#block_node_map" }, "@BR"]
         ],
 
         // -- SINGLE LINKS
 
-        [/(\[)([^\n\[\]]+)(\])/, 'LinkSingle', ['@BR:li', { rules: [
+        [/(\[)([^\n\[\]]+)(\])/, "LinkSingle", ["@BR:li", { rules: [
           // [link text]
           [/^@lslug(@ws+|\|)(.*)$/,
-            ['t.keyword', 't.link', 't.separator', { strict: false, rules: '#inline' }]
+            ["t.keyword", "t.link", "t.separator", { strict: false, rules: "#inline" }]
           ],
           // [link]
-          [/^@lslug$/, ['t.keyword', 't.link']],
+          [/^@lslug$/, ["t.keyword", "t.link"]],
           // [# anchortext]
           [/^(#)(@ws.+)$/,
-            ['t.keyword', { strict: false, rules: '#inline' }]
+            ["t.keyword", { strict: false, rules: "#inline" }]
           ]
-        ] }, '@BR:li']]
+        ] }, "@BR:li"]]
       ],
 
       block_node_map: [
         { style: {
           BlockLabel: t.invalid,
+          BlockNodeArgumentName: t.propertyName,
+          BlockNodeArgumentValue: t.string
         } },
+
+        // [/(style)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
+        //   "BlockNodeArgumentName",
+        //   "t.definitionOperator",
+        //   "t.string",
+        //   { embedded: "css!" },
+        //   "t.string"
+        // ]],
+
+        [/(\S+?)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
+          "BlockNodeArgumentName",
+          "t.definitionOperator",
+          "t.string",
+          "BlockNodeArgumentValue",
+          "t.string"
+        ]],
 
         [/(\S+?)(?=$|\s|@be)/, "BlockLabel"]
       ],
@@ -604,19 +626,19 @@ export const FTMLLanguage = new TarnationLanguage({
         } },
 
         { begin: [/(@bs)(include)(@bsf)((?:@ws*)[^\s\]]+)/,
-            ['@BR', 'BlockNameInclude', 't.modifier', 'IncludeValue']
+            ["@BR", "BlockNameInclude", "t.modifier", "IncludeValue"]
           ],
-          end: [/@be/, '@BR'],
-          type: 'IncludeNode',
+          end: [/@be/, "@BR"],
+          type: "IncludeNode",
           rules: [
-            ['|', 't.separator'],
+            ["|", "t.separator"],
             { begin: [/([^\s=]+)(\s*=\s*)/,[
-                'IncludeParameterProperty',
-                ['t.operator', { parser: '<<IncludeParameterValue' }]
+                "IncludeParameterProperty",
+                ["t.operator", { parser: "<<IncludeParameterValue" }]
               ]],
-              end: [/@be|\|/, '@RE', { parser: '<</IncludeParameterValue' }],
-              type: 'IncludeParameter',
-              rules: '#root'
+              end: [/@be|\|/, "@RE", { parser: "<</IncludeParameterValue" }],
+              type: "IncludeParameter",
+              rules: "#root"
             }
           ]
         }
