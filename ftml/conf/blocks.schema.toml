@@ -1,0 +1,121 @@
+# Schema for blocks.toml
+#
+# This describes what properties blocks can have, as mentioned in docs/Blocks.md
+
+[block-name]
+
+# Whether this block is deprecated or not.
+# Deprecated blocks should be clearly marked as such, and
+# should not be actively recommended to users.
+#
+# If this is set, then the deprecation-message in the corresponding
+# language file should be populated.
+#
+# type: bool, optional
+deprecated = false
+
+# What aliases (if any) this block accepts, in addition to its name.
+# Case-insensitive.
+#
+# type: string[], optional
+aliases = ["a", "anchor"]
+
+# Whether this block accepts the star (*) modifier.
+#
+# type: bool, optional
+accepts-star = false
+
+# Whether this block accepts the score (_) modifier.
+#
+# type: bool, optional
+accepts-score = true
+
+# Whether this block accepts newline delimition for its sections.
+#
+# type: bool, optional
+accepts-newlines = true
+
+# What kind of head this block expects.
+# See the document "Blocks.md" for more information.
+#
+# type: string, enum
+# values: "none", "value", "map", "value+map"
+head = "map"
+
+# What kind of body this block expects, if any.
+#
+# type: string, enum
+# values: "none", "raw", "elements", "other"
+body = "elements"
+
+# Whether this block accepts safe HTML attributes as arguments.
+# These are then ported to the final HTML element in rendering,
+# with possible changes for safety or correctness.
+#
+# Only applies to blocks that have head = "map" or "value+map".
+#
+# type: bool, optional
+html-attributes = true
+
+# What kind of HTML output this block produces.
+#
+# This field is formatted a bit particularly:
+#
+# "none"
+#  -> No output.
+# "html,$element[,$class]"
+#  -> This produces a DOM element of the given type. For instance, "html,iframe"
+#     If the third element is specified, then it ensures that this element has
+#     the given class added. "html,div,test" means that '<div class="test">' is produced.
+# "css"
+#  -> This modifies the page's CSS rules in some way.
+# "other"
+#  -> This produces some other kind of output that does not fit in the above.
+#     Because it is not "none" it produces some DOM elements, but it cannot be readily
+#     described, perhaps because it is context-sensitive or variable.
+html-output = "html,span"
+
+# Whether this block has behavior that needs special handling logic.
+# The value describes the kind of behavior to expect, and code
+# should look for this flag rather than hardcoding based on block name.
+#
+# type: string, enum, optional
+# values: "", "module"
+special = ""
+
+# Each argument that this block accepts gets its own sub-key.
+# Case-insensitive.
+#
+# For instance, "collapsible.arguments.hideLocation".
+[block-name.arguments.argument-name]
+
+# The high-level type of this argument.
+# If it ends in "[]", then it is a list of that kind.
+#
+# type: string
+# values: "string", "int", "float"
+type = "string"
+
+# What values this can argument can take, if it's an enum.
+# If this field is excluded, then the argument can take any value.
+#
+# type: $argument_type[], optional
+enum = [
+    "top",
+    "bottom",
+    "both",
+    "neither",
+]
+
+# What the maximum and minimum bounds this argument can take, if it's a numerical value.
+# If one or both of these fields are excluded, then there is no upper limit.
+#
+# type: $argument_type, optional
+min-value = 0
+max-value = 500
+
+# What value this argument has by default, if not excluded.
+# Implies that the argument is optional.
+#
+# type: $argument_type, optional
+default = "both"
