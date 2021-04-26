@@ -1,4 +1,6 @@
-# Build libftml for parsing and rendering
+#
+# Build ftml for parsing and rendering
+#
 
 FROM rust:alpine as rust
 
@@ -9,7 +11,9 @@ ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_BRANCH="develop"
 WORKDIR /src
 
-RUN apk add --no-cache git
+RUN apk add --no-cache \
+    alpine-sdk \
+    git
 
 RUN git clone \
         --depth 10 \
@@ -20,14 +24,15 @@ WORKDIR /src/${WIKIJUMP_REPO_DIR}/ftml
 
 RUN cargo build --release
 
+#
 # Main php-fpm container
+#
 
 FROM php:7.4-fpm-alpine
 
 EXPOSE 9000
 
 # Build variables
-
 ARG WIKIJUMP_REPO_DIR="wikijump"
 
 ARG MAIN_DOMAIN="wikijump.dev"

@@ -1,11 +1,41 @@
+#
+# Build ftml for parsing and rendering
+#
+
+FROM rust:alpine as rust
+
+# Please note this arg is also defined in the php-fpm layer further down.
+ARG WIKIJUMP_REPO_DIR="wikijump"
+
+ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
+ARG WIKIJUMP_REPO_BRANCH="develop"
+ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
+WORKDIR /src
+
+RUN apk add --no-cache \
+    alpine-sdk \
+    git
+
+# !! Comment out if using local bindings
+RUN git clone \
+        --depth 10 \
+        --branch "${WIKIJUMP_REPO_BRANCH}" \
+        "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+
+WORKDIR /src/${WIKIJUMP_REPO_DIR}/ftml
+
+RUN cargo build --release
+
+#
+# Main php-fpm container
+#
+
 FROM php:7.4-fpm-alpine
 
 EXPOSE 9000
 
 # Build variables
-ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
-ARG WIKIJUMP_REPO_BRANCH="develop"
 ARG DEBUG_IP="192.168.42.128"
 
 ARG MAIN_DOMAIN="wikijump.test"
@@ -48,6 +78,10 @@ RUN apk add --update --no-cache \
 RUN apk add --no-cache --virtual .persistent-deps libffi-dev \
     && docker-php-ext-configure ffi --with-ffi \
     && docker-php-ext-install ffi
+
+# Install libftml
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/ftml.h /usr/local/include/ftml.h
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
