@@ -2,7 +2,7 @@
 # Build ftml for parsing and rendering
 #
 
-FROM rust:alpine as rust
+FROM rust:latest as rust
 
 # Please note this arg is also defined in the php-fpm layer further down.
 ARG WIKIJUMP_REPO_DIR="wikijump"
@@ -11,8 +11,9 @@ ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_BRANCH="develop"
 WORKDIR /src
 
-RUN apk add --no-cache \
-    alpine-sdk \
+RUN apt update
+RUN apt install -y \
+    build-essential \
     git
 
 RUN git clone \
@@ -28,7 +29,7 @@ RUN cargo build --release
 # Main php-fpm container
 #
 
-FROM php:7.4-fpm-alpine
+FROM php:7.4-fpm
 
 EXPOSE 80
 
@@ -56,7 +57,7 @@ COPY setup-memcached.sh ./
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Install packages
-RUN apk add --update --no-cache \
+RUN apt install \
     libgd \
     libpng-dev \
     libjpeg-turbo-dev \
@@ -73,7 +74,7 @@ RUN apk add --update --no-cache \
     gettext-dev
 
 # Configure PHP-FFI
-RUN apk add --no-cache --virtual .persistent-deps libffi-dev \
+RUN apt install libffi-dev \
     && docker-php-ext-configure ffi --with-ffi \
     && docker-php-ext-install ffi
 
