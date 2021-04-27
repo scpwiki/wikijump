@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    // General Functionality
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "node",
@@ -9,19 +8,16 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
 
-    // Features
     "allowJs": true,
     "resolveJsonModule": true,
     "useDefineForClassFields": true,
     "lib": ["ESNext", "DOM", "WebWorker"],
 
-    // Code
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
 
-    // Emit (incremental)
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -29,9 +25,6 @@
     "preserveWatchOutput": true
   },
 
-  // Modules must be added here in order for their types to be compiled.
-  // Unfortunately, there isn't a decent way to do this automatically.
-  // The performance benefits are worth it, regardless.
   "references": [
     { "path": "./modules/wj-util" },
     { "path": "./modules/sheaf-core" },
@@ -44,14 +37,13 @@
   "typeAcquisition": {
     "enable": true,
     "disableFilenameBasedTypeAcquisition": true,
-    // exclude some problematic packages that cause `tsconfig.json` errors
     "exclude": [
       "agent-base", "https-proxy-agent", "socks-proxy-agent",
-      "dotenv", "source-map"
+      "dotenv", "source-map",
+      "fast-safe-stringify"
     ]
   },
 
-  // Due to us having at least one reference (see above) this isn't an error.
   "files": [],
   "include": []
 }

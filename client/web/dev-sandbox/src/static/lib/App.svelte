@@ -1,0 +1,18 @@
+<script lang="ts">
+  import { Sheaf } from "components"
+  import { onMount } from "svelte"
+
+  let ready = false
+  let doc = ""
+
+  onMount(async () => {
+    const res = await fetch("/static/misc/ftml-test.ftml")
+    if (!res) return
+    doc = await res.text()
+    ready = true
+  })
+</script>
+
+<div>
+  {#if ready}<Sheaf {doc} />{/if}
+</div>

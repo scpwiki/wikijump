@@ -161,7 +161,12 @@ module.exports = {
   parserOptions: {
     sourceType: "module",
     tsconfigRootDir: __dirname,
-    project: ["./tsconfig.json", "./modules/*/tsconfig.json", "./web/*/tsconfig.json"],
+    project: [
+      "./tsconfig.json",
+      "./components/tsconfig.json",
+      "./modules/*/tsconfig.json",
+      "./web/*/tsconfig.json"
+    ],
     extraFileExtensions: [".svelte"]
   },
 
@@ -182,7 +187,7 @@ module.exports = {
     },
     // TypeScript (Testing)
     {
-      files: ["**/tests/*.ts"],
+      files: ["**/tests/**/*.ts"],
       env: { browser: true, es2021: true },
       parserOptions: { createDefaultProgram: true },
       rules: { ...baseRules, ...typeRules }
@@ -206,7 +211,7 @@ module.exports = {
       env: { browser: true, es2021: true },
       rules: { ...baseRules, ...typeRules },
       settings: {
-        "svelte3/typescript": require("typescript"),
+        "svelte3/typescript": () => require("typescript"),
         "svelte3/ignore-styles": () => true
       }
     }

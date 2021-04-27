@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": true,
+    "declarationMap": false,
+    "baseUrl": "./",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "declarationDir": "./dist",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "include": ["../misc/types", "./src"],
+  "exclude": ["./node_modules"]
+}

@@ -7,5 +7,4 @@ vendor
 *.json
 *.md
 *.yaml
-*.html
-*.svelte
+
