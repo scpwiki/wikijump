@@ -46,9 +46,6 @@ ARG FILES_DOMAIN="wjfiles.test"
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
 
-# Configure timezone
-RUN ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime
-
 WORKDIR /src
 
 # Copy scripts
