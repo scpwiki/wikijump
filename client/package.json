@@ -6,8 +6,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist --loglevel success",
     "build": "lerna run --stream build",
-    "clean": "lerna exec --parallel -- trash dist tests/dist .ultra.cache.json",
-    "dev:dev-sandbox": "cd web/dev-sandbox && npm -s run dev",
+    "dev:dev-sandbox": "lerna run --stream dev --scope dev-sandbox",
     "lerna:clean": "lerna clean --yes --loglevel success",
     "lint": "npm run lint:eslint && npm run lint:prettier",
     "lint:eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
@@ -15,8 +14,8 @@
     "lint:fix:eslint": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "lint:fix:prettier": "prettier --write \"modules/\" \"web/\"",
     "lint:prettier": "prettier --check \"modules/\" \"web/\"",
-    "test": "node scripts/build-tests.js && uvu ./tests-dist",
-    "update": "npm i && run-s -s lerna:clean clean bootstrap build",
+    "test": "trash tests-dist && node scripts/build-tests.js && uvu ./tests-dist",
+    "update": "npm i && run-s -s lerna:clean bootstrap build",
     "nabs": "nabs"
   },
   "workspaces": [

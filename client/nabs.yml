@@ -1,9 +1,8 @@
 # -- UTILITY
 
-update: npm i && run-s -s lerna:clean clean bootstrap build
+update: npm i && run-s -s lerna:clean bootstrap build
 bootstrap: lerna bootstrap --hoist --loglevel success
 lerna:clean: lerna clean --yes --loglevel success
-clean: lerna exec --parallel -- trash dist tests/dist .ultra.cache.json
 
 # -- BUILD
 
@@ -12,6 +11,7 @@ build: lerna run --stream build
 # -- TESTING, LINTING
 
 test:
+  - trash tests-dist
   - node scripts/build-tests.js
   - uvu ./tests-dist
 
