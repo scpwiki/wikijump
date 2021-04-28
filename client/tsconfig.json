@@ -12,6 +12,7 @@
     "resolveJsonModule": true,
     "useDefineForClassFields": true,
     "lib": ["ESNext", "DOM", "WebWorker"],
+    "types": ["misc/types", "svelte"],
 
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
