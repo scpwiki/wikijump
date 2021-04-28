@@ -8,14 +8,6 @@
     "build": "vite build"
   },
   "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git"
-  },
-  "bugs": {
-    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
-  },
-  "homepage": "https://github.com/scpwiki/wikijump#readme",
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   },

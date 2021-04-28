@@ -15,7 +15,7 @@
     "lint:fix:prettier": "prettier --write \"modules/\" \"web/\"",
     "lint:prettier": "prettier --check \"modules/\" \"web/\"",
     "test": "trash tests-dist && node scripts/build-tests.js && uvu ./tests-dist",
-    "update": "npm i && run-s -s lerna:clean bootstrap build",
+    "update": "npm i && npm -s run lerna:clean && npm -s run bootstrap && npm -s run build",
     "nabs": "nabs"
   },
   "workspaces": [
@@ -42,9 +42,7 @@
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "@typescript-eslint/typescript-estree": "^4.22.0",
-    "browserslist": "^4.16.5",
     "esbuild": "^0.11.15",
-    "esbuild-node-externals": "^1.2.0",
     "esbuild-svelte": "^0.4.3",
     "eslint": "^7.25.0",
     "eslint-plugin-clean-regex": "^0.5.1",

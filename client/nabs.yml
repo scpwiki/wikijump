@@ -1,6 +1,6 @@
 # -- UTILITY
 
-update: npm i && run-s -s lerna:clean bootstrap build
+update: npm i && npm -s run lerna:clean && npm -s run bootstrap && npm -s run build
 bootstrap: lerna bootstrap --hoist --loglevel success
 lerna:clean: lerna clean --yes --loglevel success
 
