@@ -5,7 +5,6 @@ set -eux
 readonly cores="$(nproc)"
 
 # Install dependencies
-apt install
 readonly dependencies=(
 	'libmemcached-dev'
 	'postgresql-server-dev-11'
