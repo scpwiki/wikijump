@@ -20,7 +20,7 @@ export interface Attribute {
 export type BlockConfiguration = Record<string, Block2>
 
 export interface Block2 {
-  "deprecated": boolean
+  "deprecated"?: boolean
   "aliases"?: string[]
   "accepts-star"?: boolean
   "accepts-score"?: boolean
