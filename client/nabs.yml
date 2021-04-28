@@ -7,14 +7,13 @@ clean: lerna exec --parallel -- trash dist tests/dist .ultra.cache.json
 
 # -- BUILD
 
-build: ultra -r --filter "web/*" build
+build: lerna run --stream build
 
 # -- TESTING, LINTING
 
 test:
-  - node scripts/build-modules.js -tests
-  - node scripts/build-components.js -tests
-  - uvu ./ tests[/\\\\]dist -i misc
+  - node scripts/build-tests.js
+  - uvu ./tests-dist
 
 lint:
   eslint: eslint "./**/*.js" "./**/*.ts"
@@ -26,4 +25,4 @@ lint:fix:
 
 # -- MISC.
 
-dev:dev-sandbox: ultra --raw -r --filter "web/dev-sandbox" dev
+dev:dev-sandbox: lerna run --stream dev --scope dev-sandbox

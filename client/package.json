@@ -5,9 +5,9 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist --loglevel success",
-    "build": "ultra -r --filter \"web/*\" build",
+    "build": "lerna run --stream build",
     "clean": "lerna exec --parallel -- trash dist tests/dist .ultra.cache.json",
-    "dev:dev-sandbox": "ultra --raw -r --filter \"web/dev-sandbox\" dev",
+    "dev:dev-sandbox": "cd web/dev-sandbox && npm -s run dev",
     "lerna:clean": "lerna clean --yes --loglevel success",
     "lint": "npm run lint:eslint && npm run lint:prettier",
     "lint:eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
@@ -15,14 +15,9 @@
     "lint:fix:eslint": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "lint:fix:prettier": "prettier --write \"modules/\" \"web/\"",
     "lint:prettier": "prettier --check \"modules/\" \"web/\"",
-    "test": "node scripts/build-modules.js -tests && node scripts/build-components.js -tests && uvu ./ tests[/\\\\\\\\]dist -i misc",
+    "test": "node scripts/build-tests.js && uvu ./tests-dist",
     "update": "npm i && run-s -s lerna:clean clean bootstrap build",
     "nabs": "nabs"
-  },
-  "ultra": {
-    "concurrent": [
-      "build"
-    ]
   },
   "workspaces": [
     "components",
@@ -68,6 +63,7 @@
     "svelte": "^3.37.0",
     "svelte-preprocess": "^4.7.2",
     "svelte-preprocess-esbuild": "^2.0.0",
+    "toml": "^3.0.0",
     "trash-cli": "^4.0.0",
     "typescript": "4.3.0-beta",
     "ultra-runner": "^3.10.5",

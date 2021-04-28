@@ -6,5 +6,6 @@ npm-debug.log
 
 # Packages
 dist
+tests-dist
 .tsbuildinfo
 .ultra.cache.json
