@@ -129,10 +129,6 @@ RUN mkdir /etc/nginx/sites-enabled && \
 
 RUN install -m 400 -o www-data -g www-data .env.example .env && php artisan key:generate
 
-# Clean up packages
-RUN apt autoclean
-RUN apt autoremove -y
-
 # Main process
 # Let the upstream ENTRYPOINT handle running php-fpm
 ADD ./entrypoint.sh /usr/local/bin/

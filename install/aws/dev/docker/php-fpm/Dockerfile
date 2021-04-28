@@ -125,8 +125,4 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 
 COPY etc/php/ /usr/local/etc/php/conf.d/
 
-# Clean up packages
-RUN apt autoclean
-RUN apt autoremove -y
-
 CMD ["php-fpm"]
