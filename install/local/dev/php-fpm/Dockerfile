@@ -60,6 +60,7 @@ RUN apt install -y \
     libfreetype6-dev \
     imagemagick \
     git \
+    zip \
     html2text \
     postgresql-common \
     libtidy-dev \
@@ -136,8 +137,8 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 
 COPY etc/php/ /usr/local/etc/php/conf.d/
 
-# Clean up dependencies
+# Clean up packages
 RUN apt autoclean
-RUN apt autoremove
+RUN apt autoremove -y
 
 CMD ["php-fpm"]

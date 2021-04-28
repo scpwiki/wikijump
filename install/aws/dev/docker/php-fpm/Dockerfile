@@ -59,6 +59,7 @@ RUN apt install -y \
     libfreetype6-dev \
     imagemagick \
     git \
+    zip \
     html2text \
     libmemcached-dev \
     postgresql-common \
@@ -123,5 +124,9 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     chown -R www-data:www-data .
 
 COPY etc/php/ /usr/local/etc/php/conf.d/
+
+# Clean up packages
+RUN apt autoclean
+RUN apt autoremove -y
 
 CMD ["php-fpm"]

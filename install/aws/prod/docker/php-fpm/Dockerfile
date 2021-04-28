@@ -61,6 +61,7 @@ RUN apt install -y \
     libfreetype6-dev \
     imagemagick \
     git \
+    zip \
     html2text \
     libmemcached-dev \
     postgresql-common \
@@ -127,6 +128,10 @@ RUN mkdir /etc/nginx/sites-enabled && \
     rm -f /etc/nginx/sites-enabled/default
 
 RUN install -m 400 -o www-data -g www-data .env.example .env && php artisan key:generate
+
+# Clean up packages
+RUN apt autoclean
+RUN apt autoremove -y
 
 # Main process
 # Let the upstream ENTRYPOINT handle running php-fpm
