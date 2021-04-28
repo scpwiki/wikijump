@@ -54,21 +54,18 @@ COPY setup-memcached.sh ./
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Install packages
-RUN apt install \
-    libgd \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+RUN apt update
+RUN apt install -y \
+    libgd-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
     imagemagick \
-    nodejs \
-    npm \
+    git \
     html2text \
-    nginx \
-    libmemcached-libs \
-    zlib \
-    postgresql-dev \
-    tidyhtml-dev \
-    gettext-dev
+    libmemcached-dev \
+    postgresql-common \
+    libtidy-dev \
+    gettext && \
 
 # Configure PHP-FFI
 RUN apt install libffi-dev \
@@ -85,11 +82,8 @@ RUN /src/setup-memcached.sh
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
 # Install the Wikijump repository
-WORKDIR /var/www
-RUN git clone \
-    --depth 10 \
-    --branch "${WIKIJUMP_REPO_BRANCH}" \
-    "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+# Copy Wikijump files
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/wikijump/web
 
 WORKDIR "${WIKIJUMP_DIR}/web"
 RUN mkdir -p \

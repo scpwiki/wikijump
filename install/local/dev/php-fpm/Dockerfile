@@ -9,7 +9,6 @@ ARG WIKIJUMP_REPO_DIR="wikijump"
 
 ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_BRANCH="develop"
-ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
 WORKDIR /src
 
 RUN apt update
@@ -17,7 +16,6 @@ RUN apt install -y \
     build-essential \
     git
 
-# !! Comment out if using local bindings
 RUN git clone \
         --depth 10 \
         --branch "${WIKIJUMP_REPO_BRANCH}" \
@@ -55,19 +53,17 @@ COPY setup-memcached.sh ./
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Install packages
-RUN apt install \
-    libgd \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+RUN apt update
+RUN apt install -y \
+    libgd-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
     imagemagick \
     git \
     html2text \
-    libmemcached-libs \
-    zlib \
-    postgresql-dev \
-    tidyhtml-dev \
-    gettext-dev && \
+    postgresql-common \
+    libtidy-dev \
+    gettext && \
 
     # Memcached PHP lib
     /src/setup-memcached.sh
@@ -93,12 +89,10 @@ RUN echo "xdebug.mode = debug" >> ${XDEBUG_INI} \
 WORKDIR /var/www
 
 # !! Workaround for WSL2-enabled development with exposed host volumes, comment out if not needed.
-RUN apt install shadow && usermod -u 1000 www-data && groupmod -g 1000 www-data && \
+RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
 
-    git clone \
-        --depth 10 \
-        --branch "${WIKIJUMP_REPO_BRANCH}" \
-        "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+# Copy Wikijump files
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/wikijump/web
 
 WORKDIR "${WIKIJUMP_DIR}/web"
 
@@ -141,5 +135,9 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     chown -R www-data:www-data .
 
 COPY etc/php/ /usr/local/etc/php/conf.d/
+
+# Clean up dependencies
+RUN apt autoclean
+RUN apt autoremove
 
 CMD ["php-fpm"]

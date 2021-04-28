@@ -1,25 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 set -eux
 
 # Variables
 readonly cores="$(nproc)"
 
 # Install dependencies
-apk add \
-	--no-cache \
-	--update \
-	--virtual \
-		.phpize-deps \
-		$PHPIZE_DEPS \
+apt install
+readonly dependencies=(
+	'libmemcached-dev'
+	'postgresql-server-dev-11'
+)
 
-apk add \
-	--no-cache \
-	--update \
-	--virtual \
-		.memcached-deps \
-		zlib-dev \
-		libmemcached-dev \
-		cyrus-sasl-dev
+apt install -y "${dependencies[@]}"
 
 # Install igbinary (memcached's deps)
 pecl install igbinary
@@ -47,9 +39,11 @@ make install
 # Install xdebug
 pecl install xdebug
 
+# Uninstall temporary dependencies
+apt remove -y "${dependencies[@]}"
+
 # Enable PHP extensions and clean up
 docker-php-ext-enable igbinary memcached memcache xdebug
-apk del .memcached-deps .phpize-deps
 docker-php-ext-install \
 	"-j$cores" \
 		opcache \

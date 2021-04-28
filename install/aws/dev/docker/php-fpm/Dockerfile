@@ -52,18 +52,18 @@ COPY setup-memcached.sh ./
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Install packages
-RUN apt install \
-    libgd \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+RUN apt update
+RUN apt install -y \
+    libgd-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
     imagemagick \
+    git \
     html2text \
-    libmemcached-libs \
-    zlib \
-    postgresql-dev \
-    tidyhtml-dev \
-    gettext-dev && \
+    libmemcached-dev \
+    postgresql-common \
+    libtidy-dev \
+    gettext && \
 
     # Memcached PHP lib
     /src/setup-memcached.sh
@@ -80,7 +80,7 @@ COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/libftml.so /usr/l
 # Install the Wikijump repository
 WORKDIR /var/www
 
-COPY --from=rust /src/${WIKIJUMP_REPO_DIR} ${WIKIJUMP_DIR}
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/wikijump/web
 
 WORKDIR "${WIKIJUMP_DIR}/web"
 
