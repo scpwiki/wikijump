@@ -1,4 +1,4 @@
-import { toFragment } from "../../wj-util/dist"
+import { toFragment } from "wj-util"
 import * as FTML from "./index"
 
 export class FTMLFragment {
