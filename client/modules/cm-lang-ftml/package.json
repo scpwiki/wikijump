@@ -6,20 +6,15 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "clean": "trash dist .ultra.cache.json",
-    "build": "node ../../scripts/build-modules.js -self"
-  },
+  "scripts": {},
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git"
+    "url": "git+https://github.com/scpwiki/wikijump.git",
+    "directory": "client/modules/cm-lang-ftml"
   },
-  "bugs": {
-    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
-  },
+  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
   "eslintConfig": {
     "extends": "../../.eslintrc.js"

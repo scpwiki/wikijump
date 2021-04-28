@@ -4,7 +4,7 @@ import type * as FTML from "ftml-wasm"
 import type * as Binding from "ftml-wasm/vendor/ftml"
 
 // imports the worker as a chunk of text
-import workerText from "./worker/ftml.worker.ts"
+import workerText from "./worker/ftml.worker?bundled-worker"
 
 // external import (resolved by Vite)
 // I don't like how non-portable this is, but I also don't know of a better solution

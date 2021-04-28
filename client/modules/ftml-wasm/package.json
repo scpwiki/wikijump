@@ -7,20 +7,16 @@
     "wikijump"
   ],
   "scripts": {
-    "clean": "trash dist .ultra.cache.json",
-    "build": "node ../../scripts/build-modules.js -self",
     "pack-ftml": "cd ../../../ftml && wasm-pack build --release --target web --out-dir ../client/modules/ftml-wasm/vendor -- --no-default-features && cd ../client/modules/ftml-wasm/vendor && trash .gitignore LICENSE.md package.json README.md ftml_bg.wasm.d.ts"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git"
+    "url": "git+https://github.com/scpwiki/wikijump.git",
+    "directory": "client/modules/sheaf-core"
   },
-  "bugs": {
-    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
-  },
+  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
   "eslintConfig": { "extends": "../../.eslintrc.js" },
   "dependencies": {}

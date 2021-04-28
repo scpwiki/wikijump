@@ -6,17 +6,19 @@
 
 declare module "*.css"
 
-declare module "*.worker.ts" {
+// -- VITE
+
+declare module "*?url" {
+  const text: string
+  export default text
+}
+
+declare module "*?bundled-worker" {
   const text: string
   export default text
 }
 
 // -- URL REFERENCES
-
-declare module "*?url" {
-  const url: string
-  export default url
-}
 
 declare module "*.wasm" {
   const url: string

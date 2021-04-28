@@ -5,14 +5,9 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist --loglevel success",
-    "build": "ultra --build build:cmd",
-    "build:cmd": "npm run build:cmd:packages && ultra -r --no-pretty --filter \"web/*\" build",
-    "build:cmd:packages": "tsc -b && ultra -r --raw --filter \"modules/*\" build && ultra -r --raw --filter components build",
-    "clean": "ultra --silent -r clean",
-    "dev": "ultra dev:cmd",
-    "dev:cmd": "tsc -b -w && node scripts/build-modules.js -w -g && ultra --raw -r --filter components dev",
-    "dev:dev-sandbox": "ultra --no-pretty dev:dev-sandbox:cmd",
-    "dev:dev-sandbox:cmd": "ultra --silent dev:cmd && ultra --raw -r --filter \"web/dev-sandbox\" dev",
+    "build": "ultra -r --filter \"web/*\" build",
+    "clean": "lerna exec --parallel -- trash dist tests/dist .ultra.cache.json",
+    "dev:dev-sandbox": "ultra --raw -r --filter \"web/dev-sandbox\" dev",
     "lerna:clean": "lerna clean --yes --loglevel success",
     "lint": "npm run lint:eslint && npm run lint:prettier",
     "lint:eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
@@ -20,17 +15,13 @@
     "lint:fix:eslint": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "lint:fix:prettier": "prettier --write \"modules/\" \"web/\"",
     "lint:prettier": "prettier --check \"modules/\" \"web/\"",
-    "rebuild": "run-s -s clean build",
     "test": "node scripts/build-modules.js -tests && node scripts/build-components.js -tests && uvu ./ tests[/\\\\\\\\]dist -i misc",
     "update": "npm i && run-s -s lerna:clean clean bootstrap build",
     "nabs": "nabs"
   },
   "ultra": {
     "concurrent": [
-      "clean",
-      "dev:cmd",
-      "build:cmd:packages",
-      "dev:dev-sandbox:cmd"
+      "build"
     ]
   },
   "workspaces": [
@@ -46,11 +37,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git"
+    "url": "git+https://github.com/scpwiki/wikijump.git",
+    "directory": "client"
   },
-  "bugs": {
-    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
-  },
+  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "*",
@@ -78,9 +68,6 @@
     "svelte": "^3.37.0",
     "svelte-preprocess": "^4.7.2",
     "svelte-preprocess-esbuild": "^2.0.0",
-    "svelte2dts": "^0.2.12",
-    "svelte2tsx": "^0.1.188",
-    "toml": "^3.0.0",
     "trash-cli": "^4.0.0",
     "typescript": "4.3.0-beta",
     "ultra-runner": "^3.10.5",
