@@ -80,7 +80,7 @@ COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/libftml.so /usr/l
 # Install the Wikijump repository
 WORKDIR /var/www
 
-COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/wikijump/web
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/web
 
 WORKDIR "${WIKIJUMP_DIR}/web"
 

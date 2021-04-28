@@ -92,7 +92,7 @@ WORKDIR /var/www
 RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
 
 # Copy Wikijump files
-COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/wikijump/web
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/web
 
 WORKDIR "${WIKIJUMP_DIR}/web"
 

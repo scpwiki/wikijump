@@ -83,7 +83,7 @@ RUN /src/setup-memcached.sh
 
 # Install the Wikijump repository
 # Copy Wikijump files
-COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/wikijump/web
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/web
 
 WORKDIR "${WIKIJUMP_DIR}/web"
 RUN mkdir -p \
