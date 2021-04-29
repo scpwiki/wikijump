@@ -13,6 +13,7 @@ const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
   ([name, block]) => {
     // deduplicates, just in case
     const aliases = Array.from(new Set([name, ...(block.aliases ?? [])]))
+
     const [outputType, outputTag, outputClass] = block["html-output"].split(",")
     const codeString =
       outputType === "html"
@@ -21,14 +22,12 @@ const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
           : `&lt;${outputTag}&gt;`
         : `type: ${outputType}`
 
-    // prettier-ignore
-    const node = html/*html*/`
+    const node = html/*html*/ `
       <div>
         <p><code>${aliases.join(", ")}</code></p>
         <p><code>${codeString}</code></p>
       </div>
     `
-
     const completions: Completion[] = []
     for (const alias of aliases) {
       completions.push({
