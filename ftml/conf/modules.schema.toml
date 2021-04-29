@@ -34,10 +34,8 @@ body = "elements"
 # These are then ported to the final HTML element in rendering,
 # with possible changes for safety or correctness.
 #
-# Only applies to modules that have head = "map" or "value+map".
-#
 # type: bool, optional
-attributes = true
+html-attributes = true
 
 # Each argument that this module accepts gets its own sub-key.
 # Case-insensitive.
