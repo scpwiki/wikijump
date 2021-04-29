@@ -29,7 +29,7 @@ RUN cargo build --release
 # Main php-fpm container
 #
 
-FROM php:7.4-fpm
+FROM php:7.4-fpm-buster
 
 EXPOSE 80
 
