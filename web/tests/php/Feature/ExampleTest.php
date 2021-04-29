@@ -16,8 +16,6 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-//        dd(realpath('.'));
-
         $response->assertStatus(200);
     }
 }
