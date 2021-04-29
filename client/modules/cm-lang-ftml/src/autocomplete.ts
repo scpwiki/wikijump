@@ -5,30 +5,40 @@ import type {
   CompletionContext,
   CompletionResult
 } from "@codemirror/autocomplete"
-import type { Block, Attribute } from "./data/types"
-import { blocks as blocks2, blockNames } from "./data/blocks"
+import { blocks } from "./data/blocks"
 import { htmlAttributes } from "./data/html-attributes"
-import { FTMLFragment } from "ftml-wasm-worker"
+import { html } from "wj-util"
 
-const blocksAutocompletion: Completion[] = Object.entries(blocks2).map(
-  ([alias, block]) => {
-    if (block.info) {
-      const infoFragment = new FTMLFragment(block.info)
-      return {
+const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
+  ([name, block]) => {
+    // deduplicates, just in case
+    const aliases = Array.from(new Set([name, ...(block.aliases ?? [])]))
+    const [outputType, outputTag, outputClass] = block["html-output"].split(",")
+    const codeString =
+      outputType === "html"
+        ? outputClass
+          ? `&lt;${outputTag} class="${outputClass}"&gt;`
+          : `&lt;${outputTag}&gt;`
+        : `type: ${outputType}`
+
+    // prettier-ignore
+    const node = html/*html*/`
+      <div>
+        <p><code>${aliases.join(", ")}</code></p>
+        <p><code>${codeString}</code></p>
+      </div>
+    `
+
+    const completions: Completion[] = []
+    for (const alias of aliases) {
+      completions.push({
         label: alias,
-        detail: block.name,
+        // detail: name,
         type: "type",
-        async info() {
-          return (await infoFragment.render()).fragment
-        }
-      }
-    } else {
-      return {
-        label: alias,
-        detail: block.name,
-        type: "type"
-      }
+        info: () => node.cloneNode(true)
+      })
     }
+    return completions
   }
 )
 
@@ -57,18 +67,18 @@ export function completeFTML(context: CompletionContext): CompletionResult | nul
 
     const attributes = new Set<string>()
 
-    if (name && blocks2?.[name]) {
-      const block = blocks2[name]!
-      const { attrs, globals } = block
-      for (const attr of attrs) {
-        attributes.add(attr.name)
-      }
-      if (globals) {
-        for (const attr of htmlAttributes) {
-          attributes.add(attr.name)
-        }
-      }
-    }
+    // if (name && blocks?.[name]) {
+    //   const block = blocks[name]!
+    //   const { attrs, globals } = block
+    //   for (const attr of attrs) {
+    //     attributes.add(attr.name)
+    //   }
+    //   if (globals) {
+    //     for (const attr of htmlAttributes) {
+    //       attributes.add(attr.name)
+    //     }
+    //   }
+    // }
 
     const options: Completion[] = []
 
