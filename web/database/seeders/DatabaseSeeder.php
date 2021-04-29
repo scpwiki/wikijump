@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,6 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \Wikijump\Models\User::factory(10)->create();
+        Model::unguard();
+
+        $this->call(UserSeeder::class);
+
+        Model::reguard();
     }
 }

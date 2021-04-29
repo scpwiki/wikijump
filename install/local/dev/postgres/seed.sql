@@ -2068,27 +2068,6 @@ CREATE TABLE public.ozone_session (
 ALTER TABLE public.ozone_session OWNER TO wikijump;
 
 --
--- Name: ozone_user; Type: TABLE; Schema: public; Owner: wikijump
---
-
-CREATE TABLE public.ozone_user (
-    user_id integer NOT NULL,
-    name character varying(99),
-    nick_name character varying(70),
-    password character varying(255),
-    email character varying(99),
-    unix_name character varying(99),
-    last_login timestamp without time zone,
-    registered_date timestamp without time zone,
-    super_admin boolean DEFAULT false,
-    super_moderator boolean DEFAULT false,
-    language character varying(10) DEFAULT 'en'::character varying
-);
-
-
-ALTER TABLE public.ozone_user OWNER TO wikijump;
-
---
 -- Name: ozone_user_group_relation; Type: TABLE; Schema: public; Owner: wikijump
 --
 
@@ -2155,28 +2134,6 @@ ALTER TABLE public.ozone_user_permission_modifier_user_permission_id_seq OWNER T
 --
 
 ALTER SEQUENCE public.ozone_user_permission_modifier_user_permission_id_seq OWNED BY public.ozone_user_permission_modifier.user_permission_id;
-
-
---
--- Name: ozone_user_user_id_seq; Type: SEQUENCE; Schema: public; Owner: wikijump
---
-
-CREATE SEQUENCE public.ozone_user_user_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ozone_user_user_id_seq OWNER TO wikijump;
-
---
--- Name: ozone_user_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wikijump
---
-
-ALTER SEQUENCE public.ozone_user_user_id_seq OWNED BY public.ozone_user.user_id;
-
 
 --
 -- Name: page; Type: TABLE; Schema: public; Owner: wikijump
@@ -3524,13 +3481,6 @@ ALTER TABLE ONLY public.ozone_permission ALTER COLUMN permission_id SET DEFAULT 
 
 
 --
--- Name: ozone_user user_id; Type: DEFAULT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.ozone_user ALTER COLUMN user_id SET DEFAULT nextval('public.ozone_user_user_id_seq'::regclass);
-
-
---
 -- Name: ozone_user_group_relation user_group_id; Type: DEFAULT; Schema: public; Owner: wikijump
 --
 
@@ -4074,18 +4024,6 @@ COPY public.ozone_permission (permission_id, name, description) FROM stdin;
 
 COPY public.ozone_session (session_id, started, last_accessed, ip_address, check_ip, infinite, user_id, serialized_datablock, ip_address_ssl, ua_hash) FROM stdin;
 \.
-
-
---
--- Data for Name: ozone_user; Type: TABLE DATA; Schema: public; Owner: wikijump
---
-
-COPY public.ozone_user (user_id, name, nick_name, password, email, unix_name, last_login, registered_date, super_admin, super_moderator, language) FROM stdin;
--1	Automatic	Automatic	\N	automatic@wikidot	automatic	\N	\N	f	f	en
-0	Anonymous	Anonymous	\N	anonymous@wikidot	anonymous	\N	\N	f	f	en
-1	Administrator	Admin	$2y$11$lqdZZxU8FYqV2LJNaCQTGeI4V9dW/.cPd.DXpx4geF99bhzzpqQMy	admin@wikidot	admin	\N	\N	t	f	en
-\.
-
 
 --
 -- Data for Name: ozone_user_group_relation; Type: TABLE DATA; Schema: public; Owner: wikijump
@@ -4971,13 +4909,6 @@ SELECT pg_catalog.setval('public.ozone_user_permission_modifier_user_permission_
 
 
 --
--- Name: ozone_user_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: wikijump
---
-
-SELECT pg_catalog.setval('public.ozone_user_user_id_seq', 10, true);
-
-
---
 -- Name: page_abuse_flag_flag_id_seq; Type: SEQUENCE SET; Schema: public; Owner: wikijump
 --
 
@@ -5521,35 +5452,11 @@ ALTER TABLE ONLY public.ozone_user_group_relation
 
 
 --
--- Name: ozone_user ozone_user_name_key; Type: CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.ozone_user
-    ADD CONSTRAINT ozone_user_name_key UNIQUE (name);
-
-
---
 -- Name: ozone_user_permission_modifier ozone_user_permission_modifier_pkey; Type: CONSTRAINT; Schema: public; Owner: wikijump
 --
 
 ALTER TABLE ONLY public.ozone_user_permission_modifier
     ADD CONSTRAINT ozone_user_permission_modifier_pkey PRIMARY KEY (user_permission_id);
-
-
---
--- Name: ozone_user ozone_user_pkey; Type: CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.ozone_user
-    ADD CONSTRAINT ozone_user_pkey PRIMARY KEY (user_id);
-
-
---
--- Name: ozone_user ozone_user_unix_name_key; Type: CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.ozone_user
-    ADD CONSTRAINT ozone_user_unix_name_key UNIQUE (unix_name);
 
 
 --
@@ -6185,27 +6092,6 @@ CREATE INDEX ozone_session__user_id__idx ON public.ozone_session USING btree (us
 
 
 --
--- Name: ozone_user__name__idx; Type: INDEX; Schema: public; Owner: wikijump
---
-
-CREATE UNIQUE INDEX ozone_user__name__idx ON public.ozone_user USING btree (name);
-
-
---
--- Name: ozone_user__nick_name__idx; Type: INDEX; Schema: public; Owner: wikijump
---
-
-CREATE UNIQUE INDEX ozone_user__nick_name__idx ON public.ozone_user USING btree (nick_name);
-
-
---
--- Name: ozone_user__unix_name__idx; Type: INDEX; Schema: public; Owner: wikijump
---
-
-CREATE UNIQUE INDEX ozone_user__unix_name__idx ON public.ozone_user USING btree (unix_name);
-
-
---
 -- Name: page__category_id__idx; Type: INDEX; Schema: public; Owner: wikijump
 --
 
@@ -6392,14 +6278,6 @@ CREATE INDEX user_abuse_flag__site_id__idx ON public.user_abuse_flag USING btree
 --
 
 CREATE INDEX user_block__site_id__idx ON public.user_block USING btree (site_id);
-
-
---
--- Name: ozone_user get_pkey_on_insert; Type: RULE; Schema: public; Owner: wikijump
---
-
-CREATE RULE get_pkey_on_insert AS
-    ON INSERT TO public.ozone_user DO  SELECT currval('public.ozone_user_user_id_seq'::regclass) AS id;
 
 
 --
@@ -6859,14 +6737,6 @@ CREATE RULE get_pkey_on_insert AS
 
 
 --
--- Name: admin admin__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.admin
-    ADD CONSTRAINT admin__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: admin admin__site; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
@@ -6880,14 +6750,6 @@ ALTER TABLE ONLY public.admin
 
 ALTER TABLE ONLY public.admin_notification
     ADD CONSTRAINT admin_notification__site FOREIGN KEY (site_id) REFERENCES public.site(site_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: anonymous_abuse_flag anonymous_abuse_flag__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.anonymous_abuse_flag
-    ADD CONSTRAINT anonymous_abuse_flag__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6907,35 +6769,11 @@ ALTER TABLE ONLY public.category
 
 
 --
--- Name: contact contact__ozone_user__tagret_user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.contact
-    ADD CONSTRAINT contact__ozone_user__tagret_user_id FOREIGN KEY (target_user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: contact contact__ozone_user__user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.contact
-    ADD CONSTRAINT contact__ozone_user__user_id FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: domain_redirect domain_redirect__site; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
 ALTER TABLE ONLY public.domain_redirect
     ADD CONSTRAINT domain_redirect__site FOREIGN KEY (site_id) REFERENCES public.site(site_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: email_invitation email_inviation__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.email_invitation
-    ADD CONSTRAINT email_inviation__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id);
 
 
 --
@@ -6960,14 +6798,6 @@ ALTER TABLE ONLY public.file
 
 ALTER TABLE ONLY public.file
     ADD CONSTRAINT file__site FOREIGN KEY (site_id) REFERENCES public.site(site_id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: file file__user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.file
-    ADD CONSTRAINT file__user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -7003,14 +6833,6 @@ ALTER TABLE ONLY public.forum_group
 
 
 --
--- Name: forum_post forum_post__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.forum_post
-    ADD CONSTRAINT forum_post__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id);
-
-
---
 -- Name: forum_post forum_post__site; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
@@ -7032,14 +6854,6 @@ ALTER TABLE ONLY public.forum_settings
 
 ALTER TABLE ONLY public.forum_thread
     ADD CONSTRAINT forum_thread__forum_category FOREIGN KEY (category_id) REFERENCES public.forum_category(category_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: forum_thread forum_thread__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.forum_thread
-    ADD CONSTRAINT forum_thread__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -7123,27 +6937,11 @@ ALTER TABLE ONLY public.log_event
 
 
 --
--- Name: member member__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.member
-    ADD CONSTRAINT member__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: member member__site; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
 ALTER TABLE ONLY public.member
     ADD CONSTRAINT member__site FOREIGN KEY (site_id) REFERENCES public.site(site_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: member_application member_application__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.member_application
-    ADD CONSTRAINT member_application__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -7155,22 +6953,6 @@ ALTER TABLE ONLY public.member_application
 
 
 --
--- Name: member_invitation member_invitation__ozone_user__by_user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.member_invitation
-    ADD CONSTRAINT member_invitation__ozone_user__by_user_id FOREIGN KEY (by_user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: member_invitation member_invitation__ozone_user__user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.member_invitation
-    ADD CONSTRAINT member_invitation__ozone_user__user_id FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: member_invitation member_invitation__site; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
@@ -7179,35 +6961,11 @@ ALTER TABLE ONLY public.member_invitation
 
 
 --
--- Name: moderator moderator__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.moderator
-    ADD CONSTRAINT moderator__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: moderator moderator__site; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
 ALTER TABLE ONLY public.moderator
     ADD CONSTRAINT moderator__site FOREIGN KEY (site_id) REFERENCES public.site(site_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: notification notification__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.notification
-    ADD CONSTRAINT notification__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: ozone_session ozone_session__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.ozone_session
-    ADD CONSTRAINT ozone_session__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -7227,14 +6985,6 @@ ALTER TABLE ONLY public.page
 
 
 --
--- Name: page_abuse_flag page_abuse_flag__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.page_abuse_flag
-    ADD CONSTRAINT page_abuse_flag__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: page_abuse_flag page_abuse_flag__site; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
@@ -7248,14 +6998,6 @@ ALTER TABLE ONLY public.page_abuse_flag
 
 ALTER TABLE ONLY public.page_compiled
     ADD CONSTRAINT page_compiled__page FOREIGN KEY (page_id) REFERENCES public.page(page_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: page_edit_lock page_edit_lock__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.page_edit_lock
-    ADD CONSTRAINT page_edit_lock__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -7299,14 +7041,6 @@ ALTER TABLE ONLY public.page_link
 
 
 --
--- Name: page_rate_vote page_rate_vote__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.page_rate_vote
-    ADD CONSTRAINT page_rate_vote__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: page_rate_vote page_rate_vote__page; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
@@ -7328,46 +7062,6 @@ ALTER TABLE ONLY public.page_tag
 
 ALTER TABLE ONLY public.site_viewer
     ADD CONSTRAINT page_viewer__site FOREIGN KEY (site_id) REFERENCES public.site(site_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: private_message private_message__ozone_user__from_user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.private_message
-    ADD CONSTRAINT private_message__ozone_user__from_user_id FOREIGN KEY (from_user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: private_message private_message__ozone_user__to_user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.private_message
-    ADD CONSTRAINT private_message__ozone_user__to_user_id FOREIGN KEY (to_user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: private_user_block private_user_block__ozone_user__blocked_user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.private_user_block
-    ADD CONSTRAINT private_user_block__ozone_user__blocked_user_id FOREIGN KEY (blocked_user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: private_user_block private_user_block__ozone_user__user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.private_user_block
-    ADD CONSTRAINT private_user_block__ozone_user__user_id FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: profile profile__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.profile
-    ADD CONSTRAINT profile__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -7411,14 +7105,6 @@ ALTER TABLE ONLY public.site_tag
 
 
 --
--- Name: site_viewer site_viewer__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.site_viewer
-    ADD CONSTRAINT site_viewer__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: theme theme__site; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
@@ -7443,35 +7129,11 @@ ALTER TABLE ONLY public.ucookie
 
 
 --
--- Name: user_abuse_flag user_abuse_flag__ozone_user__target_user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.user_abuse_flag
-    ADD CONSTRAINT user_abuse_flag__ozone_user__target_user_id FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: user_abuse_flag user_abuse_flag__ozone_user__user_id; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.user_abuse_flag
-    ADD CONSTRAINT user_abuse_flag__ozone_user__user_id FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: user_abuse_flag user_abuse_flag__site; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
 ALTER TABLE ONLY public.user_abuse_flag
     ADD CONSTRAINT user_abuse_flag__site FOREIGN KEY (site_id) REFERENCES public.site(site_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: user_block user_block__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.user_block
-    ADD CONSTRAINT user_block__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -7483,35 +7145,11 @@ ALTER TABLE ONLY public.user_block
 
 
 --
--- Name: user_settings user_settings__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.user_settings
-    ADD CONSTRAINT user_settings__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: watched_forum_thread wached_forum_thread__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.watched_forum_thread
-    ADD CONSTRAINT wached_forum_thread__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: watched_forum_thread watched_forum_thread__forum_thread; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
 --
 
 ALTER TABLE ONLY public.watched_forum_thread
     ADD CONSTRAINT watched_forum_thread__forum_thread FOREIGN KEY (thread_id) REFERENCES public.forum_thread(thread_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: watched_page watched_page__ozone_user; Type: FK CONSTRAINT; Schema: public; Owner: wikijump
---
-
-ALTER TABLE ONLY public.watched_page
-    ADD CONSTRAINT watched_page__ozone_user FOREIGN KEY (user_id) REFERENCES public.ozone_user(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

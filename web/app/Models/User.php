@@ -2,6 +2,7 @@
 
 namespace Wikijump\Models;
 
+use Database\Seeders\UserSeeder;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,6 +14,14 @@ class User extends Authenticatable
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
+
+    /**
+     * These are service accounts added by the UserSeeder. They're used during
+     * the generation of various pages, threads, and so on. This is their ID.
+     * @see UserSeeder
+     */
+    public const AUTOMATIC_USER = 2;
+    public const ANONYMOUS_USER = 3;
 
     /**
      * @var string
