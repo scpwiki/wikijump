@@ -9,6 +9,7 @@ export function setup() {
   globalThis.document = window.document
   globalThis.navigator = window.navigator
   globalThis.getComputedStyle = window.getComputedStyle
+  // @ts-ignore
   globalThis.requestAnimationFrame = null
 }
 

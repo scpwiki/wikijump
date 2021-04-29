@@ -6,28 +6,16 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "clean": "trash dist .ultra.cache.json",
-    "dev": "node ../scripts/build-components.js -w",
-    "build:cmd": "svelte2dts --overwrite --runOnTs ./src && node ../scripts/build-components.js",
-    "build": "ultra --build build:cmd"
-  },
-  "ultra": {
-    "concurrent": [
-      "build:cmd"
-    ]
-  },
+  "scripts": {},
   "type": "module",
   "svelte": "src/index.js",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git"
+    "url": "git+https://github.com/scpwiki/wikijump.git",
+    "directory": "client/components"
   },
-  "bugs": {
-    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
-  },
+  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
   "eslintConfig": {
     "extends": "../.eslintrc.js"

@@ -70,10 +70,6 @@ Utils("createID", () => {
   assert.type(createID("foo"), "string")
 })
 
-import { performance } from "perf_hooks"
-// a bit hacky, but we have to make sure perfy works in node
-globalThis.performance = performance as any
-
 Utils("perfy", () => {
   const { perfy } = lib
   const exec = perfy()

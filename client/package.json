@@ -5,14 +5,8 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist --loglevel success",
-    "build": "ultra --build build:cmd",
-    "build:cmd": "npm run build:cmd:packages && ultra -r --no-pretty --filter \"web/*\" build",
-    "build:cmd:packages": "tsc -b && ultra -r --raw --filter \"modules/*\" build && ultra -r --raw --filter components build",
-    "clean": "ultra --silent -r clean",
-    "dev": "ultra dev:cmd",
-    "dev:cmd": "tsc -b -w && node scripts/build-modules.js -w -g && ultra --raw -r --filter components dev",
-    "dev:dev-sandbox": "ultra --no-pretty dev:dev-sandbox:cmd",
-    "dev:dev-sandbox:cmd": "ultra --silent dev:cmd && ultra --raw -r --filter \"web/dev-sandbox\" dev",
+    "build": "lerna run --stream build",
+    "dev:dev-sandbox": "lerna run --stream dev --scope dev-sandbox",
     "lerna:clean": "lerna clean --yes --loglevel success",
     "lint": "npm run lint:eslint && npm run lint:prettier",
     "lint:eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
@@ -20,18 +14,9 @@
     "lint:fix:eslint": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "lint:fix:prettier": "prettier --write \"modules/\" \"web/\"",
     "lint:prettier": "prettier --check \"modules/\" \"web/\"",
-    "rebuild": "run-s -s clean build",
-    "test": "node scripts/build-modules.js -tests && node scripts/build-components.js -tests && uvu ./ tests[/\\\\\\\\]dist -i misc",
-    "update": "npm i && run-s -s lerna:clean clean bootstrap build",
+    "test": "trash tests-dist && node scripts/build-tests.js && uvu ./tests-dist",
+    "update": "npm i && npm -s run lerna:clean && npm -s run bootstrap && npm -s run build",
     "nabs": "nabs"
-  },
-  "ultra": {
-    "concurrent": [
-      "clean",
-      "dev:cmd",
-      "build:cmd:packages",
-      "dev:dev-sandbox:cmd"
-    ]
   },
   "workspaces": [
     "components",
@@ -46,27 +31,23 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git"
+    "url": "git+https://github.com/scpwiki/wikijump.git",
+    "directory": "client"
   },
-  "bugs": {
-    "url": "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
-  },
+  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "*",
+    "@sveltejs/vite-plugin-svelte": "1.0.0-next.8",
     "@types/jsdom": "^16.2.10",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "@typescript-eslint/typescript-estree": "^4.22.0",
-    "browserslist": "^4.16.5",
-    "esbuild": "^0.11.13",
-    "esbuild-node-externals": "^1.2.0",
+    "esbuild": "^0.11.15",
     "esbuild-svelte": "^0.4.3",
     "eslint": "^7.25.0",
     "eslint-plugin-clean-regex": "^0.5.1",
     "eslint-plugin-compat": "^3.9.0",
     "eslint-plugin-svelte3": "^3.2.0",
-    "estrella": "^1.4.0",
     "globby": "^11.0.3",
     "jsdom": "^16.5.3",
     "lerna": "^4.0.0",
@@ -78,13 +59,10 @@
     "svelte": "^3.37.0",
     "svelte-preprocess": "^4.7.2",
     "svelte-preprocess-esbuild": "^2.0.0",
-    "svelte2dts": "^0.2.12",
-    "svelte2tsx": "^0.1.188",
     "toml": "^3.0.0",
     "trash-cli": "^4.0.0",
     "typescript": "4.3.0-beta",
-    "ultra-runner": "^3.10.5",
     "uvu": "^0.5.1",
-    "vite": "^2.2.1"
+    "vite": "^2.2.3"
   }
 }

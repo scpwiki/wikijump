@@ -12,27 +12,15 @@
     "resolveJsonModule": true,
     "useDefineForClassFields": true,
     "lib": ["ESNext", "DOM", "WebWorker"],
+    "types": ["misc/types", "svelte"],
 
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
 
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "preserveWatchOutput": true
+    "noEmit": true
   },
-
-  "references": [
-    { "path": "./modules/wj-util" },
-    { "path": "./modules/sheaf-core" },
-    { "path": "./modules/ftml-wasm" },
-    { "path": "./modules/ftml-wasm-worker" },
-    { "path": "./modules/cm-tarnation" },
-    { "path": "./modules/cm-lang-ftml" }
-  ],
 
   "typeAcquisition": {
     "enable": true,
@@ -44,6 +32,5 @@
     ]
   },
 
-  "files": [],
-  "include": []
+  "exclude": ["node_modules"]
 }

@@ -152,7 +152,13 @@ const typeRules = { ...rules.typescript, ...rules.typeChecked }
 
 module.exports = {
   root: true,
-  ignorePatterns: ["**/node_modules/**", "**/dist/**", "**/vendor/**", "/misc/**"],
+  ignorePatterns: [
+    "**/node_modules/**",
+    "**/dist/**",
+    "/tests-dist/**",
+    "**/vendor/**",
+    "/misc/**"
+  ],
 
   extends: ["plugin:compat/recommended"],
   plugins: ["@typescript-eslint", "svelte3", "clean-regex"],
@@ -161,12 +167,7 @@ module.exports = {
   parserOptions: {
     sourceType: "module",
     tsconfigRootDir: __dirname,
-    project: [
-      "./tsconfig.json",
-      "./components/tsconfig.json",
-      "./modules/*/tsconfig.json",
-      "./web/*/tsconfig.json"
-    ],
+    project: ["./tsconfig.json"],
     extraFileExtensions: [".svelte"]
   },
 

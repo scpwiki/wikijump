@@ -1,40 +1,19 @@
 # -- UTILITY
 
-update: npm i && run-s -s lerna:clean clean bootstrap build
+update: npm i && npm -s run lerna:clean && npm -s run bootstrap && npm -s run build
 bootstrap: lerna bootstrap --hoist --loglevel success
 lerna:clean: lerna clean --yes --loglevel success
-clean: ultra --silent -r clean
 
 # -- BUILD
 
-build:cmd:packages:
-  - tsc -b
-  - ultra -r --raw --filter "modules/*" build
-  - ultra -r --raw --filter components build
-
-build:cmd:
-  - npm run build:cmd:packages
-  - ultra -r --no-pretty --filter "web/*" build
-
-build: ultra --build build:cmd
-
-rebuild: run-s -s clean build
-
-# -- DEV
-
-dev:cmd:
-  - tsc -b -w
-  - node scripts/build-modules.js -w -g
-  - ultra --raw -r --filter components dev
-
-dev: ultra dev:cmd
+build: lerna run --stream build
 
 # -- TESTING, LINTING
 
 test:
-  - node scripts/build-modules.js -tests
-  - node scripts/build-components.js -tests
-  - uvu ./ tests[/\\\\]dist -i misc
+  - trash tests-dist
+  - node scripts/build-tests.js
+  - uvu ./tests-dist
 
 lint:
   eslint: eslint "./**/*.js" "./**/*.ts"
@@ -46,8 +25,4 @@ lint:fix:
 
 # -- MISC.
 
-dev:dev-sandbox:cmd:
-  - ultra --silent dev:cmd
-  - ultra --raw -r --filter "web/dev-sandbox" dev
-
-dev:dev-sandbox: ultra --no-pretty dev:dev-sandbox:cmd
+dev:dev-sandbox: lerna run --stream dev --scope dev-sandbox
