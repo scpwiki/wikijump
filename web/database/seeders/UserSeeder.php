@@ -16,21 +16,17 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        /*
-         * TODO: It would be good if production credentials were either
-         *  generated on the fly or if the admin were prompted for input.
-         */
+        DB::table('users')->insert(
+            [
+                'username' => 'admin',
+                'unix_name' => WDStringUtils::toUnixName('admin'),
+                'password' => env('ADMIN_INITIAL_PASSWORD', Hash::make('admin1')),
+                'email' => 'admin@wikijump',
+                'email_verified_at' => now(),
+                'language' => env('DEFAULT_LANGUAGE'),
+            ]
+        );
         if(env('APP_ENV') != 'production') {
-            DB::table('users')->insert(
-                [
-                    'username' => 'admin',
-                    'unix_name' => WDStringUtils::toUnixName('admin'),
-                    'password' => Hash::make('admin1'),
-                    'email' => 'admin@wikijump.dev',
-                    'email_verified_at' => now(),
-                    'language' => env('DEFAULT_LANGUAGE'),
-                ]
-            );
             DB::table('users')->insert(
                 [
                     'username' => 'user',
