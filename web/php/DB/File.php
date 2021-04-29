@@ -5,6 +5,7 @@ namespace Wikidot\DB;
 
 use Wikidot\Utils\FileHelper;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Models\User;
 
 /**
  * Object Model Class.
@@ -61,7 +62,7 @@ class File extends FileBase
 
     public function getUser()
     {
-        if ($this->getUserId() == 0) {
+        if ($this->getUserId() == User::ANONYMOUS_USER) {
             return null;
         }
         if (is_array($this->prefetched)) {

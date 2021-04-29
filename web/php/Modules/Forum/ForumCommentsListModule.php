@@ -18,6 +18,7 @@ use Wikidot\DB\ForumPostPeer;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Models\User;
 
 class ForumCommentsListModule extends SmartyModule
 {
@@ -158,7 +159,7 @@ class ForumCommentsListModule extends SmartyModule
             $thread->setCategoryId($category->getCategoryId());
             $thread->setSiteId($site->getSiteId());
             $thread->setPageId($page->getPageId());
-            $thread->setUserId(-1);
+            $thread->setUserId(User::AUTOMATIC_USER);
             $thread->setDateStarted(new ODate());
             $thread->setNumberPosts(0);
             $thread->save();

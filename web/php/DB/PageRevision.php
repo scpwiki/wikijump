@@ -7,6 +7,7 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\Utils\ODiff;
 use Exception;
+use Wikijump\Models\User;
 
 /**
  * Object Model Class.
@@ -66,7 +67,7 @@ class PageRevision extends PageRevisionBase
 
     public function getUser()
     {
-        if ($this->getUserId() == 0) {
+        if ($this->getUserId() == User::ANONYMOUS_USER) {
             return null;
         }
         if (is_array($this->prefetched)) {

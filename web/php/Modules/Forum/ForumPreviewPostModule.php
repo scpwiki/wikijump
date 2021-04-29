@@ -9,6 +9,7 @@ use Wikidot\DB\ForumPost;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WikiTransformation;
+use Wikijump\Models\User;
 
 class ForumPreviewPostModule extends SmartyModule
 {
@@ -44,7 +45,7 @@ class ForumPreviewPostModule extends SmartyModule
         if ($userId) {
             $post->setUserId($userId);
         } else {
-            $post->setUserId(0);
+            $post->setUserId(User::ANONYMOUS_USER);
             $post->setUserString($userString);
         }
 

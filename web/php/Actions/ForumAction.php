@@ -27,6 +27,7 @@ use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WikiTransformation;
+use Wikijump\Models\User;
 
 class ForumAction extends SmartyAction
 {
@@ -104,7 +105,7 @@ class ForumAction extends SmartyAction
         if ($userId) {
             $thread->setUserId($userId);
         } else {
-            $thread->setUserId(0);
+            $thread->setUserId(User::ANONYMOUS_USER);
             $thread->setUserString($userString);
         }
 
@@ -133,8 +134,8 @@ class ForumAction extends SmartyAction
             $postRevision->setUserId($userId);
             $post->setUserId($userId);
         } else {
-            $postRevision->setUserId(0);
-            $post->setUserId(0);
+            $postRevision->setUserId(User::ANONYMOUS_USER);
+            $post->setUserId(User::ANONYMOUS_USER);
             $postRevision->setUserString($userString);
             $post->setUserString($userString);
         }
@@ -268,8 +269,8 @@ class ForumAction extends SmartyAction
             $postRevision->setUserId($userId);
             $post->setUserId($userId);
         } else {
-            $postRevision->setUserId(0);
-            $post->setUserId(0);
+            $postRevision->setUserId(User::ANONYMOUS_USER);
+            $post->setUserId(User::ANONYMOUS_USER);
             $postRevision->setUserString($userString);
             $post->setUserString($userString);
         }
@@ -403,8 +404,8 @@ class ForumAction extends SmartyAction
             $postRevision->setUserId($userId);
             $post->setEditedUserId($userId);
         } else {
-            $postRevision->setUserId(0);
-            $post->setEditedUserId(0);
+            $postRevision->setUserId(User::ANONYMOUS_USER);
+            $post->setEditedUserId(User::ANONYMOUS_USER);
             $postRevision->setUserString($userString);
             $post->setEditedUserString($userString);
         }
@@ -493,7 +494,7 @@ class ForumAction extends SmartyAction
         $thread->setCategoryId($category->getCategoryId());
         $thread->setSiteId($site->getSiteId());
         $thread->setPageId($pageId);
-        $thread->setUserId(-1);
+        $thread->setUserId(User::AUTOMATIC_USER);
         $thread->setDateStarted(new ODate());
         $thread->setNumberPosts(0);
         $thread->save();

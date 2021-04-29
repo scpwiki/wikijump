@@ -17,6 +17,7 @@ use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WikiTransformation;
+use Wikijump\Models\User;
 
 class ListPagesModule extends SmartyModule
 {
@@ -512,7 +513,7 @@ class ListPagesModule extends SmartyModule
 
             if ($page->getOwnerUserId()) {
                 $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
-                if ($user->getUserId() > 0) {
+                if ($user->getUserId() != User::ANONYMOUS_USER && $user->getUserId() != User::AUTOMATIC_USER) {
                     $userString = '[[*user ' . $user->getNickName() . ']]';
                 } else {
                     $userString = _('Anonymous user');
@@ -525,7 +526,7 @@ class ListPagesModule extends SmartyModule
 
             if ($lastRevision->getUserId()) {
                 $user = OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
-                if ($user->getUserId() > 0) {
+                if ($user->getUserId() != User::ANONYMOUS_USER && $user->getUserId() != User::AUTOMATIC_USER) {
                     $userString = '[[*user ' . $user->getNickName() . ']]';
                 } else {
                     $userString = _('Anonymous user');

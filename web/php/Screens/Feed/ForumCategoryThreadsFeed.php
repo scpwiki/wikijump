@@ -9,6 +9,7 @@ use Wikidot\DB\ForumThreadPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Models\User;
 
 class ForumCategoryThreadsFeed extends FeedScreen
 {
@@ -134,7 +135,7 @@ class ForumCategoryThreadsFeed extends FeedScreen
             }
 
             $item['content'] = $content;
-            if ($post->getUserId()>0) {
+            if ($post->getUserId() != User::ANONYMOUS_USER && $post->getUserId() != User::AUTOMATIC_USER) {
                 $item['authorUserId'] = $post->getUserId();
                 $user = $post->getUser();
                 $item['author']=$user->getNickName();

@@ -4,6 +4,7 @@ namespace Wikidot\DB;
 
 
 use Ozone\Framework\Database\Criteria;
+use Wikijump\Models\User;
 
 /**
  * Object Model Class.
@@ -84,7 +85,7 @@ class PageEditLock extends PageEditLockBase
 
     public function getUser()
     {
-        if ($this->getUserId() == 0) {
+        if ($this->getUserId() == User::ANONYMOUS_USER) {
             return null;
         }
         if (is_array($this->prefetched)) {

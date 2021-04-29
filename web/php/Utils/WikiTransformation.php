@@ -9,6 +9,7 @@ use Text_Wiki;
 use Wikidot\DB\OzoneUserPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\PageTagPeer;
+use Wikijump\Models\User;
 
 //use Text_Antiwiki;  # What is this? I can't even find "text_antiwiki on google.
 
@@ -122,7 +123,7 @@ class WikiTransformation
 
             if ($page->getOwnerUserId()) {
                 $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
-                if ($user->getUserId() > 0) {
+                if ($user->getUserId() != User::ANONYMOUS_USER && $user->getUserId() != User::AUTOMATIC_USER) {
                     $userString = '[[*user ' . $user->getNickName() . ']]';
                 } else {
                     $userString = _('Anonymous user');
@@ -135,7 +136,7 @@ class WikiTransformation
 
 //            if($lastRevision->getUserId()){
 //              $user = DB\OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
-//              if ($user->getUserId() > 0) {
+//              if ($user->getUserId() > max(User::ANONYMOUS_USER, User::AUTOMATIC_USER)) {
 //                  $userString = '[[*user ' . $user->getNickName() . ']]';
 //              } else {
 //                  $userString = _('Anonymous user');

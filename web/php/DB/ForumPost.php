@@ -3,6 +3,8 @@
 namespace Wikidot\DB;
 
 
+use Wikijump\Models\User;
+
 /**
  * Object Model Class.
  *
@@ -12,7 +14,7 @@ class ForumPost extends ForumPostBase
 
     public function getUser()
     {
-        if ($this->getUserId() == 0) {
+        if ($this->getUserId() == User::ANONYMOUS_USER) {
             return null;
         }
         if (is_array($this->prefetched)) {
@@ -32,7 +34,7 @@ class ForumPost extends ForumPostBase
 
     public function getEditedUser()
     {
-        if ($this->getEditedUserId() == 0) {
+        if ($this->getEditedUserId() == User::ANONYMOUS_USER) {
             return null;
         }
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getEditedUserId());
