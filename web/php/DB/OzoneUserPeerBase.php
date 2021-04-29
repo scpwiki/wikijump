@@ -12,16 +12,62 @@ use Ozone\Framework\Database\BaseDBPeer;
  */
 class OzoneUserPeerBase extends BaseDBPeer
 {
-    public static $peerInstance;
+    public static OzoneUserPeer $peerInstance;
 
     protected function internalInit()
     {
-        $this->tableName='ozone_user';
+        $this->tableName='users';
         $this->objectName='Wikidot\\DB\\OzoneUser';
-        $this->primaryKeyName = 'user_id';
-        $this->fieldNames = array( 'user_id' ,  'name' ,  'nick_name' ,  'password' ,  'email' ,  'unix_name' ,  'last_login' ,  'registered_date' ,  'super_admin' ,  'super_moderator' ,  'language' );
-        $this->fieldTypes = array( 'user_id' => 'serial',  'name' => 'varchar(99)',  'nick_name' => 'varchar(70)',  'password' => 'varchar(255)',  'email' => 'varchar(99)',  'unix_name' => 'varchar(99)',  'last_login' => 'timestamp',  'registered_date' => 'timestamp',  'super_admin' => 'boolean',  'super_moderator' => 'boolean',  'language' => 'varchar(10)');
-        $this->defaultValues = array( 'super_admin' => 'false',  'super_moderator' => 'false',  'language' => 'en');
+        $this->primaryKeyName = 'id';
+        $this->fieldNames = [
+            'id',
+            'username',
+            'unix_name',
+            'username_changes',
+            'email',
+            'email_verified_at',
+            'password',
+            'two_factor_secret',
+            'two_factor_recovery_codes',
+            'remember_token',
+            'language',
+            'karma_points',
+            'karma_level',
+            'real_name',
+            'pronouns',
+            'dob',
+            'bio',
+            'about_page',
+            'created_at',
+            'updated_at',
+            'deleted_at'
+        ];
+        $this->fieldTypes = [
+            'id' => 'serial',
+            'username' => '',
+            'unix_name' => '',
+            'username_changes' => '',
+            'email' => '',
+            'email_verified_at' => '',
+            'password' => '',
+            'two_factor_secret' => '',
+            'two_factor_recovery_codes' => '',
+            'remember_token' => '',
+            'language' => '',
+            'karma_points' => '',
+            'karma_level' => '',
+            'real_name' => '',
+            'pronouns' => '',
+            'dob' => '',
+            'bio' => '',
+            'about_page' => '',
+            'created_at' => '',
+            'updated_at' => '',
+            'deleted_at' => ''
+        ];
+        $this->defaultValues = [
+            'language' => env('DEFAULT_LANGUAGE', 'en')
+        ];
     }
 
     public static function instance()

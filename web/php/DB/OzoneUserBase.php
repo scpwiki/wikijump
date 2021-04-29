@@ -18,9 +18,29 @@ class OzoneUserBase extends BaseDBObject
         $this->tableName='ozone_user';
         $this->peerName = 'Wikidot\\DB\\OzoneUserPeer';
         $this->primaryKeyName = 'user_id';
-        $this->fieldNames = array( 'user_id' ,  'name' ,  'nick_name' ,  'password' ,  'email' ,  'unix_name' ,  'last_login' ,  'registered_date' ,  'super_admin' ,  'super_moderator' ,  'language' );
-
-        //$this->fieldDefaultValues=
+        $this->fieldNames = [
+            'id',
+            'username',
+            'unix_name',
+            'username_changes',
+            'email',
+            'email_verified_at',
+            'password',
+            'two_factor_secret',
+            'two_factor_recovery_codes',
+            'remember_token',
+            'language',
+            'karma_points',
+            'karma_level',
+            'real_name',
+            'pronouns',
+            'dob',
+            'bio',
+            'about_page',
+            'created_at',
+            'updated_at',
+            'deleted_at'
+        ];
     }
 
 
