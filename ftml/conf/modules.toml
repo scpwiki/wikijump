@@ -1,0 +1,28 @@
+[Backlinks]
+body = "none"
+[Backlinks.arguments]
+page = { type = "string" }
+
+[Categories]
+body = "none"
+[Categories.arguments]
+includeHidden = { type = "bool" }
+
+[CSS]
+body = "raw"
+
+[Join]
+body = "none"
+html-attributes = true
+[Join.arguments]
+button = { type = "string" }
+
+[PageTree]
+body = "none"
+[PageTree.arguments]
+root = { type = "string" }
+depth = { type = "int", min-value = 1 }
+showRoot = { type = "bool" }
+
+[Rate]
+body = "none"
