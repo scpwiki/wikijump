@@ -6,7 +6,7 @@ page = { type = "string" }
 [Categories]
 body = "none"
 [Categories.arguments]
-includeHidden = { type = "bool" }
+includeHidden = { type = "bool", default = false }
 
 [CSS]
 body = "raw"
@@ -15,14 +15,14 @@ body = "raw"
 body = "none"
 html-attributes = true
 [Join.arguments]
-button = { type = "string" }
+button = { type = "string", default = "" } # default message depends on language
 
 [PageTree]
 body = "none"
 [PageTree.arguments]
 root = { type = "string" }
-depth = { type = "int", min-value = 1 }
-showRoot = { type = "bool" }
+depth = { type = "int", min-value = 1, default = 10000 } # really unlimited, but not sure how to convey that as an int
+showRoot = { type = "bool", default = false }
 
 [Rate]
 body = "none"
