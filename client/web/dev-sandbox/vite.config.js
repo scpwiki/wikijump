@@ -4,6 +4,7 @@ import sveltePreprocess from "svelte-preprocess"
 import { typescript } from "svelte-preprocess-esbuild"
 
 import workerPlugin from "../../scripts/vite-plugin-bundled-worker.js"
+import tomlPlugin from "../../scripts/vite-plugin-toml.js"
 
 /** @type {import('vite').UserConfig} */
 const config = {
@@ -24,6 +25,7 @@ const config = {
   },
   plugins: [
     workerPlugin(),
+    tomlPlugin(),
     svelte({
       // render typescript using esbuild rather than tsc
       preprocess: [typescript(), sveltePreprocess({ typescript: false })]
