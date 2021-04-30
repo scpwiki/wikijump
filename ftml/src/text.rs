@@ -121,7 +121,7 @@ impl<'t> FullText<'t> {
     }
 
     #[inline]
-    pub fn utf16_index_map(&self) -> Utf16IndexMap<'t> {
+    pub(crate) fn utf16_index_map(&self) -> Utf16IndexMap<'t> {
         Utf16IndexMap::new(self.text)
     }
 }
