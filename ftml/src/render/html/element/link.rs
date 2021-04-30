@@ -53,7 +53,7 @@ pub fn render_link(
     let handle = ctx.handle();
 
     // Normalize URL for href
-    let normal_url = if is_url(url) || url.starts_with('#') {
+    let normal_url = if is_url(url) || url.starts_with('#') || url == "javascript:;" {
         Cow::Borrowed(url)
     } else {
         let mut url = str!(url);
