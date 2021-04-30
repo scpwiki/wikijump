@@ -28,6 +28,7 @@ mod parsing;
 mod preproc;
 mod render;
 mod tokenizer;
+mod utf16;
 
 mod prelude {
     pub use super::log::LOGGER;

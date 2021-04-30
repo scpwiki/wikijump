@@ -19,6 +19,7 @@
  */
 
 use super::{rule::Rule, ExtractedToken, Token};
+use crate::utf16::Utf16IndexMap;
 use std::borrow::Cow;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
@@ -95,6 +96,29 @@ impl ParseWarning {
     #[cfg(not(target_arch = "wasm32"))]
     pub(crate) fn rule_raw(&self) -> &Cow<'static, str> {
         &self.rule
+    }
+
+    pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
+        // Copy fields
+        let ParseWarning {
+            token,
+            rule,
+            span,
+            kind,
+        } = self.clone();
+
+        // Map indices to UTF-16
+        let start = map.get_index(span.start);
+        let end = map.get_index_end(span.end);
+        let span = start..end;
+
+        // Output new warning
+        ParseWarning {
+            token,
+            rule,
+            span,
+            kind,
+        }
     }
 }
 
