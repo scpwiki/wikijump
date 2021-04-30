@@ -24,7 +24,7 @@ use super::TextContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::{ContainerType, Element, ListItem, ListType};
-use crate::url::is_url;
+use crate::url::{is_url, normalize_url};
 use std::borrow::Cow;
 
 pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]) {
@@ -254,20 +254,18 @@ fn get_full_url<'a>(log: &Logger, ctx: &TextContext, url: &'a str) -> Cow<'a, st
         return Cow::Borrowed(url);
     }
 
-    // Let's build a full URL:
+    // Let's build a full URL.
+    // First, normalize:
+    let url = normalize_url(url);
+
     let site = &ctx.info().site;
     let mut full_url = ctx.handle().get_url(log, site);
 
     // Ensure there is exactly one slash
-    if !full_url.ends_with('/') && !url.starts_with('/') {
-        full_url.push('/');
-    }
-
-    // Remove duplicate slash, if present
-    if full_url.ends_with('/') && url.starts_with('/') {
+    if full_url.ends_with('/') {
         full_url.pop();
     }
 
-    full_url.push_str(url);
+    full_url.push_str(&url);
     Cow::Owned(full_url)
 }

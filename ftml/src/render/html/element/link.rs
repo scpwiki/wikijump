@@ -20,9 +20,7 @@
 
 use super::prelude::*;
 use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel};
-use crate::url::is_url;
-use std::borrow::Cow;
-use wikidot_normalize::normalize;
+use crate::url::normalize_url;
 
 pub fn render_anchor(
     log: &Logger,
@@ -52,19 +50,9 @@ pub fn render_link(
 ) {
     let handle = ctx.handle();
 
-    // Normalize URL for href
-    let normal_url = if is_url(url) || url.starts_with('#') || url == "javascript:;" {
-        Cow::Borrowed(url)
-    } else {
-        let mut url = str!(url);
-        normalize(&mut url);
-        url.insert(0, '/');
-        Cow::Owned(url)
-    };
-
     // Create <a> and set attributes
     let mut tag = ctx.html().a();
-    tag.attr("href", &[&normal_url]);
+    tag.attr("href", &[&normalize_url(url)]);
 
     if let Some(target) = target {
         tag.attr("target", &[target.html_attr()]);
