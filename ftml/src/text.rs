@@ -20,7 +20,7 @@
 
 use crate::log::prelude::*;
 use crate::parsing::ExtractedToken;
-use std::collections::HashMap;
+use crate::utf16::Utf16IndexMap;
 
 /// Wrapper for the input string that was tokenized.
 ///
@@ -120,12 +120,8 @@ impl<'t> FullText<'t> {
         &self.text[start..end]
     }
 
-    /// Produces a mapping of UTF-8 byte index to character index.
-    ///
-    /// This enables objects to be converted into using character indices
-    /// for strings rather than byte indices. This is useful for environments
-    /// which do not use UTF-8 strings, such as Javascript (via WebASM).
-    pub fn char_index_map(&self) -> HashMap<usize, usize> {
-        todo!()
+    #[inline]
+    pub fn utf16_index_map(&self) -> Utf16IndexMap<'t> {
+        Utf16IndexMap::new(self.text)
     }
 }

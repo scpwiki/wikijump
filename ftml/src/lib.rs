@@ -76,6 +76,7 @@ mod preproc;
 mod span_wrap;
 mod text;
 mod url;
+mod utf16;
 
 #[cfg(feature = "ffi")]
 #[cfg(not(target_arch = "wasm32"))]
