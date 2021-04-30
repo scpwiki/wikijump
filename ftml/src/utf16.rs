@@ -58,3 +58,31 @@ impl<'t> Utf16IndexMap<'t> {
         self.map[&utf8_index]
     }
 }
+
+#[test]
+fn utf16_indices() {
+    macro_rules! check {
+        ($text:expr, $indices:expr) => {{
+            let map = Utf16IndexMap::new($text);
+            let indices = &$indices;
+
+            assert_eq!(
+                $text.char_indices().count(),
+                indices.len(),
+                "Actual number of text indices doesn't match expected",
+            );
+
+            for (utf8_index, expected_utf16_index) in indices {
+                let actual_utf16_index = map.get_index(*utf8_index);
+
+                assert_eq!(
+                    expected_utf16_index,
+                    actual_utf16_index,
+                    "Actual UTF-16 index doesn't match expected",
+                );
+            }
+        }};
+    }
+
+    check!("", []);
+}
