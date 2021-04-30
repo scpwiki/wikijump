@@ -20,6 +20,8 @@
 
 use super::prelude::*;
 use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel};
+use crate::url::is_url;
+use std::borrow::Cow;
 use wikidot_normalize::normalize;
 
 pub fn render_anchor(
@@ -51,10 +53,13 @@ pub fn render_link(
     let handle = ctx.handle();
 
     // Normalize URL for href
-    let normal_url = {
+    let normal_url = if is_url(url) {
+        Cow::Borrowed(url)
+    } else {
         let mut url = str!(url);
         normalize(&mut url);
-        url
+        url.insert(0, '/');
+        Cow::Owned(url)
     };
 
     // Create <a> and set attributes
