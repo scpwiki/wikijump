@@ -24,6 +24,7 @@ use crate::parsing::{
     ParseOutcome as RustParseOutcome, ParseWarning as RustParseWarning,
 };
 use crate::tree::SyntaxTree as RustSyntaxTree;
+use crate::utf16::Utf16IndexMap;
 use std::sync::Arc;
 
 // Typescript declarations
@@ -134,7 +135,7 @@ pub fn parse(tokens: Tokenization) -> Result<ParseOutcome, JsValue> {
     let syntax_tree = syntax_tree.to_owned();
 
     // Convert warnings to use UTF-16 indices
-    let utf16_map = tokenization.full_text().utf16_index_map();
+    let utf16_map = Utf16IndexMap::new(tokenization.full_text().inner());
     let warnings: Vec<RustParseWarning> = warnings
         .into_iter()
         .map(|warn| warn.to_utf16_indices(&utf16_map))

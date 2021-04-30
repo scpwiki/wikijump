@@ -21,9 +21,6 @@
 use crate::log::prelude::*;
 use crate::parsing::ExtractedToken;
 
-#[cfg(target_arch = "wasm32")]
-use crate::utf16::Utf16IndexMap;
-
 /// Wrapper for the input string that was tokenized.
 ///
 /// This structure does not expose the internal string (preventing weird ad-hoc
@@ -120,11 +117,5 @@ impl<'t> FullText<'t> {
         }
 
         &self.text[start..end]
-    }
-
-    #[inline]
-    #[cfg(target_arch = "wasm32")]
-    pub(crate) fn utf16_index_map(&self) -> Utf16IndexMap<'t> {
-        Utf16IndexMap::new(self.text)
     }
 }
