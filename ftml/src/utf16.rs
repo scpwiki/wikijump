@@ -19,16 +19,23 @@
  */
 
 use std::collections::HashMap;
+use std::marker::PhantomData;
 
 #[derive(Debug, Clone)]
 pub struct Utf16IndexMap<'t> {
-    /// The underlying UTF-8 string that this map is acting on.
-    text: &'t str,
-
     /// A mapping of UTF-8 byte indices to UTF-16 indices, with the character.
     ///
     /// Schema: utf8_index -> utf16_index
     map: HashMap<usize, usize>,
+
+    /// Borrow marker for the underlying string.
+    ///
+    /// This prevents this object from being valid if the underlying
+    /// UTF-8 string is destructed.
+    ///
+    /// However since we don't actually need the string's contents,
+    /// we use `PhantomData` here.
+    marker: PhantomData<&'t str>,
 }
 
 impl<'t> Utf16IndexMap<'t> {
@@ -54,7 +61,7 @@ impl<'t> Utf16IndexMap<'t> {
             map.insert(utf8_index, utf16_index);
         }
 
-        Utf16IndexMap { text, map }
+        Utf16IndexMap { map, marker: PhantomData }
     }
 
     /// Converts a UTF-8 byte index into a UTF-16 one.
