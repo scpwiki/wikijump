@@ -95,28 +95,48 @@ impl<'t> Utf16IndexMap<'t> {
 #[test]
 fn utf16_indices() {
     macro_rules! check {
-        ($text:expr, $indices:expr) => {{
+        ($text:expr, $start_indices:expr, $end_indices:expr) => {{
             let map = Utf16IndexMap::new($text);
-            let indices: &[usize] = &$indices;
-            let iterator = $text.char_indices().zip(indices).enumerate();
 
-            for (char_index, ((utf8_index, _), expected_utf16_index)) in iterator {
+            let start_indices: &[usize] = &$start_indices;
+            let start_iterator = $text.char_indices().zip(start_indices).enumerate();
+            let end_indices: &[usize] = &$end_indices;
+            let end_iterator = $text.char_indices().zip(end_indices).enumerate();
+
+            assert_eq!(
+                start_indices.len(),
+                end_indices.len(),
+                "Indices lists aren't the same length",
+            );
+
+            for (char_index, ((utf8_index, _ch), expected_utf16_index)) in start_iterator {
                 let actual_utf16_index = map.get_index(utf8_index);
 
                 assert_eq!(
                     *expected_utf16_index,
                     actual_utf16_index,
-                    "Actual UTF-16 index doesn't match expected (char {})",
+                    "Actual UTF-16 start index doesn't match expected (char #{})",
+                    char_index + 1,
+                );
+            }
+
+            for (char_index, ((utf8_index, ch), expected_utf16_index)) in end_iterator {
+                let actual_utf16_index = map.get_index(utf8_index + ch.len_utf8());
+
+                assert_eq!(
+                    *expected_utf16_index,
+                    actual_utf16_index,
+                    "Actual UTF-16 end index doesn't match expected (char #{})",
                     char_index + 1,
                 );
             }
         }};
     }
 
-    check!("", []);
-    check!("abcd", [0, 1, 2, 3, 4]);
-    check!("aßcd", [0, 1, 2, 3, 4]);
-    check!("aℝcd", [0, 1, 2, 3, 4]);
-    check!("a🦀cd", [0, 1, 3, 4, 5]);
-    check!("x💣yßz", [0, 1, 3, 4, 5, 7]);
+    check!("", [], []);
+    check!("abc", [0, 1, 2, 3], [1, 2, 3, 4]);
+    check!("aßc", [0, 1, 2, 3], [1, 2, 3, 4]);
+    check!("aℝc", [0, 1, 2, 3], [1, 2, 3, 4]);
+    check!("a🦀c", [0, 1, 3, 4], [1, 3, 4, 5]);
+    check!("x💣yßz", [0, 1, 3, 4, 5, 7], [1, 3, 4, 5, 6, 9]);
 }
