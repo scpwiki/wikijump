@@ -25,10 +25,10 @@ pub struct Utf16IndexMap<'t> {
     /// The underlying UTF-8 string that this map is acting on.
     text: &'t str,
 
-    /// A mapping of character indices to UTF-8 byte indices, with the character.
+    /// A mapping of UTF-8 byte indices to UTF-16 indices, with the character.
     ///
-    /// Schema: utf8_byte_index -> (char_index, char)
-    map: HashMap<usize, (usize, char)>,
+    /// Schema: utf8_index -> utf16_index
+    map: HashMap<usize, usize>,
 }
 
 impl<'t> Utf16IndexMap<'t> {
@@ -39,11 +39,22 @@ impl<'t> Utf16IndexMap<'t> {
     /// which do use UTF-16 strings, such as Javascript (via WebASM).
     pub fn new(text: &'t str) -> Self {
         let mut map = HashMap::new();
+        let mut utf16_index = 0;
 
-        for (char_index, (byte_index, ch)) in text.char_indices().enumerate() {
-            map.insert(byte_index, (char_index, ch));
+        for (utf8_index, ch) in text.char_indices() {
+            map.insert(utf8_index, utf16_index);
+            utf16_index += ch.len_utf16();
         }
 
         Utf16IndexMap { text, map }
+    }
+
+    /// Converts a UTF-8 byte index into a UTF-16 one.
+    ///
+    /// # Panics
+    /// Panics if the index is out of range for the string.
+    #[inline]
+    pub fn get_index(&self, utf8_index: usize) -> usize {
+        self.map[&utf8_index]
     }
 }
