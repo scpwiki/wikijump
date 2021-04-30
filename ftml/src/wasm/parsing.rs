@@ -20,7 +20,9 @@
 
 use super::prelude::*;
 use super::tokenizer::Tokenization;
-use crate::parsing::ParseOutcome as RustParseOutcome;
+use crate::parsing::{
+    ParseOutcome as RustParseOutcome, ParseWarning as RustParseWarning,
+};
 use crate::tree::SyntaxTree as RustSyntaxTree;
 use std::sync::Arc;
 
@@ -130,6 +132,13 @@ pub fn parse(tokens: Tokenization) -> Result<ParseOutcome, JsValue> {
 
     // Deep-clone AST to make it owned, so it can be safely passed to JS.
     let syntax_tree = syntax_tree.to_owned();
+
+    // Convert warnings to use UTF-16 indices
+    let utf16_map = tokenization.full_text().utf16_index_map();
+    let warnings: Vec<RustParseWarning> = warnings
+        .into_iter()
+        .map(|warn| warn.to_utf16_indices(&utf16_map))
+        .collect();
 
     // Create inner wrapper
     let inner = Arc::new(RustParseOutcome::new(syntax_tree, warnings));
