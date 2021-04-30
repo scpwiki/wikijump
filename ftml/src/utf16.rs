@@ -56,7 +56,7 @@ impl<'t> Utf16IndexMap<'t> {
             last_utf8_index = Some(utf8_index + ch.len_utf8());
         }
 
-        // Add last index
+        // Add last index, needed for get_index_end() and the final token span.
         if let Some(utf8_index) = last_utf8_index {
             map.insert(utf8_index, utf16_index);
         }
