@@ -64,25 +64,25 @@ fn utf16_indices() {
     macro_rules! check {
         ($text:expr, $indices:expr) => {{
             let map = Utf16IndexMap::new($text);
-            let indices = &$indices;
+            let indices: &[usize] = &$indices;
+            let iterator = $text.char_indices().zip(indices).enumerate();
 
-            assert_eq!(
-                $text.char_indices().count(),
-                indices.len(),
-                "Actual number of text indices doesn't match expected",
-            );
-
-            for (utf8_index, expected_utf16_index) in indices {
-                let actual_utf16_index = map.get_index(*utf8_index);
+            for (char_index, ((utf8_index, _), expected_utf16_index)) in iterator {
+                let actual_utf16_index = map.get_index(utf8_index);
 
                 assert_eq!(
-                    expected_utf16_index,
+                    *expected_utf16_index,
                     actual_utf16_index,
-                    "Actual UTF-16 index doesn't match expected",
+                    "Actual UTF-16 index doesn't match expected (char {})",
+                    char_index + 1,
                 );
             }
         }};
     }
 
     check!("", []);
+    check!("abc", [1, 2, 3]);
+    check!("aßc", [1, 2, 4]);
+    check!("ℝeo", [3, 4, 5]);
+    check!("x💣yßz", [1, 5, 6, 8, 10]);
 }
