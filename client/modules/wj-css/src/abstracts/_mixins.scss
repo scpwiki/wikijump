@@ -1,0 +1,21 @@
+/// Mixin for when an element is being hovered over.
+/// Using this mixin instead of `:hover` accounts for edge cases.
+@mixin hover {
+  @media (any-hover: hover), (hover: hover) {
+    &:not([disabled]):hover {
+      @content;
+    }
+  }
+}
+
+/// Removes most of the built-in styling for an element.
+@mixin reset {
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  background: none;
+  &:not(:focus-visible) {
+    border: none;
+    outline: none;
+  }
+}
