@@ -105,7 +105,7 @@ fn utf16_indices() {
             let start_iterator = $text.char_indices().zip(start_indices).enumerate();
             let end_iterator = $text.char_indices().zip(end_indices).enumerate();
 
-            for (char_index, ((utf8_index, _ch), expected_utf16_index)) in start_iterator {
+            for (char_index, ((utf8_index, _), expected_utf16_index)) in start_iterator {
                 let actual_utf16_index = map.get_index(utf8_index);
 
                 assert_eq!(
