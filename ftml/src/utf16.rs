@@ -40,10 +40,18 @@ impl<'t> Utf16IndexMap<'t> {
     pub fn new(text: &'t str) -> Self {
         let mut map = HashMap::new();
         let mut utf16_index = 0;
+        let mut last_utf8_index = None;
 
+        // Add index for the start of each character
         for (utf8_index, ch) in text.char_indices() {
             map.insert(utf8_index, utf16_index);
             utf16_index += ch.len_utf16();
+            last_utf8_index = Some(utf8_index + ch.len_utf8());
+        }
+
+        // Add last index
+        if let Some(utf8_index) = last_utf8_index {
+            map.insert(utf8_index, utf16_index);
         }
 
         Utf16IndexMap { text, map }
@@ -81,9 +89,9 @@ fn utf16_indices() {
     }
 
     check!("", []);
-    check!("abcd", [0, 1, 2, 3]);
-    check!("aßcd", [0, 1, 2, 3]);
-    check!("aℝcd", [0, 1, 2, 3]);
-    check!("a🦀cd", [0, 1, 3, 4]);
-    check!("x💣yßz", [0, 1, 3, 4, 5]);
+    check!("abcd", [0, 1, 2, 3, 4]);
+    check!("aßcd", [0, 1, 2, 3, 4]);
+    check!("aℝcd", [0, 1, 2, 3, 4]);
+    check!("a🦀cd", [0, 1, 3, 4, 5]);
+    check!("x💣yßz", [0, 1, 3, 4, 5, 7]);
 }
