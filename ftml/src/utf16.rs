@@ -61,7 +61,10 @@ impl<'t> Utf16IndexMap<'t> {
             map.insert(utf8_index, utf16_index);
         }
 
-        Utf16IndexMap { map, marker: PhantomData }
+        Utf16IndexMap {
+            map,
+            marker: PhantomData,
+        }
     }
 
     /// Converts a UTF-8 byte index into a UTF-16 one.
