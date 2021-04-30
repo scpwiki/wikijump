@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel};
+use wikidot_normalize::normalize;
 
 pub fn render_anchor(
     log: &Logger,
@@ -49,9 +50,16 @@ pub fn render_link(
 ) {
     let handle = ctx.handle();
 
+    // Normalize URL for href
+    let normal_url = {
+        let mut url = str!(url);
+        normalize(&mut url);
+        url
+    };
+
     // Create <a> and set attributes
     let mut tag = ctx.html().a();
-    tag.attr("href", &[url]);
+    tag.attr("href", &[&normal_url]);
 
     if let Some(target) = target {
         tag.attr("target", &[target.html_attr()]);
