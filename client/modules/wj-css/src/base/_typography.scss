@@ -1,0 +1,102 @@
+// prettier-ignore
+:root {
+  --font-system-default: emoji,
+                         "Apple Color Emoji",
+                         "Segoe UI Emoji", "Segoe UI Symbol",
+                         "Noto Emoji",
+                         system-ui, sans-serif;
+
+  --font-system-sans: ui-sans-serif,
+                      -apple-system,
+                      "Segoe UI",
+                      "Ubuntu",
+                      "Oxygen-Sans",
+                      "Cantarell",
+                      "Roboto", "Noto",
+                      var(--font-system-default);
+
+  --font-system-rounded: ui-rounded,
+                         var(--font-system-sans);
+
+  --font-system-serif: ui-serif,
+                       "Noto Serif",
+                       "Times New Roman",
+                       var(--font-system-default);
+
+  --font-system-mono: ui-monospace,
+                      "SFMono-Regular", "Menlo",
+                      "Consolas",
+                      "Roboto Mono", "Droid Mono",
+                      monospace,
+                      var(--font-system-default);
+
+  --font-sans:    "Public Sans",   var(--font-system-sans);
+  --font-display: "Exo 2",         var(--font-system-rounded);
+  --font-serif:   "Bitter",        var(--font-system-serif);
+  --font-mono:    "Sometype Mono", var(--font-system-mono);
+}
+
+html,
+body {
+  font-weight: 400;
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+@supports (font-variation-settings: normal) {
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Public Sans";
+    src: url("/static/fonts/variable/PublicSans-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Public Sans";
+    font-style: italic;
+    src: url("/static/fonts/variable/PublicSans-Italic-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+}
+
+@font-face {
+  font-weight: normal;
+  font-family: "Sometype Mono";
+  src: url("/static/fonts/SometypeMono-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-weight: 600;
+  font-family: "Sometype Mono";
+  src: url("/static/fonts/SometypeMono-Medium.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-weight: 800;
+  font-family: "Sometype Mono";
+  src: url("/static/fonts/SometypeMono-Bold.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-weight: normal;
+  font-family: "Sometype Mono";
+  font-style: italic;
+  src: url("/static/fonts/SometypeMono-RegularItalic.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-weight: 600;
+  font-family: "Sometype Mono";
+  font-style: italic;
+  src: url("/static/fonts/SometypeMono-MediumItalic.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-weight: 800;
+  font-family: "Sometype Mono";
+  font-style: italic;
+  src: url("/static/fonts/SometypeMono-BoldItalic.woff2") format("woff2");
+  font-display: swap;
+}
