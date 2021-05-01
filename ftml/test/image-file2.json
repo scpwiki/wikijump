@@ -1,0 +1,51 @@
+{
+    "input": "A [[image /some-other-page/my-picture.jpeg]] B",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "image",
+                            "data": {
+                                "source": {
+                                    "type": "file2",
+                                    "data": {
+                                        "page": "some-other-page",
+                                        "file": "my-picture.jpeg"
+                                    }
+                                },
+                                "link": null,
+                                "align": null,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "B"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
