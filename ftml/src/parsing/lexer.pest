@@ -48,18 +48,6 @@ token = _{
     variable |
     string |
 
-    // Alignment
-    //
-    // Ahead of the more generic bracket rules
-    open_right_align |
-    open_left_align |
-    open_center_align |
-    open_justify_align |
-    close_right_align |
-    close_left_align |
-    close_center_align |
-    close_justify_align |
-
     // Special case to handle those pesky "[[[[" and "]]]]"s
     // These are [[[ triple links surrounded by constant [ brackets.
     (left_bracket ~ left_link) |
@@ -200,22 +188,6 @@ numbered_item = @{ "#" ~ !"#" }
 
 table_column = @{ "||" }
 table_column_title = @{ "||~" }
-
-// }}}
-
-// Alignment {{{
-
-open_right_align = @{ "[[>]]" }
-close_right_align = @{ "[[/>]]" }
-
-open_left_align = @{ "[[<]]" }
-close_left_align = @{ "[[/<]]" }
-
-open_center_align = @{ "[[=]]" }
-close_center_align = @{ "[[/=]]" }
-
-open_justify_align = @{ "[[==]]" }
-close_justify_align = @{ "[[/==]]" }
 
 // }}}
 

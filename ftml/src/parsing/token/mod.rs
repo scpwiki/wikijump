@@ -116,18 +116,6 @@ pub enum Token {
     TableColumnTitle,
 
     //
-    // Alignment
-    //
-    RightAlignOpen,
-    RightAlignClose,
-    LeftAlignOpen,
-    LeftAlignClose,
-    CenterAlignOpen,
-    CenterAlignClose,
-    JustifyAlignOpen,
-    JustifyAlignClose,
-
-    //
     // Text components
     //
     Identifier,
@@ -268,16 +256,6 @@ impl Token {
             // Tables
             Rule::table_column => Token::TableColumn,
             Rule::table_column_title => Token::TableColumnTitle,
-
-            // Alignment
-            Rule::open_right_align => Token::RightAlignOpen,
-            Rule::open_left_align => Token::LeftAlignOpen,
-            Rule::open_center_align => Token::CenterAlignOpen,
-            Rule::open_justify_align => Token::JustifyAlignOpen,
-            Rule::close_right_align => Token::RightAlignClose,
-            Rule::close_left_align => Token::LeftAlignClose,
-            Rule::close_center_align => Token::CenterAlignClose,
-            Rule::close_justify_align => Token::JustifyAlignClose,
 
             // Text components
             Rule::identifier => Token::Identifier,

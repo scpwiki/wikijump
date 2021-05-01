@@ -20,18 +20,47 @@
 
 use super::prelude::*;
 use crate::tree::{Alignment, AttributeMap};
-use std::convert::TryFrom;
 
-pub const BLOCK_ALIGN: BlockRule = BlockRule {
-    name: "block-align",
-    accepts_names: &["<", ">", "=", "=="],
-    accepts_special: false,
-    accepts_modifier: false,
-    accepts_newlines: true,
-    parse_fn,
-};
+macro_rules! make_align_block {
+    ($block_const:ident, $block_name:expr, $symbol:expr, $align:ident) => {
+        use super::align::parse_alignment_block;
+        use super::prelude::*;
+        use crate::tree::Alignment;
 
-fn parse_fn<'r, 't>(
+        pub const $block_const: BlockRule = BlockRule {
+            name: $block_name,
+            accepts_names: &[$symbol],
+            accepts_special: false,
+            accepts_modifier: false,
+            accepts_newlines: true,
+            parse_fn,
+        };
+
+        fn parse_fn<'r, 't>(
+            log: &Logger,
+            parser: &mut Parser<'r, 't>,
+            name: &'t str,
+            special: bool,
+            modifier: bool,
+            in_head: bool,
+        ) -> ParseResult<'r, 't, Elements<'t>> {
+            parse_alignment_block(
+                &$block_const,
+                Alignment::$align,
+                log,
+                parser,
+                name,
+                special,
+                modifier,
+                in_head,
+            )
+        }
+    };
+}
+
+pub fn parse_alignment_block<'r, 't>(
+    block_rule: &BlockRule,
+    alignment: Alignment,
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
@@ -42,22 +71,22 @@ fn parse_fn<'r, 't>(
     debug!(
         log,
         "Parsing alignment block";
+        "block-rule" => block_rule.name,
+        "alignment" => alignment.name(),
         "in-head" => in_head,
         "name" => name,
     );
 
-    assert!(!special, "Alignment doesn't allow special variant");
-    assert!(!modifier, "Alignment doesn't allow modifier variant");
-    assert_block_name(&BLOCK_ALIGN, name);
+    assert!(!special, "Alignment block doesn't allow special variant");
+    assert!(!modifier, "Alignment block doesn't allow modifier variant");
+    assert_block_name(block_rule, name);
 
-    parser.get_head_none(&BLOCK_ALIGN, in_head)?;
+    parser.get_head_none(block_rule, in_head)?;
 
     // Get body content, with paragraphs
-    let (elements, exceptions, _) =
-        parser.get_body_elements(&BLOCK_ALIGN, true)?.into();
+    let (elements, exceptions, _) = parser.get_body_elements(block_rule, true)?.into();
 
     // Build element
-    let alignment = Alignment::try_from(name).unwrap();
     let element = Element::Container(Container::new(
         ContainerType::Align(alignment),
         elements,

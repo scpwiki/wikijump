@@ -56,7 +56,13 @@ mod prelude {
     }
 }
 
+#[macro_use]
 mod align;
+
+mod align_center;
+mod align_justify;
+mod align_left;
+mod align_right;
 mod anchor;
 mod blockquote;
 mod bold;
@@ -88,7 +94,10 @@ mod subscript;
 mod superscript;
 mod underline;
 
-pub use self::align::BLOCK_ALIGN;
+pub use self::align_center::BLOCK_ALIGN_CENTER;
+pub use self::align_justify::BLOCK_ALIGN_JUSTIFY;
+pub use self::align_left::BLOCK_ALIGN_LEFT;
+pub use self::align_right::BLOCK_ALIGN_RIGHT;
 pub use self::anchor::BLOCK_ANCHOR;
 pub use self::blockquote::BLOCK_BLOCKQUOTE;
 pub use self::bold::BLOCK_BOLD;
