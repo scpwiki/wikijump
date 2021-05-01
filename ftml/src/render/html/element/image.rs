@@ -58,9 +58,8 @@ pub fn render_image(
             let build_image = |ctx: &mut HtmlContext| {
                 ctx.html()
                     .img()
-                    .attr("class", &["image"])
                     .attr("src", &[&source_url])
-                    .attr_map(attributes);
+                    .attr_map_prepend(attributes, ("class", "image"));
             };
 
             match link {
