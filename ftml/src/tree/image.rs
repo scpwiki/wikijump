@@ -30,16 +30,16 @@ pub enum ImageSource<'a> {
     Url(Cow<'a, str>),
 
     /// Image is attached the current page.
-    File { file: Cow<'a, str> },
+    File1 { file: Cow<'a, str> },
 
     /// Image is attached to another page on the site.
-    OtherFile {
+    File2 {
         page: Cow<'a, str>,
         file: Cow<'a, str>,
     },
 
     /// Image is attached to another page on another site.
-    RemoteFile {
+    File3 {
         site: Cow<'a, str>,
         page: Cow<'a, str>,
         file: Cow<'a, str>,
@@ -60,14 +60,14 @@ impl<'t> ImageSource<'t> {
 
         // Depending on the number of parts, determine the file variant
         let source = match parts.len() {
-            1 => ImageSource::File {
+            1 => ImageSource::File1 {
                 file: cow!(parts[0]),
             },
-            2 => ImageSource::OtherFile {
+            2 => ImageSource::File2 {
                 page: cow!(parts[0]),
                 file: cow!(parts[1]),
             },
-            3 => ImageSource::RemoteFile {
+            3 => ImageSource::File3 {
                 site: cow!(parts[0]),
                 page: cow!(parts[1]),
                 file: cow!(parts[2]),
@@ -86,14 +86,14 @@ impl<'t> ImageSource<'t> {
     pub fn to_owned(&self) -> ImageSource<'static> {
         match self {
             ImageSource::Url(url) => ImageSource::Url(string_to_owned(url)),
-            ImageSource::File { file } => ImageSource::File {
+            ImageSource::File1 { file } => ImageSource::File1 {
                 file: string_to_owned(file),
             },
-            ImageSource::OtherFile { page, file } => ImageSource::OtherFile {
+            ImageSource::File2 { page, file } => ImageSource::File2 {
                 page: string_to_owned(page),
                 file: string_to_owned(file),
             },
-            ImageSource::RemoteFile { site, page, file } => ImageSource::RemoteFile {
+            ImageSource::File3 { site, page, file } => ImageSource::File3 {
                 site: string_to_owned(site),
                 page: string_to_owned(page),
                 file: string_to_owned(file),

@@ -81,9 +81,9 @@ impl Handle {
 
         let (site, page, file): (&str, &str, &str) = match source {
             ImageSource::Url(url) => return Cow::clone(url),
-            ImageSource::File { file } => (&info.site, &info.page, &file),
-            ImageSource::OtherFile { page, file } => (&info.site, &page, &file),
-            ImageSource::RemoteFile { site, page, file } => (&site, &page, &file),
+            ImageSource::File1 { file } => (&info.site, &info.page, &file),
+            ImageSource::File2 { page, file } => (&info.site, &page, &file),
+            ImageSource::File3 { site, page, file } => (&site, &page, &file),
         };
 
         // TODO
