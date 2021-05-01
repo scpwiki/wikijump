@@ -123,14 +123,14 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Image {
             source,
             link,
-            align,
+            alignment,
             attributes,
         } => {
             let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
 
             str_write!(ctx, "Image: {}", &source_url);
 
-            if let Some(image) = align {
+            if let Some(image) = alignment {
                 let float = if image.float {
                     " float"
                 } else {

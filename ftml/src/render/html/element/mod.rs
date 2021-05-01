@@ -87,9 +87,9 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::Image {
             source,
             link,
-            align,
+            alignment,
             attributes,
-        } => render_image(log, ctx, source, ref_cow!(link), *align, attributes),
+        } => render_image(log, ctx, source, ref_cow!(link), *alignment, attributes),
         Element::List { ltype, items } => render_list(log, ctx, *ltype, items),
         Element::RadioButton {
             name,

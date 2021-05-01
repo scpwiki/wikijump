@@ -27,7 +27,7 @@ pub fn render_image(
     ctx: &mut HtmlContext,
     source: &ImageSource,
     link: Option<&str>,
-    align: Option<ImageAlignment>,
+    alignment: Option<ImageAlignment>,
     attributes: &AttributeMap,
 ) {
     debug!(
@@ -35,11 +35,11 @@ pub fn render_image(
         "Rendering image element";
         "source" => source.name(),
         "link" => link.unwrap_or("<none>"),
-        "align" => match align {
+        "alignment" => match alignment {
             Some(image) => image.align.name(),
             None => "<default>",
         },
-        "float" => match align {
+        "float" => match alignment {
             Some(image) => image.float,
             None => false,
         },
@@ -47,7 +47,7 @@ pub fn render_image(
 
     let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
 
-    let image_classes = match align {
+    let image_classes = match alignment {
         Some(align) => ["image-container", " ", align.class()],
         None => ["image-container", "", ""],
     };

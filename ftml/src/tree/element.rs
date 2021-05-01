@@ -91,7 +91,7 @@ pub enum Element<'t> {
     Image {
         source: ImageSource<'t>,
         link: Option<Cow<'t, str>>,
-        align: Option<ImageAlignment>,
+        alignment: Option<ImageAlignment>,
         attributes: AttributeMap<'t>,
     },
 
@@ -256,12 +256,12 @@ impl Element<'_> {
             Element::Image {
                 source,
                 link,
-                align,
+                alignment,
                 attributes,
             } => Element::Image {
                 source: source.to_owned(),
                 link: option_string_to_owned(link),
-                align: *align,
+                alignment: *alignment,
                 attributes: attributes.to_owned(),
             },
             Element::RadioButton {

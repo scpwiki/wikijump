@@ -51,7 +51,7 @@ fn parse_fn<'r, 't>(
 
     let (source, mut arguments) = parser.get_head_name_map(&BLOCK_IMAGE, in_head)?;
     let link = arguments.get("link");
-    let align = ImageAlignment::parse(name);
+    let alignment = ImageAlignment::parse(name);
 
     // Parse the image source based on format
     let source = match ImageSource::parse(source) {
@@ -63,7 +63,7 @@ fn parse_fn<'r, 't>(
     let element = Element::Image {
         source,
         link,
-        align,
+        alignment,
         attributes: arguments.to_hash_map(),
     };
 
