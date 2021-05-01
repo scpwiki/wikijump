@@ -65,7 +65,7 @@ pub struct ImageAlignment {
 impl ImageAlignment {
     pub fn parse(name: &str) -> Option<Self> {
         lazy_static! {
-            static ref IMAGE_ALIGNMENT_REGEX: Regex = Regex::new(r"^f?([<=>])").unwrap();
+            static ref IMAGE_ALIGNMENT_REGEX: Regex = Regex::new(r"^[fF]?([<=>])").unwrap();
         }
 
         IMAGE_ALIGNMENT_REGEX
@@ -96,8 +96,8 @@ impl TryFrom<&'_ str> for ImageAlignment {
             "=" => (Alignment::Center, false),
             "<" => (Alignment::Left, false),
             ">" => (Alignment::Right, false),
-            "f<" => (Alignment::Left, true),
-            "f>" => (Alignment::Right, true),
+            "f<" | "F<" => (Alignment::Left, true),
+            "f>" | "F>" => (Alignment::Right, true),
             _ => return Err(()),
         };
 
@@ -144,4 +144,7 @@ fn image_alignment() {
     check!("<IMAGE", Alignment::Left, false);
     check!("f>IMAGE", Alignment::Right, true);
     check!("f<IMAGE", Alignment::Left, true);
+
+    check!("F>IMAGE", Alignment::Right, true);
+    check!("F<IMAGE", Alignment::Left, true);
 }
