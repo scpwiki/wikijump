@@ -119,8 +119,8 @@ impl<'r, 't> Parser<'r, 't> {
         );
 
         match condition {
-            ParseCondition::CurrentToken { token } => self.current.token == token,
-            ParseCondition::TokenPair { current, next } => {
+            ParseCondition::CurrentToken(token) => self.current.token == token,
+            ParseCondition::TokenPair(current, next) => {
                 if self.current().token != current {
                     trace!(
                         &self.log,

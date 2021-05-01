@@ -1,5 +1,5 @@
 /*
- * data/page_info.rs
+ * page_info.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team

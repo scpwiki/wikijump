@@ -22,7 +22,8 @@ use super::clone::{
     elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
 };
 use super::{
-    AnchorTarget, AttributeMap, Container, LinkLabel, ListItem, ListType, Module,
+    AnchorTarget, AttributeMap, Container, ImageAlignment, ImageSource, LinkLabel,
+    ListItem, ListType, Module,
 };
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -80,6 +81,18 @@ pub enum Element<'t> {
         url: Cow<'t, str>,
         label: LinkLabel<'t>,
         target: Option<AnchorTarget>,
+    },
+
+    /// An element representing an image and its associated metadata.
+    ///
+    /// The "source" field is the link to the image itself.
+    ///
+    /// The "link" field is what the `<a>` points to, when the user clicks on the image.
+    Image {
+        source: ImageSource<'t>,
+        link: Option<Cow<'t, str>>,
+        alignment: Option<ImageAlignment>,
+        attributes: AttributeMap<'t>,
     },
 
     /// An ordered or unordered list.
@@ -169,6 +182,7 @@ impl Element<'_> {
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::List { .. } => "List",
+            Element::Image { .. } => "Image",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",
@@ -198,6 +212,7 @@ impl Element<'_> {
             Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
+            Element::Image { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
             Element::Color { .. } => true,
@@ -237,6 +252,17 @@ impl Element<'_> {
             Element::List { ltype, items } => Element::List {
                 ltype: *ltype,
                 items: list_items_to_owned(&items),
+            },
+            Element::Image {
+                source,
+                link,
+                alignment,
+                attributes,
+            } => Element::Image {
+                source: source.to_owned(),
+                link: option_string_to_owned(link),
+                alignment: *alignment,
+                attributes: attributes.to_owned(),
             },
             Element::RadioButton {
                 name,

@@ -23,6 +23,7 @@
 mod collapsible;
 mod container;
 mod iframe;
+mod image;
 mod input;
 mod link;
 mod list;
@@ -38,6 +39,7 @@ mod prelude {
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
 use self::iframe::{render_html, render_iframe};
+use self::image::render_image;
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
@@ -82,6 +84,12 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::Link { url, label, target } => {
             render_link(log, ctx, &url, label, *target)
         }
+        Element::Image {
+            source,
+            link,
+            alignment,
+            attributes,
+        } => render_image(log, ctx, source, ref_cow!(link), *alignment, attributes),
         Element::List { ltype, items } => render_list(log, ctx, *ltype, items),
         Element::RadioButton {
             name,
