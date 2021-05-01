@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use regex::Regex;
 use std::convert::TryFrom;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -62,14 +63,15 @@ pub struct ImageAlignment {
 }
 
 impl ImageAlignment {
-    /// Parse an `ImageAlignment` out of a block name.
-    ///
-    /// This means `[symbol]image`, like `f>image`, where "image"
-    /// is case-insensitive.
-    ///
-    /// See the `TryFrom` implementation if you just have the symbol.
     pub fn parse(name: &str) -> Option<Self> {
+        lazy_static! {
+            static ref IMAGE_ALIGNMENT_REGEX: Regex = Regex::new(r"^f?([<=>])").unwrap();
+        }
 
+        IMAGE_ALIGNMENT_REGEX
+            .find(name)
+            .map(|mtch| ImageAlignment::try_from(mtch.as_str()).ok())
+            .flatten()
     }
 
     pub fn class(self) -> &'static str {
