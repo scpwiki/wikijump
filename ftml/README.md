@@ -33,7 +33,7 @@ $ cargo build --release
 You can use this as a dependency by adding the following to your `Cargo.toml`:
 
 ```toml
-ftml = "0.4"
+ftml = "0.10"
 ```
 
 The library comes with two default features, `log` and `ffi`.
