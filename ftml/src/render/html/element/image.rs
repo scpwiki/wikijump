@@ -44,7 +44,7 @@ pub fn render_image(
         },
     );
 
-    let source_url = ctx.handle().get_file_link(log, ctx.info(), source);
+    let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
 
     let image_classes = match align {
         Some(align) => ["image-container", " ", align.class()],

@@ -71,14 +71,16 @@ impl Handle {
         format!("TODO: actual title ({})", page_slug)
     }
 
-    pub fn get_file_link<'a>(
+    pub fn get_image_link<'a>(
         &self,
         log: &Logger,
         info: &PageInfo,
         source: &ImageSource<'a>,
     ) -> Cow<'a, str> {
+        debug!(log, "Getting file link for image");
+
         let (site, page, file): (&str, &str, &str) = match source {
-            ImageSource::Url(url) => return *url,
+            ImageSource::Url(url) => return Cow::clone(url),
             ImageSource::File { file } => (&info.site, &info.page, &file),
             ImageSource::OtherFile { page, file } => (&info.site, &page, &file),
             ImageSource::RemoteFile { site, page, file } => (&site, &page, &file),

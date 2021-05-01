@@ -126,6 +126,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             align,
             attributes,
         } => {
+            // Add comma separation between image fields
             let mut has_prev = false;
             let mut comma = || {
                 let separate = has_prev;
@@ -138,8 +139,11 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 }
             };
 
+            // Write main image link
+            let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
+
             ctx.add_newline();
-            str_write!(ctx, "Image: {} [", source);
+            str_write!(ctx, "Image: {} [", &source_url);
 
             if let Some(image) = align {
                 str_write!(ctx, "Align: {}{}", image.align.name(), comma());
