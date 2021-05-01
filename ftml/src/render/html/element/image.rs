@@ -29,6 +29,43 @@ pub fn render_image(
     align: Option<ImageAlignment>,
     attributes: &AttributeMap,
 ) {
-    // TODO
-    todo!()
+    debug!(
+        log,
+        "Rendering image element";
+        "source" => source,
+        "link" => link.unwrap_or("<none>"),
+        "align" => match align {
+            Some(image) => image.align.name(),
+            None => "<default>",
+        },
+        "float" => match align {
+            Some(image) => image.float,
+            None => false,
+        },
+    );
+
+    let image_classes = match align {
+        Some(align) => ["image-container", " ", align.class()],
+        None => ["image-container", "", ""],
+    };
+
+    ctx.html()
+        .div()
+        .attr("class", &image_classes)
+        .contents(|ctx| {
+            let build_image = |ctx: &mut HtmlContext| {
+                ctx.html()
+                    .img()
+                    .attr("class", &["image"])
+                    .attr("src", &[source])
+                    .attr_map(attributes);
+            };
+
+            match link {
+                Some(link) => {
+                    ctx.html().a().attr("href", &[link]).contents(build_image);
+                }
+                None => build_image(ctx),
+            };
+        });
 }
