@@ -145,7 +145,13 @@ where
         )
         .map(|(name, last)| {
             let name = name.trim();
-            let in_head = last.token != Token::RightBlock;
+            let in_head = match last.token {
+                Token::Whitespace | Token::LineBreak | Token::ParagraphBreak => true,
+                Token::RightBlock => false,
+
+                // collect_text_keep() already checked the token
+                _ => unreachable!(),
+            };
 
             (name, in_head)
         })
