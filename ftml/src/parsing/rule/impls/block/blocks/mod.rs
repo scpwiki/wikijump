@@ -56,6 +56,7 @@ mod prelude {
     }
 }
 
+mod align;
 mod anchor;
 mod blockquote;
 mod bold;
@@ -87,6 +88,7 @@ mod subscript;
 mod superscript;
 mod underline;
 
+pub use self::align::BLOCK_ALIGN;
 pub use self::anchor::BLOCK_ANCHOR;
 pub use self::blockquote::BLOCK_BLOCKQUOTE;
 pub use self::bold::BLOCK_BOLD;
