@@ -1,3 +1,1 @@
-A 
-Image: filename.png []
- B
+A Image: https://test.wjfiles.com/local--files/page-image/filename.png [] B

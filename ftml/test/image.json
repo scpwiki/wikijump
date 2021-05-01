@@ -19,7 +19,12 @@
                         {
                             "element": "image",
                             "data": {
-                                "source": "filename.png",
+                                "source": {
+                                    "type": "file1",
+                                    "data": {
+                                        "file": "filename.png"
+                                    }
+                                },
                                 "link": null,
                                 "align": null,
                                 "attributes": {}
