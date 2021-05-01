@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::tree::LinkLabel;
 use crate::tree::Module;
+use crate::PageInfo;
 use std::num::NonZeroUsize;
 use strum_macros::IntoStaticStr;
 

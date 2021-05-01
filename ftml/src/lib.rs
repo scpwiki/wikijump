@@ -110,5 +110,5 @@ pub mod prelude {
     pub use super::render::Render;
     pub use super::tokenizer::{tokenize, Tokenization};
     pub use super::tree::{Element, SyntaxTree};
-    pub use super::{preprocess, PageData};
+    pub use super::{preprocess, PageInfo};
 }

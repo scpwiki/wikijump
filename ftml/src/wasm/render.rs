@@ -21,10 +21,10 @@
 use super::error::error_to_js;
 use super::parsing::SyntaxTree;
 use super::prelude::*;
-use crate::data::PageInfo as RustPageInfo;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::text::TextRender;
 use crate::render::Render;
+use crate::PageInfo as RustPageInfo;
 use ref_map::OptionRefMap;
 use std::sync::Arc;
 
