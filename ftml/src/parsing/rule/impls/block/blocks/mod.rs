@@ -99,6 +99,7 @@ pub use self::div::BLOCK_DIV;
 pub use self::hidden::BLOCK_HIDDEN;
 pub use self::html::BLOCK_HTML;
 pub use self::iframe::BLOCK_IFRAME;
+pub use self::image::BLOCK_IMAGE;
 pub use self::include::BLOCK_INCLUDE;
 pub use self::ins::BLOCK_INS;
 pub use self::invisible::BLOCK_INVISIBLE;
