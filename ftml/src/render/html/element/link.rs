@@ -29,6 +29,13 @@ pub fn render_anchor(
     attributes: &AttributeMap,
     target: Option<AnchorTarget>,
 ) {
+    debug!(
+        log,
+        "Rendering anchor";
+        "elements-len" => elements.len(),
+        "target" => target_str(target),
+    );
+
     let mut tag = ctx.html().a();
 
     // Set <a> attributes
@@ -48,6 +55,13 @@ pub fn render_link(
     label: &LinkLabel,
     target: Option<AnchorTarget>,
 ) {
+    debug!(
+        log,
+        "Rendering link";
+        "url" => url,
+        "target" => target_str(target),
+    );
+
     let handle = ctx.handle();
 
     // Create <a> and set attributes
@@ -62,4 +76,11 @@ pub fn render_link(
     handle.get_link_label(log, url, label, |label| {
         tag.inner(log, &label);
     });
+}
+
+fn target_str(target: Option<AnchorTarget>) -> &'static str {
+    match target {
+        Some(target) => target.name(),
+        None => "<none>",
+    }
 }
