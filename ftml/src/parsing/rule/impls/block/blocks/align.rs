@@ -53,7 +53,7 @@ fn parse_fn<'r, 't>(
     parser.get_head_none(&BLOCK_ALIGN, in_head)?;
 
     // Get body content, with paragraphs
-    let (elements, exceptions, paragraph_safe) =
+    let (elements, exceptions, _) =
         parser.get_body_elements(&BLOCK_ALIGN, true)?.into();
 
     // Build element

@@ -22,7 +22,8 @@ use super::{blocks::*, BlockRule};
 use std::collections::HashMap;
 use unicase::UniCase;
 
-pub const BLOCK_RULES: [BlockRule; 30] = [
+pub const BLOCK_RULES: [BlockRule; 31] = [
+    BLOCK_ALIGN,
     BLOCK_ANCHOR,
     BLOCK_BLOCKQUOTE,
     BLOCK_BOLD,
