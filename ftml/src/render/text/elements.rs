@@ -120,6 +120,42 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 }
             });
         }
+        Element::Image {
+            source,
+            link,
+            align,
+            attributes,
+        } => {
+            let mut has_prev = false;
+            let comma = || {
+                let separate = has_prev;
+                has_prev = true;
+
+                if separate {
+                    ", "
+                } else {
+                    ""
+                }
+            };
+
+            ctx.add_newline();
+            str_write!(ctx, "Image: {} [", source);
+
+            if let Some(align) = align {
+                str_write!(ctx, "Align: {}{}", align, comma());
+            }
+
+            if let Some(link) = link {
+                str_write!(ctx, "Link: {}{}", link, comma());
+            }
+
+            if let Some(alt_text) = attributes.get().get("alt") {
+                str_write!(ctx, "Alt: {}{}", alt_text, comma());
+            }
+
+            ctx.push(']');
+            ctx.add_newline();
+        }
         Element::List { ltype, items } => {
             if !ctx.ends_with_newline() {
                 ctx.add_newline();
