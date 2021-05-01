@@ -82,4 +82,17 @@ impl ImageAlignment {
 
         Some(ImageAlignment { align, float })
     }
+
+    pub fn class(self) -> &'static str {
+        match (self.align, self.float) {
+            (Alignment::Left, false) => "alignleft",
+            (Alignment::Center, false) => "aligncenter",
+            (Alignment::Right, false) => "alignright",
+            (Alignment::Justify, false) => "alignjustify",
+            (Alignment::Left, true) => "floatleft",
+            (Alignment::Center, true) => "floatcenter",
+            (Alignment::Right, true) => "floatright",
+            (Alignment::Justify, true) => "floatjustify",
+        }
+    }
 }
