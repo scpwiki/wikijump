@@ -127,7 +127,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             attributes,
         } => {
             let mut has_prev = false;
-            let comma = || {
+            let mut comma = || {
                 let separate = has_prev;
                 has_prev = true;
 
@@ -141,8 +141,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             ctx.add_newline();
             str_write!(ctx, "Image: {} [", source);
 
-            if let Some(align) = align {
-                str_write!(ctx, "Align: {}{}", align, comma());
+            if let Some(image) = align {
+                str_write!(ctx, "Align: {}{}", image.align.name(), comma());
+                str_write!(ctx, "Float: {}{}", image.float, comma());
             }
 
             if let Some(link) = link {

@@ -37,6 +37,17 @@ pub enum Alignment {
     Justify,
 }
 
+impl Alignment {
+    pub fn name(self) -> &'static str {
+        match self {
+            Alignment::Left => "left",
+            Alignment::Right => "right",
+            Alignment::Center => "center",
+            Alignment::Justify => "justify",
+        }
+    }
+}
+
 impl<'a> TryFrom<&'a str> for Alignment {
     type Error = ();
 
