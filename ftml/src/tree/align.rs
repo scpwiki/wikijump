@@ -65,7 +65,8 @@ pub struct ImageAlignment {
 impl ImageAlignment {
     pub fn parse(name: &str) -> Option<Self> {
         lazy_static! {
-            static ref IMAGE_ALIGNMENT_REGEX: Regex = Regex::new(r"^[fF]?([<=>])").unwrap();
+            static ref IMAGE_ALIGNMENT_REGEX: Regex =
+                Regex::new(r"^[fF]?([<=>])").unwrap();
         }
 
         IMAGE_ALIGNMENT_REGEX
