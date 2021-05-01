@@ -1,0 +1,55 @@
+{
+    "input": "A [[image green_apple.png alt=\"A green apple\" title=\"Take a big bite!\" style=\"width: 100%;\" class=\"fruity\"]] B",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "image",
+                            "data": {
+                                "source": {
+                                    "type": "file1",
+                                    "data": {
+                                        "file": "green_apple.png"
+                                    }
+                                },
+                                "link": null,
+                                "align": null,
+                                "attributes": {
+                                    "alt": "A green apple",
+                                    "title": "Take a big bite!",
+                                    "class": "fruity",
+                                    "style": "width: 100%;"
+                                }
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "B"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
