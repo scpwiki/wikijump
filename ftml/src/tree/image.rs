@@ -24,7 +24,7 @@ use std::borrow::Cow;
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Hash, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", tag = "type", content = "data")]
 pub enum ImageSource<'a> {
     /// Image is sourced from an arbitrary URL.
     Url(Cow<'a, str>),
