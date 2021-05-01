@@ -143,10 +143,7 @@ where
                 ParseCondition::string("<"),
                 ParseCondition::string(">"),
             ],
-            &[
-                ParseCondition::current(Token::ParagraphBreak),
-                ParseCondition::current(Token::LineBreak),
-            ],
+            &[],
             Some(kind),
         )
         .map(|(name, last)| {
