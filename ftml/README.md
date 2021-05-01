@@ -6,7 +6,10 @@
          alt="Build status">
   </a>
 
-  <!-- TODO: put crates.io badge here -->
+  <a href="https://docs.rs/ftml">
+    <img src="https://docs.rs/ftml/badge.svg"
+         alt="docs.rs link">
+  </a>
 </p>
 
 ### Foundation Text Markup Language
