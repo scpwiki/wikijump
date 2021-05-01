@@ -1,1 +1,1 @@
-SCP-001 [https://www.wikijump.com/scp-001]
+SCP-001 [https://test.wikijump.com/scp-001]
