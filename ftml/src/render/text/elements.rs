@@ -157,6 +157,10 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 str_write!(ctx, "Alt: {}{}", alt_text, comma());
             }
 
+            if let Some(title) = attributes.get().get("title") {
+                str_write!(ctx, "Title: {}{}", title, comma());
+            }
+
             ctx.push(']');
         }
         Element::List { ltype, items } => {
