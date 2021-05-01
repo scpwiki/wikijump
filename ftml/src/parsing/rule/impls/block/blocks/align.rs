@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::tree::{Alignment, AttributeMap};
+use std::convert::TryFrom;
 
 pub const BLOCK_ALIGN: BlockRule = BlockRule {
     name: "block-align",
@@ -48,21 +50,19 @@ fn parse_fn<'r, 't>(
     assert!(!modifier, "Alignment doesn't allow modifier variant");
     assert_block_name(&BLOCK_ALIGN, name);
 
-    let arguments = parser.get_head_map(&BLOCK_ALIGN, in_head)?;
+    parser.get_head_none(&BLOCK_ALIGN, in_head)?;
 
-    // Get body content, without paragraphs
+    // Get body content, with paragraphs
     let (elements, exceptions, paragraph_safe) =
-        parser.get_body_elements(&BLOCK_ALIGN, false)?.into();
+        parser.get_body_elements(&BLOCK_ALIGN, true)?.into();
 
-    todo!();
-
-    /*
+    // Build element
+    let alignment = Alignment::try_from(name).unwrap();
     let element = Element::Container(Container::new(
-        ContainerType::Bold,
+        ContainerType::Align(alignment),
         elements,
-        arguments.to_hash_map(),
+        AttributeMap::new(),
     ));
 
-    ok!(paragraph_safe; element, exceptions)
-    */
+    ok!(element, exceptions)
 }

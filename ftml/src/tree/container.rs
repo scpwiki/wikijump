@@ -21,7 +21,7 @@
 //! Representation of generic syntax elements which wrap other elements.
 
 use super::clone::elements_to_owned;
-use super::{AttributeMap, Element, HeadingLevel, HtmlTag};
+use super::{Alignment, AttributeMap, Element, HeadingLevel, HtmlTag};
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -102,6 +102,7 @@ pub enum ContainerType {
     Invisible,
     Size,
     Paragraph,
+    Align(Alignment),
     Header(HeadingLevel),
 }
 
@@ -131,6 +132,9 @@ impl ContainerType {
             ContainerType::Invisible => HtmlTag::with_class("span", "invisible"),
             ContainerType::Size => HtmlTag::new("span"),
             ContainerType::Paragraph => HtmlTag::new("p"),
+            ContainerType::Align(alignment) => {
+                HtmlTag::with_class("div", alignment.html_class())
+            }
             ContainerType::Header(level) => HtmlTag::new(level.html_tag()),
         }
     }
@@ -158,6 +162,7 @@ impl ContainerType {
             ContainerType::Invisible => true,
             ContainerType::Size => true,
             ContainerType::Paragraph => false,
+            ContainerType::Align(_) => false,
             ContainerType::Header(_) => false,
         }
     }
