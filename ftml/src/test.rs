@@ -161,9 +161,9 @@ impl Test<'_> {
         println!("+ {}", self.name);
 
         let page_info = PageInfo {
-            page: cow!(self.name),
+            page: Cow::Owned(format!("page-{}", self.name)),
             category: None,
-            site: cow!("www"),
+            site: cow!("test"),
             title: cow!(self.name),
             alt_title: None,
             rating: 0.0,
