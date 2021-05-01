@@ -140,8 +140,8 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 str_write!(ctx, " [Align: {}{}]", image.align.name(), float);
             }
 
-            if let Some(link) = link {
-                str_write!(ctx, " [Link: {}]", link);
+            if let Some(url) = link {
+                str_write!(ctx, " [Link: {}]", get_full_url(log, ctx, url));
             }
 
             if let Some(alt_text) = attributes.get().get("alt") {

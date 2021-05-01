@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::tree::{AttributeMap, ImageAlignment, ImageSource};
+use crate::url::normalize_url;
 
 pub fn render_image(
     log: &Logger,
@@ -63,8 +64,9 @@ pub fn render_image(
             };
 
             match link {
-                Some(link) => {
-                    ctx.html().a().attr("href", &[link]).contents(build_image);
+                Some(url) => {
+                    let url = normalize_url(url);
+                    ctx.html().a().attr("href", &[&url]).contents(build_image);
                 }
                 None => build_image(ctx),
             };
