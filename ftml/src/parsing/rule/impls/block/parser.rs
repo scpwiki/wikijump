@@ -139,6 +139,9 @@ where
                 ParseCondition::current(Token::LineBreak),
                 ParseCondition::current(Token::ParagraphBreak),
                 ParseCondition::current(Token::RightBlock),
+                ParseCondition::string("="),
+                ParseCondition::string("<"),
+                ParseCondition::string(">"),
             ],
             &[
                 ParseCondition::current(Token::ParagraphBreak),

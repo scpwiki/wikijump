@@ -35,7 +35,7 @@ pub enum ParseCondition<'a> {
 impl<'a> ParseCondition<'a> {
     #[inline]
     pub fn string(string: &'a str) -> Self {
-        ParseCondition::String(text)
+        ParseCondition::String(string)
     }
 
     #[inline]
