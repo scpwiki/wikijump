@@ -1,0 +1,52 @@
+{
+    "input": "A [[image scp-wiki/some-other-page/my-picture.jpeg]] B",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "image",
+                            "data": {
+                                "source": {
+                                    "type": "file3",
+                                    "data": {
+                                        "site": "scp-wiki",
+                                        "page": "some-other-page",
+                                        "file": "my-picture.jpeg"
+                                    }
+                                },
+                                "link": null,
+                                "align": null,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "B"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
