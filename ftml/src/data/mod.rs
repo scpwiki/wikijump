@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod alignment;
 mod page_info;
 
-pub use self::alignment::*;
 pub use self::page_info::*;

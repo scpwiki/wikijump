@@ -24,6 +24,7 @@ mod clone;
 mod container;
 mod element;
 mod heading;
+mod image;
 mod link;
 mod list;
 mod module;

@@ -72,6 +72,7 @@ mod log;
 mod macros;
 
 mod non_empty_vec;
+mod page_info;
 mod preproc;
 mod span_wrap;
 mod text;
@@ -85,7 +86,6 @@ pub mod ffi;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
 
-pub mod data;
 pub mod includes;
 pub mod info;
 pub mod parsing;
@@ -102,6 +102,7 @@ pub use self::parsing::parse;
 pub use self::preproc::preprocess;
 pub use self::tokenizer::{tokenize, Tokenization};
 pub use self::utf16::Utf16IndexMap;
+pub use self::page_info::PageInfo;
 
 pub mod prelude {
     pub use super::includes::{include, Includer};
@@ -109,5 +110,5 @@ pub mod prelude {
     pub use super::render::Render;
     pub use super::tokenizer::{tokenize, Tokenization};
     pub use super::tree::{Element, SyntaxTree};
-    pub use super::{data, preprocess};
+    pub use super::{preprocess, PageData};
 }
