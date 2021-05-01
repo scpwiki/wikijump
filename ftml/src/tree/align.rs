@@ -104,3 +104,44 @@ impl TryFrom<&'_ str> for ImageAlignment {
         Ok(ImageAlignment { align, float })
     }
 }
+
+#[test]
+fn image_alignment() {
+    macro_rules! check {
+        ($input:expr) => {
+            check!($input => Err(()))
+        };
+
+        ($input:expr, $align:expr, $float:expr) => {
+            check!($input => Ok(ImageAlignment {
+                align: $align,
+                float: $float,
+            }))
+        };
+
+        ($input:expr => $expected:expr) => {{
+            let actual = ImageAlignment::try_from($input);
+            let expected = $expected;
+
+            assert_eq!(
+                actual, expected,
+                "Actual image alignment result does not match expected",
+            );
+        }};
+    }
+
+    check!("");
+    check!("image");
+
+    check!("=image", Alignment::Center, false);
+    check!(">image", Alignment::Right, false);
+    check!("<image", Alignment::Left, false);
+    check!("f>image", Alignment::Right, true);
+    check!("f<image", Alignment::Left, true);
+
+    check!("=IMAGE", Alignment::Center, false);
+    check!(">IMAGE", Alignment::Right, false);
+    check!("<IMAGE", Alignment::Left, false);
+    check!("f>IMAGE", Alignment::Right, true);
+    check!("f<IMAGE", Alignment::Left, true);
+}
