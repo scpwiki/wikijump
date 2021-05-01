@@ -109,18 +109,18 @@ impl TryFrom<&'_ str> for ImageAlignment {
 fn image_alignment() {
     macro_rules! check {
         ($input:expr) => {
-            check!($input => Err(()))
+            check!($input => None)
         };
 
         ($input:expr, $align:expr, $float:expr) => {
-            check!($input => Ok(ImageAlignment {
+            check!($input => Some(ImageAlignment {
                 align: $align,
                 float: $float,
             }))
         };
 
         ($input:expr => $expected:expr) => {{
-            let actual = ImageAlignment::try_from($input);
+            let actual = ImageAlignment::parse($input);
             let expected = $expected;
 
             assert_eq!(
