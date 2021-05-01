@@ -142,7 +142,6 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             // Write main image link
             let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
 
-            ctx.add_newline();
             str_write!(ctx, "Image: {} [", &source_url);
 
             if let Some(image) = align {
@@ -159,7 +158,6 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             }
 
             ctx.push(']');
-            ctx.add_newline();
         }
         Element::List { ltype, items } => {
             if !ctx.ends_with_newline() {
