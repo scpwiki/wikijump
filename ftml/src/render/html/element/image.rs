@@ -19,12 +19,12 @@
  */
 
 use super::prelude::*;
-use crate::tree::{AttributeMap, ImageAlignment};
+use crate::tree::{AttributeMap, ImageAlignment, ImageSource};
 
 pub fn render_image(
     log: &Logger,
     ctx: &mut HtmlContext,
-    source: &str,
+    source: &ImageSource,
     link: Option<&str>,
     align: Option<ImageAlignment>,
     attributes: &AttributeMap,
@@ -32,7 +32,7 @@ pub fn render_image(
     debug!(
         log,
         "Rendering image element";
-        "source" => source,
+        "source" => source.name(),
         "link" => link.unwrap_or("<none>"),
         "align" => match align {
             Some(image) => image.align.name(),
@@ -43,6 +43,8 @@ pub fn render_image(
             None => false,
         },
     );
+
+    let source_url = ctx.handle().get_file_link(log, ctx.info(), source);
 
     let image_classes = match align {
         Some(align) => ["image-container", " ", align.class()],
@@ -57,7 +59,7 @@ pub fn render_image(
                 ctx.html()
                     .img()
                     .attr("class", &["image"])
-                    .attr("src", &[source])
+                    .attr("src", &[&source_url])
                     .attr_map(attributes);
             };
 

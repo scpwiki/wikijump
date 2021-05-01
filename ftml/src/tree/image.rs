@@ -19,16 +19,18 @@
  */
 
 use super::clone::string_to_owned;
+use crate::url::is_url;
 use std::borrow::Cow;
+use strum_macros::IntoStaticStr;
 
-#[derive(Serialize, Deserialize, Debug, Hash, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Hash, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ImageSource<'a> {
     /// Image is sourced from an arbitrary URL.
     Url(Cow<'a, str>),
 
     /// Image is attached the current page.
-    File(Cow<'a, str>),
+    File { file: Cow<'a, str> },
 
     /// Image is attached to another page on the site.
     OtherFile {
@@ -44,11 +46,49 @@ pub enum ImageSource<'a> {
     },
 }
 
-impl ImageSource<'_> {
+impl<'t> ImageSource<'t> {
+    pub fn parse(source: &'t str) -> Option<ImageSource<'t>> {
+        if is_url(source) {
+            return Some(ImageSource::Url(cow!(source)));
+        }
+
+        // Strip leading / if present
+        let source = source.strip_prefix('/').unwrap_or(source);
+
+        // Get parts for path
+        let parts: Vec<&str> = source.split('/').collect();
+
+        // Depending on the number of parts, determine the file variant
+        let source = match parts.len() {
+            1 => ImageSource::File {
+                file: cow!(parts[0]),
+            },
+            2 => ImageSource::OtherFile {
+                page: cow!(parts[0]),
+                file: cow!(parts[1]),
+            },
+            3 => ImageSource::RemoteFile {
+                site: cow!(parts[0]),
+                page: cow!(parts[1]),
+                file: cow!(parts[2]),
+            },
+            _ => return None,
+        };
+
+        Some(source)
+    }
+
+    #[inline]
+    pub fn name(&self) -> &'static str {
+        self.into()
+    }
+
     pub fn to_owned(&self) -> ImageSource<'static> {
         match self {
             ImageSource::Url(url) => ImageSource::Url(string_to_owned(url)),
-            ImageSource::File(file) => ImageSource::File(string_to_owned(file)),
+            ImageSource::File { file } => ImageSource::File {
+                file: string_to_owned(file),
+            },
             ImageSource::OtherFile { page, file } => ImageSource::OtherFile {
                 page: string_to_owned(page),
                 file: string_to_owned(file),

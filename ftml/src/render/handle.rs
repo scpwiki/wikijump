@@ -19,9 +19,9 @@
  */
 
 use crate::log::prelude::*;
-use crate::tree::LinkLabel;
-use crate::tree::Module;
+use crate::tree::{ImageSource, LinkLabel, Module};
 use crate::PageInfo;
+use std::borrow::Cow;
 use std::num::NonZeroUsize;
 use strum_macros::IntoStaticStr;
 
@@ -69,6 +69,26 @@ impl Handle {
 
         // TODO
         format!("TODO: actual title ({})", page_slug)
+    }
+
+    pub fn get_file_link<'a>(
+        &self,
+        log: &Logger,
+        info: &PageInfo,
+        source: &ImageSource<'a>,
+    ) -> Cow<'a, str> {
+        let (site, page, file): (&str, &str, &str) = match source {
+            ImageSource::Url(url) => return *url,
+            ImageSource::File { file } => (&info.site, &info.page, &file),
+            ImageSource::OtherFile { page, file } => (&info.site, &page, &file),
+            ImageSource::RemoteFile { site, page, file } => (&site, &page, &file),
+        };
+
+        // TODO
+        Cow::Owned(format!(
+            "https://{}.wjfiles.com/local--files/{}/{}",
+            site, page, file,
+        ))
     }
 
     pub fn get_link_label<F>(&self, log: &Logger, url: &str, label: &LinkLabel, f: F)

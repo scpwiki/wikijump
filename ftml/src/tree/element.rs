@@ -22,8 +22,8 @@ use super::clone::{
     elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
 };
 use super::{
-    AnchorTarget, AttributeMap, Container, ImageAlignment, LinkLabel, ListItem, ListType,
-    Module,
+    AnchorTarget, AttributeMap, Container, ImageAlignment, ImageSource, LinkLabel,
+    ListItem, ListType, Module,
 };
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -89,7 +89,7 @@ pub enum Element<'t> {
     ///
     /// The "link" field is what the `<a>` points to, when the user clicks on the image.
     Image {
-        source: Cow<'t, str>,
+        source: ImageSource<'t>,
         link: Option<Cow<'t, str>>,
         align: Option<ImageAlignment>,
         attributes: AttributeMap<'t>,
@@ -259,7 +259,7 @@ impl Element<'_> {
                 align,
                 attributes,
             } => Element::Image {
-                source: string_to_owned(source),
+                source: source.to_owned(),
                 link: option_string_to_owned(link),
                 align: *align,
                 attributes: attributes.to_owned(),
