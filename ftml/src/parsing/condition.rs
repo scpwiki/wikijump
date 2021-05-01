@@ -26,12 +26,18 @@ use super::token::Token;
 /// the condition described by this structure, returning
 /// a boolean as appropriate.
 #[derive(Debug, Copy, Clone)]
-pub enum ParseCondition {
+pub enum ParseCondition<'a> {
+    String(&'a str),
     CurrentToken(Token),
     TokenPair(Token, Token),
 }
 
-impl ParseCondition {
+impl<'a> ParseCondition<'a> {
+    #[inline]
+    pub fn string(string: &'a str) -> Self {
+        ParseCondition::String(text)
+    }
+
     #[inline]
     pub fn current(token: Token) -> Self {
         ParseCondition::CurrentToken(token)

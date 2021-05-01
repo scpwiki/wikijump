@@ -119,6 +119,7 @@ impl<'r, 't> Parser<'r, 't> {
         );
 
         match condition {
+            ParseCondition::String(string) => self.current.slice == string,
             ParseCondition::CurrentToken(token) => self.current.token == token,
             ParseCondition::TokenPair(current, next) => {
                 if self.current().token != current {
