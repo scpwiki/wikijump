@@ -126,42 +126,31 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             align,
             attributes,
         } => {
-            // Add comma separation between image fields
-            let mut has_prev = false;
-            let mut comma = || {
-                let separate = has_prev;
-                has_prev = true;
-
-                if separate {
-                    ", "
-                } else {
-                    ""
-                }
-            };
-
-            // Write main image link
             let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
 
-            str_write!(ctx, "Image: {} [", &source_url);
+            str_write!(ctx, "Image: {}", &source_url);
 
             if let Some(image) = align {
-                str_write!(ctx, "Align: {}{}", image.align.name(), comma());
-                str_write!(ctx, "Float: {}{}", image.float, comma());
+                let float = if image.float {
+                    " float"
+                } else {
+                    ""
+                };
+
+                str_write!(ctx, " [Align: {}{}]", image.align.name(), float);
             }
 
             if let Some(link) = link {
-                str_write!(ctx, "Link: {}{}", link, comma());
+                str_write!(ctx, " [Link: {}]", link);
             }
 
             if let Some(alt_text) = attributes.get().get("alt") {
-                str_write!(ctx, "Alt: {}{}", alt_text, comma());
+                str_write!(ctx, " [Alt: {}]", alt_text);
             }
 
             if let Some(title) = attributes.get().get("title") {
-                str_write!(ctx, "Title: {}{}", title, comma());
+                str_write!(ctx, " [Title: {}]", title);
             }
-
-            ctx.push(']');
         }
         Element::List { ltype, items } => {
             if !ctx.ends_with_newline() {
