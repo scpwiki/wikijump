@@ -18,15 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO use data
-#![allow(dead_code)]
-
-use regex::Regex;
 use std::convert::TryFrom;
-
-lazy_static! {
-    static ref IMAGE_ALIGNMENT_REGEX: Regex = Regex::new(r"(f?[<>])|=").unwrap();
-}
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -48,10 +40,10 @@ impl Alignment {
     }
 }
 
-impl<'a> TryFrom<&'a str> for Alignment {
+impl TryFrom<&'_ str> for Alignment {
     type Error = ();
 
-    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "<" => Ok(Alignment::Left),
             ">" => Ok(Alignment::Right),
@@ -70,17 +62,14 @@ pub struct ImageAlignment {
 }
 
 impl ImageAlignment {
-    pub fn parse(text: &str) -> Option<Self> {
-        let (align, float) = match text {
-            "=" => (Alignment::Center, false),
-            "<" => (Alignment::Left, false),
-            ">" => (Alignment::Right, false),
-            "f<" => (Alignment::Left, true),
-            "f>" => (Alignment::Right, true),
-            _ => return None,
-        };
+    /// Parse an `ImageAlignment` out of a block name.
+    ///
+    /// This means `[symbol]image`, like `f>image`, where "image"
+    /// is case-insensitive.
+    ///
+    /// See the `TryFrom` implementation if you just have the symbol.
+    pub fn parse(name: &str) -> Option<Self> {
 
-        Some(ImageAlignment { align, float })
     }
 
     pub fn class(self) -> &'static str {
@@ -94,5 +83,22 @@ impl ImageAlignment {
             (Alignment::Right, true) => "floatright",
             (Alignment::Justify, true) => "floatjustify",
         }
+    }
+}
+
+impl TryFrom<&'_ str> for ImageAlignment {
+    type Error = ();
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let (align, float) = match value {
+            "=" => (Alignment::Center, false),
+            "<" => (Alignment::Left, false),
+            ">" => (Alignment::Right, false),
+            "f<" => (Alignment::Left, true),
+            "f>" => (Alignment::Right, true),
+            _ => return Err(()),
+        };
+
+        Ok(ImageAlignment { align, float })
     }
 }

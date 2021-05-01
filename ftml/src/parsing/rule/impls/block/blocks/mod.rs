@@ -68,6 +68,7 @@ mod del;
 mod div;
 mod hidden;
 mod html;
+mod image;
 mod iframe;
 mod include;
 mod ins;
