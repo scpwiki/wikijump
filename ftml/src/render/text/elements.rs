@@ -131,12 +131,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             str_write!(ctx, "Image: {}", &source_url);
 
             if let Some(image) = alignment {
-                let float = if image.float {
-                    " float"
-                } else {
-                    ""
-                };
-
+                let float = if image.float { " float" } else { "" };
                 str_write!(ctx, " [Align: {}{}]", image.align.name(), float);
             }
 
