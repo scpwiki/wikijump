@@ -98,11 +98,11 @@ pub mod tree;
 pub use self::log::{build_logger, build_null_logger, build_terminal_logger};
 
 pub use self::includes::include;
+pub use self::page_info::PageInfo;
 pub use self::parsing::parse;
 pub use self::preproc::preprocess;
 pub use self::tokenizer::{tokenize, Tokenization};
 pub use self::utf16::Utf16IndexMap;
-pub use self::page_info::PageInfo;
 
 pub mod prelude {
     pub use super::includes::{include, Includer};

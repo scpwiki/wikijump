@@ -1,5 +1,5 @@
 /*
- * tree/image.rs
+ * tree/align.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team

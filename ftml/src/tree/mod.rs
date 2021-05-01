@@ -18,18 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod align;
 mod anchor;
 mod attribute;
 mod clone;
 mod container;
 mod element;
 mod heading;
-mod image;
 mod link;
 mod list;
 mod module;
 mod tag;
 
+pub use self::align::*;
 pub use self::anchor::*;
 pub use self::attribute::AttributeMap;
 pub use self::container::*;
