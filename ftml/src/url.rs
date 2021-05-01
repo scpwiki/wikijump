@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::borrow::Cow;
+use wikidot_normalize::normalize;
+
 pub const URL_SCHEMES: [&str; 20] = [
     "blob:",
     "chrome-extension://",
@@ -50,4 +53,15 @@ pub fn is_url(url: &str) -> bool {
     }
 
     false
+}
+
+pub fn normalize_url(url: &str) -> Cow<str> {
+    if is_url(url) || url.starts_with('#') || url == "javascript:;" {
+        Cow::Borrowed(url)
+    } else {
+        let mut url = str!(url);
+        normalize(&mut url);
+        url.insert(0, '/');
+        Cow::Owned(url)
+    }
 }

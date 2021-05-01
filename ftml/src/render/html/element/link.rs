@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel};
+use crate::url::normalize_url;
 
 pub fn render_anchor(
     log: &Logger,
@@ -51,7 +52,7 @@ pub fn render_link(
 
     // Create <a> and set attributes
     let mut tag = ctx.html().a();
-    tag.attr("href", &[url]);
+    tag.attr("href", &[&normalize_url(url)]);
 
     if let Some(target) = target {
         tag.attr("target", &[target.html_attr()]);
