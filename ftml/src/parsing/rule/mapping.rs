@@ -84,16 +84,6 @@ lazy_static! {
             Token::TableColumn => vec![RULE_TODO], // TODO
             Token::TableColumnTitle => vec![RULE_TODO], // TODO
 
-            // Alignment
-            Token::RightAlignOpen => vec![RULE_TODO], // TODO
-            Token::RightAlignClose => vec![],
-            Token::LeftAlignOpen => vec![RULE_TODO], // TODO
-            Token::LeftAlignClose => vec![],
-            Token::CenterAlignOpen => vec![RULE_TODO], // TODO
-            Token::CenterAlignClose => vec![],
-            Token::JustifyAlignOpen => vec![RULE_TODO], // TODO
-            Token::JustifyAlignClose => vec![],
-
             // Text components
             Token::Identifier => vec![RULE_TEXT],
             Token::Email => vec![RULE_EMAIL],

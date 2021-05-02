@@ -39,6 +39,15 @@ impl Alignment {
             Alignment::Justify => "justify",
         }
     }
+
+    pub fn html_class(self) -> &'static str {
+        match self {
+            Alignment::Left => "alignleft",
+            Alignment::Right => "alignright",
+            Alignment::Center => "aligncenter",
+            Alignment::Justify => "alignjustify",
+        }
+    }
 }
 
 impl TryFrom<&'_ str> for Alignment {
@@ -75,12 +84,9 @@ impl ImageAlignment {
             .flatten()
     }
 
-    pub fn class(self) -> &'static str {
+    pub fn html_class(self) -> &'static str {
         match (self.align, self.float) {
-            (Alignment::Left, false) => "alignleft",
-            (Alignment::Center, false) => "aligncenter",
-            (Alignment::Right, false) => "alignright",
-            (Alignment::Justify, false) => "alignjustify",
+            (align, false) => align.html_class(),
             (Alignment::Left, true) => "floatleft",
             (Alignment::Center, true) => "floatcenter",
             (Alignment::Right, true) => "floatright",
