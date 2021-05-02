@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { contain } from "../lib/actions"
-  import Clickable from "../Clickable.svelte"
+  import { contain } from "./lib/actions"
+  import Clickable from "./Clickable.svelte"
 
   const DEFAULT_TAB_TITLE = "Unnamed tab"
   const SELECTED_TAB_HOVER_TEXT = "active"
