@@ -21,7 +21,6 @@
 //! Module that implements HTML rendering for `Element` and its children.
 
 mod collapsible;
-mod condition;
 mod container;
 mod iframe;
 mod image;
@@ -38,7 +37,6 @@ mod prelude {
 }
 
 use self::collapsible::{render_collapsible, Collapsible};
-use self::condition::render_iftags;
 use self::container::{render_color, render_container};
 use self::iframe::{render_html, render_iframe};
 use self::image::render_image;
@@ -46,6 +44,7 @@ use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::text::{render_code, render_email, render_wikitext_raw};
+use super::super::utils::{check_ifcategory, check_iftags};
 use super::HtmlContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
@@ -123,10 +122,22 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 *show_bottom,
             ),
         ),
+        Element::IfCategory {
+            conditions,
+            elements,
+        } => {
+            if check_ifcategory(log, ctx.info(), conditions) {
+                render_elements(log, ctx, elements);
+            }
+        }
         Element::IfTags {
             conditions,
             elements,
-        } => render_iftags(log, ctx, conditions, elements),
+        } => {
+            if check_iftags(log, ctx.info(), conditions) {
+                render_elements(log, ctx, elements);
+            }
+        }
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)

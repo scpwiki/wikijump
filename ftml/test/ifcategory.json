@@ -1,0 +1,79 @@
+{
+    "input": "[[ifcategory _default]]\nApple\n[[/ifcategory]]\n[[ifcategory +_default +component -fragment]]\nBanana\n[[/ifcategory]]\n[[ifcategory -_default]]\nHidden\n[[/ifcategory]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "if-category",
+                            "data": {
+                                "conditions": [
+                                    {
+                                        "condition": "present",
+                                        "value": "_default"
+                                    }
+                                ],
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "if-category",
+                            "data": {
+                                "conditions": [
+                                    {
+                                        "condition": "present",
+                                        "value": "_default"
+                                    },
+                                    {
+                                        "condition": "present",
+                                        "value": "component"
+                                    },
+                                    {
+                                        "condition": "absent",
+                                        "value": "fragment"
+                                    }
+                                ],
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "if-category",
+                            "data": {
+                                "conditions": [
+                                    {
+                                        "condition": "absent",
+                                        "value": "_default"
+                                    }
+                                ],
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Hidden"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

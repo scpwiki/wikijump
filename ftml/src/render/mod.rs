@@ -32,6 +32,7 @@ pub mod null;
 pub mod text;
 
 mod handle;
+mod utils;
 
 use self::handle::{Handle, ModuleRenderMode};
 use crate::log::prelude::*;
