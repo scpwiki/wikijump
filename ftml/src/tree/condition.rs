@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::clone::string_to_owned;
 use std::borrow::Cow;
 use strum_macros::IntoStaticStr;
 
@@ -74,6 +75,13 @@ impl<'t> ElementCondition<'t> {
     #[inline]
     pub fn check(&self, values: &[&str]) -> bool {
         values.contains(&self.value.as_ref()) == self.condition.bool_value()
+    }
+
+    pub fn to_owned(&self) -> ElementCondition<'static> {
+        ElementCondition {
+            condition: self.condition,
+            value: string_to_owned(&self.value),
+        }
     }
 }
 

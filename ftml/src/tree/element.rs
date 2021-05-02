@@ -194,6 +194,7 @@ impl Element<'_> {
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",
+            Element::IfTags { .. } => "IfTags",
             Element::Color { .. } => "Color",
             Element::Code { .. } => "Code",
             Element::Html { .. } => "HTML",
@@ -223,6 +224,7 @@ impl Element<'_> {
             Element::Image { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
+            Element::IfTags { .. } => true,
             Element::Color { .. } => true,
             Element::Code { .. } => true,
             Element::Html { .. } | Element::Iframe { .. } => false,
@@ -304,6 +306,13 @@ impl Element<'_> {
                 hide_text: option_string_to_owned(&hide_text),
                 show_top: *show_top,
                 show_bottom: *show_bottom,
+            },
+            Element::IfTags {
+                conditions,
+                elements,
+            } => Element::IfTags {
+                conditions: conditions.iter().map(|c| c.to_owned()).collect(),
+                elements: elements_to_owned(&elements),
             },
             Element::Color { color, elements } => Element::Color {
                 color: string_to_owned(&color),
