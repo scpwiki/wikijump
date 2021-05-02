@@ -83,6 +83,11 @@ impl<'t> ImageSource<'t> {
         self.into()
     }
 
+    #[inline]
+    pub fn external_link(&self) -> bool {
+        matches!(self, ImageSource::Url(_))
+    }
+
     pub fn to_owned(&self) -> ImageSource<'static> {
         match self {
             ImageSource::Url(url) => ImageSource::Url(string_to_owned(url)),

@@ -46,6 +46,7 @@ pub fn render_image(
     );
 
     let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
+    let add_crossorigin = source.external_link();
 
     let image_classes = match alignment {
         Some(align) => ["image-container", " ", align.html_class()],
