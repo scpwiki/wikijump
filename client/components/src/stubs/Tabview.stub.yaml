@@ -1,0 +1,11 @@
+root:
+  query: ".wj-stub.tabview"
+  attributes:
+    class: "wj-stub tabview"
+  children:
+    attributes:
+      class: "tabview-content"
+      data:
+        title: true
+    repeats: true
+    children: true
