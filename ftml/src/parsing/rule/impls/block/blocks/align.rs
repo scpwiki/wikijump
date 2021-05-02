@@ -45,8 +45,7 @@ macro_rules! make_align_block {
             in_head: bool,
         ) -> ParseResult<'r, 't, Elements<'t>> {
             parse_alignment_block(
-                &$block_const,
-                Alignment::$align,
+                (&$block_const, Alignment::$align),
                 log,
                 parser,
                 name,
@@ -59,8 +58,7 @@ macro_rules! make_align_block {
 }
 
 pub fn parse_alignment_block<'r, 't>(
-    block_rule: &BlockRule,
-    alignment: Alignment,
+    (block_rule, alignment): (&BlockRule, Alignment),
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
