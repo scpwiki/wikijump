@@ -167,7 +167,7 @@ impl Test<'_> {
             title: cow!(self.name),
             alt_title: None,
             rating: 0.0,
-            tags: vec![],
+            tags: vec![cow!("fruit"), cow!("component")],
             locale: cow!("en_US"),
         };
 
