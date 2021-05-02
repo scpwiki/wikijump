@@ -22,8 +22,8 @@ use super::clone::{
     elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
 };
 use super::{
-    AnchorTarget, AttributeMap, Container, ImageAlignment, ImageSource, LinkLabel,
-    ListItem, ListType, Module,
+    AnchorTarget, AttributeMap, Container, ElementCondition, ImageAlignment, ImageSource,
+    LinkLabel, ListItem, ListType, Module,
 };
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -134,6 +134,14 @@ pub enum Element<'t> {
         hide_text: Option<Cow<'t, str>>,
         show_top: bool,
         show_bottom: bool,
+    },
+
+    /// A conditional section of the tree, based on what tags the page has.
+    ///
+    /// These are to be included if all the tag conditions are met, and excluded if not.
+    IfTags {
+        conditions: Vec<ElementCondition<'t>>,
+        elements: Vec<Element<'t>>,
     },
 
     /// Element containing colored text.
