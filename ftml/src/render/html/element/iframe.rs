@@ -33,7 +33,11 @@ pub fn render_iframe(
         "url" => url,
     );
 
-    ctx.html().iframe().attr("src", &[url]).attr_map(attributes);
+    ctx.html()
+        .iframe()
+        .attr("src", &[url])
+        .attr("crossorigin", &[])
+        .attr_map(attributes);
 }
 
 pub fn render_html(log: &Logger, ctx: &mut HtmlContext, contents: &str) {
@@ -45,5 +49,8 @@ pub fn render_html(log: &Logger, ctx: &mut HtmlContext, contents: &str) {
 
     // Submit HTML to be hosted on wjfiles, then get back its URL for the iframe.
     let iframe_url = ctx.handle().post_html(log, ctx.info(), contents);
-    ctx.html().iframe().attr("src", &[&iframe_url]);
+    ctx.html()
+        .iframe()
+        .attr("src", &[&iframe_url])
+        .attr("crossorigin", &[]);
 }
