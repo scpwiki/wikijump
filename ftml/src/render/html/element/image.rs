@@ -46,7 +46,6 @@ pub fn render_image(
     );
 
     let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
-    let add_crossorigin = source.external_link();
 
     let image_classes = match alignment {
         Some(align) => ["image-container", " ", align.html_class()],
@@ -58,14 +57,11 @@ pub fn render_image(
         .attr("class", &image_classes)
         .contents(|ctx| {
             let build_image = |ctx: &mut HtmlContext| {
-                let mut tag = ctx.html().img();
-
-                tag.attr("src", &[&source_url])
+                ctx.html()
+                    .img()
+                    .attr("src", &[&source_url])
+                    .attr("crossorigin", &[])
                     .attr_map_prepend(attributes, ("class", "image"));
-
-                if add_crossorigin {
-                    tag.attr("crossorigin", &[]);
-                }
             };
 
             match link {
