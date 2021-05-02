@@ -1,5 +1,5 @@
+query: ".wj-stub.tabview"
 root:
-  query: ".wj-stub.tabview"
   attributes:
     class: "wj-stub tabview"
   children:

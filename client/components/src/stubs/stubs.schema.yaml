@@ -68,16 +68,14 @@ $defs:
             minimum: 0
 type: object
 properties:
+  query:
+    description: >
+      The query that will be used during reactivity hydration to find this stub component.
+      It must match the root element.
+    type: string
   root:
     description: The root element of the stub component.
-    properties:
-      query:
-        description: >
-          The query that will be used during reactivity hydration to find this stub
-          component. It must match the root element.
-        type: string
-    required:
-      - query
     $ref: "#/$defs/element"
 required:
+  - query
   - root
