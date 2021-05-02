@@ -22,8 +22,8 @@ use super::clone::{
     elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
 };
 use super::{
-    AnchorTarget, AttributeMap, Container, ImageAlignment, ImageSource, LinkLabel,
-    ListItem, ListType, Module,
+    AnchorTarget, AttributeMap, Container, ElementCondition, ImageAlignment, ImageSource,
+    LinkLabel, ListItem, ListType, Module,
 };
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -136,6 +136,14 @@ pub enum Element<'t> {
         show_bottom: bool,
     },
 
+    /// A conditional section of the tree, based on what tags the page has.
+    ///
+    /// These are to be included if all the tag conditions are met, and excluded if not.
+    IfTags {
+        conditions: Vec<ElementCondition<'t>>,
+        elements: Vec<Element<'t>>,
+    },
+
     /// Element containing colored text.
     ///
     /// The CSS designation of the color is specified, followed by the elements contained within.
@@ -186,6 +194,7 @@ impl Element<'_> {
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",
+            Element::IfTags { .. } => "IfTags",
             Element::Color { .. } => "Color",
             Element::Code { .. } => "Code",
             Element::Html { .. } => "HTML",
@@ -215,6 +224,7 @@ impl Element<'_> {
             Element::Image { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
+            Element::IfTags { .. } => true,
             Element::Color { .. } => true,
             Element::Code { .. } => true,
             Element::Html { .. } | Element::Iframe { .. } => false,
@@ -296,6 +306,13 @@ impl Element<'_> {
                 hide_text: option_string_to_owned(&hide_text),
                 show_top: *show_top,
                 show_bottom: *show_bottom,
+            },
+            Element::IfTags {
+                conditions,
+                elements,
+            } => Element::IfTags {
+                conditions: conditions.iter().map(|c| c.to_owned()).collect(),
+                elements: elements_to_owned(&elements),
             },
             Element::Color { color, elements } => Element::Color {
                 color: string_to_owned(&color),

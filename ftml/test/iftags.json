@@ -1,0 +1,75 @@
+{
+    "input": "[[iftags +fruit -admin]]\nApple\n[[/iftags]]\n[[IFTAGS component]]Banana[[/IFTAGS]]\n[[iftags +xyz]]\nHidden\n[[/iftags]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "if-tags",
+                            "data": {
+                                "conditions": [
+                                    {
+                                        "condition": "present",
+                                        "value": "fruit"
+                                    },
+                                    {
+                                        "condition": "absent",
+                                        "value": "admin"
+                                    }
+                                ],
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "if-tags",
+                            "data": {
+                                "conditions": [
+                                    {
+                                        "condition": "present",
+                                        "value": "component"
+                                    }
+                                ],
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "if-tags",
+                            "data": {
+                                "conditions": [
+                                    {
+                                        "condition": "present",
+                                        "value": "xyz"
+                                    }
+                                ],
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Hidden"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

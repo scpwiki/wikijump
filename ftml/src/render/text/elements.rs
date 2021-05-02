@@ -233,6 +233,15 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.add_newline();
             }
         }
+        Element::IfTags {
+            conditions,
+            elements,
+        } => {
+            let tags = &ctx.info().tags;
+            if conditions.iter().all(|cond| cond.check(tags)) {
+                render_elements(log, ctx, elements);
+            }
+        }
         Element::Color { elements, .. } => render_elements(log, ctx, elements),
         Element::Code { contents, language } => {
             let language = match language {
