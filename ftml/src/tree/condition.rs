@@ -73,8 +73,8 @@ impl<'t> ElementCondition<'t> {
     /// and if the condition is `Absent`, then the given value
     /// is asserted to *not* exist in `values`.
     #[inline]
-    pub fn check(&self, values: &[&str]) -> bool {
-        values.contains(&self.value.as_ref()) == self.condition.bool_value()
+    pub fn check(&self, values: &[Cow<str>]) -> bool {
+        values.contains(&self.value) == self.condition.bool_value()
     }
 
     pub fn to_owned(&self) -> ElementCondition<'static> {

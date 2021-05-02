@@ -21,6 +21,7 @@
 //! Module that implements HTML rendering for `Element` and its children.
 
 mod collapsible;
+mod condition;
 mod container;
 mod iframe;
 mod image;
@@ -31,12 +32,13 @@ mod text;
 
 mod prelude {
     pub use super::super::context::HtmlContext;
-    pub use super::render_element;
+    pub use super::{render_element, render_elements};
     pub use crate::log::prelude::*;
     pub use crate::tree::{Element, SyntaxTree};
 }
 
 use self::collapsible::{render_collapsible, Collapsible};
+use self::condition::render_iftags;
 use self::container::{render_color, render_container};
 use self::iframe::{render_html, render_iframe};
 use self::image::render_image;
@@ -121,6 +123,10 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 *show_bottom,
             ),
         ),
+        Element::IfTags {
+            conditions,
+            elements,
+        } => render_iftags(log, ctx, conditions, elements),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)
