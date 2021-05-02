@@ -77,6 +77,14 @@ impl<'t> ElementCondition<'t> {
         values.contains(&self.value) == self.condition.bool_value()
     }
 
+    /// Determines if this condition is satisfied, for a single value.
+    ///
+    /// See also `check()`.
+    #[inline]
+    pub fn check_single<S: AsRef<str>>(&self, value: S) -> bool {
+        (self.value == value.as_ref()) == self.condition.bool_value()
+    }
+
     pub fn to_owned(&self) -> ElementCondition<'static> {
         ElementCondition {
             condition: self.condition,
