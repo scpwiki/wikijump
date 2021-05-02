@@ -58,10 +58,14 @@ pub fn render_image(
         .attr("class", &image_classes)
         .contents(|ctx| {
             let build_image = |ctx: &mut HtmlContext| {
-                ctx.html()
-                    .img()
-                    .attr("src", &[&source_url])
+                let mut tag = ctx.html().img();
+
+                tag.attr("src", &[&source_url])
                     .attr_map_prepend(attributes, ("class", "image"));
+
+                if add_crossorigin {
+                    tag.attr("crossorigin", &[]);
+                }
             };
 
             match link {
