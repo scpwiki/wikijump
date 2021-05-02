@@ -1,14 +1,15 @@
 <?php
 
-namespace Wikidot\Utils;
+namespace Wikidot\Wikitext;
 
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
 use Text_Wiki;
-use Wikidot\DB\OzoneUserPeer;
 use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\OzoneUserPeer;
 use Wikidot\DB\PageTagPeer;
+use function Wikidot\Utils\Exception;
 
 //use Text_Antiwiki;  # What is this? I can't even find "text_antiwiki on google.
 
@@ -47,17 +48,17 @@ class WikiTransformation
     {
         //$code is not a complete page so we need to wrap it!
         $head = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">  <head>    <title>Just A Wrapper</title><meta http-equiv="content-type" content="text/html;charset=UTF-8"/>  </head> <!--wrapdelimiter--><body>';
-        $tail=' </body><!--wrapdelimiter--></html>';
+        $tail = ' </body><!--wrapdelimiter--></html>';
 
-        $c = $head.$code.$tail;
+        $c = $head . $code . $tail;
         $config = array('indent' => false,
-               'output-xhtml' => true,
-               'wrap' => 0);
+            'output-xhtml' => true,
+            'wrap' => 0);
 
         $c2 = tidy_parse_string($c, $config, 'UTF8');
 
         $arr = explode("<!--wrapdelimiter-->", $c2);
-        $out=$arr[1];
+        $out = $arr[1];
         $out = str_replace("<body>", "", $out);
         $out = str_replace("</body>", "", $out);
         return $out;
@@ -114,7 +115,7 @@ class WikiTransformation
             $this->_tmpPage = $page;
             $b = $template;
             $title = $page->getTitle();
-            $title = str_replace(array('[',']'), '', $title);
+            $title = str_replace(array('[', ']'), '', $title);
             //$title = str_replace('%%', "\xFD", $title);
             $b = str_replace('%%%%%title%%%%%', $title, $b);
             $b = preg_replace(";%%%%%((linked_title)|(title_linked))%%%%%;i", preg_quote_replacement('[[[' . $page->getUnixName() . ' | ' . $title . ']]]'), $b);
@@ -152,7 +153,7 @@ class WikiTransformation
             /* %%rating%% */
             $b = str_ireplace('%%%%%rating%%%%%', $page->getRate(), $b);
 
-             /* %%comments%% */
+            /* %%comments%% */
             $b = preg_replace_callback("/%%%%%comments%%%%%/i", array(
                 $this, '_handleComementsCount'), $b);
 
@@ -170,14 +171,14 @@ class WikiTransformation
 
             /* %%link%% */
             $site = $page->getSite();
-            $b = str_ireplace('%%%%%link%%%%%', GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->getUnixName(), $b);
+            $b = str_ireplace('%%%%%link%%%%%', GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain() . '/' . $page->getUnixName(), $b);
 
             /* %%tags%% */
             $b = preg_replace_callback("/%%%%%tags%%%%%/i", array(
                 $this, '_handleTags'), $b);
 
             $b = preg_replace_callback(';%%%%%date\|([0-9]+)(\|.*?)?%%%%%;', array(
-            $this, '_formatDate'), $b);
+                $this, '_formatDate'), $b);
 
             $template = $b;
             //$template = preg_replace(';(%%%%%([a-z0-9\(\)_]+)%%%%%;i', '%%\\1%%', $template);
@@ -187,7 +188,7 @@ class WikiTransformation
         /* Handle split sources. */
         $splitSource = preg_split('/^([=]{4,})$/m', $source);
         for ($i = 0; $i < count($splitSource); $i++) {
-            $out = str_replace('%%%%%content{'.($i+1).'}%%%%%', trim($splitSource[$i]), $out);
+            $out = str_replace('%%%%%content{' . ($i + 1) . '}%%%%%', trim($splitSource[$i]), $out);
         }
         $out = preg_replace(';%%%%%content({[0-9]+})?%%%%%;', '', $out);
         return $out;
@@ -200,7 +201,7 @@ class WikiTransformation
         } else {
             $format = '%e %b %Y, %H:%M %Z|agohover';
         }
-        $dateString = '[[date ' . $m[1] . ' format="'.$format.'"' . ']]';
+        $dateString = '[[date ' . $m[1] . ' format="' . $format . '"' . ']]';
         return $dateString;
     }
 
@@ -252,17 +253,18 @@ class WikiTransformation
     public function setPage($page)
     {
 
-        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$page->getUnixName().'/');
-        $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$page->getUnixName().'/');
+        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/' . $page->getUnixName() . '/');
+        $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/' . $page->getUnixName() . '/');
         $this->wiki->vars['pageName'] = $page->getUnixName();
         $this->wiki->vars['pageTitle'] = $page->getTitleOrUnixName();
         $this->wiki->vars['page'] = $page;
         $this->page = $page;
     }
+
     public function setPageUnixName($pageUnixName)
     {
-        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$pageUnixName.'/');
-        $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$pageUnixName.'/');
+        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/' . $pageUnixName . '/');
+        $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/' . $pageUnixName . '/');
         $this->wiki->vars['pageName'] = $pageUnixName;
         $this->pageUnixName = $pageUnixName;
     }
@@ -283,10 +285,10 @@ class WikiTransformation
         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'exists_callback', 'wikiPageExists');
 
         $interWikis = array(
-            'wikipedia'    => 'http://en.wikipedia.org/wiki/%s',
-            'wikipedia.pl'    => 'http://pl.wikipedia.org/wiki/%s',
-            'pl.wikipedia'    => 'http://pl.wikipedia.org/wiki/%s',
-            'google'    => 'http://www.google.com/search?q=%s',
+            'wikipedia' => 'http://en.wikipedia.org/wiki/%s',
+            'wikipedia.pl' => 'http://pl.wikipedia.org/wiki/%s',
+            'pl.wikipedia' => 'http://pl.wikipedia.org/wiki/%s',
+            'google' => 'http://www.google.com/search?q=%s',
             'dictionary' => 'http://dictionary.reference.com/browse/%s'
         );
 
@@ -315,9 +317,9 @@ class WikiTransformation
                 //configure
 
                 $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
-                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0, 1000000).'-');
-                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000).'-');
-                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0, 1000000) . '-');
+                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000) . '-');
+                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000) . '-');
 
                 $wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
                 $wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
@@ -325,9 +327,9 @@ class WikiTransformation
                 break;
             case 'list':
                 $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
-                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0, 1000000).'-');
-                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000).'-');
-                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0, 1000000) . '-');
+                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000) . '-');
+                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000) . '-');
 
                 break;
             case 'pm':
@@ -343,9 +345,9 @@ class WikiTransformation
                 //configure
 
                 $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
-                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0, 1000000).'-');
-                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000).'-');
-                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0, 1000000) . '-');
+                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000) . '-');
+                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000) . '-');
 
                 $wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
                 $wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
@@ -401,7 +403,7 @@ class WikiTransformation
     {
         // require_once(WIKIJUMP_ROOT."/lib/Text_Antiwiki/Text/Antiwiki.php");  # ???
         // just for text_wiki extend the include_path
-        ini_set('include_path', ini_get('include_path').':'.WIKIJUMP_ROOT.'/lib/Text_Antiwiki/');
+        ini_set('include_path', ini_get('include_path') . ':' . WIKIJUMP_ROOT . '/lib/Text_Antiwiki/');
 
         // clean the code!!!
         $doc = $this->purifyHtml($doc);
@@ -413,8 +415,6 @@ class WikiTransformation
         return $out;
     }
 }
-
-// quick checkup if page exists
 
 function wikiPageExists($pageName)
 {

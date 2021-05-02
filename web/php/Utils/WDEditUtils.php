@@ -3,6 +3,7 @@
 namespace Wikidot\Utils;
 
 use Ozone\Framework\OzoneLogger;
+use Wikidot\Wikitext\WikiTransformation;
 
 class WDEditUtils
 {

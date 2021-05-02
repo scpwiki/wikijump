@@ -13,7 +13,7 @@ use Wikidot\Utils\NotificationMaker;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
-use Wikidot\Utils\WikiTransformation;
+use Wikidot\Wikitext\WikiTransformation;
 
 class PMAction extends SmartyAction
 {

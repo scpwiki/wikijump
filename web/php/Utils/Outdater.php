@@ -17,6 +17,7 @@ use Wikidot\DB\PageInclusionPeer;
 use Wikidot\DB\PageInclusion;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
+use Wikidot\Wikitext\WikiTransformation;
 
 class Outdater
 {
