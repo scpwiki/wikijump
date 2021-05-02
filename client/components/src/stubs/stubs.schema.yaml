@@ -1,0 +1,83 @@
+$schema: https://json-schema.org/draft/2019-09/schema
+title: Stub component
+description: Specification for a stub component.
+$defs:
+  element:
+    description: A HTML element.
+    type: object
+    properties:
+      tag:
+        type: string
+        description: The element must have this tag.
+      attributes:
+        $ref: "#/$defs/htmlAttributes"
+      repeats:
+        $ref: "#/$defs/repeats"
+      children:
+        oneOf:
+          - type: boolean
+            description: >
+              Whether this element can contain arbitrary, unvalidated children, including
+              text nodes.
+          - type: object
+            $ref: "#/$defs/element"
+          - type: array
+            description: Children of this element.
+            items:
+              $ref: "#/$defs/element"
+            minItems: 1
+  htmlAttributes:
+    description: HTML attributes that the element must have.
+    properties:
+      data:
+        description: Container for 'data-' attributes.
+        type: object
+        additionalProperties:
+          $ref: "#/$defs/htmlAttributeValueType"
+    additionalProperties:
+      description: >
+        The stub specification may require that the element has any arbitrary attribute.
+      $ref: "#/$defs/htmlAttributeValueType"
+  htmlAttributeValueType:
+    description: >
+      A HTML attribute value specification can be either a string, in which case the
+      attribute value must match it exactly; or or a boolean, indicating whether the
+      attribute may be present, and if so, that it may have any value.
+    oneOf:
+      - type: boolean
+      - type: string
+  repeats:
+    description: >
+      Indicates whether this element is able to be repeated. If false or not provided, the
+      element must appear exactly once. If true, the element can be repeated at least 0
+      times. Can also be an object indicating exactly how many times this element can be
+      repeated.
+    oneOf:
+      - type: boolean
+      - type: object
+        properties:
+          max:
+            description: >
+              The maximum number of times that this element can be repeated.
+            type: integer
+            minimum: 1
+          min:
+            description: >
+              The minimum number of times that this element can be repeated.
+            type: integer
+            minimum: 0
+type: object
+properties:
+  root:
+    description: The root element of the stub component.
+    properties:
+      query:
+        description: >
+          The query that will be used during reactivity hydration to find this stub
+          component. It must match the root element.
+        type: string
+    required:
+      - query
+    $ref: "#/$defs/element"
+required:
+  - root
