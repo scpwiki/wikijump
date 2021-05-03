@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikidot\Wikitext;
+namespace Wikidot\Wikitext\FTML;
 
 
 class FtmlBackend

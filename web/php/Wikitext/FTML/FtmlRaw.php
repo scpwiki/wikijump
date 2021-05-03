@@ -1,9 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikidot\Wikitext;
-
-use Wikidot\Wikitext\FtmlPageInfo;
+namespace Wikidot\Wikitext\FTML;
 
 class FtmlRaw
 {
@@ -52,4 +50,28 @@ class FtmlRaw
     public function make(string $ctype): FFI\CData {
         return $this->ffi->new($ctype, true, false);
     }
+}
+
+/**
+ * Converts a list in the form of a PHP array into a pointer
+ * suitable for passing into C FFIs.
+ *
+ * All of the objects in the array must already be ready for passing.
+ *
+ * @returns array with keys "pointer" and "length"
+ */
+function listToPointer(array $list): array {
+    // Allocate heap array
+    $length = count($list);
+    $pointer = FtmlRaw::getInstance()->make("char *[$length]");
+
+    // Copy string elements
+    foreach ($list as $index => $item) {
+        $pointer[$index] = $item;
+    }
+
+    return [
+        'pointer' => $pointer,
+        'length' => $length,
+    ];
 }
