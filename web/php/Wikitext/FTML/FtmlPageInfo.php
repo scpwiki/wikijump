@@ -16,7 +16,7 @@ class FtmlPageInfo
         array $tags,
         string $locale
     ) {
-        $this->c_data = FtmlRaw::getInstance()->make("struct ftml_page_info");
+        $this->c_data = FtmlRaw::make("struct ftml_page_info");
         $this->c_data->page = $page;
         $this->c_data->category = $category;
         $this->c_data->site = $site;

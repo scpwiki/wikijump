@@ -10,64 +10,53 @@ class FtmlRaw
     const HEADER = '/usr/local/include/ftml.h';
     const LIBRARY = '/usr/local/lib/libftml.so';
 
-    // Singleton management and creation
-    private static ?FtmlRaw $instance = null;
+    // Singleton management
+    private static FFI $ffi;
 
-    public static function getInstance(): FtmlRaw {
-        if (is_null(self::$instance)) {
-            self::$instance = new FtmlRaw();
+    // Constant values
+    public static FFI\CData $META_NAME;
+    public static FFI\CData $META_HTTP_EQUIV;
+    public static FFI\CData $META_PROPERTY;
+
+    public function __construct() {
+        if (is_null(self::$ffi)) {
+            self::$ffi = FFI::cdef(FtmlRaw::HEADER, FtmlRaw::LIBRARY);
+
+            // Copy constants
+            self::$META_NAME = self::$ffi->META_NAME;
+            self::$META_HTTP_EQUIV = self::$ffi->META_HTTP_EQUIV;
+            self::$META_PROPERTY = self::$ffi->META_PROPERTY;
         }
-
-        return self::$instance;
-    }
-
-    private FFI $ffi;
-
-    private function __construct() {
-        $this->ffi = FFI::scope('ftml');
     }
 
     // ftml export methods
-    public function renderHtml(string $wikitext, FtmlPageInfo $page_info): FtmlHtmlOutput {
-        $output = $this->make('struct ftml_html_output');
-        $this->ffi->ftml_render_html($output, $wikitext, $page_info);
+    public static function renderHtml(string $wikitext, FtmlPageInfo $page_info): FtmlHtmlOutput {
+        $output = self::make('struct ftml_html_output');
+        self::$ffi->ftml_render_html($output, $wikitext, $page_info);
         return new FtmlHtmlOutput($output);
     }
 
-    public function renderText(string $wikitext, FtmlPageInfo $page_info): FtmlTextOutput {
-        $output = $this->make('struct ftml_text_output');
-        $this->ffi->ftml_render_text($output, $wikitext, $page_info);
+    public static function renderText(string $wikitext, FtmlPageInfo $page_info): FtmlTextOutput {
+        $output = self::make('struct ftml_text_output');
+        self::$ffi->ftml_render_text($output, $wikitext, $page_info);
         return new FtmlTextOutput($output);
     }
 
-    public function freeHtmlOutput(FFI\CData $c_data) {
-        $this->ffi->ftml_destroy_html_output($c_data);
+    public static function freeHtmlOutput(FFI\CData $c_data) {
+        self::$ffi->ftml_destroy_html_output($c_data);
     }
 
-    public function freeTextOutput(FFI\CData $c_data) {
-        $this->ffi->ftml_destroy_text_output($c_data);
+    public static function freeTextOutput(FFI\CData $c_data) {
+        self::$ffi->ftml_destroy_text_output($c_data);
     }
 
-    public function version(): string {
-        return FFI::string($this->ffi.ftml_version());
+    public static function version(): string {
+        return FFI::string(self::$ffi.ftml_version());
     }
 
     // FFI utilities
-    public function make(string $ctype): FFI\CData {
-        return $this->ffi->new($ctype, true, false);
-    }
-
-    // Constant values
-    public static function metaName(): FFI\CData {
-        return self::getInstance()->ffi->META_NAME;
-    }
-
-    public static function metaHttpEquiv(): FFI\CData {
-        return self::getInstance()->ffi->META_HTTP_EQUIV;
-    }
-
-    public static function metaProperty(): FFI\CData {
-        return self::getInstance()->ffi->META_PROPERTY;
+    public static function make(string $ctype): FFI\CData {
+        return self::$ffi->new($ctype, true, false);
     }
 }
 
@@ -111,3 +100,6 @@ function pointerToList(FFI\CData $pointer, int $length, callable $convert_fn): a
 
     return $list;
 }
+
+// Initialize FtmlRaw
+new FtmlRaw();

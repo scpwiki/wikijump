@@ -25,11 +25,11 @@ class FtmlHtmlMeta
 
     private static function getTagType(FFI\CData $c_tag): string {
         switch ($c_tag) {
-            case FtmlRaw::metaName():
+            case FtmlRaw::META_NAME:
                 return 'name';
-            case FtmlRaw::metaHttpEquiv():
+            case FtmlRaw::META_HTTP_EQUIV:
                 return 'http-equiv';
-            case FtmlRaw::metaProperty():
+            case FtmlRaw::META_PROPERTY:
                 return 'property';
             default:
                 throw new Error("Invalid HTML meta tag type C enum value: $c_tag");
