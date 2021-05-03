@@ -11,6 +11,7 @@ const TS_CONFIG = "tsconfig.typedoc.json"
 async function main() {
   const entryPoints = [
     "components",
+    ...(await globby("components/dist/**/.svelte.d.ts")),
     ...(await globby("modules/*", { onlyDirectories: true }))
   ]
 
@@ -22,8 +23,7 @@ async function main() {
     entryPoints,
     name: "Wikijump",
     tsconfig: TS_CONFIG,
-    exclude: ["**/tests/**", "**/node_modules/**", "*.js"],
-    excludeInternal: true,
+    exclude: ["**/tests/**", "**/node_modules/**", "**/dist/**/!(*.svelte.d.ts)", "*.js"],
     // excludeExternals: true,
     // added by plugin (@strictsoftware/typedoc-plugin-monorepo)
     "external-modulemap": ".*(modules/([^/]+)/|components/).*"
