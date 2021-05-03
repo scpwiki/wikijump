@@ -24,7 +24,7 @@ class FtmlRaw
     private FFI $ffi;
 
     private function __construct() {
-        $ffi = FFI::cdef(FtmlRaw::HEADER, FtmlRaw::LIBRARY);
+        $this->ffi = FFI::cdef(FtmlRaw::HEADER, FtmlRaw::LIBRARY);
     }
 
     // ftml export methods
@@ -37,11 +37,11 @@ class FtmlRaw
     }
 
     public function version(): string {
-        return FFI::string(this->$ffi->ftml_version());
+        return FFI::string($this->ffi.ftml_version());
     }
 
     // FFI utilities
     public function make(string $ctype): FFI\CData {
-        return this->$ffi->new($ctype, true, false);
+        return $this->ffi->new($ctype, true, false);
     }
 }
