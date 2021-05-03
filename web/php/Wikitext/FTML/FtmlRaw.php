@@ -18,15 +18,14 @@ class FtmlRaw
     public static FFI\CData $META_HTTP_EQUIV;
     public static FFI\CData $META_PROPERTY;
 
-    public function __construct() {
-        if (is_null(self::$ffi)) {
-            self::$ffi = FFI::cdef(FtmlRaw::HEADER, FtmlRaw::LIBRARY);
+    public function _init() {
+        //self::$ffi = FFI::cdef(FtmlRaw::HEADER, FtmlRaw::LIBRARY);
+        self::$ffi = FFI::scope('ftml');
 
-            // Copy constants
-            self::$META_NAME = self::$ffi->META_NAME;
-            self::$META_HTTP_EQUIV = self::$ffi->META_HTTP_EQUIV;
-            self::$META_PROPERTY = self::$ffi->META_PROPERTY;
-        }
+        // Copy constants
+        self::$META_NAME = self::$ffi->META_NAME;
+        self::$META_HTTP_EQUIV = self::$ffi->META_HTTP_EQUIV;
+        self::$META_PROPERTY = self::$ffi->META_PROPERTY;
     }
 
     // ftml export methods
@@ -102,4 +101,4 @@ function pointerToList(FFI\CData $pointer, int $length, callable $convert_fn): a
 }
 
 // Initialize FtmlRaw
-new FtmlRaw();
+FtmlRaw::_init();
