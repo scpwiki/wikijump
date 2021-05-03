@@ -69,6 +69,7 @@
     "toml": "^3.0.0",
     "trash-cli": "^4.0.0",
     "typedoc": "^0.20.36",
+    "typedoc-plugin-rename-defaults": "^0.1.0",
     "typescript": "4.3.0-beta",
     "typescript-json-schema": "^0.50.0",
     "ultra-runner": "^3.10.5",
