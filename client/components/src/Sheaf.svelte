@@ -1,6 +1,5 @@
 <!--
-  @component
-  Wikijump's primary page editor.
+  @component Wikijump's primary page editor.
 -->
 <script lang="ts">
   import { SheafCore } from "sheaf-core"
