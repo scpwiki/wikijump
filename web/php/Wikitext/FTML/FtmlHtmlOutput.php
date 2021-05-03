@@ -4,15 +4,18 @@ namespace Wikidot\Wikitext\FTML;
 
 class FtmlHtmlOutput
 {
-    private FFI\CData $c_data;
+    public string $html;
+    public string $style;
+    public array $meta;
+    public array $warnings;
 
     public function __construct(FFI\CData $c_data) {
-        // TODO convert to PHP
-        $this->c_data = $c_data;
-    }
+        $this->html = FFI::string($c_data->html);
+        $this->style = FFI::string($c_data->style);
+        $this->meta = FtmlHtmlMeta::fromArray($c_data->meta_list, $c_data->meta_len);
+        $this->warnings = FtmlWarning::fromArray($c_data->warning_list, $c_data->warning_len);
 
-    function __destruct() {
-        parent::__destruct();
+        // Free original C data
         FtmlRaw::getInstance()->freeHtmlOutput($this->c_data);
     }
 }

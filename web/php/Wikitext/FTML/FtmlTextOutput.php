@@ -1,19 +1,17 @@
 <?php
 
-
 namespace Wikidot\Wikitext\FTML;
 
 class FtmlTextOutput
 {
-    private FFI\CData $c_data;
+    public string $text;
+    public array $warnings;
 
     public function __construct(FFI\CData $c_data) {
-        // TODO convert to PHP
-        $this->c_data = $c_data;
-    }
+        $this->text = FFI::string($c_data->text);
+        $this->warnings = FtmlWarning::fromArray($c_data->warning_list, $c_data->warning_len);
 
-    function __destruct() {
-        parent::__destruct();
-        FtmlRaw::getInstance()->freeTextOutput($this->c_data);
+        // Free original C data
+        FtmlRaw::getInstance()->freeTextOutput($c_data);
     }
 }
