@@ -1,9 +1,10 @@
 # NPM
 node_modules
 package-lock.json
-lerna-debug.log
 npm-debug.log
 
 # Packages
 dist
 tests-dist
+lerna-debug.log
+.ultra.cache.json

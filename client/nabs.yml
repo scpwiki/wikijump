@@ -1,12 +1,13 @@
 # -- UTILITY
 
-update: npm i && npm -s run lerna:clean && npm -s run bootstrap && npm -s run build
-bootstrap: lerna bootstrap --hoist --loglevel success
-lerna:clean: lerna clean --yes --loglevel success
+update:cmd: npm run lerna:clean && npm run bootstrap && npm run build
+update: npm i && ultra update:cmd
+bootstrap: lerna bootstrap --hoist
+lerna:clean: lerna clean --yes
 
 # -- BUILD
 
-build: lerna run --stream build
+build: ultra --raw --rebuild -r build
 
 # -- TESTING, LINTING
 
@@ -25,4 +26,4 @@ lint:fix:
 
 # -- MISC.
 
-dev:dev-sandbox: lerna run --stream dev --scope dev-sandbox
+dev:dev-sandbox: ultra --raw -r --filter "web/dev-sandbox" dev
