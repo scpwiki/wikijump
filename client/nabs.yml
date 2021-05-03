@@ -1,9 +1,9 @@
 # -- UTILITY
 
 update:cmd: npm run lerna:clean && npm run bootstrap && npm run build
-update: npm i && ultra update:cmd
-bootstrap: lerna bootstrap --hoist
-lerna:clean: lerna clean --yes
+update: npm i && ultra --raw update:cmd
+bootstrap: lerna bootstrap --hoist --loglevel success
+lerna:clean: lerna clean --yes --loglevel success
 
 # -- BUILD
 
