@@ -14,7 +14,7 @@ class FtmlRaw
     private static ?FtmlRaw $instance = null;
 
     public static function getInstance(): FtmlRaw {
-        if (self::$instance == null) {
+        if (is_null(self::$instance)) {
             self::$instance = new FtmlRaw();
         }
 
