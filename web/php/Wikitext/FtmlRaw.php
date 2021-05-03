@@ -36,6 +36,14 @@ class FtmlRaw
         // TODO
     }
 
+    public function freeHtmlOutput(FFI\CData $c_data) {
+        // TODO
+    }
+
+    public function freeTextOutput(FFI\CData $c_data) {
+        // TODO
+    }
+
     public function version(): string {
         return FFI::string($this->ffi.ftml_version());
     }

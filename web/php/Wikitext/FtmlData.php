@@ -34,6 +34,34 @@ class FtmlPageInfo
     }
 }
 
+class FtmlHtmlOutput
+{
+    private FFI\CData $c_data;
+
+    public function __construct(FFI\CData $c_data) {
+        $this->c_data = $c_data;
+    }
+
+    function __destruct() {
+        parent::__destruct();
+        FtmlRaw::getInstance()->freeHtmlOutput($this->c_data);
+    }
+}
+
+class FtmlTextOutput
+{
+    private FFI\CData $c_data;
+
+    public function __construct(FFI\CData $c_data) {
+        $this->c_data = $c_data;
+    }
+
+    function __destruct() {
+        parent::__destruct();
+        FtmlRaw::getInstance()->freeTextOutput($this->c_data);
+    }
+}
+
 /**
  * Converts a list in the form of a PHP array into a pointer
  * suitable for passing into C FFIs.
