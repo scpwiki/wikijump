@@ -5,7 +5,7 @@ namespace Wikidot\Wikitext\FTML;
 
 use \FFI;
 
-class FtmlRaw
+final class FtmlRaw
 {
     const HEADER = '/usr/local/include/ftml.h';
     const LIBRARY = '/usr/local/lib/libftml.so';
