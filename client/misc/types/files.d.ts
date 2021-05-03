@@ -64,3 +64,10 @@ declare module "*.avif" {
   const url: string
   export default url
 }
+
+// -- STRING IMPORTS
+
+declare module "*.yaml" {
+  const contents: string
+  export default string
+}

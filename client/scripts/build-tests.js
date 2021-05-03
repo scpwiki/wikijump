@@ -37,7 +37,7 @@ async function build() {
     platform: "node",
     sourcemap: false,
     outExtension: { ".js": ".cjs" },
-    loader: { ".wasm": "file" },
+    loader: { ".wasm": "file", ".yaml": "text" },
     plugins: [
       sveltePlugin({
         compileOptions: { css: true, cssHash: () => "svelte" },
