@@ -24,7 +24,7 @@ class FtmlRaw
     private FFI $ffi;
 
     private function __construct() {
-        $this->ffi = FFI::cdef(FtmlRaw::HEADER, FtmlRaw::LIBRARY);
+        $this->ffi = FFI::scope('ftml');
     }
 
     // ftml export methods
