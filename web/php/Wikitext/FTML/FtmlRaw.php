@@ -3,13 +3,15 @@ declare(strict_types = 1);
 
 namespace Wikidot\Wikitext\FTML;
 
+use \FFI;
+
 class FtmlRaw
 {
     const HEADER = '/usr/local/include/ftml.h';
     const LIBRARY = '/usr/local/lib/libftml.so';
 
     // Singleton management and creation
-    private static ?FtmlRaw $instance;
+    private static ?FtmlRaw $instance = null;
 
     public static function getInstance(): FtmlRaw {
         if (self::$instance == null) {

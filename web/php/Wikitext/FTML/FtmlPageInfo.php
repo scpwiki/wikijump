@@ -30,7 +30,6 @@ class FtmlPageInfo
 
     function __destruct()
     {
-        parent::__destruct();
         FFI::free($this->c_data->tags_list);
     }
 }
