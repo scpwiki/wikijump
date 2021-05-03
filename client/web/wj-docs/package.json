@@ -1,0 +1,17 @@
+{
+  "name": "wj-docs",
+  "license": "agpl-3.0-or-later",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "node ../../scripts/typedoc.js",
+    "serve": "http-server"
+  },
+  "type": "module",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "dependencies": {
+    "http-server": "0.12.3"
+  }
+}
