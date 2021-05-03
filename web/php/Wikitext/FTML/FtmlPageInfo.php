@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Wikidot\Wikitext\FTML;
 
@@ -14,8 +15,7 @@ class FtmlPageInfo
         ?string $alt_title,
         array $tags,
         string $locale
-    )
-    {
+    ) {
         $this->c_data = FtmlRaw::getInstance()->make("struct ftml_page_info");
         $this->c_data->page = $page;
         $this->c_data->category = $category;
