@@ -9,7 +9,7 @@ const sveltePlugin = require("esbuild-svelte")
 build()
 
 async function getTests() {
-  const testFiles = await globby(["modules/*/tests/*.ts", "components/tests/*.ts"], {
+  const testFiles = await globby("modules/*/tests/*.ts", {
     absolute: true
   })
   const tests = {}
