@@ -18,9 +18,8 @@ final class FtmlRaw
     public static FFI\CData $META_HTTP_EQUIV;
     public static FFI\CData $META_PROPERTY;
 
-    public function _init() {
-        //self::$ffi = FFI::cdef(FtmlRaw::HEADER, FtmlRaw::LIBRARY);
-        self::$ffi = FFI::scope('ftml');
+    public static function _init() {
+        self::$ffi = FFI::cdef(FtmlRaw::HEADER, FtmlRaw::LIBRARY);
 
         // Copy constants
         self::$META_NAME = self::$ffi->META_NAME;
