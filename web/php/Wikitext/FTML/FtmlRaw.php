@@ -87,11 +87,11 @@ function listToPointer(array $list): array {
  *
  * @returns array with the converted objects
  */
-function pointerToList(FFI\CData $pointer, int $length, callable $convert_fn): array {
+function pointerToList(FFI\CData $pointer, int $length, callable $convertFn): array {
     $list = array();
 
     for ($i = 0; $i < $length; $i++) {
-        $item = $convert_fn($pointer[$i]);
+        $item = $convertFn($pointer[$i]);
         array_push($list, $item);
     }
 
