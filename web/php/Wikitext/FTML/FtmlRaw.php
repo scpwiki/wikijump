@@ -5,6 +5,12 @@ namespace Wikidot\Wikitext\FTML;
 
 use \FFI;
 
+/**
+ * Class FtmlRaw, for interacting directly with the FTML FFI.
+ * You probably want to use FtmlBackend instead.
+ *
+ * @package Wikidot\Wikitext\FTML
+ */
 final class FtmlRaw
 {
     const HEADER = '/usr/local/include/ftml.h';

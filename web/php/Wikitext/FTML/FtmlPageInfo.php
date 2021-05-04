@@ -5,6 +5,10 @@ namespace Wikidot\Wikitext\FTML;
 
 use \FFI;
 
+/**
+ * Class FtmlPageInfo, representing an input 'struct ftml_page_info' object.
+ * @package Wikidot\Wikitext\FTML
+ */
 class FtmlPageInfo
 {
     private FFI\CData $c_data;

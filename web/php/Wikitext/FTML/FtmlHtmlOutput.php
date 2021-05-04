@@ -5,6 +5,10 @@ namespace Wikidot\Wikitext\FTML;
 
 use \FFI;
 
+/**
+ * Class FtmlHtmlOutput, representing a returned 'struct ftml_html_output' object.
+ * @package Wikidot\Wikitext\FTML
+ */
 class FtmlHtmlOutput
 {
     public string $html;

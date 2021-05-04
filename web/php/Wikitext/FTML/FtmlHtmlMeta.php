@@ -5,6 +5,10 @@ namespace Wikidot\Wikitext\FTML;
 
 use \FFI;
 
+/**
+ * Class FtmlHtmlMeta, representing a returned 'struct ftml_html_meta' object.
+ * @package Wikidot\Wikitext\FTML
+ */
 class FtmlHtmlMeta
 {
     public string $tagType;
