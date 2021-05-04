@@ -129,7 +129,7 @@ async function createProgram(files, map) {
   }
 
   const tsxFiles = files.map(file => `${file}.tsx`)
-  const shims = "../node_modules/svelte2tsx/svelte-shims.d.ts"
+  const shims = "../../node_modules/svelte2tsx/svelte-shims.d.ts"
   const types = await globby("../misc/types/*.d.ts", { absolute: true })
 
   const program = ts.createProgram([...tsxFiles, shims, ...types], TS_CONFIG, host)
@@ -161,7 +161,7 @@ async function generateTSX(file) {
     // prettier-ignore
     const out =
       `\nexport interface IComponentOptions { target: Element; anchor?: Element; props?: Record<string, any>; context?: Map<any, any>; hydrate?: boolean; intro?: boolean; };` +
-      `\n${tsx.code.replace(oldExport, newExport)}` +
+      `\n${tsx.code.replace(oldExport, newExport)};` +
       `\nconst props = ${props}();`
 
     return out
