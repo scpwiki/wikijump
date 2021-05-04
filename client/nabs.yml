@@ -7,7 +7,7 @@ lerna:clean: lerna clean --yes --loglevel success
 
 # -- BUILD
 
-build: ultra --raw --rebuild -r build
+build: ultra --rebuild -r build
 
 # -- TESTING, LINTING
 

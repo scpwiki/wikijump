@@ -12,7 +12,9 @@ import globby from "globby"
 import ts from "../node_modules/typescript-json-schema/node_modules/typescript/lib/typescript.js"
 
 // apparently this follows browser conventions in node
-const DIR = path.dirname(import.meta.url).replace("file:///", "")
+const DIR = path
+  .dirname(import.meta.url)
+  .replace("file:///", process.platform === "win32" ? "" : "/")
 
 // make sure we're working in the right directory
 process.chdir(DIR)
@@ -47,7 +49,7 @@ async function build() {
   }).start()
 
   const msg = text => {
-    spinner.text = text
+    spinner.text = `${text}\n`
     spinner.render()
   }
 
@@ -66,7 +68,7 @@ async function build() {
 
   msg("Writing typedoc declarations...")
 
-  console.log(program.emit())
+  program.emit()
 
   msg("Generating schema...")
 
@@ -117,7 +119,7 @@ async function createProgram(files, map) {
       // this makes it so that the props, events, and slots
       // properties are not optional, which screws up types otherwise
       data = data
-        .replaceAll("    props?: ", "    props: ")
+        .replaceAll("    props?: {", "    props: {")
         .replaceAll("    events?: ", "    events: ")
         .replaceAll("    slots?: ", "    slots: ")
         .replaceAll("    } | undefined;", "    };")
@@ -151,9 +153,9 @@ async function generateTSX(file) {
     const newExport =
       `export declare class ${name} {` +
       `\n  constructor(options: IComponentOptions)` +
-      `\n  props?: typeof props.props;` +
-      `\n  events?: typeof props.events;` +
-      `\n  slots?: typeof props.slots;` +
+      `\n  props: typeof props.props;` +
+      `\n  events: typeof props.events;` +
+      `\n  slots: typeof props.slots;` +
       `\n}`
 
     // prettier-ignore

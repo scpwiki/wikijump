@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist --loglevel success",
-    "build": "ultra --raw --rebuild -r build",
+    "build": "ultra --rebuild -r build",
     "dev:dev-sandbox": "ultra --raw -r --filter \"web/dev-sandbox\" dev",
     "lerna:clean": "lerna clean --yes --loglevel success",
     "lint": "npm run lint:eslint && npm run lint:prettier",
