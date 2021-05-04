@@ -23,24 +23,34 @@ final class FtmlRaw
     public static int $META_HTTP_EQUIV;
     public static int $META_PROPERTY;
 
+    public static FFI\CType $C_STRING;
+    public static FFI\CType $FTML_PAGE_INFO;
+    public static FFI\CType $FTML_HTML_OUTPUT;
+    public static FFI\CType $FTML_TEXT_OUTPUT;
+
     public static function _init() {
         self::$ffi = FFI::load(self::HEADER);
 
-        // Copy constants
+        // Create constants
         self::$META_NAME = self::$ffi->META_NAME;
         self::$META_HTTP_EQUIV = self::$ffi->META_HTTP_EQUIV;
         self::$META_PROPERTY = self::$ffi->META_PROPERTY;
+
+        self::$C_STRING = self::type('char *');
+        self::$FTML_PAGE_INFO = self::type('struct ftml_page_info');
+        self::$FTML_HTML_OUTPUT = self::type('struct ftml_html_output');
+        self::$FTML_TEXT_OUTPUT = self::type('struct ftml_text_output');
     }
 
     // ftml export methods
     public static function renderHtml(string $wikitext, FtmlPageInfo $page_info): FtmlHtmlOutput {
-        $output = self::make('struct ftml_html_output');
+        $output = self::make(self::$FTML_HTML_OUTPUT);
         self::$ffi->ftml_render_html(FFI::addr($output), $wikitext, $page_info->pointer());
         return new FtmlHtmlOutput($output);
     }
 
     public static function renderText(string $wikitext, FtmlPageInfo $page_info): FtmlTextOutput {
-        $output = self::make('struct ftml_text_output');
+        $output = self::make(self::$FTML_TEXT_OUTPUT);
         self::$ffi->ftml_render_text(FFI::adr($output), $wikitext, $page_info->pointer());
         return new FtmlTextOutput($output);
     }
@@ -58,8 +68,16 @@ final class FtmlRaw
     }
 
     // FFI utilities
-    public static function make(string $ctype): FFI\CData {
+    public static function make(FFI\CType $ctype): FFI\CData {
         return self::$ffi->new($ctype, true, false);
+    }
+
+    public static function type(string $type): FFI\CType {
+        return self::$ffi->type($type);
+    }
+
+    public static function arrayType(FFI\CType $ctype, array $dimensions): FFI\CType {
+        return self::$ffi->arrayType($ctype, $dimensions);
     }
 }
 
@@ -71,10 +89,11 @@ final class FtmlRaw
  *
  * @returns array with keys "pointer" and "length"
  */
-function listToPointer(array $list): array {
+function listToPointer(FFI\CType $type, array $list): array {
     // Allocate heap array
     $length = count($list);
-    $pointer = FtmlRaw::getInstance()->make("char *[$length]");
+    $pointerType = FtmlRaw::arrayType($type, [$length]);
+    $pointer = FtmlRaw::make($pointerType);
 
     // Copy string elements
     foreach ($list as $index => $item) {

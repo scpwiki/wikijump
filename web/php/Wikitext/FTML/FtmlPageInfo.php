@@ -22,13 +22,13 @@ class FtmlPageInfo
         array $tags,
         string $locale
     ) {
-        $this->c_data = FtmlRaw::make("struct ftml_page_info");
+        $this->c_data = FtmlRaw::make(FtmlRaw::FTML_PAGE_INFO);
         $this->c_data->page = $page;
         $this->c_data->category = $category;
         $this->c_data->site = $site;
         $this->c_data->title = $title;
         $this->c_data->alt_title = $alt_title;
-        $tag_array = listToPointer($tags);
+        $tag_array = listToPointer(FtmlRaw::C_STRING, $tags);
         $this->c_data->tags_list = $tag_array->pointer;
         $this->c_data->tags_len = $tag_array->length;
         $this->c_data->locale = $locale;
