@@ -29,26 +29,26 @@ final class FtmlRaw
     // ftml export methods
     public static function renderHtml(string $wikitext, FtmlPageInfo $page_info): FtmlHtmlOutput {
         $output = self::make('struct ftml_html_output');
-        self::$ffi->ftml_render_html($output, $wikitext, $page_info);
+        self::$ffi->ftml_render_html(FFI::addr($output), $wikitext, $page_info->pointer());
         return new FtmlHtmlOutput($output);
     }
 
     public static function renderText(string $wikitext, FtmlPageInfo $page_info): FtmlTextOutput {
         $output = self::make('struct ftml_text_output');
-        self::$ffi->ftml_render_text($output, $wikitext, $page_info);
+        self::$ffi->ftml_render_text(FFI::adr($output), $wikitext, $page_info->pointer());
         return new FtmlTextOutput($output);
     }
 
     public static function freeHtmlOutput(FFI\CData $c_data) {
-        self::$ffi->ftml_destroy_html_output($c_data);
+        self::$ffi->ftml_destroy_html_output(FFI::addr($c_data));
     }
 
     public static function freeTextOutput(FFI\CData $c_data) {
-        self::$ffi->ftml_destroy_text_output($c_data);
+        self::$ffi->ftml_destroy_text_output(FFI::addr($c_data));
     }
 
     public static function version(): string {
-        return FFI::string(self::$ffi.ftml_version());
+        return FFI::string(self::$ffi->ftml_version());
     }
 
     // FFI utilities

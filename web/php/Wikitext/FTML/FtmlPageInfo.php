@@ -30,6 +30,10 @@ class FtmlPageInfo
         $this->c_data->locale = $locale;
     }
 
+    public function pointer(): FFI\CData {
+        return $this->c_data;
+    }
+
     function __destruct()
     {
         FFI::free($this->c_data->tags_list);
