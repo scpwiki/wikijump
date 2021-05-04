@@ -9,7 +9,7 @@ import globby from "globby"
 // TS isn't a peer dependency for `typescript-json-schema`, which is unfortunate
 // that means it'll download its own version, which means we have to use that instead
 // this is probably fragile - so be careful updating `typescript-json-schema`
-import ts from "../node_modules/typescript-json-schema/node_modules/typescript/lib/typescript.js"
+import ts from "typescript-json-schema/node_modules/typescript/lib/typescript.js"
 
 // apparently this follows browser conventions in node
 const DIR = path

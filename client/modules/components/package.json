@@ -20,7 +20,7 @@
   "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
   "eslintConfig": {
-    "extends": "../.eslintrc.js"
+    "extends": "../../.eslintrc.js"
   },
   "dependencies": {
     "cm-lang-ftml": "^0.0.0",

@@ -22,7 +22,6 @@
     "nabs": "nabs"
   },
   "workspaces": [
-    "components",
     "modules/*",
     "web/*"
   ],
@@ -47,12 +46,12 @@
     "@typescript-eslint/parser": "^4.22.0",
     "@typescript-eslint/typescript-estree": "^4.22.0",
     "esbuild": "^0.11.18",
-    "esbuild-svelte": "^0.5.0",
+    "esbuild-svelte": "^0.5.1",
     "eslint": "^7.25.0",
     "eslint-plugin-clean-regex": "^0.5.1",
     "eslint-plugin-compat": "^3.9.0",
     "eslint-plugin-svelte3": "^3.2.0",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "globby": "^11.0.3",
     "jsdom": "^16.5.3",
     "lerna": "^4.0.0",
@@ -63,7 +62,7 @@
     "prettier": "^2.2.1",
     "prettier-plugin-svelte": "2.2.0",
     "sass": "^1.32.12",
-    "svelte": "^3.38.1",
+    "svelte": "^3.38.2",
     "svelte-preprocess": "^4.7.3",
     "svelte-preprocess-esbuild": "^2.0.0",
     "svelte2tsx": "^0.1.189",
@@ -75,6 +74,6 @@
     "typescript-json-schema": "^0.50.0",
     "ultra-runner": "^3.10.5",
     "uvu": "^0.5.1",
-    "vite": "^2.2.3"
+    "vite": "^2.2.4"
   }
 }

@@ -9,10 +9,7 @@ const OUTPUT_DIR = "web/wj-docs/dist"
 const TS_CONFIG = "tsconfig.typedoc.json"
 
 async function main() {
-  const entryPoints = [
-    "components",
-    ...(await globby("modules/*", { onlyDirectories: true }))
-  ]
+  const entryPoints = [...(await globby("modules/*", { onlyDirectories: true }))]
 
   const app = new TypeDoc.Application()
 
@@ -25,7 +22,7 @@ async function main() {
     exclude: ["**/tests/**", "**/node_modules/**", "**/dist/**/!(*.svelte.d.ts)", "*.js"],
     // excludeExternals: true,
     // added by plugin (@strictsoftware/typedoc-plugin-monorepo)
-    "external-modulemap": ".*(modules/([^/]+)/|components/).*"
+    "external-modulemap": ".*modules/([^/]+).*"
   })
 
   const project = app.convert()
