@@ -7,7 +7,7 @@
     "wikijump"
   ],
   "scripts": {
-    "build": "node doc-gen.js"
+    "build": "trash dist && node doc-gen.js"
   },
   "type": "module",
   "svelte": "src/index.ts",
