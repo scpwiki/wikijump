@@ -16,6 +16,7 @@
     "lint:prettier": "prettier --check \"modules/\" \"web/\"",
     "serve-docs": "ultra --raw -r --filter \"web/wj-docs\" serve",
     "test": "trash tests-dist && node scripts/build-tests.js && uvu ./tests-dist",
+    "typecheck": "tsc",
     "update": "npm i && ultra --raw update:cmd",
     "update:cmd": "npm run lerna:clean && npm run bootstrap && npm run build",
     "nabs": "nabs"

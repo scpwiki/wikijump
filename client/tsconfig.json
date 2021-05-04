@@ -31,5 +31,5 @@
       "fast-safe-stringify"
     ]
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "misc/templates"]
 }

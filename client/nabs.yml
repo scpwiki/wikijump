@@ -16,6 +16,8 @@ test:
   - node scripts/build-tests.js
   - uvu ./tests-dist
 
+typecheck: tsc
+
 lint:
   eslint: eslint "./**/*.js" "./**/*.ts"
   prettier: prettier --check "modules/" "web/"
