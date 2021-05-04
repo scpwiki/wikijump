@@ -13,9 +13,9 @@ final class FtmlRaw
     private static FFI $ffi;
 
     // Constant values
-    public static FFI\CData $META_NAME;
-    public static FFI\CData $META_HTTP_EQUIV;
-    public static FFI\CData $META_PROPERTY;
+    public static int $META_NAME;
+    public static int $META_HTTP_EQUIV;
+    public static int $META_PROPERTY;
 
     public static function _init() {
         self::$ffi = FFI::load(self::HEADER);
