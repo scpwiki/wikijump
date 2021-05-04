@@ -4,7 +4,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "build": "node ../../scripts/typedoc.js",
+    "build": "node typedoc.cjs",
     "serve": "http-server"
   },
   "type": "module",
@@ -12,6 +12,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "http-server": "0.12.3"
+    "http-server": "^0.12.3",
+    "components": "^0.0.0"
   }
 }

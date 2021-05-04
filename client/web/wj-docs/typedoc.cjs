@@ -3,7 +3,7 @@ const path = require("path")
 const TypeDoc = require("typedoc")
 
 // change working directory to repo root if it isn't already
-process.chdir(path.resolve(__dirname, "../"))
+process.chdir(path.resolve(__dirname, "../../"))
 
 const OUTPUT_DIR = "web/wj-docs/dist"
 const TS_CONFIG = "tsconfig.typedoc.json"
@@ -11,7 +11,6 @@ const TS_CONFIG = "tsconfig.typedoc.json"
 async function main() {
   const entryPoints = [
     "components",
-    ...(await globby("components/dist/**/.svelte.d.ts")),
     ...(await globby("modules/*", { onlyDirectories: true }))
   ]
 
