@@ -8,7 +8,6 @@ use \FFI;
 final class FtmlRaw
 {
     const HEADER = '/usr/local/include/ftml.h';
-    const LIBRARY = '/usr/local/lib/libftml.so';
 
     // Singleton management
     private static FFI $ffi;
@@ -19,7 +18,7 @@ final class FtmlRaw
     public static FFI\CData $META_PROPERTY;
 
     public static function _init() {
-        self::$ffi = FFI::cdef(FtmlRaw::HEADER, FtmlRaw::LIBRARY);
+        self::$ffi = FFI::load(self::HEADER);
 
         // Copy constants
         self::$META_NAME = self::$ffi->META_NAME;
