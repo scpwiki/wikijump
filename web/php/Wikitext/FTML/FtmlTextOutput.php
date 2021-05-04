@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Wikidot\Wikitext\FTML;
 
+use \FFI;
+
 class FtmlTextOutput
 {
     public string $text;

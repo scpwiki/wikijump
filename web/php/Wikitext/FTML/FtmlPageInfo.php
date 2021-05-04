@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Wikidot\Wikitext\FTML;
 
+use \FFI;
+
 class FtmlPageInfo
 {
     private FFI\CData $c_data;
