@@ -44,16 +44,17 @@ class FtmlPageInfo
     }
 
     function __destruct() {
-        FFI::free($this->c_data->page);
-        FFI::free($this->c_data->category);
-        FFI::free($this->c_data->site);
-        FFI::free($this->c_data->title);
-        FFI::free($this->c_data->alt_title);
         FtmlRaw::freePointer(
             $this->c_data->tags_list,
             $this->c_data->tags_len,
             fn(FFI\CData $c_data) => FFI::free($c_data),
         );
+
+        FFI::free($this->c_data->page);
+        FFI::free($this->c_data->category);
+        FFI::free($this->c_data->site);
+        FFI::free($this->c_data->title);
+        FFI::free($this->c_data->alt_title);
         FFI::free($this->c_data->locale);
         FFI::free($this->c_data);
     }
