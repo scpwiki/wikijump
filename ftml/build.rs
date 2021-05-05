@@ -4,6 +4,11 @@ use cbindgen::Language;
 use std::env;
 use std::path::PathBuf;
 
+const FTML_FFI_HEADER: &str = r#"
+#define FFI_SCOPE   "ftml"
+#define FFI_LIB     "libftml.so"
+"#;
+
 fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
@@ -32,6 +37,7 @@ fn main() {
         .with_crate(crate_dir)
         .with_language(Language::C)
         .with_no_includes()
+        .with_header(FTML_FFI_HEADER)
         .generate()
         .expect("Unable to generate C bindings")
         .write_to_file(&target_path);
