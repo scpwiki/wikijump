@@ -19,3 +19,31 @@
     outline: none;
   }
 }
+
+/// Hides content visually but not to screen readers.
+@mixin hide-visually {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(100%);
+}
+
+/// Adds ::after and ::before pseudo-elements labeling the element for screen-readers.
+/// Like such: &::before = '[Start of $text]', &::after = '[End of $text]'
+@mixin label-for-screenreaders($text) {
+  &::before,
+  &::after {
+    @include hide-visually;
+  }
+
+  &::before {
+    content: "[Start of " + $text + ".]";
+  }
+
+  &::after {
+    content: "[End of " + $text + ".]";
+  }
+}
