@@ -1,15 +1,15 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikidot\Wikitext\FTML;
+namespace Wikijump\Services\Wikitext;
 
 use \FFI;
 
 /**
- * Class FtmlPageInfo, representing an input 'struct ftml_page_info' object.
- * @package Wikidot\Wikitext\FTML
+ * Class PageInfo, representing an input 'struct ftml_page_info' object.
+ * @package Wikijump\Services\Wikitext
  */
-class FtmlPageInfo
+class PageInfo
 {
     private FFI\CData $c_data;
 

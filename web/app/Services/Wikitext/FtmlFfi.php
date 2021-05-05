@@ -1,15 +1,15 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikidot\Wikitext\FTML;
+namespace Wikijump\Services\Wikitext;
 
 use \FFI;
 
 /**
  * Class FtmlFfi, for interacting directly with the FTML FFI.
- * You probably want to use FtmlBackend instead.
+ * You probably want to use WikitextInterface instead.
  *
- * @package Wikidot\Wikitext\FTML
+ * @package Wikijump\Services\Wikitext
  */
 final class FtmlFfi
 {
@@ -45,16 +45,16 @@ final class FtmlFfi
     }
 
     // ftml export methods
-    public static function renderHtml(string $wikitext, FtmlPageInfo $page_info): FtmlHtmlOutput {
+    public static function renderHtml(string $wikitext, PageInfo $page_info): HtmlOutput {
         $output = self::make(self::$FTML_HTML_OUTPUT);
         self::$ffi->ftml_render_html(FFI::addr($output), $wikitext, $page_info->pointer());
-        return new FtmlHtmlOutput($output);
+        return new HtmlOutput($output);
     }
 
-    public static function renderText(string $wikitext, FtmlPageInfo $page_info): FtmlTextOutput {
+    public static function renderText(string $wikitext, PageInfo $page_info): TextOutput {
         $output = self::make(self::$FTML_TEXT_OUTPUT);
         self::$ffi->ftml_render_text(FFI::addr($output), $wikitext, $page_info->pointer());
-        return new FtmlTextOutput($output);
+        return new TextOutput($output);
     }
 
     public static function freeHtmlOutput(FFI\CData $c_data) {

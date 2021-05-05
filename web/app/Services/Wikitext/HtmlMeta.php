@@ -1,15 +1,15 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikidot\Wikitext\FTML;
+namespace Wikijump\Services\Wikitext;
 
 use \FFI;
 
 /**
- * Class FtmlHtmlMeta, representing a returned 'struct ftml_html_meta' object.
- * @package Wikidot\Wikitext\FTML
+ * Class HtmlMeta, representing a returned 'struct ftml_html_meta' object.
+ * @package Wikijump\Services\Wikitext
  */
-class FtmlHtmlMeta
+class HtmlMeta
 {
     public string $tagType;
     public string $name;
@@ -25,7 +25,7 @@ class FtmlHtmlMeta
         return FtmlFfi::pointerToList(
             $pointer,
             $length,
-            fn(FFI\CData $c_data) => new FtmlHtmlMeta($c_data),
+            fn(FFI\CData $c_data) => new HtmlMeta($c_data),
         );
     }
 

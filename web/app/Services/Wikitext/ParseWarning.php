@@ -1,11 +1,15 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikidot\Wikitext\FTML;
+namespace Wikijump\Services\Wikitext;
 
 use \FFI;
 
-class FtmlWarning
+/**
+ * Class ParseWarning, representing a returned 'struct ftml_warning' object.
+ * @package Wikijump\Services\Wikitext
+ */
+class ParseWarning
 {
     public string $token;
     public string $rule;
@@ -25,7 +29,7 @@ class FtmlWarning
         return FtmlFfi::pointerToList(
             $pointer,
             $length,
-            fn(FFI\CData $c_data) => new FtmlWarning($c_data),
+            fn(FFI\CData $c_data) => new ParseWarning($c_data),
         );
     }
 }
