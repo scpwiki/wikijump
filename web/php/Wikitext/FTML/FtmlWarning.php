@@ -22,7 +22,7 @@ class FtmlWarning
     }
 
     public static function fromArray(FFI\CData $pointer, int $length): array {
-        return FtmlRaw::pointerToList(
+        return FtmlFfi::pointerToList(
             $pointer,
             $length,
             fn(FFI\CData $c_data) => new FtmlWarning($c_data),

@@ -23,7 +23,7 @@ class FtmlHtmlOutput
         $this->warnings = FtmlWarning::fromArray($c_data->warning_list, $c_data->warning_len);
 
         // Free original C data
-        FtmlRaw::freeHtmlOutput($c_data);
+        FtmlFfi::freeHtmlOutput($c_data);
         FFI::free($c_data);
     }
 }

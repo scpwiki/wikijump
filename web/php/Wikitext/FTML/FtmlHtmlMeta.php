@@ -22,7 +22,7 @@ class FtmlHtmlMeta
     }
 
     public static function fromArray(FFI\CData $pointer, int $length): array {
-        return FtmlRaw::pointerToList(
+        return FtmlFfi::pointerToList(
             $pointer,
             $length,
             fn(FFI\CData $c_data) => new FtmlHtmlMeta($c_data),
@@ -31,11 +31,11 @@ class FtmlHtmlMeta
 
     private static function getTagType(int $c_tag): string {
         switch ($c_tag) {
-            case FtmlRaw::$META_NAME:
+            case FtmlFfi::$META_NAME:
                 return 'name';
-            case FtmlRaw::$META_HTTP_EQUIV:
+            case FtmlFfi::$META_HTTP_EQUIV:
                 return 'http-equiv';
-            case FtmlRaw::$META_PROPERTY:
+            case FtmlFfi::$META_PROPERTY:
                 return 'property';
             default:
                 throw new Error("Invalid HTML meta tag type C enum value: $c_tag");

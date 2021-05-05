@@ -6,12 +6,12 @@ namespace Wikidot\Wikitext\FTML;
 use \FFI;
 
 /**
- * Class FtmlRaw, for interacting directly with the FTML FFI.
+ * Class FtmlFfi, for interacting directly with the FTML FFI.
  * You probably want to use FtmlBackend instead.
  *
  * @package Wikidot\Wikitext\FTML
  */
-final class FtmlRaw
+final class FtmlFfi
 {
     const HEADER = '/usr/local/include/ftml.h';
 
@@ -103,7 +103,7 @@ final class FtmlRaw
     /**
      * Gets the PHP FFI C array type, for the given FFI type and the length.
      *
-     * For instance, to produce a 'char[24]', call arrayType(FtmlRaw::C_CHAR, [24]).
+     * For instance, to produce a 'char[24]', call arrayType(FtmlFfi::C_CHAR, [24]).
      * To produce deep arrays, such as 'int[8][8]', then $dimensions is [8, 8].
      *
      * @param FFI\CType $ctype
@@ -207,5 +207,5 @@ final class FtmlRaw
     }
 }
 
-// Initialize FtmlRaw
-FtmlRaw::_init();
+// Initialize FFI
+FtmlFfi::_init();

@@ -22,21 +22,21 @@ class FtmlPageInfo
         array $tags,
         string $locale
     ) {
-        $tag_array = FtmlRaw::listToPointer(
-            FtmlRaw::$C_STRING,
+        $tag_array = FtmlFfi::listToPointer(
+            FtmlFfi::$C_STRING,
             $tags,
-            fn(string $tag) => FtmlRaw::string($tag),
+            fn(string $tag) => FtmlFfi::string($tag),
         );
 
-        $this->c_data = FtmlRaw::make(FtmlRaw::$FTML_PAGE_INFO);
-        $this->c_data->page = FtmlRaw::string($page);
-        $this->c_data->category = FtmlRaw::string($category);
-        $this->c_data->site = FtmlRaw::string($site);
-        $this->c_data->title = FtmlRaw::string($title);
-        $this->c_data->alt_title = FtmlRaw::string($alt_title);
+        $this->c_data = FtmlFfi::make(FtmlFfi::$FTML_PAGE_INFO);
+        $this->c_data->page = FtmlFfi::string($page);
+        $this->c_data->category = FtmlFfi::string($category);
+        $this->c_data->site = FtmlFfi::string($site);
+        $this->c_data->title = FtmlFfi::string($title);
+        $this->c_data->alt_title = FtmlFfi::string($alt_title);
         $this->c_data->tags_list = $tag_array->pointer;
         $this->c_data->tags_len = $tag_array->length;
-        $this->c_data->locale = FtmlRaw::string($locale);
+        $this->c_data->locale = FtmlFfi::string($locale);
     }
 
     public function pointer(): FFI\CData {
@@ -44,7 +44,7 @@ class FtmlPageInfo
     }
 
     function __destruct() {
-        FtmlRaw::freePointer(
+        FtmlFfi::freePointer(
             $this->c_data->tags_list,
             $this->c_data->tags_len,
             fn(FFI\CData $c_data) => FFI::free($c_data),
