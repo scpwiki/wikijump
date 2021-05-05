@@ -186,7 +186,7 @@ final class FtmlRaw
 
     /**
      * Converts a C FFI pointer into a PHP array, applying a transformation
-     * to each C item to produce the PHP object.
+     * to each C item to produce the owned PHP object.
      *
      * @returns array with the converted objects
      */

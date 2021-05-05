@@ -19,9 +19,6 @@ class FtmlHtmlMeta
         $this->tagType = self::getTagType($c_data->tag_type);
         $this->name = FFI::string($c_data->name);
         $this->value = FFI::string($c_data->value);
-
-        // Free original C data
-        FFI::free($c_data);
     }
 
     public static function fromArray(FFI\CData $pointer, int $length): array {

@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Wikidot\Wikitext\FTML;
 
+use \FFI;
+
 class FtmlWarning
 {
     public string $token;
@@ -17,9 +19,6 @@ class FtmlWarning
         $this->spanStart = $c_data->span_start;
         $this->spanEnd = $c_data->span_end;
         $this->kind = FFI::string($c_data->kind);
-
-        // Free original C data
-        FFI::free($c_data);
     }
 
     public static function fromArray(FFI\CData $pointer, int $length): array {
