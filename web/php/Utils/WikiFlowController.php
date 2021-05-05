@@ -40,6 +40,10 @@ class WikiFlowController extends WebFlowController
         Ozone :: setRunData($runData);
         $logger->debug("RunData object created and initialized");
 
+        // Set cross-origin headers for improved security
+        // https://scuttle.atlassian.net/browse/WJ-452
+        $this->setCrossOriginHeaders();
+
         // check if site (Wiki) exists!
         $siteHost = $_SERVER["HTTP_HOST"];
 
