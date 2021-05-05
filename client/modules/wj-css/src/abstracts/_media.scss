@@ -1,0 +1,11 @@
+// Import `include-media` package from NPM
+@import "include-media";
+
+// Set import-media breakpoints
+// prettier-ignore
+$breakpoints: (
+  narrow: 400px,  // approx. phones
+  small: 800px,   // approx. tablets
+  normal: 1000px, // approx. desktops
+  wide: 1400px    // approx. extra wide monitors
+)
