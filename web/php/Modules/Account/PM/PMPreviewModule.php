@@ -7,7 +7,7 @@ namespace Wikidot\Modules\Account\PM;
 
 use Wikidot\DB\PrivateMessage;
 use Wikidot\Utils\AccountBaseModule;
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class PMPreviewModule extends AccountBaseModule
 {

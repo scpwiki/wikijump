@@ -9,7 +9,7 @@ use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PrivateMessagePeer;
 use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class PMDraftsMessageModule extends AccountBaseModule
 {

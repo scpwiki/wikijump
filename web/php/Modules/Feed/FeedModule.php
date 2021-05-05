@@ -6,7 +6,7 @@ use Exception;
 use Wikidot\Utils\CacheableModule;
 use Wikidot\Utils\MagpieFeed;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class FeedModule extends CacheableModule
 {

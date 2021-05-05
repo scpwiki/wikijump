@@ -15,7 +15,7 @@ use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDRenderUtils;
 use Wikidot\Utils\WDStringUtils;
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class FrontForumModule extends SmartyModule
 {

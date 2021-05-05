@@ -6,7 +6,7 @@ use Wikidot\DB\PageRevisionPeer;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class PageVersionModule extends SmartyModule
 {

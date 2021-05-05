@@ -9,7 +9,7 @@ use Wikidot\DB\PagePeer;
 use Wikidot\DB\OzoneUserPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class PagesFeed extends FeedScreen
 {

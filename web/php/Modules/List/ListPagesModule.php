@@ -16,7 +16,7 @@ use Wikidot\DB\ForumThreadPeer;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class ListPagesModule extends SmartyModule
 {

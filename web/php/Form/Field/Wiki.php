@@ -3,7 +3,7 @@
 
 namespace Wikidot\Form\Field;
 
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class Wiki extends Base
 {

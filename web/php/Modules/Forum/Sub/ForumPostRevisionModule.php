@@ -7,7 +7,7 @@ use Wikidot\DB\ForumPostRevisionPeer;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class ForumPostRevisionModule extends SmartyModule
 {

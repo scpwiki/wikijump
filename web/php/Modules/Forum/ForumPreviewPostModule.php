@@ -8,7 +8,7 @@ use Wikidot\DB\ForumPost;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Wikitext\WikiTransformation;
+use Wikidot\Utils\WikiTransformation;
 
 class ForumPreviewPostModule extends SmartyModule
 {
