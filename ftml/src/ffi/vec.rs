@@ -38,13 +38,16 @@ pub fn vec_to_cptr<T>(vec: Vec<T>) -> (*mut T, usize) {
 }
 
 #[inline]
-pub unsafe fn drop_cptr<T>(ptr: *mut T, len: usize) {
-    mem::drop(Vec::from_raw_parts(ptr, len, len))
+pub unsafe fn drop_cptr<T, F>(ptr: *mut T, len: usize, drop: F)
+where
+    F: FnMut(T),
+{
+    Vec::from_raw_parts(ptr, len, len).drain(..).for_each(drop);
 }
 
 #[test]
 fn vec() {
     let v = vec![10, 20, 30];
     let (ptr, len) = vec_to_cptr(v);
-    unsafe { drop_cptr(ptr, len) };
+    unsafe { drop_cptr(ptr, len, mem::drop) }
 }
