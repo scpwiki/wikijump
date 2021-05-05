@@ -40,7 +40,7 @@ class FtmlPageInfo
     }
 
     public function pointer(): FFI\CData {
-        return $this->c_data;
+        return FFI::addr($this->c_data);
     }
 
     function __destruct() {
