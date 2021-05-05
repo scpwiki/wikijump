@@ -1,5 +1,14 @@
 // prettier-ignore
 :root {
+
+  // --font-system-x (by itself) attempts to use default system fonts.
+  // It avoids using fairly ancient fallback fonts, or 'web-safe fonts', like Arial.
+  // Instead, this just uses the CSS default rather than force a web-safe font.
+  // Native emoji fonts are always included at the end to allow rendering of most emoji.
+  // This will always be imperfect.
+  // e.g. Noto is notorious for being on many systems and overriding the correct font.
+  // Also, the ordering does not signify any preference for an operating system.
+
   --font-system-default: emoji,
                          "Apple Color Emoji",
                          "Segoe UI Emoji", "Segoe UI Symbol",
@@ -29,6 +38,14 @@
                       "Roboto Mono", "Droid Mono",
                       monospace,
                       var(--font-system-default);
+
+
+  // --font-sans is effectively the default font.
+  // --font-display is for headings and the like.
+  // --font-serif is just a good ol' serif font.
+  // --font-mono is meant for code or console output text.
+
+  // TODO: figure out what fonts we actually want to use
 
   --font-sans:    "Public Sans",   var(--font-system-sans);
   --font-display: "Exo 2",         var(--font-system-rounded);

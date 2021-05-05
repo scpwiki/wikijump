@@ -4,12 +4,12 @@
 
 // TODO: determine if this file & folder is a good idea
 
-export declare global {
+declare global {
   /** Represents any function, without using the {@link Function} object. */
   type AnyFunction<R = unknown> = (...args: any) => R
 
   /** Represents the eventual value of a `Promise`. */
-  export type PromiseValue<
+  type PromiseValue<
     PromiseType,
     Otherwise = PromiseType
   > = PromiseType extends Promise<infer Value>
@@ -17,7 +17,7 @@ export declare global {
     : Otherwise
 
   /** All JS primitive values. */
-  type Primitive = string | number | bigint | boolean | symbol | null | undefined
+  type Primitive = string | number | BigInt | boolean | Symbol | null | undefined
 
   /** _Strictly_ represents a `{ 'key': value }` object with only primitives. */
   type PlainObject = Record<string, Primitive>
@@ -33,9 +33,6 @@ export declare global {
 
   /** Matches any valid JSON value. */
   type JSONValue = string | number | boolean | null | JSONObject | JSONArray
-
-  // Fixes import.meta.env for Snowpack
-  interface ImportMeta {
-    env: Record<string, string>
-  }
 }
+
+export {}

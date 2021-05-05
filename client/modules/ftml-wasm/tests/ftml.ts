@@ -152,7 +152,7 @@ FTML("detailedRender", async () => {
   // we're only going to do simple type checks
   assert.type(render.ast.elements, "object")
   assert.type(render.html, "string")
-  assert.type(render.meta[0], "object")
+  assert.type(render.meta![0], "object")
   assert.type(render.preprocessed, "string")
   assert.type(render.style, "string")
   assert.type(render.tokens, "object")

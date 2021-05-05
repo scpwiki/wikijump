@@ -1,12 +1,13 @@
 # -- UTILITY
 
-update: npm i && npm -s run lerna:clean && npm -s run bootstrap && npm -s run build
+update:cmd: npm run lerna:clean && npm run bootstrap && npm run build
+update: npm i && ultra --raw update:cmd
 bootstrap: lerna bootstrap --hoist --loglevel success
 lerna:clean: lerna clean --yes --loglevel success
 
 # -- BUILD
 
-build: lerna run --stream build
+build: ultra --rebuild -r build
 
 # -- TESTING, LINTING
 
@@ -14,6 +15,8 @@ test:
   - trash tests-dist
   - node scripts/build-tests.js
   - uvu ./tests-dist
+
+typecheck: tsc
 
 lint:
   eslint: eslint "./**/*.js" "./**/*.ts"
@@ -25,4 +28,6 @@ lint:fix:
 
 # -- MISC.
 
-dev:dev-sandbox: lerna run --stream dev --scope dev-sandbox
+dev:dev-sandbox: ultra --raw -r --filter "web/dev-sandbox" dev
+
+serve-docs: ultra --raw -r --filter "web/wj-docs" serve

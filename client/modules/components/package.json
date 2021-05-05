@@ -6,10 +6,12 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {},
+  "scripts": {
+    "build": "trash dist && node doc-gen.js"
+  },
   "type": "module",
-  "svelte": "src/index.js",
-  "main": "src/index.js",
+  "svelte": "src/index.ts",
+  "main": "src/index.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git",
@@ -18,7 +20,7 @@
   "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
   "eslintConfig": {
-    "extends": "../.eslintrc.js"
+    "extends": "../../.eslintrc.js"
   },
   "dependencies": {
     "cm-lang-ftml": "^0.0.0",

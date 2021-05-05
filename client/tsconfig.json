@@ -12,7 +12,7 @@
     "resolveJsonModule": true,
     "useDefineForClassFields": true,
     "lib": ["ESNext", "DOM", "WebWorker"],
-    "types": ["misc/types", "svelte"],
+    "types": ["svelte", "vite/client"],
 
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
@@ -31,6 +31,5 @@
       "fast-safe-stringify"
     ]
   },
-
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "misc/templates"]
 }
