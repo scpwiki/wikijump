@@ -23,6 +23,7 @@ final class FtmlRaw
     public static int $META_HTTP_EQUIV;
     public static int $META_PROPERTY;
 
+    public static FFI\CType $C_CHAR;
     public static FFI\CType $C_STRING;
     public static FFI\CType $FTML_PAGE_INFO;
     public static FFI\CType $FTML_HTML_OUTPUT;
@@ -36,6 +37,7 @@ final class FtmlRaw
         self::$META_HTTP_EQUIV = self::$ffi->META_HTTP_EQUIV;
         self::$META_PROPERTY = self::$ffi->META_PROPERTY;
 
+        self::$C_CHAR = self::type('char');
         self::$C_STRING = self::type('char *');
         self::$FTML_PAGE_INFO = self::type('struct ftml_page_info');
         self::$FTML_HTML_OUTPUT = self::type('struct ftml_html_output');
@@ -79,6 +81,26 @@ final class FtmlRaw
     public static function arrayType(FFI\CType $ctype, array $dimensions): FFI\CType {
         return self::$ffi->arrayType($ctype, $dimensions);
     }
+}
+
+/**
+ * Clones a PHP string into a newly-allocated C string.
+ *
+ * The caller is responsible for destroying it with FFI::free()
+ * once they are finished with it.
+ *
+ * @param string $value The string to be cloned
+ * @return FFI\CData The C-string created (char *)
+ */
+function string(string $value): FFI\CData {
+    // Allocate C buffer
+    $length = strlen($value); // gets bytes, not chars
+    $type = FtmlRaw::arrayType(FtmlRaw::C_CHAR, $length + 1);
+    $buffer = self::make($type);
+
+    // Copy string data, add null byte
+    FFI::memcpy($buffer, $value, $length);
+    $buffer[$length] = '\0';
 }
 
 /**
