@@ -172,11 +172,16 @@ final class FtmlRaw
      *
      * This calls the passed destructor function on each element.
      *
-     * @param FFI\CData $pointer The pointer to the allocated array
+     * @param ?FFI\CData $pointer The pointer to the allocated array
      * @param int $length The length of this array, in items
      * @param callable $freeFn The function used to free the item
      */
-    public static function freePointer(FFI\CData $pointer, int $length, callable $freeFn) {
+    public static function freePointer(?FFI\CData $pointer, int $length, callable $freeFn) {
+        if (is_null($pointer)) {
+            // Nothing to free, empty array
+            return;
+        }
+
         for ($i = 0; $i < $length; $i++) {
             $freeFn($pointer[$i]);
         }
