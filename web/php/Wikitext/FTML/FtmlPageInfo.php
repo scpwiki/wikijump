@@ -22,7 +22,7 @@ class FtmlPageInfo
         array $tags,
         string $locale
     ) {
-        $this->c_data = FtmlRaw::make(FtmlRaw::FTML_PAGE_INFO);
+        $this->c_data = FtmlRaw::make(FtmlRaw::$FTML_PAGE_INFO);
         $this->c_data->page = $page;
         $this->c_data->category = $category;
         $this->c_data->site = $site;
