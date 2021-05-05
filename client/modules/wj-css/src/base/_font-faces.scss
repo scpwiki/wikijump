@@ -1,0 +1,102 @@
+// If variable fonts are supported
+@supports (font-variation-settings: normal) {
+  // -- Public Sans
+
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Public Sans";
+    src: url("assets/fonts/variable/PublicSans-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Public Sans";
+    font-style: italic;
+    src: url("assets/fonts/variable/PublicSans-Italic-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
+  // -- Bitter
+
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Bitter";
+    src: url("assets/fonts/variable/Bitter-VariableFont.woff2") format("woff2-variations");
+    font-display: swap;
+  }
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Bitter";
+    font-style: italic;
+    src: url("assets/fonts/variable/Bitter-Italic-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
+  // -- Exo 2
+
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Exo 2";
+    src: url("assets/fonts/variable/Exo2-VariableFont.woff2") format("woff2-variations");
+    font-display: swap;
+  }
+  @font-face {
+    font-weight: 100 900;
+    font-family: "Exo 2";
+    font-style: italic;
+    src: url("assets/fonts/variable/Exo2-Italic-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+}
+
+// -- Sometype Mono
+
+@font-face {
+  font-weight: normal;
+  font-family: "Sometype Mono";
+  src: url("assets/fonts/SometypeMono-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 600;
+  font-family: "Sometype Mono";
+  src: url("assets/fonts/SometypeMono-Medium.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 800;
+  font-family: "Sometype Mono";
+  src: url("assets/fonts/SometypeMono-Bold.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: normal;
+  font-family: "Sometype Mono";
+  font-style: italic;
+  src: url("assets/fonts/SometypeMono-RegularItalic.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 600;
+  font-family: "Sometype Mono";
+  font-style: italic;
+  src: url("assets/fonts/SometypeMono-MediumItalic.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 800;
+  font-family: "Sometype Mono";
+  font-style: italic;
+  src: url("assets/fonts/SometypeMono-BoldItalic.woff2") format("woff2");
+  font-display: swap;
+}
