@@ -60,6 +60,7 @@ pub fn render_image(
                 ctx.html()
                     .img()
                     .attr("src", &[&source_url])
+                    .attr("crossorigin", &[])
                     .attr_map_prepend(attributes, ("class", "image"));
             };
 
