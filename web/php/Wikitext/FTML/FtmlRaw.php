@@ -53,7 +53,7 @@ final class FtmlRaw
 
     public static function renderText(string $wikitext, FtmlPageInfo $page_info): FtmlTextOutput {
         $output = self::make(self::$FTML_TEXT_OUTPUT);
-        self::$ffi->ftml_render_text(FFI::adr($output), $wikitext, $page_info->pointer());
+        self::$ffi->ftml_render_text(FFI::addr($output), $wikitext, $page_info->pointer());
         return new FtmlTextOutput($output);
     }
 
