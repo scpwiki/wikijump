@@ -22,24 +22,24 @@ class FtmlPageInfo
         array $tags,
         string $locale
     ) {
+        $tag_array = FtmlRaw::listToPointer(
+            FtmlRaw::C_STRING,
+            $tags,
+            fn(string $tag) => new FtmlRaw::string($tag),
+        );
+
         $this->c_data = FtmlRaw::make(FtmlRaw::$FTML_PAGE_INFO);
-        $this->c_data->page = $page;
-        $this->c_data->category = $category;
-        $this->c_data->site = $site;
-        $this->c_data->title = $title;
-        $this->c_data->alt_title = $alt_title;
-        $tag_array = listToPointer(FtmlRaw::C_STRING, $tags);
+        $this->c_data->page = FtmlRaw::string($page);
+        $this->c_data->category = FtmlRaw::string($category);
+        $this->c_data->site = FtmlRaw::string($site);
+        $this->c_data->title = FtmlRaw::string($title);
+        $this->c_data->alt_title = FtmlRaw::string($alt_title);
         $this->c_data->tags_list = $tag_array->pointer;
         $this->c_data->tags_len = $tag_array->length;
-        $this->c_data->locale = $locale;
+        $this->c_data->locale = FtmlRaw::string($locale);
     }
 
     public function pointer(): FFI\CData {
         return $this->c_data;
-    }
-
-    function __destruct()
-    {
-        FFI::free($this->c_data->tags_list);
     }
 }
