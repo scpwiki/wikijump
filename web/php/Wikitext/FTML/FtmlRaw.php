@@ -74,14 +74,19 @@ final class FtmlRaw
     /**
      * Allocate a new instance of the given C object.
      *
-     * The object is automatically deallocated once the
-     * PHP garbage collector finds no existing references to it.
+     * You must run FFI::free() on the object when you're done
+     * with it, or you will cause a memory leak.
      *
      * @param FFI\CType $ctype
      * @return FFI\CData
      */
-    public static function make(FFI\CType $ctype): FFI\CData {
-        return self::$ffi->new($ctype, true, false);
+    public static function make(FFI\CType $ctype): ?FFI\CData {
+        // Handle zero-width types
+        if (FFI::sizeof($ctype) === 0) {
+            return null;
+        }
+
+        return FFI::new($ctype, false, false);
     }
 
     /**
@@ -106,7 +111,7 @@ final class FtmlRaw
      * @return FFI\CType
      */
     public static function arrayType(FFI\CType $ctype, array $dimensions): FFI\CType {
-        return self::$ffi->arrayType($ctype, $dimensions);
+        return FFI::arrayType($ctype, $dimensions);
     }
 
     /**
@@ -126,12 +131,12 @@ final class FtmlRaw
 
         // Allocate C buffer
         $length = strlen($value); // gets bytes, not chars
-        $type = FtmlRaw::arrayType(FtmlRaw::C_CHAR, $length + 1);
-        $buffer = FtmlRaw::make($type);
+        $type = self::arrayType(self::$C_CHAR, [$length + 1]);
+        $buffer = self::make($type);
 
         // Copy string data, add null byte
         FFI::memcpy($buffer, $value, $length);
-        $buffer[$length] = '\0';
+        $buffer[$length] = 0;
         return $buffer;
     }
 
@@ -140,13 +145,16 @@ final class FtmlRaw
      * suitable for passing into C FFIs. Applies a transformation
      * to each PHP item to produce the C item.
      *
+     * @param FFI\CType $type The C type of the items in the array
+     * @param array $list The PHP list containing the items
+     * @param callable $convertFn Converts a PHP item to its C equivalent
      * @returns array with keys "pointer" and "length"
      */
     public static function listToPointer(FFI\CType $type, array $list, callable $convertFn): array {
         // Allocate heap array
         $length = count($list);
-        $pointerType = FtmlRaw::arrayType($type, [$length]);
-        $pointer = FtmlRaw::make($pointerType);
+        $pointerType = self::arrayType($type, [$length]);
+        $pointer = self::make($pointerType);
 
         // Copy string elements
         foreach ($list as $index => $item) {
@@ -157,6 +165,23 @@ final class FtmlRaw
             'pointer' => $pointer,
             'length' => $length,
         ];
+    }
+
+    /**
+     * Frees an allocated array as created by listToPointer().
+     *
+     * This calls the passed destructor function on each element.
+     *
+     * @param FFI\CData $pointer The pointer to the allocated array
+     * @param int $length The length of this array, in items
+     * @param callable $freeFn The function used to free the item
+     */
+    public static function freePointer(FFI\CData $pointer, int $length, callable $freeFn) {
+        for ($i = 0; $i < $length; $i++) {
+            $freeFn($pointer[$i]);
+        }
+
+        FFI::free($pointer);
     }
 
     /**

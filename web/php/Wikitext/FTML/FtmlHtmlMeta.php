@@ -19,6 +19,9 @@ class FtmlHtmlMeta
         $this->tagType = self::getTagType($c_data->tag_type);
         $this->name = FFI::string($c_data->name);
         $this->value = FFI::string($c_data->value);
+
+        // Free original C data
+        FFI::free($c_data);
     }
 
     public static function fromArray(FFI\CData $pointer, int $length): array {
@@ -31,11 +34,11 @@ class FtmlHtmlMeta
 
     private static function getTagType(FFI\CData $c_tag): string {
         switch ($c_tag) {
-            case FtmlRaw::META_NAME:
+            case FtmlRaw::$META_NAME:
                 return 'name';
-            case FtmlRaw::META_HTTP_EQUIV:
+            case FtmlRaw::$META_HTTP_EQUIV:
                 return 'http-equiv';
-            case FtmlRaw::META_PROPERTY:
+            case FtmlRaw::$META_PROPERTY:
                 return 'property';
             default:
                 throw new Error("Invalid HTML meta tag type C enum value: $c_tag");

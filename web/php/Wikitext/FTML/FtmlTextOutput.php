@@ -20,5 +20,6 @@ class FtmlTextOutput
 
         // Free original C data
         FtmlRaw::freeTextOutput($c_data);
+        FFI::free($c_data);
     }
 }
