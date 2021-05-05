@@ -66,10 +66,20 @@ final class FtmlRaw
     }
 
     public static function version(): string {
-        return FFI::string(self::$ffi->ftml_version());
+        return self::$ffi->ftml_version();
     }
 
     // FFI utilities
+
+    /**
+     * Allocate a new instance of the given C object.
+     *
+     * The object is automatically deallocated once the
+     * PHP garbage collector finds no existing references to it.
+     *
+     * @param FFI\CType $ctype
+     * @return FFI\CData
+     */
     public static function make(FFI\CType $ctype): FFI\CData {
         return self::$ffi->new($ctype, true, false);
     }
@@ -81,68 +91,68 @@ final class FtmlRaw
     public static function arrayType(FFI\CType $ctype, array $dimensions): FFI\CType {
         return self::$ffi->arrayType($ctype, $dimensions);
     }
-}
 
-/**
- * Clones a PHP string into a newly-allocated C string.
- *
- * The caller is responsible for destroying it with FFI::free()
- * once they are finished with it.
- *
- * @param string $value The string to be cloned
- * @return FFI\CData The C-string created (char *)
- */
-function string(string $value): FFI\CData {
-    // Allocate C buffer
-    $length = strlen($value); // gets bytes, not chars
-    $type = FtmlRaw::arrayType(FtmlRaw::C_CHAR, $length + 1);
-    $buffer = self::make($type);
+    /**
+     * Clones a PHP string into a newly-allocated C string.
+     *
+     * Not to be confused with FFI::string, which converts
+     * a C string into a PHP string.
+     *
+     * @param string $value The string to be cloned
+     * @return FFI\CData The C-string created (char *)
+     */
+    function string(string $value): FFI\CData {
+        // Allocate C buffer
+        $length = strlen($value); // gets bytes, not chars
+        $type = FtmlRaw::arrayType(FtmlRaw::C_CHAR, $length + 1);
+        $buffer = FtmlRaw::make($type);
 
-    // Copy string data, add null byte
-    FFI::memcpy($buffer, $value, $length);
-    $buffer[$length] = '\0';
-}
-
-/**
- * Converts a list in the form of a PHP array into a pointer
- * suitable for passing into C FFIs.
- *
- * All of the objects in the array must already be ready for passing.
- *
- * @returns array with keys "pointer" and "length"
- */
-function listToPointer(FFI\CType $type, array $list): array {
-    // Allocate heap array
-    $length = count($list);
-    $pointerType = FtmlRaw::arrayType($type, [$length]);
-    $pointer = FtmlRaw::make($pointerType);
-
-    // Copy string elements
-    foreach ($list as $index => $item) {
-        $pointer[$index] = $item;
+        // Copy string data, add null byte
+        FFI::memcpy($buffer, $value, $length);
+        $buffer[$length] = '\0';
     }
 
-    return [
-        'pointer' => $pointer,
-        'length' => $length,
-    ];
-}
+    /**
+     * Converts a list in the form of a PHP array into a pointer
+     * suitable for passing into C FFIs.
+     *
+     * All of the objects in the array must already be ready for passing.
+     *
+     * @returns array with keys "pointer" and "length"
+     */
+    function listToPointer(FFI\CType $type, array $list): array {
+        // Allocate heap array
+        $length = count($list);
+        $pointerType = FtmlRaw::arrayType($type, [$length]);
+        $pointer = FtmlRaw::make($pointerType);
 
-/**
- * Converts a C FFI pointer into a PHP array, applying a transformation
- * to each C item to produce the PHP object.
- *
- * @returns array with the converted objects
- */
-function pointerToList(FFI\CData $pointer, int $length, callable $convertFn): array {
-    $list = array();
+        // Copy string elements
+        foreach ($list as $index => $item) {
+            $pointer[$index] = $item;
+        }
 
-    for ($i = 0; $i < $length; $i++) {
-        $item = $convertFn($pointer[$i]);
-        array_push($list, $item);
+        return [
+            'pointer' => $pointer,
+            'length' => $length,
+        ];
     }
 
-    return $list;
+    /**
+     * Converts a C FFI pointer into a PHP array, applying a transformation
+     * to each C item to produce the PHP object.
+     *
+     * @returns array with the converted objects
+     */
+    function pointerToList(FFI\CData $pointer, int $length, callable $convertFn): array {
+        $list = array();
+
+        for ($i = 0; $i < $length; $i++) {
+            $item = $convertFn($pointer[$i]);
+            array_push($list, $item);
+        }
+
+        return $list;
+    }
 }
 
 // Initialize FtmlRaw
