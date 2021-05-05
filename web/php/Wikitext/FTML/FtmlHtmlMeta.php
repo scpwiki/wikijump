@@ -25,14 +25,14 @@ class FtmlHtmlMeta
     }
 
     public static function fromArray(FFI\CData $pointer, int $length): array {
-        return pointerToList(
+        return FtmlRaw::pointerToList(
             $pointer,
             $length,
             fn(FFI\CData $c_data) => new FtmlHtmlMeta($c_data),
         );
     }
 
-    private static function getTagType(FFI\CData $c_tag): string {
+    private static function getTagType(int $c_tag): string {
         switch ($c_tag) {
             case FtmlRaw::$META_NAME:
                 return 'name';
