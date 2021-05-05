@@ -1,6 +1,9 @@
 // prettier-ignore
 :root {
 
+  /// Global variable for tweaking the font size of content.
+  --font-content-size: 0.875;
+
   // --font-system-x (by itself) attempts to use default system fonts.
   // It avoids using fairly ancient fallback fonts, or 'web-safe fonts', like Arial.
   // Instead, this just uses the CSS default rather than force a web-safe font.
@@ -53,6 +56,7 @@
   --font-mono:    "Sometype Mono", var(--font-system-mono);
 }
 
+// Default everything to sans font
 html,
 body {
   font-weight: 400;
@@ -60,60 +64,57 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-@supports (font-variation-settings: normal) {
-  @font-face {
-    font-weight: 100 900;
-    font-family: "Public Sans";
-    src: url("/static/fonts/variable/PublicSans-VariableFont.woff2")
-      format("woff2-variations");
-    font-display: swap;
-  }
-  @font-face {
-    font-weight: 100 900;
-    font-family: "Public Sans";
-    font-style: italic;
-    src: url("/static/fonts/variable/PublicSans-Italic-VariableFont.woff2")
-      format("woff2-variations");
-    font-display: swap;
+// Darker backgrounds tend to make the 'observed weight' of fonts go up.
+.dark {
+  font-weight: 300;
+}
+.light {
+  font-weight: 400;
+}
+
+// Set base font families for elements.
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+code,
+var,
+samp,
+kbd {
+  font-family: var(--font-mono);
+}
+
+// Orderly heading sizes.
+
+// prettier-ignore
+$heading-sizes:
+  "h1" 2.25rem,
+  "h2" 2rem,
+  "h3" 1.75rem,
+  "h4" 1.5rem,
+  "h5" 1.25rem,
+  "h6" 1rem;
+
+@each $heading, $size in $heading-sizes {
+  #{$heading} {
+    font-size: font-size($size);
   }
 }
 
-@font-face {
-  font-weight: normal;
-  font-family: "Sometype Mono";
-  src: url("/static/fonts/SometypeMono-Regular.woff2") format("woff2");
-  font-display: swap;
+// Make `<small>` relative to its header.
+small {
+  font-size: 0.8em;
 }
-@font-face {
-  font-weight: 600;
-  font-family: "Sometype Mono";
-  src: url("/static/fonts/SometypeMono-Medium.woff2") format("woff2");
-  font-display: swap;
-}
-@font-face {
-  font-weight: 800;
-  font-family: "Sometype Mono";
-  src: url("/static/fonts/SometypeMono-Bold.woff2") format("woff2");
-  font-display: swap;
-}
-@font-face {
-  font-weight: normal;
-  font-family: "Sometype Mono";
-  font-style: italic;
-  src: url("/static/fonts/SometypeMono-RegularItalic.woff2") format("woff2");
-  font-display: swap;
-}
-@font-face {
-  font-weight: 600;
-  font-family: "Sometype Mono";
-  font-style: italic;
-  src: url("/static/fonts/SometypeMono-MediumItalic.woff2") format("woff2");
-  font-display: swap;
-}
-@font-face {
-  font-weight: 800;
-  font-family: "Sometype Mono";
-  font-style: italic;
-  src: url("/static/fonts/SometypeMono-BoldItalic.woff2") format("woff2");
-  font-display: swap;
+
+// Makes bold text consistently bolder than surrounding text.
+b,
+strong {
+  font-weight: bolder;
 }
