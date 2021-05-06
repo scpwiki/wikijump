@@ -34,6 +34,8 @@ import { printTree } from "./print-tree"
 import { confinement } from "./theme"
 import { indentHack } from "./extensions/indent-hack"
 
+export * from "./adapters/svelte-disconnect-detect"
+export * from "./adapters/svelte-dom"
 export * from "./adapters/svelte-panel"
 
 interface EditorStore {
