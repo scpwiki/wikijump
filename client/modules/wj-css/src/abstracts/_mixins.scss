@@ -8,6 +8,20 @@
   }
 }
 
+/// Shorthand for a inverted `prefers-reduced-motion` media query.
+@mixin tolerates-motion {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
+// Shorthand for the `prefers-reduced-motion` media query.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion) {
+    @content;
+  }
+}
+
 /// Removes most of the built-in styling for an element.
 @mixin reset {
   color: inherit;
