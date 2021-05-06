@@ -4,10 +4,7 @@ namespace Wikidot\Utils;
 
 use Exception;
 
-class GlobalPropertiesException extends Exception
-{
-
-}
+class GlobalPropertiesException extends Exception {}
 
 /**
  * The Wikijump GlobalProperties Class is used to parse
@@ -96,7 +93,6 @@ class GlobalProperties
     public static $XSENDFILE_HEADER;
 
     // third-party keys
-    public static $FLICKR_API_KEY;
     public static $FR_CAPTCHA_SITE_KEY;
     public static $FR_CAPTCHA_API_KEY;
 
@@ -246,7 +242,6 @@ class GlobalProperties
         self::$XSENDFILE_USE            = $_ENV["WIKIJUMP_XSENDFILE_USE"] ?? self::fromIni("misc", "xsendfile", false);
         self::$XSENDFILE_HEADER         = $_ENV["WIKIJUMP_XSENDFILE_HEADER"] ?? self::fromIni("misc", "xsendfile_header", "X-LIGHTTPD-send-file");
 
-        self::$FLICKR_API_KEY           = $_ENV["WIKIJUMP_FLICKR_API_KEY"] ?? self::fromIni("keys", "flickr", "");
         self::$FR_CAPTCHA_SITE_KEY      = $_ENV["WIKIJUMP_FR_CAPTCHA_SITE_KEY"] ?? self::fromIni("keys", "friendlycaptcha-site-key", "");
         self::$FR_CAPTCHA_API_KEY       = $_ENV["WIKIJUMP_FR_CAPTCHA_API_KEY"] ?? self::fromIni("keys", "friendlycaptcha-api-key", "");
 
