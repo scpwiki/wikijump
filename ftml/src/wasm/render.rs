@@ -53,7 +53,7 @@ export interface IPageInfo {
     alt_title: string | null;
     rating: number;
     tags: string[];
-    locale: string;
+    language: string;
 }
 
 "#;
@@ -139,8 +139,8 @@ impl PageInfo {
     }
 
     #[wasm_bindgen(method, getter)]
-    pub fn locale(&self) -> String {
-        self.inner.locale.to_string()
+    pub fn language(&self) -> String {
+        self.inner.language.to_string()
     }
 }
 

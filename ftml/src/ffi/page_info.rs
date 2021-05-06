@@ -32,7 +32,7 @@ pub struct ftml_page_info {
     pub rating: f32,
     pub tags_list: *const *const c_char,
     pub tags_len: usize,
-    pub locale: *const c_char,
+    pub language: *const c_char,
 }
 
 impl ftml_page_info {
@@ -50,7 +50,7 @@ impl ftml_page_info {
             alt_title: cstr_to_cow_optional(self.alt_title),
             rating: self.rating,
             tags: rust_tags,
-            locale: cstr_to_cow(self.locale),
+            language: cstr_to_cow(self.language),
         }
     }
 }
