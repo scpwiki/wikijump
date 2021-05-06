@@ -14,6 +14,7 @@ use \FFI;
 final class FtmlFfi
 {
     const HEADER = '/usr/local/include/ftml.h';
+    const LIBRARY = '/usr/local/lib/libftml.so';
 
     // Singleton management
     private static FFI $ffi;
@@ -30,7 +31,14 @@ final class FtmlFfi
     public static FFI\CType $FTML_TEXT_OUTPUT;
 
     public static function _init() {
-        self::$ffi = FFI::load(self::HEADER);
+        // Load FFI environment.
+        //
+        // I tried using FFI::load() but had issues with symbol resolution.
+        // Ideally this would be done in the preloader, so we can set ffi.enabled=preload,
+        // however I was not able to get this to work.
+        // See https://scuttle.atlassian.net/browse/WJ-504
+        $header = file_get_contents(self::HEADER);
+        self::$ffi = FFI::cdef($header, self::LIBRARY);
 
         // Create constants
         self::$META_NAME = self::$ffi->META_NAME;
