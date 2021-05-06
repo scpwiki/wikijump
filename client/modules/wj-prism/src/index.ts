@@ -31,7 +31,6 @@ const RAW_LANGS = ["raw", "text", "none", ""]
  */
 export function highlight(code: string, lang: string) {
   try {
-    // check if the user is actually wanting any highlighting
     if (lang && !RAW_LANGS.includes(lang) && lang in Prism.languages) {
       const grammar = Prism.languages[lang]
       const html = Prism.highlight(code, grammar, lang)
