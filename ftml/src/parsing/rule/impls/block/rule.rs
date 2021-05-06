@@ -28,7 +28,7 @@ pub const RULE_BLOCK: Rule = Rule {
 
 pub const RULE_BLOCK_STAR: Rule = Rule {
     name: "block-star",
-    try_consume_fn: block_special,
+    try_consume_fn: block_star,
 };
 
 pub const RULE_BLOCK_SKIP: Rule = Rule {
@@ -47,11 +47,11 @@ fn block_regular<'r, 't>(
     parse_block(log, parser, false)
 }
 
-fn block_special<'r, 't>(
+fn block_star<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    trace!(log, "Trying to process a block (with special)");
+    trace!(log, "Trying to process a block (with star flag)");
 
     parse_block(log, parser, true)
 }
