@@ -143,12 +143,12 @@ where
 
     // Check if this block allows star invocation (the '[[*' token)
     if !block.accepts_star && flag_star {
-        return Err(parser.make_warn(ParseWarningKind::InvalidSpecialBlock));
+        return Err(parser.make_warn(ParseWarningKind::BlockDisallowsStar));
     }
 
     // Check if this block allows score invocation ('_' after name)
     if !block.accepts_score && flag_score {
-        return Err(parser.make_warn(ParseWarningKind::InvalidModifierBlock));
+        return Err(parser.make_warn(ParseWarningKind::BlockDisallowsScore));
     }
 
     parser.get_optional_space()?;

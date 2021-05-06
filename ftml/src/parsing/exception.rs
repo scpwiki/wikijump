@@ -152,11 +152,11 @@ pub enum ParseWarningKind {
     /// There is no rule for the block name specified.
     NoSuchBlock,
 
-    /// This block does not allow special invocation.
-    InvalidSpecialBlock,
+    /// This block does not allow star (`*`) invocation.
+    BlockDisallowsStar,
 
-    /// This block does not allow modifier invocation.
-    InvalidModifierBlock,
+    /// This block does not allow score (`_`) invocation.
+    BlockDisallowsScore,
 
     /// This block does not specify a name.
     BlockMissingName,
