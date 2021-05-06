@@ -5,7 +5,7 @@
 # The ftml (Foundation Text Markup Language) service provides
 # parsing and rendering of wikitext.
 ftml                                @ammongit
-web/php/Wikitext                    @ammongit
+web/app/Services/Wikitext           @ammongit
 
 # Frontend monorepo
 client                              @Monkatraz @rossjrw
