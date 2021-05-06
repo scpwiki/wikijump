@@ -119,7 +119,11 @@ where
     );
 
     // Set general rule based on presence of star flag
-    parser.set_rule(if flag_star { RULE_BLOCK_STAR } else { RULE_BLOCK });
+    parser.set_rule(if flag_star {
+        RULE_BLOCK_STAR
+    } else {
+        RULE_BLOCK
+    });
 
     // Get block name
     parser.get_optional_space()?;
