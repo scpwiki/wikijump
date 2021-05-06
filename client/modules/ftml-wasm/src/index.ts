@@ -55,7 +55,7 @@ export type PageInfo = Partial<Binding.IPageInfo>
 function makeInfo({
   alt_title = null,
   category = null,
-  locale = "C",
+  language = "C",
   rating = 0,
   page = "unknown",
   site = "www",
@@ -65,7 +65,7 @@ function makeInfo({
   return new Binding.PageInfo({
     alt_title,
     category,
-    locale,
+    language,
     rating,
     page,
     site,
