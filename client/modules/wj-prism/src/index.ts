@@ -2,7 +2,10 @@ import "../vendor/prism"
 
 // Re-export a reference to Prism so that there is actually a half-decent
 // way of accessing it
-/** Reference to the Prism syntax highlighter. */
+/**
+ * Reference to the Prism syntax highlighter.
+ * @external
+ */
 export const Prism: typeof import("prismjs") = globalThis.Prism
 
 // HTML escape function taken from Svelte
