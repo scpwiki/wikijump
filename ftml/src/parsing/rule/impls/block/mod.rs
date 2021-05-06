@@ -129,7 +129,8 @@ impl Debug for BlockRule {
 /// * `log` -- `Logger` instance
 /// * `parser` -- `Parser` instance
 /// * `name` -- The name of the block
-/// * `special` -- Whether this block is `[[*` (special) or `[[` (regular)
+/// * `flag_star` -- Whether this block is has the star flag (`*`).
+/// * `flag_score` -- Whether this block has the score flag (`_`).
 /// * `in_head` -- Whether we're still in the block head, or if it's finished
 pub type BlockParseFn = for<'r, 't> fn(
     &Logger,
