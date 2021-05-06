@@ -61,3 +61,25 @@
     content: "[End of " + $text + ".]";
   }
 }
+
+/// Make an object appear higher or lower using shadows.
+///
+/// @param $height Shadow size, roughly in pixels. Multiples of two are good values.
+/// @param $boost Shadow darkness multiplier.
+@mixin shadow($height: 1, $boost: 1) {
+  $boost: ($boost * ($height / 8));
+
+  $one: #{$height * 0.075}px;
+  $two: #{$height * 0.5}px;
+  $three: #{$height}px;
+
+  @if $height != 0 {
+    // this black magic is mostly inspired by how the Google Material libraries do it
+    // prettier-ignore
+    box-shadow:
+      0 $two $three 0 rgba(black, 0.5 * $boost),
+      0 0 0 $one (rgba(black, 0.1 * $boost));
+  } @else if $height == 0 {
+    box-shadow: none;
+  }
+}

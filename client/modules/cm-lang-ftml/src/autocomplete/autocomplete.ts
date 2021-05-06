@@ -5,9 +5,9 @@ import type {
   CompletionContext,
   CompletionResult
 } from "@codemirror/autocomplete"
-import { blocks } from "./data/blocks"
+import { blocks } from "../data/blocks"
 import { EditorSvelteComponent } from "sheaf-core"
-import AutocompleteTip from "./AutocompleteTip.svelte"
+import AutocompleteTip from "./BlockTip.svelte"
 
 const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
   ([name, block]) => {

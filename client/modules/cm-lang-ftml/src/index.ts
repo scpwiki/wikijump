@@ -3,7 +3,7 @@ import { foldNodeProp } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
 import { TarnationLanguage, lb, re, lkup } from "cm-tarnation"
 import { FTMLLinter } from "./lint"
-import { completeFTML } from "./autocomplete"
+import { completeFTML } from "./autocomplete/autocomplete"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
 
 export type { BlockConfiguration, Block2, Attribute2 } from "./data/types"

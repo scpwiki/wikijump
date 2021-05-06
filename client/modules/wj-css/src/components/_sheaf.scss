@@ -54,6 +54,7 @@
     border: 1px solid var(--colcode-border);
   }
 
+  &.cm-focused ::selection,
   ::selection {
     background-color: var(--colcode-selection);
     color: var(--colcode-content);
@@ -70,7 +71,8 @@
     background-color: var(--colcode-hover);
   }
 
-  .cm-selectionBackground {
+  .cm-selectionBackground,
+  &.cm-focused .cm-selectionBackground {
     background-color: var(--colcode-selection);
   }
 
@@ -117,6 +119,8 @@
 .cm-editor .cm-tooltip {
   border: 1px solid var(--colcode-border);
   background-color: var(--colcode-background);
+  border-radius: 0.25rem;
+  @include shadow(4);
 
   @include tolerates-motion {
     animation: cm-tooltip-fadein 0.125s 1 0s backwards ease-out;
@@ -135,17 +139,20 @@
     opacity: 1;
   }
 
-  .cm-tooltip-autocomplete {
+  &.cm-tooltip-autocomplete {
     animation: none;
 
-    & > ul > li {
+    > ul {
       font-family: var(--sheaf-font);
       font-size: 0.875em;
       color: var(--colcode-content);
 
-      &[aria-selected] {
-        background-color: var(--colcode-selection);
-        color: var(--colcode-content);
+      > li {
+        line-height: 1.5;
+        &[aria-selected] {
+          background-color: var(--colcode-selection);
+          color: var(--colcode-content);
+        }
       }
     }
   }

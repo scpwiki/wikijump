@@ -1,8 +1,8 @@
 <!--
-  @component Autocomplete tooltip for FTML elements.
+  @component Autocomplete tooltip for FTML blocks.
 -->
 <script lang="ts">
-  import type { Block2 } from "./data/types"
+  import type { Block2 } from "../data/types"
   import type { EditorSvelteComponentProps } from "sheaf-core"
   import * as Prism from "wj-prism"
 
@@ -14,13 +14,14 @@
   const aliases = Array.from(new Set([name, ...(block.aliases ?? [])]))
   const [outputType, outputTag, outputClass] = block["html-output"].split(",")
 
-  const codeString =
+  let codeString =
     outputType === "html"
-      ? Prism.highlight(
-          outputClass ? `<${outputTag} class="${outputClass}">` : `<${outputTag}>`,
-          "html"
-        )
-      : Prism.highlight(`type: ${outputType}`, "log")
+      ? outputClass
+        ? `<${outputTag} class="${outputClass}">`
+        : `<${outputTag}>`
+      : `type: ${outputType}`
+
+  codeString = Prism.highlight(codeString, outputType === "html" ? "html" : "log")
 </script>
 
 <div class="cm-ftml-block-tip">
