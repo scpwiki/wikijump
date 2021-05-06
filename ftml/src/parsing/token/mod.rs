@@ -207,11 +207,11 @@ impl Token {
             Rule::right_comment => Token::RightComment,
             Rule::left_bracket => Token::LeftBracket,
             Rule::left_bracket_anchor => Token::LeftBracketAnchor,
-            Rule::left_bracket_special => Token::LeftBracketStar,
+            Rule::left_bracket_star => Token::LeftBracketStar,
             Rule::right_bracket => Token::RightBracket,
             Rule::left_block => Token::LeftBlock,
             Rule::left_block_end => Token::LeftBlockEnd,
-            Rule::left_block_special => Token::LeftBlockStar,
+            Rule::left_block_star => Token::LeftBlockStar,
             Rule::right_block => Token::RightBlock,
             Rule::color => Token::Color,
             Rule::double_dash => Token::DoubleDash,
@@ -250,7 +250,7 @@ impl Token {
 
             // Links
             Rule::left_link => Token::LeftLink,
-            Rule::left_link_special => Token::LeftLinkStar,
+            Rule::left_link_star => Token::LeftLinkStar,
             Rule::right_link => Token::RightLink,
 
             // Tables
