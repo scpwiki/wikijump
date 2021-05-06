@@ -1,35 +1,47 @@
 import { Extension, StateEffect, StateEffectType, StateField } from "@codemirror/state"
 import { Panel, showPanel } from "@codemirror/panel"
 import type { SvelteComponent } from "svelte"
-import type { EditorView, ViewUpdate } from "@codemirror/view"
+import type { EditorView } from "@codemirror/view"
+import { EditorSvelteDOM, EditorSvelteDOMProps } from "./svelte-dom"
 
-export type { EditorView, ViewUpdate }
+/**
+ * The props provided to a {@link EditorSveltePanel} component.
+ * @see {@link EditorSveltePanel}
+ */
+export interface EditorSveltePanelProps extends EditorSvelteDOMProps {
+  /** Calls `$destroy()` on the component and then unmounts the panel. */
+  unmount: () => void
+}
 
+/**
+ * A panel that uses a Svelte component to render its contents.
+ *
+ * The component is provided with three props:
+ * * `view`
+ * * `update`
+ * * `unmount`
+ *
+ * You can see the types of these props in the {@link EditorSveltePanelProps} interface.
+ * @see {@link EditorSveltePanelProps}
+ */
 export class EditorSveltePanel {
-  declare name: string
+  /**
+   * Extension that mounts the panel to the editor.
+   * You don't really need to use this property - any object with the `extension`
+   * property is a valid CodeMirror extension entrypoint.
+   */
   declare extension: Extension
 
   private declare panelEffect: StateEffectType<boolean>
   private declare panelState: StateField<boolean>
+  private declare handler: EditorSvelteDOM
 
-  constructor(
-    name: string,
-    public component: typeof SvelteComponent,
-    public top = false
-  ) {
-    // create a custom element that can be used to detect when the panel is destroyed
-    this.name = `svelte-cm-${name}`
-    if (!customElements.get(name)) {
-      customElements.define(
-        name,
-        class extends HTMLElement {
-          disconnectedCallback() {
-            this.dispatchEvent(new CustomEvent("disconnected"))
-          }
-        }
-      )
-    }
-
+  /**
+   * @param component The Svelte component the panel will mount with.
+   * @param top If true, the panel will be mounted on the top of the editor.
+   */
+  constructor(public component: typeof SvelteComponent, public top = false) {
+    this.handler = new EditorSvelteDOM(component)
     const create = this.create.bind(this)
     const panelEffect = (this.panelEffect = StateEffect.define<boolean>())
     this.panelState = StateField.define<boolean>({
@@ -46,37 +58,23 @@ export class EditorSveltePanel {
     this.extension = [this.panelState]
   }
 
+  /**
+   * Creates the Svelte component and DOM container element
+   * and returns the CodeMirror panel instance.
+   */
   private create(view: EditorView): Panel {
-    const dom = document.createElement(this.name)
-    let component!: SvelteComponent
-
-    const mount = () => {
-      const unmount = () => {
-        component.$destroy()
-        this.toggle(view, false)
-      }
-      dom.addEventListener("disconnected", () => component.$destroy())
-      component = new this.component({
-        target: dom,
-        intro: true,
-        props: { view, unmount, update: undefined }
-      })
-    }
-
-    const update = (update: ViewUpdate) => {
-      if (!component) return
-      const view = update.view
-      component.$set({ view, update })
-    }
-
-    return { dom, mount, update, top: this.top }
+    const instance = this.handler.create(view, () => this.toggle(view, false))
+    return { ...instance, top: this.top }
   }
 
+  /**
+   * Toggle, or directly set, the panel's state (whether or not it is mounted).
+   *
+   * @param view The {@link EditorView} that the panel is attached to.
+   * @param state Forces the panel to either mount or unmount.
+   */
   toggle(view: EditorView, state?: boolean) {
     if (state === undefined) state = !view.state.field(this.panelState)
-    const effect = this.panelEffect
-    view.dispatch({
-      effects: effect.of(state)
-    })
+    view.dispatch({ effects: this.panelEffect.of(state) })
   }
 }

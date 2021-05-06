@@ -23,7 +23,7 @@
 
   const Editor = new SheafCore()
 
-  const PerfPanel = new EditorSveltePanel("performance-panel", SheafPanel, true)
+  const PerfPanel = new EditorSveltePanel(SheafPanel, true)
 
   $: if ($Editor.value) {
     const report = perfy("ftml-perf", 5)
