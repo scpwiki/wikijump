@@ -2,8 +2,8 @@ services:
   php-fpm:
     volumes:
       - type: bind
-        source: ../../../ftml
-        target: /var/www/wikijump/web/ftml
+        source: ../../../web/app
+        target: /var/www/wikijump/web/app
         read_only: true
       - type: bind
         source: ../../../web/lib

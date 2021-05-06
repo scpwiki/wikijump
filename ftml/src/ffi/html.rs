@@ -104,5 +104,8 @@ pub unsafe extern "C" fn ftml_destroy_html_output(ptr: *mut ftml_html_output) {
 
     drop_cstr(this.html);
     drop_cstr(this.style);
-    drop_cptr(this.meta_list, this.meta_len);
+    drop_cptr(this.meta_list, this.meta_len, |item| {
+        drop_cstr(item.name);
+        drop_cstr(item.value);
+    });
 }
