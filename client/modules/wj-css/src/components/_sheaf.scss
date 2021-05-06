@@ -167,12 +167,14 @@
 }
 
 .cm-editor .cm-panel {
-  .cm-panel-lint ul {
+  &.cm-panel-lint ul {
     max-height: 16rem;
     outline: none;
     padding-right: 0.5rem;
 
-    &:focus [aria-selected] {
+    // use duplicate selector so we get more specificity
+    // the CodeMirror base theme overrides otherwise
+    &:focus [aria-selected][aria-selected] {
       background-color: var(--colcode-accent);
     }
 
