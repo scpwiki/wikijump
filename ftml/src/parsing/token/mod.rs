@@ -55,11 +55,11 @@ pub enum Token {
     //
     LeftBracket,
     LeftBracketAnchor,
-    LeftBracketSpecial,
+    LeftBracketStar,
     RightBracket,
     LeftBlock,
     LeftBlockEnd,
-    LeftBlockSpecial,
+    LeftBlockStar,
     RightBlock,
     DoubleDash,
     TripleDash,
@@ -106,7 +106,7 @@ pub enum Token {
     // Links
     //
     LeftLink,
-    LeftLinkSpecial,
+    LeftLinkStar,
     RightLink,
 
     //
@@ -207,11 +207,11 @@ impl Token {
             Rule::right_comment => Token::RightComment,
             Rule::left_bracket => Token::LeftBracket,
             Rule::left_bracket_anchor => Token::LeftBracketAnchor,
-            Rule::left_bracket_special => Token::LeftBracketSpecial,
+            Rule::left_bracket_special => Token::LeftBracketStar,
             Rule::right_bracket => Token::RightBracket,
             Rule::left_block => Token::LeftBlock,
             Rule::left_block_end => Token::LeftBlockEnd,
-            Rule::left_block_special => Token::LeftBlockSpecial,
+            Rule::left_block_special => Token::LeftBlockStar,
             Rule::right_block => Token::RightBlock,
             Rule::color => Token::Color,
             Rule::double_dash => Token::DoubleDash,
@@ -250,7 +250,7 @@ impl Token {
 
             // Links
             Rule::left_link => Token::LeftLink,
-            Rule::left_link_special => Token::LeftLinkSpecial,
+            Rule::left_link_special => Token::LeftLinkStar,
             Rule::right_link => Token::RightLink,
 
             // Tables

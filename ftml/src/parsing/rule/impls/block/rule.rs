@@ -76,7 +76,7 @@ fn block_skip<'r, 't>(
     // See if there's a block upcoming
     let result = parser.evaluate_fn(|parser| {
         // Make sure this is the start of a block
-        if ![Token::LeftBlock, Token::LeftBlockSpecial].contains(&current.token) {
+        if ![Token::LeftBlock, Token::LeftBlockStar].contains(&current.token) {
             return Ok(false);
         }
 

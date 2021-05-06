@@ -36,11 +36,11 @@ lazy_static! {
             // Symbols
             Token::LeftBracket => vec![RULE_LINK_SINGLE, RULE_TEXT],
             Token::LeftBracketAnchor => vec![RULE_LINK_ANCHOR],
-            Token::LeftBracketSpecial => vec![RULE_LINK_SINGLE_NEW_TAB],
+            Token::LeftBracketStar => vec![RULE_LINK_SINGLE_NEW_TAB],
             Token::RightBracket => vec![RULE_TEXT],
             Token::LeftBlock => vec![RULE_BLOCK],
             Token::LeftBlockEnd => vec![],
-            Token::LeftBlockSpecial => vec![RULE_BLOCK_STAR],
+            Token::LeftBlockStar => vec![RULE_BLOCK_STAR],
             Token::RightBlock => vec![],
             Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_DASH],
             Token::TripleDash => vec![RULE_HORIZONTAL_RULE],
@@ -77,7 +77,7 @@ lazy_static! {
 
             // Links
             Token::LeftLink => vec![RULE_LINK_TRIPLE],
-            Token::LeftLinkSpecial => vec![RULE_LINK_TRIPLE_NEW_TAB],
+            Token::LeftLinkStar => vec![RULE_LINK_TRIPLE_NEW_TAB],
             Token::RightLink => vec![],
 
             // Tables

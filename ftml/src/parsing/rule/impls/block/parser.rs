@@ -115,7 +115,7 @@ where
         debug!(&self.log(), "Looking for identifier");
 
         if special {
-            self.get_optional_token(Token::LeftBlockSpecial)?;
+            self.get_optional_token(Token::LeftBlockStar)?;
         } else {
             self.get_optional_token(Token::LeftBlock)?;
         }
