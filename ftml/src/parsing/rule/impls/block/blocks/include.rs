@@ -42,14 +42,14 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Found invalid include block"; "in-head" => in_head);
 
-    assert!(!special, "Include doesn't allow special variant");
-    assert!(!modifier, "Include doesn't allow modifier variant");
+    assert!(!flag_star, "Include doesn't allow star flag");
+    assert!(!flag_score, "Include doesn't allow score flag");
     assert_block_name(&BLOCK_INCLUDE, name);
 
     // Includes are handled specially, so we should never actually be

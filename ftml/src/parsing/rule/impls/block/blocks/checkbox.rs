@@ -33,8 +33,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -42,17 +42,17 @@ fn parse_fn<'r, 't>(
         "Parsing checkbox block";
         "in-head" => in_head,
         "name" => name,
-        "special" => special,
+        "star" => flag_star,
     );
 
-    assert!(!modifier, "Checkbox doesn't allow modifier variant");
+    assert!(!flag_score, "Checkbox doesn't allow score flag");
     assert_block_name(&BLOCK_CHECKBOX, name);
 
     let arguments = parser.get_head_map(&BLOCK_CHECKBOX, in_head)?;
     parser.get_optional_space()?;
 
     let element = Element::CheckBox {
-        checked: special,
+        checked: flag_star,
         attributes: arguments.to_hash_map(),
     };
 

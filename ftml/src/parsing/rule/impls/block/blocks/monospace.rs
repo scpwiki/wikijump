@@ -33,8 +33,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -44,8 +44,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert!(!special, "Monospace doesn't allow special variant");
-    assert!(!modifier, "Monospace doesn't allow modifier variant");
+    assert!(!flag_star, "Monospace doesn't allow star flag");
+    assert!(!flag_score, "Monospace doesn't allow score flag");
     assert_block_name(&BLOCK_MONOSPACE, name);
 
     let arguments = parser.get_head_map(&BLOCK_MONOSPACE, in_head)?;

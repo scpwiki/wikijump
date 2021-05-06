@@ -33,8 +33,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -42,10 +42,10 @@ fn parse_fn<'r, 't>(
         "Parsing radio button block";
         "in-head" => in_head,
         "name" => name,
-        "special" => special,
+        "star" => flag_star,
     );
 
-    assert!(!modifier, "Radio buttons don't allow modifier variant");
+    assert!(!flag_score, "Radio buttons don't allow score flag");
     assert_block_name(&BLOCK_RADIO, name);
 
     let (name, arguments) = parser.get_head_name_map(&BLOCK_RADIO, in_head)?;
@@ -53,7 +53,7 @@ fn parse_fn<'r, 't>(
 
     let element = Element::RadioButton {
         name: cow!(name),
-        checked: special,
+        checked: flag_star,
         attributes: arguments.to_hash_map(),
     };
 

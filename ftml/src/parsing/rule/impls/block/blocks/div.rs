@@ -33,8 +33,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -44,14 +44,14 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert!(!special, "Div doesn't allow special variant");
+    assert!(!flag_star, "Div doesn't allow star flag");
     assert_block_name(&BLOCK_DIV, name);
 
     let arguments = parser.get_head_map(&BLOCK_DIV, in_head)?;
 
     // "div" means we wrap in paragraphs, like normal
     // "div_" means we don't wrap it
-    let wrap_paragraphs = !modifier;
+    let wrap_paragraphs = !flag_score;
 
     // Get body content, based on whether we want paragraphs or not.
     // Discard paragraph_safe, since divs never are.

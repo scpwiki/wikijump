@@ -42,8 +42,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    _special: bool,
-    _modifier: bool,
+    _flag_star: bool,
+    _flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing later block (easter egg)"; "in-head" => in_head);

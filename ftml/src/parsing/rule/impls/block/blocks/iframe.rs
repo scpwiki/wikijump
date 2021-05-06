@@ -33,14 +33,14 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing iframe block"; "in-head" => in_head);
 
-    assert!(!special, "iframe doesn't allow special variant");
-    assert!(!modifier, "iframe doesn't allow modifier variant");
+    assert!(!flag_star, "iframe doesn't allow star flag");
+    assert!(!flag_score, "iframe doesn't allow score flag");
     assert_block_name(&BLOCK_IFRAME, name);
 
     let (url, arguments) = parser.get_head_name_map(&BLOCK_IFRAME, in_head)?;

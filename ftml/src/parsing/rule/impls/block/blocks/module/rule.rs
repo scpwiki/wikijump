@@ -34,14 +34,14 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing module block"; "in-head" => in_head);
 
-    assert!(!special, "Module doesn't allow special variant");
-    assert!(!modifier, "Module doesn't allow modifier variant");
+    assert!(!flag_star, "Module doesn't allow star flag");
+    assert!(!flag_score, "Module doesn't allow score flag");
     assert_block_name(&BLOCK_MODULE, name);
 
     // Get module name and arguments

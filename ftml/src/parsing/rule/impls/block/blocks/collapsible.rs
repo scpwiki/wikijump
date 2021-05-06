@@ -34,8 +34,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -44,8 +44,8 @@ fn parse_fn<'r, 't>(
         "in-head" => in_head,
     );
 
-    assert!(!special, "Collapsible doesn't allow special variant");
-    assert!(!modifier, "Collapsible doesn't allow modifier variant");
+    assert!(!flag_star, "Collapsible doesn't allow star flag");
+    assert!(!flag_score, "Collapsible doesn't allow score flag");
     assert_block_name(&BLOCK_COLLAPSIBLE, name);
 
     let mut arguments = parser.get_head_map(&BLOCK_COLLAPSIBLE, in_head)?;

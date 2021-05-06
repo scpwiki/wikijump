@@ -34,8 +34,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -45,8 +45,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert!(!special, "Image doesn't allow special variant");
-    assert!(!modifier, "Image doesn't allow modifier variant");
+    assert!(!flag_star, "Image doesn't allow star flag");
+    assert!(!flag_score, "Image doesn't allow score flag");
     assert_block_name(&BLOCK_IMAGE, name);
 
     let (source, mut arguments) = parser.get_head_name_map(&BLOCK_IMAGE, in_head)?;

@@ -33,14 +33,14 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing CSS block"; "in-head" => in_head);
 
-    assert!(!special, "CSS doesn't allow special variant");
-    assert!(!modifier, "CSS doesn't allow modifier variant");
+    assert!(!flag_star, "CSS doesn't allow star flag");
+    assert!(!flag_score, "CSS doesn't allow score flag");
     assert_block_name(&BLOCK_CSS, name);
 
     parser.get_head_none(&BLOCK_CSS, in_head)?;

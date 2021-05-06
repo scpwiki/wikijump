@@ -110,11 +110,11 @@ where
 
     pub fn get_block_name(
         &mut self,
-        special: bool,
+        flag_star: bool,
     ) -> Result<(&'t str, bool), ParseWarning> {
         debug!(&self.log(), "Looking for identifier");
 
-        if special {
+        if flag_star {
             self.get_optional_token(Token::LeftBlockStar)?;
         } else {
             self.get_optional_token(Token::LeftBlock)?;
@@ -196,7 +196,7 @@ where
             // since it's just more text
             let name = parser.get_end_block()?;
 
-            // Remove underscore for modifier
+            // Remove underscore for score flag
             let name = name.strip_suffix('_').unwrap_or(name);
 
             // Check if it's valid
