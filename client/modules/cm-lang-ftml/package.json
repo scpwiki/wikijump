@@ -24,11 +24,12 @@
     "@codemirror/highlight": "^0.18.3",
     "@codemirror/language": "^0.18.1",
     "@codemirror/language-data": "^0.18.0",
-    "@codemirror/state": "^0.18.7",
     "@codemirror/lint": "^0.18.2",
+    "@codemirror/state": "^0.18.7",
     "cm-tarnation": "^0.0.0",
     "ftml-wasm-worker": "^0.0.0",
     "lezer-tree": "^0.13.2",
+    "wj-prism": "^0.0.0",
     "wj-util": "^1.0.0"
   }
 }

@@ -6,8 +6,8 @@ import type {
   CompletionResult
 } from "@codemirror/autocomplete"
 import { blocks } from "./data/blocks"
-import { htmlAttributes } from "./data/html-attributes"
 import { html } from "wj-util"
+import * as Prism from "wj-prism"
 
 const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
   ([name, block]) => {
@@ -15,12 +15,13 @@ const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
     const aliases = Array.from(new Set([name, ...(block.aliases ?? [])]))
 
     const [outputType, outputTag, outputClass] = block["html-output"].split(",")
-    const codeString =
+    let codeString =
       outputType === "html"
-        ? outputClass
-          ? `&lt;${outputTag} class="${outputClass}"&gt;`
-          : `&lt;${outputTag}&gt;`
-        : `type: ${outputType}`
+        ? Prism.highlight(
+            outputClass ? `<${outputTag} class="${outputClass}">` : `<${outputTag}>`,
+            "html"
+          )
+        : Prism.highlight(`type: ${outputType}`, "log")
 
     const node = html/*html*/ `
       <div>

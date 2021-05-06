@@ -303,7 +303,7 @@ const domParser = new DOMParser()
 
 /** Takes a string of HTML and creates a {@link DocumentFragment}. */
 export function toFragment(html: string) {
-  const parsed = domParser.parseFromString(html, "text/xml")
+  const parsed = domParser.parseFromString(html, "text/html")
   const fragment = document.createDocumentFragment()
   fragment.append(parsed.documentElement)
   return fragment
