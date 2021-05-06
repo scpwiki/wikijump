@@ -43,7 +43,7 @@
             "kind": "block-missing-name"
         },
         {
-            "token": "left-block-special",
+            "token": "left-block-star",
             "rule": "fallback",
             "span": [0, 3],
             "kind": "no-rules-match"
