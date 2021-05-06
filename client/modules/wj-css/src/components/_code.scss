@@ -1,0 +1,138 @@
+// -- CODE BLOCKS
+
+pre.code {
+  position: relative;
+  font-size: font-size(1rem);
+  white-space: pre;
+  text-align: start;
+  word-wrap: normal;
+  word-break: normal;
+  tab-size: 4;
+  hyphens: none;
+  line-height: 1.5;
+  contain: content;
+
+  // make font smaller on narrow screens
+  @include media("<=narrow") {
+    font-size: font-size(0.875rem);
+  }
+
+  > code {
+    display: block;
+    padding: 1rem, 0.5rem;
+    overflow-x: auto;
+  }
+}
+
+// -- TOKEN COLORS
+
+.code-token {
+  &.code-block-comment,
+  &.code-cdata,
+  &.code-comment,
+  &.code-doctype,
+  &.code-prolog {
+    color: var(--colcode-comment);
+  }
+
+  &.code-punctuation {
+    color: var(--colcode-punct);
+  }
+
+  &.code-variable,
+  &.code-parameter {
+    color: var(--colcode-ident);
+  }
+
+  &.code-deleted {
+    color: var(--colcode-invalid);
+  }
+
+  &.code-inserted {
+    color: var(--colcode-inserted);
+  }
+
+  &.code-function,
+  &.code-function-name,
+  &.code-attr-id {
+    color: var(--colcode-function);
+  }
+
+  &.code-property {
+    color: var(--colcode-property);
+  }
+
+  &.code-tag {
+    color: var(--colcode-tag);
+  }
+
+  &.code-attr-name,
+  &.code-attr-value,
+  &.code-selector {
+    color: var(--colcode-attribute);
+  }
+
+  &.code-boolean,
+  &.code-number,
+  &.code-constant,
+  &.code-symbol,
+  &.code-unit {
+    color: var(--colcode-constant);
+  }
+
+  &.code-keyword,
+  &.code-atrule,
+  &.code-important {
+    color: var(--colcode-keyword);
+  }
+
+  &.code-char,
+  &.code-string {
+    color: var(--colcode-string);
+  }
+
+  &.code-builtin,
+  &.code-generic,
+  &.code-class-name {
+    color: var(--colcode-type);
+  }
+
+  &.code-url {
+    color: var(--colcode-link);
+  }
+
+  &.code-namespace,
+  &.code-entity {
+    color: var(--colcode-entity);
+  }
+
+  &.code-regex,
+  &.code-operator {
+    color: var(--colcode-operator);
+  }
+
+  &.code-keyword-this,
+  &.code-keyword-self {
+    color: var(--colcode-special);
+  }
+
+  &.code-keyword-public,
+  &.code-keyword-private,
+  &.code-keyword-readonly,
+  &.code-keyword-const,
+  &.code-keyword-let,
+  &.code-keyword-var,
+  &.code-keyword-new,
+  &.code-keyword-type {
+    color: var(--colcode-storage);
+  }
+
+  &.code-bold,
+  &.code-important {
+    font-weight: bold;
+  }
+
+  &.code-italic {
+    font-style: italic;
+  }
+}
