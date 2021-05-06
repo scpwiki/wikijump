@@ -107,7 +107,7 @@ fn block_skip<'r, 't>(
 fn parse_block<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
-    special: bool,
+    flag_star: bool,
 ) -> ParseResult<'r, 't, Elements<'t>>
 where
     'r: 't,
@@ -115,19 +115,19 @@ where
     debug!(
         log,
         "Trying to process a block";
-        "special" => special,
+        "star" => flag_star,
     );
 
-    // Set general rule based on presence of special
-    parser.set_rule(if special { RULE_BLOCK_STAR } else { RULE_BLOCK });
+    // Set general rule based on presence of star flag
+    parser.set_rule(if flag_star { RULE_BLOCK_STAR } else { RULE_BLOCK });
 
     // Get block name
     parser.get_optional_space()?;
 
-    let (name, in_head) = parser.get_block_name(special)?;
+    let (name, in_head) = parser.get_block_name(flag_star)?;
     trace!(log, "Got block name"; "name" => name, "in-head" => in_head);
 
-    let (name, modifier) = match name.strip_suffix('_') {
+    let (name, flag_score) = match name.strip_suffix('_') {
         Some(name) => (name, true),
         None => (name, false),
     };
@@ -141,13 +141,13 @@ where
     // Set block rule for better warnings
     parser.set_block(block);
 
-    // Check if this block allows special invocation (the '[[*' token)
-    if !block.accepts_special && special {
+    // Check if this block allows star invocation (the '[[*' token)
+    if !block.accepts_special && flag_star {
         return Err(parser.make_warn(ParseWarningKind::InvalidSpecialBlock));
     }
 
-    // Check if this block allows modifier invocation ('_' after name)
-    if !block.accepts_modifier && modifier {
+    // Check if this block allows score invocation ('_' after name)
+    if !block.accepts_modifier && flag_score {
         return Err(parser.make_warn(ParseWarningKind::InvalidModifierBlock));
     }
 
@@ -158,5 +158,5 @@ where
     // This is responsible for parsing any arguments,
     // and terminating the block (the ']]' token),
     // then processing the body (if any) and tail block.
-    (block.parse_fn)(log, parser, name, special, modifier, in_head)
+    (block.parse_fn)(log, parser, name, flag_star, flag_score, in_head)
 }
