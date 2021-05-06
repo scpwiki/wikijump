@@ -64,14 +64,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-// Darker backgrounds tend to make the 'observed weight' of fonts go up.
-.dark {
-  font-weight: 300;
-}
-.light {
-  font-weight: 400;
-}
-
 // Set base font families for elements.
 
 h1,
