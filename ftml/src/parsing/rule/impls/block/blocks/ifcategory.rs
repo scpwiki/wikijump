@@ -24,8 +24,8 @@ use crate::tree::ElementCondition;
 pub const BLOCK_IFCATEGORY: BlockRule = BlockRule {
     name: "block-ifcategory",
     accepts_names: &["ifcategory"],
-    accepts_special: false,
-    accepts_modifier: true,
+    accepts_star: false,
+    accepts_score: true,
     accepts_newlines: true,
     parse_fn,
 };

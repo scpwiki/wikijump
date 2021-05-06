@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_INS: BlockRule = BlockRule {
     name: "block-ins",
     accepts_names: &["ins", "insertion"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

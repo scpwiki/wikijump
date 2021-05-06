@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_IFRAME: BlockRule = BlockRule {
     name: "block-iframe",
     accepts_names: &["iframe"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

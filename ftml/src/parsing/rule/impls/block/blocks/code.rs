@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_CODE: BlockRule = BlockRule {
     name: "block-code",
     accepts_names: &["code"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

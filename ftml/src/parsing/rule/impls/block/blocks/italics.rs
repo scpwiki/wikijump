@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_ITALICS: BlockRule = BlockRule {
     name: "block-italics",
     accepts_names: &["i", "italics", "em", "emphasis"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

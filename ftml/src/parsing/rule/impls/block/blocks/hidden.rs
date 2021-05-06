@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_HIDDEN: BlockRule = BlockRule {
     name: "block-hidden",
     accepts_names: &["hidden"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

@@ -24,8 +24,8 @@ use crate::tree::ElementCondition;
 pub const BLOCK_IFTAGS: BlockRule = BlockRule {
     name: "block-iftags",
     accepts_names: &["iftags"],
-    accepts_special: false,
-    accepts_modifier: true,
+    accepts_star: false,
+    accepts_score: true,
     accepts_newlines: true,
     parse_fn,
 };

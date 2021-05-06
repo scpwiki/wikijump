@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_MARK: BlockRule = BlockRule {
     name: "block-mark",
     accepts_names: &["mark", "highlight"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

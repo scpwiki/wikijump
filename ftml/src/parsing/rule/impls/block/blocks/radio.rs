@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_RADIO: BlockRule = BlockRule {
     name: "block-radio",
     accepts_names: &["radio", "radio-button"],
-    accepts_special: true,
-    accepts_modifier: false,
+    accepts_star: true,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

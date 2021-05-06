@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_DIV: BlockRule = BlockRule {
     name: "block-div",
     accepts_names: &["div"],
-    accepts_special: false,
-    accepts_modifier: true,
+    accepts_star: false,
+    accepts_score: true,
     accepts_newlines: true,
     parse_fn,
 };

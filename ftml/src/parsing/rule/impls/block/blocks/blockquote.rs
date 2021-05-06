@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_BLOCKQUOTE: BlockRule = BlockRule {
     name: "block-blockquote",
     accepts_names: &["blockquote", "quote"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_STRIKETHROUGH: BlockRule = BlockRule {
     name: "block-strikethrough",
     accepts_names: &["s", "strikethrough"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_HTML: BlockRule = BlockRule {
     name: "block-html",
     accepts_names: &["html"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

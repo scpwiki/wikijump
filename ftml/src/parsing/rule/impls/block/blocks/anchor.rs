@@ -24,8 +24,8 @@ use crate::tree::AnchorTarget;
 pub const BLOCK_ANCHOR: BlockRule = BlockRule {
     name: "block-anchor",
     accepts_names: &["a", "anchor"],
-    accepts_special: true,
-    accepts_modifier: true,
+    accepts_star: true,
+    accepts_score: true,
     accepts_newlines: false,
     parse_fn,
 };

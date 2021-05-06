@@ -24,8 +24,8 @@ use crate::parsing::{ParseWarning, ParseWarningKind};
 pub const BLOCK_COLLAPSIBLE: BlockRule = BlockRule {
     name: "block-collapsible",
     accepts_names: &["collapsible"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

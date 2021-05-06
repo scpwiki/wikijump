@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_INVISIBLE: BlockRule = BlockRule {
     name: "block-invisible",
     accepts_names: &["invisible"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

@@ -56,17 +56,17 @@ pub struct BlockRule {
     /// Will panic if empty.
     accepts_names: &'static [&'static str],
 
-    /// Whether this block accepts `*` as a modifier.
+    /// Whether this block accepts the star flag (`*`).
     ///
     /// For instance, user can be invoked as both
     /// `[[user aismallard]]` and `[[*user aismallard]]`.
-    accepts_special: bool,
+    accepts_star: bool,
 
-    /// Whether this block accepts `_` as a modifier.
+    /// Whether this block accepts the score flag (`_`).
     ///
     /// For instance, div can be invoked as both
     /// `[[div]]` and `[[div_]]`.
-    accepts_modifier: bool,
+    accepts_score: bool,
 
     /// Whether this block optionally allows its head and tail to be separated by newlines.
     /// These newlines will be consumed and not be interpreted as line breaks.
@@ -115,8 +115,8 @@ impl Debug for BlockRule {
         f.debug_struct("BlockRule")
             .field("name", &self.name)
             .field("accepts_names", &self.accepts_names)
-            .field("accepts_special", &self.accepts_special)
-            .field("accepts_modifier", &self.accepts_modifier)
+            .field("accepts_star", &self.accepts_star)
+            .field("accepts_score", &self.accepts_score)
             .field("accepts_newlines", &self.accepts_newlines)
             .field("parse_fn", &(self.parse_fn as *const ()))
             .finish()

@@ -24,8 +24,8 @@ use crate::tree::{ImageAlignment, ImageSource};
 pub const BLOCK_IMAGE: BlockRule = BlockRule {
     name: "block-image",
     accepts_names: &["image", "=image", "<image", ">image", "f<image", "f>image"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

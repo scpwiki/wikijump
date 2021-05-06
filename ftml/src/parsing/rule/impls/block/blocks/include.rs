@@ -32,8 +32,8 @@ use super::prelude::*;
 pub const BLOCK_INCLUDE: BlockRule = BlockRule {
     name: "block-include",
     accepts_names: &["include"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

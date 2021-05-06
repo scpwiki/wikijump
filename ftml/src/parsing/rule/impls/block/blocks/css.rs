@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_CSS: BlockRule = BlockRule {
     name: "block-css",
     accepts_names: &["css"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

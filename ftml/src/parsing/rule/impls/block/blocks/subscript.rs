@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_SUBSCRIPT: BlockRule = BlockRule {
     name: "block-subscript",
     accepts_names: &["sub", "subscript"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

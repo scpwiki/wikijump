@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_CHECKBOX: BlockRule = BlockRule {
     name: "block-checkbox",
     accepts_names: &["checkbox"],
-    accepts_special: true,
-    accepts_modifier: false,
+    accepts_star: true,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

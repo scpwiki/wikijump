@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_MONOSPACE: BlockRule = BlockRule {
     name: "block-monospace",
     accepts_names: &["tt", "mono", "monospace"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

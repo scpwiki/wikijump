@@ -24,8 +24,8 @@ use super::prelude::*;
 pub const BLOCK_MODULE: BlockRule = BlockRule {
     name: "block-module",
     accepts_names: &["module", "module654"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_BOLD: BlockRule = BlockRule {
     name: "block-bold",
     accepts_names: &["b", "bold", "strong"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

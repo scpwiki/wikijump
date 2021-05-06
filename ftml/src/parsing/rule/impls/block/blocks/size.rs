@@ -25,8 +25,8 @@ use std::borrow::Cow;
 pub const BLOCK_SIZE: BlockRule = BlockRule {
     name: "block-size",
     accepts_names: &["size"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

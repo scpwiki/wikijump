@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_UNDERLINE: BlockRule = BlockRule {
     name: "block-underline",
     accepts_names: &["u", "underline"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

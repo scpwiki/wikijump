@@ -42,8 +42,8 @@ lazy_static! {
 pub const BLOCK_CHAR: BlockRule = BlockRule {
     name: "block-char",
     accepts_names: &["char", "character"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };

@@ -30,8 +30,8 @@ macro_rules! make_align_block {
         pub const $block_const: BlockRule = BlockRule {
             name: $block_name,
             accepts_names: &[$symbol],
-            accepts_special: false,
-            accepts_modifier: false,
+            accepts_star: false,
+            accepts_score: false,
             accepts_newlines: true,
             parse_fn,
         };

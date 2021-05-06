@@ -32,8 +32,8 @@ use super::prelude::*;
 pub const BLOCK_LATER: BlockRule = BlockRule {
     name: "block-later",
     accepts_names: &["later"],
-    accepts_special: true,
-    accepts_modifier: false,
+    accepts_star: true,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

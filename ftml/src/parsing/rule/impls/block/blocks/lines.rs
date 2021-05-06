@@ -24,8 +24,8 @@ use std::num::NonZeroU32;
 pub const BLOCK_LINES: BlockRule = BlockRule {
     name: "block-lines",
     accepts_names: &["lines", "newlines"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };
