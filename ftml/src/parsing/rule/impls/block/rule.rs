@@ -26,8 +26,8 @@ pub const RULE_BLOCK: Rule = Rule {
     try_consume_fn: block_regular,
 };
 
-pub const RULE_BLOCK_SPECIAL: Rule = Rule {
-    name: "block-special",
+pub const RULE_BLOCK_STAR: Rule = Rule {
+    name: "block-star",
     try_consume_fn: block_special,
 };
 
@@ -119,11 +119,7 @@ where
     );
 
     // Set general rule based on presence of special
-    parser.set_rule(if special {
-        RULE_BLOCK_SPECIAL
-    } else {
-        RULE_BLOCK
-    });
+    parser.set_rule(if special { RULE_BLOCK_STAR } else { RULE_BLOCK });
 
     // Get block name
     parser.get_optional_space()?;
