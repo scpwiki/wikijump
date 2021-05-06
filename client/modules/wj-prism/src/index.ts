@@ -10,6 +10,7 @@ import "../vendor/prism"
 export const Prism: typeof import("prismjs") = globalThis.Prism
 
 // set prism class prefix
+// https://prismjs.com/plugins/custom-class/
 Prism.plugins.customClass.prefix("code-")
 
 // HTML escape function taken from Svelte
