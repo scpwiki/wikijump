@@ -3,8 +3,13 @@ import type { EditorView, ViewUpdate } from "@codemirror/view"
 import { DisconnectElement } from "./svelte-disconnect-detect"
 
 export interface EditorSvelteComponentProps {
-  /** The {@link EditorView} the component is mounted to. */
-  view: EditorView
+  /**
+   * The {@link EditorView} the component is mounted to.
+   * This can be undefined if the component was created with no view.
+   * In that instance, the component will still track lifecycle but
+   * won't be able to interact with the editor.
+   */
+  view: EditorView | undefined
   /** The last {@link ViewUpdate} of the editor. */
   update: ViewUpdate | undefined
 }
@@ -55,7 +60,7 @@ export class EditorSvelteComponent<T extends typeof SvelteComponent> {
    * @param EditorSvelteComponentOptsntCreateOpts}
    */
   create(
-    view: EditorView,
+    view?: EditorView,
     opts: EditorSvelteComponentOpts<InstanceType<T>> = {}
   ): EditorSvelteComponentInstance {
     const dom = document.createElement(DisconnectElement.tag) as DisconnectElement
