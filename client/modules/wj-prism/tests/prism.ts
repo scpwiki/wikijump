@@ -5,12 +5,12 @@ import * as lib from "../src/index"
 
 const Prism = uvu.suite("PrismWrapper")
 
-Prism("check if manual is true", () => {
+Prism("manual is true", () => {
   // @ts-ignore
   assert.is(lib.Prism.manual, true)
 })
 
-Prism("check if disable worker messsage is true", () => {
+Prism("disable worker messsage is true", () => {
   // @ts-ignore
   assert.is(lib.Prism.disableWorkerMessageHandler, true)
 })

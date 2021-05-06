@@ -4,6 +4,7 @@ import "../vendor/prism"
 // way of accessing it
 /**
  * Reference to the Prism syntax highlighter.
+ * @namespace
  * @external
  */
 export const Prism: typeof import("prismjs") = globalThis.Prism
