@@ -6,8 +6,8 @@ The text after the `[[` is the name of the block. This is always case-insensitiv
 
 Blocks have five variable properties worth noting:
 
-1. The block may start with `[[*` rather than `[[`. This is referred to as the "special" flag.
-2. Their name may end in `_`. This is referred to as the "modifier" flag. This underscore is ignored if found in the foot.
+1. The block may start with `[[*` rather than `[[`. This is referred to as the "star" flag.
+2. Their name may end in `_`. This is referred to as the "score" flag. This underscore is ignored if found in the foot.
 3. The block may have some arguments before ending in `]]`.
 4. The block may accept delimited newlines. This is explained in more detail [below](#newlines).
 5. The block may have a body. It has contents that is terminated by `[[/name]]` (where `name` is the block name), referred to as the block footer or tail.
@@ -76,36 +76,36 @@ See [Modules](Modules.md) for information on each module currently implemented.
 
 Here is a table showing the options each block has with regards to its construction:
 
-| Block Name                      | Accepted Names                   | Special? | Modifier? | Newlines? | Argument Type | Body Type |
-|---------------------------------|----------------------------------|----------|-----------|-----------|---------------|-----------|
-| [Anchor](#anchor)               | `a`, `anchor`                    | No       | Yes       | No        | Map           | Elements  |
-| [Blockquote](#blockquote)       | `blockquote`, `quote`            | No       | No        | Yes       | Map           | Elements  |
-| [Bold](#bold)                   | `b`, `bold`, `strong`            | No       | No        | No        | Map           | Elements  |
-| [Char](#char)                   | `char`, `character`              | No       | No        | No        | Value         | None      |
-| [Checkbox](#checkbox)           | `checkbox`                       | Yes      | No        | No        | Map           | None      |
-| [Code](#code)                   | `code`                           | No       | No        | Yes       | Map           | Raw       |
-| [Collapsible](#collapsible)     | `collapsible`                    | No       | No        | Yes       | Map           | Elements  |
-| [CSS](#css)                     | `css`                            | No       | No        | Yes       | None          | Raw       |
-| [Deletion](#deletion)           | `del`, `deletion`                | No       | No        | No        | Map           | Elements  |
-| [Div](#div)                     | `div`                            | No       | Yes       | Yes       | Map           | Elements  |
-| [Hidden](#hidden)               | `hidden`                         | No       | No        | Yes       | Map           | Elements  |
-| [HTML](#html)                   | `html`                           | No       | No        | Yes       | Map           | Raw       |
-| [Iframe](#iframe)               | `iframe`                         | No       | No        | Yes       | None          | None      |
-| [Include](#include)             | `include`                        | No       | No        | Yes       | Name + Map    | None      |
-| [Insertion](#insertion)         | `ins`, `insertion`               | No       | No        | No        | Map           | Elements  |
-| [Invisible](#invisible)         | `invisible`                      | No       | No        | Yes       | Map           | Elements  |
-| [Italics](#italics)             | `i`, `italics`, `em`, `emphasis` | No       | No        | No        | Map           | Elements  |
-| [Lines](#lines)                 | `lines`, `newlines`              | No       | No        | Yes       | Value         | None      |
-| [Mark](#mark)                   | `mark`, `highlight`              | No       | No        | No        | Map           | Elements  |
-| [Module](#module)               | `module`                         | No       | No        | Yes       | (See below)   | (See below) |
-| [Monospace](#monospace)         | `tt`, `mono`, `monospace`        | No       | No        | No        | Map           | Elements  |
-| [Radio](#radio)                 | `radio`, `radio-button`          | Yes      | No        | No        | Name + Map    | None      |
-| [Size](#size)                   | `size`                           | No       | No        | No        | Value         | Elements  |
-| [Span](#span)                   | `span`                           | No       | Yes       | No        | Map           | Elements  |
-| [Strikethrough](#strikethrough) | `s`, `strikethrough`             | No       | No        | No        | Map           | Elements  |
-| [Subscript](#subscript)         | `sub`, `subscript`               | No       | No        | No        | Map           | Elements  |
-| [Superscript](#superscript)     | `sup`, `super`, `superscript`    | No       | No        | No        | Map           | Elements  |
-| [Underline](#underline)         | `u`, `underline`                 | No       | No        | No        | Map           | Elements  |
+| Block Name                      | Accepted Names                   | Star? | Score? | Newlines? | Argument Type | Body Type |
+|---------------------------------|----------------------------------|-------|--------|-----------|---------------|-----------|
+| [Anchor](#anchor)               | `a`, `anchor`                    | No    | Yes    | No        | Map           | Elements  |
+| [Blockquote](#blockquote)       | `blockquote`, `quote`            | No    | No     | Yes       | Map           | Elements  |
+| [Bold](#bold)                   | `b`, `bold`, `strong`            | No    | No     | No        | Map           | Elements  |
+| [Char](#char)                   | `char`, `character`              | No    | No     | No        | Value         | None      |
+| [Checkbox](#checkbox)           | `checkbox`                       | Yes   | No     | No        | Map           | None      |
+| [Code](#code)                   | `code`                           | No    | No     | Yes       | Map           | Raw       |
+| [Collapsible](#collapsible)     | `collapsible`                    | No    | No     | Yes       | Map           | Elements  |
+| [CSS](#css)                     | `css`                            | No    | No     | Yes       | None          | Raw       |
+| [Deletion](#deletion)           | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
+| [Div](#div)                     | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
+| [Hidden](#hidden)               | `hidden`                         | No    | No     | Yes       | Map           | Elements  |
+| [HTML](#html)                   | `html`                           | No    | No     | Yes       | Map           | Raw       |
+| [Iframe](#iframe)               | `iframe`                         | No    | No     | Yes       | None          | None      |
+| [Include](#include)             | `include`                        | No    | No     | Yes       | Name + Map    | None      |
+| [Insertion](#insertion)         | `ins`, `insertion`               | No    | No     | No        | Map           | Elements  |
+| [Invisible](#invisible)         | `invisible`                      | No    | No     | Yes       | Map           | Elements  |
+| [Italics](#italics)             | `i`, `italics`, `em`, `emphasis` | No    | No     | No        | Map           | Elements  |
+| [Lines](#lines)                 | `lines`, `newlines`              | No    | No     | Yes       | Value         | None      |
+| [Mark](#mark)                   | `mark`, `highlight`              | No    | No     | No        | Map           | Elements  |
+| [Module](#module)               | `module`                         | No    | No     | Yes       | (See below)   | (See below) |
+| [Monospace](#monospace)         | `tt`, `mono`, `monospace`        | No    | No     | No        | Map           | Elements  |
+| [Radio](#radio)                 | `radio`, `radio-button`          | Yes   | No     | No        | Name + Map    | None      |
+| [Size](#size)                   | `size`                           | No    | No     | No        | Value         | Elements  |
+| [Span](#span)                   | `span`                           | No    | Yes    | No        | Map           | Elements  |
+| [Strikethrough](#strikethrough) | `s`, `strikethrough`             | No    | No     | No        | Map           | Elements  |
+| [Subscript](#subscript)         | `sub`, `subscript`               | No    | No     | No        | Map           | Elements  |
+| [Superscript](#superscript)     | `sup`, `super`, `superscript`    | No    | No     | No        | Map           | Elements  |
+| [Underline](#underline)         | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
 
 Each of the blocks will be described in more detail below:
 
@@ -115,7 +115,7 @@ Outputs: `Element::Anchor` / `<a>`
 
 Body: Elements
 
-Accepts `_` modifier: Strips leading and trailing newlines.
+Accepts score (`_`): Strips leading and trailing newlines.
 
 Arguments:
 * All accepted attributes
@@ -181,7 +181,7 @@ Outputs: `Element::CheckBox` / `<input type="checkbox">`
 
 Body: None
 
-Accepts `*` special: Element starts checked.
+Accepts star (`*`): Element starts checked.
 
 Arguments:
 * All accepted attributes
@@ -278,7 +278,7 @@ Output: `Element::Container(ContainerType::Div)` / `<div>`
 
 Body: Elements
 
-Accepts `_` modifier: Strips leading and trailing newlines.  
+Accepts score (`_`): Strips leading and trailing newlines.  
 Accepts newline separation.
 
 Arguments:
@@ -497,7 +497,7 @@ Example:
 
 ### Radio
 
-Accepts `*` special: Element starts selected.
+Accepts star (`*`): Element starts selected.
 
 Body: None
 
@@ -538,7 +538,7 @@ Output:`Element::Span` / `<span>`
 
 Body: Elements
 
-Accepts `_` modifier: Strips leading and trailing newlines.
+Accepts score (`_`): Strips leading and trailing newlines.
 
 Arguments:
 * All accepted attributes
