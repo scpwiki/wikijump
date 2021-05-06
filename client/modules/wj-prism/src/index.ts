@@ -1,5 +1,7 @@
 import "../vendor/prism"
 
+// TODO: FTML, Svelte grammars
+
 // Re-export a reference to Prism so that there is actually a half-decent
 // way of accessing it
 /**
