@@ -72,6 +72,16 @@ pre.code {
     color: var(--colcode-attribute);
   }
 
+  &.code-attr-value {
+    color: var(--colcode-string);
+    > :not(.code-token.code-attr-equals) {
+      color: var(--colcode-string);
+    }
+    > .code-token.code-attr-equals {
+      color: var(--colcode-punct);
+    }
+  }
+
   &.code-boolean,
   &.code-number,
   &.code-constant,
