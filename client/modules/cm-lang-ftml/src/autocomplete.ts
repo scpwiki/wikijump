@@ -6,36 +6,25 @@ import type {
   CompletionResult
 } from "@codemirror/autocomplete"
 import { blocks } from "./data/blocks"
-import { html } from "wj-util"
-import * as Prism from "wj-prism"
+import { EditorSvelteComponent } from "sheaf-core"
+import AutocompleteTip from "./AutocompleteTip.svelte"
 
 const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
   ([name, block]) => {
     // deduplicates, just in case
     const aliases = Array.from(new Set([name, ...(block.aliases ?? [])]))
-
-    const [outputType, outputTag, outputClass] = block["html-output"].split(",")
-    let codeString =
-      outputType === "html"
-        ? Prism.highlight(
-            outputClass ? `<${outputTag} class="${outputClass}">` : `<${outputTag}>`,
-            "html"
-          )
-        : Prism.highlight(`type: ${outputType}`, "log")
-
-    const node = html/*html*/ `
-      <div>
-        <p><code>${aliases.join(", ")}</code></p>
-        <p><code>${codeString}</code></p>
-      </div>
-    `
+    const handler = new EditorSvelteComponent(AutocompleteTip)
+    const instance = handler.create(undefined, { pass: { name, block } })
     const completions: Completion[] = []
     for (const alias of aliases) {
       completions.push({
         label: alias,
         // detail: name,
         type: "type",
-        info: () => node.cloneNode(true)
+        info: () => {
+          setTimeout(() => instance.mount())
+          return instance.dom
+        }
       })
     }
     return completions

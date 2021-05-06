@@ -6,6 +6,8 @@ import { FTMLLinter } from "./lint"
 import { completeFTML } from "./autocomplete"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
 
+export type { BlockConfiguration, Block2, Attribute2 } from "./data/types"
+
 // TODO: figure out indentation
 // TODO: figure out if there is any way to make the block grammar not awful
 // TODO: floats

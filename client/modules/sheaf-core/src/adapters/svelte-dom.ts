@@ -12,6 +12,8 @@ export interface EditorSvelteComponentProps {
   view: EditorView | undefined
   /** The last {@link ViewUpdate} of the editor. */
   update: ViewUpdate | undefined
+  /** Calls `$destroy()` on the component. */
+  unmount: () => void
 }
 
 export interface EditorSvelteComponentInstance {
@@ -82,7 +84,9 @@ export class EditorSvelteComponent<T extends typeof SvelteComponent> {
       component = new this.component({
         target: dom,
         intro: true,
-        props: { view, unmount, update: undefined, ...opts.pass }
+        props: view
+          ? { view, unmount, update: undefined, ...opts.pass }
+          : { unmount, ...opts.pass }
       })
 
       if (opts.mount) opts.mount(component as InstanceType<T>)

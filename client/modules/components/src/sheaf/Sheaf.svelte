@@ -40,7 +40,7 @@
 </script>
 
 <div class="overflow-container" style="height: {height}; width: {width};">
-  <div bind:this={editorElement} class="editor-container codetheme-dark" />
+  <div bind:this={editorElement} class="editor-container codetheme-dark dark" />
 </div>
 
 <style>
