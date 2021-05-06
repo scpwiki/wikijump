@@ -2,20 +2,33 @@ import type { SvelteComponent } from "svelte"
 import type { EditorView, ViewUpdate } from "@codemirror/view"
 import { DisconnectElement } from "./svelte-disconnect-detect"
 
-export interface EditorSvelteDOMProps {
+export interface EditorSvelteComponentProps {
   /** The {@link EditorView} the component is mounted to. */
   view: EditorView
   /** The last {@link ViewUpdate} of the editor. */
   update: ViewUpdate | undefined
 }
 
-export interface EditorSvelteDOMInstance {
+export interface EditorSvelteComponentInstance {
   /** DOM container that holds the Svelte component. */
   dom: DisconnectElement
   /** Function that needs to be called whenever the DOM container is mounted. */
   mount: () => void
   /** Function that needs to be called whenever the view updates. */
   update: (update: ViewUpdate) => void
+}
+
+export interface EditorSvelteComponentOpts<T extends SvelteComponent> {
+  /** Props to pass to the component on mount. */
+  pass?: Record<string, any>
+  /**
+   * Callback called immediately after the component is mounted.
+   *
+   * @param component The component that was just mounted.
+   */
+  mount?: (component: T) => void
+  /** Callback called immediately after the component is unmounted. */
+  unmount?: () => void
 }
 
 /**
@@ -25,23 +38,26 @@ export interface EditorSvelteDOMInstance {
  * * `view`
  * * `update`
  *
- * You can see the types of these props in the {@link EditorSvelteDOMProps} interface.
- * @see {@link EditorSvelteDOMProps}
+ * You can see the types of these props in the {EditorSvelteComponentProps} interface.
+ * @see {EditorSvelteComponentProps}
  */
-export class EditorSvelteDOM {
+export class EditorSvelteComponent<T extends typeof SvelteComponent> {
   /**
    * @param component The Svelte component to be mounted.
    */
-  constructor(public component: typeof SvelteComponent) {}
+  constructor(public component: T) {}
 
   /**
    * Creates the DOM container and lifecycle functions needed to mount a
    * Svelte component into CodeMirror structures, such as panels and tooltips.
    *
    * @param view The {@link EditorView} that the component will be attached to.
-   * @param onUnmount A function that will be called whenever the component unmounts.
+   * @param EditorSvelteComponentOptsntCreateOpts}
    */
-  create(view: EditorView, onUnmount?: () => void): EditorSvelteDOMInstance {
+  create(
+    view: EditorView,
+    opts: EditorSvelteComponentOpts<InstanceType<T>> = {}
+  ): EditorSvelteComponentInstance {
     const dom = document.createElement(DisconnectElement.tag) as DisconnectElement
     let component: SvelteComponent
 
@@ -55,14 +71,16 @@ export class EditorSvelteDOM {
       const unmount = () => {
         dom.removeEventListener("disconnected", onDisconnect)
         if (component) component.$destroy()
-        if (onUnmount) onUnmount()
+        if (opts.unmount) opts.unmount()
       }
 
       component = new this.component({
         target: dom,
         intro: true,
-        props: { view, unmount, update: undefined }
+        props: { view, unmount, update: undefined, ...opts.pass }
       })
+
+      if (opts.mount) opts.mount(component as InstanceType<T>)
     }
 
     const update = (update: ViewUpdate) => {
