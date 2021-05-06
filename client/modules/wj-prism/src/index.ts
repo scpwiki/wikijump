@@ -13,37 +13,32 @@ export const Prism: typeof import("prismjs") = globalThis.Prism
 // https://prismjs.com/plugins/custom-class/
 Prism.plugins.customClass.prefix("code-")
 
-// HTML escape function taken from Svelte
-// https://github.com/sveltejs/svelte/blob/master/src/compiler/compile/utils/stringify.ts
+// yoink Prism's encode function so that we can escape strings identically
+const encode: (src: string) => string = Prism.util.encode as any
 
-const escaped: Record<string, string> = {
-  '"': "&quot;",
-  "'": "&#39;",
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;"
-}
-
-/** Escapes a string of text so that it is safe to insert into HTML. */
-function escapeHTML(src: string) {
-  return src.replace(/["'&<>]/g, match => escaped[match])
-}
+const RAW_LANGS = ["raw", "text", "none", ""]
 
 /**
  * Highlights a string of code and returns HTML, given a specified language.
  * If the language specified isn't known by Prism, the string of code will
  * be escaped and returned with no syntax highlighting.
  *
+ * If the given language is `raw`, `text`, `none`, or an empty string,
+ * the string of code will be escaped and returned as is.
+ *
  * @param code The string to be highlighted.
  * @param lang The language to highlight the code with.
  */
 export function highlight(code: string, lang: string) {
-  if (!(lang in Prism.languages)) return escapeHTML(code)
   try {
-    const grammar = Prism.languages[lang]
-    const html = Prism.highlight(code, grammar, lang)
-    return html
-  } catch {
-    return escapeHTML(code)
-  }
+    // check if the user is actually wanting any highlighting
+    if (lang && !RAW_LANGS.includes(lang) && lang in Prism.languages) {
+      const grammar = Prism.languages[lang]
+      const html = Prism.highlight(code, grammar, lang)
+      return html
+    }
+  } catch {}
+
+  // fallback to just returning the escaped code
+  return encode(code)
 }
