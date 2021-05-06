@@ -3,7 +3,8 @@ const esbuild = require("esbuild")
 const fileRegex = /\?bundled-worker$/
 
 module.exports = function viteWorkerPlugin() {
-  return {
+  /** @type import("vite").Plugin */
+  const plugin = {
     name: "bundle-workers",
 
     async load(id) {
@@ -13,7 +14,7 @@ module.exports = function viteWorkerPlugin() {
         const built = await esbuild.build({
           entryPoints: [id],
           bundle: true,
-          minify: true,
+          minify: false,
           treeShaking: true,
           outdir: "./",
           outbase: "./",
@@ -36,4 +37,6 @@ module.exports = function viteWorkerPlugin() {
       }
     }
   }
+
+  return plugin
 }
