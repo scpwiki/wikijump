@@ -9,6 +9,9 @@ import "../vendor/prism"
  */
 export const Prism: typeof import("prismjs") = globalThis.Prism
 
+// set prism class prefix
+Prism.plugins.customClass.prefix("code-")
+
 // HTML escape function taken from Svelte
 // https://github.com/sveltejs/svelte/blob/master/src/compiler/compile/utils/stringify.ts
 

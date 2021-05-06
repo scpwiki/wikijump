@@ -17,7 +17,7 @@ Prism("disable worker messsage is true", () => {
 
 Prism("highlight", () => {
   const html = lib.highlight('console.log("foo")', "javascript")
-  const snapshot = `<span class="token console class-name">console</span><span class="token punctuation">.</span><span class="token method function property-access">log</span><span class="token punctuation">(</span><span class="token string">"foo"</span><span class="token punctuation">)</span>`
+  const snapshot = `<span class="code-token code-console code-class-name">console</span><span class="code-token code-punctuation">.</span><span class="code-token code-method code-function code-property-access">log</span><span class="code-token code-punctuation">(</span><span class="code-token code-string">"foo"</span><span class="code-token code-punctuation">)</span>`
   assert.snapshot(html, snapshot)
 })
 
