@@ -1,7 +1,6 @@
 import { Diagnostic, linter } from "@codemirror/lint"
 import { warnings } from "ftml-wasm-worker"
 import type { EditorView } from "@codemirror/view"
-import { createUTF8PositionMap } from "./utf"
 import { perfy } from "wj-util"
 
 interface WarningInfo {
@@ -103,16 +102,13 @@ async function lint(view: EditorView) {
     const len = str.length
 
     const measure = perfy("lint", 1)
-    const map = createUTF8PositionMap(str)
-    measure()
     const emitted = await warnings(str)
+    measure()
 
     const diagnostics: Diagnostic[] = []
     for (const warning of emitted) {
       const { kind, rule, token } = warning
-
-      const from = map[warning.span.start]
-      const to = map[warning.span.end]
+      const { start: from, end: to } = warning.span
 
       if (from === undefined || to === undefined || to > len) continue
       if (!warningInfo[kind]) continue
