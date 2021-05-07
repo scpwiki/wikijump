@@ -193,7 +193,10 @@ class WikiTransformation
         $page = $this->_tmpPage;
         $threadId = $page->getThreadId();
         if ($threadId) {
-            return ForumThreadPeer::instance()->selectByPrimaryKey($threadId)->getNumberPosts();
+            $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+            if ($thread) {
+                return $thread->getNumberPosts();
+            }
         }
         return 0;
     }
