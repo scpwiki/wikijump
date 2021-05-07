@@ -15,7 +15,7 @@ const SKIP: string[] = ["include"]
 const PAGE_INFO: IPageInfo = {
   alt_title: null,
   category: null,
-  locale: "en_US",
+  language: "en_US",
   rating: 0,
   page: "unknown",
   site: "test",
@@ -58,7 +58,6 @@ function assembleTests() {
       // src = transformRanges(src)
 
       const test: TestInput = JSON.parse(src)
-      assert.ok(test, `Invalid test: '${name}'`)
 
       const pathHTML = file.replace(/\.json$/, ".html")
       const pathTXT = file.replace(/\.json$/, ".txt")
@@ -95,6 +94,8 @@ function assembleTests() {
     })
   }
 }
+
+assembleTests()
 
 // measure overall performance
 let start: number
@@ -149,7 +150,5 @@ function transformRanges(str: string) {
     '"span": { "start": $1, "end": $2 },'
   )
 }
-
-assembleTests()
 
 FTML.run()
