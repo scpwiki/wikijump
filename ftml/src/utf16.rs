@@ -56,7 +56,7 @@ impl<'t> Utf16IndexMap<'t> {
             last_utf8_index = Some(utf8_index + ch.len_utf8());
         }
 
-        // Add last index, needed for get_index_end() and the final token span.
+        // Add last index, needed for the final token span.
         if let Some(utf8_index) = last_utf8_index {
             map.insert(utf8_index, utf16_index);
         }
@@ -74,31 +74,6 @@ impl<'t> Utf16IndexMap<'t> {
     #[inline]
     pub fn get_index(&self, utf8_index: usize) -> usize {
         self.map[&utf8_index]
-    }
-
-    /// Converts the end index of a UTF-8 character span into the equivalent UTF-16 one.
-    ///
-    /// Imagine the string "a💣b". In UTF-8 this looks like:
-    /// ```raw
-    /// [0x61, 0xf0, 0x9f, 0x92, 0xa3, 0x62]
-    /// ```
-    ///
-    /// Whereas in UTF-16 it looks like:
-    /// ```raw
-    /// [0x61, 0xd83d, 0xdca3, 0x62]
-    /// ```
-    ///
-    /// The UTF-8 span of the emoji is `1..4`, and the UTF-16 span is `1..2`.
-    ///
-    /// For this string, passing `4` results in `2` being returned.
-    /// This is calculated by taking the index of the next character and getting
-    /// the byte index right before it.
-    ///
-    /// # Panics
-    /// Panics if the index is out of range for the string.
-    #[inline]
-    pub fn get_index_end(&self, utf8_index: usize) -> usize {
-        self.get_index(utf8_index + 1) - 1
     }
 }
 
@@ -160,7 +135,7 @@ fn utf16_slices() {
 
             // Get equivalent UTF-16 slice
             let utf16_start = map.get_index(utf8_start);
-            let utf16_stop = map.get_index_end(utf8_stop);
+            let utf16_stop = map.get_index(utf8_stop);
             let utf16_slice = &utf16_bytes[utf16_start..utf16_stop];
 
             // Check that converting from UTF-16 -> UTF-8 yields the same data
