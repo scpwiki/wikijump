@@ -1,7 +1,7 @@
 {
-  "name": "cm-tarnation",
+  "name": "wj-prism",
   "license": "agpl-3.0-or-later",
-  "description": "An alternative regex based parser for CodeMirror 6.",
+  "description": "Wrapper around the Prism library for Wikijump.",
   "version": "0.0.0",
   "keywords": [
     "wikijump"
@@ -12,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client/modules/cm-tarnation"
+    "directory": "client/modules/wj-prism"
   },
   "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
@@ -20,14 +20,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "@codemirror/highlight": "^0.18.3",
-    "@codemirror/language": "^0.18.1",
-    "@codemirror/state": "^0.18.7",
-    "@codemirror/view": "^0.18.11",
-    "is-what": "^4.0.0",
-    "klona": "^2.0.4",
-    "lezer": "^0.13.4",
-    "lezer-tree": "^0.13.2",
-    "wj-util": "^1.0.0"
+    "@types/prismjs": "^1.16.5",
+    "prismjs": "^1.23.0"
   }
 }

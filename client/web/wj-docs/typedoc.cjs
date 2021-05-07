@@ -19,7 +19,14 @@ async function main() {
     entryPoints,
     name: "Wikijump",
     tsconfig: TS_CONFIG,
-    exclude: ["**/tests/**", "**/node_modules/**", "**/dist/**/!(*.svelte.d.ts)", "*.js"],
+    exclude: [
+      "**/tests/**",
+      "**/node_modules/**",
+      "**/dist/**/!(*.svelte.d.ts)",
+      "**/*.js",
+      "**/*.mjs",
+      "**/*.cjs"
+    ],
     excludeExternals: true,
     // added by plugin (@strictsoftware/typedoc-plugin-monorepo)
     "external-modulemap": ".*modules/([^/]+).*"
