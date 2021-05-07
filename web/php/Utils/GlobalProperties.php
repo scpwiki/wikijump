@@ -80,6 +80,9 @@ class GlobalProperties
     public static $LOGGER_LEVEL;
     public static $LOGGER_FILE;
 
+    // feature flags
+    public static $FEATURE_WIKITEXT_BACKEND;
+
     // other settings
     public static $CACHE_FILES_FOR;
     public static $URL_DOCS;
