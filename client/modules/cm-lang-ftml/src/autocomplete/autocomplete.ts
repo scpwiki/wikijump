@@ -123,11 +123,17 @@ for (const [name, block] of Object.entries(data)) {
         { label: "true", type: "keyword" },
         { label: "false", type: "keyword" }
       ]
+      // set one of the two to default if there is a default
+      if (argument.default !== undefined) {
+        completions[name][Boolean(argument.default) ? 0 : 1].detail = "default"
+      }
     } else if (argument.enum) {
       empty = false
       completions[name] = argument.enum.map(_enum => ({
         label: String(_enum),
-        type: "enum"
+        type: "enum",
+        // mark the value with "default" if it is the default
+        detail: argument.default && argument.default === _enum ? "default" : undefined
       }))
     }
   }

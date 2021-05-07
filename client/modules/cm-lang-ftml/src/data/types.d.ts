@@ -28,5 +28,5 @@ export interface Argument {
   "enum"?: (string | number)[]
   "min-value"?: number
   "max-value"?: number
-  "default"?: string | number
+  "default"?: string | number | boolean
 }
