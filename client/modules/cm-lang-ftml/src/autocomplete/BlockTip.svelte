@@ -2,12 +2,12 @@
   @component Autocomplete tooltip for FTML blocks.
 -->
 <script lang="ts">
-  import type { Block2 } from "../data/types"
+  import type { Block } from "../data/types"
   import type { EditorSvelteComponentProps } from "sheaf-core"
   import * as Prism from "wj-prism"
 
   export let name: string
-  export let block: Block2
+  export let block: Block
   export let info = ""
   export let unmount: EditorSvelteComponentProps["unmount"]
 

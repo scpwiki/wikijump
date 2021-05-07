@@ -1,100 +1,99 @@
-import type { Attribute } from "./types"
+import type { Argument } from "./types"
 
 // TODO: should probably make html attrs discriminate based on block name
-// TODO: info getters
-export const htmlAttributes: Attribute[] = [
-  { name: "accept" },
-  { name: "alt" },
-  {
-    name: "autocapitalize",
+export const htmlAttributes: Record<string, Argument> = {
+  accept: { type: "string" },
+  alt: { type: "string" },
+  autocapitalize: {
+    type: "string",
     enum: ["off", "none", "on", "sentences", "words", "characters"]
   },
-  { name: "autoplay", boolean: true },
-  // not accessible from HTML, apparently?
-  // { name: "buffered", values: ["true", "false"] },
-  { name: "checked", boolean: true },
-  { name: "cite" },
-  { name: "class" },
-  { name: "cols" },
-  { name: "colspan" },
-  // for the purposes of FTML, this is a boolean attribute
-  // however, in HTML it's actually enumerated
-  { name: "contenteditable", boolean: true },
-  { name: "controls", boolean: true },
-  { name: "coords" },
-  { name: "datetime" },
-  { name: "decoding", enum: ["true", "false"] },
-  { name: "default", boolean: true },
-  { name: "dir", enum: ["ltr", "rtl"] },
-  { name: "dirname" },
-  { name: "disabled", boolean: true },
-  // can be given without a value, like a boolean
-  { name: "download" },
-  // not a boolean, apparently
+  autoplay: { type: "bool" },
+  // not accessible from HTML apparently?
+  // name: "buffered" values: ["true" "false"]
+  checked: { type: "bool" },
+  cite: { type: "string" },
+  class: { type: "string" },
+  cols: { type: "string" },
+  colspan: { type: "string" },
+  // for the purposes of FTML this is a boolean attribute
+  // however in HTML it's actually enumerated
+  contenteditable: { type: "bool" },
+  controls: { type: "bool" },
+  coords: { type: "string" },
+  datetime: { type: "string" },
+  decoding: { type: "string", enum: ["true", "false"] },
+  default: { type: "bool" },
+  dir: { type: "string" },
+  dirname: { type: "string" },
+  disabled: { type: "bool" },
+  // can be given without a value like a boolean
+  download: { type: "string" },
+  // not a boolean apparently
   // empty values aren't true either
-  { name: "draggable", enum: ["true", "false"] },
-  { name: "for" },
-  { name: "form" },
-  { name: "headers" },
-  { name: "height" },
-  { name: "hidden", boolean: true },
-  { name: "high" },
-  { name: "href" },
-  { name: "hreflang" },
-  { name: "id" },
-  {
-    name: "inputmode",
+  draggable: { type: "string", enum: ["true", "false"] },
+  for: { type: "string" },
+  form: { type: "string" },
+  headers: { type: "string" },
+  height: { type: "string" },
+  hidden: { type: "bool" },
+  high: { type: "string" },
+  href: { type: "string" },
+  hreflang: { type: "string" },
+  id: { type: "string" },
+  inputmode: {
+    type: "string",
     enum: ["none", "text", "decimal", "numeric", "tel", "search", "email", "url"]
   },
-  { name: "ismap", boolean: true },
-  { name: "itemprop" },
-  {
-    name: "kind",
+  ismap: { type: "bool" },
+  itemprop: { type: "string" },
+  kind: {
+    type: "string",
     enum: ["subtitles", "captions", "descriptions", "chapters", "metadata"]
   },
-  { name: "label" },
-  { name: "lang" },
-  { name: "list" },
-  { name: "loop", boolean: true },
-  { name: "low" },
-  { name: "max" },
-  { name: "maxlength" },
-  { name: "minlength" },
-  { name: "min" },
-  { name: "multiple", boolean: true },
-  { name: "muted", boolean: true },
-  { name: "name" },
-  { name: "optimum" },
-  { name: "pattern" },
-  { name: "placeholder" },
-  { name: "poster" },
+  label: { type: "string" },
+  lang: { type: "string" },
+  list: { type: "string" },
+  loop: { type: "bool" },
+  low: { type: "string" },
+  max: { type: "string" },
+  maxlength: { type: "string" },
+  minlength: { type: "string" },
+  min: { type: "string" },
+  multiple: { type: "bool" },
+  muted: { type: "bool" },
+  name: { type: "string" },
+  optimum: { type: "string" },
+  pattern: { type: "string" },
+  placeholder: { type: "string" },
+  poster: { type: "string" },
   // empty string is "auto"
-  { name: "preload", enum: ["none", "metadata", "auto"] },
-  { name: "readonly", boolean: true },
-  { name: "required", boolean: true },
-  { name: "reversed", boolean: true },
-  { name: "scope", enum: ["row", "col", "rowgroup", "colgroup"] },
-  { name: "selected", boolean: true },
-  { name: "shape", enum: ["rect", "circle", "poly", "default"] },
-  { name: "size" },
-  { name: "sizes" },
-  // not boolean, but "true"|"false" is _required_
-  { name: "spellcheck", enum: ["true", "false"] },
-  { name: "src" },
-  { name: "srclang" },
-  { name: "srcset" },
-  { name: "start" },
-  { name: "step" },
-  { name: "style" },
-  { name: "tabindex" },
-  { name: "target", enum: ["_self", "_blank", "_parent", "_top"] },
-  { name: "title" },
-  // this is not a boolean, and it requires "yes"|"no". seriously.
-  { name: "translate", enum: ["yes", "no"] },
+  preload: { type: "string", enum: ["none", "metadata", "auto"] },
+  readonly: { type: "bool" },
+  required: { type: "bool" },
+  reversed: { type: "bool" },
+  scope: { type: "string", enum: ["row", "col", "rowgroup", "colgroup"] },
+  selected: { type: "bool" },
+  shape: { type: "string", enum: ["rect", "circle", "poly", "default"] },
+  size: { type: "string" },
+  sizes: { type: "string" },
+  // not boolean but "true"|"false" is _required_
+  spellcheck: { type: "string", enum: ["true", "false"] },
+  src: { type: "string" },
+  srclang: { type: "string" },
+  srcset: { type: "string" },
+  start: { type: "string" },
+  step: { type: "string" },
+  style: { type: "string" },
+  tabindex: { type: "string" },
+  target: { type: "string", enum: ["_self", "_blank", "_parent", "_top"] },
+  title: { type: "string" },
+  // this is not a boolean and it requires "yes"|"no". seriously.
+  translate: { type: "string" },
   // this is a union of all the possible values of "type"
   // this is really just a fallback
-  {
-    name: "type",
+  type: {
+    type: "string",
     enum: [
       "submit",
       "reset",
@@ -122,17 +121,18 @@ export const htmlAttributes: Attribute[] = [
       "week"
     ]
   },
-  { name: "usemap" },
-  { name: "width" },
-  { name: "wrap", enum: ["hard", "soft", "off"] },
+  usemap: { type: "string" },
+  width: { type: "string" },
+  wrap: { type: "string", enum: ["hard", "soft", "off"] }
   // DEPRECATED
   // probably more should go here - but it may depend on the block
-  {
-    name: "align",
-    deprecated: true,
-    enum: ["top", "middle", "bottom", "left", "right"]
-  },
-  { name: "background", deprecated: true },
-  { name: "bgcolor", deprecated: true },
-  { name: "border", deprecated: true }
-]
+  // TODO: allow deprecated attributes
+  // {
+  //   name: "align",
+  //   deprecated: true,
+  //   enum: ["top", "middle", "bottom", "left", "right"]
+  // },
+  // { name: "background", deprecated: true },
+  // { name: "bgcolor", deprecated: true },
+  // { name: "border", deprecated: true }
+}

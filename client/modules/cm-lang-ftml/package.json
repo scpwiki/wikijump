@@ -24,6 +24,7 @@
     "@codemirror/highlight": "^0.18.3",
     "@codemirror/language": "^0.18.1",
     "@codemirror/language-data": "^0.18.0",
+    "@codemirror/lang-html": "^0.18.1",
     "@codemirror/lint": "^0.18.2",
     "@codemirror/state": "^0.18.7",
     "cm-tarnation": "^0.0.0",

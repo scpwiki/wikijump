@@ -1,12 +1,13 @@
 import { tags as t } from "@codemirror/highlight"
 import { foldNodeProp } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
+import { htmlCompletion } from "@codemirror/lang-html"
 import { TarnationLanguage, lb, re, lkup } from "cm-tarnation"
 import { FTMLLinter } from "./lint"
 import { completeFTML } from "./autocomplete/autocomplete"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
 
-export type { BlockConfiguration, Block2, Attribute2 } from "./data/types"
+export type { BlockConfiguration, Block, Argument } from "./data/types"
 
 // TODO: figure out indentation
 // TODO: figure out if there is any way to make the block grammar not awful
@@ -75,7 +76,7 @@ export const FTMLLanguage = new TarnationLanguage({
     autocomplete: completeFTML
   },
 
-  supportExtensions: [FTMLLinter],
+  supportExtensions: [FTMLLinter, htmlCompletion],
 
   configure: {
     props: [
@@ -535,7 +536,7 @@ export const FTMLLanguage = new TarnationLanguage({
         ],
 
         // block modules
-        [[/(@bs)(@bm?)(module)(@bsf)(\s*)/, "@mods", /([^]*?)(@be)/], "BlockNode",
+        [[/(@bs)(@bm?)(module)(@bsf)(\s*)([^\s\]]+)([^]*?)(@be)/], "BlockNode",
           ["@BR", "t.modifier", "BlockNameModule", "t.modifier", "", "ModuleName", { strict: false, rules: "#block_node_map" }, "@BR"]
         ],
 
@@ -594,6 +595,7 @@ export const FTMLLanguage = new TarnationLanguage({
           BlockNodeArgumentValue: t.string
         } },
 
+        // TODO: port over CSS attribute grammar
         // [/(style)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
         //   "BlockNodeArgumentName",
         //   "t.definitionOperator",

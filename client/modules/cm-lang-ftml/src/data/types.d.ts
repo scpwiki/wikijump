@@ -1,25 +1,7 @@
+export type BlockConfiguration = Record<string, Block>
+export type ModuleConfiguration = Record<string, Module>
+
 export interface Block {
-  name: string
-  aliases: string[]
-  type: "none" | "value" | "map" | "value+map"
-  attrs: Attribute[]
-  body: boolean
-  globals?: boolean
-  deprecated?: string
-  info?: string
-}
-
-export interface Attribute {
-  name: string
-  boolean?: boolean
-  enum?: string[]
-  deprecated?: boolean
-  info?: string
-}
-
-export type BlockConfiguration = Record<string, Block2>
-
-export interface Block2 {
   "deprecated"?: boolean
   "aliases"?: string[]
   "accepts-star"?: boolean
@@ -30,11 +12,19 @@ export interface Block2 {
   "html-attributes"?: boolean
   "html-output": "css" | "other" | `html,${string}` | `html,${string},${string}`
   "special"?: "" | "module"
-  "arguments"?: Record<string, Attribute2>
+  "arguments"?: Record<string, Argument>
 }
 
-export interface Attribute2 {
-  "type": `${"string" | "int" | "float"}${"[]" | ""}`
+export interface Module {
+  "deprecated"?: boolean
+  "aliases"?: string[]
+  "body": "none" | "raw" | "elements" | "other"
+  "html-attributes"?: boolean
+  "arguments"?: Record<string, Argument>
+}
+
+export interface Argument {
+  "type": `${"string" | "int" | "float" | "bool"}${"[]" | ""}`
   "enum"?: (string | number)[]
   "min-value"?: number
   "max-value"?: number
