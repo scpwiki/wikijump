@@ -185,8 +185,7 @@ class WikiTransformation
         } else {
             $format = '%e %b %Y, %H:%M %Z|agohover';
         }
-        $dateString = '[[date ' . $m[1] . ' format="'.$format.'"' . ']]';
-        return $dateString;
+        return '[[date ' . $m[1] . ' format="'.$format.'"' . ']]';
     }
 
     private function _handleComementsCount($m)
@@ -194,10 +193,7 @@ class WikiTransformation
         $page = $this->_tmpPage;
         $threadId = $page->getThreadId();
         if ($threadId) {
-            $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
-        }
-        if ($thread) {
-            return $thread->getNumberPosts();
+            return ForumThreadPeer::instance()->selectByPrimaryKey($threadId)->getNumberPosts();
         }
         return 0;
     }
@@ -268,11 +264,11 @@ class WikiTransformation
         $wiki->setRenderConf($this->transformationFormat, 'wikilink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
 
         $interWikis = array(
-            'wikipedia'    => 'http://en.wikipedia.org/wiki/%s',
-            'wikipedia.pl'    => 'http://pl.wikipedia.org/wiki/%s',
-            'pl.wikipedia'    => 'http://pl.wikipedia.org/wiki/%s',
-            'google'    => 'http://www.google.com/search?q=%s',
-            'dictionary' => 'http://dictionary.reference.com/browse/%s'
+            'wikipedia'    => 'https://en.wikipedia.org/wiki/%s',
+            'wikipedia.pl'    => 'https://pl.wikipedia.org/wiki/%s',
+            'pl.wikipedia'    => 'https://pl.wikipedia.org/wiki/%s',
+            'google'    => 'https://www.google.com/search?q=%s',
+            'dictionary' => 'https://dictionary.reference.com/browse/%s'
         );
 
         // configure the interwiki rule
@@ -287,6 +283,7 @@ class WikiTransformation
     {
         $wiki = $this->wiki;
         switch ($mode) {
+            case 'pm':
             case 'post':
                 // disable a few rules
                 $wiki->disableRule("include");
@@ -314,27 +311,6 @@ class WikiTransformation
                 $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000).'-');
                 $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000).'-');
 
-                break;
-            case 'pm':
-                // disable a few rules
-                $wiki->disableRule("include");
-                $wiki->disableRule("modulepre");
-                $wiki->disableRule("module");
-                $wiki->disableRule("module654");
-                $wiki->disableRule("toc");
-                $wiki->disableRule("Social");
-                $wiki->disableRule("button");
-
-                //configure
-
-                $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
-                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0, 1000000).'-');
-                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000).'-');
-                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000).'-');
-
-                $wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
-                $wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
-                $wiki->setRenderConf($this->transformationFormat, 'gallery', 'no_local', true);
                 break;
 
             case 'feed':
@@ -372,7 +348,6 @@ class WikiTransformation
                 break;
             default:
                 throw Exception("Invalid Wiki engine mode.");
-                break;
         }
     }
 
