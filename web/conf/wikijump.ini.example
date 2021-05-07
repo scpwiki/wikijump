@@ -341,7 +341,18 @@ level = error
 ; Purpose: Not yet implemented, but will be used to specify the filename to dump logs to.
 ; GlobalProperties Reference: $LOGGER_FILE
 ; Default: "wikijump.log"
-file = wikijump.log
+wikitext_backend = wikijump.log
+
+
+;;;;
+; Feature Flags
+[feature]
+
+; [wikitext_backend]
+; Purpose: Which wikitext parser/renderer backend to use. Choose from "text_wiki", "ftml", or "null".
+; GlobalProperties Reference: $FEATURE_WIKITEXT_BACKEND
+; Default: "text_wiki"
+file = "text_wiki"
 
 
 ;;;;
