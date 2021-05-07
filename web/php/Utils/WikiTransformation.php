@@ -116,7 +116,6 @@ class WikiTransformation
             $b = $template;
             $title = $page->getTitle();
             $title = str_replace(array('[',']'), '', $title);
-            //$title = str_replace('%%', "\xFD", $title);
             $b = str_replace('%%%%%title%%%%%', $title, $b);
             $b = preg_replace(";%%%%%((linked_title)|(title_linked))%%%%%;i", preg_quote_replacement('[[[' . $page->getUnixName() . ' | ' . $title . ']]]'), $b);
 
@@ -170,7 +169,6 @@ class WikiTransformation
             $this, '_formatDate'), $b);
 
             $template = $b;
-            //$template = preg_replace(';(%%%%%([a-z0-9\(\)_]+)%%%%%;i', '%%\\1%%', $template);
         }
 
         $out = str_replace('%%%%%content%%%%%', trim($out), $template);
@@ -234,7 +232,6 @@ class WikiTransformation
             $b = preg_replace(';%%(content({[0-9]+}))?%%;', "%\xFA%\\1%\xFA%", $m[0]);
             $b = preg_replace(';(?<!%)%%([a-z0-9\(\)_]+)%%(?!%);i', "%\xFA%\\1%\xFA%", $b);
             $b = preg_replace(';(?<!%)%%(date(\|.*?)?)%%(?!%);i', "%\xFA%\\1%\xFA%", $b);
-            //$b = preg_replace(";%\xFA%(content({[0-9]+}))?%\xFA%;", "%\xFA%\\1%\xFA%", $b);
             return $b;
         }
     }
@@ -390,7 +387,6 @@ class WikiTransformation
 
     public function processHtml($doc)
     {
-        // require_once(WIKIJUMP_ROOT."/lib/Text_Antiwiki/Text/Antiwiki.php");  # ???
         // just for text_wiki extend the include_path
         ini_set('include_path', ini_get('include_path').':'.WIKIJUMP_ROOT.'/lib/Text_Antiwiki/');
 
