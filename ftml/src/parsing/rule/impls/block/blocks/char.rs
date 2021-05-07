@@ -42,8 +42,8 @@ lazy_static! {
 pub const BLOCK_CHAR: BlockRule = BlockRule {
     name: "block-char",
     accepts_names: &["char", "character"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };
@@ -52,14 +52,14 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing character / HTML entity block"; "in-head" => in_head);
 
-    assert!(!special, "Char doesn't allow special variant");
-    assert!(!modifier, "Char doesn't allow modifier variant");
+    assert!(!flag_star, "Char doesn't allow star flag");
+    assert!(!flag_score, "Char doesn't allow score flag");
     assert_block_name(&BLOCK_CHAR, name);
 
     // Parse the entity and get the string

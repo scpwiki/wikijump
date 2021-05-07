@@ -24,8 +24,8 @@ use std::num::NonZeroU32;
 pub const BLOCK_LINES: BlockRule = BlockRule {
     name: "block-lines",
     accepts_names: &["lines", "newlines"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -34,14 +34,14 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing newlines block"; "in-head" => in_head);
 
-    assert!(!special, "Lines doesn't allow special variant");
-    assert!(!modifier, "Lines doesn't allow modifier variant");
+    assert!(!flag_star, "Lines doesn't allow star flag");
+    assert!(!flag_score, "Lines doesn't allow score flag");
     assert_block_name(&BLOCK_LINES, name);
 
     let count = parser.get_head_value(&BLOCK_LINES, in_head, parse_count)?;

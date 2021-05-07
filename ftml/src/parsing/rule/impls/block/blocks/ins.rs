@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_INS: BlockRule = BlockRule {
     name: "block-ins",
     accepts_names: &["ins", "insertion"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };
@@ -33,8 +33,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -44,8 +44,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert!(!special, "Ins doesn't allow special variant");
-    assert!(!modifier, "Ins doesn't allow modifier variant");
+    assert!(!flag_star, "Ins doesn't allow star flag");
+    assert!(!flag_score, "Ins doesn't allow score flag");
     assert_block_name(&BLOCK_INS, name);
 
     let arguments = parser.get_head_map(&BLOCK_INS, in_head)?;

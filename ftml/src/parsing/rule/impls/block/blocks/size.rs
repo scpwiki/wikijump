@@ -25,8 +25,8 @@ use std::borrow::Cow;
 pub const BLOCK_SIZE: BlockRule = BlockRule {
     name: "block-size",
     accepts_names: &["size"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: false,
     parse_fn,
 };
@@ -35,8 +35,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -46,8 +46,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert!(!special, "Size doesn't allow special variant");
-    assert!(!modifier, "Size doesn't allow modifier variant");
+    assert!(!flag_star, "Size doesn't allow star flag");
+    assert!(!flag_score, "Size doesn't allow score flag");
     assert_block_name(&BLOCK_SIZE, name);
 
     let size =

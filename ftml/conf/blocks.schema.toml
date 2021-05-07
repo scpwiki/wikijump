@@ -20,12 +20,12 @@ deprecated = false
 # type: string[], optional
 aliases = ["a", "anchor"]
 
-# Whether this block accepts the star (*) modifier.
+# Whether this block accepts the star (*) flag.
 #
 # type: bool, optional
 accepts-star = false
 
-# Whether this block accepts the score (_) modifier.
+# Whether this block accepts the score (_) flag.
 #
 # type: bool, optional
 accepts-score = true

@@ -39,7 +39,7 @@ mod rule;
 pub mod blocks;
 
 pub use self::arguments::Arguments;
-pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_SPECIAL};
+pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_STAR};
 
 /// Define a rule for how to parse a block.
 #[derive(Clone)]
@@ -56,17 +56,17 @@ pub struct BlockRule {
     /// Will panic if empty.
     accepts_names: &'static [&'static str],
 
-    /// Whether this block accepts `*` as a modifier.
+    /// Whether this block accepts the star flag (`*`).
     ///
     /// For instance, user can be invoked as both
     /// `[[user aismallard]]` and `[[*user aismallard]]`.
-    accepts_special: bool,
+    accepts_star: bool,
 
-    /// Whether this block accepts `_` as a modifier.
+    /// Whether this block accepts the score flag (`_`).
     ///
     /// For instance, div can be invoked as both
     /// `[[div]]` and `[[div_]]`.
-    accepts_modifier: bool,
+    accepts_score: bool,
 
     /// Whether this block optionally allows its head and tail to be separated by newlines.
     /// These newlines will be consumed and not be interpreted as line breaks.
@@ -115,8 +115,8 @@ impl Debug for BlockRule {
         f.debug_struct("BlockRule")
             .field("name", &self.name)
             .field("accepts_names", &self.accepts_names)
-            .field("accepts_special", &self.accepts_special)
-            .field("accepts_modifier", &self.accepts_modifier)
+            .field("accepts_star", &self.accepts_star)
+            .field("accepts_score", &self.accepts_score)
             .field("accepts_newlines", &self.accepts_newlines)
             .field("parse_fn", &(self.parse_fn as *const ()))
             .finish()
@@ -129,7 +129,8 @@ impl Debug for BlockRule {
 /// * `log` -- `Logger` instance
 /// * `parser` -- `Parser` instance
 /// * `name` -- The name of the block
-/// * `special` -- Whether this block is `[[*` (special) or `[[` (regular)
+/// * `flag_star` -- Whether this block is has the star flag (`*`).
+/// * `flag_score` -- Whether this block has the score flag (`_`).
 /// * `in_head` -- Whether we're still in the block head, or if it's finished
 pub type BlockParseFn = for<'r, 't> fn(
     &Logger,

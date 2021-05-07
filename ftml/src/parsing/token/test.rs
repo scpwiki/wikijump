@@ -116,7 +116,7 @@ fn tokens() {
                 span: 0..2,
             },
             ExtractedToken {
-                token: Token::LeftBlockSpecial,
+                token: Token::LeftBlockStar,
                 slice: "[[*",
                 span: 2..5,
             },

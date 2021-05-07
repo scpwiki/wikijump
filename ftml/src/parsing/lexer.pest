@@ -54,13 +54,13 @@ token = _{
     (right_link ~ right_bracket) |
 
     // Brackets
-    left_link_special |
+    left_link_star |
     left_link |
-    left_block_special |
+    left_block_star |
     left_block_end |
     left_block |
     left_bracket_anchor |
-    left_bracket_special |
+    left_bracket_star |
     left_bracket |
     right_link |
     right_block |
@@ -139,12 +139,12 @@ right_comment = @{ "--]" }
 
 left_bracket = @{ "[" }
 left_bracket_anchor = @{ "[#" }
-left_bracket_special = @{ "[*" }
+left_bracket_star = @{ "[*" }
 left_block = @{ "[[" }
 left_block_end = @{ "[[/" }
-left_block_special = @{ "[[*" }
+left_block_star = @{ "[[*" }
 left_link = @{ "[[[" }
-left_link_special = @{ "[[[*" }
+left_link_star = @{ "[[[*" }
 right_bracket = @{ "]" }
 right_block = @{ "]]" }
 right_link = @{ "]]]" }

@@ -1,5 +1,5 @@
 {
-    "input": "[[*include my-page]]",
+    "input": "[[*radio]] Nameless",
     "tree": {
         "elements": [
             {
@@ -14,7 +14,11 @@
                         },
                         {
                             "element": "text",
-                            "data": "include"
+                            "data": "radio"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
                         },
                         {
                             "element": "text",
@@ -22,19 +26,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "my"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "page"
-                        },
-                        {
-                            "element": "text",
-                            "data": "]]"
+                            "data": "Nameless"
                         }
                     ]
                 }
@@ -46,12 +38,12 @@
     "warnings": [
         {
             "token": "identifier",
-            "rule": "block-include",
-            "span": [11, 13],
-            "kind": "invalid-special-block"
+            "rule": "block-radio",
+            "span": [11, 19],
+            "kind": "block-missing-name"
         },
         {
-            "token": "left-block-special",
+            "token": "left-block-star",
             "rule": "fallback",
             "span": [0, 3],
             "kind": "no-rules-match"
@@ -59,7 +51,7 @@
         {
             "token": "right-block",
             "rule": "fallback",
-            "span": [18, 20],
+            "span": [8, 10],
             "kind": "no-rules-match"
         }
     ]

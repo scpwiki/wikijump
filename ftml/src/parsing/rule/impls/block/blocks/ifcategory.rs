@@ -24,8 +24,8 @@ use crate::tree::ElementCondition;
 pub const BLOCK_IFCATEGORY: BlockRule = BlockRule {
     name: "block-ifcategory",
     accepts_names: &["ifcategory"],
-    accepts_special: false,
-    accepts_modifier: true,
+    accepts_star: false,
+    accepts_score: true,
     accepts_newlines: true,
     parse_fn,
 };
@@ -34,8 +34,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -45,8 +45,8 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert!(!special, "IfCategory doesn't allow special variant");
-    assert!(!modifier, "IfCategory doesn't allow modifier variant");
+    assert!(!flag_star, "IfCategory doesn't allow star flag");
+    assert!(!flag_score, "IfCategory doesn't allow score flag");
     assert_block_name(&BLOCK_IFCATEGORY, name);
 
     // Parse out tag conditions

@@ -59,7 +59,7 @@
             "kind": "invalid-url"
         },
         {
-            "token": "left-bracket-special",
+            "token": "left-bracket-star",
             "rule": "fallback",
             "span": [0, 2],
             "kind": "no-rules-match"
