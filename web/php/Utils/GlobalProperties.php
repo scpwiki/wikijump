@@ -234,6 +234,9 @@ class GlobalProperties
         self::$LOGGER_LEVEL             = $_ENV["WIKIJUMP_LOGGER_LEVEL"] ?? self::fromIni("log", "level", "error");
         self::$LOGGER_FILE              = $_ENV["WIKIJUMP_LOGGER_FILE"] ?? self::fromIni("log", "file", "wikijump.log"); // TODO: use this setting
 
+        // feature flags
+        self::$FEATURE_WIKITEXT_BACKEND = $_ENV["FEATURE_WIKITEXT_BACKEND"] ?? self::fromIni("feature", "wikitext_backend", "text_wiki");
+
         // other settings
         self::$CACHE_FILES_FOR          = $_ENV["WIKIJUMP_CACHE_FILES_FOR"] ?? self::fromIni("misc", "cache_files_for", 0);
         self::$URL_DOCS                 = $_ENV["WIKIJUMP_URL_DOCS"] ?? self::fromIni("misc", "doc_url", self::$HTTP_SCHEMA. "://" . self::$URL_HOST . "/doc");
