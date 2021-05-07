@@ -24,7 +24,6 @@ class WikiTransformation
     public static $internalLinksExist;
     public static $externalLinks;
     public static $internalLinksNotExist;
-    public static $inclusions;
 
     private $page;
     private $pageUnixName;
