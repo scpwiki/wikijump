@@ -79,12 +79,12 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
 
     let show_text = show_text.unwrap_or_else(|| {
         ctx.handle()
-            .get_message(log, &ctx.info().locale, "collapsible-open")
+            .get_message(log, &ctx.info().language, "collapsible-open")
     });
 
     let hide_text = hide_text.unwrap_or_else(|| {
         ctx.handle()
-            .get_message(log, &ctx.info().locale, "collapsible-hide")
+            .get_message(log, &ctx.info().language, "collapsible-hide")
     });
 
     fn collapsible_style(show: bool) -> &'static str {

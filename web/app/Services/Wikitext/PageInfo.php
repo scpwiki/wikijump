@@ -20,7 +20,7 @@ class PageInfo
         string $title,
         ?string $alt_title,
         array $tags,
-        string $locale
+        string $language
     ) {
         $tag_array = FtmlFfi::listToPointer(
             FtmlFfi::$C_STRING,
@@ -36,7 +36,7 @@ class PageInfo
         $this->c_data->alt_title = FtmlFfi::string($alt_title);
         $this->c_data->tags_list = $tag_array->pointer;
         $this->c_data->tags_len = $tag_array->length;
-        $this->c_data->locale = FtmlFfi::string($locale);
+        $this->c_data->language = FtmlFfi::string($language);
     }
 
     public function pointer(): FFI\CData {
@@ -55,7 +55,7 @@ class PageInfo
         FFI::free($this->c_data->site);
         FFI::free($this->c_data->title);
         FFI::free($this->c_data->alt_title);
-        FFI::free($this->c_data->locale);
+        FFI::free($this->c_data->language);
         FFI::free($this->c_data);
     }
 }

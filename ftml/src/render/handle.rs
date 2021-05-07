@@ -111,11 +111,16 @@ impl Handle {
         f(label_text);
     }
 
-    pub fn get_message(&self, log: &Logger, locale: &str, message: &str) -> &'static str {
+    pub fn get_message(
+        &self,
+        log: &Logger,
+        language: &str,
+        message: &str,
+    ) -> &'static str {
         debug!(
             log,
             "Fetching message";
-            "locale" => locale,
+            "language" => language,
             "message" => message,
         );
 

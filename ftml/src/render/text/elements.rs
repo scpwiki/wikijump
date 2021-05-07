@@ -203,9 +203,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                     match $input {
                         Some(ref text) => &text,
                         None => {
-                            let locale = &ctx.info().locale;
+                            let language = &ctx.info().language;
 
-                            ctx.handle().get_message(log, locale, $message)
+                            ctx.handle().get_message(log, language, $message)
                         }
                     }
                 };
