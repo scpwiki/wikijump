@@ -17,12 +17,12 @@ const SKIP: string[] = ["include"]
 const PAGE_INFO: IPageInfo = {
   alt_title: null,
   category: null,
-  locale: "C",
+  locale: "en_US",
   rating: 0,
   page: "unknown",
   site: "test",
   tags: ["fruit", "component"],
-  title: "en_US"
+  title: ""
 }
 
 const FTML = uvu.suite("ftml-wasm")
