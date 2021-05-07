@@ -107,7 +107,7 @@ impl Utf16IndexMap {
         self.check_index(end)?;
 
         let new_start = self.get().get_index(start);
-        let new_end = self.get().get_index_end(end);
+        let new_end = self.get().get_index(end);
         rust_to_js!(vec![new_start, new_end])
     }
 }

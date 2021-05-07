@@ -109,7 +109,7 @@ impl ParseWarning {
 
         // Map indices to UTF-16
         let start = map.get_index(span.start);
-        let end = map.get_index_end(span.end);
+        let end = map.get_index(span.end);
         let span = start..end;
 
         // Output new warning

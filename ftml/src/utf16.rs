@@ -56,7 +56,7 @@ impl<'t> Utf16IndexMap<'t> {
             last_utf8_index = Some(utf8_index + ch.len_utf8());
         }
 
-        // Add last index, needed for get_index_end() and the final token span.
+        // Add last index, needed for the final token span.
         if let Some(utf8_index) = last_utf8_index {
             map.insert(utf8_index, utf16_index);
         }
@@ -74,31 +74,6 @@ impl<'t> Utf16IndexMap<'t> {
     #[inline]
     pub fn get_index(&self, utf8_index: usize) -> usize {
         self.map[&utf8_index]
-    }
-
-    /// Converts the end index of a UTF-8 character span into the equivalent UTF-16 one.
-    ///
-    /// Imagine the string "a💣b". In UTF-8 this looks like:
-    /// ```raw
-    /// [0x61, 0xf0, 0x9f, 0x92, 0xa3, 0x62]
-    /// ```
-    ///
-    /// Whereas in UTF-16 it looks like:
-    /// ```raw
-    /// [0x61, 0xd83d, 0xdca3, 0x62]
-    /// ```
-    ///
-    /// The UTF-8 span of the emoji is `1..4`, and the UTF-16 span is `1..2`.
-    ///
-    /// For this string, passing `4` results in `2` being returned.
-    /// This is calculated by taking the index of the next character and getting
-    /// the byte index right before it.
-    ///
-    /// # Panics
-    /// Panics if the index is out of range for the string.
-    #[inline]
-    pub fn get_index_end(&self, utf8_index: usize) -> usize {
-        self.get_index(utf8_index + 1) - 1
     }
 }
 
@@ -145,4 +120,91 @@ fn utf16_indices() {
     check!("aℝc", [(0, 1), (1, 2), (2, 3)]);
     check!("a🦀c", [(0, 1), (1, 3), (3, 4)]);
     check!("x💣yßz", [(0, 1), (1, 3), (3, 4), (4, 5), (5, 6)]);
+}
+
+#[test]
+fn utf16_slices() {
+    fn check(text: &str) {
+        let map = Utf16IndexMap::new(text);
+        let utf16_bytes: Vec<u16> = text.encode_utf16().collect();
+
+        for (utf8_start, ch) in text.char_indices() {
+            // Get UTF-8 slice
+            let utf8_stop = utf8_start + ch.len_utf8();
+            let utf8_slice = &text[utf8_start..utf8_stop];
+
+            // Get equivalent UTF-16 slice
+            let utf16_start = map.get_index(utf8_start);
+            let utf16_stop = map.get_index(utf8_stop);
+            let utf16_slice = &utf16_bytes[utf16_start..utf16_stop];
+
+            // Check that converting from UTF-16 -> UTF-8 yields the same data
+            let utf16_conv_str =
+                String::from_utf16(utf16_slice).expect("UTF-16 slice wasn't valid");
+
+            assert_eq!(
+                utf8_slice, utf16_conv_str,
+                "Converted UTF-16 -> UTF-8 slice didn't match",
+            );
+
+            // Check that converting from UTF-8 -> yields the same data
+            let utf8_conv_bytes: Vec<u16> = utf8_slice.encode_utf16().collect();
+
+            assert_eq!(
+                utf16_slice, utf8_conv_bytes,
+                "Converted UTF-8 -> UTF-16 slice didn't match",
+            );
+        }
+    }
+
+    check("");
+    check("a");
+
+    check("abc");
+    check("aßc");
+    check("aℝc");
+    check("a🦀c");
+
+    check("b");
+    check("ß");
+    check("ℝ");
+    check("🦀");
+
+    check("1b");
+    check("1ß");
+    check("1ℝ");
+    check("1🦀");
+
+    check("b1");
+    check("ß1");
+    check("ℝ1");
+    check("🦀1");
+
+    check("bb");
+    check("ßß");
+    check("ℝℝ");
+    check("🦀🦀");
+
+    check("2bb");
+    check("2ßß");
+    check("2ℝℝ");
+    check("2🦀🦀");
+
+    check("bb2");
+    check("ßß2");
+    check("ℝℝ2");
+    check("🦀🦀2");
+
+    check("bßℝ🦀");
+    check("🦀ℝßb");
+    check("b_ß_ℝ_🦀");
+    check("b__ß__ℝ__🦀");
+
+    check("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+    check("ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß");
+    check("ℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝ");
+    check("🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀");
+
+    // lol
+    check("ßℝßℝℝℝß🦀ℝℝℝℝßℝℝ🦀b🦀ℝßb🦀bbℝß🦀ßß🦀🦀bßb🦀bℝ🦀b🦀b🦀🦀bℝℝℝℝbℝ🦀bßßß🦀bß🦀bℝ🦀ℝ🦀ßßbßßßℝℝßßℝbℝℝbßℝß🦀ßßℝßbbßßbb🦀🦀🦀ßb🦀ßℝ🦀ßℝℝbℝ🦀ßß🦀bßℝbß🦀🦀bß🦀ß🦀b🦀ℝbℝ");
 }
