@@ -15,7 +15,7 @@ const SKIP: string[] = ["include"]
 const PAGE_INFO: IPageInfo = {
   alt_title: null,
   category: null,
-  language: "en_US",
+  language: "en",
   rating: 0,
   page: "unknown",
   site: "test",
