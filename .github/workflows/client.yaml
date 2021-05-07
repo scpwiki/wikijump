@@ -15,12 +15,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Node
+      - name: Install Node
         uses: actions/setup-node@v2
         with:
           node-version: "16"
 
-      - name: Install
+      - name: Dependency Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('client/**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
+
+      - name: Install Dependencies
         run: cd client && npm ci --no-optional && npm run bootstrap
 
       - name: Test
