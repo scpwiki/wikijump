@@ -12,9 +12,6 @@ use Wikidot\DB\PageTagPeer;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
 
-//use Text_Antiwiki;  # What is this? I can't even find "text_antiwiki on google.
-
-//require_once(WIKIJUMP_ROOT."/vendor/scpwiki/text_wiki/Text/Wiki.php");
 class WikiTransformation
 {
     /**
@@ -383,21 +380,6 @@ class WikiTransformation
     {
         $this->transformationFormat = $format;
         $this->resetWiki();
-    }
-
-    public function processHtml($doc)
-    {
-        // just for text_wiki extend the include_path
-        ini_set('include_path', ini_get('include_path').':'.WIKIJUMP_ROOT.'/lib/Text_Antiwiki/');
-
-        // clean the code!!!
-        $doc = $this->purifyHtml($doc);
-
-        // no Extra parameters, just GO GO GO
-        // $Wiki = new Text_Antiwiki();  # Is this supposed to convert Html to wikijump markup?
-        $out = $wiki->transform($doc, 'Wiki');
-
-        return $out;
     }
 }
 
