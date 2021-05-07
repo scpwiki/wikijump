@@ -139,11 +139,11 @@ fn utf16_slices() {
             let utf16_slice = &utf16_bytes[utf16_start..utf16_stop];
 
             // Check that converting from UTF-16 -> UTF-8 yields the same data
-            let utf16_conv_str = String::from_utf16(utf16_slice).expect("UTF-16 slice wasn't valid");
+            let utf16_conv_str =
+                String::from_utf16(utf16_slice).expect("UTF-16 slice wasn't valid");
 
             assert_eq!(
-                utf8_slice,
-                utf16_conv_str,
+                utf8_slice, utf16_conv_str,
                 "Converted UTF-16 -> UTF-8 slice didn't match",
             );
 
@@ -151,8 +151,7 @@ fn utf16_slices() {
             let utf8_conv_bytes: Vec<u16> = utf8_slice.encode_utf16().collect();
 
             assert_eq!(
-                utf16_slice,
-                utf8_conv_bytes,
+                utf16_slice, utf8_conv_bytes,
                 "Converted UTF-8 -> UTF-16 slice didn't match",
             );
         }
