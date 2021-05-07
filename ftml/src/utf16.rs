@@ -146,3 +146,88 @@ fn utf16_indices() {
     check!("a🦀c", [(0, 1), (1, 3), (3, 4)]);
     check!("x💣yßz", [(0, 1), (1, 3), (3, 4), (4, 5), (5, 6)]);
 }
+
+#[test]
+fn utf16_slices() {
+    fn check(text: &str) {
+        let map = Utf16IndexMap::new(text);
+        let utf16_bytes: Vec<u16> = text.encode_utf16().collect();
+
+        for (utf8_start, ch) in text.char_indices() {
+            // Get UTF-8 slice
+            let utf8_stop = utf8_start + ch.len_utf8();
+            let utf8_slice = &text[utf8_start..utf8_stop];
+
+            // Get equivalent UTF-16 slice
+            let utf16_start = map.get_index(utf8_start);
+            let utf16_stop = map.get_index_end(utf8_stop);
+            let utf16_slice = &utf16_bytes[utf16_start..utf16_stop];
+
+            // Check that converting from UTF-16 -> UTF-8 yields the same data
+            let utf16_conv_str = String::from_utf16(utf16_slice).expect("UTF-16 slice wasn't valid");
+
+            assert_eq!(
+                utf8_slice,
+                utf16_conv_str,
+                "Converted UTF-16 -> UTF-8 slice didn't match",
+            );
+
+            // Check that converting from UTF-8 -> yields the same data
+            let utf8_conv_bytes: Vec<u16> = utf8_slice.encode_utf16().collect();
+
+            assert_eq!(
+                utf16_slice,
+                utf8_conv_bytes,
+                "Converted UTF-8 -> UTF-16 slice didn't match",
+            );
+        }
+    }
+
+    check("");
+    check("a");
+
+    check("abc");
+    check("aßc");
+    check("aℝc");
+    check("a🦀c");
+
+    check("b");
+    check("ß");
+    check("ℝ");
+    check("🦀");
+
+    check("1b");
+    check("1ß");
+    check("1ℝ");
+    check("1🦀");
+
+    check("b1");
+    check("ß1");
+    check("ℝ1");
+    check("🦀1");
+
+    check("bb");
+    check("ßß");
+    check("ℝℝ");
+    check("🦀🦀");
+
+    check("2bb");
+    check("2ßß");
+    check("2ℝℝ");
+    check("2🦀🦀");
+
+    check("bb2");
+    check("ßß2");
+    check("ℝℝ2");
+    check("🦀🦀2");
+
+    check("bßℝ🦀");
+    check("🦀ℝßb");
+    check("b_ß_ℝ_🦀");
+    check("b__ß__ℝ__🦀");
+
+    check("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+    check("ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß");
+    check("ℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝ");
+    check("🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀");
+}
