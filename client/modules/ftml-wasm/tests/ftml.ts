@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 import * as uvu from "uvu"
 import * as assert from "uvu/assert"
 import * as fs from "fs/promises"
@@ -11,7 +10,7 @@ lib.init(wasm as any)
 
 const FTML = uvu.suite("ftml-wasm")
 
-FTML.skip("check for out of date", async () => {
+FTML("check for out of date", async () => {
   await lib.loading
   const thisVersionRaw = lib.version()
   const [, thisVersion] = /ftml v([\d.]+).*$/.exec(thisVersionRaw)!
