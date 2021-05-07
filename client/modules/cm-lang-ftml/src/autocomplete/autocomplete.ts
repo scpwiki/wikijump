@@ -21,10 +21,7 @@ const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
         label: alias,
         // detail: name,
         type: "type",
-        info: () => {
-          setTimeout(() => instance.mount())
-          return instance.dom
-        }
+        info: () => instance.dom
       })
     }
     return completions

@@ -1,7 +1,7 @@
 import * as uvu from "uvu"
 import * as assert from "uvu/assert"
 
-import { DisconnectElement } from "../src/adapters/svelte-disconnect-detect"
+import { LifecycleElement } from "../src/adapters/svelte-lifecycle-element"
 
 // testing the other adapters might not really be possible, at least in this module
 // they ofc require a svelte component to work, and even after you'd need an entire
@@ -14,7 +14,7 @@ import { DisconnectElement } from "../src/adapters/svelte-disconnect-detect"
 const Adapters = uvu.suite("SheafAdapters")
 
 Adapters("disconnect element calls callback", async () => {
-  const element = new DisconnectElement()
+  const element = new LifecycleElement()
   document.documentElement.append(element)
 
   let disconnected = false

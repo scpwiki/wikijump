@@ -1,6 +1,6 @@
 import type { SvelteComponent } from "svelte"
 import type { EditorView, ViewUpdate } from "@codemirror/view"
-import { DisconnectElement } from "./svelte-disconnect-detect"
+import { LifecycleElement } from "./svelte-lifecycle-element"
 
 export interface EditorSvelteComponentProps {
   /**
@@ -18,9 +18,7 @@ export interface EditorSvelteComponentProps {
 
 export interface EditorSvelteComponentInstance {
   /** DOM container that holds the Svelte component. */
-  dom: DisconnectElement
-  /** Function that needs to be called whenever the DOM container is mounted. */
-  mount: () => void
+  dom: LifecycleElement
   /** Function that needs to be called whenever the view updates. */
   update: (update: ViewUpdate) => void
 }
@@ -34,8 +32,12 @@ export interface EditorSvelteComponentOpts<T extends SvelteComponent> {
    * @param component The component that was just mounted.
    */
   mount?: (component: T) => void
-  /** Callback called immediately after the component is unmounted. */
-  unmount?: () => void
+  /**
+   * Callback called immediately before the component is unmounted.
+   *
+   * @param component The component that is about to be unmounted.
+   */
+  unmount?: (component: T) => void
 }
 
 /**
@@ -59,37 +61,37 @@ export class EditorSvelteComponent<T extends typeof SvelteComponent> {
    * Svelte component into CodeMirror structures, such as panels and tooltips.
    *
    * @param view The {@link EditorView} that the component will be attached to.
-   * @param EditorSvelteComponentOptsntCreateOpts}
+   * @param opts {@link EditorSvelteComponentOpts}
    */
   create(
     view?: EditorView,
     opts: EditorSvelteComponentOpts<InstanceType<T>> = {}
   ): EditorSvelteComponentInstance {
-    const dom = document.createElement(DisconnectElement.tag) as DisconnectElement
-    let component: SvelteComponent
+    let component: SvelteComponent | null = null
 
-    const onDisconnect = () => {
+    const unmount = (dom: LifecycleElement) => {
+      // prevent unmount from being called twice, if something else called this function
+      dom._unmount = undefined
+      if (opts.unmount) opts.unmount(component as InstanceType<T>)
       if (component) component.$destroy()
+      component = null
     }
 
-    const mount = () => {
-      dom.addEventListener("disconnected", onDisconnect)
-
-      const unmount = () => {
-        dom.removeEventListener("disconnected", onDisconnect)
-        if (component) component.$destroy()
-        if (opts.unmount) opts.unmount()
-      }
+    const mount = (dom: LifecycleElement) => {
+      const svelteUnmount = () => unmount(dom)
 
       component = new this.component({
         target: dom,
         intro: true,
         props: view
-          ? { view, unmount, update: undefined, ...opts.pass }
-          : { unmount, ...opts.pass }
+          ? { view, unmount: svelteUnmount, update: undefined, ...opts.pass }
+          : { unmount: svelteUnmount, ...opts.pass }
       })
 
       if (opts.mount) opts.mount(component as InstanceType<T>)
+
+      // start listening to unmounting
+      dom._unmount = unmount
     }
 
     const update = (update: ViewUpdate) => {
@@ -98,6 +100,8 @@ export class EditorSvelteComponent<T extends typeof SvelteComponent> {
       component.$set({ view, update })
     }
 
-    return { dom, mount, update }
+    const dom = new LifecycleElement(mount)
+
+    return { dom, update }
   }
 }
