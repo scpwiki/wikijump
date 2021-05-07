@@ -5,7 +5,65 @@ import { htmlCompletion } from "@codemirror/lang-html"
 import { TarnationLanguage, lb, re, lkup } from "cm-tarnation"
 import { FTMLLinter } from "./lint"
 import { completeFTML } from "./autocomplete/autocomplete"
+import { blocks, modules } from "./data/blocks"
+import type { Block, Module } from "./data/types"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
+
+function aliases([name, block]: [string, Block | Module]) {
+  return [name, ...(block.aliases ?? [])]
+}
+
+const blockEntries = Object.entries(blocks)
+const moduleEntries = Object.entries(modules)
+
+const data = {
+  blk_map: lkup(
+    blockEntries
+      .filter(([, { head, body }]) => head === "map" && body === "none")
+      .flatMap(aliases)
+  ),
+
+  blk_val: lkup(
+    blockEntries
+      .filter(([, { head, body }]) => head === "value" && body === "none")
+      .flatMap(aliases)
+  ),
+
+  // currently empty
+  // blk_valmap: lkup(
+  //   blockEntries
+  //     .filter(([, { head, body }]) => head === "value+map" && body === "none")
+  //     .flatMap(aliases)
+  // ),
+
+  // currently empty
+  // blk_el: lkup(
+  //   blockEntries
+  //     .filter(([, { head, body }]) => head === "none" && body === "elements")
+  //     .flatMap(aliases)
+  // ),
+
+  blk_map_el: lkup(
+    blockEntries
+      .filter(([, { head, body }]) => head === "map" && body === "elements")
+      .flatMap(aliases)
+  ),
+
+  blk_val_el: lkup(
+    blockEntries
+      .filter(([, { head, body }]) => head === "value" && body === "elements")
+      .flatMap(aliases)
+  ),
+
+  // currently empty
+  // blk_valmap_el: lkup(
+  //   blockEntries
+  //     .filter(([, { head, body }]) => head === "value+map" && body === "elements")
+  //     .flatMap(aliases)
+  // ),
+
+  mods: lkup(moduleEntries.flatMap(aliases))
+}
 
 // TODO: figure out indentation
 // TODO: figure out if there is any way to make the block grammar not awful
@@ -408,46 +466,7 @@ export const FTMLLanguage = new TarnationLanguage({
           tls: /\[{3}(?!\[)/,    // triple link start
           tle: /(?!\]{4})\]{3}/, // triple link end
 
-          blk_map: lkup(["checkbox"]),
-
-          blk_val: lkup(["#", "lines", "newlines"]),
-
-          blk_valmap: lkup([
-            "iframe", "radio", "radio-button",
-            // unofficial
-            "image"
-          ]),
-
-          blk_map_el: lkup([
-            "a", "anchor",
-            "blockquote", "quote",
-            "b", "bold", "strong",
-            "collapsible",
-            "del", "deletion",
-            "div",
-            "hidden",
-            "ins", "insertion",
-            "invisible",
-            "i", "italics", "em", "emphasis",
-            "mark", "highlight",
-            "tt", "mono", "monospace",
-            "span",
-            "s", "strikethrough",
-            "sub", "subscript",
-            "sup", "super", "superscript",
-            "u", "underline",
-            // unofficial
-            "ul", "ol", "li"
-          ]),
-
-          blk_val_el: lkup(["size"]),
-
-          blk_el: lkup([
-            // unofficial
-            "footnote", "=", ">", "<", "=="
-          ]),
-
-          mods: lkup(["Backlinks", "Categories", "Join", "PageTree", "Rate"])
+          ...data
         } },
 
         { brackets: [
