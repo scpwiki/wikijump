@@ -11,6 +11,12 @@ import BlockTip from "./BlockTip.svelte"
 import ModuleTip from "./ModuleTip.svelte"
 import type { Block, Module } from "../data/types"
 import { htmlAttributes } from "../data/html-attributes"
+import { Prism } from "wj-prism"
+
+// add languages from Prism into the enum for `code.arguments.type`
+try {
+  blocks.code.arguments!.type!.enum = Object.keys(Prism.languages)
+} catch {}
 
 const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
   ([name, block]) => {
@@ -188,12 +194,9 @@ export function completeFTML(context: CompletionContext): CompletionResult | nul
     const module = text(node?.getChild("ModuleName"))
 
     // figure out where we need to navigate to in the autocomplete table
-    const name =
-      prop && htmlAttributeNames.includes(prop)
-        ? "_html"
-        : module
-        ? `module_${module}`
-        : tag
+    let name = module ? `module_${module}` : tag
+    // check for html attribute
+    name = name && prop && data?.[name]?.["html-attributes"] ? "_html" : name
 
     if (name && prop && name in enumAutocompletion && prop in enumAutocompletion[name]) {
       // check if were past the last quote mark or not

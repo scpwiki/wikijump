@@ -529,7 +529,9 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // TODO: make type attribute work
         // [[code]]
-        { begin: [/(@bs)(code)(@be)/,  "BlockNode", ["@BR", "BlockName", "@BR"]],
+        { begin: [/(@bs)(@bm?)(code)(@bsf)([^]*?)(@be)/, "BlockNode",
+            ["@BR", "t.modifier", "BlockName", "t.modifier", { strict: false, rules: "#block_node_map" }, "@BR"]
+          ],
           end:   [/(@bsc)(code)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
           type: "BlockNested",
           rules: []
