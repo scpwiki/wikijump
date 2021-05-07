@@ -2,6 +2,7 @@ import { tags as t } from "@codemirror/highlight"
 import { foldNodeProp } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
 import { htmlCompletion } from "@codemirror/lang-html"
+import { cssCompletion } from "@codemirror/lang-css"
 import { TarnationLanguage, lb, re, lkup } from "cm-tarnation"
 import { FTMLLinter } from "./lint"
 import { completeFTML } from "./autocomplete/autocomplete"
@@ -132,7 +133,7 @@ export const FTMLLanguage = new TarnationLanguage({
     autocomplete: completeFTML
   },
 
-  supportExtensions: [FTMLLinter, htmlCompletion],
+  supportExtensions: [FTMLLinter, htmlCompletion, cssCompletion],
 
   configure: {
     props: [

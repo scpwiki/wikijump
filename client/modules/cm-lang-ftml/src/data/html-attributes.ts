@@ -89,7 +89,7 @@ export const htmlAttributes: Record<string, Argument> = {
   target: { type: "string", enum: ["_self", "_blank", "_parent", "_top"] },
   title: { type: "string" },
   // this is not a boolean and it requires "yes"|"no". seriously.
-  translate: { type: "string" },
+  translate: { type: "string", enum: ["yes", "no"] },
   // this is a union of all the possible values of "type"
   // this is really just a fallback
   type: {

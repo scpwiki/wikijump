@@ -1,12 +1,13 @@
 import { Diagnostic, linter } from "@codemirror/lint"
 import { warnings } from "ftml-wasm-worker"
 import type { EditorView } from "@codemirror/view"
-import { perfy } from "wj-util"
 
 interface WarningInfo {
   message: string | ((rule: string, slice: string) => string)
   severity: "info" | "warning" | "error"
 }
+
+// TODO: translation handling (need a schema for that first)
 
 const warningInfo: Record<string, WarningInfo | null> = {
   // ignored warnings
@@ -101,9 +102,7 @@ async function lint(view: EditorView) {
     const str = doc.toString()
     const len = str.length
 
-    const measure = perfy("lint", 1)
     const emitted = await warnings(str)
-    measure()
 
     const diagnostics: Diagnostic[] = []
     for (const warning of emitted) {
