@@ -5,7 +5,6 @@
 
 // Base
 @import "base/reset";
-@import "base/font-faces";
 @import "base/typography";
 @import "base/base";
 @import "base/a11y";
@@ -24,3 +23,7 @@
 // Themes
 @import "themes/colors";
 @import "themes/code";
+
+// Import font-faces as .css to resolve relative imports
+// TODO: replace this if possible - this is a hacky workaround
+@import "wj-css/src/font-faces.css";
