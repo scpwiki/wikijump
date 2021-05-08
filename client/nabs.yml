@@ -26,6 +26,10 @@ lint:fix:
   eslint: eslint "./**/*.js" "./**/*.ts" --fix
   prettier: prettier --write "modules/" "web/"
 
+# Runs everything in parallel for maximum speed
+validate:cmd: npm run lint:eslint && npm run lint:prettier && npm run typecheck
+validate: ultra validate:cmd
+
 # -- MISC.
 
 dev:dev-sandbox: ultra --raw -r --filter "web/dev-sandbox" dev
