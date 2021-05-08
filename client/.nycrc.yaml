@@ -1,13 +1,10 @@
 extends: '@istanbuljs/nyc-config-typescript'
 
 exclude:
-  - '**/node_modules/**'
   - '**/tests/**'
+  - '**/vendor/**'
   - '**/*.d.ts'
-  - '**/*.js'
-  - '*.*'
-  - 'web/**'
   - 'scripts/**'
-  - 'misc/**'
+  - 'test-megabundle.ts'
 
 reporter: ["text", "json"]

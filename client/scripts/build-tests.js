@@ -1,4 +1,8 @@
 const path = require("path")
+
+// make sure we're at root
+process.chdir(path.resolve(__dirname, "../"))
+
 const esbuild = require("esbuild")
 const globby = require("globby")
 
@@ -8,28 +12,43 @@ const sveltePlugin = require("esbuild-svelte")
 
 build()
 
-async function getTests() {
-  const testFiles = await globby("modules/*/tests/*.ts", {
-    absolute: true
-  })
-  const tests = {}
-  testFiles.forEach(file => {
-    const moduleName = path.basename(path.resolve(path.dirname(file), "../"))
-    const fileNameNoExt = path.basename(file, ".ts")
-    tests[`${moduleName}_${fileNameNoExt}`] = file
-  })
-  return tests
+async function generateMegaBundleEntrypoint() {
+  const sourceFiles = await globby("modules/*/src/**/*.ts")
+  const testFiles = await globby("modules/*/tests/*.ts")
+
+  // compile the entire monorepo into a dynamic import that won't get executed
+  // we do this so that the _entire monorepo_ gets bundled, but won't break anything
+  // this makes sure that code coverage and the like works
+  let entrypoint = "if (!globalThis && 'foo' === undefined) {"
+  for (const file of sourceFiles) {
+    entrypoint += `  import(${JSON.stringify(`./${file}`)});\n`
+  }
+  entrypoint += "}\n"
+
+  // actually import the test files
+  for (const file of testFiles) {
+    entrypoint += `import ${JSON.stringify(`./${file}`)};\n`
+  }
+
+  return entrypoint
 }
 
 async function build() {
-  const tests = await getTests()
-  console.log(`[tests] Compiling ${Object.keys(tests).length} files...`)
+  console.log(`[tests] Compiling test megabundle...`)
+
+  const entrypoint = await generateMegaBundleEntrypoint()
+
   await esbuild.build({
+    stdin: {
+      contents: entrypoint,
+      resolveDir: process.cwd(),
+      sourcefile: "test-megabundle.ts",
+      loader: "ts"
+    },
     // add other modules here if needed
-    external: ["jsdom", "global-jsdom", "uvu"],
+    external: ["jsdom", "global-jsdom", "uvu", "threads"],
     inject: ["./scripts/tests-shim.js"],
-    outdir: "tests-dist",
-    entryPoints: tests,
+    outfile: "tests-dist/test-megabundle.js",
     bundle: true,
     treeShaking: true,
     minify: false,
@@ -38,7 +57,8 @@ async function build() {
     sourcemap: true,
     sourcesContent: false,
     outExtension: { ".js": ".cjs" },
-    loader: { ".wasm": "file" },
+    loader: { ".wasm": "file", ".toml": "text", ".worker.ts": "text" },
+    logLevel: "error",
     plugins: [
       sveltePlugin({
         compileOptions: { css: true, cssHash: () => "svelte" },
@@ -47,4 +67,5 @@ async function build() {
       })
     ]
   })
+  console.log("[tests] Megabundle compile complete.")
 }
