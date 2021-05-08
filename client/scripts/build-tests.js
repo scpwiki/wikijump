@@ -26,7 +26,7 @@ async function build() {
   console.log(`[tests] Compiling ${Object.keys(tests).length} files...`)
   await esbuild.build({
     // add other modules here if needed
-    external: ["jsdom"],
+    external: ["jsdom", "global-jsdom"],
     inject: ["./scripts/tests-shim.js"],
     outdir: "tests-dist",
     entryPoints: tests,

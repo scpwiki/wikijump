@@ -146,9 +146,8 @@ html-attributes = true
 html-output = "html,input"
 
 [size]
-aliases = ["radio-button"]
 head = "value"
-body = "none"
+body = "elements"
 html-output = "html,span"
 
 [span]

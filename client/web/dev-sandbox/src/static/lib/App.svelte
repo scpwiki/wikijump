@@ -14,5 +14,5 @@
 </script>
 
 <div>
-  {#if ready}<Sheaf {doc} />{/if}
+  {#if ready}<Sheaf {doc} height="100vh" />{/if}
 </div>

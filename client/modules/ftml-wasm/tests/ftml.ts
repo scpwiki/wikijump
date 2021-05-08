@@ -1,7 +1,7 @@
 import * as uvu from "uvu"
 import * as assert from "uvu/assert"
 import * as fs from "fs/promises"
-import toml from "toml"
+import toml from "@ltd/j-toml"
 
 import * as lib from "../src/index"
 
@@ -15,7 +15,7 @@ FTML("check for out of date", async () => {
   const thisVersionRaw = lib.version()
   const [, thisVersion] = /ftml v([\d.]+).*$/.exec(thisVersionRaw)!
   const file = await fs.readFile("../ftml/Cargo.toml", { encoding: "utf-8" })
-  const pkg = toml.parse(file)
+  const pkg = toml.parse(file, 1.0, "\n", false, { order: true, null: true }) as any
   const version = pkg.package.version
   assert.type(version, "string")
   assert.is(
@@ -151,7 +151,7 @@ FTML("detailedRender", async () => {
   // we're only going to do simple type checks
   assert.type(render.ast.elements, "object")
   assert.type(render.html, "string")
-  assert.type(render.meta![0], "object")
+  // assert.type(render.meta[0], "object")
   assert.type(render.preprocessed, "string")
   assert.type(render.style, "string")
   assert.type(render.tokens, "object")

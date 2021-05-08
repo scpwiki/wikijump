@@ -22,18 +22,18 @@
   "dependencies": {
     "@codemirror/autocomplete": "^0.18.5",
     "@codemirror/closebrackets": "^0.18.0",
-    "@codemirror/commands": "^0.18.1",
+    "@codemirror/commands": "^0.18.2",
     "@codemirror/comment": "^0.18.0",
     "@codemirror/fold": "^0.18.1",
     "@codemirror/gutter": "^0.18.2",
     "@codemirror/highlight": "^0.18.3",
     "@codemirror/history": "^0.18.1",
-    "@codemirror/lang-markdown": "^0.18.1",
     "@codemirror/language": "^0.18.1",
     "@codemirror/language-data": "^0.18.0",
     "@codemirror/legacy-modes": "^0.18.0",
     "@codemirror/lint": "^0.18.2",
     "@codemirror/matchbrackets": "^0.18.0",
+    "@codemirror/panel": "^0.18.1",
     "@codemirror/rangeset": "^0.18.1",
     "@codemirror/rectangular-selection": "^0.18.0",
     "@codemirror/search": "^0.18.2",
@@ -41,6 +41,8 @@
     "@codemirror/text": "^0.18.0",
     "@codemirror/view": "^0.18.11",
     "lezer": "^0.13.4",
-    "lezer-tree": "^0.13.2"
+    "lezer-tree": "^0.13.2",
+    "svelte": "^3.38.2",
+    "wj-util": "^1.0.0"
   }
 }

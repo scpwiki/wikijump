@@ -156,7 +156,7 @@ export interface VariablesDirective {
  *  As an array, it has a very loose syntax.
  *
  *  An array rule has the following order(s):
- *  ```raw
+ *  ```text
  *  [match -> type? -> group? -> next? -> extraOptions?]
  *  [match -> substate]
  *  ```
@@ -398,7 +398,7 @@ type Alphabet =
 /** The `type` specifies what node type matched text should be "scoped" or
  *  "tagged" with in the emitted tree.
  *  It can be specified in a few different ways:
- *  ```raw
+ *  ```text
  *  '[Name]'      | Capitalized custom scope name.
  *  't.[tagname]' | Shorthand for automatically using a CodeMirror highlighting tag.
  *  '@RE'         | Special type that causes the tokenizer to completely reverse the
