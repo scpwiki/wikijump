@@ -67,7 +67,7 @@ jobs:
         run: cd client && npm install && npm run bootstrap
 
       - name: Generate Coverage
-        run: cd client && npm coverage:test
+        run: cd client && npm run coverage:test
 
       - name: Codecov
         uses: codecov/codecov-action@v1
