@@ -1,5 +1,3 @@
-import "wj-css"
-
 import App from "./App.svelte"
 
 window.addEventListener("DOMContentLoaded", async () => {
