@@ -10,7 +10,6 @@
                     "elements": [
                         {
                             "element": "container",
-                            "attributes": {},
                             "data": {
                                 "type": "bold",
                                 "attributes": {},
@@ -25,7 +24,6 @@
                                     },
                                     {
                                         "element": "container",
-                                        "attributes": {},
                                         "data": {
                                             "type": "italics",
                                             "attributes": {},

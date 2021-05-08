@@ -19,7 +19,14 @@
     "typecheck": "tsc",
     "update": "npm i && ultra --raw update:cmd",
     "update:cmd": "npm run lerna:clean && npm run bootstrap && npm run build",
+    "validate": "ultra --concurrency 10 validate:cmd",
+    "validate:cmd": "npm run lint:eslint && npm run lint:prettier && npm run typecheck",
     "nabs": "nabs"
+  },
+  "ultra": {
+    "concurrent": [
+      "validate:cmd"
+    ]
   },
   "workspaces": [
     "modules/*",
@@ -41,6 +48,7 @@
   "devDependencies": {
     "@strictsoftware/typedoc-plugin-monorepo": "^0.4.2",
     "@sveltejs/vite-plugin-svelte": "1.0.0-next.9",
+    "@types/fs-extra": "^9.0.11",
     "@types/jsdom": "^16.2.10",
     "@typescript-eslint/eslint-plugin": "^4.22.1",
     "@typescript-eslint/parser": "^4.22.1",
