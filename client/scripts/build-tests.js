@@ -59,8 +59,7 @@ async function build() {
       // breaks things if included
       "threads",
       // large CJS-compatible dependencies (so we'll exclude them)
-      "jsdom",
-      "global-jsdom",
+      "@happy-dom/*",
       "globby",
       "fs-extra",
       "@ltd/j-toml",

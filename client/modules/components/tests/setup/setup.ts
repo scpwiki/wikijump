@@ -1,17 +1,6 @@
-import { JSDOM } from "jsdom"
 import { SvelteComponent, tick } from "svelte"
 
-const { window } = new JSDOM("")
-
-export function setup() {
-  // @ts-ignore
-  globalThis.window = window
-  globalThis.document = window.document
-  globalThis.navigator = window.navigator
-  globalThis.getComputedStyle = window.getComputedStyle
-  // @ts-ignore
-  globalThis.requestAnimationFrame = null
-}
+export function setup() {}
 
 export function reset() {
   window.document.title = ""
