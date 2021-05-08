@@ -198,6 +198,10 @@
   }
 }
 
+// Replace CodeMirror's step-wise blink animations with our own smooth ones
+// CodeMirror has two identical blink animations that it alternates between
+// This is for technical reasons, mostly due to quirks with restarting CSS animations
+
 // prettier-ignore
 @keyframes cm-blink {
   0% {}
