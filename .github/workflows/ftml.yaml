@@ -21,6 +21,13 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
       - run: cd ftml && cargo build --all-features --release
       - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
       - run: cd ftml && cargo build --no-default-features --release
@@ -34,6 +41,13 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
       - uses: jetli/wasm-pack-action@v0.3.0
         with:
           version: 'latest'
@@ -53,5 +67,12 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt, clippy
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
       - run: cd ftml && cargo fmt --all -- --check
       - run: cd ftml && cargo clippy
