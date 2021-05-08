@@ -13,12 +13,13 @@ export class FTMLFragment {
   }
 
   async render() {
-    if (this.ready) return this.unwrap()!
-    const { html, style } = await FTML.render(this.src)
-    const fragment = toFragment(html)
-    this.fragment = fragment
-    this.style = style
-    return { fragment, style }
+    if (!this.ready) {
+      const { html, style } = await FTML.render(this.src)
+      const fragment = toFragment(html)
+      this.fragment = fragment
+      this.style = style
+    }
+    return this.unwrap()!
   }
 
   unwrap() {
