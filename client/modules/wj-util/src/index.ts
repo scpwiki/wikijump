@@ -309,7 +309,8 @@ export function toFragment(html: string) {
   return fragment
 }
 
-/** **DOES NOT ESCAPE INPUT**
+/**
+ * **DOES NOT ESCAPE INPUT**
  *
  *  Template string tag that creates a {@link DocumentFragment}. */
 export function html(strings: TemplateStringsArray, ...subs: string[]) {
