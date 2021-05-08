@@ -46,6 +46,7 @@ export interface EditorSvelteComponentOpts<T extends SvelteComponent> {
  * The component is provided with two props:
  * * `view`
  * * `update`
+ * * `unmount`
  *
  * You can see the types of these props in the {EditorSvelteComponentProps} interface.
  * @see {EditorSvelteComponentProps}
