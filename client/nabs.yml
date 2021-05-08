@@ -14,7 +14,7 @@ build: ultra --rebuild -r build
 test:compile:
   - trash tests-dist
   - node scripts/build-tests.js
-test:run: uvu ./tests-dist
+test:run: uvu ./tests-dist/dist test-megabundle.+js$
 test: npm run test:compile && npm run test:run
 
 coverage:test: npm run test:compile && nyc npm run test:run

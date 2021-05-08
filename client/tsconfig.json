@@ -19,6 +19,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
 
+    "sourceMap": true,
     "noEmit": true
   },
 

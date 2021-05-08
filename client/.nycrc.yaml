@@ -1,10 +1,9 @@
-extends: '@istanbuljs/nyc-config-typescript'
-
 exclude:
   - '**/tests/**'
   - '**/vendor/**'
   - '**/*.d.ts'
   - 'scripts/**'
-  - 'test-megabundle.ts'
+
+extension: ['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.svelte']
 
 reporter: ["text", "json", "lcovonly"]
