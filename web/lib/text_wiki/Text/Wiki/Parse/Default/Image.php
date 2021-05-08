@@ -56,7 +56,7 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
     public $regex =     '/' .
                         '(' .
                         '\[\[' .                  # Start opening image tag
-                        '((?:f)?[<>=])?' .        # Allow f for flickr integration and <, >, =
+                        '((?:f)?[<>=])?' .        # Set image alignment, f ~ float, <>= ~ left, right, or center
                         'image' .
                         '\s+' .                   # Require a whitespace before parameters
                         ')' .

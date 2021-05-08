@@ -22,7 +22,6 @@
 use Wikidot\DB\FilePeer;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PagePeer;
-use Wikidot\Utils\FlickrHandler;
 
 class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 
@@ -96,48 +95,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 				   	$target  = 'target="_blank"';
 				}
 
-		      	// see if is a flickr image
-		        if (strpos($src, 'flickr:') !== false) {
-		        		preg_match("/^flickr:([0-9]+)(?:_([a-z0-9]+))?/i", $src, $mat2);
-		        		$photoId = $mat2[1];
-		        		$secret = $mat2[2];
-
-		        		$flickr = FlickrHandler::instance();
-					$photo = $flickr->photos_getInfo($photoId, $secret);
-
-					if($photo == null){
-						return '<div class="error-block">Error fetching flickr image (id: '.$photoId.') info. ' .
-								'The file does not exist, is private or other problem.</div>';
-					}
-
-					$src = $flickr->buildPhotoURL($photo, $size); //"http://static.flickr.com/".$photo['_attributes']['server']."/".$photo['_attributes']['id']."_".$photo['_attributes']['secret'].".jpg";
-		         	// set/override link attribute
-		         	$attr['link'] = $photo['urls']['url'][0]['_value'];
-		        }elseif (strpos($src, '://') === false) {
-		        		// 	is the source a local file or URL?
-		            // the source refers to a local file.
-		            // add the URL base to it.
-
-		            // see if it refers to a different page
-		            if (strpos($src, '/') !== false) {
-		            		$src = preg_replace("/^\//", '', $src);
-		            		$osrc = "/local--files/".$src;
-            				$src = "/local--resized-images/".$src.'/'.$size.'.jpg';
-		            }else{
-		            		if($noLocal){
-	    						return '<div class="error-block">' .
-						    				'Error fetching local image (: '.$row.').' .
-						    				'Sorry, cannot load files attached to this page in this mode. ' .
-						    				'You should specify source page for each local image.</div>';
-						    	}
-		            		$osrc = "/local--files/".$this->wiki->vars['pageName'] .'/'. $src;
-		            		$src = "/local--resized-images/".
-								$this->wiki->vars['pageName'].'/'.$src.'/'.$size.'.jpg';
-		            }
-		            if($size == "original"){
-		            	$src = $osrc;
-		            }
-		        }elseif(strpos($src, '://') !== false){
+		        if(strpos($src, '://') !== false){
 		        	$attr['link'] = $src;
 		        	$size = "original";
 		        }else{
