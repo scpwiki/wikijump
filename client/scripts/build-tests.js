@@ -24,7 +24,7 @@ async function generateMegaBundleEntrypoint() {
   // the expression chosen here is designed to _always_ be false, but also
   // not obviously false to an optimizer - this is so this section isn't
   // tree-shaked or dead-coded out of the bundle (ruining the whole point of this)
-  let entrypoint = "if (!globalThis && 'foo' === undefined) {\n"
+  let entrypoint = "if (!globalThis && 'obviously_not_undefined' === undefined) {\n"
   for (const file of sourceFiles) {
     entrypoint += `  import(${JSON.stringify(`./${file}`)});\n`
   }
