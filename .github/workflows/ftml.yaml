@@ -31,7 +31,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ftml/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
+          key: ${{ runner.os }}-ftml-default-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (All Features)
         run: cd ftml && cargo build --all-features
@@ -68,7 +68,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ftml/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
+          key: ${{ runner.os }}-ftml-webasm-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (Default)
         run: cd ftml && wasm-pack build --dev
@@ -103,7 +103,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ftml/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
+          key: ${{ runner.os }}-ftml-default-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Rustfmt
         run: cd ftml && cargo fmt --all -- --check
