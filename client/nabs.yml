@@ -28,7 +28,7 @@ lint:fix:
 
 # Runs everything in parallel for maximum speed
 validate:cmd: npm run lint:eslint && npm run lint:prettier && npm run typecheck
-validate: ultra validate:cmd
+validate: ultra --concurrency 10 validate:cmd
 
 # -- MISC.
 
