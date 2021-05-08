@@ -23,7 +23,9 @@ jobs:
       - name: Dependency Cache
         uses: actions/cache@v2
         with:
-          path: ~/.npm
+          path: |
+            ~/.npm
+            client/node_modules
           key: ${{ runner.OS }}-node-${{ hashFiles('client/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.OS }}-node-
