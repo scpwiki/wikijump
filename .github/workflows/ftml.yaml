@@ -34,10 +34,10 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (All Features)
-        run: cd ftml && cargo build --all-features --release
+        run: cd ftml && cargo build --all-features
 
       - name: Build (No Features)
-        run: cd ftml && cargo build --no-default-features --release
+        run: cd ftml && cargo build --no-default-features
 
       - name: Test
         run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
@@ -71,13 +71,13 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (Default)
-        run: cd ftml && wasm-pack build
+        run: cd ftml && wasm-pack build --dev
 
       - name: Build (Console Logging)
-        run: cd ftml && wasm-pack build -- --features wasm-log
+        run: cd ftml && wasm-pack build --dev -- --features wasm-log
 
       - name: Build (No Features)
-        run: cd ftml && wasm-pack build -- --no-default-features
+        run: cd ftml && wasm-pack build --dev -- --no-default-features
 
   clippy_lint:
     name: Lint
