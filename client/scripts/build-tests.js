@@ -20,6 +20,10 @@ async function generateMegaBundleEntrypoint() {
   // compile the entire monorepo into a dynamic import that won't get executed
   // we do this so that the _entire monorepo_ gets bundled, but won't break anything
   // this makes sure that code coverage and the like works
+  //
+  // the expression chosen here is designed to _always_ be false, but also
+  // not obviously false to an optimizer - this is so this section isn't
+  // tree-shaked or dead-coded out of the bundle (ruining the whole point of this)
   let entrypoint = "if (!globalThis && 'foo' === undefined) {\n"
   for (const file of sourceFiles) {
     entrypoint += `  import(${JSON.stringify(`./${file}`)});\n`
