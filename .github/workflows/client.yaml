@@ -39,3 +39,38 @@ jobs:
 
       - name: Validate
         run: cd client && npm run validate
+
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: Dependency Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.npm
+            client/node_modules
+          key: ${{ runner.OS }}-node-cover-${{ hashFiles('client/**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
+
+      - name: Install Dependencies
+        run: cd client && npm install && npm run bootstrap
+
+      - name: Generate Coverage
+        run: cd client && npm coverage:test
+
+      - name: Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          directory: client/coverage
+          flags: unittests
