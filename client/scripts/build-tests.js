@@ -1,4 +1,5 @@
 const path = require("path")
+const fs = require("fs/promises")
 
 // make sure we're at root
 process.chdir(path.resolve(__dirname, "../"))
@@ -38,7 +39,7 @@ async function build() {
 
   const entrypoint = await generateMegaBundleEntrypoint()
 
-  await esbuild.build({
+  const result = await esbuild.build({
     stdin: {
       contents: entrypoint,
       resolveDir: process.cwd(),
@@ -46,9 +47,23 @@ async function build() {
       loader: "ts"
     },
     // add other modules here if needed
-    external: ["jsdom", "global-jsdom", "uvu", "threads"],
+    external: [
+      "uvu",
+      // codemirror has CJS exports now, so this is ok
+      "@codemirror/*",
+      "lezer-tree",
+      // breaks things if included
+      "threads",
+      // large CJS-compatible dependencies (so we'll exclude them)
+      "jsdom",
+      "global-jsdom",
+      "globby",
+      "fs-extra",
+      "@ltd/j-toml",
+      "svelte"
+    ],
     inject: ["./scripts/tests-shim.js"],
-    outfile: "tests-dist/test-megabundle.js",
+    outfile: "tests-dist/test-megabundle.cjs",
     bundle: true,
     treeShaking: true,
     minify: false,
@@ -56,7 +71,7 @@ async function build() {
     platform: "node",
     sourcemap: true,
     sourcesContent: false,
-    outExtension: { ".js": ".cjs" },
+    metafile: true,
     loader: { ".wasm": "file", ".toml": "text", ".worker.ts": "text" },
     logLevel: "error",
     plugins: [
@@ -67,5 +82,10 @@ async function build() {
       })
     ]
   })
+
+  // write metafile for examination purposes
+  // e.g. use with https://www.bundle-buddy.com
+  await fs.writeFile("tests-dist/meta.json", JSON.stringify(result.metafile))
+
   console.log("[tests] Megabundle compile complete.")
 }
