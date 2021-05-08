@@ -7,4 +7,4 @@ exclude:
   - 'scripts/**'
   - 'test-megabundle.ts'
 
-reporter: ["text", "json"]
+reporter: ["text", "json", "lcovonly"]
