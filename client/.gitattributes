@@ -1,0 +1,3 @@
+npm-shrinkwrap.json    merge=binary
+package-lock.json      merge=binary
+*.json                 linguist-language=JSON-with-Comments
