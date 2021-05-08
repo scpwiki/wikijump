@@ -5,7 +5,6 @@ on:
     paths:
       - 'ftml/Cargo.toml'
       - 'ftml/Cargo.lock'
-      - 'ftml/ftml-http/**'
       - 'ftml/src/**'
       - 'ftml/test/*'
       - '.github/workflows/ftml.yaml'
@@ -17,41 +16,97 @@ jobs:
     env:
       RUSTFLAGS: -D warnings
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - run: cd ftml && cargo build --all-features --release
-      - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
-      - run: cd ftml && cargo build --no-default-features --release
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ftml/target
+          key: ${{ runner.os }}-ftml-default-${{ hashFiles('ftml/**/Cargo.toml') }}
+
+      - name: Build (All Features)
+        run: cd ftml && cargo build --all-features
+
+      - name: Build (No Features)
+        run: cd ftml && cargo build --no-default-features
+
+      - name: Test
+        run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
+
   wasm:
     name: WebASM
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: jetli/wasm-pack-action@v0.3.0
+
+      - name: WASM Toolchain
+        uses: jetli/wasm-pack-action@v0.3.0
         with:
           version: 'latest'
-      - run: cd ftml && wasm-pack build
-      - run: cd ftml && wasm-pack build -- --features wasm-log
-      - run: cd ftml && wasm-pack build -- --no-default-features
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ftml/target
+          key: ${{ runner.os }}-ftml-webasm-${{ hashFiles('ftml/**/Cargo.toml') }}
+
+      - name: Build (Default)
+        run: cd ftml && wasm-pack build --dev
+
+      - name: Build (Console Logging)
+        run: cd ftml && wasm-pack build --dev -- --features wasm-log
+
+      - name: Build (No Features)
+        run: cd ftml && wasm-pack build --dev -- --no-default-features
+
   clippy_lint:
     name: Lint
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: nightly
           override: true
           components: rustfmt, clippy
-      - run: cd ftml && cargo fmt --all -- --check
-      - run: cd ftml && cargo clippy
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ftml/target
+          key: ${{ runner.os }}-ftml-lint-${{ hashFiles('ftml/**/Cargo.toml') }}
+
+      - name: Rustfmt
+        run: cd ftml && cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cd ftml && cargo clippy
