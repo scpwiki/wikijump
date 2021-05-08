@@ -30,7 +30,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target
+            ftml/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (All Features)
@@ -67,7 +67,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target
+            ftml/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (Default)
@@ -102,7 +102,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target
+            ftml/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Rustfmt
