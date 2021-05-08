@@ -26,7 +26,7 @@ async function build() {
   console.log(`[tests] Compiling ${Object.keys(tests).length} files...`)
   await esbuild.build({
     // add other modules here if needed
-    external: ["jsdom", "global-jsdom"],
+    external: ["jsdom", "global-jsdom", "uvu"],
     inject: ["./scripts/tests-shim.js"],
     outdir: "tests-dist",
     entryPoints: tests,
@@ -35,7 +35,8 @@ async function build() {
     minify: false,
     format: "cjs",
     platform: "node",
-    sourcemap: false,
+    sourcemap: true,
+    sourcesContent: false,
     outExtension: { ".js": ".cjs" },
     loader: { ".wasm": "file" },
     plugins: [

@@ -1,0 +1,13 @@
+extends: '@istanbuljs/nyc-config-typescript'
+
+exclude:
+  - '**/node_modules/**'
+  - '**/tests/**'
+  - '**/*.d.ts'
+  - '**/*.js'
+  - '*.*'
+  - 'web/**'
+  - 'scripts/**'
+  - 'misc/**'
+
+reporter: ["text", "json"]

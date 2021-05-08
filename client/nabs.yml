@@ -9,12 +9,17 @@ lerna:clean: lerna clean --yes --loglevel success
 
 build: ultra --rebuild -r build
 
-# -- TESTING, LINTING
+# -- TESTING
 
-test:
+test:compile:
   - trash tests-dist
   - node scripts/build-tests.js
-  - uvu ./tests-dist
+test:run: uvu ./tests-dist
+test: npm run test:compile && npm run test:run
+
+coverage:test: npm run test:compile && nyc npm run test:run
+
+# -- VALIDATION
 
 typecheck: tsc
 
