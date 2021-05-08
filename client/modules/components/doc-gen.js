@@ -2,7 +2,6 @@ import * as fse from "fs-extra" // doesn't have full ESM support yet
 import * as fs from "fs/promises"
 import * as path from "path"
 import * as tjs from "typescript-json-schema"
-import ora from "ora"
 import svelte2tsx from "svelte2tsx"
 import globby from "globby"
 
@@ -43,40 +42,32 @@ const TJS_CONFIG = {
 build()
 
 async function build() {
-  const spinner = ora({
-    prefixText: "[components-docs]",
-    text: "Finding components..."
-  }).start()
-
-  const msg = text => {
-    spinner.text = `${text}\n`
-    spinner.render()
-  }
+  console.log("[components-docs] Finding components...")
 
   const files = await globby("src/**/*.svelte", { absolute: true })
 
-  msg("Generating declaration sources...")
+  console.log("[components-docs] Generating declaration sources...")
 
   const map = new Map()
   for (const file of files) {
     map.set(`${file}.tsx`, await generateTSX(file))
   }
 
-  msg("Generating declarations...")
+  console.log("[components-docs] Generating declarations...")
 
   const { program, tsxFiles } = await createProgram(files, map)
 
-  msg("Writing typedoc declarations...")
+  console.log("[components-docs] Writing typedoc declarations...")
 
   program.emit()
 
-  msg("Generating schema...")
+  console.log("[components-docs] Generating schema...")
 
   const gen = tjs.buildGenerator(program, TJS_CONFIG, tsxFiles)
   const symbols = gen.getUserSymbols()
   const schema = gen.getSchemaForSymbols(symbols, false)
 
-  msg("Writing JSON...")
+  console.log("[components-docs] Writing JSON...")
 
   const outfile = JSON.stringify(schema, undefined, 2)
     .replaceAll('"$ref":', '"ref":')
@@ -87,7 +78,7 @@ async function build() {
 
   await fse.outputFile("dist/docs.json", outfile)
 
-  spinner.succeed("Components documentation JSON generated.")
+  console.log("Components documentation JSON generated.")
 }
 
 // credit to:

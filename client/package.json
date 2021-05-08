@@ -72,7 +72,6 @@
     "lerna": "^4.0.0",
     "nabs": "^0.3.0",
     "nyc": "^15.1.0",
-    "ora": "^5.4.0",
     "prettier": "^2.2.1",
     "prettier-plugin-svelte": "2.2.0",
     "sass": "^1.32.12",
