@@ -32,7 +32,7 @@ lint:fix:
   prettier: prettier --write "modules/" "web/"
 
 # Runs everything in parallel for maximum speed
-validate:cmd: npm run lint:eslint && npm run lint:prettier && npm run typecheck
+validate:cmd: npm run lint && npm run typecheck
 validate: ultra --concurrency 10 validate:cmd
 
 # -- MISC.

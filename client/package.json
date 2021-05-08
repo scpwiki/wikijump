@@ -23,11 +23,12 @@
     "update": "npm i && ultra --raw update:cmd",
     "update:cmd": "npm run lerna:clean && npm run bootstrap && npm run build",
     "validate": "ultra --concurrency 10 validate:cmd",
-    "validate:cmd": "npm run lint:eslint && npm run lint:prettier && npm run typecheck",
+    "validate:cmd": "npm run lint && npm run typecheck",
     "nabs": "nabs"
   },
   "ultra": {
     "concurrent": [
+      "lint",
       "validate:cmd"
     ]
   },
