@@ -18,6 +18,7 @@ export class FTMLFragment {
       const fragment = toFragment(html)
       this.fragment = fragment
       this.style = style
+      this.ready = true
     }
     return this.unwrap()!
   }
