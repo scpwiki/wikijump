@@ -4,15 +4,13 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "build": "node typedoc.cjs",
-    "serve": "http-server"
+    "build": "node typedoc.cjs"
   },
   "type": "module",
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "components": "^0.0.0",
-    "http-server": "^0.12.3"
+    "components": "^0.0.0"
   }
 }

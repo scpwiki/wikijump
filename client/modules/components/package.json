@@ -6,9 +6,7 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "build": "trash dist && node doc-gen.js"
-  },
+  "scripts": {},
   "type": "module",
   "svelte": "src/index.ts",
   "main": "src/index.ts",

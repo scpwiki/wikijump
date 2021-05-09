@@ -38,5 +38,3 @@ validate: ultra --concurrency 10 validate:cmd
 # -- MISC.
 
 dev:dev-sandbox: ultra --raw -r --filter "web/dev-sandbox" dev
-
-serve-docs: ultra --raw -r --filter "web/wj-docs" serve

@@ -22,7 +22,7 @@ async function main() {
     exclude: [
       "**/tests/**",
       "**/node_modules/**",
-      "**/dist/**/!(*.svelte.d.ts)",
+      "**/dist/**/",
       "**/*.js",
       "**/*.mjs",
       "**/*.cjs"
