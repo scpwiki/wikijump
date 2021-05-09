@@ -49,10 +49,8 @@ async function build() {
   await vite.build({
     root: dir,
 
-    esbuild: {
-      define: {
-        "import.meta.url": "__filename"
-      }
+    define: {
+      "import.meta.url": '"file://test-megabundle"'
     },
 
     css: {
