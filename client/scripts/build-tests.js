@@ -63,7 +63,7 @@ async function build() {
       workerPlugin(),
       tomlPlugin(),
       svelte({
-        compilerOptions: { css: true, cssHash: () => "svelte" },
+        compilerOptions: { cssHash: () => "svelte" },
         preprocess: [
           sveltePreprocess({
             sass: { sourceMapEmbed: true, sourceMapContents: true, sourceMap: true }
@@ -81,7 +81,7 @@ async function build() {
       },
 
       sourcemap: true,
-      target: "node16",
+      target: "esnext",
       minify: false,
       brotliSize: false,
       cssCodeSplit: false,
