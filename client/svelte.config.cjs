@@ -6,9 +6,11 @@
 // check for Svelte components.
 
 const sveltePreprocess = require("svelte-preprocess")
-const { typescript } = require("svelte-preprocess-esbuild")
 
 module.exports = {
-  // render typescript using esbuild rather than tsc
-  preprocess: [typescript(), sveltePreprocess({ typescript: false })]
+  preprocess: [
+    sveltePreprocess({
+      sass: { sourceMapEmbed: true, sourceMapContents: true, sourceMap: true }
+    })
+  ]
 }
