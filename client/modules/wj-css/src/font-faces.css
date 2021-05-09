@@ -1,6 +1,6 @@
-// If variable fonts are supported
+/* If variable fonts are supported */
 @supports (font-variation-settings: normal) {
-  // -- Public Sans
+  /* -- Public Sans */
 
   @font-face {
     font-weight: 100 900;
@@ -19,7 +19,7 @@
     font-display: swap;
   }
 
-  // -- Bitter
+  /* -- Bitter */
 
   @font-face {
     font-weight: 100 900;
@@ -36,7 +36,7 @@
     font-display: swap;
   }
 
-  // -- Exo 2
+  /* -- Exo 2 */
 
   @font-face {
     font-weight: 100 900;
@@ -54,7 +54,7 @@
   }
 }
 
-// -- Sometype Mono
+/* -- Sometype Mono */
 
 @font-face {
   font-weight: normal;

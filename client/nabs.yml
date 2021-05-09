@@ -23,14 +23,16 @@ typecheck: tsc
 
 lint:
   eslint: eslint "./**/*.js" "./**/*.ts"
+  stylelint: stylelint "modules/**/*.scss" "web/**/*.css"
   prettier: prettier --check "modules/" "web/"
 
 lint:fix:
   eslint: eslint "./**/*.js" "./**/*.ts" --fix
+  stylelint: stylelint "modules/**/*.scss" "web/**/*.css" --fix
   prettier: prettier --write "modules/" "web/"
 
 # Runs everything in parallel for maximum speed
-validate:cmd: npm run lint:eslint && npm run lint:prettier && npm run typecheck
+validate:cmd: npm run lint && npm run typecheck
 validate: ultra --concurrency 10 validate:cmd
 
 # -- MISC.

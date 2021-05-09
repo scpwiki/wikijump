@@ -8,12 +8,14 @@
     "build": "ultra --rebuild -r build",
     "dev:dev-sandbox": "ultra --raw -r --filter \"web/dev-sandbox\" dev",
     "lerna:clean": "lerna clean --yes --loglevel success",
-    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "lint": "npm run lint:eslint && npm run lint:prettier && npm run lint:stylelint",
     "lint:eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
-    "lint:fix": "npm run lint:fix:eslint && npm run lint:fix:prettier",
+    "lint:fix": "npm run lint:fix:eslint && npm run lint:fix:prettier && npm run lint:fix:stylelint",
     "lint:fix:eslint": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "lint:fix:prettier": "prettier --write \"modules/\" \"web/\"",
+    "lint:fix:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.css\" --fix",
     "lint:prettier": "prettier --check \"modules/\" \"web/\"",
+    "lint:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.css\"",
     "test": "npm run test:compile && nyc npm run test:run",
     "test:compile": "trash tests-dist && node scripts/build-tests.js",
     "test:run": "uvu ./tests-dist/dist test-megabundle.+js$",
@@ -21,11 +23,12 @@
     "update": "npm i && ultra --raw update:cmd",
     "update:cmd": "npm run lerna:clean && npm run bootstrap && npm run build",
     "validate": "ultra --concurrency 10 validate:cmd",
-    "validate:cmd": "npm run lint:eslint && npm run lint:prettier && npm run typecheck",
+    "validate:cmd": "npm run lint && npm run typecheck",
     "nabs": "nabs"
   },
   "ultra": {
     "concurrent": [
+      "lint",
       "validate:cmd"
     ]
   },
@@ -73,6 +76,10 @@
     "prettier": "^2.2.1",
     "prettier-plugin-svelte": "2.2.0",
     "sass": "^1.32.12",
+    "stylelint": "^13.13.1",
+    "stylelint-config-recess-order": "^2.4.0",
+    "stylelint-order": "^4.1.0",
+    "stylelint-scss": "^3.19.0",
     "svelte": "^3.38.2",
     "svelte-preprocess": "^4.7.3",
     "trash-cli": "^4.0.0",

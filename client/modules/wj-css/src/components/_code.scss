@@ -3,13 +3,13 @@
 pre.code {
   position: relative;
   font-size: font-size(1rem);
-  white-space: pre;
-  text-align: start;
-  word-wrap: normal;
-  word-break: normal;
-  tab-size: 4;
   hyphens: none;
   line-height: 1.5;
+  text-align: start;
+  word-break: normal;
+  word-wrap: normal;
+  tab-size: 4;
+  white-space: pre;
   contain: content;
 
   // make font smaller on narrow screens

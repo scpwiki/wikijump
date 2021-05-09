@@ -6,30 +6,30 @@
 }
 
 .cm-editor {
+  width: 100%;
+  height: 100%;
   color: var(--colcode-content);
   background-color: var(--colcode-background);
   caret-color: var(--colcode-accent);
-  height: 100%;
-  width: 100%;
 
   .cm-scroller {
     position: relative;
+    z-index: 0;
+    overflow-x: auto;
     font-family: var(--sheaf-font);
     font-size: var(--sheaf-font-size);
     font-weight: 400;
-    overflow-x: auto;
-    z-index: 0;
   }
 
   .cm-content {
     max-width: 45rem;
-    line-height: 1.4;
     padding-bottom: 70vh;
+    line-height: 1.4;
   }
 
   .cm-gutters {
-    background-color: var(--colcode-background);
     color: var(--colcode-comment);
+    background-color: var(--colcode-background);
     border: none;
   }
 
@@ -38,16 +38,16 @@
   }
 
   .cm-foldPlaceholder {
-    background: var(--colcode-commentdoc);
-    border: none;
     padding: 0 0.5rem;
     margin: 0 0.25rem;
     color: var(--colcode-content);
+    background: var(--colcode-commentdoc);
+    border: none;
   }
 
   .cm-button {
-    border: 1px solid var(--colcode-border);
     background: none;
+    border: 1px solid var(--colcode-border);
   }
 
   .cm-textfield {
@@ -56,8 +56,8 @@
 
   &.cm-focused ::selection,
   ::selection {
-    background-color: var(--colcode-selection);
     color: var(--colcode-content);
+    background-color: var(--colcode-selection);
   }
 
   .cm-line {
@@ -117,8 +117,8 @@
 }
 
 .cm-editor .cm-tooltip {
-  border: 1px solid var(--colcode-border);
   background-color: var(--colcode-background);
+  border: 1px solid var(--colcode-border);
   border-radius: 0.25rem;
   @include shadow(4);
 
@@ -131,10 +131,10 @@
   }
 
   .cm-completionIcon {
-    line-height: 0;
-    font-size: 1.25em;
     width: 1em;
     padding-right: 0.25em;
+    font-size: 1.25em;
+    line-height: 0;
     color: var(--colcode-keyword);
     opacity: 1;
   }
@@ -150,8 +150,8 @@
       > li {
         line-height: 1.5;
         &[aria-selected] {
-          background-color: var(--colcode-selection);
           color: var(--colcode-content);
+          background-color: var(--colcode-selection);
         }
       }
     }
@@ -168,16 +168,16 @@
   }
 
   .cm-panels {
-    background-color: var(--col-background);
     color: var(--colcode-content);
+    background-color: var(--col-background);
   }
 }
 
 .cm-editor .cm-panel {
   &.cm-panel-lint ul {
     max-height: 16rem;
-    outline: none;
     padding-right: 0.5rem;
+    outline: none;
 
     // use duplicate selector so we get more specificity
     // the CodeMirror base theme overrides otherwise
@@ -187,8 +187,8 @@
 
     > li {
       margin-bottom: 0.25rem;
-      transition: background-color 0.075s ease;
       cursor: pointer;
+      transition: background-color 0.075s ease;
 
       &:hover,
       &[aria-selected] {

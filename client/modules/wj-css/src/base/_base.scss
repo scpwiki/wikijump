@@ -38,9 +38,9 @@ sup {
 
 // Styles underlines globally.
 * {
-  text-decoration-skip-ink: none;
-  text-underline-offset: 0.075em;
   text-decoration-thickness: 0.05em;
+  text-underline-offset: 0.075em;
+  text-decoration-skip-ink: none;
 }
 
 // Struck-out text.
