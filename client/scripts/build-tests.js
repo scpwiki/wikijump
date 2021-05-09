@@ -12,6 +12,8 @@ const sveltePreprocess = require("svelte-preprocess")
 const workerPlugin = require("./vite-plugin-bundled-worker.js")
 const tomlPlugin = require("./vite-plugin-toml.js")
 
+const istanbul = require("./rollup-plugin-istanbul")
+
 build()
 
 const EXCLUDE = [/ftml-wasm-worker/]
@@ -87,6 +89,13 @@ async function build() {
       cssCodeSplit: false,
 
       rollupOptions: {
+        plugins: [
+          istanbul({
+            babelrc: false,
+            babelHelpers: "bundled",
+            extensions: [".js", ".jsx", ".es6", ".es", ".mjs", ".ts", ".tsx", ".svelte"]
+          })
+        ],
         treeshake: false,
         output: {
           interop: "esModule",
