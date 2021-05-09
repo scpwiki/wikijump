@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::Utf16IndexMap as RustUtf16IndexMap;
-use ouroboros::self_referencing;
+use self_cell::self_cell;
 use std::sync::Arc;
 
 // Typescript declarations
@@ -33,15 +33,17 @@ extern "C" {
 
 // Wrapper structures
 
-#[self_referencing]
-#[derive(Debug)]
-struct Utf16IndexMapInner {
-    text: String,
+self_cell!(
+    struct Utf16IndexMapInner {
+        #[from_fn]
+        owner: String,
 
-    #[borrows(text)]
-    #[covariant]
-    inner: RustUtf16IndexMap<'this>,
-}
+        #[covariant]
+        dependent: RustUtf16IndexMap,
+    }
+
+    impl {Debug}
+);
 
 #[wasm_bindgen]
 #[derive(Debug)]
@@ -53,18 +55,17 @@ pub struct Utf16IndexMap {
 impl Utf16IndexMap {
     #[inline]
     pub(crate) fn get(&self) -> &RustUtf16IndexMap {
-        self.inner.borrow_inner()
+        self.inner.borrow_dependent()
     }
 
     #[wasm_bindgen(constructor)]
     pub fn new(text: String) -> Utf16IndexMap {
-        let inner = Utf16IndexMapInnerBuilder {
-            text,
-            inner_builder: |text: &str| RustUtf16IndexMap::new(text),
-        };
+        let inner = Utf16IndexMapInner::from_fn(text, |text: &String| {
+            RustUtf16IndexMap::new(text)
+        });
 
         Utf16IndexMap {
-            inner: Arc::new(inner.build()),
+            inner: Arc::new(inner),
         }
     }
 
@@ -76,7 +77,7 @@ impl Utf16IndexMap {
     }
 
     fn check_index(&self, index: usize) -> Result<(), JsValue> {
-        let text = self.inner.borrow_text();
+        let text = self.inner.borrow_owner();
 
         // Since we don't want the process to panic,
         // we do the check ourselves and throw a JS exception.

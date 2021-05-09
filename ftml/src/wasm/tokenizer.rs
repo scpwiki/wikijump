@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::Tokenization as RustTokenization;
-use ouroboros::self_referencing;
+use self_cell::self_cell;
 use std::sync::Arc;
 
 // Typescript declarations
@@ -47,15 +47,17 @@ extern "C" {
 
 // Wrapper structures
 
-#[self_referencing]
-#[derive(Debug)]
-struct TokenizationInner {
-    text: String,
+self_cell!(
+    struct TokenizationInner {
+        #[from_fn]
+        owner: String,
 
-    #[borrows(text)]
-    #[covariant]
-    inner: RustTokenization<'this>,
-}
+        #[covariant]
+        dependent: RustTokenization,
+    }
+
+    impl {Debug}
+);
 
 #[wasm_bindgen]
 #[derive(Debug)]
@@ -67,7 +69,7 @@ pub struct Tokenization {
 impl Tokenization {
     #[inline]
     pub(crate) fn get(&self) -> &RustTokenization {
-        self.inner.borrow_inner()
+        self.inner.borrow_dependent()
     }
 
     #[wasm_bindgen]
@@ -79,12 +81,13 @@ impl Tokenization {
 
     #[wasm_bindgen]
     pub fn text(&self) -> String {
-        self.inner.borrow_text().clone()
+        self.inner.borrow_owner().clone()
     }
 
     #[wasm_bindgen(typescript_type = "ITokenArray")]
     pub fn tokens(&self) -> Result<ITokenArray, JsValue> {
-        self.inner.with_inner(|inner| rust_to_js!(inner.tokens()))
+        self.inner
+            .with_dependent(|_, inner| rust_to_js!(inner.tokens()))
     }
 }
 
@@ -93,12 +96,10 @@ impl Tokenization {
 #[wasm_bindgen]
 pub fn tokenize(text: String) -> Tokenization {
     let log = &*LOGGER;
-    let inner = TokenizationInnerBuilder {
-        text,
-        inner_builder: |text: &str| crate::tokenize(&log, text),
-    };
+    let inner =
+        TokenizationInner::from_fn(text, |text: &String| crate::tokenize(&log, text));
 
     Tokenization {
-        inner: Arc::new(inner.build()),
+        inner: Arc::new(inner),
     }
 }
