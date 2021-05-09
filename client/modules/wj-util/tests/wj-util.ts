@@ -76,4 +76,12 @@ Utils("perfy", () => {
   assert.type(exec(), "number")
 })
 
+Utils("sleep", async () => {
+  let flip = false
+  const promise = lib.sleep(100).then(() => (flip = true))
+  assert.not(flip)
+  await promise
+  assert.ok(flip)
+})
+
 Utils.run()

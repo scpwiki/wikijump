@@ -3,7 +3,6 @@
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "node",
-    "importHelpers": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
@@ -19,6 +18,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
 
+    "sourceMap": true,
     "noEmit": true
   },
 
@@ -32,5 +32,5 @@
       "tsconfig-paths"
     ]
   },
-  "exclude": ["node_modules", "misc/templates", "dist"]
+  "exclude": ["node_modules", "misc/templates", "dist", "tests-dist"]
 }

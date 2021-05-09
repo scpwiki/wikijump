@@ -1,8 +1,5 @@
 import svelte from "@sveltejs/vite-plugin-svelte"
-
 import sveltePreprocess from "svelte-preprocess"
-import { typescript } from "svelte-preprocess-esbuild"
-
 import workerPlugin from "../../scripts/vite-plugin-bundled-worker.js"
 import tomlPlugin from "../../scripts/vite-plugin-toml.js"
 
@@ -27,8 +24,11 @@ const config = {
     workerPlugin(),
     tomlPlugin(),
     svelte({
-      // render typescript using esbuild rather than tsc
-      preprocess: [typescript(), sveltePreprocess({ typescript: false })]
+      preprocess: [
+        sveltePreprocess({
+          sass: { sourceMapEmbed: true, sourceMapContents: true, sourceMap: true }
+        })
+      ]
     })
   ]
 }

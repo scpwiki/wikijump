@@ -1,9 +1,14 @@
 # NPM
 node_modules
-npm-debug.log
 
-# Packages
+# Artifacts
+.nyc_output
+coverage
 dist
 tests-dist
-lerna-debug.log
 .ultra.cache.json
+
+# Misc.
+npm-debug.log
+lerna-debug.log
+

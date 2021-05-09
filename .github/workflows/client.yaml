@@ -39,3 +39,9 @@ jobs:
 
       - name: Validate
         run: cd client && npm run validate
+
+      - name: Export Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          directory: client/coverage
+          flags: clientmonorepo

@@ -9,12 +9,15 @@ lerna:clean: lerna clean --yes --loglevel success
 
 build: ultra --rebuild -r build
 
-# -- TESTING, LINTING
+# -- TESTING
 
-test:
+test:compile:
   - trash tests-dist
   - node scripts/build-tests.js
-  - uvu ./tests-dist
+test:run: uvu ./tests-dist/dist test-megabundle.+js$
+test: npm run test:compile && nyc npm run test:run
+
+# -- VALIDATION
 
 typecheck: tsc
 
@@ -33,5 +36,3 @@ validate: ultra --concurrency 10 validate:cmd
 # -- MISC.
 
 dev:dev-sandbox: ultra --raw -r --filter "web/dev-sandbox" dev
-
-serve-docs: ultra --raw -r --filter "web/wj-docs" serve

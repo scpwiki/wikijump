@@ -14,7 +14,7 @@ module.exports = function viteWorkerPlugin() {
         const built = await esbuild.build({
           entryPoints: [id],
           bundle: true,
-          minify: false,
+          minify: true,
           treeShaking: true,
           outdir: "./",
           outbase: "./",
