@@ -29,7 +29,8 @@
       "agent-base", "https-proxy-agent", "socks-proxy-agent",
       "dotenv", "source-map",
       "fast-safe-stringify",
-      "tsconfig-paths"
+      "tsconfig-paths",
+      "mdast-util-from-markdown"
     ]
   },
   "exclude": ["node_modules", "misc/templates", "dist", "tests-dist"]
