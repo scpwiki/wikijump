@@ -3,17 +3,17 @@
     "tree": {
         "elements": [
             {
+                "element": "module",
+                "data": {
+                    "module": "rate"
+                }
+            },
+            {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "module",
-                            "data": {
-                                "module": "rate"
-                            }
-                        },
                         {
                             "element": "text",
                             "data": "Apple"

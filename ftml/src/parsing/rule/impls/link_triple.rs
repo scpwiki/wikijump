@@ -59,7 +59,7 @@ fn link_new_tab<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     trace!(log, "Trying to create a triple-bracket link (new tab)");
 
-    check_step(parser, Token::LeftLinkSpecial)?;
+    check_step(parser, Token::LeftLinkStar)?;
 
     try_consume_link(
         log,

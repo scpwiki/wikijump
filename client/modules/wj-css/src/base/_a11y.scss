@@ -1,0 +1,39 @@
+// Makes tags more semantic and meaningful for screen-readers.
+mark {
+  @include label-for-screenreaders("highlighted text");
+}
+s {
+  @include label-for-screenreaders("stricken text");
+}
+s {
+  @include label-for-screenreaders("deleted text");
+}
+ins {
+  @include label-for-screenreaders("inserted text");
+}
+// Change the cursor on busy elements.
+[aria-busy="true" i] {
+  cursor: progress;
+}
+
+// Change the cursor on control elements.
+[aria-controls] {
+  cursor: pointer;
+}
+
+// Change the cursor on disabled, not-editable, or otherwise inoperable elements.
+[aria-disabled="true" i],
+[disabled] {
+  cursor: not-allowed;
+}
+
+// Change the display on visually hidden accessible elements.
+
+[aria-hidden="false" i][hidden] {
+  display: initial;
+}
+
+[aria-hidden="false" i][hidden]:not(:focus) {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+}

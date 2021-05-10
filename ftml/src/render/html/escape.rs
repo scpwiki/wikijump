@@ -25,6 +25,7 @@ pub fn escape_char(c: char) -> Option<&'static str> {
         '&' => Some("&amp;"),
         '\'' => Some("&#39;"),
         '\"' => Some("&quot;"),
+        '\0' => Some(" "), // convert NULL chars to spaces
         _ => None,
     }
 }

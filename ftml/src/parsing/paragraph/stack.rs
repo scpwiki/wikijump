@@ -59,14 +59,25 @@ impl<'t> ParagraphStack<'t> {
     }
 
     #[inline]
-    pub fn push_element(&mut self, element: Element<'t>) {
+    pub fn push_element(&mut self, element: Element<'t>, paragraph_safe: bool) {
         debug!(
             self.log,
             "Pushing element to stack";
             "element" => element.name(),
+            "paragraph-safe" => paragraph_safe,
         );
 
-        self.current.push(element);
+        if paragraph_safe {
+            // Add it to the current (or new) paragraph. Nothing special.
+
+            self.current.push(element);
+        } else {
+            // This has to be its own "finished" element, outside of any
+            // paragraph wrapper. So finish up what we have, then add this element.
+
+            self.end_paragraph();
+            self.finished.push(element);
+        }
     }
 
     #[inline]
@@ -78,6 +89,22 @@ impl<'t> ParagraphStack<'t> {
         );
 
         self.exceptions.append(exceptions);
+    }
+
+    /// Remove the trailing line break if one exists.
+    ///
+    /// Exclusively for native blockquote logic, since
+    /// it needs to build blockquotes but also strip
+    /// excess line breaks.
+    ///
+    /// This should only be between lines in the blockquote.
+    #[inline]
+    pub fn pop_line_break(&mut self) {
+        debug!(self.log, "Popping last element if Element::LineBreak");
+
+        if let Some(Element::LineBreak) = self.current.last() {
+            self.current.pop();
+        }
     }
 
     pub fn build_paragraph(&mut self) -> Option<Element<'t>> {
@@ -117,14 +144,20 @@ impl<'t> ParagraphStack<'t> {
         }
     }
 
+    /// Convert all paragraph context into a `ParseResult.`
+    ///
+    /// This returns all collected elements, exceptions, and returns the final
+    /// paragraph safety value.
     pub fn into_result<'r>(mut self) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         debug!(
             self.log,
             "Converting paragraph parse stack into ParseResult",
         );
 
+        // Finish current paragraph, if any
         self.end_paragraph();
 
+        // Deconstruct stack
         let ParagraphStack {
             log: _,
             current: _,
@@ -132,6 +165,39 @@ impl<'t> ParagraphStack<'t> {
             exceptions,
         } = self;
 
-        ok!(elements, exceptions)
+        // If this has any paragraphs in it, or other incompatible elements,
+        // it's not fit to be wrapped in <p>.
+        //
+        // Otherwise it's just a listing of internal elements.
+        // This is definitely not the common case here, this mostly will happen
+        // if the element list is empty.
+        let paragraph_safe = elements.iter().all(|element| element.paragraph_safe());
+
+        // Return finished element list
+        ok!(paragraph_safe; elements, exceptions)
+    }
+
+    /// Converts all paragraph context into a set of `Element`s.
+    ///
+    /// You should only use this if you know for sure there are no exceptions,
+    /// and either have an alternate means of determining paragraph safety, or
+    /// statically know what that value would be.
+    pub fn into_elements(mut self) -> Vec<Element<'t>> {
+        debug!(
+            self.log,
+            "Converting paragraph parse stack into a Vec<Element>",
+        );
+
+        // Finish current paragraph, if any
+        self.end_paragraph();
+
+        // Check that there are no exceptions
+        debug_assert!(
+            self.exceptions.is_empty(),
+            "Exceptions found in ParagraphStack::into_elements()!",
+        );
+
+        // Deconstruct stack, return
+        self.finished
     }
 }

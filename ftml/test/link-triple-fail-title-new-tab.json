@@ -47,7 +47,7 @@
             "kind": "rule-failed"
         },
         {
-            "token": "left-link-special",
+            "token": "left-link-star",
             "rule": "fallback",
             "span": [0, 4],
             "kind": "no-rules-match"

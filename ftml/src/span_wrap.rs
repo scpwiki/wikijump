@@ -39,7 +39,7 @@ impl From<&'_ Range<usize>> for SpanWrap {
     }
 }
 
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 impl slog::Value for SpanWrap {
     fn serialize(
         &self,

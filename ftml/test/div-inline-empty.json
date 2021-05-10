@@ -5,18 +5,9 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": "div",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "container",
-                            "data": {
-                                "type": "div",
-                                "attributes": {},
-                                "elements": [
-                                ]
-                            }
-                        }
                     ]
                 }
             }

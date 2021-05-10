@@ -36,11 +36,11 @@ lazy_static! {
             // Symbols
             Token::LeftBracket => vec![RULE_LINK_SINGLE, RULE_TEXT],
             Token::LeftBracketAnchor => vec![RULE_LINK_ANCHOR],
-            Token::LeftBracketSpecial => vec![RULE_LINK_SINGLE_NEW_TAB],
+            Token::LeftBracketStar => vec![RULE_LINK_SINGLE_NEW_TAB],
             Token::RightBracket => vec![RULE_TEXT],
             Token::LeftBlock => vec![RULE_BLOCK],
             Token::LeftBlockEnd => vec![],
-            Token::LeftBlockSpecial => vec![RULE_BLOCK_SPECIAL],
+            Token::LeftBlockStar => vec![RULE_BLOCK_STAR],
             Token::RightBlock => vec![],
             Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_DASH],
             Token::TripleDash => vec![RULE_HORIZONTAL_RULE],
@@ -77,22 +77,12 @@ lazy_static! {
 
             // Links
             Token::LeftLink => vec![RULE_LINK_TRIPLE],
-            Token::LeftLinkSpecial => vec![RULE_LINK_TRIPLE_NEW_TAB],
+            Token::LeftLinkStar => vec![RULE_LINK_TRIPLE_NEW_TAB],
             Token::RightLink => vec![],
 
             // Tables
             Token::TableColumn => vec![RULE_TODO], // TODO
             Token::TableColumnTitle => vec![RULE_TODO], // TODO
-
-            // Alignment
-            Token::RightAlignOpen => vec![RULE_TODO], // TODO
-            Token::RightAlignClose => vec![],
-            Token::LeftAlignOpen => vec![RULE_TODO], // TODO
-            Token::LeftAlignClose => vec![],
-            Token::CenterAlignOpen => vec![RULE_TODO], // TODO
-            Token::CenterAlignClose => vec![],
-            Token::JustifyAlignOpen => vec![RULE_TODO], // TODO
-            Token::JustifyAlignClose => vec![],
 
             // Text components
             Token::Identifier => vec![RULE_TEXT],

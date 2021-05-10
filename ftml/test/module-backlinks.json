@@ -3,20 +3,20 @@
     "tree": {
         "elements": [
             {
+                "element": "module",
+                "data": {
+                    "module": "backlinks",
+                    "data": {
+                        "page": null
+                    }
+                }
+            },
+            {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "module",
-                            "data": {
-                                "module": "backlinks",
-                                "data": {
-                                    "page": null
-                                }
-                            }
-                        },
                         {
                             "element": "text",
                             "data": "Apple"

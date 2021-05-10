@@ -3,26 +3,26 @@
     "tree": {
         "elements": [
             {
+                "element": "module",
+                "data": {
+                    "module": "join",
+                    "data": {
+                        "button-text": null,
+                        "attributes": {
+                            "class": "join-module",
+                            "data-join": "",
+                            "id": "join-btn",
+                            "style": "display: inline-block;"
+                        }
+                    }
+                }
+            },
+            {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "module",
-                            "data": {
-                                "module": "join",
-                                "data": {
-                                    "button-text": null,
-                                    "attributes": {
-                                        "class": "join-module",
-                                        "data-join": "",
-                                        "id": "join-btn",
-                                        "style": "display: inline-block;"
-                                    }
-                                }
-                            }
-                        },
                         {
                             "element": "text",
                             "data": "Apple"

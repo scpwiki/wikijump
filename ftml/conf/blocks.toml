@@ -1,0 +1,186 @@
+[anchor]
+accepts-score = true
+head = "map"
+body = "none"
+html-attributes = true
+html-output = "html,a"
+
+[blockquote]
+aliases = ["quote"]
+accepts-newlines = true
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,blockquote"
+
+[bold]
+aliases = ["b", "strong"]
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,strong"
+
+[char]
+aliases = ["character"]
+head = "value"
+body = "none"
+html-output = "other"
+
+[checkbox]
+accepts-star = true
+head = "map"
+body = "none"
+html-attributes = true
+html-output = "html,input"
+
+[code]
+accepts-newlines = true
+head = "map"
+body = "raw"
+html-output = "html,code,code"
+[code.arguments]
+type = { type = "string" }
+
+[collapsible]
+accepts-newlines = true
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,div,collapsible-block"
+[collapsible.arguments]
+show = { type = "string" }
+hide = { type = "string" }
+folded = { type = "bool", default = true }
+[collapsible.arguments.hideLocation]
+type = "string"
+enum = ["top", "both", "bottom", "neither"]
+default = "top"
+
+[css]
+accepts-newlines = true
+head = "none"
+body = "raw"
+html-output = "css"
+
+[del]
+aliases = ["deletion"]
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,del"
+
+[div]
+accepts-score = true
+accepts-newlines = true
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,div"
+
+[hidden]
+accepts-newlines = true
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,span,hidden"
+
+[html]
+accepts-newlines = true
+head = "none"
+body = "raw"
+html-output = "html,iframe"
+
+[iframe]
+accepts-newlines = true
+head = "map"
+body = "none"
+html-output = "html,iframe"
+
+[insertion]
+aliases = ["ins"]
+head = "map"
+body = "elements"
+html-output = "html,ins"
+
+[invisible]
+accepts-newlines = true
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,span,invisible"
+
+[italics]
+aliases = ["i", "em", "emphasis"]
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,em"
+
+[lines]
+aliases = ["newlines"]
+accepts-newlines = true
+head = "value"
+body = "none"
+html-output = "html,br"
+
+[mark]
+aliases = ["highlight"]
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,mark"
+
+[monospace]
+aliases = ["tt", "mono"]
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,tt"
+
+[radio]
+aliases = ["radio-button"]
+accepts-star = true
+head = "map"
+body = "none"
+html-attributes = true
+html-output = "html,input"
+
+[size]
+head = "value"
+body = "elements"
+html-output = "html,span"
+
+[span]
+accepts-score = true
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,span"
+
+[strikethrough]
+aliases = ["s"]
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,s"
+
+[subscript]
+aliases = ["sub"]
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,sub"
+
+[superscript]
+aliases = ["sup", "super"]
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,sup"
+
+[underline]
+aliases = ["u"]
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,u"

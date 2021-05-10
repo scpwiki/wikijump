@@ -21,7 +21,7 @@
 //! Representation of generic syntax elements which wrap other elements.
 
 use super::clone::elements_to_owned;
-use super::{AttributeMap, Element, HeadingLevel, HtmlTag};
+use super::{Alignment, AttributeMap, Element, HeadingLevel, HtmlTag};
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -102,6 +102,7 @@ pub enum ContainerType {
     Invisible,
     Size,
     Paragraph,
+    Align(Alignment),
     Header(HeadingLevel),
 }
 
@@ -131,12 +132,43 @@ impl ContainerType {
             ContainerType::Invisible => HtmlTag::with_class("span", "invisible"),
             ContainerType::Size => HtmlTag::new("span"),
             ContainerType::Paragraph => HtmlTag::new("p"),
+            ContainerType::Align(alignment) => {
+                HtmlTag::with_class("div", alignment.html_class())
+            }
             ContainerType::Header(level) => HtmlTag::new(level.html_tag()),
+        }
+    }
+
+    /// Determines if this container type is able to be embedded in a paragraph.
+    ///
+    /// See `Element::paragraph_safe()`, as the same caveats apply.
+    #[inline]
+    pub fn paragraph_safe(self) -> bool {
+        match self {
+            ContainerType::Bold => true,
+            ContainerType::Italics => true,
+            ContainerType::Underline => true,
+            ContainerType::Superscript => true,
+            ContainerType::Subscript => true,
+            ContainerType::Strikethrough => true,
+            ContainerType::Monospace => true,
+            ContainerType::Span => true,
+            ContainerType::Div => false,
+            ContainerType::Mark => true,
+            ContainerType::Blockquote => false,
+            ContainerType::Insertion => true,
+            ContainerType::Deletion => true,
+            ContainerType::Hidden => true,
+            ContainerType::Invisible => true,
+            ContainerType::Size => true,
+            ContainerType::Paragraph => false,
+            ContainerType::Align(_) => false,
+            ContainerType::Header(_) => false,
         }
     }
 }
 
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 impl slog::Value for ContainerType {
     fn serialize(
         &self,

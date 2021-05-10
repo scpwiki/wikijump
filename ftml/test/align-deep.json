@@ -1,0 +1,107 @@
+{
+    "input": "[[=]]\nApple\n[[>]]\nCherry\n[[==]]\nDurian\n[[<]]Blueberry[[/<]]\n[[/==]]\n[[/>]]\n[[/=]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "align": "center"
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "paragraph",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": {
+                                    "align": "right"
+                                },
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Cherry"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": {
+                                                "align": "justify"
+                                            },
+                                            "attributes": {},
+                                            "elements": [
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": "paragraph",
+                                                        "attributes": {},
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "Durian"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": {
+                                                            "align": "left"
+                                                        },
+                                                        "attributes": {},
+                                                        "elements": [
+                                                            {
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "paragraph",
+                                                                    "attributes": {},
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "Blueberry"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

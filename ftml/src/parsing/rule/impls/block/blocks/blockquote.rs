@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_BLOCKQUOTE: BlockRule = BlockRule {
     name: "block-blockquote",
     accepts_names: &["blockquote", "quote"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -33,20 +33,20 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing blockquote block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "Blockquote doesn't allow special variant");
-    assert_eq!(modifier, false, "Blockquote doesn't allow modifier variant");
+    assert!(!flag_star, "Blockquote doesn't allow star flag");
+    assert!(!flag_score, "Blockquote doesn't allow score flag");
     assert_block_name(&BLOCK_BLOCKQUOTE, name);
 
     let arguments = parser.get_head_map(&BLOCK_BLOCKQUOTE, in_head)?;
 
-    // Get body content, based on whether we want paragraphs or not
-    let (elements, exceptions) =
+    // Get body content, but discard paragraph_safe, since blockquotes never are.
+    let (elements, exceptions, _) =
         parser.get_body_elements(&BLOCK_BLOCKQUOTE, true)?.into();
 
     // Build element and return

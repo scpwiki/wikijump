@@ -1,5 +1,5 @@
 {
-    "input": "[[checkbox id=\"apple\" style=\"color: red;\"]] Apple\n[[checkbox id=\"banana\" style=\"color: yellow;\"]] Banana",
+    "input": "[[checkbox id=\"apple\" style=\"color: red;\" disabled=\"yes\"]] Apple\n[[checkbox id=\"banana\" style=\"color: yellow;\" disabled=\"false\"]] Banana",
     "tree": {
         "elements": [
             {
@@ -13,6 +13,7 @@
                             "data": {
                                 "checked": false,
                                 "attributes": {
+                                    "disabled": "",
                                     "id": "apple",
                                     "style": "color: red;"
                                 }

@@ -22,8 +22,8 @@ use super::builder::HtmlBuilder;
 use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
-use crate::data::PageInfo;
 use crate::render::Handle;
+use crate::PageInfo;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 

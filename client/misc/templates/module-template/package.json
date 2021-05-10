@@ -1,0 +1,23 @@
+{
+  "name": "package-name",
+  "license": "agpl-3.0-or-later",
+  "description": "Short package description.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "scripts": {},
+  "type": "module",
+  "main": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scpwiki/wikijump.git",
+    "directory": "client/modules/<PATH>"
+  },
+  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
+  "homepage": "https://github.com/scpwiki/wikijump#readme",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "dependencies": {}
+}

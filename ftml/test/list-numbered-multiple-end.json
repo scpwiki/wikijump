@@ -11,33 +11,33 @@
                         {
                             "element": "text",
                             "data": "["
-                        },
-                        {
-                            "element": "list",
-                            "data": {
-                                "type": "numbered",
-                                "items": [
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "A"
-                                        }
-                                    ],
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "B"
-                                        }
-                                    ],
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "C"
-                                        }
-                                    ]
-                                ]
-                            }
                         }
+                    ]
+                }
+            },
+            {
+                "element": "list",
+                "data": {
+                    "type": "numbered",
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
+                            }
+                        ],
+                        [
+                            {
+                                "element": "text",
+                                "data": "B"
+                            }
+                        ],
+                        [
+                            {
+                                "element": "text",
+                                "data": "C"
+                            }
+                        ]
                     ]
                 }
             }

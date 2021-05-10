@@ -24,6 +24,7 @@
 //! * Trimming whitespace lines
 //! * Concatenating lines that end with backslashes
 //! * Convert tabs to four spaces
+//! * Convert null characters to regular spaces
 //! * Compress groups of 3+ newlines into 2 newlines
 //!
 //! Note on the first item:
@@ -58,6 +59,9 @@ pub fn substitute(log: &Logger, text: &mut String) {
 
     // Tabs to spaces
     str_replace(log, text, "\t", "    ");
+
+    // Null characters to spaces
+    str_replace(log, text, "\0", " ");
 
     // Remove leading and trailing newlines,
     // save one at the end

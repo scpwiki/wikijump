@@ -1,0 +1,112 @@
+// prettier-ignore
+:root {
+
+  /// Global variable for tweaking the font size of content.
+  --font-content-size: 0.875;
+
+  // --font-system-x (by itself) attempts to use default system fonts.
+  // It avoids using fairly ancient fallback fonts, or 'web-safe fonts', like Arial.
+  // Instead, this just uses the CSS default rather than force a web-safe font.
+  // Native emoji fonts are always included at the end to allow rendering of most emoji.
+  // This will always be imperfect.
+  // e.g. Noto is notorious for being on many systems and overriding the correct font.
+  // Also, the ordering does not signify any preference for an operating system.
+
+  --font-system-default: emoji,
+                         "Apple Color Emoji",
+                         "Segoe UI Emoji", "Segoe UI Symbol",
+                         "Noto Emoji",
+                         system-ui, sans-serif;
+
+  --font-system-sans: ui-sans-serif,
+                      -apple-system,
+                      "Segoe UI",
+                      "Ubuntu",
+                      "Oxygen-Sans",
+                      "Cantarell",
+                      "Roboto", "Noto",
+                      var(--font-system-default);
+
+  --font-system-rounded: ui-rounded,
+                         var(--font-system-sans);
+
+  --font-system-serif: ui-serif,
+                       "Noto Serif",
+                       "Times New Roman",
+                       var(--font-system-default);
+
+  --font-system-mono: ui-monospace,
+                      "SFMono-Regular", "Menlo",
+                      "Consolas",
+                      "Roboto Mono", "Droid Mono",
+                      monospace,
+                      var(--font-system-default);
+
+
+  // --font-sans is effectively the default font.
+  // --font-display is for headings and the like.
+  // --font-serif is just a good ol' serif font.
+  // --font-mono is meant for code or console output text.
+
+  // TODO: figure out what fonts we actually want to use
+
+  --font-sans:    "Public Sans",   var(--font-system-sans);
+  --font-display: "Exo 2",         var(--font-system-rounded);
+  --font-serif:   "Bitter",        var(--font-system-serif);
+  --font-mono:    "Sometype Mono", var(--font-system-mono);
+}
+
+// Default everything to sans font
+html,
+body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+}
+
+// Set base font families for elements.
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+code,
+var,
+samp,
+kbd {
+  font-family: var(--font-mono);
+}
+
+// Orderly heading sizes.
+
+// prettier-ignore
+$heading-sizes:
+  "h1" 2.25rem,
+  "h2" 2rem,
+  "h3" 1.75rem,
+  "h4" 1.5rem,
+  "h5" 1.25rem,
+  "h6" 1rem;
+
+@each $heading, $size in $heading-sizes {
+  #{$heading} {
+    font-size: font-size($size);
+  }
+}
+
+// Make `<small>` relative to its header.
+small {
+  font-size: 0.8em;
+}
+
+// Makes bold text consistently bolder than surrounding text.
+b,
+strong {
+  font-weight: bolder;
+}

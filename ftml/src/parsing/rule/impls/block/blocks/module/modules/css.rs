@@ -38,5 +38,5 @@ fn parse_fn<'r, 't>(
     let css = parser.get_body_text(&BLOCK_MODULE)?;
     let exceptions = vec![ParseException::Style(cow!(css))];
 
-    ok!(None, exceptions)
+    ok!(true; None, exceptions)
 }

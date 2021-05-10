@@ -1,18 +1,6 @@
-import { SheafCore } from "sheaf-core"
-import { perfy } from "wj-util"
-import * as FTML from "ftml-wasm-worker"
+import App from "./App.svelte"
 
 window.addEventListener("DOMContentLoaded", async () => {
-  const editor = new SheafCore()
-  const res = await fetch("/static/misc/ftml-test.ftml")
-  if (!res) return
-  const src = await res.text()
-  await editor.init(document.querySelector(".editor-container")!, src)
-  editor.subscribe(({ value }) => {
-    ;(async () => {
-      const log = perfy("ftml-perf", 5)
-      console.log(await FTML.render(value))
-      log()
-    })()
-  })
+  const container = document.querySelector("#app")!
+  const app = new App({ target: container })
 })

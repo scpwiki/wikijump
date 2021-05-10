@@ -1,7 +1,5 @@
-
     
     Apple
     Banana
     Cherry
     
-

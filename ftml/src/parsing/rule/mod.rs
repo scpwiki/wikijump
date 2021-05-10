@@ -76,7 +76,7 @@ impl Debug for Rule {
     }
 }
 
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 impl slog::Value for Rule {
     fn serialize(
         &self,

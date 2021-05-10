@@ -20,11 +20,12 @@
 
 //! Module that implements text rendering for `Element` and its children.
 
+use super::super::utils::{check_ifcategory, check_iftags};
 use super::TextContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::{ContainerType, Element, ListItem, ListType};
-use crate::url::is_url;
+use crate::url::{is_url, normalize_url};
 use std::borrow::Cow;
 
 pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]) {
@@ -120,6 +121,33 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 }
             });
         }
+        Element::Image {
+            source,
+            link,
+            alignment,
+            attributes,
+        } => {
+            let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
+
+            str_write!(ctx, "Image: {}", &source_url);
+
+            if let Some(image) = alignment {
+                let float = if image.float { " float" } else { "" };
+                str_write!(ctx, " [Align: {}{}]", image.align.name(), float);
+            }
+
+            if let Some(url) = link {
+                str_write!(ctx, " [Link: {}]", get_full_url(log, ctx, url));
+            }
+
+            if let Some(alt_text) = attributes.get().get("alt") {
+                str_write!(ctx, " [Alt: {}]", alt_text);
+            }
+
+            if let Some(title) = attributes.get().get("title") {
+                str_write!(ctx, " [Title: {}]", title);
+            }
+        }
         Element::List { ltype, items } => {
             if !ctx.ends_with_newline() {
                 ctx.add_newline();
@@ -175,9 +203,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                     match $input {
                         Some(ref text) => &text,
                         None => {
-                            let locale = &ctx.info().locale;
+                            let language = &ctx.info().language;
 
-                            ctx.handle().get_message(log, locale, $message)
+                            ctx.handle().get_message(log, language, $message)
                         }
                     }
                 };
@@ -204,6 +232,22 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.add_newline();
                 ctx.push_str(hide_text);
                 ctx.add_newline();
+            }
+        }
+        Element::IfCategory {
+            conditions,
+            elements,
+        } => {
+            if check_ifcategory(log, ctx.info(), conditions) {
+                render_elements(log, ctx, elements);
+            }
+        }
+        Element::IfTags {
+            conditions,
+            elements,
+        } => {
+            if check_iftags(log, ctx.info(), conditions) {
+                render_elements(log, ctx, elements);
             }
         }
         Element::Color { elements, .. } => render_elements(log, ctx, elements),
@@ -254,20 +298,18 @@ fn get_full_url<'a>(log: &Logger, ctx: &TextContext, url: &'a str) -> Cow<'a, st
         return Cow::Borrowed(url);
     }
 
-    // Let's build a full URL:
+    // Let's build a full URL.
+    // First, normalize:
+    let url = normalize_url(url);
+
     let site = &ctx.info().site;
     let mut full_url = ctx.handle().get_url(log, site);
 
     // Ensure there is exactly one slash
-    if !full_url.ends_with('/') && !url.starts_with('/') {
-        full_url.push('/');
-    }
-
-    // Remove duplicate slash, if present
-    if full_url.ends_with('/') && url.starts_with('/') {
+    if full_url.ends_with('/') {
         full_url.pop();
     }
 
-    full_url.push_str(url);
+    full_url.push_str(&url);
     Cow::Owned(full_url)
 }

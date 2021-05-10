@@ -3,14 +3,14 @@
     "tree": {
         "elements": [
             {
+                "element": "horizontal-rule"
+            },
+            {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "horizontal-rule"
-                        },
                         {
                             "element": "text",
                             "data": "Horizontal"

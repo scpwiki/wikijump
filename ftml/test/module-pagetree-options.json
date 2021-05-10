@@ -3,22 +3,22 @@
     "tree": {
         "elements": [
             {
+                "element": "module",
+                "data": {
+                    "module": "page-tree",
+                    "data": {
+                        "root": "scp-001",
+                        "show-root": true,
+                        "depth": 12
+                    }
+                }
+            },
+            {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "module",
-                            "data": {
-                                "module": "page-tree",
-                                "data": {
-                                    "root": "scp-001",
-                                    "show-root": true,
-                                    "depth": 12
-                                }
-                            }
-                        },
                         {
                             "element": "text",
                             "data": "Apple"

@@ -5,23 +5,14 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
+                    "type": "div",
+                    "attributes": {
+                        "id": "my-div"
+                    },
                     "elements": [
                         {
-                            "element": "container",
-                            "data": {
-                                "type": "div",
-                                "attributes": {
-                                    "id": "my-div"
-                                },
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Apple"
-                                    }
-                                ]
-                            }
+                            "element": "text",
+                            "data": "Apple"
                         }
                     ]
                 }

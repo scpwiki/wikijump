@@ -48,31 +48,19 @@ token = _{
     variable |
     string |
 
-    // Alignment
-    //
-    // Ahead of the more generic bracket rules
-    open_right_align |
-    open_left_align |
-    open_center_align |
-    open_justify_align |
-    close_right_align |
-    close_left_align |
-    close_center_align |
-    close_justify_align |
-
     // Special case to handle those pesky "[[[[" and "]]]]"s
     // These are [[[ triple links surrounded by constant [ brackets.
     (left_bracket ~ left_link) |
     (right_link ~ right_bracket) |
 
     // Brackets
-    left_link_special |
+    left_link_star |
     left_link |
-    left_block_special |
+    left_block_star |
     left_block_end |
     left_block |
     left_bracket_anchor |
-    left_bracket_special |
+    left_bracket_star |
     left_bracket |
     right_link |
     right_block |
@@ -151,12 +139,12 @@ right_comment = @{ "--]" }
 
 left_bracket = @{ "[" }
 left_bracket_anchor = @{ "[#" }
-left_bracket_special = @{ "[*" }
+left_bracket_star = @{ "[*" }
 left_block = @{ "[[" }
 left_block_end = @{ "[[/" }
-left_block_special = @{ "[[*" }
+left_block_star = @{ "[[*" }
 left_link = @{ "[[[" }
-left_link_special = @{ "[[[*" }
+left_link_star = @{ "[[[*" }
 right_bracket = @{ "]" }
 right_block = @{ "]]" }
 right_link = @{ "]]]" }
@@ -200,22 +188,6 @@ numbered_item = @{ "#" ~ !"#" }
 
 table_column = @{ "||" }
 table_column_title = @{ "||~" }
-
-// }}}
-
-// Alignment {{{
-
-open_right_align = @{ "[[>]]" }
-close_right_align = @{ "[[/>]]" }
-
-open_left_align = @{ "[[<]]" }
-close_left_align = @{ "[[/<]]" }
-
-open_center_align = @{ "[[=]]" }
-close_center_align = @{ "[[/=]]" }
-
-open_justify_align = @{ "[[==]]" }
-close_justify_align = @{ "[[/==]]" }
 
 // }}}
 

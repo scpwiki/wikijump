@@ -56,7 +56,7 @@ fn try_consume_fn<'p, 'r, 't>(
     );
 
     // Build color container
-    let (elements, exceptions) = collect_consume(
+    let (elements, exceptions, paragraph_safe) = collect_consume(
         log,
         parser,
         RULE_COLOR,
@@ -72,5 +72,5 @@ fn try_consume_fn<'p, 'r, 't>(
         elements,
     };
 
-    ok!(element, exceptions)
+    ok!(paragraph_safe; element, exceptions)
 }

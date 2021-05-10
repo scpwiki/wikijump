@@ -2,8 +2,6 @@
  * @file Exports the various functions misc. functions needed for the worker.
  */
 
-import { Transfer } from "threads/worker"
-
 interface TypedArray extends ArrayBuffer {
   buffer: ArrayBufferLike
 }

@@ -26,9 +26,9 @@ pub const RULE_BLOCK: Rule = Rule {
     try_consume_fn: block_regular,
 };
 
-pub const RULE_BLOCK_SPECIAL: Rule = Rule {
-    name: "block-special",
-    try_consume_fn: block_special,
+pub const RULE_BLOCK_STAR: Rule = Rule {
+    name: "block-star",
+    try_consume_fn: block_star,
 };
 
 pub const RULE_BLOCK_SKIP: Rule = Rule {
@@ -47,11 +47,11 @@ fn block_regular<'r, 't>(
     parse_block(log, parser, false)
 }
 
-fn block_special<'r, 't>(
+fn block_star<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    trace!(log, "Trying to process a block (with special)");
+    trace!(log, "Trying to process a block (with star flag)");
 
     parse_block(log, parser, true)
 }
@@ -76,7 +76,7 @@ fn block_skip<'r, 't>(
     // See if there's a block upcoming
     let result = parser.evaluate_fn(|parser| {
         // Make sure this is the start of a block
-        if ![Token::LeftBlock, Token::LeftBlockSpecial].contains(&current.token) {
+        if ![Token::LeftBlock, Token::LeftBlockStar].contains(&current.token) {
             return Ok(false);
         }
 
@@ -107,7 +107,7 @@ fn block_skip<'r, 't>(
 fn parse_block<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
-    special: bool,
+    flag_star: bool,
 ) -> ParseResult<'r, 't, Elements<'t>>
 where
     'r: 't,
@@ -115,12 +115,12 @@ where
     debug!(
         log,
         "Trying to process a block";
-        "special" => special,
+        "star" => flag_star,
     );
 
-    // Set general rule based on presence of special
-    parser.set_rule(if special {
-        RULE_BLOCK_SPECIAL
+    // Set general rule based on presence of star flag
+    parser.set_rule(if flag_star {
+        RULE_BLOCK_STAR
     } else {
         RULE_BLOCK
     });
@@ -128,10 +128,10 @@ where
     // Get block name
     parser.get_optional_space()?;
 
-    let (name, in_head) = parser.get_block_name(special)?;
+    let (name, in_head) = parser.get_block_name(flag_star)?;
     trace!(log, "Got block name"; "name" => name, "in-head" => in_head);
 
-    let (name, modifier) = match name.strip_suffix('_') {
+    let (name, flag_score) = match name.strip_suffix('_') {
         Some(name) => (name, true),
         None => (name, false),
     };
@@ -145,14 +145,14 @@ where
     // Set block rule for better warnings
     parser.set_block(block);
 
-    // Check if this block allows special invocation (the '[[*' token)
-    if !block.accepts_special && special {
-        return Err(parser.make_warn(ParseWarningKind::InvalidSpecialBlock));
+    // Check if this block allows star invocation (the '[[*' token)
+    if !block.accepts_star && flag_star {
+        return Err(parser.make_warn(ParseWarningKind::BlockDisallowsStar));
     }
 
-    // Check if this block allows modifier invocation ('_' after name)
-    if !block.accepts_modifier && modifier {
-        return Err(parser.make_warn(ParseWarningKind::InvalidModifierBlock));
+    // Check if this block allows score invocation ('_' after name)
+    if !block.accepts_score && flag_score {
+        return Err(parser.make_warn(ParseWarningKind::BlockDisallowsScore));
     }
 
     parser.get_optional_space()?;
@@ -162,5 +162,5 @@ where
     // This is responsible for parsing any arguments,
     // and terminating the block (the ']]' token),
     // then processing the body (if any) and tail block.
-    (block.parse_fn)(log, parser, name, special, modifier, in_head)
+    (block.parse_fn)(log, parser, name, flag_star, flag_score, in_head)
 }

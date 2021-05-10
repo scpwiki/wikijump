@@ -5,60 +5,51 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": "blockquote",
                     "attributes": {},
                     "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "blockquote",
+                                "type": "paragraph",
                                 "attributes": {},
                                 "elements": [
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Apple"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "paragraph",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
                                     },
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Banana"
-                                                },
-                                                {
-                                                    "element": "line-break"
-                                                },
-                                                {
-                                                    "element": "text",
-                                                    "data": "Cherry"
-                                                }
-                                            ]
-                                        }
+                                        "element": "line-break"
                                     },
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Durian"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Cherry"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "paragraph",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Durian"
                                     }
                                 ]
                             }

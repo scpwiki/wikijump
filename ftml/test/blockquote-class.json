@@ -5,29 +5,20 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
+                    "type": "blockquote",
+                    "attributes": {
+                        "class": "jelly"
+                    },
                     "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "blockquote",
-                                "attributes": {
-                                    "class": "jelly"
-                                },
+                                "type": "paragraph",
+                                "attributes": {},
                                 "elements": [
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Apple"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Apple"
                                     }
                                 ]
                             }

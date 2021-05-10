@@ -56,6 +56,13 @@ mod prelude {
     }
 }
 
+#[macro_use]
+mod align;
+
+mod align_center;
+mod align_justify;
+mod align_left;
+mod align_right;
 mod anchor;
 mod blockquote;
 mod bold;
@@ -68,7 +75,10 @@ mod del;
 mod div;
 mod hidden;
 mod html;
+mod ifcategory;
 mod iframe;
+mod iftags;
+mod image;
 mod include;
 mod ins;
 mod invisible;
@@ -86,6 +96,10 @@ mod subscript;
 mod superscript;
 mod underline;
 
+pub use self::align_center::BLOCK_ALIGN_CENTER;
+pub use self::align_justify::BLOCK_ALIGN_JUSTIFY;
+pub use self::align_left::BLOCK_ALIGN_LEFT;
+pub use self::align_right::BLOCK_ALIGN_RIGHT;
 pub use self::anchor::BLOCK_ANCHOR;
 pub use self::blockquote::BLOCK_BLOCKQUOTE;
 pub use self::bold::BLOCK_BOLD;
@@ -98,7 +112,10 @@ pub use self::del::BLOCK_DEL;
 pub use self::div::BLOCK_DIV;
 pub use self::hidden::BLOCK_HIDDEN;
 pub use self::html::BLOCK_HTML;
+pub use self::ifcategory::BLOCK_IFCATEGORY;
 pub use self::iframe::BLOCK_IFRAME;
+pub use self::iftags::BLOCK_IFTAGS;
+pub use self::image::BLOCK_IMAGE;
 pub use self::include::BLOCK_INCLUDE;
 pub use self::ins::BLOCK_INS;
 pub use self::invisible::BLOCK_INVISIBLE;

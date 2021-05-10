@@ -110,12 +110,12 @@ where
 
     pub fn get_block_name(
         &mut self,
-        special: bool,
+        flag_star: bool,
     ) -> Result<(&'t str, bool), ParseWarning> {
         debug!(&self.log(), "Looking for identifier");
 
-        if special {
-            self.get_optional_token(Token::LeftBlockSpecial)?;
+        if flag_star {
+            self.get_optional_token(Token::LeftBlockStar)?;
         } else {
             self.get_optional_token(Token::LeftBlock)?;
         }
@@ -140,10 +140,7 @@ where
                 ParseCondition::current(Token::ParagraphBreak),
                 ParseCondition::current(Token::RightBlock),
             ],
-            &[
-                ParseCondition::current(Token::ParagraphBreak),
-                ParseCondition::current(Token::LineBreak),
-            ],
+            &[],
             Some(kind),
         )
         .map(|(name, last)| {
@@ -199,7 +196,7 @@ where
             // since it's just more text
             let name = parser.get_end_block()?;
 
-            // Remove underscore for modifier
+            // Remove underscore for score flag
             let name = name.strip_suffix('_').unwrap_or(name);
 
             // Check if it's valid
@@ -228,9 +225,8 @@ where
     {
         trace!(&self.log(), "Running generic in block body parser");
 
-        debug_assert_eq!(
-            block_rule.accepts_names.is_empty(),
-            false,
+        debug_assert!(
+            !block_rule.accepts_names.is_empty(),
             "List of valid end block names is empty, no success is possible",
         );
 
@@ -325,17 +321,19 @@ where
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         let mut all_elements = Vec::new();
         let mut all_exceptions = Vec::new();
+        let mut paragraph_safe = true;
         let mut first = true;
 
         loop {
             let result = self.verify_end_block(first, block_rule);
             if result.is_some() {
-                return ok!(all_elements, all_exceptions);
+                return ok!(paragraph_safe; all_elements, all_exceptions);
             }
 
             first = false;
             let old_remaining = self.remaining();
-            let elements = consume(&self.log(), self)?.chain(&mut all_exceptions);
+            let elements = consume(&self.log(), self)?
+                .chain(&mut all_exceptions, &mut paragraph_safe);
             all_elements.extend(elements);
 
             // Step if the rule hasn't moved the pointer itself

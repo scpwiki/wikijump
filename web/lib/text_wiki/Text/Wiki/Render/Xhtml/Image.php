@@ -29,7 +29,6 @@
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\FilePeer;
 use Wikidot\DB\PagePeer;
-use Wikidot\Utils\FlickrHandler;
 
 class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
 
@@ -80,27 +79,7 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
     		}
         }
 
-        // see if is a flickr image
-        if (strpos($src, 'flickr:') !== false) {
-        		//check if valid arguments, handle sizes etc.
-        		preg_match("/^flickr:([0-9]+)(?:_([a-z0-9]+))?/i", $src, $mat2);
-        		$photoId = $mat2[1];
-        		$secret = $mat2[2];
-        		if(!in_array($size, array("small", "medium", "thumbnail", "square", "large", "original"))){
-	        		$size = null;
-	        }
-
-        		$flickr = FlickrHandler::instance();
-			$photo = $flickr->photos_getInfo($photoId, $secret);
-
-			if($photo == null){
-				return '<div class="error-block">'.sprintf(_('Error fetching flickr image (id: %s) info. The file does not exist, is private or other problem.'),$photoId).'</div>';
-			}
-
-			$src = $flickr->buildPhotoURL($photo, $size); //"http://static.flickr.com/".$photo['_attributes']['server']."/".$photo['_attributes']['id']."_".$photo['_attributes']['secret'].".jpg";
-         	// set/override link attribute
-         	$options['attr']['link'] = $photo['urls']['url'][0]['_value'];
-        }elseif (strpos($src, '://') === false) {
+        if (strpos($src, '://') === false) {
         		// 	is the source a local file or URL?
             // the source refers to a local file.
             // add the URL base to it.

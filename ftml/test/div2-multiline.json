@@ -5,28 +5,19 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": "div",
                     "attributes": {},
                     "elements": [
                         {
-                            "element": "container",
-                            "data": {
-                                "type": "div",
-                                "attributes": {},
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Apple"
-                                    },
-                                    {
-                                        "element": "line-break"
-                                    },
-                                    {
-                                        "element": "text",
-                                        "data": "Banana"
-                                    }
-                                ]
-                            }
+                            "element": "text",
+                            "data": "Apple"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Banana"
                         }
                     ]
                 }

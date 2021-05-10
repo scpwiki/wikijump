@@ -28,6 +28,7 @@ mod parsing;
 mod preproc;
 mod render;
 mod tokenizer;
+mod utf16;
 
 mod prelude {
     pub use super::log::LOGGER;
@@ -41,5 +42,5 @@ pub use self::log::ConsoleLogger;
 pub use self::misc::version;
 pub use self::parsing::{parse, ParseOutcome, SyntaxTree};
 pub use self::preproc::preprocess;
-pub use self::render::render_html;
+pub use self::render::{render_html, render_text};
 pub use self::tokenizer::{tokenize, Tokenization};

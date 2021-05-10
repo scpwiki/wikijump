@@ -15,6 +15,16 @@ abstract class WebFlowController {
 	abstract public function process();
 
 	/**
+	 * Sets cross-origin headers for improved security.
+	 *
+	 * See https://scuttle.atlassian.net/browse/WJ-452
+	 */
+	protected function setCrossOriginHeaders() {
+		header("Cross-Origin-Opener-Policy: same-origin");
+		header("Cross-Origin-Embedder-Policy: require-corp");
+	}
+
+	/**
 	 * sets the Expires header
 	 *
 	 * @param int $expires time in seconds
@@ -95,6 +105,8 @@ abstract class WebFlowController {
 	 * @param int $expires time in seconds to expire
 	 */
 	protected function serveFile($path, $mime = null, $expires = null, $etag = null) {
+		$this->setCrossOriginHeaders();
+
 		if (file_exists($path)) {
 			$this->setContentTypeHeader($mime);
 			$this->setExpiresHeader($expires);

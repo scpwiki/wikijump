@@ -39,7 +39,7 @@ fn parse_fn<'r, 't>(
     let depth = arguments.get_value(parser, "depth")?;
     let show_root = arguments.get_bool(parser, "showRoot")?.unwrap_or(false);
 
-    ok!(Some(Module::PageTree {
+    ok!(false; Some(Module::PageTree {
         root,
         show_root,
         depth

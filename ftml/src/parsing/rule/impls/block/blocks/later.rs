@@ -32,8 +32,8 @@ use super::prelude::*;
 pub const BLOCK_LATER: BlockRule = BlockRule {
     name: "block-later",
     accepts_names: &["later"],
-    accepts_special: true,
-    accepts_modifier: false,
+    accepts_star: true,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -42,8 +42,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    _special: bool,
-    _modifier: bool,
+    _flag_star: bool,
+    _flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing later block (easter egg)"; "in-head" => in_head);

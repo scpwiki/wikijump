@@ -20,8 +20,12 @@
 
 use super::prelude::*;
 use super::tokenizer::Tokenization;
-use crate::parsing::ParseOutcome as RustParseOutcome;
+use crate::parsing::{
+    ParseOutcome as RustParseOutcome, ParseWarning as RustParseWarning,
+};
 use crate::tree::SyntaxTree as RustSyntaxTree;
+use crate::utf16::Utf16IndexMap;
+use crate::Tokenization as RustTokenization;
 use std::sync::Arc;
 
 // Typescript declarations
@@ -131,8 +135,29 @@ pub fn parse(tokens: Tokenization) -> Result<ParseOutcome, JsValue> {
     // Deep-clone AST to make it owned, so it can be safely passed to JS.
     let syntax_tree = syntax_tree.to_owned();
 
+    // Convert warnings to use UTF-16 indices
+    let warnings = convert_warnings_utf16(tokenization, warnings);
+
     // Create inner wrapper
     let inner = Arc::new(RustParseOutcome::new(syntax_tree, warnings));
 
     Ok(ParseOutcome { inner })
+}
+
+fn convert_warnings_utf16(
+    tokenization: &RustTokenization,
+    warnings: Vec<RustParseWarning>,
+) -> Vec<RustParseWarning> {
+    // As an optimization, we can avoid the (relatively expensive) Utf16IndexMap creation
+    // if we know there are no warnings to map indices of.
+    if warnings.is_empty() {
+        return warnings;
+    }
+
+    let full_text = tokenization.full_text().inner();
+    let utf16_map = Utf16IndexMap::new(full_text);
+    warnings
+        .into_iter()
+        .map(|warn| warn.to_utf16_indices(&utf16_map))
+        .collect()
 }

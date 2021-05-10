@@ -1,0 +1,6 @@
+/// Helper for setting the font-size of an element.
+/// This function will emit a `calc` expression that multiplies
+/// the given size by the --font-content-size variable.
+@function font-size($size) {
+  @return calc(#{$size} * var(--font-content-size));
+}

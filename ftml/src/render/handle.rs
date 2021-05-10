@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::data::PageInfo;
 use crate::log::prelude::*;
-use crate::tree::LinkLabel;
-use crate::tree::Module;
+use crate::tree::{ImageSource, LinkLabel, Module};
+use crate::PageInfo;
+use std::borrow::Cow;
 use std::num::NonZeroUsize;
 use strum_macros::IntoStaticStr;
 
@@ -71,6 +71,28 @@ impl Handle {
         format!("TODO: actual title ({})", page_slug)
     }
 
+    pub fn get_image_link<'a>(
+        &self,
+        log: &Logger,
+        info: &PageInfo,
+        source: &ImageSource<'a>,
+    ) -> Cow<'a, str> {
+        debug!(log, "Getting file link for image");
+
+        let (site, page, file): (&str, &str, &str) = match source {
+            ImageSource::Url(url) => return Cow::clone(url),
+            ImageSource::File1 { file } => (&info.site, &info.page, &file),
+            ImageSource::File2 { page, file } => (&info.site, &page, &file),
+            ImageSource::File3 { site, page, file } => (&site, &page, &file),
+        };
+
+        // TODO
+        Cow::Owned(format!(
+            "https://{}.wjfiles.com/local--files/{}/{}",
+            site, page, file,
+        ))
+    }
+
     pub fn get_link_label<F>(&self, log: &Logger, url: &str, label: &LinkLabel, f: F)
     where
         F: FnOnce(&str),
@@ -89,11 +111,16 @@ impl Handle {
         f(label_text);
     }
 
-    pub fn get_message(&self, log: &Logger, locale: &str, message: &str) -> &'static str {
+    pub fn get_message(
+        &self,
+        log: &Logger,
+        language: &str,
+        message: &str,
+    ) -> &'static str {
         debug!(
             log,
             "Fetching message";
-            "locale" => locale,
+            "language" => language,
             "message" => message,
         );
 

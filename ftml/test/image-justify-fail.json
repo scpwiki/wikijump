@@ -1,0 +1,74 @@
+{
+    "input": "[[==image landscape.png]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": "image"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "landscape"
+                        },
+                        {
+                            "element": "text",
+                            "data": "."
+                        },
+                        {
+                            "element": "text",
+                            "data": "png"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "identifier",
+            "rule": "block",
+            "span": [10, 19],
+            "kind": "no-such-block"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [23, 25],
+            "kind": "no-rules-match"
+        }
+    ]
+}

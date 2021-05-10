@@ -1,0 +1,58 @@
+{
+    "input": "[[*radio]] Nameless",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[*"
+                        },
+                        {
+                            "element": "text",
+                            "data": "radio"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Nameless"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "identifier",
+            "rule": "block-radio",
+            "span": [11, 19],
+            "kind": "block-missing-name"
+        },
+        {
+            "token": "left-block-star",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [8, 10],
+            "kind": "no-rules-match"
+        }
+    ]
+}

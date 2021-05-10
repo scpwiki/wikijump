@@ -1,13 +1,40 @@
-FROM php:7.4-fpm-alpine
+#
+# Build ftml for parsing and rendering
+#
+
+FROM rust:latest as rust
+
+# Please note this arg is also defined in the php-fpm layer further down.
+ARG WIKIJUMP_REPO_DIR="wikijump"
+
+ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
+ARG WIKIJUMP_REPO_BRANCH="develop"
+WORKDIR /src
+
+RUN apt update
+RUN apt install -y \
+    build-essential \
+    git
+
+RUN git clone \
+        --depth 10 \
+        --branch "${WIKIJUMP_REPO_BRANCH}" \
+        "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+
+WORKDIR /src/${WIKIJUMP_REPO_DIR}/ftml
+
+RUN cargo build --release
+
+#
+# Main php-fpm container
+#
+
+FROM php:7.4-fpm-buster
 
 EXPOSE 9000
 
-# TODO: copy from bluesoul's container Dockerfile
-
 # Build variables
-ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
-ARG WIKIJUMP_REPO_BRANCH="develop"
 ARG DEBUG_IP="192.168.42.128"
 
 ARG MAIN_DOMAIN="wikijump.test"
@@ -16,9 +43,6 @@ ARG FILES_DOMAIN="wjfiles.test"
 # Derived variables
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
-
-# Configure timezone
-RUN ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
 WORKDIR /src
 
@@ -29,22 +53,30 @@ COPY setup-memcached.sh ./
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Install packages
-RUN apk add --update --no-cache \
-    libgd \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+RUN apt update
+RUN apt install -y \
+    libgd-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
     imagemagick \
     git \
+    zip \
     html2text \
-    libmemcached-libs \
-    zlib \
-    postgresql-dev \
-    tidyhtml-dev \
-    gettext-dev && \
+    postgresql-common \
+    libtidy-dev \
+    gettext && \
 
     # Memcached PHP lib
     /src/setup-memcached.sh
+
+# Configure PHP-FFI
+RUN apt install libffi-dev \
+    && docker-php-ext-configure ffi --with-ffi \
+    && docker-php-ext-install ffi
+
+# Install libftml
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/ftml.h /usr/local/include/ftml.h
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
@@ -58,12 +90,10 @@ RUN echo "xdebug.mode = debug" >> ${XDEBUG_INI} \
 WORKDIR /var/www
 
 # !! Workaround for WSL2-enabled development with exposed host volumes, comment out if not needed.
-RUN apk add shadow && usermod -u 1000 www-data && groupmod -g 1000 www-data && \
+RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
 
-    git clone \
-        --depth 10 \
-        --branch "${WIKIJUMP_REPO_BRANCH}" \
-        "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+# Copy Wikijump files
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/web
 
 WORKDIR "${WIKIJUMP_DIR}/web"
 
@@ -96,7 +126,7 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
         tmp/smarty_macro_templates \
         tmp/htmlpurifier && \
 
-# Enable wikijump site in nginx
+    # Enable wikijump site in nginx
     mkdir -p /var/log/php && \
     touch /var/log/php/fpm-error.log && \
     echo "access.format = \"[%t] %m %{REQUEST_SCHEME}e://%{HTTP_HOST}e%{REQUEST_URI}e %f pid:%p took:%ds mem:%{mega}Mmb cpu:%C%% status:%s {%{HTTP_X_REAL_IP}e|%{HTTP_USER_AGENT}e}\"" >> /usr/local/etc/php-fpm.d/docker.conf && \
