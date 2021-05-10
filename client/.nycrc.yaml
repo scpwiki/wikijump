@@ -9,4 +9,4 @@ instrument: false
 
 extension: ['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.svelte']
 
-reporter: ["text", "json"]
+reporter: ["text", "json", "lcovonly"]
