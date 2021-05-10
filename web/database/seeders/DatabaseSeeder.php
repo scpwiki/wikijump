@@ -14,10 +14,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        Model::unguard();
-
-        $this->call(UserSeeder::class);
-
-        Model::reguard();
+        /**
+         * Normally we'd call our seeder classes here. However, due to the
+         * idempotent nature of the deployment, it's necessary to ensure that
+         * seeding happens only once, and the php container runs it.
+         *
+         * To facilitate that, the seed calls are actually made within the
+         * migration files. This way if the migration has ran, the seeder will
+         * not run again.
+         */
     }
 }
