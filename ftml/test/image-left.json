@@ -1,0 +1,37 @@
+{
+    "input": "[[<image landscape.png]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "image",
+                            "data": {
+                                "source": {
+                                    "type": "file1",
+                                    "data": {
+                                        "file": "landscape.png"
+                                    }
+                                },
+                                "link": null,
+                                "alignment": {
+                                    "align": "left",
+                                    "float": false
+                                },
+                                "attributes": {}
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

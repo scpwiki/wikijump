@@ -1,0 +1,81 @@
+/* prettier-ignore */
+.codetheme-dark {
+  --colcode-background: #282B34;
+  --colcode-hover:      #2B2F3B;
+  --colcode-border:     #3A3A44;
+  --colcode-selection:  #4B5365A6;
+  --colcode-accent:     #3296FF;
+
+  --colcode-content:    #AFB4BE;
+  --colcode-comment:    #5C6370;
+  --colcode-commentdoc: #687387;
+  --colcode-punct:      #646473;
+  --colcode-markup:     #7886A5;
+  --colcode-link:       #64A0FF;
+
+  --colcode-special:    #E06C75;
+  --colcode-invalid:    #FF3214;
+
+  --colcode-inserted:   #54D169;
+  --colcode-changed:    #FF9614;
+  --colcode-important:  #FFCB6BEE;
+  --colcode-highlight:  #C878C8;
+  --colcode-note:       #5694D6;
+
+  --colcode-keyword:    #C678DD;
+  --colcode-logical:    #C678DD;
+  --colcode-operator:   #56B6C2;
+  --colcode-storage:    #56B6C2;
+  --colcode-string:     #98C379;
+  --colcode-entity:     #98C379;
+  --colcode-type:       #E5C07B;
+  --colcode-ident:      #2D8EDF;
+  --colcode-function:   #61AFEF;
+  --colcode-constant:   #D19A66;
+  --colcode-property:   #E06C75;
+  --colcode-tag:        #E06C75;
+  --colcode-id:         #2D8EDF;
+  --colcode-class:      #98C379;
+  --colcode-attribute:  #FFCB6B;
+}
+
+/* prettier-ignore */
+.codetheme-light {
+  --colcode-background: #F0F0F2;
+  --colcode-hover:      #E8E8ED;
+  --colcode-border:     #D2D2D7;
+  --colcode-selection:  #3296FF20;
+  --colcode-accent:     #1262B5;
+
+  --colcode-content:    #222222;
+  --colcode-comment:    #666666;
+  --colcode-commentdoc: #666688;
+  --colcode-punct:      #818D94;
+  --colcode-markup:     #2269A8;
+  --colcode-link:       #64A0FF;
+
+  --colcode-special:    #EC1C12;
+  --colcode-invalid:    #FF3214;
+
+  --colcode-inserted:   #54D169;
+  --colcode-changed:    #FF9614;
+  --colcode-important:  #FFCB6BEE;
+  --colcode-highlight:  #C878C8;
+  --colcode-note:       #5694D6;
+
+  --colcode-keyword:    #C708FF;
+  --colcode-logical:    #C708FF;
+  --colcode-operator:   #41B2D1;
+  --colcode-storage:    #41B2D1;
+  --colcode-string:     #10AB00;
+  --colcode-entity:     #10AB00;
+  --colcode-type:       #9C8922;
+  --colcode-ident:      #005296;
+  --colcode-function:   #3394CC;
+  --colcode-constant:   #BB5F00;
+  --colcode-property:   #EC1C12;
+  --colcode-tag:        #EC1C12;
+  --colcode-id:         #3394CC;
+  --colcode-class:      #10AB00;
+  --colcode-attribute:  #FFCB6B;
+}

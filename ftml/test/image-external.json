@@ -1,0 +1,48 @@
+{
+    "input": "A [[image https://example.com/my-image.png]] B",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "image",
+                            "data": {
+                                "source": {
+                                    "type": "url",
+                                    "data": "https://example.com/my-image.png"
+                                },
+                                "link": null,
+                                "alignment": null,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "B"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

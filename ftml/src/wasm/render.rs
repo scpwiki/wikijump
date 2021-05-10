@@ -21,10 +21,10 @@
 use super::error::error_to_js;
 use super::parsing::SyntaxTree;
 use super::prelude::*;
-use crate::data::PageInfo as RustPageInfo;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::text::TextRender;
 use crate::render::Render;
+use crate::PageInfo as RustPageInfo;
 use ref_map::OptionRefMap;
 use std::sync::Arc;
 
@@ -53,7 +53,7 @@ export interface IPageInfo {
     alt_title: string | null;
     rating: number;
     tags: string[];
-    locale: string;
+    language: string;
 }
 
 "#;
@@ -139,8 +139,8 @@ impl PageInfo {
     }
 
     #[wasm_bindgen(method, getter)]
-    pub fn locale(&self) -> String {
-        self.inner.locale.to_string()
+    pub fn language(&self) -> String {
+        self.inner.language.to_string()
     }
 }
 

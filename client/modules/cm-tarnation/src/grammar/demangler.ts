@@ -206,7 +206,7 @@ function demangleParser(parser: DF.ParserTarget | DF.ParserTarget[]) {
   ;(isArray(parser) ? parser : [parser]).forEach(parse => {
     const opening = parse[2] !== "/"
     const inclusive = +hasSigil(parse, ">>")
-    const type = unSigil(parse, ["t.", ">>", "<<", "/"]) as any
+    const type = unSigil<string>(parse, ["t.", ">>", "<<", "/"])
     ;(opening ? open : close).push([type, inclusive])
   })
   return { open, close }

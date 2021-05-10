@@ -539,12 +539,11 @@ export const Editor = {
   },
 
   imageWizard: {
-    source: null as null | 'uri' | 'file' | 'flickr',
+    source: null as null | 'uri' | 'file',
     updateSourceBlock: function (_event?: Event): void {
-      let source: null | 'uri' | 'file' | 'flickr';
+      let source: null | 'uri' | 'file';
       document.getElementById("wd-ed-imagewizard-byuri")!.style.display = "none";
       document.getElementById("wd-ed-imagewizard-byfile")!.style.display = "none";
-      document.getElementById("wd-ed-imagewizard-byflickr")!.style.display = "none";
       document.getElementById("wd-ed-imagewizard-checkresult")!.innerHTML = "";
 
       if ((document.getElementById("342type1") as HTMLInputElement).checked) {
@@ -555,9 +554,6 @@ export const Editor = {
         document.getElementById("wd-ed-imagewizard-byfile")!.style.display = "block";
 
         Editor.imageWizard.updateAttachements();
-      } else if ((document.getElementById("342type3") as HTMLInputElement).checked) {
-        source = "flickr";
-        document.getElementById("wd-ed-imagewizard-byflickr")!.style.display = "block";
       } else {
         source = null;
       }
@@ -585,35 +581,6 @@ export const Editor = {
           document.getElementById("wd-ed-imagewizard-byfile-preview") as HTMLImageElement
         ).src = src;
       }
-    },
-
-    checkFlickrImage: function (_event?: Event): void {
-      const p: RequestModuleParameters = {};
-      const res = document.getElementById("wd-ed-imagewizard-checkresult")!;
-      // check the type of source
-      const input = (document.getElementById("wd-ed-imagewizard-flickr") as HTMLInputElement).value;
-      // check if is a http or id number
-      let flickrId = input.replace(/^http:\/\/(?:www\.)?flickr\.com\/.*?\/([0-9]+)(?:\/.*)?$/, "$1");
-      let secret = null;
-      // or photo's url
-      if (input.match(/^http:\/\/static\.flickr\.com\/[0-9]+\/([0-9]+)_([0-9a-z]+).*$/)) {
-        flickrId = input.replace(/^http:\/\/static\.flickr\.com\/[0-9]+\/([0-9]+)_([0-9a-z]+).*$/, "$1");
-        secret = input.replace(/^http:\/\/static\.flickr\.com\/[0-9]+\/([0-9]+)_([0-9a-z]+).*$/, "$2");
-        p.secret = secret;
-      }
-      res.innerHTML = "checking image " + flickrId + "...";
-      if (!flickrId.match(/^([0-9]+)$/)) {
-        res.innerHTML = '<p style="color: red">Not a valid input for the flickr.com image.</p>';
-        return;
-      }
-
-      p.flickr_id = flickrId;
-
-      OZONE.ajax.requestModule("Editor/FlickrCheckModule", p, Editor.imageWizard.checkFlickrImageCallback);
-    },
-    checkFlickrImageCallback: function (response: YahooResponse): void {
-      const res = document.getElementById("wd-ed-imagewizard-checkresult")!;
-      res.innerHTML = response.body;
     },
 
     checkUriImage: function (_event?: Event): void {
@@ -670,25 +637,6 @@ export const Editor = {
         source = (
           document.getElementById("wd-ed-imagewizard-byfile-filename") as HTMLSelectElement
         ).value;
-      } else if (sourceType === "flickr") {
-        const input = (
-          document.getElementById("wd-ed-imagewizard-flickr") as HTMLInputElement
-        ).value;
-        // check if is a http or id number
-        let flickrId = input.replace(/^http:\/\/(?:www\.)?flickr\.com\/.*?\/([0-9]+)(?:\/.*)?$/, "$1");
-        let secret = null;
-        // or photo's url
-        if (input.match(/^http:\/\/static\.flickr\.com\/[0-9]+\/([0-9]+)_([0-9a-z]+).*$/)) {
-          flickrId = input.replace(/^http:\/\/static\.flickr\.com\/[0-9]+\/([0-9]+)_([0-9a-z]+).*$/, "$1");
-          secret = input.replace(/^http:\/\/static\.flickr\.com\/[0-9]+\/([0-9]+)_([0-9a-z]+).*$/, "$2");
-        }
-        if (!flickrId.match(/^([0-9]+)$/)) {
-          const res = document.getElementById("wd-ed-imagewizard-checkresult")!;
-          res.innerHTML = '<p style="color: red">Not a valid input for the flickr.com image.</p>';
-          return;
-        }
-        source = 'flickr:' + flickrId;
-        if (secret) { source += '_' + secret; }
       }
 
       // check if size

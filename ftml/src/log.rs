@@ -19,7 +19,7 @@
  */
 
 cfg_if! {
-    if #[cfg(feature = "has-log")] {
+    if #[cfg(feature = "log")] {
         // Re-export main slog logger
         pub mod prelude {
             pub use slog::Logger;
@@ -104,21 +104,6 @@ cfg_if! {
                 () => {
                     ()
                 };
-            }
-
-            // Dummy logging construction macros
-            macro_rules! slog_o {
-                ($($key:expr => $value:expr,)+) => {
-                    slog_o!($($key => $value),+)
-                };
-                ($($key:expr => $value:expr),*) => {{
-                    $(
-                        let _ = $key;
-                        let _ = $value;
-                    )*
-
-                    ()
-                }};
             }
         }
     }

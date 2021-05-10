@@ -37,5 +37,5 @@ fn parse_fn<'r, 't>(
 
     let page = arguments.get("page");
 
-    ok!(Some(Module::Backlinks { page }))
+    ok!(false; Some(Module::Backlinks { page }))
 }

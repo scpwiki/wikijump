@@ -23,8 +23,8 @@ use super::prelude::*;
 pub const BLOCK_SPAN: BlockRule = BlockRule {
     name: "block-span",
     accepts_names: &["span"],
-    accepts_special: false,
-    accepts_modifier: true,
+    accepts_star: false,
+    accepts_score: true,
     accepts_newlines: false,
     parse_fn,
 };
@@ -33,8 +33,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -44,17 +44,18 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Span doesn't allow special variant");
+    assert!(!flag_star, "Span doesn't allow star flag");
     assert_block_name(&BLOCK_SPAN, name);
 
     let arguments = parser.get_head_map(&BLOCK_SPAN, in_head)?;
 
     // "span" means we wrap interpret as-is
     // "span_" means we strip out any newlines or paragraph breaks
-    let strip_line_breaks = modifier;
+    let strip_line_breaks = flag_score;
 
     // Get body content, without paragraphs
-    let (mut elements, exceptions) = parser.get_body_elements(&BLOCK_SPAN, false)?.into();
+    let (mut elements, exceptions, paragraph_safe) =
+        parser.get_body_elements(&BLOCK_SPAN, false)?.into();
 
     if strip_line_breaks {
         // Remove leading line breaks
@@ -82,5 +83,5 @@ fn parse_fn<'r, 't>(
         arguments.to_hash_map(),
     ));
 
-    ok!(element, exceptions)
+    ok!(paragraph_safe; element, exceptions)
 }

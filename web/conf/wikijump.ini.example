@@ -109,12 +109,6 @@ upload_restrict_html = true
 
 [keys]
 
-; [flickr]
-; Purpose: flickr API key. More info at: https://www.flickr.com/services/api/misc.api_keys.html
-; GlobalProperties Reference: $FLICKR_API_KEY
-; Default: ""
-flickr = "asdf1234"
-
 ; [FriendlyCaptcha]
 ; Purpose: FriendlyCaptcha site-key (public). More info at: https://docs.friendlycaptcha.com/#/widget_api
 ; GlobalProperties Reference: $FR_CAPTCHA_SITE_KEY
@@ -341,7 +335,18 @@ level = error
 ; Purpose: Not yet implemented, but will be used to specify the filename to dump logs to.
 ; GlobalProperties Reference: $LOGGER_FILE
 ; Default: "wikijump.log"
-file = wikijump.log
+wikitext_backend = wikijump.log
+
+
+;;;;
+; Feature Flags
+[feature]
+
+; [wikitext_backend]
+; Purpose: Which wikitext parser/renderer backend to use. Choose from "text_wiki", "ftml", or "null".
+; GlobalProperties Reference: $FEATURE_WIKITEXT_BACKEND
+; Default: "text_wiki"
+file = "text_wiki"
 
 
 ;;;;

@@ -59,7 +59,7 @@ pub fn collect_container<'p, 'r, 't>(
     );
 
     // Iterate and consume all the tokens
-    let (elements, exceptions) = collect_consume(
+    let (elements, exceptions, paragraph_safe) = collect_consume(
         log,
         parser,
         rule,
@@ -71,6 +71,7 @@ pub fn collect_container<'p, 'r, 't>(
 
     // Package into a container
     ok!(
+        paragraph_safe;
         Element::Container(Container::new(
             container_type,
             elements,

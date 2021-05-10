@@ -20,7 +20,7 @@
 
 //! Perform Wikidot's typographical modifications.
 //! For full information, see the original source file:
-//! https://github.com/Nu-SCPTheme/wikidot/blob/master/lib/Text_Wiki/Text/Wiki/Parse/Default/Typography.php
+//! https://github.com/gabrys/wikidot/blob/master/lib/Text_Wiki/Text/Wiki/Parse/Default/Typography.php
 //!
 //! The transformations performed here are listed:
 //! * `` .. '' to fancy double quotes

@@ -144,30 +144,37 @@ const rules = {
 
       "consistent-match-all-characters": ["warn", { charClass: "[^]" }]
     })
+  },
+
+  import: {
+    ...prefixKeys("import/", {
+      "no-extraneous-dependencies": ["error", {}]
+    })
   }
 }
 
 const baseRules = { ...rules.code, ...rules.restrict, ...rules.style, ...rules.regex }
 const typeRules = { ...rules.typescript, ...rules.typeChecked }
+const importRules = { ...rules.import }
 
 module.exports = {
   root: true,
-  ignorePatterns: ["**/node_modules/**", "**/dist/**", "**/vendor/**"],
+  ignorePatterns: [
+    "**/node_modules/**",
+    "**/dist/**",
+    "/tests-dist/**",
+    "**/vendor/**",
+    "/misc/**"
+  ],
 
-  extends: ["plugin:compat/recommended"],
-  plugins: ["@typescript-eslint", "svelte3", "clean-regex"],
+  extends: ["plugin:compat/recommended", "plugin:import/typescript"],
+  plugins: ["@typescript-eslint", "import", "svelte3", "clean-regex"],
 
   parser: "@typescript-eslint/parser",
   parserOptions: {
     sourceType: "module",
     tsconfigRootDir: __dirname,
-    project: [
-      "./tsconfig.json",
-      "./modules/*/tsconfig.json",
-      "./web/*/tsconfig.json",
-      "./templates/module-template/tsconfig.json",
-      "./templates/website-template/tsconfig.json"
-    ],
+    project: ["./tsconfig.json"],
     extraFileExtensions: [".svelte"]
   },
 
@@ -186,9 +193,16 @@ module.exports = {
       parserOptions: { createDefaultProgram: true },
       rules: baseRules
     },
+    // TypeScript (Browser)
+    {
+      files: ["*.d.ts", "*.ts", "*.tsx"],
+      excludedFiles: "**/tests/**/*.ts",
+      env: { browser: true, es2021: true },
+      rules: { ...baseRules, ...typeRules, ...importRules }
+    },
     // TypeScript (Testing)
     {
-      files: ["**/tests/*.ts"],
+      files: ["**/tests/**/*.ts"],
       env: { browser: true, es2021: true },
       parserOptions: { createDefaultProgram: true },
       rules: { ...baseRules, ...typeRules }
@@ -197,22 +211,16 @@ module.exports = {
     {
       files: ["*.worker.ts"],
       env: { worker: true, es2021: true },
-      rules: { ...baseRules, ...typeRules }
-    },
-    // TypeScript (Browser)
-    {
-      files: ["*.d.ts", "*.ts", "*.tsx"],
-      env: { browser: true, es2021: true },
-      rules: { ...baseRules, ...typeRules }
+      rules: { ...baseRules, ...typeRules, ...importRules }
     },
     // Svelte + TypeScript (Browser)
     {
       files: ["*.svelte"],
       processor: "svelte3/svelte3",
       env: { browser: true, es2021: true },
-      rules: { ...baseRules, ...typeRules },
+      rules: { ...baseRules, ...typeRules, ...importRules },
       settings: {
-        "svelte3/typescript": require("typescript"),
+        "svelte3/typescript": () => require("typescript"),
         "svelte3/ignore-styles": () => true
       }
     }

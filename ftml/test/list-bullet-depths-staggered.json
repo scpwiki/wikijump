@@ -11,11 +11,47 @@
                         {
                             "element": "text",
                             "data": "["
-                        },
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "list",
+                "data": {
+                    "type": "generic",
+                    "items": [
                         {
                             "element": "list",
                             "data": {
-                                "type": "generic",
+                                "type": "bullet",
+                                "items": [
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "A"
+                                        }
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "B"
+                            }
+                        ],
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
                                 "items": [
                                     {
                                         "element": "list",
@@ -25,7 +61,7 @@
                                                 [
                                                     {
                                                         "element": "text",
-                                                        "data": "A"
+                                                        "data": "C"
                                                     }
                                                 ]
                                             ]
@@ -33,43 +69,16 @@
                                     }
                                 ]
                             }
-                        },
-                        {
-                            "element": "list",
-                            "data": {
-                                "type": "bullet",
-                                "items": [
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "B"
-                                        }
-                                    ],
-                                    {
-                                        "element": "list",
-                                        "data": {
-                                            "type": "bullet",
-                                            "items": [
-                                                {
-                                                    "element": "list",
-                                                    "data": {
-                                                        "type": "bullet",
-                                                        "items": [
-                                                            [
-                                                                {
-                                                                    "element": "text",
-                                                                    "data": "C"
-                                                                }
-                                                            ]
-                                                        ]
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        },
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
                         {
                             "element": "text",
                             "data": "]"

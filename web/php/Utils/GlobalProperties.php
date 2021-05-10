@@ -91,7 +91,6 @@ class GlobalProperties
     public static $XSENDFILE_HEADER;
 
     // third-party keys
-    public static $FLICKR_API_KEY;
     public static $FR_CAPTCHA_SITE_KEY;
     public static $FR_CAPTCHA_API_KEY;
 
@@ -229,6 +228,9 @@ class GlobalProperties
         self::$LOGGER_LEVEL             = $_ENV["WIKIJUMP_LOGGER_LEVEL"] ?? self::fromIni("log", "level", "error");
         self::$LOGGER_FILE              = $_ENV["WIKIJUMP_LOGGER_FILE"] ?? self::fromIni("log", "file", "wikijump.log"); // TODO: use this setting
 
+        // feature flags
+        self::$FEATURE_WIKITEXT_BACKEND = $_ENV["FEATURE_WIKITEXT_BACKEND"] ?? self::fromIni("feature", "wikitext_backend", "text_wiki");
+
         // other settings
         self::$CACHE_FILES_FOR          = $_ENV["WIKIJUMP_CACHE_FILES_FOR"] ?? self::fromIni("misc", "cache_files_for", 0);
         self::$URL_DOCS                 = $_ENV["WIKIJUMP_URL_DOCS"] ?? self::fromIni("misc", "doc_url", self::$HTTP_SCHEMA. "://" . self::$URL_HOST . "/doc");
@@ -241,7 +243,6 @@ class GlobalProperties
         self::$XSENDFILE_USE            = $_ENV["WIKIJUMP_XSENDFILE_USE"] ?? self::fromIni("misc", "xsendfile", false);
         self::$XSENDFILE_HEADER         = $_ENV["WIKIJUMP_XSENDFILE_HEADER"] ?? self::fromIni("misc", "xsendfile_header", "X-LIGHTTPD-send-file");
 
-        self::$FLICKR_API_KEY           = $_ENV["WIKIJUMP_FLICKR_API_KEY"] ?? self::fromIni("keys", "flickr", "");
         self::$FR_CAPTCHA_SITE_KEY      = $_ENV["WIKIJUMP_FR_CAPTCHA_SITE_KEY"] ?? self::fromIni("keys", "friendlycaptcha-site-key", "");
         self::$FR_CAPTCHA_API_KEY       = $_ENV["WIKIJUMP_FR_CAPTCHA_API_KEY"] ?? self::fromIni("keys", "friendlycaptcha-api-key", "");
 

@@ -70,14 +70,18 @@ Utils("createID", () => {
   assert.type(createID("foo"), "string")
 })
 
-import { performance } from "perf_hooks"
-// a bit hacky, but we have to make sure perfy works in node
-globalThis.performance = performance as any
-
 Utils("perfy", () => {
   const { perfy } = lib
   const exec = perfy()
   assert.type(exec(), "number")
+})
+
+Utils("sleep", async () => {
+  let flip = false
+  const promise = lib.sleep(100).then(() => (flip = true))
+  assert.not(flip)
+  await promise
+  assert.ok(flip)
 })
 
 Utils.run()

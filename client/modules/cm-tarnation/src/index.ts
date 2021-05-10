@@ -120,7 +120,8 @@ export class TarnationLanguage {
 
     const nodes = (this.nodes = new NodeMap())
     const topNode = nodes.add(
-      new (NodeType as any)(this.description.name, facetProp, 0, 1),
+      // @ts-ignore
+      new NodeType(this.description.name, facetProp, 0, 1),
       "Document"
     )!
     this.grammar.types.forEach(name => nodes.add({ name }))
@@ -189,7 +190,8 @@ export class NodeMap {
   types: NodeType[] = []
   set = new NodeSet(this.types)
 
-  private tags: Record<string, Tag> = { ...(tags as any) }
+  // @ts-ignore
+  private tags: Record<string, Tag> = { ...tags }
 
   get(name: string) {
     return this.map.get(name)

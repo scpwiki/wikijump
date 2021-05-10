@@ -7,4 +7,3 @@ bracketSpacing = true
 arrowParens = "avoid"
 # let git handle normalizing
 endOfLine = "auto"
-embeddedLanguageFormatting = "off"

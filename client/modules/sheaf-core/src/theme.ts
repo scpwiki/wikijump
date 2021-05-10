@@ -2,7 +2,6 @@
  * @file Exports the theming and syntax highlighting color configuration for Sheaf.
  */
 
-import { EditorView } from "@codemirror/view"
 import { HighlightStyle, tags as t } from "@codemirror/highlight"
 import type { Extension } from "@codemirror/state"
 
@@ -39,137 +38,6 @@ const
   highlight  = "var(--colcode-highlight)" ,
   note       = "var(--colcode-note)"      ,
   special    = "var(--colcode-special)"
-
-const confinementTheme = EditorView.theme(
-  {
-    "&": {
-      color: text,
-      backgroundColor: background,
-      "& ::selection": { backgroundColor: selection },
-      caretColor: accent,
-      "&.cm-focused": { outline: "none" },
-      width: "auto",
-      height: "100%"
-    },
-
-    ".cm-scroller": {
-      fontFamily: "var(--font-mono)",
-      height: "100%",
-      fontSize: "13px",
-      fontWeight: "400",
-      position: "relative",
-      overflowX: "auto",
-      zIndex: 0
-    },
-
-    ".cm-content": {
-      paddingBottom: "70vh",
-      maxWidth: "45rem",
-      lineHeight: "18px"
-    },
-
-    "&.cm-focused .cm-cursor": {
-      borderLeftColor: accent,
-      transition: "left 0.05s ease-out, top 0.05s ease-out"
-    },
-
-    "&.cm-focused .cm-cursorLayer": {
-      animation: "cubic-bezier(0.95, 0, 0.05, 1) cm-blink 1.2s infinite"
-    },
-
-    "@keyframes cm-blink": { "0%": {}, "50%": { opacity: "0" }, "100%": {} },
-    "@keyframes cm-blink2": { "0%": {}, "50%": { opacity: "0" }, "100%": {} },
-
-    "&.cm-focused .cm-selectionBackground": { backgroundColor: selection },
-    ".cm-selectionBackground": { backgroundColor: selection },
-    ".cm-activeLine": { background: hover },
-    ".cm-selectionMatch": { backgroundColor: selection },
-    ".cm-searchMatch": {
-      backgroundColor: selection,
-      borderRadius: "0.125rem"
-    },
-    ".cm-searchMatch.selected": {
-      backgroundColor: selection,
-      boxShadow: `0 0 0 0.075rem ${accent}`
-    },
-
-    ".cm-line": {
-      "& ::selection": { color: "inherit !important" },
-      "&::selection": { color: "inherit !important" }
-    },
-
-    ".cm-matchingBracket, .cm-nonmatchingBracket": {
-      backgroundColor: hover,
-      outline: `1px solid ${selection}`
-    },
-
-    ".cm-gutters": {
-      backgroundColor: background,
-      color: comment,
-      border: "none"
-    },
-    ".cm-gutterElement.lineNumber": { color: "inherit" },
-
-    ".cm-foldPlaceholder": {
-      background: doc,
-      border: "none",
-      padding: "0 0.5rem",
-      margin: "0 0.25rem",
-      color: "white"
-    },
-
-    ".cm-button": {
-      border: `1px solid ${border}`,
-      background: background
-    },
-
-    ".cm-textfield": {
-      border: `1px solid ${border}`
-    },
-
-    "@keyframes cm-tooltip-fadein": { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
-
-    ".cm-tooltip": {
-      border: `1px solid ${border}`,
-      backgroundColor: background,
-      animation: "cm-tooltip-fadein 0.125s 1 0s backwards ease-out"
-    },
-
-    ".cm-tooltip.autocomplete": {
-      "& > ul > li[aria-selected]": { backgroundColor: background }
-    },
-
-    ".cm-panels": {
-      backgroundColor: background,
-      color: text
-    },
-
-    ".cm-panels-top": { borderBottom: `2px solid ${border}` },
-    ".cm-panels-bottom": { borderTop: `2px solid ${border}` },
-
-    ".cm-panel.cm-panel-lint ul": {
-      maxHeight: "16rem",
-      outline: "none",
-      paddingRight: "0.5rem"
-    },
-
-    ".cm-panel.cm-panel-lint ul > li": {
-      marginBottom: "0.25rem",
-      transition: "background-color 0.075s ease",
-      cursor: "pointer"
-    },
-
-    ".cm-panel.cm-panel-lint ul > li:hover": {
-      backgroundColor: hover
-    },
-
-    ".cm-panel.cm-panel-lint ul [aria-selected]": { backgroundColor: hover },
-    ".cm-panel.cm-panel-lint ul:focus [aria-selected]": { backgroundColor: accent }
-  },
-  { dark: true }
-)
-
-// const mt = monarchMarkdown.tags
 
 const confinementHighlightStyle = HighlightStyle.define([
   // Keywords + Operators
@@ -288,4 +156,4 @@ const confinementHighlightStyle = HighlightStyle.define([
   { tag: t.special(t.comment), color: note } // criticcomment
 ])
 
-export const confinement: Extension = [confinementTheme, confinementHighlightStyle]
+export const confinement: Extension = [confinementHighlightStyle]

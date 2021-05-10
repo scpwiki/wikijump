@@ -1,0 +1,38 @@
+{
+  "name": "cm-lang-ftml",
+  "license": "agpl-3.0-or-later",
+  "description": "FTML language extension for CodeMirror 6.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "scripts": {},
+  "type": "module",
+  "main": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scpwiki/wikijump.git",
+    "directory": "client/modules/cm-lang-ftml"
+  },
+  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
+  "homepage": "https://github.com/scpwiki/wikijump#readme",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^0.18.5",
+    "@codemirror/highlight": "^0.18.3",
+    "@codemirror/language": "^0.18.1",
+    "@codemirror/language-data": "^0.18.0",
+    "@codemirror/lang-html": "^0.18.1",
+    "@codemirror/lang-css": "^0.18.0",
+    "@codemirror/lint": "^0.18.2",
+    "@codemirror/state": "^0.18.7",
+    "cm-tarnation": "^0.0.0",
+    "ftml-wasm-worker": "^0.0.0",
+    "lezer-tree": "^0.13.2",
+    "sheaf-core": "^0.0.0",
+    "wj-prism": "^0.0.0",
+    "wj-util": "^1.0.0"
+  }
+}

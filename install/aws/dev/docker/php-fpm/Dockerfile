@@ -1,11 +1,40 @@
-FROM php:7.4-fpm-alpine
+#
+# Build ftml for parsing and rendering
+#
+
+FROM rust:latest as rust
+
+# Please note this arg is also defined in the php-fpm layer further down.
+ARG WIKIJUMP_REPO_DIR="wikijump"
+
+ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
+ARG WIKIJUMP_REPO_BRANCH="develop"
+WORKDIR /src
+
+RUN apt update
+RUN apt install -y \
+    build-essential \
+    git
+
+RUN git clone \
+        --depth 10 \
+        --branch "${WIKIJUMP_REPO_BRANCH}" \
+        "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+
+WORKDIR /src/${WIKIJUMP_REPO_DIR}/ftml
+
+RUN cargo build --release
+
+#
+# Main php-fpm container
+#
+
+FROM php:7.4-fpm-buster
 
 EXPOSE 9000
 
 # Build variables
-ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
-ARG WIKIJUMP_REPO_BRANCH="develop"
 
 ARG MAIN_DOMAIN="wikijump.dev"
 ARG FILES_DOMAIN="wjfiles.dev"
@@ -13,9 +42,6 @@ ARG FILES_DOMAIN="wjfiles.dev"
 # Derived variables
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
-
-# Configure timezone
-RUN ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
 WORKDIR /src
 
@@ -26,30 +52,36 @@ COPY setup-memcached.sh ./
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Install packages
-RUN apk add --update --no-cache \
-    libgd \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+RUN apt update
+RUN apt install -y \
+    libgd-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
     imagemagick \
     git \
+    zip \
     html2text \
-    libmemcached-libs \
-    zlib \
-    postgresql-dev \
-    tidyhtml-dev \
-    gettext-dev && \
+    libmemcached-dev \
+    postgresql-common \
+    libtidy-dev \
+    gettext && \
 
     # Memcached PHP lib
     /src/setup-memcached.sh
 
+# Configure PHP-FFI
+RUN apt install libffi-dev \
+    && docker-php-ext-configure ffi --with-ffi \
+    && docker-php-ext-install ffi
+
+# Install libftml
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/ftml.h /usr/local/include/ftml.h
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/libftml.so /usr/local/lib/libftml.so
+
 # Install the Wikijump repository
 WORKDIR /var/www
 
-RUN git clone \
-        --depth 10 \
-        --branch "${WIKIJUMP_REPO_BRANCH}" \
-        "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/web
 
 WORKDIR "${WIKIJUMP_DIR}/web"
 

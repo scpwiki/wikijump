@@ -1,0 +1,46 @@
+# Schema for modules.toml
+#
+# This describes what properties modules can have, as mentioned in docs/Modules.md
+# Modules are a subset of blocks, specified with the block [[module XYZ]],
+# where "XYZ" is the module's name.
+#
+# See also blocks.schema.toml
+
+[module-name]
+
+# Whether this module is deprecated or not.
+# Deprecated modules should be clearly marked as such, and
+# should not be actively recommended to users.
+#
+# If this is set, then the deprecation-message in the corresponding
+# language file should be populated.
+#
+# type: bool, optional
+deprecated = false
+
+# What aliases (if any) this module accepts.
+# Case-insensitive.
+#
+# type: string[], optional
+aliases = ["PageTree", "PageForest"]
+
+# What kind of body this module expects, if any.
+#
+# type: string, enum
+# values: "none", "raw", "elements", "other"
+body = "elements"
+
+# Whether this module accepts safe HTML attributes as arguments.
+# These are then ported to the final HTML element in rendering,
+# with possible changes for safety or correctness.
+#
+# type: bool, optional
+html-attributes = true
+
+# Each argument that this module accepts gets its own sub-key.
+# Case-insensitive.
+#
+# For instance, "join.arguments.button"
+[module-name.arguments.argument-name]
+
+# Schema for arguments is the same as for blocks. See blocks.schema.toml

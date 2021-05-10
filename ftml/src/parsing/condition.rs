@@ -19,43 +19,26 @@
  */
 
 use super::token::Token;
-use std::fmt::{self, Debug};
 
 /// Represents a condition on a parse state.
 ///
 /// It takes a parser state and determines if it matches
 /// the condition described by this structure, returning
 /// a boolean as appropriate.
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum ParseCondition {
-    CurrentToken { token: Token },
-    TokenPair { current: Token, next: Token },
+    CurrentToken(Token),
+    TokenPair(Token, Token),
 }
 
 impl ParseCondition {
     #[inline]
     pub fn current(token: Token) -> Self {
-        ParseCondition::CurrentToken { token }
+        ParseCondition::CurrentToken(token)
     }
 
     #[inline]
     pub fn token_pair(current: Token, next: Token) -> Self {
-        ParseCondition::TokenPair { current, next }
-    }
-}
-
-impl Debug for ParseCondition {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            ParseCondition::CurrentToken { token } => f
-                .debug_struct("CurrentToken")
-                .field("token", &token)
-                .finish(),
-            ParseCondition::TokenPair { current, next } => f
-                .debug_struct("TokenPair")
-                .field("current", &current)
-                .field("next", &next)
-                .finish(),
-        }
+        ParseCondition::TokenPair(current, next)
     }
 }

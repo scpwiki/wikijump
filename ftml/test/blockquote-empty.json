@@ -5,18 +5,9 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": "blockquote",
                     "attributes": {},
                     "elements": [
-                        {
-                            "element": "container",
-                            "data": {
-                                "type": "blockquote",
-                                "attributes": {},
-                                "elements": [
-                                ]
-                            }
-                        }
                     ]
                 }
             }

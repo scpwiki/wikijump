@@ -24,8 +24,8 @@ use super::prelude::*;
 pub const BLOCK_MODULE: BlockRule = BlockRule {
     name: "block-module",
     accepts_names: &["module", "module654"],
-    accepts_special: false,
-    accepts_modifier: false,
+    accepts_star: false,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -34,14 +34,14 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing module block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "Module doesn't allow special variant");
-    assert_eq!(modifier, false, "Module doesn't allow modifier variant");
+    assert!(!flag_star, "Module doesn't allow star flag");
+    assert!(!flag_score, "Module doesn't allow score flag");
     assert_block_name(&BLOCK_MODULE, name);
 
     // Get module name and arguments
@@ -61,8 +61,14 @@ fn parse_fn<'r, 't>(
     //
     // If the module accepts a body, it should consume it,
     // then the tail. Otherwise it shouldn't move the token pointer.
-    let (module, exceptions) =
+    let (module, exceptions, paragraph_safe) =
         (module_rule.parse_fn)(log, parser, subname, arguments)?.into();
 
-    ok!(module.map(Element::Module), exceptions)
+    debug_assert_eq!(
+        paragraph_safe,
+        module.is_none(),
+        "Module returned but marked as paragraph-safe",
+    );
+
+    ok!(paragraph_safe; module.map(Element::Module), exceptions)
 }

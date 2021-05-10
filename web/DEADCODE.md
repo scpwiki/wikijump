@@ -153,3 +153,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-442](https://scuttle.atlassian.net/browse/WJ-442)
 * What it did: Produced a unique string based on the current time and an incrementing number.
 * Why it was removed: Unused after an unnecessary usage was removed.
+
+## PHP: Flickr integration
+* Where it was: [Multiple files throughout the repository](https://github.com/scpwiki/wikijump/pull/256/files)
+* Relevant Issues: [WJ-470](https://scuttle.atlassian.net/browse/WJ-470)
+* What it did: Implemented an integration with an old version of Flickr's API, and added Flickr-related Wikidot features.
+* Why it was removed: Mostly unused, outdated, and a large amount of code to maintain.

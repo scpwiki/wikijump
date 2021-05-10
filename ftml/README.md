@@ -6,7 +6,10 @@
          alt="Build status">
   </a>
 
-  <!-- TODO: put crates.io badge here -->
+  <a href="https://docs.rs/ftml">
+    <img src="https://docs.rs/ftml/badge.svg"
+         alt="docs.rs link">
+  </a>
 </p>
 
 ### Foundation Text Markup Language
@@ -19,7 +22,7 @@ The goal is to utilize a lexer generator, and consume the tokens in a custom par
 In addition to providing the speed and safety benefits of Rust, this also improves maintainability, and allows exposing an AST to consumers
 for more advanced analysis and transformation.
 
-The lint `#![forbid(unsafe_code)]` is set, and therefore this crate has only safe code. However dependencies may have `unsafe` internals.
+The lint `#![deny(unsafe_code)]` is set, and therefore this crate has only safe code. However dependencies may have `unsafe` internals, and the `ffi` module contains unsafe code to interface with C ABIs.
 
 Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE.md).
 
@@ -33,11 +36,19 @@ $ cargo build --release
 You can use this as a dependency by adding the following to your `Cargo.toml`:
 
 ```toml
-ftml = "0.4"
+ftml = "0.10"
 ```
 
-Additionally, if you disable the default feature `has-log`, you can remove all `slog` logging code entirely.
-This can have performance benefits in certain situations:
+The library comes with two default features, `log` and `ffi`.
+
+The former adds all `slog` logging code, which when removed replaces all of them with no-ops.
+This may be desirable on certain platforms where the performance difference is significant.
+
+The `ffi` feature introduces an FFI interface for ftml, permitting C and C API-compatible code
+to interface with the library.
+
+Note that, when compiling for the `wasm32` target, even if the `ffi` feature is enabled, its
+corresponding code is not built.
 
 ```
 $ cargo check --no-default-features
@@ -55,8 +66,12 @@ However, there is a `wasm-log` feature, which initializes a `console.log()`-base
 
 If developing and just want to check that the build passes, use:
 ```
-$ cargo check --target wasm32-unknown-unknown
+$ wasm-pack build --dev
 ```
+
+Without release optimizations, this runs fast enough to use during development.
+
+If for some reason you want to invoke `cargo check` instead, call `cargo check --target wasm32-unknown-unkown`.
 
 ### Testing
 ```sh
@@ -193,61 +208,3 @@ let html_output = HtmlRender.render(&log, &page_info, &tree);
 ### JSON Serialization
 
 See [`Serialization.md`](docs/Serialization.md).
-
-### Server
-If you wish to build the `ftml-http` subcrate, use the following:
-Note that it was primarily designed for UNIX-like platforms, but with
-some minor changes could be modified to work on Windows.
-
-```sh
-$ cargo build -p ftml-http --release
-$ cargo run -p ftml-http
-```
-
-This will produce an HTTP server which a REST client can query to perform ftml operations.
-
-For typical applications the only relevant route would be `POST /render/html`.
-The others are provided to expose library internals, such as extracted tokens,
-if they are desired.
-
-You can see a full list of REST methods in [`ServerRoutes.md`](docs/ServerRoutes.md).
-
-Its usage message (produced by adding `-- --help` to the above `cargo run` invocation)
-is reproduced below:
-
-```
-ftml ftml-http v0.3.1 [8a42fccd]
-Wikijump Team
-REST server to parse and render Wikidot text.
-
-USAGE:
-    ftml-http [FLAGS] [OPTIONS]
-
-FLAGS:
-    -h, --help         Prints help information.
-        --info-only    Print information then exit.
-    -4, --ipv4         Only host the server on IPv4.
-    -V, --version      Prints version information.
-
-OPTIONS:
-    -l, --log-file <FILE>      The log file to write formatted entries to [default: ftml.log]
-    -L, --log-level <LEVEL>    Log level to be use when running the server [default: debug]
-    -p, --port <PORT>          The port to be used by the server [default: 3865]
-```
-
-An example invocation with with `curl` is provided:
-
-```
-$ curl \
-    -i \
-    -X POST \
-    -H 'Content-Type: application/json' \
-    --compressed \
-    --data '
-{
-    "text": "<your input here>",
-    "callback-url": "http://localhost:8000/included-pages",
-    "missing-include-template": "No page {{ page }} {% if site %}on site {{ site }} {% endif %}exists!"
-}' \
-        http://localhost:3865/parse
-```

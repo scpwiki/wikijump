@@ -11,21 +11,30 @@
                         {
                             "element": "text",
                             "data": "["
-                        },
-                        {
-                            "element": "list",
-                            "data": {
-                                "type": "numbered",
-                                "items": [
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "A"
-                                        }
-                                    ]
-                                ]
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "list",
+                "data": {
+                    "type": "numbered",
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
                             }
-                        },
+                        ]
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
                         {
                             "element": "text",
                             "data": "]"

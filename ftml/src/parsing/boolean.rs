@@ -19,7 +19,7 @@
  */
 
 /// Parse a boolean string into its corresponding value.
-pub fn parse_boolean<S: AsRef<str>>(s: S) -> Result<bool, ()> {
+pub fn parse_boolean<S: AsRef<str>>(s: S) -> Result<bool, NonBooleanValue> {
     const NAMES: [(&str, bool); 8] = [
         ("true", true),
         ("false", false),
@@ -38,5 +38,11 @@ pub fn parse_boolean<S: AsRef<str>>(s: S) -> Result<bool, ()> {
         }
     }
 
-    Err(())
+    Err(NonBooleanValue)
 }
+
+/// Error value for `parse_boolean()`.
+/// Returned if the given string value is not a loose boolean,
+/// for instance `"yes"` or `"true"`.
+#[derive(Debug)]
+pub struct NonBooleanValue;

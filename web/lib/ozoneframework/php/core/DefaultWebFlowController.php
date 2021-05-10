@@ -142,7 +142,6 @@ class DefaultWebFlowController extends WebFlowController {
 			// process modules...
 	 		$moduleProcessor = new ModuleProcessor($runData);
 	 		$out = $moduleProcessor->process($rendered);
-
 		}
 
 		$runData->handleSessionEnd();

@@ -1,0 +1,55 @@
+// Normalize html/body
+html,
+body {
+  min-width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  font-size: 1rem;
+  line-height: 1.5;
+  touch-action: manipulation;
+  scroll-behavior: smooth;
+}
+
+// Sets text selection color.
+::selection {
+  color: var(--col-text);
+  background-color: var(--col-text-select);
+}
+
+// Horizontal rules.
+hr {
+  display: block;
+  height: 0.125rem;
+  background: var(--col-border);
+}
+
+// Indent lists.
+ul,
+ol {
+  padding-left: 1rem;
+}
+
+// Prevents `<sub>` and `<sup>` elements from affecting line-height.
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+}
+
+// Styles underlines globally.
+* {
+  text-decoration-thickness: 0.05em;
+  text-underline-offset: 0.075em;
+  text-decoration-skip-ink: none;
+}
+
+// Struck-out text.
+s {
+  text-decoration: line-through 0.15em;
+}
+
+// Highlighted text.
+mark {
+  color: inherit;
+  background: var(--col-text-highlight);
+}

@@ -69,7 +69,8 @@ export function has<K extends string, T>(
   obj: T
 ): obj is T extends Record<any, any> ? Has<K, T> : never {
   if (!isAnyObject(obj)) return false
-  return key in obj && (obj as any)[key] !== undefined
+  // @ts-ignore
+  return key in obj && obj[key] !== undefined
 }
 
 /** Removes all properties assigned to `undefined` in an object. */
@@ -186,7 +187,8 @@ export function throttle<T extends AnyFunction>(
   return function (this: any, ...args: Parameters<T>) {
     const callNow = immediate && initialCall
     const next = () => {
-      fn.apply(this, [...(args as any)])
+      // @ts-ignore
+      fn.apply(this, [...args])
       timeout = null
     }
     if (callNow) {
@@ -230,7 +232,8 @@ export function createLock<T extends AnyFunction>(fn: T) {
   return async (...args: Parameters<T>) => {
     if (locked) await waitFor(() => locked === false)
     locked = true
-    const result = (await fn(...(args as any))) as PromiseValue<T>
+    // @ts-ignore
+    const result = (await fn(...args)) as PromiseValue<T>
     locked = false
     return result
   }
@@ -248,7 +251,8 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
     if (queued !== true) {
       queued = true
       requestAnimationFrame(async () => {
-        await fn(...(args as any))
+        // @ts-ignore
+        await fn(...args)
         queued = false
       })
     }
@@ -266,7 +270,8 @@ export function idleCallback<T extends AnyFunction<any>>(
     return new Promise(resolve => setTimeout(() => resolve(cb()), timeout))
   } else {
     return new Promise(resolve =>
-      (window as any).requestIdleCallback(() => resolve(cb()), { timeout })
+      // @ts-ignore
+      requestIdleCallback(() => resolve(cb()), { timeout })
     )
   }
 }
@@ -281,13 +286,38 @@ export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
   return (...args: Parameters<T>): void => {
     if (queued !== true) {
       queued = true
-      ;(window as any).requestIdleCallback(
+      // @ts-ignore
+      requestIdleCallback(
         async () => {
-          await fn(...(args as any))
+          // @ts-ignore
+          await fn(...args)
           queued = false
         },
         { timeout }
       )
     }
   }
+}
+
+const domParser = new DOMParser()
+
+/** Takes a string of HTML and creates a {@link DocumentFragment}. */
+export function toFragment(html: string) {
+  const parsed = domParser.parseFromString(html, "text/html")
+  const fragment = document.createDocumentFragment()
+  fragment.append(parsed.documentElement)
+  return fragment
+}
+
+/**
+ * **DOES NOT ESCAPE INPUT**
+ *
+ *  Template string tag that creates a {@link DocumentFragment}. */
+export function html(strings: TemplateStringsArray, ...subs: string[]) {
+  const src = strings.raw.reduce((prev, cur, idx) => {
+    let sub = subs[idx - 1]
+    if (Array.isArray(sub)) sub = sub.join("")
+    return prev + sub + cur
+  })
+  return toFragment(src)
 }

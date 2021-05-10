@@ -1,57 +1,36 @@
 {
   "compilerOptions": {
-    // General Functionality
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "node",
-    "importHelpers": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
 
-    // Features
     "allowJs": true,
     "resolveJsonModule": true,
     "useDefineForClassFields": true,
     "lib": ["ESNext", "DOM", "WebWorker"],
+    "types": ["svelte", "vite/client"],
 
-    // Code
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
 
-    // Emit (incremental)
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "preserveWatchOutput": true
+    "sourceMap": true,
+    "noEmit": true
   },
-
-  // Modules must be added here in order for their types to be compiled.
-  // Unfortunately, there isn't a decent way to do this automatically.
-  // The performance benefits are worth it, regardless.
-  "references": [
-    { "path": "./modules/wj-util" },
-    { "path": "./modules/node-snowpack-workers" },
-    { "path": "./modules/sheaf-core" },
-    { "path": "./modules/ftml-wasm" },
-    { "path": "./modules/ftml-wasm-worker" },
-    { "path": "./modules/cm-tarnation" }
-  ],
 
   "typeAcquisition": {
     "enable": true,
     "disableFilenameBasedTypeAcquisition": true,
-    // exclude some problematic packages that cause `tsconfig.json` errors
     "exclude": [
       "agent-base", "https-proxy-agent", "socks-proxy-agent",
-      "dotenv", "source-map"
+      "dotenv", "source-map",
+      "fast-safe-stringify",
+      "tsconfig-paths"
     ]
   },
-
-  // Due to us having at least one reference (see above) this isn't an error.
-  "files": [],
-  "include": []
+  "exclude": ["node_modules", "misc/templates", "dist", "tests-dist"]
 }

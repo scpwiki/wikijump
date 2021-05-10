@@ -34,6 +34,10 @@ import { printTree } from "./print-tree"
 import { confinement } from "./theme"
 import { indentHack } from "./extensions/indent-hack"
 
+export * from "./adapters/svelte-lifecycle-element"
+export * from "./adapters/svelte-dom"
+export * from "./adapters/svelte-panel"
+
 interface EditorStore {
   /** The current document of the editor. */
   doc: EditorState["doc"]

@@ -46,7 +46,6 @@ mod prelude {
     pub use crate::tree::{Element, Elements, ElementsIterator};
 }
 
-use self::boolean::parse_boolean;
 use self::depth::{process_depths, DepthItem, DepthList};
 use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
 use self::parser::Parser;
@@ -57,6 +56,7 @@ use crate::tokenizer::Tokenization;
 use crate::tree::SyntaxTree;
 use std::borrow::Cow;
 
+pub use self::boolean::{parse_boolean, NonBooleanValue};
 pub use self::exception::{ParseException, ParseWarning, ParseWarningKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};

@@ -23,6 +23,7 @@
 mod collapsible;
 mod container;
 mod iframe;
+mod image;
 mod input;
 mod link;
 mod list;
@@ -30,7 +31,7 @@ mod text;
 
 mod prelude {
     pub use super::super::context::HtmlContext;
-    pub use super::render_element;
+    pub use super::{render_element, render_elements};
     pub use crate::log::prelude::*;
     pub use crate::tree::{Element, SyntaxTree};
 }
@@ -38,10 +39,12 @@ mod prelude {
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
 use self::iframe::{render_html, render_iframe};
+use self::image::render_image;
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::text::{render_code, render_email, render_wikitext_raw};
+use super::super::utils::{check_ifcategory, check_iftags};
 use super::HtmlContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
@@ -82,6 +85,12 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::Link { url, label, target } => {
             render_link(log, ctx, &url, label, *target)
         }
+        Element::Image {
+            source,
+            link,
+            alignment,
+            attributes,
+        } => render_image(log, ctx, source, ref_cow!(link), *alignment, attributes),
         Element::List { ltype, items } => render_list(log, ctx, *ltype, items),
         Element::RadioButton {
             name,
@@ -113,6 +122,22 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 *show_bottom,
             ),
         ),
+        Element::IfCategory {
+            conditions,
+            elements,
+        } => {
+            if check_ifcategory(log, ctx.info(), conditions) {
+                render_elements(log, ctx, elements);
+            }
+        }
+        Element::IfTags {
+            conditions,
+            elements,
+        } => {
+            if check_iftags(log, ctx.info(), conditions) {
+                render_elements(log, ctx, elements);
+            }
+        }
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)

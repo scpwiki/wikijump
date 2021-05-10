@@ -11,34 +11,43 @@
                         {
                             "element": "text",
                             "data": "["
-                        },
+                        }
+                ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "blockquote",
+                    "attributes": {},
+                    "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "blockquote",
+                                "type": "paragraph",
                                 "attributes": {},
                                 "elements": [
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Apple"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Apple"
                                     }
                                 ]
                             }
-                        },
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
                         {
                             "element": "text",
                             "data": "]"
                         }
-                    ]
+                ]
                 }
             }
         ],

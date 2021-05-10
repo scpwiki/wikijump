@@ -53,9 +53,8 @@ fn build_module_rule_map(module_rules: &'static [ModuleRule]) -> ModuleRuleMap {
             "Module name does not start with 'module-'.",
         );
 
-        assert_eq!(
-            module_rule.accepts_names.is_empty(),
-            false,
+        assert!(
+            !module_rule.accepts_names.is_empty(),
             "Module has no accepted names",
         );
 

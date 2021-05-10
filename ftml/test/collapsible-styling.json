@@ -3,37 +3,28 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "collapsible",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
+                    "attributes": {
+                        "id": "fruit",
+                        "class": "collapse-list",
+                        "style": "display: inline-block"
+                    },
+                    "start-open": false,
+                    "show-text": null,
+                    "hide-text": null,
+                    "show-top": true,
+                    "show-bottom": false,
                     "elements": [
                         {
-                            "element": "collapsible",
+                            "element": "container",
                             "data": {
-                                "attributes": {
-                                    "id": "fruit",
-                                    "class": "collapse-list",
-                                    "style": "display: inline-block"
-                                },
-                                "start-open": false,
-                                "show-text": null,
-                                "hide-text": null,
-                                "show-top": true,
-                                "show-bottom": false,
+                                "type": "paragraph",
+                                "attributes": {},
                                 "elements": [
                                     {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "paragraph",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "Banana"
-                                                }
-                                            ]
-                                        }
+                                        "element": "text",
+                                        "data": "Banana"
                                     }
                                 ]
                             }

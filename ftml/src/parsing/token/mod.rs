@@ -55,11 +55,11 @@ pub enum Token {
     //
     LeftBracket,
     LeftBracketAnchor,
-    LeftBracketSpecial,
+    LeftBracketStar,
     RightBracket,
     LeftBlock,
     LeftBlockEnd,
-    LeftBlockSpecial,
+    LeftBlockStar,
     RightBlock,
     DoubleDash,
     TripleDash,
@@ -106,7 +106,7 @@ pub enum Token {
     // Links
     //
     LeftLink,
-    LeftLinkSpecial,
+    LeftLinkStar,
     RightLink,
 
     //
@@ -114,18 +114,6 @@ pub enum Token {
     //
     TableColumn,
     TableColumnTitle,
-
-    //
-    // Alignment
-    //
-    RightAlignOpen,
-    RightAlignClose,
-    LeftAlignOpen,
-    LeftAlignClose,
-    CenterAlignOpen,
-    CenterAlignClose,
-    JustifyAlignOpen,
-    JustifyAlignClose,
 
     //
     // Text components
@@ -219,11 +207,11 @@ impl Token {
             Rule::right_comment => Token::RightComment,
             Rule::left_bracket => Token::LeftBracket,
             Rule::left_bracket_anchor => Token::LeftBracketAnchor,
-            Rule::left_bracket_special => Token::LeftBracketSpecial,
+            Rule::left_bracket_star => Token::LeftBracketStar,
             Rule::right_bracket => Token::RightBracket,
             Rule::left_block => Token::LeftBlock,
             Rule::left_block_end => Token::LeftBlockEnd,
-            Rule::left_block_special => Token::LeftBlockSpecial,
+            Rule::left_block_star => Token::LeftBlockStar,
             Rule::right_block => Token::RightBlock,
             Rule::color => Token::Color,
             Rule::double_dash => Token::DoubleDash,
@@ -262,22 +250,12 @@ impl Token {
 
             // Links
             Rule::left_link => Token::LeftLink,
-            Rule::left_link_special => Token::LeftLinkSpecial,
+            Rule::left_link_star => Token::LeftLinkStar,
             Rule::right_link => Token::RightLink,
 
             // Tables
             Rule::table_column => Token::TableColumn,
             Rule::table_column_title => Token::TableColumnTitle,
-
-            // Alignment
-            Rule::open_right_align => Token::RightAlignOpen,
-            Rule::open_left_align => Token::LeftAlignOpen,
-            Rule::open_center_align => Token::CenterAlignOpen,
-            Rule::open_justify_align => Token::JustifyAlignOpen,
-            Rule::close_right_align => Token::RightAlignClose,
-            Rule::close_left_align => Token::LeftAlignClose,
-            Rule::close_center_align => Token::CenterAlignClose,
-            Rule::close_justify_align => Token::JustifyAlignClose,
 
             // Text components
             Rule::identifier => Token::Identifier,
@@ -303,7 +281,7 @@ impl Token {
     }
 }
 
-#[cfg(feature = "has-log")]
+#[cfg(feature = "log")]
 impl slog::Value for Token {
     fn serialize(
         &self,

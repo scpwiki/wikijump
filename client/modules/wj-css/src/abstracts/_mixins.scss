@@ -1,0 +1,85 @@
+/// Mixin for when an element is being hovered over.
+/// Using this mixin instead of `:hover` accounts for edge cases.
+@mixin hover {
+  @media (any-hover: hover), (hover: hover) {
+    &:not([disabled]):hover {
+      @content;
+    }
+  }
+}
+
+/// Shorthand for a inverted `prefers-reduced-motion` media query.
+@mixin tolerates-motion {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
+// Shorthand for the `prefers-reduced-motion` media query.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion) {
+    @content;
+  }
+}
+
+/// Removes most of the built-in styling for an element.
+@mixin reset {
+  font: inherit;
+  color: inherit;
+  text-decoration: none;
+  background: none;
+  &:not(:focus-visible) {
+    border: none;
+    outline: none;
+  }
+}
+
+/// Hides content visually but not to screen readers.
+@mixin hide-visually {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(100%);
+  white-space: nowrap;
+}
+
+/// Adds ::after and ::before pseudo-elements labeling the element for screen-readers.
+/// Like such: &::before = '[Start of $text]', &::after = '[End of $text]'
+@mixin label-for-screenreaders($text) {
+  &::before,
+  &::after {
+    @include hide-visually;
+  }
+
+  &::before {
+    content: "[Start of " + $text + ".]";
+  }
+
+  &::after {
+    content: "[End of " + $text + ".]";
+  }
+}
+
+/// Make an object appear higher or lower using shadows.
+///
+/// @param $height Shadow size, roughly in pixels. Multiples of two are good values.
+/// @param $boost Shadow darkness multiplier.
+@mixin shadow($height: 1, $boost: 1) {
+  $boost: ($boost * ($height / 8));
+
+  $one: #{$height * 0.075}px;
+  $two: #{$height * 0.5}px;
+  $three: #{$height}px;
+
+  @if $height != 0 {
+    // this black magic is mostly inspired by how the Google Material libraries do it
+    // prettier-ignore
+    box-shadow:
+      0 $two $three 0 rgba(black, 0.5 * $boost),
+      0 0 0 $one (rgba(black, 0.1 * $boost));
+  } @else if $height == 0 {
+    box-shadow: none;
+  }
+}

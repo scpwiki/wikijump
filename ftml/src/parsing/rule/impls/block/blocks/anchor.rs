@@ -24,8 +24,8 @@ use crate::tree::AnchorTarget;
 pub const BLOCK_ANCHOR: BlockRule = BlockRule {
     name: "block-anchor",
     accepts_names: &["a", "anchor"],
-    accepts_special: true,
-    accepts_modifier: true,
+    accepts_star: true,
+    accepts_score: true,
     accepts_newlines: false,
     parse_fn,
 };
@@ -34,8 +34,8 @@ fn parse_fn<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
-    special: bool,
-    modifier: bool,
+    flag_star: bool,
+    flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
@@ -43,7 +43,7 @@ fn parse_fn<'r, 't>(
         "Parsing anchor block";
         "in-head" => in_head,
         "name" => name,
-        "special" => special,
+        "star" => flag_star,
     );
 
     assert_block_name(&BLOCK_ANCHOR, name);
@@ -53,17 +53,17 @@ fn parse_fn<'r, 't>(
 
     // "a" means we wrap interpret as-is
     // "a_" means we strip out any newlines or paragraph breaks
-    let strip_line_breaks = modifier;
+    let strip_line_breaks = flag_score;
 
     // Get anchor target depending on special
-    let target = if special {
+    let target = if flag_star {
         Some(AnchorTarget::NewTab)
     } else {
         None
     };
 
     // Get body content, without paragraphs
-    let (mut elements, exceptions) =
+    let (mut elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_ANCHOR, false)?.into();
 
     if strip_line_breaks {
@@ -92,5 +92,5 @@ fn parse_fn<'r, 't>(
         target,
     };
 
-    ok!(element, exceptions)
+    ok!(paragraph_safe; element, exceptions)
 }

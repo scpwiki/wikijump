@@ -38,7 +38,7 @@ fn parse_fn<'r, 't>(
     let button_text = arguments.get("button");
     let attributes = arguments.to_hash_map();
 
-    ok!(Some(Module::Join {
+    ok!(false; Some(Module::Join {
         button_text,
         attributes,
     }))

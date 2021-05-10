@@ -11,14 +11,14 @@
                         {
                             "element": "text",
                             "data": "Empty"
-                        },
-                        {
-                            "element": "html",
-                            "data": {
-                                "contents": ""
-                            }
                         }
                     ]
+                }
+            },
+            {
+                "element": "html",
+                "data": {
+                    "contents": ""
                 }
             }
         ],
