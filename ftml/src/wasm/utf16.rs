@@ -23,14 +23,6 @@ use crate::Utf16IndexMap as RustUtf16IndexMap;
 use ouroboros::self_referencing;
 use std::sync::Arc;
 
-// Typescript declarations
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(typescript_type = "[number, number]")]
-    pub type IIndexSpan;
-}
-
 // Wrapper structures
 
 #[self_referencing]
@@ -99,15 +91,5 @@ impl Utf16IndexMap {
 
         let new_index = self.get().get_index(index);
         Ok(new_index)
-    }
-
-    #[wasm_bindgen]
-    pub fn get_span(&self, start: usize, end: usize) -> Result<IIndexSpan, JsValue> {
-        self.check_index(start)?;
-        self.check_index(end)?;
-
-        let new_start = self.get().get_index(start);
-        let new_end = self.get().get_index(end);
-        rust_to_js!(vec![new_start, new_end])
     }
 }
