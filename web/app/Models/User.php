@@ -5,15 +5,25 @@ namespace Wikijump\Models;
 use Database\Seeders\UserSeeder;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Config;
+use Wikijump\Traits\HasSettings;
 
+/**
+ * Class User
+ * @package Wikijump\Models
+ * @mixin Builder
+ */
 class User extends Authenticatable
 {
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
+    use HasSettings;
 
     /**
      * These are service accounts added by the UserSeeder. They're used during
@@ -65,7 +75,17 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $casts = [
+    protected array $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Retrieve the list of default values for user settings.
+     * @return array
+     */
+    public static function defaults() : array
+    {
+        return Config::get('wikijump.defaults.user');
+    }
+
 }
