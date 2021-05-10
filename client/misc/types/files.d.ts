@@ -1,6 +1,4 @@
-/**
- *  @file Modules for correctly typing imported files.
- */
+/** Modules for correctly typing imported files. */
 
 declare module "*.toml" {
   const json: JSONObject

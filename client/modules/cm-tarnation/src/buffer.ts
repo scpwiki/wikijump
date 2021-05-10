@@ -5,9 +5,11 @@ import type { Tree } from "lezer-tree"
 
 // ---- CONTEXT
 
-/** State storage class for Tarnation.
- *  The parser and tokenizer should be able to restart if given
- *  the information available in this object. */
+/**
+ * State storage class for Tarnation.
+ * The parser and tokenizer should be able to restart if given
+ * the information available in this object.
+ */
 export class Context {
   constructor(
     public pos: number,
@@ -19,15 +21,19 @@ export class Context {
 
 // ---- BUFFER
 
-/** Represents a Lezer token.
- *  The `tree` value is for storing a reusable form of this token and its children. */
+/**
+ * Represents a Lezer token.
+ * The `tree` value is for storing a reusable form of this token and its children.
+ */
 type TokenData = [id: number, from: number, to: number, children: number, tree?: Tree]
 
-/** @see Buffer */
+/** @see {@link Buffer} */
 type BufferElement = BufferToken | Checkpoint
 
-/** Stores the token and checkpoint information about the previous parse.
- *  New tokens, and context snapshots ({@link Checkpoint}), are stored in this buffer. */
+/**
+ * Stores the token and checkpoint information about the previous parse.
+ * New tokens, and context snapshots ({@link Checkpoint}), are stored in this buffer.
+ */
 export class Buffer {
   /** The latest (by position) checkpoint in the buffer. */
   declare lastCheckpoint?: Checkpoint
@@ -44,8 +50,10 @@ export class Buffer {
     return this.buffer.length
   }
 
-  /** Fully compiles the buffer's data
-   *  into a {@link Tree `Tree.build`} compatible format. */
+  /**
+   * Fully compiles the buffer's data
+   * into a {@link Tree | `Tree.build`} compatible format.
+   */
   compile() {
     // verbose approach to maximize speed
     const buffer: number[] = []
@@ -108,8 +116,10 @@ export class Buffer {
     return search(this.buffer, pos, Buffer._searchComparator, opts)
   }
 
-  /** Finds the closest {@link Context} behind the given `before` value,
-   *  but after the given `start` value. */
+  /**
+   * Finds the closest {@link Context} behind the given `before` value,
+   * but after the given `start` value.
+   */
   findContext(start: number, before: number) {
     // binary search for closest position to `before`
     let idx = this.search(before, { precise: false })?.index ?? this.buffer.length
@@ -122,7 +132,10 @@ export class Buffer {
     return null
   }
 
-  /** Cuts the buffer at the given position (or index). All elements after the given position will be removed. */
+  /**
+   * Cuts the buffer at the given position (or index).
+   * All elements after the given position will be removed.
+   */
   cut(at: number, indexed = false) {
     let idx: number | undefined
     if (indexed) idx = at
@@ -199,8 +212,10 @@ export class Buffer {
 //   }
 // }
 
-/** {@link WeakMap} wrapper for accessing a
- *  cached {@link Buffer} from a CodeMirror syntax tree. */
+/**
+ * {@link WeakMap} wrapper for accessing a
+ * cached {@link Buffer} from a CodeMirror syntax tree.
+ */
 export class BufferCache {
   private map: WeakMap<Tree, Buffer> = new WeakMap()
 
@@ -221,9 +236,11 @@ export class BufferCache {
   }
 }
 
-/** `Checkpoint` objects take in a {@link Context} and represent a parsing "snapshot".
+/**
+ * `Checkpoint` objects take in a {@link Context} and represent a parsing "snapshot".
  *
- *  In a {@link Buffer} all positional data is relative to the previous `Checkpoint`. */
+ * In a {@link Buffer} all positional data is relative to the previous `Checkpoint`.
+ */
 export class Checkpoint {
   declare offset: number
   declare prev?: Checkpoint
@@ -244,8 +261,10 @@ export class Checkpoint {
     }
   }
 
-  /** Ensures that all positions in the checkpoint chain are fresh
-   *  by recalculating them. */
+  /**
+   * Ensures that all positions in the checkpoint chain are fresh
+   * by recalculating them.
+   */
   update() {
     if (this.prev) {
       this.prev.update()
@@ -314,8 +333,10 @@ export class Checkpoint {
   }
 }
 
-/** Represents a parsed token in the {@link Buffer}.
- *  Tokens are positionally relative to the previous {@link Checkpoint} object. */
+/**
+ * Represents a parsed token in the {@link Buffer}.
+ * Tokens are positionally relative to the previous {@link Checkpoint} object.
+ */
 export class BufferToken {
   declare checkpoint?: Checkpoint
 

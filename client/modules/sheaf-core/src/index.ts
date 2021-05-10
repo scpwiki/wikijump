@@ -1,6 +1,4 @@
-/**
- * @file Exports {@link SheafCore}, the core class that wraps around CodeMirror 6.
- */
+/* Exports SheafCore, the core class that wraps around CodeMirror 6. */
 
 import { EditorState, Extension, Compartment } from "@codemirror/state"
 import {
@@ -49,8 +47,10 @@ export class SheafCore {
   /** The element the editor is attached to. */
   parent!: Element
 
-  /** The CodeMirror `EditorState` the editor has currently.
-   *  The state is immutable and is replaced as the editor updates. */
+  /**
+   * The CodeMirror `EditorState` the editor has currently.
+   * The state is immutable and is replaced as the editor updates.
+   */
   state = EditorState.create()
 
   /** The CodeMirror `EditorView` instance the editor interacts with the DOM with. */
@@ -61,8 +61,10 @@ export class SheafCore {
   subscribe = this.store.subscribe
   set = this.store.set
 
-  /** The lines currently being interacted with by the user.
-   *  This includes all selected lines, the line the cursor is present on, etc. */
+  /**
+   * The lines currently being interacted with by the user.
+   * This includes all selected lines, the line the cursor is present on, etc.
+   */
   activeLines = writable(new Set<number>())
 
   private spellcheckCompartment = new Compartment()
@@ -129,8 +131,10 @@ export class SheafCore {
     this.view.scrollDOM.scrollTop = val
   }
 
-  /** Destroys the editor.
-   *  Usage of the editor object after destruction is obviously not recommended. */
+  /**
+   * Destroys the editor.
+   * Usage of the editor object after destruction is obviously not recommended.
+   */
   destroy() {
     this.view.destroy()
   }

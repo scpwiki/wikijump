@@ -15,19 +15,23 @@ export interface SearchOpts {
   min?: number
   /** Starting maximum index for the search. */
   max?: number
-  /** If true, the search will return the closest index to the
-   *  desired value on failure. */
+  /**
+   * If true, the search will return the closest index to the
+   * desired value on failure.
+   */
   precise?: boolean
 }
 
-/** Performs a binary search through an array.
+/**
+ * Performs a binary search through an array.
  *
- *  The comparator function should return -1 if undershooting the desired value,
- *  +1 if overshooting, and 0 if the value was found.
+ * The comparator function should return -1 if undershooting the desired value,
+ * +1 if overshooting, and 0 if the value was found.
  *
- *  The comparator can also short-circuit the search by returning true or false.
- *  Returning true is like returning a 0 (target found), but
- *  returning false induces a null return. */
+ * The comparator can also short-circuit the search by returning true or false.
+ * Returning true is like returning a 0 (target found), but
+ * returning false induces a null return.
+ */
 export function search<T, TR>(
   haystack: T[],
   target: TR,
@@ -62,8 +66,10 @@ type Has<K extends string, T> = T extends { [P in K]?: infer R }
   ? Omit<T, K> & Record<K, R>
   : never
 
-/** Returns if an object `T` has a key `K`, and only returns true if
- *  the value of that key isn't undefined. */
+/**
+ * Returns if an object `T` has a key `K`, and only returns true if
+ * the value of that key isn't undefined.
+ */
 export function has<K extends string, T>(
   key: K,
   obj: T
@@ -88,8 +94,10 @@ export function escapeRegExp(str: string) {
   return str.replace(/[.*+?^${}()|\[\]\\]/g, "\\$&")
 }
 
-/** Checks if a string has any of the provided sigils.
- *  (e.g. `hasSigil('!string', '!') -> true`) */
+/**
+ * Checks if a string has any of the provided sigils.
+ * (e.g. `hasSigil('!string', '!') -> true`)
+ */
 export function hasSigil<T extends string = string>(
   str: unknown,
   sigils: string | string[]
@@ -129,8 +137,10 @@ export function toPoints(str: string) {
   return codes
 }
 
-/** Checks an array of codepoints against a codepoint array or a string,
- *  starting from a given position. */
+/**
+ * Checks an array of codepoints against a codepoint array or a string,
+ * starting from a given position.
+ */
 export function pointsMatch(points: number[], str: string | number[], pos: number) {
   if (typeof str === "string") {
     for (let i = 0; i < points.length; i++) {
@@ -144,11 +154,13 @@ export function pointsMatch(points: number[], str: string | number[], pos: numbe
   return true
 }
 
-/** Performance measuring utility.
+/**
+ * Performance measuring utility.
  *
- *  To use, execute the function and store the returned value.
- *  The returned value is a function that will end the performance timer
- *  and log the measured time to the console. */
+ * To use, execute the function and store the returned value.
+ * The returned value is a function that will end the performance timer
+ * and log the measured time to the console.
+ */
 export function perfy(meta?: string, threshold?: number): () => number {
   const start = performance.now()
   return () => {
@@ -165,17 +177,21 @@ export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-/** Creates and returns a promise that resolves when an invokation of `requestAnimationFrame()` fires its callback. */
+/**
+ * Creates and returns a promise that resolves when an invokation of `requestAnimationFrame()` fires its callback.
+ */
 export function animationFrame(): Promise<number> {
   return new Promise(resolve => requestAnimationFrame(resolve))
 }
 
 // Credit: https://gist.github.com/beaucharman/e46b8e4d03ef30480d7f4db5a78498ca
 // Personally, I think this is one of the more elegant JS throttle functions.
-/** Returns a 'throttled' variant of the given function.
- *  This function will only be able to execute every `limitMS` ms.
- *  Use to rate-limit functions for performance.
- *  You can have the first call be immediate by setting the third parameter to `true`. */
+/**
+ * Returns a 'throttled' variant of the given function.
+ * This function will only be able to execute every `limitMS` ms.
+ * Use to rate-limit functions for performance.
+ * You can have the first call be immediate by setting the third parameter to `true`.
+ */
 export function throttle<T extends AnyFunction>(
   fn: T,
   limitMS: number,
@@ -209,9 +225,11 @@ export function debounce<T extends AnyFunction>(fn: T, wait = 1) {
   }
 }
 
-/** Waits until the specified function returns `true`.
- *  It will call the specified async function to determine the polling interval.
- *  If none is given, it will poll every 100ms. */
+/**
+ * Waits until the specified function returns `true`.
+ * It will call the specified async function to determine the polling interval.
+ * If none is given, it will poll every 100ms.
+ */
 export async function waitFor(
   conditionFn: () => Promisable<boolean>,
   asyncTimerFn: () => Promise<void> = () => sleep(100)
@@ -223,10 +241,12 @@ export async function waitFor(
   return true
 }
 
-/** Returns a new 'locked' async function, constructed using the specified function.
- *  A locked asynchronous function will only allow a singular instance of itself
- *  to be running at one time.
- *  Additional calls will cause the function to wait until they can be ran. */
+/**
+ * Returns a new 'locked' async function, constructed using the specified function.
+ * A locked asynchronous function will only allow a singular instance of itself
+ * to be running at one time.
+ * Additional calls will cause the function to wait until they can be ran.
+ */
 export function createLock<T extends AnyFunction>(fn: T) {
   let locked: boolean
   return async (...args: Parameters<T>) => {
@@ -239,12 +259,16 @@ export function createLock<T extends AnyFunction>(fn: T) {
   }
 }
 
-/** Returns a function that will be "queued" to execute only on animation frames.
- *  Calling multiple times will run only once on the next requestAnimationFrame.
- *  @example
- *  const coolFunc = createAnimQueued(function niceFunc(args) => { 'stuff' })
- *  coolFunc()
- *  coolFunc() // doesn't run as the previous call is already queued */
+/**
+ * Returns a function that will be "queued" to execute only on animation frames.
+ * Calling multiple times will run only once on the next requestAnimationFrame.
+ * @example
+ * ```
+ * const func = createAnimQueued(function target(args) => { 'foo' })
+ * func()
+ * func() // doesn't run as the previous call is already queued
+ * ```
+ */
 export function createAnimQueued<T extends AnyFunction>(fn: T) {
   let queued: boolean
   return (...args: Parameters<T>): void => {
@@ -278,10 +302,12 @@ export function idleCallback<T extends AnyFunction<any>>(
   }
 }
 
-/** See `createAnimQueued` for a description of how this function works.
- *  The only difference is that this function uses `requestIdleCallback` instead.
- *  If `requestIdleCallback` isn't available, it will use `createAnimQueued` instead.
- * @see createAnimQueued */
+/**
+ * See `createAnimQueued` for a description of how this function works.
+ * The only difference is that this function uses `requestIdleCallback` instead.
+ * If `requestIdleCallback` isn't available, it will use `createAnimQueued` instead.
+ * @see {@link createAnimQueued}
+ */
 // bad coverage as requestIdleCallback isn't always available
 /*! istanbul ignore next */
 export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
@@ -316,7 +342,8 @@ export function toFragment(html: string) {
 /**
  * **DOES NOT ESCAPE INPUT**
  *
- *  Template string tag that creates a {@link DocumentFragment}. */
+ * Template string tag that creates a {@link DocumentFragment}.
+ */
 export function html(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
   const src = strings.raw.reduce((prev, cur, idx) => {
     let sub = subs[idx - 1]

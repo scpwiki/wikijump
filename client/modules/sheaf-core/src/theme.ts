@@ -1,7 +1,3 @@
-/**
- * @file Exports the theming and syntax highlighting color configuration for Sheaf.
- */
-
 import { HighlightStyle, tags as t } from "@codemirror/highlight"
 import type { Extension } from "@codemirror/state"
 

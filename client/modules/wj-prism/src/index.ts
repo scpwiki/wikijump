@@ -6,8 +6,6 @@ import "../vendor/prism"
 // way of accessing it
 /**
  * Reference to the Prism syntax highlighter.
- * @namespace
- * @external
  */
 export const Prism: typeof import("prismjs") = globalThis.Prism
 
@@ -28,8 +26,8 @@ const RAW_LANGS = ["raw", "text", "none", ""]
  * If the given language is `raw`, `text`, `none`, or an empty string,
  * the string of code will be escaped and returned as is.
  *
- * @param code The string to be highlighted.
- * @param lang The language to highlight the code with.
+ * @param code - The string to be highlighted.
+ * @param lang - The language to highlight the code with.
  */
 export function highlight(code: string, lang: string) {
   try {
