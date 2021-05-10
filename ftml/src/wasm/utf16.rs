@@ -23,14 +23,6 @@ use crate::Utf16IndexMap as RustUtf16IndexMap;
 use ouroboros::self_referencing;
 use std::sync::Arc;
 
-// Typescript declarations
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(typescript_type = "[number, number]")]
-    pub type IIndexSpan;
-}
-
 // Wrapper structures
 
 #[self_referencing]
