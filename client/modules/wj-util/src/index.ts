@@ -262,6 +262,8 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
 const HAS_IDLE_CALLBACK = "requestIdleCallback" in window
 
 /** Safely calls `requestIdleCallback` in an awaitable `Promise`. */
+// bad coverage as requestIdleCallback isn't always available
+/*! istanbul ignore next */
 export function idleCallback<T extends AnyFunction<any>>(
   cb: T,
   timeout = 100
@@ -280,6 +282,8 @@ export function idleCallback<T extends AnyFunction<any>>(
  *  The only difference is that this function uses `requestIdleCallback` instead.
  *  If `requestIdleCallback` isn't available, it will use `createAnimQueued` instead.
  * @see createAnimQueued */
+// bad coverage as requestIdleCallback isn't always available
+/*! istanbul ignore next */
 export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
   if (!HAS_IDLE_CALLBACK) return createAnimQueued(fn)
   let queued: boolean
@@ -305,7 +309,7 @@ const domParser = new DOMParser()
 export function toFragment(html: string) {
   const parsed = domParser.parseFromString(html, "text/html")
   const fragment = document.createDocumentFragment()
-  fragment.append(parsed.documentElement)
+  fragment.append(parsed.body)
   return fragment
 }
 
@@ -313,7 +317,7 @@ export function toFragment(html: string) {
  * **DOES NOT ESCAPE INPUT**
  *
  *  Template string tag that creates a {@link DocumentFragment}. */
-export function html(strings: TemplateStringsArray, ...subs: string[]) {
+export function html(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
   const src = strings.raw.reduce((prev, cur, idx) => {
     let sub = subs[idx - 1]
     if (Array.isArray(sub)) sub = sub.join("")
