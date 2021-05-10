@@ -66,8 +66,12 @@ However, there is a `wasm-log` feature, which initializes a `console.log()`-base
 
 If developing and just want to check that the build passes, use:
 ```
-$ cargo check --target wasm32-unknown-unknown
+$ wasm-pack build --dev
 ```
+
+Without release optimizations, this runs fast enough to use during development.
+
+If for some reason you want to invoke `cargo check` instead, call `cargo check --target wasm32-unknown-unkown`.
 
 ### Testing
 ```sh
