@@ -61,7 +61,7 @@ export const ajax = {
 
     YAHOO.util.Connect.asyncRequest(
       'POST',
-      '/ajax-module-connector.php',
+      '/ajax--handler',
       ajax.requestModuleCallback,
       OZONE.utils.arrayToPostData(parameters)
     );

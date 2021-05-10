@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
+use Wikidot\Utils\AjaxModuleWikiFlowController;
 use Wikijump\Http\Controllers\OzoneController;
 use Wikijump\Models\User;
 
@@ -54,6 +55,13 @@ Route::prefix('social--providers')->group(function() {
 
 });
 
+/**
+ * AJAX Handler, formerly ajax-module-connector.php
+ */
+Route::post('/ajax--handler', function() {
+    $controller = new AjaxModuleWikiFlowController();
+    $controller->process();
+});
 
 /**
  * This fallback route will defer to the OzoneController, which will boot an
