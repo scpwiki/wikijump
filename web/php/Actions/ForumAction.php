@@ -180,12 +180,12 @@ class ForumAction extends SmartyAction
         $threadId = $pl->getParameterValue("threadId");
         $parentPostId = $pl->getParameterValue("parentId");
         $user = $runData->getUser();
-        $userId = $runData->getUserId();
-        if ($userId == null) {
+        $userId = $user->id;
+        if ($user == null) {
             $userString = $runData->createIpString();
         }
 
-        $errors = array();
+        $errors = [];
         if (strlen8($title)>128) {
             $errors['title'] = _("Post title should not be longer than 128 characters.");
         }
@@ -214,7 +214,7 @@ class ForumAction extends SmartyAction
             // check if moderator or admin
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $rel = ModeratorPeer::instance()->selectOne($c);
             if (!$rel || strpos($rel->getPermissions(), 'f') == false) {
                 $rel = AdminPeer::instance()->selectOne($c);
@@ -318,12 +318,12 @@ class ForumAction extends SmartyAction
 
         $user = $runData->getUser();
 
-        $userId = $runData->getUserId();
-        if ($userId == null) {
+        $userId = $user->id;
+        if ($user == null) {
             $userString = $runData->createIpString();
         }
 
-        $errors = array();
+        $errors = [];
         if (strlen8($title)>128) {
             $errors['title'] = _("Post title should not be longer than 128 characters.");
         }
@@ -372,7 +372,7 @@ class ForumAction extends SmartyAction
             // check if moderator or admin
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $rel = ModeratorPeer::instance()->selectOne($c);
             if (!$rel || strpos($rel->getPermissions(), 'f') == false) {
                 $rel = AdminPeer::instance()->selectOne($c);
@@ -524,6 +524,8 @@ class ForumAction extends SmartyAction
         $title = $pl->getParameterValue("title");
         $description = $pl->getParameterValue("description");
 
+        $user = $runData->getUser();
+
         // validate
         $errors = array();
         if ($title == '') {
@@ -551,7 +553,7 @@ class ForumAction extends SmartyAction
             // check if moderator or admin
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $rel = ModeratorPeer::instance()->selectOne($c);
             if (!$rel || strpos($rel->getPermissions(), 'f') == false) {
                 $rel = AdminPeer::instance()->selectOne($c);

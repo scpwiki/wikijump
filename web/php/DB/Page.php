@@ -151,7 +151,7 @@ class Page extends PageBase
         if ($this->getLastEditUserId() == User::ANONYMOUS_USER) {
             return null;
         }
-        return OzoneUserPeer::instance()->selectByPrimaryKey($this->getLastEditUserId());
+        return User::find($this->getLastEditUserId());
     }
 
     public function getSite()

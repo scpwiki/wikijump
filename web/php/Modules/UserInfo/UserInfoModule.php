@@ -3,10 +3,11 @@
 namespace Wikidot\Modules\UserInfo;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\SmartyLocalizedModule;
+use Wikijump\Models\User;
 
 class UserInfoModule extends SmartyLocalizedModule
 {
@@ -30,9 +31,7 @@ class UserInfoModule extends SmartyLocalizedModule
         }
 
         // get user
-        $c = new Criteria();
-        $c->add("unix_name", $userUnixName);
-        $user = OzoneUserPeer::instance()->selectOne($c);
+        $user = User::firstWhere('unix_name', $userUnixName);
 
         if ($user == null) {
             throw new ProcessException(_("User does not exist."));
@@ -40,7 +39,7 @@ class UserInfoModule extends SmartyLocalizedModule
 
         $runData->contextAdd("user", $user);
         $runData->contextAdd("userUnixName", $userUnixName);
-        $runData->contextAdd("userId", $user->getUserId());
+        $runData->contextAdd("userId", $user->id);
 
         $this->user = $user;
 
@@ -66,7 +65,7 @@ class UserInfoModule extends SmartyLocalizedModule
         // modify title of the page
         $user = $this->user;
         if ($user != null) {
-            $out = preg_replace("/<title>(.+?)<\/title>/is", "<title>".GlobalProperties::$SERVICE_NAME.": ".$user->getNickName()."</title>", $out);
+            $out = preg_replace("/<title>(.+?)<\/title>/is", "<title>".GlobalProperties::$SERVICE_NAME.": ".$user->username."</title>", $out);
             $out = preg_replace("/<div id=\"page-title\">(.*?)<\/div>/is", '', $out, 1);
         }
         return $out;

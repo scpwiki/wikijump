@@ -2,17 +2,25 @@
 
 namespace Wikidot\Utils;
 
+use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Wikidot\DB\UserKarmaPeer;
 use Wikidot\DB\UserKarma;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikijump\Helpers\LegacyTools;
+use Wikijump\Models\User;
 
 class KarmaCalculator
 {
 
-    protected $_rules = array();
+    protected $_rules = [];
+
+    public int $minPointsLevel1 = 30;
+    public int $minPointsLevel2 = 100;
+    public int $minPointsLevel3 = 200;
+    public int $minPointsLevel4 = 300;
+    public int $minPointsLevel5 = 500;
 
 
     public function __construct()
@@ -39,85 +47,60 @@ class KarmaCalculator
     public function update($user)
     {
         $p = $this->calculate($user);
-        /* Get the karma object. */
-        $c = new Criteria();
-        $c->add('user_id', $user->getUserId());
-        $karma = UserKarmaPeer::instance()->selectOne($c);
-        if (!$karma) {
-            $karma = new UserKarma();
-            $karma->setUserId($user->getUserId());
+        $user->karma_points = $p;
+
+        /**
+         * Calculate karma level.
+         *
+         * Note that the behavior of a switch in PHP is to execute every command
+         * after the first true condition without a `break` statement. If it
+         * were set so if $p >= $minPointsLevelX, everyone would end up with karma
+         * level 5.
+         */
+        switch($p) {
+            case ($p < $this->minPointsLevel1):
+                $user->karma_level = 0;
+            case ($p < $this->minPointsLevel2):
+                $user->karma_level = 1;
+            case ($p < $this->minPointsLevel3):
+                $user->karma_level = 2;
+            case ($p < $this->minPointsLevel4):
+                $user->karma_level = 3;
+            case ($p < $this->minPointsLevel5):
+                $user->karma_level = 4;
+                break;
+            default:
+                $user->karma_level = 5;
         }
-        $karma->setPoints($p);
-        $karma->save();
+
+        $user->save();
     }
 
     public function updateLevels()
     {
-
-        /* How many points you need to have to get to a level. */
-        $minPointsLevel1 = 30;
-        $minPointsLevel2 = 100;
-        $minPointsLevel3 = 200;
-        $minPointsLevel4 = 300;
-        $minPointsLevel5 = 500;
-
-        /* Once you pass this limit, we will not take your level5 limit back. */
-        $keepLevel5Limit = 1000;
-
-        /* Calculate the distribution. */
-        $db = Database::$connection;
-
-        $totalUsers = UserKarmaPeer::instance()->selectCount();
-        /* Make karma=none for non-active users. */
-        $q = "UPDATE user_karma SET level=0 WHERE points < $minPointsLevel1";
-        $db->query($q);
-        /* Calculate total users but excluding these with less that $minPointsLevel1 points. */
-        $c = new Criteria();
-        $c->add('points', $minPointsLevel1, '>=');
-        $totalUsers = UserKarmaPeer::instance()->selectCount($c);
-
-        /* Number of users to fall into a given level. */
-        $limits = array();
-        $limitLevel5 = ceil($totalUsers * 0.05);
-        $limitLevel4 = ceil($totalUsers * 0.10);
-        $limitLevel3 = ceil($totalUsers * 0.20);
-        $limitLevel2 = ceil($totalUsers * 0.30);
-
-        //$c = new Criteria();
-        //$c->add('points', $minPointsLevel5, '.=');
-        //$c->setLimit()
-
-        /* Set level one by default. */
-        $q = array();
-        $q[] = "UPDATE user_karma SET level=1 WHERE points >= $minPointsLevel1 AND (level < 5 OR points < $keepLevel5Limit)";
-        $q[] = "UPDATE user_karma SET level=5 WHERE user_id IN (SELECT user_id FROM user_karma WHERE points >= $minPointsLevel5 ORDER BY points DESC LIMIT $limitLevel5)";
-        $q[] = "UPDATE user_karma SET level=4 WHERE user_id IN (SELECT user_id FROM user_karma WHERE points >= $minPointsLevel4 AND level < 5 ORDER BY points DESC LIMIT $limitLevel4)";
-        $q[] = "UPDATE user_karma SET level=3 WHERE user_id IN (SELECT user_id FROM user_karma WHERE points >= $minPointsLevel3 AND level < 4 ORDER BY points DESC LIMIT $limitLevel3)";
-        $q[] = "UPDATE user_karma SET level=2 WHERE user_id IN (SELECT user_id FROM user_karma WHERE points >= $minPointsLevel2 AND level < 3 ORDER BY points DESC LIMIT $limitLevel2)";
-        $db->query($q);
+        /**
+         * This used to calculate the karma level of a user by comparing their
+         * karma points to the rest of the userbase.
+         * The Wikidot formula is as follows:
+         * Everyone qualifies for Karma Level 1 with at least 30 points.
+         * The top 30% qualify for level 2 with at least 100 points.
+         * The top 20% qualify for level 3 with at least 200 points.
+         * The top 10% qualify for level 4 with at least 300 points.
+         * The top 5% qualify for level 5 with at least 500 points.
+         * A user with 1000 or more karma points holds level 5 permanently.
+         */
     }
 
     public function updateAll()
     {
-        $offset = 0;
-        $step = 1000;
         $db = Database::$connection;
         $db->begin();
-        while (true) {
-            $users = null;
-            $c = new Criteria();
-            $c->add("user_id", 0, ">");
-            $c->addOrderAscending("user_id");
-            $c->setLimit($step, $offset);
-            $users = OzoneUserPeer::instance()->select($c);
-            if (count($users) == 0) {
-                break;
-            }
-            foreach ($users as $user) {
-                $this->update($user);
-            }
-            $offset += $step;
-        }
+        DB::table('users')->orderBy('id')->chunk(1000, function($users) {
+           foreach ($users as $user) {
+               $this->update($user);
+           }
+        });
+
         $this->updateLevels();
         $db->commit();
     }

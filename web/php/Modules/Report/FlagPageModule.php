@@ -15,7 +15,7 @@ class FlagPageModule extends SmartyModule
     public function isAllowed($runData)
     {
         $userId = $runData->getUserId();
-        if ($userId == null || $userId <1) {
+        if(!$userId) {
             throw new WDPermissionException(_("This option is available only to registered (and logged-in) users."));
         }
         return true;
@@ -33,7 +33,7 @@ class FlagPageModule extends SmartyModule
         $user = $runData->getUser();
         // check if flagged already
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("site_id", $site->getSiteId());
         $c->add("path", $path);
 

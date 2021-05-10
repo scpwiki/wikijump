@@ -98,7 +98,7 @@ class DependencyFixer
 
             $revision->setComments(sprintf(_('Automatic update related to page rename: "%s" to "%s".'), $this->oldPageName, $this->newPageName));
 
-            $userId = $this->user->getUserId();
+            $userId = $this->user->id;
 
             if ($userId) {
                 $revision->setUserId($userId);

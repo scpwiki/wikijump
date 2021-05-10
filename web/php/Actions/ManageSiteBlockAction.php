@@ -5,13 +5,14 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\UserBlockPeer;
 use Wikidot\DB\UserBlock;
 use Wikidot\DB\IpBlockPeer;
 use Wikidot\DB\IpBlock;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Models\User;
 
 class ManageSiteBlockAction extends SmartyAction
 {
@@ -32,7 +33,7 @@ class ManageSiteBlockAction extends SmartyAction
         $site = $runData->getTemp("site");
 
         $userId = $pl->getParameterValue("userId");
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
         if ($user == null) {
             $runData->ajaxResponseAdd("status", "no_user");
             $runData->ajaxResponseAdd("message", "No such user.");
@@ -83,7 +84,7 @@ class ManageSiteBlockAction extends SmartyAction
         $site = $runData->getTemp("site");
 
         $userId = $pl->getParameterValue("userId");
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
         if ($user == null) {
             $runData->ajaxResponseAdd("status", "no_user");
             $runData->ajaxResponseAdd("message", _("No such user."));

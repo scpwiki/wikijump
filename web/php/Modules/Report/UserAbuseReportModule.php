@@ -2,9 +2,10 @@
 
 namespace Wikidot\Modules\Report;
 
-use Wikidot\DB\OzoneUserPeer;
+
 
 use Ozone\Framework\SmartyModule;
+use Wikijump\Models\User;
 
 class UserAbuseReportModule extends SmartyModule
 {
@@ -14,7 +15,7 @@ class UserAbuseReportModule extends SmartyModule
         $pl = $runData->getParameterList();
         $userId = $pl->getParameterValue("userId");
 
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
         $runData->contextAdd("user", $user);
 
         $site =  $runData->getTemp("site");

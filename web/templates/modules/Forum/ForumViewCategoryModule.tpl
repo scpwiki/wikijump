@@ -1,5 +1,4 @@
 <div class="forum-category-box">
-	{*<h1>{$category->getName()|escape}</h1>*}
 	<div class="forum-breadcrumbs">
 		<a href="/forum/start">Forum</a>
 		&raquo;

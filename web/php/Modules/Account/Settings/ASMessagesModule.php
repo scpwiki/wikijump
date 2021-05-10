@@ -5,15 +5,15 @@ namespace Wikidot\Modules\Account\Settings;
 
 
 
-use Wikidot\DB\UserSettingsPeer;
 use Wikidot\Utils\AccountBaseModule;
+use Wikijump\Models\User;
 
 class ASMessagesModule extends AccountBaseModule
 {
 
     public function build($runData)
     {
-        $us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
-        $runData->contextAdd("from", trim($us->getReceivePm()));
+        $user = User::find($runData->getUserId());
+        $runData->contextAdd("from", $user->get('receive_pm'));
     }
 }

@@ -6,7 +6,7 @@ use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\PrivateMessage;
 use Wikidot\DB\PrivateMessagePeer;
 use Wikidot\Utils\NotificationMaker;
@@ -14,6 +14,7 @@ use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WikiTransformation;
+use Wikijump\Models\User;
 
 class PMAction extends SmartyAction
 {
@@ -40,7 +41,7 @@ class PMAction extends SmartyAction
         }
 
         $user = $runData->getUser();
-        $toUser = OzoneUserPeer::instance()->selectByPrimaryKey($toUserId);
+        $toUser = User::find($toUserId);
 
         if ($toUser == null) {
             throw new ProcessException(_("Error selecting user."), "no_user");
@@ -55,8 +56,8 @@ class PMAction extends SmartyAction
         $source = $pl->getParameterValue("source");
         $subject = $pl->getParameterValue("subject");
 
-        if ($subject == null || $subject === '') {
-            $subject = "(No subject)";
+        if ($subject === '') {
+            $subject = '(No subject)';
         }
 
         $db = Database::connection();
@@ -65,9 +66,9 @@ class PMAction extends SmartyAction
         $toUserId = $pl->getParameterValue("to_user_id");
 
         // TODO: validation. also check if user exists
-        $toUser = OzoneUserPeer::instance()->selectByPrimaryKey($toUserId);
+        $toUser = User::find($toUserId);
         if ($toUser == null) {
-            $message = _("The recipient does not exist.");
+            $message = __("The recipient does not exist.");
             throw new ProcessException($message, "no_recipient");
         }
 

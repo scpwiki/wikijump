@@ -39,7 +39,7 @@ class NewWikiWidgetAction extends SmartyAction
 
         $unixName = WDStringUtils::toUnixName($unixName);
 
-        if (!$runData->getUser() || !$runData->getUser()->getSuperAdmin()) {
+        if ($runData->getUser()->id != 1) {
             //  handle forbidden names
             foreach (ForbiddenNames::$sites as $regex) {
                 if (preg_match($regex, $unixName) > 0) {

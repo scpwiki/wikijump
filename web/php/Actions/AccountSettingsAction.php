@@ -1,16 +1,16 @@
 <?php
 
 namespace Wikidot\Actions;
+use Illuminate\Support\Facades\Hash;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\OzoneEmail;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\OzoneUserPeer;
-use Wikidot\DB\UserSettingsPeer;
 use Wikidot\DB\PrivateUserBlockPeer;
 use Wikidot\DB\PrivateUserBlock;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
+use Wikijump\Models\User;
 
 class AccountSettingsAction extends SmartyAction
 {
@@ -18,7 +18,7 @@ class AccountSettingsAction extends SmartyAction
     public function isAllowed($runData)
     {
         $userId = $runData->getUserId();
-        if ($userId == null || $userId <1) {
+        if(!$userId) {
             throw new WDPermissionException(_("Not allowed. You should login first."));
         }
         return true;
@@ -37,7 +37,7 @@ class AccountSettingsAction extends SmartyAction
         $newPassword1 = ($pl->getParameterValue("new_password1"));
         $newPassword2 = ($pl->getParameterValue("new_password2"));
 
-        if (password_verify($oldPassword, $user->getPassword()) == false) {
+        if (password_verify($oldPassword, $user->password) == false) {
             throw new ProcessException(_("Password reset failed: Your current password is incorrect."), "form_error");
         }
         if ($newPassword1 !== $newPassword2) {
@@ -51,7 +51,7 @@ class AccountSettingsAction extends SmartyAction
         }
 
         // ok, change the password!!!
-        $user->setPassword($newPassword1);
+        $user->password = Hash::make($newPassword1);
         $user->save();
     }
 
@@ -70,9 +70,7 @@ class AccountSettingsAction extends SmartyAction
         }
 
         // check for users with the email
-        $c = new Criteria();
-        $c->add("email", $email);
-        $user = OzoneUserPeer::instance()->selectOne($c);
+        $user = User::firstWhere('email', $email);
 
         if ($user !== null) {
             throw new ProcessException(_("An user with this email already exists. Emails must be unique."), "form_error");
@@ -116,8 +114,7 @@ class AccountSettingsAction extends SmartyAction
         $runData->sessionDel("chevcode");
 
         $user = $runData->getUser();
-        $user->setName($email);
-        $user->setEmail($email);
+        $user->email = $email;
         $user->save();
 
         $runData->contextAdd("email", $email);
@@ -133,9 +130,8 @@ class AccountSettingsAction extends SmartyAction
         } else {
             $receive = false;
         }
-        $us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
-        $us->setReceiveInvitations($receive);
-        $us->save();
+        $user = User::find($runData->getUserId());
+        $user->set(['receive_invitations' => $receive]);
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);
         }
@@ -151,9 +147,8 @@ class AccountSettingsAction extends SmartyAction
             $from = "a";
         }
 
-        $us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
-        $us->setReceivePm($from);
-        $us->save();
+        $user = User::find($runData->getUserId());
+        $user->set(['receive_pm' => $from]);
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);
         }
@@ -168,7 +163,7 @@ class AccountSettingsAction extends SmartyAction
             throw new ProcessException(_("Invalid user."), "no_user");
         }
 
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
         if ($user == null) {
             throw new ProcessException(_("Invalid user."), "no_user");
         }
@@ -263,7 +258,7 @@ class AccountSettingsAction extends SmartyAction
             throw new ProcessException(_("Error selecting the language"));
         }
 
-        $user->setLanguage($lang);
+        $user->language = $lang;
         $user->save();
 
         $runData->ajaxResponseAdd("language", $lang);

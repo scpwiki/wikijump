@@ -22,12 +22,12 @@
 					{$rep.rank}
 				</td>
 				<td>
-					| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserAbuseModule.listeners.clear(event, '{$rep.user->getUserId()}')">clear flags</a>
+					| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserAbuseModule.listeners.clear(event, '{$rep.user->id}')">clear flags</a>
 					{if $rep.member}
-						| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserAbuseModule.listeners.removeUser({$rep.user->getUserId()}, '{$rep.user->getNickName()|escape}')">remove from members</a>
-						| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserAbuseModule.listeners.removeAndBan({$rep.user->getUserId()}, '{$rep.user->getNickName()|escape}')">remove from members &amp; ban</a>
+						| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserAbuseModule.listeners.removeUser({$rep.user->id}, '{$rep.user->username|escape}')">remove from members</a>
+						| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserAbuseModule.listeners.removeAndBan({$rep.user->id}, '{$rep.user->username|escape}')">remove from members &amp; ban</a>
 					{else}
-						| <a href="javascript:;"  onclick="Wikijump.modules.ManageSiteUserAbuseModule.listeners.banUser({$rep.user->getUserId()}, '{$rep.user->getNickName()|escape}')">ban</a>
+						| <a href="javascript:;"  onclick="Wikijump.modules.ManageSiteUserAbuseModule.listeners.banUser({$rep.user->id}, '{$rep.user->username|escape}')">ban</a>
 					{/if}
 				</td>
 			</tr>

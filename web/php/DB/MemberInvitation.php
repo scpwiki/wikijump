@@ -3,6 +3,8 @@
 namespace Wikidot\DB;
 
 
+use Wikijump\Models\User;
+
 /**
  * Object Model Class.
  *
@@ -17,6 +19,6 @@ class MemberInvitation extends MemberInvitationBase
 
     public function getByUser()
     {
-        return OzoneUserPeer::instance()->selectByPrimaryKey($this->getByUserId());
+        return User::find($this->getByUserId());
     }
 }

@@ -1,40 +1,36 @@
 <div class="profile-box">
 
-	<h1><img  src="{$avatarUri}" alt="" style="padding: 5px;vertical-align: -50%;"/>{$user->getNickName()|escape}</h1>
+	<h1><img  src="{$avatarUri}" alt="" style="padding: 5px;vertical-align: -50%;"/>{$user->username|escape}</h1>
 
 
-	{assign var=profile value=$user->getProfile()}
-	{if $profile->getRealName()}
-		{t}Real name{/t}: {$profile->getRealName()}<br/>
+	{if $user->real_name}
+		{t}Real name{/t}: {$user->real_name}<br/>
 	{/if}
-	{if $profile->getPronouns()}
-		{t}Pronouns{/t}: {$profile->getPronouns()}<br/>
+	{if $user->pronouns()}
+		{t}Pronouns{/t}: {$user->pronouns}<br/>
 	{/if}
-	{if $profile->getBirthdayDay()}
-		{t}Birthday{/t}: {$profile->getBirthdayDate()}<br/>
+	{if $user->dob}
+		{t}Birthday{/t}: {$user->dob}<br/>
 	{/if}
-	{if $profile->getLocation()}
-		{t}From{/t}: {$profile->getLocation()|escape}<br/>
-	{/if}
-	{if $profile->getWebsite()}
-		{t}Website{/t}: <a href="{$profile->getWebsite()|escape}">{$profile->getWebsite()|replace:'https?://':''|escape}</a><br/>
+	{if $user->about_page}
+		{t}About page{/t}: <a href="{$user->about_page|escape}">{$user->about_page|replace:'https?://':''|escape}</a><br/>
 	{/if}
 
-	{t}User since{/t}:  <span class="odate">{$user->getRegisteredDate()->getTimestamp()}|%e %b %Y, %H:%M %Z (%O {t}ago{/t})</span><br/>
+	{t}User since{/t}:  <span class="odate">{$user->created_at->timestamp}|%e %b %Y, %H:%M %Z (%O {t}ago{/t})</span><br/>
 	{t}Karma level{/t}:
-	{if $karmaLevel == 0}{t}none{/t}
-		{elseif $karmaLevel == 1}{t}low{/t}
-		{elseif $karmaLevel == 2}{t}medium{/t}
-		{elseif $karmaLevel == 3}{t}high{/t}
-		{elseif $karmaLevel == 4}{t}very high{/t}
-		{elseif $karmaLevel == 5}{t}guru{/t}
+	{if $user->karma_level == 0}{t}none{/t}
+		{elseif $user->karma_level == 1}{t}low{/t}
+		{elseif $user->karma_level == 2}{t}medium{/t}
+		{elseif $user->karma_level == 3}{t}high{/t}
+		{elseif $user->karma_level == 4}{t}very high{/t}
+		{elseif $user->karma_level == 5}{t}guru{/t}
 	{/if}
-	<img src="/userkarma.php?u={$user->getUserId()}"/>
+	<img src="/userkarma.php?u={$user->id}"/>
 
 </div>
 
-{if $profileContent}
+{if $user->bio}
 	<div id="ui-profile-included">
-		{$profileContent->getText()}
+		{$user->bio}
 	</div>
 {/if}

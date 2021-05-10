@@ -13,6 +13,6 @@ class ASLanguageModule extends AccountBaseModule
     public function build($runData)
     {
         $user = $runData->getUser();
-        $runData->contextAdd("lang", $user->getLanguage());
+        $runData->contextAdd("lang", $user->language);
     }
 }

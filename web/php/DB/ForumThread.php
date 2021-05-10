@@ -51,19 +51,8 @@ class ForumThread extends ForumThreadBase
         if ($this->getUserId() == User::ANONYMOUS_USER) {
             return null;
         }
-        if (is_array($this->prefetched)) {
-            if (in_array('ozone_user', $this->prefetched)) {
-                if (in_array('ozone_user', $this->prefetchedObjects)) {
-                    return $this->prefetchedObjects['ozone_user'];
-                } else {
-                    $obj = new OzoneUser($this->sourceRow);
-                    $obj->setNew(false);
-                    $this->prefetchedObjects['ozone_user'] = $obj;
-                    return $obj;
-                }
-            }
-        }
-        return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
+
+        return User::find($this->getUserId());
     }
 
     public function getUserOrString()
@@ -88,7 +77,7 @@ class ForumThread extends ForumThreadBase
         }
         $c = new Criteria();
         $c->add("post_id", $this->getLastPostId());
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
 
         $post = ForumPostPeer::instance()->selectOne($c);
         return $post;

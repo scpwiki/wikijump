@@ -10,12 +10,12 @@
 				</td>
 				<td style="padding-left: 5em">
 					{if $contact->getTemp("showEmail")}
-						{$user->getName()|escape}
+						{$user->email|escape}
 					{/if}
 				</td>
 				</td>
 				<td style="padding-left: 10em">
-					<a href="javascript:;" onclick="Wikijump.modules.AccountContactsModule.listeners.removeContact(event, {$user->getUserId()})">{t}remove{/t}</a>
+					<a href="javascript:;" onclick="Wikijump.modules.AccountContactsModule.listeners.removeContact(event, {$user->id})">{t}remove{/t}</a>
 				</td>
 			</tr>
 		{/foreach}

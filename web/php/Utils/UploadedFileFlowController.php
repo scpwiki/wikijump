@@ -5,8 +5,9 @@ namespace Wikidot\Utils;
 
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
-use Wikidot\DB\OzoneUser;
+
 use Wikidot\DB\Site;
+use Wikijump\Models\User;
 
 class UploadedFileFlowController extends WikidotController
 {
@@ -79,7 +80,7 @@ class UploadedFileFlowController extends WikidotController
      *
      * public because FilesAuthScriptModule needs it
      *
-     * @param OzoneUser $user
+     * @param User $user
      * @param Site $site
      * @param string $file
      * @return bool
@@ -95,7 +96,7 @@ class UploadedFileFlowController extends WikidotController
             return false;
         }
 
-        if ($user->getSuperAdmin() || $user->getSuperModerator() || $this->member($user, $site)) {
+        if ($user->id == 1 || $this->member($user, $site)) {
             return true;
         }
 
@@ -292,7 +293,7 @@ class UploadedFileFlowController extends WikidotController
                     $siteFilesDomain = $site->getUnixName() . "." . GlobalProperties::$URL_UPLOAD_DOMAIN;
 
                     $skey = $runData->generateSessionDomainHash($siteFilesDomain);
-                    $user_id = $user->getUserId();
+                    $user_id = $user->id;
 
                     $file_url = $this->buildURL($site, GlobalProperties::$URL_UPLOAD_DOMAIN, $file);
                     $url = $siteFilesDomain . CustomDomainLoginFlowController::$controllerUrl;

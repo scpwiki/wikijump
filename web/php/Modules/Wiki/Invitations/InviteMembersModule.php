@@ -23,6 +23,5 @@ class InviteMembersModule extends SmartyModule
         $runData->contextAdd("settings", $site->getSettings());
 
         $runData->contextAdd("user", $user);
-        $runData->contextAdd("profile", $runData->getUser()->getProfile());
     }
 }

@@ -16,7 +16,7 @@
 		{/if}
 	</p>
 	<form>
-		User name: <strong>{$user->getNickName()|escape}</strong><br/>
+		User name: <strong>{$user->username|escape}</strong><br/>
 		<br/>
 		Problem description:<br/>
 		<textarea name="text" id="abuse-report-text" cols="30" rows="5" style="width: 95%"></textarea>

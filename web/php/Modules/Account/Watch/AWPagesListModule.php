@@ -25,7 +25,7 @@ class AWPagesListModule extends AccountBaseModule
         $c = new Criteria();
 
         $q = "SELECT page.* FROM watched_page, page " .
-                "WHERE watched_page.user_id='".$user->getUserId()."' " .
+                "WHERE watched_page.user_id='".$user->id."' " .
                         "AND watched_page.page_id=page.page_id";
         $c->setExplicitQuery($q);
 

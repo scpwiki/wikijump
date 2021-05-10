@@ -10,9 +10,9 @@ class ManageSiteNotificationsModule extends ManageSiteBaseModule
     public function build($runData)
     {
         $user = $runData->getUser();
-        $username = $user->getName();
+        $username = $user->username;
 
-        $password = $user->getPassword();
+        $password = $user->password;
 
         $password = substr($password, 0, 15);
 

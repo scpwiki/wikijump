@@ -12,7 +12,7 @@ class NumberForumPosts implements KarmaRuleInterface
     public function calculate($user)
     {
         $c = new Criteria();
-        $c->add('user_id', $user->getUserId());
+        $c->add('user_id', $user->id);
         $count = ForumPostPeer::instance()->selectCount($c);
         return $count;
     }

@@ -3,13 +3,14 @@
 namespace Wikidot\Modules\Users;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\OzoneUserPeer;
+
 
 /**
  * This Class searches for users given the query string and results in
  * an array of matches.
  */
 use Ozone\Framework\SmartyModule;
+use Wikijump\Models\User;
 
 class UserSearchModule extends SmartyModule
 {
@@ -23,13 +24,7 @@ class UserSearchModule extends SmartyModule
         for ($i=0; $i<count($q); $i++) {
             $q[$i] = preg_quote($q[$i], '/');
         }
-        $c = new Criteria();
-        foreach ($q as $q1) {
-            $c->add("nick_name", $q1, "~*");
-        }
-        $c->setLimit(101);
-
-        $users = OzoneUserPeer::instance()->select($c);
+        $users = User::whereIn('username',$q)->limit(101)->get();
 
         $runData->contextAdd("users", $users);
 
@@ -41,11 +36,11 @@ class UserSearchModule extends SmartyModule
             $runData->ajaxResponseAdd("over100", false);
         }
 
-        $userIds = array();
-        $userNames = array();
+        $userIds = [];
+        $userNames = [];
         foreach ($users as $u) {
-            $userIds[] = $u->getUserId();
-            $userNames[$u->getUserId()] = htmlspecialchars($u->getNickName());
+            $userIds[] = $u->id;
+            $userNames[$u->id] = htmlspecialchars($u->username);
         }
         $runData->ajaxResponseAdd("userIds", $userIds);
         $runData->ajaxResponseAdd("userNames", $userNames);

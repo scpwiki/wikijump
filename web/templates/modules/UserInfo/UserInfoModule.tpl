@@ -5,7 +5,7 @@
 {else}
 {strip}
 <div id="user-info-side">
-	<div class="head">{$user->getNickName()|escape}</div>
+	<div class="head">{$user->username|escape}</div>
 	<hr/>
 	<ul>
 		<li><a id="ui-profile-b" class="active" href="javascript:;">{t}Profile{/t}</a></li>
@@ -17,7 +17,7 @@
 	</ul>
 	<br/><br/>
 	<ul>
-		<li><a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/messages/composeto/{$user->getUserId()}">{t}Write PM{/t}</a></li>
+		<li><a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/messages/composeto/{$user->id}">{t}Write PM{/t}</a></li>
 		<li><a href="javascript:;" onclick="Wikijump.modules.UserInfoModule.listeners.addContact(event,{$userId})">{t}Add to contacts{/t}</a></li>
 	</ul>
 

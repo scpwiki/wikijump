@@ -35,7 +35,7 @@ class SiteChangesFeed extends FeedScreen
         $c = new Criteria();
 
         $c->addJoin("page_id", "page.page_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
         $c->add("page.site_id", $site->getSiteId());
         $c->addOrderDescending("page_revision.revision_id");
         $c->setLimit(30);

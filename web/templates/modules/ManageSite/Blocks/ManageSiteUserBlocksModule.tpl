@@ -14,7 +14,7 @@
 				{printuser user=$block->getUser() image="true"}
 				<br/>
 				<div style="position: absolute; margin-left: 30em">
-					<a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserBlocksModule.listeners.deleteBlock(event, {$block->getUserId()}, '{$block->getUser()->getNickName()|escape}')">delete block</a>
+					<a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserBlocksModule.listeners.deleteBlock(event, {$block->getUserId()}, '{$block->getUser()->username|escape}')">delete block</a>
 				</div>
 				blocked on: <span class="odate">{$block->getDateBlocked()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
 				{if $block->getReason() && $block->getReason() != ''}

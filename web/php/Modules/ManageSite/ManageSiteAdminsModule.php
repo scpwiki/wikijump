@@ -15,8 +15,8 @@ class ManageSiteAdminsModule extends ManageSiteBaseModule
         // get all the members
         $c = new Criteria();
         $c->add("site_id", $runData->getTemp("site")->getSiteId());
-        $c->addJoin("user_id", "ozone_user.user_id");
-        $c->addOrderAscending("ozone_user.nick_name");
+        $c->addJoin("user_id", "users.id");
+        $c->addOrderAscending("users.username");
 
         $mems = AdminPeer::instance()->select($c);
         if (count($mems)>0) {

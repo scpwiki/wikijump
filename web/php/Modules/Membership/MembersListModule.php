@@ -17,7 +17,7 @@ class MembersListModule extends SmartyModule
 
         $c = new Criteria();
         $c->add("site_id", $runData->getTemp("site")->getSiteId());
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
 
         $pl = $runData->getParameterList();
         $from = $pl->getParameterValue("group", "MODULE");

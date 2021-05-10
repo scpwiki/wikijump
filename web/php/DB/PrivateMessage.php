@@ -3,6 +3,8 @@
 namespace Wikidot\DB;
 
 
+use Wikijump\Models\User;
+
 /**
  * Object Model Class.
  *
@@ -12,13 +14,13 @@ class PrivateMessage extends PrivateMessageBase
 
     public function getFromUser()
     {
-        return OzoneUserPeer::instance()->selectByPrimaryKey($this->getFromUserId());
+        return User::find($this->getFromUserId());
     }
 
     public function getToUser()
     {
         if ($this->getToUserId() !== null) {
-            return OzoneUserPeer::instance()->selectByPrimaryKey($this->getToUserId());
+            return User::find($this->getToUserId());
         }
     }
 

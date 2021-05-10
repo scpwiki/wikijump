@@ -6,8 +6,6 @@ namespace Wikidot\Utils;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
-use Wikidot\DB\OzoneUser;
-use Wikidot\DB\OzoneUserPeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\AdminPeer;
@@ -15,7 +13,6 @@ use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\Page;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\UserSettingsPeer;
 use Wikidot\DB\ContactPeer;
 use Wikidot\DB\PrivateUserBlockPeer;
 use Wikidot\DB\IpBlockPeer;
@@ -137,19 +134,7 @@ class WDPermissionManager
 
     public function hasPermission($action, $user, $site = null)
     {
-
-
-        if ($user) {
-            if ((is_string($user) && is_numeric($user)) || is_int($user)) {
-                if ($user >0) {
-                    $user = OzoneUserPeer::instance()->selectByPrimaryKey($user);
-                } else {
-                    $user = null;
-                }
-            }
-        }
-
-        if ($user && ($user->getSuperAdmin() || $user->getSuperModerator() )) {
+         if ($user->id == 1) {
             return true;
         }
 
@@ -174,7 +159,7 @@ class WDPermissionManager
                     "But right now you are not even logged in...");
                 } else {
                     $c = new Criteria();
-                    $c->add("user_id", $user->getUserId());
+                    $c->add("user_id", $user->id);
                     $c->add("site_id", $site->getSiteId());
                     $rel = AdminPeer::instance()->selectOne($c);
                     if ($rel == null) {
@@ -189,7 +174,7 @@ class WDPermissionManager
                     "But right now you are not even logged in...");
                 } else {
                     $c = new Criteria();
-                    $c->add("user_id", $user->getUserId());
+                    $c->add("user_id", $user->id);
                     $c->add("site_id", $site->getSiteId());
                     $rel = ModeratorPeer::instance()->selectOne($c);
                     if ($rel == null) {
@@ -204,13 +189,10 @@ class WDPermissionManager
                 }
                 break;
             case 'become_member':
-            //  if($user->getSuperAdmin() || $user->getSuperModerator()){
-            //      return true;
-            //  }
 
                 $c = new Criteria();
                 ;
-                $c->add("user_id", $user->getUserId());
+                $c->add("user_id", $user->id);
 
                 $mc = MemberPeer::instance()->selectCount($c);
 
@@ -226,7 +208,6 @@ class WDPermissionManager
                 }
                 break;
         }
-
 
         if ($message) {
             // shit. no permission.
@@ -244,13 +225,7 @@ class WDPermissionManager
 
     public function hasPagePermission($action, $user, $category, $page = null, $site = null)
     {
-        if ($user) {
-            if ((is_string($user) && is_numeric($user)) || is_int($user)) {
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($user);
-            }
-        }
-
-        if ($user && ($user->getSuperAdmin() || $user->getSuperModerator())) {
+        if ($user->id == 1) {
             return true;
         }
 
@@ -260,7 +235,6 @@ class WDPermissionManager
         if ($this->checkIpBlocks) {
             $ips = Ozone::getRunData()->createIpString();
             $blocks = $this->checkIpBlocked($ips, $site);
-            //var_dump($blocks);
             if (count($blocks)>0) {
                 if ($this->throwExceptions) {
                     throw new WDPermissionException(_("Sorry, your IP address is blocked from participating in and modifying this site."));
@@ -276,7 +250,7 @@ class WDPermissionManager
                 // still nothing. check if moderator of "pages".
                 $c = new Criteria();
                 $c->add("site_id", $category->getSiteId());
-                $c->add("user_id", $user->getUserId());
+                $c->add("user_id", $user->id);
                 $rel = ModeratorPeer::instance()->selectOne($c);
                 if ($rel && strpos($rel->getPermissions(), 'p') !== false) {
                     return true;
@@ -285,7 +259,7 @@ class WDPermissionManager
                 // still nothing. check if admin.
                 $c = new Criteria();
                 $c->add("site_id", $category->getSiteId());
-                $c->add("user_id", $user->getUserId());
+                $c->add("user_id", $user->id);
                 $rel = AdminPeer::instance()->selectOne($c);
                 if ($rel) {
                     return true;
@@ -308,20 +282,6 @@ class WDPermissionManager
             // ok, anyone can.
             // but check ip blocks.
             if ($this->checkUserBlocks && $user) {
-                //if(!$user){
-                //  $ips = Ozone::getRunData()->createIpString();
-                //
-                //  $blocks = $this->checkIpBlocked($ips, $site);
-                //  if(count($blocks)>0){
-                //
-                //      if($this->throwExceptions){
-                //          throw new WDPermissionException(_("Sorry, your IP address is blocked from participating in and modifying this site."));
-                //      }else{
-                //          return false;
-                //      }
-                //  }
-                //}
-                //if($user){
                     $block = $this->checkUserBlocked($user, $site);
                 if ($block) {
                     if ($this->throwExceptions) {
@@ -358,8 +318,6 @@ class WDPermissionManager
                             $message .= _("The given reason is:")." <p>".htmlspecialchars($block->getReason())."</p>";
                         }
                         throw new WDPermissionException($message);
-                    //  throw new WDPermissionException("Sorry, you are blocked from participating in and modifying this site. " .
-                    //          "The given reason is: \"".htmlspecialchars($block->getReason())."\"");
                     } else {
                         return false;
                     }
@@ -374,26 +332,19 @@ class WDPermissionManager
             // ok, members CAN do this. is the user a member?
             $c = new Criteria();
             $c->add("site_id", $category->getSiteId());
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $rel = MemberPeer::instance()->selectOne($c);
             if ($rel) {
                 return true;
             }
         }
 
-        /*// still nothing. check if owner of the page
-        if($page && $page->getOwnerUserId() && $user->getUserId() == $page->getOwnerUserId()){
-            $uc = self::$userClasses['owner'];
-            if($this->permissionLookup($ac, $uc, $ps)){
-                return true;
-            }
-        }*/
         $uc = self::$userClasses['owner'];
         if ($page && $this->permissionLookup($ac, $uc, $ps)) {
             if ($site && is_string($page)) {
                 $page = PagePeer::instance()->selectByName($site->getSiteId(), $page);
             }
-            if ($page && $page->getOwnerUserId() && $user->getUserId() == $page->getOwnerUserId()) {
+            if ($page && $page->getOwnerUserId() && $user->id == $page->getOwnerUserId()) {
                 // check blocked users
                 if ($this->checkUserBlocks) {
                     $block = $this->checkUserBlocked($user, $site);
@@ -419,7 +370,7 @@ class WDPermissionManager
         // still nothing. check if moderator of "pages".
         $c = new Criteria();
         $c->add("site_id", $category->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $rel = ModeratorPeer::instance()->selectOne($c);
         if ($rel && strpos($rel->getPermissions(), 'p') !== false) {
             return true;
@@ -428,7 +379,7 @@ class WDPermissionManager
         // still nothing. check if admin.
         $c = new Criteria();
         $c->add("site_id", $category->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $rel = AdminPeer::instance()->selectOne($c);
         if ($rel) {
             return true;
@@ -441,13 +392,7 @@ class WDPermissionManager
 
     public function hasForumPermission($action, $user, $category, $thread = null, $post = null)
     {
-        if ($user) {
-            if ((is_string($user) && is_numeric($user)) || is_int($user)) {
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($user);
-            }
-        }
-
-        if ($user && ($user->getSuperAdmin() || $user->getSuperModerator())) {
+        if ($user->id == 1) {
             return true;
         }
 
@@ -485,20 +430,6 @@ class WDPermissionManager
             // ok, anyone can.
             // but check ip blocks.
             if ($this->checkUserBlocks && $user) {
-                //if(!$user){
-                //  $ips = Ozone::getRunData()->createIpString();
-                //
-                //  $blocks = $this->checkIpBlocked($ips, $site);
-                //  if(count($blocks)>0){
-                //
-                //      if($this->throwExceptions){
-                //          throw new WDPermissionException(_("Sorry, your IP address is blocked from participating in and modifying this site."));
-                //      }else{
-                //          return false;
-                //      }
-                //  }
-                //}
-                //if($user){
                     $block = $this->checkUserBlocked($user, $site);
                 if ($block) {
                     if ($this->throwExceptions) {
@@ -553,26 +484,18 @@ class WDPermissionManager
             // ok, members CAN do this. is the user a member?
             $c = new Criteria();
             $c->add("site_id", $category->getSiteId());
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $rel = MemberPeer::instance()->selectOne($c);
             if ($rel) {
                 return true;
             }
         }
 
-        /*// still nothing. check if owner of the page
-        if($page && $page->getOwnerUserId() && $user->getUserId() == $page->getOwnerUserId()){
-            $uc = self::$userClasses['owner'];
-            if($this->permissionLookup($ac, $uc, $ps)){
-                return true;
-            }
-        }*/
-
         $uc = self::$userClasses['owner'];
         if (($post || $thread) && $this->permissionLookup($ac, $uc, $ps)) {
             $o = $post ? $post:$thread;
 
-            if ($o && $o->getUserId() && $user->getUserId() == $o->getUserId()) {
+            if ($o && $o->getUserId() && $user->id == $o->getUserId()) {
                 // check blocked users
                 if ($this->checkUserBlocks) {
                     $block = $this->checkUserBlocked($user, $site);
@@ -598,7 +521,7 @@ class WDPermissionManager
         // still nothing. check if moderator of "forum".
         $c = new Criteria();
         $c->add("site_id", $category->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $rel = ModeratorPeer::instance()->selectOne($c);
         if ($rel && strpos($rel->getPermissions(), 'f') !== false) {
             return true;
@@ -607,7 +530,7 @@ class WDPermissionManager
         // still nothing. check if admin.
         $c = new Criteria();
         $c->add("site_id", $category->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $rel = AdminPeer::instance()->selectOne($c);
         if ($rel) {
             return true;
@@ -624,13 +547,12 @@ class WDPermissionManager
     public function hasPmPermission($user, $toUser)
     {
 
-        if ($user && ($user->getSuperAdmin() || $user->getSuperModerator())) {
+        if ($user->id == 1) {
             return true;
         }
 
         // first check if if $user has pm enabled
-        $us = UserSettingsPeer::instance()->selectByPrimaryKey($toUser->getUserId());
-        $p = $us->getReceivePm();
+        $p = $toUser->get('receive_pm');
         //echo "ad";
         if ($this->isUserSuperior($user, $toUser)) {
             return true;
@@ -653,8 +575,8 @@ class WDPermissionManager
 
             // if friends - return true (todo)
             $c = new Criteria();
-            $c->add("user_id", $user->getUserId());
-            $c->add("target_user_id", $toUser->getUserId());
+            $c->add("user_id", $user->id);
+            $c->add("target_user_id", $toUser->id);
             $con = ContactPeer::instance()->selectOne($c);
             if ($con) {
                 return true;
@@ -667,8 +589,8 @@ class WDPermissionManager
             //echo "fff";
             // check if a friend
             $c = new Criteria();
-            $c->add("user_id", $toUser->getUserId());
-            $c->add("target_user_id", $user->getUserId());
+            $c->add("user_id", $toUser->id);
+            $c->add("target_user_id", $user->id);
             $con = ContactPeer::instance()->selectOne($c);
             if ($con) {
                 return true;
@@ -690,7 +612,7 @@ class WDPermissionManager
     public function canBecomeAdmin($user)
     {
 
-        if ($user->getSuperAdmin()) {
+        if ($user->id == 1) {
             return true;
         }
 
@@ -699,7 +621,7 @@ class WDPermissionManager
         if ($us->getMaxSitesAdmin()) {
             /* If null, then unlimited. */
             $c = new Criteria();
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $c->addJoin("site_id", "site.site_id");
             $c->add('founder', false);
             $c->add("site.deleted", false);
@@ -717,14 +639,14 @@ class WDPermissionManager
 
     public function canBecomeMaster($user)
     {
-        if ($user->getSuperAdmin()) {
+        if ($user->id == 1) {
             return true;
         }
         $us = $user->getSettings();
         if ($us->getMaxSitesMaster()) {
             $c = new Criteria();
             ;
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $c->addJoin("site_id", "site.site_id");
             $c->add('founder', true);
             $c->add("site.deleted", false);
@@ -741,11 +663,11 @@ class WDPermissionManager
     public function getSitesAdminLeft($user)
     {
         $us = $user->getSettings();
-        if (!$us->getMaxSitesAdmin() || $user->getSuperAdmin()) {
+        if (!$us->getMaxSitesAdmin() || $user->id == 1) {
             return null; // unlimited
         }
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->addJoin("site_id", "site.site_id");
         $c->add('founder', false);
         $c->add("site.deleted", false);
@@ -757,11 +679,11 @@ class WDPermissionManager
     public function getSitesMasterLeft($user)
     {
         $us = $user->getSettings();
-        if (!$us->getMaxSitesMaster() || $user->getSuperAdmin()) {
+        if (!$us->getMaxSitesMaster() || $user->id == 1) {
             return null; // unlimited
         }
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->addJoin("site_id", "site.site_id");
         $c->add('founder', true);
         $c->add("site.deleted", false);
@@ -771,9 +693,9 @@ class WDPermissionManager
     }
 
     /**
-     * Shecks if a site is public or user is a member of the site
+     * Checks if a site is public or user is a member of the site
      *
-     * @param $user OzoneUser
+     * @param $user User
      * @param $site Site
      * @return boolean
      * @throws WDPermissionException
@@ -781,13 +703,13 @@ class WDPermissionManager
     public function canAccessSite($user, $site)
     {
         // public or user is super
-        if (! $site->getPrivate() || $user->getSuperAdmin() || $user->getSuperModerator()) {
+        if (! $site->getPrivate() || $user->id == 1) {
             return true;
         }
         // check if user is a member of the site
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
 
         if (MemberPeer::instance()->selectOne($c)) { // user is a member of the Wiki
             return true;
@@ -839,7 +761,7 @@ class WDPermissionManager
                 }
             }
         }
-        $allowedUsers[] = _('site administrators and perhaps selected moderators');
+        $allowedUsers[] = _('administrators and moderators');
         //$actionString = array_searchself::ac
         $m = _('Sorry, you can not ').' '.$actionString.'. ' .
                 _('Only ').' '.implode(', ', $allowedUsers).' '._(' are allowed to.');
@@ -854,8 +776,8 @@ class WDPermissionManager
     private function shareSites($user1, $user2)
     {
         $db = Database::connection();
-        $q = "SELECT member.* FROM member, member AS member2 WHERE member.user_id = '".$user1->getUserId()."' " .
-                    "AND member2.user_id = '".$user2->getUserId()."' " .
+        $q = "SELECT member.* FROM member, member AS member2 WHERE member.user_id = '".$user1->id."' " .
+                    "AND member2.user_id = '".$user2->id."' " .
                     "AND member.site_id = member2.site_id " .
                     "LIMIT 1";
         $r = $db->query($q);
@@ -871,16 +793,16 @@ class WDPermissionManager
     private function isUserSuperior($user1, $user2)
     {
         $db = Database::connection();
-        $q = "SELECT member.* FROM member, admin WHERE member.user_id = '".$user2->getUserId()."' " .
-                    "AND admin.user_id = '".$user1->getUserId()."' " .
+        $q = "SELECT member.* FROM member, admin WHERE member.user_id = '".$user2->id."' " .
+                    "AND admin.user_id = '".$user1->id."' " .
                     "AND member.site_id = admin.site_id " .
                     "LIMIT 1";
         $r = $db->query($q);
         if ($r->nextRow()) {
             return true;
         }
-        $q = "SELECT member.* FROM member, moderator WHERE member.user_id = '".$user2->getUserId()."' " .
-                    "AND moderator.user_id = '".$user1->getUserId()."' " .
+        $q = "SELECT member.* FROM member, moderator WHERE member.user_id = '".$user2->id."' " .
+                    "AND moderator.user_id = '".$user1->id."' " .
                     "AND member.site_id = moderator.site_id " .
                     "LIMIT 1";
         $r = $db->query($q);
@@ -896,8 +818,8 @@ class WDPermissionManager
     private function userBlocksUser($user1, $user2)
     {
         $c = new Criteria();
-        $c->add("user_id", $user1->getUserId());
-        $c->add("blocked_user_id", $user2->getUserId());
+        $c->add("user_id", $user1->id);
+        $c->add("blocked_user_id", $user2->id);
         $b = PrivateUserBlockPeer::instance()->selectOne($c);
         if ($b !== null) {
             return true;
@@ -937,7 +859,7 @@ class WDPermissionManager
         $c = new Criteria();
 
         $c->add("site_id", $site->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $block = UserBlockPeer::instance()->selectOne($c);
         return $block;
     }

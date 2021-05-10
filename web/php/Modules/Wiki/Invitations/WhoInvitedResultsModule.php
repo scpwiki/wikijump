@@ -4,12 +4,13 @@ namespace Wikidot\Modules\Wiki\Invitations;
 
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\MembershipLinkPeer;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Models\User;
 
 class WhoInvitedResultsModule extends SmartyModule
 {
@@ -22,7 +23,7 @@ class WhoInvitedResultsModule extends SmartyModule
         $pl = $runData->getParameterList();
 
         $userId = $pl->getParameterValue("userId");
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
 
         if (!$user) {
             throw new ProcessException(_("Invalid user."));
@@ -40,15 +41,15 @@ class WhoInvitedResultsModule extends SmartyModule
         if (!$link) {
             $runData->contextAdd("noData", true);
         } else {
-            $chain = array();
-            $chain[] = array('user' => $user, 'link' => $link);
+            $chain = [];
+            $chain[] = ['user' => $user, 'link' => $link];
             if ($link->getByUserId()) {
                 do {
                     // get "parent"
                     // get link for the user
-                    $user = OzoneUserPeer::instance()->selectByPrimaryKey($link->getByUserId());
-                    $link = MembershipLinkPeer::instance()->selectByUserId($site->getSiteId(), $user->getUserId());
-                    $chain[] = array('user' => $user, 'link' => $link);
+                    $user = User::find($link->getByUserId());
+                    $link = MembershipLinkPeer::instance()->selectByUserId($site->getSiteId(), $user->id);
+                    $chain[] = ['user' => $user, 'link' => $link];
                 } while ($user && $link && $link->getByUserId());
             }
             $runData->contextAdd("chain", array_reverse($chain));

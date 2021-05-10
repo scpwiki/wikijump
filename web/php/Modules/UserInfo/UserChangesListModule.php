@@ -4,10 +4,11 @@ namespace Wikidot\Modules\UserInfo;
 
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\JSONService;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\SmartyLocalizedModule;
+use Wikijump\Models\User;
 
 class UserChangesListModule extends SmartyLocalizedModule
 {
@@ -20,16 +21,10 @@ class UserChangesListModule extends SmartyLocalizedModule
         $pl = $runData->getParameterList();
 
         $userId = $pl->getParameterValue("userId");
-
-        if ($runData->getUser() && $userId == $runData->getUser()->getUserId()) {
+        $user = User::find($userId);
+        if ($user) {
             $own = true;
         }
-
-        // get user
-
-        //if($userId
-
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 
         if ($user == null) {
             throw new ProcessException(_("Error selecting user."), "no_user");
@@ -61,7 +56,7 @@ class UserChangesListModule extends SmartyLocalizedModule
 
         $c = new Criteria();
 
-        $c->add("page_revision.user_id", $user->getUserId());
+        $c->add("page_revision.user_id", $user->id);
         if (!$own) {
             $c->add("site.private", false);
         }

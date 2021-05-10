@@ -11,12 +11,10 @@ class ManageSiteEmailInvitationsModule extends ManageSiteBaseModule
 
     public function build($runData)
     {
-
         $site = $runData->getTemp("site");
         $runData->contextAdd("site", $site);
         $runData->contextAdd("settings", $site->getSettings());
 
         $runData->contextAdd("user", $runData->getUser());
-        $runData->contextAdd("profile", $runData->getUser()->getProfile());
     }
 }

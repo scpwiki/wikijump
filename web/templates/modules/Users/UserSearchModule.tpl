@@ -1,6 +1,6 @@
 {if $users}
 	{foreach from=$users item=user}
-		<div id="found-user-{$user->getUserId()}">
+		<div id="found-user-{$user->id}">
 			{printuser user=$user image="yes"}
 		</div>
 	{/foreach}

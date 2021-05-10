@@ -1,4 +1,4 @@
-Hi, {$user->getNickName()|escape}!
+Hi, {$user->username|escape}!
 
 {if $count==1}There is one notification{else}There are {$count} notifications{/if} related to your Wikijump account:
 To view the full list of notifications visit:

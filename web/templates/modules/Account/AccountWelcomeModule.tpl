@@ -1,4 +1,4 @@
-<h1>{t}Welcome{/t}, {$user->getNickName()|escape}!</h1>
+<h1>{t}Welcome{/t}, {$user->username|escape}!</h1>
 
 {if $tips}
 

@@ -1,7 +1,7 @@
 <h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-profile')">{t}Your profile{/t}</a> / {t}Change screen name{/t}</h1>
 
 <p>
-	Your current screen name is <strong>{$user->getNickName()|escape}</strong>.
+	Your current screen name is <strong>{$user->username|escape}</strong>.
 </p>
 <p>
 	Each Wikijump User can change their screen name <strong>twice</strong>.

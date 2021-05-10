@@ -19,7 +19,7 @@ class WDDigestSender
         $db->begin();
 
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("notify_email", true);
         $c->addOrderAscending("notification_id");
 
@@ -32,14 +32,14 @@ class WDDigestSender
 
         if (count($nots)>0) {
             $q = "UPDATE notification SET notify_email=FALSE " .
-                    "WHERE user_id='".$user->getUserId()."' AND " .
+                    "WHERE user_id='".$user->id."' AND " .
                     "notify_email = TRUE";
             $db->query($q);
         }
 
         // set language
 
-        $lang = $user->getLanguage();
+        $lang = $user->language;
         OZONE::getRunData()->setLanguage($lang);
 
         $GLOBALS['lang'] = $lang;
@@ -82,7 +82,7 @@ class WDDigestSender
         // now send an email
 
         $oe = new OzoneEmail();
-        $oe->addAddress($user->getName());
+        $oe->addAddress($user->email);
         $oe->setSubject(sprintf(_("%s Account Notifications"), GlobalProperties::$SERVICE_NAME));
         $oe->contextAdd('user', $user);
         $oe->contextAdd('notifications', $nots2);
@@ -91,7 +91,7 @@ class WDDigestSender
         $oe->setBodyTemplate('DigestEmail');
 
         if (!$oe->send()) {
-            throw new ProcessException("The email cannot be sent to address ".$user->getName(), "email_failed");
+            throw new ProcessException("The email cannot be sent to address ".$user->email, "email_failed");
         }
 
         $db->commit();

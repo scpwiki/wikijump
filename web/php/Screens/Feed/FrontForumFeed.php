@@ -193,7 +193,7 @@ class FrontForumFeed extends FeedScreen
             if ($post->getUserId() != User::ANONYMOUS_USER && $post->getUserId() != User::AUTOMATIC_USER) {
                 $item['authorUserId'] = $post->getUserId();
                 $user = $post->getUser();
-                $item['author']=$user->getNickName();
+                $item['author']=$user->username;
             } else {
                 $item['author']=$post->getUserString();
             }

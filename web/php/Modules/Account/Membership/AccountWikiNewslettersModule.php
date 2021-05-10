@@ -7,8 +7,8 @@ namespace Wikidot\Modules\Account\Membership;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\MemberPeer;
-use Wikidot\DB\UserSettingsPeer;
 use Wikidot\Utils\AccountBaseModule;
+use Wikijump\Models\User;
 
 class AccountWikiNewslettersModule extends AccountBaseModule
 {
@@ -30,7 +30,7 @@ class AccountWikiNewslettersModule extends AccountBaseModule
         }
 
         // get user settings
-        $us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
-        $runData->contextAdd("defaultNewsletter", $us->getAllowSiteNewslettersDefault());
+        $user = User::find($userId);
+        $runData->contextAdd("defaultNewsletter", $user->get('allow_site_newsletters_default'));
     }
 }

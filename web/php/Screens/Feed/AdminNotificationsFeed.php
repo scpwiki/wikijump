@@ -23,7 +23,7 @@ class AdminNotificationsFeed extends FeedScreen
 
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
 
         $admin = AdminPeer::instance()->selectOne($c);
 

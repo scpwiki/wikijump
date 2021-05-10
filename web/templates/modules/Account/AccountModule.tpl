@@ -87,5 +87,5 @@
 </div>
 <script type="text/javascript">
 	{literal}USERINFO = {};{/literal}
-	USERINFO.userId = {$user->getUserId()};
+	USERINFO.userId = {$user->id};
 </script>

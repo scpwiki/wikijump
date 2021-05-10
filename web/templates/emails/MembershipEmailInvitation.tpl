@@ -8,7 +8,7 @@ The original message is included below:
 -----------------------------------------
 
 {/if}
-{$user->getNickName()} {if $profile->getRealName()}({$profile->getRealName()}){/if} would like to invite you
+{$user->username} {if $user->real_name}({$user->real_name}){/if} would like to invite you
 to join members of the wiki website "{$site->getName()}"
 created at {$SERVICE_NAME} and located at the address
 {$HTTP_SCHEMA}://{$site->getDomain()|escape}.
@@ -26,7 +26,7 @@ To proceed or learn more click the follow link:
 
 See you
 
-{$user->getNickName()|escape} {if $profile->getRealName()}({$profile->getRealName()}){/if}
+{$user->username|escape} {if $user->real_name}({$user->real_name}){/if}
 
 
 P.S. If you do not want to accept this invitation - just ignore it.

@@ -10,10 +10,8 @@ use Ozone\Framework\ODate;
 use Ozone\Framework\OzoneEmail;
 use Ozone\Framework\SmartyAction;
 use Wikidot\DB\Admin;
-use Wikidot\DB\OzoneUserPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\MemberInvitationPeer;
-use Wikidot\DB\UserSettingsPeer;
 use Wikidot\DB\MemberInvitation;
 use Wikidot\DB\AdminPeer;
 use Wikidot\DB\ModeratorPeer;
@@ -29,6 +27,7 @@ use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\NotificationMaker;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Models\User;
 
 class ManageSiteMembershipAction extends SmartyAction
 {
@@ -132,7 +131,7 @@ class ManageSiteMembershipAction extends SmartyAction
         $pl = $runData->getParameterList();
         $userId = $pl->getParameterValue("user_id");
 
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
         if ($user == null) {
             throw new ProcessException("Error");
         }
@@ -157,9 +156,7 @@ class ManageSiteMembershipAction extends SmartyAction
         }
 
         // check if user WISHES to receive invitations
-
-        $set = UserSettingsPeer::instance()->selectByPrimaryKey($user->getUserId());
-        if (!$set->getReceiveInvitations()) {
+        if($user->get('receive_invitations') === false) {
             throw new ProcessException(_("This user does not wish to receive any invitations.", "wishes_not"));
         }
 
@@ -190,7 +187,7 @@ class ManageSiteMembershipAction extends SmartyAction
         $userId = $runData->getParameterList()->getParameterValue("user_id");
         $ban = $runData->getParameterList()->getParameterValue("ban");
 
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
 
         if ($user == null) {
             throw new ProcessException("Error");
@@ -267,7 +264,7 @@ class ManageSiteMembershipAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
         if ($user == null) {
             $runData->ajaxResponseAdd("status", "no_user");
             $runData->ajaxResponseAdd("message", _("The user does not exist? This should not happen."));
@@ -313,7 +310,7 @@ class ManageSiteMembershipAction extends SmartyAction
 
         NotificationMaker::instance()->addedToModerators($site, $user);
 
-        $runData->ajaxResponseAdd("userName", $user->getNickName());
+        $runData->ajaxResponseAdd("userName", $user->username);
 
         $db->commit();
     }
@@ -322,7 +319,7 @@ class ManageSiteMembershipAction extends SmartyAction
     {
         $userId = $runData->getParameterList()->getParameterValue("user_id");
 
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
 
         if ($user == null) {
             throw new ProcessException("Error");
@@ -362,7 +359,7 @@ class ManageSiteMembershipAction extends SmartyAction
         $db = Database::connection();
         $db->begin();
 
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
         if ($user == null) {
             $runData->ajaxResponseAdd("status", "no_user");
             $runData->ajaxResponseAdd("message", _("The user does not exist? This should not happen."));
@@ -411,7 +408,7 @@ class ManageSiteMembershipAction extends SmartyAction
         // and create a notification too...
         NotificationMaker::instance()-> addedToAdmins($site, $user);
 
-        $runData->ajaxResponseAdd("userName", $user->getNickName());
+        $runData->ajaxResponseAdd("userName", $user->username);
 
         $db->commit();
     }
@@ -419,7 +416,7 @@ class ManageSiteMembershipAction extends SmartyAction
     public function removeAdminEvent($runData)
     {
         $userId = $runData->getParameterList()->getParameterValue("user_id");
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
 
         if ($user == null) {
             throw new ProcessException("Error");
@@ -481,7 +478,7 @@ class ManageSiteMembershipAction extends SmartyAction
         $site = $runData->getTemp("site");
         $siteId = $site->getSiteId();
 
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
 
         if ($user == null) {
             throw new ProcessException("Error");
@@ -519,7 +516,7 @@ class ManageSiteMembershipAction extends SmartyAction
             $ml->setSiteId($site->getSiteId());
             $ml->setDate(new ODate());
             $ml->setType('APPLICATION_ACCEPTED');
-            $ml->setByUserId($runData->getUser()->getUserId());
+            $ml->setByUserId($runData->getUser()->id);
             $ml->save();
 
             NotificationMaker::instance()->membershipApplicationAccepted($site, $user);
@@ -599,7 +596,7 @@ class ManageSiteMembershipAction extends SmartyAction
             }
 
             //check if "email" is not already a member of this site...
-            $q = " SELECT * FROM member, ozone_user WHERE member.site_id='".$site->getSiteId()."' AND ozone_user.name='".db_escape_string($email)."' AND member.user_id = ozone_user.user_id LIMIT 1";
+            $q = " SELECT * FROM member, users WHERE member.site_id='".$site->getSiteId()."' AND users.email='".db_escape_string($email)."' AND member.user_id = users.id LIMIT 1";
             $c = new Criteria();
             $c->setExplicitQuery($q);
             $m = MemberPeer::instance()->selectOne($c);
@@ -640,7 +637,7 @@ class ManageSiteMembershipAction extends SmartyAction
             $inv->setHash($hash);
             $inv->setEmail($email);
             $inv->setName($name);
-            $inv->setUserId($user->getUserId());
+            $inv->setUserId($user->id);
             $inv->setSiteId($site->getSiteId());
             $inv->setMessage($message);
             $inv->setDate(new ODate());
@@ -648,14 +645,11 @@ class ManageSiteMembershipAction extends SmartyAction
                 $inv->setToContacts(true);
             }
 
-            // prepare and send email
-            $profile = $user->getProfile();
 
             $oe = new OzoneEmail();
             $oe->addAddress($email);
-            $oe->setSubject(sprintf(_("[%s] %s invites you to join!"), GlobalProperties::$SERVICE_NAME, $user->getNickName()));
+            $oe->setSubject(sprintf(_("[%s] %s invites you to join!"), GlobalProperties::$SERVICE_NAME, $user->username));
             $oe->contextAdd('user', $user);
-            $oe->contextAdd('profile', $profile);
             $oe->contextAdd('hash', $hash);
             $oe->contextAdd("site", $site);
             $oe->contextAdd("message", $message);
@@ -735,13 +729,11 @@ class ManageSiteMembershipAction extends SmartyAction
 
         // prepare and send email
         $user = $runData->getUser();
-        $profile = $user->getProfile();
 
         $oe = new OzoneEmail();
         $oe->addAddress($inv->getEmail());
-        $oe->setSubject(sprintf(_("[%s] %s invites you to join! (reminder)"), GlobalProperties::$SERVICE_NAME, $user->getNickName()));
+        $oe->setSubject(sprintf(_("[%s] %s invites you to join! (reminder)"), GlobalProperties::$SERVICE_NAME, $user->username));
         $oe->contextAdd('user', $user);
-        $oe->contextAdd('profile', $profile);
         $oe->contextAdd('hash', $inv->getHash());
         $oe->contextAdd("site", $site);
         $oe->contextAdd("message", $inv->getMessage());

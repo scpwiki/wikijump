@@ -7,8 +7,8 @@ namespace Ozone\Framework\DB;
 
 use Ozone\Framework\Database\Database;
 use Wikidot\DB\OzoneSessionBase;
-use Wikidot\DB\OzoneUserPeer;
 
+use Wikijump\Models\User;
 
 /**
  * The Session Object
@@ -130,7 +130,7 @@ class OzoneSession extends OzoneSessionBase {
 		}
 		$userId = $this->getUserId();
 		if($userId == null) {return null;}
-		$user = OzoneUserPeer :: instance()->selectByPrimaryKeyCached($userId);
+		$user = User::find($userId);
 		$this->cachedUser = $user;
 		return $user;
 	}

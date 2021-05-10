@@ -26,7 +26,7 @@ class SentMemberInvitationsModule extends SmartyModule
         // now get the ivitations!
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->addOrderDescending("invitation_id");
 
         $invitations = EmailInvitationPeer::instance()->select($c);

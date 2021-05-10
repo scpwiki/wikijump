@@ -1,4 +1,4 @@
-Hi, {$user->getNickName()|escape}!
+Hi, {$user->username|escape}!
 
 This email has been sent to enable your forgotten password recovery.
 Please just copy the verification code from below into the

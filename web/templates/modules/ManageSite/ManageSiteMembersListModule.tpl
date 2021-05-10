@@ -7,14 +7,14 @@
 
 	<div style="padding-left: 20px">
 		member since:  <span class="odate">{$membership->getDateJoined()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
-		(<a href="javascript:;" onclick="if($('mem-options-{$user->getUserId()}').style.display=='none') $('mem-options-{$user->getUserId()}').style.display = 'block'; else $('mem-options-{$user->getUserId()}').style.display = 'none';">options</a>)
+		(<a href="javascript:;" onclick="if($('mem-options-{$user->id}').style.display=='none') $('mem-options-{$user->id}').style.display = 'block'; else $('mem-options-{$user->id}').style.display = 'none';">options</a>)
 
-		<div id="mem-options-{$user->getUserId()}" style="display: none">
+		<div id="mem-options-{$user->id}" style="display: none">
 
-			<a href="javascript:;" onclick="removeUser({$user->getUserId()}, '{$user->getNickName()}')">remove</a>
-			| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteMembersListModule.listeners.removeAndBan({$user->getUserId()}, '{$user->getNickName()}')">remove &amp; ban</a>
-			| <a href="javascript:;" onclick="toModerators({$user->getUserId()})">to moderators</a>
-			| <a href="javascript:;" onclick="toAdmins({$user->getUserId()}, '{$user->getNickName()}')">to admins</a>
+			<a href="javascript:;" onclick="removeUser({$user->id}, '{$user->username}')">remove</a>
+			| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteMembersListModule.listeners.removeAndBan({$user->id}, '{$user->username}')">remove &amp; ban</a>
+			| <a href="javascript:;" onclick="toModerators({$user->id})">to moderators</a>
+			| <a href="javascript:;" onclick="toAdmins({$user->id}, '{$user->username}')">to admins</a>
 
 		</div>
 	</div>

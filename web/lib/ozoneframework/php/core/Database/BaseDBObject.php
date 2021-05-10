@@ -144,10 +144,7 @@ abstract class BaseDBObject {
 		foreach ($this->fieldNames as $field) {
 			$fieldType = $peer->getFieldType($field);
 
-			$val = $row[$this->tableName."___".$field];
-			if ($val == null) {
-				$val = $row[$field];
-			}
+			$val = $row[$this->tableName."___".$field] ?? $row[$field];
 
 			// handle date object (timestamp)
 

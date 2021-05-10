@@ -4,9 +4,10 @@ namespace Wikidot\Modules\ManageSite\Abuse;
 
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\MemberPeer;
 use Wikidot\Utils\ManageSiteBaseModule;
+use Wikijump\Models\User;
 
 class ManageSiteUserAbuseModule extends ManageSiteBaseModule
 {
@@ -32,13 +33,13 @@ class ManageSiteUserAbuseModule extends ManageSiteBaseModule
         if ($all) {
             foreach ($all as &$r) {
                 // get user
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($r['target_user_id']);
+                $user = User::find($r['target_user_id']);
                 if ($user) {
                     $r['user'] = $user;
                     // check if member
                     $c = new Criteria();
                     $c->add("site_id", $site->getSiteId());
-                    $c->add("user_id", $user->getUserId());
+                    $c->add("user_id", $user->id);
                     $mem = MemberPeer::instance()->selectOne($c);
                     if ($mem) {
                         $r['member'] = $mem;

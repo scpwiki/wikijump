@@ -4,9 +4,12 @@ namespace Wikidot\Actions;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
+use Ozone\Framework\RunData;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
+use Wikidot\DB\Admin;
 use Wikidot\DB\MemberInvitationPeer;
+use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\Member;
@@ -25,8 +28,8 @@ class AccountMembershipAction extends SmartyAction
 
     public function isAllowed($runData)
     {
-        $userId = $runData->getUserId();
-        if ($userId == null || $userId <1) {
+        $user->id = $runData->getUserId();
+        if(!$user->id) {
             throw new WDPermissionException(_("Not allowed. You should login first."));
         }
         return true;
@@ -36,16 +39,15 @@ class AccountMembershipAction extends SmartyAction
     {
     }
 
-    public function acceptInvitationEvent($runData)
+    public function acceptInvitationEvent(RunData $runData)
     {
         $pl = $runData->getParameterList();
         $invitationId = $pl->getParameterValue("invitation_id");
-        $userId = $runData->getUserId();
         $user = $runData->getUser();
 
         $invitation = MemberInvitationPeer::instance()->selectByPrimaryKey($invitationId);
         $site = SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
-        if ($invitation == null || $invitation->getUserId() != $userId || $site == null) {
+        if ($invitation == null || $invitation->getUserId() != $user->id || $site == null) {
             throw new ProcessException(_("Invitation cannot be found."), "no_invitation");
         }
 
@@ -65,14 +67,14 @@ class AccountMembershipAction extends SmartyAction
         $db->begin();
         // create membership
         $member = new Member();
-        $member->setUserId($userId);
+        $member->setUserId($user->id);
         $member->setSiteId($invitation->getSiteId());
         $member->setDateJoined(new ODate());
 
         $member->save();
 
         $ml = new MembershipLink();
-        $ml->setUserId($userId);
+        $ml->setUserId($user->id);
         $ml->setSiteId($invitation->getSiteId());
         $ml->setDate(new ODate());
         $ml->setType('INTERNAL_INVITATION');
@@ -82,7 +84,7 @@ class AccountMembershipAction extends SmartyAction
         // remove application (if any)
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $c->add("user_id", $userId);
+        $c->add("user_id", $user->id);
 
         MemberApplicationPeer::instance()->delete($c);
 
@@ -97,7 +99,6 @@ class AccountMembershipAction extends SmartyAction
     {
         $pl = $runData->getParameterList();
         $invitationId = $pl->getParameterValue("invitation_id");
-        $userId = $runData->getUserId();
         $user = $runData->getUser();
 
         $db = Database::connection();
@@ -105,13 +106,13 @@ class AccountMembershipAction extends SmartyAction
 
         $invitation = MemberInvitationPeer::instance()->selectByPrimaryKey($invitationId);
         $site = SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
-        if ($invitation == null || $invitation->getUserId() != $userId || $site == null) {
+        if ($invitation == null || $invitation->getUserId() != $user->id || $site == null) {
             throw new ProcessException(_("Invitation cannot be found."), "no_invitation");
         }
 
         $c = new Criteria();
         $c->add("invitation_id", $invitationId);
-        $c->add("user_id", $userId);
+        $c->add("user_id", $user->id);
         MemberInvitationPeer::instance()->delete($c);
         AdminNotificationMaker::instance()->memberInvitationDeclined($site, $user);
         $db->commit();
@@ -122,10 +123,9 @@ class AccountMembershipAction extends SmartyAction
         // remove the membership AND adminship AND moderatorship
 
         $siteId = $runData->getParameterList()->getParameterValue("site_id");
-        $userId = $runData->getUserId();
         $user = $runData->getUser();
         $c = new Criteria();
-        $c->add("user_id", $userId);
+        $c->add("user_id", $user->id);
         $c->add("site_id", $siteId);
 
         $db = Database::connection();
@@ -133,6 +133,9 @@ class AccountMembershipAction extends SmartyAction
 
         // check if admin
 
+        /**
+         * @var Admin|null $admin
+         */
         $admin =  AdminPeer::instance()->selectOne($c);
 
         if ($admin && $admin->getFounder()) {
@@ -165,13 +168,13 @@ class AccountMembershipAction extends SmartyAction
     public function adminResignEvent($runData)
     {
         $siteId = $runData->getParameterList()->getParameterValue("site_id");
-        $userId = $runData->getUserId();
+        $user = $runData->getUser();
 
         $db = Database::connection();
         $db->begin();
 
         $c = new Criteria();
-        $c->add("user_id", $userId);
+        $c->add("user_id", $user->id);
         $c->add("site_id", $siteId);
         $admin = AdminPeer::instance()->selectOne($c);
 
@@ -191,7 +194,7 @@ class AccountMembershipAction extends SmartyAction
         }
 
         $c = new Criteria();
-        $c->add("user_id", $userId);
+        $c->add("user_id", $user->id);
         $c->add("site_id", $siteId);
         AdminPeer::instance()->delete($c);
 
@@ -205,13 +208,13 @@ class AccountMembershipAction extends SmartyAction
     public function moderatorResignEvent($runData)
     {
         $siteId = $runData->getParameterList()->getParameterValue("site_id");
-        $userId = $runData->getUserId();
+        $user = $runData->getUser();
 
         $db = Database::connection();
         $db->begin();
 
         $c = new Criteria();
-        $c->add("user_id", $userId);
+        $c->add("user_id", $user->id);
         $c->add("site_id", $siteId);
         ModeratorPeer::instance()->delete($c);
 
@@ -225,13 +228,13 @@ class AccountMembershipAction extends SmartyAction
     public function removeApplicationEvent($runData)
     {
         $siteId = $runData->getParameterList()->getParameterValue("site_id");
-        $userId = $runData->getUserId();
+        $user = $runData->getUser();
 
         $db = Database::connection();
         $db->begin();
 
         $c = new Criteria();
-        $c->add("user_id", $userId);
+        $c->add("user_id", $user->id);
         $c->add("site_id", $siteId);
         MemberApplicationPeer::instance()->delete($c);
 
@@ -247,6 +250,10 @@ class AccountMembershipAction extends SmartyAction
         $c = new Criteria();
         $c->add('site_id', $siteId);
         $c->add('deleted', true);
+
+        /**
+         * @var Site $site
+         */
         $site = SitePeer::instance()->selectOne($c);
 
         if (!$site) {
@@ -257,7 +264,7 @@ class AccountMembershipAction extends SmartyAction
         $user = $runData->getUser();
 
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("site_id", $site->getSiteId());
         $c->add("founder", true);
         $rel = AdminPeer::instance()->selectOne($c);
@@ -282,7 +289,7 @@ class AccountMembershipAction extends SmartyAction
         } else {
             $unixName = WDStringUtils::toUnixName($unixName);
 
-            if (!$runData->getUser()->getSuperAdmin()) {
+            if (!$runData->getUser()->id == 1) {
                 //  handle forbidden names
                 foreach (ForbiddenNames::$sites as $regex) {
                     if (preg_match($regex, $unixName) > 0) {

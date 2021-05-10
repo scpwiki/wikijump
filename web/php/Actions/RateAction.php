@@ -5,6 +5,7 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
+use Wikidot\DB\Page;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageRateVotePeer;
 use Wikidot\DB\PageRateVote;
@@ -35,8 +36,11 @@ class RateAction extends SmartyAction
             throw new ProcessException("Error");
         }
 
+        /**
+         * @var Page|null $page
+         */
         $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-        if (!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
+        if ($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
         }
 
@@ -51,7 +55,7 @@ class RateAction extends SmartyAction
 
         $c = new Criteria();
         $c->add("page_id", $page->getPageId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         if ($pl->getParameterValue("force")) {
             $v = PageRateVotePeer::instance()->selectOne($c);
             PageRateVotePeer::instance()->delete($c);
@@ -75,7 +79,7 @@ class RateAction extends SmartyAction
         $db->begin();
 
         $v = new PageRateVote();
-        $v->setUserId($user->getUserId());
+        $v->setUserId($user->id);
         $v->setPageId($page->getPageId());
         $v->setRate($points);
         $v->setDate(new ODate());
@@ -132,7 +136,7 @@ class RateAction extends SmartyAction
 
         $c = new Criteria();
         $c->add("page_id", $page->getPageId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $v = PageRateVotePeer::instance()->selectOne($c);
         if (!$v) {
             $runData->ajaxResponseAdd("points", 0);
@@ -183,7 +187,7 @@ class RateAction extends SmartyAction
             if ($ps == 'm') {
                 $c = new Criteria();
                 $c->add("site_id", $category->getSiteId());
-                $c->add("user_id", $user->getUserId());
+                $c->add("user_id", $user->id);
                 $rel = MemberPeer::instance()->selectOne($c);
                 if ($rel) {
                     return true;

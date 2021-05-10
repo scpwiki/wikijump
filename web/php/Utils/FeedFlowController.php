@@ -129,7 +129,7 @@ class FeedFlowController extends WebFlowController
             if ($username !== null && $password !== null) {
                 $user = SecurityManager::getUserByName($username);
                 if ($user) {
-                    $upass = $user->getPassword();
+                    $upass = $user->password;
                     $upass = substr($upass, 0, 15);
                     if ($upass !== $password) {
                         $user = null;
@@ -138,17 +138,17 @@ class FeedFlowController extends WebFlowController
             }
 
             if ($site->getPrivate()) {
-                if ($user && !$user->getSuperAdmin() && !$user->getSuperModerator()) {
+                if ($user && $user->id != 1) {
                     // check if member
                     $c = new Criteria();
                     $c->add("site_id", $site->getSiteId());
-                    $c->add("user_id", $user->getUserId());
+                    $c->add("user_id", $user->id);
                     $mem = MemberPeer::instance()->selectOne($c);
                     if (!$mem) {
                         // check if a viewer
                         $c = new Criteria();
                         $c->add("site_id", $site->getSiteId());
-                        $c->add("user_id", $user->getUserId());
+                        $c->add("user_id", $user->id);
                         $vi = SiteViewerPeer::instance()->selectOne($c);
                         if (!$vi) {
                             $user = null;

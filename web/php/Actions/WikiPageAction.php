@@ -1489,7 +1489,7 @@ class WikiPageAction extends SmartyAction
     private function canSetBlock($user, $page)
     {
 
-        if ($user && ($user->getSuperAdmin() || $user->getSuperModerator())) {
+        if ($user->id == 1) {
             return true;
         }
 
@@ -1500,7 +1500,7 @@ class WikiPageAction extends SmartyAction
         // still nothing. check if moderator of "pages".
         $c = new Criteria();
         $c->add("site_id", $page->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $rel = ModeratorPeer::instance()->selectOne($c);
         if ($rel && strpos($rel->getPermissions(), 'p') !== false) {
             return true;
@@ -1509,7 +1509,7 @@ class WikiPageAction extends SmartyAction
         // still nothing. check if admin.
         $c = new Criteria();
         $c->add("site_id", $page->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $rel = AdminPeer::instance()->selectOne($c);
         if ($rel) {
             return true;

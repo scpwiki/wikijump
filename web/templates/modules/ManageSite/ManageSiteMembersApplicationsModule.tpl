@@ -19,8 +19,8 @@
 					Options:
 				</td>
 				<td>
-					<a href="javascript:;" onclick="Wikijump.modules.ManageSiteMembersApplicationsModule.listeners.accept(event, {$user->getUserId()}, '{$user->getNickName()}', 'accept')">accept</a>
-					or <a href="javascript:;" onclick="Wikijump.modules.ManageSiteMembersApplicationsModule.listeners.accept(event, {$user->getUserId()}, '{$user->getNickName()}', 'decline')">decline</a>
+					<a href="javascript:;" onclick="Wikijump.modules.ManageSiteMembersApplicationsModule.listeners.accept(event, {$user->id}, '{$user->username}', 'accept')">accept</a>
+					or <a href="javascript:;" onclick="Wikijump.modules.ManageSiteMembersApplicationsModule.listeners.accept(event, {$user->id}, '{$user->username}', 'decline')">decline</a>
 				</td>
 			</tr>
 		</table>

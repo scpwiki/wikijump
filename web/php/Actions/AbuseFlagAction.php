@@ -6,7 +6,7 @@ use Ozone\Framework\Database\Database;
 use Ozone\Framework\SmartyAction;
 use Wikidot\DB\PageAbuseFlagPeer;
 use Wikidot\DB\PageAbuseFlag;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\UserAbuseFlagPeer;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\UserAbuseFlag;
@@ -16,7 +16,7 @@ use Wikidot\Utils\EventLogger;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
-
+use Wikijump\Models\User;
 
 class AbuseFlagAction extends SmartyAction
 {
@@ -24,7 +24,7 @@ class AbuseFlagAction extends SmartyAction
     public function isAllowed($runData)
     {
         $userId = $runData->getUserId();
-        if ($userId == null || $userId <1) {
+        if (!$userId) {
             throw new WDPermissionException(_("This option is available only to registered (and logged-in) users."));
         }
         return true;
@@ -55,7 +55,7 @@ class AbuseFlagAction extends SmartyAction
 
             // check if not flagged already
             $c = new Criteria();
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $c->add("site_id", $site->getSiteId());
             $c->add("path", $path);
 
@@ -63,7 +63,7 @@ class AbuseFlagAction extends SmartyAction
 
             if ($flag == null) {
                 $flag = new PageAbuseFlag();
-                $flag->setUserId($user->getUserId());
+                $flag->setUserId($user->id);
                 $flag->setSiteId($site->getSiteId());
                 $flag->setPath($path);
                 $flag->save();
@@ -72,7 +72,7 @@ class AbuseFlagAction extends SmartyAction
         } else {
             // unflag
             $c = new Criteria();
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $c->add("site_id", $site->getSiteId());
             $c->add("path", $path);
             PageAbuseFlagPeer::instance()->delete($c);
@@ -94,9 +94,9 @@ class AbuseFlagAction extends SmartyAction
             throw new ProcessException(_("Error processing the request."), "no_target_user");
         }
 
-        $targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+        $targetUser = User::find($targetUserId);
         if ($targetUser == null) {
-            throw new ProcessException(_("Error processing the request."), "no_target_user");
+            throw new ProcessException(__("Error processing the request."), "no_target_user");
         }
 
         $site = $runData->getTemp("site");
@@ -111,8 +111,8 @@ class AbuseFlagAction extends SmartyAction
 
             // check if not flagged already
             $c = new Criteria();
-            $c->add("user_id", $user->getUserId());
-            $c->add("target_user_id", $targetUser->getUserId());
+            $c->add("user_id", $user->id);
+            $c->add("target_user_id", $targetUser->id);
 
             $flag = UserAbuseFlagPeer::instance()->selectOne($c);
 
@@ -138,17 +138,17 @@ class AbuseFlagAction extends SmartyAction
                 }
 
                 $flag = new UserAbuseFlag();
-                $flag->setUserId($user->getUserId());
+                $flag->setUserId($user->id);
                 $flag->setSiteId($siteId);
-                $flag->setTargetUserId($targetUser->getUserId());
+                $flag->setTargetUserId($targetUser->id);
                 $flag->save();
                 EventLogger::instance()->logFlagUser($targetUser);
             }
         } else {
             // unflag
             $c = new Criteria();
-            $c->add("user_id", $user->getUserId());
-            $c->add("target_user_id", $targetUser->getUserId());
+            $c->add("user_id", $user->id);
+            $c->add("target_user_id", $targetUser->id);
             UserAbuseFlagPeer::instance()->delete($c);
             EventLogger::instance()->logUnflagUser($targetUser);
         }
@@ -194,7 +194,7 @@ class AbuseFlagAction extends SmartyAction
 
                 // check if not flagged already
                 $c = new Criteria();
-                $c->add("user_id", $user->getUserId());
+                $c->add("user_id", $user->id);
                 $c->add("address", $ip);
 
                 $flag = AnonymousAbuseFlagPeer::instance()->selectOne($c);
@@ -203,7 +203,7 @@ class AbuseFlagAction extends SmartyAction
                     $siteId = $site->getSiteId();
 
                     $flag = new AnonymousAbuseFlag();
-                    $flag->setUserId($user->getUserId());
+                    $flag->setUserId($user->id);
                     $flag->setSiteId($siteId);
                     $flag->setAddress($ip);
                     if ($i == 2) {
@@ -218,7 +218,7 @@ class AbuseFlagAction extends SmartyAction
             foreach ($ips as $ip) {
                 //  unflag
                 $c = new Criteria();
-                $c->add("user_id", $user->getUserId());
+                $c->add("user_id", $user->id);
                 $c->add("address", $ip);
                 AnonymousAbuseFlagPeer::instance()->delete($c);
             }

@@ -1,7 +1,7 @@
 <div class="title">{t}Flag user{/t}</div>
 <div class="content">
 
-	<h1>Is <em>{$user->getNickName()|escape}</em> an abusive user?</h1>
+	<h1>Is <em>{$user->username|escape}</em> an abusive user?</h1>
 
 	<p>
 		If you think this user violates
@@ -21,11 +21,11 @@
 	<p id="flag-user-options-flag" style="text-align: center; {if $flagged}display: none;{/if} ">
 		<span style="color: #4B4; font-size: 150%; border: 1px solid #000; padding: 3px; margin: 5px;">{t}this user is OK{/t}</span>
 		<a style="color: #CCC; font-size: 150%; border: 1px solid #DDD; padding: 3px; margin: 5px; text-decoration: none;" href="javascript:;"
-		onclick="Wikijump.modules.FlagUserModule.listeners.setFlag(event, {$user->getUserId()}, true)">{t}this user is abusive{/t}</a>
+		onclick="Wikijump.modules.FlagUserModule.listeners.setFlag(event, {$user->id}, true)">{t}this user is abusive{/t}</a>
 	</p>
 	<p id="flag-user-options-unflag" style="text-align: center;{if !$flagged}display: none;{/if}">
 		<a style="color: #CCC; font-size: 150%; border: 1px solid #DDD; padding: 3px; margin: 5px; text-decoration: none;" href="javascript:;"
-		onclick="Wikijump.modules.FlagUserModule.listeners.setFlag(event,{$user->getUserId()}, false)">{t}this user is OK{/t}</a>
+		onclick="Wikijump.modules.FlagUserModule.listeners.setFlag(event,{$user->id}, false)">{t}this user is OK{/t}</a>
 		<span style="color: #B44;font-size: 150%; border: 1px solid #000; padding: 3px; margin: 5px;">{t}this user is abusive{/t}</span>
 	</p>
 

@@ -1,16 +1,18 @@
 <?php
 
 namespace Wikidot\Actions;
+use Illuminate\Support\Facades\Auth;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\OzoneSessionPeer;
 use Wikidot\Utils\EventLogger;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Models\User;
 
 class LoginAction extends SmartyAction
 {
@@ -22,7 +24,7 @@ class LoginAction extends SmartyAction
     public function loginEvent($runData)
     {
         $pl = $runData->getParameterList();
-        $uname = $pl->getParameterValue("name");
+        $uname = strtolower($pl->getParameterValue("name"));
         $upass = $pl->getParameterValue("password");
 
         $userId = $pl->getParameterValue("welcome");
@@ -32,27 +34,33 @@ class LoginAction extends SmartyAction
 
         // decrypt! woooohhooooo!!!!!!!!
 
-        $seed = $runData->sessionGet("login_seed");
-
-        if ($seed == null) {
+        if ($runData->sessionGet("login_seed") == null) {
             throw new ProcessException(_("Your session has expired. Please log in again."), "no_seed");
         }
 
-        if ($userId && is_numeric($userId) && $userId >0) {
-            $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
-            if (!$user or password_verify($upass, $user->getPassword())) {
+        if (
+            $uname != null
+            && strtolower($uname) != 'automatic'
+            && strtolower($uname) != 'anonymous'
+        ) {
+            $attempt = Auth::attempt([
+                'username' => $uname,
+                'password' => $upass
+            ]);
+            if ($attempt == false) {
                 $user = null;
                 EventLogger::instance()->logFailedLogin($uname);
                 throw new ProcessException(_("The login and password do not match."), "login_invalid");
             } else {
+                $user = User::whereRaw('lower(username)', $uname)->first();
                 $runData->resetSession();
                 $session = $runData->getSession();
-                $session->setUserId($user->getUserId());
+                $session->setUserId($user->id);
                 // set other parameters
                 $session->setStarted(new ODate());
                 $session->setLastAccessed(new ODate());
 
-                $user->setLastLogin(new ODate());
+                $user->touch();
                 $user->save();
 
                 if ($keepLogged) {
@@ -62,7 +70,9 @@ class LoginAction extends SmartyAction
                     $session->setCheckIp(true);
                 }
 
-                setsecurecookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                Auth::login($user, $keepLogged);
+
+                setsecurecookie("welcome", $user->id, time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 
                 // log event
                 EventLogger::instance()->logLogin();
@@ -85,7 +95,7 @@ class LoginAction extends SmartyAction
         $db->begin();
             EventLogger::instance()->logLogout();
         if ($runData->getUser()) {
-            $userId = $runData->getUser()->getUserId();
+            $userId = $runData->getUser()->id;
         }
 
         $runData->sessionStop();

@@ -87,7 +87,7 @@ class ForumCategoryPostsFeed extends FeedScreen
         $c->add("category_id", $categoryId);
         $c->add("forum_post.site_id", $site->getSiteId());
         $c->addJoin("thread_id", "forum_thread.thread_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
         $c->addOrderDescending("post_id");
         $c->setLimit(20);
         $posts = ForumPostPeer::instance()->select($c);
@@ -136,7 +136,7 @@ class ForumCategoryPostsFeed extends FeedScreen
             if ($post->getUserId() != User::ANONYMOUS_USER && $post->getUserId() != User::AUTOMATIC_USER) {
                 $item['authorUserId'] = $post->getUserId();
                 $user = $post->getUser();
-                $item['author']=$user->getNickName();
+                $item['author']=$user->username;
             } else {
                 $item['author']=$post->getUserString();
             }

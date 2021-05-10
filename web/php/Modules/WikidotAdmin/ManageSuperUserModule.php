@@ -2,11 +2,12 @@
 
 namespace Wikidot\Modules\WikidotAdmin;
 
-use Wikidot\DB\OzoneUserPeer;
+
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Models\User;
 
 class ManageSuperUserModule extends SmartyModule
 {
@@ -30,9 +31,9 @@ class ManageSuperUserModule extends SmartyModule
 
         $pl = $runData->getParameterList();
 
-        $o = OzoneUserPeer::instance()->selectByPrimaryKey(1);
+        $o = User::find(1);
         $u = array(
-            "nick_name" => $o->getNickName(),
+            "nick_name" => $o->username(),
         );
         $runData->contextAdd("user", $u);
 

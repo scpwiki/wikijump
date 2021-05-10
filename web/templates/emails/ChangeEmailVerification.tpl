@@ -1,4 +1,4 @@
-Hi, {$user->getNickName()|escape}!
+Hi, {$user->username|escape}!
 
 In order to confirm your new email address plese copy the verification code
 from below into the appropriate form.

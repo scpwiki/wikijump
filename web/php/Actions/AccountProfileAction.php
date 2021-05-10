@@ -6,7 +6,7 @@ use Ozone\Framework\Database\Database;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\ProfilePeer;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\Utils\FileMime;
@@ -15,6 +15,7 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Models\User;
 
 class AccountProfileAction extends SmartyAction
 {
@@ -22,7 +23,7 @@ class AccountProfileAction extends SmartyAction
     public function isAllowed($runData)
     {
         $userId = $runData->getUserId();
-        if ($userId == null || $userId < 1) {
+        if(!$userId) {
             throw new WDPermissionException(_("Not allowed. You should login first."));
         }
         return true;
@@ -256,27 +257,23 @@ class AccountProfileAction extends SmartyAction
     public function changeScreenNameEvent($runData)
     {
         $user = $runData->getUser();
-        $userId = $user->getUserId();
-        $profile = $user->getProfile();
 
-        if ($profile->getChangeScreenNameCount() >= 2) {
-            throw new ProcessException('Your are allowed to change your screen name only 2 times.');
+        if ($user->username_changes >= config('wikijump.username_change_limit')) {
+            throw new ProcessException(__('Maximum username changes allowed: '.config('wikijump.username_change_limit')));
         }
 
         $pl = $runData->getParameterList();
-        $name = trim($pl->getParameterValue("screenName"));
+        $name = trim($pl->getParameterValue('screenName'));
 
-        if ($name == $user->getNickName()) {
-            throw new ProcessException("Your new and current screen names are the same.");
+        if ($name == $user->username) {
+            throw new ProcessException(__('Your current and new usernames are the same.'));
         }
-        $db = Database::connection();
-        $db->begin();
 
         $unixified = WDStringUtils::toUnixName($name);
-        if (strlen($name) < 2) {
-            throw new ProcessException(_("You really should provide the screen name you want to use."));
+        if (strlen($name) < config('wikijump.username_min')) {
+            throw new ProcessException(__('Minimum characters for a username:').config('wikijump.username_min'));
         }
-        if (strlen8($name) > 20) {
+        if (strlen($name) > config('wikijump.username_max')) {
             throw new ProcessException(_("Your screen name should not be longer than 20 characters."));
         }
         if (preg_match('/^[ _a-zA-Z0-9-\!#\$%\^\*\(\)]+$/', $name) == 0) {
@@ -289,52 +286,21 @@ class AccountProfileAction extends SmartyAction
         //handle forbidden names
         $unixName = WDStringUtils::toUnixName($name);
 
-        foreach (ForbiddenNames::$users as $regex) {
+        foreach (config('wikijump.forbidden_usernames') as $regex) {
             if (preg_match($regex, $unixName) > 0) {
-                throw new ProcessException(_('Account creation failed: Username is blocked from registration.'));
+                throw new ProcessException(__('Account creation failed: Username is blocked from registration.'));
             }
         }
 
         // check if user does not exist
-        $c = new Criteria();
-        $c->add("unix_name", $unixified);
-        $u = OzoneUserPeer::instance()->selectOne($c);
+        $u = User::where('unix_name', $unixified)->first();
         if ($u != null) {
-            throw new ProcessException(_("A user with this screen name (or very similar) already exists."));
+            throw new ProcessException(__("A user with this screen name (or very similar) already exists."));
         }
 
-        // rename the profile page
-        $c = new Criteria();
-        $c->add("unix_name", "profiles");
-        $nsite = SitePeer::instance()->selectOne($c);
-
-        $pageName = 'profile:' . $user->getUnixName();
-
-        $c = new Criteria();
-        $c->add('site_id', $nsite->getSiteId());
-        $c->add('unix_name', $pageName);
-
-        $page = PagePeer::instance()->selectOne($c);
-        if (!$page) {
-            throw new ProcessException('Internal error');
-        }
-        $metadata = $page->getMetadata();
-        $metadata->setUnixName('profile:' . $unixified);
-        $page->setUnixName('profile:' . $unixified);
-        $metadata->save();
-        $page->save();
-        // outdate page cache
-        $outdater = new Outdater();
-        $outdater->pageEvent("rename", $page, $pageName);
-        // now, try to apply new name!!!
-
-        $user->setNickName($name);
-        $user->setUnixName($unixified);
+        $user->username = $name;
+        $user->unix_name = $unixified;
+        $user->username_changes++;
         $user->save();
-
-        $profile->setChangeScreenNameCount($profile->getChangeScreenNameCount() + 1);
-        $profile->save();
-
-        $db->commit();
     }
 }

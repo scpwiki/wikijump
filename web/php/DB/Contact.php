@@ -3,6 +3,8 @@
 namespace Wikidot\DB;
 
 
+use Wikijump\Models\User;
+
 /**
  * Object Model Class.
  *
@@ -12,35 +14,11 @@ class Contact extends ContactBase
 
     public function getUser()
     {
-        if (is_array($this->prefetched)) {
-            if (in_array('ozone_user', $this->prefetched)) {
-                if (in_array('ozone_user', $this->prefetchedObjects)) {
-                    return $this->prefetchedObjects['ozone_user'];
-                } else {
-                    $obj = new OzoneUser($this->sourceRow);
-                    $obj->setNew(false);
-                    $this->prefetchedObjects['ozone_user'] = $obj;
-                    return $obj;
-                }
-            }
-        }
-        return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
+        return User::find($this->getUserId());
     }
 
     public function getTargetUser()
     {
-        if (is_array($this->prefetched)) {
-            if (in_array('ozone_user', $this->prefetched)) {
-                if (in_array('ozone_user', $this->prefetchedObjects)) {
-                    return $this->prefetchedObjects['ozone_user'];
-                } else {
-                    $obj = new OzoneUser($this->sourceRow);
-                    $obj->setNew(false);
-                    $this->prefetchedObjects['ozone_user'] = $obj;
-                    return $obj;
-                }
-            }
-        }
-        return OzoneUserPeer::instance()->selectByPrimaryKey($this->getTargetUserId());
+        return User::find($this->getTargetUserId());
     }
 }
