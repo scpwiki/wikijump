@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Providers;
+namespace Wikijump\Providers;
 
-use App\Actions\Fortify\CreateNewUser;
-use App\Actions\Fortify\ResetUserPassword;
-use App\Actions\Fortify\UpdateUserPassword;
-use App\Actions\Fortify\UpdateUserProfileInformation;
+use Wikijump\Actions\Fortify\CreateNewUser;
+use Wikijump\Actions\Fortify\ResetUserPassword;
+use Wikijump\Actions\Fortify\UpdateUserPassword;
+use Wikijump\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;

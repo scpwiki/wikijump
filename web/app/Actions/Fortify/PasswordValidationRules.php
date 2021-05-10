@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Fortify;
+namespace Wikijump\Actions\Fortify;
 
 use Laravel\Fortify\Rules\Password;
 

@@ -34,6 +34,7 @@ return [
      * Socialite providers follow. Providers not covered are `linkedin`,
      * `github`, `gitlab`, and `bitbucket`, but they follow the same principles.
      * The callback redirects are handled in RouteServiceProvider.
+     * @see \Wikijump\Providers\RouteServiceProvider
      */
     'facebook' => [
         'client_id' => env('FACEBOOK_CLIENT_ID'),

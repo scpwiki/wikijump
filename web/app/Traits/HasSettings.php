@@ -10,10 +10,9 @@ trait HasSettings {
     abstract public function defaults() : array;
 
     /**
-     * Retrieve the user's settings.
+     * Add the relationship from the parent class to a Settings object.
      * @return MorphOne
      * @see Settings
-     * @see HasSettings
      */
     public function settings() : MorphOne
     {

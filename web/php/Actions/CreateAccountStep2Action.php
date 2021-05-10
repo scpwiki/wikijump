@@ -247,12 +247,6 @@ class CreateAccountStep2Action extends SmartyAction
         $nuser->language = $lang;
         $nuser->save();
 
-        // profile
-
-        $profile = new Profile();
-        $profile->setUserId($nuser->id);
-        $profile->save();
-
         $db->commit();
 
         /* Handle originalUrl. */
