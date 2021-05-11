@@ -10,7 +10,7 @@ test:compile:
   - trash tests-dist
   - node scripts/build-tests.js
 test:run: uvu ./tests-dist/dist test-megabundle.+js$
-test: pnpm test:compile && nyc --use-spawn-wrap pnpm test:run
+test: pnpm test:compile && nyc --use-spawn-wrap npm run test:run
 
 # -- VALIDATION
 
