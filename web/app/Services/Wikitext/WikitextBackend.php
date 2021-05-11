@@ -16,12 +16,12 @@ interface WikitextBackend
  *
  * @throws GlobalPropertiesException if the feature flag value is invalid
  */
-function getWikitext(): WikitextBackend {
+function getWikitext(string $mode, ?PageInfo $pageInfo): WikitextBackend {
     switch (GlobalProperties::$FEATURE_WIKITEXT_BACKEND) {
         case 'text_wiki':
-            return new TextWikiBackend();
+            return new TextWikiBackend($mode, $pageInfo);
         case 'ftml':
-            return new FtmlBackend();
+            return new FtmlBackend($mode, $pageInfo);
         case 'null':
             return new NullBackend();
         default:

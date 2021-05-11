@@ -9,6 +9,13 @@ namespace Wikijump\Services\Wikitext;
  */
 class FtmlBackend implements WikitextBackend
 {
+    private ?PageInfo $pageInfo;
+
+    public function __construct(string $mode, ?PageInfo $pageInfo) {
+        // TODO mode
+        $this->pageInfo = $pageInfo;
+    }
+
     public function version(): string {
         return FtmlFfi::version();
     }

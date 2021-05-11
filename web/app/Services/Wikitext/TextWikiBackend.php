@@ -9,8 +9,9 @@ class TextWikiBackend implements WikitextBackend
 {
     private WikiTransformation $wt;
 
-    public function __construct() {
+    public function __construct(string $mode, ?PageInfo $pageInfo) {
         $this->wt = new WikiTransformation();
+        // TODO
     }
 
     public function version(): string {
