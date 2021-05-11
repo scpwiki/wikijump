@@ -229,5 +229,3 @@ module.exports = {
     }
   ]
 }
-
-console.dir(JSON.stringify(module.exports))
