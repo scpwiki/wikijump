@@ -4,7 +4,6 @@ declare(strict_types = 1);
 namespace Wikijump\Services\Wikitext;
 
 use Wikidot\Utils\GlobalProperties;
-use Wikidot\Utils\GlobalPropertiesException;
 
 public interface WikitextBackend
 {
@@ -26,8 +25,6 @@ public function getWikitext(): WikitextBackend {
         case 'null':
             return new NullBackend();
         default:
-            throw new GlobalPropertiesException(
-                'Wikitext backend feature flag invalid: ' . GlobalProperties::$FEATURE_WIKITEXT_BACKEND
-            );
+            throw new Exception('Wikitext backend feature flag invalid: ' . GlobalProperties::$FEATURE_WIKITEXT_BACKEND);
     }
 }
