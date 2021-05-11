@@ -33,4 +33,8 @@ class PageInfo
         $this->tags = $tags;
         $this->language = $language;
     }
+
+    public function getCategory(): string {
+        return $this->category ?? '_default';
+    }
 }
