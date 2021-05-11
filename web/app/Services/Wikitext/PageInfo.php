@@ -37,4 +37,9 @@ class PageInfo
     public function getCategory(): string {
         return $this->category ?? '_default';
     }
+
+    public function getPageSlug(): string {
+        $categoryPrefix = is_null($this->category) ? '' : ($this->category . ':');
+        return $categoryPrefix . $this->page;
+    }
 }
