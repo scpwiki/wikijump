@@ -33,7 +33,7 @@ class CreateUsersTable extends Migration
             $table->string('pronouns', 30)->nullable();
             $table->date('dob')->nullable();
             $table->string('bio', 2000)->nullable();
-            $table->string('about_page', '80')->nullable();
+            $table->string('about_page', 80)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
