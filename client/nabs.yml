@@ -1,7 +1,10 @@
+# -- AUTOMATIC
+
+postinstall: npm run lerna:clean && npm run bootstrap
+
 # -- UTILITY
 
-update:cmd: npm run lerna:clean && npm run bootstrap && npm run build
-update: npm i && ultra --raw update:cmd
+update: npm i && npm run build
 bootstrap: lerna bootstrap --hoist --loglevel success
 lerna:clean: lerna clean --yes --loglevel success
 
