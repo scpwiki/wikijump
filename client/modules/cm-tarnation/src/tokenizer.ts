@@ -57,8 +57,10 @@ export class Tokenizer {
     }
   }
 
-  /** Compiles a {@link GrammarToken} into a {@link MappedToken}.
-   *  This primarily involves remapping the token names into IDs. */
+  /**
+   * Compiles a {@link GrammarToken} into a {@link MappedToken}.
+   * This primarily involves remapping the token names into IDs.
+   */
   private static compileToken(token: GrammarToken, nodes: NodeMap): MappedToken {
     const { type, from, to, open, close } = token
     const out: MappedToken = [nodes.get(type)!, from, to]
@@ -67,8 +69,10 @@ export class Tokenizer {
     return out
   }
 
-  /** Returns whether or not the given last {@link MappedToken} can be merged
-   *  with the next given {@link GrammarToken}. */
+  /**
+   * Returns whether or not the given last {@link MappedToken} can be merged
+   * with the next given {@link GrammarToken}.
+   */
   private canContinue(last?: MappedToken, next?: GrammarToken) {
     if (!last || !next) return false // tokens are invalid
     // parser directives present
@@ -179,7 +183,10 @@ export class Tokenizer {
 
 /** State/stack object for a {@link Tokenizer}. */
 export class TokenizerStack {
-  /** Specifies if the state has changed since the last time this property has been set. */
+  /**
+   * Specifies if the state has changed since the last time
+   * this property has been set.
+   */
   changed = false
 
   /** Embedded language data, if present. */
@@ -273,8 +280,10 @@ export class TokenizerStack {
     return { stack: klona(stack), embedded: klona(embedded) }
   }
 
-  /** Compares two stacks and returns if they are equal.
-   *  They can be pure `MonarchStack` objects or already serialized. */
+  /**
+   * Compares two stacks and returns if they are equal.
+   * They can be pure `MonarchStack` objects or already serialized.
+   */
   static isEqual(
     stack1: SerializedTokenizerStack | TokenizerStack,
     stack2: SerializedTokenizerStack | TokenizerStack

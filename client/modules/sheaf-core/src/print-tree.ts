@@ -1,7 +1,3 @@
-/**
- * @file Exports the `printTree` (AST stringify) function for Sheaf.
- */
-
 import type { Input, Tree } from "lezer-tree"
 
 // TODO: STUB

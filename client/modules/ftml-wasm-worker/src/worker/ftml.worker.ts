@@ -1,6 +1,4 @@
-/**
- * @file Web-workerized version of "ftml-wasm".
- */
+/* Web-workerized version of "ftml-wasm". */
 
 import * as FTML from "ftml-wasm"
 import { expose, Transfer, encode, decode } from "./lib"

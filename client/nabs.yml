@@ -23,12 +23,12 @@ typecheck: tsc
 
 lint:
   eslint: eslint "./**/*.js" "./**/*.ts"
-  stylelint: stylelint "modules/**/*.scss" "web/**/*.css"
+  stylelint: stylelint "modules/**/*.scss" "web/**/*.scss"
   prettier: prettier --check "modules/" "web/"
 
 lint:fix:
   eslint: eslint "./**/*.js" "./**/*.ts" --fix
-  stylelint: stylelint "modules/**/*.scss" "web/**/*.css" --fix
+  stylelint: stylelint "modules/**/*.scss" "web/**/*.scss" --fix
   prettier: prettier --write "modules/" "web/"
 
 # Runs everything in parallel for maximum speed

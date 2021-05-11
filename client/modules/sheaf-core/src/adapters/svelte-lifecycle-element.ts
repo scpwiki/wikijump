@@ -7,8 +7,8 @@ export class LifecycleElement extends HTMLElement {
   static tag = "svelte-cm-lifecycle"
 
   /**
-   * @param _mount Function to be called whenever this element is mounted.
-   * @param _unmount Function to be called whenever this element is unmounted.
+   * @param _mount - Function to be called whenever this element is mounted.
+   * @param _unmount - Function to be called whenever this element is unmounted.
    */
   constructor(
     public _mount?: (dom: LifecycleElement) => void,

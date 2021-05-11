@@ -8,8 +8,6 @@ export * from "./fragment"
 // imports the worker as a chunk of text
 import workerText from "./worker/ftml.worker?bundled-worker"
 
-// external import (resolved by Vite)
-// I don't like how non-portable this is, but I also don't know of a better solution
 import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
 const wasmURL = new URL(wasmRelativeURL, import.meta.url).toString()
 
@@ -110,8 +108,10 @@ export async function version() {
   )
 }
 
-/** Preprocesses a string of wikitext.
- *  See `ftml/src/preproc/test.rs` for more information. */
+/**
+ * Preprocesses a string of wikitext.
+ * See `ftml/src/preproc/test.rs` for more information.
+ */
 export async function preprocess(str: string) {
   return decode(
     await invoke<ArrayBuffer>(() => module.worker.preprocess(transfer(str)))
@@ -124,8 +124,10 @@ export async function tokenize(str: string) {
   return await invoke<Return>(() => module.worker.tokenize(transfer(str)))
 }
 
-/** Parses a string of wikitext. This returns an AST and warnings list, not HTML.
- *  @see render */
+/**
+ * Parses a string of wikitext. This returns an AST and warnings list, not HTML.
+ * @see {@link render}
+ */
 export async function parse(str: string) {
   type Return = ReturnType<typeof FTML["parse"]>
   return await invoke<Return>(() => module.worker.parse(transfer(str)))
@@ -148,8 +150,10 @@ export async function renderText(str: string) {
   )
 }
 
-/** Renders a string of wikitext like the {@link renderHTML} function, but this
- *  function additionally returns every step in the rendering pipeline. */
+/**
+ * Renders a string of wikitext like the {@link renderHTML} function, but this
+ * function additionally returns every step in the rendering pipeline.
+ */
 export async function detailedRender(str: string) {
   type Return = ReturnType<typeof FTML["detailedRender"]>
   return await invoke<Return>(() => module.worker.detailedRender(transfer(str)))

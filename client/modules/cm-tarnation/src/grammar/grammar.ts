@@ -16,7 +16,7 @@ import { klona } from "klona"
 import type * as DF from "./definition"
 import type * as DM from "./demangler"
 
-/** Stores information about the current state of the {@link Grammar Grammar's} match. */
+/** Stores information about the current state of the {@link Grammar} match. */
 export interface GrammarContext {
   state: string
   context: DF.Context
@@ -731,12 +731,14 @@ export function createToken({ from, to, action, context }: Matched): GrammarToke
   return { type, from, to, empty, open, close, next, switchTo, embedded, context }
 }
 
-/** Wraps a list of {@link GrammarToken} with the token data of a {@link Match}.
+/**
+ * Wraps a list of {@link GrammarToken} with the token data of a {@link Match}.
  *
- *  Effectively, this mutates the list of tokens as if the given {@link Match}
- *  "was" the list of tokens. If the token data of the match were to cause
- *  the tokenizer to manipulate the stack, it will make the token list given
- *  do the same. */
+ * Effectively, this mutates the list of tokens as if the given {@link Match}
+ * "was" the list of tokens. If the token data of the match were to cause
+ * the tokenizer to manipulate the stack, it will make the token list given
+ * do the same.
+ */
 export function wrapTokens(
   tokens: GrammarToken[],
   { context, action: { type, mode, next, switchTo, open, close, embedded } }: Matched

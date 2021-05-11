@@ -1,5 +1,5 @@
-/**
- * @file Exports the "indent-hack" for CodeMirror.
+/*
+ * Exports the "indent-hack" for CodeMirror.
  * This enables elegant, tab-preserving line-wrapping in the editor.
  */
 

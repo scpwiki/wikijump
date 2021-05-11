@@ -47,8 +47,8 @@ export class EditorSveltePanel<T extends typeof SvelteComponent> {
   private declare handler: EditorSvelteComponent<T>
 
   /**
-   * @param component The Svelte component the panel will mount with.
-   * @param opts {@link EditorSveltePanelOpts}
+   * @param component - The Svelte component the panel will mount with.
+   * @param opts - {@link EditorSveltePanelOpts}
    */
   constructor(
     public component: T,
@@ -88,8 +88,8 @@ export class EditorSveltePanel<T extends typeof SvelteComponent> {
   /**
    * Toggle, or directly set, the panel's state (whether or not it is mounted).
    *
-   * @param view The {@link EditorView} that the panel is attached to.
-   * @param state Forces the panel to either mount or unmount.
+   * @param view - The {@link EditorView} that the panel is attached to.
+   * @param state - Forces the panel to either mount or unmount.
    */
   toggle(view: EditorView, state?: boolean) {
     if (state === undefined) state = !view.state.field(this.panelState)

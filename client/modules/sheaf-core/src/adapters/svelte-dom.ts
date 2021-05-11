@@ -29,13 +29,13 @@ export interface EditorSvelteComponentOpts<T extends SvelteComponent> {
   /**
    * Callback called immediately after the component is mounted.
    *
-   * @param component The component that was just mounted.
+   * @param component - The component that was just mounted.
    */
   mount?: (component: T) => void
   /**
    * Callback called immediately before the component is unmounted.
    *
-   * @param component The component that is about to be unmounted.
+   * @param component - The component that is about to be unmounted.
    */
   unmount?: (component: T) => void
 }
@@ -48,12 +48,14 @@ export interface EditorSvelteComponentOpts<T extends SvelteComponent> {
  * * `update`
  * * `unmount`
  *
- * You can see the types of these props in the {EditorSvelteComponentProps} interface.
- * @see {EditorSvelteComponentProps}
+ * You can see the types of these props
+ * in the {@link EditorSvelteComponentProps} interface.
+ *
+ * @see {@link EditorSvelteComponentProps}
  */
 export class EditorSvelteComponent<T extends typeof SvelteComponent> {
   /**
-   * @param component The Svelte component to be mounted.
+   * @param component - The Svelte component to be mounted.
    */
   constructor(public component: T) {}
 
@@ -61,8 +63,8 @@ export class EditorSvelteComponent<T extends typeof SvelteComponent> {
    * Creates the DOM container and lifecycle functions needed to mount a
    * Svelte component into CodeMirror structures, such as panels and tooltips.
    *
-   * @param view The {@link EditorView} that the component will be attached to.
-   * @param opts {@link EditorSvelteComponentOpts}
+   * @param view - The {@link EditorView} that the component will be attached to.
+   * @param opts - {@link EditorSvelteComponentOpts}
    */
   create(
     view?: EditorView,

@@ -1,6 +1,4 @@
-/**
- * @file Exports the various functions misc. functions needed for the worker.
- */
+/* Exports the various functions misc. functions needed for the worker. */
 
 interface TypedArray extends ArrayBuffer {
   buffer: ArrayBufferLike

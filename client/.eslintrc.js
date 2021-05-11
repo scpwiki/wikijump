@@ -56,6 +56,8 @@ const rules = {
   },
 
   typescript: {
+    "tsdoc/syntax": "error",
+
     ...prefixKeys("@typescript-eslint/", {
       // code
       ...useDefault("error", [
@@ -168,7 +170,8 @@ module.exports = {
   ],
 
   extends: ["plugin:compat/recommended", "plugin:import/typescript"],
-  plugins: ["@typescript-eslint", "import", "svelte3", "clean-regex"],
+
+  plugins: ["@typescript-eslint", "import", "svelte3", "clean-regex", "tsdoc"],
 
   parser: "@typescript-eslint/parser",
   parserOptions: {

@@ -1,6 +1,4 @@
-/**
- * @file Exports an easy to use wrapper around the FTML (WASM) library.
- */
+/* Exports an easy to use wrapper around the FTML (WASM) library. */
 
 import initFTML, * as Binding from "../vendor/ftml"
 
@@ -31,9 +29,11 @@ function free(...objs: any) {
   }
 }
 
-/** This set contains unfreed WASM objects.
- *  It is separate from any particular function so that
- *  error recovery can still clear memory. */
+/**
+ * This set contains unfreed WASM objects.
+ * It is separate from any particular function so that
+ * error recovery can still clear memory.
+ */
 const tracked = new Set<any>()
 
 /** Adds a WASM object to the list of tracked objects. */
@@ -50,8 +50,10 @@ function freeTracked() {
 
 export type PageInfo = Partial<Binding.IPageInfo>
 
-/** Creates a {@link Binding.PageInfo PageInfo} object.
- *  Any properties not provided are mocked. */
+/**
+ * Creates a {@link Binding.PageInfo | PageInfo} object.
+ * Any properties not provided are mocked.
+ */
 function makeInfo({
   alt_title = null,
   category = null,
@@ -80,8 +82,10 @@ export function version() {
   return Binding.version()
 }
 
-/** Preprocesses a string of wikitext.
- *  See `ftml/src/preproc/test.rs` for more information. */
+/**
+ * Preprocesses a string of wikitext.
+ * See `ftml/src/preproc/test.rs` for more information.
+ */
 export function preprocess(str: string) {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   return Binding.preprocess(str)
@@ -105,8 +109,10 @@ export function tokenize(str: string, preprocess = true) {
   }
 }
 
-/** Parses a string of wikitext. This returns an AST and warnings list, not HTML.
- *  @see render*/
+/**
+ * Parses a string of wikitext. This returns an AST and warnings list, not HTML.
+ * @see {@link render}
+ */
 export function parse(str: string, preprocess = true) {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
@@ -131,8 +137,10 @@ export function parse(str: string, preprocess = true) {
 export interface RenderOptions {
   /** Return HTML data or just text? */
   mode?: "html" | "text"
-  /** Contextual information about the wikitext being rendered.
-   *  Unspecified properties will be mocked. */
+  /**
+   * Contextual information about the wikitext being rendered.
+   * Unspecified properties will be mocked.
+   */
   info?: PageInfo
   /** Preprocess input before rendering? */
   preprocess?: boolean
@@ -180,8 +188,10 @@ export interface DetailedRenderOptions {
   info?: PageInfo
 }
 
-/** Renders a string of wikitext like the {@link render} function, but this
- *  function additionally returns every step in the rendering pipeline. */
+/**
+ * Renders a string of wikitext like the {@link render} function, but this
+ * function additionally returns every step in the rendering pipeline.
+ */
 export function detailedRender(str: string, opts?: DetailedRenderOptions) {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   const { mode = "html", info } = opts ?? {}
