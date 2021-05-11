@@ -5,6 +5,7 @@ namespace Wikidot\Modules\Wiki\Social;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WikiTransformation;
+use Wikijump\Services\Wikitext\HtmlUtilities;
 
 class SocialBookmarksModule extends SmartyModule
 {
@@ -231,10 +232,7 @@ class SocialBookmarksModule extends SmartyModule
 			</script>'
                 ;
 
-            // purify???
-            $wt = new WikiTransformation();
-            $out = $wt->purifyHtml($out);
-            return $out;
+            return HtmlUtilities::purify($out);
     }
 
     public function build($r)
