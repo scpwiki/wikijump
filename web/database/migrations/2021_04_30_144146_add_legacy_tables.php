@@ -48,7 +48,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('category', function (Blueprint $table) {
-           $table->id('category_id');
+           $table->id('category_id')->startingValue(20);
            $table->unsignedInteger('site_id')->nullable()->index();
            $table->string('name', 80)->nullable()->index();
            $table->boolean('theme_default')->default(true);
@@ -734,6 +734,72 @@ class AddLegacyTables extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('admin');
+        Schema::drop('admin_notification');
+        Schema::drop('anonymous_abuse_flag');
+        Schema::drop('category');
+        Schema::drop('category_template');
+        Schema::drop('comment');
+        Schema::drop('comment_revision');
+        Schema::drop('contact');
+        Schema::drop('domain_redirect');
+        Schema::drop('email_invitation');
+        Schema::drop('file');
+        Schema::drop('files_event');
+        Schema::drop('forum_category');
+        Schema::drop('forum_group');
+        Schema::drop('forum_post');
+        Schema::drop('forum_post_revision');
+        Schema::drop('forum_settings');
+        Schema::drop('forum_thread');
+        Schema::drop('front_forum_feed');
+        Schema::drop('global_ip_block');
+        Schema::drop('global_user_block');
+        Schema::drop('ip_block');
+        Schema::drop('license');
+        Schema::drop('log_event');
+        Schema::drop('member');
+        Schema::drop('member_application');
+        Schema::drop('member_invitation');
+        Schema::drop('membership_link');
+        Schema::drop('moderator');
+        Schema::drop('notification');
+        Schema::drop('ozone_group');
+        Schema::drop('ozone_group_permission_modifier');
+        Schema::drop('ozone_lock');
+        Schema::drop('ozone_permission');
+        Schema::drop('ozone_session');
+        Schema::drop('ozone_user_group_relation');
+        Schema::drop('ozone_user_permission_modifier');
+        Schema::drop('page');
+        Schema::drop('page_abuse_flag');
+        Schema::drop('page_compiled');
+        Schema::drop('page_edit_lock');
+        Schema::drop('page_external_link');
+        Schema::drop('page_inclusion');
+        Schema::drop('page_link');
+        Schema::drop('page_metadata');
+        Schema::drop('page_rate_vote');
+        Schema::drop('page_revision');
+        Schema::drop('page_source');
+        Schema::drop('page_tag');
+        Schema::drop('private_message');
+        Schema::drop('private_user_block');
+        Schema::drop('profile');
+        Schema::drop('site');
+        Schema::drop('site_backup');
+        Schema::drop('site_settings');
+        Schema::drop('site_super_settings');
+        Schema::drop('site_tag');
+        Schema::drop('site_viewer');
+        Schema::drop('theme');
+        Schema::drop('theme_preview');
+        Schema::drop('ucookie');
+        Schema::drop('user_abuse_flag');
+        Schema::drop('user_block');
+        Schema::drop('user_karma');
+        Schema::drop('user_settings');
+        Schema::drop('watched_forum_thread');
+        Schema::drop('watched_page');
     }
 }
