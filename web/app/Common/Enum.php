@@ -34,7 +34,7 @@ abstract class Enum
         return $class->getConstants();
     }
 
-    final public static function isValue($value): bool
+    final public static function isValue(mixed $value): bool
     {
         return in_array($value, static::values());
     }
