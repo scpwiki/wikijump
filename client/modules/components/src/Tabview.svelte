@@ -8,9 +8,8 @@
 
   onMount(() => {
     // Find all the tab stubs
-    const contents = thisElement.parentElement?.querySelectorAll<HTMLElement>(
-      ".wj-tabview-content"
-    )
+    const contents =
+      thisElement.parentElement?.querySelectorAll<HTMLElement>(".wj-tabview-content")
     if (!contents) return
     contents.forEach(contentElement => {
       // Move them from the DOM into an array
@@ -55,9 +54,9 @@
   }
 
   .tab-selector {
+    display: inline-block;
     padding: 5px;
     border: 1px solid black;
-    display: inline-block;
   }
 
   .tab-content:not(.selected) {

@@ -211,7 +211,7 @@ export function throttle<T extends AnyFunction>(
       initialCall = false
       next()
     }
-    if (!timeout) timeout = (setTimeout(next, limitMS) as unknown) as number
+    if (!timeout) timeout = setTimeout(next, limitMS) as unknown as number
   }
 }
 

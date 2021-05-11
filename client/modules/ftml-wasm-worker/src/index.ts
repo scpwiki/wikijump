@@ -103,9 +103,7 @@ const invoke = module.invoke.bind(module)
 
 /** Returns FTML's (the crate) version. */
 export async function version() {
-  return decode(
-    await invoke<ArrayBuffer>(() => module.worker.version())
-  )
+  return decode(await invoke<ArrayBuffer>(() => module.worker.version()))
 }
 
 /**
@@ -113,9 +111,7 @@ export async function version() {
  * See `ftml/src/preproc/test.rs` for more information.
  */
 export async function preprocess(str: string) {
-  return decode(
-    await invoke<ArrayBuffer>(() => module.worker.preprocess(transfer(str)))
-  )
+  return decode(await invoke<ArrayBuffer>(() => module.worker.preprocess(transfer(str))))
 }
 
 /** Tokenizes a string of wikitext. */
@@ -145,9 +141,7 @@ export async function render(str: string) {
 
 /** Renders a string of wikitext to text. */
 export async function renderText(str: string) {
-  return decode(
-    await invoke<ArrayBuffer>(() => module.worker.renderText(transfer(str)))
-  )
+  return decode(await invoke<ArrayBuffer>(() => module.worker.renderText(transfer(str))))
 }
 
 /**
