@@ -37,7 +37,35 @@ class WikiTransformation
             self::$internalLinksExist = array();
             self::$internalLinksNotExist = array();
             self::$externalLinks = array();
-            $this->resetWiki();
+
+            // initialize Wiki engine with default values
+            $wiki = new Text_Wiki();
+            $viewUrl = '/%s';
+            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'view_url', $viewUrl);
+            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_url', $viewUrl);
+            $wiki->setRenderConf($this->transformationFormat, 'url', 'images', false);
+
+            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_text', '');
+            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'css_new', 'newpage');
+            $wiki->setRenderConf($this->transformationFormat, 'table', 'css_table', 'wiki-content-table');
+
+            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
+            $wiki->setRenderConf($this->transformationFormat, 'wikilink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
+
+            $interWikis = array(
+                'wikipedia' => 'https://en.wikipedia.org/wiki/%s',
+                'wikipedia.pl' => 'https://pl.wikipedia.org/wiki/%s',
+                'pl.wikipedia' => 'https://pl.wikipedia.org/wiki/%s',
+                'google' => 'https://www.google.com/search?q=%s',
+                'dictionary' => 'https://dictionary.reference.com/browse/%s'
+            );
+
+            // configure the interwiki rule
+            $wiki->setRenderConf($this->transformationFormat, 'interwiki', 'sites', $interWikis);
+            $wiki->setParseConf('interwiki', 'sites', $interWikis);
+
+            $wiki->disableRule('wikilink');
+            $this->wiki = $wiki;
         }
     }
 
@@ -248,38 +276,6 @@ class WikiTransformation
         $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$pageUnixName.'/');
         $this->wiki->vars['pageName'] = $pageUnixName;
         $this->pageUnixName = $pageUnixName;
-    }
-
-    public function resetWiki()
-    {
-        // initialize Wiki engine with default values
-        $wiki = new Text_Wiki();
-        $viewUrl = "/%s";
-        $wiki->setRenderConf($this->transformationFormat, 'freelink', 'view_url', $viewUrl);
-        $wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_url', $viewUrl);
-        $wiki->setRenderConf($this->transformationFormat, 'url', 'images', false);
-
-        $wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_text', '');
-        $wiki->setRenderConf($this->transformationFormat, 'freelink', 'css_new', 'newpage');
-        $wiki->setRenderConf($this->transformationFormat, 'table', 'css_table', 'wiki-content-table');
-
-        $wiki->setRenderConf($this->transformationFormat, 'freelink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
-        $wiki->setRenderConf($this->transformationFormat, 'wikilink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
-
-        $interWikis = array(
-            'wikipedia'    => 'https://en.wikipedia.org/wiki/%s',
-            'wikipedia.pl'    => 'https://pl.wikipedia.org/wiki/%s',
-            'pl.wikipedia'    => 'https://pl.wikipedia.org/wiki/%s',
-            'google'    => 'https://www.google.com/search?q=%s',
-            'dictionary' => 'https://dictionary.reference.com/browse/%s'
-        );
-
-        // configure the interwiki rule
-        $wiki->setRenderConf($this->transformationFormat, 'interwiki', 'sites', $interWikis);
-        $wiki->setParseConf('interwiki', 'sites', $interWikis);
-
-        $wiki->disableRule('wikilink');
-        $this->wiki = $wiki;
     }
 
     public function setMode($mode)
