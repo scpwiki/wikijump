@@ -1,13 +1,13 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikijump\Services\Wikitext;
+namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
 
 /**
  * Class ParseWarning, representing a returned 'struct ftml_warning' object.
- * @package Wikijump\Services\Wikitext
+ * @package Wikijump\Services\Wikitext\FFI
  */
 class ParseWarning
 {

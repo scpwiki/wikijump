@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikijump\Services\Wikitext;
+namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
 
@@ -9,7 +9,7 @@ use \FFI;
  * Class FtmlFfi, for interacting directly with the FTML FFI.
  * You probably want to use WikitextInterface instead.
  *
- * @package Wikijump\Services\Wikitext
+ * @package Wikijump\Services\Wikitext\FFI
  */
 final class FtmlFfi
 {
