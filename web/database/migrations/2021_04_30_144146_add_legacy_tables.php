@@ -409,7 +409,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page', function (Blueprint $table) {
-            $table->id('page_id')->startingValue(50);
+            $table->id('page_id')->startingValue(53);
             $table->unsignedInteger('site_id')->nullable()->index();
             $table->unsignedInteger('category_id')->nullable()->index();
             $table->unsignedInteger('parent_page_id')->nullable()->index();
@@ -494,7 +494,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_metadata', function (Blueprint $table) {
-            $table->id('metadata_id')->startingValue(54);
+            $table->id('metadata_id')->startingValue(57);
             $table->unsignedInteger('parent_page_id')->nullable();
             $table->string('title', 256)->nullable();
             $table->string('unix_name', 80)->nullable();
@@ -660,14 +660,14 @@ class AddLegacyTables extends Migration
             $table->unsignedInteger('theme_id')->primary();
             $table->string('body', 200000)->nullable();
         });
-        
+
         Schema::create('ucookie', function (Blueprint $table) {
             $table->string('ucookie_id', 100)->primary();
             $table->unsignedInteger('site_id')->nullable()->index();
             $table->string('session_id', 60)->nullable()->index();
             $table->timestamp('date_granted')->nullable();
         });
-        
+
         Schema::create('user_abuse_flag', function (Blueprint $table) {
             $table->id('flag_id');
             $table->unsignedInteger('user_id')->nullable();
@@ -676,7 +676,7 @@ class AddLegacyTables extends Migration
             $table->boolean('site_valid')->default(true);
             $table->boolean('global_valid')->default(true);
         });
-        
+
         Schema::create('user_block', function (Blueprint $table) {
             $table->id('block_id');
             $table->unsignedInteger('site_id')->nullable()->index();
