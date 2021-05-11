@@ -21,7 +21,7 @@
   }
   .close-panel {
     position: absolute;
-    right: 1rem;
     top: 0.25rem;
+    right: 1rem;
   }
 </style>

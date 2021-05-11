@@ -38,8 +38,8 @@
 
 <style lang="scss">
   .cm-ftml-module-tip {
-    background: none;
     color: var(--col-text);
+    background: none;
   }
 
   .cm-ftml-module-tip-name > span {
@@ -48,8 +48,8 @@
   }
 
   .cm-ftml-module-tip-aliases {
-    font-size: 0.75em;
     font-family: var(--font-mono);
+    font-size: 0.75em;
     > span {
       margin-right: 0.5em;
       color: var(--colcode-string);

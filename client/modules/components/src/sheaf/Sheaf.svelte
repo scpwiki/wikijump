@@ -39,7 +39,7 @@
   })
 </script>
 
-<div class="overflow-container" style="height: {height}; width: {width};">
+<div class="overflow-container" style=" width: {width};height: {height};">
   <div bind:this={editorElement} class="editor-container codetheme-dark dark" />
 </div>
 
@@ -51,7 +51,7 @@
   }
 
   .editor-container {
-    height: 100%;
     width: 100%;
+    height: 100%;
   }
 </style>

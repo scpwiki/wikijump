@@ -30,7 +30,8 @@
       "dotenv", "source-map",
       "fast-safe-stringify",
       "tsconfig-paths",
-      "mdast-util-from-markdown"
+      "mdast-util-from-markdown",
+      "mdast-util-to-markdown"
     ]
   },
   "exclude": ["node_modules", "misc/templates", "dist", "tests-dist"]

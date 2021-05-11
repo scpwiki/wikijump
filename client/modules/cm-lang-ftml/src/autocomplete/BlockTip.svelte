@@ -54,13 +54,13 @@
 
 <style lang="scss">
   .cm-ftml-block-tip {
-    background: none;
     color: var(--col-text);
+    background: none;
   }
 
   .cm-ftml-block-tip-aliases {
-    font-size: 0.75em;
     font-family: var(--font-mono);
+    font-size: 0.75em;
     > span {
       margin-right: 0.5em;
       color: var(--colcode-string);
@@ -74,8 +74,8 @@
 
   .cm-ftml-block-tip-html {
     display: block;
-    font-size: 1em;
     margin-top: 0.25rem;
+    font-size: 1em;
     color: var(--colcode-content);
     > code {
       overflow-x: visible;
