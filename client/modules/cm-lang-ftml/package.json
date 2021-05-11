@@ -6,7 +6,9 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {},
+  "scripts": {
+    "build": ""
+  },
   "type": "module",
   "main": "src/index.ts",
   "repository": {
@@ -28,11 +30,11 @@
     "@codemirror/lang-css": "^0.18.0",
     "@codemirror/lint": "^0.18.3",
     "@codemirror/state": "^0.18.7",
-    "cm-tarnation": "^0.0.0",
-    "ftml-wasm-worker": "^0.0.0",
+    "cm-tarnation": "workspace:*",
+    "ftml-wasm-worker": "workspace:*",
     "lezer-tree": "^0.13.2",
-    "sheaf-core": "^0.0.0",
-    "wj-prism": "^0.0.0",
-    "wj-util": "^1.0.0"
+    "sheaf-core": "workspace:*",
+    "wj-prism": "workspace:*",
+    "wj-util": "workspace:*"
   }
 }

@@ -1,16 +1,8 @@
-# -- AUTOMATIC
-
-postinstall: npm run lerna:clean && npm run bootstrap
-
 # -- UTILITY
 
-update: npm i && npm run build
-bootstrap: lerna bootstrap --hoist --loglevel success
-lerna:clean: lerna clean --yes --loglevel success
-
-# -- BUILD
-
-build: ultra --rebuild -r build
+update: pnpm i && pnpm -r build
+build: ultra -r build
+force-build: ultra --rebuild -r build
 
 # -- TESTING
 
@@ -18,7 +10,7 @@ test:compile:
   - trash tests-dist
   - node scripts/build-tests.js
 test:run: uvu ./tests-dist/dist test-megabundle.+js$
-test: npm run test:compile && nyc npm run test:run
+test: pnpm test:compile && nyc --use-spawn-wrap pnpm test:run
 
 # -- VALIDATION
 
@@ -35,7 +27,7 @@ lint:fix:
   prettier: prettier --write --ignore-unknown "modules/**" "web/**"
 
 # Runs everything in parallel for maximum speed
-validate:cmd: npm run lint && npm run typecheck
+validate:cmd: pnpm lint && pnpm typecheck
 validate: ultra --concurrency 10 validate:cmd
 
 # -- MISC.

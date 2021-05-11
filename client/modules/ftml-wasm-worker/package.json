@@ -6,7 +6,9 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {},
+  "scripts": {
+    "build": ""
+  },
   "type": "module",
   "main": "src/index.ts",
   "repository": {
@@ -20,8 +22,8 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "ftml-wasm": "^0.0.0",
+    "ftml-wasm": "workspace:*",
     "threads": "^1.6.4",
-    "wj-util": "^1.0.0"
+    "wj-util": "workspace:*"
   }
 }

@@ -6,7 +6,9 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {},
+  "scripts": {
+    "build": ""
+  },
   "type": "module",
   "main": "src/main.scss",
   "repository": {

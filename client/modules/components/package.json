@@ -6,7 +6,9 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {},
+  "scripts": {
+    "build": ""
+  },
   "type": "module",
   "svelte": "src/index.ts",
   "main": "src/index.ts",
@@ -21,12 +23,12 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "cm-lang-ftml": "^0.0.0",
-    "ftml-wasm": "^0.0.0",
-    "ftml-wasm-worker": "^0.0.0",
-    "sheaf-core": "^0.0.0",
-    "wj-prism": "^0.0.0",
-    "wj-util": "^1.0.0",
+    "cm-lang-ftml": "workspace:*",
+    "ftml-wasm": "workspace:*",
+    "ftml-wasm-worker": "workspace:*",
+    "sheaf-core": "workspace:*",
+    "wj-prism": "workspace:*",
+    "wj-util": "workspace:*",
     "svelte": "^3.38.2"
   }
 }

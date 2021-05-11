@@ -4,26 +4,24 @@
   "description": "Private root package for the Wikijump client monorepo.",
   "private": true,
   "scripts": {
-    "bootstrap": "lerna bootstrap --hoist --loglevel success",
-    "build": "ultra --rebuild -r build",
+    "build": "ultra -r build",
     "dev:dev-sandbox": "ultra --raw -r --filter \"web/dev-sandbox\" dev",
-    "lerna:clean": "lerna clean --yes --loglevel success",
-    "lint": "npm run lint:eslint && npm run lint:prettier && npm run lint:stylelint",
+    "force-build": "ultra --rebuild -r build",
+    "lint": "pnpm lint:eslint && pnpm lint:prettier && pnpm lint:stylelint",
     "lint:eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
-    "lint:fix": "npm run lint:fix:eslint && npm run lint:fix:prettier && npm run lint:fix:stylelint",
+    "lint:fix": "pnpm lint:fix:eslint && pnpm lint:fix:prettier && pnpm lint:fix:stylelint",
     "lint:fix:eslint": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "lint:fix:prettier": "prettier --write --ignore-unknown \"modules/**\" \"web/**\"",
     "lint:fix:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\" --fix",
     "lint:prettier": "prettier --ignore-unknown --check \"modules/**\" \"web/**\"",
     "lint:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\"",
-    "postinstall": "npm run lerna:clean && npm run bootstrap",
-    "test": "npm run test:compile && nyc npm run test:run",
+    "test": "pnpm test:compile && nyc --use-spawn-wrap pnpm test:run",
     "test:compile": "trash tests-dist && node scripts/build-tests.js",
     "test:run": "uvu ./tests-dist/dist test-megabundle.+js$",
     "typecheck": "tsc",
-    "update": "npm i && npm run build",
+    "update": "pnpm i && pnpm -r build",
     "validate": "ultra --concurrency 10 validate:cmd",
-    "validate:cmd": "npm run lint && npm run typecheck",
+    "validate:cmd": "pnpm lint && pnpm typecheck",
     "nabs": "nabs"
   },
   "ultra": {
@@ -32,10 +30,6 @@
       "validate:cmd"
     ]
   },
-  "workspaces": [
-    "modules/*",
-    "web/*"
-  ],
   "browserslist": [
     "supports es6-module and > 0.2% and last 2 versions",
     "Firefox ESR",
@@ -71,12 +65,12 @@
     "globby": "^11.0.3",
     "happy-dom": "^2.19.0",
     "include-media": "^1.4.10",
-    "lerna": "^4.0.0",
     "nabs": "^0.3.0",
     "nyc": "^15.1.0",
     "postcss": "^8.2.15",
     "prettier": "^2.3.0",
     "prettier-plugin-svelte": "2.3.0",
+    "rollup": "^2.47.0",
     "sass": "^1.32.12",
     "stylelint": "^13.13.1",
     "stylelint-config-recess-order": "^2.4.0",
