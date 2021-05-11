@@ -28,13 +28,24 @@ abstract class Enum
         throw new RuntimeException("You may not clone Enum class instances");
     }
 
+    /**
+     * Gets the list of member values in this enum.
+     *
+     * @return array List of values in this enum.
+     */
     final public static function values(): array
     {
         $class = new ReflectionClass(static::class);
         return $class->getConstants();
     }
 
-    final public static function isValue(mixed $value): bool
+    /**
+     * Determines if a value is a member of this enum.
+     *
+     * @param mixed $value The value to check
+     * @return bool Is an enum member
+     */
+    final public static function isValue($value): bool
     {
         return in_array($value, static::values());
     }
