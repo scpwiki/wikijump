@@ -100,7 +100,6 @@ class Text_Wiki {
         'Button',
         'Image',
         'Embed',
-        'Social',
         'File',
  //       'Phplookup',
         'Center',
