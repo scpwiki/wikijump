@@ -1,2 +1,15 @@
 comment:
-  layout: 'reach,diff,footer'
+  layout: "reach, diff, flags, files"
+  show_carryforward_flags: true
+
+flags:
+  clientmonorepo:
+    carryforward: true
+    paths:
+      - client/
+
+  # PHP backend and legacy frontend
+  unittests:
+    carryforward: true
+    paths:
+      - web/

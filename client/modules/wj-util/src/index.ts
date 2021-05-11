@@ -96,7 +96,10 @@ export function escapeRegExp(str: string) {
 
 /**
  * Checks if a string has any of the provided sigils.
- * (e.g. `hasSigil('!string', '!') -> true`)
+ * @example
+ * ```
+ * hasSigil("!string", "!") // true
+ * ```
  */
 export function hasSigil<T extends string = string>(
   str: unknown,
