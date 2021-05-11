@@ -11,6 +11,7 @@ use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\PageTagPeer;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
+use Wikijump\Services\Wikitext\HtmlUtilities;
 
 class WikiTransformation
 {
@@ -69,26 +70,6 @@ class WikiTransformation
         }
     }
 
-    public static function purifyHtml($code)
-    {
-        //$code is not a complete page so we need to wrap it!
-        $head = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">  <head>    <title>Just A Wrapper</title><meta http-equiv="content-type" content="text/html;charset=UTF-8"/>  </head> <!--wrapdelimiter--><body>';
-        $tail=' </body><!--wrapdelimiter--></html>';
-
-        $c = $head.$code.$tail;
-        $config = array('indent' => false,
-               'output-xhtml' => true,
-               'wrap' => 0);
-
-        $c2 = tidy_parse_string($c, $config, 'UTF8');
-
-        $arr = explode("<!--wrapdelimiter-->", $c2);
-        $out=$arr[1];
-        $out = str_replace("<body>", "", $out);
-        $out = str_replace("</body>", "", $out);
-        return $out;
-    }
-
     public function processSource($source)
     {
 
@@ -97,10 +78,7 @@ class WikiTransformation
             $wiki->disablerule('separator');
         }
         $out = $wiki->transform($source, $this->transformationFormat);
-
-        $out = $this->purifyHtml($out);
-
-        return $out;
+        return HtmlUtilities::purify($out);
     }
 
     public function assemblyTemplate($source, $template, $page = null)

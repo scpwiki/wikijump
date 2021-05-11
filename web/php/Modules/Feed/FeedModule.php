@@ -185,8 +185,7 @@ class FeedModule extends CacheableModule
             // remove ids
 
             $b = $this->safeString($b);
-
-            $b = WikiTransformation::purifyHTML($b);
+            $b = HtmlUtilities::purify($b);
 
             if ($channel['title']=="Slashdot") {
                 // remove ads
