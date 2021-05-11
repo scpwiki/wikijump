@@ -240,19 +240,17 @@ class WikiTransformation
 
     public function setPage($page)
     {
-        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$page->getUnixName().'/');
-        $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$page->getUnixName().'/');
-        $this->wiki->vars['pageName'] = $page->getUnixName();
-        $this->wiki->vars['pageTitle'] = $page->getTitleOrUnixName();
-        $this->wiki->vars['page'] = $page;
         $this->page = $page;
+        $this->wiki->vars['page'] = $page;
+        $this->wiki->vars['pageTitle'] = $page->getTitleOrUnixName();
+        $this->setPageSlug($page->getUnixName());
     }
-    public function setPageUnixName($pageUnixName)
+
+    public function setPageSlug(string $pageSlug)
     {
-        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$pageUnixName.'/');
-        $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$pageUnixName.'/');
-        $this->wiki->vars['pageName'] = $pageUnixName;
-        $this->pageUnixName = $pageUnixName;
+        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$pageSlug.'/');
+        $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$pageSlug.'/');
+        $this->wiki->vars['pageName'] = $pageSlug;
     }
 
     public function setMode($mode)

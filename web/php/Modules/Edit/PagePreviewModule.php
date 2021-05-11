@@ -21,6 +21,7 @@ class PagePreviewModule extends SmartyModule
 
         $site = $runData->getTemp("site");
 
+        $wt = new WikiTransformation();
         $pageId = $pl->getParameterValue("pageId");
         if ($pageId) {
             $runData->setTemp("pageId", $pageId);
@@ -29,10 +30,11 @@ class PagePreviewModule extends SmartyModule
                 throw new ProcessException(_("Error selecting the page."));
             }
             $runData->setTemp("page", $page);
+            $wt->setPage($page);
+        } else {
+            // TODO remove this and replace with regular PageInfo
+            $wt->setPageSlug($pl->getParameterValue('page_unix_name'));
         }
-
-        $wt = new WikiTransformation();
-        $wt->setPageUnixName($pl->getParameterValue("page_unix_name"));
 
     /*  if($mode == "append"){
             // combine current source and submitted source
