@@ -240,7 +240,6 @@ class WikiTransformation
 
     public function setPage($page)
     {
-
         $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$page->getUnixName().'/');
         $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$page->getUnixName().'/');
         $this->wiki->vars['pageName'] = $page->getUnixName();

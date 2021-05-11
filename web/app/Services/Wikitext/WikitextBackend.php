@@ -5,7 +5,7 @@ namespace Wikijump\Services\Wikitext;
 
 use Wikidot\Utils\GlobalProperties;
 
-public interface WikitextBackend
+interface WikitextBackend
 {
     public function version(): string;
 }
@@ -16,7 +16,7 @@ public interface WikitextBackend
  *
  * @throws GlobalPropertiesException if the feature flag value is invalid
  */
-public function getWikitext(): WikitextBackend {
+function getWikitext(): WikitextBackend {
     switch (GlobalProperties::$FEATURE_WIKITEXT_BACKEND) {
         case 'text_wiki':
             return new TextWikiBackend();
