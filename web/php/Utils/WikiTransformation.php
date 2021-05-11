@@ -353,12 +353,6 @@ class WikiTransformation
                 throw Exception("Invalid Wiki engine mode.");
         }
     }
-
-    public function setTransformationFormat($format)
-    {
-        $this->transformationFormat = $format;
-        $this->resetWiki();
-    }
 }
 
 // quick checkup if page exists
