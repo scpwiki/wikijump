@@ -1,13 +1,13 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikijump\Services\Wikitext;
+namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
 
 /**
  * Class PageInfo, representing an input 'struct ftml_page_info' object.
- * @package Wikijump\Services\Wikitext
+ * @package Wikijump\Services\Wikitext\FFI
  */
 class PageInfo
 {
