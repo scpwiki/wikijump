@@ -16,7 +16,7 @@ class AddLegacyTables extends Migration
     public function up()
     {
         Schema::create('admin', function(Blueprint $table) {
-            $table->id('admin_id');
+            $table->id('admin_id')->startingValue(4);
             $table->unsignedInteger('site_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
             $table->boolean('founder')->nullable()->default(false);
@@ -48,7 +48,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('category', function (Blueprint $table) {
-           $table->id('category_id')->startingValue(20);
+           $table->id('category_id')->startingValue(21);
            $table->unsignedInteger('site_id')->nullable()->index();
            $table->string('name', 80)->nullable()->index();
            $table->boolean('theme_default')->default(true);
@@ -274,7 +274,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('license', function (Blueprint $table) {
-           $table->id('license_id');
+           $table->id('license_id')->startingValue(16);
            $table->string('name', 100)->nullable()->unique();
            $table->string('description', 200000)->nullable();
            $table->unsignedInteger('sort')->default(0);
@@ -409,7 +409,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page', function (Blueprint $table) {
-            $table->id('page_id');
+            $table->id('page_id')->startingValue(50);
             $table->unsignedInteger('site_id')->nullable()->index();
             $table->unsignedInteger('category_id')->nullable()->index();
             $table->unsignedInteger('parent_page_id')->nullable()->index();
@@ -484,7 +484,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_link', function (Blueprint $table) {
-            $table->id('link_id');
+            $table->id('link_id')->startingValue(37);
             $table->unsignedInteger('from_page_id')->nullable();
             $table->unsignedInteger('to_page_id')->nullable();
             $table->string('to_page_name', 128)->nullable();
@@ -494,7 +494,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_metadata', function (Blueprint $table) {
-            $table->id('metadata_id');
+            $table->id('metadata_id')->startingValue(54);
             $table->unsignedInteger('parent_page_id')->nullable();
             $table->string('title', 256)->nullable();
             $table->string('unix_name', 80)->nullable();
@@ -512,7 +512,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_revision', function (Blueprint $table) {
-            $table->id('revision_id');
+            $table->id('revision_id')->startingValue(64);
             $table->unsignedInteger('page_id')->nullable()->index();
             $table->unsignedInteger('source_id')->nullable();
             $table->unsignedInteger('metadata_id')->nullable();
@@ -535,7 +535,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_source', function (Blueprint $table) {
-            $table->id('source_id');
+            $table->id('source_id')->startingValue(63);
             $table->string('text', 200000)->nullable();
         });
 
@@ -581,7 +581,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('site', function (Blueprint $table) {
-            $table->id('site_id');
+            $table->id('site_id')->startingValue(4);
             $table->string('name', 50)->nullable();
             $table->string('subtitle', 60)->nullable();
             $table->string('unix_name', 80)->nullable()->unique();
@@ -627,7 +627,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('site_tag', function (Blueprint $table) {
-            $table->id('tag_id');
+            $table->id('tag_id')->startingValue(2);
             $table->unsignedInteger('site_id')->nullable();
             $table->string('tag', 20)->nullable();
 
@@ -641,7 +641,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('theme', function (Blueprint $table) {
-            $table->id('theme_id');
+            $table->id('theme_id')->startingValue(29);
             $table->string('name', 100)->nullable();
             $table->string('unix_name', 100)->nullable();
             $table->boolean('abstract')->default(false);
