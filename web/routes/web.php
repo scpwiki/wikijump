@@ -42,7 +42,7 @@ Route::get('welcome', function () {
 });
 
 /**
- * Socialite route, null until I"m ready to begin work there.
+ * Socialite route, null until I'm ready to begin work there.
  */
 Route::prefix('social--providers')->group(function() {
 
@@ -72,4 +72,3 @@ Route::post('/ajax--handler', function() {
  */
 Route::any( "/{path?}", [OzoneController::class, 'handle'] )
     ->where( "path", ".*" );
-
