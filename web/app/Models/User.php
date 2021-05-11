@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Wikijump\Traits\HasSettings;
+use Wikijump\Traits\LegacyCompatibility;
 
 /**
  * Class User
@@ -24,6 +25,7 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
     use HasSettings;
+    use LegacyCompatibility;
 
     /**
      * These are service accounts added by the UserSeeder. They're used during
