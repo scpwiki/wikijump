@@ -46,7 +46,8 @@ const config = {
     svelte({
       preprocess: [
         sveltePreprocess({
-          sass: { sourceMapEmbed: true, sourceMapContents: true, sourceMap: true }
+          sourceMap: true,
+          scss: SASS_OPTIONS
         })
       ]
     })

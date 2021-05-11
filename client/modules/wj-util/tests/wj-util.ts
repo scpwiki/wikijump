@@ -8,15 +8,6 @@ const Utils = uvu.suite("wj-utils")
 // TODO: search tests
 // TODO: toPoints
 // TODO: pointsMatch
-// TODO: sleep
-// TODO: animationFrame
-// TODO: throttle
-// TODO: debounce
-// TODO: waitFor
-// TODO: createLock
-// TODO: createAnimQueued
-// TODO: idleCallback
-// TODO: createIdleQueued
 
 Utils("hash", () => {
   const output = lib.hash("test")
@@ -78,10 +69,126 @@ Utils("perfy", () => {
 
 Utils("sleep", async () => {
   let flip = false
-  const promise = lib.sleep(100).then(() => (flip = true))
+  const promise = lib.sleep(10).then(() => (flip = true))
   assert.not(flip)
   await promise
   assert.ok(flip)
+})
+
+Utils("animationFrame", async () => {
+  let flip = false
+  const promise = lib.animationFrame().then(() => (flip = true))
+  assert.not(flip)
+  await promise
+  assert.ok(flip)
+})
+
+Utils("throttle", async () => {
+  let flip = false
+  const func = () => {
+    assert.not(flip)
+    flip = true
+  }
+  const throttled = lib.throttle(func, 50)
+  throttled()
+  throttled() // should be ignored, function called too fast
+})
+
+Utils("throttle immediate", async () => {
+  let count = 0
+  const func = () => {
+    assert.is.not(count, 2)
+    count++
+  }
+  const throttled = lib.throttle(func, 50, true)
+  throttled()
+  throttled() // first call doesn't count against throttling
+  throttled() // should be ignored, function called too fast
+})
+
+Utils("debounce", async () => {
+  let count = 0
+  const func = () => count++
+  const debounced = lib.debounce(func)
+  debounced()
+  debounced() // ignored
+  debounced() // ignored
+  await lib.sleep(10)
+  assert.is(count, 1)
+  debounced()
+  debounced() // ignored
+  debounced() // ignored
+  await lib.sleep(10)
+  assert.is(count, 2)
+})
+
+Utils("waitFor", async () => {
+  let flip = false
+  let failed = true
+
+  lib.sleep(50).then(() => (flip = true))
+  lib.sleep(150).then(() => assert.not(failed))
+
+  let condition = () => flip === true
+  await lib.waitFor(condition)
+  failed = false
+})
+
+Utils("createLock", async () => {
+  let busy = false
+  const func = async (input: boolean) => {
+    assert.is(input, true)
+    assert.not(busy)
+    busy = true
+    await lib.sleep(50)
+    busy = false
+  }
+  const locked = lib.createLock(func)
+  locked(true)
+  locked(true)
+})
+
+Utils("createAnimQueued", async () => {
+  let flip = false
+  const func = () => {
+    assert.not(flip)
+    flip = true
+  }
+  const queued = lib.createAnimQueued(func)
+  queued()
+  queued() // should be ignored, function called too fast
+})
+
+Utils("idleCallback", async () => {
+  let flip = false
+  const promise = lib.idleCallback(() => (flip = true))
+  assert.not(flip)
+  await promise
+  assert.ok(flip)
+})
+
+Utils("createIdleQueued", async () => {
+  let flip = false
+  const func = () => {
+    assert.not(flip)
+    flip = true
+  }
+  const queued = lib.createIdleQueued(func)
+  queued()
+  queued() // should be ignored, function called too fast
+})
+
+Utils("toFragment", () => {
+  const html = "<div>foo</div>"
+  const fragment = lib.toFragment(html)
+  assert.instance(fragment, DocumentFragment)
+  assert.snapshot(fragment.children[0].innerHTML, html)
+})
+
+Utils("html", () => {
+  const fragment = lib.html`<div>${["foo", "bar"]} ${"foo"}</div>`
+  assert.instance(fragment, DocumentFragment)
+  assert.snapshot(fragment.children[0].innerHTML, "<div>foobar foo</div>")
 })
 
 Utils.run()
