@@ -3,13 +3,14 @@
 namespace Ozone\Framework;
 
 
+use Illuminate\Support\Facades\Hash;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\OzoneGroup;
 use Wikidot\DB\OzoneGroupPeer;
 use Wikidot\DB\OzonePermissionPeer;
 use Wikidot\DB\OzoneUserGroupRelation;
 use Wikidot\DB\OzoneUserGroupRelationPeer;
-use Wikidot\DB\OzoneUserPeer;
+use Wikijump\Models\User;
 
 /**
  * Security (ACL) manager.
@@ -27,27 +28,19 @@ class SecurityManager {
 	}
 
 	public  function getUserByID($userId){
-		$peer = OzoneUserPeer::instance();
-		$query = "WHERE user_id = '".db_escape_string($userId)."'";
-		return $peer->selectOneByExplicitQuery($query);
+		return User::find($userId);
 	}
 
 	public function getUserByName($username){
-		$peer = OzoneUserPeer::instance();
-		$query = "WHERE lower(name) = '".db_escape_string(strtolower($username))."'";
-		return $peer->selectOneByExplicitQuery($query);
+        return User::WhereRaw('lower(username) = ?', strtolower($username))->first();
 	}
 
     public function getUserByNickname($username){
-        $peer = OzoneUserPeer::instance();
-        $query = "WHERE lower(nick_name) = '".db_escape_string(strtolower($username))."'";
-        return $peer->selectOneByExplicitQuery($query);
+        return User::WhereRaw('lower(username) = ?', strtolower($username))->first();
     }
 
     public function getUserByEmail($email){
-        $peer = OzoneUserPeer::instance();
-        $query = "WHERE email = '".db_escape_string($email)."'";
-        return $peer->selectOneByExplicitQuery($query);
+        return User::firstWhere('email', $email);
     }
 
     public function getGroupById($groupId){
@@ -80,7 +73,7 @@ class SecurityManager {
             return null;
         }
 
-        if (password_verify($password, $user->getPassword())) {
+        if (password_verify($password, $user->password)) {
             return $user;
         }
 
@@ -94,7 +87,7 @@ class SecurityManager {
 		} else {
 			$userObject = $user;
 		}
-		$userObject->setPassword($password);
+		$userObject->password = Hash::make($password);
 		$userObject->save();
 	}
 
@@ -321,32 +314,6 @@ class SecurityManager {
 			$parentId = $parent->getParentGroupId();
 		}
 		return $out;
-	}
-
-	public function getGroupMembers($group){
-		if(gettype($group) == "string"){
-			//get object
-			$groupObject = $this->getGroupByName($group);
-		} else {
-			$groupObject = $group;
-		}
-		$c = new Criteria();
-		$c->setExplicitFrom("ozone_user, ozone_user_group_relation");
-		$c->setExplicitFields("ozone_user.*");
-		$c->add("ozone_user_group_relation.group_id", $groupObject->getGroupId());
-		$c->add("ozone_user_group_relation.user_id", "ozone_user.user_id", "=", false);
-
-		$users = OzoneUserPeer::instance()->select($c);
-		return $users;
-
-	}
-
-	public  function getUserPermissionSet($userId){
-
-	}
-
-	public  function hasUserPermission($user, $permission){
-
 	}
 
 	public  function getUserAllGroups($userId){

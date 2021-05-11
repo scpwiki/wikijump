@@ -14,9 +14,10 @@
  */
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\WDRenderUtils;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Models\User;
 
 /**
  * This class renders a user info.
@@ -48,9 +49,7 @@ class Text_Wiki_Render_Xhtml_User extends Text_Wiki_Render {
     function token($options) {
         $userName = $options['userName'];
         $unixName = WDStringUtils::toUnixName($userName);
-        $c = new Criteria();
-        $c->add("unix_name", $unixName);
-        $user = OzoneUserPeer::instance()->selectOne($c);
+        $user = User::firstWhere('unix_name', $unixName);
 
         if ($user == null) {
             return '<span class="error-inline">' . sprintf(_('User <em>%s</em> cannot be found.'), $userName) . '</span>';

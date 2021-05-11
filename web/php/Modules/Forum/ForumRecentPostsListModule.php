@@ -87,7 +87,7 @@ class ForumRecentPostsListModule extends SmartyModule
         }
         $c->add("forum_post.site_id", $site->getSiteId());
         $c->addJoin("thread_id", "forum_thread.thread_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
         $c->addJoin("forum_thread.category_id", "forum_category.category_id");
         $c->addOrderDescending("post_id");
         $c->setLimit($count, $offset);

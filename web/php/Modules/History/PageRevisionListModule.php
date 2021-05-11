@@ -106,7 +106,7 @@ class PageRevisionListModule extends SmartyModule
             $c->addCriteriaAnd($c2);
         }
 
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
 
         $c->addOrderDescending('revision_id');
         $c->setLimit($count, $offset);

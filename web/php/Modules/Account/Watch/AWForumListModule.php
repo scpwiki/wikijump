@@ -38,8 +38,8 @@ class AWForumListModule extends AccountBaseModule
 
         $c->addJoin("thread_id", "forum_thread.thread_id");
         $c->addJoin("thread_id", "watched_forum_thread.thread_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
-        $c->add("watched_forum_thread.user_id", $user->getUserId());
+        $c->addJoin("user_id", "users.id");
+        $c->add("watched_forum_thread.user_id", $user->id);
         $c->addOrderDescending("post_id");
         $c->setLimit($count, $offset);
         $posts = ForumPostPeer::instance()->select($c);

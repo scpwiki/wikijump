@@ -17,7 +17,7 @@ class WatchedPageChangesFeed extends FeedScreen
     public function render($runData)
     {
         $user = $runData->getTemp("user");
-        $key = "watchedpagechanges..".$user->getUserId();
+        $key = "watchedpagechanges..".$user->id;
         $mc = OZONE::$memcache;
         $out = $mc->get($key);
         if ($out) {
@@ -32,10 +32,10 @@ class WatchedPageChangesFeed extends FeedScreen
     {
 
         $user = $runData->getTemp("user");
-        $userId = $user->getUserId();
+        $userId = $user->id;
 
         // set language for the user
-        $lang = $user->getLanguage();
+        $lang = $user->language;
         $runData->setLanguage($lang);
         $GLOBALS['lang'] = $lang;
 
@@ -60,14 +60,14 @@ class WatchedPageChangesFeed extends FeedScreen
 
         $c->addJoin("page_id", "page.page_id");
         $c->addJoin("page_id", "watched_page.page_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
-        $c->add("watched_page.user_id", $user->getUserId());
+        $c->addJoin("user_id", "users.id");
+        $c->add("watched_page.user_id", $user->id);
         $c->addOrderDescending("page_revision.revision_id");
         $c->setLimit(30);
 
         $revisions = PageRevisionPeer::instance()->select($c);
 
-        $channel['title'] = _('Wikijump.com watched pages changes for user').' "'.$user->getNickName().'"';
+        $channel['title'] = _('Wikijump.com watched pages changes for user').' "'.$user->username.'"';
         $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . "/account:you/start/watched-changes";
 
         $items = array();

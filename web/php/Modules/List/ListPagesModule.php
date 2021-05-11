@@ -10,13 +10,14 @@ use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageRevisionPeer;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\ForumThreadPeer;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WikiTransformation;
+use Wikijump\Models\User;
 
 class ListPagesModule extends SmartyModule
 {
@@ -511,9 +512,9 @@ class ListPagesModule extends SmartyModule
             /* %%author%% */
 
             if ($page->getOwnerUserId()) {
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
-                if ($user->getUserId() > 0) {
-                    $userString = '[[*user ' . $user->getNickName() . ']]';
+                $user = User::find($page->getOwnerUserId());
+                if ($user->getUserId() != User::ANONYMOUS_USER && $user->getUserId() != User::AUTOMATIC_USER) {
+                    $userString = '[[*user ' . $user->username . ']]';
                 } else {
                     $userString = _('Anonymous user');
                 }
@@ -524,9 +525,9 @@ class ListPagesModule extends SmartyModule
             $b = str_ireplace("%%user%%", $userString, $b);
 
             if ($lastRevision->getUserId()) {
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
-                if ($user->getUserId() > 0) {
-                    $userString = '[[*user ' . $user->getNickName() . ']]';
+                $user = User::find($lastRevision->getUserId());
+                if ($user->id != User::ANONYMOUS_USER && $user->id != User::AUTOMATIC_USER) {
+                    $userString = '[[*user ' . $user->username . ']]';
                 } else {
                     $userString = _('Anonymous user');
                 }

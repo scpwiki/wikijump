@@ -8,7 +8,7 @@ This list belongs to the wiki: {$site->getName()|escape} located at:
 
 To use this list efficiently please:
 * send emails directly to {$emailListAddress},
-* send emails only from {$user->getEmail()}, otherwise we will not be able 
+* send emails only from {$user->email}, otherwise we will not be able
   to recognize you as a valid subscriber.
   
 From now on you will receive all emails sent to the list.

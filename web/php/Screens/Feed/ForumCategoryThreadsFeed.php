@@ -9,6 +9,7 @@ use Wikidot\DB\ForumThreadPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Models\User;
 
 class ForumCategoryThreadsFeed extends FeedScreen
 {
@@ -84,7 +85,7 @@ class ForumCategoryThreadsFeed extends FeedScreen
 
         $c = new Criteria();
         $c->add("category_id", $categoryId);
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
         $c->addOrderDescending("thread_id");
         $c->setLimit(20);
         $threads = ForumThreadPeer::instance()->select($c);
@@ -134,10 +135,10 @@ class ForumCategoryThreadsFeed extends FeedScreen
             }
 
             $item['content'] = $content;
-            if ($post->getUserId()>0) {
+            if ($post->getUserId() != User::ANONYMOUS_USER && $post->getUserId() != User::AUTOMATIC_USER) {
                 $item['authorUserId'] = $post->getUserId();
                 $user = $post->getUser();
-                $item['author']=$user->getNickName();
+                $item['author']=$user->username;
             } else {
                 $item['author']=$post->getUserString();
             }

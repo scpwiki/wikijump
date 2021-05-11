@@ -39,8 +39,8 @@ class AWChangesListModule extends AccountBaseModule
 
         $c->addJoin("page_id", "page.page_id");
         $c->addJoin("page_id", "watched_page.page_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
-        $c->add("watched_page.user_id", $user->getUserId());
+        $c->addJoin("user_id", "users.id");
+        $c->add("watched_page.user_id", $user->id);
         $c->addOrderDescending("page_revision.revision_id");
         $c->setLimit($count, $offset);
 

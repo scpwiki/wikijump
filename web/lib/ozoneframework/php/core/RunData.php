@@ -546,6 +546,7 @@ class RunData {
 			// if session storage is empty and userId = null - clear stop the session!
 			$session = $this->session;
 			$serializedData = $session->getSerializedData();
+			if($serializedData === false) { $serializedData = []; }
 			if(!$this->getUser() && count($serializedData) == 0){
 				$this->sessionStop();
 			} else{

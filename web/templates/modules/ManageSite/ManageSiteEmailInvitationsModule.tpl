@@ -109,17 +109,17 @@
 		<b>{t}To{/t}:</b> <span id="recipients-list-formatted" style="color: #009900;"></span>
 	</p>
 	<p>
-		<b>{t}From{/t}:</b> {$user->getNickName()|escape} &lt;{$user->getName()|escape}&gt;
+		<b>{t}From{/t}:</b> {$user->username|escape}
 	</p>
 	<p>
-		<b>{t}Subject{/t}:</b> [{$SERVICE_NAME}] {$user->getNickName()|escape} invites you to join!
+		<b>{t}Subject{/t}:</b> [{$SERVICE_NAME}] {$user->username|escape} invites you to join!
 	</p>
 
 	<p>
 		Hello <em>name of the recipient</em>,
 	</p>
 	<p>
-		{$user->getNickName()|escape} {if $profile->getRealName()}({$profile->getRealName()|escape}){/if}
+		{$user->username|escape} {if $user->real_name}({$user->real_name|escape}){/if}
 		would like to invite you to join members of the wiki website
 		"{$site->getName()|escape}" created at {$SERVICE_NAME} and
 		located at the address {$HTTP_SCHEMA}://{$site->getDomain()|escape}.
@@ -137,7 +137,7 @@
 		See you
 	</p>
 	<p>
-		{$user->getNickName()|escape} {if $profile->getRealName()}({$profile->getRealName()|escape}){/if}
+		{$user->username|escape} {if $user->real_name}({$user->real_name|escape}){/if}
 	</p>
 
 	<div class="buttons">

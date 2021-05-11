@@ -3,11 +3,12 @@
 namespace Wikidot\Modules\Users;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\AdminPeer;
 
 use Ozone\Framework\SmartyModule;
+use Wikijump\Models\User;
 
 class UserInfoWinModule extends SmartyModule
 {
@@ -18,8 +19,8 @@ class UserInfoWinModule extends SmartyModule
         $pl = $runData->getParameterList();
         $userId = $pl->getParameterValue("user_id");
 
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
-        $avatarUri = '/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a48.png';
+        $user = User::find($userId);
+        $avatarUri = '/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a48.png'; // TODO https://scuttle.atlassian.net/browse/WJ-249
         $runData->contextAdd("user", $user);
         $runData->contextAdd("avatarUri", $avatarUri);
 
@@ -43,6 +44,6 @@ class UserInfoWinModule extends SmartyModule
         }
 
         $runData->contextAdd("uu", $runData->getUser());
-        $runData->contextAdd('karmaLevel', $user->getKarmaLevel());
+        $runData->contextAdd('karmaLevel', $user->karma_level);
     }
 }

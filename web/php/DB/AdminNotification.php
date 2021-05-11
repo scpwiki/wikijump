@@ -6,6 +6,7 @@ namespace Wikidot\DB;
 use Ozone\Framework\Ozone;
 use Wikidot\Utils\WDRenderUtils;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Models\User;
 
 /**
  * Object Model mapped Class.
@@ -78,35 +79,35 @@ class AdminNotification extends AdminNotificationBase
         $lang = OZONE::getRunData()->getLanguage();
         switch ($type) {
             case 'NEW_MEMBER_APPLICATION':
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($extra['from_user_id']);
+                $user = User::find($extra['from_user_id']);
                 $body = sprintf(_('There is a new member application from user %s.'), WDRenderUtils::renderUser($user));
                 break;
             case 'INVITATION_ACCEPTED':
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($extra['user_id']);
+                $user = User::find($extra['user_id']);
                 $body = sprintf(_('The user %s has accepted the invitation and is now a member of the site.'), WDRenderUtils::renderUser($user));
                 break;
             case 'INVITATION_DECLINED':
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($extra['user_id']);
+                $user = User::find($extra['user_id']);
                 $body = sprintf(_('The user %s has not accepted the invitation.'), WDRenderUtils::renderUser($user));
                 break;
             case 'NEW_MEMBER_BY_PASSWORD':
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($extra['user_id']);
+                $user = User::find($extra['user_id']);
                 $body = sprintf(_('A new member joined the site: %s - by providing a valid membership password.'), WDRenderUtils::renderUser($user));
                 break;
             case 'NEW_MEMBER_BY_EMAIL_INVITATION':
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($extra['user_id']);
+                $user = User::find($extra['user_id']);
                 $body = sprintf(_('A new user (%s) accepted the invitation and is now a member of the Site.'), WDRenderUtils::renderUser($user));
                 break;
             case 'MEMBER_RESIGNED':
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($extra['user_id']);
+                $user = User::find($extra['user_id']);
                 $body = sprintf(_('The user %s is no longer a site member. Resigned.'), WDRenderUtils::renderUser($user));
                 break;
             case 'MODERATOR_RESIGNED':
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($extra['user_id']);
+                $user = User::find($extra['user_id']);
                 $body = sprintf(_('The user %s resigned from being a moderator of this site.'), WDRenderUtils::renderUser($user));
                 break;
             case 'ADMIN_RESIGNED':
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($extra['user_id']);
+                $user = User::find($extra['user_id']);
                 $body = sprintf(_('The user %s resigned from being an administrator of this site.'), WDRenderUtils::renderUser($user));
                 break;
         }

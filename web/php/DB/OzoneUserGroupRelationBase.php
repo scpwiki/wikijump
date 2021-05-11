@@ -7,6 +7,7 @@ namespace Wikidot\DB;
 
 use Ozone\Framework\Database\BaseDBObject;
 use Ozone\Framework\Database\Criteria;
+use Wikijump\Models\User;
 
 /**
  * Base Class mapped to the database table ozone_user_group_relation.
@@ -33,24 +34,15 @@ class OzoneUserGroupRelationBase extends BaseDBObject
                 if (in_array('ozone_user', $this->prefetchedObjects)) {
                     return $this->prefetchedObjects['ozone_user'];
                 } else {
-                    $obj = new OzoneUser($this->sourceRow);
-                    $obj->setNew(false);
-                    //$obj->prefetched = $this->prefetched;
-                    //$obj->sourceRow = $this->sourceRow;
+                    $obj = User::find($this->sourceRow);
                     $this->prefetchedObjects['ozone_user'] = $obj;
                     return $obj;
                 }
             }
         }
-                $foreignPeerClassName = 'Wikidot\\DB\\OzoneUserPeer';
-                $fpeer = new $foreignPeerClassName();
 
-                $criteria = new Criteria();
-
-                $criteria->add("user_id", $this->fieldValues['user_id']);
-
-                $result = $fpeer->selectOneByCriteria($criteria);
-                return $result;
+        $result = User::find($this->fieldValues['user_id']);
+        return $result;
     }
 
     public function setOzoneUser($primaryObject)

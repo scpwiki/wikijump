@@ -115,7 +115,7 @@ class SiteChangesListModule extends SmartyModule
         }
 
         $c->addJoin("page_id", "page.page_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
         $c->addOrderDescending("page_revision.revision_id");
         $c->setLimit($count, $offset);
         $revisions = PageRevisionPeer::instance()->select($c);

@@ -6,10 +6,11 @@ namespace Wikidot\Utils;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\WebFlowController;
-use Wikidot\DB\OzoneUser;
+
 use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\MemberPeer;
+use Wikijump\Models\User;
 
 abstract class WikidotController extends WebFlowController
 {
@@ -152,7 +153,7 @@ abstract class WikidotController extends WebFlowController
     /**
      * checks if the user is a member of a site
      *
-     * @param OzoneUser $user
+     * @param User $user
      * @param Site $site
      * @return boolean
      */
@@ -164,7 +165,7 @@ abstract class WikidotController extends WebFlowController
 
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
 
         if (MemberPeer::instance()->selectOne($c)) { // user is a member of the Wiki
             return true;

@@ -17,7 +17,7 @@ class WatchAction extends SmartyAction
     public function isAllowed($runData)
     {
         $userId = $runData->getUserId();
-        if ($userId == null || $userId <1) {
+        if(!$userId) {
             throw new WDPermissionException(_("This option is available only to registered (and logged-in) users."));
         }
         return true;
@@ -47,7 +47,7 @@ class WatchAction extends SmartyAction
         // check if you watch it already
 
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("thread_id", $threadId);
 
         $t = WatchedForumThreadPeer::instance()->selectOne($c);
@@ -58,7 +58,7 @@ class WatchAction extends SmartyAction
 
         // ok, check how many do you already watch. 10 max
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
 
         $count = WatchedForumThreadPeer::instance()->selectCount($c);
         if ($count>9) {
@@ -68,7 +68,7 @@ class WatchAction extends SmartyAction
         // ok, create new watch.
 
         $watch = new WatchedForumThread();
-        $watch->setUserId($user->getUserId());
+        $watch->setUserId($user->id);
         $watch->setThreadId($threadId);
 
         $watch->save();
@@ -113,7 +113,7 @@ class WatchAction extends SmartyAction
         // check if you watch it already
 
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("page_id", $pageId);
 
         $t = WatchedPagePeer::instance()->selectOne($c);
@@ -124,7 +124,7 @@ class WatchAction extends SmartyAction
 
         // ok, check how many do you already watch. 10 max
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
 
         $count = WatchedPagePeer::instance()->selectCount($c);
         if ($count>9) {
@@ -134,7 +134,7 @@ class WatchAction extends SmartyAction
         // ok, create new watch.
 
         $watch = new WatchedPage();
-        $watch->setUserId($user->getUserId());
+        $watch->setUserId($user->id);
         $watch->setPageId($pageId);
 
         $watch->save();

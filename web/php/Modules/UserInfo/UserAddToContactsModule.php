@@ -2,10 +2,11 @@
 
 namespace Wikidot\Modules\UserInfo;
 
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\SmartyLocalizedModule;
 use Wikidot\Utils\WDPermissionException;
+use Wikijump\Models\User;
 
 class UserAddToContactsModule extends SmartyLocalizedModule
 {
@@ -13,7 +14,7 @@ class UserAddToContactsModule extends SmartyLocalizedModule
     public function isAllowed($runData)
     {
         $userId = $runData->getUserId();
-        if ($userId == null || $userId <1) {
+        if(!$userId) {
             throw new WDPermissionException(_("You should login first."));
         }
         return true;
@@ -25,7 +26,7 @@ class UserAddToContactsModule extends SmartyLocalizedModule
 
         $targetUserId = $pl->getParameterValue("userId");
 
-        $targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+        $targetUser = User::find($targetUserId);
 
         if ($targetUser == null) {
             throw new ProcessException(_("User cannot be found."), "no_user");

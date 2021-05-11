@@ -15,12 +15,13 @@ use Wikidot\DB\MembershipLink;
 use Wikidot\DB\MemberInvitationPeer;
 use Wikidot\DB\EmailInvitationPeer;
 use Wikidot\DB\SitePeer;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\ContactPeer;
 use Wikidot\DB\Contact;
 use Wikidot\Utils\AdminNotificationMaker;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Models\User;
 
 class MembershipApplyAction extends SmartyAction
 {
@@ -199,7 +200,7 @@ class MembershipApplyAction extends SmartyAction
         // check if not a member already
 
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("site_id", $site->getSiteId());
 
         $mem = MemberPeer::instance()->selectOne($c);
@@ -228,12 +229,12 @@ class MembershipApplyAction extends SmartyAction
         $mem = new Member();
         $mem->setDateJoined(new ODate());
         $mem->setSiteId($site->getSiteId());
-        $mem->setUserId($user->getUserId());
+        $mem->setUserId($user->id);
 
         $mem->save();
 
         $ml = new MembershipLink();
-        $ml->setUserId($user->getUserId());
+        $ml->setUserId($user->id);
         $ml->setSiteId($site->getSiteId());
         $ml->setDate(new ODate());
         $ml->setType('EMAIL_INVITATION');
@@ -241,18 +242,18 @@ class MembershipApplyAction extends SmartyAction
         $ml->save();
 
         // add to contacts?
-        $sender = OzoneUserPeer::instance()->selectByPrimaryKey($inv->getUserId());
-        if ($inv->getToContacts() && $sender->getUserId()!=$user->getUserId()) {
+        $sender = User::find($inv->getUserId());
+        if ($inv->getToContacts() && $sender->id != $user->id) {
             try {
                 // check if contact already exists
                 $c = new Criteria();
-                $c->add("user_id", $user->getUserId());
-                $c->add("target_user_id", $sender->getUserId());
+                $c->add("user_id", $user->id);
+                $c->add("target_user_id", $sender->id);
                 $con0 = ContactPeer::instance()->selectOne($c);
                 if (!$con0) {
                     $con = new Contact();
-                    $con->setUserId($user->getUserId());
-                    $con->setTargetUserId($sender->getUserId());
+                    $con->setUserId($user->id);
+                    $con->setTargetUserId($sender->id);
                     $con->save();
                 }
             } catch (Exception $e) {
@@ -261,13 +262,13 @@ class MembershipApplyAction extends SmartyAction
             try {
                 // check if contact already exists
                 $c = new Criteria();
-                $c->add("user_id", $sender->getUserId());
-                $c->add("target_user_id", $user->getUserId());
+                $c->add("user_id", $sender->id);
+                $c->add("target_user_id", $user->id);
                 $con0 = ContactPeer::instance()->selectOne($c);
                 if (!$con0) {
                     $con = new Contact();
-                    $con->setUserId($sender->getUserId());
-                    $con->setTargetUserId($user->getUserId());
+                    $con->setUserId($sender->id);
+                    $con->setTargetUserId($user->id);
                     $con->save();
                 }
             } catch (Exception $e) {

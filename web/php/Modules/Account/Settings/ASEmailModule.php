@@ -13,7 +13,7 @@ class ASEmailModule extends AccountBaseModule
     public function build($runData)
     {
         $user = $runData->getUser();
-        $email = $user->getEmail();
+        $email = $user->email;
 
         $runData->contextAdd("email", $email);
     }

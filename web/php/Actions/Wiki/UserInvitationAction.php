@@ -38,7 +38,7 @@ class UserInvitationAction extends SmartyAction
         }
         // check if a member
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("site_id", $site->getSiteId());
         $mem = MemberPeer::instance()->selectOne($c);
         if (!$mem) {
@@ -67,7 +67,7 @@ class UserInvitationAction extends SmartyAction
             }
 
             //check if "email" is not already a member of this site...
-            $q = " SELECT * FROM member, ozone_user WHERE member.site_id='".$site->getSiteId()."' AND ozone_user.name='".db_escape_string($email)."' AND member.user_id = ozone_user.user_id LIMIT 1";
+            $q = " SELECT * FROM member, users WHERE member.site_id='".$site->getSiteId()."' AND users.email='".db_escape_string($email)."' AND member.user_id = users.id LIMIT 1";
             $c = new Criteria();
             $c->setExplicitQuery($q);
             $m = MemberPeer::instance()->selectOne($c);
@@ -108,7 +108,7 @@ class UserInvitationAction extends SmartyAction
             $inv->setHash($hash);
             $inv->setEmail($email);
             $inv->setName($name);
-            $inv->setUserId($user->getUserId());
+            $inv->setUserId($user->id);
             $inv->setSiteId($site->getSiteId());
             $inv->setMessage($message);
             $inv->setDate(new ODate());
@@ -117,13 +117,11 @@ class UserInvitationAction extends SmartyAction
             }
 
             // prepare and send email
-            $profile = $user->getProfile();
 
             $oe = new OzoneEmail();
             $oe->addAddress($email);
-            $oe->setSubject(sprintf(_("[%s] %s invites you to join!"), GlobalProperties::$SERVICE_NAME, $user->getNickName()));
+            $oe->setSubject(sprintf(_("[%s] %s invites you to join!"), GlobalProperties::$SERVICE_NAME, $user->username));
             $oe->contextAdd('user', $user);
-            $oe->contextAdd('profile', $profile);
             $oe->contextAdd('hash', $hash);
             $oe->contextAdd("site", $site);
             $oe->contextAdd("message", $message);
@@ -160,7 +158,7 @@ class UserInvitationAction extends SmartyAction
         if (!$inv) {
             throw new ProcessException(_("Invitation could not be found."), "no_invitation");
         }
-        if ($inv->getUserId() != $user->getUserId()) {
+        if ($inv->getUserId() != $user->id) {
             throw new ProcessException(_("This invitation does not seem to be sent by you..."));
         }
 
@@ -207,13 +205,11 @@ class UserInvitationAction extends SmartyAction
 
         // prepare and send email
         $user = $runData->getUser();
-        $profile = $user->getProfile();
 
         $oe = new OzoneEmail();
         $oe->addAddress($inv->getEmail());
-        $oe->setSubject(sprintf(_("[%s] %s invites you to join! (reminder)"), GlobalProperties::$SERVICE_NAME, $user->getNickName()));
+        $oe->setSubject(sprintf(_("[%s] %s invites you to join! (reminder)"), GlobalProperties::$SERVICE_NAME, $user->username));
         $oe->contextAdd('user', $user);
-        $oe->contextAdd('profile', $profile);
         $oe->contextAdd('hash', $inv->getHash());
         $oe->contextAdd("site", $site);
         $oe->contextAdd("message", $inv->getMessage());
@@ -224,7 +220,7 @@ class UserInvitationAction extends SmartyAction
 
         $res = $oe->send();
 
-        if (!res) {
+        if (!$res) {
             throw new ProcessException("Email to this recipient could not be sent for some reason.");
         }
         $inv->setAttempts($inv->getAttempts()+1);

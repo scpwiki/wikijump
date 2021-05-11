@@ -3,7 +3,6 @@
 </script>
 
 <div class="forum-new-thread-box">
-	{*<h1><a href="/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()|escape}">{$category->getName()|escape}</a> / new thread</h1>*}
 	<div class="forum-breadcrumbs">
 		<a href="/forum/start">Forum</a>
 		&raquo;

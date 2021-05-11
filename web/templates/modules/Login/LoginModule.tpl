@@ -4,8 +4,8 @@
 	onsubmit="Wikijump.modules.LoginModule.listeners.loginClick(event)">
 
 	{if $user}
-		{t}Hello{/t}, <span style="font-size:130%; font-weight: bold">{$user->getNickName()|escape}</span>
-        <input type="hidden" name="name" value="{$user->getNickName()|escape}" id="login-form-name"/>
+		{t}Hello{/t}, <span style="font-size:130%; font-weight: bold">{$user->username|escape}</span>
+        <input type="hidden" name="name" value="{$user->username|escape}" id="login-form-name"/>
 		<br/>
 		<br/>
 	{else}
@@ -19,7 +19,7 @@
 	<input class="text" name="password"  type="password" size="25" id="login-form-password"/>
 	<br/><br/>
 	{if $user}
-		Not {$user->getNickName()|escape}?<br/>
+		Not {$user->username|escape}?<br/>
 		<a href="javascript:;" style="font-size: 85%" onclick="Wikijump.modules.LoginModule.listeners.switchUser(event)">{t}Log in as a different user{/t}</a>.
 		<br/><br/>
 	{/if}

@@ -6,9 +6,10 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
 use Text_Wiki;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\PageTagPeer;
+use Wikijump\Models\User;
 
 //use Text_Antiwiki;  # What is this? I can't even find "text_antiwiki on google.
 
@@ -121,9 +122,9 @@ class WikiTransformation
 
 
             if ($page->getOwnerUserId()) {
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
-                if ($user->getUserId() > 0) {
-                    $userString = '[[*user ' . $user->getNickName() . ']]';
+                $user = User::find($page->getOwnerUserId());
+                if ($user->id != User::ANONYMOUS_USER && $user->id != User::AUTOMATIC_USER) {
+                    $userString = '[[*user ' . $user->username . ']]';
                 } else {
                     $userString = _('Anonymous user');
                 }
@@ -133,17 +134,6 @@ class WikiTransformation
             $b = str_ireplace("%%%%%author%%%%%", $userString, $b);
             $b = str_ireplace("%%%%%user%%%%%", $userString, $b);
 
-//            if($lastRevision->getUserId()){
-//              $user = DB\OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
-//              if ($user->getUserId() > 0) {
-//                  $userString = '[[*user ' . $user->getNickName() . ']]';
-//              } else {
-//                  $userString = _('Anonymous user');
-//              }
-//            } else {
-//                $userString = _('Anonymous user');
-//            }
-            //$b = str_ireplace("%%author_edited%%", $userString, $b);
             $b = str_ireplace("%%%%%user_edited%%%%%", $userString, $b);
 
             $b = preg_replace(';%%%%%date(\|.*?)?%%%%%;', '%%%%%date|' . $page->getDateCreated()->getTimestamp() . '\\1%%%%%', $b);

@@ -19,9 +19,9 @@ class PMComposeContactsListModule extends AccountBaseModule
 
         // get all contacts
         $c = new Criteria();
-        $c->add("contact.user_id", $user->getUserId());
-        $c->addJoin("target_user_id", "ozone_user.user_id");
-        $c->addOrderAscending("ozone_user.nick_name");
+        $c->add("contact.user_id", $user->id);
+        $c->addJoin("target_user_id", "users.id");
+        $c->addOrderAscending("users.username");
 
         $contacts = ContactPeer::instance()->select($c);
 

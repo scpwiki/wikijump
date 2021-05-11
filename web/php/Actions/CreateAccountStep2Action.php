@@ -1,16 +1,14 @@
 <?php
 
 namespace Wikidot\Actions;
+use Illuminate\Support\Facades\Hash;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\OzoneEmail;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
-use Wikidot\DB\OzoneUserPeer;
-use Wikidot\DB\OzoneUser;
 use Wikidot\DB\Profile;
-use Wikidot\DB\UserSettings;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
@@ -20,6 +18,7 @@ use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Models\User;
 
 class CreateAccountStep2Action extends SmartyAction
 {
@@ -51,7 +50,7 @@ class CreateAccountStep2Action extends SmartyAction
 
         // validate now.
 
-        $errors = array();
+        $errors = [];
 
         //name
         $unixified = WDStringUtils::toUnixName($name);
@@ -67,17 +66,15 @@ class CreateAccountStep2Action extends SmartyAction
             //handle forbidden names
             $unixName = WDStringUtils::toUnixName($name);
 
-            foreach (ForbiddenNames::$users as $regex) {
+            foreach (config('wikijump.forbidden_usernames') as $regex) {
                 if (preg_match($regex, $unixName) > 0) {
                     $errors['name'] = _('Account creation failed: Username is blocked from registration.');
                 }
             }
 
             // check if user does not exist
-            $c = new Criteria();
-            $c->add("unix_name", $unixified);
-            $u = OzoneUserPeer::instance()->selectOne($c);
-            if ($u != null) {
+            $u = User::where('unix_name', $unixified)->count();
+            if ($u > 0) {
                 $errors['name'] = _("Account creation failed: A user with this screen name (or very similar) already exists.");
             }
         }
@@ -87,10 +84,8 @@ class CreateAccountStep2Action extends SmartyAction
             $errors['email'] = _("Account creation failed: Invalid email address.");
         } else {
             // check if email is unique
-            $c = new Criteria();
-            $c->add("lower(email)", strtolower($email));
-            $u = OzoneUserPeer::instance()->selectOne($c);
-            if ($u != null) {
+            $u = User::WhereRaw('lower(email) = ?', strtolower($email))->count();
+            if ($u > 0) {
                 $errors['email'] = _("Account creation failed: A user with this email already exists.");
             }
         }
@@ -106,8 +101,8 @@ class CreateAccountStep2Action extends SmartyAction
 
         // check language
         $lang = $pl->getParameterValue("language");
-        if ($lang !== "pl" && $lang !== "en") {
-            $errors['language'] = _("Please select your preferred language.");
+        if (!$lang) {
+            $lang = env('DEFAULT_LANGUAGE', 'en');
         }
 
         // captcha
@@ -227,73 +222,30 @@ class CreateAccountStep2Action extends SmartyAction
 
         // check again if email and nick are not duplicate!
 
-        $c = new Criteria();
-        $c->add("lower(email)", strtolower($email));
-        $u = OzoneUserPeer::instance()->selectOne($c);
-        if ($u != null) {
+        $u = User::whereRaw('lower(email) = ?', strtolower($email))->count();
+
+        if ($u > 0) {
             $runData->resetSession();
             throw new ProcessException(_("Account creation failed: A user with this email already exists."), "user_exists");
         }
 
         $unixified = WDStringUtils::toUnixName($name);
-        $c = new Criteria();
-        $c->add("unix_name", $unixified);
-        $u = OzoneUserPeer::instance()->selectOne($c);
-        if ($u != null) {
+        $u = User::where('unix_name', $unixified)->count();
+
+        if ($u > 0) {
             $runData->resetSession();
             throw new ProcessException(_("Account creation failed: A user with this name (or very similar) already exists."), "user_exists");
         }
 
         // add new user!!!
 
-        $nuser = new OzoneUser();
-        /* email as the username!!! */
-        $nuser->setName($email);
-        $nuser->setEmail($email);
-        $nuser->setPassword($password);
-
-        $nuser->setNickName($name);
-        $nuser->setUnixName($unixified);
-
-        $nuser->setLanguage($lang);
-
-        $date = new ODate();
-        $nuser->setRegisteredDate($date);
-        $nuser->setLastLogin($date);
-
+        $nuser = new User();
+        $nuser->username = $name;
+        $nuser->email = $email;
+        $nuser->password = Hash::make($password);
+        $nuser->unix_name = $unixified;
+        $nuser->language = $lang;
         $nuser->save();
-
-        // profile
-
-        $profile = new Profile();
-        $profile->setUserId($nuser->getUserId());
-        $profile->save();
-
-        $us = new UserSettings();
-        $us->setUserId($nuser->getUserId());
-        $us->save();
-
-        // profile page
-
-        $c = new Criteria();
-        $c->add("unix_name", "profiles");
-        $nsite = SitePeer::instance()->selectOne($c);
-        $ncategory = CategoryPeer::instance()->selectByName('profile', $nsite->getSiteId());
-
-        $dup = new Duplicator;
-        $dup->setOwner($nuser);
-
-        $dup->duplicatePage(
-            PagePeer::instance()->selectByName($nsite->getSiteId(), 'template:profile'),
-            $nsite,
-            $ncategory,
-            'profile:'.$nuser->getUnixName()
-        );
-
-        $page = PagePeer::instance()->selectByName($nsite->getSiteId(), 'profile:'.$nuser->getUnixName());
-
-        $ou = new Outdater();
-        $ou->pageEvent('new_page', $page);
 
         $db->commit();
 
@@ -307,8 +259,8 @@ class CreateAccountStep2Action extends SmartyAction
         }
         // reset session etc.
         $runData->resetSession();
-        $runData->getSession()->setUserId($nuser->getUserId());
-        setcookie("welcome", $nuser->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+        $runData->getSession()->setUserId($nuser->id);
+        setcookie("welcome", $nuser->id, time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
         setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, "/");
     }
 

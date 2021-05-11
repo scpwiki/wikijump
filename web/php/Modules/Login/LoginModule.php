@@ -3,11 +3,12 @@
 namespace Wikidot\Modules\Login;
 
 
-use Wikidot\DB\OzoneUserPeer;
+
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Models\User;
 
 class LoginModule extends SmartyModule
 {
@@ -44,7 +45,7 @@ class LoginModule extends SmartyModule
 
             $userId = $_COOKIE['welcome'];
             if ($userId && is_numeric($userId) && $userId >0) {
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+                $user = User::find($userId);
             }
             if ($user == null) {
                 setsecurecookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);

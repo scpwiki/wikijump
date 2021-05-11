@@ -21,16 +21,15 @@
 
 		{if $user}
 
-			{assign var=profile value=$user->getProfile()}
 			<div class="search-user-results">
 				<div class="item">
 					<div class="screen-name">
 						{printuser user=$user image="true"}
-						{if $profile->getRealName()!=''} (real name: {$profile->getRealName()|escape}){/if}
+						{if $user->real_name} (real name: {$user->real_name|escape}){/if}
 					</div>
-					{if $profile->getAbout() != ''}
+					{if $user->bio}
 						<div class="about">
-							{$profile->getAbout()|escape}
+							{$user->bio|escape}
 						</div>
 					{/if}
 				</div>
@@ -52,17 +51,16 @@
 		<div class="search-user-results">
 			{if $users}
 				{foreach from=$users item=user}
-					{assign var=profile value=$user->getProfile()}
 					<div class="item">
 						<div class="screen-name">
 							{printuser user=$user image="true"}
-							{if $profile->getRealName()!=''} (real name: {$profile->getRealName()|escape}){/if}
+							{if $user->real_name} (real name: {$user->real_name|escape}){/if}
 						</div>
-						{if $profile->getAbout() != ''}
-							<div class="about">
-								{$profile->getAbout()|escape}
-							</div>
-						{/if}
+                        {if $user->bio}
+                            <div class="about">
+                                {$user->bio|escape}
+                            </div>
+                        {/if}
 					</div>
 				{/foreach}
 			{else}

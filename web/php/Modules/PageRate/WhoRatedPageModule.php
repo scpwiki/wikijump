@@ -20,8 +20,8 @@ class WhoRatedPageModule extends SmartyModule
 
         $c = new Criteria();
         $c->add("page_id", $page->getPageId());
-        $c->addJoin("user_id", "ozone_user.user_id");
-        $c->addOrderAscending("ozone_user.nick_name");
+        $c->addJoin("user_id", "users.id");
+        $c->addOrderAscending("users.username");
 
         $rates = PageRateVotePeer::instance()->select($c);
 

@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use Illuminate\Support\Facades\Hash;
+use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -22,12 +24,21 @@ class UserFactory extends Factory
      */
     public function definition()
     {
+        $username = $this->faker->unique()->userName;
         return [
-            'name' => $this->faker->name,
-            'email' => $this->faker->unique()->safeEmail,
+            'username' => $username,
+            'unix_name' => WDStringUtils::toUnixName($username),
+            'email' => $this->faker->unique()->freeEmail,
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
+            'language' => env('DEFAULT_LANGUAGE', 'en'),
+            'real_name' => $this->faker->name,
+            'dob' => $this->faker
+                ->dateTimeBetween('1950-01-01', '2006-12-31')
+                ->format('Y-m-d'),
+            'bio' => $this->faker->realText('2000'),
+            'about_page' => 'https://'.$this->faker->domainName.'/'.$this->faker->domainWord
         ];
     }
 }

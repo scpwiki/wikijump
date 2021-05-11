@@ -27,6 +27,7 @@ use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WikiTransformation;
+use Wikijump\Models\User;
 
 class ForumAction extends SmartyAction
 {
@@ -104,7 +105,7 @@ class ForumAction extends SmartyAction
         if ($userId) {
             $thread->setUserId($userId);
         } else {
-            $thread->setUserId(0);
+            $thread->setUserId(User::ANONYMOUS_USER);
             $thread->setUserString($userString);
         }
 
@@ -133,8 +134,8 @@ class ForumAction extends SmartyAction
             $postRevision->setUserId($userId);
             $post->setUserId($userId);
         } else {
-            $postRevision->setUserId(0);
-            $post->setUserId(0);
+            $postRevision->setUserId(User::ANONYMOUS_USER);
+            $post->setUserId(User::ANONYMOUS_USER);
             $postRevision->setUserString($userString);
             $post->setUserString($userString);
         }
@@ -179,12 +180,12 @@ class ForumAction extends SmartyAction
         $threadId = $pl->getParameterValue("threadId");
         $parentPostId = $pl->getParameterValue("parentId");
         $user = $runData->getUser();
-        $userId = $runData->getUserId();
-        if ($userId == null) {
+        $userId = $user->id;
+        if ($user == null) {
             $userString = $runData->createIpString();
         }
 
-        $errors = array();
+        $errors = [];
         if (strlen8($title)>128) {
             $errors['title'] = _("Post title should not be longer than 128 characters.");
         }
@@ -213,7 +214,7 @@ class ForumAction extends SmartyAction
             // check if moderator or admin
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $rel = ModeratorPeer::instance()->selectOne($c);
             if (!$rel || strpos($rel->getPermissions(), 'f') == false) {
                 $rel = AdminPeer::instance()->selectOne($c);
@@ -268,8 +269,8 @@ class ForumAction extends SmartyAction
             $postRevision->setUserId($userId);
             $post->setUserId($userId);
         } else {
-            $postRevision->setUserId(0);
-            $post->setUserId(0);
+            $postRevision->setUserId(User::ANONYMOUS_USER);
+            $post->setUserId(User::ANONYMOUS_USER);
             $postRevision->setUserString($userString);
             $post->setUserString($userString);
         }
@@ -317,12 +318,12 @@ class ForumAction extends SmartyAction
 
         $user = $runData->getUser();
 
-        $userId = $runData->getUserId();
-        if ($userId == null) {
+        $userId = $user->id;
+        if ($user == null) {
             $userString = $runData->createIpString();
         }
 
-        $errors = array();
+        $errors = [];
         if (strlen8($title)>128) {
             $errors['title'] = _("Post title should not be longer than 128 characters.");
         }
@@ -371,7 +372,7 @@ class ForumAction extends SmartyAction
             // check if moderator or admin
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $rel = ModeratorPeer::instance()->selectOne($c);
             if (!$rel || strpos($rel->getPermissions(), 'f') == false) {
                 $rel = AdminPeer::instance()->selectOne($c);
@@ -403,8 +404,8 @@ class ForumAction extends SmartyAction
             $postRevision->setUserId($userId);
             $post->setEditedUserId($userId);
         } else {
-            $postRevision->setUserId(0);
-            $post->setEditedUserId(0);
+            $postRevision->setUserId(User::ANONYMOUS_USER);
+            $post->setEditedUserId(User::ANONYMOUS_USER);
             $postRevision->setUserString($userString);
             $post->setEditedUserString($userString);
         }
@@ -493,7 +494,7 @@ class ForumAction extends SmartyAction
         $thread->setCategoryId($category->getCategoryId());
         $thread->setSiteId($site->getSiteId());
         $thread->setPageId($pageId);
-        $thread->setUserId(-1);
+        $thread->setUserId(User::AUTOMATIC_USER);
         $thread->setDateStarted(new ODate());
         $thread->setNumberPosts(0);
         $thread->save();
@@ -523,6 +524,8 @@ class ForumAction extends SmartyAction
         $title = $pl->getParameterValue("title");
         $description = $pl->getParameterValue("description");
 
+        $user = $runData->getUser();
+
         // validate
         $errors = array();
         if ($title == '') {
@@ -550,7 +553,7 @@ class ForumAction extends SmartyAction
             // check if moderator or admin
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $rel = ModeratorPeer::instance()->selectOne($c);
             if (!$rel || strpos($rel->getPermissions(), 'f') == false) {
                 $rel = AdminPeer::instance()->selectOne($c);

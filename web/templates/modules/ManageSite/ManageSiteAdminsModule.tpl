@@ -4,7 +4,7 @@
 	{assign var=user value=$admin->getUser()}
 	<div>
 		<div style="position: absolute; margin-left: 30em">
-			<a href="javascript:;" onclick="removeAdmin({$user->getUserId()}, '{$user->getNickName()}')">{t}remove from administrators{/t}</a>
+			<a href="javascript:;" onclick="removeAdmin({$user->id}, '{$user->username}')">{t}remove from administrators{/t}</a>
 		</div>
 		{printuser user=$user image="yes"}
 	</div>

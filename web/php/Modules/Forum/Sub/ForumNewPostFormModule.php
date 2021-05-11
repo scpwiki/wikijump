@@ -45,7 +45,7 @@ class ForumNewPostFormModule extends SmartyModule
             if ($runData->getUser()) {
                 $c = new Criteria();
                 $c->add("site_id", $site->getSiteId());
-                $c->add("user_id", $user->getUserId());
+                $c->add("user_id", $user->id);
                 $rel = ModeratorPeer::instance()->selectOne($c);
             }
             if (!$rel || strpos($rel->getPermissions(), 'f') == false) {

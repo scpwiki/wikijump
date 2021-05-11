@@ -4,18 +4,18 @@
 	</div>
 	<div class="content">
 		{ltext lang="en"}
-		<h1>Adding <em>{$user->getNickName()|escape}</em> as a contact</h1>
+		<h1>Adding <em>{$user->username|escape}</em> as a contact</h1>
 		<p>
 			Are you sure you want to add {printuser user=$user image=true}
 			as your new contact?
 		</p>
 		<p>
-			Note: if you add <em>{$user->getNickName()|escape}</em> as a contact you
+			Note: if you add <em>{$user->username|escape}</em> as a contact you
 			will reveal your email address to this user.
 		</p>
 		{/ltext}
 		{ltext lang="pl"}
-		<h1>Dodać użytkownika<em>{$user->getNickName()|escape}</em> jako kontakt?</h1>
+		<h1>Dodać użytkownika<em>{$user->username|escape}</em> jako kontakt?</h1>
 		<p>
 			Jesteś pewien, że chcesz dodać użytkownika {printuser user=$user image=true}
 			do swojej listy kontaktów?
@@ -27,6 +27,6 @@
 	</div>
 	<div class="button-bar">
 		<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}cancel{/t}</a>
-		<a href="javascript:;" onclick="Wikijump.modules.UserAddToContacts.listeners.addContact(event, {$user->getUserId()})">{t}yes, add please!{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.UserAddToContacts.listeners.addContact(event, {$user->id})">{t}yes, add please!{/t}</a>
 	</div>
 </div>

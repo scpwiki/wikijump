@@ -1,11 +1,13 @@
 <?php
 
 namespace Wikidot\Actions;
+use Illuminate\Support\Facades\Hash;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WDPermissionManager;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Models\User;
 
 class ManageSuperUserAction extends SmartyAction
 {
@@ -33,14 +35,10 @@ class ManageSuperUserAction extends SmartyAction
         $nick_name = $pl->getParameterValue("nick_name");
         $password = $pl->getParameterValue("password1");
 
-        $u = OzoneUserPeer::instance()->selectByPrimaryKey(1);
-        $u->setName($nick_name);
-        $u->setEmail($nick_name);
-        $u->setNickName($nick_name);
-        $u->setUnixName(WDStringUtils::toUnixName($nick_name));
-        $u->setPassword($password);
-        $u->setSuperAdmin(true);
-
+        $u = User::find(1);
+        $u->username = $nick_name;
+        $u->password = Hash::make($password);
+        $u->unix_name = WDStringUtils::toUnixName($nick_name);
         $u->save();
     }
 }

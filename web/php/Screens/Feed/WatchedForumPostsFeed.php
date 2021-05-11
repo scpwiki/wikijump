@@ -8,6 +8,7 @@ use Wikidot\DB\ForumPostPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WDRenderUtils;
+use Wikijump\Models\User;
 
 class WatchedForumPostsFeed extends FeedScreen
 {
@@ -17,7 +18,7 @@ class WatchedForumPostsFeed extends FeedScreen
     public function render($runData)
     {
         $user = $runData->getTemp("user");
-        $key = "watchedforum..".$user->getUserId();
+        $key = "watchedforum..".$user->id;
         $mc = OZONE::$memcache;
         $out = $mc->get($key);
         if ($out) {
@@ -32,10 +33,10 @@ class WatchedForumPostsFeed extends FeedScreen
     {
 
         $user = $runData->getTemp("user");
-        $userId = $user->getUserId();
+        $userId = $user->id;
 
         // set language for the user
-        $lang = $user->getLanguage();
+        $lang = $user->language;
         $runData->setLanguage($lang);
         $GLOBALS['lang'] = $lang;
 
@@ -60,14 +61,14 @@ class WatchedForumPostsFeed extends FeedScreen
 
         $c->addJoin("thread_id", "forum_thread.thread_id");
         $c->addJoin("thread_id", "watched_forum_thread.thread_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
-        $c->add("watched_forum_thread.user_id", $user->getUserId());
+        $c->addJoin("user_id", "users.id");
+        $c->add("watched_forum_thread.user_id", $user->id);
         $c->addOrderDescending("post_id");
         $c->setLimit(30);
 
         $posts = ForumPostPeer::instance()->select($c);
 
-        $channel['title'] = _('Wikijump.com watched forum discussions for user').' "'.$user->getNickName().'"';
+        $channel['title'] = _('Wikijump.com watched forum discussions for user').' "'.$user->username.'"';
         $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . "/account:you/start/watched-forum";
 
         $items = array();
@@ -129,10 +130,10 @@ class WatchedForumPostsFeed extends FeedScreen
             $content .= _('Author of the post').': '.WDRenderUtils::renderUser($post->getUserOrString()).'<br/>';
 
             $item['content'] = $content;
-            if ($post->getUserId()>0) {
+            if ($post->getUserId() != User::ANONYMOUS_USER && $post->getUserId() != User::AUTOMATIC_USER) {
                 $item['authorUserId'] = $post->getUserId();
                 $user = $post->getUser();
-                $item['author']=$user->getNickName();
+                $item['author']=$user->username();
             } else {
                 $item['author']=$post->getUserString();
             }

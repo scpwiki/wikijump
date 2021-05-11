@@ -7,6 +7,7 @@ use Ozone\Framework\Ozone;
 use Wikidot\DB\ForumPostPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Models\User;
 
 class ForumPostsFeed extends FeedScreen
 {
@@ -80,7 +81,7 @@ class ForumPostsFeed extends FeedScreen
         $c->add("forum_post.site_id", $site->getSiteId());
         $c->add("forum_group.visible", true);
         $c->addJoin("thread_id", "forum_thread.thread_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
         $c->addJoin("forum_thread.category_id", "forum_category.category_id");
         $c->addJoin("forum_category.group_id", "forum_group.group_id");
         $c->addOrderDescending("post_id");
@@ -136,10 +137,10 @@ class ForumPostsFeed extends FeedScreen
                 .htmlspecialchars($thread->getTitle()).'</a>';
 
             $item['content'] = $content;
-            if ($post->getUserId()>0) {
+            if ($post->getUserId() != User::ANONYMOUS_USER && $post->getUserId() != User::AUTOMATIC_USER) {
                 $item['authorUserId'] = $post->getUserId();
                 $user = $post->getUser();
-                $item['author']=$user->getNickName();
+                $item['author']=$user->username;
             } else {
                 $item['author']=$post->getUserString();
             }

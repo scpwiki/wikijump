@@ -3,9 +3,10 @@
 namespace Wikidot\Modules\Search;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\OzoneUserPeer;
+
 
 use Ozone\Framework\SmartyModule;
+use Wikijump\Models\User;
 
 class UserSearchModule extends SmartyModule
 {
@@ -39,9 +40,7 @@ class UserSearchModule extends SmartyModule
 
         if (strpos($query, '@')) {
             // email lookup mode
-            $c = new Criteria();
-            $c->add("ozone_user.name", $query);
-            $user = OzoneUserPeer::instance()->selectOne($c);
+            $user = User::firstWhere('email', $query);
             $runData->contextAdd("user", $user);
             $runData->contextAdd("mode", "email");
             sleep(2);
@@ -52,22 +51,21 @@ class UserSearchModule extends SmartyModule
             $c = new Criteria();
             foreach ($qs as $q) {
                 $csub = new Criteria();
-                $csub->add("ozone_user.nick_name", preg_quote($q), '~*');
-                $csub->addOr("ozone_user.unix_name", preg_quote($q), '~*');
-                $csub->addOr("profile.real_name", preg_quote($q), '~*');
+                $csub->add("users.username", preg_quote($q), '~*');
+                $csub->addOr("users.unix_name", preg_quote($q), '~*');
+                $csub->addOr("users.real_name", preg_quote($q), '~*');
 
                 $c->addCriteriaAnd($csub);
             }
 
-            $c->addJoin("user_id", "profile.user_id");
+            $c->addJoin("user_id", "users.id");
 
             $limit = $perPage*2+1;
             $offset = ($pageNumber - 1)*$perPage;
 
             $c->setLimit($limit, $offset);
 
-            $res = OzoneUserPeer::instance()->select($c);
-
+            $res = null;
             $counted = count($res);
 
             $pagerData = array();

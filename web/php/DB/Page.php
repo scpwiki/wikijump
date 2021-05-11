@@ -6,6 +6,7 @@ namespace Wikidot\DB;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\Utils\ProcessException;
 use Ozone\Framework\Database\Database;
+use Wikijump\Models\User;
 
 /**
  * Object Model Class.
@@ -147,10 +148,10 @@ class Page extends PageBase
 
     public function getLastEditUser()
     {
-        if ($this->getLastEditUserId() == 0) {
+        if ($this->getLastEditUserId() == User::ANONYMOUS_USER) {
             return null;
         }
-        return OzoneUserPeer::instance()->selectByPrimaryKey($this->getLastEditUserId());
+        return User::find($this->getLastEditUserId());
     }
 
     public function getSite()

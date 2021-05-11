@@ -15,6 +15,7 @@ use Wikidot\Utils\FileMime;
 use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Models\User;
 
 class FileAction extends SmartyAction
 {
@@ -230,7 +231,7 @@ class FileAction extends SmartyAction
             if ($userId) {
                 $f->setUserId($userId);
             } else {
-                $f->setUserId(0);
+                $f->setUserId(User::ANONYMOUS_USER);
                 $f->setUserString($userString);
             }
 
@@ -261,8 +262,8 @@ class FileAction extends SmartyAction
                 $revision->setUserId($userId);
                 $page->setLastEditUserId($userId);
             } else {
-                $revision->setUserId(0);
-                $page->setLastEditUserId(0);
+                $revision->setUserId(User::ANONYMOUS_USER);
+                $page->setLastEditUserId(User::ANONYMOUS_USER);
                 $revision->setUserString($userString);
                 $page->setLastEditUserString($userString);
             }
@@ -403,8 +404,8 @@ class FileAction extends SmartyAction
             $revision->setUserId($userId);
             $page->setLastEditUserId($userId);
         } else {
-            $revision->setUserId(0);
-            $page->setLastEditUserId(0);
+            $revision->setUserId(User::ANONYMOUS_USER);
+            $page->setLastEditUserId(User::ANONYMOUS_USER);
             $revision->setUserString($userString);
             $page->setLastEditUserString($userString);
         }
@@ -556,8 +557,8 @@ class FileAction extends SmartyAction
             $revision->setUserId($userId);
             $page->setLastEditUserId($userId);
         } else {
-            $revision->setUserId(0);
-            $page->setLastEditUserId(0);
+            $revision->setUserId(User::ANONYMOUS_USER);
+            $page->setLastEditUserId(User::ANONYMOUS_USER);
             $revision->setUserString($userString);
             $page->setLastEditUserString($userString);
         }
@@ -583,8 +584,8 @@ class FileAction extends SmartyAction
             $revision->setUserId($userId);
             $destinationPage->setLastEditUserId($userId);
         } else {
-            $revision->setUserId(0);
-            $destinationPage->setLastEditUserId(0);
+            $revision->setUserId(User::ANONYMOUS_USER);
+            $destinationPage->setLastEditUserId(User::ANONYMOUS_USER);
             $revision->setUserString($userString);
             $destinationPage->setLastEditUserString($userString);
         }
@@ -653,8 +654,8 @@ class FileAction extends SmartyAction
             $revision->setUserId($userId);
             $page->setLastEditUserId($userId);
         } else {
-            $revision->setUserId(0);
-            $page->setLastEditUserId(0);
+            $revision->setUserId(User::ANONYMOUS_USER);
+            $page->setLastEditUserId(User::ANONYMOUS_USER);
             $revision->setUserString($userString);
             $page->setLastEditUserString($userString);
         }

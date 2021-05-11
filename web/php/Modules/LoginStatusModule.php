@@ -43,7 +43,7 @@ class LoginStatusModule extends Module
 
             //$out = '<a href="javascript:;" onclick="Wikijump.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="Wikijump.page.listeners.loginClick(event)">'._('login').'</a>';
         } else {
-            $lang = $user->getLanguage();
+            $lang = $user->language;
 
             switch ($lang) {
                 case 'pl':
@@ -58,15 +58,15 @@ class LoginStatusModule extends Module
             putenv("LANGUAGE=$glang");
             setlocale(LC_ALL, $glang.'.UTF-8');
 
-            $userId = $user->getUserId();
-            $linkInner = 'href="' . $url_prefix . '/user:info/'.$user->getUnixName().'" onclick="Wikijump.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
+            $userId = $user->id;
+            $linkInner = 'href="' . $url_prefix . '/user:info/'.$user->unix_name.'" onclick="Wikijump.page.listeners.userInfo('.$user->id.'); return false;" ';
 
             $out = '<span class="printuser"><a '.$linkInner.'><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="avatar"';
             /* karma: */
             $out .= ' style="background-image:url(' . $url_prefix . '/userkarma.php?u=' .$userId  . ')"';
             /* end of karma */
             $out .= '/></a>';
-            $out .= $user->getNickName().'</span>'.
+            $out .= $user->username.'</span>'.
                     ' | <a href="' . $url_prefix .'/account:you">'._('my account').'</a>' .
                     '<a  id="account-topbutton" href="javascript:;">&nabla;</a>';
             $out .= '<div id="account-options">' .

@@ -9,7 +9,7 @@
 </div>
 
 <div>
-	<h3><a href="{$HTTP_SCHEMA}://profiles.{$URL_DOMAIN}/profile:{$user->getUnixName()}">{t}Edit a page about myself{/t}</a></h3>
+	<h3><a href="{$HTTP_SCHEMA}://profiles.{$URL_DOMAIN}/profile:{$user->unix_name}">{t}Edit a page about myself{/t}</a></h3>
 	<p>
 		{t}Edit contents of the page that people see after clicking on your screen name.{/t}
 	</p>
@@ -23,14 +23,14 @@
 </div>
 
 <div>
-	<h3><a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->getUnixName()}" target="_blank">{t}View my profile{/t}</a></h3>
+	<h3><a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->unix_name}" target="_blank">{t}View my profile{/t}</a></h3>
 	<p>
 		{t}View your profile as other people see it.{/t}
 	</p>
 </div>
 
 <div>
-	<h3><a href="javascript:;" onclick="Wikijump.page.listeners.userInfo({$user->getUserId()})">{t}View my "windowed" profile{/t}</a></h3>
+	<h3><a href="javascript:;" onclick="Wikijump.page.listeners.userInfo({$user->id})">{t}View my "windowed" profile{/t}</a></h3>
 	<p>
 		{t}See the window that pops-up when someone clicks on your name.{/t}
 	</p>
@@ -39,6 +39,6 @@
 <div>
 	<h3><a href="javascript:;" onclick="OZONE.ajax.requestModule('Account/Profile/ChangeScreenNameModule', null, Wikijump.modules.AccountModule.callbacks.menuClick)">{t}Change my screen name (NEW!){/t}</a></h3>
 	<p>
-		{t}Change your screen name, i.e. "{$user->getNickName()|escape}", to a different name.{/t}
+		{t}Change your screen name, i.e. "{$user->username|escape}", to a different name.{/t}
 	</p>
 </div>

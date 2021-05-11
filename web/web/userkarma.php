@@ -54,7 +54,7 @@ if(GlobalProperties::$USE_MEMCACHE == true){
 if(is_bool($karmaLevel) && !$karmaLevel){
     Database::init();
     /* Get karma level. */
-    $q = "SELECT * FROM user_karma WHERE user_id='".pg_escape_string($userId)."' ";
+    $q = "SELECT user_karma FROM users WHERE id='".pg_escape_string($userId)."' ";
     $db = Database::$connection;
     $r = $db->query($q);
     $row = $r->nextRow();

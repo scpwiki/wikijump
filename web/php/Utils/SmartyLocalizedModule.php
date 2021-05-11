@@ -12,7 +12,7 @@ abstract class SmartyLocalizedModule extends SmartyModule
 
         $uu = $runData->getUser();
         if ($uu) {
-            $lang = $uu->getLanguage();
+            $lang = $uu->language;
 
             switch ($lang) {
                 case 'pl':

@@ -17,7 +17,7 @@ class UserRecentPostsListModule extends SmartyLocalizedModule
 
         $userId = $pl->getParameterValue("userId");
 
-        if ($runData->getUser() && $userId == $runData->getUser()->getUserId()) {
+        if ($runData->getUser() && $userId == $runData->getUser()->id) {
             $own = true;
         }
 
@@ -47,7 +47,7 @@ class UserRecentPostsListModule extends SmartyLocalizedModule
             $c->add("site.private", false);
         }
         $c->addJoin("thread_id", "forum_thread.thread_id");
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
         $c->addJoin("forum_post.site_id", "site.site_id");
         $c->add("site.deleted", false);
         $c->addOrderDescending("post_id");

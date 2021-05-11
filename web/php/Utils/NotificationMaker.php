@@ -75,7 +75,7 @@ class NotificationMaker
     {
         // and create a notification too...
         $not = new Notification();
-        $not->setUserId($user->getUserId());
+        $not->setUserId($user->id);
         $not->setType("removed_from_members");
 
         $extra = array();
@@ -92,7 +92,7 @@ class NotificationMaker
     {
         // and create a notification too...
         $not = new Notification();
-        $not->setUserId($user->getUserId());
+        $not->setUserId($user->id);
         $not->setType("added_to_moderators");
 
         $extra['site_id'] = $site->getSiteId();
@@ -109,7 +109,7 @@ class NotificationMaker
     {
         // and create a notification too...
         $not = new Notification();
-        $not->setUserId($user->getUserId());
+        $not->setUserId($user->id);
         $not->setType("removed_from_moderators");
 
         $extra['site_id'] = $site->getSiteId();
@@ -125,7 +125,7 @@ class NotificationMaker
     {
         // and create a notification too...
         $not = new Notification();
-        $not->setUserId($user->getUserId());
+        $not->setUserId($user->id);
         $not->setType("added_to_administrators");
 
         $extra['site_id'] = $site->getSiteId();
@@ -141,7 +141,7 @@ class NotificationMaker
     {
         // and create a notification too...
         $not = new Notification();
-        $not->setUserId($user->getUserId());
+        $not->setUserId($user->id);
         $not->setType("removed_from_administrators");
 
         $extra['site_id'] = $site->getSiteId();
@@ -156,11 +156,9 @@ class NotificationMaker
     public function membershipApplicationAccepted($site, $user)
     {
         $not = new Notification();
-        $not->setUserId($user->getUserId());
+        $not->setUserId($user->id);
         $not->setType("membership_application_accepted");
 
-        //$body = 'Your membership application to the site <a href="http://'.$site->getDomain().'">"'.htmlspecialchars($site->getName()).'"</a> has been accepted. ' .
-        //$urls = array(    array('your applications', "https://www.wikijump.com/account:you/start/applications"),
         $extra['site_id'] = $site->getSiteId();
         $extra['site_name'] = $site->getName();
         $extra['site_domain'] = $site->getDomain();
@@ -172,7 +170,7 @@ class NotificationMaker
     public function membershipApplicationDeclined($site, $user)
     {
         $not = new Notification();
-        $not->setUserId($user->getUserId());
+        $not->setUserId($user->id);
         $not->setType("membership_application_declined");
 
         //$urls = array(    array('your applications', "https://www.wikijump.com/account:you/start/applications"),

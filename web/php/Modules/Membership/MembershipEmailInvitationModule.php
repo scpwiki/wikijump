@@ -5,9 +5,10 @@ namespace Wikidot\Modules\Membership;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\EmailInvitationPeer;
 use Wikidot\DB\SitePeer;
-use Wikidot\DB\OzoneUserPeer;
+
 
 use Ozone\Framework\SmartyModule;
+use Wikijump\Models\User;
 
 class MembershipEmailInvitationModule extends SmartyModule
 {
@@ -35,7 +36,7 @@ class MembershipEmailInvitationModule extends SmartyModule
 
         $site = SitePeer::instance()->selectByPrimaryKey($inv->getSiteId());
 
-        $sender = OzoneUserPeer::instance()->selectByPrimaryKey($inv->getUserId());
+        $sender = User::find($inv->getUserId());
         $runData->contextAdd("sender", $sender);
         $runData->contextAdd("site", $site);
         $runData->contextAdd("invitation", $inv);

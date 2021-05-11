@@ -16,7 +16,7 @@ class AccountNotificationsFeed extends FeedScreen
     public function render($runData)
     {
         $user = $runData->getTemp("user");
-        $key = "notificationsfeed..".$user->getUserId();
+        $key = "notificationsfeed..".$user->id;
         $mc = OZONE::$memcache;
         $out = $mc->get($key);
         if ($out) {
@@ -31,10 +31,10 @@ class AccountNotificationsFeed extends FeedScreen
     {
 
         $user = $runData->getTemp("user");
-        $userId = $user->getUserId();
+        $userId = $user->id;
 
         // set language for the user
-        $lang = $user->getLanguage();
+        $lang = $user->language;
         $runData->setLanguage($lang);
         $GLOBALS['lang'] = $lang;
 
@@ -62,7 +62,7 @@ class AccountNotificationsFeed extends FeedScreen
 
         $nots = NotificationPeer::instance()->select($c);
 
-        $channel['title'] = sprintf(_('%s account notifications for user'), GlobalProperties::$SERVICE_NAME).' "'.htmlspecialchars($user->getNickName()).'"';
+        $channel['title'] = sprintf(_('%s account notifications for user'), GlobalProperties::$SERVICE_NAME).' "'.htmlspecialchars($user->username).'"';
         $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . "/account:you/start/notifications";
 
         $items = array();

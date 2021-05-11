@@ -31,11 +31,11 @@ class WDRenderUtils
             return $out;
         }
 
-        $userId = $user->getUserId();
+        $userId = $user->id;
 
         if ($userId<0) {
             // always mean some kind of system bot. just print bot name.
-            $out = '<span class="printuser">'.htmlspecialchars($user->getNickName()).'</span>';
+            $out = '<span class="printuser">'.htmlspecialchars($user->username).'</span>';
             return $out;
         }
 
@@ -46,20 +46,20 @@ class WDRenderUtils
         }
 
         $out = '<span class="'.$class.'">';
-        $linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user:info/'.$user->getUnixName().'" onclick="Wikijump.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
+        $linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user:info/'.$user->unix_name.'" onclick="Wikijump.page.listeners.userInfo('.$user->id.'); return false;" ';
         if ($params['image'] != null) {
             $image = $params['image'];
             // handle sizes...
-            $out .=     '<a '.$linkInner.' ><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="'.htmlspecialchars($user->getNickName()).'"';
+            $out .=     '<a '.$linkInner.' ><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="'.htmlspecialchars($user->username).'"';
             /* karma: */
             $out .= ' style="background-image:url('.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/userkarma.php?u=' . $userId . ')"';
             /* end of karma */
             $out .= '/></a>';
         }
         if (!$params['noNameLink']) {
-            $out .= '<a '.$linkInner.'>'.htmlspecialchars($user->getNickName()).'</a></span>';
+            $out .= '<a '.$linkInner.'>'.htmlspecialchars($user->username).'</a></span>';
         } else {
-            htmlspecialchars($user->getNickName());
+            htmlspecialchars($user->username);
         }
         return $out;
     }

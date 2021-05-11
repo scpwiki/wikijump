@@ -109,7 +109,7 @@ class ForumViewThreadModule extends SmartyModule
         $c = new Criteria();
         $c->add("thread_id", $threadId);
         $c->add("site_id", $site->getSiteId());
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
         $c->addOrderAscending("post_id");
 
         $posts = ForumPostPeer::instance()->select($c);

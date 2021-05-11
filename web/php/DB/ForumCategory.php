@@ -58,7 +58,7 @@ class ForumCategory extends ForumCategoryBase
         }
         $c = new Criteria();
         $c->add("post_id", $this->getLastPostId());
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
 
         $post = ForumPostPeer::instance()->selectOne($c);
         return $post;

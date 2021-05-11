@@ -3,9 +3,10 @@
 namespace Wikidot\Jobs;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SchedulerJob;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\WDDigestSender;
 
 /**
@@ -13,24 +14,16 @@ use Wikidot\Utils\WDDigestSender;
  */
 class SendEmailDigestJob implements SchedulerJob
 {
-
     public function run()
     {
-
-        $ds = new WDDigestSender();
-
-        // select users... all at once??? fix this!
-        $c = new Criteria();
-        $c->add("user_id", 0, ">");
-        $c->addOrderAscending("user_id");
-
-        $users = OzoneUserPeer::instance()->select($c);
-
-        foreach ($users as $user) {
-            try {
-                $ds->handleUser($user);
-            } catch (Exception $e) {
+        DB::table('users')->orderBy('id')->chunk(100, function($users) {
+            foreach ($users as $user) {
+                try {
+                    $ds = new WDDigestSender();
+                    $ds->handleUser($user);
+                } catch (Exception $e) {
+                }
             }
-        }
+        });
     }
 }

@@ -1,12 +1,14 @@
 <?php
 
 namespace Wikidot\Actions;
+use Illuminate\Support\Facades\Hash;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\OzoneEmail;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Models\User;
 
 class PasswordRecoveryAction extends SmartyAction
 {
@@ -24,9 +26,6 @@ class PasswordRecoveryAction extends SmartyAction
             throw new ProcessException(_("Email must be provided."), "no_email");
         }
 
-//      $email = trim(CryptUtils::rsaDecrypt($email));
-//      $email = preg_replace("/^__/", '', $email);
-
         if ($email == null || $email == '') {
             throw new ProcessException(_("Email must be provided."), "no_email");
         }
@@ -36,9 +35,7 @@ class PasswordRecoveryAction extends SmartyAction
         }
 
         // check for users with the email
-        $c = new Criteria();
-        $c->add("lower(email)", strtolower($email));
-        $user = OzoneUserPeer::instance()->selectOne($c);
+        $user = User::whereRaw('lower(email)', strtolower($email))->first();
 
         if ($user == null) {
             throw new ProcessException(_("This email cannot be found in our database."), "no_email");
@@ -93,12 +90,12 @@ class PasswordRecoveryAction extends SmartyAction
         // ok. seems fine.
 
         $userId = $runData->sessionGet("prUserId");
-        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        $user = User::find($userId);
         if ($user == null) {
             throw ProcessException("No such user.", "no_user");
         }
 
-        $user->setPassword($password);
+        $user->password = Hash::make($password);
         $user->save();
     }
 

@@ -7,7 +7,7 @@ use Ozone\Framework\ODate;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\SecurityManager;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\OzoneSessionPeer;
 use Wikidot\Utils\EventLogger;
 use Wikidot\Utils\GlobalProperties;
@@ -44,13 +44,17 @@ class Login2Action extends SmartyAction
 
         $runData->resetSession();
         $session = $runData->getSession();
-        $session->setUserId($user->getUserId());
+        $session->setUserId($user->id);
         // set other parameters
         $session->setStarted(new ODate());
         $session->setLastAccessed(new ODate());
 
-        $user->setLastLogin(new ODate());
-        $user->save();
+        /**
+         * Refresh the `updated_at` value. We'll probably want a last_seen field
+         * stored in the caching layer as well.
+         * TODO: Add last_seen keys to memcached.
+         */
+        $user->touch();
 
         if ($keepLogged) {
             $session->setInfinite(true);
@@ -75,7 +79,7 @@ class Login2Action extends SmartyAction
             $runData->ajaxResponseAdd('originalUrl', $originalUrl);
         }
 
-            setsecurecookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+            setsecurecookie("welcome", $user->id, time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
             setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 
             // log event
@@ -93,7 +97,7 @@ class Login2Action extends SmartyAction
         $db->begin();
             EventLogger::instance()->logLogout();
         if ($runData->getUser()) {
-            $userId = $runData->getUser()->getUserId();
+            $userId = $runData->getUser()->id;
         }
 
         $runData->sessionStop();

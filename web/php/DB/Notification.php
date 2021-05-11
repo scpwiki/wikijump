@@ -6,6 +6,7 @@ namespace Wikidot\DB;
 use Wikidot\Utils\GlobalProperties;
 use Ozone\Framework\Ozone;
 use Wikidot\Utils\WDRenderUtils;
+use Wikijump\Models\User;
 
 /**
  * Object Model Class.
@@ -84,7 +85,7 @@ class Notification extends NotificationBase
 
         switch ($type) {
             case 'new_private_message':
-                $fromUser = OzoneUserPeer::instance()->selectByPrimaryKey($extra['from_user_id']);
+                $fromUser = User::find($extra['from_user_id']);
                 $body = _('You have a new private message in your <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/messages">Inbox</a>.').'<br/>';
                 $body .= _("From").": ".WDRenderUtils::renderUser($fromUser)."<br/>";
                 $body .= _('Subject').': <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/messages/inboxmessage/'.$extra['message_id'].'">'.htmlspecialchars($extra['subject']).'</a><br/>';

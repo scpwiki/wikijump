@@ -24,7 +24,7 @@ class EventLogger
 
         $e = $this->newEvent();
         $e->setType("LOGIN");
-        $e->setText("User \"".htmlspecialchars($e->getTemp("user")->getNickName())."\" (".$e->getTemp("user")->getName().") logged in.");
+        $e->setText("User \"".htmlspecialchars($e->getTemp("user")->username)."\" (".$e->getTemp("user")->username.") logged in.");
         $e->save();
     }
 
@@ -43,7 +43,7 @@ class EventLogger
             return;
         }
         $e->setType("LOGOUT");
-        $e->setText("User \"".htmlspecialchars($e->getTemp("user")->getNickName())."\" (".$e->getTemp("user")->getName().") logged out.");
+        $e->setText("User \"".htmlspecialchars($e->getTemp("user")->username)."\" (".$e->getTemp("user")->username.") logged out.");
         $e->save();
     }
 
@@ -197,7 +197,7 @@ class EventLogger
         $site = $e->getTemp("site");
         $e->setType("ABUSE_PAGE_FLAG");
 
-        $e->setText('Path "'.htmlspecialchars($page).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->setText('Path "'.htmlspecialchars($page).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->username).'" on site "'.htmlspecialchars($site->getName()).'".');
         $e->save();
     }
 
@@ -207,7 +207,7 @@ class EventLogger
         $site = $e->getTemp("site");
         $e->setType("ABUSE_PAGE_UNFLAG");
 
-        $e->setText('Path "'.htmlspecialchars($page).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->setText('Path "'.htmlspecialchars($page).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->username).'" on site "'.htmlspecialchars($site->getName()).'".');
         $e->save();
     }
 
@@ -217,7 +217,7 @@ class EventLogger
         $site = $e->getTemp("site");
         $e->setType("ABUSE_USER_FLAG");
 
-        $e->setText('User "'.htmlspecialchars($user->getNickName()).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->setText('User "'.htmlspecialchars($user->username).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->username).'" on site "'.htmlspecialchars($site->getName()).'".');
         $e->save();
     }
 
@@ -227,7 +227,7 @@ class EventLogger
         $site = $e->getTemp("site");
         $e->setType("ABUSE_USER_UNFLAG");
 
-        $e->setText('User "'.htmlspecialchars($user->getNickName()).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->setText('User "'.htmlspecialchars($user->username).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->username).'" on site "'.htmlspecialchars($site->getName()).'".');
         $e->save();
     }
 
@@ -237,7 +237,7 @@ class EventLogger
         $site = $e->getTemp("site");
         $e->setType("ABUSE_ANONYMOUS_FLAG");
 
-        $e->setText('Anonymous user "'.htmlspecialchars($ipstring).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->setText('Anonymous user "'.htmlspecialchars($ipstring).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->username).'" on site "'.htmlspecialchars($site->getName()).'".');
         $e->save();
     }
     public function logUnflagAnonymous($ipstring)
@@ -246,7 +246,7 @@ class EventLogger
         $site = $e->getTemp("site");
         $e->setType("ABUSE_ANONYMOUS_UNFLAG");
 
-        $e->setText('Anonymous user "'.htmlspecialchars($ipstring).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->setText('Anonymous user "'.htmlspecialchars($ipstring).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->username).'" on site "'.htmlspecialchars($site->getName()).'".');
         $e->save();
     }
 

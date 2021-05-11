@@ -6,10 +6,11 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WikiTransformation;
+use Wikijump\Models\User;
 
 class PagesFeed extends FeedScreen
 {
@@ -329,8 +330,8 @@ class PagesFeed extends FeedScreen
             /* %%author%% */
             $ownerUserId = $page->getOwnerUserId();
             if ($ownerUserId) {
-                $user = OzoneUserPeer::instance()->selectByPrimaryKey($ownerUserId);
-                $userString = '[[*user '.$user->getNickName().']]';
+                $user = User::find($ownerUserId);
+                $userString = '[[*user '.$user->username.']]';
             } else {
                 $userString = 'Anonymous user';
             }

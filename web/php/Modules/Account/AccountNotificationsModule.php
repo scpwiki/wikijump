@@ -11,9 +11,9 @@ class AccountNotificationsModule extends AccountBaseModule
     public function build($runData)
     {
         $user = $runData->getUser();
-        $username = $user->getName();
+        $username = $user->username;
 
-        $password = $user->getPassword();
+        $password = $user->password;
 
         $runData->contextAdd("feedUsername", $username);
         $runData->contextAdd("feedPassword", $password);

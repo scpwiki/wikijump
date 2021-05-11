@@ -3,9 +3,10 @@
 namespace Wikidot\Actions;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
+use Wikijump\Models\User;
 
 class ManageSiteAbuseAction extends SmartyAction
 {
@@ -46,7 +47,7 @@ class ManageSiteAbuseAction extends SmartyAction
         $pl = $runData->getParameterList();
 
         $targetUserId = $pl->getParameterValue("userId");
-        $targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+        $targetUser = User::find($targetUserId);
 
         if ($targetUser == null) {
             throw new ProcessException(_("Error processing the request. No user found."), "no_user");

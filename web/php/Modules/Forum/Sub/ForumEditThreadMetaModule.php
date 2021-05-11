@@ -39,7 +39,7 @@ class ForumEditThreadMetaModule extends SmartyModule
             // check if moderator or admin
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
-            $c->add("user_id", $user->getUserId());
+            $c->add("user_id", $user->id);
             $rel = ModeratorPeer::instance()->selectOne($c);
             if (!$rel || strpos($rel->getPermissions(), 'f') == false) {
                 $rel = AdminPeer::instance()->selectOne($c);

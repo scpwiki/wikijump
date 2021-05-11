@@ -4,8 +4,6 @@ namespace Wikidot\Utils;
 
 use Exception;
 
-class GlobalPropertiesException extends Exception {}
-
 /**
  * The Wikijump GlobalProperties Class is used to parse
  * the ini file and access any settings and properties
@@ -128,7 +126,7 @@ class GlobalProperties
             $value = self::$iniConfig[$section][$key];
         } else {
             if ($default === null) {
-                throw new GlobalPropertiesException("You should set '$key' value in '$section' section in wikijump.ini file.");
+                throw new Exception("You should set '$key' value in '$section' section in wikijump.ini file.");
             } else {
                 $value = $default;
             }

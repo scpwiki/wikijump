@@ -11,8 +11,7 @@ class LoginStatusModule2 extends SmartyModule
     {
         $user = $runData->getUser();
         if ($user) {
-            $userName = $user->getName();
-            $nick = $user->getNickName();
+            $nick = $user->username;
 
             $runData->contextAdd("nick", $nick);
         }

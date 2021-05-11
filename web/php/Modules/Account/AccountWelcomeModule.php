@@ -14,7 +14,7 @@ class AccountWelcomeModule extends AccountBaseModule
         $user = $runData->getUser();
         $runData->contextAdd("user", $user);
 
-        $userId = $user->getUserId();
+        $userId = $user->id;
 
         $tips = array();
 

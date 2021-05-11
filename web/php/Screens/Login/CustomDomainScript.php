@@ -33,7 +33,7 @@ class CustomDomainScript extends SmartyScreen
                 $skey = $runData->generateSessionDomainHash($site->getCustomDomain());
                 $proto = ($_SERVER["HTTPS"]) ? "https" : "http";
                 $domain = $site->getCustomDomain();
-                $runData->contextAdd("redir", "$proto://$domain" . CustomDomainLoginFlowController::$controllerUrl . "?" . http_build_query(array("user_id" => $user->getUserId(), "skey" => $skey)));
+                $runData->contextAdd("redir", "$proto://$domain" . CustomDomainLoginFlowController::$controllerUrl . "?" . http_build_query(array("user_id" => $user->id, "skey" => $skey)));
             }
         } elseif (! $anon) {
             // no session found -- try to redirect to set ie cookie

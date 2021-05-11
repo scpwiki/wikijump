@@ -4,11 +4,12 @@ namespace Wikidot\Actions;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\DB\ContactPeer;
 use Wikidot\DB\Contact;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
+use Wikijump\Models\User;
 
 class ContactsAction extends SmartyAction
 {
@@ -16,7 +17,7 @@ class ContactsAction extends SmartyAction
     public function isAllowed($runData)
     {
         $userId = $runData->getUserId();
-        if ($userId == null || $userId <1) {
+        if(!$userId) {
             throw new WDPermissionException(_("Not allowed. You should login first."));
         }
         return true;
@@ -33,7 +34,7 @@ class ContactsAction extends SmartyAction
 
         $targetUserId = $pl->getParameterValue("userId");
 
-        $targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+        $targetUser = User::find($targetUserId);
 
         $user = $runData->getUser();
 
@@ -41,7 +42,7 @@ class ContactsAction extends SmartyAction
             throw new ProcessException(_("User cannot be found."), "no_user");
         }
 
-        if ($targetUserId == $user->getUserId()) {
+        if ($targetUserId == $user->id) {
             throw new ProcessException(_("Is there any point in adding yourself to your contact list?"), "not_yourself");
         }
 
@@ -50,7 +51,7 @@ class ContactsAction extends SmartyAction
 
         // check if already contacted
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("target_user_id", $targetUserId);
 
         $contact = ContactPeer::instance()->selectOne($c);
@@ -60,7 +61,7 @@ class ContactsAction extends SmartyAction
 
         // count contacts
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $count = ContactPeer::instance()->selectCount($c);
         if ($count>=1000) {
             throw new ProcessException(_("Sorry, at this moment you cannot add more than 1000 contacts.", "max_reached"));
@@ -69,7 +70,7 @@ class ContactsAction extends SmartyAction
         //...
 
         $contact = new Contact();
-        $contact->setUserId($user->getUserId());
+        $contact->setUserId($user->id);
         $contact->setTargetUserId($targetUserId);
         $contact->save();
 
@@ -87,7 +88,7 @@ class ContactsAction extends SmartyAction
         }
 
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("target_user_id", $targetUserId);
 
         ContactPeer::instance()->delete($c);

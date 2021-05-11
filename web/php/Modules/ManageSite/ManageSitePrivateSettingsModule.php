@@ -3,7 +3,7 @@
 namespace Wikidot\Modules\ManageSite;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSitePrivateSettingsModule extends ManageSiteBaseModule
@@ -19,15 +19,7 @@ class ManageSitePrivateSettingsModule extends ManageSiteBaseModule
         $runData->contextAdd("settings", $site->getSettings());
         $runData->contextAdd("superSettings", $site->getSuperSettings());
 
-        // get the viewers
-        $c = new Criteria();
-        $q = "SELECT ozone_user.* FROM ozone_user, site_viewer WHERE site_viewer.site_id='".$site->getSiteId()."' " .
-                "AND ozone_user.user_id = site_viewer.user_id ORDER BY ozone_user.nick_name";
-        $c->setExplicitQuery($q);
-
-        $viewers = OzoneUserPeer::instance()->select($c);
-
-        $runData->contextAdd("viewers", $viewers);
+        $runData->contextAdd("viewers", null);
         $runData->contextAdd("settings", $site->getSettings());
     }
 }

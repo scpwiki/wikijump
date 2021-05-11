@@ -7,8 +7,7 @@
 			{*onsubmit="Wikijump.modules.LoginModule3.listeners.loginClick(event);"*}>
 			<div style="text-align: center">
 				{if $user}
-					{t}Hello{/t}, <span style="font-size:130%; font-weight: bold">{$user->getNickName()|escape}</span>
-					{*<input name="loginName" type="hidden" size="25" id="login-form-name" value="{$user->getName()|escape}"/>*}
+					{t}Hello{/t}, <span style="font-size:130%; font-weight: bold">{$user->username|escape}</span>
 					<br/>
 					<br/>
 				{else}

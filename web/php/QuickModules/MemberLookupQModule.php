@@ -18,13 +18,13 @@ class MemberLookupQModule extends QuickModule {
 		$search2 = pg_escape_string($search);
 
 		Database::init();
-		$q1 = "SELECT ozone_user.nick_name AS name, ozone_user.user_id FROM ozone_user, member WHERE " .
-				"nick_name ~* '^$search1' AND nick_name != '$search2' AND member.site_id='".pg_escape_string($siteId)."' " .
-						"AND member.user_id = ozone_user.user_id ";
-		$q1 .= "ORDER BY nick_name LIMIT 20";
-		$q2 = "SELECT ozone_user.nick_name AS name, ozone_user.user_id FROM ozone_user, member WHERE " .
-				"nick_name = '$search2' AND member.site_id='".pg_escape_string($siteId)."' " .
-						"AND member.user_id = ozone_user.user_id ";
+		$q1 = "SELECT users.username AS name, users.id FROM users, member WHERE username" .
+				" ~* '^$search1' AND username != '$search2' AND member.site_id='".pg_escape_string($siteId)."' " .
+						"AND member.user_id = users.id ";
+		$q1 .= "ORDER BY username LIMIT 20";
+		$q2 = "SELECT users.username AS name, users.id FROM users, member WHERE username" .
+				" = '$search2' AND member.site_id='".pg_escape_string($siteId)."' " .
+						"AND member.user_id = users.id ";
 		$db = Database::connection();
 
 		$result1 = $db->query($q1);

@@ -39,17 +39,17 @@ class WikiScreen extends Screen
         // check if the site is private
         if ($site->getPrivate()) {
             $user = $runData->getUser();
-            if ($user && !$user->getSuperAdmin() && !$user->getSuperModerator()) {
+            if ($user->id == 1) {
                 // check if member
                 $c = new Criteria();
                 $c->add("site_id", $site->getSiteId());
-                $c->add("user_id", $user->getUserId());
+                $c->add("user_id", $user->id);
                 $mem = MemberPeer::instance()->selectOne($c);
                 if (!$mem) {
                     // check if a viewer
                     $c = new Criteria();
                     $c->add("site_id", $site->getSiteId());
-                    $c->add("user_id", $user->getUserId());
+                    $c->add("user_id", $user->id);
                     $vi = SiteViewerPeer::instance()->selectOne($c);
                     if (!$vi) {
                         $user = null;
@@ -283,7 +283,7 @@ class WikiScreen extends Screen
         // ok. go get the notifications now.
 
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("notify_online", true);
         $c->addOrderDescending("notification_id");
 
@@ -295,7 +295,7 @@ class WikiScreen extends Screen
 
         if (count($nots)>0) {
             $q = "UPDATE notification SET notify_online=FALSE, notify_email=FALSE " .
-                    "WHERE user_id='".$user->getUserId()."' AND " .
+                    "WHERE user_id='".$user->id."' AND " .
                     "notify_online = TRUE";
             $db = Database::connection();
             $db->query($q);
@@ -324,7 +324,7 @@ class WikiScreen extends Screen
             return;
         }
 
-        $lang = $user->getLanguage();
+        $lang = $user->language;
 
         switch ($lang) {
             case 'pl':

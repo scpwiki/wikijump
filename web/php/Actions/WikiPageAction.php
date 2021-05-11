@@ -34,6 +34,7 @@ use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PageTag;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
+use Wikijump\Models\User;
 
 class WikiPageAction extends SmartyAction
 {
@@ -275,8 +276,8 @@ class WikiPageAction extends SmartyAction
                 $pageRevision->setUserId($userId);
                 $page->setLastEditUserId($userId);
             } else {
-                $pageRevision->setUserId(0);
-                $page->setLastEditUserId(0);
+                $pageRevision->setUserId(User::ANONYMOUS_USER);
+                $page->setLastEditUserId(User::ANONYMOUS_USER);
                 $pageRevision->setUserString($userString);
                 $page->setLastEditUserString($userString);
             }
@@ -500,8 +501,8 @@ class WikiPageAction extends SmartyAction
                 $pageRevision->setUserId($userId);
                 $page->setLastEditUserId($userId);
             } else {
-                $pageRevision->setUserId(0);
-                $page->setLastEditUserId(0);
+                $pageRevision->setUserId(User::ANONYMOUS_USER);
+                $page->setLastEditUserId(User::ANONYMOUS_USER);
                 $pageRevision->setUserString($userString);
                 $page->setLastEditUserString($userString);
             }
@@ -914,8 +915,8 @@ class WikiPageAction extends SmartyAction
             $revision->setUserId($userId);
             $page->setLastEditUserId($userId);
         } else {
-            $revision->setUserId(0);
-            $page->setLastEditUserId(0);
+            $revision->setUserId(User::ANONYMOUS_USER);
+            $page->setLastEditUserId(User::ANONYMOUS_USER);
             $revision->setUserString($userString);
             $page->setLastEditUserString($userString);
         }
@@ -1177,8 +1178,8 @@ class WikiPageAction extends SmartyAction
                 $revision->setUserId($userId);
                 $page->setLastEditUserId($userId);
             } else {
-                $revision->setUserId(0);
-                $page->setLastEditUserId(0);
+                $revision->setUserId(User::ANONYMOUS_USER);
+                $page->setLastEditUserId(User::ANONYMOUS_USER);
                 $revision->setUserString($userString);
                 $page->setLastEditUserString($userString);
             }
@@ -1318,8 +1319,8 @@ class WikiPageAction extends SmartyAction
             $revision->setUserId($userId);
             $page->setLastEditUserId($userId);
         } else {
-            $revision->setUserId(0);
-            $page->setLastEditUserId(0);
+            $revision->setUserId(User::ANONYMOUS_USER);
+            $page->setLastEditUserId(User::ANONYMOUS_USER);
             $revision->setUserString($userString);
             $page->setLastEditUserString($userString);
         }
@@ -1488,7 +1489,7 @@ class WikiPageAction extends SmartyAction
     private function canSetBlock($user, $page)
     {
 
-        if ($user && ($user->getSuperAdmin() || $user->getSuperModerator())) {
+        if ($user->id == 1) {
             return true;
         }
 
@@ -1499,7 +1500,7 @@ class WikiPageAction extends SmartyAction
         // still nothing. check if moderator of "pages".
         $c = new Criteria();
         $c->add("site_id", $page->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $rel = ModeratorPeer::instance()->selectOne($c);
         if ($rel && strpos($rel->getPermissions(), 'p') !== false) {
             return true;
@@ -1508,7 +1509,7 @@ class WikiPageAction extends SmartyAction
         // still nothing. check if admin.
         $c = new Criteria();
         $c->add("site_id", $page->getSiteId());
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $rel = AdminPeer::instance()->selectOne($c);
         if ($rel) {
             return true;

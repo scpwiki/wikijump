@@ -117,6 +117,6 @@
 
 <div id="viewers-list-div" style="display: none">
 	{foreach from=$viewers item=user}
-		<div id="viewer-entry-{$user->getUserId()}">{$user->getNickName()|escape}</div>;
+		<div id="viewer-entry-{$user->id}">{$user->username|escape}</div>;
 	{/foreach}
 </div>

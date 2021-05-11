@@ -4,8 +4,9 @@ namespace Wikidot\Modules\ManageSite;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\AdminPeer;
-use Wikidot\DB\OzoneUserPeer;
+
 use Wikidot\Utils\ManageSiteBaseModule;
+use Wikijump\Models\User;
 
 class ManageSiteRenameModule extends ManageSiteBaseModule
 {
@@ -17,7 +18,7 @@ class ManageSiteRenameModule extends ManageSiteBaseModule
         $runData->contextAdd("site", $site);
 
         $c = new Criteria();
-        $c->add("user_id", $user->getUserId());
+        $c->add("user_id", $user->id);
         $c->add("site_id", $site->getSiteId());
         $c->add("founder", true);
         $rel = AdminPeer::instance()->selectOne($c);
@@ -29,7 +30,7 @@ class ManageSiteRenameModule extends ManageSiteBaseModule
             $c->add("site_id", $site->getSiteId());
             $c->add("founder", true);
             $f = AdminPeer::instance()->selectOne($c);
-            $founder = OzoneUserPeer::instance()->selectByPrimaryKey($f->getUserId());
+            $founder = User::find($f->getUserId());
             $runData->contextAdd('founder', $founder);
         }
     }

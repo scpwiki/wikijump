@@ -10,6 +10,7 @@ use Wikidot\DB\ForumPostPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Models\User;
 
 class PageCommentsFeed extends FeedScreen
 {
@@ -97,7 +98,7 @@ class PageCommentsFeed extends FeedScreen
         $c = new Criteria();
         $c->add("thread_id", $threadId);
         $c->add("forum_post.site_id", $site->getSiteId());
-        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addJoin("user_id", "users.id");
         $c->addOrderDescending("post_id");
         $c->setLimit(20);
         $posts = ForumPostPeer::instance()->select($c);
@@ -145,10 +146,10 @@ class PageCommentsFeed extends FeedScreen
             );
 
             $item['content'] = $content;
-            if ($post->getUserId()>0) {
+            if ($post->getUserId() != User::ANONYMOUS_USER && $post->getUserId() != User::AUTOMATIC_USER) {
                 $item['authorUserId'] = $post->getUserId();
                 $user = $post->getUser();
-                $item['author']=$user->getNickName();
+                $item['author']=$user->username;
             } else {
                 $item['author']=$post->getUserString();
             }

@@ -12,8 +12,8 @@ class NumberContacts implements KarmaRuleInterface
     public function calculate($user)
     {
         $c = new Criteria();
-        $c->add('user_id', $user->getUserId());
-        $c->addOr('target_user_id', $user->getUserId());
+        $c->add('user_id', $user->id);
+        $c->addOr('target_user_id', $user->id);
         $count = ContactPeer::instance()->selectCount($c);
         return $count;
     }

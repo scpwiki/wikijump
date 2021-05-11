@@ -30,17 +30,17 @@ class PrinterFriendly extends Screen
 
             if ($site->getPrivate()) {
                 $user = $runData->getUser();
-                if ($user && !$user->getSuperAdmin() && !$user->getSuperModerator()) {
+                if ($user->id != 1) {
                     // check if member
                     $c = new Criteria();
                     $c->add("site_id", $site->getSiteId());
-                    $c->add("user_id", $user->getUserId());
+                    $c->add("user_id", $user->id);
                     $mem = MemberPeer::instance()->selectOne($c);
                     if (!$mem) {
                         // check if a viewer
                         $c = new Criteria();
                         $c->add("site_id", $site->getSiteId());
-                        $c->add("user_id", $user->getUserId());
+                        $c->add("user_id", $user->id);
                         $vi = SiteViewerPeer::instance()->selectOne($c);
                         if (!$vi) {
                             $user = null;
