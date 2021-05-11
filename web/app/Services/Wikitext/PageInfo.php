@@ -42,4 +42,8 @@ class PageInfo
         $categoryPrefix = is_null($this->category) ? '' : ($this->category . ':');
         return $categoryPrefix . $this->page;
     }
+
+    public function getFullPageSlug(): string {
+        return $this->getCategory() . ':' . $this->page;
+    }
 }
