@@ -1,6 +1,7 @@
 <?php
 
 use Database\Seeders\LegacySeeder;
+use Database\Seeders\PHPUnitLegacySeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
@@ -722,9 +723,22 @@ class AddLegacyTables extends Migration
             $table->unique(['user_id', 'page_id']);
         });
 
-        Artisan::call('db:seed', [
-            '--class' => LegacySeeder::class,
-        ]);
+        if(env('APP_ENV') == 'testing') {
+            Artisan::call(
+                'db:seed',
+                [
+                    '--class' => PHPUnitLegacySeeder::class,
+                ]
+            );
+        }
+        else {
+            Artisan::call(
+                'db:seed',
+                [
+                    '--class' => LegacySeeder::class,
+                ]
+            );
+        }
     }
 
     /**
