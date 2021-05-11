@@ -270,7 +270,8 @@ class WikiTransformation
         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'css_new', 'newpage');
         $wiki->setRenderConf($this->transformationFormat, 'table', 'css_table', 'wiki-content-table');
 
-        $wiki->setRenderConf($this->transformationFormat, 'freelink', 'exists_callback', 'wikiPageExists');
+        $wiki->setRenderConf($this->transformationFormat, 'freelink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
+        $wiki->setRenderConf($this->transformationFormat, 'wikilink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
 
         $interWikis = array(
             'wikipedia'    => 'http://en.wikipedia.org/wiki/%s',

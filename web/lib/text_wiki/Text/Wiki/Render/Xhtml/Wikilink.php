@@ -57,6 +57,17 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 
     function token($options)
     {
+        /**
+         * NOTE: This renderer handles both the Wikilink and Freelink parse objects.
+         * @see Text_Wiki_Render_Xhtml_Freelink
+         *
+         * @var $site
+         * @var $text
+         * @var $page
+         * @var $textFromTitle
+         * @var $anchor
+         * @var $nonbr
+         */
         extract($options);
         if($site){
 
