@@ -48,7 +48,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('category', function (Blueprint $table) {
-           $table->id('category_id')->startingValue(21);
+           $table->id('category_id')->startingValue(22);
            $table->unsignedInteger('site_id')->nullable()->index();
            $table->string('name', 80)->nullable()->index();
            $table->boolean('theme_default')->default(true);
@@ -223,7 +223,7 @@ class AddLegacyTables extends Migration
         Schema::create('forum_thread', function (Blueprint $table) {
            $table->id('thread_id');
            $table->unsignedInteger('user_id')->nullable()->index();
-           $table->string('user_string', 80);
+           $table->string('user_string', 80)->nullable();
            $table->unsignedInteger('category_id')->nullable()->index();
            $table->string('title', 256)->nullable();
            $table->string('description', 1000)->nullable();

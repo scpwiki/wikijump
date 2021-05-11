@@ -66,6 +66,7 @@ class ManageSiteForumAction
         $group = new ForumGroup();
         $group->setSiteId($site->getSiteId());
         $group->setName("Hidden");
+        $group->setDescription(_("Hidden group used for storing some discussion threads."));
         $group->setVisible(false);
         $group->save();
 
