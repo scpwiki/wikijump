@@ -15,19 +15,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: PNPM Store Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.pnpm-store
+          key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.OS }}-pnpm-
+            ${{ runner.OS }}-
+
       - name: Install Node
         uses: actions/setup-node@v2
         with:
           node-version: "16"
 
+      - name: Install PNPM
+        run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
+
       - name: Install Dependencies
-        run: cd client && npm ci
+        run: cd client && pnpm i
 
       - name: Test
-        run: cd client && npm test
+        run: cd client && pnpm test
 
       - name: Validate
-        run: cd client && npm run validate
+        run: cd client && pnpm validate
 
       - name: Export Coverage
         uses: codecov/codecov-action@v1
