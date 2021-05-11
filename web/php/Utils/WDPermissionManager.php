@@ -645,7 +645,6 @@ class WDPermissionManager
         $us = $user->getSettings();
         if ($us->getMaxSitesMaster()) {
             $c = new Criteria();
-            ;
             $c->add("user_id", $user->id);
             $c->addJoin("site_id", "site.site_id");
             $c->add('founder', true);
