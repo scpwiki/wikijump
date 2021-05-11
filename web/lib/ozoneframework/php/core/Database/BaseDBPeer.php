@@ -6,6 +6,7 @@ namespace Ozone\Framework\Database;
 
 use mysql_xdevapi\DatabaseObject;
 use Ozone\Framework\ODate;
+use Wikijump\Models\User;
 
 /**
  * Base peer Class.
@@ -21,17 +22,18 @@ abstract class BaseDBPeer {
 	public $defaultValues;
 
 	public static function peerForTable($tableName){
+
+        //Their jank, not mine.
+		$className = 'Wikidot\\DB\\'.capitalizeFirstLetter(underscoreToLowerCase($tableName)).'Peer';
+
         /**
          * I'm adding some hacky shit here until we can make this function go away.
          * Don't @ me.
          * As we're building new tables in Laravel their formula doesn't really work.
          * This translates the new tables to the existing Ozone classes.
          */
-        if($tableName == 'users') { $tableName = 'ozone_user'; }
+        if($tableName == 'users') { $className = User::class; }
 
-
-        //Their jank, not mine.
-		$className = 'Wikidot\\DB\\'.capitalizeFirstLetter(underscoreToLowerCase($tableName)).'Peer';
 		return new $className;
 	}
 

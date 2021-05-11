@@ -5,6 +5,7 @@ namespace Wikidot\Modules\Account\Contacts;
 
 
 
+use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Wikidot\DB\ContactPeer;
@@ -18,38 +19,34 @@ class AccountContactsModule extends AccountBaseModule
 
         $user = $runData->getUser();
 
-        // get all contacts
-        $c = new Criteria();
-        $c->add("contact.user_id", $user->id);
-        $c->addJoin("target_user_id", "users.id");
-        $c->addOrderAscending("users.username");
+        $contacts = DB::table('contact')
+            ->join('users', 'target_user_id', '=', 'users.id')
+            ->where('contact.user_id', $user->id)
+            ->orderBy('users.username')
+            ->get();
 
-        $contacts = ContactPeer::instance()->select($c);
+        // get the list who contacts you back to display emails.
+        $q = DB::table('contact')
+            ->select('user_id')
+            ->where('target_user_id', $user->id)
+            ->get()
+            ->toArray();
 
-        if (true || count($contacts) > 0) {
-            // get the list who contacts you back to display emails.
-            // by query
-            $q = "SELECT user_id FROM contact WHERE target_user_id='" . $user->id . "'";
-            $db = Database::connection();
-            $res = $db->query($q);
-            $back = $res->fetchAll();
-
-            if ($back) {
-                foreach ($back as &$b) {
-                    $b = $b['user_id'];
-                }
-                foreach ($contacts as &$contact) {
-                    if (in_array($contact->getTargetUserId(), $back)) {
-                        $contact->setTemp("showEmail", true);
-                    }
+        if ($q) {
+            foreach ($q as &$b) {
+                $b = $b['user_id'];
+            }
+            foreach ($contacts as &$contact) {
+                if (in_array($contact->getTargetUserId(), $q)) {
+                    $contact->setTemp("showEmail", true);
                 }
             }
-            if (!$back) {
-                $back = null;
-            }
-            $runData->contextAdd("back", $back);
-            $runData->contextAdd("countBack", count($back));
         }
+        if (!$q) {
+            $q = null;
+        }
+        $runData->contextAdd("back", $q);
+        $runData->contextAdd("countBack", is_countable($q) ? count($q) : null);
 
         $runData->contextAdd("contacts", $contacts);
 
