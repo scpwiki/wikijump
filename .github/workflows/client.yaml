@@ -20,17 +20,6 @@ jobs:
         with:
           node-version: "16"
 
-      - name: Dependency Cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.npm
-            client/node_modules
-          key: ${{ runner.OS }}-node-${{ hashFiles('client/**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
-
       - name: Install Dependencies
         run: cd client && npm ci
 
