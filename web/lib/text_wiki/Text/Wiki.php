@@ -151,7 +151,7 @@ class Text_Wiki {
     *
     */
 
-    public $parseConf = array();
+    public $parseConf = [];
 
     /**
     *
@@ -195,15 +195,7 @@ class Text_Wiki {
     *
     */
 
-    public $formatConf = array(
-        'Docbook' => array(),
-        'Latex' => array(),
-        'Pdf' => array(),
-        'Plain' => array(),
-        'Rtf' => array(),
-        'Xhtml' => array(),
-        'Xhtmleditable' => array()
-    );
+    public $formatConf = [];
 
     /**
     *
@@ -526,8 +518,6 @@ class Text_Wiki {
     *
     * @access public
     *
-    * @param string $format The format to set config for.
-    *
     * @param string $key The config key within the format.
     *
     * @param string $val The config value for the key.
@@ -536,19 +526,15 @@ class Text_Wiki {
     *
     */
 
-    function setFormatConf($format, $arg1, $arg2 = null)
+    function setFormatConf($key, $val = null)
     {
-        if (! is_array($this->formatConf[$format])) {
-            $this->formatConf[$format] = array();
-        }
-
         // if first arg is an array, use it as the entire
         // conf array for the format.  otherwise, treat arg1
         // as a key and arg2 as a value for the format conf.
-        if (is_array($arg1)) {
-            $this->formatConf[$format] = $arg1;
+        if (is_array($key)) {
+            $this->formatConf = $key;
         } else {
-            $this->formatConf[$format][$arg1] = $arg2;
+            $this->formatConf[$key] = $val;
         }
     }
 
@@ -558,8 +544,6 @@ class Text_Wiki {
     *
     * @access public
     *
-    * @param string $format The format to get config for.
-    *
     * @param mixed $key A key in the conf array; if null,
     * returns the entire conf array.
     *
@@ -568,22 +552,17 @@ class Text_Wiki {
     *
     */
 
-    function getFormatConf($format, $key = null)
+    function getFormatConf($key = null)
     {
-        // the format does not exist
-        if (! isset($this->formatConf[$format])) {
-            return null;
-        }
-
         // no key requested, return the whole array
         if (is_null($key)) {
-            return $this->formatConf[$format];
+            return $this->formatConf];
         }
 
         // does the requested key exist?
-        if (isset($this->formatConf[$format][$key])) {
+        if (isset($this->formatConf[$key])) {
             // yes, return that value
-            return $this->formatConf[$format][$key];
+            return $this->formatConf[$key];
         } else {
             // no
             return null;
