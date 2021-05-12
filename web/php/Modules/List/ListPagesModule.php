@@ -570,7 +570,7 @@ class ListPagesModule extends SmartyModule
 
             /* %%comments%% */
             $b = preg_replace_callback("/%%comments%%/i", array(
-                $this, '_handleComementsCount'), $b);
+                $this, '_handleCommentsCount'), $b);
 
             /* %%page_unix_name%% */
             $b = str_ireplace('%%page_unix_name%%', $page->getUnixName(), $b);
@@ -789,7 +789,7 @@ class ListPagesModule extends SmartyModule
         return $page->getPreview($length);
     }
 
-    private function _handleComementsCount($m)
+    private function _handleCommentsCount($m)
     {
         $page = $this->_tmpPage;
         $threadId = $page->getThreadId();
