@@ -39,11 +39,10 @@ class UserChangesListModule extends SmartyLocalizedModule
         }
 
         if ($op) {
-            $json = new JSONService(SERVICES_JSON_LOOSE_TYPE);
-            $o = $json->decode($op);
-        }
-        if (count($o) == 0) {
-            $o['all'] == true;
+            $o = json_decode($op, true);
+            if (is_countable($o) == false) {
+                $o['all'] == true;
+            }
         }
 
         $perPage = $pl->getParameterValue("perpage");
@@ -61,7 +60,7 @@ class UserChangesListModule extends SmartyLocalizedModule
             $c->add("site.private", false);
         }
 
-        if (!$o['all'] && count($o)>0) {
+        if (!$o['all'] && is_countable($o)) {
             $c2 = new Criteria();
             if ($o['new']) {
                 $c2->addOr("flag_new", true);

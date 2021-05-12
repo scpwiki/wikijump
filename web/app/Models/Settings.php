@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Models;
 
@@ -19,7 +20,12 @@ class Settings extends Model
 
     public array $defaults;
 
-    public $timestamps = false;
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public bool $timestamps = false;
 
     /**
      * Settings are stored in the database as JSON objects.
@@ -56,6 +62,7 @@ class Settings extends Model
      * @param array $setting
      * @param array $options
      * @return bool
+     * @throws Exception
      * @see Model::update()
      */
     public function modify(array $setting = [], array $options = []) : bool
@@ -89,9 +96,10 @@ class Settings extends Model
             }
             /**
              * If the model *did* exist and all the settings are no defaults,
-             * destroy the object. Returns true
+             * destroy the object. Returns true.
              */
-            return Settings::destroy($this->id);
+            Settings::destroy($this->id);
+            return true;
         }
         /**
          * Otherwise, save the changes.

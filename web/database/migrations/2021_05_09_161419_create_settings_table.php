@@ -17,7 +17,7 @@ class CreateSettingsTable extends Migration
             $table->id();
             $table->json('settings');
             $table->unsignedInteger('setter_id');
-            $table->string('setter_type', 128);
+            $table->string('setter_type', 64);
 
             $table->unique(['setter_type', 'setter_id']);
         });

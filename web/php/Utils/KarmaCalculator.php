@@ -44,28 +44,34 @@ class KarmaCalculator
         return $p;
     }
 
+    /**
+     * Calculate karma level.
+     *
+     * Note that the behavior of a switch in PHP is to execute every command
+     * after the first true condition without a `break` statement. If it
+     * were set so if $p >= $minPointsLevelX, everyone would end up with karma
+     * level 5.
+     *
+     * @noinspection PhpMissingBreakStatementInspection
+     */
     public function update($user)
     {
         $p = $this->calculate($user);
         $user->karma_points = $p;
 
-        /**
-         * Calculate karma level.
-         *
-         * Note that the behavior of a switch in PHP is to execute every command
-         * after the first true condition without a `break` statement. If it
-         * were set so if $p >= $minPointsLevelX, everyone would end up with karma
-         * level 5.
-         */
         switch($p) {
             case ($p < $this->minPointsLevel1):
                 $user->karma_level = 0;
+                /* FALLTHROUGH */
             case ($p < $this->minPointsLevel2):
                 $user->karma_level = 1;
+                /* FALLTHROUGH */
             case ($p < $this->minPointsLevel3):
                 $user->karma_level = 2;
+                /* FALLTHROUGH */
             case ($p < $this->minPointsLevel4):
                 $user->karma_level = 3;
+                /* FALLTHROUGH */
             case ($p < $this->minPointsLevel5):
                 $user->karma_level = 4;
                 break;

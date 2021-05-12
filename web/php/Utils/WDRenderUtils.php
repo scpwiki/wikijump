@@ -52,7 +52,7 @@ class WDRenderUtils
             // handle sizes...
             $out .=     '<a '.$linkInner.' ><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="'.htmlspecialchars($user->username).'"';
             /* karma: */
-            $out .= ' style="background-image:url('.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/userkarma.php?u=' . $userId . ')"';
+            $out .= ' style="background-image:url('.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user--karma/' . $userId . ')"';
             /* end of karma */
             $out .= '/></a>';
         }

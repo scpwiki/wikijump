@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Providers;
 
@@ -14,7 +15,7 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected $listen = [
+    protected array $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],

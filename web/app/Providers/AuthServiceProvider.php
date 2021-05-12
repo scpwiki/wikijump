@@ -1,9 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -12,7 +12,7 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected $policies = [
+    protected array $policies = [
         // 'Wikijump\Models\Model' => 'Wikijump\Policies\ModelPolicy',
     ];
 

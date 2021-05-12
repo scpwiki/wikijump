@@ -26,30 +26,28 @@ class AccountContactsModule extends AccountBaseModule
 
         $contacts = ContactPeer::instance()->select($c);
 
-        if (true || count($contacts) > 0) {
-            // get the list who contacts you back to display emails.
-            // by query
-            $q = "SELECT user_id FROM contact WHERE target_user_id='" . $user->id . "'";
-            $db = Database::connection();
-            $res = $db->query($q);
-            $back = $res->fetchAll();
+        // get the list who contacts you back to display emails.
+        // by query
+        $q = "SELECT user_id FROM contact WHERE target_user_id='" . $user->id . "'";
+        $db = Database::connection();
+        $res = $db->query($q);
+        $back = $res->fetchAll();
 
-            if ($back) {
-                foreach ($back as &$b) {
-                    $b = $b['user_id'];
-                }
-                foreach ($contacts as &$contact) {
-                    if (in_array($contact->getTargetUserId(), $back)) {
-                        $contact->setTemp("showEmail", true);
-                    }
+        if ($back) {
+            foreach ($back as &$b) {
+                $b = $b['user_id'];
+            }
+            foreach ($contacts as &$contact) {
+                if (in_array($contact->getTargetUserId(), $back)) {
+                    $contact->setTemp("showEmail", true);
                 }
             }
-            if (!$back) {
-                $back = null;
-            }
-            $runData->contextAdd("back", $back);
-            $runData->contextAdd("countBack", count($back));
         }
+        if (!$back) {
+            $back = null;
+        }
+        $runData->contextAdd("back", $back);
+        $runData->contextAdd("countBack", is_countable($back) ? count($back) : null);
 
         $runData->contextAdd("contacts", $contacts);
 

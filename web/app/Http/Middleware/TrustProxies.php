@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Http\Middleware;
 
@@ -19,5 +20,5 @@ class TrustProxies extends Middleware
      *
      * @var int
      */
-    protected $headers = Request::HEADER_X_FORWARDED_ALL;
+    protected int $headers = Request::HEADER_X_FORWARDED_TRAEFIK;
 }

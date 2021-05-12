@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
@@ -61,6 +62,20 @@ Route::prefix('social--providers')->group(function() {
 Route::post('/ajax--handler', function() {
     $controller = new AjaxModuleWikiFlowController();
     $controller->process();
+});
+
+/**
+ * Karma displayer.
+ */
+Route::get('/user--karma/{user}', function(User $user) {
+    $karma = Cache::remember('karma_level__user_'.$user->id, 3600, function() use($user) {
+        return $user->karma_level;
+    });
+    header('Content-type: image/png');
+    header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 3600) . ' GMT');
+    header("Last-Modified: ".gmdate('D, d M Y H:i:s', time() ) . ' GMT');
+    header('Cache-Control: max-age=3600, must-revalidate');
+    readfile(WIKIJUMP_ROOT.'/web/files--common/theme/base/images/karma/karma_'.$karma.'.png');
 });
 
 /**

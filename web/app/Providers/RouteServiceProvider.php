@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Providers;
 
@@ -47,6 +48,8 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
         });
+
+        Route::pattern('user', '[1-9][0-9]*');
     }
 
     /**
@@ -68,8 +71,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map() : void
     {
-        $this->mapApiRoutes();
-        $this->mapWebRoutes();
+//        $this->mapApiRoutes();
+//        $this->mapWebRoutes();
         $this->mapServiceRoutes();
     }
 

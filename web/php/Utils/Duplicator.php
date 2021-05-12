@@ -313,7 +313,7 @@ class Duplicator
         $nmeta->setTitle($meta->getTitle());
         $nmeta->setUnixName($newUnixName);
         if ($owner) {
-            $nmeta->setOwnerUserId($owner->getUserId());
+            $nmeta->setOwnerUserId($owner->id);
         } else {
             $nmeta->setOwnerUserId($meta->getOwnerUserId());
         }
@@ -327,7 +327,7 @@ class Duplicator
         $nrev->setFlagNew(true);
         $nrev->setFlagNewSite(true);
         $nrev->setDateLastEdited($now);
-        $nrev->setUserId($owner->getUserId());
+        $nrev->setUserId($owner->id);
         $nrev->obtainPK();
 
         $npage = new Page();
@@ -340,8 +340,8 @@ class Duplicator
         $npage->setUnixName($newUnixName);
         $npage->setDateLastEdited($now);
         $npage->setDateCreated($now);
-        $npage->setLastEditUserId($owner->getUserId());
-        $npage->setOwnerUserId($owner->getUserId());
+        $npage->setLastEditUserId($owner->id);
+        $npage->setOwnerUserId($owner->id);
 
         $npage->save();
         $nrev->setPageId($npage->getPageId());

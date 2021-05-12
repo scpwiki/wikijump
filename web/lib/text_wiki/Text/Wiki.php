@@ -489,11 +489,11 @@ class Text_Wiki {
         $rule = ucwords(strtolower($rule));
 
         if (! isset($this->renderConf[$format])) {
-            $this->renderConf[$format] = array();
+            $this->renderConf[$format] = [];
         }
 
         if (! isset($this->renderConf[$format][$rule])) {
-            $this->renderConf[$format][$rule] = array();
+            $this->renderConf[$format][$rule] = [];
         }
 
         // if first arg is an array, use it as the entire

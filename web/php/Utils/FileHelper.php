@@ -23,7 +23,7 @@ class FileHelper
         return $r['size'];
     }
 
-    public function totalSiteFileNumber($siteId)
+    public static function totalSiteFileNumber($siteId)
     {
         $q = "SELECT count(*) AS count FROM file WHERE site_id='".db_escape_string($siteId)."'	";
         $db = Database::connection();

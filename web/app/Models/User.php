@@ -1,17 +1,17 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Models;
 
 use Database\Seeders\UserSeeder;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Wikijump\Traits\HasSettings;
+use Wikijump\Traits\LegacyCompatibility;
 
 /**
  * Class User
@@ -24,6 +24,7 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
     use HasSettings;
+    use LegacyCompatibility;
 
     /**
      * These are service accounts added by the UserSeeder. They're used during
@@ -43,7 +44,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = [
+    protected array $fillable = [
         'username',
         'email',
         'password',
@@ -54,7 +55,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $attributes = [
+    protected array $attributes = [
 
     ];
 
@@ -63,7 +64,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $hidden = [
+    protected array $hidden = [
         'password',
         'remember_token',
         'two_factor_secret',

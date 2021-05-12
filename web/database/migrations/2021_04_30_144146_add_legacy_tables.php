@@ -1,6 +1,7 @@
 <?php
 
 use Database\Seeders\LegacySeeder;
+use Database\Seeders\PHPUnitLegacySeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
@@ -16,7 +17,7 @@ class AddLegacyTables extends Migration
     public function up()
     {
         Schema::create('admin', function(Blueprint $table) {
-            $table->id('admin_id');
+            $table->id('admin_id')->startingValue(4);
             $table->unsignedInteger('site_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
             $table->boolean('founder')->nullable()->default(false);
@@ -48,7 +49,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('category', function (Blueprint $table) {
-           $table->id('category_id');
+           $table->id('category_id')->startingValue(22);
            $table->unsignedInteger('site_id')->nullable()->index();
            $table->string('name', 80)->nullable()->index();
            $table->boolean('theme_default')->default(true);
@@ -223,7 +224,7 @@ class AddLegacyTables extends Migration
         Schema::create('forum_thread', function (Blueprint $table) {
            $table->id('thread_id');
            $table->unsignedInteger('user_id')->nullable()->index();
-           $table->string('user_string', 80);
+           $table->string('user_string', 80)->nullable();
            $table->unsignedInteger('category_id')->nullable()->index();
            $table->string('title', 256)->nullable();
            $table->string('description', 1000)->nullable();
@@ -274,7 +275,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('license', function (Blueprint $table) {
-           $table->id('license_id');
+           $table->id('license_id')->startingValue(16);
            $table->string('name', 100)->nullable()->unique();
            $table->string('description', 200000)->nullable();
            $table->unsignedInteger('sort')->default(0);
@@ -409,7 +410,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page', function (Blueprint $table) {
-            $table->id('page_id');
+            $table->id('page_id')->startingValue(53);
             $table->unsignedInteger('site_id')->nullable()->index();
             $table->unsignedInteger('category_id')->nullable()->index();
             $table->unsignedInteger('parent_page_id')->nullable()->index();
@@ -484,7 +485,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_link', function (Blueprint $table) {
-            $table->id('link_id');
+            $table->id('link_id')->startingValue(37);
             $table->unsignedInteger('from_page_id')->nullable();
             $table->unsignedInteger('to_page_id')->nullable();
             $table->string('to_page_name', 128)->nullable();
@@ -494,7 +495,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_metadata', function (Blueprint $table) {
-            $table->id('metadata_id');
+            $table->id('metadata_id')->startingValue(57);
             $table->unsignedInteger('parent_page_id')->nullable();
             $table->string('title', 256)->nullable();
             $table->string('unix_name', 80)->nullable();
@@ -512,7 +513,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_revision', function (Blueprint $table) {
-            $table->id('revision_id');
+            $table->id('revision_id')->startingValue(64);
             $table->unsignedInteger('page_id')->nullable()->index();
             $table->unsignedInteger('source_id')->nullable();
             $table->unsignedInteger('metadata_id')->nullable();
@@ -535,7 +536,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_source', function (Blueprint $table) {
-            $table->id('source_id');
+            $table->id('source_id')->startingValue(63);
             $table->string('text', 200000)->nullable();
         });
 
@@ -581,7 +582,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('site', function (Blueprint $table) {
-            $table->id('site_id');
+            $table->id('site_id')->startingValue(4);
             $table->string('name', 50)->nullable();
             $table->string('subtitle', 60)->nullable();
             $table->string('unix_name', 80)->nullable()->unique();
@@ -627,7 +628,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('site_tag', function (Blueprint $table) {
-            $table->id('tag_id');
+            $table->id('tag_id')->startingValue(2);
             $table->unsignedInteger('site_id')->nullable();
             $table->string('tag', 20)->nullable();
 
@@ -641,7 +642,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('theme', function (Blueprint $table) {
-            $table->id('theme_id');
+            $table->id('theme_id')->startingValue(29);
             $table->string('name', 100)->nullable();
             $table->string('unix_name', 100)->nullable();
             $table->boolean('abstract')->default(false);
@@ -660,14 +661,14 @@ class AddLegacyTables extends Migration
             $table->unsignedInteger('theme_id')->primary();
             $table->string('body', 200000)->nullable();
         });
-        
+
         Schema::create('ucookie', function (Blueprint $table) {
             $table->string('ucookie_id', 100)->primary();
             $table->unsignedInteger('site_id')->nullable()->index();
             $table->string('session_id', 60)->nullable()->index();
             $table->timestamp('date_granted')->nullable();
         });
-        
+
         Schema::create('user_abuse_flag', function (Blueprint $table) {
             $table->id('flag_id');
             $table->unsignedInteger('user_id')->nullable();
@@ -676,7 +677,7 @@ class AddLegacyTables extends Migration
             $table->boolean('site_valid')->default(true);
             $table->boolean('global_valid')->default(true);
         });
-        
+
         Schema::create('user_block', function (Blueprint $table) {
             $table->id('block_id');
             $table->unsignedInteger('site_id')->nullable()->index();
@@ -722,9 +723,22 @@ class AddLegacyTables extends Migration
             $table->unique(['user_id', 'page_id']);
         });
 
-        Artisan::call('db:seed', [
-            '--class' => LegacySeeder::class,
-        ]);
+        if(env('APP_ENV') == 'testing') {
+            Artisan::call(
+                'db:seed',
+                [
+                    '--class' => PHPUnitLegacySeeder::class,
+                ]
+            );
+        }
+        else {
+            Artisan::call(
+                'db:seed',
+                [
+                    '--class' => LegacySeeder::class,
+                ]
+            );
+        }
     }
 
     /**
@@ -734,6 +748,72 @@ class AddLegacyTables extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('admin');
+        Schema::drop('admin_notification');
+        Schema::drop('anonymous_abuse_flag');
+        Schema::drop('category');
+        Schema::drop('category_template');
+        Schema::drop('comment');
+        Schema::drop('comment_revision');
+        Schema::drop('contact');
+        Schema::drop('domain_redirect');
+        Schema::drop('email_invitation');
+        Schema::drop('file');
+        Schema::drop('files_event');
+        Schema::drop('forum_category');
+        Schema::drop('forum_group');
+        Schema::drop('forum_post');
+        Schema::drop('forum_post_revision');
+        Schema::drop('forum_settings');
+        Schema::drop('forum_thread');
+        Schema::drop('front_forum_feed');
+        Schema::drop('global_ip_block');
+        Schema::drop('global_user_block');
+        Schema::drop('ip_block');
+        Schema::drop('license');
+        Schema::drop('log_event');
+        Schema::drop('member');
+        Schema::drop('member_application');
+        Schema::drop('member_invitation');
+        Schema::drop('membership_link');
+        Schema::drop('moderator');
+        Schema::drop('notification');
+        Schema::drop('ozone_group');
+        Schema::drop('ozone_group_permission_modifier');
+        Schema::drop('ozone_lock');
+        Schema::drop('ozone_permission');
+        Schema::drop('ozone_session');
+        Schema::drop('ozone_user_group_relation');
+        Schema::drop('ozone_user_permission_modifier');
+        Schema::drop('page');
+        Schema::drop('page_abuse_flag');
+        Schema::drop('page_compiled');
+        Schema::drop('page_edit_lock');
+        Schema::drop('page_external_link');
+        Schema::drop('page_inclusion');
+        Schema::drop('page_link');
+        Schema::drop('page_metadata');
+        Schema::drop('page_rate_vote');
+        Schema::drop('page_revision');
+        Schema::drop('page_source');
+        Schema::drop('page_tag');
+        Schema::drop('private_message');
+        Schema::drop('private_user_block');
+        Schema::drop('profile');
+        Schema::drop('site');
+        Schema::drop('site_backup');
+        Schema::drop('site_settings');
+        Schema::drop('site_super_settings');
+        Schema::drop('site_tag');
+        Schema::drop('site_viewer');
+        Schema::drop('theme');
+        Schema::drop('theme_preview');
+        Schema::drop('ucookie');
+        Schema::drop('user_abuse_flag');
+        Schema::drop('user_block');
+        Schema::drop('user_karma');
+        Schema::drop('user_settings');
+        Schema::drop('watched_forum_thread');
+        Schema::drop('watched_page');
     }
 }

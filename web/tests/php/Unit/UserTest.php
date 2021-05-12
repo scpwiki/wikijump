@@ -1,13 +1,17 @@
 <?php
+declare(strict_types=1);
 
 namespace Tests\Unit;
 
 use Exception;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Wikijump\Models\User;
 
 class UserTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * A basic test of the factory.
      *
