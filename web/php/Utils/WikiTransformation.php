@@ -64,17 +64,13 @@ class WikiTransformation
 
     public function setPage($page)
     {
+        $pageSlug = $page->getUnixName();
         $this->page = $page;
         $this->wiki->vars['page'] = $page;
         $this->wiki->vars['pageTitle'] = $page->getTitleOrUnixName();
-        $this->setPageSlug($page->getUnixName());
-    }
-
-    public function setPageSlug(string $pageSlug)
-    {
+        $this->wiki->vars['pageName'] = $pageSlug;
         $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$pageSlug.'/');
         $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$pageSlug.'/');
-        $this->wiki->vars['pageName'] = $pageSlug;
     }
 
     // Don't delete until this logic has been transferred to WikitextBackend implementations
