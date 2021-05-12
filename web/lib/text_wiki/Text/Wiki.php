@@ -746,7 +746,7 @@ class Text_Wiki {
     *
     */
 
-    function enableRule($name)
+    function enableRule(string $name)
     {
         $name = ucwords(strtolower($name));
         $key = array_search($name, $this->disable);
@@ -792,24 +792,18 @@ class Text_Wiki {
     * source text is transformed in place; once it is transformed, it is
     * no longer the same as the original source text.
     *
-    * @access public
-    *
     * @param string $text The source text to which wiki rules should be
     * applied, both for parsing and for rendering.
-    *
-    * @param string $format The target output format, typically 'xhtml'.
-    *  If a rule does not support a given format, the output from that
-    * rule is rule-specific.
     *
     * @return string The transformed wiki text.
     *
     */
 
-    function transform($text, $format = 'xhtml')
+    public function transform(string $text)
     {
-    	$this->currentFormat = $format;
+    	$this->currentFormat = 'xhtml';
         $this->parse($text);
-        $out = $this->render($format);
+        $out = $this->render($this->currentFormat);
         $this->currentFormat = null;
         return $out;
     }
@@ -819,8 +813,6 @@ class Text_Wiki {
     * Sets the $_source text property, then parses it in place and
     * retains tokens in the $_tokens array property.
     *
-    * @access public
-    *
     * @param string $text The source text to which wiki rules should be
     * applied, both for parsing and for rendering.
     *
@@ -828,7 +820,7 @@ class Text_Wiki {
     *
     */
 
-    function parse($text)
+    private function parse($text)
     {
         // set the object property for the source text
         $this->source = $text;
@@ -859,20 +851,13 @@ class Text_Wiki {
     *
     * Renders tokens back into the source text, based on the requested format.
     *
-    * @access public
-    *
-    * @param string $format The target output format, typically 'xhtml'.
-    * If a rule does not support a given format, the output from that
-    * rule is rule-specific.
-    *
     * @return string The transformed wiki text.
     *
     */
 
-    function render($format = 'Xhtml')
+    private function render()
     {
-        // the rendering method we're going to use from each rule
-        $format = ucwords(strtolower($format));
+        $format = 'xhtml';
 
         // the eventual output text
         $output = '';
@@ -886,8 +871,8 @@ class Text_Wiki {
 
         // load the format object, or crap out if we can't find it
         $result = $this->loadFormatObj($format);
-        if ($this->isError($result)) {
-        	return $result;
+        if (is_a($result, 'PEAR_Error')) {
+            return $result;
         }
 
         // pre-rendering activity
@@ -959,32 +944,15 @@ class Text_Wiki {
         return $output;
     }
 
-    public function strip($matches){
+    private function strip(array $matches) {
     	return strip_tags($matches[1]);
-    }
-
-    /**
-    *
-    * Returns the parsed source text with delimited token placeholders.
-    *
-    * @access public
-    *
-    * @return string The parsed source text.
-    *
-    */
-
-    function getSource()
-    {
-        return $this->source;
     }
 
     /**
     *
     * Returns tokens that have been parsed out of the source text.
     *
-    * @access public
-    *
-    * @param array $rules If an array of rule names is passed, only return
+    * @param ?array $rules If an array of rule names is passed, only return
     * tokens matching these rule names.  If no array is passed, return all
     * tokens.
     *
@@ -992,7 +960,8 @@ class Text_Wiki {
     *
     */
 
-    function getTokens($rules = null)
+    // Used by the Toc.php parse rule
+    public function getTokens(?array $rules = null): array
     {
         if (is_null($rules)) {
             return $this->tokens;
@@ -1030,7 +999,7 @@ class Text_Wiki {
     *
     */
 
-    function addToken($rule, $options = array(), $id_only = false)
+    public function addToken($rule, array $options = [], bool $id_only = false)
     {
         // increment the token ID number.  note that if you parse
         // multiple times with the same Text_Wiki object, the ID number
@@ -1297,29 +1266,12 @@ class Text_Wiki {
     *
     * @param string $message The error message.
     *
-    * @return ProcessException
+    * @throws ProcessException
     *
     */
 
     function &error($message)
     {
     	throw new ProcessException($message);
-    }
-
-    /**
-    *
-    * Simple error checker.
-    *
-    * @access public
-    *
-    * @param mixed $obj Check if this is a PEAR_Error object or not.
-    *
-    * @return bool True if a PEAR_Error, false if not.
-    *
-    */
-
-    function isError(&$obj)
-    {
-    	return is_a($obj, 'PEAR_Error');
     }
 }
