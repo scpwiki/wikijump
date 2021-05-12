@@ -21,10 +21,12 @@ class TextWikiBackend implements WikitextBackend
         }
     }
 
+    // Interface methods
     public function version(): string {
         return 'Text_Wiki 0.0.1';
     }
 
+    // Helper methods
     private static function getSite(string $siteSlug): Site {
         $c = new Criteria();
         $c->add('unix_name', $siteSlug);
