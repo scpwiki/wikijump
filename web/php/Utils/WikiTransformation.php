@@ -325,7 +325,6 @@ class WikiTransformation
     }
 }
 
-// quick checkup if page exists
 // Used by setRenderConf() via dynamic dispatch, line 50 above.
 
 function wikiPageExists($pageName)
