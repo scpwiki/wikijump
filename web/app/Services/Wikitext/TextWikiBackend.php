@@ -15,10 +15,33 @@ class TextWikiBackend implements WikitextBackend
     {
         $this->wt = new WikiTransformation();
 
+        // Set page data
         if (!is_null($pageInfo)) {
             $site = self::getSite($pageInfo->site);
             $page = self::getPage($site->getSiteId(), $pageInfo->page);
             $this->wt->setPage($page);
+        }
+
+        // Set parse mode
+        switch ($mode) {
+            case ParseRenderMode::PAGE:
+            case ParseRenderMode::TABLE_OF_CONTENTS:
+                $this->wt->setMode('default');
+                break;
+            case ParseRenderMode::FORUM_POST:
+                $this->wt->setMode('post');
+                break;
+            case ParseRenderMode::DIRECT_MESSAGE:
+                $this->wt->setMode('pm');
+                break;
+            case ParseRenderMode::FEED:
+                $this->wt->setMode('feed');
+                break;
+            case ParseRenderMode::LIST:
+                $this->wt->setMode('list');
+                break;
+            default:
+                throw new Exception("Unknown parse/render mode: $mode");
         }
     }
 
