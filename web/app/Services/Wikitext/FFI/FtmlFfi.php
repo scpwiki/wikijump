@@ -206,7 +206,7 @@ final class FtmlFfi
      * @returns array with the converted objects
      */
     public static function pointerToList(FFI\CData $pointer, int $length, callable $convertFn): array {
-        $list = array();
+        $list = [];
 
         for ($i = 0; $i < $length; $i++) {
             $item = $convertFn($pointer[$i]);
