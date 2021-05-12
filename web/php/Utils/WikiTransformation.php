@@ -24,7 +24,6 @@ class WikiTransformation
     public static $internalLinksNotExist;
 
     private $page;
-    private $pageUnixName;
 
     private $transformationFormat = 'xhtml';
 
