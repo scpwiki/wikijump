@@ -42,11 +42,10 @@ class Text_Wiki {
     *
     */
 
-    public $rules = array(
-    		'Include',
+    public $rules = [
+        'Include',
         'Prefilter',
         'Delimiter',
-       // 'Moduledelimiter',
         'Code',
         'Form',
         'Raw',
@@ -54,16 +53,12 @@ class Text_Wiki {
         'Modulepre',
         'Module',
         'Module654',
-
     	'Iftags',
-
         'Comment',
         'Iframe',
     	'Date',
         'Math',
-
         'Concatlines',
-
         'Freelink',
         'Equationreference',
         'Footnote',
@@ -72,10 +67,7 @@ class Text_Wiki {
         'Bibitem',
         'Bibliography',
         'Bibcite',
- //       'Function',
- //       'Html',
         'Divprefilter',
- //       'Embed',
         'Anchor',
         'User',
         'Blockquote',
@@ -101,7 +93,6 @@ class Text_Wiki {
         'Image',
         'Embed',
         'File',
- //       'Phplookup',
         'Center',
         'Newline',
         'Paragraph' ,
@@ -109,20 +100,17 @@ class Text_Wiki {
         'Email',
         'Mathinline',
         'Interwiki',
-      //  'Wikilink',
         'Colortext',
         'Strong',
-       // 'Bold',
         'Emphasis',
-        //'Italic',
         'Underline',
         'Strikethrough',
         'Tt',
         'Superscript',
         'Subscript',
         'Typography',
-        'Tighten'
-    );
+        'Tighten',
+    ];
 
     /**
     *
@@ -134,9 +122,9 @@ class Text_Wiki {
     *
     */
 
-    public $disable = array(
+    public $disable = [
         'Html'
-    );
+    ];
 
     /**
     *
