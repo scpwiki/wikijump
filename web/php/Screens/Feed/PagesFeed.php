@@ -9,8 +9,11 @@ use Wikidot\DB\PagePeer;
 
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Models\User;
+
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
 
 class PagesFeed extends FeedScreen
 {
@@ -337,10 +340,10 @@ class PagesFeed extends FeedScreen
             }
             $b .= 'by ' . $userString;
 
-            $wt = new WikiTransformation();
-            $wt->setMode("list");
-            $wt->setPage($page);
-            $content = $wt->processSource($b);
+            $pageInfo = []; // TODO get pageInfo from $page
+            $wt = getWikitext(ParseRenderMode::LIST, $pageInfo);
+            $wt->renderHtml($b)->html;
+
             $d = utf8_encode("\xFE");
             $content = preg_replace("/" . $d . "module \"([a-zA-Z0-9\/_]+?)\"(.+?)?" . $d . "/", '', $content);
             $content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);

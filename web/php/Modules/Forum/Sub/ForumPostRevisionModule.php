@@ -9,6 +9,10 @@ use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WikiTransformation;
 
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
+
 class ForumPostRevisionModule extends SmartyModule
 {
 
@@ -31,8 +35,8 @@ class ForumPostRevisionModule extends SmartyModule
         $runData->ajaxResponseAdd("title", $revision->getTitle());
 
         $source = $revision->getText();
-        $wt = new WikiTransformation();
-        $body = $wt->processSource($source);
+        $wt = getWikitext(ParseRenderMode::FORUM_POST, null);
+        $body = $wt->renderHtml($source)->html;
 
         $runData->ajaxResponseAdd("content", $body);
         $runData->ajaxResponseAdd("postId", $revision->getPostId());

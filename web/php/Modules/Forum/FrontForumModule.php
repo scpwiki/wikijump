@@ -17,6 +17,10 @@ use Wikidot\Utils\WDRenderUtils;
 use Wikidot\Utils\WDStringUtils;
 use Wikidot\Utils\WikiTransformation;
 
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
+
 class FrontForumModule extends SmartyModule
 {
 
@@ -159,9 +163,8 @@ class FrontForumModule extends SmartyModule
         }
 
         // process the format and create the message template
-        $wt = new WikiTransformation();
-        $wt->setMode("feed");
-        $template = $wt->processSource($format);
+        $wt = getWikitext(ParseRenderMode::FEED, null);
+        $template = $wt->renderHtml($format)->html;
 
         $template = preg_replace(
             '/

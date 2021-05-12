@@ -8,6 +8,10 @@ use Wikidot\Utils\MagpieFeed;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WikiTransformation;
 
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
+
 class FeedModule extends CacheableModule
 {
 
@@ -101,9 +105,8 @@ class FeedModule extends CacheableModule
         }
 
         // process the format and create the message template
-        $wt = new WikiTransformation();
-        $wt->setMode("feed");
-        $template = $wt->processSource($format);
+        $wt = getWikitext(ParseRenderMode::FEED, null);
+        $template = $wt->renderHtml($format)->html;
 
         // fix template
         $template = preg_replace(

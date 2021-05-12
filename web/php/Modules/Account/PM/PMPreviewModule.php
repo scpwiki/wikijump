@@ -9,6 +9,10 @@ use Wikidot\DB\PrivateMessage;
 use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\WikiTransformation;
 
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
+
 class PMPreviewModule extends AccountBaseModule
 {
 
@@ -20,11 +24,8 @@ class PMPreviewModule extends AccountBaseModule
         $subject = $pl->getParameterValue("subject");
         $toUserId = $pl->getParameterValue("to_user_id");
 
-        $wt = new WikiTransformation();
-        $wt->setMode('pm');
-        $result = $wt->processSource($source);
-
-        $body = $result;
+        $wt = getWikitext(ParseRenderMode::DIRECT_MESSAGE, null);
+        $body = $wt->renderHtml($source)->html;
 
         $message = new PrivateMessage();
         $message->setFromUserId($runData->getUserId());

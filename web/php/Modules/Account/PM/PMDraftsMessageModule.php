@@ -11,6 +11,10 @@ use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WikiTransformation;
 
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
+
 class PMDraftsMessageModule extends AccountBaseModule
 {
 
@@ -26,9 +30,10 @@ class PMDraftsMessageModule extends AccountBaseModule
             throw new ProcessException(_("Error selecting message."), "no_message");
         }
 
-        $wt = new WikiTransformation();
-        $wt->setMode('pm');
-        $message->setBody($wt->processSource($message->getBody()));
+        $wt = getWikitext(ParseRenderMode::DIRECT_MESSAGE, null);
+        $source = $message->getBody();
+        $body = $wt->renderHtml($source)->html;
+        $message->setBody($body);
 
         $runData->contextAdd("message", $message);
 

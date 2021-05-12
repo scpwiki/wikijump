@@ -8,6 +8,10 @@ use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WikiTransformation;
 
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
+
 class PageVersionModule extends SmartyModule
 {
 
@@ -24,8 +28,9 @@ class PageVersionModule extends SmartyModule
 
         $source = $revision->getSourceText();
 
-        $tr = new WikiTransformation();
-        $content = $tr->processSource($source);
+        // Why doesn't this pass in page data?
+        $wt = getWikitext(ParseRenderMode::PAGE, null);
+        $content = $wt->renderHtml($source)->html;
 
         $runData->contextAdd("pageContent", $content);
         $runData->contextAdd("revision", $revision);

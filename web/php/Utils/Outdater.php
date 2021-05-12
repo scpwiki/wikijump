@@ -18,6 +18,10 @@ use Wikidot\DB\PageInclusion;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
+
 class Outdater
 {
 
@@ -208,19 +212,21 @@ class Outdater
                 $source = $this->assemblySource($source, $templatePage->getSource(), $page);
             }
         }
-        $wt = new WikiTransformation();
-        $wt->setPage($page);
-        $result = $wt->processSource($source);
 
-        $compiled->setText($result);
+        $pageInfo = []; // TODO get pageInfo from $page
+        $wt = getWikitext(ParseRenderMode::PAGE, $pageInfo);
+        $result = $wt->renderHtml($source);
+
+        $compiled->setText($result->html);
         $compiled->setDateCompiled(new ODate());
         $compiled->save();
 
-        $linksExist = $wt->wiki->vars['internalLinksExist'];
-        $linksNotExist = $wt->wiki->vars['internalLinksNotExist'];
-        $inclusions = $wt->wiki->vars['inclusions'];
-        $inclusionsNotExist = $wt->wiki->vars['inclusionsNotExist'];
-        $externalLinks = $wt->wiki->vars['externalLinks'];
+        // TODO get this information for real
+        $linksExist = $wt->getCustomField('internalLinksExist');
+        $linksNotExist = $wt->getCustomField('internalLinksNotExist');
+        $inclusions = $wt->getCustomField('inclusions');
+        $inclusionsNotExist = $wt->getCustomField('inclusionsNotExist');
+        $externalLinks = $wt->getCustomField('externalLinks');
 
         $this->vars['linksExist'] = $linksExist;
         $this->vars['linksNotExist'] = $linksNotExist;
@@ -231,8 +237,9 @@ class Outdater
 
     private function assemblySource($source, $templateSource, $page = null)
     {
-        $t = new WikiTransformation(false);
-        return $t->assemblyTemplate($source, $templateSource, $page);
+        // TODO what is this?
+        $wt = new WikiTransformation(false);
+        return $wt->assemblyTemplate($source, $templateSource, $page);
     }
 
     /**
