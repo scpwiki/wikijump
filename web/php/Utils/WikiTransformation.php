@@ -152,7 +152,6 @@ class WikiTransformation
 
 function wikiPageExists($pageName)
 {
-
     if ($GLOBALS['site'] == null) {
         $runData = Ozone::getRunData();
         $siteId = $runData->getTemp("site")->getSiteId();
