@@ -1,6 +1,5 @@
 # -- UTILITY
 
-update: pnpm i && pnpm -r build
 build: ultra -r build
 force-build: ultra --rebuild -r build
 

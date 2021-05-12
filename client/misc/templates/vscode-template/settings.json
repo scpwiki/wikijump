@@ -3,9 +3,12 @@
     "**/.npm": true,
     "**/node_modules": true,
     "**/dist/": true,
+    "**/.nyc_output/": true,
+    "**/.idea/": true,
+    "**/tests-dist/": true,
+    "**/coverage/": true,
     "**/.ultra.cache.json": true,
-    "**/package-lock.json": true
+    "**/pnpm-lock.yaml": true
   },
   "typescript.tsdk": "node_modules\\typescript\\lib"
-  // "editor.wordWrapColumn": 90
 }
