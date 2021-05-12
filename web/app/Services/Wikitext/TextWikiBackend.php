@@ -49,7 +49,8 @@ class TextWikiBackend implements WikitextBackend
     public function renderHtml(string $wikitext): HtmlOutput
     {
         $html = $this->wt->processSource($wikitext);
-        return new HtmlOutput($html, '', [], []);
+        $linkStats = LinkStats::fromWikiObject($this->wt->wiki);
+        return new HtmlOutput($html, '', [], [], $linkStats);
     }
 
     public function renderText(string $wikitext): TextOutput

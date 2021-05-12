@@ -223,18 +223,11 @@ class Outdater
         $compiled->setDateCompiled(new ODate());
         $compiled->save();
 
-        // TODO get this information for real
-        $linksExist = $wt->getCustomField('internalLinksExist');
-        $linksNotExist = $wt->getCustomField('internalLinksNotExist');
-        $inclusions = $wt->getCustomField('inclusions');
-        $inclusionsNotExist = $wt->getCustomField('inclusionsNotExist');
-        $externalLinks = $wt->getCustomField('externalLinks');
-
-        $this->vars['linksExist'] = $linksExist;
-        $this->vars['linksNotExist'] = $linksNotExist;
-        $this->vars['inclusions'] = $inclusions;
-        $this->vars['inclusionsNotExist'] = $inclusionsNotExist;
-        $this->vars['externalLinks'] = $externalLinks;
+        $this->vars['linksExist'] = $result->linkStats->internalLinksPresent;
+        $this->vars['linksNotExist'] = $result->linkStats->internalLinksAbsent;
+        $this->vars['inclusions'] = $result->linkStats->inclusionsPresent;
+        $this->vars['inclusionsNotExist'] = $result->linkStats->inclusionsAbsent;
+        $this->vars['externalLinks'] = $result->linkStats->externalLinks;
     }
 
     /**
