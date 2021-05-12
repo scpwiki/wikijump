@@ -18,6 +18,7 @@ use Wikidot\DB\PageInclusion;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 
+use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
 use function Wikijump\Services\Wikitext\getWikitextBackend;
@@ -237,9 +238,7 @@ class Outdater
 
     private function assemblySource($source, $templateSource, $page = null)
     {
-        // TODO what is this?
-        $wt = new WikiTransformation(false);
-        return $wt->assemblyTemplate($source, $templateSource, $page);
+        return LegacyTemplateAssembler::assembleTemplate($source, $templateSource, $page);
     }
 
     /**
