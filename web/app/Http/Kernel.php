@@ -35,7 +35,7 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected array $middleware = [
+    protected $middleware = [
         // \Wikijump\Http\Middleware\TrustHosts::class,
         TrustProxies::class,
         HandleCors::class,
@@ -50,7 +50,7 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected array $middlewareGroups = [
+    protected $middlewareGroups = [
         'web' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
@@ -74,7 +74,7 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected array $routeMiddleware = [
+    protected $routeMiddleware = [
         'auth' => Authenticate::class,
         'auth.basic' => AuthenticateWithBasicAuth::class,
         'cache.headers' => SetCacheHeaders::class,

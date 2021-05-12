@@ -12,7 +12,7 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected array $policies = [
+    protected $policies = [
         // 'Wikijump\Models\Model' => 'Wikijump\Policies\ModelPolicy',
     ];
 
