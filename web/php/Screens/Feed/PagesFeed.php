@@ -332,7 +332,7 @@ class PagesFeed extends FeedScreen
             }
             $b .= 'by ' . $userString;
 
-            $pageInfo = []; // TODO get pageInfo from $page
+            $pageInfo = PageInfo::fromPageObject($page);
             $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
             $wt->renderHtml($b)->html;
 
