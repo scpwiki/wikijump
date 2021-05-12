@@ -168,8 +168,7 @@ class WikiTransformation
         for ($i = 0; $i < count($splitSource); $i++) {
             $out = str_replace('%%%%%content{'.($i+1).'}%%%%%', trim($splitSource[$i]), $out);
         }
-        $out = preg_replace(';%%%%%content({[0-9]+})?%%%%%;', '', $out);
-        return $out;
+        return preg_replace(';%%%%%content({[0-9]+})?%%%%%;', '', $out);
     }
 
     private function _formatDate($m)
