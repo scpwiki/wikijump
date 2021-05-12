@@ -11,7 +11,7 @@ use Wikidot\Utils\WikiTransformation;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class ForumPostRevisionModule extends SmartyModule
 {
@@ -35,7 +35,7 @@ class ForumPostRevisionModule extends SmartyModule
         $runData->ajaxResponseAdd("title", $revision->getTitle());
 
         $source = $revision->getText();
-        $wt = getWikitext(ParseRenderMode::FORUM_POST, null);
+        $wt = getWikitextBackend(ParseRenderMode::FORUM_POST, null);
         $body = $wt->renderHtml($source)->html;
 
         $runData->ajaxResponseAdd("content", $body);

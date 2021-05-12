@@ -10,7 +10,7 @@ use Wikidot\Utils\WikiTransformation;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class PageVersionModule extends SmartyModule
 {
@@ -29,7 +29,7 @@ class PageVersionModule extends SmartyModule
         $source = $revision->getSourceText();
 
         // Why doesn't this pass in page data?
-        $wt = getWikitext(ParseRenderMode::PAGE, null);
+        $wt = getWikitextBackend(ParseRenderMode::PAGE, null);
         $content = $wt->renderHtml($source)->html;
 
         $runData->contextAdd("pageContent", $content);

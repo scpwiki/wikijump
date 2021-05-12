@@ -16,7 +16,7 @@ use Wikidot\Utils\WDPermissionManager;
 use Wikijump\Models\User;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class PMAction extends SmartyAction
 {
@@ -81,7 +81,7 @@ class PMAction extends SmartyAction
         WDPermissionManager::instance()->hasPmPermission($fromUser, $toUser);
 
         // compile content
-        $wt = getWikitext(PageRenderMode::DIRECT_MESSAGE, null);
+        $wt = getWikitextBackend(PageRenderMode::DIRECT_MESSAGE, null);
         $body = $wt->renderHtml($source)->html;
 
         $message = new PrivateMessage();

@@ -19,7 +19,7 @@ use Wikidot\Utils\WikiTransformation;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class FrontForumModule extends SmartyModule
 {
@@ -163,7 +163,7 @@ class FrontForumModule extends SmartyModule
         }
 
         // process the format and create the message template
-        $wt = getWikitext(ParseRenderMode::FEED, null);
+        $wt = getWikitextBackend(ParseRenderMode::FEED, null);
         $template = $wt->renderHtml($format)->html;
 
         $template = preg_replace(

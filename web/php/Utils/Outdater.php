@@ -20,7 +20,7 @@ use Wikidot\DB\SitePeer;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class Outdater
 {
@@ -214,7 +214,7 @@ class Outdater
         }
 
         $pageInfo = []; // TODO get pageInfo from $page
-        $wt = getWikitext(ParseRenderMode::PAGE, $pageInfo);
+        $wt = getWikitextBackend(ParseRenderMode::PAGE, $pageInfo);
         $result = $wt->renderHtml($source);
 
         $compiled->setText($result->html);

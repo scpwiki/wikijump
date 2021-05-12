@@ -21,7 +21,7 @@ use Wikijump\Models\User;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class ListPagesModule extends SmartyModule
 {
@@ -597,7 +597,7 @@ class ListPagesModule extends SmartyModule
 
             if ($separation) {
                 $pageInfo = []; // TODO get pageInfo from $page
-                $wt = getWikitext(ParseRenderMode::LIST, $pageInfo);
+                $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
                 $b = $wt->renderHtml($b)->html;
                 $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
             }
@@ -614,7 +614,7 @@ class ListPagesModule extends SmartyModule
             $modifiedSource = $prefix . implode("\n", $items) . $suffix;
 
             $pageInfo = []; // TODO get pageInfo from $page
-            $wt = getWikitext(ParseRenderMode::LIST, $pageInfo);
+            $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
             $itemsContent = $wt->renderHtml($modifiedSource)->html;
         } else {
             $itemsContent = implode("\n", $items);

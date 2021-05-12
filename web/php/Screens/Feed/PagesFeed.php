@@ -13,7 +13,7 @@ use Wikijump\Models\User;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class PagesFeed extends FeedScreen
 {
@@ -341,7 +341,7 @@ class PagesFeed extends FeedScreen
             $b .= 'by ' . $userString;
 
             $pageInfo = []; // TODO get pageInfo from $page
-            $wt = getWikitext(ParseRenderMode::LIST, $pageInfo);
+            $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
             $wt->renderHtml($b)->html;
 
             $d = utf8_encode("\xFE");
