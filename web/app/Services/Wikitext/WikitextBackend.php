@@ -7,6 +7,8 @@ use Wikidot\Utils\GlobalProperties;
 
 interface WikitextBackend
 {
+    public function renderHtml(string $wikitext): HtmlOutput;
+    public function renderText(string $wikitext): TextOutput;
     public function version(): string;
 }
 
