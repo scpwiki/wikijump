@@ -77,6 +77,7 @@ class WikiTransformation
         $this->wiki->vars['pageName'] = $pageSlug;
     }
 
+    // Don't delete until this logic has been transferred to WikitextBackend implementations
     public function setMode($mode)
     {
         $wiki = $this->wiki;
