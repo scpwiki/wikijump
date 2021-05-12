@@ -25,12 +25,13 @@ class TextWikiBackend implements WikitextBackend
     // Interface methods
     public function renderHtml(string $wikitext): HtmlOutput
     {
-        throw new \Exception("Not implemented");
+        $html = $this->wt->processSource($wikitext);
+        return new HtmlOutput($html, '', [], []);
     }
 
     public function renderText(string $wikitext): TextOutput
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception("Not implemented (legacy)");
     }
 
     public function version(): string {
