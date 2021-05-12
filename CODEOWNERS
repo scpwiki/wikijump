@@ -15,3 +15,15 @@ client                              @Monkatraz @rossjrw
 web/web/files--common/dialogs       @rossjrw
 web/web/files--common/javascript    @rossjrw
 web/web/files--common/modules       @rossjrw
+
+# Terraform and docker-compose deployment
+/install/                           @pxdnbluesoul
+
+# PHP and related
+*.php                               @pxdnbluesoul
+/web/composer.json                  @pxdnbluesoul
+/web/phpunit.xml                    @pxdnbluesoul
+/web/.env.example                   @pxdnbluesoul
+
+# Smarty
+*.tpl                               @pxdnbluesoul
