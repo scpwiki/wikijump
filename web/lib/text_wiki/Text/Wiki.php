@@ -1,5 +1,4 @@
 <?php
-// vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
 /**
  * Parse structured wiki text and render into arbitrary formats such as XHTML.
  *
@@ -173,15 +172,7 @@ class Text_Wiki {
     *
     */
 
-    public $renderConf = array(
-        'Docbook' => array(),
-        'Latex' => array(),
-        'Pdf' => array(),
-        'Plain' => array(),
-        'Rtf' => array(),
-        'Xhtml' => array(),
-        'Xhtmleditable' => array()
-    );
+    public $renderConf = [];
 
     /**
     *
@@ -472,24 +463,19 @@ class Text_Wiki {
 
     function setRenderConf($rule, $arg1, $arg2 = null)
     {
-        $format = 'xhtml';
         $rule = ucwords(strtolower($rule));
 
-        if (! isset($this->renderConf[$format])) {
-            $this->renderConf[$format] = [];
-        }
-
-        if (! isset($this->renderConf[$format][$rule])) {
-            $this->renderConf[$format][$rule] = [];
+        if (! isset($this->renderConf[$rule])) {
+            $this->renderConf[$rule] = [];
         }
 
         // if first arg is an array, use it as the entire
         // conf array for the render rule.  otherwise, treat arg1
         // as a key and arg2 as a value for the render rule conf.
         if (is_array($arg1)) {
-            $this->renderConf[$format][$rule] = $arg1;
+            $this->renderConf[$rule] = $arg1;
         } else {
-            $this->renderConf[$format][$rule][$arg1] = $arg2;
+            $this->renderConf[$rule][$arg1] = $arg2;
         }
     }
 
@@ -511,30 +497,27 @@ class Text_Wiki {
     *
     */
 
-    function getRenderConf($format, $rule, $key = null)
+    function getRenderConf($rule, $key = null)
     {
-        $format = ucwords(strtolower($format));
         $rule = ucwords(strtolower($rule));
 
-        if (! isset($this->renderConf[$format]) ||
-            ! isset($this->renderConf[$format][$rule])) {
+        if (! isset($this->renderConf[$rule])) {
             return null;
         }
 
         // no key requested, return the whole array
         if (is_null($key)) {
-            return $this->renderConf[$format][$rule];
+            return $this->renderConf[$rule];
         }
 
         // does the requested key exist?
-        if (isset($this->renderConf[$format][$rule][$key])) {
+        if (isset($this->renderConf[$rule][$key])) {
             // yes, return that value
-            return $this->renderConf[$format][$rule][$key];
+            return $this->renderConf[$rule][$key];
         } else {
             // no
             return null;
         }
-
     }
 
     /**
