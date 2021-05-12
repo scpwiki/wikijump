@@ -9,6 +9,7 @@ use Wikidot\DB\ForumPostPeer;
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
 
 class ForumCategoryPostsFeed extends FeedScreen
@@ -133,7 +134,7 @@ class ForumCategoryPostsFeed extends FeedScreen
             );
 
             $item['content'] = $content;
-            if ($post->getUserId() != User::ANONYMOUS_USER && $post->getUserId() != User::AUTOMATIC_USER) {
+            if (LegacyTools::isSystemAccount($post->getUserId()) === false) {
                 $item['authorUserId'] = $post->getUserId();
                 $user = $post->getUser();
                 $item['author']=$user->username;

@@ -9,6 +9,7 @@ use Text_Wiki;
 
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\PageTagPeer;
+use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
 
 //use Text_Antiwiki;  # What is this? I can't even find "text_antiwiki on google.
@@ -123,7 +124,7 @@ class WikiTransformation
 
             if ($page->getOwnerUserId()) {
                 $user = User::find($page->getOwnerUserId());
-                if ($user->id != User::ANONYMOUS_USER && $user->id != User::AUTOMATIC_USER) {
+                if (LegacyTools::isSystemAccount($user->id) === false) {
                     $userString = '[[*user ' . $user->username . ']]';
                 } else {
                     $userString = _('Anonymous user');

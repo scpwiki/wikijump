@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Wikijump\Helpers;
 
+use Wikijump\Models\User;
+
 /** A collection of static methods to smooth the transition to Wikijump code. */
 class LegacyTools
 {
@@ -27,6 +29,16 @@ class LegacyTools
         ];
 
         return strtr($unique_path, $translations);
+    }
+
+    /**
+     * Determine whether an account is one of the system-generated accounts.
+     * @param int $id
+     * @return bool
+     */
+    public static function isSystemAccount(int $id) : bool
+    {
+        return ($id === User::ANONYMOUS_USER || $id === User::AUTOMATIC_USER);
     }
 
 }
