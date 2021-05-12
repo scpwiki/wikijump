@@ -10,12 +10,7 @@ namespace Wikijump\Services\Wikitext;
 class HtmlMeta
 {
     /**
-     * @var string The kind of HTML meta tag.
-     *
-     * Can be one of:
-     * - 'name'
-     * - 'http-equiv'
-     * - 'property'
+     * @var string The kind of HTML meta tag. See HtmlMetaType for details.
      */
     public string $tagType;
 
