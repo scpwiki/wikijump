@@ -29,28 +29,28 @@ final class LegacyTemplateAssembler
         /* Handle ListPages module inside a template -- %%content%% need to be escaped. */
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+ListPages(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'handleListPages'),
-            $template
+            fn(array $matches) => self::handleListPages($matches),
+            $template,
         );
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+NextPage(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'handleListPages'),
+            fn(array $matches) => self::handleListPages($matches),
             $template
         );
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+PreviousPage(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'handleListPages'),
-            $template
+            fn(array $matches) => self::handleListPages($matches),
+            $template,
         );
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+Feed(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'handleListPages'),
-            $template
+            fn(array $matches) => self::handleListPages($matches),
+            $template,
         );
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+FrontForum(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'handleListPages'),
-            $template
+            fn(array $matches) => self::handleListPages($matches),
+            $template,
         );
 
         if (!preg_match(';%%content({[0-9]+})?%%;', $template)) {
@@ -77,12 +77,9 @@ final class LegacyTemplateAssembler
             $b = $template;
             $title = $page->getTitle();
             $title = str_replace(array('[', ']'), '', $title);
+            $replacement = preg_quote_replacement('[[[' . $page->getUnixName() . ' | ' . $title . ']]]');
             $b = str_replace('%%%%%title%%%%%', $title, $b);
-            $b = preg_replace(
-                ';%%%%%((linked_title)|(title_linked))%%%%%;i',
-                preg_quote_replacement('[[[' . $page->getUnixName() . ' | ' . $title . ']]]'),
-                $b
-            );
+            $b = preg_replace(';%%%%%((linked_title)|(title_linked))%%%%%;i', $replacement, $b);
 
             if ($page->getOwnerUserId()) {
                 $user = User::find($page->getOwnerUserId());
@@ -102,12 +99,12 @@ final class LegacyTemplateAssembler
             $b = preg_replace(
                 ';%%%%%date(\|.*?)?%%%%%;',
                 '%%%%%date|' . $page->getDateCreated()->getTimestamp() . '\\1%%%%%',
-                $b
+                $b,
             );
             $b = preg_replace(
                 ';%%%%%date_edited(\|.*?)?%%%%%;',
                 '%%%%%date|' . $page->getDateLastEdited()->getTimestamp() . '\\1%%%%%',
-                $b
+                $b,
             );
 
             /* %%rating%% */
@@ -116,8 +113,8 @@ final class LegacyTemplateAssembler
             /* %%comments%% */
             $b = preg_replace_callback(
                 '/%%%%%comments%%%%%/i',
-                array(self, '_handleCommentsCount'),
-                $b
+                fn(array $matches) => self::handleCommentsCount($page),
+                $b,
             );
 
             /* %%page_unix_name%% */
@@ -137,20 +134,20 @@ final class LegacyTemplateAssembler
             $b = str_ireplace(
                 '%%%%%link%%%%%',
                 GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $page->getUnixName(),
-                $b
+                $b,
             );
 
             /* %%tags%% */
             $b = preg_replace_callback(
                 '/%%%%%tags%%%%%/i',
-                array(self, 'handleTags'),
-                $b
+                fn(array $matches) => self::handleTags($matches, $page),
+                $b,
             );
 
             $b = preg_replace_callback(
                 ';%%%%%date\|([0-9]+)(\|.*?)?%%%%%;',
-                array(self, 'formatData'),
-                $b
+                fn(array $matches) => self::formatDate($matches),
+                $b,
             );
 
             $template = $b;
@@ -178,7 +175,7 @@ final class LegacyTemplateAssembler
         }
     }
 
-    private static function handleCommentsCount($m, $page)
+    private static function handleCommentsCount($page)
     {
         $threadId = $page->getThreadId();
         if ($threadId) {
