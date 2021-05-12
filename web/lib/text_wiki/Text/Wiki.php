@@ -551,7 +551,7 @@ class Text_Wiki {
     {
         // no key requested, return the whole array
         if (is_null($key)) {
-            return $this->formatConf];
+            return $this->formatConf;
         }
 
         // does the requested key exist?
