@@ -1,0 +1,10 @@
+{
+  "extends": "../client/tsconfig.json",
+  "exclude": ["node_modules", "web", "**/tests/**"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["web/files--common/*"]
+    }
+  }
+}

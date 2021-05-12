@@ -4,7 +4,7 @@ import Wikijump from ".";
 import OZONE from "@/javascript/OZONE";
 import { RequestModuleParameters } from "@/javascript/OZONE/ajax";
 import { ogettext } from "@/javascript/OZONE/loc";
-import { Wikirequest } from "wikirequest";
+import type { Wikirequest } from "wikirequest";
 
 declare const YAHOO: any;
 declare type YahooResponse = any;
