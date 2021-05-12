@@ -94,12 +94,10 @@ class WikiTransformation
                 $wiki->disableRule("button");
 
                 //configure
-
                 $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
                 $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0, 1000000).'-');
                 $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000).'-');
                 $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000).'-');
-
                 $wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
                 $wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
                 $wiki->setRenderConf($this->transformationFormat, 'gallery', 'no_local', true);
@@ -119,7 +117,6 @@ class WikiTransformation
                 $wiki->disableRule("module");
                 $wiki->disableRule("module654");
                 $wiki->disableRule("toc");
-
                 $wiki->disableRule("footnote");
                 $wiki->disableRule("math");
                 $wiki->disableRule("equationreference");
@@ -133,16 +130,12 @@ class WikiTransformation
                 $wiki->disableRule("Social");
 
                 // configure
-
                 $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
-
                 $wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
                 $wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
                 $wiki->setRenderConf($this->transformationFormat, 'image', 'post_vars', true);
                 $wiki->setParseConf('url', 'post_vars', true);
-
                 break;
-
             case 'awiki':
                 break;
             default:
