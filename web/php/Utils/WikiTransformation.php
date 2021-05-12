@@ -132,8 +132,6 @@ class WikiTransformation
                 $wiki->setRenderConf($this->transformationFormat, 'image', 'post_vars', true);
                 $wiki->setParseConf('url', 'post_vars', true);
                 break;
-            case 'awiki':
-                break;
             default:
                 throw Exception("Invalid Wiki engine mode.");
         }
