@@ -141,7 +141,7 @@ class WikiTransformation
                 $wiki->setParseConf('url', 'post_vars', true);
                 break;
             default:
-                throw Exception("Invalid Wiki engine mode.");
+                throw Exception("Invalid Wiki engine mode: $mode");
         }
     }
 }
