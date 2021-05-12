@@ -21,6 +21,8 @@ class PagePreviewModule extends SmartyModule
 
         $site = $runData->getTemp("site");
 
+        // TODO remove this WikiTransformation
+        // page previews are going to happen in the new editor, so this is moot
         $wt = new WikiTransformation();
         $pageId = $pl->getParameterValue("pageId");
         if ($pageId) {

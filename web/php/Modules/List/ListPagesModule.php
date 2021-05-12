@@ -16,9 +16,12 @@ use Wikidot\DB\ForumThreadPeer;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
+
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
 
 class ListPagesModule extends SmartyModule
 {
@@ -462,16 +465,6 @@ class ListPagesModule extends SmartyModule
             $format = "" . "+ %%linked_title%%\n\n" . _("by") . " %%author%% %%date|%O ago (%e %b %Y, %H:%M %Z)%%\n\n" . "%%short%%";
         }
 
-        //$wt = new WikiTransformation();
-        //$wt->setMode("feed");
-        //$template = $wt->processSource($format);
-
-
-        //$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi',
-        //            "<div>\\1</div>", $template);
-
-
-        //$template = $format;
         $items = array();
 
         $separation = $this->_readParameter("separate");
@@ -603,24 +596,26 @@ class ListPagesModule extends SmartyModule
             $b = str_replace("\xFD", '%%', $b);
 
             if ($separation) {
-                $wt = new WikiTransformation();
-                $wt->setMode("list");
-                $wt->setPage($page);
-                $b = $wt->processSource($b);
+                $pageInfo = []; // TODO get pageInfo from $page
+                $wt = getWikitext(ParseRenderMode::LIST, $pageInfo);
+                $b = $wt->renderHtml($b)->html;
                 $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
-                //$b = "[[div class=\"list-pages-item\"]]\n".$b."\n[[/div]]";
             }
-
 
             $items[] = trim($b);
         }
         if (!$separation) {
             $prependLine = $this->_readParameter('prependLine');
             $appendLine = $this->_readParameter('appendLine');
-            $wt = new WikiTransformation();
-            $wt->setMode("list");
-            $glue = "\n";
-            $itemsContent = $wt->processSource(($prependLine ? ($prependLine . "\n") : ''). implode($glue, $items) . ($appendLine ? ("\n". $appendLine) : ''));
+
+            $prefix = $prependLine ? ($prependLine . "\n") : '';
+            $suffix = $appendLine ? ("\n" . $appendLine) : '';
+
+            $modifiedSource = $prefix . implode("\n", $items) . $suffix;
+
+            $pageInfo = []; // TODO get pageInfo from $page
+            $wt = getWikitext(ParseRenderMode::LIST, $pageInfo);
+            $itemsContent = $wt->renderHtml($modifiedSource)->html;
         } else {
             $itemsContent = implode("\n", $items);
         }

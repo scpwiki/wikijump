@@ -11,6 +11,10 @@ use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WikiTransformation;
 use Wikijump\Models\User;
 
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
+
 class ForumPreviewPostModule extends SmartyModule
 {
 
@@ -25,12 +29,10 @@ class ForumPreviewPostModule extends SmartyModule
             throw new ProcessException(_("Post is empty."), "post_empty");
         }
 
-        $wt = new WikiTransformation();
-        $wt->setMode('post');
-        $body = $wt->processSource($source);
+        $wt = getWikitext(ParseRenderMode::FORUM_POST, null);
+        $body = $wt->renderHtml($source)->html;
 
         $post = new ForumPost();
-
         $post->setText($body);
         $post->setTitle($title);
         $post->setDatePosted(new ODate());

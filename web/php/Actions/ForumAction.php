@@ -26,8 +26,10 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Models\User;
+use Wikijump\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\getWikitext;
 
 class ForumAction extends SmartyAction
 {
@@ -74,9 +76,8 @@ class ForumAction extends SmartyAction
 
         // compile content
 
-        $wt = new WikiTransformation();
-        $wt->setMode('post');
-        $body = $wt->processSource($source);
+        $wt = getWikitext(ParseRenderMode::FORUM_POST, null);
+        $body = $wt->renderHtml($source)->html;
 
         // new thread
 
@@ -226,9 +227,8 @@ class ForumAction extends SmartyAction
 
         // compile content
 
-        $wt = new WikiTransformation();
-        $wt->setMode('post');
-        $body = $wt->processSource($source);
+        $wt = getWikitext(ParseRenderMode::FORUM_POST, null);
+        $body = $wt->renderHtml($source)->html;
 
         $db = Database::connection();
         $db->begin();
@@ -384,9 +384,8 @@ class ForumAction extends SmartyAction
 
         // compile content
 
-        $wt = new WikiTransformation();
-        $wt->setMode('post');
-        $body = $wt->processSource($source);
+        $wt = getWikitext(ParseRenderMode::FORUM_POST, null);
+        $body = $wt->renderHtml($source)->html;
 
         $postRevision = new ForumPostRevision();
         $postRevision->obtainPK();
