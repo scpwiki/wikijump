@@ -70,7 +70,8 @@ impl<'t> Utf16IndexMap<'t> {
     /// Converts a UTF-8 byte index into a UTF-16 one.
     ///
     /// # Panics
-    /// Panics if the index is out of range for the string.
+    /// Panics if the index is out of range for the string,
+    /// or the index is not on a UTF-8 byte boundary.
     #[inline]
     pub fn get_index(&self, utf8_index: usize) -> usize {
         self.map[&utf8_index]
