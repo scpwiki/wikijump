@@ -795,9 +795,9 @@ class ListPagesModule extends SmartyModule
         $threadId = $page->getThreadId();
         if ($threadId) {
             $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
-        }
-        if ($thread) {
-            return $thread->getNumberPosts();
+            if ($thread) {
+                return $thread->getNumberPosts();
+            }
         }
         return 0;
     }
