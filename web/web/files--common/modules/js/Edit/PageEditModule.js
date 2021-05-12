@@ -39,7 +39,8 @@ Wikijump.modules.PageEditModule.listeners = {
 			params['pageId'] = WIKIREQUEST.info.pageId;
 		}
 
-		OZONE.ajax.requestModule("Edit/PagePreviewModule",params,Wikijump.modules.PageEditModule.callbacks.preview);
+		// TODO we are going to replace this entire damn thing with Sheaf
+		alert('Page previews are disabled!');
 	},
 
 	save: function(e){
