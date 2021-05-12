@@ -11,7 +11,8 @@ class TextWikiBackend implements WikitextBackend
 {
     private WikiTransformation $wt;
 
-    public function __construct(ParseRenderMode $mode, ?PageInfo $pageInfo) {
+    public function __construct(ParseRenderMode $mode, ?PageInfo $pageInfo)
+    {
         $this->wt = new WikiTransformation();
 
         if (!is_null($pageInfo)) {
@@ -22,11 +23,13 @@ class TextWikiBackend implements WikitextBackend
     }
 
     // Interface methods
-    public function renderHtml(string $wikitext): HtmlOutput {
+    public function renderHtml(string $wikitext): HtmlOutput
+    {
         throw new \Exception("Not implemented");
     }
 
-    public function renderText(string $wikitext): TextOutput {
+    public function renderText(string $wikitext): TextOutput
+    {
         throw new \Exception("Not implemented");
     }
 
@@ -35,13 +38,15 @@ class TextWikiBackend implements WikitextBackend
     }
 
     // Helper methods
-    private static function getSite(string $siteSlug): Site {
+    private static function getSite(string $siteSlug): Site
+    {
         $c = new Criteria();
         $c->add('unix_name', $siteSlug);
         return SitePeer::instance()->selectOne($c);
     }
 
-    private static function getPage(int $siteId, string $pageSlug): Page {
+    private static function getPage(int $siteId, string $pageSlug): Page
+    {
         return PagePeer::instance()->selectByName($siteId, $pageSlug);
     }
 }

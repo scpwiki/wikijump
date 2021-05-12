@@ -17,7 +17,8 @@ class PageInfo
 {
     private FFI\CData $c_data;
 
-    public function __construct(Wikitext\PageInfo $pageInfo) {
+    public function __construct(Wikitext\PageInfo $pageInfo)
+    {
         $tag_array = FtmlFfi::listToPointer(
             FtmlFfi::$C_STRING,
             $pageInfo->tags,
@@ -35,11 +36,13 @@ class PageInfo
         $this->c_data->language = FtmlFfi::string($pageInfo->language);
     }
 
-    public function pointer(): FFI\CData {
+    public function pointer(): FFI\CData
+    {
         return FFI::addr($this->c_data);
     }
 
-    function __destruct() {
+    function __destruct()
+    {
         FtmlFfi::freePointer(
             $this->c_data->tags_list,
             $this->c_data->tags_len,

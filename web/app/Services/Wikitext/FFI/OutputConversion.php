@@ -18,7 +18,8 @@ final class OutputConversion
     private function __construct() {}
 
     // HtmlMeta
-    public static function makeHtmlMetaArray(FFI\CData $pointer, int $length): array {
+    public static function makeHtmlMetaArray(FFI\CData $pointer, int $length): array
+    {
         return FtmlFfi::pointerToList(
             $pointer,
             $length,
@@ -26,14 +27,16 @@ final class OutputConversion
         );
     }
 
-    public function makeHtmlMeta(FFI\CData $c_data): HtmlMeta {
+    public function makeHtmlMeta(FFI\CData $c_data): HtmlMeta
+    {
         $tagType = self::getTagType($c_data->tag_type);
         $name = FFI::string($c_data->name);
         $value = FFI::string($c_data->value);
         return new HtmlMeta($tagType, $name, $value);
     }
 
-    private static function getTagType(int $c_tag): string {
+    private static function getTagType(int $c_tag): string
+    {
         switch ($c_tag) {
             case FtmlFfi::$META_NAME:
                 return HtmlMetaType::NAME;
@@ -47,7 +50,8 @@ final class OutputConversion
     }
 
     // HtmlOutput
-    public function makeHtmlOutput(FFI\CData $c_data): HtmlOutput {
+    public function makeHtmlOutput(FFI\CData $c_data): HtmlOutput
+    {
         $html = FFI::string($c_data->html);
         $style = FFI::string($c_data->style);
         $meta = self::makeHtmlMetaArray($c_data->meta_list, $c_data->meta_len);
@@ -62,7 +66,8 @@ final class OutputConversion
     }
 
     // TextOutput
-    public function makeTextOutput(FFI\CData $c_data): TextOutput {
+    public function makeTextOutput(FFI\CData $c_data): TextOutput
+    {
         $text = FFI::string($c_data->text);
         $warnings = self::makeParseWarningArray($c_data->warning_list, $c_data->warning_len);
 
@@ -75,7 +80,8 @@ final class OutputConversion
     }
 
     // ParseWarning
-    public static function makeParseWarningArray(FFI\CData $pointer, int $length): array {
+    public static function makeParseWarningArray(FFI\CData $pointer, int $length): array
+    {
         return FtmlFfi::pointerToList(
             $pointer,
             $length,
@@ -83,7 +89,8 @@ final class OutputConversion
         );
     }
 
-    public function makeParseWarning(FFI\CData $c_data): ParseWarning {
+    public function makeParseWarning(FFI\CData $c_data): ParseWarning
+    {
         $token = FFI::string($c_data->token);
         $rule = FFI::string($c_data->rule);
         $spanStart = $c_data->span_start;

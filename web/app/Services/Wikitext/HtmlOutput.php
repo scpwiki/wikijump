@@ -31,7 +31,8 @@ class HtmlOutput
      */
     public array $warnings;
 
-    public function __construct(string $html, string $style, array $meta, array $warnings) {
+    public function __construct(string $html, string $style, array $meta, array $warnings)
+    {
         $this->html = $html;
         $this->style = $style;
         $this->meta = $meta;
