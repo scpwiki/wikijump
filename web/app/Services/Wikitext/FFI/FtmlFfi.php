@@ -32,6 +32,12 @@ final class FtmlFfi
     public static FFI\CType $FTML_HTML_OUTPUT;
     public static FFI\CType $FTML_TEXT_OUTPUT;
 
+    private function __construct() {}
+
+    /**
+     * Initializes this class. Do not use.
+     * This should only be called once, which is done in FtmlFfi.php
+     */
     public static function _init() {
         // Load FFI environment.
         //
