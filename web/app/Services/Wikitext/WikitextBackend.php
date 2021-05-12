@@ -16,6 +16,15 @@ interface WikitextBackend
  * Gets the WikitextBackend interface to allow for parsing, rendering, and related
  * wikitext transformation.
  *
+ * For the following ParseRenderModes, $pageInfo should be provided:
+ * - PAGE
+ * - LIST
+ * Else, it should be null:
+ * - FORUM_POST
+ * - DIRECT_MESSAGE
+ * - FEED
+ * - TABLE_OF_CONTENTS
+ *
  * @throws GlobalPropertiesException if the feature flag value is invalid
  */
 function getWikitextBackend(ParseRenderMode $mode, ?PageInfo $pageInfo): WikitextBackend
