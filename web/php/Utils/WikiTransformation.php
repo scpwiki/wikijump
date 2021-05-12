@@ -62,6 +62,17 @@ class WikiTransformation
         }
     }
 
+    public function processSource($source)
+    {
+
+        $wiki = $this->wiki;
+        if (preg_match('/_template$/', $wiki->vars['pageName'])) {
+            $wiki->disablerule('separator');
+        }
+        $out = $wiki->transform($source, $this->transformationFormat);
+        return HtmlUtilities::purify($out);
+    }
+
     public function setPage($page)
     {
         $pageSlug = $page->getUnixName();
