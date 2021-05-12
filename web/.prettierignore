@@ -1,0 +1,9 @@
+dist
+node_modules
+vendor
+
+# File types we don't want prettier to care about, but normally does
+*.json
+*.md
+*.yaml
+*.html

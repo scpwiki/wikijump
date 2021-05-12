@@ -1,0 +1,9 @@
+printWidth = 90
+semi = false
+singleQuote = false
+quoteProps = "preserve"
+trailingComma = "none"
+bracketSpacing = true
+arrowParens = "avoid"
+# let git handle normalizing
+endOfLine = "auto"

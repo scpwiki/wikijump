@@ -1,4 +1,4 @@
-import CSS from "csstype";
+import type CSS from "csstype";
 
 import OZONE from ".";
 import { ogettext } from "./loc";
