@@ -38,14 +38,6 @@ class PagePreviewModule extends SmartyModule
             $wt->setPageSlug($pl->getParameterValue('page_unix_name'));
         }
 
-    /*  if($mode == "append"){
-            // combine current source and submitted source
-            $pageId = $pl->getParameterValue("page_id");
-            $page = DB\PagePeer::instance()->selectByPrimaryKey($pageId);
-            $source = $page->getSource()."\n\n[[div id=\"append-preview-div\"]]\n".$source."\n[[/div]]\n";
-        }
-        */
-
         /* Get the category and apply the "live template" to the source. */
         $pageUnixName = $pl->getParameterValue("page_unix_name");
 

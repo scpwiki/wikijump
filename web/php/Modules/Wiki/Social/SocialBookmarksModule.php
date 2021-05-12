@@ -4,7 +4,6 @@ namespace Wikidot\Modules\Wiki\Social;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Services\Wikitext\HtmlUtilities;
 
 class SocialBookmarksModule extends SmartyModule

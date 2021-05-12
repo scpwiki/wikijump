@@ -2,12 +2,8 @@
 
 namespace Wikidot\Modules\Account\PM;
 
-
-
-
 use Wikidot\DB\PrivateMessage;
 use Wikidot\Utils\AccountBaseModule;
-use Wikidot\Utils\WikiTransformation;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
@@ -18,7 +14,6 @@ class PMPreviewModule extends AccountBaseModule
 
     public function build($runData)
     {
-
         $pl = $runData->getParameterList();
         $source = $pl->getParameterValue("source");
         $subject = $pl->getParameterValue("subject");
