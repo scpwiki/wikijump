@@ -84,11 +84,12 @@ class WikiTransformation
         $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$pageSlug.'/');
     }
 
-    // Don't delete until this logic has been transferred to WikitextBackend implementations
     public function setMode($mode)
     {
         $wiki = $this->wiki;
         switch ($mode) {
+            case 'default':
+                break;
             case 'pm':
             case 'post':
                 // disable a few rules
@@ -114,9 +115,7 @@ class WikiTransformation
                 $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0, 1000000).'-');
                 $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0, 1000000).'-');
                 $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0, 1000000).'-');
-
                 break;
-
             case 'feed':
                 // disable a few rules
                 $wiki->disableRule("include");
