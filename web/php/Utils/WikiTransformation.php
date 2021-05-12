@@ -45,7 +45,9 @@ class WikiTransformation
 
             $interWikis = array(
                 'wikipedia' => 'https://en.wikipedia.org/wiki/%s',
+                'wikipedia.en' => 'https://en.wikipedia.org/wiki/%s',
                 'wikipedia.pl' => 'https://pl.wikipedia.org/wiki/%s',
+                'en.wikipedia' => 'https://en.wikipedia.org/wiki/%s',
                 'pl.wikipedia' => 'https://pl.wikipedia.org/wiki/%s',
                 'google' => 'https://www.google.com/search?q=%s',
                 'dictionary' => 'https://dictionary.reference.com/browse/%s'
