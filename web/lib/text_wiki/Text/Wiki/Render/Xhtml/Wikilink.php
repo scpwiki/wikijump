@@ -160,9 +160,6 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 			}
 			$wiki->vars['internalLinksNotExist'][$page] = $page;
 
-            // PAGE DOES NOT EXIST.
-			//WikiTransformation::$internalLinksNotExist[$page] = $page; //which is the page unix name!
-
             // link to a create-page url, but only if new_url is set
             $href = $this->getConf('new_url', null);
 

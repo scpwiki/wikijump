@@ -2,13 +2,9 @@
 
 namespace Wikidot\Modules\Forum\Sub;
 
-
 use Wikidot\DB\ForumPostRevisionPeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Utils\WikiTransformation;
-
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
 use function Wikijump\Services\Wikitext\getWikitextBackend;

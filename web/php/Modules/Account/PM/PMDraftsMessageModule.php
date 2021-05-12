@@ -2,14 +2,10 @@
 
 namespace Wikidot\Modules\Account\PM;
 
-
-
-
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PrivateMessagePeer;
 use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Utils\WikiTransformation;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
@@ -20,7 +16,6 @@ class PMDraftsMessageModule extends AccountBaseModule
 
     public function build($runData)
     {
-
         $userId = $runData->getUserId();
         $pl = $runData->getParameterList();
         $messageId = $pl->getParameterValue("message_id");

@@ -2,13 +2,10 @@
 
 namespace Wikidot\Modules\Forum;
 
-
 use Ozone\Framework\ODate;
 use Wikidot\DB\ForumPost;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Models\User;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;

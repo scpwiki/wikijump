@@ -15,7 +15,6 @@ use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDRenderUtils;
 use Wikidot\Utils\WDStringUtils;
-use Wikidot\Utils\WikiTransformation;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
