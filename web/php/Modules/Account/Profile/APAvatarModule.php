@@ -14,7 +14,7 @@ class APAvatarModule extends AccountBaseModule
     {
 
         $user = $runData->getUser();
-        $userId = $user->getUserId();
+        $userId = $user->id;
 
         // check if has an avatar
         $avatarDir = WIKIJUMP_ROOT.'/web/files--common/images/avatars/';
