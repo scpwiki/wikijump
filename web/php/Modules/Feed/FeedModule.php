@@ -10,7 +10,7 @@ use Wikidot\Utils\WikiTransformation;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class FeedModule extends CacheableModule
 {
@@ -105,7 +105,7 @@ class FeedModule extends CacheableModule
         }
 
         // process the format and create the message template
-        $wt = getWikitext(ParseRenderMode::FEED, null);
+        $wt = getWikitextBackend(ParseRenderMode::FEED, null);
         $template = $wt->renderHtml($format)->html;
 
         // fix template

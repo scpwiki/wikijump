@@ -13,7 +13,7 @@ use Wikijump\Models\User;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class ForumPreviewPostModule extends SmartyModule
 {
@@ -29,7 +29,7 @@ class ForumPreviewPostModule extends SmartyModule
             throw new ProcessException(_("Post is empty."), "post_empty");
         }
 
-        $wt = getWikitext(ParseRenderMode::FORUM_POST, null);
+        $wt = getWikitextBackend(ParseRenderMode::FORUM_POST, null);
         $body = $wt->renderHtml($source)->html;
 
         $post = new ForumPost();

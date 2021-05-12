@@ -6,7 +6,7 @@ use Ozone\Framework\OzoneLogger;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class WDEditUtils
 {
@@ -57,7 +57,7 @@ class WDEditUtils
         $source = implode("\n", $s1);
         $totalLines = count($s1);
 
-        $wt = getWikitext(ParseRenderMode::TABLE_OF_CONTENTS, null);
+        $wt = getWikitextBackend(ParseRenderMode::TABLE_OF_CONTENTS, null);
         $compiled = $wt->renderHtml($source)->html;
 
         // now find all the occurences of headings in the compiled content.

@@ -13,7 +13,7 @@ use Wikidot\Utils\WikiTransformation;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class PMDraftsMessageModule extends AccountBaseModule
 {
@@ -30,7 +30,7 @@ class PMDraftsMessageModule extends AccountBaseModule
             throw new ProcessException(_("Error selecting message."), "no_message");
         }
 
-        $wt = getWikitext(ParseRenderMode::DIRECT_MESSAGE, null);
+        $wt = getWikitextBackend(ParseRenderMode::DIRECT_MESSAGE, null);
         $source = $message->getBody();
         $body = $wt->renderHtml($source)->html;
         $message->setBody($body);

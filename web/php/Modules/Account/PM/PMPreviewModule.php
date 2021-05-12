@@ -11,7 +11,7 @@ use Wikidot\Utils\WikiTransformation;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
-use function Wikijump\Services\Wikitext\getWikitext;
+use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class PMPreviewModule extends AccountBaseModule
 {
@@ -24,7 +24,7 @@ class PMPreviewModule extends AccountBaseModule
         $subject = $pl->getParameterValue("subject");
         $toUserId = $pl->getParameterValue("to_user_id");
 
-        $wt = getWikitext(ParseRenderMode::DIRECT_MESSAGE, null);
+        $wt = getWikitextBackend(ParseRenderMode::DIRECT_MESSAGE, null);
         $body = $wt->renderHtml($source)->html;
 
         $message = new PrivateMessage();

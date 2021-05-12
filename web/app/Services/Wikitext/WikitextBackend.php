@@ -18,7 +18,7 @@ interface WikitextBackend
  *
  * @throws GlobalPropertiesException if the feature flag value is invalid
  */
-function getWikitext(ParseRenderMode $mode, ?PageInfo $pageInfo): WikitextBackend
+function getWikitextBackend(ParseRenderMode $mode, ?PageInfo $pageInfo): WikitextBackend
 {
     switch (GlobalProperties::$FEATURE_WIKITEXT_BACKEND) {
         case 'text_wiki':
