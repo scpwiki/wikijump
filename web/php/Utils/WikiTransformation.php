@@ -20,8 +20,6 @@ class WikiTransformation
 
     private $page;
 
-    private $transformationFormat = 'xhtml';
-
     public $wiki;
 
     public function __construct($initialize = true)
@@ -34,16 +32,16 @@ class WikiTransformation
             // initialize Wiki engine with default values
             $wiki = new Text_Wiki();
             $viewUrl = '/%s';
-            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'view_url', $viewUrl);
-            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_url', $viewUrl);
-            $wiki->setRenderConf($this->transformationFormat, 'url', 'images', false);
+            $wiki->setRenderConf('freelink', 'view_url', $viewUrl);
+            $wiki->setRenderConf('freelink', 'new_url', $viewUrl);
+            $wiki->setRenderConf('url', 'images', false);
 
-            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_text', '');
-            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'css_new', 'newpage');
-            $wiki->setRenderConf($this->transformationFormat, 'table', 'css_table', 'wiki-content-table');
+            $wiki->setRenderConf('freelink', 'new_text', '');
+            $wiki->setRenderConf('freelink', 'css_new', 'newpage');
+            $wiki->setRenderConf('table', 'css_table', 'wiki-content-table');
 
-            $wiki->setRenderConf($this->transformationFormat, 'freelink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
-            $wiki->setRenderConf($this->transformationFormat, 'wikilink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
+            $wiki->setRenderConf('freelink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
+            $wiki->setRenderConf('wikilink', 'exists_callback', __NAMESPACE__ . '\wikiPageExists');
 
             $interWikis = array(
                 'wikipedia' => 'https://en.wikipedia.org/wiki/%s',
@@ -54,7 +52,7 @@ class WikiTransformation
             );
 
             // configure the interwiki rule
-            $wiki->setRenderConf($this->transformationFormat, 'interwiki', 'sites', $interWikis);
+            $wiki->setRenderConf('interwiki', 'sites', $interWikis);
             $wiki->setParseConf('interwiki', 'sites', $interWikis);
 
             $wiki->disableRule('wikilink');
@@ -69,7 +67,7 @@ class WikiTransformation
         if (preg_match('/_template$/', $wiki->vars['pageName'])) {
             $wiki->disablerule('separator');
         }
-        $out = $wiki->transform($source, $this->transformationFormat);
+        $out = $wiki->transform($source);
         return HtmlUtilities::purify($out);
     }
 
@@ -80,8 +78,8 @@ class WikiTransformation
         $this->wiki->vars['page'] = $page;
         $this->wiki->vars['pageTitle'] = $page->getTitleOrUnixName();
         $this->wiki->vars['pageName'] = $pageSlug;
-        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$pageSlug.'/');
-        $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$pageSlug.'/');
+        $this->wiki->setRenderConf('image', 'base', '/local--files/'.$pageSlug.'/');
+        $this->wiki->setRenderConf('file', 'base', '/local--files/'.$pageSlug.'/');
     }
 
     public function setMode($mode)
@@ -136,10 +134,10 @@ class WikiTransformation
                 $wiki->disableRule("Social");
 
                 // configure
-                $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
-                $wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
-                $wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
-                $wiki->setRenderConf($this->transformationFormat, 'image', 'post_vars', true);
+                $wiki->setRenderConf('heading', 'use_id', false);
+                $wiki->setRenderConf('file', 'no_local', true);
+                $wiki->setRenderConf('image', 'no_local', true);
+                $wiki->setRenderConf('image', 'post_vars', true);
                 $wiki->setParseConf('url', 'post_vars', true);
                 break;
             default:

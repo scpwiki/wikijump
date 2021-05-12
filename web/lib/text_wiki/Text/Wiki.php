@@ -482,9 +482,9 @@ class Text_Wiki {
     *
     */
 
-    function setRenderConf($format, $rule, $arg1, $arg2 = null)
+    function setRenderConf($rule, $arg1, $arg2 = null)
     {
-        $format = ucwords(strtolower($format));
+        $format = 'xhtml';
         $rule = ucwords(strtolower($rule));
 
         if (! isset($this->renderConf[$format])) {
@@ -805,7 +805,7 @@ class Text_Wiki {
     *
     */
 
-    function transform($text, $format = 'Xhtml')
+    function transform($text, $format = 'xhtml')
     {
     	$this->currentFormat = $format;
         $this->parse($text);
