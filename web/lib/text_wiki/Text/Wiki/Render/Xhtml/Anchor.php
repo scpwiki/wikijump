@@ -31,7 +31,11 @@ class Text_Wiki_Render_Xhtml_Anchor extends Text_Wiki_Render {
 
     function token($options)
     {
-        extract($options); // $type, $name
+        /**
+         * @var $name
+         * @var $type
+         */
+        extract($options);
 
        $format = "<a$ name=\"%s\"></a>";
        return sprintf($format, htmlentities($name));

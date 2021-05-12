@@ -137,7 +137,7 @@ abstract class WikidotController extends WebFlowController
         }
 
         /* guess/set the mime type for the file */
-        if ($dir == "theme" || preg_match("/\.css$/", $path)) {
+        if (preg_match("/\.css$/", $path)) {
             $mime = "text/css";
         } elseif (preg_match("/\.js$/", $path)) {
             $mime = "text/javascript";

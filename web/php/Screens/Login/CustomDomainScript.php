@@ -38,7 +38,7 @@ class CustomDomainScript extends SmartyScreen
         } elseif (! $anon) {
             // no session found -- try to redirect to set ie cookie
             $proto = ($_SERVER["HTTPS"]) ? "https" : "http";
-            $runData->contextAdd("redirIE", $proto . '://' . GlobalProperties::$URL_HOST . CustomDomainLoginFlowController::$controllerUrl . '?' . http_build_query(array("url" => $url, "setiecookie" => true)));
+            $runData->contextAdd("redirIE", $proto . '://' . GlobalProperties::$URL_HOST . CustomDomainLoginFlowController::$controllerUrl . '?' . http_build_query(array("setiecookie" => true)));
         }
     }
 }

@@ -125,7 +125,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 		            }
 		        } else {
 		            // image is not clickable.
-		            $href = $osrc;
+		            $href = $src;
 		        }
 
 		      	$out .= '<div class="gallery-item '.$size.'">';

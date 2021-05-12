@@ -141,21 +141,6 @@ class Config_File {
         }
     }
 
-
-    /**
-     * Retrieves config info based on the key.
-     *
-     * @param $file_name string config key (filename/section/var)
-     * @return string|array same as get()
-     * @uses get() retrieves information from config file and returns it
-     */
-    function &get_key($config_key)
-    {
-        list($file_name, $section_name, $var_name) = explode('/', $config_key, 3);
-        $result = &$this->get($file_name, $section_name, $var_name);
-        return $result;
-    }
-
     /**
      * Get all loaded config file names.
      *
@@ -237,10 +222,9 @@ class Config_File {
         else
             $config_file = $file_name;
 
-        ini_set('track_errors', true);
         $fp = @fopen($config_file, "r");
         if (!is_resource($fp)) {
-            $this->_trigger_error_msg("Could not open config file '$config_file'");
+            //$this->_trigger_error_msg("Could not open config file '$config_file'"); # Removed in PHP 8.0
             return false;
         }
 

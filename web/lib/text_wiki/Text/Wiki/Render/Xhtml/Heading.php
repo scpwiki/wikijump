@@ -40,6 +40,11 @@ class Text_Wiki_Render_Xhtml_Heading extends Text_Wiki_Render {
     	$collapse = null;
         static $jsOutput = false;
         // get nice variable names (id, type, level)
+        /**
+         * @var $id
+         * @var $type
+         * @var $level
+         */
         extract($options);
 
         switch($type) {

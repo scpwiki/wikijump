@@ -470,6 +470,7 @@ class PHPMailer {
       }
     } else {
       if ($this->SingleTo === true && count($toArr) > 1) {
+          $params = sprintf("-oi -f %s", $this->Sender);
         foreach ($toArr as $key => $val) {
           $rt = @mail($val, $this->EncodeHeader($this->SecureHeader($this->Subject)), $body, $header, $params);
         }
@@ -641,7 +642,7 @@ class PHPMailer {
       $this->SetError('Could not load language file');
       return false;
     }
-    $this->language = $PHPMAILER_LANG;
+    $this->language = null;
 
     return true;
   }

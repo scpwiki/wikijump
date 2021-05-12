@@ -28,8 +28,8 @@ class AccountMembershipAction extends SmartyAction
 
     public function isAllowed($runData)
     {
-        $user->id = $runData->getUserId();
-        if(!$user->id) {
+        $userid = $runData->getUserId();
+        if(!$userid) {
             throw new WDPermissionException(_("Not allowed. You should login first."));
         }
         return true;

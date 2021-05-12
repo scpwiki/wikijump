@@ -84,7 +84,7 @@ class User extends Authenticatable
      * Retrieve the list of default values for user settings.
      * @return array
      */
-    public static function defaults() : array
+    public function defaults() : array
     {
         return Config::get('wikijump.defaults.user');
     }

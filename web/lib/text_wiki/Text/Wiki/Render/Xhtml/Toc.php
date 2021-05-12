@@ -52,7 +52,13 @@ class Text_Wiki_Render_Xhtml_Toc extends Text_Wiki_Render {
 
     function token($options)
     {
-        // type, id, level, count, attr
+        /**
+         * @var $type
+         * @var $id
+         * @var $level
+         * @var $count
+         * @var $attr
+         */
         extract($options);
 
         switch ($type) {

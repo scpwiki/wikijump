@@ -304,9 +304,9 @@ class Date_Span
             $pm = 'am';
             $day = $hour = $minute = $second = 0;
             for ($i = 0; $i < strlen($format); $i++) {
-                $char = $format{$i};
+                $char = $format[$i];
                 if ($char == '%') {
-                    $nextchar = $format{++$i};
+                    $nextchar = $format[++$i];
                     switch ($nextchar) {
                         case 'c':
                             $str .= '%d, %d:%d:%d';
@@ -541,7 +541,7 @@ class Date_Span
         if ($date1->after($date2)) {
             list($date1, $date2) = array($date2, $date1);
         }
-        $days = Date_Calc::dateDiff(
+        $days = (new Date_Calc)->dateDiff(
             $date1->getDay(), $date1->getMonth(), $date1->getYear(),
             $date2->getDay(), $date2->getMonth(), $date2->getYear()
         );
@@ -635,9 +635,9 @@ class Date_Span
         }
         $output = '';
         for ($i = 0; $i < strlen($format); $i++) {
-            $char = $format{$i};
+            $char = $format[$i];
             if ($char == '%') {
-                $nextchar = $format{++$i};
+                $nextchar = $format[++$i];
                 switch ($nextchar) {
                     case 'C':
                         $output .= sprintf(

@@ -141,12 +141,12 @@ class Text_Wiki_Render {
     * @param mixed $default If the key does not exist, return this value
     * instead.
     *
-    * @return mixed The configuration key value (if it exists) or the
+    * @return string|null The configuration key value (if it exists) or the
     * default value (if not).
     *
     */
 
-    function getConf($key, $default = null)
+    function getConf($key, $default = null) : ?string
     {
         if (isset($this->conf[$key])) {
             return $this->conf[$key];

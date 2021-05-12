@@ -22,7 +22,7 @@ class CoreFilters extends FilterCollection {
     
     static function urlencode($data) {
         if (is_array($data)) {
-            $result;
+            $result = '';
             foreach ($data as $name => $value) {
                 $result .= $name.'='.urlencode($value).'&'.$querystring;
             }
@@ -84,7 +84,7 @@ class StringFilters extends FilterCollection {
     
     static function capfirst($string) {
         $string = strtolower($string);
-        return strtoupper($string{0}). substr($string, 1, strlen($string));
+        return strtoupper($string[0]). substr($string, 1, strlen($string));
     }
     
     static function tighten_space($value) {

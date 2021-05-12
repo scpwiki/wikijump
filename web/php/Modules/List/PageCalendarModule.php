@@ -283,10 +283,6 @@ class PageCalendarModule extends SmartyModule
             $r = array();
         }
         $postCount = array();
-        if ($lang == 'pl') {
-            $locale = 'pl_PL';
-        }
-        setlocale(LC_TIME, $locale);
 
         foreach ($r as $mo) {
             $spl = explode('.', $mo['datestring']);
@@ -295,7 +291,13 @@ class PageCalendarModule extends SmartyModule
             $postCount[$year]['months'][$month]['count'] = $mo['c'];
             /* Month names. */
             $lang = $site->getLanguage();
-            $locale = 'en_US';
+            if ($lang == 'pl') {
+                $locale = 'pl_PL';
+            }
+            else {
+                $locale = 'en_US';
+            }
+            setlocale(LC_TIME, $locale);
             $postCount[$year]['months'][$month]['name'] = strftime('%B', mktime(6, 6, 6, $month, 6, $year));
         }
 

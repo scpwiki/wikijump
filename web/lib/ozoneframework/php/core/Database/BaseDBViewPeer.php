@@ -119,7 +119,7 @@ abstract class BaseDBViewPeer {
 	public  function selectCustom($query){
 		$my = Database::connection();
 		$result = $my->query($query);
-		return $result->asObjects($objectName);
+		return $result->asObjects($this->objectName);
 	}
 
 	/**

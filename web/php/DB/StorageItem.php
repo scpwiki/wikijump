@@ -10,7 +10,11 @@ namespace Wikidot\DB;
 class StorageItem extends StorageItemBase
 {
 
-    public function setData($data)
+    /**
+     * @param $data
+     * @param false $raw
+     */
+    public function setData($data, $raw = false)
     {
         parent::setData(serialize($data));
     }

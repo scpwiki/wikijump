@@ -54,7 +54,11 @@ class Notification extends NotificationBase
         return $title;
     }
 
-    public function setExtra($data)
+    /**
+     * @param $data
+     * @param false $raw
+     */
+    public function setExtra($data, $raw = false)
     {
         parent::setExtra(serialize($data));
     }

@@ -149,7 +149,7 @@ function db_escape_string($val) {
     }
     $databaseType = GlobalProperties::$DATABASE_TYPE;
     if ($databaseType == "mysql") {
-        return mysql_real_escape_string($val);
+        return mysqli_real_escape_string($val);
     }
     if ($databaseType == "pgsql") {
         return pg_escape_string($val);

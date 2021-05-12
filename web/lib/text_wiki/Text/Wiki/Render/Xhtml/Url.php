@@ -50,8 +50,11 @@ class Text_Wiki_Render_Xhtml_Url extends Text_Wiki_Render {
 
     function token($options)
     {
-        // create local variables from the options array (text,
-        // href, type)
+        /**
+         * @var $text
+         * @var $type
+         * @var $href
+         */
         extract($options);
 
         // find the rightmost dot and determine the filename

@@ -4707,17 +4707,17 @@ $GLOBALS['_DATE_TIMEZONE_DATA'] = array(
  * then TZ environment var
  */
 if(isset($GLOBALS['_DATE_TIMEZONE_DEFAULT'])
-   && Date_TimeZone::isValidID($GLOBALS['_DATE_TIMEZONE_DEFAULT']))
+   && (new Date_TimeZone)->isValidID($GLOBALS['_DATE_TIMEZONE_DEFAULT']))
 {
-    Date_TimeZone::setDefault($GLOBALS['_DATE_TIMEZONE_DEFAULT']);
-} elseif (getenv('PHP_TZ') && Date_TimeZone::isValidID(getenv('PHP_TZ'))) {
-    Date_TimeZone::setDefault(getenv('PHP_TZ'));
-} elseif (getenv('TZ') && Date_TimeZone::isValidID(getenv('TZ'))) {
-    Date_TimeZone::setDefault(getenv('TZ'));
-} elseif (Date_TimeZone::isValidID(date('T'))) {
-    Date_TimeZone::setDefault(date('T'));
+    (new Date_TimeZone)->setDefault($GLOBALS['_DATE_TIMEZONE_DEFAULT']);
+} elseif (getenv('PHP_TZ') && (new Date_TimeZone)->isValidID(getenv('PHP_TZ'))) {
+    (new Date_TimeZone)->setDefault(getenv('PHP_TZ'));
+} elseif (getenv('TZ') && (new Date_TimeZone)->isValidID(getenv('TZ'))) {
+    (new Date_TimeZone)->setDefault(getenv('TZ'));
+} elseif ((new Date_TimeZone)->isValidID(date('T'))) {
+    (new Date_TimeZone)->setDefault(date('T'));
 } else {
-    Date_TimeZone::setDefault('UTC');
+    (new Date_TimeZone)->setDefault('UTC');
 }
 
 /*

@@ -3,6 +3,7 @@
 namespace Wikijump\Common;
 
 use http\Exception\RuntimeException;
+use ReflectionClass;
 
 /**
  * Implements an enumeration abstract class for the creation of enums within PHP.

@@ -143,7 +143,7 @@ class ModuleProcessor {
 			$runData->setParameterList($plOrig);
 
 			// recurent (for nested modules to work):
-			$out = $this->process($out);
+			$this->process(null);
 			$this->level--;
 			throw $e;
 	 	}

@@ -67,8 +67,8 @@ class UploadedFileFlowController extends WikidotController
             return true;
         }
 
-        $dir = array_shift(explode("/", $file));
-        if (! in_array($dir, self::$RESTRICTED_AREAS)) {
+        $dir = explode('/', $file);
+        if (! in_array($dir[0], self::$RESTRICTED_AREAS)) {
             return true;
         }
 

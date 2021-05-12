@@ -98,10 +98,10 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
         --no-interaction \
         --no-scripts \
         --no-progress \
-        --prefer-dist && \
+        --prefer-dist
 
     # Cleanup
-    rm -rf /src && \
+RUN rm -rf /src && \
     rm -f /usr/bin/composer && \
 
     # Create tmp folders
@@ -119,10 +119,8 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     touch /var/log/php/fpm-error.log && \
     echo "access.format = \"[%t] %m %{REQUEST_SCHEME}e://%{HTTP_HOST}e%{REQUEST_URI}e %f pid:%p took:%ds mem:%{mega}Mmb cpu:%C%% status:%s {%{HTTP_X_REAL_IP}e|%{HTTP_USER_AGENT}e}\"" >> /usr/local/etc/php-fpm.d/docker.conf && \
 
-    install -m 400 -o www-data -g www-data .env.example .env && \
-    php artisan key:generate && \
     chown -R www-data:www-data .
 
 COPY etc/php/ /usr/local/etc/php/conf.d/
 
-CMD ["php-fpm"]
+ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]

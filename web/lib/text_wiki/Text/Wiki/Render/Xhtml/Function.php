@@ -57,7 +57,14 @@ class Text_Wiki_Render_Xhtml_Function extends Text_Wiki_Render {
 
     function token($options)
     {
-        extract($options); // name, access, return, params, throws
+        /**
+         * @var $name
+         * @var $access
+         * @var $return
+         * @var $params
+         * @var $throws
+         */
+        extract($options);
 
         // build the baseline output
         $output = $this->conf['format_main'];

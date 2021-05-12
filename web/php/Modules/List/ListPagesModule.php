@@ -637,8 +637,8 @@ class ListPagesModule extends SmartyModule
 
         $runData->contextAdd("items", $items);
         $runData->contextAdd("itemsContent", $itemsContent);
-        $runData->contextAdd("details", $details);
-        $runData->contextAdd("preview", $preview);
+        $runData->contextAdd("details", null);
+        $runData->contextAdd("preview", null);
 
         /* Also build an URL for the feed. */
 

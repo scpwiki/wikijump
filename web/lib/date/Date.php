@@ -198,7 +198,7 @@ class Date
      */
     function __construct($date = null)
     {
-        $this->tz = Date_TimeZone::getDefault();
+        $this->tz = (new Date_TimeZone)->getDefault();
         if (is_null($date)) {
             $this->setDate(date("Y-m-d H:i:s"));
         } elseif (is_a($date, 'Date')) {
@@ -391,16 +391,16 @@ class Date
                 $nextchar = substr($format,$strpos + 1,1);
                 switch ($nextchar) {
                 case "a":
-                    $output .= Date_Calc::getWeekdayAbbrname($this->day,$this->month,$this->year, $this->getWeekdayAbbrnameLength);
+                    $output .= (new Date_Calc)->getWeekdayAbbrname($this->day, $this->month, $this->year, $this->getWeekdayAbbrnameLength);
                     break;
                 case "A":
-                    $output .= Date_Calc::getWeekdayFullname($this->day,$this->month,$this->year);
+                    $output .= (new Date_Calc)->getWeekdayFullname($this->day, $this->month, $this->year);
                     break;
                 case "b":
-                    $output .= Date_Calc::getMonthAbbrname($this->month);
+                    $output .= (new Date_Calc)->getMonthAbbrname($this->month);
                     break;
                 case "B":
-                    $output .= Date_Calc::getMonthFullname($this->month);
+                    $output .= (new Date_Calc)->getMonthFullname($this->month);
                     break;
                 case "C":
                     $output .= sprintf("%02d",intval($this->year/100));
@@ -415,7 +415,7 @@ class Date
                     $output .= $this->day * 1; // get rid of leading zero
                     break;
                 case "E":
-                    $output .= Date_Calc::dateToDays($this->day,$this->month,$this->year);
+                    $output .= (new Date_Calc)->dateToDays($this->day, $this->month, $this->year);
                     break;
                 case "H":
                     $output .= sprintf("%02d", $this->hour);
@@ -432,7 +432,7 @@ class Date
                     $output .= sprintf("%d", $hour==0 ? 12 : $hour);
                     break;
                 case "j":
-                    $output .= Date_Calc::julianDate($this->day,$this->month,$this->year);
+                    $output .= (new Date_Calc)->julianDate($this->day, $this->month, $this->year);
                     break;
                 case "m":
                     $output .= sprintf("%02d",$this->month);
@@ -485,10 +485,10 @@ class Date
                     $output .= sprintf("%02d:%02d:%02d", $this->hour, $this->minute, $this->second);
                     break;
                 case "w":
-                    $output .= Date_Calc::dayOfWeek($this->day,$this->month,$this->year);
+                    $output .= (new Date_Calc)->dayOfWeek($this->day, $this->month, $this->year);
                     break;
                 case "U":
-                    $output .= Date_Calc::weekOfYear($this->day,$this->month,$this->year);
+                    $output .= (new Date_Calc)->weekOfYear($this->day, $this->month, $this->year);
                     break;
                 case "y":
                     $output .= substr($this->year,2,2);
@@ -573,10 +573,10 @@ class Date
      */
     function setTZbyID($id)
     {
-        if (Date_TimeZone::isValidID($id)) {
+        if ((new Date_TimeZone)->isValidID($id)) {
             $this->tz = new Date_TimeZone($id);
         } else {
-            $this->tz = Date_TimeZone::getDefault();
+            $this->tz = (new Date_TimeZone)->getDefault();
         }
     }
 
@@ -665,10 +665,10 @@ class Date
      */
     function convertTZbyID($id)
     {
-       if (Date_TimeZone::isValidID($id)) {
+       if ((new Date_TimeZone)->isValidID($id)) {
           $tz = new Date_TimeZone($id);
        } else {
-          $tz = Date_TimeZone::getDefault();
+          $tz = (new Date_TimeZone)->getDefault();
        }
        $this->convertTZ($tz);
     }
@@ -758,7 +758,7 @@ class Date
             $this->hour++;
             if ($this->hour >= 24) {
                 list($this->year, $this->month, $this->day) =
-                    sscanf(Date_Calc::nextDay($this->day, $this->month, $this->year), "%04s%02s%02s");
+                    sscanf((new Date_Calc)->nextDay($this->day, $this->month, $this->year), "%04s%02s%02s");
                 $this->hour -= 24;
             }
             $this->minute -= 60;
@@ -767,15 +767,15 @@ class Date
         $this->hour += $span->hour;
         if ($this->hour >= 24) {
             list($this->year, $this->month, $this->day) =
-                sscanf(Date_Calc::nextDay($this->day, $this->month, $this->year), "%04s%02s%02s");
+                sscanf((new Date_Calc)->nextDay($this->day, $this->month, $this->year), "%04s%02s%02s");
             $this->hour -= 24;
         }
 
-        $d = Date_Calc::dateToDays($this->day, $this->month, $this->year);
+        $d = (new Date_Calc)->dateToDays($this->day, $this->month, $this->year);
         $d += $span->day;
 
         list($this->year, $this->month, $this->day) =
-            sscanf(Date_Calc::daysToDate($d), "%04s%02s%02s");
+            sscanf((new Date_Calc)->daysToDate($d), "%04s%02s%02s");
         $this->year  = intval($this->year);
         $this->month = intval($this->month);
         $this->day   = intval($this->day);
@@ -836,7 +836,7 @@ class Date
             $this->hour--;
             if ($this->hour < 0) {
                 list($this->year, $this->month, $this->day) =
-                    sscanf(Date_Calc::prevDay($this->day, $this->month, $this->year), "%04s%02s%02s");
+                    sscanf((new Date_Calc)->prevDay($this->day, $this->month, $this->year), "%04s%02s%02s");
                 $this->hour += 24;
             }
             $this->minute += 60;
@@ -845,15 +845,15 @@ class Date
         $this->hour -= $span->hour;
         if ($this->hour < 0) {
             list($this->year, $this->month, $this->day) =
-                sscanf(Date_Calc::prevDay($this->day, $this->month, $this->year), "%04s%02s%02s");
+                sscanf((new Date_Calc)->prevDay($this->day, $this->month, $this->year), "%04s%02s%02s");
             $this->hour += 24;
         }
 
-        $d = Date_Calc::dateToDays($this->day, $this->month, $this->year);
+        $d = (new Date_Calc)->dateToDays($this->day, $this->month, $this->year);
         $d -= $span->day;
 
         list($this->year, $this->month, $this->day) =
-            sscanf(Date_Calc::daysToDate($d), "%04s%02s%02s");
+            sscanf((new Date_Calc)->daysToDate($d), "%04s%02s%02s");
         $this->year  = intval($this->year);
         $this->month = intval($this->month);
         $this->day   = intval($this->day);
@@ -877,8 +877,8 @@ class Date
     {
         $d1->convertTZ(new Date_TimeZone('UTC'));
         $d2->convertTZ(new Date_TimeZone('UTC'));
-        $days1 = Date_Calc::dateToDays($d1->day, $d1->month, $d1->year);
-        $days2 = Date_Calc::dateToDays($d2->day, $d2->month, $d2->year);
+        $days1 = (new Date_Calc)->dateToDays($d1->day, $d1->month, $d1->year);
+        $days2 = (new Date_Calc)->dateToDays($d2->day, $d2->month, $d2->year);
         if ($days1 < $days2) return -1;
         if ($days1 > $days2) return 1;
         if ($d1->hour < $d2->hour) return -1;
@@ -1008,7 +1008,7 @@ class Date
      */
     function isLeapYear()
     {
-        return Date_Calc::isLeapYear($this->year);
+        return (new Date_Calc)->isLeapYear($this->year);
     }
 
     // }}}
@@ -1024,7 +1024,7 @@ class Date
      */
     function getJulianDate()
     {
-        return Date_Calc::julianDate($this->day, $this->month, $this->year);
+        return (new Date_Calc)->julianDate($this->day, $this->month, $this->year);
     }
 
     // }}}
@@ -1040,7 +1040,7 @@ class Date
      */
     function getDayOfWeek()
     {
-        return Date_Calc::dayOfWeek($this->day, $this->month, $this->year);
+        return (new Date_Calc)->dayOfWeek($this->day, $this->month, $this->year);
     }
 
     // }}}
@@ -1056,7 +1056,7 @@ class Date
      */
     function getWeekOfYear()
     {
-        return Date_Calc::weekOfYear($this->day, $this->month, $this->year);
+        return (new Date_Calc)->weekOfYear($this->day, $this->month, $this->year);
     }
 
     // }}}
@@ -1072,7 +1072,7 @@ class Date
      */
     function getQuarterOfYear()
     {
-        return Date_Calc::quarterOfYear($this->day, $this->month, $this->year);
+        return (new Date_Calc)->quarterOfYear($this->day, $this->month, $this->year);
     }
 
     // }}}
@@ -1088,7 +1088,7 @@ class Date
      */
     function getDaysInMonth()
     {
-        return Date_Calc::daysInMonth($this->month, $this->year);
+        return (new Date_Calc)->daysInMonth($this->month, $this->year);
     }
 
     // }}}
@@ -1104,7 +1104,7 @@ class Date
      */
     function getWeeksInMonth()
     {
-        return Date_Calc::weeksInMonth($this->month, $this->year);
+        return (new Date_Calc)->weeksInMonth($this->month, $this->year);
     }
 
     // }}}
@@ -1122,9 +1122,9 @@ class Date
     function getDayName($abbr = false, $length = 3)
     {
         if ($abbr) {
-            return Date_Calc::getWeekdayAbbrname($this->day, $this->month, $this->year, $length);
+            return (new Date_Calc)->getWeekdayAbbrname($this->day, $this->month, $this->year, $length);
         } else {
-            return Date_Calc::getWeekdayFullname($this->day, $this->month, $this->year);
+            return (new Date_Calc)->getWeekdayFullname($this->day, $this->month, $this->year);
         }
     }
 
@@ -1143,9 +1143,9 @@ class Date
     function getMonthName($abbr = false)
     {
         if ($abbr) {
-            return Date_Calc::getMonthAbbrname($this->month);
+            return (new Date_Calc)->getMonthAbbrname($this->month);
         } else {
-            return Date_Calc::getMonthFullname($this->month);
+            return (new Date_Calc)->getMonthFullname($this->month);
         }
     }
 
@@ -1163,7 +1163,7 @@ class Date
      */
     function getNextDay()
     {
-        $day = Date_Calc::nextDay($this->day, $this->month, $this->year, "%Y-%m-%d");
+        $day = (new Date_Calc)->nextDay($this->day, $this->month, $this->year, "%Y-%m-%d");
         $date = sprintf("%s %02d:%02d:%02d", $day, $this->hour, $this->minute, $this->second);
         $newDate = new Date();
         $newDate->setDate($date);
@@ -1184,7 +1184,7 @@ class Date
      */
     function getPrevDay()
     {
-        $day = Date_Calc::prevDay($this->day, $this->month, $this->year, "%Y-%m-%d");
+        $day = (new Date_Calc)->prevDay($this->day, $this->month, $this->year, "%Y-%m-%d");
         $date = sprintf("%s %02d:%02d:%02d", $day, $this->hour, $this->minute, $this->second);
         $newDate = new Date();
         $newDate->setDate($date);
@@ -1205,7 +1205,7 @@ class Date
      */
     function getNextWeekday()
     {
-        $day = Date_Calc::nextWeekday($this->day, $this->month, $this->year, "%Y-%m-%d");
+        $day = (new Date_Calc)->nextWeekday($this->day, $this->month, $this->year, "%Y-%m-%d");
         $date = sprintf("%s %02d:%02d:%02d", $day, $this->hour, $this->minute, $this->second);
         $newDate = new Date();
         $newDate->setDate($date);
@@ -1226,7 +1226,7 @@ class Date
      */
     function getPrevWeekday()
     {
-        $day = Date_Calc::prevWeekday($this->day, $this->month, $this->year, "%Y-%m-%d");
+        $day = (new Date_Calc)->prevWeekday($this->day, $this->month, $this->year, "%Y-%m-%d");
         $date = sprintf("%s %02d:%02d:%02d", $day, $this->hour, $this->minute, $this->second);
         $newDate = new Date();
         $newDate->setDate($date);

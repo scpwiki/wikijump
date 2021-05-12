@@ -374,7 +374,7 @@ class Smarty_Compiler extends Smarty {
         }
 
         if (!empty($this->_cache_serial)) {
-            $compiled_content = "<?php \$this->_cache_serials['".$this->_cache_include."'] = '".$this->_cache_serial."'; ?>" . $compiled_content;
+            $compiled_content = '<?php $this->_cache_serials["'.$this->_cache_include.'"] = "'.$this->_cache_serial."'; ?>" . $compiled_content;
         }
 
         // run compiled template through postfilter functions
@@ -406,7 +406,10 @@ class Smarty_Compiler extends Smarty {
                 }
             }
             $_plugins_params .= '))';
-            $plugins_code = "<?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');\nsmarty_core_load_plugins($_plugins_params, \$this); ?>\n";
+            /** @noinspection PhpUndefinedVariableInspection */
+            $plugins_code = '<?php require_once(SMARTY_CORE_DIR . \'core.load_plugins.php\');
+smarty_core_load_plugins($_plugins_params, $this); ?>
+';
             $template_header .= $plugins_code;
             $this->_plugin_info = array();
             $this->_plugins_code = $plugins_code;
@@ -957,7 +960,9 @@ class Smarty_Compiler extends Smarty {
 
         $_params = "array('args' => array(".implode(', ', (array)$arg_list)."))";
 
-        return "<?php require_once(SMARTY_CORE_DIR . 'core.run_insert_handler.php');\necho smarty_core_run_insert_handler($_params, \$this); ?>" . $this->_additional_newline;
+        /** @noinspection PhpUndefinedVariableInspection */
+        return '<?php require_once(SMARTY_CORE_DIR . \'core.run_insert_handler.php\');
+echo smarty_core_run_insert_handler($_params, $this); ?>' . $this->_additional_newline;
     }
 
     /**
@@ -1041,7 +1046,9 @@ class Smarty_Compiler extends Smarty {
 
         $_params = "array('smarty_file' => " . $attrs['file'] . ", 'smarty_assign' => '$assign_var', 'smarty_once' => $once_var, 'smarty_include_vars' => array(".implode(',', $arg_list)."))";
 
-        return "<?php require_once(SMARTY_CORE_DIR . 'core.smarty_include_php.php');\nsmarty_core_smarty_include_php($_params, \$this); ?>" . $this->_additional_newline;
+        /** @noinspection PhpUndefinedVariableInspection */
+        return '<?php require_once(SMARTY_CORE_DIR . \'core.smarty_include_php.php\');
+smarty_core_smarty_include_php($_params, $this); ?>' . $this->_additional_newline;
     }
 
 
@@ -1230,7 +1237,8 @@ class Smarty_Compiler extends Smarty {
             $this->_capture_stack[] = array($buffer, $assign, $append);
         } else {
             list($buffer, $assign, $append) = array_pop($this->_capture_stack);
-            $output = "<?php \$this->_smarty_vars['capture'][$buffer] = ob_get_contents(); ";
+            /** @noinspection PhpUndefinedVariableInspection */
+            $output = '<?php $this->_smarty_vars[\'capture\'][$buffer] = ob_get_contents(); ';
             if (isset($assign)) {
                 $output .= " \$this->assign($assign, ob_get_contents());";
             }

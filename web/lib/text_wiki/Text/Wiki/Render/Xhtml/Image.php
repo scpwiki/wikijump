@@ -154,7 +154,7 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
         // unset so it won't show up as an attribute
         unset($options['attr']['link']);
 
-        $output .= '<img src="' . htmlspecialchars($src) . '"';
+        $output = '<img src="' . htmlspecialchars($src) . '"';
 
         // get the CSS class but don't add it yet
         $css = "image";

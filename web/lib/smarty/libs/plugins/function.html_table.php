@@ -106,7 +106,7 @@ function smarty_function_html_table($params, &$smarty)
         }
     }
 
-    $loop_count = count($loop);
+    $loop_count = count($params['loop']);
     if (empty($params['rows'])) {
         /* no rows specified */
         $rows = ceil($loop_count/$cols_count);

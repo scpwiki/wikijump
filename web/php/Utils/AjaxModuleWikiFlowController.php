@@ -194,7 +194,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
             $template = $runData->getModuleTemplate();
             $classFile = $runData->getModuleClassPath();
-            $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
+            $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $classFile");
             require_once($classFile);
             $class = LegacyTools::getNamespacedClassFromPath($classFile);
             $module = new $class();

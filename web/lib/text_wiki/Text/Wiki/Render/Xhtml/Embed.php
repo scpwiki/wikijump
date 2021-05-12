@@ -39,6 +39,15 @@ class Text_Wiki_Render_Xhtml_Embed extends Text_Wiki_Render {
 
     public $patterns = array();
 
+    /**
+     *
+     * Constructor for this render format or rule.
+     *
+     * @access public
+     *
+     * @param object &$obj The calling "parent" Text_Wiki object.
+     *
+     */
     public function __construct($obj) {
         parent::__construct($obj);
 
@@ -46,7 +55,7 @@ class Text_Wiki_Render_Xhtml_Embed extends Text_Wiki_Render {
         $files = glob($patternDir . '/*.php');
         foreach ($files as $f) {
             require $f;
-            $this->_patterns = array_merge($this->patterns, $patterns);
+            $this->_patterns = array_merge($this->patterns, $files);
         }
 
     }

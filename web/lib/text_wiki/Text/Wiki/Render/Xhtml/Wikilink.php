@@ -93,7 +93,8 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
             $exists = call_user_func($callback, $page);
         } else {
             // no callback, go to the naive page array.
-            $list =& $this->getConf('pages');
+            $conf = $this->getConf('pages');
+            $list =& $conf;
             if (is_array($list)) {
                 // yes, check against the page list
                 $exists = in_array($page, $list);

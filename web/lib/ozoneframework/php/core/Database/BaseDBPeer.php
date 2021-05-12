@@ -161,7 +161,7 @@ abstract class BaseDBPeer {
 	public  function selectCustom($query){
 		$my = Database::connection();
 		$result = $my->query($query);
-		return $result->asObjects($objectName);
+		return $result->asObjects($this->objectName);
 	}
 
 	public function save($object){

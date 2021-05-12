@@ -50,6 +50,11 @@ class Text_Wiki_Render_Xhtml_Table extends Text_Wiki_Render {
     {
         // make nice variable names (type, attr, span)
         $span = $rowspan = 1;
+        /**
+         * @var $attr
+         * @var $type
+         * @var $span
+         */
         extract($options);
 
         // free format

@@ -17,7 +17,7 @@ class ProcessExceptionHandler
         // rollback the transaction
         $db = Database::connection();
         $db->rollback();
-        $out.= '<div class="error-block">';
+        $out = '<div class="error-block">';
         if ($exception instanceof ProcessException) {
             $out.=nl2br($exception->getMessage());
         } elseif ($exception instanceof WDPermissionException) {
