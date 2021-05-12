@@ -210,7 +210,8 @@ class Outdater
             );
 
             if ($templatePage) {
-                $source = $this->assemblySource($source, $templatePage->getSource(), $page);
+                $templateSource = $templatePage->getSource();
+                $source = LegacyTemplateAssembler::assembleTemplate($source, $templateSource, $page);
             }
         }
 
@@ -234,11 +235,6 @@ class Outdater
         $this->vars['inclusions'] = $inclusions;
         $this->vars['inclusionsNotExist'] = $inclusionsNotExist;
         $this->vars['externalLinks'] = $externalLinks;
-    }
-
-    private function assemblySource($source, $templateSource, $page = null)
-    {
-        return LegacyTemplateAssembler::assembleTemplate($source, $templateSource, $page);
     }
 
     /**
