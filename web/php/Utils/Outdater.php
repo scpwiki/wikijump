@@ -215,7 +215,7 @@ class Outdater
             }
         }
 
-        $pageInfo = []; // TODO get pageInfo from $page
+        $pageInfo = PageInfo::fromPageObject($page);
         $wt = getWikitextBackend(ParseRenderMode::PAGE, $pageInfo);
         $result = $wt->renderHtml($source);
 

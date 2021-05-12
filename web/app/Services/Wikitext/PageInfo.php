@@ -2,6 +2,8 @@
 
 namespace Wikijump\Services\Wikitext;
 
+use Wikidot\DB\Page;
+
 /**
  * Class PageInfo, representing information associated with a page for parsing and rendering.
  * @package Wikijump\Services\Wikitext
@@ -33,6 +35,19 @@ class PageInfo
         $this->altTitle = $altTitle;
         $this->tags = $tags;
         $this->language = $language;
+    }
+
+    public static function fromPageObject(Page $page): PageInfo
+    {
+        $pageSlug = $page->getUnixName();
+        $categorySlug = $page->getCategoryName();
+        $siteSlug = $page->getSite()->getUnixName();
+        $title = $page->getTitle();
+        $altTitle = null;
+        $tags = $page->getTagsAsArray();
+        $language = 'C';
+
+        return new PageInfo($pageSlug, $categorySlug, $siteSlug, $title, $altTitle, $tags, $language);
     }
 
     public function getCategory(): string

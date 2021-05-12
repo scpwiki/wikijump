@@ -531,7 +531,6 @@ class ListPagesModule extends SmartyModule
             $b = str_ireplace("%%author_edited%%", $userString, $b);
             $b = str_ireplace("%%user_edited%%", $userString, $b);
 
-
             /* %%date%% */
 
             $b = preg_replace(';%%date(\|.*?)?%%;', '%%date|' . $page->getDateCreated()->getTimestamp() . '\\1%%', $b);
@@ -596,7 +595,7 @@ class ListPagesModule extends SmartyModule
             $b = str_replace("\xFD", '%%', $b);
 
             if ($separation) {
-                $pageInfo = []; // TODO get pageInfo from $page
+                $pageInfo = PageInfo::fromPageObject($page);
                 $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
                 $b = $wt->renderHtml($b)->html;
                 $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
@@ -613,7 +612,7 @@ class ListPagesModule extends SmartyModule
 
             $modifiedSource = $prefix . implode("\n", $items) . $suffix;
 
-            $pageInfo = []; // TODO get pageInfo from $page
+            $pageInfo = PageInfo::fromPageObject($page);
             $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
             $itemsContent = $wt->renderHtml($modifiedSource)->html;
         } else {
