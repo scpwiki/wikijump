@@ -17,7 +17,7 @@
 					<span id="selected-user-rendered"></span> (<a href="javascript:;" onclick="Wikijump.modules.PMComposeModule.listeners.changeRecipient(event)">{t}change recipient{/t}</a>)
 				</div>
 				<div id="select-user-div">
-					{t}Type the Wikijump User name below or{/t} <a href="javascript:;" onclick="Wikijump.modules.PMComposeModule.listeners.showContactsList(event)">{t}select from your contacts{/t}</a>  <br/>
+					{t}Type the {$SERVICE_NAME} user name below or{/t} <a href="javascript:;" onclick="Wikijump.modules.PMComposeModule.listeners.showContactsList(event)">{t}select from your contacts{/t}</a>  <br/>
 					<div class="autocomplete-container" style="width: 20em; padding-top: 3px;">
 						<input type="text" id="user-lookup" size="30" class="autocomplete-input text"/>
 						<div id="user-lookup-list" class="autocomplete-list"></div>

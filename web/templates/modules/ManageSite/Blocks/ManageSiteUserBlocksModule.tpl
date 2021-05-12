@@ -42,7 +42,7 @@ there are no blocked users.
 			<td>
 				<div id="select-user-div">
 					<div class="sub">
-						type the Wikijump user name below
+						type the {$SERVICE_NAME} user name below
 					</div>
 					<div class="autocomplete-container" style="width: 20em; padding-top: 3px;">
 						<input type="text" id="user-lookup" size="30" class="autocomplete-input text"/>

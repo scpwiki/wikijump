@@ -13,7 +13,7 @@
 							>{t}Log in{/t}</a>
 					</div>
 					<p>
-						{t}if you already have a Wikijump account{/t}
+						{t}if you already have a {$SERVICE_NAME} account{/t}
 					</p>
 				</td>
 				<td style="padding: 1em; font-size: 140%">
@@ -42,7 +42,7 @@
 					<td>
 						<input class="text" type="text" id="new-site-name" name="name" size="30" value="{$siteName|escape}" />
 						<div class="sub">
-							{t}Appears on the top-left corner of your Wikijump site.{/t}
+							{t}Appears on the top-left corner of your {$SERVICE_NAME} site.{/t}
 						</div>
 					</td>
 				</tr>

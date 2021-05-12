@@ -107,7 +107,7 @@
 <table class="form">
 	<tr>
 		<td>
-			Receive Wikijump Newsletter?
+			Receive {$SERVICE_NAME} Newsletter?
 		</td>
 		<td>
 			<input type="checkbox" class="checkbox" id="as-receive-newsletter"  {if $settings->getReceiveNewsletter()}checked="checked"{/if}/>

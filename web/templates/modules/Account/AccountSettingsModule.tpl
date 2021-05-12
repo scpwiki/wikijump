@@ -20,7 +20,7 @@
 <div>
 	<h3><a href="javascript:;"  onclick="OZONE.ajax.requestModule('Account/Settings/ASNotificationsModule', null, Wikijump.modules.AccountModule.callbacks.menuClick)">{t}Notifications - online &amp; private RSS &amp; email{/t}</a></h3>
 	<p>
-		{t}Configure the way Wikijump informs you about events related to your presence here.{/t}
+		{t}Configure the way {$SERVICE_NAME} informs you about events related to your presence here.{/t}
 	</p>
 </div>
 

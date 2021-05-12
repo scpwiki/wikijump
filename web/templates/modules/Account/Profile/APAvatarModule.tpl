@@ -109,7 +109,7 @@
 </div>
 
 <div id="avatar-success" style="display: none">
-	<h2>{t}Success!!!{/t}</h2>
+	<h2>{t}Success!{/t}</h2>
 	{t}Your buddy icon has been successfully changed! However due to caching issues you might need to
 	hit "reload" in your browser to see the changes. It might also take max 1 hour for the
 	change to be visible for others depending on their image caching.{/t}
