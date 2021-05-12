@@ -63,7 +63,7 @@ class LoginStatusModule extends Module
 
             $out = '<span class="printuser"><a '.$linkInner.'><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="avatar"';
             /* karma: */
-            $out .= ' style="background-image:url(' . $url_prefix . '/userkarma.php?u=' .$userId  . ')"';
+            $out .= ' style="background-image:url(' . $url_prefix . '/user--karma/' .$userId  . ')"';
             /* end of karma */
             $out .= '/></a>';
             $out .= $user->username.'</span>'.
