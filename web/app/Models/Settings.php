@@ -25,7 +25,7 @@ class Settings extends Model
      *
      * @var bool
      */
-    public bool $timestamps = false;
+    public $timestamps = false;
 
     /**
      * Settings are stored in the database as JSON objects.
@@ -34,7 +34,7 @@ class Settings extends Model
      *  us from having to manually json_encode the settings before saving.
      * @var array
      */
-    protected array $casts = [
+    protected $casts = [
       'settings' => 'array'
     ];
 

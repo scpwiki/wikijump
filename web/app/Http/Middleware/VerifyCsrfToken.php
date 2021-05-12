@@ -12,7 +12,7 @@ class VerifyCsrfToken extends Middleware
      *
      * @var array
      */
-    protected array $except = [
+    protected $except = [
         '/ajax--handler'  // TODO: Add the csrf token to requests to ajax--handler.
     ];
 }

@@ -44,7 +44,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected array $fillable = [
+    protected $fillable = [
         'username',
         'email',
         'password',
@@ -55,7 +55,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected array $attributes = [
+    protected $attributes = [
 
     ];
 
@@ -64,7 +64,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected array $hidden = [
+    protected $hidden = [
         'password',
         'remember_token',
         'two_factor_secret',
@@ -76,7 +76,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected array $casts = [
+    protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
