@@ -19,12 +19,12 @@ class FtmlBackend implements WikitextBackend
     // Interface methods
     public function renderHtml(string $wikitext): HtmlOutput
     {
-        throw new \Exception('Not implemented');
+        return FtmlFfi::renderHtml($wikitext, $this->pageInfo);
     }
 
     public function renderText(string $wikitext): TextOutput
     {
-        throw new \Exception('Not implemented');
+        return FtmlFfi::renderText($wikitext, $this->pageInfo);
     }
 
     public function version(): string {
