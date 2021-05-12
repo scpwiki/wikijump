@@ -11,7 +11,8 @@ class FtmlBackend implements WikitextBackend
 {
     private ?PageInfo $pageInfo;
 
-    public function __construct(ParseRenderMode $mode, ?PageInfo $pageInfo) {
+    public function __construct(ParseRenderMode $mode, ?PageInfo $pageInfo)
+    {
         // TODO mode
         $this->pageInfo = $pageInfo;
     }
@@ -27,7 +28,8 @@ class FtmlBackend implements WikitextBackend
         return FtmlFfi::renderText($wikitext, $this->pageInfo);
     }
 
-    public function version(): string {
+    public function version(): string
+    {
         return FtmlFfi::version();
     }
 }
