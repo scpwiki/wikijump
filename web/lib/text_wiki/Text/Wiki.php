@@ -626,13 +626,13 @@ class Text_Wiki {
     *
     */
 
-    private function parse($text)
+    private function parse(string $text)
     {
         // set the object property for the source text
         $this->source = $text;
 
         // reset the tokens.
-        $this->tokens = array();
+        $this->tokens = [];
 
         // apply the parse() method of each requested rule to the source
         // text.
