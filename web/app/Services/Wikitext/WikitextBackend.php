@@ -25,7 +25,7 @@ interface WikitextBackend
  * - FEED
  * - TABLE_OF_CONTENTS
  *
- * @throws GlobalPropertiesException if the feature flag value is invalid
+ * @throws Exception if the feature flag value is invalid
  */
 function getWikitextBackend(ParseRenderMode $mode, ?PageInfo $pageInfo): WikitextBackend
 {
