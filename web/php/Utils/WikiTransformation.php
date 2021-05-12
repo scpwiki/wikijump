@@ -96,7 +96,6 @@ class WikiTransformation
                 $wiki->disableRule("module");
                 $wiki->disableRule("module654");
                 $wiki->disableRule("toc");
-                $wiki->disableRule("Social");
                 $wiki->disableRule("button");
 
                 //configure
@@ -131,7 +130,6 @@ class WikiTransformation
                 $wiki->disableRule("Bibcite");
                 $wiki->disableRule("Gallery");
                 $wiki->disableRule("File");
-                $wiki->disableRule("Social");
 
                 // configure
                 $wiki->setRenderConf('heading', 'use_id', false);
