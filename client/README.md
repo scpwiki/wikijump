@@ -1,7 +1,5 @@
 ## Wikijump Client Monorepo
 
-----
-
 > #### **IMPORTANT:**
 > This monorepo uses [PNPM](https://pnpm.io/). You need to have it installed.
 > ```
@@ -12,7 +10,7 @@
 ### Relevant Documentation
 
 * [PNPM](https://pnpm.io/)
-* [`uvu`](https://github.com/lukeed/uvu)
+* [uvu](https://github.com/lukeed/uvu)
 * [Vite](https://vitejs.dev/)
 
 ### Getting Started
@@ -54,6 +52,8 @@ $ pnpm test
 ```
 
 This will create a "megabundle" in `tests-dist`, at root, compiled by Vite. This is a JS file and a sourcemap - of which contains the code of the _entire monorepo_, so that it may be instrumented to determine code coverage. All tests are included at the end of this bundle and then ran.
+
+Tests are ran in a special environment that is Node CJS compatible but simulates a browser. Specifically, the [happy-dom](https://github.com/capricorn86/happy-dom) library is used.
 
 At the end of testing, a code coverage report will be emitted. This coverage report should only contain source TypeScript and Svelte files - if it reports coverage for something that isn't one of those two, something has gone wrong. If it reports nothing, that also means something has gone wrong.
 
