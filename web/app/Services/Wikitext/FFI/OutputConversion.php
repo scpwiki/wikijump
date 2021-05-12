@@ -5,6 +5,7 @@ namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
 use \Wikijump\Services\Wikitext\HtmlMeta;
+use \Wikijump\Services\Wikitext\HtmlMetaType;
 use \Wikijump\Services\Wikitext\HtmlOutput;
 use \Wikijump\Services\Wikitext\ParseWarning;
 
@@ -35,11 +36,11 @@ final class OutputConversion
     private static function getTagType(int $c_tag): string {
         switch ($c_tag) {
             case FtmlFfi::$META_NAME:
-                return 'name';
+                return HtmlMetaType::NAME;
             case FtmlFfi::$META_HTTP_EQUIV:
-                return 'http-equiv';
+                return HtmlMetaType::HTTP_EQUIV;
             case FtmlFfi::$META_PROPERTY:
-                return 'property';
+                return HtmlMetaType::PROPERTY;
             default:
                 throw new Error("Invalid HTML meta tag type C enum value: $c_tag");
         }
