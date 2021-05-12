@@ -159,3 +159,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-470](https://scuttle.atlassian.net/browse/WJ-470)
 * What it did: Implemented an integration with an old version of Flickr's API, and added Flickr-related Wikidot features.
 * Why it was removed: Mostly unused, outdated, and a large amount of code to maintain.
+
+## PHP: Social Bookmarks integration
+* Where it was: [web/php/Modules/Wiki/Social](https://github.com/scpwiki/wikijump/tree/6535307697de4e38a8c719d91ba71ab878c63820/web/php/Modules/Wiki/Social), [web/templates/modules/Wiki/Social](https://github.com/scpwiki/wikijump/tree/6535307697de4e38a8c719d91ba71ab878c63820/web/templates/modules/Wiki/Social), [web/web/files--common/images/social](https://github.com/scpwiki/wikijump/tree/6535307697de4e38a8c719d91ba71ab878c63820/web/web/files--common/images/social)
+* Relevant Issues: [WJ-516](https://scuttle.atlassian.net/browse/WJ-516) (merged as part of [WJ-506](https://scuttle.atlassian.net/browse/WJ-506))
+* What it did: Allowed users to add "social bookmarks" via services like del.icio.us.
+* Why it was removed: Almost certainly broken, wasn't an active rule in Text\_Wiki, and half of the bookmark sites here are defunct.
