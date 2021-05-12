@@ -61,8 +61,11 @@ final class OutputConversion
         FtmlFfi::freeHtmlOutput($c_data);
         FFI::free($c_data);
 
+        // TODO actually get link information
+        $linkStats = new LinkStats(0, 0, 0, 0, 0);
+
         // Return object
-        return new HtmlOutput($html, $style, $meta, $warnings);
+        return new HtmlOutput($html, $style, $meta, $warnings, $linkStats);
     }
 
     // TextOutput
