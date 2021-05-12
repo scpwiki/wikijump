@@ -26,7 +26,7 @@ function getWikitextBackend(ParseRenderMode $mode, ?PageInfo $pageInfo): Wikitex
         case 'ftml':
             return new FtmlBackend($mode, $pageInfo);
         case 'null':
-            return new NullBackend();
+            return new DummyBackend();
         default:
             throw new Exception('Wikitext backend feature flag invalid: ' . GlobalProperties::$FEATURE_WIKITEXT_BACKEND);
     }
