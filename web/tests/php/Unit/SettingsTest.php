@@ -1,25 +1,23 @@
 <?php
+declare(strict_types=1);
 
 namespace Tests\Unit;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Wikijump\Models\Settings;
 use Tests\TestCase;
 use Wikijump\Models\User;
 
 class SettingsTest extends TestCase
 {
-
-    private $user;
     private $settings;
     use RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
-        $this->settings = $this->user->settings()->firstOrNew();
+        $user = User::factory()->create();
+        $this->settings = $user->settings()->firstOrNew();
     }
 
     /**

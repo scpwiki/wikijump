@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Http\Middleware;
 
@@ -11,7 +12,7 @@ class PreventRequestsDuringMaintenance extends Middleware
      *
      * @var array
      */
-    protected $except = [
+    protected array $except = [
         //
     ];
 }

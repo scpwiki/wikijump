@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Wikijump\Models\Settings;
 
 class SettingsController extends Controller
@@ -10,9 +12,9 @@ class SettingsController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index() : Response
     {
         //
     }
@@ -20,9 +22,9 @@ class SettingsController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function create()
+    public function create() : Response
     {
         //
     }
@@ -30,10 +32,10 @@ class SettingsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request) : Response
     {
         //
     }
@@ -41,10 +43,10 @@ class SettingsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \Wikijump\Models\Settings  $settings
-     * @return \Illuminate\Http\Response
+     * @param Settings $settings
+     * @return Response
      */
-    public function show(Settings $settings)
+    public function show(Settings $settings) : Response
     {
         //
     }
@@ -52,10 +54,10 @@ class SettingsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \Wikijump\Models\Settings  $settings
-     * @return \Illuminate\Http\Response
+     * @param Settings $settings
+     * @return Response
      */
-    public function edit(Settings $settings)
+    public function edit(Settings $settings) : Response
     {
         //
     }
@@ -63,11 +65,11 @@ class SettingsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Wikijump\Models\Settings  $settings
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Settings $settings
+     * @return Response
      */
-    public function update(Request $request, Settings $settings)
+    public function update(Request $request, Settings $settings) : Response
     {
         //
     }
@@ -75,10 +77,10 @@ class SettingsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \Wikijump\Models\Settings  $settings
-     * @return \Illuminate\Http\Response
+     * @param Settings $settings
+     * @return Response
      */
-    public function destroy(Settings $settings)
+    public function destroy(Settings $settings) : Response
     {
         //
     }

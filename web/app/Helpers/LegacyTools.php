@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 
 namespace Wikijump\Helpers;
 
@@ -15,19 +15,18 @@ class LegacyTools
      * @param string $path An absolute path e.g., /var/www/path/to/modules/file.php
      * @return string A namespaced legacy class e.g., Wikidot\Modules\File
      */
-    public static function getNamespacedClassFromPath(string $path)
+    public static function getNamespacedClassFromPath(string $path) : string
     {
         $offset = strlen(dirname(__FILE__, 3)); // Get the length of the string of the absolute path 3 levels up from this file.
         $unique_path = substr($path, $offset, -4); // Chop off that length and the last 4 characters. (.php)
         $unique_path = str_replace('/', '\\', $unique_path);
-        $translations = array(
+        $translations = [
             "\\php\\" => "Wikidot\\",
             "\\lib\\ozoneframework\\php\\core\\" => "Ozone\\Framework\\",
             "\\lib\\ozoneframework\\php\\Template\\" => "Ozone\\Framework\\Template\\"
-        );
-        $class = strtr($unique_path, $translations);
+        ];
 
-        return $class;
+        return strtr($unique_path, $translations);
     }
 
 }

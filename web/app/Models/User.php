@@ -1,11 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Models;
 
 use Database\Seeders\UserSeeder;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -45,7 +44,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = [
+    protected array $fillable = [
         'username',
         'email',
         'password',
@@ -56,7 +55,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $attributes = [
+    protected array $attributes = [
 
     ];
 
@@ -65,7 +64,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $hidden = [
+    protected array $hidden = [
         'password',
         'remember_token',
         'two_factor_secret',

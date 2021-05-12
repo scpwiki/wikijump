@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Providers;
 
@@ -68,8 +69,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map() : void
     {
-        $this->mapApiRoutes();
-        $this->mapWebRoutes();
+//        $this->mapApiRoutes();
+//        $this->mapWebRoutes();
         $this->mapServiceRoutes();
     }
 

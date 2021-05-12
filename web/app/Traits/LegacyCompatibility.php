@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Traits;
 
@@ -21,6 +22,6 @@ trait LegacyCompatibility {
             $modifiedColumns[] = "$table.$column AS ${table}___$column";
         }
 
-        return implode(", ", $modifiedColumns);
+        return implode(', ', $modifiedColumns);
     }
 }
