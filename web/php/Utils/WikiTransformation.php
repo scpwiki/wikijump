@@ -69,17 +69,6 @@ class WikiTransformation
         }
     }
 
-    public function processSource($source)
-    {
-
-        $wiki = $this->wiki;
-        if (preg_match('/_template$/', $wiki->vars['pageName'])) {
-            $wiki->disablerule('separator');
-        }
-        $out = $wiki->transform($source, $this->transformationFormat);
-        return HtmlUtilities::purify($out);
-    }
-
     public function assemblyTemplate($source, $template, $page = null)
     {
         /* First check if it is a real "live" template. If not, return the original $source.
