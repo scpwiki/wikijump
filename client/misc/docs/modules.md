@@ -1,7 +1,8 @@
 # Monorepo: Modules
 
-Modules are the packages that can be found in the `modules/` folder. They're intended to produce self-contained ES modules for consumption by other utilities, and are compiled rapidly using [Estrella](https://github.com/rsms/estrella), an [esbuild](https://github.com/evanw/esbuild)-based utility. They have an important file structure (don't change it), which looks like the following:
+Modules are the packages that can be found in the `modules/` folder. They're intended as self-contained ESM available to other packages, such as a website or build tool. They're usually uncompiled/unbuilt, being consumed directly from their source.
 
+They have an important file structure (don't change it), which looks like the following:
 ```
 module:
 - src/
@@ -10,30 +11,28 @@ module:
 - tests/
   - *.ts
 - package.json
-- tsconfig.json
 ```
 
-The `src/` folder is compiled into a `dist/` folder when the module is built. Similarly, files in the `tests/` folder are compiled into the `tests/dist/` folder when the tests are built.
+Other than the inheritance of development dependencies and tooling configurations, these modules act like fairly normal NPM packages. If you need to add a dependency to one, you can either navigate to the module and do a normal `pnpm add <dep>` command, or manually add it to the `package.json`.
 
-Other than the inheritance of development dependencies and tooling configurations, these modules act like fairly normal NPM packages. If you need to add a dependency to one, you can either navigate to the module and do a normal `npm i <dep>` command, or manually add it to the `package.json`. After you do that, you need to make sure to run the `npm run bootstrap` command at the root. This ensures that all the fragile symlinks get restored by Lerna.
-
-To improve performance of the monorepo, building and watching of modules isn't done per module, but instead globally at root. It is recommended that you just build the entire monorepo rather than trying to build individual packages. This isn't a performance problem because the repo builds modules incrementally. If a module has not changed, it won't get rebuilt.
+If a build step for the module is needed, the emitted output should go into the modules `dist/` folder. The build process should be executed by the `package.json` "build" script. Using this specific script will mean that the package will have incremental rebuild support through the root's `pnpm build` command.
 
 There is a template for making modules, and it can be found in the `misc/templates/module-template` folder.
 
 Here is how to use that template:
 
 1. Create a folder in `modules/` that is the name of your package.
-  It isn't strictly required that it is the name of your package, but it gets confusing otherwise.
-  If you want to build the module as a Node package instead of for the browser, prefix the folder name with `node-`.
+  It isn't strictly required that it is the name of your package, but it gets confusing otherwise. If the package has a really generic name, consider prefixing it. If the package is very specific to Wikijump, a good prefix is `wj-`.
 
 2. Copy the contents of `misc/templates/module-template` into the new folder.
 
 3. Edit `package.json`.
-  There are a few properties you should edit. They are: `name`, `description`, and `version`. Everything else is fine being left alone.
+  There are a few properties you should edit. They are: `name`, `description`, `version`, and `repository.directory`. Everything else is fine being left alone.
 
-4. Go into `tests/` and delete, or reuse, the `test-template.ts` file. This is a file demonstrating the basics of how to use the simple [`uvu` testing framework](https://github.com/lukeed/uvu).
+4. Edit `README.md`.
+   This one is fairly self-explanatory: edit the readme to display the correct module name and add any important details that you feel should be added. This `README.md` file is displayed in Typedoc - so it's helpful for code documentation purposes if nothing else.
 
-5. Go to the root `tsconfig.json` and edit the `references` property, and add your module to it. This has to be done manually, unfortunately. If you don't do this, your module won't have any `.d.ts` files generated.
+5. Go into `tests/` and delete, or reuse, the `test-template.ts` file.
+   This is a file demonstrating the basics of how to use the simple [`uvu` testing framework](https://github.com/lukeed/uvu). Tests are built and ran automatically.
 
 6. You're done!

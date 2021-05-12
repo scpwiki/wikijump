@@ -7,6 +7,7 @@
     "wikijump"
   ],
   "scripts": {
+    "build": "",
     "pack-ftml": "cd ../../../ftml && wasm-pack build --release --target web --out-dir ../client/modules/ftml-wasm/vendor -- --no-default-features && cd ../client/modules/ftml-wasm/vendor && trash .gitignore LICENSE.md package.json README.md ftml_bg.wasm.d.ts",
     "pack-ftml-debug": "cd ../../../ftml && wasm-pack build --debug --target web --out-dir ../client/modules/ftml-wasm/vendor -- --no-default-features && cd ../client/modules/ftml-wasm/vendor && trash .gitignore LICENSE.md package.json README.md ftml_bg.wasm.d.ts"
   },

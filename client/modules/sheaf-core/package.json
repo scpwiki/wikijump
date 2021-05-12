@@ -6,7 +6,9 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {},
+  "scripts": {
+    "build": ""
+  },
   "type": "module",
   "main": "src/index.ts",
   "repository": {
@@ -43,6 +45,6 @@
     "lezer": "^0.13.4",
     "lezer-tree": "^0.13.2",
     "svelte": "^3.38.2",
-    "wj-util": "^1.0.0"
+    "wj-util": "workspace:*"
   }
 }
