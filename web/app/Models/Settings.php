@@ -96,7 +96,7 @@ class Settings extends Model
             }
             /**
              * If the model *did* exist and all the settings are no defaults,
-             * destroy the object. Return true.
+             * destroy the object. Returns true.
              */
             Settings::destroy($this->id);
             return true;
