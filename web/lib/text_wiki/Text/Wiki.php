@@ -314,11 +314,6 @@ class Text_Wiki {
 
 	public $vars = array();
 
-	/**
-	 * Stores format while processing the source.
-	 */
-	public $currentFormat;
-
     /**
     *
     * The directory separator character.
@@ -751,11 +746,8 @@ class Text_Wiki {
 
     public function transform(string $text)
     {
-    	$this->currentFormat = 'xhtml';
         $this->parse($text);
-        $out = $this->render($this->currentFormat);
-        $this->currentFormat = null;
-        return $out;
+        return $this->render();
     }
 
     /**
