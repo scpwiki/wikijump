@@ -129,6 +129,8 @@ const TEST_CASES: [(&str, &str); 6] = [
 #[test]
 fn regexes() {
     let _ = &*WHITESPACE;
+    let _ = &*LEADING_NEWLINES;
+    let _ = &*TRAILING_NEWLINES;
 }
 
 #[test]
