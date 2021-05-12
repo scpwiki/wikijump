@@ -9,12 +9,12 @@ namespace Wikijump\Services\Wikitext;
  */
 class FtmlBackend implements WikitextBackend
 {
-    private ?PageInfo $pageInfo;
+    private PageInfo $pageInfo;
 
     public function __construct(ParseRenderMode $mode, ?PageInfo $pageInfo)
     {
         // TODO mode
-        $this->pageInfo = $pageInfo;
+        $this->pageInfo = $pageInfo ?? self::defaultPageInfo();
     }
 
     // Interface methods
@@ -31,5 +31,10 @@ class FtmlBackend implements WikitextBackend
     public function version(): string
     {
         return FtmlFfi::version();
+    }
+
+    private static function defaultPageInfo(): PageInfo
+    {
+        return new PageInfo('_anonymous', null, 'www', '_anonymous', null, [], 'C');
     }
 }
