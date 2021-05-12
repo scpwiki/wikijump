@@ -59,7 +59,7 @@ class ListPagesModule extends SmartyModule
         $this->parameterhash = $parmHash;
         /* Check if recursive. */
         foreach ($this->_moduleChain as $m) {
-            if (get_class($m) == 'ListPagesModule') {// && $m->parameterHash == $parmHash){
+            if (get_class($m) == 'ListPagesModule') {
                 return '<div class="error-block">The ListPages module does not work recursively.</div>';
             }
         }
@@ -91,8 +91,6 @@ class ListPagesModule extends SmartyModule
         $now = time();
 
         // now check lc for ALL categories involved
-
-
         $cats = preg_split('/[,;\s]+?/', $categoryName);
 
         if ($categoryName != '*') {
@@ -143,12 +141,10 @@ class ListPagesModule extends SmartyModule
 
     public function build($runData)
     {
-
         $pl = $runData->getParameterList();
         $site = $runData->getTemp("site");
 
         $categoryName = $this->_readParameter(array('category', 'categories'), false);
-
         $categoryName = strtolower($categoryName);
 
         $order = $this->_readParameter("order", true);
@@ -166,6 +162,9 @@ class ListPagesModule extends SmartyModule
         if (!$pageUnixName) {
             $pageUnixName = $pl->getParameterValue('page_unix_name'); // from preview
         }
+
+        $thisPage = PagePeer::instance()->selectByName($site->getSiteId(), $pageUnixName);
+        $pageInfo = PageInfo::fromPageObject($thisPage);
 
         $categories = array();
         $categoryNames = array();
@@ -191,15 +190,8 @@ class ListPagesModule extends SmartyModule
                 throw new ProcessException('The requested categories do not (yet) exist.');
             }
         }
-        //if(count($categories) == 0){
-        //    throw new ProcessException(_("The category cannot be found."));
-        //}
-
-
 
         // now select pages according to the specified criteria
-
-
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
         if (count($categories) > 0) {
@@ -235,10 +227,9 @@ class ListPagesModule extends SmartyModule
             }
         }
 
-
         /* Handle tags! */
 
-        $tagString = $this->_readParameter(array('tag', 'tags'), true);
+        $tagString = $this->_readParameter(['tag', 'tags'], true);
 
         if ($tagString) {
             /* Split tags. */
@@ -595,7 +586,6 @@ class ListPagesModule extends SmartyModule
             $b = str_replace("\xFD", '%%', $b);
 
             if ($separation) {
-                $pageInfo = PageInfo::fromPageObject($page);
                 $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
                 $b = $wt->renderHtml($b)->html;
                 $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
@@ -612,7 +602,6 @@ class ListPagesModule extends SmartyModule
 
             $modifiedSource = $prefix . implode("\n", $items) . $suffix;
 
-            $pageInfo = PageInfo::fromPageObject($page);
             $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
             $itemsContent = $wt->renderHtml($modifiedSource)->html;
         } else {
