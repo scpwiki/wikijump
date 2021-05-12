@@ -29,27 +29,27 @@ final class LegacyTemplateAssembler
         /* Handle ListPages module inside a template -- %%content%% need to be escaped. */
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+ListPages(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'assemblyTemplateHandleListPages'),
+            array(self, 'handleListPages'),
             $template
         );
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+NextPage(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'assemblyTemplateHandleListPages'),
+            array(self, 'handleListPages'),
             $template
         );
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+PreviousPage(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'assemblyTemplateHandleListPages'),
+            array(self, 'handleListPages'),
             $template
         );
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+Feed(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'assemblyTemplateHandleListPages'),
+            array(self, 'handleListPages'),
             $template
         );
         $template = preg_replace_callback(
             ";^\\[\\[module\\s+FrontForum(.*?)\n\\[\\[/module\\]\\];ms",
-            array(self, 'assemblyTemplateHandleListPages'),
+            array(self, 'handleListPages'),
             $template
         );
 
@@ -166,7 +166,7 @@ final class LegacyTemplateAssembler
         return preg_replace(';%%%%%content({[0-9]+})?%%%%%;', '', $out);
     }
 
-    private static function _assemblyTemplateHandleListPages($m)
+    private static function handleListPages($m)
     {
         if (preg_match(';^\[\[module;sm', $m[1])) {
             return $m[0];
