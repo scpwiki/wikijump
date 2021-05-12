@@ -3,8 +3,10 @@ declare(strict_types = 1);
 
 namespace Wikijump\Services\Wikitext;
 
-class HtmlUtilities
+final class HtmlUtilities
 {
+    private function __construct() {}
+
     public static function purify(string $html): string
     {
         $tidyConfig = [
