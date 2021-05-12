@@ -85,7 +85,7 @@ forum:recent-posts</pre></code>
 
 	<p>
 		In order to use forum (and per-page discussions) you must initialize the forum structures in
-		your Wikijump site. When you decide to use the forum additional pages will be created
+		your {$SERVICE_NAME} site. When you decide to use the forum additional pages will be created
 		for you automatically. After that you will be able to create forum categories
 		structure, set permissions etc.
 	</p>
@@ -94,8 +94,8 @@ forum:recent-posts</pre></code>
 	</div>
 
 	<p>
-		<!-- TODO: De-Wikijump.com-ize - change -->
-		For a complete guide on starting a forum look at this <a href="http://community.wikijump.com/howto:forum-step-by-step" target="_blank">Step-by-step Howto</a>.
+		<!-- TODO: De-Wikidot.com-ize - change -->
+		For a complete guide on starting a forum look at this <a href="http://community.wikidot.com/howto:forum-step-by-step" target="_blank">Step-by-step Howto</a>.
 	</p>
 
 {/if}

@@ -4,7 +4,7 @@
 	Your current screen name is <strong>{$user->username|escape}</strong>.
 </p>
 <p>
-	Each Wikijump User can change their screen name <strong>twice</strong>.
+	Each {$SERVICE_NAME} user can change their screen name <strong>twice</strong>.
 	It looks like you have changed yours <strong style="font-size:120%">{$profile->getChangeScreenNameCount()}</strong> time(s).
 </p>
 <p>

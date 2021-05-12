@@ -1,5 +1,5 @@
 		<p>
-			{t}To access account preferences and settings you should have a valid Wikijump account.{/t}
+			{t}To access account preferences and settings you should have a valid {$SERVICE_NAME} account.{/t}
 		</p>
 		<table style="margin: 1em auto">
 			<tr>
@@ -9,7 +9,7 @@
 							>{t}Log in{/t}</a>
 					</div>
 					<p>
-						{t}if you already have a Wikijump account{/t}
+						{t}if you already have a {$SERVICE_NAME} account{/t}
 					</p>
 				</td>
 				<td style="padding: 1em; font-size: 140%">

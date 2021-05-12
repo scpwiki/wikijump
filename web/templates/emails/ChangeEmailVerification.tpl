@@ -10,8 +10,7 @@ email address:		{$email}
 Best regards - {$SERVICE_NAME}
 
 If you have NOT attempted to change your email address associated with
-a Wikijump account or even are not a service user it is possible
+a {$SERVICE_NAME} account or even are not a service user it is possible
 that you have received this email because someone else mistyped their
 own email address. If you however suspect any abuse, please contact
-
 

@@ -45,7 +45,7 @@
 			<td>
 				<input class="text" type="text" id="new-site-name" name="name" size="30" value="{$site->getName()|escape}" />
 				<div class="sub">
-					{t}Appears on the top-left corner of your Wikijump site.{/t}
+					{t}Appears on the top-left corner of your {$SERVICE_NAME} site.{/t}
 				</div>
 			</td>
 		</tr>

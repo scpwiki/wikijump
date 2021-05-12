@@ -10,7 +10,7 @@
 </p>
 
 <p>
-	We highly discourage anyone from deleting a website at Wikijump especially if:
+	We highly discourage anyone from deleting a website at {$SERVICE_NAME} especially if:
 </p>
 <ul>
 	<li>
