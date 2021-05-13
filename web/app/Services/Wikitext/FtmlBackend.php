@@ -11,7 +11,7 @@ class FtmlBackend extends WikitextBackend
 {
     private PageInfo $pageInfo;
 
-    public function __construct(ParseRenderMode $mode, ?PageInfo $pageInfo)
+    public function __construct(int $mode, ?PageInfo $pageInfo)
     {
         // TODO mode
         $this->pageInfo = $pageInfo ?? self::defaultPageInfo();
