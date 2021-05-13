@@ -796,7 +796,6 @@ class Outdater
         }
         $key = 'category_lc..'.$site->getUnixName().'..'.$cname;
         $mc = OZONE::$memcache;
-        $now = time();
         $mc->delete($key);
         $key = 'category..'.$site->getSiteId().'..'.$cname;
         $mc->delete($key);
