@@ -27,7 +27,7 @@ final class OutputConversion
         );
     }
 
-    public function makeHtmlMeta(FFI\CData $c_data): HtmlMeta
+    public static function makeHtmlMeta(FFI\CData $c_data): HtmlMeta
     {
         $tagType = self::getTagType($c_data->tag_type);
         $name = FFI::string($c_data->name);
@@ -50,7 +50,7 @@ final class OutputConversion
     }
 
     // HtmlOutput
-    public function makeHtmlOutput(FFI\CData $c_data): HtmlOutput
+    public static function makeHtmlOutput(FFI\CData $c_data): HtmlOutput
     {
         $html = FFI::string($c_data->html);
         $style = FFI::string($c_data->style);
@@ -69,7 +69,7 @@ final class OutputConversion
     }
 
     // TextOutput
-    public function makeTextOutput(FFI\CData $c_data): TextOutput
+    public static function makeTextOutput(FFI\CData $c_data): TextOutput
     {
         $text = FFI::string($c_data->text);
         $warnings = self::makeParseWarningArray($c_data->warning_list, $c_data->warning_len);
@@ -92,7 +92,7 @@ final class OutputConversion
         );
     }
 
-    public function makeParseWarning(FFI\CData $c_data): ParseWarning
+    public static function makeParseWarning(FFI\CData $c_data): ParseWarning
     {
         $token = FFI::string($c_data->token);
         $rule = FFI::string($c_data->rule);
