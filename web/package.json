@@ -3,7 +3,9 @@
   "license": "agpl-3.0-or-later",
   "main": "web/common--files/index.js",
   "scripts": {
-    "build-legacy": "node scripts/build-legacy.js"
+    "build-legacy": "node scripts/build-legacy.js",
+    "start-local": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml up",
+    "build-local": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml build"
   },
   "browserslist": [
     "supports es6-module and > 0.2% and last 2 versions",
