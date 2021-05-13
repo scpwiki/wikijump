@@ -12,6 +12,7 @@ composer.phar
 /coverage
 /web/files--common/tmp
 /web/files--sites
+.ultra.cache.json
 
 # Built files
 /web/files--common/dist
