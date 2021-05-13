@@ -28,4 +28,10 @@ services:
       - type: bind
         source: ../../../web/database
         target: /var/www/wikijump/web/database
+
+  nginx:
+    volumes:
+      - type: bind
+        source: ../../../web/web
+        target: /var/www/wikijump/web/web
         read_only: true
