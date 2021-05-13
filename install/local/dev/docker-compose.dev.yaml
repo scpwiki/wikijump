@@ -25,10 +25,10 @@ services:
         source: ../../../web/web
         target: /var/www/wikijump/web/web
         read_only: true
- 
+
   nginx:
     volumes:
       - type: bind
-        source: ../../../web/web
-        target: /var/www/wikijump/web/web
+        source: ../../../web
+        target: /var/www/wikijump/web
         read_only: true
