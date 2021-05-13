@@ -7,7 +7,7 @@
  	<title>{$site->getName()}{if $wikiPage && $wikiPage->getTitle()}: {$wikiPage->getTitle()|escape}{/if}</title>
  	<script type="text/javascript" src="/common--javascript/json.js"></script>
 	<script type="text/javascript" src="/common--javascript/combined.js"></script>
- 	<script type="module" src="/common--dist/bundle.js"></script>
+ 	<script type="text/javascript" src="/common--dist/bundle.js"></script>
 
  	<script  type="text/javascript">
  		// global request information
