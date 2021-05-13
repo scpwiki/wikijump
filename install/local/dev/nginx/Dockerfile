@@ -10,14 +10,23 @@ WORKDIR /src
 
 RUN apk add --no-cache git
 
+# Bust cache so that dependency building doesn't break
+ARG CACHEBUST=1
+
 RUN git clone \
             --depth 10 \
             --branch "${WIKIJUMP_REPO_BRANCH}" \
             "${WIKIJUMP_REPO}"
 
-WORKDIR /src/${WIKIJUMP_REPO_DIR}/web
-
 RUN npm install pnpm --global
+
+# Install client monorepo dependencies, and build modules
+WORKDIR /src/${WIKIJUMP_REPO_DIR}/client
+RUN pnpm install
+RUN pnpm build:remote
+
+# Install frontend dependencies, and build
+WORKDIR /src/${WIKIJUMP_REPO_DIR}/web
 RUN pnpm install
 RUN pnpm build:remote
 
