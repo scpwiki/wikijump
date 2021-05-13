@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Wikijump\Services\Wikitext;
 
-class DummyBackend implements WikitextBackend
+class DummyBackend extends WikitextBackend
 {
     public function renderHtml(string $wikitext): HtmlOutput
     {

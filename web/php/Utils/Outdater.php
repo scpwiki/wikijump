@@ -21,8 +21,7 @@ use Wikidot\DB\SitePeer;
 use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
 use Wikijump\Services\Wikitext\PageInfo;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-
-use function Wikijump\Services\Wikitext\getWikitextBackend;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class Outdater
 {
@@ -211,7 +210,7 @@ class Outdater
         }
 
         $pageInfo = PageInfo::fromPageObject($page);
-        $wt = getWikitextBackend(ParseRenderMode::PAGE, $pageInfo);
+        $wt = WikitextBackend::make(ParseRenderMode::PAGE, $pageInfo);
         $result = $wt->renderHtml($source);
 
         $compiled->setText($result->html);

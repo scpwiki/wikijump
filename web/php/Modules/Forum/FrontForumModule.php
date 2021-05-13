@@ -2,23 +2,19 @@
 
 namespace Wikidot\Modules\Forum;
 
-
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
-use Wikidot\DB\ForumCategoryPeer;
-use Wikidot\DB\SitePeer;
-use Wikidot\DB\ForumThreadPeer;
-use Wikidot\DB\FrontForumFeedPeer;
-use Wikidot\DB\FrontForumFeed;
-
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\ForumCategoryPeer;
+use Wikidot\DB\ForumThreadPeer;
+use Wikidot\DB\FrontForumFeed;
+use Wikidot\DB\FrontForumFeedPeer;
+use Wikidot\DB\SitePeer;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDRenderUtils;
 use Wikidot\Utils\WDStringUtils;
-
 use Wikijump\Services\Wikitext\ParseRenderMode;
-
-use function Wikijump\Services\Wikitext\getWikitextBackend;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class FrontForumModule extends SmartyModule
 {
@@ -162,7 +158,7 @@ class FrontForumModule extends SmartyModule
         }
 
         // process the format and create the message template
-        $wt = getWikitextBackend(ParseRenderMode::FEED, null);
+        $wt = WikitextBackend::make(ParseRenderMode::FEED, null);
         $template = $wt->renderHtml($format)->html;
 
         $template = preg_replace(

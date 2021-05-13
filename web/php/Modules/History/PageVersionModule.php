@@ -2,14 +2,11 @@
 
 namespace Wikidot\Modules\History;
 
-use Wikidot\DB\PageRevisionPeer;
-
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\PageRevisionPeer;
 use Wikidot\Utils\ProcessException;
-
 use Wikijump\Services\Wikitext\ParseRenderMode;
-
-use function Wikijump\Services\Wikitext\getWikitextBackend;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class PageVersionModule extends SmartyModule
 {
@@ -28,7 +25,7 @@ class PageVersionModule extends SmartyModule
         $source = $revision->getSourceText();
 
         // Why doesn't this pass in page data?
-        $wt = getWikitextBackend(ParseRenderMode::PAGE, null);
+        $wt = WikitextBackend::make(ParseRenderMode::PAGE, null);
         $content = $wt->renderHtml($source)->html;
 
         $runData->contextAdd("pageContent", $content);
