@@ -4,16 +4,16 @@
   "main": "web/common--files/index.js",
   "scripts": {
     "build": "ultra --build build:cmd",
-    "build:cmd": "pnpm build:legacy && pnpm build:local",
+    "build:cmd": "pnpm build:legacy && pnpm build:frontend && pnpm build:local",
+    "build:frontend": "vite build",
     "build:legacy": "node scripts/build-legacy.js build",
     "build:local": "pnpm compose build",
     "compose": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml",
     "dev": "pnpm build:local && ultra dev:cmd",
-    "dev:cmd": "pnpm dev:legacy && pnpm dev:local",
+    "dev:cmd": "pnpm dev:legacy && pnpm dev:frontend && pnpm dev:local",
+    "dev:frontend": "vite dev",
     "dev:legacy": "node scripts/build-legacy.js dev",
     "dev:local": "pnpm compose up",
-    "docker:reset": "pnpm compose down",
-    "docker:stop": "pnpm compose stop",
     "nabs": "nabs"
   },
   "ultra": {
