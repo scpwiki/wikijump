@@ -43,6 +43,11 @@ Route::get('welcome', function () {
 });
 
 /**
+ * Test route for Blade template integration.
+ */
+Route::get('/test', 'stuff');
+
+/**
  * Socialite route, null until I'm ready to begin work there.
  */
 Route::prefix('social--providers')->group(function() {
