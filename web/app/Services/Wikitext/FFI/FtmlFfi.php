@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
+use \Wikijump\Services\Wikitext;
 use \Wikijump\Services\Wikitext\HtmlOutput;
 use \Wikijump\Services\Wikitext\TextOutput;
 
@@ -62,17 +63,19 @@ final class FtmlFfi
     }
 
     // ftml export methods
-    public static function renderHtml(string $wikitext, PageInfo $page_info): HtmlOutput
+    public static function renderHtml(string $wikitext, Wikitext\PageInfo $pageInfo): HtmlOutput
     {
+        $c_pageInfo = new PageInfo($pageInfo);
         $output = self::make(self::$FTML_HTML_OUTPUT);
-        self::$ffi->ftml_render_html(FFI::addr($output), $wikitext, $page_info->pointer());
+        self::$ffi->ftml_render_html(FFI::addr($output), $wikitext, $c_pageInfo->pointer());
         return OutputConversion::makeHtmlOutput($output);
     }
 
-    public static function renderText(string $wikitext, PageInfo $page_info): TextOutput
+    public static function renderText(string $wikitext, Wikitext\PageInfo $pageInfo): TextOutput
     {
+        $c_pageInfo = new PageInfo($pageInfo);
         $output = self::make(self::$FTML_TEXT_OUTPUT);
-        self::$ffi->ftml_render_text(FFI::addr($output), $wikitext, $page_info->pointer());
+        self::$ffi->ftml_render_text(FFI::addr($output), $wikitext, $c_pageInfo->pointer());
         return OutputConversion::makeTextOutput($output);
     }
 
