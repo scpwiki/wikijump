@@ -10,9 +10,6 @@ WORKDIR /src
 
 RUN apk add --no-cache git
 
-# Bust cache so that dependency building doesn't break
-ARG CACHEBUST=1
-
 RUN git clone \
             --depth 10 \
             --branch "${WIKIJUMP_REPO_BRANCH}" \

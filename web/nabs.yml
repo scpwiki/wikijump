@@ -7,17 +7,6 @@ compose:
   - cd ../install/local/dev
   - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
 
-# Builds like `pnpm compose build` but busts the cache for the nginx step.
-# This ensures that the repo is freshly cloned and that packages will install correctly.
-# TODO: make this work for PHP as well
-compose:build:
-  - cd ../install/local/dev
-  - >
-    docker-compose -p wikijump
-    -f docker-compose.yaml -f docker-compose.dev.yaml
-    build
-    --build-arg CACHEBUST=0
-
 # Completely rebuilds by passing `--no-cache`.
 compose:rebuild:
   $depend: []
@@ -46,7 +35,7 @@ build:
 
   legacy: node scripts/build-legacy.js build
   frontend: vite build
-  local: pnpm compose:build
+  local: pnpm compose build
 
 build:remote:
   - pnpm build:legacy
