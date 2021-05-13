@@ -33,7 +33,7 @@ abstract class WikitextBackend
                 return new TextWikiBackend($mode, $pageInfo);
             case 'ftml':
                 return new FtmlBackend($mode, $pageInfo);
-            case 'null':
+            case 'dummy':
                 return new DummyBackend();
             default:
                 throw new Exception('Wikitext backend feature flag invalid: ' . GlobalProperties::$FEATURE_WIKITEXT_BACKEND);
