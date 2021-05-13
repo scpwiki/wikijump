@@ -19,7 +19,7 @@ WORKDIR /src/${WIKIJUMP_REPO_DIR}/web
 
 RUN npm install pnpm --global
 RUN pnpm install
-RUN pnpm build
+RUN pnpm build:remote
 
 FROM nginx:alpine
 ARG WIKIJUMP_REPO_DIR="wikijump"

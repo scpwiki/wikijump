@@ -7,6 +7,20 @@ compose:
   - cd ../install/local/dev
   - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
 
+compose:rebuild:
+  $depend: []
+  $action: ultra compose:rebuild:cmd
+
+  cmd:
+    - pnpm compose down
+    - pnpm compose:rebuild:build
+
+  build: >
+    cd ../install/local/dev &&
+    docker-compose -p wikijump
+    -f docker-compose.yaml -f docker-compose.dev.yaml
+    build --no-cache
+
 # -- BUILD
 
 build:
@@ -21,6 +35,10 @@ build:
   legacy: node scripts/build-legacy.js build
   frontend: vite build
   local: pnpm compose build
+
+build:remote:
+  - pnpm build:legacy
+  - pnpm build:frontend
 
 # -- DEV
 
