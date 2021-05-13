@@ -3,7 +3,22 @@
   "license": "agpl-3.0-or-later",
   "main": "web/common--files/index.js",
   "scripts": {
-    "build-legacy": "node scripts/build-legacy.js"
+    "build": "ultra --build build:cmd",
+    "build:cmd": "pnpm build:legacy && pnpm build:local",
+    "build:legacy": "node scripts/build-legacy.js build",
+    "build:local": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml build",
+    "dev": "pnpm build:local && ultra dev:cmd",
+    "dev:cmd": "pnpm dev:legacy && pnpm dev:local",
+    "dev:legacy": "node scripts/build-legacy.js dev",
+    "dev:local": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml up",
+    "docker:reset": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml down",
+    "docker:stop": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml stop",
+    "nabs": "nabs"
+  },
+  "ultra": {
+    "concurrent": [
+      "dev:cmd"
+    ]
   },
   "browserslist": [
     "supports es6-module and > 0.2% and last 2 versions",
@@ -30,6 +45,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-svelte3": "^3.2.0",
     "eslint-plugin-tsdoc": "^0.2.14",
+    "nabs": "^0.3.0",
     "prettier": "^2.3.0",
     "prettier-plugin-svelte": "2.3.0",
     "sass": "^1.32.13",
@@ -41,6 +57,7 @@
     "svelte-preprocess": "^4.7.3",
     "trash-cli": "^4.0.0",
     "typescript": "4.3.0-beta",
+    "ultra-runner": "^3.10.5",
     "vite": "^2.3.2"
   },
   "dependencies": {
