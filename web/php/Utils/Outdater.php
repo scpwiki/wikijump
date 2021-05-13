@@ -115,9 +115,6 @@ class Outdater
                 $this->recompileInclusionDeps($page);
                 break;
             case 'tag_change':
-                //$this->outdatePageCache($page);
-                //$this->outdatePageTagsCache($page);
-                //$this->indexPage($page);
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
                 $this->fixOutLinks($page);
