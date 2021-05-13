@@ -6,14 +6,11 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
-
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Models\User;
-
 use Wikijump\Services\Wikitext\ParseRenderMode;
-
-use function Wikijump\Services\Wikitext\getWikitextBackend;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class PagesFeed extends FeedScreen
 {
@@ -333,7 +330,7 @@ class PagesFeed extends FeedScreen
             $b .= 'by ' . $userString;
 
             $pageInfo = PageInfo::fromPageObject($page);
-            $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
+            $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
             $wt->renderHtml($b)->html;
 
             $d = utf8_encode("\xFE");

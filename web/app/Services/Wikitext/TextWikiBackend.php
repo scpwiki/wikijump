@@ -7,7 +7,7 @@ use \Wikidot\DB\Page;
 use \Wikidot\DB\Site;
 use \Wikidot\Utils\WikiTransformation;
 
-class TextWikiBackend implements WikitextBackend
+class TextWikiBackend extends WikitextBackend
 {
     private WikiTransformation $wt;
 

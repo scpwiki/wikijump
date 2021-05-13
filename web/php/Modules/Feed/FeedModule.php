@@ -6,10 +6,8 @@ use Exception;
 use Wikidot\Utils\CacheableModule;
 use Wikidot\Utils\MagpieFeed;
 use Wikidot\Utils\ProcessException;
-
 use Wikijump\Services\Wikitext\ParseRenderMode;
-
-use function Wikijump\Services\Wikitext\getWikitextBackend;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class FeedModule extends CacheableModule
 {
@@ -104,7 +102,7 @@ class FeedModule extends CacheableModule
         }
 
         // process the format and create the message template
-        $wt = getWikitextBackend(ParseRenderMode::FEED, null);
+        $wt = WikitextBackend::make(ParseRenderMode::FEED, null);
         $template = $wt->renderHtml($format)->html;
 
         // fix template

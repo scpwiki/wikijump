@@ -2,12 +2,11 @@
 
 namespace Wikidot\Modules\Forum\Sub;
 
-use Wikidot\DB\ForumPostRevisionPeer;
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\ForumPostRevisionPeer;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Services\Wikitext\ParseRenderMode;
-
-use function Wikijump\Services\Wikitext\getWikitextBackend;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class ForumPostRevisionModule extends SmartyModule
 {
@@ -31,7 +30,7 @@ class ForumPostRevisionModule extends SmartyModule
         $runData->ajaxResponseAdd("title", $revision->getTitle());
 
         $source = $revision->getText();
-        $wt = getWikitextBackend(ParseRenderMode::FORUM_POST, null);
+        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
         $body = $wt->renderHtml($source)->html;
 
         $runData->ajaxResponseAdd("content", $body);

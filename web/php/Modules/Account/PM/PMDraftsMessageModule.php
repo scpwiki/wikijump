@@ -6,10 +6,8 @@ use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PrivateMessagePeer;
 use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\ProcessException;
-
 use Wikijump\Services\Wikitext\ParseRenderMode;
-
-use function Wikijump\Services\Wikitext\getWikitextBackend;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class PMDraftsMessageModule extends AccountBaseModule
 {
@@ -25,7 +23,7 @@ class PMDraftsMessageModule extends AccountBaseModule
             throw new ProcessException(_("Error selecting message."), "no_message");
         }
 
-        $wt = getWikitextBackend(ParseRenderMode::DIRECT_MESSAGE, null);
+        $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
         $source = $message->getBody();
         $body = $wt->renderHtml($source)->html;
         $message->setBody($body);

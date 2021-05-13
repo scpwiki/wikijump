@@ -4,10 +4,8 @@ namespace Wikidot\Modules\Account\PM;
 
 use Wikidot\DB\PrivateMessage;
 use Wikidot\Utils\AccountBaseModule;
-
 use Wikijump\Services\Wikitext\ParseRenderMode;
-
-use function Wikijump\Services\Wikitext\getWikitextBackend;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class PMPreviewModule extends AccountBaseModule
 {
@@ -19,7 +17,7 @@ class PMPreviewModule extends AccountBaseModule
         $subject = $pl->getParameterValue("subject");
         $toUserId = $pl->getParameterValue("to_user_id");
 
-        $wt = getWikitextBackend(ParseRenderMode::DIRECT_MESSAGE, null);
+        $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
         $body = $wt->renderHtml($source)->html;
 
         $message = new PrivateMessage();

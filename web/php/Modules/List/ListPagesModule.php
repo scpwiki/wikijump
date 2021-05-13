@@ -10,18 +10,14 @@ use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageRevisionPeer;
-
 use Wikidot\DB\ForumThreadPeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
-
 use Wikijump\Services\Wikitext\ParseRenderMode;
-
-use function Wikijump\Services\Wikitext\getWikitextBackend;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class ListPagesModule extends SmartyModule
 {
@@ -586,7 +582,7 @@ class ListPagesModule extends SmartyModule
             $b = str_replace("\xFD", '%%', $b);
 
             if ($separation) {
-                $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
+                $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
                 $b = $wt->renderHtml($b)->html;
                 $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
             }
@@ -602,7 +598,7 @@ class ListPagesModule extends SmartyModule
 
             $modifiedSource = $prefix . implode("\n", $items) . $suffix;
 
-            $wt = getWikitextBackend(ParseRenderMode::LIST, $pageInfo);
+            $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
             $itemsContent = $wt->renderHtml($modifiedSource)->html;
         } else {
             $itemsContent = implode("\n", $items);
