@@ -47,15 +47,17 @@ class ParameterList {
              */
                 $uri = $_SERVER['REQUEST_URI'];
                 $uri = preg_replace('/^[^?]*\?/', '', $uri);
-                $uriPairs = explode('&', $uri);
-                foreach ($uriPairs as $uriPair) {
-                    $u = explode('=', $uriPair);
-                    $key = $u[0];
-                    $value = $u[1];
-                    $this->parameterArray[$key] = urldecode($value);
-                    $this->parameterTypes[$key] = 'GET';
-                    $this->parameterFrom[$key] = 0;
-                    $this->allParameters['GET'][$key] = urldecode($value);
+                if(str_contains($uri, '&')) {
+                    $uriPairs = explode('&', $uri);
+                    foreach ($uriPairs as $uriPair) {
+                        $u = explode('=', $uriPair);
+                        $key = $u[0];
+                        $value = $u[1];
+                        $this->parameterArray[$key] = urldecode($value);
+                        $this->parameterTypes[$key] = 'GET';
+                        $this->parameterFrom[$key] = 0;
+                        $this->allParameters['GET'][$key] = urldecode($value);
+                    }
                 }
 			// now populate other parameters...
 			$this->allParameters['GET'] = [];
@@ -92,7 +94,7 @@ class ParameterList {
 
 	public function getParameterValue($name, $type = null, $type2 = null) {
 		if($type == null || $this->parameterTypes[$name] == $type || $this->parameterTypes[$name] == $type2){
-			return $this->parameterArray[$name];
+			return $this->parameterArray[$name] ?? null;
 		}
 		return null;
 	}

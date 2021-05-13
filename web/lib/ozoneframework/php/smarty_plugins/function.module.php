@@ -10,7 +10,7 @@ function smarty_function_module($params, & $smarty) {
 		return;
 	}
 	$templateName = $params['name'];
-	$parameters = $params['parameters'];
+	$parameters = $params['parameters'] ?? null;
 
 	unset($params['name']);
 	// convert params to string key="value"
@@ -21,6 +21,7 @@ function smarty_function_module($params, & $smarty) {
 	if($parameters!==null){
 		$parmstring = " ".urlencode($parameters)." ";
 	}
+	else { $parmstring = null; }
 	$d = utf8_encode("\xFE");
 	$out = $d."module \"".$templateName."\" ".$parmstring.$d;
 	return $out;

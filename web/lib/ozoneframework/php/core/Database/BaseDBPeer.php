@@ -71,12 +71,12 @@ abstract class BaseDBPeer {
 		if($criteria != null) {$joins = $criteria->getJoins();}
 		if($joins != null){
 			// construct prefetch table with table names
-			$prefetched = array();
+			$prefetched = [];
 			foreach($joins as $j){
 				$prefetched[] = $j['foreignTable'];
 			}
 		}
-		return $result->asObjects($this->objectName, $prefetched);
+		return $result->asObjects($this->objectName, $prefetched ?? null);
 	}
 
 	/**

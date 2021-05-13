@@ -139,7 +139,7 @@ class WikiFlowController extends WebFlowController
         $settings = $site->getSettings();
         // handle SSL
         $sslMode = $settings->getSslMode();
-        if ($_SERVER['HTTPS']) {
+        if (array_key_exists('HTTPS', $_SERVER)) {
             if (!$sslMode) {
                 // not enabled, redirect to http:
                 header("HTTP/1.1 301 Moved Permanently");

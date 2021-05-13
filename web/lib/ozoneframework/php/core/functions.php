@@ -307,7 +307,7 @@ function exec_time($cmd, $time_limit = null, &$output = null, &$ret_val = null) 
 function setsecurecookie(string $key, $value, int $expires, string $path, string $domain) : void
 {
     if(GlobalProperties::$ALLOW_ANY_HTTP == true) {
-        if (!$_SERVER['HTTPS']) {
+        if (array_key_exists('HTTPS', $_SERVER) == false) {
             setcookie($key, $value, [
                 'expires' => $expires,
                 'path' => $path,

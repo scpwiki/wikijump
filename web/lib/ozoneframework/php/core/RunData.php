@@ -75,13 +75,13 @@ class RunData {
 		$parameterArray = $this->parameterList->asArray();
 		// now parse some importand parameters: language, skin
 
-		if ($parameterArray["lang"] != null) {
+		if (array_key_exists('lang', $parameterArray)) {
 			$this->language = $parameterArray["lang"];
 		} else {
-			$this->language = GlobalProperties :: $DEFAULT_LANGUAGE;
+			$this->language = env('DEFAULT_LANGUAGE', 'en');
 		}
 
-		if ($parameterArray["skin"] != null) {
+		if (array_key_exists('skin', $parameterArray)) {
 			$this->page->setSkin($parameterArray["skin"]);
 		}
 
@@ -503,7 +503,7 @@ class RunData {
 
 		if ($session->getCheckIp() == true) {
 			$currentIpString = $this->createIpString();
-			if($_SERVER['HTTPS'] && $session->getIpAddressSsl()){
+			if(array_key_exists('HTTPS', $_SERVER) && $session->getIpAddressSsl()){
 				$sessionIpString = $session->getIpAddressSsl();
 			} else {
 				$sessionIpString = $session->getIpAddress();
