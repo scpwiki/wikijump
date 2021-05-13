@@ -16,6 +16,8 @@ composer.phar
 
 # Built files
 /web/files--common/dist
+/public/build
+/public/manifest.json
 
 # Lock Files
 composer.lock

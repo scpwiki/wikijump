@@ -1,4 +1,15 @@
 {
-  "extends": "../client/tsconfig.json",
-  "exclude": ["node_modules", "**/tests/**"]
+    "extends": "../client/tsconfig.json",
+    "exclude": [
+        "node_modules",
+        "**/tests/**"
+    ],
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "resources/*"
+            ]
+        }
+    }
 }

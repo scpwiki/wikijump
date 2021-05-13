@@ -1,9 +1,9 @@
-import svelte from "@sveltejs/vite-plugin-svelte"
-import sveltePreprocess from "svelte-preprocess"
-import workerPlugin from "../client/scripts/vite-plugin-bundled-worker.js"
-import tomlPlugin from "../client/scripts/vite-plugin-toml.js"
+const svelte = require("@sveltejs/vite-plugin-svelte")
+const sveltePreprocess = require("svelte-preprocess")
+const workerPlugin = require("../client/scripts/vite-plugin-bundled-worker.js")
+const tomlPlugin = require("../client/scripts/vite-plugin-toml.js")
 
-import { defineConfig } from "laravel-vite"
+const { defineConfig } = require("laravel-vite")
 
 /** @type import("sass").Options */
 const SASS_OPTIONS = {
@@ -41,4 +41,4 @@ const config = {
   ]
 }
 
-export default defineConfig(config)
+module.exports = defineConfig(config)
