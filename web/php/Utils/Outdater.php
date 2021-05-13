@@ -26,7 +26,6 @@ use function Wikijump\Services\Wikitext\getWikitextBackend;
 
 class Outdater
 {
-
     private static $instance;
 
     private $vars = array();
@@ -48,7 +47,6 @@ class Outdater
 
     public function pageEvent($eventType, $page, $parm2 = null)
     {
-
         if ($this->recurrenceLevel >5) {
             return;
         }
@@ -167,7 +165,6 @@ class Outdater
 
     public function themeEvent($eventType, $theme = null)
     {
-
         switch ($eventType) {
             case 'theme_save':
                 $this->outdateThemeDependentCategories($theme);
@@ -236,7 +233,6 @@ class Outdater
      */
     private function fixInLinks($page)
     {
-
         $site = $GLOBALS['site'];
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
@@ -263,7 +259,6 @@ class Outdater
      */
     private function fixOutLinks($page)
     {
-
         $linksExist = $this->vars['linksExist'];
         $linksNotExist = $this->vars['linksNotExist'];
         // get links from the database first
@@ -335,10 +330,6 @@ class Outdater
         /*
          * Insert external links.
          */
-        $externalLinks = $this->vars['externalLinks'];
-        if (!$externalLinks) {
-            $externalLinks = array();
-        }
         $externalLinks = $this->vars['externalLinks'];
         $c = new Criteria();
         $c->add("page_id", $page->getPageId());
@@ -475,7 +466,6 @@ class Outdater
     public function outdateDescendantsCache($page)
     {
         // to keep breadcrumbs up-to-date
-
         //get all descendants.
         $rec = 0;
 
@@ -595,7 +585,6 @@ class Outdater
         }
 
         // the above is not necesarily necessary. try the below code:
-
         $aKey = 'category_lc..'.$site->getUnixName().'..'.$category->getName();
         $mc = OZONE::$memcache;
         $now = time();
@@ -748,7 +737,6 @@ class Outdater
 
     public function outdatePageTagsCache($page)
     {
-
         if (is_string($page)) {
             return;
         } else {
