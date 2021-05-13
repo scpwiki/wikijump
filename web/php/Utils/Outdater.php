@@ -19,6 +19,7 @@ use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 
 use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
+use Wikijump\Services\Wikitext\PageInfo;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
 use function Wikijump\Services\Wikitext\getWikitextBackend;
