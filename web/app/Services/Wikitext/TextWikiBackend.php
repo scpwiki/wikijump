@@ -3,9 +3,12 @@ declare(strict_types = 1);
 
 namespace Wikijump\Services\Wikitext;
 
-use \Wikidot\DB\Page;
-use \Wikidot\DB\Site;
-use \Wikidot\Utils\WikiTransformation;
+use Ozone\Framework\Database\Criteria;
+use Wikidot\DB\Page;
+use Wikidot\DB\PagePeer;
+use Wikidot\DB\Site;
+use Wikidot\DB\SitePeer;
+use Wikidot\Utils\WikiTransformation;
 
 class TextWikiBackend extends WikitextBackend
 {
@@ -49,7 +52,7 @@ class TextWikiBackend extends WikitextBackend
     public function renderHtml(string $wikitext): HtmlOutput
     {
         $html = $this->wt->processSource($wikitext);
-        $linkStats = LinkStats::fromWikiObject($this->wt->wiki);
+        $linkStats = Backlinks::fromWikiObject($this->wt->wiki);
         return new HtmlOutput($html, '', [], [], $linkStats);
     }
 
@@ -70,7 +73,7 @@ class TextWikiBackend extends WikitextBackend
         return SitePeer::instance()->selectOne($c);
     }
 
-    private static function getPage(int $siteId, string $pageSlug): Page
+    private static function getPage(string $siteId, string $pageSlug): Page
     {
         return PagePeer::instance()->selectByName($siteId, $pageSlug);
     }

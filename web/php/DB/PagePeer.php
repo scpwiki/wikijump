@@ -2,7 +2,6 @@
 
 namespace Wikidot\DB;
 
-
 use Ozone\Framework\Database\Criteria;
 use Wikidot\Utils\WDStringUtils;
 
