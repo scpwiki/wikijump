@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
+use \Wikijump\Services\Wikitext\Backlinks;
 use \Wikijump\Services\Wikitext\HtmlMeta;
 use \Wikijump\Services\Wikitext\HtmlMetaType;
 use \Wikijump\Services\Wikitext\HtmlOutput;
@@ -62,7 +63,7 @@ final class OutputConversion
         FFI::free($c_data);
 
         // TODO actually get link information
-        $linkStats = new LinkStats(0, 0, 0, 0, 0);
+        $linkStats = new Backlinks([], [], [], [], []);
 
         // Return object
         return new HtmlOutput($html, $style, $meta, $warnings, $linkStats);
