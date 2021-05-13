@@ -12,7 +12,7 @@
  	<script type="text/javascript" src="/common--javascript/moofx/prototype.lite.js"></script>
  	<script type="text/javascript" src="/common--javascript/moofx/moo.fx.js"></script>
 	<script type="text/javascript" src="/common--javascript/moofx/moo.fx.pack.js"></script>
- 	<script type="text/javascript" src="/common--dist/bundle.js"></script>
+ 	<script type="module" src="/common--dist/bundle.js"></script>
 
 
 
