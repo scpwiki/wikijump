@@ -18,7 +18,7 @@ async function buildLegacyBundle() {
     sourcemap: true,
     splitting: false,
     platform: "browser",
-    format: "esm",
+    format: "iife",
     target: "es6"
   })
 
