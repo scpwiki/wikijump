@@ -343,7 +343,7 @@ wikitext_backend = wikijump.log
 [feature]
 
 ; [wikitext_backend]
-; Purpose: Which wikitext parser/renderer backend to use. Choose from "text_wiki", "ftml", or "null".
+; Purpose: Which wikitext parser/renderer backend to use. Choose from "text_wiki", "ftml", or "dummy".
 ; GlobalProperties Reference: $FEATURE_WIKITEXT_BACKEND
 ; Default: "text_wiki"
 file = "text_wiki"
