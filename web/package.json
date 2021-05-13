@@ -9,7 +9,7 @@
     "build:legacy": "node scripts/build-legacy.js build",
     "build:local": "pnpm compose build",
     "build:remote": "pnpm build:legacy && pnpm build:frontend",
-    "compose": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml",
+    "compose": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml --build-arg CACHEBUST=0\n",
     "compose:rebuild": "ultra compose:rebuild:cmd",
     "compose:rebuild:build": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml build --no-cache\n",
     "compose:rebuild:cmd": "pnpm compose down && pnpm compose:rebuild:build",

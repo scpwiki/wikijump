@@ -1,33 +1,56 @@
-# -- UTILITY
+# -- BUILD
 
-build: ultra -r build
-force-build: ultra --rebuild -r build
+build:
+  $depend: []
+  $action: ultra -r build
+  force: ultra --rebuild -r build
+  remote: ultra -r --filter "modules/*" build
 
 # -- TESTING
 
-test:compile:
-  - trash tests-dist
-  - node scripts/build-tests.js
-test:run: uvu ./tests-dist/dist test-megabundle.+js$
-test: pnpm test:compile && nyc --use-spawn-wrap npm run test:run
+test:
+  $depend: []
+  $action: ultra test:cmd
+
+  cmd:
+    - pnpm test:compile
+    - nyc --use-spawn-wrap npm run test:run
+
+  run: uvu ./tests-dist/dist test-megabundle.+js$
+  compile:
+    - trash tests-dist
+    - node scripts/build-tests.js
 
 # -- VALIDATION
 
 typecheck: tsc
 
 lint:
+  $depend: []
+  $action: pnpm lint:eslint && pnpm lint:stylelint && pnpm lint:prettier
+
   eslint: eslint "./**/*.js" "./**/*.ts"
   stylelint: stylelint "modules/**/*.scss" "web/**/*.scss"
   prettier: prettier --ignore-unknown --check "modules/**" "web/**"
 
 lint:fix:
+  $depend: []
+  $action: pnpm lint:fix:eslint && pnpm lint:fix:stylelint && pnpm lint:fix:prettier
+
   eslint: eslint "./**/*.js" "./**/*.ts" --fix
   stylelint: stylelint "modules/**/*.scss" "web/**/*.scss" --fix
   prettier: prettier --write --ignore-unknown "modules/**" "web/**"
 
 # Runs everything in parallel for maximum speed
-validate:cmd: pnpm lint && pnpm typecheck
-validate: ultra --concurrency 10 validate:cmd
+validate:
+  $depend: []
+  $action: ultra --concurrency 10 validate:cmd
+
+  cmd:
+    - pnpm lint:eslint
+    - pnpm lint:stylelint
+    - pnpm lint:prettier
+    - pnpm typecheck
 
 # -- MISC.
 

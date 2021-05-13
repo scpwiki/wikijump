@@ -5,31 +5,37 @@
   "private": true,
   "scripts": {
     "build": "ultra -r build",
+    "build:force": "ultra --rebuild -r build",
+    "build:remote": "ultra -r --filter \"modules/*\" build",
     "dev:dev-sandbox": "ultra --raw -r --filter \"web/dev-sandbox\" dev",
-    "force-build": "ultra --rebuild -r build",
-    "lint": "pnpm lint:eslint && pnpm lint:prettier && pnpm lint:stylelint",
+    "lint": "pnpm lint:eslint && pnpm lint:stylelint && pnpm lint:prettier",
     "lint:eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
-    "lint:fix": "pnpm lint:fix:eslint && pnpm lint:fix:prettier && pnpm lint:fix:stylelint",
+    "lint:fix": "pnpm lint:fix:eslint && pnpm lint:fix:stylelint && pnpm lint:fix:prettier",
     "lint:fix:eslint": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "lint:fix:prettier": "prettier --write --ignore-unknown \"modules/**\" \"web/**\"",
     "lint:fix:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\" --fix",
     "lint:prettier": "prettier --ignore-unknown --check \"modules/**\" \"web/**\"",
     "lint:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\"",
-    "test": "pnpm test:compile && nyc --use-spawn-wrap npm run test:run",
+    "test": "ultra test:cmd",
+    "test:cmd": "pnpm test:compile && nyc --use-spawn-wrap npm run test:run",
     "test:compile": "trash tests-dist && node scripts/build-tests.js",
     "test:run": "uvu ./tests-dist/dist test-megabundle.+js$",
     "typecheck": "tsc",
-    "update": "pnpm i && pnpm -r build",
     "validate": "ultra --concurrency 10 validate:cmd",
-    "validate:cmd": "pnpm lint && pnpm typecheck",
+    "validate:cmd": "pnpm lint:eslint && pnpm lint:stylelint && pnpm lint:prettier && pnpm typecheck",
     "nabs": "nabs"
   },
   "ultra": {
     "concurrent": [
-      "lint",
       "validate:cmd"
     ]
   },
+  "browserslist": [
+    "supports es6-module and > 0.2% and last 2 versions",
+    "Firefox ESR",
+    "not dead",
+    "not ie > 0"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git",

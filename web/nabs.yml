@@ -5,7 +5,10 @@
 # $ pnpm compose build
 compose:
   - cd ../install/local/dev
-  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
+  - >
+    docker-compose -p wikijump
+    -f docker-compose.yaml -f docker-compose.dev.yaml
+    --build-arg CACHEBUST=0
 
 compose:rebuild:
   $depend: []
