@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Wikijump\Services\Wikitext;
 
+use Wikijump\Services\Wikitext\FFI\FtmlFfi;
+
 /**
  * Class FtmlInterface, implements a compatible interface for working with FTML.
  * @package Wikijump\Services\Wikitext
