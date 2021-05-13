@@ -7,7 +7,11 @@ class DummyBackend extends WikitextBackend
 {
     public function renderHtml(string $wikitext): HtmlOutput
     {
-        return new HtmlOutput('<span class="output">(Rendered HTML here)</span>', '.output { color: green; }', [], []);
+        $html = '<span class="output">(Rendered HTML here)</span>';
+        $style = '.output { color: forestgreen; }';
+        $backlinks = new Backlinks([], [], [], [], []);
+
+        return new HtmlOutput($html, $style, [], [], $backlinks);
     }
 
     public function renderText(string $wikitext): TextOutput
