@@ -23,6 +23,7 @@ class SearchAllModule extends SmartyModule
         }
 
         if ($query == '') {
+            $runData->contextAdd("query", null);
             return;
         }
         if (strlen($query)<3) {

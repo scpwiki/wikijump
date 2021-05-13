@@ -22,5 +22,9 @@ class FileAuthScriptModule extends SmartyModule
             $runData->contextAdd("usePrivateWikiScript", true);
             $runData->contextAdd("privateWikiScriptUrl", $pwurl);
         }
+        else {
+            $runData->contextAdd("usePrivateWikiScript", false);
+            $runData->contextAdd("privateWikiScriptUrl", null);
+        }
     }
 }

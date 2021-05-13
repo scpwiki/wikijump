@@ -196,10 +196,12 @@ abstract class BaseDBObject {
 	 */
 	public function setFieldModified($fieldName, $modified=true){
 		if($modified==true){
-			// if not already modified, set 'modified'
-			if(!$this->modifiedFields["$fieldName"]==true){
-				$this->modifiedFields["$fieldName"] = true;
-			}
+		    if(array_key_exists("$fieldName", $this->modifiedFields)) {
+                // if not already modified, set 'modified'
+                if (!$this->modifiedFields["$fieldName"] == true) {
+                    $this->modifiedFields["$fieldName"] = true;
+                }
+            }
 		}else{
 			unset($this->modifiedFields["$fieldName"]);
 		}
@@ -304,7 +306,7 @@ abstract class BaseDBObject {
 	 * @return mixed
 	 */
 	public function getTemp($key){
-		return $this->temporaryStorage[$key];
+		return array_key_exists($key, $this->temporaryStorage) ? $this->temporaryStorage[$key] : null;
 	}
 
 	/**

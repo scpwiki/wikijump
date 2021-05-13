@@ -92,7 +92,7 @@ class WikiScreen extends Screen
                 $GLOBALS['page'] = $cachedPage['page'];
 
                 $out = $cachedPage['content'];
-                if ($this->vars['notificationsDialog']) {
+                if (array_key_exists('notificationsDialog', $this->vars)) {
                     $out = preg_replace(
                         '/
                         <div id="account-notifications-dummy" style="display:none"><\/div>
@@ -133,14 +133,14 @@ class WikiScreen extends Screen
             $runData->setTemp("category", $category);
         } else {
             // page exists!!! wooo!!!
-
+            $runData->contextAdd("pageNotExists", false);
             $runData->setTemp("page", $page);
             $GLOBALS['page'] = $page;
 
             $compiled = $page->getCompiled();
 
             $runData->contextAdd("wikiPage", $page);
-            $runData->contextAdd("pageContent", $compiled->getText());
+            $runData->contextAdd("pageContent", $compiled->getText() ?? null);
 
             $category = $page->getCategory();
             $runData->setTemp("category", $category);
@@ -172,8 +172,8 @@ class WikiScreen extends Screen
             }
 
             // look for parent pages (and prepare breadcrumbs)
+            $breadcrumbs = [];
             if ($page->getParentPageId()) {
-                $breadcrumbs = array();
                 $ppage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
                 array_unshift($breadcrumbs, $ppage);
                 $bcount = 0;
@@ -182,8 +182,8 @@ class WikiScreen extends Screen
                     array_unshift($breadcrumbs, $ppage);
                     $bcount++;
                 }
-                $runData->contextAdd("breadcrumbs", $breadcrumbs);
             }
+            $runData->contextAdd("breadcrumbs", $breadcrumbs);
         }
 
         $runData->contextAdd("category", $category);
@@ -209,7 +209,7 @@ class WikiScreen extends Screen
                     $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
                     $runData->contextAdd("sideBar1Content", $ccc);
                 }
-            }
+            } else { $runData->contextAdd("sideBar1Content", null); }
             if ($theme->getUseTopBar()) {
                 $topBar = $category->getTopPage();
                 if ($topBar !== null) {
@@ -218,6 +218,7 @@ class WikiScreen extends Screen
                     $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
                     $runData->contextAdd("topBarContent", $ccc);
                 }
+                else { $runData->contextAdd("topBarContent", null); }
             }
         }
 
@@ -252,7 +253,7 @@ class WikiScreen extends Screen
             $memcache->set($mcKey, array("page" =>$page, "content" => $out, "timestamp" => $now), 0, 864000);
         }
 
-        if ($this->vars['notificationsDialog']) {
+        if (array_key_exists('notificationsDialog', $this->vars)) {
             $out = preg_replace(
                 ';<div id="account-notifications-dummy" style="display:none"></div>;',
                 '<div id="notifications-dialog" style="display:none">'.

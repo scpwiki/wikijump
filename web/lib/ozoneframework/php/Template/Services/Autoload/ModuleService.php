@@ -23,6 +23,7 @@ class ModuleService extends TemplateService {
 
 	public function render($templateName, $parameters=null){
 		$this->templateName = $templateName;
+		$parmstring = '';
 		if($parameters!==null){
 			$parmstring = " ".urlencode($parameters)." ";
 		}

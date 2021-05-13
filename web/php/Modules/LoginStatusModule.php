@@ -49,7 +49,7 @@ class LoginStatusModule extends Module
                 case 'pl':
                     $glang="pl_PL";
                     break;
-                case 'en':
+                default:
                     $glang="en_US";
                     break;
             }

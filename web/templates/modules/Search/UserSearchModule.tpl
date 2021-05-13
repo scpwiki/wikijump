@@ -17,7 +17,7 @@
 		<p>{$errorMessage}</p>
 	{/if}
 
-	{if $mode=='email'}
+	{if isset($mode)}
 
 		{if $user}
 
@@ -45,11 +45,12 @@
 
 
 
-		{capture name="destUrl"}/search:users/q/{$queryEncoded}/p/%d{/capture}
-		{pager url=$smarty.capture.destUrl total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
-
+		{capture name="destUrl"}/search:users/q/{if isset($queryEncoded)}{$queryEncoded}{/if}/p/%d{/capture}
+        {if isset($PagerData)}
+		    {pager url=$smarty.capture.destUrl total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
+        {/if}
 		<div class="search-user-results">
-			{if $users}
+			{if isset($users)}
 				{foreach from=$users item=user}
 					<div class="item">
 						<div class="screen-name">
@@ -69,11 +70,12 @@
 				{/if}
 			{/if}
 		</div>
+        {if isset($countResults)}
+            {if $countResults>7}
+                {pager url=$smarty.capture.destUrl total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
 
-		{if $countResults>7}
-			{pager url=$smarty.capture.destUrl total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
-
-		{/if}
+            {/if}
+        {/if}
 	{/if}
 
 </div>

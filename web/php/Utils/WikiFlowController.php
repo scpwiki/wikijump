@@ -204,7 +204,7 @@ class WikiFlowController extends WebFlowController
         $runData->handleSessionEnd();
 
         // one more thing - some url will need to be rewritten if using HTTPS
-        if ($_SERVER['HTTPS']) {
+        if (array_key_exists('HTTPS', $_SERVER)) {
             // ?
             // scripts
             $rendered = preg_replace(';<script(.*?)src="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST_PREG . '(.*?)</script>;s', '<script\\1src="https://' . GlobalProperties::$URL_HOST . '\\2</script>', $rendered);

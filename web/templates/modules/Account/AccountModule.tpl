@@ -59,7 +59,6 @@
 				<li><a href="javascript:;" id="am-invitations">{t}Invitations{/t}</a></li>
 				<li><a href="javascript:;" id="am-applications">{t}Applied to{/t}</a></li>
 				{*<li><a href="javascript:;" id="am-wiki-newsletters">{t}Newsletters{/t}</a></li>*}
-				{if $enableLists}<li><a href="javascript:;" id="am-email-lists">{t}Email lists{/t}</a></li>{/if}
 			</ul>
 		</li>
 

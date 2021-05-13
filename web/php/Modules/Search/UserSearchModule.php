@@ -19,6 +19,8 @@ class UserSearchModule extends SmartyModule
         $site = $runData->getTemp("site");
 
         if (!$query || $query == '') {
+            $runData->contextAdd("query", null);
+            $runData->contextAdd("errorMessage", null);
             return;
         }
 
@@ -44,7 +46,8 @@ class UserSearchModule extends SmartyModule
             $runData->contextAdd("user", $user);
             $runData->contextAdd("mode", "email");
             sleep(2);
-        } else {
+        }
+        else {
             // normal search. perform a regexp search at the moment.
             $qs = preg_split('/ +/', trim($query));
 

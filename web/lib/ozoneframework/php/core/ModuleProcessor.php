@@ -89,7 +89,7 @@ class ModuleProcessor {
 
 	public function renderModule1($matches){
 		try{
-			$out = $this->renderModule($matches[1], $matches[2]);
+			$out = $this->renderModule($matches[1], $matches[2] ?? null);
 		}catch(Exception $e){
 			$p = new ProcessExceptionHandler();
 			$out = $p->handleInlineModule($e, OZONE::getRunData());

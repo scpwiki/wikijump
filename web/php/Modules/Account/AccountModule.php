@@ -31,15 +31,15 @@ class AccountModule extends AccountBaseModule
         $start = $pl->getParameterValue("start");
         if ($start) {
             $runData->contextAdd("start", $start);
-        }
+        } else { $runData->contextAdd("start", null); }
         $composeTo = $pl->getParameterValue("composeto");
         if ($composeTo) {
             $runData->contextAdd("composeTo", $composeTo);
-        }
+        } else { $runData->contextAdd("composeTo", null); }
         $inboxMessage = $pl->getParameterValue("inboxmessage");
         if ($inboxMessage) {
             $runData->contextAdd("inboxMessage", $inboxMessage);
-        }
+        } else { $runData->contextAdd("inboxMessage", null); }
         // put the key too
         $runData->contextAdd("rsaKey", CryptUtils::modulus());
         $this->extraJs[] = '/common--javascript/crypto/rsa.js';

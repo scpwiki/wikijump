@@ -63,7 +63,7 @@ class ParameterList {
 			$this->allParameters['GET'] = [];
 			for($i=1; $i<count($splited); $i+=2){
 				$key = $splited[$i];
-				$value=$splited[$i+1];
+				$value=$splited[$i+1] ?? null;
 				$this->parameterArray[$key] = urldecode($value);
 				$this->parameterTypes[$key] = 'GET';
 				$this->parameterFrom[$key] = 0;
@@ -93,9 +93,11 @@ class ParameterList {
 	}
 
 	public function getParameterValue($name, $type = null, $type2 = null) {
-		if($type == null || $this->parameterTypes[$name] == $type || $this->parameterTypes[$name] == $type2){
-			return $this->parameterArray[$name] ?? null;
-		}
+	    if(array_key_exists($name, $this->parameterArray)) {
+            if ($type == null || $this->parameterTypes[$name] == $type || $this->parameterTypes[$name] == $type2) {
+                return $this->parameterArray[$name] ?? null;
+            }
+        }
 		return null;
 	}
 
