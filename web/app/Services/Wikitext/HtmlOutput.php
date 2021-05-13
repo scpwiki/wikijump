@@ -32,11 +32,11 @@ class HtmlOutput
     public array $warnings;
 
     /**
-     * @var LinkStats Information about any links or includes in the page.
+     * @var Backlinks Information about any links or includes in the page.
      */
-    public LinkStats $linkStats;
+    public Backlinks $linkStats;
 
-    public function __construct(string $body, string $style, array $meta, array $warnings, LinkStats $linkStats) {
+    public function __construct(string $body, string $style, array $meta, array $warnings, Backlinks $linkStats) {
         $this->body = $body;
         $this->style = $style;
         $this->meta = $meta;

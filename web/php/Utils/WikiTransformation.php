@@ -2,11 +2,10 @@
 
 namespace Wikidot\Utils;
 
-use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
 use Text_Wiki;
-use Wikidot\DB\PageTagPeer;
+use Wikijump\Services\Wikitext\HtmlUtilities;
 
 class WikiTransformation
 {
