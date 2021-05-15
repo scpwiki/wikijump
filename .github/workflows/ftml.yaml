@@ -110,12 +110,12 @@ jobs:
           version: latest
 
       - name: Generate Coverage
-        run: cd ftml && cargo tarpaulin --all-features --out Xml
+        run: cd ftml && cargo tarpaulin --all-features --out Xml --output-dir target/coverage
 
       - name: Export Coverage
         uses: codecov/codecov-action@v1
         with:
-          directory: ftml/target/tarpaulin
+          directory: ftml/target/coverage
           flags: ftml
 
   clippy_lint:
