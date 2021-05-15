@@ -33,12 +33,6 @@ jobs:
             ftml/target
           key: ${{ runner.os }}-ftml-default-${{ hashFiles('ftml/**/Cargo.toml') }}
 
-      - name: Install Tarpaulin
-        uses: actions-rs/install@v0.1
-        with:
-          crate: cargo-tarpaulin
-          version: latest
-
       - name: Build (All Features)
         run: cd ftml && cargo build --all-features
 
@@ -47,15 +41,6 @@ jobs:
 
       - name: Test
         run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
-
-      - name: Generate Coverage
-        run: cd ftml && cargo tarpaulin --all-features
-
-      - name: Export Coverage
-        uses: codecov/codecov-action@v1
-        with:
-          directory: ftml/target/tarpaulin
-          flags: ftml
 
   wasm:
     name: WebASM
@@ -93,6 +78,45 @@ jobs:
 
       - name: Build (No Features)
         run: cd ftml && wasm-pack build --dev -- --no-default-features
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ftml/target
+          key: ${{ runner.os }}-ftml-coverage-${{ hashFiles('ftml/**/Cargo.toml') }}
+
+      - name: Install Tarpaulin
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-tarpaulin
+          version: latest
+
+      - name: Generate Coverage
+        run: cd ftml && cargo tarpaulin --all-features
+
+      - name: Export Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          directory: ftml/target/tarpaulin
+          flags: ftml
 
   clippy_lint:
     name: Lint
