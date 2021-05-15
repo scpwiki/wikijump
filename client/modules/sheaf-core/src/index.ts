@@ -31,6 +31,7 @@ import { debounce } from "wj-util"
 import { printTree } from "./print-tree"
 import { confinement } from "./theme"
 import { indentHack } from "./extensions/indent-hack"
+import { createSheafBinding, SheafBindings } from "./bindings"
 
 export * from "./adapters/svelte-lifecycle-element"
 export * from "./adapters/svelte-dom"
@@ -71,7 +72,12 @@ export class SheafCore {
   private guttersCompartment = new Compartment()
 
   /** Starts the editor. */
-  async init(parent: Element, doc: string, extensions: Extension[] = []) {
+  async init(
+    parent: Element,
+    doc: string,
+    bindings: SheafBindings = {},
+    extensions: Extension[] = []
+  ) {
     this.parent = parent
 
     const updateState = debounce(() => this.refresh(), 50)
@@ -105,6 +111,7 @@ export class SheafCore {
         doc,
         extensions: [
           ...getExtensions(),
+          ...createSheafBinding(this, bindings),
           ...extensions,
           this.spellcheckCompartment.of(
             EditorView.contentAttributes.of({ spellcheck: "false" })
