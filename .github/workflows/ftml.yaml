@@ -34,13 +34,16 @@ jobs:
           key: ${{ runner.os }}-ftml-default-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (All Features)
-        run: cd ftml && cargo build --all-features
+        run: cargo build --all-features
+        working-directory: ftml
 
       - name: Build (No Features)
-        run: cd ftml && cargo build --no-default-features
+        run: cargo build --no-default-features
+        working-directory: ftml
 
       - name: Test
-        run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
+        run: cargo test --all-features -- --nocapture --test-threads 1
+        working-directory: ftml
 
   wasm:
     name: WebASM
@@ -71,13 +74,16 @@ jobs:
           key: ${{ runner.os }}-ftml-webasm-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (Default)
-        run: cd ftml && wasm-pack build --dev
+        run: wasm-pack build --dev
+        working-directory: ftml
 
       - name: Build (Console Logging)
-        run: cd ftml && wasm-pack build --dev -- --features wasm-log
+        run: wasm-pack build --dev -- --features wasm-log
+        working-directory: ftml
 
       - name: Build (No Features)
-        run: cd ftml && wasm-pack build --dev -- --no-default-features
+        run: wasm-pack build --dev -- --no-default-features
+        working-directory: ftml
 
   coverage:
     name: Coverage
@@ -140,7 +146,9 @@ jobs:
           key: ${{ runner.os }}-ftml-lint-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Rustfmt
-        run: cd ftml && cargo fmt --all -- --check
+        run: cargo fmt --all -- --check
+        working-directory: ftml
 
       - name: Clippy
-        run: cd ftml && cargo clippy
+        run: cargo clippy
+        working-directory: ftml
