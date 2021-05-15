@@ -13,3 +13,9 @@ flags:
     carryforward: true
     paths:
       - web/
+
+  # ftml parser and renderer
+  ftml:
+    carryforward: true
+    paths:
+      - ftml/
