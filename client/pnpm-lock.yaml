@@ -140,19 +140,23 @@ importers:
 
   modules/components:
     specifiers:
+      '@iconify/iconify': ^2.0.1
       cm-lang-ftml: workspace:*
       ftml-wasm: workspace:*
       ftml-wasm-worker: workspace:*
       sheaf-core: workspace:*
       svelte: ^3.38.2
+      tippy.js: ^6.3.1
       wj-prism: workspace:*
       wj-util: workspace:*
     dependencies:
+      '@iconify/iconify': 2.0.1
       cm-lang-ftml: link:../cm-lang-ftml
       ftml-wasm: link:../ftml-wasm
       ftml-wasm-worker: link:../ftml-wasm-worker
       sheaf-core: link:../sheaf-core
       svelte: 3.38.2
+      tippy.js: 6.3.1
       wj-prism: link:../wj-prism
       wj-util: link:../wj-util
 
@@ -833,6 +837,12 @@ packages:
       happy-dom: 2.19.2
     dev: true
 
+  /@iconify/iconify/2.0.1:
+    resolution: {integrity: sha512-heGCmdiRc58+TQjKPiem8cmNZj7YXDG3TphRVw0UGjsz8/OKgN2ncBPy1kfFIiv5aKhUsij6WVTfOMUS7YgTbA==}
+    dependencies:
+      cross-fetch: 3.1.4
+    dev: false
+
   /@istanbuljs/load-nyc-config/1.1.0:
     resolution: {integrity: sha512-VjeHSlIzpv/NyD3N0YuHfXOPDIixcA1q2ZV98wsMqcYlPmv2n3Yb2lYP9XMElnaFVXg5A7YLTeLu6V84uQDjmQ==}
     engines: {node: '>=8'}
@@ -893,6 +903,10 @@ packages:
       '@nodelib/fs.scandir': 2.1.4
       fastq: 1.11.0
     dev: true
+
+  /@popperjs/core/2.9.2:
+    resolution: {integrity: sha512-VZMYa7+fXHdwIq1TDhSXoVmSPEGM/aa+6Aiq3nVVJ9bXr24zScr+NlKFKC3iPljA7ho/GAZr+d2jOf5GIRC30Q==}
+    dev: false
 
   /@rollup/plugin-babel/5.3.0_rollup@2.48.0:
     resolution: {integrity: sha512-9uIC8HZOnVLrLHxayq/PTzw+uS25E14KPUBh5ktF+18Mjo5yK0ToMMx6epY0uEgkjwJw0aBW4x2horYXh8juWw==}
@@ -1677,6 +1691,12 @@ packages:
 
   /crelt/1.0.5:
     resolution: {integrity: sha512-+BO9wPPi+DWTDcNYhr/W90myha8ptzftZT+LwcmUbbok0rcP/fequmFYCw8NMoH7pkAZQzU78b3kYrlua5a9eA==}
+    dev: false
+
+  /cross-fetch/3.1.4:
+    resolution: {integrity: sha512-1eAtFWdIubi6T4XPy6ei9iUFoKpUkIF971QLN8lIvvvwueI65+Nw5haMNKUwfJxabqlIIDODJKGrQ66gxC0PbQ==}
+    dependencies:
+      node-fetch: 2.6.1
     dev: false
 
   /cross-spawn/7.0.3:
@@ -3400,7 +3420,6 @@ packages:
   /node-fetch/2.6.1:
     resolution: {integrity: sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==}
     engines: {node: 4.x || >=6.0.0}
-    dev: true
 
   /node-preload/0.2.1:
     resolution: {integrity: sha512-RM5oyBy45cLEoHqCeh+MNuFAxO0vTFBLskvQbOKnEE7YTTSN4tbN8QWDIPQ6L+WvKsB/qLEGpYe2ZZ9d4W9OIQ==}
@@ -4715,6 +4734,12 @@ packages:
       esm: 3.2.25
     dev: false
     optional: true
+
+  /tippy.js/6.3.1:
+    resolution: {integrity: sha512-JnFncCq+rF1dTURupoJ4yPie5Cof978inW6/4S6kmWV7LL9YOSEVMifED3KdrVPEG+Z/TFH2CDNJcQEfaeuQww==}
+    dependencies:
+      '@popperjs/core': 2.9.2
+    dev: false
 
   /to-fast-properties/2.0.0:
     resolution: {integrity: sha1-3F5pjL0HkmW8c+A3doGk5Og/YW4=}

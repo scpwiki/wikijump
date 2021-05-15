@@ -1,8 +1,8 @@
 <!--
-  @component
-  CodeMirror panel.
+  @component CodeMirror test panel.
 -->
 <script lang="ts">
+  import { Button } from "components"
   import type { EditorSveltePanelProps } from "sheaf-core"
 
   export let view: EditorSveltePanelProps["view"]
@@ -11,7 +11,9 @@
 </script>
 
 <div class="codemirror-panel">
-  <button class="close-panel" role="button" on:click={unmount}>X</button>
+  <div class="close-panel">
+    <Button i="ion:close" size="1.5rem" tip="Close Panel" baseline />
+  </div>
   This is a test panel.
 </div>
 
@@ -22,6 +24,6 @@
   .close-panel {
     position: absolute;
     top: 0.25rem;
-    right: 1rem;
+    right: 0.5rem;
   }
 </style>
