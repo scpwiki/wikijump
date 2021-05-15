@@ -16,8 +16,12 @@
     "components": "workspace:*",
     "ftml-wasm": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
+    "sheaf": "workspace:*",
     "sheaf-core": "workspace:*",
     "wj-css": "workspace:*",
     "wj-util": "workspace:*"
+  },
+  "devDependencies": {
+    "svelte": "^3.38.2"
   }
 }
