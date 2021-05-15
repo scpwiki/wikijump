@@ -42,6 +42,17 @@ jobs:
       - name: Test
         run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
 
+      - name: Generate Coverage
+        uses: actions-rs/tarpaulin@v0.1
+        with:
+          args: '--all-features --tests'
+
+      - name: Export Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          directory: ftml/target/tarpaulin
+          flags: ftml
+
   wasm:
     name: WebASM
     runs-on: ubuntu-latest
