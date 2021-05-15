@@ -108,6 +108,7 @@ jobs:
         with:
           crate: cargo-tarpaulin
           version: latest
+          use-tool-cache: true
 
       - name: Generate Coverage
         run: cd ftml && cargo tarpaulin
