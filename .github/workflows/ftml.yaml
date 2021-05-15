@@ -33,6 +33,12 @@ jobs:
             ftml/target
           key: ${{ runner.os }}-ftml-default-${{ hashFiles('ftml/**/Cargo.toml') }}
 
+      - name: Install Tarpaulin
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-tarpaulin
+          version: latest
+
       - name: Build (All Features)
         run: cd ftml && cargo build --all-features
 
