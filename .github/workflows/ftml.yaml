@@ -34,16 +34,13 @@ jobs:
           key: ${{ runner.os }}-ftml-default-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (All Features)
-        run: cargo build --all-features
-        working-directory: ftml
+        run: cd ftml && cargo build --all-features
 
       - name: Build (No Features)
-        run: cargo build --no-default-features
-        working-directory: ftml
+        run: cd ftml && cargo build --no-default-features
 
       - name: Test
-        run: cargo test --all-features -- --nocapture --test-threads 1
-        working-directory: ftml
+        run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
 
   wasm:
     name: WebASM
@@ -74,16 +71,13 @@ jobs:
           key: ${{ runner.os }}-ftml-webasm-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Build (Default)
-        run: wasm-pack build --dev
-        working-directory: ftml
+        run: cd ftml && wasm-pack build --dev
 
       - name: Build (Console Logging)
-        run: wasm-pack build --dev -- --features wasm-log
-        working-directory: ftml
+        run: cd ftml && wasm-pack build --dev -- --features wasm-log
 
       - name: Build (No Features)
-        run: wasm-pack build --dev -- --no-default-features
-        working-directory: ftml
+        run: cd ftml && wasm-pack build --dev -- --no-default-features
 
   coverage:
     name: Coverage
@@ -109,9 +103,14 @@ jobs:
             ftml/target
           key: ${{ runner.os }}-ftml-coverage-${{ hashFiles('ftml/**/Cargo.toml') }}
 
+      - name: Install Tarpaulin
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-tarpaulin
+          version: latest
+
       - name: Generate Coverage
-        uses: actions-rs/tarpaulin@v0.1
-        working-directory: ftml
+        run: cd ftml && cargo tarpaulin
 
       - name: Export Coverage
         uses: codecov/codecov-action@v1
@@ -146,9 +145,7 @@ jobs:
           key: ${{ runner.os }}-ftml-lint-${{ hashFiles('ftml/**/Cargo.toml') }}
 
       - name: Rustfmt
-        run: cargo fmt --all -- --check
-        working-directory: ftml
+        run: cd ftml && cargo fmt --all -- --check
 
       - name: Clippy
-        run: cargo clippy
-        working-directory: ftml
+        run: cd ftml && cargo clippy
