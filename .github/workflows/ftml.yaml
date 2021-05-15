@@ -49,7 +49,7 @@ jobs:
         run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
 
       - name: Generate Coverage
-        run: cd ftml && cargo tarpaulin --all-features --out Xml
+        run: cd ftml && cargo tarpaulin --all-features
 
       - name: Export Coverage
         uses: codecov/codecov-action@v1
