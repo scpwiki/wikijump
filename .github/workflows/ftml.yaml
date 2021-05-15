@@ -79,6 +79,46 @@ jobs:
       - name: Build (No Features)
         run: cd ftml && wasm-pack build --dev -- --no-default-features
 
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ftml/target
+          key: ${{ runner.os }}-ftml-coverage-${{ hashFiles('ftml/**/Cargo.toml') }}
+
+      - name: Install Tarpaulin
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-tarpaulin
+          version: latest
+          use-tool-cache: true
+
+      - name: Generate Coverage
+        run: cd ftml && cargo tarpaulin
+
+      - name: Export Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          directory: ftml/target/coverage
+          flags: ftml
+
   clippy_lint:
     name: Lint
     runs-on: ubuntu-latest
