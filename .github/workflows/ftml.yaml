@@ -103,14 +103,9 @@ jobs:
             ftml/target
           key: ${{ runner.os }}-ftml-coverage-${{ hashFiles('ftml/**/Cargo.toml') }}
 
-      - name: Install Tarpaulin
-        uses: actions-rs/install@v0.1
-        with:
-          crate: cargo-tarpaulin
-          version: latest
-
       - name: Generate Coverage
-        run: cd ftml && cargo tarpaulin
+        uses: actions-rs/tarpaulin@v0.1
+        working-directory: ftml
 
       - name: Export Coverage
         uses: codecov/codecov-action@v1
