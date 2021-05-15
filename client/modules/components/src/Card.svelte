@@ -19,7 +19,7 @@
 </section>
 
 <style lang="scss">
-  @import "wj-css/src/abstracts";
+  @import "../../wj-css/src/abstracts";
 
   .card {
     padding: 0.5rem;
