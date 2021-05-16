@@ -130,9 +130,9 @@ export async function parse(str: string) {
 }
 
 /** Renders a string of wikitext to HTML. */
-export async function render(str: string) {
+export async function render(str: string, format = false) {
   const [htmlBuffer, styleBuffer] = await invoke<[ArrayBuffer, ArrayBuffer]>(() =>
-    module.worker.render(transfer(str))
+    module.worker.render(transfer(str), format)
   )
   const html = decode(htmlBuffer)
   const style = decode(styleBuffer)
