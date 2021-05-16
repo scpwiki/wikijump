@@ -359,3 +359,15 @@ export function html(strings: TemplateStringsArray, ...subs: (string | string[])
   })
   return toFragment(src)
 }
+
+/**
+ * Performs a modulo operation.
+ * This differs from JavaScript's `%` operator,
+ * which is more of a remainder operator.
+ *
+ * @param a - The dividend.
+ * @param n - The divisor.
+ */
+export function mod(a: number, n: number) {
+  return ((a % n) + n) % n
+}
