@@ -121,7 +121,7 @@ impl<T> From<NonEmptyVec<T>> for Vec<T> {
 }
 
 #[test]
-fn non_empty_vec() {
+fn first() {
     macro_rules! check {
         ($vec:expr, $values:expr $(,)?) => {{
             assert_eq!(
@@ -148,4 +148,31 @@ fn non_empty_vec() {
 
     assert_eq!(vec.pop(), Some(2));
     check!(vec, [0, 1]);
+}
+
+#[test]
+fn others() {
+    let mut vec = NonEmptyVec::with_capacity('a', 2);
+    vec.push('b');
+    vec.others_mut().push('c');
+    *vec.first_mut() = 'z';
+
+    {
+        let (first, others) = vec.clone().into();
+        assert_eq!(first, 'z', "First value doesn't match expected");
+        assert_eq!(
+            others,
+            vec!['b', 'c'],
+            "Remaining values don't match expected",
+        );
+    }
+
+    {
+        let items: Vec<char> = vec.clone().into();
+        assert_eq!(
+            items,
+            vec!['z', 'b', 'c'],
+            "Remaining values don't match expected",
+        );
+    }
 }
