@@ -1,4 +1,7 @@
 // Import `include-media` package from NPM
+// Normally, Vite and whatever other tooling can resolve from `node_modules` just fine.
+// But here, it just isn't playing along well and it's much more reliable if I just path
+// directly to the file I'm wanting.
 @import "../../node_modules/include-media/dist/include-media";
 
 // Set import-media breakpoints
