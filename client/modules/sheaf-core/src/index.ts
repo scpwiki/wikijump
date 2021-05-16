@@ -80,7 +80,7 @@ export class SheafCore {
   ) {
     this.parent = parent
 
-    const updateState = debounce(() => this.refresh(), 50)
+    const updateState = debounce(() => this.refresh(), 25)
 
     const updateHandler = ViewPlugin.define(() => ({
       update: (update: ViewUpdate) => {
@@ -214,6 +214,16 @@ export function getExtensions() {
       { key: "Mod-d", run: copyLineDown, preventDefault: true },
       defaultTabBinding
     ]),
+    confinement
+  ]
+}
+
+export function getCodeDisplayExtensions() {
+  return [
+    drawSelection(),
+    EditorView.editable.of(false),
+    EditorView.lineWrapping,
+    indentHack,
     confinement
   ]
 }
