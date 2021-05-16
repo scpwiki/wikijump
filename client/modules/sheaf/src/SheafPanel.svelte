@@ -12,7 +12,7 @@
 
 <div class="codemirror-panel">
   <div class="close-panel">
-    <Button i="ion:close" size="1.5rem" tip="Close Panel" baseline />
+    <Button i="ion:close" size="1.5rem" tip="Close Panel" baseline on:click={unmount} />
   </div>
   This is a test panel.
 </div>
