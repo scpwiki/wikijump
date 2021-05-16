@@ -158,3 +158,26 @@ fn slice() {
         );
     }
 }
+
+#[test]
+#[should_panic]
+fn slice_invalid() {
+    use crate::parsing::Token;
+
+    let log = crate::build_logger();
+    let text = "Durian...";
+    let full_text = FullText::new(text);
+
+    macro_rules! range {
+        ($span:expr) => {
+            &ExtractedToken {
+                token: Token::Other,
+                slice: &text[$span],
+                span: $span,
+            }
+        };
+    }
+
+    // "Durian"
+    let _ = full_text.slice(&log, range!(6..7), range!(0..1));
+}
