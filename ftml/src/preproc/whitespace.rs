@@ -103,7 +103,7 @@ fn regex_replace(log: &Logger, text: &mut String, regex: &Regex, replacement: &s
 }
 
 #[cfg(test)]
-const TEST_CASES: [(&str, &str); 6] = [
+const TEST_CASES: [(&str, &str); 8] = [
     (
         "\tapple\n\tbanana\tcherry\n",
         "    apple\n    banana    cherry",
@@ -123,6 +123,14 @@ const TEST_CASES: [(&str, &str); 6] = [
     (
         "concat:\napple banana \\\nCherry\\\nPineapple \\ grape\nblueberry\n",
         "concat:\napple banana CherryPineapple \\ grape\nblueberry",
+    ),
+    (
+        "concat:\napple banana _\nCherry_\nPineapple _ grape\nblueberry\n",
+        "concat:\napple banana CherryPineapple _ grape\nblueberry",
+    ),
+    (
+        "concat:\napple banana \\\nCherry_\nPineapple _ grape\nblueberry\n",
+        "concat:\napple banana CherryPineapple _ grape\nblueberry",
     ),
     ("<\n        \n      \n  \n      \n>", "<\n\n>"),
 ];
