@@ -22,7 +22,7 @@ use super::meta::HtmlMeta;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HtmlOutput {
-    pub html: String,
+    pub body: String,
     pub styles: Vec<String>,
     pub meta: Vec<HtmlMeta>,
 }
