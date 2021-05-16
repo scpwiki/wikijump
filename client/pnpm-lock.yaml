@@ -14,11 +14,11 @@ importers:
       '@typescript-eslint/parser': ^4.23.0
       '@typescript-eslint/typescript-estree': ^4.23.0
       babel-plugin-istanbul: ^6.0.0
-      esbuild: ^0.11.22
+      esbuild: ^0.11.23
       eslint: ^7.26.0
       eslint-plugin-clean-regex: ^0.5.1
       eslint-plugin-compat: ^3.9.0
-      eslint-plugin-import: ^2.23.1
+      eslint-plugin-import: ^2.23.2
       eslint-plugin-svelte3: ^3.2.0
       eslint-plugin-tsdoc: ^0.2.14
       fs-extra: ^10.0.0
@@ -28,7 +28,7 @@ importers:
       nyc: ^15.1.0
       postcss: ^8.2.15
       prettier: ^2.3.0
-      prettier-plugin-svelte: 2.3.0
+      prettier-plugin-svelte: ^2.3.0
       rollup: ^2.48.0
       sass: ^1.32.13
       stylelint: ^13.13.1
@@ -54,11 +54,11 @@ importers:
       '@typescript-eslint/parser': 4.23.0_79813e72f20f3edb599eff4f74fc87fe
       '@typescript-eslint/typescript-estree': 4.23.0_typescript@4.3.1-rc
       babel-plugin-istanbul: 6.0.0
-      esbuild: 0.11.22
+      esbuild: 0.11.23
       eslint: 7.26.0
       eslint-plugin-clean-regex: 0.5.1
       eslint-plugin-compat: 3.9.0_eslint@7.26.0
-      eslint-plugin-import: 2.23.1_eslint@7.26.0
+      eslint-plugin-import: 2.23.2_eslint@7.26.0
       eslint-plugin-svelte3: 3.2.0_eslint@7.26.0+svelte@3.38.2
       eslint-plugin-tsdoc: 0.2.14
       fs-extra: 10.0.0
@@ -166,28 +166,40 @@ importers:
   modules/ftml-wasm-worker:
     specifiers:
       ftml-wasm: workspace:*
+      indent.js: ^0.3.5
       threads: ^1.6.4
       wj-util: workspace:*
     dependencies:
       ftml-wasm: link:../ftml-wasm
+      indent.js: 0.3.5
       threads: 1.6.4
       wj-util: link:../wj-util
 
   modules/sheaf:
     specifiers:
+      '@codemirror/language': ^0.18.1
+      '@codemirror/language-data': ^0.18.0
+      '@codemirror/state': ^0.18.7
+      '@codemirror/view': ^0.18.12
       cm-lang-ftml: workspace:*
       components: workspace:*
       ftml-wasm-worker: workspace:*
       morphdom: ^2.6.1
       sheaf-core: workspace:*
       svelte: ^3.38.2
+      typescript-memoize: ^1.0.1
       wj-util: workspace:*
     dependencies:
+      '@codemirror/language': 0.18.1
+      '@codemirror/language-data': 0.18.0
+      '@codemirror/state': 0.18.7
+      '@codemirror/view': 0.18.12
       cm-lang-ftml: link:../cm-lang-ftml
       components: link:../components
       ftml-wasm-worker: link:../ftml-wasm-worker
       morphdom: 2.6.1
       sheaf-core: link:../sheaf-core
+      typescript-memoize: 1.0.1
       wj-util: link:../wj-util
     devDependencies:
       svelte: 3.38.2
@@ -641,7 +653,7 @@ packages:
       '@codemirror/language': 0.18.1
       '@codemirror/state': 0.18.7
       '@codemirror/view': 0.18.12
-      lezer-markdown: 0.14.4
+      lezer-markdown: 0.14.5
       lezer-tree: 0.13.2
     dev: false
 
@@ -668,7 +680,7 @@ packages:
       '@codemirror/highlight': 0.18.3
       '@codemirror/language': 0.18.1
       '@codemirror/state': 0.18.7
-      lezer: 0.13.4
+      lezer: 0.13.5
     dev: false
 
   /@codemirror/lang-xml/0.18.0:
@@ -707,7 +719,7 @@ packages:
       '@codemirror/state': 0.18.7
       '@codemirror/text': 0.18.0
       '@codemirror/view': 0.18.12
-      lezer: 0.13.4
+      lezer: 0.13.5
       lezer-tree: 0.13.2
     dev: false
 
@@ -781,7 +793,7 @@ packages:
       '@codemirror/language': 0.18.1
       '@codemirror/state': 0.18.7
       '@codemirror/text': 0.18.0
-      lezer: 0.13.4
+      lezer: 0.13.5
       lezer-tree: 0.13.2
     dev: false
 
@@ -1941,6 +1953,12 @@ packages:
     requiresBuild: true
     dev: true
 
+  /esbuild/0.11.23:
+    resolution: {integrity: sha512-iaiZZ9vUF5wJV8ob1tl+5aJTrwDczlvGP0JoMmnpC2B0ppiMCu8n8gmy5ZTGl5bcG081XBVn+U+jP+mPFm5T5Q==}
+    hasBin: true
+    requiresBuild: true
+    dev: true
+
   /escalade/3.1.1:
     resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
     engines: {node: '>=6'}
@@ -1991,8 +2009,8 @@ packages:
       semver: 7.3.2
     dev: true
 
-  /eslint-plugin-import/2.23.1_eslint@7.26.0:
-    resolution: {integrity: sha512-epW62znqcFCyQeixVrqy26WpdN1Y3LZH5G9XCuiiTCVuksjC4Je+4o1z5mIpa6P1KMyz1n4RT436VSrZoA5+5A==}
+  /eslint-plugin-import/2.23.2_eslint@7.26.0:
+    resolution: {integrity: sha512-LmNoRptHBxOP+nb0PIKz1y6OSzCJlB+0g0IGS3XV4KaKk2q4szqQ6s6F1utVf5ZRkxk/QOTjdxe7v4VjS99Bsg==}
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0
@@ -2662,6 +2680,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /indent.js/0.3.5:
+    resolution: {integrity: sha512-wiTA5fEz0kc8tHzY6CSujl/k62WVNvTxAZzmPe5V7MYxRCeGGibPCIYWYBzPp/bcJh3CXUO/8qrTrO/x9s1i2Q==}
+    dev: false
+
   /inflight/1.0.6:
     resolution: {integrity: sha1-Sb1jMdfQLQwJvJEKEHW6gWW1bfk=}
     dependencies:
@@ -3027,41 +3049,41 @@ packages:
   /lezer-cpp/0.13.2:
     resolution: {integrity: sha512-YVlFzs2jkX6nRBu5ivDm1b0pNLmPgQv0rXuLkDZyc+TSdAirtDixANlT00FCOLOGbxIS/1V2Rx5i4/X+lGgOKQ==}
     dependencies:
-      lezer: 0.13.4
+      lezer: 0.13.5
     dev: false
 
   /lezer-css/0.13.1:
     resolution: {integrity: sha512-ke56tjG17IZ+EFiY50P2WinjhgZQB7OecRVZmYQbVuwv5iUdLemA4vLjaFsAbgoSg+4pfOms7Ns9nItoJcmFpg==}
     dependencies:
-      lezer: 0.13.4
+      lezer: 0.13.5
     dev: false
 
   /lezer-html/0.13.5:
     resolution: {integrity: sha512-xjWhwttVp2NdCzV8BE4Duj/u4iSMf39YRQ+ur93DoiSxfpANA3oc/hduKJr5MB/isph1kQdFy8rIqkl8FtBkCQ==}
     dependencies:
-      lezer: 0.13.4
+      lezer: 0.13.5
     dev: false
 
   /lezer-java/0.13.2:
     resolution: {integrity: sha512-+BMv172xMTK5zZK0O3BM8SbQ0NK7Z99O5/QWnwt46j6fTGr79HO4n/nuxzzCmq0mQFcweqV2x3QG/L/6zRb7dQ==}
     dependencies:
-      lezer: 0.13.4
+      lezer: 0.13.5
     dev: false
 
   /lezer-javascript/0.13.4:
     resolution: {integrity: sha512-nhRbeSwPZo2xVYq6TWyUhi/r9j0CFSUpkuA5J992Az2AYZFw2HnGVjixfP43DKufL+npJwSy0qcCcAHFQ2bFOQ==}
     dependencies:
-      lezer: 0.13.4
+      lezer: 0.13.5
     dev: false
 
   /lezer-json/0.13.1:
     resolution: {integrity: sha512-iXIXSjqa/+jmaDKD4yPgpwfwQlbOcu/IaFgZ+3dgo3oVtitEVlAJYcfw8g9ywJtae3CYQlyOX9mjyi0VCNPlNg==}
     dependencies:
-      lezer: 0.13.4
+      lezer: 0.13.5
     dev: false
 
-  /lezer-markdown/0.14.4:
-    resolution: {integrity: sha512-3sthPcQqKUHlkk1ceJZlzXOZ23ByRG2+aDbUAHZkQ5QitmRxNnm479OvaDTd+O59/sMJKkTx0p+udP50WRTuDQ==}
+  /lezer-markdown/0.14.5:
+    resolution: {integrity: sha512-Fk5cGiHk2gHB7HLBjcPHaXEtnYOO4GPwzmx1ApknrmiVldz8QsqmYqF7+TQA/PSFJx1g+ajjVOVHXQGp5rFlGg==}
     dependencies:
       lezer-html: 0.13.5
       lezer-tree: 0.13.2
@@ -3070,13 +3092,13 @@ packages:
   /lezer-python/0.13.6:
     resolution: {integrity: sha512-cUZSilL3BZ+ssDkvGSOdxfL0ioajEPijWuQ31Z5vAFW8Ons53d5FILYnxRcGhZlwmBnn4cDAtxZyny0K+l6AEw==}
     dependencies:
-      lezer: 0.13.4
+      lezer: 0.13.5
     dev: false
 
   /lezer-rust/0.13.1:
     resolution: {integrity: sha512-mn27bruCQfgKsyUV4vW/cUcUtZ0TjwNOFR299ZQxfxKSs4UUg0b6Jvu436ROYo5lxquKXf2BQdFWSttMoSlysg==}
     dependencies:
-      lezer: 0.13.4
+      lezer: 0.13.5
     dev: false
 
   /lezer-tree/0.13.2:
@@ -3086,13 +3108,7 @@ packages:
   /lezer-xml/0.13.4:
     resolution: {integrity: sha512-mgA6ZfsxBWTG993vkVRonaHaSY4H78IChFI9+H6PiH8mJEG9OP2W1EiZmGbiv32OawF02vWzvTp3Lm3b9P1g9A==}
     dependencies:
-      lezer: 0.13.4
-    dev: false
-
-  /lezer/0.13.4:
-    resolution: {integrity: sha512-cLQxUVY28VBBqKBt/R8CYeH57KQnIvscAnoahzvhlZTK8qxMkIyGExR6ecEpYYDX06ZhROZrEm1IiPvjLAsTig==}
-    dependencies:
-      lezer-tree: 0.13.2
+      lezer: 0.13.5
     dev: false
 
   /lezer/0.13.5:
@@ -4888,6 +4904,10 @@ packages:
       typedoc-default-themes: 0.12.10
       typescript: 4.3.1-rc
     dev: true
+
+  /typescript-memoize/1.0.1:
+    resolution: {integrity: sha512-oJNge1qUrOK37d5Y6Ly2txKeuelYVsFtNF6U9kXIN7juudcQaHJQg2MxLOy0CqtkW65rVDYuTCOjnSIVPd8z3w==}
+    dev: false
 
   /typescript/4.3.1-rc:
     resolution: {integrity: sha512-L3uJ0gcntaRaKni9aV2amYB+pCDVodKe/B5+IREyvtKGsDOF7cYjchHb/B894skqkgD52ykRuWatIZMqEsHIqA==}
