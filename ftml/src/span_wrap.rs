@@ -52,3 +52,16 @@ impl slog::Value for SpanWrap {
         serializer.emit_str(key, &value)
     }
 }
+
+#[test]
+#[cfg(feature = "log")]
+fn span_wrap() {
+    fn test(log: slog::Logger) {
+        let span_wrap = SpanWrap::from(5..10);
+
+        info!(log, "Test logging message"; "span" => span_wrap);
+    }
+
+    test(crate::build_null_logger());
+    test(crate::build_terminal_logger());
+}
