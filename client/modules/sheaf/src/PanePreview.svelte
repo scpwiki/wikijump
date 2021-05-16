@@ -14,13 +14,13 @@
 
   let previewElement: HTMLElement
 
-  let render = new RenderHandler("")
+  let render = new RenderHandler()
 
   let perfRender = 0
   let perfMorph = 0
 
-  $: if ($Editor.value && typeof $Editor.value === "string") {
-    render = new RenderHandler($Editor.value)
+  $: if ($Editor.doc) {
+    render = new RenderHandler($Editor.doc)
   }
 
   const morphPreview = createAnimQueued((html: string | Node) => {

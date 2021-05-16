@@ -1,3 +1,4 @@
+import type { Text } from "@codemirror/state"
 import * as FTML from "ftml-wasm-worker"
 import { Memoize } from "typescript-memoize"
 import { toFragment } from "wj-util"
@@ -5,7 +6,13 @@ import { toFragment } from "wj-util"
 export class RenderHandler {
   private declare fragmentNode?: DocumentFragment
 
-  constructor(public src: string) {}
+  constructor(public doc?: Text) {}
+
+  @Memoize()
+  private get src() {
+    if (!this.doc) return ""
+    return this.doc.toString()
+  }
 
   @Memoize()
   async result(format = false) {

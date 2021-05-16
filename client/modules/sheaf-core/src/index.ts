@@ -27,7 +27,6 @@ import { nextDiagnostic, openLintPanel } from "@codemirror/lint"
 
 import { writable } from "svelte/store"
 
-import { debounce } from "wj-util"
 import { printTree } from "./print-tree"
 import { confinement } from "./theme"
 import { indentHack } from "./extensions/indent-hack"
@@ -80,12 +79,10 @@ export class SheafCore {
   ) {
     this.parent = parent
 
-    const updateState = debounce(() => this.refresh(), 25)
-
     const updateHandler = ViewPlugin.define(() => ({
       update: (update: ViewUpdate) => {
         // update store on change
-        if (update.docChanged) updateState()
+        if (update.docChanged) this.refresh()
         // get active lines
         if (update.selectionSet || update.docChanged) {
           const activeLines: Set<number> = new Set()
@@ -148,10 +145,13 @@ export class SheafCore {
 
   refresh() {
     this.state = this.view.state
-    const value = this.doc.toString()
+    let memo: string | null = null
     this.store.set({
       doc: this.doc,
-      value: value
+      get value() {
+        if (memo) return memo
+        return (memo = this.doc.toString())
+      }
     })
   }
 
