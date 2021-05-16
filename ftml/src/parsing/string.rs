@@ -103,6 +103,8 @@ fn test_parse_string() {
 
     test!(r#""""#, "", Borrowed);
     test!(r#""!""#, "!", Borrowed);
+    test!(r#""\"""#, "\"", Owned);
+    test!(r#""\'""#, "\'", Owned);
     test!(r#""apple banana""#, "apple banana", Borrowed);
     test!(r#""abc \\""#, "abc \\", Owned);
     test!(r#""\n def""#, "\n def", Owned);
@@ -111,6 +113,18 @@ fn test_parse_string() {
         "abc \t (\\\t) \r (\\\r) def",
         Owned,
     );
+}
+
+#[test]
+#[should_panic]
+fn test_parse_string_escape() {
+    // This shouldn't happen in real code, since
+    // any invalid string constructions are caught at the
+    // tokenization stage.
+    //
+    // However we're testing this to ensure high code coverage.
+
+    let _ = parse_string(r#""Invalid escape! \z""#);
 }
 
 #[test]
