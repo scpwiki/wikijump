@@ -119,3 +119,57 @@ impl<'t> FullText<'t> {
         &self.text[start..end]
     }
 }
+
+#[test]
+fn slice() {
+    use crate::parsing::Token;
+
+    let log = crate::build_logger();
+    let text = "Apple banana!";
+    let full_text = FullText::new(text);
+
+    macro_rules! range {
+        ($span:expr) => {
+            &ExtractedToken {
+                token: Token::Other,
+                slice: &text[$span],
+                span: $span,
+            }
+        };
+    }
+
+    {
+        let slice = full_text.slice(&log, range!(0..1), range!(4..5));
+
+        assert_eq!(slice, "Apple", "Full slice didn't match expected");
+    }
+
+    {
+        let slice = full_text.slice_partial(&log, range!(6..9), range!(12..13));
+
+        assert_eq!(slice, "banana", "Partial slice didn't match expected");
+    }
+}
+
+#[test]
+#[should_panic]
+fn slice_invalid() {
+    use crate::parsing::Token;
+
+    let log = crate::build_logger();
+    let text = "Durian...";
+    let full_text = FullText::new(text);
+
+    macro_rules! range {
+        ($span:expr) => {
+            &ExtractedToken {
+                token: Token::Other,
+                slice: &text[$span],
+                span: $span,
+            }
+        };
+    }
+
+    // "Durian"
+    let _ = full_text.slice(&log, range!(6..7), range!(0..1));
+}

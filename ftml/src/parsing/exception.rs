@@ -204,3 +204,14 @@ impl slog::Value for ParseWarningKind {
         serializer.emit_str(key, self.name())
     }
 }
+
+#[test]
+fn log() {
+    let log = crate::build_logger();
+
+    info!(
+        &log,
+        "Received parse warning";
+        "warning" => ParseWarningKind::NoRulesMatch,
+    );
+}

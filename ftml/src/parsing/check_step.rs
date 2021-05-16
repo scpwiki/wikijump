@@ -38,3 +38,13 @@ pub fn check_step(parser: &mut Parser, token: Token) -> Result<(), ParseWarning>
 
     Ok(())
 }
+
+#[test]
+#[should_panic]
+fn check_step_fail() {
+    let log = crate::build_logger();
+    let tokenization = crate::tokenize(&log, "**Apple** banana");
+    let mut parser = Parser::new(&log, &tokenization);
+
+    let _ = check_step(&mut parser, Token::Italics);
+}

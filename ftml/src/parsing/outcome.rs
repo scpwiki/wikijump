@@ -21,7 +21,7 @@
 use super::ParseWarning;
 use std::borrow::{Borrow, BorrowMut};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct ParseOutcome<T> {
     value: T,
     warnings: Vec<ParseWarning>,
@@ -105,4 +105,32 @@ impl<T> From<ParseOutcome<T>> for (T, Vec<ParseWarning>) {
 
         (value, warnings)
     }
+}
+
+#[test]
+fn outcome() {
+    let mut outcome = ParseOutcome::new(vec!['a'], vec![]);
+
+    assert_eq!(outcome.value(), &['a']);
+    assert_eq!(outcome.warnings(), &[]);
+
+    outcome.push('b');
+
+    assert_eq!(outcome.value(), &['a', 'b']);
+    assert_eq!(outcome.warnings(), &[]);
+
+    let outcome_2 = outcome.clone();
+    assert_eq!(outcome, outcome_2);
+}
+
+#[test]
+fn default() {
+    let mut outcome: ParseOutcome<Option<i32>> = ParseOutcome::default();
+
+    {
+        let value: &Option<i32> = outcome.borrow();
+        assert_eq!(value, &None);
+    }
+
+    *outcome.borrow_mut() = Some(10);
 }
