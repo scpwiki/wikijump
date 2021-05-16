@@ -3,57 +3,97 @@ import * as FTML from "ftml-wasm-worker"
 import { Memoize } from "typescript-memoize"
 import { toFragment } from "wj-util"
 
+/**
+ * Heavily memoized FTML-render-emit handler.
+ * Designed to invoke the FTML renderer as little as possible.
+ */
 export class RenderHandler {
   private declare fragmentNode?: DocumentFragment
 
+  /** @param doc - The CodeMirror `state.doc` to render with. */
   constructor(public doc?: Text) {}
 
+  /**
+   * Raw source of the document.
+   * @decorator `@Memoize()`
+   */
   @Memoize()
   private get src() {
     if (!this.doc) return ""
     return this.doc.toString()
   }
 
+  /**
+   * Renders the document to CSS and HTML.
+   * @param format - Whether or not to pretty-print/format the HTML.
+   * @decorator `@Memoize()`
+   */
   @Memoize()
   async result(format = false) {
     return await FTML.render(this.src, format)
   }
 
+  /**
+   * Renders the document to HTML.
+   * @param format - Whether or not to pretty-print/format the HTML.
+   * @decorator `@Memoize()`
+   */
   @Memoize()
   async html(format = false) {
     const { html } = await this.result(format)
     return html
   }
 
+  /**
+   * Renders the document's combined stylesheet.
+   * @decorator `@Memoize`
+   */
   @Memoize()
   async style() {
     const { style } = await this.result()
     return style
   }
 
+  /**
+   * Renders the document to formatted text.
+   * @decorator `@Memoize()`
+   */
   @Memoize()
   async text() {
     const text = await FTML.renderText(this.src)
     return text
   }
 
+  /**
+   * Parses the document.
+   * @decorator `@Memoize()`
+   */
   @Memoize()
   async parse() {
     return await FTML.parse(this.src)
   }
 
+  /**
+   * Parses the document and returns its AST.
+   * @decorator `@Memoize()`
+   */
   @Memoize()
   async ast() {
     const { ast } = await this.parse()
     return ast
   }
 
+  /**
+   * Returns the warnings that would be emitted by parsing the document.
+   * @decorator `@Memoize()`
+   */
   @Memoize()
   async warnings() {
     const { warnings } = await this.parse()
     return warnings
   }
 
+  /** Renders the document into a {@link DocumentFragment}. */
   async fragment() {
     if (!this.fragmentNode) {
       this.fragmentNode = toFragment(await this.html())
@@ -61,6 +101,10 @@ export class RenderHandler {
     return this.fragmentNode.cloneNode(true)
   }
 
+  /**
+   * Retrieves the document's AST and then formats it into a pretty-printed string.
+   * @decorator `@Memoize()`
+   */
   @Memoize()
   async stringifiedAST() {
     const ast = await this.ast()
