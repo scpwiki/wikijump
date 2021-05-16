@@ -1,9 +1,6 @@
-<script lang="ts" context="module">
+<script lang="ts">
   // load iconify along with this component
   import Iconify from "@iconify/iconify"
-</script>
-
-<script lang="ts">
   import type { IconifyIcon } from "@iconify/iconify"
 
   /** Icon to display. Uses Iconify's format. */

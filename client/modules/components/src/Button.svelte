@@ -139,6 +139,7 @@
         background: var(--col-hint);
       }
 
+      &.is-baseline,
       &.is-floating {
         background: none;
       }
@@ -150,7 +151,7 @@
     }
 
     // click only, so not using active class
-    .button:active {
+    &:active {
       &.is-baseline {
         background: var(--col-border);
       }
