@@ -54,8 +54,8 @@ pub fn substitute(log: &Logger, text: &mut String) {
     // Strip lines with only whitespace
     regex_replace(log, text, &*WHITESPACE, "");
 
-    // Join concatenated lines (ending with '\')
-    str_replace(log, text, "\\\n", "");
+    // Join concatenated lines (ending with '\' or '_')
+    str_replace(log, text, "[\\_]\n", "");
 
     // Tabs to spaces
     str_replace(log, text, "\t", "    ");
