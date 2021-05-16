@@ -72,7 +72,8 @@ impl From<HtmlMeta> for ftml_html_meta {
 #[derive(Debug)]
 pub struct ftml_html_output {
     pub html: *mut c_char,
-    pub style: *mut c_char,
+    pub styles_list: *mut *mut c_char,
+    pub styles_len: usize,
     pub meta_list: *mut ftml_html_meta,
     pub meta_len: usize,
     pub warning_list: *mut ftml_warning,
@@ -82,7 +83,11 @@ pub struct ftml_html_output {
 impl ftml_html_output {
     pub fn write_from(&mut self, output: HtmlOutput, warnings: &[ParseWarning]) {
         self.html = string_to_cstr(output.html);
-        self.style = string_to_cstr(output.style);
+
+        let c_styles = output.styles.into_iter().map(string_to_cstr).collect();
+        let (styles_ptr, styles_len) = vec_to_cptr(c_styles);
+        self.styles_list = styles_ptr;
+        self.styles_len = styles_len;
 
         let c_meta = output.meta.into_iter().map(ftml_html_meta::from).collect();
         let (meta_ptr, meta_len) = vec_to_cptr(c_meta);
@@ -103,7 +108,7 @@ pub unsafe extern "C" fn ftml_destroy_html_output(ptr: *mut ftml_html_output) {
     let this = &mut *ptr;
 
     drop_cstr(this.html);
-    drop_cstr(this.style);
+    drop_cptr(this.styles_list, this.styles_len, |style| drop_cstr(style));
     drop_cptr(this.meta_list, this.meta_len, |item| {
         drop_cstr(item.name);
         drop_cstr(item.value);
