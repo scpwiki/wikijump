@@ -89,8 +89,6 @@ class GlobalProperties
     public static $MODULES_JS_URL;
     public static $MODULES_CSS_PATH;
     public static $MODULES_CSS_URL;
-    public static $XSENDFILE_USE;
-    public static $XSENDFILE_HEADER;
 
     // third-party keys
     public static $FR_CAPTCHA_SITE_KEY;
@@ -242,8 +240,6 @@ class GlobalProperties
         self::$MODULES_JS_URL           = $_ENV["WIKIJUMP_MODULES_JS_URL"] ?? self::fromIni("misc", "modules_js_url", "/common--modules/js");
         self::$MODULES_CSS_PATH         = $_ENV["WIKIJUMP_MODULES_CSS_PATH"] ?? self::fromIni("misc", "modules_css_path", "web/files--common/modules/css");
         self::$MODULES_CSS_URL          = $_ENV["WIKIJUMP_MODULES_CSS_URL"] ?? self::fromIni("misc", "modules_css_url", "/common--modules/css");
-        self::$XSENDFILE_USE            = $_ENV["WIKIJUMP_XSENDFILE_USE"] ?? self::fromIni("misc", "xsendfile", false);
-        self::$XSENDFILE_HEADER         = $_ENV["WIKIJUMP_XSENDFILE_HEADER"] ?? self::fromIni("misc", "xsendfile_header", "X-LIGHTTPD-send-file");
 
         self::$FR_CAPTCHA_SITE_KEY      = $_ENV["WIKIJUMP_FR_CAPTCHA_SITE_KEY"] ?? self::fromIni("keys", "friendlycaptcha-site-key", "");
         self::$FR_CAPTCHA_API_KEY       = $_ENV["WIKIJUMP_FR_CAPTCHA_API_KEY"] ?? self::fromIni("keys", "friendlycaptcha-api-key", "");
