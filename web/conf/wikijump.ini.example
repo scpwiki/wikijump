@@ -397,17 +397,3 @@ modules_css_path = web/files--common/modules/css
 ; GlobalProperties Reference: $MODULES_CSS_URL
 ; Default: "/common--modules/css"
 modules_css_url = /common--modules/css
-
-; [xsendfile]
-; Purpose: Whether or not to use x-sendfile. This needs additional config in Apache, but is on by default in
-;   lighttpd. The nginx equivalent is X_Accel-Redirect. This is used to send files on disk as responses to requests.
-; GlobalProperties Reference: $XSENDFILE_USE
-; Default: false
-xsendfile = false
-
-; [xsendfile_header]
-; Purpose: What header to send with serving a file with x-sendfile. lighttpd 1.4 set X-LIGHTTPD-send-file,
-;   lighttpd 1.5 set X-LIGHTTPD-send-file or X-Sendfile, Apache with mod_xsendfile set X-Sendfile
-; GlobalProperties Reference: $XSENDFILE_HEADER
-; Default: "X-LIGHTTPD-send-file"
-xsendfile_header = X-LIGHTTPD-send-file
