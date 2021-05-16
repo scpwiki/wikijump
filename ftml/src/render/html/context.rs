@@ -30,7 +30,7 @@ use std::num::NonZeroUsize;
 #[derive(Debug)]
 pub struct HtmlContext<'i, 'h> {
     html: String,
-    style: String,
+    styles: Vec<String>,
     meta: Vec<HtmlMeta>,
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
@@ -44,7 +44,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     pub fn new(info: &'i PageInfo<'i>, handle: &'h Handle) -> Self {
         HtmlContext {
             html: String::new(),
-            style: String::new(),
+            styles: Vec::new(),
             meta: Self::initial_metadata(&info),
             info,
             handle,
@@ -111,12 +111,8 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     }
 
     #[inline]
-    pub fn add_style(&mut self, style: &str) {
-        if !self.style.is_empty() {
-            self.style.push_str("\n/*****/\n");
-        }
-
-        self.style.push_str(style);
+    pub fn add_style(&mut self, style: String) {
+        self.styles.push(style);
     }
 
     #[inline]
@@ -144,10 +140,10 @@ impl<'i, 'h> From<HtmlContext<'i, 'h>> for HtmlOutput {
     #[inline]
     fn from(ctx: HtmlContext<'i, 'h>) -> HtmlOutput {
         let HtmlContext {
-            html, style, meta, ..
+            html, styles, meta, ..
         } = ctx;
 
-        HtmlOutput { html, style, meta }
+        HtmlOutput { html, styles, meta }
     }
 }
 

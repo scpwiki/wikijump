@@ -70,7 +70,7 @@ impl Render for HtmlRender {
 
         // Add styles
         for style in &tree.styles {
-            ctx.add_style(style);
+            ctx.add_style(str!(style));
         }
 
         // Crawl through elements and generate HTML

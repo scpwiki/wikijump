@@ -60,6 +60,9 @@ export interface IPageInfo {
 
 #[wasm_bindgen]
 extern "C" {
+    #[wasm_bindgen(typescript_type = "string[]")]
+    pub type IStyleArray;
+
     #[wasm_bindgen(typescript_type = "IHtmlMeta[]")]
     pub type IHtmlMetaArray;
 
@@ -164,9 +167,9 @@ impl HtmlOutput {
         self.inner.html.clone()
     }
 
-    #[wasm_bindgen]
-    pub fn style(&self) -> String {
-        self.inner.style.clone()
+    #[wasm_bindgen(typescript_type = "IStyleArray")]
+    pub fn styles(&self) -> Result<IStyleArray, JsValue> {
+        rust_to_js!(self.inner.styles)
     }
 
     #[wasm_bindgen(typescript_type = "IHtmlMetaArray")]
