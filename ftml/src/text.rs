@@ -141,21 +141,13 @@ fn slice() {
     {
         let slice = full_text.slice(&log, range!(0..1), range!(4..5));
 
-        assert_eq!(
-            slice,
-            "Apple",
-            "Full slice didn't match expected",
-        );
+        assert_eq!(slice, "Apple", "Full slice didn't match expected");
     }
 
     {
         let slice = full_text.slice_partial(&log, range!(6..9), range!(12..13));
 
-        assert_eq!(
-            slice,
-            "banana",
-            "Partial slice didn't match expected",
-        );
+        assert_eq!(slice, "banana", "Partial slice didn't match expected");
     }
 }
 
