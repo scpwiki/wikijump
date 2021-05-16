@@ -9,19 +9,16 @@
   import { RenderHandler } from "./render-handler"
   import morph from "morphdom"
 
+  /** Theme of the preview. */
   export let theme: "light" | "dark" = "light"
+
+  /** Reference to the editor-core that will be previewed. */
   export let Editor: SheafCore
 
   let previewElement: HTMLElement
-
   let render = new RenderHandler()
-
   let perfRender = 0
   let perfMorph = 0
-
-  $: if ($Editor.doc) {
-    render = new RenderHandler($Editor.doc)
-  }
 
   const morphPreview = createAnimQueued((html: string | Node) => {
     const measureMorph = perfy()
@@ -41,6 +38,10 @@
     perfRender = measure()
     return fragment
   })
+
+  $: if ($Editor.doc) {
+    render = new RenderHandler($Editor.doc)
+  }
 
   $: if (render && previewElement) {
     getFragment(render).then(fragment => {
