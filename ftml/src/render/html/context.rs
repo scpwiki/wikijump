@@ -64,7 +64,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
             HtmlMeta {
                 tag_type: HtmlMetaType::Name,
                 name: str!("generator"),
-                value: format!("ftml {}", env!("CARGO_PKG_VERSION")),
+                value: info::VERSION.clone(),
             },
             HtmlMeta {
                 tag_type: HtmlMetaType::Name,
