@@ -2,10 +2,6 @@
 
 namespace Ozone\Framework;
 
-
-
-
-
 use Wikidot\Utils\GlobalProperties;
 
 /**
@@ -119,15 +115,11 @@ abstract class WebFlowController {
 	}
 
 	/**
-	 * sends the file to the browser using PHP's readfile or X-Sendfile header
+	 * sends the file to the browser using PHP's readfile
 	 *
 	 * @param mixed $path
 	 */
 	protected function readfile($path) {
-		if (GlobalProperties::$XSENDFILE_USE) {
-			header(GlobalProperties::$XSENDFILE_HEADER . ": $path");
-		} else {
-			readfile($path);
-		}
+		readfile($path);
 	}
 }
