@@ -44,6 +44,7 @@ lazy_static! {
     };
     static ref LEADING_NEWLINES: Regex = Regex::new(r"^\n+").unwrap();
     static ref TRAILING_NEWLINES: Regex = Regex::new(r"\n+$").unwrap();
+    static ref CONCAT_LINES: Regex = Regex::new(r"[\\_]\n").unwrap();
 }
 
 pub fn substitute(log: &Logger, text: &mut String) {
@@ -55,7 +56,7 @@ pub fn substitute(log: &Logger, text: &mut String) {
     regex_replace(log, text, &*WHITESPACE, "");
 
     // Join concatenated lines (ending with '\' or '_')
-    str_replace(log, text, "[\\_]\n", "");
+    regex_replace(log, text, &*CONCAT_LINES, "");
 
     // Tabs to spaces
     str_replace(log, text, "\t", "    ");
@@ -131,6 +132,7 @@ fn regexes() {
     let _ = &*WHITESPACE;
     let _ = &*LEADING_NEWLINES;
     let _ = &*TRAILING_NEWLINES;
+    let _ = &*CONCAT_LINES;
 }
 
 #[test]
