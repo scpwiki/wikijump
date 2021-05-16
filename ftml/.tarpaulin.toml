@@ -4,6 +4,7 @@ all-features = true
 
 workspace = true
 exclude-files = [
+    "src/log.rs",
     "src/ffi/*",
     "src/wasm/*",
 ]
