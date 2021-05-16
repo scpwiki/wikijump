@@ -1,3 +1,6 @@
+<!--
+  @component CodeMirror instance that displays code, like a `<code>` block.
+-->
 <script lang="ts">
   import { EditorState, Compartment } from "@codemirror/state"
   import { EditorView } from "@codemirror/view"
@@ -7,29 +10,22 @@
   import { createIdleQueued, createMutatingLock } from "wj-util"
   import { getCodeDisplayExtensions } from "sheaf-core"
 
+  /** Contents of the code block. Can be a promise that resolves to a string. */
   export let content: string | Promise<string>
+
+  /** Name of the language to syntax highlight with. */
   export let lang = ""
 
   let container: HTMLElement
   let view: EditorView
+
+  const langExtension = new Compartment()
 
   const updateDocument = createIdleQueued((doc: string) => {
     if (view) {
       view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: doc } })
     }
   })
-
-  const compartment = new Compartment()
-
-  $: if (content && view) {
-    getDoc(content).then(doc => {
-      if (doc !== null) updateDocument(doc)
-    })
-  }
-
-  $: if (lang && view) {
-    getLang().then(lang => view.dispatch({ effects: compartment.reconfigure(lang!) }))
-  }
 
   async function getLang() {
     let desc: LanguageDescription | null = null
@@ -42,6 +38,16 @@
     return result
   })
 
+  $: if (content && view) {
+    getDoc(content).then(doc => {
+      if (doc !== null) updateDocument(doc)
+    })
+  }
+
+  $: if (lang && view) {
+    getLang().then(lang => view.dispatch({ effects: langExtension.reconfigure(lang!) }))
+  }
+
   onMount(async () => {
     view = new EditorView({
       parent: container,
@@ -49,7 +55,7 @@
         doc: await content,
         extensions: [
           ...getCodeDisplayExtensions(),
-          compartment.of((await getLang()) ?? [])
+          langExtension.of((await getLang()) ?? [])
         ]
       })
     })
