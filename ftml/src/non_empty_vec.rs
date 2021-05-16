@@ -115,7 +115,7 @@ impl<T> From<NonEmptyVec<T>> for Vec<T> {
     fn from(vec: NonEmptyVec<T>) -> Vec<T> {
         let NonEmptyVec { first, mut others } = vec;
 
-        others.push(first);
+        others.insert(0, first);
         others
     }
 }
