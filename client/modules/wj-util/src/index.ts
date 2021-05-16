@@ -274,12 +274,14 @@ export function createLock<T extends AnyFunction>(fn: T) {
  */
 export function createAnimQueued<T extends AnyFunction>(fn: T) {
   let queued: boolean
+  let useArgs: any[] = []
   return (...args: Parameters<T>): void => {
+    useArgs = args
     if (queued !== true) {
       queued = true
       requestAnimationFrame(async () => {
         // @ts-ignore
-        await fn(...args)
+        await fn(...useArgs)
         queued = false
       })
     }
