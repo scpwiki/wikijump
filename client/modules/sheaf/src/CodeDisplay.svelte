@@ -9,6 +9,7 @@
   import { onDestroy, onMount } from "svelte"
   import { createIdleQueued, createMutatingLock } from "wj-util"
   import { getCodeDisplayExtensions } from "sheaf-core"
+  import { Spinny } from "components"
 
   /** Contents of the code block. Can be a promise that resolves to a string. */
   export let content: Promisable<string>
@@ -16,7 +17,7 @@
   /** Name of the language to syntax highlight with. */
   export let lang = ""
 
-  let container: HTMLElement
+  let element: HTMLElement
   let view: EditorView
 
   const langExtension = new Compartment()
@@ -50,7 +51,7 @@
 
   onMount(async () => {
     view = new EditorView({
-      parent: container,
+      parent: element,
       state: EditorState.create({
         doc: await content,
         extensions: [
@@ -66,16 +67,29 @@
   })
 </script>
 
-<div class="code-display" class:hidden={!view} bind:this={container} />
+<div class="code-display-container">
+  <div class="code-display" bind:this={element} class:hidden={!view} />
+  {#if !view}<Spinny />{/if}
+</div>
 
 <style lang="scss">
+  @import "../../wj-css/src/abstracts";
+
+  .code-display-container {
+    position: relative;
+    height: 100%;
+  }
+
   .code-display {
     height: 100%;
     opacity: 1;
-    transition: opacity 0.1s ease-out;
 
-    &.hidden {
-      opacity: 0;
+    @include tolerates-motion {
+      transition: opacity 0.125s ease-out;
+
+      &.hidden {
+        opacity: 0;
+      }
     }
   }
 </style>

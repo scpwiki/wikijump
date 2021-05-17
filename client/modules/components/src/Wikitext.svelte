@@ -6,6 +6,8 @@
   import { createAnimQueued, createMutatingLock, perfy, toFragment } from "wj-util"
   import Card from "./Card.svelte"
   import morphdom from "morphdom"
+  import Spinny from "./Spinny.svelte"
+  import { anim } from "./lib/animation"
 
   type Rendered = { html: string; style: string }
   type WikitextInput =
@@ -42,9 +44,12 @@
   let element: HTMLElement
   let stylesheet: HTMLStyleElement
 
+  let rendering = false
+
   let perfRender = 0
 
   const render = createMutatingLock(async (wikitext: WikitextInput) => {
+    const displayIndicatorTimeout = setTimeout(() => (rendering = true), 100)
     const measure = perfy()
     if (typeof wikitext === "function") wikitext = wikitext()
     wikitext = await wikitext
@@ -54,6 +59,7 @@
         : await FTML.render(wikitext)
       : { html: "", style: "" }
     perfRender = measure()
+    clearTimeout(displayIndicatorTimeout)
     return result
   })
 
@@ -76,6 +82,7 @@
     }
 
     stylesheet.innerHTML = style
+    rendering = false
   })
 
   $: if (wikitext) {
@@ -90,8 +97,16 @@
 </svelte:head>
 
 <div class="wikitext-container">
+  {#if rendering}
+    <div
+      class="wikitext-loading-panel"
+      transition:anim={{ duration: 250, css: t => `opacity: ${t}` }}
+    >
+      <Spinny inline size="1.25rem" description="Rendering..." />
+    </div>
+  {/if}
   <div class="wikitext-perf-panel">
-    <Card title="Performance" theme="dark" width="10rem">
+    <Card title="Performance" theme="dark" width="12rem">
       <div><strong>RENDER:</strong> <code>{perfRender}ms</code></div>
     </Card>
   </div>
@@ -99,6 +114,20 @@
 </div>
 
 <style lang="scss">
+  @import "../../wj-css/src/abstracts";
+
+  .wikitext-loading-panel {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.25rem 0.5rem;
+    color: var(--col-con-text);
+    background: var(--col-con-background);
+    border: solid 0.125rem var(--col-con-border);
+    border-radius: 0.5rem;
+    @include shadow(6);
+  }
+
   .wikitext-perf-panel {
     position: absolute;
     top: 1rem;

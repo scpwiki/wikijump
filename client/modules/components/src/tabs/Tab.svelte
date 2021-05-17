@@ -62,15 +62,6 @@
 <style lang="scss">
   @import "../../../wj-css/src/abstracts";
 
-  @keyframes reveal {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
   .tab-button {
     flex-grow: 1;
     border-left: solid 0.075rem var(--col-border);
@@ -90,6 +81,20 @@
 
   .tab-panel {
     outline: none;
-    animation: reveal 0.125s 0s 1 backwards ease-out;
+  }
+
+  @include tolerates-motion {
+    .tab-panel {
+      animation: tab-panel-reveal 0.125s 0s 1 backwards ease-out;
+    }
+  }
+
+  @keyframes tab-panel-reveal {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 </style>
