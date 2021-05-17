@@ -70,6 +70,17 @@ macro_rules! file_name {
     };
 }
 
+#[cfg(not(target_os = "windows"))]
+fn process_newlines(_: &mut String) {}
+
+#[cfg(target_os = "windows")]
+fn process_newlines(text: &mut String) {
+    while let Some(idx) = text.find("\r\n") {
+        let range = idx..idx + 2;
+        text.replace_range(range, "\n");
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Test<'a> {
     #[serde(skip)]
@@ -116,6 +127,8 @@ impl Test<'_> {
                         error,
                     );
                 }
+
+                process_newlines(&mut contents);
 
                 if $trim_newline && contents.ends_with('\n') {
                     contents.pop();
