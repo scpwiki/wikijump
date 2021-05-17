@@ -6,6 +6,10 @@ export interface MediaQueryStore {
   canHover: boolean
 }
 
+/**
+ * Singleton class for reading pre-made media queries reactively.
+ * @see {@link Media}
+ */
 class MediaQueryHandler {
   store = writable<MediaQueryStore>({} as any)
   subscribe = this.store.subscribe
@@ -37,10 +41,12 @@ class MediaQueryHandler {
     return mediaQuery
   }
 
+  /** True if `(prefers-reduced-motion: reduce)` is matched. */
   get reducedMotion() {
     return this._reducedMotion.matches
   }
 
+  /** Whether `(prefers-color-scheme: ?)` is either "light" or "dark". */
   get colorScheme(): "light" | "dark" {
     return this._colorSchemeLight.matches
       ? "light"
@@ -49,9 +55,22 @@ class MediaQueryHandler {
       : "light"
   }
 
+  /** True if `(any-hover: hover), (hover: hover)` is matched. */
   get canHover() {
     return this._canHover.matches
   }
 }
 
+/**
+ * Handler and helper singleton for reading media queries directly or reactively.
+ * Queries can be read reactively because this object fulfills the observable protocol.
+ * @example
+ * ```svelte
+ * <!--
+ *   Sets the class of the element between "dark" and "light", even when the user
+ *   changes their preferred color scheme settings.
+ * -->
+ * <div class={$Media.colorScheme} />
+ * ```
+ */
 export const Media = new MediaQueryHandler()
