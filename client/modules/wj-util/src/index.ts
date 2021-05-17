@@ -251,7 +251,7 @@ export async function waitFor(
  * A locked asynchronous function will only allow a singular instance of itself
  * to be running at one time.
  *
- * Additional calls will return the previous `Promise`.
+ * Additional calls will return the previously running `Promise`.
  */
 export function createLock<T extends AnyFunction>(fn: T) {
   type Return = PromiseValue<ReturnType<T>>
@@ -274,8 +274,9 @@ export function createLock<T extends AnyFunction>(fn: T) {
  * A locked asynchronous function will only allow a singular instance of itself
  * to be running at one time.
  *
- * Additional calls will "mutate" the previous still running calls, and cause them
- * to wait on the most recent call instead.
+ * Additional calls will return null, but they will signal to the original, still
+ * running call to "restart" with the new given value. This means that the original
+ * call will only ever return the most freshly sourced result.
  */
 export function createMutatingLock<T extends AnyFunction>(fn: T) {
   type Return = PromiseValue<ReturnType<T>>
