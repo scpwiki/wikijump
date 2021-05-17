@@ -63,10 +63,10 @@ final class OutputConversion
         FFI::free($c_data);
 
         // TODO actually get link information
-        $linkStats = new Backlinks([], [], [], [], []);
+        $backlinks = new Backlinks([], [], [], [], []);
 
         // Return object
-        return new HtmlOutput($body, $styles, $meta, $warnings, $linkStats);
+        return new HtmlOutput($body, $styles, $meta, $warnings, $backlinks);
     }
 
     private static function makeStylesArray(FFI\CData $pointer, int $length): array {
