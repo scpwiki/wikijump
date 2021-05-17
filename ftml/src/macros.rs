@@ -20,7 +20,7 @@
 
 /// Alias for `Cow::Borrowed` that isn't quite as long.
 macro_rules! cow {
-    ($value:expr) => {{
+    ($value:expr $(,)?) => {{
         use std::borrow::Cow;
 
         Cow::Borrowed($value)
@@ -29,7 +29,7 @@ macro_rules! cow {
 
 /// Alias for `Element::Text` from a string slice.
 macro_rules! text {
-    ($value:expr) => {{
+    ($value:expr $(,)?) => {{
         use crate::tree::Element;
 
         Element::Text(cow!($value))
