@@ -23,7 +23,6 @@ jobs:
           key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.OS }}-pnpm-
-            ${{ runner.OS }}-
 
       - name: Install Node
         uses: actions/setup-node@v2
@@ -57,7 +56,6 @@ jobs:
           key: ${{ runner.OS }}-pnpm-coverage-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.OS }}-pnpm-coverage-
-            ${{ runner.OS }}-
 
       - name: Install Node
         uses: actions/setup-node@v2
