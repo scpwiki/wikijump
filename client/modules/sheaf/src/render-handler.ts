@@ -45,13 +45,23 @@ export class RenderHandler {
   }
 
   /**
+   * Renders the document's stylesheets.
+   * @decorator `@Memoize`
+   */
+  @Memoize()
+  async styles() {
+    const { styles } = await this.result()
+    return styles
+  }
+
+  /**
    * Renders the document's combined stylesheet.
    * @decorator `@Memoize`
    */
   @Memoize()
   async style() {
     const { styles } = await this.result()
-    return styles
+    return styles.join("\n")
   }
 
   /**

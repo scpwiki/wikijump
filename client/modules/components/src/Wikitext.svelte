@@ -57,7 +57,7 @@
       ? typeof wikitext !== "string"
         ? wikitext
         : await FTML.render(wikitext)
-      : { html: "", styles: "" }
+      : { html: "", styles: [""] }
     perfRender = measure()
     clearTimeout(displayIndicatorTimeout)
     return result
