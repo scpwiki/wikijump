@@ -2,13 +2,33 @@ import { Media } from "./media"
 import * as easings from "svelte/easing"
 
 export interface AnimOpts {
+  /** Delay before the animation plays, in or out. */
   delay?: number
+  /** Length of animation, in miliseconds. */
   duration?: number
+  /** Easing algorithm to use. */
   easing?: keyof typeof easings
+  /** Forces the animation to play even with `prefers-reduced-motion: reduce`. */
   forceReduced?: boolean
+  /**
+   * Function that returns the styling that should be applied for a given time.
+   * @example
+   * ```
+   * // fading animation
+   * const anim = { css: t => `opacity: ${t}` }
+   * ```
+   */
   css: (t: number, u: number) => string | string[]
 }
 
+/**
+ * Svelte `transition`, `in`, or `out` function for creating CSS-based animations.
+ * @example
+ * ```svelte
+ * <!-- Scales the element in and out -->
+ * <div transition:anim={{ duration: 250, css: t => `transform: scale(${t})` }} />
+ * ```
+ */
 export function anim(
   node: Element,
   { delay = 0, duration = 500, easing = "quintInOut", forceReduced, css }: AnimOpts
