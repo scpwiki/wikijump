@@ -1,3 +1,6 @@
+<!--
+  @component Iconify powered inline icon.
+-->
 <script lang="ts">
   // load iconify along with this component
   import Iconify from "@iconify/iconify"
