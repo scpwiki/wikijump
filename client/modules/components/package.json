@@ -27,6 +27,7 @@
     "cm-lang-ftml": "workspace:*",
     "ftml-wasm": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
+    "morphdom": "^2.6.1",
     "sheaf-core": "workspace:*",
     "svelte": "^3.38.2",
     "tippy.js": "^6.3.1",

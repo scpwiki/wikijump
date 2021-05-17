@@ -3,11 +3,9 @@
 -->
 <script lang="ts">
   import type { SheafCore } from "sheaf-core"
-  import { createAnimQueued, createMutatingLock, perfy } from "wj-util"
-  import { Card, Tabview, Tab } from "components"
+  import { Tabview, Tab, Wikitext } from "components"
   import CodeDisplay from "./CodeDisplay.svelte"
   import { RenderHandler } from "./render-handler"
-  import morph from "morphdom"
 
   /** Theme of the preview. */
   export let theme: "light" | "dark" = "light"
@@ -15,38 +13,10 @@
   /** Reference to the editor-core that will be previewed. */
   export let Editor: SheafCore
 
-  let previewElement: HTMLElement
   let render = new RenderHandler()
-  let perfRender = 0
-  let perfMorph = 0
-
-  const morphPreview = createAnimQueued((html: string | Node) => {
-    const measureMorph = perfy()
-    morph(previewElement, html, {
-      childrenOnly: true,
-      onBeforeElUpdated: function (fromEl, toEl) {
-        if (fromEl.isEqualNode(toEl)) return false
-        return true
-      }
-    })
-    perfMorph = measureMorph()
-  })
-
-  const getFragment = createMutatingLock(async (handler: RenderHandler) => {
-    const measure = perfy()
-    const fragment = await handler.fragment()
-    perfRender = measure()
-    return fragment
-  })
 
   $: if ($Editor.doc) {
     render = new RenderHandler($Editor.doc)
-  }
-
-  $: if (render && previewElement) {
-    getFragment(render).then(fragment => {
-      if (fragment) morphPreview(fragment)
-    })
   }
 </script>
 
@@ -54,13 +24,9 @@
   <Tabview noborder contained compact conditional>
     <Tab>
       <span slot="button">Result</span>
-      <div class="sheaf-preview-perf-panel">
-        <Card title="Performance" theme="dark" width="10rem">
-          <div><strong>RENDER:</strong> <code>{perfRender}ms</code></div>
-          <div><strong>MORPH:</strong> <code>{perfMorph}ms</code></div>
-        </Card>
+      <div class="sheaf-preview">
+        <Wikitext morph wikitext={() => render.result()} />
       </div>
-      <div class="sheaf-preview wikitext" bind:this={previewElement} />
     </Tab>
 
     <Tab>
@@ -90,11 +56,5 @@
     height: 100%;
     padding: 1rem;
     overflow-y: auto;
-  }
-
-  .sheaf-preview-perf-panel {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
   }
 </style>
