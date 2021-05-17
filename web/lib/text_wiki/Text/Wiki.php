@@ -1,5 +1,4 @@
 <?php
-// vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
 /**
  * Parse structured wiki text and render into arbitrary formats such as XHTML.
  *
@@ -42,11 +41,10 @@ class Text_Wiki {
     *
     */
 
-    public $rules = array(
-    		'Include',
+    public $rules = [
+        'Include',
         'Prefilter',
         'Delimiter',
-       // 'Moduledelimiter',
         'Code',
         'Form',
         'Raw',
@@ -54,16 +52,12 @@ class Text_Wiki {
         'Modulepre',
         'Module',
         'Module654',
-
     	'Iftags',
-
         'Comment',
         'Iframe',
     	'Date',
         'Math',
-
         'Concatlines',
-
         'Freelink',
         'Equationreference',
         'Footnote',
@@ -72,10 +66,7 @@ class Text_Wiki {
         'Bibitem',
         'Bibliography',
         'Bibcite',
- //       'Function',
- //       'Html',
         'Divprefilter',
- //       'Embed',
         'Anchor',
         'User',
         'Blockquote',
@@ -100,9 +91,7 @@ class Text_Wiki {
         'Button',
         'Image',
         'Embed',
-        'Social',
         'File',
- //       'Phplookup',
         'Center',
         'Newline',
         'Paragraph' ,
@@ -110,20 +99,17 @@ class Text_Wiki {
         'Email',
         'Mathinline',
         'Interwiki',
-      //  'Wikilink',
         'Colortext',
         'Strong',
-       // 'Bold',
         'Emphasis',
-        //'Italic',
         'Underline',
         'Strikethrough',
         'Tt',
         'Superscript',
         'Subscript',
         'Typography',
-        'Tighten'
-    );
+        'Tighten',
+    ];
 
     /**
     *
@@ -135,9 +121,9 @@ class Text_Wiki {
     *
     */
 
-    public $disable = array(
+    public $disable = [
         'Html'
-    );
+    ];
 
     /**
     *
@@ -165,7 +151,7 @@ class Text_Wiki {
     *
     */
 
-    public $parseConf = array();
+    public $parseConf = [];
 
     /**
     *
@@ -186,15 +172,7 @@ class Text_Wiki {
     *
     */
 
-    public $renderConf = array(
-        'Docbook' => array(),
-        'Latex' => array(),
-        'Pdf' => array(),
-        'Plain' => array(),
-        'Rtf' => array(),
-        'Xhtml' => array(),
-        'Xhtmleditable' => array()
-    );
+    public $renderConf = [];
 
     /**
     *
@@ -217,15 +195,7 @@ class Text_Wiki {
     *
     */
 
-    public $formatConf = array(
-        'Docbook' => array(),
-        'Latex' => array(),
-        'Pdf' => array(),
-        'Plain' => array(),
-        'Rtf' => array(),
-        'Xhtml' => array(),
-        'Xhtmleditable' => array()
-    );
+    public $formatConf = [];
 
     /**
     *
@@ -343,11 +313,6 @@ class Text_Wiki {
 	public $store = array();
 
 	public $vars = array();
-
-	/**
-	 * Stores format while processing the source.
-	 */
-	public $currentFormat;
 
     /**
     *
@@ -483,26 +448,21 @@ class Text_Wiki {
     *
     */
 
-    function setRenderConf($format, $rule, $arg1, $arg2 = null)
+    function setRenderConf($rule, $arg1, $arg2 = null)
     {
-        $format = ucwords(strtolower($format));
         $rule = ucwords(strtolower($rule));
 
-        if (! isset($this->renderConf[$format])) {
-            $this->renderConf[$format] = [];
-        }
-
-        if (! isset($this->renderConf[$format][$rule])) {
-            $this->renderConf[$format][$rule] = [];
+        if (! isset($this->renderConf[$rule])) {
+            $this->renderConf[$rule] = [];
         }
 
         // if first arg is an array, use it as the entire
         // conf array for the render rule.  otherwise, treat arg1
         // as a key and arg2 as a value for the render rule conf.
         if (is_array($arg1)) {
-            $this->renderConf[$format][$rule] = $arg1;
+            $this->renderConf[$rule] = $arg1;
         } else {
-            $this->renderConf[$format][$rule][$arg1] = $arg2;
+            $this->renderConf[$rule][$arg1] = $arg2;
         }
     }
 
@@ -524,30 +484,27 @@ class Text_Wiki {
     *
     */
 
-    function getRenderConf($format, $rule, $key = null)
+    function getRenderConf($rule, $key = null)
     {
-        $format = ucwords(strtolower($format));
         $rule = ucwords(strtolower($rule));
 
-        if (! isset($this->renderConf[$format]) ||
-            ! isset($this->renderConf[$format][$rule])) {
+        if (! isset($this->renderConf[$rule])) {
             return null;
         }
 
         // no key requested, return the whole array
         if (is_null($key)) {
-            return $this->renderConf[$format][$rule];
+            return $this->renderConf[$rule];
         }
 
         // does the requested key exist?
-        if (isset($this->renderConf[$format][$rule][$key])) {
+        if (isset($this->renderConf[$rule][$key])) {
             // yes, return that value
-            return $this->renderConf[$format][$rule][$key];
+            return $this->renderConf[$rule][$key];
         } else {
             // no
             return null;
         }
-
     }
 
     /**
@@ -555,8 +512,6 @@ class Text_Wiki {
     * Set format configuration for a specific rule and key.
     *
     * @access public
-    *
-    * @param string $format The format to set config for.
     *
     * @param string $key The config key within the format.
     *
@@ -566,19 +521,15 @@ class Text_Wiki {
     *
     */
 
-    function setFormatConf($format, $arg1, $arg2 = null)
+    function setFormatConf($key, $val = null)
     {
-        if (! is_array($this->formatConf[$format])) {
-            $this->formatConf[$format] = array();
-        }
-
         // if first arg is an array, use it as the entire
         // conf array for the format.  otherwise, treat arg1
         // as a key and arg2 as a value for the format conf.
-        if (is_array($arg1)) {
-            $this->formatConf[$format] = $arg1;
+        if (is_array($key)) {
+            $this->formatConf = $key;
         } else {
-            $this->formatConf[$format][$arg1] = $arg2;
+            $this->formatConf[$key] = $val;
         }
     }
 
@@ -588,8 +539,6 @@ class Text_Wiki {
     *
     * @access public
     *
-    * @param string $format The format to get config for.
-    *
     * @param mixed $key A key in the conf array; if null,
     * returns the entire conf array.
     *
@@ -598,161 +547,20 @@ class Text_Wiki {
     *
     */
 
-    function getFormatConf($format, $key = null)
+    function getFormatConf($key = null)
     {
-        // the format does not exist
-        if (! isset($this->formatConf[$format])) {
-            return null;
-        }
-
         // no key requested, return the whole array
         if (is_null($key)) {
-            return $this->formatConf[$format];
+            return $this->formatConf;
         }
 
         // does the requested key exist?
-        if (isset($this->formatConf[$format][$key])) {
+        if (isset($this->formatConf[$key])) {
             // yes, return that value
-            return $this->formatConf[$format][$key];
+            return $this->formatConf[$key];
         } else {
             // no
             return null;
-        }
-    }
-
-    /**
-    *
-    * Inserts a rule into to the rule set.
-    *
-    * @access public
-    *
-    * @param string $name The name of the rule.  Should be different from
-    * all other keys in the rule set.
-    *
-    * @param string $tgt The rule after which to insert this new rule.  By
-    * default (null) the rule is inserted at the end; if set to '', inserts
-    * at the beginning.
-    *
-    * @return void
-    *
-    */
-
-    function insertRule($name, $tgt = null)
-    {
-        $name = ucwords(strtolower($name));
-        if (! is_null($tgt)) {
-            $tgt = ucwords(strtolower($tgt));
-        }
-
-        // does the rule name to be inserted already exist?
-        if (in_array($name, $this->rules)) {
-            // yes, return
-            return null;
-        }
-
-        // the target name is not null, and not '', but does not exist
-        // in the list of rules. this means we're trying to insert after
-        // a target key, but the target key isn't there.
-        if (! is_null($tgt) && $tgt != '' &&
-            ! in_array($tgt, $this->rules)) {
-            return false;
-        }
-
-        // if $tgt is null, insert at the end.  We know this is at the
-        // end (instead of resetting an existing rule) becuase we exited
-        // at the top of this method if the rule was already in place.
-        if (is_null($tgt)) {
-            $this->rules[] = $name;
-            return true;
-        }
-
-        // save a copy of the current rules, then reset the rule set
-        // so we can insert in the proper place later.
-        // where to insert the rule?
-        if ($tgt == '') {
-            // insert at the beginning
-            array_unshift($this->rules, $name);
-            return true;
-        }
-
-        // insert after the named rule
-        $tmp = $this->rules;
-        $this->rules = array();
-
-        foreach ($tmp as $val) {
-            $this->rules[] = $val;
-            if ($val == $tgt) {
-                $this->rules[] = $name;
-            }
-        }
-
-        return true;
-
-    }
-
-    /**
-    *
-    * Delete (remove or unset) a rule from the $rules property.
-    *
-    * @access public
-    *
-    * @param string $rule The name of the rule to remove.
-    *
-    * @return void
-    *
-    */
-
-    function deleteRule($name)
-    {
-        $name = ucwords(strtolower($name));
-        $key = array_search($name, $this->rules);
-        if ($key !== false) {
-            unset($this->rules[$key]);
-        }
-    }
-
-    /**
-    *
-    * Change from one rule to another in-place.
-    *
-    * @access public
-    *
-    * @param string $old The name of the rule to change from.
-    *
-    * @param string $new The name of the rule to change to.
-    *
-    * @return void
-    *
-    */
-
-    function changeRule($old, $new)
-    {
-        $old = ucwords(strtolower($old));
-        $new = ucwords(strtolower($new));
-        $key = array_search($old, $this->rules);
-        if ($key !== false) {
-            $this->rules[$old] = $new;
-        }
-    }
-
-    /**
-    *
-    * Enables a rule so that it is applied when parsing.
-    *
-    * @access public
-    *
-    * @param string $rule The name of the rule to enable.
-    *
-    * @return void
-    *
-    */
-
-    function enableRule($name)
-    {
-        $name = ucwords(strtolower($name));
-        $key = array_search($name, $this->disable);
-        if ($key !== false) {
-            unset($this->disable[$key]);
         }
     }
 
@@ -793,34 +601,23 @@ class Text_Wiki {
     * source text is transformed in place; once it is transformed, it is
     * no longer the same as the original source text.
     *
-    * @access public
-    *
     * @param string $text The source text to which wiki rules should be
     * applied, both for parsing and for rendering.
-    *
-    * @param string $format The target output format, typically 'xhtml'.
-    *  If a rule does not support a given format, the output from that
-    * rule is rule-specific.
     *
     * @return string The transformed wiki text.
     *
     */
 
-    function transform($text, $format = 'Xhtml')
+    public function transform(string $text)
     {
-    	$this->currentFormat = $format;
         $this->parse($text);
-        $out = $this->render($format);
-        $this->currentFormat = null;
-        return $out;
+        return $this->render();
     }
 
     /**
     *
     * Sets the $_source text property, then parses it in place and
     * retains tokens in the $_tokens array property.
-    *
-    * @access public
     *
     * @param string $text The source text to which wiki rules should be
     * applied, both for parsing and for rendering.
@@ -829,13 +626,13 @@ class Text_Wiki {
     *
     */
 
-    function parse($text)
+    private function parse(string $text)
     {
         // set the object property for the source text
         $this->source = $text;
 
         // reset the tokens.
-        $this->tokens = array();
+        $this->tokens = [];
 
         // apply the parse() method of each requested rule to the source
         // text.
@@ -860,20 +657,13 @@ class Text_Wiki {
     *
     * Renders tokens back into the source text, based on the requested format.
     *
-    * @access public
-    *
-    * @param string $format The target output format, typically 'xhtml'.
-    * If a rule does not support a given format, the output from that
-    * rule is rule-specific.
-    *
     * @return string The transformed wiki text.
     *
     */
 
-    function render($format = 'Xhtml')
+    private function render()
     {
-        // the rendering method we're going to use from each rule
-        $format = ucwords(strtolower($format));
+        $format = 'xhtml';
 
         // the eventual output text
         $output = '';
@@ -887,8 +677,8 @@ class Text_Wiki {
 
         // load the format object, or crap out if we can't find it
         $result = $this->loadFormatObj($format);
-        if ($this->isError($result)) {
-        	return $result;
+        if (is_a($result, 'PEAR_Error')) {
+            return $result;
         }
 
         // pre-rendering activity
@@ -960,32 +750,15 @@ class Text_Wiki {
         return $output;
     }
 
-    public function strip($matches){
+    private function strip(array $matches) {
     	return strip_tags($matches[1]);
-    }
-
-    /**
-    *
-    * Returns the parsed source text with delimited token placeholders.
-    *
-    * @access public
-    *
-    * @return string The parsed source text.
-    *
-    */
-
-    function getSource()
-    {
-        return $this->source;
     }
 
     /**
     *
     * Returns tokens that have been parsed out of the source text.
     *
-    * @access public
-    *
-    * @param array $rules If an array of rule names is passed, only return
+    * @param ?array $rules If an array of rule names is passed, only return
     * tokens matching these rule names.  If no array is passed, return all
     * tokens.
     *
@@ -993,7 +766,8 @@ class Text_Wiki {
     *
     */
 
-    function getTokens($rules = null)
+    // Used by the Toc.php parse rule
+    public function getTokens(?array $rules = null): array
     {
         if (is_null($rules)) {
             return $this->tokens;
@@ -1031,7 +805,7 @@ class Text_Wiki {
     *
     */
 
-    function addToken($rule, $options = array(), $id_only = false)
+    public function addToken($rule, array $options = [], bool $id_only = false)
     {
         // increment the token ID number.  note that if you parse
         // multiple times with the same Text_Wiki object, the ID number
@@ -1298,29 +1072,12 @@ class Text_Wiki {
     *
     * @param string $message The error message.
     *
-    * @return ProcessException
+    * @throws ProcessException
     *
     */
 
     function &error($message)
     {
     	throw new ProcessException($message);
-    }
-
-    /**
-    *
-    * Simple error checker.
-    *
-    * @access public
-    *
-    * @param mixed $obj Check if this is a PEAR_Error object or not.
-    *
-    * @return bool True if a PEAR_Error, false if not.
-    *
-    */
-
-    function isError(&$obj)
-    {
-    	return is_a($obj, 'PEAR_Error');
     }
 }

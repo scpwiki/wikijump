@@ -27,7 +27,7 @@ RUN useradd wikijump --create-home --shell /bin/bash
 
 # Setup database
 USER postgres
-RUN pg_createcluster --user postgres --locale en_US.utf8 "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}"
+RUN pg_createcluster --user postgres --locale en_US.UTF-8 "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}"
 
 # Install postgres auth configuration
 COPY pg_hba.conf "/etc/postgresql/${POSTGRES_VERSION}/${POSTGRES_CLUSTER}/pg_hba.conf"

@@ -4,6 +4,10 @@ namespace Wikidot\Utils;
 
 use Ozone\Framework\OzoneLogger;
 
+use Wikijump\Services\Wikitext\ParseRenderMode;
+
+use function Wikijump\Services\Wikitext\WikitextBackend;
+
 class WDEditUtils
 {
 
@@ -52,39 +56,9 @@ class WDEditUtils
         }
         $source = implode("\n", $s1);
         $totalLines = count($s1);
-        $wt = new WikiTransformation();
 
-        // strip the Wiki processing
-        $wt->wiki->rules =  array(
-            'Include',
-        'Prefilter',
-        'Delimiter',
-       // 'Moduledelimiter',
-        'Code',
-        'Raw',
-        'Modulepre',
-        'Module',
-        'Module654',
-
-        'Comment',
-
-        'Math',
-      //  'Freelink',
-    //    'Equationreference',
-        //'Footnote',
-        //'Footnoteitem',
-        //'Footnoteblock',
-        //'Bibitem',
-        //'Bibliography',
-        //'Bibcite',
-
-        //'Divprefilter',
-
-        //'Anchor',
-        //'User',
-        'Heading');
-
-        $compiled = $wt->processSource($source);
+        $wt = WikitextBackend::make(ParseRenderMode::TABLE_OF_CONTENTS, null);
+        $compiled = $wt->renderHtml($source)->body;
 
         // now find all the occurences of headings in the compiled content.
         $pattern = '/<h([1-6]) id="toc([0-9]+)"[^>]*?>(?:\s*<span>)?\s*stoc([0-9]+)/';

@@ -6,11 +6,11 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
-
 use Wikidot\Utils\FeedScreen;
 use Wikidot\Utils\GlobalProperties;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Models\User;
+use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class PagesFeed extends FeedScreen
 {
@@ -281,14 +281,6 @@ class PagesFeed extends FeedScreen
                     "%%content%%\n\n%%comments%%";
         }
 
-        //$wt = new WikiTransformation();
-        //$wt->setMode("feed");
-        //$template = $wt->processSource($format);
-
-        //$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi',
-        //          "<div>\\1</div>", $template);
-
-        //$template = $format;
         $items = array();
 
         foreach ($pages as $page) {
@@ -337,10 +329,10 @@ class PagesFeed extends FeedScreen
             }
             $b .= 'by ' . $userString;
 
-            $wt = new WikiTransformation();
-            $wt->setMode("list");
-            $wt->setPage($page);
-            $content = $wt->processSource($b);
+            $pageInfo = PageInfo::fromPageObject($page);
+            $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
+            $wt->renderHtml($b)->body;
+
             $d = utf8_encode("\xFE");
             $content = preg_replace("/" . $d . "module \"([a-zA-Z0-9\/_]+?)\"(.+?)?" . $d . "/", '', $content);
             $content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);

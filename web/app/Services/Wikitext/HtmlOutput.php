@@ -3,35 +3,44 @@ declare(strict_types = 1);
 
 namespace Wikijump\Services\Wikitext;
 
-use \FFI;
-
-/**
- * Class HtmlOutput, representing a returned 'struct ftml_html_output' object.
- * @package Wikijump\Services\Wikitext
- */
 class HtmlOutput
 {
+    /**
+     * @var string The HTML output of the rendering process.
+     *
+     * This is not a complete HTML document, but only the portion rendered from the syntax tree.
+     * The recipient is responsible for forming this into a full HTML document.
+     */
     public string $body;
+
+    /**
+     * @var array List of CSS outputs of the rendering process.
+     *
+     * This concatenates separate CSS styles specified in the tree in one string.
+     * The styles are not necessarily valid or safe, as they come from whatever the user inputted.
+     */
     public array $styles;
+
+    /**
+     * @var array The list of HtmlMeta objects, describing <meta> attributes to include in the final document.
+     */
     public array $meta;
+
+    /**
+     * @var array The list of ParseWarning objects, if any, generated during parsing.
+     */
     public array $warnings;
 
-    public function __construct(FFI\CData $c_data) {
-        $this->body = FFI::string($c_data->body);
-        $this->styles = self::stylesFromArray($c_data->styles_list, $c_data->styles_len);
-        $this->meta = HtmlMeta::fromArray($c_data->meta_list, $c_data->meta_len);
-        $this->warnings = ParseWarning::fromArray($c_data->warning_list, $c_data->warning_len);
+    /**
+     * @var Backlinks Information about any links or includes in the page.
+     */
+    public Backlinks $linkStats;
 
-        // Free original C data
-        FtmlFfi::freeHtmlOutput($c_data);
-        FFI::free($c_data);
-    }
-
-    public static function stylesFromArray(FFI\CData $pointer, int $length): array {
-        return FtmlFfi::pointerToList(
-            $pointer,
-            $length,
-            fn(FFI\CData $c_data) => FFI::string($c_data),
-        );
+    public function __construct(string $body, array $styles, array $meta, array $warnings, Backlinks $linkStats) {
+        $this->body = $body;
+        $this->styles = $styles;
+        $this->meta = $meta;
+        $this->warnings = $warnings;
+        $this->linkStats = $linkStats;
     }
 }

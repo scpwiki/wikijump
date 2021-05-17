@@ -13,8 +13,9 @@ use Wikidot\Utils\NotificationMaker;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Models\User;
+use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class PMAction extends SmartyAction
 {
@@ -79,9 +80,8 @@ class PMAction extends SmartyAction
         WDPermissionManager::instance()->hasPmPermission($fromUser, $toUser);
 
         // compile content
-        $wt = new WikiTransformation();
-        $wt->setMode('pm');
-        $body = $wt->processSource($source);
+        $wt = WikitextBackend::make(PageRenderMode::DIRECT_MESSAGE, null);
+        $body = $wt->renderHtml($source)->body;
 
         $message = new PrivateMessage();
         $message->setDate(new ODate());

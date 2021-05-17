@@ -1,15 +1,18 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wikijump\Services\Wikitext;
+namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
+use \Wikijump\Services\Wikitext;
+use \Wikijump\Services\Wikitext\HtmlOutput;
+use \Wikijump\Services\Wikitext\TextOutput;
 
 /**
  * Class FtmlFfi, for interacting directly with the FTML FFI.
  * You probably want to use WikitextInterface instead.
  *
- * @package Wikijump\Services\Wikitext
+ * @package Wikijump\Services\Wikitext\FFI
  */
 final class FtmlFfi
 {
@@ -30,7 +33,14 @@ final class FtmlFfi
     public static FFI\CType $FTML_HTML_OUTPUT;
     public static FFI\CType $FTML_TEXT_OUTPUT;
 
-    public static function _init() {
+    private function __construct() {}
+
+    /**
+     * Initializes this class. Do not use.
+     * This should only be called once, which is done in FtmlFfi.php
+     */
+    public static function _init()
+    {
         // Load FFI environment.
         //
         // I tried using FFI::load() but had issues with symbol resolution.
@@ -53,27 +63,34 @@ final class FtmlFfi
     }
 
     // ftml export methods
-    public static function renderHtml(string $wikitext, PageInfo $page_info): HtmlOutput {
+    public static function renderHtml(string $wikitext, Wikitext\PageInfo $pageInfo): HtmlOutput
+    {
+        $c_pageInfo = new PageInfo($pageInfo);
         $output = self::make(self::$FTML_HTML_OUTPUT);
-        self::$ffi->ftml_render_html(FFI::addr($output), $wikitext, $page_info->pointer());
-        return new HtmlOutput($output);
+        self::$ffi->ftml_render_html(FFI::addr($output), $wikitext, $c_pageInfo->pointer());
+        return OutputConversion::makeHtmlOutput($output);
     }
 
-    public static function renderText(string $wikitext, PageInfo $page_info): TextOutput {
+    public static function renderText(string $wikitext, Wikitext\PageInfo $pageInfo): TextOutput
+    {
+        $c_pageInfo = new PageInfo($pageInfo);
         $output = self::make(self::$FTML_TEXT_OUTPUT);
-        self::$ffi->ftml_render_text(FFI::addr($output), $wikitext, $page_info->pointer());
-        return new TextOutput($output);
+        self::$ffi->ftml_render_text(FFI::addr($output), $wikitext, $c_pageInfo->pointer());
+        return OutputConversion::makeTextOutput($output);
     }
 
-    public static function freeHtmlOutput(FFI\CData $c_data) {
+    public static function freeHtmlOutput(FFI\CData $c_data)
+    {
         self::$ffi->ftml_destroy_html_output(FFI::addr($c_data));
     }
 
-    public static function freeTextOutput(FFI\CData $c_data) {
+    public static function freeTextOutput(FFI\CData $c_data)
+    {
         self::$ffi->ftml_destroy_text_output(FFI::addr($c_data));
     }
 
-    public static function version(): string {
+    public static function version(): string
+    {
         return self::$ffi->ftml_version();
     }
 
@@ -88,7 +105,8 @@ final class FtmlFfi
      * @param FFI\CType $ctype
      * @return FFI\CData
      */
-    public static function make(FFI\CType $ctype): ?FFI\CData {
+    public static function make(FFI\CType $ctype): ?FFI\CData
+    {
         // Handle zero-width types
         if (FFI::sizeof($ctype) === 0) {
             return null;
@@ -104,7 +122,8 @@ final class FtmlFfi
      * @param string $type
      * @return FFI\CType
      */
-    public static function type(string $type): FFI\CType {
+    public static function type(string $type): FFI\CType
+    {
         return self::$ffi->type($type);
     }
 
@@ -118,7 +137,8 @@ final class FtmlFfi
      * @param array $dimensions
      * @return FFI\CType
      */
-    public static function arrayType(FFI\CType $ctype, array $dimensions): FFI\CType {
+    public static function arrayType(FFI\CType $ctype, array $dimensions): FFI\CType
+    {
         return FFI::arrayType($ctype, $dimensions);
     }
 
@@ -131,7 +151,8 @@ final class FtmlFfi
      * @param ?string $value The string to be cloned, or null
      * @return FFI\CData The C-string created (char *)
      */
-    public static function string(?string $value): ?FFI\CData {
+    public static function string(?string $value): ?FFI\CData
+    {
         // Check for null
         if (is_null($value)) {
             return null;
@@ -158,7 +179,8 @@ final class FtmlFfi
      * @param callable $convertFn Converts a PHP item to its C equivalent
      * @returns array with keys "pointer" and "length"
      */
-    public static function listToPointer(FFI\CType $type, array $list, callable $convertFn): array {
+    public static function listToPointer(FFI\CType $type, array $list, callable $convertFn): array
+    {
         // Allocate heap array
         $length = count($list);
         $pointerType = self::arrayType($type, [$length]);
@@ -184,7 +206,8 @@ final class FtmlFfi
      * @param int $length The length of this array, in items
      * @param callable $freeFn The function used to free the item
      */
-    public static function freePointer(?FFI\CData $pointer, int $length, callable $freeFn) {
+    public static function freePointer(?FFI\CData $pointer, int $length, callable $freeFn)
+    {
         if (is_null($pointer)) {
             // Nothing to free, empty array
             return;
@@ -203,8 +226,9 @@ final class FtmlFfi
      *
      * @returns array with the converted objects
      */
-    public static function pointerToList(FFI\CData $pointer, int $length, callable $convertFn): array {
-        $list = array();
+    public static function pointerToList(FFI\CData $pointer, int $length, callable $convertFn): array
+    {
+        $list = [];
 
         for ($i = 0; $i < $length; $i++) {
             $item = $convertFn($pointer[$i]);

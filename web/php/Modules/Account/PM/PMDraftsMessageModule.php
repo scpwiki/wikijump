@@ -2,21 +2,18 @@
 
 namespace Wikidot\Modules\Account\PM;
 
-
-
-
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PrivateMessagePeer;
 use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Utils\WikiTransformation;
+use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class PMDraftsMessageModule extends AccountBaseModule
 {
 
     public function build($runData)
     {
-
         $userId = $runData->getUserId();
         $pl = $runData->getParameterList();
         $messageId = $pl->getParameterValue("message_id");
@@ -26,9 +23,10 @@ class PMDraftsMessageModule extends AccountBaseModule
             throw new ProcessException(_("Error selecting message."), "no_message");
         }
 
-        $wt = new WikiTransformation();
-        $wt->setMode('pm');
-        $message->setBody($wt->processSource($message->getBody()));
+        $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
+        $source = $message->getBody();
+        $body = $wt->renderHtml($source)->body;
+        $message->setBody($body);
 
         $runData->contextAdd("message", $message);
 

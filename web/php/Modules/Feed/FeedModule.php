@@ -6,7 +6,8 @@ use Exception;
 use Wikidot\Utils\CacheableModule;
 use Wikidot\Utils\MagpieFeed;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Utils\WikiTransformation;
+use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class FeedModule extends CacheableModule
 {
@@ -101,9 +102,8 @@ class FeedModule extends CacheableModule
         }
 
         // process the format and create the message template
-        $wt = new WikiTransformation();
-        $wt->setMode("feed");
-        $template = $wt->processSource($format);
+        $wt = WikitextBackend::make(ParseRenderMode::FEED, null);
+        $template = $wt->renderHtml($format)->body;
 
         // fix template
         $template = preg_replace(
@@ -185,8 +185,7 @@ class FeedModule extends CacheableModule
             // remove ids
 
             $b = $this->safeString($b);
-
-            $b = WikiTransformation::purifyHTML($b);
+            $b = HtmlUtilities::purify($b);
 
             if ($channel['title']=="Slashdot") {
                 // remove ads

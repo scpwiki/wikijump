@@ -81,7 +81,7 @@ COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/libftml.so /usr/l
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # !! Put your IP for debugging here.
-RUN echo "xdebug.mode = debug" >> ${XDEBUG_INI} \
+RUN echo "xdebug.mode = develop" >> ${XDEBUG_INI} \
  && echo "xdebug.client_host = ${DEBUG_IP}" >> ${XDEBUG_INI}
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer

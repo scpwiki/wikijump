@@ -3,23 +3,19 @@ declare(strict_types = 1);
 
 namespace Wikijump\Services\Wikitext;
 
-use \FFI;
 
-/**
- * Class TextOutput, representing a returned 'struct ftml_text_output' object.
- * @package Wikijump\Services\Wikitext
- */
 class TextOutput
 {
+    /**
+     * @var string The textual output the rendering process.
+     *
+     * This is a complete document, at least as much as that can be said of plain text.
+     * The output has no formatting, or suggestions of formatting (e.g. surrounding bold items with "*").
+     */
     public string $text;
+
+    /**
+     * @var array The list of ParseWarning objects, if any, generated during parsing.
+     */
     public array $warnings;
-
-    public function __construct(FFI\CData $c_data) {
-        $this->text = FFI::string($c_data->text);
-        $this->warnings = ParseWarning::fromArray($c_data->warning_list, $c_data->warning_len);
-
-        // Free original C data
-        FtmlFfi::freeTextOutput($c_data);
-        FFI::free($c_data);
-    }
 }

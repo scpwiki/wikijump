@@ -26,8 +26,9 @@ use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Models\User;
+use Wikijump\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class ForumAction extends SmartyAction
 {
@@ -74,9 +75,8 @@ class ForumAction extends SmartyAction
 
         // compile content
 
-        $wt = new WikiTransformation();
-        $wt->setMode('post');
-        $body = $wt->processSource($source);
+        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
+        $body = $wt->renderHtml($source)->body;
 
         // new thread
 
@@ -171,7 +171,6 @@ class ForumAction extends SmartyAction
 
     public function savePostEvent($runData)
     {
-
         $pl = $runData->getParameterList();
         $site = $runData->getTemp("site");
 
@@ -226,9 +225,8 @@ class ForumAction extends SmartyAction
 
         // compile content
 
-        $wt = new WikiTransformation();
-        $wt->setMode('post');
-        $body = $wt->processSource($source);
+        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
+        $body = $wt->renderHtml($source)->body;
 
         $db = Database::connection();
         $db->begin();
@@ -384,9 +382,8 @@ class ForumAction extends SmartyAction
 
         // compile content
 
-        $wt = new WikiTransformation();
-        $wt->setMode('post');
-        $body = $wt->processSource($source);
+        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
+        $body = $wt->renderHtml($source)->body;
 
         $postRevision = new ForumPostRevision();
         $postRevision->obtainPK();

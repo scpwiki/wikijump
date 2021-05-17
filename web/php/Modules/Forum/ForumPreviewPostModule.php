@@ -2,14 +2,13 @@
 
 namespace Wikidot\Modules\Forum;
 
-
 use Ozone\Framework\ODate;
-use Wikidot\DB\ForumPost;
-
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\ForumPost;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Models\User;
+use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class ForumPreviewPostModule extends SmartyModule
 {
@@ -25,12 +24,10 @@ class ForumPreviewPostModule extends SmartyModule
             throw new ProcessException(_("Post is empty."), "post_empty");
         }
 
-        $wt = new WikiTransformation();
-        $wt->setMode('post');
-        $body = $wt->processSource($source);
+        $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
+        $body = $wt->renderHtml($source)->body;
 
         $post = new ForumPost();
-
         $post->setText($body);
         $post->setTitle($title);
         $post->setDatePosted(new ODate());

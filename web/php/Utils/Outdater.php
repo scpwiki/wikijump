@@ -18,9 +18,13 @@ use Wikidot\DB\PageInclusion;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 
+use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
+use Wikijump\Services\Wikitext\PageInfo;
+use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext\WikitextBackend;
+
 class Outdater
 {
-
     private static $instance;
 
     private $vars = array();
@@ -42,7 +46,6 @@ class Outdater
 
     public function pageEvent($eventType, $page, $parm2 = null)
     {
-
         if ($this->recurrenceLevel >5) {
             return;
         }
@@ -111,9 +114,6 @@ class Outdater
                 $this->recompileInclusionDeps($page);
                 break;
             case 'tag_change':
-                //$this->outdatePageCache($page);
-                //$this->outdatePageTagsCache($page);
-                //$this->indexPage($page);
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
                 $this->fixOutLinks($page);
@@ -161,7 +161,6 @@ class Outdater
 
     public function themeEvent($eventType, $theme = null)
     {
-
         switch ($eventType) {
             case 'theme_save':
                 $this->outdateThemeDependentCategories($theme);
@@ -205,34 +204,24 @@ class Outdater
             );
 
             if ($templatePage) {
-                $source = $this->assemblySource($source, $templatePage->getSource(), $page);
+                $templateSource = $templatePage->getSource();
+                $source = LegacyTemplateAssembler::assembleTemplate($source, $templateSource, $page);
             }
         }
-        $wt = new WikiTransformation();
-        $wt->setPage($page);
-        $result = $wt->processSource($source);
 
-        $compiled->setText($result);
+        $pageInfo = PageInfo::fromPageObject($page);
+        $wt = WikitextBackend::make(ParseRenderMode::PAGE, $pageInfo);
+        $result = $wt->renderHtml($source);
+
+        $compiled->setText($result->body);
         $compiled->setDateCompiled(new ODate());
         $compiled->save();
 
-        $linksExist = $wt->wiki->vars['internalLinksExist'];
-        $linksNotExist = $wt->wiki->vars['internalLinksNotExist'];
-        $inclusions = $wt->wiki->vars['inclusions'];
-        $inclusionsNotExist = $wt->wiki->vars['inclusionsNotExist'];
-        $externalLinks = $wt->wiki->vars['externalLinks'];
-
-        $this->vars['linksExist'] = $linksExist;
-        $this->vars['linksNotExist'] = $linksNotExist;
-        $this->vars['inclusions'] = $inclusions;
-        $this->vars['inclusionsNotExist'] = $inclusionsNotExist;
-        $this->vars['externalLinks'] = $externalLinks;
-    }
-
-    private function assemblySource($source, $templateSource, $page = null)
-    {
-        $t = new WikiTransformation(false);
-        return $t->assemblyTemplate($source, $templateSource, $page);
+        $this->vars['linksExist'] = $result->linkStats->internalLinksPresent;
+        $this->vars['linksNotExist'] = $result->linkStats->internalLinksAbsent;
+        $this->vars['inclusions'] = $result->linkStats->inclusionsPresent;
+        $this->vars['inclusionsNotExist'] = $result->linkStats->inclusionsAbsent;
+        $this->vars['externalLinks'] = $result->linkStats->externalLinks;
     }
 
     /**
@@ -240,7 +229,6 @@ class Outdater
      */
     private function fixInLinks($page)
     {
-
         $site = $GLOBALS['site'];
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
@@ -267,7 +255,6 @@ class Outdater
      */
     private function fixOutLinks($page)
     {
-
         $linksExist = $this->vars['linksExist'];
         $linksNotExist = $this->vars['linksNotExist'];
         // get links from the database first
@@ -339,10 +326,6 @@ class Outdater
         /*
          * Insert external links.
          */
-        $externalLinks = $this->vars['externalLinks'];
-        if (!$externalLinks) {
-            $externalLinks = array();
-        }
         $externalLinks = $this->vars['externalLinks'];
         $c = new Criteria();
         $c->add("page_id", $page->getPageId());
@@ -479,7 +462,6 @@ class Outdater
     public function outdateDescendantsCache($page)
     {
         // to keep breadcrumbs up-to-date
-
         //get all descendants.
         $rec = 0;
 
@@ -599,7 +581,6 @@ class Outdater
         }
 
         // the above is not necesarily necessary. try the below code:
-
         $aKey = 'category_lc..'.$site->getUnixName().'..'.$category->getName();
         $mc = OZONE::$memcache;
         $now = time();
@@ -752,7 +733,6 @@ class Outdater
 
     public function outdatePageTagsCache($page)
     {
-
         if (is_string($page)) {
             return;
         } else {
@@ -801,7 +781,6 @@ class Outdater
         }
         $key = 'category_lc..'.$site->getUnixName().'..'.$cname;
         $mc = OZONE::$memcache;
-        $now = time();
         $mc->delete($key);
         $key = 'category..'.$site->getSiteId().'..'.$cname;
         $mc->delete($key);

@@ -10,15 +10,14 @@ use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageRevisionPeer;
-
 use Wikidot\DB\ForumThreadPeer;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
-use Wikidot\Utils\WikiTransformation;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
+use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext\WikitextBackend;
 
 class ListPagesModule extends SmartyModule
 {
@@ -56,7 +55,7 @@ class ListPagesModule extends SmartyModule
         $this->parameterhash = $parmHash;
         /* Check if recursive. */
         foreach ($this->_moduleChain as $m) {
-            if (get_class($m) == 'ListPagesModule') {// && $m->parameterHash == $parmHash){
+            if (get_class($m) == 'ListPagesModule') {
                 return '<div class="error-block">The ListPages module does not work recursively.</div>';
             }
         }
@@ -88,8 +87,6 @@ class ListPagesModule extends SmartyModule
         $now = time();
 
         // now check lc for ALL categories involved
-
-
         $cats = preg_split('/[,;\s]+?/', $categoryName);
 
         if ($categoryName != '*') {
@@ -140,12 +137,10 @@ class ListPagesModule extends SmartyModule
 
     public function build($runData)
     {
-
         $pl = $runData->getParameterList();
         $site = $runData->getTemp("site");
 
         $categoryName = $this->_readParameter(array('category', 'categories'), false);
-
         $categoryName = strtolower($categoryName);
 
         $order = $this->_readParameter("order", true);
@@ -163,6 +158,9 @@ class ListPagesModule extends SmartyModule
         if (!$pageUnixName) {
             $pageUnixName = $pl->getParameterValue('page_unix_name'); // from preview
         }
+
+        $thisPage = PagePeer::instance()->selectByName($site->getSiteId(), $pageUnixName);
+        $pageInfo = PageInfo::fromPageObject($thisPage);
 
         $categories = array();
         $categoryNames = array();
@@ -188,15 +186,8 @@ class ListPagesModule extends SmartyModule
                 throw new ProcessException('The requested categories do not (yet) exist.');
             }
         }
-        //if(count($categories) == 0){
-        //    throw new ProcessException(_("The category cannot be found."));
-        //}
-
-
 
         // now select pages according to the specified criteria
-
-
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
         if (count($categories) > 0) {
@@ -232,10 +223,9 @@ class ListPagesModule extends SmartyModule
             }
         }
 
-
         /* Handle tags! */
 
-        $tagString = $this->_readParameter(array('tag', 'tags'), true);
+        $tagString = $this->_readParameter(['tag', 'tags'], true);
 
         if ($tagString) {
             /* Split tags. */
@@ -462,16 +452,6 @@ class ListPagesModule extends SmartyModule
             $format = "" . "+ %%linked_title%%\n\n" . _("by") . " %%author%% %%date|%O ago (%e %b %Y, %H:%M %Z)%%\n\n" . "%%short%%";
         }
 
-        //$wt = new WikiTransformation();
-        //$wt->setMode("feed");
-        //$template = $wt->processSource($format);
-
-
-        //$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi',
-        //            "<div>\\1</div>", $template);
-
-
-        //$template = $format;
         $items = array();
 
         $separation = $this->_readParameter("separate");
@@ -538,7 +518,6 @@ class ListPagesModule extends SmartyModule
             $b = str_ireplace("%%author_edited%%", $userString, $b);
             $b = str_ireplace("%%user_edited%%", $userString, $b);
 
-
             /* %%date%% */
 
             $b = preg_replace(';%%date(\|.*?)?%%;', '%%date|' . $page->getDateCreated()->getTimestamp() . '\\1%%', $b);
@@ -577,7 +556,7 @@ class ListPagesModule extends SmartyModule
 
             /* %%comments%% */
             $b = preg_replace_callback("/%%comments%%/i", array(
-                $this, '_handleComementsCount'), $b);
+                $this, '_handleCommentsCount'), $b);
 
             /* %%page_unix_name%% */
             $b = str_ireplace('%%page_unix_name%%', $page->getUnixName(), $b);
@@ -603,24 +582,24 @@ class ListPagesModule extends SmartyModule
             $b = str_replace("\xFD", '%%', $b);
 
             if ($separation) {
-                $wt = new WikiTransformation();
-                $wt->setMode("list");
-                $wt->setPage($page);
-                $b = $wt->processSource($b);
+                $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
+                $b = $wt->renderHtml($b)->body;
                 $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
-                //$b = "[[div class=\"list-pages-item\"]]\n".$b."\n[[/div]]";
             }
-
 
             $items[] = trim($b);
         }
         if (!$separation) {
             $prependLine = $this->_readParameter('prependLine');
             $appendLine = $this->_readParameter('appendLine');
-            $wt = new WikiTransformation();
-            $wt->setMode("list");
-            $glue = "\n";
-            $itemsContent = $wt->processSource(($prependLine ? ($prependLine . "\n") : ''). implode($glue, $items) . ($appendLine ? ("\n". $appendLine) : ''));
+
+            $prefix = $prependLine ? ($prependLine . "\n") : '';
+            $suffix = $appendLine ? ("\n" . $appendLine) : '';
+
+            $modifiedSource = $prefix . implode("\n", $items) . $suffix;
+
+            $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
+            $itemsContent = $wt->renderHtml($modifiedSource)->body;
         } else {
             $itemsContent = implode("\n", $items);
         }
@@ -794,15 +773,15 @@ class ListPagesModule extends SmartyModule
         return $page->getPreview($length);
     }
 
-    private function _handleComementsCount($m)
+    private function _handleCommentsCount($m)
     {
         $page = $this->_tmpPage;
         $threadId = $page->getThreadId();
         if ($threadId) {
             $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
-        }
-        if ($thread) {
-            return $thread->getNumberPosts();
+            if ($thread) {
+                return $thread->getNumberPosts();
+            }
         }
         return 0;
     }
