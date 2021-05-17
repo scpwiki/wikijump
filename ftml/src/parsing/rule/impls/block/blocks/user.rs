@@ -47,10 +47,11 @@ fn parse_fn<'r, 't>(
     assert!(!flag_score, "User doesn't allow score flag");
     assert_block_name(&BLOCK_USER, name);
 
-    let name = parser.get_head_value(&BLOCK_USER, in_head, |parser, value| match value {
-        Some(name) => Ok(name.trim()),
-        None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
-    })?;
+    let name =
+        parser.get_head_value(&BLOCK_USER, in_head, |parser, value| match value {
+            Some(name) => Ok(name.trim()),
+            None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+        })?;
 
     let element = Element::User {
         name: cow!(name),
