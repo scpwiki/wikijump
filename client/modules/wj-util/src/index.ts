@@ -255,7 +255,7 @@ export async function waitFor(
  */
 export function createLock<T extends AnyFunction>(fn: T) {
   type Return = PromiseValue<ReturnType<T>>
-  const call = async (...args: any[]) => {
+  const call = async (args: any[]) => {
     return (await fn(...args)) as Return
   }
 

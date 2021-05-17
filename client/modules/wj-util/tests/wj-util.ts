@@ -135,17 +135,15 @@ Utils("waitFor", async () => {
 })
 
 Utils("createLock", async () => {
-  let busy = false
   const func = async (input: boolean) => {
     assert.is(input, true)
-    assert.not(busy)
-    busy = true
     await lib.sleep(50)
-    busy = false
+    return Math.random()
   }
   const locked = lib.createLock(func)
-  locked(true)
-  locked(true)
+  const v1 = locked(true)
+  const v2 = locked(true)
+  assert.is(await v1, await v2)
 })
 
 Utils("createAnimQueued", async () => {
@@ -182,13 +180,13 @@ Utils("toFragment", () => {
   const html = "<div>foo</div>"
   const fragment = lib.toFragment(html)
   assert.instance(fragment, DocumentFragment)
-  assert.snapshot(fragment.children[0].innerHTML, html)
+  assert.snapshot(fragment.firstElementChild!.outerHTML, html)
 })
 
 Utils("html", () => {
   const fragment = lib.html`<div>${["foo", "bar"]} ${"foo"}</div>`
   assert.instance(fragment, DocumentFragment)
-  assert.snapshot(fragment.children[0].innerHTML, "<div>foobar foo</div>")
+  assert.snapshot(fragment.firstElementChild!.outerHTML, "<div>foobar foo</div>")
 })
 
 Utils.run()
