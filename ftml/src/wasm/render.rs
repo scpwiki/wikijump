@@ -34,7 +34,7 @@ use std::sync::Arc;
 const TS_APPEND_CONTENT: &str = r#"
 
 export interface IHtmlOutput {
-    html: string;
+    body: string;
     style: string;
     meta: IHtmlMeta[];
 }
@@ -163,8 +163,8 @@ impl HtmlOutput {
     }
 
     #[wasm_bindgen]
-    pub fn html(&self) -> String {
-        self.inner.html.clone()
+    pub fn body(&self) -> String {
+        self.inner.body.clone()
     }
 
     #[wasm_bindgen(typescript_type = "IStyleArray")]

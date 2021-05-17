@@ -23,13 +23,13 @@ use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
 use crate::render::Handle;
-use crate::PageInfo;
+use crate::{info, PageInfo};
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
 #[derive(Debug)]
 pub struct HtmlContext<'i, 'h> {
-    html: String,
+    body: String,
     styles: Vec<String>,
     meta: Vec<HtmlMeta>,
     info: &'i PageInfo<'i>,
@@ -43,7 +43,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     #[inline]
     pub fn new(info: &'i PageInfo<'i>, handle: &'h Handle) -> Self {
         HtmlContext {
-            html: String::new(),
+            body: String::new(),
             styles: Vec::new(),
             meta: Self::initial_metadata(&info),
             info,
@@ -64,7 +64,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
             HtmlMeta {
                 tag_type: HtmlMetaType::Name,
                 name: str!("generator"),
-                value: format!("ftml {}", env!("CARGO_PKG_VERSION")),
+                value: info::VERSION.clone(),
             },
             HtmlMeta {
                 tag_type: HtmlMetaType::Name,
@@ -107,7 +107,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     // Buffer management
     #[inline]
     pub fn buffer(&mut self) -> &mut String {
-        &mut self.html
+        &mut self.body
     }
 
     #[inline]
@@ -140,10 +140,10 @@ impl<'i, 'h> From<HtmlContext<'i, 'h>> for HtmlOutput {
     #[inline]
     fn from(ctx: HtmlContext<'i, 'h>) -> HtmlOutput {
         let HtmlContext {
-            html, styles, meta, ..
+            body, styles, meta, ..
         } = ctx;
 
-        HtmlOutput { html, styles, meta }
+        HtmlOutput { body, styles, meta }
     }
 }
 
