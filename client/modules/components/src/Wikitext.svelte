@@ -9,7 +9,7 @@
   import Spinny from "./Spinny.svelte"
   import { anim } from "./lib/animation"
 
-  type Rendered = { html: string; style: string }
+  type Rendered = { html: string; styles: string[] }
   type WikitextInput =
     | Promisable<string>
     | Promisable<Rendered>
@@ -57,7 +57,7 @@
       ? typeof wikitext !== "string"
         ? wikitext
         : await FTML.render(wikitext)
-      : { html: "", style: "" }
+      : { html: "", styles: "" }
     perfRender = measure()
     clearTimeout(displayIndicatorTimeout)
     return result
@@ -65,7 +65,7 @@
 
   // TODO: Security audit of this - how much should we trust FTML output right now?
 
-  const update = createAnimQueued(async ({ html, style }: Rendered) => {
+  const update = createAnimQueued(async ({ html, styles }: Rendered) => {
     if (!element || !stylesheet) return
     const fragment = toFragment(html)
     if (morph) {
@@ -81,7 +81,7 @@
       element.append(fragment)
     }
 
-    stylesheet.innerHTML = style
+    stylesheet.innerHTML = styles.join("\n")
     rendering = false
   })
 

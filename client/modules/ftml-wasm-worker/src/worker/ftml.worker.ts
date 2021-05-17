@@ -77,11 +77,11 @@ expose({
   async render(raw: ArrayBuffer, format = false) {
     await ready
     const str = decode(raw)
-    let { html, style } = FTML.render(str)
+    let { html, styles } = FTML.render(str)
     if (format) html = formatHTML(html)
     const htmlBuffer = encode(html)
-    const styleBuffer = encode(style)
-    return Transfer([htmlBuffer, styleBuffer], [htmlBuffer, styleBuffer])
+    const styleBuffer = styles.map(style => encode(style))
+    return Transfer([htmlBuffer, styleBuffer], [htmlBuffer, ...styleBuffer])
   },
 
   async renderText(raw: ArrayBuffer) {

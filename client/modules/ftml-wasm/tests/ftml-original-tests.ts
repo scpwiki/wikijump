@@ -72,7 +72,7 @@ function assembleTests() {
 
         if (hasHTML) {
           const expected = await fs.readFile(pathHTML, "utf-8")
-          assert.fixture(clean(result.html!), clean(expected))
+          assert.fixture(clean(result.html), clean(expected))
         }
 
         if (hasTXT) {

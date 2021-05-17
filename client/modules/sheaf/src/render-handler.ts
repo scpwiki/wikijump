@@ -50,8 +50,8 @@ export class RenderHandler {
    */
   @Memoize()
   async style() {
-    const { style } = await this.result()
-    return style
+    const { styles } = await this.result()
+    return styles
   }
 
   /**
