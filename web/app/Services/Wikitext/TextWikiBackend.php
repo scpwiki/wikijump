@@ -53,7 +53,7 @@ class TextWikiBackend extends WikitextBackend
     {
         $html = $this->wt->processSource($wikitext);
         $linkStats = Backlinks::fromWikiObject($this->wt->wiki);
-        return new HtmlOutput($html, '', [], [], $linkStats);
+        return new HtmlOutput($html, [], [], [], $linkStats);
     }
 
     public function renderText(string $wikitext): TextOutput
