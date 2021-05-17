@@ -46,7 +46,7 @@ class PageInfo
         $title = $page->getTitle();
         $altTitle = null;
         $tags = $page->getTagsAsArray();
-        $language = 'C';
+        $language = 'default';
 
         return new PageInfo($pageSlug, $categorySlug, $siteSlug, $title, $altTitle, $tags, $language);
     }

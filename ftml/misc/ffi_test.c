@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 		.rating = 69.0,
 		.tags_list = NULL,
 		.tags_len = 0,
-		.language = "C",
+		.language = "default",
 	};
 	const char *input = (
 		"[[css]]\n"

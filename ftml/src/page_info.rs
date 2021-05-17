@@ -73,7 +73,7 @@ impl PageInfo<'_> {
             alt_title: None,
             rating: 69.0,
             tags: vec![cow!("tale"), cow!("_cc")],
-            language: cow!("en"),
+            language: cow!("default"),
         }
     }
 }
