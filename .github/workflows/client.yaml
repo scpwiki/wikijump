@@ -23,7 +23,6 @@ jobs:
           key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.OS }}-pnpm-
-            ${{ runner.OS }}-
 
       - name: Install Node
         uses: actions/setup-node@v2
@@ -41,6 +40,36 @@ jobs:
 
       - name: Validate
         run: cd client && pnpm validate
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: PNPM Store Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.pnpm-store
+          key: ${{ runner.OS }}-pnpm-coverage-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.OS }}-pnpm-coverage-
+
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: Install PNPM
+        run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
+
+      - name: Install Dependencies
+        run: cd client && pnpm i
+
+      - name: Coverage
+        run: cd client && pnpm cover
 
       - name: Export Coverage
         uses: codecov/codecov-action@v1
