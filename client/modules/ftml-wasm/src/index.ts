@@ -57,7 +57,7 @@ export type PageInfo = Partial<Binding.IPageInfo>
 function makeInfo({
   alt_title = null,
   category = null,
-  language = "C",
+  language = "default",
   rating = 0,
   page = "unknown",
   site = "www",
