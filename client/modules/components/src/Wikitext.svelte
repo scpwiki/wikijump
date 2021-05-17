@@ -110,7 +110,7 @@
       <div><strong>RENDER:</strong> <code>{perfRender}ms</code></div>
     </Card>
   </div>
-  <div bind:this={element} class="wikitext" />
+  <div bind:this={element} class="wikitext-body wikitext" />
 </div>
 
 <style lang="scss">
@@ -132,5 +132,16 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
+  }
+
+  @include tolerates-motion {
+    // Makes an empty container fade-in when it finally renders content
+    .wikitext-body {
+      opacity: 1;
+      transition: opacity 0.125s ease-out;
+      &:empty {
+        opacity: 0;
+      }
+    }
   }
 </style>
