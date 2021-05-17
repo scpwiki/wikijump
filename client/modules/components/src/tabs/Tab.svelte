@@ -1,3 +1,16 @@
+<!--
+  @component Tab panel designed to be used with the `Tabview` component.
+
+  Usage:
+  ```svelte
+    <Tabview>
+      <Tab>
+        <span slot="button">Tab selector button text.</span>
+        Tab panel contents.
+      </Tab>
+    </Tabview>
+  ```
+-->
 <script lang="ts">
   import { getContext } from "svelte"
   import { createID } from "wj-util"

@@ -1,3 +1,16 @@
+<!--
+  @component Tab handler component intended to be used with the `Tab` component.
+
+  Usage:
+  ```svelte
+    <Tabview>
+      <Tab>
+        <span slot="button">Tab selector button text.</span>
+        Tab panel contents.
+      </Tab>
+    </Tabview>
+  ```
+-->
 <script lang="ts">
   import { focusGroup } from "../lib/focus"
   import { onMount, setContext } from "svelte"
