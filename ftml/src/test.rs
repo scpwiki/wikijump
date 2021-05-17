@@ -215,13 +215,13 @@ impl Test<'_> {
             );
         }
 
-        if html_output.html != self.html {
+        if html_output.body != self.html {
             panic!(
                 "Running test '{}' failed! HTML does not match:\nExpected: {:?}\nActual: {:?}\n\n{}\n\nTree (correct): {:#?}",
                 self.name,
                 self.html,
-                html_output.html,
-                html_output.html,
+                html_output.body,
+                html_output.body,
                 &tree,
             );
         }
