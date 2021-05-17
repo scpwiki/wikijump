@@ -1,3 +1,6 @@
+<!--
+  @component Versatile inline or overlay based spinner.
+-->
 <script lang="ts">
   import { createID, sleep } from "wj-util"
   import Icon from "./Icon.svelte"
@@ -5,13 +8,24 @@
 
   type Status = "active" | "success" | "warning" | "error"
 
+  /** Sets the styling so that the spinner can be displayed inline along with text. */
   export let inline = false
+  /** CSS `top` offset. */
   export let top = inline ? "0" : "50%"
+  /** CSS `left` offset. */
   export let left = inline ? "0" : "50%"
+  /** Sets the width of non-inline spinners, otherwise sets font-size. */
   export let size = inline ? "1em" : "120px"
+  /** Sets a delay until the spinner appears. Only works for non-inline spinners. */
   export let wait = 300
+  /** Sets the icon for inline spinners. */
   export let status: Status = "active"
+  /**
+   * Sets the component ARIA attributes so that screen readers will
+   * announce the status of the spinner.
+   */
   export let loud = false
+  /** Sets the text, if any, to be displayed alongside the spinner. */
   export let description = ""
 
   let label = ""
