@@ -44,7 +44,7 @@ lazy_static! {
     };
     static ref LEADING_NEWLINES: Regex = Regex::new(r"^\n+").unwrap();
     static ref TRAILING_NEWLINES: Regex = Regex::new(r"\n+$").unwrap();
-    static ref CONCAT_LINES: Regex = Regex::new(r"[\\_]\n").unwrap();
+    static ref CONCAT_LINES: Regex = Regex::new(r"(?:\\| _)\n").unwrap();
 }
 
 pub fn substitute(log: &Logger, text: &mut String) {
@@ -125,11 +125,11 @@ const TEST_CASES: [(&str, &str); 8] = [
         "concat:\napple banana CherryPineapple \\ grape\nblueberry",
     ),
     (
-        "concat:\napple banana _\nCherry_\nPineapple _ grape\nblueberry\n",
+        "concat:\napple banana _\nCherry _\nPineapple _ grape\nblueberry\n",
         "concat:\napple banana CherryPineapple _ grape\nblueberry",
     ),
     (
-        "concat:\napple banana \\\nCherry_\nPineapple _ grape\nblueberry\n",
+        "concat:\napple banana \\\nCherry _\nPineapple _ grape\nblueberry\n",
         "concat:\napple banana CherryPineapple _ grape\nblueberry",
     ),
     ("<\n        \n      \n  \n      \n>", "<\n\n>"),
