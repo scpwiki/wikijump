@@ -15,18 +15,26 @@ test: pnpm test:compile && nyc --use-spawn-wrap npm run test:run
 
 typecheck: tsc
 
+lint:eslint: eslint "./**/*.js" "./**/*.ts"
+lint:stylelint: stylelint "modules/**/*.scss" "web/**/*.scss"
+lint:prettier: prettier --ignore-unknown --check "modules/**" "web/**"
 lint:
-  eslint: eslint "./**/*.js" "./**/*.ts"
-  stylelint: stylelint "modules/**/*.scss" "web/**/*.scss"
-  prettier: prettier --ignore-unknown --check "modules/**" "web/**"
+  - pnpm lint:eslint
+  - pnpm lint:prettier
+  - pnpm lint:stylelint
 
+lint:fix:eslint: eslint "./**/*.js" "./**/*.ts" --fix
+lint:fix:stylelint: stylelint "modules/**/*.scss" "web/**/*.scss" --fix
+lint:fix:prettier: prettier --write --ignore-unknown "modules/**" "web/**"
 lint:fix:
-  eslint: eslint "./**/*.js" "./**/*.ts" --fix
-  stylelint: stylelint "modules/**/*.scss" "web/**/*.scss" --fix
-  prettier: prettier --write --ignore-unknown "modules/**" "web/**"
+  - pnpm lint:fix:eslint
+  - pnpm lint:fix:prettier
+  - pnpm lint:fix:stylelint
 
 # Runs everything in parallel for maximum speed
-validate:cmd: pnpm lint && pnpm typecheck
+validate:cmd:
+  - pnpm lint
+  - pnpm typecheck
 validate: ultra --concurrency 10 validate:cmd
 
 # -- MISC.

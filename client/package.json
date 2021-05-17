@@ -19,7 +19,6 @@
     "test:compile": "trash tests-dist && node scripts/build-tests.js",
     "test:run": "uvu ./tests-dist/dist test-megabundle.+js$",
     "typecheck": "tsc",
-    "update": "pnpm i && pnpm -r build",
     "validate": "ultra --concurrency 10 validate:cmd",
     "validate:cmd": "pnpm lint && pnpm typecheck",
     "nabs": "nabs"
