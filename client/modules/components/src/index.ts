@@ -8,6 +8,7 @@ export { default as Wikitext } from "./Wikitext.svelte"
 
 export { default as TabviewStub } from "./Tabview.svelte"
 
+export * from "./lib/animation"
 export * from "./lib/focus"
 export * from "./lib/tippy"
 export * from "./lib/portal"
