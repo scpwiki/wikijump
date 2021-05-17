@@ -20,7 +20,7 @@
 
 use crate::log::prelude::*;
 use crate::tree::{ImageSource, LinkLabel, Module};
-use crate::PageInfo;
+use crate::{PageInfo, UserInfo};
 use std::borrow::Cow;
 use std::num::NonZeroUsize;
 use strum_macros::IntoStaticStr;
@@ -69,6 +69,12 @@ impl Handle {
 
         // TODO
         format!("TODO: actual title ({})", page_slug)
+    }
+
+    pub fn get_user_info(&self, log: &Logger, name: &str) -> Option<UserInfo> {
+        debug!(log, "Fetching user info"; "name" => name);
+
+        Some(UserInfo::dummy())
     }
 
     pub fn get_image_link<'a>(
