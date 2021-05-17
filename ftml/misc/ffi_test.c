@@ -22,15 +22,15 @@ int main(int argc, char **argv)
 {
 	struct ftml_html_output output;
 	struct ftml_page_info page_info = {
-		"my-page",
-		NULL,
-		"www",
-		"Test page!",
-		NULL,
-		69.0,
-		NULL,
-		0,
-		"C",
+		.page = "my-page",
+		.category = NULL,
+		.site = "www",
+		.title = "Test page!",
+		.alt_title = NULL,
+		.rating = 69.0,
+		.tags_list = NULL,
+		.tags_len = 0,
+		.language = "C",
 	};
 	const char *input = (
 		"[[css]]\n"
