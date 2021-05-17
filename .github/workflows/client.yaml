@@ -56,7 +56,7 @@ jobs:
             ~/.pnpm-store
           key: ${{ runner.OS }}-pnpm-coverage-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.OS }}-pnpm-
+            ${{ runner.OS }}-pnpm-coverage-
             ${{ runner.OS }}-
 
       - name: Install Node
