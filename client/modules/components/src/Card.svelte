@@ -1,7 +1,14 @@
+<!--
+  @component Generic floating card.
+-->
 <script lang="ts">
+  /** Text to display prominently. */
   export let title = ""
+  /** Small text displayed below the title. Can be displayed by itself, as well. */
   export let subtitle = ""
+  /** Determines color scheme. */
   export let theme: "light" | "dark" = "light"
+  /** Sets the width of the card, if desired. Can be any valid CSS `width` value. */
   export let width = "auto"
 </script>
 
