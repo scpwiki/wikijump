@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "build": "ultra -r build",
+    "cover": "pnpm test:compile && nyc --use-spawn-wrap npm run test:run || true",
     "dev:dev-sandbox": "ultra --raw -r --filter \"web/dev-sandbox\" dev",
     "force-build": "ultra --rebuild -r build",
     "lint": "pnpm lint:eslint && pnpm lint:prettier && pnpm lint:stylelint",
@@ -15,7 +16,7 @@
     "lint:fix:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\" --fix",
     "lint:prettier": "prettier --ignore-unknown --check \"modules/**\" \"web/**\"",
     "lint:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\"",
-    "test": "pnpm test:compile && nyc --use-spawn-wrap npm run test:run",
+    "test": "pnpm test:compile && pnpm test:run",
     "test:compile": "trash tests-dist && node scripts/build-tests.js",
     "test:run": "uvu ./tests-dist/dist test-megabundle.+js$",
     "typecheck": "tsc",
