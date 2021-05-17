@@ -54,7 +54,7 @@ jobs:
         with:
           path: |
             ~/.pnpm-store
-          key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.OS }}-pnpm-coverage-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.OS }}-pnpm-
             ${{ runner.OS }}-
