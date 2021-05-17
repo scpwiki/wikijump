@@ -95,6 +95,7 @@ mod strikethrough;
 mod subscript;
 mod superscript;
 mod underline;
+mod user;
 
 pub use self::align_center::BLOCK_ALIGN_CENTER;
 pub use self::align_justify::BLOCK_ALIGN_JUSTIFY;
@@ -132,3 +133,4 @@ pub use self::strikethrough::BLOCK_STRIKETHROUGH;
 pub use self::subscript::BLOCK_SUBSCRIPT;
 pub use self::superscript::BLOCK_SUPERSCRIPT;
 pub use self::underline::BLOCK_UNDERLINE;
+pub use self::user::BLOCK_USER;
