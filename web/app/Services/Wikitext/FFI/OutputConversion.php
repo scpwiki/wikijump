@@ -53,7 +53,7 @@ final class OutputConversion
     // HtmlOutput
     public static function makeHtmlOutput(FFI\CData $c_data): HtmlOutput
     {
-        $html = FFI::string($c_data->body);
+        $body = FFI::string($c_data->body);
         $styles = self::makeStylesArray($c_data->styles_list, $c_data->styles_len);
         $meta = self::makeHtmlMetaArray($c_data->meta_list, $c_data->meta_len);
         $warnings = self::makeParseWarningArray($c_data->warning_list, $c_data->warning_len);
@@ -66,7 +66,7 @@ final class OutputConversion
         $linkStats = new Backlinks([], [], [], [], []);
 
         // Return object
-        return new HtmlOutput($html, $styles, $meta, $warnings, $linkStats);
+        return new HtmlOutput($body, $styles, $meta, $warnings, $linkStats);
     }
 
     private static function makeStylesArray(FFI\CData $pointer, int $length): array {
