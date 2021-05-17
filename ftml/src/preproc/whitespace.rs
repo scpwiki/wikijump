@@ -54,9 +54,8 @@ pub fn substitute(log: &Logger, text: &mut String) {
     // Strip lines with only whitespace
     regex_replace(log, text, &*WHITESPACE, "");
 
-    // Join concatenated lines (ending with '\' or '_')
+    // Join concatenated lines (ending with '\')
     str_replace(log, text, "\\\n", "");
-    str_replace(log, text, " _\n", " ");
 
     // Tabs to spaces
     str_replace(log, text, "\t", "    ");
@@ -103,7 +102,7 @@ fn regex_replace(log: &Logger, text: &mut String, regex: &Regex, replacement: &s
 }
 
 #[cfg(test)]
-const TEST_CASES: [(&str, &str); 8] = [
+const TEST_CASES: [(&str, &str); 6] = [
     (
         "\tapple\n\tbanana\tcherry\n",
         "    apple\n    banana    cherry",
@@ -123,14 +122,6 @@ const TEST_CASES: [(&str, &str); 8] = [
     (
         "concat:\napple banana \\\nCherry\\\nPineapple \\ grape\nblueberry\n",
         "concat:\napple banana CherryPineapple \\ grape\nblueberry",
-    ),
-    (
-        "concat:\napple banana _\nCherry _\nPineapple _ grape\nblueberry\n",
-        "concat:\napple banana CherryPineapple _ grape\nblueberry",
-    ),
-    (
-        "concat:\napple banana \\\nCherry _\nPineapple _ grape\nblueberry\n",
-        "concat:\napple banana CherryPineapple _ grape\nblueberry",
     ),
     ("<\n        \n      \n  \n      \n>", "<\n\n>"),
 ];
