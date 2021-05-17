@@ -1,19 +1,43 @@
+<!--
+  @component Generic button.
+  Designed to be as versatile possible, so there shouldn't be much reason not to
+  use this component for any sort of button (except links).
+-->
 <script lang="ts">
   import { tip as tippy } from "./lib/tippy"
   import Icon from "./Icon.svelte"
 
+  /**
+   * If provided, the button will be displayed as an icon instead.
+   * This will replace any slotted content - it does not preprend an icon.
+   */
   export let i = ""
+  /** Disables the button. */
   export let disabled = false
+  /** Makes the button appear in an activated state. */
   export let active = false
+  /** Text displayed for the tooltip. */
   export let tip = ""
-
-  export let wide = false
-  export let primary = false
-  export let baseline = false
-  export let compact = false
-  export let floating = false
-  export let sharp = false
+  /** Sets the size of the button by scaling the font-size. */
   export let size = "1em"
+
+  // -- STYLE
+
+  /** Makes the button as wide as possible. */
+  export let wide = false
+  /** Denotes the button as being important, which changes how it appears. */
+  export let primary = false
+  /** Removes most of the styling. */
+  export let baseline = false
+  /** Removes most of the padding around the button's icon or text. */
+  export let compact = false
+  /**
+   * Styles the button to be disconnected from the background.
+   * Good for buttons that are placed outside layout flow.
+   */
+  export let floating = false
+  /** Removes the round corners (`border-radius`) from the styling. */
+  export let sharp = false
 </script>
 
 <button
