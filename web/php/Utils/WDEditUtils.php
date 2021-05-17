@@ -58,7 +58,7 @@ class WDEditUtils
         $totalLines = count($s1);
 
         $wt = WikitextBackend::make(ParseRenderMode::TABLE_OF_CONTENTS, null);
-        $compiled = $wt->renderHtml($source)->html;
+        $compiled = $wt->renderHtml($source)->body;
 
         // now find all the occurences of headings in the compiled content.
         $pattern = '/<h([1-6]) id="toc([0-9]+)"[^>]*?>(?:\s*<span>)?\s*stoc([0-9]+)/';

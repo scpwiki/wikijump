@@ -25,7 +25,7 @@ class PMDraftsMessageModule extends AccountBaseModule
 
         $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
         $source = $message->getBody();
-        $body = $wt->renderHtml($source)->html;
+        $body = $wt->renderHtml($source)->body;
         $message->setBody($body);
 
         $runData->contextAdd("message", $message);

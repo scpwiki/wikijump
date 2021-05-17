@@ -331,7 +331,7 @@ class PagesFeed extends FeedScreen
 
             $pageInfo = PageInfo::fromPageObject($page);
             $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
-            $wt->renderHtml($b)->html;
+            $wt->renderHtml($b)->body;
 
             $d = utf8_encode("\xFE");
             $content = preg_replace("/" . $d . "module \"([a-zA-Z0-9\/_]+?)\"(.+?)?" . $d . "/", '', $content);

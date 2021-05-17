@@ -31,7 +31,7 @@ class ForumPostRevisionModule extends SmartyModule
 
         $source = $revision->getText();
         $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->html;
+        $body = $wt->renderHtml($source)->body;
 
         $runData->ajaxResponseAdd("content", $body);
         $runData->ajaxResponseAdd("postId", $revision->getPostId());

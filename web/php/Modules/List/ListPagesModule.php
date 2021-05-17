@@ -583,7 +583,7 @@ class ListPagesModule extends SmartyModule
 
             if ($separation) {
                 $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
-                $b = $wt->renderHtml($b)->html;
+                $b = $wt->renderHtml($b)->body;
                 $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
             }
 
@@ -599,7 +599,7 @@ class ListPagesModule extends SmartyModule
             $modifiedSource = $prefix . implode("\n", $items) . $suffix;
 
             $wt = WikitextBackend::make(ParseRenderMode::LIST, $pageInfo);
-            $itemsContent = $wt->renderHtml($modifiedSource)->html;
+            $itemsContent = $wt->renderHtml($modifiedSource)->body;
         } else {
             $itemsContent = implode("\n", $items);
         }

@@ -18,7 +18,7 @@ class PMPreviewModule extends AccountBaseModule
         $toUserId = $pl->getParameterValue("to_user_id");
 
         $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
-        $body = $wt->renderHtml($source)->html;
+        $body = $wt->renderHtml($source)->body;
 
         $message = new PrivateMessage();
         $message->setFromUserId($runData->getUserId());

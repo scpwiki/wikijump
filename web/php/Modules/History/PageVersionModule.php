@@ -26,7 +26,7 @@ class PageVersionModule extends SmartyModule
 
         // Why doesn't this pass in page data?
         $wt = WikitextBackend::make(ParseRenderMode::PAGE, null);
-        $content = $wt->renderHtml($source)->html;
+        $content = $wt->renderHtml($source)->bodyh
 
         $runData->contextAdd("pageContent", $content);
         $runData->contextAdd("revision", $revision);

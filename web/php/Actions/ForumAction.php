@@ -76,7 +76,7 @@ class ForumAction extends SmartyAction
         // compile content
 
         $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->html;
+        $body = $wt->renderHtml($source)->body;
 
         // new thread
 
@@ -226,7 +226,7 @@ class ForumAction extends SmartyAction
         // compile content
 
         $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->html;
+        $body = $wt->renderHtml($source)->body;
 
         $db = Database::connection();
         $db->begin();
@@ -383,7 +383,7 @@ class ForumAction extends SmartyAction
         // compile content
 
         $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->html;
+        $body = $wt->renderHtml($source)->body;
 
         $postRevision = new ForumPostRevision();
         $postRevision->obtainPK();

@@ -81,7 +81,7 @@ class PMAction extends SmartyAction
 
         // compile content
         $wt = WikitextBackend::make(PageRenderMode::DIRECT_MESSAGE, null);
-        $body = $wt->renderHtml($source)->html;
+        $body = $wt->renderHtml($source)->body;
 
         $message = new PrivateMessage();
         $message->setDate(new ODate());

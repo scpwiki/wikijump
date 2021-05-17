@@ -159,7 +159,7 @@ class FrontForumModule extends SmartyModule
 
         // process the format and create the message template
         $wt = WikitextBackend::make(ParseRenderMode::FEED, null);
-        $template = $wt->renderHtml($format)->html;
+        $template = $wt->renderHtml($format)->body;
 
         $template = preg_replace(
             '/

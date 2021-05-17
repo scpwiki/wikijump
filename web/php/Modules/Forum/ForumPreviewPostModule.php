@@ -25,7 +25,7 @@ class ForumPreviewPostModule extends SmartyModule
         }
 
         $wt = WikitextBackend::make(ParseRenderMode::FORUM_POST, null);
-        $body = $wt->renderHtml($source)->html;
+        $body = $wt->renderHtml($source)->body;
 
         $post = new ForumPost();
         $post->setText($body);

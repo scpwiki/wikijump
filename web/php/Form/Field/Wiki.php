@@ -12,7 +12,7 @@ class Wiki extends Base
     {
         $source = $this->field['value'];
         $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
-        return $wt->renderHtml($source)->html;
+        return $wt->renderHtml($source)->body;
     }
 
     public function renderEdit()

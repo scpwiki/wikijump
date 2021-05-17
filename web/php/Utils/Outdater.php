@@ -213,7 +213,7 @@ class Outdater
         $wt = WikitextBackend::make(ParseRenderMode::PAGE, $pageInfo);
         $result = $wt->renderHtml($source);
 
-        $compiled->setText($result->html);
+        $compiled->setText($result->body);
         $compiled->setDateCompiled(new ODate());
         $compiled->save();
 

@@ -103,7 +103,7 @@ class FeedModule extends CacheableModule
 
         // process the format and create the message template
         $wt = WikitextBackend::make(ParseRenderMode::FEED, null);
-        $template = $wt->renderHtml($format)->html;
+        $template = $wt->renderHtml($format)->body;
 
         // fix template
         $template = preg_replace(
