@@ -140,6 +140,7 @@ mod preproc;
 mod span_wrap;
 mod text;
 mod url;
+mod user_info;
 mod utf16;
 
 #[cfg(feature = "ffi")]
@@ -165,6 +166,7 @@ pub use self::page_info::PageInfo;
 pub use self::parsing::parse;
 pub use self::preproc::preprocess;
 pub use self::tokenizer::{tokenize, Tokenization};
+pub use self::user_info::UserInfo;
 pub use self::utf16::Utf16IndexMap;
 
 pub mod prelude {
