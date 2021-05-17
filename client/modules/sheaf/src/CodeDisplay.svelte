@@ -11,7 +11,7 @@
   import { getCodeDisplayExtensions } from "sheaf-core"
 
   /** Contents of the code block. Can be a promise that resolves to a string. */
-  export let content: string | Promise<string>
+  export let content: Promisable<string>
 
   /** Name of the language to syntax highlight with. */
   export let lang = ""
