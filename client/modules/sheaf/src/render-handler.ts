@@ -18,7 +18,7 @@ export class RenderHandler {
    * @decorator `@Memoize()`
    */
   @Memoize()
-  private get src() {
+  get src() {
     if (!this.doc) return ""
     return this.doc.toString()
   }
@@ -98,7 +98,7 @@ export class RenderHandler {
     if (!this.fragmentNode) {
       this.fragmentNode = toFragment(await this.html())
     }
-    return this.fragmentNode.cloneNode(true)
+    return this.fragmentNode.cloneNode(true) as DocumentFragment
   }
 
   /**
