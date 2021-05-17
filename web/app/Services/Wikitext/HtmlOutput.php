@@ -14,12 +14,12 @@ class HtmlOutput
     public string $body;
 
     /**
-     * @var string The CSS output of the rendering process.
+     * @var array List of CSS outputs of the rendering process.
      *
      * This concatenates separate CSS styles specified in the tree in one string.
      * The styles are not necessarily valid or safe, as they come from whatever the user inputted.
      */
-    public string $style;
+    public array $styles;
 
     /**
      * @var array The list of HtmlMeta objects, describing <meta> attributes to include in the final document.
@@ -36,9 +36,9 @@ class HtmlOutput
      */
     public Backlinks $linkStats;
 
-    public function __construct(string $body, string $style, array $meta, array $warnings, Backlinks $linkStats) {
+    public function __construct(string $body, array $styles, array $meta, array $warnings, Backlinks $linkStats) {
         $this->body = $body;
-        $this->style = $style;
+        $this->styles = $styles;
         $this->meta = $meta;
         $this->warnings = $warnings;
         $this->linkStats = $linkStats;
