@@ -168,7 +168,7 @@ impl Test<'_> {
             alt_title: None,
             rating: 0.0,
             tags: vec![cow!("fruit"), cow!("component")],
-            language: cow!("en"),
+            language: cow!("default"),
         };
 
         let (mut text, _pages) =
