@@ -1,0 +1,56 @@
+{
+    "input": "[[p class=\"fruit\"]]Apple\n\nBanana\n\nCherry[[/p]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {
+                        "class": "fruit"
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {
+                        "class": "fruit"
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Banana"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {
+                        "class": "fruit"
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Cherry"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "input": "[[p id=\"my-p\"]]\nApple\n[[/p]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {
+                        "id": "my-p"
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
