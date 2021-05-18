@@ -155,6 +155,7 @@ pub enum Element<'t> {
     },
 
     /// A user block, linking to their information and possibly showing their avatar.
+    #[serde(rename_all = "kebab-case")]
     User {
         name: Cow<'t, str>,
         show_avatar: bool,
