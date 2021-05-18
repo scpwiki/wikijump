@@ -59,9 +59,9 @@ export class RenderHandler {
   }
 
   /**
-   * Renders the document's combined stylesheet. This should only be
-   * used for preview/display purposes, as it's likely the combined
-   * stylesheet will contain invalid imports.
+   * Renders the document's combined stylesheet. This should only be used
+   * for preview/display purposes, as it's likely the combined stylesheet
+   * will contain invalid imports.
    *
    * @decorator `@Memoize`
    */
