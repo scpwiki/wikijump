@@ -63,7 +63,7 @@ fn parse_fn<'r, 't>(
     let element = Element::Container(Container::new(
         ContainerType::Div,
         elements,
-        arguments.to_hash_map(),
+        arguments.to_attribute_map(),
     ));
 
     ok!(element, exceptions)

@@ -89,7 +89,7 @@ impl<'t> Arguments<'t> {
     /// (or already owned, per `Cow`).
     /// It only makes a new allocation for the new `HashMap`.
     #[inline]
-    pub fn to_hash_map(&self) -> AttributeMap<'t> {
+    pub fn to_attribute_map(&self) -> AttributeMap<'t> {
         AttributeMap::from_arguments(&self.inner)
     }
 }

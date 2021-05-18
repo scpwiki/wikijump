@@ -36,7 +36,7 @@ fn parse_fn<'r, 't>(
     assert_module_name(&MODULE_JOIN, name);
 
     let button_text = arguments.get("button");
-    let attributes = arguments.to_hash_map();
+    let attributes = arguments.to_attribute_map();
 
     ok!(false; Some(Module::Join {
         button_text,
