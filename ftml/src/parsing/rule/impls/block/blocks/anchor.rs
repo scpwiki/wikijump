@@ -49,7 +49,7 @@ fn parse_fn<'r, 't>(
     assert_block_name(&BLOCK_ANCHOR, name);
 
     let arguments = parser.get_head_map(&BLOCK_ANCHOR, in_head)?;
-    let attributes = arguments.to_hash_map();
+    let attributes = arguments.to_attribute_map();
 
     // "a" means we wrap interpret as-is
     // "a_" means we strip out any newlines or paragraph breaks

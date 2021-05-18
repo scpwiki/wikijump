@@ -54,7 +54,7 @@ fn parse_fn<'r, 't>(
     let element = Element::RadioButton {
         name: cow!(name),
         checked: flag_star,
-        attributes: arguments.to_hash_map(),
+        attributes: arguments.to_attribute_map(),
     };
 
     ok!(element)

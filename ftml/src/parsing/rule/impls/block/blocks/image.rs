@@ -64,7 +64,7 @@ fn parse_fn<'r, 't>(
         source,
         link,
         alignment,
-        attributes: arguments.to_hash_map(),
+        attributes: arguments.to_attribute_map(),
     };
 
     ok!(element)

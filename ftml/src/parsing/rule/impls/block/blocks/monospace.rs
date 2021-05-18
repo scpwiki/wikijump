@@ -57,7 +57,7 @@ fn parse_fn<'r, 't>(
     let element = Element::Container(Container::new(
         ContainerType::Monospace,
         elements,
-        arguments.to_hash_map(),
+        arguments.to_attribute_map(),
     ));
 
     ok!(paragraph_safe; element, exceptions)

@@ -53,7 +53,7 @@ fn parse_fn<'r, 't>(
 
     let element = Element::CheckBox {
         checked: flag_star,
-        attributes: arguments.to_hash_map(),
+        attributes: arguments.to_attribute_map(),
     };
 
     ok!(element)

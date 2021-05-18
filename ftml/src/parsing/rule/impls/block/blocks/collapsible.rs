@@ -71,7 +71,7 @@ fn parse_fn<'r, 't>(
     // Build element and return
     let element = Element::Collapsible {
         elements,
-        attributes: arguments.to_hash_map(),
+        attributes: arguments.to_attribute_map(),
         start_open,
         show_text,
         hide_text,
