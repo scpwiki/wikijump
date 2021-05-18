@@ -1,5 +1,5 @@
 import * as easings from "svelte/easing"
-import { Media } from "./media"
+import { Media } from "wj-state"
 
 export interface AnimOpts {
   /** Delay before the animation plays, in or out. */
