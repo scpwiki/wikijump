@@ -42,11 +42,22 @@
   export let morph = false
 
   let element: HTMLElement
-  let stylesheet: HTMLStyleElement
-
+  let stylesheets: string[] = []
   let rendering = false
-
   let perfRender = 0
+
+  function stylesheet(node: HTMLStyleElement, style: string) {
+    node.innerHTML = style
+    return {
+      update(style: string) {
+        node.innerHTML = style
+      },
+      destroy() {
+        // not sure why I have to destroy the node, but I do apparently
+        node.parentElement?.removeChild(node)
+      }
+    }
+  }
 
   const render = createMutatingLock(async (wikitext: WikitextInput) => {
     const displayIndicatorTimeout = setTimeout(() => (rendering = true), 100)
@@ -66,7 +77,7 @@
   // TODO: Security audit of this - how much should we trust FTML output right now?
 
   const update = createAnimQueued(async ({ html, styles }: Rendered) => {
-    if (!element || !stylesheet) return
+    if (!element) return
     const fragment = toFragment(html)
     if (morph) {
       morphdom(element, fragment, {
@@ -81,7 +92,10 @@
       element.append(fragment)
     }
 
-    stylesheet.innerHTML = styles.join("\n")
+    // prepend style with a index comment so that each style string is unique
+    stylesheets = styles.map(
+      (style, idx) => `\n/* stylesheet ${idx + 1} */\n\n${style}\n`
+    )
     rendering = false
   })
 
@@ -93,7 +107,9 @@
 </script>
 
 <svelte:head>
-  <style bind:this={stylesheet}></style>
+  {#each stylesheets as style (style)}
+    <style use:stylesheet={style}></style>
+  {/each}
 </svelte:head>
 
 <div class="wikitext-container">

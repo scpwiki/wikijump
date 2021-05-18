@@ -56,12 +56,16 @@ export class RenderHandler {
 
   /**
    * Renders the document's combined stylesheet.
+   * This should only be used for preview/display purposes,
+   * as it's likely the combined stylesheet will contain invalid imports.
    * @decorator `@Memoize`
    */
   @Memoize()
   async style() {
     const { styles } = await this.result()
-    return styles.join("\n")
+    return styles
+      .map((style, idx) => `/* stylesheet ${idx + 1} */\n\n${style}\n\n`)
+      .join("\n")
   }
 
   /**
