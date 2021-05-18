@@ -1,6 +1,6 @@
 /**
- * Custom element that is used to detect when Svelte components
- * should be mounted or unmounted.
+ * Custom element that is used to detect when Svelte components should be
+ * mounted or unmounted.
  */
 export class LifecycleElement extends HTMLElement {
   /** Element/tag name that this element is registered with. */

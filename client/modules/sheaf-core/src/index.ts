@@ -44,8 +44,8 @@ export class SheafCore {
   parent!: Element
 
   /**
-   * The CodeMirror `EditorState` the editor has currently.
-   * The state is immutable and is replaced as the editor updates.
+   * The CodeMirror `EditorState` the editor has currently. The state is
+   * immutable and is replaced as the editor updates.
    */
   state = EditorState.create()
 
@@ -58,8 +58,8 @@ export class SheafCore {
   set = this.store.set
 
   /**
-   * The lines currently being interacted with by the user.
-   * This includes all selected lines, the line the cursor is present on, etc.
+   * The lines currently being interacted with by the user. This includes
+   * all selected lines, the line the cursor is present on, etc.
    */
   activeLines = writable(new Set<number>())
 
@@ -132,8 +132,8 @@ export class SheafCore {
   }
 
   /**
-   * Destroys the editor.
-   * Usage of the editor object after destruction is obviously not recommended.
+   * Destroys the editor. Usage of the editor object after destruction is
+   * obviously not recommended.
    */
   destroy() {
     this.view.destroy()

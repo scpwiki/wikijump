@@ -10,6 +10,7 @@ import {
 
 /**
  * The props provided to a {@link EditorSveltePanel} component.
+ *
  * @see {@link EditorSveltePanel}
  */
 export interface EditorSveltePanelProps extends EditorSvelteComponentProps {
@@ -27,18 +28,21 @@ export interface EditorSveltePanelOpts<T extends SvelteComponent>
  * A panel that uses a Svelte component to render its contents.
  *
  * The component is provided with three props:
- * * `view`
- * * `update`
- * * `unmount`
  *
- * You can see the types of these props in the {@link EditorSveltePanelProps} interface.
+ * - `view`
+ * - `update`
+ * - `unmount`
+ *
+ * You can see the types of these props in the
+ * {@link EditorSveltePanelProps} interface.
+ *
  * @see {@link EditorSveltePanelProps}
  */
 export class EditorSveltePanel<T extends typeof SvelteComponent> {
   /**
-   * Extension that mounts the panel to the editor.
-   * You don't really need to use this property - any object with the `extension`
-   * property is a valid CodeMirror extension entrypoint.
+   * Extension that mounts the panel to the editor. You don't really need
+   * to use this property - any object with the `extension` property is a
+   * valid CodeMirror extension entrypoint.
    */
   declare extension: Extension
 
@@ -72,8 +76,8 @@ export class EditorSveltePanel<T extends typeof SvelteComponent> {
   }
 
   /**
-   * Creates the Svelte component and DOM container element
-   * and returns the CodeMirror panel instance.
+   * Creates the Svelte component and DOM container element and returns the
+   * CodeMirror panel instance.
    */
   private create(view: EditorView): Panel {
     const toggle = this.toggle.bind(this)

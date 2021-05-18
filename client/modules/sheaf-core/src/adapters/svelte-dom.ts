@@ -4,10 +4,10 @@ import { LifecycleElement } from "./svelte-lifecycle-element"
 
 export interface EditorSvelteComponentProps {
   /**
-   * The {@link EditorView} the component is mounted to.
-   * This can be undefined if the component was created with no view.
-   * In that instance, the component will still track lifecycle but
-   * won't be able to interact with the editor.
+   * The {@link EditorView} the component is mounted to. This can be
+   * undefined if the component was created with no view. In that instance,
+   * the component will still track lifecycle but won't be able to interact
+   * with the editor.
    */
   view: EditorView | undefined
   /** The last {@link ViewUpdate} of the editor. */
@@ -44,19 +44,18 @@ export interface EditorSvelteComponentOpts<T extends SvelteComponent> {
  * Handler class for using Svelte components in the CodeMirror DOM.
  *
  * The component is provided with two props:
- * * `view`
- * * `update`
- * * `unmount`
  *
- * You can see the types of these props
- * in the {@link EditorSvelteComponentProps} interface.
+ * - `view`
+ * - `update`
+ * - `unmount`
+ *
+ * You can see the types of these props in the
+ * {@link EditorSvelteComponentProps} interface.
  *
  * @see {@link EditorSvelteComponentProps}
  */
 export class EditorSvelteComponent<T extends typeof SvelteComponent> {
-  /**
-   * @param component - The Svelte component to be mounted.
-   */
+  /** @param component - The Svelte component to be mounted. */
   constructor(public component: T) {}
 
   /**

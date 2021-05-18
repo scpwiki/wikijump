@@ -8,6 +8,7 @@ export interface MediaQueryStore {
 
 /**
  * Singleton class for reading pre-made media queries reactively.
+ *
  * @see {@link Media}
  */
 class MediaQueryHandler {
@@ -62,9 +63,12 @@ class MediaQueryHandler {
 }
 
 /**
- * Handler and helper singleton for reading media queries directly or reactively.
- * Queries can be read reactively because this object fulfills the observable protocol.
+ * Handler and helper singleton for reading media queries directly or
+ * reactively. Queries can be read reactively because this object fulfills
+ * the observable protocol.
+ *
  * @example
+ *
  * ```svelte
  * <!--
  *   Sets the class of the element between "dark" and "light", even when the user

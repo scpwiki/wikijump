@@ -18,26 +18,28 @@
 
   /**
    * Wikitext input. May be given in quite a few ways:
+   *
    * 1. As a string.
    * 2. As an object, `{ html: string, style: string }`.
    * 3. As a function returning either a string or the aformentioned object.
    * 4. As a `Promise` resolving to either a string or the aforementioned object.
    * 5. As a function returning a `Promise` like the aformentioned one.
    *
-   * Providing the input as a function has performance benefits. If the wikitext
-   * takes a long time to render, and the source wikitext is frequently updating,
-   * providing a function will make it so that the wikitext is only evalulated when
-   * it needs to be. Otherwise, the wikitext would be evalulated constantly, and that
-   * has obvious performance implications.
+   * Providing the input as a function has performance benefits. If the
+   * wikitext takes a long time to render, and the source wikitext is
+   * frequently updating, providing a function will make it so that the
+   * wikitext is only evalulated when it needs to be. Otherwise, the
+   * wikitext would be evalulated constantly, and that has obvious
+   * performance implications.
    */
   export let wikitext: WikitextInput = ""
 
   /**
-   * Flags the component to morph the output container
-   * rather than entirely replacing the contents.
+   * Flags the component to morph the output container rather than entirely
+   * replacing the contents.
    *
-   * This is for performance reasons. If you are frequently updating the wikitext,
-   * it's probably best if the DOM is morphed rather than replaced.
+   * This is for performance reasons. If you are frequently updating the
+   * wikitext, it's probably best if the DOM is morphed rather than replaced.
    */
   export let morph = false
 

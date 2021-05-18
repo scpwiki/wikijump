@@ -106,8 +106,8 @@ export async function version() {
 }
 
 /**
- * Preprocesses a string of wikitext.
- * See `ftml/src/preproc/test.rs` for more information.
+ * Preprocesses a string of wikitext. See `ftml/src/preproc/test.rs` for
+ * more information.
  */
 export async function preprocess(str: string) {
   return decode(await invoke<ArrayBuffer>(() => module.worker.preprocess(transfer(str))))
@@ -121,6 +121,7 @@ export async function tokenize(str: string) {
 
 /**
  * Parses a string of wikitext. This returns an AST and warnings list, not HTML.
+ *
  * @see {@link render}
  */
 export async function parse(str: string) {
@@ -144,8 +145,8 @@ export async function renderText(str: string) {
 }
 
 /**
- * Renders a string of wikitext like the {@link renderHTML} function, but this
- * function additionally returns every step in the rendering pipeline.
+ * Renders a string of wikitext like the {@link renderHTML} function, but
+ * this function additionally returns every step in the rendering pipeline.
  */
 export async function detailedRender(str: string) {
   type Return = ReturnType<typeof FTML["detailedRender"]>

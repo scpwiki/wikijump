@@ -386,8 +386,8 @@ export class EmbeddedHandler {
 }
 
 /**
- * Fake {@link PartialParse} implementation that
- * immediately returns a specified {@link Tree}.
+ * Fake {@link PartialParse} implementation that immediately returns a
+ * specified {@link Tree}.
  */
 class FakeParse {
   constructor(private input: Input, private tree: Tree) {}

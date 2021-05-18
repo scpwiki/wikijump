@@ -2,14 +2,19 @@ import { perfy } from "./index"
 
 /**
  * Decorator for measuring the performance of a function or method.
+ *
  * @example
+ *
  * ```ts
  * let perf = 0
  * class foo {
- *   ;@measure(time => perf = time)
- *   method() { return "some-expensive-calculation" }
+ *   @measure(time => (perf = time))
+ *   method() {
+ *     return "some-expensive-calculation"
+ *   }
  * }
  * ```
+ *
  * @param callback - Callback to fire with the performance measurement taken.
  */
 export function measure(callback: (perf: number) => void) {

@@ -28,8 +28,8 @@ const INLINE = [
 /**
  * Ad-hoc HTML formatting.
  *
- * Creates newlines between any non-obvious inline-formatting tags.
- * Uses `indent.js`, a tiny library, to handle indentation of the resulting HTML.
+ * Creates newlines between any non-obvious inline-formatting tags. Uses
+ * `indent.js`, a tiny library, to handle indentation of the resulting HTML.
  */
 function formatHTML(html: string) {
   try {

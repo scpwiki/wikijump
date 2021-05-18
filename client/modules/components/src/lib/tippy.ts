@@ -35,8 +35,9 @@ function parseTipOpts(elem: Element, opts: Partial<Props> | string) {
  * Creates a Tippy.js tooltip instance for the element.
  *
  * The tooltip will derive its message from this list of sources, in order:
- * * The value provided directly, if any
- * * The element's `aria-label` attribute, if it exists
+ *
+ * - The value provided directly, if any
+ * - The element's `aria-label` attribute, if it exists
  */
 export function tip(elem: Element, opts: Partial<Props> | string = "") {
   opts = parseTipOpts(elem, opts)

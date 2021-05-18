@@ -4,8 +4,8 @@ import { Memoize } from "typescript-memoize"
 import { toFragment } from "wj-util"
 
 /**
- * Heavily memoized FTML-render-emit handler.
- * Designed to invoke the FTML renderer as little as possible.
+ * Heavily memoized FTML-render-emit handler. Designed to invoke the FTML
+ * renderer as little as possible.
  */
 export class RenderHandler {
   private declare fragmentNode?: DocumentFragment
@@ -15,6 +15,7 @@ export class RenderHandler {
 
   /**
    * Raw source of the document.
+   *
    * @decorator `@Memoize()`
    */
   @Memoize()
@@ -25,6 +26,7 @@ export class RenderHandler {
 
   /**
    * Renders the document to CSS and HTML.
+   *
    * @param format - Whether or not to pretty-print/format the HTML.
    * @decorator `@Memoize()`
    */
@@ -35,6 +37,7 @@ export class RenderHandler {
 
   /**
    * Renders the document to HTML.
+   *
    * @param format - Whether or not to pretty-print/format the HTML.
    * @decorator `@Memoize()`
    */
@@ -46,6 +49,7 @@ export class RenderHandler {
 
   /**
    * Renders the document's stylesheets.
+   *
    * @decorator `@Memoize`
    */
   @Memoize()
@@ -55,9 +59,10 @@ export class RenderHandler {
   }
 
   /**
-   * Renders the document's combined stylesheet.
-   * This should only be used for preview/display purposes,
-   * as it's likely the combined stylesheet will contain invalid imports.
+   * Renders the document's combined stylesheet. This should only be
+   * used for preview/display purposes, as it's likely the combined
+   * stylesheet will contain invalid imports.
+   *
    * @decorator `@Memoize`
    */
   @Memoize()
@@ -70,6 +75,7 @@ export class RenderHandler {
 
   /**
    * Renders the document to formatted text.
+   *
    * @decorator `@Memoize()`
    */
   @Memoize()
@@ -80,6 +86,7 @@ export class RenderHandler {
 
   /**
    * Parses the document.
+   *
    * @decorator `@Memoize()`
    */
   @Memoize()
@@ -89,6 +96,7 @@ export class RenderHandler {
 
   /**
    * Parses the document and returns its AST.
+   *
    * @decorator `@Memoize()`
    */
   @Memoize()
@@ -99,6 +107,7 @@ export class RenderHandler {
 
   /**
    * Returns the warnings that would be emitted by parsing the document.
+   *
    * @decorator `@Memoize()`
    */
   @Memoize()
@@ -117,6 +126,7 @@ export class RenderHandler {
 
   /**
    * Retrieves the document's AST and then formats it into a pretty-printed string.
+   *
    * @decorator `@Memoize()`
    */
   @Memoize()

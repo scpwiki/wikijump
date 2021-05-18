@@ -2,8 +2,8 @@ import { mod } from "wj-util"
 
 // https://zellwk.com/blog/keyboard-focusable-elements/
 /**
- * Returns a list of elements that can be reasonably expected
- * as programatically focusable directly under the given element.
+ * Returns a list of elements that can be reasonably expected as
+ * programatically focusable directly under the given element.
  *
  * @param elem - The element to get the focusable descendants of.
  */
@@ -18,9 +18,9 @@ export function getFoci(elem: Element) {
 }
 
 /**
- * Svelte use function for automatically handling directional key focus movement.
- * All descendants that are focusable with a non-negative tabindex will be
- * cycled through with the arrow keys.
+ * Svelte use function for automatically handling directional key focus
+ * movement. All descendants that are focusable with a non-negative
+ * tabindex will be cycled through with the arrow keys.
  *
  * @param dir - Determines which pair of arrow keys to use.
  */

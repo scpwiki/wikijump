@@ -7,10 +7,10 @@
   /** Function to call when the observer enters the viewport. */
   export let onEnter: AnyFunction = () => undefined
 
-  /** Function to call when the observer leaves the viewport.*/
+  /** Function to call when the observer leaves the viewport. */
   export let onExit: AnyFunction = () => undefined
 
-  /** Options for the {@link IntersectionObserver}.*/
+  /** Options for the {@link IntersectionObserver}. */
   export let opts: IntersectionObserverInit = {}
 
   let intersectionElement: HTMLElement

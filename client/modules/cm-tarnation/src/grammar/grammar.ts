@@ -734,10 +734,10 @@ export function createToken({ from, to, action, context }: Matched): GrammarToke
 /**
  * Wraps a list of {@link GrammarToken} with the token data of a {@link Match}.
  *
- * Effectively, this mutates the list of tokens as if the given {@link Match}
- * "was" the list of tokens. If the token data of the match were to cause
- * the tokenizer to manipulate the stack, it will make the token list given
- * do the same.
+ * Effectively, this mutates the list of tokens as if the given
+ * {@link Match} "was" the list of tokens. If the token data of the match
+ * were to cause the tokenizer to manipulate the stack, it will make the
+ * token list given do the same.
  */
 export function wrapTokens(
   tokens: GrammarToken[],
