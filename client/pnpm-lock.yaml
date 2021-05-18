@@ -145,6 +145,7 @@ importers:
   modules/components:
     specifiers:
       '@iconify/iconify': ^2.0.1
+      '@popperjs/core': ^2.9.2
       cm-lang-ftml: workspace:*
       ftml-wasm: workspace:*
       ftml-wasm-worker: workspace:*
@@ -156,6 +157,7 @@ importers:
       wj-util: workspace:*
     dependencies:
       '@iconify/iconify': 2.0.1
+      '@popperjs/core': 2.9.2
       cm-lang-ftml: link:../cm-lang-ftml
       ftml-wasm: link:../ftml-wasm
       ftml-wasm-worker: link:../ftml-wasm-worker
