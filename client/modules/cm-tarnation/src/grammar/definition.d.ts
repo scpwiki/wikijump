@@ -511,7 +511,7 @@ export interface RuleState {
 /**
  * A special function can be provided in place of a {@link Matchable}. It is
  * valid to return `[]`, an empty array. This signifies a successful match
- * but doesn't advance the input.
+ * - but doesn't advance the input.
  */
 export type MatchFunction = (
   cx: GrammarContext,
