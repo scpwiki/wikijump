@@ -6,12 +6,11 @@ trailingComma = "none"
 bracketSpacing = true
 arrowParens = "avoid"
 endOfLine = "auto"
-pluginSearchDirs = ["."]
 
 plugins = [
-  "prettier-plugin-organize-imports",
-  "prettier-plugin-jsdoc",
-  "prettier-plugin-svelte",
+  "./node_modules/prettier-plugin-organize-imports",
+  "./node_modules/prettier-plugin-jsdoc",
+  "./node_modules/prettier-plugin-svelte",
 ]
 
 # plugin-jsdoc
