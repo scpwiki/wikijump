@@ -81,7 +81,7 @@ export class PreferenceHandler {
     for (let idx = 0; idx < len; idx++) {
       const name = localStorage.key(idx)
       if (name?.startsWith(this.prefix)) {
-        keys.add(name.substr(0, this.prefix.length))
+        keys.add(name.substr(this.prefix.length))
       }
     }
     return [...keys]
