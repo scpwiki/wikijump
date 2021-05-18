@@ -20,6 +20,7 @@
 
 use super::context::HtmlContext;
 use super::element::{render_element, render_elements};
+use std::borrow::Cow;
 use crate::log::prelude::*;
 use crate::tree::Element;
 
@@ -28,6 +29,13 @@ pub trait ItemRender {
 }
 
 impl ItemRender for &'_ str {
+    #[inline]
+    fn render(&self, _log: &Logger, ctx: &mut HtmlContext) {
+        ctx.push_escaped(self);
+    }
+}
+
+impl ItemRender for &'_ Cow<'_, str> {
     #[inline]
     fn render(&self, _log: &Logger, ctx: &mut HtmlContext) {
         ctx.push_escaped(self);
