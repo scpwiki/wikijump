@@ -105,11 +105,11 @@ const TexLanguage = new TarnationLanguage({
 
         [/([a-zA-Z]+)(?=\([^]*?\))/, "Function"], // styles 'fn()'
 
-        [/(\\#?[a-zA-Z0-9]+)(\{)([^]*?)(\})/, "CommandGroup",
+        [/(\\#?[a-zA-Z\d]+)(\{)([^]*?)(\})/, "CommandGroup",
           ["Command", "@BR", "t.string", "@BR"]
         ],
 
-        [/\\#?[a-zA-Z0-9]+/, "Command"],
+        [/\\#?[a-zA-Z\d]+/, "Command"],
 
         [/\\[,>;!]/, "t.string"],       // spacing
         [/\\+/, "t.escape"],            // \\ and the like

@@ -16,9 +16,9 @@ importers:
       babel-plugin-istanbul: ^6.0.0
       esbuild: ^0.11.23
       eslint: ^7.26.0
-      eslint-plugin-clean-regex: ^0.5.1
       eslint-plugin-compat: ^3.9.0
       eslint-plugin-import: ^2.23.2
+      eslint-plugin-regexp: ^0.10.0
       eslint-plugin-svelte3: ^3.2.0
       eslint-plugin-tsdoc: ^0.2.14
       fs-extra: ^10.0.0
@@ -58,9 +58,9 @@ importers:
       babel-plugin-istanbul: 6.0.0
       esbuild: 0.11.23
       eslint: 7.26.0
-      eslint-plugin-clean-regex: 0.5.1
       eslint-plugin-compat: 3.9.0_eslint@7.26.0
       eslint-plugin-import: 2.23.2_eslint@7.26.0
+      eslint-plugin-regexp: 0.10.0_eslint@7.26.0
       eslint-plugin-svelte3: 3.2.0_eslint@7.26.0+svelte@3.38.2
       eslint-plugin-tsdoc: 0.2.14
       fs-extra: 10.0.0
@@ -1993,14 +1993,6 @@ packages:
       pkg-dir: 2.0.0
     dev: true
 
-  /eslint-plugin-clean-regex/0.5.1:
-    resolution: {integrity: sha512-ZuZxP2V2s2LI2OZPUF5eQQtgUQv1/Z7jDI2DG5GEHGM9D0T0LSbcg8ViuFolrOOmUP7dCz+JHN4gDQWyeDdvJg==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      refa: 0.7.1
-      regexpp: 3.1.0
-    dev: true
-
   /eslint-plugin-compat/3.9.0_eslint@7.26.0:
     resolution: {integrity: sha512-lt3l5PHFHVEYSZ5zijcoYvtQJPsBifRiH5N0Et57KwVu7l/yxmHhSG6VJiLMa/lXrg93Qu8049RNQOMn0+yJBg==}
     engines: {node: '>=9.x'}
@@ -2041,6 +2033,20 @@ packages:
       read-pkg-up: 3.0.0
       resolve: 1.20.0
       tsconfig-paths: 3.9.0
+    dev: true
+
+  /eslint-plugin-regexp/0.10.0_eslint@7.26.0:
+    resolution: {integrity: sha512-KwIdNUnwz9CFZ1jApWZ++Y1cVWbJBYdJHMDh7KNe9HpElSwHGZHtX1QaHq3Iv2nMYJitGIE6JdkYbfzm9BzPQw==}
+    peerDependencies:
+      eslint: '>=6.0.0'
+    dependencies:
+      comment-parser: 1.1.5
+      eslint: 7.26.0
+      eslint-utils: 2.1.0
+      jsdoctypeparser: 9.0.0
+      refa: 0.8.0
+      regexp-ast-analysis: 0.2.0
+      regexpp: 3.1.0
     dev: true
 
   /eslint-plugin-svelte3/3.2.0_eslint@7.26.0+svelte@3.38.2:
@@ -2967,6 +2973,12 @@ packages:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
+    dev: true
+
+  /jsdoctypeparser/9.0.0:
+    resolution: {integrity: sha512-jrTA2jJIL6/DAEILBEh2/w9QxCuwmvNXIry39Ay/HVfhE3o2yVV0U44blYkqdHA/OKloJEqvJy0xU+GSdE2SIw==}
+    engines: {node: '>=10'}
+    hasBin: true
     dev: true
 
   /jsesc/2.5.2:
@@ -4125,9 +4137,16 @@ packages:
       strip-indent: 3.0.0
     dev: true
 
-  /refa/0.7.1:
-    resolution: {integrity: sha512-rvs2Px1z/PS01L8wY06YZZYDg4KzWz2CZjjsUekhyF3gnvUhu9EMfdgKwGmSJYUQItpZEPJjv2uz4vUlOkUiZg==}
+  /refa/0.8.0:
+    resolution: {integrity: sha512-qOf9zk1McAuGPtQ16nzuWCUg9zx3Quc48i6oD6nxWJdrFeh3Do0vCpIGYLij/1ysAbh5rxdUNg+YzSVBRycX5g==}
     dependencies:
+      regexpp: 3.1.0
+    dev: true
+
+  /regexp-ast-analysis/0.2.0:
+    resolution: {integrity: sha512-ZVNwBF65Gn4CbRdPNYle8NAPFSDbbJ83svYUk4Mpqmr1QTUx2M06my9x7o8Hw/oFXDwXrJo/7W+ijLfFM5oG2Q==}
+    dependencies:
+      refa: 0.8.0
       regexpp: 3.1.0
     dev: true
 

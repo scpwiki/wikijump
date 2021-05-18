@@ -28,11 +28,11 @@ Grammar("make Grammar", cx => {
         [/%.*$/, "t.comment"],
         [/([a-zA-Z]+)(?=\([^]*?\))/, "Function"],
         [
-          /(\\#?[a-zA-Z0-9]+)(\{)([^]*?)(\})/,
+          /(\\#?[a-zA-Z\d]+)(\{)([^]*?)(\})/,
           "CommandGroup",
           ["Command", "@BR", "t.string", "@BR"]
         ],
-        [/\\#?[a-zA-Z0-9]+/, "Command"],
+        [/\\#?[a-zA-Z\d]+/, "Command"],
         [/\\[,>;!]/, "t.string"],
         [/\\+/, "t.escape"],
         [/\^(?!\d)|[_&]/, "t.keyword"],

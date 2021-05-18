@@ -113,38 +113,34 @@ const rules = {
   },
 
   regex: {
-    ...prefixKeys("clean-regex/", {
-      // code
-      ...useDefault("error", [
-        "confusing-quantifier",
-        "no-empty-alternative",
-        "no-empty-backreference",
-        "no-obscure-range",
-        "no-octal-escape",
-        "no-optional-assertion",
-        "no-unnecessary-assertions",
-        "no-zero-quantifier",
-        "optimal-lookaround-quantifier"
-      ]),
-
-      // style
+    ...prefixKeys("regexp/", {
       ...useDefault("warn", [
-        "identity-escape",
-        "no-trivially-nested-lookaround",
+        "no-empty-alternative",
+        "no-empty-lookarounds-assertion",
+        "no-escape-backspace",
+        "no-useless-backreference",
+        "no-useless-dollar-replacements",
+        "control-character-escape",
+        "no-dupe-characters-character-class",
+        "no-trivially-nested-assertion",
         "no-trivially-nested-quantifier",
-        "no-unnecessary-character-class",
-        "no-unnecessary-lazy",
-        "no-unnecessary-quantifier",
-        "optimal-concatenation-quantifier",
-        "optimized-character-class",
+        "no-useless-character-class",
+        "no-useless-lazy",
+        "no-useless-non-greedy",
+        "no-useless-range",
+        "no-useless-two-nums-quantifier",
+        "no-zero-quantifier",
+        "prefer-predefined-assertion",
+        "hexadecimal-escape",
         "prefer-character-class",
-        "prefer-predefined-character-set",
-        "prefer-predefined-quantifiers",
-        "simple-constant-quantifier",
-        "sort-flags"
+        "prefer-d",
+        "prefer-question-quantifier",
+        "prefer-t",
+        "sort-flags",
+        "unicode-escape"
       ]),
 
-      "consistent-match-all-characters": ["warn", { charClass: "[^]" }]
+      "match-any": ["warn", { allows: ["[^]"] }]
     })
   },
 
@@ -171,7 +167,7 @@ module.exports = {
 
   extends: ["plugin:compat/recommended", "plugin:import/typescript"],
 
-  plugins: ["@typescript-eslint", "import", "svelte3", "clean-regex", "tsdoc"],
+  plugins: ["@typescript-eslint", "import", "svelte3", "regexp", "tsdoc"],
 
   parser: "@typescript-eslint/parser",
   parserOptions: {
