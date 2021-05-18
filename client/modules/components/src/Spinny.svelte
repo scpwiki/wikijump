@@ -28,6 +28,7 @@
   /** Sets the text, if any, to be displayed alongside the spinner. */
   export let description = ""
 
+  // TODO: replace hardcoded-english when translation system is available
   let label = ""
   // prettier-ignore
   $: switch (status) {
