@@ -6,7 +6,7 @@ const REGEX_SPLIT = /^([^]*)\/([^]+)\/([^]*)$/
 /**
  * Safely compiles a regular expression.
  * @example
- * ```
+ * ```ts
  * // returns null if features aren't supported (e.g. Safari)
  * const regex = re`/(?<=\d)\w+/d`
  * ```
@@ -103,7 +103,7 @@ function createMatcher(str: string, behind = false): CompiledMatcher {
  * `RegExp` inputs can be given flags.
  *
  * @example
- * ```
+ * ```ts
  * matcher = la`foo`
  * matcher = la`/foo\w+/i`
  * matcher = la`!foo`
@@ -129,7 +129,7 @@ export function la({ raw: [str] }: TemplateStringsArray): DF.MatchFunction | nul
  * `RegExp` inputs can be given flags.
  *
  * @example
- * ```
+ * ```ts
  * matcher = lb`foo`
  * matcher = lb`3/foo/i`
  * matcher = lb`!foo`

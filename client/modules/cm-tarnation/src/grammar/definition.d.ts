@@ -106,7 +106,7 @@ export interface IncludeDirective {
   /**
    * A directive that includes the rules of another {@link State}.
    * @example
-   * ```
+   * ```ts
    * include = { include: '#foo' }
    * ```
    */
@@ -121,7 +121,7 @@ export interface PropsDirective {
    * Directives are simply stringed together as they're found.
    * This directive is for convinence, and doesn't have any scoping behavior.
    * @example
-   * ```
+   * ```ts
    * props = { props: [
    *  NodeProp.group.add({ 'FieldDeclaration': ['Declaration'] })
    * ] }
@@ -139,7 +139,7 @@ export interface StyleDirective {
    * Directives are simply stringed together as they're found.
    * This directive is for convinence, and doesn't have any scoping behavior.
    * @example
-   * ```
+   * ```ts
    * style = { style: {
    *  'Function': t.function(t.name)
    * } }
@@ -157,7 +157,7 @@ export interface BracketsDirective {
    * Directives are simply stringed together as they're found.
    * This directive is for convinence, and doesn't have any scoping behavior.
    * @example
-   * ```
+   * ```ts
    * brackets = { brackets: [
    *  { name: 'BlockComment', tag: 't.blockComment' }
    * ] }
@@ -183,7 +183,7 @@ export interface VariablesDirective {
    * into the global variables object.
    * This means that variables - when inline - can overwrite each other.
    * @example
-   * ```
+   * ```ts
    * variables = { variables: {
    *  keywords: ['const', 'let', 'var']
    * } }
@@ -204,7 +204,7 @@ export interface VariablesDirective {
  * [match -> substate]
  * ```
  * @example
- * ```
+ * ```ts
  * rule = [/(\{\$)(.*?)(\})/, 'IncludeVariable', ['@BR:vi', 't.variableName', '@BR:vi']]
  * rule = [/@@.*?@@/, 't.escape']
  * rule = [/(@bsc)(\S+?)(\s*@be)/, 'BlockContainerNode', [
@@ -281,7 +281,7 @@ export interface ActionObject {
    * '@BR'         | See `Bracket` for usage.
    * ```
    * @example
-   * ```
+   * ```ts
    * rule = [/foo/, 'CustomName']
    * rule = [/foo/, 't.keyword']
    * rule = [/foo/, '@RE']
@@ -296,7 +296,7 @@ export interface ActionObject {
    * groups of a rule's regex.
    * If there is no capturing groups, the group itself is invalid.
    * @example
-   * ```
+   * ```ts
    * rule = [/(match1)(match2)(match3)/, [action1, action2, action3]]
    * ```
    */
@@ -309,7 +309,7 @@ export interface ActionObject {
    *
    * This property can be used with a {@link Substitute}.
    * @example
-   * ```
+   * ```ts
    * action = { next: '#next_state' }
    * action = { next: '@pop' }
    * ```
@@ -335,7 +335,7 @@ export interface ActionObject {
    * and `[mode]` is either `>>` or `<<`. `>>` is _inclusive_, and `<<` is _exclusive_.
    * Following the arrows with a `/` indicates closing, rather than opening.
    * @example
-   * ```
+   * ```ts
    * action = { parser: '>>BlockComment' }
    * action = { parser: '>>/BlockComment' }
    * action = { parser: ['<<BlockNode', '>>/BlockContainer'] }
@@ -368,7 +368,7 @@ export interface ActionObject {
    *
    * Additionally, the value of the keys can accept substitutions.
    * @example
-   * ```
+   * ```ts
    * action = { context: { myValue: 'foo' } }
    * rule = ['::myValue', 'foo', 'SomeAction']
    * ```
@@ -389,7 +389,7 @@ export interface ActionObject {
  * Each `Action` is associated, in order, to the 'capturing' groups of a {@link Match}.
  * If there are no capturing groups, or a disjointed quantity, the group will throw.
  * @example
- * ```
+ * ```ts
  * rule = [/(match1)(match2)(match3)/, [action1, action2, action3]]
  * ```
  */
@@ -505,7 +505,7 @@ type Alphabet =
  * '@BR'         | See `Bracket` for usage.
  * ```
  * @example
- * ```
+ * ```ts
  * rule = [/foo/, 'CustomName']
  * rule = [/foo/, 't.keyword']
  * rule = [/foo/, '@RE']
@@ -551,7 +551,7 @@ export type SubRuleTarget = Substitute
  * (string, string array, or regex).
  * It can be referenced through the `@[var]` syntax inside of a match.
  * @example
- * ```
+ * ```ts
  * control = /[>+-]/
  * rule = [/\w+(?!@control)/]
  * ```
@@ -563,7 +563,7 @@ export type Variable = RegExp | string | string[] | MatchFunction
  *
  * Can take three special values: `@pop`, `@popall`, and `@push`.
  * @example
- * ```
+ * ```ts
  * action = { next: '#next_state' }
  * action = { next: '@pop' }
  * ```
@@ -582,7 +582,7 @@ export type Next = "@push" | "@popall" | "@pop" | StateRef
  * With a `RegExp` match, Tarnation supports full lookahead and lookbehind,
  * up to a certain search length.
  * @example
- * ```
+ * ```ts
  * rule = [/foo/, 'bar']
  * rule = ['foo', 'bar']
  * rule = [[/foo/, /bar/, /@variable/], 'bar']
@@ -609,7 +609,7 @@ export type Matchable = MatchFunction | RegExp | string | Substitute | null
  *
  * Additionally, the value of the keys can accept substitutions.
  * @example
- * ```
+ * ```ts
  * action = { context: { myValue: 'foo' } }
  * rule = ['::myValue', 'foo', 'SomeAction']
  * ```
@@ -635,7 +635,7 @@ export type Context = Record<string, string | undefined>
  *   `${'<<' | '>>' | '<</' | '>>/'}${TagType |  CustomType | Substitute}`
  * ```
  * @example
- * ```
+ * ```ts
  * action = { parser: '>>BlockComment' }
  * action = { parser: '>>/BlockComment' }
  * action = { parser: ['<<BlockNode', '>>/BlockContainer'] }

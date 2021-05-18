@@ -99,7 +99,7 @@ export function escapeRegExp(str: string) {
 /**
  * Checks if a string has any of the provided sigils.
  * @example
- * ```
+ * ```ts
  * hasSigil("!string", "!") // true
  * ```
  */
@@ -308,7 +308,7 @@ export function createMutatingLock<T extends AnyFunction>(fn: T) {
  * Returns a function that will be "queued" to execute only on animation frames.
  * Calling multiple times will run only once on the next requestAnimationFrame.
  * @example
- * ```
+ * ```ts
  * const func = createAnimQueued(function target(args) => { 'foo' })
  * func()
  * func() // doesn't run as the previous call is already queued

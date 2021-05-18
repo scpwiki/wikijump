@@ -3,7 +3,7 @@ import { perfy } from "./index"
 /**
  * Decorator for measuring the performance of a function or method.
  * @example
- * ```
+ * ```ts
  * let perf = 0
  * class foo {
  *   ;@measure(time => perf = time)

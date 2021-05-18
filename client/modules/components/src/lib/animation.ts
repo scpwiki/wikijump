@@ -13,7 +13,7 @@ export interface AnimOpts {
   /**
    * Function that returns the styling that should be applied for a given time.
    * @example
-   * ```
+   * ```ts
    * // fading animation
    * const anim = { css: t => `opacity: ${t}` }
    * ```
