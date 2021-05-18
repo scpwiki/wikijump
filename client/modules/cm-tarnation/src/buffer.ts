@@ -1,7 +1,7 @@
-import { search, SearchOpts } from "wj-util"
-import { TokenizerStack, SerializedTokenizerStack } from "./tokenizer"
-import { ParserElementStack, ParserStack, SerializedEmbedded } from "./parser"
 import type { Tree } from "lezer-tree"
+import { search, SearchOpts } from "wj-util"
+import { ParserElementStack, ParserStack, SerializedEmbedded } from "./parser"
+import { SerializedTokenizerStack, TokenizerStack } from "./tokenizer"
 
 // ---- CONTEXT
 

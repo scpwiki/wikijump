@@ -1,14 +1,14 @@
 import { tags as t } from "@codemirror/highlight"
+import { cssCompletion } from "@codemirror/lang-css"
+import { htmlCompletion } from "@codemirror/lang-html"
 import { foldNodeProp } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
-import { htmlCompletion } from "@codemirror/lang-html"
-import { cssCompletion } from "@codemirror/lang-css"
-import { TarnationLanguage, lb, re, lkup } from "cm-tarnation"
-import { FTMLLinter } from "./lint"
+import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
+import type { Grammar } from "cm-tarnation/src/grammar/definition"
 import { completeFTML } from "./autocomplete/autocomplete"
 import { blocks, modules } from "./data/blocks"
 import type { Block, Module } from "./data/types"
-import type { Grammar } from "cm-tarnation/src/grammar/definition"
+import { FTMLLinter } from "./lint"
 
 function aliases([name, block]: [string, Block | Module]) {
   return [name, ...(block.aliases ?? [])]

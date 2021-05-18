@@ -1,7 +1,7 @@
-import { Extension, StateEffect, StateEffectType, StateField } from "@codemirror/state"
 import { Panel, showPanel } from "@codemirror/panel"
-import type { SvelteComponent } from "svelte"
+import { Extension, StateEffect, StateEffectType, StateField } from "@codemirror/state"
 import type { EditorView } from "@codemirror/view"
+import type { SvelteComponent } from "svelte"
 import {
   EditorSvelteComponent,
   EditorSvelteComponentOpts,

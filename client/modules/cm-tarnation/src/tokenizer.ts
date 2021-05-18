@@ -1,9 +1,9 @@
-import { createContext, GrammarToken } from "./grammar/grammar"
 import { klona } from "klona"
-import type * as DF from "./grammar/definition"
-import type { NodeMap, State } from "./index"
-import type { Context } from "./buffer"
 import type { Input } from "lezer-tree"
+import type { Context } from "./buffer"
+import type * as DF from "./grammar/definition"
+import { createContext, GrammarToken } from "./grammar/grammar"
+import type { NodeMap, State } from "./index"
 
 /** Directs the parser to nest tokens using the node's type ID. */
 export type MappedParserAction = [id: number, inclusive: number][]

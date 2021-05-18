@@ -1,8 +1,8 @@
-import { perfy } from "wj-util"
-import { Context, Buffer, BufferToken, BufferCache } from "./buffer"
 import { EditorParseContext, LanguageDescription } from "@codemirror/language"
-import { Input, PartialParse, Tree } from "lezer-tree"
 import { klona } from "klona"
+import { Input, PartialParse, Tree } from "lezer-tree"
+import { perfy } from "wj-util"
+import { Buffer, BufferCache, BufferToken, Context } from "./buffer"
 import type { State } from "./index"
 import type { EmbeddedRange, Tokenizer } from "./tokenizer"
 

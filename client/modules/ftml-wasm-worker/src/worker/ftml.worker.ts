@@ -1,10 +1,10 @@
 /* Web-workerized version of "ftml-wasm". */
 
 import * as FTML from "ftml-wasm"
-import { expose, Transfer, encode, decode } from "./lib"
 // untyped import
 // @ts-ignore
 import indent from "indent.js"
+import { decode, encode, expose, Transfer } from "./lib"
 
 const ready = FTML.loading
 

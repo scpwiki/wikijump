@@ -1,20 +1,20 @@
+import { styleTags, tags } from "@codemirror/highlight"
+import { isArray, isFunction, isRegExp, isString } from "is-what"
+import { klona } from "klona"
+import { NodeProp, NodePropSource } from "lezer-tree"
 import {
   createID,
   escapeRegExp,
   has,
   hasSigil,
   pointsMatch,
-  unSigil,
   removeUndefined,
-  toPoints
+  toPoints,
+  unSigil
 } from "wj-util"
-import { styleTags, tags } from "@codemirror/highlight"
-import { NodeProp, NodePropSource } from "lezer-tree"
-import { isArray, isFunction, isRegExp, isString } from "is-what"
-import { demangleGrammar } from "./demangler"
-import { klona } from "klona"
 import type * as DF from "./definition"
 import type * as DM from "./demangler"
+import { demangleGrammar } from "./demangler"
 
 /** Stores information about the current state of the {@link Grammar} match. */
 export interface GrammarContext {

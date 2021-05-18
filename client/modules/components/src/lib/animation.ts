@@ -1,5 +1,5 @@
-import { Media } from "./media"
 import * as easings from "svelte/easing"
+import { Media } from "./media"
 
 export interface AnimOpts {
   /** Delay before the animation plays, in or out. */

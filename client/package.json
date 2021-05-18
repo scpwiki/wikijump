@@ -68,6 +68,7 @@
     "nyc": "^15.1.0",
     "postcss": "^8.2.15",
     "prettier": "^2.3.0",
+    "prettier-plugin-organize-imports": "^2.1.0",
     "prettier-plugin-svelte": "^2.3.0",
     "rollup": "^2.48.0",
     "sass": "^1.32.13",

@@ -1,8 +1,7 @@
 import * as uvu from "uvu"
 import * as assert from "uvu/assert"
-
-import * as lib from "../src/grammar/grammar"
 import type * as DF from "../src/grammar/definition"
+import * as lib from "../src/grammar/grammar"
 
 // TODO: a lot more tests here
 // there is a better way of testing this lib, which is Lezer's method

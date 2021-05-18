@@ -28,6 +28,7 @@ importers:
       nyc: ^15.1.0
       postcss: ^8.2.15
       prettier: ^2.3.0
+      prettier-plugin-organize-imports: ^2.1.0
       prettier-plugin-svelte: ^2.3.0
       rollup: ^2.48.0
       sass: ^1.32.13
@@ -68,6 +69,7 @@ importers:
       nyc: 15.1.0
       postcss: 8.2.15
       prettier: 2.3.0
+      prettier-plugin-organize-imports: 2.1.0_51a632b42bd47b9b702ec96b0e690e33
       prettier-plugin-svelte: 2.3.0_prettier@2.3.0+svelte@3.38.2
       rollup: 2.48.0
       sass: 1.32.13
@@ -3925,6 +3927,16 @@ packages:
   /prelude-ls/1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+    dev: true
+
+  /prettier-plugin-organize-imports/2.1.0_51a632b42bd47b9b702ec96b0e690e33:
+    resolution: {integrity: sha512-P6TzXkuZRV4g9Fl363tN+r6/ecynu0fwmItKCb/04iksrUtwl/6Jf4DxBPuW8UbcgFRadltxB0VlV5Yh1Ec0Ow==}
+    peerDependencies:
+      prettier: '>=2.0'
+      typescript: '>=2.9'
+    dependencies:
+      prettier: 2.3.0
+      typescript: 4.3.1-rc
     dev: true
 
   /prettier-plugin-svelte/2.3.0_prettier@2.3.0+svelte@3.38.2:

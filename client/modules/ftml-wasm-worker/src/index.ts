@@ -1,14 +1,13 @@
-import { spawn, Thread, BlobWorker, Transfer, ModuleThread } from "threads"
-import { sleep } from "wj-util"
 import type * as FTML from "ftml-wasm"
 import type * as Binding from "ftml-wasm/vendor/ftml"
-
-export * from "./fragment"
-
+import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
+import { BlobWorker, ModuleThread, spawn, Thread, Transfer } from "threads"
+import { sleep } from "wj-util"
 // imports the worker as a chunk of text
 import workerText from "./worker/ftml.worker?bundled-worker"
 
-import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
+export * from "./fragment"
+
 const wasmURL = new URL(wasmRelativeURL, import.meta.url).toString()
 
 interface TypedArray extends ArrayBuffer {

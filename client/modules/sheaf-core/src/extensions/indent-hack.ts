@@ -3,16 +3,16 @@
  * This enables elegant, tab-preserving line-wrapping in the editor.
  */
 
+import { RangeSetBuilder } from "@codemirror/rangeset"
 import { EditorState } from "@codemirror/state"
+import type { Line } from "@codemirror/text"
 import {
+  Decoration,
+  DecorationSet,
   EditorView,
   ViewPlugin,
-  ViewUpdate,
-  Decoration,
-  DecorationSet
+  ViewUpdate
 } from "@codemirror/view"
-import { RangeSetBuilder } from "@codemirror/rangeset"
-import type { Line } from "@codemirror/text"
 
 const WHITESPACE_REGEX = /^\s+/
 

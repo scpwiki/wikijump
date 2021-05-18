@@ -1,23 +1,21 @@
-import {
-  Language,
-  LanguageSupport,
-  defineLanguageFacet,
-  LanguageDescription,
-  languageDataProp,
-  EditorParseContext
-} from "@codemirror/language"
 import { styleTags, Tag, tags } from "@codemirror/highlight"
+import {
+  defineLanguageFacet,
+  EditorParseContext,
+  Language,
+  languageDataProp,
+  LanguageDescription,
+  LanguageSupport
+} from "@codemirror/language"
 import type { Extension } from "@codemirror/state"
-
+import { isFunction } from "is-what"
+import { Input, NodeProp, NodePropSource, NodeSet, NodeType, Tree } from "lezer-tree"
 import { removeUndefined } from "wj-util"
+import { Buffer, BufferCache } from "./buffer"
+import type * as DF from "./grammar/definition"
+import { Grammar } from "./grammar/grammar"
 import { Parser } from "./parser"
 import { Tokenizer } from "./tokenizer"
-import { Buffer, BufferCache } from "./buffer"
-import { Grammar } from "./grammar/grammar"
-import type * as DF from "./grammar/definition"
-
-import { Input, NodeProp, NodePropSource, NodeSet, NodeType, Tree } from "lezer-tree"
-import { isFunction } from "is-what"
 
 export * from "./grammar/helpers"
 
