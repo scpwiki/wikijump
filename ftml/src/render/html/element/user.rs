@@ -55,7 +55,11 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                     .attr("src", &[&info.user_avatar_data]);
                             }
 
-                            ctx.push_escaped(&info.user_name);
+                            ctx
+                                .html()
+                                .span()
+                                .attr("class", &["user-info-name"])
+                                .inner(log, &&info.user_name);
                         });
                 }
                 None => {
@@ -77,7 +81,8 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
 
                             ctx
                                 .html()
-                                .em()
+                                .span()
+                                .attr("class", &["user-info-name"])
                                 .inner(log, &name);
                         });
                 }

@@ -20,9 +20,9 @@
 
 use super::context::HtmlContext;
 use super::element::{render_element, render_elements};
-use std::borrow::Cow;
 use crate::log::prelude::*;
 use crate::tree::Element;
+use std::borrow::Cow;
 
 pub trait ItemRender {
     fn render(&self, log: &Logger, ctx: &mut HtmlContext);

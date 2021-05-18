@@ -63,7 +63,6 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
     tag_method!(br);
     tag_method!(code);
     tag_method!(div);
-    tag_method!(em);
     tag_method!(hr);
     tag_method!(iframe);
     tag_method!(img);
