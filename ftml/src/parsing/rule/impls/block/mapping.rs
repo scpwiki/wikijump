@@ -60,6 +60,7 @@ pub const BLOCK_RULES: [BlockRule; 37] = [
     BLOCK_SUBSCRIPT,
     BLOCK_SUPERSCRIPT,
     BLOCK_UNDERLINE,
+    BLOCK_USER,
 ];
 
 pub type BlockRuleMap = HashMap<UniCase<&'static str>, &'static BlockRule>;

@@ -28,6 +28,7 @@ mod input;
 mod link;
 mod list;
 mod text;
+mod user;
 
 mod prelude {
     pub use super::super::context::HtmlContext;
@@ -44,6 +45,7 @@ use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::text::{render_code, render_email, render_wikitext_raw};
+use self::user::render_user;
 use super::super::utils::{check_ifcategory, check_iftags};
 use super::HtmlContext;
 use crate::log::prelude::*;
@@ -138,6 +140,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 render_elements(log, ctx, elements);
             }
         }
+        Element::User { name, show_avatar } => render_user(log, ctx, &name, *show_avatar),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)

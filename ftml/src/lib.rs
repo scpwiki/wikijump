@@ -134,8 +134,8 @@ mod log;
 #[macro_use]
 mod macros;
 
+mod data;
 mod non_empty_vec;
-mod page_info;
 mod preproc;
 mod span_wrap;
 mod text;
@@ -160,8 +160,8 @@ pub mod tree;
 #[cfg(feature = "log")]
 pub use self::log::{build_logger, build_null_logger, build_terminal_logger};
 
+pub use self::data::*;
 pub use self::includes::include;
-pub use self::page_info::PageInfo;
 pub use self::parsing::parse;
 pub use self::preproc::preprocess;
 pub use self::tokenizer::{tokenize, Tokenization};

@@ -154,6 +154,13 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
     },
 
+    /// A user block, linking to their information and possibly showing their avatar.
+    #[serde(rename_all = "kebab-case")]
+    User {
+        name: Cow<'t, str>,
+        show_avatar: bool,
+    },
+
     /// Element containing colored text.
     ///
     /// The CSS designation of the color is specified, followed by the elements contained within.
@@ -206,6 +213,7 @@ impl Element<'_> {
             Element::Collapsible { .. } => "Collapsible",
             Element::IfCategory { .. } => "IfCategory",
             Element::IfTags { .. } => "IfTags",
+            Element::User { .. } => "User",
             Element::Color { .. } => "Color",
             Element::Code { .. } => "Code",
             Element::Html { .. } => "HTML",
@@ -237,6 +245,7 @@ impl Element<'_> {
             Element::Collapsible { .. } => false,
             Element::IfCategory { .. } => true,
             Element::IfTags { .. } => true,
+            Element::User { .. } => true,
             Element::Color { .. } => true,
             Element::Code { .. } => true,
             Element::Html { .. } | Element::Iframe { .. } => false,
@@ -332,6 +341,10 @@ impl Element<'_> {
             } => Element::IfTags {
                 conditions: conditions.iter().map(|c| c.to_owned()).collect(),
                 elements: elements_to_owned(&elements),
+            },
+            Element::User { name, show_avatar } => Element::User {
+                name: string_to_owned(name),
+                show_avatar: *show_avatar,
             },
             Element::Color { color, elements } => Element::Color {
                 color: string_to_owned(&color),

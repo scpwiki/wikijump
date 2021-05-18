@@ -20,7 +20,7 @@
 
 use crate::log::prelude::*;
 use crate::tree::{ImageSource, LinkLabel, Module};
-use crate::PageInfo;
+use crate::{PageInfo, UserInfo};
 use std::borrow::Cow;
 use std::num::NonZeroUsize;
 use strum_macros::IntoStaticStr;
@@ -69,6 +69,16 @@ impl Handle {
 
         // TODO
         format!("TODO: actual title ({})", page_slug)
+    }
+
+    pub fn get_user_info<'a>(&self, log: &Logger, name: &'a str) -> Option<UserInfo<'a>> {
+        debug!(log, "Fetching user info"; "name" => name);
+
+        let mut info = UserInfo::dummy();
+        info.user_name = cow!(name);
+        info.user_profile_url =
+            Cow::Owned(format!("https://www.wikijump.com/user:info/{}", name));
+        Some(info)
     }
 
     pub fn get_image_link<'a>(
