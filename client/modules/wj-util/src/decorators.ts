@@ -18,18 +18,18 @@ export function measure(callback: (perf: number) => void) {
     const method = descriptor.value
     const async = method.constructor.name === "AsyncFunction"
 
-    if (!async) {
-      descriptor.value = function (...args: any[]) {
+    if (async) {
+      descriptor.value = async function (...args: any[]) {
         const report = perfy()
-        const result = method.apply(this, args)
+        const result = await method.apply(this, args)
         const perf = report()
         callback(perf)
         return result
       }
     } else {
-      descriptor.value = async function (...args: any[]) {
+      descriptor.value = function (...args: any[]) {
         const report = perfy()
-        const result = await method.apply(this, args)
+        const result = method.apply(this, args)
         const perf = report()
         callback(perf)
         return result
