@@ -154,7 +154,7 @@ importers:
       svelte: ^3.38.2
       tippy.js: ^6.3.1
       wj-prism: workspace:*
-      wj-state: workspace:^0.0.0
+      wj-state: workspace:*
       wj-util: workspace:*
     dependencies:
       '@iconify/iconify': 2.0.1
