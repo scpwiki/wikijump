@@ -31,7 +31,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
     ctx
         .html()
         .span()
-        .attr("class", &["printuser avatarhover"])
+        .attr("class", &["user-info"])
         .contents(|ctx| {
             match ctx.handle().get_user_info(log, name) {
                 Some(info) => {
