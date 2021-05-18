@@ -266,8 +266,8 @@ export interface InitOutput {
   readonly __wbg_syntaxtree_free: (a: number) => void;
   readonly syntaxtree_data: (a: number) => number;
   readonly parse: (a: number) => number;
-  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly syntaxtree_copy: (a: number) => number;
+  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
