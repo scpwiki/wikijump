@@ -1,0 +1,26 @@
+{
+    "input": "[[p class=\"fruit\"]]\nApple\n[[/p]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {
+                        "class": "fruit"
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -62,6 +62,11 @@ impl<'t> Container<'t> {
         &self.attributes
     }
 
+    #[inline]
+    pub fn attributes_mut(&mut self) -> &mut AttributeMap<'t> {
+        &mut self.attributes
+    }
+
     pub fn to_owned(&self) -> Container<'static> {
         Container {
             ctype: self.ctype,
