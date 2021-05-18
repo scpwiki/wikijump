@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::tree::ContainerType;
 
 pub const BLOCK_PARAGRAPH: BlockRule = BlockRule {
     name: "block-paragraph",
@@ -48,9 +49,20 @@ fn parse_fn<'r, 't>(
     assert!(!flag_score, "Paragraph doesn't allow score flag");
     assert_block_name(&BLOCK_PARAGRAPH, name);
 
+    // Gather paragraphs
     let arguments = parser.get_head_map(&BLOCK_PARAGRAPH, in_head)?;
-    let (elements, exceptions, _) =
+    let attributes = arguments.to_hash_map();
+    let (mut elements, exceptions, _) =
         parser.get_body_elements(&BLOCK_PARAGRAPH, true)?.into();
+
+    // Apply attributes to each paragraph
+    for element in &mut elements {
+        if let Element::Container(ref mut container) = element {
+            if container.ctype() == ContainerType::Paragraph {
+                container.attributes_mut().clone_from(&attributes);
+            }
+        }
+    }
 
     let element = Elements::Multiple(elements);
     ok!(element, exceptions)
