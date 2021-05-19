@@ -145,6 +145,7 @@ importers:
   modules/components:
     specifiers:
       '@iconify/iconify': ^2.0.1
+      '@popperjs/core': ^2.9.2
       cm-lang-ftml: workspace:*
       ftml-wasm: workspace:*
       ftml-wasm-worker: workspace:*
@@ -153,9 +154,11 @@ importers:
       svelte: ^3.38.2
       tippy.js: ^6.3.1
       wj-prism: workspace:*
+      wj-state: workspace:*
       wj-util: workspace:*
     dependencies:
       '@iconify/iconify': 2.0.1
+      '@popperjs/core': 2.9.2
       cm-lang-ftml: link:../cm-lang-ftml
       ftml-wasm: link:../ftml-wasm
       ftml-wasm-worker: link:../ftml-wasm-worker
@@ -164,6 +167,7 @@ importers:
       svelte: 3.38.2
       tippy.js: 6.3.1
       wj-prism: link:../wj-prism
+      wj-state: link:../wj-state
       wj-util: link:../wj-util
 
   modules/ftml-wasm:
@@ -275,6 +279,15 @@ importers:
     dependencies:
       '@types/prismjs': 1.16.5
       prismjs: 1.23.0
+
+  modules/wj-state:
+    specifiers:
+      is-what: ^4.0.0
+      svelte: ^3.38.2
+    dependencies:
+      is-what: 4.0.0
+    devDependencies:
+      svelte: 3.38.2
 
   modules/wj-util:
     specifiers:
