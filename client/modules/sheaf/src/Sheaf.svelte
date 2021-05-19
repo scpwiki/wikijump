@@ -10,7 +10,7 @@
   /** Height of the editor's container. */
   export let height = "100%"
 
-  /** Width of the editor's container.*/
+  /** Width of the editor's container. */
   export let width = "100%"
 
   /** The value of the editor's contents. */

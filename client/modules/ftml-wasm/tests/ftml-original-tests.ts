@@ -1,11 +1,10 @@
-import * as uvu from "uvu"
-import * as assert from "uvu/assert"
 import * as fse from "fs-extra"
 import * as fs from "fs/promises"
+import { sync as globby } from "globby"
 import * as path from "path"
 import { performance } from "perf_hooks"
-import { sync as globby } from "globby"
-
+import * as uvu from "uvu"
+import * as assert from "uvu/assert"
 import * as lib from "../src/index"
 import type { IPageInfo, IParseWarning, ISyntaxTree } from "../vendor/ftml"
 

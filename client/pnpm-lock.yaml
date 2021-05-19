@@ -16,9 +16,9 @@ importers:
       babel-plugin-istanbul: ^6.0.0
       esbuild: ^0.11.23
       eslint: ^7.26.0
-      eslint-plugin-clean-regex: ^0.5.1
       eslint-plugin-compat: ^3.9.0
       eslint-plugin-import: ^2.23.2
+      eslint-plugin-regexp: ^0.10.0
       eslint-plugin-svelte3: ^3.2.0
       eslint-plugin-tsdoc: ^0.2.14
       fs-extra: ^10.0.0
@@ -28,6 +28,8 @@ importers:
       nyc: ^15.1.0
       postcss: ^8.2.15
       prettier: ^2.3.0
+      prettier-plugin-jsdoc: ^0.3.22
+      prettier-plugin-organize-imports: ^2.1.0
       prettier-plugin-svelte: ^2.3.0
       rollup: ^2.48.0
       sass: ^1.32.13
@@ -56,9 +58,9 @@ importers:
       babel-plugin-istanbul: 6.0.0
       esbuild: 0.11.23
       eslint: 7.26.0
-      eslint-plugin-clean-regex: 0.5.1
       eslint-plugin-compat: 3.9.0_eslint@7.26.0
       eslint-plugin-import: 2.23.2_eslint@7.26.0
+      eslint-plugin-regexp: 0.10.0_eslint@7.26.0
       eslint-plugin-svelte3: 3.2.0_eslint@7.26.0+svelte@3.38.2
       eslint-plugin-tsdoc: 0.2.14
       fs-extra: 10.0.0
@@ -68,6 +70,8 @@ importers:
       nyc: 15.1.0
       postcss: 8.2.15
       prettier: 2.3.0
+      prettier-plugin-jsdoc: 0.3.22_prettier@2.3.0
+      prettier-plugin-organize-imports: 2.1.0_51a632b42bd47b9b702ec96b0e690e33
       prettier-plugin-svelte: 2.3.0_prettier@2.3.0+svelte@3.38.2
       rollup: 2.48.0
       sass: 1.32.13
@@ -1435,6 +1439,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /binary-search-bounds/2.0.5:
+    resolution: {integrity: sha512-H0ea4Fd3lS1+sTEB2TgcLoK21lLhwEJzlQv3IN47pJS976Gx4zoWe0ak3q+uYh60ppQxg9F16Ri4tS1sfD4+jA==}
+    dev: true
+
   /brace-expansion/1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
     dependencies:
@@ -1649,6 +1657,11 @@ packages:
 
   /commander/2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
+    dev: true
+
+  /comment-parser/1.1.5:
+    resolution: {integrity: sha512-RePCE4leIhBlmrqiYTvaqEeGYg7qpSl4etaIabKtdOQVi+mSTIBBklGUwIr79GXYnl3LpMwmDw4KeR2stNc6FA==}
+    engines: {node: '>= 10.0.0'}
     dev: true
 
   /commondir/1.0.1:
@@ -1980,14 +1993,6 @@ packages:
       pkg-dir: 2.0.0
     dev: true
 
-  /eslint-plugin-clean-regex/0.5.1:
-    resolution: {integrity: sha512-ZuZxP2V2s2LI2OZPUF5eQQtgUQv1/Z7jDI2DG5GEHGM9D0T0LSbcg8ViuFolrOOmUP7dCz+JHN4gDQWyeDdvJg==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      refa: 0.7.1
-      regexpp: 3.1.0
-    dev: true
-
   /eslint-plugin-compat/3.9.0_eslint@7.26.0:
     resolution: {integrity: sha512-lt3l5PHFHVEYSZ5zijcoYvtQJPsBifRiH5N0Et57KwVu7l/yxmHhSG6VJiLMa/lXrg93Qu8049RNQOMn0+yJBg==}
     engines: {node: '>=9.x'}
@@ -2028,6 +2033,20 @@ packages:
       read-pkg-up: 3.0.0
       resolve: 1.20.0
       tsconfig-paths: 3.9.0
+    dev: true
+
+  /eslint-plugin-regexp/0.10.0_eslint@7.26.0:
+    resolution: {integrity: sha512-KwIdNUnwz9CFZ1jApWZ++Y1cVWbJBYdJHMDh7KNe9HpElSwHGZHtX1QaHq3Iv2nMYJitGIE6JdkYbfzm9BzPQw==}
+    peerDependencies:
+      eslint: '>=6.0.0'
+    dependencies:
+      comment-parser: 1.1.5
+      eslint: 7.26.0
+      eslint-utils: 2.1.0
+      jsdoctypeparser: 9.0.0
+      refa: 0.8.0
+      regexp-ast-analysis: 0.2.0
+      regexpp: 3.1.0
     dev: true
 
   /eslint-plugin-svelte3/3.2.0_eslint@7.26.0+svelte@3.38.2:
@@ -2956,6 +2975,12 @@ packages:
       esprima: 4.0.1
     dev: true
 
+  /jsdoctypeparser/9.0.0:
+    resolution: {integrity: sha512-jrTA2jJIL6/DAEILBEh2/w9QxCuwmvNXIry39Ay/HVfhE3o2yVV0U44blYkqdHA/OKloJEqvJy0xU+GSdE2SIw==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dev: true
+
   /jsesc/2.5.2:
     resolution: {integrity: sha512-OYu7XEzjkCQ3C5Ps3QIZsQfNpqoJyZZA99wd9aWd05NCtC5pWOkShK2mkL6HXQR6/Cy2lbNdPlZBpuQHXE63gA==}
     engines: {node: '>=4'}
@@ -3115,6 +3140,10 @@ packages:
 
   /lines-and-columns/1.1.6:
     resolution: {integrity: sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=}
+    dev: true
+
+  /linguist-languages/7.14.0:
+    resolution: {integrity: sha512-VqnUYHOSqRqAGnIl+7SCnFxK+sX0x7LXe5qn0TG6t9SViofQgN7272PLCFZ/lgkT7tAO5CA/2pCsZGlGvGhfWA==}
     dev: true
 
   /load-json-file/4.0.0:
@@ -3927,6 +3956,31 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
+  /prettier-plugin-jsdoc/0.3.22_prettier@2.3.0:
+    resolution: {integrity: sha512-8CuzIovyy0FQmt2QgrueYlnqOiYfC68TZsMQ5NRJJEb+JkWJekpO/3KWRJIkBQE/9dIT4Y0CVDqng6TqnoKJvA==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      prettier: '>=2.1.2'
+    dependencies:
+      binary-search-bounds: 2.0.5
+      comment-parser: 1.1.5
+      linguist-languages: 7.14.0
+      mdast-util-from-markdown: 0.8.5
+      prettier: 2.3.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /prettier-plugin-organize-imports/2.1.0_51a632b42bd47b9b702ec96b0e690e33:
+    resolution: {integrity: sha512-P6TzXkuZRV4g9Fl363tN+r6/ecynu0fwmItKCb/04iksrUtwl/6Jf4DxBPuW8UbcgFRadltxB0VlV5Yh1Ec0Ow==}
+    peerDependencies:
+      prettier: '>=2.0'
+      typescript: '>=2.9'
+    dependencies:
+      prettier: 2.3.0
+      typescript: 4.3.1-rc
+    dev: true
+
   /prettier-plugin-svelte/2.3.0_prettier@2.3.0+svelte@3.38.2:
     resolution: {integrity: sha512-HTzXvSq7lWFuLsSaxYOUkGkVNCl3RrSjDCOgQjkBX5FQGmWjL8o3IFACSGhjPMMfWKADpapAr0zdbBWkND9mqw==}
     peerDependencies:
@@ -4083,9 +4137,16 @@ packages:
       strip-indent: 3.0.0
     dev: true
 
-  /refa/0.7.1:
-    resolution: {integrity: sha512-rvs2Px1z/PS01L8wY06YZZYDg4KzWz2CZjjsUekhyF3gnvUhu9EMfdgKwGmSJYUQItpZEPJjv2uz4vUlOkUiZg==}
+  /refa/0.8.0:
+    resolution: {integrity: sha512-qOf9zk1McAuGPtQ16nzuWCUg9zx3Quc48i6oD6nxWJdrFeh3Do0vCpIGYLij/1ysAbh5rxdUNg+YzSVBRycX5g==}
     dependencies:
+      regexpp: 3.1.0
+    dev: true
+
+  /regexp-ast-analysis/0.2.0:
+    resolution: {integrity: sha512-ZVNwBF65Gn4CbRdPNYle8NAPFSDbbJ83svYUk4Mpqmr1QTUx2M06my9x7o8Hw/oFXDwXrJo/7W+ijLfFM5oG2Q==}
+    dependencies:
+      refa: 0.8.0
       regexpp: 3.1.0
     dev: true
 

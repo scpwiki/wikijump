@@ -1,17 +1,17 @@
-import { syntaxTree } from "@codemirror/language"
-import type { SyntaxNode } from "lezer-tree"
 import type {
   Completion,
   CompletionContext,
   CompletionResult
 } from "@codemirror/autocomplete"
-import { blocks, modules } from "../data/blocks"
+import { syntaxTree } from "@codemirror/language"
+import type { SyntaxNode } from "lezer-tree"
 import { EditorSvelteComponent } from "sheaf-core"
+import { Prism } from "wj-prism"
+import { blocks, modules } from "../data/blocks"
+import { htmlAttributes } from "../data/html-attributes"
+import type { Block, Module } from "../data/types"
 import BlockTip from "./BlockTip.svelte"
 import ModuleTip from "./ModuleTip.svelte"
-import type { Block, Module } from "../data/types"
-import { htmlAttributes } from "../data/html-attributes"
-import { Prism } from "wj-prism"
 
 // add languages from Prism into the enum for `code.arguments.type`
 try {

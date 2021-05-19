@@ -1,6 +1,5 @@
 import * as uvu from "uvu"
 import * as assert from "uvu/assert"
-
 import * as lib from "../src/index"
 
 const Prism = uvu.suite("wj-prism")

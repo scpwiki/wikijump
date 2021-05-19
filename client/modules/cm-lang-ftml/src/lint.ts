@@ -1,6 +1,6 @@
 import { Diagnostic, linter } from "@codemirror/lint"
-import { warnings } from "ftml-wasm-worker"
 import type { EditorView } from "@codemirror/view"
+import { warnings } from "ftml-wasm-worker"
 
 interface WarningInfo {
   message: string | ((rule: string, slice: string) => string)

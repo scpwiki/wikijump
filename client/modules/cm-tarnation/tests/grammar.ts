@@ -1,8 +1,7 @@
 import * as uvu from "uvu"
 import * as assert from "uvu/assert"
-
-import * as lib from "../src/grammar/grammar"
 import type * as DF from "../src/grammar/definition"
+import * as lib from "../src/grammar/grammar"
 
 // TODO: a lot more tests here
 // there is a better way of testing this lib, which is Lezer's method
@@ -29,11 +28,11 @@ Grammar("make Grammar", cx => {
         [/%.*$/, "t.comment"],
         [/([a-zA-Z]+)(?=\([^]*?\))/, "Function"],
         [
-          /(\\#?[a-zA-Z0-9]+)(\{)([^]*?)(\})/,
+          /(\\#?[a-zA-Z\d]+)(\{)([^]*?)(\})/,
           "CommandGroup",
           ["Command", "@BR", "t.string", "@BR"]
         ],
-        [/\\#?[a-zA-Z0-9]+/, "Command"],
+        [/\\#?[a-zA-Z\d]+/, "Command"],
         [/\\[,>;!]/, "t.string"],
         [/\\+/, "t.escape"],
         [/\^(?!\d)|[_&]/, "t.keyword"],

@@ -1,8 +1,7 @@
 /**
  * A Svelte use action that will 'portal' to the given target and append
- * the element to that target.
- * The target can either be a direct reference to the element, or a query
- * selector string.
+ * the element to that target. The target can either be a direct reference
+ * to the element, or a query selector string.
  */
 export function portal(elem: Element, target: string | Element) {
   const update = (target: string | Element) => {

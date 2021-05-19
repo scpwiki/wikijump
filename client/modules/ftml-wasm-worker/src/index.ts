@@ -1,14 +1,13 @@
-import { spawn, Thread, BlobWorker, Transfer, ModuleThread } from "threads"
-import { sleep } from "wj-util"
 import type * as FTML from "ftml-wasm"
 import type * as Binding from "ftml-wasm/vendor/ftml"
-
-export * from "./fragment"
-
+import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
+import { BlobWorker, ModuleThread, spawn, Thread, Transfer } from "threads"
+import { sleep } from "wj-util"
 // imports the worker as a chunk of text
 import workerText from "./worker/ftml.worker?bundled-worker"
 
-import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
+export * from "./fragment"
+
 const wasmURL = new URL(wasmRelativeURL, import.meta.url).toString()
 
 interface TypedArray extends ArrayBuffer {
@@ -107,8 +106,8 @@ export async function version() {
 }
 
 /**
- * Preprocesses a string of wikitext.
- * See `ftml/src/preproc/test.rs` for more information.
+ * Preprocesses a string of wikitext. See `ftml/src/preproc/test.rs` for
+ * more information.
  */
 export async function preprocess(str: string) {
   return decode(await invoke<ArrayBuffer>(() => module.worker.preprocess(transfer(str))))
@@ -122,6 +121,7 @@ export async function tokenize(str: string) {
 
 /**
  * Parses a string of wikitext. This returns an AST and warnings list, not HTML.
+ *
  * @see {@link render}
  */
 export async function parse(str: string) {
@@ -145,8 +145,8 @@ export async function renderText(str: string) {
 }
 
 /**
- * Renders a string of wikitext like the {@link renderHTML} function, but this
- * function additionally returns every step in the rendering pipeline.
+ * Renders a string of wikitext like the {@link renderHTML} function, but
+ * this function additionally returns every step in the rendering pipeline.
  */
 export async function detailedRender(str: string) {
   type Return = ReturnType<typeof FTML["detailedRender"]>

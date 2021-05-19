@@ -18,8 +18,8 @@ export interface SearchOpts {
   /** Starting maximum index for the search. */
   max?: number
   /**
-   * If true, the search will return the closest index to the
-   * desired value on failure.
+   * If true, the search will return the closest index to the desired value
+   * on failure.
    */
   precise?: boolean
 }
@@ -27,11 +27,11 @@ export interface SearchOpts {
 /**
  * Performs a binary search through an array.
  *
- * The comparator function should return -1 if undershooting the desired value,
- * +1 if overshooting, and 0 if the value was found.
+ * The comparator function should return -1 if undershooting the desired
+ * value, +1 if overshooting, and 0 if the value was found.
  *
- * The comparator can also short-circuit the search by returning true or false.
- * Returning true is like returning a 0 (target found), but
+ * The comparator can also short-circuit the search by returning true or
+ * false. Returning true is like returning a 0 (target found), but
  * returning false induces a null return.
  */
 export function search<T, TR>(
@@ -69,8 +69,8 @@ type Has<K extends string, T> = T extends { [P in K]?: infer R }
   : never
 
 /**
- * Returns if an object `T` has a key `K`, and only returns true if
- * the value of that key isn't undefined.
+ * Returns if an object `T` has a key `K`, and only returns true if the
+ * value of that key isn't undefined.
  */
 export function has<K extends string, T>(
   key: K,
@@ -98,8 +98,10 @@ export function escapeRegExp(str: string) {
 
 /**
  * Checks if a string has any of the provided sigils.
+ *
  * @example
- * ```
+ *
+ * ```ts
  * hasSigil("!string", "!") // true
  * ```
  */
@@ -162,9 +164,9 @@ export function pointsMatch(points: number[], str: string | number[], pos: numbe
 /**
  * Performance measuring utility.
  *
- * To use, execute the function and store the returned value.
- * The returned value is a function that will end the performance timer
- * and log the measured time to the console.
+ * To use, execute the function and store the returned value. The returned
+ * value is a function that will end the performance timer and log the
+ * measured time to the console.
  */
 export function perfy(meta?: string, threshold?: number): () => number {
   const start = performance.now()
@@ -183,7 +185,8 @@ export function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Creates and returns a promise that resolves when an invokation of `requestAnimationFrame()` fires its callback.
+ * Creates and returns a promise that resolves when an invokation of
+ * `requestAnimationFrame()` fires its callback.
  */
 export function animationFrame(): Promise<number> {
   return new Promise(resolve => requestAnimationFrame(resolve))
@@ -192,10 +195,10 @@ export function animationFrame(): Promise<number> {
 // Credit: https://gist.github.com/beaucharman/e46b8e4d03ef30480d7f4db5a78498ca
 // Personally, I think this is one of the more elegant JS throttle functions.
 /**
- * Returns a 'throttled' variant of the given function.
- * This function will only be able to execute every `limitMS` ms.
- * Use to rate-limit functions for performance.
- * You can have the first call be immediate by setting the third parameter to `true`.
+ * Returns a 'throttled' variant of the given function. This function will
+ * only be able to execute every `limitMS` ms. Use to rate-limit functions
+ * for performance. You can have the first call be immediate by setting the
+ * third parameter to `true`.
  */
 export function throttle<T extends AnyFunction>(
   fn: T,
@@ -231,9 +234,9 @@ export function debounce<T extends AnyFunction>(fn: T, wait = 1) {
 }
 
 /**
- * Waits until the specified function returns `true`.
- * It will call the specified async function to determine the polling interval.
- * If none is given, it will poll every 100ms.
+ * Waits until the specified function returns `true`. It will call the
+ * specified async function to determine the polling interval. If none is
+ * given, it will poll every 100ms.
  */
 export async function waitFor(
   conditionFn: () => Promisable<boolean>,
@@ -247,9 +250,9 @@ export async function waitFor(
 }
 
 /**
- * Returns a new 'locked' async function, constructed using the specified function.
- * A locked asynchronous function will only allow a singular instance of itself
- * to be running at one time.
+ * Returns a new 'locked' async function, constructed using the specified
+ * function. A locked asynchronous function will only allow a singular
+ * instance of itself to be running at one time.
  *
  * Additional calls will return the previously running `Promise`.
  */
@@ -270,13 +273,13 @@ export function createLock<T extends AnyFunction>(fn: T) {
 }
 
 /**
- * Returns a new 'locked' async function, constructed using the specified function.
- * A locked asynchronous function will only allow a singular instance of itself
- * to be running at one time.
+ * Returns a new 'locked' async function, constructed using the specified
+ * function. A locked asynchronous function will only allow a singular
+ * instance of itself to be running at one time.
  *
- * Additional calls will return null, but they will signal to the original, still
- * running call to "restart" with the new given value. This means that the original
- * call will only ever return the most freshly sourced result.
+ * Additional calls will return null, but they will signal to the original,
+ * still running call to "restart" with the new given value. This means
+ * that the original call will only ever return the most freshly sourced result.
  */
 export function createMutatingLock<T extends AnyFunction>(fn: T) {
   type Return = PromiseValue<ReturnType<T>>
@@ -305,10 +308,13 @@ export function createMutatingLock<T extends AnyFunction>(fn: T) {
 }
 
 /**
- * Returns a function that will be "queued" to execute only on animation frames.
- * Calling multiple times will run only once on the next requestAnimationFrame.
+ * Returns a function that will be "queued" to execute only on animation
+ * frames. Calling multiple times will run only once on the next
+ * requestAnimationFrame.
+ *
  * @example
- * ```
+ *
+ * ```ts
  * const func = createAnimQueued(function target(args) => { 'foo' })
  * func()
  * func() // doesn't run as the previous call is already queued
@@ -350,9 +356,11 @@ export function idleCallback<T extends AnyFunction<any>>(
 }
 
 /**
- * See `createAnimQueued` for a description of how this function works.
- * The only difference is that this function uses `requestIdleCallback` instead.
- * If `requestIdleCallback` isn't available, it will use `createAnimQueued` instead.
+ * See `createAnimQueued` for a description of how this function works. The
+ * only difference is that this function uses `requestIdleCallback`
+ * instead. If `requestIdleCallback` isn't available, it will use
+ * `createAnimQueued` instead.
+ *
  * @see {@link createAnimQueued}
  */
 // bad coverage as requestIdleCallback isn't always available
@@ -403,9 +411,8 @@ export function html(strings: TemplateStringsArray, ...subs: (string | string[])
 }
 
 /**
- * Performs a modulo operation.
- * This differs from JavaScript's `%` operator,
- * which is more of a remainder operator.
+ * Performs a modulo operation. This differs from JavaScript's `%`
+ * operator, which is more of a remainder operator.
  *
  * @param a - The dividend.
  * @param n - The divisor.

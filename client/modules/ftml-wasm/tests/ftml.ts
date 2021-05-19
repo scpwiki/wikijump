@@ -1,8 +1,7 @@
+import toml from "@ltd/j-toml"
+import * as fs from "fs/promises"
 import * as uvu from "uvu"
 import * as assert from "uvu/assert"
-import * as fs from "fs/promises"
-import toml from "@ltd/j-toml"
-
 import * as lib from "../src/index"
 
 const wasm = fs.readFile("modules/ftml-wasm/vendor/ftml_bg.wasm")

@@ -30,9 +30,8 @@ function free(...objs: any) {
 }
 
 /**
- * This set contains unfreed WASM objects.
- * It is separate from any particular function so that
- * error recovery can still clear memory.
+ * This set contains unfreed WASM objects. It is separate from any
+ * particular function so that error recovery can still clear memory.
  */
 const tracked = new Set<any>()
 
@@ -51,8 +50,8 @@ function freeTracked() {
 export type PageInfo = Partial<Binding.IPageInfo>
 
 /**
- * Creates a {@link Binding.PageInfo | PageInfo} object.
- * Any properties not provided are mocked.
+ * Creates a {@link Binding.PageInfo | PageInfo} object. Any properties not
+ * provided are mocked.
  */
 function makeInfo({
   alt_title = null,
@@ -83,8 +82,8 @@ export function version() {
 }
 
 /**
- * Preprocesses a string of wikitext.
- * See `ftml/src/preproc/test.rs` for more information.
+ * Preprocesses a string of wikitext. See `ftml/src/preproc/test.rs` for
+ * more information.
  */
 export function preprocess(str: string) {
   if (!ready) throw new Error("FTML wasn't ready yet!")
@@ -111,6 +110,7 @@ export function tokenize(str: string, preprocess = true) {
 
 /**
  * Parses a string of wikitext. This returns an AST and warnings list, not HTML.
+ *
  * @see {@link render}
  */
 export function parse(str: string, preprocess = true) {
@@ -138,8 +138,8 @@ export interface RenderOptions {
   /** Return HTML data or just text? */
   mode?: "html" | "text"
   /**
-   * Contextual information about the wikitext being rendered.
-   * Unspecified properties will be mocked.
+   * Contextual information about the wikitext being rendered. Unspecified
+   * properties will be mocked.
    */
   info?: PageInfo
   /** Preprocess input before rendering? */

@@ -1,14 +1,14 @@
-import { createContext, GrammarToken } from "./grammar/grammar"
 import { klona } from "klona"
-import type * as DF from "./grammar/definition"
-import type { NodeMap, State } from "./index"
-import type { Context } from "./buffer"
 import type { Input } from "lezer-tree"
+import type { Context } from "./buffer"
+import type * as DF from "./grammar/definition"
+import { createContext, GrammarToken } from "./grammar/grammar"
+import type { NodeMap, State } from "./index"
 
 /** Directs the parser to nest tokens using the node's type ID. */
 export type MappedParserAction = [id: number, inclusive: number][]
 
-/** A more efficient representation of `GrammarToken` used in the parser.  */
+/** A more efficient representation of `GrammarToken` used in the parser. */
 export type MappedToken = [
   type: number,
   from: number,
@@ -58,8 +58,8 @@ export class Tokenizer {
   }
 
   /**
-   * Compiles a {@link GrammarToken} into a {@link MappedToken}.
-   * This primarily involves remapping the token names into IDs.
+   * Compiles a {@link GrammarToken} into a {@link MappedToken}. This
+   * primarily involves remapping the token names into IDs.
    */
   private static compileToken(token: GrammarToken, nodes: NodeMap): MappedToken {
     const { type, from, to, open, close } = token
@@ -184,8 +184,8 @@ export class Tokenizer {
 /** State/stack object for a {@link Tokenizer}. */
 export class TokenizerStack {
   /**
-   * Specifies if the state has changed since the last time
-   * this property has been set.
+   * Specifies if the state has changed since the last time this property
+   * has been set.
    */
   changed = false
 
@@ -281,8 +281,8 @@ export class TokenizerStack {
   }
 
   /**
-   * Compares two stacks and returns if they are equal.
-   * They can be pure `MonarchStack` objects or already serialized.
+   * Compares two stacks and returns if they are equal. They can be pure
+   * `MonarchStack` objects or already serialized.
    */
   static isEqual(
     stack1: SerializedTokenizerStack | TokenizerStack,

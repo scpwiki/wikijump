@@ -8,8 +8,8 @@
   import Icon from "./Icon.svelte"
 
   /**
-   * If provided, the button will be displayed as an icon instead.
-   * This will replace any slotted content - it does not preprend an icon.
+   * If provided, the button will be displayed as an icon instead. This
+   * will replace any slotted content - it does not preprend an icon.
    */
   export let i = ""
   /** Disables the button. */
@@ -32,8 +32,8 @@
   /** Removes most of the padding around the button's icon or text. */
   export let compact = false
   /**
-   * Styles the button to be disconnected from the background.
-   * Good for buttons that are placed outside layout flow.
+   * Styles the button to be disconnected from the background. Good for
+   * buttons that are placed outside layout flow.
    */
   export let floating = false
   /** Removes the round corners (`border-radius`) from the styling. */

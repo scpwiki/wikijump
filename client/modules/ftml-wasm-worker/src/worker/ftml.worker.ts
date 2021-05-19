@@ -1,10 +1,10 @@
 /* Web-workerized version of "ftml-wasm". */
 
 import * as FTML from "ftml-wasm"
-import { expose, Transfer, encode, decode } from "./lib"
 // untyped import
 // @ts-ignore
 import indent from "indent.js"
+import { decode, encode, expose, Transfer } from "./lib"
 
 const ready = FTML.loading
 
@@ -28,8 +28,8 @@ const INLINE = [
 /**
  * Ad-hoc HTML formatting.
  *
- * Creates newlines between any non-obvious inline-formatting tags.
- * Uses `indent.js`, a tiny library, to handle indentation of the resulting HTML.
+ * Creates newlines between any non-obvious inline-formatting tags. Uses
+ * `indent.js`, a tiny library, to handle indentation of the resulting HTML.
  */
 function formatHTML(html: string) {
   try {

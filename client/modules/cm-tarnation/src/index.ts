@@ -1,23 +1,21 @@
-import {
-  Language,
-  LanguageSupport,
-  defineLanguageFacet,
-  LanguageDescription,
-  languageDataProp,
-  EditorParseContext
-} from "@codemirror/language"
 import { styleTags, Tag, tags } from "@codemirror/highlight"
+import {
+  defineLanguageFacet,
+  EditorParseContext,
+  Language,
+  languageDataProp,
+  LanguageDescription,
+  LanguageSupport
+} from "@codemirror/language"
 import type { Extension } from "@codemirror/state"
-
+import { isFunction } from "is-what"
+import { Input, NodeProp, NodePropSource, NodeSet, NodeType, Tree } from "lezer-tree"
 import { removeUndefined } from "wj-util"
+import { Buffer, BufferCache } from "./buffer"
+import type * as DF from "./grammar/definition"
+import { Grammar } from "./grammar/grammar"
 import { Parser } from "./parser"
 import { Tokenizer } from "./tokenizer"
-import { Buffer, BufferCache } from "./buffer"
-import { Grammar } from "./grammar/grammar"
-import type * as DF from "./grammar/definition"
-
-import { Input, NodeProp, NodePropSource, NodeSet, NodeType, Tree } from "lezer-tree"
-import { isFunction } from "is-what"
 
 export * from "./grammar/helpers"
 
@@ -39,20 +37,20 @@ interface ParserConfiguration {
 /** The options / interface required to create a Tarnation language. */
 export interface TarnationLanguageDefinition {
   /**
-   * The name of the language.
-   * This property is important for CodeMirror, so make sure it's reasonable.
+   * The name of the language. This property is important for CodeMirror,
+   * so make sure it's reasonable.
    */
   name: string
   /**
    * The grammar that will be used to tokenize the language.
    *
-   * This value can be provided as a function,
-   * which will cause the grammar to be lazily evaluated.
+   * This value can be provided as a function, which will cause the grammar
+   * to be lazily evaluated.
    */
   grammar: DF.Grammar | (() => DF.Grammar)
   /**
-   * A list of `LanguageDescription` objects that will
-   * be used when the parser nests in a language.
+   * A list of `LanguageDescription` objects that will be used when the
+   * parser nests in a language.
    */
   nestLanguages?: LanguageDescription[]
   /** Configuration options for the parser, such as node props. */
@@ -62,9 +60,9 @@ export interface TarnationLanguageDefinition {
   /** A list of file extensions. (e.g. `['.ts']`) */
   extensions?: string[]
   /**
-   * The 'languageData' field inherit to the {@link Language}.
-   * CodeMirror plugins are defined by, or use, the data in this field.
-   * e.g. indentation, autocomplete, etc.
+   * The 'languageData' field inherit to the {@link Language}. CodeMirror
+   * plugins are defined by, or use, the data in this field. e.g.
+   * indentation, autocomplete, etc.
    */
   languageData?: Record<string, any>
   /** Extra extensions to be loaded. */
@@ -72,8 +70,9 @@ export interface TarnationLanguageDefinition {
 }
 
 /**
- * Global handler for a Tarnation language.
- * The language constructed will not be processed until the `load` function is called.
+ * Global handler for a Tarnation language. The language constructed will
+ * not be processed until the `load` function is called.
+ *
  * @see {@link TarnationLanguageDefinition}
  */
 export class TarnationLanguage {
@@ -118,9 +117,8 @@ export class TarnationLanguage {
   }
 
   /**
-   * Loads and processes the language.
-   * Calling this function repeatedly will
-   * just return the previously loaded language.
+   * Loads and processes the language. Calling this function repeatedly
+   * will just return the previously loaded language.
    */
   load() {
     if (this.description?.support) return this.description.support

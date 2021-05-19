@@ -10,7 +10,7 @@ const SASS_OPTIONS = {
   sourceMap: true
 }
 
-/** @type {import('vite').UserConfig} */
+/** @type {import("vite").UserConfig} */
 const config = {
   publicDir: "../public",
   root: "./src",

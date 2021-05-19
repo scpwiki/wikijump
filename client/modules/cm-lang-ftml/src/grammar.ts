@@ -1,14 +1,14 @@
 import { tags as t } from "@codemirror/highlight"
+import { cssCompletion } from "@codemirror/lang-css"
+import { htmlCompletion } from "@codemirror/lang-html"
 import { foldNodeProp } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
-import { htmlCompletion } from "@codemirror/lang-html"
-import { cssCompletion } from "@codemirror/lang-css"
-import { TarnationLanguage, lb, re, lkup } from "cm-tarnation"
-import { FTMLLinter } from "./lint"
+import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
+import type { Grammar } from "cm-tarnation/src/grammar/definition"
 import { completeFTML } from "./autocomplete/autocomplete"
 import { blocks, modules } from "./data/blocks"
 import type { Block, Module } from "./data/types"
-import type { Grammar } from "cm-tarnation/src/grammar/definition"
+import { FTMLLinter } from "./lint"
 
 function aliases([name, block]: [string, Block | Module]) {
   return [name, ...(block.aliases ?? [])]
@@ -105,11 +105,11 @@ const TexLanguage = new TarnationLanguage({
 
         [/([a-zA-Z]+)(?=\([^]*?\))/, "Function"], // styles 'fn()'
 
-        [/(\\#?[a-zA-Z0-9]+)(\{)([^]*?)(\})/, "CommandGroup",
+        [/(\\#?[a-zA-Z\d]+)(\{)([^]*?)(\})/, "CommandGroup",
           ["Command", "@BR", "t.string", "@BR"]
         ],
 
-        [/\\#?[a-zA-Z0-9]+/, "Command"],
+        [/\\#?[a-zA-Z\d]+/, "Command"],
 
         [/\\[,>;!]/, "t.string"],       // spacing
         [/\\+/, "t.escape"],            // \\ and the like

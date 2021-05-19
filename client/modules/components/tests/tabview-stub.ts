@@ -1,8 +1,7 @@
 import * as uvu from "uvu"
 import * as assert from "uvu/assert"
-import { setup, render, reset, fire } from "./setup/setup"
-
 import Tabview from "../src/Tabview.svelte"
+import { fire, render, reset, setup } from "./setup/setup"
 
 const test = uvu.suite("Tabview-stub")
 

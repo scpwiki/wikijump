@@ -1,20 +1,20 @@
+import { styleTags, tags } from "@codemirror/highlight"
+import { isArray, isFunction, isRegExp, isString } from "is-what"
+import { klona } from "klona"
+import { NodeProp, NodePropSource } from "lezer-tree"
 import {
   createID,
   escapeRegExp,
   has,
   hasSigil,
   pointsMatch,
-  unSigil,
   removeUndefined,
-  toPoints
+  toPoints,
+  unSigil
 } from "wj-util"
-import { styleTags, tags } from "@codemirror/highlight"
-import { NodeProp, NodePropSource } from "lezer-tree"
-import { isArray, isFunction, isRegExp, isString } from "is-what"
-import { demangleGrammar } from "./demangler"
-import { klona } from "klona"
 import type * as DF from "./definition"
 import type * as DM from "./demangler"
+import { demangleGrammar } from "./demangler"
 
 /** Stores information about the current state of the {@link Grammar} match. */
 export interface GrammarContext {
@@ -734,10 +734,10 @@ export function createToken({ from, to, action, context }: Matched): GrammarToke
 /**
  * Wraps a list of {@link GrammarToken} with the token data of a {@link Match}.
  *
- * Effectively, this mutates the list of tokens as if the given {@link Match}
- * "was" the list of tokens. If the token data of the match were to cause
- * the tokenizer to manipulate the stack, it will make the token list given
- * do the same.
+ * Effectively, this mutates the list of tokens as if the given
+ * {@link Match} "was" the list of tokens. If the token data of the match
+ * were to cause the tokenizer to manipulate the stack, it will make the
+ * token list given do the same.
  */
 export function wrapTokens(
   tokens: GrammarToken[],

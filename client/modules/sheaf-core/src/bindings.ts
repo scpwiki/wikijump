@@ -8,8 +8,8 @@ export interface SheafBindings {
   save?: (core: SheafCore) => void
 
   /**
-   * Callback fired when the document state changes.
-   * _This is debounced._ It won't be called immediately after a change.
+   * Callback fired when the document state changes. *This is debounced.*
+   * It won't be called immediately after a change.
    */
   update?: (core: SheafCore) => void
 }

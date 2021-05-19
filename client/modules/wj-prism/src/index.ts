@@ -4,9 +4,7 @@ import "../vendor/prism"
 
 // Re-export a reference to Prism so that there is actually a half-decent
 // way of accessing it
-/**
- * Reference to the Prism syntax highlighter.
- */
+/** Reference to the Prism syntax highlighter. */
 export const Prism: typeof import("prismjs") = globalThis.Prism
 
 // set prism class prefix
@@ -19,12 +17,12 @@ const encode: (src: string) => string = Prism.util.encode as any
 const RAW_LANGS = ["raw", "text", "none", ""]
 
 /**
- * Highlights a string of code and returns HTML, given a specified language.
- * If the language specified isn't known by Prism, the string of code will
- * be escaped and returned with no syntax highlighting.
+ * Highlights a string of code and returns HTML, given a specified
+ * language. If the language specified isn't known by Prism, the string of
+ * code will be escaped and returned with no syntax highlighting.
  *
- * If the given language is `raw`, `text`, `none`, or an empty string,
- * the string of code will be escaped and returned as is.
+ * If the given language is `raw`, `text`, `none`, or an empty string, the
+ * string of code will be escaped and returned as is.
  *
  * @param code - The string to be highlighted.
  * @param lang - The language to highlight the code with.

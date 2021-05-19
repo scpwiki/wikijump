@@ -1,39 +1,35 @@
 /* Exports SheafCore, the core class that wraps around CodeMirror 6. */
 
-import { EditorState, Extension, Compartment } from "@codemirror/state"
-import {
-  EditorView,
-  ViewPlugin,
-  ViewUpdate,
-  drawSelection,
-  keymap,
-  highlightActiveLine,
-  highlightSpecialChars
-} from "@codemirror/view"
-import { history, historyKeymap } from "@codemirror/history"
-import { foldGutter, foldKeymap } from "@codemirror/fold"
-import { syntaxTree, indentOnInput } from "@codemirror/language"
-import { lineNumbers } from "@codemirror/gutter"
-import { defaultKeymap, defaultTabBinding } from "@codemirror/commands"
-import { bracketMatching } from "@codemirror/matchbrackets"
-import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets"
-import { highlightSelectionMatches, searchKeymap } from "@codemirror/search"
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete"
+import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets"
+import { copyLineDown, defaultKeymap, defaultTabBinding } from "@codemirror/commands"
 import { commentKeymap } from "@codemirror/comment"
-import { rectangularSelection } from "@codemirror/rectangular-selection"
-import { redo } from "@codemirror/history"
-import { copyLineDown } from "@codemirror/commands"
+import { foldGutter, foldKeymap } from "@codemirror/fold"
+import { lineNumbers } from "@codemirror/gutter"
+import { history, historyKeymap, redo } from "@codemirror/history"
+import { indentOnInput, syntaxTree } from "@codemirror/language"
 import { nextDiagnostic, openLintPanel } from "@codemirror/lint"
-
+import { bracketMatching } from "@codemirror/matchbrackets"
+import { rectangularSelection } from "@codemirror/rectangular-selection"
+import { highlightSelectionMatches, searchKeymap } from "@codemirror/search"
+import { Compartment, EditorState, Extension } from "@codemirror/state"
+import {
+  drawSelection,
+  EditorView,
+  highlightActiveLine,
+  highlightSpecialChars,
+  keymap,
+  ViewPlugin,
+  ViewUpdate
+} from "@codemirror/view"
 import { writable } from "svelte/store"
-
+import { createSheafBinding, SheafBindings } from "./bindings"
+import { indentHack } from "./extensions/indent-hack"
 import { printTree } from "./print-tree"
 import { confinement } from "./theme"
-import { indentHack } from "./extensions/indent-hack"
-import { createSheafBinding, SheafBindings } from "./bindings"
 
-export * from "./adapters/svelte-lifecycle-element"
 export * from "./adapters/svelte-dom"
+export * from "./adapters/svelte-lifecycle-element"
 export * from "./adapters/svelte-panel"
 
 interface EditorStore {
@@ -48,8 +44,8 @@ export class SheafCore {
   parent!: Element
 
   /**
-   * The CodeMirror `EditorState` the editor has currently.
-   * The state is immutable and is replaced as the editor updates.
+   * The CodeMirror `EditorState` the editor has currently. The state is
+   * immutable and is replaced as the editor updates.
    */
   state = EditorState.create()
 
@@ -62,8 +58,8 @@ export class SheafCore {
   set = this.store.set
 
   /**
-   * The lines currently being interacted with by the user.
-   * This includes all selected lines, the line the cursor is present on, etc.
+   * The lines currently being interacted with by the user. This includes
+   * all selected lines, the line the cursor is present on, etc.
    */
   activeLines = writable(new Set<number>())
 
@@ -136,8 +132,8 @@ export class SheafCore {
   }
 
   /**
-   * Destroys the editor.
-   * Usage of the editor object after destruction is obviously not recommended.
+   * Destroys the editor. Usage of the editor object after destruction is
+   * obviously not recommended.
    */
   destroy() {
     this.view.destroy()
