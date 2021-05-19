@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$site->getLanguage()}" lang="{$site->getLanguage()}">
 
 <head>
- 	<title>{$site->getName()}{if $wikiPage && $wikiPage->getTitle()}: {$wikiPage->getTitle()|escape}{/if}</title>
+ 	<title>{$site->getName()}{if isset($wikiPage)}{if $wikiPage && $wikiPage->getTitle()}: {$wikiPage->getTitle()|escape}{/if}{/if}</title>
     <script type="text/javascript" src="/common--javascript/jquery-1.3.2.min.js"></script>
     <script type="text/javascript">
         $j = jQuery.noConflict();
@@ -29,7 +29,7 @@
  		OZONE.request.timestamp = %%%CURRENT_TIMESTAMP%%%;
  		OZONE.request.date = new Date();
  		WIKIREQUEST.info.lang = '{$site->getLanguage()}';
- 		{if $wikiPage}
+ 		{if isset($wikiPage)}
  		WIKIREQUEST.info.pageUnixName = "{$wikiPage->getUnixName()}";
  		WIKIREQUEST.info.pageId = {$wikiPage->getPageId()};
  		{/if}
@@ -78,7 +78,7 @@
 				 	</form>
 	  			</div>
 
-		  		{if $topBarContent}
+		  		{if isset($topBarContent)}
 			  		<div id="top-bar">
 			  			{$topBarContent|regex_replace:"/>\s+</s":"><"}
 			  		</div>
@@ -88,7 +88,7 @@
 		  	</div>
 
 			<div id="content-wrap">
-				{if $sideBar1Content}
+				{if isset($sideBar1Content)}
 					<div id="side-bar">
 						{$sideBar1Content|regex_replace:"/>\s+</s":"><"}
 					</div>
@@ -96,13 +96,13 @@
 
 				<div id="main-content">
 					<div id="action-area-top"></div>
-
+                    {if isset($wikiPage) != false}
 					{if $wikiPage == null || $wikiPage->getTitle() != ''}
 					<div id="page-title">
-					{if $wikiPage}{$wikiPage->getTitle()|escape}{else}{t}The page does not (yet) exist.{/t}{/if}
+					{if isset($wikiPage)}{$wikiPage->getTitle()|escape}{else}{t}The page does not (yet) exist.{/t}{/if}
 					</div>
 					{/if}
-					{if $breadcrumbs}
+					{if isset($breadcrumbs)}
 						<div id="breadcrumbs">
 							{foreach from=$breadcrumbs item=breadcrumb}
 								<a href="/{$breadcrumb->getUnixName()}">{$breadcrumb->getTitle()|escape}</a> &raquo;
@@ -110,16 +110,17 @@
 							{$wikiPage->getTitleOrUnixName()|escape}
 						</div>
 					{/if}
+                    {/if}
 
 
 					<div id="page-content">
-						{if $pageNotExists}
+						{if isset($pageNotExists)}
 							{$macros->load("PageNotExistsMacro")}
 							{macro name="pageNotExistsMacro"  wikiPage=$wikiPageName}
 						{/if}
 						{$screen_placeholder}
 					</div>
-					{if $tags}
+					{if isset($tags)}
 						<div class="page-tags">
 							<span>
 								{t}page tags{/t}:

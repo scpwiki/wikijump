@@ -68,7 +68,7 @@ class ManageSiteAbuseAction extends SmartyAction
         $pl = $runData->getParameterList();
 
         $address = $pl->getParameterValue("address");
-        $proxy = $pl->getParameterValue("proxy");
+        $proxy = $pl->getParameterValue("proxy") ?? null;
         if ($proxy) {
             $proxy = "TRUE";
         } else {

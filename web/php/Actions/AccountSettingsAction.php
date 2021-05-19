@@ -124,7 +124,7 @@ class AccountSettingsAction extends SmartyAction
     {
 
         $pl = $runData->getParameterList();
-        $receive = $pl->getParameterValue("receive");
+        $receive = $pl->getParameterValue("receive") ?? null;
         if ($receive) {
             $receive = true;
         } else {
@@ -172,7 +172,7 @@ class AccountSettingsAction extends SmartyAction
         $c = new Criteria();
         $c->add("user_id", $runData->getUserId());
         $c->add("blocked_user_id", $userId);
-        $b = PrivateUserBlockPeer::instance()->selectOne($c);
+        $b = PrivateUserBlockPeer::instance()->selectOne($c) ?? null;
         if ($b) {
             throw new ProcessException(_("You already block this user."));
         }

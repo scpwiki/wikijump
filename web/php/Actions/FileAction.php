@@ -97,7 +97,7 @@ class FileAction extends SmartyAction
             $user = $runData->getUser();
             WDPermissionManager::instance()->hasPagePermission('attach_file', $user, $category, $page);
 
-            $userId = $runData->getUserId();
+            $userId = $runData->getUserId() ?? null;
             if ($userId == null) {
                 $userString = $runData->createIpString();
             }
@@ -347,7 +347,7 @@ class FileAction extends SmartyAction
             $c = new Criteria();
             $c->add("page_id", $page->getPageId());
             $c->add("filename", $newName);
-            $conflict = FilePeer::instance()->selectOne();
+            $conflict = FilePeer::instance()->selectOne() ?? null;
             // delete from filesystem
             if ($conflict) {
                 $cmd = "rm ".escapeshellarg($conflict->getFilePath());

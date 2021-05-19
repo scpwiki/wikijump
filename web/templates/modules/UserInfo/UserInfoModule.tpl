@@ -1,4 +1,4 @@
-{if $error}
+{if isset($error)}
 	{if $error == 'user_not_exist'}
 		<div class="errorbox"><div>{t 1=$userUnixName}User %1 does not exist.{/t}</div></div>
 	{/if}

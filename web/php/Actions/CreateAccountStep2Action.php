@@ -250,7 +250,7 @@ class CreateAccountStep2Action extends SmartyAction
         $db->commit();
 
         /* Handle originalUrl. */
-        $originalUrl = $runData->sessionGet('loginOriginalUrl');
+        $originalUrl = $runData->sessionGet('loginOriginalUrl') ?? null;
         if ($originalUrl) {
             $runData->ajaxResponseAdd('originalUrl', $originalUrl);
             if ($runData->sessionGet('loginOriginalUrlForce')) {

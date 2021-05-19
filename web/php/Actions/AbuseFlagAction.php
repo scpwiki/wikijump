@@ -39,7 +39,7 @@ class AbuseFlagAction extends SmartyAction
         $pl = $runData->getParameterList();
 
         $path = $pl->getParameterValue("path");
-        $toFlag = $pl->getParameterValue("flag");
+        $toFlag = $pl->getParameterValue("flag") ?? null;
         if ($path == null || $path == '') {
             throw new ProcessException(_("Error processing the request."), "no_path");
         }
@@ -119,7 +119,7 @@ class AbuseFlagAction extends SmartyAction
             if ($flag == null) {
                 $siteId = $site->getSiteId();
                 // get the host if any
-                $host = $pl->getParameterValue("host");
+                $host = $pl->getParameterValue("host") ?? null;
                 if ($host) {
                     if (preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $host, $matches)==1) {
                         $siteUnixName=$matches[1];

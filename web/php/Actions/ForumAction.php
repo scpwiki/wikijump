@@ -46,7 +46,7 @@ class ForumAction extends SmartyAction
         $source = trim($pl->getParameterValue("source"));
         $categoryId = $pl->getParameterValue("category_id");
 
-        $userId = $runData->getUserId();
+        $userId = $runData->getUserId() ?? null;
         if ($userId == null) {
             $userString = $runData->createIpString();
         }
@@ -177,8 +177,8 @@ class ForumAction extends SmartyAction
 
         $title = trim($pl->getParameterValue("title"));
         $source = trim($pl->getParameterValue("source"));
-        $threadId = $pl->getParameterValue("threadId");
-        $parentPostId = $pl->getParameterValue("parentId");
+        $threadId = $pl->getParameterValue("threadId") ?? null;
+        $parentPostId = $pl->getParameterValue("parentId") ?? null;
         $user = $runData->getUser();
         $userId = $user->id;
         if ($user == null) {
@@ -602,7 +602,7 @@ class ForumAction extends SmartyAction
         $threadId = $pl->getParameterValue("threadId");
         $site = $runData->getTemp("site");
 
-        $sticky = $pl->getParameterValue("sticky");
+        $sticky = $pl->getParameterValue("sticky") ?? false;
 
         $db = Database::connection();
         $db->begin();
@@ -639,7 +639,7 @@ class ForumAction extends SmartyAction
         $threadId = $pl->getParameterValue("threadId");
         $site = $runData->getTemp("site");
 
-        $block = $pl->getParameterValue("block");
+        $block = $pl->getParameterValue("block") ?? null;
 
         $db = Database::connection();
         $db->begin();

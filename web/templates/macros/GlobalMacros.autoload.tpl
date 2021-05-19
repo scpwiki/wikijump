@@ -57,7 +57,7 @@
 {assign var=totalPages value=$pagerData->getTotalPages()}
 {if $totalPages > 1 || $knownPages>1}
 <table class="pager"
-	{if $style}
+	{if isset($style)}
 		style="{$style}"
 	{/if}
 >

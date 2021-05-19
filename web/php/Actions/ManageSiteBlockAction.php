@@ -43,7 +43,7 @@ class ManageSiteBlockAction extends SmartyAction
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
         $c->add("user_id", $userId);
-        $mem = MemberPeer::instance()->selectOne($c);
+        $mem = MemberPeer::instance()->selectOne($c) ?? null;
         if ($mem) {
             $runData->ajaxResponseAdd("status", "user_member");
             $runData->ajaxResponseAdd("message", _("The user you want to block is a member of this site. Please first remove them from the site members list."));

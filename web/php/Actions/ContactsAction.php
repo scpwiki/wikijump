@@ -54,7 +54,7 @@ class ContactsAction extends SmartyAction
         $c->add("user_id", $user->id);
         $c->add("target_user_id", $targetUserId);
 
-        $contact = ContactPeer::instance()->selectOne($c);
+        $contact = ContactPeer::instance()->selectOne($c) ?? null;
         if ($contact) {
             throw new ProcessException(_("This user is already in your contacts."), "already_contact");
         }

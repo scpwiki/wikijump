@@ -57,7 +57,7 @@ abstract class WebFlowController {
 	 *
 	 * @param string $mime
 	 */
-	protected function setContentTypeHeader($mime) {
+	protected function setContentTypeHeader($mime = false) {
 		if ($mime) {
 			header("Content-type: $mime; charset=utf-8");
 		}
@@ -68,7 +68,7 @@ abstract class WebFlowController {
 	 *
 	 * @param string $etag
 	 */
-	protected function setEtagHeader($etag) {
+	protected function setEtagHeader($etag = false) {
 		if ($etag) {
 			header("Etag: $etag");
 		}
@@ -83,7 +83,7 @@ abstract class WebFlowController {
 	 */
 	protected function redirect($url, $params = null, $addProtocol = false) {
 
-		if ($addProtocol) {
+		if ($addProtocol == true) {
 			$proto = ($_SERVER["HTTPS"]) ? "https" : "http";
 			$url = "$proto://$url";
 		}

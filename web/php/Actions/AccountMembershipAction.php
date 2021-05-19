@@ -136,7 +136,7 @@ class AccountMembershipAction extends SmartyAction
         /**
          * @var Admin|null $admin
          */
-        $admin =  AdminPeer::instance()->selectOne($c);
+        $admin =  AdminPeer::instance()->selectOne($c) ?? null;
 
         if ($admin && $admin->getFounder()) {
             throw new ProcessException(_("You have founded this site - sorry, you cannot resign."), "founder_nonremovable");
@@ -301,7 +301,7 @@ class AccountMembershipAction extends SmartyAction
             // check if the domain is not taken.
             $c = new Criteria();
             $c->add("unix_name", $unixName);
-            $ss = SitePeer::instance()->selectOne($c);
+            $ss = SitePeer::instance()->selectOne($c) ?? null;
             if ($ss) {
                 $errors['unixname'] = _('Sorry, this web address is already used by another site.');
             }

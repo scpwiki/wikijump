@@ -30,7 +30,7 @@
 
  	<script type="text/javascript" src="/common--javascript/crypto/rsa.js"></script>
 
- 	{if $useCustomDomainScript}
+ 	{if isset($useCustomDomainScript)}
  		{module name="Login/CustomDomainScriptModule"}
  	{/if}
    	<style type="text/css" id="internal-style">

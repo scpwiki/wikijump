@@ -1,6 +1,6 @@
 <h1>{t}Welcome{/t}, {$user->username|escape}!</h1>
 
-{if $tips}
+{if isset($tips)}
 
 	<h2>{t}A few tips just for you{/t}:</h2>
 

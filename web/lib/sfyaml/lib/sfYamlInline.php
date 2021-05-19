@@ -354,7 +354,7 @@ class sfYamlInline
 
         ++$i;
 
-        if ($done)
+        if ($done == true)
         {
           continue 2;
         }

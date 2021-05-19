@@ -1,19 +1,19 @@
-{if $start}
+{if isset($start)}
 <script type="text/javascript">
 	accountStartPage = "{$start}";
 </script>
 {/if}
-{if $composeTo}
+{if isset($composeTo)}
 <script type="text/javascript">
 	composeTo = "{$composeTo}";
 </script>
 {/if}
-{if $inboxMessage}
+{if isset($inboxMessage)}
 <script type="text/javascript">
 	inboxMessage = "{$inboxMessage}";
 </script>
 {/if}
-{if $rsaKey}
+{if isset($rsaKey)}
 	<script type="text/javascript">
 		Wikijump.vars.rsakey = "{$rsaKey}";
 	</script>

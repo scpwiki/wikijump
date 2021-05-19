@@ -180,7 +180,7 @@ class sfYamlParser
           $values['value'] = $matches['value'];
         }
 
-        if ($isProcessed)
+        if (isset($isProcessed))
         {
           // Merge keys
           $data = $isProcessed;
@@ -203,7 +203,7 @@ class sfYamlParser
         }
         else
         {
-          if ($isInPlace)
+          if (isset($isInPlace))
           {
             $data = $this->refs[$isInPlace];
           }

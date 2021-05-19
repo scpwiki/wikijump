@@ -152,7 +152,7 @@ class ManageSiteAction extends SmartyAction
         $pl =  $runData->getParameterList();
         $site = $runData->getTemp("site");
 
-        $themeId = $pl->getParameterValue("themeId");
+        $themeId = $pl->getParameterValue("themeId") ?? null;
 
         $name = trim($pl->getParameterValue("name"));
         $parentThemeId = $pl->getParameterValue("parentTheme");
@@ -187,7 +187,7 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("site_id", $site->getSiteId());
             $c->add("name", $name);
-            $th = ThemePeer::instance()->selectOne($c);
+            $th = ThemePeer::instance()->selectOne($c) ?? null;
             if ($th) {
                 throw new ProcessException(_("Theme with this name already exists within this site."), "form_error");
             }
@@ -772,7 +772,7 @@ class ManageSiteAction extends SmartyAction
         $pl =  $runData->getParameterList();
         $site = $runData->getTemp("site");
 
-        $private = (bool) $pl->getParameterValue("private");
+        $private = (bool) $pl->getParameterValue("private") ?? null;
         $landing = trim($pl->getParameterValue("landingPage"));
 
         $hideNav = (bool) $pl->getParameterValue("hideNav");
@@ -1009,7 +1009,7 @@ class ManageSiteAction extends SmartyAction
             // check if the domain is not taken.
             $c = new Criteria();
             $c->add("unix_name", $unixName);
-            $ss = SitePeer::instance()->selectOne($c);
+            $ss = SitePeer::instance()->selectOne($c) ?? null;
             if ($ss) {
                 $errors['unixname'] = _('Sorry, this web address is already used by another site.');
             }

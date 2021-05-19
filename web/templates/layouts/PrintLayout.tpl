@@ -31,7 +31,7 @@
  		OZONE.request.timestamp = %%%CURRENT_TIMESTAMP%%%;
  		OZONE.request.date = new Date();
  		WIKIREQUEST.info.lang = '{$site->getLanguage()}';
- 		{if $wikiPage}
+ 		{if isset($wikiPage)}
  		WIKIREQUEST.info.pageUnixName = "{$wikiPage->getUnixName()}";
  		WIKIREQUEST.info.pageId = {$wikiPage->getPageId()};
  		{/if}

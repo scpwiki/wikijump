@@ -6,7 +6,7 @@
 * @param string $style
 *}
 {defmacro name="formrow1"}
-	<tr {if $idr} id="{$idr}" {/if} {if $form->isValid($fieldname) == false}class="of-errorrow"{/if} {if $style}style="{$style}"{/if}>
+	<tr {if isset($idr)} id="{$idr}" {/if} {if $form->isValid($fieldname) == false}class="of-errorrow"{/if} {if isset($style)}style="{$style}"{/if}>
 		<td class="of-left">
 			{if $form->getExtraAttribute($fieldname, "required") == "true"}
 				<span style="color: red; font-family: verdana, Helvetica, sans-serif; font-weight: boldest; vertical-align: -2px;">*</span>
@@ -34,20 +34,20 @@
 				{else}
 					value="{$form->getFieldValue($fieldname)|escape}"
 				{/if}
-				{if $id} id="{$id}" {/if}
+				{if isset($id)} id="{$id}" {/if}
 				/>
 			{/if}
 			{if $fieldType == 'checkbox'}
 				<input name="{$form->getFieldLabel($fieldname)}"
 				{$form->renderingString($fieldname)}
 				{if $form->getFieldValue($fieldname) == true}checked="checked"{/if}
-				{if $id} id="{$id}" {/if}
+				{if isset($id)} id="{$id}" {/if}
 				/>
 			{/if}
 			{if $fieldType == 'select'}
 			<select name="{$form->getFieldLabel($fieldname)}"
 				{$form->renderingString($fieldname)}
-				{if $id} id="{$id}" {/if}
+				{if isset($id)} id="{$id}" {/if}
 				>
 				{* options follow! *}
 				{if $form->getSelectValueListName($fieldname) != null && $form->getSelectValueListName($fieldname) != ''}
@@ -111,7 +111,7 @@
 {/defmacro}
 
 {defmacro name="formrowcustomstart"}
-<tr {if $idr} id="{$idr}"{/if}>
+<tr {if isset($idr)} id="{$idr}"{/if}>
 {/defmacro}
 
 {defmacro name="formrowcustomend"}
@@ -152,7 +152,7 @@
 * @param string $idr
 *}
 {defmacro name="formparttitle"}
-<tr class="formparttitle" {if $idr} id="{$idr}"{/if}>
+<tr class="formparttitle" {if isset($idr)} id="{$idr}"{/if}>
 	<td colspan="2">
 		<div class="formparttitle">
 		{$title}
@@ -174,7 +174,7 @@
 *}
 {defmacro name="formtablestart"}
 	<div style="text-align: center"> <!-- because IE sucks -->
-	<table class="formtable" {if $id}id="{$id}"{/if}>
+	<table class="formtable" {if isset($id)}id="{$id}"{/if}>
 
 	{if $title!=''}
 		<tr>
