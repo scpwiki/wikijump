@@ -6,6 +6,7 @@ const svelte = require("@sveltejs/vite-plugin-svelte")
 const sveltePreprocess = require("svelte-preprocess")
 const workerPlugin = require("./vite-plugin-bundled-worker.js")
 const tomlPlugin = require("./vite-plugin-toml.js")
+const yamlPlugin = require("./vite-plugin-yaml.js")
 const istanbul = require("./rollup-plugin-istanbul")
 
 // make sure we're at root
@@ -73,6 +74,7 @@ async function build() {
     plugins: [
       workerPlugin(),
       tomlPlugin(),
+      yamlPlugin(),
       svelte({
         emitCss: false,
         compilerOptions: { cssHash: () => "svelte" },

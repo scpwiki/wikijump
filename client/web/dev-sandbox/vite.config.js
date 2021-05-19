@@ -2,6 +2,7 @@ import svelte from "@sveltejs/vite-plugin-svelte"
 import sveltePreprocess from "svelte-preprocess"
 import workerPlugin from "../../scripts/vite-plugin-bundled-worker.js"
 import tomlPlugin from "../../scripts/vite-plugin-toml.js"
+import yamlPlugin from "../../scripts/vite-plugin-yaml.js"
 
 /** @type import("sass").Options */
 const SASS_OPTIONS = {
@@ -43,6 +44,7 @@ const config = {
   plugins: [
     workerPlugin(),
     tomlPlugin(),
+    yamlPlugin(),
     svelte({
       preprocess: [
         sveltePreprocess({
