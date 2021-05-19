@@ -1,0 +1,31 @@
+# Generic UI components
+components:
+  spinny:
+    label:
+      ACTIVE: Active loading indicator
+      ERROR: Error indicator
+      SUCCESS: Success indicator
+      WARNING: Warning indicator
+
+  wikitext:
+    RENDERING_INDICATOR: Rendering...
+
+# Sheaf editor
+sheaf:
+  TITLE: SHEAF Alpha
+
+  tooltips:
+    CLOSE_PREVIEW: Close Preview
+    OPEN_PREVIEW: Open Preview
+
+  stats:
+    CHARS: CHARS
+    BYTES: BYTES
+    WORDS: WORDS
+    LINES: LINES
+
+  preview_tabs:
+    RESULT: Result
+    HTML: HTML Output
+    CSS: CSS Output
+    AST: AST

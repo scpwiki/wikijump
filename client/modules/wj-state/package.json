@@ -23,6 +23,7 @@
     "svelte": "^3.38.2"
   },
   "dependencies": {
-    "is-what": "^4.0.0"
+    "is-what": "^4.0.0",
+    "svelte-i18n": "^3.3.9"
   }
 }
