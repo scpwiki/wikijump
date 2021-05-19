@@ -84,7 +84,7 @@
     }
 
     &.is-selected::after {
-      box-shadow: inset 0 -0.125rem 0 0 colvar("hint");
+      box-shadow: inset 0 -0.125rem 0 0 var(--col-hint);
     }
 
     &:first-child {
