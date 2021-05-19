@@ -1,6 +1,6 @@
 import type { SheafCore } from "sheaf-core"
 import type { SheafBindings } from "sheaf-core/src/bindings"
-import type { Writable } from "svelte/store"
+import type { Readable, Writable } from "svelte/store"
 
 export interface SheafSettings {
   debug: boolean
@@ -18,6 +18,7 @@ export interface SheafContext {
   editor: SheafCore
   bindings: SheafBindings
   settings: Writable<SheafSettings>
+  small: Readable<boolean>
 }
 
 export function getDefaultSheafSettings(): SheafSettings {

@@ -11,15 +11,16 @@
   /** The value of the editor's contents. */
   export let doc = ""
 
-  const { editor, bindings, settings } = getContext<SheafContext>("sheaf")
+  const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
   let editorElement: HTMLElement
 
   $: theme = $settings.editor.darkmode ? "dark" : "light"
 
-  const TestPanel = new EditorSveltePanel(SheafPanel, { top: true })
+  $: editor.gutters = !$small
 
   onMount(async () => {
+    const TestPanel = new EditorSveltePanel(SheafPanel, { top: true })
     await editor.init(editorElement, doc, bindings, [FTMLLanguage.load(), TestPanel])
   })
 </script>
@@ -29,7 +30,11 @@
 </div>
 
 <style lang="scss">
-  .sheaf-editor-container,
+  .sheaf-editor-container {
+    width: 100%;
+    height: 100%;
+    contain: strict;
+  }
   .sheaf-editor-view {
     width: 100%;
     height: 100%;

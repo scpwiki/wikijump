@@ -8,7 +8,7 @@
   import type { SheafContext } from "./context"
   import { RenderHandler } from "./render-handler"
 
-  const { editor, bindings, settings } = getContext<SheafContext>("sheaf")
+  const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
   let render = new RenderHandler()
 
@@ -51,6 +51,7 @@
 <style lang="scss">
   .sheaf-preview-container {
     height: 100%;
+    contain: strict;
   }
 
   .sheaf-preview {
