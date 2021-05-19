@@ -198,6 +198,7 @@ importers:
       sheaf-core: workspace:*
       svelte: ^3.38.2
       typescript-memoize: ^1.0.1
+      wj-state: workspace:*
       wj-util: workspace:*
     dependencies:
       '@codemirror/language': 0.18.1
@@ -210,6 +211,7 @@ importers:
       morphdom: 2.6.1
       sheaf-core: link:../sheaf-core
       typescript-memoize: 1.0.1
+      wj-state: link:../wj-state
       wj-util: link:../wj-util
     devDependencies:
       svelte: 3.38.2

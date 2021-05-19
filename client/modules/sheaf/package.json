@@ -32,6 +32,7 @@
     "morphdom": "^2.6.1",
     "sheaf-core": "workspace:*",
     "typescript-memoize": "^1.0.1",
+    "wj-state": "workspace:*",
     "wj-util": "workspace:*"
   },
   "devDependencies": {

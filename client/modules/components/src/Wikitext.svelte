@@ -3,11 +3,11 @@
 -->
 <script lang="ts">
   import * as FTML from "ftml-wasm-worker"
+  import morphdom from "morphdom"
   import { createAnimQueued, createMutatingLock, perfy, toFragment } from "wj-util"
   import Card from "./Card.svelte"
-  import morphdom from "morphdom"
-  import Spinny from "./Spinny.svelte"
   import { anim } from "./lib/animation"
+  import Spinny from "./Spinny.svelte"
 
   type Rendered = { html: string; styles: string[] }
   type WikitextInput =
@@ -42,6 +42,9 @@
    * wikitext, it's probably best if the DOM is morphed rather than replaced.
    */
   export let morph = false
+
+  /** Shows render performance information if true. */
+  export let debug = false
 
   let element: HTMLElement
   let stylesheets: string[] = []
@@ -123,11 +126,13 @@
       <Spinny inline size="1.25rem" description="Rendering..." />
     </div>
   {/if}
-  <div class="wikitext-perf-panel">
-    <Card title="Performance" theme="dark" width="12rem">
-      <div><strong>RENDER:</strong> <code>{perfRender}ms</code></div>
-    </Card>
-  </div>
+  {#if debug}
+    <div class="wikitext-perf-panel">
+      <Card title="Performance" theme="dark" width="12rem">
+        <div><strong>RENDER:</strong> <code>{perfRender}ms</code></div>
+      </Card>
+    </div>
+  {/if}
   <div bind:this={element} class="wikitext-body wikitext" />
 </div>
 
