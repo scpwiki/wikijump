@@ -1,3 +1,16 @@
+coverage:
+  # TODO: Remove this when the project stabilizes
+  # This section sets it so that Codecov does basically nothing but report coverage.
+  # It won't fail CI, and it won't put annotations in diffs.
+  # This is probably "bad" for the long run, but for now it's set like this because
+  # test coverage may be inconsistent across the project for a long time.
+  # Early in development this is fine, but this should get removed in the future.
+  status:
+    patch: false
+    project:
+      default:
+        informational: true
+
 comment:
   layout: "reach, diff, flags, files"
   show_carryforward_flags: true

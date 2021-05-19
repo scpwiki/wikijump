@@ -25,7 +25,8 @@ async function main() {
       "**/dist/**/",
       "**/*.js",
       "**/*.mjs",
-      "**/*.cjs"
+      "**/*.cjs",
+      "web/**/"
     ],
     excludeExternals: true,
     // added by plugin (@strictsoftware/typedoc-plugin-monorepo)

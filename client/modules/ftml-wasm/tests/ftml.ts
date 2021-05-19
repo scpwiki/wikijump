@@ -90,10 +90,10 @@ FTML("render html", async () => {
   const str = "//1//"
   // we won't test the `meta` property because
   // that property is a bit too dynamic to easily test. (it has version info in it)
-  const { html, style } = lib.render(str)
+  const { html, styles } = lib.render(str)
 
   assert.is(html, "<p><em>1</em></p>")
-  assert.is(style, "")
+  assert.is(styles.join(""), "")
 
   // assert.equal(lib.render(str), {
   //   html: "<p><em>1</em></p>",
@@ -153,7 +153,7 @@ FTML("detailedRender", async () => {
   assert.type(render.html, "string")
   // assert.type(render.meta[0], "object")
   assert.type(render.preprocessed, "string")
-  assert.type(render.style, "string")
+  assert.type(render.styles, "object")
   assert.type(render.tokens, "object")
   assert.type(render.warnings, "object")
 })

@@ -14,7 +14,9 @@ module.exports = function viteWorkerPlugin() {
         const built = await esbuild.build({
           entryPoints: [id],
           bundle: true,
-          minify: false,
+          minifySyntax: true,
+          minifyIdentifiers: false,
+          minifyWhitespace: true,
           treeShaking: true,
           outdir: "./",
           outbase: "./",
@@ -33,7 +35,10 @@ module.exports = function viteWorkerPlugin() {
           if (file.path.endsWith(".js")) code = file.text
         })
 
-        return `export default atob(\`${Buffer.from(code).toString("base64")}\`);`
+        return {
+          code: `export default ${JSON.stringify(code)};`,
+          map: { mappings: "" }
+        }
       }
     }
   }

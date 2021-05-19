@@ -11,5 +11,5 @@ endOfLine = "auto"
 pluginSearchDirs = ["."]
 
 [[overrides]]
-files = "*.svelte"
+files = "**/*.svelte"
 options = { parser = "svelte" }

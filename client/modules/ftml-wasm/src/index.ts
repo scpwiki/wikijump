@@ -146,7 +146,7 @@ export interface RenderOptions {
   preprocess?: boolean
 }
 
-type RenderHTML = { html: string; meta: Binding.IHtmlMeta[]; style: string }
+type RenderHTML = { html: string; meta: Binding.IHtmlMeta[]; styles: string[] }
 
 /** Renders a string of wikitext. */
 export function render(str: string, opts?: { mode?: "html" } & RenderOptions): RenderHTML
@@ -168,11 +168,11 @@ export function render(str: string, opts?: RenderOptions) {
         : trk(Binding.render_text(pageInfo, tree))
 
     if (typeof rendered === "object") {
-      const html = rendered.html()
+      const html = rendered.body()
       const meta = rendered.html_meta()
-      const style = rendered.style()
+      const styles = rendered.styles()
       freeTracked()
-      return { html, meta, style }
+      return { html, meta, styles }
     }
 
     freeTracked()
@@ -188,11 +188,42 @@ export interface DetailedRenderOptions {
   info?: PageInfo
 }
 
+export interface DetailedRenderHTML {
+  preprocessed: string
+  tokens: Binding.IToken[]
+  ast: Binding.ISyntaxTree
+  warnings: Binding.IParseWarning[]
+  html: string
+  meta: Binding.IHtmlMeta[]
+  styles: string[]
+}
+
+export interface DetailedRenderText {
+  preprocessed: string
+  tokens: Binding.IToken[]
+  ast: Binding.ISyntaxTree
+  warnings: Binding.IParseWarning[]
+  text: string
+}
+
+// yeah the overloads are awful, sorry lol
+// means that setting the mode returns the correct object
 /**
  * Renders a string of wikitext like the {@link render} function, but this
  * function additionally returns every step in the rendering pipeline.
  */
-export function detailedRender(str: string, opts?: DetailedRenderOptions) {
+export function detailedRender(
+  str: string,
+  opts?: { mode?: "html" } & DetailedRenderOptions
+): DetailedRenderHTML
+export function detailedRender(
+  str: string,
+  opts?: { mode: "text" } & DetailedRenderOptions
+): DetailedRenderText
+export function detailedRender(
+  str: string,
+  opts?: DetailedRenderOptions
+): DetailedRenderHTML | DetailedRenderText {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   const { mode = "html", info } = opts ?? {}
   try {
@@ -211,11 +242,11 @@ export function detailedRender(str: string, opts?: DetailedRenderOptions) {
         : trk(Binding.render_text(pageInfo, tree))
 
     if (typeof rendered === "object") {
-      const html = rendered.html()
+      const html = rendered.body()
       const meta = rendered.html_meta()
-      const style = rendered.style()
+      const styles = rendered.styles()
       freeTracked()
-      return { preprocessed, tokens, ast, warnings, html, meta, style }
+      return { preprocessed, tokens, ast, warnings, html, meta, styles }
     }
 
     freeTracked()

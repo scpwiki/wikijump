@@ -1,5 +1,7 @@
 import { isAnyObject } from "is-what"
 
+export * from "./decorators"
+
 // https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0#gistcomment-2694461
 /** Very quickly generates a (non-secure) hash from the given string. */
 export function hash(s: string) {
@@ -248,16 +250,56 @@ export async function waitFor(
  * Returns a new 'locked' async function, constructed using the specified function.
  * A locked asynchronous function will only allow a singular instance of itself
  * to be running at one time.
- * Additional calls will cause the function to wait until they can be ran.
+ *
+ * Additional calls will return the previously running `Promise`.
  */
 export function createLock<T extends AnyFunction>(fn: T) {
-  let locked: boolean
+  type Return = PromiseValue<ReturnType<T>>
+  const call = async (args: any[]) => {
+    return (await fn(...args)) as Return
+  }
+
+  let running: Promise<Return> | null = null
   return async (...args: Parameters<T>) => {
-    if (locked) await waitFor(() => locked === false)
-    locked = true
-    // @ts-ignore
-    const result = (await fn(...args)) as PromiseValue<T>
-    locked = false
+    if (running) return await running
+    running = call(args)
+    const result = await running
+    running = null
+    return result
+  }
+}
+
+/**
+ * Returns a new 'locked' async function, constructed using the specified function.
+ * A locked asynchronous function will only allow a singular instance of itself
+ * to be running at one time.
+ *
+ * Additional calls will return null, but they will signal to the original, still
+ * running call to "restart" with the new given value. This means that the original
+ * call will only ever return the most freshly sourced result.
+ */
+export function createMutatingLock<T extends AnyFunction>(fn: T) {
+  type Return = PromiseValue<ReturnType<T>>
+  const call = async (args: any[]) => {
+    return (await fn(...args)) as Return
+  }
+
+  let running: boolean
+  let useArgs: any[] = []
+  return async (...args: Parameters<T>): Promise<Return | null> => {
+    useArgs = args
+    if (running) return null
+    running = true
+    let result = await call(args)
+    // loop to catch if other calls mutate the arguments
+    // if they don't this gets skipped
+    while (useArgs !== args) {
+      // @ts-ignore
+      args = useArgs
+      result = await call(args)
+    }
+    useArgs = []
+    running = false
     return result
   }
 }
@@ -318,14 +360,16 @@ export function idleCallback<T extends AnyFunction<any>>(
 export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
   if (!HAS_IDLE_CALLBACK) return createAnimQueued(fn)
   let queued: boolean
+  let useArgs: any[] = []
   return (...args: Parameters<T>): void => {
+    useArgs = args
     if (queued !== true) {
       queued = true
       // @ts-ignore
       requestIdleCallback(
         async () => {
           // @ts-ignore
-          await fn(...args)
+          await fn(...useArgs)
           queued = false
         },
         { timeout }
@@ -340,7 +384,7 @@ const domParser = new DOMParser()
 export function toFragment(html: string) {
   const parsed = domParser.parseFromString(html, "text/html")
   const fragment = document.createDocumentFragment()
-  fragment.append(parsed.body)
+  fragment.append(...Array.from(parsed.body.children))
   return fragment
 }
 
@@ -356,4 +400,16 @@ export function html(strings: TemplateStringsArray, ...subs: (string | string[])
     return prev + sub + cur
   })
   return toFragment(src)
+}
+
+/**
+ * Performs a modulo operation.
+ * This differs from JavaScript's `%` operator,
+ * which is more of a remainder operator.
+ *
+ * @param a - The dividend.
+ * @param n - The divisor.
+ */
+export function mod(a: number, n: number) {
+  return ((a % n) + n) % n
 }

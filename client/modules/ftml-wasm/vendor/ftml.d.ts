@@ -13,6 +13,11 @@ export function render_html(page_info: PageInfo, syntax_tree: SyntaxTree): HtmlO
 */
 export function render_text(page_info: PageInfo, syntax_tree: SyntaxTree): string;
 /**
+* @param {string} text
+* @returns {Tokenization}
+*/
+export function tokenize(text: string): Tokenization;
+/**
 * @returns {string}
 */
 export function version(): string;
@@ -26,15 +31,10 @@ export function parse(tokens: Tokenization): ParseOutcome;
 * @returns {string}
 */
 export function preprocess(text: string): string;
-/**
-* @param {string} text
-* @returns {Tokenization}
-*/
-export function tokenize(text: string): Tokenization;
 
 
 export interface IHtmlOutput {
-    html: string;
+    body: string;
     style: string;
     meta: IHtmlMeta[];
 }
@@ -54,6 +54,19 @@ export interface IPageInfo {
     rating: number;
     tags: string[];
     language: string;
+}
+
+
+
+
+
+export interface IToken {
+    token: string;
+    slice: string;
+    span: {
+        start: number;
+        end: number;
+    };
 }
 
 
@@ -82,19 +95,6 @@ export interface IParseWarning {
 
 
 
-
-
-export interface IToken {
-    token: string;
-    slice: string;
-    span: {
-        start: number;
-        end: number;
-    };
-}
-
-
-
 /**
 */
 export class HtmlOutput {
@@ -106,11 +106,11 @@ export class HtmlOutput {
 /**
 * @returns {string}
 */
-  html(): string;
+  body(): string;
 /**
-* @returns {string}
+* @returns {string[]}
 */
-  style(): string;
+  styles(): string[];
 /**
 * @returns {IHtmlMeta[]}
 */
@@ -225,23 +225,12 @@ export class Utf16IndexMap {
 * @returns {number}
 */
   get_index(index: number): number;
-/**
-* @param {number} start
-* @param {number} end
-* @returns {[number, number]}
-*/
-  get_span(start: number, end: number): [number, number];
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly __wbg_utf16indexmap_free: (a: number) => void;
-  readonly utf16indexmap_new: (a: number, b: number) => number;
-  readonly utf16indexmap_copy: (a: number) => number;
-  readonly utf16indexmap_get_index: (a: number, b: number) => number;
-  readonly utf16indexmap_get_span: (a: number, b: number, c: number) => number;
   readonly __wbg_pageinfo_free: (a: number) => void;
   readonly pageinfo_new: (a: number) => number;
   readonly pageinfo_page: (a: number, b: number) => void;
@@ -254,12 +243,21 @@ export interface InitOutput {
   readonly pageinfo_language: (a: number, b: number) => void;
   readonly __wbg_htmloutput_free: (a: number) => void;
   readonly htmloutput_copy: (a: number) => number;
-  readonly htmloutput_html: (a: number, b: number) => void;
-  readonly htmloutput_style: (a: number, b: number) => void;
+  readonly htmloutput_body: (a: number, b: number) => void;
+  readonly htmloutput_styles: (a: number) => number;
   readonly htmloutput_html_meta: (a: number) => number;
   readonly render_html: (a: number, b: number) => number;
   readonly render_text: (a: number, b: number, c: number) => void;
   readonly pageinfo_copy: (a: number) => number;
+  readonly __wbg_utf16indexmap_free: (a: number) => void;
+  readonly utf16indexmap_new: (a: number, b: number) => number;
+  readonly utf16indexmap_copy: (a: number) => number;
+  readonly utf16indexmap_get_index: (a: number, b: number) => number;
+  readonly __wbg_tokenization_free: (a: number) => void;
+  readonly tokenization_copy: (a: number) => number;
+  readonly tokenization_text: (a: number, b: number) => void;
+  readonly tokenization_tokens: (a: number) => number;
+  readonly tokenize: (a: number, b: number) => number;
   readonly version: (a: number) => void;
   readonly __wbg_parseoutcome_free: (a: number) => void;
   readonly parseoutcome_copy: (a: number) => number;
@@ -268,13 +266,8 @@ export interface InitOutput {
   readonly __wbg_syntaxtree_free: (a: number) => void;
   readonly syntaxtree_data: (a: number) => number;
   readonly parse: (a: number) => number;
-  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly syntaxtree_copy: (a: number) => number;
-  readonly __wbg_tokenization_free: (a: number) => void;
-  readonly tokenization_copy: (a: number) => number;
-  readonly tokenization_text: (a: number, b: number) => void;
-  readonly tokenization_tokens: (a: number) => number;
-  readonly tokenize: (a: number, b: number) => number;
+  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

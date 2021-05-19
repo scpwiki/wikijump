@@ -1,0 +1,20 @@
+// Styles Tippy.js tooltips using Wikijump's theming variables.
+.tippy-box[data-theme~="wikijump"] {
+  font-size: 0.875rem;
+  color: var(--col-dark-text);
+  background-color: var(--col-dark-background);
+  // this strange filter is two bits:
+  // the first is the simple actual shadow, which is the first drop-shadow
+  // the second is two col-dark-border drop-shadows
+  // because the tooltip shape has a protruding tooltip, we can't just use border
+  // this creates a fairly decent border that follows the actual edges of the tooltip
+  filter: drop-shadow(0 0 5px rgba(black, 0.25))
+    drop-shadow(-0.05rem -0.05rem 0 var(--col-dark-border))
+    drop-shadow(0.05rem 0.05rem 0 var(--col-dark-border));
+  border-radius: 0.25rem;
+  transition-timing-function: ease-out;
+
+  .tippy-svg-arrow {
+    color: var(--col-dark-background);
+  }
+}

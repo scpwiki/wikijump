@@ -9,16 +9,21 @@
 
   import SheafPanel from "./SheafPanel.svelte"
 
+  /** The value of the editor's contents. */
   export let doc = ""
+
+  /** Callbacks to call depending on editor events. */
   export let bindings: SheafBindings = {}
+
+  /** Reference to the editor-core that the editor-pane will render. */
   export let Editor: SheafCore
 
   let editorElement: HTMLElement
 
-  const PerfPanel = new EditorSveltePanel(SheafPanel, { top: true })
+  const TestPanel = new EditorSveltePanel(SheafPanel, { top: true })
 
   onMount(async () => {
-    await Editor.init(editorElement, doc, bindings, [FTMLLanguage.load(), PerfPanel])
+    await Editor.init(editorElement, doc, bindings, [FTMLLanguage.load(), TestPanel])
   })
 </script>
 
