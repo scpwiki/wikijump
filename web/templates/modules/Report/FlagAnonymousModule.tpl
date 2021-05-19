@@ -11,7 +11,7 @@
 			IP address: <strong>{$ip}</strong>
 		</li>
 
-		{if $proxy}
+		{if isset($proxy)}
 			<li>
 				Proxy server: <strong>{$proxy}</strong>
 			</li>
@@ -32,7 +32,7 @@
 		Click below to toggle the flag.
 	</p>
 
-	<p id="flag-user-options-flag" style="text-align: center; {if $flagged}display: none;{/if} ">
+	<p id="flag-user-options-flag" style="text-align: center; {if isset($flagged)}display: none;{/if} ">
 		<span style="color: #4B4; font-size: 150%; border: 1px solid #000; padding: 3px; margin: 5px;">this user is OK</span>
 		<a style="color: #CCC; font-size: 150%; border: 1px solid #DDD; padding: 3px; margin: 5px; text-decoration: none;" href="javascript:;"
 		onclick="Wikijump.modules.FlagAnonymousModule.listeners.setFlag(event, '{$userString}', true)">this user is abusive</a>

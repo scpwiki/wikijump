@@ -42,7 +42,7 @@
 <script type="text/javascript">
 	{literal}USERINFO = {};{/literal}
 	USERINFO.userId = {$userId};
-	{if $referer}
+	{if isset($referer)}
 		USERINFO.referer = "{$referer}";
 	{/if}
 </script>

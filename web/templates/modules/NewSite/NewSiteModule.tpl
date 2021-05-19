@@ -1,6 +1,6 @@
 <div id="new-site-box">
-	{if $notLogged}
-		<h3>We are almost ready to create a new site for you{if $unixName} at <span style="text-decoration: underline">{$unixName}.{$URL_DOMAIN}</span>{/if}...</h3>
+	{if isset($notLogged)}
+		<h3>We are almost ready to create a new site for you{if isset($unixName)} at <span style="text-decoration: underline">{$unixName}.{$URL_DOMAIN}</span>{/if}...</h3>
 
 		<p>
 			{t 1=$SERVICE_NAME}However you would need to have a valid user account at %1 so that we could identify you in the future.{/t}

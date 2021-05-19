@@ -3,7 +3,7 @@
 
 
 
-{if $files}
+{if isset($files)}
 	<table class="page-files">
 
 		<tr>

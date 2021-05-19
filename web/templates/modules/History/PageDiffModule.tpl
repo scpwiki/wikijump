@@ -35,7 +35,7 @@
 	</table>
 	<h3>{t}Source change{/t}:</h3>
 	{if $changed.source}
-		{if $difference}
+		{if isset($difference)}
 			<table class="diff-table">
 				<tr>
 					<th>{t}from{/t}</th>
@@ -68,7 +68,7 @@
 				{/foreach}
 			</table>
 		{/if}
-		{if $inlineDiff}
+		{if isset($inlineDiff)}
 			<div class="inline-diff page-source">
 				{$inlineDiff|semipre}
 			</div>

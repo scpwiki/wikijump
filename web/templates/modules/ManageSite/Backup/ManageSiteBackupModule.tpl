@@ -13,7 +13,7 @@
 
 <h2>{t}Current backup status{/t}</h2>
 
-{if $backup}
+{if isset($backup)}
 	<table style="margin: 0 auto;">
 		{if $backup->getStatus()==""}
 			<tr>

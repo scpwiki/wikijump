@@ -1,6 +1,6 @@
 <h1>{t}Deleted Sites{/t}</h1>
 
-{if $admins}
+{if isset($admins)}
 	<div class="sites-list">
 		{foreach from=$admins item=admin}
 			<div class="site-list-item">

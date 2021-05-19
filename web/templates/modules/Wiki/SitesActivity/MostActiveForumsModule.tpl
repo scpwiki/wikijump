@@ -19,7 +19,7 @@
 		{/if}
 	</div>
 
-	{if $res}
+	{if isset($res)}
 		<table class="item-list">
 			<tr>
 				<td>&nbsp;</td>

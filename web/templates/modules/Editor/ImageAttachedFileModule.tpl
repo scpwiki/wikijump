@@ -1,4 +1,4 @@
-{if $files}
+{if isset($files)}
 	<p>
 		Choose one of the files attached to this page and listed below:
 	</p>

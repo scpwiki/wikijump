@@ -32,7 +32,7 @@
 							{/foreach}
 						</select>
 						<div id="theme-variants-container">
-							{if $variantsArray}
+							{if isset($variantsArray)}
 								{foreach from=$variantsArray item=variants key=variantId}
 									<div id="sm-appearance-variants-{$variantId}" style="display: none">
 										<br/><br/>{t}Available theme variants{/t}:
@@ -74,7 +74,7 @@
 
 			{foreach from=$themes item=theme}
 				{assign var=preview value=$theme->getThemePreview()}
-				{if $preview}
+				{if isset($preview)}
 					<div id="sm-theme-preview-{$theme->getThemeId()}">
 						{$preview->getBody()}
 					</div>

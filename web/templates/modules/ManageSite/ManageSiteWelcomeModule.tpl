@@ -6,7 +6,7 @@
 	{t escape=no}But remember: <b>With Great Power Comes Great Responsibility</b>.{/t}
 </p>
 
-{if $tips}
+{if isset($tips)}
 
 	<h2>{t}A few tips for your Site{/t}</h2>
 

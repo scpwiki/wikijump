@@ -1,6 +1,6 @@
 <div class="recent-w-page-revisions" id="recent-w-page-revisions">
 {*
-	{if $revisions}
+	{if isset($revisions)}
 		{foreach from=$revisions item=revision}
 			{assign var=page value=$revision->getPage()}
 			{assign var=site value=$page->getSite()}
@@ -18,7 +18,7 @@
 		{/foreach}
 	{/if}
 *}
-	{if $pages}
+	{if isset($pages)}
 		{foreach from=$pages item=page}
 			{assign var=site value=$page->getSite()}
 			<div class="list-item">

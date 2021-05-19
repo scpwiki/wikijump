@@ -1,6 +1,6 @@
 <h1>{t}Administrator of the following sites:{/t}</h1>
 
-{if $memberships}
+{if isset($memberships)}
 	<div class="sites-list">
 		{foreach from=$memberships item=membership}
 			{assign var=site value=$membership->getSite()}

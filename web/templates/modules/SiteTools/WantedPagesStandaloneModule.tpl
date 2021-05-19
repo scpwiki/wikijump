@@ -1,6 +1,6 @@
 <h1>List of wanted pages</h1>
 
-{if $res}
+{if isset($res)}
 <table class="form grid" style="margin: 1em auto;">
 	<tr>
 		<th>

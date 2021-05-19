@@ -7,7 +7,7 @@
 
 <h2>{t}Your current invitations{/t}</h2>
 
-{if $invitations}
+{if isset($invitations)}
 	{foreach from=$invitations item=invitation}
 		{assign var=site value=$invitation->getSite()}
 		<table class="form alignleft">

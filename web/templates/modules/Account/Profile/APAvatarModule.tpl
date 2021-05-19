@@ -5,7 +5,7 @@
 	To be more precise - the buddy icon appears near users' screen names wherever possible as you have probably
 	noticed.{/t}
 </p>
-{if $hasAvatar}
+{if isset($hasAvatar)}
 <h2>{t}My current avatar{/t}:</h2>
 <p style="text-align: center">
 	<table style="margin: 0 auto;"><tr>

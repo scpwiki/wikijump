@@ -1,4 +1,4 @@
-{if $allowHttp}
+{if isset($allowHttp)}
 <h1>Secure Access (SSL/TLS)</h1>
 
 <p>

@@ -1,6 +1,6 @@
 <h1>Page abuse reports</h1>
 
-{if $reps}
+{if isset($reps)}
 	<table class="form alignleft">
 		<tr>
 			<th>

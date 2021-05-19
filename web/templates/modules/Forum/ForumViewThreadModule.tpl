@@ -10,7 +10,7 @@
 
 <div class="forum-thread-box"> {* one should be able to change the class... *}
 
-	{*{if $wpage}
+	{*{if isset($wpage)}
 		<h1><a href="/{$wpage->getUnixName()}">{$wpage->getTitle()|escape}</a> / {t}discussion{/t}</h1>
 	{else}
 		<h1>{$thread->getTitle()|escape}</h1>

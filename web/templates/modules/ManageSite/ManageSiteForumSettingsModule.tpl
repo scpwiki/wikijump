@@ -1,7 +1,7 @@
 <h1>Forum settings</h1>
 
 
-{if $forumSettings}
+{if isset($forumSettings)}
 
 	<h2>Default nesting</h2>
 

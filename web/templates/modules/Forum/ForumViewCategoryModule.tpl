@@ -17,7 +17,7 @@
 		{$category->getDescription() |escape}
 	</div>
 
-	{if $sortStart}
+	{if isset($sortStart)}
 		<div class="options">
 			{t}order by{/t}: <a href="/forum/c-{$category->getCategoryId()}">{t}last post date{/t}</a> | <strong>{t}thread starting date{/t}</strong>
 		</div>
@@ -31,7 +31,7 @@
 		<a href="/forum:new-thread/c/{$category->getCategoryId()}">{t}create a new thread{/t}</a>
 	</div>
 
-	{if $sortStart}
+	{if isset($sortStart)}
 		{capture name="destUrl"}/forum/c-{$category->getCategoryId()}/p/%d/sort/start{/capture}
 	{else}
 		{capture name="destUrl"}/forum/c-{$category->getCategoryId()}/p/%d{/capture}
@@ -77,7 +77,7 @@
 				<td class="last">
 					{if $thread->getNumberPosts()>1 || $thread->getPageId()}
 						{assign var=lastPost value=$thread->getLastPost()}
-						{if $lastPost}
+						{if isset($lastPost)}
 							{t}by{/t} {printuser user=$lastPost->getUserOrString() image=true noip=true}<br/>
 							<span class="odate">{$lastPost->getDatePosted()->getTimestamp()}|(%O ago)</span>
 							<a href="/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()|escape}#post-{$lastPost->getPostId()}">{ltext lang="en"}jump!{/ltext}{ltext lang="pl"}zobacz!{/ltext}</a>

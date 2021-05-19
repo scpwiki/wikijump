@@ -6,7 +6,7 @@
 	<h1>Inne strony zależne od tej</h1>
 	<h2>Linki zwrotne</h2>
 {/ltext}
-{if $pages}
+{if isset($pages)}
 
 <ul>
 	{foreach from=$pages item=page}
@@ -31,7 +31,7 @@
 {ltext lang="pl"}
 	<h2>Włączenia  (poprzez <tt>[[include]]</tt>)</h2>
 {/ltext}
-{if $pagesI}
+{if isset($pagesI)}
 
 <ul>
 	{foreach from=$pagesI item=page}

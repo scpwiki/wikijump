@@ -1,6 +1,6 @@
 <h1>{t}My contacts{/t}</h1>
 
-{if $contacts}
+{if isset($contacts)}
 	<table class="contact-list-table">
 		{foreach from=$contacts item=contact}
 			{assign var=user value=$contact->getTargetUser()}

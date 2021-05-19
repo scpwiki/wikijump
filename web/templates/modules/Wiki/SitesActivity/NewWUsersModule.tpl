@@ -1,5 +1,5 @@
 <div class="new-w-users-box" id="new-w-users-box">
-	{if $users}
+	{if isset($users)}
 		<ul style="list-style: none; margin-left:0; padding-left:1em;">
 			{foreach from=$users item=user}
 				<li>

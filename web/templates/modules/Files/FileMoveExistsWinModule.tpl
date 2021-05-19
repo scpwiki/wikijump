@@ -28,7 +28,7 @@
 	</tr>
 </table>
 
-{if $hasPermission}
+{if isset($hasPermission)}
 	<p>
 		{t}Unfortunately the file named{/t} {$file->getFilename()|escape} {t}already exists as an attachment
 		to page{/t} {$destinationPage->getUnixName()|escape}. {t}Do you want to overwrite it?{/t}

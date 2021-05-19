@@ -1,6 +1,6 @@
 <h1>Site Moderators</h1>
 
-{if $moderators}
+{if isset($moderators)}
 	{foreach from=$moderators item=moderator}
 		{assign var=user value=$moderator->getUser()}
 

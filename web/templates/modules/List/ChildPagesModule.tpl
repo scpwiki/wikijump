@@ -1,4 +1,4 @@
-{if $pages}
+{if isset($pages)}
 	<div class="child-pages-block">
 		<ul>
 			{foreach from=$pages item=p}

@@ -22,7 +22,7 @@
 			<td>
 				<input type="checkbox" class="checkbox"
 					id="sm-receive-newsletters-default"
-					{if $defaultNewsletter}checked="checked"{/if}/>
+					{if $defaultNewsletter == true}checked="checked"{/if}/>
 			</td>
 			<td>
 				<input type="button" class="button" value="apply" />
@@ -37,7 +37,7 @@
 	You can choose to receive or not newsletters from the Wikis you have joined.
 </p>
 
-{if $mems}
+{if isset($mems)}
 	<form id="receive-wiki-newsletters-form">
 		<table class="form grid">
 			<tr>

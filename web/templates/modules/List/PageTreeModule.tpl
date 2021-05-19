@@ -1,6 +1,6 @@
 {defmacro name="printChildren"}
 	{assign var=chs value=$children[$rootId]}
-	{if $chs}
+	{if isset($chs)}
 		<ul>
 			{foreach from=$chs item=ch}
 				<li>
@@ -18,7 +18,7 @@
 
 {assign var=rootId value=$root->getPageId()}
 
-{if $showRoot}
+{if isset($showRoot)}
 	<ul>
 		<li>
 			<a href="/{$root->getUnixName()}">{$root->getTitleOrUnixName()|escape}</a>

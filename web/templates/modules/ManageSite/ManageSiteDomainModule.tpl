@@ -48,7 +48,7 @@
 				</div>
 				*}
 				<div id="sm-redirects-box">
-					{if $redirects}
+					{if isset($redirects)}
 						{foreach from=$redirects item=redirect}
 							<div>
 								<input style="margin: 3px 0;" class="text"  value="{$redirect}" type="text" value="" size="40" maxlength="50"/>

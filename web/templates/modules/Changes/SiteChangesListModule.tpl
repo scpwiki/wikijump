@@ -1,4 +1,4 @@
-{if $revisions}
+{if isset($revisions)}
 
 	{pager jsfunction="Wikijump.modules.SiteChangesModule.listeners.updateList" total=$pagerData.totalPages known=$pagerData.knownPages current=$pagerData.currentPage}
 

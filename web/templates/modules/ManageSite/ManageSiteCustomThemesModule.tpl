@@ -10,7 +10,7 @@
 	your own CSS theme</a> howto.
 </p>
 
-{if $themes}
+{if isset($themes)}
 	<ul>
 		{foreach from=$themes item=theme}
 			<li>

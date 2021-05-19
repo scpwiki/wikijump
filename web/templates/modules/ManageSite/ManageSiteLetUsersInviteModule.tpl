@@ -17,7 +17,7 @@
 				<input type="checkbox" class="checkbox"
 					id="sm-allow-users-invite"
 
-					{if $enabled}checked="checked"{/if}/>
+					{if isset($enabled)}checked="checked"{/if}/>
 			</td>
 		</tr>
 	</table>

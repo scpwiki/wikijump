@@ -2,9 +2,9 @@
 
 {if $newerMessage != null|| $olderMessage!= null}
 	<div style="text-align: right" id="inbox-message-nav">
-		{if $newerMessage}<a href="javascript:;" onclick="Wikijump.modules.AccountMessagesModule.listeners.viewSentMessage({$newerMessage->getMessageId()})">{t}newer{/t}</a> {/if}
+		{if isset($newerMessage)}<a href="javascript:;" onclick="Wikijump.modules.AccountMessagesModule.listeners.viewSentMessage({$newerMessage->getMessageId()})">{t}newer{/t}</a> {/if}
 		{if $newerMessage != null && $olderMessage!= null}|{/if}
-		{if $olderMessage}<a href="javascript:;" onclick="Wikijump.modules.AccountMessagesModule.listeners.viewSentMessage({$olderMessage->getMessageId()})">{t}older{/t}</a>{/if} {t}message (by date){/t}
+		{if isset($olderMessage)}<a href="javascript:;" onclick="Wikijump.modules.AccountMessagesModule.listeners.viewSentMessage({$olderMessage->getMessageId()})">{t}older{/t}</a>{/if} {t}message (by date){/t}
 	</div>
 {/if}
 

@@ -1,5 +1,5 @@
 <div class="page-calendar-box">
-	{if $postCount}
+	{if isset($postCount)}
 		<ul>
 		{foreach from=$postCount key=yearName item=year}
 			<li {if $year.selected}class="selected"{/if}>

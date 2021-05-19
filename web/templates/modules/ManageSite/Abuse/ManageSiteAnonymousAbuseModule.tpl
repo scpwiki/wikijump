@@ -1,7 +1,7 @@
 <h1>Abusive users reports (anonymous users)</h1>
 
 
-{if $reps}
+{if isset($reps)}
 	<table  class="form alignleft">
 		<tr>
 			<th>

@@ -1,4 +1,4 @@
-{if $merged}
+{if isset($merged)}
 	<table class="form">
 		<tr>
 			<th>

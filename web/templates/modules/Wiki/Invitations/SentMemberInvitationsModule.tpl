@@ -4,7 +4,7 @@
 		<a href="javascript:;" onclick="Wikijump.modules.SentMemberInvitationsModule.listeners.sendMore(event)">send more invitations</a>
 	</p>
 
-	{if $invitations}
+	{if isset($invitations)}
 		<table class="grid form" style="font-size: 87%" id="invitations-history-table">
 			<tr>
 				<th>

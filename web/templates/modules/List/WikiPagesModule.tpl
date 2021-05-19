@@ -1,8 +1,8 @@
-{if $pages}
+{if isset($pages)}
 <div class="pages-list">
 	{foreach	 from=$pages item=page}
 		<div class="pages-list-item">
-			{if $details}
+			{if isset($details)}
 				<table>
 					<tr>
 						<td class="title">
@@ -24,7 +24,7 @@
 					<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
 				</div>
 			{/if}
-			{if $preview}
+			{if isset($preview)}
 				<div class="preview">
 					{$page->getPreview()}
 				</div>
@@ -32,7 +32,7 @@
 		</div>
 
 	{*	<div class="pages-list-item">
-			{if $details}
+			{if isset($details)}
 
 				<div class="last-mod-by">
 					{printuser user=$page->getLastEditUserOrString()}
@@ -47,7 +47,7 @@
 			<div class="title">
 				<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
 			</div>
-			{if $preview}
+			{if isset($preview)}
 				<div class="preview">
 					{$page->getPreview()}
 				</div>

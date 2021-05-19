@@ -6,7 +6,7 @@
 				Moderate pages:
 			</td>
 			<td>
-				<input class="checkbox" type="checkbox" name="pages" {if $ppages}checked="checked"{/if}/>
+				<input class="checkbox" type="checkbox" name="pages" {if isset($ppages)}checked="checked"{/if}/>
 				<div class="sub">
 					Gets all the privileges related to wiki pages.
 				</div>
@@ -17,7 +17,7 @@
 				Moderate forum:
 			</td>
 			<td>
-				<input class="checkbox" type="checkbox" name="forum" {if $pforum}checked="checked"{/if}/>
+				<input class="checkbox" type="checkbox" name="forum" {if isset($pforum)}checked="checked"{/if}/>
 				<div class="sub">
 					Gets all the privileges related to forum.
 				</div>
@@ -28,7 +28,7 @@
 				Moderate users:
 			</td>
 			<td>
-				<input class="checkbox" type="checkbox" name="users" {if $pusers}checked="checked"{/if}/>
+				<input class="checkbox" type="checkbox" name="users" {if isset($pusers)}checked="checked"{/if}/>
 			</td>
 		</tr>*}
 	</table>

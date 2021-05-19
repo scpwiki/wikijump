@@ -47,7 +47,7 @@
 							</td>
 							<td class="last">
 								{assign var=lastPost value=$category->getLastPost()}
-								{if $lastPost}
+								{if isset($lastPost)}
 									{t}by{/t} {printuser user=$lastPost->getUserOrString() image=true noip=true}<br/>
 									<span class="odate">{$lastPost->getDatePosted()->getTimestamp()}|(%O ago)</span> <a href="/forum/t-{$lastPost->getThreadId()}#post-{$lastPost->getPostId()}">{t}jump!{/t}</a>
 								{else}
@@ -62,7 +62,7 @@
 	{/foreach}
 </div>
 <p style="text-align: right">
-	{if $hidden}
+	{if isset($hidden)}
 		<a href="/forum/start/hidden/show">{t}show hidden{/t}</a>
 	{else}
 		<a href="/forum/start">{t}hide hidden{/t}</a>

@@ -4,7 +4,7 @@
 {assign var=first value=true}
 <table>
 	{foreach from=$revisions item=revision}
-		<tr {if $first}class="active"{assign var=first value=false}{/if}>
+		<tr {if isset($first)}class="active"{assign var=first value=false}{/if}>
 			<td>
 				{printuser user=$revision->getUserOrString()}
 			</td>

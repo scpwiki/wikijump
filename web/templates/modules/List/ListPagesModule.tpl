@@ -12,7 +12,7 @@
 	</div>
 	{/if}
 
-	{if $rssUrl}
+	{if isset($rssUrl)}
 		<div class="feedinfo">
 			<span class="rss-icon"><img src="/common--theme/base/images/feed/feed-icon-14x14.png" alt="rss icon"/></span>
 			<a href="{$rssUrl}">{t}RSS feed{/t}</a>

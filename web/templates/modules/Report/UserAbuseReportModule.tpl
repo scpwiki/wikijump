@@ -9,7 +9,7 @@
 	<p>
 		The report will be sent to administrators of {$SERVICE_NAME} who will
 		act accordingly.
-		{if $site}
+		{if isset($site)}
 			If you think the problem
 			also concerns this site administrators/moderators and can be resolved locally,
 			please check the option below.
@@ -21,7 +21,7 @@
 		Problem description:<br/>
 		<textarea name="text" id="abuse-report-text" cols="30" rows="5" style="width: 95%"></textarea>
 		<div>(<span id="abuse-report-chcount"></span> characters left)</div>
-		{if $site}
+		{if isset($site)}
 			<br/>
 			<input class="checkbox" type="checkbox" checked="checked"> Send to <em>{$site->getName()|escape}</em> administrators too
 		{/if}

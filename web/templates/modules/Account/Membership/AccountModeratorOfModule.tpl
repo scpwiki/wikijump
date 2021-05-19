@@ -1,6 +1,6 @@
 <h1>{t}Moderator of...{/t}</h1>
 
-{if $moderators}
+{if isset($moderators)}
 	<div class="sites-list">
 		{foreach from=$moderators item=moderator}
 			<div class="site-list-item">

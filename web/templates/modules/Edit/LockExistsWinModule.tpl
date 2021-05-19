@@ -8,7 +8,7 @@
 		<p>
 			{t}The page is currently locked by another user. The details follow:{/t}
 		</p>
-		{if $yourself}
+		{if isset($yourself)}
 			<p>
 			{t}It seems that you already possess the edit lock for this page. However it is not possible to
 			open edit form because current situation suggests there might be another window opened by

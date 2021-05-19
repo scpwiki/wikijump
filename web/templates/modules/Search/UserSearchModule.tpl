@@ -13,13 +13,13 @@
 	{* {$area} *}
 	{* {$query_debug|escape} *}
 
-	{if $errorMessage}
+	{if isset($errorMessage)}
 		<p>{$errorMessage}</p>
 	{/if}
 
 	{if isset($mode)}
 
-		{if $user}
+		{if isset($user)}
 
 			<div class="search-user-results">
 				<div class="item">

@@ -1,4 +1,4 @@
-{if $fromEmail}
+{if isset($fromEmail)}
 	<script type="text/javascript">
 	var t2 = new OZONE.dialogs.SuccessBox(); t2.timeout=10000; t2.content="New account created!";t2.show();
 	var originalUrl = '{$originalUrl}';

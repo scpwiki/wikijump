@@ -14,7 +14,7 @@
 				I want to receive invitations:
 			</td>
 			<td>
-				<input class="checkbox" type="checkbox" id="receive-invitations-ch" {if $receiveInvitations}checked="checked"{/if}/>
+				<input class="checkbox" type="checkbox" id="receive-invitations-ch" {if isset($receiveInvitations)}checked="checked"{/if}/>
 			</td>
 		</tr>
 	</table>

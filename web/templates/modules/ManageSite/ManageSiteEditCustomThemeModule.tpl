@@ -7,7 +7,7 @@
 				Theme name:
 			</td>
 			<td>
-				<input  class="text" type="text" name="name" size="40" value="{if $theme}{$theme->getName()|escape}{/if}"/>
+				<input  class="text" type="text" name="name" size="40" value="{if isset($theme)}{$theme->getName()|escape}{/if}"/>
 			</td>
 		</tr>
 		<tr>
@@ -43,7 +43,7 @@
 				<div style="text-align: center">
 					<div class="autocomplete-container" style="width: 20em; margin: 0 auto;">
 						<input type="text" id="sm-cssimport-input" class="autocomplete-input text" name="cssImportPage" size="35"
-							value="{if $theme}{$theme->getSyncPageName()|escape}{/if}"/>
+							value="{if isset($theme)}{$theme->getSyncPageName()|escape}{/if}"/>
 						<div id="sm-cssimport-input-list" class="autocomplete-list"></div>
 					</div>
 					<br/>

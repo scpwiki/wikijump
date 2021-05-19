@@ -18,7 +18,7 @@
 		Click below to toggle the flag.
 	</p>
 
-	<p id="flag-user-options-flag" style="text-align: center; {if $flagged}display: none;{/if} ">
+	<p id="flag-user-options-flag" style="text-align: center; {if isset($flagged)}display: none;{/if} ">
 		<span style="color: #4B4; font-size: 150%; border: 1px solid #000; padding: 3px; margin: 5px;">{t}this user is OK{/t}</span>
 		<a style="color: #CCC; font-size: 150%; border: 1px solid #DDD; padding: 3px; margin: 5px; text-decoration: none;" href="javascript:;"
 		onclick="Wikijump.modules.FlagUserModule.listeners.setFlag(event, {$user->id}, true)">{t}this user is abusive{/t}</a>

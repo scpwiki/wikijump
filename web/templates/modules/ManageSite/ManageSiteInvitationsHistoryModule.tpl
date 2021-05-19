@@ -1,6 +1,6 @@
 <h1>{t}List of sent email invitations{/t}</h1>
 
-{if $invitations}
+{if isset($invitations)}
 
 	<p>
 		<a id="sm-invhist-showadminonly" href="javascript:;"
@@ -9,7 +9,7 @@
 		|
 		<a id="sm-invhist-showall"
 		onclick="Wikijump.modules.ManageSiteInvitationsHistoryModule.listeners.showAll(event)"
-		href="javascript:;" {if $showAll}style="font-weight: bold"{/if}>all</a>
+		href="javascript:;" {if isset($showAll)}style="font-weight: bold"{/if}>all</a>
 	</p>
 	<table class="grid form" style="font-size: 87%" id="invitations-history-table">
 		<tr>
@@ -36,7 +36,7 @@
 			</td>
 			<td>
 				{$invitation->getName()|escape} &lt;{$invitation->getEmail()|escape}&gt;
-				{if $showAll}
+				{if isset($showAll)}
 					<br/>
 					{t}invited by{/t}<br/>
 					{printuser user=$invitation->getUser()}

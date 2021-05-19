@@ -7,7 +7,7 @@
 	</p>
 {else}
 	<h1>{t}Delete page{/t}</h1>
-	{if $canDelete}
+	{if isset($canDelete)}
 		<p>
 			{t}
 				You can delete the page by either move it to a "deleted" category or by just removing it
@@ -30,7 +30,7 @@
 {/if}
 
 <div id="rename-option-rename">
-	{if $delete}
+	{if isset($delete)}
 		<p>
 			{t}By preceding the page name with "deleted:" it can be moved to a different category (namespace).
 			It is more or less equivalent to delete but no information is lost.{/t}
@@ -38,7 +38,7 @@
 	{/if}
 
 
-	{if $isForum}
+	{if isset($isForum)}
 		<div class="warning-block">
 			<div class="title">Warning!</div>
 			<p>
@@ -55,7 +55,7 @@
 			</p>
 		</div>
 	{/if}
-	{if $isAdmin}
+	{if isset($isAdmin)}
 		<div class="warning-block">
 			<div class="title">Warning!</div>
 			<p>

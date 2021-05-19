@@ -8,7 +8,7 @@
 	links. But it is recommended to check this list from time to time.
 </p>
 
-{if $pages}
+{if isset($pages)}
 	{foreach from=$pages item=page}
 		<a href="/{$page->getUnixName()}">{$page->getTitleOrUnixName()|escape}</a> <span style="color: #999">({$page->getUnixName()})</span>
 		<br/>

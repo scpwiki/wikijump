@@ -6,7 +6,7 @@
 		<form id="login-form" action="/common--misc/blank.html" method="post"
 			{*onsubmit="Wikijump.modules.LoginModule3.listeners.loginClick(event);"*}>
 			<div style="text-align: center">
-				{if $user}
+				{if isset($user)}
 					{t}Hello{/t}, <span style="font-size:130%; font-weight: bold">{$user->username|escape}</span>
 					<br/>
 					<br/>
@@ -20,7 +20,7 @@
 				<br/>
 				<input class="text" name="password"  type="password" size="25" id="login-form-password"/>
 				<br/><br/>
-				{if $user}
+				{if isset($user)}
 					{*(<a href="javascript:;" style="font-size: 85%" onclick="window.location.href = window.location.href+'/clearwelcome/true'">{t}log in as a different User{/t}</a>)*}
 					(<a href="javascript:;" style="font-size: 85%" onclick="this.href = window.location.href+'/clearwelcome/true'">{t}log in as a different User{/t}</a>)
 					<br/><br/>

@@ -5,7 +5,7 @@
 	Below you can assign default page skeletons/templates (pages from the <em>template:</em> category)
 	to new created pages in particular categories.
 </p>
-{if $noTemplates}
+{if isset($noTemplates)}
 <p>
 	Sorry, there are no templates available in this site.
 	To create a template, simply create a new page named e.g. <br/>

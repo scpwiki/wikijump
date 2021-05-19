@@ -29,7 +29,7 @@
 	<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-private')">private</a>;
 </p>
 
-{if $allowed}
+{if isset($allowed)}
 	<p>
 		If you really really have a good reason to delete this wiki, click the button below:
 	</p>

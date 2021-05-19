@@ -8,7 +8,7 @@
 			{t}While you have been editing the page contents someone else removed your
 			edit lock and started editing the page in a way that your actions conflict.{/t}
 		</p>
-		{if $nonrecoverable}
+		{if isset($nonrecoverable)}
 			<p>
 				{t}Moreover the page content has been already changed. The safest solution is
 				to stop editing, review changes made to the page and apply your changes again.{/t}

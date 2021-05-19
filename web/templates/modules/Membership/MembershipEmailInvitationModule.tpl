@@ -7,7 +7,7 @@
 			from the invitation email might be corrupted somehow.
 		</p>
 	{else}
-		<h2><span>{t}Hi{/t}, {if $user}{printuser user=$user}{else}{$invitation->getName()|escape}{/if}!</span></h2>
+		<h2><span>{t}Hi{/t}, {if isset($user)}{printuser user=$user}{else}{$invitation->getName()|escape}{/if}!</span></h2>
 
 		<p>
 			It seems you got an invitation from our user {printuser user=$sender image=true} to become
@@ -17,7 +17,7 @@
 			All you have to do is to accept the invitation and we will instantly add you to members of this Site.
 		</p>
 
-		{if $user}
+		{if isset($user)}
 			<p style="padding: 1em; font-size: 180%; text-align: center;font-weight: bold;line-spacing: 120%;">
 				<a href="javascript:;" onclick="Wikijump.modules.MembershipEmailInvitationModule.listeners.accept(event, '{$hash}')">accept invitation</a>
 			</p>

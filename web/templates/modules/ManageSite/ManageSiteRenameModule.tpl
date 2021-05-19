@@ -15,7 +15,7 @@
 	Once again: please, use it with care.
 </p>
 
-{if $allowed}
+{if isset($allowed)}
 	<form onsubmit="return false;">
 		<table class="form">
 			<tr>

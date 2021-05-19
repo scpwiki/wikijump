@@ -1,6 +1,6 @@
 <h1>{t}Member the following sites:{/t}</h1>
 
-{if $memberships}
+{if isset($memberships)}
 	<div class="sites-list">
 		{foreach from=$memberships item=membership}
 

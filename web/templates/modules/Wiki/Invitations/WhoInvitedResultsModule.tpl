@@ -1,6 +1,6 @@
 results:
 
-{if $noData}
+{if isset($noData)}
 	<p>
 		No data for this Member.
 	</p>

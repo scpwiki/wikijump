@@ -27,16 +27,16 @@
 	{* {$area} *}
 	{* {$query_debug|escape} *}
 
-	{if $message}
+	{if isset($message)}
 		<p>{$message}</p>
 	{/if}
 
-	{capture name="destUrl"}/search:site{if $area}/a/{$area}{/if}/q/{$queryEncoded}/p/%d{/capture}
+	{capture name="destUrl"}/search:site{if isset($area)}/a/{$area}{/if}/q/{$queryEncoded}/p/%d{/capture}
 
 	{pager url=$smarty.capture.destUrl total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
 
 	<div class="search-results">
-		{if $results}
+		{if isset($results)}
 			{foreach from=$results item=result}
 				<div class="item">
 					<div class="title">

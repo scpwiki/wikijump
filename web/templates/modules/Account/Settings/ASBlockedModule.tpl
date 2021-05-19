@@ -9,7 +9,7 @@
 </p>
 
 <h2>List of blocked users</h2>
-{if $blocks}
+{if isset($blocks)}
 	<ul style="list-style: none">
 		{foreach from=$blocks item=block}
 			<li style="margin: 0.2em 0">

@@ -66,7 +66,7 @@
 		<div class="edit-help-34">
 			{t escape=no}Need help? Check the <a href="{$URL_DOCS}" target="_blank">documentation</a>.{/t}
 		</div>
-		{if $anonymousString}
+		{if isset($anonymousString)}
 			<div class="note-block">
 				<h3>Anonymous edit!</h3>
 				<p>

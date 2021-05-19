@@ -19,7 +19,7 @@
 		<div class="edit-help-34">
 			{t}Need help? Check the{/t} <a href="{$URL_DOCS}" target="_blank">{t}documentation{/t}</a>.
 		</div>
-		{if $anonymousString}
+		{if isset($anonymousString)}
 			<div class="note-block">
 				<h3>{t}Anonymous edit!{/t}</h3>
 				<p>

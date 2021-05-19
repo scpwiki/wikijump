@@ -1,6 +1,6 @@
 <h1>List of orphaned pages</h1>
 
-{if $pages}
+{if isset($pages)}
 	{foreach from=$pages item=page}
 		<a href="/{$page->getUnixName()}">{$page->getTitleOrUnixName()|escape}</a> <span style="color: #999">({$page->getUnixName()})</span>
 		<br/>

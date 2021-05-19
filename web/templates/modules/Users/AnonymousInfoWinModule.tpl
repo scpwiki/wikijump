@@ -8,10 +8,10 @@
 
 		<ul>
 			<li>
-				{t}IP address{/t}: <strong>{$ip}</strong> {if $privateIp}(<span id="private-range-help">{t}from a private IP range{/t} [?]</span>){/if}
+				{t}IP address{/t}: <strong>{$ip}</strong> {if isset($privateIp)}(<span id="private-range-help">{t}from a private IP range{/t} [?]</span>){/if}
 			</li>
 
-			{if $proxy}
+			{if isset($proxy)}
 				<li>
 					{t}Proxy server{/t}: <strong>{$proxy}</strong>  <span id="proxy-help">[?]</span>
 				</li>
@@ -35,7 +35,7 @@
 		for web browsing.<br/>
 		You cannot rely on a private IP address for unique computer identification.{/t}
 	</div>
-	{if $proxy}
+	{if isset($proxy)}
 	<div id="proxy-help-hovertip" style="display:none">
 		{t}WWW Proxy.{/t}
 	</div>

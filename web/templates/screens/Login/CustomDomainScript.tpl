@@ -1,12 +1,12 @@
 {$page->setLayout("Raw")}
 
-{if $redir}
+{if isset($redir)}
 
 	window.location = '{$redir}&url=' + encodeURIComponent(window.location);
 
 {/if}
 
-{if $redirIE}
+{if isset($redirIE)}
 
 	{* only in IE try to redirect to set the short cookie *}
 

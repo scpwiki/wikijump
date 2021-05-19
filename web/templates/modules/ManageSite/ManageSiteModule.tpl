@@ -1,4 +1,4 @@
-{if $start}
+{if isset($start)}
 <script type="text/javascript">
 	smStartPage = "{$start}";
 </script>
@@ -13,11 +13,11 @@
 		<ul id="sm-menu">
 			<li><a href="javascript:;" id="sm-welcome">{t}Welcome to site manager{/t}!</a></li>
 			<li><a href="javascript:;" id="sm-general">{t}General settings{/t}</a></li>
-			{if $useCustomDomains}
+			{if isset($useCustomDomains)}
 				<li><a href="javascript:;" id="sm-domain">{t}Custom domain{/t}</a></li>
 			{/if}
-			{if $allowHttp}
-			{if $useSsl}
+			{if isset($allowHttp)}
+			{if isset($useSsl)}
 				<li><a href="javascript:;" id="sm-ssl">{t}Secure access (SSL/TLS){/t}</a></li>
 			{/if}
 			{/if}
@@ -55,7 +55,7 @@
 					<li><a href="javascript:;" id="sm-users-email-invitations">{t}Let the Users invite{/t}</a></li>
 				</ul>
 			</li>
-			{if $enableLists}
+			{if isset($enableLists)}
 			<li><a href="javascript:;" id="sm-email-lists">{t}Email lists{/t}</a></li>
 			{/if}
 			<li><a href="javascript:;">{t}Blocks{/t}</a>

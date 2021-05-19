@@ -4,7 +4,7 @@
 	<p>
 		{t}Are you sure you want to delete the above post? There is no way to recover deleted posts.{/t}
 	</p>
-	{if $hasChildren}
+	{if isset($hasChildren)}
 		<p>
 			{t}The post you want to delete is placed in a nested environment. All other
 			posts that depend (are lower in a dep tree) are also surrounded by a red frame and

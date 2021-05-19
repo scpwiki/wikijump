@@ -1,5 +1,5 @@
 <div class="backlinks-module-box">
-	{if $pages}
+	{if isset($pages)}
 		<ul>
 			{foreach from=$pages item=page}
 				<li>

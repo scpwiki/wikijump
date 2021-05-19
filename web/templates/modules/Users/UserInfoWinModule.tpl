@@ -35,10 +35,10 @@
             {elseif $user->karma_level == 5}{t}guru{/t}
         {/if}
 		<img src="/userkarma.php?u={$user->id}"/>
-		{if $member}
+		{if isset($member)}
 			<br/>
 			{t}Member of this Site: since{/t} <span class="odate">{$member->getDateJoined()->getTimestamp()}|%e %b %Y, %H:%M %Z (%O {t}ago{/t})</span><br/>
-			{if $role}
+			{if isset($role)}
 				{t}Role in this Site{/t}: {if $role=="admin"}{t}Site Administrator{/t}{/if}{if $role=="moderator"}{t}Site Moderator{/t}{/if}
 			{/if}
 		{/if}

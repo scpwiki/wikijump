@@ -1,6 +1,6 @@
 
 <div>
-	{if $memberships}
+	{if isset($memberships)}
 	<table>
 		{foreach from=$memberships item=membership}
 			{assign var=user value=$membership->getUser()}

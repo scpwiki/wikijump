@@ -20,7 +20,7 @@
 	</tr>
 </table>
 
-{if $hasPermission}
+{if isset($hasPermission)}
 <p>
 	{t}Unfortunately the file named{/t} {$newFile->getFilename()|escape} {t}already exists{/t}. {t}Do you want
 	to overwrite it?{/t}

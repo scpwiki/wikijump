@@ -42,7 +42,7 @@
 	{/foreach}
 
 	<!-- options -->
-	{if $messages}
+	{if isset($messages)}
 		<tr>
 			<td colspan="4"  style="padding: 1em 2em 0 0; text-align: right;">
 				<a href="javascript:;" onclick="Wikijump.modules.PMSentModule.listeners.removeSelected(event)">{t}remove selected{/t}</a>

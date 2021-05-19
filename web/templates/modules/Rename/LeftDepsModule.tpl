@@ -9,7 +9,7 @@
 			{t}... there are a few dependencies left.{/t}
 		</p>
 
-		{if $pages}
+		{if isset($pages)}
 			<h2>{t}Backlinks{/t}</h2>
 			<ul>
 				{foreach from=$pages item=page}
@@ -20,7 +20,7 @@
 			</ul>
 		{/if}
 
-		{if $pagesI}
+		{if isset($pagesI)}
 			<h2>{t}Inclusions{/t}</h2>
 			<ul>
 				{foreach from=$pagesI item=page}

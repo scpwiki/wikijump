@@ -1,15 +1,15 @@
-{if $newPage}
+{if isset($newPage)}
 	<h1>{t}Create a new page{/t}</h1>
 {else}
 	<h1>{t}Edit the page{/t}</h1>
 {/if}
 
-{if $lock}
+{if isset($lock)}
 
 {else}
 	<div>
 
-		<form id="edit-page-form"{if $form} class="edit-with-form"{/if}>
+		<form id="edit-page-form"{if isset($form)} class="edit-with-form"{/if}>
 			<input type="hidden" name="page_id" value="{$pageId|escape}"/>
 			{if $mode=="page" || ($newPage && $templates)}
 				<table class="form" style="margin: 0.5em auto 1em 0">
@@ -41,7 +41,7 @@
 					{/if}
 				</table>
 			{/if}
-            {if $form}
+            {if isset($form)}
                 <input type="hidden" name="form" value="true"/>
                 <table class="form" style="margin: 0.5em auto 1em 0pt">
                     {foreach from=$form->fields item=field}
@@ -78,7 +78,7 @@
 						</div>
 					</td>
 					<td style="border: none; padding: 0 5px;">
-						<div id="lock-info" {if $disableLocks}style="display: none"{/if}>
+						<div id="lock-info" {if isset($disableLocks)}style="display: none"{/if}>
 							{t 1="900" escape=no}You have acquired an exclusive 15-minute page lock which means nobody else can edit the page simultaneously to
 								avoid conflicts.
 								<br/>
@@ -88,7 +88,7 @@
 				</tr>
 			</table>
 
-			{if $anonymousString}
+			{if isset($anonymousString)}
 				<div class="note-block">
 					<h3>{t}Anonymous edit!{/t}</h3>
 					<p>

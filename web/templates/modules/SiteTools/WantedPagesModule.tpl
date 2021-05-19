@@ -4,7 +4,7 @@
 	Here is a list of pages that do not exist but there are links that point to them.
 </p>
 
-{if $res}
+{if isset($res)}
 <table class="form grid" style="margin: 1em auto;">
 	<tr>
 		<th>

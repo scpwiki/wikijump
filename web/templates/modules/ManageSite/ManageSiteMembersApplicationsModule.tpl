@@ -1,5 +1,5 @@
 <h1>Current Member Applications:</h1>
-{if $applications}
+{if isset($applications)}
 	{foreach from=$applications item=application}
 		{assign var=user value=$application->getUser()}
 		<h3>Membership application from {printuser user=$user image=true}</h3>

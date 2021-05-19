@@ -1,4 +1,4 @@
-{if $user}
+{if isset($user)}
 	<form action="javascript:;" onsubmit="Wikijump.ManageSuperUserModule.save(this);">
 		<input name="key" type="hidden" value="{$key}"/>
 		<table>
