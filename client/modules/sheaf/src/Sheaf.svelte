@@ -5,7 +5,7 @@
   import { SheafCore } from "sheaf-core"
   import type { SheafBindings } from "sheaf-core/src/bindings"
   import { setContext } from "svelte"
-  import { PreferenceHandler } from "wj-state"
+  import { matchBreakpoint, PreferenceHandler } from "wj-state"
   import { getDefaultSheafSettings } from "./context"
   import type { SheafContext } from "./context"
   import PaneEditor from "./PaneEditor.svelte"
@@ -37,6 +37,9 @@
   }
 
   setContext("sheaf", ctx)
+
+  $: small = $matchBreakpoint("<normal")
+  $: editor.gutters = !small
 </script>
 
 <div class="sheaf-container" style="width: {width}; height: {height};">
@@ -45,7 +48,7 @@
       <PaneEditor {doc} />
     </div>
 
-    {#if $settings.preview.enabled}
+    {#if $settings.preview.enabled && !small}
       <div class="sheaf-pane sheaf-pane-preview">
         <PanePreview />
       </div>
