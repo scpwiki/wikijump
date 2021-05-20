@@ -121,7 +121,7 @@ def compare_block_data(block_conf, block_rules):
     deleted = block_conf_names - block_rule_names
 
     if added:
-        print("Blocks were added to code, but not to configurations:")
+        print("Blocks were added to code, but not to configuration:")
 
         for name in added:
             print(f"* {name}")
@@ -130,7 +130,7 @@ def compare_block_data(block_conf, block_rules):
         success = False
 
     if deleted:
-        print("Blocks were deleted from code, but not from configurations:")
+        print("Blocks were deleted from code, but not from configuration:")
 
         for name in deleted:
             print(f"* {name}")
@@ -138,7 +138,7 @@ def compare_block_data(block_conf, block_rules):
         print()
         success = False
 
-    # Check for contents of each block
+    # Check contents of each block
     print("Checking blocks:")
     for name in sorted(block_rules.keys()):
         if name not in block_conf:
@@ -162,13 +162,63 @@ def compare_block_data(block_conf, block_rules):
         check("accepts-score")
         check("accepts-newlines")
 
+    print()
     return success
 
 
 def compare_module_data(module_conf, module_rules):
-    print(module_conf)
-    print(module_rules)
-    return True
+    success = True
+
+    # Check for new or removed modules
+    module_conf_names = frozenset(module_conf.keys())
+    module_rule_names = frozenset(module_rules.keys())
+
+    added = module_rule_names - module_conf_names
+    deleted = module_conf_names - module_rule_names
+
+    if added:
+        print("Modules were added to code, but not to configuration:")
+
+        for name in sorted(added):
+            print(f"* {name}")
+
+        print()
+        success = False
+
+    if deleted:
+        print("Modules were deleted from code, but not from configuration:")
+
+        for name in sorted(deleted):
+            print(f"* {name}")
+
+        print()
+        success = False
+
+    # Check contents of each module
+    print("Checking modules:")
+    for name in sorted(module_rules.keys()):
+        if name not in module_conf:
+            print(f"! {name} (MISSING)")
+            continue
+
+        # Check module
+        print(f"+ {name}")
+        conf = block_conf[name]
+        rule = block_rules[name]
+
+        def check(key):
+            if rule[key] != conf[key]:
+                print(f"  Key {key}:")
+                print(f"    Code:   {check_format(rule[key])}")
+                print(f"    Config: {check_format(conf[key])}")
+                success = False
+
+        check("aliases")
+        print('conf', conf)
+        print('rule', rule)
+
+    print()
+    return success
 
 
 if __name__ == "__main__":
