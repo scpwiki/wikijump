@@ -20,9 +20,13 @@
   function kilobyteCount(str: string) {
     // this is a really _spicy_ way of getting a rough kilobyte count
     // it doesn't need to be precise at all, so this is fine.
+    // FYI: I didn't come up with this trick - it's been around a while.
+    // there isn't actually a decent way to get the byte size of a JS string
+    // without involving iterating through it or some other expensive operation
     return Math.round((encodeURI(str).split(/&..|./).length - 1) / 1000)
   }
 
+  // TODO: fix this function by parsing AST or something similar, currently inaccurate
   function wordCount(str: string) {
     return str.trim().split(/\s+/).length
   }
