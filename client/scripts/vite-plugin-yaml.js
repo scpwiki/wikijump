@@ -16,6 +16,8 @@ module.exports = function viteYAMLPlugin() {
         }
 
         return {
+          // stringify twice so that we get an escaped string
+          // e.g. "{\"foo\": \"bar\"}"
           code: `export default JSON.parse(${JSON.stringify(JSON.stringify(obj))});`,
           map: { mappings: "" }
         }
