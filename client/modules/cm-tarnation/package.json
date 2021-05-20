@@ -22,7 +22,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "@codemirror/highlight": "^0.18.3",
+    "@codemirror/highlight": "^0.18.4",
     "@codemirror/language": "^0.18.1",
     "@codemirror/state": "^0.18.7",
     "@codemirror/view": "^0.18.12",

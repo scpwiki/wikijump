@@ -14,7 +14,7 @@ importers:
       '@typescript-eslint/parser': ^4.24.0
       '@typescript-eslint/typescript-estree': ^4.24.0
       babel-plugin-istanbul: ^6.0.0
-      esbuild: ^0.11.23
+      esbuild: ^0.12.1
       eslint: ^7.26.0
       eslint-plugin-compat: ^3.9.0
       eslint-plugin-import: ^2.23.2
@@ -57,7 +57,7 @@ importers:
       '@typescript-eslint/parser': 4.24.0_79813e72f20f3edb599eff4f74fc87fe
       '@typescript-eslint/typescript-estree': 4.24.0_typescript@4.3.1-rc
       babel-plugin-istanbul: 6.0.0
-      esbuild: 0.11.23
+      esbuild: 0.12.1
       eslint: 7.26.0
       eslint-plugin-compat: 3.9.0_eslint@7.26.0
       eslint-plugin-import: 2.23.2_eslint@7.26.0
@@ -93,7 +93,7 @@ importers:
   modules/cm-lang-ftml:
     specifiers:
       '@codemirror/autocomplete': ^0.18.5
-      '@codemirror/highlight': ^0.18.3
+      '@codemirror/highlight': ^0.18.4
       '@codemirror/lang-css': ^0.18.0
       '@codemirror/lang-html': ^0.18.1
       '@codemirror/language': ^0.18.1
@@ -105,11 +105,11 @@ importers:
       lezer-tree: ^0.13.2
       sheaf-core: workspace:*
       wj-prism: workspace:*
-      wj-state: workspace:^0.0.0
+      wj-state: workspace:*
       wj-util: workspace:*
     dependencies:
       '@codemirror/autocomplete': 0.18.5
-      '@codemirror/highlight': 0.18.3
+      '@codemirror/highlight': 0.18.4
       '@codemirror/lang-css': 0.18.0
       '@codemirror/lang-html': 0.18.1
       '@codemirror/language': 0.18.1
@@ -126,7 +126,7 @@ importers:
 
   modules/cm-tarnation:
     specifiers:
-      '@codemirror/highlight': ^0.18.3
+      '@codemirror/highlight': ^0.18.4
       '@codemirror/language': ^0.18.1
       '@codemirror/state': ^0.18.7
       '@codemirror/view': ^0.18.12
@@ -136,7 +136,7 @@ importers:
       lezer-tree: ^0.13.2
       wj-util: workspace:*
     dependencies:
-      '@codemirror/highlight': 0.18.3
+      '@codemirror/highlight': 0.18.4
       '@codemirror/language': 0.18.1
       '@codemirror/state': 0.18.7
       '@codemirror/view': 0.18.12
@@ -228,17 +228,17 @@ importers:
       '@codemirror/comment': ^0.18.1
       '@codemirror/fold': ^0.18.1
       '@codemirror/gutter': ^0.18.3
-      '@codemirror/highlight': ^0.18.3
+      '@codemirror/highlight': ^0.18.4
       '@codemirror/history': ^0.18.1
       '@codemirror/language': ^0.18.1
       '@codemirror/language-data': ^0.18.0
       '@codemirror/legacy-modes': ^0.18.0
       '@codemirror/lint': ^0.18.3
       '@codemirror/matchbrackets': ^0.18.0
-      '@codemirror/panel': ^0.18.1
+      '@codemirror/panel': ^0.18.2
       '@codemirror/rangeset': ^0.18.1
       '@codemirror/rectangular-selection': ^0.18.0
-      '@codemirror/search': ^0.18.2
+      '@codemirror/search': ^0.18.3
       '@codemirror/state': ^0.18.7
       '@codemirror/text': ^0.18.0
       '@codemirror/view': ^0.18.12
@@ -253,17 +253,17 @@ importers:
       '@codemirror/comment': 0.18.1
       '@codemirror/fold': 0.18.1
       '@codemirror/gutter': 0.18.3
-      '@codemirror/highlight': 0.18.3
+      '@codemirror/highlight': 0.18.4
       '@codemirror/history': 0.18.1
       '@codemirror/language': 0.18.1
       '@codemirror/language-data': 0.18.0
       '@codemirror/legacy-modes': 0.18.0
       '@codemirror/lint': 0.18.3
       '@codemirror/matchbrackets': 0.18.0
-      '@codemirror/panel': 0.18.1
+      '@codemirror/panel': 0.18.2
       '@codemirror/rangeset': 0.18.1
       '@codemirror/rectangular-selection': 0.18.0
-      '@codemirror/search': 0.18.2
+      '@codemirror/search': 0.18.3
       '@codemirror/state': 0.18.7
       '@codemirror/text': 0.18.0
       '@codemirror/view': 0.18.12
@@ -606,6 +606,17 @@ packages:
       style-mod: 4.0.0
     dev: false
 
+  /@codemirror/highlight/0.18.4:
+    resolution: {integrity: sha512-3azJntqWrShOIq/0kVcdMc9k7ACL0LQErgK+A6aWXmCj5Mx0gShq+Iajy8AMQ2zB0v3nhCBgFaniL1LLD5m5hQ==}
+    dependencies:
+      '@codemirror/language': 0.18.1
+      '@codemirror/rangeset': 0.18.1
+      '@codemirror/state': 0.18.7
+      '@codemirror/view': 0.18.12
+      lezer-tree: 0.13.2
+      style-mod: 4.0.0
+    dev: false
+
   /@codemirror/history/0.18.1:
     resolution: {integrity: sha512-Aad3p4zs6UYKCUMXYjh7cvPK0ajuL+rMib9yBZ61w81LLl6OkM31Xrn9J6CLJmPxCwP3OJFiqBmNSBQ05oIsTw==}
     dependencies:
@@ -782,6 +793,13 @@ packages:
       '@codemirror/view': 0.18.12
     dev: false
 
+  /@codemirror/panel/0.18.2:
+    resolution: {integrity: sha512-ea/g2aAKtfmie1kD7C8GDutD/5u+uzRJr/varUiAbHKr1sAdjtz5xYvC3GBAMYMan1GOh0vD5zP1yEupJl3b3Q==}
+    dependencies:
+      '@codemirror/state': 0.18.7
+      '@codemirror/view': 0.18.12
+    dev: false
+
   /@codemirror/rangeset/0.18.1:
     resolution: {integrity: sha512-Q+t92KlvDDD9oNXOvYHNL3kEUF1Y595OjSsl5GNZYI2JPY8IW9PoH1z37sgqgxMMuWQrDNp6AOrnd2j/7uBhFA==}
     dependencies:
@@ -796,10 +814,10 @@ packages:
       '@codemirror/view': 0.18.12
     dev: false
 
-  /@codemirror/search/0.18.2:
-    resolution: {integrity: sha512-t90Ra34piJDF589hNDmuA1fVKCFDh0FTuTZTHDmmSaWS5OWq2++zAwRTQnOdQD+uGfEUwLQPiLJzu60NDhA5xw==}
+  /@codemirror/search/0.18.3:
+    resolution: {integrity: sha512-9s8ltRtBHcEZmE9lHBmYArfdj9bpsCkxLYjvrzOVqix3wv5DVAgcfk3Kd1WkahhkTzycYULC+r9KKmelUEyTbg==}
     dependencies:
-      '@codemirror/panel': 0.18.1
+      '@codemirror/panel': 0.18.2
       '@codemirror/rangeset': 0.18.1
       '@codemirror/state': 0.18.7
       '@codemirror/text': 0.18.0
@@ -2019,6 +2037,12 @@ packages:
 
   /esbuild/0.11.23:
     resolution: {integrity: sha512-iaiZZ9vUF5wJV8ob1tl+5aJTrwDczlvGP0JoMmnpC2B0ppiMCu8n8gmy5ZTGl5bcG081XBVn+U+jP+mPFm5T5Q==}
+    hasBin: true
+    requiresBuild: true
+    dev: true
+
+  /esbuild/0.12.1:
+    resolution: {integrity: sha512-WfQ00MKm/Y4ysz1u9PCUAsV66k5lbrcEvS6aG9jhBIavpB94FBdaWeBkaZXxCZB4w+oqh+j4ozJFWnnFprOXbg==}
     hasBin: true
     requiresBuild: true
     dev: true

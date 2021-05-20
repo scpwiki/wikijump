@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@codemirror/autocomplete": "^0.18.5",
-    "@codemirror/highlight": "^0.18.3",
+    "@codemirror/highlight": "^0.18.4",
     "@codemirror/lang-css": "^0.18.0",
     "@codemirror/lang-html": "^0.18.1",
     "@codemirror/language": "^0.18.1",
