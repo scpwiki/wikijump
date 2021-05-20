@@ -10,5 +10,13 @@
     "**/.ultra.cache.json": true,
     "**/pnpm-lock.yaml": true
   },
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "i18n-ally.enabledFrameworks": [
+    "svelte"
+  ],
+  "i18n-ally.pathMatcher": "{locale}.{ext}",
+  "i18n-ally.localesPaths": [
+    "../locales"
+  ],
+  "i18n-ally.readonly": true
 }
