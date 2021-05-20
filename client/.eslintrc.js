@@ -133,7 +133,6 @@ const rules = {
         "prefer-predefined-assertion",
         "hexadecimal-escape",
         "prefer-character-class",
-        "prefer-d",
         "prefer-question-quantifier",
         "prefer-t",
         "sort-flags",
