@@ -10,7 +10,7 @@
     "**/.ultra.cache.json": true,
     "**/pnpm-lock.yaml": true
   },
-  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "typescript.tsdk": "node_module/typescript/lib",
   "i18n-ally.enabledFrameworks": [
     "svelte"
   ],
