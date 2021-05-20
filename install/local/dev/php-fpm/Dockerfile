@@ -23,7 +23,11 @@ RUN git clone \
 
 WORKDIR /src/${WIKIJUMP_REPO_DIR}/ftml
 
-RUN cargo build --release
+# Build ftml-ffi without logging
+RUN cargo build \
+        --release \
+        --no-default-features \
+        --features ffi
 
 #
 # Main php-fpm container
