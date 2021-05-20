@@ -1,0 +1,58 @@
+# Generic UI components
+components:
+  spinny:
+    label:
+      ACTIVE: Activeyay oadinglay indicatoray
+      ERROR: Erroray indicatoray
+      SUCCESS: Uccesssay indicatoray
+      WARNING: Arningyay indicatoray
+
+  wikitext:
+    RENDERING_INDICATOR: Enderingray...
+    perf:
+      TITLE: Erformancepay
+      RENDER: "ENDERRAY:"
+
+# Sheaf editor
+sheaf:
+  TITLE: EAFSHAY
+  VERSION: Alphayay
+
+  tooltips:
+    CLOSE_PREVIEW: Oseclay Reviewpay
+    OPEN_PREVIEW: Openay Reviewpay
+
+  stats:
+    CHARS: ARSCHAY
+    BYTES: YTESBAY
+    WORDS: ORDSWAY
+    LINES: INESLAY
+
+  preview_tabs:
+    RESULT: Esultray
+    HTML: TMLHAY Outputay
+    CSS: SSCAY Outputay
+    AST: ASTAY
+
+# CodeMirror FTML language extension
+cmftml:
+  lint:
+    # Warning emit description
+    WARNING_SOURCE: >
+      tmlfay({rule}: {kind} atay {token}) [{from, number, :: ,_}, {to, number, :: ,_}]
+    # Warnings
+    RECURSION_DEPTH_EXCEEDED: Ootay uchmay ecursionray inyay arkupmay.
+    NOT_IMPLEMENTED: Ethay yntaxsay ''{slice}'' asn'thay eenbay implementedyay inyay TMLFAY etyay.
+    INVALID_INCLUDE: Isthay includeyay isyay invalidyay andyay on'tway ebay enderedray.
+    LIST_DEPTH_EXCEEDED: Isthay istlay isyay estednay ootay eeplyday, andyay an'tcay ebay enderedray.
+    BLOCKQUOTE_DEPTH_EXCEEDED: Isthay ockquoteblay isyay estednay ootay eeplyday, andyay an'tcay ebay enderedray.
+    NO_SUCH_BLOCK: Unknownyay ockblay ''{slice}''.
+    INVALID_SPECIAL_BLOCK: Ockblay ''{slice}'' oesn'tday avehay ayay ecialspay invocationyay. (artingsay '*' aracterch)
+    BLOCK_MISSING_NAME: Ockblay ''{slice}'' requires ayay amenam/aluevay, utbay onenay isyay ecifiedspay.
+    BLOCK_MISSING_CLOSE_BRACKETS: Isthay ockblay isyay issingmay osingclay ']]' acketsbray.
+    BLOCK_MALFORMED_ARGUMENTS: Ockblay ''{slice}'' isyay issingmay one or more required arguments.
+    BLOCK_EXPECTED_END: Ethay ockblay ofyay ypetay ''{rule}'' asway expectedyay otay endyay ybay atyay eastlay isthay ointpay.
+    BLOCK_END_MISMATCH: Ethay ockblay ofyay ypetay ''{rule}'' asway expectedyay otay endyay erehay.
+    NO_SUCH_MODULE: Unknownyay odulemay ''{slice}''.
+    MODULE_MISSING_NAME: Ayay odulemay amenay asway expectedyay otay ebay ovidedpray.
+    INVALID_URL: Ethay URLYAY ''{slice}'' isyay invalidyay.
