@@ -1,13 +1,12 @@
 import { Diagnostic, linter } from "@codemirror/lint"
 import type { EditorView } from "@codemirror/view"
 import { warnings } from "ftml-wasm-worker"
+import { format } from "wj-state"
 
 interface WarningInfo {
-  message: string | ((rule: string, slice: string) => string)
+  message: string
   severity: "info" | "warning" | "error"
 }
-
-// TODO: translation handling (need a schema for that first)
 
 const warningInfo: Record<string, WarningInfo | null> = {
   // ignored warnings
@@ -16,82 +15,77 @@ const warningInfo: Record<string, WarningInfo | null> = {
   "rule-failed": null,
 
   "recursion-depth-exceeded": {
-    message: "Too much recursion in markup.",
+    message: "cmftml.lint.RECURSION_DEPTH_EXCEEDED",
     severity: "error"
   },
 
   "not-implemented": {
-    message: (rule, slice) =>
-      `The syntax '${slice}' hasn\'t been implemented in FTML yet.`,
+    message: "cmftml.lint.NOT_IMPLEMENTED",
     severity: "warning"
   },
 
   "invalid-include": {
-    message: "This include isn't valid and can't be rendered.",
+    message: "cmftml.lint.INVALID_INCLUDE",
     severity: "error"
   },
 
   "list-depth-exceeded": {
-    message: "This list is nested too deeply, and can't be rendered.",
+    message: "cmftml.lint.LIST_DEPTH_EXCEEDED",
     severity: "error"
   },
 
   "blockquote-depth-exceeded": {
-    message: "This blockquote is nested too deeply, and can't be rendered.",
+    message: "cmftml.lint.BLOCKQUOTE_DEPTH_EXCEEDED",
     severity: "error"
   },
 
   "no-such-block": {
-    message: (rule, slice) => `Unknown block '${slice}'.`,
+    message: "cmftml.lint.NO_SUCH_BLOCK",
     severity: "error"
   },
 
   "invalid-special-block": {
-    message: (rule, slice) =>
-      `Block '${slice}' doesn't have a special invocation. (starting '*' character)`,
+    message: "cmftml.lint.INVALID_SPECIAL_BLOCK",
     severity: "warning"
   },
 
   "block-missing-name": {
-    message: (rule, slice) =>
-      `Block '${slice}' requires a name/value, but none is specified.`,
+    message: "cmftml.lint.BLOCK_MISSING_NAME",
     severity: "error"
   },
 
   "block-missing-close-brackets": {
-    message: "Block is missing closing ']]' brackets.",
+    message: "cmftml.lint.BLOCK_MISSING_CLOSE_BRACKETS",
     severity: "error"
   },
 
   "block-malformed-arguments": {
-    message: (rule, slice) =>
-      `Block '${slice}' is missing one or more required arguments.`,
+    message: "cmftml.lint.BLOCK_MALFORMED_ARGUMENTS",
     severity: "error"
   },
 
   "block-expected-end": {
-    message: (rule, slice) =>
-      `Block of type '${rule}' was expected to end by at least this point.`,
+    message: "cmftml.lint.BLOCK_EXPECTED_END",
     severity: "error"
   },
 
   "block-end-mismatch": {
-    message: (rule, slice) => `Block of type '${rule}' was expected to end here.`,
+    message: "cmftml.lint.BLOCK_END_MISMATCH",
     severity: "error"
   },
 
   "no-such-module": {
-    message: (rule, slice) => `Unknown module '${slice}'.`,
+    message: "cmftml.lint.NO_SUCH_MODULE",
     severity: "error"
   },
 
   "module-missing-name": {
-    message: "A module name was expected to be provided here.",
+    message: "cmftml.lint.MODULE_MISSING_NAME",
     severity: "error"
   },
 
   "invalid-url": {
-    message: (rule, slice) => `The URL '${slice}' is invalid.`,
+    message: "cmftml.lint.INVALID_URL",
     severity: "error"
   }
 }
@@ -113,11 +107,15 @@ async function lint(view: EditorView) {
       if (!warningInfo[kind]) continue
 
       let { message, severity } = warningInfo[kind]!
-      const source = `ftml(${rule}: ${kind} at ${token}) [${from}, ${to}]`
 
-      if (typeof message === "function") {
-        message = message(rule, doc.sliceString(from, to))
-      }
+      // format and translate
+
+      const slice = doc.sliceString(from, to)
+      message = format(message, { values: { rule, slice } })
+
+      const source = format("cmftml.lint.WARNING_SOURCE", {
+        values: { rule, kind, token, from, to }
+      })
 
       diagnostics.push({ from, to, message, severity, source })
     }

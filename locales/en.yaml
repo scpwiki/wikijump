@@ -9,10 +9,14 @@ components:
 
   wikitext:
     RENDERING_INDICATOR: Rendering...
+    perf:
+      TITLE: Performance
+      RENDER: "RENDER:"
 
 # Sheaf editor
 sheaf:
-  TITLE: SHEAF Alpha
+  TITLE: SHEAF
+  VERSION: Alpha
 
   tooltips:
     CLOSE_PREVIEW: Close Preview
@@ -29,3 +33,26 @@ sheaf:
     HTML: HTML Output
     CSS: CSS Output
     AST: AST
+
+# CodeMirror FTML language extension
+cmftml:
+  lint:
+    # Warning emit description
+    WARNING_SOURCE: >
+      ftml({rule}: {kind} at {token}) [{from, number, :: ,_}, {to, number, :: ,_}]
+    # Warnings
+    RECURSION_DEPTH_EXCEEDED: Too much recursion in markup.
+    NOT_IMPLEMENTED: The syntax ''{slice}'' hasn't been implemented in FTML yet.
+    INVALID_INCLUDE: This include is invalid and won't be rendered.
+    LIST_DEPTH_EXCEEDED: This list is nested too deeply, and can't be rendered.
+    BLOCKQUOTE_DEPTH_EXCEEDED: This blockquote is nested too deeply, and can't be rendered.
+    NO_SUCH_BLOCK: Unknown block ''{slice}''.
+    INVALID_SPECIAL_BLOCK: Block ''{slice}'' doesn't have a special invocation. (starting '*' character)
+    BLOCK_MISSING_NAME: Block ''{slice}'' requires a name/value, but none is specified.
+    BLOCK_MISSING_CLOSE_BRACKETS: This block is missing closing ']]' brackets.
+    BLOCK_MALFORMED_ARGUMENTS: Block ''{slice}'' is missing one or more required arguments.
+    BLOCK_EXPECTED_END: The block of type ''{rule}'' was expected to end by at least this point.
+    BLOCK_END_MISMATCH: The block of type ''{rule}'' was expected to end here.
+    NO_SUCH_MODULE: Unknown module ''{slice}''.
+    MODULE_MISSING_NAME: A module name was expected to be provided.
+    INVALID_URL: The URL ''{slice}'' is invalid.
