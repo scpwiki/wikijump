@@ -2,8 +2,10 @@
 import * as i18n from "svelte-i18n"
 import type { MessageFormatter } from "svelte-i18n/types/runtime/types"
 import type { Readable } from "svelte/store"
+import { has } from "wj-util"
+import { Pref } from "./pref"
 
-// -- INIT
+// -- REGISTER LANGUAGES
 
 // we use `en` as a fallback language, so rather than dynamically importing it
 // we will bundle it with the JS. this may be inefficient but it means that
@@ -12,13 +14,34 @@ import type { Readable } from "svelte/store"
 import langEN from "../../../../locales/en.yaml"
 i18n.addMessages("en", langEN as any)
 
+// TODO: this could potentially be made automatic, although it would lose type information
 // register other languages here
-// example: i18n.register("en", () => import("../../../../locales/en.yaml"))
+const localeLoaders = {
+  "en": async () => langEN, // dummy import but useful for type information
+  "pig": () => import("../../../../locales/pig.yaml")
+} as const
+
+// -- INIT
+
+/** Locales that have a localization file registered to them. */
+export type SupportedLocale = keyof typeof localeLoaders
+
+/** List of registered locales. */
+export const locales = Object.keys(localeLoaders) as SupportedLocale[]
+
+for (const locale in localeLoaders) {
+  if (locale === "en") continue // skip "en" as it's a special case, already registered
+  if (has(locale, localeLoaders)) {
+    i18n.register(locale, localeLoaders[locale as SupportedLocale])
+  }
+}
+
+const initialLocale = Pref.get("locale", i18n.getLocaleFromNavigator())
 
 i18n.init({
   fallbackLocale: "en",
-  // TODO: remember language preferences and use those instead
-  initialLocale: i18n.getLocaleFromNavigator()
+  initialLocale,
+  warnOnMissingMessages: true
 })
 
 // -- RE-EXPORTS
@@ -38,6 +61,22 @@ export {
 export { i18n }
 
 // -- EXTENSIONS/HELPERS
+
+/**
+ * Sets the user's locale. This will be persistently saved in
+ * `localStorage`. Throws if the locale specified can't be used, most
+ * likely because it hasn't been registered.
+ *
+ * @param to - The locale to switch to.
+ */
+export function setUserLocale(to: SupportedLocale) {
+  // be extra careful we don't stick the user with a bad locale
+  if (!has(to, localeLoaders)) {
+    throw new Error("Attempted to set invalid locale for user!")
+  }
+  Pref.set("locale", to)
+  i18n.locale.set(to)
+}
 
 /** Reference to the `svelte-i18n`'s most recently created formatting function. */
 export let format!: MessageFormatter
@@ -128,7 +167,7 @@ export type Units =
 export type UnitString = Units | `${Units}-per-${Units}`
 
 // this mess is just kinda how you derive an observable like this
-// there is probably an easier or maybe automatic way to do this
+// there probably is an easier or maybe automatic way to do this
 
 type UnitFn = (d: number, unit: UnitString, opts?: UnitFormatOptions) => string
 

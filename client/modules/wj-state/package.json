@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "is-what": "^4.0.0",
-    "svelte-i18n": "^3.3.9"
+    "svelte-i18n": "^3.3.9",
+    "wj-util": "workspace:^1.0.0"
   }
 }

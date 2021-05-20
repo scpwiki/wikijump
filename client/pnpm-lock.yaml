@@ -291,9 +291,11 @@ importers:
       is-what: ^4.0.0
       svelte: ^3.38.2
       svelte-i18n: ^3.3.9
+      wj-util: workspace:^1.0.0
     dependencies:
       is-what: 4.0.0
       svelte-i18n: 3.3.9_svelte@3.38.2
+      wj-util: link:../wj-util
     devDependencies:
       svelte: 3.38.2
 
