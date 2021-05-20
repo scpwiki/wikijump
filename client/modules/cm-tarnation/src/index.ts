@@ -18,6 +18,7 @@ import { Parser } from "./parser"
 import { Tokenizer } from "./tokenizer"
 
 export * from "./grammar/helpers"
+export * from "./util"
 
 // TODO: reuse ahead buffer rather than just always viewport skipping
 // TODO: fix string with variable array expansion (convert to array of codepoints)
