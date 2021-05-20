@@ -4,7 +4,7 @@ This folder contains the localization files needed by the various Wikijump proje
 
 > ### IMPORTANT:
 >
-> The configuration file format to be used for locales has not been decided yet, which will either be YAML or TOML. For _just right now_, YAML is being used.
+> The configuration file format to be used for locales has not been decided yet. It will be either YAML or TOML. For right now, YAML is being used.
 >
 > Despite this, it is safe to make translations, as it is relatively simple to convert between YAML and TOML and any work done won't be wasted.
 
