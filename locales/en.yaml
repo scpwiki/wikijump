@@ -13,6 +13,10 @@ components:
       TITLE: Performance
       RENDER: "RENDER:"
 
+  # unimplemented
+  theme_picker:
+    TOOLTIP: Set Color Scheme
+
 # Sheaf editor
 sheaf:
   TITLE: SHEAF
