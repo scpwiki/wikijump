@@ -9,6 +9,7 @@ import { completeFTML } from "../autocomplete/autocomplete"
 import { blocks, modules } from "../data/blocks"
 import type { Block, Module } from "../data/types"
 import { FTMLLinter } from "../lint"
+import { StyleAttributeGrammar } from "./css-attributes"
 import { TexLanguage } from "./tex"
 
 function aliases([name, block]: [string, Block | Module]) {
@@ -81,7 +82,11 @@ const data = {
 export const FTMLLanguage = new TarnationLanguage({
   name: "FTML",
 
-  nestLanguages: [...languages, TexLanguage.description],
+  nestLanguages: [
+    ...languages,
+    TexLanguage.description,
+    StyleAttributeGrammar.description
+  ],
 
   languageData: {
     commentTokens: { block: { open: "[!--", close: "--]" } },
@@ -136,7 +141,7 @@ export const FTMLLanguage = new TarnationLanguage({
       escapes: /\\@control/,
 
       bs: /\[{2}(?!\[)\s*(?!\/)/, // block node start
-      bsc: /\[{2}\s*\//,          // block closing node start
+      bsc: /\[{2}\/\s*/,          // block closing node start
       be: /\s*(?!\]{3})\]{2}/,    // block node end
       bsf: /_?(?=@ws|@be|$)/,     // block name suffix
       // block prefix modifiers
@@ -585,14 +590,13 @@ export const FTMLLanguage = new TarnationLanguage({
           BlockNodeArgumentValue: t.string
         } },
 
-        // TODO: port over CSS attribute grammar
-        // [/(style)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
-        //   "BlockNodeArgumentName",
-        //   "t.definitionOperator",
-        //   "t.string",
-        //   { embedded: "css!" },
-        //   "t.string"
-        // ]],
+        [/(style)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
+          "BlockNodeArgumentName",
+          "t.definitionOperator",
+          "t.string",
+          { embedded: "style-attribute!" },
+          "t.string"
+        ]],
 
         [/(\S+?)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
           "BlockNodeArgumentName",

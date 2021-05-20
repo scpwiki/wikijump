@@ -167,14 +167,16 @@ export function completeFTML(context: CompletionContext): CompletionResult | nul
   }
 
   // module names
-  else if (tree.name === "ModuleName") {
+  else if (tree.name === "ModuleName" || tree.name === "ModuleNameUnknown") {
     return { from: tree.from, to: pos, options: moduleAutocompletion }
   }
 
   // block node arguments
   else if (tree.name === "BlockLabel") {
     const tag = text(around.getChild("BlockName"))
-    const module = text(around.getChild("ModuleName"))
+    const module = text(
+      around.getChild("ModuleName") || around.getChild("ModuleNameUnknown")
+    )
 
     const name = module ? `module_${module}` : tag
 
@@ -191,7 +193,9 @@ export function completeFTML(context: CompletionContext): CompletionResult | nul
     )
     const node = findParent(tree, "BlockNode")
     const tag = text(node?.getChild("BlockName"))
-    const module = text(node?.getChild("ModuleName"))
+    const module = text(
+      node?.getChild("ModuleName") || node?.getChild("ModuleNameUnknown")
+    )
 
     // figure out where we need to navigate to in the autocomplete table
     let name = module ? `module_${module}` : tag
