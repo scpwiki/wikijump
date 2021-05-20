@@ -105,7 +105,7 @@ class FeedFlowController extends WebFlowController
         $settings = $site->getSettings();
         // handle SSL
         $sslMode = $settings->getSslMode();
-        if ($_SERVER['HTTPS']) {
+        if (isset($_SERVER['HTTPS'])) {
             if (!$sslMode) {
                 // not enabled, redirect to http:
                 echo _("Secure access is not enabled for this Wiki.");

@@ -111,7 +111,7 @@ class WDDefaultFlowController extends WebFlowController
             // handle SSL
             $sslMode = $settings->getSslMode();
 
-        if ($_SERVER['HTTPS']) {
+        if (isset($_SERVER['HTTPS'])) {
             if (!$sslMode) {
                 // not enabled, issue an errorr
                 throw new ProcessException(_("Secure access is not enabled for this Wiki."));
@@ -225,7 +225,7 @@ class WDDefaultFlowController extends WebFlowController
         $runData->handleSessionEnd();
 
         // one more thing - some url will need to be rewritten if using HTTPS
-        if ($_SERVER['HTTPS']) {
+        if (isset($_SERVER['HTTPS'])) {
             // ?
             // scripts
             $rendered = preg_replace(';<script(.*?)src="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST_PREG .'(.*?)</script>;s', '<script\\1src="https://' . GlobalProperties::$URL_HOST .'\\2</script>', $rendered);

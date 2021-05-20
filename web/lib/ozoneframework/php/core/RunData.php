@@ -86,7 +86,7 @@ class RunData {
 		}
 
 		if ($action !== null  && preg_match('/^[a-z0-9_\/]+$/i', $action) == 1) {
-			$this->parameterList->delParameter['action'];
+			$this->parameterList->delParameter['action'] ?? null;
 			$this->action = str_replace("__", "/",$action);
 
 			// set action event

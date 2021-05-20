@@ -250,7 +250,7 @@ abstract class BaseDBObject {
 	 * @return mixed
 	 */
 	public function getFieldValue($filedName){
-		return $this->fieldValues[$filedName];
+		return $this->fieldValues[$filedName] ?? null;
 	}
 
 	/**
@@ -281,7 +281,7 @@ abstract class BaseDBObject {
 	 * Checks if a field should be saved in a "raw" form.
 	 */
 	public function isFieldRaw($fieldName){
-		if($this->raw[$fieldName]){
+		if(isset($this->raw[$fieldName])){
 			return true;
 		}else{
 			return false;

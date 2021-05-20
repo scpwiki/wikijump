@@ -152,12 +152,14 @@ class WikiPageAction extends SmartyAction
             // check the locks!
             // check if the lock still exists.
             if (!$autoincrement) {
-                $c = new Criteria();
-                $c->add("lock_id", $lockId);
-                $c->add("secret", $lockSecret);
+                if($lockId != null) {
+                    $c = new Criteria();
+                    $c->add("lock_id", $lockId);
+                    $c->add("secret", $lockSecret);
 
-                $lock = PageEditLockPeer::instance()->selectOne($c);
-                if ($lock == null) {
+                    $lock = PageEditLockPeer::instance()->selectOne($c);
+                }
+                if (isset($lock)) {
                     $page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
                     if ($page != null) {
                         // page exists!!! error!
@@ -624,15 +626,17 @@ class WikiPageAction extends SmartyAction
         // delete outdated locks...
 
         // check if the lock still exists.
-        $c = new Criteria();
-        $c->add("lock_id", $lockId);
-        $c->add("secret", $lockSecret);
+        if($lockId != null) {
+            $c = new Criteria();
+            $c->add("lock_id", $lockId);
+            $c->add("secret", $lockSecret);
 
-        $lock = PageEditLockPeer::instance()->selectOne($c);
+            $lock = PageEditLockPeer::instance()->selectOne($c);
+        }
         $dateLastAccessed = new ODate();
         $timeLeft = 15*60 - $sinceLastInput;
         $dateLastAccessed->subtractSeconds($sinceLastInput);
-        if ($lock!=null) {
+        if (isset($lock)) {
             // just update
 
             $lock->setDateLastAccessed($dateLastAccessed);
@@ -640,6 +644,7 @@ class WikiPageAction extends SmartyAction
             $runData->ajaxResponseAdd('timeLeft', $timeLeft);
         } else {
             // no lock!!! not good.
+            if(isset($page)) {
             if ($page != null && $page->getRevisionId() != $pl->getParameterValue("revision_id")) {
                 // this is nonrecoverable.
                 // author should stop editing now!!!
@@ -647,7 +652,8 @@ class WikiPageAction extends SmartyAction
                 $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
                 $runData->contextAdd("nonrecoverable", true);
                 $runData->ajaxResponseAdd("nonrecoverable", true);
-            } elseif ($page == null && PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null) {
+            }
+            } elseif (PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null) {
                 // page exists!
                 $runData->ajaxResponseAdd("noLockError", "page_exists");
                 $runData->ajaxResponseAdd("nonrecoverable", true);

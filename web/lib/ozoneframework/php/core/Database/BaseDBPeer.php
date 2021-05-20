@@ -179,10 +179,12 @@ abstract class BaseDBPeer {
 		$pkName = $this->primaryKeyName;
 
 		if($pkName != null){
-			if($ovals[$pkName] == null && $this->fieldTypes[$pkName] === "serial"){
-				$object->obtainPK();
-				$ovals = $object->getFieldValuesArray();
-			}
+		    if(isset($this->fieldTypes[$pkName]) && isset($ovals[$pkName])) {
+                if ($ovals[$pkName] == null && $this->fieldTypes[$pkName] === "serial") {
+                    $object->obtainPK();
+                    $ovals = $object->getFieldValuesArray();
+                }
+            }
 		}
 
 		$query = "INSERT INTO ".$this->tableName." ";

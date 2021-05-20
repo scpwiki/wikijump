@@ -66,7 +66,7 @@ class Login2Action extends SmartyAction
 
             /* If the request is over https:, we should also use loginauth.php script to set non-ssl ip address. */
 
-        if ($_SERVER['HTTPS']) {
+        if (isset($_SERVER['HTTPS'])) {
             $sessionHash = md5($session->getSessionId() . LoginAuthController::getSecretSeed());
             $parms = array('sessionHash' => $sessionHash);
             if ($originalUrl) {

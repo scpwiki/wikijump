@@ -65,10 +65,13 @@ class PagesTagCloudModule extends SmartyModule
 
         $mc = OZONE::$memcache;
         $struct = $mc->get($key);
-        if (!$struct) {
+        if ($struct === false) {
             $valid = false;
         }
-        $cacheTimestamp = $struct['timestamp'];
+        if (is_array($struct)) {
+            $cacheTimestamp = $struct['timestamp'];
+        }
+        else { $cacheTimestamp = false; }
         $now = time();
 
         // now check lc for ALL categories involved
@@ -237,6 +240,8 @@ class PagesTagCloudModule extends SmartyModule
         }
 
         $site = $runData->getTemp("site");
+
+        $category = null;
 
         if ($categoryName) {
             $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());

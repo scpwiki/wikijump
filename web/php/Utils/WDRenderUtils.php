@@ -56,7 +56,7 @@ class WDRenderUtils
             /* end of karma */
             $out .= '/></a>';
         }
-        if (!$params['noNameLink']) {
+        if (isset($params['noNameLink']) == false) {
             $out .= '<a '.$linkInner.'>'.htmlspecialchars($user->username).'</a></span>';
         } else {
             htmlspecialchars($user->username);

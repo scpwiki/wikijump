@@ -10,8 +10,11 @@
 	<div>
 
 		<form id="edit-page-form"{if isset($form)} class="edit-with-form"{/if}>
+            {if isset($pageId)}
 			<input type="hidden" name="page_id" value="{$pageId|escape}"/>
-			{if $mode=="page" || ($newPage && $templates)}
+            {/if}
+
+			{if isset($mode)}{if $mode=="page" || (isset($newPage) && isset($templates))}
 				<table class="form" style="margin: 0.5em auto 1em 0">
 					{if $mode=="page"}
 						<tr>
@@ -24,7 +27,7 @@
 							</td>
 						</tr>
 					{/if}
-					{if $newPage && $templates}
+					{if isset($newPage) && isset($templates)}
 						<tr>
 							<td>
 								{t}Initial content{/t}:
@@ -32,15 +35,17 @@
 							<td>
 								<select name="theme" id="page-templates" onchange="Wikijump.modules.PageEditModule.listeners.templateChange(event)">
 									<option value=""  style="padding: 0 1em">no template (blank page)</option>
+                                    {if isset($templates)}
 									{foreach from=$templates item=template}
 										<option value="{$template->getPageId()}"  style="padding: 0 1em" {if $template->getPageId() == $templateId}selected="selected"{/if}>{$template->getTitle()|escape}</option>
 									{/foreach}
+                                    {/if}
 								</select>
 							</td>
 						</tr>
 					{/if}
 				</table>
-			{/if}
+			{/if}{/if}
             {if isset($form)}
                 <input type="hidden" name="form" value="true"/>
                 <table class="form" style="margin: 0.5em auto 1em 0pt">
@@ -54,7 +59,7 @@
             {else}
                 <div class="wd-editor-toolbar-panel" id="wd-editor-toolbar-panel"></div>
                 <div>
-                    <textarea id="edit-page-textarea" name="source" rows="20" cols="40" style="width: 95%;">{$source|escape}</textarea>
+                    <textarea id="edit-page-textarea" name="source" rows="20" cols="40" style="width: 95%;">{if isset($source)}{$source|escape}{/if}</textarea>
                 </div>
                 <div class="change-textarea-size">
                     <a href="javascript:;" onclick="Wikijump.utils.changeTextareaRowNo('edit-page-textarea',-5)">-</a>

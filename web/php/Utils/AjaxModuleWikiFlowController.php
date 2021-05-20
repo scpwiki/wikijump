@@ -127,7 +127,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
             // handle SSL
             $sslMode = $settings->getSslMode();
 
-            if ($_SERVER['HTTPS']) {
+            if (isset($_SERVER['HTTPS'])) {
                 if (!$sslMode) {
                     // not enabled, issue an errorr
                     throw new ProcessException(_("Secure access is not enabled for this Wiki."));
@@ -290,7 +290,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
         $rVars = $runData->getAjaxResponse();
 
-        if ($rendered != null) {
+        if (isset($rendered)) {
             // process modules...
             $moduleProcessor = new ModuleProcessor($runData);
             $out = $moduleProcessor->process($rendered);
