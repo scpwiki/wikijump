@@ -2,34 +2,39 @@
   @component Sheaf Editor: Editor Pane.
 -->
 <script lang="ts">
-  import { SheafCore, EditorSveltePanel } from "sheaf-core"
   import { FTMLLanguage } from "cm-lang-ftml"
-  import type { SheafBindings } from "sheaf-core/src/bindings"
-  import { onMount } from "svelte"
-
+  import { EditorSveltePanel } from "sheaf-core"
+  import { getContext, onMount } from "svelte"
+  import type { SheafContext } from "./context"
   import SheafPanel from "./SheafPanel.svelte"
 
   /** The value of the editor's contents. */
   export let doc = ""
 
-  /** Callbacks to call depending on editor events. */
-  export let bindings: SheafBindings = {}
-
-  /** Reference to the editor-core that the editor-pane will render. */
-  export let Editor: SheafCore
+  const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
   let editorElement: HTMLElement
 
-  const TestPanel = new EditorSveltePanel(SheafPanel, { top: true })
+  $: theme = $settings.editor.darkmode ? "dark" : "light"
+
+  $: editor.gutters = !$small
 
   onMount(async () => {
-    await Editor.init(editorElement, doc, bindings, [FTMLLanguage.load(), TestPanel])
+    const TestPanel = new EditorSveltePanel(SheafPanel, { top: true })
+    await editor.init(editorElement, doc, bindings, [FTMLLanguage.load(), TestPanel])
   })
 </script>
 
-<div class="sheaf-editor-view" bind:this={editorElement} />
+<div class="sheaf-editor-container {theme} codetheme-{theme}">
+  <div class="sheaf-editor-view" bind:this={editorElement} />
+</div>
 
 <style lang="scss">
+  .sheaf-editor-container {
+    width: 100%;
+    height: 100%;
+    contain: strict;
+  }
   .sheaf-editor-view {
     width: 100%;
     height: 100%;

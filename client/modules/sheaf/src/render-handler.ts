@@ -11,7 +11,7 @@ export class RenderHandler {
   private declare fragmentNode?: DocumentFragment
 
   /** @param doc - The CodeMirror `state.doc` to render with. */
-  constructor(public doc?: Text) {}
+  constructor(public readonly doc?: Text) {}
 
   /**
    * Raw source of the document.

@@ -1,98 +1,51 @@
 import { Diagnostic, linter } from "@codemirror/lint"
 import type { EditorView } from "@codemirror/view"
 import { warnings } from "ftml-wasm-worker"
+import { format } from "wj-state"
 
 interface WarningInfo {
-  message: string | ((rule: string, slice: string) => string)
+  message: string
   severity: "info" | "warning" | "error"
 }
 
-// TODO: translation handling (need a schema for that first)
+// null is an ignored rule
+const warningConfig: Record<string, "info" | "warning" | "error" | null> = {
+  RECURSION_DEPTH_EXCEEDED: "error",
+  END_OF_INPUT: null,
+  NOT_IMPLEMENTED: "warning",
+  NO_RULES_MATCH: null,
+  RULE_FAILED: null,
+  INVALID_INCLUDE: "error",
+  LIST_DEPTH_EXCEEDED: "error",
+  BLOCKQUOTE_DEPTH_EXCEEDED: "error",
+  NO_SUCH_BLOCK: "error",
+  BLOCK_DISALLOWS_STAR: "warning",
+  BLOCK_DISALLOWS_SCORE: "warning",
+  BLOCK_MISSING_NAME: "error",
+  BLOCK_MISSING_CLOSE_BRACKETS: "error",
+  BLOCK_MALFORMED_ARGUMENTS: "error",
+  BLOCK_MISSING_ARGUMENTS: "error",
+  BLOCK_EXPECTED_END: "error",
+  BLOCK_END_MISMATCH: "error",
+  NO_SUCH_MODULE: "error",
+  MODULE_MISSING_NAME: "error",
+  INVALID_URL: "warning"
+}
 
-const warningInfo: Record<string, WarningInfo | null> = {
-  // ignored warnings
-  "no-rules-match": null,
-  "end-of-input": null,
-  "rule-failed": null,
-
-  "recursion-depth-exceeded": {
-    message: "Too much recursion in markup.",
-    severity: "error"
-  },
-
-  "not-implemented": {
-    message: (rule, slice) =>
-      `The syntax '${slice}' hasn\'t been implemented in FTML yet.`,
-    severity: "warning"
-  },
-
-  "invalid-include": {
-    message: "This include isn't valid and can't be rendered.",
-    severity: "error"
-  },
-
-  "list-depth-exceeded": {
-    message: "This list is nested too deeply, and can't be rendered.",
-    severity: "error"
-  },
-
-  "blockquote-depth-exceeded": {
-    message: "This blockquote is nested too deeply, and can't be rendered.",
-    severity: "error"
-  },
-
-  "no-such-block": {
-    message: (rule, slice) => `Unknown block '${slice}'.`,
-    severity: "error"
-  },
-
-  "invalid-special-block": {
-    message: (rule, slice) =>
-      `Block '${slice}' doesn't have a special invocation. (starting '*' character)`,
-    severity: "warning"
-  },
-
-  "block-missing-name": {
-    message: (rule, slice) =>
-      `Block '${slice}' requires a name/value, but none is specified.`,
-    severity: "error"
-  },
-
-  "block-missing-close-brackets": {
-    message: "Block is missing closing ']]' brackets.",
-    severity: "error"
-  },
-
-  "block-malformed-arguments": {
-    message: (rule, slice) =>
-      `Block '${slice}' is missing one or more required arguments.`,
-    severity: "error"
-  },
-
-  "block-expected-end": {
-    message: (rule, slice) =>
-      `Block of type '${rule}' was expected to end by at least this point.`,
-    severity: "error"
-  },
-
-  "block-end-mismatch": {
-    message: (rule, slice) => `Block of type '${rule}' was expected to end here.`,
-    severity: "error"
-  },
-
-  "no-such-module": {
-    message: (rule, slice) => `Unknown module '${slice}'.`,
-    severity: "error"
-  },
-
-  "module-missing-name": {
-    message: "A module name was expected to be provided here.",
-    severity: "error"
-  },
-
-  "invalid-url": {
-    message: (rule, slice) => `The URL '${slice}' is invalid.`,
-    severity: "error"
+// generate warnings from configuration
+// involves turning SCREAMING_SNAKE_CASE into screaming-snake-case,
+// as FTML warnings are kebab case when emitted
+const warningInfo: Record<string, WarningInfo | null> = {}
+for (const warningName in warningConfig) {
+  const type = warningConfig[warningName as keyof typeof warningConfig]
+  const warningNameKebabed = warningName.toLowerCase().replaceAll("_", "-")
+  if (!type) {
+    warningInfo[warningNameKebabed] = null
+  } else {
+    warningInfo[warningNameKebabed] = {
+      message: `cmftml.lint.${warningName}`,
+      severity: type
+    }
   }
 }
 
@@ -113,11 +66,15 @@ async function lint(view: EditorView) {
       if (!warningInfo[kind]) continue
 
       let { message, severity } = warningInfo[kind]!
-      const source = `ftml(${rule}: ${kind} at ${token}) [${from}, ${to}]`
 
-      if (typeof message === "function") {
-        message = message(rule, doc.sliceString(from, to))
-      }
+      // format and translate
+
+      const slice = doc.sliceString(from, to)
+      message = format(message, { values: { rule, slice } })
+
+      const source = format("cmftml.lint.WARNING_SOURCE", {
+        values: { rule, kind, token, from, to }
+      })
 
       diagnostics.push({ from, to, message, severity, source })
     }

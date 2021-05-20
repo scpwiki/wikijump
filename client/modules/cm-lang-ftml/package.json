@@ -23,11 +23,11 @@
   },
   "dependencies": {
     "@codemirror/autocomplete": "^0.18.5",
-    "@codemirror/highlight": "^0.18.3",
+    "@codemirror/highlight": "^0.18.4",
+    "@codemirror/lang-css": "^0.18.0",
+    "@codemirror/lang-html": "^0.18.1",
     "@codemirror/language": "^0.18.1",
     "@codemirror/language-data": "^0.18.0",
-    "@codemirror/lang-html": "^0.18.1",
-    "@codemirror/lang-css": "^0.18.0",
     "@codemirror/lint": "^0.18.3",
     "@codemirror/state": "^0.18.7",
     "cm-tarnation": "workspace:*",
@@ -35,6 +35,7 @@
     "lezer-tree": "^0.13.2",
     "sheaf-core": "workspace:*",
     "wj-prism": "workspace:*",
+    "wj-state": "workspace:*",
     "wj-util": "workspace:*"
   }
 }

@@ -155,3 +155,10 @@ export class PreferenceHandler {
     return new Proxy(wrapped, handler)
   }
 }
+
+/**
+ * Pre-made {@link PreferenceHandler} with the default `"_user-pref_"` prefix set.
+ *
+ * @see {@link PreferenceHandler}
+ */
+export const Pref = new PreferenceHandler()

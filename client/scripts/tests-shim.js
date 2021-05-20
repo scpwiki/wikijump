@@ -10,3 +10,5 @@ globalThis.matchMedia = str => {
   element.matches = true
   return element
 }
+
+window.navigator.languages = ["en"]

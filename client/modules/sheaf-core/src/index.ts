@@ -33,6 +33,8 @@ export * from "./adapters/svelte-lifecycle-element"
 export * from "./adapters/svelte-panel"
 
 interface EditorStore {
+  /** Whether or not the editor has been mounted yet. */
+  mounted: boolean
   /** The current document of the editor. */
   doc: EditorState["doc"]
   /** The current 'value' (content) of the editor. */
@@ -53,7 +55,7 @@ export class SheafCore {
   view!: EditorView
 
   /** A store that allows reactive access to editor state. */
-  store = writable<EditorStore>({ doc: this.state.doc, value: "" })
+  store = writable<EditorStore>({ mounted: false, doc: this.state.doc, value: "" })
   subscribe = this.store.subscribe
   set = this.store.set
 
@@ -107,9 +109,9 @@ export class SheafCore {
           ...createSheafBinding(this, bindings),
           ...extensions,
           this.spellcheckCompartment.of(
-            EditorView.contentAttributes.of({ spellcheck: "false" })
+            EditorView.contentAttributes.of({ spellcheck: String(this._spellcheck) })
           ),
-          this.guttersCompartment.of(EditorView.editorAttributes.of({ class: "" })),
+          this.guttersCompartment.of(this._gutters ? [lineNumbers(), foldGutter()] : []),
           updateHandler
         ]
       })
@@ -143,6 +145,7 @@ export class SheafCore {
     this.state = this.view.state
     let memo: string | null = null
     this.store.set({
+      mounted: true,
       doc: this.doc,
       get value() {
         if (memo) return memo
@@ -160,31 +163,54 @@ export class SheafCore {
     return printTree(syntaxTree(this.state), this.doc.toString())
   }
 
+  // -- SPELLCHECK COMPARTMENT
+
+  private _spellcheck = false
+
+  get spellcheck() {
+    return this._spellcheck
+  }
+
   /** Whether or not the browser's spellchecker is enabled for the editor. */
   set spellcheck(state: boolean) {
-    this.view.dispatch({
-      effects: this.spellcheckCompartment.reconfigure(
-        EditorView.contentAttributes.of({ spellcheck: String(state) })
-      )
-    })
+    this._spellcheck = state
+    if (this.view) {
+      this.view.dispatch({
+        effects: this.spellcheckCompartment.reconfigure(
+          EditorView.contentAttributes.of({ spellcheck: String(state) })
+        )
+      })
+    }
+  }
+
+  // -- GUTTERS COMPARTMENT
+
+  private _gutters = true
+
+  get gutters() {
+    return this._gutters
   }
 
   /** Whether or not the line-numbers and associated gutter panel is shown. */
   set gutters(state: boolean) {
-    this.view.dispatch({
-      effects: this.guttersCompartment.reconfigure(
-        EditorView.editorAttributes.of({ class: state ? "" : "hide-gutters" })
-      )
-    })
+    this._gutters = state
+    if (this.view) {
+      this.view.dispatch({
+        effects: this.guttersCompartment.reconfigure(
+          state ? [lineNumbers(), foldGutter()] : []
+        )
+      })
+    }
   }
 }
 
 export function getExtensions() {
   return [
-    lineNumbers(),
+    // gutter extensions are handled by the editor's guttersCompartment
+    // lineNumbers(),
+    // foldGutter(),
     highlightSpecialChars(),
     history(),
-    foldGutter(),
     drawSelection(),
     EditorState.allowMultipleSelections.of(true),
     indentOnInput(),

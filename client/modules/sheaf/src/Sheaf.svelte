@@ -3,37 +3,61 @@
 -->
 <script lang="ts">
   import { SheafCore } from "sheaf-core"
-  import PaneEditor from "./PaneEditor.svelte"
-  import PanePreview from "./PanePreview.svelte"
   import type { SheafBindings } from "sheaf-core/src/bindings"
+  import { setContext } from "svelte"
+  import type { Readable } from "svelte/store"
+  import { matchBreakpoint, PreferenceHandler } from "wj-state"
+  import type { SheafContext } from "./context"
+  import { getDefaultSheafSettings } from "./context"
+  import PaneEditor from "./PaneEditor.svelte"
+  import PaneEditorTopbar from "./PaneEditorTopbar.svelte"
+  import PanePreview from "./PanePreview.svelte"
 
   /** Height of the editor's container. */
   export let height = "100%"
-
   /** Width of the editor's container. */
   export let width = "100%"
-
   /** The value of the editor's contents. */
   export let doc = ""
-
   /** Callbacks to call depending on editor events. */
   export let bindings: SheafBindings = {}
 
-  const Editor = new SheafCore()
+  // setup context, which is shared across all child components
+  // this is so that we don't have to pass everything in as component attributes
+
+  const editor = new SheafCore()
+
+  const settings = new PreferenceHandler("_sheaf_").bind(
+    "settings",
+    getDefaultSheafSettings()
+  )
+
+  const small: Readable<boolean> = {
+    subscribe: sub => matchBreakpoint.subscribe(fn => sub(fn("<normal")))
+  }
+
+  const ctx: SheafContext = {
+    editor,
+    bindings,
+    settings,
+    small
+  }
+
+  setContext("sheaf", ctx)
 </script>
 
-<div
-  class="sheaf-container codetheme-dark dark"
-  style=" width: {width};height: {height};"
->
+<div class="sheaf-container" style="width: {width}; height: {height};">
   <div class="sheaf-panes">
     <div class="sheaf-pane sheaf-pane-editor">
-      <PaneEditor {Editor} {doc} {bindings} />
+      <PaneEditorTopbar />
+      <PaneEditor {doc} />
     </div>
 
-    <div class="sheaf-pane sheaf-pane-preview">
-      <PanePreview {Editor} />
-    </div>
+    {#if $settings.preview.enabled && !$small}
+      <div class="sheaf-pane sheaf-pane-preview">
+        <PanePreview />
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -42,7 +66,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: auto;
     background: var(--colcode-background);
   }
 
@@ -57,7 +81,11 @@
   }
 
   .sheaf-pane {
+    position: relative;
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    contain: strict;
   }
 
   .sheaf-pane-editor {

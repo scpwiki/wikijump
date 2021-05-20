@@ -5,6 +5,7 @@
   import { createID, sleep } from "wj-util"
   import Icon from "./Icon.svelte"
   import { anim } from "./lib/animation"
+  import { t } from "wj-state"
 
   type Status = "active" | "success" | "warning" | "error"
 
@@ -28,14 +29,13 @@
   /** Sets the text, if any, to be displayed alongside the spinner. */
   export let description = ""
 
-  // TODO: replace hardcoded-english when translation system is available
   let label = ""
   // prettier-ignore
   $: switch (status) {
-    case "active":  label = "Active loading indicator" ; break
-    case "error":   label = "Error indicator"          ; break
-    case "success": label = "Success indicator"        ; break
-    case "warning": label = "Warning indicator"        ; break
+    case "active":  label = $t("components.spinny.label.ACTIVE")  ; break
+    case "error":   label = $t("components.spinny.label.ERROR")   ; break
+    case "success": label = $t("components.spinny.label.SUCCESS") ; break
+    case "warning": label = $t("components.spinny.label.WARNING") ; break
   }
 
   let icon = ""

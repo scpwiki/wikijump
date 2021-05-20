@@ -1,54 +1,58 @@
 <!--
-  @component Sheaf Editor: Preivew Pane.
+  @component Sheaf Editor: Preview Pane.
 -->
 <script lang="ts">
-  import type { SheafCore } from "sheaf-core"
-  import { Tabview, Tab, Wikitext } from "components"
+  import { Tab, Tabview, Wikitext } from "components"
+  import { getContext } from "svelte"
   import CodeDisplay from "./CodeDisplay.svelte"
+  import type { SheafContext } from "./context"
   import { RenderHandler } from "./render-handler"
+  import { t } from "wj-state"
 
-  /** Theme of the preview. */
-  export let theme: "light" | "dark" = "light"
-
-  /** Reference to the editor-core that will be previewed. */
-  export let Editor: SheafCore
+  const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
   let render = new RenderHandler()
 
-  $: if ($Editor.doc) {
-    render = new RenderHandler($Editor.doc)
+  $: debug = $settings.debug
+  $: theme = $settings.preview.darkmode ? "dark" : "light"
+
+  $: if ($editor.doc) {
+    render = new RenderHandler($editor.doc)
   }
 </script>
 
 <div class="sheaf-preview-container {theme} codetheme-{theme}">
   <Tabview noborder contained compact conditional>
     <Tab>
-      <span slot="button">Result</span>
+      <span slot="button">{$t("sheaf.preview_tabs.RESULT")}</span>
       <div class="sheaf-preview">
-        <Wikitext morph wikitext={() => render.result()} />
+        <Wikitext morph {debug} wikitext={() => render.result()} />
       </div>
     </Tab>
 
     <Tab>
-      <span slot="button">HTML Output</span>
+      <span slot="button">{$t("sheaf.preview_tabs.HTML")}</span>
       <CodeDisplay content={render.html(true)} lang="html" />
     </Tab>
 
     <Tab>
-      <span slot="button">CSS Output</span>
+      <span slot="button">{$t("sheaf.preview_tabs.CSS")}</span>
       <CodeDisplay content={render.style()} lang="css" />
     </Tab>
 
-    <Tab>
-      <span slot="button">AST</span>
-      <CodeDisplay content={render.stringifiedAST()} lang="json" />
-    </Tab>
+    {#if debug}
+      <Tab>
+        <span slot="button">{$t("sheaf.preview_tabs.AST")}</span>
+        <CodeDisplay content={render.stringifiedAST()} lang="json" />
+      </Tab>
+    {/if}
   </Tabview>
 </div>
 
 <style lang="scss">
   .sheaf-preview-container {
     height: 100%;
+    contain: strict;
   }
 
   .sheaf-preview {
