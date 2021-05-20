@@ -282,7 +282,7 @@ export class TokenizerStack {
 
   /**
    * Compares two stacks and returns if they are equal. They can be pure
-   * `MonarchStack` objects or already serialized.
+   * `TokenizerStack` objects or already serialized.
    */
   static isEqual(
     stack1: SerializedTokenizerStack | TokenizerStack,
