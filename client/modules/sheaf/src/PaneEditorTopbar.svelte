@@ -6,6 +6,7 @@
   import type { SheafContext } from "./context"
   import { Button } from "components"
   import { throttle } from "wj-util"
+  import { t, number, unit } from "wj-state"
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
@@ -48,30 +49,32 @@
 
 <div class="sheaf-pane-editor-topbar {theme} codetheme-{theme}">
   <div class="sheaf-title" aria-hidden="true">
-    <span class="sheaf-title-text">SHEAF</span>
-    <span class="sheaf-title-version">Alpha</span>
+    <span class="sheaf-title-text">{$t("sheaf.TITLE")}</span>
+    <span class="sheaf-title-version">{$t("sheaf.VERSION")}</span>
   </div>
 
   <!-- TODO: figure out how you're actually supposed to make a sideways table -->
   <div class="sheaf-stats">
     <table class="sheaf-stats-column">
       <tr>
-        <td>CHARS</td>
-        <td>{chars}</td>
+        <td>{$t("sheaf.stats.CHARS")}</td>
+        <td>{$number(chars, { useGrouping: false })}</td>
       </tr>
       <tr>
-        <td>BYTES</td>
-        <td>{bytes}KB</td>
+        <td>{$t("sheaf.stats.BYTES")}</td>
+        <td>
+          {$unit(bytes, "kilobyte", { useGrouping: false, unitDisplay: "narrow" })}
+        </td>
       </tr>
     </table>
     <table class="sheaf-stats-column">
       <tr>
-        <td>WORDS</td>
-        <td>{words}</td>
+        <td>{$t("sheaf.stats.WORDS")}</td>
+        <td>{$number(words, { useGrouping: false })}</td>
       </tr>
       <tr>
-        <td>LINES</td>
-        <td>{lines}</td>
+        <td>{$t("sheaf.stats.LINES")}</td>
+        <td>{$number(lines, { useGrouping: false })}</td>
       </tr>
     </table>
   </div>
@@ -82,7 +85,7 @@
       {#if $settings.preview.enabled}
         <Button
           i="fluent:caret-right-24-filled"
-          tip="Close Preview"
+          tip={$t("sheaf.tooltips.CLOSE_PREVIEW")}
           size="1.75rem"
           baseline
           on:click={() => ($settings.preview.enabled = false)}
@@ -90,7 +93,7 @@
       {:else}
         <Button
           i="fluent:caret-left-24-filled"
-          tip="Open Preview"
+          tip={$t("sheaf.tooltips.OPEN_PREVIEW")}
           size="1.75rem"
           baseline
           on:click={() => ($settings.preview.enabled = true)}
