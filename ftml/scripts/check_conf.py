@@ -6,20 +6,30 @@ import sys
 
 import toml
 
-BLOCK_RULE_REGEX = re.compile(r"""pub const BLOCK_\w+: BlockRule = BlockRule \{
-    name: "block-(\w+)",
+EXCLUDE_BLOCKS = ["later"]
+EXCLUDE_MODULES = []
+
+BLOCK_DIRECTORY = "src/parsing/rule/impls/block/blocks"
+MODULE_DIRECTORY = "src/parsing/rule/impls/block/blocks/module/modules"
+
+BLOCK_RULE_REGEX = re.compile(
+    r"""pub const BLOCK_\w+: BlockRule = BlockRule \{
+    name: "block-([\w\-]+)",
     accepts_names: &(\[(?:"[^"]+"(?:, )?)+\]),
     accepts_star: (true|false),
     accepts_score: (true|false),
     accepts_newlines: (true|false),
     parse_fn.*
-\};""")
+\};"""
+)
 
-MODULE_RULE_REGEX = re.compile(r"""pub const MODULE_\w+: ModuleRule = ModuleRule \{
-    name: "module-(\w+)",
+MODULE_RULE_REGEX = re.compile(
+    r"""pub const MODULE_\w+: ModuleRule = ModuleRule \{
+    name: "module-([\w\-]+)",
     accepts_names: &(\[(?:"[^"]+"(?:, )?)+\]),
     parse_fn.*
-\};""")
+\};"""
+)
 
 BOOL_VALUES = {
     "true": True,
@@ -27,9 +37,25 @@ BOOL_VALUES = {
 }
 
 
+class AsciiCaseInsensitiveString(str):
+    def __eq__(self, other):
+        return self.lower() == other.lower()
+
+    def __ne__(self, other):
+        return self.lower() != other.lower()
+
+    def __hash__(self):
+        return hash(self.lower())
+
+    def __repr__(self):
+        return f"AsciiCaseInsensitiveString({self})"
+
+
 def check_format(value):
     if isinstance(value, (set, frozenset)):
-        return str(list(value))
+        return str(list(map(check_format, value)))
+    elif isinstance(value, bool):
+        return str(value).lower()
 
     return str(value)
 
@@ -45,6 +71,7 @@ def get_submodule_paths(directory):
 
 
 def load_block_data(blocks_path):
+    # Load config
     with open(blocks_path) as file:
         blocks = toml.load(file)
 
@@ -54,7 +81,7 @@ def load_block_data(blocks_path):
         # Aliases
         aliases = block.get("aliases", [])
         aliases.append(name)
-        block["aliases"] = frozenset(aliases)
+        block["aliases"] = frozenset(map(AsciiCaseInsensitiveString, aliases))
 
         # Flags
         if "accepts-star" not in block:
@@ -66,13 +93,17 @@ def load_block_data(blocks_path):
         if "accepts-newlines" not in block:
             block["accepts-newlines"] = False
 
+    # Load rules
     block_rules = {}
-    for path in get_submodule_paths("src/parsing/rule/impls/block/blocks"):
+    for path in get_submodule_paths(BLOCK_DIRECTORY):
         with open(path) as file:
             contents = file.read()
 
         for match in BLOCK_RULE_REGEX.finditer(contents):
-            name = match[1]
+            name = AsciiCaseInsensitiveString(match[1])
+
+            if name in EXCLUDE_BLOCKS:
+                continue
 
             block_rules[name] = {
                 "aliases": frozenset(eval(match[2])),
@@ -85,6 +116,7 @@ def load_block_data(blocks_path):
 
 
 def load_module_data(modules_path):
+    # Load blocks
     with open(modules_path) as file:
         modules = toml.load(file)
 
@@ -94,15 +126,20 @@ def load_module_data(modules_path):
         # Aliases
         aliases = module.get("aliases", [])
         aliases.append(name)
-        module["aliases"] = frozenset(aliases)
+        module["aliases"] = frozenset(map(AsciiCaseInsensitiveString, aliases))
 
+    # Load rules
     module_rules = {}
-    for path in get_submodule_paths("src/parsing/rule/impls/block/blocks/module/modules"):
+    for path in get_submodule_paths(MODULE_DIRECTORY):
         with open(path) as file:
             contents = file.read()
 
         for match in MODULE_RULE_REGEX.finditer(contents):
-            name = match[1]
+            name = AsciiCaseInsensitiveString(match[1])
+
+            if name in EXCLUDE_MODULES:
+                continue
+
             module_rules[name] = {
                 "aliases": frozenset(eval(match[2])),
             }
@@ -114,14 +151,14 @@ def compare_block_data(block_conf, block_rules):
     success = True
 
     # Check for new or removed blocks
-    block_conf_names = frozenset(block_conf.keys())
-    block_rule_names = frozenset(block_rules.keys())
+    block_conf_names = frozenset(map(AsciiCaseInsensitiveString, block_conf.keys()))
+    block_rule_names = frozenset(map(AsciiCaseInsensitiveString, block_rules.keys()))
 
     added = block_rule_names - block_conf_names
     deleted = block_conf_names - block_rule_names
 
     if added:
-        print("Blocks were added to code, but not to configuration:")
+        print("Added blocks:")
 
         for name in added:
             print(f"* {name}")
@@ -130,7 +167,7 @@ def compare_block_data(block_conf, block_rules):
         success = False
 
     if deleted:
-        print("Blocks were deleted from code, but not from configuration:")
+        print("Deleted blocks")
 
         for name in deleted:
             print(f"* {name}")
@@ -170,14 +207,14 @@ def compare_module_data(module_conf, module_rules):
     success = True
 
     # Check for new or removed modules
-    module_conf_names = frozenset(module_conf.keys())
-    module_rule_names = frozenset(module_rules.keys())
+    module_conf_names = frozenset(map(AsciiCaseInsensitiveString, module_conf.keys()))
+    module_rule_names = frozenset(map(AsciiCaseInsensitiveString, module_rules.keys()))
 
     added = module_rule_names - module_conf_names
     deleted = module_conf_names - module_rule_names
 
     if added:
-        print("Modules were added to code, but not to configuration:")
+        print("Added modules:")
 
         for name in sorted(added):
             print(f"* {name}")
@@ -186,7 +223,7 @@ def compare_module_data(module_conf, module_rules):
         success = False
 
     if deleted:
-        print("Modules were deleted from code, but not from configuration:")
+        print("Deleted modules:")
 
         for name in sorted(deleted):
             print(f"* {name}")
@@ -203,8 +240,8 @@ def compare_module_data(module_conf, module_rules):
 
         # Check module
         print(f"+ {name}")
-        conf = block_conf[name]
-        rule = block_rules[name]
+        conf = module_conf[name]
+        rule = module_rules[name]
 
         def check(key):
             if rule[key] != conf[key]:
@@ -214,8 +251,8 @@ def compare_module_data(module_conf, module_rules):
                 success = False
 
         check("aliases")
-        print('conf', conf)
-        print('rule', rule)
+        print("conf", conf)
+        print("rule", rule)
 
     print()
     return success
@@ -237,6 +274,9 @@ if __name__ == "__main__":
     modules, module_rules = load_module_data(modules_path)
     success &= compare_module_data(modules, module_rules)
 
-    if not success:
+    if success:
+        print("FTML configuration check passed.")
+        sys.exit(0)
+    else:
         print("FTML configuration check failed!")
         sys.exit(1)
