@@ -22,7 +22,6 @@ export * from "./util"
 
 // TODO: reuse ahead buffer rather than just always viewport skipping
 // TODO: fix string with variable array expansion (convert to array of codepoints)
-// TODO: add substitution to next, switchto
 // TODO: better document the grammar classes
 // TODO: better document the parser classes
 

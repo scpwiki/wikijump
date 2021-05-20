@@ -11,17 +11,24 @@ import { Matched } from "./matched"
 import { Rule } from "./rule"
 import type { SubState } from "./substate"
 
-/** Stores information about the current state of the {@link Grammar} match. */
-export interface GrammarContext {
+export interface GrammarMatchState {
   state: string
   context: DF.Context
   last?: string[]
+}
+
+export interface GrammarContext extends GrammarMatchState {
   target?: DF.SubRuleTarget
   substate?: SubState
 }
 
 export function createContext(state: string, context: DF.Context = {}): GrammarContext {
   return { state, context }
+}
+
+export function getMatchState(cx: GrammarContext): GrammarMatchState {
+  const { context, state, last } = cx
+  return { context, state, last }
 }
 
 /** Represents an individual token emitted by a {@link Grammar}. */
@@ -97,7 +104,7 @@ export class Grammar {
   // PUBLIC UTILITY METHODS
 
   static sub(
-    { context = {}, state = "", last: [total = "", ...captures] = [] }: GrammarContext,
+    { context = {}, state = "", last: [total = "", ...captures] = [] }: GrammarMatchState,
     str: string
   ) {
     return str.replace(SUB_REGEX, (sub: string) => {
@@ -348,7 +355,9 @@ export class Grammar {
       }
     }
 
-    if (this.fallback) return new Matched(str[pos], this.fallback, offset, cx.context)
+    if (this.fallback) {
+      return new Matched(str[pos], this.fallback, offset, getMatchState(cx), cx.context)
+    }
 
     return null
   }

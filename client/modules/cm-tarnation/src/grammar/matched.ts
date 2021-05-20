@@ -1,11 +1,20 @@
 import { klona } from "klona"
+import { hasSigil } from "wj-util"
 import { Action, ActionMode } from "./action"
 import type * as DF from "./definition"
-import type { GrammarToken } from "./grammar"
+import { Grammar, GrammarMatchState, GrammarToken } from "./grammar"
 
-export function createToken({ from, to, action, context }: Matched): GrammarToken {
-  const { type, open, close, next, switchTo, embedded } = action
+export function createToken({ from, to, action, context, state }: Matched): GrammarToken {
+  let { type, open, close, next, switchTo, embedded } = action
+
+  if (state) {
+    if (next && hasSigil("$", next)) next = Grammar.sub(state, next)
+    if (switchTo && hasSigil("$", switchTo)) switchTo = Grammar.sub(state, switchTo)
+    if (embedded && hasSigil("$", embedded)) embedded = Grammar.sub(state, embedded)
+  }
+
   const empty = !(type || open || close || next || switchTo || embedded || context)
+
   return { type, from, to, empty, open, close, next, switchTo, embedded, context }
 }
 
@@ -17,12 +26,11 @@ export function createToken({ from, to, action, context }: Matched): GrammarToke
  * were to cause the tokenizer to manipulate the stack, it will make the
  * token list given do the same.
  */
-export function wrapTokens(
-  tokens: GrammarToken[],
-  { context, action: { type, mode, next, switchTo, open, close, embedded } }: Matched
-) {
+export function wrapTokens(tokens: GrammarToken[], { context, state, action }: Matched) {
   const first = tokens[0]
   const last = tokens[tokens.length - 1]
+
+  let { type, mode, next, switchTo, open, close, embedded } = action
 
   if (context) last.context = { ...last.context, ...context }
 
@@ -31,7 +39,8 @@ export function wrapTokens(
       createToken({
         from: last.to,
         to: last.to,
-        action: { type: "", next, switchTo }
+        action: { type: "", next, switchTo },
+        state
       } as Matched)
     )
   }
@@ -59,14 +68,6 @@ export function wrapTokens(
   return tokens
 }
 
-export interface MatchedOpts {
-  total: string
-  action: Action
-  captures?: Matched[]
-  offset?: number
-  context?: DF.Context
-}
-
 export class Matched {
   declare total: string
   declare action: Action
@@ -75,12 +76,14 @@ export class Matched {
   declare length: number
   declare from: number
   declare to: number
+  declare state?: GrammarMatchState
   declare context?: DF.Context
 
   constructor(
     total: string,
     action: Action,
     offset: number,
+    state?: GrammarMatchState,
     context?: DF.Context,
     captures?: Matched[]
   ) {
@@ -91,6 +94,7 @@ export class Matched {
     this.length = total.length
     this.from = offset
     this.to = total.length + offset
+    this.state = state
     this.context = context
   }
 

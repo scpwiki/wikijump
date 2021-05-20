@@ -1,7 +1,7 @@
 import { has, hasSigil, removeUndefined } from "wj-util"
 import type * as DF from "./definition"
 import type * as DM from "./demangler"
-import { Grammar, GrammarContext, ParserAction } from "./grammar"
+import { getMatchState, Grammar, GrammarContext, ParserAction } from "./grammar"
 import { Matched } from "./matched"
 import { SubState } from "./substate"
 
@@ -55,7 +55,7 @@ export class Action {
     if (this.close) for (const [type] of this.close) grammar.types.add(type)
   }
 
-  private setContext(cx: GrammarContext) {
+  private updateContext(cx: GrammarContext) {
     if (!this.context) return cx.context
     const added: DF.Context = {}
     for (const key in this.context) {
@@ -66,29 +66,32 @@ export class Action {
   }
 
   exec(cx: GrammarContext, found: string[], pos: number): Matched | null {
-    const matched = new Matched(found[0], this, pos)
+    const state = getMatchState(cx)
+    const matched = new Matched(found[0], this, pos, state)
 
     switch (this.mode) {
       case ActionMode.Normal: {
-        matched.context = this.setContext(cx)
+        matched.context = this.updateContext(cx)
         return matched
       }
 
       case ActionMode.Bracket: {
-        matched.context = this.setContext(cx)
+        matched.context = this.updateContext(cx)
         const action = this.grammar.findBracket(found[0], this.type)
-        if (action) return Matched.extend(matched, [new Matched(found[0], action, pos)])
+        if (action) {
+          return Matched.extend(matched, [new Matched(found[0], action, pos, state)])
+        }
         return null
       }
 
       case ActionMode.Rematch: {
-        return new Matched("", this, pos, this.setContext(cx))
+        return new Matched("", this, pos, state, this.updateContext(cx))
       }
 
       case ActionMode.SubState: {
         const sub = this.substate!.exec(cx, found[0], pos)
         if (!sub) return null
-        matched.context = this.setContext(cx)
+        matched.context = this.updateContext(cx)
         return Matched.extend(matched, sub)
       }
 
@@ -104,7 +107,7 @@ export class Action {
           group.push(action.exec(cx, [capture], offset))
           offset += capture.length
         }
-        matched.context = this.setContext(cx)
+        matched.context = this.updateContext(cx)
         return Matched.extend(matched, group)
       }
 

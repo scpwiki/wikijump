@@ -604,6 +604,8 @@ export type Variable = RegExp | string | string[] | MatchFunction
  *
  * Can take three special values: `@pop`, `@popall`, and `@push`.
  *
+ * This property can be used with a {@link Substitute}.
+ *
  * @example
  *
  * ```ts
@@ -611,7 +613,7 @@ export type Variable = RegExp | string | string[] | MatchFunction
  * action = { next: "@pop" }
  * ```
  */
-export type Next = "@push" | "@popall" | "@pop" | StateRef
+export type Next = "@push" | "@popall" | "@pop" | StateRef | Substitute
 
 /**
  * A `match`, or `matcher`, describes a pattern to match against text.
