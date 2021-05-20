@@ -8,85 +8,44 @@ interface WarningInfo {
   severity: "info" | "warning" | "error"
 }
 
-const warningInfo: Record<string, WarningInfo | null> = {
-  // ignored warnings
-  "no-rules-match": null,
-  "end-of-input": null,
-  "rule-failed": null,
+// null is an ignored rule
+const warningConfig: Record<string, "info" | "warning" | "error" | null> = {
+  RECURSION_DEPTH_EXCEEDED: "error",
+  END_OF_INPUT: null,
+  NOT_IMPLEMENTED: "warning",
+  NO_RULES_MATCH: null,
+  RULE_FAILED: null,
+  INVALID_INCLUDE: "error",
+  LIST_DEPTH_EXCEEDED: "error",
+  BLOCKQUOTE_DEPTH_EXCEEDED: "error",
+  NO_SUCH_BLOCK: "error",
+  BLOCK_DISALLOWS_STAR: "warning",
+  BLOCK_DISALLOWS_SCORE: "warning",
+  BLOCK_MISSING_NAME: "error",
+  BLOCK_MISSING_CLOSE_BRACKETS: "error",
+  BLOCK_MALFORMED_ARGUMENTS: "error",
+  BLOCK_MISSING_ARGUMENTS: "error",
+  BLOCK_EXPECTED_END: "error",
+  BLOCK_END_MISMATCH: "error",
+  NO_SUCH_MODULE: "error",
+  MODULE_MISSING_NAME: "error",
+  INVALID_URL: "warning"
+}
 
-  "recursion-depth-exceeded": {
-    message: "cmftml.lint.RECURSION_DEPTH_EXCEEDED",
-    severity: "error"
-  },
-
-  "not-implemented": {
-    message: "cmftml.lint.NOT_IMPLEMENTED",
-    severity: "warning"
-  },
-
-  "invalid-include": {
-    message: "cmftml.lint.INVALID_INCLUDE",
-    severity: "error"
-  },
-
-  "list-depth-exceeded": {
-    message: "cmftml.lint.LIST_DEPTH_EXCEEDED",
-    severity: "error"
-  },
-
-  "blockquote-depth-exceeded": {
-    message: "cmftml.lint.BLOCKQUOTE_DEPTH_EXCEEDED",
-    severity: "error"
-  },
-
-  "no-such-block": {
-    message: "cmftml.lint.NO_SUCH_BLOCK",
-    severity: "error"
-  },
-
-  "invalid-special-block": {
-    message: "cmftml.lint.INVALID_SPECIAL_BLOCK",
-    severity: "warning"
-  },
-
-  "block-missing-name": {
-    message: "cmftml.lint.BLOCK_MISSING_NAME",
-    severity: "error"
-  },
-
-  "block-missing-close-brackets": {
-    message: "cmftml.lint.BLOCK_MISSING_CLOSE_BRACKETS",
-    severity: "error"
-  },
-
-  "block-malformed-arguments": {
-    message: "cmftml.lint.BLOCK_MALFORMED_ARGUMENTS",
-    severity: "error"
-  },
-
-  "block-expected-end": {
-    message: "cmftml.lint.BLOCK_EXPECTED_END",
-    severity: "error"
-  },
-
-  "block-end-mismatch": {
-    message: "cmftml.lint.BLOCK_END_MISMATCH",
-    severity: "error"
-  },
-
-  "no-such-module": {
-    message: "cmftml.lint.NO_SUCH_MODULE",
-    severity: "error"
-  },
-
-  "module-missing-name": {
-    message: "cmftml.lint.MODULE_MISSING_NAME",
-    severity: "error"
-  },
-
-  "invalid-url": {
-    message: "cmftml.lint.INVALID_URL",
-    severity: "error"
+// generate warnings from configuration
+// involves turning SCREAMING_SNAKE_CASE into screaming-snake-case,
+// as FTML warnings are kebab case when emitted
+const warningInfo: Record<string, WarningInfo | null> = {}
+for (const warningName in warningConfig) {
+  const type = warningConfig[warningName as keyof typeof warningConfig]
+  const warningNameKebabed = warningName.toLowerCase().replaceAll("_", "-")
+  if (!type) {
+    warningInfo[warningNameKebabed] = null
+  } else {
+    warningInfo[warningNameKebabed] = {
+      message: `cmftml.lint.${warningName}`,
+      severity: type
+    }
   }
 }
 

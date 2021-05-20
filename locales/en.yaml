@@ -40,19 +40,85 @@ cmftml:
     # Warning emit description
     WARNING_SOURCE: >
       ftml({rule}: {kind} at {token}) [{from, number, :: ,_}, {to, number, :: ,_}]
-    # Warnings
+
+    # Warnings (documentation copied from FTML)
+
+    ## RecursionDepthExceeded
+    ## The self-enforced recursion limit has been passed, giving up.
     RECURSION_DEPTH_EXCEEDED: Too much recursion in markup.
+
+    ## EndOfInput
+    ## Attempting to process this rule failed because the end of input was reached.
+    END_OF_INPUT: Rule of type ''{rule}'' couldn't be processed before the end of the document was reached.
+
+    ## NotImplemented
+    ## Temporary rule denoting that this syntactical construction isn't implemented yet.
     NOT_IMPLEMENTED: The syntax ''{slice}'' hasn't been implemented in FTML yet.
+
+    ## NoRulesMatch
+    ## No rules match for these tokens, returning as plain text.
+    NO_RULES_MATCH: The string ''{slice}'' doesn't match anything and will be rendered as plain text.
+
+    ## RuleFailed
+    ## Attempting to match this rule failed, falling back to try an alternate.
+    RULE_FAILED: The rule ''{rule}'' failed to match here, and had to fallback another rule.
+
+    ## InvalidInclude
+    ## This include block was malformed, and thus not substituted.
     INVALID_INCLUDE: This include is invalid and won't be rendered.
+
+    ## ListDepthExceeded
+    ## This list tries to nest too deeply.
     LIST_DEPTH_EXCEEDED: This list is nested too deeply, and can't be rendered.
+
+    ## BlockquoteDepthExceeded
+    ## This native blockquote tries to nest too deeply.
     BLOCKQUOTE_DEPTH_EXCEEDED: This blockquote is nested too deeply, and can't be rendered.
+
+    ## NoSuchBlock
+    ## There is no rule for the block name specified.
     NO_SUCH_BLOCK: Unknown block ''{slice}''.
-    INVALID_SPECIAL_BLOCK: Block ''{slice}'' doesn't have a special invocation. (starting '*' character)
+
+    ## BlockDisallowsStar
+    ## This block does not allow star (`*`) invocation.
+    BLOCK_DISALLOWS_STAR: Block ''{slice}'' doesn't support a star invocation. (starting '*' character)
+
+    ## BlockDisallowsScore
+    ## This block does not allow score (`_`) invocation.
+    BLOCK_DISALLOWS_SCORE: Block ''{slice}'' doesn't support a score invocation. (starting '_' character)
+
+    ## BlockMissingName
+    ## This block does not specify a name.
     BLOCK_MISSING_NAME: Block ''{slice}'' requires a name/value, but none is specified.
+
+    ## BlockMissingCloseBrackets
+    ## This block does not have close brackets when required.
     BLOCK_MISSING_CLOSE_BRACKETS: This block is missing closing ']]' brackets.
-    BLOCK_MALFORMED_ARGUMENTS: Block ''{slice}'' is missing one or more required arguments.
+
+    ## BlockMalformedArguments
+    ## Encountered malformed arguments when parsing the block.
+    BLOCK_MALFORMED_ARGUMENTS: Block ''{slice}'' has malformed arguments.
+
+    ## BlockMissingArguments
+    ## Some required arguments where missing when parsing the block.
+    BLOCK_MISSING_ARGUMENTS: Block ''{slice}'' is missing one or more required arguments.
+
+    ## BlockExpectedEnd
+    ## This block expected to end its body here.
     BLOCK_EXPECTED_END: The block of type ''{rule}'' was expected to end by at least this point.
-    BLOCK_END_MISMATCH: The block of type ''{rule}'' was expected to end here.
+
+    ## BlockEndMismatch
+    ## An end block was found, but of the incorrect type.
+    BLOCK_END_MISMATCH: The block of type ''{rule}'' was expected to end here, not ''{slice}''.
+
+    ## NoSuchModule
+    ## There is no rule for the module name specified.
     NO_SUCH_MODULE: Unknown module ''{slice}''.
+
+    ## ModuleMissingName
+    ## This module does not specify a name.
     MODULE_MISSING_NAME: A module name was expected to be provided.
+
+    ## InvalidUrl
+    ## The URL passed here was invalid.
     INVALID_URL: The URL ''{slice}'' is invalid.
