@@ -45,6 +45,11 @@
         <span slot="button">{$t("sheaf.preview_tabs.AST")}</span>
         <CodeDisplay content={render.stringifiedAST()} lang="json" />
       </Tab>
+
+      <Tab>
+        <span slot="button">{$t("sheaf.preview_tabs.EDITOR_AST")}</span>
+        <CodeDisplay content={$editor.self.printTree()} lang="json" />
+      </Tab>
     {/if}
   </Tabview>
 </div>

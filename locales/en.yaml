@@ -37,6 +37,7 @@ sheaf:
     HTML: HTML Output
     CSS: CSS Output
     AST: AST
+    EDITOR_AST: Editor AST
 
 # CodeMirror FTML language extension
 cmftml:
