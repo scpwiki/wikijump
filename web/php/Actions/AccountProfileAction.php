@@ -5,7 +5,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
-use Wikidot\DB\ProfilePeer;
 
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\PagePeer;
@@ -210,7 +209,7 @@ class AccountProfileAction extends SmartyAction
     {
         $pl = $runData->getParameterList();
         $userId = $runData->getUserId();
-        $profile = ProfilePeer::instance()->selectByPrimaryKey($userId);
+        $profile = User::find($userId);
 
         // now manually get all files...
         $realName = $pl->getParameterValue("real_name");
@@ -226,27 +225,24 @@ class AccountProfileAction extends SmartyAction
 
         $location = $pl->getParameterValue("location");
 
-        $profile->setRealName($realName);
-        $profile->setPronouns($pronouns);
+        $profile->real_name = $realName;
+        $profile->pronouns = $pronouns;
 
         // check date
         $d = getdate();
         if (checkdate((int) $birthdayMonth, (int) $birthdayDay, (int) $birthdayYear) && $birthdayYear < $d['year']) {
-            $profile->setBirthdayDay($birthdayDay);
-            $profile->setBirthdayMonth($birthdayMonth);
-            $profile->setBirthdayYear($birthdayYear);
+            // Pad with zeroes if needed.
+            if($birthdayMonth < 10) { $birthdayMonth = "0".$birthdayMonth; }
+            if($birthdayDay < 10) { $birthdayDay = "0".$birthdayDay; }
+
+            $profile->dob = "$birthdayYear-$birthdayMonth-$birthdayDay";
         }
 
-        $profile->setAbout(substr($about, 0, 220));
+        $profile->bio = substr($about, 0, 220);
 
         if (preg_match("/^(http[s]?:\/\/)|(ftp:\/\/)[a-zA-Z0-9\-]+\/.*/", $website) !== 0) {
-            $profile->setWebsite($website);
+            $profile->about_page = $website;
         }
-
-        $profile->setImIcq($imIcq);
-        $profile->setImJabber($imJabber);
-
-        $profile->setLocation($location);
 
         $profile->save();
         if (GlobalProperties::$UI_SLEEP) {
@@ -258,7 +254,7 @@ class AccountProfileAction extends SmartyAction
     {
         $user = $runData->getUser();
 
-        if ($user->username_changes >= config('wikijump.username_change_limit')) {
+        if ($user->username_changes >= `config('wikijump.username_change_limit')`) {
             throw new ProcessException(__('Maximum username changes allowed: '.config('wikijump.username_change_limit')));
         }
 
