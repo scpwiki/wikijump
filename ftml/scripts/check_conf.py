@@ -38,21 +38,6 @@ BOOL_VALUES = {
 }
 
 
-class AsciiCaseInsensitiveString(str):
-    def __eq__(self, other):
-        return self.lower() == other.lower()
-
-    def __ne__(self, other):
-        return self.lower() != other.lower()
-
-    def __hash__(self):
-        return hash(self.lower())
-
-    def __repr__(self):
-        value = str(self)
-        return f"AsciiCaseInsensitiveString({value!r})"
-
-
 def check_format(value):
     if isinstance(value, (set, frozenset)):
         return str(list(map(check_format, value)))
@@ -65,7 +50,7 @@ def check_format(value):
 def convert_name(value):
     value = inflection.underscore(value)
     value = inflection.camelize(value)
-    return AsciiCaseInsensitiveString(value)
+    return value.lower()
 
 
 def get_submodule_paths(directory):
@@ -82,6 +67,10 @@ def load_block_data(blocks_path):
     # Load config
     with open(blocks_path) as file:
         blocks = toml.load(file)
+        blocks = {
+            convert_name(name): value
+            for name, value in blocks.items()
+        }
 
     # Adjust configuration
     # Make implicit fields explicit, etc.
@@ -89,7 +78,7 @@ def load_block_data(blocks_path):
         # Aliases
         aliases = block.get("aliases", [])
         aliases.append(name)
-        block["aliases"] = frozenset(map(AsciiCaseInsensitiveString, aliases))
+        block["aliases"] = frozenset(aliases)
 
         # Flags
         if "accepts-star" not in block:
@@ -108,13 +97,13 @@ def load_block_data(blocks_path):
             contents = file.read()
 
         for match in BLOCK_RULE_REGEX.finditer(contents):
-            name = AsciiCaseInsensitiveString(match[1])
+            name = convert_name(match[1])
 
             if name in EXCLUDE_BLOCKS:
                 continue
 
             block_rules[name] = {
-                "aliases": frozenset(eval(match[2])),
+                "aliases": frozenset(map(convert_name, eval(match[2]))),
                 "accepts-star": BOOL_VALUES[match[3]],
                 "accepts-score": BOOL_VALUES[match[4]],
                 "accepts-newlines": BOOL_VALUES[match[5]],
@@ -127,6 +116,10 @@ def load_module_data(modules_path):
     # Load blocks
     with open(modules_path) as file:
         modules = toml.load(file)
+        modules = {
+            convert_name(name): value
+            for name, value in modules.items()
+        }
 
     # Adjust configuration
     # Make implicit fields explicit, etc.
@@ -134,7 +127,7 @@ def load_module_data(modules_path):
         # Aliases
         aliases = module.get("aliases", [])
         aliases.append(name)
-        module["aliases"] = frozenset(map(AsciiCaseInsensitiveString, aliases))
+        module["aliases"] = frozenset(aliases)
 
     # Load rules
     module_rules = {}
@@ -143,13 +136,13 @@ def load_module_data(modules_path):
             contents = file.read()
 
         for match in MODULE_RULE_REGEX.finditer(contents):
-            name = AsciiCaseInsensitiveString(match[1])
+            name = convert_name(match[1])
 
             if name in EXCLUDE_MODULES:
                 continue
 
             module_rules[name] = {
-                "aliases": frozenset(eval(match[2])),
+                "aliases": frozenset(map(convert_name, eval(match[2]))),
             }
 
     return modules, module_rules
@@ -197,7 +190,7 @@ def compare_block_data(block_conf, block_rules):
 
         def check(key):
             if rule[key] != conf[key]:
-                print(f"  Key {key}:")
+                print(f"  Key {key} differs!")
                 print(f"    Code:   {check_format(rule[key])}")
                 print(f"    Config: {check_format(conf[key])}")
                 success = False
@@ -215,8 +208,8 @@ def compare_module_data(module_conf, module_rules):
     success = True
 
     # Check for new or removed modules
-    module_conf_names = frozenset(map(convert_name, module_conf.keys()))
-    module_rule_names = frozenset(map(convert_name, module_rules.keys()))
+    module_conf_names = frozenset(module_conf.keys())
+    module_rule_names = frozenset(module_rules.keys())
 
     added = module_rule_names - module_conf_names
     deleted = module_conf_names - module_rule_names
@@ -259,8 +252,6 @@ def compare_module_data(module_conf, module_rules):
                 success = False
 
         check("aliases")
-        print("conf", conf)
-        print("rule", rule)
 
     print()
     return success
