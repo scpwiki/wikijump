@@ -164,19 +164,19 @@ def compare_block_data(block_conf, block_rules):
     deleted = block_conf_names - block_rule_names
 
     if added:
-        print("Added blocks:")
+        print("!! Added blocks !!")
 
         for name in added:
-            print(f"* {name}")
+            print(f"- {name}")
 
         print()
         success = False
 
     if deleted:
-        print("Deleted blocks")
+        print("!! Deleted blocks !!")
 
         for name in deleted:
-            print(f"* {name}")
+            print(f"- {name}")
 
         print()
         success = False
@@ -220,19 +220,19 @@ def compare_module_data(module_conf, module_rules):
     deleted = module_conf_names - module_rule_names
 
     if added:
-        print("Added modules:")
+        print("!! Added modules !!")
 
         for name in sorted(added):
-            print(f"* {name}")
+            print(f"- {name}")
 
         print()
         success = False
 
     if deleted:
-        print("Deleted modules:")
+        print("!! Deleted modules !!")
 
         for name in sorted(deleted):
-            print(f"* {name}")
+            print(f"- {name}")
 
         print()
         success = False
