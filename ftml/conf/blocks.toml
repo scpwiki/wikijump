@@ -1,4 +1,6 @@
 [anchor]
+aliases = ["a"]
+accepts-star = true
 accepts-score = true
 head = "map"
 body = "none"
@@ -96,8 +98,8 @@ head = "map"
 body = "none"
 html-output = "html,iframe"
 
-[insertion]
-aliases = ["ins"]
+[ins]
+aliases = ["insertion"]
 head = "map"
 body = "elements"
 html-output = "html,ins"
@@ -138,7 +140,7 @@ html-attributes = true
 html-output = "html,tt"
 
 [radio]
-aliases = ["radio-button"]
+aliases = ["radiobutton"]
 accepts-star = true
 head = "map"
 body = "none"
