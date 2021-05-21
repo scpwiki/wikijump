@@ -5,6 +5,7 @@ on:
     paths:
       - 'ftml/Cargo.toml'
       - 'ftml/Cargo.lock'
+      - 'ftml/conf/*.toml'
       - 'ftml/src/**'
       - 'ftml/test/*'
       - '.github/workflows/ftml.yaml'
