@@ -1,4 +1,6 @@
 [anchor]
+aliases = ["a"]
+accepts-star = true
 accepts-score = true
 head = "map"
 body = "none"
@@ -90,14 +92,40 @@ head = "none"
 body = "raw"
 html-output = "html,iframe"
 
+[ifcategory]
+accepts-newlines = true
+head = "value"
+body = "elements"
+html-output = "other"
+
+[iftags]
+accepts-newlines = true
+head = "value"
+body = "elements"
+html-output = "other"
+
 [iframe]
 accepts-newlines = true
 head = "map"
 body = "none"
 html-output = "html,iframe"
 
-[insertion]
-aliases = ["ins"]
+[image]
+aliases = ["=image", "<image", ">image", "f<image", "f>image"]
+head = "map"
+body = "none"
+html-attributes = true
+html-output = "html,img"
+
+[include]
+accepts-newlines = true
+head = "value" # it's not a normal map
+body = "none"
+html-output = "other"
+special = "include"
+
+[ins]
+aliases = ["insertion"]
 head = "map"
 body = "elements"
 html-output = "html,ins"
@@ -130,6 +158,14 @@ body = "elements"
 html-attributes = true
 html-output = "html,mark"
 
+[module]
+aliases = ["module654"]
+accepts-newlines = true
+head = "value+map"
+body = "other"
+html-output = "other"
+special = "module"
+
 [monospace]
 aliases = ["tt", "mono"]
 head = "map"
@@ -137,8 +173,16 @@ body = "elements"
 html-attributes = true
 html-output = "html,tt"
 
+[paragraph]
+aliases = ["p"]
+accepts-newlines = true
+head = "map"
+body = "elements"
+html-attributes = true
+html-output = "html,p"
+
 [radio]
-aliases = ["radio-button"]
+aliases = ["radiobutton"]
 accepts-star = true
 head = "map"
 body = "none"
@@ -177,6 +221,12 @@ head = "map"
 body = "elements"
 html-attributes = true
 html-output = "html,sup"
+
+[user]
+accepts-star = true
+head = "value"
+body = "none"
+html-output = "html,span,user-info"
 
 [underline]
 aliases = ["u"]

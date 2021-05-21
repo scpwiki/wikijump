@@ -1,0 +1,36 @@
+name: '[ftml] Rust'
+
+on:
+  push:
+    paths:
+      - 'ftml/conf/*.toml'
+      - 'ftml/scripts/*'
+
+jobs:
+  conf_check:
+    name: Configurations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Pip Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ runner.os }}-ftml-python-${{ hashFiles('ftml/scripts/*-requirements.txt') }}
+
+      - name: Check Blocks
+        run: |
+          # Dependencies
+          python -m pip install --upgrade pip
+          pip install -r ftml/scripts/check_conf-requirements.txt
+
+          # Scripts
+          python ftml/scripts/check_conf.py ftml
