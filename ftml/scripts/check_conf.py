@@ -13,6 +13,7 @@ EXCLUDE_MODULES = []
 BLOCK_DIRECTORY = "src/parsing/rule/impls/block/blocks"
 MODULE_DIRECTORY = "src/parsing/rule/impls/block/blocks/module/modules"
 
+# Regular expressions to extract rules from source
 BLOCK_RULE_REGEX = re.compile(
     r"""pub const BLOCK_\w+: BlockRule = BlockRule \{
     name: "block-([\w\-]+)",
@@ -32,12 +33,14 @@ MODULE_RULE_REGEX = re.compile(
 \};"""
 )
 
+# Converting bool string to a Python bool
 BOOL_VALUES = {
     "true": True,
     "false": False,
 }
 
 
+# Improve readability of some objects, like sets
 def check_format(value):
     if isinstance(value, (set, frozenset)):
         return str(list(map(check_format, value)))
@@ -47,12 +50,14 @@ def check_format(value):
     return str(value)
 
 
+# Case-insensitivity and converting from kebab-case
 def convert_name(value):
     value = inflection.underscore(value)
     value = inflection.camelize(value)
     return value.lower()
 
 
+# Find all rust files that might have rule definitions
 def get_submodule_paths(directory):
     def process(path):
         if not path.endswith(".rs"):
