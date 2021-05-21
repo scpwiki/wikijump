@@ -41,9 +41,9 @@ BOOL_VALUES = {
 
 
 # Improve readability of some objects, like sets
-def check_format(value):
+def format_check_value(value):
     if isinstance(value, (set, frozenset)):
-        return str(list(map(check_format, value)))
+        return str(list(map(format_check_value, value)))
     elif isinstance(value, bool):
         return str(value).lower()
 
@@ -196,8 +196,8 @@ def compare_block_data(block_conf, block_rules):
         def check(key):
             if rule[key] != conf[key]:
                 print(f"  Key {key} differs!")
-                print(f"    Code:   {check_format(rule[key])}")
-                print(f"    Config: {check_format(conf[key])}")
+                print(f"    Code:   {format_check_value(rule[key])}")
+                print(f"    Config: {format_check_value(conf[key])}")
                 success = False
 
         check("aliases")
@@ -252,8 +252,8 @@ def compare_module_data(module_conf, module_rules):
         def check(key):
             if rule[key] != conf[key]:
                 print(f"  Key {key}:")
-                print(f"    Code:   {check_format(rule[key])}")
-                print(f"    Config: {check_format(conf[key])}")
+                print(f"    Code:   {format_check_value(rule[key])}")
+                print(f"    Config: {format_check_value(conf[key])}")
                 success = False
 
         check("aliases")
