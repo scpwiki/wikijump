@@ -72,10 +72,7 @@ def load_block_data(blocks_path):
     # Load config
     with open(blocks_path) as file:
         blocks = toml.load(file)
-        blocks = {
-            convert_name(name): value
-            for name, value in blocks.items()
-        }
+        blocks = {convert_name(name): value for name, value in blocks.items()}
 
     # Adjust configuration
     # Make implicit fields explicit, etc.
@@ -121,10 +118,7 @@ def load_module_data(modules_path):
     # Load blocks
     with open(modules_path) as file:
         modules = toml.load(file)
-        modules = {
-            convert_name(name): value
-            for name, value in modules.items()
-        }
+        modules = {convert_name(name): value for name, value in modules.items()}
 
     # Adjust configuration
     # Make implicit fields explicit, etc.
