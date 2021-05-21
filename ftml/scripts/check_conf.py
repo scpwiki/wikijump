@@ -49,7 +49,8 @@ class AsciiCaseInsensitiveString(str):
         return hash(self.lower())
 
     def __repr__(self):
-        return f"AsciiCaseInsensitiveString({self})"
+        value = str(self)
+        return f"AsciiCaseInsensitiveString({value!r})"
 
 
 def check_format(value):
