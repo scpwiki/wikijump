@@ -164,6 +164,13 @@ jobs:
         with:
           python-version: 3.9
 
+      - name: Pip Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ runner.os }}-ftml-python-${{ hashFiles('ftml/scripts/*-requirements.txt') }}
+
       - name: Check Blocks
         run: |
           # Dependencies
