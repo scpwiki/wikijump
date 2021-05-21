@@ -254,7 +254,7 @@ class AccountProfileAction extends SmartyAction
     {
         $user = $runData->getUser();
 
-        if ($user->username_changes >= `config('wikijump.username_change_limit')`) {
+        if ($user->username_changes >= config('wikijump.username_change_limit')) {
             throw new ProcessException(__('Maximum username changes allowed: '.config('wikijump.username_change_limit')));
         }
 
