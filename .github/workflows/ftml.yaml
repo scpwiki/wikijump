@@ -152,7 +152,7 @@ jobs:
         run: cd ftml && cargo clippy
 
   conf_check:
-    name: Static Data
+    name: Configurations
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
