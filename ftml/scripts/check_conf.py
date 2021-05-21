@@ -80,6 +80,7 @@ def load_block_data(blocks_path):
     # Make implicit fields explicit, etc.
     for name, block in blocks.items():
         # Aliases
+        # We use sets so alias order doesn't matter
         aliases = block.get("aliases", [])
         aliases.append(name)
         block["aliases"] = frozenset(aliases)
@@ -128,6 +129,7 @@ def load_module_data(modules_path):
     # Make implicit fields explicit, etc.
     for name, module in modules.items():
         # Aliases
+        # We use sets so alias order doesn't matter
         aliases = module.get("aliases", [])
         aliases.append(name)
         module["aliases"] = frozenset(aliases)
