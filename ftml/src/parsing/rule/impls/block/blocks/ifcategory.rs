@@ -25,7 +25,7 @@ pub const BLOCK_IFCATEGORY: BlockRule = BlockRule {
     name: "block-ifcategory",
     accepts_names: &["ifcategory"],
     accepts_star: false,
-    accepts_score: true,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };
