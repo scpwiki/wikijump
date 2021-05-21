@@ -164,10 +164,11 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Dependencies
+      - name: Check Blocks
         run: |
+          # Dependencies
           python -m pip install --upgrade pip
           pip install -r ftml/scripts/check_conf-requirements.txt
 
-      - name: Check Blocks
-        run: ftml/scripts/check_conf.py ftml
+          # Scripts
+          python ftml/scripts/check_conf.py ftml
