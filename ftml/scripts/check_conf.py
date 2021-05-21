@@ -68,7 +68,10 @@ def get_submodule_paths(directory):
     return map(process, os.listdir(directory))
 
 
-def load_block_data(blocks_path):
+def load_block_data(root_dir):
+    blocks_path = os.path.join(root_dir, "conf/blocks.toml")
+    block_rules_path = os.path.join(root_dir, BLOCK_DIRECTORY)
+
     # Load config
     with open(blocks_path) as file:
         blocks = toml.load(file)
@@ -97,7 +100,7 @@ def load_block_data(blocks_path):
 
     # Load rules
     block_rules = {}
-    for path in get_submodule_paths(BLOCK_DIRECTORY):
+    for path in get_submodule_paths(block_rules_path):
         with open(path) as file:
             contents = file.read()
 
@@ -117,7 +120,10 @@ def load_block_data(blocks_path):
     return blocks, block_rules
 
 
-def load_module_data(modules_path):
+def load_module_data(root_dir):
+    modules_path = os.path.join(root_dir, "conf/modules.toml")
+    module_rules_path = os.path.join(root_dir, MODULE_DIRECTORY)
+
     # Load blocks
     with open(modules_path) as file:
         modules = toml.load(file)
@@ -136,7 +142,7 @@ def load_module_data(modules_path):
 
     # Load rules
     module_rules = {}
-    for path in get_submodule_paths(MODULE_DIRECTORY):
+    for path in get_submodule_paths(module_rules_path):
         with open(path) as file:
             contents = file.read()
 
@@ -270,12 +276,10 @@ if __name__ == "__main__":
     root_dir = sys.argv[1]
     success = True
 
-    blocks_path = os.path.join(root_dir, "conf/blocks.toml")
-    blocks, block_rules = load_block_data(blocks_path)
+    blocks, block_rules = load_block_data(root_dir)
     success &= compare_block_data(blocks, block_rules)
 
-    modules_path = os.path.join(root_dir, "conf/modules.toml")
-    modules, module_rules = load_module_data(modules_path)
+    modules, module_rules = load_module_data(root_dir)
     success &= compare_module_data(modules, module_rules)
 
     if success:
