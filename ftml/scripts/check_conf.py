@@ -4,6 +4,7 @@ import os
 import re
 import sys
 
+import inflection
 import toml
 
 EXCLUDE_BLOCKS = ["later"]
@@ -58,6 +59,12 @@ def check_format(value):
         return str(value).lower()
 
     return str(value)
+
+
+def convert_name(value):
+    value = inflection.underscore(value)
+    value = inflection.camelize(value)
+    return AsciiCaseInsensitiveString(value)
 
 
 def get_submodule_paths(directory):
@@ -151,8 +158,8 @@ def compare_block_data(block_conf, block_rules):
     success = True
 
     # Check for new or removed blocks
-    block_conf_names = frozenset(map(AsciiCaseInsensitiveString, block_conf.keys()))
-    block_rule_names = frozenset(map(AsciiCaseInsensitiveString, block_rules.keys()))
+    block_conf_names = frozenset(map(convert_name, block_conf.keys()))
+    block_rule_names = frozenset(map(convert_name, block_rules.keys()))
 
     added = block_rule_names - block_conf_names
     deleted = block_conf_names - block_rule_names
@@ -207,8 +214,8 @@ def compare_module_data(module_conf, module_rules):
     success = True
 
     # Check for new or removed modules
-    module_conf_names = frozenset(map(AsciiCaseInsensitiveString, module_conf.keys()))
-    module_rule_names = frozenset(map(AsciiCaseInsensitiveString, module_rules.keys()))
+    module_conf_names = frozenset(map(convert_name, module_conf.keys()))
+    module_rule_names = frozenset(map(convert_name, module_rules.keys()))
 
     added = module_rule_names - module_conf_names
     deleted = module_conf_names - module_rule_names
