@@ -20,8 +20,7 @@ export class SubState {
     this.all = strict ? true : all ?? false
     this.strict = strict
 
-    if (isString(rules)) grammar.addSubstate(this, grammar.addState(rules))
-    else grammar.addSubstate(this, rules)
+    grammar.addSubstate(this, isString(rules) ? grammar.addState(rules) : rules)
   }
 
   exec(cx: GrammarContext, str: string, pos: number): Matched[] | null {
@@ -31,11 +30,15 @@ export class SubState {
     cx.substate = this
 
     let offset = 0
-    let match: Matched | null = null
-    // prettier-ignore
-    while (offset < str.length &&
-      ((match = this.grammar.match(cx, str, offset)) || (!this.all && this.repeat))
-    ) {
+    let match = null as Matched | null
+
+    const doContinue = () => {
+      if (offset >= str.length) return false
+      match = this.grammar.match(cx, str, offset)
+      if (match || (!this.all && this.repeat)) return true
+    }
+
+    while (doContinue()) {
       if (!match) {
         offset += 1
         continue

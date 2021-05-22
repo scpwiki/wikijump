@@ -40,7 +40,7 @@ export class Rule {
 
     if (this.target) {
       if (!cx.last) throw new Error("Rule target specified, but no last match!")
-      return this.action.exec(cx, cx.last, pos)
+      return this.action.exec(cx, [str.slice(pos)], pos)
     } else {
       if (!cx.last || !cx.substate) cx.last = found
       const result = this.action.exec(cx, found, pos)

@@ -8,9 +8,9 @@ export function createToken({ from, to, action, context, state }: Matched): Gram
   let { type, open, close, next, switchTo, embedded } = action
 
   if (state) {
-    if (next && hasSigil("$", next)) next = Grammar.sub(state, next)
-    if (switchTo && hasSigil("$", switchTo)) switchTo = Grammar.sub(state, switchTo)
-    if (embedded && hasSigil("$", embedded)) embedded = Grammar.sub(state, embedded)
+    if (hasSigil(next, ["$", "::"])) next = Grammar.sub(state, next)
+    if (hasSigil(switchTo, ["$", "::"])) switchTo = Grammar.sub(state, switchTo)
+    if (hasSigil(embedded, ["$", "::"])) embedded = Grammar.sub(state, embedded)
   }
 
   const empty = !(type || open || close || next || switchTo || embedded || context)
@@ -33,6 +33,12 @@ export function wrapTokens(tokens: GrammarToken[], { context, state, action }: M
   let { type, mode, next, switchTo, open, close, embedded } = action
 
   if (context) last.context = { ...last.context, ...context }
+
+  if (state) {
+    if (hasSigil(next, ["$", "::"])) next = Grammar.sub(state, next)
+    if (hasSigil(switchTo, ["$", "::"])) switchTo = Grammar.sub(state, switchTo)
+    if (hasSigil(embedded, ["$", "::"])) embedded = Grammar.sub(state, embedded)
+  }
 
   if (next || switchTo) {
     tokens.unshift(
