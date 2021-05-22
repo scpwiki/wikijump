@@ -3,7 +3,7 @@ aliases = ["a"]
 accepts-star = true
 accepts-score = true
 head = "map"
-body = "none"
+body = "elements"
 html-attributes = true
 html-output = "html,a"
 
@@ -112,7 +112,7 @@ html-output = "html,iframe"
 
 [image]
 aliases = ["=image", "<image", ">image", "f<image", "f>image"]
-head = "map"
+head = "value+map"
 body = "none"
 html-attributes = true
 html-output = "html,img"
