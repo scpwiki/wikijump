@@ -3,7 +3,7 @@ aliases = ["a"]
 accepts-star = true
 accepts-score = true
 head = "map"
-body = "none"
+body = "elements"
 html-attributes = true
 html-output = "html,a"
 
