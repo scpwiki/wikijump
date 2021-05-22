@@ -26,7 +26,7 @@ jobs:
             ~/.cache/pip
           key: ${{ runner.os }}-ftml-python-${{ hashFiles('ftml/scripts/*-requirements.txt') }}
 
-      - name: Check Blocks
+      - name: Run Check
         run: |
           # Dependencies
           python -m pip install --upgrade pip
