@@ -164,7 +164,10 @@ export class Grammar {
   }
 
   private addBracket({ name, pair, hint = "", tag, parented }: DF.Bracket) {
-    if (name.indexOf("_::_") !== -1) throw new Error("Invalid bracket name!")
+    if (name.indexOf("_::_") !== -1) {
+      console.warn(`Grammar: Invalid bracket name '${name}'! Ignoring...`)
+      return
+    }
 
     const tagged = hasSigil(name, "t.")
     const openType = tagged ? unSigil(name, "t.") : (`${name}Open` as DF.Type)
@@ -298,29 +301,29 @@ export class Grammar {
 
     for (const rule of rules) {
       try {
-      // include directive
-      if ("include" in rule) {
-        this.addState(rule.include)
-        includes.add(rule.include)
-      }
-      // props directive
-      else if ("props" in rule) {
-        this.props.push(...rule.props)
-      }
-      // style directive
-      else if ("style" in rule) {
-        this.props.push(styleTags(removeUndefined(rule.style)))
-      }
-      // brackets directive
-      else if ("brackets" in rule) {
-        for (const bracket of rule.brackets) this.addBracket(bracket)
-      }
-      // variables directive
-      else if ("variables" in rule) {
-        Object.assign(this.variables, rule.variables)
-      }
+        // include directive
+        if ("include" in rule) {
+          this.addState(rule.include)
+          includes.add(rule.include)
+        }
+        // props directive
+        else if ("props" in rule) {
+          this.props.push(...rule.props)
+        }
+        // style directive
+        else if ("style" in rule) {
+          this.props.push(styleTags(removeUndefined(rule.style)))
+        }
+        // brackets directive
+        else if ("brackets" in rule) {
+          for (const bracket of rule.brackets) this.addBracket(bracket)
+        }
+        // variables directive
+        else if ("variables" in rule) {
+          Object.assign(this.variables, rule.variables)
+        }
         // rule state (incoming sphagetti, see above comments)
-      else if ("begin" in rule) {
+        else if ("begin" in rule) {
           const root = klona(rule)
           const stateRoot = createID("rule-state")
 
@@ -340,7 +343,7 @@ export class Grammar {
             while ("begin" in current) {
               stack.push([createID("rule-state"), current])
               current = current.begin
-          }
+            }
 
             // reverse list so that deepest node comes first
             stack.reverse()
@@ -353,7 +356,7 @@ export class Grammar {
                 state.end.action ??= {}
                 state.end.action.embedded = embedded.slice(0, embedded.length - 1)
               }
-          }
+            }
 
             // work deepest to shallowest, and eventually propagate
             // the deepest node to the root, which serves as the entrypoint to the chain
@@ -363,7 +366,7 @@ export class Grammar {
               if ("begin" in state) {
                 state.begin = begin
                 state.end = end
-          }
+              }
               return [next, state]
             })
 
@@ -386,23 +389,23 @@ export class Grammar {
             const { begin, finalize } = this.processRuleState(state, root.begin)
             finalizeList.push(() => finalize(stateRoot))
             root.begin = begin
-        }
+          }
 
           // finalize everything
           const { finalize } = this.processRuleState(stateRoot, root)
           finalizeList.forEach(fn => fn())
           finalize().forEach(id => ids.add(id))
-      }
-      // normal rule
-      else {
+        }
+        // normal rule
+        else {
           ids.add(this.addRule(rule).id)
         }
-        } catch (err) {
-          console.warn("Grammar: Failed to add rule. Ignoring...")
+      } catch (err) {
+        console.warn("Grammar: Failed to add rule. Ignoring...")
         console.warn(err)
-          console.info(rule)
-        }
+        console.info(rule)
       }
+    }
     return ids
   }
 
@@ -412,7 +415,10 @@ export class Grammar {
     if (this.states.has(name)) return this.states.get(name)!
     const states = this.grammar.states
     const state = states[name]
-    if (!state) throw new Error("Undefined state specified in grammar!")
+    if (!state) {
+      console.warn(`Grammar: Undefined state (${name}) added in grammar! Ignoring...`)
+      return new Set()
+    }
 
     this.states.set(name, new Set()) // prevents cyclic
     const ids = this.addRules(state)
@@ -438,7 +444,12 @@ export class Grammar {
 
   match(cx: GrammarContext, str: string, pos: number, offset = 0): Matched | null {
     const ids = this.states.get(cx.substate ?? cx.state)
-    if (!ids) throw new Error("Undefined state specified in grammar!")
+    if (!ids) {
+      console.warn(
+        `Grammar: Undefined state (${cx.substate ?? cx.state}) requested in grammar!`
+      )
+      return null
+    }
 
     for (const id of ids) {
       const rule = this.rules.get(id)!
