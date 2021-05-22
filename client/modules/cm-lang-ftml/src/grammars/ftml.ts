@@ -7,14 +7,10 @@ import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
 import { completeFTML } from "../autocomplete/autocomplete"
 import { blocks, modules } from "../data/blocks"
-import type { Block, Module } from "../data/types"
 import { FTMLLinter } from "../lint"
+import { aliasesFiltered, aliasesRaw } from "../util"
 import { StyleAttributeGrammar } from "./css-attributes"
 import { TexLanguage } from "./tex"
-
-function aliases([name, block]: [string, Block | Module]) {
-  return [name, ...(block.aliases ?? [])]
-}
 
 const blockEntries = Object.entries(blocks)
 const moduleEntries = Object.entries(modules)
@@ -23,24 +19,23 @@ const data = {
   blk_map: lkup(
     blockEntries
       .filter(([, { head, body }]) => head === "map" && body === "none")
-      .flatMap(aliases),
+      .flatMap(aliasesFiltered),
     { ignoreCase: true }
   ),
 
   blk_val: lkup(
     blockEntries
       .filter(([, { head, body }]) => head === "value" && body === "none")
-      .flatMap(aliases),
+      .flatMap(aliasesFiltered),
     { ignoreCase: true }
   ),
 
-  // currently empty
-  // blk_valmap: lkup(
-  //   blockEntries
-  //     .filter(([, { head, body }]) => head === "value+map" && body === "none")
-  //     .flatMap(aliases),
-  //   { ignoreCase: true }
-  // ),
+  blk_valmap: lkup(
+    blockEntries
+      .filter(([, { head, body }]) => head === "value+map" && body === "none")
+      .flatMap(aliasesFiltered),
+    { ignoreCase: true }
+  ),
 
   // currently empty
   // blk_el: lkup(
@@ -53,14 +48,14 @@ const data = {
   blk_map_el: lkup(
     blockEntries
       .filter(([, { head, body }]) => head === "map" && body === "elements")
-      .flatMap(aliases),
+      .flatMap(aliasesFiltered),
     { ignoreCase: true }
   ),
 
   blk_val_el: lkup(
     blockEntries
       .filter(([, { head, body }]) => head === "value" && body === "elements")
-      .flatMap(aliases),
+      .flatMap(aliasesFiltered),
     { ignoreCase: true }
   ),
 
@@ -72,12 +67,10 @@ const data = {
   //  { ignoreCase: true }
   // ),
 
-  mods: lkup(moduleEntries.flatMap(aliases), { ignoreCase: true })
-}
+  mods: lkup(moduleEntries.flatMap(aliasesRaw), { ignoreCase: true }),
 
-// TODO: figure out indentation
-// TODO: figure out if there is any way to make the block grammar not awful
-// TODO: floats
+  blk_align: lkup(["=", "==", "<", ">"])
+}
 
 export const FTMLLanguage = new TarnationLanguage({
   name: "FTML",
@@ -199,7 +192,7 @@ export const FTMLLanguage = new TarnationLanguage({
         { variables: {
           // symbols that interrupt a paragraph on line start
           interrupt:/(?:\++\*?@ws)|(?:[\[\]])|(?:[*#]@ws)|(?:[-=]{4,})|(?::)|(?:>+@ws)|(?:>$)|(?:\|{2})/,
-          hr: /(?:-{4,}|={4,})@ws*$/,          // horizontal rules
+          hr: /(?:-{3,}|={3,})@ws*$/,          // horizontal rules
           heading: /(?:\++\*?)@ws+(?!$)/,      // headings
           cs: /@s(?:(?:>+@ws|>|[*#]@ws)@ws*)+/ // container start
         } },
@@ -293,11 +286,9 @@ export const FTMLLanguage = new TarnationLanguage({
       ],
 
       typography: [
-        // TODO: make this less insane somehow
-
         { style: { Typography: t.processingInstruction } },
 
-        // most of these require lookbehinds
+        // some of these require lookbehinds
         // so they're compiled with the `re` safe regex function
         // blame safari
 
@@ -313,17 +304,10 @@ export const FTMLLanguage = new TarnationLanguage({
         [re`/,,(?=(?!,,).+?'')/`, "Typography"],
         [re`/(?<=,,(?!,,).+?)''/`, "Typography"],
 
-        // <<quotation>>
-        [re`/<<(?=(?!<<).+?>>)/`, "Typography"],
-        [re`/(?<=<<(?!>>).+?)>>/`, "Typography"],
-
-        // >>quotation<<
-        [re`/>>(?=(?!>>).+?<<)/`, "Typography"],
-        [re`/(?<=>>(?!<<).+?)<</`, "Typography"],
-
+        // <<, >>
+        [/<<|>>/, "Typography"],
         // ...
         [/\.{3}/, "Typography"],
-
         // --
         [re`/(?<=\s)--(?=\s)/`, "Typography"]
       ],
@@ -342,7 +326,7 @@ export const FTMLLanguage = new TarnationLanguage({
         ] },
 
         // raw escape block
-        [/(@<)(.+?)(>@)/, "EscapedBlock",
+        [/(@<)(.*?)(>@)/, "EscapedBlock",
           ["@BR", { strict: false, rules: [[/&[\w#]+;/, "EntityReference"]] }, "@BR"]
         ],
 
@@ -395,7 +379,7 @@ export const FTMLLanguage = new TarnationLanguage({
         ] }],
 
         // opening formatting
-        [[lb`!1/\\|\w/`, /(@formatting)(?=(?!\1)\S|@escapes)/], { rules: [
+        [[lb`!1/\\|\w/`, /(@formatting)/], { rules: [
           ["**", "StrongOpen",        { parser: ">>Strong"        }],
           ["//", "EmphasisOpen",      { parser: ">>Emphasis"      }],
           ["__", "UnderlineOpen",     { parser: ">>Underline"     }],
@@ -410,11 +394,17 @@ export const FTMLLanguage = new TarnationLanguage({
 
         { style: {
           BlockName: t.tagName,
+          BlockNameAlign: t.function(t.name),
+          BlockNameSpecial: t.keyword,
           BlockNameModule: t.keyword,
           BlockNameUnknown: t.invalid,
-          BlockValue: t.string,
+
           ModuleName: t.className,
           ModuleNameUnknown: t.invalid,
+
+          BlockPrefix: t.keyword,
+          BlockModifier: t.function(t.name),
+          BlockValue: t.string,
 
           IncludeValue: t.link,
           IncludeParameterProperty: t.propertyName
@@ -457,33 +447,57 @@ export const FTMLLanguage = new TarnationLanguage({
         ],
 
         // [[math]]
-        { begin: [/(@bs)(@bm?)(math)(@bsf)([^]*?)(@be)/, "BlockNode",
-            ["@BR", "t.modifier", "BlockName", "t.modifier", { strict: false, rules: "#block_node_map" }, "@BR"]
-          ],
+        { begin:
+          { begin: [[/(@bs)(@bm?)(math)(@bsf)/],
+              ["@BR", "BlockPrefix", "BlockName", "BlockModifier"]
+            ],
+            end: [/@be/, "@BR"],
+            type: "BlockNode",
+            rules: "#block_node_map"
+          },
           end:   [/(@bsc)(math)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
           type: "BlockNested",
           embedded: "wikimath!"
         },
 
         // [[module css]]
-        { begin: [/(@bs)(module)(\s+)(css)(@be)/,  "BlockNode",
-            ["@BR", "BlockNameModule", "", "ModuleName", "@BR"]
-          ],
+        { begin:
+          { begin: [/(@bs)(@bm?)(module)(@bsf)(\s*)(css)/,
+              ["@BR", "BlockPrefix", "BlockNameModule", "BlockModifier", "", "ModuleName"]
+            ],
+            end: [/@be/, "@BR"],
+            type: "BlockNode",
+            rules: "#block_node_map"
+          },
           end:   [/(@bsc)(module)(@be)/, "BlockNode", ["@BR", "BlockNameModule", "@BR"]],
           type: "BlockNested",
           embedded: "css!"
         },
 
         // [[css]]
-        { begin: [/(@bs)(css)(@be)/,  "BlockNode", ["@BR", "BlockName", "@BR"]],
-          end:   [/(@bsc)(css)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
+        { begin:
+          { begin: [[/(@bs)(@bm?)(css)(@bsf)/],
+              ["@BR", "BlockPrefix", "BlockNameSpecial", "BlockModifier"]
+            ],
+            end: [/@be/, "@BR"],
+            type: "BlockNode",
+            rules: "#block_node_map"
+          },
+          end:   [/(@bsc)(css)(@be)/, "BlockNode", ["@BR", "BlockNameSpecial", "@BR"]],
           type: "BlockNested",
           embedded: "css!"
         },
 
         // [[html]]
-        { begin: [/(@bs)(html)(@be)/,  "BlockNode", ["@BR", "BlockName", "@BR"]],
-          end:   [/(@bsc)(html)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
+        { begin:
+          { begin: [[/(@bs)(@bm?)(html)(@bsf)/],
+              ["@BR", "BlockPrefix", "BlockNameSpecial", "BlockModifier"]
+            ],
+            end: [/@be/, "@BR"],
+            type: "BlockNode",
+            rules: "#block_node_map"
+          },
+          end:   [/(@bsc)(html)(@be)/, "BlockNode", ["@BR", "BlockNameSpecial", "@BR"]],
           type: "BlockNested",
           embedded: "html!"
         },
@@ -491,7 +505,7 @@ export const FTMLLanguage = new TarnationLanguage({
         // [[code]]
         { begin:
           { begin: [[/(@bs)(@bm?)/, "code", /(@bsf)/],
-              ["@BR", "t.modifier", "BlockName", "t.modifier"]
+              ["@BR", "BlockPrefix", "BlockNameSpecial", "BlockModifier"]
             ],
             end: [/@be/, "@BR"],
             type: "BlockNode",
@@ -506,7 +520,9 @@ export const FTMLLanguage = new TarnationLanguage({
               { include: "#block_node_map" }
             ]
           },
-          end: [/(@bsc)(code)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
+          end: [/(@bsc)(code)(@be)/, "BlockNode",
+            ["@BR", "BlockNameSpecial", "@BR"], { context: { lang: null } }
+          ],
           type: "BlockNested",
           embedded: "::lang!"
         },
@@ -515,7 +531,7 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // block (map)
         { begin: [[/(@bs)(@bm?)/, "@blk_map", /(@bsf)/],
-            ["@BR", "t.modifier", "BlockName", "t.modifier"]
+            ["@BR", "BlockPrefix", "BlockName", "BlockModifier"]
           ],
           end: [/@be/, "@BR"],
           type: "BlockNode",
@@ -523,13 +539,13 @@ export const FTMLLanguage = new TarnationLanguage({
         },
 
         // block (value)
-        [[/(@bs)(@bm?)/, "@blk_val", /(@bsf)([^\s]*?)(@be)/], "BlockNode",
-          ["@BR", "t.modifier", "BlockName", "t.modifier", "BlockValue", "@BR"]
+        [[/(@bs)(@bm?)/, "@blk_val", /(@bsf)(\s*)([^\s]*?)(@be)/], "BlockNode",
+          ["@BR", "BlockPrefix", "BlockName", "BlockModifier", "", "BlockValue", "@BR"]
         ],
 
         // block (valmap)
         { begin: [[/(@bs)(@bm?)/, "@blk_valmap", /(@bsf)(\s*)([^\]\s]*)/],
-            ["@BR", "t.modifier", "BlockName", "t.modifier", "", "BlockValue"]
+            ["@BR", "BlockPrefix", "BlockName", "BlockModifier", "", "BlockValue"]
           ],
           end: [/@be/, "@BR"],
           type: "BlockNode",
@@ -537,8 +553,8 @@ export const FTMLLanguage = new TarnationLanguage({
         },
 
         // block modules
-        { begin: [[/(@bs)(@bm?)/, "module", /(@bsf)(\s*)([^\s\]]+)/],
-            ["@BR", "t.modifier", "BlockNameModule", "t.modifier", "", { rules: [
+        { begin: [/(@bs)(@bm?)(module)(@bsf)(\s*)([^\s\]]+)/,
+            ["@BR", "BlockPrefix", "BlockNameModule", "BlockModifier", "", { rules: [
               ["@mods", "ModuleName"],
               ["@DEFAULT", "ModuleNameUnknown"]
             ] }]
@@ -553,36 +569,57 @@ export const FTMLLanguage = new TarnationLanguage({
         // block containers (map, elements)
         { begin:
           { begin: [[/(@bs)(@bm?)/, "@blk_map_el", /(@bsf)/],
-              ["@BR", "t.modifier", "BlockName", "t.modifier"]
+              ["@BR", "BlockPrefix", "BlockName", "BlockModifier"]
             ],
             end: [/@be/, "@BR"],
             type: "BlockNode",
             rules: "#block_node_map"
           },
-          end: [[/@bsc/, "@blk_map_el", /@be/], "BlockNode", ["@BR", "BlockName", "@BR"]],
+          end: [[/@bsc/, "@blk_map_el", /(@bsf)(@be)/], "BlockNode",
+            ["@BR", "BlockName", "BlockModifier", "@BR"]
+          ],
           type: "BlockContainer"
         },
 
         // block containers (value, elements)
-        { begin: [[/(@bs)(@bm?)/, "@blk_val_el", /(@bsf)([^]*?)(@be)/], "BlockNode",
-            ["@BR", "t.modifier", "BlockName", "t.modifier", "BlockValue", "@BR"]
+        { begin:
+          { begin: [[/(@bs)(@bm?)/, "@blk_val_el", /(@bsf)(\s*)([^\]\s]*)/],
+              ["@BR", "BlockPrefix", "BlockName", "BlockModifier", "", "BlockValue"]
+            ],
+            end: [/@be/, "@BR"],
+            type: "BlockNode",
+            rules: "#block_node_map"
+          },
+          end: [[/@bsc/, "@blk_val_el", /(@bsf)(@be)/], "BlockNode",
+            ["@BR", "BlockName", "BlockModifier", "@BR"]
           ],
-          end: [[/@bsc/, "@blk_val_el", /@be/], "BlockNode", ["@BR", "BlockName", "@BR"]],
           type: "BlockContainer"
         },
 
         // block containers (elements)
         { begin: [[/(@bs)(@bm?)/, "@blk_el", /(@bsf)(@be)/], "BlockNode",
-            ["@BR", "t.modifier", "BlockName", "t.modifier", "@BR"]
+            ["@BR", "BlockPrefix", "BlockName", "BlockModifier", "@BR"]
           ],
-          end: [[/@bsc/, "@blk_el", /@be/], "BlockNode", ["@BR", "BlockName", "@BR"]],
+          end: [[/@bsc/, "@blk_el", /(@bsf)(@be)/], "BlockNode",
+            ["@BR", "BlockName", "BlockModifier", "@BR"]
+          ],
+          type: "BlockContainer"
+        },
+
+        // block containers (alignment)
+        { begin: [[/(@bs)(@bm?)/, "@blk_align", /(@bsf)(@be)/], "BlockNode",
+            ["@BR", "BlockPrefix", "BlockNameAlign", "BlockModifier", "@BR"]
+          ],
+          end: [[/@bsc/, "@blk_align", /(@bsf)(@be)/], "BlockNode",
+            ["@BR", "BlockNameAlign", "BlockModifier", "@BR"]
+          ],
           type: "BlockContainer"
         },
 
         // -- UNKNOWN
 
         { begin: [/(@bs|@bsc)(@bm?)([^\\#*\s\]]+?)(@bsf)/,
-            ["@BR", "t.modifier", "BlockNameUnknown", "t.modifier"]
+            ["@BR", "BlockPrefix", "BlockNameUnknown", "BlockModifier"]
           ],
           end: [/@be/, "@BR"],
           type: "BlockNode",
@@ -639,7 +676,7 @@ export const FTMLLanguage = new TarnationLanguage({
         } },
 
         { begin: [/(@bs)(include)(@bsf)((?:@ws*)[^\s\]]+)/,
-            ["@BR", "BlockNameInclude", "t.modifier", "IncludeValue"]
+            ["@BR", "BlockNameInclude", "BlockModifier", "IncludeValue"]
           ],
           end: [/@be/, "@BR"],
           type: "IncludeNode",
