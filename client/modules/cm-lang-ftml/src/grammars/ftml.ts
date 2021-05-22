@@ -363,8 +363,8 @@ export const FTMLLanguage = new TarnationLanguage({
           "Underline/...":     t.special(t.emphasis),
           "Strikethrough/...": t.special(t.deleted),
           "Mark/...":          t.special(t.inserted),
-          "Subscript/...":     t.character, // TODO
-          "Superscript/...":   t.character, // TODO
+          "Subscript/...":     t.character, // TODO: style as superscript in editor
+          "Superscript/...":   t.character, // TODO: style as subscript in editor
           "Monospace/...":     t.monospace
         } },
 
@@ -488,14 +488,27 @@ export const FTMLLanguage = new TarnationLanguage({
           embedded: "html!"
         },
 
-        // TODO: make type attribute work
         // [[code]]
-        { begin: [/(@bs)(@bm?)(code)(@bsf)([^]*?)(@be)/, "BlockNode",
-            ["@BR", "t.modifier", "BlockName", "t.modifier", { strict: false, rules: "#block_node_map" }, "@BR"]
-          ],
-          end:   [/(@bsc)(code)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
+        { begin:
+          { begin: [[/(@bs)(@bm?)/, "code", /(@bsf)/],
+              ["@BR", "t.modifier", "BlockName", "t.modifier"]
+            ],
+            end: [/@be/, "@BR"],
+            type: "BlockNode",
+            rules: [
+              [/(type)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
+                "BlockNodeArgumentName",
+                "t.definitionOperator",
+                "@BR/O:arg",
+                ["BlockNodeArgumentValue", { context: { lang: "$4" } }],
+                "@BR/C:arg"
+              ]],
+              { include: "#block_node_map" }
+            ]
+          },
+          end: [/(@bsc)(code)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
           type: "BlockNested",
-          rules: []
+          embedded: "::lang!"
         },
 
         // -- BLOCKS
@@ -538,9 +551,14 @@ export const FTMLLanguage = new TarnationLanguage({
         // -- BLOCK CONTAINERS
 
         // block containers (map, elements)
-        { begin: [[/(@bs)(@bm?)/, "@blk_map_el", /(@bsf)([^]*?)(@be)/], "BlockNode",
-            ["@BR", "t.modifier", "BlockName", "t.modifier", { strict: false, rules: "#block_node_map" }, "@BR"]
-          ],
+        { begin:
+          { begin: [[/(@bs)(@bm?)/, "@blk_map_el", /(@bsf)/],
+              ["@BR", "t.modifier", "BlockName", "t.modifier"]
+            ],
+            end: [/@be/, "@BR"],
+            type: "BlockNode",
+            rules: "#block_node_map"
+          },
           end: [[/@bsc/, "@blk_map_el", /@be/], "BlockNode", ["@BR", "BlockName", "@BR"]],
           type: "BlockContainer"
         },
@@ -563,9 +581,13 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // -- UNKNOWN
 
-        [/(@bs|@bsc)(@bm?)([^\\#*\s\]]+?)(@bsf)([^]*?)(@be)/, "BlockNode",
-          ["@BR", "t.modifier", "BlockNameUnknown", "t.modifier", { strict: false, rules: "#block_node_map" }, "@BR"]
-        ],
+        { begin: [/(@bs|@bsc)(@bm?)([^\\#*\s\]]+?)(@bsf)/,
+            ["@BR", "t.modifier", "BlockNameUnknown", "t.modifier"]
+          ],
+          end: [/@be/, "@BR"],
+          type: "BlockNode",
+          rules: "#block_node_map"
+        },
 
         // -- SINGLE LINKS
 
@@ -590,20 +612,19 @@ export const FTMLLanguage = new TarnationLanguage({
           BlockNodeArgumentValue: t.string
         } },
 
-        [/(style)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
-          "BlockNodeArgumentName",
-          "t.definitionOperator",
-          "t.string",
-          { embedded: "style-attribute!" },
-          "t.string"
-        ]],
+        { brackets: [
+          { name: "BlockNodeArgumentMark", pair: '"', hint: "arg", tag: "t.string" }
+        ] },
 
         [/(\S+?)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
           "BlockNodeArgumentName",
           "t.definitionOperator",
-          "t.string",
-          "BlockNodeArgumentValue",
-          "t.string"
+          "@BR/O:arg",
+          { type: "BlockNodeArgumentValue", rules: [
+            ["$1", "style", { embedded: "style-attribute!" }],
+            ["@DEFAULT"]
+          ] },
+          "@BR/C:arg"
         ]],
 
         [/(\S+?)(?=$|\s|@be)/, "BlockLabel"]
