@@ -665,7 +665,7 @@ export type Matchable = MatchFunction | RegExp | string | Substitute | null
  * rule = ["::myValue", "foo", "SomeAction"]
  * ```
  */
-export type Context = Record<string, string | undefined>
+export type Context = Record<string, string | null>
 
 /**
  * Describes a `parser` directive for how to handle the nesting of nodes.

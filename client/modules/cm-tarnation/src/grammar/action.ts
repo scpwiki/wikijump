@@ -60,7 +60,8 @@ export class Action {
     const added: DF.Context = {}
     for (const key in this.context) {
       const prop = this.context[key]
-      if (prop) added[key] = Grammar.sub(cx, prop)
+      if (prop === null) delete cx.context[key]
+      else if (prop) added[key] = Grammar.sub(cx, prop)
     }
     return (cx.context = { ...cx.context, ...added })
   }
