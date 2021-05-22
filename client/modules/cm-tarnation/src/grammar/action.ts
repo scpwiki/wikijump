@@ -66,17 +66,19 @@ export class Action {
   }
 
   exec(cx: GrammarContext, found: string[], pos: number): Matched | null {
-    const state = getMatchState(cx)
-    const matched = new Matched(found[0], this, pos, state)
+    const matched = new Matched(found[0], this, pos)
 
     switch (this.mode) {
       case ActionMode.Normal: {
         matched.context = this.updateContext(cx)
+        matched.state = getMatchState(cx)
         return matched
       }
 
       case ActionMode.Bracket: {
         matched.context = this.updateContext(cx)
+        const state = getMatchState(cx)
+        matched.state = state
         const action = this.grammar.findBracket(found[0], this.type)
         if (action) {
           return Matched.extend(matched, [new Matched(found[0], action, pos, state)])
@@ -85,13 +87,16 @@ export class Action {
       }
 
       case ActionMode.Rematch: {
-        return new Matched("", this, pos, state, this.updateContext(cx))
+        const context = this.updateContext(cx)
+        const state = getMatchState(cx)
+        return new Matched("", this, pos, state, context)
       }
 
       case ActionMode.SubState: {
         const sub = this.substate!.exec(cx, found[0], pos)
         if (!sub) return null
         matched.context = this.updateContext(cx)
+        matched.state = getMatchState(cx)
         return Matched.extend(matched, sub)
       }
 
@@ -108,6 +113,7 @@ export class Action {
           offset += capture.length
         }
         matched.context = this.updateContext(cx)
+        matched.state = getMatchState(cx)
         return Matched.extend(matched, group)
       }
 

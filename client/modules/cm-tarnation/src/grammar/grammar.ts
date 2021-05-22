@@ -49,7 +49,7 @@ export interface GrammarToken {
 /** Directs the parser to nest tokens. */
 export type ParserAction = [type: string, inclusive: number][]
 
-const SUB_REGEX = /\$(?:S|#|\d+)|::\S+/g
+const SUB_REGEX = /\$(?:S|#|\d+)|::[^\s!]+/g
 const BRACKET_REGEX = /@BR(\/[OC])?(?::(.+))?/
 
 export class Grammar {
@@ -208,6 +208,80 @@ export class Grammar {
 
   // RULES
 
+  // I'm very sorry about this code
+  // legitimately was extremely frustrating and this is obviously sphagetti
+  // Fixing this properly will involve writing a grammar definition format that isn't
+  // so flat -- as in it handles recursive stuff naturally,
+  // rather than with syntax sugar
+
+  private processRuleState(
+    state: string,
+    rule: DM.RuleState & { begin: DM.Rule; end: DM.Rule }
+  ) {
+    const { embedded, type, rules } = rule
+    const begin: DM.Rule = rule.begin
+    const end: DM.Rule = rule.end
+
+    begin.action ??= {}
+    end.action ??= {}
+
+    if (type) {
+      begin.action.open ??= []
+      end.action.close ??= []
+      begin.action.open.unshift([type, 1])
+      end.action.close.push([type, 1])
+    }
+
+    const finalize = (next?: string) => {
+      const ids = new Set<number>()
+      const endState = next ? createID("rule-state") : state
+
+      if (embedded) {
+        // don't start embedded if our rule is going off somewhere else
+        if (!begin.action!.switchTo && !begin.action!.next) {
+          begin.action!.embedded = embedded.slice(0, embedded.length - 1)
+        }
+        end.action!.embedded = "@pop"
+      }
+
+      if (embedded || rules || next) {
+        if (next) {
+          begin.action!.switchTo = endState
+          end.action!.switchTo = next
+        } else {
+          if (begin.action?.switchTo) {
+            begin.action.next = begin.action.switchTo
+            delete begin.action.switchTo
+          } else {
+            begin.action!.next = state
+          }
+          end.action!.next = "@pop"
+        }
+      } else if (!embedded && !rules && begin.action!.switchTo) {
+        begin.action!.next = begin.action!.switchTo
+        delete begin.action!.switchTo
+      }
+
+      if (rules) {
+        const stateRules = [end, ...(isString(rules) ? [{ include: rules }] : rules)]
+        this.states.set(endState, this.addRules(stateRules as any))
+      } else if (embedded || next) {
+        this.states.set(endState, new Set([this.addRule(end).id]))
+      }
+
+      if (next) {
+        this.states.set(state, new Set([this.addRule(begin).id]))
+      } else {
+        ids.add(this.addRule(begin).id)
+        if (!embedded && !rules) ids.add(this.addRule(end).id)
+      }
+
+      return ids
+    }
+
+    return { begin, end, finalize }
+  }
+
   private addRule(def: DM.Rule) {
     const id = this.rules.size
     // takes the rule slot to avoid rules being overwritten
@@ -223,6 +297,7 @@ export class Grammar {
     this.includeMap.set(ids, includes)
 
     for (const rule of rules) {
+      try {
       // include directive
       if ("include" in rule) {
         this.addState(rule.include)
@@ -244,60 +319,90 @@ export class Grammar {
       else if ("variables" in rule) {
         Object.assign(this.variables, rule.variables)
       }
-      // rule state
+        // rule state (incoming sphagetti, see above comments)
       else if ("begin" in rule) {
-        try {
-          const state = createID("rule-state")
+          const root = klona(rule)
+          const stateRoot = createID("rule-state")
 
-          const { embedded, type, rules } = rule
+          const finalizeList: AnyFunction[] = []
 
-          const begin = klona(rule.begin)
-          const end = klona(rule.end)
+          // I've left this as an inline function for now
+          // The reason for its existence before was that `root.begin` and `root.end`
+          // were previously allowed to be nested deeply, but now only `root.begin` is
+          // This doesn't need to be a function but that `root.end` capability may get
+          // added so that's why I've left it
 
-          begin.action ??= {}
-          end.action ??= {}
+          const resolveNesting = (child: DM.RuleState) => {
+            const stack: [string, DM.RuleState][] = []
 
-          if (type) {
-            begin.action.open ??= []
-            end.action.close ??= []
-            begin.action.open.unshift([type, 1])
-            end.action.close.push([type, 1])
+            // assemble list of nested rulestates
+            let current: DM.Rule | DM.RuleState = child
+            while ("begin" in current) {
+              stack.push([createID("rule-state"), current])
+              current = current.begin
           }
 
-          if (embedded || rules) {
-            begin.action.next = state
-            end.action.next = "@pop"
+            // reverse list so that deepest node comes first
+            stack.reverse()
+
+            // set deepest end rule to start the embedded range
+            if (root.embedded) {
+              const embedded = root.embedded
+              const state = stack[0][1]
+              if ("begin" in state) {
+                state.end.action ??= {}
+                state.end.action.embedded = embedded.slice(0, embedded.length - 1)
+              }
           }
 
-          if (embedded) {
-            begin.action.embedded = embedded.slice(0, embedded.length - 1)
-            end.action.embedded = "@pop"
+            // work deepest to shallowest, and eventually propagate
+            // the deepest node to the root, which serves as the entrypoint to the chain
+            stack.reduce(([prev, last], [next, state]) => {
+              const { begin, end, finalize } = this.processRuleState(prev, last as any)
+              finalizeList.push(() => finalize(next))
+              if ("begin" in state) {
+                state.begin = begin
+                state.end = end
+          }
+              return [next, state]
+            })
+
+            // workaround for rulestates that aren't supposed to change the stack state
+            if (!root.embedded && !root.rules) {
+              finalizeList.push(() => {
+                const state = stack[0][1]
+                if ("begin" in state) {
+                  state.end.action ??= {}
+                  state.end.action.next = "@pop"
+                  delete state.end.action.switchTo
+                }
+              })
+            }
           }
 
-          if (embedded) {
-            this.states.set(state, new Set([this.addRule(end).id]))
-          } else if (rules) {
-            const stateRules = [end, ...(isString(rules) ? [{ include: rules }] : rules)]
-            this.states.set(state, this.addRules(stateRules as any))
-          }
-
-          ids.add(this.addRule(begin).id)
-          if (!embedded && !rules) ids.add(this.addRule(end).id)
-        } catch (err) {
-          console.warn("Grammar: Failed to add rule state. Ignoring...")
-          console.info(rule)
+          if ("begin" in root.begin) {
+            resolveNesting(root.begin)
+            const state = createID("rule-state")
+            const { begin, finalize } = this.processRuleState(state, root.begin)
+            finalizeList.push(() => finalize(stateRoot))
+            root.begin = begin
         }
+
+          // finalize everything
+          const { finalize } = this.processRuleState(stateRoot, root)
+          finalizeList.forEach(fn => fn())
+          finalize().forEach(id => ids.add(id))
       }
       // normal rule
       else {
-        try {
           ids.add(this.addRule(rule).id)
+        }
         } catch (err) {
           console.warn("Grammar: Failed to add rule. Ignoring...")
+        console.warn(err)
           console.info(rule)
         }
       }
-    }
     return ids
   }
 
@@ -340,7 +445,7 @@ export class Grammar {
       const matches = rule.exec(cx, str, pos)
       if (!matches) continue
       if (offset !== pos) matches.offset = offset
-      if (rule.log) console.log(rule.log)
+      if (rule.log) console.log(Grammar.sub(cx, rule.log))
       return matches
     }
 
@@ -350,7 +455,7 @@ export class Grammar {
         const matches = rule.exec(cx, str, pos)
         if (!matches) continue
         if (offset !== pos) matches.offset = offset
-        if (rule.log) console.log(rule.log)
+        if (rule.log) console.log(Grammar.sub(cx, rule.log))
         return matches
       }
     }

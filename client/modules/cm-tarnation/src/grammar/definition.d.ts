@@ -501,7 +501,7 @@ export type SubRule =
 
 // TODO: document
 export interface RuleState {
-  begin: Rule
+  begin: Rule | RuleState
   end: Rule
   type?: TagType | CustomType | ""
   embedded?: `${Substitute | string}!`
