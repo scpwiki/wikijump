@@ -5,6 +5,7 @@ on:
     paths:
       - 'ftml/conf/*.toml'
       - 'ftml/scripts/*'
+      - '.github/workflows/ftml-config.yaml'
 
 jobs:
   conf_check:
