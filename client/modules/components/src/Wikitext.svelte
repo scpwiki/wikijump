@@ -47,6 +47,9 @@
   /** Shows render performance information if true. */
   export let debug = false
 
+  /** Prevents the rendering of elements which may cause a network request. */
+  export let offline = false
+
   let element: HTMLElement
   let stylesheets: string[] = []
   let rendering = false
@@ -84,6 +87,17 @@
 
   const update = createAnimQueued(async ({ html, styles }: Rendered) => {
     if (!element) return
+
+    // there are better ways to do this, but this is mostly just a development tool
+    // this prevents the console from getting spammed with
+    // crossorigin or missing link errors
+    if (offline) {
+      html = html.replaceAll(
+        /<(img|iframe)[^]+?>/g,
+        "<div>Offline Replacement Element</div>"
+      )
+    }
+
     const fragment = toFragment(html)
     if (morph) {
       morphdom(element, fragment, {

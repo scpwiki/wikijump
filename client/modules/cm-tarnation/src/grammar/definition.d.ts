@@ -501,7 +501,7 @@ export type SubRule =
 
 // TODO: document
 export interface RuleState {
-  begin: Rule
+  begin: Rule | RuleState
   end: Rule
   type?: TagType | CustomType | ""
   embedded?: `${Substitute | string}!`
@@ -604,6 +604,8 @@ export type Variable = RegExp | string | string[] | MatchFunction
  *
  * Can take three special values: `@pop`, `@popall`, and `@push`.
  *
+ * This property can be used with a {@link Substitute}.
+ *
  * @example
  *
  * ```ts
@@ -611,7 +613,7 @@ export type Variable = RegExp | string | string[] | MatchFunction
  * action = { next: "@pop" }
  * ```
  */
-export type Next = "@push" | "@popall" | "@pop" | StateRef
+export type Next = "@push" | "@popall" | "@pop" | StateRef | Substitute
 
 /**
  * A `match`, or `matcher`, describes a pattern to match against text.
@@ -663,7 +665,7 @@ export type Matchable = MatchFunction | RegExp | string | Substitute | null
  * rule = ["::myValue", "foo", "SomeAction"]
  * ```
  */
-export type Context = Record<string, string | undefined>
+export type Context = Record<string, string | null>
 
 /**
  * Describes a `parser` directive for how to handle the nesting of nodes.

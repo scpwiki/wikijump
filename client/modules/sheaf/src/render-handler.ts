@@ -106,6 +106,28 @@ export class RenderHandler {
   }
 
   /**
+   * Tokenizes the document.
+   *
+   * @decorator `@Memoize()`
+   */
+  @Memoize()
+  async tokenize() {
+    const tokens = await FTML.tokenize(this.src)
+    return tokens
+  }
+
+  /**
+   * Tokenizes the document, and pretty-prints the result.
+   *
+   * @decorator `@Memoize()`
+   */
+  @Memoize()
+  async inspectTokens() {
+    const tokens = await FTML.inspectTokens(this.src)
+    return tokens
+  }
+
+  /**
    * Returns the warnings that would be emitted by parsing the document.
    *
    * @decorator `@Memoize()`

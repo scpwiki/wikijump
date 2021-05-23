@@ -30,7 +30,7 @@ html-output = "other"
 
 [checkbox]
 accepts-star = true
-head = "map"
+head = "value+map"
 body = "none"
 html-attributes = true
 html-output = "html,input"
@@ -112,7 +112,7 @@ html-output = "html,iframe"
 
 [image]
 aliases = ["=image", "<image", ">image", "f<image", "f>image"]
-head = "map"
+head = "value+map"
 body = "none"
 html-attributes = true
 html-output = "html,img"
@@ -184,7 +184,7 @@ html-output = "html,p"
 [radio]
 aliases = ["radiobutton"]
 accepts-star = true
-head = "map"
+head = "value+map"
 body = "none"
 html-attributes = true
 html-output = "html,input"

@@ -10,6 +10,7 @@ import { Prism } from "wj-prism"
 import { blocks, modules } from "../data/blocks"
 import { htmlAttributes } from "../data/html-attributes"
 import type { Block, Module } from "../data/types"
+import { aliasesFiltered } from "../util"
 import BlockTip from "./BlockTip.svelte"
 import ModuleTip from "./ModuleTip.svelte"
 
@@ -20,7 +21,7 @@ try {
 
 const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
   ([name, block]) => {
-    const aliases = [name, ...(block.aliases ?? [])]
+    const aliases = aliasesFiltered([name, block])
     const handler = new EditorSvelteComponent(BlockTip)
     const instance = handler.create(undefined, { pass: { name, block } })
     const completions: Completion[] = aliases.map(alias => ({
@@ -46,7 +47,7 @@ blocksAutocompletion.push(
 
 const moduleAutocompletion: Completion[] = Object.entries(modules).flatMap(
   ([name, module]) => {
-    const aliases = [name, ...(module.aliases ?? [])]
+    const aliases = aliasesFiltered([name, module])
     const handler = new EditorSvelteComponent(ModuleTip)
     const instance = handler.create(undefined, { pass: { name, module } })
     const completions: Completion[] = aliases.map(alias => ({
@@ -57,8 +58,6 @@ const moduleAutocompletion: Completion[] = Object.entries(modules).flatMap(
     return completions
   }
 )
-
-const htmlAttributeNames = Object.keys(htmlAttributes)
 
 const htmlAutoCompletion: Completion[] = Object.entries(htmlAttributes).map(
   ([name, attr]) => {
@@ -82,7 +81,7 @@ for (const name in modules) {
 const argumentAutocompletion: Record<string, Completion[]> = {}
 for (const [name, block] of Object.entries(data)) {
   if (!block.arguments && !block["html-attributes"]) continue
-  const aliases = [name, ...(block.aliases ?? [])]
+  const aliases = aliasesFiltered([name, block])
 
   const completions: Completion[] = []
 
@@ -115,7 +114,7 @@ data["_html"] = {
 const enumAutocompletion: Record<string, Record<string, Completion[]>> = {}
 for (const [name, block] of Object.entries(data)) {
   if (!block.arguments) continue
-  const aliases = [name, ...(block.aliases ?? [])]
+  const aliases = aliasesFiltered([name, block])
 
   const completions: Record<string, Completion[]> = {}
 
@@ -139,7 +138,7 @@ for (const [name, block] of Object.entries(data)) {
         label: String(_enum),
         type: "enum",
         // mark the value with "default" if it is the default
-        detail: argument.default && argument.default === _enum ? "default" : undefined
+        detail: argument.default === _enum ? "default" : undefined
       }))
     }
   }
@@ -167,14 +166,16 @@ export function completeFTML(context: CompletionContext): CompletionResult | nul
   }
 
   // module names
-  else if (tree.name === "ModuleName") {
+  else if (tree.name === "ModuleName" || tree.name === "ModuleNameUnknown") {
     return { from: tree.from, to: pos, options: moduleAutocompletion }
   }
 
   // block node arguments
   else if (tree.name === "BlockLabel") {
     const tag = text(around.getChild("BlockName"))
-    const module = text(around.getChild("ModuleName"))
+    const module = text(
+      around.getChild("ModuleName") || around.getChild("ModuleNameUnknown")
+    )
 
     const name = module ? `module_${module}` : tag
 
@@ -191,23 +192,32 @@ export function completeFTML(context: CompletionContext): CompletionResult | nul
     )
     const node = findParent(tree, "BlockNode")
     const tag = text(node?.getChild("BlockName"))
-    const module = text(node?.getChild("ModuleName"))
+    const module = text(
+      node?.getChild("ModuleName") || node?.getChild("ModuleNameUnknown")
+    )
 
-    // figure out where we need to navigate to in the autocomplete table
     let name = module ? `module_${module}` : tag
-    // check for html attribute
-    name = name && prop && data?.[name]?.["html-attributes"] ? "_html" : name
 
-    if (name && prop && name in enumAutocompletion && prop in enumAutocompletion[name]) {
-      // check if were past the last quote mark or not
-      if (pos >= tree.parent.to) return null
-      // ensure that we're inbetween the quotes
-      if (tree.name === "string" || tree.name === "BlockNodeArgumentValue") {
-        const options = enumAutocompletion[name][prop]
-        // offset pos one position if we're at the first quote mark
-        return tree.name === "BlockNodeArgumentValue"
-          ? { from: tree.from, to: pos, options }
-          : { from: tree.from + 1, to: pos, options }
+    if (name && prop) {
+      // check for html attributes
+      if (data?.[name]?.["html-attributes"] && enumAutocompletion?.["_html"]?.[prop]) {
+        name = "_html"
+      }
+
+      if (enumAutocompletion?.[name]?.[prop]) {
+        // check if were past the last quote mark or not
+        if (pos >= tree.parent.to) return null
+        // ensure that we're inbetween the quotes
+        if (
+          tree.name === "BlockNodeArgumentMarkOpen" ||
+          tree.name === "BlockNodeArgumentValue"
+        ) {
+          const options = enumAutocompletion[name][prop]
+          // offset pos one position if we're at the first quote mark
+          return tree.name === "BlockNodeArgumentValue"
+            ? { from: tree.from, to: pos, options }
+            : { from: tree.from + 1, to: pos, options }
+        }
       }
     }
   }

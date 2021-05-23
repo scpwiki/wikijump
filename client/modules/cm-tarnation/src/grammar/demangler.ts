@@ -22,7 +22,7 @@ export interface Rule {
 }
 
 export interface RuleState {
-  begin: Rule
+  begin: Rule | RuleState
   end: Rule
   type?: string
   embedded?: `${DF.Substitute | string}!`
@@ -83,7 +83,7 @@ export function demangleRule(rule: RuleDefs): DF.Directive | Rule | RuleState {
   if ("begin" in rule) {
     const { begin, end, type, embedded, rules } = rule
     return removeUndefined({
-      begin: demangleRule(begin) as Rule,
+      begin: demangleRule(begin) as Rule | RuleState,
       end: demangleRule(end) as Rule,
       type: demangleType(type),
       embedded,

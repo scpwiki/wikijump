@@ -138,7 +138,8 @@ export class Tokenizer {
           popped.add({ lang, start: from, end: to })
           continue
         } else if (embedded === "@pop") {
-          popped.add(stack.endEmbedded(from))
+          const range = stack.endEmbedded(from)
+          if (range) popped.add(range)
         } else if (!stack.embedded) {
           pushEmbedded = true
           stack.setEmbedded(embedded, to)
@@ -266,8 +267,8 @@ export class TokenizerStack {
   }
 
   /** Removes the embedded data. */
-  endEmbedded(end: number): EmbeddedRange {
-    if (!this.embedded) throw new Error("Tried to end a non-existent embedded range!")
+  endEmbedded(end: number): EmbeddedRange | null {
+    if (!this.embedded) return null
     this.changed = true
     const embedded = this.embedded
     this.embedded = null
@@ -282,7 +283,7 @@ export class TokenizerStack {
 
   /**
    * Compares two stacks and returns if they are equal. They can be pure
-   * `MonarchStack` objects or already serialized.
+   * `TokenizerStack` objects or already serialized.
    */
   static isEqual(
     stack1: SerializedTokenizerStack | TokenizerStack,

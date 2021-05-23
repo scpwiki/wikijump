@@ -26,7 +26,7 @@
     <Tab>
       <span slot="button">{$t("sheaf.preview_tabs.RESULT")}</span>
       <div class="sheaf-preview">
-        <Wikitext morph {debug} wikitext={() => render.result()} />
+        <Wikitext morph {debug} offline wikitext={() => render.result()} />
       </div>
     </Tab>
 
@@ -44,6 +44,16 @@
       <Tab>
         <span slot="button">{$t("sheaf.preview_tabs.AST")}</span>
         <CodeDisplay content={render.stringifiedAST()} lang="json" />
+      </Tab>
+
+      <Tab>
+        <span slot="button">{$t("sheaf.preview_tabs.TOKENS")}</span>
+        <CodeDisplay content={render.inspectTokens()} lang="FTMLTokens" />
+      </Tab>
+
+      <Tab>
+        <span slot="button">{$t("sheaf.preview_tabs.EDITOR_AST")}</span>
+        <CodeDisplay content={$editor.self.printTree()} lang="LezerTree" />
       </Tab>
     {/if}
   </Tabview>

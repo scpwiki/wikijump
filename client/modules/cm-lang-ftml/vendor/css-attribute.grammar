@@ -1,0 +1,93 @@
+@precedence {
+  attribute @left,
+  structure @left,
+  valueOp @left
+}
+
+@skip { whitespace | Comment }
+
+@top StyleSheet { Block }
+
+Block { (Declaration (";" Declaration?)*)? }
+
+NumberLiteral {
+  numberLiteralInner Unit?
+}
+
+ArgList<content> { "(" commaSep<content> ")" }
+
+Declaration {
+  PropertyName { identifier } ":" value (","? value)* Important?
+}
+
+value {
+  ValueName { identifier } |
+  ParenthesizedValue { "(" value ")" } |
+  ColorLiteral |
+  NumberLiteral |
+  StringLiteral |
+  BinaryExpression { value !valueOp BinOp value } |
+  CallExpression |
+  CallLiteral
+}
+
+CallLiteral {
+  @specialize[@name=CallTag]<callee, "url" | "url-prefix" | "domain" | "regexp">
+  "(" (ParenthesizedContent | StringLiteral) ")"
+}
+
+CallExpression {
+  Callee { callee } ArgList<value+>
+}
+
+commaSep<value> { "" | value ("," value)* }
+
+@external tokens unitToken from "./css-tokens" {
+  Unit
+}
+
+@external tokens identifiers from "./css-tokens" {
+  callee,
+  identifier
+}
+
+@tokens {
+
+  BinOp { $[+\-*/] }
+
+  Important { "!important" }
+
+  whitespace { std.whitespace+ }
+
+  Comment { "/*" commentRest }
+
+  commentRest { ![*] commentRest | "*" commentAfterStar }
+
+  commentAfterStar { "/" | "*" commentAfterStar | ![/*] commentRest }
+
+  @precedence { Comment, BinOp }
+
+  hexDigit { std.digit | $[a-fA-F] }
+
+  ParenthesizedContent { !['")] ![)]+ }
+
+  @precedence { whitespace, ParenthesizedContent, Comment }
+
+  ColorLiteral {
+    "#" hexDigit hexDigit hexDigit (hexDigit (hexDigit hexDigit (hexDigit hexDigit)?)?)?
+  }
+
+  numberLiteralInner { ("+" | "-")? (std.digit+ ("." std.digit*)? | "." std.digit+) (("e" | "E") ("+" | "-")? std.digit+)? }
+
+  @precedence { numberLiteralInner, BinOp }
+
+  StringLiteral { "\"" (!["\n\\] | "\\" _)* "\"" | "'" (!['\n\\] | "\\" _)* "'" }
+
+  "#"
+
+  ":" "::" ";" ","
+
+  "(" ")" "[" "]" "{" "}"
+}
+
+@detectDelim

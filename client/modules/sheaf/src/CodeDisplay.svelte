@@ -5,7 +5,7 @@
   import { EditorState, Compartment } from "@codemirror/state"
   import { EditorView } from "@codemirror/view"
   import { LanguageDescription } from "@codemirror/language"
-  import { languages } from "@codemirror/language-data"
+  import { languages } from "cm-lang-ftml"
   import { onDestroy, onMount } from "svelte"
   import { createIdleQueued, createMutatingLock } from "wj-util"
   import { getCodeDisplayExtensions } from "sheaf-core"

@@ -39,6 +39,8 @@ interface EditorStore {
   doc: EditorState["doc"]
   /** The current 'value' (content) of the editor. */
   value: string
+  /** Reference to the editor core. */
+  self: SheafCore
 }
 
 export class SheafCore {
@@ -55,7 +57,12 @@ export class SheafCore {
   view!: EditorView
 
   /** A store that allows reactive access to editor state. */
-  store = writable<EditorStore>({ mounted: false, doc: this.state.doc, value: "" })
+  store = writable<EditorStore>({
+    mounted: false,
+    doc: this.state.doc,
+    value: "",
+    self: this
+  })
   subscribe = this.store.subscribe
   set = this.store.set
 
@@ -150,7 +157,8 @@ export class SheafCore {
       get value() {
         if (memo) return memo
         return (memo = this.doc.toString())
-      }
+      },
+      self: this
     })
   }
 

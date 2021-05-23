@@ -37,6 +37,8 @@ sheaf:
     HTML: TMLHAY Outputay
     CSS: SSCAY Outputay
     AST: ASTAY
+    TOKENS: Okenstay
+    EDITOR_AST: Editoryay ASTAY
 
 # CodeMirror FTML language extension
 cmftml:
