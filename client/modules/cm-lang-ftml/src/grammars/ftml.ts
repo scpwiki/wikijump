@@ -4,6 +4,7 @@ import { htmlCompletion } from "@codemirror/lang-html"
 import { foldNodeProp } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
 import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
+import type * as DF from "cm-tarnation/src/grammar/definition"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
 import { completeFTML } from "../autocomplete/autocomplete"
 import { blocks, modules } from "../data/blocks"
@@ -435,12 +436,12 @@ export const FTMLLanguage = new TarnationLanguage({
         [/(@tls)([^\n\[\]]+)(@tle)/, "LinkTriple", [
           "@BR:li",
           { rules: [
-          // [[[link | text]]]
-          [/^([*#]?)([^|]*)(@ws*\|@ws*)(.*)$/,
+            // [[[link | text]]]
+            [/^([*#]?)([^|]*)(@ws*\|@ws*)(.*)$/,
               ["t.keyword", "t.link", "t.separator", ""]
-          ],
-          // [[[link]]]
-          [/^([*#]?)([^|]+)$/, ["t.keyword", "t.link"]]
+            ],
+            // [[[link]]]
+            [/^([*#]?)([^|]+)$/, ["t.keyword", "t.link"]]
             ]
           },
           "@BR:li"
@@ -458,82 +459,44 @@ export const FTMLLanguage = new TarnationLanguage({
         ],
 
         // [[math]]
-        { begin:
-          { begin: [[/(@bs)(@bm?)(math)(@bsf)/],
-              ["@BR", "BlockPrefix", "BlockName", "BlockModifier"]
-            ],
-            end: [/@be/, "@BR"],
-            type: "BlockNode",
-            rules: "#block_node_map"
-          },
-          end:   [/(@bsc)(math)(@be)/, "BlockNode", ["@BR", "BlockName", "@BR"]],
+        { begin: blkStart("math", "map", "BlockNameSpecial"),
+          end: blkEnd("math", "BlockNameSpecial"),
           type: "BlockNested",
           embedded: "wikimath!"
         },
 
         // [[module css]]
-        { begin:
-          { begin: [/(@bs)(@bm?)(module)(@bsf)(\s*)(css)/,
-              ["@BR", "BlockPrefix", "BlockNameModule", "BlockModifier", "", "ModuleName"]
-            ],
-            end: [/@be/, "@BR"],
-            type: "BlockNode",
-            rules: "#block_node_map"
-          },
-          end:   [/(@bsc)(module)(@be)/, "BlockNode", ["@BR", "BlockNameModule", "@BR"]],
+        { begin: blkStart("css", "module"),
+          end: blkEnd("module", "BlockNameModule"),
           type: "BlockNested",
           embedded: "css!"
         },
 
         // [[css]]
-        { begin:
-          { begin: [[/(@bs)(@bm?)(css)(@bsf)/],
-              ["@BR", "BlockPrefix", "BlockNameSpecial", "BlockModifier"]
-            ],
-            end: [/@be/, "@BR"],
-            type: "BlockNode",
-            rules: "#block_node_map"
-          },
-          end:   [/(@bsc)(css)(@be)/, "BlockNode", ["@BR", "BlockNameSpecial", "@BR"]],
+        { begin: blkStart("css", "none", "BlockNameSpecial"),
+          end: blkEnd("css", "BlockNameSpecial"),
           type: "BlockNested",
           embedded: "css!"
         },
 
         // [[html]]
-        { begin:
-          { begin: [[/(@bs)(@bm?)(html)(@bsf)/],
-              ["@BR", "BlockPrefix", "BlockNameSpecial", "BlockModifier"]
-            ],
-            end: [/@be/, "@BR"],
-            type: "BlockNode",
-            rules: "#block_node_map"
-          },
-          end:   [/(@bsc)(html)(@be)/, "BlockNode", ["@BR", "BlockNameSpecial", "@BR"]],
+        { begin: blkStart("html", "none", "BlockNameSpecial"),
+          end: blkEnd("html", "BlockNameSpecial"),
           type: "BlockNested",
           embedded: "html!"
         },
 
         // [[code]]
-        { begin:
-          { begin: [[/(@bs)(@bm?)/, "code", /(@bsf)/],
-              ["@BR", "BlockPrefix", "BlockNameSpecial", "BlockModifier"]
-            ],
-            end: [/@be/, "@BR"],
-            type: "BlockNode",
-            rules: [
-              [/(type)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
-                "BlockNodeArgumentName",
-                "t.definitionOperator",
-                "@BR/O:arg",
-                ["BlockNodeArgumentValue", { context: { lang: "$4" } }],
-                "@BR/C:arg"
-              ]],
-              { include: "#block_node_map" }
-            ]
-          },
-          end: [/(@bsc)(code)(@be)/, "BlockNode",
-            ["@BR", "BlockNameSpecial", "@BR"], { context: { lang: null } }
-          ],
+        { begin: blkStart("code", "map", "BlockNameSpecial", [
+            [/(type)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
+              "BlockNodeArgumentName",
+              "t.definitionOperator",
+              "@BR/O:arg",
+              ["BlockNodeArgumentValue", { context: { lang: "$4" } }],
+              "@BR/C:arg"
+            ]],
+          ]),
+          end: blkEnd("code", "BlockNameSpecial", { lang: null }),
           type: "BlockNested",
           embedded: "::lang!"
         },
@@ -541,89 +504,40 @@ export const FTMLLanguage = new TarnationLanguage({
         // -- BLOCKS
 
         // block (map)
-        { begin: [[/(@bs)(@bm?)/, "@blk_map", /(@bsf)/],
-            ["@BR", "BlockPrefix", "BlockName", "BlockModifier"]
-          ],
-          end: [/@be/, "@BR"],
-          type: "BlockNode",
-          rules: "#block_node_map"
-        },
+        blkStart("@blk_map", "map"),
 
         // block (value)
-        [[/(@bs)(@bm?)/, "@blk_val", /(@bsf)(\s*)([^\s]*?)(@be)/], "BlockNode",
-          ["@BR", "BlockPrefix", "BlockName", "BlockModifier", "", "BlockValue", "@BR"]
-        ],
+        blkStart("@blk_val", "value"),
 
         // block (valmap)
-        { begin: [[/(@bs)(@bm?)/, "@blk_valmap", /(@bsf)(\s*)([^\]\s]*)/],
-            ["@BR", "BlockPrefix", "BlockName", "BlockModifier", "", "BlockValue"]
-          ],
-          end: [/@be/, "@BR"],
-          type: "BlockNode",
-          rules: "#block_node_map"
-        },
+        blkStart("@blk_valmap", "value+map"),
 
         // block modules
-        { begin: [/(@bs)(@bm?)(module)(@bsf)(\s*)([^\s\]]+)/,
-            ["@BR", "BlockPrefix", "BlockNameModule", "BlockModifier", "", { rules: [
-              ["@mods", "ModuleName"],
-              ["@DEFAULT", "ModuleNameUnknown"]
-            ] }]
-          ],
-          end: [/@be/, "@BR"],
-          type: "BlockNode",
-          rules: "#block_node_map"
-        },
+        blkStart("@mods", "module_loose"),
 
         // -- BLOCK CONTAINERS
 
         // block containers (map, elements)
-        { begin:
-          { begin: [[/(@bs)(@bm?)/, "@blk_map_el", /(@bsf)/],
-              ["@BR", "BlockPrefix", "BlockName", "BlockModifier"]
-            ],
-            end: [/@be/, "@BR"],
-            type: "BlockNode",
-            rules: "#block_node_map"
-          },
-          end: [[/@bsc/, "@blk_map_el", /(@bsf)(@be)/], "BlockNode",
-            ["@BR", "BlockName", "BlockModifier", "@BR"]
-          ],
+        { begin: blkStart("@blk_map_el", "map"),
+          end: blkEnd("@blk_map_el"),
           type: "BlockContainer"
         },
 
         // block containers (value, elements)
-        { begin:
-          { begin: [[/(@bs)(@bm?)/, "@blk_val_el", /(@bsf)(\s*)([^\]\s]*)/],
-              ["@BR", "BlockPrefix", "BlockName", "BlockModifier", "", "BlockValue"]
-            ],
-            end: [/@be/, "@BR"],
-            type: "BlockNode",
-            rules: "#block_node_map"
-          },
-          end: [[/@bsc/, "@blk_val_el", /(@bsf)(@be)/], "BlockNode",
-            ["@BR", "BlockName", "BlockModifier", "@BR"]
-          ],
+        { begin: blkStart("@blk_val_el", "value"),
+          end: blkEnd("@blk_val_el"),
           type: "BlockContainer"
         },
 
         // block containers (elements)
-        { begin: [[/(@bs)(@bm?)/, "@blk_el", /(@bsf)(@be)/], "BlockNode",
-            ["@BR", "BlockPrefix", "BlockName", "BlockModifier", "@BR"]
-          ],
-          end: [[/@bsc/, "@blk_el", /(@bsf)(@be)/], "BlockNode",
-            ["@BR", "BlockName", "BlockModifier", "@BR"]
-          ],
+        { begin: blkStart("@blk_el", "none"),
+          end: blkEnd("@blk_el"),
           type: "BlockContainer"
         },
 
         // block containers (alignment)
-        { begin: [[/(@bs)(@bm?)/, "@blk_align", /(@bsf)(@be)/], "BlockNode",
-            ["@BR", "BlockPrefix", "BlockNameAlign", "BlockModifier", "@BR"]
-          ],
-          end: [[/@bsc/, "@blk_align", /(@bsf)(@be)/], "BlockNode",
-            ["@BR", "BlockNameAlign", "BlockModifier", "@BR"]
-          ],
+        { begin: blkStart("@blk_align", "none", "BlockNameAlign"),
+          end: blkEnd("@blk_align", "BlockNameAlign"),
           type: "BlockContainer"
         },
 
@@ -642,11 +556,11 @@ export const FTMLLanguage = new TarnationLanguage({
         [/(\[)([^\n\[\]]+)(\])/, "LinkSingle", [
           "@BR:li",
           { rules: [
-          // [link text]
+            // [link text]
             [/^@lslug(@ws+|\|)(.*)$/, ["t.keyword", "t.link", "t.separator", ""]],
-          // [link]
-          [/^@lslug$/, ["t.keyword", "t.link"]],
-          // [# anchortext]
+            // [link]
+            [/^@lslug$/, ["t.keyword", "t.link"]],
+            // [# anchortext]
             [/^(#)(@ws.+)$/, ["t.keyword", ""]]
           ] },
           "@BR:li"
@@ -707,3 +621,91 @@ export const FTMLLanguage = new TarnationLanguage({
     }
   })
 })
+
+type Head = "none" | "map" | "value" | "value+map" | "module" | "module_loose"
+
+function blkStart(
+  name: string,
+  head: Head,
+  special?: DF.Type,
+  rules?: DF.RuleState["rules"]
+): DF.Rule | DF.RuleState {
+  const blockName = special ? special : "BlockName"
+  const stateRules = (
+    !rules ? "#block_node_map" : [...rules, { include: "#block_node_map" }]
+  ) as DF.RuleState["rules"]
+
+  // prettier-ignore
+  switch (head) {
+    case "none": {
+      return [
+        [/(@bs)(@bm?)/, name, /(@bsf)([^]*?)(@be)/], "BlockNode",
+        ["@BR", "BlockPrefix", blockName, "BlockModifier", "t.invalid", "@BR"]
+      ]
+    }
+
+    case "map": {
+      return {
+        begin: [[/(@bs)(@bm?)/, name, /(@bsf)/],
+          ["@BR", "BlockPrefix", blockName, "BlockModifier"]
+        ],
+        end: [/@be/, "@BR"],
+        type: "BlockNode",
+        rules: stateRules
+      }
+    }
+
+    case "value": {
+      return [
+        [/(@bs)(@bm?)/, name, /(@bsf)(\s*)([^]*?)(@be)/], "BlockNode",
+        ["@BR", "BlockPrefix", blockName, "BlockModifier", "", "BlockValue", "@BR"]
+      ]
+    }
+
+    case "value+map": {
+      return {
+        begin: [[/(@bs)(@bm?)/, name, /(@bsf)(\s*)([^\s\]]*)/],
+          ["@BR", "BlockPrefix", blockName, "BlockModifier", "", "BlockValue"]
+        ],
+        end: [/@be/, "@BR"],
+        type: "BlockNode",
+        rules: stateRules
+      }
+    }
+
+    case "module": {
+      return {
+        begin: [[/(@bs)(@bm?)(module)(@bsf)(\s*)/, name],
+          ["@BR", "BlockPrefix", "BlockNameModule", "BlockModifier", "", "ModuleName"]
+        ],
+        end: [/@be/, "@BR"],
+        type: "BlockNode",
+        rules: stateRules
+      }
+    }
+
+    case "module_loose": {
+      return {
+        begin: [/(@bs)(@bm?)(module)(@bsf)(\s*)([^\s\]]+)/,
+          ["@BR", "BlockPrefix", "BlockNameModule", "BlockModifier", "", { rules: [
+            [name, "ModuleName"],
+            ["@DEFAULT", "ModuleNameUnknown"]
+          ] }]
+        ],
+        end: [/@be/, "@BR"],
+        type: "BlockNode",
+        rules: stateRules
+      }
+    }
+  }
+}
+
+function blkEnd(name: string, special?: DF.Type, context?: DF.Context): DF.Rule {
+  const blockName = special ? special : "BlockName"
+  // prettier-ignore
+  return [
+    [/@bsc/, name, /(@bsf)(@be)/], "BlockNode",
+    ["@BR", blockName, "BlockModifier", "@BR"],
+    { context }
+  ]
+}
