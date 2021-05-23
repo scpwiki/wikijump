@@ -330,8 +330,11 @@ export const FTMLLanguage = new TarnationLanguage({
           ["@BR", { strict: false, rules: [[/&[\w#]+;/, "EntityReference"]] }, "@BR"]
         ],
 
-        // escape
-        [/(@@)(.*?)(@@)/, "Escaped", ["@BR/O", "", "@BR/C"]],
+        // @@ escape formatting (the WORST thing ever)
+        [/(@@)(@@)(@@)/, "Escaped", ["@BR/O", "", "@BR/C"]],
+        [/(@@)(@)(@@)/, "Escaped", ["@BR/O", "", "@BR/C"]],
+        [/(@@)(@@(?!@))/, "Escaped", ["@BR/O", "@BR/C"]],
+        [/(@@)(.*)(@@)/, "Escaped", ["@BR/O", "", "@BR/C"]],
 
         // colored text
         [/(##)(\w+)(\|)/,
