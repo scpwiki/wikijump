@@ -20,7 +20,7 @@ type MatcherElement =
 export class Matcher {
   private declare elements?: MatcherElement[]
 
-  constructor(grammar: Grammar, matchers: DF.Match) {
+  constructor(private grammar: Grammar, matchers: DF.Match) {
     if (!isArray(matchers)) matchers = [matchers]
 
     const compiled = matchers.map(matcher => {
@@ -70,6 +70,7 @@ export class Matcher {
           return this.compile({ variables, ignoreCase } as Grammar, variable)
         }
       }
+      if (ignoreCase) matcher = matcher.toLowerCase()
       return toPoints(Grammar.expand(variables, matcher))
     }
   }
@@ -123,7 +124,8 @@ export class Matcher {
 
         case MatcherType.Points: {
           if (cx.target === "$#") console.log(element.matcher)
-          if (pointsMatch(element.matcher, str, pos)) {
+          const against = this.grammar.ignoreCase ? str.toLowerCase() : str
+          if (pointsMatch(element.matcher, against, pos)) {
             match = [element.source]
           }
           break
