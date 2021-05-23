@@ -30,7 +30,7 @@ html-output = "other"
 
 [checkbox]
 accepts-star = true
-head = "map"
+head = "value+map"
 body = "none"
 html-attributes = true
 html-output = "html,input"
