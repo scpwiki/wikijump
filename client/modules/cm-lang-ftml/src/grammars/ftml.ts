@@ -174,8 +174,8 @@ export const FTMLLanguage = new TarnationLanguage({
       ],
 
       inline: [
-        { include: "#special" },
         { include: "#typography" },
+        { include: "#special" },
         { include: "#markup" },
         { include: "#include" },
         { include: "#block" }
@@ -262,7 +262,7 @@ export const FTMLLanguage = new TarnationLanguage({
 
       special: [
         // auto-detect links (huge frickin' regex)
-        [/(\*?)((?:\w+:\/\/)?(?:[-\w@:%.+~#=]{2,256}\.(?!\.{3}))+?[a-z]{2,6}\b(?:[-\w@:%+.~#?&/=]*))/,
+        [/(\*?)((?:\w+:\/\/)?(?:[-\w@:%.+~#=]{2,256}\.(?!\.{2,3}))+?[a-z]{2,6}\b(?:[-\w@:%+.~#?&/=]*))/,
           "LinkInline", ["t.keyword", "t.link"]
         ],
 
