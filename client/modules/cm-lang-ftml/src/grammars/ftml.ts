@@ -432,14 +432,22 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // -- TRIPLE LINK
 
-        [/(@tls)([^\n\[\]]+)(@tle)/, "LinkTriple", ["@BR:li", { rules: [
+        [/(@tls)([^\n\[\]]+)(@tle)/, "LinkTriple", [
+          "@BR:li",
+          { rules: [
           // [[[link | text]]]
           [/^([*#]?)([^|]*)(@ws*\|@ws*)(.*)$/,
-            ["t.keyword", "t.link", "t.separator", { strict: false, rules: "#inline" }]
+              ["t.keyword", "t.link", "t.separator", ""]
           ],
           // [[[link]]]
           [/^([*#]?)([^|]+)$/, ["t.keyword", "t.link"]]
-        ] }, "@BR:li"]],
+            ]
+          },
+          "@BR:li"
+        ]],
+
+        // botched/incomplete triple link
+        [/(@tls)([^\s\[\]]*)/, "LinkTriple", ["@BR:li", "t.link"]],
 
         // -- EMBEDDED
 
@@ -631,18 +639,18 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // -- SINGLE LINKS
 
-        [/(\[)([^\n\[\]]+)(\])/, "LinkSingle", ["@BR:li", { rules: [
+        [/(\[)([^\n\[\]]+)(\])/, "LinkSingle", [
+          "@BR:li",
+          { rules: [
           // [link text]
-          [/^@lslug(@ws+|\|)(.*)$/,
-            ["t.keyword", "t.link", "t.separator", { strict: false, rules: "#inline" }]
-          ],
+            [/^@lslug(@ws+|\|)(.*)$/, ["t.keyword", "t.link", "t.separator", ""]],
           // [link]
           [/^@lslug$/, ["t.keyword", "t.link"]],
           // [# anchortext]
-          [/^(#)(@ws.+)$/,
-            ["t.keyword", { strict: false, rules: "#inline" }]
-          ]
-        ] }, "@BR:li"]]
+            [/^(#)(@ws.+)$/, ["t.keyword", ""]]
+          ] },
+          "@BR:li"
+        ]]
       ],
 
       block_node_map: [
