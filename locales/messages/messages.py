@@ -12,7 +12,6 @@ into a flat, path-based mapping.
 """
 
 from dataclasses import dataclass
-from functools import cached_property
 from typing import Optional, Union
 
 from .schema import MessagesSchema
@@ -28,8 +27,7 @@ class Messages:
     country: Optional[str]
     data: MessagesData
 
-    @cached_property
-    def schema(self) -> MessagesSchema:
+    def get_schema(self) -> MessagesSchema:
         keys = frozenset(self.data.keys())
         return MessagesSchema(keys)
 

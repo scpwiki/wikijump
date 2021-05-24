@@ -3,6 +3,7 @@
 #
 
 from .path_loader import load
+from .schema import validate_all
 
 import sys
 
@@ -18,3 +19,12 @@ if __name__ == "__main__":
 
     directory = sys.argv[1]
     messages_map = load(directory)
+
+    invalid = validate_all(messages_map)
+    if invalid:
+        print("The following messages files do not match the schema:")
+
+        for name in invalid:
+            print(f"- {name}")
+
+        sys.exit(1)
