@@ -1,5 +1,5 @@
 # This is the schema-defining document.
-# All other localization files must have the same keys,
+# All other localization files must have the object structure,
 # or the build will fail.
 
 # -- NOTE --
