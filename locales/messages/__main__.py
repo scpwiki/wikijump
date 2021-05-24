@@ -71,3 +71,7 @@ if __name__ == "__main__":
         input_path = get_path(f"{name}.po")
         output_path = get_path(f"{name}.mo")
         build_mo(input_path, output_path)
+
+    # Finished
+    print()
+    print("Done!")
