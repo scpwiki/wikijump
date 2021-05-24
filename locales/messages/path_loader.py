@@ -43,7 +43,7 @@ def load(directory: str, log=True) -> dict[str, Messages]:
 
         match = MESSAGE_FILENAME_REGEX.match(filename)
         if match is None:
-            print(f"Skipping non-message file '{filename}'.")
+            print(f"* Skipping non-message file '{filename}'.")
             continue
 
         # Build messages stub data
