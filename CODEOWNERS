@@ -19,6 +19,9 @@ web/web/files--common/dialogs       @rossjrw
 web/web/files--common/javascript    @rossjrw
 web/web/files--common/modules       @rossjrw
 
+# Localization
+.github/workflows/locales.yaml      @ammongit
+
 # Terraform and docker-compose deployment
 .github/workflows/docker-*.yaml     @pxdnbluesoul
 /install/                           @pxdnbluesoul
