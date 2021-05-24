@@ -7,7 +7,7 @@ import re
 from collections import namedtuple
 from graphlib import TopologicalSorter
 
-import yaml
+from ruamel.yaml import YAML
 
 from .messages import Messages, flatten
 
@@ -30,7 +30,6 @@ IGNORE_PATHS = [
 
 # Represents a messages file that has not yet been read.
 MessagesStub = namedtuple("MessageStub", ("language", "country", "path"))
-
 
 def load(directory: str, log=True) -> dict[str, Messages]:
     # Preload all messages to get dependency order
@@ -61,6 +60,7 @@ def load(directory: str, log=True) -> dict[str, Messages]:
             dependencies.add(name, language)
 
     # Load all messages in order to apply inheritance
+    yaml = YAML()
     messages_map = {}
 
     for name in dependencies.static_order():
@@ -69,17 +69,18 @@ def load(directory: str, log=True) -> dict[str, Messages]:
 
         stub = stubs[name]
         with open(stub.path) as file:
-            tree = yaml.safe_load(file)
+            tree = yaml.load(file)
 
         # Get path -> message mapping
-        data = flatten(tree)
+        message_data, comment_data = flatten(tree)
 
         # If there's a parent, then get that data
         if stub.country is not None:
-            parent_data = messages_map[stub.language].data
-            data = {**parent_data, **data}
+            parent = messages_map[stub.language]
+            message_data = {**parent.message_data, **message_data}
+            comment_data = {**parent.comment_data, **comment_data}
 
         # Build messages object
-        messages_map[name] = Messages(name, language, country, data)
+        messages_map[name] = Messages(name, language, country, message_data, comment_data)
 
     return messages_map

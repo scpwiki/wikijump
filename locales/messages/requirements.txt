@@ -1,2 +1,1 @@
-PyYAML>=5.4
-toml>=0.10
+ruamel.yaml>=0.17
