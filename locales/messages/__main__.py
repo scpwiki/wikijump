@@ -8,14 +8,11 @@ Executable file, permitting command-line building of messages files.
 
 from .gettext import generate_po
 from .messages import get_template_messages
-from .path_loader import load
+from .path_loader import OUTPUT_DIRECTORY, load
 from .schema import MAIN_MESSAGE_SCHEMA_NAME, validate_all
 
 import os
 import sys
-
-# The directory generated artifacts should go in.
-OUTPUT_DIRECTORY_NAME = "out"
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -39,7 +36,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Create output directory, if it doesn't exist
-    output_directory = os.path.join(directory, OUTPUT_DIRECTORY_NAME)
+    output_directory = os.path.join(directory, OUTPUT_DIRECTORY)
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory)
 

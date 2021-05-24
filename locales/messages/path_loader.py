@@ -17,13 +17,15 @@ Load message data from files, including any language inheritance.
 
 MESSAGE_FILENAME_REGEX = re.compile("(([a-z]+)(?:_([A-Z]+))?)\.ya?ml")
 
+OUTPUT_DIRECTORY = "out"
+
 # Files in this directory which aren't messages files.
 # Anything else gets a warning printed.
 IGNORE_PATHS = [
     ".gitignore",
     "README.md",
     "messages",
-    "out",
+    OUTPUT_DIRECTORY,
 ]
 
 # Represents a messages file that has not yet been read.
