@@ -50,7 +50,7 @@ if __name__ == "__main__":
         with open(path, "w") as file:
             file.write(contents)
 
-    print(f"Building {len(messages_map)} localization files...")
+    print(f"Generating {len(messages_map)} localization files...")
 
     # Generate .pot file (template)
     schema = messages_map[MAIN_MESSAGE_SCHEMA_NAME].schema
@@ -61,6 +61,9 @@ if __name__ == "__main__":
     for name, messages in messages_map.items():
         output_po = generate_po(messages)
         write_file(f"{name}.po", output_po)
+
+    print()
+    print(f"Building {len(messages_map)} localization files...")
 
     # Build .mo files
     for name in messages_map.keys():
