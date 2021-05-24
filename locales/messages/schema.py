@@ -15,6 +15,7 @@ from typing import List
 # That is, this file is complete and can be used to build a schema.
 MESSAGE_SCHEMA_NAME = "en"
 
+
 class MessagesSchema(frozenset[str]):
     """
     Represents a messages schema.

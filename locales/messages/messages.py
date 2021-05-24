@@ -35,8 +35,6 @@ class Messages:
         return self.data[path]
 
 
-
-
 def flatten(tree: MessagesTree) -> MessagesData:
     flattened = {}
 
