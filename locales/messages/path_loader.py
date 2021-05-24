@@ -31,6 +31,7 @@ IGNORE_PATHS = [
 # Represents a messages file that has not yet been read.
 MessagesStub = namedtuple("MessageStub", ("language", "country", "path"))
 
+
 def load(directory: str, log=True) -> dict[str, Messages]:
     # Preload all messages to get dependency order
     stubs = {}
@@ -81,6 +82,8 @@ def load(directory: str, log=True) -> dict[str, Messages]:
             comment_data = {**parent.comment_data, **comment_data}
 
         # Build messages object
-        messages_map[name] = Messages(name, language, country, message_data, comment_data)
+        messages_map[name] = Messages(
+            name, language, country, message_data, comment_data,
+        )
 
     return messages_map

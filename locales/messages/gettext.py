@@ -24,6 +24,7 @@ unicode_escape = getdecoder("unicode_escape")
 
 # Utilities
 
+
 def escape_string(string: str) -> str:
     return unicode_escape(string)[0]
 
@@ -46,6 +47,7 @@ def extract_comment(comment: Optional[str]) -> Iterable[str]:
 
 # Main functions
 
+
 def generate_po(messages: Messages) -> str:
     lines = []
 
@@ -60,8 +62,8 @@ def generate_po(messages: Messages) -> str:
 
         message, comment = messages[path]
 
-        lines.extend(extract_comment(comment)) # Add extracted comments
-        lines.append("#, python-format") # Because it uses {..} formatting
+        lines.extend(extract_comment(comment))  # Add extracted comments
+        lines.append("#, python-format")  # Because it uses {..} formatting
         lines.append(f'msgid "{escape_string(path)}"')
         lines.append(f'msgstr "{escape_string(message)}"')
         lines.append("")
@@ -79,4 +81,3 @@ def build_mo(input_path: str, output_path: str):
     ]
 
     subprocess.check_call(command)
-
