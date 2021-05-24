@@ -6,7 +6,7 @@
 Executable file, permitting command-line building of messages files.
 """
 
-from .gettext import generate_po
+from .gettext import build_mo, generate_po
 from .messages import get_template_messages
 from .path_loader import OUTPUT_DIRECTORY, load
 from .schema import MAIN_MESSAGE_SCHEMA_NAME, validate_all
@@ -41,16 +41,16 @@ if __name__ == "__main__":
         os.makedirs(output_directory)
 
     # Helper functions
-    def get_output_path(filename):
+    def get_path(filename):
         return os.path.join(output_directory, filename)
 
     def write_file(filename, contents):
         print(f"+ {filename}")
-        path = get_output_path(filename)
+        path = get_path(filename)
         with open(path, "w") as file:
             file.write(contents)
 
-    print(f"Generating {len(messages_map)} localization files...")
+    print(f"Building {len(messages_map)} localization files...")
 
     # Generate .pot file (template)
     schema = messages_map[MAIN_MESSAGE_SCHEMA_NAME].schema
@@ -61,3 +61,10 @@ if __name__ == "__main__":
     for name, messages in messages_map.items():
         output_po = generate_po(messages)
         write_file(f"{name}.po", output_po)
+
+    # Build .mo files
+    for name in messages_map.keys():
+        print(f"+ {name}.mo")
+        input_path = get_path(f"{name}.po")
+        output_path = get_path(f"{name}.mo")
+        build_mo(input_path, output_path)

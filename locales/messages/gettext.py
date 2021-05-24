@@ -28,11 +28,11 @@ def generate_po(messages: Messages) -> str:
     return "\n".join(lines)
 
 
-def build_mo(input_file: str, output_file: str):
+def build_mo(input_path: str, output_path: str):
     subprocess.check_call([
         "msgfmt",
         "--strict",
         "--output-file",
-        output_file,
-        input_file,
+        output_path,
+        input_path,
     ])
