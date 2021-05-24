@@ -6,12 +6,16 @@
 Represents a messages object, as loaded from configuration.
 
 Includes any data loaded from parent object(s).
+
+Also contains utilities to transform nested messages data
+into a flat, path-based mapping.
 """
 
 from dataclasses import dataclass
 from typing import Optional, Union
 
-MessagesData = dict[str, Union[str, "MessagesData"]]
+MessagesData = dict[str, str]
+MessagesTree = dict[str, Union[str, "MessagesTree"]]
 
 
 @dataclass
@@ -19,7 +23,7 @@ class Messages:
     name: str
     language: str
     country: Optional[str]
-    message_data: MessagesData
+    data: MessagesData
 
     def get(self, path: str) -> str:
         """
@@ -43,3 +47,26 @@ class Messages:
 
         # Went through the entire path without finding the string
         raise KeyError(path)
+
+
+class MessagesSchema(set[str]):
+    def __init__(self, data: MessagesData):
+        keys = set(data.keys())
+        super().__init__(keys)
+
+
+def flatten(tree: MessagesTree) -> MessagesData:
+    flattened = {}
+
+    def sub_flatten(prefix: str, tree: MessagesTree):
+        for name, child in tree.items():
+            path = f"{prefix}.{name}"
+
+            if isinstance(child, str):
+                # Leaf object
+                flattened[path] = child
+            else:
+                # Sub-tree
+                sub_flatten(path, child)
+
+    return flattened

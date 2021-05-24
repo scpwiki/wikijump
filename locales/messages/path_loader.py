@@ -66,8 +66,7 @@ def load(directory: str) -> dict[str, Messages]:
 
         # If there's a parent, then get that data
         if stub.country is not None:
-            parent = messages_map[stub.language]
-            parent_data = parent.message_data
+            parent_data = messages_map[stub.language].data
             data = {**parent_data, **data}
 
         # Build messages object
