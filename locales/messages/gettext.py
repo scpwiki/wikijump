@@ -26,3 +26,6 @@ def generate_po(messages: Messages) -> str:
         lines.append("")
 
     return "\n".join(lines)
+
+
+def build_po(input

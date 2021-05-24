@@ -43,10 +43,12 @@ if __name__ == "__main__":
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory)
 
-    # Helper for writing output files
-    def write_file(filename, contents):
-        path = os.path.join(output_directory, filename)
+    # Helper functions
+    def get_output_path(filename):
+        return os.path.join(output_directory, filename)
 
+    def write_file(filename, contents):
+        path = get_output_path(filename)
         with open(path, "w") as file:
             file.write(contents)
 
