@@ -21,7 +21,7 @@ jobs:
           python-version: 3.9
 
       - name: System Dependencies
-        run: apt install gettext
+        run: sudo apt install gettext
 
       - name: Pip Cache
         uses: actions/cache@v2
