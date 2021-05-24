@@ -33,5 +33,8 @@ if __name__ == "__main__":
 
         sys.exit(1)
 
+    print("Building template localization file...")
+    # TODO
+
     print(f"Building {len(messages_map)} localization files...")
     # TODO

@@ -13,7 +13,7 @@ from typing import Iterable, List, NewType
 
 # The messages file to use as the "schema".
 # That is, this file is complete and can be used to build a schema.
-MESSAGE_SCHEMA_NAME = "en"
+MAIN_MESSAGE_SCHEMA_NAME = "en"
 
 # Represents a messages schema.
 #
@@ -22,13 +22,19 @@ MESSAGE_SCHEMA_NAME = "en"
 MessagesSchema = NewType("MessagesSchema", Iterable[str])
 
 
-def validate_all(messages_map: dict[str, "Messages"]) -> List[str]:
-    invalid = []
+def validate_all(
+    messages_map: dict[str, "Messages"],
+    main_schema_name=MAIN_MESSAGE_SCHEMA_NAME,
+) -> List[str]:
+    """
+    Validate all messages within the mapping against the main schema.
+    """
 
     # Get main schema
-    main_schema = messages_map[MESSAGE_SCHEMA_NAME].schema
+    main_schema = messages_map[main_schema_name].schema
 
     # Check all messages in the mapping for compliance
+    invalid = []
     for name, messages in messages_map.items():
         if main_schema != messages.schema:
             invalid.append(name)

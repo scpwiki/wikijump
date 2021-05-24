@@ -36,6 +36,10 @@ class Messages:
 
 
 def flatten(tree: MessagesTree) -> MessagesData:
+    """
+    Flattens the given messages tree into a mapping of path to value.
+    """
+
     flattened = {}
 
     def sub_flatten(prefix: str, tree: MessagesTree):
