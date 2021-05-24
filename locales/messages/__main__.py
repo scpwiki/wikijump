@@ -50,7 +50,7 @@ if __name__ == "__main__":
         with open(path, "w") as file:
             file.write(contents)
 
-    print(f"Generating {len(messages_map)} localization files...")
+    print(f"Generating {len(messages_map) + 1} localization files...")
 
     # Generate .pot file (template)
     schema = messages_map[MAIN_MESSAGE_SCHEMA_NAME].schema
