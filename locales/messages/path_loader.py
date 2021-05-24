@@ -11,6 +11,10 @@ import yaml
 
 from .messages import Messages
 
+"""
+Load message data from files, including any language inheritance.
+"""
+
 MESSAGE_FILENAME_REGEX = re.compile("(([a-z]+)(?:_([A-Z]+))?)\.ya?ml")
 
 IGNORE_PATHS = [

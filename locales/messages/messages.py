@@ -2,6 +2,12 @@
 # messages.py - Wikijump Locale Builder
 #
 
+"""
+Represents a messages object, as loaded from configuration.
+
+Includes any data loaded from parent object(s).
+"""
+
 from dataclasses import dataclass
 from typing import Optional, Union
 
