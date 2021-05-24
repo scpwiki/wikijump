@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: gettext File Generation
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
