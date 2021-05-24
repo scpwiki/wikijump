@@ -62,7 +62,7 @@ def load(directory: str, log=True) -> dict[str, Messages]:
 
     for name in dependencies.static_order():
         if log:
-            print(f"+ Loading {name}")
+            print(f"+ {name}")
 
         stub = stubs[name]
         with open(stub.path) as file:

@@ -18,8 +18,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Get messages
+    print("Loading localizations...")
     directory = sys.argv[1]
     messages_map = load(directory)
+    print()
 
     # Validate schemas
     invalid = validate_all(messages_map)
@@ -31,4 +33,5 @@ if __name__ == "__main__":
 
         sys.exit(1)
 
+    print(f"Building {len(messages_map)} localization files...")
     # TODO
