@@ -12,7 +12,7 @@ into a flat, path-based mapping.
 """
 
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 from .schema import MessagesSchema
 

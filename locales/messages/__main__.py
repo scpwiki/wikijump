@@ -6,11 +6,12 @@
 Executable file, permitting command-line building of messages files.
 """
 
-from .gettext import build
+from .gettext import generate_po
 from .messages import get_template_messages
 from .path_loader import load
 from .schema import MAIN_MESSAGE_SCHEMA_NAME, validate_all
 
+import os
 import sys
 
 # The directory generated artifacts should go in.
