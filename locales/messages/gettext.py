@@ -24,22 +24,24 @@ def generate_po(messages: Messages) -> str:
         # - #. extracted-comments
         # - #: reference… (won't use)
         # - #, flag…
-        lines.append("#, python-format") # Because it uses {..} formatting
-        lines.append(f"msgid \"{escape_string(path)}\"")
-        lines.append(f"msgstr \"{escape_string(message)}\"")
+        lines.append("#, python-format")  # Because it uses {..} formatting
+        lines.append(f'msgid "{escape_string(path)}"')
+        lines.append(f'msgstr "{escape_string(message)}"')
         lines.append("")
 
     return "\n".join(lines)
 
 
 def build_mo(input_path: str, output_path: str):
-    subprocess.check_call([
+    command = [
         "msgfmt",
         "--strict",
         "--output-file",
         output_path,
         input_path,
-    ])
+    ]
+
+    subprocess.check_call(command)
 
 
 def escape_string(string: str) -> str:
