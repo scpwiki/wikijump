@@ -23,6 +23,7 @@ IGNORE_PATHS = [
     ".gitignore",
     "README.md",
     "messages",
+    "out",
 ]
 
 # Represents a messages file that has not yet been read.
