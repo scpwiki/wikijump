@@ -6,6 +6,7 @@
 Parent file for the messages module.
 """
 
+from . import schema
 from .path_loader import load
-from .schema import *
-from .messages import *
+from .schema import MessagesSchema
+from .messages import Messages, MessagesData, MessagesTree
