@@ -15,7 +15,7 @@ from .messages import Messages
 def generate_po(messages: Messages) -> str:
     lines = []
 
-    for path, message in messages.data:
+    for path, message in messages.data.items():
         # TODO add comments
         # - #  translator-comments
         # - #. extracted-comments

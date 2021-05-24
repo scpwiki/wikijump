@@ -42,9 +42,12 @@ def flatten(tree: MessagesTree) -> MessagesData:
 
     flattened = {}
 
-    def sub_flatten(prefix: str, tree: MessagesTree):
+    def sub_flatten(prefix: Optional[str], tree: MessagesTree):
         for name, child in tree.items():
-            path = f"{prefix}.{name}"
+            if prefix is None:
+                path = name
+            else:
+                path = f"{prefix}.{name}"
 
             if isinstance(child, str):
                 # Leaf object
@@ -53,6 +56,7 @@ def flatten(tree: MessagesTree) -> MessagesData:
                 # Sub-tree
                 sub_flatten(path, child)
 
+    sub_flatten(None, tree)
     return flattened
 
 
