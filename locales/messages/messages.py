@@ -11,7 +11,7 @@ Includes any data loaded from parent object(s).
 from dataclasses import dataclass
 from typing import Optional, Union
 
-MessageData = dict[str, Union[str, 'MessageData']]
+MessageData = dict[str, Union[str, "MessageData"]]
 
 
 @dataclass
