@@ -61,6 +61,7 @@ jobs:
           # Dependencies
           cd locales
           python -m pip install --upgrade pip
+          pip install -r messages/requirements.txt
           pip install -r messages/requirements-dev.txt
 
           # Formatting check
