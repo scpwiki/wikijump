@@ -51,7 +51,7 @@ def flatten(tree: MessagesTree) -> MessagesData:
 
             if isinstance(child, str):
                 # Leaf object
-                flattened[path] = child
+                flattened[path] = child.strip()
             else:
                 # Sub-tree
                 sub_flatten(path, child)

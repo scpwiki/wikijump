@@ -25,8 +25,8 @@ def generate_po(messages: Messages) -> str:
         # - #: reference… (won't use)
         # - #, flag…
         lines.append("#, python-format") # Because it uses {..} formatting
-        lines.append(f"msgid {escape_string(path)}")
-        lines.append(f"msgstr {escape_string(message)}")
+        lines.append(f"msgid \"{escape_string(path)}\"")
+        lines.append(f"msgstr \"{escape_string(message)}\"")
         lines.append("")
 
     return "\n".join(lines)

@@ -35,8 +35,6 @@ if __name__ == "__main__":
 
         sys.exit(1)
 
-    print(messages_map)
-
     # Create output directory, if it doesn't exist
     output_directory = os.path.join(directory, OUTPUT_DIRECTORY)
     if not os.path.isdir(output_directory):
