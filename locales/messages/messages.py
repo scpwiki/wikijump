@@ -2,16 +2,15 @@
 # messages.py - Wikijump Locale Builder
 #
 
-import re
 from dataclasses import dataclass
 from typing import Optional, Union
 
-MESSAGE_FILENAME_REGEX = re.compile("([a-z]+)(?:_([A-Z]+))?\.ya?ml")
-
 MessageData = dict[str, Union[str, 'MessageData']]
+
 
 @dataclass
 class Messages:
+    name: str
     language: str
     country: Optional[str]
     message_data: MessageData

@@ -2,12 +2,9 @@
 # __main__.py - Wikijump Locale Builder
 #
 
-from .messages import MESSAGE_FILENAME_REGEX, Messages
+from .path_loader import load
 
-import os
 import sys
-
-IGNORE_PATHS = ["build"]
 
 
 if __name__ == "__main__":
@@ -16,14 +13,4 @@ if __name__ == "__main__":
         sys.exit(1)
 
     directory = sys.argv[1]
-    for filename in os.listdir(directory):
-        if filename in IGNORE_PATHS:
-            continue
-
-        match = MESSAGE_FILENAME_REGEX.match(filename)
-        if match is None:
-            print(f"Skipping non-message file '{filename}'.")
-            continue
-
-        language = match[1]
-        country = match[2]
+    messages_map = load(directory)

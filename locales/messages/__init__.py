@@ -2,5 +2,5 @@
 # __init__.py - Wikijump Locale Builder
 #
 
-from .dependency import *
+from .path_loader import load
 from .messages import *
