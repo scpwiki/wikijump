@@ -25,25 +25,24 @@ class Messages:
     country: Optional[str]
     data: MessagesData
 
-    def __init__(
-        name: str,
-        language: str,
-        country: Optional[str],
-        tree: MessagesTree,
-    ):
-        self.name = name
-        self.language = language
-        self.country = country
-        self.data = flatten(tree)
+    def schema(self) -> MessagesSchema:
+        keys = frozenset(self.data.keys())
+        return MessagesSchema(keys)
 
     def __get__(self, path: str) -> str:
         return self.data[path]
 
 
-class MessagesSchema(set[str]):
-    def __init__(self, data: MessagesData):
-        keys = set(data.keys())
-        super().__init__(keys)
+class MessagesSchema(frozenset[str]):
+    def validate(other: MessagesSchema) -> bool:
+        """
+        Determines if this schema is valid.
+
+        That is, it checks if the other schema is
+        equal to or a subset of this one, which is considered the authority.
+        """
+
+        return self >= other
 
 
 def flatten(tree: MessagesTree) -> MessagesData:
