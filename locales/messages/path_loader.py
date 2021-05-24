@@ -29,7 +29,7 @@ IGNORE_PATHS = [
 MessagesStub = namedtuple("MessageStub", ("language", "country", "path"))
 
 
-def load(directory: str) -> dict[str, Messages]:
+def load(directory: str, log=True) -> dict[str, Messages]:
     # Preload all messages to get dependency order
     stubs = {}
     dependencies = TopologicalSorter()
@@ -61,8 +61,8 @@ def load(directory: str) -> dict[str, Messages]:
     messages_map = {}
 
     for name in dependencies.static_order():
-        print(f"+ Loading {name}")
-        stub = stubs[name]
+        if log:
+            print(f"+ Loading {name}")
 
         with open(stub.path) as file:
             tree = yaml.safe_load(file)
@@ -71,6 +71,7 @@ def load(directory: str) -> dict[str, Messages]:
         data = flatten(tree)
 
         # If there's a parent, then get that data
+        stub = stubs[name]
         if stub.country is not None:
             parent_data = messages_map[stub.language].data
             data = {**parent_data, **data}
