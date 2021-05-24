@@ -50,3 +50,12 @@ def flatten(tree: MessagesTree) -> MessagesData:
                 sub_flatten(path, child)
 
     return flattened
+
+
+def get_template_messages(schema: Iterable[str]) -> Messages:
+    """
+    Create a dummy Messages object for the given schema.
+    """
+
+    data = {path: "" for path in schema}
+    return Messages("template", "template", None, data)
