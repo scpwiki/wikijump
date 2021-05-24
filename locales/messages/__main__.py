@@ -48,15 +48,19 @@ if __name__ == "__main__":
         return os.path.join(output_directory, filename)
 
     def write_file(filename, contents):
+        print(f"+ {filename}")
         path = get_output_path(filename)
         with open(path, "w") as file:
             file.write(contents)
 
-    # Generate .po and .pot files
-    print("Generating template localization file...")
+    print(f"Generate {len(messages_map)} localization files...")
+
+    # Generate .pot file (template)
     schema = messages_map[MAIN_MESSAGE_SCHEMA_NAME].schema
     template_pot = generate_po(get_template_messages(schema))
     write_file("template.pot", template_pot)
 
-    print(f"Generate {len(messages_map)} localization files...")
-    # TODO
+    # Generate .po files
+    for name, messages in messages_map.items():
+        output_po = generate_po(messages)
+        write_file(f"{name}.po", output_po)
