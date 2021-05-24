@@ -2,6 +2,10 @@
 # loader.py - Wikijump Locale Builder
 #
 
+"""
+Load message data from files, including any language inheritance.
+"""
+
 import os
 import re
 from collections import namedtuple
@@ -11,11 +15,7 @@ from ruamel.yaml import YAML
 
 from .messages import Messages, flatten
 
-"""
-Load message data from files, including any language inheritance.
-"""
-
-MESSAGE_FILENAME_REGEX = re.compile("(([a-z]+)(?:_([A-Z]+))?)\.ya?ml")
+MESSAGE_FILENAME_REGEX = re.compile(r"(([a-z]+)(?:_([A-Z]+))?)\.ya?ml")
 
 OUTPUT_DIRECTORY = "out"
 

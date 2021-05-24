@@ -6,7 +6,6 @@
 Utilities for generating and compiling gettext files.
 """
 
-import os
 import re
 import subprocess
 from codecs import getdecoder

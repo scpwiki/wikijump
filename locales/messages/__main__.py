@@ -6,13 +6,13 @@
 Executable file, permitting command-line building of messages files.
 """
 
+import os
+import sys
+
 from .gettext import build_mo, generate_po
 from .messages import get_template_messages
 from .path_loader import OUTPUT_DIRECTORY, load
 from .schema import MAIN_MESSAGE_SCHEMA_NAME, validate_all
-
-import os
-import sys
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     print(f"Building {len(messages_map)} localization files...")
 
     # Build .mo files
-    for name in messages_map.keys():
+    for name in messages_map:
         print(f"+ {name}.mo")
         input_path = get_path(f"{name}.po")
         output_path = get_path(f"{name}.mo")
