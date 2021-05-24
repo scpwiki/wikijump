@@ -9,9 +9,7 @@ Can be used to verify that another data file matches,
 and to generate templates.
 """
 
-from typing import Iterable, NewType
-
-from .messages import Messages
+from typing import Iterable, List, NewType
 
 # The messages file to use as the "schema".
 # That is, this file is complete and can be used to build a schema.
@@ -24,7 +22,7 @@ MESSAGE_SCHEMA_NAME = "en"
 MessagesSchema = NewType("MessagesSchema", Iterable[str])
 
 
-def validate_all(messages_map: dict[str, Messages]) -> List[str]:
+def validate_all(messages_map: dict[str, "Messages"]) -> List[str]:
     invalid = []
 
     # Get main schema

@@ -64,6 +64,7 @@ def load(directory: str, log=True) -> dict[str, Messages]:
         if log:
             print(f"+ Loading {name}")
 
+        stub = stubs[name]
         with open(stub.path) as file:
             tree = yaml.safe_load(file)
 
@@ -71,7 +72,6 @@ def load(directory: str, log=True) -> dict[str, Messages]:
         data = flatten(tree)
 
         # If there's a parent, then get that data
-        stub = stubs[name]
         if stub.country is not None:
             parent_data = messages_map[stub.language].data
             data = {**parent_data, **data}
