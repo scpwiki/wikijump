@@ -25,28 +25,19 @@ class Messages:
     country: Optional[str]
     data: MessagesData
 
-    def get(self, path: str) -> str:
-        """
-        Retrieve the message with the given path.
-        """
+    def __init__(
+        name: str,
+        language: str,
+        country: Optional[str],
+        tree: MessagesTree,
+    ):
+        self.name = name
+        self.language = language
+        self.country = country
+        self.data = flatten(tree)
 
-        data = self.message_data
-        parts = path.split(".")
-
-        for i, part in enumerate(parts):
-            data = data.get(part)
-            if data is None:
-                raise KeyError(path)
-
-            if isinstance(data, str):
-                # Check that we're at the end of the path
-                if i < len(parts) - 1:
-                    raise KeyError(path)
-
-                return data
-
-        # Went through the entire path without finding the string
-        raise KeyError(path)
+    def __get__(self, path: str) -> str:
+        return self.data[path]
 
 
 class MessagesSchema(set[str]):
