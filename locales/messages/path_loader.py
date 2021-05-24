@@ -83,7 +83,11 @@ def load(directory: str, log=True) -> dict[str, Messages]:
 
         # Build messages object
         messages_map[name] = Messages(
-            name, language, country, message_data, comment_data,
+            name,
+            language,
+            country,
+            message_data,
+            comment_data,
         )
 
     return messages_map
