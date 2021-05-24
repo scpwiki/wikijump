@@ -21,7 +21,11 @@ class Messages:
     country: Optional[str]
     message_data: MessagesData
 
-    def get(self, path) -> str:
+    def get(self, path: str) -> str:
+        """
+        Retrieve the message with the given path.
+        """
+
         data = self.message_data
         parts = path.split(".")
 

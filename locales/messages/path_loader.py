@@ -26,7 +26,7 @@ IGNORE_PATHS = [
 MessagesStub = namedtuple("MessageStub", ("language", "country", "path"))
 
 
-def load(directory) -> dict[str, Messages]:
+def load(directory: str) -> dict[str, Messages]:
     # Preload all messages to get dependency order
     stubs = {}
     dependencies = TopologicalSorter()
