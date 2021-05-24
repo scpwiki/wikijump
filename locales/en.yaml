@@ -1,3 +1,36 @@
+# This is the schema-defining document.
+# All other localization files must have the same keys,
+# or the build will fail.
+
+# -- NOTE --
+#
+# All documentation comments must be *after* the line they're annotating.
+# Comments on the same line also work.
+#
+# Otherwise they will not be associated to the right item.
+#
+# CORRECT:
+#
+#   apple: My other string
+#   ## Comment!
+#
+#   banana:
+#     My other string
+#     ## Comment!
+#
+#   cherry: My string ## Comment!
+#
+# INCORRECT:
+#
+#    ## Comment!
+#    durian: This comment won't be picked up properly!
+#
+# See https://stackoverflow.com/a/53858927 for more information.
+#
+# This processor will ignore any comments that don't start with '##'
+# to avoid accidental misordering of comments not considered documentation.
+#
+
 # Generic UI components
 components:
   spinny:
