@@ -11,7 +11,7 @@ Includes any data loaded from parent object(s).
 from dataclasses import dataclass
 from typing import Optional, Union
 
-MessageData = dict[str, Union[str, "MessageData"]]
+MessagesData = dict[str, Union[str, "MessagesData"]]
 
 
 @dataclass
@@ -19,7 +19,7 @@ class Messages:
     name: str
     language: str
     country: Optional[str]
-    message_data: MessageData
+    message_data: MessagesData
 
     def get(self, path) -> str:
         data = self.message_data
