@@ -9,7 +9,7 @@ from graphlib import TopologicalSorter
 
 import yaml
 
-from .messages import Messages
+from .messages import Messages, flatten
 
 """
 Load message data from files, including any language inheritance.
@@ -17,12 +17,15 @@ Load message data from files, including any language inheritance.
 
 MESSAGE_FILENAME_REGEX = re.compile("(([a-z]+)(?:_([A-Z]+))?)\.ya?ml")
 
+# Files in this directory which aren't messages files.
+# Anything else gets a warning printed.
 IGNORE_PATHS = [
     ".gitignore",
     "README.md",
     "messages",
 ]
 
+# Represents a messages file that has not yet been read.
 MessagesStub = namedtuple("MessageStub", ("language", "country", "path"))
 
 
@@ -62,7 +65,10 @@ def load(directory: str) -> dict[str, Messages]:
         stub = stubs[name]
 
         with open(stub.path) as file:
-            data = yaml.safe_load(file)
+            tree = yaml.safe_load(file)
+
+        # Get path -> message mapping
+        data = flatten(tree)
 
         # If there's a parent, then get that data
         if stub.country is not None:

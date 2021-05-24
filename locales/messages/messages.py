@@ -15,6 +15,8 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Optional, Union
 
+from .schema import MessagesSchema
+
 MessagesData = dict[str, str]
 MessagesTree = dict[str, Union[str, "MessagesTree"]]
 
@@ -35,16 +37,6 @@ class Messages:
         return self.data[path]
 
 
-class MessagesSchema(frozenset[str]):
-    def validate(other: MessagesSchema) -> bool:
-        """
-        Determines if this schema is valid.
-
-        That is, it checks if the other schema is
-        equal to or a subset of this one, which is considered the authority.
-        """
-
-        return self >= other
 
 
 def flatten(tree: MessagesTree) -> MessagesData:

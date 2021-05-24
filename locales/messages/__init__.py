@@ -7,4 +7,5 @@ Parent file for the messages module.
 """
 
 from .path_loader import load
+from .schema import *
 from .messages import *
