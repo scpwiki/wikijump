@@ -27,9 +27,9 @@ class Messages:
     country: Optional[str]
     data: MessagesData
 
-    def get_schema(self) -> MessagesSchema:
-        keys = frozenset(self.data.keys())
-        return MessagesSchema(keys)
+    @property
+    def schema(self) -> MessagesSchema:
+        return self.data.keys()
 
     def __get__(self, path: str) -> str:
         return self.data[path]

@@ -17,14 +17,18 @@ if __name__ == "__main__":
         print(f"Usage: {sys.argv[0]} <locale-directory>")
         sys.exit(1)
 
+    # Get messages
     directory = sys.argv[1]
     messages_map = load(directory)
 
+    # Validate schemas
     invalid = validate_all(messages_map)
     if invalid:
-        print("The following messages files do not match the schema:")
+        print("The following localizations do not match the schema:")
 
         for name in invalid:
             print(f"- {name}")
 
         sys.exit(1)
+
+    # TODO
