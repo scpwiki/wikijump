@@ -8,8 +8,11 @@ Utilities for generating and compiling gettext files.
 
 import os
 import subprocess
+from codecs import getdecoder
 
 from .messages import Messages
+
+unicode_escape = getdecoder("unicode_escape")
 
 
 def generate_po(messages: Messages) -> str:
@@ -20,9 +23,10 @@ def generate_po(messages: Messages) -> str:
         # - #  translator-comments
         # - #. extracted-comments
         # - #: reference… (won't use)
-        # - #, flag… (won't use)
-        lines.append(f"msgid {path!r}")
-        lines.append(f"msgstr {message!r}")
+        # - #, flag…
+        lines.append("#, python-format") # Because it uses {..} formatting
+        lines.append(f"msgid {escape_string(path)}")
+        lines.append(f"msgstr {escape_string(message)}")
         lines.append("")
 
     return "\n".join(lines)
@@ -36,3 +40,7 @@ def build_mo(input_path: str, output_path: str):
         output_path,
         input_path,
     ])
+
+
+def escape_string(string: str) -> str:
+    return unicode_escape(string)[0]
