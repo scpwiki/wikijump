@@ -33,6 +33,7 @@
     "cm-tarnation": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "lezer-tree": "^0.13.2",
+    "components": "workspace:*",
     "sheaf-core": "workspace:*",
     "wj-prism": "workspace:*",
     "wj-state": "workspace:*",

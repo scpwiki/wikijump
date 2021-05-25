@@ -25,7 +25,7 @@
     "@codemirror/highlight": "^0.18.4",
     "@codemirror/language": "^0.18.1",
     "@codemirror/state": "^0.18.7",
-    "@codemirror/view": "^0.18.12",
+    "@codemirror/view": "^0.18.13",
     "is-what": "^4.0.0",
     "klona": "^2.0.4",
     "lezer": "^0.13.5",
