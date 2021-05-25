@@ -19,7 +19,7 @@ pre.code {
 
   > code {
     display: block;
-    padding: 1rem, 0.5rem;
+    padding: 1rem 0.5rem;
     overflow-x: auto;
     color: var(--colcode-content);
   }
@@ -69,6 +69,7 @@ pre.code {
 
   &.code-attr-name,
   &.code-attr-value,
+  &.code-escaped,
   &.code-selector {
     color: var(--colcode-attribute);
   }
