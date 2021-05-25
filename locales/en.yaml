@@ -78,7 +78,6 @@ cmftml:
   lint:
     WARNING_SOURCE: >
       ftml({rule}: {kind} at {token}) [{from, number, :: ,_}, {to, number, :: ,_}]
-      ## Warning emit description
 
     # Warnings (documentation copied from FTML)
 
@@ -161,3 +160,109 @@ cmftml:
     INVALID_URL: The URL ''{slice}'' is invalid.
     ## InvalidUrl
     ## The URL passed here was invalid.
+
+  blocks:
+    ACCEPTS_STAR: >
+      This block accepts the '*' (star) prefix.
+      The effect of providing this prefix depends on the block.
+
+    ACCEPTS_SCORE: >
+      This block accepts the '_' (score) suffix,
+      which will strip leading and trailing newlines.
+
+    ACCEPTS_NEWLINES: >
+      This block accepts newlines between its start and end nodes.
+
+    HTML_ATTRIBUTES: >
+      This block accepts generic HTML attributes/arguments.
+      HTML attributes are subject to a whitelist, but regardless most can be used.
+
+    argument_types:
+      none:
+        TITLE: None
+        INFO: This block doesn't accept any arguments.
+      value:
+        TITLE: Value
+        INFO: This block accepts text between the start and end of the node.
+      MAP:
+        TITLE: Map
+        INFO: This block accepts arguments.
+      value_map:
+        TITLE: Value + Map
+        INFO: This block accepts text, and then following a space accepts arguments.
+
+    body_types:
+      none:
+        TITLE: None
+        INFO: This block has no body, and does not need a terminating node.
+      raw:
+        TITLE: Raw
+        INFO: This block accepts a body, but interprets that body as raw text.
+      elements:
+        TITLE: Nested Elements
+        INFO: This block accepts a body, and can nest additional elements within it.
+      other:
+        TITLE: Other
+        INFO: This block has a special syntax that isn't easily categorized.
+
+    BLOCK_UNDOCUMENTED: >
+      This block currently does not have any documentation, but is a valid block.
+
+    # -- INDIVIDUAL BLOCK DOCUMENTATION
+
+    # format:
+    # <name>:
+    #   TITLE: <formal name>
+    #   INFO: <detailed description>
+    #   EXAMPLE: <example codeblock>
+    #
+    # The block INFO is rendered with FTML.
+
+    anchor:
+      TITLE: Anchor
+      INFO: >
+        Creates links between pages or other web pages. Like the HTML {{<a>}} tag, the
+        {{href}} attribute needs to be used with the {{[[anchor]]}} block.
+      EXAMPLE: |
+        [[a href="/scp-4000/noredirect/true" target="_blank" class="dual-link"]]Fae[[/a]]
+
+    blockquote:
+      TITLE: Blockquote
+      INFO: >
+        Indicates that enclosed text is an extended quotation,
+        although the "extended quotation" interpretation of blockquotes
+        may not be how they're used in practice. The meaning of blockquotes
+        differs from site-to-site and often depends on the styling given to them.
+
+        Using the {{[[blockquote]]}} block is the same as using {{> text}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        [[blockquote]]
+        Some text here.
+        [[/blockquote]]
+        [!-- equivalent to --]
+        > Some text here.
+
+    bold:
+      TITLE: Bold
+      INFO: >
+        Bolds the enclosed text.
+        Using {{[[bold]]}} is the same as using {{@<**bold**>@}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        Some [[b]]text![[/b]]
+        [!-- equivalent to --]
+        Some **text!**
+
+    char:
+      TITLE: Char
+      INFO: >
+        Renders an HTML entity (a special character) in place of the block.
+
+        Note: The syntax for HTML entities is simplified for convinence. Normally,
+        you would need to write {{&copy;}} to display the copyright symbol in HTML, but
+        with the {{[[char]]}} block you just need to write {{copy}}.
+
+        [[[https://dev.w3.org/html5/html-author/charref | List of HTML entities]]]
+      EXAMPLE: |
+        This file is [[char copy]] 2021 Team Wikijump.
