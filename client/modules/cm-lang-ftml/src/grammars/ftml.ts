@@ -6,9 +6,10 @@ import { languages } from "@codemirror/language-data"
 import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
 import type * as DF from "cm-tarnation/src/grammar/definition"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
-import { completeFTML } from "../autocomplete/autocomplete"
+import { completeFTML } from "../autocomplete"
 import { blocks, modules } from "../data/blocks"
-import { FTMLLinter } from "../lint"
+import { ftmlHoverTooltips } from "../hover"
+import { ftmlLinter } from "../lint"
 import { aliasesFiltered, aliasesRaw } from "../util"
 import { StyleAttributeGrammar } from "./css-attributes"
 import { TexLanguage } from "./tex"
@@ -87,7 +88,7 @@ export const FTMLLanguage = new TarnationLanguage({
     autocomplete: completeFTML
   },
 
-  supportExtensions: [FTMLLinter, htmlCompletion, cssCompletion],
+  supportExtensions: [ftmlLinter, ftmlHoverTooltips, htmlCompletion, cssCompletion],
 
   configure: {
     props: [
@@ -399,7 +400,6 @@ export const FTMLLanguage = new TarnationLanguage({
         { style: {
           BlockName: t.tagName,
           BlockNameAlign: t.function(t.name),
-          BlockNameSpecial: t.keyword,
           BlockNameModule: t.keyword,
           BlockNameUnknown: t.invalid,
 
@@ -459,8 +459,8 @@ export const FTMLLanguage = new TarnationLanguage({
         ],
 
         // [[math]]
-        { begin: blkStart("math", "map", "BlockNameSpecial"),
-          end: blkEnd("math", "BlockNameSpecial"),
+        { begin: blkStart("math", "map"),
+          end: blkEnd("math"),
           type: "BlockNested",
           embedded: "wikimath!"
         },
@@ -473,21 +473,21 @@ export const FTMLLanguage = new TarnationLanguage({
         },
 
         // [[css]]
-        { begin: blkStart("css", "none", "BlockNameSpecial"),
-          end: blkEnd("css", "BlockNameSpecial"),
+        { begin: blkStart("css", "none"),
+          end: blkEnd("css"),
           type: "BlockNested",
           embedded: "css!"
         },
 
         // [[html]]
-        { begin: blkStart("html", "none", "BlockNameSpecial"),
-          end: blkEnd("html", "BlockNameSpecial"),
+        { begin: blkStart("html", "none"),
+          end: blkEnd("html"),
           type: "BlockNested",
           embedded: "html!"
         },
 
         // [[code]]
-        { begin: blkStart("code", "map", "BlockNameSpecial", [
+        { begin: blkStart("code", "map", undefined, [
             [/(type)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
               "BlockNodeArgumentName",
               "t.definitionOperator",
@@ -496,7 +496,7 @@ export const FTMLLanguage = new TarnationLanguage({
               "@BR/C:arg"
             ]],
           ]),
-          end: blkEnd("code", "BlockNameSpecial", { lang: null }),
+          end: blkEnd("code", undefined, { lang: null }),
           type: "BlockNested",
           embedded: "::lang!"
         },

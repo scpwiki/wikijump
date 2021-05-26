@@ -85,4 +85,4 @@ async function lint(view: EditorView) {
   }
 }
 
-export const FTMLLinter = linter(lint)
+export const ftmlLinter = linter(lint)
