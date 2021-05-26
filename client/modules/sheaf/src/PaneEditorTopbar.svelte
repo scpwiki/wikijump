@@ -112,10 +112,9 @@
     position: relative;
     z-index: 1;
     display: flex;
-    flex-shrink: 0;
+    grid-area: "topbar";
     gap: 0.75rem;
     align-items: center;
-    height: 2.25rem;
     background: var(--colcode-background);
     box-shadow: -0.5rem 0 0.25rem rgba(black, 0.25);
   }

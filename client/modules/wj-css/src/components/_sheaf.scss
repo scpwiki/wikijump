@@ -8,6 +8,7 @@
 .cm-editor {
   width: 100%;
   height: 100%;
+  overflow: hidden;
   color: var(--colcode-content);
   background-color: var(--colcode-background);
   caret-color: var(--colcode-accent);

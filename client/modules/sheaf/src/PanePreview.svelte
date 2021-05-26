@@ -62,13 +62,13 @@
 <style lang="scss">
   .sheaf-preview-container {
     height: 100%;
-    contain: strict;
   }
 
   .sheaf-preview {
     width: 100%;
     height: 100%;
     padding: 1rem;
+    padding-bottom: 10rem;
     overflow-y: auto;
   }
 </style>

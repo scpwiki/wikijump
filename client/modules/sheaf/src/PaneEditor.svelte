@@ -31,9 +31,7 @@
 
 <style lang="scss">
   .sheaf-editor-container {
-    width: 100%;
-    height: 100%;
-    contain: strict;
+    grid-area: "editor";
   }
   .sheaf-editor-view {
     width: 100%;
