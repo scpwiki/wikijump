@@ -13,6 +13,14 @@
   line-height: var(--rhythm-baseline);
   color: var(--col-text);
 
+  // Indent lists.
+  ul,
+  ol {
+    padding-left: 1rem;
+  }
+
+  // -- CODE
+
   code,
   var,
   samp,
