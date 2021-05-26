@@ -157,6 +157,11 @@
       }
     }
   }
+
+  &.cm-ftml-hover-tip {
+    max-width: 30rem;
+    padding: 0.5rem;
+  }
 }
 
 .cm-editor {
