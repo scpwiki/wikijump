@@ -7,7 +7,7 @@
   import * as Prism from "wj-prism"
   import { t } from "wj-state"
   import type { FTMLFragment } from "ftml-wasm-worker"
-  import { Icon, tip } from "components"
+  import { Icon, TippySingleton, tip } from "components"
 
   interface Docs {
     title: string
@@ -20,11 +20,15 @@
   export let docs: Docs
   export let unmount: EditorSvelteComponentProps["unmount"]
 
+  // TODO: deprecated styling
+  // TODO: argument type, argument body styling
+
   const aliases = [name, ...(block.aliases ?? [])]
   const deprecated = block["deprecated"] ?? false
   const acceptsStar = block["accepts-star"] ?? false
   const acceptsScore = block["accepts-score"] ?? false
   const acceptsNewlines = block["accepts-newlines"] ?? false
+  const usesHTMLAttributes = block["html-attributes"] ?? false
   const [outputType, outputTag, outputClass] = block["html-output"].split(",")
 
   let codeString =
@@ -43,21 +47,28 @@
       {docs.title}
     </h4>
     <div class="cm-ftml-block-tip-accepts">
-      {#if acceptsStar}
-        <span use:tip={$t("cmftml.blocks.ACCEPTS_STAR")}>
-          <Icon i="fa-solid:asterisk" size="1rem" />
-        </span>
-      {/if}
-      {#if acceptsScore}
-        <span use:tip={$t("cmftml.blocks.ACCEPTS_SCORE")}>
-          <Icon i="feather:underline" size="1rem" />
-        </span>
-      {/if}
-      {#if acceptsNewlines}
-        <span use:tip={$t("cmftml.blocks.ACCEPTS_NEWLINES")}>
-          <Icon i="ic:round-keyboard-return" size="1rem" />
-        </span>
-      {/if}
+      <TippySingleton let:tip>
+        {#if usesHTMLAttributes}
+          <span use:tip={$t("cmftml.blocks.HTML_ATTRIBUTES")}>
+            <Icon i="whh:html" size="1rem" />
+          </span>
+        {/if}
+        {#if acceptsStar}
+          <span use:tip={$t("cmftml.blocks.ACCEPTS_STAR")}>
+            <Icon i="fa-solid:asterisk" size="1rem" />
+          </span>
+        {/if}
+        {#if acceptsScore}
+          <span use:tip={$t("cmftml.blocks.ACCEPTS_SCORE")}>
+            <Icon i="feather:underline" size="1rem" />
+          </span>
+        {/if}
+        {#if acceptsNewlines}
+          <span use:tip={$t("cmftml.blocks.ACCEPTS_NEWLINES")}>
+            <Icon i="ic:round-keyboard-return" size="1rem" />
+          </span>
+        {/if}
+      </TippySingleton>
     </div>
   </div>
 
