@@ -1,0 +1,26 @@
+{
+  "name": "worker-module",
+  "license": "agpl-3.0-or-later",
+  "description": "Smart wrapper around Threads.js worker modules.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "scripts": {},
+  "type": "module",
+  "main": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scpwiki/wikijump.git",
+    "directory": "client/modules/worker-module"
+  },
+  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
+  "homepage": "https://github.com/scpwiki/wikijump#readme",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "dependencies": {
+    "threads": "^1.6.4",
+    "wj-util": "workspace:^1.0.0"
+  }
+}
