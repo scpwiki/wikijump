@@ -25,6 +25,7 @@
     "ftml-wasm": "workspace:*",
     "indent.js": "^0.3.5",
     "threads": "^1.6.4",
-    "wj-util": "workspace:*"
+    "wj-util": "workspace:*",
+    "worker-module": "workspace:*"
   }
 }

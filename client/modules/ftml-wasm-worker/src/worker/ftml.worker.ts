@@ -1,10 +1,11 @@
-/* Web-workerized version of "ftml-wasm". */
-
 import * as FTML from "ftml-wasm"
+import type * as Binding from "ftml-wasm/vendor/ftml"
 // untyped import
 // @ts-ignore
 import indent from "indent.js"
-import { decode, encode, expose, Transfer } from "./lib"
+import type { TransferDescriptor } from "threads"
+import type { ModuleProxy } from "threads/dist/types/master"
+import { decode, encode, expose, transfer, transferMultiple } from "./lib"
 
 const ready = FTML.loading
 
@@ -45,21 +46,21 @@ function formatHTML(html: string) {
   }
 }
 
-expose({
-  async init(wasmURL: string) {
+const module = {
+  async init(wasmURL: Binding.InitInput) {
     await FTML.init(wasmURL)
     return true
   },
 
   async version() {
     await ready
-    return Transfer(encode(FTML.version()))
+    return transfer(FTML.version())
   },
 
   async preprocess(raw: ArrayBuffer) {
     await ready
     const str = decode(raw)
-    return Transfer(encode(FTML.preprocess(str)))
+    return transfer(FTML.preprocess(str))
   },
 
   async tokenize(raw: ArrayBuffer) {
@@ -81,14 +82,17 @@ expose({
     if (format) html = formatHTML(html)
     const htmlBuffer = encode(html)
     const styleBuffer = styles.map(style => encode(style))
-    return Transfer([htmlBuffer, styleBuffer], [htmlBuffer, ...styleBuffer])
+    return transferMultiple(
+      [htmlBuffer, styleBuffer],
+      [htmlBuffer, ...styleBuffer]
+    ) as TransferDescriptor<[html: ArrayBuffer, styles: ArrayBuffer[]]>
   },
 
   async renderText(raw: ArrayBuffer) {
     await ready
     const str = decode(raw)
     const text = FTML.render(str, { mode: "text" })
-    return Transfer(encode(text))
+    return transfer(text)
   },
 
   async detailedRender(raw: ArrayBuffer) {
@@ -106,6 +110,10 @@ expose({
   async inspectTokens(raw: ArrayBuffer) {
     await ready
     const str = decode(raw)
-    return Transfer(encode(FTML.inspectTokens(str)))
+    return transfer(FTML.inspectTokens(str))
   }
-})
+}
+
+export type FTMLWorkerInterface = ModuleProxy<typeof module>
+
+expose(module)
