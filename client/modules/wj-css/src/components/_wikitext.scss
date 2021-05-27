@@ -54,6 +54,9 @@
     display: block;
     margin-top: 0;
     margin-bottom: var(--rhythm-baseline-unit);
+    // fixes a strange bug on chrome
+    // if this isn't provided, the <br> will have no size
+    content: "";
   }
 
   // Space out elements by a unit.
