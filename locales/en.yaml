@@ -179,30 +179,30 @@ cmftml:
 
     argument_types:
       none:
-        TITLE: None
+        TITLE: NONE
         INFO: This block doesn't accept any arguments.
       value:
-        TITLE: Value
+        TITLE: VALUE
         INFO: This block accepts text between the start and end of the node.
-      MAP:
-        TITLE: Map
+      map:
+        TITLE: MAP
         INFO: This block accepts arguments.
       value_map:
-        TITLE: Value + Map
+        TITLE: VALUE+MAP
         INFO: This block accepts text, and then following a space accepts arguments.
 
     body_types:
       none:
-        TITLE: None
+        TITLE: NONE
         INFO: This block has no body, and does not need a terminating node.
       raw:
-        TITLE: Raw
+        TITLE: RAW
         INFO: This block accepts a body, but interprets that body as raw text.
       elements:
-        TITLE: Nested Elements
+        TITLE: ELEMENTS
         INFO: This block accepts a body, and can nest additional elements within it.
       other:
-        TITLE: Other
+        TITLE: OTHER
         INFO: This block has a special syntax that isn't easily categorized.
 
     BLOCK_UNDOCUMENTED: >
@@ -294,7 +294,7 @@ cmftml:
         [[/code]]
         [!-- or, with syntax highlighting --]
         [[code type="javascript"]]
-        console.log("foo"); // syntax highlighted with JS!
+        console.log("foo"); // syntax highlighted as JS!
         [[/code]]
 
     collapsible:
@@ -574,7 +574,8 @@ cmftml:
         Creates a generic inline container element,
         which may be styled, given a class/ID, etc.
       EXAMPLE: |
-        This text is in a span: [[span class="fruit"]]banana[[/span]]
+        This text is in a span:
+        [[span class="fruit"]]banana[[/span]]
 
     strikethrough:
       TITLE: Strikethrough
