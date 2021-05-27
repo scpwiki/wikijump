@@ -137,6 +137,7 @@
   .cm-ftml-block-tip-example {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+    white-space: pre-wrap;
   }
 
   .cm-ftml-block-tip-html {
