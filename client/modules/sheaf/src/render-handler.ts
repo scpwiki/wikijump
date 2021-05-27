@@ -1,5 +1,5 @@
 import type { Text } from "@codemirror/state"
-import * as FTML from "ftml-wasm-worker"
+import FTML from "ftml-wasm-worker"
 import { Memoize } from "typescript-memoize"
 import { toFragment } from "wj-util"
 

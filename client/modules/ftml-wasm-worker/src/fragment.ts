@@ -1,5 +1,5 @@
 import { toFragment } from "wj-util"
-import * as FTML from "./index"
+import FTML from "./ftml"
 
 export class FTMLFragment {
   private declare styles: string[]
