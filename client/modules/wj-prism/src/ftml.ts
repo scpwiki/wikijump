@@ -8,8 +8,30 @@ export function prismFTML(Prism: typeof import("Prismjs")) {
     return {
       pattern,
       lookbehind: true,
-      inside: Prism.languages[embed]
+      // use a getter so that the language doesn't have to exist right away
+      // this is so that we can do recursive highlighting (see below)
+      get inside() {
+        return Prism.languages[embed]
+      }
     }
+  }
+
+  const codePatterns: Record<string, ReturnType<typeof generateEmbedded>> = {}
+  // languages that we'll add [[code]] embedded highlighting for
+  const highlightLanguages = [
+    "ftml",
+    "wikidot",
+    "wikijump",
+    "wikitext",
+    ...Object.keys(Prism.languages)
+  ]
+  // make a embedded highlighting rule for every language from the above list
+  for (const language of highlightLanguages) {
+    codePatterns[`code-${language}`] = generateEmbedded(
+      language,
+      `code[^]*?type\\s*=\\s*"\\s*${language}\\s*"`,
+      "code"
+    )
   }
 
   Prism.languages.ftml = {
@@ -42,6 +64,9 @@ export function prismFTML(Prism: typeof import("Prismjs")) {
     "embedded-css-module": generateEmbedded("css", "module\\s*css", "module"),
     "embedded-html": generateEmbedded("html", "html"),
     "embedded-math": generateEmbedded("tex", "math"),
+
+    ...codePatterns,
+    "code": generateEmbedded("plaintext", "code"),
 
     "block": {
       // this horrifying pattern is actually what the CM parser uses (mostly, anyways)
