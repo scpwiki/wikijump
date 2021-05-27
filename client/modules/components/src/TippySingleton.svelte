@@ -5,9 +5,7 @@
   import { onDestroy } from "svelte"
 
   const DEFAULT_SINGLETON_PROPS: Partial<CreateSingletonProps> = {
-    delay: [400, 50],
-    followCursor: true,
-    moveTransition: "transform 0.125s ease-in-out"
+    delay: [400, 50]
   }
 
   export let opts: Partial<CreateSingletonProps> = { ...DEFAULT_SINGLETON_PROPS }
