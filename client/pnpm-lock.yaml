@@ -189,11 +189,13 @@ importers:
       indent.js: ^0.3.5
       threads: ^1.6.4
       wj-util: workspace:*
+      worker-module: workspace:*
     dependencies:
       ftml-wasm: link:../ftml-wasm
       indent.js: 0.3.5
       threads: 1.6.4
       wj-util: link:../wj-util
+      worker-module: link:../worker-module
 
   modules/sheaf:
     specifiers:
@@ -310,6 +312,14 @@ importers:
       is-what: ^4.0.0
     dependencies:
       is-what: 4.0.0
+
+  modules/worker-module:
+    specifiers:
+      threads: ^1.6.4
+      wj-util: workspace:^1.0.0
+    dependencies:
+      threads: 1.6.4
+      wj-util: link:../wj-util
 
   web/dev-sandbox:
     specifiers:
