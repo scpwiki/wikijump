@@ -570,7 +570,7 @@ export const FTMLLanguage = new TarnationLanguage({
       block_node_map: [
         { style: {
           BlockLabel: t.invalid,
-          BlockNodeArgumentName: t.propertyName,
+          BlockNodeArgumentName: t.special(t.propertyName),
           BlockNodeArgumentValue: t.string
         } },
 
@@ -597,7 +597,7 @@ export const FTMLLanguage = new TarnationLanguage({
         { style: {
           BlockNameInclude: t.keyword,
           IncludeValue: t.link,
-          IncludeParameterProperty: t.propertyName
+          IncludeParameterProperty: t.special(t.propertyName)
         } },
 
         { begin: [/(@bs)(include)(@bsf)((?:@ws*)[^\s\]]+)/,

@@ -135,7 +135,18 @@ const confinementHighlightStyle = HighlightStyle.define([
   },
   { tag: t.strong, fontWeight: "bold" },
   { tag: t.emphasis, fontStyle: "italic" },
-  { tag: t.heading, fontWeight: "bold", color: tag },
+  { tag: t.heading, fontWeight: "bold", color: tag }
+])
+
+const confinementMarkupHighlightStyle = HighlightStyle.define([
+  {
+    tag: t.tagName,
+    color: tag
+  },
+  {
+    tag: t.special(t.propertyName),
+    color: attr
+  },
   {
     tag: t.contentSeparator,
     fontWeight: "bold",
@@ -144,7 +155,6 @@ const confinementHighlightStyle = HighlightStyle.define([
     width: "calc(100% - 1rem)",
     boxShadow: `inset 0 0.125rem 0 ${border}`
   },
-  // formatting extended
   { tag: t.special(t.emphasis), textDecoration: "underline" }, // underline
   { tag: t.special(t.deleted), textDecoration: "line-through" }, // strikethrough
   { tag: t.special(t.inserted), background: important, color: "black" }, // mark
@@ -152,4 +162,7 @@ const confinementHighlightStyle = HighlightStyle.define([
   { tag: t.special(t.comment), color: note } // criticcomment
 ])
 
-export const confinement: Extension = [confinementHighlightStyle]
+export const confinement: Extension = [
+  confinementMarkupHighlightStyle,
+  confinementHighlightStyle
+]
