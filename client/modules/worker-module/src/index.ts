@@ -133,23 +133,20 @@ export class WorkerModule<Methods extends WorkerModuleMethods<string> = any> {
           timeout
         ])) as ReturnType<Methods[T]>
 
-        if (timedout) {
-          if (this.workerConfig.persist) await this.restartWorker()
-          else await this.terminateWorker()
-          throw new Error(`Worker timed out! Method: "${method}"`)
-        } else {
-          result = race
-        }
+        if (timedout) throw new Error(`Worker timed out! Method: "${method}"`)
+
+        result = race
       } else {
         result = await worker[method](...args)
       }
     } catch (err) {
-      if (this.workerConfig.restartOnError) {
-        if (this.workerConfig.persist) await this.restartWorker()
-        else await this.terminateWorker()
+      if (this.workerConfig.restartOnError && this.workerConfig.persist) {
+        await this.restartWorker()
       }
       throw err
     }
+
+    if (!this.workerConfig.persist) await this.terminateWorker()
 
     return result
   }
