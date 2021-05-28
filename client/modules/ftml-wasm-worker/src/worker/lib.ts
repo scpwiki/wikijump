@@ -1,20 +1,23 @@
 /* Exports the various functions misc. functions needed for the worker. */
 
-interface TypedArray extends ArrayBuffer {
-  buffer: ArrayBufferLike
-}
-type TransferInput = string | ArrayBuffer | TypedArray
+import { Transfer, TransferDescriptor } from "threads"
 
 const decoder = new TextDecoder()
 const encoder = new TextEncoder()
 
-export { expose, Transfer } from "threads/worker"
+export { expose, Transfer as transferMultiple } from "threads/worker"
 
-export const encode = (buffer: TransferInput) => {
+export function encode(buffer: string | ArrayBufferLike | ArrayBufferView) {
   if (typeof buffer === "string") return encoder.encode(buffer).buffer
   if ("buffer" in buffer) return buffer.buffer
   if (buffer instanceof ArrayBuffer) return buffer
   throw new TypeError("Expected a string, ArrayBuffer, or typed array!")
 }
 
-export const decode = (buffer: ArrayBuffer) => decoder.decode(buffer)
+export function decode(buffer: ArrayBuffer) {
+  return decoder.decode(buffer)
+}
+
+export function transfer(raw: string | ArrayBufferLike | ArrayBufferView) {
+  return Transfer(encode(raw)) as TransferDescriptor<ArrayBuffer>
+}

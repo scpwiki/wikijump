@@ -1,20 +1,18 @@
 {
-  "name": "ftml-wasm-worker",
+  "name": "worker-module",
   "license": "agpl-3.0-or-later",
-  "description": "A web workerized version of ftml-wasm",
+  "description": "Smart wrapper around Threads.js worker modules.",
   "version": "0.0.0",
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "build": ""
-  },
+  "scripts": {},
   "type": "module",
   "main": "src/index.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client/modules/ftml-wasm-worker"
+    "directory": "client/modules/worker-module"
   },
   "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
@@ -22,10 +20,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "ftml-wasm": "workspace:*",
-    "indent.js": "^0.3.5",
     "threads": "^1.6.4",
-    "wj-util": "workspace:*",
-    "worker-module": "workspace:*"
+    "wj-util": "workspace:^1.0.0"
   }
 }
