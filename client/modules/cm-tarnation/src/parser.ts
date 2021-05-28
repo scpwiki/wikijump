@@ -39,6 +39,13 @@ export class Parser {
     private start: number,
     private editorContext?: EditorParseContext
   ) {
+    // check if editor context is just an empty object
+    // it should always have fragments if it's real
+    if (editorContext && !editorContext.fragments) {
+      editorContext = undefined
+      this.editorContext = undefined
+    }
+
     this.caching = Boolean(editorContext?.state)
 
     if (this.caching) {
