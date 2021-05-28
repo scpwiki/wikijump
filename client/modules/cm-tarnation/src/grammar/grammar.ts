@@ -22,10 +22,6 @@ export interface GrammarContext extends GrammarMatchState {
   substate?: SubState
 }
 
-export function createContext(state: string, context: DF.Context = {}): GrammarContext {
-  return { state, context }
-}
-
 export function getMatchState(cx: GrammarContext): GrammarMatchState {
   const { context, state, last } = cx
   return { context, state, last }

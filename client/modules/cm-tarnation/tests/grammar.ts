@@ -49,7 +49,7 @@ Grammar("make Grammar", cx => {
 })
 
 Grammar("match Grammar", ({ grammar }) => {
-  const context = lib.createContext("root")
+  const context = { state: "root", context: {} }
   const match = grammar.match(context, "% foobar", 0)!
   assert.equal(match.compile(), [
     {

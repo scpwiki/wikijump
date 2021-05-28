@@ -2,7 +2,7 @@ import { klona } from "klona"
 import type { Input } from "lezer-tree"
 import type { Context } from "./buffer"
 import type * as DF from "./grammar/definition"
-import { createContext, GrammarToken } from "./grammar/grammar"
+import type { GrammarContext, GrammarToken } from "./grammar/grammar"
 import type { NodeMap, State } from "./index"
 
 /** Directs the parser to nest tokens using the node's type ID. */
@@ -111,7 +111,7 @@ export class Tokenizer {
       this.lastPos = pos
     }
 
-    const context = createContext(stack.state, stack.context)
+    const context: GrammarContext = { state: stack.state, context: stack.context }
     const match = grammar.match(context, str, start, pos)
 
     if (!match) return { tokens: null, popped: null, length: 1 }
