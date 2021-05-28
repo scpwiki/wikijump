@@ -135,10 +135,10 @@ export const FTMLLanguage = new TarnationLanguage({
       nocontrol: /[^\s!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~\xA1\u2010-\u2027]/,
       escapes: /\\@control/,
 
-      bs: /\[{2}(?!\[)\s*(?!\/)/, // block node start
-      bsc: /\[{2}\/\s*/,          // block closing node start
-      be: /\s*(?!\]{3})\]{2}/,    // block node end
-      bsf: /_?(?=@ws|@be|$)/,     // block name suffix
+      bs: /\[{2}(?![\[\/])\s*/, // block node start
+      bsc: /\[{2}\/\s*/,        // block closing node start
+      be: /\s*(?!\]{3})\]{2}/,  // block node end
+      bsf: /_?(?=@ws|@be|$)/,   // block name suffix
       // block prefix modifiers
       bm: /(?:[*=><](?![*=><])|f>|f<)(?!@ws|@be)/,
 
