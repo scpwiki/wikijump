@@ -273,6 +273,13 @@ export class Checkpoint {
     }
   }
 
+  clone() {
+    // TODO: see about making this more efficient
+    const clone = new Checkpoint(this.context, this.prev)
+    clone.pos = this.pos
+    return clone
+  }
+
   get pos() {
     return this.last + this.offset
   }
