@@ -227,8 +227,6 @@ export class Parser {
 
       if (ended) pos = input.length
       this.pos = pos
-      context.pos = pos
-      context.embed = embed.serialize()
 
       if (
         this.caching &&
@@ -236,6 +234,8 @@ export class Parser {
         pos - this.lastCheckpointPos >= this.checkpointSpacing
       ) {
         this.lastCheckpointPos = pos
+        context.pos = pos
+        context.embed = embed.serialize()
         buffer.add(context)
       }
     }
