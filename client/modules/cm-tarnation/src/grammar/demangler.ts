@@ -18,6 +18,7 @@ export interface Grammar {
 export interface Rule {
   target?: DF.SubRuleTarget
   match?: DF.Match
+  predicate?: string
   action?: Action
 }
 
@@ -108,7 +109,14 @@ export function demangleRule(rule: RuleDefs): DF.Directive | Rule | RuleState {
     ;({ match, ...action } = rule)
   }
 
-  return removeUndefined({ target, match, action: demangleAction(action) })
+  // pick out predicate from action
+  let predicate: string | undefined
+  if (typeof action !== "string" && "predicate" in action) {
+    predicate = action.predicate
+    delete action.predicate
+  }
+
+  return removeUndefined({ target, match, predicate, action: demangleAction(action) })
 }
 
 export function demangleAction(

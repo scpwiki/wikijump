@@ -640,14 +640,16 @@ function blkStart(
     case "none": {
       return [
         [/(@bs)(@bm?)/, name, /(@bsf)([^]*?)(@be)/], "BlockNode",
-        ["@BR", "BlockPrefix", blockName, "BlockModifier", "t.invalid", "@BR"]
+        ["@BR", "BlockPrefix", blockName, "BlockModifier", "t.invalid", "@BR"],
+        { predicate: "[[" }
       ]
     }
 
     case "map": {
       return {
         begin: [[/(@bs)(@bm?)/, name, /(@bsf)/],
-          ["@BR", "BlockPrefix", blockName, "BlockModifier"]
+          ["@BR", "BlockPrefix", blockName, "BlockModifier"],
+          { predicate: "[[" }
         ],
         end: [/@be/, "@BR"],
         type: "BlockNode",
@@ -658,14 +660,16 @@ function blkStart(
     case "value": {
       return [
         [/(@bs)(@bm?)/, name, /(@bsf)(\s*)([^]*?)(@be)/], "BlockNode",
-        ["@BR", "BlockPrefix", blockName, "BlockModifier", "", "BlockValue", "@BR"]
+        ["@BR", "BlockPrefix", blockName, "BlockModifier", "", "BlockValue", "@BR"],
+        { predicate: "[[" }
       ]
     }
 
     case "value+map": {
       return {
         begin: [[/(@bs)(@bm?)/, name, /(@bsf)(\s*)([^\s\]]*)/],
-          ["@BR", "BlockPrefix", blockName, "BlockModifier", "", "BlockValue"]
+          ["@BR", "BlockPrefix", blockName, "BlockModifier", "", "BlockValue"],
+          { predicate: "[[" }
         ],
         end: [/@be/, "@BR"],
         type: "BlockNode",
@@ -676,7 +680,8 @@ function blkStart(
     case "module": {
       return {
         begin: [[/(@bs)(@bm?)(module)(@bsf)(\s*)/, name],
-          ["@BR", "BlockPrefix", "BlockNameModule", "BlockModifier", "", "ModuleName"]
+          ["@BR", "BlockPrefix", "BlockNameModule", "BlockModifier", "", "ModuleName"],
+          { predicate: "[[" }
         ],
         end: [/@be/, "@BR"],
         type: "BlockNode",
@@ -690,7 +695,8 @@ function blkStart(
           ["@BR", "BlockPrefix", "BlockNameModule", "BlockModifier", "", { rules: [
             [name, "ModuleName"],
             ["@DEFAULT", "ModuleNameUnknown"]
-          ] }]
+          ] }],
+          { predicate: "[[" }
         ],
         end: [/@be/, "@BR"],
         type: "BlockNode",
@@ -706,6 +712,6 @@ function blkEnd(name: string, special?: DF.Type, context?: DF.Context): DF.Rule 
   return [
     [/@bsc/, name, /(@bsf)(@be)/], "BlockNode",
     ["@BR", blockName, "BlockModifier", "@BR"],
-    { context }
+    { context, predicate: "[[" }
   ]
 }

@@ -1,3 +1,4 @@
+import { pointsMatch, toPoints } from "wj-util"
 import { Action } from "./action"
 import type * as DF from "./definition"
 import type * as DM from "./demangler"
@@ -9,10 +10,11 @@ export class Rule {
 
   private declare target?: DF.SubRuleTarget
   private declare matcher: Matcher | "@DEFAULT"
+  private declare predicate?: number[]
   private declare action: Action
 
   constructor(grammar: Grammar, public id: number, rule: DM.Rule) {
-    const { target, match, action } = rule
+    const { target, match, predicate, action } = rule
 
     if (!match) throw new Error("Rule must have a Match!")
 
@@ -20,6 +22,8 @@ export class Rule {
 
     if (match === "@DEFAULT") this.matcher = "@DEFAULT"
     else this.matcher = new Matcher(grammar, match)
+
+    if (predicate) this.predicate = toPoints(predicate)
 
     this.action = new Action(grammar, action)
     if (this.action.log) this.log = this.action.log
@@ -30,6 +34,8 @@ export class Rule {
     if (this.matcher === "@DEFAULT") {
       return this.action.exec(cx, [str.slice(pos)], pos)
     }
+
+    if (this.predicate && !pointsMatch(this.predicate, str, pos)) return null
 
     const { target, last } = cx
 
