@@ -385,10 +385,18 @@ export class EmbeddedHandler {
   }
 
   serialize(): SerializedEmbedded {
-    return {
-      pending: [...this.pending],
-      parsers: this.parsers.map(parser => [parser.token, klona(parser.lang.range)])
+    const pending = [...this.pending]
+    const parsers: [token: BufferToken, range: EmbeddedRange][] = []
+
+    // this function gets called a lot, so we're doing the verbose method
+    // for loops are far faster than the `map` function, unfortunately
+    for (let idx = 0; idx < this.parsers.length; idx++) {
+      // prettier-ignore
+      const { token, lang: { range: { lang, start, end } } } = this.parsers[idx];
+      parsers[idx] = [token, { lang, start, end }]
     }
+
+    return { pending, parsers }
   }
 }
 
