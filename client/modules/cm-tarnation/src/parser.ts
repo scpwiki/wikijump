@@ -13,25 +13,24 @@ export interface SerializedEmbedded {
   parsers: [token: BufferToken, range: EmbeddedRange][]
 }
 
+const PARSER_CONFIG = {
+  steps: 10,
+  lookaheadMargin: 50,
+  checkpointSpacing: 250,
+  debug: false
+}
+
 export class Parser {
   private declare caching: boolean
   private declare context: Context
   private declare embed: EmbeddedHandler
   private declare tokenizer: Tokenizer
   private declare viewport?: { from: number; to: number }
+  private declare buffer: Buffer
+  private declare lastCheckpointPos: number
+  private declare logPerf?: () => void
 
-  private buffer = new Buffer()
-
-  /** Number of parse steps per `advance()` call. */
-  private steps = 10
-  private lookaheadMargin = 50 // chars
-  private checkpointSpacing = 250 // chars
-  private logPerf?: () => void
-  private debug = false
-
-  private lastCheckpointPos = 0
-
-  pos = 0
+  declare pos: number
 
   constructor(
     private state: State,
@@ -55,14 +54,13 @@ export class Parser {
           if (f.from > start || f.to < start) continue
           const buffer = Parser.findBuffer(state.cache, f.tree, start, f.to)
           if (buffer) {
-            const found = buffer.findContext(start, f.to - this.lookaheadMargin)
+            const found = buffer.findContext(start, f.to - PARSER_CONFIG.lookaheadMargin)
             if (found) {
               const { context, index } = found
               this.lastCheckpointPos = context.pos
               this.buffer = buffer.cut(index, true)
               this.context = context
               this.pos = context.pos
-              // if (this.debug) console.log(`starting at: ${editorContext.state.doc.lineAt(this.pos).number}`)
               break
             }
           }
@@ -70,8 +68,11 @@ export class Parser {
       }
     }
 
-    if (!this.context) {
+    // if we didn't find the buffer, we'll need to reset everything
+    if (!this.buffer) {
+      this.buffer = new Buffer()
       this.context = new Context(this.start)
+      this.lastCheckpointPos = 0
       this.pos = this.start
     }
 
@@ -79,7 +80,7 @@ export class Parser {
     this.tokenizer = state.tokenizer
     this.tokenizer.context = this.context
 
-    if (this.debug) this.logPerf = perfy("parser", 2.5)
+    if (PARSER_CONFIG.debug) this.logPerf = perfy("parser", 2.5)
   }
 
   private get doc() {
@@ -157,10 +158,7 @@ export class Parser {
     if (skipping) editorContext!.skipUntilInView(viewport!.to, input.length)
 
     const tree = this.compileTree()
-    if (this.debug && this.logPerf) this.logPerf()
-    // if (this.debug && editorContext) {
-    //   console.log(`ending at: ${editorContext.state.doc.lineAt(this.pos).number}`)
-    // }
+    if (PARSER_CONFIG.debug && this.logPerf) this.logPerf()
     return tree
   }
 
@@ -231,7 +229,7 @@ export class Parser {
       if (
         this.caching &&
         !ended &&
-        pos - this.lastCheckpointPos >= this.checkpointSpacing
+        pos - this.lastCheckpointPos >= PARSER_CONFIG.checkpointSpacing
       ) {
         this.lastCheckpointPos = pos
         context.pos = pos
@@ -245,21 +243,11 @@ export class Parser {
   }
 
   forceFinish() {
-    const { input, pos } = this
-
-    // if we're very close to the end, we'll finish the parse anyways
-    // this catches some flukey behavior
-    if (input.length - pos < 500) {
-      let done: Tree | null = null
-      while (!(done = this.advance())) {}
-      return done
-    }
-
     return this.compileTree()
   }
 
   advance() {
-    for (let step = this.steps; step > 0; step--) this.step()
+    for (let step = PARSER_CONFIG.steps; step > 0; step--) this.step()
 
     if ((this.ended || this.skipping) && this.embed.done) return this.finish()
     return null
@@ -320,8 +308,6 @@ export class EmbeddedHandler {
     parser?: PartialParse
   }[] = []
 
-  fullyLoaded = true
-
   constructor(
     private state: State,
     private input: Input,
@@ -378,7 +364,6 @@ export class EmbeddedHandler {
     if (done) {
       token.tree = done
       parsers.shift()
-      if (!lang.ready) this.fullyLoaded = false
       if (this.done) return true
     }
     return null
@@ -421,7 +406,7 @@ class EmbeddedLanguage {
   private declare loading
   private declare parser
 
-  lang: LanguageDescription | null = null
+  declare lang?: LanguageDescription | null
 
   constructor(public state: State, public range: EmbeddedRange) {
     if (state.nestLanguages.length) {
