@@ -206,7 +206,7 @@ cmftml:
         INFO: This block has a special syntax that isn't easily categorized.
 
     BLOCK_UNDOCUMENTED: >
-      This block currently does not have any documentation, but it is a valid block.
+      This block currently does not have any documentation, but it is valid.
 
     # -- INDIVIDUAL BLOCK DOCUMENTATION
 
