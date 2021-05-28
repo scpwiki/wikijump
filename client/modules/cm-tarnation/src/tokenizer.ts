@@ -157,7 +157,7 @@ export class Tokenizer {
             break
           }
           case "@push": {
-            stack.push(next, context)
+            stack.push(stack.state, context)
             break
           }
           default: {
