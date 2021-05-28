@@ -39,14 +39,17 @@ export class Buffer {
 
   constructor(
     /** The raw array storing the buffer's data. */
-    public buffer: BufferElement[] = [],
-    /** The previous `Buffer` linked, if any. */
-    public prev: Buffer | null = null
+    public buffer: BufferElement[] = []
   ) {}
 
   /** Number of elements in the buffer. */
   get length() {
     return this.buffer.length
+  }
+
+  /** The last node in the buffer. */
+  get last() {
+    return this.buffer[this.buffer.length - 1]
   }
 
   /**
@@ -149,6 +152,89 @@ export class Buffer {
     }
 
     throw new Error(`Failed to cut precisely! (${at})`)
+  }
+
+  /**
+   * "Shifts" the buffer to the index, removing all previous nodes from the buffer.
+   *
+   * @param idx - The index to shift to. Indexed element must be a {@link Checkpoint}.
+   */
+  shift(idx: number) {
+    const checkpoint = this.buffer[idx]
+    if (!(checkpoint instanceof Checkpoint)) {
+      throw new Error("Must shift to checkpoints!")
+    }
+
+    this.buffer = this.buffer.slice(idx)
+    checkpoint.prev = undefined
+    checkpoint.pos = 0
+    this.lastCheckpoint?.update()
+
+    return this
+  }
+
+  /**
+   * Splits the buffer into two pieces, centered at the provided index.
+   * This will mutate the buffer into the left side buffer, while creating
+   * a new right side buffer.
+   *
+   * @param idx - The buffer to split on. Indexed element must be a
+   *   {@link Checkpoint}.
+   */
+  split(idx: number) {
+    const rightCheckpoint = this.buffer[idx]
+    if (!(rightCheckpoint instanceof Checkpoint)) {
+      throw new Error("Must split on checkpoints!")
+    }
+
+    const rightLast = this.lastCheckpoint ?? rightCheckpoint
+
+    // excludes the checkpoint at end, so we'll need to add one back
+    const left = this.buffer.slice(0, idx)
+    const leftCheckpoint = rightCheckpoint.clone()
+    left.push(leftCheckpoint)
+
+    const right = this.buffer.slice(idx)
+
+    this.buffer = left
+    this.lastCheckpoint = leftCheckpoint
+
+    const rightBuffer = new Buffer(right)
+    rightBuffer.lastCheckpoint = rightLast
+
+    rightCheckpoint.prev = undefined
+    rightCheckpoint.pos = 0
+    rightLast.update()
+
+    return { left: this, right: rightBuffer }
+  }
+
+  /**
+   * Links another buffer onto the end of this one. The other buffer must
+   * begin with a {@link Checkpoint}.
+   */
+  link(right: Buffer) {
+    const rightCheckpoint = right.buffer[0]
+    if (rightCheckpoint instanceof BufferToken) {
+      throw new Error("Linked buffer must start with a checkpoint!")
+    }
+
+    const endPos = this.last.pos
+
+    if (this.last instanceof Checkpoint) this.buffer.pop()
+    if (this.last instanceof Checkpoint) {
+      throw new Error("Buffer couldn't be linked due to a double checkpoint!")
+    }
+
+    rightCheckpoint.prev = this.last.checkpoint
+    rightCheckpoint.pos = endPos
+
+    this.buffer = this.buffer.concat(right.buffer)
+
+    this.lastCheckpoint = right.lastCheckpoint
+    this.lastCheckpoint?.update()
+
+    return this
   }
 
   /** Counts the number of checkpoints (context snapshots) in the buffer. */
@@ -300,6 +386,7 @@ export class Checkpoint {
     return this.last + this.offset
   }
   set pos(pos: number) {
+    if (!this.prev) this.last = 0
     const offset = pos - this.last
     if (offset < 0) throw new Error(`Bad offset position set (${pos} -> ${offset})`)
     this.offset = offset
