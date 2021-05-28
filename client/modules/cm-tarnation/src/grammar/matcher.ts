@@ -15,7 +15,7 @@ type MatcherElement =
   | { matcher: DF.MatchFunction; type: MatcherType.Function }
   | { matcher: RegExp;           type: MatcherType.RegExp }
   | { matcher: DF.Substitute;    type: MatcherType.Substitute }
-  | { matcher: number[];         type: MatcherType.Points; source: string }
+  | { matcher: number[];         type: MatcherType.Points; src: string, cased: boolean }
 
 export class Matcher {
   private declare elements?: MatcherElement[]
@@ -43,8 +43,9 @@ export class Matcher {
       else type = MatcherType.Points
 
       if (type === MatcherType.Points) {
-        const source = String.fromCodePoint(...(matcher as number[]))
-        return { matcher, type, source } as MatcherElement
+        const src = String.fromCodePoint(...(matcher as number[]))
+        const cased = this.ignoreCase ? src.toLowerCase() !== src.toUpperCase() : false
+        return { matcher, type, src, cased } as MatcherElement
       }
 
       return { matcher, type } as MatcherElement
@@ -120,13 +121,13 @@ export class Matcher {
 
       case MatcherType.Points: {
         if (str.length < element.matcher.length) break
-        if (ignoreCase) {
-          const against = str.slice(pos, element.matcher.length).toLowerCase()
+        if (ignoreCase && element.cased) {
+          const against = str.substr(pos, element.matcher.length).toLowerCase()
           if (pointsMatch(element.matcher, against, 0)) {
-            match = [element.source]
+            match = [element.src]
           }
         } else if (pointsMatch(element.matcher, str, pos)) {
-          match = [element.source]
+          match = [element.src]
         }
         break
       }
