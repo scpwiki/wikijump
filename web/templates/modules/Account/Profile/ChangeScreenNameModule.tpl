@@ -5,7 +5,7 @@
 </p>
 <p>
 	Each {$SERVICE_NAME} user can change their screen name <strong>twice</strong>.
-	It looks like you have changed yours <strong style="font-size:120%">{$profile->getChangeScreenNameCount()}</strong> time(s).
+	It looks like you have changed yours <strong style="font-size:120%">{$user->username_changes}</strong> time(s).
 </p>
 <p>
 	Although changing the screen name is easy,
@@ -22,7 +22,7 @@
 		few more days.
 	</li>
 </ul>
-{if $profile->getChangeScreenNameCount() < 2}
+{if $profile->username_changes < config('wikijump.username_change_limit')}
 	<p>
 		O.K., you have been warned. <span style="color: #900">Proceed only if you really need it!</span>
 	</p>

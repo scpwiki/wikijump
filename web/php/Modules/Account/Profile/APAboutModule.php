@@ -5,8 +5,8 @@ namespace Wikidot\Modules\Account\Profile;
 
 
 
-use Wikidot\DB\ProfilePeer;
 use Wikidot\Utils\AccountBaseModule;
+use Wikijump\Models\User;
 
 class APAboutModule extends AccountBaseModule
 {
@@ -15,7 +15,7 @@ class APAboutModule extends AccountBaseModule
     {
 
         $userId = $runData->getUserId();
-        $profile = ProfilePeer::instance()->selectByPrimaryKey($userId);
+        $profile = User::find($userId);
 
         $runData->contextAdd("profile", $profile);
     }
