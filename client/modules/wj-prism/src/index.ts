@@ -1,4 +1,5 @@
 import "../vendor/prism"
+import { prismFTML } from "./ftml"
 
 // TODO: FTML, Svelte grammars
 
@@ -15,6 +16,9 @@ Prism.plugins.customClass.prefix("code-")
 const encode: (src: string) => string = Prism.util.encode as any
 
 const RAW_LANGS = ["raw", "text", "none", ""]
+
+// add additional langs
+prismFTML(Prism)
 
 /**
  * Highlights a string of code and returns HTML, given a specified

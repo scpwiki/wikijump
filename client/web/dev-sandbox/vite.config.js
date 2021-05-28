@@ -46,6 +46,7 @@ const config = {
     tomlPlugin(),
     yamlPlugin(),
     svelte({
+      hot: false,
       preprocess: [
         sveltePreprocess({
           sourceMap: true,

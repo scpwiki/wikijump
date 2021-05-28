@@ -8,6 +8,7 @@
 .cm-editor {
   width: 100%;
   height: 100%;
+  overflow: hidden;
   color: var(--colcode-content);
   background-color: var(--colcode-background);
   caret-color: var(--colcode-accent);
@@ -155,6 +156,11 @@
         }
       }
     }
+  }
+
+  &.cm-ftml-hover-tip {
+    max-width: 30rem;
+    padding: 0.25rem 0.5rem;
   }
 }
 

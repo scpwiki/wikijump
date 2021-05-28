@@ -7,12 +7,11 @@ import { syntaxTree } from "@codemirror/language"
 import type { SyntaxNode } from "lezer-tree"
 import { EditorSvelteComponent } from "sheaf-core"
 import { Prism } from "wj-prism"
-import { blocks, modules } from "../data/blocks"
-import { htmlAttributes } from "../data/html-attributes"
-import type { Block, Module } from "../data/types"
-import { aliasesFiltered } from "../util"
-import BlockTip from "./BlockTip.svelte"
-import ModuleTip from "./ModuleTip.svelte"
+import { blocks, blockTips, modules } from "./data/blocks"
+import { htmlAttributes } from "./data/html-attributes"
+import type { Block, Module } from "./data/types"
+import ModuleTip from "./tips/ModuleTip.svelte"
+import { aliasesFiltered } from "./util"
 
 // add languages from Prism into the enum for `code.arguments.type`
 try {
@@ -22,12 +21,10 @@ try {
 const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
   ([name, block]) => {
     const aliases = aliasesFiltered([name, block])
-    const handler = new EditorSvelteComponent(BlockTip)
-    const instance = handler.create(undefined, { pass: { name, block } })
     const completions: Completion[] = aliases.map(alias => ({
       label: alias,
       type: "type",
-      info: () => instance.dom
+      info: () => blockTips[alias].dom
     }))
     return completions
   }

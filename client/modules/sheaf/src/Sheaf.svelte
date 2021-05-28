@@ -63,11 +63,10 @@
 
 <style lang="scss">
   .sheaf-container {
-    position: relative;
     display: flex;
     flex-direction: column;
-    overflow: auto;
     background: var(--colcode-background);
+    contain: strict;
   }
 
   .sheaf-panes {
@@ -82,14 +81,17 @@
 
   .sheaf-pane {
     position: relative;
-    display: flex;
-    flex-direction: column;
     height: 100%;
-    contain: strict;
   }
 
   .sheaf-pane-editor {
+    display: grid;
     flex-grow: 1;
+    grid-template-areas:
+      "topbar"
+      "editor";
+    grid-template-rows: 2.25rem calc(100% - 2.25rem);
+    grid-template-columns: 1fr;
     min-width: 50%;
   }
 

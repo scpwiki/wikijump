@@ -41,7 +41,7 @@
     "@codemirror/search": "^0.18.3",
     "@codemirror/state": "^0.18.7",
     "@codemirror/text": "^0.18.0",
-    "@codemirror/view": "^0.18.12",
+    "@codemirror/view": "^0.18.13",
     "lezer": "^0.13.5",
     "lezer-tree": "^0.13.2",
     "svelte": "^3.38.2",

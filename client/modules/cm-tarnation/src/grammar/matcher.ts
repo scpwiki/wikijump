@@ -124,8 +124,12 @@ export class Matcher {
 
         case MatcherType.Points: {
           if (cx.target === "$#") console.log(element.matcher)
-          const against = this.grammar.ignoreCase ? str.toLowerCase() : str
-          if (pointsMatch(element.matcher, against, pos)) {
+          if (this.grammar.ignoreCase) {
+            const against = str.slice(pos, str.length).toLowerCase()
+            if (pointsMatch(element.matcher, against, 0)) {
+              match = [element.source]
+            }
+          } else if (pointsMatch(element.matcher, str, pos)) {
             match = [element.source]
           }
           break

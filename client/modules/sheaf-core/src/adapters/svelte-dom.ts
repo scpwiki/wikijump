@@ -21,6 +21,11 @@ export interface EditorSvelteComponentInstance {
   dom: LifecycleElement
   /** Function that needs to be called whenever the view updates. */
   update: (update: ViewUpdate) => void
+  /**
+   * Clones this instance so that it may be used in contexts where reusing
+   * the node isn't safe.
+   */
+  clone: () => EditorSvelteComponentInstance
 }
 
 export interface EditorSvelteComponentOpts<T extends SvelteComponent> {
@@ -104,6 +109,10 @@ export class EditorSvelteComponent<T extends typeof SvelteComponent> {
 
     const dom = new LifecycleElement(mount)
 
-    return { dom, update }
+    const clone = () => {
+      return this.create(view, opts)
+    }
+
+    return { dom, update, clone }
   }
 }

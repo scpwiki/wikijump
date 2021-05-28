@@ -1,4 +1,4 @@
-import tippy, { Props, roundArrow } from "tippy.js"
+import tippy, { followCursor, inlinePositioning, Props, roundArrow } from "tippy.js"
 // Import CSS dynamically
 import "tippy.js/animations/scale.css"
 import "tippy.js/dist/svg-arrow.css"
@@ -11,10 +11,12 @@ const DEFAULT_TIPPY_OPTS: Partial<Props> = {
   animation: "scale",
   touch: ["hold", 600],
   duration: [50, 100],
-  delay: [400, 50]
+  delay: [400, 50],
+  inlinePositioning: true,
+  plugins: [followCursor, inlinePositioning]
 }
 
-function parseTipOpts(elem: Element, opts: Partial<Props> | string) {
+export function parseTipOpts(elem: Element, opts: Partial<Props> | string) {
   if (opts) {
     // use:tippy="foo"
     if (typeof opts === "string") {

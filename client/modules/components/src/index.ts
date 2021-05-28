@@ -6,6 +6,7 @@ export { default as Tab } from "./tabs/Tab.svelte"
 export { default as Tabview } from "./tabs/Tabview.svelte"
 export { default as IntersectionPoint } from "./IntersectionPoint.svelte"
 export { default as Spinny } from "./Spinny.svelte"
+export { default as TippySingleton } from "./TippySingleton.svelte"
 export { default as Wikitext } from "./Wikitext.svelte"
 
 export { default as TabviewStub } from "./Tabview.svelte"
