@@ -266,7 +266,23 @@ export class Checkpoint {
    */
   update() {
     if (this.prev) {
-      this.prev.update()
+      // unfortunately, if we just recursively call `update` we'll get errors
+      // so we assemble a list instead and work our way up
+      const previous = new Set<Checkpoint>([this.prev])
+
+      let current = this.prev
+      while (current.prev) {
+        if (previous.has(current.prev)) {
+          console.error(previous)
+          throw new Error("Recursive list!")
+        }
+        previous.add(current.prev)
+        current = current.prev
+      }
+
+      for (const checkpoint of [...previous].reverse()) {
+        checkpoint.last = checkpoint.prev?.pos ?? 0
+      }
       this.last = this.prev.pos
     } else {
       this.last = 0
