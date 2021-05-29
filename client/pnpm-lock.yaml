@@ -136,6 +136,7 @@ importers:
       '@codemirror/language': ^0.18.1
       '@codemirror/state': ^0.18.7
       '@codemirror/view': ^0.18.13
+      dequal: ^2.0.2
       is-what: ^4.0.0
       klona: ^2.0.4
       lezer: ^0.13.5
@@ -147,6 +148,7 @@ importers:
       '@codemirror/language': 0.18.1
       '@codemirror/state': 0.18.7
       '@codemirror/view': 0.18.13
+      dequal: 2.0.2
       is-what: 4.0.0
       klona: 2.0.4
       lezer: 0.13.5
@@ -1915,7 +1917,6 @@ packages:
   /dequal/2.0.2:
     resolution: {integrity: sha512-q9K8BlJVxK7hQYqa6XISGmBZbtQQWVXSrRrWreHC94rMt1QL/Impruc+7p2CYSYuVIUr+YCt6hjrs1kkdJRTug==}
     engines: {node: '>=6'}
-    dev: true
 
   /detect-indent/6.0.0:
     resolution: {integrity: sha512-oSyFlqaTHCItVRGK5RmrmjB+CmaMOW7IaNA/kdxqhoa6d17j/5ce9O9eWXmV/KEdRwqpQA+Vqe8a8Bsybu4YnA==}

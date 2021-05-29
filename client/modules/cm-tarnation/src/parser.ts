@@ -2,7 +2,7 @@ import { EditorParseContext, LanguageDescription } from "@codemirror/language"
 import { klona } from "klona"
 import { Input, PartialParse, Tree } from "lezer-tree"
 import { perfy } from "wj-util"
-import { Buffer, BufferCache, BufferToken, Context } from "./buffer"
+import { Buffer, BufferCache, BufferToken, Checkpoint, Context } from "./buffer"
 import type { State } from "./index"
 import type { EmbeddedRange, Tokenizer } from "./tokenizer"
 
@@ -27,7 +27,9 @@ export class Parser {
   private declare tokenizer: Tokenizer
   private declare viewport?: { from: number; to: number }
   private declare buffer: Buffer
+  private declare rightBuffer?: Buffer
   private declare lastCheckpointPos: number
+  private declare region: { start: number; end: number; offset: number }
   private declare logPerf?: () => void
 
   declare pos: number
@@ -50,17 +52,41 @@ export class Parser {
     if (this.caching) {
       this.viewport = editorContext!.viewport
       if (editorContext?.fragments?.length) {
-        for (const f of editorContext.fragments) {
+        const fragments = editorContext.fragments
+        const firstFragment = fragments[0]
+        const lastFragment = fragments[fragments.length - 1]
+
+        this.region = {
+          start: Math.max(firstFragment.to - PARSER_CONFIG.lookaheadMargin, 0),
+          end: fragments.length === 1 ? input.length : lastFragment.from,
+          offset: lastFragment.offset
+        }
+
+        for (const f of fragments) {
           if (f.from > start || f.to < start) continue
           const buffer = Parser.findBuffer(state.cache, f.tree, start, f.to)
           if (buffer) {
-            const found = buffer.findContext(start, f.to - PARSER_CONFIG.lookaheadMargin)
+            const found = buffer.findContext(this.region.start, -1)
             if (found) {
               const { context, index } = found
               this.lastCheckpointPos = context.pos
-              this.buffer = buffer.cut(index, true)
+              const { left, right } = buffer.split(index)
+              this.buffer = left
               this.context = context
               this.pos = context.pos
+
+              if (this.region.offset !== 0) {
+                const found = right.findContext(this.region.end - this.region.offset, 1)
+                if (found) {
+                  const { context, index } = found
+                  right.shift(index)
+                  const checkpoint = right.get(0) as Checkpoint
+                  checkpoint.pos = context.pos - this.region.offset
+                  right.lastCheckpoint?.update()
+                  this.rightBuffer = right
+                }
+              }
+
               break
             }
           }
@@ -74,6 +100,7 @@ export class Parser {
       this.context = new Context(this.start)
       this.lastCheckpointPos = 0
       this.pos = this.start
+      this.region = { start: 0, end: input.length, offset: 0 }
     }
 
     this.embed = new EmbeddedHandler(state, input, this.context, editorContext)
@@ -128,6 +155,15 @@ export class Parser {
     return null
   }
 
+  private canReuseRight() {
+    const { buffer, rightBuffer, context } = this
+    if (!rightBuffer) return false
+    if (this.pos < this.region.end) return false
+    const checkpoint = rightBuffer.get(0) as Checkpoint
+    const offset = this.pos - this.lastCheckpointPos
+    return checkpoint.hasEqualContext(context, offset)
+  }
+
   private compileTree() {
     const { start, buffer, state, doc } = this
 
@@ -145,7 +181,7 @@ export class Parser {
   }
 
   private finish() {
-    const { input, buffer, context, pos, skipping, editorContext, viewport } = this
+    const { input, buffer, context, pos, skipping, editorContext, doc } = this
     const { parser: stack } = context
 
     // handle unfinished stack
@@ -155,7 +191,7 @@ export class Parser {
       stack.increment()
     }
 
-    if (skipping) editorContext!.skipUntilInView(viewport!.to, input.length)
+    if (skipping) editorContext!.skipUntilInView(this.pos, doc?.length ?? input.length)
 
     const tree = this.compileTree()
     if (PARSER_CONFIG.debug && this.logPerf) this.logPerf()
@@ -231,10 +267,20 @@ export class Parser {
         !ended &&
         pos - this.lastCheckpointPos >= PARSER_CONFIG.checkpointSpacing
       ) {
-        this.lastCheckpointPos = pos
         context.pos = pos
         context.embed = embed.serialize()
-        buffer.add(context)
+
+        // reuse old right-side buffer
+        if (this.canReuseRight()) {
+          console.log("REUSED!")
+          buffer.link(this.rightBuffer!)
+          this.context = buffer.lastCheckpoint!.context
+          this.lastCheckpointPos = this.context.pos
+          this.pos = this.context.pos
+        } else {
+          this.lastCheckpointPos = pos
+          buffer.add(context)
+        }
       }
     }
 

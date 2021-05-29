@@ -1,3 +1,4 @@
+import { dequal } from "dequal"
 import type { Tree } from "lezer-tree"
 import { search, SearchOpts } from "wj-util"
 import { ParserElementStack, ParserStack, SerializedEmbedded } from "./parser"
@@ -110,25 +111,32 @@ export class Buffer {
   }
 
   /** {@link search} comparator function. */
-  private static _searchComparator = ({ pos }: BufferElement, target: number) =>
-    pos === target ? true : pos - target
+  private static _searchComparator = (node: BufferElement, target: number) => {
+    const pos = node instanceof BufferToken ? node.checkpoint?.pos ?? node.pos : node.pos
+    return pos === target ? true : pos - target
+  }
 
   /** Searches for the closest element to the given position. */
   search(pos: number, opts?: SearchOpts) {
     return search(this.buffer, pos, Buffer._searchComparator, opts)
   }
 
-  /**
-   * Finds the closest {@link Context} behind the given `before` value, but
-   * after the given `start` value.
-   */
-  findContext(start: number, before: number) {
-    // binary search for closest position to `before`
-    let idx = this.search(before, { precise: false })?.index ?? this.buffer.length
-    for (; idx >= start; idx--) {
-      const node = this.buffer[idx]
-      if (node instanceof Checkpoint && node.pos <= before) {
-        return { context: node.context, index: idx }
+  findContext(pos: number, side: 1 | -1) {
+    const result = this.search(pos, { precise: false })
+    let idx = result ? result.index : side === 1 ? this.buffer.length : 0
+    if (side === 1) {
+      for (; idx < this.buffer.length; idx++) {
+        const node = this.buffer[idx]
+        if (node instanceof Checkpoint && node.pos >= pos) {
+          return { context: node.context, index: idx }
+        }
+      }
+    } else if (side === -1) {
+      for (; idx > 0; idx--) {
+        const node = this.buffer[idx]
+        if (node instanceof Checkpoint && node.pos <= pos) {
+          return { context: node.context, index: idx }
+        }
       }
     }
     return null
@@ -166,8 +174,9 @@ export class Buffer {
     }
 
     this.buffer = this.buffer.slice(idx)
+    const pos = checkpoint.pos
     checkpoint.prev = undefined
-    checkpoint.pos = 0
+    checkpoint.pos = pos
     this.lastCheckpoint?.update()
 
     return this
@@ -187,6 +196,7 @@ export class Buffer {
       throw new Error("Must split on checkpoints!")
     }
 
+    const rightPos = rightCheckpoint.pos
     const rightLast = this.lastCheckpoint ?? rightCheckpoint
 
     // excludes the checkpoint at end, so we'll need to add one back
@@ -203,7 +213,7 @@ export class Buffer {
     rightBuffer.lastCheckpoint = rightLast
 
     rightCheckpoint.prev = undefined
-    rightCheckpoint.pos = 0
+    rightCheckpoint.pos = rightPos
     rightLast.update()
 
     return { left: this, right: rightBuffer }
@@ -219,7 +229,7 @@ export class Buffer {
       throw new Error("Linked buffer must start with a checkpoint!")
     }
 
-    const endPos = this.last.pos
+    const rightPos = rightCheckpoint.pos
 
     if (this.last instanceof Checkpoint) this.buffer.pop()
     if (this.last instanceof Checkpoint) {
@@ -227,11 +237,12 @@ export class Buffer {
     }
 
     rightCheckpoint.prev = this.last.checkpoint
-    rightCheckpoint.pos = endPos
 
     this.buffer = this.buffer.concat(right.buffer)
 
     this.lastCheckpoint = right.lastCheckpoint
+    this.lastCheckpoint?.update()
+    rightCheckpoint.pos = rightPos
     this.lastCheckpoint?.update()
 
     return this
@@ -339,10 +350,7 @@ export class Checkpoint {
     this.prev = prev
     this.last = prev ? prev.pos : 0
     if (context) {
-      this.pos = context.pos
-      this.tokenizer = context.tokenizer
-      this.parser = context.parser
-      this.embed = context.embed
+      this.context = context
     }
   }
 
@@ -380,6 +388,44 @@ export class Checkpoint {
     const clone = new Checkpoint(this.context, this.prev)
     clone.pos = this.pos
     return clone
+  }
+
+  hasEqualContext(context: Context, withOffset = 0) {
+    if (context.pos !== this.pos) {
+      console.log("position not equal")
+      return false
+    }
+
+    const pos = this.pos
+    const last = this.last
+    const offset = this.offset
+
+    this.last = context.pos - withOffset
+    this.offset = 0
+
+    if (!dequal(context.embed, this.embed)) {
+      console.log("embed not equal")
+    }
+    if (!dequal(context.parser.serialize(), this.parser.serialize())) {
+      console.log("parser not equal")
+    }
+    if (!dequal(context.tokenizer.serialize(), this.tokenizer.serialize())) {
+      console.log("stack not equal")
+    }
+
+    let failed = false
+    if (
+      !dequal(context.embed, this.embed) ||
+      !dequal(context.parser.serialize(), this.parser.serialize()) ||
+      !dequal(context.tokenizer.serialize(), this.tokenizer.serialize())
+    ) {
+      failed = true
+    }
+
+    this.last = last
+    this.offset = offset
+
+    return !failed
   }
 
   get pos() {
@@ -439,6 +485,12 @@ export class Checkpoint {
 
   get context() {
     return new Context(this.pos, this.tokenizer, this.parser, this.embed)
+  }
+  set context(context: Context) {
+    this.pos = context.pos
+    this.tokenizer = context.tokenizer
+    this.parser = context.parser
+    this.embed = context.embed
   }
 }
 
