@@ -60,7 +60,7 @@ export class Host implements PartialParse {
       const lastFragment = fragments[fragments.length - 1]
 
       this.region = {
-        from: firstFragment.to,
+        from: Math.max(firstFragment.to, start),
         to: fragments.length === 1 ? input.length : lastFragment.from,
         offset: lastFragment.offset
       }
@@ -72,7 +72,23 @@ export class Host implements PartialParse {
       }
     }
 
-    if (context?.viewport) this.viewport = context.viewport
+    if (context?.viewport) {
+      this.viewport = context.viewport
+
+      // check if we should/can stop parsing after the end of the viewport
+      if (context.skipUntilInView!) {
+        const v = context.viewport
+        const r = this.region
+        // basically doubles the height of the viewport
+        // this adds a bit of a buffer between the actual end and the end of parsing
+        // otherwise if you scrolled too fast you'd see unparsed sections easily
+        const end = v.to + (v.to - v.from)
+        if (v.from < r.to && r.to > end) {
+          r.to = end
+          context.skipUntilInView(r.to, input.length)
+        }
+      }
+    }
 
     this.setupTokenizer()
     this.setupParser()
