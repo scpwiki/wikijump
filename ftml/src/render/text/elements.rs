@@ -20,7 +20,7 @@
 
 //! Module that implements text rendering for `Element` and its children.
 
-use super::super::utils::{check_ifcategory, check_iftags};
+use super::super::condition::{check_ifcategory, check_iftags};
 use super::TextContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
