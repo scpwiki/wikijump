@@ -1,5 +1,5 @@
 /*
- * render/utils.rs
+ * render/condition.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -19,7 +19,7 @@
  */
 
 use crate::log::prelude::*;
-use crate::tree::{ElementCondition, ElementConditionType};
+use crate::tree::ElementCondition;
 use crate::PageInfo;
 
 pub fn check_ifcategory(
@@ -39,30 +39,7 @@ pub fn check_ifcategory(
         "conditions-len" => conditions.len(),
     );
 
-    // Check if any positive conditions match
-    //
-    // This isn't "all" because there is only on category,
-    // at most one of those conditions could match,
-    // so this behavior is much more sensible as OR.
-    let positive_match = conditions
-        .iter()
-        .filter(|cond| cond.condition == ElementConditionType::Present)
-        .any(|cond| cond.check_single(category));
-    if !positive_match {
-        return false;
-    }
-
-    // Check if all negative conditions match
-    let negative_match = conditions
-        .iter()
-        .filter(|cond| cond.condition == ElementConditionType::Absent)
-        .all(|cond| cond.check_single(category));
-    if !negative_match {
-        return false;
-    }
-
-    // All conditions match
-    true
+    ElementCondition::check(conditions, &[cow!(category)])
 }
 
 #[inline]
@@ -78,7 +55,5 @@ pub fn check_iftags(
         "conditions-len" => conditions.len(),
     );
 
-    // The check for iftags is all positive and negative conditions,
-    // or AND for all, so this logic is much simpler.
-    conditions.iter().all(|cond| cond.check(&info.tags))
+    ElementCondition::check(conditions, &info.tags)
 }

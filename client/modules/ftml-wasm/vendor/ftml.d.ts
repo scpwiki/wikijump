@@ -22,15 +22,15 @@ export function tokenize(text: string): Tokenization;
 */
 export function version(): string;
 /**
-* @param {Tokenization} tokens
-* @returns {ParseOutcome}
-*/
-export function parse(tokens: Tokenization): ParseOutcome;
-/**
 * @param {string} text
 * @returns {string}
 */
 export function preprocess(text: string): string;
+/**
+* @param {Tokenization} tokens
+* @returns {ParseOutcome}
+*/
+export function parse(tokens: Tokenization): ParseOutcome;
 
 
 export interface IHtmlOutput {
@@ -259,6 +259,7 @@ export interface InitOutput {
   readonly tokenization_tokens: (a: number) => number;
   readonly tokenize: (a: number, b: number) => number;
   readonly version: (a: number) => void;
+  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbg_parseoutcome_free: (a: number) => void;
   readonly parseoutcome_copy: (a: number) => number;
   readonly parseoutcome_syntax_tree: (a: number) => number;
@@ -267,7 +268,6 @@ export interface InitOutput {
   readonly syntaxtree_data: (a: number) => number;
   readonly parse: (a: number) => number;
   readonly syntaxtree_copy: (a: number) => number;
-  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

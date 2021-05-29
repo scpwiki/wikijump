@@ -46,7 +46,7 @@ use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use self::user::render_user;
-use super::super::utils::{check_ifcategory, check_iftags};
+use super::super::condition::{check_ifcategory, check_iftags};
 use super::HtmlContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;

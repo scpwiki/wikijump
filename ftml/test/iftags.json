@@ -1,5 +1,5 @@
 {
-    "input": "[[iftags +fruit -admin]]\nApple\n[[/iftags]]\n[[IFTAGS component]]Banana[[/IFTAGS]]\n[[iftags +xyz]]\nHidden\n[[/iftags]]",
+    "input": "[[iftags +fruit -admin component template]]\nApple\n[[/iftags]]\n[[IFTAGS component]]Banana[[/IFTAGS]]\n[[iftags +xyz]]\nHidden\n[[/iftags]]",
     "tree": {
         "elements": [
             {
@@ -13,12 +13,20 @@
                             "data": {
                                 "conditions": [
                                     {
-                                        "condition": "present",
+                                        "condition": "required",
                                         "value": "fruit"
                                     },
                                     {
-                                        "condition": "absent",
+                                        "condition": "prohibited",
                                         "value": "admin"
+                                    },
+                                    {
+                                        "condition": "present",
+                                        "value": "component"
+                                    },
+                                    {
+                                        "condition": "present",
+                                        "value": "template"
                                     }
                                 ],
                                 "elements": [
@@ -51,7 +59,7 @@
                             "data": {
                                 "conditions": [
                                     {
-                                        "condition": "present",
+                                        "condition": "required",
                                         "value": "xyz"
                                     }
                                 ],

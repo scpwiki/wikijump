@@ -183,18 +183,6 @@ export function version() {
 }
 
 /**
-* @param {Tokenization} tokens
-* @returns {ParseOutcome}
-*/
-export function parse(tokens) {
-    _assertClass(tokens, Tokenization);
-    var ptr0 = tokens.ptr;
-    tokens.ptr = 0;
-    var ret = wasm.parse(ptr0);
-    return ParseOutcome.__wrap(ret);
-}
-
-/**
 * @param {string} text
 * @returns {string}
 */
@@ -211,6 +199,18 @@ export function preprocess(text) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(r0, r1);
     }
+}
+
+/**
+* @param {Tokenization} tokens
+* @returns {ParseOutcome}
+*/
+export function parse(tokens) {
+    _assertClass(tokens, Tokenization);
+    var ptr0 = tokens.ptr;
+    tokens.ptr = 0;
+    var ret = wasm.parse(ptr0);
+    return ParseOutcome.__wrap(ret);
 }
 
 /**
