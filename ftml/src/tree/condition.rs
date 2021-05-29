@@ -28,6 +28,7 @@ use strum_macros::IntoStaticStr;
 /// used in blocks like `[[iftags]]` and `[[ifcategory]]`.
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 pub struct ElementCondition<'t> {
+    #[serde(rename = "condition")]
     pub ctype: ElementConditionType,
     pub value: Cow<'t, str>,
 }
