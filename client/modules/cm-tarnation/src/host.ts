@@ -1,6 +1,6 @@
 import type { EditorParseContext } from "@codemirror/language"
 import { Input, PartialParse, Tree } from "lezer-tree"
-import { isEmpty } from "wj-util"
+import { isEmpty, perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"
 import { Parser, ParserBuffer, ParserContext, ParserStack } from "./parser/index"
 import {
@@ -28,6 +28,9 @@ export class Host implements PartialParse {
   private declare tokenizer: Tokenizer
   private declare parser: Parser
 
+  private declare measurePerformance: () => number
+  declare renderPerformance?: number
+
   constructor(
     language: TarnationLanguage,
     input: Input,
@@ -41,6 +44,9 @@ export class Host implements PartialParse {
     this.stage = Stage.Tokenize
     this.caching = Boolean(context?.state)
     this.context = context
+
+    // this.measurePerformance = perfy()
+    this.measurePerformance = perfy("tarnation", 2.5)
 
     const reuse = false
 
@@ -130,6 +136,8 @@ export class Host implements PartialParse {
       length,
       start: this.region.from
     })
+
+    this.renderPerformance = this.measurePerformance()
 
     return tree
   }
