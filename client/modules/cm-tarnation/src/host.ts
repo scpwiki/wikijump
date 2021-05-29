@@ -1,4 +1,4 @@
-import type { EditorParseContext } from "@codemirror/language"
+import { EditorParseContext } from "@codemirror/language"
 import { Input, PartialParse, Tree } from "lezer-tree"
 import { isEmpty, perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"
@@ -37,7 +37,10 @@ export class Host implements PartialParse {
     start: number,
     context?: EditorParseContext
   ) {
-    if (isEmpty(context)) context = undefined
+    // check for bogus contexts (e.g. `{}`)
+    if (context && !(context instanceof EditorParseContext) && isEmpty(context)) {
+      context = undefined
+    }
 
     this.language = language
     this.input = input
