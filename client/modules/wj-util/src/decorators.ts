@@ -17,9 +17,9 @@ import { perfy } from "./index"
  *
  * @param callback - Callback to fire with the performance measurement taken.
  */
-export function measure(callback: (perf: number) => void) {
+export function measure(callback: (perf: number, name: string) => void) {
   // eslint-disable-next-line @typescript-eslint/ban-types
-  return (_target: Object, _propertyKey: string, descriptor: PropertyDescriptor) => {
+  return (_target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const method = descriptor.value
     const async = method.constructor.name === "AsyncFunction"
 
@@ -28,7 +28,7 @@ export function measure(callback: (perf: number) => void) {
         const report = perfy()
         const result = await method.apply(this, args)
         const perf = report()
-        callback(perf)
+        callback(perf, propertyKey)
         return result
       }
     } else {
@@ -36,9 +36,14 @@ export function measure(callback: (perf: number) => void) {
         const report = perfy()
         const result = method.apply(this, args)
         const perf = report()
-        callback(perf)
+        callback(perf, propertyKey)
         return result
       }
     }
   }
 }
+
+/** Decorator for logging the performance of a function. */
+export const logPerformance = measure((time, name) => {
+  if (time >= 1) console.log(`${name}: ${time}ms`)
+})
