@@ -1,5 +1,5 @@
 import { klona } from "klona"
-import { hasSigil } from "wj-util"
+import { hasSigil, isEmpty } from "wj-util"
 import { Action, ActionMode } from "./action"
 import type * as DF from "./definition"
 import { Grammar, GrammarMatchState, GrammarToken } from "./grammar"
@@ -12,6 +12,8 @@ export function createToken({ from, to, action, context, state }: Matched): Gram
     if (hasSigil(switchTo, ["$", "::"])) switchTo = Grammar.sub(state, switchTo)
     if (hasSigil(embedded, ["$", "::"])) embedded = Grammar.sub(state, embedded)
   }
+
+  if (context && isEmpty(context)) context = undefined
 
   const empty = !(type || open || close || next || switchTo || embedded || context)
 
