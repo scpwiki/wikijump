@@ -128,9 +128,4 @@ impl ElementConditionType {
     pub fn name(self) -> &'static str {
         self.into()
     }
-
-    #[inline]
-    pub fn bool_value(self) -> bool {
-        self.into()
-    }
 }
