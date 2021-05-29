@@ -133,7 +133,11 @@ export class TokenizerStack {
   /** Serializes the stack and embedded data. */
   serialize(): SerializedTokenizerStack {
     const { stack, embedded } = this
-    return { stack: klona(stack), embedded: klona(embedded) }
+    return {
+      stack: klona(stack),
+      // clone cheaply, rather than using klona
+      embedded: embedded ? [embedded[0], embedded[1]] : null
+    }
   }
 
   /**
