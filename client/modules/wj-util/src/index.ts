@@ -40,6 +40,8 @@ export function search<T, TR>(
   comparator: (element: T, target: TR) => number | boolean,
   { min = 0, max = haystack.length - 1, precise = true }: SearchOpts = {}
 ) {
+  if (haystack.length === 0) return null
+
   let index = -1
   while (min <= max) {
     index = min + ((max - min) >>> 1)
@@ -49,6 +51,8 @@ export function search<T, TR>(
     if (cmp < 0) min = index + 1
     else if (cmp > 0) max = index - 1
   }
+
+  if (index === -1) return null
 
   if (!precise) return { element: null, index }
 
