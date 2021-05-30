@@ -20,9 +20,6 @@ export class Chunk {
    */
   private declare compiled?: Token[]
 
-  /** A weakmap cache for compiled tokens. */
-  private cache = new WeakMap<Token, Token>()
-
   /**
    * @param pos - Position of this chunk.
    * @param stack - The state of the stack for the start of this chunk.
@@ -47,8 +44,6 @@ export class Chunk {
 
   /** The chunk's starting position. */
   set pos(pos: number) {
-    // reset cache if the position is changed
-    this.cache = new WeakMap()
     this.compiled = undefined
     this._pos = pos
   }
@@ -112,25 +107,17 @@ export class Chunk {
    */
   setTokens(tokens: Token[], relativeTo?: number) {
     this.compiled = undefined
-
     this._tokens = []
     for (let idx = 0; idx < tokens.length; idx++) {
       this.add(tokens[idx], relativeTo)
     }
   }
 
-  /** Compiles a token, or returning it from the cache if available. */
-  private compileToken(token: Token) {
-    if (this.cache.has(token)) return this.cache.get(token)!
-
-    const compiled: Token =
-      typeof token[0] !== "string"
-        ? [token[0], token[1] + this._pos, token[2] + this._pos, token[3], token[4]]
-        : [token[0], token[1] + this._pos, token[2] + this._pos]
-
-    this.cache.set(token, compiled)
-
-    return compiled
+  /** Compiles a token. */
+  private compileToken(token: Token): Token {
+    return typeof token[0] !== "string"
+      ? [token[0], token[1] + this._pos, token[2] + this._pos, token[3], token[4]]
+      : [token[0], token[1] + this._pos, token[2] + this._pos]
   }
 
   /** Returns the chunk's stored tokens. */
