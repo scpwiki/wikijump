@@ -16,6 +16,11 @@ export class TokenizerBuffer {
     return this.buffer[this.buffer.length - 1]
   }
 
+  /** Retrieves a `Chunk` from the buffer. */
+  get(index: number): Chunk | null {
+    return this.buffer[index] ?? null
+  }
+
   /** Compiles every chunk and returns the resultant tokens. */
   compile() {
     const compiled: Token[] = []
@@ -49,6 +54,30 @@ export class TokenizerBuffer {
     }
   }
 
+  /**
+   * Splits the buffer into a left and right section. The left section
+   * takes the indexed chunk, which will have its tokens cleared.
+   *
+   * @param index - The chunk index to split on.
+   */
+  split(index: number) {
+    if (!this.get(index)) throw new Error("Tried to split buffer on invalid index!")
+
+    if (this.buffer.length <= 1) return { left: this, right: new TokenizerBuffer() }
+
+    const leftRaw = this.buffer.slice(0, index + 1)
+    const rightRaw = this.buffer.slice(index + 1)
+
+    // this buffer "is" left, so we only need to make right
+    this.buffer = leftRaw
+    const right = new TokenizerBuffer()
+    right.buffer = rightRaw
+
+    if (this.last) this.last.setTokens([])
+
+    return { left: this, right }
+  }
+
   /** Binary search comparator function. */
   private searchCmp = ({ pos }: Chunk, target: number) => pos === target || pos - target
 
@@ -62,6 +91,8 @@ export class TokenizerBuffer {
    *   search misses, it will return `null` for both the token and index.
    */
   search(pos: number, side: 1 | 0 | -1 = 0, precise = false) {
+    if (this.buffer.length === 0) return { chunk: null, index: null }
+
     const result = search(this.buffer, pos, this.searchCmp, { precise })
     if (!result) return { chunk: null, index: null }
 

@@ -32,17 +32,23 @@ export class EmbeddedHandler {
     private input: Input,
     private editorContext?: EditorParseContext
   ) {
-    const embedded = this.context.embedded
-    this.pending = [...embedded.pending]
-    this.parsers = embedded.parsers.map(([index, range]) => ({
-      lang: new EmbeddedLanguage(this.language, range),
-      index
-    }))
+    this.set(context)
   }
 
   /** Whether or not the handler has fully completed parsing. */
   get done() {
     return this.parsers.length === 0
+  }
+
+  /** Reset's the internal state to match the given context. */
+  set(context: ParserContext) {
+    this.context = context
+    const embedded = context.embedded
+    this.pending = [...embedded.pending]
+    this.parsers = embedded.parsers.map(([index, range]) => ({
+      lang: new EmbeddedLanguage(this.language, range),
+      index
+    }))
   }
 
   /**
@@ -64,7 +70,8 @@ export class EmbeddedHandler {
     // push embedtoken
     else {
       if (this.pending.length === 0) {
-        throw new Error("Attempted to push an unassigned language!")
+        console.warn("Attempted to push an unassigned language! Ignoring...")
+        return
       }
       const index = this.pending.shift()!
       const lang = new EmbeddedLanguage(this.language, embed as EmbedToken)
@@ -72,37 +79,85 @@ export class EmbeddedHandler {
     }
   }
 
-  /** Advances the oldest parser. */
-  advance() {
-    if (this.done) return true
-    const { parsers, editorContext } = this
-    const { index, lang } = parsers[0]
+  /**
+   * Advances a parser. Returns whether or not the parser given has finished.
+   *
+   * @param parser - The parser to advance.
+   * @param force - Whether or not the parser should be forced to return a tree.
+   */
+  private advanceParser(
+    parser: { index: number; lang: EmbeddedLanguage; parser?: PartialParse },
+    force = false
+  ) {
+    const { index, lang } = parser
     const [, start, end] = lang.range
     const token = this.context.buffer.get(index)!
 
+    if (!force && !lang.ready) return false
+
     if (token[4] !== Tree.empty && this.context.start >= end) {
-      parsers.shift()
-      if (this.done) return true
-      return null
+      return true
     }
 
-    const parser = (parsers[0].parser ||= lang.startParse(
-      this.input.clip(end),
-      start,
-      editorContext
-    ))
+    try {
+      let tree: Tree | null = null
+      let parse: PartialParse
 
-    // effectively marks the tree as stale
-    if (token[4] !== Tree.empty) token[4] = Tree.empty
+      if (!parser.parser) {
+        parse = lang.startParse(this.input.clip(end), start, this.editorContext)
+        parser.parser = parse
+      } else {
+        parse = parser.parser
+      }
 
-    const done = parser.advance()
-    if (done) {
-      token[0] = -1
-      token[4] = done
-      parsers.shift()
-      if (this.done) return true
+      if (!tree) {
+        // effectively marks the tree as stale
+        if (token[4] !== Tree.empty) token[4] = Tree.empty
+
+        if (force) {
+          const viewport = this.editorContext?.viewport
+          // check if the region is visible, if it is, we're going to advance it fully
+          // if not, we'll just try a forceFinish
+          if (viewport && end > viewport.from && start < viewport.to) {
+            while ((tree = parse.advance()) === null) {}
+          } else {
+            tree = parse.forceFinish()
+          }
+        } else {
+          tree = parse.advance()
+        }
+      }
+
+      if (tree) {
+        token[0] = -1
+        token[4] = tree
+        return true
+      }
+
+      return false
+    } catch (err) {
+      console.warn(err)
+      console.warn("Embedded language had an error! Skipping...")
+      if (token[4] !== Tree.empty) token[4] = Tree.empty
+      return true
     }
-    return null
+  }
+
+  /**
+   * Advances the oldest parser, and then returns whether or not the
+   * handler has finished with this step.
+   *
+   * @param force - Forces parsers to return a tree, either through
+   *   advancing them fully or by calling their `forceFinish` method.
+   */
+  advance(force = false) {
+    if (this.done) return true
+    const parser = this.parsers[0]
+    const finished = this.advanceParser(parser, force)
+
+    if (finished) this.parsers.shift()
+
+    return this.done
   }
 
   /** Serializes the handler's state. */

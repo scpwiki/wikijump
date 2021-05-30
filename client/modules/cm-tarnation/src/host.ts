@@ -2,13 +2,8 @@ import { EditorParseContext } from "@codemirror/language"
 import { Input, PartialParse, Tree } from "lezer-tree"
 import { isEmpty, perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"
-import { Parser, ParserBuffer, ParserContext, ParserStack } from "./parser/index"
-import {
-  Tokenizer,
-  TokenizerBuffer,
-  TokenizerContext,
-  TokenizerStack
-} from "./tokenizer/index" // TODO: fix
+import { Parser, ParserBuffer, ParserContext, ParserStack } from "./parser"
+import { Tokenizer, TokenizerBuffer, TokenizerContext, TokenizerStack } from "./tokenizer"
 import type { EditRegion } from "./types"
 
 enum Stage {
@@ -19,6 +14,7 @@ enum Stage {
 export class Host implements PartialParse {
   private declare language: TarnationLanguage
   private declare input: Input
+  private declare start: number
   private declare stage: Stage
   private declare caching: boolean
   private declare region: EditRegion
@@ -28,7 +24,7 @@ export class Host implements PartialParse {
   private declare tokenizer: Tokenizer
   private declare parser: Parser
 
-  private declare measurePerformance: () => number
+  private declare measurePerformance: (msg?: string) => number
   declare renderPerformance?: number
 
   constructor(
@@ -44,6 +40,7 @@ export class Host implements PartialParse {
 
     this.language = language
     this.input = input
+    this.start = start
     this.stage = Stage.Tokenize
     this.caching = Boolean(context?.state)
     this.context = context
@@ -51,18 +48,41 @@ export class Host implements PartialParse {
     // this.measurePerformance = perfy()
     this.measurePerformance = perfy("tarnation", 2.5)
 
-    const reuse = false
-
     // get edited region
-    if (reuse && context?.fragments?.length) {
+    if (context?.fragments?.length) {
       const fragments = context.fragments
       const firstFragment = fragments[0]
       const lastFragment = fragments[fragments.length - 1]
+      const onlyOne = fragments.length === 1
 
-      this.region = {
-        from: Math.max(firstFragment.to, start),
-        to: fragments.length === 1 ? input.length : lastFragment.from,
-        offset: lastFragment.offset
+      if (onlyOne) {
+        this.region = {
+          from: start,
+          // to: firstFragment.from,
+          to: input.length,
+          offset: firstFragment.offset
+        }
+      } else {
+        this.region = {
+          from: Math.max(firstFragment.to, start),
+          // to: lastFragment.from,
+          to: input.length,
+          offset: lastFragment.offset
+        }
+      }
+
+      if (context.viewport && context.skipUntilInView!) {
+        this.viewport = context.viewport
+
+        const v = context.viewport
+        const r = this.region
+
+        // basically doubles the height of the viewport
+        // this adds a bit of a buffer between the actual end and the end of parsing
+        // otherwise if you scrolled too fast you'd see unparsed sections easily
+        const end = v.to + (v.to - v.from)
+
+        if (v.from < r.to && r.to > end) r.to = end
       }
     } else {
       this.region = {
@@ -72,32 +92,35 @@ export class Host implements PartialParse {
       }
     }
 
-    if (context?.viewport) {
-      this.viewport = context.viewport
-
-      // check if we should/can stop parsing after the end of the viewport
-      if (context.skipUntilInView!) {
-        const v = context.viewport
-        const r = this.region
-        // basically doubles the height of the viewport
-        // this adds a bit of a buffer between the actual end and the end of parsing
-        // otherwise if you scrolled too fast you'd see unparsed sections easily
-        const end = v.to + (v.to - v.from)
-        if (v.from < r.to && r.to > end) {
-          r.to = end
-          context.skipUntilInView(r.to, input.length)
+    // find cached data, if possible
+    if (context?.fragments?.length) {
+      for (let idx = 0; idx < context.fragments.length; idx++) {
+        const f = context.fragments[idx]
+        if (f.from > start || f.to < start) continue
+        const bundle = this.language.cache.find(f.tree, start, f.to)
+        if (bundle) {
+          const { chunk, index } = bundle.tokenizerBuffer.search(this.region.from, -1)
+          if (chunk && index !== null) {
+            const { left, right } = bundle.tokenizerBuffer.split(index)
+            const tokenizerContext = chunk.context
+            const tokenizerBuffer = left
+            this.region.from = tokenizerContext.pos
+            this.setupTokenizer(tokenizerBuffer, tokenizerContext)
+          }
         }
       }
     }
 
-    this.setupTokenizer()
+    if (!this.tokenizer) this.setupTokenizer()
     this.setupParser()
   }
 
-  private setupTokenizer() {
-    const stack = new TokenizerStack({ stack: [["root", {}]], embedded: null })
-    const context = new TokenizerContext(this.region.from, stack)
-    const buffer = new TokenizerBuffer()
+  private setupTokenizer(buffer?: TokenizerBuffer, context?: TokenizerContext) {
+    if (!buffer || !context) {
+      const stack = new TokenizerStack({ stack: [["root", {}]], embedded: null })
+      context = new TokenizerContext(this.region.from, stack)
+      buffer = new TokenizerBuffer()
+    }
 
     this.tokenizer = new Tokenizer(
       this.language,
@@ -111,12 +134,12 @@ export class Host implements PartialParse {
   private setupParser() {
     const buffer = new ParserBuffer()
     const stack = new ParserStack()
-    const context = new ParserContext(this.region.from, 0, buffer, stack, {
+    const context = new ParserContext(this.start, 0, buffer, stack, {
       pending: [],
       parsers: []
     })
 
-    this.parser = new Parser(this.language, context, this.input)
+    this.parser = new Parser(this.language, context, this.input, [], this.context)
   }
 
   get pos() {
@@ -144,8 +167,8 @@ export class Host implements PartialParse {
     }
   }
 
-  private finish(buffer: number[], reused: Tree[]): Tree {
-    const length = this.pos - this.region.from
+  private finish(buffer: number[], reused: Tree[], forced = false): Tree {
+    const length = this.pos - this.start
 
     const tree = Tree.build({
       topID: 0,
@@ -153,23 +176,32 @@ export class Host implements PartialParse {
       buffer,
       reused,
       length,
-      start: this.region.from
+      start: this.start
     })
 
-    this.renderPerformance = this.measurePerformance()
+    this.language.cache.attach(this.tokenizer.buffer, this.parser.context, tree)
+
+    if (this.context?.skipUntilInView && length < this.input.length) {
+      this.context.skipUntilInView(this.pos, this.input.length)
+    }
+
+    this.renderPerformance = this.measurePerformance(forced ? "forced" : "")
 
     return tree
   }
 
   forceFinish(): Tree {
-    // TODO: make this actually stop where it is and not just advance fully
-    if (this.stage === Stage.Tokenize) {
-      const tokens = this.tokenizer.advanceFully()
-      this.parser.pending = tokens
-      this.stage = Stage.Parse
+    switch (this.stage) {
+      case Stage.Tokenize: {
+        const tokens = this.tokenizer.compile()
+        const { buffer, reused } = this.parser.forceTokens(tokens)
+        return this.finish(buffer, reused, true)
+      }
+      case Stage.Parse: {
+        // TODO: determine approximate document position to advance only as far as needed
+        const { buffer, reused } = this.parser.forceFinish()
+        return this.finish(buffer, reused, true)
+      }
     }
-
-    const { buffer, reused } = this.parser.advanceFully()
-    return this.finish(buffer, reused)
   }
 }

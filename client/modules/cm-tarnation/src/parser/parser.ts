@@ -2,7 +2,7 @@ import type { EditorParseContext } from "@codemirror/language"
 import { Input, Tree } from "lezer-tree"
 import type { TarnationLanguage } from "../language"
 import type { EmbedToken, MappedToken, Token } from "../types"
-import type { ParserContext } from "./context"
+import { ParserContext } from "./context"
 import { EmbeddedHandler } from "./embedded-handler"
 
 export class Parser {
@@ -140,6 +140,39 @@ export class Parser {
   advanceFully() {
     let result: { buffer: number[]; reused: Tree[] } | null = null
     while ((result = this.advance()) === null) {}
+    return result
+  }
+
+  /**
+   * Forces the parser to advance fully and return a tree, but avoids
+   * advancing embedded languages, instead calling their parser's
+   * `forceFinish` method.
+   */
+  forceFinish() {
+    while (this.context.index < this.pending.length) this.parse()
+    while (!this.embeddedHandler.done) this.embeddedHandler.advance(true)
+    return this.context.buffer.compile()
+  }
+
+  /**
+   * Forces a full parse on a list of tokens. This purposefully avoids
+   * affecting the parser's state. Requires that the parser not be in the
+   * middle of parsing another set of tokens.
+   */
+  forceTokens(pending: Token[]) {
+    if (this.context.index !== 0) {
+      throw new Error("Can't force while running another parse!")
+    }
+    const context = this.context.serialize()
+    const oldPending = this.pending
+
+    this.pending = pending
+    const result = this.forceFinish()
+
+    this.context = ParserContext.deserialize(context)
+    this.embeddedHandler.set(this.context)
+    this.pending = oldPending
+
     return result
   }
 }

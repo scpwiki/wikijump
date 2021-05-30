@@ -10,6 +10,7 @@ import type { Extension } from "@codemirror/state"
 import { isFunction } from "is-what"
 import { Input, NodeType } from "lezer-tree"
 import { removeUndefined } from "wj-util"
+import { Cache } from "./cache"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
 import { Host } from "./host"
@@ -30,6 +31,7 @@ export class TarnationLanguage {
   private declare configure: ParserConfiguration
   private declare extensions: Extension[]
 
+  cache = new Cache()
   loaded = false
 
   constructor({
