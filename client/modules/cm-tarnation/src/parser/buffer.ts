@@ -146,12 +146,14 @@ export class ParserBuffer {
   clone(raw: true): LezerToken[]
   clone(raw = false): ParserBuffer | LezerToken[] {
     const cloneBuffer: LezerToken[] = []
-
     for (let idx = 0; idx < this.buffer.length; idx++) {
-      const [type, from, to, children, tree] = this.buffer[idx]
-      cloneBuffer[idx] = [type, from, to, children, tree]
+      cloneBuffer[idx] = [...this.buffer[idx]]
     }
-
     return raw ? cloneBuffer : new ParserBuffer(cloneBuffer)
+  }
+
+  /** Returns a shallow clone of the internal buffer. */
+  shallow() {
+    return [...this.buffer]
   }
 }
