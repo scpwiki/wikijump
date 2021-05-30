@@ -56,10 +56,9 @@ export class Tokenizer {
     this.grammar = language.grammar
     this.nodes = language.nodes
 
-    const start = Math.max(region.from - MARGIN_BEFORE, 0)
     const end = Math.min(region.to + MARGIN_AFTER, input.length)
-    this.str = input.read(start, end)
-    this.offset = start
+    this.str = input.read(context.pos, end)
+    this.offset = context.pos
     this.end = region.to
   }
 
