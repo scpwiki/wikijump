@@ -168,11 +168,17 @@ export function pointsMatch(points: number[], str: string | number[], pos: numbe
  * value is a function that will end the performance timer and log the
  * measured time to the console.
  */
-export function perfy(meta?: string, threshold?: number): () => number {
+export function perfy(meta?: string, threshold?: number): (msg?: string) => number {
   const start = performance.now()
-  return () => {
+  return (msg?: string) => {
     const time = parseFloat((performance.now() - start).toFixed(4))
-    if (meta && threshold && time > threshold) console.log(`${meta}: ${time}ms`)
+    if (meta && threshold && time > threshold) {
+      if (msg) {
+        console.log(`${msg} | ${meta}: ${time}ms`)
+      } else {
+        console.log(`${meta}: ${time}ms`)
+      }
+    }
     return time
   }
 }
