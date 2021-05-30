@@ -62,7 +62,7 @@ Grammar("match Grammar", ({ grammar }) => {
       next: undefined,
       switchTo: undefined,
       embedded: undefined,
-      context: {}
+      context: undefined
     }
   ])
 })
