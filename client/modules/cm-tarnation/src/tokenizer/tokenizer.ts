@@ -272,7 +272,7 @@ export class Tokenizer {
       const chunk = right.buffer[idx]
       if (chunk.isReusable(this.context, this.region.edit.offset)) {
         right.slide(idx, this.region.edit.offset, true)
-        this.buffer.link(right)
+        this.buffer.link(right, this.region.length)
         this.context = this.buffer.last!.context
         return true
       }

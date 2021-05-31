@@ -112,9 +112,23 @@ export class TokenizerBuffer {
     return this
   }
 
-  /** Links another `TokenizerBuffer` to the end of this buffer. */
-  link(right: TokenizerBuffer) {
+  /**
+   * Links another `TokenizerBuffer` to the end of this buffer.
+   *
+   * @param right - The buffer to link.
+   * @param max - If given, the maximum size of the buffer (by document
+   *   position) will be clamped to below this number.
+   */
+  link(right: TokenizerBuffer, max?: number) {
     this.buffer = [...this.buffer, ...right.buffer]
+    if (max) {
+      for (let idx = 0; idx < this.buffer.length; idx++) {
+        if (this.buffer[idx].max > max) {
+          this.buffer = this.buffer.slice(0, idx)
+          break
+        }
+      }
+    }
     return this
   }
 

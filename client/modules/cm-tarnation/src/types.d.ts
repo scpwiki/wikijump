@@ -123,6 +123,8 @@ export interface ParseRegion {
   from: number
   /** The parse should stop past or at this position. */
   to: number
+  /** The length of the document. */
+  length: number
   /** The edited range of the document. */
   edit?: {
     /** The start of the edited range. */

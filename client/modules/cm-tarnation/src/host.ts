@@ -61,6 +61,7 @@ export class Host implements PartialParse {
           from: start,
           // to: firstFragment.from,
           to: input.length,
+          length: input.length,
           edit: {
             from: start,
             to: firstFragment.from,
@@ -72,6 +73,7 @@ export class Host implements PartialParse {
           from: Math.max(firstFragment.to, start),
           // to: lastFragment.from,
           to: input.length,
+          length: input.length,
           edit: {
             from: firstFragment.to,
             to: lastFragment.from,
@@ -96,7 +98,8 @@ export class Host implements PartialParse {
     } else {
       this.region = {
         from: start,
-        to: input.length
+        to: input.length,
+        length: input.length
       }
     }
 
@@ -207,8 +210,8 @@ export class Host implements PartialParse {
 
     this.language.cache.attach(this.tokenizer.buffer, this.parser.cache, tree)
 
-    if (this.context?.skipUntilInView && length < this.input.length) {
-      this.context.skipUntilInView(this.pos, this.input.length)
+    if (this.context?.skipUntilInView && length < this.region.length) {
+      this.context.skipUntilInView(this.pos, this.region.length)
     }
 
     if (this.measurePerformance) {

@@ -20,6 +20,9 @@ export class Chunk {
    */
   private declare compiled?: Token[]
 
+  /** The chunk's relative extent, as determined from the positions of its tokens. */
+  private declare _max: number
+
   /**
    * @param pos - Position of this chunk.
    * @param stack - The state of the stack for the start of this chunk.
@@ -34,6 +37,7 @@ export class Chunk {
   ) {
     this._pos = pos
     this.stack = stack
+    this._max = 0
     this.setTokens(tokens, relativeTo)
   }
 
@@ -46,6 +50,11 @@ export class Chunk {
   set pos(pos: number) {
     this.compiled = undefined
     this._pos = pos
+  }
+
+  /** The chunk's maximum extent, as determined from the positions of its tokens. */
+  get max() {
+    return this._max + this._pos
   }
 
   /** The chunk's start position stack (not serialized). */
@@ -90,6 +99,8 @@ export class Chunk {
     // make token relative to chunk position
     from -= this._pos
     to -= this._pos
+
+    if (to > this._max) this._max = to
 
     if (typeof type !== "string") {
       this._tokens.push([type, from, to, open, close])
