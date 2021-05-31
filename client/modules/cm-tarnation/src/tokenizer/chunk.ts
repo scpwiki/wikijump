@@ -141,13 +141,16 @@ export class Chunk {
   }
 
   /**
-   * Determines if the tokenizer's current state is compatible with reusing
-   * this node. This is only a safe determination if it is made *after* the
+   * Determines if a tokenizer's state is compatible with reusing this
+   * node. This is only a safe determination if it is made *after* the
    * changed range of the document.
    *
    * @param context - The context to compare against.
+   * @param offset - The edit offset, to correct for chunk position differences.
    */
-  isReusable(context: TokenizerContext) {
-    return this._pos === context.pos && dequal(this._stack, context.stack.serialize())
+  isReusable(context: TokenizerContext, offset = 0) {
+    if (this._pos + offset !== context.pos) return false
+    if (!dequal(this._stack, context.stack.serialize())) return false
+    return true
   }
 }

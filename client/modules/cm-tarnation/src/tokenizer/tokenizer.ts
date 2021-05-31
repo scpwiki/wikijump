@@ -27,6 +27,9 @@ export class Tokenizer {
   /** Position where the tokenizer should stop after reaching. */
   private declare end: number
 
+  /** The region of the document that should be tokenized. */
+  private declare region: ParseRegion
+
   /** Tokenizer context/state. */
   declare context: TokenizerContext
 
@@ -55,6 +58,7 @@ export class Tokenizer {
     this.buffer = buffer
     this.grammar = language.grammar
     this.nodes = language.nodes
+    this.region = region
 
     const end = Math.min(region.to + MARGIN_AFTER, input.length)
     this.str = input.read(context.pos, end)
@@ -255,5 +259,30 @@ export class Tokenizer {
     let result: Chunk[] | null = null
     while ((result = this.advance()) === null) {}
     return result
+  }
+
+  tryToReuse(right: TokenizerBuffer) {
+    // can't reuse if we don't know the safe regions
+    if (!this.region.edit) return false
+    // can only safely reuse if we're ahead of the edited region
+    if (this.context.pos <= this.region.edit.to) return false
+
+    // check every chunk and see if we can reuse it
+    for (let idx = 0; idx < right.buffer.length; idx++) {
+      const chunk = right.buffer[idx]
+      if (chunk.isReusable(this.context, this.region.edit.offset)) {
+        right.slide(idx, this.region.edit.offset, true)
+        console.log(
+          "REUSED",
+          this.region.from,
+          right.get(0)!.pos + this.region.edit.offset
+        )
+        this.buffer.link(right)
+        this.context = this.buffer.last!.context
+        return true
+      }
+    }
+
+    return false
   }
 }

@@ -22,9 +22,11 @@ export class Host implements PartialParse {
   private declare viewport?: { from: number; to: number }
 
   private declare tokenizer: Tokenizer
+  private declare tokenizerPreviousRight?: TokenizerBuffer
+
   private declare parser: Parser
 
-  private declare measurePerformance: (msg?: string) => number
+  private declare measurePerformance?: (msg?: string) => number
   declare renderPerformance?: number
 
   constructor(
@@ -62,7 +64,7 @@ export class Host implements PartialParse {
           edit: {
             from: start,
             to: firstFragment.from,
-            offset: firstFragment.offset
+            offset: -firstFragment.offset
           }
         }
       } else {
@@ -73,7 +75,7 @@ export class Host implements PartialParse {
           edit: {
             from: firstFragment.to,
             to: lastFragment.from,
-            offset: lastFragment.offset
+            offset: -lastFragment.offset
           }
         }
       }
@@ -108,6 +110,7 @@ export class Host implements PartialParse {
           const { chunk, index } = bundle.tokenizerBuffer.search(this.region.from, -1)
           if (chunk && index !== null) {
             const { left, right } = bundle.tokenizerBuffer.split(index)
+            this.tokenizerPreviousRight = right
             const tokenizerContext = chunk.context
             const tokenizerBuffer = left
             this.region.from = tokenizerContext.pos
@@ -159,11 +162,22 @@ export class Host implements PartialParse {
   }
 
   advance(): Tree | null {
+    if (!this.measurePerformance) {
+      // this.measurePerformance = perfy()
+      this.measurePerformance = perfy("tarnation", 2.5)
+    }
     switch (this.stage) {
       case Stage.Tokenize: {
         const chunks = this.tokenizer.advance()
         if (chunks) {
           this.parser.pending = chunks
+          this.stage = Stage.Parse
+        } else if (
+          this.tokenizerPreviousRight &&
+          this.tokenizer.tryToReuse(this.tokenizerPreviousRight) &&
+          this.tokenizer.done
+        ) {
+          this.parser.pending = this.tokenizer.chunks
           this.stage = Stage.Parse
         }
         return null
@@ -197,7 +211,10 @@ export class Host implements PartialParse {
       this.context.skipUntilInView(this.pos, this.input.length)
     }
 
-    this.renderPerformance = this.measurePerformance(forced ? "forced" : "")
+    if (this.measurePerformance) {
+      this.renderPerformance = this.measurePerformance(forced ? "forced" : "")
+      this.measurePerformance = undefined
+    }
 
     return tree
   }

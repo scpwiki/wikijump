@@ -84,6 +84,40 @@ export class TokenizerBuffer {
     return { left: this, right }
   }
 
+  /**
+   * Offsets every chunk's position whose index is past or at the given index.
+   *
+   * @param index - The index the slide will start at.
+   * @param offset - The positional offset that is applied to the chunks.
+   * @param cutLeft - If true, every chunk previous to `index` will be
+   *   removed from the buffer.
+   */
+  slide(index: number, offset: number, cutLeft = false) {
+    if (!this.get(index)) throw new Error("Tried to slide buffer on invalid index!")
+
+    if (this.buffer.length === 0) return this
+    if (this.buffer.length === 1) {
+      this.last!.pos += offset
+      return this
+    }
+
+    if (cutLeft) {
+      this.buffer = this.buffer.slice(index)
+    }
+
+    for (let idx = 0; idx < this.buffer.length; idx++) {
+      this.buffer[idx].pos += offset
+    }
+
+    return this
+  }
+
+  /** Links another `TokenizerBuffer` to the end of this buffer. */
+  link(right: TokenizerBuffer) {
+    this.buffer = [...this.buffer, ...right.buffer]
+    return this
+  }
+
   /** Binary search comparator function. */
   private searchCmp = ({ pos }: Chunk, target: number) => pos === target || pos - target
 
