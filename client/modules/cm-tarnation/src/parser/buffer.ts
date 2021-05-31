@@ -154,6 +154,9 @@ export class ParserBuffer {
 
   /** Returns a shallow clone of the internal buffer. */
   shallow() {
-    return [...this.buffer]
+    // equivalent to:
+    // return [...this.buffer]
+    // but this is faster
+    return this.buffer.slice(0)
   }
 }
