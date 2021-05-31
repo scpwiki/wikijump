@@ -68,18 +68,34 @@ export class Tokenizer {
   }
 
   /**
-   * Compiles a `GrammarToken` into a `MappedToken`. Remaps type names to node ids.
+   * Compiles a `GrammarToken` into a `MappedToken`. Remaps type names to node IDs.
    *
-   * @param token - The token to be converted.
+   * @param t - The token to be converted.
    */
-  private compileGrammarToken(token: GrammarToken): MappedToken {
-    const nodes = this.nodes // makes the maps below easier to read
-    const { type, from, to, open, close } = token
+  private compileGrammarToken(t: GrammarToken): MappedToken {
+    // this function gets ran for literally every token so I've elected to take
+    // the most insane, most verbose and fastest approach I could come up with.
+    // this mainly involves completely avoiding iterator methods,
+    // such as destructuring, mapping functions, etc.
 
-    const out: MappedToken = [nodes.get(type)!, from, to]
+    // also, if you think i'm trying to just outsmart the compiler - I'm not.
+    // I have benchmarked this. this really is faster, and I hate it
 
-    if (open) out[3] = open.map(([type, inclusive]) => [nodes.get(type)!, inclusive])
-    if (close) out[4] = close.map(([type, inclusive]) => [nodes.get(type)!, inclusive])
+    const out: MappedToken = [this.nodes.get(t.type)!, t.from, t.to]
+
+    if (t.open) {
+      out[3] = []
+      for (let i = 0; i < t.open.length; i++) {
+        out[3][i] = [this.nodes.get(t.open[i][0])!, t.open[i][1]]
+      }
+    }
+
+    if (t.close) {
+      out[4] = []
+      for (let i = 0; i < t.close.length; i++) {
+        out[4][i] = [this.nodes.get(t.close[i][0])!, t.close[i][1]]
+      }
+    }
 
     return out
   }
