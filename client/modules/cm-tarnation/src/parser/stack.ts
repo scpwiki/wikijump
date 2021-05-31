@@ -62,4 +62,9 @@ export class ParserStack {
     }
     return clone
   }
+
+  /** Returns a deep clone of the stack. */
+  clone() {
+    return new ParserStack(this.serialize())
+  }
 }

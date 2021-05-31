@@ -2,13 +2,19 @@ import type { EditorParseContext } from "@codemirror/language"
 import { Input, Tree } from "lezer-tree"
 import type { TarnationLanguage } from "../language"
 import type { Chunk } from "../tokenizer"
-import type { MappedToken, ParserCache } from "../types"
+import type { MappedToken, ParserCache, ParseRegion } from "../types"
 import type { ParserContext } from "./context"
 import { EmbeddedHandler } from "./embedded-handler"
+
+// not working quite right yet
+const FINISH_INCOMPLETE_STACKS = false
 
 export class Parser {
   /** Handler instance for parsing embedded languages. */
   private declare embeddedHandler: EmbeddedHandler
+
+  /** The region of the document that should be parsed. */
+  private declare region: ParseRegion
 
   /** Current parser context. Gets mutated as the parser advances. */
   declare context: ParserContext
@@ -23,6 +29,7 @@ export class Parser {
    * @param language - The host language.
    * @param context - The context/state to use.
    * @param input - The document that was tokenized.
+   * @param region - The region of the document that should be parsed.
    * @param pending - The chunks to parse.
    * @param editorContext - The CodeMirror editor parse context to use.
    */
@@ -30,19 +37,31 @@ export class Parser {
     language: TarnationLanguage,
     context: ParserContext,
     input: Input,
+    region: ParseRegion,
     cache: ParserCache = new WeakMap(),
     pending: Chunk[] = [],
     editorContext?: EditorParseContext
   ) {
     this.context = context
+    this.region = region
     this.cache = cache
     this.pending = pending
     this.embeddedHandler = new EmbeddedHandler(language, context, input, editorContext)
   }
 
+  get pos() {
+    return this.pending?.[this.context.index]?.pos ?? this.region.from
+  }
+
+  get parserDone() {
+    // doesn't work right now :L
+    // return this.context.index >= this.pending.length || this.pos >= this.region.to
+    return this.context.index >= this.pending.length
+  }
+
   /** True if the parser has finished parsing already. */
   get done() {
-    return this.context.index >= this.pending.length && this.embeddedHandler.done
+    return this.parserDone && this.embeddedHandler.done
   }
 
   /** Executes a parse step. */
@@ -159,16 +178,35 @@ export class Parser {
   }
 
   /**
+   * Takes the current parser context, clones it, and then makes sure that
+   * every element on the stack has been resolved. Returns the cloned
+   * context. If the stack is already complete, the current context will be
+   * returned instead.
+   */
+  private finishIncompleteStack() {
+    if (!FINISH_INCOMPLETE_STACKS) return this.context
+    if (!this.context.stack.length) return this.context
+    // temporary clone, we don't want to affect the existing state
+    const ctx = this.context.clone()
+    while (ctx.stack.length) {
+      const [startID, startPos, children] = ctx.stack.pop()!
+      ctx.buffer.add([startID, startPos, this.pos, children * 4 + 4])
+      ctx.stack.increment()
+    }
+    return ctx
+  }
+
+  /**
    * Advances the parser. Returns null if it isn't done, otherwise returns
    * a buffer and reused tree nodes.
    */
   advance() {
-    if (this.context.index < this.pending.length) this.parse()
+    if (!this.parserDone) this.parse()
     if (!this.embeddedHandler.done) this.embeddedHandler.advance()
 
-    // check if complete
-    if (this.context.index >= this.pending.length && this.embeddedHandler.done) {
-      return this.context.buffer.compile()
+    if (this.done) {
+      const context = this.finishIncompleteStack()
+      return context.buffer.compile()
     }
 
     return null
@@ -190,8 +228,9 @@ export class Parser {
    * `forceFinish` method.
    */
   forceFinish() {
-    while (this.context.index < this.pending.length) this.parse()
+    while (!this.parserDone) this.parse()
     while (!this.embeddedHandler.done) this.embeddedHandler.advance(true)
-    return this.context.buffer.compile()
+    const context = this.finishIncompleteStack()
+    return context.buffer.compile()
   }
 }

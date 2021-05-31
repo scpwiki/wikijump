@@ -36,6 +36,16 @@ export class ParserContext {
     }
   }
 
+  /**
+   * Returns a clone of the context.
+   *
+   * @param full - If true, the `ParserBuffer` will be cloned deeply
+   *   instead of being a shallow clone.
+   */
+  clone(full = false) {
+    return ParserContext.deserialize(this.serialize(full))
+  }
+
   /** Deserializes a serialized context and returns a new `ParserContext`. */
   static deserialize(serialized: SerializedParserContext) {
     return new ParserContext(

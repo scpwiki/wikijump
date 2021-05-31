@@ -156,7 +156,15 @@ export class Host implements PartialParse {
     }
     if (!cache) cache = new WeakMap()
 
-    this.parser = new Parser(this.language, context, this.input, cache, [], this.context)
+    this.parser = new Parser(
+      this.language,
+      context,
+      this.input,
+      this.region,
+      cache,
+      [],
+      this.context
+    )
   }
 
   get pos() {
@@ -192,7 +200,7 @@ export class Host implements PartialParse {
     }
   }
 
-  private finish(buffer: number[], reused: Tree[], forced = false): Tree {
+  private finish(buffer: number[], reused: Tree[]): Tree {
     const length = this.pos - this.start
 
     const tree = Tree.build({
@@ -224,12 +232,11 @@ export class Host implements PartialParse {
       case Stage.Tokenize: {
         this.parser.pending = this.tokenizer.chunks
         const { buffer, reused } = this.parser.forceFinish()
-        return this.finish(buffer, reused, true)
+        return this.finish(buffer, reused)
       }
       case Stage.Parse: {
-        // TODO: determine approximate document position to advance only as far as needed
         const { buffer, reused } = this.parser.forceFinish()
-        return this.finish(buffer, reused, true)
+        return this.finish(buffer, reused)
       }
     }
   }
