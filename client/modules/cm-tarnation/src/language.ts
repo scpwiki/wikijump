@@ -18,21 +18,21 @@ import { NodeMap } from "./node-map"
 import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
 
 export class TarnationLanguage {
-  declare description: LanguageDescription
-  declare grammar?: Grammar
-  declare nodes?: NodeMap
-  declare support?: LanguageSupport
-  declare language?: Language
-
-  declare nestLanguages: LanguageDescription[]
-
   private declare languageData: Record<string, any>
   private declare grammarData: DF.Grammar | (() => DF.Grammar)
   private declare configure: ParserConfiguration
   private declare extensions: Extension[]
 
+  declare description: LanguageDescription
+  declare grammar?: Grammar
+  declare nodes?: NodeMap
+  declare support?: LanguageSupport
+  declare language?: Language
+  declare nestLanguages: LanguageDescription[]
+
   cache = new Cache()
   loaded = false
+  performance = 0
 
   constructor({
     name,

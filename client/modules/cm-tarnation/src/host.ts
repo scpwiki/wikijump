@@ -27,7 +27,7 @@ export class Host implements PartialParse {
   private declare parser: Parser
 
   private declare measurePerformance?: (msg?: string) => number
-  declare renderPerformance?: number
+  declare performance?: number
 
   constructor(
     language: TarnationLanguage,
@@ -47,8 +47,7 @@ export class Host implements PartialParse {
     this.caching = Boolean(context?.state)
     this.context = context
 
-    // this.measurePerformance = perfy()
-    this.measurePerformance = perfy("tarnation", 2.5)
+    this.measurePerformance = perfy()
 
     // get edited region
     if (context?.fragments?.length) {
@@ -165,10 +164,7 @@ export class Host implements PartialParse {
   }
 
   advance(): Tree | null {
-    if (!this.measurePerformance) {
-      // this.measurePerformance = perfy()
-      this.measurePerformance = perfy("tarnation", 2.5)
-    }
+    if (!this.measurePerformance) this.measurePerformance = perfy()
     switch (this.stage) {
       case Stage.Tokenize: {
         const chunks = this.tokenizer.advance()
@@ -215,8 +211,9 @@ export class Host implements PartialParse {
     }
 
     if (this.measurePerformance) {
-      this.renderPerformance = this.measurePerformance(forced ? "forced" : "")
+      this.performance = this.measurePerformance()
       this.measurePerformance = undefined
+      this.language.performance = this.performance
     }
 
     return tree
