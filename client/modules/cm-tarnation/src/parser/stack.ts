@@ -17,7 +17,9 @@ export class ParserStack {
 
   /** Add a child to every element. */
   increment() {
-    this.stack.forEach(element => element[2]++)
+    for (let idx = 0; idx < this.stack.length; idx++) {
+      this.stack[idx][2]++
+    }
   }
 
   /**
