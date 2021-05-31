@@ -97,10 +97,12 @@ export class TokenizerBuffer {
    *   search misses, it will return `null` for both the token and index.
    */
   search(pos: number, side: 1 | 0 | -1 = 0, precise = false) {
-    if (this.buffer.length === 0) return { chunk: null, index: null }
-
     const result = search(this.buffer, pos, this.searchCmp, { precise })
-    if (!result) return { chunk: null, index: null }
+
+    // null result or null resulting index
+    if (!result || !this.buffer[result.index]) {
+      return { chunk: null, index: null }
+    }
 
     let { index } = result
     let chunk = this.buffer[index]
