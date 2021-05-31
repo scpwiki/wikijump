@@ -56,6 +56,10 @@ export class ParserStack {
 
   /** Returns a safe copy of the stack's internal array. */
   serialize() {
-    return klona(this.stack)
+    const clone: ParserElementStack = []
+    for (let idx = 0; idx < this.stack.length; idx++) {
+      clone[idx] = this.stack[idx].slice(0) as [number, number, number]
+    }
+    return clone
   }
 }
