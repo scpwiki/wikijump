@@ -4,7 +4,7 @@ import { isEmpty, perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"
 import { Parser, ParserBuffer, ParserContext, ParserStack } from "./parser"
 import { Tokenizer, TokenizerBuffer, TokenizerContext, TokenizerStack } from "./tokenizer"
-import type { EditRegion } from "./types"
+import type { EditRegion, ParserCache } from "./types"
 
 enum Stage {
   Tokenize,
@@ -106,13 +106,18 @@ export class Host implements PartialParse {
             const tokenizerBuffer = left
             this.region.from = tokenizerContext.pos
             this.setupTokenizer(tokenizerBuffer, tokenizerContext)
+            // check if parser is cached as well
+            if (bundle.parserCache.has(chunk)) {
+              const context = ParserContext.deserialize(bundle.parserCache.get(chunk)!)
+              this.setupParser(context, bundle.parserCache)
+            }
           }
         }
       }
     }
 
     if (!this.tokenizer) this.setupTokenizer()
-    this.setupParser()
+    if (!this.parser) this.setupParser()
   }
 
   private setupTokenizer(buffer?: TokenizerBuffer, context?: TokenizerContext) {
@@ -131,15 +136,16 @@ export class Host implements PartialParse {
     )
   }
 
-  private setupParser() {
-    const buffer = new ParserBuffer()
-    const stack = new ParserStack()
-    const context = new ParserContext(this.start, 0, buffer, stack, {
-      pending: [],
-      parsers: []
-    })
+  private setupParser(context?: ParserContext, cache?: ParserCache) {
+    if (!context) {
+      context = new ParserContext(this.start, 0, new ParserBuffer(), new ParserStack(), {
+        pending: [],
+        parsers: []
+      })
+    }
+    if (!cache) cache = new WeakMap()
 
-    this.parser = new Parser(this.language, context, this.input, [], this.context)
+    this.parser = new Parser(this.language, context, this.input, cache, [], this.context)
   }
 
   get pos() {
@@ -149,9 +155,9 @@ export class Host implements PartialParse {
   advance(): Tree | null {
     switch (this.stage) {
       case Stage.Tokenize: {
-        const tokens = this.tokenizer.advance()
-        if (tokens) {
-          this.parser.pending = tokens
+        const chunks = this.tokenizer.advance()
+        if (chunks) {
+          this.parser.pending = chunks
           this.stage = Stage.Parse
         }
         return null
@@ -179,7 +185,7 @@ export class Host implements PartialParse {
       start: this.start
     })
 
-    this.language.cache.attach(this.tokenizer.buffer, this.parser.context, tree)
+    this.language.cache.attach(this.tokenizer.buffer, this.parser.cache, tree)
 
     if (this.context?.skipUntilInView && length < this.input.length) {
       this.context.skipUntilInView(this.pos, this.input.length)
@@ -193,8 +199,8 @@ export class Host implements PartialParse {
   forceFinish(): Tree {
     switch (this.stage) {
       case Stage.Tokenize: {
-        const tokens = this.tokenizer.compile()
-        const { buffer, reused } = this.parser.forceTokens(tokens)
+        this.parser.pending = this.tokenizer.chunks
+        const { buffer, reused } = this.parser.forceFinish()
         return this.finish(buffer, reused, true)
       }
       case Stage.Parse: {

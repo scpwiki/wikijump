@@ -242,7 +242,7 @@ export class Tokenizer {
       if (tokens) buffer.add(startPos, startStack, ...tokens)
     }
 
-    if (ctx.pos >= end) return this.compile()
+    if (ctx.pos >= end) return this.chunks
 
     return null
   }
@@ -252,7 +252,7 @@ export class Tokenizer {
    * returns the resultant tokens.
    */
   advanceFully() {
-    let result: Token[] | null = null
+    let result: Chunk[] | null = null
     while ((result = this.advance()) === null) {}
     return result
   }

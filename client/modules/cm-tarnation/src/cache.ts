@@ -1,32 +1,13 @@
 import { Tree } from "lezer-tree"
-import { ParserContext } from "./parser"
 import type { TokenizerBuffer } from "./tokenizer"
-import type { SerializedParserContext } from "./types"
-
-export class CacheBundle {
-  private declare _tokenizerBuffer: TokenizerBuffer
-  private declare _parserContext: SerializedParserContext
-
-  constructor(tokenizerBuffer: TokenizerBuffer, parserContext: ParserContext) {
-    this._tokenizerBuffer = tokenizerBuffer
-    this._parserContext = parserContext.serialize()
-  }
-
-  get tokenizerBuffer() {
-    return this._tokenizerBuffer
-  }
-
-  get parserContext() {
-    return ParserContext.deserialize(this._parserContext)
-  }
-}
+import type { CacheBundle, ParserCache } from "./types"
 
 export class Cache {
   private map = new WeakMap<Tree, CacheBundle>()
 
   /** Creates a bundle and associates it with the given tree. */
-  attach(tokenizerBuffer: TokenizerBuffer, parserContext: ParserContext, tree: Tree) {
-    const bundle = new CacheBundle(tokenizerBuffer, parserContext)
+  attach(tokenizerBuffer: TokenizerBuffer, parserCache: ParserCache, tree: Tree) {
+    const bundle = { tokenizerBuffer, parserCache }
     this.map.set(tree, bundle)
   }
 

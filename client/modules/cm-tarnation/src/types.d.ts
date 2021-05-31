@@ -2,6 +2,7 @@ import type { LanguageDescription } from "@codemirror/language"
 import type { Extension } from "@codemirror/state"
 import type { NodePropSource, NodeType, Tree } from "lezer-tree"
 import type * as DF from "./grammar/definition"
+import type { Chunk, TokenizerBuffer } from "./tokenizer"
 
 // -- CONFIGURATION
 
@@ -108,6 +109,9 @@ export interface SerializedParserContext {
   embedded: EmbeddedData
 }
 
+/** A parser's cache, mapping tokenizer chunks to parser contexts. */
+export type ParserCache = WeakMap<Chunk, SerializedParserContext>
+
 // -- MISC.
 
 /**
@@ -124,3 +128,8 @@ export type AddNodeSpec = { name: string } & Omit<
   Parameters<typeof NodeType["define"]>[0],
   "id" | "name"
 >
+
+export interface CacheBundle {
+  tokenizerBuffer: TokenizerBuffer
+  parserCache: ParserCache
+}
