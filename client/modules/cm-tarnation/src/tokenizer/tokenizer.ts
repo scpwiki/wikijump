@@ -2,7 +2,7 @@ import type { Input } from "lezer-tree"
 import type { Grammar, GrammarToken } from "../grammar/grammar"
 import type { TarnationLanguage } from "../language"
 import type { NodeMap } from "../node-map"
-import type { EditRegion, MappedToken, SerializedTokenizerStack, Token } from "../types"
+import type { MappedToken, ParseRegion, SerializedTokenizerStack, Token } from "../types"
 import type { TokenizerBuffer } from "./buffer"
 import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
@@ -45,7 +45,7 @@ export class Tokenizer {
     context: TokenizerContext,
     buffer: TokenizerBuffer,
     input: Input,
-    region: EditRegion
+    region: ParseRegion
   ) {
     if (!language.grammar || !language.nodes) {
       throw new Error("Unloaded language provided to tokenizer!")

@@ -4,7 +4,7 @@ import { isEmpty, perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"
 import { Parser, ParserBuffer, ParserContext, ParserStack } from "./parser"
 import { Tokenizer, TokenizerBuffer, TokenizerContext, TokenizerStack } from "./tokenizer"
-import type { EditRegion, ParserCache } from "./types"
+import type { ParserCache, ParseRegion } from "./types"
 
 enum Stage {
   Tokenize,
@@ -17,7 +17,7 @@ export class Host implements PartialParse {
   private declare start: number
   private declare stage: Stage
   private declare caching: boolean
-  private declare region: EditRegion
+  private declare region: ParseRegion
   private declare context?: EditorParseContext
   private declare viewport?: { from: number; to: number }
 
@@ -53,21 +53,28 @@ export class Host implements PartialParse {
       const fragments = context.fragments
       const firstFragment = fragments[0]
       const lastFragment = fragments[fragments.length - 1]
-      const onlyOne = fragments.length === 1
 
-      if (onlyOne) {
+      if (fragments.length === 1) {
         this.region = {
           from: start,
           // to: firstFragment.from,
           to: input.length,
-          offset: firstFragment.offset
+          edit: {
+            from: start,
+            to: firstFragment.from,
+            offset: firstFragment.offset
+          }
         }
       } else {
         this.region = {
           from: Math.max(firstFragment.to, start),
           // to: lastFragment.from,
           to: input.length,
-          offset: lastFragment.offset
+          edit: {
+            from: firstFragment.to,
+            to: lastFragment.from,
+            offset: lastFragment.offset
+          }
         }
       }
 
@@ -87,8 +94,7 @@ export class Host implements PartialParse {
     } else {
       this.region = {
         from: start,
-        to: input.length,
-        offset: 0
+        to: input.length
       }
     }
 
