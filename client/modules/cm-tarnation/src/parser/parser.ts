@@ -2,7 +2,7 @@ import type { EditorParseContext } from "@codemirror/language"
 import { Input, Tree } from "lezer-tree"
 import type { TarnationLanguage } from "../language"
 import type { Chunk } from "../tokenizer"
-import type { EmbedToken, MappedToken, ParserCache } from "../types"
+import type { MappedToken, ParserCache } from "../types"
 import type { ParserContext } from "./context"
 import { EmbeddedHandler } from "./embedded-handler"
 
@@ -55,22 +55,36 @@ export class Parser {
 
     const tokens = chunk.compile()
     for (let idx = 0; idx < tokens.length; idx++) {
-      const token = tokens[idx]
+      // bit of a hack, but for some reason TS isn't typw narrowing the switch below
+      // so we'll just act like this is a MappedToken, and then assert as any for
+      // EmbedToken
+      const t = tokens[idx] as MappedToken
 
-      switch (typeof token[0]) {
+      switch (typeof t[0]) {
         // embed token
         case "string": {
-          this.embeddedHandler.push(token as EmbedToken)
+          this.embeddedHandler.push(t as any)
           break
         }
         // mapped token
         case "number": {
           const ctx = this.context
-          const [type, from, to, open, close] = token as MappedToken
+
+          /*
+           * this upcoming code entirely avoids iterator methods, like destructuring
+           * thus, it's entirely unreadable
+           * I've left comments describing what a destructured approach looks like,
+           * but without actually using it.
+           * doing it this way has a decent speed boost but yeah it looks awful
+           */
+
+          // const [type, from, to, open, close] = token
 
           // token representing an embedded language location
-          if (type === -1) {
-            const index = ctx.buffer.add([0, from, to, -1, Tree.empty])
+          // if (type === -1) {
+          if (t[0] === -1) {
+            // const index = ctx.buffer.add([0, from, to, -1, Tree.empty])
+            const index = ctx.buffer.add([0, t[1], t[2], -1, Tree.empty])
             ctx.stack.increment()
             this.embeddedHandler.push(index)
             break
@@ -79,10 +93,14 @@ export class Parser {
           // add open nodes to stack
           // this doesn't affect the buffer at all, but now we can watch for
           // when another node closes one of the open nodes we added
-          if (open) {
-            for (let i = 0; i < open.length; i++) {
-              const [id, inclusive] = open[i]
-              ctx.stack.push(id, inclusive ? from : to, type ? (inclusive ? 0 : -1) : 0)
+          // if (open) {
+          if (t[3]) {
+            // for (let i = 0; i < open.length; i++) {
+            for (let i = 0; i < t[3].length; i++) {
+              // const [id, inclusive] = open[i]
+              const o = t[3][i]
+              // ctx.stack.push(id, inclusive ? from : to, type ? (inclusive ? 0 : -1) : 0)
+              ctx.stack.push(o[0], o[1] ? t[1] : t[2], t[0] ? (o[1] ? 0 : -1) : 0)
             }
           }
 
@@ -90,10 +108,14 @@ export class Parser {
           let pushed = false
 
           // pop close nodes from the stack, if they can be paired with an open node
-          if (close) {
-            for (let i = 0; i < close.length; i++) {
-              const [id, inclusive] = close[i]
-              const idx = ctx.stack.last(id)
+          // if (close) {
+          if (t[4]) {
+            // for (let i = 0; i < close.length; i++) {
+            for (let i = 0; i < t[4].length; i++) {
+              // const [id, inclusive] = close[i]
+              const c = t[4][i]
+              // const idx = ctx.stack.last(id)
+              const idx = ctx.stack.last(c[0])
 
               if (idx !== null) {
                 // cut off anything past the closing element
@@ -101,24 +123,30 @@ export class Parser {
                 // never closed before their parent did
                 ctx.stack.close(idx)
 
-                // if we're inclusive of the closing token we need to push the token early
-                if (type && inclusive && !pushed) {
-                  ctx.buffer.add([type, from, to, 4])
+                // if inclusive of the closing token we need to push the token early
+                // if (type && inclusive && !pushed) {
+                if (t[0] && c[1] && !pushed) {
+                  // ctx.buffer.add([type, from, to, 4])
+                  ctx.buffer.add([t[0], t[1], t[2], 4])
                   ctx.stack.increment()
                   pushed = true
                 }
 
                 // finally pop the node
-                const [node, pos, children] = ctx.stack.pop()!
-                ctx.buffer.add([node, pos, inclusive ? to : from, children * 4 + 4])
+                // const [node, pos, children] = ctx.stack.pop()!
+                const s = ctx.stack.pop()!
+                // ctx.buffer.add([node, pos, inclusive ? to : from, children * 4 + 4])
+                ctx.buffer.add([s[0], s[1], c[1] ? t[2] : t[1], s[2] * 4 + 4])
                 ctx.stack.increment()
               }
             }
           }
 
           // push the actual token to the buffer, if it hasn't been already
-          if (type && !pushed) {
-            ctx.buffer.add([type, from, to, 4])
+          // if (type && !pushed) {
+          if (t[0] && !pushed) {
+            // // ctx.buffer.add([type, from, to, 4])
+            ctx.buffer.add([t[0], t[1], t[2], 4])
             ctx.stack.increment()
           }
 

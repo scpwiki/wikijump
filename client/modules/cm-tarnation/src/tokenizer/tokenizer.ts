@@ -272,11 +272,6 @@ export class Tokenizer {
       const chunk = right.buffer[idx]
       if (chunk.isReusable(this.context, this.region.edit.offset)) {
         right.slide(idx, this.region.edit.offset, true)
-        console.log(
-          "REUSED",
-          this.region.from,
-          right.get(0)!.pos + this.region.edit.offset
-        )
         this.buffer.link(right)
         this.context = this.buffer.last!.context
         return true
