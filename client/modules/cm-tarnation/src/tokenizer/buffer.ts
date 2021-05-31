@@ -159,7 +159,7 @@ export class TokenizerBuffer {
     if (chunk.pos === pos || side === 0) return { chunk, index }
 
     // correct for sidedness
-    while (chunk && side === 1 ? chunk.pos < pos : chunk.pos > pos) {
+    while (chunk && (side === 1 ? chunk.pos < pos : chunk.pos > pos)) {
       index = side === 1 ? index + 1 : index - 1
       chunk = this.buffer[index]
     }
