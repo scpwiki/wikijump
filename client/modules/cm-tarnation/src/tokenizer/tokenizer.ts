@@ -2,12 +2,12 @@ import type { Input } from "lezer-tree"
 import type { Grammar, GrammarToken } from "../grammar/grammar"
 import type { TarnationLanguage } from "../language"
 import type { NodeMap } from "../node-map"
-import type { EditRegion, MappedToken, Token } from "../types"
+import type { EditRegion, MappedToken, SerializedTokenizerStack, Token } from "../types"
 import type { TokenizerBuffer } from "./buffer"
+import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
+import type { TokenizerStack } from "./stack"
 
-/** Amount of safety-margin to read before the tokenizer's start position. */
-const MARGIN_BEFORE = 50
 /** Amount of safety-margin to read after the tokenizer's end position. */
 const MARGIN_AFTER = 500
 
@@ -65,6 +65,11 @@ export class Tokenizer {
   /** True if the tokenizer has already completed. */
   get done() {
     return this.context.pos > this.end
+  }
+
+  /** The tokenizer's current chunks. */
+  get chunks() {
+    return this.buffer.buffer
   }
 
   /**
@@ -145,9 +150,22 @@ export class Tokenizer {
 
     const { tokens, length } = this.match()
 
+    const startPos = this.context.pos
+    let startStack: TokenizerStack | SerializedTokenizerStack = stack
+
     this.context.pos += length
 
-    if (!tokens) return null
+    if (!tokens) return { tokens, startPos, startStack }
+
+    let changedStack = false
+    for (let idx = 0; idx < tokens.length; idx++) {
+      const token = tokens[idx]
+      if (token.next || token.switchTo || token.context || token.embedded) {
+        changedStack = true
+        startStack = stack.serialize()
+        break
+      }
+    }
 
     const mapped = new Set<Token>()
 
@@ -157,7 +175,6 @@ export class Tokenizer {
       const token = tokens[idx]
       const { next, switchTo, embedded, context, from, to } = token
 
-      stack.changed = false
       let pushEmbedded = false
 
       if (embedded) {
@@ -197,7 +214,7 @@ export class Tokenizer {
 
       // check if the new token can be merged into the last one
       if (!token.empty && (!stack.embedded || pushEmbedded)) {
-        if (last && !stack.changed && this.canContinue(last, token)) last[2] = token.to
+        if (last && !changedStack && this.canContinue(last, token)) last[2] = token.to
         else mapped.add((last = this.compileGrammarToken(token)))
       }
 
@@ -205,7 +222,7 @@ export class Tokenizer {
       if (pushEmbedded) mapped.add((last = [-1, to, to]))
     }
 
-    return mapped
+    return { tokens: mapped, startPos, startStack }
   }
 
   /** Compiles the tokenizer's buffer. */
@@ -221,9 +238,8 @@ export class Tokenizer {
     const { context: ctx, end, buffer } = this
 
     if (ctx.pos < end) {
-      const startContext = ctx.serialize()
-      const tokens = this.tokenize()
-      if (tokens) buffer.add(startContext, ...tokens)
+      const { tokens, startPos, startStack } = this.tokenize()
+      if (tokens) buffer.add(startPos, startStack, ...tokens)
     }
 
     if (ctx.pos >= end) return this.compile()

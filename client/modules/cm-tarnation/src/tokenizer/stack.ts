@@ -11,12 +11,6 @@ export class TokenizerStack {
   /** Embedded language data, if present. */
   declare embedded: null | [lang: string, start: number]
 
-  /**
-   * Flag that gets toggled to true if the stack is changed. Does not set
-   * itself back - it must be set back manually.
-   */
-  declare changed: boolean
-
   /** The internal stack. */
   private declare stack: TokenizerStackElement[]
 
@@ -25,7 +19,6 @@ export class TokenizerStack {
     const { stack, embedded } = klona(serialized)
     this.stack = stack
     this.embedded = embedded
-    this.changed = false
   }
 
   /** The last element in the stack. */
@@ -62,7 +55,6 @@ export class TokenizerStack {
 
   /** The current context state of the stack. */
   set context(context) {
-    this.changed = true
     this.last[1] = context ?? {}
   }
 
@@ -73,7 +65,6 @@ export class TokenizerStack {
    * @param context - The context to set. Reuses the last context if not provided.
    */
   push(state: string, context = this.context) {
-    this.changed = true
     this.stack.push([state, context])
   }
 
@@ -84,19 +75,16 @@ export class TokenizerStack {
    * @param context - The context to set. Reuses the last context if not provided.
    */
   switchTo(state: string, context = this.context) {
-    this.changed = true
     this.last = [state, context]
   }
 
   /** Remove the top-most state of the stack. */
   pop() {
-    this.changed = true
     return this.stack.pop()?.[0]
   }
 
   /** Remove all states from the stack except the very first. */
   popall() {
-    this.changed = true
     this.stack = [this.stack.shift() ?? ["root", {}]]
   }
 
@@ -112,7 +100,6 @@ export class TokenizerStack {
    * @param start - The start position of the embedded language.
    */
   setEmbedded(lang: string, start: number) {
-    this.changed = true
     this.embedded = [lang, start]
   }
 
@@ -124,7 +111,6 @@ export class TokenizerStack {
    */
   endEmbedded(end: number): EmbedToken | null {
     if (!this.embedded) return null
-    this.changed = true
     const embedded = this.embedded
     this.embedded = null
     return [...embedded, end]

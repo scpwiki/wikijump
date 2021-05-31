@@ -1,7 +1,7 @@
 import { search } from "wj-util"
-import type { SerializedTokenizerContext, Token } from "../types"
+import type { SerializedTokenizerStack, Token } from "../types"
 import { Chunk } from "./chunk"
-import type { TokenizerContext } from "./context"
+import type { TokenizerStack } from "./stack"
 
 /** Number of tokens per chunk. */
 const CHUNK_SIZE = 32
@@ -32,20 +32,26 @@ export class TokenizerBuffer {
   }
 
   /**
+   * Determines if adding tokens cause a new chunk to be generated.
+   *
+   * @param length - The number of tokens to add.
+   */
+  addsChunk(length = 1) {
+    return !(this.last && this.last.size < CHUNK_SIZE - length)
+  }
+
+  /**
    * Adds tokens to the buffer, splitting them automatically into chunks.
    *
    * @param context - The context to track position and stack state with.
    * @param tokens - The tokens to add to the buffer.
    */
-  add(context: TokenizerContext | SerializedTokenizerContext, ...tokens: Token[]) {
+  add(pos: number, stack: TokenizerStack | SerializedTokenizerStack, ...tokens: Token[]) {
     for (let idx = 0; idx < tokens.length; idx++) {
       const token = tokens[idx]
 
       // last chunk, or new chunk if last is too big or doesn't exist
-      const chunk =
-        this.last && this.last.size < CHUNK_SIZE
-          ? this.last
-          : new Chunk(context.pos, context.stack)
+      const chunk = !this.addsChunk() ? this.last! : new Chunk(pos, stack)
 
       chunk.add(token)
 
