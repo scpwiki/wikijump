@@ -20,12 +20,17 @@ export class ParserContext {
     public embedded: EmbeddedData
   ) {}
 
-  /** Serializes the context. */
-  serialize(): SerializedParserContext {
+  /**
+   * Serializes the context.
+   *
+   * @param full - If true, the `ParserBuffer` will be cloned deeply
+   *   instead of being a shallow clone.
+   */
+  serialize(full = false): SerializedParserContext {
     return {
       pos: this.start,
       index: this.index,
-      buffer: this.buffer.clone(true),
+      buffer: full ? this.buffer.clone(true) : this.buffer.shallow(),
       stack: this.stack.serialize(),
       embedded: klona(this.embedded)
     }
