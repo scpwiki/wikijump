@@ -43,9 +43,13 @@ export class ParserStack {
 
   /** Returns the last element with the given ID. */
   last(id: number) {
-    const idx = this.stack.map(element => element[0]).lastIndexOf(id)
-    if (idx === -1) return null
-    return idx
+    let last = -1
+    for (let idx = 0; idx < this.stack.length; idx++) {
+      const elementID = this.stack[idx][0]
+      if (elementID === id) last = idx
+    }
+    if (last === -1) return null
+    return last
   }
 
   /** Returns a safe copy of the stack's internal array. */
