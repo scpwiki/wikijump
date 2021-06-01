@@ -95,8 +95,6 @@ export class TarnationLanguage {
 
     this.loaded = true
 
-    console.log(this)
-
     return this.support
   }
 }

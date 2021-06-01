@@ -6,7 +6,12 @@ import type {
   TokenizerStackElement
 } from "../types"
 
-/** State/stack handler for the tokenizer. */
+/**
+ * Stack handler for the tokenizer. This is honestly a fairly mundane stack
+ * implementation. The only unusual aspect is that along with the current
+ * stack state (which is just a string), each stack element also stores the
+ * current "context" for the grammar with it.
+ */
 export class TokenizerStack {
   /** Embedded language data, if present. */
   declare embedded: null | [lang: string, start: number]

@@ -4,6 +4,14 @@ import type { SerializedTokenizerStack, Token } from "../types"
 import { TokenizerContext } from "./context"
 import { TokenizerStack } from "./stack"
 
+/**
+ * A `Chunk` stores tokens emitted by the tokenizer into discrete, well,
+ * chunks. Chunks store their token positions (as in, position in the
+ * document) relative to the chunk's own "position". This allows the chunk
+ * to be moved anywhere in the document, and have the tokens follow. What
+ * this means is that a chunk can be adjusted slightly forward or back as
+ * the document changes, allowing for them to be reused when tokenizing.
+ */
 export class Chunk {
   /** Serialized state of the stack at the start of this chunk. */
   private declare _stack: SerializedTokenizerStack

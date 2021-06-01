@@ -11,6 +11,16 @@ import type { TokenizerStack } from "./stack"
 /** Amount of safety-margin to read after the tokenizer's end position. */
 const MARGIN_AFTER = 500
 
+/**
+ * The `Tokenizer` takes an input document and tokenizes it using a
+ * grammar. During this process, it will convert all the grammar's emitted
+ * tokens into more efficient and easily stored objects, along with other
+ * housekeeping duties.
+ *
+ * Once it is done tokenizing, it will have populated a `TokenizerBuffer`
+ * with a number of `Chunk` objects containing the finalized tokens. This
+ * can then be pipelined into a `Parser`.
+ */
 export class Tokenizer {
   /** Host grammar. */
   private declare grammar: Grammar

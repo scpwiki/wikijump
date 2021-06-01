@@ -6,6 +6,16 @@ import type { TokenizerStack } from "./stack"
 /** Number of tokens per chunk. */
 const CHUNK_SIZE = 32
 
+/**
+ * A `TokenizerBuffer` stores `Chunk` objects that then store the actual
+ * tokens emitted by the tokenizer. The creation of `Chunk` objects is
+ * fully automatic, all the tokenizer needs to do is push the tokens to the buffer.
+ *
+ * Storing chunks instead of tokens allows the buffer to more easily manage
+ * a large number of tokens, and more importantly, allows the tokenizer to
+ * use chunks as checkpoints, enabling the tokenizer to only tokenize what
+ * it needs to and reuse everything else.
+ */
 export class TokenizerBuffer {
   /** The actual array of chunks that the buffer manages. */
   buffer: Chunk[] = []
