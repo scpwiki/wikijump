@@ -47,7 +47,7 @@ export class TokenizerBuffer {
    * @param context - The context to track position and stack state with.
    * @param tokens - The tokens to add to the buffer.
    */
-  add(pos: number, stack: TokenizerStack | SerializedTokenizerStack, ...tokens: Token[]) {
+  add(pos: number, stack: TokenizerStack | SerializedTokenizerStack, tokens: Token[]) {
     const chunk =
       this.last && this.last.size < CHUNK_SIZE ? this.last : new Chunk(pos, stack)
 

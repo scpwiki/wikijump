@@ -181,7 +181,7 @@ export class Tokenizer {
       }
     }
 
-    const mapped = new Set<Token>()
+    const mapped: Token[] = []
 
     let last!: MappedToken
 
@@ -195,14 +195,14 @@ export class Tokenizer {
         // token starts an embedded region
         if (!stack.embedded && embedded.endsWith("!")) {
           const lang = embedded.slice(0, embedded.length - 1)
-          mapped.add((last = [-1, from, to]))
-          mapped.add([lang, from, to])
+          mapped.push((last = [-1, from, to]))
+          mapped.push([lang, from, to])
           continue
         }
         // token ends an embedded region
         else if (embedded === "@pop") {
           const range = stack.endEmbedded(from)
-          if (range) mapped.add(range)
+          if (range) mapped.push(range)
         }
         // token represents the entire region, not the start or end of one
         else if (!stack.embedded) {
@@ -229,11 +229,11 @@ export class Tokenizer {
       // check if the new token can be merged into the last one
       if (!token.empty && (!stack.embedded || pushEmbedded)) {
         if (last && !changedStack && this.canContinue(last, token)) last[2] = token.to
-        else mapped.add((last = this.compileGrammarToken(token)))
+        else mapped.push((last = this.compileGrammarToken(token)))
       }
 
       // add a token for marking the embedded language
-      if (pushEmbedded) mapped.add((last = [-1, to, to]))
+      if (pushEmbedded) mapped.push((last = [-1, to, to]))
     }
 
     return { tokens: mapped, startPos, startStack }
@@ -253,7 +253,7 @@ export class Tokenizer {
 
     if (ctx.pos < end) {
       const { tokens, startPos, startStack } = this.tokenize()
-      if (tokens) buffer.add(startPos, startStack, ...tokens)
+      if (tokens) buffer.add(startPos, startStack, tokens)
     }
 
     if (ctx.pos >= end) return this.chunks
