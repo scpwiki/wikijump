@@ -119,15 +119,15 @@ export class Host implements PartialParse {
       this.region.edit =
         fragments.length === 1
           ? {
-            from: start,
-            to: firstFragment.from,
-            offset: -firstFragment.offset
-          }
+              from: start,
+              to: firstFragment.from,
+              offset: -firstFragment.offset
+            }
           : {
-            from: firstFragment.to,
-            to: lastFragment.from,
-            offset: -lastFragment.offset
-          }
+              from: firstFragment.to,
+              to: lastFragment.from,
+              offset: -lastFragment.offset
+            }
 
       if (context.viewport && context.skipUntilInView!) {
         this.viewport = context.viewport
@@ -317,16 +317,8 @@ export class Host implements PartialParse {
    * parser's `forceFinish` method called.
    */
   forceFinish(): Tree {
-    switch (this.stage) {
-      case Stage.Tokenize: {
-        this.parser.pending = this.tokenizer.chunks
-        const { buffer, reused } = this.parser.forceFinish()
-        return this.finish(buffer, reused)
-      }
-      case Stage.Parse: {
-        const { buffer, reused } = this.parser.forceFinish()
-        return this.finish(buffer, reused)
-      }
-    }
+    this.parser.pending = this.tokenizer.chunks
+    const { buffer, reused } = this.parser.forceFinish()
+    return this.finish(buffer, reused)
   }
 }
