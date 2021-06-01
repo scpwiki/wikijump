@@ -251,18 +251,24 @@ export class Host implements PartialParse {
     if (!this.measurePerformance) this.measurePerformance = perfy()
     switch (this.stage) {
       case Stage.Tokenize: {
-        const chunks = this.tokenizer.advance()
+        // try to reuse ahead state
+        const reused =
+          this.tokenizerPreviousRight &&
+          this.tokenizer.tryToReuse(this.tokenizerPreviousRight)
+
+        // can't reuse the buffer more than once (pointless)
+        if (reused) this.tokenizerPreviousRight = undefined
+
+        // try an advance if we're not done
+        const chunks = this.tokenizer.done
+          ? this.tokenizer.chunks
+          : this.tokenizer.advance()
+
         if (chunks) {
           this.parser.pending = chunks
           this.stage = Stage.Parse
-        } else if (
-          this.tokenizerPreviousRight &&
-          this.tokenizer.tryToReuse(this.tokenizerPreviousRight) &&
-          this.tokenizer.done
-        ) {
-          this.parser.pending = this.tokenizer.chunks
-          this.stage = Stage.Parse
         }
+
         return null
       }
       case Stage.Parse: {

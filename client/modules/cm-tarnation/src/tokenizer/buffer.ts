@@ -42,31 +42,19 @@ export class TokenizerBuffer {
   }
 
   /**
-   * Determines if adding tokens cause a new chunk to be generated.
-   *
-   * @param length - The number of tokens to add.
-   */
-  addsChunk(length = 1) {
-    return !(this.last && this.last.size < CHUNK_SIZE - length)
-  }
-
-  /**
    * Adds tokens to the buffer, splitting them automatically into chunks.
    *
    * @param context - The context to track position and stack state with.
    * @param tokens - The tokens to add to the buffer.
    */
   add(pos: number, stack: TokenizerStack | SerializedTokenizerStack, ...tokens: Token[]) {
+    const chunk =
+      this.last && this.last.size < CHUNK_SIZE ? this.last : new Chunk(pos, stack)
+
+    if (this.last !== chunk) this.buffer.push(chunk)
+
     for (let idx = 0; idx < tokens.length; idx++) {
-      const token = tokens[idx]
-
-      // last chunk, or new chunk if last is too big or doesn't exist
-      const chunk = !this.addsChunk() ? this.last! : new Chunk(pos, stack)
-
-      chunk.add(token)
-
-      // add chunk if it's a new one
-      if (this.last !== chunk) this.buffer.push(chunk)
+      chunk.add(tokens[idx])
     }
   }
 
