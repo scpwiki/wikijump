@@ -79,16 +79,19 @@ export class TokenizerBuffer {
   split(index: number) {
     if (!this.get(index)) throw new Error("Tried to split buffer on invalid index!")
 
+    let left: TokenizerBuffer
+    let right: TokenizerBuffer
+
     if (this.buffer.length <= 1) {
-      const left = new TokenizerBuffer(this.buffer.slice(0))
-      const right = new TokenizerBuffer() // empty
-      if (left.last) left.last.setTokens([])
-      return { left, right }
+      left = new TokenizerBuffer(this.buffer.slice(0))
+      right = new TokenizerBuffer() // empty
+    } else {
+      left = new TokenizerBuffer(this.buffer.slice(0, index + 1))
+      right = new TokenizerBuffer(this.buffer.slice(index + 1))
     }
 
-    const left = new TokenizerBuffer(this.buffer.slice(0, index + 1))
-    const right = new TokenizerBuffer(this.buffer.slice(index + 1))
-    if (left.last) left.last.setTokens([])
+    if (left.last) (left.last = left.last.clone()).setTokens([])
+
     return { left, right }
   }
 
