@@ -31,6 +31,13 @@ export class TokenizerBuffer {
     return this.buffer[this.buffer.length - 1]
   }
 
+  /** The last chunk in the buffer. */
+  set last(chunk: Chunk | null) {
+    if (!chunk) return // just satisfying typescript here
+    if (!this.buffer.length) this.buffer.push(chunk)
+    this.buffer[this.buffer.length - 1] = chunk
+  }
+
   /** Retrieves a `Chunk` from the buffer. */
   get(index: number): Chunk | null {
     return this.buffer[index] ?? null
