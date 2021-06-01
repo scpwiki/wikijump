@@ -54,8 +54,13 @@ export function wrapTokens(tokens: GrammarToken[], { context, state, action }: M
   }
 
   if (embedded && !embedded.endsWith("!")) {
-    if (embedded === "@pop") first.embedded = embedded
-    else last.embedded = embedded
+    if (embedded === "@pop") {
+      first.embedded = embedded
+      first.empty = false
+    } else {
+      last.embedded = embedded
+      last.empty = false
+    }
   }
 
   if (type || open || close) {
@@ -71,6 +76,8 @@ export function wrapTokens(tokens: GrammarToken[], { context, state, action }: M
       first.open.unshift(...klona(open))
       last.close.push(...klona(close))
     }
+    first.empty = false
+    last.empty = false
   }
 
   return tokens
