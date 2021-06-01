@@ -206,6 +206,26 @@ export class Parser {
   }
 
   /**
+   * Fully advances the parser, using the tokenizer's emitted chunks
+   * directly with no additional parsing. This is for debug purposes, as it
+   * allows distinguishing between bugs that orginate from either the
+   * tokenizer or the parser.
+   */
+  advanceFullyRaw(): { buffer: number[]; reused: Tree[] } {
+    const buffer: number[] = []
+    for (let idx = 0; idx < this.pending.length; idx++) {
+      const tokens = this.pending[idx].compile()
+      if (tokens.length === 0) console.error("what")
+      for (let idx = 0; idx < tokens.length; idx++) {
+        const t = tokens[idx]
+        if (!t[0] || typeof t[0] === "string") continue
+        buffer.push(t[0], t[1], t[2], 4)
+      }
+    }
+    return { buffer, reused: [] }
+  }
+
+  /**
    * Advances the parser. Returns null if it isn't done, otherwise returns
    * a buffer and reused tree nodes.
    */

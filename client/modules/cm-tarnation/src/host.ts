@@ -6,6 +6,8 @@ import { Parser, ParserBuffer, ParserContext, ParserStack } from "./parser"
 import { Tokenizer, TokenizerBuffer, TokenizerContext, TokenizerStack } from "./tokenizer"
 import type { ParseRegion } from "./types"
 
+const SKIP_PARSER = false
+
 /** Current stage of the host. */
 enum Stage {
   Tokenize,
@@ -119,15 +121,15 @@ export class Host implements PartialParse {
       this.region.edit =
         fragments.length === 1
           ? {
-              from: start,
-              to: firstFragment.from,
-              offset: -firstFragment.offset
-            }
+            from: start,
+            to: firstFragment.from,
+            offset: -firstFragment.offset
+          }
           : {
-              from: firstFragment.to,
-              to: lastFragment.from,
-              offset: -lastFragment.offset
-            }
+          from: firstFragment.to,
+          to: lastFragment.from,
+          offset: -lastFragment.offset
+        }
 
       if (context.viewport && context.skipUntilInView!) {
         this.viewport = context.viewport
@@ -259,11 +261,13 @@ export class Host implements PartialParse {
         return null
       }
       case Stage.Parse: {
-        const result = this.parser.advance()
+        const result = SKIP_PARSER ? this.parser.advanceFullyRaw() : this.parser.advance()
+
         if (result) {
           const { buffer, reused } = result
           return this.finish(buffer, reused)
         }
+
         return null
       }
     }
@@ -318,7 +322,9 @@ export class Host implements PartialParse {
    */
   forceFinish(): Tree {
     this.parser.pending = this.tokenizer.chunks
-    const { buffer, reused } = this.parser.forceFinish()
+    const { buffer, reused } = SKIP_PARSER
+      ? this.parser.advanceFullyRaw()
+      : this.parser.forceFinish()
     return this.finish(buffer, reused)
   }
 }
