@@ -127,6 +127,7 @@ export class Chunk {
   setTokens(tokens: Token[], relativeTo?: number) {
     this.compiled = undefined
     this._tokens = []
+    this._max = 0
     for (let idx = 0; idx < tokens.length; idx++) {
       this.add(tokens[idx], relativeTo)
     }
