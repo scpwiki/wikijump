@@ -184,7 +184,7 @@ export class EmbeddedHandler {
 
   /** Serializes the handler's state. */
   serialize(): EmbeddedData {
-    const pending = [...this.pending]
+    const pending = this.pending.slice(0)
     const parsers: EmbeddedData["parsers"] = []
 
     // this function gets called a lot, so we're doing the verbose method
