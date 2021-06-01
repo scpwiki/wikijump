@@ -94,8 +94,8 @@ export class Parser {
           this.embeddedHandler.push(t as any)
           break
         }
-        // mapped token
-        case "number": {
+        // mapped token (default)
+        default: {
           const ctx = this.context
 
           /*
