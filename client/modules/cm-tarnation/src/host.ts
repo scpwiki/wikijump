@@ -4,7 +4,7 @@ import { isEmpty, perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"
 import { Parser, ParserBuffer, ParserContext, ParserStack } from "./parser"
 import { Tokenizer, TokenizerBuffer, TokenizerContext, TokenizerStack } from "./tokenizer"
-import type { ParserCache, ParseRegion } from "./types"
+import type { ParseRegion } from "./types"
 
 enum Stage {
   Tokenize,
@@ -107,20 +107,18 @@ export class Host implements PartialParse {
       for (let idx = 0; idx < context.fragments.length; idx++) {
         const f = context.fragments[idx]
         if (f.from > start || f.to < start) continue
-        const bundle = this.language.cache.find(f.tree, start, f.to)
-        if (bundle) {
-          const { chunk, index } = bundle.tokenizerBuffer.search(this.region.from, -1)
+        const buffer = this.language.cache.find(f.tree, start, f.to)
+        if (buffer) {
+          const { chunk, index } = buffer.search(this.region.from, -1)
           if (chunk && index !== null) {
-            const { left, right } = bundle.tokenizerBuffer.split(index)
+            const { left, right } = buffer.split(index)
             this.tokenizerPreviousRight = right
-            const tokenizerContext = chunk.context
-            const tokenizerBuffer = left
-            this.region.from = tokenizerContext.pos
-            this.setupTokenizer(tokenizerBuffer, tokenizerContext)
+            this.region.from = chunk.context.pos
+            this.setupTokenizer(left, chunk.context)
             // check if parser is cached as well
-            if (bundle.parserCache.has(chunk)) {
-              const context = ParserContext.deserialize(bundle.parserCache.get(chunk)!)
-              this.setupParser(context, bundle.parserCache)
+            if (this.language.cache.has(chunk)) {
+              const context = ParserContext.deserialize(this.language.cache.get(chunk)!)
+              this.setupParser(context)
             }
           }
         }
@@ -147,21 +145,19 @@ export class Host implements PartialParse {
     )
   }
 
-  private setupParser(context?: ParserContext, cache?: ParserCache) {
+  private setupParser(context?: ParserContext) {
     if (!context) {
       context = new ParserContext(this.start, 0, new ParserBuffer(), new ParserStack(), {
         pending: [],
         parsers: []
       })
     }
-    if (!cache) cache = new WeakMap()
 
     this.parser = new Parser(
       this.language,
       context,
       this.input,
       this.region,
-      cache,
       [],
       this.context
     )
@@ -212,7 +208,7 @@ export class Host implements PartialParse {
       start: this.start
     })
 
-    this.language.cache.attach(this.tokenizer.buffer, this.parser.cache, tree)
+    this.language.cache.attach(this.tokenizer.buffer, tree)
 
     if (this.context?.skipUntilInView && length < this.region.length) {
       this.context.skipUntilInView(this.pos, this.region.length)

@@ -141,7 +141,11 @@ export type AddNodeSpec = { name: string } & Omit<
   "id" | "name"
 >
 
-export interface CacheBundle {
-  tokenizerBuffer: TokenizerBuffer
-  parserCache: ParserCache
-}
+/**
+ * Describes a Tarnation's language cache, which is how it recovers
+ * information for incremental parsing.
+ *
+ * - `Tree` maps to `TokenizerBuffer`
+ * - `Chunk` maps to `SerializedParserContext`
+ */
+export type CacheMap = WeakMap<Tree | Chunk, TokenizerBuffer | SerializedParserContext>

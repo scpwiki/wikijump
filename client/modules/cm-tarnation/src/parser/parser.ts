@@ -2,7 +2,7 @@ import type { EditorParseContext } from "@codemirror/language"
 import { Input, Tree } from "lezer-tree"
 import type { TarnationLanguage } from "../language"
 import type { Chunk } from "../tokenizer"
-import type { MappedToken, ParserCache, ParseRegion } from "../types"
+import type { MappedToken, ParseRegion } from "../types"
 import type { ParserContext } from "./context"
 import { EmbeddedHandler } from "./embedded-handler"
 
@@ -10,6 +10,9 @@ import { EmbeddedHandler } from "./embedded-handler"
 const FINISH_INCOMPLETE_STACKS = false
 
 export class Parser {
+  /** The host language. */
+  private declare language: TarnationLanguage
+
   /** Handler instance for parsing embedded languages. */
   private declare embeddedHandler: EmbeddedHandler
 
@@ -21,9 +24,6 @@ export class Parser {
 
   /** Chunks to parse. */
   declare pending: Chunk[]
-
-  /** The parser's chunk cache. */
-  declare cache: ParserCache
 
   /**
    * @param language - The host language.
@@ -38,13 +38,12 @@ export class Parser {
     context: ParserContext,
     input: Input,
     region: ParseRegion,
-    cache: ParserCache = new WeakMap(),
     pending: Chunk[] = [],
     editorContext?: EditorParseContext
   ) {
+    this.language = language
     this.context = context
     this.region = region
-    this.cache = cache
     this.pending = pending
     this.embeddedHandler = new EmbeddedHandler(language, context, input, editorContext)
   }
@@ -70,7 +69,7 @@ export class Parser {
 
     // we want to cache the context before we process the chunk
     // this is the _starting_ context, not the ending context
-    this.cache.set(chunk, this.context.serialize())
+    this.language.cache.attach(this.context.serialize(), chunk)
 
     const tokens = chunk.compile()
     for (let idx = 0; idx < tokens.length; idx++) {
