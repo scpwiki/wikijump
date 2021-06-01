@@ -192,7 +192,7 @@ export class Tokenizer {
       let pushEmbedded = false
 
       if (embedded) {
-        // token starts an embedded region
+        // token represents the entire region, not the start or end of one
         if (!stack.embedded && embedded.endsWith("!")) {
           const lang = embedded.slice(0, embedded.length - 1)
           mapped.push((last = [-1, from, to]))
@@ -204,7 +204,7 @@ export class Tokenizer {
           const range = stack.endEmbedded(from)
           if (range) mapped.push(range)
         }
-        // token represents the entire region, not the start or end of one
+        // token starts an embedded region
         else if (!stack.embedded) {
           pushEmbedded = true
           stack.setEmbedded(embedded, to)
@@ -253,7 +253,7 @@ export class Tokenizer {
 
     if (ctx.pos < end) {
       const { tokens, startPos, startStack } = this.tokenize()
-      if (tokens) buffer.add(startPos, startStack, tokens)
+      if (tokens?.length) buffer.add(startPos, startStack, tokens)
     }
 
     if (ctx.pos >= end) return this.chunks
