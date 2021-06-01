@@ -155,7 +155,7 @@ export class Host implements PartialParse {
         const buffer = this.language.cache.find(f.tree, start, f.to)
         if (buffer) {
           // try to find a suitable chunk from the buffer to restart the tokenizer from
-          const { chunk, index } = buffer.search(this.region.from, -1)
+          const { chunk, index } = buffer.search(this.region.edit!.from, -1)
           if (chunk && index !== null) {
             // split the buffer, reuse the left side,
             // but keep the right side around for reuse as well
