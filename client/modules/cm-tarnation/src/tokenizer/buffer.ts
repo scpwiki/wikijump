@@ -20,6 +20,11 @@ export class TokenizerBuffer {
   /** The actual array of chunks that the buffer manages. */
   buffer: Chunk[] = []
 
+  /** @param chunks - The chunks to populate the buffer with. */
+  constructor(chunks?: Chunk[]) {
+    if (chunks) this.buffer = chunks
+  }
+
   /** The last chunk in the buffer. */
   get last() {
     if (!this.buffer.length) return null
