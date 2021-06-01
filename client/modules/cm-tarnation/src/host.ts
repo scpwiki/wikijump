@@ -6,29 +6,85 @@ import { Parser, ParserBuffer, ParserContext, ParserStack } from "./parser"
 import { Tokenizer, TokenizerBuffer, TokenizerContext, TokenizerStack } from "./tokenizer"
 import type { ParseRegion } from "./types"
 
+/** Current stage of the host. */
 enum Stage {
   Tokenize,
   Parse
 }
 
+/**
+ * The `Host` object is the "parser" that CodeMirror interacts with to
+ * build a syntax tree. In reality, the `Host` is well, a host, for a
+ * separate `Tokenizer` and `Parser`. These are ran in stages - first the
+ * tokenizer, and then the parser.
+ *
+ * Additionally, the `Host` handles the recovery of tokenizer and parser
+ * states from the stale trees provided by CodeMirror, and then uses this
+ * data to restart the tokenizer and parser with reused state.
+ *
+ * Note that the `Host`, along with the `Tokenizer` and `Parser`, are not
+ * persistent objects. They are discarded as soon as the parse is done.
+ * That means that their startup time is very significant.
+ */
 export class Host implements PartialParse {
+  /** The host language. */
   private declare language: TarnationLanguage
+
+  /** The input document to parse. */
   private declare input: Input
+  /**
+   * The starting position. This position isn't exactly the start of the
+   * region that should be parsed, instead it is the start of the
+   * *document* that is being parsed. This is because it may be the case
+   * that the `Host` is actually being embedded, and is only acting on a
+   * small part of a larger document.
+   */
   private declare start: number
+
+  /** The current `Stage`, either tokenizing or parsing. */
   private declare stage: Stage
-  private declare caching: boolean
+
+  /**
+   * An object storing details about the region of the document to be
+   * parsed, where it was edited, the length, etc.
+   */
   private declare region: ParseRegion
+
+  /**
+   * CodeMirror's context object. This isn't actually required, but it
+   * allows for much easier usage of incremental parsing.
+   */
   private declare context?: EditorParseContext
+
+  /** The editor viewport, as in what range of text can the user actually see. */
   private declare viewport?: { from: number; to: number }
 
+  /** The tokenizer to be used. */
   private declare tokenizer: Tokenizer
+
+  /**
+   * A buffer containing the previous *ahead* state of the tokenizer's
+   * output. As in, when a user makes a change, this is all of the
+   * tokenization data for the previous document after the location of that
+   * new change.
+   */
   private declare tokenizerPreviousRight?: TokenizerBuffer
 
+  /** The parser to be used. */
   private declare parser: Parser
 
+  /** A function used to measure how long the parse is taking. */
   private declare measurePerformance?: (msg?: string) => number
+
+  /** The current performance value, in milliseconds. */
   declare performance?: number
 
+  /**
+   * @param language - The language containing the grammar to use.
+   * @param input - The input document to parse.
+   * @param start - The starting position of the document.
+   * @param context - A CodeMirror `EditorParseContext`, if available.
+   */
   constructor(
     language: TarnationLanguage,
     input: Input,
@@ -44,7 +100,6 @@ export class Host implements PartialParse {
     this.input = input
     this.start = start
     this.stage = Stage.Tokenize
-    this.caching = Boolean(context?.state)
     this.context = context
 
     this.measurePerformance = perfy()
@@ -106,16 +161,23 @@ export class Host implements PartialParse {
     if (context?.fragments?.length) {
       for (let idx = 0; idx < context.fragments.length; idx++) {
         const f = context.fragments[idx]
+        // make sure fragment is within the region of the document we care about
         if (f.from > start || f.to < start) continue
+
+        // try to find the buffer for this fragment's tree in the cache
         const buffer = this.language.cache.find(f.tree, start, f.to)
         if (buffer) {
+          // try to find a suitable chunk from the buffer to restart the tokenizer from
           const { chunk, index } = buffer.search(this.region.from, -1)
           if (chunk && index !== null) {
+            // split the buffer, reuse the left side,
+            // but keep the right side around for reuse as well
             const { left, right } = buffer.split(index)
             this.tokenizerPreviousRight = right
             this.region.from = chunk.context.pos
             this.setupTokenizer(left, chunk.context)
-            // check if parser is cached as well
+
+            // check if parser has a cached state for this chunk
             if (this.language.cache.has(chunk)) {
               const context = ParserContext.deserialize(this.language.cache.get(chunk)!)
               this.setupParser(context)
@@ -125,10 +187,17 @@ export class Host implements PartialParse {
       }
     }
 
+    // if we couldn't reuse state, we'll need to startup things with a default state
     if (!this.tokenizer) this.setupTokenizer()
     if (!this.parser) this.setupParser()
   }
 
+  /**
+   * Instantiates the `Tokenizer`.
+   *
+   * @param buffer - A `TokenizerBuffer` to reuse.
+   * @param context - A `TokenizerContext` to reuse.
+   */
   private setupTokenizer(buffer?: TokenizerBuffer, context?: TokenizerContext) {
     if (!buffer || !context) {
       const stack = new TokenizerStack({ stack: [["root", {}]], embedded: null })
@@ -145,6 +214,11 @@ export class Host implements PartialParse {
     )
   }
 
+  /**
+   * Instantiates the `Parser`.
+   *
+   * @param context - A `ParserContext` to reuse.
+   */
   private setupParser(context?: ParserContext) {
     if (!context) {
       context = new ParserContext(this.start, 0, new ParserBuffer(), new ParserStack(), {
@@ -163,10 +237,16 @@ export class Host implements PartialParse {
     )
   }
 
+  /**
+   * The current "position" of the host. This isn't really all that
+   * accurate, as it's only reporting the tokenizer's position. That means
+   * when the parser is running, the position will just be sitting still.
+   */
   get pos() {
     return this.tokenizer.context.pos
   }
 
+  /** Advances the tokenizer or parser one step, depending on the current stage. */
   advance(): Tree | null {
     if (!this.measurePerformance) this.measurePerformance = perfy()
     switch (this.stage) {
@@ -196,6 +276,15 @@ export class Host implements PartialParse {
     }
   }
 
+  /**
+   * Returns a `Tree` given a finalized buffer and reused `Tree` nodes.
+   * This also performs caching using the `Tree` as a key, along with some
+   * other housekeeping.
+   *
+   * @param buffer - The `Tree.build` buffer to use.
+   * @param reused - A list of reused tree nodes whose indexes are
+   *   referenced in the buffer.
+   */
   private finish(buffer: number[], reused: Tree[]): Tree {
     const length = this.pos - this.start
 
@@ -223,6 +312,17 @@ export class Host implements PartialParse {
     return tree
   }
 
+  /**
+   * Forces a `Tree` to be assembled from the tokenizer and parser state
+   * *right now*, regardless of anything that might be incomplete or just
+   * simply not started. In the parse stage, this is relatively simple, but
+   * in the tokenizer stage, this is more complex.
+   *
+   * Calling `forceFinish` during tokenization means that the tokenizer
+   * will immediately have its incomplete chunks sent to the parser, which
+   * will then be *fully advanced*. Embedded languages will also have their
+   * parser's `forceFinish` method called.
+   */
   forceFinish(): Tree {
     switch (this.stage) {
       case Stage.Tokenize: {

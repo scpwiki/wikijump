@@ -76,6 +76,7 @@ export class TarnationLanguage {
       new NodeType(this.description.name, facetProp, 0, 1),
       "Document"
     )!
+
     this.grammar.types.forEach(name => nodes.add({ name }))
 
     if (this.grammar.props.length) {
