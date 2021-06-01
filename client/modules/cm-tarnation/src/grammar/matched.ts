@@ -45,8 +45,8 @@ export function wrapTokens(tokens: GrammarToken[], { context, state, action }: M
   if (next || switchTo) {
     tokens.unshift(
       createToken({
-        from: last.to,
-        to: last.to,
+        from: first.from,
+        to: first.from,
         action: { type: "", next, switchTo },
         state
       } as Matched)
