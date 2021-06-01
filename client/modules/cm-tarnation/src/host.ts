@@ -118,18 +118,32 @@ export class Host implements PartialParse {
       const firstFragment = fragments[0]
       const lastFragment = fragments[fragments.length - 1]
 
-      this.region.edit =
-        fragments.length === 1
-          ? {
+      if (fragments.length === 1) {
+        // fragment is the range behind the edit
+        if (firstFragment.from === start) {
+          this.region.edit = {
+            from: firstFragment.to,
+            to: input.length,
+            offset: -firstFragment.offset
+          }
+        }
+        // fragment is the range ahead of the edit
+        else {
+          this.region.edit = {
             from: start,
             to: firstFragment.from,
             offset: -firstFragment.offset
           }
-          : {
+        }
+      }
+      // multiple fragments means the fragments will surround the edit location
+      else {
+        this.region.edit = {
           from: firstFragment.to,
           to: lastFragment.from,
           offset: -lastFragment.offset
         }
+      }
 
       if (context.viewport && context.skipUntilInView!) {
         this.viewport = context.viewport
