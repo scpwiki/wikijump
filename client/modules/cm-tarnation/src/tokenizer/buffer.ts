@@ -109,11 +109,9 @@ export class TokenizerBuffer {
       return this
     }
 
-    if (cutLeft) {
-      this.buffer = this.buffer.slice(index)
-    }
+    if (cutLeft) this.buffer = this.buffer.slice(index)
 
-    for (let idx = 0; idx < this.buffer.length; idx++) {
+    for (let idx = cutLeft ? 0 : index; idx < this.buffer.length; idx++) {
       this.buffer[idx].pos += offset
     }
 
