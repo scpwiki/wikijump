@@ -1,6 +1,11 @@
 import { klona } from "klona"
 import type { ParserElementStack } from "../types"
 
+/**
+ * A `ParserStack` keeps track of opened nodes destined to be eventually
+ * closed by the parser. Any number of nodes can be open, and this is how
+ * the parser actually creates a tree with depth.
+ */
 export class ParserStack {
   /** The actual array stack. */
   declare stack: ParserElementStack

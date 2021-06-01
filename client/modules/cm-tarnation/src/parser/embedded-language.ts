@@ -3,6 +3,20 @@ import { Input, PartialParse, Tree } from "lezer-tree"
 import type { TarnationLanguage } from "../language"
 import type { EmbedToken } from "../types"
 
+/**
+ * An `EmbeddedLanguage` is effectively a very safe wrapper around a
+ * CodeMirror/Lezer parser. This is because it does not accept a parser
+ * directly - instead, you must give it a language to find (e.g.
+ * "javascript"), an input document, and a range to parse. It then does the
+ * rest itself - finding the language, advancing the parser, etc.
+ *
+ * If the language given cannot be found, a safe fallback parser will be
+ * returned instead, which ultimately results in an empty `Tree`. If an
+ * `EditorParserContext` is available, a skipping parser will be used which
+ * tells CodeMirror that the region of text parsed is still incomplete and
+ * needs to be parsed again once the desired language is loaded. Otherwise,
+ * a "fake" parser will be used that immediately returns an empty tree.
+ */
 export class EmbeddedLanguage {
   // fun fact: you can leave off the type in a class property declaration.
   // if you assign something to the property in the constructor, it will assume the type.

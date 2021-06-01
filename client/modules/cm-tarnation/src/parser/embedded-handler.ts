@@ -5,6 +5,28 @@ import type { EmbeddedData, EmbedToken, LezerToken } from "../types"
 import type { ParserContext } from "./context"
 import { EmbeddedLanguage } from "./embedded-language"
 
+/**
+ * An `EmbeddedHandler` object is a handler that creates a dramatically
+ * simpler interface for managing embedded regions of other languages in a
+ * Tarnation parse tree.
+ *
+ * The main concept is that this handler is first given an index to a token
+ * in the parser's `ParserBuffer`. This token is not associated with any
+ * language or even a region of text yet - but it is known by the parser
+ * that at some point an embedded tree needs to be inserted in this token.
+ *
+ * Eventually, the parser will come across another token that denotes the
+ * *end* of an embedded region, and will push that token to this handler.
+ * Every time a token of this type is pushed, the oldest unassociated token
+ * will be removed from the pending list, and then an embedded parser will
+ * be created, using the index of the pending token, the now known
+ * language, and the document range given.
+ *
+ * Every time the `advance` method is called, the oldest parser is advanced
+ * one step. Once it is done, the resultant tree is inserted into the
+ * token, and the parser is removed from the list. The cycle continues
+ * until every parser is complete.
+ */
 export class EmbeddedHandler {
   /** Token indexes pending a range to be allocated to them. */
   private pending: number[] = []

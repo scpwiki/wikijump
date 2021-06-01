@@ -3,7 +3,10 @@ import type { EmbeddedData, SerializedParserContext } from "../types"
 import { ParserBuffer } from "./buffer"
 import { ParserStack } from "./stack"
 
-/** Context/state object for the tokenizer. */
+/**
+ * Context/state object for the parser. State is stored separately from the
+ * parser, so that it may be recovered from a cache later and be reused.
+ */
 export class ParserContext {
   /**
    * @param start - The starting document position of the parser.

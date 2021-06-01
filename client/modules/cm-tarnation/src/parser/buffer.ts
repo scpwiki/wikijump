@@ -2,6 +2,13 @@ import type { Tree } from "lezer-tree"
 import { search } from "wj-util"
 import type { LezerToken } from "../types"
 
+/**
+ * The `ParserBuffer` stores a flat list of tokens for the Tarnation
+ * parser. This flat list is steadily expanded as the parser advances,
+ * until eventually it decides that it is done and calls the `compile`
+ * method. This compiles the buffer's list of tokens into a format that can
+ * be consumed by CodeMirror.
+ */
 export class ParserBuffer {
   /** The actual array of tokens that this buffer manages. */
   declare buffer: LezerToken[]

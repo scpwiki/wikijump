@@ -9,6 +9,16 @@ import { EmbeddedHandler } from "./embedded-handler"
 // not working quite right yet
 const FINISH_INCOMPLETE_STACKS = false
 
+/**
+ * Tarnation's parser, which accepts tokenizer `Chunk` objects and parses
+ * their tokens into a flat representation of a tree.
+ *
+ * It is designed to be very cheap and fast to use, which is because the
+ * parser can only reuse data from behind the current parse position, and
+ * not reuse ahead data. That means for the sake of performance that the
+ * parser has to be very fast as it may need to recreate most of its parse
+ * every time the document is changed.
+ */
 export class Parser {
   /** The host language. */
   private declare language: TarnationLanguage
