@@ -104,37 +104,30 @@ export class Host implements PartialParse {
 
     this.measurePerformance = perfy()
 
+    this.region = {
+      from: start,
+      to: input.length,
+      length: input.length
+    }
+
     // get edited region
     if (context?.fragments?.length) {
       const fragments = context.fragments
       const firstFragment = fragments[0]
       const lastFragment = fragments[fragments.length - 1]
 
-      if (fragments.length === 1) {
-        this.region = {
-          from: start,
-          // to: firstFragment.from,
-          to: input.length,
-          length: input.length,
-          edit: {
+      this.region.edit =
+        fragments.length === 1
+          ? {
             from: start,
             to: firstFragment.from,
             offset: -firstFragment.offset
           }
-        }
-      } else {
-        this.region = {
-          from: Math.max(firstFragment.to, start),
-          // to: lastFragment.from,
-          to: input.length,
-          length: input.length,
-          edit: {
+          : {
             from: firstFragment.to,
             to: lastFragment.from,
             offset: -lastFragment.offset
           }
-        }
-      }
 
       if (context.viewport && context.skipUntilInView!) {
         this.viewport = context.viewport
@@ -148,12 +141,6 @@ export class Host implements PartialParse {
         const end = v.to + (v.to - v.from)
 
         if (v.from < r.to && r.to > end) r.to = end
-      }
-    } else {
-      this.region = {
-        from: start,
-        to: input.length,
-        length: input.length
       }
     }
 
