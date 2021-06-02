@@ -434,3 +434,15 @@ export function html(strings: TemplateStringsArray, ...subs: (string | string[])
 export function mod(a: number, n: number) {
   return ((a % n) + n) % n
 }
+
+/**
+ * Replaces a range inside of a string with a substitute.
+ *
+ * @param str - The string which should have a range inside of it replaced.
+ * @param from - The start of the replacement range.
+ * @param to - The end of the replacement range.
+ * @param sub - The replacement/substitute string.
+ */
+export function replaceRange(str: string, from: number, to: number, sub: string) {
+  return str.substr(0, from) + sub + str.substr(to)
+}
