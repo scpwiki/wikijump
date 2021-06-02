@@ -171,11 +171,9 @@ export class Tokenizer {
 
     if (!tokens) return { tokens, startPos, startStack }
 
-    let changedStack = false
     for (let idx = 0; idx < tokens.length; idx++) {
       const token = tokens[idx]
       if (token.next || token.switchTo || token.context || token.embedded) {
-        changedStack = true
         startStack = stack.serialize()
         break
       }
@@ -188,6 +186,8 @@ export class Tokenizer {
     for (let idx = 0; idx < tokens.length; idx++) {
       const token = tokens[idx]
       const { next, switchTo, embedded, context, from, to } = token
+
+      let changedStack = next || switchTo || embedded || context
 
       let pushEmbedded = false
 
