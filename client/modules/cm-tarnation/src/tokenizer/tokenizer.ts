@@ -254,6 +254,12 @@ export class Tokenizer {
     return result
   }
 
+  /**
+   * Tries to reuse a buffer *ahead* of the current position. Returns true
+   * if this was successful, otherwise false.
+   *
+   * @param right - The buffer to try and reuse.
+   */
   tryToReuse(right: TokenizerBuffer) {
     // can't reuse if we don't know the safe regions
     if (!this.region.edit) return false
