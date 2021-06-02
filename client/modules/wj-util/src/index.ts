@@ -396,7 +396,11 @@ export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
   }
 }
 
-const domParser = new DOMParser()
+// so we can load this module in workers:
+let domParser: DOMParser
+try {
+  domParser = new DOMParser()
+} catch {}
 
 /** Takes a string of HTML and creates a {@link DocumentFragment}. */
 export function toFragment(html: string) {
