@@ -2,7 +2,7 @@ import { EditorParseContext } from "@codemirror/language"
 import { Input, PartialParse, Tree } from "lezer-tree"
 import { isEmpty, perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"
-import { Parser, ParserBuffer, ParserContext, ParserStack } from "./parser"
+import { Parser, ParserContext } from "./parser"
 import { Tokenizer, TokenizerBuffer, TokenizerContext, TokenizerStack } from "./tokenizer"
 import type { ParseRegion } from "./types"
 
@@ -223,19 +223,13 @@ export class Host implements PartialParse {
    * @param context - A `ParserContext` to reuse.
    */
   private setupParser(context?: ParserContext) {
-    if (!context) {
-      context = new ParserContext(this.start, 0, new ParserBuffer(), new ParserStack(), {
-        pending: [],
-        parsers: []
-      })
-    }
+    if (!context) context = new ParserContext(this.start)
 
     this.parser = new Parser(
       this.language,
       context,
       this.input,
       this.region,
-      [],
       this.context
     )
   }

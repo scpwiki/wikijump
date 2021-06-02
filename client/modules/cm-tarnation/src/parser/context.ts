@@ -17,10 +17,10 @@ export class ParserContext {
    */
   constructor(
     public start: number,
-    public index: number,
-    public buffer: ParserBuffer,
-    public stack: ParserStack,
-    public embedded: EmbeddedData
+    public index: number = 0,
+    public buffer: ParserBuffer = new ParserBuffer(),
+    public stack: ParserStack = new ParserStack(),
+    public embedded: EmbeddedData = []
   ) {}
 
   /**
