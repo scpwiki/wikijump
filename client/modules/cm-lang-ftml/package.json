@@ -39,6 +39,7 @@
     "sheaf-core": "workspace:*",
     "wj-prism": "workspace:*",
     "wj-state": "workspace:*",
-    "wj-util": "workspace:*"
+    "wj-util": "workspace:*",
+    "worker-module": "workspace:*"
   }
 }
