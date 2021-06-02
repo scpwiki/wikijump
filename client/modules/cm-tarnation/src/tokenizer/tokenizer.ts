@@ -143,18 +143,16 @@ export class Tokenizer {
 
   /** Gets the grammar's match at the current tokenizer position. */
   private match() {
-    // prettier-ignore
-    const {
-      str, offset,
-      context: { pos, stack: { state, context } }
-    } = this
-
-    const match = this.grammar.match({ state, context }, str, pos - offset, pos)
+    const ctx = this.context
+    const match = this.grammar.match(
+      { state: ctx.stack.state, context: ctx.stack.context },
+      this.str,
+      ctx.pos - this.offset,
+      ctx.pos
+    )
     if (!match) return { tokens: null, length: 1 } // always advance
-
     const tokens = match.compile()
     if (!tokens.length) return { tokens: null, length: match.length || 1 }
-
     return { tokens, length: match.length }
   }
 
@@ -184,56 +182,55 @@ export class Tokenizer {
     let last!: MappedToken
 
     for (let idx = 0; idx < tokens.length; idx++) {
-      const token = tokens[idx]
-      const { next, switchTo, embedded, context, from, to } = token
+      const t = tokens[idx]
 
-      let changedStack = next || switchTo || embedded || context
+      let changedStack = t.next || t.switchTo || t.embedded || t.context
 
       let pushEmbedded = false
 
-      if (embedded) {
+      if (t.embedded) {
         // token represents the entire region, not the start or end of one
-        if (!stack.embedded && embedded.endsWith("!")) {
-          const lang = embedded.slice(0, embedded.length - 1)
-          mapped.push((last = [-1, from, to]))
-          mapped.push([lang, from, to])
+        if (!stack.embedded && t.embedded.endsWith("!")) {
+          const lang = t.embedded.slice(0, t.embedded.length - 1)
+          mapped.push((last = [-1, t.from, t.to]))
+          mapped.push([lang, t.from, t.to])
           continue
         }
         // token ends an embedded region
-        else if (embedded === "@pop") {
-          const range = stack.endEmbedded(from)
+        else if (t.embedded === "@pop") {
+          const range = stack.endEmbedded(t.from)
           if (range) mapped.push(range)
         }
         // token starts an embedded region
         else if (!stack.embedded) {
           pushEmbedded = true
-          stack.setEmbedded(embedded, to)
+          stack.setEmbedded(t.embedded, t.to)
         }
       }
 
       // handle stack manipulation and match context changes
-      if (next) {
+      if (t.next) {
         // prettier-ignore
-        switch (next) {
-          case "@pop":    stack.pop()                      ; break
-          case "@popall": stack.popall()                   ; break
-          case "@push":   stack.push(stack.state, context) ; break
-          default:        stack.push(next, context)
+        switch (t.next) {
+          case "@pop":    stack.pop()                        ; break
+          case "@popall": stack.popall()                     ; break
+          case "@push":   stack.push(stack.state, t.context) ; break
+          default:        stack.push(t.next, t.context)
         }
-      } else if (switchTo) {
-        stack.switchTo(switchTo, context)
-      } else if (context) {
-        stack.context = context
+      } else if (t.switchTo) {
+        stack.switchTo(t.switchTo, t.context)
+      } else if (t.context) {
+        stack.context = t.context
       }
 
       // check if the new token can be merged into the last one
-      if (!token.empty && (!stack.embedded || pushEmbedded)) {
-        if (last && !changedStack && this.canContinue(last, token)) last[2] = token.to
-        else mapped.push((last = this.compileGrammarToken(token)))
+      if (!t.empty && (!stack.embedded || pushEmbedded)) {
+        if (last && !changedStack && this.canContinue(last, t)) last[2] = t.to
+        else mapped.push((last = this.compileGrammarToken(t)))
       }
 
       // add a token for marking the embedded language
-      if (pushEmbedded) mapped.push((last = [-1, to, to]))
+      if (pushEmbedded) mapped.push((last = [-1, t.to, t.to]))
     }
 
     return { tokens: mapped, startPos, startStack }
