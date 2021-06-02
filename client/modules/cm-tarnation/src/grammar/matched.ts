@@ -1,5 +1,5 @@
 import { klona } from "klona"
-import { hasSigil } from "wj-util"
+import { hasSigil, isEmpty } from "wj-util"
 import { Action, ActionMode } from "./action"
 import type * as DF from "./definition"
 import { Grammar, GrammarMatchState, GrammarToken } from "./grammar"
@@ -12,6 +12,8 @@ export function createToken({ from, to, action, context, state }: Matched): Gram
     if (hasSigil(switchTo, ["$", "::"])) switchTo = Grammar.sub(state, switchTo)
     if (hasSigil(embedded, ["$", "::"])) embedded = Grammar.sub(state, embedded)
   }
+
+  if (context && isEmpty(context)) context = undefined
 
   const empty = !(type || open || close || next || switchTo || embedded || context)
 
@@ -43,8 +45,8 @@ export function wrapTokens(tokens: GrammarToken[], { context, state, action }: M
   if (next || switchTo) {
     tokens.unshift(
       createToken({
-        from: last.to,
-        to: last.to,
+        from: first.from,
+        to: first.from,
         action: { type: "", next, switchTo },
         state
       } as Matched)
@@ -52,8 +54,13 @@ export function wrapTokens(tokens: GrammarToken[], { context, state, action }: M
   }
 
   if (embedded && !embedded.endsWith("!")) {
-    if (embedded === "@pop") first.embedded = embedded
-    else last.embedded = embedded
+    if (embedded === "@pop") {
+      first.embedded = embedded
+      first.empty = false
+    } else {
+      last.embedded = embedded
+      last.empty = false
+    }
   }
 
   if (type || open || close) {
@@ -69,6 +76,8 @@ export function wrapTokens(tokens: GrammarToken[], { context, state, action }: M
       first.open.unshift(...klona(open))
       last.close.push(...klona(close))
     }
+    first.empty = false
+    last.empty = false
   }
 
   return tokens

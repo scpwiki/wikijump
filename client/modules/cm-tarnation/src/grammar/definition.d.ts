@@ -327,6 +327,14 @@ export interface ActionObject {
    */
   group?: Group
   /**
+   * A `predicate` is a string that is inexpensively and rapidly checked
+   * prior to a rule being fully evalulated for if it matches. If a rule
+   * uses a large regex or expensive function, this can provide a
+   * substantial speedup because the predicate will rule out most positions
+   * for where a rule could match.
+   */
+  predicate?: string
+  /**
    * The {@link Next} {@link State} to go to before the next match. A state's
    * name must be preceeded with a `#`.
    *
@@ -524,8 +532,8 @@ export type MatchFunction = (
 // sins... deep sins
 // prettier-ignore
 type Alphabet =
-  |'A'|'B'|'C'|'D'|'E'|'F'|'G'|'H'|'I'|'J'|'K'|'L'|'M'
-  |'N'|'O'|'P'|'Q'|'R'|'S'|'T'|'U'|'V'|'W'|'X'|'Y'|'Z'
+  | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M'
+  | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'
 
 /**
  * The `type` specifies what node type matched text should be "scoped" or

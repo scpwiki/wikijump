@@ -40,6 +40,8 @@ export function search<T, TR>(
   comparator: (element: T, target: TR) => number | boolean,
   { min = 0, max = haystack.length - 1, precise = true }: SearchOpts = {}
 ) {
+  if (haystack.length === 0) return null
+
   let index = -1
   while (min <= max) {
     index = min + ((max - min) >>> 1)
@@ -49,6 +51,8 @@ export function search<T, TR>(
     if (cmp < 0) min = index + 1
     else if (cmp > 0) max = index - 1
   }
+
+  if (index === -1) return null
 
   if (!precise) return { element: null, index }
 
@@ -168,11 +172,17 @@ export function pointsMatch(points: number[], str: string | number[], pos: numbe
  * value is a function that will end the performance timer and log the
  * measured time to the console.
  */
-export function perfy(meta?: string, threshold?: number): () => number {
+export function perfy(meta?: string, threshold?: number): (msg?: string) => number {
   const start = performance.now()
-  return () => {
+  return (msg?: string) => {
     const time = parseFloat((performance.now() - start).toFixed(4))
-    if (meta && threshold && time > threshold) console.log(`${meta}: ${time}ms`)
+    if (meta && threshold && time > threshold) {
+      if (msg) {
+        console.log(`${msg} | ${meta}: ${time}ms`)
+      } else {
+        console.log(`${meta}: ${time}ms`)
+      }
+    }
     return time
   }
 }

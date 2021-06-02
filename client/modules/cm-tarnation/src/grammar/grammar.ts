@@ -2,6 +2,7 @@ import { styleTags, tags } from "@codemirror/highlight"
 import { isArray, isRegExp, isString } from "is-what"
 import { klona } from "klona"
 import { NodeProp, NodePropSource } from "lezer-tree"
+import { Memoize } from "typescript-memoize"
 import { createID, escapeRegExp, hasSigil, removeUndefined, unSigil } from "wj-util"
 import { Action } from "./action"
 import type * as DF from "./definition"
@@ -20,10 +21,6 @@ export interface GrammarMatchState {
 export interface GrammarContext extends GrammarMatchState {
   target?: DF.SubRuleTarget
   substate?: SubState
-}
-
-export function createContext(state: string, context: DF.Context = {}): GrammarContext {
-  return { state, context }
 }
 
 export function getMatchState(cx: GrammarContext): GrammarMatchState {
@@ -442,17 +439,25 @@ export class Grammar {
 
   // MATCH
 
+  @Memoize()
+  private getRulesForState(state: SubState | string | Set<number>) {
+    const ids = state instanceof Set ? state : this.states.get(state)
+    if (!ids) return null
+    const rules = new Set<Rule>()
+    for (const id of ids) {
+      rules.add(this.rules.get(id)!)
+    }
+    return rules
+  }
+
   match(cx: GrammarContext, str: string, pos: number, offset = 0): Matched | null {
-    const ids = this.states.get(cx.substate ?? cx.state)
-    if (!ids) {
-      console.warn(
-        `Grammar: Undefined state (${cx.substate ?? cx.state}) requested in grammar!`
-      )
+    const rules = this.getRulesForState(cx.substate ?? cx.state)
+    if (!rules) {
+      console.warn(`Grammar: Undefined state! (${cx.substate ?? cx.state})`)
       return null
     }
 
-    for (const id of ids) {
-      const rule = this.rules.get(id)!
+    for (const rule of rules) {
       const matches = rule.exec(cx, str, pos)
       if (!matches) continue
       if (offset !== pos) matches.offset = offset
@@ -461,8 +466,7 @@ export class Grammar {
     }
 
     if (!cx.substate?.strict) {
-      for (const id of this.global) {
-        const rule = this.rules.get(id)!
+      for (const rule of this.getRulesForState(this.global)!) {
         const matches = rule.exec(cx, str, pos)
         if (!matches) continue
         if (offset !== pos) matches.offset = offset
