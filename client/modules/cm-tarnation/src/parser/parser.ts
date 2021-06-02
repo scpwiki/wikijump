@@ -119,8 +119,17 @@ export class Parser {
             for (let i = 0; i < t[3].length; i++) {
               // const [id, inclusive] = open[i]
               const o = t[3][i]
-              // ctx.stack.push(id, inclusive ? from : to, type ? (inclusive ? 0 : -1) : 0)
-              ctx.stack.push(o[0], o[1] ? t[1] : t[2], t[0] ? (o[1] ? 0 : -1) : 0)
+              // ctx.stack.push(
+              //   id,
+              //   inclusive ? from : to,
+              //   type ? (inclusive ? 0 : -1) : 0
+              // )
+              // prettier-ignore
+              ctx.stack.push(
+                o[0],
+                o[1] ? t[1] : t[2],
+                t[0] ? (o[1] ? 0 : -1) : 0
+              )
             }
           }
 
@@ -155,8 +164,17 @@ export class Parser {
                 // finally pop the node
                 // const [node, pos, children] = ctx.stack.pop()!
                 const s = ctx.stack.pop()!
-                // ctx.buffer.add([node, pos, inclusive ? to : from, children * 4 + 4])
-                ctx.buffer.add([s[0], s[1], c[1] ? t[2] : t[1], s[2] * 4 + 4])
+                // ctx.buffer.add([
+                //   node,
+                //   pos,
+                //   inclusive ? to : from, children * 4 + 4
+                // ])
+                // prettier-ignore
+                ctx.buffer.add([
+                  s[0],
+                  s[1],
+                  c[1] ? t[2] : t[1], s[2] * 4 + 4
+                ])
                 ctx.stack.increment()
               }
             }
@@ -165,7 +183,7 @@ export class Parser {
           // push the actual token to the buffer, if it hasn't been already
           // if (type && !pushed) {
           if (t[0] && !pushed) {
-            // // ctx.buffer.add([type, from, to, 4])
+            // ctx.buffer.add([type, from, to, 4])
             ctx.buffer.add([t[0], t[1], t[2], 4])
             ctx.stack.increment()
           }
