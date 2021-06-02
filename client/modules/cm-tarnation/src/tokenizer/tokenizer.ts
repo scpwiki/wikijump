@@ -78,7 +78,7 @@ export class Tokenizer {
 
   /** True if the tokenizer has already completed. */
   get done() {
-    return this.context.pos > this.end
+    return this.context.pos >= this.end
   }
 
   /** The tokenizer's current chunks. */
