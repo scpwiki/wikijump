@@ -225,7 +225,6 @@ export class Parser {
     const buffer: number[] = []
     for (let idx = 0; idx < this.pending.length; idx++) {
       const tokens = this.pending[idx].compile()
-      if (tokens.length === 0) console.error("what")
       for (let idx = 0; idx < tokens.length; idx++) {
         const t = tokens[idx]
         if (!t[0] || typeof t[0] === "string") continue
