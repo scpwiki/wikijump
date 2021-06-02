@@ -123,11 +123,17 @@ export class TokenizerStack {
 
   /** Serializes the stack and embedded data. */
   serialize(): SerializedTokenizerStack {
-    const { stack, embedded } = this
+    // create a shallow clone
+    const clone = this.stack.slice(0)
+    // then replace every element when a copy of itself
+    for (let idx = 0; idx < clone.length; idx++) {
+      clone[idx] = [clone[idx][0], Object.assign({}, clone[idx][1])]
+    }
     return {
-      stack: klona(stack),
-      // clone cheaply, rather than using klona
-      embedded: embedded ? [embedded[0], embedded[1]] : null
+      stack: clone,
+      embedded: this.embedded
+        ? (this.embedded.slice(0) as [lang: string, start: number])
+        : null
     }
   }
 
