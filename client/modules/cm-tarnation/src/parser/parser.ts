@@ -2,7 +2,7 @@ import type { EditorParseContext } from "@codemirror/language"
 import { Input, Tree } from "lezer-tree"
 import type { TarnationLanguage } from "../language"
 import type { Chunk } from "../tokenizer"
-import type { MappedToken, ParseRegion } from "../types"
+import type { LezerToken, MappedToken, ParseRegion } from "../types"
 import type { ParserContext } from "./context"
 import { EmbeddedHandler } from "./embedded-handler"
 
@@ -48,8 +48,8 @@ export class Parser {
     context: ParserContext,
     input: Input,
     region: ParseRegion,
-    pending: Chunk[] = [],
-    editorContext?: EditorParseContext
+    editorContext?: EditorParseContext,
+    pending: Chunk[] = []
   ) {
     this.language = language
     this.context = context
@@ -75,7 +75,8 @@ export class Parser {
 
   /** Executes a parse step. */
   private parse() {
-    const chunk = this.pending[this.context.index]
+    const ctx = this.context
+    const chunk = this.pending[ctx.index]
 
     // we want to cache the context before we process the chunk
     // this is the _starting_ context, not the ending context
@@ -91,13 +92,14 @@ export class Parser {
       switch (typeof t[0]) {
         // embed token
         case "string": {
-          this.embeddedHandler.push(t as any)
+          const token: LezerToken = [0, t[1], t[2], -1, Tree.empty]
+          ctx.buffer.add(token)
+          ctx.stack.increment()
+          this.embeddedHandler.add(token, t[0])
           break
         }
         // mapped token (default)
         default: {
-          const ctx = this.context
-
           /*
            * this upcoming code entirely avoids iterator methods, like destructuring
            * thus, it's entirely unreadable
@@ -107,16 +109,6 @@ export class Parser {
            */
 
           // const [type, from, to, open, close] = token
-
-          // token representing an embedded language location
-          // if (type === -1) {
-          if (t[0] === -1) {
-            // const index = ctx.buffer.add([0, from, to, -1, Tree.empty])
-            const index = ctx.buffer.add([0, t[1], t[2], -1, Tree.empty])
-            ctx.stack.increment()
-            this.embeddedHandler.push(index)
-            break
-          }
 
           // add open nodes to stack
           // this doesn't affect the buffer at all, but now we can watch for

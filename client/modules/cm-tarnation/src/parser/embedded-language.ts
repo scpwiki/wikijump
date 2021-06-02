@@ -1,14 +1,13 @@
 import { EditorParseContext, LanguageDescription } from "@codemirror/language"
 import { Input, PartialParse, Tree } from "lezer-tree"
 import type { TarnationLanguage } from "../language"
-import type { EmbedToken } from "../types"
 
 /**
  * An `EmbeddedLanguage` is effectively a very safe wrapper around a
  * CodeMirror/Lezer parser. This is because it does not accept a parser
  * directly - instead, you must give it a language to find (e.g.
- * "javascript"), an input document, and a range to parse. It then does the
- * rest itself - finding the language, advancing the parser, etc.
+ * "javascript"). It then does the rest itself - finding the language,
+ * advancing the parser, etc.
  *
  * If the language given cannot be found, a safe fallback parser will be
  * returned instead, which ultimately results in an empty `Tree`. If an
@@ -32,12 +31,12 @@ export class EmbeddedLanguage {
   declare lang?: LanguageDescription | null
 
   /**
-   * @param language - The host language.
-   * @param range - The range that this langauge will be parsing.
+   * @param host - The host language.
+   * @param language - The language to load.
    */
-  constructor(public language: TarnationLanguage, public range: EmbedToken) {
-    if (language.nestLanguages.length) {
-      this.lang = LanguageDescription.matchLanguageName(language.nestLanguages, range[0])
+  constructor(host: TarnationLanguage, public language: string) {
+    if (host.nestLanguages.length) {
+      this.lang = LanguageDescription.matchLanguageName(host.nestLanguages, language)
       if (this.lang?.support) this.parser = this.bindParser()
       else this.loading = this.init(this.lang)
     }
@@ -58,13 +57,13 @@ export class EmbeddedLanguage {
   /**
    * Starts the loading process for the language.
    *
-   * @param lang - The language description to load. Can be null - if it
-   *   is, a dummy parser will be returned instead.
+   * @param language - The language description to load. Can be null - if
+   *   it is, a dummy parser will be returned instead.
    */
-  private async init(lang: LanguageDescription | null) {
-    if (!lang) this.parser = input => new FakeParse(input, Tree.empty)
+  private async init(language: LanguageDescription | null) {
+    if (!language) this.parser = input => new FakeParse(input, Tree.empty)
     else {
-      await lang.load()
+      await language.load()
       return (this.parser = this.bindParser())
     }
   }

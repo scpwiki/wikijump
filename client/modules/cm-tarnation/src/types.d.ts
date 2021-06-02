@@ -93,12 +93,7 @@ export interface SerializedTokenizerContext {
 export type ParserElementStack = [name: number, start: number, children: number][]
 
 /** Embedded region data for a parser. */
-export interface EmbeddedData {
-  /** Token indexes that do not yet have a region allocated to them. */
-  pending: number[]
-  /** Parsers to run using a token index and range. */
-  parsers: [token: number, range: EmbedToken][]
-}
+export type EmbeddedData = [token: LezerToken, language: string][]
 
 /** Serialized context/state of a parser. */
 export interface SerializedParserContext {

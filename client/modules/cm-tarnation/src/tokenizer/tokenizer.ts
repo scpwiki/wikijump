@@ -180,7 +180,6 @@ export class Tokenizer {
         // token represents the entire region, not the start or end of one
         if (!stack.embedded && t.embedded.endsWith("!")) {
           const lang = t.embedded.slice(0, t.embedded.length - 1)
-          mapped.push((last = [-1, t.from, t.to]))
           mapped.push([lang, t.from, t.to])
           continue
         }
@@ -216,9 +215,6 @@ export class Tokenizer {
         if (last && !changedStack && this.canContinue(last, t)) last[2] = t.to
         else mapped.push((last = this.compileGrammarToken(t)))
       }
-
-      // add a token for marking the embedded language
-      if (pushEmbedded) mapped.push((last = [-1, t.to, t.to]))
     }
 
     return mapped
