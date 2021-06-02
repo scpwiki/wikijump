@@ -2,11 +2,10 @@ import type { Input } from "lezer-tree"
 import type { Grammar, GrammarToken } from "../grammar/grammar"
 import type { TarnationLanguage } from "../language"
 import type { NodeMap } from "../node-map"
-import type { MappedToken, ParseRegion, SerializedTokenizerStack, Token } from "../types"
+import type { MappedToken, ParseRegion, Token } from "../types"
 import type { TokenizerBuffer } from "./buffer"
 import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
-import type { TokenizerStack } from "./stack"
 
 /** Amount of safety-margin to read after the tokenizer's end position. */
 const MARGIN_AFTER = 500
@@ -158,24 +157,13 @@ export class Tokenizer {
 
   /** Executes a tokenization step. */
   private tokenize() {
-    const { stack } = this.context
+    const stack = this.context.stack
 
     const { tokens, length } = this.match()
 
-    const startPos = this.context.pos
-    let startStack: TokenizerStack | SerializedTokenizerStack = stack
-
     this.context.pos += length
 
-    if (!tokens) return { tokens, startPos, startStack }
-
-    for (let idx = 0; idx < tokens.length; idx++) {
-      const token = tokens[idx]
-      if (token.next || token.switchTo || token.context || token.embedded) {
-        startStack = stack.serialize()
-        break
-      }
-    }
+    if (!tokens) return null
 
     const mapped: Token[] = []
 
@@ -233,7 +221,7 @@ export class Tokenizer {
       if (pushEmbedded) mapped.push((last = [-1, t.to, t.to]))
     }
 
-    return { tokens: mapped, startPos, startStack }
+    return mapped
   }
 
   /** Compiles the tokenizer's buffer. */
@@ -249,8 +237,10 @@ export class Tokenizer {
     const { context: ctx, end, buffer } = this
 
     if (ctx.pos < end) {
-      const { tokens, startPos, startStack } = this.tokenize()
-      if (tokens?.length) buffer.add(startPos, startStack, tokens)
+      const pos = this.context.pos
+      const stack = this.context.stack.serialize()
+      const tokens = this.tokenize()
+      if (tokens?.length) buffer.add(pos, stack, tokens)
     }
 
     if (ctx.pos >= end) return this.chunks
