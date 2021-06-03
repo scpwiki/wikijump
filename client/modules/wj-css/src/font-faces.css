@@ -52,6 +52,112 @@
       format("woff2-variations");
     font-display: swap;
   }
+
+  /* -- Roboto Mono */
+
+  @font-face {
+    font-family: "Roboto Mono";
+    font-weight: 100 700;
+    src: url("assets/fonts/variable/RobotoMono-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Roboto Mono";
+    font-style: italic;
+    font-weight: 100 700;
+    src: url("assets/fonts/variable/RobotoMono-Italic-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
+  /* -- Noto Sans CJK {HK, JP, KR, SC, TC} */
+
+  @font-face {
+    font-family: "Noto Sans CJK HK";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansHK-VF.woff2") format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Noto Sans CJK JP";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansJP-VF.woff2") format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Noto Sans CJK KR";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansKR-VF.woff2") format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Noto Sans CJK SC";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansSC-VF.woff2") format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Noto Sans CJK TC";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansTC-VF.woff2") format("woff2-variations");
+    font-display: swap;
+  }
+
+  /* -- Noto Sans Mono CJK {HK, JP, KR, SC, TC} */
+
+  /*
+    I couldn't get the variable Noto Sans Mono CJK fonts to work at all.
+    Both Firefox and Chrome would simply refuse to load any WOFF2 forms of them,
+    which was the only format they could be in because otherwise they'd be 30+ MB.
+    These font-faces are left here so that if they ever do start working again they
+    can easily be added back. Adding all of these font-faces is really tedious.
+  */
+
+  /* @font-face {
+    font-family: "Noto Sans Mono CJK HK";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansMonoCJKhk-VF.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Noto Sans Mono CJK JP";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansMonoCJKjp-VF.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Noto Sans Mono CJK KR";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansMonoCJKkr-VF.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Noto Sans Mono CJK SC";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansMonoCJKsc-VF.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Noto Sans Mono CJK TC";
+    font-weight: 400 700;
+    src: url("assets/fonts/variable/NotoSansMonoCJKtc-VF.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  } */
 }
 
 /* -- Sometype Mono */
@@ -98,5 +204,77 @@
   font-style: italic;
   font-weight: 800;
   src: url("assets/fonts/SometypeMono-BoldItalic.woff2") format("woff2");
+  font-display: swap;
+}
+
+/* -- Noto Sans Mono CJK {HK, JP, KR, SC, TC} */
+
+@font-face {
+  font-family: "Noto Sans Mono CJK HK";
+  font-weight: normal;
+  src: url("assets/fonts/NotoSansMonoCJKhk-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK HK";
+  font-weight: bold;
+  src: url("assets/fonts/NotoSansMonoCJKhk-Bold.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK JP";
+  font-weight: normal;
+  src: url("assets/fonts/NotoSansMonoCJKjp-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK JP";
+  font-weight: bold;
+  src: url("assets/fonts/NotoSansMonoCJKjp-Bold.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK KR";
+  font-weight: normal;
+  src: url("assets/fonts/NotoSansMonoCJKkr-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK KR";
+  font-weight: bold;
+  src: url("assets/fonts/NotoSansMonoCJKkr-Bold.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK SC";
+  font-weight: normal;
+  src: url("assets/fonts/NotoSansMonoCJKsc-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK SC";
+  font-weight: bold;
+  src: url("assets/fonts/NotoSansMonoCJKsc-Bold.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK TC";
+  font-weight: normal;
+  src: url("assets/fonts/NotoSansMonoCJKtc-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK TC";
+  font-weight: bold;
+  src: url("assets/fonts/NotoSansMonoCJKtc-Bold.woff2") format("woff2");
   font-display: swap;
 }
