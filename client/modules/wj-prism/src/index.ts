@@ -1,3 +1,4 @@
+import type PrismType from "prismjs"
 import "../vendor/prism"
 import { prismFTML } from "./ftml"
 
@@ -6,7 +7,7 @@ import { prismFTML } from "./ftml"
 // Re-export a reference to Prism so that there is actually a half-decent
 // way of accessing it
 /** Reference to the Prism syntax highlighter. */
-export const Prism: typeof import("prismjs") = globalThis.Prism
+export const Prism: typeof PrismType = globalThis.Prism
 
 // set prism class prefix
 // https://prismjs.com/plugins/custom-class/

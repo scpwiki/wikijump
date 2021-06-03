@@ -21,7 +21,7 @@
     "test:run": "uvu ./tests-dist/dist test-megabundle.+js$",
     "typecheck": "tsc",
     "validate": "ultra --concurrency 10 validate:cmd",
-    "validate:cmd": "pnpm lint",
+    "validate:cmd": "pnpm lint && pnpm typecheck",
     "nabs": "nabs"
   },
   "ultra": {
