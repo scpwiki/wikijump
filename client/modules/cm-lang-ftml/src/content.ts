@@ -18,6 +18,27 @@ type DictionaryImporter = () => Promise<{ dict: string; bigram?: string }>
 const dicts: Record<string, DictionaryImporter> = {
   "en": async () => ({
     dict: await url(import("../vendor/dicts/en-merged.txt?url"))
+  }),
+  "de": async () => ({
+    dict: await url(import("../vendor/dicts/de-100k.txt?url"))
+  }),
+  "es": async () => ({
+    dict: await url(import("../vendor/dicts/es-100l.txt?url"))
+  }),
+  "fr": async () => ({
+    dict: await url(import("../vendor/dicts/fr-100k.txt?url"))
+  }),
+  "he": async () => ({
+    dict: await url(import("../vendor/dicts/he-100k.txt?url"))
+  }),
+  "it": async () => ({
+    dict: await url(import("../vendor/dicts/it-100k.txt?url"))
+  }),
+  "ru": async () => ({
+    dict: await url(import("../vendor/dicts/ru-100k.txt?url"))
+  }),
+  "zh": async () => ({
+    dict: await url(import("../vendor/dicts/zh-50k.txt?url"))
   })
 }
 
@@ -30,6 +51,7 @@ export class ContentWorker extends WorkerModule<ContentModuleInterface> {
     super("ftml-lang-content-worker", importWorker, {
       persist: true,
       init: async () => {
+        // TODO: make this automatic / configurable
         const { dict, bigram } = await dicts.en()
         await this.invoke("setSpellchecker", spellcheckerWASMURL, dict, bigram)
         const localDictionary = Pref.get<string[]>("cm-lang-ftml-user-dictionary", [])
