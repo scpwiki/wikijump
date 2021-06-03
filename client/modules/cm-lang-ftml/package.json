@@ -37,6 +37,7 @@
     "ftml-wasm-worker": "workspace:*",
     "lezer-tree": "^0.13.2",
     "sheaf-core": "workspace:*",
+    "spellchecker-wasm": "^0.3.3",
     "wj-prism": "workspace:*",
     "wj-state": "workspace:*",
     "wj-util": "workspace:*",
