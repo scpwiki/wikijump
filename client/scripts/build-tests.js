@@ -12,7 +12,7 @@ const istanbul = require("./rollup-plugin-istanbul")
 // make sure we're at root
 process.chdir(path.resolve(__dirname, "../"))
 const DIR = path.resolve(process.cwd(), "tests-dist")
-const EXCLUDE = [/ftml-wasm-worker/]
+const EXCLUDE = [/\.worker\.ts$/]
 
 build()
 
