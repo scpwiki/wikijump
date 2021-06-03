@@ -55,12 +55,18 @@
 
   // TODO: figure out what fonts we actually want to use
 
-  --font-sans:    "Public Sans", var(--font-cjk), var(--font-system-sans);
-  --font-display: "Exo 2",       var(--font-cjk), var(--font-system-rounded);
-  --font-serif:   "Bitter",      var(--font-cjk), var(--font-system-serif);
-  // use Roboto Mono as well, as Sometype Mono is a fairly small font,
-  // and doesn't support as many characters as Roboto does
-  --font-mono: "Sometype Mono", "Roboto Mono", var(--font-cjk-mono), var(--font-system-mono);
+  // fonts have Roboto as a fallback, due to its wide Unicode support.
+  // normally it would be fine to use the significant system stack fallback,
+  // but because we have CJK fonts as well, the Noto font would override everything.
+  // e.g. Cyrillic text would use the CJK font, not the system fonts.
+  // the system fonts are still very useful though, because:
+  // 1. emoji
+  // 2. they're being used while the user is downloading the main fonts
+
+  --font-sans:    "Public Sans",   "Roboto",      var(--font-cjk),      var(--font-system-sans);
+  --font-display: "Exo 2",         "Roboto",      var(--font-cjk),      var(--font-system-rounded);
+  --font-serif:   "Bitter",        "Roboto",      var(--font-cjk),      var(--font-system-serif);
+  --font-mono:    "Sometype Mono", "Roboto Mono", var(--font-cjk-mono), var(--font-system-mono);
 }
 
 // Changing CJK font based on locale

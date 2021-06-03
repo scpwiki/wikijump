@@ -53,6 +53,26 @@
     font-display: swap;
   }
 
+  /* -- Roboto */
+
+  @font-face {
+    font-family: "Roboto";
+    font-weight: 100 900;
+    font-stretch: 75 100;
+    src: url("assets/fonts/variable/Roboto-VariableFont.woff2") format("woff2-variations");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Roboto";
+    font-style: italic;
+    font-weight: 100 900;
+    font-stretch: 75 100;
+    src: url("assets/fonts/variable/Roboto-Italic-VariableFont.woff2")
+      format("woff2-variations");
+    font-display: swap;
+  }
+
   /* -- Roboto Mono */
 
   @font-face {
