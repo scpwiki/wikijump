@@ -37,7 +37,7 @@ export interface Misspelling extends Word {
 const FILTERS = [
   /\p{Nd}+\p{L}+/gu, // e.g. 5GW, 20mm, etc.
   /\b's\b/gu, // replaces `'s` plurals because they otherwise create unknown words
-  /\s'|'\s/gu, // replaces ' marks on the start or end of words, but not inside
+  /\s'|'(?!\p{L})/gu, // replaces ' marks on the start or end of words, but not inside
   /\b[\p{Lu}\p{Nd}]{2,4}\b/gu // SCP, MTF, etc. capitalized acronyms/initialisms
 ]
 
