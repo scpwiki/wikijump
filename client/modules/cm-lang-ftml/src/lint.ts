@@ -1,7 +1,8 @@
-import { Diagnostic, linter } from "@codemirror/lint"
+import { Action, Diagnostic, linter } from "@codemirror/lint"
 import type { EditorView } from "@codemirror/view"
 import FTML from "ftml-wasm-worker"
 import { format } from "wj-state"
+import { Content } from "."
 
 interface WarningInfo {
   message: string
@@ -53,31 +54,71 @@ async function lint(view: EditorView) {
   try {
     const doc = view.state.doc
     const str = doc.toString()
+    const content = await Content.extract(str)
     const len = str.length
 
-    const emitted = await FTML.warnings(str)
-
     const diagnostics: Diagnostic[] = []
-    for (const warning of emitted) {
-      const { kind, rule, token } = warning
-      const { start: from, end: to } = warning.span
 
-      if (from === undefined || to === undefined || to > len) continue
-      if (!warningInfo[kind]) continue
+    // do spellcheck and ftml warnings in parallel
+    await Promise.all([
+      // process FTML warnings
+      FTML.warnings(str).then(warnings => {
+        for (const warning of warnings) {
+          const { kind, rule, token } = warning
+          const { start: from, end: to } = warning.span
 
-      let { message, severity } = warningInfo[kind]!
+          if (from === undefined || to === undefined || to > len) continue
+          if (!warningInfo[kind]) continue
 
-      // format and translate
+          let { message, severity } = warningInfo[kind]!
 
-      const slice = doc.sliceString(from, to)
-      message = format(message, { values: { rule, slice } })
+          // format and translate
 
-      const source = format("cmftml.lint.WARNING_SOURCE", {
-        values: { rule, kind, token, from, to }
+          const slice = doc.sliceString(from, to)
+          message = format(message, { values: { rule, slice } })
+
+          const source = format("cmftml.lint.WARNING_SOURCE", {
+            values: { rule, kind, token, from, to }
+          })
+
+          diagnostics.push({ from, to, message, severity, source })
+        }
+      }),
+      // spellcheck
+      Content.spellcheckWords(content).then(misspellings => {
+        if (!misspellings) return
+        for (const { word, from, to, suggestions } of misspellings) {
+          const slice = word
+          const message = format("cmftml.lint.MISSPELLED_WORD", { values: { slice } })
+          const source = format("cmftml.lint.SPELLCHECKER_SOURCE", {
+            values: { slice, from, to }
+          })
+
+          const actions: Action[] = suggestions.map(suggestion => ({
+            name: suggestion.term,
+            apply(view, from, to) {
+              view.dispatch({ changes: { from, to, insert: suggestion.term } })
+            }
+          }))
+
+          actions.push({
+            name: format("cmftml.lint.SPELLCHECKER_ADD_TO_DICTIONARY", {
+              values: { slice }
+            }),
+            apply(view, from, to) {
+              Content.saveToDictionary(slice)
+              // reinsert the same word back so that the document gets updated still
+              view.dispatch({ changes: { from, to, insert: word } })
+            }
+          })
+
+          diagnostics.push({ from, to, message, severity: "error", source, actions })
+        }
       })
+    ])
 
-      diagnostics.push({ from, to, message, severity, source })
-    }
+    // diagnostics have to be in order
+    diagnostics.sort((a, b) => a.from - b.from)
 
     return diagnostics
   } catch {

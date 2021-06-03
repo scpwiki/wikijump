@@ -204,6 +204,38 @@
   }
 }
 
+.cm-editor .cm-diagnostic {
+  max-width: 30rem;
+
+  > .cm-diagnosticAction {
+    display: block;
+    width: 100%;
+    padding: 0.125rem 0.25rem;
+    padding-left: 0;
+    margin: 0;
+    font-size: 0.825rem;
+    color: var(--col-text);
+    text-align: left;
+    background: none;
+    border-radius: 0;
+    transition: background-color 0.075s ease, color 0.075s ease;
+
+    &:not(:last-of-type) {
+      border-bottom: solid 0.075rem var(--colcode-border);
+    }
+
+    &:hover,
+    &[aria-selected] {
+      color: var(--colcode-accent);
+      background-color: var(--colcode-hover);
+    }
+  }
+
+  > .cm-diagnosticSource {
+    margin-top: 0.25rem;
+  }
+}
+
 // Replace CodeMirror's step-wise blink animations with our own smooth ones
 // CodeMirror has two identical blink animations that it alternates between
 // This is for technical reasons, mostly due to quirks with restarting CSS animations
