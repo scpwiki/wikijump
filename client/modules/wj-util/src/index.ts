@@ -446,3 +446,30 @@ export function mod(a: number, n: number) {
 export function replaceRange(str: string, from: number, to: number, sub: string) {
   return str.substr(0, from) + sub + str.substr(to)
 }
+
+/**
+ * Capitalizes (or lowercases, if set) a string. Does not uppercase the
+ * entire string, just the first character.
+ *
+ * @param str - The string to capitalize.
+ * @param state - Whether to capitalize or lowercase. Defaults to capitalize.
+ */
+export function capitalize(str: string, state = true) {
+  if (!state) return str.toLowerCase()
+  return replaceRange(str.toLowerCase(), 0, 1, str[0].toUpperCase())
+}
+
+/** Determines if a string is capitalized (first character is uppercased). */
+export function isCapitalized(str: string) {
+  return str[0].toUpperCase() === str[0]
+}
+
+/** Determines if a string is completely uppercased. */
+export function isUppercased(str: string) {
+  return str.toUpperCase() === str
+}
+
+/** Determines if a string is completely lowercased. */
+export function isLowercased(str: string) {
+  return str.toLowerCase() === str
+}
