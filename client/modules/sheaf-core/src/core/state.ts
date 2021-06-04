@@ -2,6 +2,7 @@ import { syntaxTree } from "@codemirror/language"
 import type { EditorState, Text } from "@codemirror/state"
 import type { EditorView } from "@codemirror/view"
 import type { SheafBindings } from "../extensions/bindings"
+import { ContentFacet } from "../extensions/content"
 import { gutters } from "../extensions/gutters"
 import { getActiveLines, textBuffer, textValue } from "../util/misc"
 import type { SheafCore } from "./core"
@@ -39,6 +40,10 @@ export class SheafState {
 
   async buffer() {
     return await textBuffer(this.doc)
+  }
+
+  async content(): Promise<string> {
+    return (await this.state.facet(ContentFacet)(this.state, false)) as string
   }
 
   get tree() {

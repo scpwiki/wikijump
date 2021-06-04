@@ -3,10 +3,12 @@ import { EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view"
 import { Writable, writable } from "svelte/store"
 import { getSheafBasicExtensions } from "../extensions/base"
 import { createSheafBinding, SheafBindings } from "../extensions/bindings"
+import { ContentFacet } from "../extensions/content"
 import { gutters } from "../extensions/gutters"
 import { indentHack } from "../extensions/indent-hack"
 import { getSheafKeymap } from "../extensions/keymap"
 import { confinement } from "../extensions/theme"
+import { textBuffer, textValue } from "../util/misc"
 import { SheafState } from "./state"
 
 export class SheafCore {
@@ -27,6 +29,9 @@ export class SheafCore {
           getSheafBasicExtensions(),
           getSheafKeymap(),
           indentHack,
+          ContentFacet.of((state, buffer) =>
+            buffer ? textBuffer(state.doc) : textValue(state.doc)
+          ),
           gutters,
           confinement,
           createSheafBinding(this, bindings),

@@ -62,11 +62,14 @@ export class ContentWorker extends WorkerModule<ContentModuleInterface> {
     })
   }
 
-  async extract(str: string) {
-    return decode(await this.invoke("extract", transfer(str)))
+  async extract(str: string | ArrayBuffer): Promise<string>
+  async extract(str: string | ArrayBuffer, raw: true): Promise<ArrayBuffer>
+  async extract(str: string | ArrayBuffer, raw = false): Promise<string | ArrayBuffer> {
+    const result = await this.invoke("extract", transfer(str))
+    return raw ? result : decode(result)
   }
 
-  async stats(str: string) {
+  async stats(str: string | ArrayBuffer) {
     return await this.invoke("stats", transfer(str))
   }
 
@@ -76,11 +79,11 @@ export class ContentWorker extends WorkerModule<ContentModuleInterface> {
     await this.invoke("setSpellchecker", spellcheckerWASMURL, dict, bigram)
   }
 
-  async spellcheck(word: string) {
+  async spellcheck(word: string | ArrayBuffer) {
     return await this.invoke("spellcheck", transfer(word))
   }
 
-  async spellcheckWords(str: string) {
+  async spellcheckWords(str: string | ArrayBuffer) {
     return await this.invoke("spellcheckWords", transfer(str))
   }
 
