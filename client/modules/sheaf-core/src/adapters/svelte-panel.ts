@@ -1,7 +1,8 @@
 import { Panel, showPanel } from "@codemirror/panel"
-import { Extension, StateEffect, StateEffectType, StateField } from "@codemirror/state"
+import type { Extension } from "@codemirror/state"
 import type { EditorView } from "@codemirror/view"
 import type { SvelteComponent } from "svelte"
+import { EditorField } from "../util/editor-field"
 import {
   EditorSvelteComponent,
   EditorSvelteComponentOpts,
@@ -46,8 +47,7 @@ export class EditorSveltePanel<T extends typeof SvelteComponent> {
    */
   declare extension: Extension
 
-  private declare panelEffect: StateEffectType<boolean>
-  private declare panelState: StateField<boolean>
+  private declare field: EditorField<boolean>
   private declare handler: EditorSvelteComponent<T>
 
   /**
@@ -59,20 +59,14 @@ export class EditorSveltePanel<T extends typeof SvelteComponent> {
     private opts: EditorSveltePanelOpts<InstanceType<T>> = {}
   ) {
     this.handler = new EditorSvelteComponent(component)
+
     const create = this.create.bind(this)
-    const panelEffect = (this.panelEffect = StateEffect.define<boolean>())
-    this.panelState = StateField.define<boolean>({
-      create: () => true,
-      update(value, tr) {
-        for (const effect of tr.effects) {
-          if (effect.is(panelEffect)) value = effect.value
-        }
-        return value
-      },
-      provide: facet => showPanel.from(facet, show => (show ? create : null))
+    this.field = new EditorField<boolean>({
+      default: false,
+      provide: field => showPanel.from(field, show => (show ? create : null))
     })
 
-    this.extension = [this.panelState]
+    this.extension = this.field
   }
 
   /**
@@ -80,11 +74,8 @@ export class EditorSveltePanel<T extends typeof SvelteComponent> {
    * CodeMirror panel instance.
    */
   private create(view: EditorView): Panel {
-    const toggle = this.toggle.bind(this)
     const instance = this.handler.create(view, {
-      unmount() {
-        toggle(view, false)
-      }
+      unmount: () => this.toggle(view, false)
     })
     return { ...instance, top: this.opts.top }
   }
@@ -96,7 +87,7 @@ export class EditorSveltePanel<T extends typeof SvelteComponent> {
    * @param state - Forces the panel to either mount or unmount.
    */
   toggle(view: EditorView, state?: boolean) {
-    if (state === undefined) state = !view.state.field(this.panelState)
-    view.dispatch({ effects: this.panelEffect.of(state) })
+    if (state === undefined) state = !this.field.get(view)
+    this.field.set(view, state)
   }
 }

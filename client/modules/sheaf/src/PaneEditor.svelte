@@ -17,11 +17,12 @@
 
   $: theme = $settings.editor.darkmode ? "dark" : "light"
 
-  $: editor.gutters = !$small
+  $: if ($editor.mounted) editor.gutters.set(editor.view, !$small)
 
   onMount(async () => {
     const TestPanel = new EditorSveltePanel(SheafPanel, { top: true })
     await editor.init(editorElement, doc, bindings, [FTMLLanguage.load(), TestPanel])
+    TestPanel.toggle(editor.view, true)
   })
 </script>
 

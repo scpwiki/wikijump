@@ -12,7 +12,7 @@ import { nextDiagnostic, openLintPanel } from "@codemirror/lint"
 import { bracketMatching } from "@codemirror/matchbrackets"
 import { rectangularSelection } from "@codemirror/rectangular-selection"
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search"
-import { Compartment, EditorState, Extension } from "@codemirror/state"
+import { EditorState, Extension } from "@codemirror/state"
 import {
   drawSelection,
   EditorView,
@@ -27,6 +27,7 @@ import { createSheafBinding, SheafBindings } from "./bindings"
 import { indentHack } from "./extensions/indent-hack"
 import { printTree } from "./print-tree"
 import { confinement } from "./theme"
+import { EditorField } from "./util/editor-field"
 
 export * from "./adapters/svelte-dom"
 export * from "./adapters/svelte-lifecycle-element"
@@ -72,8 +73,14 @@ export class SheafCore {
    */
   activeLines = writable(new Set<number>())
 
-  private spellcheckCompartment = new Compartment()
-  private guttersCompartment = new Compartment()
+  spellcheck = new EditorField<boolean>({
+    default: true
+  })
+
+  gutters = new EditorField<boolean>({
+    default: true,
+    reconfigure: state => (state ? [lineNumbers(), foldGutter()] : null)
+  })
 
   /** Starts the editor. */
   async init(
@@ -115,10 +122,8 @@ export class SheafCore {
           ...getExtensions(),
           ...createSheafBinding(this, bindings),
           ...extensions,
-          this.spellcheckCompartment.of(
-            EditorView.contentAttributes.of({ spellcheck: String(this._spellcheck) })
-          ),
-          this.guttersCompartment.of(this._gutters ? [lineNumbers(), foldGutter()] : []),
+          this.spellcheck,
+          this.gutters,
           updateHandler
         ]
       })
@@ -169,46 +174,6 @@ export class SheafCore {
 
   printTree() {
     return printTree(syntaxTree(this.state), this.doc.toString())
-  }
-
-  // -- SPELLCHECK COMPARTMENT
-
-  private _spellcheck = false
-
-  get spellcheck() {
-    return this._spellcheck
-  }
-
-  /** Whether or not the browser's spellchecker is enabled for the editor. */
-  set spellcheck(state: boolean) {
-    this._spellcheck = state
-    if (this.view) {
-      this.view.dispatch({
-        effects: this.spellcheckCompartment.reconfigure(
-          EditorView.contentAttributes.of({ spellcheck: String(state) })
-        )
-      })
-    }
-  }
-
-  // -- GUTTERS COMPARTMENT
-
-  private _gutters = true
-
-  get gutters() {
-    return this._gutters
-  }
-
-  /** Whether or not the line-numbers and associated gutter panel is shown. */
-  set gutters(state: boolean) {
-    this._gutters = state
-    if (this.view) {
-      this.view.dispatch({
-        effects: this.guttersCompartment.reconfigure(
-          state ? [lineNumbers(), foldGutter()] : []
-        )
-      })
-    }
   }
 }
 
