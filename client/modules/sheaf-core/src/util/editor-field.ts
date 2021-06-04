@@ -1,11 +1,12 @@
 import {
   Compartment,
+  EditorState,
   Extension,
   StateEffect,
   StateField,
   Transaction
 } from "@codemirror/state"
-import type { EditorView } from "@codemirror/view"
+import { EditorView } from "@codemirror/view"
 import { writable, Writable } from "svelte/store"
 
 export interface EditorFieldOpts<T> {
@@ -106,10 +107,21 @@ export class EditorField<T> {
   /**
    * Gets the current value for this field.
    *
+   * @param state - The `EditorState` to source the value from.
+   */
+  get(state: EditorState): T
+  /**
+   * Gets the current value for this field.
+   *
    * @param view - The `EditorView` to source the value from.
    */
-  get(view: EditorView) {
-    return view.state.field(this.field)
+  get(view: EditorView): T
+  get(source: EditorView | EditorState): T {
+    if (source instanceof EditorView) {
+      return source.state.field(this.field)
+    } else {
+      return source.field(this.field)
+    }
   }
 
   /**
@@ -141,6 +153,16 @@ export class EditorField<T> {
         }
       }
     }
+  }
+
+  /**
+   * Returns an extension that mounts this field, but using a different
+   * creation value.
+   *
+   * @param value - The value to set the field to on creation.
+   */
+  of(value: T) {
+    return this.field.init(() => value)
   }
 
   /**

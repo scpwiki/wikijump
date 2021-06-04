@@ -2,14 +2,8 @@
   @component Sheaf Editor: Editor Pane.
 -->
 <script lang="ts">
-  import { FTMLLanguage } from "cm-lang-ftml"
-  import { EditorSveltePanel } from "sheaf-core"
   import { getContext, onMount } from "svelte"
   import type { SheafContext } from "./context"
-  import SheafPanel from "./SheafPanel.svelte"
-
-  /** The value of the editor's contents. */
-  export let doc = ""
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
@@ -17,13 +11,9 @@
 
   $: theme = $settings.editor.darkmode ? "dark" : "light"
 
-  $: if ($editor.mounted) editor.gutters.set(editor.view, !$small)
+  $: $editor.gutters = !$small
 
-  onMount(async () => {
-    const TestPanel = new EditorSveltePanel(SheafPanel, { top: true })
-    await editor.init(editorElement, doc, bindings, [FTMLLanguage.load(), TestPanel])
-    TestPanel.toggle(editor.view, true)
-  })
+  onMount(() => editor.mount(editorElement))
 </script>
 
 <div class="sheaf-editor-container {theme} codetheme-{theme}">

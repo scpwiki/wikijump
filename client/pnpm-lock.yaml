@@ -261,6 +261,7 @@ importers:
       lezer: ^0.13.5
       lezer-tree: ^0.13.2
       svelte: ^3.38.2
+      typescript-memoize: ^1.0.1
       wj-util: workspace:*
     dependencies:
       '@codemirror/autocomplete': 0.18.5
@@ -286,6 +287,7 @@ importers:
       lezer: 0.13.5
       lezer-tree: 0.13.2
       svelte: 3.38.2
+      typescript-memoize: 1.0.1
       wj-util: link:../wj-util
 
   modules/wj-css:

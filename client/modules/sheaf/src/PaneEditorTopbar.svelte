@@ -22,7 +22,7 @@
   // it has to get the editor's value, which means it has to stringify
   // the document contents, which is expensive and memory intensive
   const updateExpensiveStats = throttle(async () => {
-    const value = $editor.value
+    const value = await $editor.value()
     const stats = await Content.stats(value)
     words = stats.words
     bytes = Math.round(stats.bytes / 1000)

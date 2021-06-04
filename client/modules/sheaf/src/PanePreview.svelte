@@ -8,6 +8,7 @@
   import type { SheafContext } from "./context"
   import { RenderHandler } from "./render-handler"
   import { t } from "wj-state"
+  import { printTree } from "sheaf-core"
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
@@ -53,7 +54,10 @@
 
       <Tab>
         <span slot="button">{$t("sheaf.preview_tabs.EDITOR_AST")}</span>
-        <CodeDisplay content={$editor.self.printTree()} lang="LezerTree" />
+        <CodeDisplay
+          content={$editor.value().then(value => printTree($editor.tree, value))}
+          lang="LezerTree"
+        />
       </Tab>
     {/if}
   </Tabview>

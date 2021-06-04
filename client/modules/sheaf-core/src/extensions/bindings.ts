@@ -1,7 +1,7 @@
 import type { Extension } from "@codemirror/state"
 import { keymap, ViewPlugin } from "@codemirror/view"
 import { debounce } from "wj-util"
-import type { SheafCore } from "./index"
+import type { SheafCore } from "../core/core"
 
 export interface SheafBindings {
   /** Callback fired when the user "saves", e.g. hitting `CTRL + S`. */
