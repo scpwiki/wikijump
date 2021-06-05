@@ -1,51 +1,41 @@
-import { Action, Diagnostic, linter } from "@codemirror/lint"
-import type { EditorView } from "@codemirror/view"
-import { format } from "wj-state"
-import { Spellchecker } from "."
+/* eslint-disable @typescript-eslint/unbound-method */
+import { EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view"
 import { ContentFacet } from "../content"
+import { Spellcheck } from "./extension"
+import { Spellchecker } from "./spellchecker"
 
-async function lint(view: EditorView) {
-  try {
-    const extract = view.state.facet(ContentFacet)
-    const content = await extract(view.state, true)
+export const spellcheckLinter = ViewPlugin.fromClass(
+  class {
+    declare view: EditorView
+    declare timeout // untyped because TS types setTimeout badly
 
-    const diagnostics: Diagnostic[] = []
-    const misspellings = await Spellchecker.spellcheckWords(content)
+    constructor(view: EditorView) {
+      this.view = view
+      // ensures that "this" gets preserved regardless of how the function is ran
+      this.run = this.run.bind(this)
+      this.timeout = setTimeout(this.run, 250)
+    }
 
-    if (misspellings) {
-      for (const { word, from, to, suggestions } of misspellings) {
-        const slice = word
-        const message = format("cmftml.lint.MISSPELLED_WORD", { values: { slice } })
-        const source = format("cmftml.lint.SPELLCHECKER_SOURCE", {
-          values: { slice, from, to }
-        })
-
-        const actions: Action[] = suggestions.map(suggestion => ({
-          name: suggestion.term,
-          apply(view, from, to) {
-            view.dispatch({ changes: { from, to, insert: suggestion.term } })
-          }
-        }))
-
-        actions.push({
-          name: format("cmftml.lint.SPELLCHECKER_ADD_TO_DICTIONARY", {
-            values: { slice }
-          }),
-          apply(view, from, to) {
-            Spellchecker.saveToDictionary(slice)
-            // reinsert the same word back so that the document gets updated still
-            view.dispatch({ changes: { from, to, insert: word } })
-          }
-        })
-
-        diagnostics.push({ from, to, message, severity: "error", source, actions })
+    update(update: ViewUpdate) {
+      if (update.docChanged) {
+        clearTimeout(this.timeout)
+        this.timeout = setTimeout(this.run, 250)
       }
     }
 
-    return diagnostics
-  } catch {
-    return []
-  }
-}
+    async run() {
+      const state = this.view.state
+      const extract = state.facet(ContentFacet)
+      const content = await extract(state, true)
+      const misspellings = await Spellchecker.spellcheckWords(content)
 
-export const spellcheckLinter = linter(lint, { delay: 250 })
+      // check if the document changed while we were processing
+      if (this.view.state.doc !== state.doc) return
+
+      const field = Spellcheck.get(this.view)
+      if (field.enabled) {
+        Spellcheck.set(this.view, field.set(misspellings ?? []))
+      }
+    }
+  }
+)

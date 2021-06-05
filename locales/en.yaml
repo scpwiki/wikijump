@@ -73,16 +73,19 @@ sheaf:
     TOKENS: Tokens
     EDITOR_AST: Editor AST
 
+  spellcheck:
+    MISSPELLED_WORD: "Misspelled word: ''{slice}''"
+    ADD_TO_DICTIONARY: Add ''{slice}'' to dictionary
+    SOURCE: >
+      spellchecker(word: ''{slice}'') [{from, number, :: ,_}, {to, number, :: ,_}]
+
+    tooltips:
+      ACCEPT_SUGGESTION: Replace ''{slice}'' with ''{suggestion}''
+      ADD_TO_DICTIONARY: Add the word ''{slice}'' to your local dictionary
+
 # CodeMirror FTML language extension
 cmftml:
   lint:
-    MISSPELLED_WORD: Misspelled word ''{slice}''.
-
-    SPELLCHECKER_SOURCE: >
-      spellchecker(word: {slice}) [{from, number, :: ,_}, {to, number, :: ,_}]
-
-    SPELLCHECKER_ADD_TO_DICTIONARY: Add ''{slice}'' to dictionary
-
     WARNING_SOURCE: >
       ftml({rule}: {kind} at {token}) [{from, number, :: ,_}, {to, number, :: ,_}]
 

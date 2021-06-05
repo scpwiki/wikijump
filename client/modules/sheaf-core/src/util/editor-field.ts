@@ -20,16 +20,18 @@ export interface EditorFieldOpts<T> {
    *
    * If a value that isn't undefined is returned, that'll replace the field's value.
    */
-  update?: (value: T, transaction: Transaction) => T | undefined
+  update?: (value: T, transaction: Transaction, changed: boolean) => T | undefined | void
 
   /** Allows for providing values to facets, or even just purely adding extensions. */
   provide?: (field: StateField<T>) => Extension
 
   /**
    * Function that, if given, will reconfigure a `Compartment` with the
-   * returned `Extension` when this field updates.
+   * returned `Extension` when this field updates. Return null to indicate
+   * no extensions, return false to indicate that the extensions should not
+   * actually be reconfigured.
    */
-  reconfigure?: (value: T) => Extension | null
+  reconfigure?: (value: T, last: T | null) => Extension | null | false
 }
 
 /**
@@ -54,7 +56,7 @@ export class EditorField<T> {
   private declare compartment
 
   /** Function that determines what extensions should be given to the compartment. */
-  private declare reconfigure?: (value: T) => Extension | null
+  private declare reconfigure?: (value: T, last: T | null) => Extension | null | false
 
   /**
    * The extension that mounts this field to an editor. Additionally,
@@ -78,15 +80,19 @@ export class EditorField<T> {
       provide: opts.provide,
       update: (value, tr) => {
         let out = value
+        let changed = false
 
         // check if this transaction has our effect(s)
         for (const effect of tr.effects) {
-          if (effect.is(this.effect)) out = effect.value
+          if (effect.is(this.effect)) {
+            out = effect.value
+            changed = true
+          }
         }
 
         // run the optional update function, mutate output if needed
         if (opts.update) {
-          const result = opts.update(value, tr)
+          const result = opts.update(value, tr, changed)
           if (result !== undefined) out = result
         }
 
@@ -97,8 +103,8 @@ export class EditorField<T> {
     if (opts.reconfigure) {
       this.compartment = new Compartment()
       this.reconfigure = opts.reconfigure
-      const defaultExtensions = this.reconfigure(opts.default)
-      this.extension = [this.field, this.compartment.of(defaultExtensions ?? [])]
+      const defaultExtensions = this.reconfigure(opts.default, null)
+      this.extension = [this.field, this.compartment.of(defaultExtensions || [])]
     } else {
       this.extension = this.field
     }
@@ -141,9 +147,10 @@ export class EditorField<T> {
     if (from !== to) {
       // reconfigure compartment
       if (this.reconfigure && this.compartment) {
-        view.dispatch({
-          effects: [this.compartment.reconfigure(this.reconfigure(to) ?? [])]
-        })
+        const extensions = this.reconfigure(to, from)
+        if (extensions !== false) {
+          view.dispatch({ effects: this.compartment.reconfigure(extensions ?? []) })
+        }
       }
 
       // inform observers

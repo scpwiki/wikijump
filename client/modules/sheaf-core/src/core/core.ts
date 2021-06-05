@@ -7,7 +7,7 @@ import { ContentFacet } from "../extensions/content"
 import { gutters } from "../extensions/gutters"
 import { indentHack } from "../extensions/indent-hack"
 import { getSheafKeymap } from "../extensions/keymap"
-import { spellcheck } from "../extensions/spellcheck"
+import { Spellcheck } from "../extensions/spellcheck"
 import { confinement } from "../extensions/theme"
 import { textBuffer, textValue } from "../util/misc"
 import { SheafState } from "./state"
@@ -34,7 +34,7 @@ export class SheafCore {
             buffer ? textBuffer(state.doc) : textValue(state.doc)
           ),
           gutters,
-          spellcheck,
+          Spellcheck,
           confinement,
           createSheafBinding(this, bindings),
           extensions,
