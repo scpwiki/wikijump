@@ -2,7 +2,7 @@
   @component Generic wikitext container.
 -->
 <script lang="ts">
-  import * as FTML from "ftml-wasm-worker"
+  import FTML from "ftml-wasm-worker"
   import morphdom from "morphdom"
   import { createAnimQueued, createMutatingLock, perfy, toFragment } from "wj-util"
   import Card from "./Card.svelte"
