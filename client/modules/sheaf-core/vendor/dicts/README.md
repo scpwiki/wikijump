@@ -7,9 +7,9 @@ The `wordlist.aspell.net` word list was generated with the following license:
 Custom wordlist generated from http://app.aspell.net/create using SCOWL
 with parameters:
   diacritic: both
-  max_size: 95
+  max_size: 70
   max_variant: 1
-  special: hacker roman-numerals
+  special: hacker
   spelling: US GBs GBz CA AU
 
 Using Git Commit From: Mon Dec 7 20:14:35 2020 -0500 [5ef55f9]
