@@ -31,8 +31,6 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
         }
       }
     })
-
-    this.locale = locale
   }
 
   /** Sets the locale of the worker. */
