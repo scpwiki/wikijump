@@ -6,11 +6,11 @@ const module = {
     await Spellchecker.setSpellchecker(wasmURL, dictURL, bigramURL)
   },
 
-  async spellcheck(raw: ArrayBuffer) {
+  async check(raw: ArrayBuffer) {
     return await Spellchecker.check(decode(raw))
   },
 
-  async spellcheckWords(raw: ArrayBuffer) {
+  async checkWords(raw: ArrayBuffer) {
     return await Spellchecker.checkWords(decode(raw))
   },
 

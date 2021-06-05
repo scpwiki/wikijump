@@ -7,6 +7,7 @@ import type { Misspelling } from "./spellchecker/spellchecker"
 
 const tooltipHandler = new EditorSvelteComponent(MisspellingTooltip)
 
+/** Generates a tooltip instance for a misspelling. */
 export function misspelledTooltip(
   view: EditorView,
   pos: number,
@@ -15,6 +16,7 @@ export function misspelledTooltip(
   const misspellings = Spellcheck.get(view).misspellings
   if (!misspellings.size) return null
 
+  // given our position, find the first misspelling whose range contains our pos
   let word = null as Misspelling | null
   misspellings.between(
     pos - (side < 0 ? 1 : 0),

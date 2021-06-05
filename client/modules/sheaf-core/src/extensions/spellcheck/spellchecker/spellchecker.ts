@@ -1,5 +1,6 @@
 import { SpellcheckerWasm, SuggestedItem } from "spellchecker-wasm/lib/browser/index"
 import { capitalize, isCapitalized, isUppercased } from "wj-util"
+import { normalize } from "./normalize"
 
 let spellchecker: SpellcheckerWasm | null = null
 let usingBigrams = false
@@ -28,36 +29,6 @@ export interface Word {
 export interface Misspelling extends Word {
   /** A list of suggestions for correcting the misspelling. */
   suggestions: Suggestion[]
-}
-
-/**
- * Patterns to filter out as "not words". Used by {@link checkWords} and
- * {@link indexWords}.
- */
-const FILTERS = [
-  /\p{Nd}+\p{L}+/gu, // e.g. 5GW, 20mm, etc.
-  /\b's\b/gu, // replaces `'s` plurals because they otherwise create unknown words
-  /\s'|'(?!\p{L})/gu, // replaces ' marks on the start or end of words, but not inside
-  /\b[\p{Lu}\p{Nd}]{2,4}\b/gu // SCP, MTF, etc. capitalized acronyms/initialisms
-]
-
-/**
- * Pairs of strings, with the first string being text to replace with the
- * latter. Used for normalizing text.
- */
-const REPLACEMENTS: [string, string][] = [
-  ["’", "'"] // normalize right single quotation marks into apostrophes
-]
-
-function normalize(str: string) {
-  let output = str
-  for (const [text, replacement] of REPLACEMENTS) {
-    output = output.replaceAll(text, replacement)
-  }
-  for (const filter of FILTERS) {
-    output = output.replaceAll(filter, filtered => " ".repeat(filtered.length))
-  }
-  return output
 }
 
 /**
@@ -107,7 +78,12 @@ export function indexWords(str: string) {
   return !out.length ? null : out
 }
 
-function processSuggestions(word: string, suggestions: SuggestedItem[]) {
+/**
+ * Processes a list of suggestions for a misspelled word. Specifically, the
+ * suggestion list is truncated to 8 items, and the capitalization of the
+ * suggestions is changed to match the original misspelled word.
+ */
+export function processSuggestions(word: string, suggestions: SuggestedItem[]) {
   const capitalized = isCapitalized(word)
   const uppercased = isUppercased(word)
 
@@ -137,13 +113,17 @@ function processSuggestions(word: string, suggestions: SuggestedItem[]) {
  *
  * @param word - The word to spellcheck.
  */
-export function check(word: string) {
+export async function check(word: string) {
   if (!spellchecker) throw new Error("Spellchecker wasn't started first!")
-  return new Promise<Suggestion[]>(resolve => {
+  const suggestions = await new Promise<Suggestion[]>(resolve => {
     spellchecker!.resultHandler = items => resolve(processSuggestions(word, items))
-    if (usingBigrams) spellchecker!.checkSpellingCompound(word.toLowerCase())
-    else spellchecker!.checkSpelling(word.toLowerCase())
+    if (usingBigrams) {
+      spellchecker!.checkSpellingCompound(word.toLowerCase())
+    } else {
+      spellchecker!.checkSpelling(word.toLowerCase())
+    }
   })
+  return suggestions.length ? suggestions : null
 }
 
 /**
@@ -160,7 +140,7 @@ export async function checkWords(str: string) {
   const out: Misspelling[] = []
   for (const word of words) {
     const suggestions = await check(word.word)
-    if (!suggestions.length) continue
+    if (!suggestions) continue
     out.push({ ...word, suggestions })
   }
 

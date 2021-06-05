@@ -1,3 +1,8 @@
+/**
+ * Table of functions that, when called, return a dynamically imported
+ * dictionary for a locale. Key names should be the language tag for a
+ * locale, without a region-code.
+ */
 export const dicts: Record<string, () => Promise<{ dict: string; bigram?: string }>> = {
   "en": async () => ({
     dict: await url(import("../../../../vendor/dicts/en-merged.txt?url"))
@@ -27,6 +32,7 @@ export const dicts: Record<string, () => Promise<{ dict: string; bigram?: string
 
 export default dicts
 
+/** Helper for turning a relative async. import into a absolute path. */
 async function url(imp: Promise<any>) {
   return new URL((await imp).default, import.meta.url).toString()
 }

@@ -1,3 +1,6 @@
+<!--
+  @component Tooltip/menu for a misspelling, along with suggestions for said misspelling.
+-->
 <script lang="ts">
   import { focusGroup, TippySingleton } from "components"
   import { t } from "wj-state"
@@ -21,6 +24,7 @@
   function addToDictionary() {
     if (!view) return
     Spellchecker.saveToDictionary(misspelling.word)
+    // replace range anyways so that the view gets updated
     view.dispatch({
       changes: { from: misspelling.from, to: misspelling.to, insert: misspelling.word }
     })
