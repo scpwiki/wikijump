@@ -40,12 +40,9 @@
             class="cm-spellcheck-tip-suggestion"
             type="button"
             on:click={() => applySuggestion(suggestion)}
-            use:tip={{
-              content: $t("sheaf.spellcheck.tooltips.ACCEPT_SUGGESTION", {
-                values: { slice: misspelling.word, suggestion: suggestion.term }
-              }),
-              placement: "right"
-            }}
+            use:tip={$t("sheaf.spellcheck.tooltips.ACCEPT_SUGGESTION", {
+              values: { slice: misspelling.word, suggestion: suggestion.term }
+            })}
           >
             {suggestion.term}
           </button>
@@ -56,12 +53,9 @@
           class="cm-spellcheck-tip-suggestion cm-spellcheck-tip-suggestion-add"
           type="button"
           on:click={() => addToDictionary()}
-          use:tip={{
-            content: $t("sheaf.spellcheck.tooltips.ADD_TO_DICTIONARY", {
-              values: { slice: misspelling.word }
-            }),
-            placement: "right"
-          }}
+          use:tip={$t("sheaf.spellcheck.tooltips.ADD_TO_DICTIONARY", {
+            values: { slice: misspelling.word }
+          })}
         >
           {$t("sheaf.spellcheck.ADD_TO_DICTIONARY", {
             values: { slice: misspelling.word }
