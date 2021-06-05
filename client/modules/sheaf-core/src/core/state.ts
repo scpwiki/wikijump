@@ -3,7 +3,7 @@ import type { EditorState, Text } from "@codemirror/state"
 import type { EditorView } from "@codemirror/view"
 import type { SheafBindings } from "../extensions/bindings"
 import { ContentFacet } from "../extensions/content"
-import { gutters } from "../extensions/gutters"
+import { Gutters } from "../extensions/gutters"
 import { getActiveLines, textBuffer, textValue } from "../util/misc"
 import type { SheafCore } from "./core"
 
@@ -51,11 +51,11 @@ export class SheafState {
   }
 
   get gutters() {
-    return gutters.get(this.state)
+    return Gutters.get(this.state)
   }
 
   set gutters(state: boolean) {
-    gutters.set(this.view, state)
+    Gutters.set(this.view, state)
   }
 
   extend(opts?: Partial<SheafStateConstructorOpts>) {

@@ -4,8 +4,8 @@ import { Writable, writable } from "svelte/store"
 import { getSheafBasicExtensions } from "../extensions/base"
 import { createSheafBinding, SheafBindings } from "../extensions/bindings"
 import { ContentFacet } from "../extensions/content"
-import { gutters } from "../extensions/gutters"
-import { indentHack } from "../extensions/indent-hack"
+import { Gutters } from "../extensions/gutters"
+import { IndentHack } from "../extensions/indent-hack"
 import { getSheafKeymap } from "../extensions/keymap"
 import { Spellcheck } from "../extensions/spellcheck"
 import { confinement } from "../extensions/theme"
@@ -29,11 +29,11 @@ export class SheafCore {
         extensions: [
           getSheafBasicExtensions(),
           getSheafKeymap(),
-          indentHack,
+          IndentHack,
           ContentFacet.of((state, buffer) =>
             buffer ? textBuffer(state.doc) : textValue(state.doc)
           ),
-          gutters,
+          Gutters,
           Spellcheck,
           confinement,
           createSheafBinding(this, bindings),

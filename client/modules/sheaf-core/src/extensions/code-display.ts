@@ -1,5 +1,5 @@
 import { drawSelection, EditorView } from "@codemirror/view"
-import { indentHack } from "./indent-hack"
+import { IndentHack } from "./indent-hack"
 import { confinement } from "./theme"
 
 export function getCodeDisplayExtensions() {
@@ -7,7 +7,7 @@ export function getCodeDisplayExtensions() {
     drawSelection(),
     EditorView.editable.of(false),
     EditorView.lineWrapping,
-    indentHack,
+    IndentHack,
     confinement
   ]
 }

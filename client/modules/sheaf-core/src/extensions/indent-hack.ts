@@ -1,8 +1,3 @@
-/*
- * Exports the "indent-hack" for CodeMirror.
- * This enables elegant, tab-preserving line-wrapping in the editor.
- */
-
 import { RangeSetBuilder } from "@codemirror/rangeset"
 import { EditorState } from "@codemirror/state"
 import type { Line } from "@codemirror/text"
@@ -16,7 +11,27 @@ import {
 
 const WHITESPACE_REGEX = /^\s+/
 
-function indentDeco(view: EditorView) {
+/**
+ * Extension that makes it so that lines which wrap onto new lines preserve
+ * their indentation. Called a "hack" because this is done through CSS
+ * trickery, and not through any sort of complex DOM arrangement.
+ */
+export const IndentHack = ViewPlugin.fromClass(
+  class {
+    decorations: DecorationSet
+    constructor(view: EditorView) {
+      this.decorations = generateIndentDecorations(view)
+    }
+    update(update: ViewUpdate) {
+      if (update.docChanged || update.viewportChanged) {
+        this.decorations = generateIndentDecorations(update.view)
+      }
+    }
+  },
+  { decorations: v => v.decorations }
+)
+
+function generateIndentDecorations(view: EditorView) {
   // get every line of the visible ranges
   const lines = new Set<Line>()
   for (const { from, to } of view.visibleRanges) {
@@ -47,18 +62,3 @@ function indentDeco(view: EditorView) {
 
   return builder.finish()
 }
-
-export const indentHack = ViewPlugin.fromClass(
-  class {
-    decorations: DecorationSet
-    constructor(view: EditorView) {
-      this.decorations = indentDeco(view)
-    }
-    update(update: ViewUpdate) {
-      if (update.docChanged || update.viewportChanged) {
-        this.decorations = indentDeco(update.view)
-      }
-    }
-  },
-  { decorations: v => v.decorations }
-)
