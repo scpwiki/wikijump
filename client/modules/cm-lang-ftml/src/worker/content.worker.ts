@@ -1,5 +1,11 @@
-import { Prism } from "wj-prism"
+// organize-imports-ignore
+import "wj-prism/vendor/prism-min"
+import { prismFTML } from "wj-prism/src/ftml"
 import { decode, expose, ModuleProxy, transfer } from "worker-module/src/worker-lib"
+
+// add FTML to our tiny prism instance
+// @ts-ignore undeclared global
+prismFTML(Prism)
 
 // -- MODULE
 
@@ -31,6 +37,7 @@ expose(module)
  * @param str - The wikitext to extract the content out of.
  */
 function extractContent(str: string) {
+  // @ts-ignore undeclared global
   const tokens = Prism.tokenize(str, Prism.languages.ftml)
   let output = ""
   for (const token of tokens) {
