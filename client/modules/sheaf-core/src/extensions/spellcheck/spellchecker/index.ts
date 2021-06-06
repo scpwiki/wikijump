@@ -1,7 +1,7 @@
 import spellcheckerWASMRelativeURL from "spellchecker-wasm/lib/spellchecker-wasm.wasm?url"
 import { Pref } from "wj-state"
 import { transfer, WorkerModule } from "worker-module"
-import dicts from "./dicts"
+import DICTIONARIES from "./dicts"
 import type { SpellcheckModuleInterface } from "./spellcheck.worker"
 
 const spellcheckerWASMURL = new URL(
@@ -36,9 +36,9 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
   /** Sets the locale of the worker. */
   async setSpellchecker(locale: string) {
     if (locale === this.locale) return
-    if (!dicts.hasOwnProperty(locale)) throw new Error("Invalid locale specified!")
+    if (!DICTIONARIES.hasOwnProperty(locale)) throw new Error("Invalid locale specified!")
     this.locale = locale
-    const { dict, bigram } = await dicts[locale]()
+    const { dict, bigram } = await DICTIONARIES[locale]()
     await this.invoke("setSpellchecker", spellcheckerWASMURL, dict, bigram)
   }
 

@@ -3,6 +3,7 @@ Basic lists were sourced from [SymSpell's dictionaries.](https://github.com/wolf
 The English dictionary was made by merging a SymSpell dictionary and a generated word list from http://wordlist.aspell.net/.
 
 The `wordlist.aspell.net` word list was generated with the following license:
+
 ```
 Custom wordlist generated from http://app.aspell.net/create using SCOWL
 with parameters:
@@ -47,39 +48,42 @@ SCOWL readme.
 
 http://wordlist.aspell.net/
 ```
-If you wish to do something similar with English or any other language, you can modify/examine this code if you wish:
-```js
-const fs = require('fs/promises');
 
-const IGNORE_INITIALISMS = true
-const FILE_TO_DEDUPLICATE = "./en-sloppy.txt"
-const FILE_TO_WRITE = "./en-merged.txt"
+If you wish to do something similar with English or any other language, you can modify/examine this JavaScript (Node) code as you wish:
+
+```js
+const fs = require("fs/promises");
+
+const IGNORE_INITIALISMS = true;
+const FILE_TO_DEDUPLICATE = "./en-sloppy.txt";
+const FILE_TO_WRITE = "./en-merged.txt";
 
 async function merge() {
-  const file = await fs.readFile(FILE_TO_DEDUPLICATE, "utf-8")
-  const lines = file.replaceAll("\r\n", "\n").split("\n")
+  const file = await fs.readFile(FILE_TO_DEDUPLICATE, "utf-8");
+  const lines = file.replaceAll("\r\n", "\n").split("\n");
 
-  const frequencies = new Map()
-  const words = new Set()
+  const frequencies = new Map();
+  const words = new Set();
 
   for (const line of lines) {
-    let [word, frequency] = line.split(/\s+/)
-    if (IGNORE_INITIALISMS && word.toUpperCase() === word) continue
-    word = word.toLowerCase()
-    if (!words.has(word)) words.add(word)
-    if (!frequencies.has(word)) frequencies.set(word, frequency)
+    let [word, frequency] = line.split(/\s+/);
+    if (IGNORE_INITIALISMS && word.toUpperCase() === word) continue;
+    word = word.toLowerCase();
+    if (!words.has(word)) words.add(word);
+    if (!frequencies.has(word)) frequencies.set(word, frequency);
   }
 
-  let output = ""
+  let output = "";
   for (const word of words) {
-    if (!word) continue
-    const frequency = frequencies.get(word)
-    output += `${word} ${frequency}\n`
+    if (!word) continue;
+    const frequency = frequencies.get(word);
+    output += `${word} ${frequency}\n`;
   }
 
-  await fs.writeFile(FILE_TO_WRITE, output)
+  await fs.writeFile(FILE_TO_WRITE, output);
 }
 
-merge()
+merge();
 ```
+
 This will read a frequency dictionary and deduplicate all of its entries. This includes lowercasing them, so capitalized and uncapitalized variants will be deduplicated.

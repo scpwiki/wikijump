@@ -32,7 +32,7 @@ importers:
       prettier-plugin-jsdoc: ^0.3.22
       prettier-plugin-organize-imports: ^2.1.0
       prettier-plugin-svelte: ^2.3.0
-      rollup: ^2.50.6
+      rollup: ^2.51.0
       sass: ^1.34.1
       stylelint: ^13.13.1
       stylelint-config-recess-order: ^2.4.0
@@ -41,17 +41,18 @@ importers:
       svelte: ^3.38.2
       svelte-preprocess: ^4.7.3
       trash-cli: ^4.0.0
-      typedoc: 0.21.0-beta.1
+      typedoc: 0.21.0-beta.2
       typescript: ^4.3.2
       ultra-runner: ^3.10.5
       uvu: ^0.5.1
       vite: ^2.3.6
+      vite-tsconfig-paths: ^3.3.13
     devDependencies:
       '@happy-dom/global-registrator': 2.20.1
       '@ltd/j-toml': 1.12.2
-      '@rollup/plugin-babel': 5.3.0_rollup@2.50.6
-      '@strictsoftware/typedoc-plugin-monorepo': 0.4.2_typedoc@0.21.0-beta.1
-      '@sveltejs/vite-plugin-svelte': 1.0.0-next.10_476042911447af828f8ea17a71153d2d
+      '@rollup/plugin-babel': 5.3.0_rollup@2.51.0
+      '@strictsoftware/typedoc-plugin-monorepo': 0.4.2_typedoc@0.21.0-beta.2
+      '@sveltejs/vite-plugin-svelte': 1.0.0-next.10_69123aabfac3cd6f21ced01ed46ac159
       '@types/fs-extra': 9.0.11
       '@typescript-eslint/eslint-plugin': 4.26.0_20402444dce539b9a5aa61b9d15feae1
       '@typescript-eslint/parser': 4.26.0_eslint@7.28.0+typescript@4.3.2
@@ -75,7 +76,7 @@ importers:
       prettier-plugin-jsdoc: 0.3.22_prettier@2.3.1
       prettier-plugin-organize-imports: 2.1.0_prettier@2.3.1+typescript@4.3.2
       prettier-plugin-svelte: 2.3.0_prettier@2.3.1+svelte@3.38.2
-      rollup: 2.50.6
+      rollup: 2.51.0
       sass: 1.34.1
       stylelint: 13.13.1
       stylelint-config-recess-order: 2.4.0_stylelint@13.13.1
@@ -84,11 +85,12 @@ importers:
       svelte: 3.38.2
       svelte-preprocess: 4.7.3_92ceb726a6b5a03cda94f2bdb3ad8063
       trash-cli: 4.0.0
-      typedoc: 0.21.0-beta.1_typescript@4.3.2
+      typedoc: 0.21.0-beta.2_typescript@4.3.2
       typescript: 4.3.2
       ultra-runner: 3.10.5
       uvu: 0.5.1
       vite: 2.3.6
+      vite-tsconfig-paths: 3.3.13_vite@2.3.6
 
   modules/cm-lang-ftml:
     specifiers:
@@ -934,6 +936,10 @@ packages:
       w3c-keyname: 2.2.4
     dev: false
 
+  /@cush/relative/1.0.0:
+    resolution: {integrity: sha512-RpfLEtTlyIxeNPGKcokS+p3BZII/Q3bYxryFRglh5H3A3T8q9fsLYm72VYAMEOOIBLEa8o93kFLiBDUWKrwXZA==}
+    dev: true
+
   /@dabh/diagnostics/2.0.2:
     resolution: {integrity: sha512-+A1YivoVDNNVCdfozHSR8v/jyuuLTMXwjWuxPFlFlUapXoGc+Gj9mDlTDDfrwl7rXCl2tNZ0kE8sIBO6YOn96Q==}
     dependencies:
@@ -1061,7 +1067,7 @@ packages:
     resolution: {integrity: sha512-VZMYa7+fXHdwIq1TDhSXoVmSPEGM/aa+6Aiq3nVVJ9bXr24zScr+NlKFKC3iPljA7ho/GAZr+d2jOf5GIRC30Q==}
     dev: false
 
-  /@rollup/plugin-babel/5.3.0_rollup@2.50.6:
+  /@rollup/plugin-babel/5.3.0_rollup@2.51.0:
     resolution: {integrity: sha512-9uIC8HZOnVLrLHxayq/PTzw+uS25E14KPUBh5ktF+18Mjo5yK0ToMMx6epY0uEgkjwJw0aBW4x2horYXh8juWw==}
     engines: {node: '>= 10.0.0'}
     peerDependencies:
@@ -1073,11 +1079,11 @@ packages:
         optional: true
     dependencies:
       '@babel/helper-module-imports': 7.13.12
-      '@rollup/pluginutils': 3.1.0_rollup@2.50.6
-      rollup: 2.50.6
+      '@rollup/pluginutils': 3.1.0_rollup@2.51.0
+      rollup: 2.51.0
     dev: true
 
-  /@rollup/pluginutils/3.1.0_rollup@2.50.6:
+  /@rollup/pluginutils/3.1.0_rollup@2.51.0:
     resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
@@ -1086,10 +1092,10 @@ packages:
       '@types/estree': 0.0.39
       estree-walker: 1.0.1
       picomatch: 2.2.3
-      rollup: 2.50.6
+      rollup: 2.51.0
     dev: true
 
-  /@rollup/pluginutils/4.1.0_rollup@2.50.6:
+  /@rollup/pluginutils/4.1.0_rollup@2.51.0:
     resolution: {integrity: sha512-TrBhfJkFxA+ER+ew2U2/fHbebhLT/l/2pRk0hfj9KusXUuRXd2v0R58AfaZK9VXDQ4TogOSEmICVrQAA3zFnHQ==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
@@ -1097,7 +1103,7 @@ packages:
     dependencies:
       estree-walker: 2.0.2
       picomatch: 2.2.3
-      rollup: 2.50.6
+      rollup: 2.51.0
     dev: true
 
   /@sindresorhus/df/1.0.1:
@@ -1112,13 +1118,13 @@ packages:
       execa: 2.1.0
     dev: true
 
-  /@strictsoftware/typedoc-plugin-monorepo/0.4.2_typedoc@0.21.0-beta.1:
+  /@strictsoftware/typedoc-plugin-monorepo/0.4.2_typedoc@0.21.0-beta.2:
     resolution: {integrity: sha512-J2YFhz6wrLHKhHjkrzg7906mXQ3TfwbZGtsuyaM+6X4YkvX8kfyj6T3xa5ZoGNW6eBlGBwfwHB3IDg8B29A3dQ==}
     peerDependencies:
       typedoc: '>=0.20 <1.0'
     dependencies:
       find-up: 5.0.0
-      typedoc: 0.21.0-beta.1_typescript@4.3.2
+      typedoc: 0.21.0-beta.2_typescript@4.3.2
     dev: true
 
   /@stroncium/procfs/1.2.1:
@@ -1153,14 +1159,14 @@ packages:
       - supports-color
     dev: true
 
-  /@sveltejs/vite-plugin-svelte/1.0.0-next.10_476042911447af828f8ea17a71153d2d:
+  /@sveltejs/vite-plugin-svelte/1.0.0-next.10_69123aabfac3cd6f21ced01ed46ac159:
     resolution: {integrity: sha512-ImvxbhPePm2hWNTKBSA3LHAYGwiEjHjvvgfPLXm4R87sfZ+BMXql9jBmDpzUC/URBLT4BB3Jxos/i523qkJBHg==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       svelte: ^3.37.0
       vite: ^2.2.3
     dependencies:
-      '@rollup/pluginutils': 4.1.0_rollup@2.50.6
+      '@rollup/pluginutils': 4.1.0_rollup@2.51.0
       chalk: 4.1.1
       debug: 4.3.2
       hash-sum: 2.0.0
@@ -2565,6 +2571,10 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       is-glob: 4.0.1
+    dev: true
+
+  /glob-regex/0.3.2:
+    resolution: {integrity: sha512-m5blUd3/OqDTWwzBBtWBPrGlAzatRywHameHeekAZyZrskYouOGdNB8T/q6JucucvJXtOuyHIn0/Yia7iDasDw==}
     dev: true
 
   /glob/7.1.7:
@@ -4259,6 +4269,15 @@ packages:
       picomatch: 2.2.3
     dev: true
 
+  /recrawl-sync/2.2.1:
+    resolution: {integrity: sha512-A2yLDgeXNaduJJMlqyUdIN7fewopnNm/mVeeGytS1d2HLXKpS5EthQ0j8tWeX+as9UXiiwQRwfoslKC+/gjqxg==}
+    dependencies:
+      '@cush/relative': 1.0.0
+      glob-regex: 0.3.2
+      slash: 3.0.0
+      tslib: 1.14.1
+    dev: true
+
   /redent/3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
@@ -4377,6 +4396,14 @@ packages:
 
   /rollup/2.50.6:
     resolution: {integrity: sha512-6c5CJPLVgo0iNaZWWliNu1Kl43tjP9LZcp6D/tkf2eLH2a9/WeHxg9vfTFl8QV/2SOyaJX37CEm9XuGM0rviUg==}
+    engines: {node: '>=10.0.0'}
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /rollup/2.51.0:
+    resolution: {integrity: sha512-ITLt9sScNCBVspSHauw/W49lEZ0vjN8LyCzSNsNaqT67vTss2lYEfOyxltX8hjrhr1l/rQwmZ2wazzEqhZ/fUg==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
@@ -5094,13 +5121,14 @@ packages:
     engines: {node: '>= 8'}
     dev: true
 
-  /typedoc/0.21.0-beta.1_typescript@4.3.2:
-    resolution: {integrity: sha512-/E/h0x3CutC4GAGXuvUAgm/GXWmLW1AV0qkuHSXROIVnCb78jNUPeX8wiZuBUs9NxuyU0CBm/zKG4QDZvgVXKA==}
+  /typedoc/0.21.0-beta.2_typescript@4.3.2:
+    resolution: {integrity: sha512-oCjdueR4glcSHT6ynR2q5HTpBkBM1ihf3/Wfpl0qriDJutrSg4idZovN+1jx66s+p9QmJE7yzDCXPrZ2GW/Xbw==}
     engines: {node: '>= 12.20.0'}
     hasBin: true
     peerDependencies:
       typescript: 4.0.x || 4.1.x || 4.2.x || 4.3.x
     dependencies:
+      glob: 7.1.7
       handlebars: 4.7.7
       lodash: 4.17.21
       lunr: 2.3.9
@@ -5259,6 +5287,20 @@ packages:
       is-buffer: 2.0.5
       unist-util-stringify-position: 2.0.3
       vfile-message: 2.0.4
+    dev: true
+
+  /vite-tsconfig-paths/3.3.13_vite@2.3.6:
+    resolution: {integrity: sha512-G7OO+1g2H6xVN61RIp1xFjvciqJoF5cGKcWfP6ZOZFeA8QRy2X7yaGUZLhXtKxNLEsR2MthDm7KwSNTKQHzwvA==}
+    peerDependencies:
+      vite: '>2.0.0-0'
+    dependencies:
+      debug: 4.3.1
+      globrex: 0.1.2
+      recrawl-sync: 2.2.1
+      tsconfig-paths: 3.9.0
+      vite: 2.3.6
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /vite/2.3.6:

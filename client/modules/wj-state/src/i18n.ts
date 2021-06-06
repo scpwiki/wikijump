@@ -11,15 +11,15 @@ import { Pref } from "./pref"
 // we will bundle it with the JS. this may be inefficient but it means that
 // a user with a spotty internet connection won't see every single string as garbage.
 // this should also prevent some edge case errors, hopefully
-import langEN from "../../../../locales/en.yaml"
+import langEN from "@root/locales/en.yaml"
 i18n.addMessages("en", langEN as any)
 
 // TODO: this could potentially be made automatic, although it would lose type information
 // register other languages here
 const localeLoaders = {
   "en": async () => langEN, // dummy import but useful for type information
-  "en_GB": () => import("../../../../locales/en_GB.yaml"),
-  "pig": () => import("../../../../locales/pig.yaml")
+  "en_GB": () => import("@root/locales/en_GB.yaml"),
+  "pig": () => import("@root/locales/pig.yaml")
 } as const
 
 // -- INIT

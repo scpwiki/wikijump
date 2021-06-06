@@ -1,9 +1,8 @@
-// TODO: see if an alias will work here (may not, due to various build tools interacting)
+import blocksTOML from "@root/ftml/conf/blocks.toml"
+import modulesTOML from "@root/ftml/conf/modules.toml"
 import { FTMLFragment } from "ftml-wasm-worker"
 import { EditorSvelteComponent, EditorSvelteComponentInstance } from "sheaf-core"
 import { format } from "wj-state"
-import blocksTOML from "../../../../../ftml/conf/blocks.toml"
-import modulesTOML from "../../../../../ftml/conf/modules.toml"
 import BlockTip from "../tips/BlockTip.svelte"
 import { aliasesFiltered } from "../util"
 import type { BlockConfiguration, ModuleConfiguration } from "./types"
