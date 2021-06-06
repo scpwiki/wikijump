@@ -102,6 +102,7 @@ importers:
       '@codemirror/state': ^0.18.7
       '@codemirror/tooltip': ^0.18.4
       '@codemirror/view': ^0.18.16
+      '@types/prismjs': ^1.16.5
       cm-tarnation: workspace:*
       components: workspace:*
       ftml-wasm-worker: workspace:*
@@ -122,6 +123,7 @@ importers:
       '@codemirror/state': 0.18.7
       '@codemirror/tooltip': 0.18.4
       '@codemirror/view': 0.18.16
+      '@types/prismjs': 1.16.5
       cm-tarnation: link:../cm-tarnation
       components: link:../components
       ftml-wasm-worker: link:../ftml-wasm-worker

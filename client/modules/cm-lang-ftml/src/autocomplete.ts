@@ -13,11 +13,6 @@ import type { Block, Module } from "./data/types"
 import ModuleTip from "./tips/ModuleTip.svelte"
 import { aliasesFiltered } from "./util"
 
-// add languages from Prism into the enum for `code.arguments.type`
-try {
-  blocks.code.arguments!.type!.enum = Object.keys(Prism.languages)
-} catch {}
-
 const blocksAutocompletion: Completion[] = Object.entries(blocks).flatMap(
   ([name, block]) => {
     const aliases = aliasesFiltered([name, block])
@@ -146,6 +141,32 @@ for (const [name, block] of Object.entries(data)) {
     }
   }
 }
+
+// kind of a hack, but what this does is make it so that the
+// code block's `type` argument displays the languages Prism
+// has available to highlight.
+// the issue with that is that Prism doesn't synchronously load
+// the languages, so we would just get a list of no languages
+// if we tried this normally.
+// so we can use a getter, and on the fly figure out what
+// languages can be highlighted. this is slower, but
+// the getter won't be called very often so it should be fine.
+try {
+  enumAutocompletion.code = {
+    ...enumAutocompletion.code,
+    get type() {
+      const completions: Completion[] = []
+      for (const name of Object.keys(Prism.languages)) {
+        if (typeof Prism.languages[name] === "function") continue
+        completions.push({
+          label: name,
+          type: "enum"
+        })
+      }
+      return completions
+    }
+  }
+} catch {}
 
 export function completeFTML(context: CompletionContext): CompletionResult | null {
   const { state, pos } = context
