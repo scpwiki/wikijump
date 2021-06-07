@@ -45,8 +45,7 @@
   // just a default for non-CJK locales (this assumes JP), see below
   --font-cjk: "Noto Sans CJK JP", "Noto Sans CJK TC", "Noto Sans CJK SC",
     "Noto Sans CJK KR";
-  --font-cjk-mono: "Noto Sans Mono CJK JP", "Noto Sans Mono CJK TC",
-    "Noto Sans Mono CJK SC", "Noto Sans Mono CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK JP";
 
   // --font-sans is effectively the default font.
   // --font-display is for headings and the like.
@@ -77,8 +76,7 @@
   // TODO: fallback order (TC, SC order? KR or CH first?)
   --font-cjk: "Noto Sans CJK JP", "Noto Sans CJK TC", "Noto Sans CJK SC",
     "Noto Sans CJK KR";
-  --font-cjk-mono: "Noto Sans Mono CJK JP", "Noto Sans Mono CJK TC",
-    "Noto Sans Mono CJK SC", "Noto Sans Mono CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK JP";
 }
 
 // Korean
@@ -86,8 +84,7 @@
   // TODO: fallback order (TC, SC order? JP or CH first?)
   --font-cjk: "Noto Sans CJK KR", "Noto Sans CJK TC", "Noto Sans CJK SC",
     "Noto Sans CJK JP";
-  --font-cjk-mono: "Noto Sans Mono CJK KR", "Noto Sans Mono CJK TC",
-    "Noto Sans Mono CJK SC", "Noto Sans Mono CJK JP";
+  --font-cjk-mono: "Noto Sans Mono CJK KR";
 }
 
 // Chinese (default), Chinese (Simplified)
@@ -96,8 +93,7 @@
   // TODO: fallback order (JP, KR order?)
   --font-cjk: "Noto Sans CJK SC", "Noto Sans CJK TC", "Noto Sans CJK JP",
     "Noto Sans CJK KR";
-  --font-cjk-mono: "Noto Sans Mono CJK SC", "Noto Sans Mono CJK TC",
-    "Noto Sans Mono CJK JP", "Noto Sans Mono CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK SC";
 }
 
 // Chinese (Hong Kong)
@@ -105,8 +101,7 @@
   // TODO: fallback order (TC, SC order? JP, KR order?)
   --font-cjk: "Noto Sans CJK HK", "Noto Sans CJK TC", "Noto Sans CJK SC",
     "Noto Sans CJK JP", "Noto Sans CJK KR";
-  --font-cjk-mono: "Noto Sans Mono CJK HK", "Noto Sans Mono CJK TC",
-    "Noto Sans Mono CJK SC", "Noto Sans Mono CJK JP", "Noto Sans Mono CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK HK";
 }
 
 // Chinese (Taiwan)
@@ -114,8 +109,7 @@
   // TODO: fallback order (JP, KR order?)
   --font-cjk: "Noto Sans CJK TC", "Noto Sans CJK SC", "Noto Sans CJK JP",
     "Noto Sans CJK KR";
-  --font-cjk-mono: "Noto Sans Mono CJK TC", "Noto Sans Mono CJK SC",
-    "Noto Sans Mono CJK JP", "Noto Sans Mono CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK TC";
 }
 
 // Default everything to sans font
