@@ -43,8 +43,8 @@
                       var(--font-system-default);
 
   // just a default for non-CJK locales (this assumes JP), see below
-  --font-cjk: "Noto Sans CJK JP", "Noto Sans CJK TC", "Noto Sans CJK SC",
-    "Noto Sans CJK KR";
+  --font-cjk: "Noto Sans CJK JP", "Noto Sans CJK SC", "Noto Sans CJK HK",
+    "Noto Sans CJK TC", "Noto Sans CJK KR";
   --font-cjk-mono: "Noto Sans Mono CJK JP";
 
   // --font-sans is effectively the default font.
@@ -69,28 +69,25 @@
 }
 
 // Changing CJK font based on locale
-// TODO: verify that this is setup correctly
 
 // Japanese
 :lang(ja) {
-  // TODO: fallback order (TC, SC order? KR or CH first?)
-  --font-cjk: "Noto Sans CJK JP", "Noto Sans CJK TC", "Noto Sans CJK SC",
+  --font-cjk: "Noto Sans CJK JP", "Noto Sans CJK SC", "Noto Sans CJK TC",
     "Noto Sans CJK KR";
   --font-cjk-mono: "Noto Sans Mono CJK JP";
 }
 
 // Korean
 :lang(ko) {
-  // TODO: fallback order (TC, SC order? JP or CH first?)
-  --font-cjk: "Noto Sans CJK KR", "Noto Sans CJK TC", "Noto Sans CJK SC",
-    "Noto Sans CJK JP";
+  --font-cjk: "Noto Sans CJK KR", "Noto Sans CJK JP", "Noto Sans CJK SC",
+    "Noto Sans CJK TC";
   --font-cjk-mono: "Noto Sans Mono CJK KR";
 }
 
-// Chinese (default), Chinese (Simplified)
-:lang(zh):not(:lang(zh-HK)):not(:lang(zh-TW)),
+// Chinese (default), Chinese (mainland), Chinese (Simplified)
+:lang(zh):not(:lang(zh-HK)):not(:lang(zh-TW)):not(:lang(zh-Hant)),
+:lang(zh-Hans),
 :lang(zh-CN) {
-  // TODO: fallback order (JP, KR order?)
   --font-cjk: "Noto Sans CJK SC", "Noto Sans CJK TC", "Noto Sans CJK JP",
     "Noto Sans CJK KR";
   --font-cjk-mono: "Noto Sans Mono CJK SC";
@@ -98,15 +95,14 @@
 
 // Chinese (Hong Kong)
 :lang(zh-HK) {
-  // TODO: fallback order (TC, SC order? JP, KR order?)
-  --font-cjk: "Noto Sans CJK HK", "Noto Sans CJK TC", "Noto Sans CJK SC",
+  --font-cjk: "Noto Sans CJK HK", "Noto Sans CJK SC", "Noto Sans CJK TC",
     "Noto Sans CJK JP", "Noto Sans CJK KR";
   --font-cjk-mono: "Noto Sans Mono CJK HK";
 }
 
-// Chinese (Taiwan)
-:lang(zh-TW) {
-  // TODO: fallback order (JP, KR order?)
+// Chinese (Taiwan), Chinese (Traditional)
+:lang(zh-TW),
+:lang(zh-Hant) {
   --font-cjk: "Noto Sans CJK TC", "Noto Sans CJK SC", "Noto Sans CJK JP",
     "Noto Sans CJK KR";
   --font-cjk-mono: "Noto Sans Mono CJK TC";
