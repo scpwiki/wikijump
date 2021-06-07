@@ -80,9 +80,6 @@ async function lint(view: EditorView) {
       diagnostics.push({ from, to, message, severity, source })
     }
 
-    // diagnostics have to be in order
-    diagnostics.sort((a, b) => a.from - b.from)
-
     return diagnostics
   } catch {
     return []
