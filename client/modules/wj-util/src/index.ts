@@ -448,28 +448,73 @@ export function replaceRange(str: string, from: number, to: number, sub: string)
 }
 
 /**
- * Capitalizes (or lowercases, if set) a string. Does not uppercase the
- * entire string, just the first character.
+ * Uppercases a string.
  *
- * @param str - The string to capitalize.
- * @param state - Whether to capitalize or lowercase. Defaults to capitalize.
+ * @param str - The string to uppercase.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
  */
-export function capitalize(str: string, state = true) {
-  if (!state) return str.toLowerCase()
-  return replaceRange(str.toLowerCase(), 0, 1, str[0].toUpperCase())
+export function uppercase(str: string, locale?: string | string[]) {
+  return locale ? str.toLocaleUpperCase(locale) : str.toUpperCase()
 }
 
-/** Determines if a string is capitalized (first character is uppercased). */
-export function isCapitalized(str: string) {
-  return str[0].toUpperCase() === str[0]
+/**
+ * Lowercases a string.
+ *
+ * @param str - The string to lowercase.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function lowercase(str: string, locale?: string | string[]) {
+  return locale ? str.toLocaleUpperCase(locale) : str.toLowerCase()
 }
 
-/** Determines if a string is completely uppercased. */
-export function isUppercased(str: string) {
-  return str.toUpperCase() === str
+/**
+ * Titlecases a string.
+ *
+ * @param str - The string to titlecase.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function titlecase(str: string, locale?: string) {
+  return replaceRange(lowercase(str, locale), 0, 1, uppercase(str[0], locale))
 }
 
-/** Determines if a string is completely lowercased. */
-export function isLowercased(str: string) {
-  return str.toLowerCase() === str
+/**
+ * Determines if a string is titlecased.
+ *
+ * @param str - The string to check.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function isTitlecased(str: string, locale?: string) {
+  return uppercase(str[0], locale) === str[0]
+}
+
+/**
+ * Determines if a string is completely uppercased.
+ *
+ * @param str - The string to check.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function isUppercased(str: string, locale?: string) {
+  return uppercase(str, locale) === str
+}
+
+/**
+ * Determines if a string is completely lowercased.
+ *
+ * @param str - The string to check.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function isLowercased(str: string, locale?: string) {
+  return lowercase(str, locale) === str
 }

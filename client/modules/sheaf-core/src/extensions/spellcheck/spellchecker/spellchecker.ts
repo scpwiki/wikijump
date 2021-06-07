@@ -1,5 +1,5 @@
 import { SpellcheckerWasm, SuggestedItem } from "spellchecker-wasm/lib/browser/index"
-import { capitalize, isCapitalized, isUppercased } from "wj-util"
+import { isTitlecased, isUppercased, lowercase, titlecase, uppercase } from "wj-util"
 import { normalize } from "./normalize"
 
 // TODO: This entire strategy won't work for (afaik) Arabic and Chinese
@@ -121,8 +121,8 @@ export class Spellchecker {
    * @param suggestions - The suggestions provided by the spellchecker for this word.
    */
   private processSuggestions(word: string, suggestions: SuggestedItem[]) {
-    const capitalized = isCapitalized(word)
-    const uppercased = isUppercased(word)
+    const titlecased = isTitlecased(word, this.locale)
+    const uppercased = isUppercased(word, this.locale)
 
     // clamp maximum number of suggestions
     if (suggestions.length > 8) suggestions = suggestions.slice(0, 8)
@@ -133,10 +133,10 @@ export class Spellchecker {
     for (const item of suggestions) {
       const suggestion = { ...item.toJSON() }
 
-      if (capitalized || uppercased) {
+      if (titlecased || uppercased) {
         suggestion.term = uppercased
-          ? suggestion.term.toUpperCase()
-          : capitalize(suggestion.term)
+          ? uppercase(suggestion.term, this.locale)
+          : titlecase(suggestion.term, this.locale)
       }
 
       out.push(suggestion)
@@ -209,8 +209,8 @@ export class Spellchecker {
 
     const dict =
       typeof input === "string"
-        ? input.toLowerCase().replaceAll("\r\n", "\n")
-        : input.map(word => `${word.toLowerCase()} ${frequency}`).join("\n")
+        ? lowercase(input, this.locale).replaceAll("\r\n", "\n")
+        : input.map(word => `${lowercase(word, this.locale)} ${frequency}`).join("\n")
 
     // spellchecker-wasm recommends streaming in chunks at 32kb-64kb.
     // so we'll split into lines, and then turn that array into a bunch of
