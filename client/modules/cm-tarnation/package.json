@@ -22,16 +22,13 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "@codemirror/highlight": "^0.18.4",
-    "@codemirror/language": "^0.18.2",
-    "@codemirror/state": "^0.18.7",
-    "@codemirror/view": "^0.18.16",
     "dequal": "^2.0.2",
     "is-what": "^4.0.0",
     "klona": "^2.0.4",
     "lezer": "^0.13.5",
     "lezer-tree": "^0.13.2",
     "typescript-memoize": "^1.0.1",
+    "wj-codemirror": "workspace:*",
     "wj-util": "workspace:*"
   }
 }

@@ -1,6 +1,6 @@
-import { tags as t } from "@codemirror/highlight"
 import { TarnationLanguage } from "cm-tarnation"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
+import { tags as t } from "wj-codemirror/cm"
 
 export const TexLanguage = new TarnationLanguage({
   name: "wikimath",

@@ -1,6 +1,11 @@
-import { EditorState, Extension } from "@codemirror/state"
-import { EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view"
 import { Writable, writable } from "svelte/store"
+import {
+  EditorState,
+  EditorView,
+  Extension,
+  ViewPlugin,
+  ViewUpdate
+} from "wj-codemirror/cm"
 import { getSheafBasicExtensions } from "../extensions/base"
 import { createSheafBinding, SheafBindings } from "../extensions/bindings"
 import { ContentFacet } from "../extensions/content"

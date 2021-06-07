@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
   import { FTMLLanguage } from "cm-lang-ftml"
-  import { Button } from "components"
+  import { Button } from "wj-components"
   import type { EditorSveltePanelProps } from "sheaf-core"
   import { unit } from "wj-state"
 

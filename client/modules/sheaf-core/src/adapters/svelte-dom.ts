@@ -1,5 +1,5 @@
-import type { EditorView, ViewUpdate } from "@codemirror/view"
 import type { SvelteComponent } from "svelte"
+import type { EditorView, ViewUpdate } from "wj-codemirror/cm"
 import { LifecycleElement } from "./svelte-lifecycle-element"
 
 export interface EditorSvelteComponentProps {

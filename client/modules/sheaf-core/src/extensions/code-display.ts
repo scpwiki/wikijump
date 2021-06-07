@@ -1,4 +1,4 @@
-import { drawSelection, EditorView } from "@codemirror/view"
+import { drawSelection, EditorView } from "wj-codemirror/cm"
 import { IndentHack } from "./indent-hack"
 import { confinement } from "./theme"
 

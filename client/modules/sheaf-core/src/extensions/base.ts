@@ -1,17 +1,17 @@
-import { autocompletion } from "@codemirror/autocomplete"
-import { closeBrackets } from "@codemirror/closebrackets"
-import { history } from "@codemirror/history"
-import { indentOnInput } from "@codemirror/language"
-import { bracketMatching } from "@codemirror/matchbrackets"
-import { rectangularSelection } from "@codemirror/rectangular-selection"
-import { highlightSelectionMatches } from "@codemirror/search"
-import { EditorState } from "@codemirror/state"
 import {
+  autocompletion,
+  bracketMatching,
+  closeBrackets,
   drawSelection,
+  EditorState,
   EditorView,
   highlightActiveLine,
-  highlightSpecialChars
-} from "@codemirror/view"
+  highlightSelectionMatches,
+  highlightSpecialChars,
+  history,
+  indentOnInput,
+  rectangularSelection
+} from "wj-codemirror/cm"
 
 export function getSheafBasicExtensions() {
   return [

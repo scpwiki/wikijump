@@ -1,6 +1,4 @@
-import { syntaxTree } from "@codemirror/language"
-import type { EditorState, Text } from "@codemirror/state"
-import type { EditorView } from "@codemirror/view"
+import { EditorState, EditorView, syntaxTree, Text } from "wj-codemirror/cm"
 import type { SheafBindings } from "../extensions/bindings"
 import { ContentFacet } from "../extensions/content"
 import { Gutters } from "../extensions/gutters"

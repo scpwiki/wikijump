@@ -41,5 +41,5 @@
       "source-map-js"
     ]
   },
-  "exclude": ["node_modules", "misc/templates", "dist", "tests-dist"]
+  "exclude": ["**/node_modules/**", "misc/templates", "dist", "tests-dist"]
 }

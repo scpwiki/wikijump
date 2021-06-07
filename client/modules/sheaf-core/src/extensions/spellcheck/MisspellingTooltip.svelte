@@ -2,7 +2,7 @@
   @component Tooltip/menu for a misspelling, along with suggestions for said misspelling.
 -->
 <script lang="ts">
-  import { focusGroup, TippySingleton } from "components"
+  import { focusGroup, TippySingleton } from "wj-components"
   import { t } from "wj-state"
   import type { EditorSvelteComponentProps } from "../../adapters/svelte-dom"
   import { Spellchecker } from "./spellchecker"

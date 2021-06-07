@@ -1,13 +1,13 @@
-import { RangeSetBuilder } from "@codemirror/rangeset"
-import { EditorState } from "@codemirror/state"
-import type { Line } from "@codemirror/text"
 import {
   Decoration,
   DecorationSet,
+  EditorState,
   EditorView,
+  Line,
+  RangeSetBuilder,
   ViewPlugin,
   ViewUpdate
-} from "@codemirror/view"
+} from "wj-codemirror/cm"
 
 const WHITESPACE_REGEX = /^\s+/
 

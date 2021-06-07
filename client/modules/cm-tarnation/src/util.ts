@@ -1,6 +1,10 @@
-import { LanguageDescription, LanguageSupport, LezerLanguage } from "@codemirror/language"
-import type { Extension } from "@codemirror/state"
 import type { Parser, ParserConfig } from "lezer"
+import {
+  Extension,
+  LanguageDescription,
+  LanguageSupport,
+  LezerLanguage
+} from "wj-codemirror/cm"
 
 export interface CreateLezerLanguageOpts {
   name: string

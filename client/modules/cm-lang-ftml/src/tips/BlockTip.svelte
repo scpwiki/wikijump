@@ -7,7 +7,7 @@
   import * as Prism from "wj-prism"
   import { t } from "wj-state"
   import type { FTMLFragment } from "ftml-wasm-worker"
-  import { Icon, TippySingleton } from "components"
+  import { Icon, TippySingleton } from "wj-components"
 
   interface Docs {
     title: string

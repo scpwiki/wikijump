@@ -1,5 +1,5 @@
 import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
-import { decode, transfer, WorkerModule } from "worker-module"
+import { decode, transfer, WorkerModule } from "threads-worker-module"
 import type { FTMLWorkerInterface } from "./worker/ftml.worker"
 
 const wasmURL = new URL(wasmRelativeURL, import.meta.url).toString()

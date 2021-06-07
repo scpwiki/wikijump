@@ -1,14 +1,14 @@
+import { isFunction } from "is-what"
+import { Input, NodeType } from "lezer-tree"
 import {
   defineLanguageFacet,
   EditorParseContext,
+  Extension,
   Language,
   languageDataProp,
   LanguageDescription,
   LanguageSupport
-} from "@codemirror/language"
-import type { Extension } from "@codemirror/state"
-import { isFunction } from "is-what"
-import { Input, NodeType } from "lezer-tree"
+} from "wj-codemirror/cm"
 import { removeUndefined } from "wj-util"
 import { Cache } from "./cache"
 import type * as DF from "./grammar/definition"

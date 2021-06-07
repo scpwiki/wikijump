@@ -1,13 +1,13 @@
+import { writable, Writable } from "svelte/store"
 import {
   Compartment,
   EditorState,
+  EditorView,
   Extension,
   StateEffect,
   StateField,
   Transaction
-} from "@codemirror/state"
-import { EditorView } from "@codemirror/view"
-import { writable, Writable } from "svelte/store"
+} from "wj-codemirror/cm"
 
 export interface EditorFieldOpts<T> {
   /** The default value for the field when it is created. */

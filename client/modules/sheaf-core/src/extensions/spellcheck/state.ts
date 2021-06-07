@@ -1,4 +1,4 @@
-import { Decoration, DecorationSet } from "@codemirror/view"
+import { Decoration, DecorationSet } from "wj-codemirror/cm"
 import type { Misspelling } from "./spellchecker/spellchecker"
 
 /**

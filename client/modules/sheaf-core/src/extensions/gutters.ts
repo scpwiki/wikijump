@@ -1,5 +1,4 @@
-import { foldGutter } from "@codemirror/fold"
-import { lineNumbers } from "@codemirror/gutter"
+import { foldGutter, lineNumbers } from "wj-codemirror/cm"
 import { EditorField } from "../util/editor-field"
 
 /**

@@ -1,12 +1,14 @@
-import { tags as t } from "@codemirror/highlight"
-import { cssCompletion } from "@codemirror/lang-css"
-import { htmlCompletion } from "@codemirror/lang-html"
-import { foldNodeProp } from "@codemirror/language"
-import { languages } from "@codemirror/language-data"
 import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
 import type * as DF from "cm-tarnation/src/grammar/definition"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
 import { ContentFacet, textBuffer } from "sheaf-core"
+import {
+  cssCompletion,
+  foldNodeProp,
+  htmlCompletion,
+  languages,
+  tags as t
+} from "wj-codemirror/cm"
 import { completeFTML } from "../autocomplete"
 import Content from "../content"
 import { blocks, modules } from "../data/blocks"

@@ -1,7 +1,6 @@
-import { Diagnostic, linter } from "@codemirror/lint"
-import type { EditorView } from "@codemirror/view"
 import FTML from "ftml-wasm-worker"
 import { textValue } from "sheaf-core"
+import { Diagnostic, EditorView, linter } from "wj-codemirror/cm"
 import { format } from "wj-state"
 
 interface WarningInfo {

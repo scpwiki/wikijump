@@ -1,6 +1,6 @@
-import type { Text } from "@codemirror/state"
 import FTML from "ftml-wasm-worker"
 import { Memoize } from "typescript-memoize"
+import type { Text } from "wj-codemirror/cm"
 import { toFragment } from "wj-util"
 
 /**
