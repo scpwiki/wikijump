@@ -33,7 +33,7 @@
     "@codemirror/language": "^0.18.2",
     "@codemirror/language-data": "^0.18.0",
     "@codemirror/legacy-modes": "^0.18.0",
-    "@codemirror/lint": "^0.18.3",
+    "@codemirror/lint": "^0.18.4",
     "@codemirror/matchbrackets": "^0.18.0",
     "@codemirror/panel": "^0.18.2",
     "@codemirror/rangeset": "^0.18.3",

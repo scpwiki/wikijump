@@ -28,7 +28,7 @@
     "@codemirror/lang-html": "^0.18.1",
     "@codemirror/language": "^0.18.2",
     "@codemirror/language-data": "^0.18.0",
-    "@codemirror/lint": "^0.18.3",
+    "@codemirror/lint": "^0.18.4",
     "@codemirror/state": "^0.18.7",
     "@codemirror/tooltip": "^0.18.4",
     "@codemirror/view": "^0.18.16",
