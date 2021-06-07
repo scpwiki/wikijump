@@ -1,5 +1,4 @@
-import type { Tooltip } from "@codemirror/tooltip"
-import type { EditorView } from "@codemirror/view"
+import type { EditorView, Tooltip } from "wj-codemirror/cm"
 import { EditorSvelteComponent } from "../../adapters/svelte-dom"
 import { Spellcheck } from "./extension"
 import MisspellingTooltip from "./MisspellingTooltip.svelte"

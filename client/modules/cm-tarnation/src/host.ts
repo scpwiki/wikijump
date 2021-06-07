@@ -1,5 +1,5 @@
-import { EditorParseContext } from "@codemirror/language"
 import { Input, PartialParse, Tree } from "lezer-tree"
+import { EditorParseContext } from "wj-codemirror/cm"
 import { isEmpty, perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"
 import { Parser, ParserContext } from "./parser"

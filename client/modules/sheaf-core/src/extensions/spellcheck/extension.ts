@@ -1,5 +1,4 @@
-import { hoverTooltip } from "@codemirror/tooltip"
-import { EditorView } from "@codemirror/view"
+import { EditorView, hoverTooltip } from "wj-codemirror/cm"
 import { EditorField } from "../../util/editor-field"
 import { misspelledTooltip } from "./hover"
 import { spellcheckLinter } from "./linter"

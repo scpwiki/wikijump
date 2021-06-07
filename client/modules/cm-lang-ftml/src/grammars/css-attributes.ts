@@ -1,7 +1,12 @@
-import { styleTags, tags as t } from "@codemirror/highlight"
-import { cssCompletion, cssLanguage } from "@codemirror/lang-css"
-import { continuedIndent, indentNodeProp } from "@codemirror/language"
 import { createLezerLanguage } from "cm-tarnation"
+import {
+  continuedIndent,
+  cssCompletion,
+  cssLanguage,
+  indentNodeProp,
+  styleTags,
+  tags as t
+} from "wj-codemirror/cm"
 import { parser as CSSAttrParser } from "../../vendor/css-attribute"
 
 export const StyleAttributeGrammar = createLezerLanguage({

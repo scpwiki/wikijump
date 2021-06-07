@@ -1,12 +1,19 @@
-import { completionKeymap } from "@codemirror/autocomplete"
-import { closeBracketsKeymap } from "@codemirror/closebrackets"
-import { copyLineDown, defaultKeymap, defaultTabBinding } from "@codemirror/commands"
-import { commentKeymap } from "@codemirror/comment"
-import { foldKeymap } from "@codemirror/fold"
-import { historyKeymap, redo } from "@codemirror/history"
-import { nextDiagnostic, openLintPanel } from "@codemirror/lint"
-import { searchKeymap } from "@codemirror/search"
-import { KeyBinding, keymap } from "@codemirror/view"
+import {
+  closeBracketsKeymap,
+  commentKeymap,
+  completionKeymap,
+  copyLineDown,
+  defaultKeymap,
+  defaultTabBinding,
+  foldKeymap,
+  historyKeymap,
+  KeyBinding,
+  keymap,
+  nextDiagnostic,
+  openLintPanel,
+  redo,
+  searchKeymap
+} from "wj-codemirror/cm"
 
 /** Additional key bindings for the editor. */
 const KEY_MAP: KeyBinding[] = [

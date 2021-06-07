@@ -22,16 +22,13 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "@codemirror/language": "^0.18.2",
-    "@codemirror/language-data": "^0.18.0",
-    "@codemirror/state": "^0.18.7",
-    "@codemirror/view": "^0.18.16",
     "cm-lang-ftml": "workspace:*",
     "components": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "morphdom": "^2.6.1",
     "sheaf-core": "workspace:*",
     "typescript-memoize": "^1.0.1",
+    "wj-codemirror": "workspace:*",
     "wj-state": "workspace:*",
     "wj-util": "workspace:*"
   },

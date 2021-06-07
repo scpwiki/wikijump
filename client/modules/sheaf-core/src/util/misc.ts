@@ -1,5 +1,4 @@
-import type { EditorState } from "@codemirror/state"
-import type { Text } from "@codemirror/text"
+import type { EditorState, Text } from "wj-codemirror/cm"
 import { animationFrame, idleCallback } from "wj-util"
 
 const encoder = new TextEncoder()

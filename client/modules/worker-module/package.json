@@ -21,6 +21,6 @@
   },
   "dependencies": {
     "threads": "^1.6.5",
-    "wj-util": "workspace:^1.0.0"
+    "wj-util": "workspace:*"
   }
 }

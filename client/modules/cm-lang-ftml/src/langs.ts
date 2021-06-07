@@ -1,4 +1,4 @@
-import { languages as originalLanguages } from "@codemirror/language-data"
+import { languages as originalLanguages } from "wj-codemirror/cm"
 import { FTMLTokensGrammar, LezerTreeGrammar } from "./grammars/ast"
 import { FTMLLanguage } from "./grammars/ftml"
 

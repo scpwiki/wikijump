@@ -1,11 +1,7 @@
-import type {
-  Completion,
-  CompletionContext,
-  CompletionResult
-} from "@codemirror/autocomplete"
-import { syntaxTree } from "@codemirror/language"
 import type { SyntaxNode } from "lezer-tree"
 import { EditorSvelteComponent } from "sheaf-core"
+import type { Completion, CompletionContext, CompletionResult } from "wj-codemirror/cm"
+import { syntaxTree } from "wj-codemirror/cm"
 import { Prism } from "wj-prism"
 import { blocks, blockTips, modules } from "./data/blocks"
 import { htmlAttributes } from "./data/html-attributes"

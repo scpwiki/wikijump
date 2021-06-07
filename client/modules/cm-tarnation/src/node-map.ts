@@ -1,5 +1,5 @@
-import { styleTags, tags } from "@codemirror/highlight"
 import { NodeProp, NodePropSource, NodeSet, NodeType } from "lezer-tree"
+import { styleTags, tags } from "wj-codemirror/cm"
 import type { AddNodeSpec, ParserConfiguration } from "./types"
 
 export class NodeMap {

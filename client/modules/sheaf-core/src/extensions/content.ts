@@ -1,4 +1,4 @@
-import { EditorState, Facet } from "@codemirror/state"
+import { EditorState, Facet } from "wj-codemirror/cm"
 
 export type ContentFunction<T extends boolean = boolean> = (
   state: EditorState,

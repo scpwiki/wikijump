@@ -1,6 +1,5 @@
-import type { LanguageDescription } from "@codemirror/language"
-import type { Extension } from "@codemirror/state"
 import type { NodePropSource, NodeType, Tree } from "lezer-tree"
+import type { Extension, LanguageDescription } from "wj-codemirror/cm"
 import type * as DF from "./grammar/definition"
 import type { Chunk, TokenizerBuffer } from "./tokenizer"
 

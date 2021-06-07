@@ -1,5 +1,4 @@
-import type { Extension } from "@codemirror/state"
-import { keymap, ViewPlugin } from "@codemirror/view"
+import { Extension, keymap, ViewPlugin } from "wj-codemirror/cm"
 import { debounce } from "wj-util"
 import type { SheafCore } from "../core/core"
 
