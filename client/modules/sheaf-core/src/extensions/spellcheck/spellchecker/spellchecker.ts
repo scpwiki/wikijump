@@ -50,9 +50,9 @@ export async function setSpellchecker(
   // TODO: remove when switching over to browser testing
   if (wasmURL.startsWith("file:")) {
     spellchecker = new SpellcheckerWasm()
-    const wasm = wasmURL.replace("file:///", "")
-    const dict = dictURL.replace("file:///", "")
-    const bigram = bigramURL?.replace("file:///", "")
+    const wasm = wasmURL.replace("file://", "")
+    const dict = dictURL.replace("file://", "")
+    const bigram = bigramURL?.replace("file://", "")
     await spellchecker.prepareSpellchecker(wasm, dict, bigram)
   }
   // normal
