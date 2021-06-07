@@ -46,12 +46,24 @@ export async function setSpellchecker(
   bigramURL?: string
 ) {
   if (bigramURL) usingBigrams = true
-  const [wasm, dict, bigram] = bigramURL
-    ? await Promise.all([fetch(wasmURL), fetch(dictURL), fetch(bigramURL)])
-    : await Promise.all([fetch(wasmURL), fetch(dictURL)])
+  // hack for running on Node
+  // TODO: remove when switching over to browser testing
+  if (wasmURL.startsWith("file:")) {
+    spellchecker = new SpellcheckerWasm()
+    const wasm = wasmURL.replace("file:///", "")
+    const dict = dictURL.replace("file:///", "")
+    const bigram = bigramURL?.replace("file:///", "")
+    await spellchecker.prepareSpellchecker(wasm, dict, bigram)
+  }
+  // normal
+  else {
+    const [wasm, dict, bigram] = bigramURL
+      ? await Promise.all([fetch(wasmURL), fetch(dictURL), fetch(bigramURL)])
+      : await Promise.all([fetch(wasmURL), fetch(dictURL)])
 
-  spellchecker = new SpellcheckerWasm()
-  await spellchecker.prepareSpellchecker(wasm, dict, bigram)
+    spellchecker = new SpellcheckerWasm()
+    await spellchecker.prepareSpellchecker(wasm, dict, bigram)
+  }
 }
 
 /**

@@ -69,15 +69,17 @@ async function build() {
     root: DIR,
 
     define: {
-      "import.meta.url": '"file://test-megabundle"'
+      "import.meta.url": `"file://"`
     },
+
+    base: path.resolve(DIR, "./dist"),
 
     plugins: [
       tsconfigPaths({
         root: "../",
         loose: true
       }),
-      workerPlugin(),
+      workerPlugin(true),
       tomlPlugin(),
       yamlPlugin(),
       svelte({
