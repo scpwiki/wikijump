@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "cm-lang-ftml": "workspace:*",
-    "components": "workspace:*",
+    "wj-components": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "morphdom": "^2.6.1",
     "sheaf-core": "workspace:*",

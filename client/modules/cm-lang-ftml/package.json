@@ -24,7 +24,7 @@
   "dependencies": {
     "@types/prismjs": "^1.16.5",
     "cm-tarnation": "workspace:*",
-    "components": "workspace:*",
+    "wj-components": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "lezer-tree": "^0.13.2",
     "sheaf-core": "workspace:*",

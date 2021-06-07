@@ -11,6 +11,6 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "components": "workspace:*"
+    "wj-components": "workspace:*"
   }
 }

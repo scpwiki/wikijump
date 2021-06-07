@@ -12,7 +12,7 @@
   import { onDestroy, onMount } from "svelte"
   import { createIdleQueued, createMutatingLock } from "wj-util"
   import { getCodeDisplayExtensions } from "sheaf-core"
-  import { Spinny } from "components"
+  import { Spinny } from "wj-components"
 
   /** Contents of the code block. Can be a promise that resolves to a string. */
   export let content: Promisable<string>

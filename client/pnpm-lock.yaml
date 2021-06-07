@@ -96,11 +96,11 @@ importers:
     specifiers:
       '@types/prismjs': ^1.16.5
       cm-tarnation: workspace:*
-      components: workspace:*
       ftml-wasm-worker: workspace:*
       lezer-tree: ^0.13.2
       sheaf-core: workspace:*
       wj-codemirror: workspace:*
+      wj-components: workspace:*
       wj-prism: workspace:*
       wj-state: workspace:*
       wj-util: workspace:*
@@ -108,11 +108,11 @@ importers:
     dependencies:
       '@types/prismjs': 1.16.5
       cm-tarnation: link:../cm-tarnation
-      components: link:../components
       ftml-wasm-worker: link:../ftml-wasm-worker
       lezer-tree: 0.13.2
       sheaf-core: link:../sheaf-core
       wj-codemirror: link:../wj-codemirror
+      wj-components: link:../wj-components
       wj-prism: link:../wj-prism
       wj-state: link:../wj-state
       wj-util: link:../wj-util
@@ -138,34 +138,6 @@ importers:
       wj-codemirror: link:../wj-codemirror
       wj-util: link:../wj-util
 
-  modules/components:
-    specifiers:
-      '@iconify/iconify': ^2.0.1
-      '@popperjs/core': ^2.9.2
-      cm-lang-ftml: workspace:*
-      ftml-wasm: workspace:*
-      ftml-wasm-worker: workspace:*
-      morphdom: ^2.6.1
-      sheaf-core: workspace:*
-      svelte: ^3.38.2
-      tippy.js: ^6.3.1
-      wj-prism: workspace:*
-      wj-state: workspace:*
-      wj-util: workspace:*
-    dependencies:
-      '@iconify/iconify': 2.0.1
-      '@popperjs/core': 2.9.2
-      cm-lang-ftml: link:../cm-lang-ftml
-      ftml-wasm: link:../ftml-wasm
-      ftml-wasm-worker: link:../ftml-wasm-worker
-      morphdom: 2.6.1
-      sheaf-core: link:../sheaf-core
-      svelte: 3.38.2
-      tippy.js: 6.3.1
-      wj-prism: link:../wj-prism
-      wj-state: link:../wj-state
-      wj-util: link:../wj-util
-
   modules/ftml-wasm:
     specifiers: {}
 
@@ -186,23 +158,23 @@ importers:
   modules/sheaf:
     specifiers:
       cm-lang-ftml: workspace:*
-      components: workspace:*
       ftml-wasm-worker: workspace:*
       morphdom: ^2.6.1
       sheaf-core: workspace:*
       svelte: ^3.38.2
       typescript-memoize: ^1.0.1
       wj-codemirror: workspace:*
+      wj-components: workspace:*
       wj-state: workspace:*
       wj-util: workspace:*
     dependencies:
       cm-lang-ftml: link:../cm-lang-ftml
-      components: link:../components
       ftml-wasm-worker: link:../ftml-wasm-worker
       morphdom: 2.6.1
       sheaf-core: link:../sheaf-core
       typescript-memoize: 1.0.1
       wj-codemirror: link:../wj-codemirror
+      wj-components: link:../wj-components
       wj-state: link:../wj-state
       wj-util: link:../wj-util
     devDependencies:
@@ -210,24 +182,24 @@ importers:
 
   modules/sheaf-core:
     specifiers:
-      components: workspace:*
       lezer: ^0.13.5
       lezer-tree: ^0.13.2
       spellchecker-wasm: ^0.3.3
       svelte: ^3.38.2
       typescript-memoize: ^1.0.1
       wj-codemirror: workspace:*
+      wj-components: workspace:*
       wj-state: workspace:*
       wj-util: workspace:*
       worker-module: workspace:*
     dependencies:
-      components: link:../components
       lezer: 0.13.5
       lezer-tree: 0.13.2
       spellchecker-wasm: 0.3.3
       svelte: 3.38.2
       typescript-memoize: 1.0.1
       wj-codemirror: link:../wj-codemirror
+      wj-components: link:../wj-components
       wj-state: link:../wj-state
       wj-util: link:../wj-util
       worker-module: link:../worker-module
@@ -282,6 +254,34 @@ importers:
       '@codemirror/tooltip': 0.18.4
       '@codemirror/view': 0.18.16
 
+  modules/wj-components:
+    specifiers:
+      '@iconify/iconify': ^2.0.1
+      '@popperjs/core': ^2.9.2
+      cm-lang-ftml: workspace:*
+      ftml-wasm: workspace:*
+      ftml-wasm-worker: workspace:*
+      morphdom: ^2.6.1
+      sheaf-core: workspace:*
+      svelte: ^3.38.2
+      tippy.js: ^6.3.1
+      wj-prism: workspace:*
+      wj-state: workspace:*
+      wj-util: workspace:*
+    dependencies:
+      '@iconify/iconify': 2.0.1
+      '@popperjs/core': 2.9.2
+      cm-lang-ftml: link:../cm-lang-ftml
+      ftml-wasm: link:../ftml-wasm
+      ftml-wasm-worker: link:../ftml-wasm-worker
+      morphdom: 2.6.1
+      sheaf-core: link:../sheaf-core
+      svelte: 3.38.2
+      tippy.js: 6.3.1
+      wj-prism: link:../wj-prism
+      wj-state: link:../wj-state
+      wj-util: link:../wj-util
+
   modules/wj-css:
     specifiers:
       include-media: ^1.4.10
@@ -326,21 +326,21 @@ importers:
   web/dev-sandbox:
     specifiers:
       cm-lang-ftml: workspace:*
-      components: workspace:*
       ftml-wasm: workspace:*
       ftml-wasm-worker: workspace:*
       sheaf: workspace:*
       sheaf-core: workspace:*
       svelte: ^3.38.2
+      wj-components: workspace:*
       wj-css: workspace:*
       wj-util: workspace:*
     dependencies:
       cm-lang-ftml: link:../../modules/cm-lang-ftml
-      components: link:../../modules/components
       ftml-wasm: link:../../modules/ftml-wasm
       ftml-wasm-worker: link:../../modules/ftml-wasm-worker
       sheaf: link:../../modules/sheaf
       sheaf-core: link:../../modules/sheaf-core
+      wj-components: link:../../modules/wj-components
       wj-css: link:../../modules/wj-css
       wj-util: link:../../modules/wj-util
     devDependencies:
@@ -348,9 +348,9 @@ importers:
 
   web/wj-docs:
     specifiers:
-      components: workspace:*
+      wj-components: workspace:*
     dependencies:
-      components: link:../../modules/components
+      wj-components: link:../../modules/wj-components
 
 packages:
 

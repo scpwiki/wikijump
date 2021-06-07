@@ -22,7 +22,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "components": "workspace:*",
+    "wj-components": "workspace:*",
     "lezer": "^0.13.5",
     "lezer-tree": "^0.13.2",
     "spellchecker-wasm": "^0.3.3",

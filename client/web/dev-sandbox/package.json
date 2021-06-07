@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "cm-lang-ftml": "workspace:*",
-    "components": "workspace:*",
+    "wj-components": "workspace:*",
     "ftml-wasm": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "sheaf": "workspace:*",

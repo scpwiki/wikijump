@@ -2,7 +2,7 @@
   @component Sheaf Editor: Preview Pane.
 -->
 <script lang="ts">
-  import { Tab, Tabview, Wikitext } from "components"
+  import { Tab, Tabview, Wikitext } from "wj-components"
   import { getContext } from "svelte"
   import CodeDisplay from "./CodeDisplay.svelte"
   import type { SheafContext } from "./context"
