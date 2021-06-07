@@ -32,6 +32,6 @@
     "wj-prism": "workspace:*",
     "wj-state": "workspace:*",
     "wj-util": "workspace:*",
-    "worker-module": "workspace:*"
+    "threads-worker-module": "workspace:*"
   }
 }

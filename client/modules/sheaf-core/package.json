@@ -30,7 +30,7 @@
     "wj-codemirror": "workspace:*",
     "wj-state": "workspace:*",
     "wj-util": "workspace:*",
-    "worker-module": "workspace:*"
+    "threads-worker-module": "workspace:*"
   },
   "devDependencies": {
     "svelte": "^3.38.2"

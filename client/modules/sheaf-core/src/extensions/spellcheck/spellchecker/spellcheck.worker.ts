@@ -1,4 +1,4 @@
-import { decode, expose, ModuleProxy } from "worker-module/src/worker-lib"
+import { decode, expose, ModuleProxy } from "threads-worker-module/src/worker-lib"
 import { Spellchecker, SpellcheckerURLS } from "./spellchecker"
 
 let spellchecker: Spellchecker

@@ -1,6 +1,6 @@
 import spellcheckerWASMRelativeURL from "spellchecker-wasm/lib/spellchecker-wasm.wasm?url"
+import { transfer, WorkerModule } from "threads-worker-module"
 import { locale as i18nLocale, Pref } from "wj-state"
-import { transfer, WorkerModule } from "worker-module"
 import DICTIONARIES from "./dicts"
 import type { SpellcheckModuleInterface } from "./spellcheck.worker"
 
