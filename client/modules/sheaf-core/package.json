@@ -26,11 +26,13 @@
     "lezer": "^0.13.5",
     "lezer-tree": "^0.13.2",
     "spellchecker-wasm": "^0.3.3",
-    "svelte": "^3.38.2",
     "typescript-memoize": "^1.0.1",
     "wj-codemirror": "workspace:*",
     "wj-state": "workspace:*",
     "wj-util": "workspace:*",
     "worker-module": "workspace:*"
+  },
+  "devDependencies": {
+    "svelte": "^3.38.2"
   }
 }

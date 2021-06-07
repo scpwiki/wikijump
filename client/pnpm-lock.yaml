@@ -192,13 +192,14 @@ importers:
       lezer: 0.13.5
       lezer-tree: 0.13.2
       spellchecker-wasm: 0.3.3
-      svelte: 3.38.2
       typescript-memoize: 1.0.1
       wj-codemirror: link:../wj-codemirror
       wj-components: link:../wj-components
       wj-state: link:../wj-state
       wj-util: link:../wj-util
       worker-module: link:../worker-module
+    devDependencies:
+      svelte: 3.38.2
 
   modules/wj-codemirror:
     specifiers:
@@ -254,11 +255,9 @@ importers:
     specifiers:
       '@iconify/iconify': ^2.0.1
       '@popperjs/core': ^2.9.2
-      cm-lang-ftml: workspace:*
       ftml-wasm: workspace:*
       ftml-wasm-worker: workspace:*
       morphdom: ^2.6.1
-      sheaf-core: workspace:*
       svelte: ^3.38.2
       tippy.js: ^6.3.1
       wj-prism: workspace:*
@@ -267,16 +266,15 @@ importers:
     dependencies:
       '@iconify/iconify': 2.0.1
       '@popperjs/core': 2.9.2
-      cm-lang-ftml: link:../cm-lang-ftml
       ftml-wasm: link:../ftml-wasm
       ftml-wasm-worker: link:../ftml-wasm-worker
       morphdom: 2.6.1
-      sheaf-core: link:../sheaf-core
-      svelte: 3.38.2
       tippy.js: 6.3.1
       wj-prism: link:../wj-prism
       wj-state: link:../wj-state
       wj-util: link:../wj-util
+    devDependencies:
+      svelte: 3.38.2
 
   modules/wj-css:
     specifiers:
@@ -288,7 +286,7 @@ importers:
     specifiers:
       '@types/prismjs': ^1.16.5
       prismjs: ^1.23.0
-    dependencies:
+    devDependencies:
       '@types/prismjs': 1.16.5
       prismjs: 1.23.0
 
@@ -1224,7 +1222,6 @@ packages:
 
   /@types/prismjs/1.16.5:
     resolution: {integrity: sha512-nSU7U6FQDJJCraFNwaHmH5YDsd/VA9rTnJ7B7AGFdn+m+VSt3FjLWN7+AbqxZ67dbFazqtrDFUto3HK4ljrHIg==}
-    dev: false
 
   /@types/pug/2.0.4:
     resolution: {integrity: sha1-h3L80EGOPNLMFxVV1zAHQVBR9LI=}
@@ -1692,7 +1689,7 @@ packages:
       good-listener: 1.2.2
       select: 1.1.2
       tiny-emitter: 2.1.0
-    dev: false
+    dev: true
     optional: true
 
   /cliui/6.0.0:
@@ -1932,7 +1929,7 @@ packages:
 
   /delegate/3.2.0:
     resolution: {integrity: sha512-IofjkYBZaZivn0V8nnsMJGBr4jVLxHDheKSW88PyxS5QC4Vo9ZbZVvhzlSxY87fVq3STR6r+4cGepyHkcWOQSw==}
-    dev: false
+    dev: true
     optional: true
 
   /dequal/2.0.2:
@@ -2651,7 +2648,7 @@ packages:
     resolution: {integrity: sha1-1TswzfkxPf+33JoNR3CWqm0UXFA=}
     dependencies:
       delegate: 3.2.0
-    dev: false
+    dev: true
     optional: true
 
   /graceful-fs/4.2.6:
@@ -4133,7 +4130,7 @@ packages:
     resolution: {integrity: sha512-c29LVsqOaLbBHuIbsTxaKENh1N2EQBOHaWv7gkHN4dgRbxSREqDnDbtFJYdpPauS4YCplMSNCABQ6Eeor69bAA==}
     optionalDependencies:
       clipboard: 2.0.8
-    dev: false
+    dev: true
 
   /process-nextick-args/2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
@@ -4429,7 +4426,7 @@ packages:
 
   /select/1.1.2:
     resolution: {integrity: sha1-DnNQrN7ICxEIUoeG7B1EGNEbOW0=}
-    dev: false
+    dev: true
     optional: true
 
   /semver/5.7.1:
@@ -4871,6 +4868,7 @@ packages:
   /svelte/3.38.2:
     resolution: {integrity: sha512-q5Dq0/QHh4BLJyEVWGe7Cej5NWs040LWjMbicBGZ+3qpFWJ1YObRmUDZKbbovddLC9WW7THTj3kYbTOFmU9fbg==}
     engines: {node: '>= 8'}
+    dev: true
 
   /svg-tags/1.0.0:
     resolution: {integrity: sha1-WPcc7jvVGbWdSyqEO2x95krAR2Q=}
@@ -4952,7 +4950,7 @@ packages:
 
   /tiny-emitter/2.1.0:
     resolution: {integrity: sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==}
-    dev: false
+    dev: true
     optional: true
 
   /tiny-glob/0.2.9:
