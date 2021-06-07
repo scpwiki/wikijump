@@ -1,11 +1,11 @@
-/* Exports the various functions misc. functions needed for the worker. */
+import type { TransferDescriptor } from "threads"
+import { Transfer } from "threads/worker"
 
-import { Transfer, TransferDescriptor } from "threads"
+export type { ModuleProxy } from "threads/dist/types/master"
+export { expose, Transfer as transferMultiple } from "threads/worker"
 
 const decoder = new TextDecoder()
 const encoder = new TextEncoder()
-
-export { expose, Transfer as transferMultiple } from "threads/worker"
 
 export function encode(buffer: string | ArrayBufferLike | ArrayBufferView) {
   if (typeof buffer === "string") return encoder.encode(buffer).buffer

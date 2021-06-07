@@ -20,7 +20,12 @@
     "forceConsistentCasingInFileNames": true,
 
     "sourceMap": true,
-    "noEmit": true
+    "noEmit": true,
+
+    "baseUrl": "./",
+    "paths": {
+      "@root/*": ["../*"]
+    }
   },
 
   "typeAcquisition": {
@@ -32,7 +37,8 @@
       "fast-safe-stringify",
       "tsconfig-paths",
       "mdast-util-from-markdown",
-      "mdast-util-to-markdown"
+      "mdast-util-to-markdown",
+      "source-map-js"
     ]
   },
   "exclude": ["node_modules", "misc/templates", "dist", "tests-dist"]

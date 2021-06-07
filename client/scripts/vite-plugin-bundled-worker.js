@@ -2,7 +2,7 @@ const esbuild = require("esbuild")
 
 const fileRegex = /\?bundled-worker$/
 
-module.exports = function viteWorkerPlugin() {
+module.exports = function viteWorkerPlugin(cjs = false) {
   /** @type import("vite").Plugin */
   const plugin = {
     name: "bundle-workers",
@@ -20,13 +20,21 @@ module.exports = function viteWorkerPlugin() {
           treeShaking: true,
           outdir: "./",
           outbase: "./",
-          format: "iife",
-          platform: "browser",
           write: false,
           define: {
             "window": "globalThis",
             "import.meta.url": '""'
-          }
+          },
+          ...(cjs
+            ? {
+                format: "cjs",
+                platform: "node",
+                external: ["threads"]
+              }
+            : {
+                format: "iife",
+                platform: "browser"
+              })
         })
 
         let code, map

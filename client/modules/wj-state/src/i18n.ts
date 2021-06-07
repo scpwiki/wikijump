@@ -11,15 +11,15 @@ import { Pref } from "./pref"
 // we will bundle it with the JS. this may be inefficient but it means that
 // a user with a spotty internet connection won't see every single string as garbage.
 // this should also prevent some edge case errors, hopefully
-import langEN from "../../../../locales/en.yaml"
+import langEN from "@root/locales/en.yaml"
 i18n.addMessages("en", langEN as any)
 
 // TODO: this could potentially be made automatic, although it would lose type information
 // register other languages here
 const localeLoaders = {
   "en": async () => langEN, // dummy import but useful for type information
-  "en_GB": () => import("../../../../locales/en_GB.yaml"),
-  "pig": () => import("../../../../locales/pig.yaml")
+  "en_GB": () => import("@root/locales/en_GB.yaml"),
+  "pig": () => import("@root/locales/pig.yaml")
 } as const
 
 // -- INIT
@@ -79,11 +79,15 @@ export function setUserLocale(to: SupportedLocale) {
   i18n.locale.set(to)
 }
 
-/** Reference to the `svelte-i18n`'s most recently created formatting function. */
+/** Reference to `svelte-i18n`'s most recently created formatting function. */
 export let format!: MessageFormatter
 // subscribe to the `format` observable so we can update our mutable function
 // this is a bit wacky, but it beats having to do this yourself every time
 i18n.format.subscribe(formatter => (format = formatter))
+
+/** `svelte-i18n`'s current locale. */
+export let locale!: string
+i18n.locale.subscribe(cur => (locale = cur))
 
 /**
  * Formats a string of ICU syntax using the current locale. Using this

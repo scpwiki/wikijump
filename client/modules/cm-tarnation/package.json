@@ -25,7 +25,7 @@
     "@codemirror/highlight": "^0.18.4",
     "@codemirror/language": "^0.18.2",
     "@codemirror/state": "^0.18.7",
-    "@codemirror/view": "^0.18.15",
+    "@codemirror/view": "^0.18.16",
     "dequal": "^2.0.2",
     "is-what": "^4.0.0",
     "klona": "^2.0.4",

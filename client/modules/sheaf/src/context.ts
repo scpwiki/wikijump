@@ -1,5 +1,4 @@
-import type { SheafCore } from "sheaf-core"
-import type { SheafBindings } from "sheaf-core/src/bindings"
+import type { SheafBindings, SheafCore } from "sheaf-core"
 import type { Readable, Writable } from "svelte/store"
 
 export interface SheafSettings {

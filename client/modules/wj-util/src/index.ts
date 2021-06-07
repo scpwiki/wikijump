@@ -396,7 +396,11 @@ export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
   }
 }
 
-const domParser = new DOMParser()
+// so we can load this module in workers:
+let domParser: DOMParser
+try {
+  domParser = new DOMParser()
+} catch {}
 
 /** Takes a string of HTML and creates a {@link DocumentFragment}. */
 export function toFragment(html: string) {
@@ -429,4 +433,88 @@ export function html(strings: TemplateStringsArray, ...subs: (string | string[])
  */
 export function mod(a: number, n: number) {
   return ((a % n) + n) % n
+}
+
+/**
+ * Replaces a range inside of a string with a substitute.
+ *
+ * @param str - The string which should have a range inside of it replaced.
+ * @param from - The start of the replacement range.
+ * @param to - The end of the replacement range.
+ * @param sub - The replacement/substitute string.
+ */
+export function replaceRange(str: string, from: number, to: number, sub: string) {
+  return str.substr(0, from) + sub + str.substr(to)
+}
+
+/**
+ * Uppercases a string.
+ *
+ * @param str - The string to uppercase.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function uppercase(str: string, locale?: string | string[]) {
+  return locale ? str.toLocaleUpperCase(locale) : str.toUpperCase()
+}
+
+/**
+ * Lowercases a string.
+ *
+ * @param str - The string to lowercase.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function lowercase(str: string, locale?: string | string[]) {
+  return locale ? str.toLocaleUpperCase(locale) : str.toLowerCase()
+}
+
+/**
+ * Titlecases a string.
+ *
+ * @param str - The string to titlecase.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function titlecase(str: string, locale?: string) {
+  return replaceRange(lowercase(str, locale), 0, 1, uppercase(str[0], locale))
+}
+
+/**
+ * Determines if a string is titlecased.
+ *
+ * @param str - The string to check.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function isTitlecased(str: string, locale?: string) {
+  return uppercase(str[0], locale) === str[0]
+}
+
+/**
+ * Determines if a string is completely uppercased.
+ *
+ * @param str - The string to check.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function isUppercased(str: string, locale?: string) {
+  return uppercase(str, locale) === str
+}
+
+/**
+ * Determines if a string is completely lowercased.
+ *
+ * @param str - The string to check.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function isLowercased(str: string, locale?: string) {
+  return lowercase(str, locale) === str
 }

@@ -25,7 +25,7 @@
     "@codemirror/language": "^0.18.2",
     "@codemirror/language-data": "^0.18.0",
     "@codemirror/state": "^0.18.7",
-    "@codemirror/view": "^0.18.15",
+    "@codemirror/view": "^0.18.16",
     "cm-lang-ftml": "workspace:*",
     "components": "workspace:*",
     "ftml-wasm-worker": "workspace:*",

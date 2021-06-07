@@ -7,6 +7,7 @@
   import { Button } from "components"
   import { throttle } from "wj-util"
   import { t, number, unit } from "wj-state"
+  import { Content } from "cm-lang-ftml"
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
@@ -17,27 +18,14 @@
   let words = 0
   let lines = 0
 
-  function kilobyteCount(str: string) {
-    // this is a really _spicy_ way of getting a rough kilobyte count
-    // it doesn't need to be precise at all, so this is fine.
-    // FYI: I didn't come up with this trick - it's been around a while.
-    // there isn't actually a decent way to get the byte size of a JS string
-    // without involving iterating through it or some other expensive operation
-    return Math.round((encodeURI(str).split(/&..|./).length - 1) / 1000)
-  }
-
-  // TODO: fix this function by parsing AST or something similar, currently inaccurate
-  function wordCount(str: string) {
-    return str.trim().split(/\s+/).length
-  }
-
   // we really don't want to call this function often
   // it has to get the editor's value, which means it has to stringify
   // the document contents, which is expensive and memory intensive
-  const updateExpensiveStats = throttle(() => {
-    const value = $editor.value
-    bytes = kilobyteCount(value)
-    words = wordCount(value)
+  const updateExpensiveStats = throttle(async () => {
+    const value = await $editor.value()
+    const stats = await Content.stats(value)
+    words = stats.words
+    bytes = Math.round(stats.bytes / 1000)
   }, 250)
 
   $: if ($editor.doc) {

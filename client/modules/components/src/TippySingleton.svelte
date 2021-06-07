@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { parseTipOpts } from "./lib/tippy"
-  import tippy, { createSingleton, followCursor } from "tippy.js"
+  import { DEFAULT_TIPPY_OPTS, parseTipOpts } from "./lib/tippy"
+  import tippy, { createSingleton } from "tippy.js"
   import type { Props, Instance, CreateSingletonProps } from "tippy.js"
   import { onDestroy } from "svelte"
 
   const DEFAULT_SINGLETON_PROPS: Partial<CreateSingletonProps> = {
-    delay: [400, 50]
+    ...DEFAULT_TIPPY_OPTS
   }
 
   export let opts: Partial<CreateSingletonProps> = { ...DEFAULT_SINGLETON_PROPS }

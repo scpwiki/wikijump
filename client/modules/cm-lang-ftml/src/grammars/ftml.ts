@@ -6,7 +6,9 @@ import { languages } from "@codemirror/language-data"
 import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
 import type * as DF from "cm-tarnation/src/grammar/definition"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
+import { ContentFacet, textBuffer } from "sheaf-core"
 import { completeFTML } from "../autocomplete"
+import Content from "../content"
 import { blocks, modules } from "../data/blocks"
 import { ftmlHoverTooltips } from "../hover"
 import { ftmlLinter } from "../lint"
@@ -88,7 +90,13 @@ export const FTMLLanguage = new TarnationLanguage({
     autocomplete: completeFTML
   },
 
-  supportExtensions: [ftmlLinter, ftmlHoverTooltips, htmlCompletion, cssCompletion],
+  supportExtensions: [
+    ContentFacet.of(async state => Content.extract(await textBuffer(state.doc))),
+    ftmlLinter,
+    ftmlHoverTooltips,
+    htmlCompletion,
+    cssCompletion
+  ],
 
   configure: {
     props: [

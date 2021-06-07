@@ -1,5 +1,6 @@
 import svelte from "@sveltejs/vite-plugin-svelte"
 import sveltePreprocess from "svelte-preprocess"
+import tsconfigPaths from "vite-tsconfig-paths"
 import workerPlugin from "../../scripts/vite-plugin-bundled-worker.js"
 import tomlPlugin from "../../scripts/vite-plugin-toml.js"
 import yamlPlugin from "../../scripts/vite-plugin-yaml.js"
@@ -42,6 +43,10 @@ const config = {
   },
 
   plugins: [
+    tsconfigPaths({
+      projects: ["../../../"],
+      loose: true
+    }),
     workerPlugin(),
     tomlPlugin(),
     yamlPlugin(),

@@ -2,8 +2,8 @@
   @component Wikijump's primary page editor.
 -->
 <script lang="ts">
-  import { SheafCore } from "sheaf-core"
-  import type { SheafBindings } from "sheaf-core/src/bindings"
+  import { EditorSveltePanel, SheafCore } from "sheaf-core"
+  import type { SheafBindings } from "sheaf-core"
   import { setContext } from "svelte"
   import type { Readable } from "svelte/store"
   import { matchBreakpoint, PreferenceHandler } from "wj-state"
@@ -12,6 +12,8 @@
   import PaneEditor from "./PaneEditor.svelte"
   import PaneEditorTopbar from "./PaneEditorTopbar.svelte"
   import PanePreview from "./PanePreview.svelte"
+  import SheafPanel from "./SheafPanel.svelte"
+  import { FTMLLanguage } from "cm-lang-ftml"
 
   /** Height of the editor's container. */
   export let height = "100%"
@@ -25,7 +27,9 @@
   // setup context, which is shared across all child components
   // this is so that we don't have to pass everything in as component attributes
 
-  const editor = new SheafCore()
+  const TestPanel = new EditorSveltePanel(SheafPanel, { top: true })
+  const editor = new SheafCore(doc, bindings, [FTMLLanguage.load(), TestPanel])
+  TestPanel.toggle(editor.state.view, true)
 
   const settings = new PreferenceHandler("_sheaf_").bind(
     "settings",
@@ -50,7 +54,7 @@
   <div class="sheaf-panes">
     <div class="sheaf-pane sheaf-pane-editor">
       <PaneEditorTopbar />
-      <PaneEditor {doc} />
+      <PaneEditor />
     </div>
 
     {#if $settings.preview.enabled && !$small}
