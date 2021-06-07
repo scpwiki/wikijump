@@ -15,6 +15,9 @@ async function importWorker() {
 
 /** Class that handles and provides an interface to a spellcheck worker. */
 export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
+  /** True if the worker is disabled due to a locale that isn't available. */
+  declare disabled: boolean
+
   /** The current locale of the worker. */
   declare locale: string
 
@@ -22,24 +25,28 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
   constructor(locale = "en") {
     super("spellchecker", importWorker, {
       persist: true,
-      init: async () => {
-        await this.setSpellchecker(locale)
-        // add local dictionary to spellchecker once it has started
-        const localDictionary = Pref.get<string[]>("spellchecker-user-dictionary", [])
-        if (localDictionary.length) {
-          await this.invoke("appendToDictionary", localDictionary)
-        }
-      }
+      init: async () => await this.setSpellchecker(locale)
     })
   }
 
   /** Sets the locale of the worker. */
   async setSpellchecker(locale: string) {
     if (locale === this.locale) return
-    if (!DICTIONARIES.hasOwnProperty(locale)) throw new Error("Invalid locale specified!")
+    if (DICTIONARIES.hasOwnProperty(locale)) {
+      this.disabled = false
     this.locale = locale
     const { dict, bigram } = await DICTIONARIES[locale]()
-    await this.invoke("setSpellchecker", spellcheckerWASMURL, dict, bigram)
+      const urls = { wasm: spellcheckerWASMURL, dict, bigram }
+      await this.invoke("setSpellchecker", locale, urls)
+      // add local dictionary to spellchecker once it has started
+      const localDictionary = Pref.get<string[]>("spellchecker-user-dictionary", [])
+      if (localDictionary.length) {
+        await this.invoke("appendToDictionary", localDictionary)
+      }
+    } else {
+      console.warn("Locale given to spellchecker has no resources available for it.")
+      this.disabled = true
+    }
   }
 
   /**
@@ -47,6 +54,7 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
    * Returns `null` if the word isn't actually misspelled.
    */
   async check(word: string | ArrayBuffer) {
+    if (this.disabled) return null
     return await this.invoke("check", transfer(word))
   }
 
@@ -56,6 +64,7 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
    * actually misspelled.
    */
   async checkWords(str: string | ArrayBuffer) {
+    if (this.disabled) return null
     return await this.invoke("checkWords", transfer(str))
   }
 
@@ -78,11 +87,13 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
    *   frequency that is set. Defaults to 1000.
    */
   async appendToDictionary(input: string | string[], frequency = 1000) {
+    if (this.disabled) return
     await this.invoke("appendToDictionary", input, frequency)
   }
 
   /** Saves a word to the user's internal dictionary. */
   async saveToDictionary(word: string) {
+    if (this.disabled) return
     word = word.toLowerCase()
     const localDictionary = Pref.get<string[]>("spellchecker-user-dictionary", [])
     // add our word but do a dedupe pass to catch edge cases

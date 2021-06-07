@@ -1,21 +1,23 @@
 import { decode, expose, ModuleProxy } from "worker-module/src/worker-lib"
-import * as Spellchecker from "./spellchecker"
+import { Spellchecker, SpellcheckerURLS } from "./spellchecker"
+
+let spellchecker: Spellchecker
 
 const module = {
-  async setSpellchecker(wasmURL: string, dictURL: string, bigramURL?: string) {
-    await Spellchecker.setSpellchecker(wasmURL, dictURL, bigramURL)
+  async setSpellchecker(locale: string, urls: SpellcheckerURLS) {
+    spellchecker = new Spellchecker(locale, urls)
   },
 
   async check(raw: ArrayBuffer) {
-    return await Spellchecker.check(decode(raw))
+    return await spellchecker.check(decode(raw))
   },
 
   async checkWords(raw: ArrayBuffer) {
-    return await Spellchecker.checkWords(decode(raw))
+    return await spellchecker.checkWords(decode(raw))
   },
 
-  appendToDictionary(input: string | string[], frequency = 1000) {
-    Spellchecker.appendToDictionary(input, frequency)
+  async appendToDictionary(input: string | string[], frequency = 1000) {
+    await spellchecker.appendToDictionary(input, frequency)
   }
 }
 
