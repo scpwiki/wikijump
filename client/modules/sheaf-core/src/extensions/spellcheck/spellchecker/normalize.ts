@@ -36,7 +36,7 @@ export function normalize(str: string, locale: string) {
   }
 
   // get rid of all punctuation except stuff that goes into words (or whitespace)
-  str = str.replaceAll(/[^\p{L}'\s]+/gu, match => " ".repeat(match.length))
+  output = output.replaceAll(/[^\p{L}'\s]+/gu, match => " ".repeat(match.length))
 
   return output
 }
