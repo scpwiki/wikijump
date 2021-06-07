@@ -80,31 +80,13 @@ export class Spellchecker {
     this.spellchecker = new SpellcheckerWasm()
   }
 
-  // TODO: remove when switching over to browser testing
-  private static fixPath = (url: string) => url.replace(/file:\/\/(\/(?=\w+:\\))?/, "")
-
   private async init() {
     if (this.ready) return
     const urls = this.urls
-
-    // hack for running on Node
-    // TODO: remove when switching over to browser testing
-    if (urls.wasm.startsWith("file:")) {
-      const { wasm, dict, bigram } = urls
-      await this.spellchecker.prepareSpellchecker(
-        Spellchecker.fixPath(wasm),
-        Spellchecker.fixPath(dict),
-        bigram ? Spellchecker.fixPath(bigram) : undefined
-      )
-    }
-    // normal
-    else {
-      const [wasm, dict, bigram] = urls.bigram
-        ? await Promise.all([fetch(urls.wasm), fetch(urls.dict), fetch(urls.bigram)])
-        : await Promise.all([fetch(urls.wasm), fetch(urls.dict)])
-      await this.spellchecker.prepareSpellchecker(wasm, dict, bigram)
-    }
-
+    const [wasm, dict, bigram] = urls.bigram
+      ? await Promise.all([fetch(urls.wasm), fetch(urls.dict), fetch(urls.bigram)])
+      : await Promise.all([fetch(urls.wasm), fetch(urls.dict)])
+    await this.spellchecker.prepareSpellchecker(wasm, dict, bigram)
     this.ready = true
   }
 

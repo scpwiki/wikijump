@@ -2,16 +2,6 @@ const esbuild = require("esbuild")
 
 const fileRegex = /\?bundled-worker$/
 
-// TODO: remove when testing is switched over to being done on browsers
-const resolveSpellchecker = {
-  name: "fixSpellchecker",
-  setup(build) {
-    build.onResolve({ filter: /spellchecker-wasm\/lib\/browser\/index/ }, args => {
-      return { path: "spellchecker-wasm/lib/nodejs/index", external: true }
-    })
-  }
-}
-
 module.exports = function viteWorkerPlugin(cjs = false) {
   /** @type import("vite").Plugin */
   const plugin = {
@@ -39,8 +29,7 @@ module.exports = function viteWorkerPlugin(cjs = false) {
             ? {
                 format: "cjs",
                 platform: "node",
-                external: ["threads"],
-                plugins: [resolveSpellchecker]
+                external: ["threads"]
               }
             : {
                 format: "iife",
