@@ -1,5 +1,5 @@
 import spellcheckerWASMRelativeURL from "spellchecker-wasm/lib/spellchecker-wasm.wasm?url"
-import { Pref } from "wj-state"
+import { locale as i18nLocale, Pref } from "wj-state"
 import { transfer, WorkerModule } from "worker-module"
 import DICTIONARIES from "./dicts"
 import type { SpellcheckModuleInterface } from "./spellcheck.worker"
@@ -34,8 +34,8 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
     if (locale === this.locale) return
     if (DICTIONARIES.hasOwnProperty(locale)) {
       this.disabled = false
-    this.locale = locale
-    const { dict, bigram } = await DICTIONARIES[locale]()
+      this.locale = locale
+      const { dict, bigram } = await DICTIONARIES[locale]()
       const urls = { wasm: spellcheckerWASMURL, dict, bigram }
       await this.invoke("setSpellchecker", locale, urls)
       // add local dictionary to spellchecker once it has started
@@ -105,8 +105,13 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
   }
 }
 
+// get the locale, but rip off any region codes
+// not quite sure how this will always be formatted,
+// so this is done in a paranoid fashion
+const [locale] = i18nLocale.toLowerCase().split(/-|_/)
+
 /**
  * Instance of the spellcheck worker. Will only instantiate the worker when
  * a method is first called.
  */
-export const Spellchecker = new SpellcheckWorker()
+export const Spellchecker = new SpellcheckWorker(locale)

@@ -79,11 +79,15 @@ export function setUserLocale(to: SupportedLocale) {
   i18n.locale.set(to)
 }
 
-/** Reference to the `svelte-i18n`'s most recently created formatting function. */
+/** Reference to `svelte-i18n`'s most recently created formatting function. */
 export let format!: MessageFormatter
 // subscribe to the `format` observable so we can update our mutable function
 // this is a bit wacky, but it beats having to do this yourself every time
 i18n.format.subscribe(formatter => (format = formatter))
+
+/** `svelte-i18n`'s current locale. */
+export let locale!: string
+i18n.locale.subscribe(cur => (locale = cur))
 
 /**
  * Formats a string of ICU syntax using the current locale. Using this

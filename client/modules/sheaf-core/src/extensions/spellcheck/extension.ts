@@ -28,13 +28,12 @@ const theme = EditorView.baseTheme({
 
 /**
  * Extension, more specifically a field, that adds spellchecking to a
- * CodeMirror instance. The spellchecker requires the
- * {@link ../content#ContentFacet} facet to have a value within the
- * instance, as the spellchecker by itself has no way of knowing what it
- * should actually be checking.
+ * CodeMirror instance. The spellchecker requires the `ContentFacet` facet
+ * to have a value within the instance, as the spellchecker by itself has
+ * no way of knowing what it should actually be checking.
  */
 export const Spellcheck = new EditorField<SpellcheckState>({
-  default: new SpellcheckState(true, "en"),
+  default: new SpellcheckState(true, Spellchecker.locale),
 
   // maps the decorations across document changes
   update: (state, tr, changed) => {
