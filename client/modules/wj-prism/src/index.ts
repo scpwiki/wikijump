@@ -1,7 +1,5 @@
-// organize-imports-ignore
-// import order is important
-import "../vendor/prism"
 import type PrismType from "prismjs"
+import "../vendor/prism"
 
 // Re-export a reference to Prism so that there is actually a half-decent
 // way of accessing it
