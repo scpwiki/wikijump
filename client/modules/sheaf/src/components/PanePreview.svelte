@@ -5,8 +5,8 @@
   import { Tab, Tabview, Wikitext } from "wj-components"
   import { getContext } from "svelte"
   import CodeDisplay from "./CodeDisplay.svelte"
-  import type { SheafContext } from "./context"
-  import { RenderHandler } from "./render-handler"
+  import type { SheafContext } from "../context"
+  import { RenderHandler } from "../render-handler"
   import { t } from "wj-state"
   import { printTree } from "wj-codemirror"
 

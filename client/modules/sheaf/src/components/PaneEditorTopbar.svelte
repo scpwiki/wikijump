@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
   import { getContext } from "svelte"
-  import type { SheafContext } from "./context"
+  import type { SheafContext } from "../context"
   import { Button } from "wj-components"
   import { throttle } from "wj-util"
   import { t, number, unit } from "wj-state"

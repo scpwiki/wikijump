@@ -14,10 +14,10 @@ import {
   ViewPlugin,
   ViewUpdate
 } from "wj-codemirror/cm"
-import { getSheafBasicExtensions } from "../extensions/base"
-import { createSheafBinding, SheafBindings } from "../extensions/bindings"
-import { getSheafKeymap } from "../extensions/keymap"
-import { confinement } from "../extensions/theme"
+import { getSheafBasicExtensions } from "./extensions/base"
+import { createSheafBinding, SheafBindings } from "./extensions/bindings"
+import { getSheafKeymap } from "./extensions/keymap"
+import { confinement } from "./extensions/theme"
 import { SheafState } from "./state"
 
 export class SheafCore {

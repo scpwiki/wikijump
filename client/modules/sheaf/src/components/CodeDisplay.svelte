@@ -11,7 +11,7 @@
   import { languages } from "cm-lang-ftml"
   import { onDestroy, onMount } from "svelte"
   import { createIdleQueued, createMutatingLock } from "wj-util"
-  import { getCodeDisplayExtensions } from "sheaf-core"
+  import { getCodeDisplayExtensions } from "../extensions/code-display"
   import { Spinny } from "wj-components"
 
   /** Contents of the code block. Can be a promise that resolves to a string. */

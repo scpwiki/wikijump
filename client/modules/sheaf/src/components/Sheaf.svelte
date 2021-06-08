@@ -3,13 +3,13 @@
 -->
 <script lang="ts">
   import { EditorSveltePanel } from "wj-codemirror"
-  import { SheafCore } from "sheaf-core"
-  import type { SheafBindings } from "sheaf-core"
+  import { SheafCore } from "../core"
+  import type { SheafBindings } from "../extensions/bindings"
   import { setContext } from "svelte"
   import type { Readable } from "svelte/store"
   import { matchBreakpoint, PreferenceHandler } from "wj-state"
-  import type { SheafContext } from "./context"
-  import { getDefaultSheafSettings } from "./context"
+  import type { SheafContext } from "../context"
+  import { getDefaultSheafSettings } from "../context"
   import PaneEditor from "./PaneEditor.svelte"
   import PaneEditorTopbar from "./PaneEditorTopbar.svelte"
   import PanePreview from "./PanePreview.svelte"

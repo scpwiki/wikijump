@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
   import { getContext, onMount } from "svelte"
-  import type { SheafContext } from "./context"
+  import type { SheafContext } from "../context"
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 

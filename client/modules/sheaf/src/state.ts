@@ -6,8 +6,8 @@ import {
   textValue
 } from "wj-codemirror"
 import { EditorState, EditorView, syntaxTree, Text } from "wj-codemirror/cm"
-import type { SheafBindings } from "../extensions/bindings"
 import type { SheafCore } from "./core"
+import type { SheafBindings } from "./extensions/bindings"
 
 export interface SheafStateConstructorOpts {
   self: SheafCore
