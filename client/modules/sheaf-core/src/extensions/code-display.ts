@@ -1,5 +1,5 @@
+import { IndentHack } from "wj-codemirror"
 import { drawSelection, EditorView } from "wj-codemirror/cm"
-import { IndentHack } from "./indent-hack"
 import { confinement } from "./theme"
 
 export function getCodeDisplayExtensions() {

@@ -1,5 +1,5 @@
 import type { SyntaxNode } from "lezer-tree"
-import { EditorSvelteComponent } from "sheaf-core"
+import { EditorSvelteComponent } from "wj-codemirror"
 import type { Completion, CompletionContext, CompletionResult } from "wj-codemirror/cm"
 import { syntaxTree } from "wj-codemirror/cm"
 import { Prism } from "wj-prism"

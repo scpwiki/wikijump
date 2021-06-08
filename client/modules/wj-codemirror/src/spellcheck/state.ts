@@ -1,4 +1,4 @@
-import { Decoration, DecorationSet } from "wj-codemirror/cm"
+import { Decoration, DecorationSet } from "../../cm"
 import type { Misspelling } from "./spellchecker/spellchecker"
 
 /**

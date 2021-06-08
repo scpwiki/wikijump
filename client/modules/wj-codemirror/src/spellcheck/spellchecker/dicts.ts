@@ -16,28 +16,28 @@ export const DICTIONARIES: Record<string, () => Promise<Dictionary>> = {
   // see: https://github.com/aleclarson/vite-tsconfig-paths/pull/29
   // looks like: await url(import("@root/locales/spellcheck/en.txt?url"))
   "en": async () => ({
-    dict: await url(import("../../../../../../../locales/spellcheck/en.txt?url"))
+    dict: await url(import("../../../../../../locales/spellcheck/en.txt?url"))
   }),
   "de": async () => ({
-    dict: await url(import("../../../../../../../locales/spellcheck/de.txt?url"))
+    dict: await url(import("../../../../../../locales/spellcheck/de.txt?url"))
   }),
   "es": async () => ({
-    dict: await url(import("../../../../../../../locales/spellcheck/es.txt?url"))
+    dict: await url(import("../../../../../../locales/spellcheck/es.txt?url"))
   }),
   "fr": async () => ({
-    dict: await url(import("../../../../../../../locales/spellcheck/fr.txt?url"))
+    dict: await url(import("../../../../../../locales/spellcheck/fr.txt?url"))
   }),
   "he": async () => ({
-    dict: await url(import("../../../../../../../locales/spellcheck/he.txt?url"))
+    dict: await url(import("../../../../../../locales/spellcheck/he.txt?url"))
   }),
   "it": async () => ({
-    dict: await url(import("../../../../../../../locales/spellcheck/it.txt?url"))
+    dict: await url(import("../../../../../../locales/spellcheck/it.txt?url"))
   }),
   "ru": async () => ({
-    dict: await url(import("../../../../../../../locales/spellcheck/ru.txt?url"))
+    dict: await url(import("../../../../../../locales/spellcheck/ru.txt?url"))
   }),
   "zh": async () => ({
-    dict: await url(import("../../../../../../../locales/spellcheck/zh.txt?url"))
+    dict: await url(import("../../../../../../locales/spellcheck/zh.txt?url"))
   })
 }
 

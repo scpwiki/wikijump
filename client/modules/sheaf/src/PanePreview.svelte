@@ -8,7 +8,7 @@
   import type { SheafContext } from "./context"
   import { RenderHandler } from "./render-handler"
   import { t } from "wj-state"
-  import { printTree } from "sheaf-core"
+  import { printTree } from "wj-codemirror"
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 

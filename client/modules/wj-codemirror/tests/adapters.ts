@@ -1,6 +1,6 @@
 import * as uvu from "uvu"
 import * as assert from "uvu/assert"
-import { LifecycleElement } from "../src/adapters/svelte-lifecycle-element"
+import { LifecycleElement } from "../src/svelte/svelte-lifecycle-element"
 
 // testing the other adapters might not really be possible, at least in this module
 // they ofc require a svelte component to work, and even after you'd need an entire

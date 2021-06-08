@@ -4,7 +4,7 @@
 <script lang="ts">
   import { focusGroup, TippySingleton } from "wj-components"
   import { t } from "wj-state"
-  import type { EditorSvelteComponentProps } from "../../adapters/svelte-dom"
+  import type { EditorSvelteComponentProps } from "../svelte/svelte-dom"
   import { Spellchecker } from "./spellchecker"
   import type { Misspelling, Suggestion } from "./spellchecker/spellchecker"
 

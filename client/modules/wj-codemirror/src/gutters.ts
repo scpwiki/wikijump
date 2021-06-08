@@ -1,5 +1,5 @@
-import { foldGutter, lineNumbers } from "wj-codemirror/cm"
-import { EditorField } from "../util/editor-field"
+import { foldGutter, lineNumbers } from "../cm"
+import { EditorField } from "./editor-field"
 
 /**
  * `EditorField` extension that enables a field that controls whether or

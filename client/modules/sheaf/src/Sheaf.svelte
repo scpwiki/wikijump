@@ -2,7 +2,8 @@
   @component Wikijump's primary page editor.
 -->
 <script lang="ts">
-  import { EditorSveltePanel, SheafCore } from "sheaf-core"
+  import { EditorSveltePanel } from "wj-codemirror"
+  import { SheafCore } from "sheaf-core"
   import type { SheafBindings } from "sheaf-core"
   import { setContext } from "svelte"
   import type { Readable } from "svelte/store"

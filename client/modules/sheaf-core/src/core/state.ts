@@ -1,8 +1,12 @@
+import {
+  ContentFacet,
+  getActiveLines,
+  Gutters,
+  textBuffer,
+  textValue
+} from "wj-codemirror"
 import { EditorState, EditorView, syntaxTree, Text } from "wj-codemirror/cm"
 import type { SheafBindings } from "../extensions/bindings"
-import { ContentFacet } from "../extensions/content"
-import { Gutters } from "../extensions/gutters"
-import { getActiveLines, textBuffer, textValue } from "../util/misc"
 import type { SheafCore } from "./core"
 
 export interface SheafStateConstructorOpts {

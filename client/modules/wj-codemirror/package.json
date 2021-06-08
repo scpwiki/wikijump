@@ -28,6 +28,8 @@
     "@codemirror/gutter": "^0.18.4",
     "@codemirror/highlight": "^0.18.4",
     "@codemirror/history": "^0.18.1",
+    "@codemirror/lang-css": "^0.18.0",
+    "@codemirror/lang-html": "^0.18.1",
     "@codemirror/language": "^0.18.2",
     "@codemirror/language-data": "^0.18.0",
     "@codemirror/legacy-modes": "^0.18.0",
@@ -41,7 +43,15 @@
     "@codemirror/text": "^0.18.0",
     "@codemirror/tooltip": "^0.18.4",
     "@codemirror/view": "^0.18.16",
-    "@codemirror/lang-css": "^0.18.0",
-    "@codemirror/lang-html": "^0.18.1"
+    "lezer": "^0.13.5",
+    "lezer-tree": "^0.13.2",
+    "spellchecker-wasm": "^0.3.3",
+    "threads-worker-module": "workspace:*",
+    "wj-components": "workspace:*",
+    "wj-state": "workspace:*",
+    "wj-util": "workspace:*"
+  },
+  "devDependencies": {
+    "svelte": "^3.38.2"
   }
 }

@@ -7,7 +7,7 @@ import {
   RangeSetBuilder,
   ViewPlugin,
   ViewUpdate
-} from "wj-codemirror/cm"
+} from "../cm"
 
 const WHITESPACE_REGEX = /^\s+/
 

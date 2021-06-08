@@ -1,6 +1,6 @@
 import type { SvelteComponent } from "svelte"
-import { EditorView, Extension, Panel, showPanel } from "wj-codemirror/cm"
-import { EditorField } from "../util/editor-field"
+import { EditorView, Extension, Panel, showPanel } from "../../cm"
+import { EditorField } from "../editor-field"
 import {
   EditorSvelteComponent,
   EditorSvelteComponentOpts,

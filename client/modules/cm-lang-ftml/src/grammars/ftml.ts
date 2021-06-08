@@ -1,7 +1,7 @@
 import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
 import type * as DF from "cm-tarnation/src/grammar/definition"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
-import { ContentFacet, textBuffer } from "sheaf-core"
+import { ContentFacet, textBuffer } from "wj-codemirror"
 import {
   cssCompletion,
   foldNodeProp,

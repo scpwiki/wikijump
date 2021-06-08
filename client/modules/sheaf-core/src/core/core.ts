@@ -1,5 +1,13 @@
 import { Writable, writable } from "svelte/store"
 import {
+  ContentFacet,
+  Gutters,
+  IndentHack,
+  Spellcheck,
+  textBuffer,
+  textValue
+} from "wj-codemirror"
+import {
   EditorState,
   EditorView,
   Extension,
@@ -8,13 +16,8 @@ import {
 } from "wj-codemirror/cm"
 import { getSheafBasicExtensions } from "../extensions/base"
 import { createSheafBinding, SheafBindings } from "../extensions/bindings"
-import { ContentFacet } from "../extensions/content"
-import { Gutters } from "../extensions/gutters"
-import { IndentHack } from "../extensions/indent-hack"
 import { getSheafKeymap } from "../extensions/keymap"
-import { Spellcheck } from "../extensions/spellcheck"
 import { confinement } from "../extensions/theme"
-import { textBuffer, textValue } from "../util/misc"
 import { SheafState } from "./state"
 
 export class SheafCore {

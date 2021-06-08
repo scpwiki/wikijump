@@ -94,7 +94,6 @@ importers:
       cm-tarnation: workspace:*
       ftml-wasm-worker: workspace:*
       lezer-tree: ^0.13.2
-      sheaf-core: workspace:*
       threads-worker-module: workspace:*
       wj-codemirror: workspace:*
       wj-components: workspace:*
@@ -106,7 +105,6 @@ importers:
       cm-tarnation: link:../cm-tarnation
       ftml-wasm-worker: link:../ftml-wasm-worker
       lezer-tree: 0.13.2
-      sheaf-core: link:../sheaf-core
       threads-worker-module: link:../threads-worker-module
       wj-codemirror: link:../wj-codemirror
       wj-components: link:../wj-components
@@ -234,6 +232,14 @@ importers:
       '@codemirror/text': ^0.18.0
       '@codemirror/tooltip': ^0.18.4
       '@codemirror/view': ^0.18.16
+      lezer: ^0.13.5
+      lezer-tree: ^0.13.2
+      spellchecker-wasm: ^0.3.3
+      svelte: ^3.38.2
+      threads-worker-module: workspace:*
+      wj-components: workspace:*
+      wj-state: workspace:*
+      wj-util: workspace:*
     dependencies:
       '@codemirror/autocomplete': 0.18.6
       '@codemirror/closebrackets': 0.18.0
@@ -258,6 +264,15 @@ importers:
       '@codemirror/text': 0.18.0
       '@codemirror/tooltip': 0.18.4
       '@codemirror/view': 0.18.16
+      lezer: 0.13.5
+      lezer-tree: 0.13.2
+      spellchecker-wasm: 0.3.3
+      threads-worker-module: link:../threads-worker-module
+      wj-components: link:../wj-components
+      wj-state: link:../wj-state
+      wj-util: link:../wj-util
+    devDependencies:
+      svelte: 3.38.2
 
   modules/wj-components:
     specifiers:

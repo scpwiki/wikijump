@@ -4,7 +4,7 @@
 <script lang="ts">
   import { FTMLLanguage } from "cm-lang-ftml"
   import { Button } from "wj-components"
-  import type { EditorSveltePanelProps } from "sheaf-core"
+  import type { EditorSveltePanelProps } from "wj-codemirror"
   import { unit } from "wj-state"
 
   export let view: EditorSveltePanelProps["view"]

@@ -7,7 +7,7 @@ import {
   StateEffect,
   StateField,
   Transaction
-} from "wj-codemirror/cm"
+} from "../cm"
 
 export interface EditorFieldOpts<T> {
   /** The default value for the field when it is created. */

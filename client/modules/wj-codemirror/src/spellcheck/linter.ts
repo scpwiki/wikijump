@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { EditorView, ViewPlugin, ViewUpdate } from "wj-codemirror/cm"
+import { EditorView, ViewPlugin, ViewUpdate } from "../../cm"
 import { ContentFacet } from "../content"
 import { Spellcheck } from "./extension"
 import { Spellchecker } from "./spellchecker"
