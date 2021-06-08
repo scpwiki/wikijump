@@ -8,13 +8,22 @@ import {
   textValue
 } from "wj-codemirror"
 import {
+  autocompletion,
+  bracketMatching,
+  closeBrackets,
+  drawSelection,
   EditorState,
   EditorView,
   Extension,
+  highlightActiveLine,
+  highlightSelectionMatches,
+  highlightSpecialChars,
+  history,
+  indentOnInput,
+  rectangularSelection,
   ViewPlugin,
   ViewUpdate
 } from "wj-codemirror/cm"
-import { getSheafBasicExtensions } from "./extensions/base"
 import { createSheafBinding, SheafBindings } from "./extensions/bindings"
 import { getSheafKeymap } from "./extensions/keymap"
 import { confinement } from "./extensions/theme"
@@ -35,7 +44,18 @@ export class SheafCore {
       state: EditorState.create({
         doc,
         extensions: [
-          getSheafBasicExtensions(),
+          highlightSpecialChars(),
+          history(),
+          drawSelection(),
+          EditorState.allowMultipleSelections.of(true),
+          indentOnInput(),
+          bracketMatching(),
+          closeBrackets(),
+          highlightSelectionMatches(),
+          autocompletion(),
+          rectangularSelection(),
+          highlightActiveLine(),
+          EditorView.lineWrapping,
           getSheafKeymap(),
           IndentHack,
           ContentFacet.of((state, buffer) =>
