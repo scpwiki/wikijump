@@ -6,13 +6,15 @@
     EditorState,
     Compartment,
     EditorView,
-    LanguageDescription
+    LanguageDescription,
+    drawSelection
   } from "wj-codemirror/cm"
+  import { IndentHack } from "wj-codemirror"
   import { languages } from "cm-lang-ftml"
   import { onDestroy, onMount } from "svelte"
   import { createIdleQueued, createMutatingLock } from "wj-util"
-  import { getCodeDisplayExtensions } from "../extensions/code-display"
   import { Spinny } from "wj-components"
+  import { confinement } from "../extensions/theme"
 
   /** Contents of the code block. Can be a promise that resolves to a string. */
   export let content: Promisable<string>
@@ -58,7 +60,11 @@
       state: EditorState.create({
         doc: await content,
         extensions: [
-          ...getCodeDisplayExtensions(),
+          drawSelection(),
+          EditorView.editable.of(false),
+          EditorView.lineWrapping,
+          IndentHack,
+          confinement,
           langExtension.of((await getLang()) ?? [])
         ]
       })
@@ -76,7 +82,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../wj-css/src/abstracts";
+  @import "../../../wj-css/src/abstracts";
 
   .code-display-container {
     position: relative;
