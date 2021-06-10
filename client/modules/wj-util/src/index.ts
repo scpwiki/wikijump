@@ -468,7 +468,7 @@ export function uppercase(str: string, locale?: string | string[]) {
  *   non-ASCII/Latin text when handling casing.
  */
 export function lowercase(str: string, locale?: string | string[]) {
-  return locale ? str.toLocaleUpperCase(locale) : str.toLowerCase()
+  return locale ? str.toLocaleLowerCase(locale) : str.toLowerCase()
 }
 
 /**
