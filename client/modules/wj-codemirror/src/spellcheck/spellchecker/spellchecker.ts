@@ -1,6 +1,21 @@
 import { SpellcheckerWasm, SuggestedItem } from "spellchecker-wasm/lib/browser/index"
-import { isTitlecased, isUppercased, lowercase, titlecase, uppercase } from "wj-util"
-import { normalize } from "./normalize"
+import type { CheckSpellingOptions } from "spellchecker-wasm/lib/SpellCheckerBase"
+import {
+  createLock,
+  isTitlecased,
+  isUppercased,
+  lowercase,
+  titlecase,
+  uppercase
+} from "wj-util"
+import locales from "./locales"
+import type {
+  Misspelling,
+  SpellcheckerOptions,
+  SpellcheckerURLS,
+  Suggestion,
+  Word
+} from "./types"
 
 // TODO: This entire strategy won't work for (afaik) Arabic and Chinese
 // this is because we need to be able to split text into "words", which is much
@@ -8,43 +23,9 @@ import { normalize } from "./normalize"
 // is not exactly easy, for the time being this spellchecker isn't very good
 // for those kind of scripts.
 
-/** A suggestion for replacing a word. */
-export type Suggestion = {
-  /** The frequency of the suggested word within the corpus. */
-  count: number
-  /** The distance from misspelled word to the suggested word. */
-  distance: number
-  /** The suggested word. */
-  term: string
-}
-
-/** Describes a word in a document, i.e. the term itself and its location. */
-export interface Word {
-  /** The word itself in the document. */
-  word: string
-  /** The starting position of the word in the document. */
-  from: number
-  /** The ending position of the word in the document. */
-  to: number
-}
-
-/** Describes a misspelled word along with suggestions for correcting it. */
-export interface Misspelling extends Word {
-  /** A list of suggestions for correcting the misspelling. */
-  suggestions: Suggestion[]
-}
-
-/** A table of URLs pointing to a spellchecker's resources, such as its dictionary. */
-export interface SpellcheckerURLS {
-  /** An absolute URL to the `spellchecker-wasm` WASM binary. */
-  wasm: string
-  /** An absolute URL to a FrequencyWords dictionary text file. */
-  dict: string
-  /** An absolute URL to a bigram text file, if available. */
-  bigram?: string
-}
-
 const encoder = new TextEncoder()
+
+const whitespace = (filtered: string) => " ".repeat(filtered.length)
 
 export class Spellchecker {
   /** The internal `SpellcheckerWasm` instance that this class wraps around. */
@@ -91,12 +72,37 @@ export class Spellchecker {
   }
 
   /**
+   * Normalizes a string using a locale's configuration.
+   *
+   * @param str - The string to normalize.
+   */
+  private normalize(str: string) {
+    let output = str
+
+    const locale = locales[this.locale]
+
+    if (locale?.replacements) {
+      for (const [text, replacement] of locale.replacements) {
+        output = output.replaceAll(text, replacement)
+      }
+    }
+
+    if (locale?.filters) {
+      for (const filter of locale.filters) {
+        output = output.replaceAll(filter, whitespace)
+      }
+    }
+
+    return output
+  }
+
+  /**
    * Splits a string into ranges of words.
    *
    * @param str - The string to find the words of.
    */
   private indexWords(str: string) {
-    str = normalize(str, this.locale)
+    str = this.normalize(str)
 
     // any span with no whitespace
     const matches = str.matchAll(/\S+/gu)

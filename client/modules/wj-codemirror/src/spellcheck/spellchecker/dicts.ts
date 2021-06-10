@@ -1,10 +1,5 @@
-/** A table of URLs describing where to retrieve a frequency dictionary for a locale. */
-export interface Dictionary {
-  /** A URL to the frequency dictionary for a locale. */
-  dict: string
-  /** An optional URL to a bigram frequency dictionary for a locale. */
-  bigram?: string
-}
+import { url } from "wj-util"
+import type { Dictionary } from "./types"
 
 /**
  * Table of functions, that when one is called, will return a absolute URL
@@ -18,24 +13,31 @@ export const DICTIONARIES: Record<string, () => Promise<Dictionary>> = {
   "en": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/en.txt?url"))
   }),
+
   "de": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/de.txt?url"))
   }),
+
   "es": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/es.txt?url"))
   }),
+
   "fr": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/fr.txt?url"))
   }),
+
   "he": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/he.txt?url"))
   }),
+
   "it": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/it.txt?url"))
   }),
+
   "ru": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/ru.txt?url"))
   }),
+
   "zh": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/zh.txt?url"))
   })
