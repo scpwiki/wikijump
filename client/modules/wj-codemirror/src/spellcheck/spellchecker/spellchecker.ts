@@ -79,6 +79,50 @@ export class Spellchecker {
   }
 
   /**
+   * Runs the spellchecker on a string.
+   *
+   * @param str - The string to spellcheck.
+   * @param compound - If true, the string checked will be treated as a sentence.
+   * @param opts - Options to run the spellchecker with.
+   */
+  private run = createLock(
+    async (
+      str: string,
+      compound?: boolean,
+      opts: CheckSpellingOptions = {
+        maxEditDistance: this.options.distance,
+        includeUnknown: this.options.unknown,
+        includeSelf: true,
+        verbosity: 1
+      }
+    ) => {
+      if (!this.ready) await this.init()
+
+      const lowered = lowercase(str, this.locale)
+
+      const suggestions = await new Promise<SuggestedItem[]>(resolve => {
+        // set handler to resolve our promise
+        this.spellchecker.resultHandler = resolve
+        // start the checker
+        if (compound) this.spellchecker.checkSpellingCompound(lowered, opts)
+        else this.spellchecker.checkSpelling(lowered, opts)
+      })
+
+      if (suggestions.length === 0) return null
+
+      if (suggestions.length === 1 && suggestions[0].term === lowered) {
+        // word is spelled correctly, but weird bug caused it to have a suggestion anyways
+        if (suggestions[0].distance === 0) return null
+        // word is misspelled, but no suggestions exist
+        else return []
+      }
+
+      const out = this.processSuggestions(str, suggestions)
+      return out.length ? out : null
+    }
+  )
+
+  /**
    * Normalizes a string using a locale's configuration.
    *
    * @param str - The string to normalize.
@@ -123,50 +167,6 @@ export class Spellchecker {
 
     return !out.length ? null : out
   }
-
-  /**
-   * Runs the spellchecker on a string.
-   *
-   * @param str - The string to spellcheck.
-   * @param compound - If true, the string checked will be treated as a sentence.
-   * @param opts - Options to run the spellchecker with.
-   */
-  private run = createLock(
-    async (
-      str: string,
-      compound?: boolean,
-      opts: CheckSpellingOptions = {
-        maxEditDistance: this.options.distance,
-        includeUnknown: this.options.unknown,
-        includeSelf: true,
-        verbosity: 1
-      }
-    ) => {
-      if (!this.ready) await this.init()
-
-      const lowered = lowercase(str, this.locale)
-
-      const suggestions = await new Promise<SuggestedItem[]>(resolve => {
-        // set handler to resolve our promise
-        this.spellchecker.resultHandler = resolve
-        // start the checker
-        if (compound) this.spellchecker.checkSpellingCompound(lowered, opts)
-        else this.spellchecker.checkSpelling(lowered, opts)
-      })
-
-      if (suggestions.length === 0) return null
-
-      if (suggestions.length === 1 && suggestions[0].term === lowered) {
-        // word is spelled correctly, but weird bug caused it to have a suggestion anyways
-        if (suggestions[0].distance === 0) return null
-        // word is misspelled, but no suggestions exist
-        else return []
-      }
-
-      const out = this.processSuggestions(str, suggestions)
-      return out.length ? out : null
-    }
-  )
 
   /**
    * Processes a list of suggestions for a misspelled word. Specifically,
