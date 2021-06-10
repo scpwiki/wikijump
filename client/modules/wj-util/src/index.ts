@@ -479,7 +479,7 @@ export function lowercase(str: string, locale?: string | string[]) {
  *   provided. This usually won't be needed, as JS tries to account for
  *   non-ASCII/Latin text when handling casing.
  */
-export function titlecase(str: string, locale?: string) {
+export function titlecase(str: string, locale?: string | string[]) {
   return replaceRange(lowercase(str, locale), 0, 1, uppercase(str[0], locale))
 }
 
@@ -491,7 +491,7 @@ export function titlecase(str: string, locale?: string) {
  *   provided. This usually won't be needed, as JS tries to account for
  *   non-ASCII/Latin text when handling casing.
  */
-export function isTitlecased(str: string, locale?: string) {
+export function isTitlecased(str: string, locale?: string | string[]) {
   return uppercase(str[0], locale) === str[0]
 }
 
@@ -503,7 +503,7 @@ export function isTitlecased(str: string, locale?: string) {
  *   provided. This usually won't be needed, as JS tries to account for
  *   non-ASCII/Latin text when handling casing.
  */
-export function isUppercased(str: string, locale?: string) {
+export function isUppercased(str: string, locale?: string | string[]) {
   return uppercase(str, locale) === str
 }
 
@@ -515,6 +515,6 @@ export function isUppercased(str: string, locale?: string) {
  *   provided. This usually won't be needed, as JS tries to account for
  *   non-ASCII/Latin text when handling casing.
  */
-export function isLowercased(str: string, locale?: string) {
+export function isLowercased(str: string, locale?: string | string[]) {
   return lowercase(str, locale) === str
 }
