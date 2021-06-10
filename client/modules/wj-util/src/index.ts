@@ -263,8 +263,6 @@ export async function waitFor(
  * Returns a new 'locked' async function, constructed using the specified
  * function. A locked asynchronous function will only allow a singular
  * instance of itself to be running at one time.
- *
- * Additional calls will return the previously running `Promise`.
  */
 export function createLock<T extends AnyFunction>(fn: T) {
   type Return = PromiseValue<ReturnType<T>>
@@ -273,8 +271,9 @@ export function createLock<T extends AnyFunction>(fn: T) {
   }
 
   let running: Promise<Return> | null = null
+
   return async (...args: Parameters<T>) => {
-    if (running) return await running
+    if (running) await running
     running = call(args)
     const result = await running
     running = null
