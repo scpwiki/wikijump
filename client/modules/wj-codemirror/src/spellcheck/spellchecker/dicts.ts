@@ -42,8 +42,3 @@ export const DICTIONARIES: Record<string, () => Promise<Dictionary>> = {
 }
 
 export default DICTIONARIES
-
-/** Helper for turning a relative async. import into a absolute path. */
-async function url(imp: Promise<any>) {
-  return new URL((await imp).default, import.meta.url).toString()
-}

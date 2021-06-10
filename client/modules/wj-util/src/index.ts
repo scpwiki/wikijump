@@ -518,3 +518,8 @@ export function isUppercased(str: string, locale?: string | string[]) {
 export function isLowercased(str: string, locale?: string | string[]) {
   return lowercase(str, locale) === str
 }
+
+/** Helper for turning a relative `?url` import into an absolute path. */
+export async function url(imp: Promise<any>) {
+  return new URL((await imp).default, import.meta.url).toString()
+}
