@@ -69,6 +69,18 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
   }
 
   /**
+   * Segments a given string of string of text. Simply returns the
+   * spellchecker's best guess on how the string should be segmented, while
+   * attempting to not change any of the spelling.
+   *
+   * @param str - The string to be segmented.
+   */
+  async segment(str: string | ArrayBuffer) {
+    if (this.disabled) return typeof str === "string" ? str : decode(str)
+    return decode(await this.invoke("segment", transfer(str)))
+  }
+
+  /**
    * Appends a dictionary (a string) or a list of words to the current
    * spellchecker's dictionary. If directly appending a dictionary, it
    * should be noted that it is in a word frequency format.
