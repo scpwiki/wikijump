@@ -1,6 +1,7 @@
 import spellcheckerWASMRelativeURL from "spellchecker-wasm/lib/spellchecker-wasm.wasm?url"
-import { transfer, WorkerModule } from "threads-worker-module"
+import { decode, transfer, WorkerModule } from "threads-worker-module"
 import { locale as i18nLocale, Pref } from "wj-state"
+import { lowercase } from "wj-util"
 import DICTIONARIES from "./dicts"
 import type { SpellcheckModuleInterface } from "./spellcheck.worker"
 
@@ -29,9 +30,16 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
     })
   }
 
-  /** Sets the locale of the worker. */
+  /**
+   * Sets the locale of the worker.
+   *
+   * @param locale - The locale to use. Only the language part of the
+   *   locale given will be used.
+   */
   async setSpellchecker(locale: string) {
-    if (locale === this.locale) return
+    if (locale === this.locale) return // split out the language code, discard region code
+    ;[locale] = locale.toLowerCase().split(/-|_/)
+
     if (DICTIONARIES.hasOwnProperty(locale)) {
       this.disabled = false
       this.locale = locale
@@ -50,8 +58,9 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
   }
 
   /**
-   * Checks a word, and returns a list of suggestions for replacing it.
-   * Returns `null` if the word isn't actually misspelled.
+   * Checks the spelling of a word. Returns `null` if nothing is misspelled.
+   *
+   * @param word - The word to spellcheck.
    */
   async check(word: string | ArrayBuffer) {
     if (this.disabled) return null
@@ -59,9 +68,24 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
   }
 
   /**
-   * Checks a arbitrary chunk of text for any misspellings. The text given
-   * should not have any markup in it. Returns `null` if nothing is
-   * actually misspelled.
+   * Checks the spelling of a sentence. Attempts to segment the sentence
+   * given into a reasonable set, which accounts compound words and other
+   * forms of unsegmented text. Returns `null` if the sentence has nothing
+   * to correct.
+   *
+   * @param sentence - The sentence to segment and then spellcheck.
+   */
+  async checkSentence(sentence: string | ArrayBuffer) {
+    if (this.disabled) return null
+    return await this.invoke("checkSentence", transfer(sentence))
+  }
+
+  /**
+   * Finds the words of a string and then runs the spellchecker on each
+   * one. Returns a list of words that the spellchecker believes to be
+   * misspelled, or `null` if nothing is misspelled.
+   *
+   * @param str - The string to decompose into spellchecked words.
    */
   async checkWords(str: string | ArrayBuffer) {
     if (this.disabled) return null
@@ -103,10 +127,15 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
     await this.invoke("appendToDictionary", input, frequency)
   }
 
-  /** Saves a word to the user's internal dictionary. */
+  /**
+   * Saves a word to the user's internal dictionary.
+   *
+   * @param word - The word to save. Capitalization is normalized and thus
+   *   doesn't matter.
+   */
   async saveToDictionary(word: string) {
     if (this.disabled) return
-    word = word.toLowerCase()
+    word = lowercase(word, this.locale)
     const localDictionary = Pref.get<string[]>("spellchecker-user-dictionary", [])
     // add our word but do a dedupe pass to catch edge cases
     const deduped = [...new Set([...localDictionary, word])]
@@ -117,13 +146,8 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
   }
 }
 
-// get the locale, but rip off any region codes
-// not quite sure how this will always be formatted,
-// so this is done in a paranoid fashion
-const [locale] = i18nLocale.toLowerCase().split(/-|_/)
-
 /**
  * Instance of the spellcheck worker. Will only instantiate the worker when
  * a method is first called.
  */
-export const Spellchecker = new SpellcheckWorker(locale)
+export const Spellchecker = new SpellcheckWorker(i18nLocale)
