@@ -1,5 +1,5 @@
 import FTML from "ftml-wasm-worker"
-import { textValue } from "sheaf-core"
+import { textValue } from "wj-codemirror"
 import { Diagnostic, EditorView, linter } from "wj-codemirror/cm"
 import { format } from "wj-state"
 

@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
   import type { Block } from "../data/types"
-  import type { EditorSvelteComponentProps } from "sheaf-core"
+  import type { EditorSvelteComponentProps } from "wj-codemirror"
   import * as Prism from "wj-prism"
   import { t } from "wj-state"
   import type { FTMLFragment } from "ftml-wasm-worker"

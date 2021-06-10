@@ -1,4 +1,4 @@
-import { hasSigil } from "../../cm-tarnation/node_modules/wj-util/src"
+import { hasSigil } from "wj-util"
 import type { Block, Module } from "./data/types"
 
 export function aliasesRaw([name, block]: [string, Block | Module]) {

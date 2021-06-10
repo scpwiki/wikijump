@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
   import type { Module } from "../data/types"
-  import type { EditorSvelteComponentProps } from "sheaf-core"
+  import type { EditorSvelteComponentProps } from "wj-codemirror"
 
   export let name: string
   export let module: Module

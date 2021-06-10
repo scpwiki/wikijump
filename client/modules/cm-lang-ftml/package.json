@@ -27,7 +27,6 @@
     "wj-components": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "lezer-tree": "^0.13.2",
-    "sheaf-core": "workspace:*",
     "wj-codemirror": "workspace:*",
     "wj-prism": "workspace:*",
     "wj-state": "workspace:*",

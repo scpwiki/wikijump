@@ -26,7 +26,6 @@
     "wj-components": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "morphdom": "^2.6.1",
-    "sheaf-core": "workspace:*",
     "typescript-memoize": "^1.0.1",
     "wj-codemirror": "workspace:*",
     "wj-state": "workspace:*",
