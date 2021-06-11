@@ -207,7 +207,6 @@ importers:
       '@codemirror/view': ^0.18.16
       lezer: ^0.13.5
       lezer-tree: ^0.13.2
-      spellchecker-wasm: ^0.3.3
       svelte: ^3.38.2
       threads-worker-module: workspace:*
       wj-components: workspace:*
@@ -239,7 +238,6 @@ importers:
       '@codemirror/view': 0.18.16
       lezer: 0.13.5
       lezer-tree: 0.13.2
-      spellchecker-wasm: 0.3.3
       threads-worker-module: link:../threads-worker-module
       wj-components: link:../wj-components
       wj-state: link:../wj-state
@@ -4564,13 +4562,6 @@ packages:
     resolution: {integrity: sha512-1klA3Gi5PD1Wv9Q0wUoOQN1IWAuPu0D1U03ThXTr0cJ20+/iq2tHSDnK7Kk/0LXJ1ztUB2/1Os0wKmfyNgUQfg==}
     hasBin: true
     dev: true
-
-  /spellchecker-wasm/0.3.3:
-    resolution: {integrity: sha512-62o/qxQ64Es1VZtSwyu9ZiG4RHESGMOYRpual8Kfk3C987BU8aMfbbUeL7ixnawpSReRTAiLwKfCpBahU9tcIw==}
-    engines: {node: '>=12.0.0'}
-    hasBin: true
-    requiresBuild: true
-    dev: false
 
   /sprintf-js/1.0.3:
     resolution: {integrity: sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=}

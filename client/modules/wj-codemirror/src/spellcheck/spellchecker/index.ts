@@ -1,14 +1,11 @@
-import spellcheckerWASMRelativeURL from "spellchecker-wasm/lib/spellchecker-wasm.wasm?url"
 import { decode, transfer, WorkerModule } from "threads-worker-module"
 import { locale as i18nLocale, Pref } from "wj-state"
 import { lowercase } from "wj-util"
+import symSpellRelativeURL from "../../../vendor/symspell_bg.wasm?url"
 import DICTIONARIES from "./dicts"
 import type { SpellcheckModuleInterface } from "./spellcheck.worker"
 
-const spellcheckerWASMURL = new URL(
-  spellcheckerWASMRelativeURL,
-  import.meta.url
-).toString()
+const symSpellURL = new URL(symSpellRelativeURL, import.meta.url).toString()
 
 async function importWorker() {
   return (await import("./spellcheck.worker?bundled-worker")).default
@@ -44,7 +41,7 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
       this.disabled = false
       this.locale = locale
       const { dict, bigram } = await DICTIONARIES[locale]()
-      const urls = { wasm: spellcheckerWASMURL, dict, bigram }
+      const urls = { wasm: symSpellURL, dict, bigram }
       await this.invoke("setSpellchecker", locale, urls)
       // add local dictionary to spellchecker once it has started
       const localDictionary = Pref.get<string[]>("spellchecker-user-dictionary", [])

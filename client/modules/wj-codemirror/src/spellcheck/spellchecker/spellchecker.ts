@@ -1,13 +1,5 @@
-import { SpellcheckerWasm, SuggestedItem } from "spellchecker-wasm/lib/browser/index"
-import type { CheckSpellingOptions } from "spellchecker-wasm/lib/SpellCheckerBase"
-import {
-  createLock,
-  isTitlecased,
-  isUppercased,
-  lowercase,
-  titlecase,
-  uppercase
-} from "wj-util"
+import { isTitlecased, isUppercased, lowercase, titlecase, uppercase } from "wj-util"
+import initSymSpell, { SymSpell } from "../../../vendor/symspell"
 import locales from "./locales"
 import type {
   Misspelling,
@@ -29,7 +21,7 @@ const whitespace = (filtered: string) => " ".repeat(filtered.length)
 
 export class Spellchecker {
   /** The internal `SpellcheckerWasm` instance that this class wraps around. */
-  private declare readonly spellchecker: SpellcheckerWasm
+  private declare spellchecker: SymSpell
 
   /**
    * The table of URLs pointing to the spellchecker's resources, such as
@@ -61,20 +53,40 @@ export class Spellchecker {
     this.locale = locale
     this.urls = urls
     this.options = { compound, distance, unknown }
-    this.spellchecker = new SpellcheckerWasm()
   }
 
   /** Starts the spellchecker, if it hasn't been already. */
   private async init() {
     if (this.ready) return
-    const urls = this.urls
-    const [wasm, dict, bigram] = urls.bigram
-      ? await Promise.all([fetch(urls.wasm), fetch(urls.dict), fetch(urls.bigram)])
-      : await Promise.all([fetch(urls.wasm), fetch(urls.dict)])
-    await this.spellchecker.prepareSpellchecker(wasm, dict, bigram, {
-      countThreshold: 4,
-      dictionaryEditDistance: this.options.distance
+
+    await initSymSpell(this.urls.wasm)
+
+    this.spellchecker = new SymSpell({
+      max_edit_distance: this.options.distance,
+      prefix_length: 7,
+      count_threshold: 1
     })
+
+    this.spellchecker.load_dictionary(
+      new Uint8Array(await (await fetch(this.urls.dict)).arrayBuffer()),
+      {
+        term_index: 0,
+        count_index: 1,
+        separator: " "
+      }
+    )
+
+    if (this.urls.bigram) {
+      this.spellchecker.load_bigram_dictionary(
+        new Uint8Array(await (await fetch(this.urls.bigram)).arrayBuffer()),
+        {
+          term_index: 0,
+          count_index: 2,
+          separator: " "
+        }
+      )
+    }
+
     this.ready = true
   }
 
@@ -85,42 +97,37 @@ export class Spellchecker {
    * @param compound - If true, the string checked will be treated as a sentence.
    * @param opts - Options to run the spellchecker with.
    */
-  private run = createLock(
-    async (
-      str: string,
-      compound?: boolean,
-      opts: CheckSpellingOptions = {
-        maxEditDistance: this.options.distance,
-        includeUnknown: this.options.unknown,
-        includeSelf: true,
-        verbosity: 1
-      }
-    ) => {
-      if (!this.ready) await this.init()
-
-      const lowered = lowercase(str, this.locale)
-
-      const suggestions = await new Promise<SuggestedItem[]>(resolve => {
-        // set handler to resolve our promise
-        this.spellchecker.resultHandler = resolve
-        // start the checker
-        if (compound) this.spellchecker.checkSpellingCompound(lowered, opts)
-        else this.spellchecker.checkSpelling(lowered, opts)
-      })
-
-      if (suggestions.length === 0) return null
-
-      if (suggestions.length === 1 && suggestions[0].term === lowered) {
-        // word is spelled correctly, but weird bug caused it to have a suggestion anyways
-        if (suggestions[0].distance === 0) return null
-        // word is misspelled, but no suggestions exist
-        else return []
-      }
-
-      const out = this.processSuggestions(str, suggestions)
-      return out.length ? out : null
+  private async run(
+    str: string,
+    compound?: boolean,
+    opts: { distance: number; unknown: boolean } = {
+      distance: this.options.distance,
+      unknown: this.options.unknown
     }
-  )
+  ) {
+    if (!this.ready) await this.init()
+
+    const normalized = lowercase(str, this.locale)
+
+    const suggestions = compound
+      ? this.spellchecker.lookup_compound(normalized, opts.distance)
+      : this.spellchecker.lookup(normalized, 2, opts.distance)
+
+    // word is misspelled, but no suggestions
+    if (suggestions.length === 0) return opts.unknown ? [] : null
+
+    // word is spelled correctly
+    if (
+      suggestions.length === 1 &&
+      suggestions[0].distance === 0 &&
+      suggestions[0].term === normalized
+    ) {
+      return null
+    }
+
+    const out = this.processSuggestions(str, suggestions)
+    return out.length ? out : null
+  }
 
   /**
    * Normalizes a string using a locale's configuration.
@@ -152,7 +159,7 @@ export class Spellchecker {
    *
    * @param str - The string to find the words of.
    */
-  private indexWords(str: string) {
+  private async indexWords(str: string): Promise<Word[] | null> {
     str = this.normalize(str)
 
     // any span with no whitespace
@@ -160,9 +167,27 @@ export class Spellchecker {
     if (!matches) return null
 
     const out: Word[] = []
+
+    const push = (word: string, pos: number) => {
+      out.push({ word, from: pos, to: pos + word.length })
+    }
+
     for (const match of matches) {
       if (!match.index) continue
-      out.push({ word: match[0], from: match.index, to: match.index + match[0].length })
+      if (this.options.compound) {
+        const segmented = await this.segment(match[0])
+        if (segmented === match[0]) {
+          push(match[0], match.index)
+        } else {
+          let pos = 0
+          for (const segment of segmented.split(/\s+/)) {
+            push(segment, match.index + pos)
+            pos += segment.length
+          }
+        }
+      } else {
+        push(match[0], match.index)
+      }
     }
 
     return !out.length ? null : out
@@ -176,7 +201,7 @@ export class Spellchecker {
    * @param word - The misspelled word.
    * @param suggestions - The suggestions provided by the spellchecker for this word.
    */
-  private processSuggestions(word: string, suggestions: SuggestedItem[]) {
+  private processSuggestions(word: string, suggestions: Suggestion[]) {
     const titlecased = isTitlecased(word, this.locale)
     const uppercased = isUppercased(word, this.locale)
 
@@ -187,7 +212,7 @@ export class Spellchecker {
 
     // convert to JSON, handle capitalization based on the original word
     for (const item of suggestions) {
-      const suggestion = { ...item.toJSON() }
+      const suggestion = { ...item }
 
       if (titlecased || uppercased) {
         suggestion.term = uppercased
@@ -232,14 +257,34 @@ export class Spellchecker {
    * @param str - The string to decompose into spellchecked words.
    */
   async checkWords(str: string) {
-    const words = this.indexWords(str)
+    const words = await this.indexWords(str)
     if (!words) return null
 
     const out: Misspelling[] = []
     for (const word of words) {
-      const suggestions = await this.run(word.word, this.options.compound)
-      if (!suggestions) continue
-      out.push({ ...word, suggestions })
+      let suggestions = await this.run(word.word)
+
+      // if no suggstions for misspelled, and compound, try again using a compound search
+      if (suggestions && !suggestions.length && this.options.compound) {
+        suggestions = await this.run(word.word, true)
+        // if we have suggestions, add a suggestion for a compounded version
+        if (suggestions) {
+          suggestions = suggestions.flatMap(({ count, distance, term }) => [
+            {
+              count,
+              distance,
+              term: term.replaceAll(" ", "")
+            },
+            {
+              count,
+              distance,
+              term
+            }
+          ])
+        }
+      }
+
+      if (suggestions) out.push({ ...word, suggestions })
     }
 
     return !out.length ? null : out
@@ -254,11 +299,10 @@ export class Spellchecker {
    */
   async segment(str: string) {
     if (!this.ready) await this.init()
+
     const suggestions = await this.run(str, true, {
-      maxEditDistance: 0,
-      includeUnknown: false,
-      includeSelf: false,
-      verbosity: 1
+      distance: 0,
+      unknown: false
     })
 
     if (!suggestions || !suggestions.length) return str
@@ -292,26 +336,10 @@ export class Spellchecker {
         ? lowercase(input, this.locale).replaceAll("\r\n", "\n")
         : input.map(word => `${lowercase(word, this.locale)} ${frequency}`).join("\n")
 
-    // spellchecker-wasm recommends streaming in chunks at 32kb-64kb.
-    // so we'll split into lines, and then turn that array into a bunch of
-    // 32kb-ish chunks. this may be overkill for adding a few words, but
-    // if adding a large dictionary it's needed.
-
-    const lines = dict.split("\n")
-    const chunks: string[] = ["\n"]
-
-    while (lines.length) {
-      const last = chunks[chunks.length - 1]
-      if (last.length >= 32768) {
-        chunks.push("")
-        continue
-      }
-      chunks[chunks.length - 1] = `${last + lines.shift()!}\n`
-    }
-
-    for (const chunk of chunks) {
-      const encoded = encoder.encode(chunk)
-      this.spellchecker.writeToDictionary(encoded)
-    }
+    this.spellchecker.load_dictionary(encoder.encode(dict), {
+      term_index: 0,
+      count_index: 1,
+      separator: " "
+    })
   }
 }

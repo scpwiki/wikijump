@@ -45,7 +45,6 @@
     "@codemirror/view": "^0.18.16",
     "lezer": "^0.13.5",
     "lezer-tree": "^0.13.2",
-    "spellchecker-wasm": "^0.3.3",
     "threads-worker-module": "workspace:*",
     "wj-components": "workspace:*",
     "wj-state": "workspace:*",
