@@ -67,6 +67,13 @@ export interface SpellcheckerLocale {
    * i.e. they're segmented first when checked.
    */
   compound?: boolean
+  /**
+   * If true, this marks the locale as having a detailed enough dictionary
+   * that it is fine to mark misspelled words the spellchecker has no
+   * suggestions for. If a dictionary isn't detailed enough, there will
+   * likely be many false positives when this is enabled.
+   */
+  unknown?: boolean
 }
 
 /** A table of URLs describing where to retrieve a frequency dictionary for a locale. */

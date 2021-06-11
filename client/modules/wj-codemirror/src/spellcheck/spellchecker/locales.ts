@@ -13,7 +13,8 @@ export const LOCALES: Record<string, SpellcheckerLocale> = {
       /\s'|'(?!\p{L})/gu,            // remove ' marks on the start/end of words
       /\b[\p{Lu}\p{Nd}]{2,4}\b/gu,   // SCP, MTF, etc. capitalized initialisms
       /[^\p{L}'\s]+/gu               // filter punctuation out
-    ]
+    ],
+    unknown: true
   },
 
   "de": {

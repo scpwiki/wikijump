@@ -47,8 +47,8 @@ export class Spellchecker {
   constructor(locale: string, urls: SpellcheckerURLS, options?: SpellcheckerOptions) {
     const {
       compound = locales[locale]?.compound ?? false,
-      distance = 2,
-      unknown = true
+      unknown = locales[locale]?.unknown ?? false,
+      distance = 2
     } = options ?? {}
     this.locale = locale
     this.urls = urls
