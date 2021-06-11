@@ -1,3 +1,3 @@
 export * from "./extension"
 export * from "./spellchecker"
-export type { Misspelling, Suggestion, Word } from "./spellchecker/spellchecker"
+export type { Misspelling, Suggestion, Word } from "./spellchecker/types"

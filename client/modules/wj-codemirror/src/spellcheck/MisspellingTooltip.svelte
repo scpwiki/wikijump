@@ -6,7 +6,7 @@
   import { t } from "wj-state"
   import type { EditorSvelteComponentProps } from "../svelte/svelte-dom"
   import { Spellchecker } from "./spellchecker"
-  import type { Misspelling, Suggestion } from "./spellchecker/spellchecker"
+  import type { Misspelling, Suggestion } from "./spellchecker/types"
 
   export let misspelling: Misspelling
 

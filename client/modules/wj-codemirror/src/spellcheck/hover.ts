@@ -2,7 +2,7 @@ import type { EditorView, Tooltip } from "../../cm"
 import { EditorSvelteComponent } from "../svelte/svelte-dom"
 import { Spellcheck } from "./extension"
 import MisspellingTooltip from "./MisspellingTooltip.svelte"
-import type { Misspelling } from "./spellchecker/spellchecker"
+import type { Misspelling } from "./spellchecker/types"
 
 const tooltipHandler = new EditorSvelteComponent(MisspellingTooltip)
 

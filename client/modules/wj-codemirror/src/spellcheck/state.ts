@@ -1,5 +1,5 @@
 import { Decoration, DecorationSet } from "../../cm"
-import type { Misspelling } from "./spellchecker/spellchecker"
+import type { Misspelling } from "./spellchecker/types"
 
 /**
  * Holds the state of the spellchecker. Intended to be entirely immutable.
