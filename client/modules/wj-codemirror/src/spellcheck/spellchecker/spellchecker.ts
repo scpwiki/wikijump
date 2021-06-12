@@ -15,6 +15,8 @@ import type {
 // is not exactly easy, for the time being this spellchecker isn't very good
 // for those kind of scripts.
 
+let wasmStarted = false
+
 const encoder = new TextEncoder()
 
 const whitespace = (filtered: string) => " ".repeat(filtered.length)
@@ -59,7 +61,9 @@ export class Spellchecker {
   private async init() {
     if (this.ready) return
 
-    await initSymSpell(this.urls.wasm)
+    if (!wasmStarted) await initSymSpell(this.urls.wasm)
+
+    wasmStarted = true
 
     this.spellchecker = new SymSpell({
       max_edit_distance: this.options.distance,
@@ -224,6 +228,22 @@ export class Spellchecker {
     }
 
     return out
+  }
+
+  /**
+   * Destroys the spellchecker's internal WASM instance, freeing memory.
+   * This doesn't render the spellchecker inoperable, instead, the
+   * spellchecker will restart itself if called again.
+   */
+  free() {
+    if (!this.ready) return
+    try {
+      this.spellchecker.free()
+    } finally {
+      // @ts-ignore
+      this.spellchecker = undefined
+      this.ready = false
+    }
   }
 
   /**

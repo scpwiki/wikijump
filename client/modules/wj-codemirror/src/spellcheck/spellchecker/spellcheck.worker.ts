@@ -15,6 +15,7 @@ const module = {
     urls: SpellcheckerURLS,
     options?: SpellcheckerOptions
   ) {
+    if (spellchecker) spellchecker.free()
     spellchecker = new Spellchecker(locale, urls, options)
   },
 
