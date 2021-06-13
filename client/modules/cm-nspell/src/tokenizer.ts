@@ -3,7 +3,17 @@ import type { SpellcheckFilter, Word } from "./types"
 
 const WORDS_REGEX = /\p{L}(?![\p{L}'’])|\p{L}[\p{L}'’]*\p{L}/gu
 
-export function viewWords(view: EditorView, regex = WORDS_REGEX) {
+/**
+ * Extracts the "visible words" of an editor. All words found will be
+ * passed to the relevant language's spellchecking filter function, if it
+ * exists. If it doesn't, the word will be excluded.
+ *
+ * @param view - The view to extract the words out of.
+ * @param regex - The regex used to match the words of the document. Uses a
+ *   default that should be adequate for scripts which separate words with
+ *   whitespace.
+ */
+export function visibleWords(view: EditorView, regex = WORDS_REGEX) {
   const ranges = view.visibleRanges
   const total = { from: ranges[0].from, to: ranges[ranges.length - 1].to }
 

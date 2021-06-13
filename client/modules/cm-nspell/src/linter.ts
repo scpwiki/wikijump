@@ -2,7 +2,7 @@
 import { EditorView, ViewPlugin, ViewUpdate } from "wj-codemirror/cm"
 import { Spellcheck } from "./extension"
 import nspell from "./nspell"
-import { viewWords } from "./tokenizer"
+import { visibleWords } from "./tokenizer"
 
 class SpellcheckLinter {
   declare id: number
@@ -33,7 +33,7 @@ class SpellcheckLinter {
   async run() {
     const id = this.id
 
-    const words = viewWords(this.view)
+    const words = visibleWords(this.view)
     const misspelled = await nspell.misspelled(words)
 
     if (id !== this.id) return
@@ -45,8 +45,5 @@ class SpellcheckLinter {
   }
 }
 
-/**
- * `ViewPlugin` that spins-up an automatic scanner for spellchecking. Acts
- * much like a normal CodeMirror linter.
- */
+/** `ViewPlugin` that spins-up an automatic scanner for spellchecking. */
 export const spellcheckLinterPlugin = ViewPlugin.fromClass(SpellcheckLinter)

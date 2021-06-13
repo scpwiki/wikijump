@@ -116,6 +116,7 @@ importers:
 
   modules/cm-nspell:
     specifiers:
+      '@types/nspell': ^2.1.0
       dictionary-en: ^3.1.0
       lezer-tree: ^0.13.2
       nspell: ^2.1.5
@@ -133,6 +134,8 @@ importers:
       wj-components: link:../wj-components
       wj-state: link:../wj-state
       wj-util: link:../wj-util
+    devDependencies:
+      '@types/nspell': 2.1.0
 
   modules/cm-tarnation:
     specifiers:
@@ -1211,12 +1214,22 @@ packages:
     resolution: {integrity: sha512-p68+a+KoxpoB47015IeYZYRrdqMUcpbK8re/zpFB8Ld46LHC1lPEbp3EXgkEhAYEcPvjJF6ZO+869SQ0aH1dcA==}
     dev: true
 
+  /@types/node/15.12.2:
+    resolution: {integrity: sha512-zjQ69G564OCIWIOHSXyQEEDpdpGl+G348RAKY0XXy9Z5kU9Vzv1GMNnkar/ZJ8dzXB3COzD9Mo9NtRZ4xfgUww==}
+    dev: true
+
   /@types/node/8.10.66:
     resolution: {integrity: sha512-tktOkFUA4kXx2hhhrB8bIFb5TbwzS4uOhKEmwiD+NoiL0qtP2OQ9mFldbgD4dV1djrlBYP6eBuQZiWjuHUpqFw==}
     dev: true
 
   /@types/normalize-package-data/2.4.0:
     resolution: {integrity: sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==}
+    dev: true
+
+  /@types/nspell/2.1.0:
+    resolution: {integrity: sha512-wYxAPq+4ghcxfJmMG6CQt6h5eSqEfYrZJgAnmbH2Tyitm1CBt4HFoMLckDxXnjPMuLtXa9ETTVYLi7pSs+ZEQg==}
+    dependencies:
+      '@types/node': 15.12.2
     dev: true
 
   /@types/parse-json/4.0.0:

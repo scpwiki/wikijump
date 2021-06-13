@@ -5,10 +5,23 @@ import type { Word } from ".."
 import DICTIONARIES from "../dicts"
 import type { NSpellWorkerInterface } from "./nspell.worker"
 
+/** Class for instantiating a web-workerized NSpell instance. */
 export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
+  /** The current locale of the spellchecker. */
   declare locale: string
+
+  /**
+   * True if the spellchecker is disabled because a locale for which no
+   * dictionary can be found was provided.
+   */
   declare disabled: boolean
 
+  /**
+   * @param locale - The locale to use when finding dictionaries. Any
+   *   locale can be provided, but only the language code will be used. A
+   *   locale for which no dictionary can be found will simply disable the
+   *   spellchecker.
+   */
   constructor(locale = "en") {
     super("nspell", importWorker, {
       persist: true,
@@ -18,6 +31,15 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
     this.locale = localeLanguage(locale)
   }
 
+  /**
+   * @param locale - The locale to use when finding dictionaries. Any
+   *   locale can be provided, but only the language code will be used. A
+   *   locale for which no dictionary can be found will simply disable the
+   *   spellchecker.
+   * @param force - Forces the spellchecker to reset and download the
+   *   locale dictionaries even if the locale provided is the same as the
+   *   one the spellchecker already has loaded.
+   */
   async set(locale: string, force = false) {
     locale = localeLanguage(locale)
     if (!force && this.locale === locale) return
@@ -40,26 +62,53 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
     }
   }
 
+  /**
+   * Appends another dictionary to the spellchecker.
+   *
+   * @param url - An absolute URL to the dictionary (`.dic`).
+   */
   async dictionary(url: string) {
     if (this.disabled) return
     await this.invoke("dictionary", url)
   }
 
+  /**
+   * Adds a personal dictionary to the spellchecker. Similar to appending a
+   * normal dictionary, but words in the personal dictionary have some
+   * preferential treatment.
+   *
+   * @param words - The word(s) to add.
+   */
   async personal(words: string | string[]) {
     if (this.disabled) return
     await this.invoke("personal", words)
   }
 
+  /**
+   * Adds word(s) to the spellchecker's in-memory dictionary.
+   *
+   * @param words - The word(s) to add.
+   */
   async add(words: string | string[]) {
     if (this.disabled) return
     await this.invoke("add", words)
   }
 
+  /**
+   * Removes words frmo the spellchecker's in-memory dictionary.
+   *
+   * @param words - The word(s) to remove.
+   */
   async remove(words: string | string[]) {
     if (this.disabled) return
     await this.invoke("remove", words)
   }
 
+  /**
+   * Saves a word to the user's local dictionary.
+   *
+   * @param words - The word to add.
+   */
   async saveToDictionary(word: string) {
     if (this.disabled) return
     const localDictionary = Pref.get<string[]>("spellchecker-user-dictionary", [])
@@ -70,47 +119,83 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
     await this.invoke("add", word)
   }
 
+  /**
+   * Determines if a word is spelled correctly.
+   *
+   * @param word - The word to check.
+   */
   async correct(word: string) {
     if (this.disabled) return true
     return await this.invoke("correct", transfer(word))
   }
 
+  /**
+   * Returns an object containing metadata about a word.
+   *
+   * @param word - The word to check.
+   */
   async info(word: string) {
     if (this.disabled) return { correct: true, forbidden: false, warn: false }
     return await this.invoke("info", transfer(word))
   }
 
+  /**
+   * Returns suggestions for how to correct the spelling of a word.
+   *
+   * @param word - The word to get the suggestions for.
+   */
   async suggest(word: string) {
     if (this.disabled) return []
     return await this.invoke("suggest", transfer(word))
   }
 
+  /**
+   * Checks if a word is spelled correctly, and if it isn't, returns a list
+   * of suggestions. Returns null if it is spelled correctly.
+   *
+   * @param word - The word to check.
+   */
   async check(word: string) {
     if (this.disabled) return null
     return await this.invoke("check", transfer(word))
   }
 
+  /**
+   * Takes in a list of misspelled words and returns them with suggestions
+   * for correcting them.
+   *
+   * @param words - The words to get suggestions for.
+   */
   async suggestions(words: Word[]) {
     if (this.disabled) return []
     return await this.invoke("suggestions", words)
   }
 
+  /**
+   * Takes in a list of words and returns the words that are misspelled.
+   *
+   * @param words - The words to check.
+   */
   async misspelled(words: Word[]) {
     if (this.disabled) return []
     return await this.invoke("misspelled", words)
   }
 
+  /**
+   * Get the extra word characters defined by the loaded affix file. Most
+   * affix files don’t set these.
+   */
   async wordCharacters() {
     if (this.disabled) return null
     return await this.invoke("wordCharacters")
   }
 }
 
+export default new NSpellWorker(i18nLocale)
+
 function localeLanguage(locale: string) {
   return locale.toLowerCase().split(/-|_/)[0]
 }
-
-export default new NSpellWorker(i18nLocale)
 
 async function importWorker() {
   return (await import("./nspell.worker?bundled-worker")).default

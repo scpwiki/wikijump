@@ -28,5 +28,8 @@
     "wj-components": "workspace:*",
     "wj-state": "workspace:*",
     "wj-util": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/nspell": "^2.1.0"
   }
 }

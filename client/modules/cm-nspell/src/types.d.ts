@@ -17,12 +17,11 @@ export interface Misspelling extends Word {
   suggestions: string[]
 }
 
+/**
+ * Describes an asynchronous function that returns absolute URLs to a
+ * Hunspell `.aff` and `.dic` pair.
+ */
 export type DictionaryImporter = () => Promise<{ aff: string; dic: string }>
-
-export interface Dictionary {
-  aff: string
-  dic: string
-}
 
 /**
  * A function provided by a language's `languageData` `spellcheck`
