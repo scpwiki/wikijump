@@ -9,12 +9,6 @@ import type {
   Word
 } from "./types"
 
-// TODO: This entire strategy won't work for (afaik) Arabic and Chinese
-// this is because we need to be able to split text into "words", which is much
-// easier to do when writing with an alphabet. since segmenting text like that
-// is not exactly easy, for the time being this spellchecker isn't very good
-// for those kind of scripts.
-
 let wasmStarted = false
 
 const encoder = new TextEncoder()

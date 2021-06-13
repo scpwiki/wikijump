@@ -26,20 +26,12 @@ export const DICTIONARIES: Record<string, () => Promise<Dictionary>> = {
     dict: await url(import("../../../../../../locales/spellcheck/fr.txt?url"))
   }),
 
-  "he": async () => ({
-    dict: await url(import("../../../../../../locales/spellcheck/he.txt?url"))
-  }),
-
   "it": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/it.txt?url"))
   }),
 
   "ru": async () => ({
     dict: await url(import("../../../../../../locales/spellcheck/ru.txt?url"))
-  }),
-
-  "zh": async () => ({
-    dict: await url(import("../../../../../../locales/spellcheck/zh.txt?url"))
   })
 }
 
