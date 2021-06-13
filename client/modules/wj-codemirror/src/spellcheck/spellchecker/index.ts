@@ -25,6 +25,11 @@ export class SpellcheckWorker extends WorkerModule<SpellcheckModuleInterface> {
       persist: true,
       init: async () => await this.setSpellchecker(locale)
     })
+    ;[locale] = locale.toLowerCase().split(/-|_/)
+    if (!DICTIONARIES.hasOwnProperty(locale)) {
+      console.warn("Locale given to spellchecker has no resources available for it.")
+      this.disabled = true
+    }
   }
 
   /**
