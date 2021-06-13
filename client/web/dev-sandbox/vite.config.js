@@ -1,4 +1,4 @@
-import svelte from "@sveltejs/vite-plugin-svelte"
+import { svelte } from "@sveltejs/vite-plugin-svelte"
 import sveltePreprocess from "svelte-preprocess"
 import tsconfigPaths from "vite-tsconfig-paths"
 import workerPlugin from "../../scripts/vite-plugin-bundled-worker.js"
