@@ -187,8 +187,6 @@ export function perfy(meta?: string, threshold?: number): (msg?: string) => numb
   }
 }
 
-// TODO: clean up some of these old functions
-
 /** Returns a promise that resolves after the specified number of miliseconds. */
 export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -521,4 +519,14 @@ export function isLowercased(str: string, locale?: string | string[]) {
 /** Helper for turning a relative `?url` import into an absolute path. */
 export async function url(imp: Promise<any>) {
   return new URL((await imp).default, import.meta.url).toString()
+}
+
+/**
+ * Deduplicates an array. Does not mutate the original array.
+ *
+ * @param arr - The array to deduplicate.
+ * @param insert - Additional values to insert into the array, if desired.
+ */
+export function dedupe<T extends any[]>(arr: T, ...insert: T) {
+  return [...new Set([...arr, ...insert])] as T
 }
