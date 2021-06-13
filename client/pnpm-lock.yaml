@@ -91,6 +91,7 @@ importers:
   modules/cm-lang-ftml:
     specifiers:
       '@types/prismjs': ^1.16.5
+      cm-nspell: workspace:*
       cm-tarnation: workspace:*
       ftml-wasm-worker: workspace:*
       lezer-tree: ^0.13.2
@@ -102,6 +103,7 @@ importers:
       wj-util: workspace:*
     dependencies:
       '@types/prismjs': 1.16.5
+      cm-nspell: link:../cm-nspell
       cm-tarnation: link:../cm-tarnation
       ftml-wasm-worker: link:../ftml-wasm-worker
       lezer-tree: 0.13.2
@@ -109,6 +111,26 @@ importers:
       wj-codemirror: link:../wj-codemirror
       wj-components: link:../wj-components
       wj-prism: link:../wj-prism
+      wj-state: link:../wj-state
+      wj-util: link:../wj-util
+
+  modules/cm-nspell:
+    specifiers:
+      dictionary-en: ^3.1.0
+      lezer-tree: ^0.13.2
+      nspell: ^2.1.5
+      threads-worker-module: workspace:*
+      wj-codemirror: workspace:*
+      wj-components: workspace:*
+      wj-state: workspace:*
+      wj-util: workspace:*
+    dependencies:
+      dictionary-en: 3.1.0
+      lezer-tree: 0.13.2
+      nspell: 2.1.5
+      threads-worker-module: link:../threads-worker-module
+      wj-codemirror: link:../wj-codemirror
+      wj-components: link:../wj-components
       wj-state: link:../wj-state
       wj-util: link:../wj-util
 
@@ -152,6 +174,7 @@ importers:
   modules/sheaf:
     specifiers:
       cm-lang-ftml: workspace:*
+      cm-nspell: workspace:*
       ftml-wasm-worker: workspace:*
       morphdom: ^2.6.1
       svelte: ^3.38.2
@@ -162,6 +185,7 @@ importers:
       wj-util: workspace:*
     dependencies:
       cm-lang-ftml: link:../cm-lang-ftml
+      cm-nspell: link:../cm-nspell
       ftml-wasm-worker: link:../ftml-wasm-worker
       morphdom: 2.6.1
       typescript-memoize: 1.0.1
@@ -1920,6 +1944,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /dictionary-en/3.1.0:
+    resolution: {integrity: sha512-dNjhoQagh7GX3YUBdbzehy/+wR2GLhkdpkxF8wMEGIXxMrH6aqzMn/8CHP5xnF85qbv288gCt4XtPQEVCOmTeA==}
+    dev: false
+
   /diff/5.0.0:
     resolution: {integrity: sha512-/VTCrvm5Z0JGty/BWHljh+BAiw3IK+2j87NGMu8Nwc/f48WoDAC395uomO9ZD117ZOBaHmkX1oyLvkVM/aIT3w==}
     engines: {node: '>=0.3.1'}
@@ -2863,7 +2891,6 @@ packages:
   /is-buffer/2.0.5:
     resolution: {integrity: sha512-i2R6zNFDwgEHJyQUtJEk0XFi1i0dPFn/oqjK3/vPCcDeJvW5NQ83V8QbicfF1SupOaB0h8ntgBC2YiE7dfyctQ==}
     engines: {node: '>=4'}
-    dev: true
 
   /is-callable/1.2.3:
     resolution: {integrity: sha512-J1DcMe8UYTBSrKezuIUTUwjXsho29693unXM2YhJUTR2txK/eG47bvNa/wipPFmZFgr/N6f1GA66dv0mEyTIyQ==}
@@ -3633,6 +3660,12 @@ packages:
     dependencies:
       path-key: 3.1.1
     dev: true
+
+  /nspell/2.1.5:
+    resolution: {integrity: sha512-PSStyugKMiD9mHmqI/CR5xXrSIGejUXPlo88FBRq5Og1kO5QwQ5Ilu8D8O5I/SHpoS+mibpw6uKA8rd3vXd2Sg==}
+    dependencies:
+      is-buffer: 2.0.5
+    dev: false
 
   /num2fraction/1.2.2:
     resolution: {integrity: sha1-b2gragJ6Tp3fpFZM0lidHU5mnt4=}
