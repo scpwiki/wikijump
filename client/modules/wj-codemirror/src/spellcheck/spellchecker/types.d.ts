@@ -6,6 +6,8 @@ export type Suggestion = {
   distance: number
   /** The suggested word. */
   term: string
+  /** If true, the suggestion may be better applied as a compound word. */
+  compound?: boolean
 }
 
 /** Describes a word in a document, i.e. the term itself and its location. */

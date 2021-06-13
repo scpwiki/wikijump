@@ -99,26 +99,20 @@ export class Spellchecker {
    *
    * @param str - The string to spellcheck.
    * @param compound - If true, the string checked will be treated as a sentence.
-   * @param opts - Options to run the spellchecker with.
+   * @param distance - Maximum distance between potential suggestions and a
+   *   misspelled word.
    */
-  private async run(
-    str: string,
-    compound?: boolean,
-    opts: { distance: number; unknown: boolean } = {
-      distance: this.options.distance,
-      unknown: this.options.unknown
-    }
-  ) {
+  private async run(str: string, compound?: boolean, distance = this.options.distance) {
     if (!this.ready) await this.init()
 
     const normalized = lowercase(str, this.locale)
 
     const suggestions = compound
-      ? this.spellchecker.lookup_compound(normalized, opts.distance)
-      : this.spellchecker.lookup(normalized, 2, opts.distance)
+      ? this.spellchecker.lookup_compound(normalized, distance)
+      : this.spellchecker.lookup(normalized, 2, distance)
 
     // word is misspelled, but no suggestions
-    if (suggestions.length === 0) return opts.unknown ? [] : null
+    if (suggestions.length === 0) return []
 
     // word is spelled correctly
     if (
@@ -289,22 +283,18 @@ export class Spellchecker {
         suggestions = await this.run(word.word, true)
         // if we have suggestions, add a suggestion for a compounded version
         if (suggestions) {
-          suggestions = suggestions.flatMap(({ count, distance, term }) => [
-            {
-              count,
-              distance,
-              term: term.replaceAll(" ", "")
-            },
-            {
-              count,
-              distance,
-              term
-            }
-          ])
+          suggestions = suggestions.map(({ count, distance, term }) => ({
+            count,
+            distance,
+            term,
+            compound: true
+          }))
         }
       }
 
-      if (suggestions) out.push({ ...word, suggestions })
+      if (suggestions && (suggestions.length !== 0 || this.options.unknown)) {
+        out.push({ ...word, suggestions })
+      }
     }
 
     return !out.length ? null : out
@@ -320,10 +310,7 @@ export class Spellchecker {
   async segment(str: string) {
     if (!this.ready) await this.init()
 
-    const suggestions = await this.run(str, true, {
-      distance: 0,
-      unknown: false
-    })
+    const suggestions = await this.run(str, true, 0)
 
     if (!suggestions || !suggestions.length) return str
 

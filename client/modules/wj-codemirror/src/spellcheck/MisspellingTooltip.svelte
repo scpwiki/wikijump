@@ -14,10 +14,15 @@
   export let update: EditorSvelteComponentProps["update"]
   export let unmount: EditorSvelteComponentProps["unmount"]
 
-  function applySuggestion(suggestion: Suggestion) {
+  function compoundWord(word: string) {
+    return word.replace(" ", "")
+  }
+
+  function applySuggestion(suggestion: Suggestion, compound = false) {
     if (!view) return
+    const term = compound ? compoundWord(suggestion.term) : suggestion.term
     view.dispatch({
-      changes: { from: misspelling.from, to: misspelling.to, insert: suggestion.term }
+      changes: { from: misspelling.from, to: misspelling.to, insert: term }
     })
   }
 
@@ -39,7 +44,22 @@
   <TippySingleton let:tip opts={{ placement: "right" }}>
     <ul class="cm-spellcheck-tip-list">
       {#each misspelling.suggestions as suggestion}
-        <li>
+        <li class:is-compound={suggestion.compound}>
+          {#if suggestion.compound}
+            <button
+              class="cm-spellcheck-tip-suggestion is-compound"
+              type="button"
+              on:click={() => applySuggestion(suggestion, true)}
+              use:tip={$t("sheaf.spellcheck.tooltips.ACCEPT_SUGGESTION", {
+                values: {
+                  slice: misspelling.word,
+                  suggestion: compoundWord(suggestion.term)
+                }
+              })}
+            >
+              {compoundWord(suggestion.term)}
+            </button>
+          {/if}
           <button
             class="cm-spellcheck-tip-suggestion"
             type="button"
@@ -92,6 +112,13 @@
     > li:not(:last-child) {
       border-bottom: solid 0.05rem var(--colcode-border);
     }
+
+    > li.is-compound {
+      display: flex;
+      > .cm-spellcheck-tip-suggestion {
+        text-align: center;
+      }
+    }
   }
 
   .cm-spellcheck-tip-suggestion {
@@ -105,6 +132,10 @@
     background: none;
     border-radius: 0;
     transition: background-color 0.075s ease, color 0.075s ease;
+
+    &.is-compound {
+      border-right: solid 0.075rem var(--colcode-border);
+    }
 
     &:hover,
     &[aria-selected] {
