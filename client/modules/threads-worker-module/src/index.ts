@@ -59,6 +59,7 @@ interface WorkerModuleOpts {
  */
 export class WorkerModule<Methods extends WorkerModuleMethods<string> = any> {
   private declare worker?: ModuleThread<Methods>
+  private declare workerLoading?: Promise<ModuleThread<Methods>>
 
   /**
    * @param name - Name of the worker, which appears in the debugger.
@@ -87,13 +88,21 @@ export class WorkerModule<Methods extends WorkerModuleMethods<string> = any> {
    * then returns it.
    */
   private async ensureWorker() {
-    if (!this.worker) {
-      const src = typeof this.src === "function" ? await this.src() : await this.src
-      // @ts-ignore
-      this.worker = await spawn(BlobWorker.fromText(src, { name: this.name }))
-      if (this.workerConfig.init) await this.workerConfig.init()
-    }
-    return this.worker
+    if (this.worker) return this.worker
+    if (this.workerLoading) return await this.workerLoading
+
+    this.workerLoading = new Promise<ModuleThread<Methods>>(async resolve => {
+      if (!this.worker) {
+        const src = typeof this.src === "function" ? await this.src() : await this.src
+        // @ts-ignore
+        this.worker = await spawn(BlobWorker.fromText(src, { name: this.name }))
+        if (this.workerConfig.init) await this.workerConfig.init()
+      }
+      resolve(this.worker)
+      this.workerLoading = undefined
+    })
+
+    return await this.workerLoading
   }
 
   /** Terminates the internal worker. */
