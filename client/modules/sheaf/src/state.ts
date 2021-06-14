@@ -1,10 +1,4 @@
-import {
-  ContentFacet,
-  getActiveLines,
-  Gutters,
-  textBuffer,
-  textValue
-} from "wj-codemirror"
+import { getActiveLines, Gutters, textBuffer, textValue } from "wj-codemirror"
 import { EditorState, EditorView, syntaxTree, Text } from "wj-codemirror/cm"
 import type { SheafCore } from "./core"
 import type { SheafBindings } from "./extensions/bindings"
@@ -42,10 +36,6 @@ export class SheafState {
 
   async buffer() {
     return await textBuffer(this.doc)
-  }
-
-  async content(): Promise<string> {
-    return (await this.state.facet(ContentFacet)(this.state, false)) as string
   }
 
   get tree() {
