@@ -134,15 +134,17 @@ Utils("waitFor", async () => {
 })
 
 Utils("createLock", async () => {
+  let busy = false
   const func = async (input: boolean) => {
     assert.is(input, true)
+    assert.not(busy)
+    busy = true
     await lib.sleep(50)
-    return Math.random()
+    busy = false
   }
   const locked = lib.createLock(func)
-  const v1 = locked(true)
-  const v2 = locked(true)
-  assert.is(await v1, await v2)
+  locked(true)
+  locked(true)
 })
 
 Utils("createAnimQueued", async () => {
