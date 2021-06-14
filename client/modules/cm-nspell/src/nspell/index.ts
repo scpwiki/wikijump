@@ -151,18 +151,6 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
   }
 
   /**
-   * Checks if a word is spelled correctly, and if it isn't, returns a list
-   * of suggestions. Returns null if it is spelled correctly.
-   *
-   * @param word - The word to check.
-   * @param max - The maximum number of suggestions.
-   */
-  async check(word: string, max = 8) {
-    if (this.disabled) return null
-    return await this.invoke("check", transfer(word), max)
-  }
-
-  /**
    * Takes in a list of misspelled words and returns them with suggestions
    * for correcting them.
    *
@@ -182,6 +170,17 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
   async misspelled(words: Word[]) {
     if (this.disabled) return []
     return await this.invoke("misspelled", words)
+  }
+
+  /**
+   * Takes in a list of words and returns of which are flagged with being
+   * misspelled, warned, or forbidden.
+   *
+   * @param words - The words to check.
+   */
+  async check(words: Word[]) {
+    if (this.disabled) return []
+    return await this.invoke("check", words)
   }
 
   /**

@@ -18,6 +18,25 @@ export interface Misspelling extends Word {
 }
 
 /**
+ * {@link Word} flagged by the spellchecker as being "incorrect" in some
+ * way. This may be due to the word being misspelled, forbidden, and/or warned.
+ */
+export interface FlaggedWord extends Word {
+  /** Metadata about the spellcheck status of the word. */
+  info: {
+    /** True if the word isn't misspelled. */
+    correct: boolean
+    /** True if the spellcheck dictionary forbids this word. */
+    forbidden: boolean
+    /**
+     * True if the spellcheck dictionary notes this word as being spelled
+     * correctly, but is regardless most likely an error.
+     */
+    warn: boolean
+  }
+}
+
+/**
  * Describes an asynchronous function that returns absolute URLs to a
  * Hunspell `.aff` and `.dic` pair.
  */

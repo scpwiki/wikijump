@@ -6,16 +6,19 @@
   import { t } from "wj-state"
   import nspell from "./nspell"
   import type { EditorSvelteComponentProps } from "wj-codemirror"
-  import type { Word } from "./types"
+  import type { FlaggedWord } from "./types"
 
-  export let word: Word
+  export let word: FlaggedWord
 
   export let view: EditorSvelteComponentProps["view"]
   export let update: EditorSvelteComponentProps["update"]
   export let unmount: EditorSvelteComponentProps["unmount"]
 
   let suggestions: string[] | null = null
-  nspell.suggest(word.word).then(result => (suggestions = result))
+
+  if (!word.info.forbidden) {
+    nspell.suggest(word.word).then(result => (suggestions = result))
+  }
 
   function applySuggestion(suggestion: string) {
     if (!view) return
@@ -35,53 +38,69 @@
 </script>
 
 <div class="cm-spellcheck-tip" use:focusGroup={"vertical"}>
-  <h6 class="cm-spellcheck-tip-title">
-    {$t("sheaf.spellcheck.MISSPELLED_WORD", { values: { slice: word.word } })}
-  </h6>
+  {#if word.info.forbidden}
+    <h6 class="cm-spellcheck-tip-title">
+      {$t("sheaf.spellcheck.FORBIDDEN_WORD", { values: { slice: word.word } })}
+    </h6>
+    <!-- empty list just to preserve formatting -->
+    <ul class="cm-spellcheck-tip-list" aria-hidden="true" />
+  {:else if !word.info.correct || word.info.warn}
+    {#if !word.info.correct}
+      <h6 class="cm-spellcheck-tip-title">
+        {$t("sheaf.spellcheck.MISSPELLED_WORD", { values: { slice: word.word } })}
+      </h6>
+    {:else}
+      <h6 class="cm-spellcheck-tip-title">
+        {$t("sheaf.spellcheck.WARNED_WORD", { values: { slice: word.word } })}
+      </h6>
+    {/if}
 
-  {#if !suggestions}
-    <div
-      class="cm-spellcheck-tip-loading"
-      transition:anim={{ duration: 250, css: t => `opacity: ${t}` }}
-    >
-      <Spinny inline />
-    </div>
-  {/if}
+    {#if !suggestions}
+      <div
+        class="cm-spellcheck-tip-loading"
+        transition:anim={{ duration: 250, css: t => `opacity: ${t}` }}
+      >
+        <Spinny inline />
+      </div>
+    {/if}
 
-  <TippySingleton let:tip opts={{ placement: "right" }}>
-    <ul class="cm-spellcheck-tip-list">
-      {#if suggestions}
-        {#each suggestions as suggestion}
+    <TippySingleton let:tip opts={{ placement: "right" }}>
+      <ul class="cm-spellcheck-tip-list">
+        {#if suggestions}
+          {#each suggestions as suggestion}
+            <li>
+              <button
+                class="cm-spellcheck-tip-suggestion"
+                type="button"
+                on:click={() => applySuggestion(suggestion)}
+                use:tip={$t("sheaf.spellcheck.tooltips.ACCEPT_SUGGESTION", {
+                  values: { slice: word.word, suggestion }
+                })}
+              >
+                {suggestion}
+              </button>
+            </li>
+          {/each}
+        {/if}
+        {#if !word.info.correct}
           <li>
             <button
-              class="cm-spellcheck-tip-suggestion"
+              class="cm-spellcheck-tip-suggestion cm-spellcheck-tip-suggestion-add"
               type="button"
-              on:click={() => applySuggestion(suggestion)}
-              use:tip={$t("sheaf.spellcheck.tooltips.ACCEPT_SUGGESTION", {
-                values: { slice: word.word, suggestion }
+              on:click={() => addToDictionary()}
+              use:tip={$t("sheaf.spellcheck.tooltips.ADD_TO_DICTIONARY", {
+                values: { slice: word.word }
               })}
             >
-              {suggestion}
+              {$t("sheaf.spellcheck.ADD_TO_DICTIONARY", {
+                values: { slice: word.word }
+              })}
             </button>
           </li>
-        {/each}
-      {/if}
-      <li>
-        <button
-          class="cm-spellcheck-tip-suggestion cm-spellcheck-tip-suggestion-add"
-          type="button"
-          on:click={() => addToDictionary()}
-          use:tip={$t("sheaf.spellcheck.tooltips.ADD_TO_DICTIONARY", {
-            values: { slice: word.word }
-          })}
-        >
-          {$t("sheaf.spellcheck.ADD_TO_DICTIONARY", {
-            values: { slice: word.word }
-          })}
-        </button>
-      </li>
-    </ul>
-  </TippySingleton>
+        {/if}
+      </ul>
+    </TippySingleton>
+  {/if}
 
   <hr />
 

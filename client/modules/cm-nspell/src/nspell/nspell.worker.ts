@@ -1,6 +1,7 @@
 import NSpell from "nspell"
 import { decode, expose, ModuleProxy } from "threads-worker-module/src/worker-lib"
 import type { Misspelling, Word } from ".."
+import type { FlaggedWord } from "../types"
 
 let nspell: NSpell
 
@@ -58,18 +59,18 @@ const module = {
     return clampedSuggest(decode(raw), max)
   },
 
-  check(raw: ArrayBuffer, max: number) {
-    const word = decode(raw)
-    if (nspell.correct(word)) return null
-    return clampedSuggest(word, max)
-  },
-
   suggestions(words: Word[], max: number): Misspelling[] {
     return words.map(word => ({ ...word, suggestions: clampedSuggest(word.word, max) }))
   },
 
   misspelled(words: Word[]) {
     return words.filter(({ word }) => !nspell.correct(word))
+  },
+
+  check(words: Word[]): FlaggedWord[] {
+    return words
+      .map(word => ({ ...word, info: nspell.spell(word.word) }))
+      .filter(({ info: { correct, forbidden, warn } }) => !correct || forbidden || warn)
   },
 
   // -- MISC

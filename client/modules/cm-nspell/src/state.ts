@@ -1,5 +1,5 @@
 import { Decoration, DecorationSet } from "wj-codemirror/cm"
-import type { Word } from "./types"
+import type { FlaggedWord } from "./types"
 
 /**
  * Holds the state of the spellchecker. Intended to be entirely immutable.
@@ -14,32 +14,49 @@ export class SpellcheckState {
   /** The current locale of the spellchecker, e.g. `"en"`. */
   declare readonly locale: string
 
-  /** List of editor decorations for the misspelled words in the document. */
-  declare readonly words: DecorationSet
+  /** List of editor decorations for the flagged words in the document. */
+  declare readonly flagged: DecorationSet
 
   /**
    * @param enabled - Whether or not the spellchecker should be active.
    * @param locale - The locale of the spellchecker, e.g. `"en"`.
-   * @param words - The list of words that the spellchecker has emitted.
+   * @param flagged - The list of words that the spellchecker has flagged.
    *   Can be an existing `DecorationSet` or a new array of words.
    */
-  constructor(enabled: boolean, locale: string, words: Word[] | DecorationSet = []) {
+  constructor(
+    enabled: boolean,
+    locale: string,
+    flagged: FlaggedWord[] | DecorationSet = []
+  ) {
     this.enabled = enabled
     this.locale = locale
-    this.words = Array.isArray(words) ? Decoration.set(words.map(makeDecoration)) : words
+    this.flagged = Array.isArray(flagged)
+      ? Decoration.set(flagged.map(makeDecoration))
+      : flagged
   }
 
-  /** Returns a new state using the given list of words. */
-  set(words: Word[] | DecorationSet) {
-    return new SpellcheckState(this.enabled, this.locale, words)
+  /**
+   * Returns a new state using the given list of words.
+   *
+   * - @param flagged - The list of words that the spellchecker has flagged.
+   *   Can be an existing `DecorationSet` or a new array of words.
+   */
+  set(flagged: FlaggedWord[] | DecorationSet) {
+    return new SpellcheckState(this.enabled, this.locale, flagged)
   }
 }
 
-/** Creates a `Range<Decoration>` for the given misspelling. */
-function makeDecoration(word: Word) {
+/** Creates a `Range<Decoration>` for the given flagged word. */
+function makeDecoration(word: FlaggedWord) {
+  // assemble classes depending on how the word is flagged
+  const classes = ["cm-spellcheckRange"]
+  if (!word.info.correct) classes.push("cm-spellcheckRange-misspelled")
+  if (word.info.forbidden) classes.push("cm-spellcheckRange-forbidden")
+  if (word.info.warn) classes.push("cm-spellcheckRange-warn")
+
   return Decoration.mark({
     inclusive: true,
-    class: "cm-misspellingRange",
+    class: classes.join(" "),
     word
   }).range(word.from, word.to)
 }

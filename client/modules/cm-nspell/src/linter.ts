@@ -35,13 +35,13 @@ class SpellcheckLinter {
     const id = this.id
 
     const words = visibleWords(this.view, getLocale(nspell.locale))
-    const misspelled = await nspell.misspelled(words)
+    const flagged = await nspell.check(words)
 
     if (id !== this.id) return
 
     const field = Spellcheck.get(this.view)
     if (field.enabled) {
-      Spellcheck.set(this.view, field.set(misspelled))
+      Spellcheck.set(this.view, field.set(flagged))
     }
   }
 }

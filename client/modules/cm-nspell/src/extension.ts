@@ -7,11 +7,14 @@ import { SpellcheckState } from "./state"
 
 /** Theme for the spellchecker extension. */
 const theme = EditorView.baseTheme({
-  ".cm-misspellingRange": {
+  ".cm-spellcheckRange": {
     backgroundPosition: "left bottom",
-    backgroundRepeat: "repeat-x",
-    backgroundImage: underline("#d11")
-  }
+    backgroundRepeat: "repeat-x"
+  },
+
+  ".cm-spellcheckRange-misspelled": { backgroundImage: underline("#d11") },
+  ".cm-spellcheckRange-forbidden": { backgroundImage: underline("orange") },
+  ".cm-spellcheckRange-warn": { backgroundImage: underline("orange") }
 })
 
 /**
@@ -27,11 +30,11 @@ export const Spellcheck = new EditorField<SpellcheckState>({
   // maps the decorations across document changes
   update: (state, tr, changed) => {
     if (!tr.docChanged || changed) return
-    const mapped = state.words.map(tr.changes)
+    const mapped = state.flagged.map(tr.changes)
     return state.set(mapped)
   },
 
-  provide: field => EditorView.decorations.from(field, state => state.words),
+  provide: field => EditorView.decorations.from(field, state => state.flagged),
 
   reconfigure: (state, last) => {
     if (last && last.enabled === state.enabled && last.locale === state.locale) {
