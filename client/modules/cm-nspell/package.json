@@ -22,7 +22,6 @@
   "dependencies": {
     "dictionary-cs": "^2.0.3",
     "dictionary-da": "^4.5.0",
-    "dictionary-de": "^2.0.4",
     "dictionary-el": "^3.0.5",
     "dictionary-en": "^3.1.0",
     "dictionary-es": "^3.1.0",

@@ -7,7 +7,11 @@ export const DICTIONARIES: Record<string, DictionaryImporter> = {
     imp(import("dictionary-en/index.aff?url"), import("dictionary-en/index.dic?url")),
 
   "de": async () =>
-    imp(import("dictionary-de/index.aff?url"), import("dictionary-de/index.dic?url")),
+    imp(import("../vendor/de.aff?url"), [
+      import("../vendor/de-transam.dic?url"),
+      import("../vendor/de-bjoern.dic?url"),
+      import("../vendor/de-chrome.dic?url")
+    ]),
 
   "es": async () =>
     imp(import("dictionary-es/index.aff?url"), import("dictionary-es/index.dic?url")),
@@ -73,5 +77,13 @@ export const DICTIONARIES: Record<string, DictionaryImporter> = {
 export default DICTIONARIES
 
 async function imp(aff: any, dic: any) {
-  return { aff: await url(aff), dic: await url(dic) }
+  if (Array.isArray(dic)) {
+    const dics: string[] = []
+    for (const d of dic) {
+      dics.push(await url(d))
+    }
+    return { aff: await url(aff), dic: dics }
+  } else {
+    return { aff: await url(aff), dic: await url(dic) }
+  }
 }
