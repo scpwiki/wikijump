@@ -46,7 +46,16 @@ export type SpellcheckFilter = (state: EditorState, tree: Tree, word: Word) => b
  */
 export type LocaleFilterFunction = (word: string) => boolean
 
+/**
+ * Describes a special configuration for a locale, such as how it matches
+ * words or what words it excludes from spellchecking.
+ */
 export interface Locale {
+  /** A global `RegExp` that determines what parts of a string are "words". */
   pattern: RegExp
+  /**
+   * A list of `RegExp`s or {@link LocaleFilterFunction} functions that, if
+   * they test/return true, exclude a word from being spellchecked.
+   */
   filters: (RegExp | LocaleFilterFunction)[]
 }

@@ -1,5 +1,9 @@
 import type { Locale } from "./types"
 
+/**
+ * Default locale that is used if the desired locale isn't available. Also
+ * serves as the fallback for any unspecified properties in a locale.
+ */
 // prettier-ignore
 const DEFAULT_LOCALE: Locale = {
   // Three alternatives:
@@ -17,8 +21,14 @@ const DEFAULT_LOCALE: Locale = {
   ]
 }
 
+/** Table of {@link Locale} configurations, with keys being locale language codes. */
 export const LOCALES = makeLocales({})
 
+/**
+ * Gets a {@link Locale}.
+ *
+ * @param locale - The locale's name.
+ */
 export function getLocale(locale: string) {
   return LOCALES[locale] ?? DEFAULT_LOCALE
 }
