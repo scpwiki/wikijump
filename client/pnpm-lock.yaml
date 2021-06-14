@@ -117,7 +117,28 @@ importers:
   modules/cm-nspell:
     specifiers:
       '@types/nspell': ^2.1.0
+      dictionary-cs: ^2.0.3
+      dictionary-da: ^4.5.0
+      dictionary-de: ^2.0.4
+      dictionary-el: ^3.0.5
       dictionary-en: ^3.1.0
+      dictionary-es: ^3.1.0
+      dictionary-fo: ^1.0.3
+      dictionary-fr: ^2.6.0
+      dictionary-hu: ^2.0.2
+      dictionary-it: ^1.3.3
+      dictionary-ko: ^1.2.2
+      dictionary-nb: ^2.1.3
+      dictionary-nl: ^1.4.0
+      dictionary-nn: ^2.1.3
+      dictionary-pl: ^1.2.4
+      dictionary-pt: ^2.0.1
+      dictionary-ro: ^2.0.2
+      dictionary-ru: ^2.0.2
+      dictionary-sv: ^3.0.2
+      dictionary-tr: ^1.3.4
+      dictionary-uk: ^2.3.0
+      dictionary-vi: ^2.1.3
       lezer-tree: ^0.13.2
       nspell: ^2.1.5
       threads-worker-module: workspace:*
@@ -126,7 +147,28 @@ importers:
       wj-state: workspace:*
       wj-util: workspace:*
     dependencies:
+      dictionary-cs: 2.0.3
+      dictionary-da: 4.5.0
+      dictionary-de: 2.0.4
+      dictionary-el: 3.0.5
       dictionary-en: 3.1.0
+      dictionary-es: 3.1.0
+      dictionary-fo: 1.0.3
+      dictionary-fr: 2.6.0
+      dictionary-hu: 2.0.2
+      dictionary-it: 1.3.3
+      dictionary-ko: 1.2.2
+      dictionary-nb: 2.1.3
+      dictionary-nl: 1.4.0
+      dictionary-nn: 2.1.3
+      dictionary-pl: 1.2.4
+      dictionary-pt: 2.0.1
+      dictionary-ro: 2.0.2
+      dictionary-ru: 2.0.2
+      dictionary-sv: 3.0.2
+      dictionary-tr: 1.3.4
+      dictionary-uk: 2.3.0
+      dictionary-vi: 2.1.3
       lezer-tree: 0.13.2
       nspell: 2.1.5
       threads-worker-module: link:../threads-worker-module
@@ -1957,8 +1999,92 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /dictionary-cs/2.0.3:
+    resolution: {integrity: sha512-WhWxn5qBy9cVoXsGfeITSOJqejZyjSAUBs/PHek8V4HAsK8CewEhjYKkg7PIxFEEowqcFvCG0oz95baWY3znqw==}
+    dev: false
+
+  /dictionary-da/4.5.0:
+    resolution: {integrity: sha512-1HfN8Tr2PPY3A9qvIiYsY3FzxhYkPoJ/om6c4AZ+lJRh1pxkl/e0lRSAUXjjcsQSAyIer40S81VBafp68hQlKA==}
+    dev: false
+
+  /dictionary-de/2.0.4:
+    resolution: {integrity: sha512-TOTvLM7k4wJt3cgus1Ziuiqo5Tx0i+VEmXVDCDxsxHhRdSCnAQFonTx8/YlfGI+AQQIyMJhXfMnceKD56dZrMQ==}
+    dev: false
+
+  /dictionary-el/3.0.5:
+    resolution: {integrity: sha512-fjNsNZI1IY+4d02T6x2Q3/PJ5rLhgb9jBTkgO7NvoXm3lnmJ1TSI7AaTQ9xvy/VXA/KWcVT6H5qHfBQW5884jw==}
+    dev: false
+
   /dictionary-en/3.1.0:
     resolution: {integrity: sha512-dNjhoQagh7GX3YUBdbzehy/+wR2GLhkdpkxF8wMEGIXxMrH6aqzMn/8CHP5xnF85qbv288gCt4XtPQEVCOmTeA==}
+    dev: false
+
+  /dictionary-es/3.1.0:
+    resolution: {integrity: sha512-zUZ06ADfa/G/znQbGhz8juUPJQRxCYOTbeW7z06+4dsyGe4vbnrLY3zXCapEzqg0NXpVmliSTdPZ8SY8U8iMXA==}
+    dev: false
+
+  /dictionary-fo/1.0.3:
+    resolution: {integrity: sha512-6db6HdHijX9jKEB5ni+DW/k818iGfc+eUHns3azuFGEmeSWoKEmkACK+IcJ7zU/m14KALV+TiBiTM1hItnodxA==}
+    dev: false
+
+  /dictionary-fr/2.6.0:
+    resolution: {integrity: sha512-JgD3jqbP/kqypvdHUPd7hyIO93ymPH07iJwLyzPM8zpMuS6B5CbLtL3D0eXGVb17pRVq+j3za9+/znGXkkXG2g==}
+    dev: false
+
+  /dictionary-hu/2.0.2:
+    resolution: {integrity: sha512-n5Rdm7Nn2fuhBH1J8GkPXhKE8+Vi8JinXV2lBlWQe4qL0AdT6Mw2/Yf5BWftGrrcuhww5UyicYNHnweHdpTCgA==}
+    dev: false
+
+  /dictionary-it/1.3.3:
+    resolution: {integrity: sha512-hGpvCRhbHpqkYRZJx6VapB3G20EsbY87KX8xhU4E9SaPxYhIzYHnYD22826hU0JSh2OAHuvSlkwCxsnI2PFO6g==}
+    dev: false
+
+  /dictionary-ko/1.2.2:
+    resolution: {integrity: sha512-2qPBAgEiUYILAAy4NFucrks0FOQ9cU7NCnXFnxgMguHp9LcRvO5fgvgF3YYL2j0ei3mLwc1Qriv65vpX8DHGDQ==}
+    dev: false
+
+  /dictionary-nb/2.1.3:
+    resolution: {integrity: sha512-rLEDUweIs+bJ7CaDkXPCtTzsNET3OTnWinIr+vR0T7ceqEerRGlUuvcoxZHtK+OuMq+yUwslY505dqDbGSyRfg==}
+    dev: false
+
+  /dictionary-nl/1.4.0:
+    resolution: {integrity: sha512-JSaHXU0aAb9QZqdp6p4q0QSlbzl9pbRuZtBNHjBwGf4brKzRzyiae6/SKh2M4UG/sF2UZ/qnN056zJbDcFJqtA==}
+    dev: false
+
+  /dictionary-nn/2.1.3:
+    resolution: {integrity: sha512-3Prd7h4cGmGmI17naOobT99C7dLulrLM4OuEzq978SAkdHlscV8H3v18HInp3zzNJ0deLAtFvqbpaaC9BW4MGA==}
+    dev: false
+
+  /dictionary-pl/1.2.4:
+    resolution: {integrity: sha512-7hQ7g1pVLMVcSUcJXD92P15rQPbv/zGFRBynXmgR1spyfnoWma7STYNd46Kb6AjrGT8x4bKxa2V2Nk0HeMESYg==}
+    dev: false
+
+  /dictionary-pt/2.0.1:
+    resolution: {integrity: sha512-DmZ2mF6aF/523yKkethhA3gpQ9Kwp8/dv6H1/naWvxzjV1Csf5k3tHYTskQihWPpf+sYF5Z3rcl2waRi+aWbOg==}
+    dev: false
+
+  /dictionary-ro/2.0.2:
+    resolution: {integrity: sha512-Ajf8MuemKfwNZqZTXylWOZ4/rwPVxSKxxsBiw1Mw6gunBg+yq/yRv+I/P8UTY+lTP/FOWQNhDQfo6jJO4H4p9g==}
+    dev: false
+
+  /dictionary-ru/2.0.2:
+    resolution: {integrity: sha512-TUJBv93c2AJ5hSUzTn0rT1cpr2ioV7/fOchMqv/c2QYdAf3Rv1YOddRs/S3wUwKEeoQZXo4zbZedi90icI/F5g==}
+    dev: false
+
+  /dictionary-sv/3.0.2:
+    resolution: {integrity: sha512-LHdn5PMUUDvXT4jdYmd+cASiVb01ksrjsg0lWsGViigaF20H56l7A2PQAT2t3Uas0xURnuNsE1F49aCCJws39g==}
+    dev: false
+
+  /dictionary-tr/1.3.4:
+    resolution: {integrity: sha512-WcDWKhqgedsKG++2P9PnhFqdc6iYwUVKEGZP7AsfdBGSR+pCQYHF2Rh5b7+lF2EaCxik8zMPiqDwtUk9CeF1jw==}
+    dev: false
+
+  /dictionary-uk/2.3.0:
+    resolution: {integrity: sha512-6k1DecBoYq5tcL/VtdJE6L1JMbFrG367+F9aYwj+H0zC1pQlr7xJN8/rh/eN+9OM/DkI+10xeKib/wo8lL63DA==}
+    dev: false
+
+  /dictionary-vi/2.1.3:
+    resolution: {integrity: sha512-fB4WiFGNDXQ0qtRiOz+ZZ5uWrpxZLxw35fU0EXxWouZwoiCnRex5nE8VdhGSzn6SG+JEDiUOXoxNu4l7LKcXQA==}
     dev: false
 
   /diff/5.0.0:
