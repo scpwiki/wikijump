@@ -54,18 +54,18 @@ const module = {
     return nspell.spell(decode(raw))
   },
 
-  suggest(raw: ArrayBuffer) {
-    return nspell.suggest(decode(raw))
+  suggest(raw: ArrayBuffer, max: number) {
+    return clampedSuggest(decode(raw), max)
   },
 
-  check(raw: ArrayBuffer) {
+  check(raw: ArrayBuffer, max: number) {
     const word = decode(raw)
     if (nspell.correct(word)) return null
-    return nspell.suggest(word)
+    return clampedSuggest(word, max)
   },
 
-  suggestions(words: Word[]): Misspelling[] {
-    return words.map(word => ({ ...word, suggestions: nspell.suggest(word.word) }))
+  suggestions(words: Word[], max: number): Misspelling[] {
+    return words.map(word => ({ ...word, suggestions: clampedSuggest(word.word, max) }))
   },
 
   misspelled(words: Word[]) {
@@ -81,6 +81,12 @@ const module = {
 
 async function fetchText(url: string) {
   return await (await fetch(url)).text()
+}
+
+function clampedSuggest(word: string, max: number) {
+  let suggestions = nspell.suggest(word)
+  if (max && suggestions.length > max) suggestions = suggestions.slice(0, max)
+  return suggestions
 }
 
 export type NSpellWorkerInterface = ModuleProxy<typeof module>

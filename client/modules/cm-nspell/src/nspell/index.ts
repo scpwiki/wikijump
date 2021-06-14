@@ -143,10 +143,11 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
    * Returns suggestions for how to correct the spelling of a word.
    *
    * @param word - The word to get the suggestions for.
+   * @param max - The maximum number of suggestions.
    */
-  async suggest(word: string) {
+  async suggest(word: string, max = 8) {
     if (this.disabled) return []
-    return await this.invoke("suggest", transfer(word))
+    return await this.invoke("suggest", transfer(word), max)
   }
 
   /**
@@ -154,10 +155,11 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
    * of suggestions. Returns null if it is spelled correctly.
    *
    * @param word - The word to check.
+   * @param max - The maximum number of suggestions.
    */
-  async check(word: string) {
+  async check(word: string, max = 8) {
     if (this.disabled) return null
-    return await this.invoke("check", transfer(word))
+    return await this.invoke("check", transfer(word), max)
   }
 
   /**
@@ -165,10 +167,11 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
    * for correcting them.
    *
    * @param words - The words to get suggestions for.
+   * @param max - The maximum number of suggestions.
    */
-  async suggestions(words: Word[]) {
+  async suggestions(words: Word[], max = 8) {
     if (this.disabled) return []
-    return await this.invoke("suggestions", words)
+    return await this.invoke("suggestions", words, max)
   }
 
   /**
