@@ -5,8 +5,18 @@ import type { Misspelling, Word } from ".."
 let nspell: NSpell
 
 const module = {
-  async set(affURL: string, dictURL: string) {
-    nspell = NSpell(await fetchText(affURL), await fetchText(dictURL))
+  async set(affURL: string, dictURL: string | string[]) {
+    if (Array.isArray(dictURL)) {
+      const aff = await fetchText(affURL)
+      const dictionaries: { aff: string; dic: string }[] = []
+      for (const url of dictURL) {
+        const dic = await fetchText(url)
+        dictionaries.push({ aff, dic })
+      }
+      nspell = NSpell(dictionaries)
+    } else {
+      nspell = NSpell(await fetchText(affURL), await fetchText(dictURL))
+    }
   },
 
   // -- DICTIONARY
