@@ -14,6 +14,7 @@ import Content from "../content"
 import { blocks, modules } from "../data/blocks"
 import { ftmlHoverTooltips } from "../hover"
 import { ftmlLinter } from "../lint"
+import { spellcheckFTML } from "../spellcheck"
 import { aliasesFiltered, aliasesRaw } from "../util"
 import { StyleAttributeGrammar } from "./css-attributes"
 import { TexLanguage } from "./tex"
@@ -89,7 +90,8 @@ export const FTMLLanguage = new TarnationLanguage({
 
   languageData: {
     commentTokens: { block: { open: "[!--", close: "--]" } },
-    autocomplete: completeFTML
+    autocomplete: completeFTML,
+    spellcheck: spellcheckFTML
   },
 
   supportExtensions: [

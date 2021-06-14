@@ -66,3 +66,15 @@ export function getActiveLines(state: EditorState) {
   }
   return activeLines
 }
+
+// this is apparently how CodeMirror does underlines,
+// I figured it was just a text underline, but no, it's actually this
+// kind of interesting
+/** Returns a `background-image` inlined SVG string for decorations. */
+export function underline(color: string) {
+  if (typeof btoa !== "function") return "none"
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="6" height="3">
+    <path d="m0 3 l2 -2 l1 0 l2 2 l1 0" stroke="${color}" fill="none" stroke-width=".7"/>
+  </svg>`
+  return `url('data:image/svg+xml;base64,${btoa(svg)}')`
+}

@@ -23,14 +23,15 @@
   },
   "dependencies": {
     "@types/prismjs": "^1.16.5",
+    "cm-nspell": "workspace:*",
     "cm-tarnation": "workspace:*",
-    "wj-components": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "lezer-tree": "^0.13.2",
+    "threads-worker-module": "workspace:*",
     "wj-codemirror": "workspace:*",
+    "wj-components": "workspace:*",
     "wj-prism": "workspace:*",
     "wj-state": "workspace:*",
-    "wj-util": "workspace:*",
-    "threads-worker-module": "workspace:*"
+    "wj-util": "workspace:*"
   }
 }

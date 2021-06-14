@@ -2,87 +2,81 @@
   @component Tooltip/menu for a misspelling, along with suggestions for said misspelling.
 -->
 <script lang="ts">
-  import { focusGroup, TippySingleton } from "wj-components"
+  import { focusGroup, TippySingleton, Spinny, anim } from "wj-components"
   import { t } from "wj-state"
-  import type { EditorSvelteComponentProps } from "../svelte/svelte-dom"
-  import { Spellchecker } from "./spellchecker"
-  import type { Misspelling, Suggestion } from "./spellchecker/types"
+  import nspell from "./nspell"
+  import type { EditorSvelteComponentProps } from "wj-codemirror"
+  import type { Word } from "./types"
 
-  export let misspelling: Misspelling
+  export let word: Word
 
   export let view: EditorSvelteComponentProps["view"]
   export let update: EditorSvelteComponentProps["update"]
   export let unmount: EditorSvelteComponentProps["unmount"]
 
-  function compoundWord(word: string) {
-    return word.replace(" ", "")
-  }
+  let suggestions: string[] | null = null
+  nspell.suggest(word.word).then(result => (suggestions = result))
 
-  function applySuggestion(suggestion: Suggestion, compound = false) {
+  function applySuggestion(suggestion: string) {
     if (!view) return
-    const term = compound ? compoundWord(suggestion.term) : suggestion.term
     view.dispatch({
-      changes: { from: misspelling.from, to: misspelling.to, insert: term }
+      changes: { from: word.from, to: word.to, insert: suggestion }
     })
   }
 
   function addToDictionary() {
     if (!view) return
-    Spellchecker.saveToDictionary(misspelling.word)
+    nspell.saveToDictionary(word.word)
     // replace range anyways so that the view gets updated
     view.dispatch({
-      changes: { from: misspelling.from, to: misspelling.to, insert: misspelling.word }
+      changes: { from: word.from, to: word.to, insert: word.word }
     })
   }
 </script>
 
 <div class="cm-spellcheck-tip" use:focusGroup={"vertical"}>
   <h6 class="cm-spellcheck-tip-title">
-    {$t("sheaf.spellcheck.MISSPELLED_WORD", { values: { slice: misspelling.word } })}
+    {$t("sheaf.spellcheck.MISSPELLED_WORD", { values: { slice: word.word } })}
   </h6>
+
+  {#if !suggestions}
+    <div
+      class="cm-spellcheck-tip-loading"
+      transition:anim={{ duration: 250, css: t => `opacity: ${t}` }}
+    >
+      <Spinny inline />
+    </div>
+  {/if}
 
   <TippySingleton let:tip opts={{ placement: "right" }}>
     <ul class="cm-spellcheck-tip-list">
-      {#each misspelling.suggestions as suggestion}
-        <li class:is-compound={suggestion.compound}>
-          {#if suggestion.compound}
+      {#if suggestions}
+        {#each suggestions as suggestion}
+          <li>
             <button
-              class="cm-spellcheck-tip-suggestion is-compound"
+              class="cm-spellcheck-tip-suggestion"
               type="button"
-              on:click={() => applySuggestion(suggestion, true)}
+              on:click={() => applySuggestion(suggestion)}
               use:tip={$t("sheaf.spellcheck.tooltips.ACCEPT_SUGGESTION", {
-                values: {
-                  slice: misspelling.word,
-                  suggestion: compoundWord(suggestion.term)
-                }
+                values: { slice: word.word, suggestion }
               })}
             >
-              {compoundWord(suggestion.term)}
+              {suggestion}
             </button>
-          {/if}
-          <button
-            class="cm-spellcheck-tip-suggestion"
-            type="button"
-            on:click={() => applySuggestion(suggestion)}
-            use:tip={$t("sheaf.spellcheck.tooltips.ACCEPT_SUGGESTION", {
-              values: { slice: misspelling.word, suggestion: suggestion.term }
-            })}
-          >
-            {suggestion.term}
-          </button>
-        </li>
-      {/each}
+          </li>
+        {/each}
+      {/if}
       <li>
         <button
           class="cm-spellcheck-tip-suggestion cm-spellcheck-tip-suggestion-add"
           type="button"
           on:click={() => addToDictionary()}
           use:tip={$t("sheaf.spellcheck.tooltips.ADD_TO_DICTIONARY", {
-            values: { slice: misspelling.word }
+            values: { slice: word.word }
           })}
         >
           {$t("sheaf.spellcheck.ADD_TO_DICTIONARY", {
-            values: { slice: misspelling.word }
+            values: { slice: word.word }
           })}
         </button>
       </li>
@@ -94,7 +88,7 @@
   <pre
     class="code cm-spellcheck-tip-source">
       <code>{$t("sheaf.spellcheck.SOURCE", {
-        values: { slice: misspelling.word, from: misspelling.from, to: misspelling.to }
+        values: { slice: word.word, from: word.from, to: word.to }
       })}</code>
   </pre>
 </div>
@@ -104,6 +98,12 @@
     padding: 0.25rem 0.5rem;
   }
 
+  .cm-spellcheck-tip-loading {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+  }
+
   .cm-spellcheck-tip-list {
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
@@ -111,13 +111,6 @@
 
     > li:not(:last-child) {
       border-bottom: solid 0.05rem var(--colcode-border);
-    }
-
-    > li.is-compound {
-      display: flex;
-      > .cm-spellcheck-tip-suggestion {
-        text-align: center;
-      }
     }
   }
 
@@ -132,10 +125,6 @@
     background: none;
     border-radius: 0;
     transition: background-color 0.075s ease, color 0.075s ease;
-
-    &.is-compound {
-      border-right: solid 0.075rem var(--colcode-border);
-    }
 
     &:hover,
     &[aria-selected] {

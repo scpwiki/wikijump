@@ -1,12 +1,6 @@
+import { Spellcheck } from "cm-nspell"
 import { Writable, writable } from "svelte/store"
-import {
-  ContentFacet,
-  Gutters,
-  IndentHack,
-  Spellcheck,
-  textBuffer,
-  textValue
-} from "wj-codemirror"
+import { ContentFacet, Gutters, IndentHack, textBuffer, textValue } from "wj-codemirror"
 import {
   autocompletion,
   bracketMatching,
