@@ -37,3 +37,16 @@ export type DictionaryImporter = () => Promise<{
  * @param word - The word to potentially be filtered.
  */
 export type SpellcheckFilter = (state: EditorState, tree: Tree, word: Word) => boolean
+
+/**
+ * A function that can be provided by a locale's `filter` list. If `true`
+ * is returned, the word being checked will be excluded.
+ *
+ * @param word - The word to potentially be filtered.
+ */
+export type LocaleFilterFunction = (word: string) => boolean
+
+export interface Locale {
+  pattern: RegExp
+  filters: (RegExp | LocaleFilterFunction)[]
+}

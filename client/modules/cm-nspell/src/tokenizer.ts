@@ -1,7 +1,5 @@
 import { EditorView, syntaxTree } from "wj-codemirror/cm"
-import type { SpellcheckFilter, Word } from "./types"
-
-const WORDS_REGEX = /\p{L}(?![\p{L}'’])|\p{L}[\p{L}'’]*\p{L}/gu
+import type { Locale, SpellcheckFilter, Word } from "./types"
 
 /**
  * Extracts the "visible words" of an editor. All words found will be
@@ -9,11 +7,9 @@ const WORDS_REGEX = /\p{L}(?![\p{L}'’])|\p{L}[\p{L}'’]*\p{L}/gu
  * exists. If it doesn't, the word will be excluded.
  *
  * @param view - The view to extract the words out of.
- * @param regex - The regex used to match the words of the document. Uses a
- *   default that should be adequate for scripts which separate words with
- *   whitespace.
+ * @param locale - The {@link Locale} to use.
  */
-export function visibleWords(view: EditorView, regex = WORDS_REGEX) {
+export function visibleWords(view: EditorView, locale: Locale) {
   const ranges = view.visibleRanges
   const total = { from: ranges[0].from, to: ranges[ranges.length - 1].to }
 
@@ -24,9 +20,20 @@ export function visibleWords(view: EditorView, regex = WORDS_REGEX) {
 
   do {
     if (iter.done) break
-    const matches = iter.value.matchAll(regex)
-    for (const match of matches) {
+    const matches = iter.value.matchAll(locale.pattern)
+    match_loop: for (const match of matches) {
       if (match.index === undefined) continue
+
+      // check locale filters
+
+      for (let idx = 0; idx < locale.filters.length; idx++) {
+        const filter = locale.filters[idx]
+        if (typeof filter === "function" ? filter(match[0]) : filter.test(match[0])) {
+          continue match_loop
+        }
+      }
+
+      // check language filter
 
       const wordPos = pos + match.index
 
@@ -40,6 +47,8 @@ export function visibleWords(view: EditorView, regex = WORDS_REGEX) {
       }
 
       if (!filter(view.state, tree, word)) continue
+
+      // word passed all filters
 
       words.push(word)
     }
