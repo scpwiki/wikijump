@@ -29,7 +29,7 @@
 
   function addToDictionary() {
     if (!view) return
-    nspell.saveToDictionary(word.word)
+    nspell.addToLocalDictionary(word.word)
     // replace range anyways so that the view gets updated
     view.dispatch({
       changes: { from: word.from, to: word.to, insert: word.word }

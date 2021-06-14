@@ -49,7 +49,7 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
       await this.invoke("set", aff, dic)
 
       // add local dictionary to spellchecker once it has started
-      const localDictionary = Pref.get<string[]>("spellchecker-user-dictionary", [])
+      const localDictionary = this.getLocalDictionary()
       if (localDictionary.length) {
         await this.invoke("personal", localDictionary)
       }
@@ -61,6 +61,8 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
       this.disabled = true
     }
   }
+
+  // -- DICTIONARY
 
   /**
    * Appends another dictionary to the spellchecker.
@@ -104,20 +106,7 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
     await this.invoke("remove", words)
   }
 
-  /**
-   * Saves a word to the user's local dictionary.
-   *
-   * @param words - The word to add.
-   */
-  async saveToDictionary(word: string) {
-    if (this.disabled) return
-    const localDictionary = Pref.get<string[]>("spellchecker-user-dictionary", [])
-    // add our word but do a dedupe pass to catch edge cases
-    Pref.set("spellchecker-user-dictionary", dedupe(localDictionary, word))
-    // we already added everything to the dictionary when the spellchecker was started
-    // so we only need to add the word that was just added
-    await this.invoke("add", word)
-  }
+  // -- SPELLCHECK
 
   /**
    * Determines if a word is spelled correctly.
@@ -183,6 +172,8 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
     return await this.invoke("check", words)
   }
 
+  // -- MISC
+
   /**
    * Get the extra word characters defined by the loaded affix file. Most
    * affix files don’t set these.
@@ -190,6 +181,44 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
   async wordCharacters() {
     if (this.disabled) return null
     return await this.invoke("wordCharacters")
+  }
+
+  // -- LOCAL DICTIONARY
+
+  /**
+   * Adds words to the user's local dictionary.
+   *
+   * @param words - The word(s) to add.
+   */
+  async addToLocalDictionary(words: string | string[]) {
+    if (this.disabled) return
+    if (typeof words === "string") words = [words]
+    this.setLocalDictionary(dedupe(this.getLocalDictionary(), ...words))
+    await this.invoke("add", words)
+  }
+
+  /**
+   * Removes words from the user's local dictionary.
+   *
+   * @param words - The word(s) to remove.
+   */
+  async removeFromLocalDictionary(words: string | string[]) {
+    if (this.disabled) return
+    if (typeof words === "string") words = [words]
+    this.setLocalDictionary(
+      this.getLocalDictionary().filter(word => !words.includes(word))
+    )
+    await this.invoke("remove", words)
+  }
+
+  /** Returns the user's current local dictionary. */
+  getLocalDictionary() {
+    return Pref.get<string[]>("spellchecker-user-dictionary", [])
+  }
+
+  /** Directly sets what words are in the local dictionary. */
+  private setLocalDictionary(words: string[]) {
+    Pref.set("spellchecker-user-dictionary", words)
   }
 }
 
