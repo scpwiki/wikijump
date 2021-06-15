@@ -9,14 +9,16 @@ const OUTPUT_DIR = "web/wj-docs/dist"
 const TS_CONFIG = "tsconfig.typedoc.json"
 
 async function main() {
-  const entryPoints = [...(await globby("modules/*", { onlyDirectories: true }))]
+  const modules = [
+    ...(await globby("modules/*", { onlyDirectories: true, ignore: ["modules/wj-css"] }))
+  ]
 
   const app = new TypeDoc.Application()
 
   app.options.addReader(new TypeDoc.TSConfigReader())
 
   app.bootstrap({
-    entryPoints,
+    packages: modules,
     name: "Wikijump",
     tsconfig: TS_CONFIG,
     exclude: [
@@ -28,9 +30,7 @@ async function main() {
       "**/*.cjs",
       "web/**/"
     ],
-    excludeExternals: true,
-    // added by plugin (@strictsoftware/typedoc-plugin-monorepo)
-    "external-modulemap": ".*modules/([^/]+).*"
+    excludeExternals: true
   })
 
   const project = app.convert()

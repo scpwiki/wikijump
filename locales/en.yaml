@@ -75,6 +75,8 @@ sheaf:
 
   spellcheck:
     MISSPELLED_WORD: "Misspelled word: ''{slice}''"
+    FORBIDDEN_WORD: The word ''{slice}'' is forbidden.
+    WARNED_WORD: The word ''{slice}'' is probably a mistake.
     ADD_TO_DICTIONARY: Add ''{slice}'' to dictionary
     SOURCE: >
       spellchecker(word: ''{slice}'') [{from, number, :: ,_}, {to, number, :: ,_}]

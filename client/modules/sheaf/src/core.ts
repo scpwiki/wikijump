@@ -1,12 +1,6 @@
+import { Spellcheck } from "cm-nspell"
 import { Writable, writable } from "svelte/store"
-import {
-  ContentFacet,
-  Gutters,
-  IndentHack,
-  Spellcheck,
-  textBuffer,
-  textValue
-} from "wj-codemirror"
+import { Gutters, IndentHack } from "wj-codemirror"
 import {
   autocompletion,
   bracketMatching,
@@ -58,9 +52,6 @@ export class SheafCore {
           EditorView.lineWrapping,
           getSheafKeymap(),
           IndentHack,
-          ContentFacet.of((state, buffer) =>
-            buffer ? textBuffer(state.doc) : textValue(state.doc)
-          ),
           Gutters,
           Spellcheck,
           confinement,

@@ -1,7 +1,6 @@
 import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
 import type * as DF from "cm-tarnation/src/grammar/definition"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
-import { ContentFacet, textBuffer } from "wj-codemirror"
 import {
   cssCompletion,
   foldNodeProp,
@@ -10,10 +9,10 @@ import {
   tags as t
 } from "wj-codemirror/cm"
 import { completeFTML } from "../autocomplete"
-import Content from "../content"
 import { blocks, modules } from "../data/blocks"
 import { ftmlHoverTooltips } from "../hover"
 import { ftmlLinter } from "../lint"
+import { spellcheckFTML } from "../spellcheck"
 import { aliasesFiltered, aliasesRaw } from "../util"
 import { StyleAttributeGrammar } from "./css-attributes"
 import { TexLanguage } from "./tex"
@@ -89,16 +88,11 @@ export const FTMLLanguage = new TarnationLanguage({
 
   languageData: {
     commentTokens: { block: { open: "[!--", close: "--]" } },
-    autocomplete: completeFTML
+    autocomplete: completeFTML,
+    spellcheck: spellcheckFTML
   },
 
-  supportExtensions: [
-    ContentFacet.of(async state => Content.extract(await textBuffer(state.doc))),
-    ftmlLinter,
-    ftmlHoverTooltips,
-    htmlCompletion,
-    cssCompletion
-  ],
+  supportExtensions: [ftmlLinter, ftmlHoverTooltips, htmlCompletion, cssCompletion],
 
   configure: {
     props: [

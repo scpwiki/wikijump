@@ -22,12 +22,13 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
+    "cm-nspell": "workspace:*",
     "cm-lang-ftml": "workspace:*",
-    "wj-components": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "morphdom": "^2.6.1",
     "typescript-memoize": "^1.0.1",
     "wj-codemirror": "workspace:*",
+    "wj-components": "workspace:*",
     "wj-state": "workspace:*",
     "wj-util": "workspace:*"
   },

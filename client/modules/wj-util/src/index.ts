@@ -187,8 +187,6 @@ export function perfy(meta?: string, threshold?: number): (msg?: string) => numb
   }
 }
 
-// TODO: clean up some of these old functions
-
 /** Returns a promise that resolves after the specified number of miliseconds. */
 export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -263,8 +261,6 @@ export async function waitFor(
  * Returns a new 'locked' async function, constructed using the specified
  * function. A locked asynchronous function will only allow a singular
  * instance of itself to be running at one time.
- *
- * Additional calls will return the previously running `Promise`.
  */
 export function createLock<T extends AnyFunction>(fn: T) {
   type Return = PromiseValue<ReturnType<T>>
@@ -273,8 +269,9 @@ export function createLock<T extends AnyFunction>(fn: T) {
   }
 
   let running: Promise<Return> | null = null
+
   return async (...args: Parameters<T>) => {
-    if (running) return await running
+    if (running) await running
     running = call(args)
     const result = await running
     running = null
@@ -468,7 +465,7 @@ export function uppercase(str: string, locale?: string | string[]) {
  *   non-ASCII/Latin text when handling casing.
  */
 export function lowercase(str: string, locale?: string | string[]) {
-  return locale ? str.toLocaleUpperCase(locale) : str.toLowerCase()
+  return locale ? str.toLocaleLowerCase(locale) : str.toLowerCase()
 }
 
 /**
@@ -479,7 +476,7 @@ export function lowercase(str: string, locale?: string | string[]) {
  *   provided. This usually won't be needed, as JS tries to account for
  *   non-ASCII/Latin text when handling casing.
  */
-export function titlecase(str: string, locale?: string) {
+export function titlecase(str: string, locale?: string | string[]) {
   return replaceRange(lowercase(str, locale), 0, 1, uppercase(str[0], locale))
 }
 
@@ -491,7 +488,7 @@ export function titlecase(str: string, locale?: string) {
  *   provided. This usually won't be needed, as JS tries to account for
  *   non-ASCII/Latin text when handling casing.
  */
-export function isTitlecased(str: string, locale?: string) {
+export function isTitlecased(str: string, locale?: string | string[]) {
   return uppercase(str[0], locale) === str[0]
 }
 
@@ -503,7 +500,7 @@ export function isTitlecased(str: string, locale?: string) {
  *   provided. This usually won't be needed, as JS tries to account for
  *   non-ASCII/Latin text when handling casing.
  */
-export function isUppercased(str: string, locale?: string) {
+export function isUppercased(str: string, locale?: string | string[]) {
   return uppercase(str, locale) === str
 }
 
@@ -515,6 +512,21 @@ export function isUppercased(str: string, locale?: string) {
  *   provided. This usually won't be needed, as JS tries to account for
  *   non-ASCII/Latin text when handling casing.
  */
-export function isLowercased(str: string, locale?: string) {
+export function isLowercased(str: string, locale?: string | string[]) {
   return lowercase(str, locale) === str
+}
+
+/** Helper for turning a relative `?url` import into an absolute path. */
+export async function url(imp: Promise<any>) {
+  return new URL((await imp).default, import.meta.url).toString()
+}
+
+/**
+ * Deduplicates an array. Does not mutate the original array.
+ *
+ * @param arr - The array to deduplicate.
+ * @param insert - Additional values to insert into the array, if desired.
+ */
+export function dedupe<T extends any[]>(arr: T, ...insert: T) {
+  return [...new Set([...arr, ...insert])] as T
 }
