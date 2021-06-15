@@ -6,7 +6,7 @@
 // TODO: remove these when possible, as otherwise these deps can't be updated!
 
 function readPackage(pkg) {
-  fixDependency(pkg, "@codemirror/view", "^0.18.16")
+  fixDependency(pkg, "@codemirror/view", "^0.18.17")
   fixDependency(pkg, "@codemirror/language", "^0.18.2")
   return pkg
 }
