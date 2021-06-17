@@ -1,7 +1,7 @@
 {if $raw}{$source}{else}
 <h1>{t}Page source{/t}</h1>
 
-<div class="page-source">
+<textarea class="page-source" readonly>
 	{$source|escape|semipre}
-</div>
+</textarea>
 {/if}
