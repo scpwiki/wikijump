@@ -83,7 +83,6 @@ Wikijump.modules.AccountModule.init = function(){
 	mm['am-messages'] = "Account/AccountMessagesModule";
 	mm['am-notifications'] = "Account/AccountNotificationsModule";
 	mm['am-contacts'] = "Account/Contacts/AccountContactsModule";
-	mm['am-profile'] = "Account/AccountProfileModule";
 	mm['am-adminof'] = "Account/Membership/AccountAdminOfModule";
 	mm['am-moderatorof'] = "Account/Membership/AccountModeratorOfModule";
 	mm['am-memberof'] = "Account/Membership/AccountMemberOfModule";
