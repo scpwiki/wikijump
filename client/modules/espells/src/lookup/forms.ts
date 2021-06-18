@@ -53,12 +53,11 @@ export class AffixForm {
    */
   replace(opts: { text?: string; stem?: string } & AffixFormOpts) {
     return new AffixForm(opts.text ?? this.text, opts.stem ?? this.stem, {
-      prefix: this.prefix,
-      suffix: this.suffix,
-      prefix2: this.prefix2,
-      suffix2: this.suffix2,
-      inDictionary: this.inDictionary,
-      ...opts
+      prefix: opts.prefix ?? this.prefix,
+      suffix: opts.suffix ?? this.suffix,
+      prefix2: opts.prefix2 ?? this.prefix2,
+      suffix2: opts.suffix2 ?? this.suffix2,
+      inDictionary: opts.inDictionary ?? this.inDictionary
     })
   }
 
