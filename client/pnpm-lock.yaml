@@ -138,6 +138,7 @@ importers:
       dictionary-tr: ^1.3.4
       dictionary-uk: ^2.3.0
       dictionary-vi: ^2.1.3
+      espells: workspace:^0.0.0
       lezer-tree: ^0.13.2
       nspell: ^2.1.5
       threads-worker-module: workspace:*
@@ -167,6 +168,7 @@ importers:
       dictionary-tr: 1.3.4
       dictionary-uk: 2.3.0
       dictionary-vi: 2.1.3
+      espells: link:../espells
       lezer-tree: 0.13.2
       nspell: 2.1.5
       threads-worker-module: link:../threads-worker-module

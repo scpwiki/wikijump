@@ -41,6 +41,7 @@
     "dictionary-tr": "^1.3.4",
     "dictionary-uk": "^2.3.0",
     "dictionary-vi": "^2.1.3",
+    "espells": "workspace:*",
     "lezer-tree": "^0.13.2",
     "nspell": "^2.1.5",
     "threads-worker-module": "workspace:*",

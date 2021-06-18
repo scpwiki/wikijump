@@ -3,10 +3,10 @@ import { locale as i18nLocale, Pref } from "wj-state"
 import { dedupe } from "wj-util"
 import type { Word } from ".."
 import DICTIONARIES from "../dicts"
-import type { NSpellWorkerInterface } from "./nspell.worker"
+import type { EspellsWorkerInterface } from "./nspell.worker"
 
 /** Class for instantiating a web-workerized NSpell instance. */
-export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
+export class EspellsWorker extends WorkerModule<EspellsWorkerInterface> {
   /** The current locale of the spellchecker. */
   declare locale: string
 
@@ -51,7 +51,7 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
       // add local dictionary to spellchecker once it has started
       const localDictionary = this.getLocalDictionary()
       if (localDictionary.length) {
-        await this.invoke("personal", localDictionary)
+        await this.invoke("add", localDictionary)
       }
 
       this.locale = locale
@@ -72,18 +72,6 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
   async dictionary(url: string) {
     if (this.disabled) return
     await this.invoke("dictionary", url)
-  }
-
-  /**
-   * Adds a personal dictionary to the spellchecker. Similar to appending a
-   * normal dictionary, but words in the personal dictionary have some
-   * preferential treatment.
-   *
-   * @param words - The word(s) to add.
-   */
-  async personal(words: string | string[]) {
-    if (this.disabled) return
-    await this.invoke("personal", words)
   }
 
   /**
@@ -116,16 +104,6 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
   async correct(word: string) {
     if (this.disabled) return true
     return await this.invoke("correct", transfer(word))
-  }
-
-  /**
-   * Returns an object containing metadata about a word.
-   *
-   * @param word - The word to check.
-   */
-  async info(word: string) {
-    if (this.disabled) return { correct: true, forbidden: false, warn: false }
-    return await this.invoke("info", transfer(word))
   }
 
   /**
@@ -172,17 +150,6 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
     return await this.invoke("check", words)
   }
 
-  // -- MISC
-
-  /**
-   * Get the extra word characters defined by the loaded affix file. Most
-   * affix files don’t set these.
-   */
-  async wordCharacters() {
-    if (this.disabled) return null
-    return await this.invoke("wordCharacters")
-  }
-
   // -- LOCAL DICTIONARY
 
   /**
@@ -222,7 +189,7 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
   }
 }
 
-export default new NSpellWorker(i18nLocale)
+export default new EspellsWorker(i18nLocale)
 
 function localeLanguage(locale: string) {
   return locale.toLowerCase().split(/-|_/)[0]
