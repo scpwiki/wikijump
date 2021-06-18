@@ -578,10 +578,10 @@ export class Lookup {
       }
     }
 
-    ;[...compound]
+    return [...compound]
       .reverse()
       .slice(-1)
-      .forEach((leftParadigm, idx) => {
+      .some((leftParadigm, idx) => {
         const left = leftParadigm.text
         const rightParadigm = compound[idx + 1]
         const right = rightParadigm.text
@@ -638,8 +638,6 @@ export class Lookup {
               return true
             }
           }
-
-          return false
         }
       })
   }
