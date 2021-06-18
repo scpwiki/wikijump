@@ -75,8 +75,8 @@ export class Aff {
   AF: Set<string>[] = []
   AM: Set<string>[] = []
 
-  WARN?: string // unused
-  FORBIDWARN = false // unused
+  WARN?: string
+  FORBIDWARN = false
   SYLLABLENUM?: string // unused
   SUBSTANDARD?: string // unused
 
@@ -153,7 +153,8 @@ export class Aff {
         case "CHECKCOMPOUNDTRIPLE":
         case "SIMPLIFIEDTRIPLE":
         case "ONLYMAXDIFF":
-        case "COMPOUNDMORESUFFIXES": {
+        case "COMPOUNDMORESUFFIXES":
+        case "FORBIDWARN": {
           this[directive] = true
           break
         }

@@ -77,7 +77,8 @@ export class Dic {
     return words
   }
 
-  hasFlag(stem: string, flag: string, all = false) {
+  hasFlag(stem: string, flag?: string, all = false) {
+    if (flag === undefined) return false
     const homonyms = this.homonyms(stem)
     if (!homonyms) return false
     for (const word of homonyms) {

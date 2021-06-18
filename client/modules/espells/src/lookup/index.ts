@@ -11,6 +11,12 @@ import { AffixForm, CompoundForm, CompoundPos } from "./forms"
 
 const NUMBER_REGEX = /^\d+(\.\d+)?$/
 
+export interface LookupResult {
+  correct: boolean
+  forbidden: boolean
+  warn: boolean
+}
+
 /** Class that facilitaties lookups for a spellchecker. */
 export class Lookup {
   /** Spellchecker's affix data. */
@@ -37,12 +43,11 @@ export class Lookup {
    *   but are flagged with the `NOSUGGEST` flag (if provided), will not be
    *   considered correct. Defaults to true.
    */
-  test(word: string, caps = true, allowNoSuggest = true) {
-    const correct = (word: string) => any(this.goodForms(word, caps, allowNoSuggest))
+  test(word: string, caps = true, allowNoSuggest = true): LookupResult {
+    let forbidden = this.isForbidden(word)
+    let warn = this.isWarn(word)
 
-    if (this.aff.FORBIDDENWORD && this.dic.hasFlag(word, this.aff.FORBIDDENWORD, true)) {
-      return false
-    }
+    if (forbidden) return { correct: false, forbidden, warn }
 
     if (this.aff.ICONV) word = this.aff.ICONV.match(word)
 
@@ -52,9 +57,26 @@ export class Lookup {
       }
     }
 
-    if (NUMBER_REGEX.test(word)) return true
+    if (NUMBER_REGEX.test(word)) return { correct: true, forbidden, warn }
 
-    return iterate(this.breakWord(word)).flatten().every(correct)
+    for (const word2 of iterate(this.breakWord(word)).flatten()) {
+      if (!any(this.goodForms(word2, caps, allowNoSuggest))) {
+        return { correct: false, forbidden, warn }
+      }
+    }
+
+    return { correct: true, forbidden, warn }
+  }
+
+  private isWarn(word: string) {
+    return this.dic.hasFlag(word, this.aff.WARN, true)
+  }
+
+  private isForbidden(word: string) {
+    return (
+      this.dic.hasFlag(word, this.aff.FORBIDDENWORD, true) ||
+      (this.aff.FORBIDWARN && this.dic.hasFlag(word, this.aff.WARN, true))
+    )
   }
 
   /**

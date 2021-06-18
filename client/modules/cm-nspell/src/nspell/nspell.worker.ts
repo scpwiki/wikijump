@@ -52,7 +52,7 @@ const module = {
     return words
       .map(word => ({
         ...word,
-        info: { correct: espells.lookup(word.word), forbidden: false, warn: false }
+        info: espells.lookup(word.word)
       }))
       .filter(({ info: { correct, forbidden, warn } }) => !correct || forbidden || warn)
   }
