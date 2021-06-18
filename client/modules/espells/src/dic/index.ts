@@ -2,6 +2,7 @@ import iterate from "iterare"
 import type { Aff } from "../aff"
 import { CapType } from "../aff/casing"
 import type { Reader } from "../reader"
+import { includes } from "../util"
 import { Word } from "./word"
 
 const SKIP_REGEX = /^\d+(\s+|$)|^\/|^\t|^\s*$/
@@ -79,10 +80,8 @@ export class Dic {
 
   hasFlag(stem: string, flag?: string, all = false) {
     if (flag === undefined) return false
-    const homonyms = this.homonyms(stem)
-    if (!homonyms) return false
-    for (const word of homonyms) {
-      const flagged = word.flags?.has(flag)
+    for (const word of this.homonyms(stem)) {
+      const flagged = includes(flag, word.flags)
       if (all && !flagged) return false
       if (!all && flagged) return true
     }
