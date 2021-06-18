@@ -67,17 +67,17 @@ export class Suggest {
 
     if (!this.dic.hasFlag(text, this.aff.KEEPCASE) || this.aff.isSharps(text)) {
       text = this.aff.casing.coerce(text, captype)
+      // revert if forbidden
       if (text !== suggestion.text && this.isForbidden(text)) {
         text = suggestion.text
       }
 
-      if (
-        (captype === CapType.HUH || captype === CapType.HUHINIT) &&
-        text.includes(" ")
-      ) {
+      if (captype === CapType.HUH || captype === CapType.HUHINIT) {
         const pos = text.indexOf(" ")
-        if (text[pos + 1] !== word[pos] && uppercase(text[pos + 1]) === word[pos]) {
-          text = text.slice(0, pos + 1) + word[pos] + word.slice(pos + 2)
+        if (pos !== -1) {
+          if (text[pos + 1] !== word[pos] && uppercase(text[pos + 1]) === word[pos]) {
+            text = text.slice(0, pos + 1) + word[pos] + word.slice(pos + 2)
+          }
         }
       }
     }
