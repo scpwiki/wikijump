@@ -1,0 +1,25 @@
+{
+  "name": "espells",
+  "license": "MIT",
+  "description": "Pure JS/TS spellchecker, using Hunspell dictionaries. Based on Spylls.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "scripts": {},
+  "type": "module",
+  "main": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scpwiki/wikijump.git",
+    "directory": "client/modules/espells"
+  },
+  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
+  "homepage": "https://github.com/scpwiki/wikijump#readme",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "dependencies": {
+    "iterare": "^1.2.1"
+  }
+}
