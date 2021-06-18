@@ -66,7 +66,7 @@ export class Suggest {
     let text = suggestion.text
 
     if (
-      this.dic.hasFlag(text, this.aff.KEEPCASE) ||
+      !this.dic.hasFlag(text, this.aff.KEEPCASE) ||
       (this.aff.CHECKSHARPS && text.includes("ß"))
     ) {
       text = this.aff.casing.coerce(text, captype)
@@ -147,7 +147,7 @@ export class Suggest {
             noCompound = true
             break
           }
-          // case "spaceword": return
+          case "spaceword": return
         }
       }
 
