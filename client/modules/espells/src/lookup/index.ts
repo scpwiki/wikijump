@@ -60,12 +60,30 @@ export class Lookup {
     if (NUMBER_REGEX.test(word)) return { correct: true, forbidden, warn }
 
     for (const word2 of iterate(this.breakWord(word)).flatten()) {
-      if (!any(this.goodForms(word2, caps, allowNoSuggest))) {
+      if (!this.correct(word2, caps, allowNoSuggest)) {
         return { correct: false, forbidden, warn }
       }
     }
 
     return { correct: true, forbidden, warn }
+  }
+
+  /**
+   * Checks if a word is spelled correctly. Performs no processing on the
+   * word, such as handling `aff.IGNORE` characters.
+   *
+   * @param word - The word to check.
+   * @param caps - If true, checking will be case sensitive. Defaults to true.
+   * @param allowNoSuggest - If false, words which are in the dictionary,
+   *   but are flagged with the `NOSUGGEST` flag (if provided), will not be
+   *   considered correct. Defaults to true.
+   * @param compounds - If provided, this boolean will toggle between
+   *   checking only affix forms or compound forms.
+   */
+  correct(word: string, caps = true, allowNoSuggest = true, compounds?: boolean) {
+    return compounds === undefined
+      ? any(this.goodForms(word, caps, allowNoSuggest))
+      : any(this.goodForms(word, caps, allowNoSuggest, !compounds, compounds))
   }
 
   private isWarn(word: string) {

@@ -14,7 +14,7 @@ import {
   swapchar,
   twowords
 } from "../permutations"
-import { any, intersect, lowercase, uppercase } from "../util"
+import { intersect, lowercase, uppercase } from "../util"
 import { ngramSuggest } from "./ngram"
 import { phonetSuggest } from "./phonet"
 import { MultiWordSuggestion, Suggestion } from "./suggestion"
@@ -48,11 +48,8 @@ export class Suggest {
     this.dashes = aff.TRY.includes("-") || aff.TRY.includes("a")
   }
 
-  private isGood(word: string, compounds?: boolean) {
-    if (compounds !== undefined) {
-      return any(this.lookup.goodForms(word, false, false, !compounds, compounds))
-    }
-    return any(this.lookup.goodForms(word, false, false))
+  private correct(word: string, compounds?: boolean) {
+    return this.lookup.correct(word, false, false, compounds)
   }
 
   private isForbidden(word: string) {
@@ -69,11 +66,8 @@ export class Suggest {
     let text = suggestion.text
 
     if (
-      !(
-        this.aff.KEEPCASE &&
-        this.dic.hasFlag(text, this.aff.KEEPCASE) &&
-        !(this.aff.CHECKSHARPS && text.includes("ß"))
-      )
+      this.dic.hasFlag(text, this.aff.KEEPCASE) ||
+      (this.aff.CHECKSHARPS && text.includes("ß"))
     ) {
       text = this.aff.casing.coerce(text, captype)
       if (text !== suggestion.text && this.isForbidden(text)) {
@@ -119,7 +113,7 @@ export class Suggest {
 
     if (this.aff.FORCEUCASE && captype === CapType.NO) {
       for (const capitalized of this.aff.casing.capitalize(word)) {
-        if (this.isGood(capitalized)) {
+        if (this.correct(capitalized)) {
           yield* handle(new Suggestion(capitalized, "forceucase"))
           return
         }
@@ -131,7 +125,7 @@ export class Suggest {
     for (let idx = 0; idx < variants.length; idx++) {
       const variant = variants[idx]
 
-      if (idx > 0 && this.isGood(variant)) yield* handle(new Suggestion(variant, "case"))
+      if (idx > 0 && this.correct(variant)) yield* handle(new Suggestion(variant, "case"))
 
       let noCompound = false
 
@@ -176,7 +170,7 @@ export class Suggest {
 
         for (let idx = 0; idx < chunks.length; idx++) {
           const chunk = chunks[idx]
-          if (!this.isGood(chunk)) {
+          if (!this.correct(chunk)) {
             for (const suggestion of this.suggestions(chunk)) {
               const candidate = [
                 ...chunks.slice(0, idx),
@@ -217,11 +211,11 @@ export class Suggest {
   ) {
     for (const suggestion of suggestions) {
       if (suggestion instanceof MultiWordSuggestion) {
-        if (suggestion.words.every(word => this.isGood(word, compounds))) {
+        if (suggestion.words.every(word => this.correct(word, compounds))) {
           yield suggestion.stringify()
           if (suggestion.allowDash) yield suggestion.stringify("-")
         }
-      } else if (this.isGood(suggestion.text, compounds)) {
+      } else if (this.correct(suggestion.text, compounds)) {
         yield suggestion
       }
     }
