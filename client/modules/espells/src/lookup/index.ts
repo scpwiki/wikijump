@@ -217,24 +217,26 @@ export class Lookup {
       )
     }
 
-    const possibleSuffixes =
-      this.aff.suffixesIndex
-        .segments(reverse(word))
-        ?.flatMap(suffixes => [...suffixes])
-        .filter(suffix => goodSuffix(suffix) && suffix.lookupRegex.test(word)) ?? []
+    const segments = this.aff.suffixesIndex.segments(reverse(word))
 
-    for (const suffix of possibleSuffixes) {
-      const stem = word.replace(suffix.replaceRegex, suffix.strip)
-      yield new AffixForm(word, stem, { suffix })
-      if (!nested) {
-        for (const form2 of this.desuffix(
-          stem,
-          iterate(suffix.flags).concat(requiredFlags).toSet(),
-          forbiddenFlags,
-          true,
-          crossproduct
-        )) {
-          yield form2.replace({ text: word, suffix2: suffix })
+    if (segments) {
+      const possibleSuffixes = iterate(segments)
+        .flatten()
+        .filter(suffix => goodSuffix(suffix) && suffix.lookupRegex.test(word))
+
+      for (const suffix of possibleSuffixes) {
+        const stem = word.replace(suffix.replaceRegex, suffix.strip)
+        yield new AffixForm(word, stem, { suffix })
+        if (!nested) {
+          for (const form2 of this.desuffix(
+            stem,
+            iterate(suffix.flags).concat(requiredFlags).toSet(),
+            forbiddenFlags,
+            true,
+            crossproduct
+          )) {
+            yield form2.replace({ text: word, suffix2: suffix })
+          }
         }
       }
     }
@@ -252,23 +254,25 @@ export class Lookup {
       )
     }
 
-    const possiblePrefixes =
-      this.aff.prefixesIndex
-        .segments(word)
-        ?.flatMap(prefixes => [...prefixes])
-        ?.filter(prefix => goodPrefix(prefix) && prefix.lookupRegex.test(word)) ?? []
+    const segments = this.aff.prefixesIndex.segments(word)
 
-    for (const prefix of possiblePrefixes) {
-      const stem = word.replace(prefix.replaceRegex, prefix.strip)
-      yield new AffixForm(word, stem, { prefix })
-      if (!nested && this.aff.COMPLEXPREFIXES) {
-        for (const form2 of this.deprefix(
-          stem,
-          iterate(prefix.flags).concat(requiredFlags).toSet(),
-          forbiddenFlags,
-          true
-        )) {
-          yield form2.replace({ text: word, prefix2: prefix })
+    if (segments) {
+      const possiblePrefixes = iterate(segments)
+        .flatten()
+        .filter(prefix => goodPrefix(prefix) && prefix.lookupRegex.test(word))
+
+      for (const prefix of possiblePrefixes) {
+        const stem = word.replace(prefix.replaceRegex, prefix.strip)
+        yield new AffixForm(word, stem, { prefix })
+        if (!nested && this.aff.COMPLEXPREFIXES) {
+          for (const form2 of this.deprefix(
+            stem,
+            iterate(prefix.flags).concat(requiredFlags).toSet(),
+            forbiddenFlags,
+            true
+          )) {
+            yield form2.replace({ text: word, prefix2: prefix })
+          }
         }
       }
     }
