@@ -1,6 +1,6 @@
 import iterate from "iterare"
 import type { Aff } from "../aff"
-import type { Prefix, Suffix } from "../aff/affix"
+import { Prefix, Suffix } from "../aff/affix"
 import { CapType } from "../aff/casing"
 import type { CompoundRule } from "../aff/compound-rule"
 import type { Dic } from "../dic"
@@ -201,6 +201,24 @@ export class Lookup {
 
   // -- DECOMPOSING WORDS
 
+  isGoodAffix(
+    affix: Prefix | Suffix,
+    word: string,
+    requiredFlags: Set<string>,
+    forbiddenFlags: Set<string>,
+    crossproduct = false
+  ) {
+    if (affix instanceof Suffix) {
+      if (!(crossproduct || affix.crossproduct)) return false
+    }
+
+    for (const flag of affix.flags) {
+      if (forbiddenFlags.has(flag) || !requiredFlags.has(flag)) return false
+    }
+
+    return affix.lookupRegex.test(word)
+  }
+
   *desuffix(
     word: string,
     requiredFlags: Set<string>,
@@ -208,21 +226,14 @@ export class Lookup {
     nested = false,
     crossproduct = false
   ): Generator<AffixForm> {
-    function goodSuffix(suffix: Suffix) {
-      return (
-        (!crossproduct || suffix.crossproduct) &&
-        iterate(suffix.flags).every(
-          flag => requiredFlags.has(flag) && !forbiddenFlags.has(flag)
-        )
-      )
-    }
-
     const segments = this.aff.suffixesIndex.segments(reverse(word))
 
     if (segments) {
       const possibleSuffixes = iterate(segments)
         .flatten()
-        .filter(suffix => goodSuffix(suffix) && suffix.lookupRegex.test(word))
+        .filter(suffix =>
+          this.isGoodAffix(suffix, word, requiredFlags, forbiddenFlags, crossproduct)
+        )
 
       for (const suffix of possibleSuffixes) {
         const stem = word.replace(suffix.replaceRegex, suffix.strip)
@@ -248,18 +259,12 @@ export class Lookup {
     forbiddenFlags: Set<string>,
     nested = false
   ): Generator<AffixForm> {
-    function goodPrefix(prefix: Prefix) {
-      return iterate(prefix.flags).every(
-        flag => requiredFlags.has(flag) && !forbiddenFlags.has(flag)
-      )
-    }
-
     const segments = this.aff.prefixesIndex.segments(word)
 
     if (segments) {
       const possiblePrefixes = iterate(segments)
         .flatten()
-        .filter(prefix => goodPrefix(prefix) && prefix.lookupRegex.test(word))
+        .filter(prefix => this.isGoodAffix(prefix, word, requiredFlags, forbiddenFlags))
 
       for (const prefix of possiblePrefixes) {
         const stem = word.replace(prefix.replaceRegex, prefix.strip)
