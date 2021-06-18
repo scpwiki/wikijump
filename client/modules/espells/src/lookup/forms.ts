@@ -67,11 +67,6 @@ export class AffixForm {
     return Boolean(this.suffix || this.prefix)
   }
 
-  /** True if the form has no affixes. */
-  get isBase() {
-    return !this.hasAffixes
-  }
-
   /** The complete set of flags this form has. */
   get flags() {
     let flags = this.inDictionary?.flags ?? new Set()

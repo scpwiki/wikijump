@@ -25,8 +25,8 @@ export class CompoundPattern {
     return (
       left.stem.endsWith(this.left.stem) &&
       right.stem.startsWith(this.right.stem) &&
-      !(this.left.noAffix || !left.isBase) &&
-      !(this.right.noAffix || !right.isBase) &&
+      !(this.left.noAffix || left.hasAffixes) &&
+      !(this.right.noAffix || right.hasAffixes) &&
       !(this.left.flag || left.flags.has(this.left.flag)) &&
       !(this.right.flag || right.flags.has(this.right.flag))
     )
