@@ -321,8 +321,8 @@ export class Lookup {
     compoundpos: CompoundPos | null = null,
     withForbidden = false
   ) {
-    const isGood = (form: AffixForm) =>
-      this.isGoodForm(form, compoundpos, captype, allowNoSuggest)
+    const candidates = (form: AffixForm, word: string, caps = false, words?: Set<Word>) =>
+      this.candidates(form, captype, word, allowNoSuggest, compoundpos, caps, words)
 
     for (const form of this.produceAffixForms(
       word,
@@ -340,17 +340,13 @@ export class Lookup {
           !withForbidden &&
           this.aff.FORBIDDENWORD &&
           (compoundpos !== null || form.hasAffixes) &&
-          iterate(homonyms).some(({ flags }) => !!flags?.has(this.aff.FORBIDDENWORD!))
+          iterate(homonyms).some(({ flags }) => includes(this.aff.FORBIDDENWORD, flags))
         ) {
           return
         }
 
-        for (const homonym of homonyms) {
-          const candidate = form.replace({ inDictionary: homonym })
-          if (isGood(candidate)) {
-            found = true
-            yield candidate
-          }
+        for (const candidate of candidates(form, form.stem, false, homonyms)) {
+          yield candidate
         }
       }
 
@@ -359,24 +355,34 @@ export class Lookup {
         this.aff.FORCEUCASE &&
         captype === CapType.INIT
       ) {
-        for (const homonym of this.dic.homonyms(lowercase(form.stem))) {
-          const candidate = form.replace({ inDictionary: homonym })
-          if (isGood(candidate)) {
-            found = true
-            yield candidate
-          }
+        for (const candidate of candidates(form, lowercase(form.stem))) {
+          yield candidate
         }
       }
 
       if (found || compoundpos !== null || captype !== CapType.ALL) continue
 
       if (this.aff.casing.guess(word) === CapType.NO) {
-        for (const homonym of this.dic.homonyms(form.stem, true)) {
-          const candidate = form.replace({ inDictionary: homonym })
-          if (isGood(candidate)) {
-            yield candidate
-          }
+        for (const candidate of candidates(form, form.stem, true)) {
+          yield candidate
         }
+      }
+    }
+  }
+
+  *candidates(
+    form: AffixForm,
+    captype: CapType,
+    word: string,
+    allowNoSuggest = true,
+    compoundpos: CompoundPos | null = null,
+    ignoreCase = false,
+    homonyms?: Set<Word>
+  ) {
+    for (const homonym of homonyms ?? this.dic.homonyms(word, ignoreCase)) {
+      const candidate = form.replace({ inDictionary: homonym })
+      if (this.isGoodForm(form, compoundpos, captype, allowNoSuggest)) {
+        yield candidate
       }
     }
   }
