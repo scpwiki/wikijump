@@ -18,6 +18,18 @@ export function re(strings: TemplateStringsArray, ...keys: any[]) {
   return new RegExp(src, flags)
 }
 
+export function includes(
+  value: string | undefined | null,
+  container: Set<string> | string[] | string
+) {
+  if (value === undefined || value === null) return false
+  if (typeof container === "string" || Array.isArray(container)) {
+    return container.includes(value)
+  } else {
+    return container.has(value)
+  }
+}
+
 /** Takes a string and escapes any `RegExp` sensitive characters. */
 export function escapeRegExp(str: string) {
   return str.replace(/[.*+?^${}()|\[\]\\]/g, "\\$&")
