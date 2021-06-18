@@ -18,11 +18,20 @@ export function re(strings: TemplateStringsArray, ...keys: any[]) {
   return new RegExp(src, flags)
 }
 
+/**
+ * Helper for checking if a `Set`, `Array`, or `string` contains another
+ * `string`. Handles undefined or null inputs by returning false.
+ *
+ * @param value - The value to check for.
+ * @param container - The container of strings (or another string).
+ */
 export function includes(
   value: string | undefined | null,
-  container: Set<string> | string[] | string
+  container: Set<string> | string[] | string | undefined | null
 ) {
   if (value === undefined || value === null) return false
+  if (container === undefined || container === null) return false
+
   if (typeof container === "string" || Array.isArray(container)) {
     return container.includes(value)
   } else {

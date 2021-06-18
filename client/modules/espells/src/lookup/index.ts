@@ -6,7 +6,7 @@ import type { CompoundRule } from "../aff/compound-rule"
 import type { Dic } from "../dic"
 import type { Word } from "../dic/word"
 import { replchars } from "../permutations"
-import { any, isUppercased, lowercase, reverse } from "../util"
+import { any, includes, isUppercased, lowercase, reverse } from "../util"
 import { AffixForm, CompoundForm, CompoundPos } from "./forms"
 
 const NUMBER_REGEX = /^\d+(\.\d+)?$/
@@ -154,12 +154,11 @@ export class Lookup {
       if (affixForms) {
         for (const form of this.affixForms(variant, captype, allowNoSuggest)) {
           if (
-            this.aff.CHECKSHARPS &&
-            this.aff.KEEPCASE &&
-            form.inDictionary?.stem.includes("ß") &&
-            form.flags.has(this.aff.KEEPCASE) &&
+            form.inDictionary &&
             captype === CapType.ALL &&
-            word.includes("ß")
+            includes(this.aff.KEEPCASE, form.flags) &&
+            this.aff.isSharps(form.inDictionary.stem) &&
+            this.aff.isSharps(word)
           ) {
             continue
           }
@@ -185,39 +184,28 @@ export class Lookup {
     const rootFlags = form.inDictionary.flags ?? new Set()
     const allFlags = form.flags
 
-    if (!allowNoSuggest && aff.NOSUGGEST && rootFlags.has(aff.NOSUGGEST)) {
-      return false
-    }
+    if (!allowNoSuggest && includes(aff.NOSUGGEST, rootFlags)) return false
 
     if (
       captype !== form.inDictionary.capType &&
-      aff.KEEPCASE &&
-      rootFlags.has(aff.KEEPCASE)
+      includes(aff.KEEPCASE, rootFlags) &&
+      !aff.isSharps(form.inDictionary.stem)
     ) {
-      if (!(aff.CHECKSHARPS && form.inDictionary.stem.includes("ß"))) {
-        return false
-      }
+      return false
     }
 
     if (aff.NEEDAFFIX) {
-      if (rootFlags.has(aff.NEEDAFFIX) && !form.hasAffixes) {
-        return false
-      }
-      if (
-        form.hasAffixes &&
-        form.affixes().every(affix => affix.flags.has(aff.NEEDAFFIX!))
-      ) {
+      if (form.hasAffixes) {
+        if (form.affixes().every(affix => affix.flags.has(aff.NEEDAFFIX!))) {
+          return false
+        }
+      } else if (rootFlags.has(aff.NEEDAFFIX)) {
         return false
       }
     }
 
-    if (form.prefix && !allFlags.has(form.prefix.flag)) {
-      return false
-    }
-
-    if (form.suffix && !allFlags.has(form.suffix.flag)) {
-      return false
-    }
+    if (form.prefix && !allFlags.has(form.prefix.flag)) return false
+    if (form.suffix && !allFlags.has(form.suffix.flag)) return false
 
     if (aff.CIRCUMFIX) {
       const suffixHas = Boolean(form.suffix?.flags.has(aff.CIRCUMFIX))
@@ -225,17 +213,15 @@ export class Lookup {
       if (suffixHas !== prefixHas) return false
     }
 
-    if (compoundpos === null) return !allFlags.has(aff.ONLYINCOMPOUND!)
+    if (compoundpos === null) return !includes(aff.ONLYINCOMPOUND, allFlags)
 
-    if (aff.COMPOUNDFLAG && !allFlags.has(aff.COMPOUNDFLAG)) {
-      return true
-    }
+    if (includes(aff.COMPOUNDFLAG, allFlags)) return true
 
     // prettier-ignore
     switch(compoundpos) {
-      case CompoundPos.BEGIN: return allFlags.has(aff.COMPOUNDBEGIN!)
-      case CompoundPos.MIDDLE: return allFlags.has(aff.COMPOUNDMIDDLE!)
-      case CompoundPos.END: return allFlags.has(aff.COMPOUNDEND!)
+      case CompoundPos.BEGIN:  return includes(aff.COMPOUNDBEGIN,  allFlags)
+      case CompoundPos.MIDDLE: return includes(aff.COMPOUNDMIDDLE, allFlags)
+      case CompoundPos.END:    return includes(aff.COMPOUNDEND,    allFlags)
     }
   }
 
@@ -415,7 +401,7 @@ export class Lookup {
     if (prefixAllowed) {
       for (const form of this.deprefix(word, prefixFlags, forbiddenFlags)) {
         yield form
-        if (suffixAllowed && form?.prefix?.crossproduct) {
+        if (suffixAllowed && form.prefix?.crossproduct) {
           for (const form2 of this.desuffix(
             form.stem,
             suffixFlags,
@@ -484,8 +470,11 @@ export class Lookup {
   ): Generator<CompoundForm> {
     const aff = this.aff
 
-    const forbiddenFlags = new Set(aff.COMPOUNDFORBIDFLAG ? [aff.COMPOUNDFORBIDFLAG] : [])
-    const permitFlags = new Set(aff.COMPOUNDPERMITFLAG ? [aff.COMPOUNDPERMITFLAG] : [])
+    const forbiddenFlags = new Set<string>()
+    const permitFlags = new Set<string>()
+
+    if (aff.COMPOUNDFORBIDFLAG) forbiddenFlags.add(aff.COMPOUNDFORBIDFLAG)
+    if (aff.COMPOUNDPERMITFLAG) permitFlags.add(aff.COMPOUNDPERMITFLAG)
 
     if (depth) {
       for (const form of this.affixForms(
@@ -500,16 +489,12 @@ export class Lookup {
       }
     }
 
-    if (
-      wordRest.length < aff.COMPOUNDMIN * 2 ||
-      (aff.COMPOUNDWORDMAX && depth >= aff.COMPOUNDWORDMAX)
-    ) {
-      return
-    }
+    if (wordRest.length < aff.COMPOUNDMIN * 2) return
+    if (aff.COMPOUNDWORDMAX && depth > aff.COMPOUNDWORDMAX) return
 
     const compoundpos = depth ? CompoundPos.MIDDLE : CompoundPos.BEGIN
-    const prefixFlags: Set<string> =
-      compoundpos === CompoundPos.BEGIN ? new Set() : permitFlags
+    const prefixFlags =
+      compoundpos === CompoundPos.BEGIN ? new Set<string>() : permitFlags
 
     for (let pos = aff.COMPOUNDMIN; pos < wordRest.length - aff.COMPOUNDMIN + 1; pos++) {
       const beg = wordRest.slice(0, pos)
@@ -565,9 +550,7 @@ export class Lookup {
   ): Generator<CompoundForm> {
     const aff = this.aff
 
-    if (rules === null) {
-      rules = this.aff.COMPOUNDRULE
-    }
+    if (rules === null) rules = this.aff.COMPOUNDRULE
 
     if (prev.length) {
       for (const homonym of this.dic.homonyms(wordRest)) {
@@ -584,13 +567,8 @@ export class Lookup {
       }
     }
 
-    if (
-      wordRest.length < aff.COMPOUNDMIN &&
-      aff.COMPOUNDWORDMAX &&
-      prev.length >= aff.COMPOUNDWORDMAX
-    ) {
-      return
-    }
+    if (wordRest.length < aff.COMPOUNDMIN * 2) return
+    if (aff.COMPOUNDWORDMAX && prev.length >= aff.COMPOUNDWORDMAX) return
 
     for (let pos = aff.COMPOUNDMIN; pos < wordRest.length - aff.COMPOUNDMIN + 1; pos++) {
       const beg = wordRest.slice(0, pos)

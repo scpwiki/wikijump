@@ -65,10 +65,7 @@ export class Suggest {
   ) {
     let text = suggestion.text
 
-    if (
-      !this.dic.hasFlag(text, this.aff.KEEPCASE) ||
-      (this.aff.CHECKSHARPS && text.includes("ß"))
-    ) {
+    if (!this.dic.hasFlag(text, this.aff.KEEPCASE) || this.aff.isSharps(text)) {
       text = this.aff.casing.coerce(text, captype)
       if (text !== suggestion.text && this.isForbidden(text)) {
         text = suggestion.text

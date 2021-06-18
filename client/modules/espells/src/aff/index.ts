@@ -319,4 +319,9 @@ export class Aff {
 
     return new Set(result)
   }
+
+  isSharps(word: string) {
+    if (!this.CHECKSHARPS) return false
+    return word.includes("ß")
+  }
 }
