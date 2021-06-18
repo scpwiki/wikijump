@@ -38,7 +38,7 @@ export class Suggest {
     this.lookup = lookup
 
     const badFlags = iterate([aff.FORBIDDENWORD, aff.NOSUGGEST, aff.ONLYINCOMPOUND])
-      .filter(flag => !!flag)
+      .filter(flag => Boolean(flag))
       .toSet()
 
     this.ngramWords = iterate(dic.words)
@@ -56,9 +56,7 @@ export class Suggest {
   }
 
   private isForbidden(word: string) {
-    return Boolean(
-      this.aff.FORBIDDENWORD && this.dic.hasFlag(word, this.aff.FORBIDDENWORD)
-    )
+    return this.dic.hasFlag(word, this.aff.FORBIDDENWORD)
   }
 
   private *handle(
@@ -182,7 +180,7 @@ export class Suggest {
             for (const suggestion of this.suggestions(chunk)) {
               const candidate = [
                 ...chunks.slice(0, idx),
-                suggestion,
+                suggestion.text,
                 ...chunks.slice(idx + 1)
               ].join("-")
               if (this.lookup.test(candidate)) yield new Suggestion(candidate, "dashes")
