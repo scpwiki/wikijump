@@ -118,7 +118,7 @@ export class Lookup {
    * @param depth - The current depth of the check. Used by this function
    *   when calling itself recursively. There isn't any need to set it yourself.
    */
-  *breakWord(text: string, depth = 0): Generator<string[]> {
+  *breakWord(text: string, depth = 0): Iterable<string[]> {
     if (depth > 10) return
     yield [text]
     for (const pattern of this.aff.BREAK) {
@@ -367,7 +367,7 @@ export class Lookup {
     lkword: LKWord,
     allowNoSuggest = true,
     depth = 0
-  ): Generator<CompoundForm> {
+  ): Iterable<CompoundForm> {
     const aff = this.aff
 
     const forbiddenFlags = new Set<string>()
@@ -429,7 +429,7 @@ export class Lookup {
     allowNoSuggest = true,
     prev: Word[] = [],
     rules: null | Set<CompoundRule> = null
-  ): Generator<CompoundForm> {
+  ): Iterable<CompoundForm> {
     const aff = this.aff
 
     if (rules === null) rules = this.aff.COMPOUNDRULE

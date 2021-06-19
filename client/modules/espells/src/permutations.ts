@@ -39,7 +39,7 @@ export function* replchars(word: string, reps: Set<RepPattern>) {
 export function* mapchars(word: string, map: CharacterMap) {
   if (word.length < 2 || !map.size) return
 
-  function* mapcharsInternal(word: string, start = 0): Generator<string> {
+  function* mapcharsInternal(word: string, start = 0): Iterable<string> {
     if (start >= word.length) return
     for (const options of map) {
       for (const option of options) {

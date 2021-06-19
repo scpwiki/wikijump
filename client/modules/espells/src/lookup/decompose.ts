@@ -29,7 +29,7 @@ export function* desuffix(
   forbiddenFlags: Flags,
   nested = false,
   crossproduct = false
-): Generator<AffixForm> {
+): Iterable<AffixForm> {
   const segments = aff.suffixesIndex.segments(reverse(word))
 
   if (segments) {
@@ -64,7 +64,7 @@ export function* deprefix(
   requiredFlags: Flags,
   forbiddenFlags: Flags,
   nested = false
-): Generator<AffixForm> {
+): Iterable<AffixForm> {
   const segments = aff.prefixesIndex.segments(word)
 
   if (segments) {

@@ -178,8 +178,8 @@ export function* product<T extends unknown[]>(
   }
 }
 
-/** Returns true if the given generator yields literally anything. */
-export function any(gen: Generator<unknown>) {
+/** Returns true if the given iterator yields literally anything. */
+export function any(gen: Iterable<unknown>) {
   for (const _ of gen) {
     return true
   }

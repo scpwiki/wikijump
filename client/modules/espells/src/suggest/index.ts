@@ -23,7 +23,7 @@ const MAXPHONSUGS = 2
 const MAXSUGGESTIONS = 15
 const GOODEDITS = ["spaceword", "uppercase", "replchars"]
 
-type Handler = (suggestion: Suggestion, checkInclusion?: boolean) => Generator<Suggestion>
+type Handler = (suggestion: Suggestion, checkInclusion?: boolean) => Iterable<Suggestion>
 
 export class Suggest {
   private declare aff: Aff
@@ -105,7 +105,7 @@ export class Suggest {
     yield suggestion.replace(text)
   }
 
-  *suggestions(word: string): Generator<Suggestion> {
+  *suggestions(word: string): Iterable<Suggestion> {
     const handled = new Set<string>()
 
     const [captype, ...variants] = this.aff.casing.corrections(word)
@@ -206,9 +206,7 @@ export class Suggest {
   }
 
   private *filterSuggestions(
-    suggestions:
-      | Set<Suggestion | MultiWordSuggestion>
-      | Generator<Suggestion | MultiWordSuggestion>,
+    suggestions: Iterable<Suggestion | MultiWordSuggestion>,
     compounds?: boolean
   ) {
     for (const suggestion of suggestions) {
@@ -234,7 +232,7 @@ export class Suggest {
     }
   }
 
-  *edits(word: string): Generator<Suggestion | MultiWordSuggestion> {
+  *edits(word: string): Iterable<Suggestion | MultiWordSuggestion> {
     yield new Suggestion(this.aff.casing.upper(word), "uppercase")
 
     for (const suggestion of replchars(word, this.aff.REP)) {
