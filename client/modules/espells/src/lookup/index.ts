@@ -194,59 +194,6 @@ export class Lookup {
     }
   }
 
-  isGoodForm(
-    form: AffixForm,
-    captype: CapType,
-    { compoundpos, allowNoSuggest = true }: LKC = {}
-  ) {
-    if (!form.inDictionary) return false
-
-    const aff = this.aff
-
-    const rootFlags = form.inDictionary.flags ?? new Set()
-    const allFlags = form.flags
-
-    if (!allowNoSuggest && includes(aff.NOSUGGEST, rootFlags)) return false
-
-    if (
-      captype !== form.inDictionary.capType &&
-      includes(aff.KEEPCASE, rootFlags) &&
-      !aff.isSharps(form.inDictionary.stem)
-    ) {
-      return false
-    }
-
-    if (aff.NEEDAFFIX) {
-      if (form.hasAffixes) {
-        if (form.affixes().every(affix => affix.flags.has(aff.NEEDAFFIX!))) {
-          return false
-        }
-      } else if (rootFlags.has(aff.NEEDAFFIX)) {
-        return false
-      }
-    }
-
-    if (form.prefix && !allFlags.has(form.prefix.flag)) return false
-    if (form.suffix && !allFlags.has(form.suffix.flag)) return false
-
-    if (aff.CIRCUMFIX) {
-      const suffixHas = Boolean(form.suffix?.flags.has(aff.CIRCUMFIX))
-      const prefixHas = Boolean(form.prefix?.flags.has(aff.CIRCUMFIX))
-      if (suffixHas !== prefixHas) return false
-    }
-
-    if (compoundpos === null) return !includes(aff.ONLYINCOMPOUND, allFlags)
-
-    if (includes(aff.COMPOUNDFLAG, allFlags)) return true
-
-    // prettier-ignore
-    switch(compoundpos) {
-      case CompoundPos.BEGIN:  return includes(aff.COMPOUNDBEGIN,  allFlags)
-      case CompoundPos.MIDDLE: return includes(aff.COMPOUNDMIDDLE, allFlags)
-      case CompoundPos.END:    return includes(aff.COMPOUNDEND,    allFlags)
-    }
-  }
-
   // -- DECOMPOSING WORDS
 
   isGoodAffix(
@@ -389,11 +336,63 @@ export class Lookup {
     { allowNoSuggest = true, compoundpos, caps = true }: LKC = {},
     homonyms?: Set<Word>
   ) {
+    const aff = this.aff
     for (const homonym of homonyms ?? this.dic.homonyms(word, !caps)) {
       const candidate = form.replace({ inDictionary: homonym })
-      if (this.isGoodForm(form, captype, { compoundpos, allowNoSuggest })) {
-        yield candidate
+
+      if (!candidate.inDictionary) continue
+
+      const rootFlags = candidate.inDictionary.flags ?? new Set()
+      const allFlags = candidate.flags
+
+      if (!allowNoSuggest && includes(aff.NOSUGGEST, rootFlags)) continue
+
+      if (
+        captype !== candidate.inDictionary.capType &&
+        includes(aff.KEEPCASE, rootFlags) &&
+        !aff.isSharps(candidate.inDictionary.stem)
+      ) {
+        continue
       }
+
+      if (aff.NEEDAFFIX) {
+        if (candidate.hasAffixes) {
+          if (candidate.affixes().every(affix => affix.flags.has(aff.NEEDAFFIX!))) {
+            continue
+          }
+        } else if (rootFlags.has(aff.NEEDAFFIX)) {
+          continue
+        }
+      }
+
+      if (candidate.prefix && !allFlags.has(candidate.prefix.flag)) continue
+      if (candidate.suffix && !allFlags.has(candidate.suffix.flag)) continue
+
+      if (aff.CIRCUMFIX) {
+        const suffixHas = Boolean(candidate.suffix?.flags.has(aff.CIRCUMFIX))
+        const prefixHas = Boolean(candidate.prefix?.flags.has(aff.CIRCUMFIX))
+        if (suffixHas !== prefixHas) continue
+      }
+
+      if (compoundpos === null) {
+        if (!includes(aff.ONLYINCOMPOUND, allFlags)) yield candidate
+        continue
+      }
+
+      if (includes(aff.COMPOUNDFLAG, allFlags)) {
+        yield candidate
+        continue
+      }
+
+      let passes = false
+      // prettier-ignore
+      switch(compoundpos) {
+        case CompoundPos.BEGIN:  passes = includes(aff.COMPOUNDBEGIN,  allFlags)
+        case CompoundPos.MIDDLE: passes = includes(aff.COMPOUNDMIDDLE, allFlags)
+        case CompoundPos.END:    passes = includes(aff.COMPOUNDEND,    allFlags)
+      }
+
+      if (passes) yield candidate
     }
   }
 
