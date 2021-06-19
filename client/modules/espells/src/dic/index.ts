@@ -9,13 +9,15 @@ import { Word } from "./word"
 export class Dic {
   /** The full set of {@link Word} entries in the dictionary. */
   words: Set<Word> = new Set()
+
   /**
    * A mapping of stems to {@link Word} entries. A stem may map to multiple
-   * words, so the actual mapped value may either be a set or a singlular
+   * words, so the actual mapped value may either be a set or a singular
    * {@link Word} instance. Most stems won't map to multiple words, so for
    * the sake of saving memory a set is only used when it's actually needed.
    */
   private index: Map<string, Set<Word> | Word> = new Map()
+
   /**
    * A mapping of stems that weren't lowercase to begin with to their
    * {@link Word} instances.
