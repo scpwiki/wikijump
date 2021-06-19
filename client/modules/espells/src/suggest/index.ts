@@ -49,7 +49,12 @@ export class Suggest {
   }
 
   private correct(word: string, compounds?: boolean) {
-    return this.lookup.correct(word, false, false, compounds)
+    return this.lookup.correct(word, {
+      caps: false,
+      allowNoSuggest: false,
+      affixForms: !compounds,
+      compoundForms: compounds
+    })
   }
 
   private isForbidden(word: string) {

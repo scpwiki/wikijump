@@ -17,6 +17,21 @@ export interface LookupResult {
   warn: boolean
 }
 
+export interface LKC {
+  caps?: boolean
+  allowNoSuggest?: boolean
+  compoundpos?: CompoundPos
+  affixForms?: boolean
+  compoundForms?: boolean
+  withForbidden?: boolean
+}
+
+export interface LKFlags {
+  prefix: Set<string>
+  suffix: Set<string>
+  forbidden: Set<string>
+}
+
 /** Class that facilitaties lookups for a spellchecker. */
 export class Lookup {
   /** Spellchecker's affix data. */
@@ -60,7 +75,7 @@ export class Lookup {
     if (NUMBER_REGEX.test(word)) return { correct: true, forbidden, warn }
 
     for (const word2 of iterate(this.breakWord(word)).flatten()) {
-      if (!this.correct(word2, caps, allowNoSuggest)) {
+      if (!this.correct(word2, { caps, allowNoSuggest })) {
         return { correct: false, forbidden, warn }
       }
     }
@@ -80,10 +95,16 @@ export class Lookup {
    * @param compounds - If provided, this boolean will toggle between
    *   checking only affix forms or compound forms.
    */
-  correct(word: string, caps = true, allowNoSuggest = true, compounds?: boolean) {
-    return compounds === undefined
-      ? any(this.goodForms(word, caps, allowNoSuggest))
-      : any(this.goodForms(word, caps, allowNoSuggest, !compounds, compounds))
+  correct(
+    word: string,
+    {
+      caps = true,
+      allowNoSuggest = true,
+      affixForms = true,
+      compoundForms = true
+    }: LKC = {}
+  ) {
+    return any(this.goodForms(word, { caps, allowNoSuggest, affixForms, compoundForms }))
   }
 
   private isWarn(word: string) {
@@ -137,10 +158,12 @@ export class Lookup {
    */
   *goodForms(
     word: string,
-    caps = true,
-    allowNoSuggest = true,
-    affixForms = true,
-    compoundForms = true
+    {
+      caps = true,
+      allowNoSuggest = true,
+      affixForms = true,
+      compoundForms = true
+    }: LKC = {}
   ) {
     let captype: CapType, variants: string[]
     if (caps) {
@@ -152,7 +175,7 @@ export class Lookup {
 
     for (const variant of variants) {
       if (affixForms) {
-        for (const form of this.affixForms(variant, captype, allowNoSuggest)) {
+        for (const form of this.affixForms(variant, captype, { allowNoSuggest })) {
           if (
             form.inDictionary &&
             captype === CapType.ALL &&
@@ -166,16 +189,15 @@ export class Lookup {
         }
       }
       if (compoundForms) {
-        yield* this.compoundForms(word, captype, allowNoSuggest)
+        yield* this.compoundForms(word, captype, { allowNoSuggest })
       }
     }
   }
 
   isGoodForm(
     form: AffixForm,
-    compoundpos: CompoundPos | null,
     captype: CapType,
-    allowNoSuggest = true
+    { compoundpos, allowNoSuggest = true }: LKC = {}
   ) {
     if (!form.inDictionary) return false
 
@@ -314,23 +336,13 @@ export class Lookup {
   *affixForms(
     word: string,
     captype: CapType,
-    allowNoSuggest = true,
-    prefixFlags: Set<string> = new Set(),
-    suffixFlags: Set<string> = new Set(),
-    forbiddenFlags: Set<string> = new Set(),
-    compoundpos: CompoundPos | null = null,
-    withForbidden = false
+    { allowNoSuggest = true, compoundpos, withForbidden = false }: LKC = {},
+    flags: LKFlags = { prefix: new Set(), suffix: new Set(), forbidden: new Set() }
   ) {
     const candidates = (form: AffixForm, word: string, caps = false, words?: Set<Word>) =>
-      this.candidates(form, captype, word, allowNoSuggest, compoundpos, caps, words)
+      this.candidates(form, captype, word, { allowNoSuggest, compoundpos, caps }, words)
 
-    for (const form of this.produceAffixForms(
-      word,
-      prefixFlags,
-      suffixFlags,
-      forbiddenFlags,
-      compoundpos
-    )) {
+    for (const form of this.produceAffixForms(word, flags, compoundpos)) {
       let found = false
 
       const homonyms = this.dic.homonyms(form.stem)
@@ -339,7 +351,7 @@ export class Lookup {
         if (
           !withForbidden &&
           this.aff.FORBIDDENWORD &&
-          (compoundpos !== null || form.hasAffixes) &&
+          (compoundpos !== undefined || form.hasAffixes) &&
           iterate(homonyms).some(({ flags }) => includes(this.aff.FORBIDDENWORD, flags))
         ) {
           return
@@ -360,7 +372,7 @@ export class Lookup {
         }
       }
 
-      if (found || compoundpos !== null || captype !== CapType.ALL) continue
+      if (found || compoundpos !== undefined || captype !== CapType.ALL) continue
 
       if (this.aff.casing.guess(word) === CapType.NO) {
         for (const candidate of candidates(form, form.stem, true)) {
@@ -374,44 +386,36 @@ export class Lookup {
     form: AffixForm,
     captype: CapType,
     word: string,
-    allowNoSuggest = true,
-    compoundpos: CompoundPos | null = null,
-    ignoreCase = false,
+    { allowNoSuggest = true, compoundpos, caps = true }: LKC = {},
     homonyms?: Set<Word>
   ) {
-    for (const homonym of homonyms ?? this.dic.homonyms(word, ignoreCase)) {
+    for (const homonym of homonyms ?? this.dic.homonyms(word, !caps)) {
       const candidate = form.replace({ inDictionary: homonym })
-      if (this.isGoodForm(form, compoundpos, captype, allowNoSuggest)) {
+      if (this.isGoodForm(form, captype, { compoundpos, allowNoSuggest })) {
         yield candidate
       }
     }
   }
 
-  *produceAffixForms(
-    word: string,
-    prefixFlags: Set<string>,
-    suffixFlags: Set<string>,
-    forbiddenFlags: Set<string>,
-    compoundpos: CompoundPos | null = null
-  ) {
+  *produceAffixForms(word: string, flags: LKFlags, compoundpos?: CompoundPos) {
     yield new AffixForm(word, word)
 
     const suffixAllowed =
-      compoundpos === null || compoundpos === CompoundPos.END || suffixFlags.size
+      compoundpos === undefined || compoundpos === CompoundPos.END || flags.suffix.size
     const prefixAllowed =
-      compoundpos === null || compoundpos === CompoundPos.BEGIN || prefixFlags.size
+      compoundpos === undefined || compoundpos === CompoundPos.BEGIN || flags.prefix.size
 
     if (suffixAllowed) {
-      yield* this.desuffix(word, suffixFlags, forbiddenFlags)
+      yield* this.desuffix(word, flags.suffix, flags.forbidden)
     }
     if (prefixAllowed) {
-      for (const form of this.deprefix(word, prefixFlags, forbiddenFlags)) {
+      for (const form of this.deprefix(word, flags.prefix, flags.forbidden)) {
         yield form
         if (suffixAllowed && form.prefix?.crossproduct) {
           for (const form2 of this.desuffix(
             form.stem,
-            suffixFlags,
-            forbiddenFlags,
+            flags.suffix,
+            flags.forbidden,
             false,
             true
           )) {
@@ -424,19 +428,9 @@ export class Lookup {
 
   // -- COMPOUND FORMS
 
-  *compoundForms(word: string, captype: CapType, allowNoSuggest: boolean) {
+  *compoundForms(word: string, captype: CapType, { allowNoSuggest = true }: LKC = {}) {
     if (this.aff.FORBIDDENWORD) {
-      // TODO: lol fix this
-      for (const candidate of this.affixForms(
-        word,
-        captype,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        true
-      )) {
+      for (const candidate of this.affixForms(word, captype, { withForbidden: true })) {
         if (candidate.flags.has(this.aff.FORBIDDENWORD)) return
       }
     }
@@ -486,10 +480,8 @@ export class Lookup {
       for (const form of this.affixForms(
         word,
         captype,
-        allowNoSuggest,
-        permitFlags,
-        undefined,
-        forbiddenFlags
+        { allowNoSuggest },
+        { prefix: permitFlags, suffix: new Set(), forbidden: forbiddenFlags }
       )) {
         yield [form]
       }
@@ -509,11 +501,8 @@ export class Lookup {
       for (const form of this.affixForms(
         beg,
         captype,
-        allowNoSuggest,
-        prefixFlags,
-        permitFlags,
-        forbiddenFlags,
-        compoundpos
+        { allowNoSuggest, compoundpos },
+        { prefix: prefixFlags, suffix: permitFlags, forbidden: forbiddenFlags }
       )) {
         for (const partial of this.compoundsByFlags(
           rest,
@@ -529,11 +518,8 @@ export class Lookup {
         for (const form of this.affixForms(
           beg + beg[-1],
           captype,
-          allowNoSuggest,
-          prefixFlags,
-          permitFlags,
-          forbiddenFlags,
-          compoundpos
+          { allowNoSuggest, compoundpos },
+          { prefix: prefixFlags, suffix: permitFlags, forbidden: forbiddenFlags }
         )) {
           for (const partial of this.compoundsByFlags(
             rest,
