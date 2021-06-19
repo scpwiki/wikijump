@@ -1,3 +1,4 @@
+import type { CharacterMap } from "./aff"
 import type { RepPattern } from "./aff/rep-pattern"
 import { replaceRange, uppercase } from "./util"
 
@@ -35,7 +36,7 @@ export function* replchars(word: string, reps: Set<RepPattern>) {
  * @param word - The word to yield the mapped forms of.
  * @param map - The map to use.
  */
-export function* mapchars(word: string, map: Set<Set<string>>) {
+export function* mapchars(word: string, map: CharacterMap) {
   if (word.length < 2 || !map.size) return
 
   function* mapcharsInternal(word: string, start = 0): Generator<string> {

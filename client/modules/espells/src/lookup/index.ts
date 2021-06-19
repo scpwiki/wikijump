@@ -1,5 +1,5 @@
 import iterate from "iterare"
-import type { Aff } from "../aff"
+import type { Aff, Flags } from "../aff"
 import { Prefix, Suffix } from "../aff/affix"
 import { CapType } from "../aff/casing"
 import type { CompoundRule } from "../aff/compound-rule"
@@ -27,9 +27,9 @@ export interface LKC {
 }
 
 export interface LKFlags {
-  prefix: Set<string>
-  suffix: Set<string>
-  forbidden: Set<string>
+  prefix: Flags
+  suffix: Flags
+  forbidden: Flags
 }
 
 /** Class that facilitaties lookups for a spellchecker. */
@@ -191,8 +191,8 @@ export class Lookup {
   isGoodAffix(
     affix: Prefix | Suffix,
     word: string,
-    requiredFlags: Set<string>,
-    forbiddenFlags: Set<string>,
+    requiredFlags: Flags,
+    forbiddenFlags: Flags,
     crossproduct = false
   ) {
     if (affix instanceof Suffix) {
@@ -208,8 +208,8 @@ export class Lookup {
 
   *desuffix(
     word: string,
-    requiredFlags: Set<string>,
-    forbiddenFlags: Set<string>,
+    requiredFlags: Flags,
+    forbiddenFlags: Flags,
     nested = false,
     crossproduct = false
   ): Generator<AffixForm> {
@@ -242,8 +242,8 @@ export class Lookup {
 
   *deprefix(
     word: string,
-    requiredFlags: Set<string>,
-    forbiddenFlags: Set<string>,
+    requiredFlags: Flags,
+    forbiddenFlags: Flags,
     nested = false
   ): Generator<AffixForm> {
     const segments = this.aff.prefixesIndex.segments(word)

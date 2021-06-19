@@ -1,9 +1,9 @@
 import iterate from "iterare"
-import type { Aff } from "."
 import { intersect, product, re } from "../util"
+import type { Aff, Flags, FlagSet } from "./index"
 
 export class CompoundRule {
-  declare flags: Set<string>
+  declare flags: Flags
   declare regex: RegExp
   declare partialRegex: RegExp
 
@@ -23,7 +23,7 @@ export class CompoundRule {
     this.partialRegex = re`/^${parts.reduceRight((acc, cur) => `${cur}(${acc})?`)}$/`
   }
 
-  match(flags: Set<Set<string>>, partial = false) {
+  match(flags: FlagSet, partial = false) {
     return iterate(flags)
       .map(f => product(...intersect(this.flags, f)))
       .some(fc => {

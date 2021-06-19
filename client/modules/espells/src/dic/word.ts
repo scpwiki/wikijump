@@ -1,4 +1,4 @@
-import type { Aff } from "../aff"
+import type { Aff, Flags } from "../aff"
 import type { CapType } from "../aff/casing"
 import { RepPattern } from "../aff/rep-pattern"
 
@@ -12,7 +12,7 @@ export class Word {
   declare capType: CapType
 
   // using optionals here to save on memory
-  declare flags?: Set<string>
+  declare flags?: Flags
   declare data?: Map<string, Set<string>>
   declare altSpellings?: Set<string>
 

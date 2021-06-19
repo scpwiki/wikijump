@@ -1,21 +1,21 @@
 import iterate from "iterare"
-import type { Aff } from "."
 import { re } from "../util"
+import type { Aff, Flag, Flags } from "./index"
 
 abstract class Affix {
-  declare flag: string
+  declare flag: Flag
   declare crossproduct: boolean
   declare strip: string
   declare add: string
   declare condition: string
-  declare flags: Set<string>
+  declare flags: Flags
 
   declare conditionRegex: RegExp
   declare lookupRegex: RegExp
   declare replaceRegex: RegExp
 
   constructor(
-    flag: string,
+    flag: Flag,
     crossproduct: string,
     strip: string,
     add: string,

@@ -1,4 +1,5 @@
 import iterate from "iterare"
+import type { PrefixMap, SuffixMap } from "../aff"
 import type { Prefix, Suffix } from "../aff/affix"
 import type { Word } from "../dic/word"
 import { commonCharacters, lcslen, leftCommonSubstring, lowercase, ngram } from "../util"
@@ -10,8 +11,8 @@ const MAX_GUESSES = 200
 export function* ngramSuggest(
   misspelling: string,
   dictionaryWords: Set<Word>,
-  prefixes: Map<string, Set<Prefix>>,
-  suffixes: Map<string, Set<Suffix>>,
+  prefixes: PrefixMap,
+  suffixes: SuffixMap,
   known: Set<string>,
   maxDiff: number,
   onlyMaxDiff = false,
@@ -136,8 +137,8 @@ function detectThreshold(word: string) {
 
 function formsFor(
   word: Word,
-  allPrefixes: Map<string, Set<Prefix>>,
-  allSuffixes: Map<string, Set<Suffix>>,
+  allPrefixes: PrefixMap,
+  allSuffixes: SuffixMap,
   similarTo: string
 ) {
   const res: string[] = [word.stem]

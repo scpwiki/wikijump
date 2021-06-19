@@ -18,6 +18,15 @@ const SYNONYMS: Record<string, string> = {
 const FLAG_LONG_REGEXP = /../
 const FLAG_NUM_REGEXP = /\d+(?=,|$)/
 
+export type Flag = string
+export type Flags = Set<Flag>
+export type FlagSet = Set<Flags>
+export type PrefixMap = Map<Flag, Set<Prefix>>
+export type SuffixMap = Map<Flag, Set<Suffix>>
+export type PrefixIndex = Trie<Set<Prefix>>
+export type SuffixIndex = Trie<Set<Suffix>>
+export type CharacterMap = Set<Set<string>>
+
 export class Aff {
   SET = "UTF-8" // unused
   FLAG: "short" | "long" | "numeric" | "UTF-8" = "short"
@@ -29,10 +38,10 @@ export class Aff {
 
   KEY = "qwertyuiop|asdfghjkl|zxcvbnm"
   TRY = ""
-  NOSUGGEST?: string
-  KEEPCASE?: string
+  NOSUGGEST?: Flag
+  KEEPCASE?: Flag
   REP: Set<RepPattern> = new Set()
-  MAP: Set<Set<string>> = new Set()
+  MAP: CharacterMap = new Set()
   NOSPLITSUGS = false
   PHONE?: PhonetTable
   MAXCPDSUGS = 3
@@ -40,10 +49,10 @@ export class Aff {
   MAXDIFF = 1
   ONLYMAXDIFF = false
 
-  PFX: Map<string, Set<Prefix>> = new Map()
-  SFX: Map<string, Set<Suffix>> = new Map()
-  NEEDAFFIX?: string
-  CIRCUMFIX?: string
+  PFX: PrefixMap = new Map()
+  SFX: SuffixMap = new Map()
+  NEEDAFFIX?: Flag
+  CIRCUMFIX?: Flag
   COMPLEXPREFIXES = false
   FULLSTRIP = false
 
@@ -51,14 +60,14 @@ export class Aff {
   COMPOUNDRULE: Set<CompoundRule> = new Set()
   COMPOUNDMIN = 3
   COMPOUNDWORDMAX?: number
-  COMPOUNDFLAG?: string
-  COMPOUNDBEGIN?: string
-  COMPOUNDMIDDLE?: string
-  COMPOUNDEND?: string
-  ONLYINCOMPOUND?: string
-  COMPOUNDPERMITFLAG?: string
-  COMPOUNDFORBIDFLAG?: string
-  FORCEUCASE?: string
+  COMPOUNDFLAG?: Flag
+  COMPOUNDBEGIN?: Flag
+  COMPOUNDMIDDLE?: Flag
+  COMPOUNDEND?: Flag
+  ONLYINCOMPOUND?: Flag
+  COMPOUNDPERMITFLAG?: Flag
+  COMPOUNDFORBIDFLAG?: Flag
+  FORCEUCASE?: Flag
   CHECKCOMPOUNDCASE = false
   CHECKCOMPOUNDUP = false
   CHECKCOMPOUNDREP = false
@@ -67,7 +76,7 @@ export class Aff {
   SIMPLIFIEDTRIPLE = false
   COMPOUNDSYLLABLE?: [number, string] // unused
   COMPOUNDMORESUFFIXES = false // unused
-  COMPOUNDROOT?: string // unused
+  COMPOUNDROOT?: Flag // unused
 
   ICONV?: ConvTable
   OCONV?: ConvTable
@@ -75,14 +84,14 @@ export class Aff {
   AF: Set<string>[] = []
   AM: Set<string>[] = []
 
-  WARN?: string
+  WARN?: Flag
   FORBIDWARN = false
   SYLLABLENUM?: string // unused
   SUBSTANDARD?: string // unused
 
   declare casing: Casing
-  declare prefixesIndex: Trie<Set<Prefix>>
-  declare suffixesIndex: Trie<Set<Suffix>>
+  declare prefixesIndex: PrefixIndex
+  declare suffixesIndex: SuffixIndex
 
   constructor(reader: Reader) {
     do {
@@ -296,11 +305,11 @@ export class Aff {
     }
   }
 
-  parseFlag(flag: string) {
+  parseFlag(flag: string): Flag {
     return [...this.parseFlags(flag)][0]
   }
 
-  parseFlags(flags: string | string[]) {
+  parseFlags(flags: string | string[]): Flags {
     if (typeof flags === "string") flags = [flags]
 
     const result = flags.flatMap(flag => {

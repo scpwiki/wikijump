@@ -1,5 +1,5 @@
 import iterate from "iterare"
-import type { Aff } from "../aff"
+import type { Aff, Flag } from "../aff"
 import { CapType } from "../aff/casing"
 import type { Reader } from "../reader"
 import { includes } from "../util"
@@ -78,7 +78,7 @@ export class Dic {
     return words
   }
 
-  hasFlag(stem: string, flag?: string, all = false) {
+  hasFlag(stem: string, flag?: Flag, all = false) {
     if (flag === undefined) return false
     for (const word of this.homonyms(stem)) {
       const flagged = includes(flag, word.flags)

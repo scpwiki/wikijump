@@ -1,8 +1,9 @@
 import type { AffixForm } from "../lookup/forms"
+import type { Flag } from "./index"
 
 export class CompoundPattern {
-  declare left: { stem: string; flag: string; noAffix: boolean }
-  declare right: { stem: string; flag: string; noAffix: boolean }
+  declare left: { stem: string; flag: Flag; noAffix: boolean }
+  declare right: { stem: string; flag: Flag; noAffix: boolean }
 
   constructor(left: string, right: string, _replacement?: string) {
     // @ts-ignore
