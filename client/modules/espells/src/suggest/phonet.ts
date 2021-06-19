@@ -1,9 +1,8 @@
-import iterate from "iterare"
 import type { PhonetTable } from "../aff/phonet-table"
 import type { Word } from "../dic/word"
-import { HeapQueue } from "../heap"
 import { lcslen, leftCommonSubstring, lowercase, ngram, uppercase } from "../util"
 import { rootScore } from "./ngram"
+import { ScoresList } from "./scores"
 
 const MAX_ROOTS = 100
 
@@ -15,7 +14,7 @@ export function* phonetSuggest(
   misspelling = lowercase(misspelling)
   const misspelling_ph = metaphone(table, misspelling)
 
-  const scores = new HeapQueue<[number, string]>((a, b) => a[0] - b[0])
+  const scores = new ScoresList<[string]>(MAX_ROOTS)
 
   for (const word of dictionaryWords) {
     if (Math.abs(word.stem.length - misspelling.length) > 3) continue
@@ -33,21 +32,15 @@ export function* phonetSuggest(
     const score =
       2 * ngram(3, misspelling_ph, metaphone(table, word.stem), false, false, true)
 
-    scores.push([score, word.stem])
-    if (scores.length > MAX_ROOTS) scores.pop()
+    scores.add(score, word.stem)
   }
 
-  scores.sort()
+  const guesses = scores.finish(
+    ([score, word]) =>
+      [score + finalScore(misspelling, lowercase(word)), word] as [number, string]
+  )
 
-  const guesses = iterate(scores.data)
-    .map(
-      ([score, word]) =>
-        [score + finalScore(misspelling, lowercase(word)), word] as [number, string]
-    )
-    .toArray()
-    .sort((a, b) => b[0] - a[0])
-
-  for (const [, suggestion] of guesses) {
+  for (const [suggestion] of guesses) {
     yield suggestion
   }
 }

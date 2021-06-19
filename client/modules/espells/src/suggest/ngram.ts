@@ -1,8 +1,8 @@
 import iterate from "iterare"
 import type { Prefix, Suffix } from "../aff/affix"
 import type { Word } from "../dic/word"
-import { HeapQueue } from "../heap"
 import { commonCharacters, lcslen, leftCommonSubstring, lowercase, ngram } from "../util"
+import { ScoresList } from "./scores"
 
 const MAX_ROOTS = 100
 const MAX_GUESSES = 200
@@ -17,7 +17,7 @@ export function* ngramSuggest(
   onlyMaxDiff = false,
   hasPhonetic = false
 ) {
-  const roots = new HeapQueue<[number, Word]>((a, b) => a[0] - b[0])
+  const roots = new ScoresList<[Word]>(MAX_ROOTS)
 
   for (const word of dictionaryWords) {
     if (Math.abs(word.stem.length - misspelling.length) > 4) continue
@@ -30,46 +30,37 @@ export function* ngramSuggest(
       }
     }
 
-    roots.push([score, word])
-    if (roots.length > MAX_ROOTS) roots.pop()
+    roots.add(score, word)
   }
-
-  roots.sort()
 
   const threshold = detectThreshold(misspelling)
 
-  const guesses = new HeapQueue<[number, string, string]>((a, b) => a[0] - b[0])
+  const guesses = new ScoresList<[string, string]>(MAX_GUESSES)
 
-  for (const [, root] of roots.data) {
+  for (const [root] of roots.finish()) {
     if (root.altSpellings?.size) {
       for (const variant of root.altSpellings) {
         const score = roughAffixScore(misspelling, variant)
-        if (score > threshold) guesses.push([score, variant, root.stem])
+        if (score > threshold) guesses.add(score, variant, root.stem)
       }
     }
 
     for (const form of formsFor(root, prefixes, suffixes, misspelling)) {
       const score = roughAffixScore(misspelling, lowercase(form))
-      if (score > threshold) guesses.push([score, form, form])
+      if (score > threshold) guesses.add(score, form, form)
     }
-
-    if (guesses.length > MAX_GUESSES) guesses.pop()
   }
-
-  guesses.sort()
 
   const fact = maxDiff >= 0 ? (10 - maxDiff) / 5 : 1
 
-  const guesses2 = iterate(guesses.data)
-    .map(
-      ([score, compared, real]) =>
-        [
-          preciseAffixScore(misspelling, lowercase(compared), fact, score, hasPhonetic),
-          real
-        ] as [number, string]
-    )
-    .toArray()
-    .sort((a, b) => b[0] - a[0])
+  const guesses2 = guesses.finish(
+    ([score, compared, real]) =>
+      [
+        preciseAffixScore(misspelling, lowercase(compared), fact, score, hasPhonetic),
+        real
+      ] as [number, string],
+    true
+  )
 
   yield* filterGuesses(guesses2, known, onlyMaxDiff)
 }
