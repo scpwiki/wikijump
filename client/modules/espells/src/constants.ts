@@ -34,7 +34,9 @@ export const CONSTANTS = {
 
   DEFAULT_BREAK: new Set([/-/g, /^-/g, /-$/g]),
 
-  NUMBER_REGEX: /^\d+(\.\d+)?$/
+  NUMBER_REGEX: /^\d+(\.\d+)?$/,
+
+  SPLIT_LINE_REGEX: /\s+/u
 } as const
 
 export const decoder = new TextDecoder()

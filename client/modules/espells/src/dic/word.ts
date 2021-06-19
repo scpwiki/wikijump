@@ -1,6 +1,7 @@
 import type { Aff, Flags } from "../aff"
 import { RepPattern } from "../aff/rep-pattern"
 import { CapType, CONSTANTS as C } from "../constants"
+import { split } from "../util"
 
 export class Word {
   declare stem: string
@@ -24,7 +25,7 @@ export class Word {
     if (flags) this.flags = aff.parseFlags(flags)
 
     if (data) {
-      for (const keyvalue of data.split(/\s+/)) {
+      for (const keyvalue of split(data)) {
         const match = C.SPLIT_DATA_REGEX.exec(keyvalue)
 
         // key:value pair

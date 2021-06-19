@@ -136,6 +136,11 @@ export function reverse(str: string) {
   return str.split("").reverse().join("")
 }
 
+/** Splits a line by its whitespace. */
+export function split(line: string) {
+  return line.split(C.SPLIT_LINE_REGEX)
+}
+
 /**
  * Returns a new set containing all intersecting elements between two sets.
  *

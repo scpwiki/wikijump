@@ -2,7 +2,7 @@ import iterate from "iterare"
 import { CONSTANTS as C } from "../constants"
 import type { Reader } from "../reader"
 import { Trie } from "../trie"
-import { escapeRegExp, re, reverse } from "../util"
+import { escapeRegExp, re, reverse, split } from "../util"
 import { Prefix, Suffix } from "./affix"
 import { Casing, GermanCasing, TurkicCasing } from "./casing"
 import { CompoundPattern } from "./compound-pattern"
@@ -90,7 +90,7 @@ export class Aff {
     do {
       if (reader.done) break
 
-      let [directive, ...args] = reader.line.split(/\s+/u)
+      let [directive, ...args] = split(reader.line)
 
       // skip directive if it doesn't seem real
       if (!/^[A-Z]+$/.test(directive)) continue
@@ -164,7 +164,7 @@ export class Aff {
         case "BREAK": {
           this.BREAK = new Set()
           reader.for(parseInt(args[0]), line => {
-            let [, pattern] = line.split(/\s+/u)
+            let [, pattern] = split(line)
             pattern = escapeRegExp(pattern).replaceAll("\\^", "^").replaceAll("\\$", "$")
             this.BREAK.add(re`/${pattern}/g`)
           })
@@ -173,7 +173,7 @@ export class Aff {
 
         case "COMPOUNDRULE": {
           reader.for(parseInt(args[0]), line => {
-            const [, value] = line.split(/\s+/u)
+            const [, value] = split(line)
             this.COMPOUNDRULE.add(new CompoundRule(value, this))
           })
           break
@@ -183,7 +183,7 @@ export class Aff {
         case "OCONV": {
           const pairs: [string, string][] = []
           reader.for(parseInt(args[0]), line => {
-            const [, pattern, replacement] = line.split(/\s+/u)
+            const [, pattern, replacement] = split(line)
             pairs.push([pattern, replacement])
           })
           this[directive] = new ConvTable(pairs)
@@ -192,7 +192,7 @@ export class Aff {
 
         case "REP": {
           reader.for(parseInt(args[0]), line => {
-            const [, pattern, replacement] = line.split(/\s+/u)
+            const [, pattern, replacement] = split(line)
             this.REP.add(new RepPattern(pattern, replacement))
           })
           break
@@ -200,7 +200,7 @@ export class Aff {
 
         case "MAP": {
           reader.for(parseInt(args[0]), line => {
-            const [, value] = line.split(/\s+/u)
+            const [, value] = split(line)
             this.MAP.add(
               iterate(value.matchAll(/\(.*?\)|./g))
                 .map(match => match[0].replaceAll(/^\(|\)$/g, ""))
@@ -213,7 +213,7 @@ export class Aff {
         case "PFX": {
           const [flag, crossproduct, count] = args
           reader.for(parseInt(count), line => {
-            const [, , strip, add, cond] = line.split(/\s+/u)
+            const [, , strip, add, cond] = split(line)
             const prefix = new Prefix(flag, crossproduct, strip, add, cond, this)
             const set = this.PFX.get(flag) ?? new Set()
             this.PFX.set(flag, set.add(prefix))
@@ -224,7 +224,7 @@ export class Aff {
         case "SFX": {
           const [flag, crossproduct, count] = args
           reader.for(parseInt(count), line => {
-            const [, , strip, add, cond] = line.split(/\s+/u)
+            const [, , strip, add, cond] = split(line)
             const suffix = new Suffix(flag, crossproduct, strip, add, cond, this)
             const set = this.SFX.get(flag) ?? new Set()
             this.SFX.set(flag, set.add(suffix))
@@ -234,7 +234,7 @@ export class Aff {
 
         case "CHECKCOMPOUNDPATTERN": {
           reader.for(parseInt(args[0]), line => {
-            const [, left, right, replacement] = line.split(/\s+/u)
+            const [, left, right, replacement] = split(line)
             this.CHECKCOMPOUNDPATTERN.add(new CompoundPattern(left, right, replacement))
           })
           break
@@ -242,7 +242,7 @@ export class Aff {
 
         case "AF": {
           reader.for(parseInt(args[0]), line => {
-            const [, value] = line.split(/\s+/u)
+            const [, value] = split(line)
             this.AF.push(this.parseFlags(value))
           })
           break
@@ -250,7 +250,7 @@ export class Aff {
 
         case "AM": {
           reader.for(parseInt(args[0]), line => {
-            const [, value] = line.split(/\s+/u)
+            const [, value] = split(line)
             this.AM.push(new Set<string>(value.split("")))
           })
         }
@@ -263,7 +263,7 @@ export class Aff {
         case "PHONE": {
           const rules: [string, string][] = []
           reader.for(parseInt(args[0]), line => {
-            const [, search, replacement] = line.split(/\s+/u)
+            const [, search, replacement] = split(line)
             rules.push([search, replacement])
           })
           this.PHONE = new PhonetTable(rules)
