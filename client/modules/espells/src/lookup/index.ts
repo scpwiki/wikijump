@@ -469,7 +469,7 @@ export class Lookup {
   }
 
   *compoundsByFlags(
-    wordRest: string,
+    word: string,
     captype: CapType,
     depth = 0,
     allowNoSuggest = true
@@ -484,7 +484,7 @@ export class Lookup {
 
     if (depth) {
       for (const form of this.affixForms(
-        wordRest,
+        word,
         captype,
         allowNoSuggest,
         permitFlags,
@@ -495,16 +495,16 @@ export class Lookup {
       }
     }
 
-    if (wordRest.length < aff.COMPOUNDMIN * 2) return
+    if (word.length < aff.COMPOUNDMIN * 2) return
     if (aff.COMPOUNDWORDMAX && depth > aff.COMPOUNDWORDMAX) return
 
     const compoundpos = depth ? CompoundPos.MIDDLE : CompoundPos.BEGIN
     const prefixFlags =
       compoundpos === CompoundPos.BEGIN ? new Set<string>() : permitFlags
 
-    for (let pos = aff.COMPOUNDMIN; pos < wordRest.length - aff.COMPOUNDMIN + 1; pos++) {
-      const beg = wordRest.slice(0, pos)
-      const rest = wordRest.slice(pos)
+    for (let pos = aff.COMPOUNDMIN; pos < word.length - aff.COMPOUNDMIN + 1; pos++) {
+      const beg = word.slice(0, pos)
+      const rest = word.slice(pos)
 
       for (const form of this.affixForms(
         beg,
@@ -549,7 +549,7 @@ export class Lookup {
   }
 
   *compoundsByRules(
-    wordRest: string,
+    word: string,
     prev: Word[] = [],
     rules: null | Set<CompoundRule> = null,
     allowNoSuggest = true
@@ -559,7 +559,7 @@ export class Lookup {
     if (rules === null) rules = this.aff.COMPOUNDRULE
 
     if (prev.length) {
-      for (const homonym of this.dic.homonyms(wordRest)) {
+      for (const homonym of this.dic.homonyms(word)) {
         const parts = [...prev, homonym]
         const flagSets = iterate(parts)
           .filter(word => Boolean(word.flags))
@@ -567,17 +567,17 @@ export class Lookup {
           .toSet()
         for (const rule of rules) {
           if (rule.match(flagSets)) {
-            yield [new AffixForm(wordRest, wordRest)]
+            yield [new AffixForm(word, word)]
           }
         }
       }
     }
 
-    if (wordRest.length < aff.COMPOUNDMIN * 2) return
+    if (word.length < aff.COMPOUNDMIN * 2) return
     if (aff.COMPOUNDWORDMAX && prev.length >= aff.COMPOUNDWORDMAX) return
 
-    for (let pos = aff.COMPOUNDMIN; pos < wordRest.length - aff.COMPOUNDMIN + 1; pos++) {
-      const beg = wordRest.slice(0, pos)
+    for (let pos = aff.COMPOUNDMIN; pos < word.length - aff.COMPOUNDMIN + 1; pos++) {
+      const beg = word.slice(0, pos)
 
       for (const homonynm of this.dic.homonyms(beg)) {
         const parts = [...prev, homonynm]
@@ -590,7 +590,7 @@ export class Lookup {
           .toSet()
         if (compoundRules.size) {
           for (const rest of this.compoundsByRules(
-            wordRest.slice(pos),
+            word.slice(pos),
             parts,
             compoundRules,
             allowNoSuggest
