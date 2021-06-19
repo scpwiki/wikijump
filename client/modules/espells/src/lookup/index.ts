@@ -6,7 +6,7 @@ import type { Dic } from "../dic"
 import type { Word } from "../dic/word"
 import { replchars } from "../permutations"
 import { any, includes, isUppercased, lowercase } from "../util"
-import { deprefix, desuffix } from "./decompose"
+import { breakWord, deprefix, desuffix } from "./decompose"
 import { AffixForm, CompoundForm } from "./forms"
 import { LKWord } from "./lk-word"
 
@@ -72,7 +72,7 @@ export class Lookup {
 
     if (C.NUMBER_REGEX.test(word)) return { correct: true, forbidden, warn }
 
-    for (const word2 of iterate(this.breakWord(word)).flatten()) {
+    for (const word2 of iterate(breakWord(this.aff, word)).flatten()) {
       if (!this.correct(word2, { caps, allowNoSuggest })) {
         return { correct: false, forbidden, warn }
       }
@@ -106,28 +106,6 @@ export class Lookup {
       this.dic.hasFlag(word, this.aff.FORBIDDENWORD, true) ||
       (this.aff.FORBIDWARN && this.dic.hasFlag(word, this.aff.WARN, true))
     )
-  }
-
-  /**
-   * Yields permutations of a word split up (with whitespace) using the
-   * `BREAK` rules given by the spellchecker's {@link Aff} data.
-   *
-   * @param text - The word/text to split.
-   * @param depth - The current depth of the check. Used by this function
-   *   when calling itself recursively. There isn't any need to set it yourself.
-   */
-  *breakWord(text: string, depth = 0): Iterable<string[]> {
-    if (depth > 10) return
-    yield [text]
-    for (const pattern of this.aff.BREAK) {
-      for (const m of text.matchAll(pattern)) {
-        const start = text.slice(0, m.index!)
-        const rest = text.slice(0, m.index! + m[0].length)
-        for (const breaking of this.breakWord(rest, depth + 1)) {
-          yield [start, ...breaking]
-        }
-      }
-    }
   }
 
   /**

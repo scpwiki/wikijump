@@ -4,6 +4,29 @@ import { Prefix, Suffix } from "../aff/affix"
 import { reverse } from "../util"
 import { AffixForm } from "./forms"
 
+/**
+ * Yields permutations of a word split up (with whitespace) using the
+ * `BREAK` rules given by the spellchecker's {@link Aff} data.
+ *
+ * @param aff - The affix data to use.
+ * @param text - The word/text to split.
+ * @param depth - The current depth of the check. Used by this function
+ *   when calling itself recursively. There isn't any need to set it yourself.
+ */
+export function* breakWord(aff: Aff, text: string, depth = 0): Iterable<string[]> {
+  if (depth > 10) return
+  yield [text]
+  for (const pattern of aff.BREAK) {
+    for (const m of text.matchAll(pattern)) {
+      const start = text.slice(0, m.index!)
+      const rest = text.slice(0, m.index! + m[0].length)
+      for (const breaking of breakWord(aff, rest, depth + 1)) {
+        yield [start, ...breaking]
+      }
+    }
+  }
+}
+
 export function isGoodAffix(
   affix: Prefix | Suffix,
   word: string,
