@@ -99,13 +99,23 @@ export class Aff {
 
       switch (directive) {
         case "SET":
-        case "FLAG":
         case "KEY":
         case "TRY":
         case "WORDCHARS":
         case "LANG": {
-          // @ts-ignore
           this[directive] = args[0]
+          break
+        }
+
+        case "FLAG": {
+          if (
+            args[0] === "short" ||
+            args[0] === "long" ||
+            args[0] === "numeric" ||
+            args[0] === "UTF-8"
+          ) {
+            this[directive] = args[0]
+          }
           break
         }
 
@@ -140,7 +150,6 @@ export class Aff {
         case "SUBSTANDARD":
         case "SYLLABLENUM":
         case "COMPOUNDROOT": {
-          // @ts-ignore
           this[directive] = this.parseFlag(args[0])
           break
         }
