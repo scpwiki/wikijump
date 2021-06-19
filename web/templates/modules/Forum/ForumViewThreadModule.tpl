@@ -103,8 +103,10 @@
 
 	<div style="display:none" id="post-options-template">
 			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.showPermalink(event,'%POST_ID%')">{t}permanent link{/t}</a> |
-			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.editPost(event,'%POST_ID%')">{t}edit{/t}</a> |
-			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.deletePost(event,'%POST_ID%')">{t}delete{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.editPost(event,'%POST_ID%')">{t}edit{/t}</a> 
+            {if $canDelete}
+                 | <a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.deletePost(event,'%POST_ID%')">{t}delete{/t}</a>
+            {/if}
 	</div>
 
 	<div style="display:none" id="post-options-permalink-template">{$tUrl}#post-</div>
