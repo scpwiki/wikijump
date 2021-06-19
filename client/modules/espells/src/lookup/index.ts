@@ -1,12 +1,12 @@
 import iterate from "iterare"
 import type { Aff, Flags } from "../aff"
-import { Prefix, Suffix } from "../aff/affix"
 import { CapType } from "../aff/casing"
 import type { CompoundRule } from "../aff/compound-rule"
 import type { Dic } from "../dic"
 import type { Word } from "../dic/word"
 import { replchars } from "../permutations"
-import { any, includes, isUppercased, lowercase, reverse } from "../util"
+import { any, includes, isUppercased, lowercase } from "../util"
+import { deprefix, desuffix } from "./decompose"
 import { AffixForm, CompoundForm, CompoundPos } from "./forms"
 import { LKWord } from "./lk-word"
 
@@ -186,90 +186,6 @@ export class Lookup {
     }
   }
 
-  // -- DECOMPOSING WORDS
-
-  isGoodAffix(
-    affix: Prefix | Suffix,
-    word: string,
-    requiredFlags: Flags,
-    forbiddenFlags: Flags,
-    crossproduct = false
-  ) {
-    if (affix instanceof Suffix) {
-      if (!(crossproduct || affix.crossproduct)) return false
-    }
-
-    for (const flag of affix.flags) {
-      if (forbiddenFlags.has(flag) || !requiredFlags.has(flag)) return false
-    }
-
-    return affix.lookupRegex.test(word)
-  }
-
-  *desuffix(
-    word: string,
-    requiredFlags: Flags,
-    forbiddenFlags: Flags,
-    nested = false,
-    crossproduct = false
-  ): Generator<AffixForm> {
-    const segments = this.aff.suffixesIndex.segments(reverse(word))
-
-    if (segments) {
-      const possibleSuffixes = iterate(segments)
-        .flatten()
-        .filter(suffix =>
-          this.isGoodAffix(suffix, word, requiredFlags, forbiddenFlags, crossproduct)
-        )
-
-      for (const suffix of possibleSuffixes) {
-        const stem = word.replace(suffix.replaceRegex, suffix.strip)
-        yield new AffixForm(word, stem, { suffix })
-        if (!nested) {
-          for (const form2 of this.desuffix(
-            stem,
-            iterate(suffix.flags).concat(requiredFlags).toSet(),
-            forbiddenFlags,
-            true,
-            crossproduct
-          )) {
-            yield form2.replace({ text: word, suffix2: suffix })
-          }
-        }
-      }
-    }
-  }
-
-  *deprefix(
-    word: string,
-    requiredFlags: Flags,
-    forbiddenFlags: Flags,
-    nested = false
-  ): Generator<AffixForm> {
-    const segments = this.aff.prefixesIndex.segments(word)
-
-    if (segments) {
-      const possiblePrefixes = iterate(segments)
-        .flatten()
-        .filter(prefix => this.isGoodAffix(prefix, word, requiredFlags, forbiddenFlags))
-
-      for (const prefix of possiblePrefixes) {
-        const stem = word.replace(prefix.replaceRegex, prefix.strip)
-        yield new AffixForm(word, stem, { prefix })
-        if (!nested && this.aff.COMPLEXPREFIXES) {
-          for (const form2 of this.deprefix(
-            stem,
-            iterate(prefix.flags).concat(requiredFlags).toSet(),
-            forbiddenFlags,
-            true
-          )) {
-            yield form2.replace({ text: word, prefix2: prefix })
-          }
-        }
-      }
-    }
-  }
-
   // -- AFFIX FORMS
 
   *affixForms(
@@ -399,14 +315,15 @@ export class Lookup {
       lkword.pos === undefined || lkword.pos === CompoundPos.BEGIN || flags.prefix.size
 
     if (suffixAllowed) {
-      yield* this.desuffix(lkword.word, flags.suffix, flags.forbidden)
+      yield* desuffix(this.aff, lkword.word, flags.suffix, flags.forbidden)
     }
 
     if (prefixAllowed) {
-      for (const form of this.deprefix(lkword.word, flags.prefix, flags.forbidden)) {
+      for (const form of deprefix(this.aff, lkword.word, flags.prefix, flags.forbidden)) {
         yield form
         if (suffixAllowed && form.prefix?.crossproduct) {
-          for (const form2 of this.desuffix(
+          for (const form2 of desuffix(
+            this.aff,
             form.stem,
             flags.suffix,
             flags.forbidden,
