@@ -1,6 +1,6 @@
 import iterate from "iterare"
 import type { Aff } from "../aff"
-import { CapType } from "../aff/casing"
+import { CapType, CONSTANTS as C } from "../constants"
 import type { Dic } from "../dic"
 import type { Word } from "../dic/word"
 import type { Lookup } from "../lookup"
@@ -18,10 +18,6 @@ import { intersect, lowercase, uppercase } from "../util"
 import { ngramSuggest } from "./ngram"
 import { phonetSuggest } from "./phonet"
 import { MultiWordSuggestion, Suggestion } from "./suggestion"
-
-const MAXPHONSUGS = 2
-const MAXSUGGESTIONS = 15
-const GOODEDITS = ["spaceword", "uppercase", "replchars"]
 
 type Handler = (suggestion: Suggestion, checkInclusion?: boolean) => Iterable<Suggestion>
 
@@ -134,12 +130,12 @@ export class Suggest {
       for (const suggestion of this.editSuggestions(
         variant,
         handle,
-        MAXSUGGESTIONS,
+        C.MAX_SUGGESTIONS,
         false
       )) {
         yield suggestion
 
-        goodEditsFound ||= GOODEDITS.includes(suggestion.kind)
+        goodEditsFound ||= C.GOOD_EDITS.includes(suggestion.kind)
 
         // prettier-ignore
         switch(suggestion.kind) {
@@ -161,7 +157,7 @@ export class Suggest {
           true
         )) {
           yield suggestion
-          goodEditsFound ||= GOODEDITS.includes(suggestion.kind)
+          goodEditsFound ||= C.GOOD_EDITS.includes(suggestion.kind)
         }
       }
 
@@ -200,7 +196,7 @@ export class Suggest {
           phonetSeen++
           yield res
         }
-        if (phonetSeen >= MAXPHONSUGS) break
+        if (phonetSeen >= C.MAX_PHONET_SUGGESTIONS) break
       }
     }
   }

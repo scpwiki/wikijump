@@ -1,14 +1,12 @@
+import { CONSTANTS as C } from "../constants"
 import { re } from "../util"
-
-// 1. letters, 2. optional, 3. lookahead, 4. flags, 5. priority
-const RULE_PATTERN = /^(\p{L}+)(?:\((\p{L}+)\))?(-+)?([\^$<]*)(\d)?$/u
 
 export class PhonetTable {
   rules: Record<string, PhonetTableRule[]> = {}
 
   constructor(table: [string, string][]) {
     for (const [search, replacement] of table) {
-      const match = RULE_PATTERN.exec(search)
+      const match = C.PHONET_RULE_REGEX.exec(search)
       if (!match) throw new SyntaxError(`Invalid PhonetTable pattern '${search}'`)
 
       const [letters, optional, lookahead, flags, priority] = match

@@ -1,8 +1,7 @@
 import type { CharacterMap } from "./aff"
 import type { RepPattern } from "./aff/rep-pattern"
+import { CONSTANTS as C } from "./constants"
 import { replaceRange, uppercase } from "./util"
-
-const MAX_CHAR_DISTANCE = 4
 
 /**
  * Uses a {@link Aff}'s {@link RepPattern} table to yield replaced
@@ -93,7 +92,7 @@ export function* longswapchar(word: string) {
   for (let first = 0; first < word.length - 2; first++) {
     for (
       let second = first + 2;
-      second < Math.min(first + MAX_CHAR_DISTANCE, word.length);
+      second < Math.min(first + C.MAX_CHAR_DISTANCE, word.length);
       second++
     ) {
       yield word.slice(0, first) +
@@ -179,7 +178,7 @@ export function* movechar(word: string) {
     const ch = word[frompos]
     for (
       let topos = frompos + 3;
-      topos < Math.min(word.length, frompos + MAX_CHAR_DISTANCE + 1);
+      topos < Math.min(word.length, frompos + C.MAX_CHAR_DISTANCE + 1);
       topos++
     ) {
       yield word.slice(0, frompos) +
@@ -192,7 +191,7 @@ export function* movechar(word: string) {
   for (let frompos = word.length; frompos > 0; frompos--) {
     for (
       let topos = frompos - 1;
-      topos > Math.max(0, frompos - MAX_CHAR_DISTANCE + 1);
+      topos > Math.max(0, frompos - C.MAX_CHAR_DISTANCE + 1);
       topos--
     ) {
       yield word.slice(0, topos) +

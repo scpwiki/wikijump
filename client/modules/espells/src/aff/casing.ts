@@ -1,3 +1,4 @@
+import { CapType } from "../constants"
 import {
   isLowercased,
   isTitlecased,
@@ -7,19 +8,6 @@ import {
   titlecase,
   uppercase
 } from "../util"
-
-export enum CapType {
-  /** All lowercase. */
-  NO,
-  /** Titlecase. */
-  INIT,
-  /** All uppercase. */
-  ALL,
-  /** Mixed capitalization. */
-  HUH,
-  /** Mixed capitalization, first letter is capitalized. */
-  HUHINIT
-}
 
 export class Casing {
   guess(word: string) {

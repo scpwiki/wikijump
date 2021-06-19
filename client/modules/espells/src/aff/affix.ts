@@ -1,4 +1,5 @@
 import iterate from "iterare"
+import { CONSTANTS as C } from "../constants"
 import { re } from "../util"
 import type { Aff, Flag, Flags } from "./index"
 
@@ -51,7 +52,7 @@ export class Prefix extends Affix {
   ) {
     super(flag, crossproduct, strip, add, condition, aff)
 
-    let parts = iterate(condition.matchAll(/(\[.+\]|[^\[])/g))
+    let parts = iterate(condition.matchAll(C.SPLIT_CONDITION_REGEX))
       .map(part => part.slice(1))
       .flatten()
       .toArray()
@@ -81,7 +82,7 @@ export class Suffix extends Affix {
   ) {
     super(flag, crossproduct, strip, add, condition, aff)
 
-    let parts = iterate(condition.matchAll(/(\[.+\]|[^\[])/g))
+    let parts = iterate(condition.matchAll(C.SPLIT_CONDITION_REGEX))
       .map(part => part.slice(1))
       .flatten()
       .toArray()

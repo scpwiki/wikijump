@@ -1,11 +1,6 @@
 import type { Aff, Flags } from "../aff"
-import type { CapType } from "../aff/casing"
 import { RepPattern } from "../aff/rep-pattern"
-
-// 1. stem, 2. flags, 3. data (not split)
-const SPLIT_WORD_REGEX = /^(.+?)(?:\/([\S\t]*?))?(?:(?:\s(?=.*?:.))(.+))?$/
-// 1. key, 2. value
-const SPLIT_DATA_REGEX = /(\S+):(\S+)/
+import { CapType, CONSTANTS as C } from "../constants"
 
 export class Word {
   declare stem: string
@@ -17,7 +12,7 @@ export class Word {
   declare altSpellings?: Set<string>
 
   constructor(line: string, aff: Aff) {
-    const match = SPLIT_WORD_REGEX.exec(line)
+    const match = C.SPLIT_WORD_REGEX.exec(line)
     if (!match) throw new SyntaxError(`Invalid line in dictionary '${line}'`)
     let [, stem, flags, data] = match
 
@@ -30,7 +25,7 @@ export class Word {
 
     if (data) {
       for (const keyvalue of data.split(/\s+/)) {
-        const match = SPLIT_DATA_REGEX.exec(keyvalue)
+        const match = C.SPLIT_DATA_REGEX.exec(keyvalue)
 
         // key:value pair
         if (match) {

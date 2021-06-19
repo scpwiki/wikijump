@@ -1,10 +1,9 @@
 import type { PhonetTable } from "../aff/phonet-table"
+import { CONSTANTS as C } from "../constants"
 import type { Word } from "../dic/word"
 import { lcslen, leftCommonSubstring, lowercase, ngram, uppercase } from "../util"
 import { rootScore } from "./ngram"
 import { ScoresList } from "./scores"
-
-const MAX_ROOTS = 100
 
 export function* phonetSuggest(
   misspelling: string,
@@ -14,7 +13,7 @@ export function* phonetSuggest(
   misspelling = lowercase(misspelling)
   const misspelling_ph = metaphone(table, misspelling)
 
-  const scores = new ScoresList<[string]>(MAX_ROOTS)
+  const scores = new ScoresList<[string]>(C.PHONET_MAX_ROOTS)
 
   for (const word of dictionaryWords) {
     if (Math.abs(word.stem.length - misspelling.length) > 3) continue

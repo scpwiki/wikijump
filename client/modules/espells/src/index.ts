@@ -1,5 +1,6 @@
 import iterate from "iterare"
 import { Aff } from "./aff"
+import { decoder } from "./constants"
 import { Dic } from "./dic"
 import { Word } from "./dic/word"
 import { Lookup } from "./lookup"
@@ -12,8 +13,6 @@ export interface EspellsInitOpts {
   /** A source for a single or array of `.dic` files. */
   dic: string | Uint8Array | (string | Uint8Array)[]
 }
-
-const decoder = new TextDecoder()
 
 /**
  * Espells spellchecker. Instances of this class are fully instantiated

@@ -1,11 +1,9 @@
 import iterate from "iterare"
 import type { Aff, Flag } from "../aff"
-import { CapType } from "../aff/casing"
+import { CapType, CONSTANTS as C } from "../constants"
 import type { Reader } from "../reader"
 import { includes } from "../util"
 import { Word } from "./word"
-
-const SKIP_REGEX = /^\d+(\s+|$)|^\/|^\t|^\s*$/
 
 export class Dic {
   words: Set<Word> = new Set()
@@ -39,7 +37,7 @@ export class Dic {
   addDictionary(reader: Reader) {
     do {
       if (reader.done) break
-      if (SKIP_REGEX.test(reader.line)) continue
+      if (C.DIC_SKIP_REGEX.test(reader.line)) continue
       this.add(new Word(reader.line, this.aff))
     } while (reader.next())
   }

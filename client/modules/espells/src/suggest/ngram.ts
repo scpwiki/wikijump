@@ -1,12 +1,10 @@
 import iterate from "iterare"
 import type { PrefixMap, SuffixMap } from "../aff"
 import type { Prefix, Suffix } from "../aff/affix"
+import { CONSTANTS as C } from "../constants"
 import type { Word } from "../dic/word"
 import { commonCharacters, lcslen, leftCommonSubstring, lowercase, ngram } from "../util"
 import { ScoresList } from "./scores"
-
-const MAX_ROOTS = 100
-const MAX_GUESSES = 200
 
 export function* ngramSuggest(
   misspelling: string,
@@ -18,7 +16,7 @@ export function* ngramSuggest(
   onlyMaxDiff = false,
   hasPhonetic = false
 ) {
-  const roots = new ScoresList<[Word]>(MAX_ROOTS)
+  const roots = new ScoresList<[Word]>(C.NGRAM_MAX_ROOTS)
 
   for (const word of dictionaryWords) {
     if (Math.abs(word.stem.length - misspelling.length) > 4) continue
@@ -36,7 +34,7 @@ export function* ngramSuggest(
 
   const threshold = detectThreshold(misspelling)
 
-  const guesses = new ScoresList<[string, string]>(MAX_GUESSES)
+  const guesses = new ScoresList<[string, string]>(C.NGRAM_MAX_GUESSES)
 
   for (const [root] of roots.finish()) {
     if (root.altSpellings?.size) {

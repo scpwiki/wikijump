@@ -1,16 +1,14 @@
 import iterate from "iterare"
 import type { Aff, Flags } from "../aff"
-import { CapType } from "../aff/casing"
 import type { CompoundRule } from "../aff/compound-rule"
+import { CapType, CompoundPos, CONSTANTS as C } from "../constants"
 import type { Dic } from "../dic"
 import type { Word } from "../dic/word"
 import { replchars } from "../permutations"
 import { any, includes, isUppercased, lowercase } from "../util"
 import { deprefix, desuffix } from "./decompose"
-import { AffixForm, CompoundForm, CompoundPos } from "./forms"
+import { AffixForm, CompoundForm } from "./forms"
 import { LKWord } from "./lk-word"
-
-const NUMBER_REGEX = /^\d+(\.\d+)?$/
 
 export interface LookupResult {
   correct: boolean
@@ -72,7 +70,7 @@ export class Lookup {
       }
     }
 
-    if (NUMBER_REGEX.test(word)) return { correct: true, forbidden, warn }
+    if (C.NUMBER_REGEX.test(word)) return { correct: true, forbidden, warn }
 
     for (const word2 of iterate(this.breakWord(word)).flatten()) {
       if (!this.correct(word2, { caps, allowNoSuggest })) {
@@ -370,8 +368,8 @@ export class Lookup {
   ): Iterable<CompoundForm> {
     const aff = this.aff
 
-    const forbiddenFlags = new Set<string>()
-    const permitFlags = new Set<string>()
+    const forbiddenFlags: Flags = new Set<string>()
+    const permitFlags: Flags = new Set<string>()
 
     if (aff.COMPOUNDFORBIDFLAG) forbiddenFlags.add(aff.COMPOUNDFORBIDFLAG)
     if (aff.COMPOUNDPERMITFLAG) permitFlags.add(aff.COMPOUNDPERMITFLAG)

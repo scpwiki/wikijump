@@ -1,4 +1,4 @@
-const decoder = new TextDecoder()
+import { decoder } from "./constants"
 
 /** Wrapper for manipulating a document separated by lines. */
 export class Reader {

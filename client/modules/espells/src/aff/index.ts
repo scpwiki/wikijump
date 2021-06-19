@@ -1,4 +1,5 @@
 import iterate from "iterare"
+import { CONSTANTS as C } from "../constants"
 import type { Reader } from "../reader"
 import { Trie } from "../trie"
 import { escapeRegExp, re, reverse } from "../util"
@@ -9,14 +10,6 @@ import { CompoundRule } from "./compound-rule"
 import { ConvTable } from "./conv-table"
 import { PhonetTable } from "./phonet-table"
 import { RepPattern } from "./rep-pattern"
-
-const SYNONYMS: Record<string, string> = {
-  PSEUDOROOT: "NEEDAFFIX",
-  COMPOUNDLAST: "COMPOUNDEND"
-}
-
-const FLAG_LONG_REGEXP = /../
-const FLAG_NUM_REGEXP = /\d+(?=,|$)/
 
 export type Flag = string
 export type Flags = Set<Flag>
@@ -56,7 +49,7 @@ export class Aff {
   COMPLEXPREFIXES = false
   FULLSTRIP = false
 
-  BREAK: Set<RegExp> = new Set([/-/g, /^-/g, /-$/g])
+  BREAK: Set<RegExp> = C.DEFAULT_BREAK
   COMPOUNDRULE: Set<CompoundRule> = new Set()
   COMPOUNDMIN = 3
   COMPOUNDWORDMAX?: number
@@ -87,7 +80,7 @@ export class Aff {
   WARN?: Flag
   FORBIDWARN = false
   SYLLABLENUM?: string // unused
-  SUBSTANDARD?: string // unused
+  SUBSTANDARD?: Flag // unused
 
   declare casing: Casing
   declare prefixesIndex: PrefixIndex
@@ -102,7 +95,7 @@ export class Aff {
       // skip directive if it doesn't seem real
       if (!/^[A-Z]+$/.test(directive)) continue
 
-      if (SYNONYMS.hasOwnProperty(directive)) directive = SYNONYMS[directive]
+      if (C.SYNONYMS.hasOwnProperty(directive)) directive = C.SYNONYMS[directive]
 
       switch (directive) {
         case "SET":
@@ -169,6 +162,7 @@ export class Aff {
         }
 
         case "BREAK": {
+          this.BREAK = new Set()
           reader.for(parseInt(args[0]), line => {
             let [, pattern] = line.split(/\s+/u)
             pattern = escapeRegExp(pattern).replaceAll("\\^", "^").replaceAll("\\$", "$")
@@ -321,8 +315,8 @@ export class Aff {
       switch (this.FLAG) {
         case "UTF-8":
         case "short": return [...flag]
-        case "long": return FLAG_LONG_REGEXP.exec(flag)?.slice(1) ?? []
-        case "numeric": return FLAG_NUM_REGEXP.exec(flag)?.slice(1) ?? []
+        case "long": return C.FLAG_LONG_REGEX.exec(flag)?.slice(1) ?? []
+        case "numeric": return C.FLAG_NUM_REGEX.exec(flag)?.slice(1) ?? []
       }
     })
 

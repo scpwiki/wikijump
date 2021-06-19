@@ -1,6 +1,5 @@
 import iterate from "iterare"
-
-const REGEX_SPLIT = /^([^]*)\/([^]+)\/([^]*)$/
+import { CONSTANTS as C } from "./constants"
 
 /**
  * Creates a `RegExp` using a string template. Supports flags.
@@ -12,7 +11,7 @@ const REGEX_SPLIT = /^([^]*)\/([^]+)\/([^]*)$/
  * ```
  */
 export function re(strings: TemplateStringsArray, ...keys: any[]) {
-  const split = REGEX_SPLIT.exec(String.raw(strings, ...keys))
+  const split = C.SPLIT_REGEX_REGEX.exec(String.raw(strings, ...keys))
   if (!split) throw new SyntaxError()
   const [, , src = "", flags = ""] = split
   return new RegExp(src, flags)

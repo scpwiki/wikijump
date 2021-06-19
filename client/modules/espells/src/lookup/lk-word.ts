@@ -1,5 +1,4 @@
-import type { CapType } from "../aff/casing"
-import type { CompoundPos } from "./forms"
+import type { CapType, CompoundPos } from "../constants"
 
 export class LKWord {
   constructor(public word: string, public type: CapType, public pos?: CompoundPos) {}

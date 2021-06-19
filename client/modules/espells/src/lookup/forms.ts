@@ -94,12 +94,3 @@ export type CompoundForm = AffixForm[]
  * {@link AffixForm} instances.
  */
 export type WordForm = AffixForm | CompoundForm
-
-export enum CompoundPos {
-  /** The compound segment is at the beginning of the word. */
-  BEGIN,
-  /** The compound segment is somewhere in the middle of the word. */
-  MIDDLE,
-  /** The compound segment is at the end of the word. */
-  END
-}
