@@ -289,7 +289,7 @@ export class Lookup {
         if (
           !withForbidden &&
           this.aff.FORBIDDENWORD &&
-          (lkword.compoundpos !== undefined || form.hasAffixes) &&
+          (lkword.pos !== undefined || form.hasAffixes) &&
           iterate(homonyms).some(({ flags }) => includes(this.aff.FORBIDDENWORD, flags))
         ) {
           return
@@ -301,16 +301,16 @@ export class Lookup {
       }
 
       if (
-        lkword.compoundpos === CompoundPos.BEGIN &&
+        lkword.pos === CompoundPos.BEGIN &&
         this.aff.FORCEUCASE &&
-        lkword.captype === CapType.INIT
+        lkword.type === CapType.INIT
       ) {
         for (const candidate of candidates(form, lowercase(form.stem))) {
           yield candidate
         }
       }
 
-      if (found || lkword.compoundpos !== undefined || lkword.captype !== CapType.ALL) {
+      if (found || lkword.pos !== undefined || lkword.type !== CapType.ALL) {
         continue
       }
 
@@ -341,7 +341,7 @@ export class Lookup {
       if (!allowNoSuggest && includes(aff.NOSUGGEST, rootFlags)) continue
 
       if (
-        lkword.captype !== candidate.inDictionary.capType &&
+        lkword.type !== candidate.inDictionary.capType &&
         includes(aff.KEEPCASE, rootFlags) &&
         !aff.isSharps(candidate.inDictionary.stem)
       ) {
@@ -367,7 +367,7 @@ export class Lookup {
         if (suffixHas !== prefixHas) continue
       }
 
-      if (lkword.compoundpos === undefined) {
+      if (lkword.pos === undefined) {
         if (!includes(aff.ONLYINCOMPOUND, allFlags)) yield candidate
         continue
       }
@@ -379,7 +379,7 @@ export class Lookup {
 
       let passes = false
       // prettier-ignore
-      switch(lkword.compoundpos) {
+      switch(lkword.pos) {
         case CompoundPos.BEGIN:  passes = includes(aff.COMPOUNDBEGIN,  allFlags)
         case CompoundPos.MIDDLE: passes = includes(aff.COMPOUNDMIDDLE, allFlags)
         case CompoundPos.END:    passes = includes(aff.COMPOUNDEND,    allFlags)
@@ -393,14 +393,10 @@ export class Lookup {
     yield new AffixForm(lkword.word)
 
     const suffixAllowed =
-      lkword.compoundpos === undefined ||
-      lkword.compoundpos === CompoundPos.END ||
-      flags.suffix.size
+      lkword.pos === undefined || lkword.pos === CompoundPos.END || flags.suffix.size
 
     const prefixAllowed =
-      lkword.compoundpos === undefined ||
-      lkword.compoundpos === CompoundPos.BEGIN ||
-      flags.prefix.size
+      lkword.pos === undefined || lkword.pos === CompoundPos.BEGIN || flags.prefix.size
 
     if (suffixAllowed) {
       yield* this.desuffix(lkword.word, flags.suffix, flags.forbidden)
@@ -435,7 +431,7 @@ export class Lookup {
 
     if (this.aff.COMPOUNDBEGIN || this.aff.COMPOUNDFLAG) {
       for (const compound of this.compoundsByFlags(lkword, allowNoSuggest)) {
-        if (!this.isBadCompound(compound, lkword.captype)) {
+        if (!this.isBadCompound(compound, lkword.type)) {
           yield compound
         }
       }
@@ -443,7 +439,7 @@ export class Lookup {
 
     if (this.aff.COMPOUNDRULE) {
       for (const compound of this.compoundsByRules(lkword, allowNoSuggest)) {
-        if (!this.isBadCompound(compound, lkword.captype)) {
+        if (!this.isBadCompound(compound, lkword.type)) {
           yield compound
         }
       }
@@ -482,10 +478,10 @@ export class Lookup {
 
     for (let pos = aff.COMPOUNDMIN; pos < lkword.length - aff.COMPOUNDMIN + 1; pos++) {
       const beg = lkword.slice(0, pos)
-      beg.compoundpos = compoundpos
+      beg.pos = compoundpos
 
       const rest = lkword.slice(pos)
-      rest.compoundpos = compoundpos
+      rest.pos = compoundpos
 
       for (const form of this.affixForms(
         beg,

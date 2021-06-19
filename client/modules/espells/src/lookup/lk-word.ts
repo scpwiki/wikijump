@@ -2,14 +2,10 @@ import type { CapType } from "../aff/casing"
 import type { CompoundPos } from "./forms"
 
 export class LKWord {
-  constructor(
-    public word: string,
-    public captype: CapType,
-    public compoundpos?: CompoundPos
-  ) {}
+  constructor(public word: string, public type: CapType, public pos?: CompoundPos) {}
 
   to(word: string) {
-    return new LKWord(word, this.captype)
+    return new LKWord(word, this.type, this.pos)
   }
 
   slice(from?: number, to?: number) {
