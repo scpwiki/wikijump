@@ -1,4 +1,4 @@
-import type { Word } from "cm-nspell"
+import type { Word } from "cm-espells"
 import type { Tree } from "lezer-tree"
 import type { EditorState } from "wj-codemirror/cm"
 

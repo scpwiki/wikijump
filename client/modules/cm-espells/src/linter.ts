@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { EditorView, ViewPlugin, ViewUpdate } from "wj-codemirror/cm"
+import espells from "./espells"
 import { Spellcheck } from "./extension"
 import { getLocale } from "./locales"
-import nspell from "./nspell"
 import { visibleWords } from "./tokenizer"
 
 class SpellcheckLinter {
@@ -34,8 +34,8 @@ class SpellcheckLinter {
   async run() {
     const id = this.id
 
-    const words = visibleWords(this.view, getLocale(nspell.locale))
-    const flagged = await nspell.check(words)
+    const words = visibleWords(this.view, getLocale(espells.locale))
+    const flagged = await espells.check(words)
 
     if (id !== this.id) return
 

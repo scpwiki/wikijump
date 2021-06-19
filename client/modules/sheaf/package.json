@@ -22,7 +22,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "cm-nspell": "workspace:*",
+    "cm-espells": "workspace:*",
     "cm-lang-ftml": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "morphdom": "^2.6.1",

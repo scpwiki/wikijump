@@ -1,7 +1,7 @@
 {
-  "name": "cm-nspell",
+  "name": "cm-espells",
   "license": "agpl-3.0-or-later",
-  "description": "An extension for CodeMirror 6 that adds spellchecking.",
+  "description": "An extension for CodeMirror 6 that adds spellchecking using Espells.",
   "version": "0.0.0",
   "keywords": [
     "wikijump"
@@ -12,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client/modules/cm-nspell"
+    "directory": "client/modules/cm-espells"
   },
   "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
@@ -43,7 +43,6 @@
     "dictionary-vi": "^2.1.3",
     "espells": "workspace:*",
     "lezer-tree": "^0.13.2",
-    "nspell": "^2.1.5",
     "threads-worker-module": "workspace:*",
     "wj-codemirror": "workspace:*",
     "wj-components": "workspace:*",

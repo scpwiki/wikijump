@@ -1,6 +1,6 @@
-# cm-nspell
+# cm-espells
 
-An extension for CodeMirror 6 that adds spellchecking using the NSpell library.
+An extension for CodeMirror 6 that adds spellchecking using the Espells library.
 
 ### Languages
 
@@ -45,12 +45,6 @@ The following languages are missing, if going by the branch list:
 * `sq`
 
 `zh` and `ja` would require a custom solution to be spellchecked. The rest are not added due to a lack of dictionary or that it simply hasn't been done yet.
-
-### Issues
-
-* `it`: Italian can't be loaded due to the enormous amount of words its elision system generates, which consumes too much memory.
-* `ko`: Seemingly doesn't work, despite loading.
-* `hu`: Runs out of memory.
 
 ### Vendored `de` Files
 

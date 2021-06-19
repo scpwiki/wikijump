@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@types/prismjs": "^1.16.5",
-    "cm-nspell": "workspace:*",
+    "cm-espells": "workspace:*",
     "cm-tarnation": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "lezer-tree": "^0.13.2",

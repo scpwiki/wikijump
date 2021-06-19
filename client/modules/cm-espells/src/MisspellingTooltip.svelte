@@ -4,7 +4,7 @@
 <script lang="ts">
   import { focusGroup, TippySingleton, Spinny, anim } from "wj-components"
   import { t } from "wj-state"
-  import nspell from "./nspell"
+  import espells from "./espells"
   import type { EditorSvelteComponentProps } from "wj-codemirror"
   import type { FlaggedWord } from "./types"
 
@@ -17,7 +17,7 @@
   let suggestions: string[] | null = null
 
   if (!word.info.forbidden) {
-    nspell.suggest(word.word).then(result => (suggestions = result))
+    espells.suggest(word.word).then(result => (suggestions = result))
   }
 
   function applySuggestion(suggestion: string) {
@@ -29,7 +29,7 @@
 
   function addToDictionary() {
     if (!view) return
-    nspell.addToLocalDictionary(word.word)
+    espells.addToLocalDictionary(word.word)
     // replace range anyways so that the view gets updated
     view.dispatch({
       changes: { from: word.from, to: word.to, insert: word.word }

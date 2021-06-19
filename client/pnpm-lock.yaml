@@ -88,33 +88,7 @@ importers:
       vite: 2.3.7
       vite-tsconfig-paths: 3.3.13_vite@2.3.7
 
-  modules/cm-lang-ftml:
-    specifiers:
-      '@types/prismjs': ^1.16.5
-      cm-nspell: workspace:*
-      cm-tarnation: workspace:*
-      ftml-wasm-worker: workspace:*
-      lezer-tree: ^0.13.2
-      threads-worker-module: workspace:*
-      wj-codemirror: workspace:*
-      wj-components: workspace:*
-      wj-prism: workspace:*
-      wj-state: workspace:*
-      wj-util: workspace:*
-    dependencies:
-      '@types/prismjs': 1.16.5
-      cm-nspell: link:../cm-nspell
-      cm-tarnation: link:../cm-tarnation
-      ftml-wasm-worker: link:../ftml-wasm-worker
-      lezer-tree: 0.13.2
-      threads-worker-module: link:../threads-worker-module
-      wj-codemirror: link:../wj-codemirror
-      wj-components: link:../wj-components
-      wj-prism: link:../wj-prism
-      wj-state: link:../wj-state
-      wj-util: link:../wj-util
-
-  modules/cm-nspell:
+  modules/cm-espells:
     specifiers:
       '@types/nspell': ^2.1.0
       dictionary-cs: ^2.0.3
@@ -138,9 +112,8 @@ importers:
       dictionary-tr: ^1.3.4
       dictionary-uk: ^2.3.0
       dictionary-vi: ^2.1.3
-      espells: workspace:^0.0.0
+      espells: workspace:*
       lezer-tree: ^0.13.2
-      nspell: ^2.1.5
       threads-worker-module: workspace:*
       wj-codemirror: workspace:*
       wj-components: workspace:*
@@ -170,7 +143,6 @@ importers:
       dictionary-vi: 2.1.3
       espells: link:../espells
       lezer-tree: 0.13.2
-      nspell: 2.1.5
       threads-worker-module: link:../threads-worker-module
       wj-codemirror: link:../wj-codemirror
       wj-components: link:../wj-components
@@ -178,6 +150,32 @@ importers:
       wj-util: link:../wj-util
     devDependencies:
       '@types/nspell': 2.1.0
+
+  modules/cm-lang-ftml:
+    specifiers:
+      '@types/prismjs': ^1.16.5
+      cm-espells: workspace:*
+      cm-tarnation: workspace:*
+      ftml-wasm-worker: workspace:*
+      lezer-tree: ^0.13.2
+      threads-worker-module: workspace:*
+      wj-codemirror: workspace:*
+      wj-components: workspace:*
+      wj-prism: workspace:*
+      wj-state: workspace:*
+      wj-util: workspace:*
+    dependencies:
+      '@types/prismjs': 1.16.5
+      cm-espells: link:../cm-espells
+      cm-tarnation: link:../cm-tarnation
+      ftml-wasm-worker: link:../ftml-wasm-worker
+      lezer-tree: 0.13.2
+      threads-worker-module: link:../threads-worker-module
+      wj-codemirror: link:../wj-codemirror
+      wj-components: link:../wj-components
+      wj-prism: link:../wj-prism
+      wj-state: link:../wj-state
+      wj-util: link:../wj-util
 
   modules/cm-tarnation:
     specifiers:
@@ -199,6 +197,12 @@ importers:
       wj-codemirror: link:../wj-codemirror
       wj-util: link:../wj-util
 
+  modules/espells:
+    specifiers:
+      iterare: ^1.2.1
+    dependencies:
+      iterare: 1.2.1
+
   modules/ftml-wasm:
     specifiers: {}
 
@@ -218,8 +222,8 @@ importers:
 
   modules/sheaf:
     specifiers:
+      cm-espells: workspace:*
       cm-lang-ftml: workspace:*
-      cm-nspell: workspace:*
       ftml-wasm-worker: workspace:*
       morphdom: ^2.6.1
       svelte: ^3.38.2
@@ -229,8 +233,8 @@ importers:
       wj-state: workspace:*
       wj-util: workspace:*
     dependencies:
+      cm-espells: link:../cm-espells
       cm-lang-ftml: link:../cm-lang-ftml
-      cm-nspell: link:../cm-nspell
       ftml-wasm-worker: link:../ftml-wasm-worker
       morphdom: 2.6.1
       typescript-memoize: 1.0.1
@@ -604,7 +608,7 @@ packages:
       '@codemirror/state': 0.18.7
       '@codemirror/text': 0.18.0
       '@codemirror/tooltip': 0.18.4
-      '@codemirror/view': 0.18.16
+      '@codemirror/view': 0.18.17
       lezer-tree: 0.13.2
     dev: false
 
@@ -680,7 +684,7 @@ packages:
       '@codemirror/language': 0.18.2
       '@codemirror/rangeset': 0.18.1
       '@codemirror/state': 0.18.7
-      '@codemirror/view': 0.18.16
+      '@codemirror/view': 0.18.17
       lezer-tree: 0.13.2
       style-mod: 4.0.0
     dev: false
@@ -750,7 +754,7 @@ packages:
       '@codemirror/language': 0.18.2
       '@codemirror/lint': 0.18.3
       '@codemirror/state': 0.18.7
-      '@codemirror/view': 0.18.16
+      '@codemirror/view': 0.18.17
       lezer-javascript: 0.13.4
     dev: false
 
@@ -769,7 +773,7 @@ packages:
       '@codemirror/lang-html': 0.18.1
       '@codemirror/language': 0.18.2
       '@codemirror/state': 0.18.7
-      '@codemirror/view': 0.18.16
+      '@codemirror/view': 0.18.17
       lezer-markdown: 0.14.5
       lezer-tree: 0.13.2
     dev: false
@@ -852,7 +856,7 @@ packages:
       '@codemirror/panel': 0.18.1
       '@codemirror/state': 0.18.7
       '@codemirror/tooltip': 0.18.4
-      '@codemirror/view': 0.18.16
+      '@codemirror/view': 0.18.17
       crelt: 1.0.5
     dev: false
 
@@ -879,7 +883,7 @@ packages:
     resolution: {integrity: sha512-5Zo9cUw0QDlFzX4nhIDYjTARPOnPk5rzxAUQo1O35kTLV+6zRh7wsGlvU7VrZnBcIoaAmHfKrZ4lt6+h7fbFGw==}
     dependencies:
       '@codemirror/state': 0.18.7
-      '@codemirror/view': 0.18.16
+      '@codemirror/view': 0.18.17
     dev: false
 
   /@codemirror/panel/0.18.2:
@@ -952,16 +956,6 @@ packages:
     dependencies:
       '@codemirror/state': 0.18.7
       '@codemirror/view': 0.18.17
-    dev: false
-
-  /@codemirror/view/0.18.16:
-    resolution: {integrity: sha512-5sFdVXV4Gdw8/JfyjzIAVL+IrLIGPoXrqs+fZmu3rPMQEnw7u/EkG2aKxnwf/IdDPLLVK6FDRWoddaZ25VIjdQ==}
-    dependencies:
-      '@codemirror/rangeset': 0.18.2
-      '@codemirror/state': 0.18.7
-      '@codemirror/text': 0.18.0
-      style-mod: 4.0.0
-      w3c-keyname: 2.2.4
     dev: false
 
   /@codemirror/view/0.18.17:
@@ -3017,6 +3011,7 @@ packages:
   /is-buffer/2.0.5:
     resolution: {integrity: sha512-i2R6zNFDwgEHJyQUtJEk0XFi1i0dPFn/oqjK3/vPCcDeJvW5NQ83V8QbicfF1SupOaB0h8ntgBC2YiE7dfyctQ==}
     engines: {node: '>=4'}
+    dev: true
 
   /is-callable/1.2.3:
     resolution: {integrity: sha512-J1DcMe8UYTBSrKezuIUTUwjXsho29693unXM2YhJUTR2txK/eG47bvNa/wipPFmZFgr/N6f1GA66dv0mEyTIyQ==}
@@ -3215,6 +3210,11 @@ packages:
       html-escaper: 2.0.2
       istanbul-lib-report: 3.0.0
     dev: true
+
+  /iterare/1.2.1:
+    resolution: {integrity: sha512-RKYVTCjAnRthyJes037NX/IiqeidgN1xc3j1RjFfECFp28A1GVwK9nA+i0rJPaHqSZwygLzRnFlzUuHFoWWy+Q==}
+    engines: {node: '>=6'}
+    dev: false
 
   /jju/1.4.0:
     resolution: {integrity: sha1-o6vicYryQaKykE+EpiWXDzia4yo=}
@@ -3779,12 +3779,6 @@ packages:
     dependencies:
       path-key: 3.1.1
     dev: true
-
-  /nspell/2.1.5:
-    resolution: {integrity: sha512-PSStyugKMiD9mHmqI/CR5xXrSIGejUXPlo88FBRq5Og1kO5QwQ5Ilu8D8O5I/SHpoS+mibpw6uKA8rd3vXd2Sg==}
-    dependencies:
-      is-buffer: 2.0.5
-    dev: false
 
   /num2fraction/1.2.2:
     resolution: {integrity: sha1-b2gragJ6Tp3fpFZM0lidHU5mnt4=}
