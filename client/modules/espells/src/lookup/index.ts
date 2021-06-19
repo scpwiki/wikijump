@@ -8,6 +8,7 @@ import type { Word } from "../dic/word"
 import { replchars } from "../permutations"
 import { any, includes, isUppercased, lowercase, reverse } from "../util"
 import { AffixForm, CompoundForm, CompoundPos } from "./forms"
+import { LKWord } from "./lk-word"
 
 const NUMBER_REGEX = /^\d+(\.\d+)?$/
 
@@ -20,7 +21,6 @@ export interface LookupResult {
 export interface LKC {
   caps?: boolean
   allowNoSuggest?: boolean
-  compoundpos?: CompoundPos
   affixForms?: boolean
   compoundForms?: boolean
   withForbidden?: boolean
@@ -95,15 +95,7 @@ export class Lookup {
    * @param compounds - If provided, this boolean will toggle between
    *   checking only affix forms or compound forms.
    */
-  correct(
-    word: string,
-    {
-      caps = true,
-      allowNoSuggest = true,
-      affixForms = true,
-      compoundForms = true
-    }: LKC = {}
-  ) {
+  correct(word: string, { caps, allowNoSuggest, affixForms, compoundForms }: LKC = {}) {
     return any(this.goodForms(word, { caps, allowNoSuggest, affixForms, compoundForms }))
   }
 
@@ -140,8 +132,6 @@ export class Lookup {
     }
   }
 
-  // -- CHECKING WORDS
-
   /**
    * Yields combinations of stems and affixes for a word, specifically
    * yielding instances of {@link AffixForm}. If this function does actually
@@ -173,15 +163,17 @@ export class Lookup {
       variants = [word]
     }
 
+    const lkword = new LKWord(word, captype)
+
     for (const variant of variants) {
       if (affixForms) {
-        for (const form of this.affixForms(variant, captype, { allowNoSuggest })) {
+        for (const form of this.affixForms(lkword.to(variant), { allowNoSuggest })) {
           if (
             form.inDictionary &&
             captype === CapType.ALL &&
             includes(this.aff.KEEPCASE, form.flags) &&
             this.aff.isSharps(form.inDictionary.stem) &&
-            this.aff.isSharps(word)
+            this.aff.isSharps(lkword.word)
           ) {
             continue
           }
@@ -189,7 +181,7 @@ export class Lookup {
         }
       }
       if (compoundForms) {
-        yield* this.compoundForms(word, captype, { allowNoSuggest })
+        yield* this.compoundForms(lkword, { allowNoSuggest })
       }
     }
   }
@@ -281,15 +273,14 @@ export class Lookup {
   // -- AFFIX FORMS
 
   *affixForms(
-    word: string,
-    captype: CapType,
-    { allowNoSuggest = true, compoundpos, withForbidden = false }: LKC = {},
+    lkword: LKWord,
+    { allowNoSuggest = true, withForbidden = false }: LKC = {},
     flags: LKFlags = { prefix: new Set(), suffix: new Set(), forbidden: new Set() }
   ) {
-    const candidates = (form: AffixForm, word: string, caps = false, words?: Set<Word>) =>
-      this.candidates(form, captype, word, { allowNoSuggest, compoundpos, caps }, words)
+    const candidates = (form: AffixForm, stem: string, caps = false, words?: Set<Word>) =>
+      this.candidates(form, lkword, { allowNoSuggest, caps }, stem, words)
 
-    for (const form of this.produceAffixForms(word, flags, compoundpos)) {
+    for (const form of this.produceAffixForms(lkword, flags)) {
       let found = false
 
       const homonyms = this.dic.homonyms(form.stem)
@@ -298,7 +289,7 @@ export class Lookup {
         if (
           !withForbidden &&
           this.aff.FORBIDDENWORD &&
-          (compoundpos !== undefined || form.hasAffixes) &&
+          (lkword.compoundpos !== undefined || form.hasAffixes) &&
           iterate(homonyms).some(({ flags }) => includes(this.aff.FORBIDDENWORD, flags))
         ) {
           return
@@ -310,18 +301,20 @@ export class Lookup {
       }
 
       if (
-        compoundpos === CompoundPos.BEGIN &&
+        lkword.compoundpos === CompoundPos.BEGIN &&
         this.aff.FORCEUCASE &&
-        captype === CapType.INIT
+        lkword.captype === CapType.INIT
       ) {
         for (const candidate of candidates(form, lowercase(form.stem))) {
           yield candidate
         }
       }
 
-      if (found || compoundpos !== undefined || captype !== CapType.ALL) continue
+      if (found || lkword.compoundpos !== undefined || lkword.captype !== CapType.ALL) {
+        continue
+      }
 
-      if (this.aff.casing.guess(word) === CapType.NO) {
+      if (this.aff.casing.guess(lkword.word) === CapType.NO) {
         for (const candidate of candidates(form, form.stem, true)) {
           yield candidate
         }
@@ -331,13 +324,13 @@ export class Lookup {
 
   *candidates(
     form: AffixForm,
-    captype: CapType,
-    word: string,
-    { allowNoSuggest = true, compoundpos, caps = true }: LKC = {},
+    lkword: LKWord,
+    { allowNoSuggest = true, caps = true }: LKC = {},
+    stem = form.stem,
     homonyms?: Set<Word>
   ) {
     const aff = this.aff
-    for (const homonym of homonyms ?? this.dic.homonyms(word, !caps)) {
+    for (const homonym of homonyms ?? this.dic.homonyms(stem, !caps)) {
       const candidate = form.replace({ inDictionary: homonym })
 
       if (!candidate.inDictionary) continue
@@ -348,7 +341,7 @@ export class Lookup {
       if (!allowNoSuggest && includes(aff.NOSUGGEST, rootFlags)) continue
 
       if (
-        captype !== candidate.inDictionary.capType &&
+        lkword.captype !== candidate.inDictionary.capType &&
         includes(aff.KEEPCASE, rootFlags) &&
         !aff.isSharps(candidate.inDictionary.stem)
       ) {
@@ -374,7 +367,7 @@ export class Lookup {
         if (suffixHas !== prefixHas) continue
       }
 
-      if (compoundpos === null) {
+      if (lkword.compoundpos === undefined) {
         if (!includes(aff.ONLYINCOMPOUND, allFlags)) yield candidate
         continue
       }
@@ -386,7 +379,7 @@ export class Lookup {
 
       let passes = false
       // prettier-ignore
-      switch(compoundpos) {
+      switch(lkword.compoundpos) {
         case CompoundPos.BEGIN:  passes = includes(aff.COMPOUNDBEGIN,  allFlags)
         case CompoundPos.MIDDLE: passes = includes(aff.COMPOUNDMIDDLE, allFlags)
         case CompoundPos.END:    passes = includes(aff.COMPOUNDEND,    allFlags)
@@ -396,19 +389,25 @@ export class Lookup {
     }
   }
 
-  *produceAffixForms(word: string, flags: LKFlags, compoundpos?: CompoundPos) {
-    yield new AffixForm(word, word)
+  *produceAffixForms(lkword: LKWord, flags: LKFlags) {
+    yield new AffixForm(lkword.word)
 
     const suffixAllowed =
-      compoundpos === undefined || compoundpos === CompoundPos.END || flags.suffix.size
+      lkword.compoundpos === undefined ||
+      lkword.compoundpos === CompoundPos.END ||
+      flags.suffix.size
+
     const prefixAllowed =
-      compoundpos === undefined || compoundpos === CompoundPos.BEGIN || flags.prefix.size
+      lkword.compoundpos === undefined ||
+      lkword.compoundpos === CompoundPos.BEGIN ||
+      flags.prefix.size
 
     if (suffixAllowed) {
-      yield* this.desuffix(word, flags.suffix, flags.forbidden)
+      yield* this.desuffix(lkword.word, flags.suffix, flags.forbidden)
     }
+
     if (prefixAllowed) {
-      for (const form of this.deprefix(word, flags.prefix, flags.forbidden)) {
+      for (const form of this.deprefix(lkword.word, flags.prefix, flags.forbidden)) {
         yield form
         if (suffixAllowed && form.prefix?.crossproduct) {
           for (const form2 of this.desuffix(
@@ -427,34 +426,24 @@ export class Lookup {
 
   // -- COMPOUND FORMS
 
-  *compoundForms(word: string, captype: CapType, { allowNoSuggest = true }: LKC = {}) {
+  *compoundForms(lkword: LKWord, { allowNoSuggest = true }: LKC = {}) {
     if (this.aff.FORBIDDENWORD) {
-      for (const candidate of this.affixForms(word, captype, { withForbidden: true })) {
+      for (const candidate of this.affixForms(lkword, { withForbidden: true })) {
         if (candidate.flags.has(this.aff.FORBIDDENWORD)) return
       }
     }
 
     if (this.aff.COMPOUNDBEGIN || this.aff.COMPOUNDFLAG) {
-      for (const compound of this.compoundsByFlags(
-        word,
-        captype,
-        undefined,
-        allowNoSuggest
-      )) {
-        if (!this.isBadCompound(compound, captype)) {
+      for (const compound of this.compoundsByFlags(lkword, allowNoSuggest)) {
+        if (!this.isBadCompound(compound, lkword.captype)) {
           yield compound
         }
       }
     }
 
     if (this.aff.COMPOUNDRULE) {
-      for (const compound of this.compoundsByRules(
-        word,
-        undefined,
-        undefined,
-        allowNoSuggest
-      )) {
-        if (!this.isBadCompound(compound, captype)) {
+      for (const compound of this.compoundsByRules(lkword, allowNoSuggest)) {
+        if (!this.isBadCompound(compound, lkword.captype)) {
           yield compound
         }
       }
@@ -462,10 +451,9 @@ export class Lookup {
   }
 
   *compoundsByFlags(
-    word: string,
-    captype: CapType,
-    depth = 0,
-    allowNoSuggest = true
+    lkword: LKWord,
+    allowNoSuggest = true,
+    depth = 0
   ): Generator<CompoundForm> {
     const aff = this.aff
 
@@ -477,8 +465,7 @@ export class Lookup {
 
     if (depth) {
       for (const form of this.affixForms(
-        word,
-        captype,
+        lkword,
         { allowNoSuggest },
         { prefix: permitFlags, suffix: new Set(), forbidden: forbiddenFlags }
       )) {
@@ -486,47 +473,38 @@ export class Lookup {
       }
     }
 
-    if (word.length < aff.COMPOUNDMIN * 2) return
+    if (lkword.length < aff.COMPOUNDMIN * 2) return
     if (aff.COMPOUNDWORDMAX && depth > aff.COMPOUNDWORDMAX) return
 
     const compoundpos = depth ? CompoundPos.MIDDLE : CompoundPos.BEGIN
     const prefixFlags =
       compoundpos === CompoundPos.BEGIN ? new Set<string>() : permitFlags
 
-    for (let pos = aff.COMPOUNDMIN; pos < word.length - aff.COMPOUNDMIN + 1; pos++) {
-      const beg = word.slice(0, pos)
-      const rest = word.slice(pos)
+    for (let pos = aff.COMPOUNDMIN; pos < lkword.length - aff.COMPOUNDMIN + 1; pos++) {
+      const beg = lkword.slice(0, pos)
+      beg.compoundpos = compoundpos
+
+      const rest = lkword.slice(pos)
+      rest.compoundpos = compoundpos
 
       for (const form of this.affixForms(
         beg,
-        captype,
-        { allowNoSuggest, compoundpos },
+        { allowNoSuggest },
         { prefix: prefixFlags, suffix: permitFlags, forbidden: forbiddenFlags }
       )) {
-        for (const partial of this.compoundsByFlags(
-          rest,
-          captype,
-          depth + 1,
-          allowNoSuggest
-        )) {
+        for (const partial of this.compoundsByFlags(rest, allowNoSuggest, depth + 1)) {
           yield [form, ...partial]
         }
       }
 
-      if (aff.SIMPLIFIEDTRIPLE && beg[-1] === rest[0]) {
+      if (aff.SIMPLIFIEDTRIPLE && beg.at(-1) === rest.at(0)) {
         for (const form of this.affixForms(
-          beg + beg[-1],
-          captype,
-          { allowNoSuggest, compoundpos },
+          beg.add(beg.at(-1)),
+          { allowNoSuggest },
           { prefix: prefixFlags, suffix: permitFlags, forbidden: forbiddenFlags }
         )) {
-          for (const partial of this.compoundsByFlags(
-            rest,
-            captype,
-            depth + 1,
-            allowNoSuggest
-          )) {
-            yield [form.replace({ text: beg }), ...partial]
+          for (const partial of this.compoundsByFlags(rest, allowNoSuggest, depth + 1)) {
+            yield [form.replace({ text: beg.word }), ...partial]
           }
         }
       }
@@ -534,17 +512,17 @@ export class Lookup {
   }
 
   *compoundsByRules(
-    word: string,
+    lkword: LKWord,
+    allowNoSuggest = true,
     prev: Word[] = [],
-    rules: null | Set<CompoundRule> = null,
-    allowNoSuggest = true
+    rules: null | Set<CompoundRule> = null
   ): Generator<CompoundForm> {
     const aff = this.aff
 
     if (rules === null) rules = this.aff.COMPOUNDRULE
 
     if (prev.length) {
-      for (const homonym of this.dic.homonyms(word)) {
+      for (const homonym of this.dic.homonyms(lkword.word)) {
         const parts = [...prev, homonym]
         const flagSets = iterate(parts)
           .filter(word => Boolean(word.flags))
@@ -552,19 +530,19 @@ export class Lookup {
           .toSet()
         for (const rule of rules) {
           if (rule.match(flagSets)) {
-            yield [new AffixForm(word, word)]
+            yield [new AffixForm(lkword.word)]
           }
         }
       }
     }
 
-    if (word.length < aff.COMPOUNDMIN * 2) return
+    if (lkword.length < aff.COMPOUNDMIN * 2) return
     if (aff.COMPOUNDWORDMAX && prev.length >= aff.COMPOUNDWORDMAX) return
 
-    for (let pos = aff.COMPOUNDMIN; pos < word.length - aff.COMPOUNDMIN + 1; pos++) {
-      const beg = word.slice(0, pos)
+    for (let pos = aff.COMPOUNDMIN; pos < lkword.length - aff.COMPOUNDMIN + 1; pos++) {
+      const beg = lkword.slice(0, pos)
 
-      for (const homonynm of this.dic.homonyms(beg)) {
+      for (const homonynm of this.dic.homonyms(beg.word)) {
         const parts = [...prev, homonynm]
         const flagSets = iterate(parts)
           .filter(word => Boolean(word.flags))
@@ -575,12 +553,12 @@ export class Lookup {
           .toSet()
         if (compoundRules.size) {
           for (const rest of this.compoundsByRules(
-            word.slice(pos),
+            lkword.slice(pos),
+            allowNoSuggest,
             parts,
-            compoundRules,
-            allowNoSuggest
+            compoundRules
           )) {
-            yield [new AffixForm(beg, beg), ...rest]
+            yield [new AffixForm(beg.word), ...rest]
           }
         }
       }
@@ -604,20 +582,16 @@ export class Lookup {
         const rightParadigm = compound[idx + 1]
         const right = rightParadigm.text
 
-        if (aff.COMPOUNDFORBIDFLAG) {
-          if (this.dic.hasFlag(left, aff.COMPOUNDFORBIDFLAG)) {
-            return true
-          }
+        if (this.dic.hasFlag(left, aff.COMPOUNDFORBIDFLAG)) {
+          return true
         }
 
-        if (any(this.affixForms(`${left} ${right}`, captype))) return true
+        if (any(this.affixForms(new LKWord(`${left} ${right}`, captype)))) return true
 
         if (aff.CHECKCOMPOUNDREP) {
           for (const candidate of replchars(left + right, aff.REP)) {
-            if (
-              typeof candidate === "string" &&
-              any(this.affixForms(candidate, captype))
-            ) {
+            if (typeof candidate !== "string") continue
+            if (any(this.affixForms(new LKWord(candidate, captype)))) {
               return true
             }
           }

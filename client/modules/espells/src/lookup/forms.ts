@@ -37,7 +37,7 @@ export class AffixForm {
     /** The full text of the word. */
     public text: string,
     /** The hypothesized stem of the word. */
-    public stem: string,
+    public stem: string = text,
     { prefix, suffix, prefix2, suffix2, inDictionary }: AffixFormOpts = {}
   ) {
     this.prefix = prefix
