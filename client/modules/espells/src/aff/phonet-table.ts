@@ -1,5 +1,5 @@
 import { CONSTANTS as C } from "../constants"
-import { re } from "../util"
+import { re, uppercase } from "../util"
 
 // TODO: use homegrown metaphone implementation (maybe)
 
@@ -57,6 +57,33 @@ export class PhonetTable {
         )
       )
     }
+  }
+
+  /**
+   * Returns the metaphone representation of a word.
+   *
+   * @param word - The word to transform.
+   */
+  metaphone(word: string) {
+    word = uppercase(word)
+    let pos = 0
+    let res = ""
+
+    while (pos < word.length) {
+      let match: false | RegExpExecArray = false
+      if (this.rules[word[pos]]) {
+        for (const rule of this.rules[word[pos]]) {
+          match = rule.match(word, pos)
+          if (match) {
+            res += rule.replacement
+            pos += match.index! + match[0].length - match.index!
+          }
+        }
+      }
+      if (!match) pos++
+    }
+
+    return res
   }
 }
 

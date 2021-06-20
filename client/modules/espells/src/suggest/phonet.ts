@@ -1,7 +1,7 @@
 import type { PhonetTable } from "../aff/phonet-table"
 import { CONSTANTS as C } from "../constants"
 import type { Word } from "../dic/word"
-import { lcslen, leftCommonSubstring, lowercase, ngram, uppercase } from "../util"
+import { lcslen, leftCommonSubstring, lowercase, ngram } from "../util"
 import { rootScore } from "./ngram"
 import { ScoresList } from "./scores"
 
@@ -11,7 +11,7 @@ export function* phonetSuggest(
   table: PhonetTable
 ) {
   misspelling = lowercase(misspelling)
-  const misspelling_ph = metaphone(table, misspelling)
+  const misspelling_ph = table.metaphone(misspelling)
 
   const scores = new ScoresList<[string]>(C.PHONET_MAX_ROOTS)
 
@@ -29,7 +29,7 @@ export function* phonetSuggest(
     if (nscore <= 2) continue
 
     const score =
-      2 * ngram(3, misspelling_ph, metaphone(table, word.stem), false, false, true)
+      2 * ngram(3, misspelling_ph, table.metaphone(word.stem), false, false, true)
 
     scores.add(score, word.stem)
   }
@@ -50,26 +50,4 @@ function finalScore(word1: string, word2: string) {
     Math.abs(word1.length - word2.length) +
     leftCommonSubstring(word1, word2)
   )
-}
-
-function metaphone(table: PhonetTable, word: string) {
-  word = uppercase(word)
-  let pos = 0
-  let res = ""
-
-  while (pos < word.length) {
-    let match: false | RegExpExecArray = false
-    if (table.rules[word[pos]]) {
-      for (const rule of table.rules[word[pos]]) {
-        match = rule.match(word, pos)
-        if (match) {
-          res += rule.replacement
-          pos += match.index! + match[0].length - match.index!
-        }
-      }
-    }
-    if (!match) pos++
-  }
-
-  return res
 }
