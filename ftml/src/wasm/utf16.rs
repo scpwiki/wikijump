@@ -27,7 +27,6 @@ use std::sync::Arc;
 
 self_cell!(
     struct Utf16IndexMapInner {
-        #[from_fn]
         owner: String,
 
         #[covariant]
@@ -52,7 +51,7 @@ impl Utf16IndexMap {
 
     #[wasm_bindgen(constructor)]
     pub fn new(text: String) -> Utf16IndexMap {
-        let inner = Utf16IndexMapInner::from_fn(text, |text: &String| {
+        let inner = Utf16IndexMapInner::new(text, |text: &String| {
             RustUtf16IndexMap::new(text)
         });
 

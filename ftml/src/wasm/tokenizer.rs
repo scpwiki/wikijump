@@ -49,7 +49,6 @@ extern "C" {
 
 self_cell!(
     struct TokenizationInner {
-        #[from_fn]
         owner: String,
 
         #[covariant]
@@ -97,7 +96,7 @@ impl Tokenization {
 pub fn tokenize(text: String) -> Tokenization {
     let log = &*LOGGER;
     let inner =
-        TokenizationInner::from_fn(text, |text: &String| crate::tokenize(&log, text));
+        TokenizationInner::new(text, |text: &String| crate::tokenize(&log, text));
 
     Tokenization {
         inner: Arc::new(inner),
