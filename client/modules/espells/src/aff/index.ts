@@ -15,6 +15,7 @@ import type {
   CharacterMap,
   Flag,
   Flags,
+  FlagSet,
   PrefixIndex,
   PrefixMap,
   SuffixIndex,
@@ -29,6 +30,7 @@ export type {
   PrefixIndex,
   SuffixIndex,
   Flags,
+  FlagSet,
   AffData
 }
 
