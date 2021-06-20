@@ -1,7 +1,8 @@
 import iterate from "iterare"
-import type { Aff, Flags } from "../aff"
+import type { LKFlags } from "."
+import type { Aff } from "../aff"
 import { Affix, Suffix } from "../aff/affix"
-import { reverse } from "../util"
+import { concat, reverse } from "../util"
 import { AffixForm } from "./forms"
 
 /**
@@ -27,47 +28,48 @@ export function* breakWord(aff: Aff, text: string, depth = 0): Iterable<string[]
   }
 }
 
-export interface DeOpts {
-  required: Flags
-  forbidden: Flags
-  nested?: boolean
+export function isGoodAffix(
+  affix: Affix,
+  word: string,
+  flags: LKFlags,
   crossproduct?: boolean
-}
-
-export function isGoodAffix(affix: Affix, word: string, opts: DeOpts) {
+) {
   if (affix instanceof Suffix) {
-    if (!(opts.crossproduct || affix.crossproduct)) return false
-  }
-
-  for (const flag of affix.flags) {
-    if (opts.forbidden.has(flag) || !opts.required.has(flag)) return false
+    if (!(crossproduct || affix.crossproduct)) return false
+    for (const flag of affix.flags) {
+      if (flags.forbidden.has(flag) || !flags.suffix.has(flag)) return false
+    }
+  } else {
+    for (const flag of affix.flags) {
+      if (flags.forbidden.has(flag) || !flags.prefix.has(flag)) return false
+    }
   }
 
   return affix.lookupRegex.test(word)
 }
 
-export function* desuffix(aff: Aff, word: string, opts: DeOpts): Iterable<AffixForm> {
+export function* desuffix(
+  aff: Aff,
+  word: string,
+  flags: LKFlags,
+  crossproduct?: boolean,
+  nested?: boolean
+): Iterable<AffixForm> {
   const segments = aff.suffixesIndex.segments(reverse(word))
 
   if (segments) {
     const possibleSuffixes = iterate(segments)
       .flatten()
-      .filter(suffix => isGoodAffix(suffix, word, opts))
+      .filter(suffix => isGoodAffix(suffix, word, flags, crossproduct))
 
     for (const suffix of possibleSuffixes) {
       const stem = word.replace(suffix.replaceRegex, suffix.strip)
 
       yield new AffixForm(word, stem, { suffix })
 
-      if (!opts.nested) {
-        const iter = desuffix(aff, stem, {
-          required: iterate(suffix.flags).concat(opts.required).toSet(),
-          forbidden: opts.forbidden,
-          nested: true,
-          crossproduct: opts.crossproduct
-        })
-
-        for (const form2 of iter) {
+      if (!nested) {
+        const newFlags = { ...flags, suffix: concat(suffix.flags, flags.suffix) }
+        for (const form2 of desuffix(aff, stem, newFlags, crossproduct, true)) {
           yield form2.replace({ text: word, suffix2: suffix })
         }
       }
@@ -75,27 +77,27 @@ export function* desuffix(aff: Aff, word: string, opts: DeOpts): Iterable<AffixF
   }
 }
 
-export function* deprefix(aff: Aff, word: string, opts: DeOpts): Iterable<AffixForm> {
+export function* deprefix(
+  aff: Aff,
+  word: string,
+  flags: LKFlags,
+  nested?: boolean
+): Iterable<AffixForm> {
   const segments = aff.prefixesIndex.segments(word)
 
   if (segments) {
     const possiblePrefixes = iterate(segments)
       .flatten()
-      .filter(prefix => isGoodAffix(prefix, word, opts))
+      .filter(prefix => isGoodAffix(prefix, word, flags))
 
     for (const prefix of possiblePrefixes) {
       const stem = word.replace(prefix.replaceRegex, prefix.strip)
 
       yield new AffixForm(word, stem, { prefix })
 
-      if (!opts.nested && aff.COMPLEXPREFIXES) {
-        const iter = deprefix(aff, stem, {
-          required: iterate(prefix.flags).concat(opts.required).toSet(),
-          forbidden: opts.forbidden,
-          crossproduct: opts.crossproduct
-        })
-
-        for (const form2 of iter) {
+      if (!nested && aff.COMPLEXPREFIXES) {
+        const newFlags = { ...flags, prefix: concat(prefix.flags, flags.prefix) }
+        for (const form2 of deprefix(aff, stem, newFlags, true)) {
           yield form2.replace({ text: word, prefix2: prefix })
         }
       }

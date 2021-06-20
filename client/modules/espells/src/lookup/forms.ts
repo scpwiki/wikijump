@@ -1,6 +1,6 @@
-import iterate from "iterare"
 import type { Prefix, Suffix } from "../aff/affix"
 import type { Word } from "../dic/word"
+import { concat } from "../util"
 
 export interface AffixFormOpts {
   /** Outermost prefix. */
@@ -69,8 +69,8 @@ export class AffixForm {
   /** The complete set of flags this form has. */
   get flags() {
     let flags = this.inDictionary?.flags ?? new Set()
-    if (this.prefix) flags = iterate(flags).concat(this.prefix.flags).toSet()
-    if (this.suffix) flags = iterate(flags).concat(this.suffix.flags).toSet()
+    if (this.prefix) flags = concat(flags, this.prefix.flags)
+    if (this.suffix) flags = concat(flags, this.suffix.flags)
     return flags
   }
 

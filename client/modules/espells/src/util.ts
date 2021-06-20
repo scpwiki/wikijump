@@ -153,6 +153,17 @@ export function intersect<T>(a: Set<T>, b: Set<T>) {
     .toSet()
 }
 
+export function concat(a: string, b: Iterable<string>): string
+export function concat<T>(a: Set<T>, b: Iterable<T>): Set<T>
+export function concat<T>(a: T[], b: Iterable<T>): T[]
+export function concat<T>(a: Iterable<T>, b: Iterable<T>): string | Set<T> | T[] {
+  const iter = iterate(a).concat(b)
+  if (typeof a === "string") return iter.join("")
+  if (a instanceof Set) return iter.toSet()
+  if (Array.isArray(a)) return iter.toArray()
+  throw new TypeError("Unknown iterable given!")
+}
+
 // https://gist.github.com/cybercase/db7dde901d7070c98c48#gistcomment-3718142
 type Iterableify<T> = { [K in keyof T]: Iterable<T[K]> }
 export function* product<T extends unknown[]>(
