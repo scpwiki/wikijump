@@ -10,17 +10,31 @@ import { CompoundRule } from "./compound-rule"
 import { ConvTable } from "./conv-table"
 import { PhonetTable } from "./phonet-table"
 import { RepPattern } from "./rep-pattern"
+import type {
+  AffData,
+  CharacterMap,
+  Flag,
+  Flags,
+  PrefixIndex,
+  PrefixMap,
+  SuffixIndex,
+  SuffixMap
+} from "./types"
 
-export type Flag = string
-export type Flags = Set<Flag>
-export type FlagSet = Set<Flags>
-export type PrefixMap = Map<Flag, Set<Prefix>>
-export type SuffixMap = Map<Flag, Set<Suffix>>
-export type PrefixIndex = Trie<Set<Prefix>>
-export type SuffixIndex = Trie<Set<Suffix>>
-export type CharacterMap = Set<Set<string>>
+export type {
+  Flag,
+  CharacterMap,
+  PrefixMap,
+  SuffixMap,
+  PrefixIndex,
+  SuffixIndex,
+  Flags,
+  AffData
+}
 
-export class Aff {
+export class Aff implements AffData {
+  // check AffData for descriptions of these properties
+
   SET = "UTF-8" // unused
   FLAG: "short" | "long" | "numeric" | "UTF-8" = "short"
   LANG?: string
@@ -74,7 +88,7 @@ export class Aff {
   ICONV?: ConvTable
   OCONV?: ConvTable
 
-  AF: Set<string>[] = []
+  AF: Flags[] = []
   AM: Set<string>[] = []
 
   WARN?: Flag
