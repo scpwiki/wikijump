@@ -291,21 +291,24 @@ export class Lookup {
       lkword.pos === undefined || lkword.pos === CompoundPos.BEGIN || flags.prefix.size
 
     if (suffixAllowed) {
-      yield* desuffix(this.aff, lkword.word, flags.suffix, flags.forbidden)
+      yield* desuffix(this.aff, lkword.word, {
+        required: flags.suffix,
+        forbidden: flags.forbidden
+      })
     }
 
     if (prefixAllowed) {
-      for (const form of deprefix(this.aff, lkword.word, flags.prefix, flags.forbidden)) {
+      for (const form of deprefix(this.aff, lkword.word, {
+        required: flags.prefix,
+        forbidden: flags.forbidden
+      })) {
         yield form
         if (suffixAllowed && form.prefix?.crossproduct) {
-          for (const form2 of desuffix(
-            this.aff,
-            form.stem,
-            flags.suffix,
-            flags.forbidden,
-            false,
-            true
-          )) {
+          for (const form2 of desuffix(this.aff, form.stem, {
+            required: flags.suffix,
+            forbidden: flags.forbidden,
+            crossproduct: true
+          })) {
             yield form2.replace({ text: form.text, prefix: form.prefix })
           }
         }

@@ -4,7 +4,7 @@ import { re } from "../util"
 import type { Aff, Flag, Flags } from "./index"
 
 /** Base class for the {@link Prefix}/{@link Suffix} classes. Won't work by itself. */
-abstract class Affix {
+export abstract class Affix {
   /** The {@link Flag} that denotes the "name" for this affix. */
   declare flag: Flag
 
