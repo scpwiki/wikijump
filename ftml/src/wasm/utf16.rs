@@ -51,9 +51,8 @@ impl Utf16IndexMap {
 
     #[wasm_bindgen(constructor)]
     pub fn new(text: String) -> Utf16IndexMap {
-        let inner = Utf16IndexMapInner::new(text, |text: &String| {
-            RustUtf16IndexMap::new(text)
-        });
+        let inner =
+            Utf16IndexMapInner::new(text, |text: &String| RustUtf16IndexMap::new(text));
 
         Utf16IndexMap {
             inner: Arc::new(inner),
