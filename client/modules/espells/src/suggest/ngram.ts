@@ -4,7 +4,7 @@ import type { Prefix, Suffix } from "../aff/affix"
 import { CONSTANTS as C } from "../constants"
 import type { Word } from "../dic/word"
 import { commonCharacters, lcslen, leftCommonSubstring, lowercase, ngram } from "../util"
-import { ScoresList } from "./scores"
+import { rootScore, ScoresList } from "./scores"
 
 export function* ngramSuggest(
   misspelling: string,
@@ -62,13 +62,6 @@ export function* ngramSuggest(
   )
 
   yield* filterGuesses(guesses2, known, onlyMaxDiff)
-}
-
-export function rootScore(word1: string, word2: string) {
-  return (
-    ngram(3, word1, lowercase(word2), false, false, true) +
-    leftCommonSubstring(word1, lowercase(word2))
-  )
 }
 
 function roughAffixScore(word1: string, word2: string) {

@@ -2,8 +2,7 @@ import type { PhonetTable } from "../aff/phonet-table"
 import { CONSTANTS as C } from "../constants"
 import type { Word } from "../dic/word"
 import { lcslen, leftCommonSubstring, lowercase, ngram } from "../util"
-import { rootScore } from "./ngram"
-import { ScoresList } from "./scores"
+import { rootScore, ScoresList } from "./scores"
 
 export function* phonetSuggest(
   misspelling: string,

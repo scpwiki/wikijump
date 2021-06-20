@@ -1,5 +1,6 @@
 import iterate from "iterare"
 import { HeapQueue } from "../heap"
+import { leftCommonSubstring, lowercase, ngram } from "../util"
 
 export type ScoreEntry<T extends any[]> = [number, ...T]
 
@@ -44,4 +45,11 @@ export class ScoresList<T extends any[]> {
         : [...this.heap.data].sort(ScoresList.finishCmp).map(([, ...out]) => out)
     }
   }
+}
+
+export function rootScore(word1: string, word2: string) {
+  return (
+    ngram(3, word1, lowercase(word2), false, false, true) +
+    leftCommonSubstring(word1, lowercase(word2))
+  )
 }
