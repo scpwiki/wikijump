@@ -1,5 +1,5 @@
 import type { Trie } from "../trie"
-import type { Prefix, Suffix } from "./affix"
+import type { Affix, Prefix, Suffix } from "./affix"
 import type { CompoundPattern } from "./compound-pattern"
 import type { CompoundRule } from "./compound-rule"
 import type { ConvTable } from "./conv-table"
@@ -31,6 +31,9 @@ export type PrefixMap = Map<Flag, Set<Prefix>>
  * multiple suffixes, so they're stored in a set.
  */
 export type SuffixMap = Map<Flag, Set<Suffix>>
+
+/** An index, more specifically a {@link Trie}, of {@link Affix}es. */
+export type AffixIndex = Trie<Set<Affix>>
 
 /** An index, more specifically a {@link Trie}, of {@link Prefix}es. */
 export type PrefixIndex = Trie<Set<Prefix>>
