@@ -242,7 +242,7 @@ export class Lookup {
 
       if (aff.NEEDAFFIX) {
         if (candidate.hasAffixes) {
-          if (candidate.affixes().every(affix => affix.flags.has(aff.NEEDAFFIX!))) {
+          if (candidate.affixes().every(affix => affix.has(aff.NEEDAFFIX))) {
             continue
           }
         } else if (rootFlags.has(aff.NEEDAFFIX)) {
@@ -254,8 +254,8 @@ export class Lookup {
       if (candidate.suffix && !allFlags.has(candidate.suffix.flag)) continue
 
       if (aff.CIRCUMFIX) {
-        const suffixHas = Boolean(candidate.suffix?.flags.has(aff.CIRCUMFIX))
-        const prefixHas = Boolean(candidate.prefix?.flags.has(aff.CIRCUMFIX))
+        const suffixHas = Boolean(candidate.suffix?.has(aff.CIRCUMFIX))
+        const prefixHas = Boolean(candidate.prefix?.has(aff.CIRCUMFIX))
         if (suffixHas !== prefixHas) continue
       }
 

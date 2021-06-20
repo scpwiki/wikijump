@@ -140,10 +140,7 @@ function formsFor(
         .filter(flag => allSuffixes.has(flag))
         .map(flag => allSuffixes.get(flag)!)
         .flatten()
-        .filter(
-          suffix =>
-            suffix.conditionRegex.test(word.stem) && similarTo.endsWith(suffix.add)
-        )
+        .filter(suffix => suffix.relevant(word.stem) && similarTo.endsWith(suffix.add))
         .toArray()
 
   const prefixes = !word.flags
@@ -152,10 +149,7 @@ function formsFor(
         .filter(flag => allPrefixes.has(flag))
         .map(flag => allPrefixes.get(flag)!)
         .flatten()
-        .filter(
-          prefix =>
-            prefix.conditionRegex.test(word.stem) && similarTo.startsWith(prefix.add)
-        )
+        .filter(prefix => prefix.relevant(word.stem) && similarTo.startsWith(prefix.add))
         .toArray()
 
   const cross = iterate(prefixes)

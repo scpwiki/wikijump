@@ -72,6 +72,59 @@ export abstract class Affix {
     this.add = add === "0" ? "" : add
     this.flags = flags ? aff.parseFlags(flags) : new Set()
   }
+
+  /**
+   * Determines if a word matches the conditions of this affix.
+   *
+   * @param word - The word to check against this affix's conditions.
+   */
+  relevant(word: string) {
+    return this.conditionRegex.test(word)
+  }
+
+  /**
+   * Determines if a word already has this affix applied to it.
+   *
+   * @param word - The word to check for if this affix is already present.
+   */
+  on(word: string) {
+    return this.lookupRegex.test(word)
+  }
+
+  /**
+   * Applies this affix to a word, returning the word as a transformed string.
+   *
+   * @param word - The word to apply the transformation to.
+   */
+  apply(word: string) {
+    return word.replace(this.replaceRegex, this.strip)
+  }
+
+  /**
+   * Determines if this affix has the given flag.
+   *
+   * @param flag - The flag to check for. Can be undefined, which will return false.
+   */
+  has(flag?: Flag) {
+    if (flag === undefined) return false
+    return this.flags.has(flag)
+  }
+
+  /**
+   * Determines if this affix is compatible with a set of flags, meaning
+   * that the affix's flags are present in the flag set given.
+   *
+   * @param flags - The flags to check against. Every flag this affix has
+   *   must be in this argument.
+   * @param forbidden - An optional set of flags which has the inverse
+   *   effect, meaning that this affix's flags *cannot* be found in this set.
+   */
+  compatible(flags: Flags, forbidden?: Flags) {
+    for (const flag of this.flags) {
+      if (!flags.has(flag) || forbidden?.has(flag)) return false
+    }
+    return true
+  }
 }
 
 /** An {@link Affix} that is applied to or found at the beginning of a stem. */

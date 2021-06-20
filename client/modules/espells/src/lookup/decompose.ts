@@ -1,7 +1,7 @@
 import iterate from "iterare"
 import type { LKFlags } from "."
 import type { Aff } from "../aff"
-import { Affix, Suffix } from "../aff/affix"
+import { Affix, Prefix, Suffix } from "../aff/affix"
 import { concat, reverse } from "../util"
 import { AffixForm } from "./forms"
 
@@ -36,16 +36,12 @@ export function isGoodAffix(
 ) {
   if (affix instanceof Suffix) {
     if (!(crossproduct || affix.crossproduct)) return false
-    for (const flag of affix.flags) {
-      if (flags.forbidden.has(flag) || !flags.suffix.has(flag)) return false
-    }
-  } else {
-    for (const flag of affix.flags) {
-      if (flags.forbidden.has(flag) || !flags.prefix.has(flag)) return false
-    }
+    if (!affix.compatible(flags.suffix, flags.forbidden)) return false
+  } else if (affix instanceof Prefix) {
+    if (!affix.compatible(flags.prefix, flags.forbidden)) return false
   }
 
-  return affix.lookupRegex.test(word)
+  return affix.on(word)
 }
 
 export function* desuffix(
@@ -63,7 +59,7 @@ export function* desuffix(
       .filter(suffix => isGoodAffix(suffix, word, flags, crossproduct))
 
     for (const suffix of possibleSuffixes) {
-      const stem = word.replace(suffix.replaceRegex, suffix.strip)
+      const stem = suffix.apply(word)
 
       yield new AffixForm(word, stem, { suffix })
 
@@ -91,7 +87,7 @@ export function* deprefix(
       .filter(prefix => isGoodAffix(prefix, word, flags))
 
     for (const prefix of possiblePrefixes) {
-      const stem = word.replace(prefix.replaceRegex, prefix.strip)
+      const stem = prefix.apply(word)
 
       yield new AffixForm(word, stem, { prefix })
 
