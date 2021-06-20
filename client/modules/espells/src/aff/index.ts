@@ -34,6 +34,7 @@ export type {
   AffData
 }
 
+/** A resolved and parsed representation of the data found in a Hunspell `.aff` file. */
 export class Aff implements AffData {
   // check AffData for descriptions of these properties
 
@@ -98,10 +99,20 @@ export class Aff implements AffData {
   SYLLABLENUM?: string // unused
   SUBSTANDARD?: Flag // unused
 
+  /**
+   * The {@link Casing} instance for this data. Usually just a normal
+   * {@link Casing} instance, but it may also be {@link GermanCasing},
+   * {@link TurkicCasing}, or something else entirely depending on configuration.
+   */
   declare casing: Casing
+
+  /** An index, more specifically a {@link Trie}, of {@link Prefix}es. */
   declare prefixesIndex: PrefixIndex
+
+  /** An index, more specifically a {@link Trie}, of {@link Suffix}es. */
   declare suffixesIndex: SuffixIndex
 
+  /** @param reader - The {@link Reader} instance to parse with. */
   constructor(reader: Reader) {
     do {
       if (reader.done) break
@@ -328,10 +339,12 @@ export class Aff implements AffData {
     }
   }
 
+  /** Parses a string and returns the first {@link Flag} found. */
   parseFlag(flag: string): Flag {
     return [...this.parseFlags(flag)][0]
   }
 
+  /** Parses a string and returns the {@link Flags} found. */
   parseFlags(flags: string | string[]): Flags {
     if (typeof flags === "string") flags = [flags]
 
@@ -352,6 +365,11 @@ export class Aff implements AffData {
     return new Set(result)
   }
 
+  /**
+   * Utility for handling special cases involving the `CHECKSHARPS`
+   * directive. Returns false if the directive itself is disabled, but
+   * otherwise will determine if the given word contains a `ß`.
+   */
   isSharps(word: string) {
     if (!this.CHECKSHARPS) return false
     return word.includes("ß")
