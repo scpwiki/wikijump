@@ -1,4 +1,4 @@
-import { re } from "../util"
+import { re, replaceRange } from "../util"
 
 /**
  * A replacement pattern describes a pattern and its replacement, with the
@@ -31,8 +31,13 @@ export class RepPattern {
     this.replacement = replacement.replaceAll("_", " ")
   }
 
-  /** Returns an iterator of matches against a word for this instance's pattern. */
-  match(word: string) {
-    return word.matchAll(this.pattern)
+  /** Yields the permutations of a word with this `RepPattern` applied to it. */
+  *replace(word: string): Iterable<string> {
+    for (const match of word.matchAll(this.pattern)) {
+      const from = match.index!
+      const to = from + this.replacement.length
+      const replaced = replaceRange(word, from, to, this.replacement)
+      yield replaced
+    }
   }
 }

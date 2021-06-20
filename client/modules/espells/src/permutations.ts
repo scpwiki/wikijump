@@ -13,17 +13,9 @@ import { replaceRange, uppercase } from "./util"
 export function* replchars(word: string, reps: Set<RepPattern>) {
   if (word.length < 2 || !reps.size) return
   for (const rep of reps) {
-    for (const match of rep.match(word)) {
-      const suggestion = replaceRange(
-        word,
-        match.index!,
-        match.index! + rep.replacement.length,
-        rep.replacement
-      )
+    for (const suggestion of rep.replace(word)) {
       yield suggestion
-      if (suggestion.includes(" ")) {
-        yield suggestion.split(" ", 2)
-      }
+      if (suggestion.includes(" ")) yield suggestion.split(" ", 2)
     }
   }
 }
