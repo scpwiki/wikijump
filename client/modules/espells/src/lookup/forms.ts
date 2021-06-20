@@ -1,16 +1,21 @@
 import type { Prefix, Suffix } from "../aff/affix"
 import type { Word } from "../dic/word"
 import { concat } from "../util"
+import { LKWord } from "./lk-word"
 
 export interface AffixFormOpts {
   /** Outermost prefix. */
   prefix?: Prefix
+
   /** Outermost suffix. */
   suffix?: Suffix
+
   /** Innermost prefix. */
   prefix2?: Prefix
+
   /** Innermost suffix. */
   suffix2?: Suffix
+
   /** The word as found in the spellchecker's dictionary. */
   inDictionary?: Word
 }
@@ -22,24 +27,40 @@ export interface AffixFormOpts {
  * Instances with no actual affixes are valid, as well.
  */
 export class AffixForm {
+  /** The full text of the word. */
+  declare text: string
+
+  /** The hypothesized stem of the word. */
+  declare stem: string
+
   /** Outermost prefix. */
   declare prefix?: Prefix
+
   /** Outermost suffix. */
   declare suffix?: Suffix
+
   /** Innermost prefix. */
   declare prefix2?: Prefix
+
   /** Innermost suffix. */
   declare suffix2?: Suffix
+
   /** The word as found in the spellchecker's dictionary. */
   declare inDictionary?: Word
 
   constructor(
-    /** The full text of the word. */
-    public text: string,
-    /** The hypothesized stem of the word. */
-    public stem: string = text,
+    text: string | LKWord,
+    stem?: string,
     { prefix, suffix, prefix2, suffix2, inDictionary }: AffixFormOpts = {}
   ) {
+    if (text instanceof LKWord) {
+      this.text = text.word
+      this.stem = stem ?? text.word
+    } else {
+      this.text = text
+      this.stem = stem ?? text
+    }
+
     this.prefix = prefix
     this.suffix = suffix
     this.prefix2 = prefix2
@@ -51,7 +72,7 @@ export class AffixForm {
    * Returns a new {@link AffixForm}, cloned from this current instance, but
    * with any properties given replaced.
    */
-  replace(opts: { text?: string; stem?: string } & AffixFormOpts) {
+  replace(opts: { text?: string | LKWord; stem?: string } & AffixFormOpts) {
     return new AffixForm(opts.text ?? this.text, opts.stem ?? this.stem, {
       prefix: opts.prefix ?? this.prefix,
       suffix: opts.suffix ?? this.suffix,

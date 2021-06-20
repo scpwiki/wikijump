@@ -282,7 +282,7 @@ export class Lookup {
   }
 
   *produceAffixForms(lkword: LKWord, flags: LKFlags) {
-    yield new AffixForm(lkword.word)
+    yield new AffixForm(lkword)
 
     const suffixAllowed =
       lkword.pos === undefined || lkword.pos === CompoundPos.END || flags.suffix.size
@@ -412,7 +412,7 @@ export class Lookup {
           .toSet()
         for (const rule of rules) {
           if (rule.match(flagSets)) {
-            yield [new AffixForm(lkword.word)]
+            yield [new AffixForm(lkword)]
           }
         }
       }
@@ -440,7 +440,7 @@ export class Lookup {
             parts,
             compoundRules
           )) {
-            yield [new AffixForm(beg.word), ...rest]
+            yield [new AffixForm(beg), ...rest]
           }
         }
       }
