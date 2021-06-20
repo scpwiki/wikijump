@@ -114,7 +114,11 @@ export class Aff {
             args[0] === "numeric" ||
             args[0] === "UTF-8"
           ) {
-            this[directive] = args[0]
+            this.FLAG = args[0]
+          }
+          // try alternatives
+          else if (args[0] === "num") {
+            this.FLAG = "numeric"
           }
           break
         }
