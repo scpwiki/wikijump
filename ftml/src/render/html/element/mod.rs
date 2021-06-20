@@ -85,7 +85,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             target,
         } => render_anchor(log, ctx, elements, attributes, *target),
         Element::Link { url, label, target } => {
-            render_link(log, ctx, &url, label, *target)
+            render_link(log, ctx, url, label, *target)
         }
         Element::Image {
             source,
@@ -98,7 +98,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             name,
             checked,
             attributes,
-        } => render_radio_button(log, ctx, &name, *checked, attributes),
+        } => render_radio_button(log, ctx, name, *checked, attributes),
         Element::CheckBox {
             checked,
             attributes,
@@ -140,7 +140,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 render_elements(log, ctx, elements);
             }
         }
-        Element::User { name, show_avatar } => render_user(log, ctx, &name, *show_avatar),
+        Element::User { name, show_avatar } => render_user(log, ctx, name, *show_avatar),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)

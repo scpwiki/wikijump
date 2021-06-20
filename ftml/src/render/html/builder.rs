@@ -180,7 +180,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 
     pub fn attr_map(&mut self, map: &AttributeMap) -> &mut Self {
         for (key, value) in map.get() {
-            self.attr(&key, &[value]);
+            self.attr(key, &[value]);
         }
 
         self
@@ -197,9 +197,9 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             // Otherwise, just pass in the value
             if key.eq_ignore_ascii_case(extra_key) {
                 merged = true;
-                self.attr(&key, &[extra_value, " ", value]);
+                self.attr(key, &[extra_value, " ", value]);
             } else {
-                self.attr(&key, &[value]);
+                self.attr(key, &[value]);
             }
         }
 

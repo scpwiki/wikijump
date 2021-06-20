@@ -271,18 +271,18 @@ impl Element<'_> {
                 attributes,
                 target,
             } => Element::Anchor {
-                elements: elements_to_owned(&elements),
+                elements: elements_to_owned(elements),
                 attributes: attributes.to_owned(),
                 target: *target,
             },
             Element::Link { url, label, target } => Element::Link {
-                url: string_to_owned(&url),
+                url: string_to_owned(url),
                 label: label.to_owned(),
                 target: *target,
             },
             Element::List { ltype, items } => Element::List {
                 ltype: *ltype,
-                items: list_items_to_owned(&items),
+                items: list_items_to_owned(items),
             },
             Element::Image {
                 source,
@@ -300,7 +300,7 @@ impl Element<'_> {
                 checked,
                 attributes,
             } => Element::RadioButton {
-                name: string_to_owned(&name),
+                name: string_to_owned(name),
                 checked: *checked,
                 attributes: attributes.to_owned(),
             },
@@ -320,11 +320,11 @@ impl Element<'_> {
                 show_top,
                 show_bottom,
             } => Element::Collapsible {
-                elements: elements_to_owned(&elements),
+                elements: elements_to_owned(elements),
                 attributes: attributes.to_owned(),
                 start_open: *start_open,
-                show_text: option_string_to_owned(&show_text),
-                hide_text: option_string_to_owned(&hide_text),
+                show_text: option_string_to_owned(show_text),
+                hide_text: option_string_to_owned(hide_text),
                 show_top: *show_top,
                 show_bottom: *show_bottom,
             },
@@ -333,32 +333,32 @@ impl Element<'_> {
                 elements,
             } => Element::IfCategory {
                 conditions: conditions.iter().map(|c| c.to_owned()).collect(),
-                elements: elements_to_owned(&elements),
+                elements: elements_to_owned(elements),
             },
             Element::IfTags {
                 conditions,
                 elements,
             } => Element::IfTags {
                 conditions: conditions.iter().map(|c| c.to_owned()).collect(),
-                elements: elements_to_owned(&elements),
+                elements: elements_to_owned(elements),
             },
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,
             },
             Element::Color { color, elements } => Element::Color {
-                color: string_to_owned(&color),
-                elements: elements_to_owned(&elements),
+                color: string_to_owned(color),
+                elements: elements_to_owned(elements),
             },
             Element::Code { contents, language } => Element::Code {
-                contents: string_to_owned(&contents),
-                language: option_string_to_owned(&language),
+                contents: string_to_owned(contents),
+                language: option_string_to_owned(language),
             },
             Element::Html { contents } => Element::Html {
-                contents: string_to_owned(&contents),
+                contents: string_to_owned(contents),
             },
             Element::Iframe { url, attributes } => Element::Iframe {
-                url: string_to_owned(&url),
+                url: string_to_owned(url),
                 attributes: attributes.to_owned(),
             },
             Element::LineBreak => Element::LineBreak,

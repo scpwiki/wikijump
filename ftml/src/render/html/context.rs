@@ -45,7 +45,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
         HtmlContext {
             body: String::new(),
             styles: Vec::new(),
-            meta: Self::initial_metadata(&info),
+            meta: Self::initial_metadata(info),
             info,
             handle,
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
