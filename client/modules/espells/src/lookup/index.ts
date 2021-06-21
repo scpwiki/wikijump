@@ -6,7 +6,7 @@ import type { Dic } from "../dic"
 import type { Word } from "../dic/word"
 import { replchars } from "../permutations"
 import { any, includes, isUppercased, lowercase } from "../util"
-import { breakWord, deprefix, desuffix } from "./decompose"
+import { breakWord, decompose } from "./decompose"
 import { AffixForm, CompoundForm } from "./forms"
 import { LKWord } from "./lk-word"
 
@@ -219,7 +219,7 @@ export class Lookup {
     const candidates = (form: AffixForm, stem: string, caps = false, words?: Set<Word>) =>
       this.candidates(form, lkword, { allowNoSuggest, caps }, stem, words)
 
-    for (const form of this.decompose(lkword, flags)) {
+    for (const form of decompose(this.aff, lkword, flags)) {
       let found = false
 
       const homonyms = this.dic.homonyms(form.stem)
@@ -339,38 +339,6 @@ export class Lookup {
       }
 
       if (passes) yield candidate
-    }
-  }
-
-  /**
-   * Takes in a {@link LKWord} and yields a progressive decomposition of the
-   * affixes and stems that can be found in the word.
-   *
-   * @param lkword - The word to decompose.
-   * @param flags - The {@link LKFlags} that restrain the possible forms of the word.
-   */
-  *decompose(lkword: LKWord, flags: LKFlags) {
-    yield new AffixForm(lkword)
-
-    const suffixAllowed =
-      lkword.pos === undefined || lkword.pos === CompoundPos.END || flags.suffix.size
-
-    const prefixAllowed =
-      lkword.pos === undefined || lkword.pos === CompoundPos.BEGIN || flags.prefix.size
-
-    if (suffixAllowed) {
-      yield* desuffix(this.aff, lkword.word, flags)
-    }
-
-    if (prefixAllowed) {
-      for (const form of deprefix(this.aff, lkword.word, flags)) {
-        yield form
-        if (suffixAllowed && form.prefix?.crossproduct) {
-          for (const form2 of desuffix(this.aff, form.stem, flags, true)) {
-            yield form2.replace({ text: form.text, prefix: form.prefix })
-          }
-        }
-      }
     }
   }
 

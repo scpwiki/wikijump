@@ -1,8 +1,10 @@
 import iterate from "iterare"
 import type { LKFlags } from "."
 import type { Aff } from "../aff"
+import { CompoundPos } from "../constants"
 import { concat, reverse } from "../util"
 import { AffixForm } from "./forms"
+import type { LKWord } from "./lk-word"
 
 export const enum AffixType {
   PREFIX,
@@ -27,6 +29,38 @@ export function* breakWord(aff: Aff, text: string, depth = 0): Iterable<string[]
       const rest = text.slice(0, m.index! + m[0].length)
       for (const breaking of breakWord(aff, rest, depth + 1)) {
         yield [start, ...breaking]
+      }
+    }
+  }
+}
+
+/**
+ * Takes in a {@link LKWord} and yields a progressive decomposition of the
+ * affixes and stems that can be found in the word.
+ *
+ * @param lkword - The word to decompose.
+ * @param flags - The {@link LKFlags} that restrain the possible forms of the word.
+ */
+export function* decompose(aff: Aff, lkword: LKWord, flags: LKFlags) {
+  yield new AffixForm(lkword)
+
+  const suffixAllowed =
+    lkword.pos === undefined || lkword.pos === CompoundPos.END || flags.suffix.size
+
+  const prefixAllowed =
+    lkword.pos === undefined || lkword.pos === CompoundPos.BEGIN || flags.prefix.size
+
+  if (suffixAllowed) {
+    yield* desuffix(aff, lkword.word, flags)
+  }
+
+  if (prefixAllowed) {
+    for (const form of deprefix(aff, lkword.word, flags)) {
+      yield form
+      if (suffixAllowed && form.prefix?.crossproduct) {
+        for (const form2 of desuffix(aff, form.stem, flags, true)) {
+          yield form2.replace({ text: form.text, prefix: form.prefix })
+        }
       }
     }
   }
