@@ -89,7 +89,7 @@ export class Espells {
    *   capitalization of the word given. Defaults to true.
    */
   lookup(word: string, caseSensitive = true) {
-    return this.lookuper.test(word, caseSensitive)
+    return this.lookuper.check(word, caseSensitive)
   }
 
   suggest(word: string, max = 8) {

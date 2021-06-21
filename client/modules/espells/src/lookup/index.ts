@@ -10,23 +10,66 @@ import { breakWord, deprefix, desuffix } from "./decompose"
 import { AffixForm, CompoundForm } from "./forms"
 import { LKWord } from "./lk-word"
 
+/** The resulting data returned from executing a lookup. */
 export interface LookupResult {
+  /** Indicates if the word was spelled correctly. */
   correct: boolean
+  /**
+   * Indicates if the word was marked as forbidden with the spellchecker's
+   * dictionary.
+   */
   forbidden: boolean
+  /**
+   * Indicates if the word was marked as "warn" in the dictionary, which
+   * probably means that the word is *technically* valid but is still
+   * likely to have been a mistake.
+   */
   warn: boolean
 }
 
+/**
+ * {@link Lookup} context. Many methods in the {@link Lookup} class share
+ * these options.
+ */
 export interface LKC {
+  /** If true, lookups will be case sensitive. */
   caps?: boolean
+
+  /**
+   * If false, words which are in the dictionary, but are flagged with the
+   * `NOSUGGEST` flag (if provided), will not be considered correct.
+   * Defaults to true.
+   */
   allowNoSuggest?: boolean
+
+  /**
+   * Used by {@link Lookup.forms}. If false, {@link AffixForm} instances
+   * won't be yielded. Defaults to true.
+   */
   affixForms?: boolean
+
+  /**
+   * Used by {@link Lookup.forms}. If false, {@link CompoundForm} instances
+   * won't be yielded. Defaults to true.
+   */
   compoundForms?: boolean
+
+  /**
+   * Used by {@link Lookup.affixForms}. If true, {@link AffixForm}s that have
+   * the `FORBIDDENWORD` flag will still be yielded.
+   */
   withForbidden?: boolean
 }
 
+/** Context object for handling {@link AffixForm} decomposing state. */
 export interface LKFlags {
+  /** The set of prefix flags currently in the state. */
   prefix: Flags
+
+  /** The set of suffix flags currently in the state. */
   suffix: Flags
+
+  /** A set of flags that invalidates {@link AffixForm}s if they have one of them. */
   forbidden: Flags
 }
 
@@ -56,7 +99,7 @@ export class Lookup {
    *   but are flagged with the `NOSUGGEST` flag (if provided), will not be
    *   considered correct. Defaults to true.
    */
-  test(word: string, caps = true, allowNoSuggest = true): LookupResult {
+  check(word: string, caps = true, allowNoSuggest = true): LookupResult {
     let forbidden = this.isForbidden(word)
     let warn = this.isWarn(word)
 
@@ -86,21 +129,21 @@ export class Lookup {
    * word, such as handling `aff.IGNORE` characters.
    *
    * @param word - The word to check.
-   * @param caps - If true, checking will be case sensitive. Defaults to true.
-   * @param allowNoSuggest - If false, words which are in the dictionary,
-   *   but are flagged with the `NOSUGGEST` flag (if provided), will not be
-   *   considered correct. Defaults to true.
-   * @param compounds - If provided, this boolean will toggle between
-   *   checking only affix forms or compound forms.
    */
   correct(word: string, { caps, allowNoSuggest, affixForms, compoundForms }: LKC = {}) {
-    return any(this.goodForms(word, { caps, allowNoSuggest, affixForms, compoundForms }))
+    return any(this.forms(word, { caps, allowNoSuggest, affixForms, compoundForms }))
   }
 
+  /** Determines if a word is marked with the `WARN` flag. */
   private isWarn(word: string) {
     return this.dic.hasFlag(word, this.aff.WARN, true)
   }
 
+  /**
+   * Determines if a word is marked as forbidden, either through the
+   * `FORBIDDENWORD` flag *or* the the combination of the word having the
+   * `WARN` flag and the `FORBIDWARN` directive being true.
+   */
   private isForbidden(word: string) {
     return (
       this.dic.hasFlag(word, this.aff.FORBIDDENWORD, true) ||
@@ -110,19 +153,14 @@ export class Lookup {
 
   /**
    * Yields combinations of stems and affixes for a word, specifically
-   * yielding instances of {@link AffixForm}. If this function does actually
-   * yield a form, that means that it can be considered as spelled correctly.
+   * yielding instances of {@link AffixForm} or {@link CompoundForm}. If this
+   * function does actually yield a form, that means that it can be
+   * considered as spelled correctly.
    *
-   * @param word - The word to check.
-   * @param caps - Case sensitive if true. Defaults to true.
-   * @param allowNoSuggest - Yields stems flagged as `NOSUGGEST` if true.
-   *   Defaults to true.
-   * @param affixForms - If false, {@link AffixForm} instances won't be
-   *   yielded. Defaults to true.
-   * @param compoundForms - If false, {@link CompoundForm} instances won't
-   *   be yielded. Defaults to true.
+   * @param word - The word to yield the good forms of.
+   * @see {@link LKC}
    */
-  *goodForms(
+  *forms(
     word: string,
     {
       caps = true,
@@ -164,6 +202,15 @@ export class Lookup {
 
   // -- AFFIX FORMS
 
+  /**
+   * Yields the allowed {@link AffixForm}s for a word, as in all ways the
+   * word can be split into stems and affixes, with all stems and affixes
+   * being mutually compatible.
+   *
+   * @param lkword - The {@link LKWord} to yield the forms of.
+   * @see {@link LKC}
+   * @see {@link LKFlags}
+   */
   *affixForms(
     lkword: LKWord,
     { allowNoSuggest = true, withForbidden = false }: LKC = {},
@@ -172,7 +219,7 @@ export class Lookup {
     const candidates = (form: AffixForm, stem: string, caps = false, words?: Set<Word>) =>
       this.candidates(form, lkword, { allowNoSuggest, caps }, stem, words)
 
-    for (const form of this.produceAffixForms(lkword, flags)) {
+    for (const form of this.decompose(lkword, flags)) {
       let found = false
 
       const homonyms = this.dic.homonyms(form.stem)
@@ -214,6 +261,20 @@ export class Lookup {
     }
   }
 
+  /**
+   * Takes an {@link AffixForm} and an {@link LKWord} and yields all of the
+   * allowed forms of the entire word form, taking into account {@link Aff}
+   * directives and other edge cases.
+   *
+   * @param form - The base {@link AffixForm} to start with.
+   * @param lkword - The base {@link LKWord} to start with.
+   * @param stem - The word stem to use. If this isn't provided, it will
+   *   default to the {@link AffixForm.stem}.
+   * @param homonyms - If for some reason you have already searched the
+   *   dictionary for the given stem's homonyms, you can supply that result
+   *   here to prevent another dictionary search.
+   * @see {@link LKC}
+   */
   *candidates(
     form: AffixForm,
     lkword: LKWord,
@@ -281,7 +342,14 @@ export class Lookup {
     }
   }
 
-  *produceAffixForms(lkword: LKWord, flags: LKFlags) {
+  /**
+   * Takes in a {@link LKWord} and yields a progressive decomposition of the
+   * affixes and stems that can be found in the word.
+   *
+   * @param lkword - The word to decompose.
+   * @param flags - The {@link LKFlags} that restrain the possible forms of the word.
+   */
+  *decompose(lkword: LKWord, flags: LKFlags) {
     yield new AffixForm(lkword)
 
     const suffixAllowed =
@@ -308,7 +376,16 @@ export class Lookup {
 
   // -- COMPOUND FORMS
 
+  /**
+   * Produces all valid {@link CompoundForm}s for a word. Really, the "hard
+   * work" done by this function is performed by the
+   * {@link Lookup.compoundsByFlags} and the {@link Lookup.compoundsByRules} methods.
+   *
+   * @param lkword - The {@link LKWord} to get the {@link CompoundForm}s from.
+   * @see {@link LKC}
+   */
   *compoundForms(lkword: LKWord, { allowNoSuggest = true }: LKC = {}) {
+    // don't even try to decompose a forbidden word
     if (this.aff.FORBIDDENWORD) {
       for (const candidate of this.affixForms(lkword, { withForbidden: true })) {
         if (candidate.flags.has(this.aff.FORBIDDENWORD)) return
@@ -332,6 +409,16 @@ export class Lookup {
     }
   }
 
+  /**
+   * Takes a word and yields the {@link CompoundForm}s of it using the
+   * `COMPOUNDFLAG`/`COMPOUNDBEGIN|MIDDLE|END` marker system.
+   *
+   * @param lkword - The word to yield the {@link CompoundForm}s of.
+   * @param allowNoSuggest - See {@link LKC}.
+   * @param depth - Internal argument for doing recursion. Prevents absurd
+   *   generation of compound forms.
+   * @see {@link LKC}
+   */
   *compoundsByFlags(
     lkword: LKWord,
     allowNoSuggest = true,
@@ -393,6 +480,19 @@ export class Lookup {
     }
   }
 
+  /**
+   * Takes a word and yields the {@link CompoundForm}s of it using the
+   * `COMPOUNDRULE` pattern system.
+   *
+   * @param lkword - The word to yield the {@link CompoundForm}s of.
+   * @param allowNoSuggest - See {@link LKC}.
+   * @param prev - Internal argument for specifying the previous parts of
+   *   the compound when doing recursion.
+   * @param rules - Internal argument for specifying the current
+   *   `COMPOUNDRULE` set when doing recursion.
+   * @see {@link LKC}
+   * @see {@link CompoundRule}
+   */
   *compoundsByRules(
     lkword: LKWord,
     allowNoSuggest = true,
@@ -447,6 +547,13 @@ export class Lookup {
     }
   }
 
+  /**
+   * Determines if a {@link CompoundForm} is invalid, by various criteria.
+   *
+   * @param compound - The {@link CompoundForm} to check.
+   * @param captype - The {@link CapType} of the original word.
+   * @see {@link CompoundPattern}
+   */
   isBadCompound(compound: CompoundForm, captype: CapType) {
     const aff = this.aff
 

@@ -175,7 +175,7 @@ export class Suggest {
                 suggestion.text,
                 ...chunks.slice(idx + 1)
               ].join("-")
-              if (this.lookup.test(candidate)) yield new Suggestion(candidate, "dashes")
+              if (this.lookup.check(candidate)) yield new Suggestion(candidate, "dashes")
             }
           }
         }
