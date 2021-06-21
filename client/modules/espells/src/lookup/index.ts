@@ -125,39 +125,12 @@ export class Lookup {
   }
 
   /**
-   * Checks if a word is spelled correctly. Performs no processing on the
-   * word, such as handling `aff.IGNORE` characters.
-   *
-   * @param word - The word to check.
-   */
-  correct(word: string, { caps, allowNoSuggest, affixForms, compoundForms }: LKC = {}) {
-    return any(this.forms(word, { caps, allowNoSuggest, affixForms, compoundForms }))
-  }
-
-  /** Determines if a word is marked with the `WARN` flag. */
-  private isWarn(word: string) {
-    return this.dic.hasFlag(word, this.aff.WARN, true)
-  }
-
-  /**
-   * Determines if a word is marked as forbidden, either through the
-   * `FORBIDDENWORD` flag *or* the the combination of the word having the
-   * `WARN` flag and the `FORBIDWARN` directive being true.
-   */
-  private isForbidden(word: string) {
-    return (
-      this.dic.hasFlag(word, this.aff.FORBIDDENWORD, true) ||
-      (this.aff.FORBIDWARN && this.dic.hasFlag(word, this.aff.WARN, true))
-    )
-  }
-
-  /**
-   * Yields combinations of stems and affixes for a word, specifically
-   * yielding instances of {@link AffixForm} or {@link CompoundForm}. If this
-   * function does actually yield a form, that means that it can be
+   * Yields *correct* combinations of stems and affixes for a word,
+   * specifically instances of {@link AffixForm} or {@link CompoundForm}. If
+   * this function does actually yield a form, that means that it can be
    * considered as spelled correctly.
    *
-   * @param word - The word to yield the good forms of.
+   * @param word - The word to yield the forms of.
    * @see {@link LKC}
    */
   *forms(
@@ -513,6 +486,42 @@ export class Lookup {
         }
       }
     }
+  }
+
+  // -- UTILITY
+
+  /**
+   * Checks if a word is spelled correctly. Performs no processing on the
+   * word, such as handling `aff.IGNORE` characters.
+   *
+   * @param word - The word to check.
+   * @see {@link LKC}
+   */
+  correct(word: string, { caps, allowNoSuggest, affixForms, compoundForms }: LKC = {}) {
+    return any(this.forms(word, { caps, allowNoSuggest, affixForms, compoundForms }))
+  }
+
+  /**
+   * Determines if a word is marked with the `WARN` flag.
+   *
+   * @param word - The word to check.
+   */
+  private isWarn(word: string) {
+    return this.dic.hasFlag(word, this.aff.WARN, true)
+  }
+
+  /**
+   * Determines if a word is marked as forbidden, either through the
+   * `FORBIDDENWORD` flag *or* the the combination of the word having the
+   * `WARN` flag and the `FORBIDWARN` directive being true.
+   *
+   * @param word - The word to check.
+   */
+  private isForbidden(word: string) {
+    return (
+      this.dic.hasFlag(word, this.aff.FORBIDDENWORD, true) ||
+      (this.aff.FORBIDWARN && this.dic.hasFlag(word, this.aff.WARN, true))
+    )
   }
 
   /**
