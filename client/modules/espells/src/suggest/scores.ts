@@ -13,8 +13,11 @@ export class ScoresList<T extends any[]> {
   constructor(public max: number) {}
 
   add(score: number, ...args: T) {
-    this.heap.push([score, ...args])
-    if (this.heap.length > this.max) this.heap.pop()
+    const current = this.heap.peek()
+    if (current && score >= current[0]) {
+      this.heap.push([score, ...args])
+      if (this.heap.length > this.max) this.heap.pop()
+    }
   }
 
   finish(map?: undefined, keepScores?: false): [...T][]
