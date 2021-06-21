@@ -41,7 +41,7 @@ impl ListItem<'_> {
     pub fn to_owned(&self) -> ListItem<'static> {
         match self {
             ListItem::Elements(elements) => {
-                ListItem::Elements(elements_to_owned(&elements))
+                ListItem::Elements(elements_to_owned(elements))
             }
             ListItem::SubList(element) => {
                 ListItem::SubList(element.to_owned()) //

@@ -151,7 +151,7 @@ impl Replacer {
                     buffer.push_str(mtch.as_str());
                     buffer.push_str(end);
 
-                    text.replace_range(range, &buffer);
+                    text.replace_range(range, buffer);
                 }
             }
         }
