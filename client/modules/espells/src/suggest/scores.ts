@@ -90,21 +90,40 @@ export class ScoresList<T extends any[]> {
   }
 }
 
-export function rootScore(word1: string, word2: string) {
+/**
+ * Simple scoring algorithm used for determining if a potential suggestion
+ * is a good one for the misspelling given.
+ *
+ * @param misspelling - The misspelled word.
+ * @param suggestion - The potential suggestion to determine the score of.
+ */
+export function rootScore(misspelling: string, suggestion: string) {
   return (
-    ngram(3, word1, lowercase(word2), false, false, true) +
-    leftCommonSubstring(word1, lowercase(word2))
+    ngram(3, misspelling, lowercase(suggestion), false, false, true) +
+    leftCommonSubstring(misspelling, lowercase(suggestion))
   )
 }
 
-export function finalScore(word1: string, word2: string) {
+/**
+ * Simple scoring algorithm used for sorting a list of suggestions from
+ * closest matching to least matching.
+ *
+ * @param misspelling - The misspelled word.
+ * @param suggestion - The suggestion to determine the score of.
+ */
+export function finalScore(misspelling: string, suggestion: string) {
   return (
-    2 * lcslen(word1, word2) -
-    Math.abs(word1.length - word2.length) +
-    leftCommonSubstring(word1, word2)
+    2 * lcslen(misspelling, suggestion) -
+    Math.abs(misspelling.length - suggestion.length) +
+    leftCommonSubstring(misspelling, suggestion)
   )
 }
 
+/**
+ * Finds a minimum threshold for a decent suggestion.
+ *
+ * @param word - The word (or misspelling) to have a threshold generated for.
+ */
 export function scoreThreshold(word: string) {
   let threshold = 0
 
@@ -122,44 +141,74 @@ export function scoreThreshold(word: string) {
   return Math.floor(threshold / (3 - 1))
 }
 
-export function roughAffixScore(word1: string, word2: string) {
+/**
+ * Simple and rough estimation of score for an affixed form.
+ *
+ * @param misspelling - The misspelled word.
+ * @param suggestion - The suggestion to determine the score of.
+ * @see {@link preciseAffixScore}
+ */
+export function roughAffixScore(misspelling: string, suggestion: string) {
   return (
-    ngram(word1.length, word1, word2, false, true) + leftCommonSubstring(word1, word2)
+    ngram(misspelling.length, misspelling, suggestion, false, true) +
+    leftCommonSubstring(misspelling, suggestion)
   )
 }
 
+/**
+ * Precise, mildly expensive (in comparison) scoring algorithm for affixed
+ * forms. This function tends to generate three groups:
+ *
+ * - 1000 or more: The misspelling and suggestion are the same with the only
+ *   exception being casing.
+ * - -100 or less: The word difference is too great, as determined by
+ *   `diffFactor` argument.
+ * - -100...1000: Normal suggestion scores.
+ *
+ * @param misspelling - The misspelled word.
+ * @param suggestion - The suggestion to determine the score of.
+ * @param diffFactor - An adjustment knob for changing the number of
+ *   suggestions returned. A lower factor means that a suggestion must be
+ *   of a decent confidence to actually be given to the user.
+ * @param base - The initial score between the misspelling and the suggestion.
+ * @param hasPhonetic - If true, this indicates that the spellchecker also
+ *   has access a {@link PhonetTable}. This causes the scores to be adjusted
+ *   slightly lower so that the {@link PhonetTable} is more "important".
+ */
 export function preciseAffixScore(
-  word1: string,
-  word2: string,
+  misspelling: string,
+  suggestion: string,
   diffFactor: number,
   base: number,
   hasPhonetic: boolean
 ) {
-  const lcs = lcslen(word1, word2)
+  const lcs = lcslen(misspelling, suggestion)
 
-  if (word1.length === word2.length && word1.length === lcs) {
+  if (misspelling.length === suggestion.length && misspelling.length === lcs) {
     return base + 2000
   }
 
   let result: number
 
-  result = 2 * lcs - Math.abs(word1.length - word2.length)
+  result = 2 * lcs - Math.abs(misspelling.length - suggestion.length)
 
-  result += leftCommonSubstring(word1, word2)
+  result += leftCommonSubstring(misspelling, suggestion)
 
-  if (commonCharacters(word1, lowercase(word2))) result++
+  if (commonCharacters(misspelling, lowercase(suggestion))) result++
 
-  result += ngram(4, word1, word2, false, true)
+  result += ngram(4, misspelling, suggestion, false, true)
 
-  const bigrams = ngram(2, word1, word2, true, true) + ngram(2, word2, word1, true, true)
+  const bigrams =
+    ngram(2, misspelling, suggestion, true, true) +
+    ngram(2, suggestion, misspelling, true, true)
 
   result += bigrams
 
   let questionableLimit: number
   if (hasPhonetic) {
-    questionableLimit = word1.length * diffFactor
+    questionableLimit = misspelling.length * diffFactor
   } else {
-    questionableLimit = (word1.length + word2.length) * diffFactor
+    questionableLimit = (misspelling.length + suggestion.length) * diffFactor
   }
 
   if (bigrams < questionableLimit) result -= 1000
