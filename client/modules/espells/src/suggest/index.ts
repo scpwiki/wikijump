@@ -245,34 +245,28 @@ export class Suggest {
       if (this.dashes) yield new Suggestion(words.join("-"), "spaceword")
     }
 
-    for (const suggestion of mapchars(word, this.aff.MAP)) {
-      yield new Suggestion(suggestion, "swapchar")
-    }
+    yield* this.editsFrom(mapchars(word, this.aff.MAP), "mapchars")
 
-    for (const suggestion of swapchar(word)) {
-      yield new Suggestion(suggestion, "swapchar")
-    }
+    yield* this.editsFrom(swapchar(word), "swapchar")
 
-    for (const suggestion of longswapchar(word)) {
-      yield new Suggestion(suggestion, "longswapchar")
-    }
+    yield* this.editsFrom(longswapchar(word), "longswapchar")
 
-    for (const suggestion of badcharkey(word, this.aff.KEY)) {
-      yield new Suggestion(suggestion, "badcharkey")
-    }
+    yield* this.editsFrom(badcharkey(word, this.aff.KEY), "badcharkey")
 
-    for (const suggestion of badchar(word, this.aff.TRY)) {
-      yield new Suggestion(suggestion, "badchar")
-    }
+    yield* this.editsFrom(badchar(word, this.aff.TRY), "badchar")
 
-    for (const suggestion of doubletwochars(word)) {
-      yield new Suggestion(suggestion, "doubletwochars")
-    }
+    yield* this.editsFrom(doubletwochars(word), "doubletwochars")
 
     if (!this.aff.NOSPLITSUGS) {
       for (const suggestionPair of twowords(word)) {
         yield new MultiWordSuggestion(suggestionPair, "twowords", this.dashes)
       }
+    }
+  }
+
+  *editsFrom(iter: Iterable<string>, name: string) {
+    for (const suggestion of iter) {
+      yield new Suggestion(suggestion, name)
     }
   }
 
