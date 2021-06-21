@@ -25,14 +25,12 @@ Add the following lines to your HOSTS file:
 127.0.0.1          wikijump.test               Wikijump
 127.0.0.1          www.wikijump.test           Wikijump
 127.0.0.1          wjfiles.test                Wikijump
-127.0.0.1          profiles.wikijump.test      Wikijump
 127.0.0.1          template-en.wikijump.test   Wikijump
 127.0.0.1          sandbox.wikijump.test       Wikijump
 127.0.0.1          scp-wiki.wikijump.test      Wikijump
 ::1                wikijump.test               Wikijump
 ::1                www.wikijump.test           Wikijump
 ::1                wjfiles.test                Wikijump
-::1                profiles.wikijump.test      Wikijump
 ::1                template-en.wikijump.test   Wikijump
 ::1                sandbox.wikijump.test       Wikijump
 ::1                scp-wiki.wikijump.test      Wikijump
