@@ -1,6 +1,6 @@
 import iterate from "iterare"
 import { PriorityList } from "../plist"
-import { leftCommonSubstring, lowercase, ngram } from "../util"
+import { commonCharacters, lcslen, leftCommonSubstring, lowercase, ngram } from "../util"
 
 /** An entry in a {@link ScoresList}. */
 export type ScoreEntry<T extends any[]> = [number, ...T]
@@ -95,4 +95,74 @@ export function rootScore(word1: string, word2: string) {
     ngram(3, word1, lowercase(word2), false, false, true) +
     leftCommonSubstring(word1, lowercase(word2))
   )
+}
+
+export function finalScore(word1: string, word2: string) {
+  return (
+    2 * lcslen(word1, word2) -
+    Math.abs(word1.length - word2.length) +
+    leftCommonSubstring(word1, word2)
+  )
+}
+
+export function scoreThreshold(word: string) {
+  let threshold = 0
+
+  for (let startPos = 1; startPos < 4; startPos++) {
+    const mangled: string[] = []
+    for (let pos = startPos; pos < word.length; pos += 4) {
+      mangled[pos] = "*"
+    }
+
+    const mangledWord = mangled.join("")
+
+    threshold += ngram(word.length, word, mangledWord, false, true)
+  }
+
+  return Math.floor(threshold / (3 - 1))
+}
+
+export function roughAffixScore(word1: string, word2: string) {
+  return (
+    ngram(word1.length, word1, word2, false, true) + leftCommonSubstring(word1, word2)
+  )
+}
+
+export function preciseAffixScore(
+  word1: string,
+  word2: string,
+  diffFactor: number,
+  base: number,
+  hasPhonetic: boolean
+) {
+  const lcs = lcslen(word1, word2)
+
+  if (word1.length === word2.length && word1.length === lcs) {
+    return base + 2000
+  }
+
+  let result: number
+
+  result = 2 * lcs - Math.abs(word1.length - word2.length)
+
+  result += leftCommonSubstring(word1, word2)
+
+  if (commonCharacters(word1, lowercase(word2))) result++
+
+  result += ngram(4, word1, word2, false, true)
+
+  const bigrams = ngram(2, word1, word2, true, true) + ngram(2, word2, word1, true, true)
+
+  result += bigrams
+
+  let questionableLimit: number
+  if (hasPhonetic) {
+    questionableLimit = word1.length * diffFactor
+  } else {
+    questionableLimit = (word1.length + word2.length) * diffFactor
+  }
+
+  if (bigrams < questionableLimit) result -= 1000
+
+  return result
 }

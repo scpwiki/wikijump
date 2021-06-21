@@ -1,8 +1,8 @@
 import type { PhonetTable } from "../aff/phonet-table"
 import { CONSTANTS as C } from "../constants"
 import type { Word } from "../dic/word"
-import { lcslen, leftCommonSubstring, lowercase, ngram } from "../util"
-import { rootScore, ScoresList } from "./scores"
+import { lowercase, ngram } from "../util"
+import { finalScore, rootScore, ScoresList } from "./scores"
 
 export function* phonetSuggest(
   misspelling: string,
@@ -41,12 +41,4 @@ export function* phonetSuggest(
   for (const [suggestion] of guesses) {
     yield suggestion
   }
-}
-
-function finalScore(word1: string, word2: string) {
-  return (
-    2 * lcslen(word1, word2) -
-    Math.abs(word1.length - word2.length) +
-    leftCommonSubstring(word1, word2)
-  )
 }
