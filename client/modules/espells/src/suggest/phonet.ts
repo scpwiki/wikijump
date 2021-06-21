@@ -4,41 +4,47 @@ import type { Word } from "../dic/word"
 import { lowercase, ngram } from "../util"
 import { finalScore, rootScore, ScoresList } from "./scores"
 
-export function* phonetSuggest(
-  misspelling: string,
-  dictionaryWords: Set<Word>,
-  table: PhonetTable
-) {
-  misspelling = lowercase(misspelling)
-  const misspelling_ph = table.metaphone(misspelling)
+export class PhonetSuggestionBuilder {
+  private declare misspelling: string
+  private declare misspellingPH: string
+  private declare table: PhonetTable
+  private declare scores: ScoresList<[string]>
 
-  const scores = new ScoresList<[string]>(C.PHONET_MAX_ROOTS)
+  constructor(misspelling: string, table: PhonetTable) {
+    this.misspelling = misspelling
+    this.misspellingPH = table.metaphone(misspelling)
+    this.table = table
+    this.scores = new ScoresList<[string]>(C.PHONET_MAX_ROOTS)
+  }
 
-  for (const word of dictionaryWords) {
-    if (Math.abs(word.stem.length - misspelling.length) > 3) continue
+  step(word: Word) {
+    if (Math.abs(word.stem.length - this.misspelling.length) > 3) return
 
-    let nscore = rootScore(misspelling, word.stem)
+    let nscore = rootScore(this.misspelling, word.stem)
 
     if (word.altSpellings?.size) {
       for (const variant of word.altSpellings) {
-        nscore = Math.max(nscore, rootScore(misspelling, variant))
+        nscore = Math.max(nscore, rootScore(this.misspelling, variant))
       }
     }
 
-    if (nscore <= 2) continue
+    if (nscore <= 2) return
 
     const score =
-      2 * ngram(3, misspelling_ph, table.metaphone(word.stem), false, false, true)
+      2 *
+      ngram(3, this.misspellingPH, this.table.metaphone(word.stem), false, false, true)
 
-    scores.add(score, word.stem)
+    this.scores.add(score, word.stem)
   }
 
-  const guesses = scores.finish(
-    ([score, word]) =>
-      [score + finalScore(misspelling, lowercase(word)), word] as [number, string]
-  )
+  *finish() {
+    const guesses = this.scores.finish(
+      ([score, word]) =>
+        [score + finalScore(this.misspelling, lowercase(word)), word] as [number, string]
+    )
 
-  for (const [suggestion] of guesses) {
-    yield suggestion
+    for (const [suggestion] of guesses) {
+      yield suggestion
+    }
   }
 }

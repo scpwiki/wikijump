@@ -15,8 +15,8 @@ import {
   twowords
 } from "../permutations"
 import { intersect, lowercase, uppercase } from "../util"
-import { ngramSuggest } from "./ngram"
-import { phonetSuggest } from "./phonet"
+import { NgramSuggestionBuilder } from "./ngram"
+import { PhonetSuggestionBuilder } from "./phonet"
 import { MultiWordSuggestion, Suggestion } from "./suggestion"
 
 type Handler = (suggestion: Suggestion, checkInclusion?: boolean) => Iterable<Suggestion>
@@ -181,22 +181,28 @@ export class Suggest {
         }
       }
 
-      let ngramsSeen = 0
-      for (const suggestion of this.ngramSuggestions(word, handled)) {
-        for (const res of handle(new Suggestion(suggestion, "ngram"), true)) {
-          ngramsSeen++
-          yield res
-        }
-        if (ngramsSeen >= this.aff.MAXNGRAMSUGS) break
-      }
+      if (this.aff.MAXNGRAMSUGS || this.aff.PHONE) {
+        const ngram = this.aff.MAXNGRAMSUGS ? this.ngramBuilder(word, handled) : null
+        const phonet = this.aff.PHONE ? this.phonetBuilder(word) : null
 
-      let phonetSeen = 0
-      for (const suggestion of this.phonetSuggestions(word)) {
-        for (const res of handle(new Suggestion(suggestion, "phonet"), true)) {
-          phonetSeen++
-          yield res
+        for (const word of this.ngramWords) {
+          if (ngram) ngram.step(word)
+          if (phonet) phonet.step(word)
         }
-        if (phonetSeen >= C.MAX_PHONET_SUGGESTIONS) break
+
+        if (ngram) {
+          yield* iterate(ngram.finish())
+            .take(this.aff.MAXNGRAMSUGS)
+            .map(suggestion => handle(new Suggestion(suggestion, "ngram"), true))
+            .flatten()
+        }
+
+        if (phonet) {
+          yield* iterate(phonet.finish())
+            .take(C.MAX_PHONET_SUGGESTIONS)
+            .map(suggestion => handle(new Suggestion(suggestion, "phonet")))
+            .flatten()
+        }
       }
     }
   }
@@ -270,11 +276,9 @@ export class Suggest {
     }
   }
 
-  *ngramSuggestions(word: string, handled: Set<string>) {
-    if (this.aff.MAXNGRAMSUGS === 0) return
-    yield* ngramSuggest(
+  ngramBuilder(word: string, handled: Set<string>) {
+    return new NgramSuggestionBuilder(
       lowercase(word),
-      this.ngramWords,
       this.aff.PFX,
       this.aff.SFX,
       iterate(handled).map(lowercase).toSet(),
@@ -284,8 +288,7 @@ export class Suggest {
     )
   }
 
-  *phonetSuggestions(word: string) {
-    if (!this.aff.PHONE) return
-    yield* phonetSuggest(word, this.ngramWords, this.aff.PHONE)
+  phonetBuilder(word: string) {
+    return new PhonetSuggestionBuilder(word, this.aff.PHONE!)
   }
 }
