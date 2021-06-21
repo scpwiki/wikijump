@@ -8,8 +8,11 @@ import {
   badchar,
   badcharkey,
   doubletwochars,
+  extrachar,
+  forgotchar,
   longswapchar,
   mapchars,
+  movechar,
   replchars,
   swapchar,
   twowords
@@ -258,6 +261,12 @@ export class Suggest {
     yield* this.editsFrom(longswapchar(word), "longswapchar")
 
     yield* this.editsFrom(badcharkey(word, this.aff.KEY), "badcharkey")
+
+    yield* this.editsFrom(extrachar(word), "extrachar")
+
+    yield* this.editsFrom(forgotchar(word, this.aff.TRY), "forgotchar")
+
+    yield* this.editsFrom(movechar(word), "movechar")
 
     yield* this.editsFrom(badchar(word, this.aff.TRY), "badchar")
 
