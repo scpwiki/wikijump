@@ -506,7 +506,7 @@ export class Lookup {
    *
    * @param word - The word to check.
    */
-  private isWarn(word: string) {
+  isWarn(word: string) {
     return this.dic.hasFlag(word, this.aff.WARN, true)
   }
 
@@ -517,7 +517,7 @@ export class Lookup {
    *
    * @param word - The word to check.
    */
-  private isForbidden(word: string) {
+  isForbidden(word: string) {
     return (
       this.dic.hasFlag(word, this.aff.FORBIDDENWORD, true) ||
       (this.aff.FORBIDWARN && this.dic.hasFlag(word, this.aff.WARN, true))

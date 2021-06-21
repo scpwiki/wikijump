@@ -22,7 +22,10 @@ import { NgramSuggestionBuilder } from "./ngram"
 import { PhonetSuggestionBuilder } from "./phonet"
 import { MultiWordSuggestion, Suggestion } from "./suggestion"
 
-type Handler = (suggestion: Suggestion, checkInclusion?: boolean) => Iterable<Suggestion>
+type Handler = (
+  suggestion: Suggestion,
+  checkInclusion?: boolean
+) => Suggestion | undefined
 
 export class Suggest {
   private declare aff: Aff
@@ -44,64 +47,8 @@ export class Suggest {
       .filter(word => (!word.flags ? true : intersect(word.flags, badFlags).size === 0))
       .toSet()
 
+    // TODO: fix this - this is dumb but this is legit how Hunspell does it
     this.dashes = aff.TRY.includes("-") || aff.TRY.includes("a")
-  }
-
-  private correct(word: string, compounds?: boolean) {
-    return this.lookup.correct(word, {
-      caps: false,
-      allowNoSuggest: false,
-      affixForms: !compounds,
-      compoundForms: compounds
-    })
-  }
-
-  private isForbidden(word: string) {
-    return this.dic.hasFlag(word, this.aff.FORBIDDENWORD)
-  }
-
-  private *handle(
-    word: string,
-    captype: CapType,
-    handled: Set<string>,
-    suggestion: Suggestion,
-    checkInclusion = false
-  ) {
-    let text = suggestion.text
-
-    if (!this.dic.hasFlag(text, this.aff.KEEPCASE) || this.aff.isSharps(text)) {
-      text = this.aff.casing.coerce(text, captype)
-      // revert if forbidden
-      if (text !== suggestion.text && this.isForbidden(text)) {
-        text = suggestion.text
-      }
-
-      if (captype === CapType.HUH || captype === CapType.HUHINIT) {
-        const pos = text.indexOf(" ")
-        if (pos !== -1) {
-          if (text[pos + 1] !== word[pos] && uppercase(text[pos + 1]) === word[pos]) {
-            text = text.slice(0, pos + 1) + word[pos] + word.slice(pos + 2)
-          }
-        }
-      }
-    }
-
-    if (this.isForbidden(text)) return
-
-    if (this.aff.OCONV) text = this.aff.OCONV.match(text)
-
-    if (handled.has(text)) return
-
-    if (
-      checkInclusion &&
-      iterate(handled).some(prev => lowercase(text).includes(lowercase(prev)))
-    ) {
-      return
-    }
-
-    handled.add(text)
-
-    yield suggestion.replace(text)
   }
 
   *suggestions(word: string): Iterable<Suggestion> {
@@ -115,7 +62,8 @@ export class Suggest {
     if (this.aff.FORCEUCASE && captype === CapType.NO) {
       for (const capitalized of this.aff.casing.capitalize(word)) {
         if (this.correct(capitalized)) {
-          yield* handle(new Suggestion(capitalized, "forceucase"))
+          const suggestion = handle(new Suggestion(capitalized, "forceucase"))
+          if (suggestion) yield suggestion
           return
         }
       }
@@ -126,16 +74,14 @@ export class Suggest {
     for (let idx = 0; idx < variants.length; idx++) {
       const variant = variants[idx]
 
-      if (idx > 0 && this.correct(variant)) yield* handle(new Suggestion(variant, "case"))
+      if (idx > 0 && this.correct(variant)) {
+        const suggestion = handle(new Suggestion(variant, "case"))
+        if (suggestion) yield suggestion
+      }
 
       let noCompound = false
 
-      for (const suggestion of this.editSuggestions(
-        variant,
-        handle,
-        C.MAX_SUGGESTIONS,
-        false
-      )) {
+      for (const suggestion of this.edits(variant, handle, C.MAX_SUGGESTIONS)) {
         yield suggestion
 
         goodEditsFound ||= C.GOOD_EDITS.includes(suggestion.kind)
@@ -153,12 +99,7 @@ export class Suggest {
       }
 
       if (!noCompound) {
-        for (const suggestion of this.editSuggestions(
-          word,
-          handle,
-          this.aff.MAXCPDSUGS,
-          true
-        )) {
+        for (const suggestion of this.edits(word, handle, this.aff.MAXCPDSUGS, true)) {
           yield suggestion
           goodEditsFound ||= C.GOOD_EDITS.includes(suggestion.kind)
         }
@@ -196,21 +137,28 @@ export class Suggest {
         if (ngram) {
           yield* iterate(ngram.finish())
             .take(this.aff.MAXNGRAMSUGS)
-            .map(suggestion => handle(new Suggestion(suggestion, "ngram"), true))
-            .flatten()
+            .map(suggestion => handle(new Suggestion(suggestion, "ngram"), true)!)
+            .filter(suggestion => suggestion !== undefined)
         }
 
         if (phonet) {
           yield* iterate(phonet.finish())
             .take(C.MAX_PHONET_SUGGESTIONS)
-            .map(suggestion => handle(new Suggestion(suggestion, "phonet")))
-            .flatten()
+            .map(suggestion => handle(new Suggestion(suggestion, "phonet"))!)
+            .filter(suggestion => suggestion !== undefined)
         }
       }
     }
   }
 
-  private *filterSuggestions(
+  private *edits(word: string, handle: Handler, limit: number, compounds?: boolean) {
+    yield* iterate(this.filter(this.permutations(word), compounds))
+      .map(suggestion => handle(suggestion)!)
+      .filter(suggestion => suggestion !== undefined)
+      .take(limit)
+  }
+
+  private *filter(
     suggestions: Iterable<Suggestion | MultiWordSuggestion>,
     compounds?: boolean
   ) {
@@ -226,18 +174,53 @@ export class Suggest {
     }
   }
 
-  *editSuggestions(word: string, handle: Handler, limit: number, compounds: boolean) {
-    let count = 0
-    for (const suggestion of this.filterSuggestions(this.edits(word), compounds)) {
-      for (const res of handle(suggestion)) {
-        yield res
-        count++
-        if (count > limit) return
+  // -- MISC.
+
+  private handle(
+    word: string,
+    captype: CapType,
+    handled: Set<string>,
+    suggestion: Suggestion,
+    checkInclusion = false
+  ) {
+    let text = suggestion.text
+
+    if (!this.dic.hasFlag(text, this.aff.KEEPCASE) || this.aff.isSharps(text)) {
+      text = this.aff.casing.coerce(text, captype)
+      // revert if forbidden
+      if (text !== suggestion.text && this.lookup.isForbidden(text)) {
+        text = suggestion.text
+      }
+
+      if (captype === CapType.HUH || captype === CapType.HUHINIT) {
+        const pos = text.indexOf(" ")
+        if (pos !== -1) {
+          if (text[pos + 1] !== word[pos] && uppercase(text[pos + 1]) === word[pos]) {
+            text = text.slice(0, pos + 1) + word[pos] + word.slice(pos + 2)
+          }
+        }
       }
     }
+
+    if (this.lookup.isForbidden(text)) return
+
+    if (this.aff.OCONV) text = this.aff.OCONV.match(text)
+
+    if (handled.has(text)) return
+
+    if (
+      checkInclusion &&
+      iterate(handled).some(prev => lowercase(text).includes(lowercase(prev)))
+    ) {
+      return
+    }
+
+    handled.add(text)
+
+    return suggestion.replace(text)
   }
 
-  *edits(word: string): Iterable<Suggestion | MultiWordSuggestion> {
+  private *permutations(word: string): Iterable<Suggestion | MultiWordSuggestion> {
     yield new Suggestion(this.aff.casing.upper(word), "uppercase")
 
     for (const suggestion of replchars(word, this.aff.REP)) {
@@ -254,23 +237,23 @@ export class Suggest {
       if (this.dashes) yield new Suggestion(words.join("-"), "spaceword")
     }
 
-    yield* this.editsFrom(mapchars(word, this.aff.MAP), "mapchars")
+    yield* this.pmtFrom(mapchars(word, this.aff.MAP), "mapchars")
 
-    yield* this.editsFrom(swapchar(word), "swapchar")
+    yield* this.pmtFrom(swapchar(word), "swapchar")
 
-    yield* this.editsFrom(longswapchar(word), "longswapchar")
+    yield* this.pmtFrom(longswapchar(word), "longswapchar")
 
-    yield* this.editsFrom(badcharkey(word, this.aff.KEY), "badcharkey")
+    yield* this.pmtFrom(badcharkey(word, this.aff.KEY), "badcharkey")
 
-    yield* this.editsFrom(extrachar(word), "extrachar")
+    yield* this.pmtFrom(extrachar(word), "extrachar")
 
-    yield* this.editsFrom(forgotchar(word, this.aff.TRY), "forgotchar")
+    yield* this.pmtFrom(forgotchar(word, this.aff.TRY), "forgotchar")
 
-    yield* this.editsFrom(movechar(word), "movechar")
+    yield* this.pmtFrom(movechar(word), "movechar")
 
-    yield* this.editsFrom(badchar(word, this.aff.TRY), "badchar")
+    yield* this.pmtFrom(badchar(word, this.aff.TRY), "badchar")
 
-    yield* this.editsFrom(doubletwochars(word), "doubletwochars")
+    yield* this.pmtFrom(doubletwochars(word), "doubletwochars")
 
     if (!this.aff.NOSPLITSUGS) {
       for (const suggestionPair of twowords(word)) {
@@ -279,13 +262,24 @@ export class Suggest {
     }
   }
 
-  *editsFrom(iter: Iterable<string>, name: string) {
+  // -- UTILITY
+
+  private correct(word: string, compounds?: boolean) {
+    return this.lookup.correct(word, {
+      caps: false,
+      allowNoSuggest: false,
+      affixForms: !compounds,
+      compoundForms: compounds
+    })
+  }
+
+  private *pmtFrom(iter: Iterable<string>, name: string) {
     for (const suggestion of iter) {
       yield new Suggestion(suggestion, name)
     }
   }
 
-  ngramBuilder(word: string, handled: Set<string>) {
+  private ngramBuilder(word: string, handled: Set<string>) {
     return new NgramSuggestionBuilder(
       lowercase(word),
       this.aff.PFX,
@@ -297,7 +291,7 @@ export class Suggest {
     )
   }
 
-  phonetBuilder(word: string) {
+  private phonetBuilder(word: string) {
     return new PhonetSuggestionBuilder(word, this.aff.PHONE!)
   }
 }
