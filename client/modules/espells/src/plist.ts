@@ -1,20 +1,44 @@
-export class HeapQueue<T> {
+// based on https://github.com/antimatter15/heapqueue.js/blob/master/heapqueue.js
+
+/**
+ * Wrapper around a normal array that uses a comparator function to ensure
+ * that the lowest index in the array is of the minimum priority.
+ *
+ * @typeParam T - The type of object to be stored in the list.
+ */
+export class PriorityList<T> {
+  /** The comparator function that is used to sort the list. */
   declare cmp: (a: T, b: T) => number
+
+  /** The actual list that is being wrapped around. */
   declare data: T[]
 
+  /**
+   * @param cmp - The comparator function that the list will be sorted
+   *   with. Returning a negative value from this function indicates that
+   *   `a` has a lower priority than `b`, while a positive value indicates
+   *   that `a` has a higher priority than `b`.
+   */
   constructor(cmp: (a: T, b: T) => number) {
     this.cmp = cmp
     this.data = []
   }
 
+  /** Length of the list. */
   get length() {
     return this.data.length
   }
 
+  /** Returns the lowest priority in the list. */
   peek() {
     return this.data[0]
   }
 
+  /**
+   * Adds a new value to the list.
+   *
+   * @param val - The value to be added.
+   */
   push(val: T) {
     this.data.push(val)
 
@@ -35,6 +59,7 @@ export class HeapQueue<T> {
     return this.data.length
   }
 
+  /** Removes the lowest priority item in the list. */
   pop() {
     const lastValue = this.data.pop()!
     let ret = this.data[0]
@@ -72,6 +97,13 @@ export class HeapQueue<T> {
     return ret
   }
 
+  /**
+   * Completely sorts the list using a comparator function and returns the
+   * actual internal array.
+   *
+   * @param cmp - The comparator function to use. Defaults to the one the
+   *   list was instantiated with.
+   */
   sort(cmp = this.cmp) {
     return this.data.sort(cmp)
   }

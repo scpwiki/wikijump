@@ -1,5 +1,5 @@
 import iterate from "iterare"
-import { HeapQueue } from "../heap"
+import { PriorityList } from "../plist"
 import { leftCommonSubstring, lowercase, ngram } from "../util"
 
 export type ScoreEntry<T extends any[]> = [number, ...T]
@@ -8,15 +8,15 @@ export class ScoresList<T extends any[]> {
   static heapCmp = (a: ScoreEntry<any>, b: ScoreEntry<any>) => a[0] - b[0]
   static finishCmp = (a: ScoreEntry<any>, b: ScoreEntry<any>) => b[0] - a[0]
 
-  heap = new HeapQueue<ScoreEntry<T>>(ScoresList.heapCmp)
+  list = new PriorityList<ScoreEntry<T>>(ScoresList.heapCmp)
 
   constructor(public max: number) {}
 
   add(score: number, ...args: T) {
-    const current = this.heap.peek()
+    const current = this.list.peek()
     if (current && score >= current[0]) {
-      this.heap.push([score, ...args])
-      if (this.heap.length > this.max) this.heap.pop()
+      this.list.push([score, ...args])
+      if (this.list.length > this.max) this.list.pop()
     }
   }
 
@@ -36,16 +36,16 @@ export class ScoresList<T extends any[]> {
   ): [...O][] | [...T][] | ScoreEntry<O>[] | ScoreEntry<T>[] {
     if (keepScores) {
       return map
-        ? iterate(this.heap.data).map(map).toArray().sort(ScoresList.finishCmp)
-        : [...this.heap.data].sort(ScoresList.finishCmp)
+        ? iterate(this.list.data).map(map).toArray().sort(ScoresList.finishCmp)
+        : [...this.list.data].sort(ScoresList.finishCmp)
     } else {
       return map
-        ? iterate(this.heap.data)
+        ? iterate(this.list.data)
             .map(map)
             .toArray()
             .sort(ScoresList.finishCmp)
             .map(([, ...out]) => out)
-        : [...this.heap.data].sort(ScoresList.finishCmp).map(([, ...out]) => out)
+        : [...this.list.data].sort(ScoresList.finishCmp).map(([, ...out]) => out)
     }
   }
 }
