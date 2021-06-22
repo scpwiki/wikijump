@@ -22,7 +22,6 @@ class LegacySeeder extends Seeder
             <<<STATEMENT
 INSERT INTO public.admin (admin_id, site_id, user_id, founder) VALUES (1, 1, 1, true);
 INSERT INTO public.admin (admin_id, site_id, user_id, founder) VALUES (2, 2, 1, true);
-INSERT INTO public.admin (admin_id, site_id, user_id, founder) VALUES (3, 3, 1, true);
 
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (6, 2, 'nav', true, 20, true, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (14, 2, 'search', true, 20, true, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
