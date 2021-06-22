@@ -17,7 +17,7 @@ class AddLegacyTables extends Migration
     public function up()
     {
         Schema::create('admin', function(Blueprint $table) {
-            $table->id('admin_id')->startingValue(4);
+            $table->id('admin_id')->startingValue(3);
             $table->unsignedInteger('site_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
             $table->boolean('founder')->nullable()->default(false);

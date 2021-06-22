@@ -118,26 +118,6 @@ INSERT INTO page_compiled (page_id, text, date_compiled) VALUES (7, '
 
 <p>Admin of this Wikidot installation.</p>
 ', '2008-01-25 01:05:59');
-INSERT INTO page_compiled (page_id, text, date_compiled) VALUES (8, '
-
-þmodule "ManageSite/ManageSiteModule"þ', '2008-01-25 01:06:39');
-INSERT INTO page_compiled (page_id, text, date_compiled) VALUES (10, '
-
-<p>The profiles site is used to host user profiles. Each <tt>profile:username</tt> page contains a user-editable text that is included in the user''s profile page.</p>
-<p>If you are viewing your own profile content page, feel free to edit it. You are the only one allowed to edit this page.</p>
-', '2008-01-25 01:09:41');
-INSERT INTO page_compiled (page_id, text, date_compiled) VALUES (12, '
-
-<p>The purpose of this wiki is to store user profiles.</p>
-', '2008-01-25 01:15:35');
-INSERT INTO page_compiled (page_id, text, date_compiled) VALUES (11, '
-
-<p>The profiles site is used to host user profiles. Each <tt>profile:username</tt> page contains a user-editable text that is included in the user''s profile page.</p>
-<ul>
-<li><a href="/start">Main page</a></li>
-<li><a href="/admin:manage">Manage this wiki</a></li>
-</ul>
-', '2008-01-25 01:15:35');
 INSERT INTO page_compiled (page_id, text, date_compiled) VALUES (15, '
 
 þmodule "ManageSite/ManageSiteModule"þ', '2008-01-29 00:57:39');

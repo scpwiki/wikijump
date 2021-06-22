@@ -22,7 +22,6 @@ class LegacySeeder extends Seeder
             <<<STATEMENT
 INSERT INTO public.admin (admin_id, site_id, user_id, founder) VALUES (1, 1, 1, true);
 INSERT INTO public.admin (admin_id, site_id, user_id, founder) VALUES (2, 2, 1, true);
-INSERT INTO public.admin (admin_id, site_id, user_id, founder) VALUES (3, 3, 1, true);
 
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (6, 2, 'nav', true, 20, true, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (14, 2, 'search', true, 20, true, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
@@ -115,30 +114,6 @@ INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (6, '
 </blockquote>
 <p>And that is it! As a part of a farm of wikis this site is a great tool that you can use to publish content, upload files, communicate and collaborate.</p>
 ', '2008-01-25 00:45:30');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (7, '
-
-<p>Admin of this Wikidot installation.</p>
-', '2008-01-25 01:05:59');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (8, '
-
-þmodule "ManageSite/ManageSiteModule"þ', '2008-01-25 01:06:39');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (10, '
-
-<p>The profiles site is used to host user profiles. Each <tt>profile:username</tt> page contains a user-editable text that is included in the user''s profile page.</p>
-<p>If you are viewing your own profile content page, feel free to edit it. You are the only one allowed to edit this page.</p>
-', '2008-01-25 01:09:41');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (12, '
-
-<p>The purpose of this wiki is to store user profiles.</p>
-', '2008-01-25 01:15:35');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (11, '
-
-<p>The profiles site is used to host user profiles. Each <tt>profile:username</tt> page contains a user-editable text that is included in the user''s profile page.</p>
-<ul>
-<li><a href="/start">Main page</a></li>
-<li><a href="/admin:manage">Manage this wiki</a></li>
-</ul>
-', '2008-01-25 01:15:35');
 INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (15, '
 
 þmodule "ManageSite/ManageSiteModule"þ', '2008-01-29 00:57:39');
