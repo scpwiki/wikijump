@@ -22,18 +22,42 @@ import { NgramSuggestionBuilder } from "./ngram"
 import { PhonetSuggestionBuilder } from "./phonet"
 import { MultiWordSuggestion, Suggestion } from "./suggestion"
 
+/**
+ * Represents a {@link Suggest} function that "handles" potential
+ * suggestions. Returns a new, transformed suggestion if the potential
+ * suggestion was valid, otherwise returning nothing.
+ */
 type Handler = (
   suggestion: Suggestion,
   checkInclusion?: boolean
 ) => Suggestion | undefined
 
 export class Suggest {
+  /** {@link Aff} data used. */
   private declare aff: Aff
+
+  /** {@link Dic} data used. */
   private declare dic: Dic
+
+  /** {@link Lookup} instance used filtering and verifying suggestions. */
   private declare lookup: Lookup
+
+  /**
+   * A set of {@link Word} instances that have been filtered from the
+   * {@link Dic} data. Any words that are marked with flags that make said
+   * word unsuitable for being a standalone word are filtered out.
+   */
   private declare ngramWords: Set<Word>
+
+  /** If true, suggestions consisting of multiple words split with dashes are allowed. */
   private declare dashes: boolean
 
+  /**
+   * @param aff - {@link Aff} data to use.
+   * @param dic - {@link Dic} data to use.
+   * @param lookup - {@link Lookup} instance to use for filtering and
+   *   verifying suggestions.
+   */
   constructor(aff: Aff, dic: Dic, lookup: Lookup) {
     this.aff = aff
     this.dic = dic
@@ -51,6 +75,12 @@ export class Suggest {
     this.dashes = aff.TRY.includes("-") || aff.TRY.includes("a")
   }
 
+  /**
+   * Yields {@link Suggestion} instances for the given word, even if it is
+   * spelled correctly.
+   *
+   * @param word - The word to get the suggestions for.
+   */
   *suggestions(word: string): Iterable<Suggestion> {
     const handled = new Set<string>()
 
@@ -151,6 +181,20 @@ export class Suggest {
     }
   }
 
+  /**
+   * Yields various correct {@link Suggestion} instances that were found by
+   * transforming the given word using various simple "edit" functions.
+   * e.g. this may involve breaking the word apart at various points,
+   * shifting characters around, removing characters, etc.
+   *
+   * @param word - The word to apply the "edits" transformations to.
+   * @param handle - The {@link Handler} instance to yield every {@link Suggestion} to.
+   * @param limit - The maximum number of correct {@link Suggestion}
+   *   instances to yield.
+   * @param compounds - If provided, false will yield only suggestions
+   *   found from {@link AffixForm}s, and true will yield only suggestions
+   *   found from {@link CompoundForm}s.
+   */
   private *edits(word: string, handle: Handler, limit: number, compounds?: boolean) {
     yield* iterate(this.filter(this.permutations(word), compounds))
       .map(suggestion => handle(suggestion)!)
@@ -158,6 +202,18 @@ export class Suggest {
       .take(limit)
   }
 
+  /**
+   * Filters {@link Suggestion} and {@link MultiWordSuggestion} instances.
+   * This process involves splitting out the {@link MultiWordSuggestion}
+   * instances into a few forms, and making sure that every
+   * {@link Suggestion} that will be yielded is correct.
+   *
+   * @param suggestions - The iterator that should have its resultant
+   *   suggestions filtered.
+   * @param compounds - If provided, false will yield only suggestions
+   *   found from {@link AffixForm}s, and true will yield only suggestions
+   *   found from {@link CompoundForm}s.
+   */
   private *filter(
     suggestions: Iterable<Suggestion | MultiWordSuggestion>,
     compounds?: boolean
@@ -176,6 +232,18 @@ export class Suggest {
 
   // -- MISC.
 
+  /**
+   * Base function that a {@link Handler} can be made from.
+   *
+   * @param word - The word to compare the given {@link Suggestion} to.
+   * @param captype - The {@link CapType} of the word.
+   * @param handled - The set of already handled words and stems.
+   * @param suggestion - The {@link Suggestion} to handle.
+   * @param checkInclusion - If true, the {@link Suggestion} text will be
+   *   checked for if it can be found in its entirety inside of any the
+   *   previously handled suggestions. Not just in the set, but if it can
+   *   be found even as a substring. Defaults to false.
+   */
   private handle(
     word: string,
     captype: CapType,
@@ -220,6 +288,13 @@ export class Suggest {
     return suggestion.replace(text)
   }
 
+  /**
+   * Yields every permutation (as {@link Suggestion} or
+   * {@link MultiWordSuggestion} instances) of a word processed through
+   * *many* different simple transformation functions.
+   *
+   * @param word - The word to yield the permutations of.
+   */
   private *permutations(word: string): Iterable<Suggestion | MultiWordSuggestion> {
     yield new Suggestion(this.aff.casing.upper(word), "uppercase")
 
@@ -264,6 +339,10 @@ export class Suggest {
 
   // -- UTILITY
 
+  /**
+   * Helper for checking if a word is correct using some preconfigured
+   * settings specific to the {@link Suggest} class.
+   */
   private correct(word: string, compounds?: boolean) {
     return this.lookup.correct(word, {
       caps: false,
@@ -273,12 +352,17 @@ export class Suggest {
     })
   }
 
+  /**
+   * Helper for yielding {@link Suggestion} instances from a iterator that
+   * yields strings.
+   */
   private *pmtFrom(iter: Iterable<string>, name: string) {
     for (const suggestion of iter) {
       yield new Suggestion(suggestion, name)
     }
   }
 
+  /** Returns a preconfigured {@link NgramSuggestionBuilder}. */
   private ngramBuilder(word: string, handled: Set<string>) {
     return new NgramSuggestionBuilder(
       lowercase(word),
@@ -291,6 +375,7 @@ export class Suggest {
     )
   }
 
+  /** Yields a preconfigured {@link PhonetSuggestionBuilder}. */
   private phonetBuilder(word: string) {
     return new PhonetSuggestionBuilder(word, this.aff.PHONE!)
   }
