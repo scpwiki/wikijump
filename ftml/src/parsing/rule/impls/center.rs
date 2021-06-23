@@ -32,8 +32,21 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Trying to create centered container");
 
-    check_step(parser, Token::Equals)?;
+    check_step_multiple(parser, &[Token::InputStart, Token::LineBreak])?;
 
+    // Check that the rule has "= "
+    macro_rules! next {
+        ($token:expr) => {{
+            if parser.step()?.token != $token {
+                return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+            }
+        }};
+    }
+
+    next!(Token::Equals);
+    next!(Token::Whitespace);
+
+    // Collect contents
     collect_container(
         log,
         parser,
