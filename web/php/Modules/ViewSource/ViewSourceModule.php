@@ -11,8 +11,9 @@ class ViewSourceModule extends SmartyModule
 {
     public function build($runData)
     {
+
         $site = $runData->getTemp("site");
-        $pageId = $runData->getParameterList()->getParameterValue("page_id");
+        $pageId = $runData->getParameterList()->getParameterValue("pageId");
 
         $raw = $runData->getParameterList()->getParameterValue("raw");
 
