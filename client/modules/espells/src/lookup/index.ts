@@ -502,25 +502,61 @@ export class Lookup {
   }
 
   /**
-   * Determines if a word is marked with the `WARN` flag.
+   * Yields the stems of a word. If no stems are returned, the word was incorrect.
    *
-   * @param word - The word to check.
+   * @param word - The word to yield the stems of.
+   * @see {@link LKC}
    */
-  isWarn(word: string) {
-    return this.dic.hasFlag(word, this.aff.WARN, true)
+  *stems(word: string, { caps, allowNoSuggest, affixForms, compoundForms }: LKC = {}) {
+    if (this.aff.ICONV) word = this.aff.ICONV.match(word)
+
+    if (this.aff.IGNORE) {
+      for (const ch of this.aff.IGNORE) {
+        word = word.replaceAll(ch, "")
+      }
+    }
+
+    const iter = this.forms(word, { caps, allowNoSuggest, affixForms, compoundForms })
+
+    for (const form of iter) {
+      if (Array.isArray(form)) yield* iterate(form).map(form => form.stem)
+      else yield form.stem
+    }
   }
 
   /**
-   * Determines if a word is marked as forbidden, either through the
-   * `FORBIDDENWORD` flag *or* the the combination of the word having the
+   * Yields a list of a data maps associated with the homonyms of the given stem.
+   *
+   * @param stem - The stem to get the data of.
+   * @param caps - If true, checking will be case sensitive. Defaults to true.
+   */
+  *data(stem: string, caps = true) {
+    for (const homonym of this.dic.homonyms(stem, !caps)) {
+      if (!homonym.data) continue
+      yield homonym.data
+    }
+  }
+
+  /**
+   * Determines if a stem is marked with the `WARN` flag.
+   *
+   * @param stem - The stem to check.
+   */
+  isWarn(stem: string) {
+    return this.dic.hasFlag(stem, this.aff.WARN, true)
+  }
+
+  /**
+   * Determines if a stem is marked as forbidden, either through the
+   * `FORBIDDENWORD` flag *or* the the combination of the stem having the
    * `WARN` flag and the `FORBIDWARN` directive being true.
    *
-   * @param word - The word to check.
+   * @param stem - The word to check.
    */
-  isForbidden(word: string) {
+  isForbidden(stem: string) {
     return (
-      this.dic.hasFlag(word, this.aff.FORBIDDENWORD, true) ||
-      (this.aff.FORBIDWARN && this.dic.hasFlag(word, this.aff.WARN, true))
+      this.dic.hasFlag(stem, this.aff.FORBIDDENWORD, true) ||
+      (this.aff.FORBIDWARN && this.dic.hasFlag(stem, this.aff.WARN, true))
     )
   }
 
