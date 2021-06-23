@@ -39,7 +39,10 @@ pub fn check_step(parser: &mut Parser, token: Token) -> Result<(), ParseWarning>
     Ok(())
 }
 
-pub fn check_step_multiple(parser: &mut Parser, tokens: &[Token]) -> Result<(), ParseWarning> {
+pub fn check_step_multiple(
+    parser: &mut Parser,
+    tokens: &[Token],
+) -> Result<(), ParseWarning> {
     assert!(
         tokens.contains(&parser.current().token),
         "Opening token isn't one of {:?}",
