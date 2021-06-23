@@ -1,5 +1,5 @@
 import iterate from "iterare"
-import { Aff } from "./aff"
+import { Aff, OverridableAffData } from "./aff"
 import { decoder } from "./constants"
 import { Dic } from "./dic"
 import { Word } from "./dic/word"
@@ -8,24 +8,23 @@ import { Reader } from "./reader"
 import { Suggest } from "./suggest"
 import { concat } from "./util"
 
-export type {
-  AffData,
-  CharacterMap,
-  Flag,
-  Flags,
-  FlagSet,
-  PrefixIndex,
-  PrefixMap,
-  SuffixIndex,
-  SuffixMap
-} from "./aff"
+export type { AffData, Flag, Flags, FlagSet, OverridableAffData } from "./aff"
 export type { LookupResult } from "./lookup"
 
 export interface EspellsInitOpts {
   /** Source of a `.aff` affix file. */
   aff: string | Uint8Array
+
   /** A source for a single or array of `.dic` files. */
   dic: string | Uint8Array | (string | Uint8Array)[]
+
+  /**
+   * An object that allows for overriding certain properties in the `.aff` data.
+   *
+   * @see {@link OverridableAffData}
+   * @see {@link AffData}
+   */
+  override?: OverridableAffData
 }
 
 /**
@@ -45,7 +44,7 @@ export class Espells {
   /** The {@link Suggest} instance for the spellchecker. */
   private declare suggester: Suggest
 
-  constructor({ aff, dic }: EspellsInitOpts) {
+  constructor({ aff, dic, override }: EspellsInitOpts) {
     // concatenate every dictionary
     // TODO: is the sorting an issue?
     if (!Array.isArray(dic)) dic = [dic]
@@ -54,7 +53,7 @@ export class Espells {
       ""
     )
 
-    this.aff = new Aff(new Reader(aff))
+    this.aff = new Aff(new Reader(aff), override)
     this.dic = new Dic(new Reader(dic), this.aff)
     this.lookuper = new Lookup(this.aff, this.dic)
     this.suggester = new Suggest(this.aff, this.dic, this.lookuper)

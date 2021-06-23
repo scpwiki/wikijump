@@ -16,6 +16,7 @@ import type {
   Flag,
   Flags,
   FlagSet,
+  OverridableAffData,
   PrefixIndex,
   PrefixMap,
   SuffixIndex,
@@ -31,7 +32,8 @@ export type {
   SuffixIndex,
   Flags,
   FlagSet,
-  AffData
+  AffData,
+  OverridableAffData
 }
 
 /** A resolved and parsed representation of the data found in a Hunspell `.aff` file. */
@@ -112,8 +114,12 @@ export class Aff implements AffData {
   /** An index, more specifically a {@link Trie}, of {@link Suffix}es. */
   declare suffixesIndex: SuffixIndex
 
-  /** @param reader - The {@link Reader} instance to parse with. */
-  constructor(reader: Reader) {
+  /**
+   * @param reader - The {@link Reader} instance to parse with.
+   * @param override - An optional object which allows for overriding
+   *   whatever {@link AffData} that was parsed with something else.
+   */
+  constructor(reader: Reader, override?: OverridableAffData) {
     do {
       if (reader.done) break
 
@@ -337,6 +343,8 @@ export class Aff implements AffData {
         )
       }
     }
+
+    if (override) Object.assign(this, override)
   }
 
   /** Parses a string and returns the first {@link Flag} found. */

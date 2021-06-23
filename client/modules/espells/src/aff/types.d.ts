@@ -397,3 +397,20 @@ export interface AffData {
    */
   SUBSTANDARD?: Flag // unused
 }
+
+/**
+ * A variant of {@link AffData} that only contains properties which are
+ * safely overridable by a user when instantiating an {@link Espells} instance.
+ */
+export type OverridableAffData = Omit<
+  Partial<AffData>,
+  | "REP"
+  | "MAP"
+  | "PHONE"
+  | "PFX"
+  | "SFX"
+  | "COMPOUNDRULE"
+  | "CHECKCOMPOUNDPATTERN"
+  | "ICONV"
+  | "OCONV"
+>
