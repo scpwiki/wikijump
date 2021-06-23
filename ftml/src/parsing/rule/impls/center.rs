@@ -37,9 +37,12 @@ fn try_consume_fn<'p, 'r, 't>(
     // Check that the rule has "= "
     macro_rules! next {
         ($token:expr) => {{
-            if parser.step()?.token != $token {
+            let token = parser.current().token;
+            if token != $token {
                 return Err(parser.make_warn(ParseWarningKind::RuleFailed));
             }
+
+            parser.step()?;
         }};
     }
 
@@ -52,12 +55,12 @@ fn try_consume_fn<'p, 'r, 't>(
         parser,
         RULE_CENTER,
         ContainerType::Align(Alignment::Center),
-        &[ParseCondition::current(Token::Equals)],
         &[
             ParseCondition::current(Token::LineBreak),
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::InputEnd),
         ],
+        &[],
         None,
     )
 }
