@@ -3,6 +3,7 @@ import type { Affix, Prefix, Suffix } from "./affix"
 import type { CompoundPattern } from "./compound-pattern"
 import type { CompoundRule } from "./compound-rule"
 import type { ConvTable } from "./conv-table"
+import type { PhonetTable } from "./phonet-table"
 import type { RepPattern } from "./rep-pattern"
 
 /**
