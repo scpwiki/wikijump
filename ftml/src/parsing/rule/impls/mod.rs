@@ -36,6 +36,7 @@ mod prelude {
 mod block;
 mod blockquote;
 mod bold;
+mod center;
 mod color;
 mod comment;
 mod dash;
@@ -64,6 +65,7 @@ mod url;
 pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_STAR};
 pub use self::blockquote::RULE_BLOCKQUOTE;
 pub use self::bold::RULE_BOLD;
+pub use self::center::RULE_CENTER;
 pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;
 pub use self::dash::RULE_DASH;
