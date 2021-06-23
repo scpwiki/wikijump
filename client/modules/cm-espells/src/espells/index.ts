@@ -97,13 +97,22 @@ export class EspellsWorker extends WorkerModule<EspellsWorkerInterface> {
   // -- SPELLCHECK
 
   /**
-   * Determines if a word is spelled correctly.
+   * Determines if a word meets three different criteria:
+   *
+   * - If the word is spelled correctly
+   * - If the word has been marked as forbidden
+   * - If the word has been marked as `WARN`
+   *
+   * These are the `correct`, `forbidden`, and `warn` properties of the
+   * returned object, respectively.
    *
    * @param word - The word to check.
+   * @param caseSensitive - If true, the spellchecker will consider the
+   *   capitalization of the word given. Defaults to true.
    */
-  async correct(word: string) {
+  async lookup(word: string, caseSensitive?: boolean) {
     if (this.disabled) return true
-    return await this.invoke("correct", transfer(word))
+    return await this.invoke("lookup", transfer(word), caseSensitive)
   }
 
   /**
@@ -133,10 +142,12 @@ export class EspellsWorker extends WorkerModule<EspellsWorkerInterface> {
    * Takes in a list of words and returns the words that are misspelled.
    *
    * @param words - The words to check.
+   * @param caseSensitive - If true, the spellchecker will consider the
+   *   capitalization of the word given. Defaults to true.
    */
-  async misspelled(words: Word[]) {
+  async misspelled(words: Word[], caseSensitive?: boolean) {
     if (this.disabled) return []
-    return await this.invoke("misspelled", words)
+    return await this.invoke("misspelled", words, caseSensitive)
   }
 
   /**
@@ -144,10 +155,12 @@ export class EspellsWorker extends WorkerModule<EspellsWorkerInterface> {
    * misspelled, warned, or forbidden.
    *
    * @param words - The words to check.
+   * @param caseSensitive - If true, the spellchecker will consider the
+   *   capitalization of the word given. Defaults to true.
    */
-  async check(words: Word[]) {
+  async check(words: Word[], caseSensitive?: boolean) {
     if (this.disabled) return []
-    return await this.invoke("check", words)
+    return await this.invoke("check", words, caseSensitive)
   }
 
   // -- LOCAL DICTIONARY

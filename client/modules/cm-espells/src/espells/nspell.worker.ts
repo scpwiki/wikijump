@@ -1,4 +1,4 @@
-import { Espells } from "espells"
+import { Espells, OverridableAffData } from "espells"
 import { decode, expose, ModuleProxy } from "threads-worker-module/src/worker-lib"
 import type { Misspelling, Word } from ".."
 import type { FlaggedWord } from "../types"
@@ -6,8 +6,8 @@ import type { FlaggedWord } from "../types"
 let espells: Espells
 
 const module = {
-  async set(aff: string, dic: string | string[]) {
-    espells = await Espells.fromURL({ aff, dic })
+  async set(aff: string, dic: string | string[], override?: OverridableAffData) {
+    espells = await Espells.fromURL({ aff, dic, override })
   },
 
   // -- DICTIONARY
@@ -32,8 +32,8 @@ const module = {
 
   // -- SPELLCHECK
 
-  correct(raw: ArrayBuffer) {
-    return espells.lookup(decode(raw))
+  lookup(raw: ArrayBuffer, caseSensitive?: boolean) {
+    return espells.lookup(decode(raw), caseSensitive)
   },
 
   suggest(raw: ArrayBuffer, max: number) {
@@ -44,17 +44,27 @@ const module = {
     return words.map(word => ({ ...word, suggestions: espells.suggest(word.word, max) }))
   },
 
-  misspelled(words: Word[]) {
-    return words.filter(({ word }) => !espells.lookup(word))
+  misspelled(words: Word[], caseSensitive?: boolean) {
+    return words.filter(({ word }) => !espells.lookup(word, caseSensitive))
   },
 
-  check(words: Word[]): FlaggedWord[] {
+  check(words: Word[], caseSensitive?: boolean): FlaggedWord[] {
     return words
       .map(word => ({
         ...word,
-        info: espells.lookup(word.word)
+        info: espells.lookup(word.word, caseSensitive)
       }))
       .filter(({ info: { correct, forbidden, warn } }) => !correct || forbidden || warn)
+  },
+
+  // -- MISC
+
+  stems(raw: ArrayBuffer, caseSensitive?: boolean) {
+    return espells.stems(decode(raw), caseSensitive)
+  },
+
+  data(raw: ArrayBuffer, caseSensitive?: boolean) {
+    return espells.data(decode(raw), caseSensitive)
   }
 }
 
