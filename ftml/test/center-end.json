@@ -1,5 +1,5 @@
 {
-    "input": "= Apple",
+    "input": "\n= Apple",
     "tree": {
         "elements": [
             {
