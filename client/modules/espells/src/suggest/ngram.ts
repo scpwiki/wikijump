@@ -13,23 +13,36 @@ import {
 } from "./scores"
 
 export class NgramSuggestionBuilder {
-  private declare misspelling: string
-  private declare prefixes: PrefixMap
-  private declare suffixes: SuffixMap
-  private declare known: Set<string>
-  private declare maxDiff: number
-  private declare onlyMaxDiff: boolean
-  private declare hasPhonetic: boolean
+  /** The "root" scores for potential suggestions for a misspelling. */
   private declare roots: ScoresList<[Word]>
 
   constructor(
-    misspelling: string,
-    prefixes: PrefixMap,
-    suffixes: SuffixMap,
-    known: Set<string>,
-    maxDiff: number,
-    onlyMaxDiff = false,
-    hasPhonetic = false
+    /** The misspelling that suggestions are being built for. */
+    private misspelling: string,
+    /** The {@link PrefixMap} to use when assembling suggestions. */
+    private prefixes: PrefixMap,
+    /** The {@link SuffixMap} to use when assembling suggestions. */
+    private suffixes: SuffixMap,
+    /** A set of already known suggestions that should be skipped. */
+    private known: Set<string>,
+    /**
+     * Sets the similarity factor.
+     *
+     * - `5`: The default value.
+     * - `0`: Fewer ngram suggestions, but always at least one.
+     * - `10`: Maximum value, yields `MAXNGRAMSUGS` number of suggestions.
+     */
+    private maxDiff: number,
+    /**
+     * If true, all bad ngram suggestions will be removed, rather than
+     * keeping at least one.
+     */
+    private onlyMaxDiff = false,
+    /**
+     * Produces less suggestions if true, so that phonetic suggestion
+     * system isn't skipped due to a large amount of ngram suggestions.
+     */
+    private hasPhonetic = false
   ) {
     this.misspelling = misspelling
     this.prefixes = prefixes
@@ -41,6 +54,11 @@ export class NgramSuggestionBuilder {
     this.roots = new ScoresList<[Word]>(C.NGRAM_MAX_ROOTS)
   }
 
+  /**
+   * Steps the builder forward by providing another {@link Word} to process.
+   *
+   * @param word - The {@link Word} to process.
+   */
   step(word: Word) {
     if (Math.abs(word.stem.length - this.misspelling.length) > 4) return
 
@@ -55,6 +73,7 @@ export class NgramSuggestionBuilder {
     this.roots.add(score, word)
   }
 
+  /** Finishes the builder and yields the resulting suggestions (as strings). */
   *finish() {
     const threshold = scoreThreshold(this.misspelling)
 
@@ -90,7 +109,14 @@ export class NgramSuggestionBuilder {
     )
   }
 
-  formsFor(word: Word, similarTo: string) {
+  /**
+   * Returns the forms (permutations) of a {@link Word}, with all valid
+   * suffixes and prefixes.
+   *
+   * @param word - The {@link Word} to get the forms of.
+   * @param similarTo - The string/word that the forms found should be similar to.
+   */
+  private formsFor(word: Word, similarTo: string) {
     const res: string[] = [word.stem]
 
     const suffixes = !word.flags
@@ -105,8 +131,8 @@ export class NgramSuggestionBuilder {
     const prefixes = !word.flags
       ? []
       : iterate(word.flags)
-          .filter(flag => this.suffixes.has(flag))
-          .map(flag => this.suffixes.get(flag)!)
+          .filter(flag => this.prefixes.has(flag))
+          .map(flag => this.prefixes.get(flag)!)
           .flatten()
           .filter(
             prefix => prefix.relevant(word.stem) && similarTo.startsWith(prefix.add)
@@ -143,7 +169,12 @@ export class NgramSuggestionBuilder {
     return res
   }
 
-  *filterGuesses(guesses: [number, string][]) {
+  /**
+   * Filters out terrible guesses based on their score or if they were already known.
+   *
+   * @param guesses - A list of tuples, containing a score and guess, in that order.
+   */
+  private *filterGuesses(guesses: [number, string][]) {
     let seen = false
     let found = 0
 
