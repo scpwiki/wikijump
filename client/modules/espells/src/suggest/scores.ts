@@ -39,7 +39,7 @@ export class ScoresList<T extends any[]> {
    */
   add(score: number, ...args: T) {
     const current = this.list.peek()
-    if (current && score >= current[0]) {
+    if (!current || score >= current[0]) {
       this.list.push([score, ...args])
       if (this.list.length > this.max) this.list.pop()
     }
