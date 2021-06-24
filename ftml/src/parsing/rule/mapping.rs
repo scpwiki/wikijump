@@ -50,11 +50,11 @@ lazy_static! {
             Token::ClearFloatLeft => vec![RULE_TODO], // TODO
             Token::ClearFloatRight => vec![RULE_TODO], // TODO
             Token::Pipe => vec![RULE_TEXT],
-            Token::Equals => vec![RULE_TODO, RULE_TEXT], // TODO
+            Token::Equals => vec![RULE_TEXT],
             Token::Underscore => vec![RULE_TEXT],
             Token::Quote => vec![RULE_DOUBLE_ANGLE, RULE_TEXT],
             Token::Heading => vec![RULE_TODO, RULE_TEXT], // TODO
-            Token::LineBreak => vec![RULE_BLOCKQUOTE, RULE_LIST, RULE_BLOCK_SKIP, RULE_LINE_BREAK],
+            Token::LineBreak => vec![RULE_CENTER, RULE_BLOCKQUOTE, RULE_LIST, RULE_BLOCK_SKIP, RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![RULE_LINE_BREAK_PARAGRAPH],
             Token::Whitespace => vec![RULE_TEXT],
 
@@ -94,7 +94,7 @@ lazy_static! {
             // Miscellaneous
             Token::LeftComment => vec![RULE_COMMENT],
             Token::RightComment => vec![],
-            Token::InputStart => vec![RULE_BLOCKQUOTE, RULE_LIST, RULE_NULL],
+            Token::InputStart => vec![RULE_CENTER, RULE_BLOCKQUOTE, RULE_LIST, RULE_NULL],
             Token::InputEnd => vec![RULE_NULL],
 
             // Fallback
