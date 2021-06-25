@@ -69,9 +69,7 @@
 			</table>
 		{/if}
 		{if $inlineDiff}
-			<div class="inline-diff page-source">
-				{$inlineDiff|semipre}
-			</div>
+			<pre><div class="inline-diff page-source">{$inlineDiff}</div></pre>
 		{/if}
 	{else}
 		<p>

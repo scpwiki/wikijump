@@ -20,14 +20,14 @@ class PageDiffModule extends SmartyModule
         $toRevisionId  = $pl->getParameterValue("to_revision_id");
 
         if ($fromRevisionId == $toRevisionId) {
-            throw new ProcessException(_("What is the point in comparing the revision with itself? Please choose different revisions of the page."), "same_revision");
+            throw new ProcessException(_("Please choose different revisions of the page to compare."), "same_revision");
         }
 
         $fromRevision = PageRevisionPeer::instance()->selectByPrimaryKey($fromRevisionId);
         $toRevision = PageRevisionPeer::instance()->selectByPrimaryKey($toRevisionId);
 
         if ($fromRevision == null || $toRevision == null) {
-            throw new ProcessException(_("Error selecting revisions to compare"), "no_revisions");
+            throw new ProcessException(_("Error selecting revisions to compare."), "no_revisions");
         }
 
         $fromMetadata = $fromRevision->getMetadata();
