@@ -3,9 +3,9 @@ import { locale as i18nLocale, Pref } from "wj-state"
 import { dedupe } from "wj-util"
 import type { Word } from ".."
 import DICTIONARIES from "../dicts"
-import type { EspellsWorkerInterface } from "./nspell.worker"
+import type { EspellsWorkerInterface } from "./espells.worker"
 
-/** Class for instantiating a web-workerized NSpell instance. */
+/** Class for instantiating a web-workerized Espells instance. */
 export class EspellsWorker extends WorkerModule<EspellsWorkerInterface> {
   /** The current locale of the spellchecker. */
   declare locale: string
@@ -23,7 +23,7 @@ export class EspellsWorker extends WorkerModule<EspellsWorkerInterface> {
    *   spellchecker.
    */
   constructor(locale = "en") {
-    super("nspell", importWorker, {
+    super("espells", importWorker, {
       persist: true,
       init: async () => void (await this.set(locale, true))
     })
@@ -209,5 +209,5 @@ function localeLanguage(locale: string) {
 }
 
 async function importWorker() {
-  return (await import("./nspell.worker?bundled-worker")).default
+  return (await import("./espells.worker?bundled-worker")).default
 }
