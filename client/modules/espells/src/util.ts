@@ -165,10 +165,7 @@ export function concat<T>(a: Iterable<T>, b: Iterable<T>): string | Set<T> | T[]
 }
 
 // https://gist.github.com/cybercase/db7dde901d7070c98c48#gistcomment-3718142
-type Iterableify<T> = { [K in keyof T]: Iterable<T[K]> }
-export function* product<T extends unknown[]>(
-  ...iterables: Iterableify<T>
-): Generator<T> {
+export function* product<T>(...iterables: Iterable<T>[]): Generator<T[]> {
   if (iterables.length === 0) {
     return
   }
@@ -186,7 +183,7 @@ export function* product<T extends unknown[]>(
         return
       }
     } else {
-      yield results.map(({ value }) => value) as T
+      yield results.map(({ value }) => value)
       i = 0
     }
     results[i] = iterators[i].next()
