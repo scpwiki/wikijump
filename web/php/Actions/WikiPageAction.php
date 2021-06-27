@@ -32,9 +32,11 @@ use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
 use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PageTag;
+use Wikidot\DB\SiteTag;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
 use Wikijump\Models\User;
+use Wikijump\Models\PageTags;
 
 class WikiPageAction extends SmartyAction
 {
@@ -1390,7 +1392,6 @@ class WikiPageAction extends SmartyAction
         // or create???
 
         $user = $runData->getUser();
-
         $pl = $runData->getParameterList();
         $tags = strtolower(trim($pl->getParameterValue("tags")));
         $pageId = $pl->getParameterValue("pageId");
@@ -1409,6 +1410,17 @@ class WikiPageAction extends SmartyAction
 
         if (strlen8($tags)>256) {
             throw new ProcessException(_('"Tags" field too long.'), "form_error");
+        }
+
+        $tagsArray = explode(' ', $tags);
+        $siteId = $site->getSiteId();
+        $taglist = SiteTag::getSiteTags($siteId);
+        $taglist = explode(' ', $taglist);
+
+        foreach ($tagsArray as $tag) {
+            if(!in_array($tag, $taglist)) {
+                throw new ProcessException(_('Invalid tags.'), "form_error");
+            }
         }
 
         $db = Database::connection();

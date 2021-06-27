@@ -39,9 +39,9 @@
 				{t}Site tags{/t}:
 			</td>
 			<td>
-				<input  class="text" type="text" name="tags" size="40" value="{$tags}" maxlength="70"/>
+				<input  class="text" type="text" name="tags" size="40" value="{$defaultTags}"/>
 				<div class="sub">
-					{t}Simply the (one-word) tags that describe this site.{/t}<br/>
+					{t}These are the list of tags people can assign to pages.{/t}<br/>
 					{t}Separate by space.{/t}
 				</div>
 			</td>

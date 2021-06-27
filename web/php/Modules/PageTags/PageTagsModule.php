@@ -5,6 +5,7 @@ namespace Wikidot\Modules\PageTags;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageTagPeer;
+use Wikidot\DB\SiteTag;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
@@ -18,10 +19,9 @@ class PageTagsModule extends SmartyModule
         $user = $runData->getUser();
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("pageId");
-
         $site = $runData->getTemp("site");
 
-        if (!$pageId || !is_numeric($pageId)) {
+        if (!is_numeric($pageId)) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
@@ -35,6 +35,12 @@ class PageTagsModule extends SmartyModule
 
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
+        // Receive taglist from ManageSite.
+
+        $siteId = $site->getSiteId();
+        $taglist = SiteTag::getSiteTags($siteId);
+        $taglist = explode(' ', $taglist);
+
         // get the tags now
 
         $c = new Criteria();
@@ -42,7 +48,7 @@ class PageTagsModule extends SmartyModule
 
         $c->addOrderAscending("tag");
 
-        $tags = PageTagPeer::instance()->select($c);
+        $tags = PageTagPeer::instance()->selectByCriteria($c);
 
         $t2 = array();
 
@@ -53,5 +59,6 @@ class PageTagsModule extends SmartyModule
         $t3 = implode(' ', $t2);
 
         $runData->contextAdd("tags", $t3);
+        $runData->contextAdd("taglist", $taglist);
     }
 }
