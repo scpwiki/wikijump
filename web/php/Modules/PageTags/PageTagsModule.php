@@ -41,17 +41,15 @@ class PageTagsModule extends SmartyModule
         $taglist = SiteTag::getSiteTags($siteId);
         $taglist = explode(' ', $taglist);
 
-        // get the tags now
+        // Fetch the tags and convert them to a string.
 
         $c = new Criteria();
         $c->add("page_id", $pageId);
-
         $c->addOrderAscending("tag");
 
         $tags = PageTagPeer::instance()->selectByCriteria($c);
 
         $t2 = array();
-
         foreach ($tags as $t) {
             $t2[] = $t->getTag();
         }
