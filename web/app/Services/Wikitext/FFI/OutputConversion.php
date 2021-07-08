@@ -57,13 +57,11 @@ final class OutputConversion
         $styles = self::makeStylesArray($c_data->styles_list, $c_data->styles_len);
         $meta = self::makeHtmlMetaArray($c_data->meta_list, $c_data->meta_len);
         $warnings = self::makeParseWarningArray($c_data->warning_list, $c_data->warning_len);
+        $backlinks = self::makeBacklinks($c_data->backlinks);
 
         // Free original C data
         FtmlFfi::freeHtmlOutput($c_data);
         FFI::free($c_data);
-
-        // TODO actually get link information
-        $backlinks = new Backlinks([], [], [], [], []);
 
         // Return object
         return new HtmlOutput($body, $styles, $meta, $warnings, $backlinks);
@@ -109,5 +107,39 @@ final class OutputConversion
         $spanEnd = $c_data->span_end;
         $kind = FFI::string($c_data->kind);
         return new ParseWarning($token, $rule, $spanStart, $spanEnd, $kind);
+    }
+
+    // Backlinks
+    public static function makeBacklinks(FFI\CData $c_data): Backlinks
+    {
+        $inclusionsPresent = FtmlFfi::pointerToList(
+            $c_data->included_pages_present_list,
+            $c_data->included_pages_present_len,
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+        );
+
+        $inclusionsAbsent = FtmlFfi::pointerToList(
+            $c_data->included_pages_absent_list,
+            $c_data->included_pages_absent_len,
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+        );
+
+        $internalLinksPresent = FtmlFfi::pointerToList(
+            $c_data->internal_links_present_list,
+            $c_data->internal_links_present_len,
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+        );
+
+        $internalLinksAbsent = FtmlFfi::pointerToList(
+            $c_data->internal_links_absent_list,
+            $c_data->internal_links_absent_len,
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+        );
+
+        $externalLinks = FtmlFfi::pointerToList(
+            $c_data->external_links_list,
+            $c_data->external_links_len,
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+        );
     }
 }

@@ -11,40 +11,40 @@ use Text_Wiki;
  */
 class Backlinks
 {
-    public array $internalLinksPresent;
-    public array $internalLinksAbsent;
     public array $inclusionsPresent;
     public array $inclusionsAbsent;
+    public array $internalLinksPresent;
+    public array $internalLinksAbsent;
     public array $externalLinks;
 
     public function __construct(
-        array $internalLinksPresent,
-        array $internalLinksAbsent,
         array $inclusionsPresent,
         array $inclusionsAbsent,
+        array $internalLinksPresent,
+        array $internalLinksAbsent,
         array $externalLinks
     )
     {
-        $this->internalLinksPresent = $internalLinksPresent;
-        $this->internalLinksAbsent = $internalLinksAbsent;
         $this->inclusionsPresent = $inclusionsPresent;
         $this->inclusionsAbsent = $inclusionsAbsent;
+        $this->internalLinksPresent = $internalLinksPresent;
+        $this->internalLinksAbsent = $internalLinksAbsent;
         $this->externalLinks = $externalLinks;
     }
 
     public static function fromWikiObject(Text_Wiki $wiki): Backlinks
     {
-        $internalLinksPresent = $wiki->vars['internalLinksExist'] ?? [];
-        $internalLinksAbsent = $wiki->vars['internalLinksNotExist'] ?? [];
         $inclusionsPresent = $wiki->vars['inclusions'] ?? [];
         $inclusionsAbsent = $wiki->vars['inclusionsNotExist'] ?? [];
+        $internalLinksPresent = $wiki->vars['internalLinksExist'] ?? [];
+        $internalLinksAbsent = $wiki->vars['internalLinksNotExist'] ?? [];
         $externalLinks = $wiki->vars['externalLinks'] ?? [];
 
         return new Backlinks(
-            $internalLinksPresent,
-            $internalLinksAbsent,
             $inclusionsPresent,
             $inclusionsAbsent,
+            $internalLinksPresent,
+            $internalLinksAbsent,
             $externalLinks,
         );
     }
