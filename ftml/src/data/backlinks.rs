@@ -46,3 +46,12 @@ pub struct Link<'a> {
     /// If `false`, then it is missing or "wanted".
     pub exists: bool,
 }
+
+impl<'a> Link<'a> {
+    #[inline]
+    pub fn new(link: Cow<'a, str>, exists: bool) -> Self {
+        let link = link.into();
+
+        Link { link, exists }
+    }
+}

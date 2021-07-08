@@ -23,7 +23,9 @@ use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
 use crate::render::Handle;
-use crate::{info, Backlinks, PageInfo};
+use crate::url::is_url;
+use crate::{info, Backlinks, Link, PageInfo};
+use std::borrow::Cow;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
@@ -104,6 +106,27 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
         let index = self.code_snippet_index;
         self.code_snippet_index = NonZeroUsize::new(index.get() + 1).unwrap();
         index
+    }
+
+    // Backlinks
+    #[inline]
+    pub fn add_link(&mut self, link: &str) {
+        // TODO: set to internal link if domain matches site
+        // See https://scuttle.atlassian.net/browse/WJ-24
+
+        let link_owned = Cow::Owned(str!(link));
+
+        if is_url(link) {
+            self.backlinks.external_links.push(link_owned);
+        } else {
+            // TODO: determine if page exists
+            // this also involves stripping leading `/`s to get the slug,
+            // if relevant, e.g. `/scp-001`.
+            let exists = true;
+
+            let link = Link::new(link_owned, exists);
+            self.backlinks.internal_links.push(link);
+        }
     }
 
     // Buffer management
