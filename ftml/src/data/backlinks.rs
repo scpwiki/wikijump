@@ -37,8 +37,8 @@ impl<'a> Backlinks<'a> {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Link<'a> {
-    /// The string storing the link target.
-    pub link: Cow<'a, str>,
+    /// The URL this link targets.
+    pub url: Cow<'a, str>,
 
     /// Whether this link exists or not.
     ///
@@ -49,7 +49,7 @@ pub struct Link<'a> {
 
 impl<'a> Link<'a> {
     #[inline]
-    pub fn new(link: Cow<'a, str>, exists: bool) -> Self {
-        Link { link, exists }
+    pub fn new(url: Cow<'a, str>, exists: bool) -> Self {
+        Link { url, exists }
     }
 }

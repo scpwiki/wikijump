@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::backlinks::ftml_backlinks;
 use super::prelude::*;
 use super::warning::ftml_warning;
 use crate::parsing::ParseWarning;
@@ -78,6 +79,7 @@ pub struct ftml_html_output {
     pub meta_len: usize,
     pub warning_list: *mut ftml_warning,
     pub warning_len: usize,
+    pub backlinks: ftml_backlinks,
 }
 
 impl ftml_html_output {
@@ -98,6 +100,8 @@ impl ftml_html_output {
         let (warning_ptr, warning_len) = vec_to_cptr(c_warnings);
         self.warning_list = warning_ptr;
         self.warning_len = warning_len;
+
+        self.backlinks = todo!();
     }
 }
 
