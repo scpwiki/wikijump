@@ -20,14 +20,15 @@
 
 use std::borrow::Cow;
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub struct Backlinks<'a> {
     included_pages: Vec<Link<'a>>,
     internal_links: Vec<Link<'a>>,
     external_links: Vec<Link<'a>>,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Link<'a> {
     /// The string storing the link target.
     pub link: Cow<'a, str>,
