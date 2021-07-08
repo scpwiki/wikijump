@@ -88,6 +88,41 @@ impl From<Backlinks<'_>> for ftml_backlinks {
     }
 }
 
+impl ftml_backlinks {
+    pub unsafe fn drop_c(&mut self) {
+        // Included pages
+        drop_cptr(
+            self.included_pages_present_list,
+            self.included_pages_present_len,
+            |s| drop_cstr(s),
+        );
+        drop_cptr(
+            self.included_pages_absent_list,
+            self.included_pages_absent_len,
+            |s| drop_cstr(s),
+        );
+
+        // Internal links
+        drop_cptr(
+            self.internal_links_present_list,
+            self.internal_links_present_len,
+            |s| drop_cstr(s),
+        );
+        drop_cptr(
+            self.internal_links_absent_list,
+            self.internal_links_absent_len,
+            |s| drop_cstr(s),
+        );
+
+        // External links
+        drop_cptr(
+            self.external_links_list, //
+            self.external_links_len,
+            |s| drop_cstr(s),
+        );
+    }
+}
+
 fn split_links<'a, I>(links: I) -> (Vec<*mut c_char>, Vec<*mut c_char>)
 where
     I: IntoIterator<Item = Link<'a>>,

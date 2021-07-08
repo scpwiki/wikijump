@@ -101,7 +101,7 @@ impl ftml_html_output {
         self.warning_list = warning_ptr;
         self.warning_len = warning_len;
 
-        self.backlinks = todo!();
+        self.backlinks = output.backlinks.into();
     }
 }
 
@@ -117,4 +117,5 @@ pub unsafe extern "C" fn ftml_destroy_html_output(ptr: *mut ftml_html_output) {
         drop_cstr(item.name);
         drop_cstr(item.value);
     });
+    this.backlinks.drop_c();
 }
