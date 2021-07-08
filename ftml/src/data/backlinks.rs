@@ -25,7 +25,7 @@ use std::borrow::Cow;
 pub struct Backlinks<'a> {
     pub included_pages: Vec<Link<'a>>,
     pub internal_links: Vec<Link<'a>>,
-    pub external_links: Vec<Link<'a>>,
+    pub external_links: Vec<Cow<'a, str>>,
 }
 
 impl<'a> Backlinks<'a> {
