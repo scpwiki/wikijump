@@ -45,6 +45,17 @@ export interface IHtmlMeta {
     value: string;
 }
 
+export interface ILink {
+    url: string;
+    exists: boolean;
+}
+
+export interface IBacklinks {
+    included_pages: ILink[];
+    internal_links: ILink[];
+    external_links: string[];
+}
+
 export interface IPageInfo {
     page: string;
     category: string | null;
@@ -65,6 +76,9 @@ extern "C" {
 
     #[wasm_bindgen(typescript_type = "IHtmlMeta[]")]
     pub type IHtmlMetaArray;
+
+    #[wasm_bindgen(typescript_type = "IBacklinks")]
+    pub type IBacklinks;
 
     #[wasm_bindgen(typescript_type = "IPageInfo")]
     pub type IPageInfo;
@@ -175,6 +189,11 @@ impl HtmlOutput {
     #[wasm_bindgen(typescript_type = "IHtmlMetaArray")]
     pub fn html_meta(&self) -> Result<IHtmlMetaArray, JsValue> {
         rust_to_js!(self.inner.meta)
+    }
+
+    #[wasm_bindgen(typescript_type = "IBacklinks")]
+    pub fn backlinks(&self) -> Result<IBacklinks, JsValue> {
+        rust_to_js!(self.inner.backlinks)
     }
 }
 
