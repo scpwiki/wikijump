@@ -22,6 +22,7 @@ use super::builder::HtmlBuilder;
 use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
+use super::Backlinks;
 use crate::render::Handle;
 use crate::{info, PageInfo};
 use std::fmt::{self, Write};
@@ -32,6 +33,7 @@ pub struct HtmlContext<'i, 'h> {
     body: String,
     styles: Vec<String>,
     meta: Vec<HtmlMeta>,
+    backlinks: Backlinks<'static>,
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
 
@@ -46,6 +48,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
             body: String::new(),
             styles: Vec::new(),
             meta: Self::initial_metadata(info),
+            backlinks: Backlinks::new(),
             info,
             handle,
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
@@ -140,10 +143,19 @@ impl<'i, 'h> From<HtmlContext<'i, 'h>> for HtmlOutput {
     #[inline]
     fn from(ctx: HtmlContext<'i, 'h>) -> HtmlOutput {
         let HtmlContext {
-            body, styles, meta, ..
+            body,
+            styles,
+            meta,
+            backlinks,
+            ..
         } = ctx;
 
-        HtmlOutput { body, styles, meta }
+        HtmlOutput {
+            body,
+            styles,
+            meta,
+            backlinks,
+        }
     }
 }
 

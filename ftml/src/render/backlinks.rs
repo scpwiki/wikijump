@@ -20,12 +20,19 @@
 
 use std::borrow::Cow;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
 pub struct Backlinks<'a> {
     included_pages: Vec<Link<'a>>,
     internal_links: Vec<Link<'a>>,
     external_links: Vec<Link<'a>>,
+}
+
+impl<'a> Backlinks<'a> {
+    #[inline]
+    pub fn new() -> Self {
+        Backlinks::default()
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
