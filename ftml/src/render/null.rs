@@ -43,5 +43,5 @@ fn null() {
     let (tree, _) = result.into();
     let output = NullRender.render(&log, &page_info, &tree);
 
-    assert_eq!(output, (), "Null render didn't produce the unit type");
+    assert_eq!(output, (), "Null render didn't produce the unit value");
 }
