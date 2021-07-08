@@ -37,7 +37,6 @@ use super::prelude;
 
 use self::context::HtmlContext;
 use self::element::render_elements;
-use super::Backlinks;
 use crate::log::prelude::*;
 use crate::render::{Handle, Render};
 use crate::tree::SyntaxTree;

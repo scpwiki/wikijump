@@ -31,11 +31,9 @@ pub mod json;
 pub mod null;
 pub mod text;
 
-mod backlinks;
 mod condition;
 mod handle;
 
-use self::backlinks::Backlinks;
 use self::handle::{Handle, ModuleRenderMode};
 use crate::log::prelude::*;
 use crate::tree::SyntaxTree;

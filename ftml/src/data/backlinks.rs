@@ -23,9 +23,9 @@ use std::borrow::Cow;
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
 pub struct Backlinks<'a> {
-    included_pages: Vec<Link<'a>>,
-    internal_links: Vec<Link<'a>>,
-    external_links: Vec<Link<'a>>,
+    pub included_pages: Vec<Link<'a>>,
+    pub internal_links: Vec<Link<'a>>,
+    pub external_links: Vec<Link<'a>>,
 }
 
 impl<'a> Backlinks<'a> {
