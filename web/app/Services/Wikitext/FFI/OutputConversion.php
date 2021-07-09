@@ -141,5 +141,13 @@ final class OutputConversion
             $c_data->external_links_len,
             fn(FFI\CData $c_data) => FFI::string($c_data),
         );
+
+        return new Backlinks(
+            $inclusionsPresent,
+            $inclusionsAbsent,
+            $internalLinksPresent,
+            $internalLinksAbsent,
+            $externalLinks,
+        );
     }
 }
