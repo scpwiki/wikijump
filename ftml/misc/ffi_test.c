@@ -3,6 +3,18 @@
 
 #include <ftml.h>
 
+#define PRINT_ALL_BACKLINKS(message, name) \
+	do { \
+		printf(message ":\n"); \
+		if (output.backlinks.name ## _len == 0) { \
+			printf("    (none)\n"); \
+		} \
+		for (size_t i = 0; i < output.backlinks.name ## _len; i++) { \
+			printf("  - %s\n", output.backlinks.name ## _list[i]); \
+		} \
+		printf("\n"); \
+	} while (0)
+
 static const char *meta_type(ftml_html_meta_type type)
 {
 	switch (type) {
@@ -88,6 +100,13 @@ int main(int argc, char **argv)
 			printf("    ----\n");
 		}
 	}
+
+	printf("Backlinks:\n----\n\n");
+	PRINT_ALL_BACKLINKS("Included pages (present)", included_pages_present);
+	PRINT_ALL_BACKLINKS("Included pages (missing)", included_pages_absent);
+	PRINT_ALL_BACKLINKS("Internal links (present)", internal_links_present);
+	PRINT_ALL_BACKLINKS("Internal links (missing)", internal_links_absent);
+	PRINT_ALL_BACKLINKS("External links", external_links);
 
 	return 0;
 }
