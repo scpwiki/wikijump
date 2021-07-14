@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
+use \Wikidot\DB\PagePeer;
 use \Wikijump\Services\Wikitext\Backlinks;
 use \Wikijump\Services\Wikitext\HtmlMeta;
 use \Wikijump\Services\Wikitext\HtmlMetaType;
@@ -115,7 +116,7 @@ final class OutputConversion
         $inclusionsPresent = FtmlFfi::pointerToList(
             $c_data->included_pages_present_list,
             $c_data->included_pages_present_len,
-            fn(FFI\CData $c_data) => FFI::string($c_data),
+            fn(FFI\CData $c_data) => self::getPageId($siteId, $c_data),
         );
 
         $inclusionsAbsent = FtmlFfi::pointerToList(
@@ -127,7 +128,7 @@ final class OutputConversion
         $internalLinksPresent = FtmlFfi::pointerToList(
             $c_data->internal_links_present_list,
             $c_data->internal_links_present_len,
-            fn(FFI\CData $c_data) => FFI::string($c_data),
+            fn(FFI\CData $c_data) => self::getPageId($siteId, $c_data),
         );
 
         $internalLinksAbsent = FtmlFfi::pointerToList(
@@ -149,5 +150,12 @@ final class OutputConversion
             $internalLinksAbsent,
             $externalLinks,
         );
+    }
+
+    private static function getPageId(number $siteId, FFI\CData $c_data): number
+    {
+        $slug = FFI::string($c_data);
+        $page = PagePeer::instance()->selectByName($siteId, $slug);
+        return $page->getPageId();
     }
 }
