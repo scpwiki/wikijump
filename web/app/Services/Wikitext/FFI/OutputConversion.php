@@ -51,13 +51,13 @@ final class OutputConversion
     }
 
     // HtmlOutput
-    public static function makeHtmlOutput(FFI\CData $c_data): HtmlOutput
+    public static function makeHtmlOutput(number $siteId, FFI\CData $c_data): HtmlOutput
     {
         $body = FFI::string($c_data->body);
         $styles = self::makeStylesArray($c_data->styles_list, $c_data->styles_len);
         $meta = self::makeHtmlMetaArray($c_data->meta_list, $c_data->meta_len);
         $warnings = self::makeParseWarningArray($c_data->warning_list, $c_data->warning_len);
-        $backlinks = self::makeBacklinks($c_data->backlinks);
+        $backlinks = self::makeBacklinks($siteId, FFI::addr($c_data->backlinks));
 
         // Free original C data
         FtmlFfi::freeHtmlOutput($c_data);
@@ -110,7 +110,7 @@ final class OutputConversion
     }
 
     // Backlinks
-    public static function makeBacklinks(FFI\CData $c_data): Backlinks
+    public static function makeBacklinks(number $siteId, FFI\CData $c_data): Backlinks
     {
         $inclusionsPresent = FtmlFfi::pointerToList(
             $c_data->included_pages_present_list,
