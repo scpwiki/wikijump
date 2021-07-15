@@ -81,10 +81,8 @@ impl ftml_backlinks {
             drop_cstr(s)
         });
 
-        drop_cptr(
-            self.external_links_list, //
-            self.external_links_len,
-            |s| drop_cstr(s),
-        );
+        drop_cptr(self.external_links_list, self.external_links_len, |s| {
+            drop_cstr(s)
+        });
     }
 }
