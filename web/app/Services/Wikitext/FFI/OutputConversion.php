@@ -116,20 +116,20 @@ final class OutputConversion
         $inclusions = self::splitLinks(
             $c_data->included_pages_list,
             $c_data->included_pages_len,
-            fn(FFI\CData $c_data) => self::getPageId($siteId, $c_data),
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+            fn(string $slug) => self::getPageId($siteId, $slug),
         );
-
-        $inclusionsPresent = $inclusions->present;
-        $inclusionsAbsent = $inclusions->absent;
+        $inclusionsPresent = $inclusions['present'];
+        $inclusionsAbsent = $inclusions['absent'];
 
         $internalLinks = self::splitLinks(
-            $c_data->included_pages_list,
-            $c_data->included_pages_len,
-            fn(FFI\CData $c_data) => self::getPageId($siteId, $c_data),
+            $c_data->internal_links_list,
+            $c_data->internal_links_len,
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+            fn(string $slug) => self::getPageId($siteId, $slug),
         );
-
-        $internalLinksPresent = $internalLinks->present;
-        $internalLinksAbsent = $internalLinks->absent;
+        $internalLinksPresent = $internalLinks['present'];
+        $internalLinksAbsent = $internalLinks['absent'];
 
         $externalLinks = FtmlFfi::pointerToList(
             $c_data->external_links_list,
@@ -146,19 +146,19 @@ final class OutputConversion
         );
     }
 
-    private static function splitLinks(FFI\CData $pointer, int $length, callable $getItemFn): array
+    private static function splitLinks(FFI\CData $pointer, int $length, callable $convertFn, callable $checkItemFn): array
     {
         $present = [];
         $absent = [];
 
         for ($i = 0; $i < $length; $i++) {
-            $rawItem = $pointer[$i];
-            $item = $getItemFn($rawItem);
+            $originalItem = $convertFn($pointer[$i]);
+            $foundItem = $checkItemFn($originalItem);
 
-            if (is_null($item)) {
-                array_push($absent, $rawItem);
+            if (is_null($foundItem)) {
+                array_push($absent, $originalItem);
             } else {
-                array_push($present, $item);
+                array_push($present, $foundItem);
             }
         }
 
@@ -168,9 +168,8 @@ final class OutputConversion
         ];
     }
 
-    private static function getPageId(string $siteId, FFI\CData $c_data): ?string
+    private static function getPageId(string $siteId, string $slug): ?string
     {
-        $slug = FFI::string($c_data);
         $page = PagePeer::instance()->selectByName($siteId, $slug);
         return $page ? $page->getPageId() : null;
     }
