@@ -23,8 +23,8 @@ use std::borrow::Cow;
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
 pub struct Backlinks<'a> {
-    pub included_pages: Vec<Link<'a>>,
-    pub internal_links: Vec<Link<'a>>,
+    pub included_pages: Vec<Cow<'a, str>>,
+    pub internal_links: Vec<Cow<'a, str>>,
     pub external_links: Vec<Cow<'a, str>>,
 }
 
@@ -32,24 +32,5 @@ impl<'a> Backlinks<'a> {
     #[inline]
     pub fn new() -> Self {
         Backlinks::default()
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
-pub struct Link<'a> {
-    /// The URL this link targets.
-    pub url: Cow<'a, str>,
-
-    /// Whether this link exists or not.
-    ///
-    /// If `true`, then the item this link targets exists.
-    /// If `false`, then it is missing or "wanted".
-    pub exists: bool,
-}
-
-impl<'a> Link<'a> {
-    #[inline]
-    pub fn new(url: Cow<'a, str>, exists: bool) -> Self {
-        Link { url, exists }
     }
 }

@@ -24,7 +24,7 @@ use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
 use crate::render::Handle;
 use crate::url::is_url;
-use crate::{info, Backlinks, Link, PageInfo};
+use crate::{info, Backlinks, PageInfo};
 use std::borrow::Cow;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
@@ -119,14 +119,17 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
         if is_url(link) {
             self.backlinks.external_links.push(link_owned);
         } else {
-            // TODO: determine if page exists
-            // this also involves stripping leading `/`s to get the slug,
-            // if relevant, e.g. `/scp-001`.
-            let exists = true;
-
-            let link = Link::new(link_owned, exists);
-            self.backlinks.internal_links.push(link);
+            self.backlinks.internal_links.push(link_owned);
         }
+    }
+
+    // TODO
+    #[allow(dead_code)]
+    #[inline]
+    pub fn add_include(&mut self, page: &str) {
+        let page_owned = Cow::Owned(str!(page));
+
+        self.backlinks.included_pages.push(page_owned);
     }
 
     // Buffer management

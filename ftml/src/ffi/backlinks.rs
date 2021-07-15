@@ -19,22 +19,18 @@
  */
 
 use super::prelude::*;
-use crate::{Backlinks, Link};
+use crate::data::Backlinks;
 
 #[repr(C)]
 #[derive(Debug)]
 pub struct ftml_backlinks {
     // Included pages
-    included_pages_present_list: *mut *mut c_char,
-    included_pages_present_len: usize,
-    included_pages_absent_list: *mut *mut c_char,
-    included_pages_absent_len: usize,
+    included_pages_list: *mut *mut c_char,
+    included_pages_len: usize,
 
     // Internal links
-    internal_links_present_list: *mut *mut c_char,
-    internal_links_present_len: usize,
-    internal_links_absent_list: *mut *mut c_char,
-    internal_links_absent_len: usize,
+    internal_links_list: *mut *mut c_char,
+    internal_links_len: usize,
 
     // External links
     external_links_list: *mut *mut c_char,
@@ -43,45 +39,30 @@ pub struct ftml_backlinks {
 
 impl From<Backlinks<'_>> for ftml_backlinks {
     fn from(backlinks: Backlinks) -> ftml_backlinks {
-        // Split out links, convert to C-strings
-        let (included_pages_present, included_pages_absent) =
-            split_links(backlinks.included_pages);
+        macro_rules! convert_cstr_vec {
+            ($list:expr) => {{
+                let owned_vec = $list
+                    .into_iter()
+                    .map(|cow| string_to_cstr(cow.into_owned()))
+                    .collect();
 
-        let (internal_links_present, internal_links_absent) =
-            split_links(backlinks.internal_links);
+                vec_to_cptr(owned_vec)
+            }};
+        }
 
-        // Only convert to C-strings, no splitting
-        let external_links = backlinks
-            .external_links
-            .into_iter()
-            .map(|cow| string_to_cstr(cow.into_owned()))
-            .collect();
-
-        // Convert into C-vectors
-        let (included_pages_present_list, included_pages_present_len) =
-            vec_to_cptr(included_pages_present);
-
-        let (included_pages_absent_list, included_pages_absent_len) =
-            vec_to_cptr(included_pages_absent);
-
-        let (internal_links_present_list, internal_links_present_len) =
-            vec_to_cptr(internal_links_present);
-
-        let (internal_links_absent_list, internal_links_absent_len) =
-            vec_to_cptr(internal_links_absent);
-
-        let (external_links_list, external_links_len) = vec_to_cptr(external_links);
+        let (included_pages_list, included_pages_len) =
+            convert_cstr_vec!(backlinks.included_pages);
+        let (internal_links_list, internal_links_len) =
+            convert_cstr_vec!(backlinks.internal_links);
+        let (external_links_list, external_links_len) =
+            convert_cstr_vec!(backlinks.external_links);
 
         // Produce final struct
         ftml_backlinks {
-            included_pages_present_list,
-            included_pages_present_len,
-            included_pages_absent_list,
-            included_pages_absent_len,
-            internal_links_present_list,
-            internal_links_present_len,
-            internal_links_absent_list,
-            internal_links_absent_len,
+            included_pages_list,
+            included_pages_len,
+            internal_links_list,
+            internal_links_len,
             external_links_list,
             external_links_len,
         }
@@ -90,55 +71,18 @@ impl From<Backlinks<'_>> for ftml_backlinks {
 
 impl ftml_backlinks {
     pub unsafe fn drop_c(&mut self) {
-        // Included pages
-        drop_cptr(
-            self.included_pages_present_list,
-            self.included_pages_present_len,
-            |s| drop_cstr(s),
-        );
-        drop_cptr(
-            self.included_pages_absent_list,
-            self.included_pages_absent_len,
-            |s| drop_cstr(s),
-        );
+        drop_cptr(self.included_pages_list, self.included_pages_len, |s| {
+            drop_cstr(s)
+        });
 
-        // Internal links
-        drop_cptr(
-            self.internal_links_present_list,
-            self.internal_links_present_len,
-            |s| drop_cstr(s),
-        );
-        drop_cptr(
-            self.internal_links_absent_list,
-            self.internal_links_absent_len,
-            |s| drop_cstr(s),
-        );
+        drop_cptr(self.internal_links_list, self.internal_links_len, |s| {
+            drop_cstr(s)
+        });
 
-        // External links
         drop_cptr(
             self.external_links_list, //
             self.external_links_len,
             |s| drop_cstr(s),
         );
     }
-}
-
-fn split_links<'a, I>(links: I) -> (Vec<*mut c_char>, Vec<*mut c_char>)
-where
-    I: IntoIterator<Item = Link<'a>>,
-{
-    let mut present = Vec::new();
-    let mut absent = Vec::new();
-
-    for link in links {
-        let c_url = string_to_cstr(link.url.into_owned());
-
-        if link.exists {
-            present.push(c_url);
-        } else {
-            absent.push(c_url);
-        }
-    }
-
-    (present, absent)
 }
