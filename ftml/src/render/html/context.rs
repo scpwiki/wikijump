@@ -118,7 +118,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
 
         if is_url(link) {
             self.backlinks.external_links.push(link_owned);
-        } else {
+        } else if link != "javascript:;" {
             self.backlinks.internal_links.push(link_owned);
         }
     }
