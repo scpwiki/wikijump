@@ -45,14 +45,9 @@ export interface IHtmlMeta {
     value: string;
 }
 
-export interface ILink {
-    url: string;
-    exists: boolean;
-}
-
 export interface IBacklinks {
-    included_pages: ILink[];
-    internal_links: ILink[];
+    included_pages: string[];
+    internal_links: string[];
     external_links: string[];
 }
 
