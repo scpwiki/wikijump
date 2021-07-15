@@ -156,6 +156,10 @@ final class OutputConversion
     {
         $slug = FFI::string($c_data);
         $page = PagePeer::instance()->selectByName($siteId, $slug);
+        if (is_null($page)) {
+            // TODO check page existence here
+            return null;
+        }
         return $page->getPageId();
     }
 }
