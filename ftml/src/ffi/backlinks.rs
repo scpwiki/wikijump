@@ -52,8 +52,10 @@ impl From<Backlinks<'_>> for ftml_backlinks {
 
         let (included_pages_list, included_pages_len) =
             convert_cstr_vec!(backlinks.included_pages);
+
         let (internal_links_list, internal_links_len) =
             convert_cstr_vec!(backlinks.internal_links);
+
         let (external_links_list, external_links_len) =
             convert_cstr_vec!(backlinks.external_links);
 
