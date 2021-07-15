@@ -110,10 +110,17 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
 
     // Backlinks
     #[inline]
-    pub fn add_link(&mut self, link: &str) {
+    pub fn add_link(&mut self, mut link: &str) {
         // TODO: set to internal link if domain matches site
         // See https://scuttle.atlassian.net/browse/WJ-24
 
+        // Also support [ links pointing to local pages.
+        // e.g. [/scp-001 SCP-001] in addition to [[[SCP-001]]].
+        if link.starts_with('/') {
+            link = &link[1..];
+        }
+
+        // Add to appropriate list
         let link_owned = Cow::Owned(str!(link));
 
         if is_url(link) {
