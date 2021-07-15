@@ -155,6 +155,7 @@ final class OutputConversion
         $present = [];
         $absent = [];
 
+        // Convert items, placing in the appropriate list
         for ($i = 0; $i < $length; $i++) {
             $originalItem = $convertFn($pointer[$i]);
             $foundItem = $checkItemFn($originalItem);
