@@ -146,8 +146,12 @@ final class OutputConversion
         );
     }
 
-    private static function splitLinks(FFI\CData $pointer, int $length, callable $convertFn, callable $checkItemFn): array
-    {
+    private static function splitLinks(
+        FFI\CData $pointer,
+        int $length,
+        callable $convertFn,
+        callable $checkItemFn
+    ): array {
         $present = [];
         $absent = [];
 
