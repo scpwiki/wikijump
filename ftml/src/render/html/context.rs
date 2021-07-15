@@ -116,7 +116,6 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
 
         let link_owned = Cow::Owned(str!(link));
 
-println!("link {}, is_url {}", link, is_url(link));
         if is_url(link) {
             self.backlinks.external_links.push(link_owned);
         } else if link != "javascript:;" {
