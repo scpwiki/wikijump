@@ -58,7 +58,7 @@ final class OutputConversion
         $styles = self::makeStylesArray($c_data->styles_list, $c_data->styles_len);
         $meta = self::makeHtmlMetaArray($c_data->meta_list, $c_data->meta_len);
         $warnings = self::makeParseWarningArray($c_data->warning_list, $c_data->warning_len);
-        $backlinks = self::makeBacklinks($siteId, FFI::addr($c_data->backlinks));
+        $backlinks = self::makeBacklinks($siteId, $c_data->backlinks);
 
         // Free original C data
         FtmlFfi::freeHtmlOutput($c_data);
