@@ -101,6 +101,7 @@ impl ftml_html_output {
         self.warning_list = warning_ptr;
         self.warning_len = warning_len;
 
+println!("backlinks: {:?}", &output.backlinks);
         self.backlinks = output.backlinks.into();
     }
 }
