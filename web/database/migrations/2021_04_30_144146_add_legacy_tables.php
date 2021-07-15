@@ -485,7 +485,7 @@ class AddLegacyTables extends Migration
         });
 
         Schema::create('page_link', function (Blueprint $table) {
-            $table->id('link_id')->startingValue(37);
+            $table->id('link_id')->startingValue(35);
             $table->unsignedInteger('from_page_id')->nullable();
             $table->unsignedInteger('to_page_id')->nullable();
             $table->string('to_page_name', 128)->nullable();
