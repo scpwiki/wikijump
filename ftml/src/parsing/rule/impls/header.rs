@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use std::convert::TryInto;
 
 pub const RULE_HEADER: Rule = Rule {
     name: "header",
@@ -31,21 +32,44 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Trying to create header container");
 
-    // XXX
-    check_step(parser, Token::Italics)?;
+    // Helper to ensure the current token is expected
+    macro_rules! step {
+        ($token:expr) => {{
+            let current = parser.current();
+            if current.token != $token {
+                return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+            }
 
-    // XXX
+            parser.step()?;
+            current
+        }};
+    }
+
+    // Assert first tokens match rule
+    check_step_multiple(parser, &[Token::LineBreak, Token::InputStart])?;
+
+    // Get header depth
+    let heading_level = step!(Token::Heading)
+        .slice
+        .len()
+        .try_into()
+        .expect("Received invalid heading length token slice");
+
+    // Step over whitespace
+    step!(Token::Whitespace);
+
+    // Collect contents until newline
     collect_container(
         log,
         parser,
         RULE_HEADER,
-        ContainerType::Italics,
-        &[ParseCondition::current(Token::Italics)],
+        ContainerType::Header(heading_level),
         &[
+            ParseCondition::current(Token::InputEnd),
+            ParseCondition::current(Token::LineBreak),
             ParseCondition::current(Token::ParagraphBreak),
-            ParseCondition::token_pair(Token::Italics, Token::Whitespace),
-            ParseCondition::token_pair(Token::Whitespace, Token::Italics),
         ],
+        &[],
         None,
     )
 }
