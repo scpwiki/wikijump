@@ -91,8 +91,29 @@ lazy_static! {
             Token::String => vec![RULE_TEXT],
 
             // Input boundaries
-            Token::LineBreak => vec![RULE_CENTER, RULE_HEADER, RULE_BLOCKQUOTE, RULE_LIST, RULE_BLOCK_SKIP, RULE_LINE_BREAK],
-            Token::InputStart => vec![RULE_CENTER, RULE_HEADER, RULE_BLOCKQUOTE, RULE_LIST, RULE_NULL],
+            Token::LineBreak => vec![
+                // Start-of-line rules
+                RULE_CENTER,
+                RULE_HEADER,
+                RULE_BLOCKQUOTE,
+                RULE_LIST,
+
+                // Consume newline for blocks
+                RULE_BLOCK_SKIP,
+
+                // Normal rule handler
+                RULE_LINE_BREAK,
+            ],
+            Token::InputStart => vec![
+                // Start-of-line rules
+                RULE_CENTER,
+                RULE_HEADER,
+                RULE_BLOCKQUOTE,
+                RULE_LIST,
+
+                // Normal rule handler
+                RULE_NULL,
+            ],
             Token::InputEnd => vec![RULE_NULL],
 
             // Miscellaneous
