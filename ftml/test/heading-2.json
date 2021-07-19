@@ -1,0 +1,56 @@
+{
+    "input": "++ My __header__\nBanana",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": 2
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "My"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "underline",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "header"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Banana"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
