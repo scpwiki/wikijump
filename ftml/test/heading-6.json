@@ -1,0 +1,34 @@
+{
+    "input": "++++++ SCP-6969",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": 6
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "SCP"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "6969"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
