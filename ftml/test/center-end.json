@@ -5,23 +5,14 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": {
+                        "align": "center"
+                    },
                     "attributes": {},
                     "elements": [
                         {
-                            "element": "container",
-                            "data": {
-                                "type": {
-                                    "align": "center"
-                                },
-                                "attributes": {},
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Apple"
-                                    }
-                                ]
-                            }
+                            "element": "text",
+                            "data": "Apple"
                         }
                     ]
                 }

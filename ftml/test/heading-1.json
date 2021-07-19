@@ -5,37 +5,28 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
+                    "type": {
+                        "header": 1
+                    },
                     "attributes": {},
                     "elements": [
                         {
+                            "element": "text",
+                            "data": "My"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
                             "element": "container",
                             "data": {
-                                "type": {
-                                    "header": 1
-                                },
+                                "type": "italics",
                                 "attributes": {},
                                 "elements": [
                                     {
                                         "element": "text",
-                                        "data": "My"
-                                    },
-                                    {
-                                        "element": "text",
-                                        "data": " "
-                                    },
-                                    {
-                                        "element": "container",
-                                        "data": {
-                                            "type": "italics",
-                                            "attributes": {},
-                                            "elements": [
-                                                {
-                                                    "element": "text",
-                                                    "data": "header"
-                                                }
-                                            ]
-                                        }
+                                        "data": "header"
                                     }
                                 ]
                             }
