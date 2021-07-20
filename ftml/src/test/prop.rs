@@ -287,14 +287,14 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
     ];
 
     let element = leaf.prop_recursive(
-        50,  // Levels deep
-        200, // Number of total nodes
-        20,  // Up to X items per collection
+        5,  // Levels deep
+        50, // Number of total nodes
+        10,  // Up to X items per collection
         |inner| {
             // Inner strategy for recursive cases
             macro_rules! elements {
                 () => {
-                    proptest::collection::vec(inner.clone(), 1..100)
+                    proptest::collection::vec(inner.clone(), 1..20)
                 };
             }
 
@@ -316,4 +316,12 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
         .prop_map(|(elements, styles)| SyntaxTree { elements, styles })
 }
 
-// TODO
+// Property Test
+
+proptest! {
+    #[test]
+    fn ast_prop(tree in arb_tree()) {
+        println!("\n{:#?}\n", tree);
+        std::process::exit(0);
+    }
+}
