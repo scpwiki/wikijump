@@ -66,8 +66,8 @@ pub fn tokenize<'t>(log: &Logger, text: &'t str) -> Tokenization<'t> {
 
 #[cfg(test)]
 mod test {
-    use proptest::prelude::*;
     use super::*;
+    use proptest::prelude::*;
 
     proptest! {
         #[test]
