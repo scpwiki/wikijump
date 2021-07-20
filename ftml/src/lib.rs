@@ -126,6 +126,10 @@ extern crate slog;
 #[macro_use]
 extern crate slog_mock;
 
+#[cfg(test)]
+#[macro_use]
+extern crate proptest;
+
 // Library top-level modules
 
 #[cfg(test)]

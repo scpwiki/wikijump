@@ -54,6 +54,7 @@ built = { version = "0.5", features = ["chrono", "git2"] }
 cbindgen = "0.19"
 
 [dev-dependencies]
+proptest = "1"
 sloggers = "2"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
