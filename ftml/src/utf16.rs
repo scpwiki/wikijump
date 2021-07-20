@@ -217,7 +217,7 @@ mod test {
 
     proptest! {
         #[test]
-        fn utf16_prop(s in "\\PC*") {
+        fn utf16_prop(s in ".*") {
             check(&s);
         }
     }

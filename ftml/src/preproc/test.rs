@@ -88,7 +88,7 @@ fn prefilter() {
 
 proptest! {
     #[test]
-    fn prefilter_prop(mut s in "\\PC*") {
+    fn prefilter_prop(mut s in ".*") {
         let log = crate::build_logger();
 
         crate::preprocess(&log, &mut s);

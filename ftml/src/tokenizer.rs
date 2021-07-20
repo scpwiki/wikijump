@@ -71,7 +71,7 @@ mod test {
 
     proptest! {
         #[test]
-        fn tokenizer_prop(s in "\\PC*") {
+        fn tokenizer_prop(s in ".*") {
             let log = crate::build_logger();
             let _ = tokenize(&log, &s);
         }
