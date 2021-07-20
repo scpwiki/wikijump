@@ -358,6 +358,9 @@ fn render<R: Render>(
 }
 
 proptest! {
+    // These tests are *very* slow, so we only run a few of them.
+    #![proptest_config(ProptestConfig::with_cases(5))]
+
     #[test]
     fn render_html_prop((page_info, tree) in (arb_page_info(), arb_tree())) {
         let out = render(HtmlRender, page_info, tree);
