@@ -92,5 +92,19 @@ proptest! {
         let log = crate::build_logger();
 
         crate::preprocess(&log, &mut s);
+
+        const INVALID_SUBSTRINGS: [&str; 7] = [
+            "...",
+            ". . .",
+            "\r\n",
+            "\r",
+            "\\\n",
+            "\t",
+            "\0",
+        ];
+
+        for substring in &INVALID_SUBSTRINGS {
+            assert!(!s.contains(substring));
+        }
     }
 }
