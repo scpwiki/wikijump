@@ -19,6 +19,7 @@
  */
 
 use std::collections::HashSet;
+use regex::Regex;
 use unicase::UniCase;
 
 macro_rules! hashset_unicase {
@@ -166,6 +167,8 @@ lazy_static! {
             "truespeed",
         ]
     };
+
+    static ref ATTRIBUTE_SUFFIX_SAFE: Regex = Regex::new(r"[a-zA-z0-9\-]+").unwrap();
 }
 
 pub const SAFE_ATTRIBUTE_PREFIXES: [&str; 1] = ["data-"];
@@ -176,7 +179,7 @@ pub fn is_safe_attribute(attribute: UniCase<&str>) -> bool {
     }
 
     for prefix in &SAFE_ATTRIBUTE_PREFIXES {
-        if attribute.starts_with(prefix) {
+        if attribute.starts_with(prefix) && ATTRIBUTE_SUFFIX_SAFE.is_match(&attribute) {
             return true;
         }
     }
