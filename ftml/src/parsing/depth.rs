@@ -370,22 +370,20 @@ mod test {
         }};
     }
 
+    fn arb_depth(
+        max_depth: usize,
+    ) -> impl Strategy<Value = Vec<(usize, i32, String)>> {
+        prop::collection::vec((0..max_depth, 901..902, "[a-z]{3}"), 0..100)
+    }
+
     proptest! {
         #[test]
-        fn deep_depth_prop(depths in prop::collection::vec((
-                        0..128usize,
-                        901..902,
-                        "[a-z]{3}",
-                    ), 0..100)) {
+        fn deep_depth_prop(depths in arb_depth(128)) {
             check!(depths);
         }
 
         #[test]
-        fn shallow_depth_prop(depths in prop::collection::vec((
-                        0..4usize,
-                        901..902,
-                        "[a-z]{3}",
-                    ), 0..100)) {
+        fn shallow_depth_prop(depths in arb_depth(4)) {
             check!(depths);
         }
     }
