@@ -1,5 +1,5 @@
 /*
- * test/mod.rs
+ * test/prop.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,6 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod ast;
-mod large;
-mod prop;
+use proptest::prelude::*;
+
+proptest! {
+    #[test]
+    fn preprocess(mut s in "\\PC*") {
+        let log = crate::build_logger();
+
+        crate::preprocess(&log, &mut s);
+    }
+}
