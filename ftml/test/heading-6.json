@@ -1,18 +1,26 @@
 {
-    "input": "\n= Apple",
+    "input": "++++++ SCP-6969",
     "tree": {
         "elements": [
             {
                 "element": "container",
                 "data": {
                     "type": {
-                        "align": "center"
+                        "header": 6
                     },
                     "attributes": {},
                     "elements": [
                         {
                             "element": "text",
-                            "data": "Apple"
+                            "data": "SCP"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "6969"
                         }
                     ]
                 }

@@ -18,25 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{ParseWarning, Parser, Token};
+use super::{ExtractedToken, ParseWarning, Parser, Token};
 
 /// Helper function to assert that the current token matches, then step.
+///
+/// # Returns
+/// The `ExtractedToken` which was checked and stepped over.
 ///
 /// # Panics
 /// Since an assert is used, this function will panic
 /// if the extracted token does not match the one specified.
 #[inline]
-pub fn check_step(parser: &mut Parser, token: Token) -> Result<(), ParseWarning> {
-    assert_eq!(
-        parser.current().token,
-        token,
-        "Opening token isn't {}",
-        token.name(),
-    );
+pub fn check_step<'r, 't>(
+    parser: &mut Parser<'r, 't>,
+    token: Token,
+) -> Result<&'r ExtractedToken<'t>, ParseWarning> {
+    let current = parser.current();
+
+    assert_eq!(current.token, token, "Opening token isn't {}", token.name());
 
     parser.step()?;
 
-    Ok(())
+    Ok(current)
 }
 
 pub fn check_step_multiple(

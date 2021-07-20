@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = []
 exclude = [".gitignore", ".github"]
 
-version = "0.10.5"
+version = "0.10.6"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2018" # this refers to the Cargo.toml version
 
@@ -38,6 +38,7 @@ ref-map = "0.1"
 regex = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+serde_repr = "0.1"
 slog = { version = "2.7", features = ["max_level_trace"], optional = true }
 slog-mock = "0.4"
 str-macro = "1"

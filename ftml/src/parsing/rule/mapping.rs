@@ -53,8 +53,7 @@ lazy_static! {
             Token::Equals => vec![RULE_TEXT],
             Token::Underscore => vec![RULE_TEXT],
             Token::Quote => vec![RULE_DOUBLE_ANGLE, RULE_TEXT],
-            Token::Heading => vec![RULE_TODO, RULE_TEXT], // TODO
-            Token::LineBreak => vec![RULE_CENTER, RULE_BLOCKQUOTE, RULE_LIST, RULE_BLOCK_SKIP, RULE_LINE_BREAK],
+            Token::Heading => vec![RULE_TEXT],
             Token::ParagraphBreak => vec![RULE_LINE_BREAK_PARAGRAPH],
             Token::Whitespace => vec![RULE_TEXT],
 
@@ -91,11 +90,35 @@ lazy_static! {
             Token::Variable => vec![RULE_TEXT],
             Token::String => vec![RULE_TEXT],
 
+            // Input boundaries
+            Token::LineBreak => vec![
+                // Start-of-line rules
+                RULE_CENTER,
+                RULE_HEADER,
+                RULE_BLOCKQUOTE,
+                RULE_LIST,
+
+                // Consume newline for blocks
+                RULE_BLOCK_SKIP,
+
+                // Normal rule handler
+                RULE_LINE_BREAK,
+            ],
+            Token::InputStart => vec![
+                // Start-of-line rules
+                RULE_CENTER,
+                RULE_HEADER,
+                RULE_BLOCKQUOTE,
+                RULE_LIST,
+
+                // Normal rule handler
+                RULE_NULL,
+            ],
+            Token::InputEnd => vec![RULE_NULL],
+
             // Miscellaneous
             Token::LeftComment => vec![RULE_COMMENT],
             Token::RightComment => vec![],
-            Token::InputStart => vec![RULE_CENTER, RULE_BLOCKQUOTE, RULE_LIST, RULE_NULL],
-            Token::InputEnd => vec![RULE_NULL],
 
             // Fallback
             Token::Other => vec![RULE_TEXT],

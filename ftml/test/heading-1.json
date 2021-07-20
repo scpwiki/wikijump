@@ -1,35 +1,18 @@
 {
-    "input": "= **Banana** Cherry //Durian//",
+    "input": "+ My //header//",
     "tree": {
         "elements": [
             {
                 "element": "container",
                 "data": {
                     "type": {
-                        "align": "center"
+                        "header": 1
                     },
                     "attributes": {},
                     "elements": [
                         {
-                            "element": "container",
-                            "data": {
-                                "type": "bold",
-                                "attributes": {},
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Banana"
-                                    }
-                                ]
-                            }
-                        },
-                        {
                             "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "Cherry"
+                            "data": "My"
                         },
                         {
                             "element": "text",
@@ -43,7 +26,7 @@
                                 "elements": [
                                     {
                                         "element": "text",
-                                        "data": "Durian"
+                                        "data": "header"
                                     }
                                 ]
                             }

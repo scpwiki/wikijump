@@ -113,6 +113,9 @@ extern crate pest_derive;
 extern crate serde;
 
 #[macro_use]
+extern crate serde_repr;
+
+#[macro_use]
 extern crate str_macro;
 
 #[cfg(feature = "log")]
