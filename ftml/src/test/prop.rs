@@ -362,14 +362,14 @@ proptest! {
     #![proptest_config(ProptestConfig::with_cases(5))]
 
     #[test]
-    fn render_html_prop((page_info, tree) in (arb_page_info(), arb_tree())) {
+    fn render_html_prop(page_info in arb_page_info(), tree in arb_tree()) {
         let out = render(HtmlRender, page_info, tree);
 
         assert!(out.meta.len() >= 4);
     }
 
     #[test]
-    fn render_text_prop((page_info, tree) in (arb_page_info(), arb_tree())) {
+    fn render_text_prop(page_info in arb_page_info(), tree in arb_tree()) {
         let _ = render(TextRender, page_info, tree);
     }
 }
