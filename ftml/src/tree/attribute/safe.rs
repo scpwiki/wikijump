@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashSet;
 use regex::Regex;
+use std::collections::HashSet;
 use unicase::UniCase;
 
 macro_rules! hashset_unicase {

@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::data::PageInfo;
+use crate::render::{html::HtmlRender, text::TextRender, Render};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element,
@@ -36,6 +38,7 @@ lazy_static! {
 }
 
 const SIMPLE_EMAIL_REGEX: &str = r"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*";
+const SIMPLE_URL_REGEX: &str = r"https?://([-.]\w)+";
 
 // Helper macros
 
@@ -60,7 +63,7 @@ fn arb_attribute_map() -> impl Strategy<Value = AttributeMap<'static>> {
             // Safe attribute
             select!(SAFE_ATTRIBUTES_VEC).prop_map(|s| Cow::Owned(str!(s))),
             // Random attribute
-            cow!(r"\w+"),
+            cow!(r"[A-Za-z0-9-]+"),
         ],
         // Value
         cow!(".*"),
@@ -116,7 +119,7 @@ fn arb_target() -> impl Strategy<Value = Option<AnchorTarget>> {
 fn arb_link() -> impl Strategy<Value = Element<'static>> {
     let label = prop_oneof![
         cow!(".*").prop_map(LinkLabel::Text),
-        option::of(cow!(".*")).prop_map(LinkLabel::Url),
+        option::of(cow!(SIMPLE_URL_REGEX)).prop_map(LinkLabel::Url),
         Just(LinkLabel::Page),
     ];
 
@@ -129,7 +132,7 @@ fn arb_link() -> impl Strategy<Value = Element<'static>> {
 
 fn arb_image() -> impl Strategy<Value = Element<'static>> {
     let source = prop_oneof![
-        cow!(".*").prop_map(ImageSource::Url),
+        cow!(SIMPLE_URL_REGEX).prop_map(ImageSource::Url),
         cow!(".*").prop_map(|file| ImageSource::File1 { file }),
         (cow!(".*"), cow!(".*"))
             .prop_map(|(page, file)| ImageSource::File2 { page, file }),
@@ -289,7 +292,7 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
     let element = leaf.prop_recursive(
         5,  // Levels deep
         50, // Number of total nodes
-        10,  // Up to X items per collection
+        10, // Up to X items per collection
         |inner| {
             // Inner strategy for recursive cases
             macro_rules! elements {
@@ -316,12 +319,54 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
         .prop_map(|(elements, styles)| SyntaxTree { elements, styles })
 }
 
+// Page Info
+
+fn arb_page_info() -> impl Strategy<Value = PageInfo<'static>> {
+    (
+        cow!(".+"),
+        arb_optional_str(),
+        cow!(".+"),
+        cow!(".+"),
+        arb_optional_str(),
+        any::<f32>(),
+        proptest::collection::vec(cow!(".+"), 0..20),
+        cow!(r"[a-z\-]+"),
+    )
+        .prop_map(
+            |(page, category, site, title, alt_title, rating, tags, language)| PageInfo {
+                page,
+                category,
+                site,
+                title,
+                alt_title,
+                rating,
+                tags,
+                language,
+            },
+        )
+}
+
 // Property Test
+
+fn render<R: Render>(
+    render: R,
+    page_info: PageInfo<'static>,
+    tree: SyntaxTree<'static>,
+) -> R::Output {
+    let log = crate::build_logger();
+    render.render(&log, &page_info, &tree)
+}
 
 proptest! {
     #[test]
-    fn ast_prop(tree in arb_tree()) {
-        println!("\n{:#?}\n", tree);
-        std::process::exit(0);
+    fn render_html_prop((page_info, tree) in (arb_page_info(), arb_tree())) {
+        let out = render(HtmlRender, page_info, tree);
+
+        assert!(out.meta.len() >= 4);
+    }
+
+    #[test]
+    fn render_text_prop((page_info, tree) in (arb_page_info(), arb_tree())) {
+        let _ = render(TextRender, page_info, tree);
     }
 }
