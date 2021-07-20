@@ -26,11 +26,6 @@
 //! * Convert tabs to four spaces
 //! * Convert null characters to regular spaces
 //! * Compress groups of 3+ newlines into 2 newlines
-//!
-//! Note on the first item:
-//! It was originally implemented in the parser, however it was moved here
-//! to prevent typography from converting the `--` in `[!--` and `--]` into
-//! em dashes.
 
 use crate::log::prelude::*;
 use regex::{Regex, RegexBuilder};
