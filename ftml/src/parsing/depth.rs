@@ -335,3 +335,58 @@ fn depth_types() {
         ],
     );
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use proptest::prelude::*;
+
+    macro_rules! check {
+        ($depths:expr) => {{
+            let depths_input = $depths;
+            let expected_length = depths_input.len();
+            let depth_list = process_depths(900, depths_input);
+
+            // Count all elements in the tree, recursively
+            fn count(list: &DepthList<i32, String>) -> usize {
+                list.iter()
+                    .map(|item| match item {
+                        DepthItem::Item(_) => 1,
+                        DepthItem::List(_, list) => count(&list),
+                    })
+                    .sum()
+            }
+
+            let actual_length: usize = depth_list
+                .iter() //
+                .map(|(_, list)| count(list))
+                .sum();
+
+            // Verify that it's the same as the number of elements in the original
+            assert_eq!(
+                actual_length, expected_length,
+                "Actual depth list output doesn't match input",
+            );
+        }};
+    }
+
+    proptest! {
+        #[test]
+        fn deep_depth_prop(depths in prop::collection::vec((
+                        0..128usize,
+                        901..902,
+                        "[a-z]{3}",
+                    ), 0..100)) {
+            check!(depths);
+        }
+
+        #[test]
+        fn shallow_depth_prop(depths in prop::collection::vec((
+                        0..4usize,
+                        901..902,
+                        "[a-z]{3}",
+                    ), 0..100)) {
+            check!(depths);
+        }
+    }
+}
