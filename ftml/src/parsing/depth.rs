@@ -370,9 +370,7 @@ mod test {
         }};
     }
 
-    fn arb_depth(
-        max_depth: usize,
-    ) -> impl Strategy<Value = Vec<(usize, i32, String)>> {
+    fn arb_depth(max_depth: usize) -> impl Strategy<Value = Vec<(usize, i32, String)>> {
         prop::collection::vec((0..max_depth, 901..902, "[a-z]{3}"), 0..100)
     }
 

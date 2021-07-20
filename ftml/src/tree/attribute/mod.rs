@@ -106,3 +106,10 @@ impl<'t> Debug for AttributeMap<'t> {
         self.inner.fmt(f)
     }
 }
+
+impl<'t> From<BTreeMap<Cow<'t, str>, Cow<'t, str>>> for AttributeMap<'t> {
+    #[inline]
+    fn from(map: BTreeMap<Cow<'t, str>, Cow<'t, str>>) -> AttributeMap<'t> {
+        AttributeMap { inner: map }
+    }
+}

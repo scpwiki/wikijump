@@ -1,5 +1,5 @@
 /*
- * test/prop.rs
+ * test/prop/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,6 +18,4 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use proptest::prelude::*;
-
-// TODO
+mod element;
