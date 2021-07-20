@@ -63,3 +63,17 @@ pub fn tokenize<'t>(log: &Logger, text: &'t str) -> Tokenization<'t> {
 
     Tokenization { tokens, full_text }
 }
+
+#[cfg(test)]
+mod test {
+    use proptest::prelude::*;
+    use super::*;
+
+    proptest! {
+        #[test]
+        fn tokenizer_prop(s in "\\PC*") {
+            let log = crate::build_logger();
+            let _ = tokenize(&log, &s);
+        }
+    }
+}
