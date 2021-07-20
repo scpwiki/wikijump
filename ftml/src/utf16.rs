@@ -78,53 +78,56 @@ impl<'t> Utf16IndexMap<'t> {
     }
 }
 
-#[test]
-fn utf16_indices() {
-    macro_rules! check {
-        ($text:expr, $spans:expr) => {{
-            let map = Utf16IndexMap::new($text);
-            let spans: &[(usize, usize)] = &$spans;
+#[cfg(test)]
+mod test {
+    use proptest::prelude::*;
+    use super::*;
 
-            let start_indices: Vec<usize> = spans.iter().map(|span| span.0).collect();
-            let end_indices: Vec<usize> = spans.iter().map(|span| span.1).collect();
+    #[test]
+    fn utf16_indices() {
+        macro_rules! check {
+            ($text:expr, $spans:expr) => {{
+                let map = Utf16IndexMap::new($text);
+                let spans: &[(usize, usize)] = &$spans;
 
-            let start_iterator = $text.char_indices().zip(start_indices).enumerate();
-            let end_iterator = $text.char_indices().zip(end_indices).enumerate();
+                let start_indices: Vec<usize> = spans.iter().map(|span| span.0).collect();
+                let end_indices: Vec<usize> = spans.iter().map(|span| span.1).collect();
 
-            for (char_index, ((utf8_index, _), expected_utf16_index)) in start_iterator {
-                let actual_utf16_index = map.get_index(utf8_index);
+                let start_iterator = $text.char_indices().zip(start_indices).enumerate();
+                let end_iterator = $text.char_indices().zip(end_indices).enumerate();
 
-                assert_eq!(
-                    expected_utf16_index,
-                    actual_utf16_index,
-                    "Actual UTF-16 start index doesn't match expected (char #{})",
-                    char_index + 1,
-                );
-            }
+                for (char_index, ((utf8_index, _), expected_utf16_index)) in start_iterator {
+                    let actual_utf16_index = map.get_index(utf8_index);
 
-            for (char_index, ((utf8_index, ch), expected_utf16_index)) in end_iterator {
-                let actual_utf16_index = map.get_index(utf8_index + ch.len_utf8());
+                    assert_eq!(
+                        expected_utf16_index,
+                        actual_utf16_index,
+                        "Actual UTF-16 start index doesn't match expected (char #{})",
+                        char_index + 1,
+                    );
+                }
 
-                assert_eq!(
-                    expected_utf16_index,
-                    actual_utf16_index,
-                    "Actual UTF-16 end index doesn't match expected (char #{})",
-                    char_index + 1,
-                );
-            }
-        }};
+                for (char_index, ((utf8_index, ch), expected_utf16_index)) in end_iterator {
+                    let actual_utf16_index = map.get_index(utf8_index + ch.len_utf8());
+
+                    assert_eq!(
+                        expected_utf16_index,
+                        actual_utf16_index,
+                        "Actual UTF-16 end index doesn't match expected (char #{})",
+                        char_index + 1,
+                    );
+                }
+            }};
+        }
+
+        check!("", []);
+        check!("abc", [(0, 1), (1, 2), (2, 3)]);
+        check!("aßc", [(0, 1), (1, 2), (2, 3)]);
+        check!("aℝc", [(0, 1), (1, 2), (2, 3)]);
+        check!("a🦀c", [(0, 1), (1, 3), (3, 4)]);
+        check!("x💣yßz", [(0, 1), (1, 3), (3, 4), (4, 5), (5, 6)]);
     }
 
-    check!("", []);
-    check!("abc", [(0, 1), (1, 2), (2, 3)]);
-    check!("aßc", [(0, 1), (1, 2), (2, 3)]);
-    check!("aℝc", [(0, 1), (1, 2), (2, 3)]);
-    check!("a🦀c", [(0, 1), (1, 3), (3, 4)]);
-    check!("x💣yßz", [(0, 1), (1, 3), (3, 4), (4, 5), (5, 6)]);
-}
-
-#[test]
-fn utf16_slices() {
     fn check(text: &str) {
         let map = Utf16IndexMap::new(text);
         let utf16_bytes: Vec<u16> = text.encode_utf16().collect();
@@ -158,54 +161,61 @@ fn utf16_slices() {
         }
     }
 
-    check("");
-    check("a");
+    #[test]
+    fn utf16_slices() {
+        check("");
+        check("a");
 
-    check("abc");
-    check("aßc");
-    check("aℝc");
-    check("a🦀c");
+        check("abc");
+        check("aßc");
+        check("aℝc");
+        check("a🦀c");
 
-    check("b");
-    check("ß");
-    check("ℝ");
-    check("🦀");
+        check("b");
+        check("ß");
+        check("ℝ");
+        check("🦀");
 
-    check("1b");
-    check("1ß");
-    check("1ℝ");
-    check("1🦀");
+        check("1b");
+        check("1ß");
+        check("1ℝ");
+        check("1🦀");
 
-    check("b1");
-    check("ß1");
-    check("ℝ1");
-    check("🦀1");
+        check("b1");
+        check("ß1");
+        check("ℝ1");
+        check("🦀1");
 
-    check("bb");
-    check("ßß");
-    check("ℝℝ");
-    check("🦀🦀");
+        check("bb");
+        check("ßß");
+        check("ℝℝ");
+        check("🦀🦀");
 
-    check("2bb");
-    check("2ßß");
-    check("2ℝℝ");
-    check("2🦀🦀");
+        check("2bb");
+        check("2ßß");
+        check("2ℝℝ");
+        check("2🦀🦀");
 
-    check("bb2");
-    check("ßß2");
-    check("ℝℝ2");
-    check("🦀🦀2");
+        check("bb2");
+        check("ßß2");
+        check("ℝℝ2");
+        check("🦀🦀2");
 
-    check("bßℝ🦀");
-    check("🦀ℝßb");
-    check("b_ß_ℝ_🦀");
-    check("b__ß__ℝ__🦀");
+        check("bßℝ🦀");
+        check("🦀ℝßb");
+        check("b_ß_ℝ_🦀");
+        check("b__ß__ℝ__🦀");
 
-    check("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-    check("ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß");
-    check("ℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝ");
-    check("🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀");
+        check("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+        check("ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß");
+        check("ℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝℝ");
+        check("🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀");
+    }
 
-    // lol
-    check("ßℝßℝℝℝß🦀ℝℝℝℝßℝℝ🦀b🦀ℝßb🦀bbℝß🦀ßß🦀🦀bßb🦀bℝ🦀b🦀b🦀🦀bℝℝℝℝbℝ🦀bßßß🦀bß🦀bℝ🦀ℝ🦀ßßbßßßℝℝßßℝbℝℝbßℝß🦀ßßℝßbbßßbb🦀🦀🦀ßb🦀ßℝ🦀ßℝℝbℝ🦀ßß🦀bßℝbß🦀🦀bß🦀ß🦀b🦀ℝbℝ");
+    proptest! {
+        #[test]
+        fn utf16_prop(s in "\\PC*") {
+            check(&s);
+        }
+    }
 }
