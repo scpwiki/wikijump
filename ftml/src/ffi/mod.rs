@@ -37,6 +37,7 @@ mod prelude {
     pub use std::os::raw::c_char;
 }
 
+mod backlinks;
 mod exports;
 mod html;
 mod log;

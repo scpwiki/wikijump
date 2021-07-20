@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
+use \Wikidot\DB\PagePeer;
 use \Wikijump\Services\Wikitext\Backlinks;
 use \Wikijump\Services\Wikitext\HtmlMeta;
 use \Wikijump\Services\Wikitext\HtmlMetaType;
@@ -51,19 +52,17 @@ final class OutputConversion
     }
 
     // HtmlOutput
-    public static function makeHtmlOutput(FFI\CData $c_data): HtmlOutput
+    public static function makeHtmlOutput(string $siteId, FFI\CData $c_data): HtmlOutput
     {
         $body = FFI::string($c_data->body);
         $styles = self::makeStylesArray($c_data->styles_list, $c_data->styles_len);
         $meta = self::makeHtmlMetaArray($c_data->meta_list, $c_data->meta_len);
         $warnings = self::makeParseWarningArray($c_data->warning_list, $c_data->warning_len);
+        $backlinks = self::makeBacklinks($siteId, $c_data->backlinks);
 
         // Free original C data
         FtmlFfi::freeHtmlOutput($c_data);
         FFI::free($c_data);
-
-        // TODO actually get link information
-        $backlinks = new Backlinks([], [], [], [], []);
 
         // Return object
         return new HtmlOutput($body, $styles, $meta, $warnings, $backlinks);
@@ -109,5 +108,74 @@ final class OutputConversion
         $spanEnd = $c_data->span_end;
         $kind = FFI::string($c_data->kind);
         return new ParseWarning($token, $rule, $spanStart, $spanEnd, $kind);
+    }
+
+    // Backlinks
+    public static function makeBacklinks(string $siteId, FFI\CData $c_data): Backlinks
+    {
+        $inclusions = self::splitLinks(
+            $c_data->included_pages_list,
+            $c_data->included_pages_len,
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+            fn(string $slug) => self::getPageId($siteId, $slug),
+        );
+        $inclusionsPresent = $inclusions['present'];
+        $inclusionsAbsent = $inclusions['absent'];
+
+        $internalLinks = self::splitLinks(
+            $c_data->internal_links_list,
+            $c_data->internal_links_len,
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+            fn(string $slug) => self::getPageId($siteId, $slug),
+        );
+        $internalLinksPresent = $internalLinks['present'];
+        $internalLinksAbsent = $internalLinks['absent'];
+
+        $externalLinks = FtmlFfi::pointerToList(
+            $c_data->external_links_list,
+            $c_data->external_links_len,
+            fn(FFI\CData $c_data) => FFI::string($c_data),
+        );
+
+        return new Backlinks(
+            $inclusionsPresent,
+            $inclusionsAbsent,
+            $internalLinksPresent,
+            $internalLinksAbsent,
+            $externalLinks,
+        );
+    }
+
+    private static function splitLinks(
+        FFI\CData $pointer,
+        int $length,
+        callable $convertFn,
+        callable $checkItemFn
+    ): array {
+        $present = [];
+        $absent = [];
+
+        // Convert items, placing in the appropriate list
+        for ($i = 0; $i < $length; $i++) {
+            $originalItem = $convertFn($pointer[$i]);
+            $foundItem = $checkItemFn($originalItem);
+
+            if (is_null($foundItem)) {
+                array_push($absent, $originalItem);
+            } else {
+                array_push($present, $foundItem);
+            }
+        }
+
+        return [
+            "present" => $present,
+            "absent" => $absent,
+        ];
+    }
+
+    private static function getPageId(string $siteId, string $slug): ?string
+    {
+        $page = PagePeer::instance()->selectByName($siteId, $slug);
+        return $page ? $page->getPageId() : null;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * render/null.rs
+ * render/backlinks.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,30 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! A trivial renderer.
-//!
-//! This implementation of `Render` will consume any input syntax tree
-//! and produce a unit value as output.
+use std::borrow::Cow;
 
-use super::prelude::*;
-
-#[derive(Debug)]
-pub struct NullRender;
-
-impl Render for NullRender {
-    type Output = ();
-
-    #[inline]
-    fn render(&self, _log: &Logger, _page_info: &PageInfo, _tree: &SyntaxTree) {}
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq, Default)]
+#[serde(rename_all = "kebab-case")]
+pub struct Backlinks<'a> {
+    pub included_pages: Vec<Cow<'a, str>>,
+    pub internal_links: Vec<Cow<'a, str>>,
+    pub external_links: Vec<Cow<'a, str>>,
 }
 
-#[test]
-fn null() {
-    let log = crate::build_logger();
-    let page_info = PageInfo::dummy();
-    let result = SyntaxTree::from_element_result(vec![], vec![], vec![]);
-    let (tree, _) = result.into();
-    let output = NullRender.render(&log, &page_info, &tree);
-
-    assert_eq!(output, (), "Null render didn't produce the unit value");
+impl<'a> Backlinks<'a> {
+    #[inline]
+    pub fn new() -> Self {
+        Backlinks::default()
+    }
 }
