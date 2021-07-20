@@ -20,11 +20,4 @@
 
 use proptest::prelude::*;
 
-proptest! {
-    #[test]
-    fn preprocess(mut s in "\\PC*") {
-        let log = crate::build_logger();
-
-        crate::preprocess(&log, &mut s);
-    }
-}
+// TODO

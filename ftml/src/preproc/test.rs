@@ -20,6 +20,7 @@
 
 use super::preprocess;
 use crate::log::prelude::*;
+use proptest::prelude::*;
 
 pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
 where
@@ -83,4 +84,13 @@ fn prefilter() {
         |log, text| preprocess(log, text),
         &PREFILTER_TEST_CASES,
     );
+}
+
+proptest! {
+    #[test]
+    fn prefilter_prop(mut s in "\\PC*") {
+        let log = crate::build_logger();
+
+        crate::preprocess(&log, &mut s);
+    }
 }
