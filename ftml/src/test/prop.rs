@@ -262,9 +262,11 @@ where
         )
 }
 
-// The full syntax tree, recursive
+// Syntax Tree
 
 fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
+    // Generate AST and its elements recursively
+
     let leaf = prop_oneof![
         cow!(".*").prop_map(Element::Text),
         cow!(".*").prop_map(Element::Raw),
