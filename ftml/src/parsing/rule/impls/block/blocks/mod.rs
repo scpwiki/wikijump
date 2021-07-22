@@ -85,6 +85,7 @@ mod invisible;
 mod italics;
 mod later;
 mod lines;
+mod list;
 mod mark;
 mod module;
 mod monospace;
