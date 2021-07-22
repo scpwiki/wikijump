@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::parsing::strip_newlines;
 use crate::tree::{ListItem, ListType};
 
 // Definitions
@@ -103,13 +104,18 @@ fn parse_list_block<'r, 't>(
         log,
         "Parsing list block";
         "block-rule" => block_rule.name,
-        "list_type" => list_type.name(),
+        "list-type" => list_type.name(),
+        "flag-score" => flag_score,
         "in-head" => in_head,
         "name" => name,
     );
 
     assert!(!flag_star, "List block doesn't allow star flag");
     assert_block_name(block_rule, name);
+
+    // "ul" means we wrap interpret as-is
+    // "ul_" means we strip out any newlines or paragraph breaks
+    let strip_line_breaks = flag_score;
 
     let arguments = parser.get_head_map(block_rule, in_head)?;
     let attributes = arguments.to_attribute_map();
@@ -135,5 +141,18 @@ fn parse_list_item<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    debug!(
+        log,
+        "Parsing list item block";
+        "block-rule" => BLOCK_LI.name,
+        "flag-score" => flag_score,
+        "in-head" => in_head,
+        "name" => name,
+    );
+
+    // "li" means we wrap interpret as-is
+    // "li_" means we strip out any newlines or paragraph breaks
+    let strip_line_breaks = flag_score;
+
     todo!()
 }
