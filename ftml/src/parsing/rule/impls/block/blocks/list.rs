@@ -28,8 +28,8 @@ pub const BLOCK_UL: BlockRule = BlockRule {
     accepts_names: &["ul"],
     accepts_star: false,
     accepts_score: true,
-    accepts_newlines: false,
-    parse_fn: parse_ul_block,
+    accepts_newlines: true,
+    parse_fn: parse_unordered_block,
 };
 
 pub const BLOCK_OL: BlockRule = BlockRule {
@@ -37,11 +37,20 @@ pub const BLOCK_OL: BlockRule = BlockRule {
     accepts_names: &["ol"],
     accepts_star: false,
     accepts_score: true,
-    accepts_newlines: false,
-    parse_fn: parse_ol_block,
+    accepts_newlines: true,
+    parse_fn: parse_ordered_block,
 };
 
-fn parse_ul_block<'r, 't>(
+pub const BLOCK_LI: BlockRule = BlockRule {
+    name: "block-li",
+    accepts_names: &["li"],
+    accepts_star: false,
+    accepts_score: true,
+    accepts_newlines: true,
+    parse_fn: parse_list_item,
+};
+
+fn parse_unordered_block<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
@@ -60,7 +69,7 @@ fn parse_ul_block<'r, 't>(
     )
 }
 
-fn parse_ol_block<'r, 't>(
+fn parse_ordered_block<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,

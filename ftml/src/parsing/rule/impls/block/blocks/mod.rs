@@ -125,6 +125,7 @@ pub use self::invisible::BLOCK_INVISIBLE;
 pub use self::italics::BLOCK_ITALICS;
 pub use self::later::BLOCK_LATER;
 pub use self::lines::BLOCK_LINES;
+pub use self::list::*;
 pub use self::mark::BLOCK_MARK;
 pub use self::module::BLOCK_MODULE;
 pub use self::monospace::BLOCK_MONOSPACE;
