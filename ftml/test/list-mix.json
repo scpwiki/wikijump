@@ -19,6 +19,7 @@
                 "element": "list",
                 "data": {
                     "type": "bullet",
+                    "attributes": {},
                     "items": [
                         [
                             {
@@ -33,6 +34,7 @@
                 "element": "list",
                 "data": {
                     "type": "numbered",
+                    "attributes": {},
                     "items": [
                         [
                             {
@@ -47,6 +49,7 @@
                 "element": "list",
                 "data": {
                     "type": "bullet",
+                    "attributes": {},
                     "items": [
                         [
                             {

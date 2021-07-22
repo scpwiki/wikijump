@@ -19,11 +19,13 @@
                 "element": "list",
                 "data": {
                     "type": "generic",
+                    "attributes": {},
                     "items": [
                         {
                             "element": "list",
                             "data": {
                                 "type": "numbered",
+                                "attributes": {},
                                 "items": [
                                     [
                                         {
@@ -41,6 +43,7 @@
                 "element": "list",
                 "data": {
                     "type": "numbered",
+                    "attributes": {},
                     "items": [
                         [
                             {
@@ -52,11 +55,13 @@
                             "element": "list",
                             "data": {
                                 "type": "numbered",
+                                "attributes": {},
                                 "items": [
                                     {
                                         "element": "list",
                                         "data": {
                                             "type": "numbered",
+                                            "attributes": {},
                                             "items": [
                                                 [
                                                     {
