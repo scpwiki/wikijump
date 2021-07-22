@@ -146,6 +146,9 @@ pub enum ParseWarningKind {
     /// This list has no elements in it.
     ListEmpty,
 
+    /// This list has elements other than items in it.
+    ListContainsNonItem,
+
     /// This list item is not within a list.
     ListItemOutsideList,
 

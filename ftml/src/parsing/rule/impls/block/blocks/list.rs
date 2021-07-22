@@ -124,11 +124,26 @@ fn parse_list_block<'r, 't>(
     let arguments = parser.get_head_map(block_rule, in_head)?;
     let attributes = arguments.to_attribute_map();
 
-    // TODO
-    let exceptions = vec![];
+    let (elements, exceptions, _) = parser.get_body_elements(block_rule, false)?.into();
+    let items = {
+        let mut items = Vec::new();
+
+        for element in elements {
+            match element {
+                // Ensure all elements of a list are only items, i.e. [[li]].
+                Element::ListItem(item) => items.push(*item),
+
+                // Other kinds of elements result in an exception.
+                _ => return Err(parser.make_warn(ParseWarningKind::ListContainsNonItem)),
+            }
+        }
+
+        items
+    };
+
     let element = Element::List {
         ltype: list_type,
-        items: vec![],
+        items,
         attributes,
     };
 
@@ -154,6 +169,9 @@ fn parse_list_item<'r, 't>(
         "name" => name,
     );
 
+    assert!(!flag_star, "List item block doesn't allow star flag");
+    assert_block_name(&BLOCK_LI, name);
+
     // This [[li]] is outside of a [[ol]] or [[ul]], which is not allowed.
     if !parser.in_list() {
         return Err(parser.make_warn(ParseWarningKind::ListItemOutsideList));
@@ -166,7 +184,9 @@ fn parse_list_item<'r, 't>(
     // "li_" means we strip out any newlines or paragraph breaks
     let strip_line_breaks = flag_score;
 
-    let (mut elements, exceptions, _) = parser.get_body_elements(&BLOCK_LI, true)?.into();
+    let (mut elements, exceptions, _) =
+        parser.get_body_elements(&BLOCK_LI, false)?.into();
+
     let list_item = match elements.len() {
         // Empty list, fail rule
         0 => return Err(parser.make_warn(ParseWarningKind::ListEmpty)),
