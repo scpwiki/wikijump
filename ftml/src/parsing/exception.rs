@@ -143,6 +143,12 @@ pub enum ParseWarningKind {
     /// This include block was malformed, and thus not substituted.
     InvalidInclude,
 
+    /// This list has no elements in it.
+    ListEmpty,
+
+    /// This list item is not within a list.
+    ListItemOutsideList,
+
     /// This list tries to nest too deeply.
     ListDepthExceeded,
 
