@@ -49,7 +49,7 @@ fn parse_ul_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    parse_list_block(ListType::Bullet, log, parser, name, flag_star, flag_score, in_head)
+    parse_list_block((&BLOCK_UL, ListType::Bullet), log, parser, name, flag_star, flag_score, in_head)
 }
 
 fn parse_ol_block<'r, 't>(
@@ -60,13 +60,13 @@ fn parse_ol_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    parse_list_block(ListType::Numbered, log, parser, name, flag_star, flag_score, in_head)
+    parse_list_block((&BLOCK_OL, ListType::Numbered), log, parser, name, flag_star, flag_score, in_head)
 }
 
 // List block
 
 fn parse_list_block<'r, 't>(
-    list_type: ListType,
+    (block_rule, list_type): (&BlockRule, ListType),
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,
@@ -74,7 +74,29 @@ fn parse_list_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    todo!()
+    debug!(
+        log,
+        "Parsing list block";
+        "block-rule" => block_rule.name,
+        "list_type" => list_type.name(),
+        "in-head" => in_head,
+        "name" => name,
+    );
+
+    assert!(!flag_star, "List block doesn't allow star flag");
+    assert_block_name(block_rule, name);
+
+    let arguments = parser.get_head_map(block_rule, in_head)?;
+    let attributes = arguments.to_attribute_map();
+
+    // TODO
+    let exceptions = vec![];
+    let element = Element::List {
+        ltype: list_type,
+        items: vec![],
+    };
+
+    ok!(false; element, exceptions)
 }
 
 // List item
