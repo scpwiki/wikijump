@@ -121,13 +121,23 @@ fn parse_list_block<'r, 't>(
     // "ul_" means we strip out any newlines or paragraph breaks
     let strip_line_breaks = flag_score;
 
+    // Get attributes
     let arguments = parser.get_head_map(block_rule, in_head)?;
     let attributes = arguments.to_attribute_map();
 
-    let (elements, exceptions, _) = parser.get_body_elements(block_rule, false)?.into();
+    // Get body and convert into list form.
+    let (mut elements, exceptions, _) =
+        parser.get_body_elements(block_rule, false)?.into();
+
     let items = {
         let mut items = Vec::new();
 
+        // Strip newlines, if desired
+        if strip_line_breaks {
+            strip_newlines(&mut elements);
+        }
+
+        // Convert and extract list elements
         for element in elements {
             match element {
                 // Ensure all elements of a list are only items, i.e. [[li]].
@@ -184,8 +194,14 @@ fn parse_list_item<'r, 't>(
     // "li_" means we strip out any newlines or paragraph breaks
     let strip_line_breaks = flag_score;
 
+    // Get body elements
     let (mut elements, exceptions, _) =
         parser.get_body_elements(&BLOCK_LI, false)?.into();
+
+    // Strip newlines, if desired
+    if strip_line_breaks {
+        strip_newlines(&mut elements);
+    }
 
     let list_item = match elements.len() {
         // Empty list, fail rule
