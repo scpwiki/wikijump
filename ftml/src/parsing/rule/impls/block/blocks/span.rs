@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::parsing::strip_newlines;
 
 pub const BLOCK_SPAN: BlockRule = BlockRule {
     name: "block-span",
@@ -58,23 +59,7 @@ fn parse_fn<'r, 't>(
         parser.get_body_elements(&BLOCK_SPAN, false)?.into();
 
     if strip_line_breaks {
-        // Remove leading line breaks
-        while let Some(element) = elements.first() {
-            if !matches!(element, Element::LineBreak | Element::LineBreaks(_)) {
-                break;
-            }
-
-            elements.remove(0);
-        }
-
-        // Remove trailing line breaks
-        while let Some(element) = elements.last() {
-            if !matches!(element, Element::LineBreak | Element::LineBreaks(_)) {
-                break;
-            }
-
-            elements.pop();
-        }
+        strip_newlines(&mut elements);
     }
 
     let element = Element::Container(Container::new(
