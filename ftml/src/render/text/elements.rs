@@ -184,6 +184,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 }
             }
         }
+        Element::ListItem(_) => panic!("Reached ancillary element"),
         Element::RadioButton { checked, .. } => {
             str_write!(ctx, "({}) ", if *checked { '*' } else { ' ' })
         }

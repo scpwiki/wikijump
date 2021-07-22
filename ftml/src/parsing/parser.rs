@@ -123,7 +123,7 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     #[inline]
-    pub fn set_flag_list(&mut self, value: bool) {
+    pub fn set_list_flag(&mut self, value: bool) {
         self.in_list = value;
     }
 

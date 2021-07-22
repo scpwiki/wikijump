@@ -98,6 +98,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             items,
             attributes,
         } => render_list(log, ctx, *ltype, items, attributes),
+        Element::ListItem(_) => panic!("Reached ancillary element"),
         Element::RadioButton {
             name,
             checked,
