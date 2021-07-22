@@ -103,6 +103,12 @@ pub enum Element<'t> {
         attributes: AttributeMap<'t>,
     },
 
+    /// A particular item of a list.
+    ///
+    /// This will not occur in final trees, but is a special
+    /// `Element` returned during parsing.
+    ListItem(Box<ListItem<'t>>),
+
     /// A radio button.
     ///
     /// The "name" field translates to HTML, but is standard for grouping them.
@@ -208,6 +214,7 @@ impl Element<'_> {
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::List { .. } => "List",
+            Element::ListItem(_) => "ListItem",
             Element::Image { .. } => "Image",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
@@ -241,6 +248,7 @@ impl Element<'_> {
             Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
+            Element::ListItem(_) => false,
             Element::Image { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
@@ -290,6 +298,11 @@ impl Element<'_> {
                 items: list_items_to_owned(items),
                 attributes: attributes.to_owned(),
             },
+            Element::ListItem(boxed_list_item) => {
+                let list_item: &ListItem = &*boxed_list_item;
+
+                Element::ListItem(Box::new(list_item.to_owned()))
+            }
             Element::Image {
                 source,
                 link,
