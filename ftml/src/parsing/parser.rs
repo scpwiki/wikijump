@@ -30,12 +30,20 @@ const MAX_RECURSION_DEPTH: usize = 100;
 
 #[derive(Debug, Clone)]
 pub struct Parser<'r, 't> {
+    // Logger instance
     log: Logger,
+
+    // Parse state
     current: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
+
+    // Rule state
     rule: Rule,
     depth: usize,
+
+    // Flags
+    in_list: bool,
 }
 
 impl<'r, 't> Parser<'r, 't> {
@@ -58,6 +66,7 @@ impl<'r, 't> Parser<'r, 't> {
             full_text,
             rule: RULE_PAGE,
             depth: 0,
+            in_list: false,
         }
     }
 
@@ -75,6 +84,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn rule(&self) -> Rule {
         self.rule
+    }
+
+    #[inline]
+    pub fn in_list(&self) -> bool {
+        self.in_list
     }
 
     // Setters
@@ -106,6 +120,11 @@ impl<'r, 't> Parser<'r, 't> {
         debug!(self.log, "Decrementing recursion depth"; "depth" => self.depth);
 
         self.depth -= 1;
+    }
+
+    #[inline]
+    pub fn set_flag_list(&mut self, value: bool) {
+        self.in_list = value;
     }
 
     // State evaluation

@@ -113,6 +113,9 @@ fn parse_list_block<'r, 't>(
     assert!(!flag_star, "List block doesn't allow star flag");
     assert_block_name(block_rule, name);
 
+    // Tell later rules we're in a list
+    parser.set_flag_list(true);
+
     // "ul" means we wrap interpret as-is
     // "ul_" means we strip out any newlines or paragraph breaks
     let strip_line_breaks = flag_score;
