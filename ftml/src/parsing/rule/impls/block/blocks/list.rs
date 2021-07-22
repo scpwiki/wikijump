@@ -49,7 +49,15 @@ fn parse_ul_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    parse_list_block((&BLOCK_UL, ListType::Bullet), log, parser, name, flag_star, flag_score, in_head)
+    parse_list_block(
+        (&BLOCK_UL, ListType::Bullet),
+        log,
+        parser,
+        name,
+        flag_star,
+        flag_score,
+        in_head,
+    )
 }
 
 fn parse_ol_block<'r, 't>(
@@ -60,7 +68,15 @@ fn parse_ol_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    parse_list_block((&BLOCK_OL, ListType::Numbered), log, parser, name, flag_star, flag_score, in_head)
+    parse_list_block(
+        (&BLOCK_OL, ListType::Numbered),
+        log,
+        parser,
+        name,
+        flag_star,
+        flag_score,
+        in_head,
+    )
 }
 
 // List block
@@ -94,6 +110,7 @@ fn parse_list_block<'r, 't>(
     let element = Element::List {
         ltype: list_type,
         items: vec![],
+        attributes,
     };
 
     ok!(false; element, exceptions)

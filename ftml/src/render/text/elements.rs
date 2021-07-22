@@ -148,7 +148,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 str_write!(ctx, " [Title: {}]", title);
             }
         }
-        Element::List { ltype, items } => {
+        Element::List { ltype, items, .. } => {
             if !ctx.ends_with_newline() {
                 ctx.add_newline();
             }

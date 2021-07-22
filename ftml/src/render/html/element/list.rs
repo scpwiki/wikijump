@@ -19,13 +19,14 @@
  */
 
 use super::prelude::*;
-use crate::tree::{ListItem, ListType};
+use crate::tree::{AttributeMap, ListItem, ListType};
 
 pub fn render_list(
     log: &Logger,
     ctx: &mut HtmlContext,
     ltype: ListType,
     list_items: &[ListItem],
+    attributes: &AttributeMap,
 ) {
     debug!(
         log,
@@ -37,7 +38,7 @@ pub fn render_list(
     let list_tag = ltype.html_tag();
     let mut tag = ctx.html().tag(list_tag);
 
-    tag.contents(|ctx| {
+    tag.attr_map(attributes).contents(|ctx| {
         for list_item in list_items {
             match list_item {
                 ListItem::Elements(elements) => {

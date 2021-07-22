@@ -100,6 +100,7 @@ pub enum Element<'t> {
         #[serde(rename = "type")]
         ltype: ListType,
         items: Vec<ListItem<'t>>,
+        attributes: AttributeMap<'t>,
     },
 
     /// A radio button.
@@ -280,9 +281,14 @@ impl Element<'_> {
                 label: label.to_owned(),
                 target: *target,
             },
-            Element::List { ltype, items } => Element::List {
+            Element::List {
+                ltype,
+                items,
+                attributes,
+            } => Element::List {
                 ltype: *ltype,
                 items: list_items_to_owned(items),
+                attributes: attributes.to_owned(),
             },
             Element::Image {
                 source,
