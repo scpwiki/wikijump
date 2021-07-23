@@ -156,6 +156,11 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             for item in items {
                 match item {
                     ListItem::Elements(elements) => {
+                        // Don't do anything if it's empty
+                        if elements.is_empty() {
+                            continue;
+                        }
+
                         // Render bullet and its depth
                         let depth = ctx.list_depth();
                         for _ in 0..depth {
