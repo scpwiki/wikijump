@@ -204,6 +204,20 @@ pub enum Element<'t> {
 }
 
 impl Element<'_> {
+    /// Determines if the element is "whitespace".
+    ///
+    /// Specifically, it returns true if the element is:
+    /// * `Element::LineBreak`
+    /// * `Element::Text` where the contents all have the Unicode property `White_Space`.
+    pub fn is_whitespace(&self) -> bool {
+        match self {
+            Element::LineBreak => true,
+            Element::Text(string) if string.chars().all(|c| c.is_whitespace()) => true,
+            _ => false,
+        }
+    }
+
+    /// Returns the Rust name of this Element variant.
     pub fn name(&self) -> &'static str {
         match self {
             Element::Container(container) => container.ctype().name(),

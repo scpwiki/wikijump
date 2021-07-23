@@ -148,6 +148,9 @@ fn parse_list_block<'r, 't>(
                 // Ensure all elements of a list are only items, i.e. [[li]].
                 Element::ListItem(item) => items.push(*item),
 
+                // Ignore "whitespace" elements
+                element if element.is_whitespace() => continue,
+
                 // Other kinds of elements result in an exception.
                 _ => return Err(parser.make_warn(ParseWarningKind::ListContainsNonItem)),
             }
