@@ -1,11 +1,11 @@
 {
-    "input": "[[ul]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ul]]",
+    "input": "[[ol]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ol]]",
     "tree": {
         "elements": [
             {
                 "element": "list",
                 "data": {
-                    "type": "bullet",
+                    "type": "numbered",
                     "attributes": {},
                     "items": [
                         [
