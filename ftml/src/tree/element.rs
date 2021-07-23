@@ -208,10 +208,11 @@ impl Element<'_> {
     ///
     /// Specifically, it returns true if the element is:
     /// * `Element::LineBreak`
+    /// * `Element::LineBreaks`
     /// * `Element::Text` where the contents all have the Unicode property `White_Space`.
     pub fn is_whitespace(&self) -> bool {
         match self {
-            Element::LineBreak => true,
+            Element::LineBreak | Element::LineBreaks(_) => true,
             Element::Text(string) if string.chars().all(|c| c.is_whitespace()) => true,
             _ => false,
         }
