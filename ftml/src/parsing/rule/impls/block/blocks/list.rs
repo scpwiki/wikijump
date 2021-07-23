@@ -137,6 +137,11 @@ fn parse_list_block<'r, 't>(
             strip_newlines(&mut elements);
         }
 
+        // Empty lists aren't allowed
+        if elements.is_empty() {
+            return Err(parser.make_warn(ParseWarningKind::ListEmpty));
+        }
+
         // Convert and extract list elements
         for element in elements {
             match element {
@@ -203,19 +208,14 @@ fn parse_list_item<'r, 't>(
         strip_newlines(&mut elements);
     }
 
-    let list_item = match elements.len() {
-        // Empty list, fail rule
-        0 => return Err(parser.make_warn(ParseWarningKind::ListEmpty)),
+    // Single item is a list, create a sub-list
+    let list_item = if elements.len() == 1 && matches!(elements[0], Element::List { .. })
+    {
+        let element = elements.pop().unwrap();
 
-        // Single item is a list, create sub-list
-        1 if matches!(elements[0], Element::List { .. }) => {
-            let element = elements.pop().unwrap();
-
-            ListItem::SubList(element)
-        }
-
-        // Other elements as list item
-        _ => ListItem::Elements(elements),
+        ListItem::SubList(element)
+    } else {
+        ListItem::Elements(elements)
     };
 
     let element = Element::ListItem(Box::new(list_item));
