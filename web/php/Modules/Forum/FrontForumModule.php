@@ -100,7 +100,7 @@ class FrontForumModule extends SmartyModule
         $limit =  $pl->getParameterValue("limit");
         $offset =  $pl->getParameterValue("offset");
 
-        if ($limit == null) {
+        if ($limit == null || !is_numeric($limit) || $limit > 20) {
             $limit = 20;
         }
 

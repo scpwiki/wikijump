@@ -117,7 +117,7 @@ class GlobalHotTagsModule extends SmartyModule
             $colorBig = array(64,64,128);
         }
 
-        if ($limit && is_numeric($limit) && $limit>0) {
+        if ($limit && is_numeric($limit) && $limit<50) {
         } else {
             $limit = 50;
         }
