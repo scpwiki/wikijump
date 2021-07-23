@@ -1,0 +1,50 @@
+{
+    "input": "[[ul]]\n[[li_]]\nA\n[[/li_]]\n[[li]]\nB\n[[/li]]\n[[/ul]]\n[[ol_]]\n[[li]]C[[/li]]\n[[/ol_]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
+                            }
+                        ],
+                        [
+                            {
+                                "element": "line-break"
+                            },
+                            {
+                                "element": "text",
+                                "data": "B"
+                            }
+                        ]
+                    ]
+                }
+            },
+            {
+                "element": "list",
+                "data": {
+                    "type": "numbered",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "C"
+                            }
+                        ]
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
