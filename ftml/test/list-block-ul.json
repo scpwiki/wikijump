@@ -1,0 +1,26 @@
+{
+    "input": "[[ul]][[li]]A[[/li]][[/ul]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
+                            }
+                        ]
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
