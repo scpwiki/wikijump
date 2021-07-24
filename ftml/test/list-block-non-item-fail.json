@@ -1,0 +1,113 @@
+{
+    "input": "[[ul]] [[div]]A[[/div]] [[/ul]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "ul"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        }
+                    ],
+                    "attributes": {}
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "div",
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "paragraph",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "A"
+                                    }
+                                ],
+                                "attributes": {}
+                            }
+                        }
+                    ],
+                    "attributes": {}
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "[[/"
+                        },
+                        {
+                            "element": "text",
+                            "data": "ul"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ],
+                    "attributes": {}
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "block-ul",
+            "span": [31, 31],
+            "kind": "list-contains-non-item"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [4, 6],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "left-block-end",
+            "rule": "fallback",
+            "span": [24, 27],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [29, 31],
+            "kind": "no-rules-match"
+        }
+    ]
+}
