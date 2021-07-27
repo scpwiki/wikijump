@@ -37,6 +37,9 @@ mod prelude {
     pub use std::os::raw::c_char;
 }
 
+#[cfg(feature = "css")]
+mod css;
+
 mod backlinks;
 mod exports;
 mod html;
