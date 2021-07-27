@@ -139,7 +139,6 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                     ctx.html()
                         .div()
                         .attr("class", &["wj-collapsible-block-content"])
-                        .attr("style", &["display: block;"]) // hardcoded/unconditional style, not in the class
                         .inner(log, &elements);
 
                     // Bottom div to close
