@@ -1,18 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {PageInfo} page_info
-* @param {SyntaxTree} syntax_tree
-* @returns {HtmlOutput}
-*/
-export function render_html(page_info: PageInfo, syntax_tree: SyntaxTree): HtmlOutput;
-/**
-* @param {PageInfo} page_info
-* @param {SyntaxTree} syntax_tree
-* @returns {string}
-*/
-export function render_text(page_info: PageInfo, syntax_tree: SyntaxTree): string;
-/**
 * @param {string} text
 * @returns {Tokenization}
 */
@@ -31,39 +19,18 @@ export function parse(tokens: Tokenization): ParseOutcome;
 * @returns {string}
 */
 export function preprocess(text: string): string;
-
-
-export interface IHtmlOutput {
-    body: string;
-    style: string;
-    meta: IHtmlMeta[];
-}
-
-export interface IHtmlMeta {
-    tag_type: string;
-    name: string;
-    value: string;
-}
-
-export interface IBacklinks {
-    included_pages: string[];
-    internal_links: string[];
-    external_links: string[];
-}
-
-export interface IPageInfo {
-    page: string;
-    category: string | null;
-    site: string;
-    title: string;
-    alt_title: string | null;
-    rating: number;
-    tags: string[];
-    language: string;
-}
-
-
-
+/**
+* @param {PageInfo} page_info
+* @param {SyntaxTree} syntax_tree
+* @returns {HtmlOutput}
+*/
+export function render_html(page_info: PageInfo, syntax_tree: SyntaxTree): HtmlOutput;
+/**
+* @param {PageInfo} page_info
+* @param {SyntaxTree} syntax_tree
+* @returns {string}
+*/
+export function render_text(page_info: PageInfo, syntax_tree: SyntaxTree): string;
 
 
 export interface IToken {
@@ -97,6 +64,39 @@ export interface IParseWarning {
         end: number;
     };
     kind: string;
+}
+
+
+
+
+
+export interface IHtmlOutput {
+    body: string;
+    style: string;
+    meta: IHtmlMeta[];
+}
+
+export interface IHtmlMeta {
+    tag_type: string;
+    name: string;
+    value: string;
+}
+
+export interface IBacklinks {
+    included_pages: string[];
+    internal_links: string[];
+    external_links: string[];
+}
+
+export interface IPageInfo {
+    page: string;
+    category: string | null;
+    site: string;
+    title: string;
+    alt_title: string | null;
+    rating: number;
+    tags: string[];
+    language: string;
 }
 
 
@@ -245,6 +245,21 @@ export interface InitOutput {
   readonly utf16indexmap_new: (a: number, b: number) => number;
   readonly utf16indexmap_copy: (a: number) => number;
   readonly utf16indexmap_get_index: (a: number, b: number) => number;
+  readonly __wbg_tokenization_free: (a: number) => void;
+  readonly tokenization_copy: (a: number) => number;
+  readonly tokenization_text: (a: number, b: number) => void;
+  readonly tokenization_tokens: (a: number) => number;
+  readonly tokenize: (a: number, b: number) => number;
+  readonly version: (a: number) => void;
+  readonly __wbg_parseoutcome_free: (a: number) => void;
+  readonly parseoutcome_copy: (a: number) => number;
+  readonly parseoutcome_syntax_tree: (a: number) => number;
+  readonly parseoutcome_warnings: (a: number) => number;
+  readonly __wbg_syntaxtree_free: (a: number) => void;
+  readonly syntaxtree_data: (a: number) => number;
+  readonly parse: (a: number) => number;
+  readonly preprocess: (a: number, b: number, c: number) => void;
+  readonly syntaxtree_copy: (a: number) => number;
   readonly __wbg_pageinfo_free: (a: number) => void;
   readonly pageinfo_new: (a: number) => number;
   readonly pageinfo_page: (a: number, b: number) => void;
@@ -264,21 +279,6 @@ export interface InitOutput {
   readonly render_html: (a: number, b: number) => number;
   readonly render_text: (a: number, b: number, c: number) => void;
   readonly pageinfo_copy: (a: number) => number;
-  readonly __wbg_tokenization_free: (a: number) => void;
-  readonly tokenization_copy: (a: number) => number;
-  readonly tokenization_text: (a: number, b: number) => void;
-  readonly tokenization_tokens: (a: number) => number;
-  readonly tokenize: (a: number, b: number) => number;
-  readonly version: (a: number) => void;
-  readonly __wbg_parseoutcome_free: (a: number) => void;
-  readonly parseoutcome_copy: (a: number) => number;
-  readonly parseoutcome_syntax_tree: (a: number) => number;
-  readonly parseoutcome_warnings: (a: number) => number;
-  readonly __wbg_syntaxtree_free: (a: number) => void;
-  readonly syntaxtree_data: (a: number) => number;
-  readonly parse: (a: number) => number;
-  readonly preprocess: (a: number, b: number, c: number) => void;
-  readonly syntaxtree_copy: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

@@ -108,6 +108,32 @@ function takeObject(idx) {
     dropObject(idx);
     return ret;
 }
+/**
+* @param {string} text
+* @returns {Tokenization}
+*/
+export function tokenize(text) {
+    var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len0 = WASM_VECTOR_LEN;
+    var ret = wasm.tokenize(ptr0, len0);
+    return Tokenization.__wrap(ret);
+}
+
+/**
+* @returns {string}
+*/
+export function version() {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.version(retptr);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(r0, r1);
+    }
+}
 
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
@@ -115,6 +141,37 @@ function _assertClass(instance, klass) {
     }
     return instance.ptr;
 }
+/**
+* @param {Tokenization} tokens
+* @returns {ParseOutcome}
+*/
+export function parse(tokens) {
+    _assertClass(tokens, Tokenization);
+    var ptr0 = tokens.ptr;
+    tokens.ptr = 0;
+    var ret = wasm.parse(ptr0);
+    return ParseOutcome.__wrap(ret);
+}
+
+/**
+* @param {string} text
+* @returns {string}
+*/
+export function preprocess(text) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        wasm.preprocess(retptr, ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(r0, r1);
+    }
+}
+
 /**
 * @param {PageInfo} page_info
 * @param {SyntaxTree} syntax_tree
@@ -146,64 +203,6 @@ export function render_text(page_info, syntax_tree) {
         var ptr1 = syntax_tree.ptr;
         syntax_tree.ptr = 0;
         wasm.render_text(retptr, ptr0, ptr1);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        wasm.__wbindgen_free(r0, r1);
-    }
-}
-
-/**
-* @param {string} text
-* @returns {Tokenization}
-*/
-export function tokenize(text) {
-    var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
-    var ret = wasm.tokenize(ptr0, len0);
-    return Tokenization.__wrap(ret);
-}
-
-/**
-* @returns {string}
-*/
-export function version() {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.version(retptr);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        wasm.__wbindgen_free(r0, r1);
-    }
-}
-
-/**
-* @param {Tokenization} tokens
-* @returns {ParseOutcome}
-*/
-export function parse(tokens) {
-    _assertClass(tokens, Tokenization);
-    var ptr0 = tokens.ptr;
-    tokens.ptr = 0;
-    var ret = wasm.parse(ptr0);
-    return ParseOutcome.__wrap(ret);
-}
-
-/**
-* @param {string} text
-* @returns {string}
-*/
-export function preprocess(text) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        wasm.preprocess(retptr, ptr0, len0);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         return getStringFromWasm0(r0, r1);
@@ -650,6 +649,10 @@ async function init(input) {
         var ret = getStringFromWasm0(arg0, arg1);
         return addHeapObject(ret);
     };
+    imports.wbg.__wbindgen_json_parse = function(arg0, arg1) {
+        var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbindgen_json_serialize = function(arg0, arg1) {
         const obj = getObject(arg1);
         var ret = JSON.stringify(obj === undefined ? null : obj);
@@ -660,10 +663,6 @@ async function init(input) {
     };
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
-    };
-    imports.wbg.__wbindgen_json_parse = function(arg0, arg1) {
-        var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
-        return addHeapObject(ret);
     };
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
         throw new Error(getStringFromWasm0(arg0, arg1));
