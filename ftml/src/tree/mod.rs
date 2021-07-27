@@ -18,9 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+pub mod attribute;
+
 mod align;
 mod anchor;
-mod attribute;
 mod clone;
 mod condition;
 mod container;

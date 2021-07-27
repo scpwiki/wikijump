@@ -27,6 +27,10 @@
 //! * ` .. ' to fancy single quotes
 //! * ,, .. '' to fancy lowered double quotes
 //! * ... to an ellipsis
+//!
+//! Em dash conversion was originally implemented here, however
+//! it was moved to the parser to prevent typography from converting
+//! the `--` in `[!--` and `--]` into em dashes.
 
 use crate::log::prelude::*;
 use regex::Regex;
