@@ -133,8 +133,8 @@ impl ContainerType {
             ContainerType::Blockquote => HtmlTag::new("blockquote"),
             ContainerType::Insertion => HtmlTag::new("ins"),
             ContainerType::Deletion => HtmlTag::new("del"),
-            ContainerType::Hidden => HtmlTag::with_class("span", "hidden"),
-            ContainerType::Invisible => HtmlTag::with_class("span", "invisible"),
+            ContainerType::Hidden => HtmlTag::with_class("span", "wj-hidden"),
+            ContainerType::Invisible => HtmlTag::with_class("span", "wj-invisible"),
             ContainerType::Size => HtmlTag::new("span"),
             ContainerType::Paragraph => HtmlTag::new("p"),
             ContainerType::Align(alignment) => {

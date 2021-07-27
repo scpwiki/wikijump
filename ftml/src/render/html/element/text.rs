@@ -23,7 +23,7 @@ use super::prelude::*;
 pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
     debug!(log, "Escaping raw string"; "text" => text);
 
-    ctx.html().span().attr("class", &["raw"]).inner(log, &text);
+    ctx.html().span().attr("class", &["wj-raw"]).inner(log, &text);
 }
 
 pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
@@ -34,7 +34,7 @@ pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
 
     ctx.html()
         .span()
-        .attr("class", &["email"])
+        .attr("class", &["wj-email"])
         .inner(log, &email);
 }
 
@@ -55,7 +55,7 @@ pub fn render_code(
     ctx.handle().post_code(log, index, contents);
 
     let class = {
-        let mut class = format!("code language-{}", language.unwrap_or("none"));
+        let mut class = format!("wj-code wj-language-{}", language.unwrap_or("none"));
         class.make_ascii_lowercase();
         class
     };

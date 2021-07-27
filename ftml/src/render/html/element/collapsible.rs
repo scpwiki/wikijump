@@ -87,28 +87,27 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
             .get_message(log, &ctx.info().language, "collapsible-hide")
     });
 
-    fn collapsible_style(show: bool) -> &'static str {
+    fn collapsible_class(show: bool) -> &'static str {
         if show {
-            "display: block;"
+            "wj-collapsible-block-unfolded"
         } else {
-            "display: none;"
+            "wj-collapsible-block-folded"
         }
     }
 
     ctx.html()
         .div()
-        .attr_map_prepend(attributes, ("class", "collapsible-block"))
+        .attr_map_prepend(attributes, ("class", "wj-collapsible-block"))
         .contents(|ctx| {
             // Open collapsible link
             ctx.html()
                 .div()
-                .attr("class", &["collapsible-block-folded"])
-                .attr("style", &[collapsible_style(!start_open)])
+                .attr("class", &[collapsible_class(!start_open)])
                 .contents(|ctx| {
                     // Event-bound link to open
                     ctx.html()
                         .a()
-                        .attr("class", &["collapsible-block-link"])
+                        .attr("class", &["wj-collapsible-block-link"])
                         .attr("href", &["javascript:;"])
                         .inner(log, &show_text);
                 });
@@ -116,18 +115,16 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
             // Close collapsible link
             ctx.html()
                 .div()
-                .attr("class", &["collapsible-block-unfolded"])
-                .attr("style", &[collapsible_style(start_open)])
+                .attr("class", &[collapsible_class(start_open)])
                 .contents(|ctx| {
                     // Top div to close
                     ctx.html()
                         .div()
-                        .attr("class", &["collapsible-block-unfolded-link"])
+                        .attr("class", &["wj-collapsible-block-unfolded-link"])
                         .contents(|ctx| {
                             ctx.html()
                                 .a()
-                                .attr("class", &["collapsible-block-link"])
-                                .attr("style", &[collapsible_style(show_top)])
+                                .attr("class", &["wj-collapsible-block-link", collapsible_class(show_top)])
                                 .attr("href", &["javascript:;"])
                                 .inner(log, &hide_text);
                         });
@@ -135,19 +132,18 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                     // Collapsed contents
                     ctx.html()
                         .div()
-                        .attr("class", &["collapsible-block-content"])
+                        .attr("class", &["wj-collapsible-block-content"])
                         .attr("style", &["display: block;"]) // hardcoded/unconditional style, not in the class
                         .inner(log, &elements);
 
                     // Bottom div to close
                     ctx.html()
                         .div()
-                        .attr("class", &["collapsible-block-unfolded-link"])
+                        .attr("class", &["wj-collapsible-block-unfolded-link"])
                         .contents(|ctx| {
                             ctx.html()
                                 .a()
-                                .attr("class", &["collapsible-block-link"])
-                                .attr("style", &[collapsible_style(show_bottom)])
+                                .attr("class", &["wj-collapsible-block-link", collapsible_class(show_bottom)])
                                 .attr("href", &["javascript:;"])
                                 .inner(log, &hide_text);
                         });

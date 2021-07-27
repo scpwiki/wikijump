@@ -1,4 +1,8 @@
-/* TODO */
+/* ELEMENTS */
+
+.wj-image-container {
+    padding: 1em;
+}
 
 .email {
     white-space: nowrap;
@@ -6,4 +10,98 @@
 
 .raw {
     white-space: pre-wrap;
+}
+
+/* COLLAPSIBLE */
+
+.wj-collapsible-block {}
+.wj-collapsible-block-link {}
+.wj-collapsible-block-content {}
+.wj-collapsible-block-unfolded-link {}
+
+.wj-collapsible-block-folded {
+    display: none;
+}
+
+.wj-collapsible-block-unfolded {
+    display: block;
+}
+
+/* CODE */
+
+code,
+.wj-code {
+    font-family: 'Courier New', Courier, monospace;
+    padding: 0 1em;
+    margin: 0.4em 0;
+    overflow: auto;
+}
+
+/* todo: wj-language-xxx classes */
+
+/* MODIFIERS */
+
+.wj-hidden {
+    display: none;
+}
+
+.wj-invisible {
+    visibility: hidden;
+}
+
+/* ALIGNMENT */
+
+.wj-align-left {
+    text-align: left;
+    padding-left: 0;
+}
+
+.wj-align-right {
+    text-align: right;
+    padding-right: 0;
+}
+
+.wj-align-center {
+    text-align: center;
+}
+
+.wj-align-justify {
+    text-align: justify;
+}
+
+.wj-float-left {
+    float: left;
+    padding-left: 0;
+}
+
+.wj-float-right {
+    float: right;
+    padding-right: 0;
+}
+
+/* USER INFORMATION */
+
+.wj-user-info img.wj-small {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 1px 9px 1px 8px;
+    background-repeat: no-repeat;
+    background-position: center left;
+}
+
+.wj-user-info-name {}
+
+/* MISCELLANEOUS */
+
+.wj-error-block {
+    color: #b00;
+    border: 1px solid #faa;
+    padding: 1em;
+    margin: 1em;
+}
+
+.wj-error-inline {
+    color: #b00;
+    border: 1px solid #faa;
 }
