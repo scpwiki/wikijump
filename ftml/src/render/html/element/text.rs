@@ -26,7 +26,6 @@ pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
     ctx.html()
         .span()
         .attr("class", &["raw"])
-        .attr("style", &["white-space: pre-wrap;"]) // TODO add this to the "raw" class
         .inner(log, &text);
 }
 
@@ -39,7 +38,6 @@ pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
     ctx.html()
         .span()
         .attr("class", &["email"])
-        .attr("style", &["word-break: keep-all;"]) // TODO add this to the "email" class
         .inner(log, &email);
 }
 
