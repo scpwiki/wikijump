@@ -160,7 +160,7 @@ pub mod tokenizer;
 pub mod tree;
 
 #[cfg(feature = "css")]
-pub const FTML_BASE_CSS: &'static str = include_str!("../misc/ftml-base.css");
+pub const FTML_BASE_CSS: &str = include_str!("../misc/ftml-base.css");
 
 #[cfg(test)]
 #[cfg(feature = "log")]
