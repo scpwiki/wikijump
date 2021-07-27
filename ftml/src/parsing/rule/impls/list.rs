@@ -184,10 +184,12 @@ fn build_list_element(
     };
 
     let items = list.into_iter().map(build_item).collect();
+    let attributes = AttributeMap::new();
 
     // Return the Element::List object
     Element::List {
         ltype: top_ltype,
         items,
+        attributes,
     }
 }

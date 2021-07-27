@@ -1,0 +1,32 @@
+{
+    "input": "[[ol]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ol]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "numbered",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
+                            }
+                        ],
+                        [
+                            {
+                                "element": "text",
+                                "data": "B"
+                            }
+                        ]
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

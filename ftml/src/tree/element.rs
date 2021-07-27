@@ -100,7 +100,14 @@ pub enum Element<'t> {
         #[serde(rename = "type")]
         ltype: ListType,
         items: Vec<ListItem<'t>>,
+        attributes: AttributeMap<'t>,
     },
+
+    /// A particular item of a list.
+    ///
+    /// This will not occur in final trees, but is a special
+    /// `Element` returned during parsing.
+    ListItem(Box<ListItem<'t>>),
 
     /// A radio button.
     ///
@@ -197,6 +204,21 @@ pub enum Element<'t> {
 }
 
 impl Element<'_> {
+    /// Determines if the element is "whitespace".
+    ///
+    /// Specifically, it returns true if the element is:
+    /// * `Element::LineBreak`
+    /// * `Element::LineBreaks`
+    /// * `Element::Text` where the contents all have the Unicode property `White_Space`.
+    pub fn is_whitespace(&self) -> bool {
+        match self {
+            Element::LineBreak | Element::LineBreaks(_) => true,
+            Element::Text(string) if string.chars().all(|c| c.is_whitespace()) => true,
+            _ => false,
+        }
+    }
+
+    /// Returns the Rust name of this Element variant.
     pub fn name(&self) -> &'static str {
         match self {
             Element::Container(container) => container.ctype().name(),
@@ -207,6 +229,7 @@ impl Element<'_> {
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::List { .. } => "List",
+            Element::ListItem(_) => "ListItem",
             Element::Image { .. } => "Image",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
@@ -240,6 +263,7 @@ impl Element<'_> {
             Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
+            Element::ListItem(_) => false,
             Element::Image { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
@@ -280,10 +304,20 @@ impl Element<'_> {
                 label: label.to_owned(),
                 target: *target,
             },
-            Element::List { ltype, items } => Element::List {
+            Element::List {
+                ltype,
+                items,
+                attributes,
+            } => Element::List {
                 ltype: *ltype,
                 items: list_items_to_owned(items),
+                attributes: attributes.to_owned(),
             },
+            Element::ListItem(boxed_list_item) => {
+                let list_item: &ListItem = &*boxed_list_item;
+
+                Element::ListItem(Box::new(list_item.to_owned()))
+            }
             Element::Image {
                 source,
                 link,

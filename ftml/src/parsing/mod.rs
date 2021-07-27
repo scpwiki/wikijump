@@ -34,6 +34,7 @@ mod parser;
 mod result;
 mod rule;
 mod string;
+mod strip;
 mod token;
 
 mod prelude {
@@ -51,6 +52,7 @@ use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
 use self::parser::Parser;
 use self::rule::impls::RULE_PAGE;
 use self::string::parse_string;
+use self::strip::strip_newlines;
 use crate::log::prelude::*;
 use crate::tokenizer::Tokenization;
 use crate::tree::SyntaxTree;

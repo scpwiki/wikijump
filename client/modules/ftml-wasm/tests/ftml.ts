@@ -114,7 +114,7 @@ FTML("render text", async () => {
   await lib.loading
   const str = "//1//"
   const text = lib.render(str, { mode: "text" })
-  assert.is(text, "1\n")
+  assert.is(text, "1")
 })
 
 FTML("warnings", async () => {

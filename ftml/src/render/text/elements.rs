@@ -148,7 +148,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 str_write!(ctx, " [Title: {}]", title);
             }
         }
-        Element::List { ltype, items } => {
+        Element::List { ltype, items, .. } => {
             if !ctx.ends_with_newline() {
                 ctx.add_newline();
             }
@@ -156,6 +156,11 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             for item in items {
                 match item {
                     ListItem::Elements(elements) => {
+                        // Don't do anything if it's empty
+                        if elements.is_empty() {
+                            continue;
+                        }
+
                         // Render bullet and its depth
                         let depth = ctx.list_depth();
                         for _ in 0..depth {
@@ -184,6 +189,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 }
             }
         }
+        Element::ListItem(_) => panic!("Reached ancillary element"),
         Element::RadioButton { checked, .. } => {
             str_write!(ctx, "({}) ", if *checked { '*' } else { ' ' })
         }

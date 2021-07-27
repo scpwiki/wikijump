@@ -93,7 +93,12 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             alignment,
             attributes,
         } => render_image(log, ctx, source, ref_cow!(link), *alignment, attributes),
-        Element::List { ltype, items } => render_list(log, ctx, *ltype, items),
+        Element::List {
+            ltype,
+            items,
+            attributes,
+        } => render_list(log, ctx, *ltype, items, attributes),
+        Element::ListItem(_) => panic!("Reached ancillary element"),
         Element::RadioButton {
             name,
             checked,
