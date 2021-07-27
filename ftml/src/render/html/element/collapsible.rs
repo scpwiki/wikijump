@@ -124,7 +124,13 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                         .contents(|ctx| {
                             ctx.html()
                                 .a()
-                                .attr("class", &["wj-collapsible-block-link", collapsible_class(show_top)])
+                                .attr(
+                                    "class",
+                                    &[
+                                        "wj-collapsible-block-link",
+                                        collapsible_class(show_top),
+                                    ],
+                                )
                                 .attr("href", &["javascript:;"])
                                 .inner(log, &hide_text);
                         });
@@ -143,7 +149,13 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                         .contents(|ctx| {
                             ctx.html()
                                 .a()
-                                .attr("class", &["wj-collapsible-block-link", collapsible_class(show_bottom)])
+                                .attr(
+                                    "class",
+                                    &[
+                                        "wj-collapsible-block-link",
+                                        collapsible_class(show_bottom),
+                                    ],
+                                )
                                 .attr("href", &["javascript:;"])
                                 .inner(log, &hide_text);
                         });
