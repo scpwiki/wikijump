@@ -23,10 +23,7 @@ use super::prelude::*;
 pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
     debug!(log, "Escaping raw string"; "text" => text);
 
-    ctx.html()
-        .span()
-        .attr("class", &["raw"])
-        .inner(log, &text);
+    ctx.html().span().attr("class", &["raw"]).inner(log, &text);
 }
 
 pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
