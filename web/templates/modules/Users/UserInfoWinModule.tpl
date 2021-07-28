@@ -34,7 +34,7 @@
             {elseif $user->karma_level == 4}{t}very high{/t}
             {elseif $user->karma_level == 5}{t}guru{/t}
         {/if}
-		<img src="/userkarma.php?u={$user->id}"/>
+		<img src="/user--karma/{$user->id}"/>
 		{if $member}
 			<br/>
 			{t}Member of this Site: since{/t} <span class="odate">{$member->getDateJoined()->getTimestamp()}|%e %b %Y, %H:%M %Z (%O {t}ago{/t})</span><br/>

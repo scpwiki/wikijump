@@ -5,9 +5,6 @@ namespace Wikidot\Utils;
 use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Wikidot\DB\UserKarmaPeer;
-use Wikidot\DB\UserKarma;
-
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
 
