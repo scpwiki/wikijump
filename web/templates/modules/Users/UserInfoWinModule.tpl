@@ -9,7 +9,7 @@
         {if $user->real_name}
             {t}Real name{/t}: {$user->real_name}<br/>
         {/if}
-        {if $user->pronouns()}
+        {if $user->pronouns}
             {t}Pronouns{/t}: {$user->pronouns}<br/>
         {/if}
         {if $user->dob}
