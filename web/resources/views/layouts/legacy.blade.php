@@ -124,7 +124,7 @@
                 <div id="page-content">
                     @yield('content')
                 </div>
-                @if (count($tags) > 0)
+                @if (is_countable($tags))
                 <div class="page-tags">
 							<span>
 								page tags:
