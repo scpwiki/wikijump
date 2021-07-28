@@ -3,6 +3,7 @@
 import json
 import random
 import time
+from contextlib import contextmanager
 from uuid import uuid4
 
 import psycopg2
@@ -11,18 +12,14 @@ TAGS = open('tags.txt').read().splitlines()
 
 # Utilities
 
-class Timer:
-    def __init__(self, name):
-        self.name = name
-        self.start = None
-
-    def __enter__(self):
-        self.start = time.monotonic_ns()
-
-    def __exit__(self, type, value, traceback):
-        elapsed_ns = time.monotonic_ns() - self.start
-        elapsed_ms = elapsed_ns / 1e6
-        print(f"Task '{self.name}' in {elapsed_ms:.4f} ms")
+@contextmanager
+def timer(name):
+    start = time.monotonic_ns()
+    yield
+    stop = time.monotonic_ns()
+    elapsed_ns = stop - start
+    elapsed_ms = elapsed_ns / 1e6
+    print(f"Task '{name}' in {elapsed_ms:.4f} ms")
 
 def random_tags(min_len=1, max_len=20):
     return {
@@ -89,7 +86,7 @@ def database_populate(cur):
     slugs = generate_slugs_and_tags()
     pages = {}
 
-    with Timer("option A populate"):
+    with timer("option A populate"):
         for slug, tags in pages.items():
             cur.execute(
                 "INSERT INTO a__pages (slug) VALUES (%(slug)s) RETURNING page_id",
@@ -105,7 +102,7 @@ def database_populate(cur):
 
             pages[slug] = [tags, page_id_a, None]
 
-    with Timer("option B populate"):
+    with timer("option B populate"):
         for slug, tags in pages.items():
             cur.execute(
                 "INSERT INTO b__pages (slug, tags) VALUES (%(slug)s, %(tags)s) RETURNING page_id",
