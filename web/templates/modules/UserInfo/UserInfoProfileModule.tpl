@@ -25,7 +25,7 @@
 		{elseif $user->karma_level == 4}{t}very high{/t}
 		{elseif $user->karma_level == 5}{t}guru{/t}
 	{/if}
-	<img src="/userkarma.php?u={$user->id}"/>
+	<img src="/user--karma/{$user->id}"/>
 
 </div>
 

@@ -1,7 +1,7 @@
 import { compress } from "compress-tag";
 
 const AVATARS = "/common--images/avatars";
-const KARMA = "/userkarma.php";
+const KARMA = "/user--karma";
 
 export const render = {
   printuser: function (
@@ -28,7 +28,7 @@ export const render = {
           <img class="small"
                src="${AVATARS}/${Math.floor(userId / 1000)}/${userId}/a16.png"
                alt=""
-               style="background-image:url(${KARMA}?u=${userId})"/></a>`
+               style="background-image:url(${KARMA}/${userId})"/></a>`
         : ""
       }
       <a ${link}>${userName}</a></span>
