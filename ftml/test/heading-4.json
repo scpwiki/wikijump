@@ -1,0 +1,45 @@
+{
+    "input": "++++ [[size 80%]]Small heading[[/size]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": 4
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "size",
+                                "attributes": {
+                                    "style": "font-size: 80%;"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Small"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "heading"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

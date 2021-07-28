@@ -18,11 +18,12 @@ export interface Grammar {
 export interface Rule {
   target?: DF.SubRuleTarget
   match?: DF.Match
+  predicate?: string
   action?: Action
 }
 
 export interface RuleState {
-  begin: Rule
+  begin: Rule | RuleState
   end: Rule
   type?: string
   embedded?: `${DF.Substitute | string}!`
@@ -83,7 +84,7 @@ export function demangleRule(rule: RuleDefs): DF.Directive | Rule | RuleState {
   if ("begin" in rule) {
     const { begin, end, type, embedded, rules } = rule
     return removeUndefined({
-      begin: demangleRule(begin) as Rule,
+      begin: demangleRule(begin) as Rule | RuleState,
       end: demangleRule(end) as Rule,
       type: demangleType(type),
       embedded,
@@ -108,7 +109,14 @@ export function demangleRule(rule: RuleDefs): DF.Directive | Rule | RuleState {
     ;({ match, ...action } = rule)
   }
 
-  return removeUndefined({ target, match, action: demangleAction(action) })
+  // pick out predicate from action
+  let predicate: string | undefined
+  if (typeof action !== "string" && "predicate" in action) {
+    predicate = action.predicate
+    delete action.predicate
+  }
+
+  return removeUndefined({ target, match, predicate, action: demangleAction(action) })
 }
 
 export function demangleAction(

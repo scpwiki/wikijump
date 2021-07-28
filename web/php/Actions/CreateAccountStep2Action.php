@@ -8,7 +8,6 @@ use Ozone\Framework\ODate;
 use Ozone\Framework\OzoneEmail;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
-use Wikidot\DB\Profile;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;

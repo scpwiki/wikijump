@@ -31,7 +31,7 @@ class SitesTagCloudModule extends CacheableModule
 
         $limit = $pl->getParameterValue("limit");
 
-        if ($limit && is_numeric($limit) && $limit>0) {
+        if ($limit && is_numeric($limit) && $limit<60) {
         } else {
             $limit = 60;
         }
@@ -40,7 +40,7 @@ class SitesTagCloudModule extends CacheableModule
             $ql = " AND site.language = '".db_escape_string($lang)."' ";
         }
 
-        $q = 'SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM site_tag, site WHERE site.visible = TRUE AND site.private = FALSE AND site.deleted=FALSE '.$ql.' AND site.site_id = site_tag.site_id GROUP BY tag ORDER BY weight DESC LIMIT 100) AS foo ORDER BY tag';
+        $q = 'SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM site_tag, site WHERE site.visible = TRUE AND site.private = FALSE AND site.deleted=FALSE '.$ql.' AND site.site_id = site_tag.site_id GROUP BY tag ORDER BY weight DESC LIMIT '.$limit.') AS foo ORDER BY tag';
 
         $res = $db->query($q);
         $tags = $res->fetchAll();

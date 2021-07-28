@@ -1,9 +1,10 @@
 import { toFragment } from "wj-util"
-import * as FTML from "./index"
+import FTML from "./ftml"
 
 export class FTMLFragment {
   private declare styles: string[]
   private declare fragment: DocumentFragment
+  private declare html: string
   private declare src: string
 
   ready = false
@@ -17,6 +18,7 @@ export class FTMLFragment {
       const { html, styles } = await FTML.render(this.src)
       const fragment = toFragment(html)
       this.fragment = fragment
+      this.html = html
       this.styles = styles
       this.ready = true
     }
@@ -25,7 +27,11 @@ export class FTMLFragment {
 
   unwrap() {
     if (this.ready) {
-      return { fragment: this.fragment.cloneNode(), styles: this.styles }
+      return {
+        fragment: this.fragment.cloneNode(true),
+        styles: this.styles,
+        html: this.html
+      }
     }
   }
 }

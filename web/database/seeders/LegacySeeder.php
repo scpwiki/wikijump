@@ -22,12 +22,8 @@ class LegacySeeder extends Seeder
             <<<STATEMENT
 INSERT INTO public.admin (admin_id, site_id, user_id, founder) VALUES (1, 1, 1, true);
 INSERT INTO public.admin (admin_id, site_id, user_id, founder) VALUES (2, 2, 1, true);
-INSERT INTO public.admin (admin_id, site_id, user_id, founder) VALUES (3, 3, 1, true);
 
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (6, 2, 'nav', true, 20, true, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
-INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (7, 3, '_default', true, 20, false, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', false, 1, NULL, false, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
-INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (9, 3, 'admin', false, 21, true, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
-INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (11, 3, 'nav', true, 20, true, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (14, 2, 'search', true, 20, true, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (15, 1, 'nav', true, 20, true, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (2, 2, '_default', true, 20, false, 'e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm', false, 1, NULL, false, 'nav:top', 'nav:side', NULL, false, true, NULL, NULL, NULL, false, NULL);
@@ -39,7 +35,6 @@ INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (3, 1, 'admin', false, 21, false, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (16, 1, 'search', true, 20, false, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (5, 1, 'user', false, 21, false, 'v:arm;e:;c:;m:;d:;a:;r:;z:;o:', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
-INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (8, 3, 'profile', false, 20, false, 'e:o;c:;m:;d:;a:;r:;z:;o:o', true, 1, NULL, false, 'nav:top', 'nav:profile-side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (18, 2, 'profile', true, 20, true, 'e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (19, 1, 'system-all', true, 20, true, 'e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
 INSERT INTO public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, autonumerate, page_title_template) VALUES (20, 1, 'system', true, 20, true, 'e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm', true, 1, NULL, true, 'nav:top', 'nav:side', NULL, NULL, true, NULL, NULL, NULL, false, NULL);
@@ -59,10 +54,10 @@ INSERT INTO public.license (license_id, name, description, sort) VALUES (9, 'Cre
 INSERT INTO public.license (license_id, name, description, sort) VALUES (10, 'Creative Commons Attribution-NonCommercial 3.0 License', '%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution-NonCommercial 3.0 License</a>', 10);
 INSERT INTO public.license (license_id, name, description, sort) VALUES (11, 'Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License', '%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License</a>', 11);
 INSERT INTO public.license (license_id, name, description, sort) VALUES (12, 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 License', '%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative Commons Attribution-NonCommercial-NoDerivs 3.0 License</a>', 12);
-INSERT INTO public.license (license_id, name, description, sort) VALUES (13, 'CC0 (Public Domain)', '%%UNLESS%%  
+INSERT INTO public.license (license_id, name, description, sort) VALUES (13, 'CC0 (Public Domain)', '%%UNLESS%%
 <a rel="license" href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 (Public Domain)</a>.', 100);
-INSERT INTO public.license (license_id, name, description, sort) VALUES (14, 'GNU Free Documentation License 1.3', '%%UNLESS%%  
-<a rel="license" href="http://www.gnu.org/copyleft/fdl.html">GNU 
+INSERT INTO public.license (license_id, name, description, sort) VALUES (14, 'GNU Free Documentation License 1.3', '%%UNLESS%%
+<a rel="license" href="http://www.gnu.org/copyleft/fdl.html">GNU
 Free Documentation License</a>.', 101);
 INSERT INTO public.license (license_id, name, description, sort) VALUES (15, 'Standard copyright (not recommended)', NULL, 1000);
 
@@ -72,11 +67,6 @@ INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision
 INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (4, 1, 5, NULL, 4, 4, 4, 0, NULL, 'user:info', '2008-01-24 12:32:21', '2008-01-24 12:32:21', 1, NULL, NULL, 1, false, 0);
 INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (5, 2, 6, NULL, 5, 5, 5, 0, 'Side', 'nav:side', '2008-01-25 00:35:20', '2008-01-25 00:35:20', 1, NULL, NULL, 1, false, 0);
 INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (6, 2, 2, NULL, 6, 6, 6, 0, 'What Is A Wiki Site', 'what-is-a-wiki-site', '2008-01-25 00:45:30', '2008-01-25 00:45:30', 1, NULL, NULL, 1, false, 0);
-INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (7, 3, 8, NULL, 7, 7, 7, 0, 'Admin', 'profile:admin', '2008-01-25 01:05:59', '2008-01-25 01:05:59', 1, NULL, NULL, 1, false, 0);
-INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (8, 3, 9, NULL, 8, 8, 8, 0, NULL, 'admin:manage', '2008-01-25 01:06:39', '2008-01-25 01:06:39', 1, NULL, NULL, 1, false, 0);
-INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (10, 3, 11, NULL, 10, 10, 10, 0, 'Profile Side', 'nav:profile-side', '2008-01-25 01:09:41', '2008-01-25 01:09:41', 1, NULL, NULL, 1, false, 0);
-INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (11, 3, 11, NULL, 12, 12, 11, 1, 'Side', 'nav:side', '2008-01-25 01:13:41', '2008-01-25 01:14:31', 1, NULL, NULL, 1, false, 0);
-INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (12, 3, 7, NULL, 13, 13, 12, 0, NULL, 'start', '2008-01-25 01:15:35', '2008-01-25 01:15:35', 1, NULL, NULL, 1, false, 0);
 INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (14, 2, 12, NULL, 15, 15, 14, 0, 'Join This Wiki', 'system:join', '2008-01-29 00:56:59', '2008-01-29 00:56:59', 1, NULL, NULL, 1, false, 0);
 INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (15, 2, 13, NULL, 16, 16, 15, 0, NULL, 'admin:manage', '2008-01-29 00:57:39', '2008-01-29 00:57:39', 1, NULL, NULL, 1, false, 0);
 INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (16, 2, 12, NULL, 17, 17, 16, 0, 'Page Tags List', 'system:page-tags-list', '2008-01-29 00:58:44', '2008-01-29 00:58:44', 1, NULL, NULL, 1, false, 0);
@@ -124,30 +114,6 @@ INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (6, '
 </blockquote>
 <p>And that is it! As a part of a farm of wikis this site is a great tool that you can use to publish content, upload files, communicate and collaborate.</p>
 ', '2008-01-25 00:45:30');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (7, '
-
-<p>Admin of this Wikidot installation.</p>
-', '2008-01-25 01:05:59');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (8, '
-
-þmodule "ManageSite/ManageSiteModule"þ', '2008-01-25 01:06:39');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (10, '
-
-<p>The profiles site is used to host user profiles. Each <tt>profile:username</tt> page contains a user-editable text that is included in the user''s profile page.</p>
-<p>If you are viewing your own profile content page, feel free to edit it. You are the only one allowed to edit this page.</p>
-', '2008-01-25 01:09:41');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (12, '
-
-<p>The purpose of this wiki is to store user profiles.</p>
-', '2008-01-25 01:15:35');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (11, '
-
-<p>The profiles site is used to host user profiles. Each <tt>profile:username</tt> page contains a user-editable text that is included in the user''s profile page.</p>
-<ul>
-<li><a href="/start">Main page</a></li>
-<li><a href="/admin:manage">Manage this wiki</a></li>
-</ul>
-', '2008-01-25 01:15:35');
 INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (15, '
 
 þmodule "ManageSite/ManageSiteModule"þ', '2008-01-29 00:57:39');
@@ -460,41 +426,39 @@ INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (52, '
 þmodule "CreateAccount/CreateAccountStep3Module"þ', '2008-08-19 16:25:59');
 
 INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (1, 5, 5, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (11, 5, 6, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (12, 11, 8, NULL, 3);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (14, 11, 12, NULL, 3);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (15, 5, 13, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (16, 5, 14, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (18, 14, 15, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (19, 5, 15, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (20, 5, 16, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (21, 5, 17, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (22, 5, 18, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (23, 5, 21, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (24, 22, 1, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (25, 22, 22, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (34, 22, 23, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (35, 32, NULL, 'submenu', 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (36, 32, NULL, 'contact', 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (44, 36, 15, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (45, 36, 5, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (46, 36, 32, NULL, 2);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (52, 22, 37, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (53, 22, 38, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (54, 22, 3, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (55, 22, 39, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (56, 22, 40, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (57, 23, 1, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (58, 23, 22, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (59, 23, NULL, 'nav:top', 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (60, 22, 41, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (61, 22, 42, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (62, 22, 43, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (63, 22, 44, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (64, 44, 1, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (65, 22, 45, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (66, 22, 46, NULL, 1);
-INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (67, 22, 47, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (2, 5, 6, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (3, 5, 13, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (4, 5, 14, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (5, 14, 15, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (6, 5, 15, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (7, 5, 16, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (8, 5, 17, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (9, 5, 18, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (10, 5, 21, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (11, 22, 1, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (12, 22, 22, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (13, 22, 23, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (14, 32, NULL, 'submenu', 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (15, 32, NULL, 'contact', 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (16, 36, 15, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (17, 36, 5, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (18, 36, 32, NULL, 2);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (19, 22, 37, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (20, 22, 38, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (21, 22, 3, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (22, 22, 39, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (23, 22, 40, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (24, 23, 1, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (25, 23, 22, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (26, 23, NULL, 'nav:top', 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (27, 22, 41, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (28, 22, 42, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (29, 22, 43, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (30, 22, 44, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (31, 44, 1, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (32, 22, 45, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (33, 22, 46, NULL, 1);
+INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (34, 22, 47, NULL, 1);
 
 INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_user_id) VALUES (1, NULL, NULL, 'admin:manage', 1);
 INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_user_id) VALUES (2, NULL, NULL, 'account:you', 1);
@@ -556,13 +520,7 @@ INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, 
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (4, 4, 4, 4, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-24 12:32:21', 1, NULL, '', false, 1);
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (5, 5, 5, 5, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-25 00:35:20', 1, NULL, '', false, 2);
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (6, 6, 6, 6, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-25 00:45:30', 1, NULL, '', false, 2);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (7, 7, 7, 7, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-25 01:05:59', 1, NULL, '', false, 3);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (8, 8, 8, 8, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-25 01:06:39', 1, NULL, '', false, 3);
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (9, 9, 9, 9, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-25 01:08:10', 1, NULL, '', false, 1);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (10, 10, 10, 10, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-25 01:09:41', 1, NULL, '', false, 3);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (11, 11, 11, 11, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-25 01:13:41', 1, NULL, '', false, 3);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (12, 11, 12, 11, NULL, true, false, false, false, false, false, 0, false, 1, '2008-01-25 01:14:31', 1, NULL, '', false, 3);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (13, 12, 13, 12, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-25 01:15:35', 1, NULL, '', false, 3);
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (14, 13, 14, 13, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-29 00:09:59', 1, NULL, '', false, 2);
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (15, 14, 15, 14, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-29 00:56:59', 1, NULL, '', false, 2);
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (16, 15, 16, 15, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-29 00:57:39', 1, NULL, '', false, 2);
@@ -628,7 +586,7 @@ INSERT INTO public.page_source (source_id, text) VALUES (5, '* [[[start | Welcom
 * [[[How to edit pages?]]]
 
 * [[[system: join | How to join this site?]]]
-* [[[system:members | Site members]]] 
+* [[[system:members | Site members]]]
 
 * [[[system: Recent changes]]]
 * [[[system: List all pages]]]
@@ -677,7 +635,7 @@ You can write here who can become a member of this site.
 
 So you want to become a member of this site? Tell us why and apply now!
 
-[[module MembershipApply]] 
+[[module MembershipApply]]
 
 Or, if you already know a "secret password", go for it!
 
@@ -687,7 +645,7 @@ INSERT INTO public.page_source (source_id, text) VALUES (17, '[[module TagCloud 
 
 [!--
 
-You can edit parameters of the TagCloud module as described in http://www.wikidot.com/doc:tagcloud-module 
+You can edit parameters of the TagCloud module as described in http://www.wikidot.com/doc:tagcloud-module
 But if you want to keep the tag functionality working - do not remove these modules.
 
 --]');
@@ -713,7 +671,7 @@ INSERT INTO public.page_source (source_id, text) VALUES (21, '[[div style="float
 
 [!--
 
-You can edit parameters of the TagCloud module as described in http://www.wikidot.com/doc:tagcloud-module 
+You can edit parameters of the TagCloud module as described in http://www.wikidot.com/doc:tagcloud-module
 But if you want to keep the tag functionality working - do not remove these modules.
 
 --]');
@@ -739,14 +697,14 @@ INSERT INTO public.page_source (source_id, text) VALUES (23, '* [[[start | Welco
 [[module NewPage size="15" button="new page"]]
 
 = [[size 80%]][[[nav:side | edit this panel]]][[/size]]');
-INSERT INTO public.page_source (source_id, text) VALUES (24, 'Welcome to your new Wikidot installation. 
+INSERT INTO public.page_source (source_id, text) VALUES (24, 'Welcome to your new Wikidot installation.
 
 + Search all wikis
 
 [[module SearchAll]]');
 INSERT INTO public.page_source (source_id, text) VALUES (25, '[[module SearchAll]]');
 INSERT INTO public.page_source (source_id, text) VALUES (26, '[[module Search]]');
-INSERT INTO public.page_source (source_id, text) VALUES (27, 'Welcome to your new Wikidot installation. 
+INSERT INTO public.page_source (source_id, text) VALUES (27, 'Welcome to your new Wikidot installation.
 
 + Search all wikis
 
@@ -980,7 +938,7 @@ Default initial template for other wikis is located at [[[template-en::]]]. If s
 
 ++ Create more templates
 
-Simply create wikis with unix names starting with "template-" (e.g. "template-pl", "template-blog") and your users will be able to choose which wiki they want to start with. 
+Simply create wikis with unix names starting with "template-" (e.g. "template-pl", "template-blog") and your users will be able to choose which wiki they want to start with.
 
 ---------------
 
@@ -1016,7 +974,7 @@ Default initial template for other wikis is located at [[[template-en::]]]. If s
 
 ++ Create more templates
 
-Simply create wikis with unix names starting with "template-" (e.g. "template-pl", "template-blog") and your users will be able to choose which wiki they want to start with. 
+Simply create wikis with unix names starting with "template-" (e.g. "template-pl", "template-blog") and your users will be able to choose which wiki they want to start with.
 
 ++ Visit Wikidot.org
 
@@ -1066,7 +1024,7 @@ You can write here who can become a member of this site.
 
 So you want to become a member of this site? Tell us why and apply now!
 
-[[module MembershipApply]] 
+[[module MembershipApply]]
 
 Or, if you already know a "secret password", go for it!
 
@@ -1101,15 +1059,12 @@ INSERT INTO public.profile (user_id, real_name, pronouns, birthday_day, birthday
 
 INSERT INTO public.site (site_id, name, subtitle, unix_name, description, language, date_created, custom_domain, visible, default_page, private, deleted) VALUES (1, 'Wikijump', 'Fighting Ozone Pollution', 'www', 'Wikijump host site', 'en', NULL, NULL, true, 'start', false, false);
 INSERT INTO public.site (site_id, name, subtitle, unix_name, description, language, date_created, custom_domain, visible, default_page, private, deleted) VALUES (2, 'Template site (en)', 'Default template wiki', 'template-en', '', 'en', NULL, NULL, true, 'start', false, false);
-INSERT INTO public.site (site_id, name, subtitle, unix_name, description, language, date_created, custom_domain, visible, default_page, private, deleted) VALUES (3, 'User profiles', NULL, 'profiles', NULL, 'en', NULL, NULL, true, 'start', false, false);
 
 INSERT INTO public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, allow_members_invite, max_upload_file_size) VALUES (1, true, false, NULL, 1073741824, false, 'system:join', 50, 20, true, NULL, false, 10485760);
 INSERT INTO public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, allow_members_invite, max_upload_file_size) VALUES (2, false, false, '', 314572800, false, 'system:join', 50, 20, true, NULL, false, 10485760);
-INSERT INTO public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, allow_members_invite, max_upload_file_size) VALUES (3, true, false, NULL, 314572800, false, 'system:join', 50, 20, true, NULL, false, 10485760);
 
 INSERT INTO public.site_super_settings (site_id, can_custom_domain) VALUES (1, true);
 INSERT INTO public.site_super_settings (site_id, can_custom_domain) VALUES (2, true);
-INSERT INTO public.site_super_settings (site_id, can_custom_domain) VALUES (3, true);
 
 INSERT INTO public.site_tag (tag_id, site_id, tag) VALUES (1, 2, 'template');
 

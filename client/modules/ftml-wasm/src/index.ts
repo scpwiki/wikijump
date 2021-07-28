@@ -15,7 +15,7 @@ export const loading = new Promise(resolve => {
 export let wasm: Binding.InitOutput | null = null
 
 /** Loads the WASM required for the FTML library. */
-export async function init(path?: string) {
+export async function init(path?: Binding.InitInput) {
   wasm = await initFTML(path)
   ready = true
   resolveLoading()

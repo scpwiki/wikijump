@@ -13,7 +13,7 @@ class CreateAccountStep1Module extends SmartyModule
     public function isAllowed($runData)
     {
         if ($runData->getUserId() !== null) {
-            throw new ProcessException(_("You are already logged in. Why would you want to create a new account?"), "logged_in");
+            throw new ProcessException(_("You are already logged in."), "logged_in");
         }
 
         $rstep = $runData->sessionGet("rstep");

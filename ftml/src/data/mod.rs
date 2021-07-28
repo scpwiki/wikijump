@@ -18,8 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod backlinks;
 mod page_info;
 mod user_info;
 
+pub use self::backlinks::Backlinks;
 pub use self::page_info::PageInfo;
 pub use self::user_info::UserInfo;

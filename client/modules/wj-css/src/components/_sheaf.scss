@@ -8,6 +8,7 @@
 .cm-editor {
   width: 100%;
   height: 100%;
+  overflow: hidden;
   color: var(--colcode-content);
   background-color: var(--colcode-background);
   caret-color: var(--colcode-accent);
@@ -156,6 +157,11 @@
       }
     }
   }
+
+  &.cm-ftml-hover-tip {
+    max-width: 30rem;
+    padding: 0.25rem 0.5rem;
+  }
 }
 
 .cm-editor {
@@ -195,6 +201,38 @@
         background-color: var(--colcode-hover);
       }
     }
+  }
+}
+
+.cm-editor .cm-diagnostic {
+  max-width: 30rem;
+
+  > .cm-diagnosticAction {
+    display: block;
+    width: 100%;
+    padding: 0.125rem 0.25rem;
+    padding-left: 0;
+    margin: 0;
+    font-size: 0.825rem;
+    color: var(--col-text);
+    text-align: left;
+    background: none;
+    border-radius: 0;
+    transition: background-color 0.075s ease, color 0.075s ease;
+
+    &:not(:last-of-type) {
+      border-bottom: solid 0.075rem var(--colcode-border);
+    }
+
+    &:hover,
+    &[aria-selected] {
+      color: var(--colcode-accent);
+      background-color: var(--colcode-hover);
+    }
+  }
+
+  > .cm-diagnosticSource {
+    margin-top: 0.25rem;
   }
 }
 

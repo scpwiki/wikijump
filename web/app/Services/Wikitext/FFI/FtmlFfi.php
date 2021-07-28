@@ -4,6 +4,8 @@ declare(strict_types = 1);
 namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
+use \Ozone\Framework\Database\Criteria;
+use \Wikidot\DB\SitePeer;
 use \Wikijump\Services\Wikitext;
 use \Wikijump\Services\Wikitext\HtmlOutput;
 use \Wikijump\Services\Wikitext\TextOutput;
@@ -65,10 +67,22 @@ final class FtmlFfi
     // ftml export methods
     public static function renderHtml(string $wikitext, Wikitext\PageInfo $pageInfo): HtmlOutput
     {
+        // Get site ID
+        $c = new Criteria();
+        $c->add('unix_name', $pageInfo->site);
+        $c->add('site.deleted', false);
+        $site = SitePeer::instance()->selectOne($c);
+        $siteId = $site->getSiteId();
+
+        // Convert objects
         $c_pageInfo = new PageInfo($pageInfo);
         $output = self::make(self::$FTML_HTML_OUTPUT);
+
+        // Make render call
         self::$ffi->ftml_render_html(FFI::addr($output), $wikitext, $c_pageInfo->pointer());
-        return OutputConversion::makeHtmlOutput($output);
+
+        // Convert result back to PHP
+        return OutputConversion::makeHtmlOutput($siteId, $output);
     }
 
     public static function renderText(string $wikitext, Wikitext\PageInfo $pageInfo): TextOutput

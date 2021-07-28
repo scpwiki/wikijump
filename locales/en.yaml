@@ -1,3 +1,36 @@
+# This is the schema-defining document.
+# All other localization files must have the object structure,
+# or the build will fail.
+
+# -- NOTE --
+#
+# All documentation comments must be *after* the line they're annotating.
+# Comments on the same line also work.
+#
+# Otherwise they will not be associated to the right item.
+#
+# CORRECT:
+#
+#   apple: My other string
+#   ## Comment!
+#
+#   banana:
+#     My other string
+#     ## Comment!
+#
+#   cherry: My string ## Comment!
+#
+# INCORRECT:
+#
+#    ## Comment!
+#    durian: This comment won't be picked up properly!
+#
+# See https://stackoverflow.com/a/53858927 for more information.
+#
+# This processor will ignore any comments that don't start with '##'
+# to avoid accidental misordering of comments not considered documentation.
+#
+
 # Generic UI components
 components:
   spinny:
@@ -37,92 +70,575 @@ sheaf:
     HTML: HTML Output
     CSS: CSS Output
     AST: AST
+    TOKENS: Tokens
+    EDITOR_AST: Editor AST
+
+  spellcheck:
+    MISSPELLED_WORD: "Misspelled word: ''{slice}''"
+    FORBIDDEN_WORD: The word ''{slice}'' is forbidden.
+    WARNED_WORD: The word ''{slice}'' is probably a mistake.
+    ADD_TO_DICTIONARY: Add ''{slice}'' to dictionary
+    SOURCE: >
+      spellchecker(word: ''{slice}'') [{from, number, :: ,_}, {to, number, :: ,_}]
+
+    tooltips:
+      ACCEPT_SUGGESTION: Replace ''{slice}'' with ''{suggestion}''
+      ADD_TO_DICTIONARY: Add the word ''{slice}'' to your local dictionary
 
 # CodeMirror FTML language extension
 cmftml:
   lint:
-    # Warning emit description
     WARNING_SOURCE: >
       ftml({rule}: {kind} at {token}) [{from, number, :: ,_}, {to, number, :: ,_}]
 
     # Warnings (documentation copied from FTML)
 
+    RECURSION_DEPTH_EXCEEDED: Too much recursion in markup.
     ## RecursionDepthExceeded
     ## The self-enforced recursion limit has been passed, giving up.
-    RECURSION_DEPTH_EXCEEDED: Too much recursion in markup.
 
+    END_OF_INPUT: Rule of type ''{rule}'' couldn't be processed before the end of the document was reached.
     ## EndOfInput
     ## Attempting to process this rule failed because the end of input was reached.
-    END_OF_INPUT: Rule of type ''{rule}'' couldn't be processed before the end of the document was reached.
 
+    NOT_IMPLEMENTED: The syntax ''{slice}'' hasn't been implemented in FTML yet.
     ## NotImplemented
     ## Temporary rule denoting that this syntactical construction isn't implemented yet.
-    NOT_IMPLEMENTED: The syntax ''{slice}'' hasn't been implemented in FTML yet.
 
+    NO_RULES_MATCH: The string ''{slice}'' doesn't match anything and will be rendered as plain text.
     ## NoRulesMatch
     ## No rules match for these tokens, returning as plain text.
-    NO_RULES_MATCH: The string ''{slice}'' doesn't match anything and will be rendered as plain text.
 
+    RULE_FAILED: The rule ''{rule}'' failed to match here, and had to fallback another rule.
     ## RuleFailed
     ## Attempting to match this rule failed, falling back to try an alternate.
-    RULE_FAILED: The rule ''{rule}'' failed to match here, and had to fallback another rule.
 
+    INVALID_INCLUDE: This include is invalid and won't be rendered.
     ## InvalidInclude
     ## This include block was malformed, and thus not substituted.
-    INVALID_INCLUDE: This include is invalid and won't be rendered.
 
+    LIST_DEPTH_EXCEEDED: This list is nested too deeply, and can't be rendered.
     ## ListDepthExceeded
     ## This list tries to nest too deeply.
-    LIST_DEPTH_EXCEEDED: This list is nested too deeply, and can't be rendered.
 
+    BLOCKQUOTE_DEPTH_EXCEEDED: This blockquote is nested too deeply, and can't be rendered.
     ## BlockquoteDepthExceeded
     ## This native blockquote tries to nest too deeply.
-    BLOCKQUOTE_DEPTH_EXCEEDED: This blockquote is nested too deeply, and can't be rendered.
 
+    NO_SUCH_BLOCK: Unknown block ''{slice}''.
     ## NoSuchBlock
     ## There is no rule for the block name specified.
-    NO_SUCH_BLOCK: Unknown block ''{slice}''.
 
+    BLOCK_DISALLOWS_STAR: Block ''{slice}'' doesn't support a star invocation. (starting '*' character)
     ## BlockDisallowsStar
     ## This block does not allow star (`*`) invocation.
-    BLOCK_DISALLOWS_STAR: Block ''{slice}'' doesn't support a star invocation. (starting '*' character)
 
+    BLOCK_DISALLOWS_SCORE: Block ''{slice}'' doesn't support a score invocation. (starting '_' character)
     ## BlockDisallowsScore
     ## This block does not allow score (`_`) invocation.
-    BLOCK_DISALLOWS_SCORE: Block ''{slice}'' doesn't support a score invocation. (starting '_' character)
 
+    BLOCK_MISSING_NAME: Block ''{slice}'' requires a name/value, but none is specified.
     ## BlockMissingName
     ## This block does not specify a name.
-    BLOCK_MISSING_NAME: Block ''{slice}'' requires a name/value, but none is specified.
 
+    BLOCK_MISSING_CLOSE_BRACKETS: This block is missing closing ']]' brackets.
     ## BlockMissingCloseBrackets
     ## This block does not have close brackets when required.
-    BLOCK_MISSING_CLOSE_BRACKETS: This block is missing closing ']]' brackets.
 
+    BLOCK_MALFORMED_ARGUMENTS: Block ''{slice}'' has malformed arguments.
     ## BlockMalformedArguments
     ## Encountered malformed arguments when parsing the block.
-    BLOCK_MALFORMED_ARGUMENTS: Block ''{slice}'' has malformed arguments.
 
+    BLOCK_MISSING_ARGUMENTS: Block ''{slice}'' is missing one or more required arguments.
     ## BlockMissingArguments
     ## Some required arguments where missing when parsing the block.
-    BLOCK_MISSING_ARGUMENTS: Block ''{slice}'' is missing one or more required arguments.
 
+    BLOCK_EXPECTED_END: The block of type ''{rule}'' was expected to end by at least this point.
     ## BlockExpectedEnd
     ## This block expected to end its body here.
-    BLOCK_EXPECTED_END: The block of type ''{rule}'' was expected to end by at least this point.
 
+    BLOCK_END_MISMATCH: The block of type ''{rule}'' was expected to end here, not ''{slice}''.
     ## BlockEndMismatch
     ## An end block was found, but of the incorrect type.
-    BLOCK_END_MISMATCH: The block of type ''{rule}'' was expected to end here, not ''{slice}''.
 
+    NO_SUCH_MODULE: Unknown module ''{slice}''.
     ## NoSuchModule
     ## There is no rule for the module name specified.
-    NO_SUCH_MODULE: Unknown module ''{slice}''.
 
+    MODULE_MISSING_NAME: A module name was expected to be provided.
     ## ModuleMissingName
     ## This module does not specify a name.
-    MODULE_MISSING_NAME: A module name was expected to be provided.
 
+    INVALID_URL: The URL ''{slice}'' is invalid.
     ## InvalidUrl
     ## The URL passed here was invalid.
-    INVALID_URL: The URL ''{slice}'' is invalid.
+
+  blocks:
+    ACCEPTS_STAR: >
+      This block accepts the '*' (star) prefix.
+      The effect of providing this prefix depends on the block.
+
+    ACCEPTS_SCORE: >
+      This block accepts the '_' (score) suffix,
+      which will strip leading and trailing newlines.
+
+    ACCEPTS_NEWLINES: >
+      This block accepts newlines between its start and end nodes.
+
+    HTML_ATTRIBUTES: >
+      This block accepts generic HTML attributes/arguments.
+      HTML attributes are subject to a whitelist, but regardless most can be used.
+
+    argument_types:
+      none:
+        TITLE: NONE
+        INFO: This block doesn't accept any arguments.
+      value:
+        TITLE: VALUE
+        INFO: This block accepts text between the start and end of the node.
+      map:
+        TITLE: MAP
+        INFO: This block accepts arguments.
+      value_map:
+        TITLE: VALUE+MAP
+        INFO: This block accepts text, and then following a space accepts arguments.
+
+    body_types:
+      none:
+        TITLE: NONE
+        INFO: This block has no body, and does not need a terminating node.
+      raw:
+        TITLE: RAW
+        INFO: This block accepts a body, but interprets that body as raw text.
+      elements:
+        TITLE: ELEMENTS
+        INFO: This block accepts a body, and can nest additional elements within it.
+      other:
+        TITLE: OTHER
+        INFO: This block has a special syntax that isn't easily categorized.
+
+    BLOCK_UNDOCUMENTED: >
+      This block currently does not have any documentation, but it is valid.
+
+    # -- INDIVIDUAL BLOCK DOCUMENTATION
+
+    # format:
+    # <name>:
+    #   TITLE: <formal name>
+    #   INFO: <detailed description>
+    #   EXAMPLE: <example codeblock>
+    #
+    # The block INFO is rendered with FTML.
+
+    anchor:
+      TITLE: Anchor
+      INFO: >
+        Creates links between pages or other web pages. Like the HTML {{<a>}} tag, the
+        {{href}} attribute needs to be used with the {{[[anchor]]}} block.
+      EXAMPLE: |
+        [[a href="/scp-4000/noredirect/true" target="_blank" class="dual-link"]]Fae[[/a]]
+
+    blockquote:
+      TITLE: Blockquote
+      INFO: >
+        Indicates that enclosed text is an extended quotation,
+        although the "extended quotation" interpretation of blockquotes
+        may not be how they're used in practice. The meaning of blockquotes
+        differs from site-to-site and often depends on the styling given to them.
+
+        Using the {{[[blockquote]]}} block is the same as using {{> text}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        [[blockquote]]
+        Some text here.
+        [[/blockquote]]
+        [!-- equivalent to --]
+        > Some text here.
+
+    bold:
+      TITLE: Bold
+      INFO: >
+        Bolds the enclosed text.
+        Using {{[[bold]]}} is the same as using {{@<**bold**>@}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        Some [[b]]text![[/b]]
+        [!-- equivalent to --]
+        Some **text!**
+
+    char:
+      TITLE: Char
+      INFO: >
+        Renders an HTML entity (a special character) in place of the block.
+
+        Note: The syntax for HTML entities is simplified for convinence. Normally,
+        you would need to write {{&copy;}} to display the copyright symbol in HTML, but
+        with the {{[[char]]}} block you just need to write {{copy}}.
+
+        [[[https://dev.w3.org/html5/html-author/charref | List of HTML entities]]]
+      EXAMPLE: |
+        This file is [[char copy]] 2021 Team Wikijump.
+
+    checkbox:
+      TITLE: Checkbox
+      INFO: >
+        Creates an interactive checkbox input that can be checked or unchecked.
+
+        Providing the {{*}} prefix sets the checkbox to start checked.
+      EXAMPLE: |
+        [[checkbox Apple]]
+        [[*checkbox Blueberry]]
+        [[checkbox Cherry]]
+        [[checkbox Durian]]
+
+    code:
+      TITLE: Code
+      INFO: >
+        Renders the enclosed text raw, with all whitespace preserved.
+        Intended for use with programming code and the like.
+
+        Providing the {{type}} argument sets the enclosed text to be
+        rendered with syntax highlighting, if the specified language
+        is available.
+      EXAMPLE: |
+        [[code]]
+        This text is **not** rendered as Wikitext, but output as-is!
+        [[/code]]
+        [!-- or, with syntax highlighting --]
+        [[code type="javascript"]]
+        console.log("foo"); // syntax highlighted as JS!
+        [[/code]]
+
+    collapsible:
+      TITLE: Collapsible
+      INFO: >
+        Creates an interactive block that can be expanded or folded,
+        and when expanded, will display its contents.
+      EXAMPLE: |
+        [[collapsible
+          show="+ Spoilers for Ouroboros"
+          hide="- Spoilers!"
+          hideLocation="bottom"
+        ]]
+        Overseers die.
+        [[/collapsible]]
+
+    css:
+      TITLE: CSS
+      INFO: >
+        Adds a CSS stylesheet to the page, using the enclosed text as the source.
+      EXAMPLE: |
+        [[css]]
+        #page-title {
+          color: purple;
+        }
+        [[/css]]
+
+    del:
+      TITLE: Deletion
+      INFO: >
+        Denotes that the enclosed text has been "deleted" from the document.
+        The text is not literally deleted, instead, it is styled or otherwise
+        set to appear as deleted.
+
+        Depending on context, this may have different meanings. In the context
+        of a story, the deleted text may be a storytelling element, representing
+        something diagetically deleted from a document. In a programming context,
+        it may represent code that was deleted from a file, e.g. in a diff.
+      EXAMPLE: |
+        I [[del]]don't[[/del]] like that haircut.
+
+    div:
+      TITLE: Div
+      INFO: >
+        Creates a generic block container element,
+        which may be styled, given a class/ID, etc.
+      EXAMPLE: |
+        [[div_ class="blockquote" style="border: none;"]]
+        Some text __here!__
+        [[/div]]
+
+    hidden:
+      TITLE: Hidden
+      INFO: >
+        Styles the enclosed block of text as being hidden.
+        This block does not delete or otherwise prevent the enclosed text from
+        being rendered, instead, it sets the text to be invisible. A reader who
+        is persistent enough will be able to find the text.
+      EXAMPLE: |
+        This text is **visible**.
+        [[hidden]]
+        This text is not.
+        [[/hidden]]
+
+    html:
+      TITLE: HTML
+      INFO: >
+        Renders the enclosed block of text in an {{<iframe>}} element.
+        In other words, it allows the insertion of arbitrary HTML markup in a safe way.
+        This can be used to embed widgets or even games.
+      EXAMPLE: |
+        [[html]]
+        <h2>Exciting!</h2>
+        <p>
+        This HTML will appear in an iframe hosted on wjfiles!
+        </p>
+        [[/html]]
+
+    ifcategory:
+      TITLE: ifcategory
+      INFO: >
+        Sets the enclosed text to be conditionally rendered depending on if the
+        page is in, or is not in, certain categories.
+
+        Syntax:
+
+        * {{+<category>}} Requires that the page is in the category.
+
+        * {{-<category>}} Requires that the page //is not// in the category.
+
+        Additionally, the {{+}} prefix can be omitted, as in just typing {{<category>}}.
+        The {{+}} is assumed if no other prefix is present.
+
+        Finally, as a page cannot be in more than one category at once, having multiple
+        {{+<category>}} statements acts as an {{OR}} conditional. In other words,
+        the page has to be //in one of// the listed (positive) categories.
+      EXAMPLE: |
+        [[ifcategory _default]]
+        Will render if the page is in the default category.
+        [[/ifcategory]]
+
+        [[ifcategory +_default +component -fragment]]
+        This will render if the page is in either the _default or component categories.
+        But if the page is in the fragment category, this won't render.
+        [[/ifcategory]]
+
+        [[ifcategory -_default]]
+        Will only render if the page is in a category that isn't the default.
+        [[/ifcategory]]
+
+    iftags:
+      TITLE: iftags
+      INFO: >
+        Sets the enclosed text to be conditionally rendered depending on if the
+        page does or does not have certain tags.
+
+        Syntax:
+
+        * {{<tag>}} Requires that this tag, or any other {{<tag>}}, is present.
+
+        * {{+<tag>}} Requires that the tag is present.
+
+        * {{-<tag>}} Requires that the tag //is not// present.
+
+        To explain the first syntax ({{<tag>}}) further, all {{<tag>}} statements are
+        "lumped together" and checked. If _any_ of them are present, this check passes.
+        This is exactly like an {{OR}} conditional. This differs from how the {{+<tag>}}
+        and {{-<tag>}} syntaxes behave, which demand that the tag is or is not present.
+      EXAMPLE: |
+        [[iftags +science]]
+        This page is labeled as: science.
+        [[/iftags]]
+
+        [[iftags +bug -fixed]]
+        This is a bug, and it's not fixed yet.
+        [[/iftags]]
+
+    iframe:
+      TITLE: iframe
+      INFO: >
+        Creates an {{<iframe>}} element in place. This allows for the embedding of
+        external content, given an URL to said content.
+        This is similar to the {{[[html]]}} element.
+      EXAMPLE: |
+        My website:
+        [[iframe https://example.com/ class="website"]]
+
+    image:
+      TITLE: Image
+      INFO: >
+        Embeds an image in the rendered document.
+
+        Accepts the following prefixes:
+
+        * {{=}} Centers the image
+
+        * {{<}} Aligns the image to the left
+
+        * {{>}} Aligns the image to the right
+
+        * {{f<}} Floats the image to the left, allowing text to wrap around it
+
+        * {{f>}} Floats the image to the right, allowing text to wrap around it
+      EXAMPLE: |
+        [[image green_apple.png alt="A green apple" title="Take a big bite!" style="width: 100%;" class="fruity"]]
+        [[image https://example.com/my-image.png]]
+        [[image /some-other-page/my-picture.jpeg]]
+        [[=image landscape.png]]
+        [[<image landscape.png]]
+        [[>image landscape.png]]
+        [[f<image landscape.png]]
+        [[f>image landscape.png]]
+        [[image filename.png link="#section"]]
+        [[image filename.png link="SCP-001"]]
+        [[image filename.png link="https://example.com/"]]
+
+    ins:
+      TITLE: Insertion
+      INFO: >
+        Denotes that the enclosed text has been "inserted" into the document.
+        This does not insert the enclosed text in some special way, instead, it is
+        styled or otherwise set to appear inserted.
+
+        Depending on context, this may have different meanings. In the context
+        of a story, the inserted text may be a storytelling element, representing
+        something diagetically inserted into a document. In a programming context,
+        it may represent new code that was inserted into a file, e.g. in a diff.
+      EXAMPLE: |
+        I would like some [[ins]]anchovy[[/ins]] pizza please, thank you.
+
+    invisible:
+      TITLE: Invisible
+      INFO: >
+        Styles the enclosed span of text as being invisible.
+        This does not delete or otherwise prevent the enclosed text from
+        being rendered, instead, it sets the text to be invisible. A reader who
+        is persistent enough will be able to find the text.
+      EXAMPLE: |
+        This text appears [[invisible]]but still takes up space, and can be selected.[[/invisible]]
+
+    italics:
+      TITLE: Italics
+      INFO: >
+        Sets the enclosed text to be italicized.
+        Using {{[[italics]]}} is the same as using {{@<//italics//>@}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        This text is regular, but [[em]]this text is emphasized[[/em]].
+        [!-- equivalent to --]
+        This text is regular, but //this text is emphasized//.
+
+    lines:
+      TITLE: Lines
+      INFO: >
+        Adds a specified number of newlines to the document.
+      EXAMPLE: |
+        [[newlines 4]]
+        [!-- Much easier than spamming "@@@@"s --]
+
+    mark:
+      TITLE: Mark
+      INFO: >
+        Marks/highlights the enclosed text.
+      EXAMPLE: |
+        This text is [[mark]]highlighted![[/mark]]
+
+    monospace:
+      TITLE: Monospace
+      INFO: >
+        Styles the enclosed text as being monospaced.
+        This does not escape or otherwise affect the formatting of the text,
+        it simply styles it.
+
+        Using {{[[tt]]}} is the same as using {{@<{{monospace}}>@}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        [[tt]]This looks like it came from a typewriter or computer terminal.[[/tt]]
+        [!-- equivalent to --]
+        {{This looks like it came from a typewriter or computer terminal.}}
+
+    paragraph:
+      TITLE: Paragraph
+      INFO: >
+        Creates a paragraph element. This is normally done automatically, using the flow
+        of linebreaks and blocks to determine where paragraphs should be placed.
+        However, using this block allows avoiding the need to use {{[[div]]}} or
+        {{[[span]]}} blocks as wrappers.
+      EXAMPLE: |
+        [[p class="fruits"]]
+        Apple, Banana, Cherry!
+        [[/p]]
+
+    radio:
+      TITLE: Radio
+      INFO: >
+        Creates an interactive radio-button input that can be selected or unselected.
+        The value given for the block sets the radio-button's group.
+
+        Providing the {{*}} prefix sets the radio-button to start selected.
+      EXAMPLE: |
+        Favorite kind of music:
+        [[radio music]] Disco
+        [[radio music]] Dance
+        [[radio music]] Rap
+        [[*radio music]] Noise
+
+    size:
+      TITLE: Size
+      INFO: >
+        Sets the font-size of the enclosed text. Uses CSS units, e.g. {{em}} or {{px}}.
+      EXAMPLE: |
+        This text is regular, but [[size 250%]]this text is much larger[[/size]].
+
+    span:
+      TITLE: Span
+      INFO: >
+        Creates a generic inline container element,
+        which may be styled, given a class/ID, etc.
+      EXAMPLE: |
+        This text is in a span:
+        [[span class="fruit"]]banana[[/span]]
+
+    strikethrough:
+      TITLE: Strikethrough
+      INFO: >
+        Sets the enclosed text to be strucken.
+        Using {{[[s]]}} is the same as using {{@<--strikethrough-->@}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        This text is [[s]]struck through![[/s]]
+        [!-- equivalent to --]
+        This text is --struck through!--
+
+    subscript:
+      TITLE: Subscript
+      INFO: >
+        Sets the enclosed text as being a subscript.
+        Using {{[[sub]]}} is the same as using {{@<,,subscript,,>@}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        Let this variable be called x[[sub]]A[[/sub]].
+        [!-- equivalent to --]
+        Let this variable be called x,,A,,.
+
+    superscript:
+      TITLE: Superscript
+      INFO: >
+        Sets the enclosed text as being a superscript.
+        Using {{[[sup]]}} is the same as using {{@<^^sup^^>@}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        Thus, the result is n[[sup]]2[[/sup]].
+        [!-- equivalent to --]
+        Thus, the result is n^^2^^.
+
+    user:
+      TITLE: User
+      INFO: >
+        Renders a user-info widget, which will link to and
+        display info about the specified user.
+
+        Providing a {{*}} prefix displays the user's avatar and karma as well.
+      EXAMPLE: |
+        [[user xXx-epic-dude-xXx]]
+
+    underline:
+      TITLE: Underline
+      INFO: >
+        Underlines the enclosed text.
+        Using {{[[u]]}} is the same as using {{@<__underline__>@}},
+        with the difference only being the syntax used.
+      EXAMPLE: |
+        [[u]]Testing log 7192-45:[[/u]]
+        [!-- equivalent to --]
+        __Testing log 7192-45:__

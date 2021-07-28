@@ -742,12 +742,13 @@ table.page-compare td, table.page-compare th{
 	border: 1px solid #CCC;
 }
 
-.page-source{
-	border: 1px dashed #AAA;
-	padding: 1em 2em;
-	/*overflow: auto;*/
-	/*white-space: pre-wrap;*/
-
+.page-source {
+    border: 1px dashed #AAA;
+    padding: 1em 2em;
+    white-space: pre-wrap;
+    overflow: auto;
+    width: 90%;
+    height: 40em;
 }
 
 .page-source pre{
@@ -1494,5 +1495,3 @@ version: 2.3.1
     border:1px solid #808080; /* content border */
     border-bottom-color:#243356; /* different border color */
 }
-
-

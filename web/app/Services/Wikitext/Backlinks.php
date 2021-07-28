@@ -11,40 +11,49 @@ use Text_Wiki;
  */
 class Backlinks
 {
-    public array $internalLinksPresent;
-    public array $internalLinksAbsent;
     public array $inclusionsPresent;
     public array $inclusionsAbsent;
+    public array $internalLinksPresent;
+    public array $internalLinksAbsent;
     public array $externalLinks;
 
     public function __construct(
-        array $internalLinksPresent,
-        array $internalLinksAbsent,
         array $inclusionsPresent,
         array $inclusionsAbsent,
+        array $internalLinksPresent,
+        array $internalLinksAbsent,
         array $externalLinks
     )
     {
-        $this->internalLinksPresent = $internalLinksPresent;
-        $this->internalLinksAbsent = $internalLinksAbsent;
-        $this->inclusionsPresent = $inclusionsPresent;
-        $this->inclusionsAbsent = $inclusionsAbsent;
-        $this->externalLinks = $externalLinks;
+        $this->inclusionsPresent = self::dedupeIds($inclusionsPresent);
+        $this->inclusionsAbsent = self::dedupeStrings($inclusionsAbsent);
+        $this->internalLinksPresent = self::dedupeIds($internalLinksPresent);
+        $this->internalLinksAbsent = self::dedupeStrings($internalLinksAbsent);
+        $this->externalLinks = self::dedupeStrings($externalLinks);
     }
 
+    private static function dedupeIds(array $items): array
+    {
+        return array_unique($items, SORT_NUMERIC);
+    }
+
+    private static function dedupeStrings(array $items): array
+    {
+        return array_unique($items, SORT_STRING);
+    }
     public static function fromWikiObject(Text_Wiki $wiki): Backlinks
     {
-        $internalLinksPresent = $wiki->vars['internalLinksExist'] ?? [];
-        $internalLinksAbsent = $wiki->vars['internalLinksNotExist'] ?? [];
         $inclusionsPresent = $wiki->vars['inclusions'] ?? [];
         $inclusionsAbsent = $wiki->vars['inclusionsNotExist'] ?? [];
+        $internalLinksPresent = $wiki->vars['internalLinksExist'] ?? [];
+        $internalLinksAbsent = $wiki->vars['internalLinksNotExist'] ?? [];
         $externalLinks = $wiki->vars['externalLinks'] ?? [];
 
         return new Backlinks(
-            $internalLinksPresent,
-            $internalLinksAbsent,
             $inclusionsPresent,
             $inclusionsAbsent,
+            $internalLinksPresent,
+            $internalLinksAbsent,
             $externalLinks,
         );
     }

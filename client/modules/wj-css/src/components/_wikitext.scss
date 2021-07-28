@@ -1,5 +1,112 @@
+:root {
+  --rhythm-baseline: 1.5;
+  --rhythm-reference-font-size: calc(1rem * var(--font-content-size));
+  --rhythm-baseline-row: calc(var(--rhythm-baseline) / 2);
+  --rhythm-baseline-unit: calc(
+    (var(--rhythm-reference-font-size) * var(--rhythm-baseline)) / 2
+  );
+}
+
 .wikitext {
   font-family: var(--font-sans);
   font-size: font-size(1rem);
+  line-height: var(--rhythm-baseline);
   color: var(--col-text);
+
+  // Indent lists.
+  ul,
+  ol {
+    padding-left: 1rem;
+  }
+
+  // -- CODE
+
+  code,
+  var,
+  samp,
+  tt,
+  kbd {
+    color: var(--colcode-content);
+  }
+
+  pre.code {
+    background: var(--colcode-background);
+    border: solid 0.075rem var(--colcode-border);
+    border-radius: 0.5rem;
+    @include shadow(2, 1.5);
+
+    > code {
+      padding: 1rem 0.5rem;
+    }
+
+    &.language-ftml,
+    &.language-wikitext,
+    &.language-wikidot,
+    &.language-wikijump {
+      white-space: pre-wrap;
+    }
+  }
+
+  // -- RHYTHM
+
+  // Makes <br> tags add a row of separation.
+  br {
+    display: block;
+    margin-top: 0;
+    margin-bottom: var(--rhythm-baseline-unit);
+    // fixes a strange bug on chrome
+    // if this isn't provided, the <br> will have no size
+    content: "";
+  }
+
+  // Space out elements by a unit.
+  blockquote,
+  ul,
+  ol,
+  dl,
+  img,
+  figure,
+  table,
+  pre,
+  details {
+    margin-top: var(--rhythm-baseline-unit);
+    margin-bottom: var(--rhythm-baseline-unit);
+  }
+
+  // Space out text elements by a unit, but loosely corrects for their line-height.
+  // Lines are centered within their line-height, which is usually larger than the font.
+  // This causes overpadding at the top and bottom of text nodes.
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    // the fudge factor here is "0.75", which is just a general guess on how
+    // much space a font takes up in its line-height (75%, in this case)
+    $correction: "(((1em * var(--rhythm-baseline)) - 1em * 0.75) * -0.5)";
+    width: 100%;
+    margin-top: calc(#{$correction} + var(--rhythm-baseline-unit));
+    margin-bottom: calc(#{$correction} + var(--rhythm-baseline-unit));
+    line-height: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    // Makes heading nodes give extra room above themselves.
+    padding-top: var(--rhythm-baseline-unit);
+
+    // Shifts <hr> up when in front of a heading.
+    + hr {
+      position: relative;
+      top: calc(var(--rhythm-baseline-unit) * 0.5);
+      width: 100%;
+      margin-top: calc(var(--rhythm-baseline-unit) * -0.5);
+    }
+  }
 }

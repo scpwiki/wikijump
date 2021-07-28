@@ -2,17 +2,18 @@ const path = require("path")
 const fs = require("fs-extra")
 const vite = require("vite")
 const globby = require("globby")
-const svelte = require("@sveltejs/vite-plugin-svelte")
+const { svelte } = require("@sveltejs/vite-plugin-svelte")
 const sveltePreprocess = require("svelte-preprocess")
 const workerPlugin = require("./vite-plugin-bundled-worker.js")
 const tomlPlugin = require("./vite-plugin-toml.js")
 const yamlPlugin = require("./vite-plugin-yaml.js")
 const istanbul = require("./rollup-plugin-istanbul")
+const { default: tsconfigPaths } = require("vite-tsconfig-paths")
 
 // make sure we're at root
 process.chdir(path.resolve(__dirname, "../"))
 const DIR = path.resolve(process.cwd(), "tests-dist")
-const EXCLUDE = [/ftml-wasm-worker/]
+const EXCLUDE = [/\.worker\.ts$/, /worker-lib\.ts$/]
 
 build()
 
@@ -68,11 +69,17 @@ async function build() {
     root: DIR,
 
     define: {
-      "import.meta.url": '"file://test-megabundle"'
+      "import.meta.url": `"file://"`
     },
 
+    base: path.resolve(DIR, "./dist"),
+
     plugins: [
-      workerPlugin(),
+      tsconfigPaths({
+        root: "../",
+        loose: true
+      }),
+      workerPlugin(true),
       tomlPlugin(),
       yamlPlugin(),
       svelte({

@@ -21,8 +21,8 @@
 use super::HtmlTag;
 use std::convert::TryFrom;
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Serialize_repr, Deserialize_repr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[repr(u8)]
 pub enum HeadingLevel {
     One = 1,
     Two = 2,
@@ -54,6 +54,18 @@ impl HeadingLevel {
             HeadingLevel::Four => "++++",
             HeadingLevel::Five => "+++++",
             HeadingLevel::Six => "++++++",
+        }
+    }
+
+    #[inline]
+    pub fn prefix_with_space(self) -> &'static str {
+        match self {
+            HeadingLevel::One => "+ ",
+            HeadingLevel::Two => "++ ",
+            HeadingLevel::Three => "+++ ",
+            HeadingLevel::Four => "++++ ",
+            HeadingLevel::Five => "+++++ ",
+            HeadingLevel::Six => "++++++ ",
         }
     }
 

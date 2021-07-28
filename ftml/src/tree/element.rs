@@ -100,7 +100,14 @@ pub enum Element<'t> {
         #[serde(rename = "type")]
         ltype: ListType,
         items: Vec<ListItem<'t>>,
+        attributes: AttributeMap<'t>,
     },
+
+    /// A particular item of a list.
+    ///
+    /// This will not occur in final trees, but is a special
+    /// `Element` returned during parsing.
+    ListItem(Box<ListItem<'t>>),
 
     /// A radio button.
     ///
@@ -197,6 +204,21 @@ pub enum Element<'t> {
 }
 
 impl Element<'_> {
+    /// Determines if the element is "whitespace".
+    ///
+    /// Specifically, it returns true if the element is:
+    /// * `Element::LineBreak`
+    /// * `Element::LineBreaks`
+    /// * `Element::Text` where the contents all have the Unicode property `White_Space`.
+    pub fn is_whitespace(&self) -> bool {
+        match self {
+            Element::LineBreak | Element::LineBreaks(_) => true,
+            Element::Text(string) if string.chars().all(|c| c.is_whitespace()) => true,
+            _ => false,
+        }
+    }
+
+    /// Returns the Rust name of this Element variant.
     pub fn name(&self) -> &'static str {
         match self {
             Element::Container(container) => container.ctype().name(),
@@ -207,6 +229,7 @@ impl Element<'_> {
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::List { .. } => "List",
+            Element::ListItem(_) => "ListItem",
             Element::Image { .. } => "Image",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
@@ -240,6 +263,7 @@ impl Element<'_> {
             Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
+            Element::ListItem(_) => false,
             Element::Image { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
@@ -271,19 +295,29 @@ impl Element<'_> {
                 attributes,
                 target,
             } => Element::Anchor {
-                elements: elements_to_owned(&elements),
+                elements: elements_to_owned(elements),
                 attributes: attributes.to_owned(),
                 target: *target,
             },
             Element::Link { url, label, target } => Element::Link {
-                url: string_to_owned(&url),
+                url: string_to_owned(url),
                 label: label.to_owned(),
                 target: *target,
             },
-            Element::List { ltype, items } => Element::List {
+            Element::List {
+                ltype,
+                items,
+                attributes,
+            } => Element::List {
                 ltype: *ltype,
-                items: list_items_to_owned(&items),
+                items: list_items_to_owned(items),
+                attributes: attributes.to_owned(),
             },
+            Element::ListItem(boxed_list_item) => {
+                let list_item: &ListItem = &*boxed_list_item;
+
+                Element::ListItem(Box::new(list_item.to_owned()))
+            }
             Element::Image {
                 source,
                 link,
@@ -300,7 +334,7 @@ impl Element<'_> {
                 checked,
                 attributes,
             } => Element::RadioButton {
-                name: string_to_owned(&name),
+                name: string_to_owned(name),
                 checked: *checked,
                 attributes: attributes.to_owned(),
             },
@@ -320,11 +354,11 @@ impl Element<'_> {
                 show_top,
                 show_bottom,
             } => Element::Collapsible {
-                elements: elements_to_owned(&elements),
+                elements: elements_to_owned(elements),
                 attributes: attributes.to_owned(),
                 start_open: *start_open,
-                show_text: option_string_to_owned(&show_text),
-                hide_text: option_string_to_owned(&hide_text),
+                show_text: option_string_to_owned(show_text),
+                hide_text: option_string_to_owned(hide_text),
                 show_top: *show_top,
                 show_bottom: *show_bottom,
             },
@@ -333,32 +367,32 @@ impl Element<'_> {
                 elements,
             } => Element::IfCategory {
                 conditions: conditions.iter().map(|c| c.to_owned()).collect(),
-                elements: elements_to_owned(&elements),
+                elements: elements_to_owned(elements),
             },
             Element::IfTags {
                 conditions,
                 elements,
             } => Element::IfTags {
                 conditions: conditions.iter().map(|c| c.to_owned()).collect(),
-                elements: elements_to_owned(&elements),
+                elements: elements_to_owned(elements),
             },
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,
             },
             Element::Color { color, elements } => Element::Color {
-                color: string_to_owned(&color),
-                elements: elements_to_owned(&elements),
+                color: string_to_owned(color),
+                elements: elements_to_owned(elements),
             },
             Element::Code { contents, language } => Element::Code {
-                contents: string_to_owned(&contents),
-                language: option_string_to_owned(&language),
+                contents: string_to_owned(contents),
+                language: option_string_to_owned(language),
             },
             Element::Html { contents } => Element::Html {
-                contents: string_to_owned(&contents),
+                contents: string_to_owned(contents),
             },
             Element::Iframe { url, attributes } => Element::Iframe {
-                url: string_to_owned(&url),
+                url: string_to_owned(url),
                 attributes: attributes.to_owned(),
             },
             Element::LineBreak => Element::LineBreak,

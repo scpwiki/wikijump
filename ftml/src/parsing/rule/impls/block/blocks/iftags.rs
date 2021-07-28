@@ -25,7 +25,7 @@ pub const BLOCK_IFTAGS: BlockRule = BlockRule {
     name: "block-iftags",
     accepts_names: &["iftags"],
     accepts_star: false,
-    accepts_score: true,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };

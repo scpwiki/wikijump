@@ -4,19 +4,26 @@
 
 # The ftml (Foundation Text Markup Language) service provides
 # parsing and rendering of wikitext.
+.github/workflows/ftml*.yaml        @ammongit
 ftml                                @ammongit
 web/app/Services/Wikitext           @ammongit
 
 # Frontend monorepo
+.github/workflows/client.yaml       @Monkatraz @rossjrw
 client                              @Monkatraz @rossjrw
 
 # Frontend files related to browser scripting or styling.
 # (Wikidot legacy)
+.github/workflows/test-js.yaml      @rossjrw
 web/web/files--common/dialogs       @rossjrw
 web/web/files--common/javascript    @rossjrw
 web/web/files--common/modules       @rossjrw
 
+# Localization
+.github/workflows/locales.yaml      @ammongit
+
 # Terraform and docker-compose deployment
+.github/workflows/docker-*.yaml     @pxdnbluesoul
 /install/                           @pxdnbluesoul
 
 # PHP and related

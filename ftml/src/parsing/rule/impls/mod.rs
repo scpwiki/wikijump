@@ -20,7 +20,7 @@
 
 mod prelude {
     pub use crate::log::prelude::*;
-    pub use crate::parsing::check_step::check_step;
+    pub use crate::parsing::check_step::{check_step, check_step_multiple};
     pub use crate::parsing::collect::*;
     pub use crate::parsing::condition::ParseCondition;
     pub use crate::parsing::consume::consume;
@@ -36,12 +36,14 @@ mod prelude {
 mod block;
 mod blockquote;
 mod bold;
+mod center;
 mod color;
 mod comment;
 mod dash;
 mod double_angle;
 mod email;
 mod fallback;
+mod header;
 mod horizontal_rule;
 mod italics;
 mod line_break;
@@ -64,12 +66,14 @@ mod url;
 pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_STAR};
 pub use self::blockquote::RULE_BLOCKQUOTE;
 pub use self::bold::RULE_BOLD;
+pub use self::center::RULE_CENTER;
 pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;
 pub use self::dash::RULE_DASH;
 pub use self::double_angle::RULE_DOUBLE_ANGLE;
 pub use self::email::RULE_EMAIL;
 pub use self::fallback::RULE_FALLBACK;
+pub use self::header::RULE_HEADER;
 pub use self::horizontal_rule::RULE_HORIZONTAL_RULE;
 pub use self::italics::RULE_ITALICS;
 pub use self::line_break::{RULE_LINE_BREAK, RULE_LINE_BREAK_PARAGRAPH};

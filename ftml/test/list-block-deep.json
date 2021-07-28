@@ -1,0 +1,53 @@
+{
+    "input": "[[ul]] [[li]] [[ol]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ol]] [[/li]] [[li]]C[[/li]] [[/ul]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "items": [
+                        [
+                            {
+                                "element": "list",
+                                "data": {
+                                    "type": "numbered",
+                                    "items": [
+                                        [
+                                            {
+                                                "element": "text",
+                                                "data": "A"
+                                            }
+                                        ],
+                                        [
+                                            {
+                                                "element": "text",
+                                                "data": "B"
+                                            }
+                                        ]
+                                    ],
+                                    "attributes": {}
+                                }
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            }
+                        ],
+                        [
+                            {
+                                "element": "text",
+                                "data": "C"
+                            }
+                        ]
+                    ],
+                    "attributes": {}
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

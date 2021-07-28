@@ -1,5 +1,5 @@
-import type { Tag, tags } from "@codemirror/highlight"
 import type { NodePropSource } from "lezer-tree"
+import type { Tag, tags } from "wj-codemirror/cm"
 import type { GrammarContext } from "./grammar"
 
 /** A Tarnation grammar definition. */
@@ -327,6 +327,14 @@ export interface ActionObject {
    */
   group?: Group
   /**
+   * A `predicate` is a string that is inexpensively and rapidly checked
+   * prior to a rule being fully evalulated for if it matches. If a rule
+   * uses a large regex or expensive function, this can provide a
+   * substantial speedup because the predicate will rule out most positions
+   * for where a rule could match.
+   */
+  predicate?: string
+  /**
    * The {@link Next} {@link State} to go to before the next match. A state's
    * name must be preceeded with a `#`.
    *
@@ -501,7 +509,7 @@ export type SubRule =
 
 // TODO: document
 export interface RuleState {
-  begin: Rule
+  begin: Rule | RuleState
   end: Rule
   type?: TagType | CustomType | ""
   embedded?: `${Substitute | string}!`
@@ -524,8 +532,8 @@ export type MatchFunction = (
 // sins... deep sins
 // prettier-ignore
 type Alphabet =
-  |'A'|'B'|'C'|'D'|'E'|'F'|'G'|'H'|'I'|'J'|'K'|'L'|'M'
-  |'N'|'O'|'P'|'Q'|'R'|'S'|'T'|'U'|'V'|'W'|'X'|'Y'|'Z'
+  | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M'
+  | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'
 
 /**
  * The `type` specifies what node type matched text should be "scoped" or
@@ -604,6 +612,8 @@ export type Variable = RegExp | string | string[] | MatchFunction
  *
  * Can take three special values: `@pop`, `@popall`, and `@push`.
  *
+ * This property can be used with a {@link Substitute}.
+ *
  * @example
  *
  * ```ts
@@ -611,7 +621,7 @@ export type Variable = RegExp | string | string[] | MatchFunction
  * action = { next: "@pop" }
  * ```
  */
-export type Next = "@push" | "@popall" | "@pop" | StateRef
+export type Next = "@push" | "@popall" | "@pop" | StateRef | Substitute
 
 /**
  * A `match`, or `matcher`, describes a pattern to match against text.
@@ -663,7 +673,7 @@ export type Matchable = MatchFunction | RegExp | string | Substitute | null
  * rule = ["::myValue", "foo", "SomeAction"]
  * ```
  */
-export type Context = Record<string, string | undefined>
+export type Context = Record<string, string | null>
 
 /**
  * Describes a `parser` directive for how to handle the nesting of nodes.

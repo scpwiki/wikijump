@@ -67,7 +67,7 @@ class ForumRecentPostsListModule extends SmartyModule
         $categoryId = $pl->getParameterValue("categoryId");
         $limit = $pl->getParameterValue("limit");
 
-        if ($limit == null || !is_numeric($limit)) {
+        if ($limit == null || !is_numeric($limit) || $limit > 20) {
             $limit = 20;
         }
 

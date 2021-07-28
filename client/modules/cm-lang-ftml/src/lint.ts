@@ -1,6 +1,6 @@
-import { Diagnostic, linter } from "@codemirror/lint"
-import type { EditorView } from "@codemirror/view"
-import { warnings } from "ftml-wasm-worker"
+import FTML from "ftml-wasm-worker"
+import { textValue } from "wj-codemirror"
+import { Diagnostic, EditorView, linter } from "wj-codemirror/cm"
 import { format } from "wj-state"
 
 interface WarningInfo {
@@ -52,13 +52,13 @@ for (const warningName in warningConfig) {
 async function lint(view: EditorView) {
   try {
     const doc = view.state.doc
-    const str = doc.toString()
+    const str = await textValue(doc)
     const len = str.length
 
-    const emitted = await warnings(str)
-
     const diagnostics: Diagnostic[] = []
-    for (const warning of emitted) {
+    const warnings = await FTML.warnings(str)
+
+    for (const warning of warnings) {
       const { kind, rule, token } = warning
       const { start: from, end: to } = warning.span
 
@@ -85,4 +85,4 @@ async function lint(view: EditorView) {
   }
 }
 
-export const FTMLLinter = linter(lint)
+export const ftmlLinter = linter(lint)

@@ -28,7 +28,8 @@ use strum_macros::IntoStaticStr;
 /// used in blocks like `[[iftags]]` and `[[ifcategory]]`.
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 pub struct ElementCondition<'t> {
-    pub condition: ElementConditionType,
+    #[serde(rename = "condition")]
+    pub ctype: ElementConditionType,
     pub value: Cow<'t, str>,
 }
 
@@ -36,19 +37,18 @@ impl<'t> ElementCondition<'t> {
     /// Parse out a specification.
     ///
     /// The specification is a space separated list of strings, prefixed with
-    /// either `+` or `-`.
+    /// either `+` or `-` or nothing.
     pub fn parse(raw_spec: &'t str) -> Vec<ElementCondition<'t>> {
         // Helper to get the value and its condition type
         fn get_spec(value: &str) -> (ElementConditionType, &str) {
             if let Some(value) = value.strip_prefix('+') {
-                return (ElementConditionType::Present, value);
+                return (ElementConditionType::Required, value);
             }
 
             if let Some(value) = value.strip_prefix('-') {
-                return (ElementConditionType::Absent, value);
+                return (ElementConditionType::Prohibited, value);
             }
 
-            // Implicit behavior is to check for value presence.
             (ElementConditionType::Present, value)
         }
 
@@ -56,10 +56,10 @@ impl<'t> ElementCondition<'t> {
             .split(' ')
             .filter(|s| !s.is_empty())
             .map(|s| {
-                let (condition, value) = get_spec(s);
+                let (ctype, value) = get_spec(s);
 
                 ElementCondition {
-                    condition,
+                    ctype,
                     value: cow!(value),
                 }
             })
@@ -68,26 +68,47 @@ impl<'t> ElementCondition<'t> {
 
     /// Determines if this condition is satisfied.
     ///
-    /// That is, if the condition is `Present`, then the given value
-    /// is asserted to exist in `values`,
-    /// and if the condition is `Absent`, then the given value
-    /// is asserted to *not* exist in `values`.
-    #[inline]
-    pub fn check(&self, values: &[Cow<str>]) -> bool {
-        values.contains(&self.value) == self.condition.bool_value()
-    }
-
-    /// Determines if this condition is satisfied, for a single value.
+    /// * `ElementConditionType::Required` -- All values of this kind must be present.
+    /// * `ElementConditionType::Prohibited` -- All values of this kind must be absent.
+    /// * `ElementConditionType::Present` -- Some values of this kind must be present.
     ///
-    /// See also `check()`.
-    #[inline]
-    pub fn check_single<S: AsRef<str>>(&self, value: S) -> bool {
-        (self.value == value.as_ref()) == self.condition.bool_value()
+    /// The full logic is essentially `all(required) && any(present) && all(prohibited)`.
+    pub fn check(conditions: &[ElementCondition], values: &[Cow<str>]) -> bool {
+        let mut required = true;
+        let mut prohibited = true;
+        let mut present = false;
+        let mut had_present = false; // whether there were any present conditions
+
+        for condition in conditions {
+            let has_value = values.contains(&condition.value);
+
+            match condition.ctype {
+                ElementConditionType::Required => required &= has_value,
+                ElementConditionType::Prohibited => prohibited &= !has_value,
+                ElementConditionType::Present => {
+                    present |= has_value;
+                    had_present = true;
+                }
+            }
+        }
+
+        // Since this is false by default, if there are no present conditions,
+        // it's effectively true.
+        //
+        // Otherwise you have to include a present condition for any iftags to pass!
+        //
+        // We could do "required && prohibited && (present || !had_present)" instead,
+        // but this if block is more readable.
+        if !had_present {
+            present = true;
+        }
+
+        required && prohibited && present
     }
 
     pub fn to_owned(&self) -> ElementCondition<'static> {
         ElementCondition {
-            condition: self.condition,
+            ctype: self.ctype,
             value: string_to_owned(&self.value),
         }
     }
@@ -98,28 +119,14 @@ impl<'t> ElementCondition<'t> {
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum ElementConditionType {
+    Required,
+    Prohibited,
     Present,
-    Absent,
 }
 
 impl ElementConditionType {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
-    }
-
-    #[inline]
-    pub fn bool_value(self) -> bool {
-        self.into()
-    }
-}
-
-impl From<ElementConditionType> for bool {
-    #[inline]
-    fn from(condition: ElementConditionType) -> bool {
-        match condition {
-            ElementConditionType::Present => true,
-            ElementConditionType::Absent => false,
-        }
     }
 }

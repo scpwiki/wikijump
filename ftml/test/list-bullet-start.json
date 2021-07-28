@@ -6,6 +6,7 @@
                 "element": "list",
                 "data": {
                     "type": "bullet",
+                    "attributes": {},
                     "items": [
                         [
                             {

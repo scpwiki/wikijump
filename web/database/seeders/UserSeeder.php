@@ -28,6 +28,8 @@ class UserSeeder extends Seeder
                 'email' => 'admin@wikijump',
                 'email_verified_at' => now(),
                 'language' => env('DEFAULT_LANGUAGE'),
+                'karma_points' => 110,
+                'karma_level' => 2
             ],
             [
                 // ID 2

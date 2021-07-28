@@ -1,3 +1,5 @@
+@use "sass:math";
+
 /// Mixin for when an element is being hovered over.
 /// Using this mixin instead of `:hover` accounts for edge cases.
 @mixin hover {
@@ -67,7 +69,7 @@
 /// @param $height Shadow size, roughly in pixels. Multiples of two are good values.
 /// @param $boost Shadow darkness multiplier.
 @mixin shadow($height: 1, $boost: 1) {
-  $boost: ($boost * ($height / 8));
+  $boost: ($boost * (math.div($height, 8)));
 
   $one: #{$height * 0.075}px;
   $two: #{$height * 0.5}px;

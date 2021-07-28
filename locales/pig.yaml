@@ -37,92 +37,94 @@ sheaf:
     HTML: TMLHAY Outputay
     CSS: SSCAY Outputay
     AST: ASTAY
+    TOKENS: Okenstay
+    EDITOR_AST: Editoryay ASTAY
 
 # CodeMirror FTML language extension
 cmftml:
   lint:
-    # Warning emit description
     WARNING_SOURCE: >
       tmlfay({rule}: {kind} atay {token}) [{from, number, :: ,_}, {to, number, :: ,_}]
+      ## Warning emit description
 
     # Warnings (documentation copied from FTML)
 
+    RECURSION_DEPTH_EXCEEDED: Ootay uchmay ecursionray inyay arkupmay.
     ## RecursionDepthExceeded
     ## The self-enforced recursion limit has been passed, giving up.
-    RECURSION_DEPTH_EXCEEDED: Ootay uchmay ecursionray inyay arkupmay.
 
+    END_OF_INPUT: Uleray ofyay etypay ''{rule}'' ouldn'tcay ebay ocessedpray eforebay ethay endyay ofyay ethay ocumentday asway eachedray.
     ## EndOfInput
     ## Attempting to process this rule failed because the end of input was reached.
-    END_OF_INPUT: Uleray ofyay etypay ''{rule}'' ouldn'tcay ebay ocessedpray eforebay ethay endyay ofyay ethay ocumentday asway eachedray.
 
+    NOT_IMPLEMENTED: Ethay axsyntay ''{slice}'' asn'thay eenbay implementedyay inyay lftmay etyay.
     ## NotImplemented
     ## Temporary rule denoting that this syntactical construction isn't implemented yet.
-    NOT_IMPLEMENTED: Ethay axsyntay ''{slice}'' asn'thay eenbay implementedyay inyay lftmay etyay.
 
+    NO_RULES_MATCH: Ethay ingstray ''{slice}'' oesn'tday atchmay anythingyay andyay illway ebay enderedray asyay ainplay exttay.
     ## NoRulesMatch
     ## No rules match for these tokens, returning as plain text.
-    NO_RULES_MATCH: Ethay ingstray ''{slice}'' oesn'tday atchmay anythingyay andyay illway ebay enderedray asyay ainplay exttay.
 
+    RULE_FAILED: Ethay uleray ''{rule}'' ailedfay otay atchmay erehay, andyay adhay otay allbackfay anotheryay uleray.
     ## RuleFailed
     ## Attempting to match this rule failed, falling back to try an alternate.
-    RULE_FAILED: Ethay uleray ''{rule}'' ailedfay otay atchmay erehay, andyay adhay otay allbackfay anotheryay uleray.
 
+    INVALID_INCLUDE: Isthay includeyay isyay invalidyay andyay on'tway ebay enderedray.
     ## InvalidInclude
     ## This include block was malformed, and thus not substituted.
-    INVALID_INCLUDE: Isthay includeyay isyay invalidyay andyay on'tway ebay enderedray.
 
+    LIST_DEPTH_EXCEEDED: Isthay istlay isyay estednay ootay eeplyday, andyay an'tcay ebay enderedray.
     ## ListDepthExceeded
     ## This list tries to nest too deeply.
-    LIST_DEPTH_EXCEEDED: Isthay istlay isyay estednay ootay eeplyday, andyay an'tcay ebay enderedray.
 
+    BLOCKQUOTE_DEPTH_EXCEEDED: Isthay ockquoteblay isyay estednay ootay eeplyday, andyay an'tcay ebay enderedray.
     ## BlockquoteDepthExceeded
     ## This native blockquote tries to nest too deeply.
-    BLOCKQUOTE_DEPTH_EXCEEDED: Isthay ockquoteblay isyay estednay ootay eeplyday, andyay an'tcay ebay enderedray.
 
+    NO_SUCH_BLOCK: Unknownyay ockblay ''{slice}''.
     ## NoSuchBlock
     ## There is no rule for the block name specified.
-    NO_SUCH_BLOCK: Unknownyay ockblay ''{slice}''.
 
+    BLOCK_DISALLOWS_STAR: Ockblay ''{slice}'' oesn'tday upportsay ayay arstay invocationyay. (artingstay '*' aracterchay)
     ## BlockDisallowsStar
     ## This block does not allow star (`*`) invocation.
-    BLOCK_DISALLOWS_STAR: Ockblay ''{slice}'' oesn'tday upportsay ayay arstay invocationyay. (artingstay '*' aracterchay)
 
+    BLOCK_DISALLOWS_SCORE: Ockblay ''{slice}'' oesn'tday upportsay ayay orescay invocationyay. (artingstay '_' aracterchay)
     ## BlockDisallowsScore
     ## This block does not allow score (`_`) invocation.
-    BLOCK_DISALLOWS_SCORE: Ockblay ''{slice}'' oesn'tday upportsay ayay orescay invocationyay. (artingstay '_' aracterchay)
 
+    BLOCK_MISSING_NAME: Ockblay ''{slice}'' equiresray ayay name/value, utbay onenay isyay ecifiedspay.
     ## BlockMissingName
     ## This block does not specify a name.
-    BLOCK_MISSING_NAME: Ockblay ''{slice}'' equiresray ayay name/value, utbay onenay isyay ecifiedspay.
 
+    BLOCK_MISSING_CLOSE_BRACKETS: Isthay ockblay isyay issingmay osingclay ']]' acketsbray.
     ## BlockMissingCloseBrackets
     ## This block does not have close brackets when required.
-    BLOCK_MISSING_CLOSE_BRACKETS: Isthay ockblay isyay issingmay osingclay ']]' acketsbray.
 
+    BLOCK_MALFORMED_ARGUMENTS: Ockblay ''{slice}'' ashay alformedmay argumentsyay.
     ## BlockMalformedArguments
     ## Encountered malformed arguments when parsing the block.
-    BLOCK_MALFORMED_ARGUMENTS: Ockblay ''{slice}'' ashay alformedmay argumentsyay.
 
+    BLOCK_MISSING_ARGUMENTS: Ockblay ''{slice}'' isyay issingmay oneyay oryay oremay equiredray argumentsyay.
     ## BlockMissingArguments
     ## Some required arguments where missing when parsing the block.
-    BLOCK_MISSING_ARGUMENTS: Ockblay ''{slice}'' isyay issingmay oneyay oryay oremay equiredray argumentsyay.
 
+    BLOCK_EXPECTED_END: Ethay ockblay ofyay etypay ''{rule}'' asway expectedyay otay endyay ybay atyay eastlay isthay ointpay.
     ## BlockExpectedEnd
     ## This block expected to end its body here.
-    BLOCK_EXPECTED_END: Ethay ockblay ofyay etypay ''{rule}'' asway expectedyay otay endyay ybay atyay eastlay isthay ointpay.
 
+    BLOCK_END_MISMATCH: Ethay ockblay ofyay etypay ''{rule}'' asway expectedyay otay endyay erehay, otnay ''{slice}''.
     ## BlockEndMismatch
     ## An end block was found, but of the incorrect type.
-    BLOCK_END_MISMATCH: Ethay ockblay ofyay etypay ''{rule}'' asway expectedyay otay endyay erehay, otnay ''{slice}''.
 
+    NO_SUCH_MODULE: Unknownyay odulemay ''{slice}''.
     ## NoSuchModule
     ## There is no rule for the module name specified.
-    NO_SUCH_MODULE: Unknownyay odulemay ''{slice}''.
 
+    MODULE_MISSING_NAME: Ayay odulemay amenay asway expectedyay otay ebay ovidedpray.
     ## ModuleMissingName
     ## This module does not specify a name.
-    MODULE_MISSING_NAME: Ayay odulemay amenay asway expectedyay otay ebay ovidedpray.
 
+    INVALID_URL: Ethay urlyay ''{slice}'' isyay invalidyay.
     ## InvalidUrl
     ## The URL passed here was invalid.
-    INVALID_URL: Ethay urlyay ''{slice}'' isyay invalidyay.

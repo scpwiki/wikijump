@@ -1,2 +1,2 @@
-export { default as CodeDisplay } from "./CodeDisplay.svelte"
-export { default as Sheaf } from "./Sheaf.svelte"
+export { default as CodeDisplay } from "./components/CodeDisplay.svelte"
+export { default as Sheaf } from "./components/Sheaf.svelte"

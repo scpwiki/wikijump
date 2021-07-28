@@ -62,7 +62,6 @@ const rules = {
       // code
       ...useDefault("error", [
         "ban-types",
-        "no-invalid-void-type",
         "no-misused-new",
         "no-non-null-asserted-optional-chain",
         "no-require-imports",

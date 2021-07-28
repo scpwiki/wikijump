@@ -3726,7 +3726,6 @@ ALTER TABLE ONLY public.watched_page ALTER COLUMN watched_id SET DEFAULT nextval
 COPY public.admin (admin_id, site_id, user_id, founder) FROM stdin;
 1   1   1   t
 2   2   1   t
-3   3   1   t
 \.
 
 
@@ -3752,9 +3751,6 @@ COPY public.anonymous_abuse_flag (flag_id, user_id, address, proxy, site_id, sit
 
 COPY public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url) FROM stdin;
 6	2	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
-7	3	_default	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	f	1	\N	f	nav:top	nav:side	\N	\N	t	\N	\N	\N
-9	3	admin	f	21	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
-11	3	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
 14	2	search	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
 15	1	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
 2	2	_default	t	20	f	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	f	1	\N	f	nav:top	nav:side	\N	f	t	\N	\N	\N
@@ -3766,7 +3762,6 @@ COPY public.category (category_id, site_id, name, theme_default, theme_id, permi
 3	1	admin	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
 16	1	search	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
 5	1	user	f	21	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
-8	3	profile	f	20	f	e:o;c:;m:;d:;a:;r:;z:;o:o	t	1	\N	f	nav:top	nav:profile-side	\N	\N	t	\N	\N	\N
 18	2	profile	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
 19	1	system-all	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
 20	1	system	t	20	t	e:m;c:m;m:m;d:;a:m;r:m;z:;o:arm	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N
@@ -4114,11 +4109,6 @@ COPY public.page (page_id, site_id, category_id, parent_page_id, revision_id, so
 4	1	5	\N	4	4	4	0	\N	user:info	2008-01-24 12:32:21	2008-01-24 12:32:21	1	\N	\N	1	f	0
 5	2	6	\N	5	5	5	0	Side	nav:side	2008-01-25 00:35:20	2008-01-25 00:35:20	1	\N	\N	1	f	0
 6	2	2	\N	6	6	6	0	What Is A Wiki Site	what-is-a-wiki-site	2008-01-25 00:45:30	2008-01-25 00:45:30	1	\N	\N	1	f	0
-7	3	8	\N	7	7	7	0	Admin	profile:admin	2008-01-25 01:05:59	2008-01-25 01:05:59	1	\N	\N	1	f	0
-8	3	9	\N	8	8	8	0	\N	admin:manage	2008-01-25 01:06:39	2008-01-25 01:06:39	1	\N	\N	1	f	0
-10	3	11	\N	10	10	10	0	Profile Side	nav:profile-side	2008-01-25 01:09:41	2008-01-25 01:09:41	1	\N	\N	1	f	0
-11	3	11	\N	12	12	11	1	Side	nav:side	2008-01-25 01:13:41	2008-01-25 01:14:31	1	\N	\N	1	f	0
-12	3	7	\N	13	13	12	0	\N	start	2008-01-25 01:15:35	2008-01-25 01:15:35	1	\N	\N	1	f	0
 14	2	12	\N	15	15	14	0	Join This Wiki	system:join	2008-01-29 00:56:59	2008-01-29 00:56:59	1	\N	\N	1	f	0
 15	2	13	\N	16	16	15	0	\N	admin:manage	2008-01-29 00:57:39	2008-01-29 00:57:39	1	\N	\N	1	f	0
 16	2	12	\N	17	17	16	0	Page Tags List	system:page-tags-list	2008-01-29 00:58:44	2008-01-29 00:58:44	1	\N	\N	1	f	0
@@ -4174,11 +4164,6 @@ COPY public.page_abuse_flag (flag_id, user_id, site_id, path, site_valid, global
 
 COPY public.page_compiled (page_id, text, date_compiled) FROM stdin;
 6	\n\n<p>According to <a href="http://en.wikipedia.org/wiki/Wiki">Wikipedia</a>, the world largest wiki site:</p>\n<blockquote>\n<p>A <em>Wiki</em> ([ˈwiː.kiː] &lt;wee-kee&gt; or [ˈwɪ.kiː] &lt;wick-ey&gt;) is a type of website that allows users to add, remove, or otherwise edit and change most content very quickly and easily.</p>\n</blockquote>\n<p>And that is it! As a part of a farm of wikis this site is a great tool that you can use to publish content, upload files, communicate and collaborate.</p>\n	2008-01-25 00:45:30
-7	\n\n<p>Admin of this Wikidot installation.</p>\n	2008-01-25 01:05:59
-8	\n\nþmodule "ManageSite/ManageSiteModule"þ	2008-01-25 01:06:39
-10	\n\n<p>The profiles site is used to host user profiles. Each <tt>profile:username</tt> page contains a user-editable text that is included in the user's profile page.</p>\n<p>If you are viewing your own profile content page, feel free to edit it. You are the only one allowed to edit this page.</p>\n	2008-01-25 01:09:41
-12	\n\n<p>The purpose of this wiki is to store user profiles.</p>\n	2008-01-25 01:15:35
-11	\n\n<p>The profiles site is used to host user profiles. Each <tt>profile:username</tt> page contains a user-editable text that is included in the user's profile page.</p>\n<ul>\n<li><a href="/start">Main page</a></li>\n<li><a href="/admin:manage">Manage this wiki</a></li>\n</ul>\n	2008-01-25 01:15:35
 15	\n\nþmodule "ManageSite/ManageSiteModule"þ	2008-01-29 00:57:39
 14	\n\n<div class="wiki-note">\n<p>Please change this page according to your policy (configure first using <a href="/admin:manage">Site Manager</a>) and remove this note.</p>\n</div>\n<h1 id="toc0"><span>Who can join?</span></h1>\n<p>You can write here who can become a member of this site.</p>\n<h1 id="toc1"><span>Join!</span></h1>\n<p>So you want to become a member of this site? Tell us why and apply now!</p>\nþmodule "Membership/MembershipApplyModule"þ<br />\n<p>Or, if you already know a "secret password", go for it!</p>\nþmodule "Membership/MembershipByPasswordModule"þ	2008-01-29 00:57:39
 16	\n\nþmodule "Wiki/PagesTagCloud/PagesTagCloudModule" limit%3D%22200%22+target%3D%22system%3Apage-tags%22 þ	2008-01-29 00:58:44
@@ -4255,41 +4240,39 @@ COPY public.page_inclusion (inclusion_id, including_page_id, included_page_id, i
 
 COPY public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) FROM stdin;
 1	5	5	\N	2
-11	5	6	\N	2
-12	11	8	\N	3
-14	11	12	\N	3
-15	5	13	\N	2
-16	5	14	\N	2
-18	14	15	\N	2
-19	5	15	\N	2
-20	5	16	\N	2
-21	5	17	\N	2
-22	5	18	\N	2
-23	5	21	\N	2
-24	22	1	\N	1
-25	22	22	\N	1
-34	22	23	\N	1
-35	32	\N	submenu	2
-36	32	\N	contact	2
-44	36	15	\N	2
-45	36	5	\N	2
-46	36	32	\N	2
-52	22	37	\N	1
-53	22	38	\N	1
-54	22	3	\N	1
-55	22	39	\N	1
-56	22	40	\N	1
-57	23	1	\N	1
-58	23	22	\N	1
-59	23	\N	nav:top	1
-60	22	41	\N	1
-61	22	42	\N	1
-62	22	43	\N	1
-63	22	44	\N	1
-64	44	1	\N	1
-65	22	45	\N	1
-66	22	46	\N	1
-67	22	47	\N	1
+2	5	6	\N	2
+3	5	13	\N	2
+4	5	14	\N	2
+5	14	15	\N	2
+6	5	15	\N	2
+7	5	16	\N	2
+8	5	17	\N	2
+9	5	18	\N	2
+10	5	21	\N	2
+11	22	1	\N	1
+12	22	22	\N	1
+13	22	23	\N	1
+14	32	\N	submenu	2
+15	32	\N	contact	2
+16	36	15	\N	2
+17	36	5	\N	2
+18	36	32	\N	2
+19	22	37	\N	1
+20	22	38	\N	1
+21	22	3	\N	1
+22	22	39	\N	1
+23	22	40	\N	1
+24	23	1	\N	1
+25	23	22	\N	1
+26	23	\N	nav:top	1
+27	22	41	\N	1
+28	22	42	\N	1
+29	22	43	\N	1
+30	22	44	\N	1
+31	44	1	\N	1
+32	22	45	\N	1
+33	22	46	\N	1
+34	22	47	\N	1
 \.
 
 
@@ -4304,11 +4287,6 @@ COPY public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_
 4	\N	\N	user:info	1
 5	\N	Side	nav:side	1
 6	\N	What Is A Wiki Site	what-is-a-wiki-site	1
-7	\N	Admin	profile:admin	1
-8	\N	\N	admin:manage	1
-10	\N	Profile Side	nav:profile-side	1
-11	\N	Side	nav:side	1
-12	\N	\N	start	1
 13	\N	How To Edit Pages - Quickstart	how-to-edit-pages	1
 14	\N	Join This Wiki	system:join	1
 15	\N	\N	admin:manage	1
@@ -4373,13 +4351,7 @@ COPY public.page_revision (revision_id, page_id, source_id, metadata_id, flags, 
 4	4	4	4	\N	f	f	f	f	f	t	0	f	0	2008-01-24 12:32:21	1	\N		f	1
 5	5	5	5	\N	f	f	f	f	f	t	0	f	0	2008-01-25 00:35:20	1	\N		f	2
 6	6	6	6	\N	f	f	f	f	f	t	0	f	0	2008-01-25 00:45:30	1	\N		f	2
-7	7	7	7	\N	f	f	f	f	f	t	0	f	0	2008-01-25 01:05:59	1	\N		f	3
-8	8	8	8	\N	f	f	f	f	f	t	0	f	0	2008-01-25 01:06:39	1	\N		f	3
 9	9	9	9	\N	f	f	f	f	f	t	0	f	0	2008-01-25 01:08:10	1	\N		f	1
-10	10	10	10	\N	f	f	f	f	f	t	0	f	0	2008-01-25 01:09:41	1	\N		f	3
-11	11	11	11	\N	f	f	f	f	f	t	0	f	0	2008-01-25 01:13:41	1	\N		f	3
-12	11	12	11	\N	t	f	f	f	f	f	0	f	1	2008-01-25 01:14:31	1	\N		f	3
-13	12	13	12	\N	f	f	f	f	f	t	0	f	0	2008-01-25 01:15:35	1	\N		f	3
 14	13	14	13	\N	f	f	f	f	f	t	0	f	0	2008-01-29 00:09:59	1	\N		f	2
 15	14	15	14	\N	f	f	f	f	f	t	0	f	0	2008-01-29 00:56:59	1	\N		f	2
 16	15	16	15	\N	f	f	f	f	f	t	0	f	0	2008-01-29 00:57:39	1	\N		f	2
@@ -4444,12 +4416,6 @@ COPY public.page_source (source_id, text) FROM stdin;
 4	[[module UserInfo]]
 5	* [[[start | Welcome page]]]\n\n* [[[What is a Wiki Site?]]]\n* [[[How to edit pages?]]]\n\n* [[[system: join | How to join this site?]]]\n* [[[system:members | Site members]]] \n\n* [[[system: Recent changes]]]\n* [[[system: List all pages]]]\n* [[[system:page-tags-list|Page Tags]]]\n\n* [[[admin:manage|Site Manager]]]\n\n++ Page tags\n[[module TagCloud minFontSize="80%" maxFontSize="200%"  maxColor="8,8,64" minColor="100,100,128" target="system:page-tags" limit="30"]]\n\n++ Add a new page\n[[module NewPage size="15" button="new page"]]\n\n= [[size 80%]][[[nav:side | edit this panel]]][[/size]]
 6	According to [http://en.wikipedia.org/wiki/Wiki Wikipedia], the world largest wiki site:\n\n> A //Wiki// ([ˈwiː.kiː] <wee-kee> or [ˈwɪ.kiː] <wick-ey>) is a type of website that allows users to add, remove, or otherwise edit and change most content very quickly and easily.\n\nAnd that is it! As a part of a farm of wikis this site is a great tool that you can use to publish content, upload files, communicate and collaborate.
-7	Admin of this Wikidot installation.
-8	[[module ManageSite]]
-10	The profiles site is used to host user profiles. Each {{profile:username}} page contains a user-editable text that is included in the user's profile page.\n\nIf you are viewing your own profile content page, feel free to edit it. You are the only one allowed to edit this page.
-11	* [[[start | Main page]]]\n* [[[admin:manage | Manage this wiki]]]
-12	The profiles site is used to host user profiles. Each {{profile:username}} page contains a user-editable text that is included in the user's profile page.\n\n* [[[start | Main page]]]\n* [[[admin:manage | Manage this wiki]]]
-13	The purpose of this wiki is to store user profiles.
 14	If you are allowed to edit pages in this Site, simply click on //edit// button at the bottom of the page. This will open an editor with a toolbar pallette with options.\n\nTo create a link to a new page, use syntax: {{``[[[new page name]]]``}} or {{``[[[new page name | text to display]]]``}}. Follow the link (which should have a different color if page does not exist) and create a new page and edit it!\n\nAlthough creating and editing pages is easy, there are a lot more options that allows creating powerful sites. Please visit [*http://www.wikidot.com/doc Documentation pages] (at wikidot.com) to learn more.
 15	[[note]]\nPlease change this page according to your policy (configure first using [[[admin:manage|Site Manager]]]) and remove this note.\n[[/note]]\n\n+ Who can join?\n\nYou can write here who can become a member of this site.\n\n+ Join!\n\nSo you want to become a member of this site? Tell us why and apply now!\n\n[[module MembershipApply]] \n\nOr, if you already know a "secret password", go for it!\n\n[[module MembershipByPassword]]
 16	[[module ManageSite]]
@@ -4564,7 +4530,6 @@ COPY public.simpletodo_list (list_id, site_id, label, title, data) FROM stdin;
 COPY public.site (site_id, name, subtitle, unix_name, description, language, date_created, custom_domain, visible, default_page, private, deleted) FROM stdin;
 1	Wikijump	Fighting Ozone Pollution	www	Wikijump host site	en	\N	\N	t	start	f	f
 2	Template site (en)	Default template wiki	template-en		en	\N	\N	t	start	f	f
-3	User profiles	\N	profiles	\N	en	\N	\N	t	start	f	f
 \.
 
 
@@ -4583,7 +4548,6 @@ COPY public.site_backup (backup_id, site_id, status, backup_source, backup_files
 COPY public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, allow_members_invite, max_upload_file_size) FROM stdin;
 1	t	f	\N	1073741824	f	system:join	50	20	t	\N	f	10485760
 2	f	f		314572800	f	system:join	50	20	t	\N	f	10485760
-3	t	f	\N	314572800	f	system:join	50	20	t	\N	f	10485760
 \.
 
 
@@ -4594,7 +4558,6 @@ COPY public.site_settings (site_id, allow_membership_by_apply, allow_membership_
 COPY public.site_super_settings (site_id, can_custom_domain) FROM stdin;
 1	t
 2	t
-3	t
 \.
 
 

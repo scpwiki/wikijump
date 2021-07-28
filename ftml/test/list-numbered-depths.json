@@ -19,6 +19,7 @@
                 "element": "list",
                 "data": {
                     "type": "numbered",
+                    "attributes": {},
                     "items": [
                         [
                             {
@@ -30,6 +31,7 @@
                             "element": "list",
                             "data": {
                                 "type": "numbered",
+                                "attributes": {},
                                 "items": [
                                     [
                                         {
@@ -41,6 +43,7 @@
                                         "element": "list",
                                         "data": {
                                             "type": "numbered",
+                                            "attributes": {},
                                             "items": [
                                                 [
                                                     {

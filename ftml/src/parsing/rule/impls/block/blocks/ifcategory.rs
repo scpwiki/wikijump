@@ -19,13 +19,13 @@
  */
 
 use super::prelude::*;
-use crate::tree::ElementCondition;
+use crate::tree::{ElementCondition, ElementConditionType};
 
 pub const BLOCK_IFCATEGORY: BlockRule = BlockRule {
     name: "block-ifcategory",
     accepts_names: &["ifcategory"],
     accepts_star: false,
-    accepts_score: true,
+    accepts_score: false,
     accepts_newlines: true,
     parse_fn,
 };
@@ -52,8 +52,24 @@ fn parse_fn<'r, 't>(
     // Parse out tag conditions
     let conditions =
         parser.get_head_value(&BLOCK_IFCATEGORY, in_head, |parser, spec| match spec {
-            Some(spec) => Ok(ElementCondition::parse(spec)),
             None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+            Some(spec) => {
+                let mut conditions = ElementCondition::parse(spec);
+
+                conditions.iter_mut().for_each(|condition| {
+                    // Because a page can be in at most one category,
+                    // the required condition type is not useful here
+                    // beyond a single instance.
+                    //
+                    // Thus, we convert all required -> present,
+                    // effectively making "+" and no prefix the same thing.
+                    if condition.ctype == ElementConditionType::Required {
+                        condition.ctype = ElementConditionType::Present;
+                    }
+                });
+
+                Ok(conditions)
+            }
         })?;
 
     // Get body content, never with paragraphs

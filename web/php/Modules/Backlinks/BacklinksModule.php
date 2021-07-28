@@ -12,7 +12,7 @@ class BacklinksModule extends SmartyModule
     public function build($runData)
     {
 
-        $pageId = $runData->getParameterList()->getParameterValue("page_id");
+        $pageId = $runData->getParameterList()->getParameterValue("pageId");
 
         if (!$pageId || !is_numeric($pageId)) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");

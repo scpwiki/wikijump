@@ -38,7 +38,7 @@
                                         "value": "component"
                                     },
                                     {
-                                        "condition": "absent",
+                                        "condition": "prohibited",
                                         "value": "fragment"
                                     }
                                 ],
@@ -55,7 +55,7 @@
                             "data": {
                                 "conditions": [
                                     {
-                                        "condition": "absent",
+                                        "condition": "prohibited",
                                         "value": "_default"
                                     }
                                 ],

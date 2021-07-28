@@ -25,6 +25,10 @@ export function re(str: TemplateStringsArray) {
   }
 }
 
+export interface LookupOpts {
+  ignoreCase?: boolean
+}
+
 /**
  * Creates a highly efficient "lookup" matching function for a list of strings.
  *
@@ -33,20 +37,29 @@ export function re(str: TemplateStringsArray) {
  *
  * It's safe to use overlap values - longer strings are tried before shorter ones.
  */
-export function lkup(arr: string[]): DF.MatchFunction {
+export function lkup(arr: string[], opts: LookupOpts = {}): DF.MatchFunction {
   if (arr.length === 0) throw new Error("Empty string array!")
 
   // longest string first
   const sorted = [...arr].sort((a, b) => b.length - a.length)
   const max = sorted[0].length
 
-  const set = new Set<number[]>(sorted.map(str => toPoints(str)))
+  const map = new Map<number[], string>()
+  const set = new Set<number[]>(
+    sorted.map(str => {
+      str = opts.ignoreCase ? str.toLowerCase() : str
+      const points = toPoints(str)
+      map.set(points, str)
+      return points
+    })
+  )
 
   return (_cx, str, pos) => {
-    const against = toPoints(str.slice(pos, pos + max))
+    const slice = str.slice(pos, pos + max)
+    const against = toPoints(opts.ignoreCase ? slice.toLowerCase() : slice)
     for (const points of set) {
       if (pointsMatch(points, against, 0)) {
-        return [String.fromCodePoint(...points)]
+        return [map.get(points)!]
       }
     }
     return null

@@ -42,6 +42,10 @@
                       monospace,
                       var(--font-system-default);
 
+  // just a default for non-CJK locales (this assumes JP), see below
+  --font-cjk: "Noto Sans CJK JP", "Noto Sans CJK SC", "Noto Sans CJK HK",
+    "Noto Sans CJK TC", "Noto Sans CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK JP";
 
   // --font-sans is effectively the default font.
   // --font-display is for headings and the like.
@@ -50,10 +54,58 @@
 
   // TODO: figure out what fonts we actually want to use
 
-  --font-sans:    "Public Sans",   var(--font-system-sans);
-  --font-display: "Exo 2",         var(--font-system-rounded);
-  --font-serif:   "Bitter",        var(--font-system-serif);
-  --font-mono:    "Sometype Mono", var(--font-system-mono);
+  // fonts have Roboto as a fallback, due to its wide Unicode support.
+  // normally it would be fine to use the significant system stack fallback,
+  // but because we have CJK fonts as well, the Noto font would override everything.
+  // e.g. Cyrillic text would use the CJK font, not the system fonts.
+  // the system fonts are still very useful though, because:
+  // 1. emoji
+  // 2. they're being used while the user is downloading the main fonts
+
+  --font-sans:    "Public Sans",   "Roboto",      var(--font-cjk),      var(--font-system-sans);
+  --font-display: "Exo 2",         "Roboto",      var(--font-cjk),      var(--font-system-rounded);
+  --font-serif:   "Bitter",        "Roboto",      var(--font-cjk),      var(--font-system-serif);
+  --font-mono:    "Sometype Mono", "Roboto Mono", var(--font-cjk-mono), var(--font-system-mono);
+}
+
+// Changing CJK font based on locale
+
+// Japanese
+:lang(ja) {
+  --font-cjk: "Noto Sans CJK JP", "Noto Sans CJK SC", "Noto Sans CJK TC",
+    "Noto Sans CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK JP";
+}
+
+// Korean
+:lang(ko) {
+  --font-cjk: "Noto Sans CJK KR", "Noto Sans CJK JP", "Noto Sans CJK SC",
+    "Noto Sans CJK TC";
+  --font-cjk-mono: "Noto Sans Mono CJK KR";
+}
+
+// Chinese (default), Chinese (mainland), Chinese (Simplified)
+:lang(zh):not(:lang(zh-HK)):not(:lang(zh-TW)):not(:lang(zh-Hant)),
+:lang(zh-Hans),
+:lang(zh-CN) {
+  --font-cjk: "Noto Sans CJK SC", "Noto Sans CJK TC", "Noto Sans CJK JP",
+    "Noto Sans CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK SC";
+}
+
+// Chinese (Hong Kong)
+:lang(zh-HK) {
+  --font-cjk: "Noto Sans CJK HK", "Noto Sans CJK SC", "Noto Sans CJK TC",
+    "Noto Sans CJK JP", "Noto Sans CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK HK";
+}
+
+// Chinese (Taiwan), Chinese (Traditional)
+:lang(zh-TW),
+:lang(zh-Hant) {
+  --font-cjk: "Noto Sans CJK TC", "Noto Sans CJK SC", "Noto Sans CJK JP",
+    "Noto Sans CJK KR";
+  --font-cjk-mono: "Noto Sans Mono CJK TC";
 }
 
 // Default everything to sans font
@@ -79,6 +131,7 @@ h6 {
 code,
 var,
 samp,
+tt,
 kbd {
   font-family: var(--font-mono);
 }

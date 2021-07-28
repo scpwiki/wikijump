@@ -64,6 +64,9 @@ pub fn render_link(
 
     let handle = ctx.handle();
 
+    // Add to backlinks
+    ctx.add_link(url);
+
     // Create <a> and set attributes
     let mut tag = ctx.html().a();
     tag.attr("href", &[&normalize_url(url)]);

@@ -25,7 +25,7 @@ class AWForumListModule extends AccountBaseModule
         }
         $limit = $pl->getParameterValue("limit");
 
-        if ($limit == null || !is_numeric($limit)) {
+        if ($limit == null || !is_numeric($limit) || $limit > 20) {
             $limit = 20;
         }
         $perPage = $limit;

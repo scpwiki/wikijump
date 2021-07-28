@@ -31,8 +31,8 @@ pub mod json;
 pub mod null;
 pub mod text;
 
+mod condition;
 mod handle;
-mod utils;
 
 use self::handle::{Handle, ModuleRenderMode};
 use crate::log::prelude::*;

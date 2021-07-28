@@ -71,7 +71,7 @@ pub fn collect_container<'p, 'r, 't>(
 
     // Package into a container
     ok!(
-        paragraph_safe;
+        paragraph_safe && container_type.paragraph_safe();
         Element::Container(Container::new(
             container_type,
             elements,

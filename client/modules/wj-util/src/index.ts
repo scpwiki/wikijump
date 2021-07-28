@@ -40,6 +40,8 @@ export function search<T, TR>(
   comparator: (element: T, target: TR) => number | boolean,
   { min = 0, max = haystack.length - 1, precise = true }: SearchOpts = {}
 ) {
+  if (haystack.length === 0) return null
+
   let index = -1
   while (min <= max) {
     index = min + ((max - min) >>> 1)
@@ -49,6 +51,8 @@ export function search<T, TR>(
     if (cmp < 0) min = index + 1
     else if (cmp > 0) max = index - 1
   }
+
+  if (index === -1) return null
 
   if (!precise) return { element: null, index }
 
@@ -168,16 +172,20 @@ export function pointsMatch(points: number[], str: string | number[], pos: numbe
  * value is a function that will end the performance timer and log the
  * measured time to the console.
  */
-export function perfy(meta?: string, threshold?: number): () => number {
+export function perfy(meta?: string, threshold?: number): (msg?: string) => number {
   const start = performance.now()
-  return () => {
+  return (msg?: string) => {
     const time = parseFloat((performance.now() - start).toFixed(4))
-    if (meta && threshold && time > threshold) console.log(`${meta}: ${time}ms`)
+    if (meta && threshold && time > threshold) {
+      if (msg) {
+        console.log(`${msg} | ${meta}: ${time}ms`)
+      } else {
+        console.log(`${meta}: ${time}ms`)
+      }
+    }
     return time
   }
 }
-
-// TODO: clean up some of these old functions
 
 /** Returns a promise that resolves after the specified number of miliseconds. */
 export function sleep(ms: number): Promise<void> {
@@ -253,8 +261,6 @@ export async function waitFor(
  * Returns a new 'locked' async function, constructed using the specified
  * function. A locked asynchronous function will only allow a singular
  * instance of itself to be running at one time.
- *
- * Additional calls will return the previously running `Promise`.
  */
 export function createLock<T extends AnyFunction>(fn: T) {
   type Return = PromiseValue<ReturnType<T>>
@@ -263,8 +269,9 @@ export function createLock<T extends AnyFunction>(fn: T) {
   }
 
   let running: Promise<Return> | null = null
+
   return async (...args: Parameters<T>) => {
-    if (running) return await running
+    if (running) await running
     running = call(args)
     const result = await running
     running = null
@@ -386,7 +393,11 @@ export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
   }
 }
 
-const domParser = new DOMParser()
+// so we can load this module in workers:
+let domParser: DOMParser
+try {
+  domParser = new DOMParser()
+} catch {}
 
 /** Takes a string of HTML and creates a {@link DocumentFragment}. */
 export function toFragment(html: string) {
@@ -419,4 +430,103 @@ export function html(strings: TemplateStringsArray, ...subs: (string | string[])
  */
 export function mod(a: number, n: number) {
   return ((a % n) + n) % n
+}
+
+/**
+ * Replaces a range inside of a string with a substitute.
+ *
+ * @param str - The string which should have a range inside of it replaced.
+ * @param from - The start of the replacement range.
+ * @param to - The end of the replacement range.
+ * @param sub - The replacement/substitute string.
+ */
+export function replaceRange(str: string, from: number, to: number, sub: string) {
+  return str.substr(0, from) + sub + str.substr(to)
+}
+
+/**
+ * Uppercases a string.
+ *
+ * @param str - The string to uppercase.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function uppercase(str: string, locale?: string | string[]) {
+  return locale ? str.toLocaleUpperCase(locale) : str.toUpperCase()
+}
+
+/**
+ * Lowercases a string.
+ *
+ * @param str - The string to lowercase.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function lowercase(str: string, locale?: string | string[]) {
+  return locale ? str.toLocaleLowerCase(locale) : str.toLowerCase()
+}
+
+/**
+ * Titlecases a string.
+ *
+ * @param str - The string to titlecase.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function titlecase(str: string, locale?: string | string[]) {
+  return replaceRange(lowercase(str, locale), 0, 1, uppercase(str[0], locale))
+}
+
+/**
+ * Determines if a string is titlecased.
+ *
+ * @param str - The string to check.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function isTitlecased(str: string, locale?: string | string[]) {
+  return uppercase(str[0], locale) === str[0]
+}
+
+/**
+ * Determines if a string is completely uppercased.
+ *
+ * @param str - The string to check.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function isUppercased(str: string, locale?: string | string[]) {
+  return uppercase(str, locale) === str
+}
+
+/**
+ * Determines if a string is completely lowercased.
+ *
+ * @param str - The string to check.
+ * @param locale - Uses a locale, or a list of locales, case mapping if
+ *   provided. This usually won't be needed, as JS tries to account for
+ *   non-ASCII/Latin text when handling casing.
+ */
+export function isLowercased(str: string, locale?: string | string[]) {
+  return lowercase(str, locale) === str
+}
+
+/** Helper for turning a relative `?url` import into an absolute path. */
+export async function url(imp: Promise<any>) {
+  return new URL((await imp).default, import.meta.url).toString()
+}
+
+/**
+ * Deduplicates an array. Does not mutate the original array.
+ *
+ * @param arr - The array to deduplicate.
+ * @param insert - Additional values to insert into the array, if desired.
+ */
+export function dedupe<T extends any[]>(arr: T, ...insert: T) {
+  return [...new Set([...arr, ...insert])] as T
 }

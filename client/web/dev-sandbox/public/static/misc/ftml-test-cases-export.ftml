@@ -1,0 +1,1811 @@
+[!-- align-center --]
+[[=]]
+Apple
+[[/=]]
+
+[!-- align-deep --]
+[[=]]
+Apple
+[[>]]
+Cherry
+[[==]]
+Durian
+[[<]]Blueberry[[/<]]
+[[/==]]
+[[/>]]
+[[/=]]
+
+[!-- align-fail --]
+[[=]]
+Pineapple
+[[/<]]
+
+[!-- align-justify --]
+[[==]]
+Durian
+[[/==]]
+
+[!-- align-left --]
+[[<]]
+Blueberry
+[[/<]]
+
+[!-- align-right --]
+[[>]]
+Cherry
+[[/>]]
+
+[!-- anchor-alias-star-empty --]
+[[*anchor]][[/anchor]]
+
+[!-- anchor-alias-star --]
+[[*anchor href="http://example.com" style="color: green;"]]My link[[/anchor]]
+
+[!-- anchor-alias-wrap --]
+[[anchor]]Internal //elements//[[/anchor]]
+
+[!-- anchor-alias --]
+[[anchor href="/some-page"]]My link[[/anchor]]
+
+[!-- anchor-empty --]
+[[a]][[/a]]
+
+[!-- anchor-star-empty --]
+[[*a]][[/a]]
+
+[!-- anchor-star --]
+[[*a href="https://example.com" style="color: red;"]]My link[[/a]]
+
+[!-- anchor-wrap --]
+[[a]]Internal **elements**[[/a]]
+
+[!-- anchor --]
+[[a href="/some-page"]]My link[[/a]]
+
+[!-- anchor2-alias-star-empty --]
+[[*anchor_]][[/anchor]]
+
+[!-- anchor2-alias-star --]
+[[*anchor_ href="http://example.com" style="color: green;"]]My link[[/anchor]]
+
+[!-- anchor2-alias-wrap --]
+[[anchor_]]Internal //elements//[[/anchor]]
+
+[!-- anchor2-alias --]
+[[anchor_ href="/some-page"]]My link[[/anchor]]
+
+[!-- anchor2-empty --]
+[[a_]][[/a]]
+
+[!-- anchor2-newlines-2 --]
+[[a_]]Apple
+Banana[[/a]]
+
+[!-- anchor2-newlines --]
+[[a_]]
+Apple
+Banana
+[[/a]]
+
+[!-- anchor2-paragraph --]
+[[a_]]Apple
+
+Banana[[/a]]
+
+[!-- anchor2-star-empty --]
+[[*a_]][[/a]]
+
+[!-- anchor2-star --]
+[[*a_ href="https://example.com" style="color: red;"]]My link[[/a]]
+
+[!-- anchor2-wrap --]
+[[a_]]Internal **elements**[[/a]]
+
+[!-- anchor2 --]
+[[a_ href="/some-page"]]My link[[/a]]
+
+[!-- blockquote-alias-empty-inline --]
+[[quote]][[/quote]]
+
+[!-- blockquote-alias-empty --]
+[[quote]]
+[[/quote]]
+
+[!-- blockquote-alias-end --]
+[[blockquote]]
+Durian
+[[/quote]]
+
+[!-- blockquote-alias --]
+[[quote]]
+Durian
+[[/quote]]
+
+[!-- blockquote-class --]
+[[blockquote class="jelly"]]
+Apple
+[[/blockquote]]
+
+[!-- blockquote-empty-2 --]
+A
+[[blockquote]]
+[[/blockquote]]
+B
+
+[!-- blockquote-empty --]
+[[blockquote]]
+[[/blockquote]]
+
+[!-- blockquote-id --]
+[[blockquote id="my-quote"]]
+Apple
+[[/blockquote]]
+
+[!-- blockquote-inline-empty --]
+[[blockquote]][[/blockquote]]
+
+[!-- blockquote-inline --]
+[[blockquote]]Apple[[/blockquote]]
+
+[!-- blockquote-multiline --]
+[[blockquote]]
+Apple
+Banana
+[[/blockquote]]
+
+[!-- blockquote-native-both --]
+> Apple
+
+[!-- blockquote-native-depths --]
+> Apple
+>> Banana
+>>> Cherry
+
+[!-- blockquote-native-end --]
+> Apple
+]
+
+[!-- blockquote-native-multiple --]
+> Apple
+> Banana
+> Cherry
+
+[!-- blockquote-native-spaces-depths --]
+>Apple
+>>Banana
+>>>Cherry
+
+[!-- blockquote-native-spaces-multiple --]
+>Apple
+>Banana
+>Cherry
+
+[!-- blockquote-native-spaces --]
+>Apple
+
+[!-- blockquote-native-start --]
+[
+> Apple
+
+[!-- blockquote-native --]
+[
+> Apple
+]
+
+[!-- blockquote-nested-deep --]
+[[blockquote]]
+A
+[[blockquote]]
+B
+[[blockquote]]
+C
+[[blockquote]]
+D
+[[/blockquote]]
+[[/blockquote]]
+[[/blockquote]]
+[[/blockquote]]
+
+[!-- blockquote-nested --]
+[[blockquote]]
+**Bold** Cherry
+[[blockquote]]
+Durian
+[[/blockquote]]
+[[/blockquote]]
+
+[!-- blockquote-paragraphs --]
+[[blockquote]]
+Apple
+
+Banana
+Cherry
+
+Durian
+[[/blockquote]]
+
+[!-- blockquote-style --]
+[[blockquote style="display: flex" data-fruit="red"]]
+Apple
+[[/blockquote]]
+
+[!-- blockquote --]
+[[blockquote]]
+Apple
+[[/blockquote]]
+
+[!-- bold-block-alias-1 --]
+[[bold]]Test![[/bold]]
+
+[!-- bold-block-alias-2 --]
+[[strong]]Test![[/strong]]
+
+[!-- bold-block-empty --]
+Empty [[b]][[/b]]
+
+[!-- bold-block-fail --]
+[[b]]Fail Bold
+
+[!-- bold-block-italics --]
+[[b]]Apple [[i]]Banana[[/i]][[/b]] Cherry
+
+[!-- bold-block-paragraph --]
+[[b]]Paragraph
+
+Bold[[/b]]
+
+[!-- bold-block --]
+[[b]]Bold[[/b]] Text
+
+[!-- bold-empty --]
+Empty ****
+
+[!-- bold-fail-paragraph --]
+**Fail
+
+Bold**
+
+[!-- bold-fail --]
+**Fail Bold
+
+[!-- bold-italics-underline --]
+**Apple //Banana __Cherry__ Durian//** Pineapple
+
+[!-- bold-italics --]
+**Apple //Banana//** Cherry
+
+[!-- bold-nested --]
+**Apple //Banana __Cherry__ Durian ^^Peach {{Melon ,,Blackberry,,}}^^// Mango** Pineapple
+
+[!-- bold --]
+**Bold** Text
+
+[!-- char-alias --]
+[[character gt]] pineapple
+
+[!-- char-decimal --]
+[[char #129408]] pineapple
+
+[!-- char-hex --]
+[[char #x1f980]] pineapple
+
+[!-- char-name --]
+[[char copy]] pineapple
+
+[!-- char --]
+[[char amp]] pineapple
+
+[!-- char2-alias --]
+[[character &gt;]] pineapple
+
+[!-- char2-decimal --]
+[[char &#129408;]] pineapple
+
+[!-- char2-hex --]
+[[char &#x1f980;]] pineapple
+
+[!-- char2-leading --]
+[[char &amp]] pineapple
+
+[!-- char2-name --]
+[[char &copy;]] pineapple
+
+[!-- char2-trailing --]
+[[char amp;]] pineapple
+
+[!-- char2 --]
+[[char &amp;]] pineapple
+
+[!-- checkbox-fail --]
+[[checkbox Broken
+
+[!-- checkbox-star --]
+[[*checkbox]] Apple
+[[checkbox]] Banana
+[[*checkbox]] Cherry
+
+[!-- checkbox-style --]
+[[checkbox id="apple" style="color: red;" disabled="yes"]] Apple
+[[checkbox id="banana" style="color: yellow;" disabled="false"]] Banana
+
+[!-- checkbox-uppercase --]
+[[chECKBOX]] Apple
+[[checkBOX]] Banana
+[[CHECKBOx]] Cherry
+
+[!-- checkbox --]
+[[checkbox]] Apple
+[[checkbox]] Banana
+[[checkbox]] Cherry
+
+[!-- code-block --]
+[[code]]
+[[div]]
+test
+[[/div]]
+[[/code]]
+
+[!-- code-empty --]
+[[code]]
+[[/code]]
+
+[!-- code-fail-arguments --]
+[[code type=css"]]
+
+[!-- code-fail-head --]
+[[code type="css"
+
+[!-- code-fail-tail --]
+a { display: none; } [[/code]]
+
+[!-- code-fail --]
+[[code]]
+no ending block
+
+[!-- code-inline-empty --]
+[[code]][[/code]]
+
+[!-- code-inline --]
+[[code]]text here[[/code]]
+
+[!-- code-language-empty --]
+[[code type="css"]]
+[[/code]]
+
+[!-- code-language-spaces --]
+[[ code  type = "css" ]]
+apple banana
+[[/code]]
+
+[!-- code-language --]
+[[code type="css"]]
+apple banana
+[[/code]]
+
+[!-- code-multiline --]
+[[code]]
+multiple
+**lines**
+of
+code
+[[/code]]
+
+[!-- code-spaces --]
+[[  code  ]]
+text here
+[[/ code ]]
+
+[!-- code-uppercase --]
+[[CODE]]
+text here
+[[/CODE]]
+
+[!-- code --]
+[[code]]
+text here
+[[/code]]
+
+[!-- collapsible-empty --]
+[[collapsible]]
+[[/collapsible]]
+
+[!-- collapsible-folded-no --]
+[[collapsible folded ="no"]]
+Cherry
+[[/collapsible]]
+
+[!-- collapsible-folded-yes --]
+[[collapsible folded = "YES"]]
+Cherry
+[[/collapsible]]
+
+[!-- collapsible-inline --]
+[[collapsible]]Apple[[/collapsible]]
+
+[!-- collapsible-location-both --]
+[[collapsible HIDELOCATION="both"]]
+Cherry
+[[/collapsible]]
+
+[!-- collapsible-location-bottom --]
+[[collapsible hideLocation="bottom"]]
+Cherry
+[[/collapsible]]
+
+[!-- collapsible-location-neither --]
+[[collapsible hidelocation="neither"]]
+Cherry
+[[/collapsible]]
+
+[!-- collapsible-location-top --]
+[[collapsible HIDEloCATioN =  "top" ]]
+Cherry
+[[/collapsible]]
+
+[!-- collapsible-multiline --]
+[[collapsible
+	show="+ Show stuff"
+	hide="- Hide stuff"
+	hideLocation  =  "both"
+]]
+Apple
+[[/collapsible]]
+
+[!-- collapsible-nested-deep --]
+[[collapsible]]
+Apple
+[[collapsible]]
+Banana
+[[collapsible]]
+Cherry
+[[/collapsible]]
+[[/collapsible]]
+[[/collapsible]]
+
+[!-- collapsible-nested --]
+[[collapsible]]
+Apple
+[[collapsible show="+ More Fruit" hide="- Hide Fruit"]]
+Banana
+[[/collapsible]]
+[[/collapsible]]
+
+[!-- collapsible-styling --]
+[[collapsible id="fruit" class="collapse-list" style="display: inline-block"]]
+Banana
+[[/collapsible]]
+
+[!-- collapsible-text --]
+[[collapsible show="SHOW!" hide="HIDE!"]]
+Apple
+[[/collapsible]]
+
+[!-- collapsible-uppercase --]
+[[ COLLapsiBLe  ID="my-id" CLASS = "my-class"  ]]
+Cherry
+[[/collapsible]]
+
+[!-- collapsible --]
+[[collapsible]]
+Apple
+[[/collapsible]]
+
+[!-- color-fail --]
+##not color
+
+[!-- color-hex --]
+###ccc|CSS color!##
+
+[!-- color-simple --]
+##blue|Text Here##
+
+[!-- comment-fail-left --]
+Fail [!-- Comment
+
+[!-- comment-fail-right --]
+Fail --] Comment
+
+[!-- comment-multiline --]
+Multiline [!-- stuff
+ here --] Comment
+
+[!-- comment-single --]
+Single [!-- stuff here --] Comment
+
+[!-- css-fail --]
+[[css]]
+Other stuff
+
+[!-- css-inline --]
+[[css]]a { color: blue; }[[/css]]
+
+[!-- css-multiline --]
+[[css]]
+h1 {
+    margin-top: .7em
+    padding: 0;
+    font-weight: bold;
+}
+[[/css]]
+
+[!-- css-multiple --]
+[[css]]
+a { display: none; }
+[[/css]]
+apple
+[[css]]
+b { display: none; }
+[[/css]]
+banana
+
+[!-- css --]
+[[css]]
+a { color: blue; }
+[[/css]]
+
+[!-- del-alias --]
+Apple
+[[deletion]]Banana[[/deletion]]
+
+[!-- del-newlines --]
+[[del]]
+Apple
+Banana
+[[/del]]
+
+[!-- del-style --]
+[[del id="banana" class="fruit" style="color: yellow;" disallowed-attr="blocked"]]Banana[[/del]]
+
+[!-- del-uppercase --]
+[[DEl ID =  "apple" clASS ="fruit" stylE="color: red;"      ]]Apple[[/ DEL  ]]
+
+[!-- del --]
+Apple
+[[del]]Banana[[/del]]
+
+[!-- div-class --]
+[[div class="blockquote"]]
+Apple
+[[/div]]
+
+[!-- div-empty-2 --]
+A
+[[div]]
+[[/div]]
+B
+
+[!-- div-empty --]
+[[div]]
+[[/div]]
+
+[!-- div-ending --]
+[[div]]
+Banana
+[[/div_]]
+
+[!-- div-id --]
+[[div id="my-div"]]
+Apple
+[[/div]]
+
+[!-- div-inline-empty --]
+[[div]][[/div]]
+
+[!-- div-inline --]
+[[div]]Apple[[/div]]
+
+[!-- div-multiline --]
+[[div]]
+Apple
+Banana
+[[/div]]
+
+[!-- div-nested-deep --]
+[[div]]
+A
+[[div]]
+B
+[[div]]
+C
+[[div]]
+D
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+[!-- div-nested --]
+[[div]]
+**Bold** Cherry
+[[div]]
+Durian
+[[/div]]
+[[/div]]
+
+[!-- div-paragraphs --]
+[[div]]
+Apple
+
+Banana
+Cherry
+
+Durian
+[[/div]]
+
+[!-- div-style --]
+[[div style="display: flex" data-fruit="red"]]
+Apple
+[[/div]]
+
+[!-- div --]
+[[div]]
+Apple
+[[/div]]
+
+[!-- div2-class --]
+[[div_ class="blockquote"]]
+Apple
+[[/div]]
+
+[!-- div2-empty-2 --]
+A
+[[div_]]
+[[/div]]
+B
+
+[!-- div2-empty --]
+[[div_]]
+[[/div]]
+
+[!-- div2-ending --]
+[[div_]]
+Banana
+[[/div_]]
+
+[!-- div2-id --]
+[[div_ id="my-div"]]
+Apple
+[[/div]]
+
+[!-- div2-inline --]
+[[div_]]Apple[[/div]]
+
+[!-- div2-multiline --]
+[[div_]]
+Apple
+Banana
+[[/div]]
+
+[!-- div2-nested-deep --]
+[[div_]]
+A
+[[div_]]
+B
+[[div_]]
+C
+[[div_]]
+D
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+[!-- div2-nested --]
+[[div_]]
+**Bold** Cherry
+[[div_]]
+Durian
+[[/div]]
+[[/div]]
+
+[!-- div2-style --]
+[[div_ style="display: flex" data-fruit="red"]]
+Apple
+[[/div]]
+
+[!-- div2 --]
+[[div_]]
+Apple
+[[/div]]
+
+[!-- double-angle-left-multiple --]
+Double << Angles << Everywhere
+
+[!-- double-angle-left --]
+Double << Angle
+
+[!-- double-angle-right-multiple --]
+Double >> Angles >> Everywhere
+
+[!-- double-angle-right --]
+Double >> Angle
+
+[!-- em-dash-multiple --]
+Many -- Em -- Dashes --
+
+[!-- em-dash --]
+Em -- Dash
+
+[!-- empty --]
+
+
+[!-- hidden-newlines --]
+[[hidden]]
+[[div_]]
+Hidden div
+[[/div]]
+[[/hidden]]
+
+[!-- hidden-style --]
+[[hidden id="my-span" style="line-height: 1em;"]]Hidden[[/hidden]] Text
+
+[!-- hidden-uppercase --]
+[[HIDden]]Hidden[[/hiDDeN]] Text
+
+[!-- hidden --]
+[[hidden]]Hidden[[/hidden]] Text
+
+[!-- hr-2-fail --]
+--
+Fail hr
+
+[!-- hr-3 --]
+---
+Horizontal rule
+
+[!-- hr-4 --]
+----
+Horizontal rule
+
+[!-- hr-5 --]
+-----
+Horizontal rule
+
+[!-- html-block --]
+[[html]]
+[[div]]
+test
+[[/div]]
+[[/html]]
+
+[!-- html-empty --]
+Empty
+[[html]]
+[[/html]]
+
+[!-- html-fail-arguments --]
+[[html type="css"]]
+<div></div>
+[[/html]]
+
+[!-- html-fail-tail --]
+<div></div> [[/html]]
+
+[!-- html-fail --]
+[[html]]
+<div>Forgot to close the block
+
+[!-- html-inline-empty --]
+[[html]][[/html]]
+
+[!-- html-inline --]
+[[html]]My <bold>text</bold>![[/html]]
+
+[!-- html-multiple --]
+[[html]]
+<p>Paragraph 1</p>
+[[/html]]
+[[html]]
+<p>Paragraph 2</p>[[/html]]
+
+[!-- html --]
+[[html]]
+<p><div>My HTML <tt>code</tt> here!</div></p>
+[[/html]]
+
+[!-- ifcategory-fail --]
+[[ifcategory]]
+Durian
+[[/ifcategory]]
+
+[!-- ifcategory --]
+[[ifcategory _default]]
+Apple
+[[/ifcategory]]
+[[ifcategory +_default +component -fragment]]
+Banana
+[[/ifcategory]]
+[[ifcategory -_default]]
+Hidden
+[[/ifcategory]]
+
+[!-- iftags-fail --]
+[[iftags]]
+Durian
+[[/iftags]]
+
+[!-- iftags --]
+[[iftags +fruit -admin]]
+Apple
+[[/iftags]]
+[[IFTAGS component]]Banana[[/IFTAGS]]
+[[iftags +xyz]]
+Hidden
+[[/iftags]]
+
+[!-- image-attributes --]
+A [[image green_apple.png alt="A green apple" title="Take a big bite!" style="width: 100%;" class="fruity"]] B
+
+[!-- image-center --]
+[[=image landscape.png]]
+
+[!-- image-external --]
+A [[image https://example.com/my-image.png]] B
+
+[!-- image-file1 --]
+A [[image /my-picture.jpeg]] B
+
+[!-- image-file2-slash --]
+A [[image some-other-page/my-picture.jpeg]] B
+
+[!-- image-file2 --]
+A [[image /some-other-page/my-picture.jpeg]] B
+
+[!-- image-file3-slash --]
+A [[image scp-wiki/some-other-page/my-picture.jpeg]] B
+
+[!-- image-file3 --]
+A [[image /scp-wiki/some-other-page/my-picture.jpeg]] B
+
+[!-- image-float-center-fail --]
+[[f=image landscape.png]]
+
+[!-- image-float-justify-fail --]
+[[f==image landscape.png]]
+
+[!-- image-float-left --]
+[[f<image landscape.png]]
+
+[!-- image-float-right --]
+[[f>image landscape.png]]
+
+[!-- image-justify-fail --]
+[[==image landscape.png]]
+
+[!-- image-left --]
+[[<image landscape.png]]
+
+[!-- image-link-anchor --]
+A [[image filename.png link="#section"]] B
+
+[!-- image-link-page --]
+A [[image filename.png link="SCP-001"]] B
+
+[!-- image-link --]
+A [[image filename.png link="https://example.com/"]] B
+
+[!-- image-right --]
+[[>image landscape.png]]
+
+[!-- image --]
+A [[image filename.png]] B
+
+[!-- ins-alias --]
+Apple
+[[insertion]]Banana[[/insertion]]
+
+[!-- ins-newlines --]
+[[ins]]
+Apple
+Banana
+[[/ins]]
+
+[!-- ins-style --]
+[[ins id="banana" class="fruit" style="color: yellow;" cite="some source"]]Banana[[/ins]]
+
+[!-- ins-uppercase --]
+[[INs ID =  "apple" clASS ="fruit" stylE="color: red;"      ]]Apple[[/ INS  ]]
+
+[!-- ins --]
+Apple
+[[ins]]Banana[[/ins]]
+
+[!-- invisible-newlines --]
+[[invisible]]
+[[div_]]
+Invisible div
+[[/div]]
+[[/invisible]]
+
+[!-- invisible-style --]
+[[invisible data-xxx="yyy" class="label"]]Invisible[[/invisible]] Text
+
+[!-- invisible-uppercase --]
+[[INVisible]]Invisible[[/inVISIBLE]] Text
+
+[!-- invisible --]
+[[invisible]]Invisible[[/invisible]] Text
+
+[!-- italics-block-alias-1 --]
+[[italics]]Test![[/italics]]
+
+[!-- italics-block-alias-2 --]
+[[em]]Test![[/em]]
+
+[!-- italics-block-alias-3 --]
+[[emphasis]]Test![[/emphasis]]
+
+[!-- italics-block-empty --]
+Empty [[i]][[/i]]
+
+[!-- italics-block-fail --]
+[[i]]Fail Italics
+
+[!-- italics-block-italics --]
+[[i]]Apple [[b]]Banana[[/b]][[/i]] Cherry
+
+[!-- italics-block-paragraph --]
+[[i]]Paragraph
+
+Italics[[/i]]
+
+[!-- italics-block --]
+[[i]]Italics[[/i]] Text
+
+[!-- italics-empty --]
+Empty ////
+
+[!-- italics-fail-paragraph --]
+//Fail
+
+Italics//
+
+[!-- italics-fail --]
+//Fail Italics
+
+[!-- italics --]
+//Italics// Text
+
+[!-- line-breaks-alias --]
+Banana
+[[newlines 9]]
+Apple
+
+[!-- line-breaks-error-0 --]
+[[lines 0]]
+
+[!-- line-breaks-error-invalid --]
+[[lines apple]]
+
+[!-- line-breaks-error-negative --]
+[[lines -5]]
+
+[!-- line-breaks-error-overflow --]
+[[lines 999]]
+
+[!-- line-breaks-uppercase --]
+Apple
+[[  LiNEs 12  ]]
+Banana
+
+[!-- line-breaks --]
+Apple
+[[lines 3]]
+Banana
+
+[!-- link-anchor-fail --]
+[# Label
+
+[!-- link-anchor-fake --]
+[# Fake link]
+
+[!-- link-anchor --]
+[#apple Some link]?
+
+[!-- link-single-fail-brackets --]
+[ not a link ]
+
+[!-- link-single-fail-new-tab --]
+[* not a link ]
+
+[!-- link-single-fail-newline --]
+[https://example.com/
+ Label]
+
+[!-- link-single-fail-start --]
+[page
+
+[!-- link-single-fail-text --]
+[page Some page]
+
+[!-- link-single-fail-word --]
+[REDACTED]
+
+[!-- link-single-new-tab --]
+[*http://scp-sandbox-3.wikidot.com/system:recent-changes Sandbox: Recent Changes ]
+
+[!-- link-single-url --]
+[/page Some page]
+
+[!-- link-single --]
+[https://example.com/ Some link]!
+
+[!-- link-triple-category-new-tab --]
+[[[*system:Recent Pages]]]
+
+[!-- link-triple-category-spaces --]
+[[[system: Recent Pages]]]
+
+[!-- link-triple-category --]
+[[[system:Recent Pages]]]
+
+[!-- link-triple-fail-brackets-end --]
+some-page]]]
+
+[!-- link-triple-fail-brackets-left --]
+[[[some-page
+
+[!-- link-triple-fail-brackets-right --]
+]]]some-page
+
+[!-- link-triple-fail-newline --]
+[[[some-page |
+ Label]]]
+
+[!-- link-triple-fail-title-new-tab --]
+[[[*|some-page]]]
+
+[!-- link-triple-fail-title --]
+[[[|some-page]]]
+
+[!-- link-triple-label-new-tab --]
+[[[*some-page|Label]]]
+
+[!-- link-triple-label --]
+[[[some-page|My label]]]
+
+[!-- link-triple-new-tab --]
+[[[*SCP-001]]]
+
+[!-- link-triple-title-new-tab --]
+[[[*some-page|]]]
+
+[!-- link-triple-title --]
+[[[some-page|]]]
+
+[!-- link-triple-url-whitespace --]
+[[[ https://example.com/ | Example ]]]
+
+[!-- link-triple-url --]
+[[[https://example.com/|Example]]]
+
+[!-- link-triple-whitespace-new-tab --]
+[[[* some-page  |  My label  ]]]
+
+[!-- link-triple-whitespace --]
+[[[ some-page  |  My label  ]]]
+
+[!-- link-triple --]
+[[[SCP-001]]]
+
+[!-- link-url --]
+https://example.com/directory apple
+
+[!-- list-bullet-both --]
+* A
+
+[!-- list-bullet-depths-staggered --]
+[
+ * A
+* B
+  * C
+]
+
+[!-- list-bullet-depths --]
+[
+* A
+ * B
+  * C
+]
+
+[!-- list-bullet-elements-both --]
+* A 1
+
+[!-- list-bullet-elements-end --]
+[
+* A 1
+
+[!-- list-bullet-elements-multiple-both --]
+* A 1
+* B 2
+* C 3
+
+[!-- list-bullet-elements-multiple-end --]
+[
+* A 1
+* B 2
+* C 3
+
+[!-- list-bullet-elements-multiple-start --]
+* A 1
+* B 2
+* C 3
+]
+
+[!-- list-bullet-elements-multiple --]
+[
+* A 1
+* B 2
+* C 3
+]
+
+[!-- list-bullet-elements-start --]
+* A 1
+]
+
+[!-- list-bullet-elements --]
+[
+* A 1
+]
+
+[!-- list-bullet-end --]
+[
+* A
+
+[!-- list-bullet-multiple-both --]
+* A
+* B
+* C
+
+[!-- list-bullet-multiple-end --]
+[
+* A
+* B
+* C
+
+[!-- list-bullet-multiple-start --]
+* A
+* B
+* C
+]
+
+[!-- list-bullet-multiple --]
+[
+* A
+* B
+* C
+]
+
+[!-- list-bullet-start --]
+* A
+]
+
+[!-- list-bullet --]
+[
+* A
+]
+
+[!-- list-fail-depth --]
+* Very deep list item
+
+[!-- list-mix-depths-staggered --]
+[
+ * A
+# B
+  * C
+ * D
+]
+
+[!-- list-mix-depths --]
+[
+* A
+ * B
+ # C
+ # D
+]
+
+[!-- list-mix --]
+[
+* A
+# B
+* C
+* D
+]
+
+[!-- list-numbered-both --]
+# A
+
+[!-- list-numbered-depths-staggered --]
+[
+ # A
+# B
+  # C
+]
+
+[!-- list-numbered-depths --]
+[
+# A
+ # B
+  # C
+]
+
+[!-- list-numbered-elements-both --]
+# A 1
+
+[!-- list-numbered-elements-end --]
+[
+# A 1
+
+[!-- list-numbered-elements-multiple-both --]
+# A 1
+# B 2
+# C 3
+
+[!-- list-numbered-elements-multiple-end --]
+[
+# A 1
+# B 2
+# C 3
+
+[!-- list-numbered-elements-multiple-start --]
+# A 1
+# B 2
+# C 3
+]
+
+[!-- list-numbered-elements-multiple --]
+[
+# A 1
+# B 2
+# C 3
+]
+
+[!-- list-numbered-elements-start --]
+# A 1
+]
+
+[!-- list-numbered-elements --]
+[
+# A 1
+]
+
+[!-- list-numbered-end --]
+[
+# A
+
+[!-- list-numbered-multiple-both --]
+# A
+# B
+# C
+
+[!-- list-numbered-multiple-end --]
+[
+# A
+# B
+# C
+
+[!-- list-numbered-multiple-start --]
+# A
+# B
+# C
+]
+
+[!-- list-numbered-multiple --]
+[
+# A
+# B
+# C
+]
+
+[!-- list-numbered-start --]
+# A
+]
+
+[!-- list-numbered --]
+[
+# A
+]
+
+[!-- mark-alias --]
+Apple [[highlight]]Banana[[/highlight]]
+
+[!-- mark-newlines --]
+[[mark]]
+Apple
+Banana
+[[/mark]]
+
+[!-- mark-style --]
+[[mark id="banana" class="fruit" style="color: yellow;" onclick="javascript is blocked" autocapitalize="yes"]]Banana[[/mark]]
+
+[!-- mark-uppercase --]
+[[MARk ID =  "apple" clASS ="fruit" stylE="color: red;"      ]]Apple[[/ MARK  ]]
+
+[!-- mark --]
+Apple [[mark]]Banana[[/mark]]
+
+[!-- module-backlinks-page --]
+[[module Backlinks page= "scp-001"]]
+Apple
+
+[!-- module-backlinks-uppercase --]
+[[ MODULE  BACKLINKS  ]]
+Apple
+
+[!-- module-backlinks --]
+[[module Backlinks]]
+Apple
+
+[!-- module-categories-hidden --]
+[[module Categories INCLUDEhidden= "no"]]
+Apple
+
+[!-- module-categories-shown --]
+[[module Categories includeHidden = "true"]]
+Apple
+
+[!-- module-categories-uppercase --]
+[[ MODULE CATEGORIES  ]]
+Apple
+
+[!-- module-categories --]
+[[module Categories]]
+Apple
+
+[!-- module-css-inline --]
+[[module css]]a { color: blue; }[[/module]]
+
+[!-- module-css --]
+[[module css]]
+a { color: blue; }
+[[/module]]
+
+[!-- module-invalid --]
+[[module NoSuchModuleWithThisName]]
+
+[!-- module-join-button --]
+[[module Join button="Join our site!! ;-)"]]
+Apple
+
+[!-- module-join-styling --]
+[[module Join id="join-btn" CLASS ="join-module" stYLe= "display: inline-block;" data-join=""]]
+Apple
+
+[!-- module-join-uppercase --]
+[[ MODule  jOIN ]]
+Apple
+
+[!-- module-join --]
+[[module Join]]
+Apple
+
+[!-- module-pagetree-fail-bool --]
+[[module PageTree root="scp-001" showRoot="nope" depth="2"]]
+
+[!-- module-pagetree-fail-depth --]
+[[module PageTree root="scp-001" showRoot="yes" depth="0"]]
+
+[!-- module-pagetree-options --]
+[[module PageTree root="scp-001" showRoot = "yes"  depth ="12"]]
+Apple
+
+[!-- module-pagetree-uppercase --]
+[[ MODULE pageTREE ROOT ="scp-series" SHOWroot = "yes"  dePTH ="3"]]
+Apple
+
+[!-- module-pagetree --]
+[[module PageTree]]
+Apple
+
+[!-- module-rate-uppercase --]
+[[ MODule rATe  ]]
+Apple
+
+[!-- module-rate --]
+[[module Rate]]
+Apple
+
+[!-- monospace-block-alias-1 --]
+[[mono]]Test![[/mono]]
+
+[!-- monospace-block-alias-2 --]
+[[monospace]]Test![[/monospace]]
+
+[!-- monospace-block-empty --]
+Empty [[tt]][[/tt]]
+
+[!-- monospace-block-fail --]
+[[tt]]Fail Monospace
+
+[!-- monospace-block-italics --]
+[[tt]]Apple [[b]]Banana[[/b]][[/tt]] Cherry
+
+[!-- monospace-block-paragraph --]
+[[tt]]Paragraph
+
+Subscript[[/tt]]
+
+[!-- monospace-block --]
+[[tt]]Subscript[[/tt]] Text
+
+[!-- monospace-fail-left --]
+{{Fail Monospace
+
+[!-- monospace-fail-paragraph --]
+{{Fail
+
+Monospace}}
+
+[!-- monospace-fail-right --]
+}}Fail Monospace
+
+[!-- monospace --]
+{{Monospace}} Text
+
+[!-- paragraph-block-alias --]
+[[paragraph]]
+Apple
+[[/paragraph]]
+
+[!-- paragraph-block-attributes --]
+[[p class="fruit"]]Apple
+
+Banana
+
+Cherry[[/p]]
+
+[!-- paragraph-block-class --]
+[[p class="fruit"]]
+Apple
+[[/p]]
+
+[!-- paragraph-block-empty-2 --]
+A
+[[p]]
+[[/p]]
+B
+
+[!-- paragraph-block-empty --]
+[[p]]
+[[/p]]
+
+[!-- paragraph-block-id --]
+[[p id="my-p"]]
+Apple
+[[/p]]
+
+[!-- paragraph-block-inline-empty --]
+[[p]][[/p]]
+
+[!-- paragraph-block-inline --]
+[[p]]Apple[[/p]]
+
+[!-- paragraph-block-multiline --]
+[[p]]
+Apple
+Banana
+[[/p]]
+
+[!-- paragraph-block-style --]
+[[p style="display: flex" data-fruit="red"]]
+Apple
+[[/p]]
+
+[!-- paragraph-block --]
+[[p]]
+Apple
+[[/p]]
+
+[!-- paragraphs --]
+First paragraph
+
+Second paragraph
+
+[!-- radio-fail-star --]
+[[*radio]] Nameless
+
+[!-- radio-fail --]
+[[radio]] Nameless
+
+[!-- radio-star --]
+[[*radio fruit]] Apple
+[[radio fruit]] Banana
+[[radio vegetable]] Celery
+[[*radio vegetable]] Zucchini
+
+[!-- radio-style --]
+[[radio fruit id="apple" style="color: red;"]] Apple
+[[radio fruit id="banana" style="color: yellow;"]] Banana
+
+[!-- radio-uppercase --]
+[[RADIO fruit]] Apple
+[[Radio fruit]] Banana
+[[raDIo vegetable]] Celery
+[[raDIO vegetable]] Zucchini
+
+[!-- radio --]
+[[radio fruit]] Apple
+[[radio fruit]] Banana
+[[radio vegetable]] Celery
+[[radio vegetable]] Zucchini
+
+[!-- raw-0 --]
+@@@@
+
+[!-- raw-1 --]
+@@@@@
+
+[!-- raw-2 --]
+@@@@@@
+
+[!-- raw-angles-content --]
+@<raw @@ content>@
+
+[!-- raw-angles-empty --]
+@<>@
+
+[!-- raw-fail-newline-angles --]
+interrupted @<
+>@
+
+[!-- raw-fail-newline --]
+interrupted @@
+@@
+
+[!-- raw-fail-paragraph --]
+@@Fail
+
+Raw@@
+
+[!-- raw-other-angles --]
+@@raw @< >@ content@@
+
+[!-- raw-test-0 --]
+Test @@@@ String
+
+[!-- raw-test-1 --]
+Test @@@@@ String
+
+[!-- raw-test-2 --]
+Test @@@@@@ String
+
+[!-- raw-token --]
+not @@**@@ bold
+
+[!-- simple-newline --]
+
+
+[!-- simple-space --]
+
+
+[!-- simple-symbol --]
+%
+
+[!-- simple-text --]
+abc
+
+[!-- size-fail --]
+[[size 12pt]]Durian[[/sz]]
+
+[!-- size-symbol --]
+[[size 90%]]Apple[[/size]]
+
+[!-- size-vh --]
+[[size 2vh]]Apple[[/size]]
+
+[!-- size --]
+[[size 12pt]]Apple[[/size]]
+
+[!-- spaces --]
+
+
+[!-- span-empty --]
+[[span]][[/span]]
+
+[!-- span-mulitiline --]
+[[span
+	class="my-class"
+	style  = "color: red;"
+
+]]Banana[[/span]]
+
+[!-- span-newlines-2 --]
+[[span]]Banana
+Cherry[[/span]]
+
+[!-- span-newlines --]
+[[span]]
+Banana
+Cherry
+[[/span]]
+
+[!-- span-style --]
+[[span id="banana" class="fruit" style="color: yellow;" data-fruit="!red"]]Banana[[/span]]
+
+[!-- span-uppercase --]
+[[SPAN ID =  "apple" clASS ="fruit" stylE="color: red;"      ]]Apple[[/ SPAN_  ]]
+
+[!-- span --]
+[[span]]Banana[[/span]]
+
+[!-- span2-empty --]
+[[span_]][[/span]]
+
+[!-- span2-newlines-2 --]
+[[span]]Banana
+Cherry[[/span]]
+
+[!-- span2-newlines --]
+[[span_]]
+Banana
+Cherry
+[[/span]]
+
+[!-- span2-paragraph --]
+[[span_]]Banana
+
+Cherry[[/span]]
+
+[!-- span2-style --]
+[[span_ id="banana" class="fruit" style="color: yellow;" data-fruit="!red"]]Banana[[/span]]
+
+[!-- span2-uppercase --]
+[[SPAN_ ID =  "apple" clASS ="fruit" stylE="color: red;"      ]]Apple[[/ SPAN ]]
+
+[!-- span2 --]
+[[span_]]Banana[[/span]]
+
+[!-- strikethrough-block-alias-1 --]
+[[strikethrough]]Test![[/strikethrough]]
+
+[!-- strikethrough-block-empty --]
+Empty [[s]][[/s]]
+
+[!-- strikethrough-block-fail --]
+[[s]]Fail Strikethrough
+
+[!-- strikethrough-block-italics --]
+[[s]]Apple [[b]]Banana[[/b]][[/s]] Cherry
+
+[!-- strikethrough-block-paragraph --]
+[[s]]Paragraph
+
+Strikethrough[[/s]]
+
+[!-- strikethrough-block --]
+[[s]]Strikethrough[[/s]] Text
+
+[!-- strikethrough-empty --]
+Empty ----
+
+[!-- strikethrough-fail-paragraph --]
+--Fail
+
+Strikethrough--
+
+[!-- strikethrough-fail --]
+--Fail Strikethrough
+
+[!-- strikethrough --]
+--Strikethrough-- Text
+
+[!-- string --]
+A "string\nhere"!
+
+[!-- subscript-block-alias-1 --]
+[[subscript]]Test![[/subscript]]
+
+[!-- subscript-block-empty --]
+Empty [[sub]][[/sub]]
+
+[!-- subscript-block-fail --]
+[[sub]]Fail Subscript
+
+[!-- subscript-block-italics --]
+[[sub]]Apple [[b]]Banana[[/b]][[/sub]] Cherry
+
+[!-- subscript-block-paragraph --]
+[[sub]]Paragraph
+
+Subscript[[/sub]]
+
+[!-- subscript-block --]
+[[sub]]Subscript[[/sub]] Text
+
+[!-- subscript-empty --]
+Empty ,,,,
+
+[!-- subscript-fail --]
+,,Fail Subscript
+
+[!-- subscript --]
+,,Subscript,, Text
+
+[!-- superscript-block-alias-1 --]
+[[super]]Test![[/super]]
+
+[!-- superscript-block-alias-2 --]
+[[superscript]]Test![[/superscript]]
+
+[!-- superscript-block-empty --]
+Empty [[sup]][[/sup]]
+
+[!-- superscript-block-fail --]
+[[sup]]Fail Superscript
+
+[!-- superscript-block-italics --]
+[[sup]]Apple [[b]]Banana[[/b]][[/sup]] Cherry
+
+[!-- superscript-block-paragraph --]
+[[sup]]Paragraph
+
+Superscript[[/sup]]
+
+[!-- superscript-block --]
+[[sup]]Superscript[[/sup]] Text
+
+[!-- superscript-empty --]
+Empty ^^^^
+
+[!-- superscript-fail --]
+^^Fail Superscript
+
+[!-- superscript --]
+^^Superscript^^ Text
+
+[!-- symbols --]
+`~!@#$%^&*()-=+[]{}\|
+
+[!-- underline-block-alias-1 --]
+[[underline]]Test![[/underline]]
+
+[!-- underline-block-empty --]
+Empty [[u]][[/u]]
+
+[!-- underline-block-fail --]
+[[u]]Fail Underline
+
+[!-- underline-block-italics --]
+[[u]]Apple [[b]]Banana[[/b]][[/u]] Cherry
+
+[!-- underline-block-paragraph --]
+[[u]]Paragraph
+
+Underline[[/u]]
+
+[!-- underline-block --]
+[[u]]Underline[[/u]] Text
+
+[!-- underline-empty --]
+Empty ____
+
+[!-- underline-fail-paragraph --]
+__Fail
+
+Underline__
+
+[!-- underline-fail --]
+__Fail Underline
+
+[!-- underline --]
+__Underline__ Text
+
+[!-- user-fail --]
+[[user]]
+Durian
+
+[!-- user-spaces --]
+[[ USer  admin  ]]
+Cherry
+
+[!-- user-star --]
+[[*user admin]]
+Banana
+
+[!-- user --]
+[[user admin]]
+Apple
+
+[!-- variables --]
+A {$variable}!
+

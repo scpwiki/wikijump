@@ -20,7 +20,7 @@
 
 //! Module that implements text rendering for `Element` and its children.
 
-use super::super::utils::{check_ifcategory, check_iftags};
+use super::super::condition::{check_ifcategory, check_iftags};
 use super::TextContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
@@ -59,7 +59,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 // Also, determine if we add a prefix.
                 ContainerType::Div | ContainerType::Paragraph => (true, None),
                 ContainerType::Blockquote => (true, Some("    ")),
-                ContainerType::Header(level) => (true, Some(level.prefix())),
+                ContainerType::Header(level) => (true, Some(level.prefix_with_space())),
 
                 // Inline or miscellaneous container.
                 _ => (false, None),
@@ -148,7 +148,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 str_write!(ctx, " [Title: {}]", title);
             }
         }
-        Element::List { ltype, items } => {
+        Element::List { ltype, items, .. } => {
             if !ctx.ends_with_newline() {
                 ctx.add_newline();
             }
@@ -156,6 +156,11 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             for item in items {
                 match item {
                     ListItem::Elements(elements) => {
+                        // Don't do anything if it's empty
+                        if elements.is_empty() {
+                            continue;
+                        }
+
                         // Render bullet and its depth
                         let depth = ctx.list_depth();
                         for _ in 0..depth {
@@ -184,6 +189,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 }
             }
         }
+        Element::ListItem(_) => panic!("Reached ancillary element"),
         Element::RadioButton { checked, .. } => {
             str_write!(ctx, "({}) ", if *checked { '*' } else { ' ' })
         }
@@ -254,7 +260,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Color { elements, .. } => render_elements(log, ctx, elements),
         Element::Code { contents, language } => {
             let language = match language {
-                Some(cow) => &cow,
+                Some(language) => language,
                 None => "",
             };
 

@@ -46,7 +46,7 @@ use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use self::user::render_user;
-use super::super::utils::{check_ifcategory, check_iftags};
+use super::super::condition::{check_ifcategory, check_iftags};
 use super::HtmlContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
@@ -85,7 +85,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             target,
         } => render_anchor(log, ctx, elements, attributes, *target),
         Element::Link { url, label, target } => {
-            render_link(log, ctx, &url, label, *target)
+            render_link(log, ctx, url, label, *target)
         }
         Element::Image {
             source,
@@ -93,12 +93,17 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             alignment,
             attributes,
         } => render_image(log, ctx, source, ref_cow!(link), *alignment, attributes),
-        Element::List { ltype, items } => render_list(log, ctx, *ltype, items),
+        Element::List {
+            ltype,
+            items,
+            attributes,
+        } => render_list(log, ctx, *ltype, items, attributes),
+        Element::ListItem(_) => panic!("Reached ancillary element"),
         Element::RadioButton {
             name,
             checked,
             attributes,
-        } => render_radio_button(log, ctx, &name, *checked, attributes),
+        } => render_radio_button(log, ctx, name, *checked, attributes),
         Element::CheckBox {
             checked,
             attributes,
@@ -140,7 +145,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 render_elements(log, ctx, elements);
             }
         }
-        Element::User { name, show_avatar } => render_user(log, ctx, &name, *show_avatar),
+        Element::User { name, show_avatar } => render_user(log, ctx, name, *show_avatar),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)

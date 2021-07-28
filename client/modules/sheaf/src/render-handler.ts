@@ -1,6 +1,6 @@
-import type { Text } from "@codemirror/state"
-import * as FTML from "ftml-wasm-worker"
+import FTML from "ftml-wasm-worker"
 import { Memoize } from "typescript-memoize"
+import type { Text } from "wj-codemirror/cm"
 import { toFragment } from "wj-util"
 
 /**
@@ -103,6 +103,28 @@ export class RenderHandler {
   async ast() {
     const { ast } = await this.parse()
     return ast
+  }
+
+  /**
+   * Tokenizes the document.
+   *
+   * @decorator `@Memoize()`
+   */
+  @Memoize()
+  async tokenize() {
+    const tokens = await FTML.tokenize(this.src)
+    return tokens
+  }
+
+  /**
+   * Tokenizes the document, and pretty-prints the result.
+   *
+   * @decorator `@Memoize()`
+   */
+  @Memoize()
+  async inspectTokens() {
+    const tokens = await FTML.inspectTokens(this.src)
+    return tokens
   }
 
   /**
