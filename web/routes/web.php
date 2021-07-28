@@ -85,7 +85,7 @@ Route::get('/user--karma/{user}', function(User $user) {
 /**
  * This route will use Blade instead of Smarty for rendering.
  */
-Route::get('/stsdart', function() {
+Route::get('/what-is-a-wiki', function() {
    $legacy = new LegacyTools();
    $values = $legacy->generateScreenVars();
 //    /**
@@ -108,6 +108,7 @@ Route::get('/stsdart', function() {
        'category' => $values['category'] ?? null,
        'theme' => $values['theme'] ?? null,
        'wikiPage' => ($values['wikiPage'] ?? null),
+       'wikiPageName' => ($values['wikiPageName'] ?? null),
        'pageContent' => ($values['pageContent'] ?? null),
        'topBarContent' => $values['topBarContent'] ?? null,
        'sideBar1Content' => $values['sideBar1Content'] ?? null,
