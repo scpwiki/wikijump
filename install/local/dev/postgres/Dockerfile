@@ -1,6 +1,6 @@
 # NOTE: when we migrate in-app instead of docker,
-# we can replace this Dockerfile with just a postgres:12-alpine image
-FROM postgres:12
+# we can replace this Dockerfile with just a postgres:13-alpine image
+FROM postgres:13
 
 EXPOSE 5432
 
@@ -9,7 +9,7 @@ ARG FILES_DOMAIN="wjfiles.test"
 ARG PGDATA="/var/lib/postgresql/data"
 
 ENV POSTGRES_CLUSTER="main"
-ENV POSTGRES_VERSION="12"
+ENV POSTGRES_VERSION="13"
 
 # Preparation
 RUN mkdir /src
