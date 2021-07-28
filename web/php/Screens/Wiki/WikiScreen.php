@@ -39,7 +39,7 @@ class WikiScreen extends Screen
         // check if the site is private
         if ($site->getPrivate()) {
             $user = $runData->getUser();
-            if ($user->id == 1) {
+            if ($user->id !== 1) {
                 // check if member
                 $c = new Criteria();
                 $c->add("site_id", $site->getSiteId());

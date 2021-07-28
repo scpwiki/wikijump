@@ -72,7 +72,19 @@ class ModuleProcessor {
                 /sx";
             # Literally why would you do that this way
 			$replace = "\\1 \n $cstring \n \\2 \\3";
+			/**
+             * Blade: This method of regex won't work as the base template isn't
+             * passed through, so we'll inject this string if needed.
+             */
+			$before_out = $out;
 			$out = preg_replace($regexp, $replace, $out, 1);
+
+			/**
+             * If no change was made, inject into the output.
+             */
+			if($before_out == $out) {
+			    $out = "<style>\n$cstring\n</style>" . $out;
+            }
 		}
 
 		// TODO: check if top-level?

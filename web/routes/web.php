@@ -6,8 +6,12 @@ use Illuminate\Support\Facades\Route;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
 use Wikidot\Utils\AjaxModuleWikiFlowController;
+use Wikidot\Utils\GlobalProperties;
+use Wikijump\Helpers\LegacyTools;
 use Wikijump\Http\Controllers\OzoneController;
 use Wikijump\Models\User;
+
+use const Wikijump\Helpers\LegacyTools;
 
 /**
  * We are instantiating a RunData object with every route request so we can pull
@@ -76,6 +80,53 @@ Route::get('/user--karma/{user}', function(User $user) {
     header("Last-Modified: ".gmdate('D, d M Y H:i:s', time() ) . ' GMT');
     header('Cache-Control: max-age=3600, must-revalidate');
     readfile(WIKIJUMP_ROOT.'/web/files--common/theme/base/images/karma/karma_'.$karma.'.png');
+});
+
+/**
+ * This route will use Blade instead of Smarty for rendering.
+ */
+Route::get('/what-is-a-wiki', function() {
+   $legacy = new LegacyTools();
+   $values = $legacy->generateScreenVars();
+//    /**
+//     * @var $site
+//     * @var $pageNotExists
+//     * @var $wikiPageName
+//     * @var $category
+//     * @var $theme
+//     * @var $wikiPage
+//     * @var $topBarContent
+//     * @var $sideBar1Content
+//     * @var $breadcrumbs
+//     * @var $tags
+//     * @var $licenseText
+//     */
+//   extract($values);
+   return view('test.test', [
+       'site' => $values['site'] ?? null,
+       'pageNotExists' => $values['pageNotExists'] ?? null,
+       'category' => $values['category'] ?? null,
+       'theme' => $values['theme'] ?? null,
+       'wikiPage' => ($values['wikiPage'] ?? null),
+       'wikiPageName' => ($values['wikiPageName'] ?? null),
+       'pageContent' => ($values['pageContent'] ?? null),
+       'topBarContent' => $values['topBarContent'] ?? null,
+       'sideBar1Content' => $values['sideBar1Content'] ?? null,
+       'breadcrumbs' => $values['breadcrumbs'] ?? null,
+       'tags' => $values['tags'] ?? null,
+       'licenseText' => $values['licenseText'] ?? null,
+       'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
+       'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
+       'URL_HOST' => GlobalProperties::$URL_HOST,
+       'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
+       'usePrivateWikiScript' => $values['usePrivateWikiScript'],
+       'privateWikiScriptUrl' => $values['privateWikiScriptUrl'],
+       'useCustomDomainScript' => $values['useCustomDomainScript'],
+       'useCustomDomainScriptSecure' => $values['useCustomDomainScriptSecure'],
+       'login' => $values['login'],
+       'pageOptions' => $values['pageOptions'],
+
+   ]);
 });
 
 /**
