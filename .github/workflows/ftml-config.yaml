@@ -5,6 +5,7 @@ on:
     paths:
       - 'ftml/conf/*.toml'
       - 'ftml/scripts/*'
+      - 'ftml/src/parsing/rule/impls/block/blocks/**/*'
       - '.github/workflows/ftml-config.yaml'
 
 jobs:
