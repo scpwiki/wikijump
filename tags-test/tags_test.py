@@ -12,8 +12,8 @@ import psycopg2
 
 TAGS = open('tags.txt').read().splitlines()
 
-PAGES = 20
-OPERATIONS = 20
+PAGES = 1000
+OPERATIONS = 10000
 
 # Utilities
 
