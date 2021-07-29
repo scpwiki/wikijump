@@ -101,7 +101,9 @@ def database_schema_create(cur):
         )
     """)
 
-    cur.execute("CREATE INDEX a__page_tags_tag_idx ON a__page_tags (tag)")
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS a__page_tags_tag_idx ON a__page_tags (tag)",
+    )
 
     # Option B
     cur.execute("""
