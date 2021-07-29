@@ -12,8 +12,10 @@ import psycopg2
 
 TAGS = open('tags.txt').read().splitlines()
 
-PAGES = 1000
-OPERATIONS = 10000
+#PAGES = 1000
+#OPERATIONS = 10000
+PAGES = 20
+OPERATIONS = 50
 
 # Utilities
 
@@ -69,6 +71,12 @@ def generate_slugs_and_tags():
         slugs[slug] = tags
 
     return slugs
+
+def print_plan(cur):
+    for line, in cur.fetchall():
+        print(line)
+
+    print()
 
 # Setup
 
@@ -149,6 +157,18 @@ def database_populate(cur):
 
     return pages
 
+def plan_database_populate(cur):
+    print("** Query plan for Option A populate")
+    cur.execute("EXPLAIN INSERT INTO a__pages (slug) VALUES ('plan') RETURNING page_id")
+    print_plan(cur)
+
+    cur.execute("EXPLAIN INSERT INTO a__page_tags (tag, page_id) VALUES ('plan', 1)")
+    print_plan(cur)
+
+    print("** Query plan for Option B populate")
+    cur.execute("EXPLAIN INSERT INTO b__pages (slug, tags) VALUES ('plan', '{}')")
+    print_plan(cur)
+
 def refresh_page_data(cur, pages):
     for slug, page in pages.items():
         cur.execute(
@@ -203,6 +223,25 @@ def read_tags(cur, pages, slugs):
             tags = set(tags_raw)
             assert pages[slug].tags_b == tags
 
+def plan_read_tags(cur):
+    print("** Query plan for Option A read tags (slug)")
+    cur.execute("""
+        EXPLAIN SELECT a__page_tags.tag
+        FROM a__page_tags
+        JOIN a__pages
+            ON a__page_tags.page_id = a__pages.page_id
+        WHERE a__pages.slug = 'plan'
+    """)
+    print_plan(cur)
+
+    print("** Query plan for Option A read tags (page id)")
+    cur.execute("EXPLAIN SELECT tag FROM a__page_tags WHERE page_id = 1")
+    print_plan(cur)
+
+    print("** Query plan for Option B read tags")
+    cur.execute("EXPLAIN SELECT tags FROM b__pages WHERE slug = 'plan'")
+    print_plan(cur)
+
 def add_tags(cur, pages, slugs):
     refresh_page_data(cur, pages)
 
@@ -253,6 +292,15 @@ def add_tags(cur, pages, slugs):
                 {'tags': list(tags), 'slug': slug},
             )
 
+def plan_add_tags(cur):
+    print("** Query plan for Option A add tags")
+    cur.execute("EXPLAIN INSERT INTO a__page_tags (tag, page_id) VALUES ('plan', 1)")
+    print_plan(cur)
+
+    print("** Query plan for Option B add tags")
+    cur.execute("EXPLAIN SELECT tags FROM b__pages WHERE slug = 'plan'")
+    print_plan(cur)
+
 def remove_tags(cur, pages, slugs):
     refresh_page_data(cur, pages)
 
@@ -302,6 +350,14 @@ def remove_tags(cur, pages, slugs):
                 {'tags': list(tags), 'slug': slug},
             )
 
+def plan_remove_tags(cur):
+    print("** Query plan for Option A remove tags")
+    cur.execute("EXPLAIN DELETE FROM a__page_tags WHERE tag = 'plan' AND page_id = 1")
+    print_plan(cur)
+
+    print("** Query plan for Option B remove tags")
+    cur.execute("EXPLAIN UPDATE b__pages SET tags = '{}' WHERE slug = 'plan'")
+    print_plan(cur)
 
 def change_tags(cur, pages, slugs):
     refresh_page_data(cur, pages)
@@ -373,7 +429,6 @@ def change_tags(cur, pages, slugs):
                 {'tags': list(tags), 'slug': slug},
             )
 
-
 def overwrite_tags(cur, pages, slugs):
     with timer("option A overwrite tags (slug)"):
         for _ in range(OPERATIONS):
@@ -427,6 +482,18 @@ def overwrite_tags(cur, pages, slugs):
                     {'tags': list(new_tags), 'slug': slug},
                 )
 
+def plan_overwrite_tags(cur):
+    print("** Query plan for Option A overwrite tags")
+    cur.execute("EXPLAIN DELETE FROM a__page_tags WHERE page_id = 1")
+    print_plan(cur)
+
+    cur.execute("EXPLAIN INSERT INTO a__page_tags (tag, page_id) VALUES ('plan', 1)")
+    print_plan(cur)
+
+    print("** Query plan for Option B remove tags")
+    cur.execute("EXPLAIN UPDATE b__pages SET tags = '{}' WHERE slug = 'plan'")
+    print_plan(cur)
+
 def get_tag_cloud(cur, pages, slugs):
     tag_count = PAGES // 4
 
@@ -464,6 +531,23 @@ def get_tag_cloud(cur, pages, slugs):
         for tags, in cur.fetchall():
             for tag in tags:
                 tag_counts[tag] += 1
+
+def plan_tag_cloud(cur):
+    print("** Query plan for Option A tag cloud")
+    cur.execute("""
+        EXPLAIN SELECT
+            DISTINCT(tag),
+            COUNT(tag)
+        FROM a__page_tags
+        WHERE page_id IN (1, 2)
+        GROUP BY tag
+        ORDER BY tag
+    """)
+    print_plan(cur)
+
+    print("** Query plan for Option B tag cloud")
+    cur.execute("EXPLAIN SELECT tags FROM b__pages WHERE page_id IN (1, 2)")
+    print_plan(cur)
 
 # Main
 
@@ -505,5 +589,14 @@ if __name__ == "__main__":
         print("Get tag cloud...")
         with conn.cursor() as cur:
             get_tag_cloud(cur, pages, slugs)
+
+        print("Showing query plans...")
+        with conn.cursor() as cur:
+            plan_database_populate(cur)
+            plan_read_tags(cur)
+            plan_add_tags(cur)
+            plan_remove_tags(cur)
+            plan_overwrite_tags(cur)
+            plan_tag_cloud(cur)
 
     print("Finished!")
