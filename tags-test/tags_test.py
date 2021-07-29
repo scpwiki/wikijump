@@ -145,6 +145,21 @@ def database_populate(cur):
 
     return pages
 
+def refresh_page_data(cur, pages):
+    for slug, page in pages.items():
+        cur.execute(
+            "SELECT tag FROM a__page_tags WHERE page_id = %(page_id)s",
+            {'page_id': page.page_id_a},
+        )
+        page.tags_a = {tag for tag, in cur.fetchall()}
+
+        cur.execute(
+            "SELECT tags FROM b__pages WHERE page_id = %(page_id)s",
+            {'page_id': page.page_id_b},
+        )
+        tags, = cur.fetchone()
+        page.tags_b = set(tags)
+
 # Operations
 
 def read_tags(cur, pages, slugs):
@@ -185,6 +200,8 @@ def read_tags(cur, pages, slugs):
             assert pages[slug].tags_b == tags
 
 def add_tags(cur, pages, slugs):
+    refresh_page_data(cur, pages)
+
     with timer("option A add tags (slug)"):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
@@ -233,6 +250,8 @@ def add_tags(cur, pages, slugs):
             )
 
 def remove_tags(cur, pages, slugs):
+    refresh_page_data(cur, pages)
+
     with timer("option A remove tags (slug)"):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
@@ -281,6 +300,8 @@ def remove_tags(cur, pages, slugs):
 
 
 def change_tags(cur, pages, slugs):
+    refresh_page_data(cur, pages)
+
     with timer("option A change tags (slug)"):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
