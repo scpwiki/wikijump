@@ -74,7 +74,7 @@ def generate_slugs_and_tags():
 
 def print_plan(cur):
     for line, in cur.fetchall():
-        print(line)
+        print('  ', line)
 
     print()
 
