@@ -32,7 +32,8 @@ def timer(name):
     stop = time.monotonic_ns()
     elapsed_ns = stop - start
     elapsed_ms = elapsed_ns / 1e6
-    print(f"+ Task '{name}' in {elapsed_ms:.4f} ms")
+    elapsed_ms_each = elapsed_ms / OPERATIONS
+    print(f"+ Task '{name}' in {elapsed_ms:.4f} ms ({elapsed_ms_each:.4f} ms per iteration)")
 
 @contextmanager
 def transaction(cur):
