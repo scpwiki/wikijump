@@ -464,8 +464,8 @@ def get_tag_cloud(cur, pages, slugs):
 # Main
 
 if __name__ == "__main__":
-    print(f"Pages: {PAGES}")
-    print(f"Operations: {OPERATIONS}")
+    print(f"Pages: {PAGES:,}")
+    print(f"Operations: {OPERATIONS:,}")
     print()
 
     with database_connect() as conn:
