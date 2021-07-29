@@ -3,6 +3,7 @@
 import json
 import random
 import time
+from collections import defaultdict
 from contextlib import contextmanager
 from dataclasses import dataclass
 from uuid import uuid4
@@ -19,7 +20,8 @@ OPERATIONS = 20
 @dataclass
 class Page:
     slug: str
-    tags: set[str]
+    tags_a: set[str]
+    tags_b: set[str]
     page_id_a: int
     page_id_b: int
 
@@ -129,7 +131,7 @@ def database_populate(cur):
                     {'tag': tag, 'page_id': page_id_a},
                 )
 
-            pages[slug] = Page(tags, tags, page_id_a, None)
+            pages[slug] = Page(slug, tags, tags, page_id_a, None)
 
     with timer("option B populate"):
         for slug, tags in slugs.items():
@@ -159,7 +161,7 @@ def read_tags(cur, pages, slugs):
                 {'slug': slug},
             )
             tags = {tag for (tag,) in cur.fetchall()}
-            assert pages[slug].tags == tags
+            assert pages[slug].tags_a == tags
 
     with timer("option A read tags (page id)"):
         for _ in range(OPERATIONS):
@@ -170,7 +172,7 @@ def read_tags(cur, pages, slugs):
                 {'page_id': pages[slug].page_id_a},
             )
             tags = {tag for (tag,) in cur.fetchall()}
-            assert pages[slug].tags == tags
+            assert pages[slug].tags_a == tags
 
     with timer("option B read tags"):
         for _ in range(OPERATIONS):
@@ -179,41 +181,41 @@ def read_tags(cur, pages, slugs):
             cur.execute("SELECT tags FROM b__pages WHERE slug = %(slug)s", {'slug': slug})
             tags_raw, = cur.fetchone()
             tags = set(tags_raw)
-            assert pages[slug].tags == tags
+            assert pages[slug].tags_b == tags
 
 def add_tags(cur, pages, slugs):
     with timer("option A add tags (slug)"):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
+            tags = pages[slug].tags_a
             added_tags = random_tags(max_len=10)
-            tags = pages[slug].tags
+            added_tags.difference_update(tags)
 
             cur.execute("SELECT page_id FROM a__pages WHERE slug = %(slug)s", {'slug': slug})
             page_id_a, = cur.fetchone()
             assert pages[slug].page_id_a == page_id_a
 
             for tag in added_tags:
-                if tag not in tags:
-                    cur.execute(
-                        "INSERT INTO a__page_tags (tag, page_id) VALUES (%(tag)s, %(page_id)s)",
-                        {'tag': tag, 'page_id': page_id_a},
-                    )
+                cur.execute(
+                    "INSERT INTO a__page_tags (tag, page_id) VALUES (%(tag)s, %(page_id)s)",
+                    {'tag': tag, 'page_id': page_id_a},
+                )
 
             tags.update(added_tags)
 
     with timer("option A add tags (page id)"):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
+            tags = pages[slug].tags_a
             added_tags = random_tags(max_len=10)
-            tags = pages[slug].tags
+            added_tags.difference_update(tags)
             page_id_a = pages[slug].page_id_a
 
             for tag in added_tags:
-                if tag not in tags:
-                    cur.execute(
-                        "INSERT INTO a__page_tags (tag, page_id) VALUES (%(tag)s, %(page_id)s)",
-                        {'tag': tag, 'page_id': page_id_a},
-                    )
+                cur.execute(
+                    "INSERT INTO a__page_tags (tag, page_id) VALUES (%(tag)s, %(page_id)s)",
+                    {'tag': tag, 'page_id': page_id_a},
+                )
 
             tags.update(added_tags)
 
@@ -221,7 +223,7 @@ def add_tags(cur, pages, slugs):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
             added_tags = random_tags(max_len=10)
-            tags = pages[slug].tags
+            tags = pages[slug].tags_b
             tags.update(added_tags)
 
             cur.execute(
@@ -233,7 +235,7 @@ def remove_tags(cur, pages, slugs):
     with timer("option A remove tags (slug)"):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
-            tags = pages[slug].tags
+            tags = pages[slug].tags_a
             removed_tags = select_tags(tags)
 
             cur.execute("SELECT page_id FROM a__pages WHERE slug = %(slug)s", {'slug': slug})
@@ -252,7 +254,7 @@ def remove_tags(cur, pages, slugs):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
             page_id_a = pages[slug].page_id_a
-            tags = pages[slug].tags
+            tags = pages[slug].tags_a
             removed_tags = select_tags(tags)
 
             for tag in removed_tags:
@@ -267,7 +269,7 @@ def remove_tags(cur, pages, slugs):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
             removed_tags = select_tags(tags)
-            tags = pages[slug].tags
+            tags = pages[slug].tags_b
 
             tags.difference_update(removed_tags)
 
@@ -281,8 +283,9 @@ def change_tags(cur, pages, slugs):
     with timer("option A change tags (slug)"):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
-            tags = pages[slug].tags
+            tags = pages[slug].tags_a
             added_tags = random_tags(max_len=10)
+            added_tags.difference_update(tags)
             removed_tags = select_tags(tags)
 
             cur.execute("SELECT page_id FROM a__pages WHERE slug = %(slug)s", {'slug': slug})
@@ -290,11 +293,10 @@ def change_tags(cur, pages, slugs):
             assert pages[slug].page_id_a == page_id_a
 
             for tag in added_tags:
-                if tag not in tags:
-                    cur.execute(
-                        "INSERT INTO a__page_tags (tag, page_id) VALUES (%(tag)s, %(page_id)s)",
-                        {'tag': tag, 'page_id': page_id_a},
-                    )
+                cur.execute(
+                    "INSERT INTO a__page_tags (tag, page_id) VALUES (%(tag)s, %(page_id)s)",
+                    {'tag': tag, 'page_id': page_id_a},
+                )
 
             for tag in removed_tags:
                 cur.execute(
@@ -308,17 +310,17 @@ def change_tags(cur, pages, slugs):
     with timer("option A change tags (page id)"):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
-            tags = pages[slug].tags
+            tags = pages[slug].tags_a
             added_tags = random_tags(max_len=10)
+            added_tags.difference_update(tags)
             removed_tags = select_tags(tags)
             page_id_a = pages[slug].page_id_a
 
             for tag in added_tags:
-                if tag not in tags:
-                    cur.execute(
-                        "INSERT INTO a__page_tags (tag, page_id) VALUES (%(tag)s, %(page_id)s)",
-                        {'tag': tag, 'page_id': page_id_a},
-                    )
+                cur.execute(
+                    "INSERT INTO a__page_tags (tag, page_id) VALUES (%(tag)s, %(page_id)s)",
+                    {'tag': tag, 'page_id': page_id_a},
+                )
 
             for tag in removed_tags:
                 cur.execute(
@@ -332,8 +334,9 @@ def change_tags(cur, pages, slugs):
     with timer("option B change tags"):
         for _ in range(OPERATIONS):
             slug = random.choice(slugs)
-            tags = pages[slug].tags
+            tags = pages[slug].tags_b
             added_tags = random_tags(max_len=10)
+            added_tags.difference_update(tags)
             removed_tags = select_tags(tags)
 
             tags.update(added_tags)
@@ -351,7 +354,7 @@ def overwrite_tags(cur, pages, slugs):
             with transaction(cur):
                 slug = random.choice(slugs)
                 new_tags = random_tags()
-                pages[slug].tags = new_tags
+                pages[slug].tags_a = new_tags
 
                 cur.execute("SELECT page_id FROM a__pages WHERE slug = %(slug)s", {'slug': slug})
                 page_id_a, = cur.fetchone()
@@ -373,7 +376,7 @@ def overwrite_tags(cur, pages, slugs):
             with transaction(cur):
                 slug = random.choice(slugs)
                 new_tags = random_tags()
-                pages[slug].tags = new_tags
+                pages[slug].tags_a = new_tags
 
                 cur.execute(
                     "DELETE FROM a__page_tags WHERE page_id = %(page_id)s",
@@ -391,7 +394,7 @@ def overwrite_tags(cur, pages, slugs):
             with transaction(cur):
                 slug = random.choice(slugs)
                 new_tags = random_tags()
-                pages[slug].tags = new_tags
+                pages[slug].tags_b = new_tags
 
                 cur.execute(
                     "UPDATE b__pages SET tags = %(tags)s WHERE slug = %(slug)s",
@@ -399,7 +402,42 @@ def overwrite_tags(cur, pages, slugs):
                 )
 
 def get_tag_cloud(cur, pages, slugs):
-    ...
+    tag_count = PAGES // 4
+
+    with timer("option A tag cloud"):
+        # Arbitrary set of pages that we're getting a tag cloud for.
+        # Stand-in for sites.
+        random.shuffle(slugs)
+        cloud_slugs = slugs[:tag_count]
+        cloud_page_ids = [pages[slug].page_id_a for slug in cloud_slugs]
+
+        cur.execute("""
+                SELECT
+                    DISTINCT(tag),
+                    COUNT(tag)
+                FROM a__page_tags
+                WHERE page_id IN %(page_ids)s
+                GROUP BY tag
+                ORDER BY tag
+            """,
+            {'page_ids': tuple(cloud_page_ids)},
+        )
+        tag_counts = {tag: count for tag, count in cur.fetchall()}
+
+    with timer("option B tag cloud"):
+        random.shuffle(slugs)
+        cloud_slugs = slugs[:tag_count]
+        cloud_page_ids = [pages[slug].page_id_b for slug in cloud_slugs]
+
+        cur.execute(
+            "SELECT tags FROM b__pages WHERE page_id IN %(page_ids)s",
+            {'page_ids': tuple(cloud_page_ids)},
+        )
+
+        tag_counts = defaultdict(lambda: 0)
+        for tags, in cur.fetchall():
+            for tag in tags:
+                tag_counts[tag] += 1
 
 # Main
 
@@ -416,7 +454,7 @@ if __name__ == "__main__":
         print("Populating pages...")
         with conn.cursor() as cur:
             pages = database_populate(cur)
-            slugs = tuple(pages.keys())
+            slugs = list(pages.keys())
 
         print("Reading page tags...")
         with conn.cursor() as cur:
