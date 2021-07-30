@@ -51,7 +51,7 @@ wikidot-normalize = "0.8"
 
 [build-dependencies]
 built = { version = "0.5", features = ["chrono", "git2"] }
-cbindgen = "0.19"
+cbindgen = "0.20"
 
 [dev-dependencies]
 proptest = "1"
