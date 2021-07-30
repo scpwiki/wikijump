@@ -144,6 +144,14 @@ body = "elements"
 html-attributes = true
 html-output = "html,em"
 
+[li]
+head = "map"
+body = "elements"
+accepts-score = true
+accepts-newlines = true
+html-attributes = true
+html-output = "html,li"
+
 [lines]
 aliases = ["newlines"]
 accepts-newlines = true
@@ -172,6 +180,14 @@ head = "map"
 body = "elements"
 html-attributes = true
 html-output = "html,tt"
+
+[ol]
+head = "map"
+body = "elements"
+accepts-score = true
+accepts-newlines = true
+html-attributes = true
+html-output = "html,ol"
 
 [paragraph]
 aliases = ["p"]
@@ -221,6 +237,14 @@ head = "map"
 body = "elements"
 html-attributes = true
 html-output = "html,sup"
+
+[ul]
+head = "map"
+body = "elements"
+accepts-score = true
+accepts-newlines = true
+html-attributes = true
+html-output = "html,ul"
 
 [user]
 accepts-star = true
