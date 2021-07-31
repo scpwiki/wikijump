@@ -48,8 +48,8 @@ pub fn render_image(
     let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
 
     let image_classes = match alignment {
-        Some(align) => ["image-container", " ", align.html_class()],
-        None => ["image-container", "", ""],
+        Some(align) => ["wj-image-container", " ", align.html_class()],
+        None => ["wj-image-container", "", ""],
     };
 
     ctx.html()
@@ -61,7 +61,7 @@ pub fn render_image(
                     .img()
                     .attr("src", &[&source_url])
                     .attr("crossorigin", &[])
-                    .attr_map_prepend(attributes, ("class", "image"));
+                    .attr_map_prepend(attributes, ("class", "wj-image"));
             };
 
             match link {

@@ -25,8 +25,7 @@ pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
 
     ctx.html()
         .span()
-        .attr("class", &["raw"])
-        .attr("style", &["white-space: pre-wrap;"]) // TODO add this to the "raw" class
+        .attr("class", &["wj-raw"])
         .inner(log, &text);
 }
 
@@ -38,8 +37,7 @@ pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
 
     ctx.html()
         .span()
-        .attr("class", &["email"])
-        .attr("style", &["word-break: keep-all;"]) // TODO add this to the "email" class
+        .attr("class", &["wj-email"])
         .inner(log, &email);
 }
 
@@ -60,7 +58,7 @@ pub fn render_code(
     ctx.handle().post_code(log, index, contents);
 
     let class = {
-        let mut class = format!("code language-{}", language.unwrap_or("none"));
+        let mut class = format!("wj-code wj-language-{}", language.unwrap_or("none"));
         class.make_ascii_lowercase();
         class
     };

@@ -31,7 +31,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
     ctx
         .html()
         .span()
-        .attr("class", &["user-info"])
+        .attr("class", &["wj-user-info"])
         .contents(|ctx| {
             match ctx.handle().get_user_info(log, name) {
                 Some(info) => {
@@ -51,14 +51,14 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                 ctx
                                     .html()
                                     .img()
-                                    .attr("class", &["small"])
+                                    .attr("class", &["wj-small"])
                                     .attr("src", &[&info.user_avatar_data]);
                             }
 
                             ctx
                                 .html()
                                 .span()
-                                .attr("class", &["user-info-name"])
+                                .attr("class", &["wj-user-info-name"])
                                 .inner(log, &&info.user_name);
                         });
                 }
@@ -68,21 +68,21 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                     ctx
                         .html()
                         .span()
-                        .attr("class", &["error-inline"])
+                        .attr("class", &["wj-error-inline"])
                         .contents(|ctx| {
                             if show_avatar {
                                 // TODO get actual avatar missing data
                                 ctx
                                     .html()
                                     .img()
-                                    .attr("class", &["small"])
+                                    .attr("class", &["wj-small"])
                                     .attr("src", &["https://www.wikijump.com/avatars--common/missing/small.png"]);
                             }
 
                             ctx
                                 .html()
                                 .span()
-                                .attr("class", &["user-info-name"])
+                                .attr("class", &["wj-user-info-name"])
                                 .inner(log, &name);
                         });
                 }

@@ -1,5 +1,5 @@
 /*
- * wasm/mod.rs
+ * ffi/css.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,32 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[macro_use]
-mod macros;
+use super::prelude::*;
 
-#[cfg(feature = "css")]
-mod css;
-
-mod error;
-mod log;
-mod misc;
-mod parsing;
-mod preproc;
-mod render;
-mod tokenizer;
-mod utf16;
-
-mod prelude {
-    pub use super::log::LOGGER;
-    pub use wasm_bindgen::prelude::*;
-    pub use wasm_bindgen::JsCast;
+lazy_static! {
+    static ref FTML_BASE_CSS: CString = CString::new(crate::FTML_BASE_CSS).unwrap();
 }
 
-#[cfg(feature = "wasm-log")]
-pub use self::log::ConsoleLogger;
-
-pub use self::misc::version;
-pub use self::parsing::{parse, ParseOutcome, SyntaxTree};
-pub use self::preproc::preprocess;
-pub use self::render::{render_html, render_text};
-pub use self::tokenizer::{tokenize, Tokenization};
+/// Outputs a copy of the ftml base CSS.
+///
+/// This string data is immutable and should not be modified.
+#[no_mangle]
+pub extern "C" fn ftml_base_css() -> *const c_char {
+    FTML_BASE_CSS.as_ptr()
+}
