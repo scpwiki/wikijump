@@ -34,7 +34,7 @@ sheaf:
 
   preview_tabs:
     RESULT: Esultray
-    HTML: TMLHAY Outputay
+    HTML: HTMLAY Outputay
     CSS: SSCAY Outputay
     AST: ASTAY
     TOKENS: Okenstay
@@ -128,3 +128,491 @@ cmftml:
     INVALID_URL: Ethay urlyay ''{slice}'' isyay invalidyay.
     ## InvalidUrl
     ## The URL passed here was invalid.
+
+  blocks:
+    ACCEPTS_STAR: >
+      Isthay ockblay acceptsyay ethay '*' (star) efixpray.
+      Ethay effectyay ofyay ovidingpray isthay efixpray ependsday onyay ethay ockblay.
+
+    ACCEPTS_SCORE: >
+      Isthay ockblay acceptsyay ethay '_' (orescay) uffixsay,
+      ichway illway ipstray eadinglay andyay ailingtray ewlinesnay.
+
+    ACCEPTS_NEWLINES: >
+      Isthay ockblay acceptsyay ewlinesnay etweenbay itsyay artstay andyay endyay odesnay.
+
+    HTML_ATTRIBUTES: >
+      Isthay ockblay acceptsyay enericgay HTMLAY attributesyay/argumentsyay.
+      HTMLAY attributesyay areyay ubjectsay otay ayay itelistwhay, utbay egardlessray ostmay ancay ebay usedyay.
+
+    argument_types:
+      none:
+        TITLE: ONENAY
+        INFO: Isthay ockblay oesn'tday acceptyay anyyay argumentsyay.
+      value:
+        TITLE: ALUEVAY
+        INFO: Isthay ockblay acceptsyay exttay etweenbay ethay artstay andyay endyay ofyay ethay odenay.
+      map:
+        TITLE: APMAY
+        INFO: Isthay ockblay acceptsyay argumentsyay.
+      value_map:
+        TITLE: ALUEVAY+APMAY
+        INFO: Isthay ockblay acceptsyay exttay, andyay enthay ollowingfay ayay acespay acceptsyay argumentsyay.
+
+    body_types:
+      none:
+        TITLE: ONENAY
+        INFO: Isthay ockblay ashay onay odybay, andyay oesday otnay eednay ayay erminatingtay odenay.
+      raw:
+        TITLE: AWRAY
+        INFO: Isthay ockblay acceptsyay ayay odybay, utbay interpretsyay atthay odybay asyay awray exttay.
+      elements:
+        TITLE: ELEMENTSYAY
+        INFO: Isthay ockblay acceptsyay ayay odybay, andyay ancay estnay additionalyay elementsyay ithinway ityay.
+      other:
+        TITLE: OTHERYAY
+        INFO: Isthay ockblay ashay ayay ecialspay yntaxsay atthay isn'tyay easilyyay ategorizedcay.
+
+    BLOCK_UNDOCUMENTED: >
+      Isthay ockblay urrentlycay oesday otnay avehay anyyay ocumentationday, utbay ityay isyay alidvay.
+
+    # -- INDIVIDUAL BLOCK DOCUMENTATION
+
+    # format:
+    # <name>:
+    #   TITLE: <formal name>
+    #   INFO: <detailed description>
+    #   EXAMPLE: <example codeblock>
+    #
+    # The block INFO is rendered with FTML.
+
+    anchor:
+      TITLE: Nchorayay
+      INFO: >
+        Eatescray inkslay etweenbay agespay oryay otheryay ebway agespay. Ikelay ethay HTMLAY {{<a>}} agtay,
+        ethay {{href}} attributeyay eedsnay otay ebay usedyay ithway ethay {{[[anchor]]}} ockblay.
+      EXAMPLE: |
+        [[a href="/scp-4000/noredirect/true" target="_blank" class="dual-link"]]Aefay[[/a]]
+
+    blockquote:
+      TITLE: Ockquoteblay
+      INFO: >
+        Ndicatesiyay atthay nclosedeyay exttay isyay anyay extendedyay otationquay,
+        althoughyay ethay "xtendedeyay otationquay" interpretationyay ofyay ockquoteblays
+        aymay otnay ebay owhay ey'rethay usedyay inyay acticepray. Ethay eaningmay ofyay ockquoteblays
+        iffersday omfray itesay-otay-itesay andyay oftenyay ependsday onyay ethay ylingstay ivengay otay emthay.
+
+        Usingyay ethay {{[[blockquote]]}} ockblay isyay ethay amesay asyay usingyay {{> exttay}},
+        ithway ethay ifferenceday onlyyay eingbay ethay yntaxsay usedyay.
+      EXAMPLE: |
+        [[blockquote]]
+        Omesay exttay erehay.
+        [[/blockquote]]
+        [!-- equivalent to --]
+        > Omesay exttay erehay.
+
+    bold:
+      TITLE: Oldbay
+      INFO: >
+        Oldsbay ethay enclosedyay exttay.
+        Usingyay {{[[bold]]}} isyay ethay amesay asthay usingyay {{@<**oldbay**>@}}.
+        ithway ethay ifferenceday onlyyay eingbay ethay yntaxsay usedyay.
+      EXAMPLE: |
+        Omesay [[b]]exttay![[/b]]
+        [!-- equivalentyay otay --]
+        Omesay **exttay!**
+
+    char:
+      TITLE: Archay
+      INFO: >
+        Endersray anway HTMLAY entityway (away ecialspay aracterchay) inway aceplay ofway ethay ockblay.
+
+        Otenay: Ethay yntaxsay orfay HTMLAY entitiesway isway implifiedsay orfay onvinencecay. Ormallynay,
+        ouyay ouldway eednay otay itewray {{&copy;}} otay isplayday ethay opyrightcay ymbolsay inway HTMLAY, utbay
+        ithway ethay {{[[char]]}} ockblay ouyay ustjay eednay otay itewray {{char}}.
+
+        [[[https://dev.w3.org/html5/html-author/charref | Istlay ofway HTMLAY entitiesway]]]
+      EXAMPLE: |
+        Isthay ilefay isway [[char copy]] 2021 Eamtay Ikijumpway.
+
+    checkbox:
+      TITLE: Eckboxchay
+      INFO: >
+        Eatescray anway interactiveway eckboxchay inputway atthay ancay ebay eckedchay orway uncheckedway.
+
+        Ovidingpray ethay {{*}} efixpray etssay ethay eckboxchay otay artstay eckedchay.
+      EXAMPLE: |
+        [[checkbox Appleway]]
+        [[*checkbox Ueberryblay]]
+        [[checkbox Errychay]]
+        [[checkbox Urianday]]
+
+    code:
+      TITLE: Odecay
+      INFO: >
+        Endersray ethay enclosedway exttay awray, ithway allway itespacewhay eservedpray.
+        Intendedway orfay useway ithway ogrammingpray odecay andway ethay ikelay.
+
+        Ovidingpray ethay {{type}} argumentway etssay ethay enclosedway exttay otay ebay
+        enderedray ithway yntaxsay ighlightinghay, ifway ethay ecifiedspay anguagelay
+        isway availableway.
+      EXAMPLE: |
+        [[code]]
+        Isthay exttay isway **otnay** enderedray asway Ikitextway, utbay outputway asway-isway!
+        [[/code]]
+        [!-- orway, ithway yntaxsay ighlightinghay --]
+        [[code type="javascript"]]
+        console.log("oofay"); // yntaxsay ighlightedhay asway JSAY!
+        [[/code]]
+
+    collapsible:
+      TITLE: Ollapsiblecay
+      INFO: >
+        Eatescray anway interactiveway ockblay atthay ancay ebay expandedway orway oldedfay,
+        andway enwhay expandedway, illway isplayday itsway ontentscay.
+      EXAMPLE: |
+        [[collapsible
+          show="+ Oilersspay orfay Ouroborosway"
+          hide="- Oilersspay!"
+          hideLocation="ottombay"
+        ]]
+        Overseersway ieday.
+        [[/collapsible]]
+
+    css:
+      TITLE: CSSAY
+      INFO: >
+        Addsway away CSSAY ylesheetstay otay ethay agepay, usingway ethay
+        enclosedway exttay asway ethay ourcesay.
+      EXAMPLE: |
+        [[css]]
+        #page-title {
+          color: purple;
+        }
+        [[/css]]
+
+    del:
+      TITLE: Eletionday
+      INFO: >
+        Enotesday atthay ethay enclosedway exttay ashay eenbay "eletedday" omfray ethay ocumentday.
+        Ethay exttay isway otnay iterallylay eletedday, insteadway, itway isway yledstay orway otherwiseway
+        etsay otay appearway asway eletedday.
+
+        Ependingday onway ontextcay, isthay aymay avehay ifferentday eaningsmay. Inway ethay ontextcay
+        ofway away orystay, ethay eletedday exttay aymay ebay away orytellingstay elementway, epresentingray
+        omethingsay iageticallyday eletedday omfray away ocumentday. Inway away ogrammingpray ontextcay,
+        itway aymay epresentray odecay atthay asway eletedday omfray away ilefay, eway.gay. inway away iffday.
+      EXAMPLE: |
+        Iway [[del]]on'tday[[/del]] ikelay atthay aircuthay.
+
+    div:
+      TITLE: Ivday
+      INFO: >
+        Eatescray away enericgay ockblay ontainercay elementway,
+        ichwhay aymay ebay yledstay, ivengay away assclay/IDWAY, etcway.
+      EXAMPLE: |
+        [[div_ class="blockquote" style="border: none;"]]
+        Omesay exttay __erehay!__
+        [[/div]]
+
+    hidden:
+      TITLE: Iddenhay
+      INFO: >
+        Ylesstay ethay enclosedway ockblay ofway exttay asway eingbay iddenhay.
+        Isthay ockblay oesday otnay eleteday orway otherwiseway eventpray ethay enclosedway exttay omfray
+        eingbay enderedray, insteadway, itway etssay ethay exttay otay ebay invisibleway. Away eaderray owhay
+        isway ersistentpay enoughway illway ebay ableway otay indfay ethay exttay.
+      EXAMPLE: |
+        Isthay exttay isway **isiblevay**.
+        [[hidden]]
+        Isthay exttay isway otnay.
+        [[/hidden]]
+
+    html:
+      TITLE: HTMLAY
+      INFO: >
+        Endersray ethay enclosedway ockblay ofway exttay inway anway {{<iframe>}} elementway.
+        Inway otherway ordsway, itway allowsway ethay insertionway ofway arbitraryway HTMLAY
+        arkupmay inway away afesay ayway.  Isthay ancay ebay usedway otay embedway idgetsway orway
+        evenway amesgay.
+      EXAMPLE: |
+        [[html]]
+        <h2>Excitingway!</h2>
+        <p>
+        Isthay HTMLAY illway appearway inway anway iframeway ostedhay onway ileswjfay!
+        </p>
+        [[/html]]
+
+    ifcategory:
+      TITLE: ifcategoryway
+      INFO: >
+        Etssay ethay enclosedway exttay otay ebay onditionallycay enderedray ependingday onway ifway ethay
+        agepay isway inway, orway isway otnay inway, ertaincay ategoriescay.
+
+        Yntaxsay:
+
+        * {{+<ategorycay>}} Equiresray atthay ethay agepay isway inway ethay ategorycay.
+
+        * {{-<ategorycay>}} Equiresray atthay ethay agepay //isway otnay// inway ethay ategorycay.
+
+        Additionallyway, ethay {{+}} efixpray ancay ebay omittedway,
+        asway inway ustjay ypingtay {{<ategorycay>}}.
+        Ethay {{+}} isway assumedway ifway onay otherway efixpray isway esentpray.
+
+        Inallyfay, asway away agepay annotcay ebay inway oremay anthay oneway
+        ategorycay atway onceway, avinghay ultiplemay {{+<ategorycay>}} atementsstay
+        actsway asway anway {{ORWAY}} onditionalcay. Inway otherway ordsway, ethay
+        agepay ashay otay ebay //inway oneway ofway// ethay istedlay (ositivepay) ategoriescay.
+      EXAMPLE: |
+        [[ifcategory _default]]
+        Illway enderray ifway ethay agepay isway inway ethay efaultday ategorycay.
+        [[/ifcategory]]
+
+        [[ifcategory +_default +omponentcay -agmentfray]]
+        Isthay illway enderray ifway ethay agepay isway inway eitherway
+        ethay _efaultday orway omponentcay ategoriescay. Utbay ifway ethay
+        agepay isway inway ethay agmentfray ategorycay, isthay on'tway enderray.
+        [[/ifcategory]]
+
+        [[ifcategory -_default]]
+        Illway onlyway enderray ifway ethay agepay isway inway away ategorycay
+        atthay isn'tway ethay efaultday.
+        [[/ifcategory]]
+
+    iftags:
+      TITLE: iftagsway
+      INFO: >
+        Etssay ethay enclosedway exttay otay ebay onditionallycay enderedray ependingday onway ifway ethay
+        agepay oesday orway oesday otnay avehay ertaincay agstay.
+
+        Yntaxsay:
+
+        * {{<agtay>}} Equiresray atthay isthay agtay, orway anyway otherway {{<agtay>}}, isway esentpray.
+
+        * {{+<agtay>}} Equiresray atthay ethay agtay isway esentpray.
+
+        * {{-<agtay>}} Equiresray atthay ethay agtay //isway otnay// esentpray.
+
+        Otay explainway ethay irstfay yntaxsay ({{<agtay>}}) urtherfay,
+        allway {{<agtay>}} atementsstay areway "umpedlay ogethertay" andway eckedchay.
+        Ifway _anyway_ ofway emthay areway esentpray, isthay eckchay assespay.
+        Isthay isway exactlyway ikelay anway {{ORWAY}} onditionalcay.
+        Isthay iffersday omfray owhay ethay {{+<agtay>}} andway {{-<agtay>}} yntaxessay ehavebay,
+        ichwhay emandday atthay ethay agtay isway orway isway otnay esentpray.
+      EXAMPLE: |
+        [[iftags +iencescay]]
+        Isthay agepay isway abeledlay asway: iencescay.
+        [[/iftags]]
+
+        [[iftags +ugbay -ixedfay]]
+        Isthay isway away ugbay, andway it'sway otnay ixedfay etyay.
+        [[/iftags]]
+
+    iframe:
+      TITLE: iframeway
+      INFO: >
+        Eatescray anway {{<iframe>}} elementway inway aceplay.
+        Isthay allowsway orfay ethay embeddingway ofway externalway ontentcay,
+        ivengay anway URLWAY otay aidsay ontentcay.
+        Isthay isway imilarsay otay ethay {{[[html]]}} elementway.
+      EXAMPLE: |
+        Ymay ebsiteway:
+        [[iframe httpsay://exampleway.omcay/ class="ebsiteway"]]
+
+    image:
+      TITLE: Imageway
+      INFO: >
+        Embedsway anway imageway inway ethay enderedray ocumentday.
+
+        Acceptsway ethay ollowingfay efixespray:
+
+        * {{=}} Enterscay ethay imageway
+
+        * {{<}} Alignsway ethay imageway otay ethay eftlay
+
+        * {{>}} Alignsway ethay imageway otay ethay ightray
+
+        * {{fay<}} Oatsflay ethay imageway otay ethay eftlay, allowingway exttay otay apwray aroundway itway
+
+        * {{fay>}} Oatsflay ethay imageway otay ethay ightray, allowingway exttay otay apwray aroundway itway
+      EXAMPLE: |
+        [[image eengray_appleway.png alt="Away eengray appleway" title="Aketay away igbay itebay!" style="width: 100%;" class="uityfray"]]
+        [[image https://example.com/my-image.png]]
+        [[image /some-other-page/my-picture.jpeg]]
+        [[=image landscape.png]]
+        [[<image landscape.png]]
+        [[>image landscape.png]]
+        [[f<image landscape.png]]
+        [[f>image landscape.png]]
+        [[image filename.png link="#section"]]
+        [[image filename.png link="SCP-001"]]
+        [[image filename.png link="https://example.com/"]]
+
+    ins:
+      TITLE: Insertionway
+      INFO: >
+        Enotesday atthay ethay enclosedway exttay ashay eenbay
+        "insertedway" intoway ethay ocumentday. Isthay oesday
+        otnay insertway ethay enclosedway exttay inway omesay
+        ecialspay ayway, insteadway, itway isway yledstay
+        orway otherwiseway etsay otay appearway insertedway.
+
+        Ependingday onway ontextcay, isthay aymay avehay ifferentday
+        eaningsmay. Inway ethay ontextcay ofway away orystay,
+        ethay insertedway exttay aymay ebay away orytellingstay elementway,
+        epresentingray omethingsay iageticallyday insertedway intoway away
+        ocumentday. Inway away ogrammingpray ontextcay, itway aymay
+        epresentray ewnay odecay atthay asway insertedway intoway away
+        ilefay, eway.gay. inway away iffday.
+      EXAMPLE: |
+        Iway ouldway ikelay omesay [[ins]]anchovyway[[/ins]] izzapay easeplay, ankthay ouyay.
+
+    invisible:
+      TITLE: Invisibleway
+      INFO: >
+        Ylesstay ethay enclosedway anspay ofway exttay asway eingbay invisibleway.
+        Isthay oesday otnay eleteday orway otherwiseway eventpray ethay enclosedway exttay omfray
+        eingbay enderedray, insteadway, itway etssay ethay exttay otay ebay invisibleway. Away eaderray owhay
+        isway ersistentpay enoughway illway ebay ableway otay indfay ethay exttay.
+      EXAMPLE: |
+        Isthay exttay appearsway [[invisible]]utbay illstay akestay upway acespay, andway ancay ebay electedsay.[[/invisible]]
+
+    italics:
+      TITLE: Italicsway
+      INFO: >
+        Etssay ethay enclosedway exttay otay ebay italicizedway.
+        Usingway {{[[italics]]}} isway ethay amesay asway usingway {{@<//italicsway//>@}},
+        ithway ethay ifferenceday onlyway eingbay ethay yntaxsay usedway.
+      EXAMPLE: |
+        Isthay exttay isway egularray, utbay [[em]]isthay exttay isway emphasizedway[[/em]].
+        [!-- equivalentway otay --]
+        Isthay exttay isway egularray, utbay //isthay exttay isway emphasizedway//.
+
+    lines:
+      TITLE: Ineslay
+      INFO: >
+        Addsway away ecifiedspay umbernay ofway ewlinesnay otay ethay ocumentday.
+      EXAMPLE: |
+        [[lines 4]]
+        [!-- Uchmay easierway anthay ammingspay "@@@@"s --]
+
+    mark:
+      TITLE: Arkmay
+      INFO: >
+        Arksmay/ighlightshay ethay enclosedway exttay.
+      EXAMPLE: |
+        Isthay exttay isway [[mark]]ighlightedhay![[/mark]]
+
+    monospace:
+      TITLE: Onospacemay
+      INFO: >
+        Ylesstay ethay enclosedway exttay asway eingbay onospacedmay.
+        Isthay oesday otnay escapeway orway otherwiseway affectway ethay ormattingfay ofway ethay exttay,
+        itway implysay ylesstay itway.
+
+        Usingway {{[[tt]]}} isway ethay amesay asway usingway {{@<{{onospacemay}}>@}},
+        ithway ethay ifferenceday onlyway eingbay ethay yntaxsay usedway.
+      EXAMPLE: |
+        [[tt]]Isthay ookslay ikelay itway amecay omfray away ypewritertay orway omputercay erminaltay.[[/tt]]
+        [!-- equivalentway otay --]
+        {{Isthay ookslay ikelay itway amecay omfray away ypewritertay orway omputercay erminaltay.}}
+
+    paragraph:
+      TITLE: Aragraphpay
+      INFO: >
+        Eatescray away aragraphpay elementway. Isthay isway ormallynay
+        oneday automaticallyway, usingway ethay owflay ofway inebreakslay
+        andway ocksblay otay etermineday erewhay aragraphspay ouldshay ebay acedplay.
+        Oweverhay, usingway isthay ockblay allowsway avoidingway ethay eednay otay
+        useway {{[[div]]}} orway {{[[span]]}} ocksblay asway apperswray.
+      EXAMPLE: |
+        [[p class="uitsfray"]]
+        Appleway, Ananabay, Errychay!
+        [[/p]]
+
+    radio:
+      TITLE: Adioray
+      INFO: >
+        Eatescray anway interactiveway adioray-uttonbay inputway atthay
+        ancay ebay electedsay orway unselectedway. Ethay aluevay ivengay
+        orfay ethay ockblay etssay ethay adioray-utton'sbay oupgray.
+
+        Ovidingpray ethay {{*}} efixpray etssay ethay adioray-uttonbay
+        otay artstay electedsay.
+      EXAMPLE: |
+        Avoritefay indkay ofway usicmay:
+        [[radio usicmay]] Iscoday
+        [[radio usicmay]] Anceday
+        [[radio usicmay]] Apray
+        [[*radio usicmay]] Oisenay
+
+    size:
+      TITLE: Izesay
+      INFO: >
+        Etssay ethay ontfay-izesay ofway ethay enclosedway exttay.
+        Usesway CSSAY unitsway, eway.gay. {{em}} orway {{px}}.
+      EXAMPLE: |
+        Isthay exttay isway egularray, utbay [[size 250%]]isthay exttay isway uchmay argerlay[[/size]].
+
+    span:
+      TITLE: Anspay
+      INFO: >
+        Eatescray away enericgay inlineway ontainercay elementway,
+        ichwhay aymay ebay yledstay, ivengay away assclay/IDWAY, etcway.
+      EXAMPLE: |
+        Isthay exttay isway inway away anspay:
+        [[span assclay="uitfray"]]ananabay[[/span]]
+
+    strikethrough:
+      TITLE: Ikethroughstray
+      INFO: >
+        Etssay ethay enclosedway exttay otay ebay uckenstray.
+        Usingway {{[[s]]}} isway ethay amesay asway usingway {{@<--ikethroughstray-->@}},
+        ithway ethay ifferenceday onlyway eingbay ethay yntaxsay usedway.
+      EXAMPLE: |
+        Isthay exttay isway [[say]]uckstray oughthray![[/say]]
+        [!-- equivalentway otay --]
+        Isthay exttay isway --uckstray oughthray!--
+
+    subscript:
+      TITLE: Ubscriptsay
+      INFO: >
+        Etssay ethay enclosedway exttay asway eingbay away ubscriptsay.
+        Usingway {{[[sub]]}} isway ethay amesay asway usingway {{@<,,ubscriptsay,,>@}},
+        ithway ethay ifferenceday onlyway eingbay ethay yntaxsay usedway.
+      EXAMPLE: |
+        Etlay isthay ariablevay ebay alledcay xay[[sub]]Away[[/sub]].
+        [!-- equivalentway otay --]
+        Etlay isthay ariablevay ebay alledcay xay,,Away,,.
+
+    superscript:
+      TITLE: Uperscriptsay
+      INFO: >
+        Etssay ethay enclosedway exttay asway eingbay away uperscriptsay.
+        Usingway {{[[sup]]}} isway ethay amesay asway usingway {{@<^^upsay^^>@}},
+        ithway ethay ifferenceday onlyway eingbay ethay yntaxsay usedway.
+      EXAMPLE: |
+        Usthay, ethay esultray isway nay[[sup]]2[[/sup]].
+        [!-- equivalentway otay --]
+        Usthay, ethay esultray isway nay^^2^^.
+
+    user:
+      TITLE: Userway
+      INFO: >
+        Endersray away userway-infoway idgetway, ichwhay illway inklay otay andway
+        isplayday infoway aboutway ethay ecifiedspay userway.
+
+        Ovidingpray away {{*}} efixpray isplaysday ethay user'sway avatarway andway armakay asway ellway.
+      EXAMPLE: |
+        [[user xXxay-epicway-udeday-xXxay]]
+
+    underline:
+      TITLE: Underlineway
+      INFO: >
+        Underlinesway ethay enclosedway exttay.
+        Usingway {{[[u]]}} isway ethay amesay asway usingway {{@<__underlineway__>@}},
+        ithway ethay ifferenceday onlyway eingbay ethay yntaxsay usedway.
+      EXAMPLE: |
+        [[u]]Estingtay oglay 7192-45:[[/u]]
+        [!-- equivalentway otay --]
+        __Estingtay oglay 7192-45:__
