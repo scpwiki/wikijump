@@ -59,7 +59,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 // Also, determine if we add a prefix.
                 ContainerType::Div | ContainerType::Paragraph => (true, None),
                 ContainerType::Blockquote => (true, Some("    ")),
-                ContainerType::Header(level) => (true, Some(level.prefix_with_space())),
+                ContainerType::Header(heading) => {
+                    (true, Some(heading.level.prefix_with_space()))
+                }
 
                 // Inline or miscellaneous container.
                 _ => (false, None),

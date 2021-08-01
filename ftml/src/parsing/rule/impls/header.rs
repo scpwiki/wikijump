@@ -49,9 +49,8 @@ fn try_consume_fn<'p, 'r, 't>(
     check_step_multiple(parser, &[Token::LineBreak, Token::InputStart])?;
 
     // Get header depth
-    let heading_level = step!(Token::Heading)
+    let heading = step!(Token::Heading)
         .slice
-        .len()
         .try_into()
         .expect("Received invalid heading length token slice");
 
@@ -63,7 +62,7 @@ fn try_consume_fn<'p, 'r, 't>(
         log,
         parser,
         RULE_HEADER,
-        ContainerType::Header(heading_level),
+        ContainerType::Header(heading),
         &[
             ParseCondition::current(Token::InputEnd),
             ParseCondition::current(Token::LineBreak),

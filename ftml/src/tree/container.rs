@@ -21,7 +21,7 @@
 //! Representation of generic syntax elements which wrap other elements.
 
 use super::clone::elements_to_owned;
-use super::{Alignment, AttributeMap, Element, HeadingLevel, HtmlTag};
+use super::{Alignment, AttributeMap, Element, Heading, HtmlTag};
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -108,7 +108,7 @@ pub enum ContainerType {
     Size,
     Paragraph,
     Align(Alignment),
-    Header(HeadingLevel),
+    Header(Heading),
 }
 
 impl ContainerType {
@@ -140,7 +140,7 @@ impl ContainerType {
             ContainerType::Align(alignment) => {
                 HtmlTag::with_class("div", alignment.html_class())
             }
-            ContainerType::Header(level) => HtmlTag::new(level.html_tag()),
+            ContainerType::Header(heading) => HtmlTag::new(heading.level.html_tag()),
         }
     }
 

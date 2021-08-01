@@ -21,6 +21,43 @@
 use super::HtmlTag;
 use std::convert::TryFrom;
 
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct Heading {
+    /// The depth that this heading extends to.
+    ///
+    /// See [`HeadingLevel`].
+    ///
+    /// [`HeadingLevel`]: ./enum.HeadingLevel.html
+    pub level: HeadingLevel,
+
+    /// Whether this heading should get a table of contents entry or not.
+    pub has_toc: bool,
+}
+
+impl TryFrom<&'_ str> for Heading {
+    type Error = ();
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        // Headings take the form "\+{1,6}\*?" (regex)
+        // The trailing "*" means that the TOC is *not* applied.
+        // The heading depth is simply the ASCII length of "+" characters.
+        //
+        // This does *not* validate the regex, it assumes the string fits.
+
+        let last_char = value.chars().next_back().ok_or(())?;
+
+        let (has_toc, len) = match last_char {
+            '+' => (true, value.len()),
+            '*' => (false, value.len() - 1),
+            _ => return Err(()),
+        };
+
+        let level = HeadingLevel::try_from(len)?;
+
+        Ok(Heading { level, has_toc })
+    }
+}
+
 #[derive(Serialize_repr, Deserialize_repr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[repr(u8)]
 pub enum HeadingLevel {
