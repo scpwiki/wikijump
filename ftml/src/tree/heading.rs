@@ -19,6 +19,7 @@
  */
 
 use super::HtmlTag;
+use crate::next_index::{NextIndex, TableOfContentsIndex};
 use std::convert::TryFrom;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -33,6 +34,20 @@ pub struct Heading {
 
     /// Whether this heading should get a table of contents entry or not.
     pub has_toc: bool,
+}
+
+impl Heading {
+    pub fn html_tag(self, indexer: &mut dyn NextIndex<TableOfContentsIndex>) -> HtmlTag {
+        let tag = self.level.html_tag();
+
+        if self.has_toc {
+            let id = format!("toc{}", indexer.next());
+
+            HtmlTag::with_id(tag, id)
+        } else {
+            HtmlTag::new(tag)
+        }
+    }
 }
 
 impl TryFrom<&'_ str> for Heading {

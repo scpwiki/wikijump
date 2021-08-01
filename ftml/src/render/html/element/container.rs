@@ -19,21 +19,26 @@
  */
 
 use super::prelude::*;
-use crate::tree::Container;
+use crate::tree::{Container, HtmlTag};
 
 pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Container) {
     debug!(log, "Rendering container"; "container" => container.ctype().name());
 
     // Get HTML tag type for this type of container
-    let tag_spec = container.ctype().html_tag();
+    let tag_spec = container.ctype().html_tag(ctx);
 
     // Build the tag
     let mut tag = ctx.html().tag(tag_spec.tag());
 
     // Merge the class attribute with the container's class, if it conflicts
-    match tag_spec.class() {
-        Some(class) => tag.attr_map_prepend(container.attributes(), ("class", class)),
-        None => tag.attr_map(container.attributes()),
+    match tag_spec {
+        HtmlTag::Tag(_) => tag.attr_map(container.attributes()),
+        HtmlTag::TagAndClass { class, .. } => {
+            tag.attr_map_prepend(container.attributes(), ("class", class))
+        }
+        HtmlTag::TagAndId { id, .. } => {
+            tag.attr_map_prepend(container.attributes(), ("id", &id))
+        }
     };
 
     // Add container internals

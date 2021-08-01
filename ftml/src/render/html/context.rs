@@ -22,6 +22,7 @@ use super::builder::HtmlBuilder;
 use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
+use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::render::Handle;
 use crate::url::is_url;
 use crate::{info, Backlinks, PageInfo};
@@ -40,6 +41,7 @@ pub struct HtmlContext<'i, 'h> {
 
     // Other fields to track
     code_snippet_index: NonZeroUsize,
+    table_of_contents_index: usize,
 }
 
 impl<'i, 'h> HtmlContext<'i, 'h> {
@@ -53,6 +55,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
             info,
             handle,
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
+            table_of_contents_index: 0,
         }
     }
 
@@ -105,6 +108,12 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     pub fn next_code_snippet_index(&mut self) -> NonZeroUsize {
         let index = self.code_snippet_index;
         self.code_snippet_index = NonZeroUsize::new(index.get() + 1).unwrap();
+        index
+    }
+
+    pub fn next_table_of_contents_index(&mut self) -> usize {
+        let index = self.table_of_contents_index;
+        self.table_of_contents_index += 1;
         index
     }
 
@@ -195,5 +204,12 @@ impl<'i, 'h> Write for HtmlContext<'i, 'h> {
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.buffer().write_str(s)
+    }
+}
+
+impl<'i, 'h> NextIndex<TableOfContentsIndex> for HtmlContext<'i, 'h> {
+    #[inline]
+    fn next(&mut self) -> usize {
+        self.next_table_of_contents_index()
     }
 }
