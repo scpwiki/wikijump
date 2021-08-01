@@ -40,6 +40,18 @@ sheaf:
     TOKENS: Okenstay
     EDITOR_AST: Editoryay ASTAY
 
+  spellcheck:
+    MISSPELLED_WORD: "Isspelledmay ordway: ''{slice}''"
+    FORBIDDEN_WORD: Ethay ordway ''{slice}'' isyay orbiddenfay.
+    WARNED_WORD: Ethay ordway ''{slice}'' isyay obablypray ayay istakemay.
+    ADD_TO_DICTIONARY: Addyay ''{slice}'' otay ictionaryday
+    SOURCE: >
+      spellchecker(word: ''{slice}'') [{from, number, :: ,_}, {to, number, :: ,_}]
+
+    tooltips:
+      ACCEPT_SUGGESTION: Eplaceray ''{slice}'' ithway ''{suggestion}''
+      ADD_TO_DICTIONARY: Addyay ethay ordway ''{slice}'' otay ouryay ocallay ictionaryday
+
 # CodeMirror FTML language extension
 cmftml:
   lint:
