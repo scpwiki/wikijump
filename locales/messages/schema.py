@@ -10,7 +10,7 @@ and to generate templates.
 """
 
 from collections import namedtuple
-from typing import Iterable, List, NewType, Set
+from typing import Iterable, List, NewType
 
 # The messages file to use as the "schema".
 # That is, this file is complete and can be used to build a schema.
