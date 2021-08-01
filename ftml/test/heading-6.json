@@ -6,7 +6,10 @@
                 "element": "container",
                 "data": {
                     "type": {
-                        "header": 6
+                        "header": {
+                            "level": 6,
+                            "has-toc": true
+                        }
                     },
                     "attributes": {},
                     "elements": [

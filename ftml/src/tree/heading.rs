@@ -22,6 +22,7 @@ use super::HtmlTag;
 use std::convert::TryFrom;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub struct Heading {
     /// The depth that this heading extends to.
     ///
