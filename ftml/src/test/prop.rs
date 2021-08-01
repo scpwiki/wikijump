@@ -22,7 +22,7 @@ use crate::data::PageInfo;
 use crate::render::{html::HtmlRender, text::TextRender, Render};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
-    Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element,
+    Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element, Heading,
     HeadingLevel, ImageAlignment, ImageSource, LinkLabel, Module, SyntaxTree,
 };
 use proptest::option;
@@ -193,14 +193,19 @@ where
         Alignment::Justify,
     ]);
 
-    let heading = select!([
-        HeadingLevel::One,
-        HeadingLevel::Two,
-        HeadingLevel::Three,
-        HeadingLevel::Four,
-        HeadingLevel::Five,
-        HeadingLevel::Six,
-    ]);
+    let heading = {
+        let has_toc = select!([true, false]);
+        let level = select!([
+            HeadingLevel::One,
+            HeadingLevel::Two,
+            HeadingLevel::Three,
+            HeadingLevel::Four,
+            HeadingLevel::Five,
+            HeadingLevel::Six,
+        ]);
+
+        (level, has_toc).prop_map(|(level, has_toc)| Heading { level, has_toc })
+    };
 
     let container_type = prop_oneof![
         Just(ContainerType::Bold),
@@ -221,7 +226,7 @@ where
         Just(ContainerType::Size),
         Just(ContainerType::Paragraph),
         alignment.prop_map(|align| ContainerType::Align(align)),
-        heading.prop_map(|level| ContainerType::Header(level)),
+        heading.prop_map(|heading| ContainerType::Header(heading)),
     ];
 
     (container_type, elements, arb_attribute_map()).prop_map(
