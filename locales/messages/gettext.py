@@ -6,9 +6,9 @@
 Utilities for generating and compiling gettext files.
 """
 
+import json
 import re
 import subprocess
-from codecs import getdecoder
 from typing import Iterable, Optional
 
 from .messages import Messages
@@ -19,13 +19,14 @@ from .messages import Messages
 # - Strip comment header
 DOC_COMMENT_LINE_REGEX = re.compile(r"\s*##\s*(.+)\s*")
 
-unicode_escape = getdecoder("unicode_escape")
-
 # Utilities
 
 
 def escape_string(string: str) -> str:
-    return unicode_escape(string)[0]
+    # Unfortunately, codecs.getencoder("unicode_escape") doesn't escape quotes,
+    # which we need for them to not break .po file strings.
+
+    return json.dumps(string)
 
 
 def extract_comment(comment: Optional[str]) -> Iterable[str]:
@@ -63,8 +64,8 @@ def generate_po(messages: Messages) -> str:
 
         lines.extend(extract_comment(comment))  # Add extracted comments
         lines.append("#, python-format")  # Because it uses {..} formatting
-        lines.append(f'msgid "{escape_string(path)}"')
-        lines.append(f'msgstr "{escape_string(message)}"')
+        lines.append(f"msgid {escape_string(path)}")
+        lines.append(f"msgstr {escape_string(message)}")
         lines.append("")
 
     return "\n".join(lines)

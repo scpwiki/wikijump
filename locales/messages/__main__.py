@@ -30,8 +30,18 @@ if __name__ == "__main__":
     if invalid:
         print("The following localizations do not match the schema:")
 
-        for name in invalid:
-            print(f"- {name}")
+        for mismatch in invalid:
+            print(f"- {mismatch.name}")
+
+            if mismatch.unused_fields:
+                print("    Unused Fields:")
+                for field in mismatch.unused_fields:
+                    print(f"     - {field}")
+
+            if mismatch.missing_fields:
+                print("    Missing Fields:")
+                for field in mismatch.missing_fields:
+                    print(f"     - {field}")
 
         sys.exit(1)
 

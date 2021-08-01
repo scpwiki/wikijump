@@ -77,4 +77,4 @@ jobs:
           black --check messages
 
           # Linting
-          pylint messages --rcfile=messages/pylintrc
+          pylint messages
