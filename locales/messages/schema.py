@@ -9,7 +9,8 @@ Can be used to verify that another data file matches,
 and to generate templates.
 """
 
-from typing import Iterable, List, NewType
+from collections import namedtuple
+from typing import Iterable, List, NewType, Set
 
 # The messages file to use as the "schema".
 # That is, this file is complete and can be used to build a schema.
@@ -21,11 +22,17 @@ MAIN_MESSAGE_SCHEMA_NAME = "en"
 # after it has been flattened.
 MessagesSchema = NewType("MessagesSchema", Iterable[str])
 
+# The type describing an invalid schema for debugging purposes.
+MessagesSchemaMismatch = namedtuple(
+    "MessagesSchemaMismatch",
+    ("name", "unused_fields", "missing_fields"),
+)
+
 
 def validate_all(
     messages_map: dict[str, "Messages"],
     main_schema_name=MAIN_MESSAGE_SCHEMA_NAME,
-) -> List[str]:
+) -> List[MessagesSchemaMismatch]:
     """
     Validate all messages within the mapping against the main schema.
     """
@@ -37,7 +44,16 @@ def validate_all(
     invalid = []
     for name, messages in messages_map.items():
         if main_schema != messages.schema:
-            invalid.append(name)
+            unused_fields = messages.schema - main_schema
+            missing_fields = main_schema - messages.schema
+
+            invalid.append(
+                MessagesSchemaMismatch(
+                    name,
+                    unused_fields,
+                    missing_fields,
+                )
+            )
 
     # Return sorted list of invalid messages objects
     invalid.sort()
