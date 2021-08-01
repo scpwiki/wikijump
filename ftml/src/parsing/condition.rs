@@ -27,8 +27,14 @@ use super::token::Token;
 /// a boolean as appropriate.
 #[derive(Debug, Copy, Clone)]
 pub enum ParseCondition {
+    /// Condition is valid if the current token matches.
     CurrentToken(Token),
+
+    /// Condition is valid if current and next tokens match.
     TokenPair(Token, Token),
+
+    /// Condition is valid if the next token matches.
+    PeekToken(Token),
 }
 
 impl ParseCondition {
@@ -40,5 +46,10 @@ impl ParseCondition {
     #[inline]
     pub fn token_pair(current: Token, next: Token) -> Self {
         ParseCondition::TokenPair(current, next)
+    }
+
+    #[inline]
+    pub fn peek(token: Token) -> Self {
+        ParseCondition::PeekToken(token)
     }
 }
