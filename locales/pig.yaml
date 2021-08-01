@@ -35,7 +35,7 @@ sheaf:
   preview_tabs:
     RESULT: Esultray
     HTML: HTMLAY Outputay
-    CSS: SSCAY Outputay
+    CSS: CSSAY Outputay
     AST: ASTAY
     TOKENS: Okenstay
     EDITOR_AST: Editoryay ASTAY
