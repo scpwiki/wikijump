@@ -23,6 +23,7 @@ OUTPUT_DIRECTORY = "out"
 # Anything else gets a warning printed.
 IGNORE_PATHS = [
     ".gitignore",
+    ".pylintrc",
     "README.md",
     "messages",
     OUTPUT_DIRECTORY,
