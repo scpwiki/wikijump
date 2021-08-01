@@ -23,6 +23,7 @@ use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
 use crate::render::text::TextRender;
+use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::render::Handle;
 use crate::tree::Element;
 use crate::url::is_url;
@@ -40,11 +41,9 @@ pub struct HtmlContext<'i, 'h> {
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
 
-    // Table of Contents state
-    table_of_contents: Vec<(String, usize)>,
-
     // Other fields to track
     code_snippet_index: NonZeroUsize,
+    table_of_contents_index: usize,
 }
 
 impl<'i, 'h> HtmlContext<'i, 'h> {
@@ -57,8 +56,8 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
             backlinks: Backlinks::new(),
             info,
             handle,
-            table_of_contents: Vec::new(),
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
+            table_of_contents_index: 0,
         }
     }
 
@@ -114,19 +113,10 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
         index
     }
 
-    // Table of Contents
-    pub fn push_table_of_contents_entry(
-        &mut self,
-        elements: &[Element],
-        depth: usize,
-    ) -> usize {
-        let heading = TextRender::render_partial(self.log, self.info, elements);
-
-        self.table_of_contents.push((heading, depth));
-    }
-
-    pub fn build_table_of_contents(&mut self) {
-        todo!()
+    pub fn next_table_of_contents_index(&mut self) -> usize {
+        let index = self.table_of_contents_index;
+        self.table_of_contents_index += 1;
+        index
     }
 
     // Backlinks
@@ -216,5 +206,12 @@ impl<'i, 'h> Write for HtmlContext<'i, 'h> {
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.buffer().write_str(s)
+    }
+}
+
+impl<'i, 'h> NextIndex<TableOfContentsIndex> for HtmlContext<'i, 'h> {
+    #[inline]
+    fn next(&mut self) -> usize {
+        self.next_table_of_contents_index()
     }
 }
