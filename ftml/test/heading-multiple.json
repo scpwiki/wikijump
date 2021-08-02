@@ -1,0 +1,119 @@
+{
+    "input": "+ H1\n++ H2\n++++ H4\n++++++ H6\n+++ H3\n+ H1",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "H1"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 2,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "H2"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 4,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "H4"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 6,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "H6"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 3,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "H3"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "H1"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
