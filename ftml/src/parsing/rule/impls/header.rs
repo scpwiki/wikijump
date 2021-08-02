@@ -86,7 +86,7 @@ fn try_consume_fn<'p, 'r, 't>(
     //
     // We do this because the container consumes the newline,
     // which we need to trigger the next header when using regular rules.
-    let mut all_elements = elements.into_iter().collect::<Vec<_>>();
+    let mut all_elements: Vec<_> = elements.into_iter().collect();
 
     loop {
         match collect!() {
