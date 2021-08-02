@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::{AttributeMap, ImageAlignment, ImageSource};
+use crate::tree::{AttributeMap, FloatAlignment, ImageSource};
 use crate::url::normalize_url;
 
 pub fn render_image(
@@ -27,7 +27,7 @@ pub fn render_image(
     ctx: &mut HtmlContext,
     source: &ImageSource,
     link: Option<&str>,
-    alignment: Option<ImageAlignment>,
+    alignment: Option<FloatAlignment>,
     attributes: &AttributeMap,
 ) {
     debug!(

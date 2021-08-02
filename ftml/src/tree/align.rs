@@ -66,12 +66,12 @@ impl TryFrom<&'_ str> for Alignment {
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub struct ImageAlignment {
+pub struct FloatAlignment {
     pub align: Alignment,
     pub float: bool,
 }
 
-impl ImageAlignment {
+impl FloatAlignment {
     pub fn parse(name: &str) -> Option<Self> {
         lazy_static! {
             static ref IMAGE_ALIGNMENT_REGEX: Regex =
@@ -80,7 +80,7 @@ impl ImageAlignment {
 
         IMAGE_ALIGNMENT_REGEX
             .find(name)
-            .map(|mtch| ImageAlignment::try_from(mtch.as_str()).ok())
+            .map(|mtch| FloatAlignment::try_from(mtch.as_str()).ok())
             .flatten()
     }
 
@@ -95,7 +95,7 @@ impl ImageAlignment {
     }
 }
 
-impl TryFrom<&'_ str> for ImageAlignment {
+impl TryFrom<&'_ str> for FloatAlignment {
     type Error = ();
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -108,7 +108,7 @@ impl TryFrom<&'_ str> for ImageAlignment {
             _ => return Err(()),
         };
 
-        Ok(ImageAlignment { align, float })
+        Ok(FloatAlignment { align, float })
     }
 }
 
@@ -120,14 +120,14 @@ fn image_alignment() {
         };
 
         ($input:expr, $align:expr, $float:expr) => {
-            check!($input => Some(ImageAlignment {
+            check!($input => Some(FloatAlignment {
                 align: $align,
                 float: $float,
             }))
         };
 
         ($input:expr => $expected:expr) => {{
-            let actual = ImageAlignment::parse($input);
+            let actual = FloatAlignment::parse($input);
             let expected = $expected;
 
             assert_eq!(

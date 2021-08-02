@@ -22,7 +22,7 @@ use super::clone::{
     elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
 };
 use super::{
-    AnchorTarget, AttributeMap, Container, ElementCondition, ImageAlignment, ImageSource,
+    AnchorTarget, AttributeMap, Container, ElementCondition, FloatAlignment, ImageSource,
     LinkLabel, ListItem, ListType, Module,
 };
 use std::borrow::Cow;
@@ -91,7 +91,7 @@ pub enum Element<'t> {
     Image {
         source: ImageSource<'t>,
         link: Option<Cow<'t, str>>,
-        alignment: Option<ImageAlignment>,
+        alignment: Option<FloatAlignment>,
         attributes: AttributeMap<'t>,
     },
 

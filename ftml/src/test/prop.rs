@@ -23,7 +23,7 @@ use crate::render::{html::HtmlRender, text::TextRender, Render};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element, Heading,
-    HeadingLevel, ImageAlignment, ImageSource, LinkLabel, Module, SyntaxTree,
+    HeadingLevel, FloatAlignment, ImageSource, LinkLabel, Module, SyntaxTree,
 };
 use proptest::option;
 use proptest::prelude::*;
@@ -149,7 +149,7 @@ fn arb_image() -> impl Strategy<Value = Element<'static>> {
 
     let image_alignment = option::of(
         (alignment, any::<bool>())
-            .prop_map(|(align, float)| ImageAlignment { align, float }),
+            .prop_map(|(align, float)| FloatAlignment { align, float }),
     );
 
     (
