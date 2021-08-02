@@ -36,7 +36,10 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing nested native blockquotes");
 
-    check_step_multiple(parser, &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak])?;
+    check_step_multiple(
+        parser,
+        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
+    )?;
 
     // Context variables
     let mut depths = Vec::new();

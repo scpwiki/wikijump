@@ -46,7 +46,10 @@ fn try_consume_fn<'p, 'r, 't>(
     }
 
     // Assert first tokens match rule
-    check_step_multiple(parser, &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak])?;
+    check_step_multiple(
+        parser,
+        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
+    )?;
 
     // Get header depth
     let heading = step!(Token::Heading)
