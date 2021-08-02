@@ -164,9 +164,7 @@ pub enum Element<'t> {
     /// A table of contents block.
     ///
     /// This contains links to sub-headings on the page.
-    TableOfContents {
-        align: FloatAlignment,
-    },
+    TableOfContents { align: FloatAlignment },
 
     /// A user block, linking to their information and possibly showing their avatar.
     #[serde(rename_all = "kebab-case")]
@@ -385,7 +383,9 @@ impl Element<'_> {
                 conditions: conditions.iter().map(|c| c.to_owned()).collect(),
                 elements: elements_to_owned(elements),
             },
-            Element::TableOfContents { align } => Element::TableOfContents { align: *align },
+            Element::TableOfContents { align } => {
+                Element::TableOfContents { align: *align }
+            }
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,

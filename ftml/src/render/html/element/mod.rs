@@ -27,6 +27,7 @@ mod image;
 mod input;
 mod link;
 mod list;
+mod table_of_contents;
 mod text;
 mod user;
 
@@ -44,6 +45,7 @@ use self::image::render_image;
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
+use self::table_of_contents::render_table_of_contents;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use self::user::render_user;
 use super::super::condition::{check_ifcategory, check_iftags};
@@ -145,6 +147,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 render_elements(log, ctx, elements);
             }
         }
+        Element::TableOfContents { align } => render_table_of_contents(log, ctx, *align),
         Element::User { name, show_avatar } => render_user(log, ctx, name, *show_avatar),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {

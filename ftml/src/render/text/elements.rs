@@ -258,6 +258,10 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 render_elements(log, ctx, elements);
             }
         }
+        Element::TableOfContents { .. } => {
+            // TODO add toc
+            todo!()
+        }
         Element::User { name, .. } => ctx.push_str(name),
         Element::Color { elements, .. } => render_elements(log, ctx, elements),
         Element::Code { contents, language } => {

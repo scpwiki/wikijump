@@ -22,8 +22,8 @@ use crate::data::PageInfo;
 use crate::render::{html::HtmlRender, text::TextRender, Render};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
-    Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element, Heading,
-    HeadingLevel, FloatAlignment, ImageSource, LinkLabel, Module, SyntaxTree,
+    Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element,
+    FloatAlignment, Heading, HeadingLevel, ImageSource, LinkLabel, Module, SyntaxTree,
 };
 use proptest::option;
 use proptest::prelude::*;
