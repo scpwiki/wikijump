@@ -22,8 +22,8 @@ use super::clone::{
     elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
 };
 use super::{
-    AnchorTarget, AttributeMap, Container, ElementCondition, FloatAlignment, ImageSource,
-    LinkLabel, ListItem, ListType, Module,
+    Alignment, AnchorTarget, AttributeMap, Container, ElementCondition, FloatAlignment,
+    ImageSource, LinkLabel, ListItem, ListType, Module,
 };
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -164,7 +164,7 @@ pub enum Element<'t> {
     /// A table of contents block.
     ///
     /// This contains links to sub-headings on the page.
-    TableOfContents { align: FloatAlignment },
+    TableOfContents { align: Option<Alignment> },
 
     /// A user block, linking to their information and possibly showing their avatar.
     #[serde(rename_all = "kebab-case")]

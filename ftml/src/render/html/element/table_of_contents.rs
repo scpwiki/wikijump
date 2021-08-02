@@ -19,20 +19,61 @@
  */
 
 use super::prelude::*;
-use crate::tree::FloatAlignment;
+use crate::tree::{Alignment, FloatAlignment};
 
 pub fn render_table_of_contents(
     log: &Logger,
     ctx: &mut HtmlContext,
-    align: FloatAlignment,
+    align: Option<Alignment>,
 ) {
     debug!(
         log,
         "Creating table of contents";
-        "align" => align.align.name(),
-        "float" => align.float,
+        "align" => align.map(|a| a.name()),
     );
 
-    // TODO toc
-    todo!()
+    let mut tag = ctx.html().div();
+    tag.attr("id", &["toc"]);
+
+    // Only valid for float left/right
+    if let Some(align) = align {
+        let image_align = FloatAlignment { align, float: true };
+
+        tag.attr("class", &[image_align.html_class()]);
+    }
+
+    tag.contents(|ctx| {
+        // TOC buttons
+        ctx.html()
+            .div()
+            .attr("id", &["wj-toc-action-bar"])
+            .contents(|ctx| {
+                // TODO button
+                ctx.html()
+                    .a()
+                    .attr("href", &["javascript:;"])
+                    .attr("onclick", &["WIKIJUMP.page.listeners.foldToc(event)"]);
+            });
+
+        // TOC Heading
+        let table_of_contents_title =
+            ctx.handle()
+                .get_message(log, &ctx.info().language, "table-of-contents");
+
+        ctx.html()
+            .div()
+            .attr("class", &["title"])
+            .inner(log, &table_of_contents_title);
+
+        // TOC List
+        // TODO
+
+        let _x = |ctx: &mut HtmlContext| {
+            ctx.html().div().contents(|ctx| {
+                let toc_link = format!("toc{}", 0);
+
+                ctx.html().a().attr("href", &[&toc_link]);
+            });
+        };
+    });
 }
