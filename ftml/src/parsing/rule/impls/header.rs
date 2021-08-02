@@ -65,8 +65,8 @@ fn try_consume_fn<'p, 'r, 't>(
         ContainerType::Header(heading),
         &[
             ParseCondition::current(Token::InputEnd),
-            ParseCondition::current(Token::LineBreak),
-            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::peek(Token::LineBreak),
+            ParseCondition::peek(Token::ParagraphBreak),
         ],
         &[],
         None,
