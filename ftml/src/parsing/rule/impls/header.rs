@@ -89,6 +89,12 @@ fn try_consume_fn<'p, 'r, 't>(
     let mut all_elements: Vec<_> = elements.into_iter().collect();
 
     loop {
+        // Separate break to quit, since InputEnd is a valid terminator.
+        // Normally we would get an exception if the container hit the end.
+        if parser.current().token == Token::InputEnd {
+            break;
+        }
+
         match collect!() {
             Err(_) => break,
             Ok(success) => {
