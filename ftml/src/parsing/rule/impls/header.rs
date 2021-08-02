@@ -57,18 +57,46 @@ fn try_consume_fn<'p, 'r, 't>(
     // Step over whitespace
     step!(Token::Whitespace);
 
-    // Collect contents until newline
-    collect_container(
-        log,
-        parser,
-        RULE_HEADER,
-        ContainerType::Header(heading),
-        &[
-            ParseCondition::current(Token::InputEnd),
-            ParseCondition::peek(Token::LineBreak),
-            ParseCondition::peek(Token::ParagraphBreak),
-        ],
-        &[],
-        None,
-    )
+    // Helper to abbreviate the collect_container() call.
+    macro_rules! collect {
+        () => {
+            collect_container(
+                log,
+                parser,
+                RULE_HEADER,
+                ContainerType::Header(heading),
+                &[
+                    ParseCondition::current(Token::InputEnd),
+                    ParseCondition::current(Token::LineBreak),
+                    ParseCondition::current(Token::ParagraphBreak),
+                ],
+                &[],
+                None,
+            )
+        };
+    }
+
+    // Collect first heading
+    let (elements, mut all_exceptions, _) = collect!()?.into();
+
+    // Keep collecting headings until we hit a warning.
+    //
+    // We do this because the container consumes the newline,
+    // which we need to trigger the next header when using regular rules.
+    let mut all_elements = elements.into_iter().collect::<Vec<_>>();
+
+    loop {
+        match collect!() {
+            Err(_) => break,
+            Ok(success) => {
+                let (elements, mut exceptions, _) = success.into();
+
+                all_elements.extend(elements);
+                all_exceptions.append(&mut exceptions);
+            }
+        }
+    }
+
+    // Build final Elements object
+    ok!(false; all_elements, all_exceptions)
 }
