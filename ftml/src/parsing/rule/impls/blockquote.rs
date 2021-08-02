@@ -36,12 +36,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing nested native blockquotes");
 
-    assert!(
-        parser.current().token == Token::InputStart
-            || parser.current().token == Token::LineBreak,
-        "Starting token for list is not start of input or newline",
-    );
-    parser.step()?;
+    check_step_multiple(parser, &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak])?;
 
     // Context variables
     let mut depths = Vec::new();
