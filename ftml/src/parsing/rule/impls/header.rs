@@ -32,6 +32,20 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Trying to create header container");
 
+    // Assert first tokens match rule
+    check_step_multiple(
+        parser,
+        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
+    )?;
+
+    // Parse and builder header element
+    parse_header(log, parser)
+}
+
+fn parse_header<'p, 'r, 't>(
+    log: &Logger,
+    parser: &'p mut Parser<'r, 't>,
+) -> ParseResult<'r, 't, Elements<'t>> {
     // Helper to ensure the current token is expected
     macro_rules! step {
         ($token:expr) => {{
@@ -45,12 +59,6 @@ fn try_consume_fn<'p, 'r, 't>(
         }};
     }
 
-    // Assert first tokens match rule
-    check_step_multiple(
-        parser,
-        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
-    )?;
-
     // Get header depth
     let heading = step!(Token::Heading)
         .slice
@@ -60,50 +68,32 @@ fn try_consume_fn<'p, 'r, 't>(
     // Step over whitespace
     step!(Token::Whitespace);
 
-    // Helper to abbreviate the collect_container() call.
-    macro_rules! collect {
-        () => {
-            collect_container(
-                log,
-                parser,
-                RULE_HEADER,
-                ContainerType::Header(heading),
-                &[
-                    ParseCondition::current(Token::InputEnd),
-                    ParseCondition::current(Token::LineBreak),
-                    ParseCondition::current(Token::ParagraphBreak),
-                ],
-                &[],
-                None,
-            )
-        };
-    }
+    let (elements, mut all_exceptions, _) = collect_container(
+        log,
+        parser,
+        RULE_HEADER,
+        ContainerType::Header(heading),
+        &[
+            ParseCondition::current(Token::InputEnd),
+            ParseCondition::current(Token::LineBreak),
+            ParseCondition::current(Token::ParagraphBreak),
+        ],
+        &[],
+        None,
+    )?
+    .into();
 
-    // Collect first heading
-    let (elements, mut all_exceptions, _) = collect!()?.into();
-
-    // Keep collecting headings until we hit a warning.
+    // Recursively collect headings until we hit a warning.
     //
     // We do this because the container consumes the newline,
     // which we need to trigger the next header when using regular rules.
     let mut all_elements: Vec<_> = elements.into_iter().collect();
 
-    loop {
-        // Separate break to quit, since InputEnd is a valid terminator.
-        // Normally we would get an exception if the container hit the end.
-        if parser.current().token == Token::InputEnd {
-            break;
-        }
+    if let Ok(success) = parse_header(log, parser) {
+        let (elements, mut exceptions, _) = success.into();
 
-        match collect!() {
-            Err(_) => break,
-            Ok(success) => {
-                let (elements, mut exceptions, _) = success.into();
-
-                all_elements.extend(elements);
-                all_exceptions.append(&mut exceptions);
-            }
-        }
+        all_elements.extend(elements);
+        all_exceptions.append(&mut exceptions);
     }
 
     // Build final Elements object
