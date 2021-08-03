@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace Wikijump\Models;
 
 use Database\Seeders\UserSeeder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
+use Wikijump\Helpers\InteractionType;
 use Wikijump\Traits\HasSettings;
 use Wikijump\Traits\LegacyCompatibility;
 
@@ -87,6 +89,60 @@ class User extends Authenticatable
     public static function defaults() : array
     {
         return Config::get('wikijump.defaults.user');
+    }
+
+    /**
+     * Retrieve the users this user is following.
+     * @return Collection
+     */
+    public function followingUsers() : Collection
+    {
+        $list = $this->morphMany(Interaction::class, 'setter')
+            ->where('interaction_type', InteractionType::USER_FOLLOWS_USER)
+            ->pluck('target_id')->toArray();
+        return User::whereIn('id', $list)->get();
+    }
+
+    /**
+     * Retrieve the users following this user.
+     * @return Collection
+     */
+    public function followers() : Collection
+    {
+        $list = $this->morphMany(Interaction::class, 'target')
+            ->where('interaction_type', InteractionType::USER_FOLLOWS_USER)
+            ->pluck('setter_id')->toArray();
+        return User::whereIn('id', $list)->get();
+    }
+
+    /**
+     * Follow a user.
+     * @param User $userToFollow
+     * @return Interaction
+     */
+    public function followUser(User $userToFollow) : Interaction
+    {
+        return Interaction::add($this, InteractionType::USER_FOLLOWS_USER, $userToFollow);
+    }
+
+    /**
+     * Unfollow a user.
+     * @param User $userToUnfollow
+     * @return int
+     */
+    public function unfollowUser(User $userToUnfollow) : int
+    {
+        return Interaction::remove($this, InteractionType::USER_FOLLOWS_USER, $userToUnfollow);
+    }
+
+    /**
+     * Check if this user is following the target user.
+     * @param User $user
+     * @return bool
+     */
+    public function isFollowingUser(User $user) : bool
+    {
+        return Interaction::exists($this, InteractionType::USER_FOLLOWS_USER, $user);
     }
 
 }
