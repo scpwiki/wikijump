@@ -114,10 +114,6 @@ INSERT INTO page_compiled (page_id, text, date_compiled) VALUES (6, '
 </blockquote>
 <p>And that is it! As a part of a farm of wikis this site is a great tool that you can use to publish content, upload files, communicate and collaborate.</p>
 ', '2008-01-25 00:45:30');
-INSERT INTO page_compiled (page_id, text, date_compiled) VALUES (7, '
-
-<p>Admin of this Wikidot installation.</p>
-', '2008-01-25 01:05:59');
 INSERT INTO page_compiled (page_id, text, date_compiled) VALUES (15, '
 
 þmodule "ManageSite/ManageSiteModule"þ', '2008-01-29 00:57:39');
@@ -612,7 +608,6 @@ INSERT INTO page_source (source_id, text) VALUES (6, 'According to [http://en.wi
 > A //Wiki// ([ˈwiː.kiː] <wee-kee> or [ˈwɪ.kiː] <wick-ey>) is a type of website that allows users to add, remove, or otherwise edit and change most content very quickly and easily.
 
 And that is it! As a part of a farm of wikis this site is a great tool that you can use to publish content, upload files, communicate and collaborate.');
-INSERT INTO page_source (source_id, text) VALUES (7, 'Admin of this Wikidot installation.');
 INSERT INTO page_source (source_id, text) VALUES (8, '[[module ManageSite]]');
 INSERT INTO page_source (source_id, text) VALUES (10, 'The profiles site is used to host user profiles. Each {{profile:username}} page contains a user-editable text that is included in the user''s profile page.
 
