@@ -22,7 +22,6 @@
 
 use super::clone::elements_to_owned;
 use super::{Alignment, AttributeMap, Element, Heading, HtmlTag};
-use crate::next_index::{NextIndex, TableOfContentsIndex};
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -119,7 +118,7 @@ impl ContainerType {
     }
 
     #[inline]
-    pub fn html_tag(self, indexer: &mut dyn NextIndex<TableOfContentsIndex>) -> HtmlTag {
+    pub fn html_tag(self, indexer: &mut dyn TableOfContentsIndex) -> HtmlTag {
         match self {
             ContainerType::Bold => HtmlTag::new("strong"),
             ContainerType::Italics => HtmlTag::new("em"),

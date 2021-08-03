@@ -138,7 +138,6 @@ mod log;
 mod macros;
 
 mod data;
-mod next_index;
 mod non_empty_vec;
 mod preproc;
 mod span_wrap;

@@ -25,16 +25,19 @@ use self::context::TextContext;
 use self::elements::render_elements;
 use crate::log::prelude::*;
 use crate::render::{Handle, Render};
-use crate::tree::SyntaxTree;
+use crate::tree::{Element, SyntaxTree};
 use crate::PageInfo;
 
 #[derive(Debug)]
 pub struct TextRender;
 
-impl Render for TextRender {
-    type Output = String;
-
-    fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
+impl TextRender {
+    fn render_partial(
+        &self,
+        log: &Logger,
+        page_info: &PageInfo,
+        elements: &[Element],
+    ) -> String {
         info!(
             log,
             "Rendering syntax tree";
@@ -48,7 +51,7 @@ impl Render for TextRender {
         );
 
         let mut ctx = TextContext::new(page_info, &Handle);
-        render_elements(log, &mut ctx, &tree.elements);
+        render_elements(log, &mut ctx, &elements);
 
         // Remove leading and trailing newlines
         while ctx.buffer().starts_with('\n') {
@@ -60,5 +63,14 @@ impl Render for TextRender {
         }
 
         ctx.into()
+    }
+}
+
+impl Render for TextRender {
+    type Output = String;
+
+    #[inline]
+    fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
+        self.render_partial(log, page_info, &tree.elements)
     }
 }
