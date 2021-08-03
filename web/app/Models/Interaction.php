@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace Wikijump\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
+use Wikijump\Helpers\InteractionType;
 
 /**
  * Class Interaction

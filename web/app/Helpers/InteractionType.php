@@ -25,8 +25,8 @@ final class InteractionType extends Enum
     const FORUM_BLOCKS_USER_WRITES = 12;
     const FORUM_THREAD_BLOCKS_USER_READS = 13;
     const FORUM_THREAD_BLOCKS_USER_WRITES = 14;
-    const USER_FRIEND_REQUESTS_USER = 15;
-    const USER_FRIENDS_USER = 16;
+    const USER_CONTACT_REQUESTS = 15;
+    const USER_CONTACTS = 16;
     const USER_FAVORITES_PAGE = 17;
     const USER_FAVORITES_FORUM = 18;
     const USER_FAVORITES_FORUM_THREAD = 19;

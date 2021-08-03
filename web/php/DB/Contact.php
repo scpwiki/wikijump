@@ -12,11 +12,6 @@ use Wikijump\Models\User;
 class Contact extends ContactBase
 {
 
-    public function getUser()
-    {
-        return User::find($this->getUserId());
-    }
-
     public function getTargetUser()
     {
         return User::find($this->getTargetUserId());
