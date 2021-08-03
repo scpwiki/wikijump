@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Wikijump\Helpers\InteractionType;
+use Wikijump\Traits\HasInteractions;
 use Wikijump\Traits\HasSettings;
 use Wikijump\Traits\LegacyCompatibility;
 
@@ -27,6 +28,7 @@ class User extends Authenticatable
     use SoftDeletes;
     use HasSettings;
     use LegacyCompatibility;
+    use HasInteractions;
 
     /**
      * These are service accounts added by the UserSeeder. They're used during
@@ -93,26 +95,21 @@ class User extends Authenticatable
 
     /**
      * Retrieve the users this user is following.
-     * @return Collection
+     * @return Collection<User>
      */
     public function followingUsers() : Collection
     {
-        $list = $this->morphMany(Interaction::class, 'setter')
-            ->where('interaction_type', InteractionType::USER_FOLLOWS_USER)
-            ->pluck('target_id')->toArray();
-        return User::whereIn('id', $list)->get();
+        return $this->my(InteractionType::USER_FOLLOWS_USER);
     }
 
     /**
      * Retrieve the users following this user.
-     * @return Collection
+     *
+     * @return Collection<User>
      */
     public function followers() : Collection
     {
-        $list = $this->morphMany(Interaction::class, 'target')
-            ->where('interaction_type', InteractionType::USER_FOLLOWS_USER)
-            ->pluck('setter_id')->toArray();
-        return User::whereIn('id', $list)->get();
+        return $this->their(InteractionType::USER_FOLLOWS_USER);
     }
 
     /**
@@ -143,6 +140,11 @@ class User extends Authenticatable
     public function isFollowingUser(User $user) : bool
     {
         return Interaction::exists($this, InteractionType::USER_FOLLOWS_USER, $user);
+    }
+
+    public function contacts()
+    {
+        $contacts = $this->either(InteractionType::USER_CONTACTS);
     }
 
 }
