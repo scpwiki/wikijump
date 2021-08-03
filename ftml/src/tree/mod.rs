@@ -63,8 +63,7 @@ pub struct SyntaxTree<'t> {
     /// The list of CSS styles added in this page, in order.
     ///
     /// How the renderer decides to consume these is up to the implementation,
-    /// however the recommendation is to combine them all into one large style
-    /// rule list.
+    /// however the recommendation is to add these as separate style tags.
     pub styles: Vec<Cow<'t, str>>,
 }
 
