@@ -73,6 +73,11 @@ impl<'i, 'h> TextContext<'i, 'h> {
         self.handle
     }
 
+    #[inline]
+    pub fn language(&self) -> &str {
+        &self.info.language
+    }
+
     // Prefixes
     #[inline]
     pub fn push_prefix(&mut self, prefix: &'static str) {

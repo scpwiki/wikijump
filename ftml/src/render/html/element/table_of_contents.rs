@@ -58,7 +58,7 @@ pub fn render_table_of_contents(
         // TOC Heading
         let table_of_contents_title =
             ctx.handle()
-                .get_message(log, &ctx.info().language, "table-of-contents");
+                .get_message(log, ctx.language(), "table-of-contents");
 
         ctx.html()
             .div()

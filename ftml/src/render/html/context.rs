@@ -105,6 +105,11 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
         self.handle
     }
 
+    #[inline]
+    pub fn language(&self) -> &str {
+        &self.info.language
+    }
+
     pub fn next_code_snippet_index(&mut self) -> NonZeroUsize {
         let index = self.code_snippet_index;
         self.code_snippet_index = NonZeroUsize::new(index.get() + 1).unwrap();

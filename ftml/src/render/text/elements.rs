@@ -210,11 +210,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ($input:expr, $message:expr) => {
                     match $input {
                         Some(ref text) => &text,
-                        None => {
-                            let language = &ctx.info().language;
-
-                            ctx.handle().get_message(log, language, $message)
-                        }
+                        None => ctx.handle().get_message(log, ctx.language(), $message),
                     }
                 };
             }
