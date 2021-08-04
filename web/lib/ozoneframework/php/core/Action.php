@@ -2,18 +2,13 @@
 
 namespace Ozone\Framework;
 
-
-
-
-
 /**
- * Action Class.
- *
+ * Action Class. Wowee.
  */
 abstract class Action {
 
 	public function isAllowed($runData){
 		return true;
 	}
-	public abstract function perform($runData);
+	abstract public function perform($runData);
 }
