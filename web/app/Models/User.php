@@ -114,22 +114,22 @@ class User extends Authenticatable
 
     /**
      * Follow a user.
-     * @param User $userToFollow
+     * @param User $user_to_follow
      * @return Interaction
      */
-    public function followUser(User $userToFollow) : Interaction
+    public function followUser(User $user_to_follow) : Interaction
     {
-        return Interaction::add($this, InteractionType::USER_FOLLOWS_USER, $userToFollow);
+        return Interaction::add($this, InteractionType::USER_FOLLOWS_USER, $user_to_follow);
     }
 
     /**
      * Unfollow a user.
-     * @param User $userToUnfollow
+     * @param User $user_to_unfollow
      * @return int
      */
-    public function unfollowUser(User $userToUnfollow) : int
+    public function unfollowUser(User $user_to_unfollow) : int
     {
-        return Interaction::remove($this, InteractionType::USER_FOLLOWS_USER, $userToUnfollow);
+        return Interaction::remove($this, InteractionType::USER_FOLLOWS_USER, $user_to_unfollow);
     }
 
     /**
@@ -142,9 +142,96 @@ class User extends Authenticatable
         return Interaction::exists($this, InteractionType::USER_FOLLOWS_USER, $user);
     }
 
-    public function contacts()
+    /**
+     * Retrieve all contacts for a user.
+     * @return Collection<User>
+     */
+    public function contacts() : Collection
     {
-        $contacts = $this->either(InteractionType::USER_CONTACTS);
+        return $this->either(InteractionType::USER_CONTACTS);
+    }
+
+    /**
+     * Add a user to this user's contact list.
+     * Note, all retrieve operations are bidirectional, so it doesn't matter
+     *  who added whom.
+     * @param User $user_to_add
+     * @return Interaction|null
+     */
+    public function addContact(User $user_to_add): ?Interaction
+    {
+        return Interaction::add($this, InteractionType::USER_CONTACTS, $user_to_add);
+    }
+
+    /**
+     * Remove a user from this user's contact list, and vice-versa.
+     * @param User $user_to_remove
+     * @return int|null
+     */
+    public function removeContact(User $user_to_remove): ?int
+    {
+        $mine = Interaction::remove($this, InteractionType::USER_CONTACTS, $user_to_remove);
+        $theirs = Interaction::remove($user_to_remove, InteractionType::USER_CONTACTS, $this);
+        return $mine + $theirs;
+    }
+
+    /**
+     * Create a request to be added as a contact of another user.
+     * @param User $user_to_request
+     * @return Interaction|null
+     */
+    public function requestContact(User $user_to_request): ?Interaction
+    {
+        return Interaction::add($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request);
+    }
+
+    /**
+     * Deny a request from another user to be added as a contact.
+     * @param User $user_to_deny
+     * @return int|null
+     */
+    public function denyContactRequest(User $user_to_deny): ?int
+    {
+        return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+    }
+
+    /**
+     * Cancel a pending request to be added as another user's contact.
+     * @param User $user_to_cancel
+     * @return int|null
+     */
+    public function cancelContactRequest(User $user_to_cancel): ?int
+    {
+        return Interaction::remove($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_cancel);
+    }
+
+    /**
+     * Approve a request to be added as a contact of another user.
+     * @param User $user_to_approve
+     * @return Interaction|null
+     */
+    public function approveContactRequest(User $user_to_approve): ?Interaction
+    {
+        Interaction::remove($user_to_approve, InteractionType::USER_CONTACT_REQUESTS, $this);
+        return $this->addContact($user_to_approve);
+    }
+
+    /**
+     * Retrieve a collection of users that have requested to be added as a contact.
+     * @return Collection<User>
+     */
+    public function viewIncomingContactRequests(): Collection
+    {
+        return $this->their(InteractionType::USER_CONTACT_REQUESTS);
+    }
+
+    /**
+     * View all pending contact requests this user has made.
+     * @return Collection<User>
+     */
+    public function viewOutgoingContactRequests(): Collection
+    {
+        return $this->my(InteractionType::USER_CONTACT_REQUESTS);
     }
 
 }
