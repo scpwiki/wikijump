@@ -234,4 +234,17 @@ class User extends Authenticatable
         return $this->my(InteractionType::USER_CONTACT_REQUESTS);
     }
 
+    /**
+     * Check if a user is a contact of this user. Bidirectional.
+     * @param User $user
+     * @return bool
+     */
+    public function isContact(User $user): bool
+    {
+        return (
+            Interaction::exists($this, InteractionType::USER_CONTACTS, $user) ||
+            Interaction::exists($user, InteractionType::USER_CONTACTS, $this)
+        );
+    }
+
 }
