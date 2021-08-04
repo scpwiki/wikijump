@@ -3,7 +3,7 @@
 {if $contacts}
 	<table class="contact-list-table">
 		{foreach from=$contacts item=contact}
-			{assign var=user value=$contact->getTargetUser()}
+			{assign var=user value=$contact}
 			<tr>
 				<td>
 					{printuser user=$user image=true}

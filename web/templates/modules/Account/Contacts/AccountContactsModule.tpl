@@ -3,15 +3,13 @@
 {if $contacts}
 	<table class="contact-list-table">
 		{foreach from=$contacts item=contact}
-			{assign var=user value=$contact->getTargetUser()}
+			{assign var=user value=$contact}
 			<tr>
 				<td>
 					{printuser user=$user image=true}
 				</td>
 				<td style="padding-left: 5em">
-					{if $contact->getTemp("showEmail")}
-						{$user->email|escape}
-					{/if}
+                    <!-- This used to show email addresses of users. You think you're slick huh? -->
 				</td>
 				</td>
 				<td style="padding-left: 10em">

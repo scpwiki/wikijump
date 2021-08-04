@@ -1,30 +1,26 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Modules\Account\Contacts;
 
-
-
-
-use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\ContactPeer;
 use Wikidot\Utils\AccountBaseModule;
+use Wikijump\Models\User;
 
+/**
+ * Retrieves "back" contacts, a legacy behavior. To be removed.
+ * @package Wikidot\Modules\Account\Contacts
+ */
 class AccountBackContactsModule extends AccountBaseModule
 {
 
+    /**
+     * Build the "back" contacts list. This used to be unidirectional, now it's bidirectional.
+     */
     public function build($runData)
     {
-
+        /** @var User $user */
         $user = $runData->getUser();
 
-        // get all contacts
-        $c = new Criteria();
-        $c->add("contact.target_user_id", $user->id);
-        $c->addJoin("user_id", "users.id");
-        $c->addOrderAscending("users.username");
-
-        $contacts = ContactPeer::instance()->select($c);
-
-        $runData->contextAdd("contacts", $contacts);
+        $runData->contextAdd('contacts', $user->contacts()->sortBy('username'));
     }
 }

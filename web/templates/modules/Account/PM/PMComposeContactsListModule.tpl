@@ -9,9 +9,9 @@
 			{if $contacts}
 				<ul style="list-style: none">
 					{foreach from=$contacts item=contact}
-						{assign var=user value=$contact->getTargetUser()}
+						{assign var=user value=$contact}
 						<li>
-							<span class="printuser"><img class="small" src="{$contact->getTemp("avatarUri")}"/>
+							<span class="printuser"><img class="small" src="{$contact->avatarSm()}"/>
 							<a href="javascript:;" onclick="OZONE.dialog.cleanAll();Wikijump.modules.PMComposeModule.utils.selectRecipient({$user->id}, '{$user->username|escape}');" >{$user->username|escape}</a>
 						</li>
 					{/foreach}

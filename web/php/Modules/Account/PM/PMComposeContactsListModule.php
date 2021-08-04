@@ -1,36 +1,28 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Modules\Account\PM;
 
-
-
-
-use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\ContactPeer;
 use Wikidot\Utils\AccountBaseModule;
+use Wikijump\Models\User;
 
+/**
+ * Choose contacts to send a PM to.
+ * @package Wikidot\Modules\Account\PM
+ */
 class PMComposeContactsListModule extends AccountBaseModule
 {
 
+    /**
+     * Build the list of contacts.
+     */
     public function build($runData)
     {
-
+        /** @var User $user */
         $user = $runData->getUser();
 
-        // get all contacts
-        $c = new Criteria();
-        $c->add("contact.user_id", $user->id);
-        $c->addJoin("target_user_id", "users.id");
-        $c->addOrderAscending("users.username");
+        $contacts = $user->contacts()->sortBy('username');
 
-        $contacts = ContactPeer::instance()->select($c);
-
-        // avatar uri
-        foreach ($contacts as &$co) {
-            $userId = $co->getTargetUserId();
-            $co->setTemp("avatarUri", '/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png');
-        }
-
-        $runData->contextAdd("contacts", $contacts);
+        $runData->contextAdd('contacts', $contacts);
     }
 }
