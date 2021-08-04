@@ -55,7 +55,7 @@ use self::string::parse_string;
 use self::strip::strip_newlines;
 use crate::log::prelude::*;
 use crate::tokenizer::Tokenization;
-use crate::tree::SyntaxTree;
+use crate::tree::{AttributeMap, Element, ListItem, ListType, SyntaxTree};
 use std::borrow::Cow;
 
 pub use self::boolean::{parse_boolean, NonBooleanValue};
@@ -104,7 +104,23 @@ where
                 "styles-len" => styles.len(),
             );
 
-            SyntaxTree::from_element_result(elements, warnings, styles)
+            // Extract supplementary tables from parser
+            let table_of_contents_depths = parser.remove_table_of_contents();
+            let footnotes = parser.remove_footnotes();
+
+            // Convert TOC depth lists
+            let table_of_contents = process_depths((), table_of_contents_depths)
+                .into_iter()
+                .map(|(_, items)| build_toc_list_element(items))
+                .collect::<Vec<_>>();
+
+            SyntaxTree::from_element_result(
+                elements,
+                warnings,
+                styles,
+                table_of_contents,
+                footnotes,
+            )
         }
         Err(warning) => {
             // This path is only reachable if a very bad error occurs.
@@ -117,11 +133,20 @@ where
                 "Fatal error occurred at highest-level parsing: {:#?}", warning,
             );
 
-            let elements = vec![text!(tokenization.full_text().inner())];
+            let wikitext = tokenization.full_text().inner();
+            let elements = vec![text!(wikitext)];
             let warnings = vec![warning];
             let styles = vec![];
+            let table_of_contents = vec![];
+            let footnotes = vec![];
 
-            SyntaxTree::from_element_result(elements, warnings, styles)
+            SyntaxTree::from_element_result(
+                elements,
+                warnings,
+                styles,
+                table_of_contents,
+                footnotes,
+            )
         }
     }
 }
@@ -140,4 +165,25 @@ fn extract_exceptions(
     }
 
     (warnings, styles)
+}
+
+fn build_toc_list_element(list: DepthList<(), String>) -> Element<'static> {
+    let build_item = |item| match item {
+        DepthItem::List(_, list) => ListItem::SubList(build_toc_list_element(list)),
+        DepthItem::Item(name) => {
+            let element = Element::Text(Cow::Owned(name));
+            let elements = vec![element];
+
+            ListItem::Elements(elements)
+        }
+    };
+
+    let items = list.into_iter().map(build_item).collect();
+    let attributes = AttributeMap::new();
+
+    Element::List {
+        ltype: ListType::Bullet,
+        items,
+        attributes,
+    }
 }

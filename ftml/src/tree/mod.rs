@@ -46,7 +46,7 @@ pub use self::list::*;
 pub use self::module::*;
 pub use self::tag::*;
 
-use self::clone::{elements_to_owned, strings_to_owned};
+use self::clone::{elements_lists_to_owned, elements_to_owned, strings_to_owned};
 use crate::parsing::{ParseOutcome, ParseWarning};
 use std::borrow::Cow;
 
@@ -65,6 +65,15 @@ pub struct SyntaxTree<'t> {
     /// How the renderer decides to consume these is up to the implementation,
     /// however the recommendation is to add these as separate style tags.
     pub styles: Vec<Cow<'t, str>>,
+
+    /// The full table of contents for this page.
+    ///
+    /// Depth list conversion happens here, so that depths on the table
+    /// match the heading level.
+    pub table_of_contents: Vec<Element<'t>>,
+
+    /// The full footnote list for this page.
+    pub footnotes: Vec<Vec<Element<'t>>>,
 }
 
 impl<'t> SyntaxTree<'t> {
@@ -72,8 +81,15 @@ impl<'t> SyntaxTree<'t> {
         elements: Vec<Element<'t>>,
         warnings: Vec<ParseWarning>,
         styles: Vec<Cow<'t, str>>,
+        table_of_contents: Vec<Element<'t>>,
+        footnotes: Vec<Vec<Element<'t>>>,
     ) -> ParseOutcome<Self> {
-        let tree = SyntaxTree { elements, styles };
+        let tree = SyntaxTree {
+            elements,
+            styles,
+            table_of_contents,
+            footnotes,
+        };
         ParseOutcome::new(tree, warnings)
     }
 
@@ -81,6 +97,8 @@ impl<'t> SyntaxTree<'t> {
         SyntaxTree {
             elements: elements_to_owned(&self.elements),
             styles: strings_to_owned(&self.styles),
+            table_of_contents: elements_to_owned(&self.table_of_contents),
+            footnotes: elements_lists_to_owned(&self.footnotes),
         }
     }
 }

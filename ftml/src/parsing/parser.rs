@@ -24,7 +24,10 @@ use super::rule::Rule;
 use super::RULE_PAGE;
 use crate::log::prelude::*;
 use crate::tokenizer::Tokenization;
-use std::ptr;
+use crate::tree::HeadingLevel;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::{mem, ptr};
 
 const MAX_RECURSION_DEPTH: usize = 100;
 
@@ -41,6 +44,21 @@ pub struct Parser<'r, 't> {
     // Rule state
     rule: Rule,
     depth: usize,
+
+    // Table of Contents
+    //
+    // Schema: Vec<(depth, _, name)>
+    //
+    // Note: These two are in Rc<_> items so that the Parser
+    //       can be cloned. It is intended as a cheap pointer
+    //       object, with the true contents here preserved
+    //       across parser child instances.
+    table_of_contents: Rc<RefCell<Vec<(usize, (), String)>>>,
+
+    // Footnotes
+    //
+    // Schema: Vec<List of elements for a footnote>
+    footnotes: Rc<RefCell<Vec<Vec<Element<'t>>>>>,
 
     // Flags
     in_list: bool,
@@ -59,6 +77,9 @@ impl<'r, 't> Parser<'r, 't> {
             .split_first()
             .expect("Parsed tokens list was empty (expected at least one element)");
 
+        let table_of_contents = Rc::new(RefCell::new(Vec::new()));
+        let footnotes = Rc::new(RefCell::new(Vec::new()));
+
         Parser {
             log,
             current,
@@ -66,6 +87,8 @@ impl<'r, 't> Parser<'r, 't> {
             full_text,
             rule: RULE_PAGE,
             depth: 0,
+            table_of_contents,
+            footnotes,
             in_list: false,
         }
     }
@@ -125,6 +148,33 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn set_list_flag(&mut self, value: bool) {
         self.in_list = value;
+    }
+
+    // Table of Contents
+    pub fn push_table_of_contents_entry(&mut self, heading: HeadingLevel, name: String) {
+        let level = usize::from(heading.value());
+
+        self.table_of_contents.borrow_mut().push((level, (), name));
+    }
+
+    #[cold]
+    pub fn remove_table_of_contents(&mut self) -> Vec<(usize, (), String)> {
+        let mut table_of_contents = self.table_of_contents.borrow_mut();
+
+        mem::replace(&mut table_of_contents, Vec::new())
+    }
+
+    // Footnotes
+    pub fn push_footnote(&mut self, contents: Vec<Element<'t>>) {
+        // TODO
+        self.footnotes.borrow_mut().push(contents);
+    }
+
+    #[cold]
+    pub fn remove_footnotes(&mut self) -> Vec<Vec<Element<'t>>> {
+        let mut footnotes = self.footnotes.borrow_mut();
+
+        mem::replace(&mut footnotes, Vec::new())
     }
 
     // State evaluation
