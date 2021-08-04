@@ -22,7 +22,9 @@ use super::condition::ParseCondition;
 use super::prelude::*;
 use super::rule::Rule;
 use super::RULE_PAGE;
+use crate::data::PageInfo;
 use crate::log::prelude::*;
+use crate::render::text::TextRender;
 use crate::tokenizer::Tokenization;
 use crate::tree::HeadingLevel;
 use std::cell::RefCell;
@@ -151,8 +153,25 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     // Table of Contents
-    pub fn push_table_of_contents_entry(&mut self, heading: HeadingLevel, name: String) {
+    pub fn push_table_of_contents_entry(
+        &mut self,
+        heading: HeadingLevel,
+        name_elements: &[Element],
+    ) {
+        // TODO provide real PageInfo
+        let info = PageInfo {
+            page: cow!("table-of-contents"),
+            category: None,
+            site: cow!(""),
+            title: cow!("Table of Contents"),
+            alt_title: None,
+            rating: 0.0,
+            tags: vec![],
+            language: cow!("unknown"),
+        };
+
         let level = usize::from(heading.value());
+        let name = TextRender.render_partial(&self.log, &info, name_elements);
 
         self.table_of_contents.borrow_mut().push((level, (), name));
     }

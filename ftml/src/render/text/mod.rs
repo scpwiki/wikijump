@@ -32,7 +32,7 @@ use crate::PageInfo;
 pub struct TextRender;
 
 impl TextRender {
-    fn render_partial(
+    pub fn render_partial(
         &self,
         log: &Logger,
         page_info: &PageInfo,
