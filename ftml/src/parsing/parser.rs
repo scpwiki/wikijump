@@ -159,9 +159,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[cold]
     pub fn remove_table_of_contents(&mut self) -> Vec<(usize, (), String)> {
-        let mut table_of_contents = self.table_of_contents.borrow_mut();
-
-        mem::replace(&mut table_of_contents, Vec::new())
+        mem::take(&mut self.table_of_contents.borrow_mut())
     }
 
     // Footnotes
@@ -172,9 +170,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[cold]
     pub fn remove_footnotes(&mut self) -> Vec<Vec<Element<'t>>> {
-        let mut footnotes = self.footnotes.borrow_mut();
-
-        mem::replace(&mut footnotes, Vec::new())
+        mem::take(&mut self.footnotes.borrow_mut())
     }
 
     // State evaluation
