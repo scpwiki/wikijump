@@ -200,6 +200,27 @@ class User extends Authenticatable
      */
     public function requestContact(User $user_to_request): ?Interaction
     {
+
+        /** If this user already has a request for the target user, return null. */
+        if(Interaction::exists($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request))
+        {
+            return null;
+        }
+
+        /** If the inverse request exists, create the contact relation. */
+        if(Interaction::exists($user_to_request, InteractionType::USER_CONTACT_REQUESTS, $this))
+        {
+            return $this->approveContactRequest($user_to_request);
+        }
+
+        /** If a Contact relationship already exists, disallow another request. */
+        if($this->isContact($user_to_request))
+        {
+            return null;
+        }
+
+        // TODO: More edge cases here around blocked users when that class comes.
+
         return Interaction::add($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request);
     }
 
