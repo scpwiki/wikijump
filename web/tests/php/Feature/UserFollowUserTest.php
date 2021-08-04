@@ -17,6 +17,29 @@ class UserFollowUserTest extends TestCase
     use RefreshDatabase;
 
     /**
+     * @var User $user
+     */
+    private $user;
+
+    /**
+     * @var User $user_to_follow
+     */
+    private $user_to_follow;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $user = User::factory()->make();
+        $user->save();
+        $user_to_follow = User::factory()->make();
+        $user_to_follow->save();
+
+        $this->user = $user;
+        $this->user_to_follow = $user_to_follow;
+
+    }
+
+    /**
      * A basic test of the factory before we begin.
      *
      * @return void
@@ -24,33 +47,27 @@ class UserFollowUserTest extends TestCase
     public function testModelsCanBeInstantiated()
     {
         $user = User::factory()->make();
-        UserFollowUserTest::assertTrue($user instanceof User);
+        self::assertTrue($user instanceof User);
     }
 
     /**
      * Demonstrating the basic loop of following a user.
      * @return void
      */
-    public function testAUserCanFollowAnotherUser()
+    public function testFollowUserFeatures()
     {
-        /**
-         * @var User $user
-         * @var User $user_to_follow
-         */
-        $user = User::factory()->make();
-        $user->save();
-        $user_to_follow = User::factory()->make();
-        $user_to_follow->save();
+        $this->user->followUser($this->user_to_follow);
 
-        $user->followUser($user_to_follow);
+        self::assertTrue($this->user->isFollowingUser($this->user_to_follow));
+        self::assertCount(1, $this->user_to_follow->followers());
+        self::assertCount(1, $this->user->followingUsers());
+        self::assertEquals($this->user_to_follow->username, $this->user->followingUsers()->first()->username);
+        self::assertEquals($this->user->id, $this->user_to_follow->followers()->pluck('id')->first());
 
-        UserFollowUserTest::assertTrue($user->isFollowingUser($user_to_follow));
-        UserFollowUserTest::assertCount(1, $user_to_follow->followers());
-        UserFollowUserTest::assertEquals($user->id, $user_to_follow->followers()->pluck('id')->first());
+        $this->user->unfollowUser($this->user_to_follow);
 
-        $user->unfollowUser($user_to_follow);
-
-        UserFollowUserTest::assertFalse($user->isFollowingUser($user_to_follow));
-        UserFollowUserTest::assertCount(0, $user_to_follow->followers());
+        self::assertFalse($this->user->isFollowingUser($this->user_to_follow));
+        self::assertCount(0, $this->user_to_follow->followers());
+        self::assertCount(0, $this->user->followingUsers());
     }
 }

@@ -48,7 +48,10 @@ trait HasInteractions {
         $list = $this->morphMany(Interaction::class, 'target')
             ->where('interaction_type', $interaction_type)
             ->get();
-        if($list->count() === 0) { return $list; }
+        if ($list->count() === 0)
+        {
+            return $list;
+        }
         else
         {
             # Retrieve the class type of the target.
