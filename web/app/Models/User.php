@@ -85,6 +85,24 @@ class User extends Authenticatable
     ];
 
     /**
+     * Retrieve the path for the user's small avatar.
+     * @return string
+     */
+    public function avatarSm(): string
+    {
+        return '/common--images/avatars/'.floor($this->id/1000).'/'.$this->id.'/a16.png';
+    }
+
+    /**
+     * Retrieve the path for the user's large avatar.
+     * @return string
+     */
+    public function avatarLg(): string
+    {
+        return '/common--images/avatars/'.floor($this->id/1000).'/'.$this->id.'/a48.png';
+    }
+
+    /**
      * Retrieve the list of default values for user settings.
      * @return array
      */
