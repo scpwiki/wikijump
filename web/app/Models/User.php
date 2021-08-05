@@ -335,6 +335,11 @@ class User extends Authenticatable
         return Interaction::create($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
     }
 
+    public function getBlock(User $user) : ?Interaction
+    {
+        return Interaction::retrieve($this, InteractionType::USER_BLOCKS_USER, $user);
+    }
+
     /**
      * List all users blocked by this user.
      * @return Collection
