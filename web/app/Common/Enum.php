@@ -35,7 +35,7 @@ abstract class Enum
      */
     final public static function values(): array
     {
-        $class = new ReflectionClass(static::class);
+        $class = new \ReflectionClass(static::class);
         return $class->getConstants();
     }
 
