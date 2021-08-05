@@ -189,6 +189,12 @@ class User extends Authenticatable
     public function requestContact(User $user_to_request): bool
     {
 
+        /** If a block is in place on either side, disallow a request. */
+        if($this->userBlockExists($user_to_request))
+        {
+            return false;
+        }
+
         /** If this user already has a request for the target user, return null. */
         if(Interaction::check($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request))
         {
@@ -206,8 +212,6 @@ class User extends Authenticatable
         {
             return false;
         }
-
-        // TODO: More edge cases here around blocked users when that class comes.
 
         return Interaction::create($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request);
     }
@@ -287,6 +291,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Deny a request from another user to be added as a contact, and block them from further interaction.
+     * @param User $user_to_deny
+     * @return bool
+     */
+    public function denyContactRequestAndBlock(User $user_to_deny): bool
+    {
+        $this->blockUser($user_to_deny);
+        return Interaction::delete($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+    }
+
+    /**
      * Cancel a pending request to be added as another user's contact.
      * @param User $user_to_cancel
      * @return bool
@@ -308,7 +323,13 @@ class User extends Authenticatable
      */
     public function blockUser(User $user_to_block, string $reason) : bool
     {
+        /** Do not add a second block for the same target user. */
         if($this->isBlockingUser($user_to_block)) { return false; }
+
+        /** Once the block occurs, remove contact and any pending requests. */
+        $this->cancelContactRequest($user_to_block);
+        $this->denyContactRequest($user_to_block);
+        $this->removeContact($user_to_block);
 
         $reason = filter_var($reason, FILTER_SANITIZE_STRING);
         return Interaction::create($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
