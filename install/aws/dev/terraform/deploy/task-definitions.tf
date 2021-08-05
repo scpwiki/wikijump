@@ -123,7 +123,32 @@ module "datadog" {
     {
       name      = "DD_SITE"
       value = var.datadog_site
-    }]
+    },
+    {
+      name = "DD_APM_ENABLED"
+      value = true
+    },
+    {
+      name = "DD_APM_NON_LOCAL_TRAFFIC"
+      value = true
+    },
+    {
+      name = "DD_SYSTEM_PROBE_ENABLED"
+      value = true
+    },
+    {
+      name = "DD_LOGS_ENABLED"
+      value = true
+    },
+    {
+      name = "DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL"
+      value = true
+    },
+    {
+      name = "DD_LOGS_CONFIG_DOCKER_CONTAINER_USE_FILE"
+      value = true
+    }
+  ]
 
   log_configuration = {
     logDriver = "awslogs"
@@ -152,8 +177,42 @@ module "datadog" {
       sourceVolume  = "cgroup"
       containerPath = "/host/sys/fs/cgroup"
       readOnly      = true
+    },
+    {
+      sourceVolume = "debug"
+      containerPath = "/sys/kernel/debug"
+      readOnly = true
+    },
+    {
+      sourceVolume = "pointdir"
+      containerPath = "/opt/datadog-agent/run"
+      readOnly = false
+    },
+    {
+      sourceVolume = "containers_root"
+      containerPath = "/var/lib/docker/containers"
+      readOnly = true
     }
   ]
+
+  port_mappings = [
+    {
+      containerPort = 8126
+      hostPort      = 8126
+      protocol      = "tcp"
+    }
+  ]
+
+  linux_parameters = {
+    capabilities = {
+      add = [
+        "SYS_ADMIN",
+        "SYS_RESOURCE",
+        "SYS_PTRACE",
+        "NET_ADMIN"
+      ]
+    }
+  }
 }
 
 module "reverse-proxy" {
