@@ -13,9 +13,9 @@
 	<ul style="list-style: none">
 		{foreach from=$blocks item=block}
 			<li style="margin: 0.2em 0">
-				{printuser user=$block->getBlockedUser() image="true"}
+				{printuser user=$block image="true"}
 
-				(<a href="javascript:;" onclick="Wikijump.modules.ASBlockedModule.listeners.deleteBlock(event, {$block->getBlockedUserId()}, '{$block->getBlockedUser()->username|escape}')">delete block</a>)
+				(<a href="javascript:;" onclick="Wikijump.modules.ASBlockedModule.listeners.deleteBlock(event, {$block->id}, '{$block->username|escape}')">delete block</a>)
 
 			</li>
 		{/foreach}
