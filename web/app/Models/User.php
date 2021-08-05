@@ -321,7 +321,7 @@ class User extends Authenticatable
      * @param string $reason
      * @return bool
      */
-    public function blockUser(User $user_to_block, string $reason) : bool
+    public function blockUser(User $user_to_block, string $reason = '') : bool
     {
         /** Do not add a second block for the same target user. */
         if($this->isBlockingUser($user_to_block)) { return false; }
@@ -388,13 +388,13 @@ class User extends Authenticatable
      * @param string $reason
      * @return bool
      */
-    public function updateUserBlock(User $user_to_block, string $reason) : bool
+    public function updateUserBlock(User $user_to_block, string $reason = '') : bool
     {
         if($this->isBlockingUser($user_to_block) === false) { return false; }
 
         $this->unblockUser($user_to_block);
         $reason = filter_var($reason, FILTER_SANITIZE_STRING);
-        return Interaction::update($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
+        return Interaction::set($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
     }
 
     /**
@@ -404,7 +404,7 @@ class User extends Authenticatable
      */
     public function unblockUser(User $user_to_unblock) : bool
     {
-        if($this->isBlockingUser($user_to_block) === false) { return false; }
+        if($this->isBlockingUser($user_to_unblock) === false) { return false; }
 
         return Interaction::delete($this, InteractionType::USER_BLOCKS_USER, $user_to_unblock);
     }

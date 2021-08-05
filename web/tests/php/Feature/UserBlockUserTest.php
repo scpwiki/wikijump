@@ -8,8 +8,8 @@ use Tests\TestCase;
 use Wikijump\Models\User;
 
 /**
- * Class UserContactUserTest
- * A feature test for User methods involving Contacts.
+ * Class UserBlockUserTest
+ * A feature test for User methods involving User blocks.
  * @package Tests\Feature
  */
 class UserBlockUserTest extends TestCase
@@ -29,8 +29,7 @@ class UserBlockUserTest extends TestCase
         $user_to_block->save();
 
         $this->user = $user;
-        $this->user_to_block = $user_to_contact;
-
+        $this->user_to_block = $user_to_block;
     }
 
     /**
@@ -56,7 +55,7 @@ class UserBlockUserTest extends TestCase
         /** Simple checks for existence of the block. */
         self::assertCount(1, $this->user->viewBlockedUsers());
         self::assertTrue($this->user->isBlockingUser($this->user_to_block));
-        self::assertTrue($this->user_to_block->isBlockedByUser($user));
+        self::assertTrue($this->user_to_block->isBlockedByUser($this->user));
         self::assertTrue($this->user->userBlockExists($this->user_to_block));
 
         /** While a block is in place, some interactions are forbidden. */
@@ -77,7 +76,7 @@ class UserBlockUserTest extends TestCase
         /** Existence checks for the block now fail. */
         self::assertCount(0, $this->user->viewBlockedUsers());
         self::assertFalse($this->user->isBlockingUser($this->user_to_block));
-        self::assertFalse($this->user_to_block->isBlockedByUser($user));
+        self::assertFalse($this->user_to_block->isBlockedByUser($this->user));
         self::assertFalse($this->user->userBlockExists($this->user_to_block));
 
         /** Additional behaviors: */
@@ -106,12 +105,12 @@ class UserBlockUserTest extends TestCase
         $this->user->unblockUser($this->user_to_block);
 
         /** A reason for the block can be set, retrieved, and updated. */
-        $this->user->blockUser($this->user_to_block, $reason = "foo");
+        $this->user->blockUser($this->user_to_block, 'foo');
         $block = $this->user->getBlock($this->user_to_block);
-        self::assertEquals("foo", $block->metadata["reason"]);
+        self::assertEquals('foo', $block->metadata['reason']);
 
-        $this->user->updateUserBlock($this->user_to_block, "bar");
+        $this->user->updateUserBlock($this->user_to_block, 'bar');
         $block = $this->user->getBlock($this->user_to_block);
-        self::assertEquals("bar", $block->metadata["reason"]);
+        self::assertEquals('bar', $block->metadata['reason']);
     }
 }

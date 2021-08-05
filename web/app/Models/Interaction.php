@@ -157,11 +157,11 @@ class Interaction extends Model
      * @param array|null $metadata
      * @return bool
      */
-    public static function update($setter, int $relation, $target, ?array $metadata = []) : bool
+    public static function set($setter, int $relation, $target, ?array $metadata = []) : bool
     {
         if(self::isInvalid($setter, $relation, $target, $metadata))
         {
-            Log::error("Interaction::update was given an invalid set of params. 
+            Log::error("Interaction::set was given an invalid set of params. 
             Setter: $setter Relation: $relation Target: $target Metadata: $metadata");
             abort(500);
             return false;
