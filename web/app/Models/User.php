@@ -1,4 +1,6 @@
 <?php
+
+/** @noinspection PhpUnused */
 declare(strict_types=1);
 
 namespace Wikijump\Models;
@@ -18,6 +20,7 @@ use Wikijump\Traits\LegacyCompatibility;
 
 /**
  * Class User
+ * @property int id
  * @package Wikijump\Models
  * @mixin Builder
  */
@@ -132,7 +135,11 @@ class User extends Authenticatable
      */
     public function followUser(User $user_to_follow) : bool
     {
-        return Interaction::create($this, InteractionType::USER_FOLLOWS_USER, $user_to_follow);
+        if ($this->isFollowingUser($user_to_follow) === false)
+        {
+            return Interaction::create($this, InteractionType::USER_FOLLOWS_USER, $user_to_follow);
+        }
+        return false;
     }
 
     /**
@@ -162,7 +169,7 @@ class User extends Authenticatable
      */
     public function unfollowUser(User $user_to_unfollow) : bool
     {
-        return Interaction::delete($this, InteractionType::USER_FOLLOWS_USER, $user_to_unfollow);
+        return Interaction::remove($this, InteractionType::USER_FOLLOWS_USER, $user_to_unfollow);
     }
 
     /**************************************************
@@ -223,7 +230,7 @@ class User extends Authenticatable
      */
     public function approveContactRequest(User $user_to_approve): bool
     {
-        Interaction::delete($user_to_approve, InteractionType::USER_CONTACT_REQUESTS, $this);
+        Interaction::remove($user_to_approve, InteractionType::USER_CONTACT_REQUESTS, $this);
         return $this->addContact($user_to_approve);
     }
 
@@ -275,8 +282,8 @@ class User extends Authenticatable
     public function removeContact(User $user_to_remove): bool
     {
         return(
-            Interaction::delete($this, InteractionType::USER_CONTACTS, $user_to_remove)
-            || Interaction::delete($user_to_remove, InteractionType::USER_CONTACTS, $this)
+            Interaction::remove($this, InteractionType::USER_CONTACTS, $user_to_remove)
+            || Interaction::remove($user_to_remove, InteractionType::USER_CONTACTS, $this)
         );
     }
 
@@ -287,7 +294,7 @@ class User extends Authenticatable
      */
     public function denyContactRequest(User $user_to_deny): bool
     {
-        return Interaction::delete($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+        return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
     }
 
     /**
@@ -298,7 +305,7 @@ class User extends Authenticatable
     public function denyContactRequestAndBlock(User $user_to_deny): bool
     {
         $this->blockUser($user_to_deny);
-        return Interaction::delete($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+        return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
     }
 
     /**
@@ -308,7 +315,7 @@ class User extends Authenticatable
      */
     public function cancelContactRequest(User $user_to_cancel): bool
     {
-        return Interaction::delete($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_cancel);
+        return Interaction::remove($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_cancel);
     }
 
     /**************************************************
@@ -392,7 +399,6 @@ class User extends Authenticatable
     {
         if($this->isBlockingUser($user_to_block) === false) { return false; }
 
-        $this->unblockUser($user_to_block);
         $reason = filter_var($reason, FILTER_SANITIZE_STRING);
         return Interaction::set($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
     }
@@ -406,6 +412,6 @@ class User extends Authenticatable
     {
         if($this->isBlockingUser($user_to_unblock) === false) { return false; }
 
-        return Interaction::delete($this, InteractionType::USER_BLOCKS_USER, $user_to_unblock);
+        return Interaction::remove($this, InteractionType::USER_BLOCKS_USER, $user_to_unblock);
     }
 }

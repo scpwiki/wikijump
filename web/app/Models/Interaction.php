@@ -3,20 +3,20 @@ declare(strict_types=1);
 
 namespace Wikijump\Models;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
-use Wikijump\Common\Enum;
 use Wikijump\Helpers\InteractionType;
 
 /**
  * Class Interaction
  * Core class for creating persistent relationships of various types between two
  *  objects, such as a user following a page, or a site banning a user.
+ * @property array|null metadata
  * @package Wikijump\Models
+ * @method static where(array $array)
  */
 class Interaction extends Model
 {
@@ -66,9 +66,10 @@ class Interaction extends Model
      * @param $setter
      * @param $relation
      * @param $target
+     * @param array|null $metadata
      * @return bool
      */
-    public static function isInvalid($setter, $relation, $target, $metadata = []) : bool
+    public static function isInvalid($setter, $relation, $target, ?array $metadata = []) : bool
     {
         return !(
             is_subclass_of($setter, 'Illuminate\Database\Eloquent\Model')
@@ -120,6 +121,7 @@ class Interaction extends Model
                 return false;
             }
         }
+        return false;
     }
 
     /**
@@ -151,13 +153,13 @@ class Interaction extends Model
 
     /**
      * Update the metadata on an Interaction.
-     * @param array $setter
+     * @param $setter
      * @param int $relation
      * @param $target
-     * @param array|null $metadata
+     * @param array $metadata
      * @return bool
      */
-    public static function set($setter, int $relation, $target, ?array $metadata = []) : bool
+    public static function set($setter, int $relation, $target, array $metadata = []) : bool
     {
         if(self::isInvalid($setter, $relation, $target, $metadata))
         {
@@ -167,7 +169,7 @@ class Interaction extends Model
             return false;
         }
 
-        if(self::exists($setter, $relation, $target) === false) { return false; }
+        if(self::check($setter, $relation, $target) === false) { return false; }
 
         /** @var Interaction $interaction */
         $interaction = Interaction::where(
@@ -192,7 +194,7 @@ class Interaction extends Model
      * @param $target
      * @return bool
      */
-    public static function delete($setter, int $relation, $target) : bool
+    public static function remove($setter, int $relation, $target) : bool
     {
         if(self::isInvalid($setter, $relation, $target))
         {
