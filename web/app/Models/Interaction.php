@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
+use Wikijump\Common\Enum;
 use Wikijump\Helpers\InteractionType;
 
 /**
@@ -31,10 +32,10 @@ class Interaction extends Model
     protected $guarded = [];
 
     /**
-     * Settings are stored in the database as JSON objects.
-     * When we retrieve them, we want to cast them as an associative array.
+     * Metadata is stored in the database as JSON objects.
+     * When we retrieve it, we want to cast it as an associative array.
      * Otherwise we'll just end up calling json_decode anyway. This also keeps
-     *  us from having to manually json_encode the settings before saving.
+     *  us from having to manually json_encode the metadata before saving.
      * @var array
      */
     protected $casts = [
@@ -75,7 +76,7 @@ class Interaction extends Model
          * We have to do some validation here as we're accepting generics.
          */
         if(is_subclass_of($setter, 'Illuminate\Database\Eloquent\Model')
-            && is_int($relation)
+            && Enum::isValue($relation)
             && is_subclass_of($target, 'Illuminate\Database\Eloquent\Model'))
         {
             $interaction = new Interaction(
@@ -94,9 +95,13 @@ class Interaction extends Model
                 return $interaction;
             }
             catch(QueryException $e) {
+                /** Postgres unique constraint violation: */
                 if($e->errorInfo[0] == 23505) {
-                    # TODO: Flash this back to a session as an error.
-                    echo('Already exists, do stuff');
+                    /**
+                     * We'll want to throw something here that a controller can
+                     * catch and return data to the user. Pending API work.
+                     */
+                    return null;
                 }
             }
         }
@@ -120,7 +125,7 @@ class Interaction extends Model
          * We have to do some validation here as we're accepting generics.
          */
         if(is_subclass_of($setter, 'Illuminate\Database\Eloquent\Model')
-            && is_int($relation)
+            && Enum::isValue($relation)
             && is_subclass_of($target, 'Illuminate\Database\Eloquent\Model'))
         {
             $interaction = Interaction::where(
@@ -137,7 +142,7 @@ class Interaction extends Model
                 return $interaction->delete();
             }
             catch(QueryException $e) {
-                # TODO: Find some common database issues we might need to handle.
+                # TODO: Find some common database issues we might need to handle. This will not fire right now.
                 if($e->errorInfo[0] == 23505) {
                     echo('Already exists, do stuff');
                 }
@@ -163,7 +168,7 @@ class Interaction extends Model
          * We have to do some validation here as we're accepting generics.
          */
         if(is_subclass_of($setter, 'Illuminate\Database\Eloquent\Model')
-            && is_int($relation)
+            && Enum::isValue($relation)
             && is_subclass_of($target, 'Illuminate\Database\Eloquent\Model'))
         {
             return (bool)Interaction::where(

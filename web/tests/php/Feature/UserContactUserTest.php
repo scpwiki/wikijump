@@ -16,16 +16,9 @@ class UserContactUserTest extends TestCase
 {
 
     use RefreshDatabase;
-    
-    /**
-     * @var User $user
-     */
-    private $user;
 
-    /**
-     * @var User $user_to_contact
-     */
-    private $user_to_contact;
+    private User $user;
+    private User $user_to_contact;
 
     protected function setUp(): void
     {
