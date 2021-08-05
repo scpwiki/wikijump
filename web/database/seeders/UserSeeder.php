@@ -39,6 +39,8 @@ class UserSeeder extends Seeder
                 'email' => 'automatic@wikijump',
                 'email_verified_at' => now(),
                 'language' => env('DEFAULT_LANGUAGE'),
+                'karma_points' => 0,
+                'karma_level' => 0
             ],
             [
                 // ID 3
@@ -48,6 +50,8 @@ class UserSeeder extends Seeder
                 'email' => 'anonymous@wikijump',
                 'email_verified_at' => now(),
                 'language' => env('DEFAULT_LANGUAGE'),
+                'karma_points' => 0,
+                'karma_level' => 0
             ]
         ]);
         if(env('APP_ENV') != 'production') {
@@ -60,6 +64,8 @@ class UserSeeder extends Seeder
                     'email' => 'user@wikijump.dev',
                     'email_verified_at' => now(),
                     'language' => env('DEFAULT_LANGUAGE'),
+                    'karma_points' => 0,
+                    'karma_level' => 0
                 ]
             );
         }

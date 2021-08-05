@@ -13,7 +13,6 @@ use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\Page;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\ContactPeer;
 use Wikidot\DB\PrivateUserBlockPeer;
 use Wikidot\DB\IpBlockPeer;
 use Wikidot\DB\UserBlockPeer;
@@ -574,11 +573,7 @@ class WDPermissionManager
             }
 
             // if friends - return true (todo)
-            $c = new Criteria();
-            $c->add("user_id", $user->id);
-            $c->add("target_user_id", $toUser->id);
-            $con = ContactPeer::instance()->selectOne($c);
-            if ($con) {
+            if ($user->isContact($toUser)) {
                 return true;
             }
 
@@ -586,13 +581,7 @@ class WDPermissionManager
         }
 
         if ($p == 'f') {
-            //echo "fff";
-            // check if a friend
-            $c = new Criteria();
-            $c->add("user_id", $toUser->id);
-            $c->add("target_user_id", $user->id);
-            $con = ContactPeer::instance()->selectOne($c);
-            if ($con) {
+            if ($user->isContact($toUser)) {
                 return true;
             }
             throw new WDPermissionException(_("This user wishes to receive messages only from selected users."));

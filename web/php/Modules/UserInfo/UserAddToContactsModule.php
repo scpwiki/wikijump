@@ -32,8 +32,6 @@ class UserAddToContactsModule extends SmartyLocalizedModule
             throw new ProcessException(_("User cannot be found."), "no_user");
         }
 
-        // check how many contacts so far...
-
         $runData->contextAdd("user", $targetUser);
     }
 }

@@ -15,13 +15,9 @@ use Wikidot\DB\MembershipLink;
 use Wikidot\DB\MemberInvitationPeer;
 use Wikidot\DB\EmailInvitationPeer;
 use Wikidot\DB\SitePeer;
-
-use Wikidot\DB\ContactPeer;
-use Wikidot\DB\Contact;
 use Wikidot\Utils\AdminNotificationMaker;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
-use Wikijump\Models\User;
 
 class MembershipApplyAction extends SmartyAction
 {
@@ -240,40 +236,6 @@ class MembershipApplyAction extends SmartyAction
         $ml->setType('EMAIL_INVITATION');
         $ml->setByUserId($inv->getUserId());
         $ml->save();
-
-        // add to contacts?
-        $sender = User::find($inv->getUserId());
-        if ($inv->getToContacts() && $sender->id != $user->id) {
-            try {
-                // check if contact already exists
-                $c = new Criteria();
-                $c->add("user_id", $user->id);
-                $c->add("target_user_id", $sender->id);
-                $con0 = ContactPeer::instance()->selectOne($c);
-                if (!$con0) {
-                    $con = new Contact();
-                    $con->setUserId($user->id);
-                    $con->setTargetUserId($sender->id);
-                    $con->save();
-                }
-            } catch (Exception $e) {
-            }
-
-            try {
-                // check if contact already exists
-                $c = new Criteria();
-                $c->add("user_id", $sender->id);
-                $c->add("target_user_id", $user->id);
-                $con0 = ContactPeer::instance()->selectOne($c);
-                if (!$con0) {
-                    $con = new Contact();
-                    $con->setUserId($sender->id);
-                    $con->setTargetUserId($user->id);
-                    $con->save();
-                }
-            } catch (Exception $e) {
-            }
-        }
 
         // set accepted
         $inv->setAccepted(true);

@@ -1,96 +1,89 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Actions;
-use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Database\Database;
 use Ozone\Framework\SmartyAction;
-
-use Wikidot\DB\ContactPeer;
-use Wikidot\DB\Contact;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikijump\Models\User;
 
+/**
+ * Event handler for contacts.
+ * @package Wikidot\Actions
+ */
 class ContactsAction extends SmartyAction
 {
 
-    public function isAllowed($runData)
+    /**
+     * Check if this user is allowed to add a contact.
+     * @param $runData
+     * @return bool
+     * @throws WDPermissionException
+     */
+    public function isAllowed($runData): bool
     {
-        $userId = $runData->getUserId();
-        if(!$userId) {
-            throw new WDPermissionException(_("Not allowed. You should login first."));
+        if(!$runData->getUserId()) {
+            throw new WDPermissionException(_('Not allowed. You should login first.'));
         }
         return true;
     }
 
+    /**
+     * Stub class to fulfill Action contract.
+     * @param $runData
+     */
     public function perform($runData)
     {
     }
 
+    /**
+     * Add a user to this user's contacts. Bidirectional.
+     * @param $runData
+     * @throws ProcessException
+     */
     public function addContactEvent($runData)
     {
-
         $pl = $runData->getParameterList();
-
-        $targetUserId = $pl->getParameterValue("userId");
-
-        $targetUser = User::find($targetUserId);
-
+        $target_user = User::find($pl->getParameterValue('userId'));
+        /** @var User $user */
         $user = $runData->getUser();
 
-        if ($targetUser == null) {
-            throw new ProcessException(_("User cannot be found."), "no_user");
+        if ($target_user === null) {
+            throw new ProcessException(_('User cannot be found.'), 'no_user');
         }
 
-        if ($targetUserId == $user->id) {
-            throw new ProcessException(_("Is there any point in adding yourself to your contact list?"), "not_yourself");
+        if ($target_user->id === $user->id) {
+            throw new ProcessException(_('You cannot add yourself to your contacts.'), 'not_yourself');
         }
 
-        $db = Database::connection();
-        $db->begin();
 
-        // check if already contacted
-        $c = new Criteria();
-        $c->add("user_id", $user->id);
-        $c->add("target_user_id", $targetUserId);
-
-        $contact = ContactPeer::instance()->selectOne($c);
-        if ($contact) {
-            throw new ProcessException(_("This user is already in your contacts."), "already_contact");
+        if ($user->isContact($target_user)) {
+            throw new ProcessException(_('This user is already in your contacts.'), 'already_contact');
         }
 
-        // count contacts
-        $c = new Criteria();
-        $c->add("user_id", $user->id);
-        $count = ContactPeer::instance()->selectCount($c);
-        if ($count>=1000) {
-            throw new ProcessException(_("Sorry, at this moment you cannot add more than 1000 contacts.", "max_reached"));
+        if ($user->contacts()-count() >= config('wikijump.contact_limit')) {
+            throw new ProcessException(_('You cannot add any more contacts.'), 'max_reached');
         }
 
-        //...
-
-        $contact = new Contact();
-        $contact->setUserId($user->id);
-        $contact->setTargetUserId($targetUserId);
-        $contact->save();
-
-        $db->commit();
+        $user->addContact($target_user);
     }
 
+    /**
+     * Remove a user from this user's contacts. Bidirectional.
+     * @param $runData
+     * @throws ProcessException
+     */
     public function removeContactEvent($runData)
     {
         $pl = $runData->getParameterList();
+        /** @var User $user */
         $user = $runData->getUser();
-        $targetUserId = $pl->getParameterValue("userId");
+        $target_user = User::find($pl->getParameterValue('userId'));
 
-        if ($targetUserId == null) {
-            throw new ProcessException(_("No user found."), "no_user");
+        if ($target_user === null) {
+            throw new ProcessException(_('No user found.'), 'no_user');
         }
 
-        $c = new Criteria();
-        $c->add("user_id", $user->id);
-        $c->add("target_user_id", $targetUserId);
-
-        ContactPeer::instance()->delete($c);
+        $user->removeContact($target_user);
     }
 }

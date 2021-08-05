@@ -112,4 +112,9 @@ return [
         '/^api[0-9]*/',
     ],
 
+    /** How many contacts a user may have. */
+    'contact_limit' => 1000,
+
+    /** How many simultaneous contact requests a user may have pending. */
+    'contact_request_limit' => 25,
 ];

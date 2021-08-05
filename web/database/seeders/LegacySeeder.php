@@ -606,7 +606,6 @@ INSERT INTO public.page_source (source_id, text) VALUES (6, 'According to [http:
 > A //Wiki// ([ˈwiː.kiː] <wee-kee> or [ˈwɪ.kiː] <wick-ey>) is a type of website that allows users to add, remove, or otherwise edit and change most content very quickly and easily.
 
 And that is it! As a part of a farm of wikis this site is a great tool that you can use to publish content, upload files, communicate and collaborate.');
-INSERT INTO public.page_source (source_id, text) VALUES (7, 'Admin of this Wikidot installation.');
 INSERT INTO public.page_source (source_id, text) VALUES (8, '[[module ManageSite]]');
 INSERT INTO public.page_source (source_id, text) VALUES (10, 'The profiles site is used to host user profiles. Each {{profile:username}} page contains a user-editable text that is included in the user''s profile page.
 
