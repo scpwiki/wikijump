@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Common;
 
@@ -47,6 +48,6 @@ abstract class Enum
      */
     final public static function isValue($value): bool
     {
-        return in_array($value, static::values());
+        return in_array($value, static::values(), $strict = true);
     }
 }
