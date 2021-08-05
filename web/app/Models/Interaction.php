@@ -76,7 +76,7 @@ class Interaction extends Model
          * We have to do some validation here as we're accepting generics.
          */
         if(is_subclass_of($setter, 'Illuminate\Database\Eloquent\Model')
-            && Enum::isValue($relation)
+            && InteractionType::isValue($relation)
             && is_subclass_of($target, 'Illuminate\Database\Eloquent\Model'))
         {
             $interaction = new Interaction(
@@ -125,7 +125,7 @@ class Interaction extends Model
          * We have to do some validation here as we're accepting generics.
          */
         if(is_subclass_of($setter, 'Illuminate\Database\Eloquent\Model')
-            && Enum::isValue($relation)
+            && InteractionType::isValue($relation)
             && is_subclass_of($target, 'Illuminate\Database\Eloquent\Model'))
         {
             $interaction = Interaction::where(
@@ -168,7 +168,7 @@ class Interaction extends Model
          * We have to do some validation here as we're accepting generics.
          */
         if(is_subclass_of($setter, 'Illuminate\Database\Eloquent\Model')
-            && Enum::isValue($relation)
+            && InteractionType::isValue($relation)
             && is_subclass_of($target, 'Illuminate\Database\Eloquent\Model'))
         {
             return (bool)Interaction::where(
