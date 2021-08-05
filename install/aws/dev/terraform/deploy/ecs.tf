@@ -87,6 +87,18 @@ resource "aws_ecs_task_definition" "wikijump_task" {
       }
     }
   }
+  volume {
+    name = "debug"
+    host_path = "/sys/kernel/debug"
+  }
+  volume {
+    name = "pointdir"
+    host_path = "/opt/datadog-agent/run"
+  }
+  volume {
+    name = "containers_root"
+    host_path = "/var/lib/docker/containers"
+  }
 }
 
 resource "aws_ecs_service" "wikijump" {
