@@ -41,7 +41,8 @@
         },
         "classmap": ["lib/"],
         "files": [
-            "php/setup.php"
+            "php/setup.php",
+            "app/Helpers/helpers.php"
         ]
     },
     "autoload-dev": {
