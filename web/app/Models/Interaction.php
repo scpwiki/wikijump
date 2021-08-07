@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
+use Wikijump\Common\PGError;
 use Wikijump\Helpers\InteractionType;
 
 /**
@@ -113,7 +114,8 @@ class Interaction extends Model
         }
         catch(QueryException $e) {
             /** Postgres unique constraint violation: */
-            if($e->errorInfo[0] == 23505) {
+            if(pg_is_error($e, PGError::UNIQUE_VIOLATION))
+            {
                 /**
                  * We'll want to throw something here that a controller can
                  * catch and return data to the user. Pending API work.
