@@ -13,6 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Wikijump\Helpers\InteractionType;
 use Wikijump\Traits\HasInteractions;
 use Wikijump\Traits\HasSettings;
@@ -230,8 +231,12 @@ class User extends Authenticatable
      */
     public function approveContactRequest(User $user_to_approve): bool
     {
-        Interaction::remove($user_to_approve, InteractionType::USER_CONTACT_REQUESTS, $this);
-        return $this->addContact($user_to_approve);
+        DB::transaction(function () use ($user_to_approve) {
+            Interaction::remove($user_to_approve, InteractionType::USER_CONTACT_REQUESTS, $this);
+            return $this->addContact($user_to_approve);
+        });
+
+        return false;
     }
 
     /**
@@ -304,8 +309,12 @@ class User extends Authenticatable
      */
     public function denyContactRequestAndBlock(User $user_to_deny): bool
     {
-        $this->blockUser($user_to_deny);
-        return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+        DB::transaction(function() use ($user_to_deny) {
+            $this->blockUser($user_to_deny);
+            return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+        });
+
+        return false;
     }
 
     /**
@@ -334,12 +343,16 @@ class User extends Authenticatable
         if($this->isBlockingUser($user_to_block)) { return false; }
 
         /** Once the block occurs, remove contact and any pending requests. */
-        $this->cancelContactRequest($user_to_block);
-        $this->denyContactRequest($user_to_block);
-        $this->removeContact($user_to_block);
+        DB::transaction(function () use($user_to_block, $reason) {
+            $this->cancelContactRequest($user_to_block);
+            $this->denyContactRequest($user_to_block);
+            $this->removeContact($user_to_block);
 
-        $reason = filter_var($reason, FILTER_SANITIZE_STRING);
-        return Interaction::create($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
+            $reason = filter_var($reason, FILTER_SANITIZE_STRING);
+            return Interaction::create($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
+        });
+
+        return false;
     }
 
     public function getBlock(User $user) : ?Interaction
