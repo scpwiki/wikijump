@@ -114,6 +114,96 @@
         "styles": [
         ],
         "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "H1"
+                            }
+                        ],
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "H2"
+                                        }
+                                    ],
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "bullet",
+                                            "attributes": {},
+                                            "items": [
+                                                {
+                                                    "element": "list",
+                                                    "data": {
+                                                        "type": "bullet",
+                                                        "attributes": {},
+                                                        "items": [
+                                                            [
+                                                                {
+                                                                    "element": "text",
+                                                                    "data": "H4"
+                                                                }
+                                                            ],
+                                                            {
+                                                                "element": "list",
+                                                                "data": {
+                                                                    "type": "bullet",
+                                                                    "attributes": {},
+                                                                    "items": [
+                                                                        {
+                                                                            "element": "list",
+                                                                            "data": {
+                                                                                "type": "bullet",
+                                                                                "attributes": {},
+                                                                                "items": [
+                                                                                    [
+                                                                                        {
+                                                                                            "element": "text",
+                                                                                            "data": "H6"
+                                                                                        }
+                                                                                    ]
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "H3"
+                                                    }
+                                                ]
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        [
+                            {
+                                "element": "text",
+                                "data": "H1"
+                            }
+                        ]
+                    ]
+                }
+            }
         ],
         "footnotes": [
         ]

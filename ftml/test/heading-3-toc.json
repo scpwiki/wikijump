@@ -42,6 +42,39 @@
         "styles": [
         ],
         "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "bullet",
+                                            "attributes": {},
+                                            "items": [
+                                                [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "toc"
+                                                    }
+                                                ]
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
         ],
         "footnotes": [
         ]
