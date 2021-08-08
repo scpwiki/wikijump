@@ -238,6 +238,14 @@ body = "elements"
 html-attributes = true
 html-output = "html,sup"
 
+[toc]
+aliases = ["f<toc", "f>toc"]
+accepts-newlines = true
+head = "map"
+body = "none"
+html-attributes = true
+html-output = "html,div"
+
 [ul]
 head = "map"
 body = "elements"

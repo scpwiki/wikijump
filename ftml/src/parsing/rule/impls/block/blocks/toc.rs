@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::tree::FloatAlignment;
 
 pub const BLOCK_TABLE_OF_CONTENTS: BlockRule = BlockRule {
-    name: "block-table-of-contents",
+    name: "block-toc",
     accepts_names: &["toc", "f<toc", "f>toc"],
     accepts_star: false,
     accepts_score: false,
