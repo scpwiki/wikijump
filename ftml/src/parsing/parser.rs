@@ -170,7 +170,10 @@ impl<'r, 't> Parser<'r, 't> {
             language: cow!("unknown"),
         };
 
-        let level = usize::from(heading.value());
+        // Headings are 1-indexed (e.g. H1), but depth lists are 0-indexed
+        let level = usize::from(heading.value()) - 1;
+
+        // Render name as text, so it lacks formatting
         let name = TextRender.render_partial(&self.log, &info, name_elements);
 
         self.table_of_contents.borrow_mut().push((level, (), name));
