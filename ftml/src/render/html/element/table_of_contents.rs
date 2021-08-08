@@ -66,14 +66,11 @@ pub fn render_table_of_contents(
             .inner(log, &table_of_contents_title);
 
         // TOC List
-        // TODO
+        let table_of_contents = &ctx.table_of_contents();
 
-        let _x = |ctx: &mut HtmlContext| {
-            ctx.html().div().contents(|ctx| {
-                let toc_link = format!("toc{}", 0);
-
-                ctx.html().a().attr("href", &[&toc_link]);
-            });
-        };
+        ctx.html()
+            .div()
+            .attr("id", &["wj-toc-list"])
+            .inner(log, table_of_contents);
     });
 }
