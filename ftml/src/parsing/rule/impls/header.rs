@@ -85,7 +85,15 @@ fn parse_header<'p, 'r, 't>(
 
     // If this heading wants a table of contents (TOC) entry, then add one
     if heading.has_toc {
-        parser.push_table_of_contents_entry(heading.level, elements.as_ref());
+        // collect_container() always produces one Element::Container.
+        // We unwrap it so we can get the elements composing the name.
+        let elements = match elements {
+            Elements::Single(Element::Container(ref container)) => container.elements(),
+            _ => panic!("Collected heading produced a non-single non-container element"),
+        };
+
+        // Create table of contents entry with the given level and name.
+        parser.push_table_of_contents_entry(heading.level, elements);
     }
 
     // Recursively collect headings until we hit a warning.
