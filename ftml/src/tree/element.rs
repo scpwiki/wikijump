@@ -27,6 +27,7 @@ use super::{
 };
 use std::borrow::Cow;
 use std::num::NonZeroU32;
+use std::slice;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
@@ -466,6 +467,16 @@ impl Elements<'_> {
             }
             Elements::Single(element) => element.paragraph_safe(),
             Elements::None => true,
+        }
+    }
+}
+
+impl<'t> AsRef<[Element<'t>]> for Elements<'t> {
+    fn as_ref(&self) -> &[Element<'t>] {
+        match self {
+            Elements::Multiple(elements) => &elements,
+            Elements::Single(element) => slice::from_ref(element),
+            Elements::None => &[],
         }
     }
 }
