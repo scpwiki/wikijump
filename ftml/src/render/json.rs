@@ -141,8 +141,16 @@ fn json() {
     ];
     let warnings = vec![];
     let styles = vec![cow!("span.hidden-text { display: none; }")];
+    let table_of_contents = vec![];
+    let footnotes = vec![];
 
-    let result = SyntaxTree::from_element_result(elements, warnings, styles);
+    let result = SyntaxTree::from_element_result(
+        elements,
+        warnings,
+        styles,
+        table_of_contents,
+        footnotes,
+    );
     let (tree, _) = result.into();
 
     // Perform renderings
