@@ -1,5 +1,5 @@
 {
-    "input": "[[span id=\"banana\" class=\"fruit\" style=\"color: yellow;\" data-fruit=\"!red\"]]Banana[[/span]]",
+    "input": "[[span id=\"banana\" class=\"fruit\" style=\"color: yellow;\" data-fruit=\"!red\" role=\"button\" aria-pressed=\"false\"]]Banana[[/span]]",
     "tree": {
         "elements": [
             {
@@ -16,7 +16,9 @@
                                     "id": "banana",
                                     "class": "fruit",
                                     "style": "color: yellow;",
-                                    "data-fruit": "!red"
+                                    "data-fruit": "!red",
+                                    "role": "button",
+                                    "aria-pressed": "false"
                                 },
                                 "elements": [
                                     {
