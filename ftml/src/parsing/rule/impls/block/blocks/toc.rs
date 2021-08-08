@@ -26,7 +26,7 @@ pub const BLOCK_TABLE_OF_CONTENTS: BlockRule = BlockRule {
     accepts_names: &["toc", "f<toc", "f>toc"],
     accepts_star: false,
     accepts_score: false,
-    accepts_newlines: false,
+    accepts_newlines: true,
     parse_fn,
 };
 
