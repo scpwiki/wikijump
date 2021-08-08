@@ -1,5 +1,5 @@
 {
-    "input": "+ A\ndurian\n+ B\n[[toc]]",
+    "input": "+ A\n[[>toc]]",
     "tree": {
         "elements": [
             {
@@ -28,34 +28,21 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "durian"
-                        }
-                    ]
-                }
-            },
-            {
-                "element": "container",
-                "data": {
-                    "type": {
-                        "header": {
-                            "level": 1,
-                            "has-toc": true
-                        }
-                    },
-                    "attributes": {},
-                    "elements": [
+                            "data": "[["
+                        },
                         {
                             "element": "text",
-                            "data": "B"
+                            "data": ">"
+                        },
+                        {
+                            "element": "text",
+                            "data": "toc"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
                         }
                     ]
-                }
-            },
-            {
-                "element": "table-of-contents",
-                "data": {
-                    "attributes": {},
-                    "align": null
                 }
             }
         ],
@@ -79,18 +66,6 @@
                                     "target": null
                                 }
                             }
-                        ],
-                        [
-                            {
-                                "element": "link",
-                                "data": {
-                                    "url": "#toc1",
-                                    "label": {
-                                        "text": "B"
-                                    },
-                                    "target": null
-                                }
-                            }
                         ]
                     ]
                 }
@@ -100,5 +75,23 @@
         ]
     },
     "warnings": [
+        {
+            "token": "input-end",
+            "rule": "block",
+            "span": [12, 12],
+            "kind": "no-such-block"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [4, 6],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [10, 12],
+            "kind": "no-rules-match"
+        }
     ]
 }

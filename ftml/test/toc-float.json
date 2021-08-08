@@ -1,5 +1,5 @@
 {
-    "input": "+ A\ndurian\n+ B\n[[toc]]",
+    "input": "+ A\n[[toc]]\n[[f<toc]]\n[[f>toc]]",
     "tree": {
         "elements": [
             {
@@ -21,41 +21,24 @@
                 }
             },
             {
-                "element": "container",
+                "element": "table-of-contents",
                 "data": {
-                    "type": "paragraph",
                     "attributes": {},
-                    "elements": [
-                        {
-                            "element": "text",
-                            "data": "durian"
-                        }
-                    ]
-                }
-            },
-            {
-                "element": "container",
-                "data": {
-                    "type": {
-                        "header": {
-                            "level": 1,
-                            "has-toc": true
-                        }
-                    },
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "text",
-                            "data": "B"
-                        }
-                    ]
+                    "align": null
                 }
             },
             {
                 "element": "table-of-contents",
                 "data": {
                     "attributes": {},
-                    "align": null
+                    "align": "left"
+                }
+            },
+            {
+                "element": "table-of-contents",
+                "data": {
+                    "attributes": {},
+                    "align": "right"
                 }
             }
         ],
@@ -75,18 +58,6 @@
                                     "url": "#toc0",
                                     "label": {
                                         "text": "A"
-                                    },
-                                    "target": null
-                                }
-                            }
-                        ],
-                        [
-                            {
-                                "element": "link",
-                                "data": {
-                                    "url": "#toc1",
-                                    "label": {
-                                        "text": "B"
                                     },
                                     "target": null
                                 }
