@@ -54,8 +54,9 @@ use self::rule::impls::RULE_PAGE;
 use self::string::parse_string;
 use self::strip::strip_newlines;
 use crate::log::prelude::*;
+use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::tokenizer::Tokenization;
-use crate::tree::{AttributeMap, Element, ListItem, ListType, SyntaxTree};
+use crate::tree::{AttributeMap, Element, LinkLabel, ListItem, ListType, SyntaxTree};
 use std::borrow::Cow;
 
 pub use self::boolean::{parse_boolean, NonBooleanValue};
@@ -88,6 +89,9 @@ where
     info!(log, "Running parser on tokens");
     let result = gather_paragraphs(log, &mut parser, RULE_PAGE, NO_CLOSE_CONDITION);
 
+    // For producing table of contents indexes
+    let mut incrementer = Incrementer(0);
+
     debug!(log, "Finished paragraph gathering, matching on consumption");
     match result {
         Ok(ParseSuccess {
@@ -111,7 +115,7 @@ where
             // Convert TOC depth lists
             let table_of_contents = process_depths((), table_of_contents_depths)
                 .into_iter()
-                .map(|(_, items)| build_toc_list_element(items))
+                .map(|(_, items)| build_toc_list_element(&mut incrementer, items))
                 .collect::<Vec<_>>();
 
             SyntaxTree::from_element_result(
@@ -167,14 +171,21 @@ fn extract_exceptions(
     (warnings, styles)
 }
 
-fn build_toc_list_element(list: DepthList<(), String>) -> Element<'static> {
+fn build_toc_list_element(
+    incr: &mut Incrementer,
+    list: DepthList<(), String>,
+) -> Element<'static> {
     let build_item = |item| match item {
-        DepthItem::List(_, list) => ListItem::SubList(build_toc_list_element(list)),
+        DepthItem::List(_, list) => ListItem::SubList(build_toc_list_element(incr, list)),
         DepthItem::Item(name) => {
-            let element = Element::Text(Cow::Owned(name));
-            let elements = vec![element];
+            let anchor = format!("#toc{}", incr.next());
+            let link = Element::Link {
+                url: Cow::Owned(anchor),
+                label: LinkLabel::Text(Cow::Owned(name)),
+                target: None,
+            };
 
-            ListItem::Elements(elements)
+            ListItem::Elements(vec![link])
         }
     };
 
@@ -185,5 +196,16 @@ fn build_toc_list_element(list: DepthList<(), String>) -> Element<'static> {
         ltype: ListType::Bullet,
         items,
         attributes,
+    }
+}
+
+#[derive(Debug)]
+struct Incrementer(usize);
+
+impl NextIndex<TableOfContentsIndex> for Incrementer {
+    fn next(&mut self) -> usize {
+        let index = self.0;
+        self.0 += 1;
+        index
     }
 }
