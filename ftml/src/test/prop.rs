@@ -23,11 +23,13 @@ use crate::render::{html::HtmlRender, text::TextRender, Render};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element,
-    FloatAlignment, Heading, HeadingLevel, ImageSource, LinkLabel, Module, SyntaxTree,
+    FloatAlignment, Heading, HeadingLevel, ImageSource, LinkLabel, ListItem, ListType,
+    Module, SyntaxTree,
 };
 use proptest::option;
 use proptest::prelude::*;
 use std::borrow::Cow;
+use std::mem;
 use std::num::NonZeroU32;
 
 // Constants
@@ -166,6 +168,67 @@ fn arb_image() -> impl Strategy<Value = Element<'static>> {
         })
 }
 
+fn arb_list() -> impl Strategy<Value = Element<'static>> {
+    fn make_list<S>(items: S) -> impl Strategy<Value = Element<'static>>
+    where
+        S: Strategy<Value = Vec<ListItem<'static>>>,
+    {
+        let ltype = select!([ListType::Bullet, ListType::Numbered]);
+        let attributes = arb_attribute_map();
+
+        (ltype, items, attributes).prop_map(|(ltype, items, attributes)| Element::List {
+            ltype,
+            items,
+            attributes,
+        })
+    }
+
+    let element = arb_element_leaf();
+    let list_item = proptest::collection::vec(element, 1..10)
+        .prop_map(|elements| ListItem::Elements(elements));
+    let list_items = proptest::collection::vec(list_item, 1..10);
+    let leaf = make_list(list_items);
+
+    leaf.prop_recursive(
+        5,  // Levels deep
+        30, // Number of total nodes
+        10, // Up to X items per collection
+        |inner| {
+            let list_items = proptest::collection::vec(inner, 1..10).prop_map(
+                |elements: Vec<Element>| {
+                    let mut list_items = Vec::new();
+                    let mut current = Vec::new();
+
+                    // The ListItem depends on what kind of Element
+                    // is generated, that is, whether it's a leaf or a branch.
+
+                    for element in elements {
+                        match element {
+                            Element::List { .. } => {
+                                // Add previous elements as ListItem::Elements group.
+                                if !current.is_empty() {
+                                    let elements = mem::take(&mut current);
+                                    let list_item = ListItem::Elements(elements);
+                                    list_items.push(list_item);
+                                }
+
+                                // Add this list as a ListItem::SubList
+                                let list_item = ListItem::SubList(element);
+                                list_items.push(list_item);
+                            }
+                            _ => current.push(element),
+                        }
+                    }
+
+                    list_items
+                },
+            );
+
+            make_list(list_items)
+        },
+    )
+}
+
 fn arb_code() -> impl Strategy<Value = Element<'static>> {
     (cow!(".*"), arb_optional_str())
         .prop_map(|(contents, language)| Element::Code { contents, language })
@@ -272,10 +335,8 @@ where
 
 // Syntax Tree
 
-fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
-    // Generate AST and its elements recursively
-
-    let leaf = prop_oneof![
+fn arb_element_leaf() -> impl Strategy<Value = Element<'static>> {
+    prop_oneof![
         cow!(".*").prop_map(Element::Text),
         cow!(".*").prop_map(Element::Raw),
         cow!(SIMPLE_EMAIL_REGEX).prop_map(Element::Email),
@@ -292,8 +353,11 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
         Just(Element::LineBreak),
         (1..50u32).prop_map(|count| Element::LineBreaks(NonZeroU32::new(count).unwrap())),
         Just(Element::HorizontalRule),
-    ];
+    ]
+}
 
+fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
+    let leaf = arb_element_leaf();
     let element = leaf.prop_recursive(
         5,  // Levels deep
         50, // Number of total nodes
@@ -317,11 +381,23 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
         },
     );
 
+    let toc_heading = arb_list();
+    let footnote = proptest::collection::vec(element.clone(), 10..50);
+
     (
         proptest::collection::vec(element, 1..100),
         proptest::collection::vec(cow!(".*"), 0..128),
+        proptest::collection::vec(toc_heading, 0..100),
+        proptest::collection::vec(footnote, 0..100),
     )
-        .prop_map(|(elements, styles)| SyntaxTree { elements, styles })
+        .prop_map(
+            |(elements, styles, table_of_contents, footnotes)| SyntaxTree {
+                elements,
+                styles,
+                table_of_contents,
+                footnotes,
+            },
+        )
 }
 
 // Page Info
