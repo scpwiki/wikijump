@@ -3,6 +3,8 @@ name: '[ftml] Rust'
 on:
   push:
     paths:
+      - 'ftml/Cargo.toml'
+      - 'ftml/Cargo.lock'
       - 'ftml/conf/*.toml'
       - 'ftml/scripts/*'
       - 'ftml/src/parsing/rule/impls/block/blocks/**/*'
