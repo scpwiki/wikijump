@@ -166,8 +166,14 @@
                                                                     "items": [
                                                                         [
                                                                             {
-                                                                                "element": "text",
-                                                                                "data": "H5"
+                                                                                "element": "link",
+                                                                                "data": {
+                                                                                    "url": "#toc0",
+                                                                                    "label": {
+                                                                                        "text": "H5"
+                                                                                    },
+                                                                                    "target": null
+                                                                                }
                                                                             }
                                                                         ]
                                                                     ]
@@ -184,8 +190,14 @@
                         },
                         [
                             {
-                                "element": "text",
-                                "data": "H1"
+                                "element": "link",
+                                "data": {
+                                    "url": "#toc1",
+                                    "label": {
+                                        "text": "H1"
+                                    },
+                                    "target": null
+                                }
                             }
                         ],
                         {
@@ -196,8 +208,14 @@
                                 "items": [
                                     [
                                         {
-                                            "element": "text",
-                                            "data": "H2 ++"
+                                            "element": "link",
+                                            "data": {
+                                                "url": "#toc2",
+                                                "label": {
+                                                    "text": "H2 ++"
+                                                },
+                                                "target": null
+                                            }
                                         }
                                     ]
                                 ]

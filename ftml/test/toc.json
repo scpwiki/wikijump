@@ -21,8 +21,17 @@
                 }
             },
             {
-                "element": "text",
-                "data": "durian"
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "durian"
+                        }
+                    ]
+                }
             },
             {
                 "element": "container",
@@ -60,14 +69,26 @@
                     "items": [
                         [
                             {
-                                "element": "text",
-                                "data": "A"
+                                "element": "link",
+                                "data": {
+                                    "url": "#toc0",
+                                    "label": {
+                                        "text": "A"
+                                    },
+                                    "target": null
+                                }
                             }
                         ],
                         [
                             {
-                                "element": "text",
-                                "data": "B"
+                                "element": "link",
+                                "data": {
+                                    "url": "#toc1",
+                                    "label": {
+                                        "text": "B"
+                                    },
+                                    "target": null
+                                }
                             }
                         ]
                     ]

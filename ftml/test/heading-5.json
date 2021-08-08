@@ -90,8 +90,14 @@
                                                                     "items": [
                                                                         [
                                                                             {
-                                                                                "element": "text",
-                                                                                "data": "Header Five"
+                                                                                "element": "link",
+                                                                                "data": {
+                                                                                    "url": "#toc0",
+                                                                                    "label": {
+                                                                                        "text": "Header Five"
+                                                                                    },
+                                                                                    "target": null
+                                                                                }
                                                                             }
                                                                         ]
                                                                     ]

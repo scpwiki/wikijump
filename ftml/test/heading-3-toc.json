@@ -62,8 +62,14 @@
                                             "items": [
                                                 [
                                                     {
-                                                        "element": "text",
-                                                        "data": "toc"
+                                                        "element": "link",
+                                                        "data": {
+                                                            "url": "#toc0",
+                                                            "label": {
+                                                                "text": "toc"
+                                                            },
+                                                            "target": null
+                                                        }
                                                     }
                                                 ]
                                             ]

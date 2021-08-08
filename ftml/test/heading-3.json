@@ -65,8 +65,14 @@
                                             "items": [
                                                 [
                                                     {
-                                                        "element": "text",
-                                                        "data": "Banana Cherry"
+                                                        "element": "link",
+                                                        "data": {
+                                                            "url": "#toc0",
+                                                            "label": {
+                                                                "text": "Banana Cherry"
+                                                            },
+                                                            "target": null
+                                                        }
                                                     }
                                                 ]
                                             ]

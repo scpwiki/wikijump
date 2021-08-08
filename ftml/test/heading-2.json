@@ -68,8 +68,14 @@
                                 "items": [
                                     [
                                         {
-                                            "element": "text",
-                                            "data": "My header"
+                                            "element": "link",
+                                            "data": {
+                                                "url": "#toc0",
+                                                "label": {
+                                                    "text": "My header"
+                                                },
+                                                "target": null
+                                            }
                                         }
                                     ]
                                 ]

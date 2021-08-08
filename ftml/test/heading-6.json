@@ -70,8 +70,14 @@
                                                                                 "items": [
                                                                                     [
                                                                                         {
-                                                                                            "element": "text",
-                                                                                            "data": "SCP-6969"
+                                                                                            "element": "link",
+                                                                                            "data": {
+                                                                                                "url": "#toc0",
+                                                                                                "label": {
+                                                                                                    "text": "SCP-6969"
+                                                                                                },
+                                                                                                "target": null
+                                                                                            }
                                                                                         }
                                                                                     ]
                                                                                 ]
