@@ -75,6 +75,8 @@ SyntaxTree {
     styles: [
         "span.hidden-text { display: none; }",
     ],
+    table_of_contents: [],
+    footnotes: [],
 }"#;
 
     let log = crate::build_logger();
