@@ -32,11 +32,23 @@ use crate::PageInfo;
 pub struct TextRender;
 
 impl TextRender {
+    #[inline]
     pub fn render_partial(
         &self,
         log: &Logger,
         page_info: &PageInfo,
         elements: &[Element],
+    ) -> String {
+        self.render_partial_direct(log, page_info, elements, &[], &[])
+    }
+
+    fn render_partial_direct(
+        &self,
+        log: &Logger,
+        page_info: &PageInfo,
+        elements: &[Element],
+        table_of_contents: &[Element],
+        footnotes: &[Vec<Element>],
     ) -> String {
         info!(
             log,
@@ -50,7 +62,7 @@ impl TextRender {
             },
         );
 
-        let mut ctx = TextContext::new(page_info, &Handle);
+        let mut ctx = TextContext::new(page_info, &Handle, table_of_contents, footnotes);
         render_elements(log, &mut ctx, elements);
 
         // Remove leading and trailing newlines
@@ -71,6 +83,12 @@ impl Render for TextRender {
 
     #[inline]
     fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
-        self.render_partial(log, page_info, &tree.elements)
+        self.render_partial_direct(
+            log,
+            page_info,
+            &tree.elements,
+            &tree.table_of_contents,
+            &tree.footnotes,
+        )
     }
 }

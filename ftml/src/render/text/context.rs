@@ -20,14 +20,24 @@
 
 use crate::non_empty_vec::NonEmptyVec;
 use crate::render::Handle;
+use crate::tree::Element;
 use crate::PageInfo;
 use std::fmt::{self, Write};
 
 #[derive(Debug)]
-pub struct TextContext<'i, 'h> {
+pub struct TextContext<'i, 'h, 'e, 't>
+where
+    'e: 't,
+{
     output: String,
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
+
+    //
+    // Elements from the syntax tree
+    //
+    table_of_contents: &'e [Element<'t>],
+    footnotes: &'e [Vec<Element<'t>>],
 
     //
     // Other fields to track
@@ -44,13 +54,23 @@ pub struct TextContext<'i, 'h> {
     invisible: usize,
 }
 
-impl<'i, 'h> TextContext<'i, 'h> {
+impl<'i, 'h, 'e, 't> TextContext<'i, 'h, 'e, 't>
+where
+    'e: 't,
+{
     #[inline]
-    pub fn new(info: &'i PageInfo<'i>, handle: &'h Handle) -> Self {
+    pub fn new(
+        info: &'i PageInfo<'i>,
+        handle: &'h Handle,
+        table_of_contents: &'e [Element<'t>],
+        footnotes: &'e [Vec<Element<'t>>],
+    ) -> Self {
         TextContext {
             output: String::new(),
             info,
             handle,
+            table_of_contents,
+            footnotes,
             prefixes: Vec::new(),
             list_depths: NonEmptyVec::new(1),
             invisible: 0,
@@ -69,13 +89,23 @@ impl<'i, 'h> TextContext<'i, 'h> {
     }
 
     #[inline]
+    pub fn language(&self) -> &str {
+        &self.info.language
+    }
+
+    #[inline]
     pub fn handle(&self) -> &'h Handle {
         self.handle
     }
 
     #[inline]
-    pub fn language(&self) -> &str {
-        &self.info.language
+    pub fn table_of_contents(&self) -> &'e [Element<'t>] {
+        self.table_of_contents
+    }
+
+    #[inline]
+    pub fn footnotes(&self) -> &'e [Vec<Element<'t>>] {
+        self.footnotes
     }
 
     // Prefixes
@@ -161,14 +191,17 @@ impl<'i, 'h> TextContext<'i, 'h> {
     }
 }
 
-impl<'i, 'h> From<TextContext<'i, 'h>> for String {
+impl<'i, 'h, 'e, 't> From<TextContext<'i, 'h, 'e, 't>> for String {
     #[inline]
-    fn from(ctx: TextContext<'i, 'h>) -> String {
+    fn from(ctx: TextContext<'i, 'h, 'e, 't>) -> String {
         ctx.output
     }
 }
 
-impl<'i, 'h> Write for TextContext<'i, 'h> {
+impl<'i, 'h, 'e, 't> Write for TextContext<'i, 'h, 'e, 't>
+where
+    'e: 't,
+{
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.buffer().write_str(s)

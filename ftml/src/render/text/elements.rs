@@ -255,8 +255,15 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             }
         }
         Element::TableOfContents { .. } => {
-            // TODO add toc
-            todo!()
+            debug!(log, "Rendering table of contents");
+
+            let table_of_contents_title =
+                ctx.handle()
+                    .get_message(log, ctx.language(), "table-of-contents");
+
+            ctx.push_str(table_of_contents_title);
+            ctx.add_newline();
+            render_elements(log, ctx, ctx.table_of_contents());
         }
         Element::User { name, .. } => ctx.push_str(name),
         Element::Color { elements, .. } => render_elements(log, ctx, elements),
