@@ -118,7 +118,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.push_str(label);
 
                 let url = get_full_url(log, ctx, url);
-                if url != label {
+
+                // Don't show URL if it's a name link, or an anchor
+                if url != label && !url.starts_with('#') {
                     str_write!(ctx, " [{}]", url);
                 }
             });
