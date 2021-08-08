@@ -29,7 +29,6 @@ use crate::tree::{
 use proptest::option;
 use proptest::prelude::*;
 use std::borrow::Cow;
-use std::mem;
 use std::num::NonZeroU32;
 
 // Constants
@@ -168,64 +167,34 @@ fn arb_image() -> impl Strategy<Value = Element<'static>> {
         })
 }
 
-fn arb_list() -> impl Strategy<Value = Element<'static>> {
-    fn make_list<S>(items: S) -> impl Strategy<Value = Element<'static>>
-    where
-        S: Strategy<Value = Vec<ListItem<'static>>>,
-    {
-        let ltype = select!([ListType::Bullet, ListType::Numbered]);
-        let attributes = arb_attribute_map();
+fn arb_list<S>(elements: S) -> impl Strategy<Value = Element<'static>>
+where
+    S: Strategy<Value = Vec<Element<'static>>> + 'static,
+{
+    macro_rules! make_list {
+        ($items:expr) => {{
+            let ltype = select!([ListType::Bullet, ListType::Numbered]);
+            let items = $items;
+            let attributes = arb_attribute_map();
 
-        (ltype, items, attributes).prop_map(|(ltype, items, attributes)| Element::List {
-            ltype,
-            items,
-            attributes,
-        })
+            (ltype, items, attributes).prop_map(|(ltype, items, attributes)| {
+                Element::List {
+                    ltype,
+                    items,
+                    attributes,
+                }
+            })
+        }};
     }
 
-    let element = arb_element_leaf();
-    let list_item = proptest::collection::vec(element, 1..10)
-        .prop_map(|elements| ListItem::Elements(elements));
-    let list_items = proptest::collection::vec(list_item, 1..10);
-    let leaf = make_list(list_items);
+    let list_item = elements.prop_map(|elements| ListItem::Elements(elements));
+    let leaf = make_list!(proptest::collection::vec(list_item, 1..10));
 
     leaf.prop_recursive(
         5,  // Levels deep
         30, // Number of total nodes
         10, // Up to X items per collection
-        |inner| {
-            let list_items = proptest::collection::vec(inner, 1..10).prop_map(
-                |elements: Vec<Element>| {
-                    let mut list_items = Vec::new();
-                    let mut current = Vec::new();
-
-                    // The ListItem depends on what kind of Element
-                    // is generated, that is, whether it's a leaf or a branch.
-
-                    for element in elements {
-                        match element {
-                            Element::List { .. } => {
-                                // Add previous elements as ListItem::Elements group.
-                                if !current.is_empty() {
-                                    let elements = mem::take(&mut current);
-                                    let list_item = ListItem::Elements(elements);
-                                    list_items.push(list_item);
-                                }
-
-                                // Add this list as a ListItem::SubList
-                                let list_item = ListItem::SubList(element);
-                                list_items.push(list_item);
-                            }
-                            _ => current.push(element),
-                        }
-                    }
-
-                    list_items
-                },
-            );
-
-            make_list(list_items)
-        },
+        |inner| make_list!(inner.prop_map(|element| vec![ListItem::SubList(element)])),
     )
 }
 
@@ -343,7 +312,6 @@ fn arb_element_leaf() -> impl Strategy<Value = Element<'static>> {
         arb_module(),
         arb_link(),
         arb_image(),
-        // TODO: Element::List
         // TODO: Element::RadioButton
         arb_checkbox(),
         // TODO: Element::User
@@ -373,6 +341,7 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
             prop_oneof![
                 arb_container(elements!()),
                 // TODO: Element::Anchor
+                arb_list(elements!()),
                 arb_collapsible(elements!()),
                 // TODO: Element::IfCategory
                 // TODO: Element::IfTags
@@ -381,7 +350,8 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
         },
     );
 
-    let toc_heading = arb_list();
+    let toc_elements = proptest::collection::vec(arb_element_leaf(), 4..20);
+    let toc_heading = arb_list(toc_elements);
     let footnote = proptest::collection::vec(element.clone(), 10..50);
 
     (
