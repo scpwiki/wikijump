@@ -147,7 +147,9 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 render_elements(log, ctx, elements);
             }
         }
-        Element::TableOfContents { align } => render_table_of_contents(log, ctx, *align),
+        Element::TableOfContents { align, attributes } => {
+            render_table_of_contents(log, ctx, *align, attributes)
+        }
         Element::User { name, show_avatar } => render_user(log, ctx, name, *show_avatar),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {

@@ -19,12 +19,13 @@
  */
 
 use super::prelude::*;
-use crate::tree::{Alignment, FloatAlignment};
+use crate::tree::{Alignment, AttributeMap, FloatAlignment};
 
 pub fn render_table_of_contents(
     log: &Logger,
     ctx: &mut HtmlContext,
     align: Option<Alignment>,
+    attributes: &AttributeMap,
 ) {
     debug!(
         log,
@@ -33,7 +34,7 @@ pub fn render_table_of_contents(
     );
 
     let mut tag = ctx.html().div();
-    tag.attr("id", &["toc"]);
+    tag.attr_map_prepend(attributes, ("id", "toc"));
 
     // Only valid for float left/right
     if let Some(align) = align {
