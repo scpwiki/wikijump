@@ -36,12 +36,14 @@ $ cargo build --release
 You can use this as a dependency by adding the following to your `Cargo.toml`:
 
 ```toml
-ftml = "0.10"
+ftml = "1"
 ```
 
-The library comes with two default features, `log` and `ffi`.
+The library comes with three default features, `css`, `log` and `ffi`.
 
-The former adds all `slog` logging code, which when removed replaces all of them with no-ops.
+The `css` feature adds a constrant string representing the contents of `misc/ftml-base.css` to the binary.
+
+The `log` feature adds all `slog` logging code, which when removed replaces all of them with no-ops.
 This may be desirable on certain platforms where the performance difference is significant.
 
 The `ffi` feature introduces an FFI interface for ftml, permitting C and C API-compatible code
