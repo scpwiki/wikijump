@@ -4,4 +4,6 @@ durian
 
 + B
 
-TOC
+Table of Contents
+ * A
+ * B
