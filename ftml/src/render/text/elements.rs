@@ -261,6 +261,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.handle()
                     .get_message(log, ctx.language(), "table-of-contents");
 
+            ctx.add_newline();
             ctx.push_str(table_of_contents_title);
             ctx.add_newline();
             render_elements(log, ctx, ctx.table_of_contents());
