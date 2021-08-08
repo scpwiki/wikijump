@@ -95,6 +95,12 @@ code,
 
 .wj-user-info-name {}
 
+/* TABLE OF CONTENTS */
+
+#wj-toc-list ul {
+    list-style: none;
+}
+
 /* MISCELLANEOUS */
 
 .wj-error-block {
