@@ -100,6 +100,7 @@ lazy_static! {
             "readonly",
             "required",
             "reversed",
+            "role",
             "rows",
             "rowspan",
             "scope",
