@@ -1,0 +1,82 @@
+{
+    "input": "+ A\ndurian\n+ B\n[[toc]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "text",
+                "data": "durian"
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "B"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "table-of-contents",
+                "data": {
+                    "align": null
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
+                            }
+                        ],
+                        [
+                            {
+                                "element": "text",
+                                "data": "B"
+                            }
+                        ]
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
