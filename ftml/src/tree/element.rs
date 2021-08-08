@@ -474,7 +474,7 @@ impl Elements<'_> {
 impl<'t> AsRef<[Element<'t>]> for Elements<'t> {
     fn as_ref(&self) -> &[Element<'t>] {
         match self {
-            Elements::Multiple(elements) => &elements,
+            Elements::Multiple(elements) => elements,
             Elements::Single(element) => slice::from_ref(element),
             Elements::None => &[],
         }
