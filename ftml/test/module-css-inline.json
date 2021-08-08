@@ -5,6 +5,10 @@
         ],
         "styles": [
             "a { color: blue; }"
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
         ]
     },
     "warnings": [

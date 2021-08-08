@@ -26,6 +26,10 @@
         "styles": [
             "a { display: none; }",
             "b { display: none; }"
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
         ]
     },
     "warnings": [
