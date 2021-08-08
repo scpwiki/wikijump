@@ -83,6 +83,11 @@ fn parse_header<'p, 'r, 't>(
     )?
     .into();
 
+    // If this heading wants a table of contents (TOC) entry, then add one
+    if heading.has_toc {
+        parser.push_table_of_contents_entry(heading.level, elements.as_ref());
+    }
+
     // Recursively collect headings until we hit a warning.
     //
     // We do this because the container consumes the newline,
