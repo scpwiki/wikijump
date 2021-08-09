@@ -77,7 +77,7 @@ def format_check_value(value):
     if isinstance(value, (set, frozenset)):
         return str(list(map(format_check_value, value)))
     elif isinstance(value, bool):
-        return str(value).lower()
+        return str(value).casefold()
 
     return str(value)
 
@@ -86,7 +86,7 @@ def format_check_value(value):
 def convert_name(value):
     value = inflection.underscore(value)
     value = inflection.camelize(value)
-    return value.lower()
+    return value.casefold()
 
 
 # Find all Rust files that might have rule definitions
