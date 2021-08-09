@@ -5,8 +5,6 @@ use Illuminate\Support\Facades\Hash;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\OzoneEmail;
 use Ozone\Framework\SmartyAction;
-use Wikidot\DB\PrivateUserBlockPeer;
-use Wikidot\DB\PrivateUserBlock;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
@@ -156,59 +154,41 @@ class AccountSettingsAction extends SmartyAction
 
     public function blockUserEvent($runData)
     {
+        /** @var User $user */
+        $user = $runData->getUser();
+
         $pl = $runData->getParameterList();
-        $userId = $pl->getParameterValue("userId");
+        $user_to_block_id = $pl->getParameterValue("userId");
 
-        if ($userId == null || !is_numeric($userId)) {
+        if ($user_to_block_id == null || !is_numeric($user_to_block_id)) {
             throw new ProcessException(_("Invalid user."), "no_user");
         }
 
-        $user = User::find($userId);
-        if ($user == null) {
+        $user_to_block = User::find($user_to_block_id);
+        if ($user_to_block === null) {
             throw new ProcessException(_("Invalid user."), "no_user");
         }
 
-        // check if already blocked
-        $c = new Criteria();
-        $c->add("user_id", $runData->getUserId());
-        $c->add("blocked_user_id", $userId);
-        $b = PrivateUserBlockPeer::instance()->selectOne($c);
-        if ($b) {
+        if ($user_to_block === $user->id) {
+            throw new ProcessException(_("You can not block yourself."), "not_self");
+        }
+
+        if ($user->isBlockingUser($user_to_block)) {
             throw new ProcessException(_("You already block this user."));
         }
 
-        // check max
-        $c = new Criteria();
-        $c->add("user_id", $runData->getUserId());
-        $blockCount = PrivateUserBlockPeer::instance()->selectCount($c);
-
-        $maxBlocks = 30;
-
-        if ($blockCount>$maxBlocks) {
-            throw new ProcessException("Sorry, you can only block $maxBlocks users max.", "max_block");
-        }
-
-        if ($userId == $runData->getUserId()) {
-            throw new ProcessException(_("What is the point in blocking yourself?"), "not_self");
-        }
-
-        $block = new PrivateUserBlock();
-        $block->setUserId($runData->getUserId());
-        $block->setBlockedUserId($userId);
-        $block->save();
+        $user->blockUser($user_to_block);
     }
 
     public function deleteBlockEvent($runData)
     {
+        /** @var User $user */
+        $user = $runData->getUser();
+
         $pl = $runData->getParameterList();
-        $blockedUserId = $pl->getParameterValue("userId");
-        $userId = $runData->getUserId();
+        $user_to_unblock = User::find($pl->getParameterValue("userId"));
 
-        $c = new Criteria();
-        $c->add("user_id", $userId);
-        $c->add("blocked_user_id", $blockedUserId);
-
-        PrivateUserBlockPeer::instance()->delete($c);
+        $user->unblockUser($user_to_unblock);
     }
 
     public function saveReceiveDigestEvent($runData)

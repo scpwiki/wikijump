@@ -13,9 +13,9 @@ use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\Page;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\PrivateUserBlockPeer;
 use Wikidot\DB\IpBlockPeer;
 use Wikidot\DB\UserBlockPeer;
+use Wikijump\Models\User;
 
 class WDPermissionManager
 {
@@ -543,7 +543,7 @@ class WDPermissionManager
     /**
      * Check if $user can send a private message to $toUser.
      */
-    public function hasPmPermission($user, $toUser)
+    public function hasPmPermission(User $user, User $toUser)
     {
 
         if ($user->id == 1) {
@@ -566,7 +566,7 @@ class WDPermissionManager
         if ($p == 'mf') {
             if ($this->shareSites($user, $toUser)) {
                 // so they share common sites. check for blocks!
-                if ($this->userBlocksUser($toUser, $user)) {
+                if ($user->isBlockedByUser($toUser)) {
                     throw new WDPermissionException(_("You are blocked by this user."));
                 }
                 return true;
@@ -589,7 +589,7 @@ class WDPermissionManager
 
         if ($p == 'a') {
             // check if not blocked
-            if ($this->userBlocksUser($toUser, $user)) {
+            if ($user->isBlockedByUser($toUser)) {
                 throw new WDPermissionException(_("You are blocked by this user."));
             }
         }
@@ -798,22 +798,6 @@ class WDPermissionManager
             return true;
         }
         return false;
-    }
-
-    /**
-     * Checks if user1 blocks user2.
-     */
-    private function userBlocksUser($user1, $user2)
-    {
-        $c = new Criteria();
-        $c->add("user_id", $user1->id);
-        $c->add("blocked_user_id", $user2->id);
-        $b = PrivateUserBlockPeer::instance()->selectOne($c);
-        if ($b !== null) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public function setCheckIpBlocks($val)

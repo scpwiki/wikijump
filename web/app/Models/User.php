@@ -1,4 +1,6 @@
 <?php
+
+/** @noinspection PhpUnused */
 declare(strict_types=1);
 
 namespace Wikijump\Models;
@@ -11,6 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Wikijump\Helpers\InteractionType;
 use Wikijump\Traits\HasInteractions;
 use Wikijump\Traits\HasSettings;
@@ -18,6 +21,7 @@ use Wikijump\Traits\LegacyCompatibility;
 
 /**
  * Class User
+ * @property int id
  * @package Wikijump\Models
  * @mixin Builder
  */
@@ -120,6 +124,25 @@ class User extends Authenticatable
         return $this->my(InteractionType::USER_FOLLOWS_USER);
     }
 
+    /**************************************************
+     * Following Users
+     *************************************************/
+
+
+    /**
+     * Follow a user.
+     * @param User $user_to_follow
+     * @return bool
+     */
+    public function followUser(User $user_to_follow) : bool
+    {
+        if ($this->isFollowingUser($user_to_follow) === false)
+        {
+            return Interaction::create($this, InteractionType::USER_FOLLOWS_USER, $user_to_follow);
+        }
+        return false;
+    }
+
     /**
      * Retrieve the users following this user.
      *
@@ -131,33 +154,87 @@ class User extends Authenticatable
     }
 
     /**
-     * Follow a user.
-     * @param User $user_to_follow
-     * @return Interaction
-     */
-    public function followUser(User $user_to_follow) : Interaction
-    {
-        return Interaction::add($this, InteractionType::USER_FOLLOWS_USER, $user_to_follow);
-    }
-
-    /**
-     * Unfollow a user.
-     * @param User $user_to_unfollow
-     * @return int
-     */
-    public function unfollowUser(User $user_to_unfollow) : int
-    {
-        return Interaction::remove($this, InteractionType::USER_FOLLOWS_USER, $user_to_unfollow);
-    }
-
-    /**
      * Check if this user is following the target user.
      * @param User $user
      * @return bool
      */
     public function isFollowingUser(User $user) : bool
     {
-        return Interaction::exists($this, InteractionType::USER_FOLLOWS_USER, $user);
+        return Interaction::check($this, InteractionType::USER_FOLLOWS_USER, $user);
+    }
+
+    /**
+     * Unfollow a user.
+     * @param User $user_to_unfollow
+     * @return bool
+     */
+    public function unfollowUser(User $user_to_unfollow) : bool
+    {
+        return Interaction::remove($this, InteractionType::USER_FOLLOWS_USER, $user_to_unfollow);
+    }
+
+    /**************************************************
+     * Contacts System
+     *************************************************/
+
+    /**
+     * Add a user to this user's contact list.
+     * Note, all retrieve operations are bidirectional, so it doesn't matter
+     *  who added whom.
+     * @param User $user_to_add
+     * @return bool
+     */
+    public function addContact(User $user_to_add): bool
+    {
+        return Interaction::create($this, InteractionType::USER_CONTACTS, $user_to_add);
+    }
+
+    /**
+     * Create a request to be added as a contact of another user.
+     * @param User $user_to_request
+     * @return bool
+     */
+    public function requestContact(User $user_to_request): bool
+    {
+
+        /** If a block is in place on either side, disallow a request. */
+        if($this->userBlockExists($user_to_request))
+        {
+            return false;
+        }
+
+        /** If this user already has a request for the target user, return null. */
+        if(Interaction::check($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request))
+        {
+            return false;
+        }
+
+        /** If the inverse request exists, create the contact relation. */
+        if(Interaction::check($user_to_request, InteractionType::USER_CONTACT_REQUESTS, $this))
+        {
+            return $this->approveContactRequest($user_to_request);
+        }
+
+        /** If a Contact relationship already exists, disallow another request. */
+        if($this->isContact($user_to_request))
+        {
+            return false;
+        }
+
+        return Interaction::create($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request);
+    }
+
+    /**
+     * Approve a request to be added as a contact of another user.
+     * @param User $user_to_approve
+     * @return bool
+     */
+    public function approveContactRequest(User $user_to_approve): bool
+    {
+        return DB::transaction(function () use ($user_to_approve) {
+            Interaction::remove($user_to_approve, InteractionType::USER_CONTACT_REQUESTS, $this);
+            return $this->addContact($user_to_approve);
+        });
     }
 
     /**
@@ -167,92 +244,6 @@ class User extends Authenticatable
     public function contacts() : Collection
     {
         return $this->either(InteractionType::USER_CONTACTS);
-    }
-
-    /**
-     * Add a user to this user's contact list.
-     * Note, all retrieve operations are bidirectional, so it doesn't matter
-     *  who added whom.
-     * @param User $user_to_add
-     * @return Interaction|null
-     */
-    public function addContact(User $user_to_add): ?Interaction
-    {
-        return Interaction::add($this, InteractionType::USER_CONTACTS, $user_to_add);
-    }
-
-    /**
-     * Remove a user from this user's contact list, and vice-versa.
-     * @param User $user_to_remove
-     * @return int|null
-     */
-    public function removeContact(User $user_to_remove): ?int
-    {
-        $mine = Interaction::remove($this, InteractionType::USER_CONTACTS, $user_to_remove);
-        $theirs = Interaction::remove($user_to_remove, InteractionType::USER_CONTACTS, $this);
-        return $mine + $theirs;
-    }
-
-    /**
-     * Create a request to be added as a contact of another user.
-     * @param User $user_to_request
-     * @return Interaction|null
-     */
-    public function requestContact(User $user_to_request): ?Interaction
-    {
-
-        /** If this user already has a request for the target user, return null. */
-        if(Interaction::exists($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request))
-        {
-            return null;
-        }
-
-        /** If the inverse request exists, create the contact relation. */
-        if(Interaction::exists($user_to_request, InteractionType::USER_CONTACT_REQUESTS, $this))
-        {
-            return $this->approveContactRequest($user_to_request);
-        }
-
-        /** If a Contact relationship already exists, disallow another request. */
-        if($this->isContact($user_to_request))
-        {
-            return null;
-        }
-
-        // TODO: More edge cases here around blocked users when that class comes.
-
-        return Interaction::add($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request);
-    }
-
-    /**
-     * Deny a request from another user to be added as a contact.
-     * @param User $user_to_deny
-     * @return int|null
-     */
-    public function denyContactRequest(User $user_to_deny): ?int
-    {
-        return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
-    }
-
-    /**
-     * Cancel a pending request to be added as another user's contact.
-     * @param User $user_to_cancel
-     * @return int|null
-     */
-    public function cancelContactRequest(User $user_to_cancel): ?int
-    {
-        return Interaction::remove($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_cancel);
-    }
-
-    /**
-     * Approve a request to be added as a contact of another user.
-     * @param User $user_to_approve
-     * @return Interaction|null
-     */
-    public function approveContactRequest(User $user_to_approve): ?Interaction
-    {
-        Interaction::remove($user_to_approve, InteractionType::USER_CONTACT_REQUESTS, $this);
-        return $this->addContact($user_to_approve);
     }
 
     /**
@@ -281,9 +272,153 @@ class User extends Authenticatable
     public function isContact(User $user): bool
     {
         return (
-            Interaction::exists($this, InteractionType::USER_CONTACTS, $user) ||
-            Interaction::exists($user, InteractionType::USER_CONTACTS, $this)
+            Interaction::check($this, InteractionType::USER_CONTACTS, $user)
+            || Interaction::check($user, InteractionType::USER_CONTACTS, $this)
         );
     }
 
+    /**
+     * Remove a user from this user's contact list, and vice-versa.
+     * @param User $user_to_remove
+     * @return bool
+     */
+    public function removeContact(User $user_to_remove): bool
+    {
+        return(
+            Interaction::remove($this, InteractionType::USER_CONTACTS, $user_to_remove)
+            || Interaction::remove($user_to_remove, InteractionType::USER_CONTACTS, $this)
+        );
+    }
+
+    /**
+     * Deny a request from another user to be added as a contact.
+     * @param User $user_to_deny
+     * @return bool
+     */
+    public function denyContactRequest(User $user_to_deny): bool
+    {
+        return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+    }
+
+    /**
+     * Deny a request from another user to be added as a contact, and block them from further interaction.
+     * @param User $user_to_deny
+     * @return bool
+     */
+    public function denyContactRequestAndBlock(User $user_to_deny): bool
+    {
+        return DB::transaction(function() use ($user_to_deny) {
+            $this->blockUser($user_to_deny);
+            return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+        });
+    }
+
+    /**
+     * Cancel a pending request to be added as another user's contact.
+     * @param User $user_to_cancel
+     * @return bool
+     */
+    public function cancelContactRequest(User $user_to_cancel): bool
+    {
+        return Interaction::remove($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_cancel);
+    }
+
+    /**************************************************
+     * User Blocks User
+     *************************************************/
+
+    /**
+     * This user blocks the target user.
+     * @param User $user_to_block
+     * @param string $reason
+     * @return bool
+     */
+    public function blockUser(User $user_to_block, string $reason = '') : bool
+    {
+        /** Do not add a second block for the same target user. */
+        if($this->isBlockingUser($user_to_block)) { return false; }
+
+        /** Once the block occurs, remove contact and any pending requests. */
+        return DB::transaction(function () use($user_to_block, $reason) {
+            $this->cancelContactRequest($user_to_block);
+            $this->denyContactRequest($user_to_block);
+            $this->removeContact($user_to_block);
+
+            $reason = filter_var($reason, FILTER_SANITIZE_STRING);
+            return Interaction::create($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
+        });
+    }
+
+    public function getBlock(User $user) : ?Interaction
+    {
+        return Interaction::retrieve($this, InteractionType::USER_BLOCKS_USER, $user);
+    }
+
+    /**
+     * List all users blocked by this user.
+     * @return Collection
+     */
+    public function viewBlockedUsers() : Collection
+    {
+        return $this->my(InteractionType::USER_BLOCKS_USER);
+    }
+
+    /**
+     * Check if this user is blocking the target user.
+     * @param User $user
+     * @return bool
+     */
+    public function isBlockingUser(User $user) : bool
+    {
+        return Interaction::check($this, InteractionType::USER_BLOCKS_USER, $user);
+    }
+
+    /**
+     * Check if this user is blocked by the target user.
+     * @param User $user
+     * @return bool
+     */
+    public function isBlockedByUser(User $user) : bool
+    {
+        return Interaction::check($user, InteractionType::USER_BLOCKS_USER, $this);
+    }
+
+    /**
+     * Check if either this user or the target user is blocking the other.
+     * @param User $user
+     * @return bool
+     */
+    public function userBlockExists(User $user) : bool
+    {
+        return (
+            Interaction::check($this, InteractionType::USER_BLOCKS_USER, $user)
+            || Interaction::check($user, InteractionType::USER_BLOCKS_USER, $this)
+        );
+    }
+
+    /**
+     * Update the reason for a block on a user.
+     * @param User $user_to_block
+     * @param string $reason
+     * @return bool
+     */
+    public function updateUserBlock(User $user_to_block, string $reason = '') : bool
+    {
+        if($this->isBlockingUser($user_to_block) === false) { return false; }
+
+        $reason = filter_var($reason, FILTER_SANITIZE_STRING);
+        return Interaction::set($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
+    }
+
+    /**
+     * Remove this user's block on a target user.
+     * @param User $user_to_unblock
+     * @return bool
+     */
+    public function unblockUser(User $user_to_unblock) : bool
+    {
+        if($this->isBlockingUser($user_to_unblock) === false) { return false; }
+
+        return Interaction::remove($this, InteractionType::USER_BLOCKS_USER, $user_to_unblock);
+    }
 }

@@ -2,27 +2,24 @@
 
 namespace Wikidot\Modules\Account\Settings;
 
-
-
-
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PrivateUserBlockPeer;
 use Wikidot\Utils\AccountBaseModule;
+use Wikijump\Models\User;
 
 class ASBlockedModule extends AccountBaseModule
 {
 
+    /**
+     * Retrieve all users this user has blocked.
+     * @param $runData
+     */
     public function build($runData)
     {
+        /** @var User $user */
+        $user = $runData->getUser();
+        $blocks = $user->viewBlockedUsers();
 
-        // get current blocks!
-
-        $c = new Criteria();
-        $c->add("user_id", $runData->getUserId());
-        $c->addOrderDescending("block_id");
-
-        $blocks = PrivateUserBlockPeer::instance()->select($c);
-        if (count($blocks)>0) {
+        if ($blocks->count() > 0) {
             $runData->contextAdd("blocks", $blocks);
         }
     }

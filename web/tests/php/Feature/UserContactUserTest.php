@@ -68,7 +68,7 @@ class UserContactUserTest extends TestCase
         );
 
         /** There can be only one contact request pending. */
-        self::assertNull($this->user->requestContact($this->user_to_contact));
+        self::assertFalse($this->user->requestContact($this->user_to_contact));
         self::assertCount(1, $this->user_to_contact->viewIncomingContactRequests());
         self::assertCount(1, $this->user->viewOutgoingContactRequests());
 
