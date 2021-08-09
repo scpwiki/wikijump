@@ -61,11 +61,11 @@ Arguments:
 Example:
 
 ```
-[[css]]
+[[module CSS]]
 #page-title {
     color: purple;
 }
-[[/css]]
+[[/module CSS]]
 ```
 
 ### Join
@@ -77,6 +77,12 @@ Body: None
 Arguments:
 * `button` &mdash; (Optional, String) The text that should be present on the button.
 * All accepted attributes.
+
+Example:
+
+```
+[[module Join]]
+```
 
 ### PageTree
 
