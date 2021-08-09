@@ -10,13 +10,13 @@ use Ozone\Framework\Database\BaseDBObject;
 /**
  * Base Class mapped to the database table site_tag.
  */
-class SiteTagBase extends BaseDBObject
+class AllowedTagsBase extends BaseDBObject
 {
 
     protected function internalInit()
     {
         $this->tableName='site_tag';
-        $this->peerName = 'Wikidot\\DB\\SiteTagPeer';
+        $this->peerName = 'Wikidot\\DB\\AllowedTagsPeer';
         $this->primaryKeyName = 'tag_id';
         $this->fieldNames = array( 'tag_id' ,  'site_id' ,  'tag' );
 

@@ -94,7 +94,8 @@ RUN echo "xdebug.mode = develop" >> ${XDEBUG_INI} \
 WORKDIR /var/www
 
 # !! Workaround for WSL2-enabled development with exposed host volumes, comment out if not needed.
-RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
+# RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
+RUN chown -R www-data:www-data .
 
 # Copy Wikijump files
 COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/web ${WIKIJUMP_DIR}/web

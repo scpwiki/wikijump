@@ -36,10 +36,11 @@
 		</tr>
 		<tr>
 			<td>
-				{t}Site tags{/t}:
+				{t}Allowed tags{/t}:
 			</td>
 			<td>
-				<input  class="text" type="text" name="tags" size="40" value="{$defaultTags}"/>
+				<input type="checkbox" name="enableAllowedTags" value="true" {if $enableAllowedTags}checked{/if}></input>
+				<input class="text" type="text" name="tags" size="40" value="{$defaultTags}"/>
 				<div class="sub">
 					{t}These are the list of tags people can assign to pages.{/t}<br/>
 					{t}Separate by space.{/t}

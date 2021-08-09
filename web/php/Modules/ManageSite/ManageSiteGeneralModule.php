@@ -3,8 +3,8 @@
 namespace Wikidot\Modules\ManageSite;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\SiteTagPeer;
-use Wikidot\DB\SiteTag;
+use Wikidot\DB\AllowedTagsPeer;
+use Wikidot\DB\AllowedTags;
 use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteGeneralModule extends ManageSiteBaseModule
@@ -16,9 +16,9 @@ class ManageSiteGeneralModule extends ManageSiteBaseModule
         $site = $runData->getTemp("site");
         $siteId = $site->getSiteId();
 
-        $defaultTags = SiteTag::getSiteTags($siteId);
+        $allowedTags = AllowedTags::getAllowedTags($siteId);
 
-        $runData->contextAdd("defaultTags", $defaultTags);
+        $runData->contextAdd("allowedTags", $allowedTags);
         $runData->contextAdd("site", $site);
     }
 }

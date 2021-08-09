@@ -5,7 +5,7 @@ namespace Wikidot\Modules\PageTags;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageTagPeer;
-use Wikidot\DB\SiteTag;
+use Wikidot\DB\AllowedTags;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
@@ -38,7 +38,7 @@ class PageTagsModule extends SmartyModule
         // Receive taglist from ManageSite.
 
         $siteId = $site->getSiteId();
-        $taglist = SiteTag::getSiteTags($siteId);
+        $taglist = AllowedTags::getAllowedTags($siteId);
         $taglist = explode(' ', $taglist);
 
         // Fetch the tags and convert them to a string.

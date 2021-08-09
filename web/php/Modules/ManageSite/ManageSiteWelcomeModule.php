@@ -3,7 +3,7 @@
 namespace Wikidot\Modules\ManageSite;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\SiteTagPeer;
+use Wikidot\DB\AllowedTagsPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\Utils\ManageSiteBaseModule;
 
@@ -27,7 +27,7 @@ class ManageSiteWelcomeModule extends ManageSiteBaseModule
 
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $t = SiteTagPeer::instance()->selectOne($c);
+        $t = AllowedTagsPeer::instance()->selectOne($c);
 
         if (!$t) {
             $tips['tags'] = true;

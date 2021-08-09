@@ -12,7 +12,7 @@ namespace Wikidot\DB;
  * Object Model Class.
  *
  */
-class SiteTagPeer extends SiteTagPeerBase
+class AllowedTagsPeer extends AllowedTagsPeerBase
 {
 
 }
