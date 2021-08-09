@@ -231,12 +231,10 @@ class User extends Authenticatable
      */
     public function approveContactRequest(User $user_to_approve): bool
     {
-        DB::transaction(function () use ($user_to_approve) {
+        return DB::transaction(function () use ($user_to_approve) {
             Interaction::remove($user_to_approve, InteractionType::USER_CONTACT_REQUESTS, $this);
             return $this->addContact($user_to_approve);
         });
-
-        return false;
     }
 
     /**
@@ -309,12 +307,10 @@ class User extends Authenticatable
      */
     public function denyContactRequestAndBlock(User $user_to_deny): bool
     {
-        DB::transaction(function() use ($user_to_deny) {
+        return DB::transaction(function() use ($user_to_deny) {
             $this->blockUser($user_to_deny);
             return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
         });
-
-        return false;
     }
 
     /**
@@ -343,7 +339,7 @@ class User extends Authenticatable
         if($this->isBlockingUser($user_to_block)) { return false; }
 
         /** Once the block occurs, remove contact and any pending requests. */
-        DB::transaction(function () use($user_to_block, $reason) {
+        return DB::transaction(function () use($user_to_block, $reason) {
             $this->cancelContactRequest($user_to_block);
             $this->denyContactRequest($user_to_block);
             $this->removeContact($user_to_block);
@@ -351,8 +347,6 @@ class User extends Authenticatable
             $reason = filter_var($reason, FILTER_SANITIZE_STRING);
             return Interaction::create($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
         });
-
-        return false;
     }
 
     public function getBlock(User $user) : ?Interaction
