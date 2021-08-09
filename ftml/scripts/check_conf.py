@@ -34,6 +34,8 @@ MODULE_RULE_REGEX = re.compile(
 \};"""
 )
 
+MODULE_EXAMPLE_REGEX = re.compile(r"\[\[module (\w+).*\]\]")
+
 # Converting bool string to a Python bool
 BOOL_VALUES = {
     "true": True,
@@ -348,7 +350,36 @@ def check_block_docs(block_conf, block_docs):
 
 
 def check_module_docs(module_conf, module_docs):
-    print(module_conf)
+    def case_insensitive_set(collection):
+        return frozenset(s.casefold() for s in collection)
+
+    success = True
+
+    modules_found = case_insensitive_set(MODULE_EXAMPLE_REGEX.findall(module_docs))
+    modules_expected = case_insensitive_set(module_conf.keys())
+
+    added = modules_found - modules_expected
+    deleted = modules_expected - modules_found
+
+    if added:
+        print("!! Added module documentation !!")
+
+        for name in added:
+            print(f"- {name}")
+
+        print()
+        success = False
+
+    if deleted:
+        print("!! Deleted module documentation !!")
+
+        for name in deleted:
+            print(f"- {name}")
+
+        print()
+        success = False
+
+    return success
 
 
 if __name__ == "__main__":
