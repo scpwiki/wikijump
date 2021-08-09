@@ -43,13 +43,14 @@ BOOL_VALUES = {
 }
 
 # Aliases which have one of these prefixes should be ignored because they
-# exist because of Wikidot's weird alignment naming.
+# exist because of Wikidot's weird alignment naming or jank.
 BLOCK_NAME_IGNORE_PREFIXES = [
     "<",
     "=",
     ">",
     "f<",
     "f>",
+    "module654",
 ]
 
 
