@@ -14,7 +14,7 @@ class AllowedTagsSettings extends Migration
     public function up()
     {
       Schema::table('site', function (Blueprint $table) {
-        $table->boolean('enableallowedtags');
+        $table->boolean('enableallowedtags')->default(false);
       });
     }
 
