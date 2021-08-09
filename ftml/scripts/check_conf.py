@@ -146,7 +146,7 @@ def load_block_data(root_dir):
                 continue
 
             block_rules[name] = {
-                "aliases": frozenset(map(convert_name, eval(match[2]))),
+                "aliases": frozenset(s.casefold() for s in eval(match[2])),
                 "accepts-star": BOOL_VALUES[match[3]],
                 "accepts-score": BOOL_VALUES[match[4]],
                 "accepts-newlines": BOOL_VALUES[match[5]],
@@ -188,7 +188,7 @@ def load_module_data(root_dir):
                 continue
 
             module_rules[name] = {
-                "aliases": frozenset(map(convert_name, eval(match[2]))),
+                "aliases": frozenset(s.casefold() for s in eval(match[2])),
             }
 
     return modules, module_rules
