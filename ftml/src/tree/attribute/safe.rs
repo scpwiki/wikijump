@@ -100,6 +100,7 @@ lazy_static! {
             "readonly",
             "required",
             "reversed",
+            "role",
             "rows",
             "rowspan",
             "scope",
@@ -171,7 +172,7 @@ lazy_static! {
     static ref ATTRIBUTE_SUFFIX_SAFE: Regex = Regex::new(r"[a-zA-z0-9\-]+").unwrap();
 }
 
-pub const SAFE_ATTRIBUTE_PREFIXES: [&str; 1] = ["data-"];
+pub const SAFE_ATTRIBUTE_PREFIXES: [&str; 2] = ["aria-", "data-"];
 
 pub fn is_safe_attribute(attribute: UniCase<&str>) -> bool {
     if SAFE_ATTRIBUTES.contains(&attribute) {
