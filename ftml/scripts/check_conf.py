@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+from collections import defaultdict
 
 import inflection
 import toml
@@ -39,6 +40,23 @@ BOOL_VALUES = {
     "false": False,
 }
 
+# Aliases which have one of these prefixes should be ignored because they
+# exist because of Wikidot's weird alignment naming.
+BLOCK_NAME_IGNORE_PREFIXES = [
+    "<",
+    "=",
+    ">",
+    "f<",
+    "f>",
+]
+
+
+def check_block_alias_in_doc(alias):
+    for prefix in BLOCK_NAME_IGNORE_PREFIXES:
+        if alias.startswith(prefix):
+            return False
+    return True
+
 
 # Container for primitives which we want by reference
 class Container:
@@ -71,7 +89,7 @@ def convert_name(value):
     return value.lower()
 
 
-# Find all rust files that might have rule definitions
+# Find all Rust files that might have rule definitions
 def get_submodule_paths(directory):
     def process(path):
         if not path.endswith(".rs"):
@@ -173,6 +191,22 @@ def load_module_data(root_dir):
     return modules, module_rules
 
 
+# Load documentation files
+def load_block_docs(root_dir):
+    blocks_path = os.path.join(root_dir, "docs/Blocks.md")
+
+    with open(blocks_path) as file:
+        return file.read()
+
+
+def load_module_docs(root_dir):
+    blocks_path = os.path.join(root_dir, "docs/Modules.md")
+
+    with open(blocks_path) as file:
+        return file.read()
+
+
+# Compare extracted data
 def compare_block_data(block_conf, block_rules):
     success = Container(True)
 
@@ -282,6 +316,41 @@ def compare_module_data(module_conf, module_rules):
     return success
 
 
+# Check documentation files
+#
+# I am not writing a full markdown scraper, besides
+# documentation is loose to explain things and can't
+# capture everything well anyways.
+#
+# Instead, this will look for the presence of the blocks'
+# aliases, and if any are missing, the human knows to
+# go through and ensure everything is present.
+def check_block_docs(block_conf, block_docs):
+    missing_aliases = defaultdict(list)
+
+    for name, block in block_conf.items():
+        for alias in filter(check_block_alias_in_doc, block["aliases"]):
+            if f"`{alias}`" not in block_docs:
+                missing_aliases[name].append(alias)
+
+    if missing_aliases:
+        print("!! Missing documentation for blocks !!")
+
+        for name in sorted(missing_aliases.keys()):
+            aliases = missing_aliases[name]
+            aliases.sort()
+            for alias in aliases:
+                print(f"- {alias}")
+
+        print()
+
+    return bool(missing_aliases)
+
+
+def check_module_docs(module_conf, module_docs):
+    print(module_conf)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: check_blocks.py <ftml-root-dir>")
@@ -291,10 +360,16 @@ if __name__ == "__main__":
     success = True
 
     blocks, block_rules = load_block_data(root_dir)
+    block_docs = load_block_docs(root_dir)
+
     success &= compare_block_data(blocks, block_rules)
+    success &= check_block_docs(blocks, block_docs)
 
     modules, module_rules = load_module_data(root_dir)
+    module_docs = load_module_docs(root_dir)
+
     success &= compare_module_data(modules, module_rules)
+    success &= check_module_docs(modules, module_docs)
 
     if success:
         print("FTML configuration check passed.")
