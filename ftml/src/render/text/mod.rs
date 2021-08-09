@@ -25,16 +25,31 @@ use self::context::TextContext;
 use self::elements::render_elements;
 use crate::log::prelude::*;
 use crate::render::{Handle, Render};
-use crate::tree::SyntaxTree;
+use crate::tree::{Element, SyntaxTree};
 use crate::PageInfo;
 
 #[derive(Debug)]
 pub struct TextRender;
 
-impl Render for TextRender {
-    type Output = String;
+impl TextRender {
+    #[inline]
+    pub fn render_partial(
+        &self,
+        log: &Logger,
+        page_info: &PageInfo,
+        elements: &[Element],
+    ) -> String {
+        self.render_partial_direct(log, page_info, elements, &[], &[])
+    }
 
-    fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
+    fn render_partial_direct(
+        &self,
+        log: &Logger,
+        page_info: &PageInfo,
+        elements: &[Element],
+        table_of_contents: &[Element],
+        footnotes: &[Vec<Element>],
+    ) -> String {
         info!(
             log,
             "Rendering syntax tree";
@@ -47,8 +62,8 @@ impl Render for TextRender {
             },
         );
 
-        let mut ctx = TextContext::new(page_info, &Handle);
-        render_elements(log, &mut ctx, &tree.elements);
+        let mut ctx = TextContext::new(page_info, &Handle, table_of_contents, footnotes);
+        render_elements(log, &mut ctx, elements);
 
         // Remove leading and trailing newlines
         while ctx.buffer().starts_with('\n') {
@@ -60,5 +75,20 @@ impl Render for TextRender {
         }
 
         ctx.into()
+    }
+}
+
+impl Render for TextRender {
+    type Output = String;
+
+    #[inline]
+    fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
+        self.render_partial_direct(
+            log,
+            page_info,
+            &tree.elements,
+            &tree.table_of_contents,
+            &tree.footnotes,
+        )
     }
 }

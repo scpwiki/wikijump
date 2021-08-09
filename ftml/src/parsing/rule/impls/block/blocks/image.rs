@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::{ImageAlignment, ImageSource};
+use crate::tree::{FloatAlignment, ImageSource};
 
 pub const BLOCK_IMAGE: BlockRule = BlockRule {
     name: "block-image",
@@ -51,7 +51,7 @@ fn parse_fn<'r, 't>(
 
     let (source, mut arguments) = parser.get_head_name_map(&BLOCK_IMAGE, in_head)?;
     let link = arguments.get("link");
-    let alignment = ImageAlignment::parse(name);
+    let alignment = FloatAlignment::parse(name);
 
     // Parse the image source based on format
     let source = match ImageSource::parse(source) {

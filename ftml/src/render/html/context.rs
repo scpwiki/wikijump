@@ -22,7 +22,9 @@ use super::builder::HtmlBuilder;
 use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
+use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::render::Handle;
+use crate::tree::Element;
 use crate::url::is_url;
 use crate::{info, Backlinks, PageInfo};
 use std::borrow::Cow;
@@ -30,7 +32,10 @@ use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
 #[derive(Debug)]
-pub struct HtmlContext<'i, 'h> {
+pub struct HtmlContext<'i, 'h, 'e, 't>
+where
+    'e: 't,
+{
     body: String,
     styles: Vec<String>,
     meta: Vec<HtmlMeta>,
@@ -38,13 +43,23 @@ pub struct HtmlContext<'i, 'h> {
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
 
+    // Fields from syntax tree
+    table_of_contents: &'e [Element<'t>],
+    footnotes: &'e [Vec<Element<'t>>],
+
     // Other fields to track
     code_snippet_index: NonZeroUsize,
+    table_of_contents_index: usize,
 }
 
-impl<'i, 'h> HtmlContext<'i, 'h> {
+impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     #[inline]
-    pub fn new(info: &'i PageInfo<'i>, handle: &'h Handle) -> Self {
+    pub fn new(
+        info: &'i PageInfo<'i>,
+        handle: &'h Handle,
+        table_of_contents: &'e [Element<'t>],
+        footnotes: &'e [Vec<Element<'t>>],
+    ) -> Self {
         HtmlContext {
             body: String::new(),
             styles: Vec::new(),
@@ -52,7 +67,10 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
             backlinks: Backlinks::new(),
             info,
             handle,
+            table_of_contents,
+            footnotes,
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
+            table_of_contents_index: 0,
         }
     }
 
@@ -102,9 +120,30 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
         self.handle
     }
 
+    #[inline]
+    pub fn language(&self) -> &str {
+        &self.info.language
+    }
+
+    #[inline]
+    pub fn table_of_contents(&self) -> &'e [Element<'t>] {
+        self.table_of_contents
+    }
+
+    #[inline]
+    pub fn footnotes(&self) -> &'e [Vec<Element<'t>>] {
+        self.footnotes
+    }
+
     pub fn next_code_snippet_index(&mut self) -> NonZeroUsize {
         let index = self.code_snippet_index;
         self.code_snippet_index = NonZeroUsize::new(index.get() + 1).unwrap();
+        index
+    }
+
+    pub fn next_table_of_contents_index(&mut self) -> usize {
+        let index = self.table_of_contents_index;
+        self.table_of_contents_index += 1;
         index
     }
 
@@ -166,14 +205,14 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     }
 
     #[inline]
-    pub fn html(&mut self) -> HtmlBuilder<'_, 'i, 'h> {
+    pub fn html(&mut self) -> HtmlBuilder<'_, 'i, 'h, 'e, 't> {
         HtmlBuilder::new(self)
     }
 }
 
-impl<'i, 'h> From<HtmlContext<'i, 'h>> for HtmlOutput {
+impl<'i, 'h, 'e, 't> From<HtmlContext<'i, 'h, 'e, 't>> for HtmlOutput {
     #[inline]
-    fn from(ctx: HtmlContext<'i, 'h>) -> HtmlOutput {
+    fn from(ctx: HtmlContext<'i, 'h, 'e, 't>) -> HtmlOutput {
         let HtmlContext {
             body,
             styles,
@@ -191,9 +230,16 @@ impl<'i, 'h> From<HtmlContext<'i, 'h>> for HtmlOutput {
     }
 }
 
-impl<'i, 'h> Write for HtmlContext<'i, 'h> {
+impl<'i, 'h, 'e, 't> Write for HtmlContext<'i, 'h, 'e, 't> {
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.buffer().write_str(s)
+    }
+}
+
+impl<'i, 'h, 'e, 't> NextIndex<TableOfContentsIndex> for HtmlContext<'i, 'h, 'e, 't> {
+    #[inline]
+    fn next(&mut self) -> usize {
+        self.next_table_of_contents_index()
     }
 }

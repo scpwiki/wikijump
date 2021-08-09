@@ -19,7 +19,10 @@
                 "element": "container",
                 "data": {
                     "type": {
-                        "header": 5
+                        "header": {
+                            "level": 5,
+                            "has-toc": true
+                        }
                     },
                     "attributes": {},
                     "elements": [
@@ -53,6 +56,67 @@
             }
         ],
         "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "bullet",
+                                            "attributes": {},
+                                            "items": [
+                                                {
+                                                    "element": "list",
+                                                    "data": {
+                                                        "type": "bullet",
+                                                        "attributes": {},
+                                                        "items": [
+                                                            {
+                                                                "element": "list",
+                                                                "data": {
+                                                                    "type": "bullet",
+                                                                    "attributes": {},
+                                                                    "items": [
+                                                                        [
+                                                                            {
+                                                                                "element": "link",
+                                                                                "data": {
+                                                                                    "url": "#toc0",
+                                                                                    "label": {
+                                                                                        "text": "Header Five"
+                                                                                    },
+                                                                                    "target": null
+                                                                                }
+                                                                            }
+                                                                        ]
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
         ]
     },
     "warnings": [

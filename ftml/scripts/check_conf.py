@@ -40,6 +40,20 @@ BOOL_VALUES = {
 }
 
 
+# Container for primitives which we want by reference
+class Container:
+    __slots__ = ("data",)
+
+    def __init__(self, data):
+        self.data = data
+
+    def get(self):
+        return self.data
+
+    def set(self, data):
+        self.data = data
+
+
 # Improve readability of some objects, like sets
 def format_check_value(value):
     if isinstance(value, (set, frozenset)):
@@ -160,7 +174,7 @@ def load_module_data(root_dir):
 
 
 def compare_block_data(block_conf, block_rules):
-    success = True
+    success = Container(True)
 
     # Check for new or removed blocks
     block_conf_names = frozenset(map(convert_name, block_conf.keys()))
@@ -176,7 +190,7 @@ def compare_block_data(block_conf, block_rules):
             print(f"- {name}")
 
         print()
-        success = False
+        success.set(False)
 
     if deleted:
         print("!! Deleted blocks !!")
@@ -185,7 +199,7 @@ def compare_block_data(block_conf, block_rules):
             print(f"- {name}")
 
         print()
-        success = False
+        success.set(False)
 
     # Check contents of each block
     print("Checking blocks:")
@@ -204,7 +218,7 @@ def compare_block_data(block_conf, block_rules):
                 print(f"  Key {key} differs!")
                 print(f"    Code:   {format_check_value(rule[key])}")
                 print(f"    Config: {format_check_value(conf[key])}")
-                success = False
+                success.set(False)
 
         check("aliases")
         check("accepts-star")
@@ -212,7 +226,7 @@ def compare_block_data(block_conf, block_rules):
         check("accepts-newlines")
 
     print()
-    return success
+    return success.get()
 
 
 def compare_module_data(module_conf, module_rules):

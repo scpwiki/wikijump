@@ -1,0 +1,81 @@
+{
+    "input": "+ A\n[[toc class=\"big-box\" style=\"color: blue;\"]] X",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "table-of-contents",
+                "data": {
+                    "attributes": {
+                        "class": "big-box",
+                        "style": "color: blue;"
+                    },
+                    "align": null
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "X"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "url": "#toc0",
+                                    "label": {
+                                        "text": "A"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

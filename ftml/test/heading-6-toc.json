@@ -1,0 +1,117 @@
+{
+    "input": "++++++* plain\n++++++ toc",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 6,
+                            "has-toc": false
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "plain"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 6,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "toc"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "bullet",
+                                            "attributes": {},
+                                            "items": [
+                                                {
+                                                    "element": "list",
+                                                    "data": {
+                                                        "type": "bullet",
+                                                        "attributes": {},
+                                                        "items": [
+                                                            {
+                                                                "element": "list",
+                                                                "data": {
+                                                                    "type": "bullet",
+                                                                    "attributes": {},
+                                                                    "items": [
+                                                                        {
+                                                                            "element": "list",
+                                                                            "data": {
+                                                                                "type": "bullet",
+                                                                                "attributes": {},
+                                                                                "items": [
+                                                                                    [
+                                                                                        {
+                                                                                            "element": "link",
+                                                                                            "data": {
+                                                                                                "url": "#toc0",
+                                                                                                "label": {
+                                                                                                    "text": "toc"
+                                                                                                },
+                                                                                                "target": null
+                                                                                            }
+                                                                                        }
+                                                                                    ]
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

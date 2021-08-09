@@ -6,7 +6,10 @@
                 "element": "container",
                 "data": {
                     "type": {
-                        "header": 4
+                        "header": {
+                            "level": 4,
+                            "has-toc": true
+                        }
                     },
                     "attributes": {},
                     "elements": [
@@ -38,6 +41,58 @@
             }
         ],
         "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "bullet",
+                                            "attributes": {},
+                                            "items": [
+                                                {
+                                                    "element": "list",
+                                                    "data": {
+                                                        "type": "bullet",
+                                                        "attributes": {},
+                                                        "items": [
+                                                            [
+                                                                {
+                                                                    "element": "link",
+                                                                    "data": {
+                                                                        "url": "#toc0",
+                                                                        "label": {
+                                                                            "text": "Small heading"
+                                                                        },
+                                                                        "target": null
+                                                                    }
+                                                                }
+                                                            ]
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
         ]
     },
     "warnings": [

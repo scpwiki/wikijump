@@ -32,6 +32,20 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Trying to create header container");
 
+    // Assert first tokens match rule
+    check_step_multiple(
+        parser,
+        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
+    )?;
+
+    // Parse and builder header element
+    parse_header(log, parser)
+}
+
+fn parse_header<'p, 'r, 't>(
+    log: &Logger,
+    parser: &'p mut Parser<'r, 't>,
+) -> ParseResult<'r, 't, Elements<'t>> {
     // Helper to ensure the current token is expected
     macro_rules! step {
         ($token:expr) => {{
@@ -45,25 +59,20 @@ fn try_consume_fn<'p, 'r, 't>(
         }};
     }
 
-    // Assert first tokens match rule
-    check_step_multiple(parser, &[Token::LineBreak, Token::InputStart])?;
-
     // Get header depth
-    let heading_level = step!(Token::Heading)
+    let heading = step!(Token::Heading)
         .slice
-        .len()
         .try_into()
         .expect("Received invalid heading length token slice");
 
     // Step over whitespace
     step!(Token::Whitespace);
 
-    // Collect contents until newline
-    collect_container(
+    let (elements, mut all_exceptions, _) = collect_container(
         log,
         parser,
         RULE_HEADER,
-        ContainerType::Header(heading_level),
+        ContainerType::Header(heading),
         &[
             ParseCondition::current(Token::InputEnd),
             ParseCondition::current(Token::LineBreak),
@@ -71,5 +80,35 @@ fn try_consume_fn<'p, 'r, 't>(
         ],
         &[],
         None,
-    )
+    )?
+    .into();
+
+    // If this heading wants a table of contents (TOC) entry, then add one
+    if heading.has_toc {
+        // collect_container() always produces one Element::Container.
+        // We unwrap it so we can get the elements composing the name.
+        let elements = match elements {
+            Elements::Single(Element::Container(ref container)) => container.elements(),
+            _ => panic!("Collected heading produced a non-single non-container element"),
+        };
+
+        // Create table of contents entry with the given level and name.
+        parser.push_table_of_contents_entry(heading.level, elements);
+    }
+
+    // Recursively collect headings until we hit a warning.
+    //
+    // We do this because the container consumes the newline,
+    // which we need to trigger the next header when using regular rules.
+    let mut all_elements: Vec<_> = elements.into_iter().collect();
+
+    if let Ok(success) = parse_header(log, parser) {
+        let (elements, mut exceptions, _) = success.into();
+
+        all_elements.extend(elements);
+        all_exceptions.append(&mut exceptions);
+    }
+
+    // Build final Elements object
+    ok!(false; all_elements, all_exceptions)
 }

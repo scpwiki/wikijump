@@ -6,7 +6,10 @@
                 "element": "container",
                 "data": {
                     "type": {
-                        "header": 6
+                        "header": {
+                            "level": 6,
+                            "has-toc": true
+                        }
                     },
                     "attributes": {},
                     "elements": [
@@ -27,6 +30,76 @@
             }
         ],
         "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "bullet",
+                                            "attributes": {},
+                                            "items": [
+                                                {
+                                                    "element": "list",
+                                                    "data": {
+                                                        "type": "bullet",
+                                                        "attributes": {},
+                                                        "items": [
+                                                            {
+                                                                "element": "list",
+                                                                "data": {
+                                                                    "type": "bullet",
+                                                                    "attributes": {},
+                                                                    "items": [
+                                                                        {
+                                                                            "element": "list",
+                                                                            "data": {
+                                                                                "type": "bullet",
+                                                                                "attributes": {},
+                                                                                "items": [
+                                                                                    [
+                                                                                        {
+                                                                                            "element": "link",
+                                                                                            "data": {
+                                                                                                "url": "#toc0",
+                                                                                                "label": {
+                                                                                                    "text": "SCP-6969"
+                                                                                                },
+                                                                                                "target": null
+                                                                                            }
+                                                                                        }
+                                                                                    ]
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
         ]
     },
     "warnings": [

@@ -32,7 +32,10 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Trying to create centered container");
 
-    check_step_multiple(parser, &[Token::InputStart, Token::LineBreak])?;
+    check_step_multiple(
+        parser,
+        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
+    )?;
 
     // Check that the rule has "= "
     macro_rules! next {

@@ -33,7 +33,7 @@ pub enum ListItem<'t> {
 
     /// This item in the list is a sub-list.
     ///
-    /// That is, it's another, or deeper list within the list.
+    /// That is, it's another, deeper list within the list.
     SubList(Element<'t>),
 }
 

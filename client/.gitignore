@@ -9,6 +9,6 @@ tests-dist
 .ultra.cache.json
 
 # Misc.
-npm-debug.log
 lerna-debug.log
-
+npm-debug.log
+.pnpm-debug.log

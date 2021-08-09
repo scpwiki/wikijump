@@ -18,12 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum HtmlTag {
     Tag(&'static str),
     TagAndClass {
         tag: &'static str,
         class: &'static str,
+    },
+    TagAndId {
+        tag: &'static str,
+        id: String,
     },
 }
 
@@ -39,18 +43,16 @@ impl HtmlTag {
     }
 
     #[inline]
-    pub fn tag(self) -> &'static str {
-        match self {
-            HtmlTag::Tag(tag) => tag,
-            HtmlTag::TagAndClass { tag, .. } => tag,
-        }
+    pub fn with_id(tag: &'static str, id: String) -> HtmlTag {
+        HtmlTag::TagAndId { tag, id }
     }
 
     #[inline]
-    pub fn class(self) -> Option<&'static str> {
+    pub fn tag(&self) -> &'static str {
         match self {
-            HtmlTag::Tag(_) => None,
-            HtmlTag::TagAndClass { class, .. } => Some(class),
+            HtmlTag::Tag(tag) => tag,
+            HtmlTag::TagAndClass { tag, .. } => tag,
+            HtmlTag::TagAndId { tag, .. } => tag,
         }
     }
 }

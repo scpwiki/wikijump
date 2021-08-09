@@ -1,0 +1,104 @@
+{
+    "input": "+ A\ndurian\n+ B\n[[toc]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "durian"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "B"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "table-of-contents",
+                "data": {
+                    "attributes": {},
+                    "align": null
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "url": "#toc0",
+                                    "label": {
+                                        "text": "A"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ],
+                        [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "url": "#toc1",
+                                    "label": {
+                                        "text": "B"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

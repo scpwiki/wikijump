@@ -66,7 +66,12 @@ impl Render for HtmlRender {
             },
         );
 
-        let mut ctx = HtmlContext::new(page_info, &Handle);
+        let mut ctx = HtmlContext::new(
+            page_info,
+            &Handle,
+            &tree.table_of_contents,
+            &tree.footnotes,
+        );
 
         // Add styles
         for style in &tree.styles {

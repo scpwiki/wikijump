@@ -138,6 +138,7 @@ impl Handle {
         match message {
             "collapsible-open" => "+ open block",
             "collapsible-hide" => "- hide block",
+            "table-of-contents" => "Table of Contents",
             _ => {
                 error!(
                     log,

@@ -23,7 +23,8 @@ use crate::render::{html::HtmlRender, text::TextRender, Render};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element,
-    HeadingLevel, ImageAlignment, ImageSource, LinkLabel, Module, SyntaxTree,
+    FloatAlignment, Heading, HeadingLevel, ImageSource, LinkLabel, ListItem, ListType,
+    Module, SyntaxTree,
 };
 use proptest::option;
 use proptest::prelude::*;
@@ -149,7 +150,7 @@ fn arb_image() -> impl Strategy<Value = Element<'static>> {
 
     let image_alignment = option::of(
         (alignment, any::<bool>())
-            .prop_map(|(align, float)| ImageAlignment { align, float }),
+            .prop_map(|(align, float)| FloatAlignment { align, float }),
     );
 
     (
@@ -164,6 +165,37 @@ fn arb_image() -> impl Strategy<Value = Element<'static>> {
             alignment,
             attributes,
         })
+}
+
+fn arb_list<S>(elements: S) -> impl Strategy<Value = Element<'static>>
+where
+    S: Strategy<Value = Vec<Element<'static>>> + 'static,
+{
+    macro_rules! make_list {
+        ($items:expr) => {{
+            let ltype = select!([ListType::Bullet, ListType::Numbered]);
+            let items = $items;
+            let attributes = arb_attribute_map();
+
+            (ltype, items, attributes).prop_map(|(ltype, items, attributes)| {
+                Element::List {
+                    ltype,
+                    items,
+                    attributes,
+                }
+            })
+        }};
+    }
+
+    let list_item = elements.prop_map(|elements| ListItem::Elements(elements));
+    let leaf = make_list!(proptest::collection::vec(list_item, 1..10));
+
+    leaf.prop_recursive(
+        5,  // Levels deep
+        30, // Number of total nodes
+        10, // Up to X items per collection
+        |inner| make_list!(inner.prop_map(|element| vec![ListItem::SubList(element)])),
+    )
 }
 
 fn arb_code() -> impl Strategy<Value = Element<'static>> {
@@ -193,14 +225,19 @@ where
         Alignment::Justify,
     ]);
 
-    let heading = select!([
-        HeadingLevel::One,
-        HeadingLevel::Two,
-        HeadingLevel::Three,
-        HeadingLevel::Four,
-        HeadingLevel::Five,
-        HeadingLevel::Six,
-    ]);
+    let heading = {
+        let has_toc = select!([true, false]);
+        let level = select!([
+            HeadingLevel::One,
+            HeadingLevel::Two,
+            HeadingLevel::Three,
+            HeadingLevel::Four,
+            HeadingLevel::Five,
+            HeadingLevel::Six,
+        ]);
+
+        (level, has_toc).prop_map(|(level, has_toc)| Heading { level, has_toc })
+    };
 
     let container_type = prop_oneof![
         Just(ContainerType::Bold),
@@ -221,7 +258,7 @@ where
         Just(ContainerType::Size),
         Just(ContainerType::Paragraph),
         alignment.prop_map(|align| ContainerType::Align(align)),
-        heading.prop_map(|level| ContainerType::Header(level)),
+        heading.prop_map(|heading| ContainerType::Header(heading)),
     ];
 
     (container_type, elements, arb_attribute_map()).prop_map(
@@ -267,17 +304,14 @@ where
 
 // Syntax Tree
 
-fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
-    // Generate AST and its elements recursively
-
-    let leaf = prop_oneof![
+fn arb_element_leaf() -> impl Strategy<Value = Element<'static>> {
+    prop_oneof![
         cow!(".*").prop_map(Element::Text),
         cow!(".*").prop_map(Element::Raw),
         cow!(SIMPLE_EMAIL_REGEX).prop_map(Element::Email),
         arb_module(),
         arb_link(),
         arb_image(),
-        // TODO: Element::List
         // TODO: Element::RadioButton
         arb_checkbox(),
         // TODO: Element::User
@@ -287,8 +321,11 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
         Just(Element::LineBreak),
         (1..50u32).prop_map(|count| Element::LineBreaks(NonZeroU32::new(count).unwrap())),
         Just(Element::HorizontalRule),
-    ];
+    ]
+}
 
+fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
+    let leaf = arb_element_leaf();
     let element = leaf.prop_recursive(
         5,  // Levels deep
         50, // Number of total nodes
@@ -304,6 +341,7 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
             prop_oneof![
                 arb_container(elements!()),
                 // TODO: Element::Anchor
+                arb_list(elements!()),
                 arb_collapsible(elements!()),
                 // TODO: Element::IfCategory
                 // TODO: Element::IfTags
@@ -312,11 +350,24 @@ fn arb_tree() -> impl Strategy<Value = SyntaxTree<'static>> {
         },
     );
 
+    let toc_elements = proptest::collection::vec(arb_element_leaf(), 1..5);
+    let toc_heading = arb_list(toc_elements);
+    let footnote = proptest::collection::vec(element.clone(), 5..10);
+
     (
         proptest::collection::vec(element, 1..100),
         proptest::collection::vec(cow!(".*"), 0..128),
+        proptest::collection::vec(toc_heading, 0..2),
+        proptest::collection::vec(footnote, 0..2),
     )
-        .prop_map(|(elements, styles)| SyntaxTree { elements, styles })
+        .prop_map(
+            |(elements, styles, table_of_contents, footnotes)| SyntaxTree {
+                elements,
+                styles,
+                table_of_contents,
+                footnotes,
+            },
+        )
 }
 
 // Page Info
@@ -359,7 +410,10 @@ fn render<R: Render>(
 
 proptest! {
     // These tests are *very* slow, so we only run a few of them.
-    #![proptest_config(ProptestConfig::with_cases(5))]
+    //
+    // Occasionally you should bump this up to a high number
+    // and run through it all locally.
+    #![proptest_config(ProptestConfig::with_cases(2))]
 
     #[test]
     fn render_html_prop(page_info in arb_page_info(), tree in arb_tree()) {

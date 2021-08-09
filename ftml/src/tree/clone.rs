@@ -57,6 +57,15 @@ pub fn elements_to_owned(elements: &[Element<'_>]) -> Vec<Element<'static>> {
     elements.iter().map(|element| element.to_owned()).collect()
 }
 
+pub fn elements_lists_to_owned(
+    element_lists: &[Vec<Element<'_>>],
+) -> Vec<Vec<Element<'static>>> {
+    element_lists
+        .iter()
+        .map(|elements| elements_to_owned(elements.as_slice()))
+        .collect()
+}
+
 pub fn list_items_to_owned(list_items: &[ListItem<'_>]) -> Vec<ListItem<'static>> {
     list_items
         .iter()

@@ -326,7 +326,7 @@ fn ast_and_html() {
     tests.sort_by(|a, b| (a.name).cmp(&b.name));
 
     // Run tests
-    println!("Running tests:");
+    println!("Running {} syntax tree tests:", tests.len());
     for test in tests {
         test.run(&log);
     }

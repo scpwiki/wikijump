@@ -6,7 +6,10 @@
                 "element": "container",
                 "data": {
                     "type": {
-                        "header": 2
+                        "header": {
+                            "level": 2,
+                            "has-toc": true
+                        }
                     },
                     "attributes": {},
                     "elements": [
@@ -49,6 +52,40 @@
             }
         ],
         "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    [
+                                        {
+                                            "element": "link",
+                                            "data": {
+                                                "url": "#toc0",
+                                                "label": {
+                                                    "text": "My header"
+                                                },
+                                                "target": null
+                                            }
+                                        }
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
         ]
     },
     "warnings": [

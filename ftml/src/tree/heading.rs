@@ -19,7 +19,60 @@
  */
 
 use super::HtmlTag;
+use crate::next_index::{NextIndex, TableOfContentsIndex};
 use std::convert::TryFrom;
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub struct Heading {
+    /// The depth that this heading extends to.
+    ///
+    /// See [`HeadingLevel`].
+    ///
+    /// [`HeadingLevel`]: ./enum.HeadingLevel.html
+    pub level: HeadingLevel,
+
+    /// Whether this heading should get a table of contents entry or not.
+    pub has_toc: bool,
+}
+
+impl Heading {
+    pub fn html_tag(self, indexer: &mut dyn NextIndex<TableOfContentsIndex>) -> HtmlTag {
+        let tag = self.level.html_tag();
+
+        if self.has_toc {
+            let id = format!("toc{}", indexer.next());
+
+            HtmlTag::with_id(tag, id)
+        } else {
+            HtmlTag::new(tag)
+        }
+    }
+}
+
+impl TryFrom<&'_ str> for Heading {
+    type Error = ();
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        // Headings take the form "\+{1,6}\*?" (regex)
+        // The trailing "*" means that the TOC is *not* applied.
+        // The heading depth is simply the ASCII length of "+" characters.
+        //
+        // This does *not* validate the regex, it assumes the string fits.
+
+        let last_char = value.chars().next_back().ok_or(())?;
+
+        let (has_toc, len) = match last_char {
+            '+' => (true, value.len()),
+            '*' => (false, value.len() - 1),
+            _ => return Err(()),
+        };
+
+        let level = HeadingLevel::try_from(len)?;
+
+        Ok(Heading { level, has_toc })
+    }
+}
 
 #[derive(Serialize_repr, Deserialize_repr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[repr(u8)]
@@ -119,4 +172,40 @@ impl TryFrom<u8> for HeadingLevel {
             _ => Err(()),
         }
     }
+}
+
+#[test]
+fn heading() {
+    macro_rules! check {
+        ($input:expr, $level:expr, $has_toc:expr) => {{
+            use std::convert::TryInto;
+
+            let level = ($level as u8)
+                .try_into()
+                .expect("Heading level value was invalid");
+
+            let heading =
+                Heading::try_from($input).expect("Parsing heading token string failed");
+
+            assert_eq!(heading.level, level, "Heading level doesn't match expected");
+            assert_eq!(
+                heading.has_toc, $has_toc,
+                "Heading table of contents value doesn't match expected",
+            );
+        }};
+    }
+
+    check!("+", 1, true);
+    check!("++", 2, true);
+    check!("+++", 3, true);
+    check!("++++", 4, true);
+    check!("+++++", 5, true);
+    check!("++++++", 6, true);
+
+    check!("+*", 1, false);
+    check!("++*", 2, false);
+    check!("+++*", 3, false);
+    check!("++++*", 4, false);
+    check!("+++++*", 5, false);
+    check!("++++++*", 6, false);
 }

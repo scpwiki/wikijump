@@ -160,7 +160,7 @@ pipe = @{ "|" }
 equals = @{ "=" }
 underscore = @{ "_" }
 quote = @{ ">"+ }
-heading = @{ "+"{1,6} }
+heading = @{ "+"{1,6} ~ "*"? }
 
 // }}}
 

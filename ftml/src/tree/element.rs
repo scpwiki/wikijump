@@ -22,11 +22,12 @@ use super::clone::{
     elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
 };
 use super::{
-    AnchorTarget, AttributeMap, Container, ElementCondition, ImageAlignment, ImageSource,
-    LinkLabel, ListItem, ListType, Module,
+    Alignment, AnchorTarget, AttributeMap, Container, ElementCondition, FloatAlignment,
+    ImageSource, LinkLabel, ListItem, ListType, Module,
 };
 use std::borrow::Cow;
 use std::num::NonZeroU32;
+use std::slice;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
@@ -91,7 +92,7 @@ pub enum Element<'t> {
     Image {
         source: ImageSource<'t>,
         link: Option<Cow<'t, str>>,
-        alignment: Option<ImageAlignment>,
+        alignment: Option<FloatAlignment>,
         attributes: AttributeMap<'t>,
     },
 
@@ -159,6 +160,14 @@ pub enum Element<'t> {
     IfTags {
         conditions: Vec<ElementCondition<'t>>,
         elements: Vec<Element<'t>>,
+    },
+
+    /// A table of contents block.
+    ///
+    /// This contains links to sub-headings on the page.
+    TableOfContents {
+        attributes: AttributeMap<'t>,
+        align: Option<Alignment>,
     },
 
     /// A user block, linking to their information and possibly showing their avatar.
@@ -236,6 +245,7 @@ impl Element<'_> {
             Element::Collapsible { .. } => "Collapsible",
             Element::IfCategory { .. } => "IfCategory",
             Element::IfTags { .. } => "IfTags",
+            Element::TableOfContents { .. } => "TableOfContents",
             Element::User { .. } => "User",
             Element::Color { .. } => "Color",
             Element::Code { .. } => "Code",
@@ -269,6 +279,7 @@ impl Element<'_> {
             Element::Collapsible { .. } => false,
             Element::IfCategory { .. } => true,
             Element::IfTags { .. } => true,
+            Element::TableOfContents { .. } => false,
             Element::User { .. } => true,
             Element::Color { .. } => true,
             Element::Code { .. } => true,
@@ -376,6 +387,10 @@ impl Element<'_> {
                 conditions: conditions.iter().map(|c| c.to_owned()).collect(),
                 elements: elements_to_owned(elements),
             },
+            Element::TableOfContents { attributes, align } => Element::TableOfContents {
+                attributes: attributes.to_owned(),
+                align: *align,
+            },
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,
@@ -456,6 +471,16 @@ impl Elements<'_> {
             }
             Elements::Single(element) => element.paragraph_safe(),
             Elements::None => true,
+        }
+    }
+}
+
+impl<'t> AsRef<[Element<'t>]> for Elements<'t> {
+    fn as_ref(&self) -> &[Element<'t>] {
+        match self {
+            Elements::Multiple(elements) => elements,
+            Elements::Single(element) => slice::from_ref(element),
+            Elements::None => &[],
         }
     }
 }

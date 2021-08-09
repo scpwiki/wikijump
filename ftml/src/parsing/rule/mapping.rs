@@ -54,7 +54,6 @@ lazy_static! {
             Token::Underscore => vec![RULE_TEXT],
             Token::Quote => vec![RULE_DOUBLE_ANGLE, RULE_TEXT],
             Token::Heading => vec![RULE_TEXT],
-            Token::ParagraphBreak => vec![RULE_LINE_BREAK_PARAGRAPH],
             Token::Whitespace => vec![RULE_TEXT],
 
             // Formatting
@@ -103,6 +102,19 @@ lazy_static! {
 
                 // Normal rule handler
                 RULE_LINE_BREAK,
+            ],
+            Token::ParagraphBreak => vec![
+                // Start-of-line rules
+                RULE_CENTER,
+                RULE_HEADER,
+                RULE_BLOCKQUOTE,
+                RULE_LIST,
+
+                // Consume newline for blocks
+                RULE_BLOCK_SKIP,
+
+                // Normal rule handler
+                RULE_LINE_BREAK_PARAGRAPH,
             ],
             Token::InputStart => vec![
                 // Start-of-line rules

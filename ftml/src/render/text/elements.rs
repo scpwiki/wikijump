@@ -59,7 +59,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 // Also, determine if we add a prefix.
                 ContainerType::Div | ContainerType::Paragraph => (true, None),
                 ContainerType::Blockquote => (true, Some("    ")),
-                ContainerType::Header(level) => (true, Some(level.prefix_with_space())),
+                ContainerType::Header(heading) => {
+                    (true, Some(heading.level.prefix_with_space()))
+                }
 
                 // Inline or miscellaneous container.
                 _ => (false, None),
@@ -116,7 +118,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.push_str(label);
 
                 let url = get_full_url(log, ctx, url);
-                if url != label {
+
+                // Don't show URL if it's a name link, or an anchor
+                if url != label && !url.starts_with('#') {
                     str_write!(ctx, " [{}]", url);
                 }
             });
@@ -208,11 +212,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ($input:expr, $message:expr) => {
                     match $input {
                         Some(ref text) => &text,
-                        None => {
-                            let language = &ctx.info().language;
-
-                            ctx.handle().get_message(log, language, $message)
-                        }
+                        None => ctx.handle().get_message(log, ctx.language(), $message),
                     }
                 };
             }
@@ -255,6 +255,18 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             if check_iftags(log, ctx.info(), conditions) {
                 render_elements(log, ctx, elements);
             }
+        }
+        Element::TableOfContents { .. } => {
+            debug!(log, "Rendering table of contents");
+
+            let table_of_contents_title =
+                ctx.handle()
+                    .get_message(log, ctx.language(), "table-of-contents");
+
+            ctx.add_newline();
+            ctx.push_str(table_of_contents_title);
+            ctx.add_newline();
+            render_elements(log, ctx, ctx.table_of_contents());
         }
         Element::User { name, .. } => ctx.push_str(name),
         Element::Color { elements, .. } => render_elements(log, ctx, elements),

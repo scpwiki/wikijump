@@ -78,7 +78,9 @@ FTML("parse", async () => {
           }
         }
       ],
-      "styles": []
+      "styles": [],
+      "table-of-contents": [],
+      "footnotes": [],
     },
     "warnings": []
   })

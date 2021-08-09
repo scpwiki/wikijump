@@ -1,0 +1,75 @@
+{
+    "input": "+ A\n[[toc]]\n[[f<toc]]\n[[f>toc]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "table-of-contents",
+                "data": {
+                    "attributes": {},
+                    "align": null
+                }
+            },
+            {
+                "element": "table-of-contents",
+                "data": {
+                    "attributes": {},
+                    "align": "left"
+                }
+            },
+            {
+                "element": "table-of-contents",
+                "data": {
+                    "attributes": {},
+                    "align": "right"
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "url": "#toc0",
+                                    "label": {
+                                        "text": "A"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

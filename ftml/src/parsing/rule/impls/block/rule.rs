@@ -65,11 +65,14 @@ fn block_skip<'r, 't>(
         "Trying to see if we skip a newline due to upcoming block",
     );
 
-    assert_eq!(
-        parser.current().token,
-        Token::LineBreak,
-        "Trying to skip because block, but current is not line break",
-    );
+    {
+        let token = parser.current().token;
+
+        assert!(
+            token == Token::LineBreak || token == Token::ParagraphBreak,
+            "Trying to skip because block, but current is not line or paragraph break",
+        );
+    }
 
     let current = parser.step()?;
 
