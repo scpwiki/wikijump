@@ -92,22 +92,29 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Div](#div)                     | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
 | [Hidden](#hidden)               | `hidden`                         | No    | No     | Yes       | Map           | Elements  |
 | [HTML](#html)                   | `html`                           | No    | No     | Yes       | Map           | Raw       |
+| [IfCategory](#ifcategory)       | `ifcategory`                     | No    | No     | Yes       | Value         | Elements  |
+| [IfTags](#iftags)               | `iftags`                         | No    | No     | Yes       | Value         | Elements  |
 | [Iframe](#iframe)               | `iframe`                         | No    | No     | Yes       | None          | None      |
+| [Image](#image)                 | `image`                          | No    | No     | No        | Name + Map    | None      |
 | [Include](#include)             | `include`                        | No    | No     | Yes       | Name + Map    | None      |
 | [Insertion](#insertion)         | `ins`, `insertion`               | No    | No     | No        | Map           | Elements  |
 | [Invisible](#invisible)         | `invisible`                      | No    | No     | Yes       | Map           | Elements  |
 | [Italics](#italics)             | `i`, `italics`, `em`, `emphasis` | No    | No     | No        | Map           | Elements  |
 | [Lines](#lines)                 | `lines`, `newlines`              | No    | No     | Yes       | Value         | None      |
+| [List Blocks](#list)            | `ul`, `ol`, `li`                 | No    | Yes    | Yes       | Map           | Elements  |
 | [Mark](#mark)                   | `mark`, `highlight`              | No    | No     | No        | Map           | Elements  |
 | [Module](#module)               | `module`                         | No    | No     | Yes       | (See below)   | (See below) |
 | [Monospace](#monospace)         | `tt`, `mono`, `monospace`        | No    | No     | No        | Map           | Elements  |
+| [Paragraph](#paragraph)         | `p`, `paragraph`                 | No    | No     | Yes       | Map           | Elements  |
 | [Radio](#radio)                 | `radio`, `radio-button`          | Yes   | No     | No        | Name + Map    | None      |
 | [Size](#size)                   | `size`                           | No    | No     | No        | Value         | Elements  |
 | [Span](#span)                   | `span`                           | No    | Yes    | No        | Map           | Elements  |
 | [Strikethrough](#strikethrough) | `s`, `strikethrough`             | No    | No     | No        | Map           | Elements  |
 | [Subscript](#subscript)         | `sub`, `subscript`               | No    | No     | No        | Map           | Elements  |
 | [Superscript](#superscript)     | `sup`, `super`, `superscript`    | No    | No     | No        | Map           | Elements  |
+| [TOC](#toc)                     | `toc`                            | No    | No     | Yes       | Map           | None      |
 | [Underline](#underline)         | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
+| [User](#user)                   | `user`                           | Yes   | No     | No        | Value         | None      |
 
 Each of the blocks will be described in more detail below:
 
@@ -199,14 +206,14 @@ Example:
 
 ### Code
 
-Outputs: `Element::Code` / `<pre class="code"><code>`
+Outputs: `Element::Code` / `<pre class="wj-code"><code>`
 
 Body: Raw
 
 Accepts newline separation.
 
 Arguments:
-* `type` &mdash; What language this block is in, both for its Content-Type and syntax highlighting.
+* `type` &mdash; (String) What language this block is in, both for its Content-Type and syntax highlighting.
 
 Example:
 
@@ -218,7 +225,7 @@ This text is **not** rendered as Wikitext, but output as-is!
 
 ### Collapsible
 
-Output: `Element::Collapsible` / `<div class="collapsible-block">`
+Output: `Element::Collapsible` / `<div class="wj-collapsible-block">`
 
 Body: Elements
 
@@ -296,7 +303,7 @@ Some text __here!__
 
 ### Hidden
 
-Output: `Element::Container(ContainerType::Hidden)` / `<span class="hidden">`
+Output: `Element::Container(ContainerType::Hidden)` / `<span class="wj-hidden">`
 
 Body: Elements
 
@@ -338,9 +345,45 @@ This HTML will appear in an iframe hosted on wjfiles!
 [[/html]]
 ```
 
+### IfCategory
+
+Output: `Element::IfCategory`
+
+Body: Elements
+
+Accepts newline separation.
+
+Arguments:
+* A list of space separated category names, optionally prefixed with `+` or `-`
+
+Example:
+```
+[[ifcategory +_default -component]]
+This text won't appear in the component: category!
+[[/ifcategory]]
+```
+
+### IfTags
+
+Output: `Element::IfTags`
+
+Body: Elements
+
+Accepts newline separation.
+
+Arguments:
+* A list of space separated category names, optionally prefixed with `+` or `-`
+
+Example:
+```
+[[iftags -admin -hub +scp +euclid]]
+This appears if tagged {{scp}} and {{euclid}}!
+[[/iftags]]
+```
+
 ### Iframe
 
-Output:`Element::Iframe` /`<iframe>`
+Output: `Element::Iframe` / `<iframe>`
 
 Body: None
 
@@ -356,6 +399,17 @@ My website:
 
 [[iframe https://example.com/ class="website"]]
 ```
+
+### Image
+
+Output: `Element::Image` / `<img>`
+
+Body: None
+
+Arguments:
+* Value &mdash; (String) The source of the image.
+* `link` &mdash; (String) The link that this image should point to.
+* All accepted attributes.
 
 ### Include
 
@@ -399,7 +453,7 @@ I would like some [[ins]]anchovy[[/ins]] pizza please, thank you.
 
 ### Invisible
 
-Output: `Element::Container(ContainerType::Invisible)` / `<span class="invisible">`
+Output: `Element::Container(ContainerType::Invisible)` / `<span class="wj-invisible">`
 
 Body: Elements
 
@@ -450,6 +504,31 @@ Example:
 [!-- Much easier than spamming "@@@@"s --]
 ```
 
+### List Blocks
+
+Input: `[[ul]]`, `[[ol]]`, `[[li]]`
+
+Output: `Element::List` / `<ul>` / `<ol>` / `<li>`
+
+Body: Elements
+
+Arguments:
+* All accepted attributes
+
+Example:
+
+```
+[[ul]]
+  [[li]]
+    [[ol]]
+      [[li]] Item A [[/li]]
+      [[li]] Item B [[/li]]
+    [[/ol]]
+  [[/li]]
+  [[li]] Item C [[/li]]
+[[/ul]]
+```
+
 ### Mark
 
 Output: `Element::Container(ContainerType::Mark)` / `<mark>`
@@ -495,6 +574,21 @@ Example:
 
 ```
 [[tt]]This output looks like it came from a typewriter or computer terminal.[[/tt]]
+```
+
+### Paragraph
+
+Output: `Element::Container(ContainerType::Paragraph)` / `<p>`
+
+Body: Elements
+
+Arguments:
+* All accepted attributes
+
+Example
+
+```
+[[p]]My contents of a paragraph here.[[/p]]
 ```
 
 ### Radio
@@ -595,6 +689,16 @@ Example:
 ```
 Thus, the result is n[[sup]]2[[/sup]].
 ```
+
+### TOC
+
+Name: Table of Contents
+
+Output: `Element::TableOfContents` / `<div id="wj-toc">`
+
+### User
+
+Output: `Element::User` / `<div class="wj-user-info">`
 
 ### Underline
 
