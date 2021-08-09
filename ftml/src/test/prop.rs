@@ -410,7 +410,10 @@ fn render<R: Render>(
 
 proptest! {
     // These tests are *very* slow, so we only run a few of them.
-    #![proptest_config(ProptestConfig::with_cases(5))]
+    //
+    // Occasionally you should bump this up to a high number
+    // and run through it all locally.
+    #![proptest_config(ProptestConfig::with_cases(2))]
 
     #[test]
     fn render_html_prop(page_info in arb_page_info(), tree in arb_tree()) {
