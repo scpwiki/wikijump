@@ -74,7 +74,9 @@ See [Modules](Modules.md) for information on each module currently implemented.
 
 ## List of Blocks
 
-Here is a table showing the options each block has with regards to its construction:
+A list of all blocks and their attributes is available at [`conf/blocks.toml`](../conf/blocks.toml) (with an explanation of the format in [`conf/blocks.schema.toml`](../conf/blocks.schema.toml). Our continuous integration system enforces that it is always up-to-date.
+
+Alternatively you may look here for a formatted list: (though it may not be updated as consistently)
 
 | Block Name                      | Accepted Names                   | Star? | Score? | Newlines? | Argument Type | Body Type |
 |---------------------------------|----------------------------------|-------|--------|-----------|---------------|-----------|
