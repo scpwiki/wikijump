@@ -21,14 +21,15 @@
 #[cfg(test)]
 mod test;
 
+mod include_ref;
 mod includer;
-mod object;
 mod parse;
 
+pub use self::include_ref::{IncludeRef, IncludeVariables};
 pub use self::includer::{DebugIncluder, FetchedPage, Includer, NullIncluder};
-pub use self::object::{IncludeRef, IncludeVariables, PageRef};
 
 use self::parse::parse_include_block;
+use crate::data::PageRef;
 use crate::log::prelude::*;
 use regex::{Regex, RegexBuilder};
 

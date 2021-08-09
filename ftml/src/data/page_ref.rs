@@ -1,5 +1,5 @@
 /*
- * includes/object.rs
+ * data/page_ref.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -20,7 +20,6 @@
 
 use ref_map::*;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::fmt::{self, Display};
 
 /// Represents a reference to a page on the wiki, as used by includes.
@@ -134,58 +133,6 @@ impl Display for PageRef<'_> {
     }
 }
 
-pub type IncludeVariables<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
-
-/// Represents an include block.
-///
-/// It contains the page being included, as well as the arguments
-/// to be passed to it when doing the substitution.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-pub struct IncludeRef<'t> {
-    page_ref: PageRef<'t>,
-    variables: IncludeVariables<'t>,
-}
-
-impl<'t> IncludeRef<'t> {
-    #[inline]
-    pub fn new(page_ref: PageRef<'t>, variables: IncludeVariables<'t>) -> Self {
-        IncludeRef {
-            page_ref,
-            variables,
-        }
-    }
-
-    #[inline]
-    pub fn page_only(page_ref: PageRef<'t>) -> Self {
-        IncludeRef::new(page_ref, HashMap::new())
-    }
-
-    #[inline]
-    pub fn page_ref(&self) -> &PageRef<'t> {
-        &self.page_ref
-    }
-
-    #[inline]
-    pub fn variables(&self) -> &IncludeVariables<'t> {
-        &self.variables
-    }
-}
-
-impl<'t> From<IncludeRef<'t>> for (PageRef<'t>, IncludeVariables<'t>) {
-    #[inline]
-    fn from(include: IncludeRef<'t>) -> (PageRef<'t>, IncludeVariables<'t>) {
-        let IncludeRef {
-            page_ref,
-            variables,
-        } = include;
-
-        (page_ref, variables)
-    }
-}
-
-// Tests
-
 #[test]
 fn page_ref() {
     macro_rules! test {
@@ -224,24 +171,4 @@ fn page_ref() {
         ":scp-wiki:deleted:secret:fragment:page",
         PageRef::page_and_site("scp-wiki", "deleted:secret:fragment:page"),
     );
-}
-
-#[test]
-fn to_owned() {
-    // Clone PageRef
-    let page_ref_1 = PageRef::page_only("scp-001");
-    let page_ref_2: PageRef<'static> = page_ref_1.to_owned();
-    assert_eq!(page_ref_1, page_ref_2);
-
-    // Clone IncludeRef
-    let include_ref_1 = IncludeRef::new(page_ref_1, HashMap::new());
-    let include_ref_2: IncludeRef<'static> = include_ref_1.to_owned();
-    assert_eq!(include_ref_1, include_ref_2);
-    assert_eq!(include_ref_1.page_ref(), &page_ref_2);
-    assert!(include_ref_1.variables.is_empty());
-
-    // Deconstruct IncludeRef
-    let (page_ref, variables) = include_ref_2.into();
-    assert_eq!(page_ref, page_ref_2);
-    assert!(variables.is_empty());
 }

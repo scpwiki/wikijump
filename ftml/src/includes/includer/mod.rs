@@ -22,7 +22,8 @@ mod debug;
 mod null;
 
 mod prelude {
-    pub use crate::includes::{FetchedPage, IncludeRef, Includer, PageRef};
+    pub use crate::data::PageRef;
+    pub use crate::includes::{FetchedPage, IncludeRef, Includer};
     pub use std::borrow::Cow;
     pub use std::collections::HashMap;
 }

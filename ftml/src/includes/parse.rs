@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{IncludeRef, PageRef};
+use super::IncludeRef;
+use crate::data::PageRef;
 use crate::log::prelude::*;
 use pest::iterators::Pairs;
 use pest::Parser;
