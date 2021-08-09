@@ -4,11 +4,11 @@
     padding: 1em;
 }
 
-.email {
+.wj-email {
     white-space: nowrap;
 }
 
-.raw {
+.wj-raw {
     white-space: pre-wrap;
 }
 
