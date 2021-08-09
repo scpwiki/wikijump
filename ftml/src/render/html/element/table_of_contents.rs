@@ -34,7 +34,7 @@ pub fn render_table_of_contents(
     );
 
     let mut tag = ctx.html().div();
-    tag.attr_map_prepend(attributes, ("id", "toc"));
+    tag.attr_map_prepend(attributes, ("id", "wj-toc"));
 
     // Only valid for float left/right
     if let Some(align) = align {
