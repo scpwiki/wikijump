@@ -347,7 +347,7 @@ def check_block_docs(block_conf, block_docs):
 
         print()
 
-    return bool(missing_aliases)
+    return not missing_aliases
 
 
 def check_module_docs(module_conf, module_docs):
