@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+from collections import defaultdict
 
 import inflection
 import toml
@@ -33,11 +34,31 @@ MODULE_RULE_REGEX = re.compile(
 \};"""
 )
 
+MODULE_EXAMPLE_REGEX = re.compile(r"\[\[module (\w+).*\]\]")
+
 # Converting bool string to a Python bool
 BOOL_VALUES = {
     "true": True,
     "false": False,
 }
+
+# Aliases which have one of these prefixes should be ignored because they
+# exist because of Wikidot's weird alignment naming or jank.
+BLOCK_NAME_IGNORE_PREFIXES = [
+    "<",
+    "=",
+    ">",
+    "f<",
+    "f>",
+    "module654",
+]
+
+
+def check_block_alias_in_doc(alias):
+    for prefix in BLOCK_NAME_IGNORE_PREFIXES:
+        if alias.startswith(prefix):
+            return False
+    return True
 
 
 # Container for primitives which we want by reference
@@ -59,7 +80,7 @@ def format_check_value(value):
     if isinstance(value, (set, frozenset)):
         return str(list(map(format_check_value, value)))
     elif isinstance(value, bool):
-        return str(value).lower()
+        return str(value).casefold()
 
     return str(value)
 
@@ -68,10 +89,10 @@ def format_check_value(value):
 def convert_name(value):
     value = inflection.underscore(value)
     value = inflection.camelize(value)
-    return value.lower()
+    return value.casefold()
 
 
-# Find all rust files that might have rule definitions
+# Find all Rust files that might have rule definitions
 def get_submodule_paths(directory):
     def process(path):
         if not path.endswith(".rs"):
@@ -125,7 +146,7 @@ def load_block_data(root_dir):
                 continue
 
             block_rules[name] = {
-                "aliases": frozenset(map(convert_name, eval(match[2]))),
+                "aliases": frozenset(s.casefold() for s in eval(match[2])),
                 "accepts-star": BOOL_VALUES[match[3]],
                 "accepts-score": BOOL_VALUES[match[4]],
                 "accepts-newlines": BOOL_VALUES[match[5]],
@@ -167,12 +188,28 @@ def load_module_data(root_dir):
                 continue
 
             module_rules[name] = {
-                "aliases": frozenset(map(convert_name, eval(match[2]))),
+                "aliases": frozenset(s.casefold() for s in eval(match[2])),
             }
 
     return modules, module_rules
 
 
+# Load documentation files
+def load_block_docs(root_dir):
+    blocks_path = os.path.join(root_dir, "docs/Blocks.md")
+
+    with open(blocks_path) as file:
+        return file.read()
+
+
+def load_module_docs(root_dir):
+    blocks_path = os.path.join(root_dir, "docs/Modules.md")
+
+    with open(blocks_path) as file:
+        return file.read()
+
+
+# Compare extracted data
 def compare_block_data(block_conf, block_rules):
     success = Container(True)
 
@@ -282,6 +319,70 @@ def compare_module_data(module_conf, module_rules):
     return success
 
 
+# Check documentation files
+#
+# I am not writing a full markdown scraper, besides
+# documentation is loose to explain things and can't
+# capture everything well anyways.
+#
+# Instead, this will look for the presence of the blocks'
+# aliases, and if any are missing, the human knows to
+# go through and ensure everything is present.
+def check_block_docs(block_conf, block_docs):
+    missing_aliases = defaultdict(list)
+
+    for name, block in block_conf.items():
+        for alias in filter(check_block_alias_in_doc, block["aliases"]):
+            if f"`{alias}`" not in block_docs:
+                missing_aliases[name].append(alias)
+
+    if missing_aliases:
+        print("!! Missing documentation for blocks !!")
+
+        for name in sorted(missing_aliases.keys()):
+            aliases = missing_aliases[name]
+            aliases.sort()
+            for alias in aliases:
+                print(f"- {alias}")
+
+        print()
+
+    return not missing_aliases
+
+
+def check_module_docs(module_conf, module_docs):
+    def case_insensitive_set(collection):
+        return frozenset(s.casefold() for s in collection)
+
+    success = True
+
+    modules_found = case_insensitive_set(MODULE_EXAMPLE_REGEX.findall(module_docs))
+    modules_expected = case_insensitive_set(module_conf.keys())
+
+    added = modules_found - modules_expected
+    deleted = modules_expected - modules_found
+
+    if added:
+        print("!! Added module documentation !!")
+
+        for name in added:
+            print(f"- {name}")
+
+        print()
+        success = False
+
+    if deleted:
+        print("!! Deleted module documentation !!")
+
+        for name in deleted:
+            print(f"- {name}")
+
+        print()
+        success = False
+
+    return success
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: check_blocks.py <ftml-root-dir>")
@@ -291,10 +392,16 @@ if __name__ == "__main__":
     success = True
 
     blocks, block_rules = load_block_data(root_dir)
+    block_docs = load_block_docs(root_dir)
+
     success &= compare_block_data(blocks, block_rules)
+    success &= check_block_docs(blocks, block_docs)
 
     modules, module_rules = load_module_data(root_dir)
+    module_docs = load_module_docs(root_dir)
+
     success &= compare_module_data(modules, module_rules)
+    success &= check_module_docs(modules, module_docs)
 
     if success:
         print("FTML configuration check passed.")

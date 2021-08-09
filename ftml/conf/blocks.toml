@@ -198,7 +198,7 @@ html-attributes = true
 html-output = "html,p"
 
 [radio]
-aliases = ["radiobutton"]
+aliases = ["radio-button"]
 accepts-star = true
 head = "value+map"
 body = "none"
