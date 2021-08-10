@@ -172,3 +172,16 @@ fn page_ref() {
         PageRef::page_and_site("scp-wiki", "deleted:secret:fragment:page"),
     );
 }
+
+#[cfg(test)]
+mod prop {
+    use super::*;
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn page_ref_prop(s in r"[a-zA-Z_:.]*") {
+            let _ = PageRef::parse(&s);
+        }
+    }
+}
