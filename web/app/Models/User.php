@@ -8,6 +8,7 @@ namespace Wikijump\Models;
 use Database\Seeders\UserSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -420,5 +421,27 @@ class User extends Authenticatable
         if($this->isBlockingUser($user_to_unblock) === false) { return false; }
 
         return Interaction::remove($this, InteractionType::USER_BLOCKS_USER, $user_to_unblock);
+    }
+
+    /**************************************************
+     * Private Messages
+     *************************************************/
+
+    /**
+     * Query builder for incoming messages.
+     * @return HasMany
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(UserMessage::class, 'to_user_id');
+    }
+
+    /**
+     * Query builder for outgoing messages.
+     * @return HasMany
+     */
+    public function sentMessages() : HasMany
+    {
+        return $this->hasMany(UserMessage::class, 'from_user_id');
     }
 }
