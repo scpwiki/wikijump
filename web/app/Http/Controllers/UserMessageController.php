@@ -1,10 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Wikijump\Models\UserMessage;
 
+/**
+ * Class UserMessageController
+ * @package Wikijump\Http\Controllers
+ */
 class UserMessageController extends Controller
 {
     /**

@@ -1,9 +1,13 @@
 <?php
+declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Drop the Legacy private_message table.
+ */
 class DropPrivateMessageTable extends Migration
 {
     /**

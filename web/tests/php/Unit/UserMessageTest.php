@@ -24,7 +24,7 @@ class UserMessageTest extends TestCase
     private int $systemUsers;
 
     /**
-     * Code inspectors miss the result of the save method binding to the desired type.
+     * Code inspectors miss the result of the create method binding to the desired type.
      * @noinspection PhpFieldAssignmentTypeMismatchInspection
      * Verified below:
      * @see testVerifyInstantiation()

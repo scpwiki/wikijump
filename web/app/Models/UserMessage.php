@@ -132,7 +132,8 @@ class UserMessage extends Model
      * See https://laravel.com/docs/master/eloquent#query-scopes
      *
      * The bitwise operators used below check for the existence or absence of a bit.
-     * & is essentially an ==, and & ~ works like a !=
+     * & is essentially an ==, but the inverse is harder to cleanly find.
+     * Instead we use some raw SQL to work like a != operator.
      * See https://www.php.net/manual/en/language.operators.bitwise.php
      */
 
