@@ -9,9 +9,6 @@ namespace Wikijump\Traits;
  */
 trait UsesBitmasks
 {
-
-    public int $flags;
-
     /**
      * Get the current state of a flag.
      * @param int $flag
@@ -31,6 +28,7 @@ trait UsesBitmasks
     {
         try {
             $this->flags |= $flag;
+            $this->save();
             return true;
         }
         catch (\Exception $e) {
@@ -47,6 +45,7 @@ trait UsesBitmasks
     {
         try {
             $this->flags &= ~$flag;
+            $this->save();
             return true;
         }
         catch (\Exception $e) {

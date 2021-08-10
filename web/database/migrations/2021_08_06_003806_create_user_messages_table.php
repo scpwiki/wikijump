@@ -15,7 +15,7 @@ class CreateUserMessagesTable extends Migration
     public function up()
     {
         Schema::create('user_messages', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->uuid('id')->primary();
             $table->foreignId('from_user_id')->index();
             $table->foreignId('to_user_id')->nullable()->index();
             $table->string('subject', 80)->nullable();

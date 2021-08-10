@@ -1,11 +1,14 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikijump\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Wikijump\Traits\UsesBitmasks;
+use Wikijump\Traits\UsesUUIDs;
 
 /**
  * Private (user-to-user) Messages
@@ -15,6 +18,7 @@ class UserMessage extends Model
 {
     use HasFactory;
     use UsesBitmasks;
+    use UsesUUIDs;
 
     /** Various flags to set on a PM. */
     public const MESSAGE_READ = 1;
@@ -25,6 +29,24 @@ class UserMessage extends Model
     # const MESSAGE_RESERVED = 32;
     # const MESSAGE_RESERVED = 64;
     # const MESSAGE_RESERVED = 128;
+
+    /**
+     * ORM for message sender.
+     * @return BelongsTo
+     */
+    public function sender(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'from_user_id');
+    }
+
+    /**
+     * ORM for message recipient.
+     * @return BelongsTo
+     */
+    public function recipient(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'to_user_id');
+    }
 
     /**
      * Mark a message as read.
@@ -119,42 +141,62 @@ class UserMessage extends Model
      *  messages that are not archived. Put another way, anything that is not an
      *  Archived message or a Draft.
      * @param Builder $query
+     * @param User $user
      * @return Builder
      */
-    public function scopeInbox(Builder $query) : Builder
+    public function scopeInbox(Builder $query, User $user) : Builder
     {
-        return $query->where('NOT status', '&', self::MESSAGE_ARCHIVED)
-            ->where('NOT status', '&', self::MESSAGE_DRAFT);
+        return $query->where('to_user_id', $user->id)
+            ->whereRaw('NOT flags & ' . self::MESSAGE_ARCHIVED)
+            ->whereRaw('NOT flags & ' . self::MESSAGE_DRAFT);
     }
 
     /**
      * Retrieve unread messages.
      * @param Builder $query
+     * @param User $user
      * @return Builder
      */
-    public function scopeUnread(Builder $query) : Builder
+    public function scopeUnread(Builder $query, User $user) : Builder
     {
-        return $query->where('status', '&', self::MESSAGE_READ);
+        return $query->where('to_user_id', $user->id)
+        ->whereRaw('NOT flags & ' . self::MESSAGE_READ);
     }
 
     /**
      * Retrieve draft messages.
      * @param Builder $query
+     * @param User $user
      * @return Builder
      */
-    public function scopeDrafts(Builder $query) : Builder
+    public function scopeDrafts(Builder $query, User $user) : Builder
     {
-        return $query->where('status', '&', self::MESSAGE_DRAFT);
+        return $query->where('from_user_id', $user->id)
+            ->where('flags', '&', self::MESSAGE_DRAFT);
     }
 
     /**
      * Retrieve archived messages.
      * @param Builder $query
+     * @param User $user
      * @return Builder
      */
-    public function scopeArchive(Builder $query) : Builder
+    public function scopeArchive(Builder $query, User $user) : Builder
     {
-        return $query->where('status', '&', self::MESSAGE_ARCHIVED);
+        return $query->where('to_user_id', $user->id)
+        ->where('flags', '&', self::MESSAGE_ARCHIVED);
+    }
+
+    /**
+     * Retrieve starred messages.
+     * @param Builder $query
+     * @param User $user
+     * @return Builder
+     */
+    public function scopeStarred(Builder $query, User $user) : Builder
+    {
+        return $query->where('to_user_id', $user->id)
+            ->where('flags', '&', self::MESSAGE_STARRED);
     }
 
 }
