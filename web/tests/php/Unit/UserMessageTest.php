@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use Wikijump\Models\User;
 use Wikijump\Models\UserMessage;
@@ -186,6 +187,7 @@ class UserMessageTest extends TestCase
     public function testSend()
     {
         self::assertCount(0, UserMessage::sent($this->sender)->get());
+        Auth::login($this->sender);
         $this->message->send();
         self::assertCount(1, UserMessage::sent($this->sender)->get());
         self::assertCount(1, UserMessage::inbox($this->recipient)->get());
@@ -198,6 +200,7 @@ class UserMessageTest extends TestCase
          *  you can use it here in a factory message to have it make the sent copy.
          */
         self::assertCount(0, UserMessage::sent($this->sender)->get());
+        Auth::login($this->sender);
         $this->message->send();
         self::assertCount(1, UserMessage::sent($this->sender)->get());
     }
