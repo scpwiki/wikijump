@@ -28,6 +28,11 @@
           'allow_pms' => true,
 
           /**
+           * Whether the user is banned from the farm.
+           */
+          'banned' => false,
+
+          /**
            * Whether to show the "last online at" field for the user.
            */
           'show_last_online_time' => true,

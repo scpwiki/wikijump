@@ -3,6 +3,8 @@
 namespace Wikidot\Utils;
 
 
+use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Gate;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
@@ -542,60 +544,12 @@ class WDPermissionManager
 
     /**
      * Check if $user can send a private message to $toUser.
+     * @param User $user
+     * @param User $toUser
+     * @return Response
      */
-    public function hasPmPermission(User $user, User $toUser)
+    public function hasPmPermission(User $user, User $toUser): Response
     {
-
-        if ($user->id == 1) {
-            return true;
-        }
-
-        // first check if if $user has pm enabled
-        $p = $toUser->get('receive_pm');
-        //echo "ad";
-        if ($this->isUserSuperior($user, $toUser)) {
-            return true;
-        }
-
-        // accept from none (unless from moderators/admins of common sites)
-
-        if ($p == 'n') {
-            throw new WDPermissionException(_("This user does wish to receive private messages."));
-        }
-
-        if ($p == 'mf') {
-            if ($this->shareSites($user, $toUser)) {
-                // so they share common sites. check for blocks!
-                if ($user->isBlockedByUser($toUser)) {
-                    throw new WDPermissionException(_("You are blocked by this user."));
-                }
-                return true;
-            }
-
-            // if friends - return true (todo)
-            if ($user->isContact($toUser)) {
-                return true;
-            }
-
-            throw new WDPermissionException(_("This user wishes to receive messages only from selected users."));
-        }
-
-        if ($p == 'f') {
-            if ($user->isContact($toUser)) {
-                return true;
-            }
-            throw new WDPermissionException(_("This user wishes to receive messages only from selected users."));
-        }
-
-        if ($p == 'a') {
-            // check if not blocked
-            if ($user->isBlockedByUser($toUser)) {
-                throw new WDPermissionException(_("You are blocked by this user."));
-            }
-        }
-
-        // in any other case check
-        return true;
     }
 
     public function canBecomeAdmin($user)

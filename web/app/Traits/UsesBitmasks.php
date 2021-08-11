@@ -22,34 +22,20 @@ trait UsesBitmasks
     /**
      * Set a flag to true/1.
      * @param int $flag
-     * @return bool
+     * @return void
      */
-    public function setFlag(int $flag) : bool
+    public function setFlag(int $flag)
     {
-        try {
-            $this->flags |= $flag;
-            $this->save();
-            return true;
-        }
-        catch (\Exception $e) {
-            return false;
-        }
+        $this->flags |= $flag;
     }
 
     /**
      * Set a flag to false/0.
      * @param int $flag
-     * @return bool
+     * @return void
      */
-    public function clearFlag(int $flag) : bool
+    public function clearFlag(int $flag)
     {
-        try {
-            $this->flags &= ~$flag;
-            $this->save();
-            return true;
-        }
-        catch (\Exception $e) {
-            return false;
-        }
+        $this->flags &= ~$flag;
     }
 }

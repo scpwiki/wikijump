@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 use Wikijump\Traits\UsesBitmasks;
 use Wikijump\Traits\UsesUUIDs;
 
@@ -25,7 +26,7 @@ class UserMessage extends Model
     public const MESSAGE_DRAFT = 2;
     public const MESSAGE_STARRED = 4;
     public const MESSAGE_ARCHIVED = 8;
-    # const MESSAGE_RESERVED = 16;
+    public const MESSAGE_SENT = 16;
     # const MESSAGE_RESERVED = 32;
     # const MESSAGE_RESERVED = 64;
     # const MESSAGE_RESERVED = 128;
@@ -49,12 +50,27 @@ class UserMessage extends Model
     }
 
     /**
+     * Saves the model and also saves a copy for the user's Sent folder.
+     */
+    public function send()
+    {
+        return DB::transaction(function() {
+            $this->save();
+
+            $sent = $this->replicate();
+            $sent->setFlag(UserMessage::MESSAGE_SENT);
+            $sent->save();;
+        });
+    }
+
+    /**
      * Mark a message as read.
      * @return bool
      */
     public function markAsRead() : bool
     {
-        return $this->setFlag(self::MESSAGE_READ);
+        $this->setFlag(self::MESSAGE_READ);
+        return $this->save();
     }
 
     /**
@@ -63,7 +79,8 @@ class UserMessage extends Model
      */
     public function markAsUnread() : bool
     {
-        return $this->clearFlag(self::MESSAGE_READ);
+        $this->clearFlag(self::MESSAGE_READ);
+        return $this->save();
     }
 
     /**
@@ -73,7 +90,8 @@ class UserMessage extends Model
      */
     public function markAsDraft() : bool
     {
-        return $this->setFlag(self::MESSAGE_DRAFT);
+        $this->setFlag(self::MESSAGE_DRAFT);
+        return $this->save();
     }
 
     /**
@@ -84,7 +102,8 @@ class UserMessage extends Model
      */
     public function unmarkAsDraft() : bool
     {
-        return $this->clearFlag(self::MESSAGE_DRAFT);
+        $this->clearFlag(self::MESSAGE_DRAFT);
+        return $this->save();
     }
 
     /**
@@ -93,7 +112,8 @@ class UserMessage extends Model
      */
     public function starMessage() : bool
     {
-        return $this->setFlag(self::MESSAGE_STARRED);
+        $this->setFlag(self::MESSAGE_STARRED);
+        return $this->save();
     }
 
     /**
@@ -102,7 +122,8 @@ class UserMessage extends Model
      */
     public function unstarMessage() : bool
     {
-        return $this->clearFlag(self::MESSAGE_STARRED);
+        $this->clearFlag(self::MESSAGE_STARRED);
+        return $this->save();
     }
 
     /**
@@ -111,7 +132,8 @@ class UserMessage extends Model
      */
     public function archiveMessage() : bool
     {
-        return $this->setFlag(self::MESSAGE_ARCHIVED);
+        $this->setFlag(self::MESSAGE_ARCHIVED);
+        return $this->save();
     }
 
     /**
@@ -120,7 +142,8 @@ class UserMessage extends Model
      */
     public function unarchiveMessage() : bool
     {
-        return $this->clearFlag(self::MESSAGE_ARCHIVED);
+        $this->clearFlag(self::MESSAGE_ARCHIVED);
+        return $this->save();
     }
 
     /**
@@ -140,7 +163,7 @@ class UserMessage extends Model
     /**
      * Return a typical Inbox view, which is read and unread, starred and unstarred
      *  messages that are not archived. Put another way, anything that is not an
-     *  Archived message or a Draft.
+     *  Archived message, a Draft, or a sent item.
      * @param Builder $query
      * @param User $user
      * @return Builder
@@ -149,6 +172,7 @@ class UserMessage extends Model
     {
         return $query->where('to_user_id', $user->id)
             ->whereRaw('NOT flags & ' . self::MESSAGE_ARCHIVED)
+            ->whereRaw('NOT flags & ' . self::MESSAGE_SENT)
             ->whereRaw('NOT flags & ' . self::MESSAGE_DRAFT);
     }
 
@@ -198,6 +222,18 @@ class UserMessage extends Model
     {
         return $query->where('to_user_id', $user->id)
             ->where('flags', '&', self::MESSAGE_STARRED);
+    }
+
+    /**
+     * Retrieve sent messages. The only distinction is a MESSAGE_SENT flag.
+     * @param Builder $query
+     * @param User $user
+     * @return Builder
+     */
+    public function scopeSent(Builder $query, User $user) : Builder
+    {
+        return $query->where('from_user_id', $user->id)
+            ->where('flags', '&', self::MESSAGE_SENT);
     }
 
 }

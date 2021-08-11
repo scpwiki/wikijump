@@ -182,4 +182,23 @@ class UserMessageTest extends TestCase
         $this->message->starMessage();
         self::assertCount(1, UserMessage::starred($this->recipient)->get());
     }
+
+    public function testSend()
+    {
+        self::assertCount(0, UserMessage::sent($this->sender)->get());
+        $this->message->send();
+        self::assertCount(1, UserMessage::sent($this->sender)->get());
+        self::assertCount(1, UserMessage::inbox($this->recipient)->get());
+    }
+
+    public function testScopeSent()
+    {
+        /**
+         * A quirk of the `send()` method is that since it calls `save()`,
+         *  you can use it here in a factory message to have it make the sent copy.
+         */
+        self::assertCount(0, UserMessage::sent($this->sender)->get());
+        $this->message->send();
+        self::assertCount(1, UserMessage::sent($this->sender)->get());
+    }
 }

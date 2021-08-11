@@ -1,326 +1,218 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Actions;
-use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Database\Database;
-use Ozone\Framework\JSONService;
-use Ozone\Framework\ODate;
-use Ozone\Framework\SmartyAction;
 
-use Wikidot\DB\PrivateMessage;
-use Wikidot\DB\PrivateMessagePeer;
+use Illuminate\Support\Facades\Gate;
+use Ozone\Framework\JSONService;
+use Ozone\Framework\RunData;
+use Ozone\Framework\SmartyAction;
 use Wikidot\Utils\NotificationMaker;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
-use Wikidot\Utils\WDPermissionManager;
 use Wikijump\Models\User;
-use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Models\UserMessage;
+use Wikijump\Policies\UserPolicy;
 use Wikijump\Services\Wikitext\WikitextBackend;
 
+/**
+ * Action class for User Message events.
+ * @package Wikidot\Actions
+ */
 class PMAction extends SmartyAction
 {
 
-    public function isAllowed($runData)
+    /**
+     * Is the user logged in?
+     * @param $runData
+     * @return bool
+     * @throws WDPermissionException
+     */
+    public function isAllowed($runData): bool
     {
         if ($runData->getUserId() === null) {
-            throw new WDPermissionException(_("You should be logged in in order to send messages."));
+            throw new WDPermissionException(_('You should be logged in in order to send messages.'));
         }
         return true;
     }
 
-    public function perform($r)
+    /**
+     * Stub class to obey contract.
+     * @param RunData $runData
+     */
+    public function perform($runData)
     {
     }
 
-    public function checkCanEvent($runData)
+    /**
+     * Validate, authorize, and send a message.
+     * @param RunData $runData
+     * @throws ProcessException
+     * @throws WDPermissionException
+     */
+    public function sendEvent(RunData $runData)
     {
-        $pl = $runData->getParameterList();
-        $toUserId = $pl->getParameterValue("userId");
+        $toUser = User::find($runData->get('to_user_id'));
+        $subject = $runData->get('subject');
+        $body = $runData->get('source');
 
-        if ($toUserId === null || !is_numeric($toUserId)) {
-            throw new ProcessException(_("Error selecting user."), "no_user");
+        /** Validation: */
+
+        if ($toUser === null) {
+            $message = __('The recipient does not exist.');
+            throw new ProcessException($message, 'no_recipient');
         }
 
-        $user = $runData->getUser();
-        $toUser = User::find($toUserId);
-
-        if ($toUser == null) {
-            throw new ProcessException(_("Error selecting user."), "no_user");
+        /**
+         * Authorization
+         * @see UserPolicy
+         */
+        $permission = Gate::inspect('message', $toUser);
+        if($permission->denied())
+        {
+            throw new WDPermissionException($permission->message());
         }
-
-        return WDPermissionManager::instance()->hasPmPermission($user, $toUser);
-    }
-
-    public function sendEvent($runData)
-    {
-        $pl = $runData->getParameterList();
-        $source = $pl->getParameterValue("source");
-        $subject = $pl->getParameterValue("subject");
-
-        if ($subject === '') {
-            $subject = '(No subject)';
-        }
-
-        $db = Database::connection();
-        $db->begin();
-
-        $toUserId = $pl->getParameterValue("to_user_id");
-
-        // TODO: validation. also check if user exists
-        $toUser = User::find($toUserId);
-        if ($toUser == null) {
-            $message = __("The recipient does not exist.");
-            throw new ProcessException($message, "no_recipient");
-        }
-
-        // check if allowed
-
-        $fromUser = $runData->getUser();
-
-        WDPermissionManager::instance()->hasPmPermission($fromUser, $toUser);
 
         // compile content
         $wt = WikitextBackend::make(PageRenderMode::DIRECT_MESSAGE, null);
-        $body = $wt->renderHtml($source)->body;
+        $body = $wt->renderHtml($body)->body;
 
-        $message = new PrivateMessage();
-        $message->setDate(new ODate());
-        $message->setFromUserId($runData->getUserId());
-        $message->setToUserId($toUserId);
+        $message = new UserMessage([
+            'from_user_id' => $runData->id(),
+            'to_user_id' => $toUser->id,
+            'subject' => $subject,
+            'body' => $body
+        ]);
 
-        $message->setSubject($subject);
-        $message->setBody($body);
-        $message->setFlag(0); // 0 for inbox
-
-        $message->save();
+        $message->send();
 
         NotificationMaker::instance()->privateMessageNotification($message);
+    }
 
-        //also make a copy for "sent" folder
+    /**
+     * Save a draft.
+     * @param RunData $runData
+     */
+    public function saveDraftEvent(RunData $runData)
+    {
+        $body = $runData->get('source');
+        $subject = $runData->get('subject');
+        $toUserId = $runData->get('to_user_id');
 
-        $message->setNew(true);
-        $message->setMessageId(null);
-        $message->setFlag(1); //1 for sent
-
+        $message = new UserMessage(
+            [
+                'from_user_id' => $runData->id(),
+                'to_user_id' => $toUserId,
+                'subject' => $subject,
+                'body' => $body,
+                'flags' => UserMessage::MESSAGE_DRAFT
+            ]
+        );
         $message->save();
-
-        $db->commit();
     }
 
-    public function saveDraftEvent($runData)
+    /**
+     * Remove selected items from the user's inbox.
+     * @param RunData $runData
+     */
+    public function removeSelectedInboxEvent(RunData $runData)
     {
-        $pl = $runData->getParameterList();
-        $source = $pl->getParameterValue("source");
-        $subject = $pl->getParameterValue("subject");
+        $selected = $runData->get('selected');
+        $messages = (new JSONService(SERVICES_JSON_LOOSE_TYPE))->decode($selected);
 
-        $toUserId = $pl->getParameterValue("to_user_id");
-
-        // saving source only
-        $body = $source;
-
-        $db = Database::connection();
-        $db->begin();
-
-        $message = new PrivateMessage();
-        $message->setDate(new ODate()); // date of saving draft
-        $message->setFromUserId($runData->getUserId());
-        $message->setToUserId($toUserId);
-
-        $message->setSubject($subject);
-        $message->setBody($body);
-        $message->setFlag(2); // 2 for draft
-
-        $message->save();
-
-        $db->commit();
+        UserMessage::inbox($runData->user())
+            ->whereIn('id', $messages)
+            ->delete();
     }
 
-    public function removeSelectedInboxEvent($runData)
+    /**
+     * Remove a single item from the inbox and show the next one.
+     * @param RunData $runData
+     */
+    public function removeInboxMessageEvent(RunData $runData)
     {
-        $userId = $runData->getUserId();
-        $c = new Criteria();
-        $c->add("to_user_id", $userId);
-        $c->add("flag", 0);
+        $message = UserMessage::find($runData->get('message_id'));
 
-        $selected = $runData->getParameterList()->getParameterValue("selected");
-        $json = new JSONService(SERVICES_JSON_LOOSE_TYPE);
-        $selected = $json->decode($selected);
+        $nextMessage = UserMessage::inbox($runData->user())
+            ->whereTime('created_at', '<', $message->created_at)->first()
+            ??
+            UserMessage::inbox($runData->user())
+            ->whereTime('created_at', '>', $message->created_at)->first();
 
-        $db = Database::connection();
-        $db->begin();
+        $message->delete();
 
-        $c2 = new Criteria();
-        foreach ($selected as $s) {
-            $c2->addOr("message_id", $s);
+        if ($nextMessage) {
+            $runData->ajaxResponseAdd('messageId', $nextMessage->id);
         }
-        $c->addCriteriaAnd($c2);
-
-        PrivateMessagePeer::instance()->delete($c);
-
-        $db->commit();
     }
 
-    public function removeInboxMessageEvent($runData)
+    /**
+     * Remove a single message from the Sent folder and display the next one.
+     * @param RunData $runData
+     */
+    public function removeSentMessageEvent(RunData $runData)
     {
-        $messageId = $runData->getParameterList()->getParameterValue("message_id");
-        $userId = $runData->getUserId();
+        $message = UserMessage::find($runData->get('message_id'));
 
-        $db = Database::connection();
-        $db->begin();
+        $nextMessage = UserMessage::sent($runData->user())
+                ->whereTime('created_at', '<', $message->created_at)->first()
+            ??
+            UserMessage::sent($runData->user())
+                ->whereTime('created_at', '>', $message->created_at)->first();
 
-        $c = new Criteria();
-        $c->add("message_id", $messageId);
-        $c->add("to_user_id", $userId);
-        $c->add("flag", 0);
+        $message->delete();
 
-        PrivateMessagePeer::instance()->delete($c);
-        $c = new Criteria();
-        $c->add("to_user_id", $userId);
-        $c->add("message_id", $messageId, "<");
-        $c->add("flag", 0);
-        $c->addOrderDescending("message_id");
-
-        $mid = PrivateMessagePeer::instance()->selectOne($c);
-        if ($mid == null) {
-                $c = new Criteria();
-            $c->add("to_user_id", $userId);
-            $c->add("message_id", $messageId, ">");
-            $c->add("flag", 0);
-            $c->addOrderAscending("message_id");
-
-            $mid = PrivateMessagePeer::instance()->selectOne($c);
+        if ($nextMessage) {
+            $runData->ajaxResponseAdd('messageId', $nextMessage->id);
         }
-
-        if ($mid !== null) {
-            $runData->ajaxResponseAdd("messageId", $mid->getMessageId());
-        }
-
-        $db->commit();
     }
 
-    public function removeSentMessageEvent($runData)
+    /**
+     * Remove selected items from the user's Sent folder.
+     * @param RunData $runData
+     */
+    public function removeSelectedSentEvent(RunData $runData)
     {
-        $messageId = $runData->getParameterList()->getParameterValue("message_id");
-        $userId = $runData->getUserId();
+        $selected = $runData->get('selected');
+        $messages = (new JSONService(SERVICES_JSON_LOOSE_TYPE))->decode($selected);
 
-        $db = Database::connection();
-        $db->begin();
-
-        $c = new Criteria();
-        $c->add("message_id", $messageId);
-        $c->add("from_user_id", $userId);
-        $c->add("flag", 1);
-
-        PrivateMessagePeer::instance()->delete($c);
-        $c = new Criteria();
-        $c->add("from_user_id", $userId);
-        $c->add("message_id", $messageId, "<");
-        $c->add("flag", 1);
-        $c->addOrderDescending("message_id");
-
-        $mid = PrivateMessagePeer::instance()->selectOne($c);
-        if ($mid == null) {
-                $c = new Criteria();
-            $c->add("from_user_id", $userId);
-            $c->add("message_id", $messageId, ">");
-            $c->add("flag", 1);
-            $c->addOrderAscending("message_id");
-
-            $mid = PrivateMessagePeer::instance()->selectOne($c);
-        }
-
-        if ($mid !== null) {
-            $runData->ajaxResponseAdd("messageId", $mid->getMessageId());
-        }
-
-        $db->commit();
+        UserMessage::sent($runData->user())
+            ->whereIn('id', $messages)
+            ->delete();
     }
 
-    public function removeSelectedSentEvent($runData)
+    /**
+     * Delete a single draft and present the next one to the user.
+     * @param RunData $runData
+     */
+    public function removeDraftsMessageEvent(RunData $runData)
     {
-        $userId = $runData->getUserId();
-        $c = new Criteria();
-        $c->add("from_user_id", $userId);
-        $c->add("flag", 1);
+        $message = UserMessage::find($runData->get('message_id'));
 
-        $selected = $runData->getParameterList()->getParameterValue("selected");
-        $json = new JSONService(SERVICES_JSON_LOOSE_TYPE);
-        $selected = $json->decode($selected);
+        $nextMessage = UserMessage::drafts($runData->user())
+                ->whereTime('created_at', '<', $message->created_at)->first()
+            ??
+            UserMessage::drafts($runData->user())
+                ->whereTime('created_at', '>', $message->created_at)->first();
 
-        $db = Database::connection();
-        $db->begin();
+        $message->delete();
 
-        $c2 = new Criteria();
-        foreach ($selected as $s) {
-            $c2->addOr("message_id", $s);
+        if ($nextMessage) {
+            $runData->ajaxResponseAdd('messageId', $nextMessage->id);
         }
-        $c->addCriteriaAnd($c2);
-
-        PrivateMessagePeer::instance()->delete($c);
-
-        $db->commit();
     }
 
-    public function removeDraftsMessageEvent($runData)
+    /**
+     * Remove multiple drafts from the user's folder.
+     * @param RunData $runData
+     */
+    public function removeSelectedDraftsEvent(RunData $runData)
     {
-        $messageId = $runData->getParameterList()->getParameterValue("message_id");
-        $userId = $runData->getUserId();
+        $selected = $runData->get('selected');
+        $messages = (new JSONService(SERVICES_JSON_LOOSE_TYPE))->decode($selected);
 
-        $db = Database::connection();
-        $db->begin();
-
-        $c = new Criteria();
-        $c->add("message_id", $messageId);
-        $c->add("from_user_id", $userId);
-        $c->add("flag", 2);
-
-        PrivateMessagePeer::instance()->delete($c);
-        $c = new Criteria();
-        $c->add("from_user_id", $userId);
-        $c->add("message_id", $messageId, "<");
-        $c->add("flag", 2);
-        $c->addOrderDescending("message_id");
-
-        $mid = PrivateMessagePeer::instance()->selectOne($c);
-        if ($mid == null) {
-                $c = new Criteria();
-            $c->add("from_user_id", $userId);
-            $c->add("message_id", $messageId, ">");
-            $c->add("flag", 2);
-            $c->addOrderAscending("message_id");
-
-            $mid = PrivateMessagePeer::instance()->selectOne($c);
-        }
-
-        if ($mid !== null) {
-            $runData->ajaxResponseAdd("messageId", $mid->getMessageId());
-        }
-
-        $db->commit();
-    }
-
-    public function removeSelectedDraftsEvent($runData)
-    {
-        $userId = $runData->getUserId();
-        $c = new Criteria();
-        $c->add("from_user_id", $userId);
-        $c->add("flag", 2);
-
-        $selected = $runData->getParameterList()->getParameterValue("selected");
-        $json = new JSONService(SERVICES_JSON_LOOSE_TYPE);
-        $selected = $json->decode($selected);
-
-        $db = Database::connection();
-        $db->begin();
-
-        $c2 = new Criteria();
-        foreach ($selected as $s) {
-            $c2->addOr("message_id", $s);
-        }
-        $c->addCriteriaAnd($c2);
-
-        PrivateMessagePeer::instance()->delete($c);
-
-        $db->commit();
+        UserMessage::drafts($runData->user())
+            ->whereIn('id', $messages)
+            ->delete();
     }
 }

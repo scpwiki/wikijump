@@ -9,6 +9,7 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\DB\OzoneSession;
 use Wikidot\DB\OzoneSessionPeer;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Models\User;
 
 /**
  * Class containing most important properties of the request/response.
@@ -58,6 +59,38 @@ class RunData {
 	public function __construct() {
 		$this->page = new PageProperties();
 	}
+
+    /**
+     * Helper/shortcut methods for RunData:
+     */
+
+    /**
+     * Get the user ID of the calling user.
+     * @return int|null
+     */
+    public function id() : ?int
+    {
+        return $this->getUserId();
+    }
+
+    /**
+     * Shortcut method to retrieve a value from a RunData object.
+     * @param string $key
+     * @return mixed
+     */
+    public function get(string $key)
+    {
+        return $this->getParameterList()->getParameterValue($key);
+    }
+
+    /**
+     * Retrieve the calling User model.
+     * @return User|null
+     */
+    public function user(): ?User
+    {
+        return $this->getUser();
+    }
 
 	/**
 		* Initializes a RunData object.
@@ -653,15 +686,15 @@ class RunData {
 		if($this->session == null){
 			return null;
 		}
-		$userId = $this->session->getUserId();
-		return $userId;
+		return $this->session->getUserId();
 	}
 
 	public function getOzoneUser(){
 		return $this->getUser();
 	}
 
-	public function getUser() {
+	public function getUser() : ?User
+    {
 		if($this->session == null){
 			return null;
 		}

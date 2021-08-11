@@ -90,6 +90,14 @@ class User extends Authenticatable
     ];
 
     /**
+     * Checks if the user is banned from the entire farm.
+     */
+    public function isBanned() : bool
+    {
+        return $this->get('banned');
+    }
+
+    /**
      * Retrieve the path for the user's small avatar.
      * @return string
      */
