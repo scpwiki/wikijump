@@ -59,8 +59,22 @@ class UserMessage extends Model
 
             $sent = $this->replicate();
             $sent->setFlag(UserMessage::MESSAGE_SENT);
-            $sent->save();;
+            $sent->save();
         });
+    }
+
+    /**
+     * Generate a preview of a message.
+     * @param int $length
+     * @return string
+     */
+    public function preview(int $length = 200) : string
+    {
+        $preview = substr(strip_tags($this->body), 0, $length);
+        if (strlen($preview) == $length) {
+            $preview = preg_replace('/\w+$/', '', $preview) . '...';
+        }
+        return $preview;
     }
 
     /**
@@ -234,6 +248,100 @@ class UserMessage extends Model
     {
         return $query->where('from_user_id', $user->id)
             ->where('flags', '&', self::MESSAGE_SENT);
+    }
+
+    /**
+     * Checks for the presence or absence of a particular flag.
+     */
+
+    /**
+     * Is this message read?
+     * @return bool
+     */
+    public function isRead() : bool
+    {
+        return $this->getFlag(UserMessage::MESSAGE_READ);
+    }
+
+    /**
+     * Is this message unread?
+     * @return bool
+     */
+    public function isUnread() : bool
+    {
+        return ! $this->getFlag(UserMessage::MESSAGE_READ);
+    }
+
+    /**
+     * Is this message a draft?
+     * @return bool
+     */
+    public function isDraft() : bool
+    {
+        return $this->getFlag(UserMessage::MESSAGE_DRAFT);
+    }
+
+    /**
+     * Is this message not a draft?
+     * @return bool
+     */
+    public function isNotDraft() : bool
+    {
+        return ! $this->getFlag(UserMessage::MESSAGE_DRAFT);
+    }
+
+    /**
+     * Is this message starred?
+     * @return bool
+     */
+    public function isStarred() : bool
+    {
+        return $this->getFlag(UserMessage::MESSAGE_STARRED);
+    }
+
+    /**
+     * Is this message unstarred?
+     * @return bool
+     */
+    public function isUnstarred() : bool
+    {
+        return ! $this->getFlag(UserMessage::MESSAGE_STARRED);
+    }
+
+    /**
+     * Is this message archived?
+     * @return bool
+     */
+    public function isArchived() : bool
+    {
+        return $this->getFlag(UserMessage::MESSAGE_ARCHIVED);
+    }
+
+    /**
+     * Is this message not archived?
+     * @return bool
+     */
+    public function isNotArchived() : bool
+    {
+        return ! $this->getFlag(UserMessage::MESSAGE_STARRED);
+    }
+
+    /**
+     * Is this message a sent message?
+     * @return bool
+     */
+    public function isSent() : bool
+    {
+        return $this->getFlag(UserMessage::MESSAGE_SENT);
+    }
+
+    /**
+     * Is this message not a sent message?
+     * @return bool
+     */
+    public function isNotSent() : bool
+    {
+        return ! $this->getFlag(UserMessage::MESSAGE_SENT);
     }
 
 }
