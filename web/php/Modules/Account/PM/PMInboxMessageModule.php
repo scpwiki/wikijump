@@ -1,55 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Wikidot\Modules\Account\PM;
 
-
-
-
-use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\PrivateMessagePeer;
 use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Models\UserMessage;
 
+/**
+ * AJAX Class for Single-message Inbox view
+ * @package Wikidot\Modules\Account\PM
+ */
 class PMInboxMessageModule extends AccountBaseModule
 {
 
+    /**
+     * Retrieve the previous, current, and next inbox message.
+     * @param $runData
+     * @throws ProcessException
+     */
     public function build($runData)
     {
+        /** @var UserMessage $message */
+        $message = UserMessage::find($runData->get('message_id'));
 
-        $userId = $runData->getUserId();
-        $pl = $runData->getParameterList();
-        $messageId = $pl->getParameterValue("message_id");
-
-        $message = PrivateMessagePeer::instance()->selectByPrimaryKey($messageId);
-        if ($message == null || $message->getToUserId() != $userId) {
-            throw new ProcessException(_("Error selecting message."), "no_message");
+        if ($message == null || $message->recipient->id != $runData->id()) {
+            throw new ProcessException(_('Error selecting message.'), 'no_message');
         }
 
-        if ($message->getFlagNew()) {
-            $message->setFlagNew(false);
+        if ($message->isUnread()) {
+            $message->markAsRead();
             $message->save();
         }
-        $runData->contextAdd("message", $message);
+        $runData->contextAdd('message', $message);
 
-        // get next & previous message
-        $messageId = $message->getMessageId();
-        $c = new Criteria();
-        $c->add("to_user_id", $userId);
-        $c->add("message_id", $messageId, ">");
-        $c->add("flag", 0);
-        $c->addOrderAscending("message_id");
+        $newerMessage = UserMessage::inbox($runData->user())
+            ->where('id', '>', $message->created_at)
+            ->first();
 
-        $newerMessage = PrivateMessagePeer::instance()->selectOne($c);
+        $olderMessage = UserMessage::inbox($runData->user())
+            ->where('id', '<', $message->created_at)
+            ->first();
 
-        $c = new Criteria();
-        $c->add("to_user_id", $userId);
-        $c->add("message_id", $messageId, "<");
-        $c->add("flag", 0);
-        $c->addOrderDescending("message_id");
-
-        $olderMessage = PrivateMessagePeer::instance()->selectOne($c);
-
-        $runData->contextAdd("newerMessage", $newerMessage);
-        $runData->contextAdd("olderMessage", $olderMessage);
+        $runData->contextAdd('newerMessage', $newerMessage);
+        $runData->contextAdd('olderMessage', $olderMessage);
     }
 }

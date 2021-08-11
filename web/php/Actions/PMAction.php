@@ -134,10 +134,10 @@ class PMAction extends SmartyAction
         $message = UserMessage::find($runData->get('message_id'));
 
         $nextMessage = UserMessage::inbox($runData->user())
-            ->whereTime('created_at', '<', $message->created_at)->first()
+            ->whereTime('id', '<', $message->created_at)->first()
             ??
             UserMessage::inbox($runData->user())
-            ->whereTime('created_at', '>', $message->created_at)->first();
+            ->whereTime('id', '>', $message->created_at)->first();
 
         $message->delete();
 
@@ -155,10 +155,10 @@ class PMAction extends SmartyAction
         $message = UserMessage::find($runData->get('message_id'));
 
         $nextMessage = UserMessage::sent($runData->user())
-                ->whereTime('created_at', '<', $message->created_at)->first()
+                ->whereTime('id', '<', $message->created_at)->first()
             ??
             UserMessage::sent($runData->user())
-                ->whereTime('created_at', '>', $message->created_at)->first();
+                ->whereTime('id', '>', $message->created_at)->first();
 
         $message->delete();
 
@@ -190,10 +190,10 @@ class PMAction extends SmartyAction
         $message = UserMessage::find($runData->get('message_id'));
 
         $nextMessage = UserMessage::drafts($runData->user())
-                ->whereTime('created_at', '<', $message->created_at)->first()
+                ->whereTime('id', '<', $message->created_at)->first()
             ??
             UserMessage::drafts($runData->user())
-                ->whereTime('created_at', '>', $message->created_at)->first();
+                ->whereTime('id', '>', $message->created_at)->first();
 
         $message->delete();
 

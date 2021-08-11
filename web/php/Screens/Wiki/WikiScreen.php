@@ -14,9 +14,9 @@ use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\NotificationPeer;
-use Wikidot\DB\PrivateMessagePeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Models\UserMessage;
 
 class WikiScreen extends Screen
 {
@@ -307,8 +307,8 @@ class WikiScreen extends Screen
             if ($not->getType() == "new_private_message") {
                 // check if the message is read or still new
                 $extra = $not->getExtra();
-                $pm = PrivateMessagePeer::instance()->selectByPrimaryKey($extra['message_id']);
-                if ($pm && $pm->getFlagNew()) {
+                $pm = UserMessage::find($extra['message_id']);
+                if ($pm && $pm->isUnread()) {
                     $body = $not->getBody();
                     $body = preg_replace('/<br\/>Preview.*$/sm', '', $body);
                     $body = preg_replace(';You have.*?<br/>;sm', '', $body);

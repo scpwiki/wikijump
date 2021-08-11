@@ -7,23 +7,23 @@
 	<div class="pmessage">
 		<div class="header">
 			<table>
-				{if $from && $message->getFromUserId()}
+				{if $from && $message->sender->id}
 					<tr>
 						<td>
 							{t}From{/t}:
 						</td>
 						<td>
-							{printuser user=$message->getFromUser() image=true}
+							{printuser user=$message->sender image=true}
 						</td>
 					</tr>
 				{/if}
-				{if $to && $message->getToUserId()!=null}
+				{if $to && $message->recipient->id != null}
 					<tr>
 						<td>
 							{t}To{/t}:
 						</td>
 						<td>
-							{printuser user=$message->getToUser() image=true}
+							{printuser user=$message->recipient image=true}
 						</td>
 					</tr>
 				{/if}
@@ -32,16 +32,16 @@
 						{t}Subject{/t}:
 					</td>
 					<td class="subject">
-						{$message->getSubject()|escape}
+						{$message->subject|escape}
 					</td>
 				</tr>
-				{if $message->getDate()}
+				{if $message->created_at}
 					<tr>
 						<td>
 							{t}Date sent{/t}:
 						</td>
 						<td>
-							<span class="odate">{$message->getDate()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
+							<span class="odate">{$message->created_at->timestamp}|%e %b %Y, %H:%M %Z|agohover</span>
 						</td>
 					</tr>
 				{/if}
@@ -49,7 +49,7 @@
 		</div>
 
 		<div class="body">
-			{$message->getBody()}
+			{$message->body}
 		</div>
 	<div>
 {/defmacro}
