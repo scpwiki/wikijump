@@ -81,11 +81,11 @@ where
         );
 
         match parse_include_block(log, &input[start..], start) {
-            None => debug!(log, "Unable to parse include regex match"),
-            Some((include, end)) => {
+            Ok((include, end)) => {
                 ranges.push(start..end);
                 includes.push(include);
             }
+            Err(_) => debug!(log, "Unable to parse include regex match"),
         }
     }
 

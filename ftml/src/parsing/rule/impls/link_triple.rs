@@ -29,6 +29,7 @@
 //! Its syntax is `[[[page-name | Label text]`.
 
 use super::prelude::*;
+use crate::data::PageRef;
 use crate::tree::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
 

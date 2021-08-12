@@ -77,10 +77,10 @@ impl<'t> PageRef<'t> {
         self.page.as_ref()
     }
 
-    pub fn parse(s: &'t str) -> Option<PageRef<'t>> {
+    pub fn parse(s: &'t str) -> Result<PageRef<'t>, PageRefParseError> {
         let s = s.trim();
         if s.is_empty() {
-            return None;
+            return Err(PageRefParseError);
         }
 
         let result = match s.find(':') {
@@ -89,7 +89,7 @@ impl<'t> PageRef<'t> {
                 // Find the second colon
                 let idx = match s[1..].find(':') {
                     Some(idx) => idx + 1,
-                    None => return None,
+                    None => return Err(PageRefParseError),
                 };
 
                 // Get site and page slices
@@ -106,7 +106,7 @@ impl<'t> PageRef<'t> {
             None => PageRef::page_only(s),
         };
 
-        Some(result)
+        Ok(result)
     }
 
     pub fn to_owned(&self) -> PageRef<'static> {
@@ -132,6 +132,9 @@ impl Display for PageRef<'_> {
         write!(f, "{}", &self.page)
     }
 }
+
+#[derive(Debug)]
+pub struct PageRefParseError;
 
 #[test]
 fn page_ref() {

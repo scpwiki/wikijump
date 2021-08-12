@@ -25,5 +25,5 @@ mod user_info;
 
 pub use self::backlinks::Backlinks;
 pub use self::page_info::PageInfo;
-pub use self::page_ref::PageRef;
+pub use self::page_ref::{PageRef, PageRefParseError};
 pub use self::user_info::UserInfo;
