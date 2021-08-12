@@ -7,7 +7,7 @@ use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\OzoneEmail;
 use Wikidot\DB\NotificationPeer;
-use Wikidot\DB\PrivateMessagePeer;
+use Wikijump\Models\UserMessage;
 
 class WDDigestSender
 {
@@ -64,8 +64,8 @@ class WDDigestSender
             if ($not->getType() == "new_private_message") {
                 // check if the message is read or still new
                 $extra = $not->getExtra();
-                $pm = PrivateMessagePeer::instance()->selectByPrimaryKey($extra['message_id']);
-                if ($pm && $pm->getFlagNew()) {
+                $pm = UserMessage::find($extra['message_id']);
+                if ($pm && $pm->isUnread()) {
                     $body = $not->getBody();
                     $body = preg_replace('/<br\/>Preview.*$/sm', '', $body);
                     $body = preg_replace('/You have.*?<br\/>/sm', '', $body);

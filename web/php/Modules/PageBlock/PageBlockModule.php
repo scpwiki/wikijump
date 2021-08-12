@@ -10,6 +10,7 @@ use Wikidot\DB\AdminPeer;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
+use Wikijump\Models\User;
 
 class PageBlockModule extends SmartyModule
 {
@@ -38,7 +39,7 @@ class PageBlockModule extends SmartyModule
     private function canSetBlock($user, $page)
     {
 
-        if ($user->id == 1) {
+        if ($user->id === User::ADMIN_USER) {
             return true;
         }
 

@@ -22,6 +22,7 @@ use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Models\User;
 
 class AccountMembershipAction extends SmartyAction
 {
@@ -289,7 +290,7 @@ class AccountMembershipAction extends SmartyAction
         } else {
             $unixName = WDStringUtils::toUnixName($unixName);
 
-            if (!$runData->getUser()->id == 1) {
+            if ($runData->id() !== User::ADMIN_USER) {
                 //  handle forbidden names
                 foreach (ForbiddenNames::$sites as $regex) {
                     if (preg_match($regex, $unixName) > 0) {

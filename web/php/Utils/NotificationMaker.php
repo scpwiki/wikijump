@@ -5,6 +5,7 @@ namespace Wikidot\Utils;
 use Ozone\Framework\ODate;
 use Wikidot\DB\Notification;
 use Wikidot\DB\SitePeer;
+use Wikijump\Models\UserMessage;
 
 class NotificationMaker
 {
@@ -19,36 +20,33 @@ class NotificationMaker
         return self::$instance;
     }
 
-    public function privateMessageNotification($message)
+    /**
+     * Create a notification on a private message being sent.
+     * @param UserMessage $message
+     */
+    public function privateMessageNotification(UserMessage $message)
     {
-        $fromUser = $message->getFromUser();
+        $fromUser = $message->sender;
 
         $not = new Notification();
-        $not->setUserId($message->getToUserId());
-        $not->setType("new_private_message");
+        $not->setUserId($message->recipient->id);
+        $not->setType('new_private_message');
 
-        $body = 'You have a new private message in your <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/messages">Inbox</a>!<br/>';
-        $body .= "From: ".WDRenderUtils::renderUser($fromUser)."<br/>";
-        $body .= 'Subject: <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/messages/inboxmessage/'.$message->getMessageId().'">'.htmlspecialchars($message->getSubject()).'</a><br/>';
+        $body = 'You have a new private message in your <a href="'.GlobalProperties::$HTTP_SCHEMA . '://' . GlobalProperties::$URL_HOST . '/account:you/start/messages">Inbox</a>!<br/>';
+        $body .= 'From: ' .WDRenderUtils::renderUser($fromUser). '<br/>';
+        $body .= 'Subject: <a href="'.GlobalProperties::$HTTP_SCHEMA . '://' . GlobalProperties::$URL_HOST . '/account:you/start/messages/inboxmessage/'.$message->id.'">'.htmlspecialchars($message->subject).'</a><br/>';
         $body .= 'Preview (first few words): ';
-        $body .= $message->getPreview();
+        $body .= $message->preview();
+
+        $not->setBody($body);
 
         $not->setDate(new ODate());
 
         $extra = array();
-        $extra['message_id'] = $message->getMessageId();
-        $extra['from_user_id'] = $message->getFromUserId();
-        $extra['subject'] = $message->getSubject();
-        $extra['preview'] = $message->getPreview();
-
-        //$Extra['urls'] = array(   array('read the message','https://www.wikijump.com/account:you/start/messages/inboxmessage/'.$message->getMessageId()),
-
-        /*
-         * format for urls is:
-         * 0 - anchor
-         * 1 - href
-         * 2 - onclick
-         */
+        $extra['message_id'] = $message->id;
+        $extra['from_user_id'] = $message->sender->id;
+        $extra['subject'] = $message->subject;
+        $extra['preview'] = $message->preview();
 
         $not->setExtra($extra);
 
@@ -60,7 +58,7 @@ class NotificationMaker
         $site = SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
         $not = new Notification();
         $not->setUserId($invitation->getUserId());
-        $not->setType("new_membership_invitation");
+        $not->setType('new_membership_invitation');
 
         $extra = array();
         $extra['site_id'] = $site->getSiteId();
@@ -76,7 +74,7 @@ class NotificationMaker
         // and create a notification too...
         $not = new Notification();
         $not->setUserId($user->id);
-        $not->setType("removed_from_members");
+        $not->setType('removed_from_members');
 
         $extra = array();
         $extra['site_id'] = $site->getSiteId();
@@ -93,7 +91,7 @@ class NotificationMaker
         // and create a notification too...
         $not = new Notification();
         $not->setUserId($user->id);
-        $not->setType("added_to_moderators");
+        $not->setType('added_to_moderators');
 
         $extra['site_id'] = $site->getSiteId();
         $extra['site_name'] = $site->getName();
@@ -110,7 +108,7 @@ class NotificationMaker
         // and create a notification too...
         $not = new Notification();
         $not->setUserId($user->id);
-        $not->setType("removed_from_moderators");
+        $not->setType('removed_from_moderators');
 
         $extra['site_id'] = $site->getSiteId();
         $extra['site_name'] = $site->getName();
@@ -126,7 +124,7 @@ class NotificationMaker
         // and create a notification too...
         $not = new Notification();
         $not->setUserId($user->id);
-        $not->setType("added_to_administrators");
+        $not->setType('added_to_administrators');
 
         $extra['site_id'] = $site->getSiteId();
         $extra['site_name'] = $site->getName();
@@ -142,7 +140,7 @@ class NotificationMaker
         // and create a notification too...
         $not = new Notification();
         $not->setUserId($user->id);
-        $not->setType("removed_from_administrators");
+        $not->setType('removed_from_administrators');
 
         $extra['site_id'] = $site->getSiteId();
         $extra['site_name'] = $site->getName();
@@ -157,7 +155,7 @@ class NotificationMaker
     {
         $not = new Notification();
         $not->setUserId($user->id);
-        $not->setType("membership_application_accepted");
+        $not->setType('membership_application_accepted');
 
         $extra['site_id'] = $site->getSiteId();
         $extra['site_name'] = $site->getName();
@@ -171,7 +169,7 @@ class NotificationMaker
     {
         $not = new Notification();
         $not->setUserId($user->id);
-        $not->setType("membership_application_declined");
+        $not->setType('membership_application_declined');
 
         //$urls = array(    array('your applications', "https://www.wikijump.com/account:you/start/applications"),
         $extra['site_id'] = $site->getSiteId();

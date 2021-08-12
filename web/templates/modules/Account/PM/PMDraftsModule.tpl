@@ -27,16 +27,16 @@
 			<td>&nbsp;</td>
 			<td class="subject">
 				<a href="javascript:;"
-				onclick="Wikijump.modules.AccountMessagesModule.listeners.viewDraftsMessage({$message->getMessageId()})">{if $message->getSubject()}{$message->getSubject()|escape}{else}<em>no subject yet</em>{/if}</a>
+				onclick="Wikijump.modules.AccountMessagesModule.listeners.viewDraftsMessage({$message->id})">{if $message->subject}{$message->subject|escape}{else}<em>no subject yet</em>{/if}</a>
 			</td>
 			<td>
-				{printuser user=$message->getToUser() image=true}
+				{printuser user=$message->recipient image=true}
 			</td>
 			<td class="date">
-				<span class="odate">{$message->getDate()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
+				<span class="odate">{$message->created_at->timestamp}|%e %b %Y, %H:%M %Z|agohover</span>
 			</td>
 			<td>
-				<input class="message-select" type="checkbox" id="message-check-{$message->getMessageId()}"/>
+				<input class="message-select" type="checkbox" id="message-check-{$message->id}"/>
 			</td>
 		</tr>
 	{/foreach}

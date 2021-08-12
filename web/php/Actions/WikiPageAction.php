@@ -1489,7 +1489,7 @@ class WikiPageAction extends SmartyAction
     private function canSetBlock($user, $page)
     {
 
-        if ($user->id == 1) {
+        if ($user->id === User::ADMIN_USER) {
             return true;
         }
 

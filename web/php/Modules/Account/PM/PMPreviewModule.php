@@ -1,31 +1,37 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Modules\Account\PM;
 
-use Wikidot\DB\PrivateMessage;
 use Wikidot\Utils\AccountBaseModule;
+use Wikijump\Models\UserMessage;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Wikitext\WikitextBackend;
 
+/**
+ * AJAX module for previewing a PM
+ * @package Wikidot\Modules\Account\PM
+ */
 class PMPreviewModule extends AccountBaseModule
 {
 
+    /**
+     * @param $runData
+     */
     public function build($runData)
     {
-        $pl = $runData->getParameterList();
-        $source = $pl->getParameterValue("source");
-        $subject = $pl->getParameterValue("subject");
-        $toUserId = $pl->getParameterValue("to_user_id");
-
         $wt = WikitextBackend::make(ParseRenderMode::DIRECT_MESSAGE, null);
-        $body = $wt->renderHtml($source)->body;
+        $body = $wt->renderHtml($runData->get('source'))->body;
 
-        $message = new PrivateMessage();
-        $message->setFromUserId($runData->getUserId());
-        $message->setToUserId($toUserId);
-        $message->setBody($body);
-        $message->setSubject($subject);
+        $message = new UserMessage(
+            [
+                'from_user_id' => $runData->id(),
+                'to_user_id' => $runData->get('to_user_id'),
+                'subject' => $runData->get('subject'),
+                'body' => $body
+            ]
+        );
 
-        $runData->contextAdd("message", $message);
+        $runData->contextAdd('message', $message);
     }
 }
