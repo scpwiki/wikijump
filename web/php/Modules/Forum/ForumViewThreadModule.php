@@ -168,6 +168,9 @@ class ForumViewThreadModule extends SmartyModule
         $runData->contextAdd("thread", $thread);
         $runData->contextAdd("category", $category);
         $runData->contextAdd("posts", $posts);
+        
+        $canDelete = WDPermissionManager::instance()->hasForumPermission('moderate_forum', $runData->getUser(), $category);
+        $runData->contextAdd("canDelete", $canDelete);
 
         $page = $GLOBALS['page'];
     }
