@@ -40,6 +40,7 @@ class User extends Authenticatable
      * the generation of various pages, threads, and so on. This is their ID.
      * @see UserSeeder
      */
+    public const ADMIN_USER = 1;
     public const AUTOMATIC_USER = 2;
     public const ANONYMOUS_USER = 3;
 

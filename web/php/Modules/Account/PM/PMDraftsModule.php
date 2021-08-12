@@ -24,16 +24,17 @@ class PMDraftsModule extends AccountBaseModule
         $per_page_limit = 30;
 
         $this_page = $runData->get('page');
-        if ($this_page == null || $this_page < 0) {
+        if ($this_page === null || $this_page < 0) {
             $this_page = 1;
         }
 
-        $drafts_count = UserMessage::drafts($runData->user())->orderBy('id','DESC')->count();
+        $drafts_count = UserMessage::drafts($runData->user())->count();
 
-        $total_pages  = ceil($drafts_count/$per_page_limit);
-        if ($this_page > $total_pages) {
-            $this_page = $total_pages;
-        }
+        /** Build the pager. */
+        $total_pages  = ceil($drafts_count / $per_page_limit);
+
+        /** Do not allow a `page` value greater than the total. */
+        $this_page = min($this_page, $total_pages);
 
         $offset = max(($this_page - 1) * $per_page_limit, 0);
 

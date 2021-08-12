@@ -42,11 +42,19 @@ class PMComposeModule extends AccountBaseModule
             }
 
             $subject = $message->subject;
-            $subject = preg_replace('/^Re: /', '', $subject);
+
+            /**
+             * If the subject doesn't already start with `Re: `, add it.
+             * Otherwise, leave it alone. (There should only be one `Re: ` in a subject.)
+             */
+            if(str_starts_with('Re: ', $subject) === false)
+            {
+                $subject = 'Re: ' . $subject;
+            }
 
             $runData->ajaxResponseAdd('toUserId', $message->sender->id);
             $runData->ajaxResponseAdd('toUserName', $message->sender->username);
-            $runData->contextAdd('subject', 'Re: ' .$subject);
+            $runData->contextAdd('subject', $subject);
         }
         elseif ($continueMessageId)
         {

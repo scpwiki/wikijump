@@ -96,7 +96,7 @@ class UploadedFileFlowController extends WikidotController
             return false;
         }
 
-        if ($user->id == 1 || $this->member($user, $site)) {
+        if ($user->id === User::ADMIN_USER || $this->member($user, $site)) {
             return true;
         }
 

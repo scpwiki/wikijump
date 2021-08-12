@@ -27,7 +27,7 @@ class UserMessagePolicy
     public function before(User $user, string $ability) : ?bool
     {
         /** The farm admin account can do anything. */
-        if($user->id == 1) { return true; }
+        if($user->id === User::ADMIN_USER) { return true; }
 
         /** And a globally banned user can't do anything. */
         if($user->isBanned()) { return false; }

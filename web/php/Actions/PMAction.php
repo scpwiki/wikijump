@@ -133,6 +133,10 @@ class PMAction extends SmartyAction
     {
         $message = UserMessage::find($runData->get('message_id'));
 
+        /**
+         * Get the next newest message in the inbox.
+         * If there isn't one, get the next oldest.
+         */
         $nextMessage = UserMessage::inbox($runData->user())
             ->whereTime('id', '<', $message->created_at)->first()
             ??
@@ -154,6 +158,10 @@ class PMAction extends SmartyAction
     {
         $message = UserMessage::find($runData->get('message_id'));
 
+        /**
+         * Get the next newest message in the sent folder.
+         * If there isn't one, get the next oldest.
+         */
         $nextMessage = UserMessage::sent($runData->user())
                 ->whereTime('id', '<', $message->created_at)->first()
             ??
@@ -189,6 +197,10 @@ class PMAction extends SmartyAction
     {
         $message = UserMessage::find($runData->get('message_id'));
 
+        /**
+         * Get the next newest message in the drafts folder.
+         * If there isn't one, get the next oldest.
+         */
         $nextMessage = UserMessage::drafts($runData->user())
                 ->whereTime('id', '<', $message->created_at)->first()
             ??

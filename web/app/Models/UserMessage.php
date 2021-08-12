@@ -80,7 +80,7 @@ class UserMessage extends Model
     public function preview(int $length = 200) : string
     {
         $preview = substr(strip_tags($this->body), 0, $length);
-        if (strlen($preview) == $length) {
+        if (strlen($preview) >= $length) {
             $preview = preg_replace('/\w+$/', '', $preview) . '...';
         }
         return $preview;

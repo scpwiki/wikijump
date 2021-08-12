@@ -2,9 +2,7 @@
 
 namespace Wikidot\Utils;
 
-
 use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\Gate;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
@@ -226,7 +224,7 @@ class WDPermissionManager
 
     public function hasPagePermission($action, $user, $category, $page = null, $site = null)
     {
-        if ($user->id == 1) {
+        if ($user->id === User::ADMIN_USER) {
             return true;
         }
 
@@ -393,7 +391,7 @@ class WDPermissionManager
 
     public function hasForumPermission($action, $user, $category, $thread = null, $post = null)
     {
-        if ($user->id == 1) {
+        if ($user->id === User::ADMIN_USER) {
             return true;
         }
 
@@ -555,7 +553,7 @@ class WDPermissionManager
     public function canBecomeAdmin($user)
     {
 
-        if ($user->id == 1) {
+        if ($user->id === User::ADMIN_USER) {
             return true;
         }
 
@@ -582,7 +580,7 @@ class WDPermissionManager
 
     public function canBecomeMaster($user)
     {
-        if ($user->id == 1) {
+        if ($user->id === User::ADMIN_USER ) {
             return true;
         }
         $us = $user->getSettings();
@@ -605,7 +603,7 @@ class WDPermissionManager
     public function getSitesAdminLeft($user)
     {
         $us = $user->getSettings();
-        if (!$us->getMaxSitesAdmin() || $user->id == 1) {
+        if (!$us->getMaxSitesAdmin() || $user->id === User::ADMIN_USER) {
             return null; // unlimited
         }
         $c = new Criteria();
@@ -621,7 +619,7 @@ class WDPermissionManager
     public function getSitesMasterLeft($user)
     {
         $us = $user->getSettings();
-        if (!$us->getMaxSitesMaster() || $user->id == 1) {
+        if (!$us->getMaxSitesMaster() || $user->id === User::ADMIN_USER) {
             return null; // unlimited
         }
         $c = new Criteria();
@@ -645,7 +643,7 @@ class WDPermissionManager
     public function canAccessSite($user, $site)
     {
         // public or user is super
-        if (! $site->getPrivate() || $user->id == 1) {
+        if (! $site->getPrivate() || $user->id === User::ADMIN_USER) {
             return true;
         }
         // check if user is a member of the site
