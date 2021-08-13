@@ -30,6 +30,7 @@ pub struct Handle;
 
 impl Handle {
     pub fn get_url(&self, log: &Logger, site_slug: &str) -> String {
+        // TODO make this a parser setting
         debug!(
             log,
             "Getting URL of this Wikijump instance";

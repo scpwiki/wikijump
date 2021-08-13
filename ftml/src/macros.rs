@@ -47,3 +47,12 @@ macro_rules! str_write {
         write!($dest, $($arg)*).expect("Writing to string failed");
     }};
 }
+
+/// Borrow from a Cow<T> to create a copy that can be passed.
+macro_rules! cow_borrow {
+    ($cow:expr) => {{
+        use std::borrow::Cow;
+
+        Cow::Borrowed($cow.as_ref())
+    }};
+}

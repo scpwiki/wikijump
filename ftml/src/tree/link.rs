@@ -19,7 +19,36 @@
  */
 
 use super::clone::{option_string_to_owned, string_to_owned};
+use crate::data::PageRef;
 use std::borrow::Cow;
+
+#[derive(Serialize, Deserialize, Debug, Hash, Clone, PartialEq, Eq)]
+#[serde(untagged)]
+pub enum LinkLocation<'a> {
+    /// This link points to a particular page on a wiki.
+    Page(PageRef<'a>),
+
+    /// This link is to a specific URL.
+    Url(Cow<'a, str>),
+}
+
+impl<'a> LinkLocation<'a> {
+    pub fn url(&self, domain: &str) -> Cow<str> {
+        match self {
+            LinkLocation::Url(url) => cow_borrow!(url),
+            LinkLocation::Page(page_ref) => {
+                let page = page_ref.page();
+
+                match page_ref.site() {
+                    Some(site) => {
+                        Cow::Owned(format!("https://{}.{}/{}", site, domain, page))
+                    }
+                    None => cow_borrow!(page),
+                }
+            }
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug, Hash, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
