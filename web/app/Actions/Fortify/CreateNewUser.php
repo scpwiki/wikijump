@@ -39,7 +39,7 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['required', 'accepted'] : '',
         ])->validate();
 
-        return (new User())->create([
+        return User::create([
             'username' => $input['username'],
             'unix_name' => $input['unix_name'],
             'email' => $input['email'],

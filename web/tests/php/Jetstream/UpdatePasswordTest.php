@@ -17,15 +17,17 @@ class UpdatePasswordTest extends TestCase
     {
         $this->actingAs($user = User::factory()->create());
 
+        $new_password = Hash::make(bin2hex(random_bytes(32)));
+
         Livewire::test(UpdatePasswordForm::class)
                 ->set('state', [
                     'current_password' => 'password',
-                    'password' => 'new-password',
-                    'password_confirmation' => 'new-password',
+                    'password' => $new_password,
+                    'password_confirmation' => $new_password,
                 ])
                 ->call('updatePassword');
 
-        $this->assertTrue(Hash::check('new-password', $user->fresh()->password));
+        $this->assertTrue(Hash::check($new_password, $user->fresh()->password));
     }
 
     public function test_current_password_must_be_correct()

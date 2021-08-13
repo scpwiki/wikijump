@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Hash;
 use Wikijump\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Features;
@@ -19,13 +20,13 @@ class DeleteAccountTest extends TestCase
             return $this->markTestSkipped('Account deletion is not enabled.');
         }
 
-        $this->actingAs($user = User::factory()->create());
+        $this->actingAs($user = User::factory()->create(['password' => Hash::make('password')]));
 
         $component = Livewire::test(DeleteUserForm::class)
                         ->set('password', 'password')
                         ->call('deleteUser');
 
-        $this->assertNull($user->fresh());
+        $this->assertTrue($user->fresh()->trashed());
     }
 
     public function test_correct_password_must_be_provided_before_account_can_be_deleted()
@@ -37,7 +38,7 @@ class DeleteAccountTest extends TestCase
         $this->actingAs($user = User::factory()->create());
 
         Livewire::test(DeleteUserForm::class)
-                        ->set('password', 'wrong-password')
+                        ->set('password', Hash::make(bin2hex(random_bytes(32))))
                         ->call('deleteUser')
                         ->assertHasErrors(['password']);
 

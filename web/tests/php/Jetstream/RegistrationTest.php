@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Hash;
+use Wikidot\Utils\WDStringUtils;
 use Wikijump\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
@@ -40,14 +42,15 @@ class RegistrationTest extends TestCase
             return $this->markTestSkipped('Registration support is not enabled.');
         }
 
-        $response = $this->post('/register', [
-            'name' => 'Test User',
+        $new_password = bin2hex(random_bytes(32));
+
+        $response = $this->post('/user--services/register', [
+            'username' => 'Test User',
             'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => $new_password,
+            'password_confirmation' => $new_password,
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
         ]);
-
         $this->assertAuthenticated();
         $response->assertRedirect(RouteServiceProvider::HOME);
     }

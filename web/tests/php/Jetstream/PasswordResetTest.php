@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Hash;
 use Wikijump\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +20,7 @@ class PasswordResetTest extends TestCase
             return $this->markTestSkipped('Password updates are not enabled.');
         }
 
-        $response = $this->get('/forgot-password');
+        $response = $this->get(route('password.request'));
 
         $response->assertStatus(200);
     }
@@ -34,7 +35,7 @@ class PasswordResetTest extends TestCase
 
         $user = User::factory()->create();
 
-        $response = $this->post('/forgot-password', [
+        $response = $this->post(route('password.email'), [
             'email' => $user->email,
         ]);
 
@@ -51,12 +52,12 @@ class PasswordResetTest extends TestCase
 
         $user = User::factory()->create();
 
-        $response = $this->post('/forgot-password', [
+        $response = $this->post(route('password.email'), [
             'email' => $user->email,
         ]);
 
         Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
+            $response = $this->get(route('password.reset', $notification->token));
 
             $response->assertStatus(200);
 
@@ -74,16 +75,18 @@ class PasswordResetTest extends TestCase
 
         $user = User::factory()->create();
 
-        $response = $this->post('/forgot-password', [
+        $response = $this->post(route('password.email'), [
             'email' => $user->email,
         ]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $response = $this->post('/reset-password', [
+        $new_password = Hash::make(bin2hex(random_bytes(32)));
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user, $new_password) {
+            $response = $this->post(route('password.update'), [
                 'token' => $notification->token,
                 'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
+                'password' => $new_password,
+                'password_confirmation' => $new_password,
             ]);
 
             $response->assertSessionHasNoErrors();
