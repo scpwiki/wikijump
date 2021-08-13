@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Helpers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ModuleProcessor;
@@ -397,6 +398,8 @@ class LegacyTools
             $url_prefix = '';
         }
 
+        if($user === null) { $user = Auth::user(); }
+
         if ($user == null) {
             $site = $runData->getTemp('site');
 
@@ -415,8 +418,8 @@ class LegacyTools
                 $loginDomain = $site->getLanguage();
             }
 
-            $out  = '<a href="' . $url_prefix . '/auth:newaccount?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('create account').'</a> '._('or') . ' ';
-            $out .= '<a href="' . $url_prefix . '/auth:login?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('login').'</a> ';
+            $out  = '<a href="' . route('register') . '">' . _('Register') . '</a> '._('or') . ' ';
+            $out .= '<a href="' . route('login') . '">' . _('Log In') . '</a>';
 
             //$out = '<a href="javascript:;" onclick="Wikijump.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="Wikijump.page.listeners.loginClick(event)">'._('login').'</a>';
         } else {

@@ -8,8 +8,11 @@
         "guzzlehttp/guzzle": "^7.3",
         "laravel/fortify": "^1.7",
         "laravel/framework": "^8.37",
+        "laravel/jetstream": "^2.3",
+        "laravel/sanctum": "^2.6",
         "laravel/socialite": "^5.2",
-        "laravel/tinker": "^2.6"
+        "laravel/tinker": "^2.6",
+        "livewire/livewire": "^2.5"
     },
     "require-dev": {
         "facade/ignition": "^2.8",
@@ -33,6 +36,7 @@
     "autoload": {
         "psr-4": {
             "Wikijump\\": "app",
+            "App\\Providers\\": "app/Providers2/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Wikidot\\": "php",

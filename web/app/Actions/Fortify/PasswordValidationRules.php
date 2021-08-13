@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Wikijump\Actions\Fortify;
 
@@ -12,8 +11,8 @@ trait PasswordValidationRules
      *
      * @return array
      */
-    protected function passwordRules(): array
+    protected function passwordRules()
     {
-        return ['required', 'string', new Password(), 'confirmed'];
+        return ['required', 'string', new Password, 'confirmed'];
     }
 }

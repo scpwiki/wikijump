@@ -19,8 +19,6 @@ class Ozone {
 	public static $smartyPlain;
 	public static $smartyInitialized = false;
 
-	public static $memcache = null;
-
 	public static $smartyPlainTemplateVars;
 
 	public static $runData;
@@ -38,15 +36,6 @@ class Ozone {
 
 		$dir = PathManager::smartyMacroTemplateDir();
 		if(!file_exists($dir)) { mkdirfull($dir);}
-
-		// connect to memcache server
-		if(GlobalProperties::$USE_MEMCACHE == true){
-			self::$memcache = new Memcache();
-			self::$memcache->connect(GlobalProperties::$MEMCACHE_HOST, GlobalProperties::$MEMCACHE_PORT);
-			self::$memcache->setCompressThreshold(5000);
-		}else{
-			self::$memcache = new DummyMemcache();
-		}
 
 	}
 

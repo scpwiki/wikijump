@@ -1,11 +1,9 @@
 <?php
-declare(strict_types=1);
 
 namespace Wikijump\Actions\Fortify;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
 class ResetUserPassword implements ResetsUserPasswords
@@ -15,10 +13,9 @@ class ResetUserPassword implements ResetsUserPasswords
     /**
      * Validate and reset the user's forgotten password.
      *
-     * @param mixed $user
-     * @param array $input
+     * @param  mixed  $user
+     * @param  array  $input
      * @return void
-     * @throws ValidationException
      */
     public function reset($user, array $input)
     {

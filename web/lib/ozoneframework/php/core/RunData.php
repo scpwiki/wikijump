@@ -5,6 +5,8 @@ namespace Ozone\Framework;
 
 
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\DB\OzoneSession;
 use Wikidot\DB\OzoneSessionPeer;
@@ -441,9 +443,7 @@ class RunData {
 	public function sessionStop($removeCookie = true){
 		$s = $this->getSession();
 		if ($s) {
-			$memcache = Ozone::$memcache;
-			$mkey = 'session..'.$s->getSessionId();
-			$memcache->delete($mkey);
+			Cache::forget('session..'.$s->getSessionId());
 
 			OzoneSessionPeer :: instance()->deleteByPrimaryKey($s->getSessionId());
 			$this->session = null;
@@ -506,10 +506,9 @@ class RunData {
 		}
 		//ok, cookie is here. check if corresponds to a valid session
 		// try memcached first
-		$memcache = Ozone::$memcache;
 		$mkey = 'session..'.$cookieSessionId;
 
-		$session = $memcache->get($mkey);
+		$session = Cache::get($mkey);
 		if(!$session){
 			$session = OzoneSessionPeer :: instance()->selectByPrimaryKey($cookieSessionId);
 		}
@@ -561,7 +560,7 @@ class RunData {
 			$c = new Criteria();
 			$c->add("session_id", $session->getSessionId());
 			OzoneSessionPeer :: instance()->delete($c);
-			$memcache->delete($mkey);
+			Cache::forget($mkey);
 		}else {
 
 			// 	all is right, set the session now.
@@ -597,9 +596,8 @@ class RunData {
 					$session->setSessionChanged(false);
 				}
 
-				$mc = OZONE::$memcache;
 				$key = 'session..'.$session->getSessionId();
-				$mc->set($key, $session, 0, 600);
+				Cache::put($key, $session,600);
 			}
         if(!empty($this->_outCookies)) {
             $this->_setCookies();
@@ -693,11 +691,12 @@ class RunData {
 		return $this->getUser();
 	}
 
-	public function getUser() : ?User
+	public function getUser()
     {
 		if($this->session == null){
 			return null;
 		}
+		if(Auth::user()) { return Auth::user(); }
 		return $this->session->getOzoneUser();
 	}
 

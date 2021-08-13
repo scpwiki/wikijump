@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
 use Wikidot\Utils\AjaxModuleWikiFlowController;
@@ -129,6 +130,8 @@ Route::get('/what-is-a-wiki', function() {
    ]);
 });
 
+Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'destroy']);
+
 /**
  * This fallback route will defer to the OzoneController, which will boot an
  * instance of the legacy WikiFlowController and let it handle the response.
@@ -138,3 +141,7 @@ Route::get('/what-is-a-wiki', function() {
  */
 Route::any( "/{path?}", [OzoneController::class, 'handle'] )
     ->where( "path", ".*" );
+
+Route::middleware(['auth:sanctum', 'verified'])->get('/user--services/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');

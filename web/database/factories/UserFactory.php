@@ -8,6 +8,10 @@ use Wikijump\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
+/**
+ * Specification for creating users.
+ * @package Database\Factories
+ */
 class UserFactory extends Factory
 {
     /**
@@ -22,7 +26,7 @@ class UserFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $username = $this->faker->unique()->userName;
         return [
@@ -40,5 +44,19 @@ class UserFactory extends Factory
             'bio' => $this->faker->realText('2000'),
             'about_page' => 'https://'.$this->faker->domainName.'/'.$this->faker->domainWord
         ];
+    }
+
+    /**
+     * Indicate that the model's email address should be unverified.
+     *
+     * @return Factory
+     */
+    public function unverified() : Factory
+    {
+        return $this->state(function (array $attributes) {
+                return [
+                        'email_verified_at' => null,
+                    ];
+        });
     }
 }

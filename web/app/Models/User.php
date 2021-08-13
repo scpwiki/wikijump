@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Wikijump\Models;
 
 use Database\Seeders\UserSeeder;
+use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +16,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Sanctum\HasApiTokens;
 use Wikijump\Helpers\InteractionType;
 use Wikijump\Traits\HasInteractions;
 use Wikijump\Traits\HasSettings;
@@ -34,6 +38,10 @@ class User extends Authenticatable
     use HasSettings;
     use LegacyCompatibility;
     use HasInteractions;
+    use MustVerifyEmail;
+    use TwoFactorAuthenticatable;
+    use HasProfilePhoto;
+    use HasApiTokens;
 
     /**
      * These are service accounts added by the UserSeeder. They're used during
@@ -88,6 +96,15 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'profile_photo_url',
     ];
 
     /**
