@@ -36,7 +36,6 @@
     "autoload": {
         "psr-4": {
             "Wikijump\\": "app",
-            "App\\Providers\\": "app/Providers2/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Wikidot\\": "php",
