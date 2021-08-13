@@ -1,6 +1,7 @@
 <?php
 
 namespace Wikidot\Modules;
+use Illuminate\Support\Facades\Auth;
 use Ozone\Framework\Module;
 use Wikidot\Utils\GlobalProperties;
 
@@ -18,6 +19,11 @@ class LoginStatusModule extends Module
             $url_prefix = GlobalProperties::$HTTP_SCHEMA.'://' . GlobalProperties::$URL_HOST;
         } else {
             $url_prefix = '';
+        }
+
+        if($user === null)
+        {
+            $user = Auth::user();
         }
 
         if ($user == null) {
@@ -38,8 +44,8 @@ class LoginStatusModule extends Module
                 $loginDomain = $site->getLanguage();
             }
 
-            $out  = '<a href="' . $url_prefix . '/auth:newaccount?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('create account').'</a> '._('or') . ' ';
-            $out .= '<a href="' . $url_prefix . '/auth:login?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('login').'</a> ';
+            $out  = '<a href="' . route('register') . '">' . _('Register') . '</a> '._('or') . ' ';
+            $out .= '<a href="' . route('login') . '">' . _('Log In') . '</a>';
 
             //$out = '<a href="javascript:;" onclick="Wikijump.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="Wikijump.page.listeners.loginClick(event)">'._('login').'</a>';
         } else {
@@ -77,7 +83,7 @@ class LoginStatusModule extends Module
                     '<li><a href="' . $url_prefix . '/account:you/start/notifications">'._('notifications').'</a></li>'.
                     '<li><a href="' . $url_prefix . '/account:you/start/watched-changes">'._('watched pages').'</a></li>'.
                     '<li><a href="' . $url_prefix . '/account:you/start/watched-forum">'._('watched discussions').'</a></li>'.
-                    '<li><a href="javascript:;" onclick="Wikijump.page.listeners.logoutClick(event)">'._('logout').'</a></li>' .
+                    '<li><a href="' . route('logout') . '">'._('Log Out').'</a></li>' .
                     '</ul></div>';
 
             // back the language!

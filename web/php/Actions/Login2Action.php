@@ -1,6 +1,7 @@
 <?php
 
 namespace Wikidot\Actions;
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
@@ -109,9 +110,8 @@ class Login2Action extends SmartyAction
             $c->add("ip_address", $runData->createIpString());
             // outdate the cache first
             $ss = OzoneSessionPeer::instance()->select($c);
-            $mc = OZONE::$memcache;
             foreach ($ss as $s) {
-                $mc->delete('session..'.$s->getSessionId());
+                Cache::forget('session..'.$s->getSessionId());
             }
             OzoneSessionPeer::instance()->delete($c);
         }

@@ -1,6 +1,7 @@
 <?php
 
 namespace Wikidot\Actions;
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
@@ -613,14 +614,12 @@ class ManageSiteAction extends SmartyAction
 
         $dbRedirects = DomainRedirectPeer::instance()->select($c);
 
-        $memcache = Ozone::$memcache;
-
         foreach ($dbRedirects as $dbr) {
             if (in_array($dbr->getUrl(), $redirects)) {
                 unset($redirects[array_search($dbr->getUrl(), $redirects)]);
             } else {
                 $key = 'domain_redirect..'.$dbr->getUrl();
-                $memcache->delete($key);
+                Cache::forget($key);
                 DomainRedirectPeer::instance()->deleteByPrimaryKey($dbr->getRedirectId());
             }
         }
@@ -928,9 +927,8 @@ class ManageSiteAction extends SmartyAction
         $keys[] = 'site..'.$site->getUnixName();
         $keys[] = 'site_cd..'.$site->getCustomDomain();
 
-        $mc = OZONE::$memcache;
         foreach ($keys as $k) {
-            $mc->delete($k);
+            Cache::forget($k);
         }
 
         $outdater = new Outdater();
@@ -1029,9 +1027,8 @@ class ManageSiteAction extends SmartyAction
         $keys[] = 'site..'.$site->getUnixName();
         $keys[] = 'site_cd..'.$site->getCustomDomain();
 
-        $mc = OZONE::$memcache;
         foreach ($keys as $k) {
-            $mc->delete($k);
+            Cache::forget($k);
         }
 
         $outdater = new Outdater();

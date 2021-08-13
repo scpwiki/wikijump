@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Wiki\SitesActivity;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\PagePeer;
@@ -16,12 +17,11 @@ class RecentWPageRevisionsModule extends SmartyModule
     {
         $site = $runData->getTemp("site");
         $key = "module..0..RecentWPageRevisionsModule..".$site->getSiteId().'..'.md5(serialize($runData->getParameterList()->asArray()));
-        $mc = OZONE::$memcache;
 
-        $out = $mc->get($key);
+        $out = Cache::get($key);
         if (!$out) {
             $out = parent::render($runData);
-            $mc->set($key, $out, 0, 120);
+            Cache::put($key, $out, 120);
         }
 
         return $out;

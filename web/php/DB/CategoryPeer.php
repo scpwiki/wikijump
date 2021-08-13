@@ -4,6 +4,7 @@ namespace Wikidot\DB;
 
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Ozone;
 use Wikidot\Utils\WDStringUtils;
 use Ozone\Framework\Database\Criteria;
@@ -27,9 +28,8 @@ class CategoryPeer extends CategoryPeerBase
         }
 
         if ($useMemcache) {
-            $memcache = Ozone::$memcache;
             $key = 'category..'.$siteId.'..'.$name;
-            $cat = $memcache->get($key);
+            $cat = Cache::get($key);
             if ($cat) {
                 return $cat;
             } else {
@@ -37,7 +37,7 @@ class CategoryPeer extends CategoryPeerBase
                 $c->add("name", $name);
                 $c->add("site_id", $siteId);
                 $cat = $this->selectOne($c);
-                $memcache->set($key, $cat, 0, 864000); // 10 days
+                Cache::put($key, $cat, 864000);
                 return $cat;
             }
         } else {
@@ -53,9 +53,8 @@ class CategoryPeer extends CategoryPeerBase
     {
 
         if ($useMemcache) {
-            $memcache = Ozone::$memcache;
             $key = 'categorybyid..'.$siteId.'..'.$categoryId;
-            $cat = $memcache->get($key);
+            $cat = Cache::get($key);
             if ($cat != false) {
                 return $cat;
             } else {
@@ -63,7 +62,7 @@ class CategoryPeer extends CategoryPeerBase
                 $c->add("category_id", $categoryId);
                 $c->add("site_id", $siteId);
                 $cat = $this->selectOne($c);
-                $memcache->set($key, $cat, 0, 864000);
+                Cache::put($key, $cat, 864000);
                 return $cat;
             }
         } else {

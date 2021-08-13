@@ -3,6 +3,7 @@
 namespace Wikidot\DB;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\Modules\PageRate\PageRateWidgetModule;
@@ -235,11 +236,10 @@ class Category extends CategoryBase
 
     public function save()
     {
-        $memcache = Ozone::$memcache;
         $key = 'category..'.$this->getSiteId().'..'.$this->getName();
-        $memcache->delete($key);
+        Cache::forget($key);
         $key = 'categorybyid..'.$this->getSiteId().'..'.$this->getCategoryId();
-        $memcache->delete($key);
+        Cache::forget($key);
 
         if ($this->getPerPageDiscussion() === null && $this->getName() == '_default') {
             $this->setPerPageDiscussion(false);

@@ -2,6 +2,7 @@
 
 namespace Wikidot\Utils;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Ozone;
 
 define("MAGPIE_DIR", WIKIJUMP_ROOT."/lib/magpierss/");
@@ -17,10 +18,9 @@ class MagpieFeed
     {
 
         // check if not already in cache (memcache only)
-        $mc = Ozone::$memcache;
 
         $key = "feed..".$url;
-        $o = $mc->get($key);
+        $o = Cache::get($key);
         if ($o != false && $o != null) {
             return $o;
         }
@@ -28,7 +28,7 @@ class MagpieFeed
         // not in cache, proceed!!!
 
         $o = fetch_rss($url);
-        $mc->set($key, $o, 0, 300);
+        Cache::put($key, $o, 300);
 
         return $o;
     }

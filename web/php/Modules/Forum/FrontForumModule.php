@@ -2,6 +2,7 @@
 
 namespace Wikidot\Modules\Forum;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyModule;
@@ -34,8 +35,7 @@ class FrontForumModule extends SmartyModule
 
         $valid = true;
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
+        $struct = Cache::get($key);
         if (!$struct) {
             $valid = false;
         }
@@ -48,20 +48,20 @@ class FrontForumModule extends SmartyModule
 
         foreach ($cats as $cat) {
             $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$cat; // last change timestamp
-            $changeTimestamp = $mc->get($tkey);
+            $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
                 //cache valid
             } else {
                 $valid = false;
                 if (!$changeTimestamp) {
                     //  put timestamp
-                    $mc->set($tkey, $now, 0, 864000);
+                    Cache::put($tkey, $now, 864000);
                     $valid = false;
                 }
             }
         }
         $akey = 'forumall_lc..'.$site->getUnixName();
-        $allForumTimestamp = $mc->get($akey);
+        $allForumTimestamp = Cache::get($akey);
         if ($allForumTimestamp &&  $allForumTimestamp <= $cacheTimestamp) {
             //cache valid
         } else {
@@ -69,7 +69,7 @@ class FrontForumModule extends SmartyModule
         }
 
         if (!$allForumTimestamp) {
-            $mc->set($akey, $now, 0, 864000);
+            Cache::put($akey, $now, 864000);
         }
 
         if ($valid) {
@@ -86,7 +86,7 @@ class FrontForumModule extends SmartyModule
         $struct['content'] = $out;
         $struct['vars']=$this->vars;
 
-        $mc->set($key, $struct, 0, 864000);
+        Cache::put($key, $struct, 864000);
 
         return $out;
     }

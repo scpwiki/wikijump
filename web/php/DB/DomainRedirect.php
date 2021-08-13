@@ -3,6 +3,7 @@
 namespace Wikidot\DB;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Ozone;
 
 /**
@@ -14,9 +15,8 @@ class DomainRedirect extends DomainRedirectBase
 
     public function save()
     {
-        $memcache = Ozone::$memcache;
         $key = 'domain_redirect..'.$this->getUrl();
-        $memcache->delete($key);
+        Cache::forget($key);
 
         parent::save();
     }

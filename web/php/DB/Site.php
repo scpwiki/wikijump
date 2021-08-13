@@ -3,6 +3,7 @@
 namespace Wikidot\DB;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\Utils\GlobalProperties;
@@ -26,13 +27,12 @@ class Site extends SiteBase
     public function getSettings()
     {
         $key = "sitesettings.." . $this->getSiteId();
-        $mc = Ozone::$memcache;
-        $s = $mc->get($key);
+        $s = Cache::get($key);
         if (!$s) {
             $c = new Criteria();
             $c->add("site_id", $this->getSiteId());
             $s = SiteSettingsPeer::instance()->selectOne($c);
-            $mc->set($key, $s, 0, 864000);
+            Cache::put($key, $s, 864000);
         }
         return $s;
     }
@@ -54,11 +54,10 @@ class Site extends SiteBase
 
     public function save()
     {
-        $memcache = Ozone::$memcache;
         $key = 'site..' . $this->getUnixName();
-        $memcache->delete($key);
+        Cache::forget($key);
         $key = 'site_cd..' . $this->getCustomDomain();
-        $memcache->delete($key);
+        Cache::forget($key);
         parent::save();
     }
 

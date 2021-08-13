@@ -2,6 +2,7 @@
 
 namespace Wikidot\Screens\Feed;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\ForumThreadPeer;
@@ -27,11 +28,10 @@ class ForumThreadPostsFeed extends FeedScreen
         $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
         $akey = 'forumall_lc..'.$site->getUnixName();
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
+        $struct = Cache::get($key);
         $cacheTimestamp = $struct['timestamp'];
-        $changeTimestamp = $mc->get($tkey);
-        $allForumTimestamp = $mc->get($akey);
+        $changeTimestamp = Cache::get($tkey);
+        $allForumTimestamp = Cache::get($akey);
         if ($struct) {
             // check the times
 
@@ -48,15 +48,14 @@ class ForumThreadPostsFeed extends FeedScreen
         $struct['timestamp'] = $now;
         $struct['content'] = $out;
 
-        $mc->set($key, $struct, 0, 1000);
-
+        Cache::put($key, $struct, 1000);
         if (!$changeTimestamp) {
             $changeTimestamp = $now;
-            $mc->set($tkey, $changeTimestamp, 0, 1000);
+            Cache::put($tkey, $changeTimestamp, 1000);
         }
         if (!$allForumTimestamp) {
             $allForumTimestamp = $now;
-            $mc->set($akey, $allForumTimestamp, 0, 10000);
+            Cache::put($akey, $allForumTimestamp, 10000);
         }
 
         return $out;

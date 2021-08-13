@@ -3,6 +3,7 @@
 namespace Wikidot\Utils;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
@@ -71,9 +72,8 @@ class LoginAuthController extends WebFlowController
         $session->save();
 
         /* IMPORTANT: Also clear the session cache. */
-        $mc = OZONE::$memcache;
         $key = 'session..'.$session->getSessionId();
-        $mc->set($key, $session, 0, 600);
+        Cache::put($key, $session, 600);
 
 
         /* If everything went well, redirect to the original URL. */

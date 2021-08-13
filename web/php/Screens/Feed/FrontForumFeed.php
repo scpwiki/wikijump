@@ -2,6 +2,7 @@
 
 namespace Wikidot\Screens\Feed;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\PagePeer;
@@ -19,36 +20,35 @@ class FrontForumFeed extends FeedScreen
 
     public function render($runData)
     {
-        $site = $runData->getTemp("site");
+        $site = $runData->getTemp('site');
         $pl = $runData->getParameterList();
 
-        $pageName = $pl->getParameterValue("page");
-        $label = $pl->getParameterValue("label");
+        $pageName = $pl->getParameterValue('page');
+        $label = $pl->getParameterValue('label');
 
         $key = 'frontforumfeed..'.$site->getUnixName().'..'.$pageName.'..'.$label;
 
         $valid = true;
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
+        $struct = Cache::get($key);
         if (!$struct) {
             $valid = false;
         }
         $cacheTimestamp = $struct['timestamp'];
 
-        $fkey = "frontforumfeedobject..".$site->getUnixName().'..'.$pageName.'..'.$label;
-        $feed = $mc->get($fkey);
+        $fkey = 'frontforumfeedobject..' .$site->getUnixName().'..'.$pageName.'..'.$label;
+        $feed = Cache::get($fkey);
 
         if (!$feed) {
             $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 
             //  get the feed object
             $c = new Criteria();
-            $c->add("page_id", $page->getPageId());
-            $c->add("label", $label);
+            $c->add('page_id', $page->getPageId());
+            $c->add('label', $label);
 
             $feed = FrontForumFeedPeer::instance()->selectOne($c);
-            $mc->set($fkey, $feed, 0, 3600);
+            Cache::put($fkey, $feed, 3600);
         }
 
         $now = time();
@@ -60,25 +60,25 @@ class FrontForumFeed extends FeedScreen
 
         foreach ($cats as $cat) {
             $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$cat; // last change timestamp
-            $changeTimestamp = $mc->get($tkey);
+            $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
                 //cache valid
             } else {
                 $valid = false;
                 if (!$changeTimestamp) {
                     //  put timestamp
-                    $mc->set($tkey, $now, 0, 10000);
+                    Cache::put($tkey, $now, 10000);
                     $valid = false;
                 }
             }
         }
         $akey = 'forumall_lc..'.$site->getUnixName();
-        $allForumTimestamp = $mc->get($akey);
+        $allForumTimestamp = Cache::get($akey);
         if ($allForumTimestamp &&  $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {
             //cache valid
         } else {
             if (!$allForumTimestamp) {
-                $mc->set($akey, $now, 0, 10000);
+                Cache::put($akey, $now, 10000);
             }
         }
 
@@ -94,7 +94,7 @@ class FrontForumFeed extends FeedScreen
         $struct['timestamp'] = $now;
         $struct['content'] = $out;
 
-        $mc->set($key, $struct, 0, 1000);
+        Cache::put($key, $struct, 1000);
 
         return $out;
     }
@@ -102,21 +102,21 @@ class FrontForumFeed extends FeedScreen
     public function build($runData)
     {
 
-        $site = $runData->getTemp("site");
+        $site = $runData->getTemp('site');
 
         $pl = $runData->getParameterList();
 
-        $pageName = $pl->getParameterValue("page");
-        $label = $pl->getParameterValue("label");
+        $pageName = $pl->getParameterValue('page');
+        $label = $pl->getParameterValue('label');
 
         // get the feed object
         $page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
         if (!$page) {
-            throw new ProcessException(_("No such page."), "no_page");
+            throw new ProcessException(_('No such page.'), 'no_page');
         }
         $c = new Criteria();
-        $c->add("page_id", $page->getPageId());
-        $c->add("label", $label);
+        $c->add('page_id', $page->getPageId());
+        $c->add('label', $label);
         $feed = FrontForumFeedPeer::instance()->selectOne($c);
 
         $categoryIds = $feed->getCategories();
@@ -126,38 +126,38 @@ class FrontForumFeed extends FeedScreen
         $categories = array();
 
         if (count($cats)>20) {
-            throw new ProcessException(_("Maximum number of categories exceeded."), "max_categories");
+            throw new ProcessException(_('Maximum number of categories exceeded.'), 'max_categories');
         }
 
         // get page
         $page = PagePeer::instance()->selectByPrimaryKey($feed->getPageId());
         if (!$page) {
-            throw new ProcessException(_("Page cannot be found."), "no_page");
+            throw new ProcessException(_('Page cannot be found.'), 'no_page');
         }
 
         foreach ($cats as $categoryId) {
             if ($categoryId === null || !is_numeric($categoryId)) {
-                throw new ProcessException(_('Problem parsing attribute "category".'), "no_category");
+                throw new ProcessException(_('Problem parsing attribute "category".'), 'no_category');
             }
 
             $category = ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
 
             if ($category == null || $category->getSiteId() !== $site->getSiteId()) {
-                throw new ProcessException(_("Requested forum category does not exist."), "no_category");
+                throw new ProcessException(_('Requested forum category does not exist.'), 'no_category');
             }
 
             $categories[$category->getCategoryId()] = $category;
-            $ccat->addOr("category_id", $category->getCategoryId());
+            $ccat->addOr('category_id', $category->getCategoryId());
         }
         $c = new Criteria();
         $c->addCriteriaAnd($ccat);
 
-        $c->addOrderDescending("thread_id");
+        $c->addOrderDescending('thread_id');
         $c->setLimit(30);
         $threads = ForumThreadPeer::instance()->select($c);
 
         $channel['title'] = $feed->getTitle();
-        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->getUnixName();
+        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain(). '/' .$page->getUnixName();
         if ($feed->getDescription()) {
             $channel['description'] = $feed->getDescription();
         }
@@ -168,7 +168,7 @@ class FrontForumFeed extends FeedScreen
             $item = array();
 
             $item['title'] = $thread->getTitle();
-            $item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle();
+            $item['link'] = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain(). '/forum/t-' .$thread->getThreadId().'/'.$thread->getUnixifiedTitle();
             $item['guid'] = $item['link'];
             $item['date'] = date('r', $thread->getDateStarted()->getTimestamp());
 
@@ -182,7 +182,7 @@ class FrontForumFeed extends FeedScreen
 
             $content =  $post->getText();
 
-            $content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
+            $content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain().'/\\3"\\4', $content);
             $content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
             $content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 
@@ -201,7 +201,7 @@ class FrontForumFeed extends FeedScreen
             $items[] = $item;
         }
 
-        $runData->contextAdd("channel", $channel);
-        $runData->contextAdd("items", $items);
+        $runData->contextAdd('channel', $channel);
+        $runData->contextAdd('items', $items);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Wikidot\Utils;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
@@ -487,7 +488,6 @@ class Outdater
     public function outdatePageCache($page)
     {
         // both levels!
-        $memcache = Ozone::$memcache;
         $site = $GLOBALS['site'];
         $now = time();
         if (is_string($page)) {
@@ -500,7 +500,7 @@ class Outdater
         $cd = $site->getCustomDomain();
         if ($cd !== null && $cd !=='') {
             $key = 'url..'.$cd.'/'.$pageName;
-            $memcache->delete($key);
+            Cache::forget($key);
         }
 
         // check if default landing page
@@ -508,13 +508,13 @@ class Outdater
             $key = 'url..'.$site->getUnixName(). '.' . GlobalProperties::$URL_DOMAIN;
             if ($cd !== null && $cd !=='') {
                 $key = 'url..'.$cd;
-                $memcache->delete($key);
+                Cache::forget($key);
             }
         }
 
-        $memcache->delete($key);
+        Cache::forget($key);
         $key = 'page..'.$site->getUnixName().'..'.$pageName;
-        $memcache->delete($key);
+        Cache::forget($key);
 
         /* Touch the catefory "last change" timestamp. */
 
@@ -525,17 +525,16 @@ class Outdater
             $categoryName = "_default";
         }
         $ckey = 'pagecategory_lc..'.$site->getUnixName().'..'.$categoryName;
-        $memcache->set($ckey, $now, 0, 10000);
+        Cache::put($ckey, $now, 10000);
 
         $ckey = 'pageall_lc..'.$site->getUnixName();
-        $memcache->set($ckey, $now, 0, 10000);
-
+        Cache::put($ckey, $now, 10000);
         /*
          * Outdate code blocks.
          */
 
         $ckey = 'pagecodeblocks..' . $site->getSiteId() . '..' . $pageName;
-        $memcache->delete($ckey);
+        Cache::forget($ckey);
     }
 
     /**
@@ -582,13 +581,12 @@ class Outdater
 
         // the above is not necesarily necessary. try the below code:
         $aKey = 'category_lc..'.$site->getUnixName().'..'.$category->getName();
-        $mc = OZONE::$memcache;
         $now = time();
-        $mc->set($aKey, $now, 0, 7200);
+        Cache::put($aKey, $now, 7200);
         $key = 'category..'.$site->getSiteId().'..'.$category->getName();
-        $mc->delete($key);
+        Cache::forget($key);
         $key = 'categorybyid..'.$site->getSiteId().'..'.$category->getCategoryId();
-        $mc->delete($key);
+        Cache::forget($key);
     }
 
     private function outdateThemeDependentCategories($theme)
@@ -620,35 +618,33 @@ class Outdater
 
         $db = Database::connection();
         $r = $db->query($q);
-        $mc = OZONE::$memcache;
         $now = time();
         while ($row = $r->nextRow()) {
             $name = $row['name'];
             $aKey = 'category_lc..'.$site->getUnixName().'..'.$name;
-            $mc->set($aKey, $now, 0, 7200);
+            Cache::put($aKey, $now, 7200);
         }
     }
 
     public function handleForumPostSave($post)
     {
-        $mc = Ozone::$memcache;
         // create an antry with mod time
         $now = time();
         $site = $GLOBALS['site'];
 
         // outdate forum thread
         $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$post->getThreadId();
-        $mc->set($tkey, $now, 0, 1000);
+        Cache::put($tkey, $now, 1000);
 
         // outdate forum category
         $thread = $post->getForumThread();
         $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
-        $mc->set($tkey, $now, 0, 1000);
+        Cache::put($tkey, $now, 1000);
 
         // outdate whole forum (affects the main view)
 
         $tkey = 'forumstart_lc..'.$site->getUnixName();
-        $mc->set($tkey, $now, 0, 1000);
+        Cache::put($tkey, $now, 1000);
 
         // check if forum not related to any page (page discussion)
         if ($thread->getPageId() !== null) {
@@ -659,33 +655,31 @@ class Outdater
 
     public function handleForumThreadSave($thread)
     {
-        $mc = Ozone::$memcache;
         // create an antry with mod time
         $now = time();
         $site = $GLOBALS['site'];
 
         // outdate forum thread
         $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$thread->getThreadId();
-        $mc->set($tkey, $now, 0, 1000);
+        Cache::put($tkey, $now, 1000);
 
         // outdate forum category
         $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
-        $mc->set($tkey, $now, 0, 1000);
+        Cache::put($tkey, $now, 1000);
 
         // outdate whole forum (affects the main view)
         $tkey = 'forumstart_lc..'.$site->getUnixName();
-        $mc->set($tkey, $now, 0, 1000);
+        Cache::put($tkey, $now, 1000);
     }
 
     private function handleWholeForumOutdate()
     {
-        $mc = Ozone::$memcache;
         // create an antry with mod time
         $now = time();
         $site = $GLOBALS['site'];
 
         $key = 'forumall_lc..'.$site->getUnixName();
-        $mc->set($key, $now, 0, 3600);
+        Cache::put($key, $now, 3600);
     }
 
     public function recompileCategory($category)
@@ -740,9 +734,8 @@ class Outdater
         }
 
         $key = "page_tags_lc..".$siteId;
-        $mc = OZONE::$memcache;
 
-        $mc->set($key, time(), 0, 3600);
+        Cache::put($key, time(), 3600);
     }
 
     public function outdateRatingStars($page)
@@ -750,23 +743,20 @@ class Outdater
         $siteId = $page->getSiteId();
 
         $key = "top_rated_pages_lc..".$siteId;
-        $mc = OZONE::$memcache;
 
-        $mc->set($key, time(), 0, 3600);
+        Cache::put($key, time(), 3600);
     }
 
     private function handleSiteDelete($site)
     {
-        $mc = OZONE::$memcache;
-
         $key = "sitesettings..".$site->getSiteId();
-        $mc->delete($key);
+        Cache::forget($key);
 
         $key = 'site..'.$site->getUnixName();
-        $mc->delete($key);
+        Cache::forget($key);
 
         $key = 'site_cd..'.$site->getCustomDomain();
-        $mc->delete($key);
+        Cache::forget($key);
     }
 
     private function handleCategoryDelete($category, $site = null)
@@ -780,12 +770,11 @@ class Outdater
             $cname = $category;
         }
         $key = 'category_lc..'.$site->getUnixName().'..'.$cname;
-        $mc = OZONE::$memcache;
-        $mc->delete($key);
+        Cache::forget($key);
         $key = 'category..'.$site->getSiteId().'..'.$cname;
-        $mc->delete($key);
+        Cache::forget($key);
         $key = 'categorybyid..'.$site->getSiteId().'..'.$cname;
-        $mc->delete($key);
+        Cache::forget($key);
     }
 
     private function handleTemplateChange($page)

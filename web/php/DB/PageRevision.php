@@ -3,6 +3,7 @@
 namespace Wikidot\DB;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\Utils\ODiff;
@@ -116,14 +117,13 @@ class PageRevision extends PageRevisionBase
             $page = $this->getPage();
             if ($page) {
                 $key = "sitechangesfeed..".$page->getSiteId();
-                $mc = Ozone::$memcache;
-                $mc->delete($key);
+                Cache::forget($key);
 
                 $tkey = "siterevisions_lc..".$page->getSiteId();
-                $mc->set($tkey, time(), 0, 3600);
+                Cache::put($tkey, time(), 3600);
 
                 $tkey = "pagerevisions_lc..".$page->getPageId();
-                $mc->set($tkey, time(), 0, 3600);
+                Cache::put($tkey, time(), 3600);
             }
         } catch (Exception $e) {
         }

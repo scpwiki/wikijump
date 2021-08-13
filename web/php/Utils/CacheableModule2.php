@@ -6,6 +6,7 @@ namespace Wikidot\Utils;
  * A better way to cache
  */
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyModule;
 
@@ -38,18 +39,16 @@ abstract class CacheableModule2 extends SmartyModule
             $tkey = $this->keyBase.'_lc..'.$site->getSiteId(); // last change timestamp
         }
 
-        $mc = Ozone::$memcache;
-        $struct = $mc->get($key);
+        $struct = Cache::get($key);
 
         $cacheTimestamp = $struct['timestamp'];
-        $changeTimestamp = $mc->get($tkey);
+        $changeTimestamp = Cache::get($tkey);
 
         if ($struct) {
             // check the times
 
             if ($changeTimestamp && $changeTimestamp <= $cacheTimestamp + $this->delay) {
-                $out = $struct['content'];
-                return $out;
+                return $struct['content'];
             }
         }
 
@@ -61,11 +60,11 @@ abstract class CacheableModule2 extends SmartyModule
         $struct['timestamp'] = $now;
         $struct['content'] = $out;
 
-        $mc->set($key, $struct, 0, $this->timeOut);
+        Cache::put($key, $struct, $this->timeOut);
 
         if (!$changeTimestamp) {
             $changeTimestamp = $now;
-            $mc->set($tkey, $changeTimestamp, 0, $this->timeOut);
+            Cache::put($tkey, $changeTimestamp, $this->timeOut);
         }
 
         return $out;

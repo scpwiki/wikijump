@@ -3,7 +3,7 @@
 namespace Wikidot\DB;
 
 
-use Ozone\Framework\Ozone;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Object Model Class.
@@ -15,8 +15,7 @@ class SiteSuperSettings extends SiteSuperSettingsBase
     public function save()
     {
         $key = "sitesupersettings..".$this->getSiteId();
-        $mc = Ozone::$memcache;
-        $s = $mc->delete($key);
+        Cache::forget($key);
         parent::save();
     }
 }

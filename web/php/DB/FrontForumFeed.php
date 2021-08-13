@@ -3,6 +3,7 @@
 namespace Wikidot\DB;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Ozone;
 
 /**
@@ -19,8 +20,7 @@ class FrontForumFeed extends FrontForumFeedBase
         $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
         $site = $GLOBALS['site'];
         $fkey = "frontforumfeedobject..".$site->getUnixName().'..'.$page->getUnixName().'..'.$this->getLabel();
-        $mc = Ozone::$memcache;
-        $mc->delete($fkey);
+        Cache::forget($fkey);
         parent::save();
     }
 }

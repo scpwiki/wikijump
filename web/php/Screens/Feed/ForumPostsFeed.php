@@ -2,6 +2,7 @@
 
 namespace Wikidot\Screens\Feed;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\ForumPostPeer;
@@ -24,16 +25,14 @@ class ForumPostsFeed extends FeedScreen
         $tkey = 'forumstart_lc..'.$site->getUnixName(); // last change timestamp
         $akey = 'forumall_lc..'.$site->getUnixName();
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
-        $changeTimestamp = $mc->get($tkey);
-        $allForumTimestamp = $mc->get($akey);
+        $struct = Cache::get($key);
+        $cacheTimestamp = $struct['timestamp'];
+        $changeTimestamp = Cache::get($tkey);
+        $allForumTimestamp = Cache::get($akey);
         if ($struct) {
             // check the times
-            $cacheTimestamp = $struct['timestamp'];
 
-            // afford 1 minute delay
-            if ($changeTimestamp && $changeTimestamp <= $cacheTimestamp+60 && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp) {
+            if ($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp) {
                 return $struct['content'];
             }
         }
@@ -46,14 +45,14 @@ class ForumPostsFeed extends FeedScreen
         $struct['timestamp'] = $now;
         $struct['content'] = $out;
 
-        $mc->set($key, $struct, 0, 1000);
+        Cache::put($key, $struct, 1000);
         if (!$changeTimestamp) {
             $changeTimestamp = $now;
-            $mc->set($tkey, $changeTimestamp, 0, 1000);
+            Cache::put($tkey, $changeTimestamp, 1000);
         }
         if (!$allForumTimestamp) {
             $allForumTimestamp = $now;
-            $mc->set($akey, $allForumTimestamp, 0, 1000);
+            Cache::put($akey, $allForumTimestamp, 10000);
         }
 
         return $out;
