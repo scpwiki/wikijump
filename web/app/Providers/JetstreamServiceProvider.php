@@ -1,11 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Wikijump\Providers;
 
 use Wikijump\Actions\Jetstream\DeleteUser;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Jetstream\Jetstream;
 
+/**
+ * Bootstrapping of Jetstream (Sanctum) services.
+ *
+ * @package Wikijump\Providers
+ */
 class JetstreamServiceProvider extends ServiceProvider
 {
     /**

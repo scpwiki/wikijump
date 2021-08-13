@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
+/**
+ * Service Provider for route publishing and rate limits.
+ *
+ * @package Wikijump\Providers
+ */
 class RouteServiceProvider extends ServiceProvider
 {
     /**

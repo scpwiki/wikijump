@@ -110,6 +110,7 @@ return [
         '/^wjupload$/',
         '/^file[s]?$/',
         '/^api[0-9]*/',
+        '/^svc$/',
     ],
 
     /** How many contacts a user may have. */

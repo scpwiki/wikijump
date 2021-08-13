@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Wikijump\Providers\RouteServiceProvider;
 use Laravel\Fortify\Features;
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Wikijump\Providers;
 
 use Wikijump\Actions\Fortify\CreateNewUser;
@@ -12,6 +14,11 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
 
+/**
+ * Bootstrapping for Laravel Fortify.
+ *
+ * @package Wikijump\Providers
+ */
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
