@@ -7,6 +7,7 @@ namespace Wikijump\Helpers;
 use Ozone\Framework\PageProperties;
 use Ozone\Framework\ParameterList;
 use Ozone\Framework\PathManager;
+use Wikidot\Utils\GlobalProperties;
 
 /**
  * PageBuilder: It's like RunData, but good.
@@ -83,6 +84,40 @@ class PageBuilder
          * Then we take our extracted parameters and choose the template and screen to use.
          */
         $this->setTemplate();
+
+        /** Set the language and theme for the request. */
+        $this->language = $this->parameterArray['lang'] ?? GlobalProperties::$DEFAULT_LANGUAGE;
+        if ($this->parameterArray['skin']) { $this->skin = $this->parameterArray['skin']; }
+
+        $action = $this->parameterArray['action'];
+
+        /** If there's a valid action... */
+        if ($action !== null  && preg_match('/^[a-z0-9_\/]+$/i', $action) == 1) {
+            unset($this->parameterArray['action']);
+            unset($this->parameterTypes['action']);
+            $this->action = str_replace("__", "/", $action);
+
+             /** If the action is an Event (an AJAX call), assign the value to the property. */
+            foreach ($this->parameterArray as $key => $value) {
+                if ($key == 'event') {
+                    $this->actionEvent = $value.'Event';
+                }
+            }
+             /** Forms submissions come in with a different format, we'll unify them here. */
+            foreach ($this->parameterArray as $key => $value) {
+                if (str_starts_with('event_', $key)) {
+                    $this->actionEvent = str_replace('event_', '', $key).'Event';
+                }
+            }
+        }
+
+        // initialize cookies...
+        $this->cookies = $_COOKIE;
+
+        // store original request uri and request method:
+        $this->requestUri = $_SERVER['REQUEST_URI'];
+        $this->requestMethod = $_SERVER['REQUEST_METHOD'];
+
     }
 
     /**
@@ -178,6 +213,9 @@ class PageBuilder
         }
     }
 
+    /**
+     *  Validate the requested template or screen and retrieve the location of it.
+     */
     public function setTemplate()
     {
         /** The ajaxMode property can be set true by the AjaxModuleWebFlowController */
