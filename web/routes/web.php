@@ -89,21 +89,7 @@ Route::get('/user--karma/{user}', function(User $user) {
 Route::get('/what-is-a-wiki', function() {
    $legacy = new LegacyTools();
    $values = $legacy->generateScreenVars();
-//    /**
-//     * @var $site
-//     * @var $pageNotExists
-//     * @var $wikiPageName
-//     * @var $category
-//     * @var $theme
-//     * @var $wikiPage
-//     * @var $topBarContent
-//     * @var $sideBar1Content
-//     * @var $breadcrumbs
-//     * @var $tags
-//     * @var $licenseText
-//     */
-//   extract($values);
-   return view('test.test', [
+   return view('layouts.legacy', [
        'site' => $values['site'] ?? null,
        'pageNotExists' => $values['pageNotExists'] ?? null,
        'category' => $values['category'] ?? null,
@@ -145,3 +131,37 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/user--services/dashboard'
  */
 Route::any( "/{path?}", [OzoneController::class, 'handle'] )
     ->where( "path", ".*" );
+
+/** Use blade for everything. Soon™. */
+//Route::any( "/{path?}", function() {
+//    $legacy = new LegacyTools();
+//    $values = $legacy->generateScreenVars();
+//    return view(
+//        'layouts.legacy',
+//        [
+//            'site' => $values['site'] ?? null,
+//            'pageNotExists' => $values['pageNotExists'] ?? null,
+//            'category' => $values['category'] ?? null,
+//            'theme' => $values['theme'] ?? null,
+//            'wikiPage' => ($values['wikiPage'] ?? null),
+//            'wikiPageName' => ($values['wikiPageName'] ?? null),
+//            'pageContent' => ($values['pageContent'] ?? null),
+//            'topBarContent' => $values['topBarContent'] ?? null,
+//            'sideBar1Content' => $values['sideBar1Content'] ?? null,
+//            'breadcrumbs' => $values['breadcrumbs'] ?? null,
+//            'tags' => $values['tags'] ?? null,
+//            'licenseText' => $values['licenseText'] ?? null,
+//            'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
+//            'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
+//            'URL_HOST' => GlobalProperties::$URL_HOST,
+//            'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
+//            'usePrivateWikiScript' => $values['usePrivateWikiScript'],
+//            'privateWikiScriptUrl' => $values['privateWikiScriptUrl'],
+//            'useCustomDomainScript' => $values['useCustomDomainScript'],
+//            'useCustomDomainScriptSecure' => $values['useCustomDomainScriptSecure'],
+//            'login' => $values['login'],
+//            'pageOptions' => $values['pageOptions'],
+//
+//        ]
+//    );
+//})->where("path", ".*");
