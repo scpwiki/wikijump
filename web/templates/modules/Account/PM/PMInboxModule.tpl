@@ -28,7 +28,7 @@
 			<td class="subject">
 				<a href="javascript:;"
 				{if $message->isUnread()} style="font-weight: bold"{/if}
-				onclick="Wikijump.modules.AccountMessagesModule.listeners.viewInboxMessage({$message->id})">{$message->subject|escape}</a>
+				onclick="Wikijump.modules.AccountMessagesModule.listeners.viewInboxMessage('{$message->id}')">{$message->subject|escape}</a>
 			</td>
 			<td>
 				{printuser user=$message->sender image=true}

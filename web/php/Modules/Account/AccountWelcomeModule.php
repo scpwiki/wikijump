@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Account;
 
 
+use Illuminate\Support\Facades\Auth;
 use Wikidot\Utils\AccountBaseModule;
 
 class AccountWelcomeModule extends AccountBaseModule
@@ -11,7 +12,7 @@ class AccountWelcomeModule extends AccountBaseModule
     public function build($runData)
     {
 
-        $user = $runData->getUser();
+        $user = $runData->getUser() ?? Auth::user();
         $runData->contextAdd("user", $user);
 
         $userId = $user->id;

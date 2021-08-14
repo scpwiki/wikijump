@@ -3,6 +3,7 @@
 namespace Wikidot\Utils;
 
 use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Auth;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
@@ -133,6 +134,7 @@ class WDPermissionManager
 
     public function hasPermission($action, $user, $site = null)
     {
+
          if ($user->id === 1) {
             return true;
         }

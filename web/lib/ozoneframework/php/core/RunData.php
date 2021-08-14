@@ -681,22 +681,19 @@ class RunData {
 	}
 
 	public function getUserId() {
-		if($this->session == null){
-			return null;
-		}
-		return $this->session->getUserId();
+		return Auth::id();
 	}
 
 	public function getOzoneUser(){
-		return $this->getUser();
+		return Auth::user();
 	}
 
 	public function getUser()
     {
+        if(Auth::user()) { return Auth::user(); }
 		if($this->session == null){
 			return null;
 		}
-		if(Auth::user()) { return Auth::user(); }
 		return $this->session->getOzoneUser();
 	}
 

@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Account;
 
 
+use Illuminate\Support\Facades\Auth;
 use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\CryptUtils;
 
@@ -19,7 +20,7 @@ class AccountModule extends AccountBaseModule
 
     public function build($runData)
     {
-        if (!$runData->getUser()) {
+        if (!$runData->getUser() && !Auth::user()) {
             $runData->setModuleTemplate('Account/AccountNotLoggedInModule');
             return;
         }

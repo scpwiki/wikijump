@@ -11,6 +11,7 @@ use Wikidot\DB\ForumPostPeer;
 
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
+use Wikidot\Utils\WDPermissionManager;
 
 class ForumViewThreadModule extends SmartyModule
 {

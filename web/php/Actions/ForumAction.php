@@ -27,7 +27,7 @@ use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDPermissionManager;
 use Wikijump\Models\User;
-use Wikijump\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Wikitext\WikitextBackend;
 
 class ForumAction extends SmartyAction

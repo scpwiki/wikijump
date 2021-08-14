@@ -17,11 +17,11 @@ class UserLookupQModule extends QuickModule {
 		$search2 = pg_escape_string($search);
 
 		Database::init();
-		$q1 = "SELECT nick_name AS name, user_id FROM ozone_user WHERE " .
-				"nick_name ~* '^$search1' AND nick_name != '$search2'";
-		$q1 .= "ORDER BY nick_name LIMIT 20";
-		$q2 = "SELECT nick_name AS name, user_id FROM ozone_user WHERE " .
-				"nick_name = '$search2' ";
+		$q1 = "SELECT username, id FROM users WHERE " .
+				"username ~* '^$search1' AND username != '$search2'";
+		$q1 .= "ORDER BY username LIMIT 20";
+		$q2 = "SELECT username, id FROM users WHERE " .
+				"username = '$search2' ";
 		$db = Database::connection();
 
 		$result1 = $db->query($q1);

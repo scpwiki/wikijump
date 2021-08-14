@@ -5,6 +5,7 @@ namespace Ozone\Framework\DB;
 
 
 
+use Illuminate\Support\Facades\Auth;
 use Ozone\Framework\Database\Database;
 use Wikidot\DB\OzoneSessionBase;
 
@@ -125,14 +126,7 @@ class OzoneSession extends OzoneSessionBase {
 	}
 
 	public function getOzoneUser(){
-		if($this->cachedUser != null){
-			return $this->cachedUser;
-		}
-		$userId = $this->getUserId();
-		if($userId == null) {return null;}
-		$user = User::find($userId);
-		$this->cachedUser = $user;
-		return $user;
+        return Auth::user();
 	}
 
 	public function getSessionChanged(){
