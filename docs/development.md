@@ -118,6 +118,12 @@ $ docker images        # List images
 $ docker rmi [ID]      # Remove the image with this ID
 ```
 
+Note: If you enable two-factor authentication on a local container you may find that
+the clock drift is too great for TOTP codes to work. In docker-compose (`wsl -d docker-compose`) 
+you can enter this command to sync your time up:
+
+`ntpd -d -q -n -p 0.pool.ntp.org`
+
 ## Entering the container
 
 If you want to enter the container to make temporary changes, you can do so by entering it with a CLI. From Docker Desktop, after running `docker-compose up`, find the Wikijump app and within it the `php-fpm` container, then click the 'CLI' button. Or from the command line:
