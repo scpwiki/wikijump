@@ -132,6 +132,10 @@ Route::get('/what-is-a-wiki', function() {
 
 Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'destroy']);
 
+Route::middleware(['auth:sanctum', 'verified'])->get('/user--services/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
+
 /**
  * This fallback route will defer to the OzoneController, which will boot an
  * instance of the legacy WikiFlowController and let it handle the response.
@@ -141,7 +145,3 @@ Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'de
  */
 Route::any( "/{path?}", [OzoneController::class, 'handle'] )
     ->where( "path", ".*" );
-
-Route::middleware(['auth:sanctum', 'verified'])->get('/user--services/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
