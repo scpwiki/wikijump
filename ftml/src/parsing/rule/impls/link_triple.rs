@@ -217,7 +217,17 @@ fn build_separate<'p, 'r, 't>(
 /// It returns `Some(_)` if a slice was performed, and `None` if
 /// the string would have been returned as-is.
 fn strip_category(url: &str) -> Option<&str> {
-    url.find(':').map(|idx| url[idx + 1..].trim_start())
+    match url.find(':') {
+        // Link with site, e.g. :scp-wiki:component:image-block.
+        // Remove leading colon and use the regular strip case (below).
+        Some(0) => strip_category(&url[1..]),
+
+        // Link with category but no site, e.g. theme:sigma-9.
+        Some(idx) => url[idx + 1..].trim_start(),
+
+        // No stripping necessary
+        None => None,
+    }
 }
 
 #[test]
@@ -250,4 +260,9 @@ fn test_strip_category() {
         "multiple: categories: here: test",
         Some("categories: here: test"),
     );
+    check!(":scp-wiki:scp-001", Some("scp-001"));
+    check!(":scp-wiki : SCP-001", Some("SCP-001"));
+    check!(": snippets : redirect", Some("redirect"));
+    check!(":", None);
+    check!("::::::", None);
 }
