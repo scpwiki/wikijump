@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::data::PageInfo;
 use crate::tree::LinkLocation;
 use std::borrow::Cow;
 use wikidot_normalize::normalize;
@@ -58,6 +59,8 @@ pub fn is_url(url: &str) -> bool {
 
 pub fn normalize_link<'a>(
     link: &'a LinkLocation<'a>,
+    full_url: bool,
+    page_info: &PageInfo,
     helper: &dyn BuildSiteUrl,
 ) -> Cow<'a, str> {
     match link {
@@ -67,7 +70,15 @@ pub fn normalize_link<'a>(
 
             match site {
                 Some(site) => Cow::Owned(helper.build_url(site, page)),
-                None => normalize_href(page),
+                None => {
+                    if full_url {
+                        let current_site = &page_info.site;
+
+                        Cow::Owned(helper.build_url(current_site, page))
+                    } else {
+                        normalize_href(page)
+                    }
+                }
             }
         }
     }

@@ -25,7 +25,7 @@ use super::TextContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::{ContainerType, Element, LinkLocation, ListItem, ListType};
-use crate::url::{normalize_href, normalize_link};
+use crate::url::normalize_link;
 use std::borrow::Cow;
 
 pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]) {
@@ -106,20 +106,24 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         } => {
             render_elements(log, ctx, elements);
 
-            if let Some(original_href) = attributes.get().get("href") {
-                let href = normalize_href(original_href);
-                if &href != original_href {
-                    str_write!(ctx, " [{}]", href);
+            if let Some(href) = attributes.get().get("href") {
+                let link = LinkLocation::parse(cow!(href));
+                let url = get_url_from_link(ctx, &link);
+                println!("href {:?}, link {:?}, url {:?}", href, link, url);
+
+                if href != &url {
+                    str_write!(ctx, " [{}]", url);
                 }
             }
         }
         Element::Link { url, label, .. } => {
-            let url = get_url_from_link(ctx, url);
+            let url = get_url_from_link(ctx, &url);
 
             ctx.handle().get_link_label(log, &url, label, |label| {
                 ctx.push_str(label);
 
                 // Don't show URL if it's a name link, or an anchor
+                println!("url {:?}, label {:?}", url, label);
                 if url != label && !url.starts_with('#') {
                     str_write!(ctx, " [{}]", url);
                 }
@@ -300,7 +304,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
 }
 
 fn get_url_from_link<'a>(ctx: &TextContext, link: &'a LinkLocation<'a>) -> Cow<'a, str> {
-    let url = normalize_link(link, ctx.handle());
+    let url = normalize_link(link, true, ctx.info(), ctx.handle());
 
     // TODO: when we remove inline javascript stuff
     if url.as_ref() == "javascript:;" {

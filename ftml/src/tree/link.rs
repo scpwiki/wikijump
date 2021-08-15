@@ -35,10 +35,16 @@ pub enum LinkLocation<'a> {
 
 impl<'a> LinkLocation<'a> {
     pub fn parse(link: Cow<'a, str>) -> Self {
-        let link_str = link.as_ref();
+        let mut link_str = link.as_ref();
 
+        // Check for direct URLs or anchor links
         if is_url(link_str) || link_str.starts_with('#') {
             return LinkLocation::Url(link);
+        }
+
+        // Check for local links starting with '/'
+        if link_str.starts_with('/') {
+            link_str = &link_str[1..];
         }
 
         match PageRef::parse(link_str) {
