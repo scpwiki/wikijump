@@ -116,7 +116,7 @@ fn process_pairs<'t>(
     Ok(IncludeRef::new(page_ref, arguments))
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct IncludeParseError;
 
 impl From<PageRefParseError> for IncludeParseError {

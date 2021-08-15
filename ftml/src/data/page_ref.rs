@@ -41,20 +41,15 @@ pub struct PageRef<'t> {
 
 impl<'t> PageRef<'t> {
     #[inline]
-    pub fn new(site: Option<Cow<'t, str>>, page: Cow<'t, str>) -> Self {
-        PageRef { site, page }
-    }
-
-    #[inline]
     pub fn page_and_site<S1, S2>(site: S1, page: S2) -> Self
     where
         S1: Into<Cow<'t, str>>,
         S2: Into<Cow<'t, str>>,
     {
-        let site = site.into();
-        let page = page.into();
-
-        PageRef::new(Some(site), page)
+        PageRef {
+            site: Some(site.into()),
+            page: page.into(),
+        }
     }
 
     #[inline]
@@ -62,9 +57,10 @@ impl<'t> PageRef<'t> {
     where
         S: Into<Cow<'t, str>>,
     {
-        let page = page.into();
-
-        PageRef::new(None, page)
+        PageRef {
+            site: None,
+            page: page.into(),
+        }
     }
 
     #[inline]
@@ -138,7 +134,7 @@ impl Display for PageRef<'_> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct PageRefParseError;
 
 #[test]
@@ -154,11 +150,13 @@ fn page_ref() {
 
         ($input:expr => $expected:expr) => {{
             let actual = PageRef::parse($input);
+            let expected = $expected.ok_or(PageRefParseError);
+
             println!("Input: {:?}", $input);
             println!("Output: {:?}", actual);
             println!();
 
-            assert_eq!(actual, $expected, "Actual parse results don't match expected");
+            assert_eq!(actual, expected, "Actual parse results don't match expected");
         }};
     }
 
