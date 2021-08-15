@@ -47,6 +47,7 @@ class PageBuilder
 
     /**
      * PageProperties properties.
+     * These previously existed in the context of a single $page property.
      * @see PageProperties
      */
     private string $title = 'No title';

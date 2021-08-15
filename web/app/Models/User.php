@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
@@ -117,12 +119,22 @@ class User extends Authenticatable
     }
 
     /**
-     * Retrieve the path for the user's small avatar.
+     * Retrieve the path for the user's avatar.
      * @return string
      */
-    public function avatarSmall(): string
+    protected function avatar(): string
     {
-        return '/common--images/avatars/'.floor($this->id/1000).'/'.$this->id.'/a16.png';
+        return $this->getProfilePhotoUrlAttribute();
+    }
+
+    /**
+     * Get the default profile photo URL if no profile photo has been uploaded.
+     *
+     * @return string
+     */
+    protected function defaultProfilePhotoUrl()
+    {
+        return '/common--images/avatars/default/logo-square.min.svg';
     }
 
     /**
