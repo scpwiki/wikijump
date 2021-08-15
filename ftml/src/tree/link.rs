@@ -53,22 +53,6 @@ impl<'a> LinkLocation<'a> {
         }
     }
 
-    pub fn url(&self, domain: &str) -> Cow<str> {
-        match self {
-            LinkLocation::Url(url) => cow_borrow!(url),
-            LinkLocation::Page(page_ref) => {
-                let page = page_ref.page();
-
-                match page_ref.site() {
-                    Some(site) => {
-                        Cow::Owned(format!("https://{}.{}/{}", site, domain, page))
-                    }
-                    None => cow_borrow!(page),
-                }
-            }
-        }
-    }
-
     pub fn to_owned(&self) -> LinkLocation<'static> {
         match self {
             LinkLocation::Page(page) => LinkLocation::Page(page.to_owned()),
