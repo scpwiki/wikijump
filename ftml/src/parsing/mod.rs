@@ -182,7 +182,7 @@ fn build_toc_list_element(
         DepthItem::Item(name) => {
             let anchor = format!("#toc{}", incr.next());
             let link = Element::Link {
-                url: LinkLocation::Url(Cow::Owned(anchor)),
+                link: LinkLocation::Url(Cow::Owned(anchor)),
                 label: LinkLabel::Text(Cow::Owned(name)),
                 target: None,
             };

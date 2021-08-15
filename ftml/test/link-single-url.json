@@ -11,7 +11,7 @@
                         {
                             "element": "link",
                             "data": {
-                                "url": "/page",
+                                "link": "/page",
                                 "label": {
                                     "text": "Some page"
                                 },

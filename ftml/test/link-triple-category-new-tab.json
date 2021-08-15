@@ -11,7 +11,10 @@
                         {
                             "element": "link",
                             "data": {
-                                "url": "system:Recent Pages",
+                                "link": {
+                                    "site": null,
+                                    "page": "system:Recent Pages"
+                                },
                                 "label": {
                                     "url": "Recent Pages"
                                 },

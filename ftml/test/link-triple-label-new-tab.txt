@@ -1,1 +1,1 @@
-Label [https://test.wikijump.com/some-page]
+Label [/some-page]

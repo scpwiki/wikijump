@@ -91,7 +91,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // Build link element
     let element = Element::Link {
-        url: LinkLocation::Url(url),
+        link: LinkLocation::Url(url),
         label: LinkLabel::Text(cow!(label)),
         target: None,
     };

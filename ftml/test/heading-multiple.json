@@ -124,7 +124,7 @@
                             {
                                 "element": "link",
                                 "data": {
-                                    "url": "#toc0",
+                                    "link": "#toc0",
                                     "label": {
                                         "text": "H1"
                                     },
@@ -142,7 +142,7 @@
                                         {
                                             "element": "link",
                                             "data": {
-                                                "url": "#toc1",
+                                                "link": "#toc1",
                                                 "label": {
                                                     "text": "H2"
                                                 },
@@ -166,7 +166,7 @@
                                                                 {
                                                                     "element": "link",
                                                                     "data": {
-                                                                        "url": "#toc2",
+                                                                        "link": "#toc2",
                                                                         "label": {
                                                                             "text": "H4"
                                                                         },
@@ -190,7 +190,7 @@
                                                                                         {
                                                                                             "element": "link",
                                                                                             "data": {
-                                                                                                "url": "#toc3",
+                                                                                                "link": "#toc3",
                                                                                                 "label": {
                                                                                                     "text": "H6"
                                                                                                 },
@@ -211,7 +211,7 @@
                                                     {
                                                         "element": "link",
                                                         "data": {
-                                                            "url": "#toc4",
+                                                            "link": "#toc4",
                                                             "label": {
                                                                 "text": "H3"
                                                             },
@@ -229,7 +229,7 @@
                             {
                                 "element": "link",
                                 "data": {
-                                    "url": "#toc5",
+                                    "link": "#toc5",
                                     "label": {
                                         "text": "H1"
                                     },

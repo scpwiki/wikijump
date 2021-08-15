@@ -1,1 +1,1 @@
-My link
+My link [http://example.com]

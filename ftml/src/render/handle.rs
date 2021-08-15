@@ -19,12 +19,13 @@
  */
 
 use crate::log::prelude::*;
-use crate::tree::{ImageSource, LinkLabel, Module};
+use crate::tree::{ImageSource, LinkLabel, Module, LinkLocation};
 use crate::url::BuildSiteUrl;
 use crate::{PageInfo, UserInfo};
 use std::borrow::Cow;
 use std::num::NonZeroUsize;
 use strum_macros::IntoStaticStr;
+use wikidot_normalize::normalize;
 
 #[derive(Debug)]
 pub struct Handle;
@@ -54,11 +55,11 @@ impl Handle {
         }
     }
 
-    pub fn get_page_title(&self, log: &Logger, page_slug: &str) -> String {
-        debug!(log, "Fetching page title"; "page" => page_slug);
+    pub fn get_page_title(&self, log: &Logger, link: &LinkLocation) -> String {
+        debug!(log, "Fetching page title"; "link" => link);
 
         // TODO
-        format!("TODO: actual title ({})", page_slug)
+        format!("TODO: actual title ({:?})", link)
     }
 
     pub fn get_user_info<'a>(&self, log: &Logger, name: &'a str) -> Option<UserInfo<'a>> {
@@ -93,7 +94,7 @@ impl Handle {
         ))
     }
 
-    pub fn get_link_label<F>(&self, log: &Logger, url: &str, label: &LinkLabel, f: F)
+    pub fn get_link_label<F>(&self, log: &Logger, link: &LinkLocation, label: &LinkLabel, f: F)
     where
         F: FnOnce(&str),
     {
@@ -101,9 +102,12 @@ impl Handle {
         let label_text = match *label {
             LinkLabel::Text(ref text) => text,
             LinkLabel::Url(Some(ref text)) => text,
-            LinkLabel::Url(None) => url,
+            LinkLabel::Url(None) => match link {
+                LinkLocation::Url(url) => url,
+                LinkLocation::Page(page_ref) => page_ref.page(),
+            }
             LinkLabel::Page => {
-                page_title = self.get_page_title(log, url);
+                page_title = self.get_page_title(log, link);
                 &page_title
             }
         };
@@ -164,6 +168,12 @@ impl BuildSiteUrl for Handle {
     fn build_url(&self, site: &str, path: &str) -> String {
         // TODO make this a parser setting
         // get url of wikijump instance here
+
+        let path = {
+            let mut path = str!(path);
+            normalize(&mut path);
+            path
+        };
 
         // TODO
         format!("https://{}.wikijump.com/{}", site, path)

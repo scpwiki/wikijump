@@ -208,7 +208,7 @@ impl Test<'_> {
 
         if tree != self.tree {
             panic!(
-                "Running test '{}' failed! AST did not match:\nExpected: {:#?}\nActual:   {:#?}\n{}\nWarnings: {:#?}",
+                "Running test '{}' failed! AST did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nWarnings: {:#?}",
                 self.name,
                 self.tree,
                 tree,

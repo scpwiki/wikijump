@@ -11,7 +11,7 @@
                         {
                             "element": "link",
                             "data": {
-                                "url": "https://example.com/directory",
+                                "link": "https://example.com/directory",
                                 "label": {
                                     "url": null
                                 },

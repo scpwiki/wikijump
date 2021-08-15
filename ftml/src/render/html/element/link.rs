@@ -67,7 +67,7 @@ pub fn render_link(
     // Add to backlinks
     ctx.add_link(link);
 
-    let url = normalize_link(link, false, ctx.info(), ctx.handle());
+    let url = normalize_link(link, ctx.handle());
 
     // Create <a> and set attributes
     let mut tag = ctx.html().a();
@@ -78,7 +78,7 @@ pub fn render_link(
     }
 
     // Add <a> internals, i.e. the link name
-    handle.get_link_label(log, &url, label, |label| {
+    handle.get_link_label(log, link, label, |label| {
         tag.inner(log, &label);
     });
 }

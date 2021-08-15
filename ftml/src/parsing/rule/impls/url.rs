@@ -36,7 +36,7 @@ fn try_consume_fn<'p, 'r, 't>(
     let url = cow!(token.slice);
 
     let element = Element::Link {
-        url: LinkLocation::Url(url),
+        link: LinkLocation::Url(url),
         label: LinkLabel::Url(None),
         target: None,
     };

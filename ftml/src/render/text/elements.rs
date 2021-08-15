@@ -109,21 +109,17 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             if let Some(href) = attributes.get().get("href") {
                 let link = LinkLocation::parse(cow!(href));
                 let url = get_url_from_link(ctx, &link);
-                println!("href {:?}, link {:?}, url {:?}", href, link, url);
 
-                if href != &url {
-                    str_write!(ctx, " [{}]", url);
-                }
+                str_write!(ctx, " [{}]", url);
             }
         }
-        Element::Link { url, label, .. } => {
-            let url = get_url_from_link(ctx, &url);
+        Element::Link { link, label, .. } => {
+            let url = get_url_from_link(ctx, link);
 
-            ctx.handle().get_link_label(log, &url, label, |label| {
+            ctx.handle().get_link_label(log, link, label, |label| {
                 ctx.push_str(label);
 
                 // Don't show URL if it's a name link, or an anchor
-                println!("url {:?}, label {:?}", url, label);
                 if url != label && !url.starts_with('#') {
                     str_write!(ctx, " [{}]", url);
                 }
@@ -304,7 +300,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
 }
 
 fn get_url_from_link<'a>(ctx: &TextContext, link: &'a LinkLocation<'a>) -> Cow<'a, str> {
-    let url = normalize_link(link, true, ctx.info(), ctx.handle());
+    let url = normalize_link(link, ctx.handle());
 
     // TODO: when we remove inline javascript stuff
     if url.as_ref() == "javascript:;" {

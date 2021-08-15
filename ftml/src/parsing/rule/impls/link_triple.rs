@@ -144,7 +144,7 @@ fn build_same<'p, 'r, 't>(
 
     // Build and return element
     let element = Element::Link {
-        url: LinkLocation::parse(cow!(url)),
+        link: LinkLocation::parse(cow!(url)),
         label: LinkLabel::Url(label),
         target,
     };
@@ -199,7 +199,7 @@ fn build_separate<'p, 'r, 't>(
 
     // Build link element
     let element = Element::Link {
-        url: LinkLocation::parse(cow!(url)),
+        link: LinkLocation::parse(cow!(url)),
         label,
         target,
     };

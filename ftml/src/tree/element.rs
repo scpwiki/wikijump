@@ -78,9 +78,9 @@ pub enum Element<'t> {
     /// The "label" field is an optional field denoting what the link should
     /// display.
     ///
-    /// The "url" field is either a page name (relative URL) or full URL.
+    /// The "link" field is either a page reference (relative URL) or full URL.
     Link {
-        url: LinkLocation<'t>,
+        link: LinkLocation<'t>,
         label: LinkLabel<'t>,
         target: Option<AnchorTarget>,
     },
@@ -311,8 +311,8 @@ impl Element<'_> {
                 attributes: attributes.to_owned(),
                 target: *target,
             },
-            Element::Link { url, label, target } => Element::Link {
-                url: url.to_owned(),
+            Element::Link { link, label, target } => Element::Link {
+                link: link.to_owned(),
                 label: label.to_owned(),
                 target: *target,
             },

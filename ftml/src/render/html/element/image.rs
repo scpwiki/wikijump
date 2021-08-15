@@ -69,7 +69,7 @@ pub fn render_image(
 
             match link {
                 Some(link) => {
-                    let url = normalize_link(link, false, ctx.info(), ctx.handle());
+                    let url = normalize_link(link, ctx.handle());
                     ctx.html().a().attr("href", &[&url]).contents(build_image);
                 }
                 None => build_image(ctx),

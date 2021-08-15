@@ -72,7 +72,7 @@
                             {
                                 "element": "link",
                                 "data": {
-                                    "url": "#toc0",
+                                    "link": "#toc0",
                                     "label": {
                                         "text": "A"
                                     },
@@ -84,7 +84,7 @@
                             {
                                 "element": "link",
                                 "data": {
-                                    "url": "#toc1",
+                                    "link": "#toc1",
                                     "label": {
                                         "text": "B"
                                     },
