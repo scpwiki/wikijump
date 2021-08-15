@@ -20,6 +20,7 @@
 
 use super::clone::{option_string_to_owned, string_to_owned};
 use crate::data::PageRef;
+use crate::url::is_url;
 use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Hash, Clone, PartialEq, Eq)]
@@ -33,6 +34,19 @@ pub enum LinkLocation<'a> {
 }
 
 impl<'a> LinkLocation<'a> {
+    pub fn parse(link: Cow<'a, str>) -> Self {
+        let link_str = link.as_ref();
+
+        if is_url(link_str) || link_str.starts_with('#') {
+            return LinkLocation::Url(link);
+        }
+
+        match PageRef::parse(link_str) {
+            Ok(page_ref) => LinkLocation::Page(page_ref),
+            Err(_) => LinkLocation::Url(link),
+        }
+    }
+
     pub fn url(&self, domain: &str) -> Cow<str> {
         match self {
             LinkLocation::Url(url) => cow_borrow!(url),
@@ -47,6 +61,31 @@ impl<'a> LinkLocation<'a> {
                 }
             }
         }
+    }
+
+    pub fn to_owned(&self) -> LinkLocation<'static> {
+        match self {
+            LinkLocation::Page(page) => LinkLocation::Page(page.to_owned()),
+            LinkLocation::Url(url) => LinkLocation::Url(string_to_owned(url)),
+        }
+    }
+}
+
+#[cfg(feature = "log")]
+impl slog::Value for LinkLocation<'_> {
+    fn serialize(
+        &self,
+        _: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(
+            key,
+            match self {
+                LinkLocation::Page(page) => &str!(page),
+                LinkLocation::Url(url) => &url,
+            },
+        )
     }
 }
 
@@ -78,4 +117,9 @@ impl LinkLabel<'_> {
             LinkLabel::Page => LinkLabel::Page,
         }
     }
+}
+
+#[test]
+fn test_link_location() {
+    todo!();
 }

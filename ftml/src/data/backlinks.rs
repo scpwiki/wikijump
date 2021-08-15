@@ -18,13 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::data::PageRef;
+use crate::tree::LinkLocation;
 use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
 pub struct Backlinks<'a> {
-    pub included_pages: Vec<Cow<'a, str>>,
-    pub internal_links: Vec<Cow<'a, str>>,
+    pub included_pages: Vec<PageRef<'a>>,
+    pub internal_links: Vec<LinkLocation<'a>>,
     pub external_links: Vec<Cow<'a, str>>,
 }
 

@@ -25,7 +25,7 @@
 //! Its syntax is `[https://example.com/ Label text]`.
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, LinkLabel};
+use crate::tree::{AnchorTarget, LinkLabel, LinkLocation};
 use crate::url::is_url;
 
 pub const RULE_LINK_SINGLE: Rule = Rule {
@@ -126,7 +126,7 @@ fn try_consume_link<'p, 'r, 't>(
 
     // Build link element
     let element = Element::Link {
-        url: cow!(url),
+        url: LinkLocation::Url(cow!(url)),
         label: LinkLabel::Text(cow!(label)),
         target,
     };

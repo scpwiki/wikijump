@@ -56,7 +56,9 @@ use self::strip::strip_newlines;
 use crate::log::prelude::*;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::tokenizer::Tokenization;
-use crate::tree::{AttributeMap, Element, LinkLabel, ListItem, ListType, SyntaxTree};
+use crate::tree::{
+    AttributeMap, Element, LinkLabel, LinkLocation, ListItem, ListType, SyntaxTree,
+};
 use std::borrow::Cow;
 
 pub use self::boolean::{parse_boolean, NonBooleanValue};
@@ -180,7 +182,7 @@ fn build_toc_list_element(
         DepthItem::Item(name) => {
             let anchor = format!("#toc{}", incr.next());
             let link = Element::Link {
-                url: Cow::Owned(anchor),
+                url: LinkLocation::Url(Cow::Owned(anchor)),
                 label: LinkLabel::Text(Cow::Owned(name)),
                 target: None,
             };

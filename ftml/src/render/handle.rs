@@ -20,6 +20,7 @@
 
 use crate::log::prelude::*;
 use crate::tree::{ImageSource, LinkLabel, Module};
+use crate::url::BuildSiteUrl;
 use crate::{PageInfo, UserInfo};
 use std::borrow::Cow;
 use std::num::NonZeroUsize;
@@ -29,18 +30,6 @@ use strum_macros::IntoStaticStr;
 pub struct Handle;
 
 impl Handle {
-    pub fn get_url(&self, log: &Logger, site_slug: &str) -> String {
-        // TODO make this a parser setting
-        debug!(
-            log,
-            "Getting URL of this Wikijump instance";
-            "site" => site_slug,
-        );
-
-        // TODO
-        format!("https://{}.wikijump.com/", site_slug)
-    }
-
     pub fn render_module(
         &self,
         log: &Logger,
@@ -168,6 +157,16 @@ impl Handle {
         );
 
         // TODO
+    }
+}
+
+impl BuildSiteUrl for Handle {
+    fn build_url(&self, site: &str, path: &str) -> String {
+        // TODO make this a parser setting
+        // get url of wikijump instance here
+
+        // TODO
+        format!("https://{}.wikijump.com/{}", site, path)
     }
 }
 

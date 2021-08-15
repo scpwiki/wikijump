@@ -19,14 +19,14 @@
  */
 
 use super::prelude::*;
-use crate::tree::{AttributeMap, FloatAlignment, ImageSource};
-use crate::url::normalize_url;
+use crate::tree::{AttributeMap, FloatAlignment, ImageSource, LinkLocation};
+use crate::url::normalize_link;
 
 pub fn render_image(
     log: &Logger,
     ctx: &mut HtmlContext,
     source: &ImageSource,
-    link: Option<&str>,
+    link: &Option<LinkLocation>,
     alignment: Option<FloatAlignment>,
     attributes: &AttributeMap,
 ) {
@@ -34,7 +34,7 @@ pub fn render_image(
         log,
         "Rendering image element";
         "source" => source.name(),
-        "link" => link.unwrap_or("<none>"),
+        "link" => link.unwrap_or(LinkLocation::Url(cow!("<none>"))),
         "alignment" => match alignment {
             Some(image) => image.align.name(),
             None => "<default>",
@@ -65,8 +65,8 @@ pub fn render_image(
             };
 
             match link {
-                Some(url) => {
-                    let url = normalize_url(url);
+                Some(link) => {
+                    let url = normalize_link(link, ctx.handle());
                     ctx.html().a().attr("href", &[&url]).contents(build_image);
                 }
                 None => build_image(ctx),

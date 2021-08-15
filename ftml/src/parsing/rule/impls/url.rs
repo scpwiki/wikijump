@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::LinkLabel;
+use crate::tree::{LinkLabel, LinkLocation};
 
 pub const RULE_URL: Rule = Rule {
     name: "url",
@@ -32,8 +32,11 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Consuming token as a URL");
 
+    let token = parser.current();
+    let url = cow!(token.slice);
+
     let element = Element::Link {
-        url: cow!(parser.current().slice),
+        url: LinkLocation::Url(url),
         label: LinkLabel::Url(None),
         target: None,
     };

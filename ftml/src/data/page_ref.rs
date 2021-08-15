@@ -77,6 +77,11 @@ impl<'t> PageRef<'t> {
         self.page.as_ref()
     }
 
+    #[inline]
+    pub fn fields(&self) -> (Option<&str>, &str) {
+        (self.site(), self.page())
+    }
+
     pub fn parse(s: &'t str) -> Result<PageRef<'t>, PageRefParseError> {
         let s = s.trim();
         if s.is_empty() {

@@ -29,8 +29,7 @@
 //! Its syntax is `[[[page-name | Label text]`.
 
 use super::prelude::*;
-use crate::data::PageRef;
-use crate::tree::{AnchorTarget, LinkLabel};
+use crate::tree::{AnchorTarget, LinkLabel, LinkLocation};
 use std::borrow::Cow;
 
 pub const RULE_LINK_TRIPLE: Rule = Rule {
@@ -145,7 +144,7 @@ fn build_same<'p, 'r, 't>(
 
     // Build and return element
     let element = Element::Link {
-        url: cow!(url),
+        url: LinkLocation::parse(cow!(url)),
         label: LinkLabel::Url(label),
         target,
     };
@@ -200,7 +199,7 @@ fn build_separate<'p, 'r, 't>(
 
     // Build link element
     let element = Element::Link {
-        url: cow!(url),
+        url: LinkLocation::parse(cow!(url)),
         label,
         target,
     };
@@ -223,7 +222,7 @@ fn strip_category(url: &str) -> Option<&str> {
         Some(0) => strip_category(&url[1..]),
 
         // Link with category but no site, e.g. theme:sigma-9.
-        Some(idx) => url[idx + 1..].trim_start(),
+        Some(idx) => Some(url[idx + 1..].trim_start()),
 
         // No stripping necessary
         None => None,

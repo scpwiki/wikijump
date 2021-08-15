@@ -94,7 +94,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             link,
             alignment,
             attributes,
-        } => render_image(log, ctx, source, ref_cow!(link), *alignment, attributes),
+        } => render_image(log, ctx, source, link, *alignment, attributes),
         Element::List {
             ltype,
             items,

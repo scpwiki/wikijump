@@ -22,12 +22,12 @@ use super::builder::HtmlBuilder;
 use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
+use crate::data::PageRef;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::render::Handle;
-use crate::tree::Element;
+use crate::tree::{Element, LinkLocation};
 use crate::url::is_url;
 use crate::{info, Backlinks, PageInfo};
-use std::borrow::Cow;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
@@ -149,33 +149,44 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
 
     // Backlinks
     #[inline]
-    pub fn add_link(&mut self, mut link: &str) {
+    pub fn add_link(&mut self, link: &LinkLocation) {
         // TODO: set to internal link if domain matches site
         // See https://scuttle.atlassian.net/browse/WJ-24
 
-        // Also support [ links pointing to local pages.
-        // e.g. [/scp-001 SCP-001] in addition to [[[SCP-001]]].
-        if link.starts_with('/') {
-            link = &link[1..];
-        }
+        match link {
+            LinkLocation::Page(page) => {
+                self.backlinks.included_pages.push(page.to_owned());
+            }
+            LinkLocation::Url(link) => {
+                let mut link: &str = &link;
 
-        // Add to appropriate list
-        let link_owned = Cow::Owned(str!(link));
+                if link == "javascript:;" {
+                    return;
+                }
 
-        if is_url(link) {
-            self.backlinks.external_links.push(link_owned);
-        } else if link != "javascript:;" {
-            self.backlinks.internal_links.push(link_owned);
+                // Also support [ links pointing to local pages.
+                // e.g. [/scp-001 SCP-001] in addition to [[[SCP-001]]].
+                if link.starts_with('/') {
+                    link = &link[1..];
+                }
+
+                if is_url(link) {
+                    let page_ref = PageRef::page_only(cow!(link));
+                    self.backlinks.included_pages.push(page_ref.to_owned());
+                } else {
+                    let link = cow!(link).to_owned();
+                    let link_location = LinkLocation::Url(link).to_owned();
+                    self.backlinks.internal_links.push(link_location);
+                }
+            }
         }
     }
 
     // TODO
     #[allow(dead_code)]
     #[inline]
-    pub fn add_include(&mut self, page: &str) {
-        let page_owned = Cow::Owned(str!(page));
-
-        self.backlinks.included_pages.push(page_owned);
+    pub fn add_include(&mut self, page: PageRef) {
+        self.backlinks.included_pages.push(page.to_owned());
     }
 
     // Buffer management
