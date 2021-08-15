@@ -34,7 +34,10 @@ pub fn render_image(
         log,
         "Rendering image element";
         "source" => source.name(),
-        "link" => link.unwrap_or(LinkLocation::Url(cow!("<none>"))),
+        "link" => match link {
+            Some(link) => format!("{:?}", link),
+            None => str!("<none>"),
+        },
         "alignment" => match alignment {
             Some(image) => image.align.name(),
             None => "<default>",

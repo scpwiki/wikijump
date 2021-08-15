@@ -53,12 +53,32 @@ pub fn string_to_cstr(string: String) -> *mut c_char {
 }
 
 #[inline]
+pub fn string_to_cstr_null(string: Option<String>) -> *mut c_char {
+    match string {
+        Some(string) => string_to_cstr(string),
+        None => ptr::null_mut(),
+    }
+}
+
+#[inline]
+pub fn cow_to_cstr(cow: Cow<str>) -> *mut c_char {
+    string_to_cstr(cow.into_owned())
+}
+
+#[inline]
+pub fn cow_to_cstr_null(cow: Option<Cow<str>>) -> *mut c_char {
+    string_to_cstr_null(cow.map(|cow| cow.into_owned()))
+}
+
+#[inline]
 pub unsafe fn drop_cstr(ptr: *mut c_char) {
-    mem::drop(CString::from_raw(ptr));
+    if !ptr.is_null() {
+        mem::drop(CString::from_raw(ptr));
+    }
 }
 
 #[test]
-fn str() {
+fn ffi_string() {
     let cstr = string_to_cstr(str!("test"));
     unsafe { drop_cstr(cstr) };
 }

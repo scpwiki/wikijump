@@ -33,8 +33,8 @@ mod prelude {
     pub use super::string::*;
     pub use super::vec::*;
     pub use std::ffi::{CStr, CString};
-    pub use std::mem;
     pub use std::os::raw::c_char;
+    pub use std::{mem, ptr};
 }
 
 #[cfg(feature = "css")]
@@ -46,6 +46,7 @@ mod html;
 mod log;
 mod misc;
 mod page_info;
+mod page_ref;
 mod pool;
 mod string;
 mod text;

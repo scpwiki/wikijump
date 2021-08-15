@@ -53,7 +53,7 @@ use super::HtmlContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::Element;
-use ref_map::OptionRefMap;
+use ref_map::*;
 
 pub fn render_elements(log: &Logger, ctx: &mut HtmlContext, elements: &[Element]) {
     debug!(log, "Rendering elements"; "elements-len" => elements.len());

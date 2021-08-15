@@ -25,6 +25,7 @@ use super::{
     Alignment, AnchorTarget, AttributeMap, Container, ElementCondition, FloatAlignment,
     ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
 };
+use ref_map::*;
 use std::borrow::Cow;
 use std::num::NonZeroU32;
 use std::slice;
@@ -336,7 +337,7 @@ impl Element<'_> {
                 attributes,
             } => Element::Image {
                 source: source.to_owned(),
-                link: link.map(|link| link.to_owned()),
+                link: link.ref_map(|link| link.to_owned()),
                 alignment: *alignment,
                 attributes: attributes.to_owned(),
             },

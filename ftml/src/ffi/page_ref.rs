@@ -1,5 +1,5 @@
 /*
- * render/backlinks.rs
+ * ffi/page_ref.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,20 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::prelude::*;
 use crate::data::PageRef;
-use std::borrow::Cow;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq, Default)]
-#[serde(rename_all = "kebab-case")]
-pub struct Backlinks<'a> {
-    pub included_pages: Vec<PageRef<'a>>,
-    pub internal_links: Vec<PageRef<'a>>,
-    pub external_links: Vec<Cow<'a, str>>,
+#[repr(C)]
+#[derive(Debug)]
+pub struct ftml_page_ref {
+    pub site: *mut c_char,
+    pub page: *mut c_char,
 }
 
-impl<'a> Backlinks<'a> {
-    #[inline]
-    pub fn new() -> Self {
-        Backlinks::default()
+impl From<PageRef<'_>> for ftml_page_ref {
+    fn from(page_ref: PageRef) -> ftml_page_ref {
+        let PageRef { site, page } = page_ref;
+
+        ftml_page_ref {
+            site: cow_to_cstr_null(site),
+            page: cow_to_cstr(page),
+        }
     }
 }

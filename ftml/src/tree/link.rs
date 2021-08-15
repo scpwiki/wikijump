@@ -42,8 +42,8 @@ impl<'a> LinkLocation<'a> {
         }
 
         match PageRef::parse(link_str) {
-            Ok(page_ref) => LinkLocation::Page(page_ref),
             Err(_) => LinkLocation::Url(link),
+            Ok(page_ref) => LinkLocation::Page(page_ref.to_owned()),
         }
     }
 
@@ -79,11 +79,16 @@ impl slog::Value for LinkLocation<'_> {
         key: slog::Key,
         serializer: &mut dyn slog::Serializer,
     ) -> slog::Result {
+        let string;
+
         serializer.emit_str(
             key,
             match self {
-                LinkLocation::Page(page) => &str!(page),
                 LinkLocation::Url(url) => &url,
+                LinkLocation::Page(page) => {
+                    string = str!(page);
+                    &string
+                }
             },
         )
     }

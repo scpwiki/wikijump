@@ -22,7 +22,7 @@ use ref_map::*;
 use std::borrow::Cow;
 use std::fmt::{self, Display};
 
-/// Represents a reference to a page on the wiki, as used by includes.
+/// Represents a reference to a page on the wiki, as used by include notation.
 ///
 /// It tracks whether it refers to a page on this wiki, or some other,
 /// and what the names of these are.
@@ -35,8 +35,8 @@ use std::fmt::{self, Display};
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct PageRef<'t> {
-    site: Option<Cow<'t, str>>,
-    page: Cow<'t, str>,
+    pub site: Option<Cow<'t, str>>,
+    pub page: Cow<'t, str>,
 }
 
 impl<'t> PageRef<'t> {

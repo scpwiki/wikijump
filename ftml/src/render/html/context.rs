@@ -28,6 +28,7 @@ use crate::render::Handle;
 use crate::tree::{Element, LinkLocation};
 use crate::url::is_url;
 use crate::{info, Backlinks, PageInfo};
+use std::borrow::Cow;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
@@ -174,9 +175,8 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
                     let page_ref = PageRef::page_only(cow!(link));
                     self.backlinks.included_pages.push(page_ref.to_owned());
                 } else {
-                    let link = cow!(link).to_owned();
-                    let link_location = LinkLocation::Url(link).to_owned();
-                    self.backlinks.internal_links.push(link_location);
+                    let link = Cow::Owned(str!(link));
+                    self.backlinks.external_links.push(link);
                 }
             }
         }
