@@ -122,7 +122,7 @@ class User extends Authenticatable
      * Retrieve the path for the user's avatar.
      * @return string
      */
-    protected function avatar(): string
+    public function avatar(): string
     {
         return $this->getProfilePhotoUrlAttribute();
     }
@@ -132,9 +132,33 @@ class User extends Authenticatable
      *
      * @return string
      */
-    protected function defaultProfilePhotoUrl()
+    protected function defaultProfilePhotoUrl(): string
     {
-        return '/common--images/avatars/default/logo-square.min.svg';
+        /**
+         *  We have a number of known-safe color combinations for a
+         *  foreground and background.
+         *  @see "app/Helpers/helpers.php"
+         */
+        $colors = colors();
+
+        /** We want the color to be reliable for a given user, so modulus the User's ID. */
+        $scheme = $this->id % count($colors);
+
+        /** Initialize a string to take the user's initials. */
+        $initials = '';
+
+        /** We'll define initials as anything that the unixifier saw fit to break with a dash. */
+        $initial_array = explode('-', $this->unix_name);
+        foreach ($initial_array as $initial)
+        {
+            /** And concatenate their first letters into a string. */
+            $initials .= $initial[0];
+        }
+
+        return 'https://ui-avatars.com/api/?name='. $initials .
+            '&color='.$colors[$scheme]['t'] .
+            '&background='.$colors[$scheme]['b'] .
+            '&rounded=true';
     }
 
     /**

@@ -11,7 +11,7 @@
 					{foreach from=$contacts item=contact}
 						{assign var=user value=$contact}
 						<li>
-							<span class="printuser"><img class="small" src="{$contact->avatarSmall()}"/>
+							<span class="printuser"><img class="small" src="{$contact->avatar()}"/>
 							<a href="javascript:;" onclick="OZONE.dialog.cleanAll();Wikijump.modules.PMComposeModule.utils.selectRecipient({$user->id}, '{$user->username|escape}');" >{$user->username|escape}</a>
 						</li>
 					{/foreach}

@@ -67,7 +67,7 @@ class LoginStatusModule extends Module
             $userId = $user->id;
             $linkInner = 'href="' . $url_prefix . '/user:info/'.$user->unix_name.'" onclick="Wikijump.page.listeners.userInfo('.$user->id.'); return false;" ';
 
-            $out = '<span class="printuser"><a '.$linkInner.'><img class="small" src="' . $user->avatarSmall() . '" alt="avatar"';
+            $out = '<span class="printuser"><a '.$linkInner.'><img class="small" src="' . $user->avatar() . '" alt="avatar"';
             /* karma: */
             $out .= ' style="background-image:url(' . $url_prefix . '/user--karma/' .$userId  . ')"';
             /* end of karma */
