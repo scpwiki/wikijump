@@ -89,8 +89,12 @@ impl<'t> PageRef<'t> {
             Some(0) => {
                 // Find the second colon
                 let idx = match s[1..].find(':') {
+                    // Empty site name, e.g. "::something"
+                    // or no second colon, e.g. ":something"
+                    Some(0) | None => return Err(PageRefParseError),
+
+                    // Slice off the rest
                     Some(idx) => idx + 1,
-                    None => return Err(PageRefParseError),
                 };
 
                 // Get site and page slices
@@ -162,6 +166,7 @@ fn page_ref() {
 
     test!("");
     test!(":page");
+    test!("::page");
     test!("page", PageRef::page_only("page"));
     test!("component:page", PageRef::page_only("component:page"));
     test!(

@@ -100,6 +100,54 @@ impl slog::Value for LinkLocation<'_> {
     }
 }
 
+#[test]
+fn test_link_location() {
+    macro_rules! check {
+        ($input:expr => $site:expr, $page:expr) => {{
+            let site = $site.map(|site| cow!(site));
+            let page = cow!($page);
+            let expected = LinkLocation::Page(PageRef { site, page });
+
+            check!($input; expected);
+        }};
+
+        ($input:expr => $url:expr) => {
+            let url = cow!($url);
+            let expected = LinkLocation::Url(url);
+
+            check!($input; expected);
+        };
+
+        ($input:expr; $expected:expr) => {{
+            let actual = LinkLocation::parse(cow!($input));
+
+            assert_eq!(
+                actual,
+                $expected,
+                "Actual link location result doesn't match expected",
+            );
+        }};
+    }
+
+    check!("" => "");
+    check!("#" => "#");
+    check!("#anchor" => "#anchor");
+
+    check!("page" => None, "page");
+    check!("/page" => None, "page");
+    check!("component:theme" => None, "component:theme");
+    check!(":scp-wiki:scp-1000" => Some("scp-wiki"), "scp-1000");
+    check!(":scp-wiki:component:theme" => Some("scp-wiki"), "component:theme");
+
+    check!("http://blog.wikidot.com/" => "http://blog.wikidot.com/");
+    check!("https://example.com" => "https://example.com");
+    check!("mailto:test@example.net" => "mailto:test@example.net");
+
+    check!("::page" => "::page");
+    check!("::component:theme" => "::component:theme");
+    check!("page:multiple:category" => None, "page:multiple:category");
+}
+
 #[derive(Serialize, Deserialize, Debug, Hash, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum LinkLabel<'a> {
@@ -128,9 +176,4 @@ impl LinkLabel<'_> {
             LinkLabel::Page => LinkLabel::Page,
         }
     }
-}
-
-#[test]
-fn test_link_location() {
-    todo!();
 }

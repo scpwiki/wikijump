@@ -19,7 +19,7 @@
  */
 
 use crate::log::prelude::*;
-use crate::tree::{ImageSource, LinkLabel, Module, LinkLocation};
+use crate::tree::{ImageSource, LinkLabel, LinkLocation, Module};
 use crate::url::BuildSiteUrl;
 use crate::{PageInfo, UserInfo};
 use std::borrow::Cow;
@@ -94,8 +94,13 @@ impl Handle {
         ))
     }
 
-    pub fn get_link_label<F>(&self, log: &Logger, link: &LinkLocation, label: &LinkLabel, f: F)
-    where
+    pub fn get_link_label<F>(
+        &self,
+        log: &Logger,
+        link: &LinkLocation,
+        label: &LinkLabel,
+        f: F,
+    ) where
         F: FnOnce(&str),
     {
         let page_title;
@@ -105,7 +110,7 @@ impl Handle {
             LinkLabel::Url(None) => match link {
                 LinkLocation::Url(url) => url,
                 LinkLocation::Page(page_ref) => page_ref.page(),
-            }
+            },
             LinkLabel::Page => {
                 page_title = self.get_page_title(log, link);
                 &page_title

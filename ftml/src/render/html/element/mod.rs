@@ -86,9 +86,11 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             attributes,
             target,
         } => render_anchor(log, ctx, elements, attributes, *target),
-        Element::Link { link, label, target } => {
-            render_link(log, ctx, link, label, *target)
-        }
+        Element::Link {
+            link,
+            label,
+            target,
+        } => render_link(log, ctx, link, label, *target),
         Element::Image {
             source,
             link,

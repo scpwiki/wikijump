@@ -311,7 +311,11 @@ impl Element<'_> {
                 attributes: attributes.to_owned(),
                 target: *target,
             },
-            Element::Link { link, label, target } => Element::Link {
+            Element::Link {
+                link,
+                label,
+                target,
+            } => Element::Link {
                 link: link.to_owned(),
                 label: label.to_owned(),
                 target: *target,

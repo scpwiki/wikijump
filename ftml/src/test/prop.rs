@@ -138,8 +138,13 @@ fn arb_link_element() -> impl Strategy<Value = Element<'static>> {
         Just(LinkLabel::Page),
     ];
 
-    (arb_link_location(), label, arb_target())
-        .prop_map(|(link, label, target)| Element::Link { link, label, target })
+    (arb_link_location(), label, arb_target()).prop_map(|(link, label, target)| {
+        Element::Link {
+            link,
+            label,
+            target,
+        }
+    })
 }
 
 fn arb_image() -> impl Strategy<Value = Element<'static>> {
