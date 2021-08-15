@@ -1,5 +1,5 @@
 {
-    "input": "[[[*system:Recent Pages]]]",
+    "input": "[[[*system:Recent Changes]]]",
     "tree": {
         "elements": [
             {
@@ -13,10 +13,10 @@
                             "data": {
                                 "link": {
                                     "site": null,
-                                    "page": "system:Recent Pages"
+                                    "page": "system:Recent Changes"
                                 },
                                 "label": {
-                                    "url": "Recent Pages"
+                                    "url": "Recent Changes"
                                 },
                                 "target": "new-tab"
                             }
