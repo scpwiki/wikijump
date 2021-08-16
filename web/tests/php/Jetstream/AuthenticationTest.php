@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Hash;
 use Wikijump\Models\User;
 use Wikijump\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,18 +14,23 @@ class AuthenticationTest extends TestCase
 
     public function test_login_screen_can_be_rendered()
     {
-        $response = $this->get('/login');
+        $response = $this->get(route('login'));
 
         $response->assertStatus(200);
     }
 
     public function test_users_can_authenticate_using_the_login_screen()
     {
-        $user = User::factory()->create();
+        $password = bin2hex(random_bytes(32));
+
+        $user = User::factory()->create(
+            [
+                'password' => Hash::make($password)
+            ]);
 
         $response = $this->post(route('login'), [
             'username' => $user->username,
-            'password' => 'password',
+            'password' => $password,
         ]);
 
         $this->assertAuthenticated();

@@ -68,6 +68,7 @@ class User extends Authenticatable
         'username',
         'unix_name',
         'email',
+        'real_name',
         'password',
     ];
 

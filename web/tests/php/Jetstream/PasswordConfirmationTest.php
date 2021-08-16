@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Hash;
 use Wikijump\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Features;
@@ -24,10 +25,16 @@ class PasswordConfirmationTest extends TestCase
 
     public function test_password_can_be_confirmed()
     {
-        $user = User::factory()->create();
+        $password = bin2hex(random_bytes(32));
+
+        $user = User::factory()->create(
+            [
+                'password' => Hash::make($password)
+            ]
+        );
 
         $response = $this->actingAs($user)->post(route('password.confirm'), [
-            'password' => 'password',
+            'password' => $password,
         ]);
 
         $response->assertRedirect();
