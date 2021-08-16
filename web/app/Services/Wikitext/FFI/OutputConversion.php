@@ -6,6 +6,7 @@ namespace Wikijump\Services\Wikitext\FFI;
 use \FFI;
 use \Wikidot\DB\PagePeer;
 use \Wikijump\Services\Wikitext\Backlinks;
+use \Wikijump\Services\Wikitext\PageRef;
 use \Wikijump\Services\Wikitext\HtmlMeta;
 use \Wikijump\Services\Wikitext\HtmlMetaType;
 use \Wikijump\Services\Wikitext\HtmlOutput;
@@ -116,8 +117,8 @@ final class OutputConversion
         $inclusions = self::splitLinks(
             $c_data->included_pages_list,
             $c_data->included_pages_len,
-            fn(FFI\CData $c_data) => FFI::string($c_data),
-            fn(string $slug) => self::getPageId($siteId, $slug),
+            fn(FFI\CData $c_data) => self::makePageRef($c_data),
+            fn(PageRef $pageRef) => self::getPageId($siteId, $pageRef),
         );
         $inclusionsPresent = $inclusions['present'];
         $inclusionsAbsent = $inclusions['absent'];
@@ -125,8 +126,8 @@ final class OutputConversion
         $internalLinks = self::splitLinks(
             $c_data->internal_links_list,
             $c_data->internal_links_len,
-            fn(FFI\CData $c_data) => FFI::string($c_data),
-            fn(string $slug) => self::getPageId($siteId, $slug),
+            fn(FFI\CData $c_data) => self::makePageRef($c_data),
+            fn(PageRef $pageRef) => self::getPageId($siteId, $pageRef),
         );
         $internalLinksPresent = $internalLinks['present'];
         $internalLinksAbsent = $internalLinks['absent'];
@@ -146,6 +147,14 @@ final class OutputConversion
         );
     }
 
+    private static function makePageRef(FFI\CData $c_data): PageRef
+    {
+        $site = FtmlFfi::nullableString($c_data->site);
+        $page = FFI::string($c_data->page);
+
+        return new PageRef($site, $page);
+    }
+
     private static function splitLinks(
         FFI\CData $pointer,
         int $length,
@@ -160,7 +169,7 @@ final class OutputConversion
             $originalItem = $convertFn($pointer[$i]);
             $foundItem = $checkItemFn($originalItem);
 
-            if (is_null($foundItem)) {
+            if ($foundItem === null) {
                 array_push($absent, $originalItem);
             } else {
                 array_push($present, $foundItem);
@@ -173,9 +182,18 @@ final class OutputConversion
         ];
     }
 
-    private static function getPageId(string $siteId, string $slug): ?string
+    private static function getPageId(string $siteId, PageRef &$pageRef): ?string
     {
-        $page = PagePeer::instance()->selectByName($siteId, $slug);
+        if ($pageRef->site !== null) {
+            $siteId = FtmlFfi::getSiteId($pageRef->site);
+            if ($siteId === null) {
+                // Site not found, the page obviously doesn't exist
+                return null;
+            }
+        }
+
+        // Find the page based on the contextual site ID
+        $page = PagePeer::instance()->selectByName($siteId, $pageRef->page);
         return $page ? $page->getPageId() : null;
     }
 }

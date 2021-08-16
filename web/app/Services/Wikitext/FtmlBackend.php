@@ -37,6 +37,6 @@ class FtmlBackend extends WikitextBackend
 
     private static function defaultPageInfo(): PageInfo
     {
-        return new PageInfo('_anonymous', null, 'www', '_anonymous', null, [], 'C');
+        return new PageInfo('_anonymous', null, 'test', '_anonymous', null, [], 'default');
     }
 }

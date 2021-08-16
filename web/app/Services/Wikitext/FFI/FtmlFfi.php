@@ -6,6 +6,7 @@ namespace Wikijump\Services\Wikitext\FFI;
 use \FFI;
 use \Ozone\Framework\Database\Criteria;
 use \Wikidot\DB\SitePeer;
+use Wikidot\Utils\ProcessException;
 use \Wikijump\Services\Wikitext;
 use \Wikijump\Services\Wikitext\HtmlOutput;
 use \Wikijump\Services\Wikitext\TextOutput;
@@ -67,12 +68,11 @@ final class FtmlFfi
     // ftml export methods
     public static function renderHtml(string $wikitext, Wikitext\PageInfo $pageInfo): HtmlOutput
     {
-        // Get site ID
-        $c = new Criteria();
-        $c->add('unix_name', $pageInfo->site);
-        $c->add('site.deleted', false);
-        $site = SitePeer::instance()->selectOne($c);
-        $siteId = $site->getSiteId();
+        $siteId = self::getSiteId($pageInfo->site);
+        if ($siteId === null) {
+            // No site for current context! Return an error.
+            throw new ProcessException('Current site not found: ' . $pageInfo->site);
+        }
 
         // Convert objects
         $c_pageInfo = new PageInfo($pageInfo);
@@ -142,6 +142,19 @@ final class FtmlFfi
     }
 
     /**
+     * Converts a FFI C string into a nullable PHP string.
+     * That is, it handles C NULL properly.
+     */
+    public static function nullableString(FFI\CData &$c_data): ?string
+    {
+        if (FFI::isNull($c_data)) {
+            return null;
+        } else {
+            return FFI::string($c_data);
+        }
+    }
+
+    /**
      * Gets the PHP FFI C array type, for the given FFI type and the length.
      *
      * For instance, to produce a 'char[24]', call arrayType(FtmlFfi::C_CHAR, [24]).
@@ -183,6 +196,15 @@ final class FtmlFfi
         return $buffer;
     }
 
+    public static function getSiteId(string $site): ?string
+    {
+        $c = new Criteria();
+        $c->add('unix_name', $site);
+        $c->add('site.deleted', false);
+        $site = SitePeer::instance()->selectOne($c);
+        return $site ? $site->getSiteId() : null;
+    }
+
     /**
      * Converts a list in the form of a PHP array into a pointer
      * suitable for passing into C FFIs. Applies a transformation
@@ -222,7 +244,7 @@ final class FtmlFfi
      */
     public static function freePointer(?FFI\CData $pointer, int $length, callable $freeFn)
     {
-        if (is_null($pointer)) {
+        if ($pointer === null) {
             // Nothing to free, empty array
             return;
         }
