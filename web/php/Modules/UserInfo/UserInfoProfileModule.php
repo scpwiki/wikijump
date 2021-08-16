@@ -20,7 +20,7 @@ class UserInfoProfileModule extends SmartyLocalizedModule
         $user = User::find($userId);
         $runData->contextAdd("user", $user);
 
-        $avatarUri = '/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a48.png';
+        $avatarUri = '/user--avatar/' . $userId;
         $runData->contextAdd("avatarUri", $avatarUri);
 
         $runData->contextAdd('karmaLevel', $user->karma_level);
