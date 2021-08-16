@@ -275,7 +275,10 @@ fn test_strip_category() {
     check!(":scp-wiki:scp-001", Some("scp-001"));
     check!(":scp-wiki : SCP-001", Some("SCP-001"));
     check!(":scp-wiki:system:recent-changes", Some("recent-changes"));
-    check!(":scp-wiki : system : Recent Changes", Some("Recent Changes"));
+    check!(
+        ":scp-wiki : system : Recent Changes",
+        Some("Recent Changes"),
+    );
     check!(": snippets : redirect", Some("redirect"));
     check!(":", None);
 }
