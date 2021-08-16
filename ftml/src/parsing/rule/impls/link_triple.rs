@@ -218,8 +218,21 @@ fn build_separate<'p, 'r, 't>(
 fn strip_category(url: &str) -> Option<&str> {
     match url.find(':') {
         // Link with site, e.g. :scp-wiki:component:image-block.
-        // Remove leading colon and use the regular strip case (below).
-        Some(0) => strip_category(&url[1..]),
+        Some(0) => {
+            let url = &url[1..];
+
+            // If there is no colon, it's malformed, return None.
+            // Else, return a stripped version
+            url.find(':').map(|idx| {
+                let url = url[idx + 1..].trim_start();
+
+                // Skip past the site portion, then use the regular strip case.
+                //
+                // We unwrap_or() here because, at minimum, we return the substring
+                // not containing the site.
+                strip_category(url).unwrap_or(url)
+            })
+        }
 
         // Link with category but no site, e.g. theme:sigma-9.
         Some(idx) => Some(url[idx + 1..].trim_start()),
@@ -261,7 +274,8 @@ fn test_strip_category() {
     );
     check!(":scp-wiki:scp-001", Some("scp-001"));
     check!(":scp-wiki : SCP-001", Some("SCP-001"));
+    check!(":scp-wiki:system:recent-changes", Some("recent-changes"));
+    check!(":scp-wiki : system : Recent Changes", Some("Recent Changes"));
     check!(": snippets : redirect", Some("redirect"));
     check!(":", None);
-    check!("::::::", None);
 }

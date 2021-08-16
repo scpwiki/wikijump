@@ -98,8 +98,8 @@ impl<'t> PageRef<'t> {
                 };
 
                 // Get site and page slices
-                let site = &s[1..idx];
-                let page = &s[idx + 1..];
+                let site = s[1..idx].trim();
+                let page = s[idx + 1..].trim();
 
                 PageRef::page_and_site(site, page)
             }
