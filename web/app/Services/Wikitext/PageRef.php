@@ -16,4 +16,15 @@ class PageRef
         $this->site = $site;
         $this->page = $page;
     }
+
+    public function pathRepr(): string
+    {
+        if ($this->site === null) {
+            $site = '';
+        } else {
+            $site = ":$this->site:";
+        }
+
+        return $site . $this->page;
+    }
 }

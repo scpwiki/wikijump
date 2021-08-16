@@ -41,6 +41,7 @@ class Backlinks
     {
         return array_unique($items, SORT_STRING);
     }
+
     public static function fromWikiObject(Text_Wiki &$wiki): Backlinks
     {
         $inclusionsPresent = $wiki->vars['inclusions'] ?? [];

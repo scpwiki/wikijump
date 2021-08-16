@@ -117,8 +117,7 @@ final class OutputConversion
         $inclusions = self::splitLinks(
             $data->included_pages_list,
             $data->included_pages_len,
-            fn(FFI\CData $data) => self::makePageRef($data),
-            fn(PageRef $pageRef) => self::getPageId($siteId, $pageRef),
+            $siteId,
         );
         $inclusionsPresent = $inclusions['present'];
         $inclusionsAbsent = $inclusions['absent'];
@@ -126,8 +125,7 @@ final class OutputConversion
         $internalLinks = self::splitLinks(
             $data->internal_links_list,
             $data->internal_links_len,
-            fn(FFI\CData $data) => self::makePageRef($data),
-            fn(PageRef $pageRef) => self::getPageId($siteId, $pageRef),
+            $siteId,
         );
         $internalLinksPresent = $internalLinks['present'];
         $internalLinksAbsent = $internalLinks['absent'];
@@ -158,21 +156,20 @@ final class OutputConversion
     private static function splitLinks(
         FFI\CData &$pointer,
         int $length,
-        callable $convertFn,
-        callable $checkItemFn
+        string $siteId
     ): array {
         $present = [];
         $absent = [];
 
         // Convert items, placing in the appropriate list
         for ($i = 0; $i < $length; $i++) {
-            $originalItem = $convertFn($pointer[$i]);
-            $foundItem = $checkItemFn($originalItem);
+            $pageRef = self::makePageRef($pointer[$i]);
+            $pageId = self::getPageId($siteId, $pageRef);
 
-            if ($foundItem === null) {
-                array_push($absent, $originalItem);
+            if ($pageId === null) {
+                array_push($absent, $pageRef->pathRepr());
             } else {
-                array_push($present, $foundItem);
+                array_push($present, $pageId);
             }
         }
 
