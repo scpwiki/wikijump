@@ -101,10 +101,6 @@ INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision
 INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (46, 1, 20, NULL, 57, 56, 50, 0, 'List all pages', 'system:list-all-pages', '2008-01-30 16:15:22', '2008-01-30 16:15:22', 1, NULL, NULL, 1, false, 0);
 INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (47, 1, 20, NULL, 58, 57, 51, 0, 'Page Tags List', 'system:page-tags-list', '2008-01-30 16:15:56', '2008-01-30 16:15:56', 1, NULL, NULL, 1, false, 0);
 INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (48, 1, 20, NULL, 59, 58, 52, 0, 'Page Tags', 'system:page-tags', '2008-01-30 16:16:22', '2008-01-30 16:16:22', 1, NULL, NULL, 1, false, 0);
-INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (49, 1, 21, NULL, 60, 59, 53, 0, 'Log in', 'auth:login', '2008-08-19 16:25:58', '2008-08-19 16:25:58', 1, NULL, NULL, 1, false, 0);
-INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (50, 1, 21, NULL, 61, 60, 54, 0, 'Create account - step 1', 'auth:newaccount', '2008-08-19 16:25:58', '2008-08-19 16:25:58', 1, NULL, NULL, 1, false, 0);
-INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (51, 1, 21, NULL, 62, 61, 55, 0, 'Create account - step 2', 'auth:newaccount2', '2008-08-19 16:25:58', '2008-08-19 16:25:58', 1, NULL, NULL, 1, false, 0);
-INSERT INTO public.page (page_id, site_id, category_id, parent_page_id, revision_id, source_id, metadata_id, revision_number, title, unix_name, date_created, date_last_edited, last_edit_user_id, last_edit_user_string, thread_id, owner_user_id, blocked, rate) VALUES (52, 1, 21, NULL, 63, 62, 56, 0, 'Create account - step 3', 'auth:newaccount3', '2008-08-19 16:25:58', '2008-08-19 16:25:58', 1, NULL, NULL, 1, false, 0);
 
 INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (6, '
 
@@ -405,9 +401,7 @@ INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (44, '
 INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (46, '
 
 þmodule "List/WikiPagesModule" preview%3D%22true%22 þ', '2008-08-19 16:25:59');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (49, '
 
-þmodule "Login/LoginModule"þ', '2008-08-19 16:25:59');
 INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (47, '
 
 þmodule "Wiki/PagesTagCloud/PagesTagCloudModule" limit%3D%22200%22+target%3D%22system%3Apage-tags%22 þ', '2008-08-19 16:25:59');
@@ -415,15 +409,6 @@ INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (48, '
 
 <div style="float:right; width: 50%;">þmodule "Wiki/PagesTagCloud/PagesTagCloudModule" limit%3D%22200%22+target%3D%22system%3Apage-tags%22 þ</div>
 þmodule "Wiki/PagesTagCloud/PagesListByTagModule"þ', '2008-08-19 16:25:59');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (50, '
-
-þmodule "CreateAccount/CreateAccountStep1Module"þ', '2008-08-19 16:25:59');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (51, '
-
-þmodule "CreateAccount/CreateAccountStep2Module"þ', '2008-08-19 16:25:59');
-INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (52, '
-
-þmodule "CreateAccount/CreateAccountStep3Module"þ', '2008-08-19 16:25:59');
 
 INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (1, 5, 5, NULL, 2);
 INSERT INTO public.page_link (link_id, from_page_id, to_page_id, to_page_name, site_id) VALUES (2, 5, 6, NULL, 2);
@@ -509,10 +494,6 @@ INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name,
 INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_user_id) VALUES (50, NULL, 'List all pages', 'system:list-all-pages', 1);
 INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_user_id) VALUES (51, NULL, 'Page Tags List', 'system:page-tags-list', 1);
 INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_user_id) VALUES (52, NULL, 'Page Tags', 'system:page-tags', 1);
-INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_user_id) VALUES (53, NULL, 'Log in', 'auth:login', 1);
-INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_user_id) VALUES (54, NULL, 'Create account - step 1', 'auth:newaccount', 1);
-INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_user_id) VALUES (55, NULL, 'Create account - step 2', 'auth:newaccount2', 1);
-INSERT INTO public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_user_id) VALUES (56, NULL, 'Create account - step 3', 'auth:newaccount3', 1);
 
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (1, 1, 1, 1, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-24 12:16:34', 1, NULL, '', false, 1);
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (2, 2, 2, 2, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-24 12:22:02', 1, NULL, '', false, 1);
@@ -567,10 +548,6 @@ INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, 
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (57, 46, 56, 50, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-30 16:15:22', 1, NULL, '', false, 1);
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (58, 47, 57, 51, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-30 16:15:56', 1, NULL, '', false, 1);
 INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (59, 48, 58, 52, NULL, false, false, false, false, false, true, 0, false, 0, '2008-01-30 16:16:22', 1, NULL, '', false, 1);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (60, 49, 59, 53, NULL, false, false, false, false, false, true, 0, false, 0, '2008-08-19 16:25:58', 1, NULL, NULL, false, 1);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (61, 50, 60, 54, NULL, false, false, false, false, false, true, 0, false, 0, '2008-08-19 16:25:58', 1, NULL, NULL, false, 1);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (62, 51, 61, 55, NULL, false, false, false, false, false, true, 0, false, 0, '2008-08-19 16:25:58', 1, NULL, NULL, false, 1);
-INSERT INTO public.page_revision (revision_id, page_id, source_id, metadata_id, flags, flag_text, flag_title, flag_file, flag_rename, flag_meta, flag_new, since_full_source, diff_source, revision_number, date_last_edited, user_id, user_string, comments, flag_new_site, site_id) VALUES (63, 52, 62, 56, NULL, false, false, false, false, false, true, 0, false, 0, '2008-08-19 16:25:58', 1, NULL, NULL, false, 1);
 
 INSERT INTO public.page_source (source_id, text) VALUES (1, '[[module ManageSite]]');
 INSERT INTO public.page_source (source_id, text) VALUES (2, '[[module Account]]');
@@ -1049,10 +1026,6 @@ You can edit parameters of the TagCloud module as described in http://www.wikido
 But if you want to keep the tag functionality working - do not remove these modules.
 
 --]');
-INSERT INTO public.page_source (source_id, text) VALUES (59, '[[module LoginModule]]');
-INSERT INTO public.page_source (source_id, text) VALUES (60, '[[module CreateAccountStep1]]');
-INSERT INTO public.page_source (source_id, text) VALUES (61, '[[module CreateAccountStep2]]');
-INSERT INTO public.page_source (source_id, text) VALUES (62, '[[module CreateAccountStep3]]');
 
 INSERT INTO public.profile (user_id, real_name, pronouns, birthday_day, birthday_month, birthday_year, about, location, website, im_icq, im_jabber, change_screen_name_count) VALUES (1, NULL, NULL, NULL, NULL, NULL, 'Wikidot administrator.', NULL, NULL, NULL, NULL, 0);
 

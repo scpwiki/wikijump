@@ -19,7 +19,9 @@ class SentMemberInvitationsModule extends SmartyModule
         $user = $runData->getUser();
 
         if (!$user) {
-            $runData->setModuleTemplate("Misc/AskToLoginModule");
+
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . route('login'));
             return;
         }
 

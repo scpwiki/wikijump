@@ -160,11 +160,9 @@ class AjaxModuleWikiFlowController extends WebFlowController
                 $template = $runData->getModuleTemplate();
                 $actionClass = $runData->getAction();
 
-                $proceed = in_array($actionClass, array('', 'LoginAction', 'MembershipApplyAction', 'CreateAccountStep1Action', 'PasswordRecoveryAction'))
+                $proceed = in_array($actionClass, array('', 'MembershipApplyAction', 'PasswordRecoveryAction'))
                     && ($template == ''
                         || $template == 'Empty'
-                        || preg_match(';^CreateAccount/;', $template)
-                        || preg_match(';^Login/;', $template)
                         || preg_match(';^Membership/;', $template)
                         || preg_match(';^PasswordRecovery/;', $template));
                 if (!$proceed) {

@@ -21,7 +21,8 @@ class AccountModule extends AccountBaseModule
     public function build($runData)
     {
         if (!$runData->getUser() && !Auth::user()) {
-            $runData->setModuleTemplate('Account/AccountNotLoggedInModule');
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . route('login'));
             return;
         }
 
