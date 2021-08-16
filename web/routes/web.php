@@ -84,6 +84,13 @@ Route::get('/user--karma/{user}', function(User $user) {
 });
 
 /**
+ * Avatar shortcut
+ */
+Route::get('/user--avatar/{user}', function (User $user) {
+   return $user->avatar();
+});
+
+/**
  * This route will use Blade instead of Smarty for rendering.
  */
 Route::get('/what-is-a-wiki', function() {

@@ -1,6 +1,6 @@
 import { compress } from "compress-tag";
 
-const AVATARS = "/common--images/avatars";
+const AVATARS = "/user--avatar";
 const KARMA = "/user--karma";
 
 export const render = {
@@ -26,8 +26,8 @@ export const render = {
       ${showAvatar
         ? `<a ${link}>
           <img class="small"
-               src="${AVATARS}/${Math.floor(userId / 1000)}/${userId}/a16.png"
-               alt=""
+               src="${AVATARS}/${userId}"
+               alt="${userName}"
                style="background-image:url(${KARMA}/${userId})"/></a>`
         : ""
       }

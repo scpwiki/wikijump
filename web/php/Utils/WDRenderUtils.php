@@ -18,7 +18,7 @@ class WDRenderUtils
             if ($params['image'] != null) {
                 $image = $params['image'];
                 // handle sizes...
-                $out .=     '<a '.$linkInner.' ><img class="small" src="/common--images/avatars/default/a16.png" alt=""/></a>';
+                $out .=     '<a '.$linkInner.' ><img class="small" src="' .$user->avatar() . '" alt="' . $user->username . '"/></a>';
             }
             $out .= '<a '.$linkInner.'>'._('Anonymous');
             list($ip, $proxy) = explode("|", $user);
@@ -50,7 +50,7 @@ class WDRenderUtils
         if ($params['image'] != null) {
             $image = $params['image'];
             // handle sizes...
-            $out .=     '<a '.$linkInner.' ><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="'.htmlspecialchars($user->username).'"';
+            $out .=     '<a '.$linkInner.' ><img class="small" src="' .$user->avatar() . '" alt="' . $user->username . '"';
             /* karma: */
             $out .= ' style="background-image:url('.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user--karma/' . $userId . ')"';
             /* end of karma */
