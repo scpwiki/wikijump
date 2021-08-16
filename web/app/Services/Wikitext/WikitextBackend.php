@@ -26,7 +26,7 @@ abstract class WikitextBackend
      *
      * @throws Exception if the feature flag value is invalid
      */
-    public static function make(int $mode, ?PageInfo $pageInfo): WikitextBackend
+    public static function make(int $mode, ?PageInfo &$pageInfo): WikitextBackend
     {
         switch (GlobalProperties::$FEATURE_WIKITEXT_BACKEND) {
             case 'text_wiki':

@@ -66,7 +66,7 @@ final class FtmlFfi
     }
 
     // ftml export methods
-    public static function renderHtml(string $wikitext, Wikitext\PageInfo $pageInfo): HtmlOutput
+    public static function renderHtml(string $wikitext, Wikitext\PageInfo &$pageInfo): HtmlOutput
     {
         $siteId = self::getSiteId($pageInfo->site);
         if ($siteId === null) {
@@ -85,7 +85,7 @@ final class FtmlFfi
         return OutputConversion::makeHtmlOutput($siteId, $output);
     }
 
-    public static function renderText(string $wikitext, Wikitext\PageInfo $pageInfo): TextOutput
+    public static function renderText(string $wikitext, Wikitext\PageInfo &$pageInfo): TextOutput
     {
         $c_pageInfo = new PageInfo($pageInfo);
         $output = self::make(self::$FTML_TEXT_OUTPUT);
@@ -93,14 +93,14 @@ final class FtmlFfi
         return OutputConversion::makeTextOutput($output);
     }
 
-    public static function freeHtmlOutput(FFI\CData $c_data)
+    public static function freeHtmlOutput(FFI\CData &$data)
     {
-        self::$ffi->ftml_destroy_html_output(FFI::addr($c_data));
+        self::$ffi->ftml_destroy_html_output(FFI::addr($data));
     }
 
-    public static function freeTextOutput(FFI\CData $c_data)
+    public static function freeTextOutput(FFI\CData &$data)
     {
-        self::$ffi->ftml_destroy_text_output(FFI::addr($c_data));
+        self::$ffi->ftml_destroy_text_output(FFI::addr($data));
     }
 
     public static function version(): string
@@ -119,7 +119,7 @@ final class FtmlFfi
      * @param FFI\CType $ctype
      * @return FFI\CData
      */
-    public static function make(FFI\CType $ctype): ?FFI\CData
+    public static function make(FFI\CType &$ctype): ?FFI\CData
     {
         // Handle zero-width types
         if (FFI::sizeof($ctype) === 0) {
@@ -145,12 +145,12 @@ final class FtmlFfi
      * Converts a FFI C string into a nullable PHP string.
      * That is, it handles C NULL properly.
      */
-    public static function nullableString(FFI\CData &$c_data): ?string
+    public static function nullableString(FFI\CData &$data): ?string
     {
-        if (FFI::isNull($c_data)) {
+        if (FFI::isNull($data)) {
             return null;
         } else {
-            return FFI::string($c_data);
+            return FFI::string($data);
         }
     }
 
@@ -164,7 +164,7 @@ final class FtmlFfi
      * @param array $dimensions
      * @return FFI\CType
      */
-    public static function arrayType(FFI\CType $ctype, array $dimensions): FFI\CType
+    public static function arrayType(FFI\CType &$ctype, array $dimensions): FFI\CType
     {
         return FFI::arrayType($ctype, $dimensions);
     }
@@ -215,7 +215,7 @@ final class FtmlFfi
      * @param callable $convertFn Converts a PHP item to its C equivalent
      * @returns array with keys "pointer" and "length"
      */
-    public static function listToPointer(FFI\CType $type, array $list, callable $convertFn): array
+    public static function listToPointer(FFI\CType $type, array &$list, callable $convertFn): array
     {
         // Allocate heap array
         $length = count($list);
@@ -242,7 +242,7 @@ final class FtmlFfi
      * @param int $length The length of this array, in items
      * @param callable $freeFn The function used to free the item
      */
-    public static function freePointer(?FFI\CData $pointer, int $length, callable $freeFn)
+    public static function freePointer(?FFI\CData &$pointer, int $length, callable $freeFn)
     {
         if ($pointer === null) {
             // Nothing to free, empty array
@@ -262,7 +262,7 @@ final class FtmlFfi
      *
      * @returns array with the converted objects
      */
-    public static function pointerToList(FFI\CData $pointer, int $length, callable $convertFn): array
+    public static function pointerToList(FFI\CData &$pointer, int $length, callable $convertFn): array
     {
         $list = [];
 
