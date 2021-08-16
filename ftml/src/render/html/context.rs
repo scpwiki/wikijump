@@ -173,7 +173,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
 
                 if is_url(link) {
                     let page_ref = PageRef::page_only(cow!(link));
-                    self.backlinks.included_pages.push(page_ref.to_owned());
+                    self.backlinks.internal_links.push(page_ref.to_owned());
                 } else {
                     let link = Cow::Owned(str!(link));
                     self.backlinks.external_links.push(link);
