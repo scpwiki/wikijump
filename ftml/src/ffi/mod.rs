@@ -37,10 +37,8 @@ mod prelude {
     pub use std::{mem, ptr};
 }
 
-#[cfg(feature = "css")]
-mod css;
-
 mod backlinks;
+mod css;
 mod exports;
 mod html;
 mod log;
