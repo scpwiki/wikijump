@@ -159,7 +159,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
                 self.backlinks.included_pages.push(page.to_owned());
             }
             LinkLocation::Url(link) => {
-                let mut link: &str = &link;
+                let mut link: &str = link;
 
                 if link == "javascript:;" {
                     return;

@@ -42,7 +42,7 @@ impl From<Backlinks<'_>> for ftml_backlinks {
     fn from(backlinks: Backlinks) -> ftml_backlinks {
         macro_rules! convert_vec {
             ($list:expr, $convert:expr) => {{
-                let owned_vec = $list.into_iter().map(|obj| $convert(obj)).collect();
+                let owned_vec = $list.into_iter().map($convert).collect();
 
                 vec_to_cptr(owned_vec)
             }};

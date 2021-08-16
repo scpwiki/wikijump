@@ -74,7 +74,7 @@ impl slog::Value for LinkLocation<'_> {
         serializer.emit_str(
             key,
             match self {
-                LinkLocation::Url(url) => &url,
+                LinkLocation::Url(url) => url,
                 LinkLocation::Page(page) => {
                     string = str!(page);
                     &string
