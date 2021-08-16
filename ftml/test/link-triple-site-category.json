@@ -1,0 +1,37 @@
+{
+    "input": "[[[:scp-wiki:component:theme|Sigma-9 Theme]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "link": {
+                                    "site": "scp-wiki",
+                                    "page": "component:theme"
+                                },
+                                "label": {
+                                    "text": "Sigma-9 Theme"
+                                },
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
