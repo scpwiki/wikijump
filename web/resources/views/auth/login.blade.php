@@ -11,7 +11,13 @@
                 {{ session('status') }}
             </div>
         @endif
-
+        @php
+            if (empty(session('backUrl')))
+            {
+               session(['backUrl' => $_SERVER['HTTP_REFERER']]);
+            }
+           session()->reflash();
+        @endphp
         <form method="POST" action="{{ route('login') }}">
             @csrf
 

@@ -83,7 +83,7 @@
 			  			{$topBarContent|regex_replace:"/>\s+</s":"><"}
 			  		</div>
 		  		{/if}
-		  		<div id="login-status">{$module->render("LoginStatusModule")}</div>
+                <div id="login-status">{$module->render("Legacy/LoginStatusModule")}</div>
 		  		<div id="header-extra-div-1"><span></span></div><div id="header-extra-div-2"><span></span></div><div id="header-extra-div-3"><span></span></div>
 		  	</div>
 
