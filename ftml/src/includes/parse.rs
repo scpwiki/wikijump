@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{IncludeRef, PageRef};
+use super::IncludeRef;
+use crate::data::{PageRef, PageRefParseError};
 use crate::log::prelude::*;
 use pest::iterators::Pairs;
 use pest::Parser;
@@ -33,7 +34,7 @@ pub fn parse_include_block<'t>(
     log: &Logger,
     text: &'t str,
     start: usize,
-) -> Option<(IncludeRef<'t>, usize)> {
+) -> Result<(IncludeRef<'t>, usize), IncludeParseError> {
     match IncludeParser::parse(Rule::include, text) {
         Ok(mut pairs) => {
             // Extract inner pairs
@@ -49,13 +50,10 @@ pub fn parse_include_block<'t>(
             );
 
             // Convert into an IncludeRef
-            let include = match process_pairs(log, first.into_inner()) {
-                Some(include) => include,
-                None => return None,
-            };
+            let include = process_pairs(log, first.into_inner())?;
 
             // Adjust offset and return
-            Some((include, start + span.end()))
+            Ok((include, start + span.end()))
         }
         Err(error) => {
             debug!(
@@ -66,21 +64,17 @@ pub fn parse_include_block<'t>(
                 "slice" => text,
             );
 
-            None
+            Err(IncludeParseError)
         }
     }
 }
 
-fn process_pairs<'t>(log: &Logger, mut pairs: Pairs<'t, Rule>) -> Option<IncludeRef<'t>> {
-    let page_raw = match pairs.next() {
-        Some(pair) => pair.as_str(),
-        None => return None,
-    };
-
-    let page_ref = match PageRef::parse(page_raw) {
-        Some(page_ref) => page_ref,
-        None => return None,
-    };
+fn process_pairs<'t>(
+    log: &Logger,
+    mut pairs: Pairs<'t, Rule>,
+) -> Result<IncludeRef<'t>, IncludeParseError> {
+    let page_raw = pairs.next().ok_or(IncludeParseError)?.as_str();
+    let page_ref = PageRef::parse(page_raw)?;
 
     trace!(
         log,
@@ -119,5 +113,15 @@ fn process_pairs<'t>(log: &Logger, mut pairs: Pairs<'t, Rule>) -> Option<Include
         arguments.insert(Cow::Borrowed(key), Cow::Borrowed(value));
     }
 
-    Some(IncludeRef::new(page_ref, arguments))
+    Ok(IncludeRef::new(page_ref, arguments))
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct IncludeParseError;
+
+impl From<PageRefParseError> for IncludeParseError {
+    #[inline]
+    fn from(_: PageRefParseError) -> Self {
+        IncludeParseError
+    }
 }

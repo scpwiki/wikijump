@@ -25,7 +25,10 @@
                                         "file": "filename.png"
                                     }
                                 },
-                                "link": "SCP-001",
+                                "link": {
+                                    "site": null,
+                                    "page": "SCP-001"
+                                },
                                 "alignment": null,
                                 "attributes": {}
                             }

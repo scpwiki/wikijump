@@ -19,8 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel};
-use crate::url::normalize_url;
+use crate::tree::{AnchorTarget, AttributeMap, Element, LinkLabel, LinkLocation};
+use crate::url::normalize_link;
 
 pub fn render_anchor(
     log: &Logger,
@@ -51,32 +51,34 @@ pub fn render_anchor(
 pub fn render_link(
     log: &Logger,
     ctx: &mut HtmlContext,
-    url: &str,
+    link: &LinkLocation,
     label: &LinkLabel,
     target: Option<AnchorTarget>,
 ) {
     debug!(
         log,
         "Rendering link";
-        "url" => url,
+        "link" => link,
         "target" => target_str(target),
     );
 
     let handle = ctx.handle();
 
     // Add to backlinks
-    ctx.add_link(url);
+    ctx.add_link(link);
+
+    let url = normalize_link(link, ctx.handle());
 
     // Create <a> and set attributes
     let mut tag = ctx.html().a();
-    tag.attr("href", &[&normalize_url(url)]);
+    tag.attr("href", &[&url]);
 
     if let Some(target) = target {
         tag.attr("target", &[target.html_attr()]);
     }
 
     // Add <a> internals, i.e. the link name
-    handle.get_link_label(log, url, label, |label| {
+    handle.get_link_label(log, link, label, |label| {
         tag.inner(log, &label);
     });
 }

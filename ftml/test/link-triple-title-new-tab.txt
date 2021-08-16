@@ -1,1 +1,1 @@
-TODO: actual title (some-page) [https://test.wikijump.com/some-page]
+TODO: actual title (Page(PageRef { site: None, page: "some-page" })) [/some-page]

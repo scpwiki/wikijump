@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::{FloatAlignment, ImageSource};
+use crate::tree::{FloatAlignment, ImageSource, LinkLocation};
 
 pub const BLOCK_IMAGE: BlockRule = BlockRule {
     name: "block-image",
@@ -50,7 +50,7 @@ fn parse_fn<'r, 't>(
     assert_block_name(&BLOCK_IMAGE, name);
 
     let (source, mut arguments) = parser.get_head_name_map(&BLOCK_IMAGE, in_head)?;
-    let link = arguments.get("link");
+    let link = arguments.get("link").map(LinkLocation::parse);
     let alignment = FloatAlignment::parse(name);
 
     // Parse the image source based on format

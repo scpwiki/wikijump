@@ -1,0 +1,37 @@
+{
+    "input": "[[[:scp-wiki : system : Recent Changes]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "link": {
+                                    "site": "scp-wiki",
+                                    "page": "system : Recent Changes"
+                                },
+                                "label": {
+                                    "url": "Recent Changes"
+                                },
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

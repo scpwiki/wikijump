@@ -20,13 +20,26 @@
 
 use super::prelude::*;
 
+#[inline]
+#[cfg(feature = "css")]
+fn css_const() -> &'static str {
+    crate::FTML_BASE_CSS
+}
+
+#[inline]
+#[cfg(not(feature = "css"))]
+fn css_const() -> &'static str {
+    ""
+}
+
 lazy_static! {
-    static ref FTML_BASE_CSS: CString = CString::new(crate::FTML_BASE_CSS).unwrap();
+    static ref FTML_BASE_CSS: CString = CString::new(css_const()).unwrap();
 }
 
 /// Outputs a copy of the ftml base CSS.
 ///
 /// This string data is immutable and should not be modified.
+/// This function only produces output if it was built with the "css" feature enabled.
 #[no_mangle]
 pub extern "C" fn ftml_base_css() -> *const c_char {
     FTML_BASE_CSS.as_ptr()

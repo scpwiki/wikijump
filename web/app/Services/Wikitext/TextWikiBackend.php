@@ -14,7 +14,7 @@ class TextWikiBackend extends WikitextBackend
 {
     private WikiTransformation $wt;
 
-    public function __construct(int $mode, ?PageInfo $pageInfo)
+    public function __construct(int $mode, ?PageInfo &$pageInfo)
     {
         $this->wt = new WikiTransformation();
 

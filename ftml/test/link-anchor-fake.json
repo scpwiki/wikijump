@@ -11,7 +11,7 @@
                         {
                             "element": "link",
                             "data": {
-                                "url": "javascript:;",
+                                "link": "javascript:;",
                                 "label": {
                                     "text": "Fake link"
                                 },

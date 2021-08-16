@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::page_ref::ftml_page_ref;
 use super::prelude::*;
 use crate::data::Backlinks;
 
@@ -25,39 +26,36 @@ use crate::data::Backlinks;
 #[derive(Debug)]
 pub struct ftml_backlinks {
     // Included pages
-    included_pages_list: *mut *mut c_char,
-    included_pages_len: usize,
+    pub included_pages_list: *mut ftml_page_ref,
+    pub included_pages_len: usize,
 
     // Internal links
-    internal_links_list: *mut *mut c_char,
-    internal_links_len: usize,
+    pub internal_links_list: *mut ftml_page_ref,
+    pub internal_links_len: usize,
 
     // External links
-    external_links_list: *mut *mut c_char,
-    external_links_len: usize,
+    pub external_links_list: *mut *mut c_char,
+    pub external_links_len: usize,
 }
 
 impl From<Backlinks<'_>> for ftml_backlinks {
     fn from(backlinks: Backlinks) -> ftml_backlinks {
-        macro_rules! convert_cstr_vec {
-            ($list:expr) => {{
-                let owned_vec = $list
-                    .into_iter()
-                    .map(|cow| string_to_cstr(cow.into_owned()))
-                    .collect();
+        macro_rules! convert_vec {
+            ($list:expr, $convert:expr) => {{
+                let owned_vec = $list.into_iter().map($convert).collect();
 
                 vec_to_cptr(owned_vec)
             }};
         }
 
         let (included_pages_list, included_pages_len) =
-            convert_cstr_vec!(backlinks.included_pages);
+            convert_vec!(backlinks.included_pages, ftml_page_ref::from);
 
         let (internal_links_list, internal_links_len) =
-            convert_cstr_vec!(backlinks.internal_links);
+            convert_vec!(backlinks.internal_links, ftml_page_ref::from);
 
         let (external_links_list, external_links_len) =
-            convert_cstr_vec!(backlinks.external_links);
+            convert_vec!(backlinks.external_links, cow_to_cstr);
 
         // Produce final struct
         ftml_backlinks {
@@ -73,13 +71,23 @@ impl From<Backlinks<'_>> for ftml_backlinks {
 
 impl ftml_backlinks {
     pub unsafe fn drop_c(&mut self) {
-        drop_cptr(self.included_pages_list, self.included_pages_len, |s| {
-            drop_cstr(s)
-        });
+        drop_cptr(
+            self.included_pages_list,
+            self.included_pages_len,
+            |page_ref| {
+                drop_cstr(page_ref.site);
+                drop_cstr(page_ref.page);
+            },
+        );
 
-        drop_cptr(self.internal_links_list, self.internal_links_len, |s| {
-            drop_cstr(s)
-        });
+        drop_cptr(
+            self.internal_links_list,
+            self.internal_links_len,
+            |page_ref| {
+                drop_cstr(page_ref.site);
+                drop_cstr(page_ref.page);
+            },
+        );
 
         drop_cptr(self.external_links_list, self.external_links_len, |s| {
             drop_cstr(s)

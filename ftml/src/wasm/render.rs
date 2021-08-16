@@ -25,7 +25,7 @@ use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::text::TextRender;
 use crate::render::Render;
 use crate::PageInfo as RustPageInfo;
-use ref_map::OptionRefMap;
+use ref_map::*;
 use std::sync::Arc;
 
 // Typescript declarations

@@ -219,7 +219,7 @@ impl Test<'_> {
 
         if warnings != self.warnings {
             panic!(
-                "Running test '{}' failed! Warnings did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nTree (correct): {:#?}",
+                "Running test '{}' failed! Warnings did not match:\nExpected: {:#?}\nActual:   {:#?}\n{}\nTree (correct): {:#?}",
                 self.name,
                 self.warnings,
                 warnings,
@@ -230,7 +230,7 @@ impl Test<'_> {
 
         if html_output.body != self.html {
             panic!(
-                "Running test '{}' failed! HTML does not match:\nExpected: {:?}\nActual: {:?}\n\n{}\n\nTree (correct): {:#?}",
+                "Running test '{}' failed! HTML does not match:\nExpected: {:?}\nActual:   {:?}\n\n{}\n\nTree (correct): {:#?}",
                 self.name,
                 self.html,
                 html_output.body,
@@ -241,7 +241,7 @@ impl Test<'_> {
 
         if text_output != self.text {
             panic!(
-                "Running test '{}' failed! Text output does not match:\nExpected: {:?}\nActual: {:?}\n\n{}\n\nTree (correct): {:#?}",
+                "Running test '{}' failed! Text output does not match:\nExpected: {:?}\nActual:   {:?}\n\n{}\n\nTree (correct): {:#?}",
                 self.name,
                 self.text,
                 text_output,

@@ -31,7 +31,7 @@
 
 use super::element::Element;
 use super::list::ListItem;
-use ref_map::OptionRefMap;
+use ref_map::*;
 use std::borrow::Cow;
 
 #[inline]

@@ -1,1 +1,1 @@
-My link [https://test.wikijump.com/some-page]
+My link [/some-page]

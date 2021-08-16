@@ -53,7 +53,7 @@ use super::HtmlContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::Element;
-use ref_map::OptionRefMap;
+use ref_map::*;
 
 pub fn render_elements(log: &Logger, ctx: &mut HtmlContext, elements: &[Element]) {
     debug!(log, "Rendering elements"; "elements-len" => elements.len());
@@ -86,15 +86,17 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             attributes,
             target,
         } => render_anchor(log, ctx, elements, attributes, *target),
-        Element::Link { url, label, target } => {
-            render_link(log, ctx, url, label, *target)
-        }
+        Element::Link {
+            link,
+            label,
+            target,
+        } => render_link(log, ctx, link, label, *target),
         Element::Image {
             source,
             link,
             alignment,
             attributes,
-        } => render_image(log, ctx, source, ref_cow!(link), *alignment, attributes),
+        } => render_image(log, ctx, source, link, *alignment, attributes),
         Element::List {
             ltype,
             items,

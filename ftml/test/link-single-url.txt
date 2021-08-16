@@ -1,1 +1,1 @@
-Some page [https://test.wikijump.com/page]
+Some page [/page]

@@ -1,0 +1,35 @@
+{
+    "input": "[[[:scp-wiki:scp-series|]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "link": {
+                                    "site": "scp-wiki",
+                                    "page": "scp-series"
+                                },
+                                "label": "page",
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
