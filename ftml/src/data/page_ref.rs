@@ -1,5 +1,5 @@
 /*
- * includes/object.rs
+ * data/page_ref.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -20,10 +20,9 @@
 
 use ref_map::*;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::fmt::{self, Display};
 
-/// Represents a reference to a page on the wiki, as used by includes.
+/// Represents a reference to a page on the wiki, as used by include notation.
 ///
 /// It tracks whether it refers to a page on this wiki, or some other,
 /// and what the names of these are.
@@ -36,26 +35,21 @@ use std::fmt::{self, Display};
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct PageRef<'t> {
-    site: Option<Cow<'t, str>>,
-    page: Cow<'t, str>,
+    pub site: Option<Cow<'t, str>>,
+    pub page: Cow<'t, str>,
 }
 
 impl<'t> PageRef<'t> {
-    #[inline]
-    pub fn new(site: Option<Cow<'t, str>>, page: Cow<'t, str>) -> Self {
-        PageRef { site, page }
-    }
-
     #[inline]
     pub fn page_and_site<S1, S2>(site: S1, page: S2) -> Self
     where
         S1: Into<Cow<'t, str>>,
         S2: Into<Cow<'t, str>>,
     {
-        let site = site.into();
-        let page = page.into();
-
-        PageRef::new(Some(site), page)
+        PageRef {
+            site: Some(site.into()),
+            page: page.into(),
+        }
     }
 
     #[inline]
@@ -63,9 +57,10 @@ impl<'t> PageRef<'t> {
     where
         S: Into<Cow<'t, str>>,
     {
-        let page = page.into();
-
-        PageRef::new(None, page)
+        PageRef {
+            site: None,
+            page: page.into(),
+        }
     }
 
     #[inline]
@@ -78,10 +73,15 @@ impl<'t> PageRef<'t> {
         self.page.as_ref()
     }
 
-    pub fn parse(s: &'t str) -> Option<PageRef<'t>> {
+    #[inline]
+    pub fn fields(&self) -> (Option<&str>, &str) {
+        (self.site(), self.page())
+    }
+
+    pub fn parse(s: &'t str) -> Result<PageRef<'t>, PageRefParseError> {
         let s = s.trim();
         if s.is_empty() {
-            return None;
+            return Err(PageRefParseError);
         }
 
         let result = match s.find(':') {
@@ -89,13 +89,17 @@ impl<'t> PageRef<'t> {
             Some(0) => {
                 // Find the second colon
                 let idx = match s[1..].find(':') {
+                    // Empty site name, e.g. "::something"
+                    // or no second colon, e.g. ":something"
+                    Some(0) | None => return Err(PageRefParseError),
+
+                    // Slice off the rest
                     Some(idx) => idx + 1,
-                    None => return None,
                 };
 
                 // Get site and page slices
-                let site = &s[1..idx];
-                let page = &s[idx + 1..];
+                let site = s[1..idx].trim();
+                let page = s[idx + 1..].trim();
 
                 PageRef::page_and_site(site, page)
             }
@@ -107,7 +111,7 @@ impl<'t> PageRef<'t> {
             None => PageRef::page_only(s),
         };
 
-        Some(result)
+        Ok(result)
     }
 
     pub fn to_owned(&self) -> PageRef<'static> {
@@ -134,57 +138,8 @@ impl Display for PageRef<'_> {
     }
 }
 
-pub type IncludeVariables<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
-
-/// Represents an include block.
-///
-/// It contains the page being included, as well as the arguments
-/// to be passed to it when doing the substitution.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-pub struct IncludeRef<'t> {
-    page_ref: PageRef<'t>,
-    variables: IncludeVariables<'t>,
-}
-
-impl<'t> IncludeRef<'t> {
-    #[inline]
-    pub fn new(page_ref: PageRef<'t>, variables: IncludeVariables<'t>) -> Self {
-        IncludeRef {
-            page_ref,
-            variables,
-        }
-    }
-
-    #[inline]
-    pub fn page_only(page_ref: PageRef<'t>) -> Self {
-        IncludeRef::new(page_ref, HashMap::new())
-    }
-
-    #[inline]
-    pub fn page_ref(&self) -> &PageRef<'t> {
-        &self.page_ref
-    }
-
-    #[inline]
-    pub fn variables(&self) -> &IncludeVariables<'t> {
-        &self.variables
-    }
-}
-
-impl<'t> From<IncludeRef<'t>> for (PageRef<'t>, IncludeVariables<'t>) {
-    #[inline]
-    fn from(include: IncludeRef<'t>) -> (PageRef<'t>, IncludeVariables<'t>) {
-        let IncludeRef {
-            page_ref,
-            variables,
-        } = include;
-
-        (page_ref, variables)
-    }
-}
-
-// Tests
+#[derive(Debug, PartialEq, Eq)]
+pub struct PageRefParseError;
 
 #[test]
 fn page_ref() {
@@ -199,16 +154,19 @@ fn page_ref() {
 
         ($input:expr => $expected:expr) => {{
             let actual = PageRef::parse($input);
+            let expected = $expected.ok_or(PageRefParseError);
+
             println!("Input: {:?}", $input);
             println!("Output: {:?}", actual);
             println!();
 
-            assert_eq!(actual, $expected, "Actual parse results don't match expected");
+            assert_eq!(actual, expected, "Actual parse results don't match expected");
         }};
     }
 
     test!("");
     test!(":page");
+    test!("::page");
     test!("page", PageRef::page_only("page"));
     test!("component:page", PageRef::page_only("component:page"));
     test!(
@@ -226,22 +184,15 @@ fn page_ref() {
     );
 }
 
-#[test]
-fn to_owned() {
-    // Clone PageRef
-    let page_ref_1 = PageRef::page_only("scp-001");
-    let page_ref_2: PageRef<'static> = page_ref_1.to_owned();
-    assert_eq!(page_ref_1, page_ref_2);
+#[cfg(test)]
+mod prop {
+    use super::*;
+    use proptest::prelude::*;
 
-    // Clone IncludeRef
-    let include_ref_1 = IncludeRef::new(page_ref_1, HashMap::new());
-    let include_ref_2: IncludeRef<'static> = include_ref_1.to_owned();
-    assert_eq!(include_ref_1, include_ref_2);
-    assert_eq!(include_ref_1.page_ref(), &page_ref_2);
-    assert!(include_ref_1.variables.is_empty());
-
-    // Deconstruct IncludeRef
-    let (page_ref, variables) = include_ref_2.into();
-    assert_eq!(page_ref, page_ref_2);
-    assert!(variables.is_empty());
+    proptest! {
+        #[test]
+        fn page_ref_prop(s in r"[a-zA-Z_:.]*") {
+            let _ = PageRef::parse(&s);
+        }
+    }
 }

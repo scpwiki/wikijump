@@ -32,16 +32,17 @@ class Backlinks
         $this->externalLinks = self::dedupeStrings($externalLinks);
     }
 
-    private static function dedupeIds(array $items): array
+    private static function dedupeIds(array &$items): array
     {
         return array_unique($items, SORT_NUMERIC);
     }
 
-    private static function dedupeStrings(array $items): array
+    private static function dedupeStrings(array &$items): array
     {
         return array_unique($items, SORT_STRING);
     }
-    public static function fromWikiObject(Text_Wiki $wiki): Backlinks
+
+    public static function fromWikiObject(Text_Wiki &$wiki): Backlinks
     {
         $inclusionsPresent = $wiki->vars['inclusions'] ?? [];
         $inclusionsAbsent = $wiki->vars['inclusionsNotExist'] ?? [];

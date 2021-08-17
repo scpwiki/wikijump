@@ -24,8 +24,8 @@ use super::super::condition::{check_ifcategory, check_iftags};
 use super::TextContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
-use crate::tree::{ContainerType, Element, ListItem, ListType};
-use crate::url::{is_url, normalize_url};
+use crate::tree::{ContainerType, Element, LinkLocation, ListItem, ListType};
+use crate::url::normalize_link;
 use std::borrow::Cow;
 
 pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]) {
@@ -107,17 +107,17 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             render_elements(log, ctx, elements);
 
             if let Some(href) = attributes.get().get("href") {
-                let url = get_full_url(log, ctx, href);
-                if &url != href {
-                    str_write!(ctx, " [{}]", url);
-                }
+                let link = LinkLocation::parse(cow!(href));
+                let url = get_url_from_link(ctx, &link);
+
+                str_write!(ctx, " [{}]", url);
             }
         }
-        Element::Link { url, label, .. } => {
-            ctx.handle().get_link_label(log, url, label, |label| {
-                ctx.push_str(label);
+        Element::Link { link, label, .. } => {
+            let url = get_url_from_link(ctx, link);
 
-                let url = get_full_url(log, ctx, url);
+            ctx.handle().get_link_label(log, link, label, |label| {
+                ctx.push_str(label);
 
                 // Don't show URL if it's a name link, or an anchor
                 if url != label && !url.starts_with('#') {
@@ -140,8 +140,8 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 str_write!(ctx, " [Align: {}{}]", image.align.name(), float);
             }
 
-            if let Some(url) = link {
-                str_write!(ctx, " [Link: {}]", get_full_url(log, ctx, url));
+            if let Some(link) = link {
+                str_write!(ctx, " [Link: {}]", get_url_from_link(ctx, link));
             }
 
             if let Some(alt_text) = attributes.get().get("alt") {
@@ -299,36 +299,13 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
     }
 }
 
-fn get_full_url<'a>(log: &Logger, ctx: &TextContext, url: &'a str) -> Cow<'a, str> {
-    debug!(log, "Building full URL"; "url" => url);
+fn get_url_from_link<'a>(ctx: &TextContext, link: &'a LinkLocation<'a>) -> Cow<'a, str> {
+    let url = normalize_link(link, ctx.handle());
 
     // TODO: when we remove inline javascript stuff
-    if url == "javascript:;" {
+    if url.as_ref() == "javascript:;" {
         return Cow::Borrowed("#");
     }
 
-    // Anchor links should just be returned as-is
-    if url.starts_with('#') {
-        return Cow::Borrowed(url);
-    }
-
-    // If it's a URL with a scheme, just return this
-    if is_url(url) {
-        return Cow::Borrowed(url);
-    }
-
-    // Let's build a full URL.
-    // First, normalize:
-    let url = normalize_url(url);
-
-    let site = &ctx.info().site;
-    let mut full_url = ctx.handle().get_url(log, site);
-
-    // Ensure there is exactly one slash
-    if full_url.ends_with('/') {
-        full_url.pop();
-    }
-
-    full_url.push_str(&url);
-    Cow::Owned(full_url)
+    url
 }

@@ -18,13 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::data::PageInfo;
+use crate::data::{PageInfo, PageRef};
 use crate::render::{html::HtmlRender, text::TextRender, Render};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element,
-    FloatAlignment, Heading, HeadingLevel, ImageSource, LinkLabel, ListItem, ListType,
-    Module, SyntaxTree,
+    FloatAlignment, Heading, HeadingLevel, ImageSource, LinkLabel, LinkLocation,
+    ListItem, ListType, Module, SyntaxTree,
 };
 use proptest::option;
 use proptest::prelude::*;
@@ -117,17 +117,33 @@ fn arb_target() -> impl Strategy<Value = Option<AnchorTarget>> {
     ]))
 }
 
-fn arb_link() -> impl Strategy<Value = Element<'static>> {
+fn arb_page_ref() -> impl Strategy<Value = PageRef<'static>> {
+    let site = option::of(cow!(r"[a-z0-9\-]+"));
+    let page = cow!(r"[a-z0-9\-_:]+");
+
+    (site, page).prop_map(|(site, page)| PageRef { site, page })
+}
+
+fn arb_link_location() -> impl Strategy<Value = LinkLocation<'static>> {
+    prop_oneof![
+        arb_page_ref().prop_map(LinkLocation::Page),
+        cow!(".+").prop_map(LinkLocation::Url),
+    ]
+}
+
+fn arb_link_element() -> impl Strategy<Value = Element<'static>> {
     let label = prop_oneof![
         cow!(".*").prop_map(LinkLabel::Text),
         option::of(cow!(SIMPLE_URL_REGEX)).prop_map(LinkLabel::Url),
         Just(LinkLabel::Page),
     ];
 
-    (cow!(".+"), label, arb_target()).prop_map(|(url, label, target)| Element::Link {
-        url,
-        label,
-        target,
+    (arb_link_location(), label, arb_target()).prop_map(|(link, label, target)| {
+        Element::Link {
+            link,
+            label,
+            target,
+        }
     })
 }
 
@@ -155,7 +171,7 @@ fn arb_image() -> impl Strategy<Value = Element<'static>> {
 
     (
         source,
-        arb_optional_str(),
+        option::of(arb_link_location()),
         image_alignment,
         arb_attribute_map(),
     )
@@ -310,7 +326,7 @@ fn arb_element_leaf() -> impl Strategy<Value = Element<'static>> {
         cow!(".*").prop_map(Element::Raw),
         cow!(SIMPLE_EMAIL_REGEX).prop_map(Element::Email),
         arb_module(),
-        arb_link(),
+        arb_link_element(),
         arb_image(),
         // TODO: Element::RadioButton
         arb_checkbox(),

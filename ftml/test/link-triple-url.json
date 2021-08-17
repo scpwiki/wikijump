@@ -11,7 +11,7 @@
                         {
                             "element": "link",
                             "data": {
-                                "url": "https://example.com/",
+                                "link": "https://example.com/",
                                 "label": {
                                     "text": "Example"
                                 },

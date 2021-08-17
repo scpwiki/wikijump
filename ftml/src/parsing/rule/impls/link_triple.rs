@@ -29,7 +29,7 @@
 //! Its syntax is `[[[page-name | Label text]`.
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, LinkLabel};
+use crate::tree::{AnchorTarget, LinkLabel, LinkLocation};
 use std::borrow::Cow;
 
 pub const RULE_LINK_TRIPLE: Rule = Rule {
@@ -144,7 +144,7 @@ fn build_same<'p, 'r, 't>(
 
     // Build and return element
     let element = Element::Link {
-        url: cow!(url),
+        link: LinkLocation::parse(cow!(url)),
         label: LinkLabel::Url(label),
         target,
     };
@@ -199,7 +199,7 @@ fn build_separate<'p, 'r, 't>(
 
     // Build link element
     let element = Element::Link {
-        url: cow!(url),
+        link: LinkLocation::parse(cow!(url)),
         label,
         target,
     };
@@ -216,7 +216,30 @@ fn build_separate<'p, 'r, 't>(
 /// It returns `Some(_)` if a slice was performed, and `None` if
 /// the string would have been returned as-is.
 fn strip_category(url: &str) -> Option<&str> {
-    url.find(':').map(|idx| url[idx + 1..].trim_start())
+    match url.find(':') {
+        // Link with site, e.g. :scp-wiki:component:image-block.
+        Some(0) => {
+            let url = &url[1..];
+
+            // If there is no colon, it's malformed, return None.
+            // Else, return a stripped version
+            url.find(':').map(|idx| {
+                let url = url[idx + 1..].trim_start();
+
+                // Skip past the site portion, then use the regular strip case.
+                //
+                // We unwrap_or() here because, at minimum, we return the substring
+                // not containing the site.
+                strip_category(url).unwrap_or(url)
+            })
+        }
+
+        // Link with category but no site, e.g. theme:sigma-9.
+        Some(idx) => Some(url[idx + 1..].trim_start()),
+
+        // No stripping necessary
+        None => None,
+    }
 }
 
 #[test]
@@ -249,4 +272,13 @@ fn test_strip_category() {
         "multiple: categories: here: test",
         Some("categories: here: test"),
     );
+    check!(":scp-wiki:scp-001", Some("scp-001"));
+    check!(":scp-wiki : SCP-001", Some("SCP-001"));
+    check!(":scp-wiki:system:recent-changes", Some("recent-changes"));
+    check!(
+        ":scp-wiki : system : Recent Changes",
+        Some("Recent Changes"),
+    );
+    check!(": snippets : redirect", Some("redirect"));
+    check!(":", None);
 }

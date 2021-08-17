@@ -1,1 +1,1 @@
-A Image: https://test.wjfiles.com/local--files/page-image-link-page/filename.png [Link: https://test.wikijump.com/scp-001] B
+A Image: https://test.wjfiles.com/local--files/page-image-link-page/filename.png [Link: /scp-001] B

@@ -6,6 +6,7 @@ namespace Wikijump\Services\Wikitext\FFI;
 use \FFI;
 use \Wikidot\DB\PagePeer;
 use \Wikijump\Services\Wikitext\Backlinks;
+use \Wikijump\Services\Wikitext\PageRef;
 use \Wikijump\Services\Wikitext\HtmlMeta;
 use \Wikijump\Services\Wikitext\HtmlMetaType;
 use \Wikijump\Services\Wikitext\HtmlOutput;
@@ -20,26 +21,26 @@ final class OutputConversion
     private function __construct() {}
 
     // HtmlMeta
-    public static function makeHtmlMetaArray(FFI\CData $pointer, int $length): array
+    public static function makeHtmlMetaArray(FFI\CData &$pointer, int $length): array
     {
         return FtmlFfi::pointerToList(
             $pointer,
             $length,
-            fn(FFI\CData $c_data) => self::makeHtmlMeta($c_data),
+            fn(FFI\CData &$data) => self::makeHtmlMeta($data),
         );
     }
 
-    public static function makeHtmlMeta(FFI\CData $c_data): HtmlMeta
+    public static function makeHtmlMeta(FFI\CData &$data): HtmlMeta
     {
-        $tagType = self::getTagType($c_data->tag_type);
-        $name = FFI::string($c_data->name);
-        $value = FFI::string($c_data->value);
+        $tagType = self::getTagType($data->tag_type);
+        $name = FFI::string($data->name);
+        $value = FFI::string($data->value);
         return new HtmlMeta($tagType, $name, $value);
     }
 
-    private static function getTagType(int $c_tag): string
+    private static function getTagType(int $tag): string
     {
-        switch ($c_tag) {
+        switch ($tag) {
             case FtmlFfi::$META_NAME:
                 return HtmlMetaType::NAME;
             case FtmlFfi::$META_HTTP_EQUIV:
@@ -47,94 +48,92 @@ final class OutputConversion
             case FtmlFfi::$META_PROPERTY:
                 return HtmlMetaType::PROPERTY;
             default:
-                throw new Error("Invalid HTML meta tag type C enum value: $c_tag");
+                throw new Error("Invalid HTML meta tag type C enum value: $tag");
         }
     }
 
     // HtmlOutput
-    public static function makeHtmlOutput(string $siteId, FFI\CData $c_data): HtmlOutput
+    public static function makeHtmlOutput(string $siteId, FFI\CData &$data): HtmlOutput
     {
-        $body = FFI::string($c_data->body);
-        $styles = self::makeStylesArray($c_data->styles_list, $c_data->styles_len);
-        $meta = self::makeHtmlMetaArray($c_data->meta_list, $c_data->meta_len);
-        $warnings = self::makeParseWarningArray($c_data->warning_list, $c_data->warning_len);
-        $backlinks = self::makeBacklinks($siteId, $c_data->backlinks);
+        $body = FFI::string($data->body);
+        $styles = self::makeStylesArray($data->styles_list, $data->styles_len);
+        $meta = self::makeHtmlMetaArray($data->meta_list, $data->meta_len);
+        $warnings = self::makeParseWarningArray($data->warning_list, $data->warning_len);
+        $backlinks = self::makeBacklinks($siteId, $data->backlinks);
 
         // Free original C data
-        FtmlFfi::freeHtmlOutput($c_data);
-        FFI::free($c_data);
+        FtmlFfi::freeHtmlOutput($data);
+        FFI::free($data);
 
         // Return object
         return new HtmlOutput($body, $styles, $meta, $warnings, $backlinks);
     }
 
-    private static function makeStylesArray(FFI\CData $pointer, int $length): array {
+    private static function makeStylesArray(FFI\CData &$pointer, int $length): array {
         return FtmlFfi::pointerToList(
             $pointer,
             $length,
-            fn(FFI\CData $c_data) => FFI::string($c_data),
+            fn(FFI\CData $data) => FFI::string($data),
         );
     }
 
     // TextOutput
-    public static function makeTextOutput(FFI\CData $c_data): TextOutput
+    public static function makeTextOutput(FFI\CData &$data): TextOutput
     {
-        $text = FFI::string($c_data->text);
-        $warnings = self::makeParseWarningArray($c_data->warning_list, $c_data->warning_len);
+        $text = FFI::string($data->text);
+        $warnings = self::makeParseWarningArray($data->warning_list, $data->warning_len);
 
         // Free original C data
-        FtmlFfi::freeTextOutput($c_data);
-        FFI::free($c_data);
+        FtmlFfi::freeTextOutput($data);
+        FFI::free($data);
 
         // Return object
         return new TextOutput($text, $warnings);
     }
 
     // ParseWarning
-    public static function makeParseWarningArray(FFI\CData $pointer, int $length): array
+    public static function makeParseWarningArray(FFI\CData &$pointer, int $length): array
     {
         return FtmlFfi::pointerToList(
             $pointer,
             $length,
-            fn(FFI\CData $c_data) => self::makeParseWarning($c_data),
+            fn(FFI\CData $data) => self::makeParseWarning($data),
         );
     }
 
-    public static function makeParseWarning(FFI\CData $c_data): ParseWarning
+    public static function makeParseWarning(FFI\CData &$data): ParseWarning
     {
-        $token = FFI::string($c_data->token);
-        $rule = FFI::string($c_data->rule);
-        $spanStart = $c_data->span_start;
-        $spanEnd = $c_data->span_end;
-        $kind = FFI::string($c_data->kind);
+        $token = FFI::string($data->token);
+        $rule = FFI::string($data->rule);
+        $spanStart = $data->span_start;
+        $spanEnd = $data->span_end;
+        $kind = FFI::string($data->kind);
         return new ParseWarning($token, $rule, $spanStart, $spanEnd, $kind);
     }
 
     // Backlinks
-    public static function makeBacklinks(string $siteId, FFI\CData $c_data): Backlinks
+    public static function makeBacklinks(string $siteId, FFI\CData &$data): Backlinks
     {
         $inclusions = self::splitLinks(
-            $c_data->included_pages_list,
-            $c_data->included_pages_len,
-            fn(FFI\CData $c_data) => FFI::string($c_data),
-            fn(string $slug) => self::getPageId($siteId, $slug),
+            $data->included_pages_list,
+            $data->included_pages_len,
+            $siteId,
         );
         $inclusionsPresent = $inclusions['present'];
         $inclusionsAbsent = $inclusions['absent'];
 
         $internalLinks = self::splitLinks(
-            $c_data->internal_links_list,
-            $c_data->internal_links_len,
-            fn(FFI\CData $c_data) => FFI::string($c_data),
-            fn(string $slug) => self::getPageId($siteId, $slug),
+            $data->internal_links_list,
+            $data->internal_links_len,
+            $siteId,
         );
         $internalLinksPresent = $internalLinks['present'];
         $internalLinksAbsent = $internalLinks['absent'];
 
         $externalLinks = FtmlFfi::pointerToList(
-            $c_data->external_links_list,
-            $c_data->external_links_len,
-            fn(FFI\CData $c_data) => FFI::string($c_data),
+            $data->external_links_list,
+            $data->external_links_len,
+            fn(FFI\CData $data) => FFI::string($data),
         );
 
         return new Backlinks(
@@ -146,24 +145,31 @@ final class OutputConversion
         );
     }
 
+    private static function makePageRef(FFI\CData &$data): PageRef
+    {
+        $site = FtmlFfi::nullableString($data->site);
+        $page = FFI::string($data->page);
+
+        return new PageRef($site, $page);
+    }
+
     private static function splitLinks(
-        FFI\CData $pointer,
+        FFI\CData &$pointer,
         int $length,
-        callable $convertFn,
-        callable $checkItemFn
+        string $siteId
     ): array {
         $present = [];
         $absent = [];
 
         // Convert items, placing in the appropriate list
         for ($i = 0; $i < $length; $i++) {
-            $originalItem = $convertFn($pointer[$i]);
-            $foundItem = $checkItemFn($originalItem);
+            $pageRef = self::makePageRef($pointer[$i]);
+            $pageId = self::getPageId($siteId, $pageRef);
 
-            if (is_null($foundItem)) {
-                array_push($absent, $originalItem);
+            if ($pageId === null) {
+                array_push($absent, $pageRef->pathRepr());
             } else {
-                array_push($present, $foundItem);
+                array_push($present, $pageId);
             }
         }
 
@@ -173,9 +179,18 @@ final class OutputConversion
         ];
     }
 
-    private static function getPageId(string $siteId, string $slug): ?string
+    private static function getPageId(string $siteId, PageRef &$pageRef): ?string
     {
-        $page = PagePeer::instance()->selectByName($siteId, $slug);
+        if ($pageRef->site !== null) {
+            $siteId = FtmlFfi::getSiteId($pageRef->site);
+            if ($siteId === null) {
+                // Site not found, the page obviously doesn't exist
+                return null;
+            }
+        }
+
+        // Find the page based on the contextual site ID
+        $page = PagePeer::instance()->selectByName($siteId, $pageRef->page);
         return $page ? $page->getPageId() : null;
     }
 }

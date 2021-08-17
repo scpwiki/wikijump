@@ -23,8 +23,9 @@ use super::clone::{
 };
 use super::{
     Alignment, AnchorTarget, AttributeMap, Container, ElementCondition, FloatAlignment,
-    ImageSource, LinkLabel, ListItem, ListType, Module,
+    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
 };
+use ref_map::*;
 use std::borrow::Cow;
 use std::num::NonZeroU32;
 use std::slice;
@@ -77,9 +78,9 @@ pub enum Element<'t> {
     /// The "label" field is an optional field denoting what the link should
     /// display.
     ///
-    /// The "url" field is either a page name (relative URL) or full URL.
+    /// The "link" field is either a page reference (relative URL) or full URL.
     Link {
-        url: Cow<'t, str>,
+        link: LinkLocation<'t>,
         label: LinkLabel<'t>,
         target: Option<AnchorTarget>,
     },
@@ -91,7 +92,7 @@ pub enum Element<'t> {
     /// The "link" field is what the `<a>` points to, when the user clicks on the image.
     Image {
         source: ImageSource<'t>,
-        link: Option<Cow<'t, str>>,
+        link: Option<LinkLocation<'t>>,
         alignment: Option<FloatAlignment>,
         attributes: AttributeMap<'t>,
     },
@@ -310,8 +311,12 @@ impl Element<'_> {
                 attributes: attributes.to_owned(),
                 target: *target,
             },
-            Element::Link { url, label, target } => Element::Link {
-                url: string_to_owned(url),
+            Element::Link {
+                link,
+                label,
+                target,
+            } => Element::Link {
+                link: link.to_owned(),
                 label: label.to_owned(),
                 target: *target,
             },
@@ -336,7 +341,7 @@ impl Element<'_> {
                 attributes,
             } => Element::Image {
                 source: source.to_owned(),
-                link: option_string_to_owned(link),
+                link: link.ref_map(|link| link.to_owned()),
                 alignment: *alignment,
                 attributes: attributes.to_owned(),
             },

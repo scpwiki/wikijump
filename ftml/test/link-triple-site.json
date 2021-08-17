@@ -1,0 +1,37 @@
+{
+    "input": "[[[:scp-wiki:scp-1000|Children of the Night]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "link": {
+                                    "site": "scp-wiki",
+                                    "page": "scp-1000"
+                                },
+                                "label": {
+                                    "text": "Children of the Night"
+                                },
+                                "target": null
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

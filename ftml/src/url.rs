@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::tree::LinkLocation;
 use std::borrow::Cow;
 use wikidot_normalize::normalize;
 
@@ -55,7 +56,24 @@ pub fn is_url(url: &str) -> bool {
     false
 }
 
-pub fn normalize_url(url: &str) -> Cow<str> {
+pub fn normalize_link<'a>(
+    link: &'a LinkLocation<'a>,
+    helper: &dyn BuildSiteUrl,
+) -> Cow<'a, str> {
+    match link {
+        LinkLocation::Url(url) => normalize_href(url),
+        LinkLocation::Page(page_ref) => {
+            let (site, page) = page_ref.fields();
+
+            match site {
+                Some(site) => Cow::Owned(helper.build_url(site, page)),
+                None => normalize_href(page),
+            }
+        }
+    }
+}
+
+pub fn normalize_href(url: &str) -> Cow<str> {
     if is_url(url) || url.starts_with('#') || url == "javascript:;" {
         Cow::Borrowed(url)
     } else {
@@ -64,4 +82,8 @@ pub fn normalize_url(url: &str) -> Cow<str> {
         url.insert(0, '/');
         Cow::Owned(url)
     }
+}
+
+pub trait BuildSiteUrl {
+    fn build_url(&self, site: &str, path: &str) -> String;
 }
