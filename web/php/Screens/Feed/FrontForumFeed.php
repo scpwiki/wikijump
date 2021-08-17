@@ -125,10 +125,6 @@ class FrontForumFeed extends FeedScreen
         $ccat = new Criteria();
         $categories = array();
 
-        if (count($cats)>20) {
-            throw new ProcessException(_("Maximum number of categories exceeded."), "max_categories");
-        }
-
         // get page
         $page = PagePeer::instance()->selectByPrimaryKey($feed->getPageId());
         if (!$page) {
