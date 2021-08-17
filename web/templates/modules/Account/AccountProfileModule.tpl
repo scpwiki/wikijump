@@ -9,13 +9,6 @@
 </div>
 
 <div>
-	<h3><a href="{$HTTP_SCHEMA}://profiles.{$URL_DOMAIN}/profile:{$user->unix_name}">{t}Edit a page about myself{/t}</a></h3>
-	<p>
-		{t}Edit contents of the page that people see after clicking on your screen name.{/t}
-	</p>
-</div>
-
-<div>
 	<h3><a href="javascript:;"   onclick="OZONE.ajax.requestModule('Account/Profile/APAvatarModule', null, Wikijump.modules.AccountModule.callbacks.menuClick)">{t}My buddy icon (avatar){/t}</a></h3>
 	<p>
 		{t}Upload or change an icon representing your presence.{/t}
