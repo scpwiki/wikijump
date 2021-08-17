@@ -27,8 +27,10 @@ class LoginResponse implements LoginResponseContract
         {
             return response()->json(['two_factor' => false]);
         }
-        return session('backUrl') ?
-            redirect()->to(session('backUrl'))
+
+        $previousLocation = session('backUrl');
+        return $previousLocation ?
+            redirect()->to($previousLocation)
             : redirect()->route('dashboard');
     }
 }

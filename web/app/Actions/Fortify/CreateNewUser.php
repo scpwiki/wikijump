@@ -32,8 +32,8 @@ class CreateNewUser implements CreatesNewUsers
         $input['unix_name'] = WDStringUtils::toUnixName($input['username']);
 
         Validator::make($input, [
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'unix_name' => ['unique:users'],
+            'username' => ['required', 'string', 'max:255', 'unique:users', 'min:3'],
+            'unix_name' => ['unique:users', 'min:3'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['required', 'accepted'] : '',

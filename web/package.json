@@ -11,6 +11,7 @@
         "build-prod": "webpack --config conf/webpack.prod.js",
         "test": "jest",
         "test-coverage": "jest --coverage",
+
         "dev": "npm run development",
         "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --config=node_modules/laravel-mix/setup/webpack.config.js",
         "watch": "npm run development -- --watch",

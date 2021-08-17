@@ -194,9 +194,10 @@ class UserMessage extends Model
     public function scopeInbox(Builder $query, User $user) : Builder
     {
         return $query->where('to_user_id', $user->id)
-            ->whereRaw('flags::int::bit(16) & ' . self::MESSAGE_ARCHIVED . '::bit(16) = 0::bit(16)')
-            ->whereRaw('flags::int::bit(16) & ' . self::MESSAGE_SENT . '::bit(16) = 0::bit(16)')
-            ->whereRaw('flags::int::bit(16) & ' . self::MESSAGE_DRAFT . '::bit(16) = 0::bit(16)');
+
+            ->whereRaw(self::flagIsNotSet(self::MESSAGE_ARCHIVED))
+            ->whereRaw(self::flagIsNotSet(self::MESSAGE_SENT))
+            ->whereRaw(self::flagIsNotSet(self::MESSAGE_DRAFT));
     }
 
     /**
@@ -208,7 +209,7 @@ class UserMessage extends Model
     public function scopeUnread(Builder $query, User $user) : Builder
     {
         return $query->where('to_user_id', $user->id)
-        ->whereRaw('flags::int::bit(16) & ' . self::MESSAGE_READ . '::bit(16) = 0::bit(16)');
+        ->whereRaw(self::flagIsNotSet(self::MESSAGE_READ));
     }
 
     /**
@@ -220,7 +221,7 @@ class UserMessage extends Model
     public function scopeDrafts(Builder $query, User $user) : Builder
     {
         return $query->where('from_user_id', $user->id)
-            ->whereRaw('flags::int::bit(16) & ' . self::MESSAGE_DRAFT . '::bit(16) != 0::bit(16)');
+            ->whereRaw(self::flagIsSet(self::MESSAGE_DRAFT));
     }
 
     /**
@@ -232,7 +233,7 @@ class UserMessage extends Model
     public function scopeArchive(Builder $query, User $user) : Builder
     {
         return $query->where('to_user_id', $user->id)
-            ->whereRaw('flags::int::bit(16) & ' . self::MESSAGE_ARCHIVED . '::bit(16) != 0::bit(16)');
+            ->whereRaw(self::flagIsSet(self::MESSAGE_ARCHIVED));
     }
 
     /**
@@ -244,7 +245,7 @@ class UserMessage extends Model
     public function scopeStarred(Builder $query, User $user) : Builder
     {
         return $query->where('to_user_id', $user->id)
-            ->whereRaw('flags::int::bit(16) & ' . self::MESSAGE_STARRED . '::bit(16) != 0::bit(16)');
+            ->whereRaw(self::flagIsSet(self::MESSAGE_STARRED));
     }
 
     /**
@@ -256,7 +257,7 @@ class UserMessage extends Model
     public function scopeSent(Builder $query, User $user) : Builder
     {
         return $query->where('from_user_id', $user->id)
-            ->whereRaw('flags::int::bit(16) & ' . self::MESSAGE_SENT . '::bit(16) != 0::bit(16)');
+            ->whereRaw(self::flagIsSet(self::MESSAGE_SENT));
     }
 
     /**

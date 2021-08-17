@@ -122,7 +122,9 @@ Note: If you enable two-factor authentication on a local container you may find 
 the clock drift is too great for TOTP codes to work. In docker-compose (`wsl -d docker-compose`) 
 you can enter this command to sync your time up:
 
-`ntpd -d -q -n -p 0.pool.ntp.org`
+```
+$ ntpd -d -q -n -p 0.pool.ntp.org
+```
 
 ## Entering the container
 

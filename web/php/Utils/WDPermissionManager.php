@@ -134,8 +134,7 @@ class WDPermissionManager
 
     public function hasPermission($action, $user, $site = null)
     {
-
-         if ($user->id === 1) {
+        if ($user->id === 1) {
             return true;
         }
 

@@ -597,7 +597,7 @@ class RunData {
 				}
 
 				$key = 'session..'.$session->getSessionId();
-				Cache::put($key, $session,600);
+				Cache::put($key, $session, 600);
 			}
         if(!empty($this->_outCookies)) {
             $this->_setCookies();

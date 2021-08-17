@@ -38,4 +38,14 @@ trait UsesBitmasks
     {
         $this->flags &= ~$flag;
     }
+
+    public static function flagIsSet(int $flag) : string
+    {
+        return "flags::int::bit(16) & $flag::bit(16) != 0::bit(16)";
+    }
+
+    public static function flagIsNotSet(int $flag) : string
+    {
+        return "flags::int::bit(16) & $flag::bit(16) = 0::bit(16)";
+    }
 }
