@@ -64,6 +64,7 @@ pub struct Parser<'r, 't> {
 
     // Flags
     in_list: bool,
+    start_of_line: bool,
 }
 
 impl<'r, 't> Parser<'r, 't> {
@@ -92,6 +93,7 @@ impl<'r, 't> Parser<'r, 't> {
             table_of_contents,
             footnotes,
             in_list: false,
+            start_of_line: true,
         }
     }
 
@@ -114,6 +116,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn in_list(&self) -> bool {
         self.in_list
+    }
+
+    #[inline]
+    pub fn start_of_line(&self) -> bool {
+        self.start_of_line
     }
 
     // Setters
