@@ -108,18 +108,10 @@ class FrontForumModule extends SmartyModule
             throw new ProcessException(_('No forum category has been specified. Please use attribute category="id" where id is the index number of the category.'), "no_category");
         }
 
-        if (strlen($categoryIds)>90) {
-            throw new ProcessException(_("Category string too long."), "max_categories");
-        }
-
         $cats = preg_split('/[,;] ?/', $categoryIds);
 
         $ccat = new Criteria();
         $categories = array();
-
-        if (count($cats)>20) {
-            throw new ProcessException(_("Maximum number of categories exceeded."), "max_categories");
-        }
 
         foreach ($cats as $categoryId) {
             if ($categoryId === null || !is_numeric($categoryId)) {
