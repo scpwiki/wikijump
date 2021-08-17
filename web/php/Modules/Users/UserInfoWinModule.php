@@ -20,7 +20,7 @@ class UserInfoWinModule extends SmartyModule
         $userId = $pl->getParameterValue("user_id");
 
         $user = User::find($userId);
-        $avatarUri = '/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a48.png'; // TODO https://scuttle.atlassian.net/browse/WJ-249
+        $avatarUri = '/user--avatar/'.$userId;
         $runData->contextAdd("user", $user);
         $runData->contextAdd("avatarUri", $avatarUri);
 

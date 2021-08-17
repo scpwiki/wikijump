@@ -2,6 +2,7 @@
 
 namespace Wikidot\Utils;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyModule;
 
@@ -48,8 +49,7 @@ abstract class CacheableModule extends SmartyModule
             $mcKey = 'module..'.$site->getSiteId().'..'.get_class($this).'..'.$parmSubKey;
 
             // get the content
-            $mc = Ozone::$memcache;
-            $out = $mc->get($mcKey);
+            $out = Cache::get($mcKey);
             if ($out != false) {
                 return $out;
             }
@@ -59,7 +59,7 @@ abstract class CacheableModule extends SmartyModule
             $out = parent::render($runData);
 
             if ($storeLater) {
-                $mc->set($mcKey, $out, 0, $timeOut);
+                Cache::put($mcKey,$out,$timeOut);
             }
 
             return $out;

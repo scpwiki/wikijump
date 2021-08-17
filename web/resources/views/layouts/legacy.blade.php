@@ -87,7 +87,7 @@
             </div>
             @endif
             <div id="login-status">
-                {!! $login !!}
+                @include('legacy.loginstatus')
             </div>
             <div id="header-extra-div-1"><span></span></div><div id="header-extra-div-2"><span></span></div><div id="header-extra-div-3"><span></span></div>
         </div>

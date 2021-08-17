@@ -2,6 +2,7 @@
 
 namespace Wikidot\Screens\Feed;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\PageRevisionPeer;
@@ -18,13 +19,12 @@ class WatchedPageChangesFeed extends FeedScreen
     {
         $user = $runData->getTemp("user");
         $key = "watchedpagechanges..".$user->id;
-        $mc = OZONE::$memcache;
-        $out = $mc->get($key);
+        $out = Cache::get($key);
         if ($out) {
             return $out;
         }
         $out = parent::render($runData);
-        $mc->set($key, $out, 0, 600);
+        Cache::put($key, $out, 600);
         return $out;
     }
 

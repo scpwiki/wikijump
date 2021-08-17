@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Wiki\SitesActivity;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\Ozone;
@@ -23,12 +24,11 @@ class MostActiveForumsModule extends SmartyModule
         $range = $pl->getParameterValue("range", "AMODULE");
 
         $key = "module..0..MostActiveForumsModule..".$site->getSiteId().'..'.$range;
-        $mc = OZONE::$memcache;
 
-        $out = $mc->get($key);
+        $out = Cache::get($key);
         if (!$out) {
             $out = parent::render($runData);
-            $mc->set($key, $out, 0, 3600);
+            Cache::put($key, $out, 3600);
         }
 
         return $out;

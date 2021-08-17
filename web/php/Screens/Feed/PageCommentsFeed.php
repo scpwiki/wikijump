@@ -2,6 +2,7 @@
 
 namespace Wikidot\Screens\Feed;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\PagePeer;
@@ -29,15 +30,14 @@ class PageCommentsFeed extends FeedScreen
 
         $akey = 'forumall_lc..'.$site->getUnixName();
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
-        $allForumTimestamp = $mc->get($akey);
+        $struct = Cache::get($key);
+        $allForumTimestamp = Cache::get($akey);
         if ($struct) {
             // check the times
             $cacheTimestamp = $struct['timestamp'];
             $threadId = $struct['threadId'];
             $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
-            $changeTimestamp = $mc->get($tkey);
+            $changeTimestamp = Cache::get($tkey);
             if ($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp) {
                 $runData->ajaxResponseAdd("threadId", $threadId);
                 return $struct['content'];
@@ -55,18 +55,18 @@ class PageCommentsFeed extends FeedScreen
 
         if (!$changeTimestamp) {
             $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId; // last change timestamp
-            $changeTimestamp = $mc->get($tkey);
+            $changeTimestamp = Cache::get($tkey);
         }
 
-        $mc->set($key, $struct, 0, 1000);
+        Cache::put($key, $struct, 1000);
         if (!$changeTimestamp) {
             $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId;
             $changeTimestamp = $now;
-            $mc->set($tkey, $changeTimestamp, 0, 1000);
+            Cache::put($tkey, $changeTimestamp, 1000);
         }
         if (!$allForumTimestamp) {
             $allForumTimestamp = $now;
-            $mc->set($akey, $allForumTimestamp, 0, 10000);
+            Cache::put($akey, $allForumTimestamp, 10000);
         }
 
         return $out;

@@ -3,6 +3,7 @@
 namespace Wikidot\DB;
 
 
+use Illuminate\Support\Facades\Cache;
 use Wikidot\Utils\GlobalProperties;
 use Ozone\Framework\Ozone;
 use Wikidot\Utils\WDRenderUtils;
@@ -67,8 +68,7 @@ class Notification extends NotificationBase
     public function save()
     {
         $key = "notificationsfeed..".$this->getUserId();
-        $mc = Ozone::$memcache;
-        $mc->delete($key);
+        Cache::forget($key);
         return parent::save();
     }
 

@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Account;
 
 
+use Illuminate\Support\Facades\Auth;
 use Wikidot\Utils\AccountBaseModule;
 use Wikidot\Utils\CryptUtils;
 
@@ -19,8 +20,9 @@ class AccountModule extends AccountBaseModule
 
     public function build($runData)
     {
-        if (!$runData->getUser()) {
-            $runData->setModuleTemplate('Account/AccountNotLoggedInModule');
+        if (!$runData->getUser() && !Auth::user()) {
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . route('login'));
             return;
         }
 

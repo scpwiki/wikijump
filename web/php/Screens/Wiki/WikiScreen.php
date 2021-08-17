@@ -2,6 +2,7 @@
 
 namespace Wikidot\Screens\Wiki;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
@@ -68,7 +69,6 @@ class WikiScreen extends Screen
         $wikiPage = WDStringUtils::toUnixName($wikiPage);
         $runData->setTemp("pageUnixName", $wikiPage);
 
-        $memcache = Ozone::$memcache;
         if ($runData->getAction() == null
                 && $runData->getRequestMethod() == "GET"
 
@@ -85,8 +85,8 @@ class WikiScreen extends Screen
                 $categoryName = "_default";
             }
             $aKey = 'category_lc..'.$site->getUnixName().'..'.$categoryName;
-            $changeTime = $memcache->get($aKey);
-            $cachedPage = $memcache->get($mcKey);
+            $changeTime = Cache::get($aKey);
+            $cachedPage = Cache::get($mcKey);
             if ($cachedPage !== false && $changeTime && $changeTime <= $cachedPage['timestamp']) {
                 $runData->setTemp("page", $cachedPage['page']);
                 $GLOBALS['page'] = $cachedPage['page'];
@@ -245,11 +245,10 @@ class WikiScreen extends Screen
         $out = $smarty->fetch($layoutFile);
 
         if ($storeLater) {
-            $now = time();
             if (!$changeTime) {
-                $memcache->set($aKey, $now, 0, 864000);
+                Cache::put($aKey, time(), 864000);
             }
-            $memcache->set($mcKey, array("page" =>$page, "content" => $out, "timestamp" => $now), 0, 864000);
+            Cache::put($mcKey, array("page" =>$page, "content" => $out, "timestamp" => time()), 864000);
         }
 
         if ($this->vars['notificationsDialog']) {

@@ -2,6 +2,7 @@
 
 namespace Wikidot\Utils;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\OzoneLogger;
@@ -39,7 +40,6 @@ class FeedFlowController extends WebFlowController
         // check if site (Wiki) exists!
         $siteHost = $_SERVER["HTTP_HOST"];
 
-        $memcache = Ozone::$memcache;
         if (preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN . "$/", $siteHost, $matches)==1) {
             $siteUnixName=$matches[1];
             // select site based on the unix name
@@ -49,24 +49,24 @@ class FeedFlowController extends WebFlowController
             // the memcache block is to avoid database connection if possible
 
             $mcKey = 'site..'.$siteUnixName;
-            $site = $memcache->get($mcKey);
+            $site = Cache::get($mcKey);
             if ($site == false) {
                 $c = new Criteria();
                 $c->add("unix_name", $siteUnixName);
                 $c->add("site.deleted", false);
                 $site = SitePeer::instance()->selectOne($c);
-                $memcache->set($mcKey, $site, 0, 3600);
+                Cache::put($mcKey, $site, 3600);
             }
         } else {
             // select site based on the custom domain
             $mcKey = 'site_cd..'.$siteHost;
-            $site = $memcache->get($mcKey);
+            $site = Cache::get($mcKey);
             if ($site == false) {
                 $c = new Criteria();
                 $c->add("custom_domain", $siteHost);
                 $c->add("site.deleted", false);
                 $site = SitePeer::instance()->selectOne($c);
-                $memcache->set($mcKey, $site, 0, 3600);
+                Cache::put($mcKey, $site, 3600);
             }
             GlobalProperties::$SESSION_COOKIE_DOMAIN = '.'.$siteHost;
         }

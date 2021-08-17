@@ -2,6 +2,7 @@
 
 namespace Wikidot\Screens\Feed;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\NotificationPeer;
@@ -17,13 +18,12 @@ class AccountNotificationsFeed extends FeedScreen
     {
         $user = $runData->getTemp("user");
         $key = "notificationsfeed..".$user->id;
-        $mc = OZONE::$memcache;
-        $out = $mc->get($key);
+        $out = Cache::get($key);
         if ($out) {
             return $out;
         }
         $out = parent::render($runData);
-        $mc->set($key, $out, 0, 3600);
+        Cache::put($key, $out, 3600);
         return $out;
     }
 

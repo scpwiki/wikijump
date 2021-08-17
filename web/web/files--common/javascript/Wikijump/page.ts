@@ -122,57 +122,6 @@ export const page = {
       YAHOO.util.Event.addListener("more-options-button", "click", Wikijump.page.listeners.moreOptionsClick);
     },
 
-    logoutClick: function (_event: Event): void {
-      const parms: RequestModuleParameters = {
-        action: "LoginAction",
-        event: "logout"
-      };
-      OZONE.ajax.requestModule(null, parms, Wikijump.page.callbacks.logoutClick);
-    },
-
-    loginClick2: function (_event: Event, _resetRemember: unknown): void {
-      /**
-       * ?? Possibly newer login callback - similar method is used in upstream
-       */
-      // start the shader
-      const shader = OZONE.dialog.factory.shader();
-      shader.show();
-      // now create an iframe and position (almost) exactly as the viewport!
-      const body = document.getElementsByTagName('body')[0];
-      const sIfr = document.createElement('iframe');
-      sIfr.id = "login-iframe";
-      // TODO: De-Wikijump.com-ize - parameter
-      let url = window.location.protocol + '//www.wikijump.com/default--flow/Login__LoginIframeScreen';
-      url += '/siteId/' + WIKIREQUEST.info.siteId;
-      url += '/categoryId/' + WIKIREQUEST.info.categoryId;
-      url += '/themeId/' + WIKIREQUEST.info.themeId;
-      url += '/url/' + encodeURIComponent(encodeURIComponent(window.location.href));
-      sIfr.src = url;
-      sIfr.scrolling = "no";
-      sIfr.frameBorder = "0";
-      sIfr.style.height = YAHOO.util.Dom.getClientHeight() + "px";
-      body.appendChild(sIfr);
-    },
-
-    loginClick: function (_event: Event, _resetRemember: unknown): void {
-      /**
-       * Current login callback
-       */
-      const url = HTTP_SCHEMA + "://" + URL_HOST + '/auth:login?origUrl=' + encodeURIComponent(window.location.href);
-      window.location.href = url;
-
-      // let p = new Object();
-      // if(resetRemember){ p.reset = "yes"; }
-      // OZONE.ajax.requestModule("Login/LoginModule2", p, Wikijump.page.callbacks.loginClick);
-    },
-
-    createAccount: function (_event: Event): void {
-      const url = HTTP_SCHEMA + "://" + URL_HOST + '/auth:newaccount?origUrl=' + encodeURIComponent(window.location.href);
-      window.location.href = url;
-
-      // OZONE.ajax.requestModule("CreateAccount/CreateAccountStep1Module", null, Wikijump.page.callbacks.createAccount);
-    },
-
     toggleEditSections: function (_event?: Event): void {
       if (!Wikijump.page.vars.editSectionsActive) {
         // check if it is possible to edit sections.

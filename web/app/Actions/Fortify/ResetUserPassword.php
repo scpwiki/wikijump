@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Wikijump\Actions\Fortify;
@@ -8,6 +9,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
+/**
+ * Method to reset the user's password.
+ * Note: Lowers the guard on the model (forceFill) to update it.
+ * @package Wikijump\Actions\Fortify
+ */
 class ResetUserPassword implements ResetsUserPasswords
 {
     use PasswordValidationRules;

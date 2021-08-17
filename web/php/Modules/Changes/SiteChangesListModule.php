@@ -1,6 +1,7 @@
 <?php
 
 namespace Wikidot\Modules\Changes;
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\JSONService;
 use Ozone\Framework\Ozone;
@@ -21,9 +22,8 @@ class SiteChangesListModule extends SmartyModule
         $key = 'siterecentrevisions_v..'.$site->getUnixName().'..'.$parmHash;
         $tkey = 'siterevisions_lc..'.$site->getSiteId(); // last change timestamp
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
-        $changeTimestamp = $mc->get($tkey);
+        $struct = Cache::get($key);
+        $changeTimestamp = Cache::get($tkey);
 
         if ($struct) {
             // check the times
@@ -43,10 +43,10 @@ class SiteChangesListModule extends SmartyModule
         $struct['timestamp'] = $now;
         $struct['content'] = $out;
 
-        $mc->set($key, $struct, 0, 600);
+        Cache::put($key, $struct, 600);
         if (!$changeTimestamp) {
             $changeTimestamp = $now;
-            $mc->set($tkey, $changeTimestamp, 0, 3600);
+            Cache::put($tkey, $changeTimestamp, 3600);
         }
 
         return $out;

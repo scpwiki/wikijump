@@ -3,6 +3,7 @@
 namespace Wikidot\Utils;
 
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
@@ -55,7 +56,6 @@ class AjaxModuleWikiFlowController extends WebFlowController
             // check if site (Wiki) exists!
             $siteHost = $_SERVER["HTTP_HOST"];
 
-            $memcache = Ozone::$memcache;
             if (preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $siteHost, $matches)==1) {
                 $siteUnixName=$matches[1];
 
@@ -66,24 +66,24 @@ class AjaxModuleWikiFlowController extends WebFlowController
                 // the memcache block is to avoid database connection if possible
 
                 $mcKey = 'site..'.$siteUnixName;
-                $site = $memcache->get($mcKey);
+                $site = Cache::get($mcKey);
                 if ($site == false) {
                     $c = new Criteria();
                     $c->add("unix_name", $siteUnixName);
                     $c->add("site.deleted", false);
                     $site = SitePeer::instance()->selectOne($c);
-                    $memcache->set($mcKey, $site, 0, 3600);
+                    Cache::put($mcKey, $site, 3600);
                 }
             } else {
                 // select site based on the custom domain
                 $mcKey = 'site_cd..'.$siteHost;
-                $site = $memcache->get($mcKey);
+                $site = Cache::get($mcKey);
                 if ($site == false) {
                     $c = new Criteria();
                     $c->add("custom_domain", $siteHost);
                     $c->add("site.deleted", false);
                     $site = SitePeer::instance()->selectOne($c);
-                    $memcache->set($mcKey, $site, 0, 3600);
+                    Cache::put($mcKey, $site, 3600);
                 }
                 GlobalProperties::$SESSION_COOKIE_DOMAIN = '.'.$siteHost;
             }
@@ -160,11 +160,9 @@ class AjaxModuleWikiFlowController extends WebFlowController
                 $template = $runData->getModuleTemplate();
                 $actionClass = $runData->getAction();
 
-                $proceed = in_array($actionClass, array('', 'LoginAction', 'MembershipApplyAction', 'CreateAccountStep1Action', 'PasswordRecoveryAction'))
+                $proceed = in_array($actionClass, array('', 'MembershipApplyAction', 'PasswordRecoveryAction'))
                     && ($template == ''
                         || $template == 'Empty'
-                        || preg_match(';^CreateAccount/;', $template)
-                        || preg_match(';^Login/;', $template)
                         || preg_match(';^Membership/;', $template)
                         || preg_match(';^PasswordRecovery/;', $template));
                 if (!$proceed) {
@@ -194,7 +192,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
             $template = $runData->getModuleTemplate();
             $classFile = $runData->getModuleClassPath();
-            $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
+            $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $classFile");
             require_once($classFile);
             $class = LegacyTools::getNamespacedClassFromPath($classFile);
             $module = new $class();

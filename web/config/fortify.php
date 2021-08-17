@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Wikijump\Providers\RouteServiceProvider;
 use Laravel\Fortify\Features;
 
@@ -46,7 +48,7 @@ return [
     |
     */
 
-    'username' => 'email',
+    'username' => 'username',
 
     'email' => 'email',
 
@@ -134,7 +136,7 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        // Features::emailVerification(), TODO: https://scuttle.atlassian.net/browse/WJ-511
+        Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
         Features::twoFactorAuthentication([

@@ -6,15 +6,21 @@ declare(strict_types=1);
 namespace Wikijump\Models;
 
 use Database\Seeders\UserSeeder;
+use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Sanctum\HasApiTokens;
 use Wikijump\Helpers\InteractionType;
 use Wikijump\Traits\HasInteractions;
 use Wikijump\Traits\HasSettings;
@@ -34,6 +40,10 @@ class User extends Authenticatable
     use HasSettings;
     use LegacyCompatibility;
     use HasInteractions;
+    use MustVerifyEmail;
+    use TwoFactorAuthenticatable;
+    use HasProfilePhoto;
+    use HasApiTokens;
 
     /**
      * These are service accounts added by the UserSeeder. They're used during
@@ -56,7 +66,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'username',
+        'unix_name',
         'email',
+        'real_name',
         'password',
     ];
 
@@ -91,6 +103,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    /**
      * Checks if the user is banned from the entire farm.
      */
     public function isBanned() : bool
@@ -99,21 +120,46 @@ class User extends Authenticatable
     }
 
     /**
-     * Retrieve the path for the user's small avatar.
+     * Retrieve the path for the user's avatar.
      * @return string
      */
-    public function avatarSmall(): string
+    public function avatar(): string
     {
-        return '/common--images/avatars/'.floor($this->id/1000).'/'.$this->id.'/a16.png';
+        return $this->getProfilePhotoUrlAttribute();
     }
 
     /**
-     * Retrieve the path for the user's large avatar.
+     * Get the default profile photo URL if no profile photo has been uploaded.
+     *
      * @return string
      */
-    public function avatarLarge(): string
+    protected function defaultProfilePhotoUrl(): string
     {
-        return '/common--images/avatars/'.floor($this->id/1000).'/'.$this->id.'/a48.png';
+        /**
+         *  We have a number of known-safe color combinations for a
+         *  foreground and background.
+         *  @see "app/Helpers/helpers.php"
+         */
+        $colors = colors();
+
+        /** We want the color to be reliable for a given user, so modulus the User's ID. */
+        $scheme = $this->id % count($colors);
+
+        /** Initialize a string to take the user's initials. */
+        $initials = '';
+
+        /** We'll define initials as anything that the unixifier saw fit to break with a dash. */
+        $initial_array = explode('-', $this->unix_name);
+        foreach ($initial_array as $initial)
+        {
+            /** And concatenate their first letters into a string. */
+            $initials .= $initial[0];
+        }
+
+        return 'https://ui-avatars.com/api/?name='. $initials .
+            '&color='.$colors[$scheme]['t'] .
+            '&background='.$colors[$scheme]['b'] .
+            '&rounded=true';
     }
 
     /**

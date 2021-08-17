@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Forum;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\ForumCategoryPeer;
@@ -29,11 +30,10 @@ class ForumViewCategoryModule extends SmartyModule
         $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$categoryId; // last change timestamp
         $akey = 'forumall_lc..'.$site->getUnixName();
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
+        $struct = Cache::get($key);
         $cacheTimestamp = $struct['timestamp'];
-        $changeTimestamp = $mc->get($tkey);
-        $allForumTimestamp = $mc->get($akey);
+        $changeTimestamp = Cache::get($tkey);
+        $allForumTimestamp = Cache::get($akey);
         if ($struct) {
             // check the times
 
@@ -54,15 +54,17 @@ class ForumViewCategoryModule extends SmartyModule
         $struct['categoryName']=$this->categoryName;
         $struct['categoryId']=$this->categoryId;
 
-        $mc->set($key, $struct, 0, 864000);
+        Cache::put($key, $struct, 864000);
+
         if (!$changeTimestamp) {
             $changeTimestamp = $now;
-            $mc->set($tkey, $changeTimestamp, 0, 864000);
+            Cache::put($tkey, $changeTimestamp, 864000);
         }
         if (!$allForumTimestamp) {
             $allForumTimestamp = $now;
-            $mc->set($akey, $allForumTimestamp, 0, 864000);
+            Cache::put($akey, $allForumTimestamp, 864000);
         }
+
 
         return $out;
     }

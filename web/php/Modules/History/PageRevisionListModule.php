@@ -2,6 +2,7 @@
 
 namespace Wikidot\Modules\History;
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\JSONService;
 use Ozone\Framework\Ozone;
@@ -25,9 +26,8 @@ class PageRevisionListModule extends SmartyModule
         $key = 'pagehistory_v..'.$pageId.'..'.$parmHash;
         $tkey = 'pagerevisions_lc..'.$pageId; // last change timestamp
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
-        $changeTimestamp = $mc->get($tkey);
+        $struct = Cache::get($key);
+        $changeTimestamp = Cache::get($tkey);
 
         if ($struct) {
             // check the times
@@ -47,10 +47,10 @@ class PageRevisionListModule extends SmartyModule
         $struct['timestamp'] = $now;
         $struct['content'] = $out;
 
-        $mc->set($key, $struct, 0, 3600);
+        Cache::put($key, $struct, 3600);
         if (!$changeTimestamp) {
             $changeTimestamp = $now;
-            $mc->set($tkey, $changeTimestamp, 0, 3600);
+            Cache::put($tkey, $changeTimestamp, 3600);
         }
 
         return $out;

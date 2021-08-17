@@ -3,6 +3,7 @@
 namespace Wikidot\Utils;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\WebFlowController;
@@ -28,9 +29,6 @@ abstract class WikidotController extends WebFlowController
      */
     protected function siteFromHost($siteHost, $customDomains = false, $uploadDomain = false)
     {
-
-        $memcache = Ozone::$memcache;
-
         if ($uploadDomain) {
             $regexp = "/^([a-zA-Z0-9\-]+)\.(" . GlobalProperties::$URL_DOMAIN_PREG . "|" . GlobalProperties::$URL_UPLOAD_DOMAIN_PREG . ")$/";
         } else {
@@ -42,14 +40,14 @@ abstract class WikidotController extends WebFlowController
 
             $siteUnixName = $matches[1];
             $mcKey = 'site..'.$siteUnixName;
-            $site = $memcache->get($mcKey);
+            $site = Cache::get($mcKey);
             if ($site == false) {
                 $c = new Criteria();
                 $c->add("unix_name", $siteUnixName);
                 $c->add("site.deleted", false);
                 $site = SitePeer::instance()->selectOne($c);
                 if ($site) {
-                    $memcache->set($mcKey, $site, 0, 3600);
+                    Cache::put($mcKey, $site, 864000);
                 }
             }
         }
@@ -59,14 +57,14 @@ abstract class WikidotController extends WebFlowController
 
         if (! $site && $customDomains) {
             $mcKey = 'site_cd..'.$siteHost;
-            $site = $memcache->get($mcKey);
+            $site = Cache::get($mcKey);
             if ($site == false) {
                 $c = new Criteria();
                 $c->add("custom_domain", $siteHost);
                 $c->add("site.deleted", false);
                 $site = SitePeer::instance()->selectOne($c);
                 if ($site) {
-                    $memcache->set($mcKey, $site, 0, 3600);
+                    Cache::put($mcKey, $site, 3600);
                 }
             }
         }
@@ -137,7 +135,7 @@ abstract class WikidotController extends WebFlowController
         }
 
         /* guess/set the mime type for the file */
-        if ($dir == "theme" || preg_match("/\.css$/", $path)) {
+        if ($path == "theme" || preg_match("/\.css$/", $path)) {
             $mime = "text/css";
         } elseif (preg_match("/\.js$/", $path)) {
             $mime = "text/javascript";

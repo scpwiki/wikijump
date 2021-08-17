@@ -3,6 +3,7 @@
 namespace Wikidot\DB;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Ozone;
 use Wikidot\Utils\WDRenderUtils;
 use Wikidot\Utils\GlobalProperties;
@@ -63,8 +64,7 @@ class AdminNotification extends AdminNotificationBase
     public function save()
     {
         $key = "adminnotificationsfeed..".$this->getSiteId();
-        $mc = Ozone::$memcache;
-        $mc->delete($key);
+        Cache::forget($key);
         return parent::save();
     }
 

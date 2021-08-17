@@ -1,9 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Wikijump\Providers;
 
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Wikijump\Actions\Fortify\CreateNewUser;
+use Wikijump\Actions\Fortify\LoginResponse;
 use Wikijump\Actions\Fortify\ResetUserPassword;
 use Wikijump\Actions\Fortify\UpdateUserPassword;
 use Wikijump\Actions\Fortify\UpdateUserProfileInformation;
@@ -13,6 +16,11 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
 
+/**
+ * Bootstrapping for Laravel Fortify.
+ *
+ * @package Wikijump\Providers
+ */
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
@@ -44,5 +52,7 @@ class FortifyServiceProvider extends ServiceProvider
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
+
+        $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
     }
 }

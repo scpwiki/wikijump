@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Wiki\SitesActivity;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyModule;
@@ -20,12 +21,11 @@ class SomeGlobalStatsModule extends SmartyModule
         $range = $pl->getParameterValue("range", "AMODULE");
 
         $key = "module..0..SomeGlobalStatsModule";
-        $mc = OZONE::$memcache;
 
-        $out = $mc->get($key);
+        $out = Cache::get($key);
         if (!$out) {
             $out = parent::render($runData);
-            $mc->set($key, $out, 0, 600);
+            Cache::put($key, $out, 600);
         }
 
         return $out;

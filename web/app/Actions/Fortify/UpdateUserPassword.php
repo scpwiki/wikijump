@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Wikijump\Actions\Fortify;
@@ -8,6 +9,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\UpdatesUserPasswords;
 
+/**
+ * Class for manually updating a user's password.
+ * @package Wikijump\Actions\Fortify
+ */
 class UpdateUserPassword implements UpdatesUserPasswords
 {
     use PasswordValidationRules;

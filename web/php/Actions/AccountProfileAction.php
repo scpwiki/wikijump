@@ -34,175 +34,26 @@ class AccountProfileAction extends SmartyAction
 
     public function uploadAvatarEvent($runData)
     {
-        $status = "ok"; // status variable that will be passed to template
-
-        $pl = $runData->getParameterList();
-
-        $file = $_FILES['userfile'];
-
-        if ($file['size'] == 0) {
-            $status = "zero_size";
-            $runData->contextAdd("status", $status);
-            return;
-        }
-
-        if ($file['error'] != 0) {
-            $status = "other error";
-            $runData->contextAdd("status", $file['error']);
-            return;
-        }
-
-        if (!is_uploaded_file($file['tmp_name'])) {
-            $status = "invalid_file";
-            $runData->contextAdd("status", $status);
-            return;
-        }
-
-        $fmime = FileMime::mime($file['tmp_name']);
-
-        if ($fmime != "image/png" && $fmime != "image/jpeg" && $fmime != "image/gif") {
-            $status = "wrong_mime";
-            $runData->contextAdd("status", $status);
-            $runData->contextAdd("mime", $fmime);
-            return;
-        }
-
-        $size = getimagesize($file['tmp_name']);
-        if ($size == false) {
-            $status = "not_image";
-            $runData->contextAdd("status", $status);
-            return;
-        }
-
-        if ($size[0] < 16 || $size[1] < 16) {
-            $status = "too_small";
-            $runData->contextAdd("status", $status);
-            return;
-        }
-
-        // new temporary files for 48 and 16 images
-        $dir = WIKIJUMP_ROOT . '/web/files--common/tmp/avatars-upload';
-
-        $im48fn = tempnam($dir, "av") . ".png";
-        $im16fn = tempnam($dir, "av") . ".png";
-
-        if ($size[0] != 100 && $size[1] != 100) {
-            // need to resize...
-            $w = $size[0];
-            $h = $size[1];
-            $r = $h / $w;
-            $cmd = "convert -resize '100x100>' " . escapeshellarg($file['tmp_name']) . " " . escapeshellarg($im48fn);
-
-            exec($cmd, $out);
-
-            $runData->contextAdd("originalSize", $size);
-            $runData->contextAdd("resized", true);
-        } else {
-            $cmd = "convert  " . escapeshellarg($file['tmp_name']) . " " . escapeshellarg($im48fn);
-            exec($cmd);
-        }
-        $cmd = "convert -resize 16x16! -unsharp 0x1.0+1.0+0.10 " . escapeshellarg($im48fn) . " " . escapeshellarg($im16fn);
-        exec($cmd);
-
-        $runData->contextAdd("im48", basename($im48fn));
-        $runData->contextAdd("im16", basename($im16fn));
-
-        $runData->contextAdd("status", $status);
+        header("HTTP/1.1 301 Moved Permanently");
+        header("Location: " . route('profile.show'));
     }
 
     public function setAvatarEvent($runData)
     {
-
-        $userId = $runData->getUserId();
-
-        $pl = $runData->getParameterList();
-        $im48 = $pl->getParameterValue("im48");
-        $im16 = $pl->getParameterValue("im16");
-
-        $avatarDir = WIKIJUMP_ROOT . '/web/files--common/images/avatars/';
-        $avatarDir .= '' . floor($userId / 1000) . '/' . $userId;
-
-        mkdirfull($avatarDir);
-        $tmpDir = WIKIJUMP_ROOT . '/web/files--common/tmp/avatars-upload';
-        rename($tmpDir . '/' . $im48, $avatarDir . '/a48.png');
-        rename($tmpDir . '/' . $im16, $avatarDir . '/a16.png');
-        unlink($tmpDir . '/' . str_replace('.png', '', $im48));
-        unlink($tmpDir . '/' . str_replace('.png', '', $im16));
+        header("HTTP/1.1 301 Moved Permanently");
+        header("Location: " . route('profile.show'));
     }
 
     public function deleteAvatarEvent($runData)
     {
-        $userId = $runData->getUserId();
-        $avatarDir = WIKIJUMP_ROOT . '/web/files--common/images/avatars/';
-        $avatarDir .= '' . floor($userId / 1000) . '/' . $userId;
-        unlink($avatarDir . '/a48.png');
-        unlink($avatarDir . '/a16.png');
+        header("HTTP/1.1 301 Moved Permanently");
+        header("Location: " . route('profile.show'));
     }
 
     public function uploadAvatarUriEvent($runData)
     {
-        $pl = $runData->getParameterList();
-        $uri = $pl->getParameterValue("uri");
-
-        if (preg_match("/^(http[s]?:\/\/)|(ftp:\/\/)[a-zA-Z0-9\-]+\/.*/", $uri) == 0) {
-            $runData->ajaxResponseAdd("status", "wrong_uri");
-            return;
-        }
-
-        $fileContent = file_get_contents($uri);
-        if (!$fileContent) {
-            $runData->ajaxResponseAdd("status", "fetch_failed");
-            return;
-        }
-        $dir = WIKIJUMP_ROOT . '/web/files--common/tmp/avatars-upload';
-        $tmpname = tempnam($dir, "uriup");
-
-        file_put_contents($tmpname, $fileContent);
-
-        $fmime = FileMime::mime($tmpname);
-
-        if ($fmime != "image/png" && $fmime != "image/jpeg" && $fmime != "image/gif") {
-            $status = "wrong_mime";
-            $runData->ajaxResponseAdd("status", $status);
-            $runData->ajaxResponseAdd("mime", $fmime);
-            return;
-        }
-
-        $size = getimagesize($tmpname);
-        if ($size == false) {
-            $status = "not_image";
-            $runData->ajaxResponseAdd("status", $status);
-            return;
-        }
-        if ($size[0] < 16 || $size[1] < 16) {
-            $status = "too_small";
-            $runData->contextAdd("status", $status);
-            return;
-        }
-
-        $im48fn = tempnam($dir, "av") . ".png";
-        $im16fn = tempnam($dir, "av") . ".png";
-
-        if ($size[0] != 100 && $size[1] != 100) {
-            // need to resize...
-            $w = $size[0];
-            $h = $size[1];
-            $r = $h / $w;
-            $cmd = "convert -resize '100x100>' " . escapeshellarg($tmpname) . " " . escapeshellarg($im48fn);
-
-            exec($cmd, $out);
-
-            $runData->contextAdd("originalSize", $size);
-            $runData->contextAdd("resized", true);
-        } else {
-            $cmd = "convert  " . escapeshellarg($tmpname) . " " . escapeshellarg($im48fn);
-            exec($cmd);
-        }
-        $cmd = "convert -resize 16x16! -unsharp 0x1.0+1.0+0.10 " . escapeshellarg($im48fn) . " " . escapeshellarg($im16fn);
-        exec($cmd);
-
-        $runData->ajaxResponseAdd("im48", basename($im48fn));
-        $runData->ajaxResponseAdd("im16", basename($im16fn));
+        header("HTTP/1.1 301 Moved Permanently");
+        header("Location: " . route('profile.show'));
     }
 
     public function saveAboutEvent($runData)

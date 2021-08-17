@@ -24,7 +24,6 @@ class PMInboxMessageModule extends AccountBaseModule
     {
         /** @var UserMessage $message */
         $message = UserMessage::find($runData->get('message_id'));
-
         if ($message == null || $message->recipient->id != $runData->id()) {
             throw new ProcessException(_('Error selecting message.'), 'no_message');
         }
@@ -36,11 +35,11 @@ class PMInboxMessageModule extends AccountBaseModule
         $runData->contextAdd('message', $message);
 
         $newerMessage = UserMessage::inbox($runData->user())
-            ->where('id', '>', $message->created_at)
+            ->where('id', '>', $message->id)
             ->first();
 
         $olderMessage = UserMessage::inbox($runData->user())
-            ->where('id', '<', $message->created_at)
+            ->where('id', '<', $message->id)
             ->first();
 
         $runData->contextAdd('newerMessage', $newerMessage);

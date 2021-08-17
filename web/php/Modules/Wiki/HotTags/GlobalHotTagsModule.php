@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Wiki\HotTags;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyModule;
@@ -24,11 +25,10 @@ class GlobalHotTagsModule extends SmartyModule
         $key = 'global_hot_tags_v..'.$site->getSiteId().'..'.$parmHash;
         $tkey = 'global_hot_tags_lc..'.$site->getSiteId(); // last change timestamp
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
+        $struct = Cache::get($key);
 
         $cacheTimestamp = $struct['timestamp'];
-        $changeTimestamp = $mc->get($tkey);
+        $changeTimestamp = Cache::get($tkey);
 
         if ($struct) {
             // check the times
@@ -47,11 +47,11 @@ class GlobalHotTagsModule extends SmartyModule
         $struct['timestamp'] = $now;
         $struct['content'] = $out;
 
-        $mc->set($key, $struct, 0, 1000);
+        Cache::put($key, $struct, 1000);
 
         if (!$changeTimestamp) {
             $changeTimestamp = $now;
-            $mc->set($tkey, $changeTimestamp, 0, 3600);
+            Cache::put($tkey, $changeTimestamp, 3600);
         }
 
         return $out;

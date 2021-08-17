@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 use Database\Seeders\UserSeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Build users table (supports Fortify/Sanctum/Jetstream).
+ */
 class CreateUsersTable extends Migration
 {
     /**
@@ -34,6 +39,7 @@ class CreateUsersTable extends Migration
             $table->date('dob')->nullable();
             $table->string('bio', 2000)->nullable();
             $table->string('about_page', 80)->nullable();
+            $table->string('profile_photo_path', 2048)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

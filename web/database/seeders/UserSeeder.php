@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use Exception;
@@ -8,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Wikidot\Utils\WDStringUtils;
 
+/**
+ * Seeder of `users` table.
+ * @package Database\Seeders
+ */
 class UserSeeder extends Seeder
 {
     /**

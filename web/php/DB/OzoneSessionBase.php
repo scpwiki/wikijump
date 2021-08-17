@@ -5,6 +5,7 @@ namespace Wikidot\DB;
 
 
 
+use Illuminate\Support\Facades\Auth;
 use Ozone\Framework\Database\BaseDBObject;
 use Ozone\Framework\Database\Criteria;
 use Wikijump\Models\User;
@@ -29,20 +30,7 @@ class OzoneSessionBase extends BaseDBObject
 
     public function getOzoneUser()
     {
-        if (is_array($this->prefetched)) {
-            if (in_array('ozone_user', $this->prefetched)) {
-                if (in_array('ozone_user', $this->prefetchedObjects)) {
-                    return $this->prefetchedObjects['ozone_user'];
-                } else {
-                    $obj = User::find($this->sourceRow);
-                    $this->prefetchedObjects['ozone_user'] = $obj;
-                    return $obj;
-                }
-            }
-        }
-
-                $result = User::find($this->fieldValues['user_id']);
-                return $result;
+        return Auth::user();
     }
 
     public function setOzoneUser($primaryObject)
@@ -142,7 +130,7 @@ class OzoneSessionBase extends BaseDBObject
 
     public function getUserId()
     {
-        return $this->getFieldValue('user_id');
+            return Auth::id();
     }
 
     public function setUserId($v1, $raw = false)

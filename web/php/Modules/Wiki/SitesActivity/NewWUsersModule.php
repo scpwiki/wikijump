@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Wiki\SitesActivity;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 
@@ -16,12 +17,11 @@ class NewWUsersModule extends SmartyModule
     public function render($runData)
     {
         $key = "module..0..NewWUsersModule";
-        $mc = OZONE::$memcache;
 
-        $out = $mc->get($key);
+        $out = Cache::get($key);
         if (!$out) {
             $out = parent::render($runData);
-            $mc->set($key, $out, 0, 180);
+            Cache::put($key, $out, 180);
         }
 
         return $out;

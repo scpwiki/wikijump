@@ -3,6 +3,7 @@
 namespace Wikidot\Modules\Wiki\PagesTagCloud;
 
 
+use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
@@ -63,8 +64,7 @@ class PagesTagCloudModule extends SmartyModule
 
         $key = 'pagetagcloud_v..' . $site->getUnixName() . '..' . $categoryName . '..' . $parmHash;
 
-        $mc = OZONE::$memcache;
-        $struct = $mc->get($key);
+        $struct =Cache::get($key);
         if (!$struct) {
             $valid = false;
         }
@@ -79,26 +79,26 @@ class PagesTagCloudModule extends SmartyModule
         if ($categoryName != '*') {
             foreach ($cats as $cat) {
                 $tkey = 'pagecategory_lc..' . $site->getUnixName() . '..' . $cat; // last change timestamp
-                $changeTimestamp = $mc->get($tkey);
+                $changeTimestamp = Cache::get($tkey);
                 if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {    //cache valid
                 } else {
                     $valid = false;
                     if (!$changeTimestamp) {
                         //  put timestamp
-                        $mc->set($tkey, $now, 0, 864000);
+                        Cache::put($tkey, $now, 864000);
                         $valid = false;
                     }
                 }
             }
         } else {
             $akey = 'pageall_lc..' . $site->getUnixName();
-            $allPagesTimestamp = $mc->get($akey);
+            $allPagesTimestamp = Cache::get($akey);
             if ($allPagesTimestamp && $cacheTimestamp && $allPagesTimestamp <= $cacheTimestamp) {    //cache valid
             } else {
                 $valid = false;
                 if (!$allPagesTimestamp) {
                     //  put timestamp
-                    $mc->set($akey, $now, 0, 864000);
+                    Cache::put($akey, $now, 864000);
                     $valid = false;
                 }
             }
@@ -119,7 +119,7 @@ class PagesTagCloudModule extends SmartyModule
         $struct['content'] = $out;
         $struct['vars'] = $this->_vars;
 
-        $mc->set($key, $struct, 0, 864000);
+        Cache::put($key, $struct, 864000);
 
         return $out;
     }

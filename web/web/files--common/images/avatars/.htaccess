@@ -1,7 +1,0 @@
-# .htaccess file for avatars
-
-# if requested avatar does not exist for a user - return the default avatar
-
-RewriteEngine on
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule (a[0-9]+\.png) default/$1
