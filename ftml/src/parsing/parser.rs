@@ -80,8 +80,8 @@ impl<'r, 't> Parser<'r, 't> {
             .split_first()
             .expect("Parsed tokens list was empty (expected at least one element)");
 
-        let table_of_contents = Rc::new(RefCell::new(Vec::new()));
-        let footnotes = Rc::new(RefCell::new(Vec::new()));
+        let table_of_contents = make_shared_vec();
+        let footnotes = make_shared_vec();
 
         Parser {
             log,
@@ -379,4 +379,9 @@ impl<'r, 't> Parser<'r, 't> {
     pub fn make_warn(&self, kind: ParseWarningKind) -> ParseWarning {
         ParseWarning::new(kind, self.rule, self.current)
     }
+}
+
+#[inline]
+fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
+    Rc::new(RefCell::new(Vec::new()))
 }
