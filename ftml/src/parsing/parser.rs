@@ -327,7 +327,8 @@ impl<'r, 't> Parser<'r, 't> {
         //
         // I don't include Token::InputStart since we address that by
         // simply having the start_of_line flag set on parser creation.
-        self.start_of_line = matches!(self.current.token, Token::LineBreak | Token::ParagraphBreak);
+        self.start_of_line =
+            matches!(self.current.token, Token::LineBreak | Token::ParagraphBreak);
 
         // Step to the next token.
         match self.remaining.split_first() {
