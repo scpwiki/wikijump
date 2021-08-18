@@ -15,6 +15,12 @@ module "cache" {
       "awslogs-stream-prefix" = "ecs"
     }
   }
+
+  docker_labels = {
+    "com.datadoghq.ad.check_names" = '["mcache"]',
+    "com.datadoghq.ad.init_configs" = "[{}]",
+    "com.datadoghq.ad.instances" = '{"url": "%%host%%","port": "11211"}'
+  }
 }
 
 module "database" {
@@ -33,6 +39,13 @@ module "database" {
       "awslogs-region"        = var.region
       "awslogs-stream-prefix" = "ecs"
     }
+  }
+
+  docker_labels = {
+    "com.datadoghq.ad.logs" = '[{"source": "postgres", "service": "postgres"}]',
+    "com.datadoghq.ad.check_names"='["postgres"]',
+    "com.datadoghq.ad.init_configs" = '[{}]',
+    "com.datadoghq.ad.instances"='[{"host":"%%host%%", "port":5432,"username":"datadog","password":"Ge07mcovAKvIT9WM"}]'
   }
 }
 
@@ -60,7 +73,11 @@ module "nginx" {
     "traefik.enable"                                = "true"
     "traefik.http.routers.php-fpm.rule"             = "Host(`${var.web_domain}`,`www.${var.web_domain}`,`${var.files_domain}`,`www.${var.files_domain}`)"
     "traefik.http.routers.php-fpm.tls"              = "true"
-    "traefik.http.routers.php-fpm.tls.certresolver" = "mytlschallenge"
+    "traefik.http.routers.php-fpm.tls.certresolver" = "mytlschallenge",
+    "com.datadoghq.ad.logs" = '[{"source": "nginx", "service": "webapp"}]',
+    "com.datadoghq.ad.check_names" = '["nginx"]',
+    "com.datadoghq.ad.init_configs" = '[{}]',
+    "com.datadoghq.ad.instances" = '[{"nginx_status_url": "http://%%host%%:81/nginx_status/"}]'
   }
 
   healthcheck = {
@@ -106,6 +123,13 @@ module "php-fpm" {
       valueFrom = aws_ssm_parameter.DB_HOST.name
     }
   ]
+
+  docker_labels = {
+    "com.datadoghq.ad.logs" = '[{"source": "php", "service": "php"}]',
+    "com.datadoghq.ad.check_names" = '["php_fpm"]',
+    "com.datadoghq.ad.init_configs" = '[{}]',
+    "com.datadoghq.ad.instances" = '{"status_url":"http://%%host%%/status", "ping_url":"http://%%host%%/ping", "use_fastcgi": false, "ping_reply": "pong"}'
+  }
 }
 
 module "datadog" {

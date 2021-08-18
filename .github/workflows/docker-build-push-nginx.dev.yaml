@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - datadog-integration
     paths:
       - 'web/web/**'
       - 'web/package.json'

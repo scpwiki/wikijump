@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - datadog-integration
     paths:
       - 'web/**'
       - 'install/aws/dev/docker/php-fpm/**'

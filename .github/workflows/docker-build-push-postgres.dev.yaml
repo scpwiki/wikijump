@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - datadog-integration
     paths:
       - 'install/aws/dev/docker/postgres/**'
       - '.github/workflows/docker-build-push-postgres.dev.yaml'
