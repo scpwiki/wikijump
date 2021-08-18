@@ -42,7 +42,7 @@ module "database" {
   }
 
   docker_labels = {
-    "com.datadoghq.ad.logs" = '[{"source": "postgres", "service": "postgres"}]',
+    "com.datadoghq.ad.logs" = "[{\"source\": \"postgres\", \"service\": \"postgres\"}]",
     "com.datadoghq.ad.check_names"="[\"postgres\"]",
     "com.datadoghq.ad.init_configs" = "[{}]",
     "com.datadoghq.ad.instances"="[{\"host\":\"%%host%%\", \"port\":5432,\"username\":\"datadog\",\"password\":\"Ge07mcovAKvIT9WM\"}]"
