@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_DASH: Rule = Rule {
     name: "dash",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

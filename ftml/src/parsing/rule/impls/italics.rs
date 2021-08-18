@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_ITALICS: Rule = Rule {
     name: "italics",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

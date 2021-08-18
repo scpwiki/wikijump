@@ -22,9 +22,10 @@ use super::prelude::*;
 
 /// Temporary rule for syntactical constructions that are not yet implemented.
 ///
-/// Will be removed when the first full version of ftml is released.
+/// Will eventually be removed.
 pub const RULE_TODO: Rule = Rule {
     name: "todo",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

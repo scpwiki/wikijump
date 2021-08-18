@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_NULL: Rule = Rule {
     name: "null",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

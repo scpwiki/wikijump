@@ -22,11 +22,13 @@ use super::prelude::*;
 
 pub const RULE_LINE_BREAK: Rule = Rule {
     name: "line-break",
+    position: LineRequirement::Any,
     try_consume_fn: line_break,
 };
 
 pub const RULE_LINE_BREAK_PARAGRAPH: Rule = Rule {
     name: "line-break-paragraph",
+    position: LineRequirement::Any,
     try_consume_fn: line_break_paragraph,
 };
 

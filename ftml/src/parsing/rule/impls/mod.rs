@@ -27,7 +27,7 @@ mod prelude {
     pub use crate::parsing::exception::{ParseException, ParseWarning, ParseWarningKind};
     pub use crate::parsing::parser::Parser;
     pub use crate::parsing::result::{ParseResult, ParseSuccess};
-    pub use crate::parsing::rule::Rule;
+    pub use crate::parsing::rule::{LineRequirement, Rule};
     pub use crate::parsing::token::{ExtractedToken, Token};
     pub use crate::text::FullText;
     pub use crate::tree::{AttributeMap, Container, ContainerType, Element, Elements};

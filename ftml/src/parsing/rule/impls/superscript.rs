@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_SUPERSCRIPT: Rule = Rule {
     name: "superscript",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

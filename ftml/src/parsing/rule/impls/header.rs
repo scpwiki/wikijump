@@ -23,6 +23,7 @@ use std::convert::TryInto;
 
 pub const RULE_HEADER: Rule = Rule {
     name: "header",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

@@ -23,6 +23,7 @@ use crate::tree::Alignment;
 
 pub const RULE_CENTER: Rule = Rule {
     name: "center",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

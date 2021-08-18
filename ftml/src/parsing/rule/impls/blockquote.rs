@@ -27,6 +27,7 @@ const MAX_BLOCKQUOTE_DEPTH: usize = 30;
 
 pub const RULE_BLOCKQUOTE: Rule = Rule {
     name: "blockquote",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

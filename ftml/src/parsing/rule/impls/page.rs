@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_PAGE: Rule = Rule {
     name: "page",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

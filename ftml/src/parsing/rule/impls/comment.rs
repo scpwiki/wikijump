@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_COMMENT: Rule = Rule {
     name: "comment",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

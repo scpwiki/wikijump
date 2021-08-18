@@ -26,7 +26,7 @@ mod rule;
 use super::prelude;
 use crate::log::prelude::*;
 use crate::parsing::rule::impls::block::Arguments;
-use crate::parsing::rule::Rule;
+use crate::parsing::rule::{LineRequirement, Rule};
 use crate::parsing::{ParseResult, Parser};
 use crate::tree::{Elements, Module};
 use std::fmt::{self, Debug};
@@ -68,6 +68,7 @@ impl ModuleRule {
 
         Rule {
             name: self.name,
+            position: LineRequirement::Any,
             try_consume_fn,
         }
     }

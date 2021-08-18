@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_UNDERLINE: Rule = Rule {
     name: "underline",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

@@ -34,11 +34,13 @@ use std::borrow::Cow;
 
 pub const RULE_LINK_TRIPLE: Rule = Rule {
     name: "link-triple",
+    position: LineRequirement::Any,
     try_consume_fn: link,
 };
 
 pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
     name: "link-triple-new-tab",
+    position: LineRequirement::Any,
     try_consume_fn: link_new_tab,
 };
 

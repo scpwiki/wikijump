@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_COLOR: Rule = Rule {
     name: "color",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

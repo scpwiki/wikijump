@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_HORIZONTAL_RULE: Rule = Rule {
     name: "horizontal-rule",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

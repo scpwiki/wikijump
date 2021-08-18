@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_TEXT: Rule = Rule {
     name: "text",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

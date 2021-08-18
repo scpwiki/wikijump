@@ -30,11 +30,13 @@ use crate::url::is_url;
 
 pub const RULE_LINK_SINGLE: Rule = Rule {
     name: "link-single",
+    position: LineRequirement::Any,
     try_consume_fn: link,
 };
 
 pub const RULE_LINK_SINGLE_NEW_TAB: Rule = Rule {
     name: "link-single-new-tab",
+    position: LineRequirement::Any,
     try_consume_fn: link_new_tab,
 };
 

@@ -26,7 +26,7 @@
 
 use crate::log::prelude::*;
 use crate::parsing::result::ParseResult;
-use crate::parsing::rule::Rule;
+use crate::parsing::rule::{LineRequirement, Rule};
 use crate::parsing::Parser;
 use crate::tree::Elements;
 use std::fmt::{self, Debug};
@@ -105,6 +105,7 @@ impl BlockRule {
 
         Rule {
             name: self.name,
+            position: LineRequirement::Any,
             try_consume_fn,
         }
     }

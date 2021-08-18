@@ -23,16 +23,19 @@ use super::mapping::get_block_rule_with_name;
 
 pub const RULE_BLOCK: Rule = Rule {
     name: "block",
+    position: LineRequirement::Any,
     try_consume_fn: block_regular,
 };
 
 pub const RULE_BLOCK_STAR: Rule = Rule {
     name: "block-star",
+    position: LineRequirement::Any,
     try_consume_fn: block_star,
 };
 
 pub const RULE_BLOCK_SKIP: Rule = Rule {
     name: "block-skip",
+    position: LineRequirement::Any,
     try_consume_fn: block_skip,
 };
 

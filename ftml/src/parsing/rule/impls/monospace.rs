@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_MONOSPACE: Rule = Rule {
     name: "monospace",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 
