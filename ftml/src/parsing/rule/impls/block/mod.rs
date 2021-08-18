@@ -39,7 +39,7 @@ mod rule;
 pub mod blocks;
 
 pub use self::arguments::Arguments;
-pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_STAR};
+pub use self::rule::{RULE_BLOCK, RULE_BLOCK_STAR};
 
 /// Define a rule for how to parse a block.
 #[derive(Clone)]
