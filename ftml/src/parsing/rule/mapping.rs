@@ -54,7 +54,7 @@ lazy_static! {
             Token::Underscore => vec![RULE_TEXT],
             Token::Quote => vec![RULE_BLOCKQUOTE, RULE_DOUBLE_ANGLE, RULE_TEXT],
             Token::Heading => vec![RULE_HEADER, RULE_TEXT],
-            Token::Whitespace => vec![RULE_TEXT],
+            Token::Whitespace => vec![RULE_LIST, RULE_TEXT],
 
             // Formatting
             Token::Bold => vec![RULE_BOLD],
