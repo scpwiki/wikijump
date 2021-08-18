@@ -32,7 +32,7 @@ jobs:
             IMAGE_TAG: ${{ github.sha }}
           run: |
             set -ex
-            docker build --build-arg FILES_DOMAIN="wjfiles.dev" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:develop .
+            docker build --build-arg FILES_DOMAIN="wjfiles.dev" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:develop .
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
         - name: Download task definition
