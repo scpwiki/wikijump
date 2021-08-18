@@ -119,6 +119,6 @@ resource "aws_ecs_service" "wikijump" {
     container_name   = "reverse-proxy"
     container_port   = 80
   }
-  health_check_grace_period_seconds = 120
+  health_check_grace_period_seconds = 0
   tags = {}
 }

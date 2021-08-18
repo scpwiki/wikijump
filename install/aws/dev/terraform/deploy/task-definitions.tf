@@ -47,6 +47,13 @@ module "database" {
     "com.datadoghq.ad.init_configs" = "[{}]",
     "com.datadoghq.ad.instances"="[{\"host\":\"%%host%%\", \"port\":5432,\"username\":\"datadog\",\"password\":\"Ge07mcovAKvIT9WM\"}]"
   }
+  healthcheck = {
+    command = ["CMD-SHELL", "pg_isready -d wikijump -U wikijump"]
+    retries = 6
+    timeout = 5
+    interval = 5
+    startPeriod = 0
+  }
 }
 
 module "nginx" {
@@ -105,6 +112,13 @@ module "php-fpm" {
       "awslogs-region"        = var.region
       "awslogs-stream-prefix" = "ecs"
     }
+
+    container_depends_on = [
+      {
+        containerName = "database"
+        condition     = "HEALTHY"
+      }
+    ]
   }
 
   links = ["cache:cache", "database:database"]
