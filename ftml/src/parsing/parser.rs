@@ -308,6 +308,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[inline]
     pub fn update(&mut self, parser: &Parser<'r, 't>) {
+        self.start_of_line = parser.start_of_line;
         self.current = parser.current;
         self.remaining = parser.remaining;
     }
