@@ -33,7 +33,7 @@ pub const RULE_BLOCK_STAR: Rule = Rule {
     try_consume_fn: block_star,
 };
 
-pub const RULE_BLOCK_SKIP: Rule = Rule {
+pub const RULE_BLOCK_SKIP_NEWLINE: Rule = Rule {
     name: "block-skip",
     position: LineRequirement::StartOfLine,
     try_consume_fn: block_skip,
