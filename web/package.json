@@ -7,7 +7,7 @@
         "test": "tests"
     },
     "scripts": {
-        "build": "webpack --config conf/webpack.dev.js",
+        "build": "webpack --config conf/webpack.dev.js & npm run development",
         "build-prod": "webpack --config conf/webpack.prod.js",
         "test": "jest",
         "test-coverage": "jest --coverage",
