@@ -233,14 +233,6 @@ module "datadog" {
     }
   ]
 
-  port_mappings = [
-    {
-      containerPort = 8126
-      hostPort      = 8126
-      protocol      = "tcp"
-    }
-  ]
-
   linux_parameters = {
     "capabilities" = {
       add = [
