@@ -324,11 +324,10 @@ impl<'r, 't> Parser<'r, 't> {
         debug!(self.log, "Stepping to the next token");
 
         // Set the start-of-line flag.
-        //
-        // I don't include Token::InputStart since we address that by
-        // simply having the start_of_line flag set on parser creation.
-        self.start_of_line =
-            matches!(self.current.token, Token::LineBreak | Token::ParagraphBreak);
+        self.start_of_line = matches!(
+            self.current.token,
+            Token::InputStart | Token::LineBreak | Token::ParagraphBreak,
+        );
 
         // Step to the next token.
         match self.remaining.split_first() {
@@ -384,4 +383,41 @@ impl<'r, 't> Parser<'r, 't> {
 #[inline]
 fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
     Rc::new(RefCell::new(Vec::new()))
+}
+
+#[test]
+fn parser_newline_flag() {
+    let log = &crate::build_logger();
+
+    macro_rules! check {
+        ($input:expr, $expected_steps:expr $(,)?) => {{
+            let tokens = crate::tokenize(log, $input);
+            let mut parser = Parser::new(log, &tokens);
+            let mut actual_steps = Vec::new();
+
+            // Iterate through the tokens.
+            while let Ok(_) = parser.step() {
+                actual_steps.push(parser.start_of_line());
+            }
+
+            // Pop off flag corresponding to Token::InputEnd.
+            actual_steps.pop();
+
+            assert_eq!(
+                &actual_steps, &$expected_steps,
+                "Series of start-of-line flags does not match expected",
+            );
+        }};
+    }
+
+    check!("A", [true]);
+    check!("A\nB C", [true, false, true, false, false]);
+    check!(
+        "A\nB\n\nC D\nE",
+        [true, false, true, false, true, false, false, false, true],
+    );
+    check!(
+        "\nA\n\nB\n\n\nC D",
+        [true, true, false, true, false, true, false, false],
+    );
 }
