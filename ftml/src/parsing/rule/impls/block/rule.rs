@@ -35,7 +35,7 @@ pub const RULE_BLOCK_STAR: Rule = Rule {
 
 pub const RULE_BLOCK_SKIP_NEWLINE: Rule = Rule {
     name: "block-skip",
-    position: LineRequirement::StartOfLine,
+    position: LineRequirement::Any, // this rule happens *on* a newline, not after one
     try_consume_fn: block_skip,
 };
 
