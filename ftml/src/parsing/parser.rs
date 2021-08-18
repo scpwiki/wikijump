@@ -59,7 +59,7 @@ pub struct Parser<'r, 't> {
 
     // Footnotes
     //
-    // Schema: Vec<List of elements for a footnote>
+    // Schema: Vec<List of elements in a footnote>
     footnotes: Rc<RefCell<Vec<Vec<Element<'t>>>>>,
 
     // Flags
