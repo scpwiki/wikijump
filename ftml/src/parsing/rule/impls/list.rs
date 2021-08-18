@@ -34,7 +34,7 @@ const fn get_list_type(token: Token) -> Option<ListType> {
 
 pub const RULE_LIST: Rule = Rule {
     name: "list",
-    position: LineRequirement::Any,
+    position: LineRequirement::StartOfLine,
     try_consume_fn,
 };
 
