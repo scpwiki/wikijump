@@ -42,21 +42,6 @@ pub fn check_step<'r, 't>(
     Ok(current)
 }
 
-pub fn check_step_multiple(
-    parser: &mut Parser,
-    tokens: &[Token],
-) -> Result<(), ParseWarning> {
-    assert!(
-        tokens.contains(&parser.current().token),
-        "Opening token isn't one of {:?}",
-        tokens,
-    );
-
-    parser.step()?;
-
-    Ok(())
-}
-
 #[test]
 #[should_panic]
 fn check_step_fail() {
@@ -65,14 +50,4 @@ fn check_step_fail() {
     let mut parser = Parser::new(&log, &tokenization);
 
     let _ = check_step(&mut parser, Token::Italics);
-}
-
-#[test]
-#[should_panic]
-fn check_step_multiple_fail() {
-    let log = crate::build_logger();
-    let tokenization = crate::tokenize(&log, "//Cherry//");
-    let mut parser = Parser::new(&log, &tokenization);
-
-    let _ = check_step_multiple(&mut parser, &[Token::Bold, Token::Underline]);
 }
