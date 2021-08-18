@@ -235,6 +235,7 @@ module "datadog" {
         "SYS_PTRACE",
         "NET_ADMIN"
       ]
+      drop = []
     }
     "devices" = []
     "initProcessEnabled" = true
