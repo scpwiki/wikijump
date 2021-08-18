@@ -57,11 +57,22 @@ impl Rule {
     ) -> ParseResult<'r, 't, Elements<'t>> {
         info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
+        // Check that the line position matches what the rule wants.
+        match self.position {
+            LineRequirement::Any => (),
+            LineRequirement::StartOfLine => {
+                if !parser.start_of_line() {
+                    return Err(parser.make_warn(ParseWarningKind::NotStartOfLine));
+                }
+            }
+        }
+
+        // Fork parser and try running the rule.
         let mut sub_parser = parser.clone_with_rule(self);
         let result = (self.try_consume_fn)(log, &mut sub_parser);
 
         // Run in a separate parser instance,
-        // only keeping the parser state if it succeeded
+        // only keeping the parser state if it succeeded.
         if result.is_ok() {
             parser.update(&sub_parser);
         }
