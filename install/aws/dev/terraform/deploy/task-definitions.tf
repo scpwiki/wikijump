@@ -228,7 +228,7 @@ module "datadog" {
   ]
 
   linux_parameters = {
-    capabilities = {
+    "capabilities" = {
       add = [
         "SYS_ADMIN",
         "SYS_RESOURCE",
@@ -236,6 +236,12 @@ module "datadog" {
         "NET_ADMIN"
       ]
     }
+    "devices" = []
+    "initProcessEnabled" = true
+    "maxSwap"            = null
+    "sharedMemorySize"   = null
+    "swappiness"         = null
+    "tmpfs" = []
   }
 }
 
