@@ -38,6 +38,9 @@ pub struct Parser<'r, 't> {
     // Logger instance
     log: Logger,
 
+    // Page information
+    page_info: &'r PageInfo<'t>,
+
     // Parse state
     current: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
@@ -72,7 +75,11 @@ impl<'r, 't> Parser<'r, 't> {
     ///
     /// All other instances should be `.clone()` or `.clone_with_rule()`d from
     /// the main instance used during parsing.
-    pub(crate) fn new(log: &Logger, tokenization: &'r Tokenization<'t>) -> Self {
+    pub(crate) fn new(
+        log: &Logger,
+        page_info: &'r PageInfo<'t>,
+        tokenization: &'r Tokenization<'t>,
+    ) -> Self {
         let log = Logger::clone(log);
         let full_text = tokenization.full_text();
         let (current, remaining) = tokenization
@@ -85,6 +92,7 @@ impl<'r, 't> Parser<'r, 't> {
 
         Parser {
             log,
+            page_info,
             current,
             remaining,
             full_text,
@@ -101,6 +109,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn log(&self) -> Logger {
         Logger::clone(&self.log)
+    }
+
+    #[inline]
+    pub fn page_info(&self) -> &PageInfo<'t> {
+        self.page_info
     }
 
     #[inline]

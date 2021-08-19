@@ -53,6 +53,7 @@ use self::parser::Parser;
 use self::rule::impls::RULE_PAGE;
 use self::string::parse_string;
 use self::strip::strip_newlines;
+use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::tokenizer::Tokenization;
@@ -72,12 +73,13 @@ pub use self::token::{ExtractedToken, Token};
 /// This takes a list of `ExtractedToken` items produced by `tokenize()`.
 pub fn parse<'r, 't>(
     log: &Logger,
+    page_info: &'r PageInfo<'t>,
     tokenization: &'r Tokenization<'t>,
 ) -> ParseOutcome<SyntaxTree<'t>>
 where
     'r: 't,
 {
-    let mut parser = Parser::new(log, tokenization);
+    let mut parser = Parser::new(log, page_info, tokenization);
 
     // Logging setup
     let log = &log.new(slog_o!(
