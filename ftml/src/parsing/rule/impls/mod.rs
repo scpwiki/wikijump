@@ -59,6 +59,7 @@ mod raw;
 mod strikethrough;
 mod subscript;
 mod superscript;
+mod table;
 mod text;
 mod todo;
 mod underline;
