@@ -18,14 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::error::error_to_js;
+use super::page_info::PageInfo;
 use super::parsing::SyntaxTree;
 use super::prelude::*;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::text::TextRender;
 use crate::render::Render;
-use crate::PageInfo as RustPageInfo;
-use ref_map::*;
 use std::sync::Arc;
 
 // Typescript declarations
@@ -51,17 +49,6 @@ export interface IBacklinks {
     external_links: string[];
 }
 
-export interface IPageInfo {
-    page: string;
-    category: string | null;
-    site: string;
-    title: string;
-    alt_title: string | null;
-    rating: number;
-    tags: string[];
-    language: string;
-}
-
 "#;
 
 #[wasm_bindgen]
@@ -74,87 +61,9 @@ extern "C" {
 
     #[wasm_bindgen(typescript_type = "IBacklinks")]
     pub type IBacklinks;
-
-    #[wasm_bindgen(typescript_type = "IPageInfo")]
-    pub type IPageInfo;
-
-    #[wasm_bindgen(typescript_type = "string[]")]
-    pub type ITags;
 }
 
 // Wrapper structures
-
-#[wasm_bindgen]
-#[derive(Debug, Clone)]
-pub struct PageInfo {
-    inner: Arc<RustPageInfo<'static>>,
-}
-
-#[wasm_bindgen]
-impl PageInfo {
-    #[inline]
-    pub(crate) fn get(&self) -> &RustPageInfo<'static> {
-        &self.inner
-    }
-
-    #[wasm_bindgen]
-    pub fn copy(&self) -> PageInfo {
-        PageInfo {
-            inner: Arc::clone(&self.inner),
-        }
-    }
-
-    #[wasm_bindgen(constructor, typescript_type = "IPageInfo")]
-    pub fn new(object: IPageInfo) -> Result<PageInfo, JsValue> {
-        let rust_page_info = object.into_serde().map_err(error_to_js)?;
-
-        Ok(PageInfo {
-            inner: Arc::new(rust_page_info),
-        })
-    }
-
-    // Getters
-
-    #[wasm_bindgen(method, getter)]
-    pub fn page(&self) -> String {
-        self.inner.page.to_string()
-    }
-
-    #[wasm_bindgen(method, getter)]
-    pub fn category(&self) -> Option<String> {
-        self.inner.category.ref_map(ToString::to_string)
-    }
-
-    #[wasm_bindgen(method, getter)]
-    pub fn site(&self) -> String {
-        self.inner.site.to_string()
-    }
-
-    #[wasm_bindgen(method, getter)]
-    pub fn title(&self) -> String {
-        self.inner.title.to_string()
-    }
-
-    #[wasm_bindgen(method, getter)]
-    pub fn alt_title(&self) -> Option<String> {
-        self.inner.alt_title.ref_map(ToString::to_string)
-    }
-
-    #[wasm_bindgen(method, getter)]
-    pub fn rating(&self) -> f32 {
-        self.inner.rating
-    }
-
-    #[wasm_bindgen(method, getter, typescript_type = "ITags")]
-    pub fn tags(&self) -> Result<ITags, JsValue> {
-        rust_to_js!(self.inner.tags)
-    }
-
-    #[wasm_bindgen(method, getter)]
-    pub fn language(&self) -> String {
-        self.inner.language.to_string()
-    }
-}
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]

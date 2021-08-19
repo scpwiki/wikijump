@@ -27,6 +27,7 @@ mod css;
 mod error;
 mod log;
 mod misc;
+mod page_info;
 mod parsing;
 mod preproc;
 mod render;
