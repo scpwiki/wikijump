@@ -93,6 +93,13 @@ class ForbiddenNames {
         '/^robot$/',
         '/^O5-\w+$/',
         '/^SCP-\w+$/',
+'/^bauerbach\w+$/',
+      '/^brandonfave\w+$/',  
+'/^bradleya\w+$/',
+     '/^DrAuerbach\w+$/',   
+      '/^Dr Auerbach\w+$/',  
+        '/^ishmonger\w+$/',
+        '/^CFOperator\w+$/',
     ];
 
 }
