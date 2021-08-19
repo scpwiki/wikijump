@@ -61,7 +61,6 @@ mod subscript;
 mod superscript;
 mod table;
 mod text;
-mod todo;
 mod underline;
 mod url;
 
@@ -93,6 +92,5 @@ pub use self::subscript::RULE_SUBSCRIPT;
 pub use self::superscript::RULE_SUPERSCRIPT;
 pub use self::table::RULE_TABLE;
 pub use self::text::RULE_TEXT;
-pub use self::todo::RULE_TODO;
 pub use self::underline::RULE_UNDERLINE;
 pub use self::url::RULE_URL;
