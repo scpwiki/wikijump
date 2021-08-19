@@ -115,7 +115,7 @@ email = @{
     "@" ~
     (!(" " | "\t" | NEWLINE) ~ ANY)+ ~
     "." ~
-    (!(" " | "\t" | NEWLINE) ~ ANY)+ ~
+    (!(" " | "\t" | NEWLINE) ~ ANY)+
 }
 
 url = @{
