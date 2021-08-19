@@ -91,6 +91,7 @@ pub use self::raw::RULE_RAW;
 pub use self::strikethrough::RULE_STRIKETHROUGH;
 pub use self::subscript::RULE_SUBSCRIPT;
 pub use self::superscript::RULE_SUPERSCRIPT;
+pub use self::table::RULE_TABLE;
 pub use self::text::RULE_TEXT;
 pub use self::todo::RULE_TODO;
 pub use self::underline::RULE_UNDERLINE;
