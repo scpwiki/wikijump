@@ -32,11 +32,8 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Consuming token to create a horizontal rule");
 
-    // Optionally consume newline after
     check_step(parser, Token::TripleDash)?;
-    if parser.current().token == Token::LineBreak {
-        parser.step()?;
-    }
+    parser.get_optional_line_break()?;
 
     ok!(Element::HorizontalRule)
 }
