@@ -175,6 +175,10 @@ module "datadog" {
       value = true
     },
     {
+      name = "DD_PROCESS_AGENT_ENABLED"
+      value = true
+    },
+    {
       name = "DD_LOGS_ENABLED"
       value = true
     },
@@ -239,7 +243,8 @@ module "datadog" {
         "SYS_ADMIN",
         "SYS_RESOURCE",
         "SYS_PTRACE",
-        "NET_ADMIN"
+        "NET_ADMIN",
+        "IPC_LOCK"
       ]
       drop = []
     }
