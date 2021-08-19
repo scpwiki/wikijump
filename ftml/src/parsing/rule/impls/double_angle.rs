@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_DOUBLE_ANGLE: Rule = Rule {
     name: "double-angle",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

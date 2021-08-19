@@ -23,16 +23,19 @@ use super::mapping::get_block_rule_with_name;
 
 pub const RULE_BLOCK: Rule = Rule {
     name: "block",
+    position: LineRequirement::Any,
     try_consume_fn: block_regular,
 };
 
 pub const RULE_BLOCK_STAR: Rule = Rule {
     name: "block-star",
+    position: LineRequirement::Any,
     try_consume_fn: block_star,
 };
 
-pub const RULE_BLOCK_SKIP: Rule = Rule {
+pub const RULE_BLOCK_SKIP_NEWLINE: Rule = Rule {
     name: "block-skip",
+    position: LineRequirement::Any, // this rule happens *on* a newline, not after one
     try_consume_fn: block_skip,
 };
 
@@ -64,15 +67,6 @@ fn block_skip<'r, 't>(
         log,
         "Trying to see if we skip a newline due to upcoming block",
     );
-
-    {
-        let token = parser.current().token;
-
-        assert!(
-            token == Token::LineBreak || token == Token::ParagraphBreak,
-            "Trying to skip because block, but current is not line or paragraph break",
-        );
-    }
 
     let current = parser.step()?;
 

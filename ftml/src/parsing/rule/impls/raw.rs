@@ -28,6 +28,7 @@ macro_rules! raw {
 
 pub const RULE_RAW: Rule = Rule {
     name: "raw",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

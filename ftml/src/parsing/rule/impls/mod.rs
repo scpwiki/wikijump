@@ -20,14 +20,14 @@
 
 mod prelude {
     pub use crate::log::prelude::*;
-    pub use crate::parsing::check_step::{check_step, check_step_multiple};
+    pub use crate::parsing::check_step::check_step;
     pub use crate::parsing::collect::*;
     pub use crate::parsing::condition::ParseCondition;
     pub use crate::parsing::consume::consume;
     pub use crate::parsing::exception::{ParseException, ParseWarning, ParseWarningKind};
     pub use crate::parsing::parser::Parser;
     pub use crate::parsing::result::{ParseResult, ParseSuccess};
-    pub use crate::parsing::rule::Rule;
+    pub use crate::parsing::rule::{LineRequirement, Rule};
     pub use crate::parsing::token::{ExtractedToken, Token};
     pub use crate::text::FullText;
     pub use crate::tree::{AttributeMap, Container, ContainerType, Element, Elements};
@@ -63,7 +63,7 @@ mod todo;
 mod underline;
 mod url;
 
-pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_STAR};
+pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP_NEWLINE, RULE_BLOCK_STAR};
 pub use self::blockquote::RULE_BLOCKQUOTE;
 pub use self::bold::RULE_BOLD;
 pub use self::center::RULE_CENTER;

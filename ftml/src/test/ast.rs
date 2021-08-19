@@ -154,13 +154,6 @@ impl Test<'_> {
     }
 
     pub fn run(&self, log: &Logger) {
-        info!(
-            &log,
-            "Running syntax tree test case";
-            "name" => &self.name,
-            "input" => &self.input,
-        );
-
         if SKIP_TESTS.contains(&&*self.name) {
             println!("+ {} [SKIPPED]", self.name);
             return;
@@ -170,6 +163,13 @@ impl Test<'_> {
             println!("+ {} [SKIPPED]", self.name);
             return;
         }
+
+        info!(
+            &log,
+            "Running syntax tree test case";
+            "name" => &self.name,
+            "input" => &self.input,
+        );
 
         println!("+ {}", self.name);
 

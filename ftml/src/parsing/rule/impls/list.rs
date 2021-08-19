@@ -34,6 +34,7 @@ const fn get_list_type(token: Token) -> Option<ListType> {
 
 pub const RULE_LIST: Rule = Rule {
     name: "list",
+    position: LineRequirement::StartOfLine,
     try_consume_fn,
 };
 
@@ -43,11 +44,6 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // We don't know the list type(s) yet, so just log that we're starting
     debug!(log, "Parsing a list");
-
-    check_step_multiple(
-        parser,
-        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
-    )?;
 
     // Context variables
     let mut depths = Vec::new();
@@ -146,8 +142,9 @@ fn try_consume_fn<'p, 'r, 't>(
             &[
                 ParseCondition::current(Token::LineBreak),
                 ParseCondition::current(Token::InputEnd),
+                ParseCondition::current(Token::ParagraphBreak),
             ],
-            &[ParseCondition::current(Token::ParagraphBreak)],
+            &[],
             None,
         )?
         .chain(&mut exceptions, &mut paragraph_safe);

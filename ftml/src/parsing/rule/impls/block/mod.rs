@@ -26,7 +26,7 @@
 
 use crate::log::prelude::*;
 use crate::parsing::result::ParseResult;
-use crate::parsing::rule::Rule;
+use crate::parsing::rule::{LineRequirement, Rule};
 use crate::parsing::Parser;
 use crate::tree::Elements;
 use std::fmt::{self, Debug};
@@ -39,7 +39,7 @@ mod rule;
 pub mod blocks;
 
 pub use self::arguments::Arguments;
-pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_STAR};
+pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SKIP_NEWLINE, RULE_BLOCK_STAR};
 
 /// Define a rule for how to parse a block.
 #[derive(Clone)]
@@ -105,6 +105,7 @@ impl BlockRule {
 
         Rule {
             name: self.name,
+            position: LineRequirement::Any,
             try_consume_fn,
         }
     }

@@ -30,6 +30,7 @@ use wikidot_normalize::normalize;
 
 pub const RULE_LINK_ANCHOR: Rule = Rule {
     name: "link-anchor",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

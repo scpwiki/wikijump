@@ -1,0 +1,56 @@
+{
+    "input": "[\n\n# A\n\n]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "list",
+                "data": {
+                    "type": "numbered",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "text",
+                                "data": "A"
+                            }
+                        ]
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -27,6 +27,7 @@ const MAX_BLOCKQUOTE_DEPTH: usize = 30;
 
 pub const RULE_BLOCKQUOTE: Rule = Rule {
     name: "blockquote",
+    position: LineRequirement::StartOfLine,
     try_consume_fn,
 };
 
@@ -35,11 +36,6 @@ fn try_consume_fn<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing nested native blockquotes");
-
-    check_step_multiple(
-        parser,
-        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
-    )?;
 
     // Context variables
     let mut depths = Vec::new();
@@ -88,9 +84,10 @@ fn try_consume_fn<'p, 'r, 't>(
             RULE_BLOCKQUOTE,
             &[
                 ParseCondition::current(Token::LineBreak),
+                ParseCondition::current(Token::ParagraphBreak),
                 ParseCondition::current(Token::InputEnd),
             ],
-            &[ParseCondition::current(Token::ParagraphBreak)],
+            &[],
             None,
         )?
         .chain(&mut exceptions, &mut paragraph_safe);

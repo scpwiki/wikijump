@@ -140,6 +140,9 @@ pub enum ParseWarningKind {
     /// Attempting to match this rule failed, falling back to try an alternate.
     RuleFailed,
 
+    /// Attempting to match this rule failed, it must be on the start of a new line.
+    NotStartOfLine,
+
     /// This include block was malformed, and thus not substituted.
     InvalidInclude,
 

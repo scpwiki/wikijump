@@ -23,6 +23,7 @@ use crate::tree::Alignment;
 
 pub const RULE_CENTER: Rule = Rule {
     name: "center",
+    position: LineRequirement::StartOfLine,
     try_consume_fn,
 };
 
@@ -31,11 +32,6 @@ fn try_consume_fn<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Trying to create centered container");
-
-    check_step_multiple(
-        parser,
-        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
-    )?;
 
     // Check that the rule has "= "
     macro_rules! next {

@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_STRIKETHROUGH: Rule = Rule {
     name: "strikethrough",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

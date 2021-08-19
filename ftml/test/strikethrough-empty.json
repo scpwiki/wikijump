@@ -15,12 +15,13 @@
                         {
                             "element": "text",
                             "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "----"
                         }
                     ]
                 }
-            },
-            {
-                "element": "horizontal-rule"
             }
         ],
         "styles": [
@@ -31,5 +32,17 @@
         ]
     },
     "warnings": [
+        {
+            "token": "triple-dash",
+            "rule": "page",
+            "span": [6, 10],
+            "kind": "not-start-of-line"
+        },
+        {
+            "token": "triple-dash",
+            "rule": "fallback",
+            "span": [6, 10],
+            "kind": "no-rules-match"
+        }
     ]
 }

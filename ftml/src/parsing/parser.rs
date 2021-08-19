@@ -59,11 +59,12 @@ pub struct Parser<'r, 't> {
 
     // Footnotes
     //
-    // Schema: Vec<List of elements for a footnote>
+    // Schema: Vec<List of elements in a footnote>
     footnotes: Rc<RefCell<Vec<Vec<Element<'t>>>>>,
 
     // Flags
     in_list: bool,
+    start_of_line: bool,
 }
 
 impl<'r, 't> Parser<'r, 't> {
@@ -79,8 +80,8 @@ impl<'r, 't> Parser<'r, 't> {
             .split_first()
             .expect("Parsed tokens list was empty (expected at least one element)");
 
-        let table_of_contents = Rc::new(RefCell::new(Vec::new()));
-        let footnotes = Rc::new(RefCell::new(Vec::new()));
+        let table_of_contents = make_shared_vec();
+        let footnotes = make_shared_vec();
 
         Parser {
             log,
@@ -92,6 +93,7 @@ impl<'r, 't> Parser<'r, 't> {
             table_of_contents,
             footnotes,
             in_list: false,
+            start_of_line: true,
         }
     }
 
@@ -114,6 +116,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn in_list(&self) -> bool {
         self.in_list
+    }
+
+    #[inline]
+    pub fn start_of_line(&self) -> bool {
+        self.start_of_line
     }
 
     // Setters
@@ -301,6 +308,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[inline]
     pub fn update(&mut self, parser: &Parser<'r, 't>) {
+        self.start_of_line = parser.start_of_line;
         self.current = parser.current;
         self.remaining = parser.remaining;
     }
@@ -315,6 +323,13 @@ impl<'r, 't> Parser<'r, 't> {
     pub fn step(&mut self) -> Result<&'r ExtractedToken<'t>, ParseWarning> {
         debug!(self.log, "Stepping to the next token");
 
+        // Set the start-of-line flag.
+        self.start_of_line = matches!(
+            self.current.token,
+            Token::InputStart | Token::LineBreak | Token::ParagraphBreak,
+        );
+
+        // Step to the next token.
         match self.remaining.split_first() {
             Some((current, remaining)) => {
                 self.current = current;
@@ -363,4 +378,46 @@ impl<'r, 't> Parser<'r, 't> {
     pub fn make_warn(&self, kind: ParseWarningKind) -> ParseWarning {
         ParseWarning::new(kind, self.rule, self.current)
     }
+}
+
+#[inline]
+fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
+    Rc::new(RefCell::new(Vec::new()))
+}
+
+#[test]
+fn parser_newline_flag() {
+    let log = &crate::build_logger();
+
+    macro_rules! check {
+        ($input:expr, $expected_steps:expr $(,)?) => {{
+            let tokens = crate::tokenize(log, $input);
+            let mut parser = Parser::new(log, &tokens);
+            let mut actual_steps = Vec::new();
+
+            // Iterate through the tokens.
+            while let Ok(_) = parser.step() {
+                actual_steps.push(parser.start_of_line());
+            }
+
+            // Pop off flag corresponding to Token::InputEnd.
+            actual_steps.pop();
+
+            assert_eq!(
+                &actual_steps, &$expected_steps,
+                "Series of start-of-line flags does not match expected",
+            );
+        }};
+    }
+
+    check!("A", [true]);
+    check!("A\nB C", [true, false, true, false, false]);
+    check!(
+        "A\nB\n\nC D\nE",
+        [true, false, true, false, true, false, false, false, true],
+    );
+    check!(
+        "\nA\n\nB\n\n\nC D",
+        [true, true, false, true, false, true, false, false],
+    );
 }

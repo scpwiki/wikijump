@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_BOLD: Rule = Rule {
     name: "bold",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

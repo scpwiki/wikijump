@@ -33,8 +33,11 @@ pub use self::mapping::{get_rules_for_token, RULE_MAP};
 pub struct Rule {
     /// The name for this rule, in kebab-case.
     ///
-    /// It is globally unique.
+    /// It must be globally unique.
     name: &'static str,
+
+    /// What requirements this rule needs regarding its position in a line.
+    position: LineRequirement,
 
     /// The consumption attempt function for this rule.
     try_consume_fn: TryConsumeFn,
@@ -54,11 +57,22 @@ impl Rule {
     ) -> ParseResult<'r, 't, Elements<'t>> {
         info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
+        // Check that the line position matches what the rule wants.
+        match self.position {
+            LineRequirement::Any => (),
+            LineRequirement::StartOfLine => {
+                if !parser.start_of_line() {
+                    return Err(parser.make_warn(ParseWarningKind::NotStartOfLine));
+                }
+            }
+        }
+
+        // Fork parser and try running the rule.
         let mut sub_parser = parser.clone_with_rule(self);
         let result = (self.try_consume_fn)(log, &mut sub_parser);
 
         // Run in a separate parser instance,
-        // only keeping the parser state if it succeeded
+        // only keeping the parser state if it succeeded.
         if result.is_ok() {
             parser.update(&sub_parser);
         }
@@ -86,6 +100,19 @@ impl slog::Value for Rule {
     ) -> slog::Result {
         serializer.emit_str(key, self.name())
     }
+}
+
+/// The enum describing what requirements a rule has regarding lines.
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum LineRequirement {
+    /// This rule does not care where it is in a line.
+    Any,
+
+    /// This rule may only activate when it is at the start of a line.
+    ///
+    /// This includes situations which are not technically line breaks,
+    /// such as start of input and paragraph breaks.
+    StartOfLine,
 }
 
 /// The function type for actually trying to consume tokens

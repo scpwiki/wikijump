@@ -22,6 +22,7 @@ use super::prelude::*;
 
 pub const RULE_EMAIL: Rule = Rule {
     name: "email",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

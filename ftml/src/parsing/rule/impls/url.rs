@@ -23,6 +23,7 @@ use crate::tree::{LinkLabel, LinkLocation};
 
 pub const RULE_URL: Rule = Rule {
     name: "url",
+    position: LineRequirement::Any,
     try_consume_fn,
 };
 

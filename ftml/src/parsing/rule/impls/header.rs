@@ -23,6 +23,7 @@ use std::convert::TryInto;
 
 pub const RULE_HEADER: Rule = Rule {
     name: "header",
+    position: LineRequirement::StartOfLine,
     try_consume_fn,
 };
 
@@ -32,21 +33,6 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Trying to create header container");
 
-    // Assert first tokens match rule
-    check_step_multiple(
-        parser,
-        &[Token::InputStart, Token::LineBreak, Token::ParagraphBreak],
-    )?;
-
-    // Parse and builder header element
-    parse_header(log, parser)
-}
-
-fn parse_header<'p, 'r, 't>(
-    log: &Logger,
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
-    // Helper to ensure the current token is expected
     macro_rules! step {
         ($token:expr) => {{
             let current = parser.current();
@@ -102,7 +88,7 @@ fn parse_header<'p, 'r, 't>(
     // which we need to trigger the next header when using regular rules.
     let mut all_elements: Vec<_> = elements.into_iter().collect();
 
-    if let Ok(success) = parse_header(log, parser) {
+    if let Ok(success) = try_consume_fn(log, parser) {
         let (elements, mut exceptions, _) = success.into();
 
         all_elements.extend(elements);
