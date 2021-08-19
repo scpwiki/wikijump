@@ -22,6 +22,7 @@ pub mod attribute;
 
 mod align;
 mod anchor;
+mod clear_float;
 mod clone;
 mod condition;
 mod container;
@@ -36,6 +37,7 @@ mod tag;
 pub use self::align::*;
 pub use self::anchor::*;
 pub use self::attribute::AttributeMap;
+pub use self::clear_float::*;
 pub use self::condition::*;
 pub use self::container::*;
 pub use self::element::*;
