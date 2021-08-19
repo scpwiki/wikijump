@@ -4,14 +4,16 @@ on:
   # Run this on push to master
   push:
     branches:
-      - master
+      - develop
+      - prod
     paths:
       - 'web/**'
       - '.github/workflows/test-js.yaml'
+
   # Run this on push to PRs, regardless of branch
   pull_request:
     paths:
-      - 'web/**'
+      - 'web/web/**'
       - '.github/workflows/test-js.yaml'
 jobs:
   test:
