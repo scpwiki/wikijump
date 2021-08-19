@@ -89,10 +89,8 @@ token = _{
     underscore |
     quote |
     heading |
-
-    // Lists
-    ((SOI | line_break) ~ space? ~ bullet_item) |
-    ((SOI | line_break) ~ space? ~ numbered_item) |
+    bullet_item |
+    numbered_item |
 
     // Tables
     table_column_title |
