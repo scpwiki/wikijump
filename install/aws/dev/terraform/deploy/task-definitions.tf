@@ -172,7 +172,7 @@ module "datadog" {
     },
     {
       name = "DD_SYSTEM_PROBE_ENABLED"
-      value = true
+      value = false
     },
     {
       name = "DD_PROCESS_AGENT_ENABLED"
