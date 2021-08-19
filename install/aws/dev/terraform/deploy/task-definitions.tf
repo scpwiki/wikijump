@@ -81,7 +81,7 @@ module "nginx" {
     "traefik.http.routers.php-fpm.rule"             = "Host(`${var.web_domain}`,`www.${var.web_domain}`,`${var.files_domain}`,`www.${var.files_domain}`)"
     "traefik.http.routers.php-fpm.tls"              = "true"
     "traefik.http.routers.php-fpm.tls.certresolver" = "mytlschallenge",
-    "com.datadoghq.ad.logs" = "[{\"source\": \"nginx\", \"service\": \"nginx\"}]",
+    "com.datadoghq.ad.logs" = "[{\"source\": \"nginx\", \"service\": \"nginx\", \"path\": \"/var/log/nginx/*.log\"}]",
     "com.datadoghq.ad.check_names" = "[\"nginx\"]",
     "com.datadoghq.ad.init_configs" = "[{}]",
     "com.datadoghq.ad.instances" = "[{\"nginx_status_url\": \"http://%%host%%:81/nginx_status/\"}]"
@@ -139,7 +139,7 @@ module "php-fpm" {
   ]
 
   docker_labels = {
-    "com.datadoghq.ad.logs" = "[{\"source\": \"php\", \"service\": \"php\"}]",
+    "com.datadoghq.ad.logs" = "[{\"source\": \"php\", \"service\": \"php\", \"path\": [\"/var/log/php/error.log\", \"/var/www/wikijump/web/logs/ozone.log\", \"/var/www/wikijump/web/storage/logs/*.log\"]}]",
     "com.datadoghq.ad.check_names" = "[\"php_fpm\"]",
     "com.datadoghq.ad.init_configs" = "[{}]",
     "com.datadoghq.ad.instances" = "{\"status_url\":\"http://%%host%%/status\",\"ping_url\":\"http://%%host%%/ping\", \"use_fastcgi\": false, \"ping_reply\": \"pong\"}"
