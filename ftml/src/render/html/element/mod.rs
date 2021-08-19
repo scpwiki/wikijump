@@ -27,6 +27,7 @@ mod image;
 mod input;
 mod link;
 mod list;
+mod table;
 mod table_of_contents;
 mod text;
 mod user;
@@ -45,6 +46,7 @@ use self::image::render_image;
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
+use self::table::render_table;
 use self::table_of_contents::render_table_of_contents;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use self::user::render_user;
@@ -81,6 +83,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::Text(text) => ctx.push_escaped(text),
         Element::Raw(text) => render_wikitext_raw(log, ctx, text),
         Element::Email(email) => render_email(log, ctx, email),
+        Element::Table(table) => render_table(log, ctx, table),
         Element::Anchor {
             elements,
             attributes,

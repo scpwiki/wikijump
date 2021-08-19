@@ -99,6 +99,10 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
             ctx.push_str(text)
         }
+        Element::Table(table) => {
+            // TODO
+            todo!()
+        }
         Element::Anchor {
             elements,
             attributes,
