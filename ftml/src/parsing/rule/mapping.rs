@@ -79,6 +79,9 @@ lazy_static! {
 
             // Tables
             Token::TableColumn => vec![RULE_TODO], // TODO
+            Token::TableColumnLeft => vec![RULE_TODO], // TODO
+            Token::TableColumnRight => vec![RULE_TODO], // TODO
+            Token::TableColumnCenter => vec![RULE_TODO], // TODO
             Token::TableColumnTitle => vec![RULE_TODO], // TODO
 
             // Text components
