@@ -112,14 +112,14 @@ module "php-fpm" {
       "awslogs-region"        = var.region
       "awslogs-stream-prefix" = "ecs"
     }
-
-    container_depends_on = [
-      {
-        containerName = "database"
-        condition     = "HEALTHY"
-      }
-    ]
   }
+
+  container_depends_on = [
+    {
+      containerName = "database"
+      condition     = "HEALTHY"
+    }
+  ]
 
   links = ["cache:cache", "database:database"]
 
