@@ -1,0 +1,149 @@
+{
+    "input": "[\n\n+ A\n\n++ B\n+ C\n]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "attributes": {},
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "attributes": {},
+                    "type": {
+                        "header": {
+                            "level": 2,
+                            "has-toc": true
+                        }
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "B"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "attributes": {},
+                    "type": {
+                        "header": {
+                            "level": 1,
+                            "has-toc": true
+                        }
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "C"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "link": "#toc0",
+                                    "label": {
+                                        "text": "A"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ],
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    [
+                                        {
+                                            "element": "link",
+                                            "data": {
+                                                "link": "#toc1",
+                                                "label": {
+                                                    "text": "B"
+                                                },
+                                                "target": null
+                                            }
+                                        }
+                                    ]
+                                ]
+                            }
+                        },
+                        [
+                            {
+                                "element": "link",
+                                "data": {
+                                    "link": "#toc2",
+                                    "label": {
+                                        "text": "C"
+                                    },
+                                    "target": null
+                                }
+                            }
+                        ]
+                    ]
+                }
+            }
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
