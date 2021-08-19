@@ -111,11 +111,11 @@ token = _{
 identifier = @{ (ASCII_ALPHANUMERIC | ASCII_DIGIT)+ }
 
 email = @{
-    (ASCII_ALPHANUMERIC | "-" | ".")+ ~
+    (!(" " | "\t" | NEWLINE) ~ ANY)+ ~
     "@" ~
-    (ASCII_ALPHANUMERIC | "-")+ ~
+    (!(" " | "\t" | NEWLINE) ~ ANY)+ ~
     "." ~
-    (ASCII_ALPHANUMERIC | ".")+
+    (!(" " | "\t" | NEWLINE) ~ ANY)+ ~
 }
 
 url = @{
