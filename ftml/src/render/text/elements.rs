@@ -288,6 +288,14 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.add_newline();
             }
         }
+        Element::ClearFloat(_) => {
+            if !ctx.ends_with_newline() {
+                ctx.add_newline();
+            }
+
+            ctx.push_str("~~~~~~");
+            ctx.add_newline();
+        }
         Element::HorizontalRule => {
             if !ctx.ends_with_newline() {
                 ctx.add_newline();
