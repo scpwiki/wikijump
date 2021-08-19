@@ -1,5 +1,5 @@
 /*
- * parsing/rule/impls/horizontal_rule.rs
+ * parsing/rule/impls/clear_float.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -19,9 +19,10 @@
  */
 
 use super::prelude::*;
+use crate::tree::ClearFloat;
 
-pub const RULE_HORIZONTAL_RULE: Rule = Rule {
-    name: "horizontal-rule",
+pub const RULE_CLEAR_FLOAT: Rule = Rule {
+    name: "clear-float",
     position: LineRequirement::StartOfLine,
     try_consume_fn,
 };
@@ -30,10 +31,23 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Consuming token to create a horizontal rule");
+    let current = parser.current();
 
-    check_step(parser, Token::TripleDash)?;
+    debug!(
+        log,
+        "Consuming token to create a clear float";
+        "slice" => current.slice,
+    );
+
+    let clear_float = match current.token {
+        Token::ClearFloatBoth => ClearFloat::Both,
+        Token::ClearFloatLeft => ClearFloat::Left,
+        Token::ClearFloatRight => ClearFloat::Right,
+        _ => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
+    };
+
+    // Optionally consume newline after
     parser.get_optional_line_break()?;
 
-    ok!(Element::HorizontalRule)
+    ok!(Element::ClearFloat(clear_float))
 }

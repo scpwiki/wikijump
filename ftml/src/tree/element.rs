@@ -22,8 +22,8 @@ use super::clone::{
     elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
 };
 use super::{
-    Alignment, AnchorTarget, AttributeMap, Container, ElementCondition, FloatAlignment,
-    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
+    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, ElementCondition,
+    FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
 };
 use ref_map::*;
 use std::borrow::Cow;
@@ -209,6 +209,9 @@ pub enum Element<'t> {
     /// A collection of line breaks adjacent to each other.
     LineBreaks(NonZeroU32),
 
+    /// A "clear float" div.
+    ClearFloat(ClearFloat),
+
     /// A horizontal rule.
     HorizontalRule,
 }
@@ -254,6 +257,7 @@ impl Element<'_> {
             Element::Iframe { .. } => "Iframe",
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
+            Element::ClearFloat(_) => "ClearFloat",
             Element::HorizontalRule => "HorizontalRule",
         }
     }
@@ -286,6 +290,7 @@ impl Element<'_> {
             Element::Code { .. } => true,
             Element::Html { .. } | Element::Iframe { .. } => false,
             Element::LineBreak | Element::LineBreaks { .. } => true,
+            Element::ClearFloat(_) => false,
             Element::HorizontalRule => false,
         }
     }
@@ -417,6 +422,7 @@ impl Element<'_> {
             },
             Element::LineBreak => Element::LineBreak,
             Element::LineBreaks(amount) => Element::LineBreaks(*amount),
+            Element::ClearFloat(clear_float) => Element::ClearFloat(*clear_float),
             Element::HorizontalRule => Element::HorizontalRule,
         }
     }

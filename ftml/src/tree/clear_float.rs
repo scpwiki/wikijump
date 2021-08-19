@@ -1,5 +1,5 @@
 /*
- * parsing/rule/impls/horizontal_rule.rs
+ * tree/clear_float.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,22 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum ClearFloat {
+    Left,
+    Right,
+    Both,
+}
 
-pub const RULE_HORIZONTAL_RULE: Rule = Rule {
-    name: "horizontal-rule",
-    position: LineRequirement::StartOfLine,
-    try_consume_fn,
-};
-
-fn try_consume_fn<'p, 'r, 't>(
-    log: &Logger,
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Consuming token to create a horizontal rule");
-
-    check_step(parser, Token::TripleDash)?;
-    parser.get_optional_line_break()?;
-
-    ok!(Element::HorizontalRule)
+impl ClearFloat {
+    pub fn html_class(self) -> &'static str {
+        match self {
+            ClearFloat::Left => "wj-clear-float-left",
+            ClearFloat::Right => "wj-clear-float-right",
+            ClearFloat::Both => "wj-clear-float-both",
+        }
+    }
 }

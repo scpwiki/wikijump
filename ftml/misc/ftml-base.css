@@ -82,6 +82,20 @@ code,
     padding-right: 0;
 }
 
+/* CLEAR FLOAT */
+
+.wj-clear-float-left {
+    clear: left;
+}
+
+.wj-clear-float-right {
+    clear: right:
+}
+
+.wj-clear-float-both {
+    clear: both;
+}
+
 /* USER INFORMATION */
 
 .wj-user-info img.wj-small {

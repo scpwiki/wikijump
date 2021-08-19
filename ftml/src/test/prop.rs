@@ -22,7 +22,7 @@ use crate::data::{PageInfo, PageRef};
 use crate::render::{html::HtmlRender, text::TextRender, Render};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
-    Alignment, AnchorTarget, AttributeMap, Container, ContainerType, Element,
+    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, ContainerType, Element,
     FloatAlignment, Heading, HeadingLevel, ImageSource, LinkLabel, LinkLocation,
     ListItem, ListType, Module, SyntaxTree,
 };
@@ -336,6 +336,8 @@ fn arb_element_leaf() -> impl Strategy<Value = Element<'static>> {
         // TODO: Element::Iframe
         Just(Element::LineBreak),
         (1..50u32).prop_map(|count| Element::LineBreaks(NonZeroU32::new(count).unwrap())),
+        select!([ClearFloat::Both, ClearFloat::Left, ClearFloat::Right])
+            .prop_map(Element::ClearFloat),
         Just(Element::HorizontalRule),
     ]
 }

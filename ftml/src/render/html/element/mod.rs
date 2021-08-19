@@ -169,6 +169,9 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 ctx.html().br();
             }
         }
+        Element::ClearFloat(clear_float) => {
+            ctx.html().div().attr("class", &[clear_float.html_class()]);
+        }
         Element::HorizontalRule => {
             ctx.html().hr();
         }
