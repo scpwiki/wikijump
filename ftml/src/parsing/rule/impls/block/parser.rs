@@ -173,7 +173,7 @@ where
         Ok(name)
     }
 
-    /// Consumes an entire blocking, validating that the newline and names match.
+    /// Consumes an entire block end, validating that the newline and names match.
     ///
     /// Used internally by the body parsing methods.
     fn verify_end_block(

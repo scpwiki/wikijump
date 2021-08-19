@@ -42,20 +42,33 @@ fn line_break<'p, 'r, 't>(
     // on its own line.
     //
     // Grep for "LineRequirement::StartOfLine" and compare that with this list.
-    if let Some(next) = parser.look_ahead(0) {
-        const START_OF_LINE_TOKENS: &[Token] = &[
-            Token::Quote,
-            Token::BulletItem,
-            Token::NumberedItem,
-            Token::Heading,
-            Token::Equals,
-        ];
 
-        if START_OF_LINE_TOKENS.contains(&next.token) {
-            debug!(log, "Skipping line break element because of upcoming token");
+    let upcoming_separate = parser.evaluate_fn(|parser| {
+        parser.step()?;
 
-            return ok!(Elements::None);
+        loop {
+            match parser.current().token {
+                // Start-of-line rules, by token.
+                Token::Quote
+                | Token::BulletItem
+                | Token::NumberedItem
+                | Token::Heading
+                | Token::Equals => return Ok(true),
+
+                // Lists are special, they might start with
+                // whitespace before the bullet token.
+                Token::Whitespace => parser.step()?,
+
+                // Anything else and we ignore it.
+                _ => return Ok(false),
+            };
         }
+    });
+
+    if upcoming_separate {
+        debug!(log, "Skipping line break element because of upcoming token");
+
+        return ok!(Elements::None);
     }
 
     ok!(Element::LineBreak)
