@@ -32,6 +32,7 @@ mod image;
 mod link;
 mod list;
 mod module;
+mod table;
 mod tag;
 
 pub use self::align::*;
@@ -46,6 +47,7 @@ pub use self::image::*;
 pub use self::link::*;
 pub use self::list::*;
 pub use self::module::*;
+pub use self::table::*;
 pub use self::tag::*;
 
 use self::clone::{elements_lists_to_owned, elements_to_owned, strings_to_owned};
