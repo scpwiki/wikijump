@@ -389,11 +389,12 @@ fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
 #[test]
 fn parser_newline_flag() {
     let log = &crate::build_logger();
+    let page_info = PageInfo::dummy();
 
     macro_rules! check {
         ($input:expr, $expected_steps:expr $(,)?) => {{
             let tokens = crate::tokenize(log, $input);
-            let mut parser = Parser::new(log, &tokens);
+            let mut parser = Parser::new(log, &page_info, &tokens);
             let mut actual_steps = Vec::new();
 
             // Iterate through the tokens.

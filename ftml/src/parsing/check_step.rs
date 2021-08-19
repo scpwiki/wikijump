@@ -45,9 +45,12 @@ pub fn check_step<'r, 't>(
 #[test]
 #[should_panic]
 fn check_step_fail() {
+    use crate::data::PageInfo;
+
     let log = crate::build_logger();
+    let page_info = PageInfo::dummy();
     let tokenization = crate::tokenize(&log, "**Apple** banana");
-    let mut parser = Parser::new(&log, &tokenization);
+    let mut parser = Parser::new(&log, &page_info, &tokenization);
 
     let _ = check_step(&mut parser, Token::Italics);
 }

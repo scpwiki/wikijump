@@ -190,7 +190,7 @@ impl Test<'_> {
 
         crate::preprocess(log, &mut text);
         let tokens = crate::tokenize(log, &text);
-        let result = crate::parse(log, &tokens);
+        let result = crate::parse(log, &page_info, &tokens);
         let (tree, warnings) = result.into();
         let html_output = HtmlRender.render(log, &page_info, &tree);
         let text_output = TextRender.render(log, &page_info, &tree);
