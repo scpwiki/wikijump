@@ -4,15 +4,23 @@ on:
   # Run this on push to master
   push:
     branches:
-      - master
+      - develop
+      - prod
     paths:
-      - 'web/**'
-      - '.github/workflows/test-js.yaml'
+      - 'web/web/**'
+      - 'web/package*.json'
+      - 'web/tsconfig.json'
+      - 'web/.eslintrc.json'
+      - '.github/workflows/javascript.yaml'
+
   # Run this on push to PRs, regardless of branch
   pull_request:
     paths:
-      - 'web/**'
-      - '.github/workflows/test-js.yaml'
+      - 'web/web/**'
+      - 'web/package*.json'
+      - 'web/tsconfig.json'
+      - 'web/.eslintrc.json'
+      - '.github/workflows/javascript.yaml'
 jobs:
   test:
     name: Tests
