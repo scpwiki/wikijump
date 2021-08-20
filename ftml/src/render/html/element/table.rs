@@ -28,12 +28,12 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
         .table()
         .attr_map(&table.attributes)
         .contents(|ctx| {
-            for row in table.rows {
+            for row in &table.rows {
                 ctx.html() //
                     .tr()
                     .attr_map(&row.attributes)
                     .contents(|ctx| {
-                        for cell in row.cells {
+                        for cell in &row.cells {
                             let elements: &[Element] = &cell.elements;
 
                             ctx.html()
