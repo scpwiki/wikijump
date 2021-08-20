@@ -19,9 +19,29 @@
  */
 
 use super::prelude::*;
-use crate::tree::{AttributeMap, Table};
+use crate::tree::Table;
 
 pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
-    // TODO
-    todo!()
+    debug!(log, "Rendering table");
+
+    ctx.html()
+        .table()
+        .attr_map(&table.attributes)
+        .contents(|ctx| {
+            for row in table.rows {
+                ctx.html() //
+                    .tr()
+                    .attr_map(&row.attributes)
+                    .contents(|ctx| {
+                        for cell in row.cells {
+                            let elements: &[Element] = &cell.elements;
+
+                            cell.html()
+                                .table_cell(cell.header)
+                                .attr_map(&cell.attributes)
+                                .inner(&log, &elements);
+                        }
+                    });
+            }
+        });
 }

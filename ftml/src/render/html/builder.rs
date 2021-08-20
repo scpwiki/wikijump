@@ -65,6 +65,15 @@ where
         HtmlBuilderTag::new(ctx, tag)
     }
 
+    #[inline]
+    pub fn table_cell(self, header: bool) -> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
+        if header {
+            self.tag("th")
+        } else {
+            self.tag("td")
+        }
+    }
+
     tag_method!(a);
     tag_method!(br);
     tag_method!(code);
@@ -78,9 +87,7 @@ where
     tag_method!(script);
     tag_method!(span);
     tag_method!(table);
-    tag_method!(td);
     tag_method!(tr);
-    tag_method!(tt);
 
     #[inline]
     pub fn text(&mut self, text: &str) {
