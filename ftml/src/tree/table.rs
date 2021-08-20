@@ -19,7 +19,7 @@
  */
 
 use super::clone::elements_to_owned;
-use super::{AttributeMap, Element};
+use super::{Alignment, AttributeMap, Element};
 use std::num::NonZeroU32;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -60,6 +60,7 @@ pub struct TableCell<'t> {
     pub elements: Vec<Element<'t>>,
     pub header: bool,
     pub column_span: NonZeroU32,
+    pub align: Option<Alignment>,
     pub attributes: AttributeMap<'t>,
 }
 
@@ -69,6 +70,7 @@ impl TableCell<'_> {
             elements: elements_to_owned(&self.elements),
             header: self.header,
             column_span: self.column_span,
+            align: self.align,
             attributes: self.attributes.to_owned(),
         }
     }

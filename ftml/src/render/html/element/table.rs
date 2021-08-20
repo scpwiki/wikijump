@@ -36,7 +36,7 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
                         for cell in row.cells {
                             let elements: &[Element] = &cell.elements;
 
-                            cell.html()
+                            ctx.html()
                                 .table_cell(cell.header)
                                 .attr_map(&cell.attributes)
                                 .inner(&log, &elements);
