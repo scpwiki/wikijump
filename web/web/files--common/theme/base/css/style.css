@@ -250,7 +250,7 @@ a.newpage{
 #account-options{
 	position: absolute;
 
-	box-sizing: border-box
+	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	width: 15em;
 	right: 0;
