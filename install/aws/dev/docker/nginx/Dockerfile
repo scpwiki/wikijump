@@ -5,7 +5,7 @@ FROM node:alpine as npm
 # Please note this arg is also defined in the nginx layer further down.
 ARG WIKIJUMP_REPO_DIR="wikijump"
 
-ARG WIKIJUMP_REPO_BRANCH="datadog-integration"
+ARG WIKIJUMP_REPO_BRANCH="develop"
 ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
 WORKDIR /src
