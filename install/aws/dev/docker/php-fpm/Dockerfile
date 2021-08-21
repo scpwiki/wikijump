@@ -129,4 +129,4 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 
 COPY etc/php/ /usr/local/etc/php/conf.d/
 
-CMD ["php-fpm"]
+ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]

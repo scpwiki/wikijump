@@ -21,3 +21,8 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 GRANT ALL ON SCHEMA public TO wikijump;
+
+/* Temp password, this will become a Terraform secret, don't @ me */
+create user datadog with password 'Ge07mcovAKvIT9WM';
+grant pg_monitor to datadog;
+grant SELECT ON pg_stat_database to datadog;

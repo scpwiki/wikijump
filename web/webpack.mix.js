@@ -10,9 +10,9 @@ const mix = require('laravel-mix');
  | file for the application as well as bundling up all the JS files.
  |
  */
-mix.setPublicPath('web/files--common/dist');
-mix.js('resources/js/app.js', '')
-    .postCss('resources/css/app.css', '', [
+mix.setPublicPath('web');
+mix.js('tailwind.config.js', 'files--common/dist/app.js')
+    .postCss('web/files--common/theme/shim.css', 'web/files--common/dist/app.css', [
         require('postcss-import'),
         require('tailwindcss'),
     ]);
