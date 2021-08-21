@@ -42,7 +42,7 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
                             ctx.html()
                                 .table_cell(cell.header)
                                 .attr(attr!(;; &cell.attributes))
-                                .inner(&log, &elements);
+                                .inner(log, &elements);
                         }
                     });
             }

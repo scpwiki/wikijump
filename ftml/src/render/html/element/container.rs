@@ -34,7 +34,7 @@ pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Contain
     match tag_spec {
         HtmlTag::Tag(_) => tag.attr(attr!(;; container.attributes())),
         HtmlTag::TagAndClass { class, .. } => {
-            tag.attr(attr!("class" => &class;; container.attributes()))
+            tag.attr(attr!("class" => class;; container.attributes()))
         }
         HtmlTag::TagAndId { id, .. } => {
             tag.attr(attr!("id" => &id;; container.attributes()))
