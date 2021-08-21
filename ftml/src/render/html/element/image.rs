@@ -49,17 +49,18 @@ pub fn render_image(
     );
 
     let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
-    let align_class = match alignment {
-        Some(align) => align.html_class(),
-        None => "",
+    let (space, align_class) = match alignment {
+        Some(align) => (" ", align.html_class()),
+        None => ("", ""),
     };
 
     ctx.html()
         .div()
-        .attr(attr!("class" => "wj-image-container" align_class))
+        .attr(attr!("class" => "wj-image-container" space align_class))
         .contents(|ctx| {
             let build_image = |ctx: &mut HtmlContext| {
                 ctx.html().img().attr(attr!(
+                    "class" => "wj-image",
                     "src" => &source_url,
                     "crossorigin";;
                     attributes
