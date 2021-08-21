@@ -75,7 +75,8 @@ pub fn render_link(
         None => "",
     };
 
-    let mut tag = ctx.html().a().attr(attr!(
+    let mut tag = ctx.html().a();
+    tag.attr(attr!(
         "href" => &url,
         "target" => target_value; if target.is_some(),
     ));
