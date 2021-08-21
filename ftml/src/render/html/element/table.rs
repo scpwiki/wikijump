@@ -20,9 +20,13 @@
 
 use super::prelude::*;
 use crate::tree::Table;
+use std::num::NonZeroU32;
 
 pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
     debug!(log, "Rendering table");
+
+    let mut column_span_buf = String::new();
+    let value_one = NonZeroU32::new(1).unwrap();
 
     // Full table
     ctx.html()
@@ -38,10 +42,24 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
                         // Each cell in a row
                         for cell in &row.cells {
                             let elements: &[Element] = &cell.elements;
+                            let align_class = match cell.align {
+                                Some(align) => align.html_class(),
+                                None => "",
+                            };
+
+                            if cell.column_span > value_one {
+                                column_span_buf.clear();
+                                str_write!(&mut column_span_buf, "{}", cell.column_span);
+                            }
 
                             ctx.html()
                                 .table_cell(cell.header)
-                                .attr(attr!(;; &cell.attributes))
+                                .attr(attr!(
+                                    "column-span" => &column_span_buf;
+                                        if cell.column_span > value_one,
+                                    "class" => align_class;;
+                                    &cell.attributes,
+                                ))
                                 .inner(log, &elements);
                         }
                     });
