@@ -22,7 +22,7 @@ use super::attributes::AddedAttributes;
 use super::context::HtmlContext;
 use super::render::ItemRender;
 use crate::log::prelude::*;
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 macro_rules! tag_method {
     ($tag:tt) => {
@@ -148,7 +148,8 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
             )
         }
 
-        let mut merged = HashMap::new();
+        let mut merged = HashSet::new();
+        let mut merged_value = Vec::new();
 
         // Merge any attributes in common.
         if let Some(attribute_map) = attributes.map {
@@ -159,23 +160,20 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
                     // Merge keys by prepending value_parts before
                     // the attribute map value.
 
-                    let mut value = String::new();
+                    merged_value.clear();
+                    merged_value.extend(value_parts);
+                    merged_value.push(" ");
+                    merged_value.push(map_value);
 
-                    for value_part in value_parts {
-                        value.push_str(value_part);
-                    }
-
-                    value.push(' ');
-                    value.push_str(map_value);
-
-                    merged.insert(key, value);
+                    self.attr_single(key, &merged_value);
+                    merged.insert(key);
                 }
             }
         }
 
         // Add attributes from renderer.
         for (key, value_parts) in filter_entries(&attributes) {
-            if !merged.contains_key(key) {
+            if !merged.contains(key) {
                 self.attr_single(key, value_parts);
             }
         }
@@ -183,7 +181,7 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         // Add attributes from user-provided map.
         if let Some(attribute_map) = attributes.map {
             for (key, value) in attribute_map.get() {
-                if !merged.contains_key(key.as_ref()) {
+                if !merged.contains(key.as_ref()) {
                     self.attr_single(key, &[value]);
                 }
             }
