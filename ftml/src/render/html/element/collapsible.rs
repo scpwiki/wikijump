@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use super::AddedAttributes;
 use crate::tree::{AttributeMap, Element};
 
 #[derive(Debug, Copy, Clone)]
@@ -97,25 +98,27 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
 
     ctx.html()
         .div()
-        .attr_map_prepend(attributes, ("class", "wj-collapsible-block"))
+        .attr(attr!("class" => ["wj-collapsible-block"]; attributes))
         .contents(|ctx| {
             // Open collapsible link
             ctx.html()
                 .div()
-                .attr("class", &[collapsible_class(!start_open)])
+                .attr(attr!("class" => [collapsible_class(!start_open)]))
                 .contents(|ctx| {
                     // Event-bound link to open
                     ctx.html()
                         .a()
-                        .attr("class", &["wj-collapsible-block-link"])
-                        .attr("href", &["javascript:;"])
+                        .attr(attr!(
+                            "class" => ["wj-collapsible-block-link"],
+                            "href" => ["javascript:;"],
+                        ))
                         .inner(log, &show_text);
                 });
 
             // Close collapsible link
             ctx.html()
                 .div()
-                .attr("class", &[collapsible_class(start_open)])
+                .attr(attr!("class" => [collapsible_class(start_open)]))
                 .contents(|ctx| {
                     // Top div to close
                     ctx.html()
@@ -124,38 +127,38 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                         .contents(|ctx| {
                             ctx.html()
                                 .a()
-                                .attr(
-                                    "class",
-                                    &[
-                                        "wj-collapsible-block-link",
-                                        collapsible_class(show_top),
-                                    ],
-                                )
-                                .attr("href", &["javascript:;"])
+                                .attr(attr!(
+                                        "class" => [
+                                            "wj-collapsible-block-link",
+                                            " ",
+                                            collapsible_class(show_top),
+                                        ],
+                                        "href" => ["javascript:;"],
+                                ))
                                 .inner(log, &hide_text);
                         });
 
                     // Collapsed contents
                     ctx.html()
                         .div()
-                        .attr("class", &["wj-collapsible-block-content"])
+                        .attr(attr!("class" => ["wj-collapsible-block-content"]))
                         .inner(log, &elements);
 
                     // Bottom div to close
                     ctx.html()
                         .div()
-                        .attr("class", &["wj-collapsible-block-unfolded-link"])
+                        .attr(attr!("class" => ["wj-collapsible-block-unfolded-link"]))
                         .contents(|ctx| {
                             ctx.html()
                                 .a()
-                                .attr(
-                                    "class",
-                                    &[
+                                .attr(attr!(
+                                    "class" => [
                                         "wj-collapsible-block-link",
+                                        " ",
                                         collapsible_class(show_bottom),
                                     ],
-                                )
-                                .attr("href", &["javascript:;"])
+                                    "href" => "javascript:;",
+                                ))
                                 .inner(log, &hide_text);
                         });
                 });

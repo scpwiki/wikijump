@@ -24,15 +24,18 @@ use crate::tree::Table;
 pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
     debug!(log, "Rendering table");
 
+    // Full table
     ctx.html()
         .table()
         .attr_map(&table.attributes)
         .contents(|ctx| {
+            // Each row
             for row in &table.rows {
                 ctx.html() //
                     .tr()
                     .attr_map(&row.attributes)
                     .contents(|ctx| {
+                        // Each cell in a row
                         for cell in &row.cells {
                             let elements: &[Element] = &cell.elements;
 

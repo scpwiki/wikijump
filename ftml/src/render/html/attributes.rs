@@ -1,0 +1,115 @@
+/*
+ * render/html/attributes.rs
+ *
+ * ftml - Library to parse Wikidot text
+ * Copyright (C) 2019-2021 Wikijump Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+use crate::tree::AttributeMap;
+
+type AttributeValue<'a> = &'a [&'a str];
+type AttributeEntry<'a> = (&'a str, AttributeValue<'a>);
+
+/// Helper struct produced by `attr!()` to make setting attributs easier.
+#[derive(Debug)]
+pub struct AddedAttributes<'a> {
+    pub entries: &'a [(AttributeEntry<'a>, bool)],
+    pub map: Option<&'a AttributeMap<'a>>,
+}
+
+macro_rules! attr_entry {
+    ($key:expr $(,)?) => {
+        attr_entry!(=> $key, &[], true)
+    };
+
+    ($key:expr, $( $value:expr ),+ ) => {
+        attr_entry!(=> $key, &[ $( $value ),+ ], true)
+    };
+
+    ($key:expr, $( $value:expr ),+ ; $condition:expr) => {
+        attr_entry!(=> $key, &[ $( $value ),+ ], $condition)
+    };
+
+    (=> $key:expr, $value:expr, $condition:expr) => {
+        (($key, $value), $condition)
+    };
+}
+
+macro_rules! attr_map {
+    ($attribute_map:expr) => {
+        Some(&$attribute_map)
+    };
+
+    () => {
+        None
+    };
+}
+
+macro_rules! attr {
+    (
+        $( $key:expr $( => $( $value:expr )+ )? $( ; if $condition:expr )? ),* $(,)?
+        $( ;; $attribute_map:expr )?
+    ) => {
+        AddedAttributes {
+            entries: &[
+                $(
+                    attr_entry!( $key, $( $( $value ),+ )? $( ; $condition )? )
+                ),*
+            ],
+            map: attr_map!( $( $attribute_map )? ),
+        }
+    };
+}
+
+#[test]
+fn attr_macro() {
+    let _ = attr!();
+    let _ = attr!("key");
+    let _ = attr!("key" => "value");
+    let _ = attr!("key" => "value" "parts");
+    let _ = attr!("key" => "value" "parts" "third");
+    let _ = attr!("key" => "value" "parts" "third"; if true);
+    let _ = attr!("key" => "value" "parts" "third"; if true;; AttributeMap::new());
+    let _ = attr!("key" => "value"; if true);
+    let _ = attr!("key" => "value"; if true;; AttributeMap::new());
+    let _ = attr!("key";; AttributeMap::new());
+    let _ = attr!("key" => "value";; ());
+
+    let _ = attr!(
+        "key1" => "value1",
+        "key2" => "value" "2",
+        "key3" => "value3"
+    );
+
+    let _ = attr!(
+        "key1" => "value1",
+        "key2" => "value" "2",
+        "key3" => "value3",
+    );
+
+    let _ = attr!(
+        "key1" => "value1"; if true,
+        "key2" => "value" "2",
+        "key3" => "value3"; if false,
+    );
+
+    let _ = attr!(
+        "key1" => "value1"; if true,
+        "key2" => "value" "2",
+        "key3" => "value3"; if false;;
+        AttributeMap::new()
+    );
+}

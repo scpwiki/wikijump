@@ -51,6 +51,7 @@ use self::table_of_contents::render_table_of_contents;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use self::user::render_user;
 use super::super::condition::{check_ifcategory, check_iftags};
+use super::attributes::AddedAttributes;
 use super::HtmlContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
@@ -173,7 +174,9 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             }
         }
         Element::ClearFloat(clear_float) => {
-            ctx.html().div().attr("class", &[clear_float.html_class()]);
+            ctx.html()
+                .div()
+                .attr(attr!("class" => [clear_float.html_class()]));
         }
         Element::HorizontalRule => {
             ctx.html().hr();

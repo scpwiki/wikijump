@@ -18,11 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::attributes::AddedAttributes;
 use super::context::HtmlContext;
-use super::escape::escape_char;
 use super::render::ItemRender;
 use crate::log::prelude::*;
-use crate::tree::AttributeMap;
+use std::borrow::Cow;
+use std::collections::HashMap;
 
 macro_rules! tag_method {
     ($tag:tt) => {
@@ -133,7 +134,58 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         }
     }
 
-    pub fn attr(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
+    pub fn attr(&mut self, attributes: AddedAttributes) -> &mut Self {
+        macro_rules! cow_key {
+            ($key:expr) => {
+                &Cow::Borrowed($key)
+            };
+        }
+
+        let mut merged = HashMap::new();
+
+        // Merge any attributes in common.
+        if let Some(attribute_map) = attributes.map {
+            let attribute_map = attribute_map.get();
+
+            for (key, value_parts) in attributes.entries {
+                if let Some(map_value) = attribute_map.get(cow_key!(key)) {
+                    // Merge keys by prepending value_parts before
+                    // the attribute map value.
+
+                    let mut value = String::new();
+
+                    for value_part in *value_parts {
+                        value.push_str(value_part);
+                    }
+
+                    value.push(' ');
+                    value.push_str(map_value);
+
+                    merged.insert(key, value);
+                }
+            }
+        }
+
+        // Add attributes from renderer.
+        for (key, value_parts) in attributes.entries {
+            if !merged.contains_key(cow_key!(key)) {
+                self.attr_single(key, value_parts);
+            }
+        }
+
+        // Add attributes from user-provided map.
+        if let Some(attribute_map) = attributes.map {
+            for (key, value) in attribute_map.get() {
+                if !merged.contains_key(cow_key!(key)) {
+                    self.attr_single(key, &[value]);
+                }
+            }
+        }
+
+        self
+    }
+
+    pub fn attr_single(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
         // If value_parts is empty, then we just give the key.
         //
         // For instance, ("checked", &[]) in input produces
@@ -155,73 +207,6 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
                 self.ctx.push_escaped(part);
             }
             self.ctx.push_raw('"');
-        }
-
-        self
-    }
-
-    pub fn attr_fmt<F>(&mut self, key: &str, mut value_fn: F) -> &mut Self
-    where
-        F: FnMut(&mut HtmlContext),
-    {
-        self.attr_key(key, true);
-        self.ctx.push_raw('"');
-
-        // Read the formatted text and escape it.
-        // Assumes all escaped characters are ASCII (see html::escape).
-        // Also assumes all changes to buffer were appended only.
-        let mut index = self.ctx.buffer().len();
-        value_fn(self.ctx);
-
-        let buffer = self.ctx.buffer();
-        while index < buffer.len() {
-            let ch = {
-                let remainder = &buffer[index..];
-                remainder
-                    .chars()
-                    .next()
-                    .expect("Character buffer exhausted")
-            };
-
-            if let Some(subst) = escape_char(ch) {
-                buffer.replace_range(index..=index, subst);
-            }
-
-            index += ch.len_utf8();
-        }
-        self.ctx.push_raw('"');
-
-        self
-    }
-
-    pub fn attr_map(&mut self, map: &AttributeMap) -> &mut Self {
-        for (key, value) in map.get() {
-            self.attr(key, &[value]);
-        }
-
-        self
-    }
-
-    pub fn attr_map_prepend(
-        &mut self,
-        map: &AttributeMap,
-        (extra_key, extra_value): (&str, &str),
-    ) -> &mut Self {
-        let mut merged = false;
-        for (key, value) in map.get() {
-            // If this key matches, then prepend it
-            // Otherwise, just pass in the value
-            if key.eq_ignore_ascii_case(extra_key) {
-                merged = true;
-                self.attr(key, &[extra_value, " ", value]);
-            } else {
-                self.attr(key, &[value]);
-            }
-        }
-
-        // If we haven't already added this attribute, then do so now
-        if !merged {
-            self.attr(extra_key, &[extra_value]);
         }
 
         self
