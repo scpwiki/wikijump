@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use super::AddedAttributes;
 use crate::tree::{AttributeMap, Element};
 
 #[derive(Debug, Copy, Clone)]
@@ -98,19 +97,19 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
 
     ctx.html()
         .div()
-        .attr(attr!("class" => ["wj-collapsible-block"]; attributes))
+        .attr(attr!("class" => "wj-collapsible-block";; attributes))
         .contents(|ctx| {
             // Open collapsible link
             ctx.html()
                 .div()
-                .attr(attr!("class" => [collapsible_class(!start_open)]))
+                .attr(attr!("class" => collapsible_class(!start_open)))
                 .contents(|ctx| {
                     // Event-bound link to open
                     ctx.html()
                         .a()
                         .attr(attr!(
-                            "class" => ["wj-collapsible-block-link"],
-                            "href" => ["javascript:;"],
+                            "class" => "wj-collapsible-block-link",
+                            "href" => "javascript:;",
                         ))
                         .inner(log, &show_text);
                 });
@@ -118,22 +117,20 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
             // Close collapsible link
             ctx.html()
                 .div()
-                .attr(attr!("class" => [collapsible_class(start_open)]))
+                .attr(attr!("class" => collapsible_class(start_open)))
                 .contents(|ctx| {
                     // Top div to close
                     ctx.html()
                         .div()
-                        .attr("class", &["wj-collapsible-block-unfolded-link"])
+                        .attr(attr!("class" => "wj-collapsible-block-unfolded-link"))
                         .contents(|ctx| {
                             ctx.html()
                                 .a()
                                 .attr(attr!(
-                                        "class" => [
-                                            "wj-collapsible-block-link",
-                                            " ",
-                                            collapsible_class(show_top),
-                                        ],
-                                        "href" => ["javascript:;"],
+                                    "class" =>
+                                        "wj-collapsible-block-link "
+                                        collapsible_class(show_top),
+                                    "href" => "javascript:;",
                                 ))
                                 .inner(log, &hide_text);
                         });
@@ -141,22 +138,20 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                     // Collapsed contents
                     ctx.html()
                         .div()
-                        .attr(attr!("class" => ["wj-collapsible-block-content"]))
+                        .attr(attr!("class" => "wj-collapsible-block-content"))
                         .inner(log, &elements);
 
                     // Bottom div to close
                     ctx.html()
                         .div()
-                        .attr(attr!("class" => ["wj-collapsible-block-unfolded-link"]))
+                        .attr(attr!("class" => "wj-collapsible-block-unfolded-link"))
                         .contents(|ctx| {
                             ctx.html()
                                 .a()
                                 .attr(attr!(
-                                    "class" => [
-                                        "wj-collapsible-block-link",
-                                        " ",
+                                    "class" =>
+                                        "wj-collapsible-block-link "
                                         collapsible_class(show_bottom),
-                                    ],
                                     "href" => "javascript:;",
                                 ))
                                 .inner(log, &hide_text);

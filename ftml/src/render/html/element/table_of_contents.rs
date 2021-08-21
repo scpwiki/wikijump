@@ -33,45 +33,50 @@ pub fn render_table_of_contents(
         "align" => align.map(|a| a.name()),
     );
 
-    let mut tag = ctx.html().div();
-    tag.attr_map_prepend(attributes, ("id", "wj-toc"));
+    let class_value = match align {
+        Some(align) => {
+            // Only valid for float left / right
+            FloatAlignment { align, float: true }.html_class()
+        }
+        None => "",
+    };
 
-    // Only valid for float left/right
-    if let Some(align) = align {
-        let image_align = FloatAlignment { align, float: true };
+    ctx.html()
+        .div()
+        .attr(attr!(
+            "id" => "wj-toc",
+            "class" => class_value; if align.is_some();;
+            attributes
+        ))
+        .contents(|ctx| {
+            // TOC buttons
+            ctx.html()
+                .div()
+                .attr(attr!("id" => "wj-toc-action-bar"))
+                .contents(|ctx| {
+                    // TODO button
+                    ctx.html().a().attr(attr!(
+                        "href" => "javascript:;",
+                        "onclick" => "WIKIJUMP.page.listeners.foldToc(event)",
+                    ));
+                });
 
-        tag.attr("class", &[image_align.html_class()]);
-    }
+            // TOC Heading
+            let table_of_contents_title =
+                ctx.handle()
+                    .get_message(log, ctx.language(), "table-of-contents");
 
-    tag.contents(|ctx| {
-        // TOC buttons
-        ctx.html()
-            .div()
-            .attr("id", &["wj-toc-action-bar"])
-            .contents(|ctx| {
-                // TODO button
-                ctx.html()
-                    .a()
-                    .attr("href", &["javascript:;"])
-                    .attr("onclick", &["WIKIJUMP.page.listeners.foldToc(event)"]);
-            });
+            ctx.html()
+                .div()
+                .attr(attr!("class" => "title"))
+                .inner(log, &table_of_contents_title);
 
-        // TOC Heading
-        let table_of_contents_title =
-            ctx.handle()
-                .get_message(log, ctx.language(), "table-of-contents");
+            // TOC List
+            let table_of_contents = &ctx.table_of_contents();
 
-        ctx.html()
-            .div()
-            .attr("class", &["title"])
-            .inner(log, &table_of_contents_title);
-
-        // TOC List
-        let table_of_contents = &ctx.table_of_contents();
-
-        ctx.html()
-            .div()
-            .attr("id", &["wj-toc-list"])
-            .inner(log, table_of_contents);
-    });
+            ctx.html()
+                .div()
+                .attr(attr!("id" => "wj-toc-list"))
+                .inner(log, table_of_contents);
+        });
 }

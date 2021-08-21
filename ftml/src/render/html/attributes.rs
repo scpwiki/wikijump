@@ -61,9 +61,9 @@ macro_rules! attr_map {
 macro_rules! attr {
     (
         $( $key:expr $( => $( $value:expr )+ )? $( ; if $condition:expr )? ),* $(,)?
-        $( ;; $attribute_map:expr )?
+        $( ;; $attribute_map:expr $(,)? )?
     ) => {
-        AddedAttributes {
+        $crate::render::html::element::AddedAttributes {
             entries: &[
                 $(
                     attr_entry!( $key, $( $( $value ),+ )? $( ; $condition )? )
@@ -85,8 +85,9 @@ fn attr_macro() {
     let _ = attr!("key" => "value" "parts" "third"; if true;; AttributeMap::new());
     let _ = attr!("key" => "value"; if true);
     let _ = attr!("key" => "value"; if true;; AttributeMap::new());
+    let _ = attr!(;; AttributeMap::new());
     let _ = attr!("key";; AttributeMap::new());
-    let _ = attr!("key" => "value";; ());
+    let _ = attr!("key" => "value";; AttributeMap::new());
 
     let _ = attr!(
         "key1" => "value1",
@@ -111,5 +112,12 @@ fn attr_macro() {
         "key2" => "value" "2",
         "key3" => "value3"; if false;;
         AttributeMap::new()
+    );
+
+    let _ = attr!(
+        "key1" => "value1"; if true,
+        "key2" => "value" "2",
+        "key3" => "value3"; if false;;
+        AttributeMap::new(),
     );
 }

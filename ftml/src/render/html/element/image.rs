@@ -49,28 +49,30 @@ pub fn render_image(
     );
 
     let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
-
-    let image_classes = match alignment {
-        Some(align) => ["wj-image-container", " ", align.html_class()],
-        None => ["wj-image-container", "", ""],
+    let align_class = match alignment {
+        Some(align) => align.html_class(),
+        None => "",
     };
 
     ctx.html()
         .div()
-        .attr("class", &image_classes)
+        .attr(attr!("class" => "wj-image-container" align_class))
         .contents(|ctx| {
             let build_image = |ctx: &mut HtmlContext| {
-                ctx.html()
-                    .img()
-                    .attr("src", &[&source_url])
-                    .attr("crossorigin", &[])
-                    .attr_map_prepend(attributes, ("class", "wj-image"));
+                ctx.html().img().attr(attr!(
+                    "src" => &source_url,
+                    "crossorigin";;
+                    attributes
+                ));
             };
 
             match link {
                 Some(link) => {
                     let url = normalize_link(link, ctx.handle());
-                    ctx.html().a().attr("href", &[&url]).contents(build_image);
+                    ctx.html()
+                        .a()
+                        .attr(attr!("href" => &url))
+                        .contents(build_image);
                 }
                 None => build_image(ctx),
             };
