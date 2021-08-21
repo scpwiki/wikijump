@@ -147,36 +147,38 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         if let Some(attribute_map) = attributes.map {
             let attribute_map = attribute_map.get();
 
-            for (key, value_parts) in attributes.entries {
-                if let Some(map_value) = attribute_map.get(cow_key!(key)) {
-                    // Merge keys by prepending value_parts before
-                    // the attribute map value.
+            for ((key, value_parts), accept) in attributes.entries {
+                if accept {
+                    if let Some(map_value) = attribute_map.get(cow_key!(key)) {
+                        // Merge keys by prepending value_parts before
+                        // the attribute map value.
 
-                    let mut value = String::new();
+                        let mut value = String::new();
 
-                    for value_part in *value_parts {
-                        value.push_str(value_part);
+                        for value_part in *value_parts {
+                            value.push_str(value_part);
+                        }
+
+                        value.push(' ');
+                        value.push_str(map_value);
+
+                        merged.insert(key, value);
                     }
-
-                    value.push(' ');
-                    value.push_str(map_value);
-
-                    merged.insert(key, value);
                 }
             }
         }
 
         // Add attributes from renderer.
-        for (key, value_parts) in attributes.entries {
-            if !merged.contains_key(cow_key!(key)) {
+        for ((key, value_parts), accept) in attributes.entries {
+            if accept && !merged.contains_key(cow_key!(key)) {
                 self.attr_single(key, value_parts);
             }
         }
 
         // Add attributes from user-provided map.
         if let Some(attribute_map) = attributes.map {
-            for (key, value) in attribute_map.get() {
-                if !merged.contains_key(cow_key!(key)) {
+            for ((key, value), accept) in attribute_map.get() {
+                if accept && !merged.contains_key(cow_key!(key)) {
                     self.attr_single(key, &[value]);
                 }
             }
