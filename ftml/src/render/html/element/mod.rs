@@ -33,6 +33,7 @@ mod text;
 mod user;
 
 mod prelude {
+    pub use super::super::attributes::AddedAttributes;
     pub use super::super::context::HtmlContext;
     pub use super::{render_element, render_elements};
     pub use crate::log::prelude::*;
