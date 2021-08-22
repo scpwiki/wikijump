@@ -57,20 +57,20 @@ impl TableRow<'_> {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct TableCell<'t> {
-    pub elements: Vec<Element<'t>>,
     pub header: bool,
     pub column_span: NonZeroU32,
     pub align: Option<Alignment>,
+    pub elements: Vec<Element<'t>>,
     pub attributes: AttributeMap<'t>,
 }
 
 impl TableCell<'_> {
     pub fn to_owned(&self) -> TableCell<'static> {
         TableCell {
-            elements: elements_to_owned(&self.elements),
             header: self.header,
             column_span: self.column_span,
             align: self.align,
+            elements: elements_to_owned(&self.elements),
             attributes: self.attributes.to_owned(),
         }
     }
