@@ -76,6 +76,13 @@ token = _{
     left_monospace |
     right_monospace |
 
+    // Tables
+    table_column_title |
+    table_column_left |
+    table_column_right |
+    table_column_center |
+    table_column |
+
     // Singular symbols
     clear_float_left |
     clear_float_right |
@@ -90,13 +97,6 @@ token = _{
     heading |
     bullet_item |
     numbered_item |
-
-    // Tables
-    table_column_title |
-    table_column_left |
-    table_column_right |
-    table_column_center |
-    table_column |
 
     // Whitespace
     paragraph_break |
