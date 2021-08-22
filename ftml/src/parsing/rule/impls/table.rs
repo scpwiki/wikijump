@@ -75,6 +75,8 @@ fn parse_row<'p, 'r, 't>(
 
     // Loop for each cell in the row
     'row: loop {
+        debug!(log, "Parsing next table cell"; "cells" => cells.len());
+
         let mut elements = Vec::new();
         let TableCellStart {
             align,
@@ -84,6 +86,8 @@ fn parse_row<'p, 'r, 't>(
 
         // Loop for each element in the cell
         'cell: loop {
+            debug!(log, "Parsing next element"; "elements" => elements.len());
+
             match next_two_tokens(parser) {
                 // Special case:
                 //
@@ -91,6 +95,8 @@ fn parse_row<'p, 'r, 't>(
                 // Since normally a newline will end the row, but we want a <br>
                 // in the cell contents.
                 (Token::Underscore, Some(Token::LineBreak | Token::ParagraphBreak)) => {
+                    trace!(log, "Handling newline escape in table");
+
                     elements.push(Element::LineBreak);
                     parser.step_n(2)?;
                 }
@@ -104,6 +110,8 @@ fn parse_row<'p, 'r, 't>(
                     | Token::TableColumnRight,
                     Some(next),
                 ) => {
+                    trace!(log, "Ending row or cell"; "next-token" => next.name());
+
                     match next {
                         // We cannot accept a ParagraphBreak since
                         // that would form a separate table.
@@ -116,6 +124,8 @@ fn parse_row<'p, 'r, 't>(
 
                 // Ignore leading whitespace
                 (Token::Whitespace, _) if elements.is_empty() => {
+                    trace!(log, "Ignoring leading whitespace");
+
                     parser.step()?;
                     continue 'cell;
                 }
@@ -131,17 +141,23 @@ fn parse_row<'p, 'r, 't>(
                         | Token::TableColumnRight,
                     ),
                 ) => {
+                    trace!(log, "Ignoring trailing whitespace");
+
                     parser.step()?;
                     continue 'cell;
                 }
 
                 // Invalid tokens
                 (Token::LineBreak | Token::ParagraphBreak | Token::InputEnd, _) => {
+                    trace!(log, "Invalid termination tokens in table, failing");
+
                     return Err(parser.make_warn(ParseWarningKind::RuleFailed))
                 }
 
                 // Consume tokens like normal
                 _ => {
+                    trace!(log, "Consuming cell contents as elements");
+
                     let new_elements = consume(log, parser)?
                         .chain(&mut exceptions, &mut _paragraph_break);
 
