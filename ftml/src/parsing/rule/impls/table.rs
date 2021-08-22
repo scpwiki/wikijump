@@ -217,14 +217,25 @@ fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning>
             }
 
             // Regular column, terminal
-            _ if span > 0 => break (None, false),
+            _ if span > 1 => break (None, false),
 
             // No span depth, just an invalid token
             _ => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
         }
     };
 
-    let column_span = NonZeroU32::new(span).expect("Column span was zero");
+    // Essentially, if span is its initial value, then this means
+    // it's a 1-wide cell which terminates immediately on not-TableColumn.
+    //
+    // For instance, a 1-wide TableColumnTitle won't ever go through
+    // the code path where span is incremented. But since we know the
+    // intent / default is a width of 1, we can just set it here.
+
+    if span == 0 {
+        span = 1;
+    }
+
+    let column_span = NonZeroU32::new(span).unwrap();
 
     Ok(TableCellStart {
         align,

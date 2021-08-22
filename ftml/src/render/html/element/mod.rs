@@ -28,8 +28,8 @@ mod input;
 mod link;
 mod list;
 mod table;
-mod toc;
 mod text;
+mod toc;
 mod user;
 
 mod prelude {
@@ -48,8 +48,8 @@ use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::table::render_table;
-use self::toc::render_table_of_contents;
 use self::text::{render_code, render_email, render_wikitext_raw};
+use self::toc::render_table_of_contents;
 use self::user::render_user;
 use super::super::condition::{check_ifcategory, check_iftags};
 use super::attributes::AddedAttributes;
