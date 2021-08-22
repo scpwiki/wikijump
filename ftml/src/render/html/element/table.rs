@@ -57,7 +57,7 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
                                 .attr(attr!(
                                     "column-span" => &column_span_buf;
                                         if cell.column_span > value_one,
-                                    "class" => align_class;;
+                                    "class" => align_class; if cell.align.is_some();;
                                     &cell.attributes,
                                 ))
                                 .inner(log, &elements);
