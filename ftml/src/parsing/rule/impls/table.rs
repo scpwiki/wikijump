@@ -74,7 +74,7 @@ fn parse_row<'p, 'r, 't>(
     let mut _paragraph_break = false;
 
     // Loop for each cell in the row
-    'cell: loop {
+    'row: loop {
         let mut elements = Vec::new();
         let TableCellStart {
             align,
@@ -83,7 +83,7 @@ fn parse_row<'p, 'r, 't>(
         } = parse_cell_start(parser)?;
 
         // Loop for each element in the cell
-        'row: loop {
+        'cell: loop {
             match next_two_tokens(parser) {
                 // Special case:
                 //
@@ -94,7 +94,7 @@ fn parse_row<'p, 'r, 't>(
                     elements.push(Element::LineBreak);
                 }
 
-                // End the cell or row.
+                // End the cell or row
                 (
                     Token::TableColumn
                     | Token::TableColumnTitle
@@ -113,12 +113,27 @@ fn parse_row<'p, 'r, 't>(
                     }
                 }
 
+                // Ignore leading whitespace
+                (Token::Whitespace, _) if elements.is_empty() => continue 'cell,
+
+                // Ignore trailing whitespace
+                (
+                    Token::Whitespace,
+                    Some(
+                        Token::TableColumn
+                        | Token::TableColumnTitle
+                        | Token::TableColumnLeft
+                        | Token::TableColumnCenter
+                        | Token::TableColumnRight,
+                    ),
+                ) => continue 'cell,
+
                 // Invalid tokens
                 (Token::LineBreak | Token::ParagraphBreak | Token::InputEnd, _) => {
                     return Err(parser.make_warn(ParseWarningKind::RuleFailed))
                 }
 
-                // Consume tokens like normal.
+                // Consume tokens like normal
                 _ => {
                     let new_elements = consume(log, parser)?
                         .chain(&mut exceptions, &mut _paragraph_break);
