@@ -120,6 +120,27 @@ resource "aws_iam_policy" "ecs_iam_instance" {
                 "ssm:GetParameter"
             ],
             "Resource": "*"
+        },
+        {
+          "Effect": "Allow",
+            "Action": [
+                "s3:RestoreObject",
+                "s3:ReplicateObject",
+                "s3:ReplicateDelete",
+                "s3:PutObject*",
+                "s3:PutLifecycleConfiguration",
+                "s3:PutBucket*"
+                "s3:ListBucket",
+                "s3:GetObject*"
+                "s3:GetBucket*",
+                "s3:DeleteObjectVersion",
+                "s3:DeleteObject",
+                "s3:AbortMultipartUpload",
+            ],
+            "Resource": [
+                "${aws_s3_bucket.wikijump_assets.arn}",
+                "${aws_s3_bucket.wikijump_assets.arn}/*"
+            ]
         }
     ]
 }
