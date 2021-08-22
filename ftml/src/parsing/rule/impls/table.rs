@@ -92,6 +92,7 @@ fn parse_row<'p, 'r, 't>(
                 // in the cell contents.
                 (Token::Underscore, Some(Token::LineBreak | Token::ParagraphBreak)) => {
                     elements.push(Element::LineBreak);
+                    parser.step_n(2)?;
                 }
 
                 // End the cell or row
@@ -114,7 +115,10 @@ fn parse_row<'p, 'r, 't>(
                 }
 
                 // Ignore leading whitespace
-                (Token::Whitespace, _) if elements.is_empty() => continue 'cell,
+                (Token::Whitespace, _) if elements.is_empty() => {
+                    parser.step()?;
+                    continue 'cell;
+                }
 
                 // Ignore trailing whitespace
                 (
@@ -126,7 +130,10 @@ fn parse_row<'p, 'r, 't>(
                         | Token::TableColumnCenter
                         | Token::TableColumnRight,
                     ),
-                ) => continue 'cell,
+                ) => {
+                    parser.step()?;
+                    continue 'cell;
+                }
 
                 // Invalid tokens
                 (Token::LineBreak | Token::ParagraphBreak | Token::InputEnd, _) => {
