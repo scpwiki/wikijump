@@ -28,7 +28,7 @@ mod input;
 mod link;
 mod list;
 mod table;
-mod table_of_contents;
+mod toc;
 mod text;
 mod user;
 
@@ -48,7 +48,7 @@ use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::table::render_table;
-use self::table_of_contents::render_table_of_contents;
+use self::toc::render_table_of_contents;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use self::user::render_user;
 use super::super::condition::{check_ifcategory, check_iftags};

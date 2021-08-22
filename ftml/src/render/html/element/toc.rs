@@ -1,5 +1,5 @@
 /*
- * render/html/element/table_of_contents.rs
+ * render/html/element/toc.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
