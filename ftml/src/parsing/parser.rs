@@ -38,6 +38,9 @@ pub struct Parser<'r, 't> {
     // Logger instance
     log: Logger,
 
+    // Page information
+    page_info: &'r PageInfo<'t>,
+
     // Parse state
     current: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
@@ -72,7 +75,11 @@ impl<'r, 't> Parser<'r, 't> {
     ///
     /// All other instances should be `.clone()` or `.clone_with_rule()`d from
     /// the main instance used during parsing.
-    pub(crate) fn new(log: &Logger, tokenization: &'r Tokenization<'t>) -> Self {
+    pub(crate) fn new(
+        log: &Logger,
+        page_info: &'r PageInfo<'t>,
+        tokenization: &'r Tokenization<'t>,
+    ) -> Self {
         let log = Logger::clone(log);
         let full_text = tokenization.full_text();
         let (current, remaining) = tokenization
@@ -85,6 +92,7 @@ impl<'r, 't> Parser<'r, 't> {
 
         Parser {
             log,
+            page_info,
             current,
             remaining,
             full_text,
@@ -101,6 +109,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn log(&self) -> Logger {
         Logger::clone(&self.log)
+    }
+
+    #[inline]
+    pub fn page_info(&self) -> &PageInfo<'t> {
+        self.page_info
     }
 
     #[inline]
@@ -165,23 +178,11 @@ impl<'r, 't> Parser<'r, 't> {
         heading: HeadingLevel,
         name_elements: &[Element],
     ) {
-        // TODO provide real PageInfo
-        let info = PageInfo {
-            page: cow!("table-of-contents"),
-            category: None,
-            site: cow!(""),
-            title: cow!("Table of Contents"),
-            alt_title: None,
-            rating: 0.0,
-            tags: vec![],
-            language: cow!("unknown"),
-        };
-
         // Headings are 1-indexed (e.g. H1), but depth lists are 0-indexed
         let level = usize::from(heading.value()) - 1;
 
         // Render name as text, so it lacks formatting
-        let name = TextRender.render_partial(&self.log, &info, name_elements);
+        let name = TextRender.render_partial(&self.log, self.page_info, name_elements);
 
         self.table_of_contents.borrow_mut().push((level, (), name));
     }
@@ -388,11 +389,12 @@ fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
 #[test]
 fn parser_newline_flag() {
     let log = &crate::build_logger();
+    let page_info = PageInfo::dummy();
 
     macro_rules! check {
         ($input:expr, $expected_steps:expr $(,)?) => {{
             let tokens = crate::tokenize(log, $input);
-            let mut parser = Parser::new(log, &tokens);
+            let mut parser = Parser::new(log, &page_info, &tokens);
             let mut actual_steps = Vec::new();
 
             // Iterate through the tokens.

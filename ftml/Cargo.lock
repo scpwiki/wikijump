@@ -309,7 +309,7 @@ dependencies = [
 
 [[package]]
 name = "ftml"
-version = "1.3.0"
+version = "1.3.1"
 dependencies = [
  "built",
  "cbindgen",

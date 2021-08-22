@@ -47,7 +47,7 @@ fn render<R: Render>(
 
     crate::preprocess(log, &mut text);
     let tokens = crate::tokenize(log, &text);
-    let (tree, warnings) = crate::parse(log, &tokens).into();
+    let (tree, warnings) = crate::parse(log, &page_info, &tokens).into();
     let output = renderer.render(log, &page_info, &tree);
     (output, warnings)
 }

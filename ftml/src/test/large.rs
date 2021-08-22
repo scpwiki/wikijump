@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::data::PageInfo;
 use crate::parsing::{ParseWarningKind, Token};
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
@@ -30,6 +31,7 @@ use std::borrow::Cow;
 #[test]
 fn recursion_depth() {
     let log = crate::build_logger();
+    let page_info = PageInfo::dummy();
 
     // Build wikitext input
     let mut input = String::new();
@@ -45,7 +47,7 @@ fn recursion_depth() {
     // Run parser steps
     crate::preprocess(&log, &mut input);
     let tokens = crate::tokenize(&log, &input);
-    let (tree, warnings) = crate::parse(&log, &tokens).into();
+    let (tree, warnings) = crate::parse(&log, &page_info, &tokens).into();
 
     // Check outputted warnings
     let warning = warnings.get(0).expect("No warnings produced");
@@ -72,6 +74,7 @@ fn large_payload() {
     const ITERATIONS: usize = 50;
 
     let log = crate::build_logger();
+    let page_info = PageInfo::dummy();
 
     // Build wikitext input
     let mut input = String::new();
@@ -97,7 +100,7 @@ In hac habitasse platea dictumst. Vestibulum fermentum libero nec erat porttitor
     // Run parser steps
     crate::preprocess(&log, &mut input);
     let tokens = crate::tokenize(&log, &input);
-    let (_tree, warnings) = crate::parse(&log, &tokens).into();
+    let (_tree, warnings) = crate::parse(&log, &page_info, &tokens).into();
 
     // Check output
     assert_eq!(warnings.len(), ITERATIONS * 3);
