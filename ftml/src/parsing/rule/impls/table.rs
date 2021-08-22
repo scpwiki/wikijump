@@ -45,143 +45,133 @@ fn try_consume_fn<'p, 'r, 't>(
     let mut exceptions = Vec::new();
     let mut _paragraph_break = false;
 
-    loop {
-        let row = parse_row(log, parser)? //
-            .chain(&mut exceptions, &mut _paragraph_break);
+    'table: loop {
+        debug!(log, "Parsing next table row");
 
-        match row {
-            Some(row) => rows.push(row),
-            None => break,
+        let mut cells = Vec::new();
+
+        // Loop for each cell in the row
+        'row: loop {
+            debug!(log, "Parsing next table cell"; "cells" => cells.len());
+
+            let mut elements = Vec::new();
+            let TableCellStart {
+                align,
+                header,
+                column_span,
+            } = parse_cell_start(parser)?;
+
+            // Loop for each element in the cell
+            'cell: loop {
+                debug!(log, "Parsing next element"; "elements" => elements.len());
+
+                match next_two_tokens(parser) {
+                    // Special case:
+                    //
+                    // If there is "_\n" next, then treat this as a newline insertion.
+                    // Since normally a newline will end the row, but we want a <br>
+                    // in the cell contents.
+                    (
+                        Token::Underscore,
+                        Some(Token::LineBreak | Token::ParagraphBreak),
+                    ) => {
+                        trace!(log, "Handling newline escape in table");
+
+                        elements.push(Element::LineBreak);
+                        parser.step_n(2)?;
+                    }
+
+                    // End the cell or row
+                    (
+                        Token::TableColumn
+                        | Token::TableColumnTitle
+                        | Token::TableColumnLeft
+                        | Token::TableColumnCenter
+                        | Token::TableColumnRight,
+                        Some(next),
+                    ) => {
+                        trace!(log, "Ending cell, row, or table"; "next-token" => next.name());
+
+                        match next {
+                            // End the table entirely, there's a newline in between.
+                            Token::ParagraphBreak => break 'table,
+
+                            // Only end the row, continue the table.
+                            Token::LineBreak | Token::InputEnd => break 'row,
+
+                            // Otherwise, the cell is finished, and we proceed to the next one.
+                            _ => break 'cell,
+                        }
+                    }
+
+                    // Ignore leading whitespace
+                    (Token::Whitespace, _) if elements.is_empty() => {
+                        trace!(log, "Ignoring leading whitespace");
+
+                        parser.step()?;
+                        continue 'cell;
+                    }
+
+                    // Ignore trailing whitespace
+                    (
+                        Token::Whitespace,
+                        Some(
+                            Token::TableColumn
+                            | Token::TableColumnTitle
+                            | Token::TableColumnLeft
+                            | Token::TableColumnCenter
+                            | Token::TableColumnRight,
+                        ),
+                    ) => {
+                        trace!(log, "Ignoring trailing whitespace");
+
+                        parser.step()?;
+                        continue 'cell;
+                    }
+
+                    // Invalid tokens
+                    (Token::LineBreak | Token::ParagraphBreak | Token::InputEnd, _) => {
+                        trace!(log, "Invalid termination tokens in table, failing");
+
+                        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+                    }
+
+                    // Consume tokens like normal
+                    _ => {
+                        trace!(log, "Consuming cell contents as elements");
+
+                        let new_elements = consume(log, parser)?
+                            .chain(&mut exceptions, &mut _paragraph_break);
+
+                        elements.extend(new_elements);
+                    }
+                }
+            }
+
+            // Build table cell
+            cells.push(TableCell {
+                elements,
+                header,
+                column_span,
+                align,
+                attributes: AttributeMap::new(),
+            });
         }
+
+        // Build table row
+        rows.push(TableRow {
+            cells,
+            attributes: AttributeMap::new(),
+        });
     }
 
+    // Build table
     let table = Table {
         rows,
         attributes: AttributeMap::new(),
     };
 
     ok!(false; Element::Table(table), exceptions)
-}
-
-fn parse_row<'p, 'r, 't>(
-    log: &Logger,
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Option<TableRow<'t>>> {
-    debug!(log, "Trying to parse simple table row");
-
-    let mut cells = Vec::new();
-    let mut exceptions = Vec::new();
-    let mut _paragraph_break = false;
-
-    // Loop for each cell in the row
-    'row: loop {
-        debug!(log, "Parsing next table cell"; "cells" => cells.len());
-
-        let mut elements = Vec::new();
-        let TableCellStart {
-            align,
-            header,
-            column_span,
-        } = parse_cell_start(parser)?;
-
-        // Loop for each element in the cell
-        'cell: loop {
-            debug!(log, "Parsing next element"; "elements" => elements.len());
-
-            match next_two_tokens(parser) {
-                // Special case:
-                //
-                // If there is "_\n" next, then treat this as a newline insertion.
-                // Since normally a newline will end the row, but we want a <br>
-                // in the cell contents.
-                (Token::Underscore, Some(Token::LineBreak | Token::ParagraphBreak)) => {
-                    trace!(log, "Handling newline escape in table");
-
-                    elements.push(Element::LineBreak);
-                    parser.step_n(2)?;
-                }
-
-                // End the cell or row
-                (
-                    Token::TableColumn
-                    | Token::TableColumnTitle
-                    | Token::TableColumnLeft
-                    | Token::TableColumnCenter
-                    | Token::TableColumnRight,
-                    Some(next),
-                ) => {
-                    trace!(log, "Ending row or cell"; "next-token" => next.name());
-
-                    match next {
-                        // We cannot accept a ParagraphBreak since
-                        // that would form a separate table.
-                        Token::LineBreak | Token::InputEnd => break 'row,
-
-                        // Otherwise, the cell is finished, and we proceed to the next one.
-                        _ => break 'cell,
-                    }
-                }
-
-                // Ignore leading whitespace
-                (Token::Whitespace, _) if elements.is_empty() => {
-                    trace!(log, "Ignoring leading whitespace");
-
-                    parser.step()?;
-                    continue 'cell;
-                }
-
-                // Ignore trailing whitespace
-                (
-                    Token::Whitespace,
-                    Some(
-                        Token::TableColumn
-                        | Token::TableColumnTitle
-                        | Token::TableColumnLeft
-                        | Token::TableColumnCenter
-                        | Token::TableColumnRight,
-                    ),
-                ) => {
-                    trace!(log, "Ignoring trailing whitespace");
-
-                    parser.step()?;
-                    continue 'cell;
-                }
-
-                // Invalid tokens
-                (Token::LineBreak | Token::ParagraphBreak | Token::InputEnd, _) => {
-                    trace!(log, "Invalid termination tokens in table, failing");
-
-                    return Err(parser.make_warn(ParseWarningKind::RuleFailed))
-                }
-
-                // Consume tokens like normal
-                _ => {
-                    trace!(log, "Consuming cell contents as elements");
-
-                    let new_elements = consume(log, parser)?
-                        .chain(&mut exceptions, &mut _paragraph_break);
-
-                    elements.extend(new_elements);
-                }
-            }
-        }
-
-        // Build table cell
-        cells.push(TableCell {
-            elements,
-            header,
-            column_span,
-            align,
-            attributes: AttributeMap::new(),
-        });
-    }
-
-    let row = TableRow {
-        cells,
-        attributes: AttributeMap::new(),
-    };
-
-    ok!(false; Some(row), exceptions)
 }
 
 /// Parse out the cell settings from the start.
