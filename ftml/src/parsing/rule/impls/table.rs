@@ -131,7 +131,10 @@ fn try_consume_fn<'p, 'r, 't>(
                             }
 
                             // Otherwise, the cell is finished, and we proceed to the next one.
-                            _ => break 'cell,
+                            _ => {
+                                parser.step()?;
+                                break 'cell;
+                            }
                         }
                     }
 
