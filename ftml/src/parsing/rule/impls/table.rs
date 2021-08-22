@@ -117,10 +117,7 @@ fn try_consume_fn<'p, 'r, 't>(
                             // End the table entirely, there's a newline in between,
                             // or it's the end of input.
                             Token::ParagraphBreak | Token::InputEnd => {
-                                if next != Token::InputEnd {
-                                    parser.step()?;
-                                }
-
+                                parser.step()?;
                                 build_cell!();
                                 build_row!();
                                 break 'table;
@@ -129,7 +126,6 @@ fn try_consume_fn<'p, 'r, 't>(
                             // Only end the row, continue the table.
                             Token::LineBreak => {
                                 parser.step()?;
-
                                 build_cell!();
                                 break 'row;
                             }
@@ -204,7 +200,7 @@ fn try_consume_fn<'p, 'r, 't>(
 /// here, their span, which is specified by having multiple
 /// `Token::TableColumn` (`||`) adjacent together.
 fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning> {
-    let mut span = 1;
+    let mut span = 0;
 
     let (align, header) = loop {
         match parser.current().token {
@@ -221,17 +217,19 @@ fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning>
             }
 
             // Regular column, terminal
-            _ if span > 1 => break (None, false),
+            _ if span > 0 => break (None, false),
 
             // No span depth, just an invalid token
             _ => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
         }
     };
 
+    let column_span = NonZeroU32::new(span).expect("Column span was zero");
+
     Ok(TableCellStart {
         align,
         header,
-        column_span: NonZeroU32::new(span).unwrap(),
+        column_span,
     })
 }
 
