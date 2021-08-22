@@ -50,6 +50,15 @@ fn try_consume_fn<'p, 'r, 't>(
 
         let mut cells = Vec::new();
 
+        macro_rules! build_row {
+            () => {
+                rows.push(TableRow {
+                    cells,
+                    attributes: AttributeMap::new(),
+                })
+            };
+        }
+
         // Loop for each cell in the row
         'row: loop {
             debug!(log, "Parsing next table cell"; "cells" => cells.len());
@@ -60,6 +69,18 @@ fn try_consume_fn<'p, 'r, 't>(
                 header,
                 column_span,
             } = parse_cell_start(parser)?;
+
+            macro_rules! build_cell {
+                () => {
+                    cells.push(TableCell {
+                        elements,
+                        header,
+                        column_span,
+                        align,
+                        attributes: AttributeMap::new(),
+                    })
+                };
+            }
 
             // Loop for each element in the cell
             'cell: loop {
@@ -100,11 +121,8 @@ fn try_consume_fn<'p, 'r, 't>(
                                     parser.step()?;
                                 }
 
-                                rows.push(TableRow {
-                                    cells,
-                                    attributes: AttributeMap::new(),
-                                });
-
+                                build_cell!();
+                                build_row!();
                                 break 'table;
                             }
 
@@ -112,14 +130,7 @@ fn try_consume_fn<'p, 'r, 't>(
                             Token::LineBreak => {
                                 parser.step()?;
 
-                                cells.push(TableCell {
-                                    elements,
-                                    header,
-                                    column_span,
-                                    align,
-                                    attributes: AttributeMap::new(),
-                                });
-
+                                build_cell!();
                                 break 'row;
                             }
 
@@ -172,21 +183,10 @@ fn try_consume_fn<'p, 'r, 't>(
                 }
             }
 
-            // Build table cell
-            cells.push(TableCell {
-                elements,
-                header,
-                column_span,
-                align,
-                attributes: AttributeMap::new(),
-            });
+            build_cell!();
         }
 
-        // Build table row
-        rows.push(TableRow {
-            cells,
-            attributes: AttributeMap::new(),
-        });
+        build_row!();
     }
 
     // Build table
