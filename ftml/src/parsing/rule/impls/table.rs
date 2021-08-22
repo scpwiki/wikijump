@@ -93,11 +93,35 @@ fn try_consume_fn<'p, 'r, 't>(
                         trace!(log, "Ending cell, row, or table"; "next-token" => next.name());
 
                         match next {
-                            // End the table entirely, there's a newline in between.
-                            Token::ParagraphBreak => break 'table,
+                            // End the table entirely, there's a newline in between,
+                            // or it's the end of input.
+                            Token::ParagraphBreak | Token::InputEnd => {
+                                if next != Token::InputEnd {
+                                    parser.step()?;
+                                }
+
+                                rows.push(TableRow {
+                                    cells,
+                                    attributes: AttributeMap::new(),
+                                });
+
+                                break 'table;
+                            }
 
                             // Only end the row, continue the table.
-                            Token::LineBreak | Token::InputEnd => break 'row,
+                            Token::LineBreak => {
+                                parser.step()?;
+
+                                cells.push(TableCell {
+                                    elements,
+                                    header,
+                                    column_span,
+                                    align,
+                                    attributes: AttributeMap::new(),
+                                });
+
+                                break 'row;
+                            }
 
                             // Otherwise, the cell is finished, and we proceed to the next one.
                             _ => break 'cell,
@@ -213,7 +237,7 @@ fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning>
 
 fn next_two_tokens(parser: &Parser) -> (Token, Option<Token>) {
     let first = parser.current().token;
-    let second = parser.look_ahead(1).map(|next| next.token);
+    let second = parser.look_ahead(0).map(|next| next.token);
 
     (first, second)
 }
