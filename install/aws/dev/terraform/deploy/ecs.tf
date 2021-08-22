@@ -68,11 +68,11 @@ resource "aws_ecs_task_definition" "wikijump_task" {
     host_path = "/var/run/docker.sock"
   }
   volume {
-    name = "proc"
+    name      = "proc"
     host_path = "/proc"
   }
   volume {
-    name = "cgroup"
+    name      = "cgroup"
     host_path = "/cgroup"
   }
   volume {
@@ -88,15 +88,15 @@ resource "aws_ecs_task_definition" "wikijump_task" {
     }
   }
   volume {
-    name = "debug"
+    name      = "debug"
     host_path = "/sys/kernel/debug"
   }
   volume {
-    name = "pointdir"
+    name      = "pointdir"
     host_path = "/opt/datadog-agent/run"
   }
   volume {
-    name = "containers_root"
+    name      = "containers_root"
     host_path = "/var/lib/docker/containers"
   }
 }
@@ -120,5 +120,5 @@ resource "aws_ecs_service" "wikijump" {
     container_port   = 80
   }
   health_check_grace_period_seconds = 0
-  tags = {}
+  tags                              = {}
 }

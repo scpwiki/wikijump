@@ -17,9 +17,9 @@ module "cache" {
   }
 
   docker_labels = {
-    "com.datadoghq.ad.check_names" = "[\"mcache\"]",
+    "com.datadoghq.ad.check_names"  = "[\"mcache\"]",
     "com.datadoghq.ad.init_configs" = "[{}]",
-    "com.datadoghq.ad.instances" = "{\"url\":\"%%host%%\",\"port\":\"11211\"}"
+    "com.datadoghq.ad.instances"    = "{\"url\":\"%%host%%\",\"port\":\"11211\"}"
   }
 }
 
@@ -42,16 +42,16 @@ module "database" {
   }
 
   docker_labels = {
-    "com.datadoghq.ad.logs" = "[{\"source\": \"postgres\", \"service\": \"postgres\"}]",
-    "com.datadoghq.ad.check_names"="[\"postgres\"]",
+    "com.datadoghq.ad.logs"         = "[{\"source\": \"postgres\", \"service\": \"postgres\"}]",
+    "com.datadoghq.ad.check_names"  = "[\"postgres\"]",
     "com.datadoghq.ad.init_configs" = "[{}]",
-    "com.datadoghq.ad.instances"="[{\"host\":\"%%host%%\", \"port\":5432,\"username\":\"datadog\",\"password\":\"Ge07mcovAKvIT9WM\"}]"
+    "com.datadoghq.ad.instances"    = "[{\"host\":\"%%host%%\", \"port\":5432,\"username\":\"datadog\",\"password\":\"Ge07mcovAKvIT9WM\"}]"
   }
   healthcheck = {
-    command = ["CMD-SHELL", "pg_isready -d wikijump -U wikijump"]
-    retries = 6
-    timeout = 5
-    interval = 5
+    command     = ["CMD-SHELL", "pg_isready -d wikijump -U wikijump"]
+    retries     = 6
+    timeout     = 5
+    interval    = 5
     startPeriod = 0
   }
 }
@@ -81,10 +81,10 @@ module "nginx" {
     "traefik.http.routers.php-fpm.rule"             = "Host(`${var.web_domain}`,`www.${var.web_domain}`,`${var.files_domain}`,`www.${var.files_domain}`)"
     "traefik.http.routers.php-fpm.tls"              = "true"
     "traefik.http.routers.php-fpm.tls.certresolver" = "mytlschallenge",
-    "com.datadoghq.ad.logs" = "[{\"source\": \"nginx\", \"service\": \"nginx\", \"path\": \"/var/log/nginx/*.log\"}]",
-    "com.datadoghq.ad.check_names" = "[\"nginx\"]",
-    "com.datadoghq.ad.init_configs" = "[{}]",
-    "com.datadoghq.ad.instances" = "[{\"nginx_status_url\": \"http://%%host%%:81/nginx_status/\"}]"
+    "com.datadoghq.ad.logs"                         = "[{\"source\": \"nginx\", \"service\": \"nginx\", \"path\": \"/var/log/nginx/*.log\"}]",
+    "com.datadoghq.ad.check_names"                  = "[\"nginx\"]",
+    "com.datadoghq.ad.init_configs"                 = "[{}]",
+    "com.datadoghq.ad.instances"                    = "[{\"nginx_status_url\": \"http://%%host%%:81/nginx_status/\"}]"
   }
 
   healthcheck = {
@@ -139,10 +139,10 @@ module "php-fpm" {
   ]
 
   docker_labels = {
-    "com.datadoghq.ad.logs" = "[{\"source\": \"php\", \"service\": \"php\", \"path\": [\"/var/log/php/error.log\", \"/var/www/wikijump/web/logs/ozone.log\", \"/var/www/wikijump/web/storage/logs/*.log\"]}]",
-    "com.datadoghq.ad.check_names" = "[\"php_fpm\"]",
+    "com.datadoghq.ad.logs"         = "[{\"source\": \"php\", \"service\": \"php\", \"path\": [\"/var/log/php/error.log\", \"/var/www/wikijump/web/logs/ozone.log\", \"/var/www/wikijump/web/storage/logs/*.log\"]}]",
+    "com.datadoghq.ad.check_names"  = "[\"php_fpm\"]",
     "com.datadoghq.ad.init_configs" = "[{}]",
-    "com.datadoghq.ad.instances" = "{\"status_url\":\"http://%%host%%/status\",\"ping_url\":\"http://%%host%%/ping\", \"use_fastcgi\": false, \"ping_reply\": \"pong\"}"
+    "com.datadoghq.ad.instances"    = "{\"status_url\":\"http://%%host%%/status\",\"ping_url\":\"http://%%host%%/ping\", \"use_fastcgi\": false, \"ping_reply\": \"pong\"}"
   }
 }
 
@@ -153,41 +153,41 @@ module "datadog" {
   container_image              = "gcr.io/datadoghq/agent:7"
   container_memory_reservation = var.ecs_datadog_memory / 8
   essential                    = false
-  environment                  = [
+  environment = [
     {
-      name      = "DD_API_KEY"
+      name  = "DD_API_KEY"
       value = var.datadog_api_key
     },
     {
-      name      = "DD_SITE"
+      name  = "DD_SITE"
       value = var.datadog_site
     },
     {
-      name = "DD_APM_ENABLED"
+      name  = "DD_APM_ENABLED"
       value = true
     },
     {
-      name = "DD_APM_NON_LOCAL_TRAFFIC"
+      name  = "DD_APM_NON_LOCAL_TRAFFIC"
       value = true
     },
     {
-      name = "DD_SYSTEM_PROBE_ENABLED"
+      name  = "DD_SYSTEM_PROBE_ENABLED"
       value = false
     },
     {
-      name = "DD_PROCESS_AGENT_ENABLED"
+      name  = "DD_PROCESS_AGENT_ENABLED"
       value = true
     },
     {
-      name = "DD_LOGS_ENABLED"
+      name  = "DD_LOGS_ENABLED"
       value = true
     },
     {
-      name = "DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL"
+      name  = "DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL"
       value = true
     },
     {
-      name = "DD_LOGS_CONFIG_DOCKER_CONTAINER_USE_FILE"
+      name  = "DD_LOGS_CONFIG_DOCKER_CONTAINER_USE_FILE"
       value = true
     }
   ]
@@ -221,19 +221,19 @@ module "datadog" {
       readOnly      = true
     },
     {
-      sourceVolume = "debug"
+      sourceVolume  = "debug"
       containerPath = "/sys/kernel/debug"
-      readOnly = true
+      readOnly      = true
     },
     {
-      sourceVolume = "pointdir"
+      sourceVolume  = "pointdir"
       containerPath = "/opt/datadog-agent/run"
-      readOnly = false
+      readOnly      = false
     },
     {
-      sourceVolume = "containers_root"
+      sourceVolume  = "containers_root"
       containerPath = "/var/lib/docker/containers"
-      readOnly = true
+      readOnly      = true
     }
   ]
 
@@ -248,12 +248,12 @@ module "datadog" {
       ]
       drop = []
     }
-    "devices" = []
+    "devices"            = []
     "initProcessEnabled" = true
     "maxSwap"            = null
     "sharedMemorySize"   = null
     "swappiness"         = null
-    "tmpfs" = []
+    "tmpfs"              = []
   }
 }
 
