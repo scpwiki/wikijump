@@ -117,27 +117,25 @@ fn try_consume_fn<'p, 'r, 't>(
                         match next {
                             // End the table entirely, there's a newline in between,
                             // or it's the end of input.
+                            //
+                            // For both ending the table and the row, we must step
+                            // to consume the final table column token.
                             Token::ParagraphBreak | Token::InputEnd => {
-                                parser.step()?;
                                 build_cell!();
                                 build_row!();
+                                parser.step()?;
                                 break 'table;
                             }
 
                             // Only end the row, continue the table.
                             Token::LineBreak => {
-                                parser.step()?;
                                 build_cell!();
-                                build_row!();
+                                parser.step()?;
                                 break 'row;
                             }
 
                             // Otherwise, the cell is finished, and we proceed to the next one.
-                            _ => {
-                                parser.step()?;
-                                build_cell!();
-                                break 'cell;
-                            }
+                            _ => break 'cell,
                         }
                     }
 
