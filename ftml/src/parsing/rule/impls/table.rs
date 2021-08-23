@@ -244,8 +244,8 @@ fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning>
         }
     };
 
-    let column_span = NonZeroU32::new(span)
-        .expect("Cell start exited without column span");
+    let column_span =
+        NonZeroU32::new(span).expect("Cell start exited without column span");
 
     Ok(TableCellStart {
         align,
