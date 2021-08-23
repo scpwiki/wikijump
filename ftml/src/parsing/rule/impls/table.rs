@@ -239,7 +239,7 @@ fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning>
             Token::TableColumn => increase_span!(),
 
             // Regular column, terminal
-            _ if span > 1 => break (None, false),
+            _ if span > 0 => break (None, false),
 
             // No span depth, just an invalid token
             _ => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
