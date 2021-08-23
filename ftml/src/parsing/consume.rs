@@ -44,7 +44,6 @@ pub fn consume<'p, 'r, 't>(
         "slice" => str!(parser.current().slice),
         "span" => SpanWrap::from(&parser.current().span),
         "remaining-len" => parser.remaining().len(),
-        "start-of-line" => parser.start_of_line(),
     ));
 
     // Incrementing recursion depth
