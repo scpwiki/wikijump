@@ -1,0 +1,81 @@
+{
+    "input": "|| apple || banana ||= cherry ||\n||||||~ triple ||",
+    "tree": {
+        "elements": [
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {},
+                    "rows": [
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "apple"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "banana"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": "center",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "cherry"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": true,
+                                    "column-span": 3,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "triple"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
