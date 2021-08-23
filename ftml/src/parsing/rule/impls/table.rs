@@ -130,7 +130,7 @@ fn try_consume_fn<'p, 'r, 't>(
                             // Only end the row, continue the table.
                             Token::LineBreak => {
                                 build_cell!();
-                                parser.step()?;
+                                parser.step_n(2)?;
                                 break 'row;
                             }
 
