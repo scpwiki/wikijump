@@ -135,7 +135,7 @@ resource "aws_iam_policy" "ecs_iam_instance" {
                 "s3:GetBucket*",
                 "s3:DeleteObjectVersion",
                 "s3:DeleteObject",
-                "s3:AbortMultipartUpload",
+                "s3:AbortMultipartUpload"
             ],
             "Resource": [
                 "${aws_s3_bucket.wikijump_assets.arn}",
