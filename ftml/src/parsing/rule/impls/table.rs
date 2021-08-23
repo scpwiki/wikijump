@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::tree::{Alignment, Table, TableCell, TableRow};
+use std::mem;
 use std::num::NonZeroU32;
 
 #[derive(Debug)]
@@ -53,7 +54,7 @@ fn try_consume_fn<'p, 'r, 't>(
         macro_rules! build_row {
             () => {
                 rows.push(TableRow {
-                    cells,
+                    cells: mem::take(&mut cells),
                     attributes: AttributeMap::new(),
                 })
             };
@@ -73,7 +74,7 @@ fn try_consume_fn<'p, 'r, 't>(
             macro_rules! build_cell {
                 () => {
                     cells.push(TableCell {
-                        elements,
+                        elements: mem::take(&mut elements),
                         header,
                         column_span,
                         align,
@@ -127,12 +128,14 @@ fn try_consume_fn<'p, 'r, 't>(
                             Token::LineBreak => {
                                 parser.step()?;
                                 build_cell!();
+                                build_row!();
                                 break 'row;
                             }
 
                             // Otherwise, the cell is finished, and we proceed to the next one.
                             _ => {
                                 parser.step()?;
+                                build_cell!();
                                 break 'cell;
                             }
                         }
