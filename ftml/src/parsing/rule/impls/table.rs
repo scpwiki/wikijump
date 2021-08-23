@@ -205,19 +205,35 @@ fn try_consume_fn<'p, 'r, 't>(
 fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning> {
     let mut span = 0;
 
+    macro_rules! increase_span {
+        () => {{
+            span += 1;
+            parser.step()?;
+        }};
+    }
+
     let (align, header) = loop {
         match parser.current().token {
             // Style cases, terminal
-            Token::TableColumnTitle => break (None, true),
-            Token::TableColumnLeft => break (Some(Alignment::Left), false),
-            Token::TableColumnCenter => break (Some(Alignment::Center), false),
-            Token::TableColumnRight => break (Some(Alignment::Right), false),
+            Token::TableColumnTitle => {
+                increase_span!();
+                break (None, true);
+            }
+            Token::TableColumnLeft => {
+                increase_span!();
+                break (Some(Alignment::Left), false);
+            }
+            Token::TableColumnCenter => {
+                increase_span!();
+                break (Some(Alignment::Center), false);
+            }
+            Token::TableColumnRight => {
+                increase_span!();
+                break (Some(Alignment::Right), false);
+            }
 
             // Regular column, iterate to see if it has a span
-            Token::TableColumn => {
-                span += 1;
-                parser.step()?;
-            }
+            Token::TableColumn => increase_span!(),
 
             // Regular column, terminal
             _ if span > 1 => break (None, false),
@@ -227,18 +243,8 @@ fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning>
         }
     };
 
-    // Essentially, if span is its initial value, then this means
-    // it's a 1-wide cell which terminates immediately on not-TableColumn.
-    //
-    // For instance, a 1-wide TableColumnTitle won't ever go through
-    // the code path where span is incremented. But since we know the
-    // intent / default is a width of 1, we can just set it here.
-
-    if span == 0 {
-        span = 1;
-    }
-
-    let column_span = NonZeroU32::new(span).unwrap();
+    let column_span = NonZeroU32::new(span)
+        .expect("Cell start exited without column span");
 
     Ok(TableCellStart {
         align,
