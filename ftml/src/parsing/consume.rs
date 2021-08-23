@@ -86,6 +86,12 @@ pub fn consume<'p, 'r, 't>(
                 return Ok(output);
             }
             Err(warning) => {
+                trace!(
+                    log,
+                    "Rule failed, returning warning";
+                    "warning" => warning.kind().name(),
+                );
+
                 all_exceptions.push(ParseException::Warning(warning));
             }
         }
