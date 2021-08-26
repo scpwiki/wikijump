@@ -61,10 +61,10 @@ fn try_consume_fn<'p, 'r, 't>(
         }
 
         macro_rules! finish_table {
-            ($error:expr) => {
+            () => {
                 if rows.is_empty() {
                     // No rows were successfully parsed, fail.
-                    return Err($error);
+                    return Err(parser.make_warn(ParseWarningKind::RuleFailed));
                 } else {
                     // At least one row was created, end it here.
                     break 'table;
@@ -81,18 +81,9 @@ fn try_consume_fn<'p, 'r, 't>(
                 align,
                 header,
                 column_span,
-            } = match parse_cell_start(parser) {
-                Ok(cell_start) => cell_start,
-                Err(warning) => {
-                    if warning.kind() == ParseWarningKind::RuleFailed {
-                        // If we failed to find the next table cell, we should finish.
-                        finish_table!(warning);
-                    } else {
-                        // Otherwise, carry forward the error.
-                        // (It's probably just "hit end of input")
-                        return Err(warning);
-                    }
-                }
+            } = match parse_cell_start(parser)? {
+                Some(cell_start) => cell_start,
+                None => finish_table!(),
             };
 
             macro_rules! build_cell {
@@ -188,8 +179,7 @@ fn try_consume_fn<'p, 'r, 't>(
                     // Invalid tokens
                     (Token::LineBreak | Token::ParagraphBreak | Token::InputEnd, _) => {
                         trace!(log, "Invalid termination tokens in table, ending");
-
-                        finish_table!(parser.make_warn(ParseWarningKind::RuleFailed));
+                        finish_table!();
                     }
 
                     // Consume tokens like normal
@@ -224,7 +214,13 @@ fn try_consume_fn<'p, 'r, 't>(
 /// Cells have a few settings, such as alignment, and most importantly
 /// here, their span, which is specified by having multiple
 /// `Token::TableColumn` (`||`) adjacent together.
-fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning> {
+///
+/// If `Ok(None)` is returned, then the end of the input wasn't reached,
+/// but this is not a valid cell start.
+///
+/// This is not an `Err(_)` case, because this may simply signal the end
+/// of the table if it already has rows.
+fn parse_cell_start(parser: &mut Parser) -> Result<Option<TableCellStart>, ParseWarning> {
     let mut span = 0;
 
     macro_rules! increase_span {
@@ -261,18 +257,18 @@ fn parse_cell_start(parser: &mut Parser) -> Result<TableCellStart, ParseWarning>
             _ if span > 0 => break (None, false),
 
             // No span depth, just an invalid token
-            _ => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
+            _ => return Ok(None),
         }
     };
 
     let column_span =
         NonZeroU32::new(span).expect("Cell start exited without column span");
 
-    Ok(TableCellStart {
+    Ok(Some(TableCellStart {
         align,
         header,
         column_span,
-    })
+    }))
 }
 
 fn next_two_tokens(parser: &Parser) -> (Token, Option<Token>) {
