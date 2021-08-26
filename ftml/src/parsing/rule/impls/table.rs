@@ -166,9 +166,15 @@ fn try_consume_fn<'p, 'r, 't>(
 
                     // Invalid tokens
                     (Token::LineBreak | Token::ParagraphBreak | Token::InputEnd, _) => {
-                        trace!(log, "Invalid termination tokens in table, failing");
+                        trace!(log, "Invalid termination tokens in table, ending");
 
-                        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+                        if rows.is_empty() {
+                            // No rows were successfully parsed, fail.
+                            return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+                        } else {
+                            // At least one row was created, end it here.
+                            break 'table;
+                        }
                     }
 
                     // Consume tokens like normal
