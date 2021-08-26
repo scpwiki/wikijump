@@ -23,7 +23,7 @@ use crate::tree::AttributeMap;
 type AttributeValue<'a> = &'a [&'a str];
 type AttributeEntry<'a> = (&'a str, AttributeValue<'a>);
 
-/// Helper struct produced by `attr!()` to make setting attributs easier.
+/// Helper struct produced by `attr!()` to make setting attributes easier.
 #[derive(Debug)]
 pub struct AddedAttributes<'a> {
     pub entries: &'a [(AttributeEntry<'a>, bool)],
