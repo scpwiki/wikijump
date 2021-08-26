@@ -1,0 +1,164 @@
+{
+    "input": "|| durian ||~|| wide ||\n\n||> blueberry\n-----\n|| eggplant  ||||",
+    "tree": {
+        "elements": [
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {},
+                    "rows": [
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "durian"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "header": true,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": []
+                                },
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "wide"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "||>"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "blueberry"
+                        }
+                    ],
+                    "attributes": {}
+                }
+            },
+            {
+                "element": "horizontal-rule"
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "||"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "eggplant"
+                        },
+                        {
+                            "element": "text",
+                            "data": "  "
+                        },
+                        {
+                            "element": "text",
+                            "data": "||"
+                        },
+                        {
+                            "element": "text",
+                            "data": "||"
+                        }
+                    ],
+                    "attributes": {}
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "line-break",
+            "rule": "table",
+            "span": [38, 39],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "table-column-right",
+            "rule": "fallback",
+            "span": [25, 28],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "input-end",
+            "rule": "table",
+            "span": [62, 62],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "table-column",
+            "rule": "fallback",
+            "span": [45, 47],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "table-column",
+            "rule": "page",
+            "span": [58, 60],
+            "kind": "not-start-of-line"
+        },
+        {
+            "token": "table-column",
+            "rule": "fallback",
+            "span": [58, 60],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "table-column",
+            "rule": "page",
+            "span": [60, 62],
+            "kind": "not-start-of-line"
+        },
+        {
+            "token": "table-column",
+            "rule": "fallback",
+            "span": [60, 62],
+            "kind": "no-rules-match"
+        }
+    ]
+}
