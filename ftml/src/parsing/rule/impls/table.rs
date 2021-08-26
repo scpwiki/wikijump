@@ -95,7 +95,7 @@ fn try_consume_fn<'p, 'r, 't>(
                     // in the cell contents.
                     (
                         Token::Underscore,
-                        Some(Token::LineBreak | Token::ParagraphBreak),
+                        Some(Token::LineBreak),
                     ) => {
                         trace!(log, "Handling newline escape in table");
 
