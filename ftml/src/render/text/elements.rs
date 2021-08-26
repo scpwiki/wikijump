@@ -118,6 +118,8 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.push_str(" ||");
                 ctx.add_newline();
             }
+
+            ctx.add_newline();
         }
         Element::Anchor {
             elements,
