@@ -334,6 +334,9 @@ fn ast_and_html() {
 
     // Ensure we don't accidentally commit excluded tests
     if !SKIP_TESTS.is_empty() || !ONLY_TESTS.is_empty() {
+        println!("Files are being skipped, returning failure.");
+        println!("Remember to re-enable all tests before committing!");
+
         process::exit(2);
     }
 }
