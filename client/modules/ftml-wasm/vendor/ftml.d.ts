@@ -22,15 +22,16 @@ export function tokenize(text: string): Tokenization;
 */
 export function version(): string;
 /**
+* @param {PageInfo} page_info
+* @param {Tokenization} tokens
+* @returns {ParseOutcome}
+*/
+export function parse(page_info: PageInfo, tokens: Tokenization): ParseOutcome;
+/**
 * @param {string} text
 * @returns {string}
 */
 export function preprocess(text: string): string;
-/**
-* @param {Tokenization} tokens
-* @returns {ParseOutcome}
-*/
-export function parse(tokens: Tokenization): ParseOutcome;
 
 
 export interface IHtmlOutput {
@@ -50,6 +51,10 @@ export interface IBacklinks {
     internal_links: string[];
     external_links: string[];
 }
+
+
+
+
 
 export interface IPageInfo {
     page: string;
@@ -241,7 +246,16 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly __wbg_htmloutput_free: (a: number) => void;
+  readonly htmloutput_copy: (a: number) => number;
+  readonly htmloutput_body: (a: number, b: number) => void;
+  readonly htmloutput_styles: (a: number) => number;
+  readonly htmloutput_html_meta: (a: number) => number;
+  readonly htmloutput_backlinks: (a: number) => number;
+  readonly render_html: (a: number, b: number) => number;
+  readonly render_text: (a: number, b: number, c: number) => void;
   readonly __wbg_pageinfo_free: (a: number) => void;
+  readonly pageinfo_copy: (a: number) => number;
   readonly pageinfo_new: (a: number) => number;
   readonly pageinfo_page: (a: number, b: number) => void;
   readonly pageinfo_category: (a: number, b: number) => void;
@@ -251,15 +265,6 @@ export interface InitOutput {
   readonly pageinfo_rating: (a: number) => number;
   readonly pageinfo_tags: (a: number) => number;
   readonly pageinfo_language: (a: number, b: number) => void;
-  readonly __wbg_htmloutput_free: (a: number) => void;
-  readonly htmloutput_copy: (a: number) => number;
-  readonly htmloutput_body: (a: number, b: number) => void;
-  readonly htmloutput_styles: (a: number) => number;
-  readonly htmloutput_html_meta: (a: number) => number;
-  readonly htmloutput_backlinks: (a: number) => number;
-  readonly render_html: (a: number, b: number) => number;
-  readonly render_text: (a: number, b: number, c: number) => void;
-  readonly pageinfo_copy: (a: number) => number;
   readonly __wbg_utf16indexmap_free: (a: number) => void;
   readonly utf16indexmap_new: (a: number, b: number) => number;
   readonly utf16indexmap_copy: (a: number) => number;
@@ -270,14 +275,14 @@ export interface InitOutput {
   readonly tokenization_tokens: (a: number) => number;
   readonly tokenize: (a: number, b: number) => number;
   readonly version: (a: number) => void;
-  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbg_parseoutcome_free: (a: number) => void;
   readonly parseoutcome_copy: (a: number) => number;
   readonly parseoutcome_syntax_tree: (a: number) => number;
   readonly parseoutcome_warnings: (a: number) => number;
   readonly __wbg_syntaxtree_free: (a: number) => void;
   readonly syntaxtree_data: (a: number) => number;
-  readonly parse: (a: number) => number;
+  readonly parse: (a: number, b: number) => number;
+  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly syntaxtree_copy: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
