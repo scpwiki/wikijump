@@ -60,6 +60,18 @@ fn try_consume_fn<'p, 'r, 't>(
             };
         }
 
+        macro_rules! finish_table {
+            ($error:expr) => {
+                if rows.is_empty() {
+                    // No rows were successfully parsed, fail.
+                    return Err($error);
+                } else {
+                    // At least one row was created, end it here.
+                    break 'table;
+                }
+            };
+        }
+
         // Loop for each cell in the row
         'row: loop {
             debug!(log, "Parsing next table cell"; "cells" => cells.len());
@@ -69,7 +81,19 @@ fn try_consume_fn<'p, 'r, 't>(
                 align,
                 header,
                 column_span,
-            } = parse_cell_start(parser)?;
+            } = match parse_cell_start(parser) {
+                Ok(cell_start) => cell_start,
+                Err(warning) => {
+                    if warning.kind() == ParseWarningKind::RuleFailed {
+                        // If we failed to find the next table cell, we should finish.
+                        finish_table!(warning);
+                    } else {
+                        // Otherwise, carry forward the error.
+                        // (It's probably just "hit end of input")
+                        return Err(warning);
+                    }
+                }
+            };
 
             macro_rules! build_cell {
                 () => {
@@ -168,13 +192,7 @@ fn try_consume_fn<'p, 'r, 't>(
                     (Token::LineBreak | Token::ParagraphBreak | Token::InputEnd, _) => {
                         trace!(log, "Invalid termination tokens in table, ending");
 
-                        if rows.is_empty() {
-                            // No rows were successfully parsed, fail.
-                            return Err(parser.make_warn(ParseWarningKind::RuleFailed));
-                        } else {
-                            // At least one row was created, end it here.
-                            break 'table;
-                        }
+                        finish_table!(parser.make_warn(ParseWarningKind::RuleFailed));
                     }
 
                     // Consume tokens like normal
