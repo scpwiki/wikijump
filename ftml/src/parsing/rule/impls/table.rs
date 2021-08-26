@@ -117,10 +117,7 @@ fn try_consume_fn<'p, 'r, 't>(
                     // If there is "_\n" next, then treat this as a newline insertion.
                     // Since normally a newline will end the row, but we want a <br>
                     // in the cell contents.
-                    (
-                        Token::Underscore,
-                        Some(Token::LineBreak),
-                    ) => {
+                    (Token::Underscore, Some(Token::LineBreak)) => {
                         trace!(log, "Handling newline escape in table");
 
                         elements.push(Element::LineBreak);
