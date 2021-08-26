@@ -54,6 +54,15 @@ fn line_break<'p, 'r, 't>(
                 | Token::NumberedItem
                 | Token::Heading
                 | Token::Equals
+                | Token::TripleDash
+                | Token::ClearFloatLeft
+                | Token::ClearFloatRight
+                | Token::ClearFloatBoth
+                | Token::TableColumn
+                | Token::TableColumnLeft
+                | Token::TableColumnRight
+                | Token::TableColumnCenter
+                | Token::TableColumnTitle
         ))
     });
 
