@@ -55,9 +55,14 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
                             ctx.html()
                                 .table_cell(cell.header)
                                 .attr(attr!(
+                                    // Add column span if not default (1)
                                     "colspan" => &column_span_buf;
                                         if cell.column_span > value_one,
-                                    "class" => align_class; if cell.align.is_some();;
+
+                                    // Add alignment if specified
+                                    "class" => align_class;
+                                        if cell.align.is_some();;
+
                                     &cell.attributes,
                                 ))
                                 .inner(log, &elements);
