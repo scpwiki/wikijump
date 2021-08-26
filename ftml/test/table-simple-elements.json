@@ -1,0 +1,185 @@
+{
+    "input": "[\n\n||~ **Bold** stuff, //and also// ##blue|color##! ||\n||No_spaces||\n||<[[span style=\"font-weight: bold;\"]]SPAN[[/span]] ||\n\n]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {},
+                    "rows": [
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": true,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "container",
+                                            "data": {
+                                                "type": "bold",
+                                                "attributes": {},
+                                                "elements": [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "Bold"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": " "
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": "stuff"
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": ","
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": " "
+                                        },
+                                        {
+                                            "element": "container",
+                                            "data": {
+                                                "type": "italics",
+                                                "attributes": {},
+                                                "elements": [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "and"
+                                                    },
+                                                    {
+                                                        "element": "text",
+                                                        "data": " "
+                                                    },
+                                                    {
+                                                        "element": "text",
+                                                        "data": "also"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": " "
+                                        },
+                                        {
+                                            "element": "color",
+                                            "data": {
+                                                "color": "blue",
+                                                "elements": [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "color"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": "!"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "No"
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": "_"
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": "spaces"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": "left",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "container",
+                                            "data": {
+                                                "type": "span",
+                                                "attributes": {
+                                                    "style": "font-weight: bold;"
+                                                },
+                                                "elements": [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "SPAN"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
