@@ -165,3 +165,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-516](https://scuttle.atlassian.net/browse/WJ-516) (merged as part of [WJ-506](https://scuttle.atlassian.net/browse/WJ-506))
 * What it did: Allowed users to add "social bookmarks" via services like del.icio.us.
 * Why it was removed: Almost certainly broken, wasn't an active rule in Text\_Wiki, and half of the bookmark sites here are defunct.
+
+## PHP: `WikidotAdmin/ManageUsersModule`
+* Where it was: [web/php/Modules/WikidotAdmin/ManageUsers](https://github.com/scpwiki/wikijump/blob/19b276f3d56519eb717ebd52d5b7a940d415e7ac/web/php/Modules/WikidotAdmin/ManageUsersModule.php)
+* Relevant Issues: [WJ-444](https://scuttle.atlassian.net/browse/WJ-444), [WJ-509](https://scuttle.atlassian.net/browse/WJ-509)
+* What it did: It collects every single user in the database, presenting them as a single (unpaginated) table for a platform administrator to set permissions on.
+* Why it was removed: `O(n)` performance on all users is very poor, and absolutely not scalable for Wikijump. Since the user refactor was occurring at the same time and it would've taken substantial work to fix this module, it was simply cut.
