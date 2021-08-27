@@ -32,6 +32,11 @@ ecs_traefik_memory = 512
 ecs_traefik_cpu    = 512
 ecs_traefik_image  = "traefik:v2.4"
 
+# S3
+# Note: You MUST change these prefixes, they're globally unique (and already in use).
+s3_asset_bucket_prefix   = "wikijump-assets"
+s3_elb_log_bucket_prefix = "wikijump-elb-logs"
+
 # Misc
 letsencrypt_email = "info@wikijump.com"
 

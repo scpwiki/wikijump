@@ -142,3 +142,12 @@ variable "datadog_site" {
   type    = string
   default = "datadoghq.com"
 }
+
+variable "s3_asset_bucket_prefix" {
+  type    = string
+  default = ""
+}
+variable "s3_elb_log_bucket_prefix" {
+  type    = string
+  default = ""
+}
