@@ -97,7 +97,7 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini && \
     #  Set time servers to AWS NTP provider
-    sed -i '1s/^/server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4\n/' /etc/chrony/chrony.conf
+    sed -i '1s/^/server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4\n/' /etc/chrony/chrony.conf && \
 
     # Run composer install to install the dependencies
     composer install \
