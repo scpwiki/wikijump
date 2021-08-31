@@ -35,6 +35,7 @@ use std::borrow::Cow;
 use std::fs::{self, File};
 use std::io::Read;
 use std::path::{Path, PathBuf};
+use std::process;
 use void::ResultVoidExt;
 
 /// Temporary measure to not run certain tests.
@@ -329,5 +330,13 @@ fn ast_and_html() {
     println!("Running {} syntax tree tests:", tests.len());
     for test in tests {
         test.run(&log);
+    }
+
+    // Ensure we don't accidentally commit excluded tests
+    if !SKIP_TESTS.is_empty() || !ONLY_TESTS.is_empty() {
+        println!("Files are being skipped, returning failure.");
+        println!("Remember to re-enable all tests before committing!");
+
+        process::exit(2);
     }
 }

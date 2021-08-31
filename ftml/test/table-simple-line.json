@@ -1,0 +1,79 @@
+{
+    "input": "|| A_\nB || C_ || _D ||",
+    "tree": {
+        "elements": [
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {},
+                    "rows": [
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "A"
+                                        },
+                                        {
+                                            "element": "line-break"
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": "B"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "C"
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": "_"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "_"
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": "D"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -36,16 +36,18 @@ pub fn render_anchor(
         "target" => target_str(target),
     );
 
-    let mut tag = ctx.html().a();
+    let target_value = match target {
+        Some(target) => target.html_attr(),
+        None => "",
+    };
 
-    // Set <a> attributes
-    if let Some(target) = target {
-        tag.attr("target", &[target.html_attr()]);
-    }
-    tag.attr_map(attributes);
-
-    // Add <a> internals
-    tag.inner(log, &elements);
+    ctx.html()
+        .a()
+        .attr(attr!(
+            "target" => target_value; if target.is_some();;
+            attributes
+        ))
+        .inner(log, &elements);
 }
 
 pub fn render_link(
@@ -68,14 +70,16 @@ pub fn render_link(
     ctx.add_link(link);
 
     let url = normalize_link(link, ctx.handle());
+    let target_value = match target {
+        Some(target) => target.html_attr(),
+        None => "",
+    };
 
-    // Create <a> and set attributes
     let mut tag = ctx.html().a();
-    tag.attr("href", &[&url]);
-
-    if let Some(target) = target {
-        tag.attr("target", &[target.html_attr()]);
-    }
+    tag.attr(attr!(
+        "href" => &url,
+        "target" => target_value; if target.is_some(),
+    ));
 
     // Add <a> internals, i.e. the link name
     handle.get_link_label(log, link, label, |label| {

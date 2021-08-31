@@ -35,18 +35,12 @@ pub fn render_radio_button(
         "checked" => checked,
     );
 
-    // Create <input> tag
-    let mut tag = ctx.html().input();
-
-    // Add attributes
-    tag.attr("name", &[name]);
-    tag.attr("type", &["radio"]);
-
-    if checked {
-        tag.attr("checked", &[]);
-    }
-
-    tag.attr_map(attributes);
+    ctx.html().input().attr(attr!(
+        "name" => name,
+        "type" => "radio",
+        "checked"; if checked;;
+        attributes,
+    ));
 }
 
 pub fn render_checkbox(
@@ -61,15 +55,9 @@ pub fn render_checkbox(
         "checked" => checked,
     );
 
-    // Create <input> tag
-    let mut tag = ctx.html().input();
-
-    // Add attributes
-    tag.attr("type", &["checkbox"]);
-
-    if checked {
-        tag.attr("checked", &[]);
-    }
-
-    tag.attr_map(attributes);
+    ctx.html().input().attr(attr!(
+        "type" => "checkbox",
+        "checked"; if checked;;
+        attributes,
+    ));
 }

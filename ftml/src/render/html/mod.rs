@@ -21,6 +21,8 @@
 #[cfg(test)]
 mod test;
 
+#[macro_use]
+mod attributes;
 mod builder;
 mod context;
 mod element;

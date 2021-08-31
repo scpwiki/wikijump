@@ -78,8 +78,11 @@ lazy_static! {
             Token::RightLink => vec![],
 
             // Tables
-            Token::TableColumn => vec![RULE_TODO], // TODO
-            Token::TableColumnTitle => vec![RULE_TODO], // TODO
+            Token::TableColumn => vec![RULE_TABLE],
+            Token::TableColumnLeft => vec![RULE_TABLE],
+            Token::TableColumnRight => vec![RULE_TABLE],
+            Token::TableColumnCenter => vec![RULE_TABLE],
+            Token::TableColumnTitle => vec![RULE_TABLE],
 
             // Text components
             Token::Identifier => vec![RULE_TEXT],

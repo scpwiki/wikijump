@@ -183,6 +183,22 @@ export function version() {
 }
 
 /**
+* @param {PageInfo} page_info
+* @param {Tokenization} tokens
+* @returns {ParseOutcome}
+*/
+export function parse(page_info, tokens) {
+    _assertClass(page_info, PageInfo);
+    var ptr0 = page_info.ptr;
+    page_info.ptr = 0;
+    _assertClass(tokens, Tokenization);
+    var ptr1 = tokens.ptr;
+    tokens.ptr = 0;
+    var ret = wasm.parse(ptr0, ptr1);
+    return ParseOutcome.__wrap(ret);
+}
+
+/**
 * @param {string} text
 * @returns {string}
 */
@@ -199,18 +215,6 @@ export function preprocess(text) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(r0, r1);
     }
-}
-
-/**
-* @param {Tokenization} tokens
-* @returns {ParseOutcome}
-*/
-export function parse(tokens) {
-    _assertClass(tokens, Tokenization);
-    var ptr0 = tokens.ptr;
-    tokens.ptr = 0;
-    var ret = wasm.parse(ptr0);
-    return ParseOutcome.__wrap(ret);
 }
 
 /**
@@ -305,7 +309,7 @@ export class PageInfo {
     * @returns {PageInfo}
     */
     copy() {
-        var ret = wasm.htmloutput_copy(this.ptr);
+        var ret = wasm.pageinfo_copy(this.ptr);
         return PageInfo.__wrap(ret);
     }
     /**

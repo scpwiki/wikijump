@@ -1,0 +1,59 @@
+{
+    "input": "[\n|| Cell\n]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        },
+                        {
+                            "element": "text",
+                            "data": "||"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Cell"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "line-break",
+            "rule": "table",
+            "span": [9, 10],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "table-column",
+            "rule": "fallback",
+            "span": [2, 4],
+            "kind": "no-rules-match"
+        }
+    ]
+}

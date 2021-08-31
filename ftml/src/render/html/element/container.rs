@@ -32,12 +32,12 @@ pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Contain
 
     // Merge the class attribute with the container's class, if it conflicts
     match tag_spec {
-        HtmlTag::Tag(_) => tag.attr_map(container.attributes()),
+        HtmlTag::Tag(_) => tag.attr(attr!(;; container.attributes())),
         HtmlTag::TagAndClass { class, .. } => {
-            tag.attr_map_prepend(container.attributes(), ("class", class))
+            tag.attr(attr!("class" => class;; container.attributes()))
         }
         HtmlTag::TagAndId { id, .. } => {
-            tag.attr_map_prepend(container.attributes(), ("id", &id))
+            tag.attr(attr!("id" => &id;; container.attributes()))
         }
     };
 
@@ -60,6 +60,6 @@ pub fn render_color(
 
     ctx.html()
         .span()
-        .attr("style", &["color: ", color, ";"])
+        .attr(attr!("style" => "color: " color ";"))
         .inner(log, &elements);
 }

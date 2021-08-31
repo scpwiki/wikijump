@@ -99,6 +99,28 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
             ctx.push_str(text)
         }
+        Element::Table(table) => {
+            if !ctx.ends_with_newline() {
+                ctx.add_newline();
+            }
+
+            for row in &table.rows {
+                ctx.push_str("|| ");
+
+                for (i, cell) in row.cells.iter().enumerate() {
+                    render_elements(log, ctx, &cell.elements);
+
+                    if i < row.cells.len() - 1 {
+                        ctx.push_str(" || ");
+                    }
+                }
+
+                ctx.push_str(" ||");
+                ctx.add_newline();
+            }
+
+            ctx.add_newline();
+        }
         Element::Anchor {
             elements,
             attributes,

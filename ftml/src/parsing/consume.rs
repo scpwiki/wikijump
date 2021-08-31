@@ -55,12 +55,17 @@ pub fn consume<'p, 'r, 't>(
     let current = parser.current();
 
     for &rule in get_rules_for_token(current) {
-        info!(log, "Trying rule consumption for tokens"; "rule" => rule);
+        debug!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
         let old_remaining = parser.remaining();
         match rule.try_consume(log, parser) {
             Ok(output) => {
-                debug!(log, "Rule matched, returning generated result"; "rule" => rule);
+                info!(
+                    log,
+                    "Rule matched, returning generated result";
+                    "rule" => rule,
+                    "element" => format!("{:?}", output.item),
+                );
 
                 // If the pointer hasn't moved, we step one token.
                 if parser.same_pointer(old_remaining) {
@@ -80,6 +85,12 @@ pub fn consume<'p, 'r, 't>(
                 return Ok(output);
             }
             Err(warning) => {
+                trace!(
+                    log,
+                    "Rule failed, returning warning";
+                    "warning" => warning.kind().name(),
+                );
+
                 all_exceptions.push(ParseException::Warning(warning));
             }
         }

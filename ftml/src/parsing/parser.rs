@@ -337,7 +337,13 @@ impl<'r, 't> Parser<'r, 't> {
                 self.remaining = remaining;
                 Ok(current)
             }
-            None => Err(self.make_warn(ParseWarningKind::EndOfInput)),
+            None => {
+                trace!(
+                    self.log,
+                    "Exhausted all tokens, yielding end of input warning",
+                );
+                Err(self.make_warn(ParseWarningKind::EndOfInput))
+            }
         }
     }
 

@@ -131,9 +131,6 @@ pub enum ParseWarningKind {
     /// Attempting to process this rule failed because the end of input was reached.
     EndOfInput,
 
-    /// Temporary rule denoting that this syntactical construction isn't implemented yet.
-    NotImplemented,
-
     /// No rules match for these tokens, returning as plain text.
     NoRulesMatch,
 

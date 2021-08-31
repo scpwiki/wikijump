@@ -1,0 +1,76 @@
+{
+    "input": "|| Cell || X",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "||"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Cell"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "||"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "X"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "table",
+            "span": [12, 12],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "table-column",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "table-column",
+            "rule": "page",
+            "span": [8, 10],
+            "kind": "not-start-of-line"
+        },
+        {
+            "token": "table-column",
+            "rule": "fallback",
+            "span": [8, 10],
+            "kind": "no-rules-match"
+        }
+    ]
+}
