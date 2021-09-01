@@ -75,3 +75,19 @@ impl TableCell<'_> {
         }
     }
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum TableItem<'t> {
+    Row(TableRow<'t>),
+    Cell(TableCell<'t>),
+}
+
+impl TableItem<'_> {
+    pub fn to_owned(&self) -> TableItem<'static> {
+        match self {
+            TableItem::Row(row) => TableItem::Row(row.to_owned()),
+            TableItem::Cell(cell) => TableItem::Cell(cell.to_owned()),
+        }
+    }
+}

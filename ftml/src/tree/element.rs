@@ -24,7 +24,7 @@ use super::clone::{
 use super::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, ElementCondition,
     FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
-    Table,
+    Table, TableItem,
 };
 use ref_map::*;
 use std::borrow::Cow;
@@ -66,6 +66,12 @@ pub enum Element<'t> {
 
     /// An element representing an HTML table.
     Table(Table<'t>),
+
+    /// A particular portion of a table.
+    ///
+    /// This will not occur in final trees, but is a special
+    /// `Element` returned during parsing.
+    TableItem(TableItem<'t>),
 
     /// An element representing an arbitrary anchor.
     ///
@@ -244,6 +250,7 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Table(_) => "Table",
+            Element::TableItem(_) => "TableItem",
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::List { .. } => "List",
@@ -282,6 +289,7 @@ impl Element<'_> {
             Element::Module(_) => false,
             Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
             Element::Table(_) => false,
+            Element::TableItem(_) => false,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
             Element::ListItem(_) => false,
@@ -314,6 +322,7 @@ impl Element<'_> {
             Element::Raw(text) => Element::Raw(string_to_owned(text)),
             Element::Email(email) => Element::Email(string_to_owned(email)),
             Element::Table(table) => Element::Table(table.to_owned()),
+            Element::TableItem(item) => Element::TableItem(item.to_owned()),
             Element::Anchor {
                 elements,
                 attributes,
