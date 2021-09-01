@@ -121,6 +121,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
 
             ctx.add_newline();
         }
+        Element::TableItem(_) => panic!("Reached ancillary element: {:#?}", element),
         Element::Anchor {
             elements,
             attributes,
@@ -215,7 +216,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 }
             }
         }
-        Element::ListItem(_) => panic!("Reached ancillary element"),
+        Element::ListItem(_) => panic!("Reached ancillary element: {:#?}", element),
         Element::RadioButton { checked, .. } => {
             str_write!(ctx, "({}) ", if *checked { '*' } else { ' ' })
         }
