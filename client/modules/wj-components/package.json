@@ -23,8 +23,8 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "@iconify/iconify": "^2.0.2",
-    "@popperjs/core": "^2.9.2",
+    "@iconify/iconify": "^2.0.4",
+    "@popperjs/core": "^2.10.0",
     "ftml-wasm": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "morphdom": "^2.6.1",
@@ -34,6 +34,6 @@
     "wj-util": "workspace:*"
   },
   "devDependencies": {
-     "svelte": "^3.38.3"
+     "svelte": "^3.42.4"
    }
 }

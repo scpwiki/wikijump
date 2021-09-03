@@ -20,6 +20,6 @@
     "wj-util": "workspace:*"
   },
   "devDependencies": {
-    "svelte": "^3.38.3"
+    "svelte": "^3.42.4"
   }
 }
