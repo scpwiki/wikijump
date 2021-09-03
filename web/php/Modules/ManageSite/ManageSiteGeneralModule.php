@@ -7,6 +7,7 @@ use Wikidot\DB\AllowedTagsPeer;
 use Wikidot\DB\AllowedTags;
 use Wikidot\Utils\ManageSiteBaseModule;
 
+
 class ManageSiteGeneralModule extends ManageSiteBaseModule
 {
 
@@ -17,8 +18,10 @@ class ManageSiteGeneralModule extends ManageSiteBaseModule
         $siteId = $site->getSiteId();
 
         $allowedTags = AllowedTags::getAllowedTags($siteId);
+        $enableAllowedTags = AllowedTags::getEnableAllowedTags($siteId);
 
         $runData->contextAdd("allowedTags", $allowedTags);
+        $runData->contextAdd("enableAllowedTags", $enableAllowedTags);
         $runData->contextAdd("site", $site);
     }
 }

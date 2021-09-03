@@ -4,6 +4,8 @@ namespace Wikidot\DB;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\AllowedTagsPeer;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Object Model Class.
@@ -20,6 +22,11 @@ class AllowedTags extends AllowedTagsBase
             $allowedTags .= htmlspecialchars($dbTag->getTag()).' ';
         }
         return trim($allowedTags);
+    }
+
+    public static function getEnableAllowedTags($siteId): bool {
+        $enableAllowedTags = DB::table('site')->where('site_id', $siteId)->value('enable_allowed_tags');
+        return $enableAllowedTags;
     }
 
 }

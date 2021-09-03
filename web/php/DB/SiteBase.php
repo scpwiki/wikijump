@@ -18,7 +18,7 @@ class SiteBase extends BaseDBObject
         $this->tableName='site';
         $this->peerName = 'Wikidot\\DB\\SitePeer';
         $this->primaryKeyName = 'site_id';
-        $this->fieldNames = array( 'site_id' ,  'name' ,  'subtitle' ,  'unix_name' ,  'description' ,  'language' ,  'date_created' ,  'custom_domain' ,  'default_page' ,  'visible' ,  'private' ,  'deleted' , 'enableAllowedTags' );
+        $this->fieldNames = array( 'site_id' ,  'name' ,  'subtitle' ,  'unix_name' ,  'description' ,  'language' ,  'date_created' ,  'custom_domain' ,  'default_page' ,  'visible' ,  'private' ,  'deleted' , 'enable_allowed_tags' );
 
         //$this->fieldDefaultValues=
     }
@@ -162,11 +162,11 @@ class SiteBase extends BaseDBObject
 
     public function getEnableAllowedTags()
     {
-        return $this->getFieldValue('enableAllowedTags');
+        return $this->getFieldValue('enable_allowed_tags');
     }
 
     public function setEnableAllowedTags($v1, $raw = false)
     {
-        $this->setFieldValue('enableAllowedTags', $v1, $raw);
+        $this->setFieldValue('enable_allowed_tags', $v1, $raw);
     }
 }

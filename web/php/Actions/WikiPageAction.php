@@ -37,6 +37,10 @@ use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
 use Wikijump\Models\User;
 use Wikijump\Models\PageTags;
+use Wikijump\Models\Settings;
+use Illuminate\Support\Facades\DB;
+
+
 
 class WikiPageAction extends SmartyAction
 {
@@ -1396,8 +1400,9 @@ class WikiPageAction extends SmartyAction
         $tags = strtolower(trim($pl->getParameterValue("tags")));
         $pageId = $pl->getParameterValue("pageId");
 
-        $enableAllowedTags = $pl->getParameterValue("enableAllowedTags");
-        $settings->modify(['enableAllowedTags' => $enableAllowedTags]);
+        $site = $runData->getTemp("site");
+        $siteId = $site->getSiteId();
+        $enableAllowedTags = DB::table('site')->where('site_id', $siteId)->value('enable_allowed_tags');
 
         $site = $runData->getTemp("site");
 
@@ -1424,6 +1429,11 @@ class WikiPageAction extends SmartyAction
                 }
             }
         }
+
+        $tagsArray = explode(' ', $tags);
+        $siteId = $site->getSiteId();
+        $taglist = AllowedTags::getAllowedTags($siteId);
+        $taglist = explode(' ', $taglist);
 
         $db = Database::connection();
         $db->begin();

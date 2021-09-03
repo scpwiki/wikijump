@@ -39,8 +39,8 @@
 				{t}Allowed tags{/t}:
 			</td>
 			<td>
-				<input type="checkbox" name="enableAllowedTags" value="true" {if $enableAllowedTags}checked{/if}></input>
-				<input class="text" type="text" name="tags" size="40" value="{$defaultTags}"/>
+				<input type="checkbox" name="enable_allowed_tags" {if $enableAllowedTags}checked="true"{/if}></input>
+				<input class="text" type="text" name="tags" size="40" value="{$allowedTags}"/>
 				<div class="sub">
 					{t}These are the list of tags people can assign to pages.{/t}<br/>
 					{t}Separate by space.{/t}
