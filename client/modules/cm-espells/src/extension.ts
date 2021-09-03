@@ -1,8 +1,8 @@
 import { EditorField, underline } from "wj-codemirror"
 import { EditorView, hoverTooltip } from "wj-codemirror/cm"
+import espells from "./espells"
 import { misspelledTooltip } from "./hover"
 import { spellcheckLinterPlugin } from "./linter"
-import nspell from "./nspell"
 import { SpellcheckState } from "./state"
 
 /** Theme for the spellchecker extension. */
@@ -25,7 +25,7 @@ const theme = EditorView.baseTheme({
  * {@link SpellcheckFilter} function.
  */
 export const Spellcheck = new EditorField<SpellcheckState>({
-  default: new SpellcheckState(true, nspell.locale),
+  default: new SpellcheckState(true, espells.locale),
 
   // maps the decorations across document changes
   update: (state, tr, changed) => {
@@ -41,7 +41,7 @@ export const Spellcheck = new EditorField<SpellcheckState>({
       return false
     }
     if (!state.enabled) return null
-    nspell.set(state.locale)
+    espells.set(state.locale)
     return [
       spellcheckLinterPlugin,
       hoverTooltip(misspelledTooltip, { hideOnChange: true }),

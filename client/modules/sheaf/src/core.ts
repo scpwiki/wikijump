@@ -1,4 +1,4 @@
-import { Spellcheck } from "cm-nspell"
+import { Spellcheck } from "cm-espells"
 import { Writable, writable } from "svelte/store"
 import { Gutters, IndentHack } from "wj-codemirror"
 import {

@@ -11,7 +11,7 @@ const DEFAULT_LOCALE: Locale = {
   // 2. Single isolated characters
   // 3. Everything else, i.e. words of length >= 2
   // Includes numbers when matching, e.g. 50mm is matched.
-  pattern: /\p{Lu}\p{L}{1,3}\.|\p{L}(?![\p{L}\p{Nd}'’])|[\p{L}\p{Nd}][\p{L}\p{Nd}'’]*[\p{L}\p{Nd}]/gu,
+  pattern: /\p{Lu}\p{L}{1,3}\.|\p{L}(?![\p{L}\p{Nd}'’-])|[\p{L}\p{Nd}][\p{L}\p{Nd}'’-]*[\p{L}\p{Nd}]/gu,
   filters: [
       /^\p{L}\.?$/u,               // single characters
       /^\p{Nd}+\.?$/u,             // pure numbers

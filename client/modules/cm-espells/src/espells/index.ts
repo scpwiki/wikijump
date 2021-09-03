@@ -3,10 +3,10 @@ import { locale as i18nLocale, Pref } from "wj-state"
 import { dedupe } from "wj-util"
 import type { Word } from ".."
 import DICTIONARIES from "../dicts"
-import type { NSpellWorkerInterface } from "./nspell.worker"
+import type { EspellsWorkerInterface } from "./espells.worker"
 
-/** Class for instantiating a web-workerized NSpell instance. */
-export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
+/** Class for instantiating a web-workerized Espells instance. */
+export class EspellsWorker extends WorkerModule<EspellsWorkerInterface> {
   /** The current locale of the spellchecker. */
   declare locale: string
 
@@ -23,7 +23,7 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
    *   spellchecker.
    */
   constructor(locale = "en") {
-    super("nspell", importWorker, {
+    super("espells", importWorker, {
       persist: true,
       init: async () => void (await this.set(locale, true))
     })
@@ -51,7 +51,7 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
       // add local dictionary to spellchecker once it has started
       const localDictionary = this.getLocalDictionary()
       if (localDictionary.length) {
-        await this.invoke("personal", localDictionary)
+        await this.invoke("add", localDictionary)
       }
 
       this.locale = locale
@@ -72,18 +72,6 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
   async dictionary(url: string) {
     if (this.disabled) return
     await this.invoke("dictionary", url)
-  }
-
-  /**
-   * Adds a personal dictionary to the spellchecker. Similar to appending a
-   * normal dictionary, but words in the personal dictionary have some
-   * preferential treatment.
-   *
-   * @param words - The word(s) to add.
-   */
-  async personal(words: string | string[]) {
-    if (this.disabled) return
-    await this.invoke("personal", words)
   }
 
   /**
@@ -109,23 +97,22 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
   // -- SPELLCHECK
 
   /**
-   * Determines if a word is spelled correctly.
+   * Determines if a word meets three different criteria:
+   *
+   * - If the word is spelled correctly
+   * - If the word has been marked as forbidden
+   * - If the word has been marked as `WARN`
+   *
+   * These are the `correct`, `forbidden`, and `warn` properties of the
+   * returned object, respectively.
    *
    * @param word - The word to check.
+   * @param caseSensitive - If true, the spellchecker will consider the
+   *   capitalization of the word given. Defaults to true.
    */
-  async correct(word: string) {
+  async lookup(word: string, caseSensitive?: boolean) {
     if (this.disabled) return true
-    return await this.invoke("correct", transfer(word))
-  }
-
-  /**
-   * Returns an object containing metadata about a word.
-   *
-   * @param word - The word to check.
-   */
-  async info(word: string) {
-    if (this.disabled) return { correct: true, forbidden: false, warn: false }
-    return await this.invoke("info", transfer(word))
+    return await this.invoke("lookup", transfer(word), caseSensitive)
   }
 
   /**
@@ -155,10 +142,12 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
    * Takes in a list of words and returns the words that are misspelled.
    *
    * @param words - The words to check.
+   * @param caseSensitive - If true, the spellchecker will consider the
+   *   capitalization of the word given. Defaults to true.
    */
-  async misspelled(words: Word[]) {
+  async misspelled(words: Word[], caseSensitive?: boolean) {
     if (this.disabled) return []
-    return await this.invoke("misspelled", words)
+    return await this.invoke("misspelled", words, caseSensitive)
   }
 
   /**
@@ -166,21 +155,12 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
    * misspelled, warned, or forbidden.
    *
    * @param words - The words to check.
+   * @param caseSensitive - If true, the spellchecker will consider the
+   *   capitalization of the word given. Defaults to true.
    */
-  async check(words: Word[]) {
+  async check(words: Word[], caseSensitive?: boolean) {
     if (this.disabled) return []
-    return await this.invoke("check", words)
-  }
-
-  // -- MISC
-
-  /**
-   * Get the extra word characters defined by the loaded affix file. Most
-   * affix files don’t set these.
-   */
-  async wordCharacters() {
-    if (this.disabled) return null
-    return await this.invoke("wordCharacters")
+    return await this.invoke("check", words, caseSensitive)
   }
 
   // -- LOCAL DICTIONARY
@@ -222,12 +202,12 @@ export class NSpellWorker extends WorkerModule<NSpellWorkerInterface> {
   }
 }
 
-export default new NSpellWorker(i18nLocale)
+export default new EspellsWorker(i18nLocale)
 
 function localeLanguage(locale: string) {
   return locale.toLowerCase().split(/-|_/)[0]
 }
 
 async function importWorker() {
-  return (await import("./nspell.worker?bundled-worker")).default
+  return (await import("./espells.worker?bundled-worker")).default
 }
