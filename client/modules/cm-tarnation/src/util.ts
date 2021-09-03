@@ -3,7 +3,7 @@ import {
   Extension,
   LanguageDescription,
   LanguageSupport,
-  LezerLanguage
+  LRLanguage
 } from "wj-codemirror/cm"
 
 export interface CreateLezerLanguageOpts {
@@ -25,7 +25,7 @@ export function createLezerLanguage(opts: CreateLezerLanguageOpts) {
   const langData = { ...langDesc, ...(opts.languageData ?? {}) }
 
   const load = function () {
-    const lang = LezerLanguage.define({
+    const lang = LRLanguage.define({
       parser: opts.parser.configure(opts.configure ?? {}),
       languageData: langData
     })
