@@ -1,3 +1,4 @@
+import type { Input } from "@lezer/common"
 import type { LRParser, ParserConfig } from "@lezer/lr"
 import {
   Extension,
@@ -35,4 +36,26 @@ export function createLezerLanguage(opts: CreateLezerLanguageOpts) {
   const description = LanguageDescription.of({ ...langDesc, load: async () => load() })
 
   return { load, description }
+}
+
+/**
+ * Class that implements the Lezer `input` class, by converting a string
+ * provided in the class's constructor.
+ */
+export class StringInput implements Input {
+  constructor(readonly string: string) {}
+
+  get length() {
+    return this.string.length
+  }
+
+  chunk(from: number) {
+    return this.string.slice(from)
+  }
+
+  readonly lineChunks = false
+
+  read(from: number, to: number) {
+    return this.string.slice(from, to)
+  }
 }
