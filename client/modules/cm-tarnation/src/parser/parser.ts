@@ -1,4 +1,4 @@
-import { Input, Tree } from "lezer-tree"
+import { Input, Tree } from "@lezer/common"
 import type { EditorParseContext } from "wj-codemirror/cm"
 import type { TarnationLanguage } from "../language"
 import type { Chunk } from "../tokenizer"

@@ -1,4 +1,4 @@
-import type { Parser, ParserConfig } from "lezer"
+import type { LRParser, ParserConfig } from "@lezer/lr"
 import {
   Extension,
   LanguageDescription,
@@ -8,7 +8,7 @@ import {
 
 export interface CreateLezerLanguageOpts {
   name: string
-  parser: Parser
+  parser: LRParser
   configure?: ParserConfig
   alias?: string[]
   ext?: string[]

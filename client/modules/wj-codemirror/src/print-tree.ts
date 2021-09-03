@@ -1,4 +1,4 @@
-import { stringInput, Tree } from "lezer-tree"
+import { stringInput, Tree } from "@lezer/common"
 
 function indent(depth: number, str = "  ") {
   return depth > 0 ? str.repeat(depth) : ""

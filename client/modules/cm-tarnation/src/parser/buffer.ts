@@ -1,4 +1,4 @@
-import type { Tree } from "lezer-tree"
+import type { Tree } from "@lezer/common"
 import { search } from "wj-util"
 import type { LezerToken } from "../types"
 

@@ -1,5 +1,5 @@
+import { Input, NodeType } from "@lezer/common"
 import { isFunction } from "is-what"
-import { Input, NodeType } from "lezer-tree"
 import {
   defineLanguageFacet,
   EditorParseContext,

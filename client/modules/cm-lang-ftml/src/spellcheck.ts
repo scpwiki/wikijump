@@ -1,5 +1,5 @@
+import type { Tree } from "@lezer/common"
 import type { Word } from "cm-espells"
-import type { Tree } from "lezer-tree"
 import type { EditorState } from "wj-codemirror/cm"
 
 const BLACKLIST = [

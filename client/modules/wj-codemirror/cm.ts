@@ -63,11 +63,8 @@ export {
   cursorSyntaxLeft,
   cursorSyntaxRight,
   defaultKeymap,
-  defaultTabBinding,
   deleteCharBackward,
   deleteCharForward,
-  deleteCodePointBackward,
-  deleteCodePointForward,
   deleteGroupBackward,
   deleteGroupForward,
   deleteLine,
@@ -110,7 +107,12 @@ export {
   simplifySelection,
   splitLine,
   standardKeymap,
-  transposeChars
+  transposeChars,
+  cursorSubwordBackward,
+  cursorSubwordForward,
+  indentWithTab,
+  selectSubwordBackward,
+  selectSubwordForward
 } from "@codemirror/commands"
 
 export {
@@ -176,12 +178,10 @@ export {
 } from "@codemirror/history"
 
 export {
-  EditorParseContext,
   IndentContext,
   Language,
   LanguageDescription,
   LanguageSupport,
-  LezerLanguage,
   TreeIndentContext,
   continuedIndent,
   defineLanguageFacet,
@@ -201,7 +201,9 @@ export {
   indentUnit,
   language,
   languageDataProp,
-  syntaxTree
+  syntaxTree,
+  LRLanguage,
+  ParseContext
 } from "@codemirror/language"
 
 export { languages } from "@codemirror/language-data"
@@ -212,7 +214,8 @@ export {
   linter,
   nextDiagnostic,
   openLintPanel,
-  setDiagnostics
+  setDiagnostics,
+  forceLinting
 } from "@codemirror/lint"
 
 export type { Action, Diagnostic } from "@codemirror/lint"
@@ -310,7 +313,8 @@ export {
   keymap,
   logException,
   placeholder,
-  runScopeHandlers
+  runScopeHandlers,
+  scrollPastEnd
 } from "@codemirror/view"
 
 export type {

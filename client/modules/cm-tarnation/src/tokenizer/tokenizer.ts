@@ -1,4 +1,4 @@
-import type { Input } from "lezer-tree"
+import type { Input } from "@lezer/common"
 import type { Grammar, GrammarToken } from "../grammar/grammar"
 import type { TarnationLanguage } from "../language"
 import type { NodeMap } from "../node-map"

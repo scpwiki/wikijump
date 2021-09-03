@@ -26,7 +26,7 @@
     "cm-espells": "workspace:*",
     "cm-tarnation": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
-    "lezer-tree": "^0.13.2",
+    "@lezer/common": "^0.15.4",
     "threads-worker-module": "workspace:*",
     "wj-codemirror": "workspace:*",
     "wj-components": "workspace:*",

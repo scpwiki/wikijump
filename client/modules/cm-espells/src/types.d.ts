@@ -1,4 +1,4 @@
-import type { Tree } from "lezer-tree"
+import type { Tree } from "@lezer/common"
 import type { EditorState } from "wj-codemirror/cm"
 
 /** Describes a word in a document, i.e. the term itself and its location. */

@@ -1,4 +1,4 @@
-import { Input, PartialParse, Tree } from "lezer-tree"
+import { Input, PartialParse, Tree } from "@lezer/common"
 import { EditorParseContext } from "wj-codemirror/cm"
 import { isEmpty, perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"

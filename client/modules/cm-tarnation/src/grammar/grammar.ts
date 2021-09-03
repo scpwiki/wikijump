@@ -1,6 +1,6 @@
+import { NodeProp, NodePropSource } from "@lezer/common"
 import { isArray, isRegExp, isString } from "is-what"
 import { klona } from "klona"
-import { NodeProp, NodePropSource } from "lezer-tree"
 import { Memoize } from "typescript-memoize"
 import { styleTags, tags } from "wj-codemirror/cm"
 import { createID, escapeRegExp, hasSigil, removeUndefined, unSigil } from "wj-util"

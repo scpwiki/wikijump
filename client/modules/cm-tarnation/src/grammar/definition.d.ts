@@ -1,4 +1,4 @@
-import type { NodePropSource } from "lezer-tree"
+import type { NodePropSource } from "@lezer/common"
 import type { Tag, tags } from "wj-codemirror/cm"
 import type { GrammarContext } from "./grammar"
 

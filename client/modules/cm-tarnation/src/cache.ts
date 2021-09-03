@@ -1,4 +1,4 @@
-import { Tree } from "lezer-tree"
+import { Tree } from "@lezer/common"
 import type { Chunk, TokenizerBuffer } from "./tokenizer"
 import type { CacheMap, SerializedParserContext } from "./types"
 

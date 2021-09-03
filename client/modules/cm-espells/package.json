@@ -42,7 +42,7 @@
     "dictionary-uk": "^2.3.0",
     "dictionary-vi": "^2.1.3",
     "espells": "^0.1.3",
-    "lezer-tree": "^0.13.2",
+    "@lezer/common": "^0.15.4",
     "threads-worker-module": "workspace:*",
     "wj-codemirror": "workspace:*",
     "wj-components": "workspace:*",

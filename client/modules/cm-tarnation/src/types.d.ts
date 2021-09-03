@@ -1,4 +1,4 @@
-import type { NodePropSource, NodeType, Tree } from "lezer-tree"
+import type { NodePropSource, NodeType, Tree } from "@lezer/common"
 import type { Extension, LanguageDescription } from "wj-codemirror/cm"
 import type * as DF from "./grammar/definition"
 import type { Chunk, TokenizerBuffer } from "./tokenizer"
