@@ -111,7 +111,7 @@ importers:
       dictionary-tr: ^1.3.4
       dictionary-uk: ^2.3.0
       dictionary-vi: ^2.1.3
-      espells: ^0.1.2
+      espells: ^0.1.3
       lezer-tree: ^0.13.2
       threads-worker-module: workspace:*
       wj-codemirror: workspace:*
@@ -140,7 +140,7 @@ importers:
       dictionary-tr: 1.3.4
       dictionary-uk: 2.3.0
       dictionary-vi: 2.1.3
-      espells: 0.1.2
+      espells: 0.1.3
       lezer-tree: 0.13.2
       threads-worker-module: link:../threads-worker-module
       wj-codemirror: link:../wj-codemirror
@@ -2393,8 +2393,8 @@ packages:
     dev: false
     optional: true
 
-  /espells/0.1.2:
-    resolution: {integrity: sha512-KL8w2GdjAoZzzsoYLPKpS+IbSbcIjfIp2uetxqC4xv8Y8BvU5RTskbrDy2n4B/tr39T8rSWWRiAO3muiyo9e1g==}
+  /espells/0.1.3:
+    resolution: {integrity: sha512-8swW3AOgCnkK3CFwgT9Wp9llaHt9/Zc9cmXixO2mTY94Fh2I098alr0WA14Y8qb9ACOa/f5iK9C3wMCMXp5VWg==}
     dependencies:
       iterare: 1.2.1
     dev: false
