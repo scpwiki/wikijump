@@ -4,9 +4,9 @@ import {
   completionKeymap,
   copyLineDown,
   defaultKeymap,
-  defaultTabBinding,
   foldKeymap,
   historyKeymap,
+  indentWithTab,
   KeyBinding,
   keymap,
   nextDiagnostic,
@@ -34,6 +34,6 @@ export function getSheafKeymap() {
     ...commentKeymap,
     ...completionKeymap,
     ...KEY_MAP,
-    defaultTabBinding
+    indentWithTab
   ])
 }

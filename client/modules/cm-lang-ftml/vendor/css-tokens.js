@@ -2,7 +2,7 @@
 // FULL CREDIT TO: https://github.com/lezer-parser/css/blob/master/src/tokens.js
 // THIS IS SIMPLY A FORK OF THE CSS GRAMMAR SO IT WORKS IN STYLE STRINGS.
 
-import { ExternalTokenizer } from 'lezer'
+import { ExternalTokenizer } from '@lezer/lr'
 import { callee, identifier, Unit } from './css-attribute.terms.js'
 
 const space = [9, 10, 11, 12, 13, 32, 133, 160, 5760, 8192, 8193, 8194, 8195, 8196, 8197,
