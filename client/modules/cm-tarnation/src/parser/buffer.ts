@@ -154,7 +154,7 @@ export class ParserBuffer {
   clone(raw = false): ParserBuffer | LezerToken[] {
     const cloneBuffer: LezerToken[] = []
     for (let idx = 0; idx < this.buffer.length; idx++) {
-      cloneBuffer[idx] = [...this.buffer[idx]]
+      cloneBuffer[idx] = this.buffer[idx].slice(0) as LezerToken
     }
     return raw ? cloneBuffer : new ParserBuffer(cloneBuffer)
   }
