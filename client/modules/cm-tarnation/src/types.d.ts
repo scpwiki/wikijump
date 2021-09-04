@@ -100,7 +100,6 @@ export interface SerializedParserContext {
   index: number
   buffer: LezerToken[]
   stack: ParserElementStack
-  embedded: EmbeddedData
 }
 
 /** A parser's cache, mapping tokenizer chunks to parser contexts. */
@@ -108,26 +107,9 @@ export type ParserCache = WeakMap<Chunk, SerializedParserContext>
 
 // -- MISC.
 
-/**
- * The region of a document that should be parsed, along with other
- * information such as what the edited range of the document was.
- */
-export interface ParseRegion {
-  /** The parser should start before or at this position. */
+export interface Range {
   from: number
-  /** The parse should stop past or at this position. */
   to: number
-  /** The length of the document. */
-  length: number
-  /** The edited range of the document. */
-  edit?: {
-    /** The start of the edited range. */
-    from: number
-    /** The end of the edited range. */
-    to: number
-    /** The number of characters added in the change. */
-    offset: number
-  }
 }
 
 export type AddNodeSpec = { name: string } & Omit<

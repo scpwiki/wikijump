@@ -1,7 +1,9 @@
-import type { Input } from "@lezer/common"
+import { Input, NodeProp, NodeType, Tree } from "@lezer/common"
 import type { LRParser, ParserConfig } from "@lezer/lr"
 import {
+  defineLanguageFacet,
   Extension,
+  languageDataProp,
   LanguageDescription,
   LanguageSupport,
   LRLanguage
@@ -38,10 +40,7 @@ export function createLezerLanguage(opts: CreateLezerLanguageOpts) {
   return { load, description }
 }
 
-/**
- * Class that implements the Lezer `input` class, by converting a string
- * provided in the class's constructor.
- */
+/** Class that implements the Lezer `Input` interface using a normal string. */
 export class StringInput implements Input {
   constructor(readonly string: string) {}
 
@@ -58,4 +57,26 @@ export class StringInput implements Input {
   read(from: number, to: number) {
     return this.string.slice(from, to)
   }
+}
+
+export function makeTopNode(name: string, data: Record<string, any>) {
+  const facet = defineLanguageFacet(data)
+  const top = NodeType.define({
+    id: 1,
+    name,
+    top: true,
+    props: [[languageDataProp, facet]]
+  })
+  return { facet, top }
+}
+
+export const EmbeddedParserProp = new NodeProp<string>({ perNode: true })
+
+export const EmbeddedParserType = NodeType.define({
+  id: 2,
+  name: "EmbeddedParser"
+})
+
+export function getEmbeddedParserNode(name: string, from: number, to: number) {
+  return new Tree(EmbeddedParserType, [], [], to - from, [[EmbeddedParserProp, name]])
 }

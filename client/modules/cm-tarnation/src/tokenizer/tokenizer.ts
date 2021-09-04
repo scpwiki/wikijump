@@ -2,7 +2,8 @@ import type { Input } from "@lezer/common"
 import type { Grammar, GrammarToken } from "../grammar/grammar"
 import type { TarnationLanguage } from "../language"
 import type { NodeMap } from "../node-map"
-import type { MappedToken, ParseRegion, Token } from "../types"
+import { ParseRegion } from "../region"
+import type { MappedToken, Token } from "../types"
 import type { TokenizerBuffer } from "./buffer"
 import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
@@ -32,9 +33,6 @@ export class Tokenizer {
 
   /** Starting offset, as in where in the editor document does the string start. */
   private declare offset: number
-
-  /** Position where the tokenizer should stop after reaching. */
-  private declare end: number
 
   /** The region of the document that should be tokenized. */
   private declare region: ParseRegion
@@ -72,12 +70,11 @@ export class Tokenizer {
     const end = Math.min(region.to + MARGIN_AFTER, input.length)
     this.str = input.read(context.pos, end)
     this.offset = context.pos
-    this.end = region.to
   }
 
   /** True if the tokenizer has already completed. */
   get done() {
-    return this.context.pos >= this.end
+    return this.context.pos >= this.region.to
   }
 
   /** The tokenizer's current chunks. */
@@ -230,16 +227,14 @@ export class Tokenizer {
    * returns a list of tokens.
    */
   advance() {
-    const { context: ctx, end, buffer } = this
-
-    if (ctx.pos < end) {
+    if (this.context.pos < this.region.to) {
       const pos = this.context.pos
       const stack = this.context.stack.serialize()
       const tokens = this.tokenize()
-      if (tokens?.length) buffer.add(pos, stack, tokens)
+      if (tokens?.length) this.buffer.add(pos, stack, tokens)
     }
 
-    if (ctx.pos >= end) return this.chunks
+    if (this.context.pos >= this.region.to) return this.chunks
 
     return null
   }
@@ -272,6 +267,7 @@ export class Tokenizer {
       if (chunk.isReusable(this.context, this.region.edit.offset)) {
         right.slide(idx, this.region.edit.offset, true)
         this.buffer.link(right, this.region.length)
+        this.buffer.ensureLast(this.context.pos, this.context.stack)
         this.context = this.buffer.last!.context
         return true
       }

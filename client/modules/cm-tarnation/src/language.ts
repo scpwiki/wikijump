@@ -1,21 +1,20 @@
-import { Input, NodeType } from "@lezer/common"
+import { NodeProp, NodeType } from "@lezer/common"
 import { isFunction } from "is-what"
 import {
-  defineLanguageFacet,
-  EditorParseContext,
   Extension,
   Language,
-  languageDataProp,
   LanguageDescription,
   LanguageSupport
 } from "wj-codemirror/cm"
 import { removeUndefined } from "wj-util"
 import { Cache } from "./cache"
+import { DelegatorFactory } from "./delegator"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
-import { Host } from "./host"
 import { NodeMap } from "./node-map"
+import { TokenizerBuffer } from "./tokenizer"
 import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
+import { EmbeddedParserType, makeTopNode } from "./util"
 
 export class TarnationLanguage {
   private declare languageData: Record<string, any>
@@ -26,6 +25,8 @@ export class TarnationLanguage {
   declare description: LanguageDescription
   declare grammar?: Grammar
   declare nodes?: NodeMap
+  declare top?: NodeType
+  declare stateProp?: NodeProp<TokenizerBuffer>
   declare support?: LanguageSupport
   declare language?: Language
   declare nestLanguages: LanguageDescription[]
@@ -63,37 +64,31 @@ export class TarnationLanguage {
    * will just return the previously loaded language.
    */
   load() {
+    // setup grammar data
     if (this.description?.support) return this.description.support
     const def = isFunction(this.grammarData) ? this.grammarData() : this.grammarData
     this.grammar = new Grammar(def)
 
-    const facet = defineLanguageFacet(this.languageData)
-    const facetProp = languageDataProp.set(Object.create(null), facet)
-
+    // setup node data
     const nodes = (this.nodes = new NodeMap())
-    const topNode = nodes.add(
-      // @ts-ignore
-      new NodeType(this.description.name, facetProp, 0, 1),
-      "Document"
-    )!
+
+    this.stateProp = new NodeProp<TokenizerBuffer>({ perNode: true })
+
+    const { facet, top } = makeTopNode(this.description.name, this.languageData)
+    this.top = top
+
+    nodes.add(NodeType.none, "None")
+    nodes.add(top, "Document")
+    nodes.add(EmbeddedParserType, "EmbeddedParser")
 
     this.grammar.types.forEach(name => nodes.add({ name }))
 
-    if (this.grammar.props.length) {
-      nodes.configure({ props: this.grammar.props })
-    }
+    if (this.grammar.props.length) nodes.configure({ props: this.grammar.props })
+    if (this.configure.props) nodes.configure(this.configure)
 
-    if (this.configure.props) {
-      nodes.configure(this.configure)
-    }
-
-    const startParse = (input: Input, pos: number, context: EditorParseContext) => {
-      return new Host(this, input, pos, context)
-    }
-
-    this.language = new Language(facet, { startParse }, topNode)
+    // setup language support
+    this.language = new Language(facet, new DelegatorFactory(this), top)
     this.support = new LanguageSupport(this.language, this.extensions)
-
     this.loaded = true
 
     return this.support
