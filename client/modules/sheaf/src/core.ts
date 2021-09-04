@@ -15,6 +15,7 @@ import {
   history,
   indentOnInput,
   rectangularSelection,
+  scrollPastEnd,
   ViewPlugin,
   ViewUpdate
 } from "wj-codemirror/cm"
@@ -50,6 +51,7 @@ export class SheafCore {
           rectangularSelection(),
           highlightActiveLine(),
           EditorView.lineWrapping,
+          scrollPastEnd(),
           getSheafKeymap(),
           IndentHack,
           Gutters,
