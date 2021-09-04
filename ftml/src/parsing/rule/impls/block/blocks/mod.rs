@@ -96,6 +96,7 @@ mod span;
 mod strikethrough;
 mod subscript;
 mod superscript;
+mod table;
 mod toc;
 mod underline;
 mod user;
