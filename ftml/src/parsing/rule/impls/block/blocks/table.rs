@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::tree::AttributeMap;
 
 pub const BLOCK_TABLE: BlockRule = BlockRule {
     name: "block-table",
@@ -56,6 +57,50 @@ pub const BLOCK_TABLE_CELL_HEADER: BlockRule = BlockRule {
     parse_fn: parse_cell_header,
 };
 
+// Parser function helper
+
+fn parse_block<'r, 't>(
+    log: &Logger,
+    parser: &mut Parser<'r, 't>,
+    name: &str,
+    flag_star: bool,
+    flag_score: bool,
+    in_head: bool,
+    (block_rule, description): (&BlockRule, &str),
+) -> ParseResult<'r, 't, (Vec<Element<'t>>, AttributeMap<'t>)> {
+    debug!(
+        log,
+        "Parsing {} block",
+        description;
+        "in-head" => in_head,
+        "name" => name,
+    );
+
+    assert!(
+        !flag_star,
+        "Block for {} doesn't allow star flag",
+        description
+    );
+    assert!(
+        !flag_score,
+        "Block for {} doesn't allow score flag",
+        description
+    );
+    assert_block_name(block_rule, name);
+
+    // Get attributes
+    let arguments = parser.get_head_map(block_rule, in_head)?;
+    let attributes = arguments.to_attribute_map();
+
+    // Get body elements
+    let (elements, exceptions, _) = parser.get_body_elements(block_rule, false)?.into();
+
+    // Item to return to the caller
+    let result = (elements, attributes);
+
+    ok!(false; result, exceptions)
+}
+
 // Table block
 
 fn parse_table<'r, 't>(
@@ -66,18 +111,23 @@ fn parse_table<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    // The returned item is (attributes, elements).
+    // Breaking apart a ParseSuccess yields (returned_item, elements, paragraph_safe).
+    //
+    // Ditto for other block rule functions.
+
+    let ((attributes, elements), exceptions, _) = parse_block(
         log,
-        "Parsing table block";
-        "in-head" => in_head,
-        "name" => name,
-    );
+        parser,
+        name,
+        flag_star,
+        flag_score,
+        in_head,
+        (&BLOCK_TABLE, "table block"),
+    )?
+    .into();
 
-    assert!(!flag_star, "Table block doesn't allow star flag");
-    assert!(!flag_score, "Table block doesn't allow score flag");
-    assert_block_name(&BLOCK_TABLE, name);
-
-    todo!();
+    todo!()
 }
 
 // Table row
@@ -90,26 +140,6 @@ fn parse_row<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
-        log,
-        "Parsing table row block";
-        "in-head" => in_head,
-        "name" => name,
-    );
-
-    assert!(!flag_star, "Table row block doesn't allow star flag");
-    assert!(!flag_score, "Table row block doesn't allow score flag");
-    assert_block_name(&BLOCK_TABLE_ROW, name);
-
-    // Get attributes
-    let arguments = parser.get_head_map(&BLOCK_TABLE_ROW, in_head)?;
-    let attributes = arguments.to_attribute_map();
-
-    // Get body, a list of cells
-    let (elements, exceptions, _) =
-        parser.get_body_elements(&BLOCK_TABLE_ROW, false)?.into();
-
-    // TODO element
     todo!()
 }
 
