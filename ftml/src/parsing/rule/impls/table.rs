@@ -201,9 +201,12 @@ fn try_consume_fn<'p, 'r, 't>(
     }
 
     // Build table
+    let mut attributes = AttributeMap::new();
+    attributes.insert("class", cow!("wj-table"));
+
     let table = Table {
         rows,
-        attributes: AttributeMap::new(),
+        attributes,
     };
 
     ok!(false; Element::Table(table), exceptions)
