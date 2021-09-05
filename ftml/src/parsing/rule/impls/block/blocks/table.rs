@@ -19,7 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::tree::{AttributeMap, Table, TableItem, TableRow};
+use crate::tree::{AttributeMap, Table, TableCell, TableItem, TableRow};
+use std::num::NonZeroU32;
 
 pub const BLOCK_TABLE: BlockRule = BlockRule {
     name: "block-table",
@@ -229,9 +230,28 @@ fn parse_cell<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     elements: Vec<Element<'t>>,
-    attributes: AttributeMap<'t>,
+    mut attributes: AttributeMap<'t>,
     exceptions: Vec<ParseException<'t>>,
     header: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    todo!()
+    lazy_static! {
+        static ref ONE: NonZeroU32 = NonZeroU32::new(1).unwrap();
+    }
+
+    // Extract column-span if specified via attributes.
+    // If not specified, then the default.
+    let column_span = match attributes.remove("colspan") {
+        Some(value) => value.parse().unwrap_or(*ONE),
+        None => *ONE,
+    };
+
+    let element = Element::TableItem(TableItem::Cell(TableCell {
+        header,
+        column_span,
+        align: None,
+        elements,
+        attributes,
+    }));
+
+    ok!(false; element, exceptions)
 }
