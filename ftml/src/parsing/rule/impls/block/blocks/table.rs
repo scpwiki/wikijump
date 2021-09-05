@@ -111,12 +111,12 @@ fn parse_table<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // The returned item is (attributes, elements).
+    // The returned item is (elements, attributes).
     // Breaking apart a ParseSuccess yields (returned_item, elements, paragraph_safe).
     //
     // Ditto for other block rule functions.
 
-    let ((attributes, elements), exceptions, _) = parse_block(
+    let ((elements, attributes), exceptions, _) = parse_block(
         log,
         parser,
         name,
@@ -140,7 +140,7 @@ fn parse_row<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let ((attributes, elements), exceptions, _) = parse_block(
+    let ((elements, attributes), exceptions, _) = parse_block(
         log,
         parser,
         name,
@@ -164,7 +164,7 @@ fn parse_cell_regular<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let ((attributes, elements), exceptions, _) = parse_block(
+    let ((elements, attributes), exceptions, _) = parse_block(
         log,
         parser,
         name,
@@ -186,7 +186,7 @@ fn parse_cell_header<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let ((attributes, elements), exceptions, _) = parse_block(
+    let ((elements, attributes), exceptions, _) = parse_block(
         log,
         parser,
         name,
