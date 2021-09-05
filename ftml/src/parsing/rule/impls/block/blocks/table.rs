@@ -21,6 +21,7 @@
 use super::prelude::*;
 use crate::tree::{AttributeMap, Table, TableCell, TableItem, TableRow};
 use std::num::NonZeroU32;
+use std::ops::{Deref, DerefMut};
 
 pub const BLOCK_TABLE: BlockRule = BlockRule {
     name: "block-table",
@@ -268,4 +269,56 @@ fn parse_cell<'r, 't>(
     }));
 
     ok!(false; element, exceptions)
+}
+
+// Helper
+
+#[derive(Debug, Copy, Clone)]
+enum Flag {
+    Table,
+    TableRow,
+}
+
+#[derive(Debug)]
+struct ParserWrap<'p, 'r, 't> {
+    flag: Flag,
+    parser: &'p mut Parser<'r, 't>,
+}
+
+impl<'p, 'r, 't> ParserWrap<'p, 'r, 't> {
+    #[inline]
+    fn new(parser: &'p mut Parser<'r, 't>, flag: Flag) -> Self {
+        let mut wrap = ParserWrap { parser, flag };
+        wrap.set(true);
+        wrap
+    }
+
+    fn set(&mut self, value: bool) {
+        match self.flag {
+            Flag::Table => self.parser.set_table_flag(value),
+            Flag::TableRow => self.parser.set_table_row_flag(value),
+        }
+    }
+}
+
+impl<'r, 't> Deref for ParserWrap<'_, 'r, 't> {
+    type Target = Parser<'r, 't>;
+
+    #[inline]
+    fn deref(&self) -> &Parser<'r, 't> {
+        self.parser
+    }
+}
+
+impl<'r, 't> DerefMut for ParserWrap<'_, 'r, 't> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Parser<'r, 't> {
+        self.parser
+    }
+}
+
+impl Drop for ParserWrap<'_, '_, '_> {
+    fn drop(&mut self) {
+        self.set(false);
+    }
 }
