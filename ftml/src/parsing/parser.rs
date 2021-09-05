@@ -67,6 +67,7 @@ pub struct Parser<'r, 't> {
 
     // Flags
     in_list: bool,
+    in_table: bool,
     start_of_line: bool,
 }
 
@@ -101,6 +102,7 @@ impl<'r, 't> Parser<'r, 't> {
             table_of_contents,
             footnotes,
             in_list: false,
+            in_table: false,
             start_of_line: true,
         }
     }
@@ -129,6 +131,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn in_list(&self) -> bool {
         self.in_list
+    }
+
+    #[inline]
+    pub fn in_table(&self) -> bool {
+        self.in_table
     }
 
     #[inline]
@@ -170,6 +177,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn set_list_flag(&mut self, value: bool) {
         self.in_list = value;
+    }
+
+    #[inline]
+    pub fn set_table_flag(&mut self, value: bool) {
+        self.in_table = value;
     }
 
     // Table of Contents
