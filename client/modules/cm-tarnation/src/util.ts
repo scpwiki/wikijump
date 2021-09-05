@@ -59,6 +59,13 @@ export class StringInput implements Input {
   }
 }
 
+/**
+ * Utility for creating a top `NodeType` for a CodeMirror language. Returns
+ * both the language's data `Facet` and the `NodeType`.
+ *
+ * @param name - The name of the language.
+ * @param data - The language data.
+ */
 export function makeTopNode(name: string, data: Record<string, any>) {
   const facet = defineLanguageFacet(data)
   const top = NodeType.define({
@@ -70,13 +77,26 @@ export function makeTopNode(name: string, data: Record<string, any>) {
   return { facet, top }
 }
 
+/**
+ * A special per-node `NodeProp` used for describing nodes where a nested
+ * parser will be embedded.
+ */
 export const EmbeddedParserProp = new NodeProp<string>({ perNode: true })
 
+/** A special `NodeType` used to mark nodes where a nested parser will be embedded. */
 export const EmbeddedParserType = NodeType.define({
   id: 2,
   name: "EmbeddedParser"
 })
 
+/**
+ * Returns a new `Tree` that has been configured as a node that indicates a
+ * nested parsing region.
+ *
+ * @param name - The name of the language.
+ * @param from - The start of the region.
+ * @param to - The end of the region.
+ */
 export function getEmbeddedParserNode(name: string, from: number, to: number) {
   return new Tree(EmbeddedParserType, [], [], to - from, [[EmbeddedParserProp, name]])
 }
