@@ -17,10 +17,10 @@ enum Stage {
 }
 
 /**
- * The `Host` object is the "parser" that CodeMirror interacts with to
- * build a syntax tree. In reality, the `Host` is well, a host, for a
- * separate `Tokenizer` and `Parser`. These are ran in stages - first the
- * tokenizer, and then the parser.
+ * The host is the main interface between the parser and the tokenizer,
+ * created for each range given to the {@link Delegator}. It is effectively
+ * the actual "parser", but due to the potentially non-contiguous nature of
+ * the input, a host is created for each range.
  *
  * Additionally, the `Host` handles the recovery of tokenizer and parser
  * states from the stale trees provided by CodeMirror, and then uses this
@@ -37,6 +37,10 @@ export class Host {
   /** The input document to parse. */
   private declare input: Input
 
+  /**
+   * If true, the host should return a `Tree` with the language's top level
+   * `NodeType`.
+   */
   private declare top: boolean
 
   /** The current `Stage`, either tokenizing or parsing. */
@@ -71,6 +75,11 @@ export class Host {
   /**
    * @param language - The language containing the grammar to use.
    * @param input - The input document to parse.
+   * @param fragments - The fragments to be used for determining reuse of
+   *   previous parses.
+   * @param range - The range of the document to parse.
+   * @param top - If true, the host will return a `Tree` with the
+   *   language's top level `NodeType`.
    */
   constructor(
     language: TarnationLanguage,
