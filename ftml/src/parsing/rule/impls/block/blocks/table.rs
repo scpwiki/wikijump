@@ -102,7 +102,7 @@ fn parse_block<'r, 't>(
 }
 
 macro_rules! extract_table_items {
-    ($parser:expr, $elements:expr; $item_type:ident, $warning_kind:ident) => {{
+    ($parser:expr, $elements:expr; $item_type:ident, $warning_kind:ident $(,)?) => {{
         let mut items = Vec::new();
 
         for element in $elements {
