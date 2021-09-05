@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::parsing::parser::TableFlag;
 use crate::tree::{AttributeMap, Table, TableCell, TableItem, TableRow};
 use std::num::NonZeroU32;
 use std::ops::{Deref, DerefMut};
@@ -151,8 +152,12 @@ fn parse_table<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // Set in_table flag.
-    let parser = &mut ParserWrap::new(parser, Flag::Table);
+    // This [[table]] is not in a regular content context.
+    if parser.table_flag() != TableFlag::InContent {
+        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+    }
+
+    let parser = &mut ParserWrap::new(parser, TableFlag::InRow);
 
     // Get block contents.
     let ParsedBlock {
@@ -187,8 +192,13 @@ fn parse_row<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // Set in_table_row flag.
-    let parser = &mut ParserWrap::new(parser, Flag::TableRow);
+    // This [[row]] is outside a [[table]], which is not allowed.
+    // It also cannot be inside another [[row]].
+    if parser.table_flag() != TableFlag::InTable {
+        return Err(parser.make_warn(ParseWarningKind::TableRowOutsideTable));
+    }
+
+    let parser = &mut ParserWrap::new(parser, TableFlag::InRow);
 
     // Get block contents.
     let ParsedBlock {
@@ -204,12 +214,6 @@ fn parse_row<'r, 't>(
         in_head,
         (&BLOCK_TABLE_ROW, "table row"),
     )?;
-
-    // This [[row]] is outside a [[table]], which is not allowed.
-    // It also cannot be inside another [[row]].
-    if !(parser.in_table() && !parser.in_table_row()) {
-        return Err(parser.make_warn(ParseWarningKind::TableRowOutsideTable));
-    }
 
     let cells = extract_table_items!(parser, elements; Cell, TableRowContainsNonCell);
 
@@ -229,8 +233,12 @@ fn parse_cell_regular<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // Doesn't set any parser flags.
-    let parser = &mut ParserWrap::new(parser, Flag::TableCell);
+    // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
+    if parser.table_flag() != TableFlag::InRow {
+        return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
+    }
+
+    let parser = &mut ParserWrap::new(parser, TableFlag::InContent);
 
     // Get block contents.
     let ParsedBlock {
@@ -259,8 +267,12 @@ fn parse_cell_header<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // Doesn't set any parser flags.
-    let parser = &mut ParserWrap::new(parser, Flag::TableCell);
+    // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
+    if parser.table_flag() != TableFlag::InRow {
+        return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
+    }
+
+    let parser = &mut ParserWrap::new(parser, TableFlag::InContent);
 
     // Get block contents.
     let ParsedBlock {
@@ -292,11 +304,6 @@ fn parse_cell<'p, 'r, 't>(
         static ref ONE: NonZeroU32 = NonZeroU32::new(1).unwrap();
     }
 
-    // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
-    if !(parser.in_table() && parser.in_table_row()) {
-        return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
-    }
-
     // Extract column-span if specified via attributes.
     // If not specified, then the default.
     let column_span = match attributes.remove("colspan") {
@@ -326,24 +333,17 @@ enum Flag {
 
 #[derive(Debug)]
 struct ParserWrap<'p, 'r, 't> {
-    flag: Flag,
     parser: &'p mut Parser<'r, 't>,
+    old_value: TableFlag,
 }
 
 impl<'p, 'r, 't> ParserWrap<'p, 'r, 't> {
     #[inline]
-    fn new(parser: &'p mut Parser<'r, 't>, flag: Flag) -> Self {
-        let mut wrap = ParserWrap { parser, flag };
-        wrap.set(true);
-        wrap
-    }
+    fn new(parser: &'p mut Parser<'r, 't>, new_value: TableFlag) -> Self {
+        let old_value = parser.table_flag();
+        parser.set_table_flag(new_value);
 
-    fn set(&mut self, value: bool) {
-        match self.flag {
-            Flag::Table => self.parser.set_table_flag(value),
-            Flag::TableRow => self.parser.set_table_row_flag(value),
-            Flag::TableCell => (),
-        }
+        ParserWrap { parser, old_value }
     }
 }
 
@@ -365,6 +365,6 @@ impl<'r, 't> DerefMut for ParserWrap<'_, 'r, 't> {
 
 impl Drop for ParserWrap<'_, '_, '_> {
     fn drop(&mut self) {
-        self.set(false);
+        self.parser.set_table_flag(self.old_value);
     }
 }
