@@ -176,6 +176,12 @@ fn parse_row<'r, 't>(
     )?
     .into();
 
+    // This [[row]] is outside a [[table]], which is not allowed.
+    // It also cannot be inside another [[row]].
+    if !(parser.in_table() && !parser.in_table_row()) {
+        return Err(parser.make_warn(ParseWarningKind::TableRowOutsideTable));
+    }
+
     let cells = extract_table_items!(parser, elements; Cell, TableRowContainsNonCell);
 
     // Build and return table row
@@ -205,7 +211,7 @@ fn parse_cell_regular<'r, 't>(
     )?
     .into();
 
-    parse_cell(elements, attributes, exceptions, false)
+    parse_cell(parser, elements, attributes, exceptions, false)
 }
 
 fn parse_cell_header<'r, 't>(
@@ -227,10 +233,11 @@ fn parse_cell_header<'r, 't>(
     )?
     .into();
 
-    parse_cell(elements, attributes, exceptions, true)
+    parse_cell(parser, elements, attributes, exceptions, true)
 }
 
 fn parse_cell<'r, 't>(
+    parser: &mut Parser<'r, 't>,
     elements: Vec<Element<'t>>,
     mut attributes: AttributeMap<'t>,
     exceptions: Vec<ParseException<'t>>,
@@ -238,6 +245,11 @@ fn parse_cell<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     lazy_static! {
         static ref ONE: NonZeroU32 = NonZeroU32::new(1).unwrap();
+    }
+
+    // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
+    if !(parser.in_table() && parser.in_table_row()) {
+        return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
     }
 
     // Extract column-span if specified via attributes.
