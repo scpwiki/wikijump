@@ -109,18 +109,6 @@ impl<'r, 't> Parser<'r, 't> {
         }
     }
 
-    // Flag Assertions
-    #[cfg(debug)]
-    fn assert_table(&self) {
-        if self.in_table_row {
-            assert!(self.in_table, "Flag in_table_row set, but not in_table.");
-        }
-    }
-
-    #[cfg(not(debug))]
-    #[inline]
-    fn assert_table(&self) {}
-
     // Getters
     #[inline]
     pub fn log(&self) -> Logger {
@@ -149,13 +137,11 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[inline]
     pub fn in_table(&self) -> bool {
-        self.assert_table();
         self.in_table
     }
 
     #[inline]
     pub fn in_table_row(&self) -> bool {
-        self.assert_table();
         self.in_table_row
     }
 
@@ -203,13 +189,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn set_table_flag(&mut self, value: bool) {
         self.in_table = value;
-        self.assert_table();
     }
 
     #[inline]
     pub fn set_table_row_flag(&mut self, value: bool) {
         self.in_table_row = value;
-        self.assert_table();
     }
 
     // Table of Contents
