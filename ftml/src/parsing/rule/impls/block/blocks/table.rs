@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::AttributeMap;
+use crate::tree::{AttributeMap, Table, TableItem, TableRow};
 
 pub const BLOCK_TABLE: BlockRule = BlockRule {
     name: "block-table",
@@ -57,7 +57,7 @@ pub const BLOCK_TABLE_CELL_HEADER: BlockRule = BlockRule {
     parse_fn: parse_cell_header,
 };
 
-// Parser function helper
+// Helper functions and macros
 
 fn parse_block<'r, 't>(
     log: &Logger,
@@ -101,6 +101,21 @@ fn parse_block<'r, 't>(
     ok!(false; result, exceptions)
 }
 
+macro_rules! extract_table_items {
+    ($parser:expr, $elements:expr => $item_type:ident, $warning_kind:ident) => {{
+        let mut items = Vec::new();
+
+        for element in $elements {
+            match element {
+                Element::TableItem(TableItem::$item_type(item)) => items.push(item),
+                _ => return Err($parser.make_warn(ParseWarningKind::$warning_kind)),
+            }
+        }
+
+        items
+    }};
+}
+
 // Table block
 
 fn parse_table<'r, 't>(
@@ -127,7 +142,12 @@ fn parse_table<'r, 't>(
     )?
     .into();
 
-    todo!()
+    let rows = extract_table_items!(parser, elements => Row, TableContainsNonRow);
+
+    // Build and return table element
+    let element = Element::Table(Table { rows, attributes });
+
+    ok!(false; element, exceptions)
 }
 
 // Table row
@@ -151,7 +171,12 @@ fn parse_row<'r, 't>(
     )?
     .into();
 
-    todo!()
+    let cells = extract_table_items!(parser, elements => Cell, TableRowContainsNonCell);
+
+    // Build and return table row
+    let element = Element::TableItem(TableItem::Row(TableRow { cells, attributes }));
+
+    ok!(false; element, exceptions)
 }
 
 // Table cell
