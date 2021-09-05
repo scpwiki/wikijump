@@ -80,12 +80,12 @@ fn parse_block<'r, 't>(
     assert!(
         !flag_star,
         "Block for {} doesn't allow star flag",
-        description
+        description,
     );
     assert!(
         !flag_score,
         "Block for {} doesn't allow score flag",
-        description
+        description,
     );
     assert_block_name(block_rule, name);
 
