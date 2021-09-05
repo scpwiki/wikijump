@@ -323,13 +323,6 @@ fn parse_cell<'p, 'r, 't>(
 
 // Helper
 
-#[derive(Debug, Copy, Clone)]
-enum Flag {
-    Table,
-    TableRow,
-    TableCell,
-}
-
 #[derive(Debug)]
 struct ParserWrap<'p, 'r, 't> {
     parser: &'p mut Parser<'r, 't>,
