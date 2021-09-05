@@ -66,7 +66,7 @@ export class Parser {
 
     // we want to cache the context before we process the chunk
     // this is the _starting_ context, not the ending context
-    this.language.cache.attach(this.context.serialize(), chunk)
+    chunk.parserContext = this.context
 
     const tokens = chunk.compile()
     for (let idx = 0; idx < tokens.length; idx++) {

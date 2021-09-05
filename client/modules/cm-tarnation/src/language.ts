@@ -7,7 +7,6 @@ import {
   LanguageSupport
 } from "wj-codemirror/cm"
 import { removeUndefined } from "wj-util"
-import { Cache } from "./cache"
 import { DelegatorFactory } from "./delegator"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
@@ -31,7 +30,6 @@ export class TarnationLanguage {
   declare language?: Language
   declare nestLanguages: LanguageDescription[]
 
-  cache = new Cache()
   loaded = false
   performance = 0
 

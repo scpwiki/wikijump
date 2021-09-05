@@ -129,10 +129,8 @@ export class Host {
             this.setupTokenizer(left, chunk.context)
 
             // check if parser has a cached state for this chunk
-            if (this.language.cache.has(chunk)) {
-              const context = ParserContext.deserialize(this.language.cache.get(chunk)!)
-              this.setupParser(context)
-            }
+            const context = chunk.parserContext
+            if (context) this.setupParser(context)
           }
         }
       }
