@@ -256,7 +256,7 @@ fn parse_cell_regular<'r, 't>(
     )?
     .into();
 
-    parse_cell(parser, elements, attributes, exceptions, false)
+    parse_cell(elements, attributes, exceptions, false)
 }
 
 fn parse_cell_header<'r, 't>(
@@ -290,11 +290,10 @@ fn parse_cell_header<'r, 't>(
     )?
     .into();
 
-    parse_cell(parser, elements, attributes, exceptions, true)
+    parse_cell(elements, attributes, exceptions, true)
 }
 
 fn parse_cell<'p, 'r, 't>(
-    parser: &mut ParserWrap<'p, 'r, 't>,
     elements: Vec<Element<'t>>,
     mut attributes: AttributeMap<'t>,
     exceptions: Vec<ParseException<'t>>,
