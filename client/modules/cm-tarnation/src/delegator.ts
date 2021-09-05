@@ -2,6 +2,7 @@ import {
   Input,
   parseMixed,
   Parser,
+  ParseWrapper,
   PartialParse,
   Tree,
   TreeCursor,
@@ -13,8 +14,11 @@ import { Host } from "./host"
 import { TarnationLanguage } from "./language"
 
 export class DelegatorFactory extends Parser {
+  private declare wrapper: ParseWrapper
+
   constructor(private language: TarnationLanguage) {
     super()
+    this.wrapper = parseMixed(this.nest.bind(this))
   }
 
   createParse(
@@ -23,9 +27,7 @@ export class DelegatorFactory extends Parser {
     ranges: { from: number; to: number }[]
   ) {
     const delegator = new Delegator(this.language, input, fragments, ranges)
-    const wrapper = parseMixed(this.nest.bind(this))
-    const wrapped = wrapper(delegator, input, fragments, ranges)
-    return wrapped
+    return this.wrapper(delegator, input, fragments, ranges)
   }
 
   private nest(node: TreeCursor, input: Input) {
