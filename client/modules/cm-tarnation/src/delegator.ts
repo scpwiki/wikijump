@@ -13,6 +13,8 @@ import { EmbeddedParserProp, EmbeddedParserType } from "."
 import { Host } from "./host"
 import { TarnationLanguage } from "./language"
 
+// TODO: figure out if this non-contiguous approach is correct
+
 export class DelegatorFactory extends Parser {
   private declare wrapper: ParseWrapper
 
