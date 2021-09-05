@@ -140,6 +140,17 @@ fn parse_row<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    let ((attributes, elements), exceptions, _) = parse_block(
+        log,
+        parser,
+        name,
+        flag_star,
+        flag_score,
+        in_head,
+        (&BLOCK_TABLE_ROW, "table row"),
+    )?
+    .into();
+
     todo!()
 }
 
@@ -153,9 +164,18 @@ fn parse_cell_regular<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    todo!();
+    let ((attributes, elements), exceptions, _) = parse_block(
+        log,
+        parser,
+        name,
+        flag_star,
+        flag_score,
+        in_head,
+        (&BLOCK_TABLE_CELL_REGULAR, "table cell (regular)"),
+    )?
+    .into();
 
-    parse_cell(log, parser, &BLOCK_TABLE_CELL_REGULAR, false)
+    todo!()
 }
 
 fn parse_cell_header<'r, 't>(
@@ -166,16 +186,16 @@ fn parse_cell_header<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    todo!();
+    let ((attributes, elements), exceptions, _) = parse_block(
+        log,
+        parser,
+        name,
+        flag_star,
+        flag_score,
+        in_head,
+        (&BLOCK_TABLE_CELL_HEADER, "table cell (header)"),
+    )?
+    .into();
 
-    parse_cell(log, parser, &BLOCK_TABLE_CELL_HEADER, true)
-}
-
-fn parse_cell<'r, 't>(
-    log: &Logger,
-    parser: &mut Parser<'r, 't>,
-    block_rule: &BlockRule,
-    header: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
     todo!()
 }
