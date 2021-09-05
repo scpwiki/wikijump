@@ -61,15 +61,26 @@ pub const BLOCK_TABLE_CELL_HEADER: BlockRule = BlockRule {
 
 // Helper functions and macros
 
-fn parse_block<'p, 'r, 't>(
+#[derive(Debug)]
+struct ParsedBlock<'t> {
+    elements: Vec<Element<'t>>,
+    attributes: AttributeMap<'t>,
+    exceptions: Vec<ParseException<'t>>,
+}
+
+fn parse_block<'r, 't>(
     log: &Logger,
-    parser: &mut ParserWrap<'p, 'r, 't>,
+    parser: &mut ParserWrap<'_, 'r, 't>,
     name: &str,
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
     (block_rule, description): (&BlockRule, &str),
-) -> ParseResult<'r, 't, (Vec<Element<'t>>, AttributeMap<'t>)> {
+) -> Result<ParsedBlock<'t>, ParseWarning>
+where
+    'r: 't,
+    ParsedBlock<'t>: 't,
+{
     debug!(
         log,
         "Parsing {} block",
@@ -97,10 +108,12 @@ fn parse_block<'p, 'r, 't>(
     // Get body elements
     let (elements, exceptions, _) = parser.get_body_elements(block_rule, false)?.into();
 
-    // Item to return to the caller
-    let result = (elements, attributes);
-
-    ok!(false; result, exceptions)
+    // Return result
+    Ok(ParsedBlock {
+        elements,
+        attributes,
+        exceptions,
+    })
 }
 
 macro_rules! extract_table_items {
@@ -141,11 +154,12 @@ fn parse_table<'r, 't>(
     // Set in_table flag.
     let parser = &mut ParserWrap::new(parser, Flag::Table);
 
-    // The returned item is (elements, attributes).
-    // Breaking apart a ParseSuccess yields (returned_item, elements, paragraph_safe).
-    //
-    // Ditto for other block rule functions.
-    let ((elements, attributes), exceptions, _) = parse_block(
+    // Get block contents.
+    let ParsedBlock {
+        elements,
+        attributes,
+        exceptions,
+    } = parse_block(
         log,
         parser,
         name,
@@ -153,8 +167,7 @@ fn parse_table<'r, 't>(
         flag_score,
         in_head,
         (&BLOCK_TABLE, "table block"),
-    )?
-    .into();
+    )?;
 
     let rows = extract_table_items!(parser, elements; Row, TableContainsNonRow);
 
@@ -177,7 +190,12 @@ fn parse_row<'r, 't>(
     // Set in_table_row flag.
     let parser = &mut ParserWrap::new(parser, Flag::TableRow);
 
-    let ((elements, attributes), exceptions, _) = parse_block(
+    // Get block contents.
+    let ParsedBlock {
+        elements,
+        attributes,
+        exceptions,
+    } = parse_block(
         log,
         parser,
         name,
@@ -185,8 +203,7 @@ fn parse_row<'r, 't>(
         flag_score,
         in_head,
         (&BLOCK_TABLE_ROW, "table row"),
-    )?
-    .into();
+    )?;
 
     // This [[row]] is outside a [[table]], which is not allowed.
     // It also cannot be inside another [[row]].
@@ -212,9 +229,15 @@ fn parse_cell_regular<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    // Doesn't set any parser flags.
     let parser = &mut ParserWrap::new(parser, Flag::TableCell);
 
-    let ((elements, attributes), exceptions, _) = parse_block(
+    // Get block contents.
+    let ParsedBlock {
+        elements,
+        attributes,
+        exceptions,
+    } = parse_block(
         log,
         parser,
         name,
@@ -236,9 +259,15 @@ fn parse_cell_header<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    // Doesn't set any parser flags.
     let parser = &mut ParserWrap::new(parser, Flag::TableCell);
 
-    let ((elements, attributes), exceptions, _) = parse_block(
+    // Get block contents.
+    let ParsedBlock {
+        elements,
+        attributes,
+        exceptions,
+    } = parse_block(
         log,
         parser,
         name,
