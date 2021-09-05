@@ -1,6 +1,10 @@
 #!/usr/bin/bash
 set -eu
 
+#
+# Help with comparing outputs form AST tests.
+#
+
 readonly newline=$'\n'
 
 expected=''
