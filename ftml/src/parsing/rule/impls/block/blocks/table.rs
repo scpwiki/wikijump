@@ -61,9 +61,9 @@ pub const BLOCK_TABLE_CELL_HEADER: BlockRule = BlockRule {
 
 // Helper functions and macros
 
-fn parse_block<'r, 't>(
+fn parse_block<'p, 'r, 't>(
     log: &Logger,
-    parser: &mut Parser<'r, 't>,
+    parser: &mut ParserWrap<'p, 'r, 't>,
     name: &str,
     flag_star: bool,
     flag_score: bool,
@@ -132,11 +132,13 @@ fn parse_table<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    // Set in_table flag.
+    let parser = &mut ParserWrap::new(parser, Flag::Table);
+
     // The returned item is (elements, attributes).
     // Breaking apart a ParseSuccess yields (returned_item, elements, paragraph_safe).
     //
     // Ditto for other block rule functions.
-
     let ((elements, attributes), exceptions, _) = parse_block(
         log,
         parser,
@@ -166,6 +168,9 @@ fn parse_row<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    // Set in_table_row flag.
+    let parser = &mut ParserWrap::new(parser, Flag::TableRow);
+
     let ((elements, attributes), exceptions, _) = parse_block(
         log,
         parser,
@@ -201,6 +206,8 @@ fn parse_cell_regular<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    let parser = &mut ParserWrap::new(parser, Flag::TableCell);
+
     let ((elements, attributes), exceptions, _) = parse_block(
         log,
         parser,
@@ -223,6 +230,8 @@ fn parse_cell_header<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    let parser = &mut ParserWrap::new(parser, Flag::TableCell);
+
     let ((elements, attributes), exceptions, _) = parse_block(
         log,
         parser,
@@ -237,8 +246,8 @@ fn parse_cell_header<'r, 't>(
     parse_cell(parser, elements, attributes, exceptions, true)
 }
 
-fn parse_cell<'r, 't>(
-    parser: &mut Parser<'r, 't>,
+fn parse_cell<'p, 'r, 't>(
+    parser: &mut ParserWrap<'p, 'r, 't>,
     elements: Vec<Element<'t>>,
     mut attributes: AttributeMap<'t>,
     exceptions: Vec<ParseException<'t>>,
@@ -277,6 +286,7 @@ fn parse_cell<'r, 't>(
 enum Flag {
     Table,
     TableRow,
+    TableCell,
 }
 
 #[derive(Debug)]
@@ -297,6 +307,7 @@ impl<'p, 'r, 't> ParserWrap<'p, 'r, 't> {
         match self.flag {
             Flag::Table => self.parser.set_table_flag(value),
             Flag::TableRow => self.parser.set_table_row_flag(value),
+            Flag::TableCell => (),
         }
     }
 }
