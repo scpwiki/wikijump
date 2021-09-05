@@ -113,7 +113,13 @@ macro_rules! extract_table_items {
         let mut items = Vec::new();
         for element in elements {
             match element {
+                // Append the next table item.
                 Element::TableItem(TableItem::$item_type(item)) => items.push(item),
+
+                // Ignore internal whitespace.
+                element if element.is_whitespace() => (),
+
+                // Return a warning for anything else.
                 _ => return Err($parser.make_warn(ParseWarningKind::$warning_kind)),
             }
         }
