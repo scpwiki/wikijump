@@ -1,7 +1,7 @@
 import type { NodePropSource, NodeType, Tree } from "@lezer/common"
 import type { Extension, LanguageDescription } from "wj-codemirror/cm"
 import type * as DF from "./grammar/definition"
-import type { Chunk, TokenizerBuffer } from "./tokenizer"
+import type { Chunk } from "./tokenizer"
 
 // -- CONFIGURATION
 
@@ -107,21 +107,7 @@ export type ParserCache = WeakMap<Chunk, SerializedParserContext>
 
 // -- MISC.
 
-export interface Range {
-  from: number
-  to: number
-}
-
 export type AddNodeSpec = { name: string } & Omit<
   Parameters<typeof NodeType["define"]>[0],
   "id" | "name"
 >
-
-/**
- * Describes a Tarnation's language cache, which is how it recovers
- * information for incremental parsing.
- *
- * - `Tree` maps to `TokenizerBuffer`
- * - `Chunk` maps to `SerializedParserContext`
- */
-export type CacheMap = WeakMap<Tree | Chunk, TokenizerBuffer | SerializedParserContext>

@@ -1,5 +1,4 @@
 import type { TreeFragment } from "@lezer/common"
-import { Range } from "./types"
 
 /**
  * The region of a document that should be parsed, along with other
@@ -17,15 +16,27 @@ export class ParseRegion {
     return this.to - this.from
   }
 
+  /** The range describing the span of the document. */
   declare document: {
+    /** The start of the document. */
     from: number
+    /** The end of the document. */
     to: number
+    /** The length of the document. */
     length: number
   }
 
+  /**
+   * The range describing the original parse range when this region was
+   * constructed. This is so that the `from` and `to` properties can be
+   * modified while retaining originally designated parse range.
+   */
   declare original: {
+    /** The start of the original range. */
     from: number
+    /** The end of the original range. */
     to: number
+    /** The length of the original range. */
     length: number
   }
 
@@ -39,7 +50,16 @@ export class ParseRegion {
     offset: number
   }
 
-  constructor(rangeDocument: Range, rangeParse: Range, fragments?: TreeFragment[]) {
+  /**
+   * @param rangeDocument - The range of the document.
+   * @param rangeParse - The range of the region that should be parsed.
+   * @param fragments - Fragments that are used to compute the edited range.
+   */
+  constructor(
+    rangeDocument: { from: number; to: number },
+    rangeParse: { from: number; to: number },
+    fragments?: TreeFragment[]
+  ) {
     this.from = Math.max(rangeDocument.from, rangeParse.from)
     this.to = Math.min(rangeDocument.to, rangeParse.to)
 
