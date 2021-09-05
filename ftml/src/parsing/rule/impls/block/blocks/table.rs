@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::parsing::parser::TableFlag;
+use crate::parsing::strip_whitespace;
 use crate::tree::{AttributeMap, Table, TableCell, TableItem, TableRow};
 use std::num::NonZeroU32;
 use std::ops::{Deref, DerefMut};
@@ -294,7 +295,7 @@ fn parse_cell_header<'r, 't>(
 }
 
 fn parse_cell<'p, 'r, 't>(
-    elements: Vec<Element<'t>>,
+    mut elements: Vec<Element<'t>>,
     mut attributes: AttributeMap<'t>,
     exceptions: Vec<ParseException<'t>>,
     header: bool,
@@ -302,6 +303,9 @@ fn parse_cell<'p, 'r, 't>(
     lazy_static! {
         static ref ONE: NonZeroU32 = NonZeroU32::new(1).unwrap();
     }
+
+    // Remove leading and trailing whitespace
+    strip_whitespace(&mut elements);
 
     // Extract column-span if specified via attributes.
     // If not specified, then the default.
