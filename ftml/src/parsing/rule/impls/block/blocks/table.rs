@@ -102,7 +102,7 @@ fn parse_block<'r, 't>(
 }
 
 macro_rules! extract_table_items {
-    ($parser:expr, $elements:expr => $item_type:ident, $warning_kind:ident) => {{
+    ($parser:expr, $elements:expr; $item_type:ident, $warning_kind:ident) => {{
         let mut items = Vec::new();
 
         for element in $elements {
@@ -142,7 +142,7 @@ fn parse_table<'r, 't>(
     )?
     .into();
 
-    let rows = extract_table_items!(parser, elements => Row, TableContainsNonRow);
+    let rows = extract_table_items!(parser, elements; Row, TableContainsNonRow);
 
     // Build and return table element
     let element = Element::Table(Table { rows, attributes });
@@ -171,7 +171,7 @@ fn parse_row<'r, 't>(
     )?
     .into();
 
-    let cells = extract_table_items!(parser, elements => Cell, TableRowContainsNonCell);
+    let cells = extract_table_items!(parser, elements; Cell, TableRowContainsNonCell);
 
     // Build and return table row
     let element = Element::TableItem(TableItem::Row(TableRow { cells, attributes }));
