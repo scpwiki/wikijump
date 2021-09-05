@@ -104,9 +104,13 @@ fn parse_block<'r, 't>(
 
 macro_rules! extract_table_items {
     ($parser:expr, $elements:expr; $item_type:ident, $warning_kind:ident $(,)?) => {{
-        let mut items = Vec::new();
+        let elements = $elements;
+        if elements.is_empty() {
+            return Err($parser.make_warn(ParseWarningKind::TableEmpty));
+        }
 
-        for element in $elements {
+        let mut items = Vec::new();
+        for element in elements {
             match element {
                 Element::TableItem(TableItem::$item_type(item)) => items.push(item),
                 _ => return Err($parser.make_warn(ParseWarningKind::$warning_kind)),
