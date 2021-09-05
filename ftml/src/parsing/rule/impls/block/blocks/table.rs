@@ -157,7 +157,7 @@ fn parse_table<'r, 't>(
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
-    let parser = &mut ParserWrap::new(parser, TableFlag::InRow);
+    let parser = &mut ParserWrap::new(parser, TableFlag::InTable);
 
     // Get block contents.
     let ParsedBlock {
