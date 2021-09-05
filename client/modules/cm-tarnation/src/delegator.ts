@@ -15,9 +15,19 @@ import { TarnationLanguage } from "./language"
 
 // TODO: figure out if this non-contiguous approach is correct
 
+/**
+ * A "parser" that serves as a factory for the {@link Delegator}
+ * `PartialParse` class. This class also wraps the constructed delegators
+ * with a mixed parser so that nested parsing works.
+ */
 export class DelegatorFactory extends Parser {
+  /** The wrapper function that enables mixed parsing. */
   private declare wrapper: ParseWrapper
 
+  /**
+   * @param language - The {@link TarnationLanguage} that this factory
+   *   passes to the {@link Delegator} instances it constructs.
+   */
   constructor(private language: TarnationLanguage) {
     super()
     this.wrapper = parseMixed(this.nest.bind(this))
@@ -32,6 +42,11 @@ export class DelegatorFactory extends Parser {
     return this.wrapper(delegator, input, fragments, ranges)
   }
 
+  /**
+   * Special "nest" function provided to the `parseMixed` function.
+   * Determines which nodes indicate a nested parsing region, and if so,
+   * returns a `NestedParser` for said region.
+   */
   private nest(node: TreeCursor, input: Input) {
     if (node.type === EmbeddedParserType && node.tree) {
       // get name from the per-node property
@@ -54,13 +69,28 @@ export class DelegatorFactory extends Parser {
   }
 }
 
+/**
+ * The `Delegator` object implements the `PartialParse` interface but
+ * delegates the actual parsing to various {@link Host} instances,
+ * specifically a `Host` is created for each range provided to the delegator.
+ */
 export class Delegator implements PartialParse {
+  /** The current range index. */
   private declare index: number
 
+  /** The host being advanced. */
   private declare host: Host
 
+  /** The list of already completed `Tree`s. */
   private declare trees: Tree[]
 
+  /**
+   * @param language - The {@link TarnationLanguage} to retrieve data from.
+   * @param input - The input to parse.
+   * @param fragments - The fragments to be used for determining reuse of
+   *   previous parses.
+   * @param ranges - The document ranges to be parsed.
+   */
   constructor(
     private language: TarnationLanguage,
     private input: Input,
@@ -72,6 +102,7 @@ export class Delegator implements PartialParse {
     this.host = this.hostOf(this.index)
   }
 
+  /** Returns a {@link Host} instance for the specified range index. */
   private hostOf(index: number) {
     return new Host(
       this.language,
@@ -82,6 +113,10 @@ export class Delegator implements PartialParse {
     )
   }
 
+  /**
+   * Advances the parser(s) one step, and returns a `Tree` if done. Returns
+   * `null` otherwise.
+   */
   advance() {
     const tree = this.host.advance()
 
@@ -107,6 +142,7 @@ export class Delegator implements PartialParse {
     return null
   }
 
+  /** Generates the final single `Tree` from the list of already completed trees. */
   private finish() {
     let tree: Tree = Tree.empty
 
@@ -124,12 +160,22 @@ export class Delegator implements PartialParse {
     return tree
   }
 
+  /** The current position of the parser(s). */
   get parsedPos() {
     return this.host.pos
   }
 
+  /**
+   * The position the parser will be stopping at early, if given a location
+   * to stop at.
+   */
   stoppedAt: number | null = null
 
+  /**
+   * Tells the parser(s) to stop early at the specified position.
+   *
+   * @param pos - The position to stop at.
+   */
   stopAt(pos: number) {
     this.stoppedAt = pos
     const range = this.ranges[this.index]
