@@ -55,9 +55,9 @@ pub struct Parser<'r, 't> {
     // Schema: Vec<(depth, _, name)>
     //
     // Note: These two are in Rc<_> items so that the Parser
-    //       can be cloned. It is intended as a cheap pointer
-    //       object, with the true contents here preserved
-    //       across parser child instances.
+    //       can be cloned. This struct is intended as a
+    //       cheap pointer object, with the true contents
+    //       here preserved across parser child instances.
     table_of_contents: Rc<RefCell<Vec<(usize, (), String)>>>,
 
     // Footnotes
