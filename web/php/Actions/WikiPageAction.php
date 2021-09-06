@@ -1403,9 +1403,6 @@ class WikiPageAction extends SmartyAction
         $site = $runData->getTemp("site");
         $siteId = $site->getSiteId();
         $enableAllowedTags = DB::table('site')->where('site_id', $siteId)->value('enable_allowed_tags');
-
-        $site = $runData->getTemp("site");
-
         $page = PagePeer::instance()->selectByPrimaryKey($pageId);
 
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
@@ -1418,7 +1415,6 @@ class WikiPageAction extends SmartyAction
 
         $pageTagsArray = explode(' ', $tags);
 
-        $siteId = $site->getSiteId();
         $allowedTagsList = AllowedTags::getAllowedTags($siteId);
         $allowedTagsList = explode(' ', $allowedTagsList);
 
@@ -1429,11 +1425,6 @@ class WikiPageAction extends SmartyAction
                 }
             }
         }
-
-        $tagsArray = explode(' ', $tags);
-        $siteId = $site->getSiteId();
-        $taglist = AllowedTags::getAllowedTags($siteId);
-        $taglist = explode(' ', $taglist);
 
         $db = Database::connection();
         $db->begin();
