@@ -18,6 +18,7 @@ class ManageSiteGeneralModule extends ManageSiteBaseModule
         $siteId = $site->getSiteId();
 
         $allowedTags = AllowedTags::getAllowedTags($siteId);
+        $allowedTags = implode(' ', $allowedTags);
         $enableAllowedTags = AllowedTags::getEnableAllowedTags($siteId);
 
         $runData->contextAdd("allowedTags", $allowedTags);

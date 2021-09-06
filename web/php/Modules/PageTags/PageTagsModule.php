@@ -21,7 +21,7 @@ class PageTagsModule extends SmartyModule
         $pageId = $pl->getParameterValue("pageId");
         $site = $runData->getTemp("site");
 
-        if (!$pageId || !is_numeric($pageId)) {
+        if (!is_numeric($pageId)) {
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
@@ -39,7 +39,6 @@ class PageTagsModule extends SmartyModule
 
         $siteId = $site->getSiteId();
         $taglist = AllowedTags::getAllowedTags($siteId);
-        $taglist = explode(' ', $taglist);
 
         // Fetch the tags and convert them to a string.
 
