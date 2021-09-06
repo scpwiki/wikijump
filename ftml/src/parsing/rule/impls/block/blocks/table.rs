@@ -250,8 +250,7 @@ fn parse_cell_regular<'r, 't>(
         flag_score,
         in_head,
         (&BLOCK_TABLE_CELL_REGULAR, "table cell (regular)"),
-    )?
-    .into();
+    )?;
 
     parse_cell(elements, attributes, exceptions, false)
 }
@@ -284,13 +283,12 @@ fn parse_cell_header<'r, 't>(
         flag_score,
         in_head,
         (&BLOCK_TABLE_CELL_HEADER, "table cell (header)"),
-    )?
-    .into();
+    )?;
 
     parse_cell(elements, attributes, exceptions, true)
 }
 
-fn parse_cell<'p, 'r, 't>(
+fn parse_cell<'r, 't>(
     mut elements: Vec<Element<'t>>,
     mut attributes: AttributeMap<'t>,
     exceptions: Vec<ParseException<'t>>,
