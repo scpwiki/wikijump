@@ -1,0 +1,36 @@
+{
+    "input": "[[table]]\n[[row]]\n[[cell]]\n[[/cell]]\n[[/row]]\n[[/table]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {},
+                    "rows": [
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
