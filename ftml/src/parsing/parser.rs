@@ -67,7 +67,7 @@ pub struct Parser<'r, 't> {
 
     // Flags
     in_list: bool,
-    in_table: TableFlag,
+    in_table: TableParseState,
     start_of_line: bool,
 }
 
@@ -102,7 +102,7 @@ impl<'r, 't> Parser<'r, 't> {
             table_of_contents,
             footnotes,
             in_list: false,
-            in_table: TableFlag::InContent,
+            in_table: TableParseState::Content,
             start_of_line: true,
         }
     }
@@ -134,7 +134,7 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     #[inline]
-    pub fn table_flag(&self) -> TableFlag {
+    pub fn table_flag(&self) -> TableParseState {
         self.in_table
     }
 
@@ -180,7 +180,7 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     #[inline]
-    pub fn set_table_flag(&mut self, value: TableFlag) {
+    pub fn set_table_flag(&mut self, value: TableParseState) {
         self.in_table = value;
     }
 
@@ -405,15 +405,15 @@ fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum TableFlag {
+pub enum TableParseState {
     /// The parser is currently looking for any elements.
-    InContent,
+    Content,
 
     /// The parser is inside of a table and is looking for rows.
-    InTable,
+    Table,
 
     /// The parser is inside of a row and is looking for cells.
-    InRow,
+    Row,
 }
 
 // Tests

@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::parsing::parser::TableFlag;
+use crate::parsing::parser::TableParseState;
 use crate::parsing::strip_whitespace;
 use crate::tree::{AttributeMap, Table, TableCell, TableItem, TableRow};
 use std::num::NonZeroU32;
@@ -150,11 +150,11 @@ fn parse_table<'r, 't>(
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // This [[table]] is not in a regular content context.
-    if parser.table_flag() != TableFlag::InContent {
+    if parser.table_flag() != TableParseState::Content {
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
-    let parser = &mut ParserWrap::new(parser, TableFlag::InTable);
+    let parser = &mut ParserWrap::new(parser, TableParseState::Table);
 
     // Get block contents.
     let ParsedBlock {
@@ -191,11 +191,11 @@ fn parse_row<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // This [[row]] is outside a [[table]], which is not allowed.
     // It also cannot be inside another [[row]].
-    if parser.table_flag() != TableFlag::InTable {
+    if parser.table_flag() != TableParseState::Table {
         return Err(parser.make_warn(ParseWarningKind::TableRowOutsideTable));
     }
 
-    let parser = &mut ParserWrap::new(parser, TableFlag::InRow);
+    let parser = &mut ParserWrap::new(parser, TableParseState::Row);
 
     // Get block contents.
     let ParsedBlock {
@@ -231,11 +231,11 @@ fn parse_cell_regular<'r, 't>(
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
-    if parser.table_flag() != TableFlag::InRow {
+    if parser.table_flag() != TableParseState::Row {
         return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
     }
 
-    let parser = &mut ParserWrap::new(parser, TableFlag::InContent);
+    let parser = &mut ParserWrap::new(parser, TableParseState::Content);
 
     // Get block contents.
     let ParsedBlock {
@@ -264,11 +264,11 @@ fn parse_cell_header<'r, 't>(
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
-    if parser.table_flag() != TableFlag::InRow {
+    if parser.table_flag() != TableParseState::Row {
         return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
     }
 
-    let parser = &mut ParserWrap::new(parser, TableFlag::InContent);
+    let parser = &mut ParserWrap::new(parser, TableParseState::Content);
 
     // Get block contents.
     let ParsedBlock {
@@ -324,12 +324,12 @@ fn parse_cell<'r, 't>(
 #[derive(Debug)]
 struct ParserWrap<'p, 'r, 't> {
     parser: &'p mut Parser<'r, 't>,
-    old_value: TableFlag,
+    old_value: TableParseState,
 }
 
 impl<'p, 'r, 't> ParserWrap<'p, 'r, 't> {
     #[inline]
-    fn new(parser: &'p mut Parser<'r, 't>, new_value: TableFlag) -> Self {
+    fn new(parser: &'p mut Parser<'r, 't>, new_value: TableParseState) -> Self {
         let old_value = parser.table_flag();
         parser.set_table_flag(new_value);
 
