@@ -36,12 +36,13 @@
 		</tr>
 		<tr>
 			<td>
-				{t}Site tags{/t}:
+				{t}Allowed tags{/t}:
 			</td>
 			<td>
-				<input  class="text" type="text" name="tags" size="40" value="{$tags}" maxlength="70"/>
+				<input type="checkbox" name="enable_allowed_tags" {if $enableAllowedTags}checked="true"{/if}></input>
+				<input class="text" type="text" name="tags" size="40" value="{$allowedTags}"/>
 				<div class="sub">
-					{t}Simply the (one-word) tags that describe this site.{/t}<br/>
+					{t}These are the list of tags people can assign to pages.{/t}<br/>
 					{t}Separate by space.{/t}
 				</div>
 			</td>
@@ -67,10 +68,3 @@
 		<input type="button" value="{t}save changes{/t}" id="sm-general-save"/>
 	</div>
 </form>
-
-<h2>{t}Note{/t}!</h2>
-<p>
-	{t escape=no}Please do not input any <strong>site tags</strong> if your Site has been just created
-	and does not have any original content yet.
-	There is nothing worse than a horde of content-hungry people facing a generic template...{/t}
-</p>

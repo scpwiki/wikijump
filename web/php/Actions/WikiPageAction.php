@@ -32,9 +32,15 @@ use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
 use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PageTag;
+use Wikidot\DB\AllowedTags;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
 use Wikijump\Models\User;
+use Wikijump\Models\PageTags;
+use Wikijump\Models\Settings;
+use Illuminate\Support\Facades\DB;
+
+
 
 class WikiPageAction extends SmartyAction
 {
@@ -1390,13 +1396,13 @@ class WikiPageAction extends SmartyAction
         // or create???
 
         $user = $runData->getUser();
-
         $pl = $runData->getParameterList();
         $tags = strtolower(trim($pl->getParameterValue("tags")));
         $pageId = $pl->getParameterValue("pageId");
 
         $site = $runData->getTemp("site");
-
+        $siteId = $site->getSiteId();
+        $enableAllowedTags = DB::table('site')->where('site_id', $siteId)->value('enable_allowed_tags');
         $page = PagePeer::instance()->selectByPrimaryKey($pageId);
 
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
@@ -1407,8 +1413,17 @@ class WikiPageAction extends SmartyAction
 
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
-        if (strlen8($tags)>256) {
-            throw new ProcessException(_('"Tags" field too long.'), "form_error");
+        $pageTagsArray = explode(' ', $tags);
+
+        $allowedTagsList = AllowedTags::getAllowedTags($siteId);
+
+       if($enableAllowedTags === 'true' && !empty($tags)) {
+            foreach ($pageTagsArray as $tag) {
+                if(!in_array($tag, $allowedTagsList)) {
+                    $errorMessage = sprintf(_('The tag %s is not valid for this site.'), $tag);
+                    throw new ProcessException($errorMessage, "form_error");
+                }
+            }
         }
 
         $db = Database::connection();
