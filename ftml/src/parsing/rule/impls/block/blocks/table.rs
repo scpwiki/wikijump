@@ -120,13 +120,9 @@ where
 
 macro_rules! extract_table_items {
     ($parser:expr, $elements:expr; $item_type:ident, $warning_kind:ident $(,)?) => {{
-        let elements = $elements;
-        if elements.is_empty() {
-            return Err($parser.make_warn(ParseWarningKind::TableEmpty));
-        }
-
         let mut items = Vec::new();
-        for element in elements {
+
+        for element in $elements {
             match element {
                 // Append the next table item.
                 Element::TableItem(TableItem::$item_type(item)) => items.push(item),
@@ -137,6 +133,10 @@ macro_rules! extract_table_items {
                 // Return a warning for anything else.
                 _ => return Err($parser.make_warn(ParseWarningKind::$warning_kind)),
             }
+        }
+
+        if items.is_empty() {
+            return Err($parser.make_warn(ParseWarningKind::TableEmpty));
         }
 
         items
