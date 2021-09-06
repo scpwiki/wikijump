@@ -123,7 +123,10 @@ def load_block_data(root_dir):
         # Aliases
         # We use sets so alias order doesn't matter
         aliases = block.get("aliases", [])
-        aliases.append(name)
+
+        if not block.get("exclude-name", False):
+            aliases.append(name)
+
         block["aliases"] = frozenset(aliases)
 
         # Flags
