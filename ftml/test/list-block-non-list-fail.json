@@ -58,7 +58,7 @@
     "warnings": [
         {
             "token": "identifier",
-            "rule": "block-li",
+            "rule": "block-list-item",
             "span": [7, 13],
             "kind": "list-item-outside-list"
         },

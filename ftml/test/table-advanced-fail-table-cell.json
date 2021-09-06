@@ -124,7 +124,7 @@
         },
         {
             "token": "identifier",
-            "rule": "block-table-row",
+            "rule": "block-table-cell-regular",
             "span": [19, 23],
             "kind": "table-cell-outside-table"
         },

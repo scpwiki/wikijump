@@ -83,7 +83,7 @@
     "warnings": [
         {
             "token": "input-end",
-            "rule": "block-ul",
+            "rule": "block-list-unordered",
             "span": [29, 29],
             "kind": "end-of-input"
         },
@@ -101,7 +101,7 @@
         },
         {
             "token": "identifier",
-            "rule": "block-li",
+            "rule": "block-list-item",
             "span": [13, 14],
             "kind": "list-item-outside-list"
         },

@@ -74,7 +74,7 @@
     "warnings": [
         {
             "token": "identifier",
-            "rule": "block-table-row",
+            "rule": "block-table-cell-regular",
             "span": [9, 13],
             "kind": "table-cell-outside-table"
         },
