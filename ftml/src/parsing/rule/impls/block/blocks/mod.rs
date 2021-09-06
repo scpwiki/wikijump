@@ -96,6 +96,7 @@ mod span;
 mod strikethrough;
 mod subscript;
 mod superscript;
+mod table;
 mod toc;
 mod underline;
 mod user;
@@ -137,6 +138,9 @@ pub use self::span::BLOCK_SPAN;
 pub use self::strikethrough::BLOCK_STRIKETHROUGH;
 pub use self::subscript::BLOCK_SUBSCRIPT;
 pub use self::superscript::BLOCK_SUPERSCRIPT;
+pub use self::table::{
+    BLOCK_TABLE, BLOCK_TABLE_CELL_HEADER, BLOCK_TABLE_CELL_REGULAR, BLOCK_TABLE_ROW,
+};
 pub use self::toc::BLOCK_TABLE_OF_CONTENTS;
 pub use self::underline::BLOCK_UNDERLINE;
 pub use self::user::BLOCK_USER;

@@ -71,6 +71,30 @@ macro_rules! file_name {
     };
 }
 
+// Debugging execution
+
+fn only_test_should_skip(name: &str) -> bool {
+    assert!(!ONLY_TESTS.is_empty());
+
+    for pattern in ONLY_TESTS.iter() {
+        // Literal test name
+        if pattern == &name {
+            return false;
+        }
+
+        // Test prefix
+        if pattern.ends_with('-') {
+            if name.starts_with(pattern) {
+                return false;
+            }
+        }
+    }
+
+    true
+}
+
+// Newline normalization
+
 #[cfg(not(target_os = "windows"))]
 fn process_newlines(_: &mut String) {}
 
@@ -81,6 +105,8 @@ fn process_newlines(text: &mut String) {
         text.replace_range(range, "\n");
     }
 }
+
+// Test runner
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Test<'a> {
@@ -160,7 +186,7 @@ impl Test<'_> {
             return;
         }
 
-        if !ONLY_TESTS.is_empty() && !ONLY_TESTS.contains(&&*self.name) {
+        if !ONLY_TESTS.is_empty() && only_test_should_skip(&&*self.name) {
             println!("+ {} [SKIPPED]", self.name);
             return;
         }

@@ -85,7 +85,7 @@
     "warnings": [
         {
             "token": "input-end",
-            "rule": "block-ul",
+            "rule": "block-list-unordered",
             "span": [31, 31],
             "kind": "list-contains-non-item"
         },

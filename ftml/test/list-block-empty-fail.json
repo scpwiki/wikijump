@@ -50,7 +50,7 @@
     "warnings": [
         {
             "token": "input-end",
-            "rule": "block-ul",
+            "rule": "block-list-unordered",
             "span": [14, 14],
             "kind": "list-empty"
         },

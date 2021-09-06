@@ -20,6 +20,13 @@ deprecated = false
 # type: string[], optional
 aliases = ["a", "anchor"]
 
+# Whether to exclude the block's name from its list of aliases.
+# By default, the block's rule name is, by convention, one of its
+# block names when parsing. However this is not always true.
+#
+# type: bool, optional
+exclude-name = false
+
 # Whether this block accepts the star (*) flag.
 #
 # type: bool, optional

@@ -1,0 +1,106 @@
+{
+    "input": "[[cell]] Cell content here [[/cell]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "cell"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Cell"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "content"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "here"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "[[/"
+                        },
+                        {
+                            "element": "text",
+                            "data": "cell"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "identifier",
+            "rule": "block-table-cell-regular",
+            "span": [9, 13],
+            "kind": "table-cell-outside-table"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [6, 8],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "left-block-end",
+            "rule": "fallback",
+            "span": [27, 30],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [34, 36],
+            "kind": "no-rules-match"
+        }
+    ]
+}

@@ -55,9 +55,9 @@ pub struct Parser<'r, 't> {
     // Schema: Vec<(depth, _, name)>
     //
     // Note: These two are in Rc<_> items so that the Parser
-    //       can be cloned. It is intended as a cheap pointer
-    //       object, with the true contents here preserved
-    //       across parser child instances.
+    //       can be cloned. This struct is intended as a
+    //       cheap pointer object, with the true contents
+    //       here preserved across parser child instances.
     table_of_contents: Rc<RefCell<Vec<(usize, (), String)>>>,
 
     // Footnotes
@@ -67,6 +67,7 @@ pub struct Parser<'r, 't> {
 
     // Flags
     in_list: bool,
+    in_table: TableParseState,
     start_of_line: bool,
 }
 
@@ -101,6 +102,7 @@ impl<'r, 't> Parser<'r, 't> {
             table_of_contents,
             footnotes,
             in_list: false,
+            in_table: TableParseState::Content,
             start_of_line: true,
         }
     }
@@ -129,6 +131,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn in_list(&self) -> bool {
         self.in_list
+    }
+
+    #[inline]
+    pub fn table_flag(&self) -> TableParseState {
+        self.in_table
     }
 
     #[inline]
@@ -170,6 +177,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn set_list_flag(&mut self, value: bool) {
         self.in_list = value;
+    }
+
+    #[inline]
+    pub fn set_table_flag(&mut self, value: TableParseState) {
+        self.in_table = value;
     }
 
     // Table of Contents
@@ -391,6 +403,20 @@ impl<'r, 't> Parser<'r, 't> {
 fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
     Rc::new(RefCell::new(Vec::new()))
 }
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum TableParseState {
+    /// The parser is currently looking for any elements.
+    Content,
+
+    /// The parser is inside of a table and is looking for rows.
+    Table,
+
+    /// The parser is inside of a row and is looking for cells.
+    Row,
+}
+
+// Tests
 
 #[test]
 fn parser_newline_flag() {

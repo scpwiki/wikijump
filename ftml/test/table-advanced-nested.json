@@ -1,0 +1,61 @@
+{
+    "input": "[[table]][[row]][[cell]][[table]][[row]][[cell]]A[[/cell]][[/row]][[/table]][[/cell]][[/row]][[/table]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {},
+                    "rows": [
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "table",
+                                            "data": {
+                                                "attributes": {},
+                                                "rows": [
+                                                    {
+                                                        "attributes": {},
+                                                        "cells": [
+                                                            {
+                                                                "header": false,
+                                                                "column-span": 1,
+                                                                "align": null,
+                                                                "attributes": {},
+                                                                "elements": [
+                                                                    {
+                                                                        "element": "text",
+                                                                        "data": "A"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

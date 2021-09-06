@@ -1,0 +1,95 @@
+{
+    "input": "[[table]][[row]][[cell colspan=\"3\"]]Three[[/cell]][[cell rowspan=\"2\"]]Two[[/cell]][[/row]][[row]][[cell]]A[[/cell]][[cell]]B[[/cell]][[cell]]C[[/cell]][[/row]][[/table]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {},
+                    "rows": [
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 3,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "Three"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {
+                                        "rowspan": "2"
+                                    },
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "Two"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "A"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "B"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "C"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

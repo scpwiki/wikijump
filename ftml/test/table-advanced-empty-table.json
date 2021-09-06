@@ -1,0 +1,23 @@
+{
+    "input": "[[table]]\n[[/table]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {},
+                    "rows": [
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

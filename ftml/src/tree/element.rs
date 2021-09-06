@@ -24,7 +24,7 @@ use super::clone::{
 use super::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, ElementCondition,
     FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
-    Table,
+    Table, TableItem,
 };
 use ref_map::*;
 use std::borrow::Cow;
@@ -67,14 +67,20 @@ pub enum Element<'t> {
     /// An element representing an HTML table.
     Table(Table<'t>),
 
+    /// A particular portion of a table.
+    ///
+    /// This will not occur in final trees, but is a special
+    /// `Element` returned during parsing.
+    TableItem(TableItem<'t>),
+
     /// An element representing an arbitrary anchor.
     ///
     /// This is distinct from link in that it maps to HTML `<a>`,
     /// and does not necessarily mean a link to some other URL.
     Anchor {
-        elements: Vec<Element<'t>>,
-        attributes: AttributeMap<'t>,
         target: Option<AnchorTarget>,
+        attributes: AttributeMap<'t>,
+        elements: Vec<Element<'t>>,
     },
 
     /// An element linking to a different page.
@@ -105,8 +111,8 @@ pub enum Element<'t> {
     List {
         #[serde(rename = "type")]
         ltype: ListType,
-        items: Vec<ListItem<'t>>,
         attributes: AttributeMap<'t>,
+        items: Vec<ListItem<'t>>,
     },
 
     /// A particular item of a list.
@@ -201,8 +207,8 @@ pub enum Element<'t> {
 
     /// Element containing an iframe component.
     Iframe {
-        url: Cow<'t, str>,
         attributes: AttributeMap<'t>,
+        url: Cow<'t, str>,
     },
 
     /// A newline or line break.
@@ -221,15 +227,17 @@ pub enum Element<'t> {
 }
 
 impl Element<'_> {
-    /// Determines if the element is "whitespace".
+    /// Determines if the element is "unintentional whitespace".
     ///
     /// Specifically, it returns true if the element is:
     /// * `Element::LineBreak`
-    /// * `Element::LineBreaks`
     /// * `Element::Text` where the contents all have the Unicode property `White_Space`.
+    ///
+    /// This does not count `Element::LineBreaks` because it is produced intentionally
+    /// via `[[lines]]` rather than extra whitespace in between syntactical elements.
     pub fn is_whitespace(&self) -> bool {
         match self {
-            Element::LineBreak | Element::LineBreaks(_) => true,
+            Element::LineBreak => true,
             Element::Text(string) if string.chars().all(|c| c.is_whitespace()) => true,
             _ => false,
         }
@@ -244,6 +252,7 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Table(_) => "Table",
+            Element::TableItem(_) => "TableItem",
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::List { .. } => "List",
@@ -282,6 +291,7 @@ impl Element<'_> {
             Element::Module(_) => false,
             Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
             Element::Table(_) => false,
+            Element::TableItem(_) => false,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
             Element::ListItem(_) => false,
@@ -314,14 +324,15 @@ impl Element<'_> {
             Element::Raw(text) => Element::Raw(string_to_owned(text)),
             Element::Email(email) => Element::Email(string_to_owned(email)),
             Element::Table(table) => Element::Table(table.to_owned()),
+            Element::TableItem(item) => Element::TableItem(item.to_owned()),
             Element::Anchor {
-                elements,
-                attributes,
                 target,
+                attributes,
+                elements,
             } => Element::Anchor {
-                elements: elements_to_owned(elements),
-                attributes: attributes.to_owned(),
                 target: *target,
+                attributes: attributes.to_owned(),
+                elements: elements_to_owned(elements),
             },
             Element::Link {
                 link,
@@ -334,12 +345,12 @@ impl Element<'_> {
             },
             Element::List {
                 ltype,
-                items,
                 attributes,
+                items,
             } => Element::List {
                 ltype: *ltype,
-                items: list_items_to_owned(items),
                 attributes: attributes.to_owned(),
+                items: list_items_to_owned(items),
             },
             Element::ListItem(boxed_list_item) => {
                 let list_item: &ListItem = &*boxed_list_item;
@@ -404,9 +415,9 @@ impl Element<'_> {
                 conditions: conditions.iter().map(|c| c.to_owned()).collect(),
                 elements: elements_to_owned(elements),
             },
-            Element::TableOfContents { attributes, align } => Element::TableOfContents {
-                attributes: attributes.to_owned(),
+            Element::TableOfContents { align, attributes } => Element::TableOfContents {
                 align: *align,
+                attributes: attributes.to_owned(),
             },
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),

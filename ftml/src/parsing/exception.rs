@@ -155,6 +155,18 @@ pub enum ParseWarningKind {
     /// This list tries to nest too deeply.
     ListDepthExceeded,
 
+    /// This table has elements other than rows in it.
+    TableContainsNonRow,
+
+    /// This table row has elements other than cells in it.
+    TableRowContainsNonCell,
+
+    /// This table row appears outside of a table.
+    TableRowOutsideTable,
+
+    /// This table cell appears outside of a table row.
+    TableCellOutsideTable,
+
     /// This native blockquote tries to nest too deeply.
     BlockquoteDepthExceeded,
 

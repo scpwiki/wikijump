@@ -33,41 +33,47 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
         .table()
         .attr(attr!(;; &table.attributes))
         .contents(|ctx| {
-            // Each row
-            for row in &table.rows {
-                ctx.html() //
-                    .tr()
-                    .attr(attr!(;; &row.attributes))
-                    .contents(|ctx| {
-                        // Each cell in a row
-                        for cell in &row.cells {
-                            let elements: &[Element] = &cell.elements;
-                            let align_class = match cell.align {
-                                Some(align) => align.html_class(),
-                                None => "",
-                            };
+            ctx.html().tbody().contents(|ctx| {
+                // Each row
+                for row in &table.rows {
+                    ctx.html() //
+                        .tr()
+                        .attr(attr!(;; &row.attributes))
+                        .contents(|ctx| {
+                            // Each cell in a row
+                            for cell in &row.cells {
+                                let elements: &[Element] = &cell.elements;
+                                let align_class = match cell.align {
+                                    Some(align) => align.html_class(),
+                                    None => "",
+                                };
 
-                            if cell.column_span > value_one {
-                                column_span_buf.clear();
-                                str_write!(&mut column_span_buf, "{}", cell.column_span);
+                                if cell.column_span > value_one {
+                                    column_span_buf.clear();
+                                    str_write!(
+                                        &mut column_span_buf,
+                                        "{}",
+                                        cell.column_span
+                                    );
+                                }
+
+                                ctx.html()
+                                    .table_cell(cell.header)
+                                    .attr(attr!(
+                                        // Add column span if not default (1)
+                                        "colspan" => &column_span_buf;
+                                            if cell.column_span > value_one,
+
+                                        // Add alignment if specified
+                                        "class" => align_class;
+                                            if cell.align.is_some();;
+
+                                        &cell.attributes,
+                                    ))
+                                    .inner(log, &elements);
                             }
-
-                            ctx.html()
-                                .table_cell(cell.header)
-                                .attr(attr!(
-                                    // Add column span if not default (1)
-                                    "colspan" => &column_span_buf;
-                                        if cell.column_span > value_one,
-
-                                    // Add alignment if specified
-                                    "class" => align_class;
-                                        if cell.align.is_some();;
-
-                                    &cell.attributes,
-                                ))
-                                .inner(log, &elements);
-                        }
-                    });
-            }
+                        });
+                }
+            });
         });
 }

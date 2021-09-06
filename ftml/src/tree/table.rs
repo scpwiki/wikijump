@@ -25,15 +25,15 @@ use std::num::NonZeroU32;
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct Table<'t> {
-    pub rows: Vec<TableRow<'t>>,
     pub attributes: AttributeMap<'t>,
+    pub rows: Vec<TableRow<'t>>,
 }
 
 impl Table<'_> {
     pub fn to_owned(&self) -> Table<'static> {
         Table {
-            rows: self.rows.iter().map(|row| row.to_owned()).collect(),
             attributes: self.attributes.to_owned(),
+            rows: self.rows.iter().map(|row| row.to_owned()).collect(),
         }
     }
 }
@@ -41,15 +41,15 @@ impl Table<'_> {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct TableRow<'t> {
-    pub cells: Vec<TableCell<'t>>,
     pub attributes: AttributeMap<'t>,
+    pub cells: Vec<TableCell<'t>>,
 }
 
 impl TableRow<'_> {
     pub fn to_owned(&self) -> TableRow<'static> {
         TableRow {
-            cells: self.cells.iter().map(|cell| cell.to_owned()).collect(),
             attributes: self.attributes.to_owned(),
+            cells: self.cells.iter().map(|cell| cell.to_owned()).collect(),
         }
     }
 }
@@ -60,8 +60,8 @@ pub struct TableCell<'t> {
     pub header: bool,
     pub column_span: NonZeroU32,
     pub align: Option<Alignment>,
-    pub elements: Vec<Element<'t>>,
     pub attributes: AttributeMap<'t>,
+    pub elements: Vec<Element<'t>>,
 }
 
 impl TableCell<'_> {
@@ -70,8 +70,24 @@ impl TableCell<'_> {
             header: self.header,
             column_span: self.column_span,
             align: self.align,
-            elements: elements_to_owned(&self.elements),
             attributes: self.attributes.to_owned(),
+            elements: elements_to_owned(&self.elements),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum TableItem<'t> {
+    Row(TableRow<'t>),
+    Cell(TableCell<'t>),
+}
+
+impl TableItem<'_> {
+    pub fn to_owned(&self) -> TableItem<'static> {
+        match self {
+            TableItem::Row(row) => TableItem::Row(row.to_owned()),
+            TableItem::Cell(cell) => TableItem::Cell(cell.to_owned()),
         }
     }
 }

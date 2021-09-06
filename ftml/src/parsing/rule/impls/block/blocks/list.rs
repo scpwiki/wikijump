@@ -26,7 +26,7 @@ use std::ops::{Deref, DerefMut};
 // Definitions
 
 pub const BLOCK_UL: BlockRule = BlockRule {
-    name: "block-ul",
+    name: "block-list-unordered",
     accepts_names: &["ul"],
     accepts_star: false,
     accepts_score: true,
@@ -35,7 +35,7 @@ pub const BLOCK_UL: BlockRule = BlockRule {
 };
 
 pub const BLOCK_OL: BlockRule = BlockRule {
-    name: "block-ol",
+    name: "block-list-ordered",
     accepts_names: &["ol"],
     accepts_star: false,
     accepts_score: true,
@@ -44,7 +44,7 @@ pub const BLOCK_OL: BlockRule = BlockRule {
 };
 
 pub const BLOCK_LI: BlockRule = BlockRule {
-    name: "block-li",
+    name: "block-list-item",
     accepts_names: &["li"],
     accepts_star: false,
     accepts_score: true,

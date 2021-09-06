@@ -86,6 +86,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::Raw(text) => render_wikitext_raw(log, ctx, text),
         Element::Email(email) => render_email(log, ctx, email),
         Element::Table(table) => render_table(log, ctx, table),
+        Element::TableItem(_) => panic!("Reached ancillary element: {:#?}", element),
         Element::Anchor {
             elements,
             attributes,
@@ -107,7 +108,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             items,
             attributes,
         } => render_list(log, ctx, *ltype, items, attributes),
-        Element::ListItem(_) => panic!("Reached ancillary element"),
+        Element::ListItem(_) => panic!("Reached ancillary element: {:#?}", element),
         Element::RadioButton {
             name,
             checked,

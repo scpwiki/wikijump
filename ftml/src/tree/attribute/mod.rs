@@ -82,6 +82,11 @@ impl<'t> AttributeMap<'t> {
     }
 
     #[inline]
+    pub fn remove(&mut self, attribute: &str) -> Option<Cow<'t, str>> {
+        self.inner.remove(attribute)
+    }
+
+    #[inline]
     pub fn get(&self) -> &BTreeMap<Cow<'t, str>, Cow<'t, str>> {
         &self.inner
     }

@@ -1,0 +1,46 @@
+{
+    "input": "[[table id=\"fruit\"]]\n[[row style=\"color: red;\" ]]\n[[cell  data-sort=\"number\"]]\nTEXT\n[[/cell]]\n[[/row]]\n[[/table]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {
+                        "id": "fruit"
+                    },
+                    "rows": [
+                        {
+                            "attributes": {
+                                "style": "color: red;"
+                            },
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {
+                                        "data-sort": "number"
+                                    },
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "TEXT"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
