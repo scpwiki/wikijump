@@ -441,7 +441,7 @@ class ManageSiteAction extends SmartyAction
         $subtitle = trim($pl->getParameterValue("subtitle"));
         $description = trim($pl->getParameterValue("description"));
         $enableAllowedTags = trim($pl->getParameterValue("enable_allowed_tags"));
-        $enableAllowedTags = !empty($enableAllowedTags) ? 'true' : 'false';
+        $enableAllowedTags = !empty($enableAllowedTags) ? true : false;
         $tags = strtolower(trim($pl->getParameterValue("tags")));
 
         $defaultPage = WDStringUtils::toUnixName($pl->getParameterValue("default_page"));
