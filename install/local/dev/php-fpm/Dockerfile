@@ -75,8 +75,8 @@ RUN apt install -y \
 
 # Configure PHP-FFI
 RUN apt install libffi-dev \
-    && docker-php-ext-configure ffi --with-ffi \
-    && docker-php-ext-install ffi
+    && docker-php-ext-configure ffi intl --with-ffi \
+    && docker-php-ext-install ffi intl
 
 # Install libftml
 COPY --from=rust /src/${WIKIJUMP_REPO_DIR}/ftml/target/release/ftml.h /usr/local/include/ftml.h
