@@ -12,7 +12,7 @@ actual=''
 
 current='expected'
 
-while read -r line; do
+while IFS= read -r line; do
 	if [[ $line == Actual:* ]]; then
 		current='actual'
 	fi
