@@ -86,7 +86,10 @@ def format_check_value(value):
 
 
 # Case-insensitivity and converting from kebab-case
-def convert_name(value):
+def convert_block_name(value):
+    return value.casefold()
+
+def convert_module_name(value):
     value = inflection.underscore(value)
     value = inflection.camelize(value)
     return value.casefold()
@@ -112,7 +115,7 @@ def load_block_data(root_dir):
         blocks = toml.load(file)
 
         # Normalize module keys for case-insensitive access
-        blocks = {convert_name(name): value for name, value in blocks.items()}
+        blocks = {convert_block_name(name): value for name, value in blocks.items()}
 
     # Adjust configuration
     # Make implicit fields explicit, etc.
@@ -140,7 +143,7 @@ def load_block_data(root_dir):
             contents = file.read()
 
         for match in BLOCK_RULE_REGEX.finditer(contents):
-            name = convert_name(match[1])
+            name = convert_block_name(match[1])
 
             if name in EXCLUDE_BLOCKS:
                 continue
@@ -164,7 +167,7 @@ def load_module_data(root_dir):
         modules = toml.load(file)
 
         # Normalize module keys for case-insensitive access
-        modules = {convert_name(name): value for name, value in modules.items()}
+        modules = {convert_module_name(name): value for name, value in modules.items()}
 
     # Adjust configuration
     # Make implicit fields explicit, etc.
@@ -182,7 +185,7 @@ def load_module_data(root_dir):
             contents = file.read()
 
         for match in MODULE_RULE_REGEX.finditer(contents):
-            name = convert_name(match[1])
+            name = convert_module_name(match[1])
 
             if name in EXCLUDE_MODULES:
                 continue
@@ -214,8 +217,8 @@ def compare_block_data(block_conf, block_rules):
     success = Container(True)
 
     # Check for new or removed blocks
-    block_conf_names = frozenset(map(convert_name, block_conf.keys()))
-    block_rule_names = frozenset(map(convert_name, block_rules.keys()))
+    block_conf_names = frozenset(map(convert_block_name, block_conf.keys()))
+    block_rule_names = frozenset(map(convert_block_name, block_rules.keys()))
 
     added = block_rule_names - block_conf_names
     deleted = block_conf_names - block_rule_names
