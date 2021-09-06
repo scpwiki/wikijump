@@ -17,19 +17,23 @@ class WDStringUtils
         $text = trim($text);
 
         $text = mb_convert_case($text, MB_CASE_FOLD, 'UTF-8');
-        $text = preg_replace('/[^a-z0-9\-:_]/', '-', $text);
-        $text = preg_replace('/^_/', ':_', $text);
-        $text = preg_replace('/(?<!:)_/', '-', $text);
-        $text = preg_replace('/^\-*/', '', $text);
-        $text = preg_replace('/\-*$/', '', $text);
-        $text = preg_replace('/[\-]{2,}/', '-', $text);
-        $text = preg_replace('/[:]{2,}/', ':', $text);
 
+        // Normalize string
+        $text = preg_replace('/[^a-z0-9\-:_]/', '-', $text); // Replace non-alphanumeric characters
+        $text = preg_replace('/^_/', ':_', $text); // Allow leading underscores (e.g. _default, _template)
+        $text = preg_replace('/(?<!:)_/', '-', $text); // Clobber all other underscores
+        $text = preg_replace('/^\-*/', '', $text); // Strip leading dashes
+        $text = preg_replace('/\-*$/', '', $text); // Strip trailing dashes
+        $text = preg_replace('/[\-]{2,}/', '-', $text); // Combine multiple dashes
+        $text = preg_replace('/[:]{2,}/', ':', $text); // Combine multiple colons
+
+        // Clean up boundaries
         $text = str_replace(':-', ':', $text);
         $text = str_replace('-:', ':', $text);
         $text = str_replace('_-', '_', $text);
         $text = str_replace('-_', '_', $text);
 
+        // Clean up categories
         $text = preg_replace('/^:/', '', $text);
         $text = preg_replace('/:$/', '', $text);
 
