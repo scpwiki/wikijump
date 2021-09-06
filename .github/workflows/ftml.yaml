@@ -60,7 +60,10 @@ jobs:
       - name: WASM Toolchain
         uses: jetli/wasm-pack-action@v0.3.0
         with:
-          version: 'latest'
+          # Normally this is 'latest', but we're temporarily
+          # downgrading because the action is failing on the latest
+          # wasm-pack version.
+          version: 'v0.10.0'
 
       - name: Cargo Cache
         uses: actions/cache@v2
