@@ -1417,7 +1417,7 @@ class WikiPageAction extends SmartyAction
 
         $allowedTagsList = AllowedTags::getAllowedTags($siteId);
 
-       if($enableAllowedTags == true && !empty($tags)) {
+       if($enableAllowedTags === 'true' && !empty($tags)) {
             foreach ($pageTagsArray as $tag) {
                 if(!in_array($tag, $allowedTagsList)) {
                     $errorMessage = sprintf(_('The tag %s is not valid for this site.'), $tag);
