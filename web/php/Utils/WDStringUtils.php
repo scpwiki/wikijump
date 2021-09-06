@@ -8,8 +8,7 @@ class WDStringUtils
     {
         $text = trim($text);
 
-        // and absolutely purify the string removing all unwanted characters
-        $text = strtolower($text);
+        $text = mb_convert_case($text, MB_CASE_FOLD, 'UTF-8');
         $text = preg_replace('/[^a-z0-9\-:_]/', '-', $text);
         $text = preg_replace('/^_/', ':_', $text);
         $text = preg_replace('/(?<!:)_/', '-', $text);
