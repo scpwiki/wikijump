@@ -227,15 +227,17 @@ pub enum Element<'t> {
 }
 
 impl Element<'_> {
-    /// Determines if the element is "whitespace".
+    /// Determines if the element is "unintentional whitespace".
     ///
     /// Specifically, it returns true if the element is:
     /// * `Element::LineBreak`
-    /// * `Element::LineBreaks`
     /// * `Element::Text` where the contents all have the Unicode property `White_Space`.
+    ///
+    /// This does not count `Element::LineBreaks` because it is produced intentionally
+    /// via `[[lines]]` rather than extra whitespace in between syntactical elements.
     pub fn is_whitespace(&self) -> bool {
         match self {
-            Element::LineBreak | Element::LineBreaks(_) => true,
+            Element::LineBreak => true,
             Element::Text(string) if string.chars().all(|c| c.is_whitespace()) => true,
             _ => false,
         }
