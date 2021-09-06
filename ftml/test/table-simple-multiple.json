@@ -18,7 +18,9 @@
             {
                 "element": "table",
                 "data": {
-                    "attributes": {},
+                    "attributes": {
+                        "class": "wj-table"
+                    },
                     "rows": [
                         {
                             "attributes": {},
@@ -55,7 +57,9 @@
             {
                 "element": "table",
                 "data": {
-                    "attributes": {},
+                    "attributes": {
+                        "class": "wj-table"
+                    },
                     "rows": [
                         {
                             "attributes": {},
@@ -83,7 +87,9 @@
             {
                 "element": "table",
                 "data": {
-                    "attributes": {},
+                    "attributes": {
+                        "class": "wj-table"
+                    },
                     "rows": [
                         {
                             "attributes": {},

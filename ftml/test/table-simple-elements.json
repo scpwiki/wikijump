@@ -18,7 +18,9 @@
             {
                 "element": "table",
                 "data": {
-                    "attributes": {},
+                    "attributes": {
+                        "class": "wj-table"
+                    },
                     "rows": [
                         {
                             "attributes": {},
