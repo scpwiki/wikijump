@@ -44,7 +44,7 @@ pub const BLOCK_TABLE_ROW: BlockRule = BlockRule {
 };
 
 pub const BLOCK_TABLE_CELL_REGULAR: BlockRule = BlockRule {
-    name: "block-table-row",
+    name: "block-table-cell-regular",
     accepts_names: &["cell"],
     accepts_star: false,
     accepts_score: false,
@@ -53,7 +53,7 @@ pub const BLOCK_TABLE_CELL_REGULAR: BlockRule = BlockRule {
 };
 
 pub const BLOCK_TABLE_CELL_HEADER: BlockRule = BlockRule {
-    name: "block-table-row",
+    name: "block-table-cell-header",
     accepts_names: &["hcell"],
     accepts_star: false,
     accepts_score: false,
