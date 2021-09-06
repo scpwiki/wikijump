@@ -1,0 +1,152 @@
+{
+    "input": "[[table]]\n[[row]]\n[[cell]]\n\n1\n\n[[table]]\n[[row]]\n[[cell]]\n\n2\n\n[[table]]\n[[row]]\n[[cell]]\n\n3\n\n[[table]]\n[[row]]\n[[cell]]\n\n4\n\n[[table]]\n[[row]]\n[[cell]]\n\n5\n\n[[/cell]]\n[[/row]]\n[[/table]]\n\n[[/cell]]\n[[/row]]\n[[/table]]\n\n[[/cell]]\n[[/row]]\n[[/table]]\n\n[[/cell]]\n[[/row]]\n[[/table]]\n\n[[/cell]]\n[[/row]]\n[[/table]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "table",
+                "data": {
+                    "attributes": {},
+                    "rows": [
+                        {
+                            "attributes": {},
+                            "cells": [
+                                {
+                                    "header": false,
+                                    "column-span": 1,
+                                    "align": null,
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "1"
+                                        },
+                                        {
+                                            "element": "line-break"
+                                        },
+                                        {
+                                            "element": "table",
+                                            "data": {
+                                                "attributes": {},
+                                                "rows": [
+                                                    {
+                                                        "attributes": {},
+                                                        "cells": [
+                                                            {
+                                                                "header": false,
+                                                                "column-span": 1,
+                                                                "align": null,
+                                                                "attributes": {},
+                                                                "elements": [
+                                                                    {
+                                                                        "element": "text",
+                                                                        "data": "2"
+                                                                    },
+                                                                    {
+                                                                        "element": "line-break"
+                                                                    },
+                                                                    {
+                                                                        "element": "table",
+                                                                        "data": {
+                                                                            "attributes": {},
+                                                                            "rows": [
+                                                                                {
+                                                                                    "attributes": {},
+                                                                                    "cells": [
+                                                                                        {
+                                                                                            "header": false,
+                                                                                            "column-span": 1,
+                                                                                            "align": null,
+                                                                                            "attributes": {},
+                                                                                            "elements": [
+                                                                                                {
+                                                                                                    "element": "text",
+                                                                                                    "data": "3"
+                                                                                                },
+                                                                                                {
+                                                                                                    "element": "line-break"
+                                                                                                },
+                                                                                                {
+                                                                                                    "element": "table",
+                                                                                                    "data": {
+                                                                                                        "attributes": {},
+                                                                                                        "rows": [
+                                                                                                            {
+                                                                                                                "attributes": {},
+                                                                                                                "cells": [
+                                                                                                                    {
+                                                                                                                        "header": false,
+                                                                                                                        "column-span": 1,
+                                                                                                                        "align": null,
+                                                                                                                        "attributes": {},
+                                                                                                                        "elements": [
+                                                                                                                            {
+                                                                                                                                "element": "text",
+                                                                                                                                "data": "4"
+                                                                                                                            },
+                                                                                                                            {
+                                                                                                                                "element": "line-break"
+                                                                                                                            },
+                                                                                                                            {
+                                                                                                                                "element": "table",
+                                                                                                                                "data": {
+                                                                                                                                    "attributes": {},
+                                                                                                                                    "rows": [
+                                                                                                                                        {
+                                                                                                                                            "attributes": {},
+                                                                                                                                            "cells": [
+                                                                                                                                                {
+                                                                                                                                                    "header": false,
+                                                                                                                                                    "column-span": 1,
+                                                                                                                                                    "align": null,
+                                                                                                                                                    "attributes": {},
+                                                                                                                                                    "elements": [
+                                                                                                                                                        {
+                                                                                                                                                            "element": "text",
+                                                                                                                                                            "data": "5"
+                                                                                                                                                        }
+                                                                                                                                                    ]
+                                                                                                                                                }
+                                                                                                                                            ]
+                                                                                                                                        }
+                                                                                                                                    ]
+                                                                                                                                }
+                                                                                                                            }
+                                                                                                                        ]
+                                                                                                                    }
+                                                                                                                ]
+                                                                                                            }
+                                                                                                        ]
+                                                                                                    }
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
