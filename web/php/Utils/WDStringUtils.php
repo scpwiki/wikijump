@@ -4,7 +4,15 @@ namespace Wikidot\Utils;
 
 class WDStringUtils
 {
-    public static function toUnixName($text)
+    /**
+     * This method normalizes a string, removing punctuation and other characters.
+     * See https://scuttle.atlassian.net/wiki/spaces/WD/pages/541655041/Wikidot+Normal+Form
+     * For another implementation, see https://github.com/scpwiki/wikidot-normalize
+     *
+     * @param string $text The text to be normalized.
+     * @return string
+     */
+    public static function toUnixName(string $text): string
     {
         $text = trim($text);
 
