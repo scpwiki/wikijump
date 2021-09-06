@@ -95,13 +95,13 @@ fn json() {
         "element": "container",
         "data": {
           "type": "bold",
+          "attributes": {},
           "elements": [
             {
               "element": "text",
               "data": "banana"
             }
-          ],
-          "attributes": {}
+          ]
         }
       }
     ],
@@ -126,7 +126,7 @@ fn json() {
   }
 }"#;
 
-    const COMPACT_OUTPUT: &str = r#"{"syntax_tree":{"elements":[{"element":"text","data":"apple"},{"element":"text","data":" "},{"element":"container","data":{"type":"bold","elements":[{"element":"text","data":"banana"}],"attributes":{}}}],"styles":["span.hidden-text { display: none; }"],"table-of-contents":[],"footnotes":[]},"page_info":{"page":"some-page","category":null,"site":"sandbox","title":"A page for the age","alt-title":null,"rating":69.0,"tags":["tale","_cc"],"language":"default"}}"#;
+    const COMPACT_OUTPUT: &str = r#"{"syntax_tree":{"elements":[{"element":"text","data":"apple"},{"element":"text","data":" "},{"element":"container","data":{"type":"bold","attributes":{},"elements":[{"element":"text","data":"banana"}]}}],"styles":["span.hidden-text { display: none; }"],"table-of-contents":[],"footnotes":[]},"page_info":{"page":"some-page","category":null,"site":"sandbox","title":"A page for the age","alt-title":null,"rating":69.0,"tags":["tale","_cc"],"language":"default"}}"#;
 
     let log = crate::build_logger();
     let page_info = PageInfo::dummy();

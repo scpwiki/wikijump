@@ -63,12 +63,12 @@ SyntaxTree {
         Container(
             Container {
                 ctype: Bold,
+                attributes: {},
                 elements: [
                     Text(
                         "banana",
                     ),
                 ],
-                attributes: {},
             },
         ),
     ],
