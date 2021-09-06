@@ -22,13 +22,6 @@ body = "elements"
 html-attributes = true
 html-output = "html,strong"
 
-[cell]
-head = "map"
-body = "elements"
-accepts-newlines = true
-html-attributes = true
-html-output = "html,td"
-
 [char]
 aliases = ["character"]
 head = "value"
@@ -85,13 +78,6 @@ head = "map"
 body = "elements"
 html-attributes = true
 html-output = "html,div"
-
-[hcell]
-head = "map"
-body = "elements"
-accepts-newlines = true
-html-attributes = true
-html-output = "html,th"
 
 [hidden]
 accepts-newlines = true
@@ -219,13 +205,6 @@ body = "none"
 html-attributes = true
 html-output = "html,input"
 
-[row]
-head = "map"
-body = "elements"
-accepts-newlines = true
-html-attributes = true
-html-output = "html,tr"
-
 [size]
 head = "value"
 body = "elements"
@@ -265,6 +244,33 @@ body = "elements"
 accepts-newlines = true
 html-attributes = true
 html-output = "html,table"
+
+[table-cell-regular]
+exclude-name = true
+aliases = ["cell"]
+head = "map"
+body = "elements"
+accepts-newlines = true
+html-attributes = true
+html-output = "html,td"
+
+[table-cell-header]
+exclude-name = true
+aliases = ["hcell"]
+head = "map"
+body = "elements"
+accepts-newlines = true
+html-attributes = true
+html-output = "html,th"
+
+[table-row]
+exclude-name = true
+aliases = ["row"]
+head = "map"
+body = "elements"
+accepts-newlines = true
+html-attributes = true
+html-output = "html,tr"
 
 [toc]
 aliases = ["f<toc", "f>toc"]
