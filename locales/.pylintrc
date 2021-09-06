@@ -53,7 +53,7 @@ enable=
 disable=missing-docstring,
         invalid-name,
         no-else-return,
-        relative-beyond-top-level # seems broken?
+        unspecified-encoding
 
 
 [TYPECHECK]

@@ -30,14 +30,15 @@ jobs:
             ~/.cache/pip
           key: ${{ runner.os }}-locale-build-${{ hashFiles('locales/messages/requirements.txt') }}
 
-      - name: Build
+      - name: Dependencies
         run: |
-          # Dependencies
           cd locales
           python -m pip install --upgrade pip
           pip install -r messages/requirements.txt
 
-          # Scripts
+      - name: Build
+        run: |
+          cd locales
           python -m messages .
 
       - name: Upload
@@ -65,13 +66,16 @@ jobs:
             ~/.cache/pip
           key: ${{ runner.os }}-locale-lint-${{ hashFiles('locales/messages/requirements.txt') }}
 
-      - name: Build
+      - name: Dependencies
         run: |
-          # Dependencies
           cd locales
           python -m pip install --upgrade pip
           pip install -r messages/requirements.txt
           pip install -r messages/requirements-dev.txt
+
+      - name: Build
+        run: |
+          cd locales
 
           # Formatting check
           black --check messages
