@@ -112,6 +112,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Strikethrough](#strikethrough) | `s`, `strikethrough`             | No    | No     | No        | Map           | Elements  |
 | [Subscript](#subscript)         | `sub`, `subscript`               | No    | No     | No        | Map           | Elements  |
 | [Superscript](#superscript)     | `sup`, `super`, `superscript`    | No    | No     | No        | Map           | Elements  |
+| [Tables](#tables)               | `table`, `row`, `cell`, `hcell`  | No    | No     | Yes       | Map           | Elements  |
 | [TOC](#toc)                     | `toc`                            | No    | No     | Yes       | Map           | None      |
 | [Underline](#underline)         | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
 | [User](#user)                   | `user`                           | Yes   | No     | No        | Value         | None      |
@@ -529,6 +530,8 @@ Example:
 [[/ul]]
 ```
 
+The parser will produce a warning if `[[li]]` items are not within an `[[ol]]` or `[[ul]]` block.
+
 ### Mark
 
 Output: `Element::Container(ContainerType::Mark)` / `<mark>`
@@ -689,6 +692,44 @@ Example:
 ```
 Thus, the result is n[[sup]]2[[/sup]].
 ```
+
+### Tables
+
+Input: `[[table]]`, `[[row]]`, `[[cell]]`, `[[hcell]]`
+
+Output: `Element::Table` / `<table>` / `<tr>` / `<td>` / `<th>`
+
+Body: Elements
+
+Arguments:
+* All accepted attributes
+
+Example:
+
+```
+[[table]]
+  [[row]]
+    [[hcell]] Name [[/hcell]]
+    [[hcell]] Price [[/hcell]]
+    [[hcell]] Stock [[/hcell]]
+  [[/row]]
+
+  [[row]]
+    [[cell]] Banana [[/cell]]
+    [[cell]] $0.30 [[/cell]]
+    [[cell]] 87 [[/cell]]
+  [[/row]]
+
+  [[row]]
+    [[cell]] Cherry [[/cell]]
+    [[cell]] $0.80 [[/cell]]
+    [[cell]] 64 [[/cell]]
+  [[/row]]
+[[/table]]
+```
+
+The parser requires a structure of `[[table]]` containing only `[[row]]`s, and
+those containing only `[[cell]]`s or `[[hcell]]`s. Cells may contain other tables.
 
 ### TOC
 
