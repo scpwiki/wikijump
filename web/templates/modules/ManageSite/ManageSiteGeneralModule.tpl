@@ -68,5 +68,3 @@
 		<input type="button" value="{t}save changes{/t}" id="sm-general-save"/>
 	</div>
 </form>
-
-<h2>{t}Note{/t}!</h2>
