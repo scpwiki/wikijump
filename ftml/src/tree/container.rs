@@ -30,8 +30,8 @@ use strum_macros::IntoStaticStr;
 pub struct Container<'t> {
     #[serde(rename = "type")]
     ctype: ContainerType,
-    elements: Vec<Element<'t>>,
     attributes: AttributeMap<'t>,
+    elements: Vec<Element<'t>>,
 }
 
 impl<'t> Container<'t> {
@@ -43,8 +43,8 @@ impl<'t> Container<'t> {
     ) -> Self {
         Container {
             ctype,
-            elements,
             attributes,
+            elements,
         }
     }
 
@@ -71,8 +71,8 @@ impl<'t> Container<'t> {
     pub fn to_owned(&self) -> Container<'static> {
         Container {
             ctype: self.ctype,
-            elements: elements_to_owned(&self.elements),
             attributes: self.attributes.to_owned(),
+            elements: elements_to_owned(&self.elements),
         }
     }
 }

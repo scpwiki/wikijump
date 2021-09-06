@@ -78,9 +78,9 @@ pub enum Element<'t> {
     /// This is distinct from link in that it maps to HTML `<a>`,
     /// and does not necessarily mean a link to some other URL.
     Anchor {
-        elements: Vec<Element<'t>>,
-        attributes: AttributeMap<'t>,
         target: Option<AnchorTarget>,
+        attributes: AttributeMap<'t>,
+        elements: Vec<Element<'t>>,
     },
 
     /// An element linking to a different page.
@@ -111,8 +111,8 @@ pub enum Element<'t> {
     List {
         #[serde(rename = "type")]
         ltype: ListType,
-        items: Vec<ListItem<'t>>,
         attributes: AttributeMap<'t>,
+        items: Vec<ListItem<'t>>,
     },
 
     /// A particular item of a list.
@@ -207,8 +207,8 @@ pub enum Element<'t> {
 
     /// Element containing an iframe component.
     Iframe {
-        url: Cow<'t, str>,
         attributes: AttributeMap<'t>,
+        url: Cow<'t, str>,
     },
 
     /// A newline or line break.
@@ -326,13 +326,13 @@ impl Element<'_> {
             Element::Table(table) => Element::Table(table.to_owned()),
             Element::TableItem(item) => Element::TableItem(item.to_owned()),
             Element::Anchor {
-                elements,
-                attributes,
                 target,
+                attributes,
+                elements,
             } => Element::Anchor {
-                elements: elements_to_owned(elements),
-                attributes: attributes.to_owned(),
                 target: *target,
+                attributes: attributes.to_owned(),
+                elements: elements_to_owned(elements),
             },
             Element::Link {
                 link,
@@ -345,12 +345,12 @@ impl Element<'_> {
             },
             Element::List {
                 ltype,
-                items,
                 attributes,
+                items,
             } => Element::List {
                 ltype: *ltype,
-                items: list_items_to_owned(items),
                 attributes: attributes.to_owned(),
+                items: list_items_to_owned(items),
             },
             Element::ListItem(boxed_list_item) => {
                 let list_item: &ListItem = &*boxed_list_item;
@@ -415,9 +415,9 @@ impl Element<'_> {
                 conditions: conditions.iter().map(|c| c.to_owned()).collect(),
                 elements: elements_to_owned(elements),
             },
-            Element::TableOfContents { attributes, align } => Element::TableOfContents {
-                attributes: attributes.to_owned(),
+            Element::TableOfContents { align, attributes } => Element::TableOfContents {
                 align: *align,
+                attributes: attributes.to_owned(),
             },
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
