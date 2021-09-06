@@ -70,8 +70,3 @@
 </form>
 
 <h2>{t}Note{/t}!</h2>
-<p>
-	{t escape=no}Please do not input any <strong>site tags</strong> if your Site has been just created
-	and does not have any original content yet.
-	There is nothing worse than a horde of content-hungry people facing a generic template...{/t}
-</p>
