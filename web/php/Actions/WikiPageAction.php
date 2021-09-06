@@ -1421,7 +1421,7 @@ class WikiPageAction extends SmartyAction
        if($enableAllowedTags == true) {
             foreach ($pageTagsArray as $tag) {
                 if(!in_array($tag, $allowedTagsList)) {
-                    throw new ProcessException(_('Invalid tags.'), "form_error");
+                    throw new ProcessException(_("$tag is not a valid tag for this site."), "form_error");
                 }
             }
         }
