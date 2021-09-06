@@ -144,20 +144,42 @@ body = "elements"
 html-attributes = true
 html-output = "html,em"
 
-[li]
-head = "map"
-body = "elements"
-accepts-score = true
-accepts-newlines = true
-html-attributes = true
-html-output = "html,li"
-
 [lines]
 aliases = ["newlines"]
 accepts-newlines = true
 head = "value"
 body = "none"
 html-output = "html,br"
+
+[list-ordered]
+exclude-name = true
+aliases = ["ol"]
+head = "map"
+body = "elements"
+accepts-score = true
+accepts-newlines = true
+html-attributes = true
+html-output = "html,ol"
+
+[list-unordered]
+exclude-name = true
+aliases = ["ul"]
+head = "map"
+body = "elements"
+accepts-score = true
+accepts-newlines = true
+html-attributes = true
+html-output = "html,ul"
+
+[list-item]
+exclude-name = true
+aliases = ["li"]
+head = "map"
+body = "elements"
+accepts-score = true
+accepts-newlines = true
+html-attributes = true
+html-output = "html,li"
 
 [mark]
 aliases = ["highlight"]
@@ -180,14 +202,6 @@ head = "map"
 body = "elements"
 html-attributes = true
 html-output = "html,tt"
-
-[ol]
-head = "map"
-body = "elements"
-accepts-score = true
-accepts-newlines = true
-html-attributes = true
-html-output = "html,ol"
 
 [paragraph]
 aliases = ["p"]
@@ -279,14 +293,6 @@ head = "map"
 body = "none"
 html-attributes = true
 html-output = "html,div"
-
-[ul]
-head = "map"
-body = "elements"
-accepts-score = true
-accepts-newlines = true
-html-attributes = true
-html-output = "html,ul"
 
 [user]
 accepts-star = true
