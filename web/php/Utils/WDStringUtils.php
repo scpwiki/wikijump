@@ -115,11 +115,12 @@ class WDStringUtils
         return $text;
     }
 
-    public static function addTrailingNewline($text)
+    public static function addTrailingNewline(string $text): string
     {
         if (!preg_match("/\n$/", $text)) {
             $text .= "\n";
         }
+
         return $text;
     }
 }
