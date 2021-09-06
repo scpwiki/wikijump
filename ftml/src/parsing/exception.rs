@@ -155,9 +155,6 @@ pub enum ParseWarningKind {
     /// This list tries to nest too deeply.
     ListDepthExceeded,
 
-    /// This table has no elements in it.
-    TableEmpty,
-
     /// This table has elements other than rows in it.
     TableContainsNonRow,
 

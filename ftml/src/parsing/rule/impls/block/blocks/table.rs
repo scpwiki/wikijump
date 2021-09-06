@@ -135,10 +135,6 @@ macro_rules! extract_table_items {
             }
         }
 
-        if items.is_empty() {
-            return Err($parser.make_warn(ParseWarningKind::TableEmpty));
-        }
-
         items
     }};
 }
