@@ -87,6 +87,7 @@ where
     tag_method!(script);
     tag_method!(span);
     tag_method!(table);
+    tag_method!(tbody);
     tag_method!(tr);
 
     #[inline]
