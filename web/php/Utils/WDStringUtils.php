@@ -2,6 +2,8 @@
 
 namespace Wikidot\Utils;
 
+use \intl\Normalizer;
+
 class WDStringUtils
 {
     /**
@@ -16,6 +18,8 @@ class WDStringUtils
     {
         $text = trim($text);
 
+        // Perform unicode normalization then case folding.
+        $text = Normalizer::normalize($text, Normalizer::FORM_KC);
         $text = mb_convert_case($text, MB_CASE_FOLD, 'UTF-8');
 
         // Normalize string
