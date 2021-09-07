@@ -63,10 +63,19 @@ class WikiScreen extends Screen
             }
         }
 
-        if ($wikiPage=="") {
-            $wikiPage=$site->getDefaultPage();
+        if ($wikiPage === '') {
+            $wikiPage = $site->getDefaultPage();
         }
-        $wikiPage = WDStringUtils::toUnixName($wikiPage);
+        $wikiPageNormal = WDStringUtils::toUnixName($wikiPage);
+        if ($wikiPage !== $wikiPageNormal) {
+            // Redirect to normalized version
+            $pageParameters = preg_replace('/^\/[^\/]+/u', '', $_SERVER['REQUEST_URI']);
+            $newUrl = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $wikiPageNormal . $pageParameters;
+            header('HTTP/1.1 301 Moved Permanently');
+            header('Location: ' . $newUrl);
+            exit();
+        }
+        $wikiPage = $wikiPageNormal;
         $runData->setTemp("pageUnixName", $wikiPage);
 
         if ($runData->getAction() == null
