@@ -523,7 +523,7 @@ final class LegacyTools
         $slugNormal = WDStringUtils::toUnixName($slug);
         if ($slug !== $slugNormal) {
             // Redirect to the normalized version
-            $newUrl = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . $wikiPageNormal . $pageParameters;
+            $newUrl = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $slugNormal . $pageParameters;
             header('HTTP/1.1 301 Moved Permanently');
             header('Location: ' . $newUrl);
             exit();
