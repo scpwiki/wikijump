@@ -192,25 +192,13 @@ class LegacyTools
         }
 
         // Gets parameters (e.g. /noredirect/true), if any
-        $pageParameters = preg_replace('/^\/[^\/]+/u', '', $_SERVER['REQUEST_URI']);
+        $pageParameters = self::getPageParameters();
         $return['pageParameters'] = $pageParameters;
 
         /**
          * Get Page
          */
-        if ($wikiPage === '') {
-            $wikiPage = $site->getDefaultPage();
-        }
-        $wikiPageNormal = WDStringUtils::toUnixName($wikiPage);
-        if ($wikiPage !== $wikiPageNormal) {
-            // Redirect to normalized version
-            $newUrl = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . $wikiPageNormal . $pageParameters;
-            header('HTTP/1.1 301 Moved Permanently');
-            header('Location: ' . $newUrl);
-            exit();
-        }
-        $wikiPage = $wikiPageNormal;
-
+        $wikiPage = self::redirectToNormalUrl($site, $wikiPage, $pageParameters);
         $runData->setTemp("pageUnixName", $wikiPage);
         $runData->contextAdd("wikiPageName", $wikiPage);
         $return['wikiPageName'] = $wikiPage;
@@ -505,4 +493,40 @@ class LegacyTools
         return $return;
     }
 
+    /**
+     * Following the page name, URLs may include "/key/value" type
+     * parameters for additional values, for instance "/noredirect/true".
+     *
+     * This method extracts them, if there are any.
+     *
+     * @return string The page parameters part of the URI (if any)
+     */
+    public static function getPageParameters(): string
+    {
+        return preg_replace('/^\/[^\/]+/u', '', $_SERVER['REQUEST_URI']);
+    }
+
+    /**
+     * This method gets the normalized page slug, and if it differs
+     * from what is entered in the URL, redirects the user to that address.
+     *
+     * @return string The normalized page name
+     */
+    public static function redirectToNormalUrl(Site $site, string $slug, string $pageParameters): string
+    {
+        if ($slug === '') {
+            $slug = $site->getDefaultPage();
+        }
+
+        $slugNormal = WDStringUtils::toUnixName($slug);
+        if ($slug !== $slugNormal) {
+            // Redirect to the normalized version
+            $newUrl = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . $wikiPageNormal . $pageParameters;
+            header('HTTP/1.1 301 Moved Permanently');
+            header('Location: ' . $newUrl);
+            exit();
+        }
+
+        return $slugNormal;
+    }
 }

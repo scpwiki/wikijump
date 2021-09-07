@@ -17,6 +17,7 @@ use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\NotificationPeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\UserMessage;
 
 class WikiScreen extends Screen
@@ -63,19 +64,8 @@ class WikiScreen extends Screen
             }
         }
 
-        if ($wikiPage === '') {
-            $wikiPage = $site->getDefaultPage();
-        }
-        $wikiPageNormal = WDStringUtils::toUnixName($wikiPage);
-        if ($wikiPage !== $wikiPageNormal) {
-            // Redirect to normalized version
-            $pageParameters = preg_replace('/^\/[^\/]+/u', '', $_SERVER['REQUEST_URI']);
-            $newUrl = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $wikiPageNormal . $pageParameters;
-            header('HTTP/1.1 301 Moved Permanently');
-            header('Location: ' . $newUrl);
-            exit();
-        }
-        $wikiPage = $wikiPageNormal;
+        $pageParameters = LegacyTools::getPageParameters();
+        $wikiPage = LegacyTools::redirectToNormalUrl($site, $wikiPage, $pageParameters);
         $runData->setTemp("pageUnixName", $wikiPage);
 
         if ($runData->getAction() == null
