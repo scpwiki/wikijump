@@ -202,7 +202,7 @@ class LegacyTools
         $runData->contextAdd("wikiPageName", $wikiPage);
         $return['wikiPageName'] = $wikiPage;
         $settings = $site->getSettings();
-        /** @var Page $page */
+        /** @var ?Page $page */
         $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
         if ($page == null) {
             $runData->contextAdd("pageNotExists", true);
