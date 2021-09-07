@@ -94,8 +94,7 @@ Route::get('/user--avatar/{user}', function (User $user) {
  * This route will use Blade instead of Smarty for rendering.
  */
 Route::get('/what-is-a-wiki', function() {
-   $legacy = new LegacyTools();
-   $values = $legacy->generateScreenVars();
+   $values = LegacyTools::generateScreenVars();
    return view('layouts.legacy', [
        'site' => $values['site'] ?? null,
        'pageNotExists' => $values['pageNotExists'] ?? null,
@@ -141,8 +140,7 @@ Route::any( "/{path?}", [OzoneController::class, 'handle'] )
 
 /** Use blade for everything. Soon™. */
 //Route::any( "/{path?}", function() {
-//    $legacy = new LegacyTools();
-//    $values = $legacy->generateScreenVars();
+//    $values = LegacyTools::generateScreenVars();
 //    return view(
 //        'layouts.legacy',
 //        [

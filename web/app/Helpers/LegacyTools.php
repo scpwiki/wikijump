@@ -26,8 +26,10 @@ use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
 
 /** A collection of static methods to smooth the transition to Wikijump code. */
-class LegacyTools
+final class LegacyTools
 {
+    // Disallow creating instances
+    private function __construct() {}
 
     /**
      * A function to take an absolute path to a file and transform it to a properly namespaced class.
@@ -66,7 +68,7 @@ class LegacyTools
      * @return array|string
      * @throws \Wikidot\Utils\ProcessException
      */
-    public function generateScreenVars()
+    public static function generateScreenVars()
     {
         /**
          * Create a RunData instance.
