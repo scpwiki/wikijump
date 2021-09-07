@@ -70,7 +70,6 @@ class WikiScreen extends Screen
 
         if ($runData->getAction() == null
                 && $runData->getRequestMethod() == "GET"
-
                 && $privateAccessGranted
             ) {
             // try to get content from the memorycache server
