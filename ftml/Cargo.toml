@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = []
 exclude = [".gitignore", ".github"]
 
-version = "1.5.0"
+version = "1.5.1"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2018" # this refers to the Cargo.toml version
 
@@ -49,7 +49,7 @@ strum_macros = "0.21"
 tinyvec = "1"
 unicase = "2"
 void = "1"
-wikidot-normalize = "0.8"
+wikidot-normalize = "0.9"
 
 [build-dependencies]
 built = { version = "0.5", features = ["chrono", "git2"] }
