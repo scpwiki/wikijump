@@ -49,7 +49,7 @@ strum_macros = "0.21"
 tinyvec = "1"
 unicase = "2"
 void = "1"
-wikidot-normalize = "0.8"
+wikidot-normalize = "0.9"
 
 [build-dependencies]
 built = { version = "0.5", features = ["chrono", "git2"] }
