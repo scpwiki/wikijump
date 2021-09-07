@@ -191,6 +191,10 @@ class LegacyTools
             }
         }
 
+        // Gets parameters (e.g. /noredirect/true), if any
+        $pageParameters = preg_replace('/^\/[^\/]+/u', '', $_SERVER['REQUEST_URI']);
+        $return['pageParameters'] = $pageParameters;
+
         /**
          * Get Page
          */
