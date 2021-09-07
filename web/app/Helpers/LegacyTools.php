@@ -26,8 +26,10 @@ use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
 
 /** A collection of static methods to smooth the transition to Wikijump code. */
-class LegacyTools
+final class LegacyTools
 {
+    // Disallow creating instances
+    private function __construct() {}
 
     /**
      * A function to take an absolute path to a file and transform it to a properly namespaced class.
@@ -66,7 +68,7 @@ class LegacyTools
      * @return array|string
      * @throws \Wikidot\Utils\ProcessException
      */
-    public function generateScreenVars()
+    public static function generateScreenVars()
     {
         /**
          * Create a RunData instance.
@@ -191,18 +193,19 @@ class LegacyTools
             }
         }
 
+        // Gets parameters (e.g. /noredirect/true), if any
+        $pageParameters = self::getPageParameters();
+        $return['pageParameters'] = $pageParameters;
+
         /**
          * Get Page
          */
-        if ($wikiPage=="") {
-            $wikiPage=$site->getDefaultPage();
-        }
-        $wikiPage = WDStringUtils::toUnixName($wikiPage);
+        $wikiPage = self::redirectToNormalUrl($site, $wikiPage, $pageParameters);
         $runData->setTemp("pageUnixName", $wikiPage);
         $runData->contextAdd("wikiPageName", $wikiPage);
         $return['wikiPageName'] = $wikiPage;
         $settings = $site->getSettings();
-        /** @var Page $page */
+        /** @var ?Page $page */
         $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
         if ($page == null) {
             $runData->contextAdd("pageNotExists", true);
@@ -492,4 +495,40 @@ class LegacyTools
         return $return;
     }
 
+    /**
+     * Following the page name, URLs may include "/key/value" type
+     * parameters for additional values, for instance "/noredirect/true".
+     *
+     * This method extracts them, if there are any.
+     *
+     * @return string The page parameters part of the URI (if any)
+     */
+    public static function getPageParameters(): string
+    {
+        return preg_replace('/^\/[^\/]+/u', '', $_SERVER['REQUEST_URI']);
+    }
+
+    /**
+     * This method gets the normalized page slug, and if it differs
+     * from what is entered in the URL, redirects the user to that address.
+     *
+     * @return string The normalized page name
+     */
+    public static function redirectToNormalUrl(Site $site, string $slug, string $pageParameters): string
+    {
+        if ($slug === '') {
+            $slug = $site->getDefaultPage();
+        }
+
+        $slugNormal = WDStringUtils::toUnixName($slug);
+        if ($slug !== $slugNormal) {
+            // Redirect to the normalized version
+            $newUrl = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $slugNormal . $pageParameters;
+            header('HTTP/1.1 301 Moved Permanently');
+            header('Location: ' . $newUrl);
+            exit();
+        }
+
+        return $slugNormal;
+    }
 }

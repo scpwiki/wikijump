@@ -94,8 +94,7 @@ Route::get('/user--avatar/{user}', function (User $user) {
  * This route will use Blade instead of Smarty for rendering.
  */
 Route::get('/what-is-a-wiki', function() {
-   $legacy = new LegacyTools();
-   $values = $legacy->generateScreenVars();
+   $values = LegacyTools::generateScreenVars();
    return view('layouts.legacy', [
        'site' => $values['site'] ?? null,
        'pageNotExists' => $values['pageNotExists'] ?? null,
@@ -104,6 +103,7 @@ Route::get('/what-is-a-wiki', function() {
        'wikiPage' => ($values['wikiPage'] ?? null),
        'wikiPageName' => ($values['wikiPageName'] ?? null),
        'pageContent' => ($values['pageContent'] ?? null),
+       'pageParameters' => ($values['pageParameters'] ?? null),
        'topBarContent' => $values['topBarContent'] ?? null,
        'sideBar1Content' => $values['sideBar1Content'] ?? null,
        'breadcrumbs' => $values['breadcrumbs'] ?? null,
@@ -119,7 +119,6 @@ Route::get('/what-is-a-wiki', function() {
        'useCustomDomainScriptSecure' => $values['useCustomDomainScriptSecure'],
        'login' => $values['login'],
        'pageOptions' => $values['pageOptions'],
-
    ]);
 });
 
@@ -141,8 +140,7 @@ Route::any( "/{path?}", [OzoneController::class, 'handle'] )
 
 /** Use blade for everything. Soon™. */
 //Route::any( "/{path?}", function() {
-//    $legacy = new LegacyTools();
-//    $values = $legacy->generateScreenVars();
+//    $values = LegacyTools::generateScreenVars();
 //    return view(
 //        'layouts.legacy',
 //        [
@@ -153,6 +151,7 @@ Route::any( "/{path?}", [OzoneController::class, 'handle'] )
 //            'wikiPage' => ($values['wikiPage'] ?? null),
 //            'wikiPageName' => ($values['wikiPageName'] ?? null),
 //            'pageContent' => ($values['pageContent'] ?? null),
+//            'pageParameters' => ($values['pageParameters'] ?? null),
 //            'topBarContent' => $values['topBarContent'] ?? null,
 //            'sideBar1Content' => $values['sideBar1Content'] ?? null,
 //            'breadcrumbs' => $values['breadcrumbs'] ?? null,

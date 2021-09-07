@@ -17,6 +17,7 @@ use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\NotificationPeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\UserMessage;
 
 class WikiScreen extends Screen
@@ -63,15 +64,12 @@ class WikiScreen extends Screen
             }
         }
 
-        if ($wikiPage=="") {
-            $wikiPage=$site->getDefaultPage();
-        }
-        $wikiPage = WDStringUtils::toUnixName($wikiPage);
+        $pageParameters = LegacyTools::getPageParameters();
+        $wikiPage = LegacyTools::redirectToNormalUrl($site, $wikiPage, $pageParameters);
         $runData->setTemp("pageUnixName", $wikiPage);
 
         if ($runData->getAction() == null
                 && $runData->getRequestMethod() == "GET"
-
                 && $privateAccessGranted
             ) {
             // try to get content from the memorycache server
