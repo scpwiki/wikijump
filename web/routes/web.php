@@ -153,6 +153,7 @@ Route::any( "/{path?}", [OzoneController::class, 'handle'] )
 //            'wikiPage' => ($values['wikiPage'] ?? null),
 //            'wikiPageName' => ($values['wikiPageName'] ?? null),
 //            'pageContent' => ($values['pageContent'] ?? null),
+//            'pageParameters' => ($values['pageParameters'] ?? null),
 //            'topBarContent' => $values['topBarContent'] ?? null,
 //            'sideBar1Content' => $values['sideBar1Content'] ?? null,
 //            'breadcrumbs' => $values['breadcrumbs'] ?? null,
