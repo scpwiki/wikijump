@@ -146,7 +146,7 @@ impl Handle {
                     "message" => message,
                 );
 
-                ""
+                "?"
             }
         }
     }
