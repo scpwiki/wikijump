@@ -141,6 +141,11 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     #[inline]
+    pub fn has_footnote_block(&self) -> bool {
+        self.has_footnote_block
+    }
+
+    #[inline]
     pub fn start_of_line(&self) -> bool {
         self.start_of_line
     }
@@ -184,6 +189,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn set_table_flag(&mut self, value: TableParseState) {
         self.in_table = value;
+    }
+
+    #[inline]
+    pub fn set_footnote_block(&mut self) {
+        self.has_footnote_block = true;
     }
 
     // Table of Contents

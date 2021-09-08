@@ -99,7 +99,7 @@ where
     debug!(log, "Finished paragraph gathering, matching on consumption");
     match result {
         Ok(ParseSuccess {
-            item: elements,
+            item: mut elements,
             exceptions,
             ..
         }) => {
@@ -121,6 +121,17 @@ where
                 .into_iter()
                 .map(|(_, items)| build_toc_list_element(&mut incrementer, items))
                 .collect::<Vec<_>>();
+
+            // Add a footnote block at the end,
+            // if the user doesn't have one already
+            if !parser.has_footnote_block() {
+                debug!(log, "No footnote block in elements, appending one");
+
+                elements.push(Element::FootnoteBlock {
+                    title: None,
+                    hide: false,
+                });
+            }
 
             SyntaxTree::from_element_result(
                 elements,
