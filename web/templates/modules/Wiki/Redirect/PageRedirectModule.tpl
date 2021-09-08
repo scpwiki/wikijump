@@ -1,3 +1,3 @@
 <div style="border: 2px solid red; padding: 1em; margin: 1em;">
-	{t 1=$target}This is the Redirect module that redirects the browser directly to the "%1" page{/t}.
+	{t 1=$target}This page would normally redirect you to "%1", but <code>/noredirect</code> is set.{/t}
 </div>
