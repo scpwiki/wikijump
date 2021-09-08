@@ -314,7 +314,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                         ctx.language(),
                         "footnote-block-title",
                     );
-                    &title_default
+                    title_default
                 }
             };
 

@@ -53,12 +53,12 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
 
     let title_default;
     let title: &str = match title {
-        Some(title) => title.as_ref(),
+        Some(title) => title,
         None => {
             title_default =
                 ctx.handle()
                     .get_message(log, ctx.language(), "footnote-block-title");
-            &title_default
+            title_default
         }
     };
 
