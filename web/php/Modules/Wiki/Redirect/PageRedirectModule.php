@@ -44,7 +44,7 @@ class PageRedirectModule extends SmartyModule
     private static function shouldRedirect($value): bool
     {
         // Null means the key only was included, which here means true.
-        $noredirect = $value === true || $value === null;
+        $noredirect = $value === true || $value === '';
         return !$noredirect;
     }
 }
