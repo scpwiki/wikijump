@@ -13,14 +13,13 @@ class PageRedirectModule extends SmartyModule
     public function build($runData)
     {
         $pl = $runData->getParameterList();
-        $redirect = !$pl->getParameterValueBoolean("noredirect");
+        $redirect = $this->shouldRedirect($pl->getParameterValueBoolean("noredirect"));
 
         if ($runData->isAjaxMode()) {
             $redirect = false;
         }
 
         $target = trim($pl->getParameterValue("destination"));
-
         if ($target === '') {
             throw new ProcessException(_('No redirection destination specified. Please use the destination="page-name" or destination="url" attribute.'));
         }
@@ -40,5 +39,12 @@ class PageRedirectModule extends SmartyModule
         } else {
             $runData->contextAdd("target", $target);
         }
+    }
+
+    private static function shouldRedirect($value): bool
+    {
+        // Null means the key only was included, which here means true.
+        $noredirect = $value === true || $value === null;
+        return !$noredirect;
     }
 }
