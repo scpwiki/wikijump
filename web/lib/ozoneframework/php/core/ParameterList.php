@@ -59,7 +59,7 @@ class ParameterList {
             $this->allParameters['GET'] = [];
             for ($i = 1; $i < count($split); $i++) {
                 $key = $split[$i];
-                if (!$key || $key === 'true' || $key === 'false') {
+                if (!$key || self::convertBool($key) !== null) {
                     continue;
                 }
 
@@ -111,6 +111,17 @@ class ParameterList {
         }
 
         // Boolean
+        $bool = self::convertBool($value);
+        if ($bool !== null) {
+            return $bool;
+        }
+
+        // String
+        return $value;
+    }
+
+    private static function convertBool(string $value): ?bool
+    {
         switch ($value) {
             case 'yes':
             case 'true':
@@ -120,10 +131,9 @@ class ParameterList {
             case 'false':
             case 'f':
                 return false;
+            default:
+                return null;
         }
-
-        // String
-        return $value;
     }
 
     public function containsParameter(string $name): bool
