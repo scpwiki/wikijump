@@ -205,10 +205,6 @@ class ParameterList {
     }
 
     public function resolveParameter(string $key, string $from) {
-        if(isset($this->allParameters[$from][$key])) {
-            return $this->allParameters[$from][$key];
-        } else {
-             return null;
-        }
+        return $this->allParameters[$from][$key] ?? null;
     }
 }
