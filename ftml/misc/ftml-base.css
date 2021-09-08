@@ -22,11 +22,17 @@ a.wj-footnote-ref {
     display: inline-block;
 }
 
-.wj-footnotes-footer {}
-.wj-footnotes-footer .wj-title {
+.wj-footnotes-list {}
+.wj-footnotes-list .wj-title {
     font-size: 1.3em;
     font-weight: bold;
 }
+
+.wj-footnotes-list ol {
+    list-style: none;
+}
+
+.wj-footnotes-list .wj-footnote {}
 
 /* COLLAPSIBLE */
 
