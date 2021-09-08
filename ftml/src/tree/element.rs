@@ -181,6 +181,15 @@ pub enum Element<'t> {
         align: Option<Alignment>,
     },
 
+    /// A footnote reference.
+    ///
+    /// This specifies that a `[[footnote]]` was here, and that a clickable
+    /// link to the footnote block should be added.
+    ///
+    /// The index is not saved because it is part of the rendering context.
+    /// It is indirectly preserved as the index of the `footnotes` list in the syntax tree.
+    Footnote,
+
     /// A footnote block, containing all the footnotes from throughout the page.
     ///
     /// If a `[[footnoteblock]]` is not added somewhere in the content of the page,
@@ -273,6 +282,7 @@ impl Element<'_> {
             Element::IfCategory { .. } => "IfCategory",
             Element::IfTags { .. } => "IfTags",
             Element::TableOfContents { .. } => "TableOfContents",
+            Element::Footnote => "Footnote",
             Element::FootnoteBlock { .. } => "FootnoteBlock",
             Element::User { .. } => "User",
             Element::Color { .. } => "Color",
@@ -311,6 +321,7 @@ impl Element<'_> {
             Element::IfCategory { .. } => true,
             Element::IfTags { .. } => true,
             Element::TableOfContents { .. } => false,
+            Element::Footnote => true,
             Element::FootnoteBlock { .. } => false,
             Element::User { .. } => true,
             Element::Color { .. } => true,
@@ -430,6 +441,7 @@ impl Element<'_> {
                 align: *align,
                 attributes: attributes.to_owned(),
             },
+            Element::Footnote => Element::Footnote,
             Element::FootnoteBlock { title, hide } => Element::FootnoteBlock {
                 title: option_string_to_owned(title),
                 hide: *hide,
