@@ -98,9 +98,9 @@ class ParameterList {
      */
     private static function convertValue(?string $value)
     {
-        // Null
+        // Empty
         if ($value === null) {
-            return null;
+            return '';
         }
 
         // Decode since we know it's not null
@@ -149,7 +149,7 @@ class ParameterList {
 
     /**
      * Like getParameterValue(), but 'casts' the string to boolean.
-     * Returns null if it doesn't exist or is another value..
+     * Returns null if it doesn't exist or is another value.
      *
      * @param string $name
      * @return bool|null
