@@ -13,7 +13,8 @@ class PageRedirectModule extends SmartyModule
     public function build($runData)
     {
         $pl = $runData->getParameterList();
-        $redirect = $this->shouldRedirect($pl->getParameterValueBoolean("noredirect"));
+        $noredirectFlag = $pl->getParameterValueBoolean('noredirect');
+        $redirect = $noredirectFlag !== true && $noredirectFlag !== '';
 
         if ($runData->isAjaxMode()) {
             $redirect = false;
@@ -39,12 +40,5 @@ class PageRedirectModule extends SmartyModule
         } else {
             $runData->contextAdd("target", $target);
         }
-    }
-
-    private static function shouldRedirect($value): bool
-    {
-        // Null means the key only was included, which here means true.
-        $noredirect = $value === true || $value === '';
-        return !$noredirect;
     }
 }
