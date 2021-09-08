@@ -90,12 +90,25 @@ class ParameterList {
 		return !array_search($name, $this->parameterArray) === false;
 	}
 
-	public function getParameterValue($name, $type = null, $type2 = null) {
+	public function getParameterValue(string $name, $type = null, $type2 = null) {
 		if($type == null || $this->parameterTypes[$name] == $type || $this->parameterTypes[$name] == $type2){
 			return $this->parameterArray[$name];
 		}
 		return null;
 	}
+
+    public function getParameterValueBoolean(string $name): ?bool
+    {
+        switch ($this->getParameterValue($name)) {
+            case 'true':
+                return true;
+            case 'false':
+                return false;
+            case null:
+            default:
+                return null;
+        }
+    }
 
 	public function delParameter($key){
 		unset($this->parameterArray[$key]);
