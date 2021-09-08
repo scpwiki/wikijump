@@ -83,12 +83,14 @@ where
     tag_method!(img);
     tag_method!(input);
     tag_method!(li);
+    tag_method!(ol);
     tag_method!(pre);
     tag_method!(script);
     tag_method!(span);
     tag_method!(table);
     tag_method!(tbody);
     tag_method!(tr);
+    tag_method!(ul);
 
     #[inline]
     pub fn text(&mut self, text: &str) {

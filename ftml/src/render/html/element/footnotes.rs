@@ -27,5 +27,77 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
         "title" => title.unwrap_or("<default>"),
     );
 
-    todo!();
+    let title_default;
+    let title: &str = match title {
+        Some(title) => title.as_ref(),
+        None => {
+            title_default =
+                ctx.handle()
+                    .get_message(log, ctx.language(), "footnote-block-title");
+            &title_default
+        }
+    };
+
+    ctx
+        .html()
+        .div()
+        .attr(attr!("class" => "wj-footnotes-list"))
+        .contents(|ctx| {
+            ctx
+                .html()
+                .div()
+                .attr(attr!("class" => "wj-title"))
+                .inner(log, &title);
+
+            ctx
+                .html()
+                .ol()
+                .contents(|ctx| {
+                    let mut id = String::new();
+
+                    for (idx, contents) in ctx.footnotes().iter().enumerate() {
+                        // Format ID for each footnote
+                        let idx = idx + 1;
+                        id.clear();
+                        str_write!(id, "wj-footnote-{}", idx);
+
+                        // Build actual footnote item
+                        ctx
+                            .html()
+                            .li()
+                            .attr(attr!("class" => "wj-footnote", "id" => &id))
+                            .contents(|ctx| {
+                                id.clear();
+                                str_write!(id, "wj-footnote-ref-{}", idx);
+
+                                // Number and clickable anchor
+                                let footnote_id = &id;
+                                ctx
+                                    .html()
+                                    .a()
+                                    .attr(attr!(
+                                        "href" => "javascript:;",
+                                        "onclick" => "WIKIJUMP.page.utils.scrollToFootnote('" footnote_id "')",
+                                    ))
+                                    .contents(|ctx| {
+                                        str_write!(ctx, "{}", idx);
+
+                                        // Period after item number. Has special class to permit styling.
+                                        ctx
+                                            .html()
+                                            .span()
+                                            .attr(attr!("class" => "wj-footnote-sep"))
+                                            .inner(log, &".");
+                                    });
+
+                                // Footnote contents
+                                ctx
+                                    .html()
+                                    .div()
+                                    .attr(attr!("class" => "wj-footnote-contents"))
+                                    .inner(log, &contents);
+                            });
+                    }
+                });
+        });
 }

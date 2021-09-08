@@ -303,7 +303,11 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             let title: &str = match title {
                 Some(title) => title.as_ref(),
                 None => {
-                    title_default = ctx.handle().get_message(log, ctx.language(), "footnote-block-title");
+                    title_default = ctx.handle().get_message(
+                        log,
+                        ctx.language(),
+                        "footnote-block-title",
+                    );
                     &title_default
                 }
             };
@@ -314,12 +318,11 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
 
             // Render footnotes in order.
             for (idx, contents) in ctx.footnotes().iter().enumerate() {
-                str_write!(ctx, "{}. ", idx);
+                str_write!(ctx, "{}. ", idx + 1);
 
                 render_elements(log, ctx, contents);
                 ctx.add_newline();
             }
-
         }
         Element::User { name, .. } => ctx.push_str(name),
         Element::Color { elements, .. } => render_elements(log, ctx, elements),

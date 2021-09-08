@@ -33,6 +33,8 @@ a.wj-footnote-ref {
 }
 
 .wj-footnotes-list .wj-footnote {}
+.wj-footnotes-list .wj-footnote span.wj-footnote-sep {}
+.wj-footnotes-list .wj-footnote div.wj-footnote-contents {}
 
 /* COLLAPSIBLE */
 
