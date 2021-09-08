@@ -41,7 +41,7 @@
     "dictionary-tr": "^1.3.4",
     "dictionary-uk": "^2.3.0",
     "dictionary-vi": "^2.1.3",
-    "espells": "^0.1.3",
+    "espells": "^0.2.0",
     "@lezer/common": "^0.15.4",
     "threads-worker-module": "workspace:*",
     "wj-codemirror": "workspace:*",
