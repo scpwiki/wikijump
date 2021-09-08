@@ -12,24 +12,21 @@ class PageRedirectModule extends SmartyModule
     public function build($runData)
     {
         $pl = $runData->getParameterList();
-
-        $noRedirect = $pl->getParameterValueBoolean("noredirect");
+        $redirect = !$pl->getParameterValueBoolean("noredirect");
 
         if ($runData->isAjaxMode()) {
-            $noRedirect = true;
+            $redirect = false;
         }
 
         $target = trim($pl->getParameterValue("destination"));
 
-        if ($target == "") {
+        if ($target === '') {
             throw new ProcessException(_('No redirection destination specified. Please use the destination="page-name" or destination="url" attribute.'));
         }
 
         $currentUri = $_SERVER['REQUEST_URI'];
 
-        if (!$noRedirect) {
-            // ok, redirect!!!
-
+        if ($redirect) {
             // check if mapping should be done.
             if ($target[strlen($target)-1] === '/' && strpos($currentUri, '/', 1)) {
                 $map = true;
