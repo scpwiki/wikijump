@@ -76,7 +76,38 @@ class ParameterList {
 		}
 	}
 
-	public function containsParameter($name): bool
+    /**
+     * Converts an arbitrary parameter value to its appropriate PHP type.
+     *
+     * @param ?string $value The value to be converted
+     * @return bool|int|string|null The value after conversion
+     */
+    private function convertValue(?string $value)
+    {
+        // Integer
+        if (is_numeric($value)) {
+            return intvalue($value);
+        }
+
+        // Boolean or Null
+        switch ($value) {
+            case 'yes':
+            case 'true':
+            case 't':
+                return true;
+            case 'no':
+            case 'false':
+            case 'f':
+                return false;
+            case null:
+                return null;
+        }
+
+        // String
+        return $value;
+    }
+
+	public function containsParameter(string $name): bool
     {
 		return !array_search($name, $this->parameterArray) === false;
 	}
