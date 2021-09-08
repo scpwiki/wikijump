@@ -16,6 +16,18 @@
 
 .wj-table {}
 
+/* FOOTNOTES */
+
+a.wj-footnote-ref {
+    display: inline-block;
+}
+
+.wj-footnotes-footer {}
+.wj-footnotes-footer .wj-title {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
 /* COLLAPSIBLE */
 
 .wj-collapsible-block {}
