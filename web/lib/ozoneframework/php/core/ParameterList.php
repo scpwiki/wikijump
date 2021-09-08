@@ -31,7 +31,7 @@ class ParameterList {
             $qs =  $_SERVER['QUERY_STRING'];
             /* Check if there is a "?" char - if so, remove it. */
             $qs = preg_replace('/\?.*$/', '', $qs);
-            $split = explode('/', $qs);
+            $split = explode('/', $qs); // In the form ModuleName/key1/value1/key2/value2/...
             if (count($split) >= 1) {
                 $this->parameterArray['template'] = $split[0];
                 $this->parameterTypes['template'] = 'GET';
@@ -59,7 +59,7 @@ class ParameterList {
             $this->allParameters['GET'] = [];
             for ($i = 1; $i < count($split); $i++) {
                 $key = $split[$i];
-                if (!$key || key === 'true' || key === 'false') {
+                if (!$key || $key === 'true' || $key === 'false') {
                     continue;
                 }
 
@@ -70,6 +70,11 @@ class ParameterList {
                 $this->parameterTypes[$key] = 'GET';
                 $this->parameterFrom[$key] = 0;
                 $this->allParameters['GET'][$key] = $value;
+
+                if ($valueRaw !== null) {
+                    // Skip the next item, since it's the value we just processed
+                    $i++;
+                }
             }
 
             // POST parameters are not affected by mod_rewrite
