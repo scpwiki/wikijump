@@ -31,32 +31,33 @@ class ParameterList {
 			$qs =  $_SERVER['QUERY_STRING'];
 			/* Check if there is a "?" char - if so, remove it. */
 			$qs = preg_replace('/\?.*$/', '', $qs);
-			$splited = explode('/', $qs);
-			if(count($splited)>= 1){
-				$this->parameterArray['template'] = $splited[0];
+			$split = explode('/', $qs);
+			if (count($split) >= 1) {
+				$this->parameterArray['template'] = $split[0];
 				$this->parameterTypes['template'] = 'GET';
 			}
 
             /**
              * If an & is present in the URI, split that into key-value pairs.
              */
-                $uri = $_SERVER['REQUEST_URI'];
-                $uri = preg_replace('/^[^?]*\?/', '', $uri);
-                $uriPairs = explode('&', $uri);
-                foreach ($uriPairs as $uriPair) {
-                    $u = explode('=', $uriPair);
-                    $key = $u[0];
-                    $value = $u[1];
-                    $this->parameterArray[$key] = urldecode($value);
-                    $this->parameterTypes[$key] = 'GET';
-                    $this->parameterFrom[$key] = 0;
-                    $this->allParameters['GET'][$key] = urldecode($value);
-                }
+            $uri = $_SERVER['REQUEST_URI'];
+            $uri = preg_replace('/^[^?]*\?/', '', $uri);
+            $uriPairs = explode('&', $uri);
+            foreach ($uriPairs as $uriPair) {
+                $u = explode('=', $uriPair);
+                $key = $u[0];
+                $value = $u[1];
+                $this->parameterArray[$key] = urldecode($value);
+                $this->parameterTypes[$key] = 'GET';
+                $this->parameterFrom[$key] = 0;
+                $this->allParameters['GET'][$key] = urldecode($value);
+            }
+
 			// now populate other parameters...
 			$this->allParameters['GET'] = [];
-			for($i=1; $i<count($splited); $i+=2){
-				$key = $splited[$i];
-				$value=$splited[$i+1];
+			for($i=1; $i<count($split); $i+=2){
+				$key = $split[$i];
+				$value=$split[$i+1];
 				$this->parameterArray[$key] = urldecode($value);
 				$this->parameterTypes[$key] = 'GET';
 				$this->parameterFrom[$key] = 0;
