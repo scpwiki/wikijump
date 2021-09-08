@@ -51,6 +51,7 @@ where
     // Other fields to track
     code_snippet_index: NonZeroUsize,
     table_of_contents_index: usize,
+    footnote_index: NonZeroUsize,
 }
 
 impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
@@ -72,6 +73,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
             footnotes,
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
             table_of_contents_index: 0,
+            footnote_index: NonZeroUsize::new(1).unwrap(),
         }
     }
 
@@ -145,6 +147,12 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     pub fn next_table_of_contents_index(&mut self) -> usize {
         let index = self.table_of_contents_index;
         self.table_of_contents_index += 1;
+        index
+    }
+
+    pub fn next_footnote_index(&mut self) -> NonZeroUsize {
+        let index = self.footnote_index;
+        self.footnote_index = NonZeroUsize::new(index.get() + 1).unwrap();
         index
     }
 

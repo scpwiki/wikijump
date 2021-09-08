@@ -317,8 +317,8 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             ctx.add_newline();
 
             // Render footnotes in order.
-            for (idx, contents) in ctx.footnotes().iter().enumerate() {
-                str_write!(ctx, "{}. ", idx + 1);
+            for (index, contents) in ctx.footnotes().iter().enumerate() {
+                str_write!(ctx, "{}. ", index + 1);
 
                 render_elements(log, ctx, contents);
                 ctx.add_newline();

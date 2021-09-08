@@ -20,6 +20,30 @@
 
 use super::prelude::*;
 
+pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
+    debug!(log, "Rendering footnote reference");
+
+    let index = ctx.next_footnote_index();
+
+    ctx.html()
+        .sup()
+        .attr(attr!("class" => "wj-footnote-ref"))
+        .contents(|ctx| {
+            let ref_id = &format!("wj-footnote-ref-{}", index);
+            let content_id = &format!("wj-footnote-{}", index);
+
+            ctx.html()
+                .a()
+                .attr(attr!(
+                    "class" => "wj-footnote-ref",
+                    "id" => ref_id,
+                    "href" => "javascript:;",
+                    "onclick" => "WIKIJUMP.page.utils.scrollToFootnote('" content_id "')",
+                ))
+                .contents(|ctx| str_write!(ctx, "{}", index));
+        });
+}
+
 pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<&str>) {
     debug!(
         log,
@@ -38,61 +62,54 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
         }
     };
 
-    ctx
-        .html()
+    ctx.html()
         .div()
         .attr(attr!("class" => "wj-footnotes-list"))
         .contents(|ctx| {
-            ctx
-                .html()
+            ctx.html()
                 .div()
                 .attr(attr!("class" => "wj-title"))
                 .inner(log, &title);
 
-            ctx
-                .html()
+            ctx.html()
                 .ol()
                 .contents(|ctx| {
                     let mut id = String::new();
 
-                    for (idx, contents) in ctx.footnotes().iter().enumerate() {
+                    for (index, contents) in ctx.footnotes().iter().enumerate() {
                         // Format ID for each footnote
-                        let idx = idx + 1;
+                        let index = index + 1;
                         id.clear();
-                        str_write!(id, "wj-footnote-{}", idx);
+                        str_write!(id, "wj-footnote-{}", index);
 
                         // Build actual footnote item
-                        ctx
-                            .html()
+                        ctx.html()
                             .li()
                             .attr(attr!("class" => "wj-footnote", "id" => &id))
                             .contents(|ctx| {
                                 id.clear();
-                                str_write!(id, "wj-footnote-ref-{}", idx);
+                                str_write!(id, "wj-footnote-ref-{}", index);
 
                                 // Number and clickable anchor
                                 let footnote_id = &id;
-                                ctx
-                                    .html()
+                                ctx.html()
                                     .a()
                                     .attr(attr!(
                                         "href" => "javascript:;",
                                         "onclick" => "WIKIJUMP.page.utils.scrollToFootnote('" footnote_id "')",
                                     ))
                                     .contents(|ctx| {
-                                        str_write!(ctx, "{}", idx);
+                                        str_write!(ctx, "{}", index);
 
                                         // Period after item number. Has special class to permit styling.
-                                        ctx
-                                            .html()
+                                        ctx.html()
                                             .span()
                                             .attr(attr!("class" => "wj-footnote-sep"))
                                             .inner(log, &".");
                                     });
 
                                 // Footnote contents
-                                ctx
-                                    .html()
+                                ctx.html()
                                     .div()
                                     .attr(attr!("class" => "wj-footnote-contents"))
                                     .inner(log, &contents);

@@ -43,7 +43,7 @@ mod prelude {
 
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
-use self::footnotes::render_footnote_block;
+use self::footnotes::{render_footnote, render_footnote_block};
 use self::iframe::{render_html, render_iframe};
 use self::image::render_image;
 use self::input::{render_checkbox, render_radio_button};

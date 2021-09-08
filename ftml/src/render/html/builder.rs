@@ -87,6 +87,8 @@ where
     tag_method!(pre);
     tag_method!(script);
     tag_method!(span);
+    tag_method!(sub);
+    tag_method!(sup);
     tag_method!(table);
     tag_method!(tbody);
     tag_method!(tr);
