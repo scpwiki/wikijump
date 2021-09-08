@@ -2,24 +2,19 @@
 
 namespace Ozone\Framework;
 
-
-
-
-
 /**
  * Parameters for the web request.
  *
  */
 class ParameterList {
 
-	private $parameterArray = [];
-	private $parameterTypes = [];
-	private $parameterFrom = [];
+	private array $parameterArray = [];
+	private array $parameterTypes = [];
+	private array $parameterFrom = [];
 
-	private $allParameters = [];
+	private array $allParameters = [];
 
 	public function initParameterList($runData) {
-
 		if($runData->isAjaxMode()){
 			$this->allParameters['AMODULE'] = [];
 			foreach ($_POST as $key => $value) {
@@ -165,5 +160,4 @@ class ParameterList {
  			return null;
 		}
 	}
-
 }
