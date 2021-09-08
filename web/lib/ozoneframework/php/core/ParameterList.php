@@ -147,30 +147,6 @@ class ParameterList {
         return null;
     }
 
-    /**
-     * Like getParameterValue(), but 'casts' the string to boolean.
-     * Returns null if it doesn't exist or is another value.
-     *
-     * @param string $name
-     * @return bool|null
-     */
-    public function getParameterValueBoolean(string $name): ?bool
-    {
-        switch ($this->getParameterValue($name)) {
-            case 'true':
-            case 't':
-            case 'yes':
-                return true;
-            case 'false':
-            case 'f':
-            case 'no':
-                return false;
-            case null:
-            default:
-                return null;
-        }
-    }
-
     public function delParameter(string $key): void
     {
         unset($this->parameterArray[$key]);
