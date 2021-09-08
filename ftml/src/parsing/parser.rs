@@ -68,6 +68,7 @@ pub struct Parser<'r, 't> {
     // Flags
     in_list: bool,
     in_table: TableParseState,
+    has_footnote_block: bool,
     start_of_line: bool,
 }
 
@@ -103,6 +104,7 @@ impl<'r, 't> Parser<'r, 't> {
             footnotes,
             in_list: false,
             in_table: TableParseState::Content,
+            has_footnote_block: false,
             start_of_line: true,
         }
     }
