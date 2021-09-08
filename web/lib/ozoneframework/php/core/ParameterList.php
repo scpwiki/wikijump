@@ -110,14 +110,8 @@ class ParameterList {
             return intvalue($value);
         }
 
-        // Boolean
-        $bool = self::convertBool($value);
-        if ($bool !== null) {
-            return $bool;
-        }
-
-        // String
-        return $value;
+        // Boolean, or String (fallback)
+        return self::convertBool($value) ?? $value;
     }
 
     private static function convertBool(string $value): ?bool
