@@ -44,9 +44,9 @@ class ParameterList {
             $uri = preg_replace('/^[^?]*\?/', '', $uri);
             $uriPairs = explode('&', $uri);
             foreach ($uriPairs as $uriPair) {
-                $u = explode('=', $uriPair);
-                $key = $u[0];
-                $value = $u[1];
+                $pair = explode('=', $uriPair);
+                $key = $pair[0];
+                $value = $pair[1];
                 $this->parameterArray[$key] = urldecode($value);
                 $this->parameterTypes[$key] = 'GET';
                 $this->parameterFrom[$key] = 0;
