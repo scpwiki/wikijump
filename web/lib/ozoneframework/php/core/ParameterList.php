@@ -57,13 +57,19 @@ class ParameterList {
             // This was edited to be more flexible in how it handles parameters, see
             // https://github.com/scpwiki/wikidot-path
             $this->allParameters['GET'] = [];
-            for($i = 1; $i < count($split); $i += 2){
+            for ($i = 1; $i < count($split); $i++) {
                 $key = $split[$i];
-                $value=$split[$i+1];
-                $this->parameterArray[$key] = urldecode($value);
+                if (!$key || key === 'true' || key === 'false') {
+                    continue;
+                }
+
+                $valueRaw = $split[$i + 1] ?? null;
+                $value = self::convertValue($valueRaw);
+
+                $this->parameterArray[$key] = $value;
                 $this->parameterTypes[$key] = 'GET';
                 $this->parameterFrom[$key] = 0;
-                $this->allParameters['GET'][$key] = urldecode($value);
+                $this->allParameters['GET'][$key] = $value;
             }
 
             // POST parameters are not affected by mod_rewrite
@@ -80,18 +86,26 @@ class ParameterList {
 
     /**
      * Converts an arbitrary parameter value to its appropriate PHP type.
+     * Before attempting to perform actions on it, it first runs urldecode().
      *
      * @param ?string $value The value to be converted
      * @return bool|int|string|null The value after conversion
      */
-    private function convertValue(?string $value)
+    private static function convertValue(?string $value)
     {
+        // Null
+        if (is_null($value)) {
+            return null;
+        }
+
+        $value = urldecode($value);
+
         // Integer
         if (is_numeric($value)) {
             return intvalue($value);
         }
 
-        // Boolean or Null
+        // Boolean
         switch ($value) {
             case 'yes':
             case 'true':
@@ -101,8 +115,6 @@ class ParameterList {
             case 'false':
             case 'f':
                 return false;
-            case null:
-                return null;
         }
 
         // String
