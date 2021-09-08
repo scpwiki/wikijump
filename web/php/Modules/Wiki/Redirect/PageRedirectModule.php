@@ -13,7 +13,7 @@ class PageRedirectModule extends SmartyModule
     public function build($runData)
     {
         $pl = $runData->getParameterList();
-        $noredirectFlag = $pl->getParameterValueBoolean('noredirect');
+        $noredirectFlag = $pl->getParameterValue('noredirect');
         $redirect = $noredirectFlag !== true && $noredirectFlag !== '';
 
         if ($runData->isAjaxMode()) {
