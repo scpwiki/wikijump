@@ -99,10 +99,11 @@ class ParameterList {
     private static function convertValue(?string $value)
     {
         // Null
-        if (is_null($value)) {
+        if ($value === null) {
             return null;
         }
 
+        // Decode since we know it's not null
         $value = urldecode($value);
 
         // Integer
