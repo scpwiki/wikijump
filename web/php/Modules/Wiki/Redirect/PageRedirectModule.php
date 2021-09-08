@@ -27,6 +27,7 @@ class PageRedirectModule extends SmartyModule
         $currentUri = $_SERVER['REQUEST_URI'];
 
         if ($redirect) {
+            // NOTE(aismallard): this basically preserves the parameter list (e.g. /edit/true, etc.)
             // check if mapping should be done.
             if ($target[strlen($target)-1] === '/' && strpos($currentUri, '/', 1)) {
                 $map = true;
