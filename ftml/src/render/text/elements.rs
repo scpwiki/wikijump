@@ -291,6 +291,12 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             ctx.add_newline();
             render_elements(log, ctx, ctx.table_of_contents());
         }
+        Element::Footnote => {
+            debug!(log, "Rendering footnote reference");
+
+            let index = ctx.next_footnote_index();
+            str_write!(ctx, "[{}]", index);
+        }
         Element::FootnoteBlock { title, hide } => {
             debug!(log, "Rendering footnote block");
 

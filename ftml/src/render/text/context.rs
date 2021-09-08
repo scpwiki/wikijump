@@ -23,6 +23,7 @@ use crate::render::Handle;
 use crate::tree::Element;
 use crate::PageInfo;
 use std::fmt::{self, Write};
+use std::num::NonZeroUsize;
 
 #[derive(Debug)]
 pub struct TextContext<'i, 'h, 'e, 't>
@@ -52,6 +53,9 @@ where
     /// When this is non-zero, all non-newline characters
     /// added are instead replaced with spaces.
     invisible: usize,
+
+    /// The current footnote index, for rendering.
+    footnote_index: NonZeroUsize,
 }
 
 impl<'i, 'h, 'e, 't> TextContext<'i, 'h, 'e, 't>
@@ -74,6 +78,7 @@ where
             prefixes: Vec::new(),
             list_depths: NonEmptyVec::new(1),
             invisible: 0,
+            footnote_index: NonZeroUsize::new(1).unwrap(),
         }
     }
 
@@ -106,6 +111,13 @@ where
     #[inline]
     pub fn footnotes(&self) -> &'e [Vec<Element<'t>>] {
         self.footnotes
+    }
+
+    #[inline]
+    pub fn next_footnote_index(&mut self) -> NonZeroUsize {
+        let index = self.footnote_index;
+        self.footnote_index = NonZeroUsize::new(index.get() + 1).unwrap();
+        index
     }
 
     // Prefixes

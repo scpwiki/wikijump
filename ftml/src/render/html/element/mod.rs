@@ -160,6 +160,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::TableOfContents { align, attributes } => {
             render_table_of_contents(log, ctx, *align, attributes)
         }
+        Element::Footnote => render_footnote(log, ctx),
         Element::FootnoteBlock { title, hide } => {
             if !(*hide || ctx.footnotes().is_empty()) {
                 render_footnote_block(log, ctx, ref_cow!(title));
