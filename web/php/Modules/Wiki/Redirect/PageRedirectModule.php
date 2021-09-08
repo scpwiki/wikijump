@@ -5,6 +5,7 @@ namespace Wikidot\Modules\Wiki\Redirect;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDStringUtils;
+use Wikijump\Helpers\LegacyTools;
 
 class PageRedirectModule extends SmartyModule
 {
@@ -27,29 +28,10 @@ class PageRedirectModule extends SmartyModule
         $currentUri = $_SERVER['REQUEST_URI'];
 
         if ($redirect) {
-            // NOTE(aismallard): this basically preserves the parameter list (e.g. /edit/true, etc.)
-            // check if mapping should be done.
-            if ($target[strlen($target)-1] === '/' && strpos($currentUri, '/', 1)) {
-                $map = true;
-            } else {
-                $map = false;
-            }
-
-            // check if $target is an URI or just a page name
+            // Check if $target is an URI or just a page name
             if (!strpos($target, '://')) {
                 $target = WDStringUtils::toUnixName($target);
-                $target = '/'.$target;
-                if ($map) {
-                    $target .= '/';
-                }
-            }
-
-            if ($map) {
-                // use more advanced mapping
-
-                //strip page name and take the remaining part
-                $mappedUri = substr($currentUri, strpos($currentUri, '/', 1)+1);
-                $target .= $mappedUri;
+                $target = '/' . $target . LegacyTools::getPageParameters();
             }
 
             header('HTTP/1.1 301 Moved Permanently');
