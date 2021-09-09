@@ -68,7 +68,8 @@ pub struct Parser<'r, 't> {
     // Flags
     in_list: bool,
     in_table: TableParseState,
-    has_footnote_block: bool,
+    in_footnote: bool, // Whether we're currently inside [[footnote]] ... [[/footnote]].
+    has_footnote_block: bool, // Whether a [[footnoteblock]] was created.
     start_of_line: bool,
 }
 
@@ -104,6 +105,7 @@ impl<'r, 't> Parser<'r, 't> {
             footnotes,
             in_list: false,
             in_table: TableParseState::Content,
+            in_footnote: false,
             has_footnote_block: false,
             start_of_line: true,
         }
@@ -138,6 +140,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn table_flag(&self) -> TableParseState {
         self.in_table
+    }
+
+    #[inline]
+    pub fn in_footnote(&self) -> bool {
+        self.in_footnote
     }
 
     #[inline]
@@ -189,6 +196,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn set_table_flag(&mut self, value: TableParseState) {
         self.in_table = value;
+    }
+
+    #[inline]
+    pub fn set_footnote_flag(&mut self, value: bool) {
+        self.in_footnote = value;
     }
 
     #[inline]
