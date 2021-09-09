@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use std::ops::{Deref, DerefMut};
 
 pub const BLOCK_FOOTNOTE: BlockRule = BlockRule {
     name: "block-footnote",
@@ -52,6 +53,18 @@ fn parse_footnote_ref<'r, 't>(
         "in-head" => in_head,
     );
 
+    // Check footnote flag
+    //
+    // This is true if we're a [[footnote]] inside a [[footnote]],
+    // which is not allowed.
+    if parser.in_footnote() {
+        return Err(parser.make_warn(ParseWarningKind::FootnotesNested));
+    }
+
+    // Set footnote ref flag
+    let parser = &mut ParserWrap::new(parser);
+
+    // Parse out block
     assert!(!flag_star, "Footnote reference doesn't allow star flag");
     assert!(!flag_score, "Footnote reference doesn't allow score flag");
     assert_block_name(&BLOCK_FOOTNOTE, name);
@@ -123,4 +136,42 @@ fn parse_footnote_block<'r, 't>(
 
     // Build and return
     ok!(Element::FootnoteBlock { title, hide })
+}
+
+// Helper
+
+#[derive(Debug)]
+struct ParserWrap<'p, 'r, 't> {
+    parser: &'p mut Parser<'r, 't>,
+}
+
+impl<'p, 'r, 't> ParserWrap<'p, 'r, 't> {
+    #[inline]
+    fn new(parser: &'p mut Parser<'r, 't>) -> Self {
+        parser.set_footnote_flag(true);
+
+        ParserWrap { parser }
+    }
+}
+
+impl<'r, 't> Deref for ParserWrap<'_, 'r, 't> {
+    type Target = Parser<'r, 't>;
+
+    #[inline]
+    fn deref(&self) -> &Parser<'r, 't> {
+        self.parser
+    }
+}
+
+impl<'r, 't> DerefMut for ParserWrap<'_, 'r, 't> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Parser<'r, 't> {
+        self.parser
+    }
+}
+
+impl Drop for ParserWrap<'_, '_, '_> {
+    fn drop(&mut self) {
+        self.parser.set_footnote_flag(false);
+    }
 }
