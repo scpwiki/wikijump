@@ -2,6 +2,13 @@
     "input": "[[module css]]a { color: blue; }[[/module]]",
     "tree": {
         "elements": [
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
         ],
         "styles": [
             "a { color: blue; }"

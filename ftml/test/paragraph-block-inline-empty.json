@@ -2,6 +2,13 @@
     "input": "[[p]][[/p]]",
     "tree": {
         "elements": [
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
         ],
         "styles": [
         ],

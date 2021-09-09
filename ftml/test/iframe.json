@@ -8,6 +8,13 @@
                     "url": "https://example.com",
                     "attributes": {}
                 }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
             }
         ],
         "styles": [
