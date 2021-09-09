@@ -218,7 +218,6 @@ impl<'r, 't> Parser<'r, 't> {
 
     // Footnotes
     pub fn push_footnote(&mut self, contents: Vec<Element<'t>>) {
-        // TODO
         self.footnotes.borrow_mut().push(contents);
     }
 

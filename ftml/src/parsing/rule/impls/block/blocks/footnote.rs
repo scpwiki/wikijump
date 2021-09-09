@@ -52,7 +52,36 @@ fn parse_footnote_ref<'r, 't>(
         "in-head" => in_head,
     );
 
-    todo!()
+    assert!(!flag_star, "Footnote reference doesn't allow star flag");
+    assert!(!flag_score, "Footnote reference doesn't allow score flag");
+    assert_block_name(&BLOCK_FOOTNOTE, name);
+
+    parser.get_head_none(&BLOCK_FOOTNOTE, in_head)?;
+
+    // Gather footnote contents with paragraphs.
+    //
+    // However, if there's only one, then we strip it
+    // and make it inline.
+    let (mut elements, exceptions, _) =
+        parser.get_body_elements(&BLOCK_FOOTNOTE, true)?.into();
+
+    if elements.len() == 1 {
+        match elements.pop().unwrap() {
+            // Unwrap the paragraph and get its contents.
+            Element::Container(container) => {
+                let mut new_elements: Vec<Element> = container.into();
+                elements.append(&mut new_elements);
+            }
+
+            // Other element, keep as-is.
+            element => elements.push(element),
+        };
+    }
+
+    // Append footnote contents and return.
+    parser.push_footnote(elements);
+
+    ok!(Element::Footnote, exceptions)
 }
 
 fn parse_footnote_block<'r, 't>(
