@@ -226,7 +226,6 @@ export class Parser {
    */
   advance() {
     if (!this.done) this.parse()
-    // if (!this.embeddedHandler.done) this.embeddedHandler.advance()
 
     if (this.done) {
       const context = this.finishIncompleteStack()
