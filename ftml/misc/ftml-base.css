@@ -48,6 +48,8 @@ code,
 
 /* MODIFIERS */
 
+.wj-monospace {}
+
 .wj-hidden {
     display: none;
 }
