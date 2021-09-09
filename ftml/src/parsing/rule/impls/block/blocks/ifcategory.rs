@@ -77,10 +77,21 @@ fn parse_fn<'r, 't>(
     let (elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_IFCATEGORY, false)?.into();
 
+    debug!(
+        log,
+        "IfCategory conditions parsed";
+        "conditions" => format!("{:#?}", conditions),
+        "elements-len" => elements.len(),
+    );
+
     // Return elements based on condition
     let elements = if check_ifcategory(log, parser.page_info(), &conditions) {
+        trace!(log, "Conditions passed, including elements");
+
         Elements::Multiple(elements)
     } else {
+        trace!(log, "Conditions failed, excluding elements");
+
         Elements::None
     };
 
