@@ -347,6 +347,7 @@ impl<'r, 't> Parser<'r, 't> {
         // Flags
         self.in_list = parser.in_list;
         self.in_table = parser.in_table;
+        self.in_footnote = parser.in_footnote;
         self.has_footnote_block = parser.has_footnote_block;
         self.start_of_line = parser.start_of_line;
 
