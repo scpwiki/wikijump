@@ -138,8 +138,10 @@ fn parse_footnote_block<'r, 't>(
     ok!(Element::FootnoteBlock { title, hide })
 }
 
-// Helper
-
+/// Helper structure to set the `in_footnote` flag.
+///
+/// This is only for `[[footnote]]`, the flag is meant
+/// to prevent nested `[[footnote]]`s.
 #[derive(Debug)]
 struct ParserWrap<'p, 'r, 't> {
     parser: &'p mut Parser<'r, 't>,
