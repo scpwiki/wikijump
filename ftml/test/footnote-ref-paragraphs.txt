@@ -1,0 +1,13 @@
+1[1]
+2[2]
+3[3]
+
+Footnotes
+1. 
+Apple
+
+Banana
+
+2. Cherry
+
+3. Durian
