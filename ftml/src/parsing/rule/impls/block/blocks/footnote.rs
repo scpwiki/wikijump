@@ -98,5 +98,15 @@ fn parse_footnote_block<'r, 't>(
         "in-head" => in_head,
     );
 
-    todo!()
+    assert!(!flag_star, "Footnote block doesn't allow star flag");
+    assert!(!flag_score, "Footnote block doesn't allow score flag");
+    assert_block_name(&BLOCK_FOOTNOTE_BLOCK, name);
+
+    let mut arguments = parser.get_head_map(&BLOCK_FOOTNOTE_BLOCK, in_head)?;
+
+    let title = arguments.get("title");
+    let hide = arguments.get_bool(parser, "hide")?.unwrap_or(false);
+
+    // Build and return
+    ok!(Element::FootnoteBlock { title, hide })
 }
