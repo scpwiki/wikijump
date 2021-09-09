@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@iconify/iconify": "^2.0.4",
-    "@popperjs/core": "^2.10.0",
+    "@popperjs/core": "^2.10.1",
     "ftml-wasm": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
     "morphdom": "^2.6.1",
