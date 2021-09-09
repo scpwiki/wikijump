@@ -81,7 +81,9 @@ fn parse_footnote_ref<'r, 't>(
     if elements.len() == 1 {
         match elements.pop().unwrap() {
             // Unwrap the paragraph and get its contents.
-            Element::Container(container) => {
+            Element::Container(container)
+                if container.ctype() == ContainerType::Paragraph =>
+            {
                 let mut new_elements: Vec<Element> = container.into();
                 elements.append(&mut new_elements);
             }
