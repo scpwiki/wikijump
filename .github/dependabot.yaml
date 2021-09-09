@@ -1,0 +1,21 @@
+# Config documentation: https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  # Laravel
+  - package-ecosystem: composer
+    directory: '/web'
+    schedule:
+      interval: weekly  # Eventually change to 'daily'
+
+  # Frontend
+  - package-ecosystem: npm
+    directory: '/client'
+    schedule:
+      interval: daily
+
+  # FTML
+  - package-ecosystem: cargo
+    directory: '/ftml'
+    schedule:
+      interval: daily
