@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::data::PageInfo;
-use crate::tree::ElementCondition;
+use crate::parsing::ElementCondition;
 
 pub const BLOCK_IFTAGS: BlockRule = BlockRule {
     name: "block-iftags",

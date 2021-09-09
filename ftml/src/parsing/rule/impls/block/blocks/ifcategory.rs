@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::data::PageInfo;
-use crate::tree::{ElementCondition, ElementConditionType};
+use crate::parsing::{ElementCondition, ElementConditionType};
 
 pub const BLOCK_IFCATEGORY: BlockRule = BlockRule {
     name: "block-ifcategory",
