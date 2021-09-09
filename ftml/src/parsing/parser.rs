@@ -332,7 +332,13 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[inline]
     pub fn update(&mut self, parser: &Parser<'r, 't>) {
+        // Flags
+        self.in_list = parser.in_list;
+        self.in_table = parser.in_table;
+        self.has_footnote_block = parser.has_footnote_block;
         self.start_of_line = parser.start_of_line;
+
+        // Token pointers
         self.current = parser.current;
         self.remaining = parser.remaining;
     }
