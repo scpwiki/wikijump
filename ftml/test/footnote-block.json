@@ -1,0 +1,67 @@
+
+{
+    "input": "[[footnoteblock]]\n\nA[[footnote]]1[[/footnote]]\n\nB[[footnote]]2[[/footnote]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        },
+                        {
+                            "element": "footnote"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "B"
+                        },
+                        {
+                            "element": "footnote"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+            [
+                {
+                    "element": "text",
+                    "data": "1"
+                }
+            ],
+            [
+                {
+                    "element": "text",
+                    "data": "2"
+                }
+            ]
+        ]
+    },
+    "warnings": [
+    ]
+}
