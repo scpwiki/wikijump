@@ -58,7 +58,7 @@ fn parse_fn<'r, 't>(
         })?;
 
     // Get body content, never with paragraphs
-    let (elements, exceptions, paragraph_safe) =
+    let (elements, mut exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_IFTAGS, false)?.into();
 
     debug!(
@@ -75,6 +75,9 @@ fn parse_fn<'r, 't>(
         Elements::Multiple(elements)
     } else {
         trace!(log, "Conditions failed, excluding elements");
+
+        // Filter out non-warning exceptions
+        exceptions.retain(|ex| matches!(ex, ParseException::Warning(_)));
 
         Elements::None
     };
