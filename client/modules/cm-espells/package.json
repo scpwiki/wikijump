@@ -20,6 +20,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
+    "@lezer/common": "^0.15.4",
     "dictionary-cs": "^2.0.3",
     "dictionary-da": "^4.5.0",
     "dictionary-el": "^3.0.5",
@@ -41,8 +42,7 @@
     "dictionary-tr": "^1.3.4",
     "dictionary-uk": "^2.3.0",
     "dictionary-vi": "^2.1.3",
-    "espells": "^0.2.0",
-    "@lezer/common": "^0.15.4",
+    "espells": "^0.4.1",
     "threads-worker-module": "workspace:*",
     "wj-codemirror": "workspace:*",
     "wj-components": "workspace:*",
