@@ -1,0 +1,44 @@
+{
+    "input": "A[[footnote]]B[[/footnote]]\n[[footnoteblock hide=\"true\"]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        },
+                        {
+                            "element": "footnote"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": true
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+            [
+                {
+                    "element": "text",
+                    "data": "B"
+                }
+            ]
+        ]
+    },
+    "warnings": [
+    ]
+}
