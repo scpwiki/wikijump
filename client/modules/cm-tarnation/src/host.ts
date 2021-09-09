@@ -301,8 +301,6 @@ export class Host {
       this.pos > context.viewport.to &&
       this.pos < this.region.original.to
     ) {
-      console.log("skipping", this.pos, this.region.original.to)
-      console.log(tree)
       context.skipUntilInView(this.pos, this.region.original.to)
     }
 
