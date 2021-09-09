@@ -102,10 +102,21 @@ fn parse_footnote_block<'r, 't>(
     assert!(!flag_score, "Footnote block doesn't allow score flag");
     assert_block_name(&BLOCK_FOOTNOTE_BLOCK, name);
 
+    // Parse arguments
     let mut arguments = parser.get_head_map(&BLOCK_FOOTNOTE_BLOCK, in_head)?;
 
     let title = arguments.get("title");
     let hide = arguments.get_bool(parser, "hide")?.unwrap_or(false);
+
+    if !arguments.is_empty() {
+        debug!(
+            log,
+            "Invalid argument keys found";
+            "arguments" => format!("{:#?}", arguments),
+        );
+
+        return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
+    }
 
     // Tell parser that a footnote block was added
     parser.set_footnote_block();

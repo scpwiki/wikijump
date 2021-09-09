@@ -82,6 +82,11 @@ impl<'t> Arguments<'t> {
         }
     }
 
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
+
     /// Removes the `UniCase` wrappers to produce a separate hash map of keys to values.
     ///
     /// This returns a new `HashMap` suitable for inclusion in final `Element`s.
