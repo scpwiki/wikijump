@@ -127,7 +127,7 @@ impl ContainerType {
             ContainerType::Superscript => HtmlTag::new("sup"),
             ContainerType::Subscript => HtmlTag::new("sub"),
             ContainerType::Strikethrough => HtmlTag::new("s"),
-            ContainerType::Monospace => HtmlTag::new("tt"),
+            ContainerType::Monospace => HtmlTag::with_class("code", "wj-monospace"),
             ContainerType::Span => HtmlTag::new("span"),
             ContainerType::Div => HtmlTag::new("div"),
             ContainerType::Mark => HtmlTag::new("mark"),
