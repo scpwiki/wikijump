@@ -16,6 +16,26 @@
 
 .wj-table {}
 
+/* FOOTNOTES */
+
+a.wj-footnote-ref {
+    display: inline-block;
+}
+
+.wj-footnotes-list {}
+.wj-footnotes-list .wj-title {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.wj-footnotes-list ol {
+    list-style: none;
+}
+
+.wj-footnotes-list .wj-footnote {}
+.wj-footnotes-list .wj-footnote span.wj-footnote-sep {}
+.wj-footnotes-list .wj-footnote div.wj-footnote-contents {}
+
 /* COLLAPSIBLE */
 
 .wj-collapsible-block {}

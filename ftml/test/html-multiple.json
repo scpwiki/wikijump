@@ -13,6 +13,13 @@
                 "data": {
                     "contents": "<p>Paragraph 2</p>"
                 }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
             }
         ],
         "styles": [

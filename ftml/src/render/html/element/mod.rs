@@ -22,6 +22,7 @@
 
 mod collapsible;
 mod container;
+mod footnotes;
 mod iframe;
 mod image;
 mod input;
@@ -42,6 +43,7 @@ mod prelude {
 
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
+use self::footnotes::{render_footnote, render_footnote_block};
 use self::iframe::{render_html, render_iframe};
 use self::image::render_image;
 use self::input::{render_checkbox, render_radio_button};
@@ -157,6 +159,12 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         }
         Element::TableOfContents { align, attributes } => {
             render_table_of_contents(log, ctx, *align, attributes)
+        }
+        Element::Footnote => render_footnote(log, ctx),
+        Element::FootnoteBlock { title, hide } => {
+            if !(*hide || ctx.footnotes().is_empty()) {
+                render_footnote_block(log, ctx, ref_cow!(title));
+            }
         }
         Element::User { name, show_avatar } => render_user(log, ctx, name, *show_avatar),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),

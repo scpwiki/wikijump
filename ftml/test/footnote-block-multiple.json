@@ -1,0 +1,58 @@
+{
+    "input": "Durian[[footnote]]Cherry[[/footnote]]\n\n[[footnoteblock]]\n[[footnoteblock]]\n[[footnoteblock]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Durian"
+                        },
+                        {
+                            "element": "footnote"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+            [
+                {
+                    "element": "text",
+                    "data": "Cherry"
+                }
+            ]
+        ]
+    },
+    "warnings": [
+    ]
+}

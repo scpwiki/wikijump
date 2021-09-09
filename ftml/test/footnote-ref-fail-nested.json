@@ -1,0 +1,106 @@
+{
+    "input": "A[[footnote]]B[[footnote]]C[[/footnote]]D[[/footnote]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        },
+                        {
+                            "element": "footnote"
+                        },
+                        {
+                            "element": "text",
+                            "data": "D"
+                        },
+                        {
+                            "element": "text",
+                            "data": "[[/"
+                        },
+                        {
+                            "element": "text",
+                            "data": "footnote"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+            [
+                {
+                    "element": "text",
+                    "data": "B"
+                },
+                {
+                    "element": "text",
+                    "data": "[["
+                },
+                {
+                    "element": "text",
+                    "data": "footnote"
+                },
+                {
+                    "element": "text",
+                    "data": "]]"
+                },
+                {
+                    "element": "text",
+                    "data": "C"
+                }
+            ]
+        ]
+    },
+    "warnings": [
+        {
+            "token": "identifier",
+            "rule": "block-footnote",
+            "span": [26, 27],
+            "kind": "footnotes-nested"
+        },
+        {
+            "token": "left-block",
+            "rule": "fallback",
+            "span": [14, 16],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [24, 26],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "left-block-end",
+            "rule": "fallback",
+            "span": [41, 44],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [52, 54],
+            "kind": "no-rules-match"
+        }
+    ]
+}

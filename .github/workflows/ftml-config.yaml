@@ -6,8 +6,8 @@ on:
       - 'ftml/Cargo.toml'
       - 'ftml/Cargo.lock'
       - 'ftml/conf/*.toml'
+      - 'ftml/src/**/*'
       - 'ftml/scripts/*'
-      - 'ftml/src/parsing/rule/impls/block/blocks/**/*'
       - '.github/workflows/ftml-config.yaml'
 
 jobs:

@@ -1,0 +1,44 @@
+{
+    "input": "A[[footnote]]B[[/footnote]]\n[[footnoteblock title=\"The notes of the foot\"]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "A"
+                        },
+                        {
+                            "element": "footnote"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": "The notes of the foot",
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+            [
+                {
+                    "element": "text",
+                    "data": "B"
+                }
+            ]
+        ]
+    },
+    "warnings": [
+    ]
+}

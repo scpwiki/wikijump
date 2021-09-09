@@ -167,6 +167,9 @@ pub enum ParseWarningKind {
     /// This table cell appears outside of a table row.
     TableCellOutsideTable,
 
+    /// Footnotes are not permitted from inside footnotes.
+    FootnotesNested,
+
     /// This native blockquote tries to nest too deeply.
     BlockquoteDepthExceeded,
 

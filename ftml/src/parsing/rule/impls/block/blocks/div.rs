@@ -40,6 +40,7 @@ fn parse_fn<'r, 't>(
     debug!(
         log,
         "Parsing div block";
+        "flag-score" => flag_score,
         "in-head" => in_head,
         "name" => name,
     );

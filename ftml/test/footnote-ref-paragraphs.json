@@ -1,0 +1,101 @@
+{
+    "input": "1[[footnote]]Apple\n\nBanana[[/footnote]]\n2[[footnote]]\nCherry\n[[/footnote]]\n3[[footnote]]\n\nDurian\n\n[[/footnote]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "1"
+                        },
+                        {
+                            "element": "footnote"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "2"
+                        },
+                        {
+                            "element": "footnote"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "3"
+                        },
+                        {
+                            "element": "footnote"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+            [
+                {
+                    "element": "container",
+                    "data": {
+                        "type": "paragraph",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "text",
+                                "data": "Apple"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "element": "container",
+                    "data": {
+                        "type": "paragraph",
+                        "attributes": {},
+                        "elements": [
+                            {
+                                "element": "text",
+                                "data": "Banana"
+                            }
+                        ]
+                    }
+                }
+            ],
+            [
+                {
+                    "element": "text",
+                    "data": "Cherry"
+                },
+                {
+                    "element": "line-break"
+                }
+            ],
+            [
+                {
+                    "element": "text",
+                    "data": "Durian"
+                }
+            ]
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -78,44 +78,46 @@ A list of all blocks and their attributes is available at [`conf/blocks.toml`](.
 
 Alternatively you may look here for a formatted list: (though it may not be updated as consistently)
 
-| Block Name                      | Accepted Names                   | Star? | Score? | Newlines? | Argument Type | Body Type |
-|---------------------------------|----------------------------------|-------|--------|-----------|---------------|-----------|
-| [Anchor](#anchor)               | `a`, `anchor`                    | No    | Yes    | No        | Map           | Elements  |
-| [Blockquote](#blockquote)       | `blockquote`, `quote`            | No    | No     | Yes       | Map           | Elements  |
-| [Bold](#bold)                   | `b`, `bold`, `strong`            | No    | No     | No        | Map           | Elements  |
-| [Char](#char)                   | `char`, `character`              | No    | No     | No        | Value         | None      |
-| [Checkbox](#checkbox)           | `checkbox`                       | Yes   | No     | No        | Map           | None      |
-| [Code](#code)                   | `code`                           | No    | No     | Yes       | Map           | Raw       |
-| [Collapsible](#collapsible)     | `collapsible`                    | No    | No     | Yes       | Map           | Elements  |
-| [CSS](#css)                     | `css`                            | No    | No     | Yes       | None          | Raw       |
-| [Deletion](#deletion)           | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
-| [Div](#div)                     | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
-| [Hidden](#hidden)               | `hidden`                         | No    | No     | Yes       | Map           | Elements  |
-| [HTML](#html)                   | `html`                           | No    | No     | Yes       | Map           | Raw       |
-| [IfCategory](#ifcategory)       | `ifcategory`                     | No    | No     | Yes       | Value         | Elements  |
-| [IfTags](#iftags)               | `iftags`                         | No    | No     | Yes       | Value         | Elements  |
-| [Iframe](#iframe)               | `iframe`                         | No    | No     | Yes       | None          | None      |
-| [Image](#image)                 | `image`                          | No    | No     | No        | Name + Map    | None      |
-| [Include](#include)             | `include`                        | No    | No     | Yes       | Name + Map    | None      |
-| [Insertion](#insertion)         | `ins`, `insertion`               | No    | No     | No        | Map           | Elements  |
-| [Invisible](#invisible)         | `invisible`                      | No    | No     | Yes       | Map           | Elements  |
-| [Italics](#italics)             | `i`, `italics`, `em`, `emphasis` | No    | No     | No        | Map           | Elements  |
-| [Lines](#lines)                 | `lines`, `newlines`              | No    | No     | Yes       | Value         | None      |
-| [List Blocks](#list)            | `ul`, `ol`, `li`                 | No    | Yes    | Yes       | Map           | Elements  |
-| [Mark](#mark)                   | `mark`, `highlight`              | No    | No     | No        | Map           | Elements  |
-| [Module](#module)               | `module`                         | No    | No     | Yes       | (See below)   | (See below) |
-| [Monospace](#monospace)         | `tt`, `mono`, `monospace`        | No    | No     | No        | Map           | Elements  |
-| [Paragraph](#paragraph)         | `p`, `paragraph`                 | No    | No     | Yes       | Map           | Elements  |
-| [Radio](#radio)                 | `radio`, `radio-button`          | Yes   | No     | No        | Name + Map    | None      |
-| [Size](#size)                   | `size`                           | No    | No     | No        | Value         | Elements  |
-| [Span](#span)                   | `span`                           | No    | Yes    | No        | Map           | Elements  |
-| [Strikethrough](#strikethrough) | `s`, `strikethrough`             | No    | No     | No        | Map           | Elements  |
-| [Subscript](#subscript)         | `sub`, `subscript`               | No    | No     | No        | Map           | Elements  |
-| [Superscript](#superscript)     | `sup`, `super`, `superscript`    | No    | No     | No        | Map           | Elements  |
-| [Tables](#tables)               | `table`, `row`, `cell`, `hcell`  | No    | No     | Yes       | Map           | Elements  |
-| [TOC](#toc)                     | `toc`                            | No    | No     | Yes       | Map           | None      |
-| [Underline](#underline)         | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
-| [User](#user)                   | `user`                           | Yes   | No     | No        | Value         | None      |
+| Block Name                        | Accepted Names                   | Star? | Score? | Newlines? | Argument Type | Body Type |
+|-----------------------------------|----------------------------------|-------|--------|-----------|---------------|-----------|
+| [Anchor](#anchor)                 | `a`, `anchor`                    | No    | Yes    | No        | Map           | Elements  |
+| [Blockquote](#blockquote)         | `blockquote`, `quote`            | No    | No     | Yes       | Map           | Elements  |
+| [Bold](#bold)                     | `b`, `bold`, `strong`            | No    | No     | No        | Map           | Elements  |
+| [Char](#char)                     | `char`, `character`              | No    | No     | No        | Value         | None      |
+| [Checkbox](#checkbox)             | `checkbox`                       | Yes   | No     | No        | Map           | None      |
+| [Code](#code)                     | `code`                           | No    | No     | Yes       | Map           | Raw       |
+| [Collapsible](#collapsible)       | `collapsible`                    | No    | No     | Yes       | Map           | Elements  |
+| [CSS](#css)                       | `css`                            | No    | No     | Yes       | None          | Raw       |
+| [Deletion](#deletion)             | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
+| [Div](#div)                       | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
+| [Footnote](#footnote)             | `footnote`                       | No    | No     | No        | None          | Elements  |
+| [Footnote Block](#footnote-block) | `footnoteblock`                  | No    | No     | Yes       | Map           | None      |
+| [Hidden](#hidden)                 | `hidden`                         | No    | No     | Yes       | Map           | Elements  |
+| [HTML](#html)                     | `html`                           | No    | No     | Yes       | Map           | Raw       |
+| [IfCategory](#ifcategory)         | `ifcategory`                     | No    | No     | Yes       | Value         | Elements  |
+| [IfTags](#iftags)                 | `iftags`                         | No    | No     | Yes       | Value         | Elements  |
+| [Iframe](#iframe)                 | `iframe`                         | No    | No     | Yes       | None          | None      |
+| [Image](#image)                   | `image`                          | No    | No     | No        | Name + Map    | None      |
+| [Include](#include)               | `include`                        | No    | No     | Yes       | Name + Map    | None      |
+| [Insertion](#insertion)           | `ins`, `insertion`               | No    | No     | No        | Map           | Elements  |
+| [Invisible](#invisible)           | `invisible`                      | No    | No     | Yes       | Map           | Elements  |
+| [Italics](#italics)               | `i`, `italics`, `em`, `emphasis` | No    | No     | No        | Map           | Elements  |
+| [Lines](#lines)                   | `lines`, `newlines`              | No    | No     | Yes       | Value         | None      |
+| [List Blocks](#list)              | `ul`, `ol`, `li`                 | No    | Yes    | Yes       | Map           | Elements  |
+| [Mark](#mark)                     | `mark`, `highlight`              | No    | No     | No        | Map           | Elements  |
+| [Module](#module)                 | `module`                         | No    | No     | Yes       | (See below)   | (See below) |
+| [Monospace](#monospace)           | `tt`, `mono`, `monospace`        | No    | No     | No        | Map           | Elements  |
+| [Paragraph](#paragraph)           | `p`, `paragraph`                 | No    | No     | Yes       | Map           | Elements  |
+| [Radio](#radio)                   | `radio`, `radio-button`          | Yes   | No     | No        | Name + Map    | None      |
+| [Size](#size)                     | `size`                           | No    | No     | No        | Value         | Elements  |
+| [Span](#span)                     | `span`                           | No    | Yes    | No        | Map           | Elements  |
+| [Strikethrough](#strikethrough)   | `s`, `strikethrough`             | No    | No     | No        | Map           | Elements  |
+| [Subscript](#subscript)           | `sub`, `subscript`               | No    | No     | No        | Map           | Elements  |
+| [Superscript](#superscript)       | `sup`, `super`, `superscript`    | No    | No     | No        | Map           | Elements  |
+| [Tables](#tables)                 | `table`, `row`, `cell`, `hcell`  | No    | No     | Yes       | Map           | Elements  |
+| [TOC](#toc)                       | `toc`                            | No    | No     | Yes       | Map           | None      |
+| [Underline](#underline)           | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
+| [User](#user)                     | `user`                           | Yes   | No     | No        | Value         | None      |
 
 Each of the blocks will be described in more detail below:
 
@@ -301,6 +303,31 @@ Example:
 Some text __here!__
 [[/div]]
 ```
+
+### Footnote
+
+Output: `Element::Footnote`
+
+Body: Elements
+
+Arguments:
+* None
+
+Example:
+
+```
+The author of The Dark Tower series[[footnote]]Did you know that world-renowned writer Stephen King was once hit by a car? Just something to consider[[/footnote]] began work in the late 1970s.
+```
+
+### Footnote Block
+
+Output: `Element::FootnoteBlock`
+
+Body: None
+
+Arguments:
+* `hide` &mdash; (Boolean) Whether to hide the footnote block, effectively not rendering it.
+* `title` &mdash; (String) An alternate title to the footnote block. In English, the default is `Footnotes`.
 
 ### Hidden
 

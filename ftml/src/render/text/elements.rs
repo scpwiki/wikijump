@@ -291,6 +291,45 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             ctx.add_newline();
             render_elements(log, ctx, ctx.table_of_contents());
         }
+        Element::Footnote => {
+            debug!(log, "Rendering footnote reference");
+
+            let index = ctx.next_footnote_index();
+            str_write!(ctx, "[{}]", index);
+        }
+        Element::FootnoteBlock { title, hide } => {
+            debug!(log, "Rendering footnote block");
+
+            if *hide || ctx.footnotes().is_empty() {
+                return;
+            }
+
+            // Render footnote title
+            let title_default;
+            let title: &str = match title {
+                Some(title) => title.as_ref(),
+                None => {
+                    title_default = ctx.handle().get_message(
+                        log,
+                        ctx.language(),
+                        "footnote-block-title",
+                    );
+                    title_default
+                }
+            };
+
+            ctx.add_newline();
+            ctx.push_str(title);
+            ctx.add_newline();
+
+            // Render footnotes in order.
+            for (index, contents) in ctx.footnotes().iter().enumerate() {
+                str_write!(ctx, "{}. ", index + 1);
+
+                render_elements(log, ctx, contents);
+                ctx.add_newline();
+            }
+        }
         Element::User { name, .. } => ctx.push_str(name),
         Element::Color { elements, .. } => render_elements(log, ctx, elements),
         Element::Code { contents, language } => {

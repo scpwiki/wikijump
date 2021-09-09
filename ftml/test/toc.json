@@ -57,6 +57,13 @@
                     "attributes": {},
                     "align": null
                 }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
             }
         ],
         "styles": [

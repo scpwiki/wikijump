@@ -68,6 +68,8 @@ pub struct Parser<'r, 't> {
     // Flags
     in_list: bool,
     in_table: TableParseState,
+    in_footnote: bool, // Whether we're currently inside [[footnote]] ... [[/footnote]].
+    has_footnote_block: bool, // Whether a [[footnoteblock]] was created.
     start_of_line: bool,
 }
 
@@ -103,6 +105,8 @@ impl<'r, 't> Parser<'r, 't> {
             footnotes,
             in_list: false,
             in_table: TableParseState::Content,
+            in_footnote: false,
+            has_footnote_block: false,
             start_of_line: true,
         }
     }
@@ -136,6 +140,16 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn table_flag(&self) -> TableParseState {
         self.in_table
+    }
+
+    #[inline]
+    pub fn in_footnote(&self) -> bool {
+        self.in_footnote
+    }
+
+    #[inline]
+    pub fn has_footnote_block(&self) -> bool {
+        self.has_footnote_block
     }
 
     #[inline]
@@ -184,6 +198,16 @@ impl<'r, 't> Parser<'r, 't> {
         self.in_table = value;
     }
 
+    #[inline]
+    pub fn set_footnote_flag(&mut self, value: bool) {
+        self.in_footnote = value;
+    }
+
+    #[inline]
+    pub fn set_footnote_block(&mut self) {
+        self.has_footnote_block = true;
+    }
+
     // Table of Contents
     pub fn push_table_of_contents_entry(
         &mut self,
@@ -206,7 +230,6 @@ impl<'r, 't> Parser<'r, 't> {
 
     // Footnotes
     pub fn push_footnote(&mut self, contents: Vec<Element<'t>>) {
-        // TODO
         self.footnotes.borrow_mut().push(contents);
     }
 
@@ -321,7 +344,14 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[inline]
     pub fn update(&mut self, parser: &Parser<'r, 't>) {
+        // Flags
+        self.in_list = parser.in_list;
+        self.in_table = parser.in_table;
+        self.in_footnote = parser.in_footnote;
+        self.has_footnote_block = parser.has_footnote_block;
         self.start_of_line = parser.start_of_line;
+
+        // Token pointers
         self.current = parser.current;
         self.remaining = parser.remaining;
     }

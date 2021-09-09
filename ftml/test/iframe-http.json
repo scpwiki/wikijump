@@ -8,6 +8,13 @@
                     "url": "http://scp-wiki.wikidot.com/scp-1000",
                     "attributes": {}
                 }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
             }
         ],
         "styles": [

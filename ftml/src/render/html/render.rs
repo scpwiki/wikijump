@@ -55,3 +55,10 @@ impl ItemRender for &'_ [Element<'_>] {
         render_elements(log, ctx, self)
     }
 }
+
+impl ItemRender for &'_ Vec<Element<'_>> {
+    #[inline]
+    fn render(&self, log: &Logger, ctx: &mut HtmlContext) {
+        render_elements(log, ctx, self)
+    }
+}

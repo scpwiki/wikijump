@@ -11,6 +11,13 @@
                         "width": "100%"
                     }
                 }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
             }
         ],
         "styles": [
