@@ -107,6 +107,9 @@ fn parse_footnote_block<'r, 't>(
     let title = arguments.get("title");
     let hide = arguments.get_bool(parser, "hide")?.unwrap_or(false);
 
+    // Tell parser that a footnote block was added
+    parser.set_footnote_block();
+
     // Build and return
     ok!(Element::FootnoteBlock { title, hide })
 }
