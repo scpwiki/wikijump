@@ -22,9 +22,8 @@ use super::clone::{
     elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
 };
 use super::{
-    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, ElementCondition,
-    FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
-    Table, TableItem,
+    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
+    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, Table, TableItem,
 };
 use ref_map::*;
 use std::borrow::Cow;
@@ -155,24 +154,6 @@ pub enum Element<'t> {
         show_bottom: bool,
     },
 
-    /// A conditional section of the tree, based on what category the page is in.
-    ///
-    /// These are to be included if at least one of the positive category conditions is met
-    /// (if there are any), and if all of the negative category conditions are met.
-    /// Otherwise the elements will not be rendered.
-    IfCategory {
-        conditions: Vec<ElementCondition<'t>>,
-        elements: Vec<Element<'t>>,
-    },
-
-    /// A conditional section of the tree, based on what tags the page has.
-    ///
-    /// These are to be included if all the tag conditions are met, and excluded if not.
-    IfTags {
-        conditions: Vec<ElementCondition<'t>>,
-        elements: Vec<Element<'t>>,
-    },
-
     /// A table of contents block.
     ///
     /// This contains links to sub-headings on the page.
@@ -279,8 +260,6 @@ impl Element<'_> {
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",
-            Element::IfCategory { .. } => "IfCategory",
-            Element::IfTags { .. } => "IfTags",
             Element::TableOfContents { .. } => "TableOfContents",
             Element::Footnote => "Footnote",
             Element::FootnoteBlock { .. } => "FootnoteBlock",
@@ -318,8 +297,6 @@ impl Element<'_> {
             Element::Image { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
-            Element::IfCategory { .. } => true,
-            Element::IfTags { .. } => true,
             Element::TableOfContents { .. } => false,
             Element::Footnote => true,
             Element::FootnoteBlock { .. } => false,
@@ -422,20 +399,6 @@ impl Element<'_> {
                 hide_text: option_string_to_owned(hide_text),
                 show_top: *show_top,
                 show_bottom: *show_bottom,
-            },
-            Element::IfCategory {
-                conditions,
-                elements,
-            } => Element::IfCategory {
-                conditions: conditions.iter().map(|c| c.to_owned()).collect(),
-                elements: elements_to_owned(elements),
-            },
-            Element::IfTags {
-                conditions,
-                elements,
-            } => Element::IfTags {
-                conditions: conditions.iter().map(|c| c.to_owned()).collect(),
-                elements: elements_to_owned(elements),
             },
             Element::TableOfContents { align, attributes } => Element::TableOfContents {
                 align: *align,

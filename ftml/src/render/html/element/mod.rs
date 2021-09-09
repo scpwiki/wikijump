@@ -53,7 +53,6 @@ use self::table::render_table;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use self::toc::render_table_of_contents;
 use self::user::render_user;
-use super::super::condition::{check_ifcategory, check_iftags};
 use super::attributes::AddedAttributes;
 use super::HtmlContext;
 use crate::log::prelude::*;
@@ -141,22 +140,6 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
                 *show_bottom,
             ),
         ),
-        Element::IfCategory {
-            conditions,
-            elements,
-        } => {
-            if check_ifcategory(log, ctx.info(), conditions) {
-                render_elements(log, ctx, elements);
-            }
-        }
-        Element::IfTags {
-            conditions,
-            elements,
-        } => {
-            if check_iftags(log, ctx.info(), conditions) {
-                render_elements(log, ctx, elements);
-            }
-        }
         Element::TableOfContents { align, attributes } => {
             render_table_of_contents(log, ctx, *align, attributes)
         }

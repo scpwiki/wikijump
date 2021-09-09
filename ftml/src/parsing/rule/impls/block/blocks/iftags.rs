@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::data::PageInfo;
 use crate::tree::ElementCondition;
 
 pub const BLOCK_IFTAGS: BlockRule = BlockRule {
@@ -60,11 +61,27 @@ fn parse_fn<'r, 't>(
     let (elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_IFTAGS, false)?.into();
 
-    // Build element and return
-    let element = Element::IfTags {
-        conditions,
-        elements,
+    // Return elements based on condition
+    let elements = if check_iftags(log, parser.page_info(), &conditions) {
+        Elements::Multiple(elements)
+    } else {
+        Elements::None
     };
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; elements, exceptions)
+}
+
+pub fn check_iftags(
+    log: &Logger,
+    info: &PageInfo,
+    conditions: &[ElementCondition],
+) -> bool {
+    debug!(
+        log,
+        "Checking iftags";
+        "tags-len" => info.tags.len(),
+        "conditions-len" => conditions.len(),
+    );
+
+    ElementCondition::check(conditions, &info.tags)
 }

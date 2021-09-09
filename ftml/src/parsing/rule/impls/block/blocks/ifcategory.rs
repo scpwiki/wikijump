@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::data::PageInfo;
 use crate::tree::{ElementCondition, ElementConditionType};
 
 pub const BLOCK_IFCATEGORY: BlockRule = BlockRule {
@@ -76,11 +77,32 @@ fn parse_fn<'r, 't>(
     let (elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_IFCATEGORY, false)?.into();
 
-    // Build element and return
-    let element = Element::IfCategory {
-        conditions,
-        elements,
+    // Return elements based on condition
+    let elements = if check_ifcategory(log, parser.page_info(), &conditions) {
+        Elements::Multiple(elements)
+    } else {
+        Elements::None
     };
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; elements, exceptions)
+}
+
+pub fn check_ifcategory(
+    log: &Logger,
+    info: &PageInfo,
+    conditions: &[ElementCondition],
+) -> bool {
+    let category = match &info.category {
+        Some(category) => category,
+        None => "_default",
+    };
+
+    debug!(
+        log,
+        "Checking ifcategory";
+        "category" => category,
+        "conditions-len" => conditions.len(),
+    );
+
+    ElementCondition::check(conditions, &[cow!(category)])
 }
