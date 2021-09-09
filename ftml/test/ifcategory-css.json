@@ -1,0 +1,23 @@
+{
+    "input": "[[ifcategory _default]]\n[[css]]body { color: red; }[[/css]]\n[[/ifcategory]]\n[[ifcategory fragment]]\n[[css]]body { color: blue; }[[/css]]\n[[/ifcategory]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+            "body { color: red; }"
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
