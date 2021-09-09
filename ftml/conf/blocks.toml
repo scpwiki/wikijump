@@ -79,6 +79,11 @@ body = "elements"
 html-attributes = true
 html-output = "html,div"
 
+[footnote]
+head = "none"
+body = "elements"
+html-output = "html,sup,wj-footnote-ref"
+
 [hidden]
 accepts-newlines = true
 head = "map"
