@@ -4,7 +4,7 @@ import { Chunk } from "./chunk"
 import type { TokenizerStack } from "./stack"
 
 /** Number of tokens per chunk. */
-const CHUNK_SIZE = 32
+const CHUNK_SIZE = 1024
 
 /**
  * A `TokenizerBuffer` stores `Chunk` objects that then store the actual
@@ -36,6 +36,10 @@ export class TokenizerBuffer {
     if (!chunk) return // just satisfying typescript here
     if (!this.buffer.length) this.buffer.push(chunk)
     this.buffer[this.buffer.length - 1] = chunk
+  }
+
+  ensureLast(pos: number, stack: TokenizerStack | SerializedTokenizerStack) {
+    if (!this.last) this.last = new Chunk(pos, stack)
   }
 
   /** Retrieves a `Chunk` from the buffer. */

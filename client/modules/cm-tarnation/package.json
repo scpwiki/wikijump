@@ -25,8 +25,8 @@
     "dequal": "^2.0.2",
     "is-what": "^4.0.0",
     "klona": "^2.0.4",
-    "lezer": "^0.13.5",
-    "lezer-tree": "^0.13.2",
+    "@lezer/common": "^0.15.4",
+    "@lezer/lr": "^0.15.2",
     "typescript-memoize": "^1.0.1",
     "wj-codemirror": "workspace:*",
     "wj-util": "workspace:*"

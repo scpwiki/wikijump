@@ -147,7 +147,7 @@ const EXTERNAL = [
   /uvu/,
   // codemirror has CJS exports now, so this is ok
   /^@codemirror/,
-  "lezer-tree",
+  /^@lezer/,
   // breaks things if included
   "threads",
   // large CJS-compatible dependencies (so we'll exclude them)

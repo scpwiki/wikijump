@@ -1,7 +1,7 @@
-import type { NodePropSource, NodeType, Tree } from "lezer-tree"
+import type { NodePropSource, NodeType, Tree } from "@lezer/common"
 import type { Extension, LanguageDescription } from "wj-codemirror/cm"
 import type * as DF from "./grammar/definition"
-import type { Chunk, TokenizerBuffer } from "./tokenizer"
+import type { Chunk } from "./tokenizer"
 
 // -- CONFIGURATION
 
@@ -100,7 +100,6 @@ export interface SerializedParserContext {
   index: number
   buffer: LezerToken[]
   stack: ParserElementStack
-  embedded: EmbeddedData
 }
 
 /** A parser's cache, mapping tokenizer chunks to parser contexts. */
@@ -108,38 +107,7 @@ export type ParserCache = WeakMap<Chunk, SerializedParserContext>
 
 // -- MISC.
 
-/**
- * The region of a document that should be parsed, along with other
- * information such as what the edited range of the document was.
- */
-export interface ParseRegion {
-  /** The parser should start before or at this position. */
-  from: number
-  /** The parse should stop past or at this position. */
-  to: number
-  /** The length of the document. */
-  length: number
-  /** The edited range of the document. */
-  edit?: {
-    /** The start of the edited range. */
-    from: number
-    /** The end of the edited range. */
-    to: number
-    /** The number of characters added in the change. */
-    offset: number
-  }
-}
-
 export type AddNodeSpec = { name: string } & Omit<
   Parameters<typeof NodeType["define"]>[0],
   "id" | "name"
 >
-
-/**
- * Describes a Tarnation's language cache, which is how it recovers
- * information for incremental parsing.
- *
- * - `Tree` maps to `TokenizerBuffer`
- * - `Chunk` maps to `SerializedParserContext`
- */
-export type CacheMap = WeakMap<Tree | Chunk, TokenizerBuffer | SerializedParserContext>

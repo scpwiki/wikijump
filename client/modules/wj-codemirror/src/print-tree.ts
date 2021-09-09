@@ -1,4 +1,4 @@
-import { stringInput, Tree } from "lezer-tree"
+import type { Tree } from "@lezer/common"
 
 function indent(depth: number, str = "  ") {
   return depth > 0 ? str.repeat(depth) : ""
@@ -6,8 +6,6 @@ function indent(depth: number, str = "  ") {
 
 /** Pretty-prints a Lezer tree. Doesn't log the result - just returns it. */
 export function printTree(tree: Tree, src: string) {
-  const input = stringInput(src)
-
   let output = ""
   let depth = -1
 
@@ -17,8 +15,8 @@ export function printTree(tree: Tree, src: string) {
 
       const len = to - from
       let slice: string
-      if (len <= 40) slice = input.read(from, to)
-      else slice = `${input.read(from, from + 20)} ... ${input.read(to - 20, to)}`
+      if (len <= 40) slice = src.slice(from, to)
+      else slice = `${src.slice(from, from + 20)} ... ${src.slice(to - 20, to)}`
 
       slice = slice.replaceAll("\n", "\\n").replaceAll('"', '\\"')
 

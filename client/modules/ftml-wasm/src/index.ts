@@ -108,18 +108,30 @@ export function tokenize(str: string, preprocess = true) {
   }
 }
 
+export interface ParseOptions {
+  /**
+   * Contextual information about the wikitext being rendered. Unspecified
+   * properties will be mocked.
+   */
+  info?: PageInfo
+  /** Preprocess input before rendering? */
+  preprocess?: boolean
+}
+
 /**
  * Parses a string of wikitext. This returns an AST and warnings list, not HTML.
  *
  * @see {@link render}
  */
-export function parse(str: string, preprocess = true) {
+export function parse(str: string, opts: ParseOptions = {}) {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
+    const { info, preprocess = true } = opts
+
     str = preprocess ? Binding.preprocess(str) : str
 
     const tokenized = trk(Binding.tokenize(str))
-    const parsed = trk(Binding.parse(tokenized))
+    const parsed = trk(Binding.parse(trk(makeInfo(info)), tokenized))
     const tree = trk(parsed.syntax_tree())
 
     const ast = tree.data()
@@ -157,10 +169,10 @@ export function render(str: string, opts?: RenderOptions) {
   try {
     str = preprocess ? Binding.preprocess(str) : str
 
-    const tokenized = trk(Binding.tokenize(str))
-    const parsed = trk(Binding.parse(tokenized))
-    const tree = trk(parsed.syntax_tree())
     const pageInfo = trk(makeInfo(info))
+    const tokenized = trk(Binding.tokenize(str))
+    const parsed = trk(Binding.parse(trk(pageInfo.copy()), tokenized))
+    const tree = trk(parsed.syntax_tree())
 
     const rendered =
       mode === "html"
@@ -227,14 +239,14 @@ export function detailedRender(
   if (!ready) throw new Error("FTML wasn't ready yet!")
   const { mode = "html", info } = opts ?? {}
   try {
+    const pageInfo = trk(makeInfo(info))
     const preprocessed = Binding.preprocess(str)
     const tokenized = trk(Binding.tokenize(preprocessed))
     const tokens = tokenized.tokens()
-    const parsed = trk(Binding.parse(tokenized))
+    const parsed = trk(Binding.parse(trk(pageInfo.copy()), tokenized))
     const tree = trk(parsed.syntax_tree())
     const ast = tree.data()
     const warnings = parsed.warnings()
-    const pageInfo = trk(makeInfo(info))
 
     const rendered =
       mode === "html"
@@ -258,11 +270,12 @@ export function detailedRender(
 }
 
 /** Returns the list of warnings emitted when parsing the provided string. */
-export function warnings(str: string) {
+export function warnings(str: string, info?: PageInfo) {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
+    const pageInfo = trk(makeInfo(info))
     const tokenized = trk(Binding.tokenize(str))
-    const parsed = trk(Binding.parse(tokenized))
+    const parsed = trk(Binding.parse(pageInfo, tokenized))
 
     const warnings = parsed.warnings()
 

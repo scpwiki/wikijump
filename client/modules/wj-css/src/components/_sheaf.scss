@@ -24,7 +24,6 @@
 
   .cm-content {
     max-width: 45rem;
-    padding-bottom: 70vh;
     line-height: 1.4;
   }
 
@@ -140,7 +139,7 @@
     opacity: 1;
   }
 
-  &.cm-tooltip-autocomplete {
+  .cm-tooltip-autocomplete {
     animation: none;
 
     > ul {
@@ -158,7 +157,8 @@
     }
   }
 
-  &.cm-ftml-hover-tip {
+  .cm-ftml-hover-tip {
+    display: inline-block;
     max-width: 30rem;
     padding: 0.25rem 0.5rem;
   }

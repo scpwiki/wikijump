@@ -1,6 +1,4 @@
 export * from "./buffer"
 export * from "./context"
-export * from "./embedded-handler"
-export * from "./embedded-language"
 export * from "./parser"
 export * from "./stack"

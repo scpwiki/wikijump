@@ -22,11 +22,11 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "@types/prismjs": "^1.16.5",
+    "@types/prismjs": "^1.16.6",
     "cm-espells": "workspace:*",
     "cm-tarnation": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
-    "lezer-tree": "^0.13.2",
+    "@lezer/common": "^0.15.4",
     "threads-worker-module": "workspace:*",
     "wj-codemirror": "workspace:*",
     "wj-components": "workspace:*",

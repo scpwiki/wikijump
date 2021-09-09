@@ -1,10 +1,10 @@
-import { Input, Tree } from "lezer-tree"
-import type { EditorParseContext } from "wj-codemirror/cm"
+import type { Tree } from "@lezer/common"
+import { getEmbeddedParserNode } from ".."
 import type { TarnationLanguage } from "../language"
+import { ParseRegion } from "../region"
 import type { Chunk } from "../tokenizer"
-import type { LezerToken, MappedToken, ParseRegion } from "../types"
+import type { LezerToken, MappedToken } from "../types"
 import type { ParserContext } from "./context"
-import { EmbeddedHandler } from "./embedded-handler"
 
 // not working quite right yet
 const FINISH_INCOMPLETE_STACKS = false
@@ -23,9 +23,6 @@ export class Parser {
   /** The host language. */
   private declare language: TarnationLanguage
 
-  /** Handler instance for parsing embedded languages. */
-  private declare embeddedHandler: EmbeddedHandler
-
   /** The region of the document that should be parsed. */
   private declare region: ParseRegion
 
@@ -38,39 +35,28 @@ export class Parser {
   /**
    * @param language - The host language.
    * @param context - The context/state to use.
-   * @param input - The document that was tokenized.
    * @param region - The region of the document that should be parsed.
    * @param pending - The chunks to parse.
-   * @param editorContext - The CodeMirror editor parse context to use.
    */
   constructor(
     language: TarnationLanguage,
     context: ParserContext,
-    input: Input,
     region: ParseRegion,
-    editorContext?: EditorParseContext,
     pending: Chunk[] = []
   ) {
     this.language = language
     this.context = context
     this.region = region
     this.pending = pending
-    this.embeddedHandler = new EmbeddedHandler(language, context, input, editorContext)
   }
 
   get pos() {
-    return this.pending?.[this.context.index]?.pos ?? this.region.from
+    return this.pending?.[this.context.index - 1]?.max ?? this.region.from
   }
 
-  get parserDone() {
-    // doesn't work right now :L
-    // return this.context.index >= this.pending.length || this.pos >= this.region.to
-    return this.context.index >= this.pending.length
-  }
-
-  /** True if the parser has finished parsing already. */
   get done() {
-    return this.parserDone && this.embeddedHandler.done
+    return this.context.index >= this.pending.length || this.pos >= this.region.to
+    // return this.context.index >= this.pending.length
   }
 
   /** Executes a parse step. */
@@ -80,7 +66,7 @@ export class Parser {
 
     // we want to cache the context before we process the chunk
     // this is the _starting_ context, not the ending context
-    this.language.cache.attach(this.context.serialize(), chunk)
+    chunk.parserContext = this.context
 
     const tokens = chunk.compile()
     for (let idx = 0; idx < tokens.length; idx++) {
@@ -92,10 +78,10 @@ export class Parser {
       switch (typeof t[0]) {
         // embed token
         case "string": {
-          const token: LezerToken = [0, t[1], t[2], -1, Tree.empty]
+          const node = getEmbeddedParserNode(t[0], t[1], t[2])
+          const token: LezerToken = [0, t[1], t[2], -1, node]
           ctx.buffer.add(token)
           ctx.stack.increment()
-          this.embeddedHandler.add(token, t[0])
           break
         }
         // mapped token (default)
@@ -239,8 +225,7 @@ export class Parser {
    * a buffer and reused tree nodes.
    */
   advance() {
-    if (!this.parserDone) this.parse()
-    if (!this.embeddedHandler.done) this.embeddedHandler.advance()
+    if (!this.done) this.parse()
 
     if (this.done) {
       const context = this.finishIncompleteStack()
@@ -258,17 +243,5 @@ export class Parser {
     let result: { buffer: number[]; reused: Tree[] } | null = null
     while ((result = this.advance()) === null) {}
     return result
-  }
-
-  /**
-   * Forces the parser to advance fully and return a tree, but avoids
-   * advancing embedded languages, instead calling their parser's
-   * `forceFinish` method.
-   */
-  forceFinish() {
-    while (!this.parserDone) this.parse()
-    while (!this.embeddedHandler.done) this.embeddedHandler.advance(true)
-    const context = this.finishIncompleteStack()
-    return context.buffer.compile()
   }
 }

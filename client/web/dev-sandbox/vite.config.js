@@ -30,10 +30,11 @@ const config = {
     target: "esnext",
     minify: "esbuild",
     brotliSize: false,
-    cssCodeSplit: false,
-    cleanCssOptions: {
-      sourceMap: true
-    }
+    cssCodeSplit: false
+  },
+
+  optimizeDeps: {
+    exclude: ["wj-state", "ftml-wasm-worker"]
   },
 
   css: {

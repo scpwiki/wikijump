@@ -1,6 +1,7 @@
 import { dequal } from "dequal"
 import { klona } from "klona"
-import type { SerializedTokenizerStack, Token } from "../types"
+import { ParserContext } from "../parser"
+import type { SerializedParserContext, SerializedTokenizerStack, Token } from "../types"
 import { TokenizerContext } from "./context"
 import { TokenizerStack } from "./stack"
 
@@ -32,6 +33,12 @@ export class Chunk {
   private declare _max: number
 
   /**
+   * A cached {@link ParserContext} for use by the parser. Used for reusing
+   * left-hand parse data.
+   */
+  private declare _parserContext?: SerializedParserContext
+
+  /**
    * @param pos - Position of this chunk.
    * @param stack - The state of the stack for the start of this chunk.
    * @param tokens - The mapped tokens to store in this chunk.
@@ -41,12 +48,14 @@ export class Chunk {
     pos: number,
     stack: TokenizerStack | SerializedTokenizerStack = { stack: [], embedded: null },
     tokens: Token[] = [],
-    relativeTo?: number
+    relativeTo?: number,
+    parserContext?: ParserContext | SerializedParserContext
   ) {
     this._pos = pos
     this.stack = stack
     this._max = 0
     this.setTokens(tokens, relativeTo)
+    if (parserContext) this.parserContext = parserContext
   }
 
   /** The chunk's starting position. */
@@ -84,6 +93,29 @@ export class Chunk {
   /** The context for this chunk. */
   get context() {
     return new TokenizerContext(this._pos, new TokenizerStack(this._stack))
+  }
+
+  /**
+   * A cached {@link ParserContext} for use by the parser. Used for
+   * reusing left-hand parse data.
+   */
+  get parserContext(): ParserContext | undefined {
+    return this._parserContext
+      ? ParserContext.deserialize(this._parserContext)
+      : undefined
+  }
+
+  /**
+   * A cached {@link ParserContext} for use by the parser. Used for
+   * reusing left-hand parse data.
+   */
+  set parserContext(context: ParserContext | SerializedParserContext | undefined) {
+    if (context === undefined) {
+      this._parserContext = undefined
+    } else {
+      this._parserContext =
+        context instanceof ParserContext ? context.serialize() : context
+    }
   }
 
   /**
@@ -157,7 +189,13 @@ export class Chunk {
 
   /** Returns a deep clone of the chunk. */
   clone() {
-    return new Chunk(this.pos, klona(this._stack), klona(this._tokens), this.pos)
+    return new Chunk(
+      this.pos,
+      klona(this._stack),
+      klona(this._tokens),
+      this.pos,
+      this.parserContext?.clone()
+    )
   }
 
   /**

@@ -1,4 +1,4 @@
-import { NodeProp, NodePropSource, NodeSet, NodeType } from "lezer-tree"
+import { NodeProp, NodePropSource, NodeSet, NodeType } from "@lezer/common"
 import { styleTags, tags } from "wj-codemirror/cm"
 import type { AddNodeSpec, ParserConfiguration } from "./types"
 

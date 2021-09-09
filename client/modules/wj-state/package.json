@@ -20,11 +20,11 @@
     "extends": "../../.eslintrc.js"
   },
   "devDependencies": {
-    "svelte": "^3.38.3"
+    "svelte": "^3.42.4"
   },
   "dependencies": {
     "is-what": "^4.0.0",
-    "svelte-i18n": "^3.3.9",
+    "svelte-i18n": "^3.3.10",
     "wj-util": "workspace:*"
   }
 }
