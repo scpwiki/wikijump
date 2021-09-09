@@ -39,7 +39,7 @@ html-output = "html,input"
 accepts-newlines = true
 head = "map"
 body = "raw"
-html-output = "html,code,code"
+html-output = "html,code,wj-code"
 [code.arguments]
 type = { type = "string" }
 
@@ -48,7 +48,7 @@ accepts-newlines = true
 head = "map"
 body = "elements"
 html-attributes = true
-html-output = "html,div,collapsible-block"
+html-output = "html,div,wj-collapsible-block"
 [collapsible.arguments]
 show = { type = "string" }
 hide = { type = "string" }
@@ -84,7 +84,7 @@ accepts-newlines = true
 head = "map"
 body = "elements"
 html-attributes = true
-html-output = "html,span,hidden"
+html-output = "html,span,wj-hidden"
 
 [html]
 accepts-newlines = true
@@ -115,7 +115,7 @@ aliases = ["=image", "<image", ">image", "f<image", "f>image"]
 head = "value+map"
 body = "none"
 html-attributes = true
-html-output = "html,img"
+html-output = "html,img,wj-image"
 
 [include]
 accepts-newlines = true
@@ -135,7 +135,7 @@ accepts-newlines = true
 head = "map"
 body = "elements"
 html-attributes = true
-html-output = "html,span,invisible"
+html-output = "html,span,wj-invisible"
 
 [italics]
 aliases = ["i", "em", "emphasis"]
@@ -257,6 +257,8 @@ head = "map"
 body = "elements"
 accepts-newlines = true
 html-attributes = true
+# This doesn't have class wj-table because only simple tables have it.
+# Table blocks (aka advanced tables) do not necessarily have a class.
 html-output = "html,table"
 
 [table-cell-regular]
@@ -292,13 +294,13 @@ accepts-newlines = true
 head = "map"
 body = "none"
 html-attributes = true
-html-output = "html,div"
+html-output = "html,div,wj-toc"
 
 [user]
 accepts-star = true
 head = "value"
 body = "none"
-html-output = "html,span,user-info"
+html-output = "html,span,wj-user-info"
 
 [underline]
 aliases = ["u"]
