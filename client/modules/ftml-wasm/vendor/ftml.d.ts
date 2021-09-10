@@ -1,11 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {string} text
-* @returns {string}
-*/
-export function preprocess(text: string): string;
-/**
 * @param {PageInfo} page_info
 * @param {SyntaxTree} syntax_tree
 * @returns {HtmlOutput}
@@ -32,6 +27,11 @@ export function tokenize(text: string): Tokenization;
 * @returns {ParseOutcome}
 */
 export function parse(page_info: PageInfo, tokens: Tokenization): ParseOutcome;
+/**
+* @param {string} text
+* @returns {string}
+*/
+export function preprocess(text: string): string;
 
 
 export interface IHtmlOutput {
@@ -246,7 +246,6 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly __wbg_htmloutput_free: (a: number) => void;
   readonly htmloutput_copy: (a: number) => number;
   readonly htmloutput_body: (a: number, b: number) => void;
@@ -283,6 +282,7 @@ export interface InitOutput {
   readonly __wbg_syntaxtree_free: (a: number) => void;
   readonly syntaxtree_data: (a: number) => number;
   readonly parse: (a: number, b: number) => number;
+  readonly preprocess: (a: number, b: number, c: number) => void;
   readonly syntaxtree_copy: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;

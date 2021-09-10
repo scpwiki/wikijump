@@ -108,24 +108,6 @@ function addHeapObject(obj) {
     heap[idx] = obj;
     return idx;
 }
-/**
-* @param {string} text
-* @returns {string}
-*/
-export function preprocess(text) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        wasm.preprocess(retptr, ptr0, len0);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        wasm.__wbindgen_free(r0, r1);
-    }
-}
 
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
@@ -214,6 +196,25 @@ export function parse(page_info, tokens) {
     tokens.ptr = 0;
     var ret = wasm.parse(ptr0, ptr1);
     return ParseOutcome.__wrap(ret);
+}
+
+/**
+* @param {string} text
+* @returns {string}
+*/
+export function preprocess(text) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        wasm.preprocess(retptr, ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(r0, r1);
+    }
 }
 
 /**
