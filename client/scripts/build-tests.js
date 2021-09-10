@@ -83,6 +83,10 @@ async function build() {
       tomlPlugin(),
       yamlPlugin(),
       svelte({
+        onwarn: (warning, handler) => {
+          if (warning.code === "unused-export-let") return
+          if (handler) handler(warning)
+        },
         emitCss: false,
         compilerOptions: { cssHash: () => "svelte" },
         preprocess: [sveltePreprocess({ sourceMap: true })]
