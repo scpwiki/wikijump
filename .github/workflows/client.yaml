@@ -30,17 +30,17 @@ jobs:
           args: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
 
       - name: Install Dependencies
-        uses: ianwalter/playwright-container@3.0.0
+        uses: ianwalter/playwright-container@v3.0.0
         with:
           args: cd client && pnpm i
 
       - name: Test
-        uses: ianwalter/playwright-container@3.0.0
+        uses: ianwalter/playwright-container@v3.0.0
         with:
           args: cd client && pnpm test
 
       - name: Validate
-        uses: ianwalter/playwright-container@3.0.0
+        uses: ianwalter/playwright-container@v3.0.0
         with:
           args: cd client && pnpm validate
 
