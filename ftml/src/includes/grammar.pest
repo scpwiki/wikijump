@@ -62,8 +62,8 @@ value = {
 page_ref = {
     (":" ~ identifier ~ ":")? ~ page_name
 }
-site_name = _{ identifier }
-page_name = { (ASCII_ALPHANUMERIC | "-" | "_" | ":")+ }
+site_name = _{ (!(space | ":") ~ ANY)+ }
+page_name = _{ (!space ~ ANY)+ }
 
 // Helpers
 
