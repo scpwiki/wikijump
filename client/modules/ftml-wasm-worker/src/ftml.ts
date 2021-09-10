@@ -1,3 +1,4 @@
+import type { PartialInfo } from "ftml-wasm"
 import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
 import { decode, transfer, WorkerModule } from "threads-worker-module"
 import type { FTMLWorkerInterface } from "./worker/ftml.worker"
@@ -23,60 +24,39 @@ class FTMLWorker extends WorkerModule<FTMLWorkerInterface> {
     return decode(await this.invoke("version"))
   }
 
-  /**
-   * Preprocesses a string of wikitext. See `ftml/src/preproc/test.rs` for
-   * more information.
-   */
   async preprocess(str: string) {
     return decode(await this.invoke("preprocess", transfer(str)))
   }
 
-  /** Tokenizes a string of wikitext. */
   async tokenize(str: string) {
     return await this.invoke("tokenize", transfer(str))
   }
 
-  /**
-   * Parses a string of wikitext. This returns an AST and warnings list, not HTML.
-   *
-   * @see {@link FTMLWorker#render}
-   */
-  async parse(str: string) {
-    return await this.invoke("parse", transfer(str))
+  async parse(str: string, info?: PartialInfo) {
+    return await this.invoke("parse", transfer(str), info)
   }
 
-  /**
-   * Renders a string of wikitext to HTML.
-   *
-   * @param format - Pretty-prints the HTML if true. Does not preserve whitespace.
-   */
-  async render(str: string, format = false) {
-    const [htmlBuffer, stylesBuffer] = await this.invoke("render", transfer(str), format)
-    const html = decode(htmlBuffer)
-    const styles = stylesBuffer.map(buffer => decode(buffer))
-    return { html, styles }
+  async renderHTML(str: string, info?: PartialInfo, format = false) {
+    const [html, styles] = await this.invoke("renderHTML", transfer(str), info, format)
+    return { html: decode(html), styles: styles.map(buffer => decode(buffer)) }
   }
 
-  /** Renders a string of wikitext to text. */
-  async renderText(str: string) {
-    return decode(await this.invoke("renderText", transfer(str)))
+  async detailRenderHTML(str: string, info?: PartialInfo) {
+    return await this.invoke("detailRenderHTML", transfer(str), info)
   }
 
-  /**
-   * Renders a string of wikitext like the {@link FTMLWorker#render}
-   * function, but this function additionally returns every step in the
-   * rendering pipeline.
-   */
-  async detailedRender(str: string) {
-    return await this.invoke("detailedRender", transfer(str))
+  async renderText(str: string, info?: PartialInfo) {
+    return decode(await this.invoke("renderText", transfer(str), info))
   }
 
-  /** Returns the list of warnings emitted when parsing the provided string. */
-  async warnings(str: string) {
-    return await this.invoke("warnings", transfer(str))
+  async detailRenderText(str: string, info?: PartialInfo) {
+    return await this.invoke("detailRenderText", transfer(str), info)
   }
 
-  /** Converts a string of wikitext into a pretty-printed list of tokens. */
+  async warnings(str: string, info?: PartialInfo) {
+    return await this.invoke("warnings", transfer(str), info)
+  }
+
   async inspectTokens(str: string) {
     return decode(await this.invoke("inspectTokens", transfer(str)))
   }
