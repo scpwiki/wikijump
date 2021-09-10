@@ -1,5 +1,5 @@
 {
-    "input": "[[include :scp-wiki:theme:black-highlighter-theme]]",
+    "input": "[[include-messy :scp-wiki:theme:black-highlighter-theme]]",
     "tree": {
         "elements": [
             {

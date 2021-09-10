@@ -1,5 +1,5 @@
 {
-    "input": "[[include my-page]]",
+    "input": "[[include-messy my-page]]",
     "tree": {
         "elements": [
             {
