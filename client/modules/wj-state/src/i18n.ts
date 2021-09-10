@@ -87,7 +87,7 @@ i18n.format.subscribe(formatter => (format = formatter))
 
 /** `svelte-i18n`'s current locale. */
 export let locale!: string
-i18n.locale.subscribe(cur => (locale = cur))
+i18n.locale.subscribe(cur => (locale = cur!))
 
 /**
  * Formats a string of ICU syntax using the current locale. Using this
