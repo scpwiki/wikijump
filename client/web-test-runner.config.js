@@ -11,8 +11,6 @@ module.exports = {
     include: ["modules/*/src/**/*.{js,jsx,ts,tsx}"]
   },
 
-  esbuildTarget: "esnext",
-
   testRunnerHtml: testFramework => `
     <html>
       <head>
