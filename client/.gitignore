@@ -2,13 +2,10 @@
 node_modules
 
 # Artifacts
-.nyc_output
 coverage
 dist
-tests-dist
 .ultra.cache.json
 
 # Misc.
-lerna-debug.log
 npm-debug.log
 .pnpm-debug.log

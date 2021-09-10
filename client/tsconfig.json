@@ -12,7 +12,7 @@
     "useDefineForClassFields": true,
     "experimentalDecorators": true,
     "lib": ["ESNext", "DOM", "WebWorker"],
-    "types": ["svelte", "vite/client"],
+    "types": ["svelte", "vite/client", "mocha"],
 
     "importsNotUsedAsValues": "remove",
     "isolatedModules": true,
@@ -41,5 +41,5 @@
       "source-map-js"
     ]
   },
-  "exclude": ["**/node_modules/**", "misc/templates", "dist", "tests-dist"]
+  "exclude": ["**/node_modules/**", "misc/templates", "dist"]
 }

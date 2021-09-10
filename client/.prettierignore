@@ -1,5 +1,4 @@
 dist
-tests-dist
 node_modules
 vendor
 /misc
