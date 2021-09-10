@@ -75,16 +75,16 @@ const module = {
     return FTML.tokenize(str)
   },
 
-  async parse(raw: ArrayBuffer) {
+  async parse(raw: ArrayBuffer, info?: FTML.PartialInfo) {
     await ready
     const str = decode(raw)
-    return FTML.parse(str)
+    return FTML.parse(str, info)
   },
 
-  async render(raw: ArrayBuffer, format = false) {
+  async renderHTML(raw: ArrayBuffer, info?: FTML.PartialInfo, format = false) {
     await ready
     const str = decode(raw)
-    let { html, styles } = FTML.render(str)
+    let { html, styles } = FTML.renderHTML(str, info)
     if (format) html = formatHTML(html)
     const htmlBuffer = encode(html)
     const styleBuffer = styles.map(style => encode(style))
@@ -94,23 +94,29 @@ const module = {
     ) as TransferDescriptor<[html: ArrayBuffer, styles: ArrayBuffer[]]>
   },
 
-  async renderText(raw: ArrayBuffer) {
+  async detailRenderHTML(raw: ArrayBuffer, info?: FTML.PartialInfo) {
     await ready
     const str = decode(raw)
-    const text = FTML.render(str, { mode: "text" })
+    return FTML.detailRenderHTML(str, info)
+  },
+
+  async renderText(raw: ArrayBuffer, info?: FTML.PartialInfo) {
+    await ready
+    const str = decode(raw)
+    const text = FTML.renderText(str, info)
     return transfer(text)
   },
 
-  async detailedRender(raw: ArrayBuffer) {
+  async detailRenderText(raw: ArrayBuffer, info?: FTML.PartialInfo) {
     await ready
     const str = decode(raw)
-    return FTML.detailedRender(str)
+    return FTML.detailRenderText(str, info)
   },
 
-  async warnings(raw: ArrayBuffer) {
+  async warnings(raw: ArrayBuffer, info?: FTML.PartialInfo) {
     await ready
     const str = decode(raw)
-    return FTML.warnings(str)
+    return FTML.warnings(str, info)
   },
 
   async inspectTokens(raw: ArrayBuffer) {

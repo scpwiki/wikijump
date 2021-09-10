@@ -492,7 +492,7 @@ export const FTMLLanguage = new TarnationLanguage({
 
         // [[code]]
         { begin: blkStart("code", "map", undefined, [
-            [/(type)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
+            [/(type)(\s*=\s*)(")((?:[^"]|\\")*)(")/, "BlockNodeArgument", [
               "BlockNodeArgumentName",
               "t.definitionOperator",
               "@BR/O:arg",
@@ -582,7 +582,7 @@ export const FTMLLanguage = new TarnationLanguage({
           { name: "BlockNodeArgumentMark", pair: '"', hint: "arg", tag: "t.string" }
         ] },
 
-        [/(\S+?)(\s*=\s*)(")((?:[^"]|\\")*?)(")/, "BlockNodeArgument", [
+        [/(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/, "BlockNodeArgument", [
           "BlockNodeArgumentName",
           "t.definitionOperator",
           "@BR/O:arg",

@@ -52,6 +52,10 @@ const config = {
     tomlPlugin(),
     yamlPlugin(),
     svelte({
+      onwarn: (warning, handler) => {
+        if (warning.code === "unused-export-let") return
+        if (handler) handler(warning)
+      },
       hot: false,
       preprocess: [
         sveltePreprocess({

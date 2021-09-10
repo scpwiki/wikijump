@@ -96,8 +96,8 @@ export class Chunk {
   }
 
   /**
-   * A cached {@link ParserContext} for use by the parser. Used for
-   * reusing left-hand parse data.
+   * A cached {@link ParserContext} for use by the parser. Used for reusing
+   * left-hand parse data.
    */
   get parserContext(): ParserContext | undefined {
     return this._parserContext
@@ -106,8 +106,8 @@ export class Chunk {
   }
 
   /**
-   * A cached {@link ParserContext} for use by the parser. Used for
-   * reusing left-hand parse data.
+   * A cached {@link ParserContext} for use by the parser. Used for reusing
+   * left-hand parse data.
    */
   set parserContext(context: ParserContext | SerializedParserContext | undefined) {
     if (context === undefined) {

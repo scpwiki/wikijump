@@ -7,6 +7,8 @@ const encoder = new TextEncoder()
 export async function textValue(doc: Text) {
   let out = ""
   let last = 0
+  // for some reason TS doesn't believe `Text` is iterable
+  // @ts-ignore
   for (const str of doc) {
     out += str
     // throttle on 32k chunks
@@ -24,6 +26,7 @@ export async function textBuffer(doc: Text) {
   let len = 0
   let last = 0
   const buffers: Uint8Array[] = []
+  // @ts-ignore
   for (const str of doc) {
     const buffer = encoder.encode(str)
     buffers.push(buffer)

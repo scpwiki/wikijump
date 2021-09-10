@@ -67,7 +67,9 @@ function assembleTests() {
       if (hasHTML || hasTXT) {
         const info = { ...PAGE_INFO, title: name, page: `page-${name}` }
 
-        const result = lib.detailedRender(test.input, { info })
+        const input = lib.preprocess(test.input)
+
+        const result = lib.detailRenderHTML(input, info)
 
         if (hasHTML) {
           const expected = await fs.readFile(pathHTML, "utf-8")
@@ -76,7 +78,7 @@ function assembleTests() {
 
         if (hasTXT) {
           const expected = await fs.readFile(pathTXT, "utf-8")
-          const text = lib.render(test.input, { mode: "text", info })
+          const text = lib.renderText(input, info)
           assert.fixture(clean(text), clean(expected))
         }
 
