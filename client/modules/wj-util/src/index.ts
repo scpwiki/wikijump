@@ -347,7 +347,7 @@ const HAS_IDLE_CALLBACK = "requestIdleCallback" in window
 
 /** Safely calls `requestIdleCallback` in an awaitable `Promise`. */
 // bad coverage as requestIdleCallback isn't always available
-/*! istanbul ignore next */
+/*! c8 ignore next */
 export function idleCallback<T extends AnyFunction<any>>(
   cb: T,
   timeout = 100
@@ -371,7 +371,7 @@ export function idleCallback<T extends AnyFunction<any>>(
  * @see {@link createAnimQueued}
  */
 // bad coverage as requestIdleCallback isn't always available
-/*! istanbul ignore next */
+/*! c8 ignore next */
 export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
   if (!HAS_IDLE_CALLBACK) return createAnimQueued(fn)
   let queued: boolean

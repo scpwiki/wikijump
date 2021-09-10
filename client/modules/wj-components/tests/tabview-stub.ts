@@ -1,12 +1,31 @@
-import * as uvu from "uvu"
-import * as assert from "uvu/assert"
-import Tabview from "../src/Tabview.svelte"
-import { fire, render, reset, setup } from "./setup/setup"
+import { assert } from "@esm-bundle/chai"
+import { fireEvent, render } from "@testing-library/svelte"
+import { TabviewStub } from "../src/index"
 
-const test = uvu.suite("Tabview-stub")
+describe("tabview-stub", () => {
+  it("can render stub", async () => {
+    const container = generateStub()
+    render(TabviewStub, { target: container })
+    assert.equal(
+      container.innerHTML,
+      `<div class="tabview svelte"><div class="tabs"><div class="tab-selector svelte"> </div></div> <div class="tab-contents"><div class="tab-content selected svelte">test content </div></div></div><!--<Tabview>-->`
+    )
+  })
 
-test.before(setup)
-test.before.each(reset)
+  it("can select second tab", async () => {
+    const container = generateStub(2)
+    render(TabviewStub, { target: container })
+
+    // second button
+    const button = container.querySelectorAll(".tab-selector")[1]!
+    await fireEvent.click(button)
+
+    assert.equal(
+      container.innerHTML,
+      `<div class="tabview svelte"><div class="tabs"><div class="tab-selector svelte"> </div><div class="tab-selector svelte"> </div></div> <div class="tab-contents"><div class="tab-content  svelte">test content </div><div class="tab-content selected svelte">test content </div></div></div><!--<Tabview>-->`
+    )
+  })
+})
 
 function generateStub(tabs = 1) {
   const container = document.createElement("div")
@@ -20,26 +39,3 @@ function generateStub(tabs = 1) {
   container.append(...children)
   return container
 }
-
-test("can render stub", () => {
-  const { container } = render({ tag: Tabview, container: generateStub() })
-
-  assert.snapshot(
-    container.innerHTML,
-    `<div class="tabview svelte"><div class="tabs"><div class="tab-selector svelte"> </div></div> <div class="tab-contents"><div class="tab-content selected svelte">test content </div></div></div>`
-  )
-})
-
-test("can select tab", async () => {
-  const { container } = render({ tag: Tabview, container: generateStub(2) })
-
-  // second button
-  const button = container.querySelectorAll(".tab-selector")[1]!
-  await fire(button, "click")
-  assert.snapshot(
-    container.innerHTML,
-    `<div class="tabview svelte"><div class="tabs"><div class="tab-selector svelte"> </div><div class="tab-selector svelte"> </div></div> <div class="tab-contents"><div class="tab-content  svelte">test content </div><div class="tab-content selected svelte">test content </div></div></div>`
-  )
-})
-
-test.run()

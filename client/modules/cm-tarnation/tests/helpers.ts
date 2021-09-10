@@ -1,15 +1,12 @@
-import * as uvu from "uvu"
-import * as assert from "uvu/assert"
+import { assert } from "@esm-bundle/chai"
 import * as lib from "../src/grammar/helpers"
 
 // TODO: flesh out, this is mostly just placeholder
 
-const Helpers = uvu.suite("Helpers")
-
-Helpers("safe regex (re)", () => {
-  const { re } = lib
-  assert.instance(re`/foo\w+/`, RegExp)
-  assert.is(re`/[\]\w+/`, null) // bad regexp
+describe("helpers", () => {
+  it("safe regex (re)", () => {
+    const { re } = lib
+    assert.instanceOf(re`/foo\w+/`, RegExp)
+    assert.isNull(re`/[\]\w+/`) // bad regexp
+  })
 })
-
-Helpers.run()

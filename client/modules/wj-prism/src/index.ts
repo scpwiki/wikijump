@@ -26,7 +26,7 @@ async function importLanguages() {
   ;(await import("./ftml")).prismFTML(Prism)
 }
 
-importLanguages()
+export const languagesReady = importLanguages()
 
 /**
  * Highlights a string of code and returns HTML, given a specified
