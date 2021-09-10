@@ -6,8 +6,6 @@ const jsons = import.meta.globEager("/../ftml/test/*.json")
 const htmls = import.meta.globEager("/../ftml/test/*.html?raw")
 const txts = import.meta.globEager("/../ftml/test/*.txt?raw")
 
-const asdf = import.meta.globEager("/modules/*/src/index.ts")
-
 /** Test categories to skip, e.g. "image" or "include". */
 const SKIP: string[] = ["include"]
 
