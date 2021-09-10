@@ -18,13 +18,13 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-// A simple parser generation exclusively to extract [[include]] directives
+// A simple parser generation exclusively to extract [[include-messy]] directives
 // within the wikitext. Other elements should be ignored and left as-is.
 
-// The "include" rule has some strange logic:
+// Wikidot's "include" rule has some strange logic:
 //
-// [[include]]s can have leading *and* trailing pipe separators,
-// for instance [[include page | a = 1 ]] or [[include page a = 1 | ]] (or both)
+// [[include-messy]]s can have leading *and* trailing pipe separators,
+// for instance [[include-messy page | a = 1 ]] or [[include-messy page a = 1 | ]] (or both)
 //
 // Additionally, each argument must be separated from each other with a pipe.
 // We encapsulate this logic by essentially doing "(parameter ~ pipe)* ~ (parameter ~ pipe?)?
@@ -33,7 +33,7 @@
 
 include = {
     SOI ~
-    "[[" ~ space ~ ^"include" ~ space ~
+    "[[" ~ space ~ ^"include-messy" ~ space ~
     page_ref ~ space ~
     "|"? ~ space ~
     (argument ~ space ~ "|" ~ space)* ~
