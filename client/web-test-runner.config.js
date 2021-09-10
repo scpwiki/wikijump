@@ -1,4 +1,68 @@
+const vite = require("vite")
+const c2k = require("koa-connect")
+const { svelte } = require("@sveltejs/vite-plugin-svelte")
+const sveltePreprocess = require("svelte-preprocess")
+const { default: tsconfigPaths } = require("vite-tsconfig-paths")
+const tomlPlugin = require("./scripts/vite-plugin-toml.js")
+const yamlPlugin = require("./scripts/vite-plugin-yaml.js")
+
 const ignoredBrowserLogs = ["[vite] connecting...", "[vite] connected."]
+
+/** @type {import("vite").UserConfig} */
+const viteConfig = {
+  build: {
+    assetsDir: "./",
+    sourcemap: "inline",
+    target: "esnext",
+    minify: false,
+    brotliSize: false,
+    cssCodeSplit: false,
+
+    rollupOptions: {
+      plugins: [
+        // because esbuild rips out comments, esbuild will not preserve
+        // the comments we need for ignoring lines
+        // however, it does preserve legal comments, /*! or //!
+        // but c8 doesn't recognize those!
+        // so we have to transform those back into normal comments
+        // before we let c8 parse them
+        {
+          transform(code, id) {
+            // use two spaces so we don't change the length of the document
+            code = code.replaceAll("/*! c8", "/*  c8")
+            // null map informs rollup to preserve the current sourcemap
+            return { code, map: null }
+          }
+        }
+      ],
+
+      treeshake: false
+    }
+  },
+
+  optimizeDeps: {
+    entries: [
+      "modules/*/src/**/*.{svelte,js,jsx,ts,tsx}",
+      "modules/*/tests/*.{js,jsx,ts,tsx}"
+    ],
+    include: ["@esm-bundle/chai", "@testing-library/svelte"]
+  },
+
+  plugins: [
+    tsconfigPaths({ projects: ["./"], loose: true }),
+    tomlPlugin(),
+    yamlPlugin(),
+    svelte({
+      onwarn: (warning, handler) => {
+        if (warning.code === "unused-export-let") return
+        if (handler) handler(warning)
+      },
+      emitCss: false,
+      compilerOptions: { cssHash: () => "svelte" },
+      preprocess: [sveltePreprocess({ sourceMap: true })]
+    })
+  ]
+}
 
 /** @type {import("@web/test-runner").TestRunnerConfig} */
 module.exports = {
@@ -29,9 +93,6 @@ module.exports = {
   }
 }
 
-const vite = require("vite")
-const c2k = require("koa-connect")
-
 /** @returns {import("@web/test-runner").TestRunnerPlugin} */
 function vitePlugin() {
   /** @type {import("vite").ViteDevServer} */
@@ -41,9 +102,17 @@ function vitePlugin() {
 
     async serverStart({ app }) {
       server = await vite.createServer({
-        configFile: "./vite.config.js",
-        server: { middlewareMode: "ssr" },
-        clearScreen: false
+        configFile: false,
+        logLevel: "error",
+        server: {
+          middlewareMode: "ssr",
+          hmr: false,
+          fs: {
+            strict: false
+          }
+        },
+        clearScreen: false,
+        ...viteConfig
       })
       app.use(c2k(server.middlewares))
     },
