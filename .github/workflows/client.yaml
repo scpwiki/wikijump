@@ -25,7 +25,7 @@ jobs:
             ${{ runner.OS }}-pnpm-
 
       - name: Install PNPM
-        uses: ianwalter/playwright-container@3.0.0
+        uses: ianwalter/playwright-container@v3.0.0
         with:
           args: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
 
