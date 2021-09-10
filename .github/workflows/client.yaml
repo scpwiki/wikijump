@@ -27,7 +27,7 @@ jobs:
       - name: Install PNPM
         uses: ianwalter/playwright-container@v3.0.0
         with:
-          args: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
+          args: npm install --save-global pnpm
 
       - name: Install Dependencies
         uses: ianwalter/playwright-container@v3.0.0
