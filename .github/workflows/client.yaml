@@ -11,6 +11,7 @@ jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
+    container: ianwalter/playwright-container@3.0.0
     steps:
       - name: Checkout
         uses: actions/checkout@v2
