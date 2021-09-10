@@ -43,7 +43,6 @@ importers:
       ultra-runner: ^3.10.5
       vite: ^2.5.6
       vite-tsconfig-paths: ^3.3.14
-      vite-web-test-runner-plugin: ^0.1.0
     devDependencies:
       '@esm-bundle/chai': 4.3.4-fix.0
       '@ltd/j-toml': 1.12.2
@@ -84,7 +83,6 @@ importers:
       ultra-runner: 3.10.5
       vite: 2.5.6
       vite-tsconfig-paths: 3.3.14_vite@2.5.6
-      vite-web-test-runner-plugin: 0.1.0_vite@2.5.6
 
   modules/cm-espells:
     specifiers:
@@ -6367,14 +6365,6 @@ packages:
       vite: 2.5.6
     transitivePeerDependencies:
       - supports-color
-    dev: true
-
-  /vite-web-test-runner-plugin/0.1.0_vite@2.5.6:
-    resolution: {integrity: sha512-AXrkMbtU/QW9mJWzl0j7Zn9UKKwMo4zQw4BPeS4TknwF/tIMqluFdb9J2+QbLIUP72TeiAgobpS72oo/c7kDPw==}
-    peerDependencies:
-      vite: 2.x
-    dependencies:
-      vite: 2.5.6
     dev: true
 
   /vite/2.5.6:
