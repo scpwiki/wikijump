@@ -6,6 +6,7 @@ on:
       - 'ftml/Cargo.toml'
       - 'ftml/Cargo.lock'
       - 'ftml/conf/*.toml'
+      - 'ftml/docs/*.md'
       - 'ftml/src/**/*'
       - 'ftml/scripts/*'
       - '.github/workflows/ftml-config.yaml'

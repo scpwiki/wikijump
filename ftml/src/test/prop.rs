@@ -335,7 +335,8 @@ fn arb_element_leaf() -> impl Strategy<Value = Element<'static>> {
         cow!(".*").prop_map(|contents| Element::Html { contents }),
         // TODO: Element::Iframe
         Just(Element::LineBreak),
-        (1..50u32).prop_map(|count| Element::LineBreaks(NonZeroU32::new(count).unwrap())),
+        (1..50_u32)
+            .prop_map(|count| Element::LineBreaks(NonZeroU32::new(count).unwrap())),
         select!([ClearFloat::Both, ClearFloat::Left, ClearFloat::Right])
             .prop_map(Element::ClearFloat),
         Just(Element::HorizontalRule),
