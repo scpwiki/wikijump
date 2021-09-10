@@ -76,22 +76,29 @@ FTML("parse", async () => {
             ],
             "attributes": {}
           }
+        },
+        {
+          "element": "footnote-block",
+          "data": {
+            "title": null,
+            "hide": false
+          }
         }
       ],
       "styles": [],
       "table-of-contents": [],
-      "footnotes": [],
+      "footnotes": []
     },
     "warnings": []
   })
 })
 
-FTML("render html", async () => {
+FTML("renderHTML", async () => {
   await lib.loading
   const str = "//1//"
   // we won't test the `meta` property because
   // that property is a bit too dynamic to easily test. (it has version info in it)
-  const { html, styles } = lib.render(str)
+  const { html, styles } = lib.renderHTML(str)
 
   assert.is(html, "<p><em>1</em></p>")
   assert.is(styles.join(""), "")
@@ -112,11 +119,34 @@ FTML("render html", async () => {
   // })
 })
 
-FTML("render text", async () => {
+FTML("detailRenderHTML", async () => {
   await lib.loading
   const str = "//1//"
-  const text = lib.render(str, { mode: "text" })
+  const render = lib.detailRenderHTML(str)
+  // considering this function just does what the previous have tested
+  // we're only going to do simple type checks
+  assert.type(render.ast.elements, "object")
+  assert.type(render.html, "string")
+  // assert.type(render.meta[0], "object")
+  assert.type(render.styles, "object")
+  assert.type(render.tokens, "object")
+  assert.type(render.warnings, "object")
+})
+
+FTML("renderText", async () => {
+  await lib.loading
+  const str = "//1//"
+  const text = lib.renderText(str)
   assert.is(text, "1")
+})
+
+FTML("detailRenderText", async () => {
+  await lib.loading
+  const str = "//1//"
+  const render = lib.detailRenderText(str)
+  assert.type(render.text, "string")
+  assert.type(render.tokens, "object")
+  assert.type(render.warnings, "object")
 })
 
 FTML("warnings", async () => {
@@ -142,21 +172,6 @@ FTML("warnings", async () => {
       kind: "no-rules-match"
     }
   ])
-})
-
-FTML("detailedRender", async () => {
-  await lib.loading
-  const str = "//1//"
-  const render = lib.detailedRender(str)
-  // considering this function just does what the previous have tested
-  // we're only going to do simple type checks
-  assert.type(render.ast.elements, "object")
-  assert.type(render.html, "string")
-  // assert.type(render.meta[0], "object")
-  assert.type(render.preprocessed, "string")
-  assert.type(render.styles, "object")
-  assert.type(render.tokens, "object")
-  assert.type(render.warnings, "object")
 })
 
 FTML("inspectTokens", async () => {
