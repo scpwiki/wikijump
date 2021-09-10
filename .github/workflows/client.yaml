@@ -11,7 +11,6 @@ jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
-    container: ianwalter/playwright-container:v3.0.0
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -25,25 +24,25 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-pnpm-
 
-      - name: Install Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: "16"
-
-      - name: Install Playwright Dependencies
-        run: npx playwright install-deps chromium
-
       - name: Install PNPM
-        run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
+        uses: ianwalter/playwright-container@3.0.0
+        with:
+          args: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
 
       - name: Install Dependencies
-        run: cd client && pnpm i
+        uses: ianwalter/playwright-container@3.0.0
+        with:
+          args: cd client && pnpm i
 
       - name: Test
-        run: cd client && pnpm test
+        uses: ianwalter/playwright-container@3.0.0
+        with:
+          args: cd client && pnpm test
 
       - name: Validate
-        run: cd client && pnpm validate
+        uses: ianwalter/playwright-container@3.0.0
+        with:
+          args: cd client && pnpm validate
 
   coverage:
     name: Coverage
