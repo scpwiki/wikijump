@@ -52,22 +52,22 @@ describe("ftml-wasm", () => {
             "element": "container",
             "data": {
               "type": "paragraph",
+              "attributes": {},
               "elements": [
                 {
                   "element": "container",
                   "data": {
                     "type": "italics",
+                    "attributes": {},
                     "elements": [
                       {
                         "element": "text",
                         "data": "1"
                       }
-                    ],
-                    "attributes": {}
+                    ]
                   }
                 }
-              ],
-              "attributes": {}
+              ]
             }
           },
           {
@@ -89,27 +89,11 @@ describe("ftml-wasm", () => {
   it("renderHTML", async () => {
     await lib.loading
     const str = "//1//"
-    // we won't test the `meta` property because
-    // that property is a bit too dynamic to easily test. (it has version info in it)
+    // other returned values are not tested due to their dynamic nature
+    // e.g. `meta` depends on version of FTML
     const { html, styles } = lib.renderHTML(str)
-
     assert.equal(html, "<p><em>1</em></p>")
     assert.equal(styles.join(""), "")
-
-    // assert.equal(lib.render(str), {
-    //   html: "<p><em>1</em></p>",
-    //   meta: [
-    //     {
-    //       tag_type: "http-equiv",
-    //       name: "Content-Type",
-    //       value: "text/html"
-    //     },
-    //     { tag_type: "name", name: "generator", value: "ftml 0.7.0" },
-    //     { tag_type: "name", name: "description", value: "" },
-    //     { tag_type: "name", name: "keywords", value: "" }
-    //   ],
-    //   style: ""
-    // })
   })
 
   it("detailRenderHTML", async () => {
