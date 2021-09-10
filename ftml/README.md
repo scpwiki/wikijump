@@ -27,7 +27,7 @@ The lint `#![deny(unsafe_code)]` is set, and therefore this crate has only safe 
 Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE.md).
 
 ### Compilation
-This library targets the latest stable Rust. At time of writing, that is `1.54.0`.
+This library targets the latest stable Rust. At time of writing, that is `1.55.0`.
 
 ```sh
 $ cargo build --release
