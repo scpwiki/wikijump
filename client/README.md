@@ -10,7 +10,7 @@
 ### Relevant Documentation
 
 * [PNPM](https://pnpm.io/)
-* [uvu](https://github.com/lukeed/uvu)
+* [Mocha](https://mochajs.org)
 * [Vite](https://vitejs.dev/)
 
 ### Getting Started
@@ -49,22 +49,21 @@ The website packages however, e.g. `web/dev-sandbox`, do have a development mode
 Running tests is simple:
 ```
 $ pnpm test
+# pnpm cover
 ```
 
-This will create a "megabundle" in `tests-dist`, at root, compiled by Vite. This is a JS file and a sourcemap - of which contains the code of the _entire monorepo_, so that it may be instrumented to determine code coverage. All tests are included at the end of this bundle and then ran.
+All tests are ran in a browser, compiled by Vite. Liberal use of Vite's file import features, such as import globs, is recommended when making tests.
 
-Tests are ran in a special environment that is Node CJS compatible but simulates a browser. Specifically, the [happy-dom](https://github.com/capricorn86/happy-dom) library is used.
-
-At the end of testing, a code coverage report will be emitted. This coverage report should only contain source TypeScript and Svelte files - if it reports coverage for something that isn't one of those two, something has gone wrong. If it reports nothing, that also means something has gone wrong.
+At the end of a code coverage test, a report will be emitted. This coverage report should only contain source TypeScript and Svelte files - if it reports coverage for something that isn't one of those two, something has gone wrong. If it reports nothing, that also means something has gone wrong.
 
 > #### **IMPORTANT:**
-> If you need to use Instanbul code coverage comments, e.g:
+> If you need to use c8 code coverage comments, e.g:
 > ```js
-> /* istanbul ignore next */
+> /* c8 ignore next */
 > ```
 > You need to do the following instead:
 > ```js
-> /*! istanbul ignore next */
+> /*! c8 ignore next */
 > // note the exclamation point
 > ```
 > This is for technical reasons - build tools don't preserve normal comments but will preserve legal comments. These comments are automatically transformed by the test builder back into normal comments - but you need to mark them as "important" using that exclamation point.

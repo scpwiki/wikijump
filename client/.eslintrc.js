@@ -155,13 +155,7 @@ const importRules = { ...rules.import }
 
 module.exports = {
   root: true,
-  ignorePatterns: [
-    "**/node_modules/**",
-    "**/dist/**",
-    "/tests-dist/**",
-    "**/vendor/**",
-    "/misc/**"
-  ],
+  ignorePatterns: ["**/node_modules/**", "**/dist/**", "**/vendor/**", "/misc/**"],
 
   extends: ["plugin:compat/recommended", "plugin:import/typescript"],
 

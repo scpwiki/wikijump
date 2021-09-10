@@ -21,6 +21,7 @@ module.exports = function viteWorkerPlugin(cjs = false) {
           outdir: "./",
           outbase: "./",
           write: false,
+          sourcemap: "inline",
           define: {
             "window": "globalThis",
             "import.meta.url": '""'
