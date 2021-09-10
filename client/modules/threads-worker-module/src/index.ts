@@ -98,7 +98,7 @@ export class WorkerModule<Methods extends WorkerModuleMethods<string> = any> {
         this.worker = await spawn(BlobWorker.fromText(src, { name: this.name }))
         if (this.workerConfig.init) await this.workerConfig.init()
       }
-      resolve(this.worker)
+      resolve(this.worker!)
       this.workerLoading = undefined
     })
 
