@@ -1,3 +1,4 @@
+const fs = require("fs")
 const vite = require("vite")
 const c2k = require("koa-connect")
 const { svelte } = require("@sveltejs/vite-plugin-svelte")
@@ -64,16 +65,28 @@ const viteConfig = {
   ]
 }
 
+// get modules so we can make them into test groups
+// this way you can do: pnpm test -- --group wj-util
+const groups = fs
+  .readdirSync("modules")
+  .filter(dir => fs.statSync(`modules/${dir}`).isDirectory())
+  .filter(dir => fs.existsSync(`modules/${dir}/tests`))
+  .map(module => ({
+    name: module,
+    files: `modules/${module}/tests/*.ts`
+  }))
+
 /** @type {import("@web/test-runner").TestRunnerConfig} */
 module.exports = {
-  files: ["modules/*/tests/*.ts", "scripts/import-glob.ts"],
-
-  plugins: [vitePlugin()],
+  files: ["scripts/import-glob.ts"],
+  groups,
 
   coverageConfig: {
     report: true,
     include: ["modules/*/src/**/*.{js,jsx,ts,tsx}"]
   },
+
+  plugins: [vitePlugin()],
 
   testRunnerHtml: testFramework => `
     <html>
