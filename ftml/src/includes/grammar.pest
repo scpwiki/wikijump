@@ -32,42 +32,39 @@
 // and is optional should the sequence end in a pipe.
 
 include = {
-    SOI ~
-    "[[" ~ space ~ ^"include-messy" ~ space ~
-    page_ref ~ space ~
-    "|"? ~ space ~
-    (argument ~ space ~ "|" ~ space)* ~
-    (argument ~ space ~ ("|" ~ space)?)? ~
-    "]]"
+    "[[" ~ space? ~ ^"include-messy" ~ space ~
+    page_ref ~ space? ~
+    ("|" ~ space?)? ~
+    (argument ~ space? ~ "|" ~ space?)* ~
+    (argument ~ space? ~ "|"?)? ~
+    space? ~ include_end
+}
+
+include_end = _{
+    "]]" ~ &(NEWLINE | EOI)
 }
 
 argument = {
-    identifier ~ space ~
-    "=" ~ space ~
+    identifier ~ space? ~
+    "=" ~ space? ~
     value
 }
 
-// This implements Wikidot's logic of "escaping" newlines or ]]s in
-// an argument's value by placing a space after.
-
 value = {
-    (
-        ("]]"? ~ " " ~ NEWLINE) |
-        (!("|" | "]]" | NEWLINE) ~ ANY)
-    )+
+    (!include_end ~ ANY)+
 }
 
 // Reference to a page, possibly not on this wiki
 
 page_ref = {
-    (":" ~ identifier ~ ":")? ~ page_name
+    (":" ~ site_name ~ ":")? ~ page_name
 }
-site_name = _{ (!(" " | "\n" | "\t" | ":") ~ ANY)+ }
-page_name = _{ (!(" " | "\n" | "\t") ~ ANY)+ }
+site_name = _{ (!(" " | "\n" | "\t" | "[" | "|" | "]" | ":") ~ ANY)+ }
+page_name = _{ (!(" " | "\n" | "\t" | "[" | "|" | "]") ~ ANY)+ }
 
 // Helpers
 
 identifier = { (ASCII_ALPHANUMERIC | "-" | "_")+ }
-space = _{ (" " | "\n" | "\t")* }
+space = _{ (" " | "\n" | "\t")+ }
 
 // vim: set fdm=marker foldlevel=0:
