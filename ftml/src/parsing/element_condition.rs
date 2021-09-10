@@ -1,5 +1,5 @@
 /*
- * tree/condition.rs
+ * parsing/element_condition.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::clone::string_to_owned;
 use std::borrow::Cow;
 use strum_macros::IntoStaticStr;
 
@@ -104,13 +103,6 @@ impl<'t> ElementCondition<'t> {
         }
 
         required && prohibited && present
-    }
-
-    pub fn to_owned(&self) -> ElementCondition<'static> {
-        ElementCondition {
-            ctype: self.ctype,
-            value: string_to_owned(&self.value),
-        }
     }
 }
 

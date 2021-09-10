@@ -31,7 +31,6 @@ pub mod json;
 pub mod null;
 pub mod text;
 
-mod condition;
 mod handle;
 
 use self::handle::{Handle, ModuleRenderMode};

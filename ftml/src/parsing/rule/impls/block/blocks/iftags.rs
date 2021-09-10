@@ -19,7 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::tree::ElementCondition;
+use crate::data::PageInfo;
+use crate::parsing::ElementCondition;
 
 pub const BLOCK_IFTAGS: BlockRule = BlockRule {
     name: "block-iftags",
@@ -57,14 +58,44 @@ fn parse_fn<'r, 't>(
         })?;
 
     // Get body content, never with paragraphs
-    let (elements, exceptions, paragraph_safe) =
+    let (elements, mut exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_IFTAGS, false)?.into();
 
-    // Build element and return
-    let element = Element::IfTags {
-        conditions,
-        elements,
+    debug!(
+        log,
+        "IfTags conditions parsed";
+        "conditions" => format!("{:#?}", conditions),
+        "elements-len" => elements.len(),
+    );
+
+    // Return elements based on condition
+    let elements = if check_iftags(log, parser.page_info(), &conditions) {
+        trace!(log, "Conditions passed, including elements");
+
+        Elements::Multiple(elements)
+    } else {
+        trace!(log, "Conditions failed, excluding elements");
+
+        // Filter out non-warning exceptions
+        exceptions.retain(|ex| matches!(ex, ParseException::Warning(_)));
+
+        Elements::None
     };
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; elements, exceptions)
+}
+
+pub fn check_iftags(
+    log: &Logger,
+    info: &PageInfo,
+    conditions: &[ElementCondition],
+) -> bool {
+    debug!(
+        log,
+        "Checking iftags";
+        "tags-len" => info.tags.len(),
+        "conditions-len" => conditions.len(),
+    );
+
+    ElementCondition::check(conditions, &info.tags)
 }

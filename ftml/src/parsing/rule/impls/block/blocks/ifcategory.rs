@@ -19,7 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::tree::{ElementCondition, ElementConditionType};
+use crate::data::PageInfo;
+use crate::parsing::{ElementCondition, ElementConditionType};
 
 pub const BLOCK_IFCATEGORY: BlockRule = BlockRule {
     name: "block-ifcategory",
@@ -73,14 +74,49 @@ fn parse_fn<'r, 't>(
         })?;
 
     // Get body content, never with paragraphs
-    let (elements, exceptions, paragraph_safe) =
+    let (elements, mut exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_IFCATEGORY, false)?.into();
 
-    // Build element and return
-    let element = Element::IfCategory {
-        conditions,
-        elements,
+    debug!(
+        log,
+        "IfCategory conditions parsed";
+        "conditions" => format!("{:#?}", conditions),
+        "elements-len" => elements.len(),
+    );
+
+    // Return elements based on condition
+    let elements = if check_ifcategory(log, parser.page_info(), &conditions) {
+        trace!(log, "Conditions passed, including elements");
+
+        Elements::Multiple(elements)
+    } else {
+        trace!(log, "Conditions failed, excluding elements");
+
+        // Filter out non-warning exceptions
+        exceptions.retain(|ex| matches!(ex, ParseException::Warning(_)));
+
+        Elements::None
     };
 
-    ok!(paragraph_safe; element, exceptions)
+    ok!(paragraph_safe; elements, exceptions)
+}
+
+pub fn check_ifcategory(
+    log: &Logger,
+    info: &PageInfo,
+    conditions: &[ElementCondition],
+) -> bool {
+    let category = match &info.category {
+        Some(category) => category,
+        None => "_default",
+    };
+
+    debug!(
+        log,
+        "Checking ifcategory";
+        "category" => category,
+        "conditions-len" => conditions.len(),
+    );
+
+    ElementCondition::check(conditions, &[cow!(category)])
 }

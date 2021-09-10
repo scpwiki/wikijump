@@ -1,0 +1,23 @@
+{
+    "input": "[[iftags fruit]]\n[[css]]body { color: red; }[[/css]]\n[[/iftags]]\n[[iftags xyz]]\n[[css]]body { color: blue; }[[/css]]\n[[/iftags]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+            "body { color: red; }"
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

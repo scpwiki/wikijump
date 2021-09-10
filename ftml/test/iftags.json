@@ -9,67 +9,12 @@
                     "attributes": {},
                     "elements": [
                         {
-                            "element": "if-tags",
-                            "data": {
-                                "conditions": [
-                                    {
-                                        "condition": "required",
-                                        "value": "fruit"
-                                    },
-                                    {
-                                        "condition": "prohibited",
-                                        "value": "admin"
-                                    },
-                                    {
-                                        "condition": "present",
-                                        "value": "component"
-                                    },
-                                    {
-                                        "condition": "present",
-                                        "value": "template"
-                                    }
-                                ],
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Apple"
-                                    }
-                                ]
-                            }
+                            "element": "text",
+                            "data": "Apple"
                         },
                         {
-                            "element": "if-tags",
-                            "data": {
-                                "conditions": [
-                                    {
-                                        "condition": "present",
-                                        "value": "component"
-                                    }
-                                ],
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Banana"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "element": "if-tags",
-                            "data": {
-                                "conditions": [
-                                    {
-                                        "condition": "required",
-                                        "value": "xyz"
-                                    }
-                                ],
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Hidden"
-                                    }
-                                ]
-                            }
+                            "element": "text",
+                            "data": "Banana"
                         }
                     ]
                 }

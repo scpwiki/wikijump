@@ -27,6 +27,7 @@ mod collect;
 mod condition;
 mod consume;
 mod depth;
+mod element_condition;
 mod exception;
 mod outcome;
 mod paragraph;
@@ -48,6 +49,7 @@ mod prelude {
 }
 
 use self::depth::{process_depths, DepthItem, DepthList};
+use self::element_condition::{ElementCondition, ElementConditionType};
 use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
 use self::parser::Parser;
 use self::rule::impls::RULE_PAGE;

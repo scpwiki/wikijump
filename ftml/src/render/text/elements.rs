@@ -20,7 +20,6 @@
 
 //! Module that implements text rendering for `Element` and its children.
 
-use super::super::condition::{check_ifcategory, check_iftags};
 use super::TextContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
@@ -261,22 +260,6 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 ctx.add_newline();
                 ctx.push_str(hide_text);
                 ctx.add_newline();
-            }
-        }
-        Element::IfCategory {
-            conditions,
-            elements,
-        } => {
-            if check_ifcategory(log, ctx.info(), conditions) {
-                render_elements(log, ctx, elements);
-            }
-        }
-        Element::IfTags {
-            conditions,
-            elements,
-        } => {
-            if check_iftags(log, ctx.info(), conditions) {
-                render_elements(log, ctx, elements);
             }
         }
         Element::TableOfContents { .. } => {

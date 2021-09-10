@@ -9,63 +9,12 @@
                     "attributes": {},
                     "elements": [
                         {
-                            "element": "if-category",
-                            "data": {
-                                "conditions": [
-                                    {
-                                        "condition": "present",
-                                        "value": "_default"
-                                    }
-                                ],
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Apple"
-                                    }
-                                ]
-                            }
+                            "element": "text",
+                            "data": "Apple"
                         },
                         {
-                            "element": "if-category",
-                            "data": {
-                                "conditions": [
-                                    {
-                                        "condition": "present",
-                                        "value": "_default"
-                                    },
-                                    {
-                                        "condition": "present",
-                                        "value": "component"
-                                    },
-                                    {
-                                        "condition": "prohibited",
-                                        "value": "fragment"
-                                    }
-                                ],
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Banana"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "element": "if-category",
-                            "data": {
-                                "conditions": [
-                                    {
-                                        "condition": "prohibited",
-                                        "value": "_default"
-                                    }
-                                ],
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Hidden"
-                                    }
-                                ]
-                            }
+                            "element": "text",
+                            "data": "Banana"
                         }
                     ]
                 }
