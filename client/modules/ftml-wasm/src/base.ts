@@ -42,6 +42,10 @@ export function trk<T>(obj: T): T {
 
 /** Frees all objects being {@link tracked}, and clears the set. */
 export function freeTracked() {
-  free(tracked)
-  tracked.clear()
+  // use setTimeout so that we don't stall a function clearing memory
+  // this speeds up returning objects, especially in a worker
+  setTimeout(() => {
+    free(tracked)
+    tracked.clear()
+  })
 }
