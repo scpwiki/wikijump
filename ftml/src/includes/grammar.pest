@@ -52,7 +52,7 @@ argument = {
 }
 
 value = {
-    (!include_end ~ ANY)+
+    (!(include_end | "|") ~ ANY)+
 }
 
 // Reference to a page, possibly not on this wiki
