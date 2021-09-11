@@ -72,3 +72,4 @@ slog-bunyan = { version = "2", optional = true }
 [profile.release]
 codegen-units = 1
 opt-level = 3
+debug = true
