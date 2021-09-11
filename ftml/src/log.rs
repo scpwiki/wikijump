@@ -95,39 +95,51 @@ cfg_if! {
         mod macros {
             // Logging levels
             macro_rules! crit {
-                ($($input:tt)*) => {
+                ($log:expr, $($input:tt)*) => {{
+                    let _ = $log;
+
                     ()
-                };
+                }};
             }
 
             macro_rules! error {
-                ($($input:tt)*) => {
+                ($log:expr, $($input:tt)*) => {{
+                    let _ = $log;
+
                     ()
-                };
+                }};
             }
 
             macro_rules! warn {
-                ($($input:tt)*) => {
+                ($log:expr, $($input:tt)*) => {{
+                    let _ = $log;
+
                     ()
-                };
+                }};
             }
 
             macro_rules! info {
-                ($($input:tt)*) => {
+                ($log:expr, $($input:tt)*) => {{
+                    let _ = $log;
+
                     ()
-                };
+                }};
             }
 
             macro_rules! debug {
-                ($($input:tt)*) => {
+                ($log:expr, $($input:tt)*) => {{
+                    let _ = $log;
+
                     ()
-                };
+                }};
             }
 
             macro_rules! trace {
-                ($($input:tt)*) => {
+                ($log:expr, $($input:tt)*) => {{
+                    let _ = $log;
+
                     ()
-                };
+                }};
             }
 
             // Logging helpers
