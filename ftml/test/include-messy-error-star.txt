@@ -1,1 +1,1 @@
-[[*include my-page]]
+[[*include-messy my-page]]

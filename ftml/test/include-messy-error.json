@@ -18,6 +18,14 @@
                         },
                         {
                             "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "messy"
+                        },
+                        {
+                            "element": "text",
                             "data": " "
                         },
                         {
@@ -57,8 +65,8 @@
     "warnings": [
         {
             "token": "identifier",
-            "rule": "block-include",
-            "span": [10, 12],
+            "rule": "block-include-messy",
+            "span": [16, 18],
             "kind": "invalid-include"
         },
         {
