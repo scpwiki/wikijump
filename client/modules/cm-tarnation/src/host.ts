@@ -1,5 +1,5 @@
 import { Input, NodeType, Tree, TreeFragment } from "@lezer/common"
-import { ParseContext } from "modules/wj-codemirror/cm"
+import { ParseContext } from "wj-codemirror/cm"
 import { perfy } from "wj-util"
 import type { TarnationLanguage } from "./language"
 import { Parser, ParserContext } from "./parser"

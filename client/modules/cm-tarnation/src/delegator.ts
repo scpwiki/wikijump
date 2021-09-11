@@ -8,7 +8,7 @@ import {
   TreeCursor,
   TreeFragment
 } from "@lezer/common"
-import { LanguageDescription, ParseContext } from "modules/wj-codemirror/cm"
+import { LanguageDescription, ParseContext } from "wj-codemirror/cm"
 import { EmbeddedParserProp, EmbeddedParserType } from "."
 import { Host } from "./host"
 import { TarnationLanguage } from "./language"
