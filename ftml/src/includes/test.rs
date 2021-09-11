@@ -227,6 +227,14 @@ fn includes() {
         vec![PageRef::page_only("component:multi-line")],
     );
     test!(
+        "[[include-messy component:multi-line | contents= \nSome content here\nMore stuff\n]]",
+        vec![PageRef::page_only("component:multi-line")],
+    );
+    test!(
+        "[[include-messy component:multi-line | contents=\nSome content here\nMore stuff\n]]",
+        vec![PageRef::page_only("component:multi-line")],
+    );
+    test!(
         "My wonderful page!\n\n[[include-messy component:info-ayers\n\tlang=en |\n\tpage=scp-xxxx |\n\tauthorPage=http://scpwiki.com/main |\n\tcomments=\n**SCP-XXXX:** My amazing skip \n**Author:** [[*user Username]] \n]]",
         vec![PageRef::page_only("component:info-ayers")],
     );
@@ -246,14 +254,6 @@ fn includes() {
 
     test!(
         "[[include-messy component:multi-line | contents= \nSome content here \nMore stuff",
-        vec![],
-    );
-    test!(
-        "[[include-messy component:multi-line | contents= \nSome content here\nMore stuff\n]]",
-        vec![],
-    );
-    test!(
-        "[[include-messy component:multi-line | contents=\nSome content here\nMore stuff\n]]",
         vec![],
     );
 }
