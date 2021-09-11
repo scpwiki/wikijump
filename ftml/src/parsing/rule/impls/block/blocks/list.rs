@@ -202,6 +202,10 @@ fn parse_list_item<'r, 't>(
     // "li_" means we strip out any newlines or paragraph breaks
     let strip_line_breaks = flag_score;
 
+    // Get attributes
+    let arguments = parser.get_head_map(&BLOCK_LI, in_head)?;
+    let attributes = arguments.to_attribute_map();
+
     // Get body elements
     let (mut elements, exceptions, _) =
         parser.get_body_elements(&BLOCK_LI, false)?.into();
