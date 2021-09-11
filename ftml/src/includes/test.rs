@@ -47,161 +47,161 @@ fn includes() {
     // Valid cases
 
     test!("", vec![]);
-    test!("[[include page]]", vec![PageRef::page_only("page")]);
-    test!("[[include page ]]", vec![PageRef::page_only("page")]);
-    test!("[[include page ]]", vec![PageRef::page_only("page")]);
-    test!("[[ include page ]]", vec![PageRef::page_only("page")]);
+    test!("[[include-messy page]]", vec![PageRef::page_only("page")]);
+    test!("[[include-messy page ]]", vec![PageRef::page_only("page")]);
+    test!("[[include-messy page ]]", vec![PageRef::page_only("page")]);
+    test!("[[ include-messy page ]]", vec![PageRef::page_only("page")]);
 
-    test!("[[include PAGE]]", vec![PageRef::page_only("PAGE")]);
-    test!("[[include PAGE ]]", vec![PageRef::page_only("PAGE")]);
-    test!("[[include PAGE ]]", vec![PageRef::page_only("PAGE")]);
-    test!("[[ include PAGE ]]", vec![PageRef::page_only("PAGE")]);
+    test!("[[include-messy PAGE]]", vec![PageRef::page_only("PAGE")]);
+    test!("[[include-messy PAGE ]]", vec![PageRef::page_only("PAGE")]);
+    test!("[[include-messy PAGE ]]", vec![PageRef::page_only("PAGE")]);
+    test!("[[ include-messy PAGE ]]", vec![PageRef::page_only("PAGE")]);
 
     // Arguments
-    test!("[[include apple a =1]]", vec![PageRef::page_only("apple")]);
-    test!("[[include apple a= 1]]", vec![PageRef::page_only("apple")]);
-    test!("[[include apple a = 1]]", vec![PageRef::page_only("apple")]);
+    test!("[[include-messy apple a =1]]", vec![PageRef::page_only("apple")]);
+    test!("[[include-messy apple a= 1]]", vec![PageRef::page_only("apple")]);
+    test!("[[include-messy apple a = 1]]", vec![PageRef::page_only("apple")]);
     test!(
-        "[[include apple a = 1 ]]",
+        "[[include-messy apple a = 1 ]]",
         vec![PageRef::page_only("apple")]
     );
     test!(
-        "[[include apple  a = 1 ]]",
+        "[[include-messy apple  a = 1 ]]",
         vec![PageRef::page_only("apple")]
     );
 
-    test!("[[include banana a=1]]", vec![PageRef::page_only("banana")]);
+    test!("[[include-messy banana a=1]]", vec![PageRef::page_only("banana")]);
     test!(
-        "[[include banana a=1|]]",
+        "[[include-messy banana a=1|]]",
         vec![PageRef::page_only("banana")],
     );
     test!(
-        "[[include banana a=1 |]]",
+        "[[include-messy banana a=1 |]]",
         vec![PageRef::page_only("banana")],
     );
     test!(
-        "[[include banana |a=1]]",
+        "[[include-messy banana |a=1]]",
         vec![PageRef::page_only("banana")],
     );
     test!(
-        "[[include banana | a=1]]",
+        "[[include-messy banana | a=1]]",
         vec![PageRef::page_only("banana")],
     );
     test!(
-        "[[include banana |a=1|]]",
+        "[[include-messy banana |a=1|]]",
         vec![PageRef::page_only("banana")],
     );
     test!(
-        "[[include banana | a=1|]]",
+        "[[include-messy banana | a=1|]]",
         vec![PageRef::page_only("banana")],
     );
     test!(
-        "[[include banana |a=1 |]]",
+        "[[include-messy banana |a=1 |]]",
         vec![PageRef::page_only("banana")],
     );
     test!(
-        "[[include banana | a=1 |]]",
+        "[[include-messy banana | a=1 |]]",
         vec![PageRef::page_only("banana")],
     );
 
     test!(
-        "[[include cherry a=1|b=2]]",
+        "[[include-messy cherry a=1|b=2]]",
         vec![PageRef::page_only("cherry")],
     );
     test!(
-        "[[include cherry a=1|b=2|]]",
+        "[[include-messy cherry a=1|b=2|]]",
         vec![PageRef::page_only("cherry")],
     );
     test!(
-        "[[include cherry a=1 |b=2 |]]",
+        "[[include-messy cherry a=1 |b=2 |]]",
         vec![PageRef::page_only("cherry")],
     );
     test!(
-        "[[include cherry |a=1|b=2]]",
+        "[[include-messy cherry |a=1|b=2]]",
         vec![PageRef::page_only("cherry")],
     );
     test!(
-        "[[include cherry | a=1| b=2]]",
+        "[[include-messy cherry | a=1| b=2]]",
         vec![PageRef::page_only("cherry")],
     );
     test!(
-        "[[include cherry |a=1|b=2|]]",
+        "[[include-messy cherry |a=1|b=2|]]",
         vec![PageRef::page_only("cherry")],
     );
     test!(
-        "[[include cherry | a=1| b=2|]]",
+        "[[include-messy cherry | a=1| b=2|]]",
         vec![PageRef::page_only("cherry")],
     );
     test!(
-        "[[include cherry |a=1 |b=2 |]]",
+        "[[include-messy cherry |a=1 |b=2 |]]",
         vec![PageRef::page_only("cherry")],
     );
     test!(
-        "[[include cherry | a=1 | b=2 |]]",
+        "[[include-messy cherry | a=1 | b=2 |]]",
         vec![PageRef::page_only("cherry")],
     );
 
     test!(
-        "[[include durian a=1|b=2|C=**]]",
+        "[[include-messy durian a=1|b=2|C=**]]",
         vec![PageRef::page_only("durian")],
     );
     test!(
-        "[[include durian a=1|b=2|C=**|]]",
+        "[[include-messy durian a=1|b=2|C=**|]]",
         vec![PageRef::page_only("durian")],
     );
     test!(
-        "[[include durian a=1 |b=2 |C=** |]]",
+        "[[include-messy durian a=1 |b=2 |C=** |]]",
         vec![PageRef::page_only("durian")],
     );
     test!(
-        "[[include durian |a=1|b=2|C=**]]",
+        "[[include-messy durian |a=1|b=2|C=**]]",
         vec![PageRef::page_only("durian")],
     );
     test!(
-        "[[include durian | a=1| b=2| C=**]]",
+        "[[include-messy durian | a=1| b=2| C=**]]",
         vec![PageRef::page_only("durian")],
     );
     test!(
-        "[[include durian |a=1|b=2|C=**|]]",
+        "[[include-messy durian |a=1|b=2|C=**|]]",
         vec![PageRef::page_only("durian")],
     );
     test!(
-        "[[include durian | a=1| b=2| C=**|]]",
+        "[[include-messy durian | a=1| b=2| C=**|]]",
         vec![PageRef::page_only("durian")],
     );
     test!(
-        "[[include durian |a=1 |b=2 |C=** |]]",
+        "[[include-messy durian |a=1 |b=2 |C=** |]]",
         vec![PageRef::page_only("durian")],
     );
     test!(
-        "[[include durian | a=1 | b=2 | C=** ]]",
+        "[[include-messy durian | a=1 | b=2 | C=** ]]",
         vec![PageRef::page_only("durian")],
     );
 
     // Off-site includes
     test!(
-        "[[include component:my-thing]]",
+        "[[include-messy component:my-thing]]",
         vec![PageRef::page_only("component:my-thing")],
     );
     test!(
-        "[[include :scp-wiki:main]]",
+        "[[include-messy :scp-wiki:main]]",
         vec![PageRef::page_and_site("scp-wiki", "main")],
     );
     test!(
-        "[[include :scp-wiki:component:my-thing]]",
+        "[[include-messy :scp-wiki:component:my-thing]]",
         vec![PageRef::page_and_site("scp-wiki", "component:my-thing")],
     );
     test!(
-        "[[include :scp-wiki:deleted:protected:component:magic]]",
+        "[[include-messy :scp-wiki:deleted:protected:component:magic]]",
         vec![PageRef::page_and_site(
             "scp-wiki",
             "deleted:protected:component:magic"
         )],
     );
 
-    // Multiple includes
+    // Multiple include-messys
     test!(
-        "A\n[[include B]]\nC\n[[include D]]\nE\n[[include F]]\nG",
+        "A\n[[include-messy B]]\nC\n[[include-messy D]]\nE\n[[include-messy F]]\nG",
         vec![
             PageRef::page_only("B"),
             PageRef::page_only("D"),
@@ -209,7 +209,7 @@ fn includes() {
         ],
     );
     test!(
-        "[[include my-page]]\n[[include :scp-wiki:theme:black-highlighter-theme]]\n",
+        "[[include-messy my-page]]\n[[include-messy :scp-wiki:theme:black-highlighter-theme]]\n",
         vec![
             PageRef::page_only("my-page"),
             PageRef::page_and_site("scp-wiki", "theme:black-highlighter-theme"),
@@ -217,43 +217,43 @@ fn includes() {
     );
 
     // Multi-line includes
-    test!("[[include page\n]]", vec![PageRef::page_only("page")]);
+    test!("[[include-messy page\n]]", vec![PageRef::page_only("page")]);
     test!(
-        "[[include component:multi-line | contents= \nSome content here \nMore stuff]]",
+        "[[include-messy component:multi-line | contents= \nSome content here \nMore stuff]]",
         vec![PageRef::page_only("component:multi-line")],
     );
     test!(
-        "[[include component:multi-line argument=x | contents= \nSome content here \nMore stuff \n|]]",
+        "[[include-messy component:multi-line argument=x | contents= \nSome content here \nMore stuff \n|]]",
         vec![PageRef::page_only("component:multi-line")],
     );
     test!(
-        "My wonderful page!\n\n[[include component:info-ayers\n\tlang=en |\n\tpage=scp-xxxx |\n\tauthorPage=http://scpwiki.com/main |\n\tcomments=\n**SCP-XXXX:** My amazing skip \n**Author:** [[*user Username]] \n]]",
+        "My wonderful page!\n\n[[include-messy component:info-ayers\n\tlang=en |\n\tpage=scp-xxxx |\n\tauthorPage=http://scpwiki.com/main |\n\tcomments=\n**SCP-XXXX:** My amazing skip \n**Author:** [[*user Username]] \n]]",
         vec![PageRef::page_only("component:info-ayers")],
     );
     test!(
-        "My other wonderful page!\n\n[[include component:info-ayers\n\t|lang=en\n\t|page=scp-xxxx\n\t|authorPage=http://scpwiki.com/main\n\t|comments=\n**SCP-XXXX:** My amazing skip \n**Author:** [[*user Username]] \n]]",
+        "My other wonderful page!\n\n[[include-messy component:info-ayers\n\t|lang=en\n\t|page=scp-xxxx\n\t|authorPage=http://scpwiki.com/main\n\t|comments=\n**SCP-XXXX:** My amazing skip \n**Author:** [[*user Username]] \n]]",
         vec![PageRef::page_only("component:info-ayers")],
     );
 
     // Invalid cases
 
     test!("other text", vec![]);
-    test!("include]]", vec![]);
-    test!("[[include", vec![]);
-    test!("[[include]]", vec![]);
-    test!("[[include ]]", vec![]);
-    test!("[[ include]]", vec![]);
+    test!("include-messy]]", vec![]);
+    test!("[[include-messy", vec![]);
+    test!("[[include-messy]]", vec![]);
+    test!("[[include-messy ]]", vec![]);
+    test!("[[ include-messy]]", vec![]);
 
     test!(
-        "[[include component:multi-line | contents= \nSome content here \nMore stuff",
+        "[[include-messy component:multi-line | contents= \nSome content here \nMore stuff",
         vec![],
     );
     test!(
-        "[[include component:multi-line | contents= \nSome content here\nMore stuff\n]]",
+        "[[include-messy component:multi-line | contents= \nSome content here\nMore stuff\n]]",
         vec![],
     );
     test!(
-        "[[include component:multi-line | contents=\nSome content here\nMore stuff\n]]",
+        "[[include-messy component:multi-line | contents=\nSome content here\nMore stuff\n]]",
         vec![],
     );
 }
