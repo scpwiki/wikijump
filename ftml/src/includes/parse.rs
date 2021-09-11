@@ -55,11 +55,11 @@ pub fn parse_include_block<'t>(
             // Adjust offset and return
             Ok((include, start + span.end()))
         }
-        Err(error) => {
+        Err(_error) => {
             debug!(
                 log,
                 "Include block was invalid";
-                "error" => str!(error),
+                "error" => str!(_error),
                 "start" => start,
                 "slice" => text,
             );

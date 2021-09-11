@@ -97,14 +97,14 @@ impl<'t> FullText<'t> {
     fn slice_impl(
         &self,
         log: &Logger,
-        slice_kind: &'static str,
+        _slice_kind: &'static str,
         start: usize,
         end: usize,
     ) -> &'t str {
         info!(
             log,
             "Extracting {} slice from full text",
-            slice_kind;
+            _slice_kind;
             "start" => start,
             "end" => end,
         );

@@ -35,14 +35,14 @@ fn try_consume_fn<'p, 'r, 't>(
     check_step(parser, Token::LeftComment)?;
 
     loop {
-        let ExtractedToken { token, span, slice } = parser.current();
+        let ExtractedToken { token, span: _span, slice: _slice } = parser.current();
 
         debug!(
             log,
             "Received token inside comment";
             "token" => token,
-            "slice" => slice,
-            "span" => SpanWrap::from(span),
+            "slice" => _slice,
+            "span" => SpanWrap::from(_span),
         );
 
         match token {

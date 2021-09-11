@@ -163,11 +163,11 @@ impl Token {
                 tokens.extend(pairs.map(|pair| Token::convert_pair(log, pair)));
                 tokens
             }
-            Err(error) => {
+            Err(_error) => {
                 // Return all of the input as one big raw text
                 // and log this as an error, since it shouldn't be happening
 
-                error!(log, "Error while lexing input in pest: {}", error);
+                error!(log, "Error while lexing input in pest: {}", _error);
 
                 vec![ExtractedToken {
                     token: Token::Other,

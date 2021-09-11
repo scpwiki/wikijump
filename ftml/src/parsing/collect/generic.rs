@@ -63,7 +63,7 @@ use super::prelude::*;
 pub fn collect<'p, 'r, 't, F>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-    rule: Rule,
+    _rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
     warn_kind: Option<ParseWarningKind>,
@@ -74,18 +74,16 @@ where
 {
     // Log collect_until() call
     let log = {
-        let ExtractedToken { token, slice, span } = parser.current();
-
         &log.new(slog_o!(
-            "rule" => str!(rule.name()),
-            "token" => str!(token.name()),
-            "slice" => str!(slice),
-            "span" => SpanWrap::from(span),
+            "rule" => str!(_rule.name()),
+            "token" => str!(parser.current().token.name()),
+            "slice" => str!(parser.current().slice),
+            "span" => SpanWrap::from(parser.current().span),
             "remaining-len" => parser.remaining().len(),
         ))
     };
 
-    info!(log, "Trying to collect tokens for rule {:?}", rule);
+    info!(log, "Trying to collect tokens for rule {:?}", _rule);
 
     let mut exceptions = Vec::new();
     let mut paragraph_safe = true;

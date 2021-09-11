@@ -87,6 +87,7 @@ pub fn render_link(
     });
 }
 
+#[cfg(feature = "log")]
 fn target_str(target: Option<AnchorTarget>) -> &'static str {
     match target {
         Some(target) => target.name(),

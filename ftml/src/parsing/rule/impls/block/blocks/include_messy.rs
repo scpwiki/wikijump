@@ -44,9 +44,9 @@ fn parse_fn<'r, 't>(
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
-    in_head: bool,
+    _in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Found invalid include-messy block"; "in-head" => in_head);
+    debug!(log, "Found invalid include-messy block");
 
     assert!(!flag_star, "Include messy doesn't allow star flag");
     assert!(!flag_score, "Include messy doesn't allow score flag");
