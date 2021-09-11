@@ -1,5 +1,5 @@
 {
-    "input": "[[include my-page]]",
+    "input": "[[include-messy component:my-thing]]",
     "tree": {
         "elements": [
             {
@@ -30,6 +30,14 @@
                         },
                         {
                             "element": "text",
+                            "data": "component"
+                        },
+                        {
+                            "element": "text",
+                            "data": ":"
+                        },
+                        {
+                            "element": "text",
                             "data": "my"
                         },
                         {
@@ -38,7 +46,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "page"
+                            "data": "thing"
                         },
                         {
                             "element": "text",

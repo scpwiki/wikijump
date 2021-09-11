@@ -1,5 +1,5 @@
 {
-    "input": "[[include multiline name = consuelo|\n contents = the chorizo stew is almost finished cooking \n i cannot just stop cooking my chorizo stew in order to talk to you about an i.r.c. channel, friends \nshit i am sorry i did not mean to rejoin]]",
+    "input": "Apple\n[[include-messy my-page]]\nBanana\n[[include-messy other]]\nCherry",
     "tree": {
         "elements": [
             {
@@ -8,6 +8,59 @@
                     "type": "paragraph",
                     "attributes": {},
                     "elements": [
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "<"
+                        },
+                        {
+                            "element": "text",
+                            "data": "MISSING"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "PAGE"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "my"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "page"
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Banana"
+                        },
+                        {
+                            "element": "line-break"
+                        },
                         {
                             "element": "text",
                             "data": "<"
@@ -30,7 +83,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "multiline"
+                            "data": "other"
                         },
                         {
                             "element": "text",
@@ -42,67 +95,18 @@
                         },
                         {
                             "element": "text",
-                            "data": "\"contents\""
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "="
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"the chorizo stew is almost finished cooking \\n i cannot just stop cooking my chorizo stew in order to talk to you about an i.r.c. channel, friends \\nshit i am sorry i did not mean to rejoin\""
-                        },
-                        {
-                            "element": "text",
-                            "data": ","
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"name\""
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "="
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"consuelo\""
-                        },
-                        {
-                            "element": "text",
                             "data": "}"
                         },
                         {
                             "element": "text",
                             "data": ">"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Cherry"
                         }
                     ]
                 }

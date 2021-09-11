@@ -18,6 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! This module implements "messy includes", or Wikidot native includes.
+//!
+//! It is an annoying but necessary hack that parses the psueodblock
+//! `[[include-messy]]` and directly replaces that part with the
+//! foreign page's wikitext.
+
 #[cfg(test)]
 mod test;
 
@@ -35,7 +41,7 @@ use regex::{Regex, RegexBuilder};
 
 lazy_static! {
     static ref INCLUDE_REGEX: Regex = {
-        RegexBuilder::new(r"^\[\[\s*include\s+")
+        RegexBuilder::new(r"^\[\[\s*include-messy\s+")
             .case_insensitive(true)
             .multi_line(true)
             .dot_matches_new_line(true)

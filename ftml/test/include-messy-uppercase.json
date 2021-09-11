@@ -1,5 +1,5 @@
 {
-    "input": "[[include my-page | apple=1 | banana = 2]]",
+    "input": "[[INCLUde-MEssY my-PAGE]]",
     "tree": {
         "elements": [
             {
@@ -38,7 +38,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "page"
+                            "data": "PAGE"
                         },
                         {
                             "element": "text",
@@ -47,62 +47,6 @@
                         {
                             "element": "text",
                             "data": "{"
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"apple\""
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "="
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"1 \""
-                        },
-                        {
-                            "element": "text",
-                            "data": ","
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"banana\""
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "="
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"2\""
                         },
                         {
                             "element": "text",

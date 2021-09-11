@@ -1,5 +1,5 @@
 {
-    "input": "[[include my-page]",
+    "input": "[[*include-messy my-page]]",
     "tree": {
         "elements": [
             {
@@ -10,11 +10,19 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "[["
+                            "data": "[[*"
                         },
                         {
                             "element": "text",
                             "data": "include"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "messy"
                         },
                         {
                             "element": "text",
@@ -34,7 +42,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "]"
+                            "data": "]]"
                         }
                     ]
                 }
@@ -57,14 +65,20 @@
     "warnings": [
         {
             "token": "identifier",
-            "rule": "block-include",
-            "span": [10, 12],
-            "kind": "invalid-include"
+            "rule": "block-include-messy",
+            "span": [17, 19],
+            "kind": "block-disallows-star"
         },
         {
-            "token": "left-block",
+            "token": "left-block-star",
             "rule": "fallback",
-            "span": [0, 2],
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [24, 26],
             "kind": "no-rules-match"
         }
     ]

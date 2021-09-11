@@ -1,5 +1,5 @@
 {
-    "input": "[[INCLUde my-PAGE]]",
+    "input": "[[include-messy :scp-wiki:theme:black-highlighter-theme]]",
     "tree": {
         "elements": [
             {
@@ -30,7 +30,11 @@
                         },
                         {
                             "element": "text",
-                            "data": "my"
+                            "data": ":"
+                        },
+                        {
+                            "element": "text",
+                            "data": "scp"
                         },
                         {
                             "element": "text",
@@ -38,7 +42,39 @@
                         },
                         {
                             "element": "text",
-                            "data": "PAGE"
+                            "data": "wiki"
+                        },
+                        {
+                            "element": "text",
+                            "data": ":"
+                        },
+                        {
+                            "element": "text",
+                            "data": "theme"
+                        },
+                        {
+                            "element": "text",
+                            "data": ":"
+                        },
+                        {
+                            "element": "text",
+                            "data": "black"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "highlighter"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "theme"
                         },
                         {
                             "element": "text",

@@ -1,5 +1,5 @@
 {
-    "input": "[[include :scp-wiki:theme:black-highlighter-theme]]",
+    "input": "[[include-messy my-page apple=1 | banana = 2]]",
     "tree": {
         "elements": [
             {
@@ -30,11 +30,7 @@
                         },
                         {
                             "element": "text",
-                            "data": ":"
-                        },
-                        {
-                            "element": "text",
-                            "data": "scp"
+                            "data": "my"
                         },
                         {
                             "element": "text",
@@ -42,39 +38,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "wiki"
-                        },
-                        {
-                            "element": "text",
-                            "data": ":"
-                        },
-                        {
-                            "element": "text",
-                            "data": "theme"
-                        },
-                        {
-                            "element": "text",
-                            "data": ":"
-                        },
-                        {
-                            "element": "text",
-                            "data": "black"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "highlighter"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "theme"
+                            "data": "page"
                         },
                         {
                             "element": "text",
@@ -83,6 +47,62 @@
                         {
                             "element": "text",
                             "data": "{"
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"apple\""
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"1 \""
+                        },
+                        {
+                            "element": "text",
+                            "data": ","
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"banana\""
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"2\""
                         },
                         {
                             "element": "text",

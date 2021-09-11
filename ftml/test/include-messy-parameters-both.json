@@ -1,5 +1,5 @@
 {
-    "input": "[[include component:my-thing]]",
+    "input": "[[include-messy my-page | apple=1 | banana = 2 |]]",
     "tree": {
         "elements": [
             {
@@ -30,14 +30,6 @@
                         },
                         {
                             "element": "text",
-                            "data": "component"
-                        },
-                        {
-                            "element": "text",
-                            "data": ":"
-                        },
-                        {
-                            "element": "text",
                             "data": "my"
                         },
                         {
@@ -46,7 +38,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "thing"
+                            "data": "page"
                         },
                         {
                             "element": "text",
@@ -55,6 +47,62 @@
                         {
                             "element": "text",
                             "data": "{"
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"apple\""
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"1 \""
+                        },
+                        {
+                            "element": "text",
+                            "data": ","
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"banana\""
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
+                            "data": ">"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\"2 \""
                         },
                         {
                             "element": "text",

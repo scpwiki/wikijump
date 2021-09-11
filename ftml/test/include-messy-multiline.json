@@ -1,5 +1,5 @@
 {
-    "input": "[[include my-page apple=1 | banana = 2]]",
+    "input": "[[include-messy multiline name = consuelo|\n contents = the chorizo stew is almost finished cooking \n i cannot just stop cooking my chorizo stew in order to talk to you about an i.r.c. channel, friends \nshit i am sorry i did not mean to rejoin]]",
     "tree": {
         "elements": [
             {
@@ -30,15 +30,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "my"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "page"
+                            "data": "multiline"
                         },
                         {
                             "element": "text",
@@ -50,7 +42,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "\"apple\""
+                            "data": "\"contents\""
                         },
                         {
                             "element": "text",
@@ -70,7 +62,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "\"1 \""
+                            "data": "\"the chorizo stew is almost finished cooking \\n i cannot just stop cooking my chorizo stew in order to talk to you about an i.r.c. channel, friends \\nshit i am sorry i did not mean to rejoin\""
                         },
                         {
                             "element": "text",
@@ -82,7 +74,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "\"banana\""
+                            "data": "\"name\""
                         },
                         {
                             "element": "text",
@@ -102,7 +94,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "\"2\""
+                            "data": "\"consuelo\""
                         },
                         {
                             "element": "text",

@@ -18,13 +18,13 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-// A simple parser generation exclusively to extract [[include]] directives
+// A simple parser generation exclusively to extract [[include-messy]] directives
 // within the wikitext. Other elements should be ignored and left as-is.
 
-// The "include" rule has some strange logic:
+// Wikidot's "include" rule has some strange logic:
 //
-// [[include]]s can have leading *and* trailing pipe separators,
-// for instance [[include page | a = 1 ]] or [[include page a = 1 | ]] (or both)
+// [[include-messy]]s can have leading *and* trailing pipe separators,
+// for instance [[include-messy page | a = 1 ]] or [[include-messy page a = 1 | ]] (or both)
 //
 // Additionally, each argument must be separated from each other with a pipe.
 // We encapsulate this logic by essentially doing "(parameter ~ pipe)* ~ (parameter ~ pipe?)?
@@ -32,42 +32,40 @@
 // and is optional should the sequence end in a pipe.
 
 include = {
-    SOI ~
-    "[[" ~ space ~ ^"include" ~ space ~
-    page_ref ~ space ~
-    "|"? ~ space ~
-    (argument ~ space ~ "|" ~ space)* ~
-    (argument ~ space ~ ("|" ~ space)?)? ~
-    "]]"
+    SOI ~ // Because we slice from the start of an include block using regex
+    "[[" ~ space? ~ ^"include-messy" ~ space ~
+    page_ref ~ space? ~
+    ("|" ~ space?)? ~
+    (argument ~ space? ~ "|" ~ space?)* ~
+    (argument ~ space? ~ "|"?)? ~
+    space? ~ include_end
+}
+
+include_end = _{
+    "]]" ~ &(NEWLINE | EOI)
 }
 
 argument = {
-    identifier ~ space ~
-    "=" ~ space ~
+    identifier ~ space? ~
+    "=" ~ space? ~
     value
 }
 
-// This implements Wikidot's logic of "escaping" newlines or ]]s in
-// an argument's value by placing a space after.
-
 value = {
-    (
-        ("]]"? ~ " " ~ NEWLINE) |
-        (!("|" | "]]" | NEWLINE) ~ ANY)
-    )+
+    (!(include_end | "|") ~ ANY)+
 }
 
 // Reference to a page, possibly not on this wiki
 
 page_ref = {
-    (":" ~ identifier ~ ":")? ~ page_name
+    (":" ~ site_name ~ ":")? ~ page_name
 }
-site_name = _{ identifier }
-page_name = { (ASCII_ALPHANUMERIC | "-" | "_" | ":")+ }
+site_name = _{ (!(" " | "\n" | "\t" | "[" | "|" | "]" | ":") ~ ANY)+ }
+page_name = _{ (!(" " | "\n" | "\t" | "[" | "|" | "]") ~ ANY)+ }
 
 // Helpers
 
 identifier = { (ASCII_ALPHANUMERIC | "-" | "_")+ }
-space = _{ (" " | "\n" | "\t")* }
+space = _{ (" " | "\n" | "\t")+ }
 
 // vim: set fdm=marker foldlevel=0:
