@@ -130,12 +130,12 @@ body = "none"
 html-attributes = true
 html-output = "html,img,wj-image"
 
-[include]
+[include-messy]
 accepts-newlines = true
 head = "value" # it's not a normal map
 body = "none"
 html-output = "other"
-special = "include"
+special = "include-messy"
 
 [ins]
 aliases = ["insertion"]
