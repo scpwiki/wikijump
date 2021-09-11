@@ -93,7 +93,57 @@ cfg_if! {
         #[macro_use]
         #[allow(unused_macros)]
         mod macros {
-            // Dummy filename/lineno macros
+            // Logging levels
+            macro_rules! crit {
+                ($($input:tt)*) => {
+                    ()
+                };
+            }
+
+            macro_rules! error {
+                ($($input:tt)*) => {
+                    ()
+                };
+            }
+
+            macro_rules! warn {
+                ($($input:tt)*) => {
+                    ()
+                };
+            }
+
+            macro_rules! info {
+                ($($input:tt)*) => {
+                    ()
+                };
+            }
+
+            macro_rules! debug {
+                ($($input:tt)*) => {
+                    ()
+                };
+            }
+
+            macro_rules! trace {
+                ($($input:tt)*) => {
+                    ()
+                };
+            }
+
+            // Logging helpers
+            macro_rules! slog_o {
+                ($($input:tt)*) => {
+                    ()
+                };
+            }
+
+            // Alias for slog_o!
+            macro_rules! o {
+                ($($input:tt)*) => {
+                    ()
+                };
+            }
+
             macro_rules! slog_filename {
                 () => {
                     ()
