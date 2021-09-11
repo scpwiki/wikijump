@@ -98,7 +98,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [IfTags](#iftags)                 | `iftags`                         | No    | No     | Yes       | Value         | Elements  |
 | [Iframe](#iframe)                 | `iframe`                         | No    | No     | Yes       | None          | None      |
 | [Image](#image)                   | `image`                          | No    | No     | No        | Name + Map    | None      |
-| [Include](#include)               | `include`                        | No    | No     | Yes       | Name + Map    | None      |
+| [Include (Messy)](#include-messy) | `include-messy`                  | No    | No     | Yes       | Name + Map    | None      |
 | [Insertion](#insertion)           | `ins`, `insertion`               | No    | No     | No        | Map           | Elements  |
 | [Invisible](#invisible)           | `invisible`                      | No    | No     | Yes       | Map           | Elements  |
 | [Italics](#italics)               | `i`, `italics`, `em`, `emphasis` | No    | No     | No        | Map           | Elements  |
@@ -439,9 +439,13 @@ Arguments:
 * `link` &mdash; (String) The link that this image should point to.
 * All accepted attributes.
 
-### Include
+### Include (Messy)
 
-This is not a typical block, as it is handled in the preprocessor. Parsing here is handled differently, but this block is still documented for completion sake.
+This is not a typical block, as it is handled in the preprocessor.
+Parsing here is handled differently, but this block is still documented for completion sake.
+
+This is a messy include, meaning that the page source is pasted directly in, prior to tokenization.
+It exists for compatibility with Wikidot.
 
 Output: N/A
 
