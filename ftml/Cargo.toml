@@ -70,4 +70,5 @@ slog-bunyan = { version = "2", optional = true }
 # Performance options
 
 [profile.release]
-lto = true
+codegen-units = 1
+opt-level = 3
