@@ -61,7 +61,7 @@ How the bodies of a block are interpreted depend on its type. They fall into one
 
 | Name            | Example block | Description |
 |-----------------|---------------|-------------|
-| None            | `[[include]]` | Has no body. This block terminates at its head. |
+| None            | `[[iframe]]`  | Has no body. This block terminates at its head. |
 | Raw text        | `[[code]]`    | Interprets the entire block body as raw text. Syntax is not parsed. |
 | Nested elements | `[[div]]`     | Interprets block contents as elements in a certain context. These are then nested in the block. |
 | Other           | N/A           | Uses some other means of interpreting its body. Some Wikidot blocks allow passing YAML for instance. |
