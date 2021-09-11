@@ -21,7 +21,7 @@ export async function init(path: Binding.InitInput) {
 }
 
 /** Safely frees any WASM objects provided. */
-export function free(...objs: any) {
+export function free(objs: Set<any>) {
   for (const obj of objs) {
     if (typeof obj !== "object" || !("ptr" in obj)) continue
     if (obj.ptr !== 0) obj.free()
@@ -42,6 +42,6 @@ export function trk<T>(obj: T): T {
 
 /** Frees all objects being {@link tracked}, and clears the set. */
 export function freeTracked() {
-  free(...tracked)
+  free(tracked)
   tracked.clear()
 }
