@@ -32,6 +32,7 @@
 // and is optional should the sequence end in a pipe.
 
 include = {
+    SOI ~ // Because we slice from the start of an include block using regex
     "[[" ~ space? ~ ^"include-messy" ~ space ~
     page_ref ~ space? ~
     ("|" ~ space?)? ~
