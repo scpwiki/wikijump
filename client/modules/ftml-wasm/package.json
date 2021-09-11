@@ -8,18 +8,29 @@
   ],
   "scripts": {
     "build": "",
-    "pack-ftml": "cd ../../../ftml && wasm-pack build --release --target web --out-dir ../client/modules/ftml-wasm/vendor -- --no-default-features && cd ../client/modules/ftml-wasm/vendor && trash .gitignore LICENSE.md package.json README.md ftml_bg.wasm.d.ts",
-    "pack-ftml-debug": "cd ../../../ftml && wasm-pack build --debug --target web --out-dir ../client/modules/ftml-wasm/vendor -- --no-default-features && cd ../client/modules/ftml-wasm/vendor && trash .gitignore LICENSE.md package.json README.md ftml_bg.wasm.d.ts"
+    "debug": "ultra debug:cmd",
+    "debug:cmd": "pnpm debug:ftml && pnpm debug:bind",
+    "debug:ftml": "cd ../../../ftml && cargo build --no-default-features --target wasm32-unknown-unknown",
+    "debug:bind": "cd ../../../ftml && wasm-bindgen --out-dir ../client/modules/ftml-wasm/vendor --target web --debug --keep-debug --omit-default-module-path ./target/wasm32-unknown-unknown/debug/ftml.wasm",
+    "compile": "ultra compile:cmd",
+    "compile:cmd": "pnpm compile:ftml && pnpm compile:bind && pnpm compile:opt",
+    "compile:ftml": "cd ../../../ftml && cargo build --release --no-default-features --target wasm32-unknown-unknown",
+    "compile:bind": "cd ../../../ftml && wasm-bindgen --out-dir ../client/modules/ftml-wasm/vendor --target web --omit-default-module-path ./target/wasm32-unknown-unknown/release/ftml.wasm",
+    "compile:opt": "cd vendor && wasm-opt ftml_bg.wasm -O4 -c -o ftml_bg.wasm"
   },
   "type": "module",
   "main": "src/index.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client/modules/sheaf-core"
+    "directory": "client/modules/ftml-wasm"
   },
   "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
-  "eslintConfig": { "extends": "../../.eslintrc.js" },
-  "dependencies": {}
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "devDependencies": {
+    "wasm-opt": "^1.2.0"
+  }
 }

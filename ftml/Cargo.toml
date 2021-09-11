@@ -71,6 +71,3 @@ slog-bunyan = { version = "2", optional = true }
 
 [profile.release]
 lto = true
-
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = ["-O4", "-c"]
