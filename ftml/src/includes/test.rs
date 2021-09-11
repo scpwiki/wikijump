@@ -58,19 +58,31 @@ fn includes() {
     test!("[[ include-messy PAGE ]]", vec![PageRef::page_only("PAGE")]);
 
     // Arguments
-    test!("[[include-messy apple a =1]]", vec![PageRef::page_only("apple")]);
-    test!("[[include-messy apple a= 1]]", vec![PageRef::page_only("apple")]);
-    test!("[[include-messy apple a = 1]]", vec![PageRef::page_only("apple")]);
+    test!(
+        "[[include-messy apple a =1]]",
+        vec![PageRef::page_only("apple")],
+    );
+    test!(
+        "[[include-messy apple a= 1]]",
+        vec![PageRef::page_only("apple")],
+    );
+    test!(
+        "[[include-messy apple a = 1]]",
+        vec![PageRef::page_only("apple")],
+    );
     test!(
         "[[include-messy apple a = 1 ]]",
-        vec![PageRef::page_only("apple")]
+        vec![PageRef::page_only("apple")],
     );
     test!(
         "[[include-messy apple  a = 1 ]]",
-        vec![PageRef::page_only("apple")]
+        vec![PageRef::page_only("apple")],
     );
 
-    test!("[[include-messy banana a=1]]", vec![PageRef::page_only("banana")]);
+    test!(
+        "[[include-messy banana a=1]]",
+        vec![PageRef::page_only("banana")],
+    );
     test!(
         "[[include-messy banana a=1|]]",
         vec![PageRef::page_only("banana")],
