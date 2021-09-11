@@ -18,6 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! This module implements "messy includes", or Wikidot native includes.
+//!
+//! It is an annoying but necessary hack that parses the psueodblock
+//! `[[include-messy]]` and directly replaces that part with the
+//! foreign page's wikitext.
+
 #[cfg(test)]
 mod test;
 
