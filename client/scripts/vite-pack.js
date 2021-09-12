@@ -57,7 +57,6 @@ const config = getConfig()
 config.clearScreen = false
 config.publicDir = false
 config.root = "./"
-config.build.outDir = "./dist"
 config.build.assetsDir = "./"
 config.build.minify = false // let consumers minify their own code
 config.build.manifest = false
@@ -66,27 +65,29 @@ config.build.rollupOptions = {
   output: {
     sourcemapExcludeSources: true,
     // fixes the relative sourcemap paths
-    // e.g. "../src/index.ts" -> "./src/index.ts"
+    // e.g. "../../src/index.ts" -> "../src/index.ts"
     sourcemapPathTransform(path) {
-      return path.replace(/^\.+(\\|\/)/, "./")
+      return path.replace(/^\.+(\\|\/)/, "")
     }
   }
 }
 config.build.lib = {
   entry: `${json.main}`,
-  formats: ["es", "cjs"]
+  fileName(format) {
+    return `${json.name}.${format === "es" ? "mjs" : "cjs"}`
+  }
 }
 
 // modify the package.json for NPM publish
 
 // point to built files
 json.types = `${json.main}`
-json.main = `${json.name}.cjs.js`
-json.module = `${json.name}.esm.js`
+json.main = `cjs/${json.name}.cjs`
+json.module = `esm/${json.name}.mjs`
 json.exports ??= {}
 json.exports["."] = {
-  import: `${json.name}.esm.js`,
-  require: `${json.name}.cjs.js`
+  import: `esm/${json.name}.mjs`,
+  require: `cjs/${json.name}.cjs`
 }
 
 // delete fields that would mess with things
@@ -131,6 +132,21 @@ json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/client/modules
 ;(async () => {
   console.log("\n-------- BUILD --------")
 
+  // have to clear folder because Vite won't do it due to the outDir workaround
+  if (await fs.pathExists(`${DIR}/dist`)) await fs.remove(`${DIR}/dist`)
+
+  // have to build twice, due to Vite bug
+  // Vite doesn't separate the CJS and ESM builds from each other
+  // so they would overwrite each other's files
+
+  console.log("\nBuilding ESM...")
+  config.build.outDir = "./dist/esm"
+  config.build.lib.formats = ["es"]
+  await vite.build(config)
+
+  console.log("\nBuilding CJS...")
+  config.build.outDir = "./dist/cjs"
+  config.build.lib.formats = ["cjs"]
   await vite.build(config)
 
   console.log("\nCopying module source files...")
