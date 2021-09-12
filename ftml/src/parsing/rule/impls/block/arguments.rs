@@ -83,11 +83,6 @@ impl<'t> Arguments<'t> {
     }
 
     #[inline]
-    pub fn inner(&self) -> &HashMap<UniCase<&'t str>, Cow<'t, str>> {
-        &self.inner
-    }
-
-    #[inline]
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
     }
