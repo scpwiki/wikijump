@@ -140,32 +140,23 @@ const rules = {
 
       "match-any": ["warn", { allows: ["[^]"] }]
     })
-  },
-
-  import: {
-    ...prefixKeys("import/", {
-      "no-extraneous-dependencies": ["error", {}]
-    })
   }
 }
 
 const baseRules = { ...rules.code, ...rules.restrict, ...rules.style, ...rules.regex }
 const typeRules = { ...rules.typescript, ...rules.typeChecked }
-const importRules = { ...rules.import }
 
 module.exports = {
   root: true,
   ignorePatterns: ["**/node_modules/**", "**/dist/**", "**/vendor/**", "/misc/**"],
 
-  extends: ["plugin:compat/recommended", "plugin:import/typescript"],
-
-  plugins: ["@typescript-eslint", "import", "svelte3", "regexp", "tsdoc"],
+  plugins: ["@typescript-eslint", "svelte3", "regexp", "tsdoc"],
 
   parser: "@typescript-eslint/parser",
   parserOptions: {
     sourceType: "module",
     tsconfigRootDir: __dirname,
-    project: ["./tsconfig.json"],
+    project: ["./tsconfig.json", "./modules/*/tsconfig.json"],
     extraFileExtensions: [".svelte"]
   },
 
@@ -187,29 +178,15 @@ module.exports = {
     // TypeScript (Browser)
     {
       files: ["*.d.ts", "*.ts", "*.tsx"],
-      excludedFiles: "**/tests/**/*.ts",
       env: { browser: true, es2021: true },
-      rules: { ...baseRules, ...typeRules, ...importRules }
-    },
-    // TypeScript (Testing)
-    {
-      files: ["**/tests/**/*.ts"],
-      env: { browser: true, es2021: true },
-      parserOptions: { createDefaultProgram: true },
       rules: { ...baseRules, ...typeRules }
-    },
-    // TypeScript (Worker)
-    {
-      files: ["*.worker.ts"],
-      env: { worker: true, es2021: true },
-      rules: { ...baseRules, ...typeRules, ...importRules }
     },
     // Svelte + TypeScript (Browser)
     {
       files: ["*.svelte"],
       processor: "svelte3/svelte3",
       env: { browser: true, es2021: true },
-      rules: { ...baseRules, ...typeRules, ...importRules },
+      rules: { ...baseRules, ...typeRules },
       settings: {
         "svelte3/typescript": () => require("typescript"),
         "svelte3/ignore-styles": () => true
