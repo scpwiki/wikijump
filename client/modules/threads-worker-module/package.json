@@ -12,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client/modules/worker-module"
+    "directory": "client/modules/threads-worker-module"
   },
   "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
