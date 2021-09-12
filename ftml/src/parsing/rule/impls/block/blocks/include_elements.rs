@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::data::PageRef;
-use crate::tree::SyntaxTree;
+use crate::parsing::UnstructuredParseResult;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use unicase::UniCase;
@@ -62,39 +62,49 @@ fn parse_fn<'r, 't>(
     };
 
     // Get page to be included
-    let SyntaxTree {
-        elements,
-        styles,
-        mut table_of_contents,
+    let UnstructuredParseResult {
+        result,
+        mut table_of_contents_depths,
         mut footnotes,
+        has_footnote_block,
     } = include_page(parser, page_ref, variables.inner())?;
 
-    // Add gathered items and return
-    parser.append_toc_and_footnotes(&mut Vec::new(), &mut footnotes);
+    if has_footnote_block {
+        parser.set_footnote_block();
+    }
 
-    let exceptions = styles
-        .into_iter() //
-        .map(ParseException::Style)
-        .collect();
+    // Extract elements and exceptions
+    let ParseSuccess {
+        item: elements,
+        exceptions,
+        ..
+    } = result?;
+
+    // Add gathered items and return
+    parser.append_toc_and_footnotes(&mut table_of_contents_depths, &mut footnotes);
 
     ok!(elements, exceptions)
 }
 
-fn include_page(
-    parser: &Parser,
+fn include_page<'r, 't>(
+    parser: &Parser<'r, 't>,
     _page: PageRef,
     _variables: &HashMap<UniCase<&str>, Cow<str>>,
-) -> Result<SyntaxTree<'static>, ParseWarning> {
+) -> Result<UnstructuredParseResult<'r, 't>, ParseWarning> {
     // TODO stubbed
 
     if false {
         return Err(parser.make_warn(ParseWarningKind::NoSuchPage));
     }
 
-    Ok(SyntaxTree {
-        elements: vec![],
-        styles: vec![],
-        table_of_contents: vec![],
+    Ok(UnstructuredParseResult {
+        result: Ok(ParseSuccess::new(
+            vec![text!("<INCLUDED PAGE (ELEMENTS)")],
+            vec![],
+            false,
+        )),
+        table_of_contents_depths: vec![],
         footnotes: vec![],
+        has_footnote_block: false,
     })
 }
