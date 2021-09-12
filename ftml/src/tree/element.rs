@@ -23,8 +23,8 @@ use super::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
     ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, Table, TableItem,
 };
-use ref_map::*;
 use crate::data::PageRef;
+use ref_map::*;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::num::NonZeroU32;
