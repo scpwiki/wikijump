@@ -44,12 +44,19 @@ if (!json.name || !json.version || !json.main) {
 }
 
 // imports matching a dependency in this list will be left out of the bundle
-const external = Object.keys(json.dependencies || {})
+let external = Object.keys(json.dependencies || {})
 
 // push other dependencies to external just in case
 if (json.devDependencies) external.push(...Object.keys(json.devDependencies))
 if (json.optionalDependencies) external.push(...Object.keys(json.optionalDependencies))
 if (json.peerDependencies) external.push(...Object.keys(json.peerDependencies))
+
+// converts the externals list to regexs that catch edge cases
+// e.g. import from "foo/bar"
+// e.g. import from "foo/bar.txt?url"
+// in the latter case, we shouldn't externalize the import
+// as that has to be handled by Vite
+external = external.map(str => new RegExp(`^${escapeRegExp(str)}[^?]*$`))
 
 // modify default config to be for building modules
 // otherwise it's entirely the same build process
@@ -168,4 +175,8 @@ async function copy(from, to) {
   if (await fs.pathExists(from)) {
     await fs.copy(from, to)
   }
+}
+
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|\[\]\\]/g, "\\$&")
 }
