@@ -25,7 +25,7 @@ pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseWarning>;
 pub type ParseSuccessTuple<'t, T> = (T, Vec<ParseException<'t>>, bool);
 
 #[must_use]
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ParseSuccess<'r, 't, T>
 where
     'r: 't,

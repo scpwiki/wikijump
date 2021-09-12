@@ -34,7 +34,7 @@ use strum_macros::IntoStaticStr;
 /// For instance, CSS styles are not present in the syntax tree
 /// like regular elements, and instead must be bubbled up
 /// to the top level.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum ParseException<'t> {
     Warning(ParseWarning),
     Style(Cow<'t, str>),
@@ -47,7 +47,7 @@ pub enum ParseException<'t> {
 ///
 /// However, as outlined by the crate's philosophy, no parsing issue is fatal.
 /// Instead a fallback rules is applied and parsing continues.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct ParseWarning {
     token: Token,

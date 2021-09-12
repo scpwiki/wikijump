@@ -82,7 +82,12 @@ where
     'r: 't,
 {
     // Run parsing, get raw results
-    let (mut parser, result) = parse_internal(log, page_info, tokenization);
+    let UnstructuredParseResult {
+        result,
+        table_of_contents_depths,
+        footnotes,
+        has_footnote_block,
+    } = parse_internal(log, page_info, tokenization);
 
     // For producing table of contents indexes
     let mut incrementer = Incrementer(0);
@@ -103,10 +108,6 @@ where
                 "styles-len" => styles.len(),
             );
 
-            // Extract supplementary tables from parser
-            let table_of_contents_depths = parser.remove_table_of_contents();
-            let footnotes = parser.remove_footnotes();
-
             // process_depths() wants a "list type", so we map in a () for each.
             let table_of_contents_depths = table_of_contents_depths
                 .into_iter()
@@ -120,7 +121,7 @@ where
 
             // Add a footnote block at the end,
             // if the user doesn't have one already
-            if !parser.has_footnote_block() {
+            if !has_footnote_block {
                 debug!(log, "No footnote block in elements, appending one");
 
                 elements.push(Element::FootnoteBlock {
@@ -167,11 +168,11 @@ where
 }
 
 /// Runs the parser, but returns the raw internal results prior to conversion.
-fn parse_internal<'r, 't>(
+pub fn parse_internal<'r, 't>(
     log: &Logger,
     page_info: &'r PageInfo<'t>,
     tokenization: &'r Tokenization<'t>,
-) -> (Parser<'r, 't>, ParseResult<'r, 't, Vec<Element<'t>>>)
+) -> UnstructuredParseResult<'r, 't>
 where
     'r: 't,
 {
@@ -189,9 +190,20 @@ where
     info!(log, "Running parser on tokens");
     let result = gather_paragraphs(log, &mut parser, RULE_PAGE, NO_CLOSE_CONDITION);
 
-    // Return internal results
-    (parser, result)
+    // Build and return
+    let table_of_contents_depths = parser.remove_table_of_contents();
+    let footnotes = parser.remove_footnotes();
+    let has_footnote_block = parser.has_footnote_block();
+
+    UnstructuredParseResult {
+        result,
+        table_of_contents_depths,
+        footnotes,
+        has_footnote_block,
+    }
 }
+
+// Helper functions
 
 fn extract_exceptions(
     exceptions: Vec<ParseException>,
@@ -240,6 +252,8 @@ fn build_toc_list_element(
     }
 }
 
+// Incrementer for TOC
+
 #[derive(Debug)]
 struct Incrementer(usize);
 
@@ -249,4 +263,26 @@ impl NextIndex<TableOfContentsIndex> for Incrementer {
         self.0 += 1;
         index
     }
+}
+
+// Parse internal result
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UnstructuredParseResult<'r, 't> {
+    /// The returned result from parsing.
+    pub result: ParseResult<'r, 't, Vec<Element<'t>>>,
+
+    /// The "depths" list for table of content entries.
+    ///
+    /// Each value is a zero-indexed depth of how
+    pub table_of_contents_depths: Vec<(usize, String)>,
+
+    /// The list of footnotes.
+    ///
+    /// Each entry is a series of elements, in combination
+    /// they make the contents of one footnote.
+    pub footnotes: Vec<Vec<Element<'t>>>,
+
+    /// Whether a footnote block was placed during parsing.
+    pub has_footnote_block: bool,
 }
