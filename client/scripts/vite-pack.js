@@ -129,20 +129,20 @@ json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/client/modules
 
 // build module, finally
 ;(async () => {
-  console.log("\n-------- BUILD --------\n")
+  console.log("\n-------- BUILD --------")
 
   await vite.build(config)
 
   console.log("\nCopying module source files...")
   await copy(`${DIR}/src`, `${DIR}/dist/src`)
   await copy(`${DIR}/vendor`, `${DIR}/dist/vendor`)
+  await copy(`${DIR}/bin`, `${DIR}/dist/bin`)
 
   console.log("Writing package metadata...")
   await fs.writeFile(`${DIR}/dist/package.json`, JSON.stringify(json, null, 2))
   await copy(`${DIR}/README.md`, `${DIR}/dist/README.md`)
   await copy(`${ROOT}/../LICENSE.md`, `${DIR}/dist/LICENSE.md`)
   await copy(`${DIR}/CHANGELOG.md`, `${DIR}/dist/CHANGELOG.md`)
-  await copy(`${DIR}/bin`, `${DIR}/dist/bin`)
 
   console.log(`Finished packaging "${package}".\n`)
 })()
