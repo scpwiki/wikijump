@@ -1,11 +1,12 @@
 {
-    "input": "[[ul]] [[li]] [[ol]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ol]] [[/li]] [[li]]C[[/li]] [[/ul]]",
+    "input": "[[ul]] [[li]] [[ol]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ol]] [[/li]] [[li]]C[[/li]] [[ol]] [[li]]D[[/li]] [[li]]E[[/li]] [[/ol]] [[/ul]]",
     "tree": {
         "elements": [
             {
                 "element": "list",
                 "data": {
                     "type": "bullet",
+                    "attributes": {},
                     "items": [
                         {
                             "attributes": {},
@@ -51,9 +52,35 @@
                                     "data": "C"
                                 }
                             ]
+                        },
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "numbered",
+                                "attributes": {},
+                                "items": [
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "D"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "E"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
                         }
-                    ],
-                    "attributes": {}
+                    ]
                 }
             },
             {
