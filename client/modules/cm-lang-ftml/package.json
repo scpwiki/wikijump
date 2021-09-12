@@ -6,9 +6,7 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "build": ""
-  },
+  "scripts": {},
   "type": "module",
   "main": "src/index.ts",
   "repository": {
@@ -26,7 +24,7 @@
     "cm-espells": "workspace:*",
     "cm-tarnation": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
-    "@lezer/common": "^0.15.4",
+    "@lezer/common": "^0.15.5",
     "threads-worker-module": "workspace:*",
     "wj-codemirror": "workspace:*",
     "wj-components": "workspace:*",

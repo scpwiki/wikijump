@@ -1,6 +1,6 @@
 import { Spellcheck } from "cm-espells"
 import { Writable, writable } from "svelte/store"
-import { Gutters, IndentHack } from "wj-codemirror"
+import { defaultLanguages, Gutters, IndentHack } from "wj-codemirror"
 import {
   autocompletion,
   bracketMatching,
@@ -56,6 +56,7 @@ export class SheafCore {
           IndentHack,
           Gutters,
           Spellcheck,
+          defaultLanguages,
           confinement,
           createSheafBinding(this, bindings),
           extensions,

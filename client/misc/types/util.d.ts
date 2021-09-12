@@ -1,9 +1,3 @@
-/**
- * @file Misc. type declarations utilized across the repo.
- */
-
-// TODO: determine if this file & folder is a good idea
-
 declare global {
   /** Represents any function, without using the {@link Function} object. */
   type AnyFunction<R = unknown> = (...args: any) => R

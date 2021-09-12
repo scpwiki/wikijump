@@ -1,4 +1,5 @@
 import initFTML, * as Binding from "../vendor/ftml"
+import wasmURL from "../vendor/ftml_bg.wasm?url"
 
 /** Indicates if the WASM binding is loaded. */
 export let ready = false
@@ -13,14 +14,14 @@ export const loading = new Promise(resolve => {
 export let wasm: Binding.InitOutput | null = null
 
 /** Loads the WASM required for the FTML library. */
-export async function init(path?: Binding.InitInput) {
+export async function init(path: Binding.InitInput = wasmURL) {
   wasm = await initFTML(path)
   ready = true
   resolveLoading()
 }
 
 /** Safely frees any WASM objects provided. */
-export function free(...objs: any) {
+export function free(objs: Set<any>) {
   for (const obj of objs) {
     if (typeof obj !== "object" || !("ptr" in obj)) continue
     if (obj.ptr !== 0) obj.free()
@@ -41,6 +42,10 @@ export function trk<T>(obj: T): T {
 
 /** Frees all objects being {@link tracked}, and clears the set. */
 export function freeTracked() {
-  free(...tracked)
-  tracked.clear()
+  // use setTimeout so that we don't stall a function clearing memory
+  // this speeds up returning objects, especially in a worker
+  setTimeout(() => {
+    free(tracked)
+    tracked.clear()
+  })
 }

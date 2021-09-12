@@ -1,4 +1,4 @@
-const globby = require("globby")
+const fs = require("fs")
 const path = require("path")
 const TypeDoc = require("typedoc")
 
@@ -6,21 +6,23 @@ const TypeDoc = require("typedoc")
 process.chdir(path.resolve(__dirname, "../../"))
 
 const OUTPUT_DIR = "web/wj-docs/dist"
-const TS_CONFIG = "tsconfig.typedoc.json"
 
 async function main() {
-  const modules = [
-    ...(await globby("modules/*", { onlyDirectories: true, ignore: ["modules/wj-css"] }))
-  ]
+  const modules = fs
+    .readdirSync("modules")
+    .filter(dir => fs.statSync(`modules/${dir}`).isDirectory())
+    .filter(dir => !["wj-css"].some(ignore => dir.endsWith(ignore)))
+    .map(dir => `modules/${dir}`)
 
   const app = new TypeDoc.Application()
 
   app.options.addReader(new TypeDoc.TSConfigReader())
 
   app.bootstrap({
-    packages: modules,
+    entryPoints: modules,
+    entryPointStrategy: "packages",
     name: "Wikijump",
-    tsconfig: TS_CONFIG,
+    tsconfig: "tsconfig.json",
     exclude: [
       "**/tests/**",
       "**/node_modules/**",

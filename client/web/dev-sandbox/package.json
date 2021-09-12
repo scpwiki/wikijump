@@ -2,7 +2,7 @@
   "name": "dev-sandbox",
   "license": "agpl-3.0-or-later",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build"
@@ -20,6 +20,6 @@
     "wj-util": "workspace:*"
   },
   "devDependencies": {
-    "svelte": "^3.42.4"
+    "svelte": "^3.42.5"
   }
 }

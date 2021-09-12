@@ -34,6 +34,21 @@ export function parse(page_info: PageInfo, tokens: Tokenization): ParseOutcome;
 export function preprocess(text: string): string;
 
 
+export interface IPageInfo {
+    page: string;
+    category: string | null;
+    site: string;
+    title: string;
+    alt_title: string | null;
+    rating: number;
+    tags: string[];
+    language: string;
+}
+
+
+
+
+
 export interface IHtmlOutput {
     body: string;
     style: string;
@@ -50,21 +65,6 @@ export interface IBacklinks {
     included_pages: string[];
     internal_links: string[];
     external_links: string[];
-}
-
-
-
-
-
-export interface IPageInfo {
-    page: string;
-    category: string | null;
-    site: string;
-    title: string;
-    alt_title: string | null;
-    rating: number;
-    tags: string[];
-    language: string;
 }
 
 
@@ -246,16 +246,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly __wbg_htmloutput_free: (a: number) => void;
-  readonly htmloutput_copy: (a: number) => number;
-  readonly htmloutput_body: (a: number, b: number) => void;
-  readonly htmloutput_styles: (a: number) => number;
-  readonly htmloutput_html_meta: (a: number) => number;
-  readonly htmloutput_backlinks: (a: number) => number;
-  readonly render_html: (a: number, b: number) => number;
-  readonly render_text: (a: number, b: number, c: number) => void;
   readonly __wbg_pageinfo_free: (a: number) => void;
-  readonly pageinfo_copy: (a: number) => number;
   readonly pageinfo_new: (a: number) => number;
   readonly pageinfo_page: (a: number, b: number) => void;
   readonly pageinfo_category: (a: number, b: number) => void;
@@ -265,11 +256,20 @@ export interface InitOutput {
   readonly pageinfo_rating: (a: number) => number;
   readonly pageinfo_tags: (a: number) => number;
   readonly pageinfo_language: (a: number, b: number) => void;
-  readonly version: (a: number) => void;
+  readonly __wbg_htmloutput_free: (a: number) => void;
+  readonly htmloutput_copy: (a: number) => number;
+  readonly htmloutput_body: (a: number, b: number) => void;
+  readonly htmloutput_styles: (a: number) => number;
+  readonly htmloutput_html_meta: (a: number) => number;
+  readonly htmloutput_backlinks: (a: number) => number;
+  readonly render_html: (a: number, b: number) => number;
+  readonly render_text: (a: number, b: number, c: number) => void;
+  readonly pageinfo_copy: (a: number) => number;
   readonly __wbg_utf16indexmap_free: (a: number) => void;
   readonly utf16indexmap_new: (a: number, b: number) => number;
   readonly utf16indexmap_copy: (a: number) => number;
   readonly utf16indexmap_get_index: (a: number, b: number) => number;
+  readonly version: (a: number) => void;
   readonly __wbg_tokenization_free: (a: number) => void;
   readonly tokenization_copy: (a: number) => number;
   readonly tokenization_text: (a: number, b: number) => void;
@@ -298,4 +298,4 @@ export interface InitOutput {
 *
 * @returns {Promise<InitOutput>}
 */
-export default function init (module_or_path?: InitInput | Promise<InitInput>): Promise<InitOutput>;
+export default function init (module_or_path: InitInput | Promise<InitInput>): Promise<InitOutput>;

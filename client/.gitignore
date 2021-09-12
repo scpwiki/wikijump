@@ -4,7 +4,6 @@ node_modules
 # Artifacts
 coverage
 dist
-.ultra.cache.json
 
 # Misc.
 npm-debug.log

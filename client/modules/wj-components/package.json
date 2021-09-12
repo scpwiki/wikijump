@@ -6,16 +6,14 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "build": ""
-  },
+  "scripts": {},
   "type": "module",
   "svelte": "src/index.ts",
   "main": "src/index.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client/components"
+    "directory": "client/modules/wj-components"
   },
   "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
   "homepage": "https://github.com/scpwiki/wikijump#readme",
@@ -34,6 +32,6 @@
     "wj-util": "workspace:*"
   },
   "devDependencies": {
-     "svelte": "^3.42.4"
+     "svelte": "^3.42.5"
    }
 }

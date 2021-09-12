@@ -6,9 +6,7 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "build": ""
-  },
+  "scripts": {},
   "type": "module",
   "main": "src/index.ts",
   "repository": {
@@ -33,6 +31,6 @@
     "wj-util": "workspace:*"
   },
   "devDependencies": {
-    "svelte": "^3.42.4"
+    "svelte": "^3.42.5"
   }
 }

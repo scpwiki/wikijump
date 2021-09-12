@@ -1,6 +1,7 @@
 export * from "./editor-field"
 export * from "./gutters"
 export * from "./indent-hack"
+export * from "./languages"
 export * from "./misc"
 export * from "./print-tree"
 export * from "./svelte/svelte-dom"

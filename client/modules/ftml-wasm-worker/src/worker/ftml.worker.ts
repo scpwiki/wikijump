@@ -1,8 +1,5 @@
 import * as FTML from "ftml-wasm"
 import type * as Binding from "ftml-wasm/vendor/ftml"
-// untyped import
-// @ts-ignore
-import indent from "indent.js"
 import type { TransferDescriptor } from "threads"
 import {
   decode,
@@ -12,6 +9,7 @@ import {
   transferMultiple
 } from "threads-worker-module/src/worker-lib"
 import type { ModuleProxy } from "threads/dist/types/master"
+import * as indent from "../../vendor/indent"
 
 const ready = FTML.loading
 

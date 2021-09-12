@@ -22,7 +22,7 @@
   "dependencies": {
     "@codemirror/autocomplete": "^0.19.3",
     "@codemirror/closebrackets": "^0.19.0",
-    "@codemirror/commands": "^0.19.2",
+    "@codemirror/commands": "^0.19.3",
     "@codemirror/comment": "^0.19.0",
     "@codemirror/fold": "^0.19.0",
     "@codemirror/gutter": "^0.19.1",
@@ -42,8 +42,8 @@
     "@codemirror/state": "^0.19.1",
     "@codemirror/text": "^0.19.3",
     "@codemirror/tooltip": "^0.19.2",
-    "@codemirror/view": "^0.19.4",
-    "@lezer/common": "^0.15.4",
+    "@codemirror/view": "^0.19.6",
+    "@lezer/common": "^0.15.5",
     "@lezer/lr": "^0.15.2",
     "threads-worker-module": "workspace:*",
     "wj-components": "workspace:*",
@@ -51,6 +51,6 @@
     "wj-util": "workspace:*"
   },
   "devDependencies": {
-    "svelte": "^3.42.4"
+    "svelte": "^3.42.5"
   }
 }

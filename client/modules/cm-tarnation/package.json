@@ -6,9 +6,7 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "build": ""
-  },
+  "scripts": {},
   "type": "module",
   "main": "src/index.ts",
   "repository": {
@@ -25,7 +23,7 @@
     "dequal": "^2.0.2",
     "is-what": "^4.0.0",
     "klona": "^2.0.4",
-    "@lezer/common": "^0.15.4",
+    "@lezer/common": "^0.15.5",
     "@lezer/lr": "^0.15.2",
     "typescript-memoize": "^1.0.1",
     "wj-codemirror": "workspace:*",

@@ -6,9 +6,7 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "build": ""
-  },
+  "scripts": {},
   "type": "module",
   "main": "src/index.ts",
   "repository": {
@@ -23,9 +21,8 @@
   },
   "dependencies": {
     "ftml-wasm": "workspace:*",
-    "indent.js": "^0.3.5",
     "threads": "^1.6.5",
-    "wj-util": "workspace:*",
-    "threads-worker-module": "workspace:*"
+    "threads-worker-module": "workspace:*",
+    "wj-util": "workspace:*"
   }
 }

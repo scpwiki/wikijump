@@ -309,7 +309,7 @@ export class PageInfo {
     * @returns {PageInfo}
     */
     copy() {
-        var ret = wasm.pageinfo_copy(this.ptr);
+        var ret = wasm.htmloutput_copy(this.ptr);
         return PageInfo.__wrap(ret);
     }
     /**
@@ -645,9 +645,7 @@ async function load(module, imports) {
 }
 
 async function init(input) {
-    if (typeof input === 'undefined') {
-        input = new URL('ftml_bg.wasm', import.meta.url);
-    }
+
     const imports = {};
     imports.wbg = {};
     imports.wbg.__wbindgen_json_serialize = function(arg0, arg1) {

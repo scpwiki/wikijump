@@ -20,7 +20,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "@lezer/common": "^0.15.4",
+    "@lezer/common": "^0.15.5",
     "dictionary-cs": "^2.0.3",
     "dictionary-da": "^4.5.0",
     "dictionary-el": "^3.0.5",

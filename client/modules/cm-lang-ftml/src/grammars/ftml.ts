@@ -1,13 +1,8 @@
 import { lb, lkup, re, TarnationLanguage } from "cm-tarnation"
 import type * as DF from "cm-tarnation/src/grammar/definition"
 import type { Grammar } from "cm-tarnation/src/grammar/definition"
-import {
-  cssCompletion,
-  foldNodeProp,
-  htmlCompletion,
-  languages,
-  tags as t
-} from "wj-codemirror/cm"
+import { addLanguages, languageList } from "wj-codemirror"
+import { cssCompletion, foldNodeProp, htmlCompletion, tags as t } from "wj-codemirror/cm"
 import { completeFTML } from "../autocomplete"
 import { blocks, modules } from "../data/blocks"
 import { ftmlHoverTooltips } from "../hover"
@@ -80,11 +75,7 @@ const data = {
 export const FTMLLanguage = new TarnationLanguage({
   name: "FTML",
 
-  nestLanguages: [
-    ...languages,
-    TexLanguage.description,
-    StyleAttributeGrammar.description
-  ],
+  nestLanguages: languageList,
 
   languageData: {
     commentTokens: { block: { open: "[!--", close: "--]" } },
@@ -92,7 +83,13 @@ export const FTMLLanguage = new TarnationLanguage({
     spellcheck: spellcheckFTML
   },
 
-  supportExtensions: [ftmlLinter, ftmlHoverTooltips, htmlCompletion, cssCompletion],
+  supportExtensions: [
+    ftmlLinter,
+    ftmlHoverTooltips,
+    htmlCompletion,
+    cssCompletion,
+    addLanguages(TexLanguage.description, StyleAttributeGrammar.description)
+  ],
 
   configure: {
     props: [

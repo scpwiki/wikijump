@@ -209,5 +209,5 @@ function localeLanguage(locale: string) {
 }
 
 async function importWorker() {
-  return (await import("./espells.worker?bundled-worker")).default
+  return (await import("./espells.worker?worker")).default
 }

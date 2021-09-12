@@ -63,19 +63,15 @@ export class WorkerModule<Methods extends WorkerModuleMethods<string> = any> {
 
   /**
    * @param name - Name of the worker, which appears in the debugger.
-   * @param src - The raw source of the worker. Can be given as a
-   *   promisable string or a function returning a promisable string.
+   * @param src - The source for a worker, resolving into a string or
+   *   worker factory. If the source is given directly, it can only be a
+   *   string. Otherwise, a function resolving into a string or a worker
+   *   factory must be given.
    * @param workerConfig - Worker lifecycle configuration.
    */
   constructor(
-    /** Name of the worker, which appears in the debugger. */
     protected name: string,
-    /**
-     * The raw source of the worker. Can be given as a promisable string or
-     * a function returning a promisable string.
-     */
-    protected src: Promisable<string> | (() => Promisable<string>),
-    /** Worker lifecycle configuration. */
+    protected src: Promisable<string> | (() => Promisable<string | (new () => Worker)>),
     protected workerConfig: WorkerModuleOpts = {
       persist: false,
       timeout: 10000,
@@ -93,9 +89,13 @@ export class WorkerModule<Methods extends WorkerModuleMethods<string> = any> {
 
     this.workerLoading = new Promise<ModuleThread<Methods>>(async resolve => {
       if (!this.worker) {
-        const src = typeof this.src === "function" ? await this.src() : await this.src
-        // @ts-ignore
-        this.worker = await spawn(BlobWorker.fromText(src, { name: this.name }))
+        const resolved = await this.src
+        const src = typeof resolved === "string" ? resolved : await resolved()
+        const webworker =
+          typeof src === "string"
+            ? BlobWorker.fromText(src, { name: this.name })
+            : new src()
+        this.worker = (await spawn(webworker)) as ModuleThread<Methods>
         if (this.workerConfig.init) await this.workerConfig.init()
       }
       resolve(this.worker!)

@@ -6,9 +6,7 @@
   "keywords": [
     "wikijump"
   ],
-  "scripts": {
-    "build": ""
-  },
+  "scripts": {},
   "type": "module",
   "main": "src/index.ts",
   "repository": {
@@ -22,7 +20,6 @@
     "extends": "../../.eslintrc.js"
   },
   "devDependencies": {
-    "@types/prismjs": "^1.16.6",
-    "prismjs": "^1.24.1"
+    "@types/prismjs": "^1.16.6"
   }
 }

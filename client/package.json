@@ -1,16 +1,16 @@
 {
   "name": "root",
   "license": "agpl-3.0-or-later",
-  "description": "Private root package for the Wikijump client monorepo.",
   "private": true,
   "scripts": {
-    "build": "ultra -r build",
+    "build": "pnpm --parallel --if-present -r build",
+    "build:modules": "pnpm --filter {modules} --parallel --if-present -r build",
+    "build:web": "pnpm --filter {web} --parallel --if-present -r build",
     "cover": "wtr --playwright --coverage",
-    "dev:dev-sandbox": "ultra --raw -r --filter \"web/dev-sandbox\" dev",
-    "force-build": "ultra --rebuild -r build",
-    "lint": "pnpm lint:eslint && pnpm lint:prettier && pnpm lint:stylelint",
+    "dev:dev-sandbox": "pnpm --filter dev-sandbox dev",
+    "lint": "run-p lint:eslint lint:stylelint lint:prettier",
     "lint:eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
-    "lint:fix": "pnpm lint:fix:eslint && pnpm lint:fix:prettier && pnpm lint:fix:stylelint",
+    "lint:fix": "run-p lint:fix:eslint lint:fix:stylelint lint:fix:prettier",
     "lint:fix:eslint": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "lint:fix:prettier": "prettier --write --ignore-unknown \"modules/**\" \"web/**\"",
     "lint:fix:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\" --fix",
@@ -18,15 +18,8 @@
     "lint:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\"",
     "test": "wtr --playwright",
     "typecheck": "tsc",
-    "validate": "ultra --concurrency 10 validate:cmd",
-    "validate:cmd": "pnpm lint && pnpm typecheck",
+    "validate": "run-p lint typecheck",
     "nabs": "nabs"
-  },
-  "ultra": {
-    "concurrent": [
-      "lint",
-      "validate:cmd"
-    ]
   },
   "browserslist": [
     "supports es6-module and > 0.2% and last 2 versions",
@@ -34,17 +27,10 @@
     "not dead",
     "not ie > 0"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client"
-  },
-  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
-  "homepage": "https://github.com/scpwiki/wikijump#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@ltd/j-toml": "^1.12.2",
-    "@sveltejs/vite-plugin-svelte": "1.0.0-next.22",
+    "@sveltejs/vite-plugin-svelte": "1.0.0-next.23",
     "@testing-library/svelte": "^3.0.3",
     "@types/mocha": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
@@ -52,34 +38,34 @@
     "@typescript-eslint/typescript-estree": "^4.31.0",
     "@web/test-runner": "^0.13.17",
     "@web/test-runner-playwright": "^0.8.8",
-    "esbuild": "^0.12.25",
     "eslint": "^7.32.0",
-    "eslint-plugin-compat": "^3.13.0",
-    "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-regexp": "^1.1.0",
-    "eslint-plugin-svelte3": "^3.2.0",
+    "eslint-plugin-svelte3": "^3.2.1",
     "eslint-plugin-tsdoc": "^0.2.14",
-    "globby": "11.0.4",
     "js-yaml": "^4.1.0",
     "koa-connect": "^2.1.0",
     "nabs": "^0.3.0",
-    "postcss": "^8.3.6",
-    "prettier": "^2.3.2",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.4.0",
     "prettier-plugin-jsdoc": "^0.3.24",
     "prettier-plugin-organize-imports": "^2.3.3",
     "prettier-plugin-svelte": "^2.4.0",
     "rollup": "^2.56.3",
-    "sass": "^1.39.0",
+    "sass": "^1.39.2",
     "stylelint": "^13.13.1",
     "stylelint-config-recess-order": "^2.5.0",
     "stylelint-order": "^4.1.0",
     "stylelint-scss": "^3.20.1",
-    "svelte": "^3.42.4",
-    "svelte-preprocess": "^4.9.3",
-    "trash-cli": "^4.0.0",
-    "typescript": "^4.4.2",
-    "ultra-runner": "^3.10.5",
+    "svelte": "^3.42.5",
+    "svelte-preprocess": "^4.9.4",
+    "typescript": "^4.4.3",
     "vite": "^2.5.6",
     "vite-tsconfig-paths": "^3.3.14"
+  },
+  "engineStrict": true,
+  "engines": {
+    "pnpm": "*",
+    "yarn": "forbidden, use pnpm",
+    "npm": "forbidden, use pnpm"
   }
 }
