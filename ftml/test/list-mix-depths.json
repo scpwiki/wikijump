@@ -21,24 +21,30 @@
                     "type": "bullet",
                     "attributes": {},
                     "items": [
-                        [
-                            {
-                                "element": "text",
-                                "data": "A"
-                            }
-                        ],
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "A"
+                                }
+                            ]
+                        },
                         {
                             "element": "list",
                             "data": {
                                 "type": "bullet",
                                 "attributes": {},
                                 "items": [
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "B"
-                                        }
-                                    ]
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "B"
+                                            }
+                                        ]
+                                    }
                                 ]
                             }
                         },
@@ -48,18 +54,24 @@
                                 "type": "numbered",
                                 "attributes": {},
                                 "items": [
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "C"
-                                        }
-                                    ],
-                                    [
-                                        {
-                                            "element": "text",
-                                            "data": "D"
-                                        }
-                                    ]
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "C"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "D"
+                                            }
+                                        ]
+                                    }
                                 ]
                             }
                         }

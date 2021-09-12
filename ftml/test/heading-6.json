@@ -75,18 +75,21 @@
                                                                                 "type": "bullet",
                                                                                 "attributes": {},
                                                                                 "items": [
-                                                                                    [
-                                                                                        {
-                                                                                            "element": "link",
-                                                                                            "data": {
-                                                                                                "link": "#toc0",
-                                                                                                "label": {
-                                                                                                    "text": "SCP-6969"
-                                                                                                },
-                                                                                                "target": null
+                                                                                    {
+                                                                                        "attributes": {},
+                                                                                        "elements": [
+                                                                                            {
+                                                                                                "element": "link",
+                                                                                                "data": {
+                                                                                                    "link": "#toc0",
+                                                                                                    "label": {
+                                                                                                        "text": "SCP-6969"
+                                                                                                    },
+                                                                                                    "target": null
+                                                                                                }
                                                                                             }
-                                                                                        }
-                                                                                    ]
+                                                                                        ]
+                                                                                    }
                                                                                 ]
                                                                             }
                                                                         }

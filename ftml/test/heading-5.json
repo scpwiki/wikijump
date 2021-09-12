@@ -95,18 +95,21 @@
                                                                     "type": "bullet",
                                                                     "attributes": {},
                                                                     "items": [
-                                                                        [
-                                                                            {
-                                                                                "element": "link",
-                                                                                "data": {
-                                                                                    "link": "#toc0",
-                                                                                    "label": {
-                                                                                        "text": "Header Five"
-                                                                                    },
-                                                                                    "target": null
+                                                                        {
+                                                                            "attributes": {},
+                                                                            "elements": [
+                                                                                {
+                                                                                    "element": "link",
+                                                                                    "data": {
+                                                                                        "link": "#toc0",
+                                                                                        "label": {
+                                                                                            "text": "Header Five"
+                                                                                        },
+                                                                                        "target": null
+                                                                                    }
                                                                                 }
-                                                                            }
-                                                                        ]
+                                                                            ]
+                                                                        }
                                                                     ]
                                                                 }
                                                             }

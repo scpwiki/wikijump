@@ -8,24 +8,33 @@
                     "type": "bullet",
                     "attributes": {},
                     "items": [
-                        [
-                            {
-                                "element": "text",
-                                "data": "A"
-                            }
-                        ],
-                        [
-                            {
-                                "element": "text",
-                                "data": "B"
-                            }
-                        ],
-                        [
-                            {
-                                "element": "text",
-                                "data": "C"
-                            }
-                        ]
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "A"
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "B"
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "C"
+                                }
+                            ]
+                        }
                     ]
                 }
             },

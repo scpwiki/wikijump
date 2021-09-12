@@ -7,39 +7,51 @@
                 "data": {
                     "type": "bullet",
                     "items": [
-                        [
-                            {
-                                "element": "list",
-                                "data": {
-                                    "type": "numbered",
-                                    "items": [
-                                        [
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "list",
+                                    "data": {
+                                        "type": "numbered",
+                                        "items": [
                                             {
-                                                "element": "text",
-                                                "data": "A"
+                                                "attributes": {},
+                                                "elements": [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "A"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "attributes": {},
+                                                "elements": [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "B"
+                                                    }
+                                                ]
                                             }
                                         ],
-                                        [
-                                            {
-                                                "element": "text",
-                                                "data": "B"
-                                            }
-                                        ]
-                                    ],
-                                    "attributes": {}
+                                        "attributes": {}
+                                    }
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
                                 }
-                            },
-                            {
-                                "element": "text",
-                                "data": " "
-                            }
-                        ],
-                        [
-                            {
-                                "element": "text",
-                                "data": "C"
-                            }
-                        ]
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "C"
+                                }
+                            ]
+                        }
                     ],
                     "attributes": {}
                 }

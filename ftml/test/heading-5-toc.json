@@ -171,18 +171,21 @@
                                                                     "type": "bullet",
                                                                     "attributes": {},
                                                                     "items": [
-                                                                        [
-                                                                            {
-                                                                                "element": "link",
-                                                                                "data": {
-                                                                                    "link": "#toc0",
-                                                                                    "label": {
-                                                                                        "text": "H5"
-                                                                                    },
-                                                                                    "target": null
+                                                                        {
+                                                                            "attributes": {},
+                                                                            "elements": [
+                                                                                {
+                                                                                    "element": "link",
+                                                                                    "data": {
+                                                                                        "link": "#toc0",
+                                                                                        "label": {
+                                                                                            "text": "H5"
+                                                                                        },
+                                                                                        "target": null
+                                                                                    }
                                                                                 }
-                                                                            }
-                                                                        ]
+                                                                            ]
+                                                                        }
                                                                     ]
                                                                 }
                                                             }
@@ -195,36 +198,42 @@
                                 ]
                             }
                         },
-                        [
-                            {
-                                "element": "link",
-                                "data": {
-                                    "link": "#toc1",
-                                    "label": {
-                                        "text": "H1"
-                                    },
-                                    "target": null
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "link",
+                                    "data": {
+                                        "link": "#toc1",
+                                        "label": {
+                                            "text": "H1"
+                                        },
+                                        "target": null
+                                    }
                                 }
-                            }
-                        ],
+                            ]
+                        },
                         {
                             "element": "list",
                             "data": {
                                 "type": "bullet",
                                 "attributes": {},
                                 "items": [
-                                    [
-                                        {
-                                            "element": "link",
-                                            "data": {
-                                                "link": "#toc2",
-                                                "label": {
-                                                    "text": "H2 ++"
-                                                },
-                                                "target": null
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "link",
+                                                "data": {
+                                                    "link": "#toc2",
+                                                    "label": {
+                                                        "text": "H2 ++"
+                                                    },
+                                                    "target": null
+                                                }
                                             }
-                                        }
-                                    ]
+                                        ]
+                                    }
                                 ]
                             }
                         }
