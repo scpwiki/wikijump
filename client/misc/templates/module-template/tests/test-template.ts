@@ -1,10 +1,5 @@
-import * as uvu from "uvu"
-import * as assert from "uvu/assert"
-
-const SuiteName = uvu.suite("SuiteName")
-
-SuiteName("test name", () => {
-  // add some code here to test it!
+describe("test suite", () => {
+  it("specific test", () => {
+    // add test code here!
+  })
 })
-
-SuiteName.run()
