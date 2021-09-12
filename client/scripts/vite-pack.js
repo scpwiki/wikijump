@@ -135,6 +135,7 @@ json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/client/modules
 
   console.log("\nCopying module source files...")
   await copy(`${DIR}/src`, `${DIR}/dist/src`)
+  await copy(`${DIR}/vendor`, `${DIR}/dist/vendor`)
 
   console.log("Writing package metadata...")
   await fs.writeFile(`${DIR}/dist/package.json`, JSON.stringify(json, null, 2))
