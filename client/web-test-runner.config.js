@@ -1,69 +1,9 @@
 const fs = require("fs")
 const vite = require("vite")
 const c2k = require("koa-connect")
-const { svelte } = require("@sveltejs/vite-plugin-svelte")
-const sveltePreprocess = require("svelte-preprocess")
-const { default: tsconfigPaths } = require("vite-tsconfig-paths")
-const tomlPlugin = require("./scripts/vite-plugin-toml.js")
-const yamlPlugin = require("./scripts/vite-plugin-yaml.js")
+const { getConfig } = require("./scripts/vite-config.js")
 
 const ignoredBrowserLogs = ["[vite] connecting...", "[vite] connected."]
-
-/** @type {import("vite").UserConfig} */
-const viteConfig = {
-  build: {
-    assetsDir: "./",
-    sourcemap: "inline",
-    target: "esnext",
-    minify: false,
-    brotliSize: false,
-    cssCodeSplit: false,
-
-    rollupOptions: {
-      plugins: [
-        // because esbuild rips out comments, esbuild will not preserve
-        // the comments we need for ignoring lines
-        // however, it does preserve legal comments, /*! or //!
-        // but c8 doesn't recognize those!
-        // so we have to transform those back into normal comments
-        // before we let c8 parse them
-        {
-          transform(code, id) {
-            // use two spaces so we don't change the length of the document
-            code = code.replaceAll("/*! c8", "/*  c8")
-            // null map informs rollup to preserve the current sourcemap
-            return { code, map: null }
-          }
-        }
-      ],
-
-      treeshake: false
-    }
-  },
-
-  optimizeDeps: {
-    entries: [
-      "modules/*/src/**/*.{svelte,js,jsx,ts,tsx}",
-      "modules/*/tests/*.{js,jsx,ts,tsx}"
-    ],
-    include: ["@esm-bundle/chai", "@testing-library/svelte"]
-  },
-
-  plugins: [
-    tsconfigPaths({ projects: ["./"], loose: true }),
-    tomlPlugin(),
-    yamlPlugin(),
-    svelte({
-      onwarn: (warning, handler) => {
-        if (warning.code === "unused-export-let") return
-        if (handler) handler(warning)
-      },
-      emitCss: false,
-      compilerOptions: { cssHash: () => "svelte" },
-      preprocess: [sveltePreprocess({ sourceMap: true })]
-    })
-  ]
-}
 
 // get modules so we can make them into test groups
 // this way you can do: pnpm test -- --group wj-util
@@ -115,6 +55,7 @@ function vitePlugin() {
 
     async serverStart({ app }) {
       server = await vite.createServer({
+        ...getConfig(true),
         configFile: false,
         logLevel: "error",
         server: {
@@ -124,8 +65,7 @@ function vitePlugin() {
             strict: false
           }
         },
-        clearScreen: false,
-        ...viteConfig
+        clearScreen: false
       })
       app.use(c2k(server.middlewares))
     },

@@ -1,0 +1,116 @@
+const { svelte } = require("@sveltejs/vite-plugin-svelte")
+const sveltePreprocess = require("svelte-preprocess")
+const { default: tsconfigPaths } = require("vite-tsconfig-paths")
+const tomlPlugin = require("./vite-plugin-toml.js")
+const yamlPlugin = require("./vite-plugin-yaml.js")
+const path = require("path")
+const fs = require("fs")
+
+const ROOT = path.resolve(__dirname, "../")
+
+/** @type import("sass").Options */
+const SASS_OPTIONS = {
+  sourceMapEmbed: true,
+  sourceMapContents: true,
+  sourceMap: true
+}
+
+const SVELTE_OPTIONS = {
+  onwarn: (warning, handler) => {
+    if (warning.code === "unused-export-let") return
+    if (handler) handler(warning)
+  },
+  preprocess: [
+    sveltePreprocess({
+      sourceMap: true,
+      scss: { ...SASS_OPTIONS }
+    })
+  ]
+}
+
+const SVELTE_TEST_OPTIONS = {
+  ...SVELTE_OPTIONS,
+  emitCss: false,
+  compilerOptions: { cssHash: () => "svelte" }
+}
+
+const BUILD_TEST_OPTIONS = {
+  assetsDir: "./",
+  sourcemap: "inline",
+  target: "esnext",
+  minify: false,
+  brotliSize: false,
+  cssCodeSplit: false,
+
+  rollupOptions: {
+    plugins: [
+      // because esbuild rips out comments, esbuild will not preserve
+      // the comments we need for ignoring lines
+      // however, it does preserve legal comments, /*! or //!
+      // but c8 doesn't recognize those!
+      // so we have to transform those back into normal comments
+      // before we let c8 parse them
+      {
+        transform(code, id) {
+          // use two spaces so we don't change the length of the document
+          code = code.replaceAll("/*! c8", "/*  c8")
+          // null map informs rollup to preserve the current sourcemap
+          return { code, map: null }
+        }
+      }
+    ],
+
+    treeshake: false
+  }
+}
+
+const modules = fs
+  .readdirSync(`${ROOT}/modules`)
+  .filter(dir => fs.statSync(`${ROOT}/modules/${dir}`).isDirectory())
+
+/** @returns {import("vite").UserConfig} */
+const getConfig = (test = false) => ({
+  publicDir: test ? false : "../public",
+  root: test ? ROOT : "./src",
+
+  build: test
+    ? BUILD_TEST_OPTIONS
+    : {
+        outDir: "../dist",
+        emptyOutDir: true,
+        assetsDir: "static/assets",
+        manifest: true,
+        sourcemap: true,
+        target: "esnext",
+        minify: "esbuild",
+        brotliSize: false,
+        cssCodeSplit: false
+      },
+
+  css: {
+    preprocessorOptions: {
+      scss: SASS_OPTIONS
+    }
+  },
+
+  optimizeDeps: test
+    ? {
+        entries: "modules/*/{tests,src}/**/*.{svelte,js,jsx,ts,tsx}",
+        include: ["@esm-bundle/chai", "@testing-library/svelte"],
+        exclude: modules
+      }
+    : {
+        entries: ["index.html", "../../../modules/*/src/**/*.{svelte,js,jsx,ts,tsx}"],
+        esbuildOptions: { tsconfig: `${ROOT}/tsconfig.json` },
+        exclude: modules
+      },
+
+  plugins: [
+    tsconfigPaths({ root: ROOT, loose: true }),
+    tomlPlugin(),
+    yamlPlugin(),
+    svelte(test ? SVELTE_TEST_OPTIONS : SVELTE_OPTIONS)
+  ]
+})
+
+module.exports = { getConfig }
