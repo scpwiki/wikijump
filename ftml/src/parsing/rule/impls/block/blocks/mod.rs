@@ -124,6 +124,7 @@ pub use self::ifcategory::BLOCK_IFCATEGORY;
 pub use self::iframe::BLOCK_IFRAME;
 pub use self::iftags::BLOCK_IFTAGS;
 pub use self::image::BLOCK_IMAGE;
+pub use self::include_elements::BLOCK_INCLUDE_ELEMENTS;
 pub use self::include_messy::BLOCK_INCLUDE_MESSY;
 pub use self::ins::BLOCK_INS;
 pub use self::invisible::BLOCK_INVISIBLE;
