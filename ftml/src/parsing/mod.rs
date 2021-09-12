@@ -81,19 +81,8 @@ pub fn parse<'r, 't>(
 where
     'r: 't,
 {
-    let mut parser = Parser::new(log, page_info, tokenization);
-
-    // Logging setup
-    let log = &log.new(slog_o!(
-        "filename" => slog_filename!(),
-        "lineno" => slog_lineno!(),
-        "function" => "parse",
-        "tokens-len" => tokenization.tokens().len(),
-    ));
-
-    // At the top level, we gather elements into paragraphs
-    info!(log, "Running parser on tokens");
-    let result = gather_paragraphs(log, &mut parser, RULE_PAGE, NO_CLOSE_CONDITION);
+    // Run parsing, get raw results
+    let (mut parser, result) = parse_internal(log, page_info, tokenization);
 
     // For producing table of contents indexes
     let mut incrementer = Incrementer(0);
@@ -170,6 +159,33 @@ where
             )
         }
     }
+}
+
+/// Runs the parser, but returns the raw internal results prior to conversion.
+fn parse_internal<'r, 't>(
+    log: &Logger,
+    page_info: &'r PageInfo<'t>,
+    tokenization: &'r Tokenization<'t>,
+) -> (Parser<'r, 't>, ParseResult<'r, 't, Vec<Element<'t>>>)
+where
+    'r: 't,
+{
+    let mut parser = Parser::new(log, page_info, tokenization);
+
+    // Logging setup
+    let log = &log.new(slog_o!(
+        "filename" => slog_filename!(),
+        "lineno" => slog_lineno!(),
+        "function" => "parse",
+        "tokens-len" => tokenization.tokens().len(),
+    ));
+
+    // At the top level, we gather elements into paragraphs
+    info!(log, "Running parser on tokens");
+    let result = gather_paragraphs(log, &mut parser, RULE_PAGE, NO_CLOSE_CONDITION);
+
+    // Return internal results
+    (parser, result)
 }
 
 fn extract_exceptions(
