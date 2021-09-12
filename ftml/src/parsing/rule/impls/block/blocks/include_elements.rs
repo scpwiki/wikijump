@@ -67,7 +67,7 @@ fn parse_fn<'r, 't>(
     } = include_page(parser, page_ref)?;
 
     // Add gathered items and return
-    parser.append_toc_and_footnotes(&mut table_of_contents, &mut footnotes);
+    parser.append_toc_and_footnotes(&mut Vec::new(), &mut footnotes);
 
     let exceptions = styles
         .into_iter() //
