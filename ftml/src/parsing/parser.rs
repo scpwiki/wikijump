@@ -253,7 +253,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     // State evaluation
     pub fn evaluate(&self, condition: ParseCondition) -> bool {
-        debug!(
+        info!(
             &self.log,
             "Evaluating parser condition";
             "current-token" => self.current.token,
@@ -265,7 +265,7 @@ impl<'r, 't> Parser<'r, 't> {
             ParseCondition::CurrentToken(token) => self.current.token == token,
             ParseCondition::TokenPair(current, next) => {
                 if self.current().token != current {
-                    trace!(
+                    debug!(
                         &self.log,
                         "Current token in pair doesn't match, failing";
                         "expected" => current,
@@ -278,7 +278,7 @@ impl<'r, 't> Parser<'r, 't> {
                 match self.look_ahead(0) {
                     Some(actual) => {
                         if actual.token != next {
-                            trace!(
+                            debug!(
                                 &self.log,
                                 "Second token in pair doesn't match, failing";
                                 "expected" => next,
@@ -289,7 +289,7 @@ impl<'r, 't> Parser<'r, 't> {
                         }
                     }
                     None => {
-                        trace!(
+                        debug!(
                             &self.log,
                             "Second token in pair doesn't exist, failing";
                             "expected" => next,
@@ -306,7 +306,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     #[inline]
     pub fn evaluate_any(&self, conditions: &[ParseCondition]) -> bool {
-        trace!(
+        info!(
             &self.log,
             "Evaluating to see if any parser condition is true";
             "conditions-len" => conditions.len(),
@@ -320,7 +320,7 @@ impl<'r, 't> Parser<'r, 't> {
     where
         F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseWarning>,
     {
-        debug!(&self.log, "Evaluating closure for parser condition");
+        info!(&self.log, "Evaluating closure for parser condition");
 
         f(&mut self.clone()).unwrap_or(false)
     }
@@ -329,7 +329,7 @@ impl<'r, 't> Parser<'r, 't> {
     where
         F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseWarning>,
     {
-        debug!(
+        info!(
             &self.log,
             "Evaluating closure for parser condition, saving progress on success",
         );
@@ -393,7 +393,7 @@ impl<'r, 't> Parser<'r, 't> {
                 Ok(current)
             }
             None => {
-                trace!(
+                warn!(
                     self.log,
                     "Exhausted all tokens, yielding end of input warning",
                 );

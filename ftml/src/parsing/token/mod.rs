@@ -145,7 +145,7 @@ impl Token {
         log: &Logger,
         text: &'a str,
     ) -> Vec<ExtractedToken<'a>> {
-        debug!(log, "Running lexer on input");
+        info!(log, "Running lexer on input");
 
         match TokenLexer::parse(Rule::document, text) {
             Ok(pairs) => {
@@ -167,7 +167,7 @@ impl Token {
                 // Return all of the input as one big raw text
                 // and log this as an error, since it shouldn't be happening
 
-                error!(log, "Error while lexing input in pest: {}", _error);
+                crit!(log, "Error while lexing input in pest: {}", _error);
 
                 vec![ExtractedToken {
                     token: Token::Other,

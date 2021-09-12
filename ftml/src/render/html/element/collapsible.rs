@@ -66,7 +66,7 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
         show_bottom,
     } = collapsible;
 
-    debug!(
+    info!(
         log,
         "Rendering collapsible";
         "elements-len" => elements.len(),

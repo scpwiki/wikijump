@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::tree::{Container, HtmlTag};
 
 pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Container) {
-    debug!(log, "Rendering container"; "container" => container.ctype().name());
+    info!(log, "Rendering container"; "container" => container.ctype().name());
 
     // Get HTML tag type for this type of container
     let tag_spec = container.ctype().html_tag(ctx);
@@ -51,7 +51,7 @@ pub fn render_color(
     color: &str,
     elements: &[Element],
 ) {
-    debug!(
+    info!(
         log,
         "Rendering color container";
         "color" => color,

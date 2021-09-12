@@ -60,7 +60,7 @@ impl<'t> ParagraphStack<'t> {
 
     #[inline]
     pub fn push_element(&mut self, element: Element<'t>, paragraph_safe: bool) {
-        debug!(
+        info!(
             self.log,
             "Pushing element to stack";
             "element" => element.name(),
@@ -82,7 +82,7 @@ impl<'t> ParagraphStack<'t> {
 
     #[inline]
     pub fn push_exceptions(&mut self, exceptions: &mut Vec<ParseException<'t>>) {
-        debug!(
+        info!(
             self.log,
             "Pushing exception to stack";
             "exceptions-len" => exceptions.len(),
@@ -116,7 +116,7 @@ impl<'t> ParagraphStack<'t> {
 
         // Don't create empty paragraphs
         if self.current.is_empty() {
-            trace!(
+            debug!(
                 self.log,
                 "No paragraph created, no pending elements in stack",
             );
@@ -149,7 +149,7 @@ impl<'t> ParagraphStack<'t> {
     /// This returns all collected elements, exceptions, and returns the final
     /// paragraph safety value.
     pub fn into_result<'r>(mut self) -> ParseResult<'r, 't, Vec<Element<'t>>> {
-        debug!(
+        info!(
             self.log,
             "Converting paragraph parse stack into ParseResult",
         );
@@ -183,7 +183,7 @@ impl<'t> ParagraphStack<'t> {
     /// and either have an alternate means of determining paragraph safety, or
     /// statically know what that value would be.
     pub fn into_elements(mut self) -> Vec<Element<'t>> {
-        debug!(
+        info!(
             self.log,
             "Converting paragraph parse stack into a Vec<Element>",
         );

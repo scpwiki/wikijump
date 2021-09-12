@@ -42,7 +42,7 @@ pub fn parse_include_block<'t>(
             let first = pairs.next().expect("No pairs returned on successful parse");
             let span = first.as_span();
 
-            debug!(
+            info!(
                 log,
                 "Parsed include block";
                 "span" => SpanWrap::from(span.start()..span.end()),
@@ -56,7 +56,7 @@ pub fn parse_include_block<'t>(
             Ok((include, start + span.end()))
         }
         Err(_error) => {
-            debug!(
+            warn!(
                 log,
                 "Include block was invalid";
                 "error" => str!(_error),
@@ -76,7 +76,7 @@ fn process_pairs<'t>(
     let page_raw = pairs.next().ok_or(IncludeParseError)?.as_str();
     let page_ref = PageRef::parse(page_raw)?;
 
-    trace!(
+    debug!(
         log,
         "Got page for include";
         "site" => page_ref.site(),

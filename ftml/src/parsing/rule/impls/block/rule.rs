@@ -45,7 +45,7 @@ fn block_regular<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    trace!(log, "Trying to process a block");
+    info!(log, "Trying to process a block");
 
     parse_block(log, parser, false)
 }
@@ -54,7 +54,7 @@ fn block_star<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    trace!(log, "Trying to process a block (with star flag)");
+    info!(log, "Trying to process a block (with star flag)");
 
     parse_block(log, parser, true)
 }
@@ -63,7 +63,7 @@ fn block_skip<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    trace!(
+    info!(
         log,
         "Trying to see if we skip a newline due to upcoming block",
     );
@@ -109,7 +109,7 @@ fn parse_block<'r, 't>(
 where
     'r: 't,
 {
-    debug!(
+    info!(
         log,
         "Trying to process a block";
         "star" => flag_star,
@@ -126,7 +126,7 @@ where
     parser.get_optional_space()?;
 
     let (name, in_head) = parser.get_block_name(flag_star)?;
-    trace!(log, "Got block name"; "name" => name, "in-head" => in_head);
+    debug!(log, "Got block name"; "name" => name, "in-head" => in_head);
 
     let (name, flag_score) = match name.strip_suffix('_') {
         Some(name) => (name, true),

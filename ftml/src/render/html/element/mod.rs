@@ -61,7 +61,7 @@ use crate::tree::Element;
 use ref_map::*;
 
 pub fn render_elements(log: &Logger, ctx: &mut HtmlContext, elements: &[Element]) {
-    debug!(log, "Rendering elements"; "elements-len" => elements.len());
+    info!(log, "Rendering elements"; "elements-len" => elements.len());
 
     for element in elements {
         render_element(log, ctx, element);
@@ -75,7 +75,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         };
     }
 
-    debug!(log, "Rendering element"; "element" => element.name());
+    info!(log, "Rendering element"; "element" => element.name());
 
     match element {
         Element::Container(container) => render_container(log, ctx, container),

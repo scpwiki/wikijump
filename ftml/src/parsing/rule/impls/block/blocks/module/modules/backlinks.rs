@@ -32,7 +32,7 @@ fn parse_fn<'r, 't>(
     name: &'t str,
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Option<Module<'t>>> {
-    debug!(log, "Parsing backlinks module");
+    info!(log, "Parsing backlinks module");
     assert_module_name(&MODULE_BACKLINKS, name);
 
     let page = arguments.get("page");

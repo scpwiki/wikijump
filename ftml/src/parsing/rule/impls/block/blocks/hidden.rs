@@ -37,7 +37,7 @@ fn parse_fn<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Parsing hidden block";
         "in-head" => in_head,

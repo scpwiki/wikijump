@@ -32,7 +32,7 @@ fn parse_fn<'r, 't>(
     name: &'t str,
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Option<Module<'t>>> {
-    debug!(log, "Parsing join module");
+    info!(log, "Parsing join module");
     assert_module_name(&MODULE_JOIN, name);
 
     let button_text = arguments.get("button");

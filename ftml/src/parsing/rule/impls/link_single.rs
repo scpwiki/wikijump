@@ -44,7 +44,7 @@ fn link<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    trace!(log, "Trying to create a single-bracket link (regular)");
+    debug!(log, "Trying to create a single-bracket link (regular)");
 
     check_step(parser, Token::LeftBracket)?;
 
@@ -55,7 +55,7 @@ fn link_new_tab<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    trace!(log, "Trying to create a single-bracket link (new tab)");
+    debug!(log, "Trying to create a single-bracket link (new tab)");
 
     check_step(parser, Token::LeftBracketStar)?;
 
@@ -74,7 +74,7 @@ fn try_consume_link<'p, 'r, 't>(
     rule: Rule,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Trying to create a single-bracket link";
         "target" => target.map(|t| t.name()),

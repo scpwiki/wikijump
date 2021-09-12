@@ -33,7 +33,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     let current = parser.current();
 
-    debug!(
+    info!(
         log,
         "Consuming token to create a clear float";
         "slice" => current.slice,

@@ -36,7 +36,7 @@ fn line_break<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Consuming newline token as line break");
+    info!(log, "Consuming newline token as line break");
 
     // Skip this newline if we're coming up on a rule that starts
     // on its own line.
@@ -67,7 +67,7 @@ fn line_break<'p, 'r, 't>(
     });
 
     if upcoming_skip {
-        debug!(log, "Skipping line break element because of upcoming token");
+        info!(log, "Skipping line break element because of upcoming token");
 
         return ok!(Elements::None);
     }

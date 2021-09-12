@@ -28,7 +28,7 @@ pub fn render_radio_button(
     checked: bool,
     attributes: &AttributeMap,
 ) {
-    debug!(
+    info!(
         log,
         "Creating radio button";
         "name" => name,
@@ -49,7 +49,7 @@ pub fn render_checkbox(
     checked: bool,
     attributes: &AttributeMap,
 ) {
-    debug!(
+    info!(
         log,
         "Creating checkbox";
         "checked" => checked,

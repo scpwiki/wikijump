@@ -83,7 +83,7 @@ where
     'r: 't,
     ParsedBlock<'t>: 't,
 {
-    debug!(
+    info!(
         log,
         "Parsing {} block",
         description;

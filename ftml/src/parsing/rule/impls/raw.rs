@@ -36,7 +36,7 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Consuming tokens until end of raw");
+    info!(log, "Consuming tokens until end of raw");
 
     // Are we in a @@..@@ type raw, or a @<..>@ type?
     let ending_token = match parser.current().token {
@@ -51,7 +51,7 @@ fn try_consume_fn<'p, 'r, 't>(
     // * Raw Raw  Raw -> Element::Raw("@@")
     // * Raw ??   Raw -> Element::Raw(slice)
     if ending_token == Token::Raw {
-        trace!(log, "First token is '@@', checking for special cases");
+        debug!(log, "First token is '@@', checking for special cases");
 
         // Get next two tokens. If they don't exist, exit early
         let next_1 = parser.look_ahead_warn(0)?;

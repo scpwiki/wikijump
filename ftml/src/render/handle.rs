@@ -38,7 +38,7 @@ impl Handle {
         module: &Module,
         mode: ModuleRenderMode,
     ) {
-        debug!(
+        info!(
             log,
             "Rendering module";
             "module" => module.name(),
@@ -56,14 +56,14 @@ impl Handle {
     }
 
     pub fn get_page_title(&self, log: &Logger, link: &LinkLocation) -> String {
-        debug!(log, "Fetching page title"; "link" => link);
+        info!(log, "Fetching page title"; "link" => link);
 
         // TODO
         format!("TODO: actual title ({:?})", link)
     }
 
     pub fn get_user_info<'a>(&self, log: &Logger, name: &'a str) -> Option<UserInfo<'a>> {
-        debug!(log, "Fetching user info"; "name" => name);
+        info!(log, "Fetching user info"; "name" => name);
 
         let mut info = UserInfo::dummy();
         info.user_name = cow!(name);
@@ -78,7 +78,7 @@ impl Handle {
         info: &PageInfo,
         source: &ImageSource<'a>,
     ) -> Cow<'a, str> {
-        debug!(log, "Getting file link for image");
+        info!(log, "Getting file link for image");
 
         let (site, page, file): (&str, &str, &str) = match source {
             ImageSource::Url(url) => return Cow::clone(url),
@@ -126,7 +126,7 @@ impl Handle {
         language: &str,
         message: &str,
     ) -> &'static str {
-        debug!(
+        info!(
             log,
             "Fetching message";
             "language" => language,
@@ -142,7 +142,7 @@ impl Handle {
             "table-of-contents" => "Table of Contents",
             "footnote-block-title" => "Footnotes",
             _ => {
-                error!(
+                info!(
                     log,
                     "Unknown message requested";
                     "message" => message,
@@ -154,7 +154,7 @@ impl Handle {
     }
 
     pub fn post_html(&self, log: &Logger, info: &PageInfo, html: &str) -> String {
-        debug!(log, "Submitting HTML to create iframe-able snippet");
+        info!(log, "Submitting HTML to create iframe-able snippet");
 
         let _ = info;
         let _ = html;
@@ -164,7 +164,7 @@ impl Handle {
     }
 
     pub fn post_code(&self, log: &Logger, index: NonZeroUsize, code: &str) {
-        debug!(
+        info!(
             log,
             "Submitting code snippet";
             "index" => index.get(),

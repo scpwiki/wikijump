@@ -30,7 +30,7 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Consuming tokens until end of comment");
+    info!(log, "Consuming tokens until end of comment");
 
     check_step(parser, Token::LeftComment)?;
 
@@ -52,21 +52,21 @@ fn try_consume_fn<'p, 'r, 't>(
         match token {
             // Hit the end of the comment, return
             Token::RightComment => {
-                trace!(log, "Reached end of comment, returning");
+                debug!(log, "Reached end of comment, returning");
                 parser.step()?;
                 return ok!(Elements::None);
             }
 
             // Hit the end of the input, abort
             Token::InputEnd => {
-                trace!(log, "Reached end of input, aborting");
+                debug!(log, "Reached end of input, aborting");
 
                 return Err(parser.make_warn(ParseWarningKind::EndOfInput));
             }
 
             // Consume any other token
             _ => {
-                trace!(log, "Token inside comment received. Discarding.");
+                debug!(log, "Token inside comment received. Discarding.");
                 parser.step()?;
             }
         }

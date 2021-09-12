@@ -91,7 +91,7 @@ where
                 ranges.push(start..end);
                 includes.push(include);
             }
-            Err(_) => debug!(log, "Unable to parse include regex match"),
+            Err(_) => warn!(log, "Unable to parse include regex match"),
         }
     }
 
@@ -122,7 +122,7 @@ where
     for ((range, include), fetched) in joined_iter {
         let (page_ref, _) = include.into();
 
-        debug!(
+        info!(
             log,
             "Replacing range for included page";
             "span" => SpanWrap::from(&range),

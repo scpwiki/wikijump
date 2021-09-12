@@ -30,7 +30,7 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     _parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Consuming token to create an em dash");
+    info!(log, "Consuming token to create an em dash");
 
     // — - EM DASH
     ok!(text!("\u{2014}"))

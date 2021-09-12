@@ -35,7 +35,7 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Parsing nested native blockquotes");
+    info!(log, "Parsing nested native blockquotes");
 
     // Context variables
     let mut depths = Vec::new();
@@ -50,7 +50,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
             // Invalid token, bail
             _ => {
-                debug!(
+                warn!(
                     log,
                     "Didn't find blockquote token, ending list iteration";
                     "token" => current.token,

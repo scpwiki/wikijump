@@ -165,7 +165,7 @@ impl Replacer {
 pub fn substitute(log: &Logger, text: &mut String) {
     let mut buffer = String::new();
 
-    debug!(log, "Performing typography substitutions"; "text" => &*text);
+    info!(log, "Performing typography substitutions"; "text" => &*text);
 
     macro_rules! replace {
         ($replacer:expr) => {

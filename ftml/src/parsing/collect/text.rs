@@ -82,7 +82,7 @@ where
         invalid_conditions,
         warn_kind,
         |log, parser| {
-            trace!(log, "Ingesting token in string span");
+            debug!(log, "Ingesting token in string span");
 
             end = Some(parser.current());
             ok!(true; ())

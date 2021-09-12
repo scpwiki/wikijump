@@ -28,7 +28,7 @@ use crate::url::normalize_link;
 use std::borrow::Cow;
 
 pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]) {
-    debug!(log, "Rendering elements"; "elements-len" => elements.len());
+    info!(log, "Rendering elements"; "elements-len" => elements.len());
 
     for element in elements {
         render_element(log, ctx, element);
@@ -36,7 +36,7 @@ pub fn render_elements(log: &Logger, ctx: &mut TextContext, elements: &[Element]
 }
 
 pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
-    debug!(log, "Rendering element"; "element" => element.name());
+    info!(log, "Rendering element"; "element" => element.name());
 
     match element {
         Element::Container(container) => {
@@ -263,7 +263,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             }
         }
         Element::TableOfContents { .. } => {
-            debug!(log, "Rendering table of contents");
+            info!(log, "Rendering table of contents");
 
             let table_of_contents_title =
                 ctx.handle()
@@ -275,13 +275,13 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             render_elements(log, ctx, ctx.table_of_contents());
         }
         Element::Footnote => {
-            debug!(log, "Rendering footnote reference");
+            info!(log, "Rendering footnote reference");
 
             let index = ctx.next_footnote_index();
             str_write!(ctx, "[{}]", index);
         }
         Element::FootnoteBlock { title, hide } => {
-            debug!(log, "Rendering footnote block");
+            info!(log, "Rendering footnote block");
 
             if *hide || ctx.footnotes().is_empty() {
                 return;

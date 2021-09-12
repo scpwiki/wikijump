@@ -101,7 +101,7 @@ fn parse_list_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Parsing list block";
         "block-rule" => block_rule.name,
@@ -193,7 +193,7 @@ fn parse_list_item<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Parsing list item block";
         "block-rule" => BLOCK_LI.name,

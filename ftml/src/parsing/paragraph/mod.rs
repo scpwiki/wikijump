@@ -76,14 +76,14 @@ where
                     //
                     // Pass a warning up the chain
 
-                    debug!(log, "Hit the end of input, producing warning");
+                    warn!(log, "Hit the end of input, producing warning");
 
                     return Err(parser.make_warn(ParseWarningKind::EndOfInput));
                 } else {
                     // Avoid an unnecessary Element::Null and just exit
                     // If there's no close condition, then this is not a warning
 
-                    debug!(log, "Hit the end of input, terminating token iteration");
+                    warn!(log, "Hit the end of input, terminating token iteration");
 
                     break;
                 }
@@ -91,7 +91,7 @@ where
 
             // If we've hit a paragraph break, then finish the current paragraph
             Token::ParagraphBreak => {
-                debug!(
+                info!(
                     log,
                     "Hit a paragraph break, creating a new paragraph container",
                 );
@@ -110,7 +110,7 @@ where
             _ => {
                 if let Some(ref mut close_condition_fn) = close_condition_fn {
                     if close_condition_fn(parser).unwrap_or(false) {
-                        debug!(
+                        info!(
                             log,
                             "Hit closing condition for paragraphs, terminating token iteration",
                         );
