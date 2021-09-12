@@ -78,46 +78,47 @@ A list of all blocks and their attributes is available at [`conf/blocks.toml`](.
 
 Alternatively you may look here for a formatted list: (though it may not be updated as consistently)
 
-| Block Name                        | Accepted Names                   | Star? | Score? | Newlines? | Argument Type | Body Type |
-|-----------------------------------|----------------------------------|-------|--------|-----------|---------------|-----------|
-| [Anchor](#anchor)                 | `a`, `anchor`                    | No    | Yes    | No        | Map           | Elements  |
-| [Blockquote](#blockquote)         | `blockquote`, `quote`            | No    | No     | Yes       | Map           | Elements  |
-| [Bold](#bold)                     | `b`, `bold`, `strong`            | No    | No     | No        | Map           | Elements  |
-| [Char](#char)                     | `char`, `character`              | No    | No     | No        | Value         | None      |
-| [Checkbox](#checkbox)             | `checkbox`                       | Yes   | No     | No        | Map           | None      |
-| [Code](#code)                     | `code`                           | No    | No     | Yes       | Map           | Raw       |
-| [Collapsible](#collapsible)       | `collapsible`                    | No    | No     | Yes       | Map           | Elements  |
-| [CSS](#css)                       | `css`                            | No    | No     | Yes       | None          | Raw       |
-| [Deletion](#deletion)             | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
-| [Div](#div)                       | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
-| [Footnote](#footnote)             | `footnote`                       | No    | No     | No        | None          | Elements  |
-| [Footnote Block](#footnote-block) | `footnoteblock`                  | No    | No     | Yes       | Map           | None      |
-| [Hidden](#hidden)                 | `hidden`                         | No    | No     | Yes       | Map           | Elements  |
-| [HTML](#html)                     | `html`                           | No    | No     | Yes       | Map           | Raw       |
-| [IfCategory](#ifcategory)         | `ifcategory`                     | No    | No     | Yes       | Value         | Elements  |
-| [IfTags](#iftags)                 | `iftags`                         | No    | No     | Yes       | Value         | Elements  |
-| [Iframe](#iframe)                 | `iframe`                         | No    | No     | Yes       | None          | None      |
-| [Image](#image)                   | `image`                          | No    | No     | No        | Name + Map    | None      |
-| [Include (Messy)](#include-messy) | `include-messy`                  | No    | No     | Yes       | Name + Map    | None      |
-| [Insertion](#insertion)           | `ins`, `insertion`               | No    | No     | No        | Map           | Elements  |
-| [Invisible](#invisible)           | `invisible`                      | No    | No     | Yes       | Map           | Elements  |
-| [Italics](#italics)               | `i`, `italics`, `em`, `emphasis` | No    | No     | No        | Map           | Elements  |
-| [Lines](#lines)                   | `lines`, `newlines`              | No    | No     | Yes       | Value         | None      |
-| [List Blocks](#list)              | `ul`, `ol`, `li`                 | No    | Yes    | Yes       | Map           | Elements  |
-| [Mark](#mark)                     | `mark`, `highlight`              | No    | No     | No        | Map           | Elements  |
-| [Module](#module)                 | `module`                         | No    | No     | Yes       | (See below)   | (See below) |
-| [Monospace](#monospace)           | `tt`, `mono`, `monospace`        | No    | No     | No        | Map           | Elements  |
-| [Paragraph](#paragraph)           | `p`, `paragraph`                 | No    | No     | Yes       | Map           | Elements  |
-| [Radio](#radio)                   | `radio`, `radio-button`          | Yes   | No     | No        | Name + Map    | None      |
-| [Size](#size)                     | `size`                           | No    | No     | No        | Value         | Elements  |
-| [Span](#span)                     | `span`                           | No    | Yes    | No        | Map           | Elements  |
-| [Strikethrough](#strikethrough)   | `s`, `strikethrough`             | No    | No     | No        | Map           | Elements  |
-| [Subscript](#subscript)           | `sub`, `subscript`               | No    | No     | No        | Map           | Elements  |
-| [Superscript](#superscript)       | `sup`, `super`, `superscript`    | No    | No     | No        | Map           | Elements  |
-| [Tables](#tables)                 | `table`, `row`, `cell`, `hcell`  | No    | No     | Yes       | Map           | Elements  |
-| [TOC](#toc)                       | `toc`                            | No    | No     | Yes       | Map           | None      |
-| [Underline](#underline)           | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
-| [User](#user)                     | `user`                           | Yes   | No     | No        | Value         | None      |
+| Block Name                              | Accepted Names                   | Star? | Score? | Newlines? | Argument Type | Body Type |
+|-----------------------------------------|----------------------------------|-------|--------|-----------|---------------|-----------|
+| [Anchor](#anchor)                       | `a`, `anchor`                    | No    | Yes    | No        | Map           | Elements  |
+| [Blockquote](#blockquote)               | `blockquote`, `quote`            | No    | No     | Yes       | Map           | Elements  |
+| [Bold](#bold)                           | `b`, `bold`, `strong`            | No    | No     | No        | Map           | Elements  |
+| [Char](#char)                           | `char`, `character`              | No    | No     | No        | Value         | None      |
+| [Checkbox](#checkbox)                   | `checkbox`                       | Yes   | No     | No        | Map           | None      |
+| [Code](#code)                           | `code`                           | No    | No     | Yes       | Map           | Raw       |
+| [Collapsible](#collapsible)             | `collapsible`                    | No    | No     | Yes       | Map           | Elements  |
+| [CSS](#css)                             | `css`                            | No    | No     | Yes       | None          | Raw       |
+| [Deletion](#deletion)                   | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
+| [Div](#div)                             | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
+| [Footnote](#footnote)                   | `footnote`                       | No    | No     | No        | None          | Elements  |
+| [Footnote Block](#footnote-block)       | `footnoteblock`                  | No    | No     | Yes       | Map           | None      |
+| [Hidden](#hidden)                       | `hidden`                         | No    | No     | Yes       | Map           | Elements  |
+| [HTML](#html)                           | `html`                           | No    | No     | Yes       | Map           | Raw       |
+| [IfCategory](#ifcategory)               | `ifcategory`                     | No    | No     | Yes       | Value         | Elements  |
+| [IfTags](#iftags)                       | `iftags`                         | No    | No     | Yes       | Value         | Elements  |
+| [Iframe](#iframe)                       | `iframe`                         | No    | No     | Yes       | None          | None      |
+| [Image](#image)                         | `image`                          | No    | No     | No        | Name + Map    | None      |
+| [Include (Elements)](#include-elements) | `include-elements`               | No    | No     | Yes       | Name + Map    | None      |
+| [Include (Messy)](#include-messy)       | `include-messy`                  | No    | No     | Yes       | Name + Map    | None      |
+| [Insertion](#insertion)                 | `ins`, `insertion`               | No    | No     | No        | Map           | Elements  |
+| [Invisible](#invisible)                 | `invisible`                      | No    | No     | Yes       | Map           | Elements  |
+| [Italics](#italics)                     | `i`, `italics`, `em`, `emphasis` | No    | No     | No        | Map           | Elements  |
+| [Lines](#lines)                         | `lines`, `newlines`              | No    | No     | Yes       | Value         | None      |
+| [List Blocks](#list)                    | `ul`, `ol`, `li`                 | No    | Yes    | Yes       | Map           | Elements  |
+| [Mark](#mark)                           | `mark`, `highlight`              | No    | No     | No        | Map           | Elements  |
+| [Module](#module)                       | `module`                         | No    | No     | Yes       | (See below)   | (See below) |
+| [Monospace](#monospace)                 | `tt`, `mono`, `monospace`        | No    | No     | No        | Map           | Elements  |
+| [Paragraph](#paragraph)                 | `p`, `paragraph`                 | No    | No     | Yes       | Map           | Elements  |
+| [Radio](#radio)                         | `radio`, `radio-button`          | Yes   | No     | No        | Name + Map    | None      |
+| [Size](#size)                           | `size`                           | No    | No     | No        | Value         | Elements  |
+| [Span](#span)                           | `span`                           | No    | Yes    | No        | Map           | Elements  |
+| [Strikethrough](#strikethrough)         | `s`, `strikethrough`             | No    | No     | No        | Map           | Elements  |
+| [Subscript](#subscript)                 | `sub`, `subscript`               | No    | No     | No        | Map           | Elements  |
+| [Superscript](#superscript)             | `sup`, `super`, `superscript`    | No    | No     | No        | Map           | Elements  |
+| [Tables](#tables)                       | `table`, `row`, `cell`, `hcell`  | No    | No     | Yes       | Map           | Elements  |
+| [TOC](#toc)                             | `toc`                            | No    | No     | Yes       | Map           | None      |
+| [Underline](#underline)                 | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
+| [User](#user)                           | `user`                           | Yes   | No     | No        | Value         | None      |
 
 Each of the blocks will be described in more detail below:
 
@@ -439,6 +440,31 @@ Arguments:
 * `link` &mdash; (String) The link that this image should point to.
 * All accepted attributes.
 
+### Include (Elements)
+
+This injects all elements gathered from another page into the current one.
+Because it deals with elements, it cannot "glue" syntax together or cause
+other hacky syntactical constructs.
+
+Output: N/A
+
+Body: None
+
+Accepts newline separation.
+
+Arguments:
+* All arguments are passed as variables to the included page
+
+Example:
+
+```
+[[include-elements component:some-bar
+    class="Keter"
+    classification="4"
+    taskforce="MTF-Eta-10 (\"See No Evil\")"
+]]
+```
+
 ### Include (Messy)
 
 This is not a typical block, as it is handled in the preprocessor.
@@ -459,9 +485,9 @@ Arguments:
 Example:
 
 ```
-[[include theme:black-highlighter-theme]]
+[[include-messy theme:black-highlighter-theme]]
 
-[[include component:fancy-object-class
+[[include-messy component:fancy-object-class
     class=Keter |
     classification=4 |
     taskforce=MTF-Eta-10 ("See No Evil")

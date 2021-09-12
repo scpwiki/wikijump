@@ -327,6 +327,16 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             str_write!(ctx, "```html\n{}\n```", contents);
         }
         Element::Iframe { url, .. } => str_write!(ctx, "[iframe: {}]", url),
+        Element::Include {
+            variables,
+            elements,
+            ..
+        } => {
+            // TODO pass on variables
+            let _ = variables;
+
+            render_elements(log, ctx, elements);
+        }
         Element::LineBreak => ctx.add_newline(),
         Element::LineBreaks(amount) => {
             for _ in 0..amount.get() {

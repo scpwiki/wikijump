@@ -87,7 +87,7 @@ html-output = "html,span"
 # should look for this flag rather than hardcoding based on block name.
 #
 # type: string, enum, optional
-# values: "", "module", "include-messy"
+# values: "", "module", "include-elements", "include-messy"
 special = ""
 
 # Each argument that this block accepts gets its own sub-key.

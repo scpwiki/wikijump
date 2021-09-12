@@ -130,6 +130,13 @@ body = "none"
 html-attributes = true
 html-output = "html,img,wj-image"
 
+[include-elements]
+accepts-newlines = true
+head = "value+map"
+body = "none"
+html-output = "other"
+special = "include-elements"
+
 [include-messy]
 accepts-newlines = true
 head = "value" # it's not a normal map

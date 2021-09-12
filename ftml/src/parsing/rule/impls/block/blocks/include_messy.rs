@@ -48,8 +48,8 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Found invalid include-messy block");
 
-    assert!(!flag_star, "Include messy doesn't allow star flag");
-    assert!(!flag_score, "Include messy doesn't allow score flag");
+    assert!(!flag_star, "Include (messy) doesn't allow star flag");
+    assert!(!flag_score, "Include (messy) doesn't allow score flag");
     assert_block_name(&BLOCK_INCLUDE_MESSY, name);
 
     // Includes are handled specially, so we should never actually be

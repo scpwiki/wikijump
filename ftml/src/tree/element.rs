@@ -18,15 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::clone::{
-    elements_to_owned, list_items_to_owned, option_string_to_owned, string_to_owned,
-};
+use super::clone::*;
 use super::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
     ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, Table, TableItem,
 };
+use crate::data::PageRef;
 use ref_map::*;
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::num::NonZeroU32;
 use std::slice;
 
@@ -210,6 +210,17 @@ pub enum Element<'t> {
         url: Cow<'t, str>,
     },
 
+    /// Element containing the contents of a page included elsewhere.
+    ///
+    /// From `[[include-elements]]`.
+    #[serde(rename_all = "kebab-case")]
+    Include {
+        paragraph_safe: bool,
+        variables: HashMap<Cow<'t, str>, Cow<'t, str>>,
+        location: PageRef<'t>,
+        elements: Vec<Element<'t>>,
+    },
+
     /// A newline or line break.
     ///
     /// This calls for a newline in the final output, such as `<br>` in HTML.
@@ -268,6 +279,7 @@ impl Element<'_> {
             Element::Code { .. } => "Code",
             Element::Html { .. } => "HTML",
             Element::Iframe { .. } => "Iframe",
+            Element::Include { .. } => "Include",
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
             Element::ClearFloat(_) => "ClearFloat",
@@ -304,6 +316,7 @@ impl Element<'_> {
             Element::Color { .. } => true,
             Element::Code { .. } => true,
             Element::Html { .. } | Element::Iframe { .. } => false,
+            Element::Include { paragraph_safe, .. } => *paragraph_safe,
             Element::LineBreak | Element::LineBreaks { .. } => true,
             Element::ClearFloat(_) => false,
             Element::HorizontalRule => false,
@@ -427,6 +440,17 @@ impl Element<'_> {
             Element::Iframe { url, attributes } => Element::Iframe {
                 url: string_to_owned(url),
                 attributes: attributes.to_owned(),
+            },
+            Element::Include {
+                paragraph_safe,
+                variables,
+                location,
+                elements,
+            } => Element::Include {
+                paragraph_safe: *paragraph_safe,
+                variables: string_map_to_owned(variables),
+                location: location.to_owned(),
+                elements: elements_to_owned(elements),
             },
             Element::LineBreak => Element::LineBreak,
             Element::LineBreaks(amount) => Element::LineBreaks(*amount),

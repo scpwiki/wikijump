@@ -33,6 +33,7 @@ use super::element::Element;
 use super::list::ListItem;
 use ref_map::*;
 use std::borrow::Cow;
+use std::collections::HashMap;
 
 #[inline]
 pub fn option_string_to_owned(
@@ -70,5 +71,18 @@ pub fn list_items_to_owned(list_items: &[ListItem<'_>]) -> Vec<ListItem<'static>
     list_items
         .iter()
         .map(|list_item| list_item.to_owned())
+        .collect()
+}
+
+pub fn string_map_to_owned(
+    map: &HashMap<Cow<'_, str>, Cow<'_, str>>,
+) -> HashMap<Cow<'static, str>, Cow<'static, str>> {
+    map.iter()
+        .map(|(key, value)| {
+            let key = string_to_owned(key);
+            let value = string_to_owned(value);
+
+            (key, value)
+        })
         .collect()
 }

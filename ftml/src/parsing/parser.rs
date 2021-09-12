@@ -58,7 +58,7 @@ pub struct Parser<'r, 't> {
     //       can be cloned. This struct is intended as a
     //       cheap pointer object, with the true contents
     //       here preserved across parser child instances.
-    table_of_contents: Rc<RefCell<Vec<(usize, (), String)>>>,
+    table_of_contents: Rc<RefCell<Vec<(usize, String)>>>,
 
     // Footnotes
     //
@@ -220,11 +220,11 @@ impl<'r, 't> Parser<'r, 't> {
         // Render name as text, so it lacks formatting
         let name = TextRender.render_partial(&self.log, self.page_info, name_elements);
 
-        self.table_of_contents.borrow_mut().push((level, (), name));
+        self.table_of_contents.borrow_mut().push((level, name));
     }
 
     #[cold]
-    pub fn remove_table_of_contents(&mut self) -> Vec<(usize, (), String)> {
+    pub fn remove_table_of_contents(&mut self) -> Vec<(usize, String)> {
         mem::take(&mut self.table_of_contents.borrow_mut())
     }
 
@@ -236,6 +236,19 @@ impl<'r, 't> Parser<'r, 't> {
     #[cold]
     pub fn remove_footnotes(&mut self) -> Vec<Vec<Element<'t>>> {
         mem::take(&mut self.footnotes.borrow_mut())
+    }
+
+    // Special for [[include]], appending a SyntaxTree
+    pub fn append_toc_and_footnotes(
+        &mut self,
+        table_of_contents: &mut Vec<(usize, String)>,
+        footnotes: &mut Vec<Vec<Element<'t>>>,
+    ) {
+        self.table_of_contents
+            .borrow_mut()
+            .append(table_of_contents);
+
+        self.footnotes.borrow_mut().append(footnotes);
     }
 
     // State evaluation
