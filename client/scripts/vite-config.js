@@ -1,6 +1,5 @@
 const { svelte } = require("@sveltejs/vite-plugin-svelte")
 const sveltePreprocess = require("svelte-preprocess")
-const { default: tsconfigPaths } = require("vite-tsconfig-paths")
 const tomlPlugin = require("./vite-plugin-toml.js")
 const yamlPlugin = require("./vite-plugin-yaml.js")
 const path = require("path")
@@ -73,6 +72,11 @@ const getConfig = (test = false) => ({
   publicDir: test ? false : "../public",
   root: test ? ROOT : "./src",
 
+  resolve: {
+    // wikijump repo root, this is also in tsconfig.json
+    alias: [{ find: "@root", replacement: path.resolve(ROOT, "../") }]
+  },
+
   build: test
     ? BUILD_TEST_OPTIONS
     : {
@@ -106,7 +110,6 @@ const getConfig = (test = false) => ({
       },
 
   plugins: [
-    tsconfigPaths({ root: ROOT, loose: true }),
     tomlPlugin(),
     yamlPlugin(),
     svelte(test ? SVELTE_TEST_OPTIONS : SVELTE_OPTIONS)
