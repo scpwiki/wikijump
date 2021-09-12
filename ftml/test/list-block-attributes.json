@@ -1,0 +1,56 @@
+{
+    "input": "[[ol class=\"numbers\" data-fruit=\"banana\"]]\n[[li id=\"item-1\"]]\nA\n[[/li]]\n[[li id=\"item-2\"]]\nB\n[[/li]]\n[[/ol]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "list",
+                "data": {
+                    "type": "numbered",
+                    "attributes": {
+                        "class": "numbers",
+                        "data-fruit": "banana"
+                    },
+                    "items": [
+                        {
+                            "attributes": {
+                                "id": "item-1"
+                            },
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "A"
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {
+                                "id": "item-2"
+                            },
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "B"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
