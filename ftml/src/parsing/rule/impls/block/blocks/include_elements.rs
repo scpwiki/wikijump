@@ -21,9 +21,6 @@
 use super::prelude::*;
 use crate::data::PageRef;
 use crate::parsing::UnstructuredParseResult;
-use std::borrow::Cow;
-use std::collections::HashMap;
-use unicase::UniCase;
 
 /// Block rule for include (elements).
 ///
@@ -77,13 +74,21 @@ fn parse_fn<'r, 't>(
     let ParseSuccess {
         item: elements,
         exceptions,
+        paragraph_safe,
         ..
     } = result?;
 
-    // Add gathered items and return
+    // Update parser state, build, and return
     parser.append_toc_and_footnotes(&mut table_of_contents_depths, &mut footnotes);
 
-    ok!(elements, exceptions)
+    let variables = variables.to_hash_map();
+    let element = Element::Include {
+        paragraph_safe,
+        variables,
+        elements,
+    };
+
+    ok!(element, exceptions)
 }
 
 fn include_page<'r, 't>(

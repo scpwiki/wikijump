@@ -93,6 +93,19 @@ impl<'t> Arguments<'t> {
     /// It does not clone any string allocations, as they are all borrowed
     /// (or already owned, per `Cow`).
     /// It only makes a new allocation for the new `HashMap`.
+    pub fn to_hash_map(&self) -> HashMap<Cow<'t, str>, Cow<'t, str>> {
+        self.inner
+            .iter()
+            .map(|(key, value)| {
+                let key = cow!(key.into_inner());
+                let value = value.to_owned();
+
+                (key, value)
+            })
+            .collect()
+    }
+
+    /// Similar to `to_hash_map()`, but creates an `AttributeMap` instead.
     #[inline]
     pub fn to_attribute_map(&self) -> AttributeMap<'t> {
         AttributeMap::from_arguments(&self.inner)
