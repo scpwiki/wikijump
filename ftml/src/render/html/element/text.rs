@@ -25,7 +25,10 @@ pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
 
     ctx.html()
         .span()
-        .attr(attr!("class" => "wj-raw"))
+        .attr(attr!(
+            "is" => "wj-raw",
+            "class" => "wj-raw",
+        ))
         .inner(log, &text);
 }
 
@@ -37,7 +40,10 @@ pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
 
     ctx.html()
         .span()
-        .attr(attr!("class" => "wj-email"))
+        .attr(attr!(
+            "is" => "wj-email",
+            "class" => "wj-email",
+        ))
         .inner(log, &email);
 }
 
@@ -67,7 +73,10 @@ pub fn render_code(
 
     ctx.html() //
         .pre()
-        .attr(attr!("class" => &class))
+        .attr(attr!(
+            "is" => "wj-code",
+            "class" => &class,
+        ))
         .contents(|ctx| {
             ctx.html().code().inner(log, &contents);
         });

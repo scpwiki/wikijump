@@ -56,7 +56,10 @@ pub fn render_image(
 
     ctx.html()
         .div()
-        .attr(attr!("class" => "wj-image-container" space align_class))
+        .attr(attr!(
+            "is" => "wj-image",
+            "class" => "wj-image-container" space align_class,
+        ))
         .contents(|ctx| {
             let build_image = |ctx: &mut HtmlContext| {
                 ctx.html().img().attr(attr!(
