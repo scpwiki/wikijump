@@ -21,7 +21,7 @@
 use super::prelude::*;
 
 pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar: bool) {
-    debug!(
+    info!(
         log,
         "Rendering user block";
         "name" => name,

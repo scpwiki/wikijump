@@ -32,7 +32,7 @@ fn parse_fn<'r, 't>(
     name: &'t str,
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Option<Module<'t>>> {
-    debug!(log, "Parsing categories module");
+    info!(log, "Parsing categories module");
     assert_module_name(&MODULE_CATEGORIES, name);
 
     let include_hidden = arguments

@@ -38,7 +38,7 @@ fn parse_fn<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Parsing collapsible block";
         "in-head" => in_head,
@@ -98,7 +98,7 @@ fn parse_hide_location(s: &str, parser: &Parser) -> Result<(bool, bool), ParseWa
         }
     }
 
-    debug!(&parser.log(), "Unknown hideLocation argument"; "value" => s);
+    warn!(&parser.log(), "Unknown hideLocation argument"; "value" => s);
 
     Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
 }

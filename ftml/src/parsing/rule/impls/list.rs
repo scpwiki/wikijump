@@ -43,7 +43,7 @@ fn try_consume_fn<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // We don't know the list type(s) yet, so just log that we're starting
-    debug!(log, "Parsing a list");
+    info!(log, "Parsing a list");
 
     // Context variables
     let mut depths = Vec::new();
@@ -71,7 +71,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
             // Invalid token, bail
             _ => {
-                debug!(
+                warn!(
                     log,
                     "Didn't find correct bullet token or couldn't determine list depth, ending list iteration";
                     "token" => current.token,
@@ -85,7 +85,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
         // Check that the depth isn't obscenely deep, to avoid DOS attacks via stack overflow.
         if depth > MAX_LIST_DEPTH {
-            info!(
+            warn!(
                 log,
                 "List item has a depth greater than the maximum! Failing";
                 "depth" => depth,
@@ -115,14 +115,14 @@ fn try_consume_fn<'p, 'r, 't>(
 
         debug!(
             log,
-            "Parsing listen item";
+            "Parsing list item";
             "list-type" => list_type.name(),
         );
 
         // For now, always expect whitespace after the bullet
         let current = parser.current();
         if current.token != Token::Whitespace {
-            debug!(
+            warn!(
                 log,
                 "Didn't find whitespace after bullet token, ending list iteration";
                 "token" => current.token,

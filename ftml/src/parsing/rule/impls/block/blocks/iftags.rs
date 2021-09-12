@@ -39,7 +39,7 @@ fn parse_fn<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Parsing iftags block";
         "in-head" => in_head,
@@ -70,11 +70,11 @@ fn parse_fn<'r, 't>(
 
     // Return elements based on condition
     let elements = if check_iftags(log, parser.page_info(), &conditions) {
-        trace!(log, "Conditions passed, including elements");
+        debug!(log, "Conditions passed, including elements");
 
         Elements::Multiple(elements)
     } else {
-        trace!(log, "Conditions failed, excluding elements");
+        debug!(log, "Conditions failed, excluding elements");
 
         // Filter out non-warning exceptions
         exceptions.retain(|ex| matches!(ex, ParseException::Warning(_)));

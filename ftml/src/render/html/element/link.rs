@@ -29,7 +29,7 @@ pub fn render_anchor(
     attributes: &AttributeMap,
     target: Option<AnchorTarget>,
 ) {
-    debug!(
+    info!(
         log,
         "Rendering anchor";
         "elements-len" => elements.len(),
@@ -57,7 +57,7 @@ pub fn render_link(
     label: &LinkLabel,
     target: Option<AnchorTarget>,
 ) {
-    debug!(
+    info!(
         log,
         "Rendering link";
         "link" => link,

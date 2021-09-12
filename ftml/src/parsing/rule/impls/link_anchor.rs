@@ -38,7 +38,7 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Trying to create a single-bracket anchor link");
+    info!(log, "Trying to create a single-bracket anchor link");
 
     check_step(parser, Token::LeftBracketAnchor)?;
 
@@ -83,7 +83,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     debug!(
         log,
-        "Retrieved label for link, now build element";
+        "Retrieved label for link, building element";
         "label" => label,
     );
 

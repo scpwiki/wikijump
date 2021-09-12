@@ -85,7 +85,7 @@ pub fn consume<'p, 'r, 't>(
                 return Ok(output);
             }
             Err(warning) => {
-                trace!(
+                warn!(
                     log,
                     "Rule failed, returning warning";
                     "warning" => warning.kind().name(),
@@ -96,18 +96,18 @@ pub fn consume<'p, 'r, 't>(
         }
     }
 
-    debug!(log, "All rules exhausted, using generic text fallback");
+    warn!(log, "All rules exhausted, using generic text fallback");
     let element = text!(current.slice);
     parser.step()?;
 
     // We should only carry styles over from *successful* consumptions
-    trace!(log, "Removing non-warnings from exceptions list");
+    debug!(log, "Removing non-warnings from exceptions list");
     all_exceptions.retain(|exception| matches!(exception, ParseException::Warning(_)));
 
     // If we've hit the recursion limit, just bail
     if let Some(ParseException::Warning(warning)) = all_exceptions.last() {
         if warning.kind() == ParseWarningKind::RecursionDepthExceeded {
-            trace!(log, "Found recursion depth error, failing");
+            error!(log, "Found recursion depth error, failing");
             return Err(warning.clone());
         }
     }

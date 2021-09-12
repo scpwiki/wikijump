@@ -30,7 +30,7 @@ pub fn render_image(
     alignment: Option<FloatAlignment>,
     attributes: &AttributeMap,
 ) {
-    debug!(
+    info!(
         log,
         "Rendering image element";
         "source" => source.name(),

@@ -92,7 +92,7 @@ where
     // For producing table of contents indexes
     let mut incrementer = Incrementer(0);
 
-    debug!(log, "Finished paragraph gathering, matching on consumption");
+    info!(log, "Finished paragraph gathering, matching on consumption");
     match result {
         Ok(ParseSuccess {
             item: mut elements,
@@ -122,7 +122,7 @@ where
             // Add a footnote block at the end,
             // if the user doesn't have one already
             if !has_footnote_block {
-                debug!(log, "No footnote block in elements, appending one");
+                info!(log, "No footnote block in elements, appending one");
 
                 elements.push(Element::FootnoteBlock {
                     title: None,
@@ -144,9 +144,10 @@ where
             // If this happens, then just return the input source as the output
             // and the warning.
 
-            warn!(
+            crit!(
                 log,
-                "Fatal error occurred at highest-level parsing: {:#?}", warning,
+                "Fatal error occurred at highest-level parsing: {:#?}",
+                warning,
             );
 
             let wikitext = tokenization.full_text().inner();

@@ -47,7 +47,7 @@ fn parse_footnote_ref<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Parsing footnote ref block";
         "in-head" => in_head,
@@ -107,7 +107,7 @@ fn parse_footnote_block<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Parsing footnote list block";
         "in-head" => in_head,
@@ -124,7 +124,7 @@ fn parse_footnote_block<'r, 't>(
     let hide = arguments.get_bool(parser, "hide")?.unwrap_or(false);
 
     if !arguments.is_empty() {
-        debug!(
+        warn!(
             log,
             "Invalid argument keys found";
             "arguments" => format!("{:#?}", arguments),

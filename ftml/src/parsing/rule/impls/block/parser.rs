@@ -44,7 +44,7 @@ where
         token: Token,
         kind: ParseWarningKind,
     ) -> Result<&'t str, ParseWarning> {
-        trace!(
+        debug!(
             &self.log(),
             "Looking for token {:?} (warning {:?})",
             token,
@@ -64,7 +64,7 @@ where
     }
 
     fn get_optional_token(&mut self, token: Token) -> Result<(), ParseWarning> {
-        trace!(
+        debug!(
             &self.log(),
             "Looking for optional token";
             "token" => token,
@@ -78,18 +78,18 @@ where
     }
 
     pub fn get_optional_line_break(&mut self) -> Result<(), ParseWarning> {
-        debug!(&self.log(), "Looking for optional line break");
+        info!(&self.log(), "Looking for optional line break");
         self.get_optional_token(Token::LineBreak)
     }
 
     #[inline]
     pub fn get_optional_space(&mut self) -> Result<(), ParseWarning> {
-        debug!(&self.log(), "Looking for optional space");
+        info!(&self.log(), "Looking for optional space");
         self.get_optional_token(Token::Whitespace)
     }
 
     pub fn get_optional_spaces_any(&mut self) -> Result<(), ParseWarning> {
-        debug!(&self.log(), "Looking for optional spaces (any)");
+        info!(&self.log(), "Looking for optional spaces (any)");
 
         let tokens = &[
             Token::Whitespace,
@@ -112,7 +112,7 @@ where
         &mut self,
         flag_star: bool,
     ) -> Result<(&'t str, bool), ParseWarning> {
-        debug!(&self.log(), "Looking for identifier");
+        info!(&self.log(), "Looking for identifier");
 
         if flag_star {
             self.get_optional_token(Token::LeftBlockStar)?;
@@ -159,7 +159,7 @@ where
 
     /// Matches an ending block, returning the name present.
     pub fn get_end_block(&mut self) -> Result<&'t str, ParseWarning> {
-        debug!(&self.log(), "Looking for end block");
+        info!(&self.log(), "Looking for end block");
 
         self.get_token(Token::LeftBlockEnd, ParseWarningKind::BlockExpectedEnd)?;
         self.get_optional_space()?;
@@ -223,7 +223,7 @@ where
     where
         F: FnMut(&mut Parser<'r, 't>) -> Result<(), ParseWarning>,
     {
-        trace!(&self.log(), "Running generic in block body parser");
+        debug!(&self.log(), "Running generic in block body parser");
 
         debug_assert!(
             !block_rule.accepts_names.is_empty(),
@@ -264,7 +264,7 @@ where
         &mut self,
         block_rule: &BlockRule,
     ) -> Result<&'t str, ParseWarning> {
-        debug!(
+        info!(
             &self.log(),
             "Getting block body as text";
             "block-rule" => format!("{:#?}", block_rule),
@@ -282,7 +282,7 @@ where
         block_rule: &BlockRule,
         as_paragraphs: bool,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
-        debug!(
+        info!(
             &self.log(),
             "Getting block body as elements";
             "block-rule" => format!("{:#?}", block_rule),
@@ -444,7 +444,7 @@ where
         );
 
         if !in_head {
-            debug!(
+            warn!(
                 &self.log(),
                 "Block is already over, there is no name or arguments",
             );
@@ -471,7 +471,7 @@ where
     where
         F: FnOnce(&Self, Option<&'t str>) -> Result<T, ParseWarning>,
     {
-        debug!(
+        info!(
             &self.log(),
             "Looking for a value argument, then ']]'";
             "in-head" => in_head,
@@ -509,7 +509,7 @@ where
         block_rule: &BlockRule,
         in_head: bool,
     ) -> Result<(), ParseWarning> {
-        debug!(&self.log(), "No arguments, looking for end of head block");
+        info!(&self.log(), "No arguments, looking for end of head block");
 
         self.get_optional_space()?;
         self.get_head_block(block_rule, in_head)?;
@@ -522,7 +522,7 @@ where
         block_rule: &BlockRule,
         in_head: bool,
     ) -> Result<(), ParseWarning> {
-        trace!(&self.log(), "Getting end of the head block");
+        debug!(&self.log(), "Getting end of the head block");
 
         // If we're still in the head, finish
         if in_head {

@@ -38,7 +38,7 @@ fn parse_fn<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Parsing newlines block"; "in-head" => in_head);
+    info!(log, "Parsing newlines block"; "in-head" => in_head);
 
     assert!(!flag_star, "Lines doesn't allow star flag");
     assert!(!flag_score, "Lines doesn't allow score flag");
@@ -60,7 +60,7 @@ fn parse_count<'r, 't>(
 
     match argument.parse::<NonZeroU32>() {
         Ok(value) if value.get() > 100 => {
-            debug!(
+            warn!(
                 &parser.log(),
                 "Number of lines is too great (max 100)";
                 "lines" => value.get(),
@@ -70,7 +70,7 @@ fn parse_count<'r, 't>(
         }
         Ok(value) => Ok(value),
         Err(_error) => {
-            debug!(&parser.log(), "Invalid numeric expression: {}", _error);
+            warn!(&parser.log(), "Invalid numeric expression: {}", _error);
 
             Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
         }

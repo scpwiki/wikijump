@@ -91,7 +91,7 @@ where
                 ranges.push(start..end);
                 includes.push(include);
             }
-            Err(_) => debug!(log, "Unable to parse include regex match"),
+            Err(_) => warn!(log, "Unable to parse include regex match"),
         }
     }
 
@@ -111,18 +111,18 @@ where
     let includes_iter = includes.into_iter();
     let fetched_iter = fetched_pages.into_iter();
 
+    let joined_iter = ranges_iter.zip(includes_iter).zip(fetched_iter).rev();
+
     // Borrowing from the original text and doing in-place insertions
     // will not work here. We are trying to both return the page names
     // (slices from the input string), and replace it with new content.
     let mut output = String::from(input);
     let mut pages = Vec::new();
 
-    for ((range, include), fetched) in
-        ranges_iter.zip(includes_iter).zip(fetched_iter).rev()
-    {
+    for ((range, include), fetched) in joined_iter {
         let (page_ref, _) = include.into();
 
-        debug!(
+        info!(
             log,
             "Replacing range for included page";
             "span" => SpanWrap::from(&range),

@@ -32,7 +32,7 @@ fn parse_fn<'r, 't>(
     name: &'t str,
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Option<Module<'t>>> {
-    debug!(log, "Parsing PageTree module");
+    info!(log, "Parsing PageTree module");
     assert_module_name(&MODULE_PAGE_TREE, name);
 
     let root = arguments.get("root");

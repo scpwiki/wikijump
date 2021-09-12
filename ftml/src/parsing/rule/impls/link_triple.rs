@@ -48,7 +48,7 @@ fn link<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    trace!(log, "Trying to create a triple-bracket link (regular)");
+    info!(log, "Trying to create a triple-bracket link (regular)");
 
     check_step(parser, Token::LeftLink)?;
 
@@ -59,7 +59,7 @@ fn link_new_tab<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    trace!(log, "Trying to create a triple-bracket link (new tab)");
+    info!(log, "Trying to create a triple-bracket link (new tab)");
 
     check_step(parser, Token::LeftLinkStar)?;
 
@@ -135,7 +135,7 @@ fn build_same<'p, 'r, 't>(
     url: &'t str,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Building link with same URL and label";
         "url" => url,
@@ -163,7 +163,7 @@ fn build_separate<'p, 'r, 't>(
     url: &'t str,
     target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(
+    info!(
         log,
         "Building link with separate URL and label";
         "url" => url,

@@ -27,7 +27,7 @@ pub fn render_iframe(
     url: &str,
     attributes: &AttributeMap,
 ) {
-    debug!(
+    info!(
         log,
         "Rendering iframe block";
         "url" => url,
@@ -41,7 +41,7 @@ pub fn render_iframe(
 }
 
 pub fn render_html(log: &Logger, ctx: &mut HtmlContext, contents: &str) {
-    debug!(
+    info!(
         log,
         "Rendering html block (submitting to remote for iframe)";
         "contents" => contents,

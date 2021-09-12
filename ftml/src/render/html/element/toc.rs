@@ -27,7 +27,7 @@ pub fn render_table_of_contents(
     align: Option<Alignment>,
     attributes: &AttributeMap,
 ) {
-    debug!(
+    info!(
         log,
         "Creating table of contents";
         "align" => align.map(|a| a.name()),
