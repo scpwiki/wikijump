@@ -238,6 +238,19 @@ impl<'r, 't> Parser<'r, 't> {
         mem::take(&mut self.footnotes.borrow_mut())
     }
 
+    // Special for [[include]], appending a SyntaxTree
+    pub fn append_toc_and_footnotes(
+        &mut self,
+        table_of_contents: &mut Vec<(usize, (), String)>,
+        footnotes: &mut Vec<Vec<Element<'t>>>,
+    ) {
+        self.table_of_contents
+            .borrow_mut()
+            .append(table_of_contents);
+
+        self.footnotes.borrow_mut().append(footnotes);
+    }
+
     // State evaluation
     pub fn evaluate(&self, condition: ParseCondition) -> bool {
         debug!(

@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::data::PageRef;
+use crate::tree::SyntaxTree;
 
 /// Block rule for include (elements).
 ///
@@ -39,7 +41,7 @@ fn parse_fn<'r, 't>(
     name: &'t str,
     flag_star: bool,
     flag_score: bool,
-    _in_head: bool,
+    in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Found invalid include-elements block");
 
@@ -47,5 +49,48 @@ fn parse_fn<'r, 't>(
     assert!(!flag_score, "Include (elements) doesn't allow score flag");
     assert_block_name(&BLOCK_INCLUDE_ELEMENTS, name);
 
-    todo!();
+    // Parse block
+    let (page_name, arguments) =
+        parser.get_head_name_map(&BLOCK_INCLUDE_ELEMENTS, in_head)?;
+
+    let page_ref = match PageRef::parse(page_name) {
+        Ok(page_ref) => page_ref,
+        Err(_) => return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments)),
+    };
+
+    // Get page to be included
+    let SyntaxTree {
+        elements,
+        styles,
+        mut table_of_contents,
+        mut footnotes,
+    } = include_page(parser, page_ref)?;
+
+    // Add gathered items and return
+    parser.append_toc_and_footnotes(&mut table_of_contents, &mut footnotes);
+
+    let exceptions = styles
+        .into_iter() //
+        .map(ParseException::Style)
+        .collect();
+
+    ok!(elements, exceptions)
+}
+
+fn include_page(
+    parser: &Parser,
+    _page: PageRef,
+) -> Result<SyntaxTree<'static>, ParseWarning> {
+    // TODO stubbed
+
+    if false {
+        return Err(parser.make_warn(ParseWarningKind::NoSuchPage));
+    }
+
+    Ok(SyntaxTree {
+        elements: vec![],
+        styles: vec![],
+        table_of_contents: vec![],
+        footnotes: vec![],
+    })
 }

@@ -206,6 +206,9 @@ pub enum ParseWarningKind {
     /// This module does not specify a name.
     ModuleMissingName,
 
+    /// The given page to be included does not exist.
+    NoSuchPage,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }
