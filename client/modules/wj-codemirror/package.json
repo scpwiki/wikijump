@@ -43,7 +43,7 @@
     "@codemirror/text": "^0.19.3",
     "@codemirror/tooltip": "^0.19.2",
     "@codemirror/view": "^0.19.6",
-    "@lezer/common": "^0.15.4",
+    "@lezer/common": "^0.15.5",
     "@lezer/lr": "^0.15.2",
     "threads-worker-module": "workspace:*",
     "wj-components": "workspace:*",
