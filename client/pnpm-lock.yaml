@@ -368,12 +368,12 @@ importers:
 
   web/wj-docs:
     specifiers:
-      typedoc: ^0.22.2
+      typedoc: ^0.22.3
       wj-components: workspace:*
     dependencies:
       wj-components: link:../../modules/wj-components
     devDependencies:
-      typedoc: 0.22.2_typescript@4.4.3
+      typedoc: 0.22.3_typescript@4.4.3
 
 packages:
 
@@ -5603,8 +5603,8 @@ packages:
       is-typedarray: 1.0.0
     dev: true
 
-  /typedoc/0.22.2_typescript@4.4.3:
-    resolution: {integrity: sha512-p516wGGy6bCUj8k5ZpWWqOT2qa0e5lVU6APiQhEHS4T9LPmCTyAIb9PJgtHbSnkCBnaZE+oOK+lSgCKWGzgJ+w==}
+  /typedoc/0.22.3_typescript@4.4.3:
+    resolution: {integrity: sha512-EOWf9Vf3Vfb/jzBzr87uoLybQw9fx3iyXLUcpQn9F2Ks1/ZJN9iGeBbYRU+VNqrWvV4T+aS7Ife7GFEJUf0ohQ==}
     engines: {node: '>= 12.10.0'}
     hasBin: true
     peerDependencies:
