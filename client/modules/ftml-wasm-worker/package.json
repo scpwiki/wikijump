@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {},
   "type": "module",
-  "module": "src/index.ts",
+  "main": "src/index.ts",
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   },

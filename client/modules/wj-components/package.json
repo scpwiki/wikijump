@@ -10,7 +10,7 @@
   "scripts": {},
   "type": "module",
   "svelte": "src/index.ts",
-  "module": "src/index.ts",
+  "main": "src/index.ts",
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   },
