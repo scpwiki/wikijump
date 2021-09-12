@@ -53,10 +53,17 @@ export class DelegatorFactory extends Parser {
       const name = node.tree.prop(EmbeddedParserProp)
       if (!name) return null
 
-      const lang = LanguageDescription.matchLanguageName(
-        this.language.nestLanguages,
-        name
-      )
+      let langs: readonly LanguageDescription[]
+
+      if (!(this.language.nestLanguages instanceof Array)) {
+        const context = ParseContext.get()
+        langs = context ? context.state.facet(this.language.nestLanguages) : []
+      } else {
+        langs = this.language.nestLanguages
+      }
+
+      const lang = LanguageDescription.matchLanguageName(langs, name)
+
       // language doesn't exist
       if (!lang) return null
       // language already loaded

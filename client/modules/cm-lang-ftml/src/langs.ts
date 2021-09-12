@@ -1,10 +1,9 @@
-import { languages as originalLanguages } from "wj-codemirror/cm"
+import { addLanguages } from "wj-codemirror"
 import { FTMLTokensGrammar, LezerTreeGrammar } from "./grammars/ast"
 import { FTMLLanguage } from "./grammars/ftml"
 
-export const languages = [
-  ...originalLanguages,
+export const ftmlLanguages = addLanguages(
   FTMLLanguage.description,
   FTMLTokensGrammar.description,
   LezerTreeGrammar.description
-]
+)

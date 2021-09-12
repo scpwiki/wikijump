@@ -1,5 +1,5 @@
 import type { NodePropSource, NodeType, Tree } from "@lezer/common"
-import type { Extension, LanguageDescription } from "wj-codemirror/cm"
+import type { Extension, Facet, LanguageDescription } from "wj-codemirror/cm"
 import type * as DF from "./grammar/definition"
 import type { Chunk } from "./tokenizer"
 
@@ -24,10 +24,10 @@ export interface TarnationLanguageDefinition {
    */
   grammar: DF.Grammar | (() => DF.Grammar)
   /**
-   * A list of `LanguageDescription` objects that will be used when the
-   * parser nests in a language.
+   * A list (or facet) of `LanguageDescription` objects that will be used
+   * when the parser nests in a language.
    */
-  nestLanguages?: LanguageDescription[]
+  nestLanguages?: LanguageDescription[] | Facet<LanguageDescription>
   /** Configuration options for the parser, such as node props. */
   configure?: ParserConfiguration
   /** A list of aliases for the name of the language. (e.g. 'go' - `['golang']`) */
@@ -42,6 +42,11 @@ export interface TarnationLanguageDefinition {
   languageData?: Record<string, any>
   /** Extra extensions to be loaded. */
   supportExtensions?: Extension[]
+  /**
+   * If true, this language will be automatically added to the
+   * {@link languageList} facet. Defaults to true.
+   */
+  addToLanguageList?: boolean
 }
 
 // -- TOKENS

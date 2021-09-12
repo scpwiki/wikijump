@@ -3,18 +3,19 @@
 -->
 <script lang="ts">
   import {
+    Extension,
     EditorState,
     Compartment,
     EditorView,
     LanguageDescription,
     drawSelection
   } from "wj-codemirror/cm"
-  import { IndentHack } from "wj-codemirror"
-  import { languages } from "cm-lang-ftml"
+  import { IndentHack, defaultLanguages, languageList } from "wj-codemirror"
   import { onDestroy, onMount } from "svelte"
   import { createIdleQueued, createMutatingLock } from "wj-util"
   import { Spinny } from "wj-components"
   import { confinement } from "../extensions/theme"
+  import { ftmlLanguages } from "cm-lang-ftml"
 
   /** Contents of the code block. Can be a promise that resolves to a string. */
   export let content: Promisable<string>
@@ -33,10 +34,10 @@
     }
   })
 
-  async function getLang() {
-    let desc: LanguageDescription | null = null
-    if (lang) desc = LanguageDescription.matchLanguageName(languages, lang, true)
-    if (desc) return desc.support ?? (await desc.load())
+  async function getLang(): Promise<Extension> {
+    if (!view) return []
+    const langs = view.state.facet(languageList)
+    return (await LanguageDescription.matchLanguageName(langs, lang, true)?.load()) ?? []
   }
 
   const getDoc = createMutatingLock(async (input: typeof content) => {
@@ -65,7 +66,9 @@
           EditorView.lineWrapping,
           IndentHack,
           confinement,
-          langExtension.of((await getLang()) ?? [])
+          defaultLanguages,
+          ftmlLanguages,
+          langExtension.of([])
         ]
       })
     })

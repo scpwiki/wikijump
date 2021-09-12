@@ -1,7 +1,9 @@
 import { NodeProp, NodeType } from "@lezer/common"
 import { isFunction } from "is-what"
+import { addLanguages } from "wj-codemirror"
 import {
   Extension,
+  Facet,
   Language,
   LanguageDescription,
   LanguageSupport
@@ -28,7 +30,7 @@ export class TarnationLanguage {
   declare stateProp?: NodeProp<TokenizerBuffer>
   declare support?: LanguageSupport
   declare language?: Language
-  declare nestLanguages: LanguageDescription[]
+  declare nestLanguages: LanguageDescription[] | Facet<LanguageDescription>
 
   loaded = false
   performance = 0
@@ -41,7 +43,8 @@ export class TarnationLanguage {
     alias,
     extensions,
     languageData = {},
-    supportExtensions = []
+    supportExtensions = [],
+    addToLanguageList = true
   }: TarnationLanguageDefinition) {
     const dataDescription = removeUndefined({ name, alias, extensions })
 
@@ -55,6 +58,8 @@ export class TarnationLanguage {
       ...dataDescription,
       load: async () => this.load()
     })
+
+    if (addToLanguageList) this.extensions.push(addLanguages(this.description))
   }
 
   /**
