@@ -1,0 +1,65 @@
+{
+    "input": "Apple\n[[include-elements :some-site:page-name]]\nBanana",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "include",
+                "data": {
+                    "paragraph-safe": false,
+                    "variables": {},
+                    "location": {
+                        "site": "some-site",
+                        "page": "page-name"
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "<INCLUDED PAGE (ELEMENTS)>"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Banana"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

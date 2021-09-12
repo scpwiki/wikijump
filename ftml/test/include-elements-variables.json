@@ -1,0 +1,42 @@
+{
+    "input": "[[include-elements component:image-block name=\"peanut.png\" caption=\"Haha funi\"]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "include",
+                "data": {
+                    "paragraph-safe": false,
+                    "variables": {
+                        "name": "peanut.png",
+                        "caption": "Haha funi"
+                    },
+                    "location": {
+                        "site": null,
+                        "page": "component:image-block"
+                    },
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "<INCLUDED PAGE (ELEMENTS)>"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
