@@ -107,6 +107,11 @@ where
             let table_of_contents_depths = parser.remove_table_of_contents();
             let footnotes = parser.remove_footnotes();
 
+            // process_depths() wants a "list type", so we map in a () for each.
+            let table_of_contents_depths = table_of_contents_depths
+                .into_iter()
+                .map(|(depth, contents)| (depth, (), contents));
+
             // Convert TOC depth lists
             let table_of_contents = process_depths((), table_of_contents_depths)
                 .into_iter()
