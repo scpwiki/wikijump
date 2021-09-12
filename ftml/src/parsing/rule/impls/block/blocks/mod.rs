@@ -80,6 +80,7 @@ mod ifcategory;
 mod iframe;
 mod iftags;
 mod image;
+mod include_elements;
 mod include_messy;
 mod ins;
 mod invisible;
