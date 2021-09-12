@@ -42,5 +42,5 @@
     ]
   },
 
-  "exclude": ["**/node_modules/**", "misc/templates", "dist"]
+  "exclude": ["**/node_modules/**", "misc/templates", "**/dist/**"]
 }
