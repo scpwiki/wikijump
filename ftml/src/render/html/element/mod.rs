@@ -157,10 +157,15 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::Html { contents } => render_html(log, ctx, contents),
         Element::Iframe { url, attributes } => render_iframe(log, ctx, url, attributes),
         Element::Include {
-            paragraph_safe,
             variables,
             elements,
-        } => todo!(),
+            ..
+        } => {
+            // TODO pass on variables
+            let _ = variables;
+
+            render_elements(log, ctx, elements);
+        }
         Element::LineBreak => {
             ctx.html().br();
         }

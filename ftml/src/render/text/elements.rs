@@ -331,7 +331,12 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             variables,
             elements,
             ..
-        } => todo!(),
+        } => {
+            // TODO pass on variables
+            let _ = variables;
+
+            render_elements(log, ctx, elements);
+        }
         Element::LineBreak => ctx.add_newline(),
         Element::LineBreaks(amount) => {
             for _ in 0..amount.get() {
