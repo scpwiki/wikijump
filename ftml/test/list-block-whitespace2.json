@@ -21,9 +21,6 @@
                             "attributes": {},
                             "elements": [
                                 {
-                                    "element": "line-break"
-                                },
-                                {
                                     "element": "text",
                                     "data": "B"
                                 }

@@ -12,9 +12,6 @@
                             "attributes": {},
                             "elements": [
                                 {
-                                    "element": "line-break"
-                                },
-                                {
                                     "element": "text",
                                     "data": "A"
                                 }
@@ -23,9 +20,6 @@
                         {
                             "attributes": {},
                             "elements": [
-                                {
-                                    "element": "line-break"
-                                },
                                 {
                                     "element": "text",
                                     "data": "B"
