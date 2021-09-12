@@ -51,7 +51,7 @@ function formatHTML(html: string) {
 }
 
 const module = {
-  async init(wasmURL: Binding.InitInput) {
+  async init(wasmURL?: Binding.InitInput) {
     await FTML.init(wasmURL)
     return true
   },
