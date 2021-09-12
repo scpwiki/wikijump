@@ -6,17 +6,11 @@
   "keywords": [
     "wikijump"
   ],
+  "private": true,
   "scripts": {},
   "type": "module",
   "svelte": "src/index.ts",
   "main": "src/index.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client/modules/wj-components"
-  },
-  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
-  "homepage": "https://github.com/scpwiki/wikijump#readme",
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   },

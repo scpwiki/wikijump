@@ -29,14 +29,20 @@ This will have PNPM install all the needed dependencies, even for workspace pack
 To build the monorepo, run this command:
 ```
 $ pnpm build
-
-or, if you want to force a complete build:
-$ pnpm force-build
 ```
 
 This will build all packages for which a build process has been setup. Most packages within the repo don't actually have a build step - this is because packages are usually intended to be consumed by something like a website bundler, and it would be mostly pointless to build the package if it would be built by the website bundler anyways.
 
 > Packages in the repo tend to be designed for direct consumption by Vite - and thus use Vite's extra language features, such as URL imports. This makes them directly incompatible with being used in another environment, without some sort of Vite-based build step.
+
+### Packaging
+
+To "package" a module, run this command:
+```
+$ pnpm pack-module -- module-name
+```
+
+This will "package" the module `module-name`. What this does is that it starts a special build process on that module, which will yield a publishable NPM package in the modules `dist` folder. Any important changes that would've needed to been made to the module and its `package.json` are handled automatically.
 
 ### Development
 

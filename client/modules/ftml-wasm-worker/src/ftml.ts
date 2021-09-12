@@ -1,12 +1,9 @@
 import type { PartialInfo } from "ftml-wasm"
-import wasmRelativeURL from "ftml-wasm/vendor/ftml_bg.wasm?url"
 import { decode, transfer, WorkerModule } from "threads-worker-module"
 import type { FTMLWorkerInterface } from "./worker/ftml.worker"
 
-const wasmURL = new URL(wasmRelativeURL, import.meta.url).toString()
-
 async function importFTML() {
-  return (await import("./worker/ftml.worker?worker")).default
+  return (await import("./worker/ftml.worker?worker&inline")).default
 }
 
 class FTMLWorker extends WorkerModule<FTMLWorkerInterface> {
@@ -14,7 +11,7 @@ class FTMLWorker extends WorkerModule<FTMLWorkerInterface> {
     super("ftml-wasm-worker", importFTML, {
       persist: true,
       init: async () => {
-        await this.invoke("init", wasmURL)
+        await this.invoke("init")
       }
     })
   }

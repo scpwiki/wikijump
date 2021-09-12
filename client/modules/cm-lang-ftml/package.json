@@ -6,30 +6,28 @@
   "keywords": [
     "wikijump"
   ],
+  "private": true,
   "scripts": {},
   "type": "module",
   "main": "src/index.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client/modules/cm-lang-ftml"
-  },
-  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
-  "homepage": "https://github.com/scpwiki/wikijump#readme",
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
+    "@lezer/common": "^0.15.5",
+    "@lezer/lr": "^0.15.2",
     "@types/prismjs": "^1.16.6",
     "cm-espells": "workspace:*",
     "cm-tarnation": "workspace:*",
     "ftml-wasm-worker": "workspace:*",
-    "@lezer/common": "^0.15.5",
     "threads-worker-module": "workspace:*",
     "wj-codemirror": "workspace:*",
     "wj-components": "workspace:*",
     "wj-prism": "workspace:*",
     "wj-state": "workspace:*",
     "wj-util": "workspace:*"
+  },
+  "devDependencies": {
+    "svelte": "^3.42.5"
   }
 }

@@ -7,6 +7,8 @@ build:
   modules: pnpm --filter {modules} --parallel --if-present -r build
   web: pnpm --filter {web} --parallel --if-present -r build
 
+pack-module: node scripts/vite-pack.js
+
 # -- TESTING
 
 test: wtr --playwright

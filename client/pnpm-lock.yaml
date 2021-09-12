@@ -18,6 +18,7 @@ importers:
       eslint-plugin-regexp: ^1.1.0
       eslint-plugin-svelte3: ^3.2.1
       eslint-plugin-tsdoc: ^0.2.14
+      fs-extra: ^10.0.0
       js-yaml: ^4.1.0
       koa-connect: ^2.1.0
       nabs: ^0.3.0
@@ -36,7 +37,6 @@ importers:
       svelte-preprocess: ^4.9.4
       typescript: ^4.4.3
       vite: ^2.5.6
-      vite-tsconfig-paths: ^3.3.14
     devDependencies:
       '@esm-bundle/chai': 4.3.4-fix.0
       '@ltd/j-toml': 1.12.2
@@ -52,6 +52,7 @@ importers:
       eslint-plugin-regexp: 1.1.0_eslint@7.32.0
       eslint-plugin-svelte3: 3.2.1_eslint@7.32.0+svelte@3.42.5
       eslint-plugin-tsdoc: 0.2.14
+      fs-extra: 10.0.0
       js-yaml: 4.1.0
       koa-connect: 2.1.0
       nabs: 0.3.0
@@ -70,7 +71,6 @@ importers:
       svelte-preprocess: 4.9.4_0d04b46448f5632ec46f3b686cc0276c
       typescript: 4.4.3
       vite: 2.5.6
-      vite-tsconfig-paths: 3.3.14_vite@2.5.6
 
   modules/cm-espells:
     specifiers:
@@ -97,6 +97,7 @@ importers:
       dictionary-uk: ^2.3.0
       dictionary-vi: ^2.1.3
       espells: ^0.4.1
+      svelte: ^3.42.5
       threads-worker-module: workspace:*
       wj-codemirror: workspace:*
       wj-components: workspace:*
@@ -131,14 +132,18 @@ importers:
       wj-components: link:../wj-components
       wj-state: link:../wj-state
       wj-util: link:../wj-util
+    devDependencies:
+      svelte: 3.42.5
 
   modules/cm-lang-ftml:
     specifiers:
       '@lezer/common': ^0.15.5
+      '@lezer/lr': ^0.15.2
       '@types/prismjs': ^1.16.6
       cm-espells: workspace:*
       cm-tarnation: workspace:*
       ftml-wasm-worker: workspace:*
+      svelte: ^3.42.5
       threads-worker-module: workspace:*
       wj-codemirror: workspace:*
       wj-components: workspace:*
@@ -147,6 +152,7 @@ importers:
       wj-util: workspace:*
     dependencies:
       '@lezer/common': 0.15.5
+      '@lezer/lr': 0.15.2
       '@types/prismjs': 1.16.6
       cm-espells: link:../cm-espells
       cm-tarnation: link:../cm-tarnation
@@ -157,6 +163,8 @@ importers:
       wj-prism: link:../wj-prism
       wj-state: link:../wj-state
       wj-util: link:../wj-util
+    devDependencies:
+      svelte: 3.42.5
 
   modules/cm-tarnation:
     specifiers:
@@ -368,12 +376,12 @@ importers:
 
   web/wj-docs:
     specifiers:
-      typedoc: ^0.22.2
+      typedoc: ^0.22.3
       wj-components: workspace:*
     dependencies:
       wj-components: link:../../modules/wj-components
     devDependencies:
-      typedoc: 0.22.2_typescript@4.4.3
+      typedoc: 0.22.3_typescript@4.4.3
 
 packages:
 
@@ -919,10 +927,6 @@ packages:
       w3c-keyname: 2.2.4
     dev: false
 
-  /@cush/relative/1.0.0:
-    resolution: {integrity: sha512-RpfLEtTlyIxeNPGKcokS+p3BZII/Q3bYxryFRglh5H3A3T8q9fsLYm72VYAMEOOIBLEa8o93kFLiBDUWKrwXZA==}
-    dev: true
-
   /@dabh/diagnostics/2.0.2:
     resolution: {integrity: sha512-+A1YivoVDNNVCdfozHSR8v/jyuuLTMXwjWuxPFlFlUapXoGc+Gj9mDlTDDfrwl7rXCl2tNZ0kE8sIBO6YOn96Q==}
     dependencies:
@@ -1351,10 +1355,6 @@ packages:
 
   /@types/json-schema/7.0.9:
     resolution: {integrity: sha512-qcUXuemtEu+E5wZSJHNxUXeCZhAfXKQ41D+duX+VYPde7xyEVZci+/oXKJL13tnRs9lR2pr4fod59GT6/X1/yQ==}
-    dev: true
-
-  /@types/json5/0.0.29:
-    resolution: {integrity: sha1-7ihweulOEdK4J7y+UnC86n8+ce4=}
     dev: true
 
   /@types/keygrip/1.0.2:
@@ -3046,6 +3046,15 @@ packages:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
     dev: true
 
+  /fs-extra/10.0.0:
+    resolution: {integrity: sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      graceful-fs: 4.2.8
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: true
+
   /fs.realpath/1.0.0:
     resolution: {integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=}
     dev: true
@@ -3110,10 +3119,6 @@ packages:
       is-glob: 4.0.1
     dev: true
 
-  /glob-regex/0.3.2:
-    resolution: {integrity: sha512-m5blUd3/OqDTWwzBBtWBPrGlAzatRywHameHeekAZyZrskYouOGdNB8T/q6JucucvJXtOuyHIn0/Yia7iDasDw==}
-    dev: true
-
   /glob/7.1.7:
     resolution: {integrity: sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==}
     dependencies:
@@ -3175,6 +3180,7 @@ packages:
 
   /globrex/0.1.2:
     resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
+    dev: false
 
   /gonzales-pe/4.3.0:
     resolution: {integrity: sha512-otgSPpUmdWJ43VXyiNgEYE4luzHCL2pz4wQ0OnDluC6Eg4Ko3Vexy/SrSynglw/eR+OhkzmqFCZa/OFa/RgAOQ==}
@@ -3689,13 +3695,6 @@ packages:
     resolution: {integrity: sha1-nbe1lJatPzz+8wp1FC0tkwrXJlE=}
     dev: true
 
-  /json5/1.0.1:
-    resolution: {integrity: sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==}
-    hasBin: true
-    dependencies:
-      minimist: 1.2.5
-    dev: true
-
   /json5/2.2.0:
     resolution: {integrity: sha512-f+8cldu7X/y7RAJurMEJmdoKXGB/X550w2Nr3tTbezL6RwEE/iMcm+tZnXeoZtKuOq6ft8+CqzEkrIgx1fPoQA==}
     engines: {node: '>=6'}
@@ -3706,6 +3705,14 @@ packages:
 
   /jsonfile/4.0.0:
     resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=}
+    optionalDependencies:
+      graceful-fs: 4.2.8
+    dev: true
+
+  /jsonfile/6.1.0:
+    resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
+    dependencies:
+      universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.8
     dev: true
@@ -4759,15 +4766,6 @@ packages:
       picomatch: 2.3.0
     dev: true
 
-  /recrawl-sync/2.2.1:
-    resolution: {integrity: sha512-A2yLDgeXNaduJJMlqyUdIN7fewopnNm/mVeeGytS1d2HLXKpS5EthQ0j8tWeX+as9UXiiwQRwfoslKC+/gjqxg==}
-    dependencies:
-      '@cush/relative': 1.0.0
-      glob-regex: 0.3.2
-      slash: 3.0.0
-      tslib: 1.14.1
-    dev: true
-
   /redent/3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
@@ -5544,15 +5542,6 @@ packages:
     resolution: {integrity: sha512-rvuRbTarPXmMb79SmzEp8aqXNKcK+y0XaB298IXueQ8I2PsrATcPBCSPyK/dDNa2iWOhKlfNnOjdAOTBU/nkFA==}
     dev: true
 
-  /tsconfig-paths/3.11.0:
-    resolution: {integrity: sha512-7ecdYDnIdmv639mmDwslG6KQg1Z9STTz1j7Gcz0xa+nshh/gKDAHcPxRbWOsA3SPp0tXP2leTcY9Kw+NAkfZzA==}
-    dependencies:
-      '@types/json5': 0.0.29
-      json5: 1.0.1
-      minimist: 1.2.5
-      strip-bom: 3.0.0
-    dev: true
-
   /tslib/1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
     dev: true
@@ -5622,8 +5611,8 @@ packages:
       is-typedarray: 1.0.0
     dev: true
 
-  /typedoc/0.22.2_typescript@4.4.3:
-    resolution: {integrity: sha512-p516wGGy6bCUj8k5ZpWWqOT2qa0e5lVU6APiQhEHS4T9LPmCTyAIb9PJgtHbSnkCBnaZE+oOK+lSgCKWGzgJ+w==}
+  /typedoc/0.22.3_typescript@4.4.3:
+    resolution: {integrity: sha512-EOWf9Vf3Vfb/jzBzr87uoLybQw9fx3iyXLUcpQn9F2Ks1/ZJN9iGeBbYRU+VNqrWvV4T+aS7Ife7GFEJUf0ohQ==}
     engines: {node: '>= 12.10.0'}
     hasBin: true
     peerDependencies:
@@ -5700,6 +5689,11 @@ packages:
       '@types/unist': 2.0.6
     dev: true
 
+  /universalify/2.0.0:
+    resolution: {integrity: sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==}
+    engines: {node: '>= 10.0.0'}
+    dev: true
+
   /unpipe/1.0.0:
     resolution: {integrity: sha1-sr9O6FFKrmFltIF4KdIbLvSZBOw=}
     engines: {node: '>= 0.8'}
@@ -5759,20 +5753,6 @@ packages:
       is-buffer: 2.0.5
       unist-util-stringify-position: 2.0.3
       vfile-message: 2.0.4
-    dev: true
-
-  /vite-tsconfig-paths/3.3.14_vite@2.5.6:
-    resolution: {integrity: sha512-Z501YCOTTwBk+zDq0furrD+O+X/zawKIo8L3eE0GVSr700AvWAArnlUHOzoRJQw0fJLfd+61rD7jkT20Jh8gtA==}
-    peerDependencies:
-      vite: '>2.0.0-0'
-    dependencies:
-      debug: 4.3.2
-      globrex: 0.1.2
-      recrawl-sync: 2.2.1
-      tsconfig-paths: 3.11.0
-      vite: 2.5.6
-    transitivePeerDependencies:
-      - supports-color
     dev: true
 
   /vite/2.5.6:
