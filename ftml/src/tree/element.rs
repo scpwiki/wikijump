@@ -24,6 +24,7 @@ use super::{
     ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, Table, TableItem,
 };
 use ref_map::*;
+use crate::data::PageRef;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::num::NonZeroU32;
@@ -215,6 +216,7 @@ pub enum Element<'t> {
     Include {
         paragraph_safe: bool,
         variables: HashMap<Cow<'t, str>, Cow<'t, str>>,
+        location: PageRef<'t>,
         elements: Vec<Element<'t>>,
     },
 
@@ -441,10 +443,12 @@ impl Element<'_> {
             Element::Include {
                 paragraph_safe,
                 variables,
+                location,
                 elements,
             } => Element::Include {
                 paragraph_safe: *paragraph_safe,
                 variables: string_map_to_owned(variables),
+                location: location.to_owned(),
                 elements: elements_to_owned(elements),
             },
             Element::LineBreak => Element::LineBreak,

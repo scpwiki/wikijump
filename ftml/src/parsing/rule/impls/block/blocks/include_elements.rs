@@ -64,7 +64,7 @@ fn parse_fn<'r, 't>(
         mut table_of_contents_depths,
         mut footnotes,
         has_footnote_block,
-    } = include_page(parser, page_ref)?;
+    } = include_page(parser, &page_ref)?;
 
     if has_footnote_block {
         parser.set_footnote_block();
@@ -85,6 +85,7 @@ fn parse_fn<'r, 't>(
     let element = Element::Include {
         paragraph_safe,
         variables,
+        location: page_ref,
         elements,
     };
 
@@ -93,7 +94,7 @@ fn parse_fn<'r, 't>(
 
 fn include_page<'r, 't>(
     parser: &Parser<'r, 't>,
-    _page: PageRef,
+    _page: &PageRef,
 ) -> Result<UnstructuredParseResult<'r, 't>, ParseWarning> {
     // TODO stubbed
 
