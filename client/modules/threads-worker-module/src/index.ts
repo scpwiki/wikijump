@@ -64,9 +64,9 @@ export class WorkerModule<Methods extends WorkerModuleMethods<string> = any> {
   /**
    * @param name - Name of the worker, which appears in the debugger.
    * @param src - The source for a worker, resolving into a string or
-   *   worker factory. Can be given as a function, and if so, a worker
-   *   factory can be used instead of a string. given directly, or as a
-   *   function returning a promisable string/worker-factory.
+   *   worker factory. If the source is given directly, it can only be a
+   *   string. Otherwise, a function resolving into a string or a worker
+   *   factory must be given.
    * @param workerConfig - Worker lifecycle configuration.
    */
   constructor(
