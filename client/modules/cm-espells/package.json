@@ -42,5 +42,8 @@
     "wj-components": "workspace:*",
     "wj-state": "workspace:*",
     "wj-util": "workspace:*"
+  },
+  "devDependencies": {
+    "svelte": "^3.42.5"
   }
 }

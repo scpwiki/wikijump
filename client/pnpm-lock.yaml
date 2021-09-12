@@ -97,6 +97,7 @@ importers:
       dictionary-uk: ^2.3.0
       dictionary-vi: ^2.1.3
       espells: ^0.4.1
+      svelte: ^3.42.5
       threads-worker-module: workspace:*
       wj-codemirror: workspace:*
       wj-components: workspace:*
@@ -131,14 +132,18 @@ importers:
       wj-components: link:../wj-components
       wj-state: link:../wj-state
       wj-util: link:../wj-util
+    devDependencies:
+      svelte: 3.42.5
 
   modules/cm-lang-ftml:
     specifiers:
       '@lezer/common': ^0.15.5
+      '@lezer/lr': ^0.15.2
       '@types/prismjs': ^1.16.6
       cm-espells: workspace:*
       cm-tarnation: workspace:*
       ftml-wasm-worker: workspace:*
+      svelte: ^3.42.5
       threads-worker-module: workspace:*
       wj-codemirror: workspace:*
       wj-components: workspace:*
@@ -147,6 +152,7 @@ importers:
       wj-util: workspace:*
     dependencies:
       '@lezer/common': 0.15.5
+      '@lezer/lr': 0.15.2
       '@types/prismjs': 1.16.6
       cm-espells: link:../cm-espells
       cm-tarnation: link:../cm-tarnation
@@ -157,6 +163,8 @@ importers:
       wj-prism: link:../wj-prism
       wj-state: link:../wj-state
       wj-util: link:../wj-util
+    devDependencies:
+      svelte: 3.42.5
 
   modules/cm-tarnation:
     specifiers:
