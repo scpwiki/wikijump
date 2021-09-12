@@ -133,6 +133,8 @@ impl Handle {
             "message" => message,
         );
 
+        let _ = language;
+
         // TODO
         match message {
             "collapsible-open" => "+ open block",
@@ -151,8 +153,11 @@ impl Handle {
         }
     }
 
-    pub fn post_html(&self, log: &Logger, _info: &PageInfo, _html: &str) -> String {
+    pub fn post_html(&self, log: &Logger, info: &PageInfo, html: &str) -> String {
         debug!(log, "Submitting HTML to create iframe-able snippet");
+
+        let _ = info;
+        let _ = html;
 
         // TODO
         str!("https://example.com/")
@@ -165,6 +170,9 @@ impl Handle {
             "index" => index.get(),
             "code" => code,
         );
+
+        let _ = index;
+        let _ = code;
 
         // TODO
     }

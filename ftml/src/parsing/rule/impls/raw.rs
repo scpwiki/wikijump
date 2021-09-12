@@ -121,14 +121,18 @@ fn try_consume_fn<'p, 'r, 't>(
     };
 
     loop {
-        let ExtractedToken { token, span, slice } = parser.current();
+        let ExtractedToken {
+            token,
+            slice: _slice,
+            span: _span,
+        } = parser.current();
 
         debug!(
             log,
             "Received token inside raw";
             "token" => token,
-            "slice" => slice,
-            "span" => SpanWrap::from(span),
+            "slice" => _slice,
+            "span" => SpanWrap::from(_span),
         );
 
         // Check token

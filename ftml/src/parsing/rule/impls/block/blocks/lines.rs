@@ -69,8 +69,8 @@ fn parse_count<'r, 't>(
             Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
         }
         Ok(value) => Ok(value),
-        Err(error) => {
-            debug!(&parser.log(), "Invalid numeric expression: {}", error);
+        Err(_error) => {
+            debug!(&parser.log(), "Invalid numeric expression: {}", _error);
 
             Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
         }

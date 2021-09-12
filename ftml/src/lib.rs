@@ -122,10 +122,6 @@ extern crate str_macro;
 #[macro_use]
 extern crate slog;
 
-#[cfg(not(feature = "log"))]
-#[macro_use]
-extern crate slog_mock;
-
 // Library top-level modules
 
 #[cfg(test)]
