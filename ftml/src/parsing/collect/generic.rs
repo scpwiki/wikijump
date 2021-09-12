@@ -74,11 +74,17 @@ where
 {
     // Log collect_until() call
     let log = {
+        let ExtractedToken {
+            token: _token,
+            slice: _slice,
+            span: _span,
+        } = parser.current();
+
         &log.new(slog_o!(
             "rule" => str!(_rule.name()),
-            "token" => str!(parser.current().token.name()),
-            "slice" => str!(parser.current().slice),
-            "span" => SpanWrap::from(parser.current().span),
+            "token" => str!(_token.name()),
+            "slice" => str!(_slice),
+            "span" => SpanWrap::from(_span),
             "remaining-len" => parser.remaining().len(),
         ))
     };
