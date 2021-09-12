@@ -31,8 +31,8 @@ pub enum ListItem<'t> {
     /// It's just an item in the list, which may have multiple elements
     /// similar to any other container.
     Elements {
-        elements: Vec<Element<'t>>,
         attributes: AttributeMap<'t>,
+        elements: Vec<Element<'t>>,
     },
 
     /// This item in the list is a sub-list.
@@ -45,11 +45,11 @@ impl ListItem<'_> {
     pub fn to_owned(&self) -> ListItem<'static> {
         match self {
             ListItem::Elements {
-                elements,
                 attributes,
+                elements,
             } => ListItem::Elements {
-                elements: elements_to_owned(elements),
                 attributes: attributes.to_owned(),
+                elements: elements_to_owned(elements),
             },
             ListItem::SubList(list) => ListItem::SubList(list.to_owned()),
         }
