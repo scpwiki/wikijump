@@ -104,7 +104,7 @@ fn include_page<'r, 't>(
 
     Ok(UnstructuredParseResult {
         result: Ok(ParseSuccess::new(
-            vec![text!("<INCLUDED PAGE (ELEMENTS)")],
+            vec![text!("<INCLUDED PAGE (ELEMENTS)>")],
             vec![],
             false,
         )),
