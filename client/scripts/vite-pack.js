@@ -54,6 +54,7 @@ if (json.peerDependencies) external.push(...Object.keys(json.peerDependencies))
 // modify default config to be for building modules
 // otherwise it's entirely the same build process
 const config = getConfig()
+config.command = "build"
 config.clearScreen = false
 config.publicDir = false
 config.root = "./"
