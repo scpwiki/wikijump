@@ -6,6 +6,7 @@
   "keywords": [
     "wikijump"
   ],
+  "private": true,
   "scripts": {
     "debug": "run-s debug:ftml debug:bind",
     "debug:ftml": "cd ../../../ftml && cargo build --no-default-features --target wasm32-unknown-unknown",
@@ -16,14 +17,7 @@
     "compile:opt": "cd vendor && wasm-opt ftml_bg.wasm -O4 -c -o ftml_bg.wasm"
   },
   "type": "module",
-  "main": "src/index.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/scpwiki/wikijump.git",
-    "directory": "client/modules/ftml-wasm"
-  },
-  "bugs": "https://scuttle.atlassian.net/servicedesk/customer/portal/2",
-  "homepage": "https://github.com/scpwiki/wikijump#readme",
+  "module": "src/index.ts",
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   }
