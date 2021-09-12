@@ -6,7 +6,7 @@ import type { FTMLWorkerInterface } from "./worker/ftml.worker"
 const wasmURL = new URL(wasmRelativeURL, import.meta.url).toString()
 
 async function importFTML() {
-  return (await import("./worker/ftml.worker?bundled-worker")).default
+  return (await import("./worker/ftml.worker?worker")).default
 }
 
 class FTMLWorker extends WorkerModule<FTMLWorkerInterface> {
