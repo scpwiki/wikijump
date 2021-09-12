@@ -35,7 +35,11 @@ fn try_consume_fn<'p, 'r, 't>(
     check_step(parser, Token::LeftComment)?;
 
     loop {
-        let ExtractedToken { token, span: _span, slice: _slice } = parser.current();
+        let ExtractedToken {
+            token,
+            span: _span,
+            slice: _slice,
+        } = parser.current();
 
         debug!(
             log,

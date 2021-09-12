@@ -121,7 +121,11 @@ fn try_consume_fn<'p, 'r, 't>(
     };
 
     loop {
-        let ExtractedToken { token, slice: _slice, span: _span } = parser.current();
+        let ExtractedToken {
+            token,
+            slice: _slice,
+            span: _span,
+        } = parser.current();
 
         debug!(
             log,
