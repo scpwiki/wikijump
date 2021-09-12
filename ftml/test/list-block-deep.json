@@ -1,47 +1,86 @@
 {
-    "input": "[[ul]] [[li]] [[ol]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ol]] [[/li]] [[li]]C[[/li]] [[/ul]]",
+    "input": "[[ul]] [[li]] [[ol]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ol]] [[/li]] [[li]]C[[/li]] [[ol]] [[li]]D[[/li]] [[li]]E[[/li]] [[/ol]] [[/ul]]",
     "tree": {
         "elements": [
             {
                 "element": "list",
                 "data": {
                     "type": "bullet",
+                    "attributes": {},
                     "items": [
-                        [
-                            {
-                                "element": "list",
-                                "data": {
-                                    "type": "numbered",
-                                    "items": [
-                                        [
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "list",
+                                    "data": {
+                                        "type": "numbered",
+                                        "items": [
                                             {
-                                                "element": "text",
-                                                "data": "A"
+                                                "attributes": {},
+                                                "elements": [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "A"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "attributes": {},
+                                                "elements": [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "B"
+                                                    }
+                                                ]
                                             }
                                         ],
-                                        [
+                                        "attributes": {}
+                                    }
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "C"
+                                }
+                            ]
+                        },
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "numbered",
+                                "attributes": {},
+                                "items": [
+                                    {
+                                        "attributes": {},
+                                        "elements": [
                                             {
                                                 "element": "text",
-                                                "data": "B"
+                                                "data": "D"
                                             }
                                         ]
-                                    ],
-                                    "attributes": {}
-                                }
-                            },
-                            {
-                                "element": "text",
-                                "data": " "
+                                    },
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "E"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
-                        ],
-                        [
-                            {
-                                "element": "text",
-                                "data": "C"
-                            }
-                        ]
-                    ],
-                    "attributes": {}
+                        }
+                    ]
                 }
             },
             {

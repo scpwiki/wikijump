@@ -99,51 +99,60 @@
                     "type": "bullet",
                     "attributes": {},
                     "items": [
-                        [
-                            {
-                                "element": "link",
-                                "data": {
-                                    "link": "#toc0",
-                                    "label": {
-                                        "text": "A"
-                                    },
-                                    "target": null
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "link",
+                                    "data": {
+                                        "link": "#toc0",
+                                        "label": {
+                                            "text": "A"
+                                        },
+                                        "target": null
+                                    }
                                 }
-                            }
-                        ],
+                            ]
+                        },
                         {
                             "element": "list",
                             "data": {
                                 "type": "bullet",
                                 "attributes": {},
                                 "items": [
-                                    [
-                                        {
-                                            "element": "link",
-                                            "data": {
-                                                "link": "#toc1",
-                                                "label": {
-                                                    "text": "B"
-                                                },
-                                                "target": null
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "link",
+                                                "data": {
+                                                    "link": "#toc1",
+                                                    "label": {
+                                                        "text": "B"
+                                                    },
+                                                    "target": null
+                                                }
                                             }
-                                        }
-                                    ]
+                                        ]
+                                    }
                                 ]
                             }
                         },
-                        [
-                            {
-                                "element": "link",
-                                "data": {
-                                    "link": "#toc2",
-                                    "label": {
-                                        "text": "C"
-                                    },
-                                    "target": null
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "link",
+                                    "data": {
+                                        "link": "#toc2",
+                                        "label": {
+                                            "text": "C"
+                                        },
+                                        "target": null
+                                    }
                                 }
-                            }
-                        ]
+                            ]
+                        }
                     ]
                 }
             }

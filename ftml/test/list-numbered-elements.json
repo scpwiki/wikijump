@@ -21,20 +21,23 @@
                     "type": "numbered",
                     "attributes": {},
                     "items": [
-                        [
-                            {
-                                "element": "text",
-                                "data": "A"
-                            },
-                            {
-                                "element": "text",
-                                "data": " "
-                            },
-                            {
-                                "element": "text",
-                                "data": "1"
-                            }
-                        ]
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "A"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "1"
+                                }
+                            ]
+                        }
                     ]
                 }
             },

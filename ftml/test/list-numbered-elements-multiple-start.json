@@ -8,48 +8,57 @@
                     "type": "numbered",
                     "attributes": {},
                     "items": [
-                        [
-                            {
-                                "element": "text",
-                                "data": "A"
-                            },
-                            {
-                                "element": "text",
-                                "data": " "
-                            },
-                            {
-                                "element": "text",
-                                "data": "1"
-                            }
-                        ],
-                        [
-                            {
-                                "element": "text",
-                                "data": "B"
-                            },
-                            {
-                                "element": "text",
-                                "data": " "
-                            },
-                            {
-                                "element": "text",
-                                "data": "2"
-                            }
-                        ],
-                        [
-                            {
-                                "element": "text",
-                                "data": "C"
-                            },
-                            {
-                                "element": "text",
-                                "data": " "
-                            },
-                            {
-                                "element": "text",
-                                "data": "3"
-                            }
-                        ]
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "A"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "1"
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "B"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "2"
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "C"
+                                },
+                                {
+                                    "element": "text",
+                                    "data": " "
+                                },
+                                {
+                                    "element": "text",
+                                    "data": "3"
+                                }
+                            ]
+                        }
                     ]
                 }
             },

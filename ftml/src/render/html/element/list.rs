@@ -41,11 +41,17 @@ pub fn render_list(
     tag.attr(attr!(;; attributes)).contents(|ctx| {
         for list_item in list_items {
             match list_item {
-                ListItem::Elements(elements) => {
-                    ctx.html().li().inner(log, &elements.as_slice());
+                ListItem::Elements {
+                    elements,
+                    attributes,
+                } => {
+                    ctx.html()
+                        .li()
+                        .attr(attr!(;; attributes))
+                        .inner(log, &elements);
                 }
-                ListItem::SubList(list) => {
-                    render_element(log, ctx, list);
+                ListItem::SubList(element) => {
+                    render_element(log, ctx, element);
                 }
             }
         }

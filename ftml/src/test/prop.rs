@@ -203,7 +203,12 @@ where
         }};
     }
 
-    let list_item = elements.prop_map(|elements| ListItem::Elements(elements));
+    let list_item = (elements, arb_attribute_map()).prop_map(|(elements, attributes)| {
+        ListItem::Elements {
+            elements,
+            attributes,
+        }
+    });
     let leaf = make_list!(proptest::collection::vec(list_item, 1..10));
 
     leaf.prop_recursive(

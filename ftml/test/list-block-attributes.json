@@ -1,28 +1,20 @@
 {
-    "input": "[\n# A\n# B\n# C",
+    "input": "[[ol class=\"numbers\" data-fruit=\"banana\"]]\n[[li id=\"item-1\"]]\nA\n[[/li]]\n[[li id=\"item-2\"]]\nB\n[[/li]]\n[[/ol]]",
     "tree": {
         "elements": [
-            {
-                "element": "container",
-                "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "text",
-                            "data": "["
-                        }
-                    ]
-                }
-            },
             {
                 "element": "list",
                 "data": {
                     "type": "numbered",
-                    "attributes": {},
+                    "attributes": {
+                        "class": "numbers",
+                        "data-fruit": "banana"
+                    },
                     "items": [
                         {
-                            "attributes": {},
+                            "attributes": {
+                                "id": "item-1"
+                            },
                             "elements": [
                                 {
                                     "element": "text",
@@ -31,20 +23,13 @@
                             ]
                         },
                         {
-                            "attributes": {},
+                            "attributes": {
+                                "id": "item-2"
+                            },
                             "elements": [
                                 {
                                     "element": "text",
                                     "data": "B"
-                                }
-                            ]
-                        },
-                        {
-                            "attributes": {},
-                            "elements": [
-                                {
-                                    "element": "text",
-                                    "data": "C"
                                 }
                             ]
                         }
