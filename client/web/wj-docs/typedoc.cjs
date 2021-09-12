@@ -1,4 +1,3 @@
-const globby = require("globby")
 const fs = require("fs")
 const path = require("path")
 const TypeDoc = require("typedoc")
