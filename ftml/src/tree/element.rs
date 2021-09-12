@@ -213,6 +213,7 @@ pub enum Element<'t> {
     /// Element containing the contents of a page included elsewhere.
     ///
     /// From `[[include-elements]]`.
+    #[serde(rename_all = "kebab-case")]
     Include {
         paragraph_safe: bool,
         variables: HashMap<Cow<'t, str>, Cow<'t, str>>,
