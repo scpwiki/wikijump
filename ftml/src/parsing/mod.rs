@@ -146,7 +146,8 @@ where
 
             crit!(
                 log,
-                "Fatal error occurred at highest-level parsing: {:#?}", warning,
+                "Fatal error occurred at highest-level parsing: {:#?}",
+                warning,
             );
 
             let wikitext = tokenization.full_text().inner();
