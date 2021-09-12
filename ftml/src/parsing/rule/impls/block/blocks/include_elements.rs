@@ -21,6 +21,9 @@
 use super::prelude::*;
 use crate::data::PageRef;
 use crate::tree::SyntaxTree;
+use std::borrow::Cow;
+use std::collections::HashMap;
+use unicase::UniCase;
 
 /// Block rule for include (elements).
 ///
@@ -50,7 +53,7 @@ fn parse_fn<'r, 't>(
     assert_block_name(&BLOCK_INCLUDE_ELEMENTS, name);
 
     // Parse block
-    let (page_name, arguments) =
+    let (page_name, variables) =
         parser.get_head_name_map(&BLOCK_INCLUDE_ELEMENTS, in_head)?;
 
     let page_ref = match PageRef::parse(page_name) {
@@ -64,7 +67,7 @@ fn parse_fn<'r, 't>(
         styles,
         mut table_of_contents,
         mut footnotes,
-    } = include_page(parser, page_ref)?;
+    } = include_page(parser, page_ref, variables.inner())?;
 
     // Add gathered items and return
     parser.append_toc_and_footnotes(&mut Vec::new(), &mut footnotes);
@@ -80,6 +83,7 @@ fn parse_fn<'r, 't>(
 fn include_page(
     parser: &Parser,
     _page: PageRef,
+    _variables: &HashMap<UniCase<&str>, Cow<str>>,
 ) -> Result<SyntaxTree<'static>, ParseWarning> {
     // TODO stubbed
 
