@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::parsing::{process_depths, DepthItem, DepthList};
-use crate::tree::{ListItem, ListType};
+use crate::tree::{AttributeMap, ListItem, ListType};
 
 const MAX_LIST_DEPTH: usize = 20;
 
@@ -172,7 +172,10 @@ fn build_list_element(
     list: DepthList<ListType, Vec<Element>>,
 ) -> Element {
     let build_item = |item| match item {
-        DepthItem::Item(elements) => ListItem::Elements(elements),
+        DepthItem::Item(elements) => ListItem::Elements {
+            elements,
+            attributes: AttributeMap::new(),
+        },
         DepthItem::List(ltype, list) => {
             ListItem::SubList(build_list_element(ltype, list))
         }

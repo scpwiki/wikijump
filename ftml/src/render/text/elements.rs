@@ -181,7 +181,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
 
             for item in items {
                 match item {
-                    ListItem::Elements(elements) => {
+                    ListItem::Elements { elements, .. } => {
                         // Don't do anything if it's empty
                         if elements.is_empty() {
                             continue;

@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::attribute::AttributeMap;
 use super::clone::elements_to_owned;
 use super::Element;
 use strum_macros::IntoStaticStr;
@@ -29,7 +30,10 @@ pub enum ListItem<'t> {
     ///
     /// It's just an item in the list, which may have multiple elements
     /// similar to any other container.
-    Elements(Vec<Element<'t>>),
+    Elements {
+        elements: Vec<Element<'t>>,
+        attributes: AttributeMap<'t>,
+    },
 
     /// This item in the list is a sub-list.
     ///
@@ -40,12 +44,14 @@ pub enum ListItem<'t> {
 impl ListItem<'_> {
     pub fn to_owned(&self) -> ListItem<'static> {
         match self {
-            ListItem::Elements(elements) => {
-                ListItem::Elements(elements_to_owned(elements))
-            }
-            ListItem::SubList(element) => {
-                ListItem::SubList(element.to_owned()) //
-            }
+            ListItem::Elements {
+                elements,
+                attributes,
+            } => ListItem::Elements {
+                elements: elements_to_owned(elements),
+                attributes: attributes.to_owned(),
+            },
+            ListItem::SubList(list) => ListItem::SubList(list.to_owned()),
         }
     }
 }

@@ -202,7 +202,10 @@ fn build_toc_list_element(
                 target: None,
             };
 
-            ListItem::Elements(vec![link])
+            ListItem::Elements {
+                elements: vec![link],
+                attributes: AttributeMap::new(),
+            }
         }
     };
 

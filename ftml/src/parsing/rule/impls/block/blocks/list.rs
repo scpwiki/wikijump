@@ -148,6 +148,21 @@ fn parse_list_block<'r, 't>(
                 // Ensure all elements of a list are only items, i.e. [[li]].
                 Element::ListItem(item) => items.push(*item),
 
+                // Or sub-lists.
+                Element::List {
+                    ltype,
+                    attributes,
+                    items: sub_items,
+                } => {
+                    let element = Element::List {
+                        ltype,
+                        attributes,
+                        items: sub_items,
+                    };
+                    let item = ListItem::SubList(element);
+                    items.push(item);
+                }
+
                 // Ignore "whitespace" elements
                 element if element.is_whitespace() => continue,
 
@@ -215,16 +230,10 @@ fn parse_list_item<'r, 't>(
         strip_newlines(&mut elements);
     }
 
-    // Single item is a list, create a sub-list
-    let list_item = if elements.len() == 1 && matches!(elements[0], Element::List { .. })
-    {
-        let element = elements.pop().unwrap();
-
-        ListItem::SubList(element)
-    } else {
-        ListItem::Elements(elements)
+    let list_item = ListItem::Elements {
+        elements,
+        attributes,
     };
-
     let element = Element::ListItem(Box::new(list_item));
 
     ok!(false; element, exceptions)
