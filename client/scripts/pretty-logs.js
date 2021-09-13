@@ -7,7 +7,7 @@ function linebreak() {
 }
 
 function separator() {
-  console.log(chalk.gray("-------------------------"))
+  console.log(chalk.gray("─────────────────────────"))
 }
 
 function header(title) {
@@ -29,13 +29,13 @@ function info(...msgs) {
 
 function warn(...msgs) {
   const msg = msgs.join("\n")
-  console.warn(chalk.yellow("-------- WARNING --------"))
+  console.warn(chalk.yellow("──────── WARNING ────────"))
   console.warn(chalk.yellow(msg))
 }
 
 function error(...msgs) {
   const msg = msgs.join("\n")
-  console.warn(chalk.redBright("--------- ERROR ---------"))
+  console.warn(chalk.redBright("───────── ERROR ─────────"))
   console.warn(chalk.redBright(msg))
 }
 
