@@ -110,9 +110,8 @@ delete json.eslintConfig
 if (json.dependencies) {
   for (const [name, version] of Object.entries(json.dependencies)) {
     if (version.startsWith("workspace:")) {
-      const stripped = name.replace("@wikijump/", "")
-      const latest = require(`${ROOT}/modules/${stripped}/package.json`).version
-      if (!latest) throw new Error(`No version found for ${name}`)
+      const latest = version.replace("workspace:", "")
+      if (!latest || latest === "*") throw new Error(`No version found for ${name}`)
       if (latest === "0.0.0") {
         linebreak()
         warn(
