@@ -50,8 +50,8 @@ const modules = fs
   // asking if the user wants to publish
 
   if (outOfDate.length === 0) {
-    linebreak()
     info("All modules are up-to-date")
+    linebreak()
     return
   }
 
