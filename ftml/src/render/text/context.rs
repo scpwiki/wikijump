@@ -110,6 +110,16 @@ where
     }
 
     #[inline]
+    pub fn variables(&self) -> &VariableScopes<'t> {
+        &self.variables
+    }
+
+    #[inline]
+    pub fn variables_mut(&mut self) -> &mut VariableScopes<'t> {
+        &mut self.variables
+    }
+
+    #[inline]
     pub fn table_of_contents(&self) -> &'e [Element<'t>] {
         self.table_of_contents
     }
