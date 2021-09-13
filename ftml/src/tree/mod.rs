@@ -34,6 +34,7 @@ mod module;
 mod partial;
 mod table;
 mod tag;
+mod variables;
 
 pub use self::align::*;
 pub use self::anchor::*;
@@ -49,6 +50,7 @@ pub use self::module::*;
 pub use self::partial::*;
 pub use self::table::*;
 pub use self::tag::*;
+pub use self::variables::VariableMap;
 
 use self::clone::{elements_lists_to_owned, elements_to_owned, strings_to_owned};
 use crate::parsing::{ParseOutcome, ParseWarning};
