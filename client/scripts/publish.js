@@ -1,4 +1,4 @@
-const execSync = require("child_process").execSync
+const { execSync } = require("child_process")
 
 const arg = process.argv[2]
 
