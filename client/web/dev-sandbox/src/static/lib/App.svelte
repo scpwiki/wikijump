@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Sheaf } from "sheaf"
+  import { Sheaf } from "@wikijump/sheaf"
   import { onMount } from "svelte"
 
   let ready = false

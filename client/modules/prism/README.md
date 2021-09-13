@@ -1,4 +1,4 @@
-# wj-prism
+# @wikijump/prism
 
 This module wraps around the Prism syntax highlighting library.
 

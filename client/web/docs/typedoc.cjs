@@ -5,7 +5,7 @@ const TypeDoc = require("typedoc")
 // change working directory to repo root if it isn't already
 process.chdir(path.resolve(__dirname, "../../"))
 
-const OUTPUT_DIR = "web/wj-docs/dist"
+const OUTPUT_DIR = "web/docs/dist"
 
 async function main() {
   const modules = fs
