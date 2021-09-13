@@ -89,13 +89,13 @@ config.build.lib = {
 // modify the package.json for NPM publish
 
 // point to built files
-json.types = `${json.main}`
-json.main = `cjs/wj-${package}.cjs`
-json.module = `esm/wj-${package}.mjs`
+json.types = `./${json.main}`
+json.main = `./cjs/wj-${package}.cjs`
+json.module = `./esm/wj-${package}.mjs`
 json.exports ??= {}
 json.exports["."] = {
-  import: `esm/wj-${package}.mjs`,
-  require: `cjs/wj-${package}.cjs`
+  import: `./esm/wj-${package}.mjs`,
+  require: `./cjs/wj-${package}.cjs`
 }
 
 // delete fields that would mess with things
