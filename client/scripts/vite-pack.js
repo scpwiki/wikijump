@@ -2,6 +2,15 @@ const vite = require("vite")
 const { getConfig } = require("./vite-config.js")
 const path = require("path")
 const fs = require("fs-extra")
+const {
+  linebreak,
+  separator,
+  header,
+  section,
+  info,
+  warn,
+  error
+} = require("./pretty-logs.js")
 
 /*
  * This script allows for the creation of NPM packages from a module in the
@@ -30,8 +39,9 @@ if (!package) {
   process.exit(1)
 }
 
-console.log("------ vite-pack ------")
-console.log(`Building package for "${package}"`)
+header("vite-pack")
+linebreak()
+info(`Building package for "${package}"`)
 
 const ROOT = path.resolve(__dirname, "../")
 const DIR = path.resolve(__dirname, `../modules/${package}`)
@@ -64,6 +74,7 @@ const config = getConfig()
 config.command = "build"
 config.clearScreen = false
 config.publicDir = false
+config.base = "./"
 config.root = "./"
 config.build.assetsDir = "./"
 config.build.minify = false // let consumers minify their own code
@@ -112,10 +123,12 @@ if (json.dependencies) {
       const latest = require(`${ROOT}/modules/${stripped}/package.json`).version
       if (!latest) throw new Error(`No version found for ${name}`)
       if (latest === "0.0.0") {
-        console.log("\n------- WARNING -------")
-        console.warn(`Linked dependency "${name}" has a version of 0.0.0`)
-        console.warn("That probably means that it hasn't been published")
-        console.warn(`Package "${json.name}" may have unresolvable dependencies`)
+        linebreak()
+        warn(
+          `Linked dependency "${name}" has a version of v0.0.0`,
+          "That probably means that it hasn't been published",
+          `Package "${json.name}" may have unresolvable dependencies`
+        )
       }
       json.dependencies[name] = `^${latest}`
     }
@@ -123,9 +136,12 @@ if (json.dependencies) {
 }
 
 if (json.version === "0.0.0") {
-  console.log("\n------- WARNING -------")
-  console.warn(`Package "${json.name}" has a version of v0.0.0`)
-  console.warn("You should give this package a non-zero version before publishing")
+  linebreak()
+  error(
+    `Package "${json.name}" has a version of v0.0.0`,
+    "You have to give this package a non-zero version"
+  )
+  process.exit(1)
 }
 
 // add additional metadata regarding repository
@@ -139,7 +155,9 @@ json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/client/modules
 
 // build module, finally
 ;(async () => {
-  console.log("\n-------- BUILD --------")
+  linebreak()
+  section("BUILD")
+  linebreak()
 
   // have to clear folder because Vite won't do it due to the outDir workaround
   if (await fs.pathExists(`${DIR}/dist`)) await fs.remove(`${DIR}/dist`)
@@ -148,28 +166,35 @@ json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/client/modules
   // Vite doesn't separate the CJS and ESM builds from each other
   // so they would overwrite each other's files
 
-  console.log("\nBuilding ESM...")
+  info("Building ESM...")
+  separator()
   config.build.outDir = "./dist/esm"
   config.build.lib.formats = ["es"]
   await vite.build(config)
 
-  console.log("\nBuilding CJS...")
+  linebreak()
+
+  info("Building CJS...")
+  separator()
   config.build.outDir = "./dist/cjs"
   config.build.lib.formats = ["cjs"]
   await vite.build(config)
 
-  console.log("\nCopying module source files...")
+  linebreak()
+
+  info("Copying module source files...")
   await copy(`${DIR}/src`, `${DIR}/dist/src`)
   await copy(`${DIR}/vendor`, `${DIR}/dist/vendor`)
   await copy(`${DIR}/bin`, `${DIR}/dist/bin`)
 
-  console.log("Writing package metadata...")
+  info("Writing package metadata...")
   await fs.writeFile(`${DIR}/dist/package.json`, JSON.stringify(json, null, 2))
   await copy(`${DIR}/README.md`, `${DIR}/dist/README.md`)
   await copy(`${ROOT}/../LICENSE.md`, `${DIR}/dist/LICENSE.md`)
   await copy(`${DIR}/CHANGELOG.md`, `${DIR}/dist/CHANGELOG.md`)
 
-  console.log(`Finished packaging "${package}".\n`)
+  info(`Finished packaging "${package}"`)
+  linebreak()
 })()
 
 async function copy(from, to) {

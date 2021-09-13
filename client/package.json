@@ -8,9 +8,9 @@
     "build:web": "pnpm --filter {web} --parallel --if-present -r build",
     "cover": "wtr --playwright --coverage",
     "dev:dev-sandbox": "pnpm --filter dev-sandbox dev",
-    "lint": "run-p lint:eslint lint:stylelint lint:prettier",
+    "lint": "run-p -lns lint:eslint lint:stylelint lint:prettier",
     "lint:eslint": "eslint \"./**/*.js\" \"./**/*.ts\"",
-    "lint:fix": "run-p lint:fix:eslint lint:fix:stylelint lint:fix:prettier",
+    "lint:fix": "run-p -lns lint:fix:eslint lint:fix:stylelint lint:fix:prettier",
     "lint:fix:eslint": "eslint \"./**/*.js\" \"./**/*.ts\" --fix",
     "lint:fix:prettier": "prettier --write --ignore-unknown \"modules/**\" \"web/**\"",
     "lint:fix:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\" --fix",
@@ -20,7 +20,7 @@
     "publish-module": "node scripts/publish.js",
     "test": "wtr --playwright",
     "typecheck": "tsc",
-    "validate": "run-p lint typecheck",
+    "validate": "run-p -lns lint typecheck",
     "nabs": "nabs"
   },
   "browserslist": [
@@ -40,6 +40,7 @@
     "@typescript-eslint/typescript-estree": "^4.31.0",
     "@web/test-runner": "^0.13.17",
     "@web/test-runner-playwright": "^0.8.8",
+    "chalk": "^4.1.2",
     "eslint": "^7.32.0",
     "eslint-plugin-regexp": "^1.1.0",
     "eslint-plugin-svelte3": "^3.2.1",

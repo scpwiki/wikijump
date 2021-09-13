@@ -2,7 +2,7 @@ import { decode, transfer, WorkerModule } from "@wikijump/threads-worker-module"
 import type { ContentModuleInterface } from "./content.worker"
 
 async function importWorker() {
-  return (await import("./content.worker?worker&inline")).default
+  return (await import("./content.worker?worker")).default
 }
 
 export class ContentWorker extends WorkerModule<ContentModuleInterface> {

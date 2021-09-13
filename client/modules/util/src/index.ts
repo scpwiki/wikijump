@@ -1,5 +1,3 @@
-import { isAnyObject } from "is-what"
-
 export * from "./decorators"
 
 // https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0#gistcomment-2694461
@@ -80,7 +78,7 @@ export function has<K extends string, T>(
   key: K,
   obj: T
 ): obj is T extends Record<any, any> ? Has<K, T> : never {
-  if (!isAnyObject(obj)) return false
+  if (typeof obj !== "object") return false
   // @ts-ignore
   return key in obj && obj[key] !== undefined
 }
@@ -343,7 +341,7 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
   }
 }
 
-const HAS_IDLE_CALLBACK = "requestIdleCallback" in window
+const HAS_IDLE_CALLBACK = "requestIdleCallback" in globalThis
 
 /** Safely calls `requestIdleCallback` in an awaitable `Promise`. */
 // bad coverage as requestIdleCallback isn't always available

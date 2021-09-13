@@ -3,7 +3,7 @@ import { decode, transfer, WorkerModule } from "@wikijump/threads-worker-module"
 import type { FTMLWorkerInterface } from "./worker/ftml.worker"
 
 async function importFTML() {
-  return (await import("./worker/ftml.worker?worker&inline")).default
+  return (await import("./worker/ftml.worker?worker")).default
 }
 
 class FTMLWorker extends WorkerModule<FTMLWorkerInterface> {

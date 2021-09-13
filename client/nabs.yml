@@ -20,21 +20,21 @@ cover: wtr --playwright --coverage
 
 lint:
   $depend: []
-  $action: run-p lint:eslint lint:stylelint lint:prettier
+  $action: run-p -lns lint:eslint lint:stylelint lint:prettier
   eslint: eslint "./**/*.js" "./**/*.ts"
   stylelint: stylelint "modules/**/*.scss" "web/**/*.scss"
   prettier: prettier --ignore-unknown --check "modules/**" "web/**"
 
   fix:
     $depend: []
-    $action: run-p lint:fix:eslint lint:fix:stylelint lint:fix:prettier
+    $action: run-p -lns lint:fix:eslint lint:fix:stylelint lint:fix:prettier
     eslint: eslint "./**/*.js" "./**/*.ts" --fix
     stylelint: stylelint "modules/**/*.scss" "web/**/*.scss" --fix
     prettier: prettier --write --ignore-unknown "modules/**" "web/**"
 
 typecheck: tsc
 
-validate: run-p lint typecheck
+validate: run-p -lns lint typecheck
 
 # -- MISC.
 
