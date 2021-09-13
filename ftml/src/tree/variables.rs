@@ -20,6 +20,8 @@
 
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::fmt::{self, Debug};
+use std::ops::{Deref, DerefMut};
 
 pub type VariableMap<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 
@@ -50,5 +52,65 @@ impl<'t> VariableScopes<'t> {
 
     pub fn pop_scope(&mut self) {
         self.scopes.pop().expect("Scope stack was empty");
+    }
+}
+
+pub type VariableContextGetScopesFn<'t, C> = fn(&mut C) -> &mut VariableScopes<'t>;
+
+/// A wrapper structure that automatically adds and removes a variable scope.
+///
+/// This permits render contexts to have confidence that they are in the proper scope,
+/// even in the case of errors or other exceptional code paths.
+pub struct VariableContextWrap<'t, C> {
+    context: C,
+    get_scopes_fn: VariableContextGetScopesFn<'t, C>,
+}
+
+impl<'t, C> VariableContextWrap<'t, C> {
+    pub fn new(
+        mut context: C,
+        scope: VariableMap<'t>,
+        get_scopes_fn: VariableContextGetScopesFn<'t, C>,
+    ) -> Self {
+        get_scopes_fn(&mut context).push_scope(scope);
+
+        VariableContextWrap {
+            context,
+            get_scopes_fn,
+        }
+    }
+}
+
+impl<'t, C> Deref for VariableContextWrap<'t, C> {
+    type Target = C;
+
+    #[inline]
+    fn deref(&self) -> &C {
+        &self.context
+    }
+}
+
+impl<'t, C> DerefMut for VariableContextWrap<'t, C> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut C {
+        &mut self.context
+    }
+}
+
+impl<'t, C> Drop for VariableContextWrap<'t, C> {
+    fn drop(&mut self) {
+        (self.get_scopes_fn)(&mut self.context).pop_scope();
+    }
+}
+
+impl<'t, C> Debug for VariableContextWrap<'t, C>
+where
+    C: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("VariableContextWrap")
+            .field("context", &self.context)
+            .field("get_scopes", &(self.get_scopes_fn as *const ()))
+            .finish()
     }
 }
