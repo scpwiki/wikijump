@@ -1,12 +1,12 @@
 // organize-imports-ignore
-import "wj-prism/vendor/prism-min"
-import { prismFTML } from "wj-prism/src/ftml"
+import "@wikijump/prism/vendor/prism-min"
+import { prismFTML } from "@wikijump/prism/src/ftml"
 import {
   decode,
   expose,
   ModuleProxy,
   transfer
-} from "threads-worker-module/src/worker-lib"
+} from "@wikijump/threads-worker-module/src/worker-lib"
 
 // add FTML to our tiny prism instance
 // @ts-ignore undeclared global

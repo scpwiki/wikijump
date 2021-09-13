@@ -1,0 +1,31 @@
+{
+  "name": "@wikijump/components",
+  "license": "agpl-3.0-or-later",
+  "description": "Wikijump component library.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "private": true,
+  "scripts": {},
+  "type": "module",
+  "svelte": "src/index.ts",
+  "main": "src/index.ts",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "dependencies": {
+    "@iconify/iconify": "^2.0.4",
+    "@popperjs/core": "^2.10.1",
+    "@wikijump/ftml-wasm": "workspace:*",
+    "@wikijump/ftml-wasm-worker": "workspace:*",
+    "morphdom": "^2.6.1",
+    "tippy.js": "^6.3.1",
+    "@wikijump/prism": "workspace:*",
+    "@wikijump/state": "workspace:*",
+    "@wikijump/util": "workspace:*"
+  },
+  "devDependencies": {
+     "svelte": "^3.42.5"
+   }
+}

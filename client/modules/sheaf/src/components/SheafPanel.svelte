@@ -2,10 +2,10 @@
   @component CodeMirror test panel.
 -->
 <script lang="ts">
-  import { FTMLLanguage } from "cm-lang-ftml"
-  import { Button } from "wj-components"
-  import type { EditorSveltePanelProps } from "wj-codemirror"
-  import { unit } from "wj-state"
+  import { FTMLLanguage } from "@wikijump/cm-lang-ftml"
+  import { Button } from "@wikijump/components"
+  import type { EditorSveltePanelProps } from "@wikijump/codemirror"
+  import { unit } from "@wikijump/state"
 
   export let view: EditorSveltePanelProps["view"]
   export let update: EditorSveltePanelProps["update"]

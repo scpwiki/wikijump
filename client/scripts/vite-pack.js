@@ -82,7 +82,7 @@ config.build.rollupOptions = {
 config.build.lib = {
   entry: `${json.main}`,
   fileName(format) {
-    return `${json.name}.${format === "es" ? "mjs" : "cjs"}`
+    return `wj-${package}.${format === "es" ? "mjs" : "cjs"}`
   }
 }
 
@@ -90,12 +90,12 @@ config.build.lib = {
 
 // point to built files
 json.types = `${json.main}`
-json.main = `cjs/${json.name}.cjs`
-json.module = `esm/${json.name}.mjs`
+json.main = `cjs/wj-${package}.cjs`
+json.module = `esm/wj-${package}.mjs`
 json.exports ??= {}
 json.exports["."] = {
-  import: `esm/${json.name}.mjs`,
-  require: `cjs/${json.name}.cjs`
+  import: `esm/wj-${package}.mjs`,
+  require: `cjs/wj-${package}.cjs`
 }
 
 // delete fields that would mess with things
@@ -108,13 +108,14 @@ delete json.eslintConfig
 if (json.dependencies) {
   for (const [name, version] of Object.entries(json.dependencies)) {
     if (version.startsWith("workspace:")) {
-      const latest = require(`${ROOT}/modules/${name}/package.json`).version
+      const stripped = name.replace("@wikijump/", "")
+      const latest = require(`${ROOT}/modules/${stripped}/package.json`).version
       if (!latest) throw new Error(`No version found for ${name}`)
       if (latest === "0.0.0") {
         console.log("\n------- WARNING -------")
         console.warn(`Linked dependency "${name}" has a version of 0.0.0`)
         console.warn("That probably means that it hasn't been published")
-        console.warn(`Package "${package}" may have unresolvable dependencies`)
+        console.warn(`Package "${json.name}" may have unresolvable dependencies`)
       }
       json.dependencies[name] = `^${latest}`
     }
@@ -123,7 +124,7 @@ if (json.dependencies) {
 
 if (json.version === "0.0.0") {
   console.log("\n------- WARNING -------")
-  console.warn(`Package "${package}" has a version of v0.0.0`)
+  console.warn(`Package "${json.name}" has a version of v0.0.0`)
   console.warn("You should give this package a non-zero version before publishing")
 }
 

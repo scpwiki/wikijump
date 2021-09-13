@@ -1,13 +1,13 @@
-import * as FTML from "ftml-wasm"
-import type * as Binding from "ftml-wasm/vendor/ftml"
-import type { TransferDescriptor } from "threads"
+import * as FTML from "@wikijump/ftml-wasm"
+import type * as Binding from "@wikijump/ftml-wasm/vendor/ftml"
 import {
   decode,
   encode,
   expose,
   transfer,
   transferMultiple
-} from "threads-worker-module/src/worker-lib"
+} from "@wikijump/threads-worker-module/src/worker-lib"
+import type { TransferDescriptor } from "threads"
 import type { ModuleProxy } from "threads/dist/types/master"
 import * as indent from "../../vendor/indent"
 

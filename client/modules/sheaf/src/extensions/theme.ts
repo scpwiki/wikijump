@@ -1,4 +1,4 @@
-import { Extension, HighlightStyle, tags as t } from "wj-codemirror/cm"
+import { Extension, HighlightStyle, tags as t } from "@wikijump/codemirror/cm"
 
 // prettier-ignore
 const

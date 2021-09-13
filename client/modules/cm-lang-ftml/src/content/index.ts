@@ -1,4 +1,4 @@
-import { decode, transfer, WorkerModule } from "threads-worker-module"
+import { decode, transfer, WorkerModule } from "@wikijump/threads-worker-module"
 import type { ContentModuleInterface } from "./content.worker"
 
 async function importWorker() {

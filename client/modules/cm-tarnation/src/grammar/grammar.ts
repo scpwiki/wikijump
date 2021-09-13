@@ -1,9 +1,15 @@
 import { NodeProp, NodePropSource } from "@lezer/common"
+import { styleTags, tags } from "@wikijump/codemirror/cm"
+import {
+  createID,
+  escapeRegExp,
+  hasSigil,
+  removeUndefined,
+  unSigil
+} from "@wikijump/util"
 import { isArray, isRegExp, isString } from "is-what"
 import { klona } from "klona"
 import { Memoize } from "typescript-memoize"
-import { styleTags, tags } from "wj-codemirror/cm"
-import { createID, escapeRegExp, hasSigil, removeUndefined, unSigil } from "wj-util"
 import { Action } from "./action"
 import type * as DF from "./definition"
 import type * as DM from "./demangler"

@@ -1,4 +1,4 @@
-import { TarnationLanguage } from "cm-tarnation"
+import { TarnationLanguage } from "@wikijump/cm-tarnation"
 
 export const FTMLTokensGrammar = new TarnationLanguage({
   name: "FTMLTokens",

@@ -1,5 +1,5 @@
 import type { NodePropSource, NodeType, Tree } from "@lezer/common"
-import type { Extension, Facet, LanguageDescription } from "wj-codemirror/cm"
+import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
 import type * as DF from "./grammar/definition"
 import type { Chunk } from "./tokenizer"
 

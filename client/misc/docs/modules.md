@@ -22,12 +22,12 @@ There is a template for making modules, and it can be found in the `misc/templat
 Here is how to use that template:
 
 1. Create a folder in `modules/` that is the name of your package.
-  It isn't strictly required that it is the name of your package, but it gets confusing otherwise. If the package has a really generic name, consider prefixing it. If the package is very specific to Wikijump, a good prefix is `wj-`.
+  It isn't strictly required that it is the name of your package, but it gets confusing otherwise.
 
 2. Copy the contents of `misc/templates/module-template` into the new folder.
 
 3. Edit `package.json`.
-  There are a few properties you should edit. They are: `name`, `description`, and `version`. Everything else is fine being left alone.
+  There are a few properties you should edit. They are: `name`, `description`, and `version`. Everything else is fine being left alone. Make sure `name` is prefixed with `@wikijump/`.
 
 4. Edit `README.md`.
    This one is fairly self-explanatory: edit the readme to display the correct module name and add any important details that you feel should be added.

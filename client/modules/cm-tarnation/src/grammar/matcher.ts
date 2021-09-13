@@ -1,5 +1,5 @@
+import { hasSigil, pointsMatch, toPoints } from "@wikijump/util"
 import { isArray, isFunction, isRegExp } from "is-what"
-import { hasSigil, pointsMatch, toPoints } from "wj-util"
 import type * as DF from "./definition"
 import { Grammar, GrammarContext } from "./grammar"
 

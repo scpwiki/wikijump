@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { EditorView, ViewPlugin, ViewUpdate } from "wj-codemirror/cm"
+import { EditorView, ViewPlugin, ViewUpdate } from "@wikijump/codemirror/cm"
 import espells from "./espells"
 import { Spellcheck } from "./extension"
 import { getLocale } from "./locales"

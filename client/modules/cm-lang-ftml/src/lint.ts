@@ -1,7 +1,7 @@
-import FTML from "ftml-wasm-worker"
-import { textValue } from "wj-codemirror"
-import { Diagnostic, EditorView, linter } from "wj-codemirror/cm"
-import { format } from "wj-state"
+import { textValue } from "@wikijump/codemirror"
+import { Diagnostic, EditorView, linter } from "@wikijump/codemirror/cm"
+import FTML from "@wikijump/ftml-wasm-worker"
+import { format } from "@wikijump/state"
 
 interface WarningInfo {
   message: string

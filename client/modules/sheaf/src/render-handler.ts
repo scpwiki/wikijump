@@ -1,7 +1,7 @@
-import FTML from "ftml-wasm-worker"
+import type { Text } from "@wikijump/codemirror/cm"
+import FTML from "@wikijump/ftml-wasm-worker"
+import { toFragment } from "@wikijump/util"
 import { Memoize } from "typescript-memoize"
-import type { Text } from "wj-codemirror/cm"
-import { toFragment } from "wj-util"
 
 /**
  * Heavily memoized FTML-render-emit handler. Designed to invoke the FTML

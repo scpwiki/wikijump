@@ -1,4 +1,4 @@
-import { pointsMatch, toPoints } from "wj-util"
+import { pointsMatch, toPoints } from "@wikijump/util"
 import { Action } from "./action"
 import type * as DF from "./definition"
 import type * as DM from "./demangler"

@@ -92,7 +92,7 @@ describe("ftml-wasm", () => {
     // other returned values are not tested due to their dynamic nature
     // e.g. `meta` depends on version of FTML
     const { html, styles } = lib.renderHTML(str)
-    assert.equal(html, "<p><em>1</em></p>")
+    assert.equal(html, '<p is="wj-container"><em is="wj-container">1</em></p>')
     assert.equal(styles.join(""), "")
   })
 

@@ -6,7 +6,7 @@ const { getConfig } = require("./scripts/vite-config.js")
 const ignoredBrowserLogs = ["[vite] connecting...", "[vite] connected."]
 
 // get modules so we can make them into test groups
-// this way you can do: pnpm test -- --group wj-util
+// this way you can do: pnpm test -- --group util
 const groups = fs
   .readdirSync("modules")
   .filter(dir => fs.statSync(`modules/${dir}`).isDirectory())

@@ -1,5 +1,5 @@
-import { Extension, keymap, ViewPlugin } from "wj-codemirror/cm"
-import { debounce } from "wj-util"
+import { Extension, keymap, ViewPlugin } from "@wikijump/codemirror/cm"
+import { debounce } from "@wikijump/util"
 import type { SheafCore } from "../core"
 
 export interface SheafBindings {

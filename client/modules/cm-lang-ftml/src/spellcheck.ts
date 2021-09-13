@@ -1,6 +1,6 @@
 import type { Tree } from "@lezer/common"
-import type { Word } from "cm-espells"
-import type { EditorState } from "wj-codemirror/cm"
+import type { Word } from "@wikijump/cm-espells"
+import type { EditorState } from "@wikijump/codemirror/cm"
 
 const BLACKLIST = [
   "BlockName",

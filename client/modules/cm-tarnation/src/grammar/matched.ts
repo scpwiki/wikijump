@@ -1,5 +1,5 @@
+import { hasSigil, isEmpty } from "@wikijump/util"
 import { klona } from "klona"
-import { hasSigil, isEmpty } from "wj-util"
 import { Action, ActionMode } from "./action"
 import type * as DF from "./definition"
 import { Grammar, GrammarMatchState, GrammarToken } from "./grammar"

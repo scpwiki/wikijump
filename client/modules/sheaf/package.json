@@ -1,5 +1,5 @@
 {
-  "name": "sheaf",
+  "name": "@wikijump/sheaf",
   "license": "agpl-3.0-or-later",
   "description": "The Sheaf editor.",
   "version": "0.0.0",
@@ -14,15 +14,15 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "cm-espells": "workspace:*",
-    "cm-lang-ftml": "workspace:*",
-    "ftml-wasm-worker": "workspace:*",
+    "@wikijump/cm-espells": "workspace:*",
+    "@wikijump/cm-lang-ftml": "workspace:*",
+    "@wikijump/ftml-wasm-worker": "workspace:*",
     "morphdom": "^2.6.1",
     "typescript-memoize": "^1.0.1",
-    "wj-codemirror": "workspace:*",
-    "wj-components": "workspace:*",
-    "wj-state": "workspace:*",
-    "wj-util": "workspace:*"
+    "@wikijump/codemirror": "workspace:*",
+    "@wikijump/components": "workspace:*",
+    "@wikijump/state": "workspace:*",
+    "@wikijump/util": "workspace:*"
   },
   "devDependencies": {
     "svelte": "^3.42.5"

@@ -1,5 +1,5 @@
-import type { PartialInfo } from "ftml-wasm"
-import { decode, transfer, WorkerModule } from "threads-worker-module"
+import type { PartialInfo } from "@wikijump/ftml-wasm"
+import { decode, transfer, WorkerModule } from "@wikijump/threads-worker-module"
 import type { FTMLWorkerInterface } from "./worker/ftml.worker"
 
 async function importFTML() {
@@ -8,7 +8,7 @@ async function importFTML() {
 
 class FTMLWorker extends WorkerModule<FTMLWorkerInterface> {
   constructor() {
-    super("ftml-wasm-worker", importFTML, {
+    super("@wikijump/ftml-wasm-worker", importFTML, {
       persist: true,
       init: async () => {
         await this.invoke("init")

@@ -1,3 +1,4 @@
+import { sleep } from "@wikijump/util"
 import {
   BlobWorker,
   ModuleThread,
@@ -7,7 +8,6 @@ import {
   TransferDescriptor
 } from "threads"
 import type { WorkerModule as WorkerModuleMethods } from "threads/dist/types/worker"
-import { sleep } from "wj-util"
 
 export { Transfer as transferMultiple } from "threads"
 

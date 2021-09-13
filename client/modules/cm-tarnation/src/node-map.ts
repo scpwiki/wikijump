@@ -1,5 +1,5 @@
 import { NodeProp, NodePropSource, NodeSet, NodeType } from "@lezer/common"
-import { styleTags, tags } from "wj-codemirror/cm"
+import { styleTags, tags } from "@wikijump/codemirror/cm"
 import type { AddNodeSpec, ParserConfiguration } from "./types"
 
 export class NodeMap {

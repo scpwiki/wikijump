@@ -1,5 +1,5 @@
 {
-  "name": "cm-tarnation",
+  "name": "@wikijump/cm-tarnation",
   "license": "agpl-3.0-or-later",
   "description": "An alternative regex based parser for CodeMirror 6.",
   "version": "0.0.0",
@@ -20,7 +20,7 @@
     "@lezer/common": "^0.15.5",
     "@lezer/lr": "^0.15.2",
     "typescript-memoize": "^1.0.1",
-    "wj-codemirror": "workspace:*",
-    "wj-util": "workspace:*"
+    "@wikijump/codemirror": "workspace:*",
+    "@wikijump/util": "workspace:*"
   }
 }

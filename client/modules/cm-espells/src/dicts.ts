@@ -1,4 +1,4 @@
-import { url } from "wj-util"
+import { url } from "@wikijump/util"
 import type { DictionaryImporter } from "./types"
 
 /** Table of dictionary import functions, using locale language codes as keys. */

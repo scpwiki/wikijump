@@ -13,7 +13,7 @@ import {
   openLintPanel,
   redo,
   searchKeymap
-} from "wj-codemirror/cm"
+} from "@wikijump/codemirror/cm"
 
 /** Additional key bindings for the editor. */
 const KEY_MAP: KeyBinding[] = [

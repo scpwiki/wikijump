@@ -1,0 +1,19 @@
+{
+  "name": "@wikijump/prism",
+  "license": "agpl-3.0-or-later",
+  "description": "Wrapper around the Prism library for Wikijump.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "private": true,
+  "scripts": {},
+  "type": "module",
+  "main": "src/index.ts",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "devDependencies": {
+    "@types/prismjs": "^1.16.6"
+  }
+}

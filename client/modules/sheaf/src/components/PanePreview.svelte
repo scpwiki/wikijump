@@ -2,13 +2,13 @@
   @component Sheaf Editor: Preview Pane.
 -->
 <script lang="ts">
-  import { Tab, Tabview, Wikitext } from "wj-components"
+  import { Tab, Tabview, Wikitext } from "@wikijump/components"
   import { getContext } from "svelte"
   import CodeDisplay from "./CodeDisplay.svelte"
   import type { SheafContext } from "../context"
   import { RenderHandler } from "../render-handler"
-  import { t } from "wj-state"
-  import { printTree } from "wj-codemirror"
+  import { t } from "@wikijump/state"
+  import { printTree } from "@wikijump/codemirror"
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 

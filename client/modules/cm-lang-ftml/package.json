@@ -1,5 +1,5 @@
 {
-  "name": "cm-lang-ftml",
+  "name": "@wikijump/cm-lang-ftml",
   "license": "agpl-3.0-or-later",
   "description": "FTML language extension for CodeMirror 6.",
   "version": "0.0.0",
@@ -17,15 +17,15 @@
     "@lezer/common": "^0.15.5",
     "@lezer/lr": "^0.15.2",
     "@types/prismjs": "^1.16.6",
-    "cm-espells": "workspace:*",
-    "cm-tarnation": "workspace:*",
-    "ftml-wasm-worker": "workspace:*",
-    "threads-worker-module": "workspace:*",
-    "wj-codemirror": "workspace:*",
-    "wj-components": "workspace:*",
-    "wj-prism": "workspace:*",
-    "wj-state": "workspace:*",
-    "wj-util": "workspace:*"
+    "@wikijump/cm-espells": "workspace:*",
+    "@wikijump/cm-tarnation": "workspace:*",
+    "@wikijump/ftml-wasm-worker": "workspace:*",
+    "@wikijump/threads-worker-module": "workspace:*",
+    "@wikijump/codemirror": "workspace:*",
+    "@wikijump/components": "workspace:*",
+    "@wikijump/prism": "workspace:*",
+    "@wikijump/state": "workspace:*",
+    "@wikijump/util": "workspace:*"
   },
   "devDependencies": {
     "svelte": "^3.42.5"
