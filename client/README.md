@@ -44,6 +44,15 @@ $ pnpm pack-module -- module-name
 
 This will "package" the module `module-name`. What this does is that it starts a special build process on that module, which will yield a publishable NPM package in the modules `dist` folder. Any important changes that would've needed to been made to the module and its `package.json` are handled automatically.
 
+### Publishing
+
+To publish a module, run this command:
+```
+$ pnpm publish-module -- module-name
+```
+
+This will package the module, as described above, and then publish it. Of course, you want to exercise caution when publishing.
+
 ### Development
 
 Currently, there is no "monorepo-wide" development mode. Since packages generally have their source directly consumed, there isn't any reason to be building them.
