@@ -1,5 +1,5 @@
-import { getActiveLines, Gutters, textBuffer, textValue } from "wj-codemirror"
-import { EditorState, EditorView, syntaxTree, Text } from "wj-codemirror/cm"
+import { getActiveLines, Gutters, textBuffer, textValue } from "@wikijump/codemirror"
+import { EditorState, EditorView, syntaxTree, Text } from "@wikijump/codemirror/cm"
 import type { SheafCore } from "./core"
 import type { SheafBindings } from "./extensions/bindings"
 

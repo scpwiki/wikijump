@@ -1,5 +1,5 @@
 {
-  "name": "ftml-wasm-worker",
+  "name": "@wikijump/ftml-wasm-worker",
   "license": "agpl-3.0-or-later",
   "description": "A web workerized version of ftml-wasm",
   "version": "0.0.0",
@@ -14,9 +14,9 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "ftml-wasm": "workspace:*",
+    "@wikijump/ftml-wasm": "workspace:*",
     "threads": "^1.6.5",
-    "threads-worker-module": "workspace:*",
-    "wj-util": "workspace:*"
+    "@wikijump/threads-worker-module": "workspace:*",
+    "@wikijump/util": "workspace:*"
   }
 }

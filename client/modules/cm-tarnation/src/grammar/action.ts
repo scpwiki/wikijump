@@ -1,4 +1,4 @@
-import { has, hasSigil, removeUndefined } from "wj-util"
+import { has, hasSigil, removeUndefined } from "@wikijump/util"
 import type * as DF from "./definition"
 import type * as DM from "./demangler"
 import { getMatchState, Grammar, GrammarContext, ParserAction } from "./grammar"

@@ -1,5 +1,5 @@
-import type { PartialInfo } from "ftml-wasm"
-import { toFragment } from "wj-util"
+import type { PartialInfo } from "@wikijump/ftml-wasm"
+import { toFragment } from "@wikijump/util"
 import FTML from "./ftml"
 
 export class FTMLFragment {

@@ -2,19 +2,19 @@
   @component Wikijump's primary page editor.
 -->
 <script lang="ts">
-  import { EditorSveltePanel } from "wj-codemirror"
+  import { EditorSveltePanel } from "@wikijump/codemirror"
   import { SheafCore } from "../core"
   import type { SheafBindings } from "../extensions/bindings"
   import { setContext } from "svelte"
   import type { Readable } from "svelte/store"
-  import { matchBreakpoint, PreferenceHandler } from "wj-state"
+  import { matchBreakpoint, PreferenceHandler } from "@wikijump/state"
   import type { SheafContext } from "../context"
   import { getDefaultSheafSettings } from "../context"
   import PaneEditor from "./PaneEditor.svelte"
   import PaneEditorTopbar from "./PaneEditorTopbar.svelte"
   import PanePreview from "./PanePreview.svelte"
   import SheafPanel from "./SheafPanel.svelte"
-  import { FTMLLanguage } from "cm-lang-ftml"
+  import { FTMLLanguage } from "@wikijump/cm-lang-ftml"
 
   /** Height of the editor's container. */
   export let height = "100%"

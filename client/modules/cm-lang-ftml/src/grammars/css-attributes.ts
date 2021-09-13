@@ -1,4 +1,4 @@
-import { createLezerLanguage } from "cm-tarnation"
+import { createLezerLanguage } from "@wikijump/cm-tarnation"
 import {
   continuedIndent,
   cssCompletion,
@@ -6,7 +6,7 @@ import {
   indentNodeProp,
   styleTags,
   tags as t
-} from "wj-codemirror/cm"
+} from "@wikijump/codemirror/cm"
 import { parser as CSSAttrParser } from "../../vendor/css-attribute"
 
 export const StyleAttributeGrammar = createLezerLanguage({

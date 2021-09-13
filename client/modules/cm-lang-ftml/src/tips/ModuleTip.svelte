@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
   import type { Module } from "../data/types"
-  import type { EditorSvelteComponentProps } from "wj-codemirror"
+  import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
 
   export let name: string
   export let module: Module

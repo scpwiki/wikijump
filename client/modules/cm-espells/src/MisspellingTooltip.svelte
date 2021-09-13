@@ -2,10 +2,10 @@
   @component Tooltip/menu for a misspelling, along with suggestions for said misspelling.
 -->
 <script lang="ts">
-  import { focusGroup, TippySingleton, Spinny, anim } from "wj-components"
-  import { t } from "wj-state"
+  import { focusGroup, TippySingleton, Spinny, anim } from "@wikijump/components"
+  import { t } from "@wikijump/state"
   import espells from "./espells"
-  import type { EditorSvelteComponentProps } from "wj-codemirror"
+  import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
   import type { FlaggedWord } from "./types"
 
   export let word: FlaggedWord

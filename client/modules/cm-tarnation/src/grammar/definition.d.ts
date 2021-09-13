@@ -1,5 +1,5 @@
 import type { NodePropSource } from "@lezer/common"
-import type { Tag, tags } from "wj-codemirror/cm"
+import type { Tag, tags } from "@wikijump/codemirror/cm"
 import type { GrammarContext } from "./grammar"
 
 /** A Tarnation grammar definition. */

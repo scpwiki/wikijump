@@ -1,4 +1,4 @@
-import { search } from "wj-util"
+import { search } from "@wikijump/util"
 import type { SerializedTokenizerStack, Token } from "../types"
 import { Chunk } from "./chunk"
 import type { TokenizerStack } from "./stack"

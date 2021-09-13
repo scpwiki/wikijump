@@ -1,6 +1,6 @@
+import { has, hasSigil, removeUndefined, unSigil } from "@wikijump/util"
 import { isArray, isObjectLike, isString } from "is-what"
 import { klona } from "klona"
-import { has, hasSigil, removeUndefined, unSigil } from "wj-util"
 import type * as DF from "./definition"
 
 export type ParserAction = [type: string, inclusive: number][]

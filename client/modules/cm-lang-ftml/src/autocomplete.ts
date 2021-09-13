@@ -1,8 +1,12 @@
 import type { SyntaxNode } from "@lezer/common"
-import { EditorSvelteComponent } from "wj-codemirror"
-import type { Completion, CompletionContext, CompletionResult } from "wj-codemirror/cm"
-import { syntaxTree } from "wj-codemirror/cm"
-import { Prism } from "wj-prism"
+import { EditorSvelteComponent } from "@wikijump/codemirror"
+import type {
+  Completion,
+  CompletionContext,
+  CompletionResult
+} from "@wikijump/codemirror/cm"
+import { syntaxTree } from "@wikijump/codemirror/cm"
+import { Prism } from "@wikijump/prism"
 import { blocks, blockTips, modules } from "./data/blocks"
 import { htmlAttributes } from "./data/html-attributes"
 import type { Block, Module } from "./data/types"

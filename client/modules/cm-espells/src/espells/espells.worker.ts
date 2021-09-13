@@ -1,5 +1,9 @@
+import {
+  decode,
+  expose,
+  ModuleProxy
+} from "@wikijump/threads-worker-module/src/worker-lib"
 import { Espells, OverridableAffData } from "espells"
-import { decode, expose, ModuleProxy } from "threads-worker-module/src/worker-lib"
 import type { Misspelling, Word } from ".."
 import type { FlaggedWord } from "../types"
 

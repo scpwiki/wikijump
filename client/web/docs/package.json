@@ -1,0 +1,19 @@
+{
+  "name": "@wikijump/docs",
+  "license": "agpl-3.0-or-later",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "node typedoc.cjs"
+  },
+  "type": "module",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "dependencies": {
+    "@wikijump/components": "workspace:*"
+  },
+  "devDependencies": {
+    "typedoc": "^0.22.3"
+  }
+}

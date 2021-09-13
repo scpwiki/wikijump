@@ -1,6 +1,6 @@
-import { TarnationLanguage } from "cm-tarnation"
-import type { Grammar } from "cm-tarnation/src/grammar/definition"
-import { tags as t } from "wj-codemirror/cm"
+import { TarnationLanguage } from "@wikijump/cm-tarnation"
+import type { Grammar } from "@wikijump/cm-tarnation/src/grammar/definition"
+import { tags as t } from "@wikijump/codemirror/cm"
 
 export const TexLanguage = new TarnationLanguage({
   name: "wikimath",

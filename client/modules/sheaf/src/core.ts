@@ -1,6 +1,5 @@
-import { Spellcheck } from "cm-espells"
-import { Writable, writable } from "svelte/store"
-import { defaultLanguages, Gutters, IndentHack } from "wj-codemirror"
+import { Spellcheck } from "@wikijump/cm-espells"
+import { defaultLanguages, Gutters, IndentHack } from "@wikijump/codemirror"
 import {
   autocompletion,
   bracketMatching,
@@ -18,7 +17,8 @@ import {
   scrollPastEnd,
   ViewPlugin,
   ViewUpdate
-} from "wj-codemirror/cm"
+} from "@wikijump/codemirror/cm"
+import { Writable, writable } from "svelte/store"
 import { createSheafBinding, SheafBindings } from "./extensions/bindings"
 import { getSheafKeymap } from "./extensions/keymap"
 import { confinement } from "./extensions/theme"

@@ -4,10 +4,10 @@
 <script lang="ts">
   import { getContext } from "svelte"
   import type { SheafContext } from "../context"
-  import { Button } from "wj-components"
-  import { throttle } from "wj-util"
-  import { t, number, unit } from "wj-state"
-  import { Content } from "cm-lang-ftml"
+  import { Button } from "@wikijump/components"
+  import { throttle } from "@wikijump/util"
+  import { t, number, unit } from "@wikijump/state"
+  import { Content } from "@wikijump/cm-lang-ftml"
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 

@@ -3,11 +3,11 @@
 -->
 <script lang="ts">
   import type { Block } from "../data/types"
-  import type { EditorSvelteComponentProps } from "wj-codemirror"
-  import * as Prism from "wj-prism"
-  import { t } from "wj-state"
-  import type { FTMLFragment } from "ftml-wasm-worker"
-  import { Icon, TippySingleton } from "wj-components"
+  import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
+  import * as Prism from "@wikijump/prism"
+  import { t } from "@wikijump/state"
+  import type { FTMLFragment } from "@wikijump/ftml-wasm-worker"
+  import { Icon, TippySingleton } from "@wikijump/components"
 
   interface Docs {
     title: string

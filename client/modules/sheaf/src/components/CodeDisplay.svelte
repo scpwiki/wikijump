@@ -9,13 +9,13 @@
     EditorView,
     LanguageDescription,
     drawSelection
-  } from "wj-codemirror/cm"
-  import { IndentHack, defaultLanguages, languageList } from "wj-codemirror"
+  } from "@wikijump/codemirror/cm"
+  import { IndentHack, defaultLanguages, languageList } from "@wikijump/codemirror"
   import { onDestroy, onMount } from "svelte"
-  import { createIdleQueued, createMutatingLock } from "wj-util"
-  import { Spinny } from "wj-components"
+  import { createIdleQueued, createMutatingLock } from "@wikijump/util"
+  import { Spinny } from "@wikijump/components"
   import { confinement } from "../extensions/theme"
-  import { ftmlLanguages } from "cm-lang-ftml"
+  import { ftmlLanguages } from "@wikijump/cm-lang-ftml"
 
   /** Contents of the code block. Can be a promise that resolves to a string. */
   export let content: Promisable<string>
@@ -85,7 +85,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../wj-css/src/abstracts";
+  @import "../../../css/src/abstracts";
 
   .code-display-container {
     position: relative;

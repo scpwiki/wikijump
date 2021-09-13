@@ -7,7 +7,7 @@ import {
   LanguageDescription,
   LanguageSupport,
   LRLanguage
-} from "wj-codemirror/cm"
+} from "@wikijump/codemirror/cm"
 
 export interface CreateLezerLanguageOpts {
   name: string

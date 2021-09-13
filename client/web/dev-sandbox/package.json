@@ -12,12 +12,12 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "cm-lang-ftml": "workspace:*",
-    "wj-components": "workspace:*",
-    "ftml-wasm-worker": "workspace:*",
+    "@wikijump/cm-lang-ftml": "workspace:*",
+    "@wikijump/components": "workspace:*",
+    "@wikijump/ftml-wasm-worker": "workspace:*",
     "sheaf": "workspace:*",
-    "wj-css": "workspace:*",
-    "wj-util": "workspace:*"
+    "@wikijump/css": "workspace:*",
+    "@wikijump/util": "workspace:*"
   },
   "devDependencies": {
     "svelte": "^3.42.5"

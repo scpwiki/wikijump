@@ -8,7 +8,7 @@ export type {
   SyntaxTree,
   Token,
   Warning
-} from "ftml-wasm"
+} from "@wikijump/ftml-wasm"
 export * from "./fragment"
 export { FTML }
 

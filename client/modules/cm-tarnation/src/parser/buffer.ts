@@ -1,5 +1,5 @@
 import type { Tree } from "@lezer/common"
-import { search } from "wj-util"
+import { search } from "@wikijump/util"
 import type { LezerToken } from "../types"
 
 /**

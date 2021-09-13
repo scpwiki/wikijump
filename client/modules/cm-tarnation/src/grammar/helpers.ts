@@ -1,4 +1,4 @@
-import { pointsMatch, toPoints } from "wj-util"
+import { pointsMatch, toPoints } from "@wikijump/util"
 import type * as DF from "./definition"
 
 const REGEX_SPLIT = /^([^]*)\/([^]+)\/([^]*)$/

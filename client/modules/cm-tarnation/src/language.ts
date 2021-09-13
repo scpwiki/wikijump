@@ -1,14 +1,14 @@
 import { NodeProp, NodeType } from "@lezer/common"
-import { isFunction } from "is-what"
-import { addLanguages } from "wj-codemirror"
+import { addLanguages } from "@wikijump/codemirror"
 import {
   Extension,
   Facet,
   Language,
   LanguageDescription,
   LanguageSupport
-} from "wj-codemirror/cm"
-import { removeUndefined } from "wj-util"
+} from "@wikijump/codemirror/cm"
+import { removeUndefined } from "@wikijump/util"
+import { isFunction } from "is-what"
 import { DelegatorFactory } from "./delegator"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"

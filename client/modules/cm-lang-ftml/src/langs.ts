@@ -1,4 +1,4 @@
-import { addLanguages } from "wj-codemirror"
+import { addLanguages } from "@wikijump/codemirror"
 import { FTMLTokensGrammar, LezerTreeGrammar } from "./grammars/ast"
 import { FTMLLanguage } from "./grammars/ftml"
 
