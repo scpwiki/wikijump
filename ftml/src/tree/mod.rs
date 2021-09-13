@@ -50,7 +50,7 @@ pub use self::module::*;
 pub use self::partial::*;
 pub use self::table::*;
 pub use self::tag::*;
-pub use self::variables::VariableMap;
+pub use self::variables::*;
 
 use self::clone::{elements_lists_to_owned, elements_to_owned, strings_to_owned};
 use crate::parsing::{ParseOutcome, ParseWarning};

@@ -22,3 +22,35 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 
 pub type VariableMap<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct VariableScopes<'t> {
+    scopes: Vec<VariableMap<'t>>,
+}
+
+impl<'t> VariableScopes<'t> {
+    #[inline]
+    pub fn new(main_scope: VariableMap<'t>) -> Self {
+        VariableScopes {
+            scopes: vec![main_scope],
+        }
+    }
+
+    pub fn get(&self, name: &str) -> Option<&str> {
+        for scope in self.scopes.iter().rev() {
+            if let Some(value) = scope.get(name) {
+                return Some(value);
+            }
+        }
+
+        None
+    }
+
+    pub fn push_scope(&mut self, scope: VariableMap<'t>) {
+        self.scopes.push(scope);
+    }
+
+    pub fn pop_scope(&mut self) {
+        self.scopes.pop().expect("Scope stack was empty");
+    }
+}
