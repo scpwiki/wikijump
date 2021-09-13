@@ -66,6 +66,7 @@ const BUILD_TEST_OPTIONS = {
 const modules = fs
   .readdirSync(`${ROOT}/modules`)
   .filter(dir => fs.statSync(`${ROOT}/modules/${dir}`).isDirectory())
+  .map(dir => `@wikijump/${dir}`)
 
 /** @returns {import("vite").UserConfig} */
 const getConfig = (test = false) => ({
