@@ -85,6 +85,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         }
         Element::Text(text) => ctx.push_escaped(text),
         Element::Raw(text) => render_wikitext_raw(log, ctx, text),
+        Element::Variable(name) => todo!(),
         Element::Email(email) => render_email(log, ctx, email),
         Element::Table(table) => render_table(log, ctx, table),
         Element::Anchor {

@@ -98,6 +98,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
             ctx.push_str(text)
         }
+        Element::Variable(name) => {
+            todo!();
+        }
         Element::Table(table) => {
             if !ctx.ends_with_newline() {
                 ctx.add_newline();
