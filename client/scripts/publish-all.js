@@ -93,7 +93,7 @@ const modules = fs
     linebreak()
     info(`Publishing "${module}"`)
     separator()
-    process.chdir(path)
+    process.chdir(`${path}/dist`)
     cmd("npm publish --access public")
   }
 
