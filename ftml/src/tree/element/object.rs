@@ -23,11 +23,10 @@ use crate::tree::clone::*;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
     ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, PartialElement,
-    Table,
+    Table, TableItem, VariableMap,
 };
 use ref_map::*;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::num::NonZeroU32;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -204,7 +203,7 @@ pub enum Element<'t> {
     #[serde(rename_all = "kebab-case")]
     Include {
         paragraph_safe: bool,
-        variables: HashMap<Cow<'t, str>, Cow<'t, str>>,
+        variables: VariableMap<'t>,
         location: PageRef<'t>,
         elements: Vec<Element<'t>>,
     },

@@ -31,7 +31,7 @@ mod include_ref;
 mod includer;
 mod parse;
 
-pub use self::include_ref::{IncludeRef, IncludeVariables};
+pub use self::include_ref::IncludeRef;
 pub use self::includer::{DebugIncluder, FetchedPage, Includer, NullIncluder};
 
 use self::parse::parse_include_block;

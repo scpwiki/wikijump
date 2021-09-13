@@ -26,10 +26,9 @@ use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::render::text::TextRender;
 use crate::tokenizer::Tokenization;
-use crate::tree::{AcceptsPartial, HeadingLevel};
+use crate::tree::{AcceptsPartial, HeadingLevel, VariableMap};
 use std::borrow::Cow;
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::rc::Rc;
 use std::{mem, ptr};
 
@@ -60,7 +59,7 @@ pub struct Parser<'r, 't> {
     //       can be cloned. This struct is intended as a
     //       cheap pointer object, with the true contents
     //       here preserved across parser child instances.
-    variables: Rc<RefCell<Vec<HashMap<Cow<'t, str>, Cow<'t, str>>>>>,
+    variables: Rc<RefCell<Vec<VariableMap<'t>>>>,
 
     // Table of Contents
     //
@@ -212,7 +211,7 @@ impl<'r, 't> Parser<'r, 't> {
         None
     }
 
-    pub fn push_variable_scope(&mut self, scope: HashMap<Cow<'t, str>, Cow<'t, str>>) {
+    pub fn push_variable_scope(&mut self, scope: VariableMap<'t>) {
         self.variables.borrow_mut().push(scope);
     }
 
