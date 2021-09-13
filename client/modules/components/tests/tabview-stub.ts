@@ -32,7 +32,7 @@ function generateStub(tabs = 1) {
   const children: HTMLElement[] = []
   for (let i = 0; i < tabs; i++) {
     const content = document.createElement("div")
-    content.className = "@wikijump/tabview-content"
+    content.className = "wj-tabview-content"
     content.innerHTML = "test content"
     children.push(content)
   }
