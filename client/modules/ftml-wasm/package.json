@@ -2,7 +2,7 @@
   "name": "@wikijump/ftml-wasm",
   "license": "agpl-3.0-or-later",
   "description": "WASM-JS bindings for FTML.",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "keywords": [
     "wikijump",
     "ftml",
