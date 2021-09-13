@@ -17,6 +17,7 @@
     "lint:prettier": "prettier --ignore-unknown --check \"modules/**\" \"web/**\"",
     "lint:stylelint": "stylelint \"modules/**/*.scss\" \"web/**/*.scss\"",
     "pack-module": "node scripts/vite-pack.js",
+    "publish-module": "node scripts/publish.js",
     "test": "wtr --playwright",
     "typecheck": "tsc",
     "validate": "run-p lint typecheck",

@@ -8,6 +8,7 @@ build:
   web: pnpm --filter {web} --parallel --if-present -r build
 
 pack-module: node scripts/vite-pack.js
+publish-module: node scripts/publish.js
 
 # -- TESTING
 
