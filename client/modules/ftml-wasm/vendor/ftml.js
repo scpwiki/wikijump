@@ -309,7 +309,7 @@ export class PageInfo {
     * @returns {PageInfo}
     */
     copy() {
-        var ret = wasm.htmloutput_copy(this.ptr);
+        var ret = wasm.pageinfo_copy(this.ptr);
         return PageInfo.__wrap(ret);
     }
     /**
