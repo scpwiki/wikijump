@@ -2,7 +2,7 @@
   "name": "@wikijump/util",
   "license": "agpl-3.0-or-later",
   "description": "Collection of common utility methods.",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "keywords": [
     "wikijump"
   ],
