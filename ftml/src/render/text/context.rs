@@ -20,7 +20,7 @@
 
 use crate::non_empty_vec::NonEmptyVec;
 use crate::render::Handle;
-use crate::tree::{Element, VariableScopes};
+use crate::tree::{Element, VariableContext, VariableScopes};
 use crate::PageInfo;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
@@ -233,5 +233,12 @@ where
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.buffer().write_str(s)
+    }
+}
+
+impl<'i, 'h, 'e, 'v, 't> VariableContext<'v, 't> for TextContext<'i, 'h, 'e, 'v, 't> {
+    #[inline]
+    fn get_scopes(&mut self) -> &mut VariableScopes<'v, 't> {
+        self.variables_mut()
     }
 }
