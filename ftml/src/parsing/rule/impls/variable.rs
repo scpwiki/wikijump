@@ -20,7 +20,6 @@
 
 use super::prelude::*;
 use regex::Regex;
-use std::borrow::Cow;
 
 lazy_static! {
     static ref VARIABLE_REGEX: Regex = Regex::new(r"\{\$(.+)\}").unwrap();
@@ -47,9 +46,5 @@ fn try_consume_fn<'p, 'r, 't>(
         .expect("Capture group not found")
         .as_str();
 
-    let value = parser
-        .get_variable(variable)
-        .ok_or_else(|| parser.make_warn(ParseWarningKind::NoSuchVariable))?;
-
-    ok!(Element::Text(Cow::Owned(value)))
+    ok!(Element::Variable(cow!(variable)))
 }
