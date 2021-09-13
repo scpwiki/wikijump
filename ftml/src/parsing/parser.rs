@@ -51,19 +51,14 @@ pub struct Parser<'r, 't> {
     rule: Rule,
     depth: usize,
 
-    // Variables
+    // Table of Contents
     //
-    // This is a list of scopes, so the last entry is the most recent one.
+    // Schema: Vec<(depth, _, name)>
     //
     // Note: These three are in Rc<_> items so that the Parser
     //       can be cloned. This struct is intended as a
     //       cheap pointer object, with the true contents
     //       here preserved across parser child instances.
-    variables: Rc<RefCell<Vec<VariableMap<'t>>>>,
-
-    // Table of Contents
-    //
-    // Schema: Vec<(depth, _, name)>
     table_of_contents: Rc<RefCell<Vec<(usize, String)>>>,
 
     // Footnotes
@@ -103,7 +98,6 @@ impl<'r, 't> Parser<'r, 't> {
             full_text,
             rule: RULE_PAGE,
             depth: 0,
-            variables: make_shared_vec(),
             table_of_contents: make_shared_vec(),
             footnotes: make_shared_vec(),
             accepts_partial: AcceptsPartial::None,
@@ -198,25 +192,6 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn set_footnote_block(&mut self) {
         self.has_footnote_block = true;
-    }
-
-    // Variables
-    pub fn get_variable(&self, variable: &str) -> Option<String> {
-        for scope in self.variables.borrow().iter().rev() {
-            if let Some(ref value) = scope.get(variable) {
-                return Some(str!(value));
-            }
-        }
-
-        None
-    }
-
-    pub fn push_variable_scope(&mut self, scope: VariableMap<'t>) {
-        self.variables.borrow_mut().push(scope);
-    }
-
-    pub fn pop_variable_scope(&mut self) {
-        self.variables.borrow_mut().pop();
     }
 
     // Table of Contents
