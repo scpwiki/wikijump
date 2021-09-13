@@ -2,7 +2,7 @@
   "name": "@wikijump/ftml-wasm-worker",
   "license": "agpl-3.0-or-later",
   "description": "A web workerized version of ftml-wasm",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "keywords": [
     "wikijump"
   ],
