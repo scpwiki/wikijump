@@ -397,14 +397,19 @@ cmftml:
     footnote:
       TITLE: Footnote
       INFO: >
-        Adds an expandable footnote, which a reader may use to view the contents by of hovering or focusing on the marker. The footnote's contents will also be displayed in a "footnote block" at (by default) the bottom of the page.
+        Adds an expandable footnote, which a reader may use to view the contents by of
+        hovering or focusing on a numbered marker. The footnote's contents will also be
+        displayed in a "footnote block" at (by default) the bottom of the page.
       EXAMPLE: |
         The author of The Dark Tower series[[footnote]]Did you know that world-renowned writer Stephen King was once hit by a car? Just something to consider[[/footnote]] began work in the late 1970s.
 
     footnote-block:
       TITLE: Footnote Block
       INFO: >
-        Moves the footnote block. The "footnote block" is added to a page whenever it has any {{[[footnote]]}} elements, and by default it's placed at the bottom of the page. This block lets you move it, if so desired. If having a footnote block at all is undesirable, you can use the {{hide}} argument to remove it.
+        Moves the footnote block. The "footnote block" is added to a page whenever it has
+        any {{[[footnote]]}} elements, and by default it's placed at the bottom of the
+        page. This block lets you move it, if so desired. If having a footnote block at
+        all is undesirable, you can use the {{hide}} argument to remove it.
       EXAMPLE: |
         [[footnote-block title="Endnotes"]]
         [[footnote-block title="Stephen King Car Crash Facts"]]
@@ -537,7 +542,10 @@ cmftml:
     include-elements:
       TITLE: Include (Elements)
       INFO: >
-        Injects another page's contents. This lets you //include// something without copy-pasting it, which allows for reusable content, like pre-made headers and footers. Includes can accept arguments, and these arguments replace any placeholders of the same name when the page is injected.
+        Injects another page's contents. This lets you //include// something without
+        copy-pasting it, which allows for reusable content, like pre-made headers and
+        footers. Includes can accept arguments, and these arguments replace any
+        placeholders of the same name when the page is injected.
       EXAMPLE: |
         [[include-elements component:some-bar
           class="Keter"
@@ -548,7 +556,10 @@ cmftml:
     include-messy:
       TITLE: Include (Messy)
       INFO: >
-        You shouldn't use this block unless you have to. This block takes another page's contents and literally pastes it directly into your page's source prior to rendering. The only reason it exists is for compatibility with Wikidot content. Use {{[[include-elements]]}} instead.
+        You shouldn't use this block unless you have to. This block takes another page's
+        contents and literally pastes it directly into your page's source prior to
+        rendering. The only reason it exists is for compatibility with Wikidot content.
+        Use {{[[include-elements]]}} instead.
       EXAMPLE: |
         [[include-messy theme:black-highlighter-theme]]
 
@@ -604,7 +615,8 @@ cmftml:
     list-item:
       TITLE: List-Item
       INFO: >
-        Creates an item for a list. A list-item can only be placed inside either a {{[[ul]]}} (unordered list) or {{[[ol]]}} (ordered list) block.
+        Creates an item for a list. A list-item can only be placed inside either a
+        {{[[ul]]}} (unordered list) or {{[[ol]]}} (ordered list) block.
       EXAMPLE: |
         [[ul]]
           [[li]]
@@ -619,7 +631,9 @@ cmftml:
     list-ordered:
       TITLE: Ordered List
       INFO: >
-        Starts an ordered list, which is a list that is sorted in order, e.g. with numbers or the alphabet. The children of this element should only be list-items ({{[[li]]}} blocks).
+        Starts an ordered list, which is a list that is sorted in order, e.g. with
+        numbers or the alphabet. The children of this element should only be list-items
+        ({{[[li]]}} blocks).
       EXAMPLE: |
         [[ul]]
           [[li]]
@@ -634,7 +648,8 @@ cmftml:
     list-unordered:
       TITLE: Unordered List
       INFO: >
-        Starts an unordered list. The children of this element should only be list-items ({{[[li]]}} blocks).
+        Starts an unordered list. The children of this element should only be list-items
+        ({{[[li]]}} blocks).
       EXAMPLE: |
         [[ul]]
           [[li]]
@@ -745,7 +760,9 @@ cmftml:
     table:
       TITLE: Table
       INFO: >
-        Starts a table. Tables must follow a specific structure, with a {{[[table]]}} containing only {{[[row]]}} blocks, and those containing only {{[[cell]]}} or {{[[hcell]]}} blocks. A cell can contain generic content, including other tables.
+        Starts a table. Tables must follow a specific structure, with a {{[[table]]}}
+        containing only {{[[row]]}} blocks, and those containing only {{[[cell]]}} or
+        {{[[hcell]]}} blocks. A cell can contain generic content, including other tables.
       EXAMPLE: |
         [[table]]
           [[row]]
@@ -763,7 +780,10 @@ cmftml:
     table-row:
       TITLE: Table Row
       INFO: >
-        Creates a row in a table. Tables must follow a specific structure, with a {{[[table]]}} containing only {{[[row]]}} blocks, and those containing only {{[[cell]]}} or {{[[hcell]]}} blocks. A cell can contain generic content, including other tables.
+        Creates a row in a table. Tables must follow a specific structure, with a
+        {{[[table]]}} containing only {{[[row]]}} blocks, and those containing only
+        {{[[cell]]}} or {{[[hcell]]}} blocks. A cell can contain generic content,
+        including other tables.
       EXAMPLE: |
         [[table]]
           [[row]]
@@ -781,7 +801,10 @@ cmftml:
     table-cell-regular:
       TITLE: Table Cell
       INFO: >
-        Creates a cell in a table row. Tables must follow a specific structure, with a {{[[table]]}} containing only {{[[row]]}} blocks, and those containing only {{[[cell]]}} or {{[[hcell]]}} blocks. A cell can contain generic content, including other tables.
+        Creates a cell in a table row. Tables must follow a specific structure, with a
+        {{[[table]]}} containing only {{[[row]]}} blocks, and those containing only
+        {{[[cell]]}} or {{[[hcell]]}} blocks. A cell can contain generic content,
+        including other tables.
       EXAMPLE: |
         [[table]]
           [[row]]
@@ -799,7 +822,10 @@ cmftml:
     table-cell-header:
       TITLE: Table Cell (Header)
       INFO: >
-        Creates a cell in a table row, styled as a header for a column. Tables must follow a specific structure, with a {{[[table]]}} containing only {{[[row]]}} blocks, and those containing only {{[[cell]]}} or {{[[hcell]]}} blocks. A cell can contain generic content, including other tables.
+        Creates a cell in a table row, styled as a header for a column. Tables must
+        follow a specific structure, with a {{[[table]]}} containing only {{[[row]]}}
+        blocks, and those containing only {{[[cell]]}} or {{[[hcell]]}} blocks. A cell
+        can contain generic content, including other tables.
       EXAMPLE: |
         [[table]]
           [[row]]
@@ -817,7 +843,8 @@ cmftml:
     toc:
       TITLE: Table of Contents
       INFO: >
-        Render's a table of contents for the page, based off the heading elements found in the page. This lets readers quickly navigate your page.
+        Render's a table of contents for the page, based off the heading elements found
+        in the page. This lets readers quickly navigate your page.
       EXAMPLE: |
         [[toc]]
 
