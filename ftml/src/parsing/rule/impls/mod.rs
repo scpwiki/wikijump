@@ -63,6 +63,7 @@ mod table;
 mod text;
 mod underline;
 mod url;
+mod variable;
 
 pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP_NEWLINE, RULE_BLOCK_STAR};
 pub use self::blockquote::RULE_BLOCKQUOTE;
@@ -94,3 +95,4 @@ pub use self::table::RULE_TABLE;
 pub use self::text::RULE_TEXT;
 pub use self::underline::RULE_UNDERLINE;
 pub use self::url::RULE_URL;
+pub use self::variable::RULE_VARIABLE;

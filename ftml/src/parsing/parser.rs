@@ -27,7 +27,9 @@ use crate::log::prelude::*;
 use crate::render::text::TextRender;
 use crate::tokenizer::Tokenization;
 use crate::tree::{AcceptsPartial, HeadingLevel};
+use std::borrow::Cow;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 use std::{mem, ptr};
 
@@ -50,14 +52,19 @@ pub struct Parser<'r, 't> {
     rule: Rule,
     depth: usize,
 
-    // Table of Contents
+    // Variables
     //
-    // Schema: Vec<(depth, _, name)>
+    // This is a list of scopes, so the last entry is the most recent one.
     //
-    // Note: These two are in Rc<_> items so that the Parser
+    // Note: These three are in Rc<_> items so that the Parser
     //       can be cloned. This struct is intended as a
     //       cheap pointer object, with the true contents
     //       here preserved across parser child instances.
+    variables: Rc<RefCell<Vec<HashMap<Cow<'t, str>, Cow<'t, str>>>>>,
+
+    // Table of Contents
+    //
+    // Schema: Vec<(depth, _, name)>
     table_of_contents: Rc<RefCell<Vec<(usize, String)>>>,
 
     // Footnotes
@@ -89,9 +96,6 @@ impl<'r, 't> Parser<'r, 't> {
             .split_first()
             .expect("Parsed tokens list was empty (expected at least one element)");
 
-        let table_of_contents = make_shared_vec();
-        let footnotes = make_shared_vec();
-
         Parser {
             log,
             page_info,
@@ -100,8 +104,9 @@ impl<'r, 't> Parser<'r, 't> {
             full_text,
             rule: RULE_PAGE,
             depth: 0,
-            table_of_contents,
-            footnotes,
+            variables: make_shared_vec(),
+            table_of_contents: make_shared_vec(),
+            footnotes: make_shared_vec(),
             accepts_partial: AcceptsPartial::None,
             in_footnote: false,
             has_footnote_block: false,
@@ -194,6 +199,25 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn set_footnote_block(&mut self) {
         self.has_footnote_block = true;
+    }
+
+    // Variables
+    pub fn get_variable(&self, variable: &str) -> Option<String> {
+        for scope in self.variables.borrow().iter().rev() {
+            if let Some(ref value) = scope.get(variable) {
+                return Some(str!(value));
+            }
+        }
+
+        None
+    }
+
+    pub fn push_variable_scope(&mut self, scope: HashMap<Cow<'t, str>, Cow<'t, str>>) {
+        self.variables.borrow_mut().push(scope);
+    }
+
+    pub fn pop_variable_scope(&mut self) {
+        self.variables.borrow_mut().pop();
     }
 
     // Table of Contents
