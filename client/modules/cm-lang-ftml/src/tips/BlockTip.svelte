@@ -8,6 +8,7 @@
   import { t } from "@wikijump/state"
   import type { FTMLFragment } from "@wikijump/ftml-wasm-worker"
   import { Icon, TippySingleton } from "@wikijump/components"
+  import { aliasesRaw } from "../util"
 
   interface Docs {
     title: string
@@ -22,7 +23,7 @@
 
   // TODO: deprecated styling (need a deprecated block first?)
 
-  const aliases = [name, ...(block.aliases ?? [])]
+  const aliases = aliasesRaw([name, block])
   const deprecated = block["deprecated"] ?? false
   const acceptsStar = block["accepts-star"] ?? false
   const acceptsScore = block["accepts-score"] ?? false
@@ -119,7 +120,7 @@
     </TippySingleton>
   </div>
 
-  {#if aliases.length > 1}
+  {#if aliases.length > 1 || block["exclude-name"]}
     <div class="cm-ftml-block-tip-aliases">
       {#each aliases as alias}
         <span>'{alias}'</span>
