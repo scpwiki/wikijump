@@ -356,10 +356,7 @@ importers:
       threads: 1.6.5
 
   modules/util:
-    specifiers:
-      is-what: ^4.0.0
-    dependencies:
-      is-what: 4.0.0
+    specifiers: {}
 
   web/dev-sandbox:
     specifiers:
