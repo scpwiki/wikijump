@@ -33,7 +33,7 @@ use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
 #[derive(Debug)]
-pub struct HtmlContext<'i, 'h, 'e, 't>
+pub struct HtmlContext<'i, 'h, 'e, 'v, 't>
 where
     'e: 't,
 {
@@ -47,7 +47,7 @@ where
     //
     // Included page scopes
     //
-    variables: VariableScopes<'t>,
+    variables: VariableScopes<'v, 't>,
 
     //
     // Fields from syntax tree
@@ -63,7 +63,7 @@ where
     footnote_index: NonZeroUsize,
 }
 
-impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
+impl<'i, 'h, 'e, 'v, 't> HtmlContext<'i, 'h, 'e, 'v, 't> {
     #[inline]
     pub fn new(
         info: &'i PageInfo<'i>,
@@ -139,12 +139,12 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     }
 
     #[inline]
-    pub fn variables(&self) -> &VariableScopes<'t> {
+    pub fn variables(&self) -> &VariableScopes<'v, 't> {
         &self.variables
     }
 
     #[inline]
-    pub fn variables_mut(&mut self) -> &mut VariableScopes<'t> {
+    pub fn variables_mut(&mut self) -> &mut VariableScopes<'v, 't> {
         &mut self.variables
     }
 
@@ -244,14 +244,14 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     }
 
     #[inline]
-    pub fn html(&mut self) -> HtmlBuilder<'_, 'i, 'h, 'e, 't> {
+    pub fn html(&mut self) -> HtmlBuilder<'_, 'i, 'h, 'e, 'v, 't> {
         HtmlBuilder::new(self)
     }
 }
 
-impl<'i, 'h, 'e, 't> From<HtmlContext<'i, 'h, 'e, 't>> for HtmlOutput {
+impl<'i, 'h, 'e, 'v, 't> From<HtmlContext<'i, 'h, 'e, 'v, 't>> for HtmlOutput {
     #[inline]
-    fn from(ctx: HtmlContext<'i, 'h, 'e, 't>) -> HtmlOutput {
+    fn from(ctx: HtmlContext<'i, 'h, 'e, 'v, 't>) -> HtmlOutput {
         let HtmlContext {
             body,
             styles,
@@ -269,14 +269,16 @@ impl<'i, 'h, 'e, 't> From<HtmlContext<'i, 'h, 'e, 't>> for HtmlOutput {
     }
 }
 
-impl<'i, 'h, 'e, 't> Write for HtmlContext<'i, 'h, 'e, 't> {
+impl<'i, 'h, 'e, 'v, 't> Write for HtmlContext<'i, 'h, 'e, 'v, 't> {
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.buffer().write_str(s)
     }
 }
 
-impl<'i, 'h, 'e, 't> NextIndex<TableOfContentsIndex> for HtmlContext<'i, 'h, 'e, 't> {
+impl<'i, 'h, 'e, 'v, 't> NextIndex<TableOfContentsIndex>
+    for HtmlContext<'i, 'h, 'e, 'v, 't>
+{
     #[inline]
     fn next(&mut self) -> usize {
         self.next_table_of_contents_index()

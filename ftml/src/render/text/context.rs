@@ -26,7 +26,7 @@ use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 
 #[derive(Debug)]
-pub struct TextContext<'i, 'h, 'e, 't>
+pub struct TextContext<'i, 'h, 'e, 'v, 't>
 where
     'e: 't,
 {
@@ -37,7 +37,7 @@ where
     //
     // Included page scopes
     //
-    variables: VariableScopes<'t>,
+    variables: VariableScopes<'v, 't>,
 
     //
     // Elements from the syntax tree
@@ -63,7 +63,7 @@ where
     footnote_index: NonZeroUsize,
 }
 
-impl<'i, 'h, 'e, 't> TextContext<'i, 'h, 'e, 't>
+impl<'i, 'h, 'e, 'v, 't> TextContext<'i, 'h, 'e, 'v, 't>
 where
     'e: 't,
 {
@@ -110,12 +110,12 @@ where
     }
 
     #[inline]
-    pub fn variables(&self) -> &VariableScopes<'t> {
+    pub fn variables(&self) -> &VariableScopes<'v, 't> {
         &self.variables
     }
 
     #[inline]
-    pub fn variables_mut(&mut self) -> &mut VariableScopes<'t> {
+    pub fn variables_mut(&mut self) -> &mut VariableScopes<'v, 't> {
         &mut self.variables
     }
 
@@ -219,14 +219,14 @@ where
     }
 }
 
-impl<'i, 'h, 'e, 't> From<TextContext<'i, 'h, 'e, 't>> for String {
+impl<'i, 'h, 'e, 'v, 't> From<TextContext<'i, 'h, 'e, 'v, 't>> for String {
     #[inline]
-    fn from(ctx: TextContext<'i, 'h, 'e, 't>) -> String {
+    fn from(ctx: TextContext<'i, 'h, 'e, 'v, 't>) -> String {
         ctx.output
     }
 }
 
-impl<'i, 'h, 'e, 't> Write for TextContext<'i, 'h, 'e, 't>
+impl<'i, 'h, 'e, 'v, 't> Write for TextContext<'i, 'h, 'e, 'v, 't>
 where
     'e: 't,
 {
