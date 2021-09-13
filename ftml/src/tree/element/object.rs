@@ -301,7 +301,10 @@ impl Element<'_> {
         match self {
             Element::Container(container) => container.ctype().paragraph_safe(),
             Element::Module(_) => false,
-            Element::Text(_) | Element::Raw(_) | Element::Variable(_) | Element::Email(_) => true,
+            Element::Text(_)
+            | Element::Raw(_)
+            | Element::Variable(_)
+            | Element::Email(_) => true,
             Element::Table(_) => false,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
