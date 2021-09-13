@@ -30,10 +30,8 @@ pub struct VariableScopes<'t> {
 
 impl<'t> VariableScopes<'t> {
     #[inline]
-    pub fn new(main_scope: VariableMap<'t>) -> Self {
-        VariableScopes {
-            scopes: vec![main_scope],
-        }
+    pub fn new() -> Self {
+        VariableScopes::default()
     }
 
     pub fn get(&self, name: &str) -> Option<&str> {
