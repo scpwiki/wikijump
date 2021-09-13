@@ -51,7 +51,10 @@ To publish a module, run this command:
 $ pnpm publish-module -- module-name
 ```
 
-This will package the module, as described above, and then publish it. Of course, you want to exercise caution when publishing.
+This will package the module, as described above, and then publish it. Of course, you want to exercise caution when publishing. In order to publish, you'll need to make sure of three things:
+1. You are part of the `wikijump` team on NPM (modules are scoped to that team)
+2. That every local dependency that the package has is also on NPM
+3. That you are absolutely sure you're good to go to publish
 
 ### Development
 
