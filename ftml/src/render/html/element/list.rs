@@ -38,22 +38,23 @@ pub fn render_list(
     let list_tag = ltype.html_tag();
     let mut tag = ctx.html().tag(list_tag);
 
-    tag.attr(attr!(;; attributes)).contents(|ctx| {
-        for list_item in list_items {
-            match list_item {
-                ListItem::Elements {
-                    elements,
-                    attributes,
-                } => {
-                    ctx.html()
-                        .li()
-                        .attr(attr!(;; attributes))
-                        .inner(log, &elements);
-                }
-                ListItem::SubList(element) => {
-                    render_element(log, ctx, element);
+    tag.attr(attr!("is" => "wj-list";; attributes))
+        .contents(|ctx| {
+            for list_item in list_items {
+                match list_item {
+                    ListItem::Elements {
+                        elements,
+                        attributes,
+                    } => {
+                        ctx.html()
+                            .li()
+                            .attr(attr!("is" => "wj-list-item";; attributes))
+                            .inner(log, &elements);
+                    }
+                    ListItem::SubList(element) => {
+                        render_element(log, ctx, element);
+                    }
                 }
             }
-        }
-    });
+        });
 }

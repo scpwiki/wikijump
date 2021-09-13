@@ -27,7 +27,10 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
 
     ctx.html()
         .sup()
-        .attr(attr!("class" => "wj-footnote-ref"))
+        .attr(attr!(
+            "is" => "wj-footnote-ref",
+            "class" => "wj-footnote-ref",
+        ))
         .contents(|ctx| {
             let ref_id = &format!("wj-footnote-ref-{}", index);
             let content_id = &format!("wj-footnote-{}", index);
@@ -64,7 +67,10 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
 
     ctx.html()
         .div()
-        .attr(attr!("class" => "wj-footnotes-list"))
+        .attr(attr!(
+            "is" => "wj-footnotes-list",
+            "class" => "wj-footnotes-list",
+        ))
         .contents(|ctx| {
             ctx.html()
                 .div()

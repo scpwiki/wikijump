@@ -97,7 +97,11 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
 
     ctx.html()
         .div()
-        .attr(attr!("class" => "wj-collapsible-block";; attributes))
+        .attr(attr!(
+            "is" => "wj-collapsible",
+            "class" => "wj-collapsible-block";;
+            attributes,
+        ))
         .contents(|ctx| {
             // Open collapsible link
             ctx.html()

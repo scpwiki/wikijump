@@ -44,6 +44,7 @@ pub fn render_table_of_contents(
     ctx.html()
         .div()
         .attr(attr!(
+            "is" => "wj-toc",
             "id" => "wj-toc",
             "class" => class_value; if align.is_some();;
             attributes

@@ -36,6 +36,7 @@ pub fn render_radio_button(
     );
 
     ctx.html().input().attr(attr!(
+        "is" => "wj-radio",
         "name" => name,
         "type" => "radio",
         "checked"; if checked;;
@@ -56,6 +57,7 @@ pub fn render_checkbox(
     );
 
     ctx.html().input().attr(attr!(
+        "is" => "wj-checkbox",
         "type" => "checkbox",
         "checked"; if checked;;
         attributes,
