@@ -101,10 +101,6 @@ cmftml:
     ## EndOfInput
     ## Attempting to process this rule failed because the end of input was reached.
 
-    NOT_IMPLEMENTED: The syntax ''{slice}'' hasn't been implemented in FTML yet.
-    ## NotImplemented
-    ## Temporary rule denoting that this syntactical construction isn't implemented yet.
-
     NO_RULES_MATCH: The string ''{slice}'' doesn't match anything and will be rendered as plain text.
     ## NoRulesMatch
     ## No rules match for these tokens, returning as plain text.
@@ -113,13 +109,49 @@ cmftml:
     ## RuleFailed
     ## Attempting to match this rule failed, falling back to try an alternate.
 
+    NOT_START_OF_LINE: The rule ''{rule}'' failed to match here, as it can only match on the start of a new line.
+    ## NotStartOfLine
+    ## Attempting to match this rule failed, it must be on the start of a new line.
+
     INVALID_INCLUDE: This include is invalid and won't be rendered.
     ## InvalidInclude
     ## This include block was malformed, and thus not substituted.
 
+    LIST_EMPTY: This list has nothing inside of it.
+    ## ListEmpty
+    ## This list has no elements in it.
+
+    LIST_CONTAINS_NON_ITEM: This list has direct children that aren't list-item blocks.
+    ## This list has elements other than items in it.
+    ## ListContainsNonItem
+
+    LIST_ITEM_OUTSIDE_LIST: This list-item isn't within a list.
+    ## ListItemOutsideList
+    ## This list item is not within a list.
+
     LIST_DEPTH_EXCEEDED: This list is nested too deeply, and can't be rendered.
     ## ListDepthExceeded
     ## This list tries to nest too deeply.
+
+    TABLE_CONTAINS_NON_ROW: This table has direct children that aren't table rows.
+    ## TableContainsNonRow
+    ## This table has elements other than rows in it.
+
+    TABLE_ROW_CONTAINS_NON_CELL: This table-row has direct children that aren't cells.
+    ## TableRowContainsNonCell
+    ## This table row has elements other than cells in it.
+
+    TABLE_ROW_OUTSIDE_TABLE: This table-row isn't within a table.
+    ## TableRowOutsideTable
+    ## This table row appears outside of a table.
+
+    TABLE_CELL_OUTSIDE_TABLE: This table-cell isn't within a table-row.
+    ## TableCellOutsideTable
+    ## This table cell appears outside of a table row.
+
+    FOOTNOTES_NESTED: This footnote is invalid because it's inside another footnote.
+    ## FootnotesNested
+    ## Footnotes are not permitted from inside footnotes.
 
     BLOCKQUOTE_DEPTH_EXCEEDED: This blockquote is nested too deeply, and can't be rendered.
     ## BlockquoteDepthExceeded
@@ -168,6 +200,10 @@ cmftml:
     MODULE_MISSING_NAME: A module name was expected to be provided.
     ## ModuleMissingName
     ## This module does not specify a name.
+
+    NO_SUCH_PAGE: The page ''{slice}'' doesn't exist.
+    ## NoSuchPage
+    ## The given page to be included does not exist.
 
     INVALID_URL: The URL ''{slice}'' is invalid.
     ## InvalidUrl

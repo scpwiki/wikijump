@@ -12,11 +12,19 @@ interface WarningInfo {
 const warningConfig: Record<string, "info" | "warning" | "error" | null> = {
   RECURSION_DEPTH_EXCEEDED: "error",
   END_OF_INPUT: null,
-  NOT_IMPLEMENTED: "warning",
   NO_RULES_MATCH: null,
   RULE_FAILED: null,
+  NOT_START_OF_LINE: null,
   INVALID_INCLUDE: "error",
+  LIST_EMPTY: "warning",
+  LIST_CONTAINS_NON_ITEM: "error",
+  LIST_ITEM_OUTSIDE_LIST: "error",
   LIST_DEPTH_EXCEEDED: "error",
+  TABLE_CONTAINS_NON_ROW: "error",
+  TABLE_ROW_CONTAINS_NON_CELL: "error",
+  TABLE_ROW_OUTSIDE_TABLE: "error",
+  TABLE_CELL_OUTSIDE_TABLE: "error",
+  FOOTNOTES_NESTED: "error",
   BLOCKQUOTE_DEPTH_EXCEEDED: "error",
   NO_SUCH_BLOCK: "error",
   BLOCK_DISALLOWS_STAR: "warning",
@@ -29,6 +37,7 @@ const warningConfig: Record<string, "info" | "warning" | "error" | null> = {
   BLOCK_END_MISMATCH: "error",
   NO_SUCH_MODULE: "error",
   MODULE_MISSING_NAME: "error",
+  NO_SUCH_PAGE: "error",
   INVALID_URL: "warning"
 }
 
