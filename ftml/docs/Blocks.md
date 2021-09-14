@@ -577,12 +577,11 @@ Example:
 
 ```
 [[ul]]
-  [[li]]
-    [[ol]]
-      [[li]] Item A [[/li]]
-      [[li]] Item B [[/li]]
-    [[/ol]]
-  [[/li]]
+  [[ol]]
+    [[li]] Item A [[/li]]
+    [[li]] Item B [[/li]]
+  [[/ol]]
+
   [[li]] Item C [[/li]]
 [[/ul]]
 ```
