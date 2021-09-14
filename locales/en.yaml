@@ -619,12 +619,11 @@ cmftml:
         {{[[ul]]}} (unordered list) or {{[[ol]]}} (ordered list) block.
       EXAMPLE: |
         [[ul]]
-          [[li]]
-            [[ol]]
-              [[li]] Item A [[/li]]
-              [[li]] Item B [[/li]]
-            [[/ol]]
-          [[/li]]
+          [[ol]]
+            [[li]] Item A [[/li]]
+            [[li]] Item B [[/li]]
+          [[/ol]]
+
           [[li]] Item C [[/li]]
         [[/ul]]
 
@@ -632,32 +631,28 @@ cmftml:
       TITLE: Ordered List
       INFO: >
         Starts an ordered list, which is a list that is sorted in order, e.g. with
-        numbers or the alphabet. The children of this element should only be list-items
-        ({{[[li]]}} blocks).
+        numbers or the alphabet. The children of this element should only be {{[[ul]]}}, {{[[ol]]}}, or {{[[li]]}} blocks.
       EXAMPLE: |
         [[ul]]
-          [[li]]
-            [[ol]]
-              [[li]] Item A [[/li]]
-              [[li]] Item B [[/li]]
-            [[/ol]]
-          [[/li]]
+          [[ol]]
+            [[li]] Item A [[/li]]
+            [[li]] Item B [[/li]]
+          [[/ol]]
+
           [[li]] Item C [[/li]]
         [[/ul]]
 
     list-unordered:
       TITLE: Unordered List
       INFO: >
-        Starts an unordered list. The children of this element should only be list-items
-        ({{[[li]]}} blocks).
+        Starts an unordered list. The children of this element should only be {{[[ul]]}}, {{[[ol]]}}, or {{[[li]]}} blocks.
       EXAMPLE: |
         [[ul]]
-          [[li]]
-            [[ol]]
-              [[li]] Item A [[/li]]
-              [[li]] Item B [[/li]]
-            [[/ol]]
-          [[/li]]
+          [[ol]]
+            [[li]] Item A [[/li]]
+            [[li]] Item B [[/li]]
+          [[/ol]]
+
           [[li]] Item C [[/li]]
         [[/ul]]
 
