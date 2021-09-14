@@ -1,14 +1,25 @@
-# -- UTILITY
+# -- BUILD
 
 build:
   $depend: []
   $action: pnpm --parallel --if-present -r build
-
   modules: pnpm --filter {modules} --parallel --if-present -r build
   web: pnpm --filter {web} --parallel --if-present -r build
 
-pack-module: node scripts/vite-pack.js
-publish-module: node scripts/publish.js
+# -- MODULE VERSIONING AND PUBLISHING
+
+# Adds a new changeset to the monorepo
+changeset: changeset
+
+# Pack a specific module
+# e.g. pnpm modules:pack -- util
+modules:pack: node scripts/vite-pack.js
+
+# Updates the version of any module that has changesets relevant to it
+modules:version: changeset version
+
+# Publishes all modules that are newer than what is on NPM
+modules:publish: node scripts/publish-all.js
 
 # -- TESTING
 

@@ -10,12 +10,6 @@ function separator() {
   console.log(chalk.gray("─────────────────────────"))
 }
 
-function header(title) {
-  const dashes = Math.round((24 - (title.length + 2)) / 2)
-  const chrs = "─".repeat(dashes)
-  console.log(chalk.bgBlue(`${chrs} ${title} ${chrs}`))
-}
-
 function section(title) {
   const dashes = Math.round((24 - (title.length + 2)) / 2)
   const chrs = "─".repeat(dashes)
@@ -25,6 +19,11 @@ function section(title) {
 function info(...msgs) {
   const msg = msgs.join("\n")
   console.log(chalk.green(msg))
+}
+
+function look(...msgs) {
+  const msg = msgs.join("\n")
+  console.log(chalk.magentaBright(msg))
 }
 
 function warn(...msgs) {
@@ -58,11 +57,12 @@ function question(question) {
 }
 
 module.exports = {
+  chalk,
   linebreak,
   separator,
-  header,
   section,
   info,
+  look,
   warn,
   error,
   cmd,

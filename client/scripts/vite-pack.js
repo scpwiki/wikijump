@@ -2,15 +2,7 @@ const vite = require("vite")
 const { getConfig } = require("./vite-config.js")
 const path = require("path")
 const fs = require("fs-extra")
-const {
-  linebreak,
-  separator,
-  header,
-  section,
-  info,
-  warn,
-  error
-} = require("./pretty-logs.js")
+const { linebreak, separator, info, warn, error } = require("./pretty-logs.js")
 
 /*
  * This script allows for the creation of NPM packages from a module in the
@@ -39,9 +31,8 @@ if (!package) {
   process.exit(1)
 }
 
-header("vite-pack")
-linebreak()
 info(`Building package for "${package}"`)
+linebreak()
 
 const ROOT = path.resolve(__dirname, "../")
 const DIR = path.resolve(__dirname, `../modules/${package}`)
@@ -155,10 +146,6 @@ json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/client/modules
 
 // build module, finally
 ;(async () => {
-  linebreak()
-  section("BUILD")
-  linebreak()
-
   // have to clear folder because Vite won't do it due to the outDir workaround
   if (await fs.pathExists(`${DIR}/dist`)) await fs.remove(`${DIR}/dist`)
 

@@ -1,5 +1,4 @@
 import initFTML, * as Binding from "../vendor/ftml"
-import wasmURL from "../vendor/ftml_bg.wasm?url"
 
 /** Indicates if the WASM binding is loaded. */
 export let ready = false
@@ -14,7 +13,8 @@ export const loading = new Promise(resolve => {
 export let wasm: Binding.InitOutput | null = null
 
 /** Loads the WASM required for the FTML library. */
-export async function init(path: Binding.InitInput = wasmURL) {
+export async function init(path?: Binding.InitInput) {
+  if (!path) path = (await import("../vendor/ftml_bg.wasm?url")).default
   wasm = await initFTML(path)
   ready = true
   resolveLoading()

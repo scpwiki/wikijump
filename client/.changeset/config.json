@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@1.6.1/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "linked": [],
+  "access": "restricted",
+  "baseBranch": "develop",
+  "updateInternalDependencies": "minor",
+  "ignore": [
+    "@wikijump/cm-espells",
+    "@wikijump/cm-lang-ftml",
+    "@wikijump/cm-tarnation",
+    "@wikijump/codemirror",
+    "@wikijump/components",
+    "@wikijump/css",
+    "@wikijump/prism",
+    "@wikijump/sheaf",
+    "@wikijump/state",
+    "@wikijump/docs",
+    "dev-sandbox"
+  ]
+}
