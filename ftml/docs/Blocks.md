@@ -317,7 +317,7 @@ Arguments:
 Example:
 
 ```
-The author of The Dark Tower series[[footnote]]Did you know that world-renowned writer Stephen King was once hit by a car? Just something to consider[[/footnote]] began work in the late 1970s.
+The author of The Dark Tower series[[footnote]]Did you know that world-renowned writer Stephen King was once hit by a car? Just something to consider.[[/footnote]] began work in the late 1970s.
 ```
 
 ### Footnote Block
