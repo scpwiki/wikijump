@@ -25,7 +25,7 @@ use super::output::HtmlOutput;
 use crate::data::PageRef;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::render::Handle;
-use crate::tree::{Element, LinkLocation, VariableContext, VariableScopes};
+use crate::tree::{Element, LinkLocation, VariableScopes};
 use crate::url::is_url;
 use crate::{info, Backlinks, PageInfo};
 use std::borrow::Cow;
@@ -282,12 +282,5 @@ impl<'i, 'h, 'e, 'v, 't> NextIndex<TableOfContentsIndex>
     #[inline]
     fn next(&mut self) -> usize {
         self.next_table_of_contents_index()
-    }
-}
-
-impl<'i, 'h, 'e, 'v, 't> VariableContext<'v, 't> for HtmlContext<'i, 'h, 'e, 'v, 't> {
-    #[inline]
-    fn get_scopes(&mut self) -> &mut VariableScopes<'v, 't> {
-        self.variables_mut()
     }
 }

@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::data::PageRef;
-use crate::tree::{VariableContextWrap, VariableMap, VariableScopes};
+use crate::tree::VariableMap;
 
 pub fn render_include(
     log: &Logger,
