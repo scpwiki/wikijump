@@ -2,6 +2,7 @@ export type BlockConfiguration = Record<string, Block>
 export type ModuleConfiguration = Record<string, Module>
 
 export interface Block {
+  "exclude-name"?: boolean
   "deprecated"?: boolean
   "aliases"?: string[]
   "accepts-star"?: boolean
