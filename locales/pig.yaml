@@ -69,10 +69,6 @@ cmftml:
     ## EndOfInput
     ## Attempting to process this rule failed because the end of input was reached.
 
-    NOT_IMPLEMENTED: Ethay axsyntay ''{slice}'' asn'thay eenbay implementedyay inyay lftmay etyay.
-    ## NotImplemented
-    ## Temporary rule denoting that this syntactical construction isn't implemented yet.
-
     NO_RULES_MATCH: Ethay ingstray ''{slice}'' oesn'tday atchmay anythingyay andyay illway ebay enderedray asyay ainplay exttay.
     ## NoRulesMatch
     ## No rules match for these tokens, returning as plain text.
@@ -81,13 +77,49 @@ cmftml:
     ## RuleFailed
     ## Attempting to match this rule failed, falling back to try an alternate.
 
+    NOT_START_OF_LINE: Ethay uleray ''{rule}'' ailedfay otay atchmay erehay, asyay ityay ancay onlyyay atchmay onyay ethay artstay ofyay ayay ewnay inelay.
+    ## NotStartOfLine
+    ## Attempting to match this rule failed, it must be on the start of a new line.
+
     INVALID_INCLUDE: Isthay includeyay isyay invalidyay andyay on'tway ebay enderedray.
     ## InvalidInclude
     ## This include block was malformed, and thus not substituted.
 
+    LIST_EMPTY: Isthay istlay ashay othingnay insideway ofway itway.
+    ## ListEmpty
+    ## This list has no elements in it.
+
+    LIST_CONTAINS_NON_ITEM: Isthay istlay ashay irectday ildrenchay atthay aren'tway istlay-itemway ocksblay.
+    ## This list has elements other than items in it.
+    ## ListContainsNonItem
+
+    LIST_ITEM_OUTSIDE_LIST: Isthay istlay-itemway isn'tway ithinway away istlay.
+    ## ListItemOutsideList
+    ## This list item is not within a list.
+
     LIST_DEPTH_EXCEEDED: Isthay istlay isyay estednay ootay eeplyday, andyay an'tcay ebay enderedray.
     ## ListDepthExceeded
     ## This list tries to nest too deeply.
+
+    TABLE_CONTAINS_NON_ROW: Isthay abletay ashay irectday ildrenchay atthay aren'tway abletay owsray.
+    ## TableContainsNonRow
+    ## This table has elements other than rows in it.
+
+    TABLE_ROW_CONTAINS_NON_CELL: Isthay abletay-owray ashay irectday ildrenchay atthay aren'tway ellscay.
+    ## TableRowContainsNonCell
+    ## This table row has elements other than cells in it.
+
+    TABLE_ROW_OUTSIDE_TABLE: Isthay abletay-owray isn'tway ithinway away abletay.
+    ## TableRowOutsideTable
+    ## This table row appears outside of a table.
+
+    TABLE_CELL_OUTSIDE_TABLE: Isthay abletay-ellcay isn'tway ithinway away abletay-owray.
+    ## TableCellOutsideTable
+    ## This table cell appears outside of a table row.
+
+    FOOTNOTES_NESTED: This footnote is invalid because it's inside another footnote.
+    ## FootnotesNested
+    ## Footnotes are not permitted from inside footnotes.
 
     BLOCKQUOTE_DEPTH_EXCEEDED: Isthay ockquoteblay isyay estednay ootay eeplyday, andyay an'tcay ebay enderedray.
     ## BlockquoteDepthExceeded
@@ -136,6 +168,10 @@ cmftml:
     MODULE_MISSING_NAME: Ayay odulemay amenay asway expectedyay otay ebay ovidedpray.
     ## ModuleMissingName
     ## This module does not specify a name.
+
+    NO_SUCH_PAGE: Ethay agepay ''{slice}'' oesn'tday existway.
+    ## NoSuchPage
+    ## The given page to be included does not exist.
 
     INVALID_URL: Ethay urlyay ''{slice}'' isyay invalidyay.
     ## InvalidUrl
@@ -327,6 +363,21 @@ cmftml:
         Omesay exttay __erehay!__
         [[/div]]
 
+    footnote:
+      TITLE: Ootnotefay
+      INFO: >
+        Addsyay anyay expandableyay ootnotefay, ichwhay ayay eaderray aymay useyay otay iewvay ethay ontentscay ybay ofyay overinghay oryay ocusingfay onyay ayay umberednay arkermay. Ethay ootnote'sfay ontentscay illway alsoyay ebay isplayedday inyay ayay "ootnotefay ockblay" atyay (ybay efaultday) ethay ottombay ofyay ethay agepay.
+      EXAMPLE: |
+        ethay authoryay ofyay ethay arkday owertay series[[footnote]]Idday ouyay owknay atthay orld-renownedway iterwray ephenstay ingkay asway onceyay ithay ybay ayay arcay? ustjay omethingsay otay onsidercay.[[/footnote]] eganbay orkway inyay ethay atelay 1970s.
+
+    footnote-block:
+      TITLE: Ootnotefay Ockblay
+      INFO: >
+        Ovesmay ethay ootnotefay ockblay. Ethay "ootnotefay ockblay" isyay addedyay otay ayay agepay eneverwhay ityay ashay anyyay {{[[footnote]]}} elementsyay, andyay ybay efaultday it'syay acedplay atyay ethay ottombay ofyay ethay agepay. Isthay ockblay etslay ouyay ovemay ityay, ifyay osay esiredday. Ifyay avinghay ayay ootnotefay ockblay atyay allyay isyay undesirableyay, ouyay ancay useyay ethay {{hide}} argumentyay otay emoveray ityay.
+      EXAMPLE: |
+        [[footnote-block title="Endnotesyay"]]
+        [[footnote-block title="Ephenstay Ingkay Arcay Ashcray Actsfay"]]
+
     hidden:
       TITLE: Iddenhay
       INFO: >
@@ -460,6 +511,30 @@ cmftml:
         [[image filename.png link="SCP-001"]]
         [[image filename.png link="https://example.com/"]]
 
+    include-elements:
+      TITLE: Includeyay (Elementsyay)
+      INFO: >
+        injectsyay anotheryay age'spay ontentscay. Isthay etslay ouyay //include// omethingsay without opy-pastingcay ityay, ichwhay allowsyay orfay eusableray ontentcay, ikelay e-madepray eadershay and ootersfay. Includesyay ancay acceptyay argumentsyay, andyay esethay argumentsyay eplaceray any aceholdersplay ofyay ethay amesay amenay enwhay ethay agepay isyay injectedyay.
+      EXAMPLE: |
+        [[include-elements component:some-bar
+          class="Keter"
+          classification="4"
+          taskforce="MTF-Eta-10 (\"Eesay Onay Evilyay\")"
+        ]]
+
+    include-messy:
+      TITLE: Includeyay (Essymay)
+      INFO: >
+        Ouyay ouldn'tshay useyay isthay ockblay unlessyay ouyay avehay otay. Isthay ockblay akestay anotheryay page's ontentscay andyay iterallylay astespay ityay irectlyday intoyay ouryay age'spay ourcesay iorpray to enderingray. Ethay onlyyay easonray ityay existsyay isyay orfay ompatibilitycay ithway ikidotway ontentcay. Useyay {{[[include-elements]]}} insteadyay.
+      EXAMPLE: |
+        [[include-messy theme:black-highlighter-theme]]
+
+        [[include-messy component:fancy-object-class
+          class=Keter |
+          classification=4 |
+          taskforce=MTF-Eta-10 ("Eesay Onay Evilyay")
+        ]]
+
     ins:
       TITLE: Insertionway
       INFO: >
@@ -507,6 +582,48 @@ cmftml:
       EXAMPLE: |
         [[lines 4]]
         [!-- Uchmay easierway anthay ammingspay "@@@@"s --]
+
+  list-item:
+      TITLE: Istlay-Itemyay
+      INFO: >
+        Eatescray anyay itemyay orfay ayay istlay. Ayay ist-itemlay ancay onlyyay ebay acedplay insideyay eitheryay a {{[[ul]]}} (unorderedyay istlay) oryay {{[[ol]]}} (orderedyay istlay) ockblay.
+      EXAMPLE: |
+        [[ul]]
+          [[ol]]
+            [[li]] Itemyay A [[/li]]
+            [[li]] Itemyay B [[/li]]
+          [[/ol]]
+
+          [[li]] Itemyay C [[/li]]
+        [[/ul]]
+
+  list-ordered:
+    TITLE: Orderedyay Istlay
+    INFO: >
+      Artsstay anyay orderedyay istlay, ichwhay isyay ayay istlay atthay isyay ortedsay inyay orderyay, e.g. with umbersnay oryay ethay alphabetyay. Ethay ildrenchay ofyay isthay elementyay ouldshay onlyyay ebay {{[[ul]]}}, {{[[ol]]}}, oryay {{[[li]]}} ocksblay.
+    EXAMPLE: |
+      [[ul]]
+        [[ol]]
+          [[li]] Itemyay A [[/li]]
+          [[li]] Itemyay B [[/li]]
+        [[/ol]]
+
+        [[li]] Itemyay C [[/li]]
+      [[/ul]]
+
+  list-unordered:
+    TITLE: Unorderedyay Istlay
+    INFO: >
+      Artsstay anyay unorderedyay istlay. Ethay ildrenchay ofyay isthay elementyay ouldshay onlyyay ebay {{[[ul]]}}, {{[[ol]]}}, oryay {{[[li]]}} ocksblay.
+    EXAMPLE: |
+      [[ul]]
+        [[ol]]
+          [[li]] Itemyay A [[/li]]
+          [[li]] Itemyay B [[/li]]
+        [[/ol]]
+
+        [[li]] Itemyay C [[/li]]
+      [[/ul]]
 
     mark:
       TITLE: Arkmay
@@ -607,6 +724,89 @@ cmftml:
         Usthay, ethay esultray isway nay[[sup]]2[[/sup]].
         [!-- equivalentway otay --]
         Usthay, ethay esultray isway nay^^2^^.
+
+    table:
+      TITLE: Abletay
+      INFO: >
+        Artsstay ayay abletay. Ablestay ustmay ollowfay ayay ecificspay ucturestray, ithway ayay {{[[table]]}} ontainingcay onlyyay {{[[row]]}} ocksblay, andyay osethay ontainingcay onlyyay {{[[cell]]}} or {{[[hcell]]}} ocksblay. Ayay ellcay ancay ontaincay enericgay ontentcay, includingyay otheryay ablestay.
+      EXAMPLE: |
+        [[table]]
+          [[row]]
+            [[hcell]] Amenay [[/hcell]]
+            [[hcell]] Icepray [[/hcell]]
+            [[hcell]] Ockstay [[/hcell]]
+          [[/row]]
+          [[row]]
+            [[cell]] Ananabay [[/cell]]
+            [[cell]] $0.30 [[/cell]]
+            [[cell]] 87 [[/cell]]
+          [[/row]]
+        [[/table]]
+
+    table-row:
+      TITLE: Abletay Owray
+      INFO: >
+        Eatescray ayay owray inyay ayay abletay. Ablestay ustmay ollowfay ayay ecificspay ucturestray, ithway ayay {{[[table]]}} ontainingcay onlyyay {{[[row]]}} ocksblay, andyay osethay ontainingcay onlyyay {{[[cell]]}} or {{[[hcell]]}} ocksblay. Ayay ellcay ancay ontaincay enericgay ontentcay, includingyay otheryay ablestay.
+      EXAMPLE: |
+        [[table]]
+          [[row]]
+            [[hcell]] Amenay [[/hcell]]
+            [[hcell]] Icepray [[/hcell]]
+            [[hcell]] Ockstay [[/hcell]]
+          [[/row]]
+          [[row]]
+            [[cell]] Ananabay [[/cell]]
+            [[cell]] $0.30 [[/cell]]
+            [[cell]] 87 [[/cell]]
+          [[/row]]
+        [[/table]]
+
+    table-cell-regular:
+      TITLE: Abletay Ellcay
+      INFO: >
+        Eatescray ayay ellcay inyay ayay abletay owray. Ablestay ustmay ollowfay ayay ecificspay ucturestray, ithway ayay {{[[table]]}} ontainingcay onlyyay {{[[row]]}} ocksblay, andyay osethay ontainingcay onlyyay {{[[cell]]}} or {{[[hcell]]}} ocksblay. Ayay ellcay ancay ontaincay enericgay ontentcay, includingyay otheryay ablestay.
+      EXAMPLE: |
+        [[table]]
+          [[row]]
+            [[hcell]] Amenay [[/hcell]]
+            [[hcell]] Icepray [[/hcell]]
+            [[hcell]] Ockstay [[/hcell]]
+          [[/row]]
+          [[row]]
+            [[cell]] Ananabay [[/cell]]
+            [[cell]] $0.30 [[/cell]]
+            [[cell]] 87 [[/cell]]
+          [[/row]]
+        [[/table]]
+
+    table-cell-header:
+      TITLE: Abletay Ellcay (Eaderhay)
+      INFO: >
+        Eatescray ayay ellcay inyay ayay abletay owray, edstylay asyay ayay eaderhay orfay ayay olumncay. Ablestay ustmay ollowfay ayay ecificspay ucturestray, ithway ayay {{[[table]]}} ontainingcay onlyyay {{[[row]]}} ocksblay, andyay osethay ontainingcay onlyyay {{[[cell]]}} or {{[[hcell]]}} ocksblay. Ayay ellcay ancay ontaincay enericgay ontentcay, includingyay otheryay ablestay.
+      EXAMPLE: |
+        [[table]]
+          [[row]]
+            [[hcell]] Amenay [[/hcell]]
+            [[hcell]] Icepray [[/hcell]]
+            [[hcell]] Ockstay [[/hcell]]
+          [[/row]]
+          [[row]]
+            [[cell]] Ananabay [[/cell]]
+            [[cell]] $0.30 [[/cell]]
+            [[cell]] 87 [[/cell]]
+          [[/row]]
+        [[/table]]
+
+    toc:
+      TITLE: Ebletay ofyay Ontentscay
+      INFO: >
+        Ender'sray ayay abletay ofyay ontentscay orfay ethay agepay, asedbay offyay ethay eadinghay elementsyay found inyay ethay agepay. Isthay etslay eadersray uicklyqay avigatenay ouryay agepay.
+      EXAMPLE: |
+        [[toc]]
+
+        + Artpay 1: Ethay artpay ouyay ishway ouyay ouldcay ipskay
+
+        + Artpay 2: Ethay oodgay uffstay
 
     user:
       TITLE: Userway
