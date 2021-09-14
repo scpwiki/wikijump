@@ -583,10 +583,24 @@ cmftml:
         [[lines 4]]
         [!-- Uchmay easierway anthay ammingspay "@@@@"s --]
 
-  list-item:
-      TITLE: Istlay-Itemyay
+    list-item:
+        TITLE: Istlay-Itemyay
+        INFO: >
+          Eatescray anyay itemyay orfay ayay istlay. Ayay ist-itemlay ancay onlyyay ebay acedplay insideyay eitheryay a {{[[ul]]}} (unorderedyay istlay) oryay {{[[ol]]}} (orderedyay istlay) ockblay.
+        EXAMPLE: |
+          [[ul]]
+            [[ol]]
+              [[li]] Itemyay A [[/li]]
+              [[li]] Itemyay B [[/li]]
+            [[/ol]]
+
+            [[li]] Itemyay C [[/li]]
+          [[/ul]]
+
+    list-ordered:
+      TITLE: Orderedyay Istlay
       INFO: >
-        Eatescray anyay itemyay orfay ayay istlay. Ayay ist-itemlay ancay onlyyay ebay acedplay insideyay eitheryay a {{[[ul]]}} (unorderedyay istlay) oryay {{[[ol]]}} (orderedyay istlay) ockblay.
+        Artsstay anyay orderedyay istlay, ichwhay isyay ayay istlay atthay isyay ortedsay inyay orderyay, e.g. with umbersnay oryay ethay alphabetyay. Ethay ildrenchay ofyay isthay elementyay ouldshay onlyyay ebay {{[[ul]]}}, {{[[ol]]}}, oryay {{[[li]]}} ocksblay.
       EXAMPLE: |
         [[ul]]
           [[ol]]
@@ -597,33 +611,19 @@ cmftml:
           [[li]] Itemyay C [[/li]]
         [[/ul]]
 
-  list-ordered:
-    TITLE: Orderedyay Istlay
-    INFO: >
-      Artsstay anyay orderedyay istlay, ichwhay isyay ayay istlay atthay isyay ortedsay inyay orderyay, e.g. with umbersnay oryay ethay alphabetyay. Ethay ildrenchay ofyay isthay elementyay ouldshay onlyyay ebay {{[[ul]]}}, {{[[ol]]}}, oryay {{[[li]]}} ocksblay.
-    EXAMPLE: |
-      [[ul]]
-        [[ol]]
-          [[li]] Itemyay A [[/li]]
-          [[li]] Itemyay B [[/li]]
-        [[/ol]]
+    list-unordered:
+      TITLE: Unorderedyay Istlay
+      INFO: >
+        Artsstay anyay unorderedyay istlay. Ethay ildrenchay ofyay isthay elementyay ouldshay onlyyay ebay {{[[ul]]}}, {{[[ol]]}}, oryay {{[[li]]}} ocksblay.
+      EXAMPLE: |
+        [[ul]]
+          [[ol]]
+            [[li]] Itemyay A [[/li]]
+            [[li]] Itemyay B [[/li]]
+          [[/ol]]
 
-        [[li]] Itemyay C [[/li]]
-      [[/ul]]
-
-  list-unordered:
-    TITLE: Unorderedyay Istlay
-    INFO: >
-      Artsstay anyay unorderedyay istlay. Ethay ildrenchay ofyay isthay elementyay ouldshay onlyyay ebay {{[[ul]]}}, {{[[ol]]}}, oryay {{[[li]]}} ocksblay.
-    EXAMPLE: |
-      [[ul]]
-        [[ol]]
-          [[li]] Itemyay A [[/li]]
-          [[li]] Itemyay B [[/li]]
-        [[/ol]]
-
-        [[li]] Itemyay C [[/li]]
-      [[/ul]]
+          [[li]] Itemyay C [[/li]]
+        [[/ul]]
 
     mark:
       TITLE: Arkmay
