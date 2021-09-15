@@ -24,11 +24,11 @@ use std::collections::HashMap;
 pub type VariableMap<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct VariableScopes<'v, 't> {
-    scopes: Vec<&'v VariableMap<'t>>,
+pub struct VariableScopes<'t> {
+    scopes: Vec<VariableMap<'t>>,
 }
 
-impl<'v, 't> VariableScopes<'v, 't> {
+impl<'t> VariableScopes<'t> {
     #[inline]
     pub fn new() -> Self {
         VariableScopes::default()
@@ -44,8 +44,11 @@ impl<'v, 't> VariableScopes<'v, 't> {
         None
     }
 
-    pub fn push_scope(&mut self, scope: &'v VariableMap<'t>) {
-        self.scopes.push(scope);
+    pub fn push_scope(&mut self, scope: &VariableMap<'t>) {
+        // We clone here since managing multiple, scope-dependent
+        // lifetimes for each call is impractical, and we can't
+        // use Rc or RefCell because it is borrowed from Element.
+        self.scopes.push(scope.clone());
     }
 
     pub fn pop_scope(&mut self) {

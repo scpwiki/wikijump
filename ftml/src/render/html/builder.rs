@@ -26,7 +26,7 @@ use std::collections::HashSet;
 
 macro_rules! tag_method {
     ($tag:tt) => {
-        pub fn $tag(self) -> HtmlBuilderTag<'c, 'i, 'h, 'e, 'v, 't> {
+        pub fn $tag(self) -> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
             self.tag(stringify!($tag))
         }
     };
@@ -41,24 +41,24 @@ const SOLO_HTML_TAGS: [&str; 14] = [
 // Main struct
 
 #[derive(Debug)]
-pub struct HtmlBuilder<'c, 'i, 'h, 'e, 'v, 't>
+pub struct HtmlBuilder<'c, 'i, 'h, 'e, 't>
 where
     'e: 't,
 {
-    ctx: &'c mut HtmlContext<'i, 'h, 'e, 'v, 't>,
+    ctx: &'c mut HtmlContext<'i, 'h, 'e, 't>,
 }
 
-impl<'c, 'i, 'h, 'e, 'v, 't> HtmlBuilder<'c, 'i, 'h, 'e, 'v, 't>
+impl<'c, 'i, 'h, 'e, 't> HtmlBuilder<'c, 'i, 'h, 'e, 't>
 where
     'e: 't,
 {
     #[inline]
-    pub fn new(ctx: &'c mut HtmlContext<'i, 'h, 'e, 'v, 't>) -> Self {
+    pub fn new(ctx: &'c mut HtmlContext<'i, 'h, 'e, 't>) -> Self {
         HtmlBuilder { ctx }
     }
 
     #[inline]
-    pub fn tag(self, tag: &'t str) -> HtmlBuilderTag<'c, 'i, 'h, 'e, 'v, 't> {
+    pub fn tag(self, tag: &'t str) -> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         debug_assert!(is_alphanumeric(tag));
 
         let HtmlBuilder { ctx } = self;
@@ -66,7 +66,7 @@ where
     }
 
     #[inline]
-    pub fn table_cell(self, header: bool) -> HtmlBuilderTag<'c, 'i, 'h, 'e, 'v, 't> {
+    pub fn table_cell(self, header: bool) -> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         if header {
             self.tag("th")
         } else {
@@ -104,18 +104,18 @@ where
 // Helper structs
 
 #[derive(Debug)]
-pub struct HtmlBuilderTag<'c, 'i, 'h, 'e, 'v, 't>
+pub struct HtmlBuilderTag<'c, 'i, 'h, 'e, 't>
 where
     'e: 't,
 {
-    ctx: &'c mut HtmlContext<'i, 'h, 'e, 'v, 't>,
+    ctx: &'c mut HtmlContext<'i, 'h, 'e, 't>,
     tag: &'t str,
     in_tag: bool,
     in_contents: bool,
 }
 
-impl<'c, 'i, 'h, 'e, 'v, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 'v, 't> {
-    pub fn new(ctx: &'c mut HtmlContext<'i, 'h, 'e, 'v, 't>, tag: &'t str) -> Self {
+impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
+    pub fn new(ctx: &'c mut HtmlContext<'i, 'h, 'e, 't>, tag: &'t str) -> Self {
         ctx.push_raw('<');
         ctx.push_raw_str(tag);
 
@@ -252,7 +252,7 @@ impl<'c, 'i, 'h, 'e, 'v, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 'v, 't> {
     }
 }
 
-impl<'c, 'i, 'h, 'e, 'v, 't> Drop for HtmlBuilderTag<'c, 'i, 'h, 'e, 'v, 't> {
+impl<'c, 'i, 'h, 'e, 't> Drop for HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
     fn drop(&mut self) {
         if self.in_tag && !self.in_contents {
             self.ctx.push_raw('>');

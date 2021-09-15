@@ -37,7 +37,11 @@ pub fn render_include(
         "elements-len" => elements.len(),
     );
 
-    todo!();
+    ctx.variables_mut().push_scope(variables);
+
+    render_elements(log, ctx, elements);
+
+    ctx.variables_mut().pop_scope();
 }
 
 pub fn render_variable(log: &Logger, ctx: &mut HtmlContext, name: &str) {
