@@ -58,9 +58,9 @@ impl<'t> Includer<'t> for TestIncluder {
         for include in includes {
             let content = match *&include.page_ref().page() {
                 "fruit" => Some(Cow::Borrowed(FRUIT_PAGE_SOURCE)),
-                "component" => Some(Cow::Borrowed(COMPONENT_PAGE_SOURCE)),
+                "component:thing" => Some(Cow::Borrowed(COMPONENT_PAGE_SOURCE)),
                 "missing" => None,
-                _ => Some(Cow::Borrowed("")),
+                _ => Some(Cow::Borrowed("INCLUDED PAGE")),
             };
 
             let page_ref = include.page_ref().clone();
