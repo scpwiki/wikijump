@@ -45,7 +45,20 @@ pub fn render_include(
 }
 
 pub fn render_variable(log: &Logger, ctx: &mut HtmlContext, name: &str) {
-    info!(log, "Rendering variable"; "name" => name);
+    let value = ctx.variables().get(name);
 
-    todo!();
+    info!(log, "Rendering variable"; "name" => name, "value" => value);
+
+    // Write to a separate buffer since we can't borrow &mut for buffer and & for variables.
+    let value = match value {
+        // Value exists, substitute normally.
+        Some(value) => str!(value),
+
+        // Value is absent, leave as original value.
+        // Variables are {$name}, so just write that back.
+        None => format!("{{${}}}", name),
+    };
+
+    // Append the formatted string
+    ctx.push_escaped(&value);
 }
