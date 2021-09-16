@@ -37,7 +37,7 @@ where
     //
     // Included page scopes
     //
-    variables: VariableScopes<'t>,
+    variables: VariableScopes,
 
     //
     // Elements from the syntax tree
@@ -110,12 +110,12 @@ where
     }
 
     #[inline]
-    pub fn variables(&self) -> &VariableScopes<'t> {
+    pub fn variables(&self) -> &VariableScopes {
         &self.variables
     }
 
     #[inline]
-    pub fn variables_mut(&mut self) -> &mut VariableScopes<'t> {
+    pub fn variables_mut(&mut self) -> &mut VariableScopes {
         &mut self.variables
     }
 

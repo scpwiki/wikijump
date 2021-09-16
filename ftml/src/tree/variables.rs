@@ -18,17 +18,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::clone::string_map_to_owned;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
 pub type VariableMap<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct VariableScopes<'t> {
-    scopes: Vec<VariableMap<'t>>,
+pub struct VariableScopes {
+    scopes: Vec<VariableMap<'static>>,
 }
 
-impl<'t> VariableScopes<'t> {
+impl VariableScopes {
     #[inline]
     pub fn new() -> Self {
         VariableScopes::default()
@@ -44,11 +45,11 @@ impl<'t> VariableScopes<'t> {
         None
     }
 
-    pub fn push_scope(&mut self, scope: &VariableMap<'t>) {
+    pub fn push_scope(&mut self, scope: &VariableMap) {
         // We clone here since managing multiple, scope-dependent
         // lifetimes for each call is impractical, and we can't
         // use Rc or RefCell because it is borrowed from Element.
-        self.scopes.push(scope.clone());
+        self.scopes.push(string_map_to_owned(scope));
     }
 
     pub fn pop_scope(&mut self) {
