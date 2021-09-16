@@ -34,7 +34,7 @@ My name is __{$name}__:
 
 [[blockquote]]
 {$contents}
-[[/blockuquote]]
+[[/blockquote]]
 ";
 
 const COMPONENT_FRUIT_PAGE_SOURCE: &str = "
