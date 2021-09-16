@@ -24,20 +24,24 @@ use std::borrow::Cow;
 use void::Void;
 
 const FRUIT_PAGE_SOURCE: &str = "
-[[blockquote]]
-* Apple: {$apple}
-* Banana: {$banana}
-* Cherry: {$cherry}
-[[/blockquote]]
+* Apple
+* Banana
+* Cherry
 ";
 
-const COMPONENT_PAGE_SOURCE: &str = "
-[[div class=\"{$class}\"]]
+const COMPONENT_BASIC_PAGE_SOURCE: &str = "
+My name is __{$name}__:
+
+[[blockquote]]
+{$contents}
+[[/blockuquote]]
+";
+
+const COMPONENT_FRUIT_PAGE_SOURCE: &str = "
+[[div id=\"fruit\" class=\"{$class}\"]]
   [[ul]]
-    [[li]] {$item-1} [[/li]]
-    [[li]] {$item-2} [[/li]]
-    [[li]] {$item-3} [[/li]]
-    [[li]] {$item-4} [[/li]]
+    [[li]] {$apple} [[/li]]
+    [[li]] {$banana} [[/li]]
   [[/ul]]
 [[/div]]
 ";
@@ -56,14 +60,8 @@ impl<'t> Includer<'t> for TestIncluder {
         let mut pages = Vec::new();
 
         for include in includes {
-            let content = match *&include.page_ref().page() {
-                "fruit" => Some(Cow::Borrowed(FRUIT_PAGE_SOURCE)),
-                "component:thing" => Some(Cow::Borrowed(COMPONENT_PAGE_SOURCE)),
-                "missing" => None,
-                _ => Some(Cow::Borrowed("INCLUDED PAGE")),
-            };
-
             let page_ref = include.page_ref().clone();
+            let content = get_page_source(&page_ref);
 
             pages.push(FetchedPage { page_ref, content });
         }
@@ -77,5 +75,26 @@ impl<'t> Includer<'t> for TestIncluder {
             "[[div class=\"wj-error\"]]\nNo such page '{}'\n[[/div]]",
             page_ref,
         )))
+    }
+}
+
+fn get_page_source(page_ref: &PageRef) -> Option<Cow<'static, str>> {
+    macro_rules! cow {
+        ($text:expr) => {
+            Cow::Borrowed($text)
+        };
+    }
+
+    if page_ref.site().is_some() {
+        return Some(cow!("OFF-SITE INCLUDED PAGE"));
+    }
+
+    match page_ref.page() {
+        "fruit" => Some(cow!(FRUIT_PAGE_SOURCE)),
+        "component:basic" => Some(cow!(COMPONENT_BASIC_PAGE_SOURCE)),
+        "component:fruit" => Some(cow!(COMPONENT_FRUIT_PAGE_SOURCE)),
+        "fragment:page" => Some(cow!("INCLUDED FRAGMENT")),
+        "missing" => None,
+        _ => Some(cow!("INCLUDED PAGE")),
     }
 }

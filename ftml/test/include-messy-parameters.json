@@ -1,5 +1,5 @@
 {
-    "input": "[[include-messy my-page apple=1 | banana = 2]]",
+    "input": "[[include-messy component:fruit apple=1 | banana = 2]]",
     "tree": {
         "elements": [
             {

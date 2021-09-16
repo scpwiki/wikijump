@@ -1,5 +1,5 @@
 {
-    "input": "[[include-messy component:my-thing]]",
+    "input": "[[include-messy component:thing]]",
     "tree": {
         "elements": [
             {

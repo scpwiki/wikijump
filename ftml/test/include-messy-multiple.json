@@ -1,5 +1,5 @@
 {
-    "input": "Apple\n[[include-messy my-page]]\nBanana\n[[include-messy other]]\nCherry",
+    "input": "Apple\n[[include-messy fruit]]\nBanana\n[[include-messy other]]\nCherry",
     "tree": {
         "elements": [
             {
