@@ -40,8 +40,8 @@ export enum Nesting {
 }
 
 export enum Inclusivity {
-  INCLUSIVE,
-  EXCLUSIVE
+  EXCLUSIVE,
+  INCLUSIVE
 }
 
 export enum Wrapping {
