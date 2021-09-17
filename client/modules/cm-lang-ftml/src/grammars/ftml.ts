@@ -13,7 +13,6 @@ export const FTMLLanguage = new TarnationLanguage({
   nestLanguages: languageList,
 
   languageData: {
-    commentTokens: { block: { open: "[!--", close: "--]" } },
     autocomplete: completeFTML,
     spellcheck: spellcheckFTML
   },

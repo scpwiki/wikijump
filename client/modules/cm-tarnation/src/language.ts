@@ -72,6 +72,9 @@ export class TarnationLanguage {
     const def = isFunction(this.grammarData) ? this.grammarData() : this.grammarData
     this.grammar = new Grammar(def)
 
+    // merge data from the grammar
+    Object.assign(this.languageData, this.grammar.data)
+
     // setup node data
 
     this.stateProp = new NodeProp<TokenizerBuffer>({ perNode: true })

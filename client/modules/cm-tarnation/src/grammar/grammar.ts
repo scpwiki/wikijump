@@ -1,4 +1,5 @@
 import type * as DF from "./definition"
+import { re } from "./helpers"
 import { Matched } from "./matched"
 import type { Node } from "./node"
 import { Repository } from "./repository"
@@ -8,6 +9,7 @@ import { GrammarStack, GrammarState } from "./state"
 import { VariableTable, Wrapping } from "./types"
 
 export class Grammar {
+  declare data: Record<string, any>
   declare repository: Repository
   declare rootNode: Node
   declare root: (Rule | State)[]
@@ -15,9 +17,26 @@ export class Grammar {
   declare default?: Node
 
   constructor(public def: DF.Grammar, public variables: VariableTable = {}) {
+    // process language data
+
+    this.data = {}
+
+    if (def.comments) this.data.commentTokens = def.comments
+    if (def.closeBrackets) this.data.closeBrackets = def.closeBrackets
+    if (def.wordChars) this.data.wordChars = def.wordChars
+    if (def.indentOnInput) {
+      const regex = re(def.indentOnInput)
+      if (!regex) throw new Error(`Invalid indentOnInput: ${def.indentOnInput}`)
+      this.data.indentOnInput = regex
+    }
+
+    // setup repository, rootNode, etc.
+
     this.repository = new Repository(this, variables, def.ignoreCase, def.includes)
 
     this.rootNode = this.repository.add({ type: "Root" })
+
+    // add rules, nodes, etc.
 
     if (def.default) this.default = this.repository.add(def.default)
 
