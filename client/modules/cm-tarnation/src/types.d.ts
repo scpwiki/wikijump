@@ -74,15 +74,6 @@ type LezerToken = [id: number, from: number, to: number, children: number, tree?
 
 // -- TOKENIZER
 
-/** Represents a node in a tokenizer stack. */
-export type TokenizerStackElement = [state: string, context: DF.Context]
-
-/** A serialized (just data) form of a tokenizer stack. */
-export interface SerializedTokenizerStack {
-  stack: TokenizerStackElement[]
-  embedded: null | [lang: string, start: number]
-}
-
 /** Serialized context/state of a tokenizer. */
 export interface SerializedTokenizerContext {
   pos: number
