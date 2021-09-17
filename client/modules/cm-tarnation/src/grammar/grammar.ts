@@ -75,7 +75,12 @@ export class Grammar {
     }
 
     if (this.default) {
-      const result = new Matched(state, this.default, str.slice(pos, pos + 1), offset)
+      const result = new Matched(
+        state.clone(),
+        this.default,
+        str.slice(pos, pos + 1),
+        offset
+      )
       if (result) return result
     }
 
