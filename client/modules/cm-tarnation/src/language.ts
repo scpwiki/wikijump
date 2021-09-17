@@ -13,7 +13,7 @@ import { DelegatorFactory } from "./delegator"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
 import { NodeMap } from "./node-map"
-import { TokenizerBuffer } from "./tokenizer"
+import type { TokenizerBuffer } from "./tokenizer"
 import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
 import { EmbeddedParserType, makeTopNode } from "./util"
 

@@ -11,7 +11,7 @@ import {
 import { LanguageDescription, ParseContext } from "@wikijump/codemirror/cm"
 import { EmbeddedParserProp, EmbeddedParserType } from "."
 import { Host } from "./host"
-import { TarnationLanguage } from "./language"
+import type { TarnationLanguage } from "./language"
 
 // TODO: figure out if this non-contiguous approach is correct
 

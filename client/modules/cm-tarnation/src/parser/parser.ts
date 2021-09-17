@@ -1,9 +1,9 @@
 import type { Tree } from "@lezer/common"
-import { getEmbeddedParserNode } from ".."
 import type { TarnationLanguage } from "../language"
-import { ParseRegion } from "../region"
+import type { ParseRegion } from "../region"
 import type { Chunk } from "../tokenizer"
 import type { LezerToken, MappedToken } from "../types"
+import { getEmbeddedParserNode } from "../util"
 import type { ParserContext } from "./context"
 
 // not working quite right yet

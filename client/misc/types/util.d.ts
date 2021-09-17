@@ -27,6 +27,16 @@ declare global {
 
   /** Matches any valid JSON value. */
   type JSONValue = string | number | boolean | null | JSONObject | JSONArray
+
+  type FilterFor<O extends Record<string, any>, T> = {
+    [Property in keyof O as O[Property] extends T ? Property : never]: O[Property]
+  }
+
+  type FilterOut<O extends Record<string, any>, T> = {
+    [Property in keyof O as O[Property] extends T ? never : Property]: O[Property]
+  }
+
+  type Arrayable<T> = T | T[]
 }
 
 export {}
