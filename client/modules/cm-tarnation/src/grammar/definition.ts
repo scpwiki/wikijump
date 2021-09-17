@@ -119,7 +119,7 @@ export type Tag = `${TagModifier}${string}`
 // (grandparent/parent) tag
 // (grandparent/parent) func(tag)
 
-export type ChainItem = `${string}${"?" | "*" | "+" | ""}` | VarIndex
+export type ChainItem = `${string}${"?" | "*" | "+" | ""}`
 
 export type Regex = `/${string}/${string}`
 export type LookbehindSource = `${"!" | ""}${Regex}`

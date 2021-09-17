@@ -18,7 +18,7 @@ repository:
   # basic node types
 
   QuoteMark:
-    tag: punctuation
+    tag: string
     closedBy: QuoteMark
     openedBy: QuoteMark
 
@@ -291,6 +291,7 @@ repository:
     end: { match: /@sws(?:@interrupt)|@enl/, rematch: true }
     inside:
       - include: inline
+      - include: blocks
     fold: past_first_line
 
   # blocks (basics)
@@ -300,7 +301,7 @@ repository:
     tag: squareBracket
     closedBy: BlockEnd
 
-  BlockClosingStart:
+  BlockStartClosing:
     match: /\[{2}/\s*/
     tag: squareBracket
     closedBy: BlockEnd
@@ -308,10 +309,10 @@ repository:
   BlockEnd:
     match: /\s*(?!\]{3})\]{2}/
     tag: squareBracket
-    openedBy: [BlockStart, BlockClosingStart]
+    openedBy: [BlockStart, BlockStartClosing]
 
   BlockName:
-    match: /(?:[*=><](?![*=><])|f>|f<)?([^\\#*\s\]]+?)(_?(?=@ws|@BlockEnd|$))/
+    match: /([*=><](?![*=><])|f>|f<)?([^\\#*\s\]]+?)(_?(?=@ws|@BlockEnd|$))/
     emit: false
     captures:
       0: { type: BlockNamePrefix, tag: keyword }
@@ -319,36 +320,35 @@ repository:
       2: { type: BlockNameSuffix, tag: modifier }
 
   BlockLabel:
-    match: /(\S+?)(?=$|\s|@BlockEnd)/
+    match: /\s*[^\s\]]+/
     tag: invalid
 
   # blocks (map)
 
-  # BlockNodeMap:
-  #   emit: BlockNode
-  #   chain:
-  #     - BlockStart
-  #     - BlockName
-  #     - ws*
-  #     - BlockNodeArgument* | BlockLabel*
-  #     - BlockEnd
+  BlockNodeMap:
+    emit: BlockNode
+    chain:
+      - BlockStart
+      - BlockName
+      - BlockNodeArgument* | BlockLabel*
+      - BlockEnd
 
-  # BlockEndNode:
-  #   emit: BlockNode
-  #   chain:
-  #     - BlockStartClosing
-  #     - BlockName
-  #     - BlockEnd
+  BlockEndNode:
+    emit: BlockNode
+    chain:
+      - BlockStartClosing
+      - BlockName
+      - BlockEnd
 
   BlockNodeArgument:
-    match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
-    context: { if: $0, matches: type, set: code-lang, to: $3 }
+    match: /(\s*)(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
+    context: { if: $1, matches: type, set: code-lang, to: $4 }
     captures:
-      0: { type: BlockNodeArgumentName, tag: special(propertyName) }
-      1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
-      2: { is: QuoteMark }
-      3: { if: $0, matches: style, then: { is: CSSAttributes }, else: { is: String }}
-      4: { is: QuoteMark }
+      1: { type: BlockNodeArgumentName, tag: special(propertyName) }
+      2: { type: BlockNodeArgumentOperator, tag: definitionOperator }
+      3: { is: QuoteMark }
+      4: { if: $1, matches: style, then: { is: CSSAttributes }, else: { is: String }}
+      5: { is: QuoteMark }
 
   BlockContainerMap:
     emit: BlockContainer
@@ -357,26 +357,6 @@ repository:
     inside: inherit
 
 includes:
-  special:
-    - LinkInline
-    - IncludeVariable
-    - PageVariable
-
-  markup:
-    - Typography
-    - RawEscapeBlock
-    - Escaped
-    - ColoredText
-
-  formatting:
-    - Strong
-    - Emphasis
-    - Underline
-    - Strikethrough
-    - Subscript
-    - Superscript
-    - Monospace
-
   block:
     - HorizontalRule
     - Heading
@@ -402,7 +382,8 @@ includes:
     - Monospace
 
   blocks:
-    - BlockContainerMap
+  - BlockNodeMap
+  - BlockEndNode
 
 global:
   - EscapedNewLine
@@ -412,4 +393,5 @@ global:
 
 root:
   - include: block
+  - include: blocks
   - include: inline

@@ -29,6 +29,15 @@ export class Grammar {
       this.data.indentOnInput = regex
     }
 
+    // populate variable table with repository patterns
+    if (def.repository) {
+      for (const name in def.repository) {
+        const value = def.repository[name]
+        if (typeof value === "string") variables[name] = value
+        else if ("match" in value) variables[name] = value.match
+      }
+    }
+
     // setup repository, add rules, etc.
 
     this.repository = new Repository(this, variables, def.ignoreCase, def.includes)

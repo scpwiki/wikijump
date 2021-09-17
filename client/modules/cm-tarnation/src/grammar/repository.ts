@@ -1,6 +1,7 @@
 import type * as DF from "./definition"
 import type { Grammar } from "./grammar"
 import { Node } from "./node"
+import { Chain } from "./rules/chain"
 import { LookupRule } from "./rules/lookup"
 import { PatternRule } from "./rules/pattern"
 import { Rule } from "./rules/rule"
@@ -74,13 +75,11 @@ export class Repository {
       return this.add(node, name)
     }
 
-    // make sure we have a name/type for the node
-    if (!("is" in obj) && !("template" in obj)) {
-      if (name && !obj.type) obj = { ...obj, type: name }
-    }
-
     // reused node
     if ("is" in obj) return this.get(obj.is)!
+
+    // add name to node if it doesn't have one explicitly
+    if (!obj.type && name) obj.type = name
 
     // prevents duplication when doing things out of order
     if ((obj.type && this.map.get(obj.type)) || (name && this.map.get(name))) {
@@ -98,14 +97,14 @@ export class Repository {
     if ("match" in obj) {
       const pattern = new PatternRule(this, obj)
       this.map.set(pattern.name, pattern)
-      this.variables[pattern.name] = obj.match
       return pattern
     }
 
     // chain
     if ("chain" in obj) {
-      // TODO: chain
-      throw new Error("not implemented")
+      const chain = new Chain(this, obj)
+      this.map.set(chain.name, chain)
+      return chain
     }
 
     // state
@@ -117,8 +116,7 @@ export class Repository {
 
     // must be a node
     else {
-      const id = this.id()
-      const node = new Node(id, obj)
+      const node = new Node(this.id(), obj)
       this.map.set(node.name, node)
       return node
     }
@@ -130,7 +128,7 @@ export class Repository {
     // add missing item if possible
     if (!result) {
       if (this.grammar.def.repository?.[key]) {
-        return this.add(this.grammar.def.repository[key])
+        return this.add(this.grammar.def.repository[key], key)
       }
     }
 
