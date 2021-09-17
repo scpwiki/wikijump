@@ -1,0 +1,200 @@
+ignoreCase: true
+
+# templates:
+  # (@1): name
+  # (@2): symbol/mark
+  # formatting_pair:
+  #   - type: (@1)Open
+  #     match: (@2)
+  #     closedBy: (@1)Close
+  #     tag: processingInstruction
+  #   - type: (@1)Close
+  #     match: (@2)
+  #     openedBy: (@1)Open
+  #     tag: processingInstruction
+  #   - type: (@1)
+  #     begin: (@1)Open
+  #     end: (@1)Close
+  #     inside: inherit
+
+repository:
+  # basic variables (used in regex)
+  ws: /[^\S\r\n]/
+  esc: /@ws(?:_|\\)$/
+  sws: /^(?!@esc)@ws*/
+  enl: /^@ws*$/
+  control: /[\s!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~\xA1\u2010-\u2027]/
+  nocontrol: /[^\s!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~\xA1\u2010-\u2027]/
+  escapes: /\\@control/
+
+  # basic node types
+
+  QuoteMark:
+    tag: punctuation
+    closedBy: QuoteMark
+    openedBy: QuoteMark
+
+  String:
+    tag: string
+
+  CSSAttributes:
+    nest: css-attribute
+
+  # global
+
+  EscapedNewLine:
+    match: /@esc/
+    tag: escape
+
+  EscapedCharacter:
+    match: /@escapes/
+    tag: escape
+
+  BlockComment:
+    match: /(\[!--)([^]+?)(--\])/
+    tag: blockComment
+    captures:
+      0: { open: BlockComment }
+      2: { close: BlockComment }
+
+  NonControl:
+    match: /@nocontrol+/
+    emit: false
+
+  # special
+
+  IncludeVariable:
+    match: /(\{\$)(.*?)(\})/
+    captures:
+      0: { open: IncludeVariable, tag: bracket }
+      1: { type: IncludeVariableName, tag: variableName }
+      2: { close: IncludeVariable, tag: bracket }
+
+  # markup
+
+  # RawEscapeBlock:
+
+  # @@ escape formatting (AKA the worst thing ever)
+  Escaped:
+    match: [/(@@)(@@)(@@)/, /(@@)(@)(@@)/, /(@@)(@@(?!@))/, /(@@)(.*)(@@)/]
+    tag: escape
+    captures:
+      0: { open: Escaped, tag: processingInstruction }
+      2: { close: Escaped, tag: processingInstruction }
+
+  ColoredText:
+    begin:
+      type: ColoredTextStart
+      match: /(##)(\w+)(\|)/
+      captures:
+        0: { open: ColoredText, tag: processingInstruction }
+        1: { type: ColoredTextColor, tag: color }
+        2: { type: ColoredTextSeparator, tag: separator }
+    end:
+      close: ColoredText
+      match: "##"
+
+  Typography:
+    tag: processingInstruction
+    match:
+      # ``quotation''
+      - /``(?=(?!``).+?'')/
+      - /(?<=``(?!'').+?)''/
+      # `quotation'
+      - /`(?=(?!`).+?')/
+      - /(?<=`(?!').+?)'/
+      # ,,quotation'' (this one is so damn stupid)
+      - /,,(?=(?!,,).+?'')/
+      - /(?<=,,(?!,,).+?)''/
+      # <<, >>
+      - /<<|>>/
+      # ...
+      - /\.{3}/
+      # --
+      - /(?<=\s)--(?=\s)/
+
+
+  # blocks (basics)
+
+  BlockStart:
+    match: /\[{2}(?![\[\/])\s*/
+    tag: squareBracket
+    closedBy: BlockEnd
+
+  BlockClosingStart:
+    match: /\[{2}\/\s*/
+    tag: squareBracket
+    closedBy: BlockEnd
+
+  BlockEnd:
+    match: /\s*(?!\]{3})\]{2}/
+    tag: squareBracket
+    openedBy: [BlockStart, BlockClosingStart]
+
+  BlockName:
+    match: /(?:[*=><](?![*=><])|f>|f<)?([^\\#*\s\]]+?)(_?(?=@ws|@BlockEnd|$))/
+    emit: false
+    captures:
+      0: { type: BlockNamePrefix, tag: keyword }
+      1: { type: BlockNameActual, tag: tagName, emit: BlockName }
+      2: { type: BlockNameSuffix, tag: modifier }
+
+  BlockLabel:
+    match: /(\S+?)(?=$|\s|@BlockEnd)/
+    tag: invalid
+
+  # blocks (map)
+
+  # BlockNodeMap:
+  #   emit: BlockNode
+  #   chain:
+  #     - BlockStart
+  #     - BlockName
+  #     - ws*
+  #     - BlockNodeArgument* | BlockLabel*
+  #     - BlockEnd
+
+  # BlockEndNode:
+  #   emit: BlockNode
+  #   chain:
+  #     - BlockStartClosing
+  #     - BlockName
+  #     - BlockEnd
+
+  BlockNodeArgument:
+    match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
+    context: { if: $0, matches: type, set: code-lang, to: $3 }
+    captures:
+      0: { type: BlockNodeArgumentName, tag: special(propertyName) }
+      1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
+      2: { is: QuoteMark }
+      3: { if: $0, matches: style, then: { is: CSSAttributes }, else: { is: String }}
+      4: { is: QuoteMark }
+
+  BlockContainerMap:
+    emit: BlockContainer
+    begin: BlockStart
+    end: BlockEnd
+    inside: inherit
+
+includes:
+  special:
+    - IncludeVariable
+
+  markup:
+    - Escaped
+    - ColoredText
+    - Typography
+
+  blocks:
+    - BlockContainerMap
+
+global:
+  - EscapedNewLine
+  - EscapedCharacter
+  - BlockComment
+  - NonControl
+
+root:
+  - { include: special }
+  - { include: markup }

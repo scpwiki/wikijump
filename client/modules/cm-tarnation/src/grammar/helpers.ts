@@ -1,7 +1,4 @@
-import { pointsMatch, toPoints } from "@wikijump/util"
-import type * as DF from "./definition"
-
-const REGEX_SPLIT = /^([^]*)\/([^]+)\/([^]*)$/
+import type { Regex } from "./definition"
 
 /**
  * Safely compiles a regular expression.
@@ -13,148 +10,67 @@ const REGEX_SPLIT = /^([^]*)\/([^]+)\/([^]*)$/
  * const regex = re`/(?<=\d)\w+/d`
  * ```
  */
-export function re(str: TemplateStringsArray) {
-  const split = REGEX_SPLIT.exec(str.raw[0])
-  if (!split) return null
-  const [, , src = "", flags = ""] = split
-  if (!src) return null
+export function re(str: TemplateStringsArray | string, forceFlags = "") {
+  const input = typeof str === "string" ? str : str.raw[0]
+  const split = /^\/([^]+)\/([^]*)$/.exec(input)
+
+  if (!split || !split[1]) return null
+
+  let [, src = "", flags = ""] = split
+
+  if (forceFlags) {
+    // goofy looking, but this is just deduplicating the flags
+    flags = [...new Set([...flags, ...forceFlags])].join("")
+  }
+
   try {
     return new RegExp(src, flags)
-  } catch {
-    return null
-  }
-}
-
-export interface LookupOpts {
-  ignoreCase?: boolean
-}
-
-/**
- * Creates a highly efficient "lookup" matching function for a list of strings.
- *
- * The function does not match the entire string. Instead, it will find the
- * first match for the start of the string.
- *
- * It's safe to use overlap values - longer strings are tried before shorter ones.
- */
-export function lkup(arr: string[], opts: LookupOpts = {}): DF.MatchFunction {
-  if (arr.length === 0) throw new Error("Empty string array!")
-
-  // longest string first
-  const sorted = [...arr].sort((a, b) => b.length - a.length)
-  const max = sorted[0].length
-
-  const map = new Map<number[], string>()
-  const set = new Set<number[]>(
-    sorted.map(str => {
-      str = opts.ignoreCase ? str.toLowerCase() : str
-      const points = toPoints(str)
-      map.set(points, str)
-      return points
-    })
-  )
-
-  return (_cx, str, pos) => {
-    const slice = str.slice(pos, pos + max)
-    const against = toPoints(opts.ignoreCase ? slice.toLowerCase() : slice)
-    for (const points of set) {
-      if (pointsMatch(points, against, 0)) {
-        return [map.get(points)!]
-      }
-    }
-    return null
-  }
-}
-
-type CompiledMatcher = ((input: string, pos: number) => boolean) | null
-
-/** Creates a {@link CompiledMatcher} from a `RegExp` or a `string`. */
-function createMatcher(str: string, behind = false): CompiledMatcher {
-  try {
-    const split = REGEX_SPLIT.exec(str)
-
-    // compile string
-    if (!split) {
-      if (str) {
-        if (str.startsWith("\\!")) str = str.slice(2)
-        const negated = str.startsWith("!")
-        if (negated) str = str.slice(1)
-
-        const len = behind ? str.length : 0
-        const points = toPoints(str)
-
-        return (input, pos) => {
-          const test = pointsMatch(points, input, pos - len)
-          return negated ? !test : test
-        }
-      }
-      return null
-    }
-
-    // compile regex
-    const [, offsetStr = "", src = "", flags = ""] = split
-    if (!src) return null
-
-    const negated = offsetStr.startsWith("!")
-    const offset = behind ? parseInt(negated ? offsetStr.slice(1) : offsetStr) : 0
-    const regex = new RegExp(src, flags + (flags.indexOf("y") !== -1 ? "" : "y"))
-
-    return (input, pos) => {
-      regex.lastIndex = pos - offset
-      const test = regex.test(behind ? input.slice(0, pos) : input)
-      return negated ? !test : test
-    }
-  } catch {
+  } catch (err) {
+    console.warn("cm-tarnation: Recovered from failed RegExp construction")
+    console.warn("cm-tarnation: RegExp source:", input)
+    console.warn(err)
     return null
   }
 }
 
 /**
- * Lookahead utility. Given a `RegExp` or `string` (in `string` form, keep
- * in mind), it will create a function that will determine if the input
- * ahead of the search position matches.
- *
- * Lead the `RegExp` or `string` with a `!` to negate the result. `RegExp`
- * inputs can be given flags.
- *
- * @example
- *
- * ```ts
- * matcher = la`foo`
- * matcher = la`/foo\w+/i`
- * matcher = la`!foo`
- * matcher = la`!/foo\w+/i`
- * ```
+ * Tests if the given string is a "RegExp string", as in it's in the format
+ * of a native `RegExp` statement.
  */
-export function la({ raw: [str] }: TemplateStringsArray): DF.MatchFunction | null {
-  const matcher = createMatcher(str)
-  if (!matcher) return null
-  return (_cx, input, pos) => (matcher(input, pos) ? [] : null)
+export function isRegExpString(str: string): str is Regex {
+  const split = /^\/([^]+)\/([^]*)$/.exec(str)
+  if (!split || !split[1]) return false
+  return true
+}
+
+/** Returns if the given `RegExp` has any remembered capturing groups. */
+export function hasCapturingGroups(regexp: RegExp) {
+  // give an alternative that always matches
+  const always = new RegExp(`|${regexp.source}`)
+  // ... which means we can use it to get a successful match,
+  // regardless of the original regex. this is a bit of a hack,
+  // but we can use this to detect capturing groups.
+  return always.exec("")!.length > 1
 }
 
 /**
- * Lookbehind utility. Given a `RegExp` or `string` (in `string` form, keep
- * in mind), it will create a function that will determine if the input
- * behind of the search position matches.
+ * Creates a lookbehind function from a `RegExp`. This function can only
+ * test for a pattern's (non) existence, so no matches or capturing groups
+ * are returned.
  *
- * Unlike a `RegExp` lookbehind, the compiled function cannot traverse
- * infinitely far behind. Instead, it must be given an offset. This is
- * given in front of the `/` character.
- *
- * Lead the `RegExp` or `string` with a `!` to negate the result. `RegExp`
- * inputs can be given flags.
- *
- * @example
- *
- * ```ts
- * matcher = lb`foo`
- * matcher = lb`3/foo/i`
- * matcher = lb`!foo`
- * matcher = lb`!3/foo/i`
- * ```
+ * @param pattern - A `RegExp` to be used as a pattern.
+ * @param negative - Negates the pattern.
  */
-export function lb({ raw: [str] }: TemplateStringsArray): DF.MatchFunction | null {
-  const matcher = createMatcher(str, true)
-  if (!matcher) return null
-  return (_cx, input, pos) => (matcher(input, pos) ? [] : null)
+export function createLookbehind(pattern: RegExp, negative?: boolean) {
+  // can't be sticky, global, or multiline
+  const flags = pattern.flags.replaceAll(/[ygm]/, "")
+
+  // regexp that can only match at the end of a string
+  const regex = new RegExp(`(?:${pattern.source})$`, flags)
+
+  return (str: string, pos: number) => {
+    const clipped = str.slice(0, pos)
+    const result = regex.test(clipped)
+    return negative ? !result : result
+  }
 }
