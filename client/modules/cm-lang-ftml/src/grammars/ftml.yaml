@@ -56,12 +56,123 @@ repository:
     captures:
       0: { open: BlockComment }
       2: { close: BlockComment }
+    fold: offset(3, -3)
 
   NonControl:
     match: /@nocontrol+/
     emit: false
 
+  # formatting
+
+  # formatting open/close lookahead
+  fmtola: /(?=\S)/
+  fmtcla: /(?![^\W\d_])/
+
+  Strong:
+    tag: (...) strong
+    inside: loose
+    begin:
+      open: Strong
+      lookbehind: '!/\\|\w/'
+      match: /\*\*@fmtola/
+      tag: processingInstruction
+    end:
+      close: Strong
+      lookbehind: /\S/
+      match: /\*\*@fmtcla/
+      tag: processingInstruction
+
+  Emphasis:
+    tag: (...) emphasis
+    inside: loose
+    begin:
+      open: Emphasis
+      lookbehind: '!/\\|\w/'
+      match: /\/\/@fmtola/
+      tag: processingInstruction
+    end:
+      close: Emphasis
+      lookbehind: /\S/
+      match: /\/\/@fmtcla/
+      tag: processingInstruction
+
+  Underline:
+    tag: (...) special(emphasis)
+    inside: loose
+    begin:
+      open: Underline
+      lookbehind: '!/\\|\w/'
+      match: /__@fmtola/
+      tag: processingInstruction
+    end:
+      close: Underline
+      lookbehind: /\S/
+      match: /__@fmtcla/
+      tag: processingInstruction
+
+  Strikethrough:
+    tag: (...) special(deleted)
+    inside: loose
+    begin:
+      open: Strikethrough
+      lookbehind: '!/\\|\w/'
+      match: /--@fmtola/
+      tag: processingInstruction
+    end:
+      close: Strikethrough
+      lookbehind: /\S/
+      match: /--@fmtcla/
+      tag: processingInstruction
+
+  Subscript:
+    tag: (...) character
+    inside: loose
+    begin:
+      open: Subscript
+      lookbehind: '!/\\|\w/'
+      match: /,,@fmtola/
+      tag: processingInstruction
+    end:
+      close: Subscript
+      lookbehind: /\S/
+      match: /,,@fmtcla/
+      tag: processingInstruction
+
+  Superscript:
+    tag: (...) character
+    inside: loose
+    begin:
+      open: Superscript
+      lookbehind: '!/\\|\w/'
+      match: /\^\^@fmtola/
+      tag: processingInstruction
+    end:
+      close: Superscript
+      lookbehind: /\S/
+      match: /\^\^@fmtcla/
+      tag: processingInstruction
+
+  Monospace:
+    tag: (...) monospace
+    inside: loose
+    begin:
+      open: Monospace
+      lookbehind: '!/\\|\w/'
+      match: /\{\{@fmtola/
+      tag: processingInstruction
+    end:
+      close: Monospace
+      lookbehind: /\S/
+      match: /\}\}@fmtcla/
+      tag: processingInstruction
+
   # special
+
+  LinkInline:
+    match: /(\*?)((?:\w+://)?(?:[-\w@:%.+~#=]{2,256}\.(?!\.{2,3}))+?[a-z]{2,6}\b(?:[-\w@:%+.~#?&/=]*))/
+    captures:
+      0: { type: LinkModifier, tag: keyword }
+      1: { type: LinkURL, tag: url }
 
   IncludeVariable:
     match: /(\{\$)(.*?)(\})/
@@ -70,9 +181,23 @@ repository:
       1: { type: IncludeVariableName, tag: variableName }
       2: { close: IncludeVariable, tag: bracket }
 
+  PageVariable:
+    match: /(%%)(.*?)(\{.*?\})?(%%)/
+    captures:
+      0: { open: PageVariable, tag: bracket }
+      1: { type: PageVariableName, tag: variableName }
+      2: { type: PageVariableAccessor, tag: string }
+      3: { close: PageVariable, tag: bracket }
+
   # markup
 
-  # RawEscapeBlock:
+  RawEscapeBlock:
+    begin: { match: '@<', open: RawEscapeBlock, tag: processingInstruction }
+    end: { match: '>@', close: RawEscapeBlock, tag: processingInstruction }
+    tag: escape
+    inside:
+      - { type: EntityReference, match: '/&[\w#]+;/', tag: character }
+    fold: offset(2, -2)
 
   # @@ escape formatting (AKA the worst thing ever)
   Escaped:
@@ -84,7 +209,7 @@ repository:
 
   ColoredText:
     begin:
-      match: /(##)(#?\w+)(\|)/
+      match: /(##)(#?[^\n\|]+)(\|)/
       captures:
         0: { open: ColoredText, tag: processingInstruction }
         1: { type: ColoredTextColor, tag: color }
@@ -113,16 +238,82 @@ repository:
       # --
       - /(?<=\s)--(?=\s)/
 
+  # block markup
+
+  # symbols that interrupt a paragraph on line start
+  interrupt: /(?:\++\*?@ws)|(?:[\[\]])|(?:[*#]@ws)|(?:[-=]{4,})|(?::)|(?:>+@ws)|(?:>$)|(?:\|{2})/
+
+  hr: /(?:-{3,}|={3,})@ws*$/
+  heading: /(?:\++\*?)@ws+(?!$)/
+  cs: /@sws(?:(?:>+@ws|>|[*#]@ws)@ws*)+/
+
+  HorizontalRule:
+    match: /@sws@hr/
+    tag: contentSeparator
+
+  Heading:
+    begin: { type: HeadingMark, match: /@sws@heading/, tag: heading }
+    end: { match: /$/ }
+    inside:
+      - include: inline
+
+  Center:
+    begin: { type: CenterMark, match: /@sws=@ws+/, tag: heading }
+    end: { match: /$/ }
+    inside:
+      - include: inline
+
+  Table:
+    begin:
+      match: /@sws\|{2}/
+      rematch: true
+    end:
+      lookbehind: '!/@esc\s*/'
+      match: /@enl|^(?:(?!\|{2}).)+$/
+      rematch: true
+    inside:
+      - type: TableMark
+        match: /(\|{2,})([~=]?)/
+        captures:
+          0: { type: TableMarkSeparator, tag: separator }
+          1: { type: TableMarkModifier, tag: operator }
+      - include: inline
+    fold: past_first_line
+
+  ContainerMark:
+    match: /@sws>+|[*#]/
+    tag: keyword
+
+  Container:
+    begin:
+      match: /@cs/
+      rematch: true
+    end:
+      lookbehind: '!/@esc\s*/'
+      match: /@enl|(?!@cs)@sws/
+      rematch: true
+    inside:
+      # TODO: heading/center in containers
+      - ContainerMark
+      - include: inline
+    fold: past_first_line
+
+  Paragraph:
+    begin: { match: /@sws(?!@interrupt)\S/, rematch: true }
+    end: { match: /@sws(?:@interrupt)|@enl/, rematch: true }
+    inside:
+      - include: inline
+    fold: past_first_line
 
   # blocks (basics)
 
   BlockStart:
-    match: /\[{2}(?![\[\/])\s*/
+    match: /\[{2}(?![\[/])\s*/
     tag: squareBracket
     closedBy: BlockEnd
 
   BlockClosingStart:
-    match: /\[{2}\/\s*/
+    match: /\[{2}/\s*/
     tag: squareBracket
     closedBy: BlockEnd
 
@@ -179,12 +370,48 @@ repository:
 
 includes:
   special:
+    - LinkInline
     - IncludeVariable
+    - PageVariable
 
   markup:
+    - Typography
+    - RawEscapeBlock
     - Escaped
     - ColoredText
+
+  formatting:
+    - Strong
+    - Emphasis
+    - Underline
+    - Strikethrough
+    - Subscript
+    - Superscript
+    - Monospace
+
+  block:
+    - HorizontalRule
+    - Heading
+    - Center
+    - Table
+    - Container
+    - Paragraph
+
+  inline:
     - Typography
+    - LinkInline
+    - IncludeVariable
+    - PageVariable
+    - RawEscapeBlock
+    - Escaped
+    - ColoredText
+    - Strong
+    - Emphasis
+    - Underline
+    - Strikethrough
+    - Subscript
+    - Superscript
+    - Monospace
 
   blocks:
     - BlockContainerMap
@@ -196,5 +423,5 @@ global:
   - NonControl
 
 root:
-  - { include: special }
-  - { include: markup }
+  - include: block
+  - include: inline
