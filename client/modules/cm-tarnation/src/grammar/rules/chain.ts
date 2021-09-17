@@ -123,10 +123,12 @@ function parseChainRule(repo: Repository, str: string) {
     }
     case ChainRuleType.ONE_OR_MORE: {
       return function* (state: GrammarState, str: string, pos: number) {
+        let advanced = false
         let result
         while ((result = rule.match(state, str, pos))) {
+          if (advanced && !result) return
           yield result
-          if (!result) return
+          advanced = true
           pos += result.total.length
         }
       }
