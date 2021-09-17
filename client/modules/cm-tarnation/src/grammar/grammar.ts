@@ -40,6 +40,17 @@ export class Grammar {
   }
 
   match(state: GrammarState, str: string, pos: number, offset = 0) {
+    // check end node
+    if (state.stack.end) {
+      const result = state.stack.end.match(state.clone(), str, pos)
+      if (result) {
+        const wrapped = result.wrap(result.state.stack.node, Wrapping.END)
+        wrapped.state.stack.pop()
+        if (offset !== pos) wrapped.offset(offset)
+        return wrapped
+      }
+    }
+
     // normal matching
     const rules = state.stack.rules
     for (let i = 0; i < rules.length; i++) {
@@ -48,17 +59,6 @@ export class Grammar {
       if (result) {
         if (offset !== pos) result.offset(offset)
         return result
-      }
-    }
-
-    // check end node
-    if (state.stack.end) {
-      const result = state.stack.end.match(state.clone(), str, pos)
-      if (result) {
-        const wrapped = result.wrap(state.stack.node, Wrapping.END)
-        wrapped.state.stack.pop()
-        if (offset !== pos) wrapped.offset(offset)
-        return wrapped
       }
     }
 
