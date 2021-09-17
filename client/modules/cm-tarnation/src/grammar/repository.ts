@@ -1,4 +1,5 @@
 import type * as DF from "./definition"
+import type { Grammar } from "./grammar"
 import { Node } from "./node"
 import { LookupRule } from "./rules/lookup"
 import { PatternRule } from "./rules/pattern"
@@ -11,6 +12,7 @@ export class Repository {
   private curID = 3 // starts at 2, because 0-2 are reserved
 
   constructor(
+    public grammar: Grammar,
     public variables: VariableTable,
     public ignoreCase = false,
     public includes: Record<string, string[]> = {}
@@ -32,8 +34,12 @@ export class Repository {
     return id
   }
 
+  // repetitive signatures are due to how TypeScript handles overloading
+  // it's a bit wacky, but it types nicely
+
   add(state: DF.State, name?: string): State
   add(rule: DF.Regex | DF.Rule, name?: string): Rule
+  add(rule: DF.Regex | DF.Rule | DF.State, name?: string): Rule | State
   add(node: DF.Node | DF.ReuseNode, name?: string): Node
   add(obj: DF.RepositoryItem, name?: string): Node | Rule | State
   add(obj: DF.RepositoryItem, name?: string): Node | Rule | State {
@@ -77,35 +83,46 @@ export class Repository {
     if ("is" in obj) {
       return this.get(obj.is)!
     }
+
     // templates
-    else if ("template" in obj) {
+    if ("template" in obj) {
       // TODO: template
       throw new Error("not implemented")
     }
+
+    // prevents duplication when doing things out of order
+    if ((obj.type && this.map.get(obj.type)) || (name && this.map.get(name))) {
+      return this.map.get(obj.type! || name!)!
+    }
+
     // lookup
-    else if ("lookup" in obj) {
+    if ("lookup" in obj) {
       const lookup = new LookupRule(this, obj)
       this.map.set(lookup.name, lookup)
       return lookup
     }
+
     // pattern
-    else if ("match" in obj) {
+    if ("match" in obj) {
       const pattern = new PatternRule(this, obj)
       this.map.set(pattern.name, pattern)
       this.variables[pattern.name] = obj.match
       return pattern
     }
+
     // chain
-    else if ("chain" in obj) {
+    if ("chain" in obj) {
       // TODO: chain
       throw new Error("not implemented")
     }
+
     // state
-    else if ("begin" in obj) {
+    if ("begin" in obj) {
       const state = new State(this, obj)
       this.map.set(state.name, state)
       return state
     }
+
     // must be a node
     else {
       const id = this.id()
@@ -116,7 +133,16 @@ export class Repository {
   }
 
   get(key: string) {
-    return this.map.get(key)
+    const result = this.map.get(key)
+
+    // add missing item if possible
+    if (!result) {
+      if (this.grammar.def.repository?.[key]) {
+        return this.add(this.grammar.def.repository[key])
+      }
+    }
+
+    return result
   }
 
   include(str: string) {
@@ -132,14 +158,16 @@ export class Repository {
       // specifier for a rule
       if (typeof rule === "string") {
         const resolved = this.get(rule)
-        if (!(resolved instanceof Rule)) throw new Error(`Invalid inside rule`)
+        if (!(resolved instanceof Rule) && !(resolved instanceof State)) {
+          throw new Error(`Invalid inside rule`)
+        }
         inside.push(resolved)
       }
       // include
       else if ("include" in rule) {
         inside.push(...this.include(rule.include))
       }
-      // state
+      // state or rule
       else {
         inside.push(this.add(rule))
       }

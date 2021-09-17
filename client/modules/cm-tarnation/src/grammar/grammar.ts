@@ -14,8 +14,8 @@ export class Grammar {
   declare global?: (Rule | State)[]
   declare default?: Node
 
-  constructor(def: DF.Grammar, public variables: VariableTable = {}) {
-    this.repository = new Repository(variables, def.ignoreCase, def.includes)
+  constructor(public def: DF.Grammar, public variables: VariableTable = {}) {
+    this.repository = new Repository(this, variables, def.ignoreCase, def.includes)
 
     this.rootNode = this.repository.add({ type: "Root" })
 
