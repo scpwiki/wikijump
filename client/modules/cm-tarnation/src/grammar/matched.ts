@@ -53,10 +53,7 @@ export class Matched {
 
   /** Internal method for compiling. */
   private _compile() {
-    if (!this.captures) {
-      if (this.node !== Node.None) return compileLeaf(this)
-      return null
-    }
+    if (!this.captures) return compileLeaf(this)
 
     // verbose approach for performance
     const tokens: GrammarToken[] = []
@@ -92,7 +89,7 @@ export class Matched {
 /** Compiles a {@link Matched} as a leaf. */
 function compileLeaf(match: Matched): GrammarToken {
   const token: GrammarToken = {
-    id: match.node.id,
+    id: match.node === Node.None ? null : match.node.id,
     from: match.from,
     to: match.from + match.total.length
   }

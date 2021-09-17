@@ -13,6 +13,7 @@ export abstract class Rule {
   declare lookbehind?: (str: string, pos: number) => boolean
   declare contextSetters?: ((state: GrammarState) => void)[]
   declare captures: (Node | CaptureFunction)[]
+  declare rematch?: boolean
 
   constructor(repo: Repository, rule: DF.Rule) {
     if ("template" in rule) throw new Error("Unresolved template given as a rule")
@@ -50,7 +51,7 @@ export abstract class Rule {
       }
     }
 
-    // TODO: rematch
+    if (rule.rematch) this.rematch = true
   }
 
   abstract exec(
@@ -63,6 +64,12 @@ export abstract class Rule {
     if (this.lookbehind && !this.lookbehind(str, pos)) return null
 
     let matched = this.exec(state, str, pos)
+
+    // if rematch, we just return basically "success!",
+    // and let the tokenizer move on
+    if (matched && this.rematch) {
+      return new Matched(state, this.node, "", pos)
+    }
 
     if (matched) {
       // returned a MatchOutput, which we need to turn into a Matched
