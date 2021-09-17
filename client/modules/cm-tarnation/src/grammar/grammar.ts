@@ -101,4 +101,20 @@ export class Grammar {
 
     return null
   }
+
+  matchAll(state: GrammarState, str: string, offset = 0) {
+    const results: Matched[] = []
+
+    let pos = 0
+    while (pos < str.length) {
+      const result = this.match(state, str, pos, offset)
+      if (!result) pos++
+      else {
+        results.push(result)
+        pos += result.total.length
+      }
+    }
+
+    return results.length ? results : null
+  }
 }
