@@ -78,6 +78,7 @@ function parseChainItem(repo: Repository, str: string) {
           yield result
         }
       }
+      if (advanced) break
     }
     if (maybeFailed && !advanced) yield null
   }
