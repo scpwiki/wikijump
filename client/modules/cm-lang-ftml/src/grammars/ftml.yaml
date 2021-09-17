@@ -52,7 +52,7 @@ repository:
 
   BlockComment:
     match: /(\[!--)([^]+?)(--\])/
-    tag: blockComment
+    tag: (...) blockComment
     captures:
       0: { open: BlockComment }
       2: { close: BlockComment }
@@ -84,8 +84,7 @@ repository:
 
   ColoredText:
     begin:
-      type: ColoredTextStart
-      match: /(##)(\w+)(\|)/
+      match: /(##)(#?\w+)(\|)/
       captures:
         0: { open: ColoredText, tag: processingInstruction }
         1: { type: ColoredTextColor, tag: color }
@@ -93,6 +92,7 @@ repository:
     end:
       close: ColoredText
       match: "##"
+      tag: processingInstruction
 
   Typography:
     tag: processingInstruction

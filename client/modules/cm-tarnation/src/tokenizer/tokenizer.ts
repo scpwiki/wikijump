@@ -120,6 +120,7 @@ export class Tokenizer {
       ctx.pos
     )
     if (!match) return { tokens: null, length: 1 } // always advance
+    ctx.state = match.state
     const tokens = match.compile()
     if (!tokens.length) return { tokens: null, length: match.total.length || 1 }
     return { tokens, length: match.total.length }
