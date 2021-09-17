@@ -37,29 +37,12 @@ export class State {
 
     this.begin = begin
     this.end = end
-
     this.inside = null
 
     if (state.inside === "loose") this.loose = true
 
     if (state.inside && typeof state.inside !== "string") {
-      this.inside = []
-      for (const rule of state.inside) {
-        // specifier for a rule
-        if (typeof rule === "string") {
-          const resolved = repo.get(rule)
-          if (!(resolved instanceof Rule)) throw new Error(`Invalid inside rule`)
-          this.inside.push(resolved)
-        }
-        // include
-        else if ("include" in rule) {
-          this.inside.push(...repo.include(rule.include))
-        }
-        // state
-        else {
-          this.inside.push(repo.add(rule))
-        }
-      }
+      this.inside = repo.inside(state.inside)
     }
   }
 
