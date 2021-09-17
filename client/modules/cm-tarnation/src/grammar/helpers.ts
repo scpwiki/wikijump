@@ -12,7 +12,7 @@ import type { Regex } from "./definition"
  */
 export function re(str: TemplateStringsArray | string, forceFlags = "") {
   const input = typeof str === "string" ? str : str.raw[0]
-  const split = /^\/([^]+)\/([^]*)$/.exec(input)
+  const split = /^!?\/([^]+)\/([^]*)$/.exec(input)
 
   if (!split || !split[1]) return null
 
@@ -38,7 +38,7 @@ export function re(str: TemplateStringsArray | string, forceFlags = "") {
  * of a native `RegExp` statement.
  */
 export function isRegExpString(str: string): str is Regex {
-  const split = /^\/([^]+)\/([^]*)$/.exec(str)
+  const split = /^!?\/([^]+)\/([^]*)$/.exec(str)
   if (!split || !split[1]) return false
   return true
 }
@@ -63,7 +63,7 @@ export function hasCapturingGroups(regexp: RegExp) {
  */
 export function createLookbehind(pattern: RegExp, negative?: boolean) {
   // can't be sticky, global, or multiline
-  const flags = pattern.flags.replaceAll(/[ygm]/, "")
+  const flags = pattern.flags.replaceAll(/[ygm]/g, "")
 
   // regexp that can only match at the end of a string
   const regex = new RegExp(`(?:${pattern.source})$`, flags)
