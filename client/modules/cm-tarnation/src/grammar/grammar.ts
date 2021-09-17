@@ -1,7 +1,7 @@
 import type * as DF from "./definition"
 import { re } from "./helpers"
 import { Matched } from "./matched"
-import type { Node } from "./node"
+import { Node } from "./node"
 import { Repository } from "./repository"
 import type { Rule } from "./rules/rule"
 import type { State } from "./rules/state"
@@ -11,7 +11,6 @@ import { VariableTable, Wrapping } from "./types"
 export class Grammar {
   declare data: Record<string, any>
   declare repository: Repository
-  declare rootNode: Node
   declare root: (Rule | State)[]
   declare global?: (Rule | State)[]
   declare default?: Node
@@ -30,13 +29,9 @@ export class Grammar {
       this.data.indentOnInput = regex
     }
 
-    // setup repository, rootNode, etc.
+    // setup repository, add rules, etc.
 
     this.repository = new Repository(this, variables, def.ignoreCase, def.includes)
-
-    this.rootNode = this.repository.add({ type: "Root" })
-
-    // add rules, nodes, etc.
 
     if (def.default) this.default = this.repository.add(def.default)
 
@@ -47,6 +42,7 @@ export class Grammar {
     }
 
     this.root = this.repository.inside(def.root)
+
     if (def.global) this.global = this.repository.inside(def.global)
   }
 
@@ -54,7 +50,7 @@ export class Grammar {
     return new GrammarState(
       this.variables,
       {},
-      new GrammarStack([{ node: this.rootNode, rules: this.root, end: null }])
+      new GrammarStack([{ node: Node.None, rules: this.root, end: null }])
     )
   }
 
