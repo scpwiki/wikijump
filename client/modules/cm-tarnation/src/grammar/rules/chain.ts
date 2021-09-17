@@ -64,19 +64,34 @@ function parseChainItem(repo: Repository, str: string) {
     item => item[item.length - 1] === "+" || item[item.length - 1] === "*"
   )
 
-  return function* (state: GrammarState, str: string, pos: number) {
+  function* iterate(state: GrammarState, str: string, pos: number) {
+    let maybeFailed = false
+    let advanced = false
     for (let i = 0; i < rules.length; i++) {
-      let advanced = false
-
       for (const result of rules[i](state, str, pos)) {
+        if (!result) {
+          maybeFailed = true
+          break
+        } else {
+          advanced = true
+          pos += result.total.length
+          yield result
+        }
+      }
+    }
+    if (maybeFailed && !advanced) yield null
+  }
+
+  return function* (state: GrammarState, str: string, pos: number) {
+    if (repeating) {
+      let result: void | Matched | null
+      while ((result = iterate(state, str, pos).next().value) !== undefined) {
         yield result
         if (!result) return
         pos += result.total.length
-        advanced = true
       }
-
-      // if we advanced, we should repeat the loop
-      if (repeating && advanced && i === rules.length - 1) i = 0
+    } else {
+      yield* iterate(state, str, pos)
     }
   }
 }
