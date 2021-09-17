@@ -1,22 +1,5 @@
 ignoreCase: true
 
-# templates:
-  # (@1): name
-  # (@2): symbol/mark
-  # formatting_pair:
-  #   - type: (@1)Open
-  #     match: (@2)
-  #     closedBy: (@1)Close
-  #     tag: processingInstruction
-  #   - type: (@1)Close
-  #     match: (@2)
-  #     openedBy: (@1)Open
-  #     tag: processingInstruction
-  #   - type: (@1)
-  #     begin: (@1)Open
-  #     end: (@1)Close
-  #     inside: inherit
-
 repository:
   # basic variables (used in regex)
   ws: /[^\S\r\n]/

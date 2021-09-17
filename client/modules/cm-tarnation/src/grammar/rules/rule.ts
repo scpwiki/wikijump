@@ -16,8 +16,6 @@ export abstract class Rule {
   declare rematch?: boolean
 
   constructor(repo: Repository, rule: DF.Rule) {
-    if ("template" in rule) throw new Error("Unresolved template given as a rule")
-
     let type = rule.type ?? createID()
     let emit = rule.type && rule.emit !== false
 

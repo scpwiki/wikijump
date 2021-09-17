@@ -23,8 +23,6 @@ export interface Grammar {
 
   default?: Node
 
-  templates?: Record<string, Arrayable<Node | Rule | State>>
-
   repository?: Record<string, RepositoryItem>
 
   includes?: Record<string, string[]>
@@ -36,7 +34,7 @@ export interface Grammar {
 
 export type RepositoryItem = Regex | Node | ReuseNode | Rule | State
 
-export type Rule = RuleTemplate | Lookup | Pattern | Chain
+export type Rule = Lookup | Pattern | Chain
 
 export interface Node {
   type?: string
@@ -63,10 +61,6 @@ export interface State extends Node {
   begin: string | Rule
   end: string | Rule
   inside?: Inside | "inherit" | "loose"
-}
-
-export interface RuleTemplate {
-  template: [string, ...unknown[]]
 }
 
 export interface RuleOptions extends Node {
@@ -133,4 +127,3 @@ export type LookbehindSource = `${"!" | ""}${Regex}`
 export type MatchIndex = `$${number}`
 export type VarIndex = `$var:${string}`
 export type ContextIndex = `$ctx:${string}`
-export type Placeholder = `(@${number})`

@@ -80,15 +80,7 @@ export class Repository {
     }
 
     // reused node
-    if ("is" in obj) {
-      return this.get(obj.is)!
-    }
-
-    // templates
-    if ("template" in obj) {
-      // TODO: template
-      throw new Error("not implemented")
-    }
+    if ("is" in obj) return this.get(obj.is)!
 
     // prevents duplication when doing things out of order
     if ((obj.type && this.map.get(obj.type)) || (name && this.map.get(name))) {
