@@ -36,10 +36,17 @@ export class Matched {
     this.from = offset
   }
 
+  /**
+   * Wraps this `Matched` with another one.
+   *
+   * @param node - The node of the `Matched` to wrap with.
+   * @param wrapping - The wrapping mode, if different.
+   */
   wrap(node: Node, wrap = this.wrapping) {
     return new Matched(this.state, node, this.total, this.from, wrap, [this])
   }
 
+  /** Returns this match represented as a raw {@link MatchOutput}. */
   output(): MatchOutput {
     let captures: string[] | null = null
     if (this.captures) {
