@@ -12,6 +12,7 @@ export class State {
   declare begin: Rule
   declare end: Rule
   declare inside: (Rule | State)[] | null
+  declare loose?: boolean
 
   constructor(repo: Repository, state: DF.State) {
     let type = state.type ?? createID()
@@ -39,7 +40,9 @@ export class State {
 
     this.inside = null
 
-    if (state.inside && state.inside !== "inherit") {
+    if (state.inside === "loose") this.loose = true
+
+    if (state.inside && typeof state.inside !== "string") {
       this.inside = []
       for (const rule of state.inside) {
         // specifier for a rule
@@ -61,12 +64,23 @@ export class State {
   }
 
   match(state: GrammarState, str: string, pos: number) {
-    const matched = this.begin.match(state, str, pos)
-    if (!matched) return null
+    // loose mode, doesn't actually affect the stack
+    if (this.loose) {
+      const endMatched = this.end.match(state, str, pos)
+      if (endMatched) return endMatched.wrap(this.node, Wrapping.END)
 
-    const inside = this.inside ? this.inside : state.stack.rules
-    state.stack.push(this.node, inside, this.end)
+      const beginMatched = this.begin.match(state, str, pos)
+      if (beginMatched) return beginMatched.wrap(this.node, Wrapping.BEGIN)
 
-    return matched.wrap(this.node, Wrapping.BEGIN)
+      return null
+    } else {
+      const matched = this.begin.match(state, str, pos)
+      if (!matched) return null
+
+      const inside = this.inside ? this.inside : state.stack.rules
+      state.stack.push(this.node, inside, this.end)
+
+      return matched.wrap(this.node, Wrapping.BEGIN)
+    }
   }
 }

@@ -62,7 +62,7 @@ export interface Node {
 export interface State extends Node {
   begin: string | Rule
   end: string | Rule
-  inside?: Inside | "inherit"
+  inside?: Inside | "inherit" | "loose"
 }
 
 export interface RuleTemplate {
@@ -84,8 +84,6 @@ export interface Pattern extends RuleOptions {
   match: Arrayable<string | Regex | VarIndex>
 }
 
-// TODO: PatternAny
-
 export interface Chain extends RuleOptions {
   chain: string[]
 }
@@ -106,7 +104,7 @@ export interface CaptureCondition {
 
 export type ReuseNode = { is: string }
 
-export type Inside = (string | Include | State)[]
+export type Inside = (string | Rule | Include | State)[]
 
 export type Include = { include: string }
 
