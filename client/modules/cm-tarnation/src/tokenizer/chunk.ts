@@ -1,9 +1,8 @@
 import { dequal } from "dequal"
 import { klona } from "klona"
 import { ParserContext } from "../parser"
-import type { SerializedParserContext, SerializedTokenizerStack, Token } from "../types"
+import type { SerializedParserContext, SerializedTokenizerContext, Token } from "../types"
 import { TokenizerContext } from "./context"
-import { TokenizerStack } from "./stack"
 
 /**
  * A `Chunk` stores tokens emitted by the tokenizer into discrete, well,
@@ -14,8 +13,8 @@ import { TokenizerStack } from "./stack"
  * the document changes, allowing for them to be reused when tokenizing.
  */
 export class Chunk {
-  /** Serialized state of the stack at the start of this chunk. */
-  private declare _stack: SerializedTokenizerStack
+  /** Context at the start of this chunk. */
+  private declare _context: SerializedTokenizerContext
 
   /** The tokens stored in this chunk. */
   private declare _tokens: Token[]
@@ -40,19 +39,19 @@ export class Chunk {
 
   /**
    * @param pos - Position of this chunk.
-   * @param stack - The state of the stack for the start of this chunk.
+   * @param context - The context for the start of this chunk.
    * @param tokens - The mapped tokens to store in this chunk.
    * @param relativeTo - Indicates the position the tokens are relative to, if any.
    */
   constructor(
     pos: number,
-    stack: TokenizerStack | SerializedTokenizerStack = { stack: [], embedded: null },
+    context: TokenizerContext,
     tokens: Token[] = [],
     relativeTo?: number,
     parserContext?: ParserContext | SerializedParserContext
   ) {
     this._pos = pos
-    this.stack = stack
+    this.context = context
     this._max = 0
     this.setTokens(tokens, relativeTo)
     if (parserContext) this.parserContext = parserContext
@@ -74,17 +73,6 @@ export class Chunk {
     return this._max + this._pos
   }
 
-  /** The chunk's start position stack (not serialized). */
-  get stack() {
-    return new TokenizerStack(this._stack)
-  }
-
-  /** The chunk's start position stack. */
-  set stack(stack: TokenizerStack | SerializedTokenizerStack) {
-    if ("serialize" in stack) stack = stack.serialize()
-    this._stack = stack as SerializedTokenizerStack
-  }
-
   /** Number of tokens stored in this chunk. */
   get size() {
     return this._tokens.length
@@ -92,7 +80,15 @@ export class Chunk {
 
   /** The context for this chunk. */
   get context() {
-    return new TokenizerContext(this._pos, new TokenizerStack(this._stack))
+    return new TokenizerContext(
+      this._pos,
+      this._context.state.clone(),
+      this._context.embedded
+    )
+  }
+
+  set context(context: TokenizerContext) {
+    this._context = context.serialize()
   }
 
   /**
@@ -191,7 +187,7 @@ export class Chunk {
   clone() {
     return new Chunk(
       this.pos,
-      klona(this._stack),
+      this.context,
       klona(this._tokens),
       this.pos,
       this.parserContext?.clone()
@@ -208,7 +204,7 @@ export class Chunk {
    */
   isReusable(context: TokenizerContext, offset = 0) {
     if (this._pos + offset !== context.pos) return false
-    if (!dequal(this._stack, context.stack.serialize())) return false
+    if (!dequal(this._context, context.serialize())) return false
     return true
   }
 }

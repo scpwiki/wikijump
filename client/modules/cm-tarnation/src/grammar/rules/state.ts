@@ -7,20 +7,18 @@ import { Wrapping } from "../types"
 import { Rule } from "./rule"
 
 export class State {
-  declare id: number
   declare name: string
   declare node: Node
   declare begin: Rule
   declare end: Rule
   declare inside: (Rule | State)[] | null
 
-  constructor(repo: Repository, id: number, state: DF.State) {
+  constructor(repo: Repository, state: DF.State) {
     let type = state.type ?? createID()
     let emit = state.type && state.emit !== false
 
-    this.id = id
     this.name = type
-    this.node = !emit ? Node.None : new Node(id, state)
+    this.node = !emit ? Node.None : new Node(repo.id(), state)
 
     // prettier-ignore
     const begin = typeof state.begin === "string"

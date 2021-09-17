@@ -7,8 +7,8 @@ import { Rule } from "./rule"
 export class LookupRule extends Rule {
   private declare lookup: LookupMatcher
 
-  constructor(repo: Repository, id: number, rule: DF.Lookup) {
-    super(repo, id, rule)
+  constructor(repo: Repository, rule: DF.Lookup) {
+    super(repo, rule)
 
     let strings = rule.lookup
     if (typeof strings === "string") {

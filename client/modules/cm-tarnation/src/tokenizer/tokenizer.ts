@@ -1,7 +1,7 @@
 import type { Input } from "@lezer/common"
-import type { Grammar, GrammarToken } from "../grammar/grammar"
+import type { Grammar } from "../grammar/grammar"
+import type { GrammarToken } from "../grammar/types"
 import type { TarnationLanguage } from "../language"
-import type { NodeMap } from "../node-map"
 import type { ParseRegion } from "../region"
 import type { MappedToken, Token } from "../types"
 import type { TokenizerBuffer } from "./buffer"
@@ -24,9 +24,6 @@ const MARGIN_AFTER = 500
 export class Tokenizer {
   /** Host grammar. */
   private declare grammar: Grammar
-
-  /** Host node map, mapping string names to node ids. */
-  private declare nodes: NodeMap
 
   /** String that is actually being tokenized. */
   private declare str: string
@@ -57,14 +54,11 @@ export class Tokenizer {
     input: Input,
     region: ParseRegion
   ) {
-    if (!language.grammar || !language.nodes) {
-      throw new Error("Unloaded language provided to tokenizer!")
-    }
+    if (!language.grammar) throw new Error("Unloaded language provided to tokenizer!")
 
     this.context = context
     this.buffer = buffer
     this.grammar = language.grammar
-    this.nodes = language.nodes
     this.region = region
 
     const end = Math.min(region.to + MARGIN_AFTER, input.length)
@@ -88,30 +82,9 @@ export class Tokenizer {
    * @param t - The token to be converted.
    */
   private compileGrammarToken(t: GrammarToken): MappedToken {
-    // this function gets ran for literally every token so I've elected to take
-    // the most insane, most verbose and fastest approach I could come up with.
-    // this mainly involves completely avoiding iterator methods,
-    // such as destructuring, mapping functions, etc.
-
-    // also, if you think i'm trying to just outsmart the compiler - I'm not.
-    // I have benchmarked this. this really is faster, and I hate it
-
-    const out: MappedToken = [this.nodes.get(t.type)!, t.from, t.to]
-
-    if (t.open) {
-      out[3] = []
-      for (let i = 0; i < t.open.length; i++) {
-        out[3][i] = [this.nodes.get(t.open[i][0])!, t.open[i][1]]
-      }
-    }
-
-    if (t.close) {
-      out[4] = []
-      for (let i = 0; i < t.close.length; i++) {
-        out[4][i] = [this.nodes.get(t.close[i][0])!, t.close[i][1]]
-      }
-    }
-
+    const out: MappedToken = [t.id, t.from, t.to]
+    if (t.open) out[3] = t.open
+    if (t.close) out[4] = t.close
     return out
   }
 
@@ -128,9 +101,9 @@ export class Tokenizer {
     // parser directives present
     if (last.length > 2 || next.open || next.close) return false
     // embedded handling token
-    if (last[0] === -1 || next.embedded) return false
+    if (last[0] === -1 || next.nest) return false
     // types aren't equivalent
-    if (last[0] !== this.nodes.get(next.type)) return false
+    if (last[0] !== next.id) return false
     // tokens aren't inline
     if (last[2] !== next.from) return false
     // tokens are effectively equivalent
@@ -141,21 +114,19 @@ export class Tokenizer {
   private match() {
     const ctx = this.context
     const match = this.grammar.match(
-      { state: ctx.stack.state, context: ctx.stack.context },
+      this.context.state,
       this.str,
       ctx.pos - this.offset,
       ctx.pos
     )
     if (!match) return { tokens: null, length: 1 } // always advance
     const tokens = match.compile()
-    if (!tokens.length) return { tokens: null, length: match.length || 1 }
-    return { tokens, length: match.length }
+    if (!tokens.length) return { tokens: null, length: match.total.length || 1 }
+    return { tokens, length: match.total.length }
   }
 
   /** Executes a tokenization step. */
   private tokenize() {
-    const stack = this.context.stack
-
     const { tokens, length } = this.match()
 
     this.context.pos += length
@@ -169,47 +140,30 @@ export class Tokenizer {
     for (let idx = 0; idx < tokens.length; idx++) {
       const t = tokens[idx]
 
-      let changedStack = t.next || t.switchTo || t.embedded || t.context
-
       let pushEmbedded = false
 
-      if (t.embedded) {
+      if (t.nest) {
         // token represents the entire region, not the start or end of one
-        if (!stack.embedded && t.embedded.endsWith("!")) {
-          const lang = t.embedded.slice(0, t.embedded.length - 1)
+        if (!this.context.embedded && t.nest.endsWith("!")) {
+          const lang = t.nest.slice(0, t.nest.length - 1)
           mapped.push([lang, t.from, t.to])
           continue
         }
         // token ends an embedded region
-        else if (t.embedded === "@pop") {
-          const range = stack.endEmbedded(t.from)
+        else if (t.nest === "@pop") {
+          const range = this.context.endEmbedded(t.from)
           if (range) mapped.push(range)
         }
         // token starts an embedded region
-        else if (!stack.embedded) {
+        else if (!this.context.embedded) {
           pushEmbedded = true
-          stack.setEmbedded(t.embedded, t.to)
+          this.context.setEmbedded(t.nest, t.to)
         }
-      }
-
-      // handle stack manipulation and match context changes
-      if (t.next) {
-        // prettier-ignore
-        switch (t.next) {
-          case "@pop":    stack.pop()                        ; break
-          case "@popall": stack.popall()                     ; break
-          case "@push":   stack.push(stack.state, t.context) ; break
-          default:        stack.push(t.next, t.context)
-        }
-      } else if (t.switchTo) {
-        stack.switchTo(t.switchTo, t.context)
-      } else if (t.context) {
-        stack.context = t.context
       }
 
       // check if the new token can be merged into the last one
-      if (!t.empty && (!stack.embedded || pushEmbedded)) {
-        if (last && !changedStack && this.canContinue(last, t)) last[2] = t.to
+      if (!this.context.embedded || pushEmbedded) {
+        if (last && this.canContinue(last, t)) last[2] = t.to
         else mapped.push((last = this.compileGrammarToken(t)))
       }
     }
@@ -229,9 +183,9 @@ export class Tokenizer {
   advance() {
     if (this.context.pos < this.region.to) {
       const pos = this.context.pos
-      const stack = this.context.stack.serialize()
+      const context = this.context.clone()
       const tokens = this.tokenize()
-      if (tokens?.length) this.buffer.add(pos, stack, tokens)
+      if (tokens?.length) this.buffer.add(pos, context, tokens)
     }
 
     if (this.context.pos >= this.region.to) return this.chunks
@@ -267,7 +221,7 @@ export class Tokenizer {
       if (chunk.isReusable(this.context, this.region.edit.offset)) {
         right.slide(idx, this.region.edit.offset, true)
         this.buffer.link(right, this.region.length)
-        this.buffer.ensureLast(this.context.pos, this.context.stack)
+        this.buffer.ensureLast(this.context.pos, this.context)
         this.context = this.buffer.last!.context
         return true
       }

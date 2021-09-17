@@ -76,7 +76,7 @@ repository:
 
   # @@ escape formatting (AKA the worst thing ever)
   Escaped:
-    match: [/(@@)(@@)(@@)/, /(@@)(@)(@@)/, /(@@)(@@(?!@))/, /(@@)(.*)(@@)/]
+    match: [/(@@)(@@)(@@)/, /(@@)(@)(@@)/, /(@@)()(@@(?!@))/, /(@@)(.*)(@@)/]
     tag: escape
     captures:
       0: { open: Escaped, tag: processingInstruction }

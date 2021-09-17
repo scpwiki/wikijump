@@ -8,22 +8,20 @@ import type { GrammarState } from "../state"
 import type { MatchOutput } from "../types"
 
 export abstract class Rule {
-  declare id: number
   declare name: string
   declare node: Node
   declare lookbehind?: (str: string, pos: number) => boolean
   declare contextSetters?: ((state: GrammarState) => void)[]
   declare captures: (Node | CaptureFunction)[]
 
-  constructor(repo: Repository, id: number, rule: DF.Rule) {
+  constructor(repo: Repository, rule: DF.Rule) {
     if ("template" in rule) throw new Error("Unresolved template given as a rule")
 
     let type = rule.type ?? createID()
     let emit = rule.type && rule.emit !== false
 
-    this.id = id
     this.name = type
-    this.node = !emit ? Node.None : new Node(id, rule)
+    this.node = !emit ? Node.None : new Node(repo.id(), rule)
 
     if (rule.captures) {
       this.captures = []

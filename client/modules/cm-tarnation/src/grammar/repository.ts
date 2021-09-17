@@ -7,8 +7,8 @@ import { State } from "./rules/state"
 import type { VariableTable } from "./types"
 
 export class Repository {
-  private map = new Map<string | number, Node | Rule | State>()
-  private curID = 0
+  private map = new Map<string, Node | Rule | State>()
+  private curID = 3 // starts at 2, because 0-2 are reserved
 
   constructor(
     public variables: VariableTable,
@@ -23,9 +23,10 @@ export class Repository {
     return Array.from(set)
       .map(v => (v instanceof Node ? v : v.node))
       .filter(v => v !== Node.None)
+      .sort((a, b) => a.id - b.id)
   }
 
-  private id() {
+  id() {
     const id = this.curID
     this.curID++
     return id
@@ -83,17 +84,13 @@ export class Repository {
     }
     // lookup
     else if ("lookup" in obj) {
-      const id = this.id()
-      const lookup = new LookupRule(this, id, obj)
-      this.map.set(id, lookup)
+      const lookup = new LookupRule(this, obj)
       this.map.set(lookup.name, lookup)
       return lookup
     }
     // pattern
     else if ("match" in obj) {
-      const id = this.id()
-      const pattern = new PatternRule(this, id, obj)
-      this.map.set(id, pattern)
+      const pattern = new PatternRule(this, obj)
       this.map.set(pattern.name, pattern)
       this.variables[pattern.name] = obj.match
       return pattern
@@ -105,9 +102,7 @@ export class Repository {
     }
     // state
     else if ("begin" in obj) {
-      const id = this.id()
-      const state = new State(this, id, obj)
-      this.map.set(id, state)
+      const state = new State(this, obj)
       this.map.set(state.name, state)
       return state
     }
@@ -115,13 +110,12 @@ export class Repository {
     else {
       const id = this.id()
       const node = new Node(id, obj)
-      this.map.set(id, node)
       this.map.set(node.name, node)
       return node
     }
   }
 
-  get(key: string | number) {
+  get(key: string) {
     return this.map.get(key)
   }
 

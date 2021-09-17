@@ -1,6 +1,7 @@
 import type { NodePropSource, NodeType, Tree } from "@lezer/common"
 import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
 import type * as DF from "./grammar/definition"
+import type { ParserAction } from "./grammar/types"
 import type { Chunk } from "./tokenizer"
 
 // -- CONFIGURATION
@@ -51,16 +52,13 @@ export interface TarnationLanguageDefinition {
 
 // -- TOKENS
 
-/** Directs the parser to nest tokens using the node's type ID. */
-export type MappedParserAction = [id: number, inclusive: number][]
-
 /** A more efficient representation of a `GrammarToken`. */
 export type MappedToken = [
-  type: number,
+  type: number | null,
   from: number,
   to: number,
-  open?: MappedParserAction,
-  close?: MappedParserAction
+  open?: ParserAction,
+  close?: ParserAction
 ]
 
 /** Represents the region of an embedded language. */
@@ -88,7 +86,8 @@ export interface SerializedTokenizerStack {
 /** Serialized context/state of a tokenizer. */
 export interface SerializedTokenizerContext {
   pos: number
-  stack: SerializedTokenizerStack
+  state: GrammarState
+  embedded: null | [lang: string, start: number]
 }
 
 // -- PARSER

@@ -1,4 +1,3 @@
-import ftmlYAML from "../../../cm-lang-ftml/src/grammars/ftml.yaml"
 import type * as DF from "./definition"
 import { Matched } from "./matched"
 import type { Node } from "./node"
@@ -40,13 +39,16 @@ export class Grammar {
     )
   }
 
-  match(state: GrammarState, str: string, pos: number) {
+  match(state: GrammarState, str: string, pos: number, offset = 0) {
     // normal matching
     const rules = state.stack.rules
     for (let i = 0; i < rules.length; i++) {
       const rule = rules[i]
       const result = rule.match(state.clone(), str, pos)
-      if (result) return result
+      if (result) {
+        if (offset !== pos) result.offset(offset)
+        return result
+      }
     }
 
     // check end node
@@ -55,6 +57,7 @@ export class Grammar {
       if (result) {
         const wrapped = result.wrap(state.stack.node, Wrapping.END)
         wrapped.state.stack.pop()
+        if (offset !== pos) wrapped.offset(offset)
         return wrapped
       }
     }
@@ -64,20 +67,18 @@ export class Grammar {
       for (let i = 0; i < this.global.length; i++) {
         const rule = this.global[i]
         const result = rule.match(state.clone(), str, pos)
-        if (result) return result
+        if (result) {
+          if (offset !== pos) result.offset(offset)
+          return result
+        }
       }
     }
 
     if (this.default) {
-      const result = new Matched(state, this.default, str.slice(pos, pos + 1), pos)
+      const result = new Matched(state, this.default, str.slice(pos, pos + 1), offset)
       if (result) return result
     }
 
     return null
   }
 }
-
-const asdf2 = new Grammar(ftmlYAML as any)
-
-console.log(asdf2)
-console.log(asdf2.startState())

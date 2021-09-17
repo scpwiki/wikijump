@@ -1,4 +1,4 @@
-import { NodeProp, NodeType } from "@lezer/common"
+import { NodeProp, NodeSet, NodeType } from "@lezer/common"
 import { addLanguages } from "@wikijump/codemirror"
 import {
   Extension,
@@ -12,7 +12,6 @@ import { isFunction } from "is-what"
 import { DelegatorFactory } from "./delegator"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
-import { NodeMap } from "./node-map"
 import type { TokenizerBuffer } from "./tokenizer"
 import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
 import { EmbeddedParserType, makeTopNode } from "./util"
@@ -25,8 +24,9 @@ export class TarnationLanguage {
 
   declare description: LanguageDescription
   declare grammar?: Grammar
-  declare nodes?: NodeMap
   declare top?: NodeType
+  declare nodeTypes?: NodeType[]
+  declare nodeSet?: NodeSet
   declare stateProp?: NodeProp<TokenizerBuffer>
   declare support?: LanguageSupport
   declare language?: Language
@@ -73,21 +73,21 @@ export class TarnationLanguage {
     this.grammar = new Grammar(def)
 
     // setup node data
-    const nodes = (this.nodes = new NodeMap())
 
     this.stateProp = new NodeProp<TokenizerBuffer>({ perNode: true })
 
     const { facet, top } = makeTopNode(this.description.name, this.languageData)
     this.top = top
 
-    nodes.add(NodeType.none, "None")
-    nodes.add(top, "Document")
-    nodes.add(EmbeddedParserType, "EmbeddedParser")
+    const nodeTypes = this.grammar.repository.nodes().map(n => n.type)
+    nodeTypes.unshift(NodeType.none, top, EmbeddedParserType)
 
-    this.grammar.types.forEach(name => nodes.add({ name }))
+    let nodeSet = new NodeSet(nodeTypes)
 
-    if (this.grammar.props.length) nodes.configure({ props: this.grammar.props })
-    if (this.configure.props) nodes.configure(this.configure)
+    if (this.configure.props) nodeSet = nodeSet.extend(...this.configure.props)
+
+    this.nodeTypes = nodeTypes
+    this.nodeSet = nodeSet
 
     // setup language support
     this.language = new Language(facet, new DelegatorFactory(this), top)

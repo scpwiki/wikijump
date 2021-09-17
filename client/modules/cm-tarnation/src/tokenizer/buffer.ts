@@ -1,7 +1,7 @@
 import { search } from "@wikijump/util"
-import type { SerializedTokenizerStack, Token } from "../types"
+import type { Token } from "../types"
 import { Chunk } from "./chunk"
-import type { TokenizerStack } from "./stack"
+import type { TokenizerContext } from "./context"
 
 /** Number of tokens per chunk. */
 const CHUNK_SIZE = 1024
@@ -38,8 +38,8 @@ export class TokenizerBuffer {
     this.buffer[this.buffer.length - 1] = chunk
   }
 
-  ensureLast(pos: number, stack: TokenizerStack | SerializedTokenizerStack) {
-    if (!this.last) this.last = new Chunk(pos, stack)
+  ensureLast(pos: number, context: TokenizerContext) {
+    if (!this.last) this.last = new Chunk(pos, context)
   }
 
   /** Retrieves a `Chunk` from the buffer. */
@@ -63,9 +63,9 @@ export class TokenizerBuffer {
    * @param context - The context to track position and stack state with.
    * @param tokens - The tokens to add to the buffer.
    */
-  add(pos: number, stack: TokenizerStack | SerializedTokenizerStack, tokens: Token[]) {
+  add(pos: number, context: TokenizerContext, tokens: Token[]) {
     const chunk =
-      this.last && this.last.size < CHUNK_SIZE ? this.last : new Chunk(pos, stack)
+      this.last && this.last.size < CHUNK_SIZE ? this.last : new Chunk(pos, context)
 
     if (this.last !== chunk) this.buffer.push(chunk)
 

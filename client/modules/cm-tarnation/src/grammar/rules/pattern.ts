@@ -9,8 +9,8 @@ import { Rule } from "./rule"
 export class PatternRule extends Rule {
   private declare patterns: (RegExpMatcher | StringMatcher)[]
 
-  constructor(repo: Repository, id: number, rule: DF.Pattern) {
-    super(repo, id, rule)
+  constructor(repo: Repository, rule: DF.Pattern) {
+    super(repo, rule)
 
     const patterns = Array.isArray(rule.match) ? rule.match : [rule.match]
     this.patterns = patterns.map(pattern => {

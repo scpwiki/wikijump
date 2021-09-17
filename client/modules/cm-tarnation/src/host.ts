@@ -4,7 +4,7 @@ import { perfy } from "@wikijump/util"
 import type { TarnationLanguage } from "./language"
 import { Parser, ParserContext } from "./parser"
 import { ParseRegion } from "./region"
-import { Tokenizer, TokenizerBuffer, TokenizerContext, TokenizerStack } from "./tokenizer"
+import { Tokenizer, TokenizerBuffer, TokenizerContext } from "./tokenizer"
 
 const SKIP_PARSER = false
 const REUSE_LEFT = true
@@ -187,8 +187,10 @@ export class Host {
    */
   private setupTokenizer(buffer?: TokenizerBuffer, context?: TokenizerContext) {
     if (!buffer || !context) {
-      const stack = new TokenizerStack({ stack: [["root", {}]], embedded: null })
-      context = new TokenizerContext(this.region.from, stack)
+      context = new TokenizerContext(
+        this.region.from,
+        this.language.grammar!.startState()
+      )
       buffer = new TokenizerBuffer()
     }
 
@@ -283,7 +285,7 @@ export class Host {
     const top = this.top ? this.language.top! : NodeType.none
     const start = this.region.original.from
     const length = this.pos - this.region.original.from
-    const nodeSet = this.language.nodes!.set
+    const nodeSet = this.language.nodeSet!
 
     // build tree from buffer
     const built = Tree.build({ topID: 0, buffer, nodeSet, reused, start })
