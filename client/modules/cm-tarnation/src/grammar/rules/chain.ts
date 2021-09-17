@@ -142,7 +142,10 @@ function parseChainRule(repo: Repository, str: string) {
         let advanced = false
         let result
         while ((result = rule.match(state, str, pos))) {
-          if (advanced && !result) return
+          if (advanced && !result) {
+            yield null
+            return
+          }
           yield result
           advanced = true
           pos += result.total.length
