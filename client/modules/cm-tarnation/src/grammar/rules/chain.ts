@@ -142,11 +142,3 @@ enum ChainRuleType {
   ZERO_OR_MORE,
   ONE_OR_MORE
 }
-
-function sum(results: Matched[]) {
-  let total = ""
-  for (let i = 0; i < results.length; i++) {
-    total += results[i].total
-  }
-  return total
-}
