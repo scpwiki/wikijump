@@ -39,12 +39,12 @@ export class Node {
 
     // prettier-ignore
     {
-      if (tag)      props.push(styleTags(parseTag(type, tag)))
-      if (openedBy) props.push(NodeProp.openedBy.add({ [type]: [openedBy].flat() }))
-      if (closedBy) props.push(NodeProp.closedBy.add({ [type]: [closedBy].flat() }))
-      if (group)    props.push(NodeProp.group   .add({ [type]: [group].flat()    }))
-      if (fold)     props.push(foldNodeProp     .add({ [type]: parseFold(fold)   }))
-      if (indent)   props.push(indentNodeProp   .add({ [type]: parseIndent(indent) }))
+      if (tag)      props.push(styleTags(parseTag(emit, tag)))
+      if (openedBy) props.push(NodeProp.openedBy.add({ [emit]: [openedBy].flat() }))
+      if (closedBy) props.push(NodeProp.closedBy.add({ [emit]: [closedBy].flat() }))
+      if (group)    props.push(NodeProp.group   .add({ [emit]: [group].flat()    }))
+      if (fold)     props.push(foldNodeProp     .add({ [emit]: parseFold(fold)   }))
+      if (indent)   props.push(indentNodeProp   .add({ [emit]: parseIndent(indent) }))
     }
 
     this.type = NodeType.define({ id, name: emit, props })
