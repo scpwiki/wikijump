@@ -164,8 +164,8 @@ export class Tokenizer {
 
       // check if the new token can be merged into the last one
       if (!this.context.embedded || pushEmbedded) {
-        // if (last && this.canContinue(last, t)) last[2] = t.to
-        mapped.push((last = this.compileGrammarToken(t)))
+        if (last && this.canContinue(last, t)) last[2] = t.to
+        else mapped.push((last = this.compileGrammarToken(t)))
       }
     }
 

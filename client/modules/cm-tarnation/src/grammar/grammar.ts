@@ -71,11 +71,7 @@ export class Grammar {
         if (element.end) {
           let result = element.end.match(state.clone(), str, pos)
           if (result) {
-            // close every stack element above the one that matched
-            // e.g. i = 5, stack.length = 7, close 5, 6
-            for (let j = state.stack.length - 1; j >= i; j--) {
-              result = result.wrap(result.state.stack.get(j).node, Wrapping.END)
-            }
+            result = result.wrap(element.node, Wrapping.END)
             result.state.stack.close(i)
             if (offset !== pos) result.offset(offset)
             return result

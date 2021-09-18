@@ -4,7 +4,6 @@ import { RegExpMatcher } from "../matchers/regexp"
 import { Node } from "../node"
 import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
-import { Wrapping } from "../types"
 import { Rule } from "./rule"
 
 export class Chain extends Rule {
@@ -65,7 +64,7 @@ export class Chain extends Rule {
       iter = null
     }
     if (!results.length) return null
-    return new Matched(state, this.node, total, from, Wrapping.FULL, results)
+    return new Matched(state, this.node, total, from, results)
   }
 }
 

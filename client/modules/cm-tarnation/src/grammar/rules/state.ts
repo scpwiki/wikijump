@@ -39,10 +39,15 @@ export class State {
     this.end = end
     this.inside = null
 
+    // loose mode
     if (state.inside === "loose") this.loose = true
-
-    if (state.inside && typeof state.inside !== "string") {
+    // list of rules or states
+    else if (state.inside && typeof state.inside !== "string") {
       this.inside = repo.inside(state.inside)
+    }
+    // special case: state is supposed to nest, but no inside rules were given
+    else if (!state.inside && state.nest) {
+      this.inside = []
     }
   }
 

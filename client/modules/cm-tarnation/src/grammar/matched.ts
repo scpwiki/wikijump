@@ -16,6 +16,8 @@ export class Matched {
     public total: string,
     /** The start of the match. */
     public from: number,
+    /** The children contained by this match's {@link Node}. */
+    public captures?: Matched[],
     /**
      * The wrapping mode of the match. There are three modes:
      *
@@ -23,9 +25,7 @@ export class Matched {
      * - BEGIN: The {@link Node} in this match begins the branch.
      * - END: The {@link Node} in this match ends the branch.
      */
-    public wrapping: Wrapping = Wrapping.FULL,
-    /** The children contained by this match's {@link Node}. */
-    public captures?: Matched[]
+    public wrapping: Wrapping = Wrapping.FULL
   ) {
     this.length = total.length
   }
@@ -48,7 +48,7 @@ export class Matched {
    * @param wrapping - The wrapping mode, if different.
    */
   wrap(node: Node, wrap = this.wrapping) {
-    return new Matched(this.state, node, this.total, this.from, wrap, [this])
+    return new Matched(this.state, node, this.total, this.from, [this], wrap)
   }
 
   /** Returns this match represented as a raw {@link MatchOutput}. */
@@ -109,7 +109,7 @@ function compileLeaf(match: Matched): GrammarToken {
   if (match.node.nest) {
     const lang = match.state.sub(match.node.nest)
     if (typeof lang !== "string") throw new Error("node.nest resolved badly")
-    token.nest = `${lang}!` // "!" signifies nesting in a leaf
+    if (lang) token.nest = `${lang}!` // "!" signifies nesting in a leaf
   }
 
   return token
