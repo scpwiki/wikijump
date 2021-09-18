@@ -7,6 +7,7 @@ ignoreCase: true
 
 repository:
   # basic variables (used in regex)
+
   ws: /[^\S\r\n]/
   esc: /@ws(?:_|\\)$/
   sws: /^(?!@esc)@ws*/
@@ -28,6 +29,9 @@ repository:
   CSSAttributes:
     nest: css-attribute
 
+  WikiMath:
+    nest: wikimath
+
   # global
 
   EscapedNewLine:
@@ -41,10 +45,10 @@ repository:
   BlockComment:
     match: /(\[!--)([^]+?)(--\])/
     tag: (...) blockComment
+    fold: offset(3, -3)
     captures:
       0: { open: BlockComment }
       2: { close: BlockComment }
-    fold: offset(3, -3)
 
   NonControl:
     match: /@nocontrol+/
@@ -183,9 +187,9 @@ repository:
     begin: { match: '@<', open: RawEscapeBlock, tag: processingInstruction }
     end: { match: '>@', close: RawEscapeBlock, tag: processingInstruction }
     tag: escape
+    fold: offset(2, -2)
     inside:
       - { type: EntityReference, match: '/&[\w#]+;/', tag: character }
-    fold: offset(2, -2)
 
   # @@ escape formatting (AKA the worst thing ever)
   Escaped:
@@ -244,14 +248,17 @@ repository:
     end: { match: /$/ }
     inside:
       - include: inline
+      - include: blocks
 
   Center:
     begin: { type: CenterMark, match: /@sws=@ws+/, tag: heading }
     end: { match: /$/ }
     inside:
       - include: inline
+      - include: blocks
 
   Table:
+    fold: past_first_line
     begin:
       match: /@sws\|{2}/
       rematch: true
@@ -266,13 +273,14 @@ repository:
           0: { type: TableMarkSeparator, tag: separator }
           1: { type: TableMarkModifier, tag: operator }
       - include: inline
-    fold: past_first_line
+      - include: blocks
 
   ContainerMark:
     match: /@sws>+|[*#]/
     tag: keyword
 
   Container:
+    fold: past_first_line
     begin:
       match: /@cs/
       rematch: true
@@ -284,77 +292,475 @@ repository:
       # TODO: heading/center in containers
       - ContainerMark
       - include: inline
-    fold: past_first_line
+      - include: blocks
 
   Paragraph:
     begin: { match: /@sws(?!@interrupt)\S/, rematch: true }
     end: { match: /@sws(?:@interrupt)|@enl/, rematch: true }
+    fold: past_first_line
     inside:
       - include: inline
       - include: blocks
-    fold: past_first_line
 
-  # blocks (basics)
+  # -- TRIPLE LINK
+
+  TripleLinkStart:
+    match: /\[{3}(?!\[)/
+    tag: squareBracket
+    closedBy: TripleLinkEnd
+
+  TripleLinkEnd:
+    match: /(?!\]{4})\]{3}/
+    tag: squareBracket
+    openedBy: TripleLinkStart
+
+  TripleLinkSeparator:
+    match: "|"
+    tag: separator
+
+  TripleLinkURL:
+    match: /([*#]?)([^*#\n|\]]+)/
+    captures:
+      0: { type: TripleLinkURLModifier, tag: keyword }
+      1: { type: TripleLinkURLText, tag: link }
+
+  TripleLinkText:
+    match: /[^\n\]]+/
+
+  TripleLink:
+    skip: /@ws/
+    chain:
+      - TripleLinkStart
+      - TripleLinkURL
+      - TripleLinkSeparator
+      - TripleLinkText?
+      - TripleLinkEnd
+
+  TripleLinkSimple:
+    emit: TripleLink
+    skip: /@ws/
+    chain:
+      - TripleLinkStart
+      - TripleLinkURL
+      - TripleLinkEnd
+
+  # -- SINGLE LINK
+
+  SingleLinkStart:
+    match: /\[/
+    tag: squareBracket
+    closedBy: SingleLinkEnd
+
+  SingleLinkEnd:
+    match: /\]/
+    tag: squareBracket
+    openedBy: SingleLinkStart
+
+  SingleLinkSeparator:
+    match: "|"
+    tag: separator
+
+  SingleLinkSlug:
+    match: /([:#*]|(?=\/)|(?=[^#*\s]+?[@:][^#*\s]))([^#*\s]+)/
+    captures:
+      0: { type: SingleLinkSlugModifier, tag: keyword }
+      1: { type: SingleLinkSlugText, tag: link }
+
+  SingleLinkAnchorSlug:
+    match: /(#)([^\s\]]*)/
+    captures:
+      0: { type: SingleLinkAnchorSlugMark, tag: keyword }
+      1: { type: SingleLinkAnchorSlugText, tag: link }
+
+  SingleLinkText:
+    match: /[^\n\]]+/
+
+  SingleLink:
+    skip: /@ws/
+    chain:
+      - SingleLinkStart
+      - SingleLinkSlug
+      - SingleLinkSeparator?
+      - SingleLinkText?
+      - SingleLinkEnd
+
+  SingleLinkAnchor:
+    skip: /@ws/
+    emit: SingleLink
+    chain:
+      - SingleLinkStart
+      - SingleLinkAnchorSlug
+      - SingleLinkText?
+      - SingleLinkEnd
+
+  # block components
 
   BlockStart:
-    match: /\[{2}(?![\[/])\s*/
+    match: /\[{2}(?![\[/])/
     tag: squareBracket
     closedBy: BlockEnd
 
   BlockStartClosing:
-    match: /\[{2}/\s*/
+    match: /\[{2}//
     tag: squareBracket
     closedBy: BlockEnd
 
   BlockEnd:
-    match: /\s*(?!\]{3})\]{2}/
+    match: /(?!\]{3})\]{2}/
     tag: squareBracket
     openedBy: [BlockStart, BlockStartClosing]
 
-  BlockName:
-    match: /([*=><](?![*=><])|f>|f<)?([^\\#*\s\]]+?)(_?(?=@ws|@BlockEnd|$))/
-    emit: false
-    captures:
-      0: { type: BlockNamePrefix, tag: keyword }
-      1: { type: BlockNameActual, tag: tagName, emit: BlockName }
-      2: { type: BlockNameSuffix, tag: modifier }
+  BlockNamePrefix:
+    match: /[*=><](?![*=><])|f>|f</
+    tag: keyword
+
+  BlockNameSuffix:
+    match: "_"
+    tag: modifier
 
   BlockLabel:
-    match: /\s*[^\s\]]+/
+    match: /[^\s\]]+/
     tag: invalid
 
-  # blocks (map)
+  BlockValue:
+    match: /[^\s\]]+/
+    tag: string
+
+  # block names
+
+  namela: /_?(?:@ws|@BlockEnd|$)/
+
+  BlockNameMap:
+    lookup: $var:blk_map
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameValue:
+    lookup: $var:blk_val
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameValueMap:
+    lookup: $var:blk_valmap
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameMapElements:
+    lookup: $var:blk_map_el
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameValueElements:
+    lookup: $var:blk_val_el
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameAlign:
+    lookup: $var:blk_align
+    lookahead: /@namela/
+    tag: function(name)
+
+  BlockNameModule:
+    match: module
+    lookahead: /@namela/
+    tag: keyword
+
+  ModuleName:
+    lookup: $var:mods
+    lookahead: /@namela/
+    tag: className
+
+  ModuleNameUnknown:
+    match: /[^\\#*\s\]]+?/
+    lookahead: /@namela/
+    tag: invalid
+
+  BlockNameUnknown:
+    match: /[^\\#*\s\]]+?/
+    lookahead: /@namela/
+    tag: invalid
+
+  # nested blocks
+
+  BlockNodeInlineMath:
+    match: /(@BlockStart)(\$)([^\n]*?)(\$)(@BlockEnd)/
+    captures:
+      0: { is: BlockStart }
+      1: { type: BlockNodeInlineMathMark, tag: keyword }
+      2: { is: WikiMath }
+      3: { is: BlockNodeInlineMathMark }
+      4: { is: BlockEnd }
+
+  BlockNameMath:
+    match: math
+    lookahead: /@namela/
+    emit: BlockName
+    tag: special(tagName)
+
+  BlockNestedMath:
+    emit: BlockNested
+    nest: wikimath
+    fold: inside
+    begin:
+      type: BlockNestedMathStartNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameMath
+        - BlockNameSuffix?
+        - BlockNodeArgument |* BlockLabel
+        - BlockEnd
+    end:
+      type: BlockNestedMathEndNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameMath
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockNameCSS:
+    match: css
+    lookahead: /@namela/
+    emit: BlockName
+    tag: special(tagName)
+
+  BlockNestedCSS:
+    emit: BlockNested
+    nest: CSS
+    fold: inside
+    begin:
+      type: BlockNestedCSSStartNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameCSS
+        - BlockNameSuffix?
+        - BlockLabel*
+        - BlockEnd
+    end:
+      type: BlockNestedCSSEndNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameCSS
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockNameHTML:
+    match: html
+    lookahead: /@namela/
+    emit: BlockName
+    tag: special(tagName)
+
+  BlockNestedHTML:
+    emit: BlockNested
+    nest: HTML
+    fold: inside
+    begin:
+      type: BlockNestedHTMLStartNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameHTML
+        - BlockNameSuffix?
+        - BlockLabel*
+        - BlockEnd
+    end:
+      type: BlockNestedHTMLEndNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameHTML
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockNameCode:
+    match: code
+    lookahead: /@namela/
+    emit: BlockName
+    tag: special(tagName)
+
+  BlockNestedCode:
+    emit: BlockNested
+    nest: $ctx:code-lang
+    fold: inside
+    begin:
+      type: BlockNestedCodeStartNode
+      emit: BlockNode
+      skip: /\s+/
+      # resets code-lang whenever this rule is checked
+      context: { set: code-lang, to: "" }
+      contextImmediate: true
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameCode
+        - BlockNameSuffix?
+        - BlockNodeArgument |* BlockLabel
+        - BlockEnd
+    end:
+      type: BlockNestedCodeEndNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameCode
+        - BlockNameSuffix?
+        - BlockEnd
+
+  # blocks
 
   BlockNodeMap:
     emit: BlockNode
+    skip: /\s+/
     chain:
       - BlockStart
-      - BlockName
+      - BlockNamePrefix?
+      - BlockNameMap
+      - BlockNameSuffix?
       - BlockNodeArgument |* BlockLabel
       - BlockEnd
 
-  BlockEndNode:
+  BlockNodeValue:
     emit: BlockNode
+    skip: /\s+/
     chain:
-      - BlockStartClosing
-      - BlockName
+      - BlockStart
+      - BlockNamePrefix?
+      - BlockNameValue
+      - BlockNameSuffix?
+      - BlockValue*
       - BlockEnd
 
-  BlockNodeArgument:
-    match: /(\s*)(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
-    context: { if: $1, matches: type, set: code-lang, to: $4 }
-    captures:
-      1: { type: BlockNodeArgumentName, tag: special(propertyName) }
-      2: { type: BlockNodeArgumentOperator, tag: definitionOperator }
-      3: { is: QuoteMark }
-      4: { if: $1, matches: style, then: { is: CSSAttributes }, else: { is: String }}
-      5: { is: QuoteMark }
+  BlockNodeValueMap:
+    emit: BlockNode
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - BlockNameValueMap
+      - BlockNameSuffix?
+      - BlockValue*
+      - BlockNodeArgument |* BlockLabel
+      - BlockEnd
+
+  BlockNodeModule:
+    emit: BlockNode
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - BlockNameModule
+      - BlockNameSuffix?
+      - ModuleName? | ModuleNameUnknown?
+      - BlockNodeArgument |* BlockLabel
+      - BlockEnd
+
+  BlockNodeUnknown:
+    emit: BlockNode
+    skip: /\s+/
+    chain:
+      - BlockStart | BlockStartClosing
+      - BlockNamePrefix?
+      - BlockNameUnknown
+      - BlockNameSuffix?
+      - BlockNodeArgument |* BlockLabel
+      - BlockEnd
+
+  BlockContainerAlign:
+    emit: BlockContainer
+    fold: inside
+    begin:
+      type: BlockContainerAlignStartNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNameAlign
+        - BlockNameSuffix?
+        - BlockEnd
+    end:
+      type: BlockContainerAlignEndNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameAlign
+        - BlockNameSuffix?
+        - BlockEnd
 
   BlockContainerMap:
     emit: BlockContainer
-    begin: BlockStart
-    end: BlockEnd
-    inside: inherit
+    fold: inside
+    begin:
+      type: BlockContainerMapStartNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameMapElements
+        - BlockNameSuffix?
+        - BlockNodeArgument |* BlockLabel
+        - BlockEnd
+    end:
+      type: BlockContainerMapEndNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameMapElements
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockContainerValue:
+    emit: BlockContainer
+    fold: inside
+    begin:
+      type: BlockContainerValueStartNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameValueElements
+        - BlockNameSuffix?
+        - BlockValue*
+        - BlockEnd
+    end:
+      type: BlockContainerValueEndNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameValueElements
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockNodeArgument:
+    match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
+    context: { if: $0, matches: type, set: code-lang, to: $3 }
+    captures:
+      0: { type: BlockNodeArgumentName, tag: special(propertyName) }
+      1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
+      2: { is: QuoteMark }
+      3: { if: $0, matches: style, then: { is: CSSAttributes }, else: { is: String }}
+      4: { is: QuoteMark }
 
 includes:
   block:
@@ -382,8 +788,23 @@ includes:
     - Monospace
 
   blocks:
-  - BlockNodeMap
-  - BlockEndNode
+    - TripleLink
+    - TripleLinkSimple
+    - BlockNodeInlineMath
+    - BlockNestedMath
+    - BlockNestedCSS
+    - BlockNestedHTML
+    - BlockNestedCode
+    - BlockNodeMap
+    - BlockNodeValue
+    - BlockNodeValueMap
+    - BlockNodeModule
+    - BlockContainerAlign
+    - BlockContainerMap
+    - BlockContainerValue
+    - BlockNodeUnknown
+    - SingleLink
+    - SingleLinkAnchor
 
 global:
   - EscapedNewLine
