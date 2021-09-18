@@ -18,11 +18,6 @@ repository:
 
   # basic node types
 
-  QuoteMark:
-    tag: string
-    closedBy: QuoteMark
-    openedBy: QuoteMark
-
   String:
     tag: string
 
@@ -431,15 +426,18 @@ repository:
     match: /[^\s\]]+/
     tag: literal
 
+  BlockNodeArgumentValue:
+    tag: string
+
   BlockNodeArgument:
     match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
     context: { if: $0, matches: type, set: code-lang, to: $3 }
     captures:
       0: { type: BlockNodeArgumentName, tag: special(propertyName) }
       1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
-      2: { is: QuoteMark }
-      3: { if: $0, matches: style, then: { is: CSSAttributes }, else: { is: String }}
-      4: { is: QuoteMark }
+      2: { open: BlockNodeArgumentMark, tag: string }
+      3: { if: $0, matches: style, then: { is: CSSAttributes }, else: { is: BlockNodeArgumentValue }}
+      4: { close: BlockNodeArgumentMark, tag: string }
 
   # block names
 
