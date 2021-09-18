@@ -17,8 +17,8 @@
                             "data": " "
                         },
                         {
-                            "element": "text",
-                            "data": "{$variable}"
+                            "element": "variable",
+                            "data": "variable"
                         },
                         {
                             "element": "text",
