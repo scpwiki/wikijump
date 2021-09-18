@@ -44,7 +44,7 @@ export class Chain extends Rule {
         results.push(result)
 
         total += result.total
-        pos += result.total.length
+        pos += result.length
 
         // if we're in a repeating rule (more than one match)
         // we need to check the next rule, and if it matches
@@ -101,7 +101,7 @@ function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
           break
         } else {
           advanced = true
-          pos += result.total.length
+          pos += result.length
           yield result
         }
       }
@@ -123,7 +123,7 @@ function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
         let result: void | Matched | null
         while ((result = iterate(state, str, pos).next().value)) {
           yield result
-          pos += result.total.length
+          pos += result.length
         }
       }
     } else {
@@ -133,7 +133,7 @@ function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
         while ((result = iterate(state, str, pos).next().value)) {
           yield result
           advanced = true
-          pos += result.total.length
+          pos += result.length
         }
         if (!advanced) yield null
       }
@@ -180,7 +180,7 @@ function parseChainRule(repo: Repository, str: string) {
         while ((result = rule.match(state, str, pos))) {
           if (result) {
             yield result
-            pos += result.total.length
+            pos += result.length
           }
         }
       }
@@ -196,7 +196,7 @@ function parseChainRule(repo: Repository, str: string) {
           }
           yield result
           advanced = true
-          pos += result.total.length
+          pos += result.length
         }
       }
     }

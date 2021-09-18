@@ -120,7 +120,7 @@ export class Grammar {
       if (!result) pos++
       else {
         results.push(result)
-        pos += result.total.length
+        pos += result.length
       }
     }
 

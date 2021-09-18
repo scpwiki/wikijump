@@ -122,8 +122,8 @@ export class Tokenizer {
     if (!match) return { tokens: null, length: 1 } // always advance
     ctx.state = match.state
     const tokens = match.compile()
-    if (!tokens.length) return { tokens: null, length: match.total.length || 1 }
-    return { tokens, length: match.total.length }
+    if (!tokens.length) return { tokens: null, length: match.length || 1 }
+    return { tokens, length: match.length }
   }
 
   /** Executes a tokenization step. */

@@ -4,6 +4,9 @@ import { GrammarToken, Inclusivity, MatchOutput, Nesting, Wrapping } from "./typ
 
 /** Represents a leaf or branch of a tree of matches found by a grammar. */
 export class Matched {
+  /** The total length of the match. */
+  declare length: number
+
   constructor(
     /** The current {@link GrammarState}. */
     public state: GrammarState,
@@ -23,7 +26,9 @@ export class Matched {
     public wrapping: Wrapping = Wrapping.FULL,
     /** The children contained by this match's {@link Node}. */
     public captures?: Matched[]
-  ) {}
+  ) {
+    this.length = total.length
+  }
 
   /** Changes the starting offset of the match. */
   offset(offset: number) {
@@ -55,7 +60,7 @@ export class Matched {
         captures.push(this.captures[i].total)
       }
     }
-    return { total: this.total, captures, length: this.total.length }
+    return { total: this.total, captures, length: this.length }
   }
 
   /** Internal method for compiling. */
@@ -98,7 +103,7 @@ function compileLeaf(match: Matched): GrammarToken {
   const token: GrammarToken = {
     id: match.node === Node.None ? null : match.node.id,
     from: match.from,
-    to: match.from + match.total.length
+    to: match.from + match.length
   }
 
   if (match.node.nest) {
