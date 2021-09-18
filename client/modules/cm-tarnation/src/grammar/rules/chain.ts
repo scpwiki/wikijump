@@ -198,7 +198,7 @@ function parseChainRule(repo: Repository, str: string, skip?: RegExpMatcher) {
         while ((result = rule.match(state, str, pos))) {
           if (advanced && !result) {
             yield null
-            return
+            break
           }
           yield result
           advanced = true
