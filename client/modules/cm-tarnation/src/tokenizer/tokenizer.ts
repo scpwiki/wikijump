@@ -1,6 +1,6 @@
 import type { Input } from "@lezer/common"
 import type { Grammar } from "../grammar/grammar"
-import type { GrammarToken } from "../grammar/types"
+import { GrammarToken, Nesting } from "../grammar/types"
 import type { TarnationLanguage } from "../language"
 import type { ParseRegion } from "../region"
 import type { MappedToken, Token } from "../types"
@@ -143,17 +143,17 @@ export class Tokenizer {
 
       let pushEmbedded = false
 
-      if (t.nest) {
+      if (t.nest !== undefined) {
+        // token ends an embedded region
+        if (t.nest === Nesting.POP) {
+          const range = this.context.endEmbedded(t.from)
+          if (range) mapped.push(range)
+        }
         // token represents the entire region, not the start or end of one
-        if (!this.context.embedded && t.nest.endsWith("!")) {
+        else if (!this.context.embedded && t.nest.endsWith("!")) {
           const lang = t.nest.slice(0, t.nest.length - 1)
           mapped.push([lang, t.from, t.to])
           continue
-        }
-        // token ends an embedded region
-        else if (t.nest === "@pop") {
-          const range = this.context.endEmbedded(t.from)
-          if (range) mapped.push(range)
         }
         // token starts an embedded region
         else if (!this.context.embedded) {
@@ -164,8 +164,8 @@ export class Tokenizer {
 
       // check if the new token can be merged into the last one
       if (!this.context.embedded || pushEmbedded) {
-        if (last && this.canContinue(last, t)) last[2] = t.to
-        else mapped.push((last = this.compileGrammarToken(t)))
+        // if (last && this.canContinue(last, t)) last[2] = t.to
+        mapped.push((last = this.compileGrammarToken(t)))
       }
     }
 

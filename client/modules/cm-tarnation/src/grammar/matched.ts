@@ -136,13 +136,15 @@ function compileTree(match: Matched, tokens: GrammarToken[]) {
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.BEGIN) {
     first.open ??= []
     first.open.unshift([match.node.id, Inclusivity.INCLUSIVE])
-    if (nest) first.nest = nest
+    if (nest && match.wrapping === Wrapping.BEGIN) last.nest = nest
+    else if (nest) first.nest = nest
   }
 
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.END) {
     last.close ??= []
     last.close.push([match.node.id, Inclusivity.INCLUSIVE])
-    if (nest) last.nest = Nesting.POP
+    if (nest && match.wrapping === Wrapping.END) first.nest = Nesting.POP
+    else if (nest) last.nest = Nesting.POP
   }
 
   return tokens

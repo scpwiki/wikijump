@@ -1,5 +1,6 @@
 import {
   Input,
+  NestedParse,
   parseMixed,
   Parser,
   ParseWrapper,
@@ -47,7 +48,7 @@ export class DelegatorFactory extends Parser {
    * Determines which nodes indicate a nested parsing region, and if so,
    * returns a `NestedParser` for said region.
    */
-  private nest(node: TreeCursor, input: Input) {
+  private nest(node: TreeCursor, input: Input): NestedParse | null {
     if (node.type === EmbeddedParserType && node.tree) {
       // get name from the per-node property
       const name = node.tree.prop(EmbeddedParserProp)
@@ -66,8 +67,15 @@ export class DelegatorFactory extends Parser {
 
       // language doesn't exist
       if (!lang) return null
+
       // language already loaded
-      if (lang.support) return { parser: lang.support.language.parser }
+      if (lang.support) {
+        return {
+          parser: lang.support.language.parser,
+          overlay: [{ from: node.from, to: node.to }]
+        }
+      }
+
       // language not loaded yet
       return { parser: ParseContext.getSkippingParser(lang.load()) }
     }

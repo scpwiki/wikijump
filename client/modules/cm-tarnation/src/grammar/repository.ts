@@ -78,6 +78,7 @@ export class Repository {
     // reused node
     if ("is" in obj) {
       const result = this.get(obj.is)!
+      if (!result) throw new Error(`reused node ${obj.is} not found`)
       return "node" in result ? result.node : result
     }
 
