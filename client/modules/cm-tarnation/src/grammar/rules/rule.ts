@@ -2,6 +2,7 @@ import { createID } from "@wikijump/util"
 import type * as DF from "../definition"
 import { createLookbehind, re } from "../helpers"
 import { Matched } from "../matched"
+import { RegExpMatcher } from "../matchers/regexp"
 import { Node } from "../node"
 import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
@@ -11,6 +12,7 @@ export abstract class Rule {
   declare name: string
   declare node: Node
   declare lookbehind?: (str: string, pos: number) => boolean
+  declare lookahead?: RegExpMatcher
   declare contextSetters?: ((state: GrammarState) => void)[]
   declare captures: (Node | CaptureFunction)[]
   declare rematch?: boolean
@@ -41,6 +43,10 @@ export abstract class Rule {
       this.lookbehind = createLookbehind(regexp, negative)
     }
 
+    if (rule.lookahead) {
+      this.lookahead = new RegExpMatcher(rule.lookahead, repo.ignoreCase, repo.variables)
+    }
+
     if (rule.context) {
       if (!Array.isArray(rule.context)) {
         this.contextSetters = [contextSetter(rule.context)]
@@ -63,13 +69,15 @@ export abstract class Rule {
 
     let matched = this.exec(state, str, pos)
 
-    // if rematch, we just return basically "success!",
-    // and let the tokenizer move on
-    if (matched && this.rematch) {
-      return new Matched(state, this.node, "", pos)
-    }
-
     if (matched) {
+      if (this.lookahead && !this.lookahead?.test(str, pos + matched.total.length)) {
+        return null
+      }
+
+      // if rematch, we just return basically "success!",
+      // and let the tokenizer move on
+      if (this.rematch) return new Matched(state, this.node, "", pos)
+
       // returned a MatchOutput, which we need to turn into a Matched
       if (!(matched instanceof Matched)) {
         const output = matched

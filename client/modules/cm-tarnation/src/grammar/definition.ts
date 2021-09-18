@@ -67,6 +67,7 @@ export interface RuleOptions extends Node {
   captures?: Record<string, Node | ReuseNode | CaptureCondition>
   context?: Arrayable<ContextSetter>
   lookbehind?: LookbehindSource
+  lookahead?: Regex
   rematch?: boolean
 }
 
@@ -79,8 +80,8 @@ export interface Pattern extends RuleOptions {
 }
 
 export interface Chain extends RuleOptions {
-  skip?: Regex
   chain: string[]
+  skip?: Regex
 }
 
 export interface ContextSetter {
