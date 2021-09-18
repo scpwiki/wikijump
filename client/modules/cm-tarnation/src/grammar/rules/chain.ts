@@ -6,6 +6,11 @@ import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
 import { Rule } from "./rule"
 
+// TODO: redo this, it's a mess
+// right now this does work - but it's the slowest rule type.
+// it's also very complicated and hard to understand,
+// as you can maybe tell.
+
 export class Chain extends Rule {
   private declare chain: ReturnType<typeof parseChainItem>[]
   private declare skip?: RegExpMatcher
@@ -17,9 +22,6 @@ export class Chain extends Rule {
     }
     this.chain = rule.chain.map(item => parseChainItem(repo, item, this.skip))
   }
-
-  // TODO: can this be cleaned up?
-  // it's fast, but it's not very readable
 
   exec(state: GrammarState, str: string, pos: number) {
     const from = pos
