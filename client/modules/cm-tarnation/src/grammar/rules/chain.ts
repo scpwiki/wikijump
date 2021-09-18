@@ -85,7 +85,7 @@ function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
   function* iterate(state: GrammarState, str: string, pos: number) {
     let maybeFailed = false
     let advanced = false
-    for (let i = 0; i < rules.length; i++) {
+    rules: for (let i = 0; i < rules.length; i++) {
       // check skip rule, and if it passes, skip forward a position
       if (skip) {
         let result
@@ -103,8 +103,8 @@ function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
           pos += result.length
           yield result
         }
+        if (advanced) break rules
       }
-      if (advanced) break
     }
     if (maybeFailed && !advanced) yield null
   }
