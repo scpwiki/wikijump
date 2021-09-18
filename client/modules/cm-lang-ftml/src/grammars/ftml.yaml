@@ -416,6 +416,7 @@ repository:
 
   BlockNameSuffix:
     match: "_"
+    lookbehind: '!/\s/'
     tag: modifier
 
   BlockLabel:
@@ -425,6 +426,16 @@ repository:
   BlockValue:
     match: /[^\s\]]+/
     tag: string
+
+  BlockNodeArgument:
+    match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
+    context: { if: $0, matches: type, set: code-lang, to: $3 }
+    captures:
+      0: { type: BlockNodeArgumentName, tag: special(propertyName) }
+      1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
+      2: { is: QuoteMark }
+      3: { if: $0, matches: style, then: { is: CSSAttributes }, else: { is: String }}
+      4: { is: QuoteMark }
 
   # block names
 
@@ -752,15 +763,64 @@ repository:
         - BlockNameSuffix?
         - BlockEnd
 
-  BlockNodeArgument:
-    match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
-    context: { if: $0, matches: type, set: code-lang, to: $3 }
-    captures:
-      0: { type: BlockNodeArgumentName, tag: special(propertyName) }
-      1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
-      2: { is: QuoteMark }
-      3: { if: $0, matches: style, then: { is: CSSAttributes }, else: { is: String }}
-      4: { is: QuoteMark }
+  # -- INCLUDE
+
+  IncludeLink:
+    match: /[^\s\]]+/
+    tag: link
+
+  IncludeNameElements:
+    emit: IncludeName
+    match: "include-elements"
+    lookahead: /@namela/
+    tag: special(tagName)
+
+  IncludeElements:
+    emit: Include
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - IncludeNameElements
+      - BlockNameSuffix?
+      - IncludeLink?
+      - BlockNodeArgument |* BlockLabel
+      - BlockEnd
+
+  IncludeNameMessy:
+    emit: IncludeName
+    match: "include-messy"
+    lookahead: /@namela/
+    tag: special(tagName)
+
+  IncludeMessyStart:
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - IncludeNameMessy
+      - BlockNameSuffix?
+      - IncludeLink?
+
+  IncludeMessy:
+    begin: IncludeMessyStart
+    end: BlockEnd
+    inside:
+      - type: IncludeMessyArgument
+        begin:
+          match: /([^\s=|]+)(\s*=\s*)/
+          captures:
+            0: { type: IncludeArgumentName, tag: special(propertyName) }
+            1: { is: BlockNodeArgumentOperator }
+        end:
+          match: /@BlockEnd|\|/
+          rematch: true
+        inside:
+          - include: block
+          - include: blocks
+          - include: inline
+      - { type: IncludeMessySeparator, match: "|", tag: separator }
+      - BlockLabel
 
 includes:
   block:
@@ -786,6 +846,10 @@ includes:
     - Subscript
     - Superscript
     - Monospace
+
+  includes:
+    - IncludeElements
+    - IncludeMessy
 
   blocks:
     - TripleLink
@@ -814,5 +878,6 @@ global:
 
 root:
   - include: block
+  - include: includes
   - include: blocks
   - include: inline
