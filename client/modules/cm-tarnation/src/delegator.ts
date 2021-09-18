@@ -54,6 +54,9 @@ export class DelegatorFactory extends Parser {
       const name = node.tree.prop(EmbeddedParserProp)
       if (!name) return null
 
+      // don't bother with empty nodes
+      if (node.from === node.to) return null
+
       let langs: readonly LanguageDescription[]
 
       if (!(this.language.nestLanguages instanceof Array)) {
@@ -77,7 +80,10 @@ export class DelegatorFactory extends Parser {
       }
 
       // language not loaded yet
-      return { parser: ParseContext.getSkippingParser(lang.load()) }
+      return {
+        parser: ParseContext.getSkippingParser(lang.load()),
+        overlay: [{ from: node.from, to: node.to }]
+      }
     }
 
     return null
