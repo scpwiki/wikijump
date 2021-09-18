@@ -119,7 +119,7 @@ html-output = "other"
 
 [iframe]
 accepts-newlines = true
-head = "map"
+head = "value+map"
 body = "none"
 html-output = "html,iframe"
 
