@@ -77,10 +77,10 @@ function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
   }
 
   if (!repeatAlternatives && !normalAlternatives) {
-    return parseChainRule(repo, str)
+    return parseChainRule(repo, str, skip)
   }
 
-  const rules = str.split(/\s*\|[*+]?\s*/).map(item => parseChainRule(repo, item))
+  const rules = str.split(/\s*\|[*+]?\s*/).map(item => parseChainRule(repo, item, skip))
 
   function* iterate(state: GrammarState, str: string, pos: number) {
     let maybeFailed = false
@@ -144,7 +144,7 @@ function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
   throw new Error("Unreachable")
 }
 
-function parseChainRule(repo: Repository, str: string) {
+function parseChainRule(repo: Repository, str: string, skip?: RegExpMatcher) {
   let type = ChainRuleType.ONE
   // prettier-ignore
   switch (str[str.length - 1]) {
@@ -180,6 +180,13 @@ function parseChainRule(repo: Repository, str: string) {
           if (result) {
             yield result
             pos += result.length
+            if (skip) {
+              let result
+              while ((result = skip.match(str, pos))) {
+                yield new Matched(state, Node.None, result.total, pos)
+                pos += result.length
+              }
+            }
           }
         }
       }
@@ -196,6 +203,13 @@ function parseChainRule(repo: Repository, str: string) {
           yield result
           advanced = true
           pos += result.length
+          if (skip) {
+            let result
+            while ((result = skip.match(str, pos))) {
+              yield new Matched(state, Node.None, result.total, pos)
+              pos += result.length
+            }
+          }
         }
       }
     }
