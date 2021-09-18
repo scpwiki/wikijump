@@ -330,7 +330,7 @@ repository:
     chain:
       - BlockStart
       - BlockName
-      - BlockNodeArgument* | BlockLabel*
+      - BlockNodeArgument |* BlockLabel
       - BlockEnd
 
   BlockEndNode:

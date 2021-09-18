@@ -55,14 +55,18 @@ export class Chain extends Rule {
 }
 
 function parseChainItem(repo: Repository, str: string) {
-  const split = str.split(/\s*\|\s*/)
-  if (split.length === 1) return parseChainRule(repo, str)
+  const repeatAlternatives = /\|[*+]/.test(str)
+  const normalAlternatives = /\|(?![*+])/.test(str)
 
-  const rules = split.map(item => parseChainRule(repo, item))
+  if (repeatAlternatives && normalAlternatives) {
+    throw new Error("Cannot have repeating alternative and non-repeating alternatives")
+  }
 
-  const repeating = split.every(
-    item => item[item.length - 1] === "+" || item[item.length - 1] === "*"
-  )
+  if (!repeatAlternatives && !normalAlternatives) {
+    return parseChainRule(repo, str)
+  }
+
+  const rules = str.split(/\s*\|[*+]?\s*/).map(item => parseChainRule(repo, item))
 
   function* iterate(state: GrammarState, str: string, pos: number) {
     let maybeFailed = false
@@ -83,18 +87,39 @@ function parseChainItem(repo: Repository, str: string) {
     if (maybeFailed && !advanced) yield null
   }
 
-  return function* (state: GrammarState, str: string, pos: number) {
-    if (repeating) {
-      let result: void | Matched | null
-      while ((result = iterate(state, str, pos).next().value) !== undefined) {
-        yield result
-        if (!result) return
-        pos += result.total.length
+  if (repeatAlternatives) {
+    const zeroOrMore = /\|\*/.test(str)
+    const oneOrMore = /\|\+/.test(str)
+
+    if (zeroOrMore && oneOrMore) {
+      throw new Error("Cannot have repeating alternatives with both * and +")
+    }
+
+    if (zeroOrMore) {
+      return function* (state: GrammarState, str: string, pos: number) {
+        let result: void | Matched | null
+        while ((result = iterate(state, str, pos).next().value)) {
+          yield result
+          pos += result.total.length
+        }
       }
     } else {
-      yield* iterate(state, str, pos)
+      return function* (state: GrammarState, str: string, pos: number) {
+        let advanced = false
+        let result: void | Matched | null
+        while ((result = iterate(state, str, pos).next().value)) {
+          yield result
+          advanced = true
+          pos += result.total.length
+        }
+        if (!advanced) yield null
+      }
     }
+  } else if (normalAlternatives) {
+    return iterate
   }
+
+  throw new Error("Unreachable")
 }
 
 function parseChainRule(repo: Repository, str: string) {
