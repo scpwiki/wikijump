@@ -43,10 +43,9 @@ export const FTMLLanguage = new TarnationLanguage({
       .filter(([, { head, body }]) => head === "value+map" && body === "none")
       .flatMap(aliasesFiltered),
 
-    // currently empty
-    // blk_el: blockEntries
-    //   .filter(([, { head, body }]) => head === "none" && body === "elements")
-    //   .flatMap(aliasesFiltered),
+    blk_el: blockEntries
+      .filter(([, { head, body }]) => head === "none" && body === "elements")
+      .flatMap(aliasesFiltered),
 
     blk_map_el: blockEntries
       .filter(([, { head, body }]) => head === "map" && body === "elements")

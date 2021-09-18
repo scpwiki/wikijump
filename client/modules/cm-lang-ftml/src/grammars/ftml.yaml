@@ -163,15 +163,15 @@ repository:
   LinkInline:
     match: /(\*?)((?:\w+://)?(?:[-\w@:%.+~#=]{2,256}\.(?!\.{2,3}))+?[a-z]{2,6}\b(?:[-\w@:%+.~#?&/=]*))/
     captures:
-      0: { type: LinkModifier, tag: keyword }
+      0: { type: LinkModifier, tag: modifier }
       1: { type: LinkURL, tag: url }
 
   IncludeVariable:
     match: /(\{\$)(.*?)(\})/
     captures:
-      0: { open: IncludeVariable, tag: bracket }
+      0: { open: IncludeVariable, tag: brace }
       1: { type: IncludeVariableName, tag: variableName }
-      2: { close: IncludeVariable, tag: bracket }
+      2: { close: IncludeVariable, tag: brace }
 
   PageVariable:
     match: /(%%)(.*?)(\{.*?\})?(%%)/
@@ -243,6 +243,10 @@ repository:
     match: /@sws@hr/
     tag: contentSeparator
 
+  ClearFloat:
+    match: /@sws~{3,}[<>]?/
+    tag: keyword
+
   Heading:
     begin: { type: HeadingMark, match: /@sws@heading/, tag: heading }
     end: { match: /$/ }
@@ -268,10 +272,10 @@ repository:
       rematch: true
     inside:
       - type: TableMark
-        match: /(\|{2,})([~=]?)/
+        match: /(\|{2,})([<=~>]?)/
         captures:
           0: { type: TableMarkSeparator, tag: separator }
-          1: { type: TableMarkModifier, tag: operator }
+          1: { type: TableMarkModifier, tag: modifier }
       - include: inline
       - include: blocks
 
@@ -319,9 +323,9 @@ repository:
     tag: separator
 
   TripleLinkURL:
-    match: /([*#]?)([^*#\n|\]]+)/
+    match: /([*#])?([^*#\n|\]]+)/
     captures:
-      0: { type: TripleLinkURLModifier, tag: keyword }
+      0: { type: TripleLinkURLModifier, tag: modifier }
       1: { type: TripleLinkURLText, tag: link }
 
   TripleLinkText:
@@ -363,13 +367,13 @@ repository:
   SingleLinkSlug:
     match: /([:#*]|(?=\/)|(?=[^#*\s]+?[@:][^#*\s]))([^#*\s]+)/
     captures:
-      0: { type: SingleLinkSlugModifier, tag: keyword }
+      0: { type: SingleLinkSlugModifier, tag: modifier }
       1: { type: SingleLinkSlugText, tag: link }
 
   SingleLinkAnchorSlug:
     match: /(#)([^\s\]]*)/
     captures:
-      0: { type: SingleLinkAnchorSlugMark, tag: keyword }
+      0: { type: SingleLinkAnchorSlugMark, tag: modifier }
       1: { type: SingleLinkAnchorSlugText, tag: link }
 
   SingleLinkText:
@@ -412,7 +416,7 @@ repository:
 
   BlockNamePrefix:
     match: /[*=><](?![*=><])|f>|f</
-    tag: keyword
+    tag: modifier
 
   BlockNameSuffix:
     match: "_"
@@ -425,7 +429,7 @@ repository:
 
   BlockValue:
     match: /[^\s\]]+/
-    tag: string
+    tag: literal
 
   BlockNodeArgument:
     match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
@@ -459,6 +463,12 @@ repository:
     emit: BlockName
     tag: tagName
 
+  BlockNameElements:
+    lookup: $var:blk_el
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
   BlockNameMapElements:
     lookup: $var:blk_map_el
     lookahead: /@namela/
@@ -474,7 +484,7 @@ repository:
   BlockNameAlign:
     lookup: $var:blk_align
     lookahead: /@namela/
-    tag: function(name)
+    tag: function(tagName)
 
   BlockNameModule:
     match: module
@@ -535,6 +545,38 @@ repository:
       chain:
         - BlockStartClosing
         - BlockNameMath
+        - BlockNameSuffix?
+        - BlockEnd
+
+  ModuleNameCSS:
+    match: css
+    lookahead: /@namela/
+    emit: BlockName
+    tag: className
+
+  BlockNestedModuleCSS:
+    emit: BlockNested
+    nest: CSS
+    fold: inside
+    begin:
+      type: BlockNestedModuleCSSStartNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameModule
+        - BlockNameSuffix?
+        - ModuleNameCSS
+        - BlockLabel*
+        - BlockEnd
+    end:
+      type: BlockNestedModuleCSSEndNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameModule
         - BlockNameSuffix?
         - BlockEnd
 
@@ -666,7 +708,7 @@ repository:
       - BlockNamePrefix?
       - BlockNameValueMap
       - BlockNameSuffix?
-      - BlockValue*
+      - BlockValue?
       - BlockNodeArgument |* BlockLabel
       - BlockEnd
 
@@ -715,6 +757,31 @@ repository:
         - BlockNameSuffix?
         - BlockEnd
 
+  BlockContainerElements:
+    emit: BlockContainer
+    fold: inside
+    begin:
+      type: BlockContainerElementsStartNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameElements
+        - BlockNameSuffix?
+        - BlockLabel*
+        - BlockEnd
+    end:
+      type: BlockContainerElementsEndNode
+      emit: BlockNode
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNamePrefix?
+        - BlockNameElements
+        - BlockNameSuffix?
+        - BlockEnd
+
   BlockContainerMap:
     emit: BlockContainer
     fold: inside
@@ -735,6 +802,7 @@ repository:
       skip: /\s+/
       chain:
         - BlockStartClosing
+        - BlockNamePrefix?
         - BlockNameMapElements
         - BlockNameSuffix?
         - BlockEnd
@@ -759,6 +827,7 @@ repository:
       skip: /\s+/
       chain:
         - BlockStartClosing
+        - BlockNamePrefix?
         - BlockNameValueElements
         - BlockNameSuffix?
         - BlockEnd
@@ -773,7 +842,7 @@ repository:
     emit: IncludeName
     match: "include-elements"
     lookahead: /@namela/
-    tag: special(tagName)
+    tag: keyword
 
   IncludeElements:
     emit: Include
@@ -791,7 +860,7 @@ repository:
     emit: IncludeName
     match: "include-messy"
     lookahead: /@namela/
-    tag: special(tagName)
+    tag: keyword
 
   IncludeMessyStart:
     skip: /\s+/
@@ -825,11 +894,12 @@ repository:
 includes:
   block:
     - HorizontalRule
+    - ClearFloat
     - Heading
     - Center
     - Table
     - Container
-    - Paragraph
+    # - Paragraph
 
   inline:
     - Typography
@@ -856,6 +926,7 @@ includes:
     - TripleLinkSimple
     - BlockNodeInlineMath
     - BlockNestedMath
+    - BlockNestedModuleCSS
     - BlockNestedCSS
     - BlockNestedHTML
     - BlockNestedCode
@@ -864,6 +935,7 @@ includes:
     - BlockNodeValueMap
     - BlockNodeModule
     - BlockContainerAlign
+    - BlockContainerElements
     - BlockContainerMap
     - BlockContainerValue
     - BlockNodeUnknown
