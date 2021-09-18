@@ -76,14 +76,17 @@ export class Repository {
     }
 
     // reused node
-    if ("is" in obj) return this.get(obj.is)!
+    if ("is" in obj) {
+      const result = this.get(obj.is)!
+      return "node" in result ? result.node : result
+    }
 
     // add name to node if it doesn't have one explicitly
     if (!obj.type && name) obj.type = name
 
     // prevents duplication when doing things out of order
-    if ((obj.type && this.map.get(obj.type)) || (name && this.map.get(name))) {
-      return this.map.get(obj.type! || name!)!
+    if (obj.type && this.map.get(obj.type)) {
+      return this.map.get(obj.type)!
     }
 
     // lookup
@@ -115,11 +118,9 @@ export class Repository {
     }
 
     // must be a node
-    else {
-      const node = new Node(this.id(), obj)
-      this.map.set(node.name, node)
-      return node
-    }
+    const node = new Node(this.id(), obj)
+    this.map.set(node.name, node)
+    return node
   }
 
   get(key: string) {
