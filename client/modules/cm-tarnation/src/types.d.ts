@@ -1,7 +1,7 @@
 import type { NodePropSource, NodeType, Tree } from "@lezer/common"
 import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
 import type * as DF from "./grammar/definition"
-import type { ParserAction } from "./grammar/types"
+import type { ParserAction, VariableTable } from "./grammar/types"
 import type { Chunk } from "./tokenizer"
 
 // -- CONFIGURATION
@@ -17,6 +17,11 @@ export interface TarnationLanguageDefinition {
    * so make sure it's reasonable.
    */
   name: string
+  /**
+   * A record of variables to pass to the grammar. They can be referenced
+   * in the grammar using the `$var:foo` syntax.
+   */
+  variables?: VariableTable
   /**
    * The grammar that will be used to tokenize the language.
    *

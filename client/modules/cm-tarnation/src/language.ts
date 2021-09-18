@@ -12,6 +12,7 @@ import { isFunction } from "is-what"
 import { DelegatorFactory } from "./delegator"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
+import type { VariableTable } from "./grammar/types"
 import type { TokenizerBuffer } from "./tokenizer"
 import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
 import { EmbeddedParserType, makeTopNode } from "./util"
@@ -23,6 +24,7 @@ export class TarnationLanguage {
   private declare extensions: Extension[]
 
   declare description: LanguageDescription
+  declare variables: VariableTable
   declare grammar?: Grammar
   declare top?: NodeType
   declare nodeTypes?: NodeType[]
@@ -37,6 +39,7 @@ export class TarnationLanguage {
 
   constructor({
     name,
+    variables = {},
     grammar,
     nestLanguages = [],
     configure = {},
@@ -50,6 +53,7 @@ export class TarnationLanguage {
 
     this.languageData = { ...dataDescription, ...languageData }
     this.nestLanguages = nestLanguages
+    this.variables = variables
     this.grammarData = grammar
     this.configure = configure
     this.extensions = supportExtensions
@@ -70,7 +74,7 @@ export class TarnationLanguage {
     // setup grammar data
     if (this.description?.support) return this.description.support
     const def = isFunction(this.grammarData) ? this.grammarData() : this.grammarData
-    this.grammar = new Grammar(def)
+    this.grammar = new Grammar(def, this.variables)
 
     // merge data from the grammar
     Object.assign(this.languageData, this.grammar.data)
