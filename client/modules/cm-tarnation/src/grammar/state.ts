@@ -72,6 +72,19 @@ export class GrammarStack {
     this.stack = this.stack.slice(0, -1)
   }
 
+  get(index: number) {
+    return this.stack[index]
+  }
+
+  /** Remove every element at or beyond the index given. */
+  close(idx: number) {
+    this.stack = this.stack.slice(0, idx)
+  }
+
+  get length() {
+    return this.stack.length
+  }
+
   get node() {
     return this.stack[this.stack.length - 1].node
   }

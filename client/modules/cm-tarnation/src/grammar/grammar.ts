@@ -64,14 +64,23 @@ export class Grammar {
   }
 
   match(state: GrammarState, str: string, pos: number, offset = 0) {
-    // check end node
+    // check end node(s)
     if (state.stack.end) {
-      const result = state.stack.end.match(state.clone(), str, pos)
-      if (result) {
-        const wrapped = result.wrap(result.state.stack.node, Wrapping.END)
-        wrapped.state.stack.pop()
-        if (offset !== pos) wrapped.offset(offset)
-        return wrapped
+      for (let i = state.stack.length - 1; i > 0; i--) {
+        const element = state.stack.get(i)
+        if (element.end) {
+          let result = element.end.match(state.clone(), str, pos)
+          if (result) {
+            // close every stack element above the one that matched
+            // e.g. i = 5, stack.length = 7, close 5, 6
+            for (let j = state.stack.length - 1; j >= i; j--) {
+              result = result.wrap(result.state.stack.get(j).node, Wrapping.END)
+            }
+            result.state.stack.close(i)
+            if (offset !== pos) result.offset(offset)
+            return result
+          }
+        }
       }
     }
 
