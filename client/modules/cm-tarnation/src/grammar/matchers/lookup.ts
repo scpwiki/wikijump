@@ -31,7 +31,7 @@ export class LookupMatcher implements Matcher {
     this.ignoreCase = Boolean(ignoreCase)
     this.lengths = new Map()
 
-    this.entries = src.map(entry => {
+    this.entries = sorted.map(entry => {
       if (variables) entry = expandVariables(entry, variables)
       if (ignoreCase) entry = entry.toLowerCase()
       const points = toPoints(entry)
