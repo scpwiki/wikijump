@@ -1,1 +1,1 @@
-<INCLUDED-PAGE component:my-thing {}>
+INCLUDED FRAGMENT

@@ -1,116 +1,63 @@
 {
-    "input": "[[include-messy component:fruit\n apple=1 |\n banana = 2]]",
+    "input": "[[include-messy component:fruit\n class=box |\n apple=1 |\n banana = 2]]",
     "tree": {
         "elements": [
             {
                 "element": "container",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
+                    "type": "div",
+                    "attributes": {
+                        "class": "box ",
+                        "id": "fruit"
+                    },
                     "elements": [
                         {
-                            "element": "text",
-                            "data": "<"
+                            "element": "container",
+                            "data": {
+                                "type": "paragraph",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "  "
+                                    }
+                                ]
+                            }
                         },
                         {
-                            "element": "text",
-                            "data": "INCLUDED"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "PAGE"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "my"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "page"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "{"
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"apple\""
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "="
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"1 \""
-                        },
-                        {
-                            "element": "text",
-                            "data": ","
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"banana\""
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "="
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "\"2\""
-                        },
-                        {
-                            "element": "text",
-                            "data": "}"
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "1"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": "  "
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "2"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": " "
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
                         }
                     ]
                 }

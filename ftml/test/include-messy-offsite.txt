@@ -1,1 +1,1 @@
-<INCLUDED-PAGE :scp-wiki:theme:black-highlighter-theme {}>
+OFF-SITE INCLUDED PAGE
