@@ -66,6 +66,7 @@ export interface State extends Node {
 export interface RuleOptions extends Node {
   captures?: Record<string, Node | ReuseNode | CaptureCondition>
   context?: Arrayable<ContextSetter>
+  contextImmediate?: boolean
   lookbehind?: LookbehindSource
   lookahead?: Regex
   rematch?: boolean

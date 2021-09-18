@@ -14,6 +14,7 @@ export abstract class Rule {
   declare lookbehind?: (str: string, pos: number) => boolean
   declare lookahead?: RegExpMatcher
   declare contextSetters?: ((state: GrammarState) => void)[]
+  declare contextImmediate?: boolean
   declare captures: (Node | CaptureFunction)[]
   declare rematch?: boolean
 
@@ -55,6 +56,8 @@ export abstract class Rule {
       }
     }
 
+    if (rule.contextImmediate) this.contextImmediate = true
+
     if (rule.rematch) this.rematch = true
   }
 
@@ -66,6 +69,12 @@ export abstract class Rule {
 
   match(state: GrammarState, str: string, pos: number): Matched | null {
     if (this.lookbehind && !this.lookbehind(str, pos)) return null
+
+    if (this.contextSetters && this.contextImmediate) {
+      for (let i = 0; i < this.contextSetters.length; i++) {
+        this.contextSetters[i](state)
+      }
+    }
 
     let matched = this.exec(state, str, pos)
 
@@ -137,7 +146,7 @@ export abstract class Rule {
         }
       }
 
-      if (this.contextSetters) {
+      if (this.contextSetters && !this.contextImmediate) {
         for (let i = 0; i < this.contextSetters.length; i++) {
           this.contextSetters[i](state)
         }
