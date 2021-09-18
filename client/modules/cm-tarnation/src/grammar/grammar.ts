@@ -8,6 +8,8 @@ import type { State } from "./rules/state"
 import { GrammarStack, GrammarState } from "./state"
 import { VariableTable, Wrapping } from "./types"
 
+const EAGER_RECOVERY = false
+
 export class Grammar {
   declare data: Record<string, any>
   declare repository: Repository
@@ -66,16 +68,28 @@ export class Grammar {
   match(state: GrammarState, str: string, pos: number, offset = 0) {
     // check end node(s)
     if (state.stack.end) {
-      for (let i = state.stack.length - 1; i > 0; i--) {
-        const element = state.stack.get(i)
-        if (element.end) {
-          let result = element.end.match(state.clone(), str, pos)
-          if (result) {
-            result = result.wrap(element.node, Wrapping.END)
-            result.state.stack.close(i)
-            if (offset !== pos) result.offset(offset)
-            return result
+      // disabled for now, because it fails in a few scenarios
+      // however it's still potentially useful so I'll keep it here for now
+      if (EAGER_RECOVERY) {
+        for (let i = state.stack.length - 1; i > 0; i--) {
+          const element = state.stack.get(i)
+          if (element.end) {
+            let result = element.end.match(state.clone(), str, pos)
+            if (result) {
+              result = result.wrap(element.node, Wrapping.END)
+              result.state.stack.close(i)
+              if (offset !== pos) result.offset(offset)
+              return result
+            }
           }
+        }
+      } else {
+        let result = state.stack.end.match(state.clone(), str, pos)
+        if (result) {
+          result = result.wrap(state.stack.node, Wrapping.END)
+          result.state.stack.pop()
+          if (offset !== pos) result.offset(offset)
+          return result
         }
       }
     }
