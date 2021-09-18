@@ -332,8 +332,9 @@ where
 
             first = false;
             let old_remaining = self.remaining();
-            let elements = consume(&self.log(), self)?
+            let partials = consume(&self.log(), self)?
                 .chain(&mut all_exceptions, &mut paragraph_safe);
+            let elements = try_from_partials!(self, partials);
             all_elements.extend(elements);
 
             // Step if the rule hasn't moved the pointer itself

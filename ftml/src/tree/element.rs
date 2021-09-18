@@ -21,14 +21,15 @@
 use super::clone::*;
 use super::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
-    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, Table, TableItem,
+    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, ParagraphSafe,
+    Table,
 };
 use crate::data::PageRef;
+use crate::tree::Collection;
 use ref_map::*;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::num::NonZeroU32;
-use std::slice;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
@@ -65,12 +66,6 @@ pub enum Element<'t> {
 
     /// An element representing an HTML table.
     Table(Table<'t>),
-
-    /// A particular portion of a table.
-    ///
-    /// This will not occur in final trees, but is a special
-    /// `Element` returned during parsing.
-    TableItem(TableItem<'t>),
 
     /// An element representing an arbitrary anchor.
     ///
@@ -113,12 +108,6 @@ pub enum Element<'t> {
         attributes: AttributeMap<'t>,
         items: Vec<ListItem<'t>>,
     },
-
-    /// A particular item of a list.
-    ///
-    /// This will not occur in final trees, but is a special
-    /// `Element` returned during parsing.
-    ListItem(Box<ListItem<'t>>),
 
     /// A radio button.
     ///
@@ -262,11 +251,9 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Table(_) => "Table",
-            Element::TableItem(_) => "TableItem",
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::List { .. } => "List",
-            Element::ListItem(_) => "ListItem",
             Element::Image { .. } => "Image",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
@@ -287,42 +274,6 @@ impl Element<'_> {
         }
     }
 
-    /// Determines if this element type is able to be embedded in a paragraph.
-    ///
-    /// It does *not* look into the interiors of the element, it only does a
-    /// surface-level check.
-    ///
-    /// This is to avoid making the call very expensive, but for a complete
-    /// understanding of the paragraph requirements, see the `Elements` return.
-    ///
-    /// See https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#phrasing_content
-    pub fn paragraph_safe(&self) -> bool {
-        match self {
-            Element::Container(container) => container.ctype().paragraph_safe(),
-            Element::Module(_) => false,
-            Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
-            Element::Table(_) => false,
-            Element::TableItem(_) => false,
-            Element::Anchor { .. } | Element::Link { .. } => true,
-            Element::List { .. } => false,
-            Element::ListItem(_) => false,
-            Element::Image { .. } => true,
-            Element::RadioButton { .. } | Element::CheckBox { .. } => true,
-            Element::Collapsible { .. } => false,
-            Element::TableOfContents { .. } => false,
-            Element::Footnote => true,
-            Element::FootnoteBlock { .. } => false,
-            Element::User { .. } => true,
-            Element::Color { .. } => true,
-            Element::Code { .. } => true,
-            Element::Html { .. } | Element::Iframe { .. } => false,
-            Element::Include { paragraph_safe, .. } => *paragraph_safe,
-            Element::LineBreak | Element::LineBreaks { .. } => true,
-            Element::ClearFloat(_) => false,
-            Element::HorizontalRule => false,
-        }
-    }
-
     /// Deep-clones the object, making it an owned version.
     ///
     /// Note that `.to_owned()` on `Cow` just copies the pointer,
@@ -336,7 +287,6 @@ impl Element<'_> {
             Element::Raw(text) => Element::Raw(string_to_owned(text)),
             Element::Email(email) => Element::Email(string_to_owned(email)),
             Element::Table(table) => Element::Table(table.to_owned()),
-            Element::TableItem(item) => Element::TableItem(item.to_owned()),
             Element::Anchor {
                 target,
                 attributes,
@@ -364,11 +314,6 @@ impl Element<'_> {
                 attributes: attributes.to_owned(),
                 items: list_items_to_owned(items),
             },
-            Element::ListItem(boxed_list_item) => {
-                let list_item: &ListItem = &*boxed_list_item;
-
-                Element::ListItem(Box::new(list_item.to_owned()))
-            }
             Element::Image {
                 source,
                 link,
@@ -460,6 +405,42 @@ impl Element<'_> {
     }
 }
 
+impl ParagraphSafe for Element<'_> {
+    /// Determines if this element type is able to be embedded in a paragraph.
+    ///
+    /// It does *not* look into the interiors of the element, it only does a
+    /// surface-level check.
+    ///
+    /// This is to avoid making the call very expensive, but for a complete
+    /// understanding of the paragraph requirements, see the `Elements` return.
+    ///
+    /// See https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#phrasing_content
+    fn paragraph_safe(&self) -> bool {
+        match self {
+            Element::Container(container) => container.ctype().paragraph_safe(),
+            Element::Module(_) => false,
+            Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
+            Element::Table(_) => false,
+            Element::Anchor { .. } | Element::Link { .. } => true,
+            Element::List { .. } => false,
+            Element::Image { .. } => true,
+            Element::RadioButton { .. } | Element::CheckBox { .. } => true,
+            Element::Collapsible { .. } => false,
+            Element::TableOfContents { .. } => false,
+            Element::Footnote => true,
+            Element::FootnoteBlock { .. } => false,
+            Element::User { .. } => true,
+            Element::Color { .. } => true,
+            Element::Code { .. } => true,
+            Element::Html { .. } | Element::Iframe { .. } => false,
+            Element::Include { paragraph_safe, .. } => *paragraph_safe,
+            Element::LineBreak | Element::LineBreaks { .. } => true,
+            Element::ClearFloat(_) => false,
+            Element::HorizontalRule => false,
+        }
+    }
+}
+
 #[cfg(feature = "log")]
 impl slog::Value for Element<'_> {
     fn serialize(
@@ -472,155 +453,7 @@ impl slog::Value for Element<'_> {
     }
 }
 
-/// Wrapper for the result of producing element(s).
+/// Wrapper for `Element`s being returned, if a `Vec` is not needed.
 ///
-/// This has an enum instead of a simple `Vec<Element>`
-/// since the most common output is a single element,
-/// and it makes little sense to heap allocate for every
-/// single return if we can easily avoid it.
-///
-/// It also contains a field marking whether all of the
-/// contents are paragraph-safe or not, used by `ParagraphStack`.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-pub enum Elements<'t> {
-    Multiple(Vec<Element<'t>>),
-    Single(Element<'t>),
-    None,
-}
-
-impl Elements<'_> {
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Elements::Multiple(elements) => elements.is_empty(),
-            Elements::Single(_) => false,
-            Elements::None => true,
-        }
-    }
-
-    #[inline]
-    pub fn len(&self) -> usize {
-        match self {
-            Elements::Multiple(elements) => elements.len(),
-            Elements::Single(_) => 1,
-            Elements::None => 0,
-        }
-    }
-
-    pub fn paragraph_safe(&self) -> bool {
-        match self {
-            Elements::Multiple(elements) => {
-                elements.iter().all(|element| element.paragraph_safe())
-            }
-            Elements::Single(element) => element.paragraph_safe(),
-            Elements::None => true,
-        }
-    }
-}
-
-impl<'t> AsRef<[Element<'t>]> for Elements<'t> {
-    fn as_ref(&self) -> &[Element<'t>] {
-        match self {
-            Elements::Multiple(elements) => elements,
-            Elements::Single(element) => slice::from_ref(element),
-            Elements::None => &[],
-        }
-    }
-}
-
-impl<'t> From<Element<'t>> for Elements<'t> {
-    #[inline]
-    fn from(element: Element<'t>) -> Elements<'t> {
-        Elements::Single(element)
-    }
-}
-
-impl<'t> From<Option<Element<'t>>> for Elements<'t> {
-    #[inline]
-    fn from(element: Option<Element<'t>>) -> Elements<'t> {
-        match element {
-            Some(element) => Elements::Single(element),
-            None => Elements::None,
-        }
-    }
-}
-
-impl<'t> From<Vec<Element<'t>>> for Elements<'t> {
-    #[inline]
-    fn from(elements: Vec<Element<'t>>) -> Elements<'t> {
-        Elements::Multiple(elements)
-    }
-}
-
-impl<'t> IntoIterator for Elements<'t> {
-    type Item = Element<'t>;
-    type IntoIter = ElementsIterator<'t>;
-
-    #[inline]
-    fn into_iter(self) -> Self::IntoIter {
-        match self {
-            Elements::None => ElementsIterator::None,
-            Elements::Single(element) => ElementsIterator::Single(Some(element)),
-            Elements::Multiple(mut elements) => {
-                // So we can just pop for each step
-                elements.reverse();
-                ElementsIterator::Multiple(elements)
-            }
-        }
-    }
-}
-
-/// Iterator implementation for `Elements`.
-#[derive(Debug)]
-pub enum ElementsIterator<'t> {
-    Multiple(Vec<Element<'t>>),
-    Single(Option<Element<'t>>),
-    None,
-}
-
-impl<'t> Iterator for ElementsIterator<'t> {
-    type Item = Element<'t>;
-
-    #[inline]
-    fn next(&mut self) -> Option<Element<'t>> {
-        match self {
-            ElementsIterator::Multiple(ref mut elements) => elements.pop(),
-            ElementsIterator::Single(ref mut element) => element.take(),
-            ElementsIterator::None => None,
-        }
-    }
-}
-
-#[test]
-fn elements_iter() {
-    macro_rules! check {
-        ($elements:expr, $expected:expr $(,)?) => {{
-            let actual: Vec<Element> = $elements.into_iter().collect();
-            let expected = $expected;
-
-            assert_eq!(
-                actual, expected,
-                "Actual element iteration doesn't match expected"
-            );
-        }};
-    }
-
-    check!(Elements::None, vec![]);
-    check!(Elements::Single(text!("a")), vec![text!("a")]);
-    check!(
-        Elements::Multiple(vec![]), //
-        vec![],
-    );
-    check!(
-        Elements::Multiple(vec![text!("a")]), //
-        vec![text!("a")],
-    );
-    check!(
-        Elements::Multiple(vec![text!("a"), text!("b")]),
-        vec![text!("a"), text!("b")],
-    );
-    check!(
-        Elements::Multiple(vec![text!("a"), text!("b"), text!("c")]),
-        vec![text!("a"), text!("b"), text!("c")],
-    );
-}
+/// Analogous to `PartialElements`, see `tree/partial.rs`.
+pub type Elements<'t> = Collection<Element<'t>>;

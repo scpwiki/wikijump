@@ -35,7 +35,7 @@ pub const RULE_LINE_BREAK_PARAGRAPH: Rule = Rule {
 fn line_break<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Consuming newline token as line break");
 
     // Skip this newline if we're coming up on a rule that starts
@@ -69,7 +69,7 @@ fn line_break<'p, 'r, 't>(
     if upcoming_skip {
         info!(log, "Skipping line break element because of upcoming token");
 
-        return ok!(Elements::None);
+        return ok!(PartialElements::None);
     }
 
     ok!(Element::LineBreak)
@@ -79,7 +79,7 @@ fn line_break<'p, 'r, 't>(
 fn line_break_paragraph<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     // This rule is kind of special. It's the same as RULE_LINE_BREAK,
     // except it accepts a *ParagraphBreak* instead, which is normally supposed to split
     // paragraphs.

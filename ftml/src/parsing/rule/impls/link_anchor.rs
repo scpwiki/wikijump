@@ -37,7 +37,7 @@ pub const RULE_LINK_ANCHOR: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Trying to create a single-bracket anchor link");
 
     check_step(parser, Token::LeftBracketAnchor)?;

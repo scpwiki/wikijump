@@ -29,7 +29,7 @@ pub const RULE_COMMENT: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Consuming tokens until end of comment");
 
     check_step(parser, Token::LeftComment)?;
@@ -54,7 +54,7 @@ fn try_consume_fn<'p, 'r, 't>(
             Token::RightComment => {
                 debug!(log, "Reached end of comment, returning");
                 parser.step()?;
-                return ok!(Elements::None);
+                return ok!(PartialElements::None);
             }
 
             // Hit the end of the input, abort

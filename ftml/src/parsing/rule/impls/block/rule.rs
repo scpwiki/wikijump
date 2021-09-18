@@ -44,7 +44,7 @@ pub const RULE_BLOCK_SKIP_NEWLINE: Rule = Rule {
 fn block_regular<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Trying to process a block");
 
     parse_block(log, parser, false)
@@ -53,7 +53,7 @@ fn block_regular<'r, 't>(
 fn block_star<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Trying to process a block (with star flag)");
 
     parse_block(log, parser, true)
@@ -62,7 +62,7 @@ fn block_star<'r, 't>(
 fn block_skip<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Trying to see if we skip a newline due to upcoming block",
@@ -93,7 +93,7 @@ fn block_skip<'r, 't>(
             "Skipping newline due to upcoming line-terminated block",
         );
 
-        ok!(Elements::None)
+        ok!(PartialElements::None)
     } else {
         Err(parser.make_warn(ParseWarningKind::RuleFailed))
     }
@@ -105,7 +105,7 @@ fn parse_block<'r, 't>(
     log: &Logger,
     parser: &mut Parser<'r, 't>,
     flag_star: bool,
-) -> ParseResult<'r, 't, Elements<'t>>
+) -> ParseResult<'r, 't, PartialElements<'t>>
 where
     'r: 't,
 {

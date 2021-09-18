@@ -46,7 +46,7 @@ fn parse_footnote_ref<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Parsing footnote ref block";
@@ -106,7 +106,7 @@ fn parse_footnote_block<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Parsing footnote list block";

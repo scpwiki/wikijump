@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::parsing::parser::TableParseState;
 use crate::parsing::strip_whitespace;
-use crate::tree::{AttributeMap, Table, TableCell, TableItem, TableRow};
+use crate::tree::{AttributeMap, Table, TableCell, TableRow};
 use std::num::NonZeroU32;
 use std::ops::{Deref, DerefMut};
 
@@ -125,7 +125,7 @@ macro_rules! extract_table_items {
         for element in $elements {
             match element {
                 // Append the next table item.
-                Element::TableItem(TableItem::$item_type(item)) => items.push(item),
+                PartialElement::$item_type(item) => items.push(item),
 
                 // Ignore internal whitespace.
                 element if element.is_whitespace() => (),
@@ -148,7 +148,7 @@ fn parse_table<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     // This [[table]] is not in a regular content context.
     if parser.table_flag() != TableParseState::Content {
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
@@ -171,7 +171,7 @@ fn parse_table<'r, 't>(
         (&BLOCK_TABLE, "table block"),
     )?;
 
-    let rows = extract_table_items!(parser, elements; Row, TableContainsNonRow);
+    let rows = extract_table_items!(parser, elements; TableRow, TableContainsNonRow);
 
     // Build and return table element
     let element = Element::Table(Table { rows, attributes });
@@ -188,7 +188,7 @@ fn parse_row<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     // This [[row]] is outside a [[table]], which is not allowed.
     // It also cannot be inside another [[row]].
     if parser.table_flag() != TableParseState::Table {
@@ -212,10 +212,11 @@ fn parse_row<'r, 't>(
         (&BLOCK_TABLE_ROW, "table row"),
     )?;
 
-    let cells = extract_table_items!(parser, elements; Cell, TableRowContainsNonCell);
+    let cells =
+        extract_table_items!(parser, elements; TableCell, TableRowContainsNonCell);
 
     // Build and return table row
-    let element = Element::TableItem(TableItem::Row(TableRow { cells, attributes }));
+    let element = PartialElement::TableRow(TableRow { cells, attributes });
 
     ok!(false; element, exceptions)
 }
@@ -229,7 +230,7 @@ fn parse_cell_regular<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
     if parser.table_flag() != TableParseState::Row {
         return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
@@ -262,7 +263,7 @@ fn parse_cell_header<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
     if parser.table_flag() != TableParseState::Row {
         return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
@@ -293,7 +294,7 @@ fn parse_cell<'r, 't>(
     mut attributes: AttributeMap<'t>,
     exceptions: Vec<ParseException<'t>>,
     header: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     lazy_static! {
         static ref ONE: NonZeroU32 = NonZeroU32::new(1).unwrap();
     }
@@ -308,13 +309,13 @@ fn parse_cell<'r, 't>(
         None => *ONE,
     };
 
-    let element = Element::TableItem(TableItem::Cell(TableCell {
+    let element = PartialElement::TableCell(TableCell {
         header,
         column_span,
         align: None,
         elements,
         attributes,
-    }));
+    });
 
     ok!(false; element, exceptions)
 }

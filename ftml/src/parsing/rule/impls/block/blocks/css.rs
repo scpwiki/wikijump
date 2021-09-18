@@ -36,7 +36,7 @@ fn parse_fn<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Parsing CSS block"; "in-head" => in_head);
 
     assert!(!flag_star, "CSS doesn't allow star flag");
@@ -47,5 +47,5 @@ fn parse_fn<'r, 't>(
 
     let css = parser.get_body_text(&BLOCK_CSS)?;
     let exceptions = vec![ParseException::Style(cow!(css))];
-    ok!(Elements::None, exceptions)
+    ok!(PartialElements::None, exceptions)
 }

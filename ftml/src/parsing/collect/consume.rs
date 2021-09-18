@@ -44,7 +44,11 @@ pub fn collect_consume<'p, 'r, 't>(
         invalid_conditions,
         warn_kind,
         |log, parser| {
-            consume(log, parser)?.map_ok(|elements| all_elements.extend(elements))
+            let success = consume(log, parser)?
+                .unwrap_partials(parser)?
+                .take(|new_elements| new_elements.append_to(&mut all_elements));
+
+            Ok(success)
         },
     )?
     .into();

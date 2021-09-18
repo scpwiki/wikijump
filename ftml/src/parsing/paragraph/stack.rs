@@ -19,7 +19,7 @@
  */
 
 use crate::parsing::prelude::*;
-use crate::tree::{AttributeMap, Container, ContainerType};
+use crate::tree::{AttributeMap, Container, ContainerType, ParagraphSafe};
 use std::mem;
 
 #[derive(Debug)]

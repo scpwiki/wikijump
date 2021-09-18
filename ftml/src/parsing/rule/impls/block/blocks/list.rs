@@ -59,7 +59,7 @@ fn parse_unordered_block<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     parse_list_block(
         (&BLOCK_UL, ListType::Bullet),
         log,
@@ -78,7 +78,7 @@ fn parse_ordered_block<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     parse_list_block(
         (&BLOCK_OL, ListType::Numbered),
         log,
@@ -100,7 +100,7 @@ fn parse_list_block<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Parsing list block";
@@ -126,7 +126,7 @@ fn parse_list_block<'r, 't>(
     let attributes = arguments.to_attribute_map();
 
     // Get body and convert into list form.
-    let (mut elements, exceptions, _) =
+    let (mut partials, exceptions, _) =
         parser.get_body_elements(block_rule, false)?.into();
 
     let items = {
@@ -138,22 +138,22 @@ fn parse_list_block<'r, 't>(
         }
 
         // Empty lists aren't allowed
-        if elements.is_empty() {
+        if partials.is_empty() {
             return Err(parser.make_warn(ParseWarningKind::ListEmpty));
         }
 
-        // Convert and extract list elements
-        for element in elements {
-            match element {
+        // Convert and extract partial list elements
+        for partial in partials {
+            match partial {
                 // Ensure all elements of a list are only items, i.e. [[li]].
-                Element::ListItem(item) => items.push(*item),
+                PartialElement::ListItem(item) => items.push(*item),
 
                 // Or sub-lists.
-                Element::List {
+                PartialElement::Complete(Element::List {
                     ltype,
                     attributes,
                     items: sub_items,
-                } => {
+                }) => {
                     let element = Element::List {
                         ltype,
                         attributes,
@@ -164,7 +164,7 @@ fn parse_list_block<'r, 't>(
                 }
 
                 // Ignore "whitespace" elements
-                element if element.is_whitespace() => continue,
+                PartialElement::Complete(element) if element.is_whitespace() => continue,
 
                 // Other kinds of elements result in an exception.
                 _ => return Err(parser.make_warn(ParseWarningKind::ListContainsNonItem)),
@@ -192,7 +192,7 @@ fn parse_list_item<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Parsing list item block";

@@ -28,7 +28,7 @@ use crate::log::prelude::*;
 use crate::parsing::rule::impls::block::Arguments;
 use crate::parsing::rule::{LineRequirement, Rule};
 use crate::parsing::{ParseResult, Parser};
-use crate::tree::{Elements, Module};
+use crate::tree::{Module, PartialElements};
 use std::fmt::{self, Debug};
 
 pub use self::rule::BLOCK_MODULE;
@@ -62,7 +62,7 @@ impl ModuleRule {
         fn try_consume_fn<'p, 'r, 't>(
             _: &Logger,
             _: &'p mut Parser<'r, 't>,
-        ) -> ParseResult<'r, 't, Elements<'t>> {
+        ) -> ParseResult<'r, 't, PartialElements<'t>> {
             panic!("Pseudo rule for this module should not be executed directly!");
         }
 

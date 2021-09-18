@@ -43,7 +43,7 @@ macro_rules! make_align_block {
             flag_star: bool,
             flag_score: bool,
             in_head: bool,
-        ) -> ParseResult<'r, 't, Elements<'t>> {
+        ) -> ParseResult<'r, 't, PartialElements<'t>> {
             parse_alignment_block(
                 (&$block_const, Alignment::$align),
                 log,
@@ -65,7 +65,7 @@ pub fn parse_alignment_block<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Parsing alignment block";

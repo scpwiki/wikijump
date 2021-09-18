@@ -54,7 +54,7 @@ impl Rule {
         self,
         log: &Logger,
         parser: &'p mut Parser<'r, 't>,
-    ) -> ParseResult<'r, 't, Elements<'t>> {
+    ) -> ParseResult<'r, 't, PartialElements<'t>> {
         info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
         // Check that the line position matches what the rule wants.
@@ -119,4 +119,4 @@ pub enum LineRequirement {
 pub type TryConsumeFn = for<'p, 'r, 't> fn(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>>;
+) -> ParseResult<'r, 't, PartialElements<'t>>;

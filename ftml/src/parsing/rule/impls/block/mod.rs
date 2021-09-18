@@ -28,7 +28,7 @@ use crate::log::prelude::*;
 use crate::parsing::result::ParseResult;
 use crate::parsing::rule::{LineRequirement, Rule};
 use crate::parsing::Parser;
-use crate::tree::Elements;
+use crate::tree::PartialElements;
 use std::fmt::{self, Debug};
 
 mod arguments;
@@ -99,7 +99,7 @@ impl BlockRule {
         fn try_consume_fn<'p, 'r, 't>(
             _: &Logger,
             _: &'p mut Parser<'r, 't>,
-        ) -> ParseResult<'r, 't, Elements<'t>> {
+        ) -> ParseResult<'r, 't, PartialElements<'t>> {
             panic!("Pseudo rule for this block should not be executed directly!");
         }
 
@@ -140,4 +140,4 @@ pub type BlockParseFn = for<'r, 't> fn(
     bool,
     bool,
     bool,
-) -> ParseResult<'r, 't, Elements<'t>>;
+) -> ParseResult<'r, 't, PartialElements<'t>>;

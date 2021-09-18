@@ -30,7 +30,7 @@ pub const RULE_HEADER: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Trying to create header container");
 
     macro_rules! step {
@@ -74,7 +74,9 @@ fn try_consume_fn<'p, 'r, 't>(
         // collect_container() always produces one Element::Container.
         // We unwrap it so we can get the elements composing the name.
         let elements = match elements {
-            Elements::Single(Element::Container(ref container)) => container.elements(),
+            PartialElements::Single(Element::Container(ref container)) => {
+                container.elements()
+            }
             _ => panic!("Collected heading produced a non-single non-container element"),
         };
 

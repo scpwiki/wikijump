@@ -38,6 +38,6 @@ pub const RULE_PAGE: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     _: &Logger,
     _: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     panic!("Manual page rule should not be executed directly!")
 }

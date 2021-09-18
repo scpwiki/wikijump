@@ -19,6 +19,9 @@
  */
 
 use crate::parsing::exception::{ParseException, ParseWarning};
+use crate::parsing::Parser;
+use crate::tree::{Elements, PartialElements};
+use std::convert::TryInto;
 use std::marker::PhantomData;
 
 pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseWarning>;
@@ -82,6 +85,10 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T>
 where
     T: 't,
 {
+    /// Maps the `item` field of `ParseSuccess` to a different value.
+    ///
+    /// This operation should not fail. If it can fail, use
+    /// a special method instead.
     pub fn map<F, U>(self, f: F) -> ParseSuccess<'r, 't, U>
     where
         F: FnOnce(T) -> U,
@@ -103,12 +110,40 @@ where
         }
     }
 
+    /// Removes the `item` field from `ParseSuccess` and passes it to the closure.
+    ///
+    /// The new `item` value becomes `()`, and the `ParseSuccess` is passed with
+    /// the same values as when it was called.
     #[inline]
-    pub fn map_ok<F, U>(self, f: F) -> ParseResult<'r, 't, U>
+    pub fn take<F>(self, f: F) -> ParseSuccess<'r, 't, ()>
     where
-        F: FnOnce(T) -> U,
+        F: FnOnce(T),
     {
-        Ok(self.map(f))
+        self.map(f)
+    }
+}
+
+impl<'r, 't> ParseSuccess<'r, 't, PartialElements<'t>> {
+    pub fn unwrap_partials(
+        self,
+        parser: &Parser,
+    ) -> Result<ParseSuccess<'r, 't, Elements<'t>>, ParseWarning> {
+        let ParseSuccess {
+            item: partial,
+            exceptions,
+            paragraph_safe,
+            ..
+        } = self;
+
+        match partial.try_into() {
+            Err(warn_kind) => Err(parser.make_warn(warn_kind)),
+            Ok(element) => Ok(ParseSuccess {
+                item: element,
+                exceptions,
+                paragraph_safe,
+                _marker: PhantomData,
+            }),
+        }
     }
 }
 

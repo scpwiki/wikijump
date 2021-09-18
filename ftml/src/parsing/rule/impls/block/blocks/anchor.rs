@@ -38,7 +38,7 @@ fn parse_fn<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Parsing anchor block";
@@ -64,7 +64,7 @@ fn parse_fn<'r, 't>(
     };
 
     // Get body content, without paragraphs
-    let (mut elements, exceptions, paragraph_safe) =
+    let (elements, exceptions, paragraph_safe) =
         parser.get_body_elements(&BLOCK_ANCHOR, false)?.into();
 
     if strip_line_breaks {

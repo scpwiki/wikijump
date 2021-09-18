@@ -45,7 +45,7 @@ fn parse_fn<'r, 't>(
     _flag_star: bool,
     _flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Parsing later block (easter egg)"; "in-head" => in_head);
 
     assert_block_name(&BLOCK_LATER, name);

@@ -29,9 +29,9 @@ macro_rules! ok {
     };
     ($item:expr, $exceptions:expr $(,)?) => {{
         use crate::parsing::ParseSuccess;
-        use crate::tree::Elements;
+        use crate::tree::PartialElements;
 
-        let item: Elements = $item.into();
+        let item: PartialElements = $item.into();
         let paragraph_safe = item.paragraph_safe();
 
         Ok(ParseSuccess::new(item, $exceptions, paragraph_safe))
@@ -45,5 +45,17 @@ macro_rules! ok {
         use crate::parsing::ParseSuccess;
 
         Ok(ParseSuccess::new($item.into(), $exceptions, $paragraph_safe))
+    }};
+}
+
+/// Convert a collection of `PartialElements` into `Elements`.
+macro_rules! try_from_partials {
+    ($parser:expr, $partials:expr) => {{
+        use crate::parsing::ParseWarningKind;
+        use crate::tree::Elements;
+        use std::convert::TryInto;
+
+        let elements: Result<Elements, ParseWarningKind> = $partials.try_into();
+        elements.map_err(|warn_kind| $parser.make_warn(warn_kind))?
     }};
 }

@@ -29,7 +29,7 @@ pub const RULE_HORIZONTAL_RULE: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Consuming token to create a horizontal rule");
 
     check_step(parser, Token::TripleDash)?;

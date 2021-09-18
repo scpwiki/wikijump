@@ -35,7 +35,7 @@ pub const RULE_RAW: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Consuming tokens until end of raw");
 
     // Are we in a @@..@@ type raw, or a @<..>@ type?

@@ -29,7 +29,7 @@ pub const RULE_DOUBLE_ANGLE: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     let current = parser.current();
 
     info!(

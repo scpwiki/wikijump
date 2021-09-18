@@ -28,6 +28,8 @@ use super::prelude::*;
 use super::rule::Rule;
 use super::token::Token;
 use crate::log::prelude::*;
+use crate::tree::Elements;
+use std::convert::TryInto;
 
 /// Wrapper type to satisfy the issue with generic closure types.
 ///
@@ -68,7 +70,7 @@ where
     let mut stack = ParagraphStack::new(log);
 
     loop {
-        let (elements, mut exceptions, paragraph_safe) = match parser.current().token {
+        let (partials, mut exceptions, paragraph_safe) = match parser.current().token {
             Token::InputEnd => {
                 if close_condition_fn.is_some() {
                     // There was a close condition, but it was not satisfied
@@ -127,6 +129,9 @@ where
         .into();
 
         debug!(log, "Tokens consumed to produce element");
+
+        // Extract elements from partials
+        let elements = try_from_partials!(parser, partials);
 
         // Add new elements to the list
         push_elements(&mut stack, elements, paragraph_safe);

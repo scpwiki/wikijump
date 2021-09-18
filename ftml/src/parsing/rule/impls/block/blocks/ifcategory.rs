@@ -38,7 +38,7 @@ fn parse_fn<'r, 't>(
     flag_star: bool,
     flag_score: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Parsing ifcategory block";
@@ -88,14 +88,14 @@ fn parse_fn<'r, 't>(
     let elements = if check_ifcategory(log, parser.page_info(), &conditions) {
         debug!(log, "Conditions passed, including elements");
 
-        Elements::Multiple(elements)
+        PartialElements::Multiple(elements)
     } else {
         debug!(log, "Conditions failed, excluding elements");
 
         // Filter out non-warning exceptions
         exceptions.retain(|ex| matches!(ex, ParseException::Warning(_)));
 
-        Elements::None
+        PartialElements::None
     };
 
     ok!(paragraph_safe; elements, exceptions)

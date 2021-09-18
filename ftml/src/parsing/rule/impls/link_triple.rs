@@ -47,7 +47,7 @@ pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
 fn link<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Trying to create a triple-bracket link (regular)");
 
     check_step(parser, Token::LeftLink)?;
@@ -58,7 +58,7 @@ fn link<'p, 'r, 't>(
 fn link_new_tab<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(log, "Trying to create a triple-bracket link (new tab)");
 
     check_step(parser, Token::LeftLinkStar)?;
@@ -77,7 +77,7 @@ fn try_consume_link<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     target: Option<AnchorTarget>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     debug!(
         log,
         "Trying to create a triple-bracket link";
@@ -134,7 +134,7 @@ fn build_same<'p, 'r, 't>(
     _parser: &'p mut Parser<'r, 't>,
     url: &'t str,
     target: Option<AnchorTarget>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Building link with same URL and label";
@@ -162,7 +162,7 @@ fn build_separate<'p, 'r, 't>(
     rule: Rule,
     url: &'t str,
     target: Option<AnchorTarget>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+) -> ParseResult<'r, 't, PartialElements<'t>> {
     info!(
         log,
         "Building link with separate URL and label";
