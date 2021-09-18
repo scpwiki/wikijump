@@ -1,5 +1,6 @@
 import type * as DF from "../definition"
 import { Matched } from "../matched"
+import { RegExpMatcher } from "../matchers/regexp"
 import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
 import { Wrapping } from "../types"
@@ -7,10 +8,14 @@ import { Rule } from "./rule"
 
 export class Chain extends Rule {
   private declare chain: ReturnType<typeof parseChainItem>[]
+  private declare skip?: RegExpMatcher
 
   constructor(repo: Repository, rule: DF.Chain) {
     super(repo, rule)
     this.chain = rule.chain.map(item => parseChainItem(repo, item))
+    if (rule.skip) {
+      this.skip = new RegExpMatcher(rule.skip, repo.ignoreCase, repo.variables)
+    }
   }
 
   // TODO: can this be cleaned up?
@@ -22,6 +27,11 @@ export class Chain extends Rule {
     let iter: Iterable<Matched | null> | null = null
     const results: Matched[] = []
     chain: for (let i = 0; i < this.chain.length; i++) {
+      // check skip rule, and if it passes, skip forward a position
+      while (this.skip?.test(str, pos)) {
+        pos++
+      }
+
       if (!iter) iter = this.chain[i](state, str, pos)
       let repeating = false
       for (const result of iter) {

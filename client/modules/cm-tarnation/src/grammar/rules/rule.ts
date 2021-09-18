@@ -173,6 +173,8 @@ function contextSetter(setter: DF.ContextSetter) {
 type CaptureFunction = (state: GrammarState, capture: string) => Node | boolean
 
 function captureFunction(repo: Repository, cond: DF.CaptureCondition): CaptureFunction {
+  // TODO: fix lower casing matching here
+
   const matcher = cond.matches.startsWith("/") ? re(cond.matches) : cond.matches
 
   if (!matcher) throw new Error("Invalid match condition")

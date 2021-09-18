@@ -79,6 +79,7 @@ export interface Pattern extends RuleOptions {
 }
 
 export interface Chain extends RuleOptions {
+  skip?: Regex
   chain: string[]
 }
 
