@@ -1,6 +1,7 @@
 import type * as DF from "../definition"
 import { Matched } from "../matched"
 import { RegExpMatcher } from "../matchers/regexp"
+import { Node } from "../node"
 import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
 import { Wrapping } from "../types"
@@ -12,10 +13,10 @@ export class Chain extends Rule {
 
   constructor(repo: Repository, rule: DF.Chain) {
     super(repo, rule)
-    this.chain = rule.chain.map(item => parseChainItem(repo, item))
     if (rule.skip) {
       this.skip = new RegExpMatcher(rule.skip, repo.ignoreCase, repo.variables)
     }
+    this.chain = rule.chain.map(item => parseChainItem(repo, item, this.skip))
   }
 
   // TODO: can this be cleaned up?
@@ -28,8 +29,12 @@ export class Chain extends Rule {
     const results: Matched[] = []
     chain: for (let i = 0; i < this.chain.length; i++) {
       // check skip rule, and if it passes, skip forward a position
-      while (this.skip?.test(str, pos)) {
-        pos++
+      if (this.skip) {
+        let result
+        while ((result = this.skip.match(str, pos))) {
+          total += result.total
+          pos += result.length
+        }
       }
 
       if (!iter) iter = this.chain[i](state, str, pos)
@@ -64,7 +69,7 @@ export class Chain extends Rule {
   }
 }
 
-function parseChainItem(repo: Repository, str: string) {
+function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
   const repeatAlternatives = /\|[*+]/.test(str)
   const normalAlternatives = /\|(?![*+])/.test(str)
 
@@ -82,6 +87,14 @@ function parseChainItem(repo: Repository, str: string) {
     let maybeFailed = false
     let advanced = false
     for (let i = 0; i < rules.length; i++) {
+      // check skip rule, and if it passes, skip forward a position
+      if (skip) {
+        let result
+        while ((result = skip.match(str, pos))) {
+          yield new Matched(state, Node.None, result.total, pos)
+          pos += result.length
+        }
+      }
       for (const result of rules[i](state, str, pos)) {
         if (!result) {
           maybeFailed = true
