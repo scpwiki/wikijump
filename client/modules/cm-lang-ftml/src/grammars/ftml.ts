@@ -1,5 +1,5 @@
 import { TarnationLanguage } from "@wikijump/cm-tarnation"
-import { languageList } from "@wikijump/codemirror"
+import { addLanguages, languageList } from "@wikijump/codemirror"
 import { cssCompletion, htmlCompletion } from "@wikijump/codemirror/cm"
 import { completeFTML } from "../autocomplete"
 import { blocks, modules } from "../data/blocks"
@@ -8,6 +8,7 @@ import { ftmlLinter } from "../lint"
 import { spellcheckFTML } from "../spellcheck"
 import { aliasesFiltered, aliasesRaw } from "../util"
 import ftmlGrammar from "./ftml.yaml"
+import { TexLanguage } from "./tex"
 
 const blockEntries = Object.entries(blocks)
 const moduleEntries = Object.entries(modules)
@@ -26,8 +27,9 @@ export const FTMLLanguage = new TarnationLanguage({
     ftmlLinter,
     ftmlHoverTooltips,
     htmlCompletion,
-    cssCompletion
+    cssCompletion,
     // addLanguages(TexLanguage.description, StyleAttributeGrammar.description)
+    addLanguages(TexLanguage.description)
   ],
 
   variables: {

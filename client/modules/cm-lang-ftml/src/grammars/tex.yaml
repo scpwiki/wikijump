@@ -1,0 +1,63 @@
+comments:
+  line: '%'
+
+default:
+  type: Expression
+  tag: emphasis
+
+repository:
+  Comment:
+    match: /%.*$/
+    tag: lineComment
+
+  Bracket:
+    lookup: ["(", ")", "[", "]", "{", "}"]
+    tag: bracket
+
+  Operator:
+    lookup: ["+", "-", "=", "!", "/", "<", ">", "|", "'", ":", "*", "^"]
+    tag: arithmeticOperator
+
+  Number:
+    match: /\d+/
+    tag: integer
+
+  Function:
+    match: /[a-zA-Z]+(?=\([^]*?\))/
+    tag: function(name)
+
+  Command:
+    match: /\\#?[a-zA-Z\d]+/
+    tag: string
+
+  CommandGroup:
+    match: /(\\#?[a-zA-Z\d]+)(\{)([^]*?)(\})/
+    captures:
+      0: { is: Command }
+      1: { is: Bracket }
+      2: { type: CommandGroupString, tag: string }
+      3: { is: Bracket }
+
+  Spacing:
+    match: /\\[,>;!]/
+    tag: string
+
+  EscapedLine:
+    match: /\\+/
+    tag: escape
+
+  Special:
+    match: /\^(?!\d)|[_&]/
+    tag: keyword
+
+root:
+  - Comment
+  - Function
+  - CommandGroup
+  - Command
+  - Spacing
+  - EscapedLine
+  - Special
+  - Number
+  - Operator
+  - Bracket
