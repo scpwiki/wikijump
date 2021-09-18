@@ -15,11 +15,6 @@ Durian
 [[/>]]
 [[/=]]
 
-[!-- align-fail --]
-[[=]]
-Pineapple
-[[/<]]
-
 [!-- align-justify --]
 [[==]]
 Durian
@@ -170,6 +165,13 @@ Banana
 > Banana
 > Cherry
 
+[!-- blockquote-native-paragraph --]
+[
+
+> Apple
+
+]
+
 [!-- blockquote-native-spaces-depths --]
 >Apple
 >>Banana
@@ -243,9 +245,6 @@ Apple
 [!-- bold-block-empty --]
 Empty [[b]][[/b]]
 
-[!-- bold-block-fail --]
-[[b]]Fail Bold
-
 [!-- bold-block-italics --]
 [[b]]Apple [[i]]Banana[[/i]][[/b]] Cherry
 
@@ -260,14 +259,6 @@ Bold[[/b]]
 [!-- bold-empty --]
 Empty ****
 
-[!-- bold-fail-paragraph --]
-**Fail
-
-Bold**
-
-[!-- bold-fail --]
-**Fail Bold
-
 [!-- bold-italics-underline --]
 **Apple //Banana __Cherry__ Durian//** Pineapple
 
@@ -279,6 +270,29 @@ Bold**
 
 [!-- bold --]
 **Bold** Text
+
+[!-- center-begin --]
+= Apple
+
+
+[!-- center-end --]
+
+= Apple
+
+[!-- center-formatting --]
+= **Banana** Cherry //Durian//
+
+[!-- center-paragraph --]
+[
+
+= Apple
+
+]
+
+[!-- center --]
+
+= Apple
+
 
 [!-- char-alias --]
 [[character gt]] pineapple
@@ -316,9 +330,6 @@ Bold**
 [!-- char2 --]
 [[char &amp;]] pineapple
 
-[!-- checkbox-fail --]
-[[checkbox Broken
-
 [!-- checkbox-star --]
 [[*checkbox]] Apple
 [[checkbox]] Banana
@@ -338,6 +349,26 @@ Bold**
 [[checkbox]] Banana
 [[checkbox]] Cherry
 
+[!-- clear-float-3 --]
+~~~
+Clear float
+
+[!-- clear-float-4 --]
+~~~~
+Clear float
+
+[!-- clear-float-5 --]
+~~~~~
+Clear float
+
+[!-- clear-float-left --]
+~~~~<
+Clear float left
+
+[!-- clear-float-right --]
+~~~~>
+Clear float right
+
 [!-- code-block --]
 [[code]]
 [[div]]
@@ -348,19 +379,6 @@ test
 [!-- code-empty --]
 [[code]]
 [[/code]]
-
-[!-- code-fail-arguments --]
-[[code type=css"]]
-
-[!-- code-fail-head --]
-[[code type="css"
-
-[!-- code-fail-tail --]
-a { display: none; } [[/code]]
-
-[!-- code-fail --]
-[[code]]
-no ending block
 
 [!-- code-inline-empty --]
 [[code]][[/code]]
@@ -490,31 +508,18 @@ Cherry
 Apple
 [[/collapsible]]
 
-[!-- color-fail --]
-##not color
-
 [!-- color-hex --]
 ###ccc|CSS color!##
 
 [!-- color-simple --]
 ##blue|Text Here##
 
-[!-- comment-fail-left --]
-Fail [!-- Comment
-
-[!-- comment-fail-right --]
-Fail --] Comment
-
 [!-- comment-multiline --]
-Multiline [!-- stuff
+Multiline [!-- stuff 
  here --] Comment
 
 [!-- comment-single --]
 Single [!-- stuff here --] Comment
-
-[!-- css-fail --]
-[[css]]
-Other stuff
 
 [!-- css-inline --]
 [[css]]a { color: blue; }[[/css]]
@@ -729,6 +734,129 @@ Em -- Dash
 [!-- empty --]
 
 
+[!-- footnote-block-empty --]
+A
+[[footnoteblock]]
+B
+
+[!-- footnote-block-hide --]
+A[[footnote]]B[[/footnote]]
+[[footnoteblock hide="true"]]
+
+[!-- footnote-block-multiple --]
+Durian[[footnote]]Cherry[[/footnote]]
+
+[[footnoteblock]]
+[[footnoteblock]]
+[[footnoteblock]]
+
+[!-- footnote-block-title --]
+A[[footnote]]B[[/footnote]]
+[[footnoteblock title="The notes of the foot"]]
+
+[!-- footnote-block --]
+[[footnoteblock]]
+
+A[[footnote]]1[[/footnote]]
+
+B[[footnote]]2[[/footnote]]
+
+[!-- footnote-ref-container --]
+Apple[[footnote]]//Cherry Banana//[[/footnote]]
+
+[!-- footnote-ref-elements --]
+Apple[[footnote]]**Banana** //cherry ,,durian,,//[[/footnote]]
+
+[!-- footnote-ref-empty --]
+A[[footnote]][[/footnote]]
+
+[!-- footnote-ref-paragraphs --]
+1[[footnote]]Apple
+
+Banana[[/footnote]]
+2[[footnote]]
+Cherry
+[[/footnote]]
+3[[footnote]]
+
+Durian
+
+[[/footnote]]
+
+[!-- footnote-ref --]
+Apple[[footnote]]Banana cherry[[/footnote]]
+
+[!-- heading-1-toc --]
++* My //header//
+
+[!-- heading-1 --]
++ My //header//
+
+[!-- heading-2-toc --]
+++* Header1
+++* Header2
+
+[!-- heading-2 --]
+++ My __header__
+Banana
+
+[!-- heading-3-toc --]
++++* plain
++++ toc
+
+[!-- heading-3 --]
+Apple
++++ Banana Cherry
+
+[!-- heading-4-toc --]
+[
+++++* H4
+|
+++++* H4
+]
+
+[!-- heading-4 --]
+++++ [[size 80%]]Small heading[[/size]]
+
+[!-- heading-5-toc --]
++++++ H5
++++++* H5!
+++* H2!
++ H1
+
++++* H3!
+++ H2 ++
+
+
+[!-- heading-5 --]
+[
++++++ Header Five
+]
+
+[!-- heading-6-toc --]
+++++++* plain
+++++++ toc
+
+[!-- heading-6 --]
+++++++ SCP-6969
+
+[!-- heading-multiple --]
++ H1
+++ H2
+++++ H4
+++++++ H6
++++ H3
++ H1
+
+[!-- heading-paragraph --]
+[
+
++ A
+
+++ B
++ C
+]
+
 [!-- hidden-newlines --]
 [[hidden]]
 [[div_]]
@@ -744,10 +872,6 @@ Hidden div
 
 [!-- hidden --]
 [[hidden]]Hidden[[/hidden]] Text
-
-[!-- hr-2-fail --]
---
-Fail hr
 
 [!-- hr-3 --]
 ---
@@ -773,18 +897,6 @@ Empty
 [[html]]
 [[/html]]
 
-[!-- html-fail-arguments --]
-[[html type="css"]]
-<div></div>
-[[/html]]
-
-[!-- html-fail-tail --]
-<div></div> [[/html]]
-
-[!-- html-fail --]
-[[html]]
-<div>Forgot to close the block
-
 [!-- html-inline-empty --]
 [[html]][[/html]]
 
@@ -803,9 +915,12 @@ Empty
 <p><div>My HTML <tt>code</tt> here!</div></p>
 [[/html]]
 
-[!-- ifcategory-fail --]
-[[ifcategory]]
-Durian
+[!-- ifcategory-css --]
+[[ifcategory _default]]
+[[css]]body { color: red; }[[/css]]
+[[/ifcategory]]
+[[ifcategory fragment]]
+[[css]]body { color: blue; }[[/css]]
 [[/ifcategory]]
 
 [!-- ifcategory --]
@@ -819,13 +934,28 @@ Banana
 Hidden
 [[/ifcategory]]
 
-[!-- iftags-fail --]
-[[iftags]]
-Durian
+[!-- iframe-http --]
+[[iframe http://scp-wiki.wikidot.com/scp-1000 ]]
+
+[!-- iframe-style --]
+[[iframe https://example.com id="my-iframe" class="example"]]
+
+[!-- iframe-uppercase --]
+[[iframe  https://example.com  WIDTH =  "100%" id= "iframe" ]]
+
+[!-- iframe --]
+[[iframe https://example.com]]
+
+[!-- iftags-css --]
+[[iftags fruit]]
+[[css]]body { color: red; }[[/css]]
+[[/iftags]]
+[[iftags xyz]]
+[[css]]body { color: blue; }[[/css]]
 [[/iftags]]
 
 [!-- iftags --]
-[[iftags +fruit -admin]]
+[[iftags +fruit -admin component template]]
 Apple
 [[/iftags]]
 [[IFTAGS component]]Banana[[/IFTAGS]]
@@ -857,20 +987,11 @@ A [[image scp-wiki/some-other-page/my-picture.jpeg]] B
 [!-- image-file3 --]
 A [[image /scp-wiki/some-other-page/my-picture.jpeg]] B
 
-[!-- image-float-center-fail --]
-[[f=image landscape.png]]
-
-[!-- image-float-justify-fail --]
-[[f==image landscape.png]]
-
 [!-- image-float-left --]
 [[f<image landscape.png]]
 
 [!-- image-float-right --]
 [[f>image landscape.png]]
-
-[!-- image-justify-fail --]
-[[==image landscape.png]]
 
 [!-- image-left --]
 [[<image landscape.png]]
@@ -889,6 +1010,74 @@ A [[image filename.png link="https://example.com/"]] B
 
 [!-- image --]
 A [[image filename.png]] B
+
+[!-- include-elements-variables --]
+[[include-elements component:image-block name="peanut.png" caption="Haha funi"]]
+
+[!-- include-elements --]
+Apple
+[[include-elements :some-site:page-name]]
+Banana
+
+[!-- include-messy-category --]
+[[include-messy component:my-thing]]
+
+[!-- include-messy-multiline --]
+[[include-messy multiline name = consuelo|
+ contents = the chorizo stew is almost finished cooking 
+ i cannot just stop cooking my chorizo stew in order to talk to you about an i.r.c. channel, friends 
+shit i am sorry i did not mean to rejoin]]
+
+[!-- include-messy-multiple --]
+Apple
+[[include-messy my-page]]
+Banana
+[[include-messy other]]
+Cherry
+
+[!-- include-messy-offsite --]
+[[include-messy :scp-wiki:theme:black-highlighter-theme]]
+
+[!-- include-messy-parameters-after --]
+[[include-messy my-page apple=1 | banana = 2 |]]
+
+[!-- include-messy-parameters-before --]
+[[include-messy my-page | apple=1 | banana = 2]]
+
+[!-- include-messy-parameters-both --]
+[[include-messy my-page | apple=1 | banana = 2 |]]
+
+[!-- include-messy-parameters-newlines-after --]
+[[include-messy my-page
+ apple=1 |
+ banana = 2 |]]
+
+[!-- include-messy-parameters-newlines-before --]
+[[include-messy my-page |
+ apple=1 |
+ banana = 2]]
+
+[!-- include-messy-parameters-newlines-both --]
+[[include-messy my-page |
+ apple=1 |
+ banana = 2 |]]
+
+[!-- include-messy-parameters-newlines --]
+[[include-messy my-page
+ apple=1 |
+ banana = 2]]
+
+[!-- include-messy-parameters-whitespace --]
+[[include-messy my-page apple =  1 |banana=2|]]
+
+[!-- include-messy-parameters --]
+[[include-messy my-page apple=1 | banana = 2]]
+
+[!-- include-messy-uppercase --]
+[[INCLUde-MEssY my-PAGE]]
+
+[!-- include-messy --]
+[[include-messy my-page]]
 
 [!-- ins-alias --]
 Apple
@@ -938,9 +1127,6 @@ Invisible div
 [!-- italics-block-empty --]
 Empty [[i]][[/i]]
 
-[!-- italics-block-fail --]
-[[i]]Fail Italics
-
 [!-- italics-block-italics --]
 [[i]]Apple [[b]]Banana[[/b]][[/i]] Cherry
 
@@ -955,14 +1141,6 @@ Italics[[/i]]
 [!-- italics-empty --]
 Empty ////
 
-[!-- italics-fail-paragraph --]
-//Fail
-
-Italics//
-
-[!-- italics-fail --]
-//Fail Italics
-
 [!-- italics --]
 //Italics// Text
 
@@ -970,18 +1148,6 @@ Italics//
 Banana
 [[newlines 9]]
 Apple
-
-[!-- line-breaks-error-0 --]
-[[lines 0]]
-
-[!-- line-breaks-error-invalid --]
-[[lines apple]]
-
-[!-- line-breaks-error-negative --]
-[[lines -5]]
-
-[!-- line-breaks-error-overflow --]
-[[lines 999]]
 
 [!-- line-breaks-uppercase --]
 Apple
@@ -993,33 +1159,11 @@ Apple
 [[lines 3]]
 Banana
 
-[!-- link-anchor-fail --]
-[# Label
-
 [!-- link-anchor-fake --]
 [# Fake link]
 
 [!-- link-anchor --]
 [#apple Some link]?
-
-[!-- link-single-fail-brackets --]
-[ not a link ]
-
-[!-- link-single-fail-new-tab --]
-[* not a link ]
-
-[!-- link-single-fail-newline --]
-[https://example.com/
- Label]
-
-[!-- link-single-fail-start --]
-[page
-
-[!-- link-single-fail-text --]
-[page Some page]
-
-[!-- link-single-fail-word --]
-[REDACTED]
 
 [!-- link-single-new-tab --]
 [*http://scp-sandbox-3.wikidot.com/system:recent-changes Sandbox: Recent Changes ]
@@ -1031,32 +1175,13 @@ Banana
 [https://example.com/ Some link]!
 
 [!-- link-triple-category-new-tab --]
-[[[*system:Recent Pages]]]
+[[[*system:Recent Changes]]]
 
 [!-- link-triple-category-spaces --]
-[[[system: Recent Pages]]]
+[[[system: Recent Changes]]]
 
 [!-- link-triple-category --]
-[[[system:Recent Pages]]]
-
-[!-- link-triple-fail-brackets-end --]
-some-page]]]
-
-[!-- link-triple-fail-brackets-left --]
-[[[some-page
-
-[!-- link-triple-fail-brackets-right --]
-]]]some-page
-
-[!-- link-triple-fail-newline --]
-[[[some-page |
- Label]]]
-
-[!-- link-triple-fail-title-new-tab --]
-[[[*|some-page]]]
-
-[!-- link-triple-fail-title --]
-[[[|some-page]]]
+[[[system:Recent Changes]]]
 
 [!-- link-triple-label-new-tab --]
 [[[*some-page|Label]]]
@@ -1066,6 +1191,18 @@ some-page]]]
 
 [!-- link-triple-new-tab --]
 [[[*SCP-001]]]
+
+[!-- link-triple-site-category --]
+[[[:scp-wiki:component:theme|Sigma-9 Theme]]]
+
+[!-- link-triple-site-name --]
+[[[:scp-wiki : system : Recent Changes]]]
+
+[!-- link-triple-site-title --]
+[[[:scp-wiki:scp-series|]]]
+
+[!-- link-triple-site --]
+[[[:scp-wiki:scp-1000|Children of the Night]]]
 
 [!-- link-triple-title-new-tab --]
 [[[*some-page|]]]
@@ -1090,6 +1227,51 @@ some-page]]]
 
 [!-- link-url --]
 https://example.com/directory apple
+
+[!-- list-block-attributes --]
+[[ol class="numbers" data-fruit="banana"]]
+[[li id="item-1"]]
+A
+[[/li]]
+[[li id="item-2"]]
+B
+[[/li]]
+[[/ol]]
+
+[!-- list-block-deep --]
+[[ul]] [[li]] [[ol]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ol]] [[/li]] [[li]]C[[/li]] [[ol]] [[li]]D[[/li]] [[li]]E[[/li]] [[/ol]] [[/ul]]
+
+[!-- list-block-empty --]
+[[ul]][[li]][[/li]][[/ul]]
+
+[!-- list-block-ol --]
+[[ol]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ol]]
+
+[!-- list-block-ul --]
+[[ul]] [[li]]A[[/li]] [[li]]B[[/li]] [[/ul]]
+
+[!-- list-block-whitespace --]
+[[ul]]
+[[li]]
+A
+[[/li]]
+[[li]]
+B
+[[/li]]
+[[/ul]]
+
+[!-- list-block-whitespace2 --]
+[[ul]]
+[[li_]]
+A
+[[/li_]]
+[[li]]
+B
+[[/li]]
+[[/ul]]
+[[ol_]]
+[[li]]C[[/li]]
+[[/ol_]]
 
 [!-- list-bullet-both --]
 * A
@@ -1176,6 +1358,13 @@ https://example.com/directory apple
 * C
 ]
 
+[!-- list-bullet-paragraph --]
+[
+
+* A
+
+]
+
 [!-- list-bullet-start --]
 * A
 ]
@@ -1184,9 +1373,6 @@ https://example.com/directory apple
 [
 * A
 ]
-
-[!-- list-fail-depth --]
-* Very deep list item
 
 [!-- list-mix-depths-staggered --]
 [
@@ -1297,6 +1483,13 @@ https://example.com/directory apple
 # C
 ]
 
+[!-- list-numbered-paragraph --]
+[
+
+# A
+
+]
+
 [!-- list-numbered-start --]
 # A
 ]
@@ -1379,12 +1572,6 @@ Apple
 [[module Join]]
 Apple
 
-[!-- module-pagetree-fail-bool --]
-[[module PageTree root="scp-001" showRoot="nope" depth="2"]]
-
-[!-- module-pagetree-fail-depth --]
-[[module PageTree root="scp-001" showRoot="yes" depth="0"]]
-
 [!-- module-pagetree-options --]
 [[module PageTree root="scp-001" showRoot = "yes"  depth ="12"]]
 Apple
@@ -1414,9 +1601,6 @@ Apple
 [!-- monospace-block-empty --]
 Empty [[tt]][[/tt]]
 
-[!-- monospace-block-fail --]
-[[tt]]Fail Monospace
-
 [!-- monospace-block-italics --]
 [[tt]]Apple [[b]]Banana[[/b]][[/tt]] Cherry
 
@@ -1427,17 +1611,6 @@ Subscript[[/tt]]
 
 [!-- monospace-block --]
 [[tt]]Subscript[[/tt]] Text
-
-[!-- monospace-fail-left --]
-{{Fail Monospace
-
-[!-- monospace-fail-paragraph --]
-{{Fail
-
-Monospace}}
-
-[!-- monospace-fail-right --]
-}}Fail Monospace
 
 [!-- monospace --]
 {{Monospace}} Text
@@ -1501,12 +1674,6 @@ First paragraph
 
 Second paragraph
 
-[!-- radio-fail-star --]
-[[*radio]] Nameless
-
-[!-- radio-fail --]
-[[radio]] Nameless
-
 [!-- radio-star --]
 [[*radio fruit]] Apple
 [[radio fruit]] Banana
@@ -1544,19 +1711,6 @@ Second paragraph
 [!-- raw-angles-empty --]
 @<>@
 
-[!-- raw-fail-newline-angles --]
-interrupted @<
->@
-
-[!-- raw-fail-newline --]
-interrupted @@
-@@
-
-[!-- raw-fail-paragraph --]
-@@Fail
-
-Raw@@
-
 [!-- raw-other-angles --]
 @@raw @< >@ content@@
 
@@ -1575,17 +1729,15 @@ not @@**@@ bold
 [!-- simple-newline --]
 
 
-[!-- simple-space --]
 
+[!-- simple-space --]
+ 
 
 [!-- simple-symbol --]
 %
 
 [!-- simple-text --]
 abc
-
-[!-- size-fail --]
-[[size 12pt]]Durian[[/sz]]
 
 [!-- size-symbol --]
 [[size 90%]]Apple[[/size]]
@@ -1597,7 +1749,7 @@ abc
 [[size 12pt]]Apple[[/size]]
 
 [!-- spaces --]
-
+  
 
 [!-- span-empty --]
 [[span]][[/span]]
@@ -1620,7 +1772,7 @@ Cherry
 [[/span]]
 
 [!-- span-style --]
-[[span id="banana" class="fruit" style="color: yellow;" data-fruit="!red"]]Banana[[/span]]
+[[span id="banana" class="fruit" style="color: yellow;" data-fruit="!red" role="button" aria-pressed="false"]]Banana[[/span]]
 
 [!-- span-uppercase --]
 [[SPAN ID =  "apple" clASS ="fruit" stylE="color: red;"      ]]Apple[[/ SPAN_  ]]
@@ -1661,9 +1813,6 @@ Cherry[[/span]]
 [!-- strikethrough-block-empty --]
 Empty [[s]][[/s]]
 
-[!-- strikethrough-block-fail --]
-[[s]]Fail Strikethrough
-
 [!-- strikethrough-block-italics --]
 [[s]]Apple [[b]]Banana[[/b]][[/s]] Cherry
 
@@ -1678,14 +1827,6 @@ Strikethrough[[/s]]
 [!-- strikethrough-empty --]
 Empty ----
 
-[!-- strikethrough-fail-paragraph --]
---Fail
-
-Strikethrough--
-
-[!-- strikethrough-fail --]
---Fail Strikethrough
-
 [!-- strikethrough --]
 --Strikethrough-- Text
 
@@ -1697,9 +1838,6 @@ A "string\nhere"!
 
 [!-- subscript-block-empty --]
 Empty [[sub]][[/sub]]
-
-[!-- subscript-block-fail --]
-[[sub]]Fail Subscript
 
 [!-- subscript-block-italics --]
 [[sub]]Apple [[b]]Banana[[/b]][[/sub]] Cherry
@@ -1715,9 +1853,6 @@ Subscript[[/sub]]
 [!-- subscript-empty --]
 Empty ,,,,
 
-[!-- subscript-fail --]
-,,Fail Subscript
-
 [!-- subscript --]
 ,,Subscript,, Text
 
@@ -1729,9 +1864,6 @@ Empty ,,,,
 
 [!-- superscript-block-empty --]
 Empty [[sup]][[/sup]]
-
-[!-- superscript-block-fail --]
-[[sup]]Fail Superscript
 
 [!-- superscript-block-italics --]
 [[sup]]Apple [[b]]Banana[[/b]][[/sup]] Cherry
@@ -1747,23 +1879,159 @@ Superscript[[/sup]]
 [!-- superscript-empty --]
 Empty ^^^^
 
-[!-- superscript-fail --]
-^^Fail Superscript
-
 [!-- superscript --]
 ^^Superscript^^ Text
 
 [!-- symbols --]
 `~!@#$%^&*()-=+[]{}\|
 
+[!-- table-advanced-attributes --]
+[[table id="fruit"]]
+[[row style="color: red;" ]]
+[[cell  data-sort="number"]]
+TEXT
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[!-- table-advanced-empty-cell --]
+[[table]]
+[[row]]
+[[cell]]
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[!-- table-advanced-empty-row --]
+[[table]]
+[[row]]
+[[/row]]
+[[/table]]
+
+[!-- table-advanced-empty-table --]
+[[table]]
+[[/table]]
+
+[!-- table-advanced-header --]
+[[table]]
+[[row]] [[hcell]] A [[/hcell]] [[hcell]] B [[/hcell]] [[/row]]
+[[row]] [[cell]] 1 [[/cell]] [[cell]] 2 [[/cell]] [[/row]]
+[[/table]]
+
+[!-- table-advanced-nested-deep --]
+[[table]]
+[[row]]
+[[cell]]
+
+1
+
+[[table]]
+[[row]]
+[[cell]]
+
+2
+
+[[table]]
+[[row]]
+[[cell]]
+
+3
+
+[[table]]
+[[row]]
+[[cell]]
+
+4
+
+[[table]]
+[[row]]
+[[cell]]
+
+5
+
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[!-- table-advanced-nested --]
+[[table]][[row]][[cell]][[table]][[row]][[cell]]A[[/cell]][[/row]][[/table]][[/cell]][[/row]][[/table]]
+
+[!-- table-advanced-width --]
+[[table]][[row]][[cell colspan="3"]]Three[[/cell]][[cell rowspan="2"]]Two[[/cell]][[/row]][[row]][[cell]]A[[/cell]][[cell]]B[[/cell]][[cell]]C[[/cell]][[/row]][[/table]]
+
+[!-- table-advanced --]
+[[table]] [[row]] [[cell]] Apple [[/cell]] [[/row]] [[/table]]
+
+[!-- table-simple-align --]
+||< Left ||= Center ||
+|| Normal ||> Right ||
+
+[!-- table-simple-elements --]
+[
+
+||~ **Bold** stuff, //and also// ##blue|color##! ||
+||No_spaces||
+||<[[span style="font-weight: bold;"]]SPAN[[/span]] ||
+
+]
+
+[!-- table-simple-line --]
+|| A_
+B || C_ || _D ||
+
+[!-- table-simple-multiple --]
+[
+|| apple || banana ||
+
+||~ cherry ||
+-----
+|||| durian ||
+]
+
+[!-- table-simple-width --]
+|| apple || banana ||= cherry ||
+||||||~ triple ||
+
+[!-- table-simple --]
+|| Cell ||
+
+[!-- toc-attributes --]
++ A
+[[toc class="big-box" style="color: blue;"]] X
+
+[!-- toc-float --]
++ A
+[[toc]]
+[[f<toc]]
+[[f>toc]]
+
+[!-- toc --]
++ A
+durian
++ B
+[[toc]]
+
 [!-- underline-block-alias-1 --]
 [[underline]]Test![[/underline]]
 
 [!-- underline-block-empty --]
 Empty [[u]][[/u]]
-
-[!-- underline-block-fail --]
-[[u]]Fail Underline
 
 [!-- underline-block-italics --]
 [[u]]Apple [[b]]Banana[[/b]][[/u]] Cherry
@@ -1779,20 +2047,8 @@ Underline[[/u]]
 [!-- underline-empty --]
 Empty ____
 
-[!-- underline-fail-paragraph --]
-__Fail
-
-Underline__
-
-[!-- underline-fail --]
-__Fail Underline
-
 [!-- underline --]
 __Underline__ Text
-
-[!-- user-fail --]
-[[user]]
-Durian
 
 [!-- user-spaces --]
 [[ USer  admin  ]]
