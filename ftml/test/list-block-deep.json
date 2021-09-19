@@ -15,6 +15,7 @@
                                     "element": "list",
                                     "data": {
                                         "type": "numbered",
+                                        "attributes": {},
                                         "items": [
                                             {
                                                 "attributes": {},
@@ -34,8 +35,7 @@
                                                     }
                                                 ]
                                             }
-                                        ],
-                                        "attributes": {}
+                                        ]
                                     }
                                 },
                                 {
