@@ -27,7 +27,7 @@ export class GrammarState {
   }
 
   sub(str: string) {
-    if (!str.startsWith("$")) return str
+    if (str[0] !== "$") return str
 
     // variable substitution
     if (str.startsWith("$var:")) {

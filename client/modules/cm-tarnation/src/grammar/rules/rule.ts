@@ -84,7 +84,7 @@ export abstract class Rule {
     let matched = this.exec(str, pos, state)
 
     if (matched) {
-      if (this.lookahead && !this.lookahead?.test(str, pos + matched.length)) {
+      if (this.lookahead && !this.lookahead.test(str, pos + matched.length)) {
         return null
       }
 
