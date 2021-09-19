@@ -255,7 +255,7 @@ export class Host {
         // try an advance if we're not done
         const chunks = this.tokenizer.done
           ? this.tokenizer.chunks
-          : this.tokenizer.advance()
+          : this.tokenizer.tokenize()
 
         if (chunks) {
           this.parser.pending = chunks
@@ -265,7 +265,7 @@ export class Host {
         return null
       }
       case Stage.Parse: {
-        const result = SKIP_PARSER ? this.parser.advanceFullyRaw() : this.parser.advance()
+        const result = SKIP_PARSER ? this.parser.parseFullyRaw() : this.parser.parse()
 
         if (result) {
           const { buffer, reused } = result

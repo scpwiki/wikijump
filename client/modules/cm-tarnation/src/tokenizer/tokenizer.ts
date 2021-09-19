@@ -100,72 +100,6 @@ export class Tokenizer {
     return str
   }
 
-  /** Executes a tokenization step. */
-  private tokenize() {
-    const ctx = this.context
-
-    let tokens: GrammarToken[] | null = null
-    let length = 1
-
-    const start = Math.max(ctx.pos - MARIGN_BEFORE, this.region.from)
-    const end = Math.min(
-      ctx.pos + MARGIN_AFTER,
-      this.region.to + MARGIN_AFTER,
-      this.input.length
-    )
-
-    const str = this.getString(start, end)
-
-    const match = this.grammar.match(ctx.state, str, ctx.pos - start, ctx.pos)
-
-    if (match) {
-      ctx.state = match.state
-      tokens = match.compile()
-      length = match.length || 1
-    }
-
-    ctx.pos += length
-
-    if (!tokens?.length) return null
-
-    const mapped: Token[] = []
-
-    let last!: GrammarToken
-
-    for (let idx = 0; idx < tokens.length; idx++) {
-      const t = tokens[idx]
-
-      let pushEmbedded = false
-
-      if (t[5] !== undefined) {
-        // token ends an embedded region
-        if (t[5] === Nesting.POP) {
-          const range = ctx.endEmbedded(t[1])
-          if (range) mapped.push(range)
-        }
-        // token represents the entire region, not the start or end of one
-        else if (!ctx.embedded && t[5].endsWith("!")) {
-          const lang = t[5].slice(0, t[5].length - 1)
-          mapped.push([lang, t[1], t[2]])
-          continue
-        }
-        // token starts an embedded region
-        else if (!ctx.embedded) {
-          pushEmbedded = true
-          ctx.setEmbedded(t[5], t[2])
-        }
-      }
-
-      // check if the new token can be merged into the last one
-      if (!ctx.embedded || pushEmbedded) {
-        if (last && this.canContinue(last, t)) last[2] = t[2]
-        else mapped.push((last = t))
-      }
-    }
-
-    return mapped
-  }
-
   /** Compiles the tokenizer's buffer. */
   compile() {
     return this.buffer.compile()
@@ -175,12 +109,76 @@ export class Tokenizer {
    * Advances the tokenizer. Returns null if it isn't done, otherwise
    * returns a list of tokens.
    */
-  advance() {
+  tokenize() {
     if (this.context.pos < this.region.to) {
       const pos = this.context.pos
-      const context = this.context.clone()
-      const tokens = this.tokenize()
-      if (tokens?.length) this.buffer.add(pos, context, tokens)
+      const startContext = this.context.clone()
+
+      // tokenize
+
+      const ctx = this.context
+
+      let matchTokens: GrammarToken[] | null = null
+      let length = 1
+
+      const start = Math.max(ctx.pos - MARIGN_BEFORE, this.region.from)
+      const end = Math.min(
+        ctx.pos + MARGIN_AFTER,
+        this.region.to + MARGIN_AFTER,
+        this.input.length
+      )
+
+      const str = this.getString(start, end)
+
+      const match = this.grammar.match(ctx.state, str, ctx.pos - start, ctx.pos)
+
+      if (match) {
+        ctx.state = match.state
+        matchTokens = match.compile()
+        length = match.length || 1
+      }
+
+      ctx.pos += length
+
+      const tokens: Token[] = []
+
+      if (matchTokens?.length) {
+        let last!: GrammarToken
+
+        for (let idx = 0; idx < matchTokens.length; idx++) {
+          const t = matchTokens[idx]
+
+          let pushEmbedded = false
+
+          if (t[5] !== undefined) {
+            // token ends an embedded region
+            if (t[5] === Nesting.POP) {
+              const range = ctx.endEmbedded(t[1])
+              if (range) tokens.push(range)
+            }
+            // token represents the entire region, not the start or end of one
+            else if (!ctx.embedded && t[5].endsWith("!")) {
+              const lang = t[5].slice(0, t[5].length - 1)
+              tokens.push([lang, t[1], t[2]])
+              continue
+            }
+            // token starts an embedded region
+            else if (!ctx.embedded) {
+              pushEmbedded = true
+              ctx.setEmbedded(t[5], t[2])
+            }
+          }
+
+          // check if the new token can be merged into the last one
+          if (!ctx.embedded || pushEmbedded) {
+            if (last && this.canContinue(last, t)) last[2] = t[2]
+            else tokens.push((last = t))
+          }
+        }
+      }
+
+      // add found tokens to buffer
+      if (tokens?.length) this.buffer.add(pos, startContext, tokens)
     }
 
     if (this.context.pos >= this.region.to) return this.chunks
@@ -192,9 +190,9 @@ export class Tokenizer {
    * Forces the tokenizer to advance fully, which is rather expensive, and
    * returns the resultant tokens.
    */
-  advanceFully() {
+  tokenizeFully() {
     let result: Chunk[] | null = null
-    while ((result = this.advance()) === null) {}
+    while ((result = this.tokenize()) === null) {}
     return result
   }
 
