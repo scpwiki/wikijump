@@ -16,17 +16,6 @@ repository:
   nocontrol: /[^\s!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~\xA1\u2010-\u2027]/
   escapes: /\\@control/
 
-  # basic node types
-
-  String:
-    tag: string
-
-  CSSAttributes:
-    nest: css-attribute
-
-  WikiMath:
-    nest: wikimath
-
   # global
 
   EscapedNewLine:
@@ -98,7 +87,7 @@ repository:
       tag: processingInstruction
 
   Strikethrough:
-    tag: (...) special(deleted)
+    tag: (...) strikethrough
     inside: loose
     begin:
       open: Strikethrough
@@ -318,7 +307,7 @@ repository:
     tag: separator
 
   TripleLinkURL:
-    match: /([*#])?([^*#\n|\]]+)/
+    match: /([*#])?([^*\n|\]]+)/
     captures:
       0: { type: TripleLinkURLModifier, tag: modifier }
       1: { type: TripleLinkURLText, tag: link }
@@ -426,9 +415,6 @@ repository:
     match: /[^\s\]]+/
     tag: literal
 
-  BlockNodeArgumentValue:
-    tag: string
-
   BlockNodeArgument:
     match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
     context: { if: $0, matches: type, set: code-lang, to: $3 }
@@ -436,7 +422,11 @@ repository:
       0: { type: BlockNodeArgumentName, tag: special(propertyName) }
       1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
       2: { open: BlockNodeArgumentMark, tag: string }
-      3: { if: $0, matches: style, then: { is: CSSAttributes }, else: { is: BlockNodeArgumentValue }}
+      3:
+        if: $0
+        matches: style
+        then: { type: CSSAttributes, nest: css-attributes }
+        else: { type: BlockNodeArgumentValue, tag: string }
       4: { close: BlockNodeArgumentMark, tag: string }
 
   # block names
@@ -495,12 +485,12 @@ repository:
     tag: className
 
   ModuleNameUnknown:
-    match: /[^\\#*\s\]]+?/
+    match: /[^\\#*\s\]]+/
     lookahead: /@namela/
     tag: invalid
 
   BlockNameUnknown:
-    match: /[^\\#*\s\]]+?/
+    match: /[^\\#*\s\]]+/
     lookahead: /@namela/
     tag: invalid
 
@@ -511,7 +501,7 @@ repository:
     captures:
       0: { is: BlockStart }
       1: { type: BlockNodeInlineMathMark, tag: keyword }
-      2: { is: WikiMath }
+      2: { type: InlineMath, nest: wikimath }
       3: { is: BlockNodeInlineMathMark }
       4: { is: BlockEnd }
 

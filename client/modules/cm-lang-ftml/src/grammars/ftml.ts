@@ -7,6 +7,7 @@ import { ftmlHoverTooltips } from "../hover"
 import { ftmlLinter } from "../lint"
 import { spellcheckFTML } from "../spellcheck"
 import { aliasesFiltered, aliasesRaw } from "../util"
+import { StyleAttributeGrammar } from "./css-attributes"
 import ftmlGrammar from "./ftml.yaml"
 import { TexLanguage } from "./tex"
 
@@ -28,8 +29,7 @@ export const FTMLLanguage = new TarnationLanguage({
     ftmlHoverTooltips,
     htmlCompletion,
     cssCompletion,
-    // addLanguages(TexLanguage.description, StyleAttributeGrammar.description)
-    addLanguages(TexLanguage.description)
+    addLanguages(TexLanguage.description, StyleAttributeGrammar.description)
   ],
 
   variables: {
