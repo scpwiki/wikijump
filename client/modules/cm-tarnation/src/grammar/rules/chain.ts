@@ -95,19 +95,30 @@ function step(ctx: ChainContext) {
     }
 
     case Quantifier.REPEATING_ZERO_OR_MORE: {
+      if (ctx.advanced && ctx.nextMatches()) {
+        ctx.advance()
+        break
+      }
+      if (ctx.advanced === null) ctx.advanced = false
       const rules = ctx.current[0]
       for (let i = 0; i < rules.length; i++) {
         const result = rules[i].match(ctx.state, ctx.str, ctx.pos)
         if (result) {
           ctx.add(result)
+          ctx.advanced = true
           break step
         }
       }
       ctx.advance()
+      ctx.advanced = null
       break
     }
 
     case Quantifier.REPEATING_ONE_OR_MORE: {
+      if (ctx.advanced && ctx.nextMatches()) {
+        ctx.advance()
+        break
+      }
       if (ctx.advanced === null) ctx.advanced = false
       const rules = ctx.current[0]
       for (let i = 0; i < rules.length; i++) {
@@ -229,6 +240,38 @@ class ChainContext {
   finish() {
     if (this.failed) return null
     return this.results
+  }
+
+  nextMatches() {
+    if (this.done) throw new Error("Cannot get next rule when done")
+    const rule = this.rules[this.index + 1]
+    switch (rule[1]) {
+      case Quantifier.ONE:
+      case Quantifier.OPTIONAL:
+      case Quantifier.ZERO_OR_MORE:
+      case Quantifier.ONE_OR_MORE: {
+        const result = rule[0].match(this.state.clone(), this.str, this.pos)
+        if (result) return true
+        break
+      }
+      case Quantifier.ALTERNATIVES: {
+        for (let i = 0; i < rule[0].length; i++) {
+          for (let j = 0; j < rule[0][i].length; j++) {
+            const result = rule[0][i][0].match(this.state.clone(), this.str, this.pos)
+            if (result) return true
+          }
+        }
+        break
+      }
+      case Quantifier.REPEATING_ZERO_OR_MORE:
+      case Quantifier.REPEATING_ONE_OR_MORE: {
+        for (let i = 0; i < rule[0].length; i++) {
+          const result = rule[0][i].match(this.state.clone(), this.str, this.pos)
+          if (result) return true
+        }
+      }
+    }
+    return false
   }
 
   skip() {
