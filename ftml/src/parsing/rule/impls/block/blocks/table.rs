@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::parsing::parser::TableParseState;
 use crate::parsing::strip_whitespace;
 use crate::tree::{AttributeMap, PartialElement, Table, TableCell, TableRow};
 use std::num::NonZeroU32;
@@ -151,11 +150,6 @@ fn parse_table<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // This [[table]] is not in a regular content context.
-    if parser.table_flag() != TableParseState::Content {
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
-    }
-
     let parser = &mut ParserWrap::new(parser, TableParseState::Table);
 
     // Get block contents.
@@ -191,12 +185,6 @@ fn parse_row<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // This [[row]] is outside a [[table]], which is not allowed.
-    // It also cannot be inside another [[row]].
-    if parser.table_flag() != TableParseState::Table {
-        return Err(parser.make_warn(ParseWarningKind::TableRowOutsideTable));
-    }
-
     let parser = &mut ParserWrap::new(parser, TableParseState::Row);
 
     // Get block contents.
@@ -234,11 +222,6 @@ fn parse_cell_regular<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
-    if parser.table_flag() != TableParseState::Row {
-        return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
-    }
-
     let parser = &mut ParserWrap::new(parser, TableParseState::Content);
 
     // Get block contents.
@@ -267,11 +250,6 @@ fn parse_cell_header<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
-    if parser.table_flag() != TableParseState::Row {
-        return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
-    }
-
     let parser = &mut ParserWrap::new(parser, TableParseState::Content);
 
     // Get block contents.

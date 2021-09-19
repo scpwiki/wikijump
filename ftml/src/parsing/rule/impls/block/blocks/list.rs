@@ -207,11 +207,6 @@ fn parse_list_item<'r, 't>(
     assert!(!flag_star, "List item block doesn't allow star flag");
     assert_block_name(&BLOCK_LI, name);
 
-    // This [[li]] is outside of a [[ol]] or [[ul]], which is not allowed.
-    if !parser.in_list() {
-        return Err(parser.make_warn(ParseWarningKind::ListItemOutsideList));
-    }
-
     // Disable flag for list items.
     let mut parser = ParserWrap::new(parser, false);
 

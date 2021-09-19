@@ -66,8 +66,6 @@ pub struct Parser<'r, 't> {
     footnotes: Rc<RefCell<Vec<Vec<Element<'t>>>>>,
 
     // Flags
-    in_list: bool,
-    in_table: TableParseState,
     in_footnote: bool, // Whether we're currently inside [[footnote]] ... [[/footnote]].
     has_footnote_block: bool, // Whether a [[footnoteblock]] was created.
     start_of_line: bool,
@@ -103,8 +101,6 @@ impl<'r, 't> Parser<'r, 't> {
             depth: 0,
             table_of_contents,
             footnotes,
-            in_list: false,
-            in_table: TableParseState::Content,
             in_footnote: false,
             has_footnote_block: false,
             start_of_line: true,
@@ -445,18 +441,6 @@ impl<'r, 't> Parser<'r, 't> {
 #[inline]
 fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
     Rc::new(RefCell::new(Vec::new()))
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum TableParseState {
-    /// The parser is currently looking for any elements.
-    Content,
-
-    /// The parser is inside of a table and is looking for rows.
-    Table,
-
-    /// The parser is inside of a row and is looking for cells.
-    Row,
 }
 
 // Tests
