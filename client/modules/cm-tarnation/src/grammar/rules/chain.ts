@@ -33,100 +33,72 @@ export class Chain extends Rule {
 function step(ctx: ChainContext) {
   ctx.skip()
   step: switch (ctx.current[1]) {
-    case ChainRuleQuantifier.ONE: {
+    case Quantifier.ONE: {
       const result = ctx.current[0].match(ctx.state, ctx.str, ctx.pos)
-      if (!result) ctx.fail()
-      else ctx.addAndAdvance(result)
+      if (result) ctx.addAndAdvance(result)
+      else ctx.fail()
       break
     }
 
-    case ChainRuleQuantifier.OPTIONAL: {
+    case Quantifier.OPTIONAL: {
       const result = ctx.current[0].match(ctx.state, ctx.str, ctx.pos)
       if (result) ctx.add(result)
       ctx.advance()
       break
     }
 
-    case ChainRuleQuantifier.ZERO_OR_MORE: {
-      let result
-      while ((result = ctx.current[0].match(ctx.state, ctx.str, ctx.pos))) {
-        ctx.add(result)
-        ctx.skip()
-      }
+    case Quantifier.ZERO_OR_MORE: {
+      take(ctx, ctx.current[0])
       ctx.advance()
       break
     }
 
-    case ChainRuleQuantifier.ONE_OR_MORE: {
-      let advanced = false
-      let result
-      while ((result = ctx.current[0].match(ctx.state, ctx.str, ctx.pos))) {
-        ctx.add(result)
-        ctx.skip()
-        advanced = true
-      }
-      if (!advanced) ctx.fail()
-      else ctx.advance()
+    case Quantifier.ONE_OR_MORE: {
+      const advanced = take(ctx, ctx.current[0])
+      if (advanced) ctx.advance()
+      else ctx.fail()
       break
     }
 
-    case ChainRuleQuantifier.ALTERNATIVES: {
+    case Quantifier.ALTERNATIVES: {
       const rules = ctx.current[0]
-      let couldFail = false
-      alternatives: for (let i = 0; i < rules.length; i++) {
-        const type = rules[i][1]
-        switch (type) {
-          case ChainRuleQuantifier.ONE: {
-            const result = rules[i][0].match(ctx.state, ctx.str, ctx.pos)
-            if (!result) couldFail = true
-            else {
-              ctx.add(result)
-              break alternatives
-            }
-            break
-          }
 
-          case ChainRuleQuantifier.OPTIONAL: {
+      let advanced = false
+      let couldFail = false
+
+      for (let i = 0; i < rules.length; i++) {
+        const type = rules[i][1]
+        if (type === Quantifier.ONE || type === Quantifier.ONE_OR_MORE) {
+          couldFail = true
+        }
+
+        switch (type) {
+          case Quantifier.ONE:
+          case Quantifier.OPTIONAL: {
             const result = rules[i][0].match(ctx.state, ctx.str, ctx.pos)
             if (result) {
               ctx.add(result)
-              break alternatives
+              advanced = true
             }
             break
           }
-
-          case ChainRuleQuantifier.ZERO_OR_MORE: {
-            let advanced = false
-            let result
-            while ((result = rules[i][0].match(ctx.state, ctx.str, ctx.pos))) {
-              ctx.add(result)
-              ctx.skip()
-              advanced = true
-            }
-            if (advanced) break alternatives
-            break
-          }
-
-          case ChainRuleQuantifier.ONE_OR_MORE: {
-            let advanced = false
-            let result
-            while ((result = rules[i][0].match(ctx.state, ctx.str, ctx.pos))) {
-              ctx.add(result)
-              ctx.skip()
-              advanced = true
-            }
-            if (!advanced) couldFail = true
-            else break alternatives
+          case Quantifier.ZERO_OR_MORE:
+          case Quantifier.ONE_OR_MORE: {
+            advanced = take(ctx, rules[i][0])
             break
           }
         }
+
+        // leave for loop if we advanced
+        if (advanced) break
       }
-      if (couldFail) ctx.fail()
+
+      if (!advanced && couldFail) ctx.fail()
       else ctx.advance()
       break
     }
 
-    case ChainRuleQuantifier.REPEATING_ZERO_OR_MORE: {
+    case Quantifier.REPEATING_ZERO_OR_MORE: {
       const rules = ctx.current[0]
       for (let i = 0; i < rules.length; i++) {
         const result = rules[i].match(ctx.state, ctx.str, ctx.pos)
@@ -139,7 +111,7 @@ function step(ctx: ChainContext) {
       break
     }
 
-    case ChainRuleQuantifier.REPEATING_ONE_OR_MORE: {
+    case Quantifier.REPEATING_ONE_OR_MORE: {
       if (ctx.advanced === null) ctx.advanced = false
       const rules = ctx.current[0]
       for (let i = 0; i < rules.length; i++) {
@@ -158,7 +130,18 @@ function step(ctx: ChainContext) {
   }
 }
 
-enum ChainRuleQuantifier {
+function take(ctx: ChainContext, rule: Rule) {
+  let advanced = false
+  let result
+  while ((result = rule.match(ctx.state, ctx.str, ctx.pos))) {
+    ctx.add(result)
+    ctx.skip()
+    advanced = true
+  }
+  return advanced
+}
+
+enum Quantifier {
   ONE,
   OPTIONAL,
   ZERO_OR_MORE,
@@ -170,19 +153,19 @@ enum ChainRuleQuantifier {
 
 // prettier-ignore
 type ChainRuleSimple = [Rule,
-  | ChainRuleQuantifier.ONE
-  | ChainRuleQuantifier.OPTIONAL
-  | ChainRuleQuantifier.ZERO_OR_MORE
-  | ChainRuleQuantifier.ONE_OR_MORE
+  | Quantifier.ONE
+  | Quantifier.OPTIONAL
+  | Quantifier.ZERO_OR_MORE
+  | Quantifier.ONE_OR_MORE
 ]
 
 // prettier-ignore
 type ChainRule =
   | ChainRuleSimple
-  | [ChainRuleSimple[], ChainRuleQuantifier.ALTERNATIVES]
+  | [ChainRuleSimple[], Quantifier.ALTERNATIVES]
   | [Rule[],
-      | ChainRuleQuantifier.REPEATING_ZERO_OR_MORE
-      | ChainRuleQuantifier.REPEATING_ONE_OR_MORE
+      | Quantifier.REPEATING_ZERO_OR_MORE
+      | Quantifier.REPEATING_ONE_OR_MORE
     ]
 
 class ChainContext {
@@ -271,15 +254,15 @@ function parseChainRule(repo: Repository, str: string): ChainRule {
   }
 
   if (!repeatAlternatives && !normalAlternatives) {
-    let type = ChainRuleQuantifier.ONE
+    let type = Quantifier.ONE
     // prettier-ignore
     switch (str[str.length - 1]) {
-      case "?": type = ChainRuleQuantifier.OPTIONAL; break
-      case "*": type = ChainRuleQuantifier.ZERO_OR_MORE; break
-      case "+": type = ChainRuleQuantifier.ONE_OR_MORE; break
+      case "?": type = Quantifier.OPTIONAL; break
+      case "*": type = Quantifier.ZERO_OR_MORE; break
+      case "+": type = Quantifier.ONE_OR_MORE; break
     }
 
-    if (type !== ChainRuleQuantifier.ONE) {
+    if (type !== Quantifier.ONE) {
       str = str.slice(0, str.length - 1)
     }
 
@@ -291,7 +274,7 @@ function parseChainRule(repo: Repository, str: string): ChainRule {
   // normal alternatives
   else if (normalAlternatives) {
     const rules = str.split(/\s*\|\s*/).map(item => parseChainRule(repo, item))
-    return [rules as ChainRuleSimple[], ChainRuleQuantifier.ALTERNATIVES]
+    return [rules as ChainRuleSimple[], Quantifier.ALTERNATIVES]
   }
   // repeating alternatives
   else if (repeatAlternatives) {
@@ -310,9 +293,7 @@ function parseChainRule(repo: Repository, str: string): ChainRule {
 
     return [
       rules as Rule[],
-      zeroOrMore
-        ? ChainRuleQuantifier.REPEATING_ZERO_OR_MORE
-        : ChainRuleQuantifier.REPEATING_ONE_OR_MORE
+      zeroOrMore ? Quantifier.REPEATING_ZERO_OR_MORE : Quantifier.REPEATING_ONE_OR_MORE
     ]
   }
 
