@@ -85,12 +85,12 @@ pub enum AcceptsPartial {
 
 impl AcceptsPartial {
     pub fn matches(self, partial: &PartialElement) -> bool {
-        match (self, partial) {
-            (AcceptsPartial::ListItem, PartialElement::ListItem(_)) => true,
-            (AcceptsPartial::TableRow, PartialElement::TableRow(_)) => true,
-            (AcceptsPartial::TableCell, PartialElement::TableCell(_)) => true,
-            _ => false,
-        }
+        matches!(
+            (self, partial),
+            (AcceptsPartial::ListItem, PartialElement::ListItem(_))
+                | (AcceptsPartial::TableRow, PartialElement::TableRow(_))
+                | (AcceptsPartial::TableCell, PartialElement::TableCell(_))
+        )
     }
 }
 
