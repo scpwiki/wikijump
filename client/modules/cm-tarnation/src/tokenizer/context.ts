@@ -1,5 +1,5 @@
 import type { GrammarState } from "../grammar/state"
-import type { EmbedToken, SerializedTokenizerContext } from "../types"
+import type { EmbedToken } from "../types"
 
 /** Context/state object for the tokenizer. */
 export class TokenizerContext {

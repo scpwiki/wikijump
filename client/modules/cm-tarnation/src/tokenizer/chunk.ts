@@ -1,7 +1,7 @@
 import { dequal } from "dequal"
 import { klona } from "klona"
 import { ParserContext } from "../parser"
-import type { SerializedParserContext, SerializedTokenizerContext, Token } from "../types"
+import type { SerializedParserContext, Token } from "../types"
 import { TokenizerContext } from "./context"
 
 /**
@@ -14,7 +14,7 @@ import { TokenizerContext } from "./context"
  */
 export class Chunk {
   /** Context at the start of this chunk. */
-  private declare _context: SerializedTokenizerContext
+  private declare _context: TokenizerContext
 
   /** The tokens stored in this chunk. */
   private declare _tokens: Token[]
@@ -80,15 +80,11 @@ export class Chunk {
 
   /** The context for this chunk. */
   get context() {
-    return new TokenizerContext(
-      this._pos,
-      this._context.state.clone(),
-      this._context.embedded
-    )
+    return this._context.clone()
   }
 
   set context(context: TokenizerContext) {
-    this._context = context.serialize()
+    this._context = context.clone()
   }
 
   /**

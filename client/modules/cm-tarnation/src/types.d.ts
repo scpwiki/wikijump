@@ -68,15 +68,6 @@ export type Token = GrammarToken | EmbedToken
  */
 type LezerToken = [id: number, from: number, to: number, children: number, tree?: Tree]
 
-// -- TOKENIZER
-
-/** Serialized context/state of a tokenizer. */
-export interface SerializedTokenizerContext {
-  pos: number
-  state: GrammarState
-  embedded: null | [lang: string, start: number]
-}
-
 // -- PARSER
 
 /** Stack used by the parser to track tree construction. */
