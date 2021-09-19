@@ -25,24 +25,31 @@ impl<'t> IntoIterator for Elements<'t> {
     type IntoIter = OwnedElementsIterator<'t>;
 
     fn into_iter(self) -> Self::IntoIter {
-        match self {
-            Elements::None => OwnedElementsIterator::None,
-            Elements::Single(element) => OwnedElementsIterator::Single(Box::new(Some(element))),
+        // Collect items into a Vec for iteration.
+        //
+        // We reverse it so that each .pop() yields
+        // the next item during iteration.
+        //
+        // See commit 4d6ac9572 for why we are not using
+        // an enum with variants for each case.
+        let elements = match self {
+            Elements::None => vec![],
+            Elements::Single(element) => vec![element],
             Elements::Multiple(mut elements) => {
                 // So we can just pop for each step
                 elements.reverse();
-                OwnedElementsIterator::Multiple(elements)
+                elements
             }
-        }
+        };
+
+        OwnedElementsIterator { elements }
     }
 }
 
 /// Owned iterator implementation for `Elements`.
 #[derive(Debug)]
-pub enum OwnedElementsIterator<'t> {
-    None,
-    Single(Box<Option<Element<'t>>>),
-    Multiple(Vec<Element<'t>>),
+pub struct OwnedElementsIterator<'t> {
+    elements: Vec<Element<'t>>,
 }
 
 impl<'t> Iterator for OwnedElementsIterator<'t> {
@@ -50,11 +57,7 @@ impl<'t> Iterator for OwnedElementsIterator<'t> {
 
     #[inline]
     fn next(&mut self) -> Option<Element<'t>> {
-        match self {
-            OwnedElementsIterator::None => None,
-            OwnedElementsIterator::Single(ref mut element) => element.take(),
-            OwnedElementsIterator::Multiple(ref mut elements) => elements.pop(),
-        }
+        self.elements.pop()
     }
 }
 
