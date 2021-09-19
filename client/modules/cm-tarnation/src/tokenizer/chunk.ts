@@ -1,4 +1,3 @@
-import { dequal } from "dequal"
 import { klona } from "klona"
 import { ParserContext } from "../parser"
 import type { SerializedParserContext, Token } from "../types"
@@ -66,6 +65,9 @@ export class Chunk {
   set pos(pos: number) {
     this.compiled = undefined
     this._pos = pos
+    // parser can't reuse ahead nodes, so if this chunks
+    // gets moved, we need to clear the parser context
+    if (this._parserContext) this._parserContext = undefined
   }
 
   /** The chunk's maximum extent, as determined from the positions of its tokens. */
@@ -200,7 +202,7 @@ export class Chunk {
    */
   isReusable(context: TokenizerContext, offset = 0) {
     if (this._pos + offset !== context.pos) return false
-    if (!dequal(this._context, context.serialize())) return false
+    if (!context.equals(this._context, offset)) return false
     return true
   }
 }

@@ -8,13 +8,13 @@ import { ParserStack } from "./stack"
  */
 export class ParserContext {
   /**
-   * @param start - The starting document position of the parser.
+   * @param pos - The starting document position of the parser.
    * @param index - The index of the next token to be parsed.
    * @param buffer - The parser's token buffer.
    * @param stack - The parsers's stack.
    */
   constructor(
-    public start: number,
+    public pos: number,
     public index: number = 0,
     public buffer: ParserBuffer = new ParserBuffer(),
     public stack: ParserStack = new ParserStack()
@@ -28,7 +28,7 @@ export class ParserContext {
    */
   serialize(full = false): SerializedParserContext {
     return {
-      pos: this.start,
+      pos: this.pos,
       index: this.index,
       buffer: full ? this.buffer.clone(true) : this.buffer.shallow(),
       stack: this.stack.serialize()

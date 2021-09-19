@@ -4,7 +4,7 @@ import { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
 
 /** Number of tokens per chunk. */
-const CHUNK_SIZE = 128
+const CHUNK_SIZE = 64
 
 /**
  * A `TokenizerBuffer` stores `Chunk` objects that then store the actual

@@ -37,21 +37,17 @@ export class TokenizerContext {
     return [...embedded, end]
   }
 
+  equals(other: TokenizerContext, offset = 0) {
+    if (this.pos !== other.pos + offset || !this.state.equals(other.state)) return false
+    if (Boolean(this.embedded) !== Boolean(other.embedded)) return false
+    if (this.embedded) {
+      if (this.embedded[0] !== other.embedded![0]) return false
+      if (this.embedded[1] !== other.embedded![1]) return false
+    }
+    return true
+  }
+
   clone() {
     return new TokenizerContext(this.pos, this.state.clone(), this.embedded)
-  }
-
-  /** Serializes the context. */
-  serialize(): SerializedTokenizerContext {
-    return { pos: this.pos, state: this.state.clone(), embedded: this.embedded }
-  }
-
-  /** Deserializes a serialized context and returns a new `TokenizerContext`. */
-  static deserialize(serialized: SerializedTokenizerContext) {
-    return new TokenizerContext(
-      serialized.pos,
-      serialized.state.clone(),
-      serialized.embedded
-    )
   }
 }

@@ -48,11 +48,12 @@ export class GrammarState {
     throw new Error("Couldn't resolve substitute")
   }
 
-  adopt(state: GrammarState) {
-    this.variables = state.variables
-    this.context = state.context
-    this.stack = state.stack
-    this.last = state.last
+  equals(other: GrammarState) {
+    return (
+      this.variables === other.variables &&
+      contextEquivalent(this.context, other.context) &&
+      this.stack.equals(other.stack)
+    )
   }
 
   clone() {
@@ -81,6 +82,15 @@ export class GrammarStack {
     this.stack = this.stack.slice(0, idx)
   }
 
+  equals(other: GrammarStack) {
+    if (this === other) return true
+    if (this.length !== other.stack.length) return false
+    for (let i = 0; i < this.stack.length; i++) {
+      if (!stackElementEquivalent(this.stack[i], other.stack[i])) return false
+    }
+    return true
+  }
+
   get length() {
     return this.stack.length
   }
@@ -100,4 +110,24 @@ export class GrammarStack {
   clone() {
     return new GrammarStack(this.stack)
   }
+}
+
+function stackElementEquivalent(a: GrammarStackElement, b: GrammarStackElement) {
+  // do quick checks first
+  if (a.node !== b.node || a.end !== b.end || a.rules.length !== b.rules.length) {
+    return false
+  }
+  for (let i = 0; i < a.rules.length; i++) {
+    if (a.rules[i] !== b.rules[i]) return false
+  }
+  return true
+}
+
+function contextEquivalent(a: Record<string, string>, b: Record<string, string>) {
+  if (a === b) return true
+  if (Object.keys(a).length !== Object.keys(b).length) return false
+  for (const key in a) {
+    if (a[key] !== b[key]) return false
+  }
+  return true
 }
