@@ -8,8 +8,8 @@ import type { TokenizerBuffer } from "./buffer"
 import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
 
-/** Amount of safety-margin to read after the tokenizer's end position. */
-const MARGIN_AFTER = 500
+const MARIGN_BEFORE = 32
+const MARGIN_AFTER = 128
 
 /**
  * The `Tokenizer` takes an input document and tokenizes it using a
@@ -25,11 +25,7 @@ export class Tokenizer {
   /** Host grammar. */
   private declare grammar: Grammar
 
-  /** String that is actually being tokenized. */
-  private declare str: string
-
-  /** Starting offset, as in where in the editor document does the string start. */
-  private declare offset: number
+  private declare input: Input
 
   /** The region of the document that should be tokenized. */
   private declare region: ParseRegion
@@ -60,10 +56,7 @@ export class Tokenizer {
     this.buffer = buffer
     this.grammar = language.grammar
     this.region = region
-
-    const end = Math.min(region.to + MARGIN_AFTER, input.length)
-    this.str = input.read(context.pos, end)
-    this.offset = context.pos
+    this.input = input
   }
 
   /** True if the tokenizer has already completed. */
@@ -98,25 +91,40 @@ export class Tokenizer {
     return true
   }
 
+  private getString(start: number, end: number) {
+    const difference = end - start
+    let str = ""
+    while (str.length <= difference && start + str.length !== this.input.length) {
+      str += this.input.chunk(start + str.length)
+    }
+    return str
+  }
+
   /** Executes a tokenization step. */
   private tokenize() {
+    const ctx = this.context
+
     let tokens: GrammarToken[] | null = null
     let length = 1
 
-    const match = this.grammar.match(
-      this.context.state,
-      this.str,
-      this.context.pos - this.offset,
-      this.context.pos
+    const start = Math.max(ctx.pos - MARIGN_BEFORE, this.region.from)
+    const end = Math.min(
+      ctx.pos + MARGIN_AFTER,
+      this.region.to + MARGIN_AFTER,
+      this.input.length
     )
 
+    const str = this.getString(start, end)
+
+    const match = this.grammar.match(ctx.state, str, ctx.pos - start, ctx.pos)
+
     if (match) {
-      this.context.state = match.state
+      ctx.state = match.state
       tokens = match.compile()
       length = match.length || 1
     }
 
-    this.context.pos += length
+    ctx.pos += length
 
     if (!tokens?.length) return null
 
@@ -132,24 +140,24 @@ export class Tokenizer {
       if (t[5] !== undefined) {
         // token ends an embedded region
         if (t[5] === Nesting.POP) {
-          const range = this.context.endEmbedded(t[1])
+          const range = ctx.endEmbedded(t[1])
           if (range) mapped.push(range)
         }
         // token represents the entire region, not the start or end of one
-        else if (!this.context.embedded && t[5].endsWith("!")) {
+        else if (!ctx.embedded && t[5].endsWith("!")) {
           const lang = t[5].slice(0, t[5].length - 1)
           mapped.push([lang, t[1], t[2]])
           continue
         }
         // token starts an embedded region
-        else if (!this.context.embedded) {
+        else if (!ctx.embedded) {
           pushEmbedded = true
-          this.context.setEmbedded(t[5], t[2])
+          ctx.setEmbedded(t[5], t[2])
         }
       }
 
       // check if the new token can be merged into the last one
-      if (!this.context.embedded || pushEmbedded) {
+      if (!ctx.embedded || pushEmbedded) {
         if (last && this.canContinue(last, t)) last[2] = t[2]
         else mapped.push((last = t))
       }
@@ -207,7 +215,7 @@ export class Tokenizer {
       const chunk = right.buffer[idx]
       if (chunk.isReusable(this.context, this.region.edit.offset)) {
         right.slide(idx, this.region.edit.offset, true)
-        this.buffer.link(right, this.region.length)
+        this.buffer.link(right, this.region.original.length)
         this.buffer.ensureLast(this.context.pos, this.context)
         this.context = this.buffer.last!.context
         return true
