@@ -51,7 +51,7 @@ pub fn render_list(
                             .attr(attr!("is" => "wj-list-item";; attributes))
                             .inner(log, &elements);
                     }
-                    ListItem::SubList(element) => {
+                    ListItem::SubList { element } => {
                         render_element(log, ctx, element);
                     }
                 }

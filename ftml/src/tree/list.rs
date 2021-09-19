@@ -38,7 +38,7 @@ pub enum ListItem<'t> {
     /// This item in the list is a sub-list.
     ///
     /// That is, it's another, deeper list within the list.
-    SubList(Element<'t>),
+    SubList { element: Box<Element<'t>> },
 }
 
 impl ListItem<'_> {
@@ -51,7 +51,13 @@ impl ListItem<'_> {
                 attributes: attributes.to_owned(),
                 elements: elements_to_owned(elements),
             },
-            ListItem::SubList(list) => ListItem::SubList(list.to_owned()),
+            ListItem::SubList { element } => {
+                let element: &Element = &*element;
+
+                ListItem::SubList {
+                    element: Box::new(element.to_owned()),
+                }
+            }
         }
     }
 }

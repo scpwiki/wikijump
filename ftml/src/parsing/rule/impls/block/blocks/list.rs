@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::parsing::strip_newlines;
-use crate::tree::{ListItem, ListType};
+use crate::tree::{ListItem, ListType, PartialElement};
 use std::ops::{Deref, DerefMut};
 
 // Definitions
@@ -146,7 +146,9 @@ fn parse_list_block<'r, 't>(
         for element in elements {
             match element {
                 // Ensure all elements of a list are only items, i.e. [[li]].
-                Element::ListItem(item) => items.push(*item),
+                Element::Partial(PartialElement::ListItem(list_item)) => {
+                    items.push(list_item);
+                }
 
                 // Or sub-lists.
                 Element::List {
@@ -154,13 +156,13 @@ fn parse_list_block<'r, 't>(
                     attributes,
                     items: sub_items,
                 } => {
-                    let element = Element::List {
+                    let element = Box::new(Element::List {
                         ltype,
                         attributes,
                         items: sub_items,
-                    };
-                    let item = ListItem::SubList(element);
-                    items.push(item);
+                    });
+
+                    items.push(ListItem::SubList { element });
                 }
 
                 // Ignore "whitespace" elements
@@ -230,11 +232,10 @@ fn parse_list_item<'r, 't>(
         strip_newlines(&mut elements);
     }
 
-    let list_item = ListItem::Elements {
+    let element = Element::Partial(PartialElement::ListItem(ListItem::Elements {
         elements,
         attributes,
-    };
-    let element = Element::ListItem(Box::new(list_item));
+    }));
 
     ok!(false; element, exceptions)
 }

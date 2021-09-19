@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::parsing::parser::TableParseState;
 use crate::parsing::strip_whitespace;
-use crate::tree::{AttributeMap, Table, TableCell, TableItem, TableRow};
+use crate::tree::{AttributeMap, PartialElement, Table, TableCell, TableRow};
 use std::num::NonZeroU32;
 use std::ops::{Deref, DerefMut};
 
@@ -119,13 +119,15 @@ where
 }
 
 macro_rules! extract_table_items {
-    ($parser:expr, $elements:expr; $item_type:ident, $warning_kind:ident $(,)?) => {{
+    ($parser:expr, $elements:expr; $table_item_type:ident, $warning_kind:ident $(,)?) => {{
         let mut items = Vec::new();
 
         for element in $elements {
             match element {
                 // Append the next table item.
-                Element::TableItem(TableItem::$item_type(item)) => items.push(item),
+                Element::Partial(PartialElement::$table_item_type(item)) => {
+                    items.push(item);
+                }
 
                 // Ignore internal whitespace.
                 element if element.is_whitespace() => (),
@@ -171,7 +173,7 @@ fn parse_table<'r, 't>(
         (&BLOCK_TABLE, "table block"),
     )?;
 
-    let rows = extract_table_items!(parser, elements; Row, TableContainsNonRow);
+    let rows = extract_table_items!(parser, elements; TableRow, TableContainsNonRow);
 
     // Build and return table element
     let element = Element::Table(Table { rows, attributes });
@@ -212,10 +214,12 @@ fn parse_row<'r, 't>(
         (&BLOCK_TABLE_ROW, "table row"),
     )?;
 
-    let cells = extract_table_items!(parser, elements; Cell, TableRowContainsNonCell);
+    let cells =
+        extract_table_items!(parser, elements; TableCell, TableRowContainsNonCell);
 
     // Build and return table row
-    let element = Element::TableItem(TableItem::Row(TableRow { cells, attributes }));
+    let element =
+        Element::Partial(PartialElement::TableRow(TableRow { cells, attributes }));
 
     ok!(false; element, exceptions)
 }
@@ -308,7 +312,7 @@ fn parse_cell<'r, 't>(
         None => *ONE,
     };
 
-    let element = Element::TableItem(TableItem::Cell(TableCell {
+    let element = Element::Partial(PartialElement::TableCell(TableCell {
         header,
         column_span,
         align: None,

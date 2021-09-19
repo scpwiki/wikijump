@@ -227,7 +227,9 @@ fn build_toc_list_element(
     list: DepthList<(), String>,
 ) -> Element<'static> {
     let build_item = |item| match item {
-        DepthItem::List(_, list) => ListItem::SubList(build_toc_list_element(incr, list)),
+        DepthItem::List(_, list) => ListItem::SubList {
+            element: Box::new(build_toc_list_element(incr, list)),
+        },
         DepthItem::Item(name) => {
             let anchor = format!("#toc{}", incr.next());
             let link = Element::Link {

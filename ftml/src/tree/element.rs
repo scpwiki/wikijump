@@ -21,7 +21,8 @@
 use super::clone::*;
 use super::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
-    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, Table, TableItem,
+    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, PartialElement,
+    Table,
 };
 use crate::data::PageRef;
 use ref_map::*;
@@ -66,12 +67,6 @@ pub enum Element<'t> {
     /// An element representing an HTML table.
     Table(Table<'t>),
 
-    /// A particular portion of a table.
-    ///
-    /// This will not occur in final trees, but is a special
-    /// `Element` returned during parsing.
-    TableItem(TableItem<'t>),
-
     /// An element representing an arbitrary anchor.
     ///
     /// This is distinct from link in that it maps to HTML `<a>`,
@@ -113,12 +108,6 @@ pub enum Element<'t> {
         attributes: AttributeMap<'t>,
         items: Vec<ListItem<'t>>,
     },
-
-    /// A particular item of a list.
-    ///
-    /// This will not occur in final trees, but is a special
-    /// `Element` returned during parsing.
-    ListItem(Box<ListItem<'t>>),
 
     /// A radio button.
     ///
@@ -234,6 +223,14 @@ pub enum Element<'t> {
 
     /// A horizontal rule.
     HorizontalRule,
+
+    /// A partial element.
+    ///
+    /// This will not appear in final syntax trees, but exists to
+    /// facilitate parsing of complicated structures.
+    ///
+    /// See [`WJ-816`](https://scuttle.atlassian.net/browse/WJ-816).
+    Partial(PartialElement<'t>),
 }
 
 impl Element<'_> {
@@ -262,11 +259,9 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Table(_) => "Table",
-            Element::TableItem(_) => "TableItem",
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::List { .. } => "List",
-            Element::ListItem(_) => "ListItem",
             Element::Image { .. } => "Image",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
@@ -284,6 +279,7 @@ impl Element<'_> {
             Element::LineBreaks { .. } => "LineBreaks",
             Element::ClearFloat(_) => "ClearFloat",
             Element::HorizontalRule => "HorizontalRule",
+            Element::Partial(partial) => partial.name(),
         }
     }
 
@@ -302,10 +298,8 @@ impl Element<'_> {
             Element::Module(_) => false,
             Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
             Element::Table(_) => false,
-            Element::TableItem(_) => false,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
-            Element::ListItem(_) => false,
             Element::Image { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
@@ -320,6 +314,9 @@ impl Element<'_> {
             Element::LineBreak | Element::LineBreaks { .. } => true,
             Element::ClearFloat(_) => false,
             Element::HorizontalRule => false,
+            Element::Partial(_) => {
+                panic!("Should not check for paragraph safety of partials")
+            }
         }
     }
 
@@ -336,7 +333,6 @@ impl Element<'_> {
             Element::Raw(text) => Element::Raw(string_to_owned(text)),
             Element::Email(email) => Element::Email(string_to_owned(email)),
             Element::Table(table) => Element::Table(table.to_owned()),
-            Element::TableItem(item) => Element::TableItem(item.to_owned()),
             Element::Anchor {
                 target,
                 attributes,
@@ -364,11 +360,6 @@ impl Element<'_> {
                 attributes: attributes.to_owned(),
                 items: list_items_to_owned(items),
             },
-            Element::ListItem(boxed_list_item) => {
-                let list_item: &ListItem = &*boxed_list_item;
-
-                Element::ListItem(Box::new(list_item.to_owned()))
-            }
             Element::Image {
                 source,
                 link,
@@ -456,6 +447,7 @@ impl Element<'_> {
             Element::LineBreaks(amount) => Element::LineBreaks(*amount),
             Element::ClearFloat(clear_float) => Element::ClearFloat(*clear_float),
             Element::HorizontalRule => Element::HorizontalRule,
+            Element::Partial(partial) => Element::Partial(partial.to_owned()),
         }
     }
 }
