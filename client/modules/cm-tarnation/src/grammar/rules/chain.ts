@@ -1,18 +1,12 @@
 import type * as DF from "../definition"
 import { Matched } from "../matched"
 import { RegExpMatcher } from "../matchers/regexp"
-import { Node } from "../node"
 import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
 import { Rule } from "./rule"
 
-// TODO: redo this, it's a mess
-// right now this does work - but it's the slowest rule type.
-// it's also very complicated and hard to understand,
-// as you can maybe tell.
-
 export class Chain extends Rule {
-  private declare chain: ReturnType<typeof parseChainItem>[]
+  private declare chain: ChainRule[]
   private declare skip?: RegExpMatcher
 
   constructor(repo: Repository, rule: DF.Chain) {
@@ -20,98 +14,287 @@ export class Chain extends Rule {
     if (rule.skip) {
       this.skip = new RegExpMatcher(rule.skip, repo.ignoreCase, repo.variables)
     }
-    this.chain = rule.chain.map(item => parseChainItem(repo, item, this.skip))
+    this.chain = rule.chain.map(item => parseChainRule(repo, item))
   }
 
   exec(state: GrammarState, str: string, pos: number) {
-    const from = pos
-    let total = ""
-    let iter: Iterable<Matched | null> | null = null
-    const results: Matched[] = []
-    chain: for (let i = 0; i < this.chain.length; i++) {
-      // check skip rule, and if it passes, skip forward a position
-      if (this.skip) {
-        let result
-        while ((result = this.skip.match(str, pos))) {
-          total += result.total
-          pos += result.length
-        }
-      }
+    const ctx = new ChainContext(state, this.chain, str, pos, this.skip)
 
-      if (!iter) iter = this.chain[i](state, str, pos)
-      let repeating = false
-      for (const result of iter) {
-        if (!result) return null
-        results.push(result)
+    while (!ctx.done) step(ctx)
 
-        total += result.total
-        pos += result.length
+    const finished = ctx.finish()
 
-        // if we're in a repeating rule (more than one match)
-        // we need to check the next rule, and if it matches
-        // we need to continue with the next iterator
-        if (repeating && this.chain[i + 1]) {
-          const next = this.chain[i + 1](state, str, pos)
-          const nextResult = next.next().value
-          if (nextResult) {
-            results.push(nextResult)
-            iter = next
-            continue chain
-          }
-        }
+    if (!finished) return null
 
-        repeating = true
-      }
-
-      iter = null
-    }
-    if (!results.length) return null
-    return new Matched(state, this.node, total, from, results)
+    return new Matched(state, this.node, ctx.total, pos, finished)
   }
 }
 
-function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
+function step(ctx: ChainContext) {
+  ctx.skip()
+  step: switch (ctx.current[1]) {
+    case ChainRuleQuantifier.ONE: {
+      const result = ctx.current[0].match(ctx.state, ctx.str, ctx.pos)
+      if (!result) ctx.fail()
+      else ctx.addAndAdvance(result)
+      break
+    }
+
+    case ChainRuleQuantifier.OPTIONAL: {
+      const result = ctx.current[0].match(ctx.state, ctx.str, ctx.pos)
+      if (result) ctx.add(result)
+      ctx.advance()
+      break
+    }
+
+    case ChainRuleQuantifier.ZERO_OR_MORE: {
+      let result
+      while ((result = ctx.current[0].match(ctx.state, ctx.str, ctx.pos))) {
+        ctx.add(result)
+        ctx.skip()
+      }
+      ctx.advance()
+      break
+    }
+
+    case ChainRuleQuantifier.ONE_OR_MORE: {
+      let advanced = false
+      let result
+      while ((result = ctx.current[0].match(ctx.state, ctx.str, ctx.pos))) {
+        ctx.add(result)
+        ctx.skip()
+        advanced = true
+      }
+      if (!advanced) ctx.fail()
+      else ctx.advance()
+      break
+    }
+
+    case ChainRuleQuantifier.ALTERNATIVES: {
+      const rules = ctx.current[0]
+      let couldFail = false
+      alternatives: for (let i = 0; i < rules.length; i++) {
+        const type = rules[i][1]
+        switch (type) {
+          case ChainRuleQuantifier.ONE: {
+            const result = rules[i][0].match(ctx.state, ctx.str, ctx.pos)
+            if (!result) couldFail = true
+            else {
+              ctx.add(result)
+              break alternatives
+            }
+            break
+          }
+
+          case ChainRuleQuantifier.OPTIONAL: {
+            const result = rules[i][0].match(ctx.state, ctx.str, ctx.pos)
+            if (result) {
+              ctx.add(result)
+              break alternatives
+            }
+            break
+          }
+
+          case ChainRuleQuantifier.ZERO_OR_MORE: {
+            let advanced = false
+            let result
+            while ((result = rules[i][0].match(ctx.state, ctx.str, ctx.pos))) {
+              ctx.add(result)
+              ctx.skip()
+              advanced = true
+            }
+            if (advanced) break alternatives
+            break
+          }
+
+          case ChainRuleQuantifier.ONE_OR_MORE: {
+            let advanced = false
+            let result
+            while ((result = rules[i][0].match(ctx.state, ctx.str, ctx.pos))) {
+              ctx.add(result)
+              ctx.skip()
+              advanced = true
+            }
+            if (!advanced) couldFail = true
+            else break alternatives
+            break
+          }
+        }
+      }
+      if (couldFail) ctx.fail()
+      else ctx.advance()
+      break
+    }
+
+    case ChainRuleQuantifier.REPEATING_ZERO_OR_MORE: {
+      const rules = ctx.current[0]
+      for (let i = 0; i < rules.length; i++) {
+        const result = rules[i].match(ctx.state, ctx.str, ctx.pos)
+        if (result) {
+          ctx.add(result)
+          break step
+        }
+      }
+      ctx.advance()
+      break
+    }
+
+    case ChainRuleQuantifier.REPEATING_ONE_OR_MORE: {
+      if (ctx.advanced === null) ctx.advanced = false
+      const rules = ctx.current[0]
+      for (let i = 0; i < rules.length; i++) {
+        const result = rules[i].match(ctx.state, ctx.str, ctx.pos)
+        if (result) {
+          ctx.add(result)
+          ctx.advanced = true
+          break step
+        }
+      }
+      if (!ctx.advanced) ctx.fail()
+      else ctx.advance()
+      ctx.advanced = null
+      break
+    }
+  }
+}
+
+enum ChainRuleQuantifier {
+  ONE,
+  OPTIONAL,
+  ZERO_OR_MORE,
+  ONE_OR_MORE,
+  ALTERNATIVES,
+  REPEATING_ZERO_OR_MORE,
+  REPEATING_ONE_OR_MORE
+}
+
+// prettier-ignore
+type ChainRuleSimple = [Rule,
+  | ChainRuleQuantifier.ONE
+  | ChainRuleQuantifier.OPTIONAL
+  | ChainRuleQuantifier.ZERO_OR_MORE
+  | ChainRuleQuantifier.ONE_OR_MORE
+]
+
+// prettier-ignore
+type ChainRule =
+  | ChainRuleSimple
+  | [ChainRuleSimple[], ChainRuleQuantifier.ALTERNATIVES]
+  | [Rule[],
+      | ChainRuleQuantifier.REPEATING_ZERO_OR_MORE
+      | ChainRuleQuantifier.REPEATING_ONE_OR_MORE
+    ]
+
+class ChainContext {
+  declare state: GrammarState
+  declare rules: ChainRule[]
+  declare str: string
+  declare pos: number
+  declare total: string
+  declare results: Matched[]
+  declare index: number
+  declare failed: boolean
+  declare advanced: boolean | null
+  declare skipMatcher?: RegExpMatcher
+
+  constructor(
+    state: GrammarState,
+    rules: ChainRule[],
+    str: string,
+    pos: number,
+    skip?: RegExpMatcher
+  ) {
+    this.state = state
+    this.rules = rules
+    this.str = str
+    this.pos = pos
+    this.total = ""
+    this.results = []
+    this.index = 0
+    this.failed = false
+    this.advanced = null
+    if (skip) this.skipMatcher = skip
+  }
+
+  get done() {
+    return this.index >= this.rules.length
+  }
+
+  get current() {
+    if (this.done) throw new Error("Cannot get current rule when done")
+    return this.rules[this.index]
+  }
+
+  add(...results: Matched[]) {
+    for (const result of results) {
+      this.results.push(result)
+      this.total += result.total
+      this.pos += result.length
+    }
+  }
+
+  fail() {
+    this.failed = true
+    this.index = this.rules.length
+  }
+
+  advance() {
+    this.index++
+  }
+
+  addAndAdvance(result: Matched) {
+    this.add(result)
+    this.advance()
+  }
+
+  finish() {
+    if (this.failed) return null
+    return this.results
+  }
+
+  skip() {
+    if (!this.skipMatcher) return
+    let result
+    while ((result = this.skipMatcher.match(this.str, this.pos))) {
+      this.pos += result.length
+      this.total += result.total
+    }
+  }
+}
+
+function parseChainRule(repo: Repository, str: string): ChainRule {
   const repeatAlternatives = /\|[*+]/.test(str)
   const normalAlternatives = /\|(?![*+])/.test(str)
 
   if (repeatAlternatives && normalAlternatives) {
-    throw new Error("Cannot have repeating alternative and non-repeating alternatives")
+    throw new Error("Cannot mix |* (or |+) and |")
   }
 
   if (!repeatAlternatives && !normalAlternatives) {
-    return parseChainRule(repo, str, skip)
-  }
-
-  const rules = str.split(/\s*\|[*+]?\s*/).map(item => parseChainRule(repo, item, skip))
-
-  function* iterate(state: GrammarState, str: string, pos: number) {
-    let maybeFailed = false
-    let advanced = false
-    rules: for (let i = 0; i < rules.length; i++) {
-      // check skip rule, and if it passes, skip forward a position
-      if (skip) {
-        let result
-        while ((result = skip.match(str, pos))) {
-          yield new Matched(state, Node.None, result.total, pos)
-          pos += result.length
-        }
-      }
-      for (const result of rules[i](state, str, pos)) {
-        if (!result) {
-          maybeFailed = true
-          break
-        } else {
-          advanced = true
-          pos += result.length
-          yield result
-        }
-        if (advanced) break rules
-      }
+    let type = ChainRuleQuantifier.ONE
+    // prettier-ignore
+    switch (str[str.length - 1]) {
+      case "?": type = ChainRuleQuantifier.OPTIONAL; break
+      case "*": type = ChainRuleQuantifier.ZERO_OR_MORE; break
+      case "+": type = ChainRuleQuantifier.ONE_OR_MORE; break
     }
-    if (maybeFailed && !advanced) yield null
-  }
 
-  if (repeatAlternatives) {
+    if (type !== ChainRuleQuantifier.ONE) {
+      str = str.slice(0, str.length - 1)
+    }
+
+    const rule = repo.get(str)
+    if (!(rule instanceof Rule)) throw new Error(`Rule "${str}" not found`)
+
+    return [rule, type]
+  }
+  // normal alternatives
+  else if (normalAlternatives) {
+    const rules = str.split(/\s*\|\s*/).map(item => parseChainRule(repo, item))
+    return [rules as ChainRuleSimple[], ChainRuleQuantifier.ALTERNATIVES]
+  }
+  // repeating alternatives
+  else if (repeatAlternatives) {
     const zeroOrMore = /\|\*/.test(str)
     const oneOrMore = /\|\+/.test(str)
 
@@ -119,108 +302,19 @@ function parseChainItem(repo: Repository, str: string, skip?: RegExpMatcher) {
       throw new Error("Cannot have repeating alternatives with both * and +")
     }
 
-    if (zeroOrMore) {
-      return function* (state: GrammarState, str: string, pos: number) {
-        let result: void | Matched | null
-        while ((result = iterate(state, str, pos).next().value)) {
-          yield result
-          pos += result.length
-        }
-      }
-    } else {
-      return function* (state: GrammarState, str: string, pos: number) {
-        let advanced = false
-        let result: void | Matched | null
-        while ((result = iterate(state, str, pos).next().value)) {
-          yield result
-          advanced = true
-          pos += result.length
-        }
-        if (!advanced) yield null
-      }
+    const rules = str.split(/\s*\|[*+]?\s*/).map(item => repo.get(item))
+
+    if (rules.some(rule => !(rule instanceof Rule))) {
+      throw new Error(`Rule "${str}" not found`)
     }
-  } else if (normalAlternatives) {
-    return iterate
+
+    return [
+      rules as Rule[],
+      zeroOrMore
+        ? ChainRuleQuantifier.REPEATING_ZERO_OR_MORE
+        : ChainRuleQuantifier.REPEATING_ONE_OR_MORE
+    ]
   }
 
   throw new Error("Unreachable")
-}
-
-function parseChainRule(repo: Repository, str: string, skip?: RegExpMatcher) {
-  let type = ChainRuleType.ONE
-  // prettier-ignore
-  switch (str[str.length - 1]) {
-    case "?": type = ChainRuleType.OPTIONAL; break
-    case "*": type = ChainRuleType.ZERO_OR_MORE; break
-    case "+": type = ChainRuleType.ONE_OR_MORE; break
-  }
-
-  if (type !== ChainRuleType.ONE) {
-    str = str.slice(0, str.length - 1)
-  }
-
-  const rule = repo.get(str)
-
-  if (!(rule instanceof Rule)) throw new Error(`Rule "${str}" not found`)
-
-  switch (type) {
-    case ChainRuleType.ONE: {
-      return function* (state: GrammarState, str: string, pos: number) {
-        yield rule.match(state, str, pos)
-      }
-    }
-    case ChainRuleType.OPTIONAL: {
-      return function* (state: GrammarState, str: string, pos: number) {
-        const result = rule.match(state, str, pos)
-        if (result) yield result
-      }
-    }
-    case ChainRuleType.ZERO_OR_MORE: {
-      return function* (state: GrammarState, str: string, pos: number) {
-        let result
-        while ((result = rule.match(state, str, pos))) {
-          if (result) {
-            yield result
-            pos += result.length
-            if (skip) {
-              let result
-              while ((result = skip.match(str, pos))) {
-                yield new Matched(state, Node.None, result.total, pos)
-                pos += result.length
-              }
-            }
-          }
-        }
-      }
-    }
-    case ChainRuleType.ONE_OR_MORE: {
-      return function* (state: GrammarState, str: string, pos: number) {
-        let advanced = false
-        let result
-        while ((result = rule.match(state, str, pos))) {
-          if (advanced && !result) {
-            yield null
-            break
-          }
-          yield result
-          advanced = true
-          pos += result.length
-          if (skip) {
-            let result
-            while ((result = skip.match(str, pos))) {
-              yield new Matched(state, Node.None, result.total, pos)
-              pos += result.length
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-enum ChainRuleType {
-  ONE,
-  OPTIONAL,
-  ZERO_OR_MORE,
-  ONE_OR_MORE
 }
