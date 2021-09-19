@@ -26,7 +26,7 @@ use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::render::text::TextRender;
 use crate::tokenizer::Tokenization;
-use crate::tree::HeadingLevel;
+use crate::tree::{AcceptsPartial, HeadingLevel};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::{mem, ptr};
@@ -66,6 +66,7 @@ pub struct Parser<'r, 't> {
     footnotes: Rc<RefCell<Vec<Vec<Element<'t>>>>>,
 
     // Flags
+    accepts_partial: AcceptsPartial,
     in_footnote: bool, // Whether we're currently inside [[footnote]] ... [[/footnote]].
     has_footnote_block: bool, // Whether a [[footnoteblock]] was created.
     start_of_line: bool,
@@ -101,6 +102,7 @@ impl<'r, 't> Parser<'r, 't> {
             depth: 0,
             table_of_contents,
             footnotes,
+            accepts_partial: AcceptsPartial::None,
             in_footnote: false,
             has_footnote_block: false,
             start_of_line: true,
@@ -126,6 +128,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn rule(&self) -> Rule {
         self.rule
+    }
+
+    #[inline]
+    pub fn accepts_partial(&self) -> AcceptsPartial {
+        self.accepts_partial
     }
 
     #[inline]
@@ -172,6 +179,11 @@ impl<'r, 't> Parser<'r, 't> {
         debug!(self.log, "Decrementing recursion depth"; "depth" => self.depth);
 
         self.depth -= 1;
+    }
+
+    #[inline]
+    pub fn set_accepts_partial(&mut self, value: AcceptsPartial) {
+        self.accepts_partial = value;
     }
 
     #[inline]
@@ -334,6 +346,7 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn update(&mut self, parser: &Parser<'r, 't>) {
         // Flags
+        self.accepts_partial = parser.accepts_partial;
         self.in_footnote = parser.in_footnote;
         self.has_footnote_block = parser.has_footnote_block;
         self.start_of_line = parser.start_of_line;

@@ -18,9 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parsing::exception::{ParseException, ParseWarning, ParseWarningKind};
+use crate::parsing::exception::{ParseException, ParseWarning};
 use crate::parsing::Parser;
-use crate::tree::{Element, Elements, PartialElement};
+use crate::tree::{Element, Elements};
 use std::marker::PhantomData;
 
 pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseWarning>;
@@ -117,16 +117,13 @@ where
 impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
     pub fn check_partials(&self, parser: &Parser) -> Result<(), ParseWarning> {
         for element in &self.item {
+            // This check only applies if the element is a partial.
             if let Element::Partial(partial) = element {
-                let warning_kind = match partial {
-                    PartialElement::ListItem(_) => ParseWarningKind::ListItemOutsideList,
-                    PartialElement::TableRow(_) => ParseWarningKind::TableRowOutsideTable,
-                    PartialElement::TableCell(_) => {
-                        ParseWarningKind::TableCellOutsideTable
-                    }
-                };
-
-                return Err(parser.make_warn(warning_kind));
+                // Check if the current rule is looking for a partial.
+                if !parser.accepts_partial().matches(partial) {
+                    // Found a partial when not looking for one. Raise the appropriate warning.
+                    return Err(parser.make_warn(partial.parse_warning_kind()));
+                }
             }
         }
 

@@ -19,7 +19,13 @@
  */
 
 use super::{ListItem, TableCell, TableRow};
+use crate::parsing::ParseWarningKind;
 
+/// Part of an element, as returned by a rule.
+///
+/// These are used by specific rules attempting to
+/// build complex or nested structures. From any other
+/// context, they are errors are parsing will fail.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum PartialElement<'t> {
     /// An item or sub-list within some list.
@@ -41,6 +47,15 @@ impl PartialElement<'_> {
         }
     }
 
+    #[inline]
+    pub fn parse_warning_kind(&self) -> ParseWarningKind {
+        match self {
+            PartialElement::ListItem(_) => ParseWarningKind::ListItemOutsideList,
+            PartialElement::TableRow(_) => ParseWarningKind::TableRowOutsideTable,
+            PartialElement::TableCell(_) => ParseWarningKind::TableCellOutsideTable,
+        }
+    }
+
     pub fn to_owned(&self) -> PartialElement<'static> {
         match self {
             PartialElement::ListItem(list_item) => {
@@ -53,5 +68,35 @@ impl PartialElement<'_> {
                 PartialElement::TableCell(table_cell.to_owned())
             }
         }
+    }
+}
+
+/// A marker enum counterpart to `PartialElement`.
+///
+/// This is a flag to the parser which designates which
+/// partial (if any) the rule is currently looking to accept.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum AcceptsPartial {
+    None,
+    ListItem,
+    TableRow,
+    TableCell,
+}
+
+impl AcceptsPartial {
+    pub fn matches(self, partial: &PartialElement) -> bool {
+        match (self, partial) {
+            (AcceptsPartial::ListItem, PartialElement::ListItem(_)) => true,
+            (AcceptsPartial::TableRow, PartialElement::TableRow(_)) => true,
+            (AcceptsPartial::TableCell, PartialElement::TableCell(_)) => true,
+            _ => false,
+        }
+    }
+}
+
+impl Default for AcceptsPartial {
+    #[inline]
+    fn default() -> Self {
+        AcceptsPartial::None
     }
 }
