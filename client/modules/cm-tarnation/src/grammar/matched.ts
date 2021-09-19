@@ -74,11 +74,11 @@ export class Matched {
       // wasn't emitted
       if (!compiled) continue
       // leaf
-      if (!Array.isArray(compiled[0])) tokens.push(compiled as GrammarToken)
+      if (!isGrammarTokenList(compiled)) tokens.push(compiled)
       // branch
       else {
         for (let i = 0; i < compiled.length; i++) {
-          tokens.push((compiled as GrammarToken[])[i])
+          tokens.push(compiled[i])
         }
       }
     }
@@ -92,10 +92,17 @@ export class Matched {
    */
   compile() {
     const compiled = this._compile()
-    if (Array.isArray(compiled[0])) return compiled as GrammarToken[]
-    else if (compiled) return [compiled] as GrammarToken[]
+    if (isGrammarTokenList(compiled)) return compiled
+    else if (compiled) return [compiled]
     else return []
   }
+}
+
+function isGrammarTokenList(
+  token: GrammarToken | GrammarToken[]
+): token is GrammarToken[] {
+  if (token.length === 0) return true
+  return Array.isArray(token[0])
 }
 
 /** Compiles a {@link Matched} as a leaf. */
