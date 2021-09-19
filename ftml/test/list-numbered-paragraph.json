@@ -9,6 +9,7 @@
                     "attributes": {},
                     "elements": [
                         {
+                            "item-type": "elements",
                             "element": "text",
                             "data": "["
                         }
@@ -22,6 +23,7 @@
                     "attributes": {},
                     "items": [
                         {
+                            "item-type": "elements",
                             "attributes": {},
                             "elements": [
                                 {

@@ -72,30 +72,35 @@
                     "attributes": {},
                     "items": [
                         {
+                            "item-type": "sub-list",
                             "element": "list",
                             "data": {
                                 "type": "bullet",
                                 "attributes": {},
                                 "items": [
                                     {
+                                        "item-type": "sub-list",
                                         "element": "list",
                                         "data": {
                                             "type": "bullet",
                                             "attributes": {},
                                             "items": [
                                                 {
+                                                    "item-type": "sub-list",
                                                     "element": "list",
                                                     "data": {
                                                         "type": "bullet",
                                                         "attributes": {},
                                                         "items": [
                                                             {
+                                                                "item-type": "sub-list",
                                                                 "element": "list",
                                                                 "data": {
                                                                     "type": "bullet",
                                                                     "attributes": {},
                                                                     "items": [
                                                                         {
+                                                                            "item-type": "elements",
                                                                             "attributes": {},
                                                                             "elements": [
                                                                                 {
