@@ -74,7 +74,7 @@ export class Grammar {
         for (let i = state.stack.length - 1; i > 0; i--) {
           const element = state.stack.get(i)
           if (element.end) {
-            let result = element.end.match(state.clone(), str, pos)
+            let result = element.end.match(state, str, pos)
             if (result) {
               result = result.wrap(element.node, Wrapping.END)
               result.state.stack.close(i)
@@ -84,7 +84,7 @@ export class Grammar {
           }
         }
       } else {
-        let result = state.stack.end.match(state.clone(), str, pos)
+        let result = state.stack.end.match(state, str, pos)
         if (result) {
           result = result.wrap(state.stack.node, Wrapping.END)
           result.state.stack.pop()
@@ -98,7 +98,7 @@ export class Grammar {
     const rules = state.stack.rules
     for (let i = 0; i < rules.length; i++) {
       const rule = rules[i]
-      const result = rule.match(state.clone(), str, pos)
+      const result = rule.match(state, str, pos)
       if (result) {
         if (offset !== pos) result.offset(offset)
         return result
@@ -109,7 +109,7 @@ export class Grammar {
     if (this.global) {
       for (let i = 0; i < this.global.length; i++) {
         const rule = this.global[i]
-        const result = rule.match(state.clone(), str, pos)
+        const result = rule.match(state, str, pos)
         if (result) {
           if (offset !== pos) result.offset(offset)
           return result
@@ -118,12 +118,7 @@ export class Grammar {
     }
 
     if (this.default) {
-      const result = new Matched(
-        state.clone(),
-        this.default,
-        str.slice(pos, pos + 1),
-        offset
-      )
+      const result = new Matched(state, this.default, str.slice(pos, pos + 1), offset)
       if (result) return result
     }
 

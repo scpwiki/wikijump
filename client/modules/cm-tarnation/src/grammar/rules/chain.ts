@@ -245,19 +245,20 @@ class ChainContext {
   nextMatches() {
     if (this.done) throw new Error("Cannot get next rule when done")
     const rule = this.rules[this.index + 1]
+    const state = this.state.clone()
     switch (rule[1]) {
       case Quantifier.ONE:
       case Quantifier.OPTIONAL:
       case Quantifier.ZERO_OR_MORE:
       case Quantifier.ONE_OR_MORE: {
-        const result = rule[0].match(this.state.clone(), this.str, this.pos)
+        const result = rule[0].match(state, this.str, this.pos)
         if (result) return true
         break
       }
       case Quantifier.ALTERNATIVES: {
         for (let i = 0; i < rule[0].length; i++) {
           for (let j = 0; j < rule[0][i].length; j++) {
-            const result = rule[0][i][0].match(this.state.clone(), this.str, this.pos)
+            const result = rule[0][i][0].match(state, this.str, this.pos)
             if (result) return true
           }
         }
@@ -266,7 +267,7 @@ class ChainContext {
       case Quantifier.REPEATING_ZERO_OR_MORE:
       case Quantifier.REPEATING_ONE_OR_MORE: {
         for (let i = 0; i < rule[0].length; i++) {
-          const result = rule[0][i].match(this.state.clone(), this.str, this.pos)
+          const result = rule[0][i].match(state, this.str, this.pos)
           if (result) return true
         }
       }
