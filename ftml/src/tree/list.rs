@@ -38,7 +38,10 @@ pub enum ListItem<'t> {
     /// This item in the list is a sub-list.
     ///
     /// That is, it's another, deeper list within the list.
-    SubList { element: Box<Element<'t>> },
+    SubList {
+        #[serde(flatten)]
+        element: Box<Element<'t>>,
+    },
 }
 
 impl ListItem<'_> {
