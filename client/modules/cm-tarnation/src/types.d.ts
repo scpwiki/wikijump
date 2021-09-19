@@ -78,7 +78,6 @@ export type EmbeddedData = [token: LezerToken, language: string][]
 
 /** Serialized context/state of a parser. */
 export interface SerializedParserContext {
-  pos: number
   index: number
   buffer: LezerToken[]
   stack: ParserElementStack

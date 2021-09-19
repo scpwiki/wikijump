@@ -115,7 +115,6 @@ export class Host {
 
       if (v.from < r.to && r.to > end) r.to = end
     }
-
     // find cached data, if possible
     if (REUSE_LEFT && fragments?.length) {
       for (let idx = 0; idx < fragments.length; idx++) {
@@ -137,9 +136,15 @@ export class Host {
             this.region.from = chunk.context.pos
             this.setupTokenizer(left, chunk.context)
 
-            // check if parser has a cached state for this chunk
-            const context = chunk.parserContext
-            if (context) this.setupParser(context)
+            // find latest possible parser context
+            let chunkIndex: number | null = null
+            for (let i = 0; i < left.buffer.length; i++) {
+              if (left.buffer[i].hasParserContext) chunkIndex = i
+            }
+
+            if (chunkIndex) {
+              this.setupParser(left.buffer[chunkIndex].parserContext!)
+            }
           }
         }
       }
@@ -209,7 +214,7 @@ export class Host {
    * @param context - A `ParserContext` to reuse.
    */
   private setupParser(context?: ParserContext) {
-    if (!context) context = new ParserContext(this.region.from)
+    if (!context) context = new ParserContext()
 
     this.parser = new Parser(this.language, context, this.region)
   }

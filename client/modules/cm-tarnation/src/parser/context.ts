@@ -8,47 +8,33 @@ import { ParserStack } from "./stack"
  */
 export class ParserContext {
   /**
-   * @param pos - The starting document position of the parser.
    * @param index - The index of the next token to be parsed.
    * @param buffer - The parser's token buffer.
    * @param stack - The parsers's stack.
    */
   constructor(
-    public pos: number,
     public index: number = 0,
     public buffer: ParserBuffer = new ParserBuffer(),
-    public stack: ParserStack = new ParserStack()
+    public stack: ParserStack = new ParserStack([])
   ) {}
 
-  /**
-   * Serializes the context.
-   *
-   * @param full - If true, the `ParserBuffer` will be cloned deeply
-   *   instead of being a shallow clone.
-   */
-  serialize(full = false): SerializedParserContext {
+  /** Serializes the context. */
+  serialize(upto?: number): SerializedParserContext {
     return {
-      pos: this.pos,
       index: this.index,
-      buffer: full ? this.buffer.clone(true) : this.buffer.shallow(),
+      buffer: this.buffer.shallow(upto),
       stack: this.stack.serialize()
     }
   }
 
-  /**
-   * Returns a clone of the context.
-   *
-   * @param full - If true, the `ParserBuffer` will be cloned deeply
-   *   instead of being a shallow clone.
-   */
-  clone(full = false) {
-    return ParserContext.deserialize(this.serialize(full))
+  /** Returns a clone of the context. */
+  clone() {
+    return ParserContext.deserialize(this.serialize())
   }
 
   /** Deserializes a serialized context and returns a new `ParserContext`. */
   static deserialize(serialized: SerializedParserContext) {
     return new ParserContext(
-      serialized.pos,
       serialized.index,
       new ParserBuffer(serialized.buffer),
       new ParserStack(serialized.stack)

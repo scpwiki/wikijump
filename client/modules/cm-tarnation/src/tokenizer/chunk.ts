@@ -64,10 +64,8 @@ export class Chunk {
   /** The chunk's starting position. */
   set pos(pos: number) {
     this.compiled = undefined
+    this._parserContext = undefined
     this._pos = pos
-    // parser can't reuse ahead nodes, so if this chunks
-    // gets moved, we need to clear the parser context
-    if (this._parserContext) this._parserContext = undefined
   }
 
   /** The chunk's maximum extent, as determined from the positions of its tokens. */
@@ -108,8 +106,13 @@ export class Chunk {
       this._parserContext = undefined
     } else {
       this._parserContext =
-        context instanceof ParserContext ? context.serialize() : context
+        context instanceof ParserContext ? context.serialize(this.max) : context
     }
+  }
+
+  /** True if this chunk has a {@link ParserContext} attached to it. */
+  get hasParserContext() {
+    return this._parserContext !== undefined
   }
 
   /**
@@ -121,6 +124,7 @@ export class Chunk {
    */
   add(token: Token, relativeTo?: number) {
     this.compiled = undefined
+    this._parserContext = undefined
 
     let [type, from, to, open, close] = token
 
@@ -152,6 +156,7 @@ export class Chunk {
    */
   setTokens(tokens: Token[], relativeTo?: number) {
     this.compiled = undefined
+    this._parserContext = undefined
     this._tokens = []
     this._max = 0
     for (let idx = 0; idx < tokens.length; idx++) {
