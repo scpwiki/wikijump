@@ -425,7 +425,7 @@ repository:
       3:
         if: $0
         matches: style
-        then: { type: CSSAttributes, nest: css-attributes }
+        then: { type: CSSAttributes, nest: style-attribute }
         else: { type: BlockNodeArgumentValue, tag: string }
       4: { close: BlockNodeArgumentMark, tag: string }
 
