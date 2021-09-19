@@ -1,5 +1,5 @@
 /*
- * tree/element.rs
+ * tree/element/object.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,18 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::clone::*;
-use super::{
+use crate::data::PageRef;
+use crate::tree::clone::*;
+use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
     ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, PartialElement,
     Table,
 };
-use crate::data::PageRef;
 use ref_map::*;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::num::NonZeroU32;
-use std::slice;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
@@ -462,157 +461,4 @@ impl slog::Value for Element<'_> {
     ) -> slog::Result {
         serializer.emit_str(key, self.name())
     }
-}
-
-/// Wrapper for the result of producing element(s).
-///
-/// This has an enum instead of a simple `Vec<Element>`
-/// since the most common output is a single element,
-/// and it makes little sense to heap allocate for every
-/// single return if we can easily avoid it.
-///
-/// It also contains a field marking whether all of the
-/// contents are paragraph-safe or not, used by `ParagraphStack`.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-pub enum Elements<'t> {
-    Multiple(Vec<Element<'t>>),
-    Single(Element<'t>),
-    None,
-}
-
-impl Elements<'_> {
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Elements::Multiple(elements) => elements.is_empty(),
-            Elements::Single(_) => false,
-            Elements::None => true,
-        }
-    }
-
-    #[inline]
-    pub fn len(&self) -> usize {
-        match self {
-            Elements::Multiple(elements) => elements.len(),
-            Elements::Single(_) => 1,
-            Elements::None => 0,
-        }
-    }
-
-    pub fn paragraph_safe(&self) -> bool {
-        match self {
-            Elements::Multiple(elements) => {
-                elements.iter().all(|element| element.paragraph_safe())
-            }
-            Elements::Single(element) => element.paragraph_safe(),
-            Elements::None => true,
-        }
-    }
-}
-
-impl<'t> AsRef<[Element<'t>]> for Elements<'t> {
-    fn as_ref(&self) -> &[Element<'t>] {
-        match self {
-            Elements::Multiple(elements) => elements,
-            Elements::Single(element) => slice::from_ref(element),
-            Elements::None => &[],
-        }
-    }
-}
-
-impl<'t> From<Element<'t>> for Elements<'t> {
-    #[inline]
-    fn from(element: Element<'t>) -> Elements<'t> {
-        Elements::Single(element)
-    }
-}
-
-impl<'t> From<Option<Element<'t>>> for Elements<'t> {
-    #[inline]
-    fn from(element: Option<Element<'t>>) -> Elements<'t> {
-        match element {
-            Some(element) => Elements::Single(element),
-            None => Elements::None,
-        }
-    }
-}
-
-impl<'t> From<Vec<Element<'t>>> for Elements<'t> {
-    #[inline]
-    fn from(elements: Vec<Element<'t>>) -> Elements<'t> {
-        Elements::Multiple(elements)
-    }
-}
-
-impl<'t> IntoIterator for Elements<'t> {
-    type Item = Element<'t>;
-    type IntoIter = ElementsIterator<'t>;
-
-    #[inline]
-    fn into_iter(self) -> Self::IntoIter {
-        match self {
-            Elements::None => ElementsIterator::None,
-            Elements::Single(element) => ElementsIterator::Single(Some(element)),
-            Elements::Multiple(mut elements) => {
-                // So we can just pop for each step
-                elements.reverse();
-                ElementsIterator::Multiple(elements)
-            }
-        }
-    }
-}
-
-/// Iterator implementation for `Elements`.
-#[derive(Debug)]
-pub enum ElementsIterator<'t> {
-    Multiple(Vec<Element<'t>>),
-    Single(Option<Element<'t>>),
-    None,
-}
-
-impl<'t> Iterator for ElementsIterator<'t> {
-    type Item = Element<'t>;
-
-    #[inline]
-    fn next(&mut self) -> Option<Element<'t>> {
-        match self {
-            ElementsIterator::Multiple(ref mut elements) => elements.pop(),
-            ElementsIterator::Single(ref mut element) => element.take(),
-            ElementsIterator::None => None,
-        }
-    }
-}
-
-#[test]
-fn elements_iter() {
-    macro_rules! check {
-        ($elements:expr, $expected:expr $(,)?) => {{
-            let actual: Vec<Element> = $elements.into_iter().collect();
-            let expected = $expected;
-
-            assert_eq!(
-                actual, expected,
-                "Actual element iteration doesn't match expected"
-            );
-        }};
-    }
-
-    check!(Elements::None, vec![]);
-    check!(Elements::Single(text!("a")), vec![text!("a")]);
-    check!(
-        Elements::Multiple(vec![]), //
-        vec![],
-    );
-    check!(
-        Elements::Multiple(vec![text!("a")]), //
-        vec![text!("a")],
-    );
-    check!(
-        Elements::Multiple(vec![text!("a"), text!("b")]),
-        vec![text!("a"), text!("b")],
-    );
-    check!(
-        Elements::Multiple(vec![text!("a"), text!("b"), text!("c")]),
-        vec![text!("a"), text!("b"), text!("c")],
-    );
 }

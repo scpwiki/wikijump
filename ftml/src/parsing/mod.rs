@@ -45,7 +45,7 @@ mod prelude {
         ParseWarningKind, Token,
     };
     pub use crate::text::FullText;
-    pub use crate::tree::{Element, Elements, ElementsIterator};
+    pub use crate::tree::{Element, Elements, OwnedElementsIterator};
 }
 
 use self::depth::{process_depths, DepthItem, DepthList};

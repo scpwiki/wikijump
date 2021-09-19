@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parsing::exception::{ParseException, ParseWarning};
+use crate::parsing::exception::{ParseException, ParseWarning, ParseWarningKind};
+use crate::parsing::Parser;
+use crate::tree::{Element, Elements, PartialElement};
 use std::marker::PhantomData;
 
 pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseWarning>;
@@ -116,6 +118,26 @@ impl<'r, 't> ParseSuccess<'r, 't, ()> {
     #[inline]
     pub fn into_exceptions(self) -> Vec<ParseException<'t>> {
         self.exceptions
+    }
+}
+
+impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
+    pub fn check_partials(&mut self, parser: &Parser) -> Result<(), ParseWarning> {
+        for element in &self.item {
+            if let Element::Partial(partial) = element {
+                let warning_kind = match partial {
+                    PartialElement::ListItem(_) => ParseWarningKind::ListItemOutsideList,
+                    PartialElement::TableRow(_) => ParseWarningKind::TableRowOutsideTable,
+                    PartialElement::TableCell(_) => {
+                        ParseWarningKind::TableCellOutsideTable
+                    }
+                };
+
+                return Err(parser.make_warn(warning_kind));
+            }
+        }
+
+        Ok(())
     }
 }
 
