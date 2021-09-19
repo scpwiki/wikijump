@@ -61,10 +61,15 @@ export abstract class Rule {
     if (rule.rematch) this.rematch = true
   }
 
+  /**
+   * Function that subclasses must implement. The `state` argument is given
+   * last, unlike usual, so that it can be ignored if the subclass doesn't
+   * need access to the grammar's state.
+   */
   abstract exec(
-    state: GrammarState,
     str: string,
-    pos: number
+    pos: number,
+    state: GrammarState
   ): Matched | MatchOutput | null
 
   match(state: GrammarState, str: string, pos: number): Matched | null {
@@ -76,7 +81,7 @@ export abstract class Rule {
       }
     }
 
-    let matched = this.exec(state, str, pos)
+    let matched = this.exec(str, pos, state)
 
     if (matched) {
       if (this.lookahead && !this.lookahead?.test(str, pos + matched.length)) {

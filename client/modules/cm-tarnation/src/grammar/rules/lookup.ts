@@ -1,11 +1,13 @@
 import type * as DF from "../definition"
 import { LookupMatcher } from "../matchers/lookup"
 import type { Repository } from "../repository"
-import type { GrammarState } from "../state"
+import { MatchOutput } from "../types"
 import { Rule } from "./rule"
 
 export class LookupRule extends Rule {
   private declare lookup: LookupMatcher
+
+  declare exec: (str: string, pos: number) => MatchOutput | null
 
   constructor(repo: Repository, rule: DF.Lookup) {
     super(repo, rule)
@@ -19,9 +21,8 @@ export class LookupRule extends Rule {
     }
 
     this.lookup = new LookupMatcher(strings, repo.ignoreCase, repo.variables)
-  }
 
-  exec(state: GrammarState, str: string, pos: number) {
-    return this.lookup.match(str, pos)
+    // directly use the matcher function for performance
+    this.exec = this.lookup.match.bind(this.lookup)
   }
 }

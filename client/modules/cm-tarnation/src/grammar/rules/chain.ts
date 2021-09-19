@@ -17,15 +17,11 @@ export class Chain extends Rule {
     this.chain = rule.chain.map(item => parseChainRule(repo, item))
   }
 
-  exec(state: GrammarState, str: string, pos: number) {
+  exec(str: string, pos: number, state: GrammarState) {
     const ctx = new ChainContext(state, this.chain, str, pos, this.skip)
-
     while (!ctx.done) step(ctx)
-
     const finished = ctx.finish()
-
     if (!finished) return null
-
     return new Matched(state, this.node, ctx.total, pos, finished)
   }
 }

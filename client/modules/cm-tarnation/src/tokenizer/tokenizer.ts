@@ -110,29 +110,27 @@ export class Tokenizer {
     return true
   }
 
-  /** Gets the grammar's match at the current tokenizer position. */
-  private match() {
-    const ctx = this.context
+  /** Executes a tokenization step. */
+  private tokenize() {
+    let tokens: GrammarToken[] | null = null
+    let length = 1
+
     const match = this.grammar.match(
       this.context.state,
       this.str,
-      ctx.pos - this.offset,
-      ctx.pos
+      this.context.pos - this.offset,
+      this.context.pos
     )
-    if (!match) return { tokens: null, length: 1 } // always advance
-    ctx.state = match.state
-    const tokens = match.compile()
-    if (!tokens.length) return { tokens: null, length: match.length || 1 }
-    return { tokens, length: match.length }
-  }
 
-  /** Executes a tokenization step. */
-  private tokenize() {
-    const { tokens, length } = this.match()
+    if (match) {
+      this.context.state = match.state
+      tokens = match.compile()
+      length = match.length || 1
+    }
 
     this.context.pos += length
 
-    if (!tokens) return null
+    if (!tokens?.length) return null
 
     const mapped: Token[] = []
 
