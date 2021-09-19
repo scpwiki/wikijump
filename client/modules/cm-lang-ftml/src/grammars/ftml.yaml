@@ -38,24 +38,22 @@ repository:
     match: /@nocontrol+/
     emit: false
 
-  # formatting
-
-  # formatting open/close lookahead
-  fmtola: /(?=\S)/
-  fmtcla: /(?![^\W\d_])/
+  # -- FORMATTING
 
   Strong:
     tag: (...) strong
     inside: loose
     begin:
       open: Strong
+      match: "**"
       lookbehind: '!/\\|\w/'
-      match: /\*\*@fmtola/
+      lookahead: /\S/
       tag: processingInstruction
     end:
       close: Strong
+      match: "**"
       lookbehind: /\S/
-      match: /\*\*@fmtcla/
+      lookahead: /[\W\d_]/
       tag: processingInstruction
 
   Emphasis:
@@ -63,13 +61,15 @@ repository:
     inside: loose
     begin:
       open: Emphasis
+      match: "//"
       lookbehind: '!/\\|\w/'
-      match: /\/\/@fmtola/
+      lookahead: /\S/
       tag: processingInstruction
     end:
       close: Emphasis
+      match: "//"
       lookbehind: /\S/
-      match: /\/\/@fmtcla/
+      lookahead: /[\W\d_]/
       tag: processingInstruction
 
   Underline:
@@ -77,13 +77,15 @@ repository:
     inside: loose
     begin:
       open: Underline
+      match: "__"
       lookbehind: '!/\\|\w/'
-      match: /__@fmtola/
+      lookahead: /\S/
       tag: processingInstruction
     end:
       close: Underline
+      match: "__"
       lookbehind: /\S/
-      match: /__@fmtcla/
+      lookahead: /[\W\d_]/
       tag: processingInstruction
 
   Strikethrough:
@@ -91,13 +93,15 @@ repository:
     inside: loose
     begin:
       open: Strikethrough
+      match: "--"
       lookbehind: '!/\\|\w/'
-      match: /--@fmtola/
+      lookahead: /\S/
       tag: processingInstruction
     end:
       close: Strikethrough
+      match: "--"
       lookbehind: /\S/
-      match: /--@fmtcla/
+      lookahead: /[\W\d_]/
       tag: processingInstruction
 
   Subscript:
@@ -105,13 +109,15 @@ repository:
     inside: loose
     begin:
       open: Subscript
+      match: ",,"
       lookbehind: '!/\\|\w/'
-      match: /,,@fmtola/
+      lookahead: /\S/
       tag: processingInstruction
     end:
       close: Subscript
+      match: ",,"
       lookbehind: /\S/
-      match: /,,@fmtcla/
+      lookahead: /[\W\d_]/
       tag: processingInstruction
 
   Superscript:
@@ -119,13 +125,15 @@ repository:
     inside: loose
     begin:
       open: Superscript
+      match: "^^"
       lookbehind: '!/\\|\w/'
-      match: /\^\^@fmtola/
+      lookahead: /\S/
       tag: processingInstruction
     end:
       close: Superscript
+      match: "^^"
       lookbehind: /\S/
-      match: /\^\^@fmtcla/
+      lookahead: /[\W\d_]/
       tag: processingInstruction
 
   Monospace:
@@ -133,13 +141,15 @@ repository:
     inside: loose
     begin:
       open: Monospace
+      match: "{{"
       lookbehind: '!/\\|\w/'
-      match: /\{\{@fmtola/
+      lookahead: /\S/
       tag: processingInstruction
     end:
       close: Monospace
+      match: "}}"
       lookbehind: /\S/
-      match: /\}\}@fmtcla/
+      lookahead: /[\W\d_]/
       tag: processingInstruction
 
   # special
