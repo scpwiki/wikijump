@@ -8,21 +8,23 @@ import { Rule } from "./rule"
 export class Chain extends Rule {
   private declare chain: ChainRule[]
   private declare skip?: RegExpMatcher
+  private declare context: ChainContext
 
   constructor(repo: Repository, rule: DF.Chain) {
     super(repo, rule)
+    this.chain = rule.chain.map(item => parseChainRule(repo, item))
     if (rule.skip) {
       this.skip = new RegExpMatcher(rule.skip, repo.ignoreCase, repo.variables)
     }
-    this.chain = rule.chain.map(item => parseChainRule(repo, item))
+    this.context = new ChainContext(this.chain, this.skip)
   }
 
   exec(str: string, pos: number, state: GrammarState) {
-    const ctx = new ChainContext(state, this.chain, str, pos, this.skip)
-    while (!ctx.done) step(ctx)
-    const finished = ctx.finish()
+    this.context.reset(state, str, pos)
+    while (!this.context.done) step(this.context)
+    const finished = this.context.finish()
     if (!finished) return null
-    return new Matched(state, this.node, ctx.total, pos, finished)
+    return new Matched(state, this.node, this.context.total, pos, finished)
   }
 }
 
@@ -31,7 +33,7 @@ function step(ctx: ChainContext) {
   step: switch (ctx.current[1]) {
     case Quantifier.ONE: {
       const result = ctx.current[0].match(ctx.state, ctx.str, ctx.pos)
-      if (result) ctx.addAndAdvance(result)
+      if (result) ctx.advance(result)
       else ctx.fail()
       break
     }
@@ -181,28 +183,15 @@ class ChainContext {
   declare str: string
   declare pos: number
   declare total: string
-  declare results: Matched[]
+  declare results: Matched[] | null
   declare index: number
   declare failed: boolean
   declare advanced: boolean | null
   declare skipMatcher?: RegExpMatcher
 
-  constructor(
-    state: GrammarState,
-    rules: ChainRule[],
-    str: string,
-    pos: number,
-    skip?: RegExpMatcher
-  ) {
-    this.state = state
+  constructor(rules: ChainRule[], skip?: RegExpMatcher) {
     this.rules = rules
-    this.str = str
-    this.pos = pos
-    this.total = ""
-    this.results = []
-    this.index = 0
-    this.failed = false
-    this.advanced = null
+    this.clear()
     if (skip) this.skipMatcher = skip
   }
 
@@ -215,12 +204,11 @@ class ChainContext {
     return this.rules[this.index]
   }
 
-  add(...results: Matched[]) {
-    for (const result of results) {
-      this.results.push(result)
-      this.total += result.total
-      this.pos += result.length
-    }
+  add(result: Matched) {
+    if (!this.results) this.results = []
+    this.results.push(result)
+    this.total += result.total
+    this.pos += result.length
   }
 
   fail() {
@@ -228,18 +216,19 @@ class ChainContext {
     this.index = this.rules.length
   }
 
-  advance() {
+  advance(result?: Matched) {
+    if (result) this.add(result)
     this.index++
   }
 
-  addAndAdvance(result: Matched) {
-    this.add(result)
-    this.advance()
-  }
-
   finish() {
-    if (this.failed) return null
-    return this.results
+    if (this.failed) {
+      this.clear()
+      return null
+    }
+    const results = this.results
+    this.clear()
+    return results
   }
 
   nextMatches() {
@@ -282,6 +271,20 @@ class ChainContext {
       this.pos += result.length
       this.total += result.total
     }
+  }
+
+  private clear() {
+    this.total = ""
+    this.index = 0
+    this.failed = false
+    this.advanced = null
+    this.results = null
+  }
+
+  reset(state: GrammarState, str: string, pos: number) {
+    this.state = state
+    this.str = str
+    this.pos = pos
   }
 }
 
