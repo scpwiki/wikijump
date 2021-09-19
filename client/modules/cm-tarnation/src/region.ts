@@ -78,22 +78,32 @@ export class ParseRegion {
 
       if (fragments.length === 1) {
         const fragment = fragments[0]
-        from = fragment.openStart ? this.from : fragment.to
-        to = fragment.openStart ? fragment.from : this.to
-        offset = -fragment.offset
+        // special case that seems to happen when scrolling,
+        // the fragment is the entire parsed range
+        if (fragment.offset === 0 && !fragment.openStart && fragment.openEnd) {
+          from = this.document.to
+          to = this.document.to
+          offset = 0
+        } else {
+          from = fragment.openStart ? this.from : fragment.to
+          to = fragment.openStart ? fragment.from : this.to
+          offset = -fragment.offset
+        }
       } else {
         const reversed = [...fragments].reverse()
         const first = reversed.find(f => !f.openStart && f.openEnd) || fragments[0]
-        const last = reversed.find(f => f.openStart && !f.openEnd) || reversed[0]
+        const last = fragments.find(f => f.openStart && !f.openEnd) || reversed[0]
 
         from = first.openStart && first.openEnd ? first.from : first.to
         to = last.openStart && last.openEnd ? last.to : last.from
+        offset = -last.offset
 
         // not sure why this is needed, something I don't understand about fragments
         // usually if this is the case the parse was interrupted, and is being continued
-        if (from > to) to = this.to
-
-        offset = -last.offset
+        if (from > to) {
+          to = from
+          offset = 0
+        }
       }
 
       this.edit = { from, to, offset }
