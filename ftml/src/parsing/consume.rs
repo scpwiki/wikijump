@@ -72,6 +72,9 @@ pub fn consume<'p, 'r, 't>(
                     parser.step()?;
                 }
 
+                // Ensure there aren't any partial elements in the result.
+                output.check_partials(parser)?;
+
                 // Explicitly drop exceptions
                 //
                 // We're returning the successful consumption

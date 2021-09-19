@@ -114,15 +114,8 @@ where
     }
 }
 
-impl<'r, 't> ParseSuccess<'r, 't, ()> {
-    #[inline]
-    pub fn into_exceptions(self) -> Vec<ParseException<'t>> {
-        self.exceptions
-    }
-}
-
 impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
-    pub fn check_partials(&mut self, parser: &Parser) -> Result<(), ParseWarning> {
+    pub fn check_partials(&self, parser: &Parser) -> Result<(), ParseWarning> {
         for element in &self.item {
             if let Element::Partial(partial) = element {
                 let warning_kind = match partial {
@@ -138,6 +131,13 @@ impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
         }
 
         Ok(())
+    }
+}
+
+impl<'r, 't> ParseSuccess<'r, 't, ()> {
+    #[inline]
+    pub fn into_exceptions(self) -> Vec<ParseException<'t>> {
+        self.exceptions
     }
 }
 
