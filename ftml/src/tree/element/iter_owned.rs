@@ -27,7 +27,7 @@ impl<'t> IntoIterator for Elements<'t> {
     fn into_iter(self) -> Self::IntoIter {
         match self {
             Elements::None => OwnedElementsIterator::None,
-            Elements::Single(element) => OwnedElementsIterator::Single(Some(element)),
+            Elements::Single(element) => OwnedElementsIterator::Single(Box::new(Some(element))),
             Elements::Multiple(mut elements) => {
                 // So we can just pop for each step
                 elements.reverse();
@@ -41,7 +41,7 @@ impl<'t> IntoIterator for Elements<'t> {
 #[derive(Debug)]
 pub enum OwnedElementsIterator<'t> {
     None,
-    Single(Option<Element<'t>>),
+    Single(Box<Option<Element<'t>>>),
     Multiple(Vec<Element<'t>>),
 }
 
