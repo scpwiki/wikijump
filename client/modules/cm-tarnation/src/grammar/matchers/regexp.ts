@@ -15,7 +15,7 @@ export class RegExpMatcher implements Matcher {
    * input `RegExp` source won't throw. This is used to combat inconsistent
    * browser behavior.
    */
-  private declare regexp: RegExp | null
+  private declare regexp: RegExp
 
   /**
    * True if the source `RegExp` has an capturing groups. Used to short
@@ -31,7 +31,9 @@ export class RegExpMatcher implements Matcher {
   constructor(src: string, ignoreCase = false, variables?: VariableTable) {
     const flags = ignoreCase ? "iymu" : "ymu"
     if (variables) src = expandVariables(src, variables)
-    this.regexp = re(src, flags)
+    const regexp = re(src, flags)
+    if (!regexp) throw new Error(`Invalid RegExp: ${src}`)
+    this.regexp = regexp
     this.hasCapturingGroups = this.regexp ? hasCapturingGroups(this.regexp) : false
   }
 
@@ -42,7 +44,6 @@ export class RegExpMatcher implements Matcher {
    * @param pos - The position to start matching at.
    */
   test(str: string, pos: number) {
-    if (!this.regexp) return false
     this.regexp.lastIndex = pos
     return this.regexp.test(str)
   }
@@ -55,7 +56,6 @@ export class RegExpMatcher implements Matcher {
    * @param pos - The position to start matching at.
    */
   private exec(str: string, pos: number) {
-    if (!this.regexp) return null
     this.regexp.lastIndex = pos
     return this.regexp.exec(str)
   }

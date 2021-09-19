@@ -7,7 +7,7 @@ import { MatchOutput } from "../types"
 import { Rule } from "./rule"
 
 export class PatternRule extends Rule {
-  private declare patterns: Arrayable<RegExpMatcher | StringMatcher>
+  private declare patterns: (RegExpMatcher | StringMatcher)[]
 
   declare exec: (str: string, pos: number) => MatchOutput | null
 
@@ -22,22 +22,25 @@ export class PatternRule extends Rule {
           ? new RegExpMatcher(pattern, repo.ignoreCase, repo.variables)
           : new StringMatcher(pattern, repo.ignoreCase, repo.variables)
       })
-
-      this.exec = this.execPatterns.bind(this)
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      this.exec = this.execPatterns
     } else {
-      this.patterns = isRegExpString(rule.match)
+      const pattern = isRegExpString(rule.match)
         ? new RegExpMatcher(rule.match, repo.ignoreCase, repo.variables)
         : new StringMatcher(rule.match, repo.ignoreCase, repo.variables)
 
-      // directly bind to matcher for performance
-      this.exec = this.patterns.match.bind(this.patterns)
+      // normally this could just be a bound function,
+      // but I didn't see any significant performance benefit
+      // versus just using a closure.
+      this.exec = function (str: string, pos: number) {
+        return pattern.match(str, pos)
+      }
     }
   }
 
   private execPatterns(str: string, pos: number) {
-    const patterns = this.patterns as (RegExpMatcher | StringMatcher)[]
-    for (let i = 0; i < patterns.length; i++) {
-      const result = patterns[i].match(str, pos)
+    for (let i = 0; i < this.patterns.length; i++) {
+      const result = this.patterns[i].match(str, pos)
       if (result) return result
     }
     return null

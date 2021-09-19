@@ -21,8 +21,6 @@ export class LookupRule extends Rule {
     }
 
     this.lookup = new LookupMatcher(strings, repo.ignoreCase, repo.variables)
-
-    // directly use the matcher function for performance
     this.exec = this.lookup.match.bind(this.lookup)
   }
 }
