@@ -21,7 +21,6 @@
 use super::prelude::*;
 use crate::parsing::strip_newlines;
 use crate::tree::{ListItem, ListType, PartialElement};
-use std::ops::{Deref, DerefMut};
 
 // Definitions
 
@@ -114,9 +113,6 @@ fn parse_list_block<'r, 't>(
     assert!(!flag_star, "List block doesn't allow star flag");
     assert_block_name(block_rule, name);
 
-    // Enable flag for list interior.
-    let mut parser = ParserWrap::new(parser, true);
-
     // "ul" means we wrap interpret as-is
     // "ul_" means we strip out any newlines or paragraph breaks
     let strip_line_breaks = flag_score;
@@ -207,9 +203,6 @@ fn parse_list_item<'r, 't>(
     assert!(!flag_star, "List item block doesn't allow star flag");
     assert_block_name(&BLOCK_LI, name);
 
-    // Disable flag for list items.
-    let mut parser = ParserWrap::new(parser, false);
-
     // "li" means we wrap interpret as-is
     // "li_" means we strip out any newlines or paragraph breaks
     let strip_line_breaks = flag_score;
@@ -233,43 +226,4 @@ fn parse_list_item<'r, 't>(
     }));
 
     ok!(false; element, exceptions)
-}
-
-// Helper
-
-#[derive(Debug)]
-struct ParserWrap<'p, 'r, 't> {
-    value: bool,
-    parser: &'p mut Parser<'r, 't>,
-}
-
-impl<'p, 'r, 't> ParserWrap<'p, 'r, 't> {
-    #[inline]
-    fn new(parser: &'p mut Parser<'r, 't>, value: bool) -> Self {
-        parser.set_list_flag(value);
-
-        ParserWrap { parser, value }
-    }
-}
-
-impl<'r, 't> Deref for ParserWrap<'_, 'r, 't> {
-    type Target = Parser<'r, 't>;
-
-    #[inline]
-    fn deref(&self) -> &Parser<'r, 't> {
-        self.parser
-    }
-}
-
-impl<'r, 't> DerefMut for ParserWrap<'_, 'r, 't> {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Parser<'r, 't> {
-        self.parser
-    }
-}
-
-impl Drop for ParserWrap<'_, '_, '_> {
-    fn drop(&mut self) {
-        self.parser.set_list_flag(!self.value);
-    }
 }

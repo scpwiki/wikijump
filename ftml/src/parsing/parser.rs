@@ -129,16 +129,6 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     #[inline]
-    pub fn in_list(&self) -> bool {
-        self.in_list
-    }
-
-    #[inline]
-    pub fn table_flag(&self) -> TableParseState {
-        self.in_table
-    }
-
-    #[inline]
     pub fn in_footnote(&self) -> bool {
         self.in_footnote
     }
@@ -182,16 +172,6 @@ impl<'r, 't> Parser<'r, 't> {
         debug!(self.log, "Decrementing recursion depth"; "depth" => self.depth);
 
         self.depth -= 1;
-    }
-
-    #[inline]
-    pub fn set_list_flag(&mut self, value: bool) {
-        self.in_list = value;
-    }
-
-    #[inline]
-    pub fn set_table_flag(&mut self, value: TableParseState) {
-        self.in_table = value;
     }
 
     #[inline]
@@ -354,8 +334,6 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn update(&mut self, parser: &Parser<'r, 't>) {
         // Flags
-        self.in_list = parser.in_list;
-        self.in_table = parser.in_table;
         self.in_footnote = parser.in_footnote;
         self.has_footnote_block = parser.has_footnote_block;
         self.start_of_line = parser.start_of_line;

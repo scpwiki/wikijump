@@ -22,7 +22,6 @@ use super::prelude::*;
 use crate::parsing::strip_whitespace;
 use crate::tree::{AttributeMap, PartialElement, Table, TableCell, TableRow};
 use std::num::NonZeroU32;
-use std::ops::{Deref, DerefMut};
 
 pub const BLOCK_TABLE: BlockRule = BlockRule {
     name: "block-table",
@@ -71,7 +70,7 @@ struct ParsedBlock<'t> {
 
 fn parse_block<'r, 't>(
     log: &Logger,
-    parser: &mut ParserWrap<'_, 'r, 't>,
+    parser: &mut Parser<'r, 't>,
     name: &str,
     flag_star: bool,
     flag_score: bool,
@@ -150,8 +149,6 @@ fn parse_table<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let parser = &mut ParserWrap::new(parser, TableParseState::Table);
-
     // Get block contents.
     let ParsedBlock {
         elements,
@@ -185,8 +182,6 @@ fn parse_row<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let parser = &mut ParserWrap::new(parser, TableParseState::Row);
-
     // Get block contents.
     let ParsedBlock {
         elements,
@@ -222,8 +217,6 @@ fn parse_cell_regular<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let parser = &mut ParserWrap::new(parser, TableParseState::Content);
-
     // Get block contents.
     let ParsedBlock {
         elements,
@@ -250,8 +243,6 @@ fn parse_cell_header<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let parser = &mut ParserWrap::new(parser, TableParseState::Content);
-
     // Get block contents.
     let ParsedBlock {
         elements,
@@ -299,44 +290,4 @@ fn parse_cell<'r, 't>(
     }));
 
     ok!(false; element, exceptions)
-}
-
-// Helper
-
-#[derive(Debug)]
-struct ParserWrap<'p, 'r, 't> {
-    parser: &'p mut Parser<'r, 't>,
-    old_value: TableParseState,
-}
-
-impl<'p, 'r, 't> ParserWrap<'p, 'r, 't> {
-    #[inline]
-    fn new(parser: &'p mut Parser<'r, 't>, new_value: TableParseState) -> Self {
-        let old_value = parser.table_flag();
-        parser.set_table_flag(new_value);
-
-        ParserWrap { parser, old_value }
-    }
-}
-
-impl<'r, 't> Deref for ParserWrap<'_, 'r, 't> {
-    type Target = Parser<'r, 't>;
-
-    #[inline]
-    fn deref(&self) -> &Parser<'r, 't> {
-        self.parser
-    }
-}
-
-impl<'r, 't> DerefMut for ParserWrap<'_, 'r, 't> {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Parser<'r, 't> {
-        self.parser
-    }
-}
-
-impl Drop for ParserWrap<'_, '_, '_> {
-    fn drop(&mut self) {
-        self.parser.set_table_flag(self.old_value);
-    }
 }
