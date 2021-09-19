@@ -57,6 +57,7 @@ cbindgen = "0.20"
 [dev-dependencies]
 proptest = "1"
 sloggers = "2"
+termcolor = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 self_cell = "0.9"
