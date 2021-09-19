@@ -472,7 +472,7 @@ repository:
   BlockNameAlign:
     lookup: $var:blk_align
     lookahead: /@namela/
-    tag: function(tagName)
+    tag: function(name)
 
   BlockNameModule:
     match: module
@@ -518,6 +518,7 @@ repository:
     begin:
       type: BlockNestedMathStartNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStart
@@ -529,6 +530,7 @@ repository:
     end:
       type: BlockNestedMathEndNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStartClosing
@@ -549,6 +551,7 @@ repository:
     begin:
       type: BlockNestedModuleCSSStartNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStart
@@ -561,6 +564,7 @@ repository:
     end:
       type: BlockNestedModuleCSSEndNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStartClosing
@@ -581,6 +585,7 @@ repository:
     begin:
       type: BlockNestedCSSStartNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStart
@@ -592,6 +597,7 @@ repository:
     end:
       type: BlockNestedCSSEndNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStartClosing
@@ -612,6 +618,7 @@ repository:
     begin:
       type: BlockNestedHTMLStartNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStart
@@ -623,6 +630,7 @@ repository:
     end:
       type: BlockNestedHTMLEndNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStartClosing
@@ -643,6 +651,7 @@ repository:
     begin:
       type: BlockNestedCodeStartNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       # resets code-lang whenever this rule is checked
       context: { set: code-lang, to: "" }
@@ -657,6 +666,7 @@ repository:
     end:
       type: BlockNestedCodeEndNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStartClosing
@@ -668,6 +678,7 @@ repository:
 
   BlockNodeMap:
     emit: BlockNode
+    indent: delimited(]])
     skip: /\s+/
     chain:
       - BlockStart
@@ -679,6 +690,7 @@ repository:
 
   BlockNodeValue:
     emit: BlockNode
+    indent: delimited(]])
     skip: /\s+/
     chain:
       - BlockStart
@@ -690,6 +702,7 @@ repository:
 
   BlockNodeValueMap:
     emit: BlockNode
+    indent: delimited(]])
     skip: /\s+/
     chain:
       - BlockStart
@@ -702,6 +715,7 @@ repository:
 
   BlockNodeModule:
     emit: BlockNode
+    indent: delimited(]])
     skip: /\s+/
     chain:
       - BlockStart
@@ -714,6 +728,7 @@ repository:
 
   BlockNodeUnknown:
     emit: BlockNode
+    indent: delimited(]])
     skip: /\s+/
     chain:
       - BlockStart | BlockStartClosing
@@ -729,6 +744,7 @@ repository:
     begin:
       type: BlockContainerAlignStartNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStart
@@ -738,6 +754,7 @@ repository:
     end:
       type: BlockContainerAlignEndNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStartClosing
@@ -751,6 +768,7 @@ repository:
     begin:
       type: BlockContainerElementsStartNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStart
@@ -762,6 +780,7 @@ repository:
     end:
       type: BlockContainerElementsEndNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStartClosing
@@ -776,6 +795,7 @@ repository:
     begin:
       type: BlockContainerMapStartNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStart
@@ -787,6 +807,7 @@ repository:
     end:
       type: BlockContainerMapEndNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStartClosing
@@ -801,6 +822,7 @@ repository:
     begin:
       type: BlockContainerValueStartNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStart
@@ -812,6 +834,7 @@ repository:
     end:
       type: BlockContainerValueEndNode
       emit: BlockNode
+      indent: delimited(]])
       skip: /\s+/
       chain:
         - BlockStartClosing
@@ -834,6 +857,7 @@ repository:
 
   IncludeElements:
     emit: Include
+    indent: delimited(]])
     skip: /\s+/
     chain:
       - BlockStart
