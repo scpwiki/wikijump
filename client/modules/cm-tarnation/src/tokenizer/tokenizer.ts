@@ -3,7 +3,7 @@ import type { Grammar } from "../grammar/grammar"
 import { GrammarToken, Nesting } from "../grammar/types"
 import type { TarnationLanguage } from "../language"
 import type { ParseRegion } from "../region"
-import type { MappedToken, Token } from "../types"
+import type { Token } from "../types"
 import type { TokenizerBuffer } from "./buffer"
 import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
@@ -77,18 +77,6 @@ export class Tokenizer {
   }
 
   /**
-   * Compiles a `GrammarToken` into a `MappedToken`. Remaps type names to node IDs.
-   *
-   * @param t - The token to be converted.
-   */
-  private compileGrammarToken(t: GrammarToken): MappedToken {
-    const out: MappedToken = [t.id, t.from, t.to]
-    if (t.open) out[3] = t.open
-    if (t.close) out[4] = t.close
-    return out
-  }
-
-  /**
    * Returns if the `last` `MappedToken` is effectively equivalent to the
    * `next` `GrammarToken`, as in the two can be merged without any loss of
    * information.
@@ -96,16 +84,16 @@ export class Tokenizer {
    * @param last - The token to check if it can be potentially extended.
    * @param next - The new token which may be able to merge into the `last` token.
    */
-  private canContinue(last?: MappedToken, next?: GrammarToken) {
+  private canContinue(last?: GrammarToken, next?: GrammarToken) {
     if (!last || !next) return false // tokens are invalid
     // parser directives present
-    if (last.length > 2 || next.open || next.close) return false
+    if (last.length > 2 || next[3] || next[4]) return false
     // embedded handling token
-    if (last[0] === -1 || next.nest) return false
+    if (last[5] || next[5]) return false
     // types aren't equivalent
-    if (last[0] !== next.id) return false
+    if (last[0] !== next[0]) return false
     // tokens aren't inline
-    if (last[2] !== next.from) return false
+    if (last[2] !== next[1]) return false
     // tokens are effectively equivalent
     return true
   }
@@ -134,36 +122,36 @@ export class Tokenizer {
 
     const mapped: Token[] = []
 
-    let last!: MappedToken
+    let last!: GrammarToken
 
     for (let idx = 0; idx < tokens.length; idx++) {
       const t = tokens[idx]
 
       let pushEmbedded = false
 
-      if (t.nest !== undefined) {
+      if (t[5] !== undefined) {
         // token ends an embedded region
-        if (t.nest === Nesting.POP) {
-          const range = this.context.endEmbedded(t.from)
+        if (t[5] === Nesting.POP) {
+          const range = this.context.endEmbedded(t[1])
           if (range) mapped.push(range)
         }
         // token represents the entire region, not the start or end of one
-        else if (!this.context.embedded && t.nest.endsWith("!")) {
-          const lang = t.nest.slice(0, t.nest.length - 1)
-          mapped.push([lang, t.from, t.to])
+        else if (!this.context.embedded && t[5].endsWith("!")) {
+          const lang = t[5].slice(0, t[5].length - 1)
+          mapped.push([lang, t[1], t[2]])
           continue
         }
         // token starts an embedded region
         else if (!this.context.embedded) {
           pushEmbedded = true
-          this.context.setEmbedded(t.nest, t.to)
+          this.context.setEmbedded(t[5], t[2])
         }
       }
 
       // check if the new token can be merged into the last one
       if (!this.context.embedded || pushEmbedded) {
-        if (last && this.canContinue(last, t)) last[2] = t.to
-        else mapped.push((last = this.compileGrammarToken(t)))
+        if (last && this.canContinue(last, t)) last[2] = t[2]
+        else mapped.push((last = t))
       }
     }
 

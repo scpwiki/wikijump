@@ -74,11 +74,11 @@ export class Matched {
       // wasn't emitted
       if (!compiled) continue
       // leaf
-      if (!Array.isArray(compiled)) tokens.push(compiled)
+      if (!Array.isArray(compiled[0])) tokens.push(compiled as GrammarToken)
       // branch
       else {
         for (let i = 0; i < compiled.length; i++) {
-          tokens.push(compiled[i])
+          tokens.push((compiled as GrammarToken[])[i])
         }
       }
     }
@@ -92,24 +92,24 @@ export class Matched {
    */
   compile() {
     const compiled = this._compile()
-    if (Array.isArray(compiled)) return compiled
-    else if (compiled) return [compiled]
+    if (Array.isArray(compiled[0])) return compiled as GrammarToken[]
+    else if (compiled) return [compiled] as GrammarToken[]
     else return []
   }
 }
 
 /** Compiles a {@link Matched} as a leaf. */
 function compileLeaf(match: Matched): GrammarToken {
-  const token: GrammarToken = {
-    id: match.node === Node.None ? null : match.node.id,
-    from: match.from,
-    to: match.from + match.length
-  }
+  const token: GrammarToken = [
+    match.node === Node.None ? null : match.node.id,
+    match.from,
+    match.from + match.length
+  ]
 
   if (match.node.nest) {
     const lang = match.state.sub(match.node.nest)
     if (typeof lang !== "string") throw new Error("node.nest resolved badly")
-    if (lang) token.nest = `${lang}!` // "!" signifies nesting in a leaf
+    if (lang) token[5] = `${lang}!` // "!" signifies nesting in a leaf
   }
 
   return token
@@ -134,17 +134,17 @@ function compileTree(match: Matched, tokens: GrammarToken[]) {
   }
 
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.BEGIN) {
-    first.open ??= []
-    first.open.unshift([match.node.id, Inclusivity.INCLUSIVE])
-    if (nest && match.wrapping === Wrapping.BEGIN) last.nest = nest
-    else if (nest) first.nest = nest
+    first[3] ??= []
+    first[3].unshift([match.node.id, Inclusivity.INCLUSIVE])
+    if (nest && match.wrapping === Wrapping.BEGIN) last[5] = nest
+    else if (nest) first[5] = nest
   }
 
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.END) {
-    last.close ??= []
-    last.close.push([match.node.id, Inclusivity.INCLUSIVE])
-    if (nest && match.wrapping === Wrapping.END) first.nest = Nesting.POP
-    else if (nest) last.nest = Nesting.POP
+    last[4] ??= []
+    last[4].push([match.node.id, Inclusivity.INCLUSIVE])
+    if (nest && match.wrapping === Wrapping.END) first[5] = Nesting.POP
+    else if (nest) last[5] = Nesting.POP
   }
 
   return tokens

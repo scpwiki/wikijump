@@ -1,7 +1,7 @@
 import type { NodePropSource, NodeType, Tree } from "@lezer/common"
 import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
 import type * as DF from "./grammar/definition"
-import type { ParserAction, VariableTable } from "./grammar/types"
+import type { GrammarToken, VariableTable } from "./grammar/types"
 import type { Chunk } from "./tokenizer"
 
 // -- CONFIGURATION
@@ -57,19 +57,10 @@ export interface TarnationLanguageDefinition {
 
 // -- TOKENS
 
-/** A more efficient representation of a `GrammarToken`. */
-export type MappedToken = [
-  type: number | null,
-  from: number,
-  to: number,
-  open?: ParserAction,
-  close?: ParserAction
-]
-
 /** Represents the region of an embedded language. */
 export type EmbedToken = [lang: string, from: number, to: number]
 
-export type Token = MappedToken | EmbedToken
+export type Token = GrammarToken | EmbedToken
 
 /**
  * Represents a Lezer token. The `tree` value is for storing a reusable

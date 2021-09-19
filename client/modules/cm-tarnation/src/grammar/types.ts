@@ -18,14 +18,14 @@ export type CaptureMap = Record<number, Node>
 export type Variable = Matcher | string | string[] | RegExp
 export type VariableTable = Record<string, Variable>
 
-export interface GrammarToken {
-  id: number | null
-  from: number
-  to: number
-  open?: ParserAction
-  close?: ParserAction
+export type GrammarToken = [
+  id: number | null,
+  from: number,
+  to: number,
+  open?: ParserAction,
+  close?: ParserAction,
   nest?: string | Nesting
-}
+]
 
 export interface GrammarStackElement {
   node: Node

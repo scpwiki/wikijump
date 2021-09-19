@@ -2,7 +2,7 @@ import type { Tree } from "@lezer/common"
 import type { TarnationLanguage } from "../language"
 import type { ParseRegion } from "../region"
 import type { Chunk } from "../tokenizer"
-import type { LezerToken, MappedToken } from "../types"
+import type { LezerToken } from "../types"
 import { getEmbeddedParserNode } from "../util"
 import type { ParserContext } from "./context"
 
@@ -70,11 +70,7 @@ export class Parser {
 
     const tokens = chunk.compile()
     for (let idx = 0; idx < tokens.length; idx++) {
-      // bit of a hack, but for some reason TS isn't typw narrowing the switch below
-      // so we'll just act like this is a MappedToken, and then assert as any for
-      // EmbedToken
-      const t = tokens[idx] as MappedToken
-
+      const t = tokens[idx]
       switch (typeof t[0]) {
         // embed token
         case "string": {
