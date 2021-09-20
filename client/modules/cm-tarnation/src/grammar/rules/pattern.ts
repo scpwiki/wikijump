@@ -6,11 +6,23 @@ import type { Repository } from "../repository"
 import { MatchOutput } from "../types"
 import { Rule } from "./rule"
 
+/**
+ * A {@link Rule} subclass that uses {@link RegExpMatcher} or
+ * {@link StringMatcher} instances for the underlying pattern.
+ */
 export class PatternRule extends Rule {
+  /**
+   * A list of patterns to check. This is a list of alternatives, so if any
+   * matches, the rule matches.
+   */
   private declare patterns: (RegExpMatcher | StringMatcher)[]
 
   declare exec: (str: string, pos: number) => MatchOutput
 
+  /**
+   * @param repo - The {@link Repository} to add this rule to.
+   * @param rule - The rule definition.
+   */
   constructor(repo: Repository, rule: DF.Pattern) {
     super(repo, rule)
 
@@ -38,6 +50,10 @@ export class PatternRule extends Rule {
     }
   }
 
+  /**
+   * Internal function that is set as the `exec` method when the `patterns`
+   * list is being used.
+   */
   private execPatterns(str: string, pos: number) {
     for (let i = 0; i < this.patterns.length; i++) {
       const result = this.patterns[i].match(str, pos)

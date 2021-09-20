@@ -5,11 +5,28 @@ import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
 import { Rule } from "./rule"
 
+/** A {@link Rule} subclass that uses *other* {@link Rule}s to chain together matches. */
 export class Chain extends Rule {
+  /** The internal list of rules and their quantifier types. */
   private declare chain: ChainRule[]
+
+  /**
+   * A {@link RegExpMatcher} pattern that, if provided, will be used to skip
+   * characters which are matched. This can be used to skip whitespace in a
+   * chain without making sure every rule actually handles whitespace.
+   */
   private declare skip?: RegExpMatcher
+
+  /**
+   * Internal {@link ChainContext} used for keeping track of state when
+   * checking if this rule matches.
+   */
   private declare context: ChainContext
 
+  /**
+   * @param repo - The {@link Repository} to add this rule to.
+   * @param rule - The rule definition.
+   */
   constructor(repo: Repository, rule: DF.Chain) {
     super(repo, rule)
     this.chain = rule.chain.map(item => parseChainRule(repo, item))
@@ -19,6 +36,11 @@ export class Chain extends Rule {
     this.context = new ChainContext(this.chain, this.skip)
   }
 
+  /**
+   * @param state - The current {@link GrammarState}.
+   * @param str - The string to match.
+   * @param pos - The position to start matching at.
+   */
   exec(str: string, pos: number, state: GrammarState) {
     this.context.reset(state, str, pos)
     while (!this.context.done) step(this.context)
@@ -28,6 +50,10 @@ export class Chain extends Rule {
   }
 }
 
+/**
+ * Step function for a running chain match. A step may or may not advance
+ * the chain - this is simply repeated as many times as needed.
+ */
 function step(ctx: ChainContext) {
   ctx.skip()
   step: switch (ctx.current[1]) {
@@ -139,6 +165,7 @@ function step(ctx: ChainContext) {
   }
 }
 
+/** Utility function for running a rule as many times as possible. */
 function take(ctx: ChainContext, rule: Rule) {
   let advanced = false
   let result
@@ -150,13 +177,21 @@ function take(ctx: ChainContext, rule: Rule) {
   return advanced
 }
 
+/** Types of quantifier for a chain rule. */
 enum Quantifier {
+  /** No suffix. */
   ONE,
+  /** `?` suffix. */
   OPTIONAL,
+  /** `*` suffix. */
   ZERO_OR_MORE,
+  /** `+` suffix. */
   ONE_OR_MORE,
+  /** Chain rule strings separated by `|` pipes. */
   ALTERNATIVES,
+  /** Rule names separated by `|*` pipes. */
   REPEATING_ZERO_OR_MORE,
+  /** Rule names separated by `|+` pipes. */
   REPEATING_ONE_OR_MORE
 }
 
@@ -177,16 +212,40 @@ type ChainRule =
       | Quantifier.REPEATING_ONE_OR_MORE
     ]
 
+/** Class used for tracking the state of a in progress chain match. */
 class ChainContext {
+  /** The current {@link GrammarState}. */
   declare state: GrammarState
+
+  /** The list of rules to match with. */
   declare rules: ChainRule[]
+
+  /** The current string to match. */
   declare str: string
+
+  /** The current position. */
   declare pos: number
+
+  /** The totality of the string that has been matched so far. */
   declare total: string
+
+  /** The list of results to be returned. */
   declare results: Matched[] | null
+
+  /** The current rule index. */
   declare index: number
+
+  /** If true, the current match has failed. */
   declare failed: boolean
+
+  /** Used for keeping track of state with the `REPEATING` quantifiers. */
   declare advanced: boolean | null
+
+  /**
+   * A skip pattern to use.
+   *
+   * @see {@link Chain}
+   */
   declare skipMatcher?: RegExpMatcher
 
   constructor(rules: ChainRule[], skip?: RegExpMatcher) {
@@ -195,15 +254,18 @@ class ChainContext {
     if (skip) this.skipMatcher = skip
   }
 
+  /** True if the running match has finished. */
   get done() {
     return this.index >= this.rules.length
   }
 
+  /** Gets the current rule, based on the current index. */
   get current() {
     if (this.done) throw new Error("Cannot get current rule when done")
     return this.rules[this.index]
   }
 
+  /** Adds a {@link Matched} to the result list. */
   add(result: Matched) {
     if (!this.results) this.results = []
     this.results.push(result)
@@ -211,16 +273,26 @@ class ChainContext {
     this.pos += result.length
   }
 
+  /** Sets the match to have failed. */
   fail() {
     this.failed = true
     this.index = this.rules.length
   }
 
+  /**
+   * Advances to the next rule.
+   *
+   * @param result - A result to add to the results list, if desired.
+   */
   advance(result?: Matched) {
     if (result) this.add(result)
     this.index++
   }
 
+  /**
+   * Finishes and cleans up. Returns `null` if the match failed, otherwise
+   * a list of {@link Matched} objects will be returned.
+   */
   finish() {
     if (this.failed) {
       this.clear()
@@ -231,6 +303,10 @@ class ChainContext {
     return results
   }
 
+  /**
+   * Checks to see if the next rule would match. Used for leaving
+   * `REPEATING` quantifier rules early.
+   */
   nextMatches() {
     if (this.done) throw new Error("Cannot get next rule when done")
     const rule = this.rules[this.index + 1]
@@ -264,6 +340,7 @@ class ChainContext {
     return false
   }
 
+  /** Greedy consumes any characters matched by the `skip` pattern. */
   skip() {
     if (!this.skipMatcher) return
     let result
@@ -273,6 +350,7 @@ class ChainContext {
     }
   }
 
+  /** Clears out the current state. */
   private clear() {
     this.total = ""
     this.index = 0
@@ -281,6 +359,7 @@ class ChainContext {
     this.results = null
   }
 
+  /** Resets the current state with the new match arguments. */
   reset(state: GrammarState, str: string, pos: number) {
     this.state = state
     this.str = str
@@ -288,6 +367,10 @@ class ChainContext {
   }
 }
 
+/**
+ * Parses a chain rule string, and returns the rule(s) it specifies and
+ * what type of quantifier it uses.
+ */
 function parseChainRule(repo: Repository, str: string): ChainRule {
   const repeatAlternatives = /\|[*+]/.test(str)
   const normalAlternatives = /\|(?![*+])/.test(str)

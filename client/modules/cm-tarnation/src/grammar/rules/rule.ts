@@ -8,16 +8,48 @@ import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
 import type { MatchOutput } from "../types"
 
+/**
+ * A {@link Node} with some sort of associated pattern. Patterns exist as
+ * subclasses of this class.
+ */
 export abstract class Rule {
+  /** The name of this rule. May be different to what is emitted to the AST. */
   declare name: string
+
+  /** The {@link Node} associated with this rule. */
   declare node: Node
+
+  /** If given, this function will be checked prior to matching. */
   declare lookbehind?: (str: string, pos: number) => boolean
+
+  /** If given, this {@link RegExpMatcher} will be checked after matching. */
   declare lookahead?: RegExpMatcher
+
+  /**
+   * A list of "context setters", which are functions that update the
+   * {@link GrammarState} context table.
+   */
   declare contextSetters?: ((state: GrammarState) => void)[]
+
+  /** If true, all of the context setters will be fired before this rule is checked. */
   declare contextImmediate?: boolean
+
+  /**
+   * If the underlying pattern emits captures, this list of {@link Node} or
+   * `CaptureFunction` objects will be associated 1-1 with each capture.
+   */
   declare captures: (Node | CaptureFunction)[]
+
+  /**
+   * If true, this rule won't actually emit tokens based off of matches,
+   * and will only cause side-effects like state switching.
+   */
   declare rematch?: boolean
 
+  /**
+   * @param repo - The {@link Repository} to add this rule to.
+   * @param rule - The rule definition.
+   */
   constructor(repo: Repository, rule: DF.Rule) {
     let type = rule.type ?? createID()
     let emit = rule.type && rule.emit !== false
@@ -68,6 +100,11 @@ export abstract class Rule {
    */
   abstract exec(str: string, pos: number, state: GrammarState): Matched | MatchOutput
 
+  /**
+   * @param state - The current {@link GrammarState}.
+   * @param str - The string to match.
+   * @param pos - The position to start matching at.
+   */
   match(state: GrammarState, str: string, pos: number): Matched | null {
     if (this.lookbehind && !this.lookbehind(str, pos)) return null
 
@@ -158,6 +195,7 @@ export abstract class Rule {
   }
 }
 
+/** Creates a context setter from its definition. */
 function contextSetter(setter: DF.ContextSetter) {
   return (state: GrammarState) => {
     // check if and match conditions
@@ -190,6 +228,7 @@ function contextSetter(setter: DF.ContextSetter) {
 
 type CaptureFunction = (state: GrammarState, capture: string) => Node | boolean
 
+/** Creates a `CaptureFunction` from a capture condition definition. */
 function captureFunction(repo: Repository, cond: DF.CaptureCondition): CaptureFunction {
   // TODO: fix lower casing matching here
 

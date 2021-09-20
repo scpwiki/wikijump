@@ -4,11 +4,21 @@ import type { Repository } from "../repository"
 import { MatchOutput } from "../types"
 import { Rule } from "./rule"
 
+/**
+ * A {@link Rule} subclass that uses a {@link LookupMatcher} for the
+ * underlying pattern. This is a list of string options converted into a
+ * very quick to match list internally.
+ */
 export class LookupRule extends Rule {
+  /** The internal {@link LookupMatcher}. */
   private declare lookup: LookupMatcher
 
   declare exec: (str: string, pos: number) => MatchOutput
 
+  /**
+   * @param repo - The {@link Repository} to add this rule to.
+   * @param rule - The rule definition.
+   */
   constructor(repo: Repository, rule: DF.Lookup) {
     super(repo, rule)
 
