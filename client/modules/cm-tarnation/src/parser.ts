@@ -2,7 +2,7 @@ import {
   Input,
   NestedParse,
   parseMixed,
-  Parser as ParserBase,
+  Parser as CodeMirrorParser,
   ParseWrapper,
   PartialParse,
   Tree,
@@ -22,17 +22,17 @@ const REUSE_LEFT = true
 const REUSE_RIGHT = true
 
 /**
- * Factory for correctly instantiating {@link Host} instances. To
- * CodeMirror, this class is the `parser`, and a {@link Host} is the running
- * process of said parser.
+ * Factory for correctly instantiating {@link Parser} instances. To
+ * CodeMirror, this class is the `parser`, and a {@link Parser} is the
+ * running process of said parser.
  */
-export class HostFactory extends ParserBase {
+export class ParserFactory extends CodeMirrorParser {
   /** The wrapper function that enables mixed parsing. */
   private declare wrapper: ParseWrapper
 
   /**
    * @param language - The {@link TarnationLanguage} that this factory
-   *   passes to the {@link Host} instances it constructs.
+   *   passes to the {@link Parser} instances it constructs.
    */
   constructor(private language: TarnationLanguage) {
     super()
@@ -44,7 +44,7 @@ export class HostFactory extends ParserBase {
     fragments: TreeFragment[],
     ranges: { from: number; to: number }[]
   ) {
-    const delegator = new Host(this.language, input, fragments, ranges)
+    const delegator = new Parser(this.language, input, fragments, ranges)
     return this.wrapper(delegator, input, fragments, ranges)
   }
 
@@ -99,15 +99,15 @@ export class HostFactory extends ParserBase {
  * The host is the main interface between tokenizing and parsing, and what
  * CodeMirror directly interacts with when parsing.
  *
- * Additionally, the `Host` handles the recovery of tokenizer state from
+ * Additionally, the `Parser` handles the recovery of tokenizer state from
  * the stale trees provided by CodeMirror, and then uses this data to
  * restart the tokenizer with reused state.
  *
- * Note that the `Host`, along with `Tokenizer`, are not persistent
+ * Note that the `Parser`, along with `Tokenizer`, are not persistent
  * objects. They are discarded as soon as the parse is done. That means
  * that their startup time is very significant.
  */
-export class Host implements PartialParse {
+export class Parser implements PartialParse {
   /** The host language. */
   private declare language: TarnationLanguage
 

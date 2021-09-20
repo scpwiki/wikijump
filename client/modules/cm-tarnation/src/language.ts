@@ -11,7 +11,7 @@ import { removeUndefined } from "@wikijump/util"
 import { isFunction } from "is-what"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
-import { HostFactory } from "./host"
+import { ParserFactory } from "./parser"
 import type { TokenizerBuffer } from "./tokenizer"
 import type {
   ParserConfiguration,
@@ -100,7 +100,7 @@ export class TarnationLanguage {
     this.nodeSet = nodeSet
 
     // setup language support
-    this.language = new Language(facet, new HostFactory(this), top)
+    this.language = new Language(facet, new ParserFactory(this), top)
     this.support = new LanguageSupport(this.language, this.extensions)
     this.loaded = true
 
