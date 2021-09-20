@@ -1,6 +1,7 @@
 import type { Tree } from "@lezer/common"
 import type { LezerToken } from "../types"
 import { cloneNestedArray, getEmbeddedParserNode } from "../util"
+import { CHUNK_SIZE } from "./buffer"
 import type { Chunk } from "./chunk"
 
 /** Stack used by the parser to track tree construction. */
@@ -198,11 +199,17 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
  *   an empty stack will be created.
  */
 export function compileChunks(chunks: Chunk[], startStack?: ParseStack) {
-  const buffer: number[] = []
+  // creating the array with a rough estimate of the size
+  // helps with performance, since JS doesn't have to reallocate as much.
+  // we need to undershoot though, because we'll mess up the length value
+  // if we overshoot.
+  const roughTokenCount = CHUNK_SIZE * (chunks.length - 1) * 4
+  const buffer: number[] = new Array(roughTokenCount)
   const reused: Tree[] = []
 
   let stack = startStack || new ParseStack([])
   let shouldCloneStack = false
+  let len = 0
 
   for (let i = 0; i < chunks.length; i++) {
     const chunk = chunks[i]
@@ -219,12 +226,20 @@ export function compileChunks(chunks: Chunk[], startStack?: ParseStack) {
     }
 
     for (let j = 0; j < tokens.length; j++) {
+      len += 4
       const t = tokens[j]
-      if (!t[4]) buffer.push(t[0], t[1], t[2], t[3])
-      else {
-        // push nest node tree
+      if (!t[4]) {
+        buffer[len - 4] = t[0]
+        buffer[len - 3] = t[1]
+        buffer[len - 2] = t[2]
+        buffer[len - 1] = t[3]
+      } else {
+        // push nested language tree
         reused.push(t[4])
-        buffer.push(reused.length - 1, t[1], t[1] + t[4].length, -1)
+        buffer[len - 4] = reused.length - 1
+        buffer[len - 3] = t[1]
+        buffer[len - 2] = t[1] + t[4].length
+        buffer[len - 1] = -1
       }
     }
   }
