@@ -40,11 +40,12 @@ export class ParseRegion {
     offset: number
   }
 
+  /** The ranges to be parsed. */
   declare ranges: { from: number; to: number }[]
 
   /**
-   * @param rangeDocument - The range of the document.
-   * @param rangeParse - The range of the region that should be parsed.
+   * @param input - The input to get the parse region for.
+   * @param ranges - The ranges of the document that should be parsed.
    * @param fragments - Fragments that are used to compute the edited range.
    */
   constructor(
