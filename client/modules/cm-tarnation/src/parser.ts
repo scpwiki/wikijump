@@ -135,7 +135,7 @@ export class Parser implements PartialParse {
   private declare previousRight?: ChunkBuffer
 
   /** A function used to measure how long the parse is taking. */
-  private declare measurePerformance?: (msg?: string) => number
+  private declare measurePerformance: (msg?: string) => number
 
   /** The current position of the parser. */
   declare parsedPos: number
@@ -232,8 +232,6 @@ export class Parser implements PartialParse {
 
   /** Advances tokenization one step. */
   advance(): Tree | null {
-    if (!this.measurePerformance) this.measurePerformance = perfy()
-
     // if we're told to stop, we need to BAIL
     if (this.stoppedAt && this.parsedPos >= this.stoppedAt) {
       return this.finish()
@@ -246,7 +244,9 @@ export class Parser implements PartialParse {
       if (reused) this.previousRight = undefined
     }
 
-    if (this.done || this.tokenize()) return this.finish()
+    this.nextChunk()
+
+    if (this.done) return this.finish()
 
     return null
   }
@@ -273,22 +273,20 @@ export class Parser implements PartialParse {
       context.skipUntilInView(this.parsedPos, this.region.original.to)
     }
 
-    if (this.measurePerformance) {
-      this.performance = this.measurePerformance()
-      this.measurePerformance = undefined
-      this.language.performance = this.performance
-    }
+    this.performance = this.measurePerformance()
+    this.language.performance = this.performance
 
     return tree
   }
 
-  /** Advances tokenization. Returns null if it isn't done, otherwise returns true. */
-  private tokenize() {
-    if (this.parsedPos < this.region.to) {
+  /** Advances the parser to the next chunk. */
+  private nextChunk() {
+    // this condition is a little misleading,
+    // as we're actually going to break out when any chunk is emitted.
+    // however, if we're at the "last chunk", this condition catching that
+    while (this.parsedPos < this.region.to) {
       const pos = this.parsedPos
       const startState = this.state.clone()
-
-      // tokenize
 
       let matchTokens: GrammarToken[] | null = null
       let length = 1
@@ -352,13 +350,13 @@ export class Parser implements PartialParse {
         }
       }
 
-      // add found tokens to buffer
-      if (tokens?.length) this.buffer.add(pos, startState, tokens)
+      if (tokens?.length) {
+        // if a chunk was added we'll break out of the loop
+        if (this.buffer.add(pos, startState, tokens)) return true
+      }
     }
 
-    if (this.parsedPos >= this.region.to) return true
-
-    return null
+    return false
   }
 
   /**
