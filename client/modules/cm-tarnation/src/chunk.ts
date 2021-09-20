@@ -4,7 +4,7 @@ import type { LezerToken, Token } from "./types"
 import { cloneNestedArray } from "./util"
 
 /**
- * A `Chunk` stores tokens emitted by the tokenizer into discrete, well,
+ * A `Chunk` stores tokens emitted by the tokenization into discrete, well,
  * chunks. Chunks store their token positions (as in, position in the
  * document) relative to the chunk's own "position". This allows the chunk
  * to be moved anywhere in the document, and have the tokens follow. What
@@ -164,9 +164,9 @@ export class Chunk {
   }
 
   /**
-   * Determines if a tokenizer's state is compatible with reusing this
-   * node. This is only a safe determination if it is made *after* the
-   * changed range of the document.
+   * Determines if a grammar's state (and parse position) is compatible
+   * with reusing this node. This is only a safe determination if it is
+   * made *after* the changed range of the document.
    *
    * @param state - The state to compare against.
    * @param pos - The position to compare against.

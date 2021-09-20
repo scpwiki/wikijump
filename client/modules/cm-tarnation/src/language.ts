@@ -8,10 +8,10 @@ import {
   LanguageSupport
 } from "@wikijump/codemirror/cm"
 import { removeUndefined } from "@wikijump/util"
+import type { ChunkBuffer } from "./buffer"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
 import { ParserFactory } from "./parser"
-import type { TokenizerBuffer } from "./tokenizer/buffer"
 import type {
   ParserConfiguration,
   TarnationLanguageDefinition,
@@ -31,7 +31,7 @@ export class TarnationLanguage {
   declare top?: NodeType
   declare nodeTypes?: NodeType[]
   declare nodeSet?: NodeSet
-  declare stateProp?: NodeProp<TokenizerBuffer>
+  declare stateProp?: NodeProp<ChunkBuffer>
   declare support?: LanguageSupport
   declare language?: Language
   declare nestLanguages: LanguageDescription[] | Facet<LanguageDescription>
@@ -84,7 +84,7 @@ export class TarnationLanguage {
 
     // setup node data
 
-    this.stateProp = new NodeProp<TokenizerBuffer>({ perNode: true })
+    this.stateProp = new NodeProp<ChunkBuffer>({ perNode: true })
 
     const { facet, top } = makeTopNode(this.description.name, this.languageData)
     this.top = top

@@ -1,41 +1,41 @@
 import { search } from "@wikijump/util"
-import { Chunk } from "../chunk"
-import { GrammarState } from "../grammar/state"
-import type { Token } from "../types"
+import { Chunk } from "./chunk"
+import { GrammarState } from "./grammar/state"
+import type { Token } from "./types"
 
 /** Number of tokens per chunk. */
 const CHUNK_SIZE = 64
 
 /**
- * A `TokenizerBuffer` stores `Chunk` objects that then store the actual
- * tokens emitted by the tokenizer. The creation of `Chunk` objects is
- * fully automatic, all the tokenizer needs to do is push the tokens to the buffer.
+ * A `ChunkBuffer` stores `Chunk` objects that then store the actual tokens
+ * emitted by tokenizing. The creation of `Chunk` objects is fully
+ * automatic, all the parser needs to do is push the tokens to the buffer.
  *
  * Storing chunks instead of tokens allows the buffer to more easily manage
- * a large number of tokens, and more importantly, allows the tokenizer to
- * use chunks as checkpoints, enabling the tokenizer to only tokenize what
- * it needs to and reuse everything else.
+ * a large number of tokens, and more importantly, allows the parser to use
+ * chunks as checkpoints, enabling it to only tokenize what it needs to and
+ * reuse everything else.
  */
-export class TokenizerBuffer {
+export class ChunkBuffer {
   /** The actual array of chunks that the buffer manages. */
-  buffer: Chunk[] = []
+  chunks: Chunk[] = []
 
   /** @param chunks - The chunks to populate the buffer with. */
   constructor(chunks?: Chunk[]) {
-    if (chunks) this.buffer = chunks
+    if (chunks) this.chunks = chunks
   }
 
   /** The last chunk in the buffer. */
   get last() {
-    if (!this.buffer.length) return null
-    return this.buffer[this.buffer.length - 1]
+    if (!this.chunks.length) return null
+    return this.chunks[this.chunks.length - 1]
   }
 
   /** The last chunk in the buffer. */
   set last(chunk: Chunk | null) {
     if (!chunk) return // just satisfying typescript here
-    if (!this.buffer.length) this.buffer.push(chunk)
-    this.buffer[this.buffer.length - 1] = chunk
+    if (!this.chunks.length) this.chunks.push(chunk)
+    this.chunks[this.chunks.length - 1] = chunk
   }
 
   /** Ensures there is at least one chunk in the buffer. */
@@ -45,7 +45,7 @@ export class TokenizerBuffer {
 
   /** Retrieves a `Chunk` from the buffer. */
   get(index: number): Chunk | null {
-    return this.buffer[index] ?? null
+    return this.chunks[index] ?? null
   }
 
   /**
@@ -65,7 +65,7 @@ export class TokenizerBuffer {
     }
 
     if (this.last !== chunk) {
-      this.buffer.push(chunk)
+      this.chunks.push(chunk)
       return true
     }
   }
@@ -79,15 +79,15 @@ export class TokenizerBuffer {
   split(index: number) {
     if (!this.get(index)) throw new Error("Tried to split buffer on invalid index!")
 
-    let left: TokenizerBuffer
-    let right: TokenizerBuffer
+    let left: ChunkBuffer
+    let right: ChunkBuffer
 
-    if (this.buffer.length <= 1) {
-      left = new TokenizerBuffer(this.buffer.slice(0))
-      right = new TokenizerBuffer() // empty
+    if (this.chunks.length <= 1) {
+      left = new ChunkBuffer(this.chunks.slice(0))
+      right = new ChunkBuffer() // empty
     } else {
-      left = new TokenizerBuffer(this.buffer.slice(0, index + 1))
-      right = new TokenizerBuffer(this.buffer.slice(index + 1))
+      left = new ChunkBuffer(this.chunks.slice(0, index + 1))
+      right = new ChunkBuffer(this.chunks.slice(index + 1))
     }
 
     if (left.last) (left.last = left.last.clone()).setTokens([])
@@ -106,34 +106,34 @@ export class TokenizerBuffer {
   slide(index: number, offset: number, cutLeft = false) {
     if (!this.get(index)) throw new Error("Tried to slide buffer on invalid index!")
 
-    if (this.buffer.length === 0) return this
-    if (this.buffer.length === 1) {
+    if (this.chunks.length === 0) return this
+    if (this.chunks.length === 1) {
       this.last!.pos += offset
       return this
     }
 
-    if (cutLeft) this.buffer = this.buffer.slice(index)
+    if (cutLeft) this.chunks = this.chunks.slice(index)
 
-    for (let idx = cutLeft ? 0 : index; idx < this.buffer.length; idx++) {
-      this.buffer[idx].pos += offset
+    for (let idx = cutLeft ? 0 : index; idx < this.chunks.length; idx++) {
+      this.chunks[idx].pos += offset
     }
 
     return this
   }
 
   /**
-   * Links another `TokenizerBuffer` to the end of this buffer.
+   * Links another `ChunkBuffer` to the end of this buffer.
    *
    * @param right - The buffer to link.
    * @param max - If given, the maximum size of the buffer (by document
    *   position) will be clamped to below this number.
    */
-  link(right: TokenizerBuffer, max?: number) {
-    this.buffer = [...this.buffer, ...right.buffer]
+  link(right: ChunkBuffer, max?: number) {
+    this.chunks = [...this.chunks, ...right.chunks]
     if (max) {
-      for (let idx = 0; idx < this.buffer.length; idx++) {
-        if (this.buffer[idx].max > max) {
-          this.buffer = this.buffer.slice(0, idx)
+      for (let idx = 0; idx < this.chunks.length; idx++) {
+        if (this.chunks[idx].max > max) {
+          this.chunks = this.chunks.slice(0, idx)
           break
         }
       }
@@ -154,15 +154,15 @@ export class TokenizerBuffer {
    *   search misses, it will return `null` for both the token and index.
    */
   search(pos: number, side: 1 | 0 | -1 = 0, precise = false) {
-    const result = search(this.buffer, pos, this.searchCmp, { precise })
+    const result = search(this.chunks, pos, this.searchCmp, { precise })
 
     // null result or null resulting index
-    if (!result || !this.buffer[result.index]) {
+    if (!result || !this.chunks[result.index]) {
       return { chunk: null, index: null }
     }
 
     let { index } = result
-    let chunk = this.buffer[index]
+    let chunk = this.chunks[index]
 
     // direct hit or we don't care about sidedness
     if (chunk.pos === pos || side === 0) return { chunk, index }
@@ -170,7 +170,7 @@ export class TokenizerBuffer {
     // correct for sidedness
     while (chunk && (side === 1 ? chunk.pos < pos : chunk.pos > pos)) {
       index = side === 1 ? index + 1 : index - 1
-      chunk = this.buffer[index]
+      chunk = this.chunks[index]
     }
 
     // no valid chunks

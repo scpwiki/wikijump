@@ -11,17 +11,20 @@ import {
 } from "@lezer/common"
 import { LanguageDescription, ParseContext } from "@wikijump/codemirror/cm"
 import { perfy } from "@wikijump/util"
+import { ChunkBuffer } from "./buffer"
 import { compileChunks } from "./chunk-parsing"
+import { Nesting } from "./enums"
 import type { GrammarState } from "./grammar/state"
 import type { TarnationLanguage } from "./language"
 import { ParseRegion } from "./region"
-import { TokenizerBuffer } from "./tokenizer/buffer"
-import { Tokenizer } from "./tokenizer/tokenizer"
-import { EmbeddedParserProp, EmbeddedParserType } from "./util"
+import type { GrammarToken, Token } from "./types"
+import { canContinue, EmbeddedParserProp, EmbeddedParserType } from "./util"
 
 const DISABLED_NESTED = true
 const REUSE_LEFT = true
 const REUSE_RIGHT = true
+const MARGIN_BEFORE = 32
+const MARGIN_AFTER = 128
 
 /**
  * Factory for correctly instantiating {@link Parser} instances. To
@@ -101,13 +104,12 @@ export class ParserFactory extends CodeMirrorParser {
  * The `Parser` is the main interface for tokenizing and parsing, and what
  * CodeMirror directly interacts with.
  *
- * Additionally, the `Parser` handles the recovery of tokenizer state from
+ * Additionally, the `Parser` handles the recovery of grammar state from
  * the stale trees provided by CodeMirror, and then uses this data to
- * restart the tokenizer with reused state.
+ * restart tokenization with reused tokens.
  *
- * Note that the `Parser`, along with `Tokenizer`, are not persistent
- * objects. They are discarded as soon as the parse is done. That means
- * that their startup time is very significant.
+ * Note that the `Parser` is not persistent a objects It is discarded as
+ * soon as the parse is done. That means that its startup time is very significant.
  */
 export class Parser implements PartialParse {
   /** The host language. */
@@ -117,20 +119,32 @@ export class Parser implements PartialParse {
    * An object storing details about the region of the document to be
    * parsed, where it was edited, the length, etc.
    */
-  declare region: ParseRegion
+  private declare region: ParseRegion
 
-  /** The tokenizer to be used. */
-  private declare tokenizer: Tokenizer
+  /** The current state of the grammar, such as the stack. */
+  private declare state: GrammarState
+
+  /** {@link Chunk} buffer, where matched tokens are cached. */
+  private declare buffer: ChunkBuffer
 
   /**
-   * A buffer containing the stale *ahead* state of the tokenizer's output.
+   * A buffer containing the stale *ahead* state of the tokenized output.
    * As in, when a user makes a change, this is all of the tokenization
    * data for the previous document after the location of that new change.
    */
-  private declare tokenizerPreviousRight?: TokenizerBuffer
+  private declare previousRight?: ChunkBuffer
 
   /** A function used to measure how long the parse is taking. */
   private declare measurePerformance?: (msg?: string) => number
+
+  /** The current position of the parser. */
+  declare parsedPos: number
+
+  /**
+   * The position the parser will be stopping at early, if given a location
+   * to stop at.
+   */
+  declare stoppedAt: number | null
 
   /** The current performance value, in milliseconds. */
   declare performance?: number
@@ -149,10 +163,9 @@ export class Parser implements PartialParse {
     ranges: { from: number; to: number }[]
   ) {
     this.measurePerformance = perfy()
-
     this.language = language
-
     this.region = new ParseRegion(input, ranges, fragments)
+    this.stoppedAt = null
 
     const context = ParseContext.get()
 
@@ -179,26 +192,32 @@ export class Parser implements PartialParse {
         const buffer = this.find(f.tree, this.region.from, f.to)
 
         if (buffer) {
-          // try to find a suitable chunk from the buffer to restart the tokenizer from
+          // try to find a suitable chunk from the buffer to restart tokenization from
           const { chunk, index } = buffer.search(this.region.edit!.from, -1)
           if (chunk && index !== null) {
             // split the buffer, reuse the left side,
             // but keep the right side around for reuse as well
             const { left, right } = buffer.split(index)
-            this.tokenizerPreviousRight = right
+            this.previousRight = right
             this.region.from = chunk.pos
-            this.setupTokenizer(left, chunk.state.clone())
+            this.buffer = left
+            this.state = chunk.state.clone()
           }
         }
       }
     }
 
+    this.parsedPos = this.region.from
+
     // if we couldn't reuse state, we'll need to startup things with a default state
-    if (!this.tokenizer) this.setupTokenizer()
+    if (!this.buffer || !this.state) {
+      this.buffer = new ChunkBuffer()
+      this.state = this.language.grammar!.startState()
+    }
   }
 
   /**
-   * Returns the first tokenizer buffer found within a tree, if any.
+   * Returns the first chunk buffer found within a tree, if any.
    *
    * @param tree - The tree to search through, recursively.
    * @param from - The start of the search area.
@@ -206,7 +225,7 @@ export class Parser implements PartialParse {
    * @param offset - An offset added to the tree's positions, so that they
    *   may match some other source's positions.
    */
-  private find(tree: Tree, from: number, to: number, offset = 0): TokenizerBuffer | null {
+  private find(tree: Tree, from: number, to: number, offset = 0): ChunkBuffer | null {
     const bundle =
       offset >= from && offset + tree.length >= to
         ? tree.prop(this.language.stateProp!)
@@ -226,31 +245,10 @@ export class Parser implements PartialParse {
     return null
   }
 
-  /**
-   * Instantiates the `Tokenizer`.
-   *
-   * @param buffer - A `TokenizerBuffer` to reuse.
-   * @param state - A `GrammarState` to reuse.
-   */
-  private setupTokenizer(buffer?: TokenizerBuffer, state?: GrammarState) {
-    if (!buffer || !state) {
-      state = this.language.grammar!.startState()
-      buffer = new TokenizerBuffer()
-    }
-
-    this.tokenizer = new Tokenizer(this.language, state, buffer, this.region)
+  /** True if the parser is done. */
+  get done() {
+    return this.parsedPos >= this.region.to
   }
-
-  /** The current position of the parser. */
-  get parsedPos() {
-    return this.tokenizer.pos
-  }
-
-  /**
-   * The position the parser will be stopping at early, if given a location
-   * to stop at.
-   */
-  stoppedAt: number | null = null
 
   /**
    * Notifies the parser to not progress past the given position.
@@ -261,7 +259,86 @@ export class Parser implements PartialParse {
     this.stoppedAt = pos
   }
 
-  /** Advances the tokenizer or parser one step, depending on the current stage. */
+  /** Advances tokenization. Returns null if it isn't done, otherwise returns true. */
+  tokenize() {
+    if (this.parsedPos < this.region.to) {
+      const pos = this.parsedPos
+      const startState = this.state.clone()
+
+      // tokenize
+
+      let matchTokens: GrammarToken[] | null = null
+      let length = 1
+
+      const start = Math.max(pos - MARGIN_BEFORE, this.region.from)
+      const startCompensated = this.region.compensate(pos, start - pos)
+
+      const str = this.region.read(startCompensated, MARGIN_AFTER, this.region.to)
+
+      const match = this.language.grammar!.match(this.state, str, pos - start, pos)
+
+      if (match) {
+        this.state = match.state
+        matchTokens = match.compile()
+        length = match.length || 1
+      }
+
+      this.parsedPos = this.region.compensate(pos, length)
+
+      const tokens: Token[] = []
+
+      if (matchTokens?.length) {
+        let last!: GrammarToken
+
+        for (let idx = 0; idx < matchTokens.length; idx++) {
+          const t = matchTokens[idx]
+
+          let pushNested = false
+
+          if (t[5] !== undefined) {
+            // token ends a nested region
+            if (t[5] === Nesting.POP) {
+              const range = this.state.endNested(t[1])
+              if (range) tokens.push(range)
+            }
+            // token represents the entire region, not the start or end of one
+            else if (!this.state.nested && t[5].endsWith("!")) {
+              const lang = t[5].slice(0, t[5].length - 1)
+              tokens.push([lang, t[1], t[2]])
+              continue
+            }
+            // token starts a nested region
+            else if (!this.state.nested) {
+              pushNested = true
+              this.state.startNested(t[5], t[2])
+            }
+          }
+
+          if (!this.region.contiguous) {
+            const from = this.region.compensate(pos, t[1] - pos)
+            const end = this.region.compensate(pos, t[2] - pos)
+            t[1] = from
+            t[2] = end
+          }
+
+          // check if the new token can be merged into the last one
+          if (!this.state.nested || pushNested) {
+            if (last && canContinue(last, t)) last[2] = t[2]
+            else tokens.push((last = t))
+          }
+        }
+      }
+
+      // add found tokens to buffer
+      if (tokens?.length) this.buffer.add(pos, startState, tokens)
+    }
+
+    if (this.parsedPos >= this.region.to) return true
+
+    return null
+  }
+
+  /** Advances tokenization one step. */
   advance(): Tree | null {
     if (!this.measurePerformance) this.measurePerformance = perfy()
 
@@ -272,21 +349,18 @@ export class Parser implements PartialParse {
 
     if (REUSE_RIGHT) {
       // try to reuse ahead state
-      const reused =
-        this.tokenizerPreviousRight &&
-        this.tokenizer.tryToReuse(this.tokenizerPreviousRight)
-
+      const reused = this.previousRight && this.tryToReuse(this.previousRight)
       // can't reuse the buffer more than once (pointless)
-      if (reused) this.tokenizerPreviousRight = undefined
+      if (reused) this.previousRight = undefined
     }
 
-    if (this.tokenizer.done || this.tokenizer.tokenize()) return this.finish()
+    if (this.done || this.tokenize()) return this.finish()
 
     return null
   }
 
   private finish(): Tree {
-    const { buffer, reused } = compileChunks(this.tokenizer.chunks)
+    const { buffer, reused } = compileChunks(this.buffer.chunks)
 
     const start = this.region.original.from
     const length = this.parsedPos - this.region.original.from
@@ -297,7 +371,7 @@ export class Parser implements PartialParse {
 
     // wrap built children in a tree with the buffer cached
     const tree = new Tree(this.language.top!, built.children, built.positions, length, [
-      [this.language.stateProp!, this.tokenizer.buffer]
+      [this.language.stateProp!, this.buffer]
     ])
 
     const context = ParseContext.get()
@@ -314,5 +388,32 @@ export class Parser implements PartialParse {
     }
 
     return tree
+  }
+
+  /**
+   * Tries to reuse a buffer *ahead* of the current position. Returns true
+   * if this was successful, otherwise false.
+   *
+   * @param right - The buffer to try and reuse.
+   */
+  tryToReuse(right: ChunkBuffer) {
+    // can't reuse if we don't know the safe regions
+    if (!this.region.edit) return false
+    // can only safely reuse if we're ahead of the edited region
+    if (this.parsedPos <= this.region.edit.to) return false
+
+    // check every chunk and see if we can reuse it
+    for (let idx = 0; idx < right.chunks.length; idx++) {
+      const chunk = right.chunks[idx]
+      if (chunk.isReusable(this.state, this.parsedPos, this.region.edit.offset)) {
+        right.slide(idx, this.region.edit.offset, true)
+        this.buffer.link(right, this.region.original.length)
+        this.buffer.ensureLast(this.parsedPos, this.state)
+        this.state = this.buffer.last!.state.clone()
+        return true
+      }
+    }
+
+    return false
   }
 }
