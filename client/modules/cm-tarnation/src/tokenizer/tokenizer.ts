@@ -4,6 +4,7 @@ import type { Grammar } from "../grammar/grammar"
 import type { TarnationLanguage } from "../language"
 import type { ParseRegion } from "../region"
 import type { GrammarToken, Token } from "../types"
+import { canContinue } from "../util"
 import type { TokenizerBuffer } from "./buffer"
 import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
@@ -68,28 +69,6 @@ export class Tokenizer {
   /** The tokenizer's current chunks. */
   get chunks() {
     return this.buffer.buffer
-  }
-
-  /**
-   * Returns if the `last` `MappedToken` is effectively equivalent to the
-   * `next` `GrammarToken`, as in the two can be merged without any loss of
-   * information.
-   *
-   * @param last - The token to check if it can be potentially extended.
-   * @param next - The new token which may be able to merge into the `last` token.
-   */
-  private canContinue(last?: GrammarToken, next?: GrammarToken) {
-    if (!last || !next) return false // tokens are invalid
-    // parser directives present
-    if (last.length > 2 || next[3] || next[4]) return false
-    // embedded handling token
-    if (last[5] || next[5]) return false
-    // types aren't equivalent
-    if (last[0] !== next[0]) return false
-    // tokens aren't inline
-    if (last[2] !== next[1]) return false
-    // tokens are effectively equivalent
-    return true
   }
 
   /**
@@ -210,7 +189,7 @@ export class Tokenizer {
 
           // check if the new token can be merged into the last one
           if (!ctx.nested || pushNested) {
-            if (last && this.canContinue(last, t)) last[2] = t[2]
+            if (last && canContinue(last, t)) last[2] = t[2]
             else tokens.push((last = t))
           }
         }

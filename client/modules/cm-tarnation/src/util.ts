@@ -9,6 +9,7 @@ import {
   LRLanguage
 } from "@wikijump/codemirror/cm"
 import type { Regex } from "./grammar/definition"
+import type { GrammarToken } from "./types"
 
 export interface CreateLezerLanguageOpts {
   name: string
@@ -133,6 +134,26 @@ export function createLookbehind(pattern: RegExp, negative?: boolean) {
     const result = regex.test(clipped)
     return negative ? !result : result
   }
+}
+
+/**
+ * Returns if the `last` `GrammarToken` is effectively equivalent to the
+ * `next` `GrammarToken`, as in the two can be merged without any loss of
+ * information.
+ *
+ * @param last - The token to check if it can be potentially extended.
+ * @param next - The new token which may be able to merge into the `last` token.
+ */
+export function canContinue(last?: GrammarToken, next?: GrammarToken) {
+  if (!last || !next) return false // tokens are invalid
+  // parser directives, or nested language present
+  if (last.length > 3 || next.length > 3) return false
+  // types aren't equivalent
+  if (last[0] !== next[0]) return false
+  // tokens aren't inline
+  if (last[2] !== next[1]) return false
+  // tokens are effectively equivalent
+  return true
 }
 
 /**
