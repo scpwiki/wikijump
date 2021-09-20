@@ -12,9 +12,11 @@ import {
 import { LanguageDescription, ParseContext } from "@wikijump/codemirror/cm"
 import { perfy } from "@wikijump/util"
 import { compileChunks } from "./chunk-parsing"
+import type { GrammarState } from "./grammar/state"
 import type { TarnationLanguage } from "./language"
 import { ParseRegion } from "./region"
-import { Tokenizer, TokenizerBuffer, TokenizerContext } from "./tokenizer"
+import { TokenizerBuffer } from "./tokenizer/buffer"
+import { Tokenizer } from "./tokenizer/tokenizer"
 import { EmbeddedParserProp, EmbeddedParserType } from "./util"
 
 const DISABLED_NESTED = true
@@ -184,8 +186,8 @@ export class Parser implements PartialParse {
             // but keep the right side around for reuse as well
             const { left, right } = buffer.split(index)
             this.tokenizerPreviousRight = right
-            this.region.from = chunk.context.pos
-            this.setupTokenizer(left, chunk.context.clone())
+            this.region.from = chunk.pos
+            this.setupTokenizer(left, chunk.state.clone())
           }
         }
       }
@@ -228,23 +230,20 @@ export class Parser implements PartialParse {
    * Instantiates the `Tokenizer`.
    *
    * @param buffer - A `TokenizerBuffer` to reuse.
-   * @param context - A `TokenizerContext` to reuse.
+   * @param state - A `GrammarState` to reuse.
    */
-  private setupTokenizer(buffer?: TokenizerBuffer, context?: TokenizerContext) {
-    if (!buffer || !context) {
-      context = new TokenizerContext(
-        this.region.from,
-        this.language.grammar!.startState()
-      )
+  private setupTokenizer(buffer?: TokenizerBuffer, state?: GrammarState) {
+    if (!buffer || !state) {
+      state = this.language.grammar!.startState()
       buffer = new TokenizerBuffer()
     }
 
-    this.tokenizer = new Tokenizer(this.language, context, buffer, this.region)
+    this.tokenizer = new Tokenizer(this.language, state, buffer, this.region)
   }
 
-  /** The current "position" of the parser. */
+  /** The current position of the parser. */
   get parsedPos() {
-    return this.tokenizer.context.pos
+    return this.tokenizer.pos
   }
 
   /**

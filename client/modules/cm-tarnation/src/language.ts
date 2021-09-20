@@ -11,7 +11,7 @@ import { removeUndefined } from "@wikijump/util"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
 import { ParserFactory } from "./parser"
-import type { TokenizerBuffer } from "./tokenizer"
+import type { TokenizerBuffer } from "./tokenizer/buffer"
 import type {
   ParserConfiguration,
   TarnationLanguageDefinition,

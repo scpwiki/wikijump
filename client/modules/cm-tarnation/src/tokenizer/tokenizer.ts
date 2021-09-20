@@ -1,11 +1,11 @@
 import { Nesting } from "../enums"
 import type { Grammar } from "../grammar/grammar"
+import type { GrammarState } from "../grammar/state"
 import type { TarnationLanguage } from "../language"
 import type { ParseRegion } from "../region"
 import type { GrammarToken, Token } from "../types"
 import { canContinue } from "../util"
 import type { TokenizerBuffer } from "./buffer"
-import type { TokenizerContext } from "./context"
 
 const MARGIN_BEFORE = 32
 const MARGIN_AFTER = 128
@@ -27,28 +27,29 @@ export class Tokenizer {
   /** The region of the document that should be tokenized. */
   private declare region: ParseRegion
 
-  /** Tokenizer context/state. */
-  declare context: TokenizerContext
+  declare pos: number
+
+  declare state: GrammarState
 
   /** Tokenizer's token buffer, where matched tokens are cached. */
   declare buffer: TokenizerBuffer
 
   /**
    * @param language - Host language.
-   * @param context - Tokenizer context/state.
+   * @param state - Grammar state.
    * @param buffer - Tokenizer buffer, either new or from a cache.
-   * @param input - The document to tokenize.
    * @param region - The region of the document that should be tokenized.
    */
   constructor(
     language: TarnationLanguage,
-    context: TokenizerContext,
+    state: GrammarState,
     buffer: TokenizerBuffer,
     region: ParseRegion
   ) {
     if (!language.grammar) throw new Error("Unloaded language provided to tokenizer!")
 
-    this.context = context
+    this.state = state
+    this.pos = region.from
     this.buffer = buffer
     this.grammar = language.grammar
     this.region = region
@@ -56,7 +57,7 @@ export class Tokenizer {
 
   /** True if the tokenizer has already completed. */
   get done() {
-    return this.context.pos >= this.region.to
+    return this.pos >= this.region.to
   }
 
   /** The tokenizer's current chunks. */
@@ -64,20 +65,13 @@ export class Tokenizer {
     return this.buffer.buffer
   }
 
-  /** Compiles the tokenizer's buffer. */
-  compile() {
-    return this.buffer.compile()
-  }
-
   /** Advances the tokenizer. Returns null if it isn't done, otherwise returns true. */
   tokenize() {
-    if (this.context.pos < this.region.to) {
-      const pos = this.context.pos
-      const startContext = this.context.clone()
+    if (this.pos < this.region.to) {
+      const pos = this.pos
+      const startState = this.state.clone()
 
       // tokenize
-
-      const ctx = this.context
 
       let matchTokens: GrammarToken[] | null = null
       let length = 1
@@ -87,15 +81,15 @@ export class Tokenizer {
 
       const str = this.region.read(startCompensated, MARGIN_AFTER, this.region.to)
 
-      const match = this.grammar.match(ctx.state, str, pos - start, pos)
+      const match = this.grammar.match(this.state, str, pos - start, pos)
 
       if (match) {
-        ctx.state = match.state
+        this.state = match.state
         matchTokens = match.compile()
         length = match.length || 1
       }
 
-      ctx.pos = this.region.compensate(pos, length)
+      this.pos = this.region.compensate(pos, length)
 
       const tokens: Token[] = []
 
@@ -110,19 +104,19 @@ export class Tokenizer {
           if (t[5] !== undefined) {
             // token ends a nested region
             if (t[5] === Nesting.POP) {
-              const range = ctx.endNested(t[1])
+              const range = this.state.endNested(t[1])
               if (range) tokens.push(range)
             }
             // token represents the entire region, not the start or end of one
-            else if (!ctx.nested && t[5].endsWith("!")) {
+            else if (!this.state.nested && t[5].endsWith("!")) {
               const lang = t[5].slice(0, t[5].length - 1)
               tokens.push([lang, t[1], t[2]])
               continue
             }
             // token starts a nested region
-            else if (!ctx.nested) {
+            else if (!this.state.nested) {
               pushNested = true
-              ctx.startNested(t[5], t[2])
+              this.state.startNested(t[5], t[2])
             }
           }
 
@@ -134,7 +128,7 @@ export class Tokenizer {
           }
 
           // check if the new token can be merged into the last one
-          if (!ctx.nested || pushNested) {
+          if (!this.state.nested || pushNested) {
             if (last && canContinue(last, t)) last[2] = t[2]
             else tokens.push((last = t))
           }
@@ -142,10 +136,10 @@ export class Tokenizer {
       }
 
       // add found tokens to buffer
-      if (tokens?.length) this.buffer.add(pos, startContext, tokens)
+      if (tokens?.length) this.buffer.add(pos, startState, tokens)
     }
 
-    if (this.context.pos >= this.region.to) return true
+    if (this.pos >= this.region.to) return true
 
     return null
   }
@@ -160,16 +154,16 @@ export class Tokenizer {
     // can't reuse if we don't know the safe regions
     if (!this.region.edit) return false
     // can only safely reuse if we're ahead of the edited region
-    if (this.context.pos <= this.region.edit.to) return false
+    if (this.pos <= this.region.edit.to) return false
 
     // check every chunk and see if we can reuse it
     for (let idx = 0; idx < right.buffer.length; idx++) {
       const chunk = right.buffer[idx]
-      if (chunk.isReusable(this.context, this.region.edit.offset)) {
+      if (chunk.isReusable(this.state, this.pos, this.region.edit.offset)) {
         right.slide(idx, this.region.edit.offset, true)
         this.buffer.link(right, this.region.original.length)
-        this.buffer.ensureLast(this.context.pos, this.context)
-        this.context = this.buffer.last!.context.clone()
+        this.buffer.ensureLast(this.pos, this.state)
+        this.state = this.buffer.last!.state.clone()
         return true
       }
     }

@@ -1,5 +1,5 @@
 import type { ParseStack } from "./chunk-parsing"
-import type { TokenizerContext } from "./tokenizer/context"
+import { GrammarState } from "./grammar/state"
 import type { LezerToken, Token } from "./types"
 import { cloneNestedArray } from "./util"
 
@@ -27,8 +27,8 @@ export class Chunk {
   /** The chunk's relative extent, as determined from the positions of its tokens. */
   private declare _max: number
 
-  /** Context at the start of this chunk. */
-  declare context: TokenizerContext
+  /** State at the start of this chunk. */
+  declare state: GrammarState
 
   /**
    * If this chunk has been parsed, this property will have the result of
@@ -43,18 +43,18 @@ export class Chunk {
 
   /**
    * @param pos - Position of this chunk.
-   * @param context - The context for the start of this chunk.
+   * @param state - The state for the start of this chunk.
    * @param tokens - The mapped tokens to store in this chunk.
    * @param relativeTo - Indicates the position the tokens are relative to, if any.
    */
   constructor(
     pos: number,
-    context: TokenizerContext,
+    state: GrammarState,
     tokens: Token[] = [],
     relativeTo?: number
   ) {
     this._pos = pos
-    this.context = context
+    this.state = state
     this._max = 0
     this.setTokens(tokens, relativeTo)
     this.parsed = null
@@ -155,7 +155,12 @@ export class Chunk {
 
   /** Returns a deep clone of the chunk. */
   clone() {
-    return new Chunk(this.pos, this.context, cloneNestedArray(this._tokens), this.pos)
+    return new Chunk(
+      this.pos,
+      this.state.clone(),
+      cloneNestedArray(this._tokens),
+      this.pos
+    )
   }
 
   /**
@@ -163,12 +168,13 @@ export class Chunk {
    * node. This is only a safe determination if it is made *after* the
    * changed range of the document.
    *
-   * @param context - The context to compare against.
+   * @param state - The state to compare against.
+   * @param pos - The position to compare against.
    * @param offset - The edit offset, to correct for chunk position differences.
    */
-  isReusable(context: TokenizerContext, offset = 0) {
-    if (this._pos + offset !== context.pos) return false
-    if (!context.equals(this.context, offset)) return false
+  isReusable(state: GrammarState, pos: number, offset = 0) {
+    if (this._pos + offset !== pos) return false
+    if (!state.equals(this.state)) return false
     return true
   }
 }

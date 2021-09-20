@@ -1,4 +1,4 @@
-import type { GrammarStackElement, MatchOutput, VariableTable } from "../types"
+import type { GrammarStackElement, MatchOutput, NestToken, VariableTable } from "../types"
 import type { Node } from "./node"
 import type { Rule } from "./rules/rule"
 import type { State } from "./rules/state"
@@ -15,6 +15,7 @@ export class GrammarState {
     public variables: VariableTable,
     public context: Record<string, string> = {},
     public stack: GrammarStack = new GrammarStack(),
+    public nested: null | [lang: string, start: number] = null,
     public last?: MatchOutput
   ) {}
 
@@ -72,21 +73,54 @@ export class GrammarState {
   }
 
   /**
+   * Starts the nesting of a language.
+   *
+   * @param lang - The language to be nested.
+   * @param start - The start position of the nested language.
+   */
+  startNested(lang: string, start: number) {
+    this.nested = [lang, start]
+  }
+
+  /**
+   * Stops the nesting of the currently nested language, and returns the
+   * finalized range. Returns null if no language was being nested.
+   *
+   * @param end - The end position of the nested language.
+   */
+  endNested(end: number): NestToken | null {
+    if (!this.nested) return null
+    const nested = this.nested
+    this.nested = null
+    return [...nested, end]
+  }
+
+  /**
    * Returns if another {@link GrammarState} is effectively equivalent to this one.
    *
    * @param other - The other {@link GrammarState} to compare to.
    */
   equals(other: GrammarState) {
-    return (
-      this.variables === other.variables &&
-      contextEquivalent(this.context, other.context) &&
-      this.stack.equals(other.stack)
-    )
+    if (this.variables !== other.variables) return false
+    if (!contextEquivalent(this.context, other.context)) return false
+    if (Boolean(this.nested) !== Boolean(other.nested)) return false
+    if (this.nested) {
+      if (this.nested[0] !== other.nested![0]) return false
+      if (this.nested[1] !== other.nested![1]) return false
+    }
+    if (!this.stack.equals(other.stack)) return false
+    return true
   }
 
   /** Returns a new clone of this state, including its stack. */
   clone() {
-    return new GrammarState(this.variables, this.context, this.stack.clone(), this.last)
+    return new GrammarState(
+      this.variables,
+      this.context,
+      this.stack.clone(),
+      this.nested,
+      this.last
+    )
   }
 }
 

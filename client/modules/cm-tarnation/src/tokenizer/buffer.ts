@@ -1,7 +1,7 @@
 import { search } from "@wikijump/util"
 import { Chunk } from "../chunk"
+import { GrammarState } from "../grammar/state"
 import type { Token } from "../types"
-import type { TokenizerContext } from "./context"
 
 /** Number of tokens per chunk. */
 const CHUNK_SIZE = 64
@@ -38,8 +38,9 @@ export class TokenizerBuffer {
     this.buffer[this.buffer.length - 1] = chunk
   }
 
-  ensureLast(pos: number, context: TokenizerContext) {
-    if (!this.last) this.last = new Chunk(pos, context)
+  /** Ensures there is at least one chunk in the buffer. */
+  ensureLast(pos: number, state: GrammarState) {
+    if (!this.last) this.last = new Chunk(pos, state)
   }
 
   /** Retrieves a `Chunk` from the buffer. */
@@ -47,30 +48,25 @@ export class TokenizerBuffer {
     return this.buffer[index] ?? null
   }
 
-  /** Compiles every chunk and returns the resultant tokens. */
-  compile() {
-    const compiled: Token[] = []
-    for (let idx = 0; idx < this.buffer.length; idx++) {
-      const chunk = this.buffer[idx]
-      compiled.push(...chunk.compile())
-    }
-    return compiled
-  }
-
   /**
    * Adds tokens to the buffer, splitting them automatically into chunks.
+   * Returns true if a new chunk was created.
    *
-   * @param context - The context to track position and stack state with.
+   * @param pos - The position of the first token.
+   * @param state - The state to be cached.
    * @param tokens - The tokens to add to the buffer.
    */
-  add(pos: number, context: TokenizerContext, tokens: Token[]) {
+  add(pos: number, state: GrammarState, tokens: Token[]) {
     const chunk =
-      this.last && this.last.size < CHUNK_SIZE ? this.last : new Chunk(pos, context)
-
-    if (this.last !== chunk) this.buffer.push(chunk)
+      this.last && this.last.size < CHUNK_SIZE ? this.last : new Chunk(pos, state)
 
     for (let idx = 0; idx < tokens.length; idx++) {
       chunk.add(tokens[idx])
+    }
+
+    if (this.last !== chunk) {
+      this.buffer.push(chunk)
+      return true
     }
   }
 
