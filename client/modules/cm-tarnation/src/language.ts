@@ -11,10 +11,13 @@ import { removeUndefined } from "@wikijump/util"
 import { isFunction } from "is-what"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
-import type { VariableTable } from "./grammar/types"
 import { HostFactory } from "./host"
 import type { TokenizerBuffer } from "./tokenizer"
-import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
+import type {
+  ParserConfiguration,
+  TarnationLanguageDefinition,
+  VariableTable
+} from "./types"
 import { EmbeddedParserType, makeTopNode } from "./util"
 
 export class TarnationLanguage {

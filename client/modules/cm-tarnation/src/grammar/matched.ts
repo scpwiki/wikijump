@@ -1,6 +1,7 @@
+import { Inclusivity, Nesting, Wrapping } from "../enums"
+import type { GrammarToken, MatchOutput } from "../types"
 import { Node } from "./node"
 import type { GrammarState } from "./state"
-import { GrammarToken, Inclusivity, MatchOutput, Nesting, Wrapping } from "./types"
 
 /** Represents a leaf or branch of a tree of matches found by a grammar. */
 export class Matched {

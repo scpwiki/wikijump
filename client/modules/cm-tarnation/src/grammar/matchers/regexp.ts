@@ -1,6 +1,6 @@
 import { escapeRegExp } from "@wikijump/util"
+import type { Matcher, VariableTable } from "../../types"
 import { hasCapturingGroups, isRegExpString, re } from "../../util"
-import type { Matcher, VariableTable } from "../types"
 
 /**
  * `RegExp` wrapper class. Designed to improve performance by implementing

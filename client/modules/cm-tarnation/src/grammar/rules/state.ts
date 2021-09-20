@@ -1,9 +1,9 @@
 import { createID } from "@wikijump/util"
+import { Wrapping } from "../../enums"
 import type * as DF from "../definition"
 import { Node } from "../node"
 import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
-import { Wrapping } from "../types"
 import { Rule } from "./rule"
 
 /**

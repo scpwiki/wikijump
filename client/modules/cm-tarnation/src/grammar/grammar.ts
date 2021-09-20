@@ -1,3 +1,5 @@
+import { Wrapping } from "../enums"
+import type { VariableTable } from "../types"
 import { re } from "../util"
 import type * as DF from "./definition"
 import { Matched } from "./matched"
@@ -6,7 +8,6 @@ import { Repository } from "./repository"
 import type { Rule } from "./rules/rule"
 import type { State } from "./rules/state"
 import { GrammarStack, GrammarState } from "./state"
-import { VariableTable, Wrapping } from "./types"
 
 const EAGER_RECOVERY = false
 

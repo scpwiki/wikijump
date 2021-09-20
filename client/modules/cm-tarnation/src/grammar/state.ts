@@ -1,7 +1,7 @@
+import type { GrammarStackElement, MatchOutput, VariableTable } from "../types"
 import type { Node } from "./node"
 import type { Rule } from "./rules/rule"
 import type { State } from "./rules/state"
-import type { GrammarStackElement, MatchOutput, VariableTable } from "./types"
 
 /** Internal state for a {@link Grammar}. */
 export class GrammarState {

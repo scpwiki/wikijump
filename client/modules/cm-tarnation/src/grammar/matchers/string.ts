@@ -1,5 +1,5 @@
 import { pointsMatch, toPoints } from "@wikijump/util"
-import type { Matcher, VariableTable } from "../types"
+import type { Matcher, VariableTable } from "../../types"
 
 /** Matcher that takes a string pattern, and matches that against an input. */
 export class StringMatcher implements Matcher {

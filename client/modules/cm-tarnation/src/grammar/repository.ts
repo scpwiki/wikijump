@@ -1,3 +1,4 @@
+import type { VariableTable } from "../types"
 import type * as DF from "./definition"
 import type { Grammar } from "./grammar"
 import { Node } from "./node"
@@ -6,7 +7,6 @@ import { LookupRule } from "./rules/lookup"
 import { PatternRule } from "./rules/pattern"
 import { Rule } from "./rules/rule"
 import { State } from "./rules/state"
-import type { VariableTable } from "./types"
 
 /** Holds the rules, states, etc. for a {@link Grammar}. */
 export class Repository {
