@@ -1,5 +1,5 @@
 import { escapeRegExp } from "@wikijump/util"
-import { hasCapturingGroups, isRegExpString, re } from "../helpers"
+import { hasCapturingGroups, isRegExpString, re } from "../../util"
 import type { Matcher, VariableTable } from "../types"
 
 /**

@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai"
-import * as lib from "../src/grammar/helpers"
+import * as lib from "../src/util"
 
 // TODO: flesh out, this is mostly just placeholder
 

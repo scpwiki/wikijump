@@ -1,5 +1,5 @@
+import { re } from "../util"
 import type * as DF from "./definition"
-import { re } from "./helpers"
 import { Matched } from "./matched"
 import { Node } from "./node"
 import { Repository } from "./repository"

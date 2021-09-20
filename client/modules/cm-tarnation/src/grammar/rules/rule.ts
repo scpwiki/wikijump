@@ -1,6 +1,6 @@
 import { createID } from "@wikijump/util"
+import { createLookbehind, re } from "../../util"
 import type * as DF from "../definition"
-import { createLookbehind, re } from "../helpers"
 import { Matched } from "../matched"
 import { RegExpMatcher } from "../matchers/regexp"
 import { Node } from "../node"

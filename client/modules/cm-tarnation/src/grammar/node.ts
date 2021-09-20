@@ -12,8 +12,8 @@ import {
   tags,
   TreeIndentContext
 } from "@wikijump/codemirror/cm"
+import { re } from "./../util"
 import type * as DF from "./definition"
-import { re } from "./helpers"
 
 /** Effectively a light wrapper around a CodeMirror `NodeType`. */
 export class Node {
