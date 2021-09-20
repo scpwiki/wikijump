@@ -216,35 +216,6 @@ export class Parser implements PartialParse {
     }
   }
 
-  /**
-   * Returns the first chunk buffer found within a tree, if any.
-   *
-   * @param tree - The tree to search through, recursively.
-   * @param from - The start of the search area.
-   * @param to - The end of the search area.
-   * @param offset - An offset added to the tree's positions, so that they
-   *   may match some other source's positions.
-   */
-  private find(tree: Tree, from: number, to: number, offset = 0): ChunkBuffer | null {
-    const bundle =
-      offset >= from && offset + tree.length >= to
-        ? tree.prop(this.language.stateProp!)
-        : undefined
-
-    if (bundle) return bundle
-
-    // recursively check children
-    for (let i = tree.children.length - 1; i >= 0; i--) {
-      const child = tree.children[i]
-      const pos = offset + tree.positions[i]
-      if (!(child instanceof Tree && pos < to)) continue
-      const found = this.find(child, from, to, pos)
-      if (found) return found
-    }
-
-    return null
-  }
-
   /** True if the parser is done. */
   get done() {
     return this.parsedPos >= this.region.to
@@ -259,8 +230,60 @@ export class Parser implements PartialParse {
     this.stoppedAt = pos
   }
 
+  /** Advances tokenization one step. */
+  advance(): Tree | null {
+    if (!this.measurePerformance) this.measurePerformance = perfy()
+
+    // if we're told to stop, we need to BAIL
+    if (this.stoppedAt && this.parsedPos >= this.stoppedAt) {
+      return this.finish()
+    }
+
+    if (REUSE_RIGHT) {
+      // try to reuse ahead state
+      const reused = this.previousRight && this.tryToReuse(this.previousRight)
+      // can't reuse the buffer more than once (pointless)
+      if (reused) this.previousRight = undefined
+    }
+
+    if (this.done || this.tokenize()) return this.finish()
+
+    return null
+  }
+
+  private finish(): Tree {
+    const { buffer, reused } = compileChunks(this.buffer.chunks)
+
+    const start = this.region.original.from
+    const length = this.parsedPos - this.region.original.from
+    const nodeSet = this.language.nodeSet!
+
+    // build tree from buffer
+    const built = Tree.build({ topID: 0, buffer, nodeSet, reused, start })
+
+    // wrap built children in a tree with the buffer cached
+    const tree = new Tree(this.language.top!, built.children, built.positions, length, [
+      [this.language.stateProp!, this.buffer]
+    ])
+
+    const context = ParseContext.get()
+
+    // inform editor that we skipped everything past the viewport
+    if (context && !this.stoppedAt && this.parsedPos < this.region.original.to) {
+      context.skipUntilInView(this.parsedPos, this.region.original.to)
+    }
+
+    if (this.measurePerformance) {
+      this.performance = this.measurePerformance()
+      this.measurePerformance = undefined
+      this.language.performance = this.performance
+    }
+
+    return tree
+  }
+
   /** Advances tokenization. Returns null if it isn't done, otherwise returns true. */
-  tokenize() {
+  private tokenize() {
     if (this.parsedPos < this.region.to) {
       const pos = this.parsedPos
       const startState = this.state.clone()
@@ -338,65 +361,13 @@ export class Parser implements PartialParse {
     return null
   }
 
-  /** Advances tokenization one step. */
-  advance(): Tree | null {
-    if (!this.measurePerformance) this.measurePerformance = perfy()
-
-    // if we're told to stop, we need to BAIL
-    if (this.stoppedAt && this.parsedPos >= this.stoppedAt) {
-      return this.finish()
-    }
-
-    if (REUSE_RIGHT) {
-      // try to reuse ahead state
-      const reused = this.previousRight && this.tryToReuse(this.previousRight)
-      // can't reuse the buffer more than once (pointless)
-      if (reused) this.previousRight = undefined
-    }
-
-    if (this.done || this.tokenize()) return this.finish()
-
-    return null
-  }
-
-  private finish(): Tree {
-    const { buffer, reused } = compileChunks(this.buffer.chunks)
-
-    const start = this.region.original.from
-    const length = this.parsedPos - this.region.original.from
-    const nodeSet = this.language.nodeSet!
-
-    // build tree from buffer
-    const built = Tree.build({ topID: 0, buffer, nodeSet, reused, start })
-
-    // wrap built children in a tree with the buffer cached
-    const tree = new Tree(this.language.top!, built.children, built.positions, length, [
-      [this.language.stateProp!, this.buffer]
-    ])
-
-    const context = ParseContext.get()
-
-    // inform editor that we skipped everything past the viewport
-    if (context && !this.stoppedAt && this.parsedPos < this.region.original.to) {
-      context.skipUntilInView(this.parsedPos, this.region.original.to)
-    }
-
-    if (this.measurePerformance) {
-      this.performance = this.measurePerformance()
-      this.measurePerformance = undefined
-      this.language.performance = this.performance
-    }
-
-    return tree
-  }
-
   /**
    * Tries to reuse a buffer *ahead* of the current position. Returns true
    * if this was successful, otherwise false.
    *
    * @param right - The buffer to try and reuse.
    */
-  tryToReuse(right: ChunkBuffer) {
+  private tryToReuse(right: ChunkBuffer) {
     // can't reuse if we don't know the safe regions
     if (!this.region.edit) return false
     // can only safely reuse if we're ahead of the edited region
@@ -415,5 +386,34 @@ export class Parser implements PartialParse {
     }
 
     return false
+  }
+
+  /**
+   * Returns the first chunk buffer found within a tree, if any.
+   *
+   * @param tree - The tree to search through, recursively.
+   * @param from - The start of the search area.
+   * @param to - The end of the search area.
+   * @param offset - An offset added to the tree's positions, so that they
+   *   may match some other source's positions.
+   */
+  private find(tree: Tree, from: number, to: number, offset = 0): ChunkBuffer | null {
+    const bundle =
+      offset >= from && offset + tree.length >= to
+        ? tree.prop(this.language.stateProp!)
+        : undefined
+
+    if (bundle) return bundle
+
+    // recursively check children
+    for (let i = tree.children.length - 1; i >= 0; i--) {
+      const child = tree.children[i]
+      const pos = offset + tree.positions[i]
+      if (!(child instanceof Tree && pos < to)) continue
+      const found = this.find(child, from, to, pos)
+      if (found) return found
+    }
+
+    return null
   }
 }
