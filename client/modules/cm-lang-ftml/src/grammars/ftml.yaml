@@ -224,7 +224,7 @@ repository:
       # --
       - /(?<=\s)--(?=\s)/
 
-  # block markup
+  # -- BLOCK MARKUP
 
   # symbols that interrupt a paragraph on line start
   interrupt: /(?:\++\*?@ws)|(?:[\[\]])|(?:[*#]@ws)|(?:[-=]{4,})|(?::)|(?:>+@ws)|(?:>$)|(?:\|{2})/
@@ -287,11 +287,33 @@ repository:
       match: /@enl|(?!@cs)@sws/
       rematch: true
     inside:
-      # TODO: heading/center in containers
+      # simplified block markup inside containers
+      # horizontal rule
+      - match: /(@cs)(@hr)/
+        captures:
+          0: { is: ContainerMark }
+          1: { is: HorizontalRule }
+      # clearfloat
+      - match: /(@cs)(~{3,}[<>]?)/
+        captures:
+          0: { is: ContainerMark }
+          1: { is: ClearFloat }
+      # heading
+      - match: /(@cs)(@heading)/
+        captures:
+          0: { is: ContainerMark }
+          1: { is: HeadingMark }
+      # center
+      - match: /(@cs)(=@ws+)/
+        captures:
+          0: { is: ContainerMark }
+          1: { is: CenterMark }
+      # everything else
       - ContainerMark
       - include: inline
       - include: blocks
 
+  # disabled for now
   Paragraph:
     begin: { match: /@sws(?!@interrupt)\S/, rematch: true }
     end: { match: /@sws(?:@interrupt)|@enl/, rematch: true }
