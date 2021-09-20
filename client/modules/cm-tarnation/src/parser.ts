@@ -17,7 +17,6 @@ import { ParseRegion } from "./region"
 import { Tokenizer, TokenizerBuffer, TokenizerContext } from "./tokenizer"
 import { EmbeddedParserProp, EmbeddedParserType } from "./util"
 
-const BAIL = false
 const REUSE_LEFT = true
 const REUSE_RIGHT = true
 
@@ -27,7 +26,7 @@ const REUSE_RIGHT = true
  * running process of said parser.
  */
 export class ParserFactory extends CodeMirrorParser {
-  /** The wrapper function that enables mixed parsing. */
+  /** A wrapper function that enables mixed parsing. */
   private declare wrapper: ParseWrapper
 
   /**
@@ -96,8 +95,8 @@ export class ParserFactory extends CodeMirrorParser {
 }
 
 /**
- * The host is the main interface between tokenizing and parsing, and what
- * CodeMirror directly interacts with when parsing.
+ * The `Parser` is the main interface for tokenizing and parsing, and what
+ * CodeMirror directly interacts with.
  *
  * Additionally, the `Parser` handles the recovery of tokenizer state from
  * the stale trees provided by CodeMirror, and then uses this data to
@@ -111,9 +110,6 @@ export class Parser implements PartialParse {
   /** The host language. */
   private declare language: TarnationLanguage
 
-  /** The input document to parse. */
-  private declare input: Input
-
   /**
    * An object storing details about the region of the document to be
    * parsed, where it was edited, the length, etc.
@@ -124,10 +120,9 @@ export class Parser implements PartialParse {
   private declare tokenizer: Tokenizer
 
   /**
-   * A buffer containing the previous *ahead* state of the tokenizer's
-   * output. As in, when a user makes a change, this is all of the
-   * tokenization data for the previous document after the location of that
-   * new change.
+   * A buffer containing the stale *ahead* state of the tokenizer's output.
+   * As in, when a user makes a change, this is all of the tokenization
+   * data for the previous document after the location of that new change.
    */
   private declare tokenizerPreviousRight?: TokenizerBuffer
 
@@ -153,7 +148,6 @@ export class Parser implements PartialParse {
     this.measurePerformance = perfy()
 
     this.language = language
-    this.input = input
 
     this.region = new ParseRegion(input, ranges, fragments)
 
@@ -247,11 +241,7 @@ export class Parser implements PartialParse {
     this.tokenizer = new Tokenizer(this.language, context, buffer, this.region)
   }
 
-  /**
-   * The current "position" of the host. This isn't really all that
-   * accurate, as it's only reporting the tokenizer's position. That means
-   * when the parser is running, the position will just be sitting still.
-   */
+  /** The current "position" of the parser. */
   get parsedPos() {
     return this.tokenizer.context.pos
   }
@@ -269,15 +259,14 @@ export class Parser implements PartialParse {
    */
   stopAt(pos: number) {
     this.stoppedAt = pos
-    this.region.to = pos
   }
 
   /** Advances the tokenizer or parser one step, depending on the current stage. */
   advance(): Tree | null {
     if (!this.measurePerformance) this.measurePerformance = perfy()
 
-    // if we're overbudget, BAIL
-    if (BAIL && this.stoppedAt && this.measurePerformance() >= 12) {
+    // if we're told to stop, we need to BAIL
+    if (this.stoppedAt && this.parsedPos >= this.stoppedAt) {
       return this.finish()
     }
 
@@ -314,11 +303,7 @@ export class Parser implements PartialParse {
     const context = ParseContext.get()
 
     // inform editor that we skipped everything past the viewport
-    if (
-      context &&
-      this.parsedPos > context.viewport.to &&
-      this.parsedPos < this.region.original.to
-    ) {
+    if (context && !this.stoppedAt && this.parsedPos < this.region.original.to) {
       context.skipUntilInView(this.parsedPos, this.region.original.to)
     }
 
