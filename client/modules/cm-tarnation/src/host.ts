@@ -17,6 +17,7 @@ import { ParseRegion } from "./region"
 import { Tokenizer, TokenizerBuffer, TokenizerContext } from "./tokenizer"
 import { EmbeddedParserProp, EmbeddedParserType } from "./util"
 
+const BAIL = false
 const SKIP_PARSER = false
 const REUSE_LEFT = true
 const REUSE_RIGHT = true
@@ -309,7 +310,6 @@ export class Host implements PartialParse {
    * @param pos - The position to stop at.
    */
   stopAt(pos: number) {
-    console.log("stopAt", this.parsedPos, pos)
     this.stoppedAt = pos
     this.region.to = pos
   }
@@ -319,8 +319,7 @@ export class Host implements PartialParse {
     if (!this.measurePerformance) this.measurePerformance = perfy()
 
     // if we're overbudget, BAIL
-    if (this.stoppedAt && !this.tokenizer.done && this.measurePerformance() >= 12) {
-      console.log("BAILED")
+    if (BAIL && this.stoppedAt && this.measurePerformance() >= 12) {
       this.parser.pending = this.tokenizer.chunks
       if (this.tokenizer.chunks.length > this.parser.context.index) {
         // forced to reparse, didn't get up to the point where we reused
