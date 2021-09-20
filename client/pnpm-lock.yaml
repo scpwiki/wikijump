@@ -178,18 +178,12 @@ importers:
       '@lezer/lr': ^0.15.2
       '@wikijump/codemirror': workspace:*
       '@wikijump/util': workspace:*
-      dequal: ^2.0.2
-      is-what: ^4.0.0
-      klona: ^2.0.4
       typescript-memoize: ^1.0.1
     dependencies:
       '@lezer/common': 0.15.5
       '@lezer/lr': 0.15.2
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/util': link:../util
-      dequal: 2.0.2
-      is-what: 4.0.0
-      klona: 2.0.4
       typescript-memoize: 1.0.1
 
   modules/codemirror:
@@ -2858,11 +2852,6 @@ packages:
     engines: {node: '>= 0.6.0'}
     dev: true
 
-  /dequal/2.0.2:
-    resolution: {integrity: sha512-q9K8BlJVxK7hQYqa6XISGmBZbtQQWVXSrRrWreHC94rMt1QL/Impruc+7p2CYSYuVIUr+YCt6hjrs1kkdJRTug==}
-    engines: {node: '>=6'}
-    dev: false
-
   /destroy/1.0.4:
     resolution: {integrity: sha1-l4hXRCxEdJ5CBmE+N5RiBYJqvYA=}
     dev: true
@@ -4283,11 +4272,6 @@ packages:
     resolution: {integrity: sha512-8QADVssbrFjivHWQU7KkMgptGTl6WAcSdlbBPY4uNF+mWr6DGcKrvY2w4FQJoXch7+fKMjj0dRrL75vk3k23OA==}
     engines: {node: '>=6'}
     dev: true
-
-  /klona/2.0.4:
-    resolution: {integrity: sha512-ZRbnvdg/NxqzC7L9Uyqzf4psi1OM4Cuc+sJAkQPjO6XkQIJTNbfK2Rsmbw8fx1p2mkZdp2FZYo2+LwXYY/uwIA==}
-    engines: {node: '>= 8'}
-    dev: false
 
   /known-css-properties/0.21.0:
     resolution: {integrity: sha512-sZLUnTqimCkvkgRS+kbPlYW5o8q5w1cu+uIisKpEWkj31I8mx8kNG162DwRav8Zirkva6N5uoFsm9kzK4mUXjw==}

@@ -8,6 +8,7 @@ import {
   LanguageSupport,
   LRLanguage
 } from "@wikijump/codemirror/cm"
+import { dedupe } from "@wikijump/util"
 import type { Regex } from "./grammar/definition"
 import type { GrammarToken } from "./types"
 
@@ -79,10 +80,7 @@ export function re(str: TemplateStringsArray | string, forceFlags = "") {
 
   let [, src = "", flags = ""] = split
 
-  if (forceFlags) {
-    // goofy looking, but this is just deduplicating the flags
-    flags = [...new Set([...flags, ...forceFlags])].join("")
-  }
+  if (forceFlags) flags = dedupe([...flags, ...forceFlags]).join("")
 
   try {
     return new RegExp(src, flags)

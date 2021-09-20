@@ -8,7 +8,6 @@ import {
   LanguageSupport
 } from "@wikijump/codemirror/cm"
 import { removeUndefined } from "@wikijump/util"
-import { isFunction } from "is-what"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
 import { ParserFactory } from "./parser"
@@ -76,7 +75,8 @@ export class TarnationLanguage {
   load() {
     // setup grammar data
     if (this.description?.support) return this.description.support
-    const def = isFunction(this.grammarData) ? this.grammarData() : this.grammarData
+    const def =
+      typeof this.grammarData === "function" ? this.grammarData() : this.grammarData
     this.grammar = new Grammar(def, this.variables)
 
     // merge data from the grammar
