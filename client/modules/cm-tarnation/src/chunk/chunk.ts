@@ -1,7 +1,7 @@
-import type { ParseStack } from "./chunk-parsing"
-import { GrammarState } from "./grammar/state"
-import type { LezerToken, Token } from "./types"
-import { cloneNestedArray } from "./util"
+import { GrammarState } from "../grammar/state"
+import type { LezerToken, Token } from "../types"
+import { cloneNestedArray } from "../util"
+import type { ParseStack } from "./parsing"
 
 /**
  * A `Chunk` stores tokens emitted by the tokenization into discrete, well,

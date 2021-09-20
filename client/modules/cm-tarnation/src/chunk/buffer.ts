@@ -1,7 +1,7 @@
 import { search } from "@wikijump/util"
+import { GrammarState } from "../grammar/state"
+import type { Token } from "../types"
 import { Chunk } from "./chunk"
-import { GrammarState } from "./grammar/state"
-import type { Token } from "./types"
 
 /** Number of tokens per chunk. */
 const CHUNK_SIZE = 64

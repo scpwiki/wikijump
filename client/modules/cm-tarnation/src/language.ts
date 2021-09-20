@@ -8,7 +8,7 @@ import {
   LanguageSupport
 } from "@wikijump/codemirror/cm"
 import { removeUndefined } from "@wikijump/util"
-import type { ChunkBuffer } from "./buffer"
+import type { ChunkBuffer } from "./chunk/buffer"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
 import { ParserFactory } from "./parser"

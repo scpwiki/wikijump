@@ -1,7 +1,7 @@
 import type { Tree } from "@lezer/common"
+import type { LezerToken } from "../types"
+import { cloneNestedArray, getEmbeddedParserNode } from "../util"
 import type { Chunk } from "./chunk"
-import type { LezerToken } from "./types"
-import { cloneNestedArray, getEmbeddedParserNode } from "./util"
 
 /** Stack used by the parser to track tree construction. */
 export type ParseElementStack = [name: number, start: number, children: number][]
