@@ -9,7 +9,7 @@ import { Rule } from "./rule"
 export class PatternRule extends Rule {
   private declare patterns: (RegExpMatcher | StringMatcher)[]
 
-  declare exec: (str: string, pos: number) => MatchOutput | null
+  declare exec: (str: string, pos: number) => MatchOutput
 
   constructor(repo: Repository, rule: DF.Pattern) {
     super(repo, rule)

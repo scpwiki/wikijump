@@ -6,14 +6,37 @@ import type { GrammarState } from "../state"
 import { Wrapping } from "../types"
 import { Rule } from "./rule"
 
+/**
+ * A sort of {@link Rule}-like object that affects a {@link GrammarStack}. It
+ * has `begin` and `end` properties which are {@link Rule}s that are used
+ * for switching states.
+ */
 export class State {
+  /** The name of this state. */
   declare name: string
+
+  /** The {@link Node} this state wraps tokens with. */
   declare node: Node
+
+  /** The {@link Rule} that starts this state. */
   declare begin: Rule
+
+  /** The {@link Rule} that ends this state. */
   declare end: Rule
+
+  /** The list of rules/states to loop parsing with when in this state. */
   declare inside: (Rule | State)[] | null
+
+  /**
+   * If true, this state won't affect the stack, but instead manipulate the
+   * parser to "loosely" wrap tokens.
+   */
   declare loose?: boolean
 
+  /**
+   * @param repo - The {@link Repository} to add this state to.
+   * @param state - The definition for this state.
+   */
   constructor(repo: Repository, state: DF.State) {
     let type = state.type ?? createID()
     let emit = state.type && state.emit !== false
@@ -51,6 +74,11 @@ export class State {
     }
   }
 
+  /**
+   * @param state - The current {@link GrammarState}.
+   * @param str - The string to match.
+   * @param pos - The position to start matching at.
+   */
   match(state: GrammarState, str: string, pos: number) {
     // loose mode, doesn't actually affect the stack
     if (this.loose) {

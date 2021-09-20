@@ -66,11 +66,7 @@ export abstract class Rule {
    * last, unlike usual, so that it can be ignored if the subclass doesn't
    * need access to the grammar's state.
    */
-  abstract exec(
-    str: string,
-    pos: number,
-    state: GrammarState
-  ): Matched | MatchOutput | null
+  abstract exec(str: string, pos: number, state: GrammarState): Matched | MatchOutput
 
   match(state: GrammarState, str: string, pos: number): Matched | null {
     if (this.lookbehind && !this.lookbehind(str, pos)) return null

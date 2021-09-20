@@ -15,12 +15,24 @@ import {
 import type * as DF from "./definition"
 import { re } from "./helpers"
 
+/** Effectively a light wrapper around a CodeMirror `NodeType`. */
 export class Node {
+  /** The unique ID for this node. */
   declare id: number
+
+  /** The name of this node, which may be different to what it emits in the AST. */
   declare name: string
+
+  /** The `NodeType` used by CodeMirror. */
   declare type: NodeType
+
+  /**
+   * If given, this string denotes what language should be nested in-place
+   * of any node of this type.
+   */
   declare nest?: string
 
+  /** @param id - The ID to assign to this node. */
   constructor(
     id: number,
     { type, emit, tag, openedBy, closedBy, group, nest, fold, indent }: DF.Node
@@ -50,7 +62,7 @@ export class Node {
     this.type = NodeType.define({ id, name: emit, props })
   }
 
-  /** Special `Node` used for when a `Rule` doesn't emit anything. */
+  /** Special `Node` used for when a rule doesn't emit anything. */
   static None = new Node(-1, { type: "_none", emit: "None" })
 }
 
@@ -62,6 +74,24 @@ export class Node {
  */
 const PARSE_TAG_REGEX = /^(?:\((\S*?)\))?(?:\s+|^)(?:(?:(\S+?)\((\S+)\))|(\S+))$/
 
+/**
+ * Parses a tag string.
+ *
+ * Examples:
+ *
+ * ```text
+ * tag
+ * func(tag)
+ * (!) tag
+ * (!) func(tag)
+ * (...) tag
+ * (...) func(tag)
+ * (parent/) tag
+ * (parent/) func(tag)
+ * (grandparent/parent) tag
+ * (grandparent/parent) func(tag)
+ * ```
+ */
 function parseTag(node: string, str: DF.Tag) {
   const [, modifier, func, arg, last] = PARSE_TAG_REGEX.exec(str)!
 
@@ -106,6 +136,7 @@ function parseTag(node: string, str: DF.Tag) {
  */
 const PARSE_OFFSET_FOLD_REGEX = /^offset\(([+-]?\d+),\s+([+-]?\d+)\)$/
 
+/** Parses a `fold` string, returning a CodeMirror `foldNodeProp` compatible function. */
 function parseFold(
   fold: true | string
 ): (node: SyntaxNode, state: EditorState) => { from: number; to: number } | null {
@@ -148,6 +179,7 @@ const PARSE_ADD_INDENT_REGEX = /^add\(([+-]?\d+)\)$/
 /** 1. Units */
 const PARSE_SET_INDENT_REGEX = /^set\(([+-]?\d+)\)$/
 
+/** Parses an indent string, returning a `indentNodeProp` compatible function. */
 function parseIndent(indent: string): (context: TreeIndentContext) => number {
   if (indent === "flat") return flatIndent
   if (indent === "continued") return continuedIndent()

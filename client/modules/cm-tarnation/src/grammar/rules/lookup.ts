@@ -7,7 +7,7 @@ import { Rule } from "./rule"
 export class LookupRule extends Rule {
   private declare lookup: LookupMatcher
 
-  declare exec: (str: string, pos: number) => MatchOutput | null
+  declare exec: (str: string, pos: number) => MatchOutput
 
   constructor(repo: Repository, rule: DF.Lookup) {
     super(repo, rule)

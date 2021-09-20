@@ -18,7 +18,12 @@ export class ParserContext {
     public stack: ParserStack = new ParserStack([])
   ) {}
 
-  /** Serializes the context. */
+  /**
+   * Serializes the context.
+   *
+   * @param upto - If given, only tokens whose positions are less than this
+   *   value will be serialized.
+   */
   serialize(upto?: number): SerializedParserContext {
     return {
       index: this.index,

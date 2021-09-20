@@ -8,17 +8,21 @@ import { Rule } from "./rules/rule"
 import { State } from "./rules/state"
 import type { VariableTable } from "./types"
 
+/** Holds the rules, states, etc. for a {@link Grammar}. */
 export class Repository {
+  /** Map of names to objects stored in this repository. */
   private map = new Map<string, Node | Rule | State>()
-  private curID = 3 // starts at 2, because 0-2 are reserved
+
+  /** Current {@link Node} ID. */
+  private curID = 3 // starts at 3, because 0-2 are reserved
 
   constructor(
     public grammar: Grammar,
     public variables: VariableTable,
-    public ignoreCase = false,
-    public includes: Record<string, string[]> = {}
+    public ignoreCase = false
   ) {}
 
+  /** Returns every {@link Node} in the repository, sorted by ID. */
   nodes() {
     // deduplicates, runs the iterator
     const set = new Set(this.map.values())
@@ -29,6 +33,7 @@ export class Repository {
       .sort((a, b) => a.id - b.id)
   }
 
+  /** Returns a fresh ID for use by a {@link Node}. */
   id() {
     const id = this.curID
     this.curID++
@@ -38,10 +43,17 @@ export class Repository {
   // repetitive signatures are due to how TypeScript handles overloading
   // it's a bit wacky, but it types nicely
 
-  add(state: DF.State, name?: string): State
-  add(rule: DF.Regex | DF.Rule, name?: string): Rule
-  add(rule: DF.Regex | DF.Rule | DF.State, name?: string): Rule | State
-  add(node: DF.Node | DF.ReuseNode, name?: string): Node
+  /**
+   * Adds an object to the repository.
+   *
+   * @param obj - The object to add.
+   * @param name - If given, this name will be assumed to be the object's
+   *   name if it doesn't have one already.
+   */
+  add(obj: DF.State, name?: string): State
+  add(obj: DF.Regex | DF.Rule, name?: string): Rule
+  add(obj: DF.Regex | DF.Rule | DF.State, name?: string): Rule | State
+  add(obj: DF.Node | DF.ReuseNode, name?: string): Node
   add(obj: DF.RepositoryItem, name?: string): Node | Rule | State
   add(obj: DF.RepositoryItem, name?: string): Node | Rule | State {
     // match pattern shorthand
@@ -124,6 +136,13 @@ export class Repository {
     return node
   }
 
+  /**
+   * Gets an object from this repository. If it doesn't exist already, the
+   * grammar definition will be checked. Returns `undefined` if nothing can
+   * be found.
+   *
+   * @param key - The name of the object to get.
+   */
   get(key: string) {
     const result = this.map.get(key)
 
@@ -137,13 +156,24 @@ export class Repository {
     return result
   }
 
+  /**
+   * Processes an `include` from the grammar definition, by name.
+   *
+   * @param str - The name of the `include` to process.
+   */
   include(str: string) {
-    if (!this.includes[str]) throw new Error(`include ${str} not found`)
-    return this.includes[str]
+    if (!this.grammar.def.includes) throw new Error("no includes defined")
+    if (!this.grammar.def.includes[str]) throw new Error(`include ${str} not found`)
+    return this.grammar.def.includes[str]
       .map(name => this.get(name)!)
       .filter(rule => !(rule instanceof Node)) as (Rule | State)[]
   }
 
+  /**
+   * Processes an "inside" list of rules/states/includes, returning a resolved list.
+   *
+   * @param rules - The list of rules/states/includes to process.
+   */
   inside(rules: DF.Inside) {
     const inside = []
     for (const rule of rules) {

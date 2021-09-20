@@ -159,7 +159,12 @@ export class ParserBuffer {
     return raw ? cloneBuffer : new ParserBuffer(cloneBuffer)
   }
 
-  /** Returns a shallow clone of the internal buffer. */
+  /**
+   * Returns a shallow clone of the internal buffer.
+   *
+   * @param upto - If given, only tokens whose positions are less than this
+   *   value will be serialized.
+   */
   shallow(upto?: number) {
     if (upto === undefined) {
       // equivalent to:

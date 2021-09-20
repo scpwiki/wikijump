@@ -10,13 +10,27 @@ import { VariableTable, Wrapping } from "./types"
 
 const EAGER_RECOVERY = false
 
+/** Grammar/dumb-tokenizer for a {@link TarnationLanguage}. */
 export class Grammar {
+  /** Extra language data props, as parsed from the definition. */
   declare data: Record<string, any>
+
+  /** {@link Repository} of rules, states, and nodes used by this grammar. */
   declare repository: Repository
+
+  /** The root state/rules to begin tokenizing with. */
   declare root: (Rule | State)[]
+
+  /** Fallback rules which are checked if nothing else did. */
   declare global?: (Rule | State)[]
+
+  /** Default {@link Node} that is returned if nothing matched. */
   declare default?: Node
 
+  /**
+   * @param def - The definition grammar to compile.
+   * @param variables - {@link Variable}s to pass to the compiled grammar.
+   */
   constructor(public def: DF.Grammar, public variables: VariableTable = {}) {
     // process language data
 
@@ -42,7 +56,7 @@ export class Grammar {
 
     // setup repository, add rules, etc.
 
-    this.repository = new Repository(this, variables, def.ignoreCase, def.includes)
+    this.repository = new Repository(this, variables, def.ignoreCase)
 
     if (def.default) this.default = this.repository.add(def.default)
 
@@ -57,6 +71,7 @@ export class Grammar {
     if (def.global) this.global = this.repository.inside(def.global)
   }
 
+  /** Returns a {@link GrammarState} setup for this grammar's default state. */
   startState() {
     return new GrammarState(
       this.variables,
@@ -65,6 +80,15 @@ export class Grammar {
     )
   }
 
+  /**
+   * Runs a match against a string (starting from a given position).
+   *
+   * @param state - The {@link GrammarState} to run the match with.
+   * @param str - The string to match.
+   * @param pos - The position to start matching at.
+   * @param offset - The offset to apply to the resulting {@link Matched}'s
+   *   `from` position.
+   */
   match(state: GrammarState, str: string, pos: number, offset = 0) {
     // check end node(s)
     if (state.stack.end) {
@@ -72,7 +96,7 @@ export class Grammar {
       // however it's still potentially useful so I'll keep it here for now
       if (EAGER_RECOVERY) {
         for (let i = state.stack.length - 1; i > 0; i--) {
-          const element = state.stack.get(i)
+          const element = state.stack.stack[i]
           if (element.end) {
             let result = element.end.match(state, str, pos)
             if (result) {
@@ -123,21 +147,5 @@ export class Grammar {
     }
 
     return null
-  }
-
-  matchAll(state: GrammarState, str: string, offset = 0) {
-    const results: Matched[] = []
-
-    let pos = 0
-    while (pos < str.length) {
-      const result = this.match(state, str, pos, offset)
-      if (!result) pos++
-      else {
-        results.push(result)
-        pos += result.length
-      }
-    }
-
-    return results.length ? results : null
   }
 }

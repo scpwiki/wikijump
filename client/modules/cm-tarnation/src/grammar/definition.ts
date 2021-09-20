@@ -1,5 +1,10 @@
 import type { Tag as cmTag, tags as cmTags } from "@wikijump/codemirror/cm"
 
+// TODO: document this
+// adding doc comments would be helpful, but what would be more helpful
+// is a JSON schema. doing that will take a while, so for now this is undocumented.
+// it's _mostly_ self-explanatory, but there are some things that are not obvious
+
 export interface Grammar {
   // CodeMirror language data
 
@@ -110,17 +115,6 @@ export type FunctionTag = keyof FilterFor<typeof cmTags, (tag: cmTag) => cmTag>
 export type TagModifier = `(${`${string}/` | "!" | "..."}) ` | ""
 export type TagFunction = `${FunctionTag}(${StyleTag})`
 export type Tag = `${TagModifier}${string}`
-
-// tag
-// func(tag)
-// (!) tag
-// (!) func(tag)
-// (...) tag
-// (...) func(tag)
-// (parent/) tag
-// (parent/) func(tag)
-// (grandparent/parent) tag
-// (grandparent/parent) func(tag)
 
 export type ChainItem = `${string}${"?" | "*" | "+" | ""}`
 

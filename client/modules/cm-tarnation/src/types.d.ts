@@ -2,7 +2,6 @@ import type { NodePropSource, NodeType, Tree } from "@lezer/common"
 import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
 import type * as DF from "./grammar/definition"
 import type { GrammarToken, VariableTable } from "./grammar/types"
-import type { Chunk } from "./tokenizer"
 
 // -- CONFIGURATION
 
@@ -57,10 +56,10 @@ export interface TarnationLanguageDefinition {
 
 // -- TOKENS
 
-/** Represents the region of an embedded language. */
-export type EmbedToken = [lang: string, from: number, to: number]
+/** Represents the region of a nested language. */
+export type NestToken = [lang: string, from: number, to: number]
 
-export type Token = GrammarToken | EmbedToken
+export type Token = GrammarToken | NestToken
 
 /**
  * Represents a Lezer token. The `tree` value is for storing a reusable
@@ -73,18 +72,12 @@ type LezerToken = [id: number, from: number, to: number, children: number, tree?
 /** Stack used by the parser to track tree construction. */
 export type ParserElementStack = [name: number, start: number, children: number][]
 
-/** Embedded region data for a parser. */
-export type EmbeddedData = [token: LezerToken, language: string][]
-
 /** Serialized context/state of a parser. */
 export interface SerializedParserContext {
   index: number
   buffer: LezerToken[]
   stack: ParserElementStack
 }
-
-/** A parser's cache, mapping tokenizer chunks to parser contexts. */
-export type ParserCache = WeakMap<Chunk, SerializedParserContext>
 
 // -- MISC.
 

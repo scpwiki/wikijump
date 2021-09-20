@@ -25,6 +25,7 @@ export class Tokenizer {
   /** Host grammar. */
   private declare grammar: Grammar
 
+  /** The input to tokenize. */
   private declare input: Input
 
   /** The region of the document that should be tokenized. */
@@ -91,7 +92,15 @@ export class Tokenizer {
     return true
   }
 
-  private getString(pos: number, min: number, max: number) {
+  /**
+   * Gets a substring of the current input, accounting for range handling
+   * automatically.
+   *
+   * @param pos - The position to start at.
+   * @param min - The minimum length of the substring.
+   * @param max - The maximum length of the substring.
+   */
+  private read(pos: number, min: number, max: number) {
     let str = ""
     while (str.length <= min) {
       str += this.input.chunk(pos + str.length)
@@ -151,7 +160,7 @@ export class Tokenizer {
       const start = Math.max(pos - MARGIN_BEFORE, this.region.from)
       const startCompensated = this.region.compensate(pos, start - pos)
 
-      const str = this.getString(startCompensated, MARGIN_AFTER, this.region.to)
+      const str = this.read(startCompensated, MARGIN_AFTER, this.region.to)
 
       const match = this.grammar.match(ctx.state, str, pos - start, pos)
 
@@ -171,24 +180,24 @@ export class Tokenizer {
         for (let idx = 0; idx < matchTokens.length; idx++) {
           const t = matchTokens[idx]
 
-          let pushEmbedded = false
+          let pushNested = false
 
           if (t[5] !== undefined) {
-            // token ends an embedded region
+            // token ends a nested region
             if (t[5] === Nesting.POP) {
-              const range = ctx.endEmbedded(t[1])
+              const range = ctx.endNested(t[1])
               if (range) tokens.push(range)
             }
             // token represents the entire region, not the start or end of one
-            else if (!ctx.embedded && t[5].endsWith("!")) {
+            else if (!ctx.nested && t[5].endsWith("!")) {
               const lang = t[5].slice(0, t[5].length - 1)
               tokens.push([lang, t[1], t[2]])
               continue
             }
-            // token starts an embedded region
-            else if (!ctx.embedded) {
-              pushEmbedded = true
-              ctx.setEmbedded(t[5], t[2])
+            // token starts a nested region
+            else if (!ctx.nested) {
+              pushNested = true
+              ctx.startNested(t[5], t[2])
             }
           }
 
@@ -200,7 +209,7 @@ export class Tokenizer {
           }
 
           // check if the new token can be merged into the last one
-          if (!ctx.embedded || pushEmbedded) {
+          if (!ctx.nested || pushNested) {
             if (last && this.canContinue(last, t)) last[2] = t[2]
             else tokens.push((last = t))
           }
