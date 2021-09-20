@@ -8,7 +8,7 @@ import type { TokenizerBuffer } from "./buffer"
 import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
 
-const MARIGN_BEFORE = 32
+const MARGIN_BEFORE = 32
 const MARGIN_AFTER = 128
 
 /**
@@ -91,11 +91,38 @@ export class Tokenizer {
     return true
   }
 
-  private getString(start: number, end: number) {
-    const difference = end - start
+  private getString(pos: number, min: number, max: number) {
     let str = ""
-    while (str.length <= difference && start + str.length !== this.input.length) {
-      str += this.input.chunk(start + str.length)
+    while (str.length <= min) {
+      str += this.input.chunk(pos + str.length)
+
+      const relative = pos + str.length
+
+      if (relative >= max) {
+        const diff = relative - max
+        if (diff) str = str.slice(0, -diff)
+        break
+      }
+
+      if (!this.region.contiguous) {
+        const actual = this.region.compensate(pos, str.length)
+
+        // end of input
+        if (actual >= max) {
+          const diff = actual - max
+          if (diff) str = str.slice(0, -diff)
+          break
+        }
+
+        const clamped = this.region.clamp(pos, relative)
+        if (relative >= clamped) {
+          const diff = relative - clamped
+          if (diff) str = str.slice(0, -diff)
+          const next = this.region.posRange(clamped, 1)
+          if (!next) break
+          pos = next.from
+        }
+      }
     }
     return str
   }
@@ -121,16 +148,12 @@ export class Tokenizer {
       let matchTokens: GrammarToken[] | null = null
       let length = 1
 
-      const start = Math.max(ctx.pos - MARIGN_BEFORE, this.region.from)
-      const end = Math.min(
-        ctx.pos + MARGIN_AFTER,
-        this.region.to + MARGIN_AFTER,
-        this.input.length
-      )
+      const start = Math.max(pos - MARGIN_BEFORE, this.region.from)
+      const startCompensated = this.region.compensate(pos, start - pos)
 
-      const str = this.getString(start, end)
+      const str = this.getString(startCompensated, MARGIN_AFTER, this.region.to)
 
-      const match = this.grammar.match(ctx.state, str, ctx.pos - start, ctx.pos)
+      const match = this.grammar.match(ctx.state, str, pos - start, pos)
 
       if (match) {
         ctx.state = match.state
@@ -138,7 +161,7 @@ export class Tokenizer {
         length = match.length || 1
       }
 
-      ctx.pos += length
+      ctx.pos = this.region.compensate(pos, length)
 
       const tokens: Token[] = []
 
@@ -167,6 +190,13 @@ export class Tokenizer {
               pushEmbedded = true
               ctx.setEmbedded(t[5], t[2])
             }
+          }
+
+          if (!this.region.contiguous) {
+            const from = this.region.compensate(pos, t[1] - pos)
+            const end = this.region.compensate(pos, t[2] - pos)
+            t[1] = from
+            t[2] = end
           }
 
           // check if the new token can be merged into the last one

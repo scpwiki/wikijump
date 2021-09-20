@@ -9,10 +9,10 @@ import {
 } from "@wikijump/codemirror/cm"
 import { removeUndefined } from "@wikijump/util"
 import { isFunction } from "is-what"
-import { DelegatorFactory } from "./delegator"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
 import type { VariableTable } from "./grammar/types"
+import { HostFactory } from "./host"
 import type { TokenizerBuffer } from "./tokenizer"
 import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
 import { EmbeddedParserType, makeTopNode } from "./util"
@@ -97,7 +97,7 @@ export class TarnationLanguage {
     this.nodeSet = nodeSet
 
     // setup language support
-    this.language = new Language(facet, new DelegatorFactory(this), top)
+    this.language = new Language(facet, new HostFactory(this), top)
     this.support = new LanguageSupport(this.language, this.extensions)
     this.loaded = true
 
