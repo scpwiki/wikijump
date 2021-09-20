@@ -17,6 +17,7 @@ import { ParseRegion } from "./region"
 import { Tokenizer, TokenizerBuffer, TokenizerContext } from "./tokenizer"
 import { EmbeddedParserProp, EmbeddedParserType } from "./util"
 
+const DISABLED_NESTED = true
 const REUSE_LEFT = true
 const REUSE_RIGHT = true
 
@@ -43,8 +44,8 @@ export class ParserFactory extends CodeMirrorParser {
     fragments: TreeFragment[],
     ranges: { from: number; to: number }[]
   ) {
-    const delegator = new Parser(this.language, input, fragments, ranges)
-    return this.wrapper(delegator, input, fragments, ranges)
+    const parser = new Parser(this.language, input, fragments, ranges)
+    return DISABLED_NESTED ? parser : this.wrapper(parser, input, fragments, ranges)
   }
 
   /**
