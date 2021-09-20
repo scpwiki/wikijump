@@ -5,7 +5,6 @@ import type { ParseRegion } from "../region"
 import type { GrammarToken, Token } from "../types"
 import { canContinue } from "../util"
 import type { TokenizerBuffer } from "./buffer"
-import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
 
 const MARGIN_BEFORE = 32
@@ -70,10 +69,7 @@ export class Tokenizer {
     return this.buffer.compile()
   }
 
-  /**
-   * Advances the tokenizer. Returns null if it isn't done, otherwise
-   * returns a list of tokens.
-   */
+  /** Advances the tokenizer. Returns null if it isn't done, otherwise returns true. */
   tokenize() {
     if (this.context.pos < this.region.to) {
       const pos = this.context.pos
@@ -149,19 +145,9 @@ export class Tokenizer {
       if (tokens?.length) this.buffer.add(pos, startContext, tokens)
     }
 
-    if (this.context.pos >= this.region.to) return this.chunks
+    if (this.context.pos >= this.region.to) return true
 
     return null
-  }
-
-  /**
-   * Forces the tokenizer to advance fully, which is rather expensive, and
-   * returns the resultant tokens.
-   */
-  tokenizeFully() {
-    let result: Chunk[] | null = null
-    while ((result = this.tokenize()) === null) {}
-    return result
   }
 
   /**

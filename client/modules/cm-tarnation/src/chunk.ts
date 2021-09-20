@@ -1,7 +1,7 @@
-import { klona } from "klona"
-import { ParserContext } from "../parser"
-import type { SerializedParserContext, Token } from "../types"
-import type { TokenizerContext } from "./context"
+import type { ParseStack } from "./chunk-parsing"
+import type { TokenizerContext } from "./tokenizer/context"
+import type { LezerToken, Token } from "./types"
+import { cloneNestedArray } from "./util"
 
 /**
  * A `Chunk` stores tokens emitted by the tokenizer into discrete, well,
@@ -25,16 +25,21 @@ export class Chunk {
    * A cached result of this chunk's last compile. Gets invalidated if the
    * position or token array is manipulated.
    */
-  private declare compiled?: Token[]
+  private declare compiled: null | Token[]
 
   /** The chunk's relative extent, as determined from the positions of its tokens. */
   private declare _max: number
 
   /**
-   * A cached {@link ParserContext} for use by the parser. Used for reusing
-   * left-hand parse data.
+   * If this chunk has been parsed, this property will have the result of
+   * that parse cached.
    */
-  private declare _parserContext?: SerializedParserContext
+  declare parsed: null | {
+    /** Parsed tokens from this chunk. */
+    tokens: LezerToken[]
+    /** Stack state at the end of this chunk. */
+    stack: ParseStack
+  }
 
   /**
    * @param pos - Position of this chunk.
@@ -46,14 +51,13 @@ export class Chunk {
     pos: number,
     context: TokenizerContext,
     tokens: Token[] = [],
-    relativeTo?: number,
-    parserContext?: ParserContext | SerializedParserContext
+    relativeTo?: number
   ) {
     this._pos = pos
     this.context = context
     this._max = 0
     this.setTokens(tokens, relativeTo)
-    if (parserContext) this.parserContext = parserContext
+    this.parsed = null
   }
 
   /** The chunk's starting position. */
@@ -63,8 +67,8 @@ export class Chunk {
 
   /** The chunk's starting position. */
   set pos(pos: number) {
-    this.compiled = undefined
-    this._parserContext = undefined
+    this.compiled = null
+    this.parsed = null
     this._pos = pos
   }
 
@@ -88,34 +92,6 @@ export class Chunk {
   }
 
   /**
-   * A cached {@link ParserContext} for use by the parser. Used for reusing
-   * left-hand parse data.
-   */
-  get parserContext(): ParserContext | undefined {
-    return this._parserContext
-      ? ParserContext.deserialize(this._parserContext)
-      : undefined
-  }
-
-  /**
-   * A cached {@link ParserContext} for use by the parser. Used for reusing
-   * left-hand parse data.
-   */
-  set parserContext(context: ParserContext | SerializedParserContext | undefined) {
-    if (context === undefined) {
-      this._parserContext = undefined
-    } else {
-      this._parserContext =
-        context instanceof ParserContext ? context.serialize(this.max) : context
-    }
-  }
-
-  /** True if this chunk has a {@link ParserContext} attached to it. */
-  get hasParserContext() {
-    return this._parserContext !== undefined
-  }
-
-  /**
    * Adds a token to the chunk.
    *
    * @param token - The token to add.
@@ -123,8 +99,8 @@ export class Chunk {
    *   relative to, if any.
    */
   add(token: Token, relativeTo?: number) {
-    this.compiled = undefined
-    this._parserContext = undefined
+    this.compiled = null
+    this.parsed = null
 
     let [type, from, to, open, close] = token
 
@@ -155,8 +131,8 @@ export class Chunk {
    *   relative to, if any.
    */
   setTokens(tokens: Token[], relativeTo?: number) {
-    this.compiled = undefined
-    this._parserContext = undefined
+    this.compiled = null
+    this.parsed = null
     this._tokens = []
     this._max = 0
     for (let idx = 0; idx < tokens.length; idx++) {
@@ -188,13 +164,7 @@ export class Chunk {
 
   /** Returns a deep clone of the chunk. */
   clone() {
-    return new Chunk(
-      this.pos,
-      this.context,
-      klona(this._tokens),
-      this.pos,
-      this.parserContext?.clone()
-    )
+    return new Chunk(this.pos, this.context, cloneNestedArray(this._tokens), this.pos)
   }
 
   /**

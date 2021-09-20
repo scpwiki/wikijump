@@ -197,3 +197,17 @@ export const EmbeddedParserType = NodeType.define({
 export function getEmbeddedParserNode(name: string, from: number, to: number) {
   return new Tree(EmbeddedParserType, [], [], to - from, [[EmbeddedParserProp, name]])
 }
+
+/**
+ * Clones any array of arrays. Doesn't clone anything in the nested arrays
+ * beyond primitives.
+ *
+ * @param arr - The nested array to clone.
+ */
+export function cloneNestedArray<T extends any[][]>(arr: T): T {
+  const clone = new Array(arr.length)
+  for (let idx = 0; idx < arr.length; idx++) {
+    clone[idx] = arr[idx].slice()
+  }
+  return clone as T
+}

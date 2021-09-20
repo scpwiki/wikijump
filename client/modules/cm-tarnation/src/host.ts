@@ -11,14 +11,13 @@ import {
 } from "@lezer/common"
 import { LanguageDescription, ParseContext } from "@wikijump/codemirror/cm"
 import { perfy } from "@wikijump/util"
+import { compileChunks } from "./chunk-parsing"
 import type { TarnationLanguage } from "./language"
-import { Parser, ParserContext } from "./parser"
 import { ParseRegion } from "./region"
 import { Tokenizer, TokenizerBuffer, TokenizerContext } from "./tokenizer"
 import { EmbeddedParserProp, EmbeddedParserType } from "./util"
 
 const BAIL = false
-const SKIP_PARSER = false
 const REUSE_LEFT = true
 const REUSE_RIGHT = true
 
@@ -96,23 +95,17 @@ export class HostFactory extends ParserBase {
   }
 }
 
-/** Current stage of the host. */
-enum Stage {
-  Tokenize,
-  Parse
-}
-
 /**
- * The host is the main interface between the parser and the tokenizer, and
- * what CodeMirror directly interacts with when parsing.
+ * The host is the main interface between tokenizing and parsing, and what
+ * CodeMirror directly interacts with when parsing.
  *
- * Additionally, the `Host` handles the recovery of tokenizer and parser
- * states from the stale trees provided by CodeMirror, and then uses this
- * data to restart the tokenizer and parser with reused state.
+ * Additionally, the `Host` handles the recovery of tokenizer state from
+ * the stale trees provided by CodeMirror, and then uses this data to
+ * restart the tokenizer with reused state.
  *
- * Note that the `Host`, along with the `Tokenizer` and `Parser`, are not
- * persistent objects. They are discarded as soon as the parse is done.
- * That means that their startup time is very significant.
+ * Note that the `Host`, along with `Tokenizer`, are not persistent
+ * objects. They are discarded as soon as the parse is done. That means
+ * that their startup time is very significant.
  */
 export class Host implements PartialParse {
   /** The host language. */
@@ -120,9 +113,6 @@ export class Host implements PartialParse {
 
   /** The input document to parse. */
   private declare input: Input
-
-  /** The current `Stage`, either tokenizing or parsing. */
-  declare stage: Stage
 
   /**
    * An object storing details about the region of the document to be
@@ -140,9 +130,6 @@ export class Host implements PartialParse {
    * new change.
    */
   private declare tokenizerPreviousRight?: TokenizerBuffer
-
-  /** The parser to be used. */
-  private declare parser: Parser
 
   /** A function used to measure how long the parse is taking. */
   private declare measurePerformance?: (msg?: string) => number
@@ -167,7 +154,6 @@ export class Host implements PartialParse {
 
     this.language = language
     this.input = input
-    this.stage = Stage.Tokenize
 
     this.region = new ParseRegion(input, ranges, fragments)
 
@@ -205,16 +191,6 @@ export class Host implements PartialParse {
             this.tokenizerPreviousRight = right
             this.region.from = chunk.context.pos
             this.setupTokenizer(left, chunk.context)
-
-            // find latest possible parser context
-            let chunkIndex: number | null = null
-            for (let i = 0; i < left.buffer.length; i++) {
-              if (left.buffer[i].hasParserContext) chunkIndex = i
-            }
-
-            if (chunkIndex) {
-              this.setupParser(left.buffer[chunkIndex].parserContext!)
-            }
           }
         }
       }
@@ -222,7 +198,6 @@ export class Host implements PartialParse {
 
     // if we couldn't reuse state, we'll need to startup things with a default state
     if (!this.tokenizer) this.setupTokenizer()
-    if (!this.parser) this.setupParser()
   }
 
   /**
@@ -273,17 +248,6 @@ export class Host implements PartialParse {
   }
 
   /**
-   * Instantiates the `Parser`.
-   *
-   * @param context - A `ParserContext` to reuse.
-   */
-  private setupParser(context?: ParserContext) {
-    if (!context) context = new ParserContext()
-
-    this.parser = new Parser(this.language, context, this.region)
-  }
-
-  /**
    * The current "position" of the host. This isn't really all that
    * accurate, as it's only reporting the tokenizer's position. That means
    * when the parser is running, the position will just be sitting still.
@@ -314,62 +278,27 @@ export class Host implements PartialParse {
 
     // if we're overbudget, BAIL
     if (BAIL && this.stoppedAt && this.measurePerformance() >= 12) {
-      this.parser.pending = this.tokenizer.chunks
-      if (this.tokenizer.chunks.length > this.parser.context.index) {
-        // forced to reparse, didn't get up to the point where we reused
-        this.parser.context = new ParserContext()
-      }
-      const { buffer, reused } = this.parser.parseFully()
-      return this.finish(buffer, reused)
+      return this.finish()
     }
 
-    switch (this.stage) {
-      case Stage.Tokenize: {
-        if (REUSE_RIGHT) {
-          // try to reuse ahead state
-          const reused =
-            this.tokenizerPreviousRight &&
-            this.tokenizer.tryToReuse(this.tokenizerPreviousRight)
+    if (REUSE_RIGHT) {
+      // try to reuse ahead state
+      const reused =
+        this.tokenizerPreviousRight &&
+        this.tokenizer.tryToReuse(this.tokenizerPreviousRight)
 
-          // can't reuse the buffer more than once (pointless)
-          if (reused) this.tokenizerPreviousRight = undefined
-        }
-
-        // try an advance if we're not done
-        const chunks = this.tokenizer.done
-          ? this.tokenizer.chunks
-          : this.tokenizer.tokenize()
-
-        if (chunks) {
-          this.parser.pending = chunks
-          this.stage = Stage.Parse
-        }
-
-        return null
-      }
-      case Stage.Parse: {
-        const result = SKIP_PARSER ? this.parser.parseFullyRaw() : this.parser.parse()
-
-        if (result) {
-          const { buffer, reused } = result
-          return this.finish(buffer, reused)
-        }
-
-        return null
-      }
+      // can't reuse the buffer more than once (pointless)
+      if (reused) this.tokenizerPreviousRight = undefined
     }
+
+    if (this.tokenizer.done || this.tokenizer.tokenize()) return this.finish()
+
+    return null
   }
 
-  /**
-   * Returns a `Tree` given a finalized buffer and reused `Tree` nodes.
-   * This also performs caching using the `Tree` as a key, along with some
-   * other housekeeping.
-   *
-   * @param buffer - The `Tree.build` buffer to use.
-   * @param reused - A list of reused tree nodes whose indexes are
-   *   referenced in the buffer.
-   */
-  private finish(buffer: number[], reused: Tree[]): Tree {
+  private finish(): Tree {
+    const { buffer, reused } = compileChunks(this.tokenizer.chunks)
+
     const start = this.region.original.from
     const length = this.parsedPos - this.region.original.from
     const nodeSet = this.language.nodeSet!

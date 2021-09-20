@@ -1,6 +1,6 @@
 import { search } from "@wikijump/util"
+import { Chunk } from "../chunk"
 import type { Token } from "../types"
-import { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
 
 /** Number of tokens per chunk. */
