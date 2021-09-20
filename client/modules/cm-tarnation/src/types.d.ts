@@ -129,15 +129,3 @@ export type Token = GrammarToken | NestToken
  * form of this token and its children.
  */
 type LezerToken = [id: number, from: number, to: number, children: number, tree?: Tree]
-
-// -- PARSER
-
-/** Stack used by the parser to track tree construction. */
-export type ParserElementStack = [name: number, start: number, children: number][]
-
-/** Serialized context/state of a parser. */
-export interface SerializedParserContext {
-  index: number
-  buffer: LezerToken[]
-  stack: ParserElementStack
-}

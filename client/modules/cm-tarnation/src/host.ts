@@ -190,7 +190,7 @@ export class Host implements PartialParse {
             const { left, right } = buffer.split(index)
             this.tokenizerPreviousRight = right
             this.region.from = chunk.context.pos
-            this.setupTokenizer(left, chunk.context)
+            this.setupTokenizer(left, chunk.context.clone())
           }
         }
       }

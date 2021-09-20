@@ -169,7 +169,7 @@ export class Tokenizer {
         right.slide(idx, this.region.edit.offset, true)
         this.buffer.link(right, this.region.original.length)
         this.buffer.ensureLast(this.context.pos, this.context)
-        this.context = this.buffer.last!.context
+        this.context = this.buffer.last!.context.clone()
         return true
       }
     }

@@ -12,9 +12,6 @@ import { cloneNestedArray } from "./util"
  * the document changes, allowing for them to be reused when tokenizing.
  */
 export class Chunk {
-  /** Context at the start of this chunk. */
-  private declare _context: TokenizerContext
-
   /** The tokens stored in this chunk. */
   private declare _tokens: Token[]
 
@@ -29,6 +26,9 @@ export class Chunk {
 
   /** The chunk's relative extent, as determined from the positions of its tokens. */
   private declare _max: number
+
+  /** Context at the start of this chunk. */
+  declare context: TokenizerContext
 
   /**
    * If this chunk has been parsed, this property will have the result of
@@ -80,15 +80,6 @@ export class Chunk {
   /** Number of tokens stored in this chunk. */
   get size() {
     return this._tokens.length
-  }
-
-  /** The context for this chunk. */
-  get context() {
-    return this._context.clone()
-  }
-
-  set context(context: TokenizerContext) {
-    this._context = context.clone()
   }
 
   /**
@@ -177,7 +168,7 @@ export class Chunk {
    */
   isReusable(context: TokenizerContext, offset = 0) {
     if (this._pos + offset !== context.pos) return false
-    if (!context.equals(this._context, offset)) return false
+    if (!context.equals(this.context, offset)) return false
     return true
   }
 }

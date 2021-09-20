@@ -65,6 +65,14 @@ export class ParseStack {
   }
 }
 
+/**
+ * Parses a {@link Chunk}, returning the parsed out {@link LezerToken}s.
+ * Mutates the given {@link ParseStack}, and caches the resultant tokens and
+ * stack into the {@link Chunk} as well.
+ *
+ * @param stack - The stack to use for parsing.
+ * @param chunk - The chunk to parse.
+ */
 export function parseChunk(stack: ParseStack, chunk: Chunk) {
   const buffer: LezerToken[] = []
   const tokens = chunk.compile()
@@ -181,6 +189,14 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
   return buffer
 }
 
+/**
+ * Compiles, and if needed, parses, a list of {@link Chunk}s. Returns a
+ * `Tree.build` compatible buffer and a list of "reused" trees for language nesting.
+ *
+ * @param chunks - The chunks to compile.
+ * @param startStack - The stack to use for parsing, if given. Otherwise,
+ *   an empty stack will be created.
+ */
 export function compileChunks(chunks: Chunk[], startStack?: ParseStack) {
   const buffer: number[] = []
   const reused: Tree[] = []
