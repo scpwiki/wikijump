@@ -1,4 +1,4 @@
-import type { NodePropSource, NodeType, Tree } from "@lezer/common"
+import type { NodePropSource, Tree } from "@lezer/common"
 import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
 import type { Grammar } from "./grammar/definition"
 import type { Node } from "./grammar/node"
@@ -141,10 +141,3 @@ export interface SerializedParserContext {
   buffer: LezerToken[]
   stack: ParserElementStack
 }
-
-// -- MISC.
-
-export type AddNodeSpec = { name: string } & Omit<
-  Parameters<typeof NodeType["define"]>[0],
-  "id" | "name"
->
