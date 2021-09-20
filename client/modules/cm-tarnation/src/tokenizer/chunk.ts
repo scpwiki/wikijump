@@ -1,7 +1,7 @@
 import { klona } from "klona"
 import { ParserContext } from "../parser"
 import type { SerializedParserContext, Token } from "../types"
-import { TokenizerContext } from "./context"
+import type { TokenizerContext } from "./context"
 
 /**
  * A `Chunk` stores tokens emitted by the tokenizer into discrete, well,

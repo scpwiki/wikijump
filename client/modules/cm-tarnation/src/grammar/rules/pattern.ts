@@ -3,7 +3,7 @@ import { isRegExpString } from "../helpers"
 import { RegExpMatcher } from "../matchers/regexp"
 import { StringMatcher } from "../matchers/string"
 import type { Repository } from "../repository"
-import { MatchOutput } from "../types"
+import type { MatchOutput } from "../types"
 import { Rule } from "./rule"
 
 /**

@@ -1,7 +1,7 @@
 import type * as DF from "../definition"
 import { LookupMatcher } from "../matchers/lookup"
 import type { Repository } from "../repository"
-import { MatchOutput } from "../types"
+import type { MatchOutput } from "../types"
 import { Rule } from "./rule"
 
 /**
