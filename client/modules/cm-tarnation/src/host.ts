@@ -269,13 +269,7 @@ export class Host implements PartialParse {
       buffer = new TokenizerBuffer()
     }
 
-    this.tokenizer = new Tokenizer(
-      this.language,
-      context,
-      buffer,
-      this.input,
-      this.region
-    )
+    this.tokenizer = new Tokenizer(this.language, context, buffer, this.region)
   }
 
   /**

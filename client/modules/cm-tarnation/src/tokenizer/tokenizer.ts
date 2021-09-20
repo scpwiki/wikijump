@@ -1,4 +1,3 @@
-import type { Input } from "@lezer/common"
 import { Nesting } from "../enums"
 import type { Grammar } from "../grammar/grammar"
 import type { TarnationLanguage } from "../language"
@@ -26,9 +25,6 @@ export class Tokenizer {
   /** Host grammar. */
   private declare grammar: Grammar
 
-  /** The input to tokenize. */
-  private declare input: Input
-
   /** The region of the document that should be tokenized. */
   private declare region: ParseRegion
 
@@ -49,7 +45,6 @@ export class Tokenizer {
     language: TarnationLanguage,
     context: TokenizerContext,
     buffer: TokenizerBuffer,
-    input: Input,
     region: ParseRegion
   ) {
     if (!language.grammar) throw new Error("Unloaded language provided to tokenizer!")
@@ -58,7 +53,6 @@ export class Tokenizer {
     this.buffer = buffer
     this.grammar = language.grammar
     this.region = region
-    this.input = input
   }
 
   /** True if the tokenizer has already completed. */
@@ -69,50 +63,6 @@ export class Tokenizer {
   /** The tokenizer's current chunks. */
   get chunks() {
     return this.buffer.buffer
-  }
-
-  /**
-   * Gets a substring of the current input, accounting for range handling
-   * automatically.
-   *
-   * @param pos - The position to start at.
-   * @param min - The minimum length of the substring.
-   * @param max - The maximum length of the substring.
-   */
-  private read(pos: number, min: number, max: number) {
-    let str = ""
-    while (str.length <= min) {
-      str += this.input.chunk(pos + str.length)
-
-      const relative = pos + str.length
-
-      if (relative >= max) {
-        const diff = relative - max
-        if (diff) str = str.slice(0, -diff)
-        break
-      }
-
-      if (!this.region.contiguous) {
-        const actual = this.region.compensate(pos, str.length)
-
-        // end of input
-        if (actual >= max) {
-          const diff = actual - max
-          if (diff) str = str.slice(0, -diff)
-          break
-        }
-
-        const clamped = this.region.clamp(pos, relative)
-        if (relative >= clamped) {
-          const diff = relative - clamped
-          if (diff) str = str.slice(0, -diff)
-          const next = this.region.posRange(clamped, 1)
-          if (!next) break
-          pos = next.from
-        }
-      }
-    }
-    return str
   }
 
   /** Compiles the tokenizer's buffer. */
@@ -139,7 +89,7 @@ export class Tokenizer {
       const start = Math.max(pos - MARGIN_BEFORE, this.region.from)
       const startCompensated = this.region.compensate(pos, start - pos)
 
-      const str = this.read(startCompensated, MARGIN_AFTER, this.region.to)
+      const str = this.region.read(startCompensated, MARGIN_AFTER, this.region.to)
 
       const match = this.grammar.match(ctx.state, str, pos - start, pos)
 
