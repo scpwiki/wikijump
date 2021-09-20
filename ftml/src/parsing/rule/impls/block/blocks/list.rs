@@ -19,8 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::parsing::strip_newlines;
-use crate::tree::{ListItem, ListType, PartialElement};
+use crate::parsing::{strip_newlines, ParserWrap};
+use crate::tree::{AcceptsPartial, ListItem, ListType, PartialElement};
 
 // Definitions
 
@@ -109,6 +109,8 @@ fn parse_list_block<'r, 't>(
         "in-head" => in_head,
         "name" => name,
     );
+
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::ListItem);
 
     assert!(!flag_star, "List block doesn't allow star flag");
     assert_block_name(block_rule, name);

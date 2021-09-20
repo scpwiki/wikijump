@@ -19,8 +19,10 @@
  */
 
 use super::prelude::*;
-use crate::parsing::strip_whitespace;
-use crate::tree::{AttributeMap, PartialElement, Table, TableCell, TableRow};
+use crate::parsing::{strip_whitespace, ParserWrap};
+use crate::tree::{
+    AcceptsPartial, AttributeMap, PartialElement, Table, TableCell, TableRow,
+};
 use std::num::NonZeroU32;
 
 pub const BLOCK_TABLE: BlockRule = BlockRule {
@@ -149,6 +151,8 @@ fn parse_table<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::TableRow);
+
     // Get block contents.
     let ParsedBlock {
         elements,
@@ -182,6 +186,8 @@ fn parse_row<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::TableCell);
+
     // Get block contents.
     let ParsedBlock {
         elements,
@@ -243,6 +249,8 @@ fn parse_cell_header<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::TableCell);
+
     // Get block contents.
     let ParsedBlock {
         elements,
