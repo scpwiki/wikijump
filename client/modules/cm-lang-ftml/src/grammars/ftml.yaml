@@ -313,7 +313,9 @@ repository:
       - include: inline
       - include: blocks
 
-  # disabled for now
+  # TODO: make this behave better
+  # disabled for now, due to wacky behavior
+  # usually weird nesting and generally not ending where it should
   Paragraph:
     begin: { match: /@sws(?!@interrupt)\S/, rematch: true }
     end: { match: /@sws(?:@interrupt)|@enl/, rematch: true }
