@@ -250,7 +250,11 @@ class ChainContext {
 
   constructor(rules: ChainRule[], skip?: RegExpMatcher) {
     this.rules = rules
-    this.clear()
+    this.total = ""
+    this.index = 0
+    this.failed = false
+    this.advanced = null
+    this.results = null
     if (skip) this.skipMatcher = skip
   }
 
@@ -290,17 +294,11 @@ class ChainContext {
   }
 
   /**
-   * Finishes and cleans up. Returns `null` if the match failed, otherwise
-   * a list of {@link Matched} objects will be returned.
+   * Returns `null` if the match failed, otherwise a list of {@link Matched}
+   * objects will be returned.
    */
   finish() {
-    if (this.failed) {
-      this.clear()
-      return null
-    }
-    const results = this.results
-    this.clear()
-    return results
+    return this.failed ? null : this.results
   }
 
   /**
@@ -350,20 +348,16 @@ class ChainContext {
     }
   }
 
-  /** Clears out the current state. */
-  private clear() {
-    this.total = ""
-    this.index = 0
-    this.failed = false
-    this.advanced = null
-    this.results = null
-  }
-
   /** Resets the current state with the new match arguments. */
   reset(state: GrammarState, str: string, pos: number) {
     this.state = state
     this.str = str
     this.pos = pos
+    this.total = ""
+    this.index = 0
+    this.failed = false
+    this.advanced = null
+    this.results = null
   }
 }
 

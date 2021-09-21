@@ -1,6 +1,6 @@
 repository:
   Punctuation:
-    match: /[\u251C\u2514\u2502\u2500]/
+    match: "│"
     tag: punctuation
 
   String:

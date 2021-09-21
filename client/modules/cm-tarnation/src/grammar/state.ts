@@ -1,7 +1,7 @@
+import type { GrammarStackElement, MatchOutput, VariableTable } from "../types"
 import type { Node } from "./node"
 import type { Rule } from "./rules/rule"
 import type { State } from "./rules/state"
-import type { GrammarStackElement, MatchOutput, VariableTable } from "./types"
 
 /** Internal state for a {@link Grammar}. */
 export class GrammarState {
@@ -77,11 +77,10 @@ export class GrammarState {
    * @param other - The other {@link GrammarState} to compare to.
    */
   equals(other: GrammarState) {
-    return (
-      this.variables === other.variables &&
-      contextEquivalent(this.context, other.context) &&
-      this.stack.equals(other.stack)
-    )
+    if (this.variables !== other.variables) return false
+    if (!contextEquivalent(this.context, other.context)) return false
+    if (!this.stack.equals(other.stack)) return false
+    return true
   }
 
   /** Returns a new clone of this state, including its stack. */
@@ -103,7 +102,7 @@ export class GrammarStack {
    * @param end - A specific {@link Rule} that, when matched, should pop
    *   this element off.
    */
-  push(node: Node, rules: (Rule | State)[], end: Rule) {
+  push(node: Node, rules: (Rule | State)[], end: Rule | State) {
     this.stack = [...this.stack, { node, rules, end }]
   }
 

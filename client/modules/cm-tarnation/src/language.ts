@@ -8,38 +8,36 @@ import {
   LanguageSupport
 } from "@wikijump/codemirror/cm"
 import { removeUndefined } from "@wikijump/util"
-import { isFunction } from "is-what"
+import type { ChunkBuffer } from "./chunk/buffer"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
-import type { VariableTable } from "./grammar/types"
-import { HostFactory } from "./host"
-import type { TokenizerBuffer } from "./tokenizer"
+import { ParserFactory } from "./parser"
 import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
-import { EmbeddedParserType, makeTopNode } from "./util"
+import { makeTopNode } from "./util"
 
 export class TarnationLanguage {
-  private declare languageData: Record<string, any>
-  private declare grammarData: DF.Grammar | (() => DF.Grammar)
-  private declare configure: ParserConfiguration
-  private declare extensions: Extension[]
-
+  declare languageData: Record<string, any>
+  declare grammarData: DF.Grammar | (() => DF.Grammar)
+  declare configure: ParserConfiguration
+  declare extensions: Extension[]
   declare description: LanguageDescription
-  declare variables: VariableTable
+  declare nestLanguages: LanguageDescription[] | Facet<LanguageDescription>
+
+  // only shows up after loading
+
   declare grammar?: Grammar
   declare top?: NodeType
   declare nodeTypes?: NodeType[]
   declare nodeSet?: NodeSet
-  declare stateProp?: NodeProp<TokenizerBuffer>
+  declare stateProp?: NodeProp<ChunkBuffer>
   declare support?: LanguageSupport
   declare language?: Language
-  declare nestLanguages: LanguageDescription[] | Facet<LanguageDescription>
 
   loaded = false
   performance = 0
 
   constructor({
     name,
-    variables = {},
     grammar,
     nestLanguages = [],
     configure = {},
@@ -53,7 +51,6 @@ export class TarnationLanguage {
 
     this.languageData = { ...dataDescription, ...languageData }
     this.nestLanguages = nestLanguages
-    this.variables = variables
     this.grammarData = grammar
     this.configure = configure
     this.extensions = supportExtensions
@@ -73,21 +70,22 @@ export class TarnationLanguage {
   load() {
     // setup grammar data
     if (this.description?.support) return this.description.support
-    const def = isFunction(this.grammarData) ? this.grammarData() : this.grammarData
-    this.grammar = new Grammar(def, this.variables)
+    const def =
+      typeof this.grammarData === "function" ? this.grammarData() : this.grammarData
+    this.grammar = new Grammar(def, this.configure.variables)
 
     // merge data from the grammar
     Object.assign(this.languageData, this.grammar.data)
 
     // setup node data
 
-    this.stateProp = new NodeProp<TokenizerBuffer>({ perNode: true })
+    this.stateProp = new NodeProp<ChunkBuffer>({ perNode: true })
 
     const { facet, top } = makeTopNode(this.description.name, this.languageData)
     this.top = top
 
     const nodeTypes = this.grammar.repository.nodes().map(n => n.type)
-    nodeTypes.unshift(NodeType.none, top, EmbeddedParserType)
+    nodeTypes.unshift(NodeType.none, top)
 
     let nodeSet = new NodeSet(nodeTypes)
 
@@ -97,7 +95,7 @@ export class TarnationLanguage {
     this.nodeSet = nodeSet
 
     // setup language support
-    this.language = new Language(facet, new HostFactory(this), top)
+    this.language = new Language(facet, new ParserFactory(this), top)
     this.support = new LanguageSupport(this.language, this.extensions)
     this.loaded = true
 

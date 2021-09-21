@@ -1,3 +1,4 @@
+import type { VariableTable } from "../types"
 import type * as DF from "./definition"
 import type { Grammar } from "./grammar"
 import { Node } from "./node"
@@ -6,7 +7,6 @@ import { LookupRule } from "./rules/lookup"
 import { PatternRule } from "./rules/pattern"
 import { Rule } from "./rules/rule"
 import { State } from "./rules/state"
-import type { VariableTable } from "./types"
 
 /** Holds the rules, states, etc. for a {@link Grammar}. */
 export class Repository {
@@ -14,7 +14,7 @@ export class Repository {
   private map = new Map<string, Node | Rule | State>()
 
   /** Current {@link Node} ID. */
-  private curID = 3 // starts at 3, because 0-2 are reserved
+  private curID = 2 // starts at 2, because 0-1 are reserved
 
   constructor(
     public grammar: Grammar,
@@ -24,11 +24,15 @@ export class Repository {
 
   /** Returns every {@link Node} in the repository, sorted by ID. */
   nodes() {
-    // deduplicates, runs the iterator
-    const set = new Set(this.map.values())
-    // get every node, remove any entries that are Node.None
-    return Array.from(set)
-      .map(v => (v instanceof Node ? v : v.node))
+    const nodes = new Set<Node>()
+
+    for (const obj of this.map.values()) {
+      if (obj instanceof Node) nodes.add(obj)
+      if ("node" in obj) nodes.add(obj.node)
+      if (obj instanceof State && obj.inside instanceof Node) nodes.add(obj.inside)
+    }
+
+    return Array.from(nodes)
       .filter(v => v !== Node.None)
       .sort((a, b) => a.id - b.id)
   }

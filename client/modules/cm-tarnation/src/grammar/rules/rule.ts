@@ -1,12 +1,12 @@
 import { createID } from "@wikijump/util"
+import type { MatchOutput } from "../../types"
+import { createLookbehind, re } from "../../util"
 import type * as DF from "../definition"
-import { createLookbehind, re } from "../helpers"
 import { Matched } from "../matched"
 import { RegExpMatcher } from "../matchers/regexp"
 import { Node } from "../node"
 import type { Repository } from "../repository"
 import type { GrammarState } from "../state"
-import type { MatchOutput } from "../types"
 
 /**
  * A {@link Node} with some sort of associated pattern. Patterns exist as

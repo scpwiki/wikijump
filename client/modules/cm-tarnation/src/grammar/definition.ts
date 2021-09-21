@@ -46,7 +46,7 @@ export interface Node {
   open?: string
   close?: string
   emit?: string | boolean
-  nest?: string | VarIndex | ContextIndex
+  nest?: string
   // CodeMirror properties, doesn't affect grammar
   tag?: Tag
   openedBy?: Arrayable<string>
@@ -65,7 +65,7 @@ export interface Node {
 export interface State extends Node {
   begin: string | Rule
   end: string | Rule
-  inside?: Inside | "inherit" | "loose"
+  inside?: Inside | Node | ReuseNode | "inherit" | "loose"
 }
 
 export interface RuleOptions extends Node {

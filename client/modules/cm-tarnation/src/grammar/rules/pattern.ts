@@ -1,9 +1,9 @@
+import type { MatchOutput } from "../../types"
+import { isRegExpString } from "../../util"
 import type * as DF from "../definition"
-import { isRegExpString } from "../helpers"
 import { RegExpMatcher } from "../matchers/regexp"
 import { StringMatcher } from "../matchers/string"
 import type { Repository } from "../repository"
-import type { MatchOutput } from "../types"
 import { Rule } from "./rule"
 
 /**

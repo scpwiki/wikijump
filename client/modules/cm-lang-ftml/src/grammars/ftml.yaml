@@ -313,7 +313,9 @@ repository:
       - include: inline
       - include: blocks
 
-  # disabled for now
+  # TODO: make this behave better
+  # disabled for now, due to wacky behavior
+  # usually weird nesting and generally not ending where it should
   Paragraph:
     begin: { match: /@sws(?!@interrupt)\S/, rematch: true }
     end: { match: /@sws(?:@interrupt)|@enl/, rematch: true }
@@ -381,6 +383,11 @@ repository:
     tag: separator
 
   SingleLinkSlug:
+    # this crazy regex is due to the various formats of url Wikidot supports
+    # examples:
+    # /foo, #foo, :foo, *foo
+    # wikipedia:foo
+    # foo@foo
     match: /([:#*]|(?=\/)|(?=[^#*\s]+?[@:][^#*\s]))([^#*\s]+)/
     captures:
       0: { type: SingleLinkSlugModifier, tag: modifier }
@@ -449,7 +456,6 @@ repository:
 
   BlockNodeArgument:
     match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
-    context: { if: $0, matches: type, set: code-lang, to: $3 }
     captures:
       0: { type: BlockNodeArgumentName, tag: special(propertyName) }
       1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
@@ -678,16 +684,13 @@ repository:
 
   BlockNestedCode:
     emit: BlockNested
-    nest: $ctx:code-lang
     fold: inside
+    inside: { type: BlockNestedCodeInside, tag: monospace }
     begin:
       type: BlockNestedCodeStartNode
       emit: BlockNode
       indent: delimited(]])
       skip: /\s+/
-      # resets code-lang whenever this rule is checked
-      context: { set: code-lang, to: "" }
-      contextImmediate: true
       chain:
         - BlockStart
         - BlockNamePrefix?

@@ -11,11 +11,6 @@ export class ParseRegion {
   /** The parse should stop past or at this position. */
   declare to: number
 
-  /** The length of the region. */
-  get length() {
-    return this.to - this.from
-  }
-
   /**
    * The range describing the original parse range when this region was
    * constructed. This is so that the `from` and `to` properties can be
@@ -40,6 +35,9 @@ export class ParseRegion {
     offset: number
   }
 
+  /** The `Input` used to read strings from the document. */
+  declare input: Input
+
   /** The ranges to be parsed. */
   declare ranges: { from: number; to: number }[]
 
@@ -53,6 +51,7 @@ export class ParseRegion {
     ranges: { from: number; to: number }[],
     fragments?: TreeFragment[]
   ) {
+    this.input = input
     this.from = ranges[0].from
     this.to = Math.min(input.length, ranges[ranges.length - 1].to)
     this.original = { from: this.from, to: this.to, length: this.length }
@@ -88,13 +87,19 @@ export class ParseRegion {
         // not sure why this is needed, something I don't understand about fragments
         // usually if this is the case the parse was interrupted, and is being continued
         if (from > to) {
-          to = from
+          from = this.to
+          to = this.to
           offset = 0
         }
       }
 
       this.edit = { from, to, offset }
     }
+  }
+
+  /** The length of the region. */
+  get length() {
+    return this.to - this.from
   }
 
   /** True if we don't need to care about range handling. */
@@ -183,5 +188,49 @@ export class ParseRegion {
       }
     }
     return null
+  }
+
+  /**
+   * Gets a substring of the current input, accounting for range handling
+   * automatically.
+   *
+   * @param pos - The position to start at.
+   * @param min - The minimum length of the substring.
+   * @param max - The maximum position of the end of the substring.
+   */
+  read(pos: number, min: number, max: number) {
+    let str = ""
+    while (str.length <= min) {
+      str += this.input.chunk(pos + str.length)
+
+      const relative = pos + str.length
+
+      if (relative >= max) {
+        const diff = relative - max
+        if (diff) str = str.slice(0, -diff)
+        break
+      }
+
+      if (this.ranges.length !== 1) {
+        const actual = this.compensate(pos, str.length)
+
+        // end of input
+        if (actual >= max) {
+          const diff = actual - max
+          if (diff) str = str.slice(0, -diff)
+          break
+        }
+
+        const clamped = this.clamp(pos, relative)
+        if (relative >= clamped) {
+          const diff = relative - clamped
+          if (diff) str = str.slice(0, -diff)
+          const next = this.posRange(clamped, 1)
+          if (!next) break
+          pos = next.from
+        }
+      }
+    }
+    return str
   }
 }

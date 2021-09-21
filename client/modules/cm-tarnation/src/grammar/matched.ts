@@ -1,6 +1,7 @@
+import { Wrapping } from "../enums"
+import type { GrammarToken, MatchOutput } from "../types"
 import { Node } from "./node"
 import type { GrammarState } from "./state"
-import { GrammarToken, Inclusivity, MatchOutput, Nesting, Wrapping } from "./types"
 
 /** Represents a leaf or branch of a tree of matches found by a grammar. */
 export class Matched {
@@ -45,10 +46,26 @@ export class Matched {
    * Wraps this `Matched` with another one.
    *
    * @param node - The node of the `Matched` to wrap with.
-   * @param wrapping - The wrapping mode, if different.
+   * @param wrap - The wrapping mode, if different.
    */
   wrap(node: Node, wrap = this.wrapping) {
     return new Matched(this.state, node, this.total, this.from, [this], wrap)
+  }
+
+  /**
+   * Pushes an opening or closing node to one side of this matches captures.
+   *
+   * @param node - The node to push.
+   * @param side - The side to push to.
+   * @param wrap - The wrapping mode of the node. Can't be `FULL`.
+   */
+  push(node: Node, side: -1 | 1, wrap = this.wrapping) {
+    if (wrap === Wrapping.FULL) throw new Error("Cannot push onto a FULL match")
+    this.captures ??= []
+    let pos = side === -1 ? this.from : this.from + this.length
+    const match = new Matched(this.state, node, "", pos, undefined, wrap)
+    if (side === -1) this.captures.unshift(match)
+    else this.captures.push(match)
   }
 
   /** Returns this match represented as a raw {@link MatchOutput}. */
@@ -107,19 +124,33 @@ function isGrammarTokenList(
 
 /** Compiles a {@link Matched} as a leaf. */
 function compileLeaf(match: Matched): GrammarToken {
-  const token: GrammarToken = [
-    match.node === Node.None ? null : match.node.id,
-    match.from,
-    match.from + match.length
-  ]
-
-  if (match.node.nest) {
-    const lang = match.state.sub(match.node.nest)
-    if (typeof lang !== "string") throw new Error("node.nest resolved badly")
-    if (lang) token[5] = `${lang}!` // "!" signifies nesting in a leaf
+  if (match.wrapping !== Wrapping.FULL && match.node === Node.None) {
+    throw new Error("Cannot compile a null leaf with a non-full wrapping")
   }
 
-  return token
+  // prettier-ignore
+  switch(match.wrapping) {
+    case Wrapping.FULL: return [
+      match.node === Node.None ? null : match.node.id,
+      match.from,
+      match.from + match.length
+    ]
+
+    case Wrapping.BEGIN: return [
+      null,
+      match.from,
+      match.from + match.length,
+      [match.node.id]
+    ]
+
+    case Wrapping.END: return [
+      null,
+      match.from,
+      match.from + match.length,
+      undefined,
+      [match.node.id]
+    ]
+  }
 }
 
 /**
@@ -132,26 +163,14 @@ function compileTree(match: Matched, tokens: GrammarToken[]) {
   const first = tokens[0]
   const last = tokens[tokens.length - 1]
 
-  let nest: string | null = null
-
-  if (match.node.nest) {
-    const lang = match.state.sub(match.node.nest)
-    if (typeof lang !== "string") throw new Error("node.nest resolved badly")
-    nest = lang
-  }
-
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.BEGIN) {
     first[3] ??= []
-    first[3].unshift([match.node.id, Inclusivity.INCLUSIVE])
-    if (nest && match.wrapping === Wrapping.BEGIN) last[5] = nest
-    else if (nest) first[5] = nest
+    first[3].unshift(match.node.id)
   }
 
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.END) {
     last[4] ??= []
-    last[4].push([match.node.id, Inclusivity.INCLUSIVE])
-    if (nest && match.wrapping === Wrapping.END) first[5] = Nesting.POP
-    else if (nest) last[5] = Nesting.POP
+    last[4].push(match.node.id)
   }
 
   return tokens
