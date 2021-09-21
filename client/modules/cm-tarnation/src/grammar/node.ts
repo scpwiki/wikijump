@@ -68,7 +68,8 @@ export class Node {
 const PARSE_TAG_REGEX = /^(?:\((\S*?)\))?(?:\s+|^)(?:(?:(\S+?)\((\S+)\))|(\S+))$/
 
 /**
- * Parses a tag string.
+ * Parses a tag string, and converts it into an object that can be fed into
+ * CodeMirror's `styleTags` function.
  *
  * Examples:
  *
