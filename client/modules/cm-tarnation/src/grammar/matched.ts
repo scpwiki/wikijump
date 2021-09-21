@@ -52,6 +52,13 @@ export class Matched {
     return new Matched(this.state, node, this.total, this.from, [this], wrap)
   }
 
+  /**
+   * Pushes an opening or closing node to one side of this matches captures.
+   *
+   * @param node - The node to push.
+   * @param side - The side to push to.
+   * @param wrap - The wrapping mode of the node. Can't be `FULL`.
+   */
   push(node: Node, side: -1 | 1, wrap = this.wrapping) {
     if (wrap === Wrapping.FULL) throw new Error("Cannot push onto a FULL match")
     this.captures ??= []
