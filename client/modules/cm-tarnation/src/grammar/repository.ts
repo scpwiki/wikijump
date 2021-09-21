@@ -24,11 +24,15 @@ export class Repository {
 
   /** Returns every {@link Node} in the repository, sorted by ID. */
   nodes() {
-    // deduplicates, runs the iterator
-    const set = new Set(this.map.values())
-    // get every node, remove any entries that are Node.None
-    return Array.from(set)
-      .map(v => (v instanceof Node ? v : v.node))
+    const nodes = new Set<Node>()
+
+    for (const obj of this.map.values()) {
+      if (obj instanceof Node) nodes.add(obj)
+      if ("node" in obj) nodes.add(obj.node)
+      if (obj instanceof State && obj.inside instanceof Node) nodes.add(obj.inside)
+    }
+
+    return Array.from(nodes)
       .filter(v => v !== Node.None)
       .sort((a, b) => a.id - b.id)
   }

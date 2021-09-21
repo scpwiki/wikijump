@@ -1,6 +1,5 @@
 import type { NodePropSource } from "@lezer/common"
 import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
-import type { Inclusivity } from "./enums"
 import type { Grammar } from "./grammar/definition"
 import type { Node } from "./grammar/node"
 import type { Rule } from "./grammar/rules/rule"
@@ -102,11 +101,11 @@ export interface GrammarStackElement {
    * A specific {@link Rule} that, when matched, should pop this element off
    * the stack.
    */
-  end: Rule | null
+  end: Rule | State | null
 }
 
 /** Represents how the parser should nest tokens. */
-export type ParserAction = [number, Inclusivity][]
+export type ParserAction = number[]
 
 // -- TOKENS
 

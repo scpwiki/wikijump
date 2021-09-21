@@ -678,6 +678,7 @@ repository:
   BlockNestedCode:
     emit: BlockNested
     fold: inside
+    inside: { type: BlockNestedCodeInside, tag: monospace }
     begin:
       type: BlockNestedCodeStartNode
       emit: BlockNode

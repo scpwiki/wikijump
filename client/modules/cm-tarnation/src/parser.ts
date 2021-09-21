@@ -19,7 +19,7 @@ import { ParseRegion } from "./region"
 import type { GrammarToken } from "./types"
 import { canContinue, EmbeddedParserProp } from "./util"
 
-const DISABLED_NESTED = true
+const DISABLED_NESTED = false
 const REUSE_LEFT = true
 const REUSE_RIGHT = true
 const MARGIN_BEFORE = 32

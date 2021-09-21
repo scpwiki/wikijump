@@ -4,7 +4,7 @@ import { cloneNestedArray, concatUInt32Arrays } from "../util"
 import type { Chunk } from "./chunk"
 
 /** Stack used by the parser to track tree construction. */
-export type ParseElementStack = [name: number, start: number, children: number][]
+export type ParseElementStack = [id: number, start: number, children: number][]
 
 /**
  * A `ParseStack` keeps track of opened nodes destined to be eventually
@@ -93,10 +93,7 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
     // when another node closes one of the open nodes we added
     if (open) {
       for (let i = 0; i < open.length; i++) {
-        const o = open[i]
-        const id = o[0]
-        const inclusive = o[1]
-        stack.push(id, inclusive ? from : to, type ? (inclusive ? 0 : -1) : 0)
+        stack.push(open[i], from, 0)
       }
     }
 
@@ -106,9 +103,7 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
     // pop close nodes from the stack, if they can be paired with an open node
     if (close) {
       for (let i = 0; i < close.length; i++) {
-        const c = close[i]
-        const id = c[0]
-        const inclusive = c[1]
+        const id = close[i]
         const idx = stack.last(id)
 
         if (idx !== null) {
@@ -117,8 +112,8 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
           // never closed before their parent did
           stack.close(idx)
 
-          // if inclusive of the closing token we need to push the token early
-          if (type && inclusive && !pushed) {
+          // we need to push the token early
+          if (type && !pushed) {
             emit(buffers, type, from, to, 4)
             stack.increment()
             pushed = true
@@ -130,7 +125,7 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
           const pos = s[1]
           const children = s[2]
 
-          emit(buffers, node, pos, inclusive ? to : from, children * 4 + 4)
+          emit(buffers, node, pos, to, children * 4 + 4)
           stack.increment()
         }
       }

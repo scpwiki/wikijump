@@ -15,7 +15,6 @@ import type { GrammarToken, ParserAction } from "./types"
  *
  * - Action type, which is a uint8 (0 is OPEN, 1 is CLOSE)
  * - Node id, which is a uint8
- * - Inclusivity, which is a uint8 (0 is exclusive, 1 is inclusive)
  */
 export function create(
   id: number | null,
@@ -25,8 +24,8 @@ export function create(
   close?: ParserAction
 ) {
   let len = 7
-  if (open) len += open.length * 3
-  if (close) len += close.length * 3
+  if (open) len += open.length * 2
+  if (close) len += close.length * 2
 
   const arr = new ArrayBuffer(len)
   const view = new DataView(arr)
@@ -38,17 +37,15 @@ export function create(
   if (open) {
     for (let i = 0; i < open.length; i++) {
       view.setUint8(offset, 0)
-      view.setUint8(offset + 1, open[i][0])
-      view.setUint8(offset + 2, open[i][1])
-      offset += 3
+      view.setUint8(offset + 1, open[i])
+      offset += 2
     }
   }
   if (close) {
     for (let i = 0; i < close.length; i++) {
       view.setUint8(offset, 1)
-      view.setUint8(offset + 1, close[i][0])
-      view.setUint8(offset + 2, close[i][1])
-      offset += 3
+      view.setUint8(offset + 1, close[i])
+      offset += 2
     }
   }
 
@@ -95,15 +92,10 @@ export function actions(token: ArrayBuffer) {
   let i = 0
   while (i < length) {
     const type = view.getUint8(7 + i)
-    const nodeId = view.getUint8(8 + i)
-    const inclusive = view.getUint8(9 + i)
-    if (type === 0) {
-      open.push([nodeId, inclusive])
-    }
-    if (type === 1) {
-      close.push([nodeId, inclusive])
-    }
-    i += 3
+    const id = view.getUint8(8 + i)
+    if (type === 0) open.push(id)
+    if (type === 1) close.push(id)
+    i += 2
   }
 
   return {

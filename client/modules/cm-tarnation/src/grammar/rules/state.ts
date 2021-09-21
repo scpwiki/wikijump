@@ -25,7 +25,7 @@ export class State {
   declare end: Rule
 
   /** The list of rules/states to loop parsing with when in this state. */
-  declare inside: (Rule | State)[] | null
+  declare inside: (Rule | State)[] | Node | null
 
   /**
    * If true, this state won't affect the stack, but instead manipulate the
@@ -40,6 +40,14 @@ export class State {
   constructor(repo: Repository, state: DF.State) {
     let type = state.type ?? createID()
     let emit = state.type && state.emit !== false
+
+    // states handle nesting differently, so we don't want
+    // to use the normal nesting behavior
+    if (state.nest) {
+      const nest = state.nest
+      delete state.nest // don't pass to node
+      this.inside = new Node(repo.id(), { type: `${type}_Nest${nest}`, nest })
+    }
 
     this.name = type
     this.node = !emit ? Node.None : new Node(repo.id(), state)
@@ -60,17 +68,16 @@ export class State {
 
     this.begin = begin
     this.end = end
-    this.inside = null
 
-    // loose mode
-    if (state.inside === "loose") this.loose = true
-    // list of rules or states
-    else if (state.inside && typeof state.inside !== "string") {
-      this.inside = repo.inside(state.inside)
-    }
-    // special case: state is supposed to nest, but no inside rules were given
-    else if (!state.inside && state.nest) {
-      this.inside = []
+    if (!this.inside) {
+      if (state.inside) {
+        if (state.inside === "loose") this.loose = true
+        else if (state.inside === "inherit") this.inside = null
+        else if (!Array.isArray(state.inside)) this.inside = repo.add(state.inside)
+        else this.inside = repo.inside(state.inside)
+      } else {
+        this.inside = null
+      }
     }
   }
 
@@ -90,13 +97,37 @@ export class State {
 
       return null
     } else {
-      const matched = this.begin.match(state, str, pos)
+      let matched = this.begin.match(state, str, pos)
       if (!matched) return null
+      matched = matched.wrap(this.node, Wrapping.BEGIN)
 
-      const inside = this.inside ? this.inside : state.stack.rules
-      state.stack.push(this.node, inside, this.end)
+      if (this.inside instanceof Node) {
+        matched.push(this.inside, 1)
+        state.stack.push(this.node, [], this)
+      } else {
+        const inside = this.inside ? this.inside : state.stack.rules
+        state.stack.push(this.node, inside, this)
+      }
 
-      return matched.wrap(this.node, Wrapping.BEGIN)
+      return matched
     }
+  }
+
+  /**
+   * @param state - The current {@link GrammarState}.
+   * @param str - The string to match.
+   * @param pos - The position to start matching at.
+   */
+  close(state: GrammarState, str: string, pos: number) {
+    if (this.loose) throw new Error("Closing a loose state is not supported")
+
+    let matched = this.end.match(state, str, pos)
+    if (!matched) return null
+
+    matched = matched.wrap(this.node, Wrapping.END)
+    if (this.inside instanceof Node) matched.push(this.inside, -1)
+    matched.state.stack.pop()
+
+    return matched
   }
 }

@@ -65,7 +65,7 @@ export interface Node {
 export interface State extends Node {
   begin: string | Rule
   end: string | Rule
-  inside?: Inside | "inherit" | "loose"
+  inside?: Inside | Node | ReuseNode | "inherit" | "loose"
 }
 
 export interface RuleOptions extends Node {

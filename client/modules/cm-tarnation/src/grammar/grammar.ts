@@ -6,10 +6,8 @@ import { Matched } from "./matched"
 import { Node } from "./node"
 import { Repository } from "./repository"
 import type { Rule } from "./rules/rule"
-import type { State } from "./rules/state"
+import { State } from "./rules/state"
 import { GrammarStack, GrammarState } from "./state"
-
-const EAGER_RECOVERY = false
 
 /** Grammar/dumb-tokenizer for a {@link TarnationLanguage}. */
 export class Grammar {
@@ -91,22 +89,13 @@ export class Grammar {
    *   `from` position.
    */
   match(state: GrammarState, str: string, pos: number, offset = 0) {
-    // check end node(s)
+    // check stack end state first before running match
     if (state.stack.end) {
-      // disabled for now, because it fails in a few scenarios
-      // however it's still potentially useful so I'll keep it here for now
-      if (EAGER_RECOVERY) {
-        for (let i = state.stack.length - 1; i > 0; i--) {
-          const element = state.stack.stack[i]
-          if (element.end) {
-            let result = element.end.match(state, str, pos)
-            if (result) {
-              result = result.wrap(element.node, Wrapping.END)
-              result.state.stack.close(i)
-              if (offset !== pos) result.offset(offset)
-              return result
-            }
-          }
+      if (state.stack.end instanceof State) {
+        let result = state.stack.end.close(state, str, pos)
+        if (result) {
+          if (offset !== pos) result.offset(offset)
+          return result
         }
       } else {
         let result = state.stack.end.match(state, str, pos)

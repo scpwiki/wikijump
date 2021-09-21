@@ -1,4 +1,4 @@
-import { Inclusivity, Wrapping } from "../enums"
+import { Wrapping } from "../enums"
 import type { GrammarToken, MatchOutput } from "../types"
 import { Node } from "./node"
 import type { GrammarState } from "./state"
@@ -46,10 +46,19 @@ export class Matched {
    * Wraps this `Matched` with another one.
    *
    * @param node - The node of the `Matched` to wrap with.
-   * @param wrapping - The wrapping mode, if different.
+   * @param wrap - The wrapping mode, if different.
    */
   wrap(node: Node, wrap = this.wrapping) {
     return new Matched(this.state, node, this.total, this.from, [this], wrap)
+  }
+
+  push(node: Node, side: -1 | 1, wrap = this.wrapping) {
+    if (wrap === Wrapping.FULL) throw new Error("Cannot push onto a FULL match")
+    this.captures ??= []
+    let pos = side === -1 ? this.from : this.from + this.length
+    const match = new Matched(this.state, node, "", pos, undefined, wrap)
+    if (side === -1) this.captures.unshift(match)
+    else this.captures.push(match)
   }
 
   /** Returns this match represented as a raw {@link MatchOutput}. */
@@ -108,11 +117,33 @@ function isGrammarTokenList(
 
 /** Compiles a {@link Matched} as a leaf. */
 function compileLeaf(match: Matched): GrammarToken {
-  return [
-    match.node === Node.None ? null : match.node.id,
-    match.from,
-    match.from + match.length
-  ]
+  if (match.wrapping !== Wrapping.FULL && match.node === Node.None) {
+    throw new Error("Cannot compile a null leaf with a non-full wrapping")
+  }
+
+  // prettier-ignore
+  switch(match.wrapping) {
+    case Wrapping.FULL: return [
+      match.node === Node.None ? null : match.node.id,
+      match.from,
+      match.from + match.length
+    ]
+
+    case Wrapping.BEGIN: return [
+      null,
+      match.from,
+      match.from + match.length,
+      [match.node.id]
+    ]
+
+    case Wrapping.END: return [
+      null,
+      match.from,
+      match.from + match.length,
+      undefined,
+      [match.node.id]
+    ]
+  }
 }
 
 /**
@@ -127,12 +158,12 @@ function compileTree(match: Matched, tokens: GrammarToken[]) {
 
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.BEGIN) {
     first[3] ??= []
-    first[3].unshift([match.node.id, Inclusivity.INCLUSIVE])
+    first[3].unshift(match.node.id)
   }
 
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.END) {
     last[4] ??= []
-    last[4].push([match.node.id, Inclusivity.INCLUSIVE])
+    last[4].push(match.node.id)
   }
 
   return tokens

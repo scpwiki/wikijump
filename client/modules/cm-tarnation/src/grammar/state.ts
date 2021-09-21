@@ -102,7 +102,7 @@ export class GrammarStack {
    * @param end - A specific {@link Rule} that, when matched, should pop
    *   this element off.
    */
-  push(node: Node, rules: (Rule | State)[], end: Rule) {
+  push(node: Node, rules: (Rule | State)[], end: Rule | State) {
     this.stack = [...this.stack, { node, rules, end }]
   }
 
