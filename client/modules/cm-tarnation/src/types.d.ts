@@ -1,4 +1,4 @@
-import type { NodePropSource } from "@lezer/common"
+import type { Input, NodePropSource, TreeCursor } from "@lezer/common"
 import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
 import type { Grammar } from "./grammar/definition"
 import type { Node } from "./grammar/node"
@@ -8,7 +8,27 @@ import type { State } from "./grammar/rules/state"
 // -- CONFIGURATION
 
 export interface ParserConfiguration {
+  /** Node props to add to the emitted nodes of the grammar. */
   props?: NodePropSource[]
+  /**
+   * A record of variables to pass to the grammar. They can be referenced
+   * in the grammar using the `$var:foo` syntax.
+   */
+  variables?: VariableTable
+
+  /**
+   * A special function that can be provided for nesting languages. It is
+   * given a node, in the form of a `TreeCursor`, and the document `Input`.
+   * It should return `null` (skip this node) or an object with a `name`
+   * string and a list of ranges in the `overlay` property.
+   *
+   * If the latter is returned, that information will be used to nest, if
+   * possible, the given language (by name) in the ranges specified.
+   */
+  nest?: (
+    node: TreeCursor,
+    input: Input
+  ) => null | { name: string; overlay: { from: number; to: number }[] }
 }
 
 /** The options / interface required to create a Tarnation language. */
@@ -18,11 +38,6 @@ export interface TarnationLanguageDefinition {
    * so make sure it's reasonable.
    */
   name: string
-  /**
-   * A record of variables to pass to the grammar. They can be referenced
-   * in the grammar using the `$var:foo` syntax.
-   */
-  variables?: VariableTable
   /**
    * The grammar that will be used to tokenize the language.
    *

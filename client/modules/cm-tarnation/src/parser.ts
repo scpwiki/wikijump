@@ -58,44 +58,48 @@ export class ParserFactory extends CodeMirrorParser {
    * returns a `NestedParser` for said region.
    */
   private nest(node: TreeCursor, input: Input): NestedParse | null {
-    if (node.type.prop(EmbeddedParserProp)) {
-      // get name from the per-node property
-      const name = node.type.prop(EmbeddedParserProp)
-      if (!name) return null
+    // don't bother with empty nodes
+    if (node.from === node.to) return null
 
-      // don't bother with empty nodes
-      if (node.from === node.to) return null
+    let name: string | null = null
+    let overlay: { from: number; to: number }[] | null = null
 
-      let langs: readonly LanguageDescription[]
-
-      if (!(this.language.nestLanguages instanceof Array)) {
-        const context = ParseContext.get()
-        langs = context ? context.state.facet(this.language.nestLanguages) : []
-      } else {
-        langs = this.language.nestLanguages
-      }
-
-      const lang = LanguageDescription.matchLanguageName(langs, name)
-
-      // language doesn't exist
-      if (!lang) return null
-
-      // language already loaded
-      if (lang.support) {
-        return {
-          parser: lang.support.language.parser,
-          overlay: [{ from: node.from, to: node.to }]
-        }
-      }
-
-      // language not loaded yet
-      return {
-        parser: ParseContext.getSkippingParser(lang.load()),
-        overlay: [{ from: node.from, to: node.to }]
-      }
+    // let's try the configured function first
+    if (!name && this.language.configure.nest) {
+      const result = this.language.configure.nest(node, input)
+      if (!result) return null
+      ;({ name, overlay } = result)
     }
 
-    return null
+    // didn't work (or didn't exist), try the default
+    // get name from the per-node property, use entire node as range
+    if (!name || !overlay) {
+      name = node.type.prop(EmbeddedParserProp) ?? null
+      if (name) overlay = [{ from: node.from, to: node.to }]
+    }
+
+    // nothing found
+    if (!name || !overlay) return null
+
+    let langs: readonly LanguageDescription[]
+
+    if (!(this.language.nestLanguages instanceof Array)) {
+      const context = ParseContext.get()
+      langs = context ? context.state.facet(this.language.nestLanguages) : []
+    } else {
+      langs = this.language.nestLanguages
+    }
+
+    const lang = LanguageDescription.matchLanguageName(langs, name)
+
+    // language doesn't exist
+    if (!lang) return null
+
+    // language already loaded
+    if (lang.support) return { parser: lang.support.language.parser, overlay }
+
+    // language not loaded yet
+    return { parser: ParseContext.getSkippingParser(lang.load()), overlay }
   }
 }
 

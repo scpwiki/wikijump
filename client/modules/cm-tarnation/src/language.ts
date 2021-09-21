@@ -12,21 +12,19 @@ import type { ChunkBuffer } from "./chunk/buffer"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
 import { ParserFactory } from "./parser"
-import type {
-  ParserConfiguration,
-  TarnationLanguageDefinition,
-  VariableTable
-} from "./types"
+import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
 import { makeTopNode } from "./util"
 
 export class TarnationLanguage {
-  private declare languageData: Record<string, any>
-  private declare grammarData: DF.Grammar | (() => DF.Grammar)
-  private declare configure: ParserConfiguration
-  private declare extensions: Extension[]
-
+  declare languageData: Record<string, any>
+  declare grammarData: DF.Grammar | (() => DF.Grammar)
+  declare configure: ParserConfiguration
+  declare extensions: Extension[]
   declare description: LanguageDescription
-  declare variables: VariableTable
+  declare nestLanguages: LanguageDescription[] | Facet<LanguageDescription>
+
+  // only shows up after loading
+
   declare grammar?: Grammar
   declare top?: NodeType
   declare nodeTypes?: NodeType[]
@@ -34,14 +32,12 @@ export class TarnationLanguage {
   declare stateProp?: NodeProp<ChunkBuffer>
   declare support?: LanguageSupport
   declare language?: Language
-  declare nestLanguages: LanguageDescription[] | Facet<LanguageDescription>
 
   loaded = false
   performance = 0
 
   constructor({
     name,
-    variables = {},
     grammar,
     nestLanguages = [],
     configure = {},
@@ -55,7 +51,6 @@ export class TarnationLanguage {
 
     this.languageData = { ...dataDescription, ...languageData }
     this.nestLanguages = nestLanguages
-    this.variables = variables
     this.grammarData = grammar
     this.configure = configure
     this.extensions = supportExtensions
@@ -77,7 +72,7 @@ export class TarnationLanguage {
     if (this.description?.support) return this.description.support
     const def =
       typeof this.grammarData === "function" ? this.grammarData() : this.grammarData
-    this.grammar = new Grammar(def, this.variables)
+    this.grammar = new Grammar(def, this.configure.variables)
 
     // merge data from the grammar
     Object.assign(this.languageData, this.grammar.data)
