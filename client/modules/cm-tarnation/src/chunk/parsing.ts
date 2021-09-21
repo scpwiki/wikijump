@@ -1,7 +1,10 @@
-import type { Tree } from "@lezer/common"
-import type { LezerToken } from "../types"
+import type { BufferCursor, Tree } from "@lezer/common"
+import type { LezerToken, LezerTokenTree } from "../types"
 import { cloneNestedArray, getEmbeddedParserNode } from "../util"
+import { CHUNK_SIZE } from "./buffer"
 import type { Chunk } from "./chunk"
+
+const TREE_REUSE_VALUE = 0xffffffff
 
 /** Stack used by the parser to track tree construction. */
 export type ParseElementStack = [name: number, start: number, children: number][]
@@ -80,11 +83,10 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
   for (let idx = 0; idx < tokens.length; idx++) {
     const t = tokens[idx]
     switch (typeof t[0]) {
-      // embed token
+      // nest token
       case "string": {
         const node = getEmbeddedParserNode(t[0], t[1], t[2])
-        const token: LezerToken = [0, t[1], t[2], -1, node]
-        buffer.push(token)
+        buffer.push([0, t[1], t[2], -1, node])
         stack.increment()
         break
       }
@@ -145,8 +147,8 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
               // if inclusive of the closing token we need to push the token early
               // if (type && inclusive && !pushed) {
               if (t[0] && c[1] && !pushed) {
-                // buffer.push([type, from, to, 4])
-                buffer.push([t[0], t[1], t[2], 4])
+                // emit(buffer, type, from, to, 4)
+                emit(buffer, t[0], t[1], t[2], 4)
                 stack.increment()
                 pushed = true
               }
@@ -154,17 +156,8 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
               // finally pop the node
               // const [node, pos, children] = ctx.stack.pop()!
               const s = stack.pop()!
-              // buffer.push([
-              //   node,
-              //   pos,
-              //   inclusive ? to : from, children * 4 + 4
-              // ])
-              // prettier-ignore
-              buffer.push([
-                s[0],
-                s[1],
-                c[1] ? t[2] : t[1], s[2] * 4 + 4
-              ])
+              // emit(buffer, node, pos, inclusive ? to : from, children * 4 + 4)
+              emit(buffer, s[0], s[1], c[1] ? t[2] : t[1], s[2] * 4 + 4)
               stack.increment()
             }
           }
@@ -173,8 +166,8 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
         // push the actual token to the buffer, if it hasn't been already
         // if (type && !pushed) {
         if (t[0] && !pushed) {
-          // buffer.push([type, from, to, 4])
-          buffer.push([t[0], t[1], t[2], 4])
+          // emit(buffer, type, from, to, 4)
+          emit(buffer, t[0], t[1], t[2], 4)
           stack.increment()
         }
 
@@ -189,6 +182,22 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
   return buffer
 }
 
+/** Utility function needed because apparently `TypedArray.of` isn't in every browser. */
+function emit(
+  buffer: LezerToken[],
+  type: number,
+  from: number,
+  to: number,
+  children: number
+) {
+  const arr = new Uint32Array(4)
+  arr[0] = type
+  arr[1] = from
+  arr[2] = to
+  arr[3] = children
+  buffer.push(arr)
+}
+
 /**
  * Compiles, and if needed, parses, a list of {@link Chunk}s. Returns a
  * `Tree.build` compatible buffer and a list of "reused" trees for language nesting.
@@ -198,11 +207,16 @@ export function parseChunk(stack: ParseStack, chunk: Chunk) {
  *   an empty stack will be created.
  */
 export function compileChunks(chunks: Chunk[], startStack?: ParseStack) {
-  const buffer: number[] = []
+  // if it's higher than this, I'll be amazed.
+  // the normal multiplier would be 4, but sometimes a
+  // single grammar token can turn into two or three.
+  const worstCase = CHUNK_SIZE * chunks.length * 5
+  const buffer: Uint32Array = new Uint32Array(worstCase)
   const reused: Tree[] = []
 
-  let stack = startStack || new ParseStack([])
+  let stack = startStack ?? new ParseStack([])
   let shouldCloneStack = false
+  let len = 0
 
   for (let i = 0; i < chunks.length; i++) {
     const chunk = chunks[i]
@@ -219,15 +233,60 @@ export function compileChunks(chunks: Chunk[], startStack?: ParseStack) {
     }
 
     for (let j = 0; j < tokens.length; j++) {
+      len += 4
       const t = tokens[j]
-      if (!t[4]) buffer.push(t[0], t[1], t[2], t[3])
+      if (t.length < 5) buffer.set(t as Uint32Array, len - 4)
       else {
-        // push nest node tree
-        reused.push(t[4])
-        buffer.push(reused.length - 1, t[1], t[1] + t[4].length, -1)
+        const from = (t as LezerTokenTree)[1]
+        const tree = (t as LezerTokenTree)[4]
+        // push nested language tree
+        reused.push(tree)
+        buffer.set(
+          [reused.length - 1, from, from + tree.length, TREE_REUSE_VALUE],
+          len - 4
+        )
       }
     }
   }
 
-  return { buffer, reused }
+  const cursor = new ArrayBufferCursor(buffer, len)
+
+  return { cursor, reused }
+}
+
+/** Cursor that the `Tree.buildData` function uses to read a buffer. */
+class ArrayBufferCursor implements BufferCursor {
+  constructor(readonly buffer: Uint32Array, public index: number) {}
+
+  // weirdly enough, using getters here is _faster_.
+  // I don't understand why, lol
+
+  get id() {
+    return this.buffer[this.index - 4]
+  }
+
+  get start() {
+    return this.buffer[this.index - 3]
+  }
+
+  get end() {
+    return this.buffer[this.index - 2]
+  }
+
+  get size() {
+    const size = this.buffer[this.index - 1]
+    return size === TREE_REUSE_VALUE ? -1 : size
+  }
+
+  get pos() {
+    return this.index
+  }
+
+  next() {
+    this.index -= 4
+  }
+
+  fork() {
+    return new ArrayBufferCursor(this.buffer, this.index)
+  }
 }

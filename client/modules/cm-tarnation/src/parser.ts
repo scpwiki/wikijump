@@ -252,14 +252,14 @@ export class Parser implements PartialParse {
   }
 
   private finish(): Tree {
-    const { buffer, reused } = compileChunks(this.buffer.chunks)
+    const { cursor, reused } = compileChunks(this.buffer.chunks)
 
     const start = this.region.original.from
     const length = this.parsedPos - this.region.original.from
     const nodeSet = this.language.nodeSet!
 
     // build tree from buffer
-    const built = Tree.build({ topID: 0, buffer, nodeSet, reused, start })
+    const built = Tree.build({ topID: 0, buffer: cursor, nodeSet, reused, start })
 
     // wrap built children in a tree with the buffer cached
     const tree = new Tree(this.language.top!, built.children, built.positions, length, [

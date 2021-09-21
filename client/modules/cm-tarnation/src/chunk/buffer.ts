@@ -4,7 +4,7 @@ import type { Token } from "../types"
 import { Chunk } from "./chunk"
 
 /** Number of tokens per chunk. */
-const CHUNK_SIZE = 64
+export const CHUNK_SIZE = 64
 
 /**
  * A `ChunkBuffer` stores `Chunk` objects that then store the actual tokens

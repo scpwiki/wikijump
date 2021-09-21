@@ -127,5 +127,10 @@ export type Token = GrammarToken | NestToken
 /**
  * Represents a Lezer token. The `tree` value is for storing a reusable
  * form of this token and its children.
+ *
+ * @see {@link LezerTokenTree}
  */
-type LezerToken = [id: number, from: number, to: number, children: number, tree?: Tree]
+type LezerToken = Uint32Array | LezerTokenTree
+
+/** @see {@link LezerToken} */
+type LezerTokenTree = [id: number, from: number, to: number, children: number, tree: Tree]
