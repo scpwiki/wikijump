@@ -383,6 +383,11 @@ repository:
     tag: separator
 
   SingleLinkSlug:
+    # this crazy regex is due to the various formats of url Wikidot supports
+    # examples:
+    # /foo, #foo, :foo, *foo
+    # wikipedia:foo
+    # foo@foo
     match: /([:#*]|(?=\/)|(?=[^#*\s]+?[@:][^#*\s]))([^#*\s]+)/
     captures:
       0: { type: SingleLinkSlugModifier, tag: modifier }
