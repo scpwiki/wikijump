@@ -178,13 +178,11 @@ importers:
       '@lezer/lr': ^0.15.2
       '@wikijump/codemirror': workspace:*
       '@wikijump/util': workspace:*
-      typescript-memoize: ^1.0.1
     dependencies:
       '@lezer/common': 0.15.5
       '@lezer/lr': 0.15.2
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/util': link:../util
-      typescript-memoize: 1.0.1
 
   modules/codemirror:
     specifiers:
