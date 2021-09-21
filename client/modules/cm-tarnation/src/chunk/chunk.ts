@@ -1,5 +1,5 @@
 import { GrammarState } from "../grammar/state"
-import * as Token2 from "../token"
+import * as Token from "../token"
 import type { GrammarToken } from "../types"
 import type { ParseStack } from "./parsing"
 
@@ -78,7 +78,7 @@ export class Chunk {
 
     if (to > this._max) this._max = to
 
-    this.tokens.push(Token2.create(token[0], from, to, token[3], token[4]))
+    this.tokens.push(Token.create(token[0], from, to, token[3], token[4]))
   }
 
   /**

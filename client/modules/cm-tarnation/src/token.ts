@@ -7,7 +7,7 @@ import type { GrammarToken, ParserAction } from "./types"
  * Returns an ArrayBuffer that is, in order:
  *
  * - The token ID, which is a uint8
- * - The token from position, which is a uint16
+ * - The token from position, which is a uint32
  * - The token length, which is a uint16
  * - A repeating list of parser actions
  *
@@ -24,17 +24,17 @@ export function create(
   open?: ParserAction,
   close?: ParserAction
 ) {
-  let len = 5
+  let len = 7
   if (open) len += open.length * 3
   if (close) len += close.length * 3
 
   const arr = new ArrayBuffer(len)
   const view = new DataView(arr)
   view.setUint8(0, id ?? 0)
-  view.setUint16(1, from)
-  view.setUint16(3, to - from)
+  view.setUint32(1, from)
+  view.setUint16(5, to - from)
 
-  let offset = 5
+  let offset = 7
   if (open) {
     for (let i = 0; i < open.length; i++) {
       view.setUint8(offset, 0)
@@ -65,8 +65,8 @@ export function read(token: ArrayBuffer, offset = 0): GrammarToken {
   const view = new DataView(token)
   const { open, close } = actions(token)
   const id = view.getUint8(0) || null
-  const from = view.getUint16(1) + offset
-  const to = from + view.getUint16(3)
+  const from = view.getUint32(1) + offset
+  const to = from + view.getUint16(5)
   return [id, from, to, open, close]
 }
 
@@ -76,7 +76,7 @@ export function read(token: ArrayBuffer, offset = 0): GrammarToken {
  * @param token - The token to check.
  */
 export function hasActions(token: ArrayBuffer) {
-  return token.byteLength > 5
+  return token.byteLength > 7
 }
 
 /**
@@ -85,18 +85,18 @@ export function hasActions(token: ArrayBuffer) {
  * @param token - The token to read.
  */
 export function actions(token: ArrayBuffer) {
-  if (token.byteLength <= 5) return { open: undefined, close: undefined }
+  if (token.byteLength <= 7) return { open: undefined, close: undefined }
 
   const view = new DataView(token)
-  const length = token.byteLength - 5
+  const length = token.byteLength - 7
   const open: ParserAction = []
   const close: ParserAction = []
 
   let i = 0
   while (i < length) {
-    const type = view.getUint8(5 + i)
-    const nodeId = view.getUint8(6 + i)
-    const inclusive = view.getUint8(7 + i)
+    const type = view.getUint8(7 + i)
+    const nodeId = view.getUint8(8 + i)
+    const inclusive = view.getUint8(9 + i)
     if (type === 0) {
       open.push([nodeId, inclusive])
     }
