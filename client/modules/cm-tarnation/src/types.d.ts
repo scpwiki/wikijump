@@ -26,7 +26,7 @@ export interface ParserConfiguration {
    * possible, the given language (by name) in the ranges specified.
    */
   nest?: (
-    node: TreeCursor,
+    cursor: TreeCursor,
     input: Input
   ) => null | { name: string; overlay: { from: number; to: number }[] }
 }

@@ -66,6 +66,30 @@ export const FTMLLanguage = new TarnationLanguage({
       mods: moduleEntries.flatMap(aliasesRaw),
 
       blk_align: ["=", "==", "<", ">"]
+    },
+
+    // nesting function so that `[[code type="foo"]]` nests languages
+    nest(cursor, input) {
+      if (cursor.type.name === "BlockNestedCodeInside") {
+        // find the starting blocknode
+        const startNode = cursor.node.parent?.firstChild
+        if (!startNode) return null
+
+        // check its arguments
+        for (const arg of startNode.getChildren("BlockNodeArgument")) {
+          const nameNode = arg.getChild("BlockNodeArgumentName")
+          if (!nameNode) continue
+          // check argument name, then check argument value
+          if (input.read(nameNode.from, nameNode.to).toLowerCase() === "type") {
+            const valueNode = arg.getChild("BlockNodeArgumentValue")
+            if (!valueNode) continue
+            const value = input.read(valueNode.from, valueNode.to)
+            return { name: value, overlay: [{ from: cursor.from, to: cursor.to }] }
+          }
+        }
+      }
+
+      return null
     }
   },
 
