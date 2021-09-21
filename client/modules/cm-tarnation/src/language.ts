@@ -17,7 +17,7 @@ import type {
   TarnationLanguageDefinition,
   VariableTable
 } from "./types"
-import { EmbeddedParserType, makeTopNode } from "./util"
+import { makeTopNode } from "./util"
 
 export class TarnationLanguage {
   private declare languageData: Record<string, any>
@@ -90,7 +90,7 @@ export class TarnationLanguage {
     this.top = top
 
     const nodeTypes = this.grammar.repository.nodes().map(n => n.type)
-    nodeTypes.unshift(NodeType.none, top, EmbeddedParserType)
+    nodeTypes.unshift(NodeType.none, top)
 
     let nodeSet = new NodeSet(nodeTypes)
 

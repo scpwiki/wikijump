@@ -15,7 +15,6 @@ export class GrammarState {
     public variables: VariableTable,
     public context: Record<string, string> = {},
     public stack: GrammarStack = new GrammarStack(),
-    public nested: null | [lang: string, start: number] = null,
     public last?: MatchOutput
   ) {}
 
@@ -80,24 +79,13 @@ export class GrammarState {
   equals(other: GrammarState) {
     if (this.variables !== other.variables) return false
     if (!contextEquivalent(this.context, other.context)) return false
-    if (Boolean(this.nested) !== Boolean(other.nested)) return false
-    if (this.nested) {
-      if (this.nested[0] !== other.nested![0]) return false
-      if (this.nested[1] !== other.nested![1]) return false
-    }
     if (!this.stack.equals(other.stack)) return false
     return true
   }
 
   /** Returns a new clone of this state, including its stack. */
   clone() {
-    return new GrammarState(
-      this.variables,
-      this.context,
-      this.stack.clone(),
-      this.nested,
-      this.last
-    )
+    return new GrammarState(this.variables, this.context, this.stack.clone(), this.last)
   }
 }
 

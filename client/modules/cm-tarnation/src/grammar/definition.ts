@@ -46,7 +46,7 @@ export interface Node {
   open?: string
   close?: string
   emit?: string | boolean
-  nest?: string | VarIndex | ContextIndex
+  nest?: string
   // CodeMirror properties, doesn't affect grammar
   tag?: Tag
   openedBy?: Arrayable<string>

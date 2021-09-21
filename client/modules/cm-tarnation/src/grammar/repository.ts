@@ -14,7 +14,7 @@ export class Repository {
   private map = new Map<string, Node | Rule | State>()
 
   /** Current {@link Node} ID. */
-  private curID = 3 // starts at 3, because 0-2 are reserved
+  private curID = 2 // starts at 2, because 0-1 are reserved
 
   constructor(
     public grammar: Grammar,

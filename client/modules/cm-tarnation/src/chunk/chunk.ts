@@ -44,8 +44,8 @@ export class Chunk {
     this._pos = pos
     this.state = state
     this._max = 0
-    this.setTokens(tokens)
     this.parsed = null
+    this.setTokens(tokens)
   }
 
   /** The chunk's starting position. */

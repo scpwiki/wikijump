@@ -17,7 +17,7 @@ import type { GrammarState } from "./grammar/state"
 import type { TarnationLanguage } from "./language"
 import { ParseRegion } from "./region"
 import type { GrammarToken } from "./types"
-import { canContinue, EmbeddedParserProp, EmbeddedParserType } from "./util"
+import { canContinue, EmbeddedParserProp } from "./util"
 
 const DISABLED_NESTED = true
 const REUSE_LEFT = true
@@ -58,9 +58,9 @@ export class ParserFactory extends CodeMirrorParser {
    * returns a `NestedParser` for said region.
    */
   private nest(node: TreeCursor, input: Input): NestedParse | null {
-    if (node.type === EmbeddedParserType && node.tree) {
+    if (node.type.prop(EmbeddedParserProp)) {
       // get name from the per-node property
-      const name = node.tree.prop(EmbeddedParserProp)
+      const name = node.type.prop(EmbeddedParserProp)
       if (!name) return null
 
       // don't bother with empty nodes
@@ -226,6 +226,7 @@ export class Parser implements PartialParse {
    * @param pos - The position to stop at.
    */
   stopAt(pos: number) {
+    this.region.to = pos
     this.stoppedAt = pos
   }
 
@@ -234,13 +235,6 @@ export class Parser implements PartialParse {
     // if we're told to stop, we need to BAIL
     if (this.stoppedAt && this.parsedPos >= this.stoppedAt) {
       return this.finish()
-    }
-
-    if (REUSE_RIGHT) {
-      // try to reuse ahead state
-      const reused = this.previousRight && this.tryToReuse(this.previousRight)
-      // can't reuse the buffer more than once (pointless)
-      if (reused) this.previousRight = undefined
     }
 
     this.nextChunk()
@@ -254,16 +248,25 @@ export class Parser implements PartialParse {
     const cursor = compileChunks(this.buffer.chunks)
 
     const start = this.region.original.from
-    const length = this.parsedPos - this.region.original.from
+    const length = this.region.original.length
     const nodeSet = this.language.nodeSet!
 
     // build tree from buffer
-    const built = Tree.build({ topID: 0, buffer: cursor, nodeSet, start })
+    const tree = Tree.build({
+      topID: this.language.top!.id,
+      buffer: cursor,
+      nodeSet,
+      start,
+      length
+    })
 
-    // wrap built children in a tree with the buffer cached
-    const tree = new Tree(this.language.top!, built.children, built.positions, length, [
-      [this.language.stateProp!, this.buffer]
-    ])
+    // bit of a hack (private properties)
+    // this is so that we don't need to build another tree
+    const props = Object.create(null)
+    // @ts-ignore
+    props[this.language.stateProp!.id] = this.buffer
+    // @ts-ignore
+    tree.props = props
 
     const context = ParseContext.get()
 
@@ -289,6 +292,13 @@ export class Parser implements PartialParse {
     // as we're actually going to break out when any chunk is emitted.
     // however, if we're at the "last chunk", this condition catching that
     while (this.parsedPos < this.region.to) {
+      if (REUSE_RIGHT) {
+        // try to reuse ahead state
+        const reused = this.previousRight && this.tryToReuse(this.previousRight)
+        // can't reuse the buffer more than once (pointless)
+        if (reused) this.previousRight = undefined
+      }
+
       const pos = this.parsedPos
       const startState = this.state.clone()
 
@@ -362,6 +372,7 @@ export class Parser implements PartialParse {
         this.buffer.link(right, this.region.original.length)
         this.buffer.ensureLast(this.parsedPos, this.state)
         this.state = this.buffer.last!.state.clone()
+        this.parsedPos = this.buffer.last!.pos
         return true
       }
     }

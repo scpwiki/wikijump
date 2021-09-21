@@ -12,7 +12,7 @@ import {
   tags,
   TreeIndentContext
 } from "@wikijump/codemirror/cm"
-import { re } from "./../util"
+import { EmbeddedParserProp, re } from "./../util"
 import type * as DF from "./definition"
 
 /** Effectively a light wrapper around a CodeMirror `NodeType`. */
@@ -26,12 +26,6 @@ export class Node {
   /** The `NodeType` used by CodeMirror. */
   declare type: NodeType
 
-  /**
-   * If given, this string denotes what language should be nested in-place
-   * of any node of this type.
-   */
-  declare nest?: string
-
   /** @param id - The ID to assign to this node. */
   constructor(
     id: number,
@@ -43,8 +37,6 @@ export class Node {
     this.id = id
     this.name = type
 
-    if (nest) this.nest = nest
-
     if (typeof emit !== "string") emit = type
 
     const props: NodePropSource[] = []
@@ -52,11 +44,12 @@ export class Node {
     // prettier-ignore
     {
       if (tag)      props.push(styleTags(parseTag(emit, tag)))
-      if (openedBy) props.push(NodeProp.openedBy.add({ [emit]: [openedBy].flat() }))
-      if (closedBy) props.push(NodeProp.closedBy.add({ [emit]: [closedBy].flat() }))
-      if (group)    props.push(NodeProp.group   .add({ [emit]: [group].flat()    }))
-      if (fold)     props.push(foldNodeProp     .add({ [emit]: parseFold(fold)   }))
-      if (indent)   props.push(indentNodeProp   .add({ [emit]: parseIndent(indent) }))
+      if (nest)     props.push(EmbeddedParserProp.add({ [emit]: nest                }))
+      if (openedBy) props.push(NodeProp.openedBy .add({ [emit]: [openedBy].flat()   }))
+      if (closedBy) props.push(NodeProp.closedBy .add({ [emit]: [closedBy].flat()   }))
+      if (group)    props.push(NodeProp.group    .add({ [emit]: [group].flat()      }))
+      if (fold)     props.push(foldNodeProp      .add({ [emit]: parseFold(fold)     }))
+      if (indent)   props.push(indentNodeProp    .add({ [emit]: parseIndent(indent) }))
     }
 
     this.type = NodeType.define({ id, name: emit, props })

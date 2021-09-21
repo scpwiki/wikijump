@@ -449,7 +449,6 @@ repository:
 
   BlockNodeArgument:
     match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
-    context: { if: $0, matches: type, set: code-lang, to: $3 }
     captures:
       0: { type: BlockNodeArgumentName, tag: special(propertyName) }
       1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
@@ -678,16 +677,12 @@ repository:
 
   BlockNestedCode:
     emit: BlockNested
-    nest: $ctx:code-lang
     fold: inside
     begin:
       type: BlockNestedCodeStartNode
       emit: BlockNode
       indent: delimited(]])
       skip: /\s+/
-      # resets code-lang whenever this rule is checked
-      context: { set: code-lang, to: "" }
-      contextImmediate: true
       chain:
         - BlockStart
         - BlockNamePrefix?

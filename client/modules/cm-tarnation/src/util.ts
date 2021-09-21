@@ -1,4 +1,4 @@
-import { Input, NodeProp, NodeType, Tree } from "@lezer/common"
+import { Input, NodeProp, NodeType } from "@lezer/common"
 import type { LRParser, ParserConfig } from "@lezer/lr"
 import {
   defineLanguageFacet,
@@ -176,25 +176,7 @@ export function makeTopNode(name: string, data: Record<string, any>) {
  * A special per-node `NodeProp` used for describing nodes where a nested
  * parser will be embedded.
  */
-export const EmbeddedParserProp = new NodeProp<string>({ perNode: true })
-
-/** A special `NodeType` used to mark nodes where a nested parser will be embedded. */
-export const EmbeddedParserType = NodeType.define({
-  id: 2,
-  name: "EmbeddedParser"
-})
-
-/**
- * Returns a new `Tree` that has been configured as a node that indicates a
- * nested parsing region.
- *
- * @param name - The name of the language.
- * @param from - The start of the region.
- * @param to - The end of the region.
- */
-export function getEmbeddedParserNode(name: string, from: number, to: number) {
-  return new Tree(EmbeddedParserType, [], [], to - from, [[EmbeddedParserProp, name]])
-}
+export const EmbeddedParserProp = new NodeProp<string>()
 
 /**
  * Clones any array of arrays. Doesn't clone anything in the nested arrays

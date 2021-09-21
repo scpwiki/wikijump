@@ -87,7 +87,8 @@ export class ParseRegion {
         // not sure why this is needed, something I don't understand about fragments
         // usually if this is the case the parse was interrupted, and is being continued
         if (from > to) {
-          to = from
+          from = this.to
+          to = this.to
           offset = 0
         }
       }
