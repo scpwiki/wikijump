@@ -56,7 +56,7 @@
         <span slot="button">{$t("sheaf.preview_tabs.EDITOR_AST")}</span>
         <CodeDisplay
           content={$editor.value().then(value => printTree($editor.tree, value))}
-          lang="LezerTree"
+          lang="PrintTree"
         />
       </Tab>
     {/if}

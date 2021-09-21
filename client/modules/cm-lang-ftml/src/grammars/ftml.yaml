@@ -1,0 +1,999 @@
+comments:
+  block:
+    open: '[!--'
+    close: '--]'
+
+ignoreCase: true
+
+repository:
+  # basic variables (used in regex)
+
+  ws: /[^\S\r\n]/
+  esc: /@ws(?:_|\\)$/
+  sws: /^(?!@esc)@ws*/
+  enl: /^@ws*$/
+  control: /[\s!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~\xA1\u2010-\u2027]/
+  nocontrol: /[^\s!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~\xA1\u2010-\u2027]/
+  escapes: /\\@control/
+
+  # global
+
+  EscapedNewLine:
+    match: /@esc/
+    tag: escape
+
+  EscapedCharacter:
+    match: /@escapes/
+    tag: escape
+
+  BlockComment:
+    match: /(\[!--)([^]+?)(--\])/
+    tag: (...) blockComment
+    fold: offset(3, -3)
+    captures:
+      0: { open: BlockComment }
+      2: { close: BlockComment }
+
+  NonControl:
+    match: /@nocontrol+/
+    emit: false
+
+  # -- FORMATTING
+
+  Strong:
+    tag: (...) strong
+    inside: loose
+    begin:
+      open: Strong
+      match: "**"
+      lookbehind: '!/\\|\w/'
+      lookahead: /\S/
+      tag: processingInstruction
+    end:
+      close: Strong
+      match: "**"
+      lookbehind: /\S/
+      lookahead: /[\W\d_]/
+      tag: processingInstruction
+
+  Emphasis:
+    tag: (...) emphasis
+    inside: loose
+    begin:
+      open: Emphasis
+      match: "//"
+      lookbehind: '!/\\|\w/'
+      lookahead: /\S/
+      tag: processingInstruction
+    end:
+      close: Emphasis
+      match: "//"
+      lookbehind: /\S/
+      lookahead: /[\W\d_]/
+      tag: processingInstruction
+
+  Underline:
+    tag: (...) special(emphasis)
+    inside: loose
+    begin:
+      open: Underline
+      match: "__"
+      lookbehind: '!/\\|\w/'
+      lookahead: /\S/
+      tag: processingInstruction
+    end:
+      close: Underline
+      match: "__"
+      lookbehind: /\S/
+      lookahead: /[\W\d_]/
+      tag: processingInstruction
+
+  Strikethrough:
+    tag: (...) strikethrough
+    inside: loose
+    begin:
+      open: Strikethrough
+      match: "--"
+      lookbehind: '!/\\|\w/'
+      lookahead: /\S/
+      tag: processingInstruction
+    end:
+      close: Strikethrough
+      match: "--"
+      lookbehind: /\S/
+      lookahead: /[\W\d_]/
+      tag: processingInstruction
+
+  Subscript:
+    tag: (...) character
+    inside: loose
+    begin:
+      open: Subscript
+      match: ",,"
+      lookbehind: '!/\\|\w/'
+      lookahead: /\S/
+      tag: processingInstruction
+    end:
+      close: Subscript
+      match: ",,"
+      lookbehind: /\S/
+      lookahead: /[\W\d_]/
+      tag: processingInstruction
+
+  Superscript:
+    tag: (...) character
+    inside: loose
+    begin:
+      open: Superscript
+      match: "^^"
+      lookbehind: '!/\\|\w/'
+      lookahead: /\S/
+      tag: processingInstruction
+    end:
+      close: Superscript
+      match: "^^"
+      lookbehind: /\S/
+      lookahead: /[\W\d_]/
+      tag: processingInstruction
+
+  Monospace:
+    tag: (...) monospace
+    inside: loose
+    begin:
+      open: Monospace
+      match: "{{"
+      lookbehind: '!/\\|\w/'
+      lookahead: /\S/
+      tag: processingInstruction
+    end:
+      close: Monospace
+      match: "}}"
+      lookbehind: /\S/
+      lookahead: /[\W\d_]/
+      tag: processingInstruction
+
+  # special
+
+  LinkInline:
+    match: /(\*?)((?:\w+://)?(?:[-\w@:%.+~#=]{2,256}\.(?!\.{2,3}))+?[a-z]{2,6}\b(?:[-\w@:%+.~#?&/=]*))/
+    captures:
+      0: { type: LinkModifier, tag: modifier }
+      1: { type: LinkURL, tag: url }
+
+  IncludeVariable:
+    match: /(\{\$)(.*?)(\})/
+    captures:
+      0: { open: IncludeVariable, tag: brace }
+      1: { type: IncludeVariableName, tag: variableName }
+      2: { close: IncludeVariable, tag: brace }
+
+  PageVariable:
+    match: /(%%)(.*?)(\{.*?\})?(%%)/
+    captures:
+      0: { open: PageVariable, tag: bracket }
+      1: { type: PageVariableName, tag: variableName }
+      2: { type: PageVariableAccessor, tag: string }
+      3: { close: PageVariable, tag: bracket }
+
+  # markup
+
+  RawEscapeBlock:
+    begin: { match: '@<', open: RawEscapeBlock, tag: processingInstruction }
+    end: { match: '>@', close: RawEscapeBlock, tag: processingInstruction }
+    tag: escape
+    fold: offset(2, -2)
+    inside:
+      - { type: EntityReference, match: '/&[\w#]+;/', tag: character }
+
+  # @@ escape formatting (AKA the worst thing ever)
+  Escaped:
+    match: [/(@@)(@@)(@@)/, /(@@)(@)(@@)/, /(@@)()(@@(?!@))/, /(@@)(.*)(@@)/]
+    tag: escape
+    captures:
+      0: { open: Escaped, tag: processingInstruction }
+      2: { close: Escaped, tag: processingInstruction }
+
+  ColoredText:
+    begin:
+      match: /(##)(#?[^\n\|]+)(\|)/
+      captures:
+        0: { open: ColoredText, tag: processingInstruction }
+        1: { type: ColoredTextColor, tag: color }
+        2: { type: ColoredTextSeparator, tag: separator }
+    end:
+      close: ColoredText
+      match: "##"
+      tag: processingInstruction
+
+  Typography:
+    tag: processingInstruction
+    match:
+      # ``quotation''
+      - /``(?=(?!``).+?'')/
+      - /(?<=``(?!'').+?)''/
+      # `quotation'
+      - /`(?=(?!`).+?')/
+      - /(?<=`(?!').+?)'/
+      # ,,quotation'' (this one is so damn stupid)
+      - /,,(?=(?!,,).+?'')/
+      - /(?<=,,(?!,,).+?)''/
+      # <<, >>
+      - /<<|>>/
+      # ...
+      - /\.{3}/
+      # --
+      - /(?<=\s)--(?=\s)/
+
+  # -- BLOCK MARKUP
+
+  # symbols that interrupt a paragraph on line start
+  interrupt: /(?:\++\*?@ws)|(?:[\[\]])|(?:[*#]@ws)|(?:[-=]{4,})|(?::)|(?:>+@ws)|(?:>$)|(?:\|{2})/
+
+  hr: /(?:-{3,}|={3,})@ws*$/
+  heading: /(?:\++\*?)@ws+(?!$)/
+  cs: /@sws(?:(?:>+@ws|>|[*#]@ws)@ws*)+/
+
+  HorizontalRule:
+    match: /@sws@hr/
+    tag: contentSeparator
+
+  ClearFloat:
+    match: /@sws~{3,}[<>]?/
+    tag: keyword
+
+  Heading:
+    begin: { type: HeadingMark, match: /@sws@heading/, tag: heading }
+    end: { match: /$/ }
+    inside:
+      - include: inline
+      - include: blocks
+
+  Center:
+    begin: { type: CenterMark, match: /@sws=@ws+/, tag: heading }
+    end: { match: /$/ }
+    inside:
+      - include: inline
+      - include: blocks
+
+  Table:
+    fold: past_first_line
+    begin:
+      match: /@sws\|{2}/
+      rematch: true
+    end:
+      lookbehind: '!/@esc\s*/'
+      match: /@enl|^(?:(?!\|{2}).)+$/
+      rematch: true
+    inside:
+      - type: TableMark
+        match: /(\|{2,})([<=~>]?)/
+        captures:
+          0: { type: TableMarkSeparator, tag: separator }
+          1: { type: TableMarkModifier, tag: modifier }
+      - include: inline
+      - include: blocks
+
+  ContainerMark:
+    match: /@sws>+|[*#]/
+    tag: keyword
+
+  Container:
+    fold: past_first_line
+    begin:
+      match: /@cs/
+      rematch: true
+    end:
+      lookbehind: '!/@esc\s*/'
+      match: /@enl|(?!@cs)@sws/
+      rematch: true
+    inside:
+      # simplified block markup inside containers
+      # horizontal rule
+      - match: /(@cs)(@hr)/
+        captures:
+          0: { is: ContainerMark }
+          1: { is: HorizontalRule }
+      # clearfloat
+      - match: /(@cs)(~{3,}[<>]?)/
+        captures:
+          0: { is: ContainerMark }
+          1: { is: ClearFloat }
+      # heading
+      - match: /(@cs)(@heading)/
+        captures:
+          0: { is: ContainerMark }
+          1: { is: HeadingMark }
+      # center
+      - match: /(@cs)(=@ws+)/
+        captures:
+          0: { is: ContainerMark }
+          1: { is: CenterMark }
+      # everything else
+      - ContainerMark
+      - include: inline
+      - include: blocks
+
+  # disabled for now
+  Paragraph:
+    begin: { match: /@sws(?!@interrupt)\S/, rematch: true }
+    end: { match: /@sws(?:@interrupt)|@enl/, rematch: true }
+    fold: past_first_line
+    inside:
+      - include: inline
+      - include: blocks
+
+  # -- TRIPLE LINK
+
+  TripleLinkStart:
+    match: /\[{3}(?!\[)/
+    tag: squareBracket
+    closedBy: TripleLinkEnd
+
+  TripleLinkEnd:
+    match: /(?!\]{4})\]{3}/
+    tag: squareBracket
+    openedBy: TripleLinkStart
+
+  TripleLinkSeparator:
+    match: "|"
+    tag: separator
+
+  TripleLinkURL:
+    match: /([*#])?([^*\n|\]]+)/
+    captures:
+      0: { type: TripleLinkURLModifier, tag: modifier }
+      1: { type: TripleLinkURLText, tag: link }
+
+  TripleLinkText:
+    match: /[^\n\]]+/
+
+  TripleLink:
+    skip: /@ws/
+    chain:
+      - TripleLinkStart
+      - TripleLinkURL
+      - TripleLinkSeparator
+      - TripleLinkText?
+      - TripleLinkEnd
+
+  TripleLinkSimple:
+    emit: TripleLink
+    skip: /@ws/
+    chain:
+      - TripleLinkStart
+      - TripleLinkURL
+      - TripleLinkEnd
+
+  # -- SINGLE LINK
+
+  SingleLinkStart:
+    match: /\[/
+    tag: squareBracket
+    closedBy: SingleLinkEnd
+
+  SingleLinkEnd:
+    match: /\]/
+    tag: squareBracket
+    openedBy: SingleLinkStart
+
+  SingleLinkSeparator:
+    match: "|"
+    tag: separator
+
+  SingleLinkSlug:
+    match: /([:#*]|(?=\/)|(?=[^#*\s]+?[@:][^#*\s]))([^#*\s]+)/
+    captures:
+      0: { type: SingleLinkSlugModifier, tag: modifier }
+      1: { type: SingleLinkSlugText, tag: link }
+
+  SingleLinkAnchorSlug:
+    match: /(#)([^\s\]]*)/
+    captures:
+      0: { type: SingleLinkAnchorSlugMark, tag: modifier }
+      1: { type: SingleLinkAnchorSlugText, tag: link }
+
+  SingleLinkText:
+    match: /[^\n\]]+/
+
+  SingleLink:
+    skip: /@ws/
+    chain:
+      - SingleLinkStart
+      - SingleLinkSlug
+      - SingleLinkSeparator?
+      - SingleLinkText?
+      - SingleLinkEnd
+
+  SingleLinkAnchor:
+    skip: /@ws/
+    emit: SingleLink
+    chain:
+      - SingleLinkStart
+      - SingleLinkAnchorSlug
+      - SingleLinkText?
+      - SingleLinkEnd
+
+  # block components
+
+  BlockStart:
+    match: /\[{2}(?![\[/])/
+    tag: squareBracket
+    closedBy: BlockEnd
+
+  BlockStartClosing:
+    match: /\[{2}//
+    tag: squareBracket
+    closedBy: BlockEnd
+
+  BlockEnd:
+    match: /(?!\]{3})\]{2}/
+    tag: squareBracket
+    openedBy: [BlockStart, BlockStartClosing]
+
+  BlockNamePrefix:
+    match: /[*=><](?![*=><])|f>|f</
+    tag: modifier
+
+  BlockNameSuffix:
+    match: "_"
+    lookbehind: '!/\s/'
+    tag: modifier
+
+  BlockLabel:
+    match: /[^\s\]]+/
+    tag: invalid
+
+  BlockValue:
+    match: /[^\s\]]+/
+    tag: literal
+
+  BlockNodeArgument:
+    match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
+    context: { if: $0, matches: type, set: code-lang, to: $3 }
+    captures:
+      0: { type: BlockNodeArgumentName, tag: special(propertyName) }
+      1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
+      2: { open: BlockNodeArgumentMark, tag: string }
+      3:
+        if: $0
+        matches: style
+        then: { type: CSSAttributes, nest: style-attribute }
+        else: { type: BlockNodeArgumentValue, tag: string }
+      4: { close: BlockNodeArgumentMark, tag: string }
+
+  # block names
+
+  namela: /_?(?:@ws|@BlockEnd|$)/
+
+  BlockNameMap:
+    lookup: $var:blk_map
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameValue:
+    lookup: $var:blk_val
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameValueMap:
+    lookup: $var:blk_valmap
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameElements:
+    lookup: $var:blk_el
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameMapElements:
+    lookup: $var:blk_map_el
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameValueElements:
+    lookup: $var:blk_val_el
+    lookahead: /@namela/
+    emit: BlockName
+    tag: tagName
+
+  BlockNameAlign:
+    lookup: $var:blk_align
+    lookahead: /@namela/
+    tag: function(name)
+
+  BlockNameModule:
+    match: module
+    lookahead: /@namela/
+    tag: keyword
+
+  ModuleName:
+    lookup: $var:mods
+    lookahead: /@namela/
+    tag: className
+
+  ModuleNameUnknown:
+    match: /[^\\#*\s\]]+/
+    lookahead: /@namela/
+    tag: invalid
+
+  BlockNameUnknown:
+    match: /[^\\#*\s\]]+/
+    lookahead: /@namela/
+    tag: invalid
+
+  # nested blocks
+
+  BlockNodeInlineMath:
+    match: /(@BlockStart)(\$)([^\n]*?)(\$)(@BlockEnd)/
+    captures:
+      0: { is: BlockStart }
+      1: { type: BlockNodeInlineMathMark, tag: keyword }
+      2: { type: InlineMath, nest: wikimath }
+      3: { is: BlockNodeInlineMathMark }
+      4: { is: BlockEnd }
+
+  BlockNameMath:
+    match: math
+    lookahead: /@namela/
+    emit: BlockName
+    tag: special(tagName)
+
+  BlockNestedMath:
+    emit: BlockNested
+    nest: wikimath
+    fold: inside
+    begin:
+      type: BlockNestedMathStartNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameMath
+        - BlockNameSuffix?
+        - BlockNodeArgument |* BlockLabel
+        - BlockEnd
+    end:
+      type: BlockNestedMathEndNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameMath
+        - BlockNameSuffix?
+        - BlockEnd
+
+  ModuleNameCSS:
+    match: css
+    lookahead: /@namela/
+    emit: BlockName
+    tag: className
+
+  BlockNestedModuleCSS:
+    emit: BlockNested
+    nest: CSS
+    fold: inside
+    begin:
+      type: BlockNestedModuleCSSStartNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameModule
+        - BlockNameSuffix?
+        - ModuleNameCSS
+        - BlockLabel*
+        - BlockEnd
+    end:
+      type: BlockNestedModuleCSSEndNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameModule
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockNameCSS:
+    match: css
+    lookahead: /@namela/
+    emit: BlockName
+    tag: special(tagName)
+
+  BlockNestedCSS:
+    emit: BlockNested
+    nest: CSS
+    fold: inside
+    begin:
+      type: BlockNestedCSSStartNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameCSS
+        - BlockNameSuffix?
+        - BlockLabel*
+        - BlockEnd
+    end:
+      type: BlockNestedCSSEndNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameCSS
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockNameHTML:
+    match: html
+    lookahead: /@namela/
+    emit: BlockName
+    tag: special(tagName)
+
+  BlockNestedHTML:
+    emit: BlockNested
+    nest: HTML
+    fold: inside
+    begin:
+      type: BlockNestedHTMLStartNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameHTML
+        - BlockNameSuffix?
+        - BlockLabel*
+        - BlockEnd
+    end:
+      type: BlockNestedHTMLEndNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameHTML
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockNameCode:
+    match: code
+    lookahead: /@namela/
+    emit: BlockName
+    tag: special(tagName)
+
+  BlockNestedCode:
+    emit: BlockNested
+    nest: $ctx:code-lang
+    fold: inside
+    begin:
+      type: BlockNestedCodeStartNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      # resets code-lang whenever this rule is checked
+      context: { set: code-lang, to: "" }
+      contextImmediate: true
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameCode
+        - BlockNameSuffix?
+        - BlockNodeArgument |* BlockLabel
+        - BlockEnd
+    end:
+      type: BlockNestedCodeEndNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameCode
+        - BlockNameSuffix?
+        - BlockEnd
+
+  # blocks
+
+  BlockNodeMap:
+    emit: BlockNode
+    indent: delimited(]])
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - BlockNameMap
+      - BlockNameSuffix?
+      - BlockNodeArgument |* BlockLabel
+      - BlockEnd
+
+  BlockNodeValue:
+    emit: BlockNode
+    indent: delimited(]])
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - BlockNameValue
+      - BlockNameSuffix?
+      - BlockValue*
+      - BlockEnd
+
+  BlockNodeValueMap:
+    emit: BlockNode
+    indent: delimited(]])
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - BlockNameValueMap
+      - BlockNameSuffix?
+      - BlockValue?
+      - BlockNodeArgument |* BlockLabel
+      - BlockEnd
+
+  BlockNodeModule:
+    emit: BlockNode
+    indent: delimited(]])
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - BlockNameModule
+      - BlockNameSuffix?
+      - ModuleName? | ModuleNameUnknown?
+      - BlockNodeArgument |* BlockLabel
+      - BlockEnd
+
+  BlockNodeUnknown:
+    emit: BlockNode
+    indent: delimited(]])
+    skip: /\s+/
+    chain:
+      - BlockStart | BlockStartClosing
+      - BlockNamePrefix?
+      - BlockNameUnknown
+      - BlockNameSuffix?
+      - BlockNodeArgument |* BlockLabel
+      - BlockEnd
+
+  BlockContainerAlign:
+    emit: BlockContainer
+    fold: inside
+    begin:
+      type: BlockContainerAlignStartNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNameAlign
+        - BlockNameSuffix?
+        - BlockEnd
+    end:
+      type: BlockContainerAlignEndNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNameAlign
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockContainerElements:
+    emit: BlockContainer
+    fold: inside
+    begin:
+      type: BlockContainerElementsStartNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameElements
+        - BlockNameSuffix?
+        - BlockLabel*
+        - BlockEnd
+    end:
+      type: BlockContainerElementsEndNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNamePrefix?
+        - BlockNameElements
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockContainerMap:
+    emit: BlockContainer
+    fold: inside
+    begin:
+      type: BlockContainerMapStartNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameMapElements
+        - BlockNameSuffix?
+        - BlockNodeArgument |* BlockLabel
+        - BlockEnd
+    end:
+      type: BlockContainerMapEndNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNamePrefix?
+        - BlockNameMapElements
+        - BlockNameSuffix?
+        - BlockEnd
+
+  BlockContainerValue:
+    emit: BlockContainer
+    fold: inside
+    begin:
+      type: BlockContainerValueStartNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStart
+        - BlockNamePrefix?
+        - BlockNameValueElements
+        - BlockNameSuffix?
+        - BlockValue*
+        - BlockEnd
+    end:
+      type: BlockContainerValueEndNode
+      emit: BlockNode
+      indent: delimited(]])
+      skip: /\s+/
+      chain:
+        - BlockStartClosing
+        - BlockNamePrefix?
+        - BlockNameValueElements
+        - BlockNameSuffix?
+        - BlockEnd
+
+  # -- INCLUDE
+
+  IncludeLink:
+    match: /[^\s\]]+/
+    tag: link
+
+  IncludeNameElements:
+    emit: IncludeName
+    match: "include-elements"
+    lookahead: /@namela/
+    tag: keyword
+
+  IncludeElements:
+    emit: Include
+    indent: delimited(]])
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - IncludeNameElements
+      - BlockNameSuffix?
+      - IncludeLink?
+      - BlockNodeArgument |* BlockLabel
+      - BlockEnd
+
+  IncludeNameMessy:
+    emit: IncludeName
+    match: "include-messy"
+    lookahead: /@namela/
+    tag: keyword
+
+  IncludeMessyStart:
+    skip: /\s+/
+    chain:
+      - BlockStart
+      - BlockNamePrefix?
+      - IncludeNameMessy
+      - BlockNameSuffix?
+      - IncludeLink?
+
+  IncludeMessy:
+    begin: IncludeMessyStart
+    end: BlockEnd
+    inside:
+      - type: IncludeMessyArgument
+        begin:
+          match: /([^\s=|]+)(\s*=\s*)/
+          captures:
+            0: { type: IncludeArgumentName, tag: special(propertyName) }
+            1: { is: BlockNodeArgumentOperator }
+        end:
+          match: /@BlockEnd|\|/
+          rematch: true
+        inside:
+          - include: block
+          - include: blocks
+          - include: inline
+      - { type: IncludeMessySeparator, match: "|", tag: separator }
+      - BlockLabel
+
+includes:
+  block:
+    - HorizontalRule
+    - ClearFloat
+    - Heading
+    - Center
+    - Table
+    - Container
+    # - Paragraph
+
+  inline:
+    - Typography
+    - LinkInline
+    - IncludeVariable
+    - PageVariable
+    - RawEscapeBlock
+    - Escaped
+    - ColoredText
+    - Strong
+    - Emphasis
+    - Underline
+    - Strikethrough
+    - Subscript
+    - Superscript
+    - Monospace
+
+  includes:
+    - IncludeElements
+    - IncludeMessy
+
+  blocks:
+    - TripleLink
+    - TripleLinkSimple
+    - BlockNodeInlineMath
+    - BlockNestedMath
+    - BlockNestedModuleCSS
+    - BlockNestedCSS
+    - BlockNestedHTML
+    - BlockNestedCode
+    - BlockNodeMap
+    - BlockNodeValue
+    - BlockNodeValueMap
+    - BlockNodeModule
+    - BlockContainerAlign
+    - BlockContainerElements
+    - BlockContainerMap
+    - BlockContainerValue
+    - BlockNodeUnknown
+    - SingleLink
+    - SingleLinkAnchor
+
+global:
+  - EscapedNewLine
+  - EscapedCharacter
+  - BlockComment
+  - NonControl
+
+root:
+  - include: block
+  - include: includes
+  - include: blocks
+  - include: inline

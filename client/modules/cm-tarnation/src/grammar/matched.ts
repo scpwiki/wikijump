@@ -1,151 +1,158 @@
-import { hasSigil, isEmpty } from "@wikijump/util"
-import { klona } from "klona"
-import { Action, ActionMode } from "./action"
-import type * as DF from "./definition"
-import { Grammar, GrammarMatchState, GrammarToken } from "./grammar"
+import { Node } from "./node"
+import type { GrammarState } from "./state"
+import { GrammarToken, Inclusivity, MatchOutput, Nesting, Wrapping } from "./types"
 
-export function createToken({ from, to, action, context, state }: Matched): GrammarToken {
-  let { type, open, close, next, switchTo, embedded } = action
-
-  if (state) {
-    if (hasSigil(next, ["$", "::"])) next = Grammar.sub(state, next)
-    if (hasSigil(switchTo, ["$", "::"])) switchTo = Grammar.sub(state, switchTo)
-    if (hasSigil(embedded, ["$", "::"])) embedded = Grammar.sub(state, embedded)
-  }
-
-  if (context && isEmpty(context)) context = undefined
-
-  const empty = !(type || open || close || next || switchTo || embedded || context)
-
-  return { type, from, to, empty, open, close, next, switchTo, embedded, context }
-}
-
-/**
- * Wraps a list of {@link GrammarToken} with the token data of a {@link Match}.
- *
- * Effectively, this mutates the list of tokens as if the given
- * {@link Match} "was" the list of tokens. If the token data of the match
- * were to cause the tokenizer to manipulate the stack, it will make the
- * token list given do the same.
- */
-export function wrapTokens(tokens: GrammarToken[], { context, state, action }: Matched) {
-  const first = tokens[0]
-  const last = tokens[tokens.length - 1]
-
-  let { type, mode, next, switchTo, open, close, embedded } = action
-
-  if (context) last.context = { ...last.context, ...context }
-
-  if (state) {
-    if (hasSigil(next, ["$", "::"])) next = Grammar.sub(state, next)
-    if (hasSigil(switchTo, ["$", "::"])) switchTo = Grammar.sub(state, switchTo)
-    if (hasSigil(embedded, ["$", "::"])) embedded = Grammar.sub(state, embedded)
-  }
-
-  if (next || switchTo) {
-    tokens.unshift(
-      createToken({
-        from: first.from,
-        to: first.from,
-        action: { type: "", next, switchTo },
-        state
-      } as Matched)
-    )
-  }
-
-  if (embedded && !embedded.endsWith("!")) {
-    if (embedded === "@pop") {
-      first.embedded = embedded
-      first.empty = false
-    } else {
-      last.embedded = embedded
-      last.empty = false
-    }
-  }
-
-  if (type || open || close) {
-    // add arrays if missing
-    open ??= []
-    close ??= []
-    first.open ??= []
-    last.close ??= []
-    if (type && mode !== ActionMode.Bracket && mode !== ActionMode.Rematch) {
-      first.open.unshift(...klona(open), [type, 1])
-      last.close.push([type, 1], ...klona(close))
-    } else {
-      first.open.unshift(...klona(open))
-      last.close.push(...klona(close))
-    }
-    first.empty = false
-    last.empty = false
-  }
-
-  return tokens
-}
-
+/** Represents a leaf or branch of a tree of matches found by a grammar. */
 export class Matched {
-  declare total: string
-  declare action: Action
-  declare captures: Set<Matched>
-  declare size: number
+  /** The total length of the match. */
   declare length: number
-  declare from: number
-  declare to: number
-  declare state?: GrammarMatchState
-  declare context?: DF.Context
 
   constructor(
-    total: string,
-    action: Action,
-    offset: number,
-    state?: GrammarMatchState,
-    context?: DF.Context,
-    captures?: Matched[]
+    /** The current {@link GrammarState}. */
+    public state: GrammarState,
+    /** The match's {@link Node} type. */
+    public node: Node,
+    /** The entire matched string. */
+    public total: string,
+    /** The start of the match. */
+    public from: number,
+    /** The children contained by this match's {@link Node}. */
+    public captures?: Matched[],
+    /**
+     * The wrapping mode of the match. There are three modes:
+     *
+     * - FULL: The {@link Node} in this match contains the entirety of the branch.
+     * - BEGIN: The {@link Node} in this match begins the branch.
+     * - END: The {@link Node} in this match ends the branch.
+     */
+    public wrapping: Wrapping = Wrapping.FULL
   ) {
-    this.total = total
-    this.action = action
-    this.captures = new Set(captures)
-    this.size = this.captures.size
     this.length = total.length
-    this.from = offset
-    this.to = total.length + offset
-    this.state = state
-    this.context = context
   }
 
-  set offset(offset: number) {
-    for (const match of this.captures) {
-      match.offset = match.from - this.from + offset
+  /** Changes the starting offset of the match. */
+  offset(offset: number) {
+    if (this.captures) {
+      for (let i = 0; i < this.captures.length; i++) {
+        const child = this.captures[i]
+        child.offset(child.from - this.from + offset)
+      }
     }
     this.from = offset
-    this.to = this.total.length + offset
   }
 
-  compile(): GrammarToken[] {
-    if (!this.size) return [createToken(this)]
+  /**
+   * Wraps this `Matched` with another one.
+   *
+   * @param node - The node of the `Matched` to wrap with.
+   * @param wrapping - The wrapping mode, if different.
+   */
+  wrap(node: Node, wrap = this.wrapping) {
+    return new Matched(this.state, node, this.total, this.from, [this], wrap)
+  }
 
+  /** Returns this match represented as a raw {@link MatchOutput}. */
+  output(): MatchOutput {
+    let captures: string[] | null = null
+    if (this.captures) {
+      captures = []
+      for (let i = 0; i < this.captures.length; i++) {
+        captures.push(this.captures[i].total)
+      }
+    }
+    return { total: this.total, captures, length: this.length }
+  }
+
+  /** Internal method for compiling. */
+  private _compile() {
+    if (!this.captures) return compileLeaf(this)
+
+    // verbose approach for performance
     const tokens: GrammarToken[] = []
-    for (const match of this.captures) {
-      for (const token of match.compile()) {
-        tokens.push(token)
+    for (let i = 0; i < this.captures!.length; i++) {
+      const compiled = this.captures![i]._compile()
+      // wasn't emitted
+      if (!compiled) continue
+      // leaf
+      if (!isGrammarTokenList(compiled)) tokens.push(compiled)
+      // branch
+      else {
+        for (let i = 0; i < compiled.length; i++) {
+          tokens.push(compiled[i])
+        }
       }
     }
 
-    return wrapTokens(tokens, this)
+    return compileTree(this, tokens)
   }
 
-  static extend(matched: Matched | null, captures?: (Matched | null)[]) {
-    if (!matched) return null
-    if (!captures || captures.length === 0) return matched
-    for (let i = 0; i < captures.length; i++) {
-      if (!captures[i]) return null
-    }
-    matched.captures = new Set(captures as Matched[])
-    matched.size = matched.captures.size
-    return matched
+  /**
+   * Compiles this match into a list of tokens. Always returns a list, even
+   * if this match represents a leaf.
+   */
+  compile() {
+    const compiled = this._compile()
+    if (isGrammarTokenList(compiled)) return compiled
+    else if (compiled) return [compiled]
+    else return []
+  }
+}
+
+function isGrammarTokenList(
+  token: GrammarToken | GrammarToken[]
+): token is GrammarToken[] {
+  if (token.length === 0) return true
+  return Array.isArray(token[0])
+}
+
+/** Compiles a {@link Matched} as a leaf. */
+function compileLeaf(match: Matched): GrammarToken {
+  const token: GrammarToken = [
+    match.node === Node.None ? null : match.node.id,
+    match.from,
+    match.from + match.length
+  ]
+
+  if (match.node.nest) {
+    const lang = match.state.sub(match.node.nest)
+    if (typeof lang !== "string") throw new Error("node.nest resolved badly")
+    if (lang) token[5] = `${lang}!` // "!" signifies nesting in a leaf
   }
 
-  *[Symbol.iterator]() {
-    yield* this.captures
+  return token
+}
+
+/**
+ * Compiles a {@link Matched} as a tree, with the given token list being its
+ * already compiled children.
+ */
+function compileTree(match: Matched, tokens: GrammarToken[]) {
+  if (match.node === Node.None) return tokens
+
+  const first = tokens[0]
+  const last = tokens[tokens.length - 1]
+
+  let nest: string | null = null
+
+  if (match.node.nest) {
+    const lang = match.state.sub(match.node.nest)
+    if (typeof lang !== "string") throw new Error("node.nest resolved badly")
+    nest = lang
   }
+
+  if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.BEGIN) {
+    first[3] ??= []
+    first[3].unshift([match.node.id, Inclusivity.INCLUSIVE])
+    if (nest && match.wrapping === Wrapping.BEGIN) last[5] = nest
+    else if (nest) first[5] = nest
+  }
+
+  if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.END) {
+    last[4] ??= []
+    last[4].push([match.node.id, Inclusivity.INCLUSIVE])
+    if (nest && match.wrapping === Wrapping.END) first[5] = Nesting.POP
+    else if (nest) last[5] = Nesting.POP
+  }
+
+  return tokens
 }

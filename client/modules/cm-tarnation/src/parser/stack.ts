@@ -1,4 +1,3 @@
-import { klona } from "klona"
 import type { ParserElementStack } from "../types"
 
 /**
@@ -11,8 +10,8 @@ export class ParserStack {
   declare stack: ParserElementStack
 
   /** @param stack - The stack to use as the starting state, which will be cloned. */
-  constructor(stack: ParserElementStack = []) {
-    this.stack = klona(stack)
+  constructor(stack: ParserElementStack) {
+    this.stack = clone(stack)
   }
 
   /** The size of the stack. */
@@ -61,15 +60,14 @@ export class ParserStack {
 
   /** Returns a safe copy of the stack's internal array. */
   serialize() {
-    const clone: ParserElementStack = []
-    for (let idx = 0; idx < this.stack.length; idx++) {
-      clone[idx] = this.stack[idx].slice(0) as [number, number, number]
-    }
-    return clone
+    return clone(this.stack)
   }
+}
 
-  /** Returns a deep clone of the stack. */
-  clone() {
-    return new ParserStack(this.serialize())
+function clone(stack: ParserElementStack) {
+  const clone: ParserElementStack = new Array(stack.length)
+  for (let idx = 0; idx < stack.length; idx++) {
+    clone[idx] = stack[idx].slice() as [number, number, number]
   }
+  return clone
 }

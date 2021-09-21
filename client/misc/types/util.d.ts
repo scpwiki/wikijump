@@ -27,6 +27,19 @@ declare global {
 
   /** Matches any valid JSON value. */
   type JSONValue = string | number | boolean | null | JSONObject | JSONArray
+
+  /** Filters a record for any properties which are equivalent to a given type. */
+  type FilterFor<O extends Record<string, any>, T> = {
+    [Property in keyof O as O[Property] extends T ? Property : never]: O[Property]
+  }
+
+  /** Filters out of a record any properties which are equivalent to a given type. */
+  type FilterOut<O extends Record<string, any>, T> = {
+    [Property in keyof O as O[Property] extends T ? never : Property]: O[Property]
+  }
+
+  /** A type which may be an array of itself, or just itself. */
+  type Arrayable<T> = T | T[]
 }
 
 export {}

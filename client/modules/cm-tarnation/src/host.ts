@@ -1,14 +1,100 @@
-import { Input, NodeType, Tree, TreeFragment } from "@lezer/common"
-import { ParseContext } from "@wikijump/codemirror/cm"
+import {
+  Input,
+  NestedParse,
+  parseMixed,
+  Parser as ParserBase,
+  ParseWrapper,
+  PartialParse,
+  Tree,
+  TreeCursor,
+  TreeFragment
+} from "@lezer/common"
+import { LanguageDescription, ParseContext } from "@wikijump/codemirror/cm"
 import { perfy } from "@wikijump/util"
 import type { TarnationLanguage } from "./language"
 import { Parser, ParserContext } from "./parser"
 import { ParseRegion } from "./region"
-import { Tokenizer, TokenizerBuffer, TokenizerContext, TokenizerStack } from "./tokenizer"
+import { Tokenizer, TokenizerBuffer, TokenizerContext } from "./tokenizer"
+import { EmbeddedParserProp, EmbeddedParserType } from "./util"
 
+const BAIL = false
 const SKIP_PARSER = false
 const REUSE_LEFT = true
 const REUSE_RIGHT = true
+
+/**
+ * Factory for correctly instantiating {@link Host} instances. To
+ * CodeMirror, this class is the `parser`, and a {@link Host} is the running
+ * process of said parser.
+ */
+export class HostFactory extends ParserBase {
+  /** The wrapper function that enables mixed parsing. */
+  private declare wrapper: ParseWrapper
+
+  /**
+   * @param language - The {@link TarnationLanguage} that this factory
+   *   passes to the {@link Host} instances it constructs.
+   */
+  constructor(private language: TarnationLanguage) {
+    super()
+    this.wrapper = parseMixed(this.nest.bind(this))
+  }
+
+  createParse(
+    input: Input,
+    fragments: TreeFragment[],
+    ranges: { from: number; to: number }[]
+  ) {
+    const delegator = new Host(this.language, input, fragments, ranges)
+    return this.wrapper(delegator, input, fragments, ranges)
+  }
+
+  /**
+   * Special "nest" function provided to the `parseMixed` function.
+   * Determines which nodes indicate a nested parsing region, and if so,
+   * returns a `NestedParser` for said region.
+   */
+  private nest(node: TreeCursor, input: Input): NestedParse | null {
+    if (node.type === EmbeddedParserType && node.tree) {
+      // get name from the per-node property
+      const name = node.tree.prop(EmbeddedParserProp)
+      if (!name) return null
+
+      // don't bother with empty nodes
+      if (node.from === node.to) return null
+
+      let langs: readonly LanguageDescription[]
+
+      if (!(this.language.nestLanguages instanceof Array)) {
+        const context = ParseContext.get()
+        langs = context ? context.state.facet(this.language.nestLanguages) : []
+      } else {
+        langs = this.language.nestLanguages
+      }
+
+      const lang = LanguageDescription.matchLanguageName(langs, name)
+
+      // language doesn't exist
+      if (!lang) return null
+
+      // language already loaded
+      if (lang.support) {
+        return {
+          parser: lang.support.language.parser,
+          overlay: [{ from: node.from, to: node.to }]
+        }
+      }
+
+      // language not loaded yet
+      return {
+        parser: ParseContext.getSkippingParser(lang.load()),
+        overlay: [{ from: node.from, to: node.to }]
+      }
+    }
+
+    return null
+  }
+}
 
 /** Current stage of the host. */
 enum Stage {
@@ -17,10 +103,8 @@ enum Stage {
 }
 
 /**
- * The host is the main interface between the parser and the tokenizer,
- * created for each range given to the {@link Delegator}. It is effectively
- * the actual "parser", but due to the potentially non-contiguous nature of
- * the input, a host is created for each range.
+ * The host is the main interface between the parser and the tokenizer, and
+ * what CodeMirror directly interacts with when parsing.
  *
  * Additionally, the `Host` handles the recovery of tokenizer and parser
  * states from the stale trees provided by CodeMirror, and then uses this
@@ -30,18 +114,12 @@ enum Stage {
  * persistent objects. They are discarded as soon as the parse is done.
  * That means that their startup time is very significant.
  */
-export class Host {
+export class Host implements PartialParse {
   /** The host language. */
   private declare language: TarnationLanguage
 
   /** The input document to parse. */
   private declare input: Input
-
-  /**
-   * If true, the host should return a `Tree` with the language's top level
-   * `NodeType`.
-   */
-  private declare top: boolean
 
   /** The current `Stage`, either tokenizing or parsing. */
   declare stage: Stage
@@ -77,29 +155,21 @@ export class Host {
    * @param input - The input document to parse.
    * @param fragments - The fragments to be used for determining reuse of
    *   previous parses.
-   * @param range - The range of the document to parse.
-   * @param top - If true, the host will return a `Tree` with the
-   *   language's top level `NodeType`.
+   * @param ranges - The ranges of the document to parse.
    */
   constructor(
     language: TarnationLanguage,
     input: Input,
     fragments: TreeFragment[],
-    range: { from: number; to: number },
-    top: boolean
+    ranges: { from: number; to: number }[]
   ) {
     this.measurePerformance = perfy()
 
     this.language = language
     this.input = input
     this.stage = Stage.Tokenize
-    this.top = top
 
-    this.region = new ParseRegion(
-      { from: range.from, to: input.length },
-      { from: range.from, to: range.to },
-      fragments
-    )
+    this.region = new ParseRegion(input, ranges, fragments)
 
     const context = ParseContext.get()
 
@@ -115,7 +185,6 @@ export class Host {
 
       if (v.from < r.to && r.to > end) r.to = end
     }
-
     // find cached data, if possible
     if (REUSE_LEFT && fragments?.length) {
       for (let idx = 0; idx < fragments.length; idx++) {
@@ -137,9 +206,15 @@ export class Host {
             this.region.from = chunk.context.pos
             this.setupTokenizer(left, chunk.context)
 
-            // check if parser has a cached state for this chunk
-            const context = chunk.parserContext
-            if (context) this.setupParser(context)
+            // find latest possible parser context
+            let chunkIndex: number | null = null
+            for (let i = 0; i < left.buffer.length; i++) {
+              if (left.buffer[i].hasParserContext) chunkIndex = i
+            }
+
+            if (chunkIndex) {
+              this.setupParser(left.buffer[chunkIndex].parserContext!)
+            }
           }
         }
       }
@@ -187,8 +262,10 @@ export class Host {
    */
   private setupTokenizer(buffer?: TokenizerBuffer, context?: TokenizerContext) {
     if (!buffer || !context) {
-      const stack = new TokenizerStack({ stack: [["root", {}]], embedded: null })
-      context = new TokenizerContext(this.region.from, stack)
+      context = new TokenizerContext(
+        this.region.from,
+        this.language.grammar!.startState()
+      )
       buffer = new TokenizerBuffer()
     }
 
@@ -207,7 +284,7 @@ export class Host {
    * @param context - A `ParserContext` to reuse.
    */
   private setupParser(context?: ParserContext) {
-    if (!context) context = new ParserContext(this.region.from)
+    if (!context) context = new ParserContext()
 
     this.parser = new Parser(this.language, context, this.region)
   }
@@ -217,9 +294,15 @@ export class Host {
    * accurate, as it's only reporting the tokenizer's position. That means
    * when the parser is running, the position will just be sitting still.
    */
-  get pos() {
+  get parsedPos() {
     return this.tokenizer.context.pos
   }
+
+  /**
+   * The position the parser will be stopping at early, if given a location
+   * to stop at.
+   */
+  stoppedAt: number | null = null
 
   /**
    * Notifies the parser to not progress past the given position.
@@ -227,12 +310,25 @@ export class Host {
    * @param pos - The position to stop at.
    */
   stopAt(pos: number) {
+    this.stoppedAt = pos
     this.region.to = pos
   }
 
   /** Advances the tokenizer or parser one step, depending on the current stage. */
   advance(): Tree | null {
     if (!this.measurePerformance) this.measurePerformance = perfy()
+
+    // if we're overbudget, BAIL
+    if (BAIL && this.stoppedAt && this.measurePerformance() >= 12) {
+      this.parser.pending = this.tokenizer.chunks
+      if (this.tokenizer.chunks.length > this.parser.context.index) {
+        // forced to reparse, didn't get up to the point where we reused
+        this.parser.context = new ParserContext()
+      }
+      const { buffer, reused } = this.parser.parseFully()
+      return this.finish(buffer, reused)
+    }
+
     switch (this.stage) {
       case Stage.Tokenize: {
         if (REUSE_RIGHT) {
@@ -248,7 +344,7 @@ export class Host {
         // try an advance if we're not done
         const chunks = this.tokenizer.done
           ? this.tokenizer.chunks
-          : this.tokenizer.advance()
+          : this.tokenizer.tokenize()
 
         if (chunks) {
           this.parser.pending = chunks
@@ -258,7 +354,7 @@ export class Host {
         return null
       }
       case Stage.Parse: {
-        const result = SKIP_PARSER ? this.parser.advanceFullyRaw() : this.parser.advance()
+        const result = SKIP_PARSER ? this.parser.parseFullyRaw() : this.parser.parse()
 
         if (result) {
           const { buffer, reused } = result
@@ -280,16 +376,15 @@ export class Host {
    *   referenced in the buffer.
    */
   private finish(buffer: number[], reused: Tree[]): Tree {
-    const top = this.top ? this.language.top! : NodeType.none
     const start = this.region.original.from
-    const length = this.pos - this.region.original.from
-    const nodeSet = this.language.nodes!.set
+    const length = this.parsedPos - this.region.original.from
+    const nodeSet = this.language.nodeSet!
 
     // build tree from buffer
     const built = Tree.build({ topID: 0, buffer, nodeSet, reused, start })
 
     // wrap built children in a tree with the buffer cached
-    const tree = new Tree(top, built.children, built.positions, length, [
+    const tree = new Tree(this.language.top!, built.children, built.positions, length, [
       [this.language.stateProp!, this.tokenizer.buffer]
     ])
 
@@ -297,11 +392,11 @@ export class Host {
 
     // inform editor that we skipped everything past the viewport
     if (
-      context?.skipUntilInView &&
-      this.pos > context.viewport.to &&
-      this.pos < this.region.original.to
+      context &&
+      this.parsedPos > context.viewport.to &&
+      this.parsedPos < this.region.original.to
     ) {
-      context.skipUntilInView(this.pos, this.region.original.to)
+      context.skipUntilInView(this.parsedPos, this.region.original.to)
     }
 
     if (this.measurePerformance) {

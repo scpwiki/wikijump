@@ -1,0 +1,18 @@
+repository:
+  Token:
+    match: /^(\[)(\d+)( <-> )(\d+)(\])(:)(\s*)(\S+)(\s*)(=>)(.*$)/
+    captures:
+      0: { open: TokenPosition, tag: squareBracket }
+      1: { type: TokenFrom, tag: integer }
+      2: { type: TokenPositionArrow, tag: operator }
+      3: { type: TokenTo, tag: integer }
+      4: { close: TokenPosition, tag: squareBracket }
+      5: { type: TokenColon, tag: separator }
+      # 6:
+      7: { type: TokenName, tag: content }
+      # 8:
+      9: { type: TokenArrow, tag: function(name) }
+      10: { type: TokenString, tag: string }
+
+root:
+  - Token

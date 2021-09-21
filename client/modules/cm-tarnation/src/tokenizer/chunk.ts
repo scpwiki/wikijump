@@ -1,9 +1,7 @@
-import { dequal } from "dequal"
 import { klona } from "klona"
 import { ParserContext } from "../parser"
-import type { SerializedParserContext, SerializedTokenizerStack, Token } from "../types"
-import { TokenizerContext } from "./context"
-import { TokenizerStack } from "./stack"
+import type { SerializedParserContext, Token } from "../types"
+import type { TokenizerContext } from "./context"
 
 /**
  * A `Chunk` stores tokens emitted by the tokenizer into discrete, well,
@@ -14,8 +12,8 @@ import { TokenizerStack } from "./stack"
  * the document changes, allowing for them to be reused when tokenizing.
  */
 export class Chunk {
-  /** Serialized state of the stack at the start of this chunk. */
-  private declare _stack: SerializedTokenizerStack
+  /** Context at the start of this chunk. */
+  private declare _context: TokenizerContext
 
   /** The tokens stored in this chunk. */
   private declare _tokens: Token[]
@@ -40,19 +38,19 @@ export class Chunk {
 
   /**
    * @param pos - Position of this chunk.
-   * @param stack - The state of the stack for the start of this chunk.
+   * @param context - The context for the start of this chunk.
    * @param tokens - The mapped tokens to store in this chunk.
    * @param relativeTo - Indicates the position the tokens are relative to, if any.
    */
   constructor(
     pos: number,
-    stack: TokenizerStack | SerializedTokenizerStack = { stack: [], embedded: null },
+    context: TokenizerContext,
     tokens: Token[] = [],
     relativeTo?: number,
     parserContext?: ParserContext | SerializedParserContext
   ) {
     this._pos = pos
-    this.stack = stack
+    this.context = context
     this._max = 0
     this.setTokens(tokens, relativeTo)
     if (parserContext) this.parserContext = parserContext
@@ -66,23 +64,13 @@ export class Chunk {
   /** The chunk's starting position. */
   set pos(pos: number) {
     this.compiled = undefined
+    this._parserContext = undefined
     this._pos = pos
   }
 
   /** The chunk's maximum extent, as determined from the positions of its tokens. */
   get max() {
     return this._max + this._pos
-  }
-
-  /** The chunk's start position stack (not serialized). */
-  get stack() {
-    return new TokenizerStack(this._stack)
-  }
-
-  /** The chunk's start position stack. */
-  set stack(stack: TokenizerStack | SerializedTokenizerStack) {
-    if ("serialize" in stack) stack = stack.serialize()
-    this._stack = stack as SerializedTokenizerStack
   }
 
   /** Number of tokens stored in this chunk. */
@@ -92,7 +80,11 @@ export class Chunk {
 
   /** The context for this chunk. */
   get context() {
-    return new TokenizerContext(this._pos, new TokenizerStack(this._stack))
+    return this._context.clone()
+  }
+
+  set context(context: TokenizerContext) {
+    this._context = context.clone()
   }
 
   /**
@@ -114,8 +106,13 @@ export class Chunk {
       this._parserContext = undefined
     } else {
       this._parserContext =
-        context instanceof ParserContext ? context.serialize() : context
+        context instanceof ParserContext ? context.serialize(this.max) : context
     }
+  }
+
+  /** True if this chunk has a {@link ParserContext} attached to it. */
+  get hasParserContext() {
+    return this._parserContext !== undefined
   }
 
   /**
@@ -127,6 +124,7 @@ export class Chunk {
    */
   add(token: Token, relativeTo?: number) {
     this.compiled = undefined
+    this._parserContext = undefined
 
     let [type, from, to, open, close] = token
 
@@ -158,6 +156,7 @@ export class Chunk {
    */
   setTokens(tokens: Token[], relativeTo?: number) {
     this.compiled = undefined
+    this._parserContext = undefined
     this._tokens = []
     this._max = 0
     for (let idx = 0; idx < tokens.length; idx++) {
@@ -191,7 +190,7 @@ export class Chunk {
   clone() {
     return new Chunk(
       this.pos,
-      klona(this._stack),
+      this.context,
       klona(this._tokens),
       this.pos,
       this.parserContext?.clone()
@@ -208,7 +207,7 @@ export class Chunk {
    */
   isReusable(context: TokenizerContext, offset = 0) {
     if (this._pos + offset !== context.pos) return false
-    if (!dequal(this._stack, context.stack.serialize())) return false
+    if (!context.equals(this._context, offset)) return false
     return true
   }
 }

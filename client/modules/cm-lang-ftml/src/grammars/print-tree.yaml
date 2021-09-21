@@ -1,0 +1,23 @@
+repository:
+  Punctuation:
+    match: /[\u251C\u2514\u2502\u2500]/
+    tag: punctuation
+
+  String:
+    match: /".+"$/
+    tag: string
+
+  Node:
+    match: /(\[)(\d+)(\s*,\s*)(\d+)(\])(:?)/
+    captures:
+      0: { open: Node, tag: squareBracket }
+      1: { type: NodeFrom, tag: integer }
+      2: { type: NodeComma, tag: punctuation }
+      3: { type: NodeTo, tag: integer }
+      4: { close: Node, tag: squareBracket }
+      5: { type: NodeColon, tag: punctuation }
+
+root:
+  - Punctuation
+  - String
+  - Node

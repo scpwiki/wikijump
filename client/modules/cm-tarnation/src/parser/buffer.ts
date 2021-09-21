@@ -131,7 +131,7 @@ export class ParserBuffer {
     if (token[1] === pos || side === 0) return { token, index }
 
     // correct for sidedness
-    while (token && side === 1 ? token[1] < pos : token[1] > pos) {
+    while (token && (side === 1 ? token[1] < pos : token[1] > pos)) {
       index = side === 1 ? index + 1 : index - 1
       token = this.buffer[index]
     }
@@ -159,11 +159,22 @@ export class ParserBuffer {
     return raw ? cloneBuffer : new ParserBuffer(cloneBuffer)
   }
 
-  /** Returns a shallow clone of the internal buffer. */
-  shallow() {
-    // equivalent to:
-    // return [...this.buffer]
-    // but this is faster
-    return this.buffer.slice(0)
+  /**
+   * Returns a shallow clone of the internal buffer.
+   *
+   * @param upto - If given, only tokens whose positions are less than this
+   *   value will be serialized.
+   */
+  shallow(upto?: number) {
+    if (upto === undefined) {
+      // equivalent to:
+      // return [...this.buffer]
+      // but this is faster
+      return this.buffer.slice(0)
+    } else {
+      const { index } = this.search(upto, 1)
+      if (!index) return this.buffer.slice(0)
+      return this.buffer.slice(0, index + 1)
+    }
   }
 }

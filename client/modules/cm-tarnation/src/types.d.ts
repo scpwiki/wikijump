@@ -1,7 +1,7 @@
 import type { NodePropSource, NodeType, Tree } from "@lezer/common"
 import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
 import type * as DF from "./grammar/definition"
-import type { Chunk } from "./tokenizer"
+import type { GrammarToken, VariableTable } from "./grammar/types"
 
 // -- CONFIGURATION
 
@@ -16,6 +16,11 @@ export interface TarnationLanguageDefinition {
    * so make sure it's reasonable.
    */
   name: string
+  /**
+   * A record of variables to pass to the grammar. They can be referenced
+   * in the grammar using the `$var:foo` syntax.
+   */
+  variables?: VariableTable
   /**
    * The grammar that will be used to tokenize the language.
    *
@@ -51,22 +56,10 @@ export interface TarnationLanguageDefinition {
 
 // -- TOKENS
 
-/** Directs the parser to nest tokens using the node's type ID. */
-export type MappedParserAction = [id: number, inclusive: number][]
+/** Represents the region of a nested language. */
+export type NestToken = [lang: string, from: number, to: number]
 
-/** A more efficient representation of a `GrammarToken`. */
-export type MappedToken = [
-  type: number,
-  from: number,
-  to: number,
-  open?: MappedParserAction,
-  close?: MappedParserAction
-]
-
-/** Represents the region of an embedded language. */
-export type EmbedToken = [lang: string, from: number, to: number]
-
-export type Token = MappedToken | EmbedToken
+export type Token = GrammarToken | NestToken
 
 /**
  * Represents a Lezer token. The `tree` value is for storing a reusable
@@ -74,41 +67,17 @@ export type Token = MappedToken | EmbedToken
  */
 type LezerToken = [id: number, from: number, to: number, children: number, tree?: Tree]
 
-// -- TOKENIZER
-
-/** Represents a node in a tokenizer stack. */
-export type TokenizerStackElement = [state: string, context: DF.Context]
-
-/** A serialized (just data) form of a tokenizer stack. */
-export interface SerializedTokenizerStack {
-  stack: TokenizerStackElement[]
-  embedded: null | [lang: string, start: number]
-}
-
-/** Serialized context/state of a tokenizer. */
-export interface SerializedTokenizerContext {
-  pos: number
-  stack: SerializedTokenizerStack
-}
-
 // -- PARSER
 
 /** Stack used by the parser to track tree construction. */
 export type ParserElementStack = [name: number, start: number, children: number][]
 
-/** Embedded region data for a parser. */
-export type EmbeddedData = [token: LezerToken, language: string][]
-
 /** Serialized context/state of a parser. */
 export interface SerializedParserContext {
-  pos: number
   index: number
   buffer: LezerToken[]
   stack: ParserElementStack
 }
-
-/** A parser's cache, mapping tokenizer chunks to parser contexts. */
-export type ParserCache = WeakMap<Chunk, SerializedParserContext>
 
 // -- MISC.
 

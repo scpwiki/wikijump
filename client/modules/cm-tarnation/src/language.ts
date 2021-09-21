@@ -1,4 +1,4 @@
-import { NodeProp, NodeType } from "@lezer/common"
+import { NodeProp, NodeSet, NodeType } from "@lezer/common"
 import { addLanguages } from "@wikijump/codemirror"
 import {
   Extension,
@@ -9,11 +9,11 @@ import {
 } from "@wikijump/codemirror/cm"
 import { removeUndefined } from "@wikijump/util"
 import { isFunction } from "is-what"
-import { DelegatorFactory } from "./delegator"
 import type * as DF from "./grammar/definition"
 import { Grammar } from "./grammar/grammar"
-import { NodeMap } from "./node-map"
-import { TokenizerBuffer } from "./tokenizer"
+import type { VariableTable } from "./grammar/types"
+import { HostFactory } from "./host"
+import type { TokenizerBuffer } from "./tokenizer"
 import type { ParserConfiguration, TarnationLanguageDefinition } from "./types"
 import { EmbeddedParserType, makeTopNode } from "./util"
 
@@ -24,9 +24,11 @@ export class TarnationLanguage {
   private declare extensions: Extension[]
 
   declare description: LanguageDescription
+  declare variables: VariableTable
   declare grammar?: Grammar
-  declare nodes?: NodeMap
   declare top?: NodeType
+  declare nodeTypes?: NodeType[]
+  declare nodeSet?: NodeSet
   declare stateProp?: NodeProp<TokenizerBuffer>
   declare support?: LanguageSupport
   declare language?: Language
@@ -37,6 +39,7 @@ export class TarnationLanguage {
 
   constructor({
     name,
+    variables = {},
     grammar,
     nestLanguages = [],
     configure = {},
@@ -50,6 +53,7 @@ export class TarnationLanguage {
 
     this.languageData = { ...dataDescription, ...languageData }
     this.nestLanguages = nestLanguages
+    this.variables = variables
     this.grammarData = grammar
     this.configure = configure
     this.extensions = supportExtensions
@@ -70,27 +74,30 @@ export class TarnationLanguage {
     // setup grammar data
     if (this.description?.support) return this.description.support
     const def = isFunction(this.grammarData) ? this.grammarData() : this.grammarData
-    this.grammar = new Grammar(def)
+    this.grammar = new Grammar(def, this.variables)
+
+    // merge data from the grammar
+    Object.assign(this.languageData, this.grammar.data)
 
     // setup node data
-    const nodes = (this.nodes = new NodeMap())
 
     this.stateProp = new NodeProp<TokenizerBuffer>({ perNode: true })
 
     const { facet, top } = makeTopNode(this.description.name, this.languageData)
     this.top = top
 
-    nodes.add(NodeType.none, "None")
-    nodes.add(top, "Document")
-    nodes.add(EmbeddedParserType, "EmbeddedParser")
+    const nodeTypes = this.grammar.repository.nodes().map(n => n.type)
+    nodeTypes.unshift(NodeType.none, top, EmbeddedParserType)
 
-    this.grammar.types.forEach(name => nodes.add({ name }))
+    let nodeSet = new NodeSet(nodeTypes)
 
-    if (this.grammar.props.length) nodes.configure({ props: this.grammar.props })
-    if (this.configure.props) nodes.configure(this.configure)
+    if (this.configure.props) nodeSet = nodeSet.extend(...this.configure.props)
+
+    this.nodeTypes = nodeTypes
+    this.nodeSet = nodeSet
 
     // setup language support
-    this.language = new Language(facet, new DelegatorFactory(this), top)
+    this.language = new Language(facet, new HostFactory(this), top)
     this.support = new LanguageSupport(this.language, this.extensions)
     this.loaded = true
 

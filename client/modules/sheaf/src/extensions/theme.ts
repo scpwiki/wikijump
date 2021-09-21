@@ -12,6 +12,7 @@ const
   doc        = "var(--colcode-commentdoc)",
   punct      = "var(--colcode-punct)"     ,
   operator   = "var(--colcode-operator)"  ,
+  storage    = "var(--colcode-storage)"   ,
   keyword    = "var(--colcode-keyword)"   ,
   logical    = "var(--colcode-logical)"   ,
   string     = "var(--colcode-string)"    ,
@@ -45,10 +46,18 @@ const confinementHighlightStyle = HighlightStyle.define([
     color: logical
   },
   {
-    tag: [t.regexp, t.operator],
+    tag: [t.operator],
     color: operator
   },
+  {
+    tag: [t.modifier, t.definitionKeyword],
+    color: storage
+  },
   // Names and Types
+  {
+    tag: [t.tagName],
+    color: tag
+  },
   {
     tag: [t.name],
     color: ident
@@ -62,7 +71,14 @@ const confinementHighlightStyle = HighlightStyle.define([
     color: classes
   },
   {
-    tag: [t.typeName, t.escape, t.standard(t.name)],
+    tag: [
+      t.annotation,
+      t.atom,
+      t.typeName,
+      t.escape,
+      t.special(t.name),
+      t.standard(t.name)
+    ],
     color: type
   },
   {
@@ -71,20 +87,32 @@ const confinementHighlightStyle = HighlightStyle.define([
   },
   // Functions
   {
-    tag: [t.function(t.name), t.function(t.propertyName), t.macroName],
-    color: func
-  },
-  {
-    tag: [t.atom, t.annotation, t.special(t.name), t.special(t.string)],
+    tag: [
+      t.function(t.name),
+      t.function(t.variableName),
+      t.function(t.propertyName),
+      t.definition(t.function(t.variableName)),
+      t.definition(t.function(t.propertyName)),
+      t.macroName
+    ],
     color: func
   },
   // Literals
   {
-    tag: [t.labelName, t.monospace, t.string],
+    tag: [t.labelName, t.monospace, t.string, t.special(t.string), t.regexp],
     color: string
   },
   {
-    tag: [t.constant(t.name), t.local(t.name), t.literal, t.unit],
+    tag: [
+      t.constant(t.name),
+      t.constant(t.variableName),
+      t.literal,
+      t.integer,
+      t.float,
+      t.bool,
+      t.unit,
+      t.null
+    ],
     color: constant
   },
   // Changes
@@ -134,12 +162,14 @@ const confinementHighlightStyle = HighlightStyle.define([
   },
   { tag: t.strong, fontWeight: "bold" },
   { tag: t.emphasis, fontStyle: "italic" },
+  { tag: t.strikethrough, textDecoration: "line-through" },
   { tag: t.heading, fontWeight: "bold", color: tag }
 ])
 
 const confinementMarkupHighlightStyle = HighlightStyle.define([
   {
-    tag: t.tagName,
+    // TODO: consider giving this a _slightly_ different appearance
+    tag: t.special(t.tagName),
     color: tag
   },
   {
@@ -155,7 +185,6 @@ const confinementMarkupHighlightStyle = HighlightStyle.define([
     boxShadow: `inset 0 0.125rem 0 ${border}`
   },
   { tag: t.special(t.emphasis), textDecoration: "underline" }, // underline
-  { tag: t.special(t.deleted), textDecoration: "line-through" }, // strikethrough
   { tag: t.special(t.inserted), background: important, color: "black" }, // mark
   { tag: t.special(t.meta), color: highlight }, // critichighlight
   { tag: t.special(t.comment), color: note } // criticcomment

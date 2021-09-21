@@ -1,15 +1,15 @@
 import type { Input } from "@lezer/common"
-import type { Grammar, GrammarToken } from "../grammar/grammar"
+import type { Grammar } from "../grammar/grammar"
+import { GrammarToken, Nesting } from "../grammar/types"
 import type { TarnationLanguage } from "../language"
-import type { NodeMap } from "../node-map"
-import { ParseRegion } from "../region"
-import type { MappedToken, Token } from "../types"
+import type { ParseRegion } from "../region"
+import type { Token } from "../types"
 import type { TokenizerBuffer } from "./buffer"
 import type { Chunk } from "./chunk"
 import type { TokenizerContext } from "./context"
 
-/** Amount of safety-margin to read after the tokenizer's end position. */
-const MARGIN_AFTER = 500
+const MARGIN_BEFORE = 32
+const MARGIN_AFTER = 128
 
 /**
  * The `Tokenizer` takes an input document and tokenizes it using a
@@ -25,14 +25,8 @@ export class Tokenizer {
   /** Host grammar. */
   private declare grammar: Grammar
 
-  /** Host node map, mapping string names to node ids. */
-  private declare nodes: NodeMap
-
-  /** String that is actually being tokenized. */
-  private declare str: string
-
-  /** Starting offset, as in where in the editor document does the string start. */
-  private declare offset: number
+  /** The input to tokenize. */
+  private declare input: Input
 
   /** The region of the document that should be tokenized. */
   private declare region: ParseRegion
@@ -57,19 +51,13 @@ export class Tokenizer {
     input: Input,
     region: ParseRegion
   ) {
-    if (!language.grammar || !language.nodes) {
-      throw new Error("Unloaded language provided to tokenizer!")
-    }
+    if (!language.grammar) throw new Error("Unloaded language provided to tokenizer!")
 
     this.context = context
     this.buffer = buffer
     this.grammar = language.grammar
-    this.nodes = language.nodes
     this.region = region
-
-    const end = Math.min(region.to + MARGIN_AFTER, input.length)
-    this.str = input.read(context.pos, end)
-    this.offset = context.pos
+    this.input = input
   }
 
   /** True if the tokenizer has already completed. */
@@ -83,39 +71,6 @@ export class Tokenizer {
   }
 
   /**
-   * Compiles a `GrammarToken` into a `MappedToken`. Remaps type names to node IDs.
-   *
-   * @param t - The token to be converted.
-   */
-  private compileGrammarToken(t: GrammarToken): MappedToken {
-    // this function gets ran for literally every token so I've elected to take
-    // the most insane, most verbose and fastest approach I could come up with.
-    // this mainly involves completely avoiding iterator methods,
-    // such as destructuring, mapping functions, etc.
-
-    // also, if you think i'm trying to just outsmart the compiler - I'm not.
-    // I have benchmarked this. this really is faster, and I hate it
-
-    const out: MappedToken = [this.nodes.get(t.type)!, t.from, t.to]
-
-    if (t.open) {
-      out[3] = []
-      for (let i = 0; i < t.open.length; i++) {
-        out[3][i] = [this.nodes.get(t.open[i][0])!, t.open[i][1]]
-      }
-    }
-
-    if (t.close) {
-      out[4] = []
-      for (let i = 0; i < t.close.length; i++) {
-        out[4][i] = [this.nodes.get(t.close[i][0])!, t.close[i][1]]
-      }
-    }
-
-    return out
-  }
-
-  /**
    * Returns if the `last` `MappedToken` is effectively equivalent to the
    * `next` `GrammarToken`, as in the two can be merged without any loss of
    * information.
@@ -123,98 +78,62 @@ export class Tokenizer {
    * @param last - The token to check if it can be potentially extended.
    * @param next - The new token which may be able to merge into the `last` token.
    */
-  private canContinue(last?: MappedToken, next?: GrammarToken) {
+  private canContinue(last?: GrammarToken, next?: GrammarToken) {
     if (!last || !next) return false // tokens are invalid
     // parser directives present
-    if (last.length > 2 || next.open || next.close) return false
+    if (last.length > 2 || next[3] || next[4]) return false
     // embedded handling token
-    if (last[0] === -1 || next.embedded) return false
+    if (last[5] || next[5]) return false
     // types aren't equivalent
-    if (last[0] !== this.nodes.get(next.type)) return false
+    if (last[0] !== next[0]) return false
     // tokens aren't inline
-    if (last[2] !== next.from) return false
+    if (last[2] !== next[1]) return false
     // tokens are effectively equivalent
     return true
   }
 
-  /** Gets the grammar's match at the current tokenizer position. */
-  private match() {
-    const ctx = this.context
-    const match = this.grammar.match(
-      { state: ctx.stack.state, context: ctx.stack.context },
-      this.str,
-      ctx.pos - this.offset,
-      ctx.pos
-    )
-    if (!match) return { tokens: null, length: 1 } // always advance
-    const tokens = match.compile()
-    if (!tokens.length) return { tokens: null, length: match.length || 1 }
-    return { tokens, length: match.length }
-  }
+  /**
+   * Gets a substring of the current input, accounting for range handling
+   * automatically.
+   *
+   * @param pos - The position to start at.
+   * @param min - The minimum length of the substring.
+   * @param max - The maximum length of the substring.
+   */
+  private read(pos: number, min: number, max: number) {
+    let str = ""
+    while (str.length <= min) {
+      str += this.input.chunk(pos + str.length)
 
-  /** Executes a tokenization step. */
-  private tokenize() {
-    const stack = this.context.stack
+      const relative = pos + str.length
 
-    const { tokens, length } = this.match()
-
-    this.context.pos += length
-
-    if (!tokens) return null
-
-    const mapped: Token[] = []
-
-    let last!: MappedToken
-
-    for (let idx = 0; idx < tokens.length; idx++) {
-      const t = tokens[idx]
-
-      let changedStack = t.next || t.switchTo || t.embedded || t.context
-
-      let pushEmbedded = false
-
-      if (t.embedded) {
-        // token represents the entire region, not the start or end of one
-        if (!stack.embedded && t.embedded.endsWith("!")) {
-          const lang = t.embedded.slice(0, t.embedded.length - 1)
-          mapped.push([lang, t.from, t.to])
-          continue
-        }
-        // token ends an embedded region
-        else if (t.embedded === "@pop") {
-          const range = stack.endEmbedded(t.from)
-          if (range) mapped.push(range)
-        }
-        // token starts an embedded region
-        else if (!stack.embedded) {
-          pushEmbedded = true
-          stack.setEmbedded(t.embedded, t.to)
-        }
+      if (relative >= max) {
+        const diff = relative - max
+        if (diff) str = str.slice(0, -diff)
+        break
       }
 
-      // handle stack manipulation and match context changes
-      if (t.next) {
-        // prettier-ignore
-        switch (t.next) {
-          case "@pop":    stack.pop()                        ; break
-          case "@popall": stack.popall()                     ; break
-          case "@push":   stack.push(stack.state, t.context) ; break
-          default:        stack.push(t.next, t.context)
-        }
-      } else if (t.switchTo) {
-        stack.switchTo(t.switchTo, t.context)
-      } else if (t.context) {
-        stack.context = t.context
-      }
+      if (!this.region.contiguous) {
+        const actual = this.region.compensate(pos, str.length)
 
-      // check if the new token can be merged into the last one
-      if (!t.empty && (!stack.embedded || pushEmbedded)) {
-        if (last && !changedStack && this.canContinue(last, t)) last[2] = t.to
-        else mapped.push((last = this.compileGrammarToken(t)))
+        // end of input
+        if (actual >= max) {
+          const diff = actual - max
+          if (diff) str = str.slice(0, -diff)
+          break
+        }
+
+        const clamped = this.region.clamp(pos, relative)
+        if (relative >= clamped) {
+          const diff = relative - clamped
+          if (diff) str = str.slice(0, -diff)
+          const next = this.region.posRange(clamped, 1)
+          if (!next) break
+          pos = next.from
+        }
       }
     }
-
-    return mapped
+    return str
   }
 
   /** Compiles the tokenizer's buffer. */
@@ -226,12 +145,79 @@ export class Tokenizer {
    * Advances the tokenizer. Returns null if it isn't done, otherwise
    * returns a list of tokens.
    */
-  advance() {
+  tokenize() {
     if (this.context.pos < this.region.to) {
       const pos = this.context.pos
-      const stack = this.context.stack.serialize()
-      const tokens = this.tokenize()
-      if (tokens?.length) this.buffer.add(pos, stack, tokens)
+      const startContext = this.context.clone()
+
+      // tokenize
+
+      const ctx = this.context
+
+      let matchTokens: GrammarToken[] | null = null
+      let length = 1
+
+      const start = Math.max(pos - MARGIN_BEFORE, this.region.from)
+      const startCompensated = this.region.compensate(pos, start - pos)
+
+      const str = this.read(startCompensated, MARGIN_AFTER, this.region.to)
+
+      const match = this.grammar.match(ctx.state, str, pos - start, pos)
+
+      if (match) {
+        ctx.state = match.state
+        matchTokens = match.compile()
+        length = match.length || 1
+      }
+
+      ctx.pos = this.region.compensate(pos, length)
+
+      const tokens: Token[] = []
+
+      if (matchTokens?.length) {
+        let last!: GrammarToken
+
+        for (let idx = 0; idx < matchTokens.length; idx++) {
+          const t = matchTokens[idx]
+
+          let pushNested = false
+
+          if (t[5] !== undefined) {
+            // token ends a nested region
+            if (t[5] === Nesting.POP) {
+              const range = ctx.endNested(t[1])
+              if (range) tokens.push(range)
+            }
+            // token represents the entire region, not the start or end of one
+            else if (!ctx.nested && t[5].endsWith("!")) {
+              const lang = t[5].slice(0, t[5].length - 1)
+              tokens.push([lang, t[1], t[2]])
+              continue
+            }
+            // token starts a nested region
+            else if (!ctx.nested) {
+              pushNested = true
+              ctx.startNested(t[5], t[2])
+            }
+          }
+
+          if (!this.region.contiguous) {
+            const from = this.region.compensate(pos, t[1] - pos)
+            const end = this.region.compensate(pos, t[2] - pos)
+            t[1] = from
+            t[2] = end
+          }
+
+          // check if the new token can be merged into the last one
+          if (!ctx.nested || pushNested) {
+            if (last && this.canContinue(last, t)) last[2] = t[2]
+            else tokens.push((last = t))
+          }
+        }
+      }
+
+      // add found tokens to buffer
+      if (tokens?.length) this.buffer.add(pos, startContext, tokens)
     }
 
     if (this.context.pos >= this.region.to) return this.chunks
@@ -243,9 +229,9 @@ export class Tokenizer {
    * Forces the tokenizer to advance fully, which is rather expensive, and
    * returns the resultant tokens.
    */
-  advanceFully() {
+  tokenizeFully() {
     let result: Chunk[] | null = null
-    while ((result = this.advance()) === null) {}
+    while ((result = this.tokenize()) === null) {}
     return result
   }
 
@@ -266,8 +252,8 @@ export class Tokenizer {
       const chunk = right.buffer[idx]
       if (chunk.isReusable(this.context, this.region.edit.offset)) {
         right.slide(idx, this.region.edit.offset, true)
-        this.buffer.link(right, this.region.length)
-        this.buffer.ensureLast(this.context.pos, this.context.stack)
+        this.buffer.link(right, this.region.original.length)
+        this.buffer.ensureLast(this.context.pos, this.context)
         this.context = this.buffer.last!.context
         return true
       }
