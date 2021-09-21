@@ -1,6 +1,6 @@
 import { GrammarState } from "../grammar/state"
-import type { LezerToken, Token } from "../types"
-import { cloneNestedArray } from "../util"
+import * as Token2 from "../token"
+import type { GrammarToken } from "../types"
 import type { ParseStack } from "./parsing"
 
 /**
@@ -12,20 +12,14 @@ import type { ParseStack } from "./parsing"
  * the document changes, allowing for them to be reused when tokenizing.
  */
 export class Chunk {
-  /** The tokens stored in this chunk. */
-  private declare _tokens: Token[]
-
   /** The chunk's starting position. */
   private declare _pos: number
 
-  /**
-   * A cached result of this chunk's last compile. Gets invalidated if the
-   * position or token array is manipulated.
-   */
-  private declare compiled: null | Token[]
-
   /** The chunk's relative extent, as determined from the positions of its tokens. */
   private declare _max: number
+
+  /** The tokens stored in this chunk. */
+  declare tokens: ArrayBuffer[]
 
   /** State at the start of this chunk. */
   declare state: GrammarState
@@ -36,7 +30,7 @@ export class Chunk {
    */
   declare parsed: null | {
     /** Parsed tokens from this chunk. */
-    tokens: LezerToken[]
+    tokens: ArrayBuffer
     /** Stack state at the end of this chunk. */
     stack: ParseStack
   }
@@ -44,19 +38,13 @@ export class Chunk {
   /**
    * @param pos - Position of this chunk.
    * @param state - The state for the start of this chunk.
-   * @param tokens - The mapped tokens to store in this chunk.
-   * @param relativeTo - Indicates the position the tokens are relative to, if any.
+   * @param tokens - The grammar tokens to store in this chunk.
    */
-  constructor(
-    pos: number,
-    state: GrammarState,
-    tokens: Token[] = [],
-    relativeTo?: number
-  ) {
+  constructor(pos: number, state: GrammarState, tokens: GrammarToken[] = []) {
     this._pos = pos
     this.state = state
     this._max = 0
-    this.setTokens(tokens, relativeTo)
+    this.setTokens(tokens)
     this.parsed = null
   }
 
@@ -67,7 +55,6 @@ export class Chunk {
 
   /** The chunk's starting position. */
   set pos(pos: number) {
-    this.compiled = null
     this.parsed = null
     this._pos = pos
   }
@@ -77,90 +64,43 @@ export class Chunk {
     return this._max + this._pos
   }
 
-  /** Number of tokens stored in this chunk. */
-  get size() {
-    return this._tokens.length
-  }
-
   /**
    * Adds a token to the chunk.
    *
    * @param token - The token to add.
-   * @param relativeTo - Indicates the position the token is already
-   *   relative to, if any.
    */
-  add(token: Token, relativeTo?: number) {
-    this.compiled = null
+  add(token: GrammarToken) {
     this.parsed = null
 
-    let [type, from, to, open, close] = token
-
-    // undo the token being relative to some other position
-    if (relativeTo) {
-      from += relativeTo
-      to += relativeTo
-    }
-
     // make token relative to chunk position
-    from -= this._pos
-    to -= this._pos
+    const from = token[1] - this._pos
+    const to = token[2] - this._pos
 
     if (to > this._max) this._max = to
 
-    if (typeof type !== "string") {
-      this._tokens.push([type, from, to, open, close])
-    } else {
-      this._tokens.push([type, from, to])
-    }
+    this.tokens.push(Token2.create(token[0], from, to, token[3], token[4]))
   }
 
   /**
    * Sets the chunk's tokens.
    *
    * @param tokens - The tokens to add.
-   * @param relativeTo - Indicates the position the tokens are already
-   *   relative to, if any.
    */
-  setTokens(tokens: Token[], relativeTo?: number) {
-    this.compiled = null
+  setTokens(tokens: GrammarToken[]) {
     this.parsed = null
-    this._tokens = []
+    this.tokens = []
     this._max = 0
     for (let idx = 0; idx < tokens.length; idx++) {
-      this.add(tokens[idx], relativeTo)
+      this.add(tokens[idx])
     }
-  }
-
-  /** Compiles a token. */
-  private compileToken(token: Token): Token {
-    return typeof token[0] !== "string"
-      ? [token[0], token[1] + this._pos, token[2] + this._pos, token[3], token[4]]
-      : [token[0], token[1] + this._pos, token[2] + this._pos]
-  }
-
-  /** Returns the chunk's stored tokens. */
-  compile() {
-    if (this.compiled) return this.compiled
-
-    const tokens: Token[] = []
-    for (let idx = 0; idx < this._tokens.length; idx++) {
-      const token = this._tokens[idx]
-      if (!token[0] && !token[3] && !token[4]) continue
-      tokens.push(this.compileToken(token))
-    }
-
-    this.compiled = tokens
-    return tokens
   }
 
   /** Returns a deep clone of the chunk. */
   clone() {
-    return new Chunk(
-      this.pos,
-      this.state.clone(),
-      cloneNestedArray(this._tokens),
-      this.pos
-    )
+    const chunk = new Chunk(this.pos, this.state.clone())
+    chunk.tokens = this.tokens.slice()
+    chunk._max = this._max
+    return chunk
   }
 
   /**

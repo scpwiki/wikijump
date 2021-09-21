@@ -1,5 +1,6 @@
-import type { NodePropSource, Tree } from "@lezer/common"
+import type { NodePropSource } from "@lezer/common"
 import type { Extension, Facet, LanguageDescription } from "@wikijump/codemirror/cm"
+import type { Inclusivity } from "./enums"
 import type { Grammar } from "./grammar/definition"
 import type { Node } from "./grammar/node"
 import type { Rule } from "./grammar/rules/rule"
@@ -115,22 +116,5 @@ export type GrammarToken = [
   from: number,
   to: number,
   open?: ParserAction,
-  close?: ParserAction,
-  nest?: string | Nesting
+  close?: ParserAction
 ]
-
-/** Represents the region of a nested language. */
-export type NestToken = [lang: string, from: number, to: number]
-
-export type Token = GrammarToken | NestToken
-
-/**
- * Represents a Lezer token. The `tree` value is for storing a reusable
- * form of this token and its children.
- *
- * @see {@link LezerTokenTree}
- */
-type LezerToken = Uint32Array | LezerTokenTree
-
-/** @see {@link LezerToken} */
-type LezerTokenTree = [id: number, from: number, to: number, children: number, tree: Tree]

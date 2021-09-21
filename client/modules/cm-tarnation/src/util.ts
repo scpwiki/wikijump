@@ -209,3 +209,20 @@ export function cloneNestedArray<T extends any[][]>(arr: T): T {
   }
   return clone as T
 }
+
+export function concatUInt32Arrays(arrays: Uint32Array[]) {
+  let total = 0
+  for (let i = 0; i < arrays.length; i++) {
+    total += arrays[i].length
+  }
+
+  const result = new Uint32Array(total)
+
+  let offset = 0
+  for (let i = 0; i < arrays.length; i++) {
+    result.set(arrays[i], offset)
+    offset += arrays[i].length
+  }
+
+  return result
+}

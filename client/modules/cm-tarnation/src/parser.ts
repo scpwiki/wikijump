@@ -13,11 +13,10 @@ import { LanguageDescription, ParseContext } from "@wikijump/codemirror/cm"
 import { perfy } from "@wikijump/util"
 import { ChunkBuffer } from "./chunk/buffer"
 import { compileChunks } from "./chunk/parsing"
-import { Nesting } from "./enums"
 import type { GrammarState } from "./grammar/state"
 import type { TarnationLanguage } from "./language"
 import { ParseRegion } from "./region"
-import type { GrammarToken, Token } from "./types"
+import type { GrammarToken } from "./types"
 import { canContinue, EmbeddedParserProp, EmbeddedParserType } from "./util"
 
 const DISABLED_NESTED = true
@@ -252,14 +251,14 @@ export class Parser implements PartialParse {
   }
 
   private finish(): Tree {
-    const { cursor, reused } = compileChunks(this.buffer.chunks)
+    const cursor = compileChunks(this.buffer.chunks)
 
     const start = this.region.original.from
     const length = this.parsedPos - this.region.original.from
     const nodeSet = this.language.nodeSet!
 
     // build tree from buffer
-    const built = Tree.build({ topID: 0, buffer: cursor, nodeSet, reused, start })
+    const built = Tree.build({ topID: 0, buffer: cursor, nodeSet, start })
 
     // wrap built children in a tree with the buffer cached
     const tree = new Tree(this.language.top!, built.children, built.positions, length, [
@@ -269,7 +268,12 @@ export class Parser implements PartialParse {
     const context = ParseContext.get()
 
     // inform editor that we skipped everything past the viewport
-    if (context && !this.stoppedAt && this.parsedPos < this.region.original.to) {
+    if (
+      context &&
+      !this.stoppedAt &&
+      this.parsedPos > context.viewport.to &&
+      this.parsedPos < this.region.original.to
+    ) {
       context.skipUntilInView(this.parsedPos, this.region.original.to)
     }
 
@@ -306,7 +310,7 @@ export class Parser implements PartialParse {
 
       this.parsedPos = this.region.compensate(pos, length)
 
-      const tokens: Token[] = []
+      const tokens: GrammarToken[] = []
 
       if (matchTokens?.length) {
         let last!: GrammarToken
@@ -314,26 +318,7 @@ export class Parser implements PartialParse {
         for (let idx = 0; idx < matchTokens.length; idx++) {
           const t = matchTokens[idx]
 
-          let pushNested = false
-
-          if (t[5] !== undefined) {
-            // token ends a nested region
-            if (t[5] === Nesting.POP) {
-              const range = this.state.endNested(t[1])
-              if (range) tokens.push(range)
-            }
-            // token represents the entire region, not the start or end of one
-            else if (!this.state.nested && t[5].endsWith("!")) {
-              const lang = t[5].slice(0, t[5].length - 1)
-              tokens.push([lang, t[1], t[2]])
-              continue
-            }
-            // token starts a nested region
-            else if (!this.state.nested) {
-              pushNested = true
-              this.state.startNested(t[5], t[2])
-            }
-          }
+          if (!t[0] && !t[3] && !t[4]) continue
 
           if (!this.region.contiguous) {
             const from = this.region.compensate(pos, t[1] - pos)
@@ -343,10 +328,8 @@ export class Parser implements PartialParse {
           }
 
           // check if the new token can be merged into the last one
-          if (!this.state.nested || pushNested) {
-            if (last && canContinue(last, t)) last[2] = t[2]
-            else tokens.push((last = t))
-          }
+          if (last && canContinue(last, t)) last[2] = t[2]
+          else tokens.push((last = t))
         }
       }
 

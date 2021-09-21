@@ -1,4 +1,4 @@
-import { Inclusivity, Nesting, Wrapping } from "../enums"
+import { Inclusivity, Wrapping } from "../enums"
 import type { GrammarToken, MatchOutput } from "../types"
 import { Node } from "./node"
 import type { GrammarState } from "./state"
@@ -108,19 +108,11 @@ function isGrammarTokenList(
 
 /** Compiles a {@link Matched} as a leaf. */
 function compileLeaf(match: Matched): GrammarToken {
-  const token: GrammarToken = [
+  return [
     match.node === Node.None ? null : match.node.id,
     match.from,
     match.from + match.length
   ]
-
-  if (match.node.nest) {
-    const lang = match.state.sub(match.node.nest)
-    if (typeof lang !== "string") throw new Error("node.nest resolved badly")
-    if (lang) token[5] = `${lang}!` // "!" signifies nesting in a leaf
-  }
-
-  return token
 }
 
 /**
@@ -133,26 +125,14 @@ function compileTree(match: Matched, tokens: GrammarToken[]) {
   const first = tokens[0]
   const last = tokens[tokens.length - 1]
 
-  let nest: string | null = null
-
-  if (match.node.nest) {
-    const lang = match.state.sub(match.node.nest)
-    if (typeof lang !== "string") throw new Error("node.nest resolved badly")
-    nest = lang
-  }
-
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.BEGIN) {
     first[3] ??= []
     first[3].unshift([match.node.id, Inclusivity.INCLUSIVE])
-    if (nest && match.wrapping === Wrapping.BEGIN) last[5] = nest
-    else if (nest) first[5] = nest
   }
 
   if (match.wrapping === Wrapping.FULL || match.wrapping === Wrapping.END) {
     last[4] ??= []
     last[4].push([match.node.id, Inclusivity.INCLUSIVE])
-    if (nest && match.wrapping === Wrapping.END) first[5] = Nesting.POP
-    else if (nest) last[5] = Nesting.POP
   }
 
   return tokens

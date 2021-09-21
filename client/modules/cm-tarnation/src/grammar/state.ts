@@ -1,4 +1,4 @@
-import type { GrammarStackElement, MatchOutput, NestToken, VariableTable } from "../types"
+import type { GrammarStackElement, MatchOutput, VariableTable } from "../types"
 import type { Node } from "./node"
 import type { Rule } from "./rules/rule"
 import type { State } from "./rules/state"
@@ -70,29 +70,6 @@ export class GrammarState {
     }
 
     throw new Error("Couldn't resolve substitute")
-  }
-
-  /**
-   * Starts the nesting of a language.
-   *
-   * @param lang - The language to be nested.
-   * @param start - The start position of the nested language.
-   */
-  startNested(lang: string, start: number) {
-    this.nested = [lang, start]
-  }
-
-  /**
-   * Stops the nesting of the currently nested language, and returns the
-   * finalized range. Returns null if no language was being nested.
-   *
-   * @param end - The end position of the nested language.
-   */
-  endNested(end: number): NestToken | null {
-    if (!this.nested) return null
-    const nested = this.nested
-    this.nested = null
-    return [...nested, end]
   }
 
   /**

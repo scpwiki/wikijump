@@ -1,10 +1,10 @@
 import { search } from "@wikijump/util"
 import { GrammarState } from "../grammar/state"
-import type { Token } from "../types"
+import type { GrammarToken } from "../types"
 import { Chunk } from "./chunk"
 
 /** Number of tokens per chunk. */
-export const CHUNK_SIZE = 64
+const CHUNK_SIZE = 64
 
 /**
  * A `ChunkBuffer` stores `Chunk` objects that then store the actual tokens
@@ -56,9 +56,11 @@ export class ChunkBuffer {
    * @param state - The state to be cached.
    * @param tokens - The tokens to add to the buffer.
    */
-  add(pos: number, state: GrammarState, tokens: Token[]) {
+  add(pos: number, state: GrammarState, tokens: GrammarToken[]) {
     const chunk =
-      this.last && this.last.size < CHUNK_SIZE ? this.last : new Chunk(pos, state)
+      this.last && this.last.tokens.length < CHUNK_SIZE
+        ? this.last
+        : new Chunk(pos, state)
 
     for (let idx = 0; idx < tokens.length; idx++) {
       chunk.add(tokens[idx])
