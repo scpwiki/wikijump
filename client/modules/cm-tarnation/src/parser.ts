@@ -61,25 +61,21 @@ export class ParserFactory extends CodeMirrorParser {
     // don't bother with empty nodes
     if (cursor.from === cursor.to) return null
 
-    let name: string | null = null
-    let overlay: { from: number; to: number }[] | null = null
+    let name: string | undefined
+    let overlay: { from: number; to: number }[] | undefined
 
     // let's try the configured function first
     if (!name && this.language.configure.nest) {
       const result = this.language.configure.nest(cursor, input)
-      if (!result) return null
-      ;({ name, overlay } = result)
+      if (result) ({ name, overlay } = result)
     }
 
     // didn't work (or didn't exist), try the default
     // get name from the per-node property, use entire node as range
-    if (!name || !overlay) {
-      name = cursor.type.prop(EmbeddedParserProp) ?? null
-      if (name) overlay = [{ from: cursor.from, to: cursor.to }]
-    }
+    if (!name) name = cursor.type.prop(EmbeddedParserProp)
 
     // nothing found
-    if (!name || !overlay) return null
+    if (!name) return null
 
     let langs: readonly LanguageDescription[]
 

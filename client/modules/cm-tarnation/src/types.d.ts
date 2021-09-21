@@ -20,7 +20,7 @@ export interface ParserConfiguration {
    * A special function that can be provided for nesting languages. It is
    * given a node, in the form of a `TreeCursor`, and the document `Input`.
    * It should return `null` (skip this node) or an object with a `name`
-   * string and a list of ranges in the `overlay` property.
+   * string and optionally a list of ranges in the `overlay` property.
    *
    * If the latter is returned, that information will be used to nest, if
    * possible, the given language (by name) in the ranges specified.
@@ -28,7 +28,7 @@ export interface ParserConfiguration {
   nest?: (
     cursor: TreeCursor,
     input: Input
-  ) => null | { name: string; overlay: { from: number; to: number }[] }
+  ) => null | { name: string; overlay?: { from: number; to: number }[] }
 }
 
 /** The options / interface required to create a Tarnation language. */

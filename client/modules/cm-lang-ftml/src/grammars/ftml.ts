@@ -84,7 +84,7 @@ export const FTMLLanguage = new TarnationLanguage({
             const valueNode = arg.getChild("BlockNodeArgumentValue")
             if (!valueNode) continue
             const value = input.read(valueNode.from, valueNode.to)
-            return { name: value, overlay: [{ from: cursor.from, to: cursor.to }] }
+            return { name: value }
           }
         }
       }
