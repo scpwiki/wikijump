@@ -1,4 +1,8 @@
 import initFTML, * as Binding from "../vendor/ftml"
+// TODO: get rid of this dumb import
+// stupid vite bug means that I can't dynamically import in a worker
+// so I have to do this
+import wasmURL from "../vendor/ftml_bg.wasm?url"
 
 /** Indicates if the WASM binding is loaded. */
 export let ready = false
@@ -14,7 +18,10 @@ export let wasm: Binding.InitOutput | null = null
 
 /** Loads the WASM required for the FTML library. */
 export async function init(path?: Binding.InitInput) {
-  if (!path) path = (await import("../vendor/ftml_bg.wasm?url")).default
+  // TODO: uncomment this as soon as Vite stops being bad
+  // see TODO above this one
+  // if (!path) path = (await import("../vendor/ftml_bg.wasm?url")).default
+  if (!path) path = new URL(wasmURL, location.href)
   wasm = await initFTML(path)
   ready = true
   resolveLoading()
