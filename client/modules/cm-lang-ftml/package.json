@@ -18,7 +18,6 @@
     "@lezer/lr": "^0.15.2",
     "@types/prismjs": "^1.16.6",
     "@wikijump/cm-espells": "workspace:*",
-    "@wikijump/cm-tarnation": "workspace:*",
     "@wikijump/codemirror": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/ftml-wasm-worker": "workspace:*",

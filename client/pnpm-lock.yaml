@@ -147,7 +147,6 @@ importers:
       '@lezer/lr': ^0.15.2
       '@types/prismjs': ^1.16.6
       '@wikijump/cm-espells': workspace:*
-      '@wikijump/cm-tarnation': workspace:*
       '@wikijump/codemirror': workspace:*
       '@wikijump/components': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
@@ -162,7 +161,6 @@ importers:
       '@lezer/lr': 0.15.2
       '@types/prismjs': 1.16.6
       '@wikijump/cm-espells': link:../cm-espells
-      '@wikijump/cm-tarnation': link:../cm-tarnation
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/components': link:../components
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
@@ -174,35 +172,23 @@ importers:
     devDependencies:
       svelte: 3.42.6
 
-  modules/cm-tarnation:
-    specifiers:
-      '@lezer/common': ^0.15.5
-      '@lezer/lr': ^0.15.2
-      '@wikijump/codemirror': workspace:*
-      '@wikijump/util': workspace:*
-    dependencies:
-      '@lezer/common': 0.15.5
-      '@lezer/lr': 0.15.2
-      '@wikijump/codemirror': link:../codemirror
-      '@wikijump/util': link:../util
-
   modules/codemirror:
     specifiers:
       '@codemirror/autocomplete': ^0.19.3
       '@codemirror/closebrackets': ^0.19.0
-      '@codemirror/commands': ^0.19.4
+      '@codemirror/commands': ^0.19.5
       '@codemirror/comment': ^0.19.0
       '@codemirror/fold': ^0.19.0
       '@codemirror/gutter': ^0.19.2
       '@codemirror/highlight': ^0.19.5
       '@codemirror/history': ^0.19.0
       '@codemirror/lang-css': ^0.19.1
-      '@codemirror/lang-html': ^0.19.1
+      '@codemirror/lang-html': ^0.19.2
       '@codemirror/language': ^0.19.3
       '@codemirror/language-data': ^0.19.0
       '@codemirror/legacy-modes': ^0.19.0
       '@codemirror/lint': ^0.19.1
-      '@codemirror/matchbrackets': ^0.19.1
+      '@codemirror/matchbrackets': ^0.19.2
       '@codemirror/panel': ^0.19.0
       '@codemirror/rangeset': ^0.19.1
       '@codemirror/rectangular-selection': ^0.19.0
@@ -221,19 +207,19 @@ importers:
     dependencies:
       '@codemirror/autocomplete': 0.19.3
       '@codemirror/closebrackets': 0.19.0
-      '@codemirror/commands': 0.19.4
+      '@codemirror/commands': 0.19.5
       '@codemirror/comment': 0.19.0
       '@codemirror/fold': 0.19.0
       '@codemirror/gutter': 0.19.2
       '@codemirror/highlight': 0.19.5
       '@codemirror/history': 0.19.0
       '@codemirror/lang-css': 0.19.1
-      '@codemirror/lang-html': 0.19.1
+      '@codemirror/lang-html': 0.19.2
       '@codemirror/language': 0.19.3
       '@codemirror/language-data': 0.19.0
       '@codemirror/legacy-modes': 0.19.0
       '@codemirror/lint': 0.19.1
-      '@codemirror/matchbrackets': 0.19.1
+      '@codemirror/matchbrackets': 0.19.2
       '@codemirror/panel': 0.19.0
       '@codemirror/rangeset': 0.19.1
       '@codemirror/rectangular-selection': 0.19.0
@@ -807,11 +793,11 @@ packages:
       '@codemirror/view': 0.19.7
     dev: false
 
-  /@codemirror/commands/0.19.4:
-    resolution: {integrity: sha512-EW6ffAIdu7aGWWwEG4xRcKLR+1RXH7hJqMt5mbrxDSc2xAQBgqxIPFglcMeSkC7qqkwPuqv3xavVh1+0gQ0piQ==}
+  /@codemirror/commands/0.19.5:
+    resolution: {integrity: sha512-8PZOtx7d/GbKhFYA88zs2wINDtaUgj3pEjLYScKTd/Vsyw8qOp86tJQQNnMFTRZj/ISQl9Lbg3aAmHvroMqspw==}
     dependencies:
       '@codemirror/language': 0.19.3
-      '@codemirror/matchbrackets': 0.19.1
+      '@codemirror/matchbrackets': 0.19.2
       '@codemirror/state': 0.19.2
       '@codemirror/text': 0.19.3
       '@codemirror/view': 0.19.7
@@ -893,6 +879,19 @@ packages:
       '@lezer/html': 0.15.0
     dev: false
 
+  /@codemirror/lang-html/0.19.2:
+    resolution: {integrity: sha512-FGayRusY5BPpjYTPWP1P6AiYzV/tq5xAFYcX1IWbCoJU8GhW1hcfgY9ls7Ru4ysCC/6vJ38HXvqoNwkEgjS7+A==}
+    dependencies:
+      '@codemirror/autocomplete': 0.19.3
+      '@codemirror/highlight': 0.19.5
+      '@codemirror/lang-css': 0.19.1
+      '@codemirror/lang-javascript': 0.19.1
+      '@codemirror/language': 0.19.3
+      '@codemirror/state': 0.19.2
+      '@lezer/common': 0.15.5
+      '@lezer/html': 0.15.0
+    dev: false
+
   /@codemirror/lang-java/0.19.1:
     resolution: {integrity: sha512-yA3kcW2GgY0mC2a9dE+uRxGxPWeykfE/GqEPk4TSmhuU4ndmyDgM5QQP7pgnYSZmv2vKoyf4x7NMg8AF7lKXHQ==}
     dependencies:
@@ -907,7 +906,7 @@ packages:
       '@codemirror/autocomplete': 0.19.3
       '@codemirror/highlight': 0.19.5
       '@codemirror/language': 0.19.3
-      '@codemirror/lint': 0.19.0
+      '@codemirror/lint': 0.19.1
       '@codemirror/state': 0.19.2
       '@codemirror/view': 0.19.7
       '@lezer/javascript': 0.15.0
@@ -1005,16 +1004,6 @@ packages:
       '@codemirror/stream-parser': 0.19.2
     dev: false
 
-  /@codemirror/lint/0.19.0:
-    resolution: {integrity: sha512-XjCIVJi2cUNlppwz0eGu0F93uFKJq1t2fupBQlDMr3hLmIxIRWjhvy66+Pw/ziH98XA8meLEGQX29umBAvym4w==}
-    dependencies:
-      '@codemirror/panel': 0.19.0
-      '@codemirror/state': 0.19.2
-      '@codemirror/tooltip': 0.19.2
-      '@codemirror/view': 0.19.7
-      crelt: 1.0.5
-    dev: false
-
   /@codemirror/lint/0.19.1:
     resolution: {integrity: sha512-Ef0TnXpF4Q4B+lvBdgHexe1dHbvkKBvBHsLB8HwTYffwjekg1YvEM+6zyjyjG9m6s1Ru0VaCNlNwotLaVZjHGQ==}
     dependencies:
@@ -1025,8 +1014,8 @@ packages:
       crelt: 1.0.5
     dev: false
 
-  /@codemirror/matchbrackets/0.19.1:
-    resolution: {integrity: sha512-jBEW2Uu3hWcrrkwkauaikCAE7s5liCwbccFa6rLK6DzwaynOqCKJGyDsbkfrhikofNRc1yh4V3vwUuxt2u4QbA==}
+  /@codemirror/matchbrackets/0.19.2:
+    resolution: {integrity: sha512-gei8qArf0dQsItYRe1153CCtYIoPNHvFICUz3/QLgEit2gAhmGIGH713nSDDYCyNoPGnJmfomaAsmGO8E9uLyg==}
     dependencies:
       '@codemirror/language': 0.19.3
       '@codemirror/state': 0.19.2
