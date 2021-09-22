@@ -1,6 +1,6 @@
-import { TarnationLanguage } from "@wikijump/cm-tarnation"
 import { addLanguages, languageList } from "@wikijump/codemirror"
 import { cssCompletion, htmlCompletion } from "@wikijump/codemirror/cm"
+import { TarnationLanguage } from "cm-tarnation"
 import { completeFTML } from "../autocomplete"
 import { blocks, modules } from "../data/blocks"
 import { ftmlHoverTooltips } from "../hover"
@@ -69,6 +69,7 @@ export const FTMLLanguage = new TarnationLanguage({
     },
 
     // nesting function so that `[[code type="foo"]]` nests languages
+    // @ts-ignore ts doesn't compile the correct type for this, for some reason
     nest(cursor, input) {
       if (cursor.type.name === "BlockNestedCodeInside") {
         // find the starting blocknode
