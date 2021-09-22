@@ -47,10 +47,17 @@
   /** Shows render performance information if true. */
   export let debug = false
 
+  /**
+   * If true, the wikitext will be inserted into a shadow DOM so that it is
+   * entirely isolated from the outside DOM from which it is mounted.
+   */
+  export let isolated = false
+
   /** Prevents the rendering of elements which may cause a network request. */
   export let offline = false
 
   let element: HTMLElement
+  let shadow: HTMLElement
   let stylesheets: string[] = []
   let rendering = false
   let perfRender = 0
@@ -76,7 +83,7 @@
     const result: Rendered = wikitext
       ? typeof wikitext !== "string"
         ? wikitext
-        : await FTML.render(wikitext)
+        : await FTML.renderHTML(wikitext)
       : { html: "", styles: [""] }
     perfRender = measure()
     clearTimeout(displayIndicatorTimeout)
@@ -119,6 +126,29 @@
     rendering = false
   })
 
+  $: if (shadow && isolated) {
+    const root = shadow.attachShadow({ mode: "open" })
+    element = document.createElement("div")
+    element.classList.add("wikitext-body", "wikitext")
+    root.appendChild(element)
+  }
+
+  // this is slower than letting Svelte handle it, unfortunately.
+  // but if we're isolated we can't use Svelte's built-in
+  $: if (shadow?.shadowRoot && stylesheets) {
+    const root = shadow.shadowRoot
+    const oldStyleSheets = Array.from(root.querySelectorAll("style"))
+    for (const oldStyleSheet of oldStyleSheets) {
+      oldStyleSheet.parentElement?.removeChild(oldStyleSheet)
+    }
+
+    for (const stylesheet of stylesheets) {
+      const style = document.createElement("style")
+      style.innerHTML = stylesheet
+      root.appendChild(style)
+    }
+  }
+
   $: if (wikitext) {
     render(wikitext).then(result => {
       if (result) update(result)
@@ -127,9 +157,11 @@
 </script>
 
 <svelte:head>
-  {#each stylesheets as style (style)}
-    <style use:stylesheet={style}></style>
-  {/each}
+  {#if !isolated}
+    {#each stylesheets as style (style)}
+      <style use:stylesheet={style}></style>
+    {/each}
+  {/if}
 </svelte:head>
 
 <div class="wikitext-container">
@@ -155,7 +187,11 @@
       </Card>
     </div>
   {/if}
-  <div bind:this={element} class="wikitext-body wikitext" />
+  {#if isolated}
+    <div bind:this={shadow} />
+  {:else}
+    <div bind:this={element} class="wikitext-body wikitext" />
+  {/if}
 </div>
 
 <style lang="scss">
