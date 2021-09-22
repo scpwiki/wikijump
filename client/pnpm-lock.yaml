@@ -155,6 +155,7 @@ importers:
       '@wikijump/state': workspace:*
       '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
+      cm-tarnation: ^0.1.0
       svelte: ^3.42.6
     dependencies:
       '@lezer/common': 0.15.5
@@ -169,6 +170,7 @@ importers:
       '@wikijump/state': link:../state
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
+      cm-tarnation: 0.1.0
     devDependencies:
       svelte: 3.42.6
 
@@ -2510,6 +2512,16 @@ packages:
     resolution: {integrity: sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=}
     engines: {node: '>=0.8'}
     dev: true
+
+  /cm-tarnation/0.1.0:
+    resolution: {integrity: sha512-nmT1KgyALzjPM5WHiCIyDY3fT5VXpytDNV2naQGyEg4VP8z8nKGGSorsDe/3UB71iFwP+mOxS8w8hhimJV2HYg==}
+    dependencies:
+      '@codemirror/highlight': 0.19.5
+      '@codemirror/language': 0.19.3
+      '@codemirror/state': 0.19.2
+      '@lezer/common': 0.15.5
+      '@lezer/lr': 0.15.2
+    dev: false
 
   /co-body/6.1.0:
     resolution: {integrity: sha512-m7pOT6CdLN7FuXUcpuz/8lfQ/L77x8SchHCF4G0RBTJO20Wzmhn5Sp4/5WsKy8OSpifBSUrmg83qEqaDHdyFuQ==}

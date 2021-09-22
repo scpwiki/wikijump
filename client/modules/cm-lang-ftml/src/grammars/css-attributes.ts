@@ -1,4 +1,4 @@
-import { createLezerLanguage } from "@wikijump/cm-tarnation"
+import { createLezerLanguage } from "@wikijump/codemirror"
 import {
   continuedIndent,
   cssCompletion,

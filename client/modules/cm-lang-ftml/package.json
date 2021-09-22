@@ -19,13 +19,14 @@
     "@types/prismjs": "^1.16.6",
     "@wikijump/cm-espells": "workspace:*",
     "@wikijump/cm-tarnation": "workspace:*",
-    "@wikijump/ftml-wasm-worker": "workspace:*",
-    "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/codemirror": "workspace:*",
     "@wikijump/components": "workspace:*",
+    "@wikijump/ftml-wasm-worker": "workspace:*",
     "@wikijump/prism": "workspace:*",
     "@wikijump/state": "workspace:*",
-    "@wikijump/util": "workspace:*"
+    "@wikijump/threads-worker-module": "workspace:*",
+    "@wikijump/util": "workspace:*",
+    "cm-tarnation": "^0.1.0"
   },
   "devDependencies": {
     "svelte": "^3.42.6"

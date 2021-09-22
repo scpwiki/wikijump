@@ -1,4 +1,4 @@
-import { TarnationLanguage } from "@wikijump/cm-tarnation"
+import { TarnationLanguage } from "cm-tarnation"
 import printTreeGrammar from "./print-tree.yaml"
 import tokensGrammar from "./tokens.yaml"
 

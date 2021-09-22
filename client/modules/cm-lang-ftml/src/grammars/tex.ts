@@ -1,4 +1,4 @@
-import { TarnationLanguage } from "@wikijump/cm-tarnation"
+import { TarnationLanguage } from "cm-tarnation"
 import texGrammar from "./tex.yaml"
 
 export const TexLanguage = new TarnationLanguage({
