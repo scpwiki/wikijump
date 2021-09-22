@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
-    "rootDir": "./"
+    "composite": true
   },
   "extends": "../../tsconfig.json",
   "include": ["src/**/*", "tests/**/*", "../../misc/types/**/*", "cm.ts"]

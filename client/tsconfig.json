@@ -22,7 +22,6 @@
     "sourceMap": true,
     "noEmit": true,
 
-    "baseUrl": "./",
     "paths": {
       "@root/*": ["../*"]
     }
