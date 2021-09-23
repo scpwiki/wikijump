@@ -69,8 +69,6 @@ pub fn render_code(
         class
     };
 
-    // TODO: syntax highlighting based on 'language'
-
     ctx.html() //
         .div()
         .attr(attr!(
