@@ -65,10 +65,24 @@ a.wj-footnote-ref {
 /* CODE */
 
 .wj-code {
+  border: 1px solid #ccc;
+  border-radius: 0.25em;
+  padding: 0.5em 1em;
+  hyphens: none;
+  line-height: 1.5;
+  text-align: start;
+  word-break: normal;
+  word-wrap: normal;
+  tab-size: 4;
+  white-space: pre;
+  cursor: text;
+  contain: content;
+}
+
+.wj-code code {
+  display: block;
   font-family: "Courier New", Courier, monospace;
-  padding: 0 1em;
-  margin: 0.4em 0;
-  overflow: auto;
+  overflow-x: auto;
 }
 
 /* todo: wj-language-xxx classes */
