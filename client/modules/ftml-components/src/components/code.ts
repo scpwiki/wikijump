@@ -1,11 +1,20 @@
 import { highlight } from "@wikijump/prism"
 import { defineElement } from "../util"
 
+/**
+ * FTML `[[code]]` element. Automatically highlights the contents of its
+ * `<code>` child with Prism.
+ */
 export class Code extends HTMLPreElement {
   static tag = "wj-code"
 
+  /** The language highlighting is being done with. */
   declare language: string | null
+
+  /** The current textual contents of this element. */
   declare content: string
+
+  /** The compiled/highlighted HTML. */
   declare html?: string
 
   constructor() {
@@ -19,6 +28,10 @@ export class Code extends HTMLPreElement {
     mutationObserver.observe(this, { characterData: true, subtree: true })
   }
 
+  /**
+   * Extracts the language to highlight with from this elements classes.
+   * Specifically, the `wj-language-{name}` class.
+   */
   private getLanguageFromClass() {
     const classes = Array.from(this.classList)
     for (const name of classes) {
@@ -27,6 +40,7 @@ export class Code extends HTMLPreElement {
     return null
   }
 
+  /** Ran whenever highlighting needs to be updated. */
   private update() {
     // get the element every time we update,
     // because it might have been replaced by morphing or something
@@ -48,6 +62,8 @@ export class Code extends HTMLPreElement {
 
     element.innerHTML = this.html
   }
+
+  // -- LIFECYCLE
 
   connectedCallback() {
     const element = this.querySelector("code")
