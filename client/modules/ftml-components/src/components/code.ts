@@ -35,6 +35,8 @@ export class Code extends HTMLPreElement {
   private getLanguageFromClass() {
     const classes = Array.from(this.classList)
     for (const name of classes) {
+      // this will always be ASCII lowercased,
+      // so we can just use a simple check
       if (name.startsWith("wj-language-")) return name.substr(12)
     }
     return null
