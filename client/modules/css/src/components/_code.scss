@@ -26,124 +26,124 @@ pre.code {
 
 // -- TOKEN COLORS
 
-.code-token {
-  &.code-block-comment,
-  &.code-cdata,
-  &.code-comment,
-  &.code-doctype,
-  &.code-prolog {
+.wj-code-token {
+  &.wj-code-block-comment,
+  &.wj-code-cdata,
+  &.wj-code-comment,
+  &.wj-code-doctype,
+  &.wj-code-prolog {
     color: var(--colcode-comment);
   }
 
-  &.code-punctuation {
+  &.wj-code-punctuation {
     color: var(--colcode-punct);
   }
 
-  &.code-variable,
-  &.code-parameter {
+  &.wj-code-variable,
+  &.wj-code-parameter {
     color: var(--colcode-ident);
   }
 
-  &.code-deleted {
+  &.wj-code-deleted {
     color: var(--colcode-invalid);
   }
 
-  &.code-inserted {
+  &.wj-code-inserted {
     color: var(--colcode-inserted);
   }
 
-  &.code-function,
-  &.code-function-name,
-  &.code-attr-id {
+  &.wj-code-function,
+  &.wj-code-function-name,
+  &.wj-code-attr-id {
     color: var(--colcode-function);
   }
 
-  &.code-property {
+  &.wj-code-property {
     color: var(--colcode-property);
   }
 
-  &.code-tag {
+  &.wj-code-tag {
     color: var(--colcode-tag);
   }
 
-  &.code-attr-name,
-  &.code-attr-value,
-  &.code-escaped,
-  &.code-selector {
+  &.wj-code-attr-name,
+  &.wj-code-attr-value,
+  &.wj-code-escaped,
+  &.wj-code-selector {
     color: var(--colcode-attribute);
   }
 
-  &.code-attr-value {
+  &.wj-code-attr-value {
     color: var(--colcode-string);
-    > :not(.code-token.code-attr-equals) {
+    > :not(.wj-code-token.wj-code-attr-equals) {
       color: var(--colcode-string);
     }
-    > .code-token.code-attr-equals {
+    > .wj-code-token.wj-code-attr-equals {
       color: var(--colcode-punct);
     }
   }
 
-  &.code-boolean,
-  &.code-number,
-  &.code-constant,
-  &.code-symbol,
-  &.code-unit {
+  &.wj-code-boolean,
+  &.wj-code-number,
+  &.wj-code-constant,
+  &.wj-code-symbol,
+  &.wj-code-unit {
     color: var(--colcode-constant);
   }
 
-  &.code-keyword,
-  &.code-atrule,
-  &.code-important {
+  &.wj-code-keyword,
+  &.wj-code-atrule,
+  &.wj-code-important {
     color: var(--colcode-keyword);
   }
 
-  &.code-char,
-  &.code-string {
+  &.wj-code-char,
+  &.wj-code-string {
     color: var(--colcode-string);
   }
 
-  &.code-builtin,
-  &.code-generic,
-  &.code-class-name {
+  &.wj-code-builtin,
+  &.wj-code-generic,
+  &.wj-code-class-name {
     color: var(--colcode-type);
   }
 
-  &.code-url {
+  &.wj-code-url {
     color: var(--colcode-link);
   }
 
-  &.code-namespace,
-  &.code-entity {
+  &.wj-code-namespace,
+  &.wj-code-entity {
     color: var(--colcode-entity);
   }
 
-  &.code-regex,
-  &.code-operator {
+  &.wj-code-regex,
+  &.wj-code-operator {
     color: var(--colcode-operator);
   }
 
-  &.code-keyword-this,
-  &.code-keyword-self {
+  &.wj-code-keyword-this,
+  &.wj-code-keyword-self {
     color: var(--colcode-special);
   }
 
-  &.code-keyword-public,
-  &.code-keyword-private,
-  &.code-keyword-readonly,
-  &.code-keyword-const,
-  &.code-keyword-let,
-  &.code-keyword-var,
-  &.code-keyword-new,
-  &.code-keyword-type {
+  &.wj-code-keyword-public,
+  &.wj-code-keyword-private,
+  &.wj-code-keyword-readonly,
+  &.wj-code-keyword-const,
+  &.wj-code-keyword-let,
+  &.wj-code-keyword-var,
+  &.wj-code-keyword-new,
+  &.wj-code-keyword-type {
     color: var(--colcode-storage);
   }
 
-  &.code-bold,
-  &.code-important {
+  &.wj-code-bold,
+  &.wj-code-important {
     font-weight: bold;
   }
 
-  &.code-italic {
+  &.wj-code-italic {
     font-style: italic;
   }
 }
