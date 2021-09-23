@@ -1,156 +1,248 @@
 /* ELEMENTS */
 
 .wj-image-container {
-    padding: 1em;
+  padding: 1em;
 }
 
 .wj-email {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 .wj-raw {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
 /* TABLES */
 
-.wj-table {}
+.wj-table {
+}
 
 /* FOOTNOTES */
 
 a.wj-footnote-ref {
-    display: inline-block;
+  display: inline-block;
 }
 
-.wj-footnotes-list {}
+.wj-footnotes-list {
+}
 .wj-footnotes-list .wj-title {
-    font-size: 1.3em;
-    font-weight: bold;
+  font-size: 1.3em;
+  font-weight: bold;
 }
 
 .wj-footnotes-list ol {
-    list-style: none;
+  list-style: none;
 }
 
-.wj-footnotes-list .wj-footnote {}
-.wj-footnotes-list .wj-footnote span.wj-footnote-sep {}
-.wj-footnotes-list .wj-footnote div.wj-footnote-contents {}
+.wj-footnotes-list .wj-footnote {
+}
+.wj-footnotes-list .wj-footnote span.wj-footnote-sep {
+}
+.wj-footnotes-list .wj-footnote div.wj-footnote-contents {
+}
 
 /* COLLAPSIBLE */
 
-.wj-collapsible-block {}
-.wj-collapsible-block-link {}
-.wj-collapsible-block-unfolded-link {}
+.wj-collapsible-block {
+}
+.wj-collapsible-block-link {
+}
+.wj-collapsible-block-unfolded-link {
+}
 
 .wj-collapsible-block-content {
-    display: block;
+  display: block;
 }
 
 .wj-collapsible-block-folded {
-    display: none;
+  display: none;
 }
 
 .wj-collapsible-block-unfolded {
-    display: block;
+  display: block;
 }
 
 /* CODE */
 
-code,
 .wj-code {
-    font-family: 'Courier New', Courier, monospace;
-    padding: 0 1em;
-    margin: 0.4em 0;
-    overflow: auto;
+  border: 1px solid #ccc;
+  border-radius: 0.25em;
+  padding: 0.5em 1em;
+  hyphens: none;
+  line-height: 1.5;
+  text-align: start;
+  word-break: normal;
+  word-wrap: normal;
+  tab-size: 4;
+  white-space: pre;
+  cursor: text;
+  contain: content;
+}
+
+.wj-code code {
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  overflow-x: auto;
 }
 
 /* todo: wj-language-xxx classes */
 
 /* MODIFIERS */
 
-.wj-monospace {}
+.wj-monospace {
+}
 
 .wj-hidden {
-    display: none;
+  display: none;
 }
 
 .wj-invisible {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 /* ALIGNMENT */
 
 .wj-align-left {
-    text-align: left;
-    padding-left: 0;
+  text-align: left;
+  padding-left: 0;
 }
 
 .wj-align-right {
-    text-align: right;
-    padding-right: 0;
+  text-align: right;
+  padding-right: 0;
 }
 
 .wj-align-center {
-    text-align: center;
+  text-align: center;
 }
 
 .wj-align-justify {
-    text-align: justify;
+  text-align: justify;
 }
 
 .wj-float-left {
-    float: left;
-    padding-left: 0;
+  float: left;
+  padding-left: 0;
 }
 
 .wj-float-right {
-    float: right;
-    padding-right: 0;
+  float: right;
+  padding-right: 0;
 }
 
 /* CLEAR FLOAT */
 
 .wj-clear-float-left {
-    clear: left;
+  clear: left;
 }
 
 .wj-clear-float-right {
-    clear: right:
+  clear: right;
 }
 
 .wj-clear-float-both {
-    clear: both;
+  clear: both;
 }
 
 /* USER INFORMATION */
 
 .wj-user-info img.wj-small {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-    padding: 1px 9px 1px 8px;
-    background-repeat: no-repeat;
-    background-position: center left;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 1px 9px 1px 8px;
+  background-repeat: no-repeat;
+  background-position: center left;
 }
 
-.wj-user-info-name {}
+.wj-user-info-name {
+}
 
 /* TABLE OF CONTENTS */
 
 #wj-toc-list ul {
-    list-style: none;
+  list-style: none;
 }
 
 /* MISCELLANEOUS */
 
 .wj-error-block {
-    color: #b00;
-    border: 1px solid #faa;
-    padding: 1em;
-    margin: 1em;
+  color: #b00;
+  border: 1px solid #faa;
+  padding: 1em;
+  margin: 1em;
 }
 
 .wj-error-inline {
-    color: #b00;
-    border: 1px solid #faa;
+  color: #b00;
+  border: 1px solid #faa;
+}
+
+/* CODE TOKEN COLORS */
+/* These colors are simply the default theme for Prism.js. */
+
+.wj-code-token.wj-code-comment,
+.wj-code-token.wj-code-prolog,
+.wj-code-token.wj-code-doctype,
+.wj-code-token.wj-code-cdata {
+  color: slategray;
+}
+
+.wj-code-token.wj-code-punctuation {
+  color: #999;
+}
+
+.wj-code-token.wj-code-namespace {
+  opacity: 0.7;
+}
+
+.wj-code-token.wj-code-property,
+.wj-code-token.wj-code-tag,
+.wj-code-token.wj-code-boolean,
+.wj-code-token.wj-code-number,
+.wj-code-token.wj-code-constant,
+.wj-code-token.wj-code-symbol,
+.wj-code-token.wj-code-deleted {
+  color: #905;
+}
+
+.wj-code-token.wj-code-selector,
+.wj-code-token.wj-code-attr-name,
+.wj-code-token.wj-code-string,
+.wj-code-token.wj-code-char,
+.wj-code-token.wj-code-builtin,
+.wj-code-token.wj-code-inserted {
+  color: #690;
+}
+
+.wj-code-token.wj-code-operator,
+.wj-code-token.wj-code-entity,
+.wj-code-token.wj-code-url,
+.wj-code-token.wj-code-string {
+  color: #9a6e3a;
+}
+
+.wj-code-token.wj-code-atrule,
+.wj-code-token.wj-code-attr-value,
+.wj-code-token.wj-code-keyword {
+  color: #07a;
+}
+
+.wj-code-token.wj-code-function,
+.wj-code-token.wj-code-class-name {
+  color: #dd4a68;
+}
+
+.wj-code-token.wj-code-regex,
+.wj-code-token.wj-code-important,
+.wj-code-token.wj-code-variable {
+  color: #e90;
+}
+
+.wj-code-token.wj-code-important,
+.wj-code-token.wj-code-bold {
+  font-weight: bold;
+}
+.wj-code-token.wj-code-italic {
+  font-style: italic;
 }

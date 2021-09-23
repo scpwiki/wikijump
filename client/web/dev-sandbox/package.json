@@ -15,9 +15,10 @@
   "dependencies": {
     "@wikijump/cm-lang-ftml": "workspace:*",
     "@wikijump/components": "workspace:*",
+    "@wikijump/css": "workspace:*",
+    "@wikijump/ftml-components": "workspace:*",
     "@wikijump/ftml-wasm-worker": "workspace:*",
     "@wikijump/sheaf": "workspace:*",
-    "@wikijump/css": "workspace:*",
     "@wikijump/util": "workspace:*"
   },
   "devDependencies": {

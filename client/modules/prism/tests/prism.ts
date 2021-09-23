@@ -15,7 +15,7 @@ describe("@wikijump/prism", () => {
   it("should highlight", async () => {
     await lib.languagesReady
     const html = lib.highlight('console.log("foo")', "javascript")
-    const snapshot = `<span class="code-token code-console code-class-name">console</span><span class="code-token code-punctuation">.</span><span class="code-token code-method code-function code-property-access">log</span><span class="code-token code-punctuation">(</span><span class="code-token code-string">"foo"</span><span class="code-token code-punctuation">)</span>`
+    const snapshot = `<span class="wj-code-token wj-code-console wj-code-class-name">console</span><span class="wj-code-token wj-code-punctuation">.</span><span class="wj-code-token wj-code-method wj-code-function wj-code-property-access">log</span><span class="wj-code-token wj-code-punctuation">(</span><span class="wj-code-token wj-code-string">"foo"</span><span class="wj-code-token wj-code-punctuation">)</span>`
     expect(html).to.equal(snapshot)
   })
 

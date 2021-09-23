@@ -9,6 +9,8 @@
   import { anim } from "./lib/animation"
   import Spinny from "./Spinny.svelte"
   import { t, unit } from "@wikijump/state"
+  // if we have an isolated wikitext, we need the processed CSS
+  import ftmlCSS from "@root/ftml/misc/ftml-base.css"
 
   type Rendered = { html: string; styles: string[] }
   type WikitextInput =
@@ -131,6 +133,12 @@
     element = document.createElement("div")
     element.classList.add("wikitext-body", "wikitext")
     root.appendChild(element)
+
+    // if we're isolated, we need to add the ftml stylesheet to the shadow dom
+    const style = document.createElement("style")
+    style.className = "ftml-base-stylesheet"
+    style.innerHTML = ftmlCSS
+    root.appendChild(style)
   }
 
   // this is slower than letting Svelte handle it, unfortunately.
@@ -139,7 +147,8 @@
     const root = shadow.shadowRoot
     const oldStyleSheets = Array.from(root.querySelectorAll("style"))
     for (const oldStyleSheet of oldStyleSheets) {
-      oldStyleSheet.parentElement?.removeChild(oldStyleSheet)
+      if (oldStyleSheet.className === "ftml-base-stylesheet") continue
+      root.removeChild(oldStyleSheet)
     }
 
     for (const stylesheet of stylesheets) {

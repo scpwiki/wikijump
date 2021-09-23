@@ -8,7 +8,7 @@ export const Prism: typeof PrismType = globalThis.Prism
 
 // set prism class prefix
 // https://prismjs.com/plugins/custom-class/
-Prism.plugins.customClass.prefix("code-")
+Prism.plugins.customClass.prefix("wj-code-")
 
 // yoink Prism's encode function so that we can escape strings identically
 const encode: (src: string) => string = Prism.util.encode as any

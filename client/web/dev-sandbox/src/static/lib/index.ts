@@ -1,3 +1,4 @@
+import "@wikijump/ftml-components"
 import App from "./App.svelte"
 
 window.addEventListener("DOMContentLoaded", async () => {
