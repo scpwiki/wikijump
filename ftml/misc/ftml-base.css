@@ -65,9 +65,30 @@ a.wj-footnote-ref {
 /* CODE */
 
 .wj-code {
+  position: relative;
   border: 1px solid #ccc;
   border-radius: 0.25em;
-  padding: 0.5em 1em;
+  padding: 1em;
+}
+
+.wj-code .wj-code-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2em;
+  line-height: 2em;
+}
+
+.wj-code .wj-code-panel-language {
+  position: absolute;
+  right: 1em;
+  color: #07a;
+}
+
+.wj-code pre {
+  margin: 0;
+  padding: 0;
   hyphens: none;
   line-height: 1.5;
   text-align: start;
@@ -83,6 +104,7 @@ a.wj-footnote-ref {
   display: block;
   font-family: "Courier New", Courier, monospace;
   overflow-x: auto;
+  user-select: contain;
 }
 
 /* todo: wj-language-xxx classes */
