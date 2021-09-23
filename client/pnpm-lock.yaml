@@ -268,6 +268,12 @@ importers:
     dependencies:
       include-media: 1.4.10
 
+  modules/ftml-components:
+    specifiers:
+      '@wikijump/prism': workspace:*
+    dependencies:
+      '@wikijump/prism': link:../prism
+
   modules/ftml-wasm:
     specifiers: {}
 
@@ -343,6 +349,7 @@ importers:
       '@wikijump/cm-lang-ftml': workspace:*
       '@wikijump/components': workspace:*
       '@wikijump/css': workspace:*
+      '@wikijump/ftml-components': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/sheaf': workspace:*
       '@wikijump/util': workspace:*
@@ -351,6 +358,7 @@ importers:
       '@wikijump/cm-lang-ftml': link:../../modules/cm-lang-ftml
       '@wikijump/components': link:../../modules/components
       '@wikijump/css': link:../../modules/css
+      '@wikijump/ftml-components': link:../../modules/ftml-components
       '@wikijump/ftml-wasm-worker': link:../../modules/ftml-wasm-worker
       '@wikijump/sheaf': link:../../modules/sheaf
       '@wikijump/util': link:../../modules/util

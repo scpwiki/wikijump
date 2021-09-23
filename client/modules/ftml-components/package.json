@@ -13,5 +13,7 @@
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@wikijump/prism": "workspace:*"
+  }
 }
