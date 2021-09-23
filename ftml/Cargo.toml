@@ -17,9 +17,7 @@ name = "ftml"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default  = ["css", "ffi", "log"]
-# If removed, then a copy of the standard Wikijump CSS is not included in the crate.
-css      = []
+default  = ["ffi", "log"]
 # If removed, then FFI integrations are not included in the crate.
 # This feature does not build even if included if the target is "wasm32".
 ffi      = ["parking_lot", "slog-bunyan"]

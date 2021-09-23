@@ -15,7 +15,7 @@
 ### Foundation Text Markup Language
 
 A Rust library to parse Wikidot text ("Wikitext") into an abstract syntax tree (AST).
-This aims to be a replacement for the aging [Text\_Wiki](https://github.com/gabrys/wikidot/tree/master/lib/Text_Wiki/Text) from Wikidot.
+This aims to be a replacement for the aging [Text_Wiki](https://github.com/gabrys/wikidot/tree/master/lib/Text_Wiki/Text) from Wikidot.
 This is version aims to have a nearly fully compatible parser for common Wikidot, including common malformed constructs.
 The goal is to utilize a lexer generator, and consume the tokens in a custom parser to handle unusual cases with a lax approach.
 
@@ -27,6 +27,7 @@ The lint `#![deny(unsafe_code)]` is set, and therefore this crate has only safe 
 Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE.md).
 
 ### Compilation
+
 This library targets the latest stable Rust. At time of writing, that is `1.55.0`.
 
 ```sh
@@ -39,9 +40,7 @@ You can use this as a dependency by adding the following to your `Cargo.toml`:
 ftml = "1"
 ```
 
-The library comes with three default features, `css`, `log` and `ffi`.
-
-The `css` feature adds a constrant string representing the contents of `misc/ftml-base.css` to the binary.
+The library comes with two default features, `log` and `ffi`.
 
 The `log` feature adds all `slog` logging code, which when removed replaces all of them with no-ops.
 This may be desirable on certain platforms where the performance difference is significant.
@@ -67,6 +66,7 @@ This produces a build with no `slog` logging at all, which is helpful for limiti
 However, there is a `wasm-log` feature, which initializes a `console.log()`-based `slog::Logger` for WebASM. Note that this will slam your brower's console hard and is **not** recommended for production, only local testing.
 
 If developing and just want to check that the build passes, use:
+
 ```
 $ wasm-pack build --dev
 ```
@@ -76,6 +76,7 @@ Without release optimizations, this runs fast enough to use during development.
 If for some reason you want to invoke `cargo check` instead, call `cargo check --target wasm32-unknown-unkown`.
 
 ### Testing
+
 ```sh
 $ cargo test
 ```
@@ -89,19 +90,22 @@ creation implementation. Or you can modify the test you're inspecting to use a d
 See [`Philosophy.md`](docs/Philosophy.md).
 
 ### Naming
+
 "Foundation Text Markup Language" (ftml) is named for the file extension representing in-universe
 SCP Foundation formatting as mentioned in [Kate McTiriss's Proposal](http://www.scpwiki.com/kate-mctiriss-s-proposal).
 While the expanded form of the initialism is never explicitly stated, it is clearly implied given the
 name similarity to HTML.
 
 ### Syntax
+
 ftml is intended to be compatible with a subset of Wikidot text deemed to be "well-formed". Wikidot's general syntax documentation will be relevant here, but weird constructions or strange features may not be. During the development process, they are analyzed and either explicitly unimplemented, or implemented through more sensible syntax.
 
 As ftml develops into its own branch of wikitext, pages here will document the syntax separately from Wikidot, with the goal of deprecating Wikidot's documentation entirely.
 
-* [`Blocks.md`](docs/Blocks.md) -- Which blocks (e.g. `[[div]]`) are available in ftml and what options they take.
+- [`Blocks.md`](docs/Blocks.md) -- Which blocks (e.g. `[[div]]`) are available in ftml and what options they take.
 
 ### Usage
+
 There are a couple main exported functions, which correspond to each of the main steps in the wikitext process.
 
 First is `include`, which substitutes all `[[include]]` blocks for their replaced page content. This returns the substituted wikitext as a new string, as long as the names of all the pages that were used. It requires an object that implement `Includer`, which handles the process of retrieving pages and generating missing page messages.
