@@ -85,10 +85,19 @@ pub fn render_code(
                     "class" => "wj-code-panel"
                 ))
                 .contents(|ctx| {
+                    // Copy to clipboard button
+                    ctx.html().button().attr(attr!(
+                        "is" => "wj-code-copy",
+                        "type" => "button",
+                        "class" => "wj-code-copy"
+                        // would need to be localized
+                        // "title" => "Copy to Clipboard"
+                    ));
+                    // Span showing name of language
                     ctx.html()
                         .span()
                         .attr(attr!(
-                            "class" => "wj-code-panel-language"
+                            "class" => "wj-code-language"
                         ))
                         .inner(log, &language.unwrap_or(""));
                 });

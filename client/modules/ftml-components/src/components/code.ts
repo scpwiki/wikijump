@@ -93,4 +93,30 @@ export class Code extends HTMLDivElement {
   }
 }
 
+/** Button that, when clicked, copies the contents of a `[[code]]` block. */
+export class CodeCopyButton extends HTMLButtonElement {
+  static tag = "wj-code-copy"
+
+  constructor() {
+    super()
+
+    this.addEventListener("click", () => {
+      const component = this.closest(`[is="${Code.tag}"]`)
+      if (!component) return
+
+      const code = component.querySelector("code")
+      if (!code) return
+
+      const text = code.innerText
+      navigator.clipboard.writeText(text).then(() => {
+        this.classList.add("wj-code-copy-success")
+        setTimeout(() => {
+          this.classList.remove("wj-code-copy-success")
+        }, 1000)
+      })
+    })
+  }
+}
+
 defineElement(Code.tag, Code, { extends: "div" })
+defineElement(CodeCopyButton.tag, CodeCopyButton, { extends: "button" })
