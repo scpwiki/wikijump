@@ -136,6 +136,7 @@
 
     // if we're isolated, we need to add the ftml stylesheet to the shadow dom
     const style = document.createElement("style")
+    style.className = "ftml-base-stylesheet"
     style.innerHTML = ftmlCSS
     root.appendChild(style)
   }
@@ -146,6 +147,7 @@
     const root = shadow.shadowRoot
     const oldStyleSheets = Array.from(root.querySelectorAll("style"))
     for (const oldStyleSheet of oldStyleSheets) {
+      if (oldStyleSheet.className === "ftml-base-stylesheet") continue
       root.removeChild(oldStyleSheet)
     }
 
