@@ -10,7 +10,7 @@
   import Spinny from "./Spinny.svelte"
   import { t, unit } from "@wikijump/state"
   // if we have an isolated wikitext, we need the processed CSS
-  import ftmlCSS from "@root/ftml/misc/ftml-base.css"
+  import ftmlCSS from "@wikijump/ftml-components/src/index.scss"
 
   type Rendered = { html: string; styles: string[] }
   type WikitextInput =
