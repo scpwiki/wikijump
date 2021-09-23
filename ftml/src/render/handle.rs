@@ -137,6 +137,7 @@ impl Handle {
 
         // TODO
         match message {
+            "button-copy-clipboard" => "Copy to Clipboard",
             "collapsible-open" => "+ open block",
             "collapsible-hide" => "- hide block",
             "table-of-contents" => "Table of Contents",

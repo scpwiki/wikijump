@@ -83,13 +83,18 @@ pub fn render_code(
                     "class" => "wj-code-panel",
                 ))
                 .contents(|ctx| {
+                    let button_title = ctx.handle().get_message(
+                        log,
+                        ctx.language(),
+                        "button-copy-clipboard",
+                    );
+
                     // Copy to clipboard button
                     ctx.html().button().attr(attr!(
                         "is" => "wj-code-copy",
                         "type" => "button",
                         "class" => "wj-code-copy",
-                        // would need to be localized
-                        // "title" => "Copy to Clipboard"
+                        "title" => button_title,
                     ));
 
                     // Span showing name of language
