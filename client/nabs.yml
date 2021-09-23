@@ -50,3 +50,4 @@ validate: run-p -lns lint typecheck
 # -- MISC.
 
 dev:dev-sandbox: pnpm --filter dev-sandbox dev
+preview:dev-sandbox: pnpm --filter dev-sandbox preview

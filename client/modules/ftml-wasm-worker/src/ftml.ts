@@ -1,4 +1,6 @@
 import type { PartialInfo } from "@wikijump/ftml-wasm"
+// TODO: remove this unneeded import when Vite stops being bad
+import wasmURL from "@wikijump/ftml-wasm/vendor/ftml_bg.wasm?url"
 import { decode, transfer, WorkerModule } from "@wikijump/threads-worker-module"
 import type { FTMLWorkerInterface } from "./worker/ftml.worker"
 
@@ -11,7 +13,7 @@ class FTMLWorker extends WorkerModule<FTMLWorkerInterface> {
     super("@wikijump/ftml-wasm-worker", importFTML, {
       persist: true,
       init: async () => {
-        await this.invoke("init")
+        await this.invoke("init", new URL(wasmURL, import.meta.url).toString())
       }
     })
   }

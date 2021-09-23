@@ -20,6 +20,7 @@
     "modules:pack": "node scripts/vite-pack.js",
     "modules:publish": "node scripts/publish-all.js",
     "modules:version": "changeset version",
+    "preview:dev-sandbox": "pnpm --filter dev-sandbox preview",
     "test": "wtr --playwright",
     "typecheck": "tsc",
     "validate": "run-p -lns lint typecheck",
