@@ -6,6 +6,7 @@ export class Code extends HTMLPreElement {
 
   declare language: string | null
   declare content: string
+  declare html?: string
 
   constructor() {
     super()
@@ -36,12 +37,16 @@ export class Code extends HTMLPreElement {
     const content = element.innerText
 
     // don't waste resources if we're just doing the same thing
-    if (this.content === content && this.language === language) return
+    if (this.html && this.content === content && this.language === language) {
+      element.innerHTML = this.html
+      return
+    }
 
     this.language = language
     this.content = content
+    this.html = highlight(content, language)
 
-    element.innerHTML = highlight(content, language)
+    element.innerHTML = this.html
   }
 
   connectedCallback() {
