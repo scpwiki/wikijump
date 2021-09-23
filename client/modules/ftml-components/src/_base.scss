@@ -1,0 +1,93 @@
+.wj-image-container {
+  padding: 1em;
+}
+
+.wj-email {
+  white-space: nowrap;
+}
+
+.wj-raw {
+  white-space: pre-wrap;
+}
+
+/* TABLES */
+
+.wj-table {
+}
+
+/* MODIFIERS */
+
+.wj-monospace {
+}
+
+.wj-hidden {
+  display: none;
+}
+
+.wj-invisible {
+  visibility: hidden;
+}
+
+/* ALIGNMENT */
+
+.wj-align-left {
+  padding-left: 0;
+  text-align: left;
+}
+
+.wj-align-right {
+  padding-right: 0;
+  text-align: right;
+}
+
+.wj-align-center {
+  text-align: center;
+}
+
+.wj-align-justify {
+  text-align: justify;
+}
+
+.wj-float-left {
+  float: left;
+  padding-left: 0;
+}
+
+.wj-float-right {
+  float: right;
+  padding-right: 0;
+}
+
+/* CLEAR FLOAT */
+
+.wj-clear-float-left {
+  clear: left;
+}
+
+.wj-clear-float-right {
+  clear: right;
+}
+
+.wj-clear-float-both {
+  clear: both;
+}
+
+/* TABLE OF CONTENTS */
+
+#wj-toc-list ul {
+  list-style: none;
+}
+
+/* MISCELLANEOUS */
+
+.wj-error-block {
+  padding: 1em;
+  margin: 1em;
+  color: #b00;
+  border: 1px solid #faa;
+}
+
+.wj-error-inline {
+  color: #b00;
+  border: 1px solid #faa;
+}
