@@ -33,6 +33,7 @@ mod lexer {
 
 use self::lexer::*;
 use crate::log::prelude::*;
+use crate::utf16::Utf16IndexMap;
 use pest::iterators::Pair;
 use pest::Parser;
 use std::ops::Range;
@@ -43,6 +44,21 @@ pub struct ExtractedToken<'a> {
     pub token: Token,
     pub slice: &'a str,
     pub span: Range<usize>,
+}
+
+impl<'a> ExtractedToken<'a> {
+    pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
+        // Copy fields
+        let ExtractedToken { token, slice, span } = self.clone();
+
+        // Map indices to UTF-16
+        let start = map.get_index(span.start);
+        let end = map.get_index(span.end);
+        let span = start..end;
+
+        // Output new ExtractedToken
+        ExtractedToken { token, slice, span }
+    }
 }
 
 #[derive(

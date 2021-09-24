@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::parsing::ExtractedToken as RustExtractedToken;
+use crate::utf16::Utf16IndexMap;
 use crate::Tokenization as RustTokenization;
 use self_cell::self_cell;
 use std::sync::Arc;
@@ -86,7 +88,7 @@ impl Tokenization {
     #[wasm_bindgen(typescript_type = "ITokenArray")]
     pub fn tokens(&self) -> Result<ITokenArray, JsValue> {
         self.inner
-            .with_dependent(|_, inner| rust_to_js!(inner.tokens()))
+            .with_dependent(|_, inner| rust_to_js!(convert_tokens_utf16(inner)))
     }
 }
 
@@ -100,4 +102,22 @@ pub fn tokenize(text: String) -> Tokenization {
     Tokenization {
         inner: Arc::new(inner),
     }
+}
+
+// Utility functions
+
+fn convert_tokens_utf16<'a>(
+    tokenization: &'a RustTokenization,
+) -> Vec<RustExtractedToken<'a>> {
+    // Because the list of tokens is almost certainly not empty,
+    // we don't perform the same check here that we do for warnings.
+
+    let full_text = tokenization.full_text().inner();
+    let utf16_map = Utf16IndexMap::new(full_text);
+
+    tokenization
+        .tokens()
+        .iter()
+        .map(|token| token.to_utf16_indices(&utf16_map))
+        .collect()
 }
