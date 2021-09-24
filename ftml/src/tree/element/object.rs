@@ -23,11 +23,10 @@ use crate::tree::clone::*;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
     ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, PartialElement,
-    Table,
+    Table, VariableMap,
 };
 use ref_map::*;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::num::NonZeroU32;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -56,6 +55,12 @@ pub enum Element<'t> {
     /// For instance, spaces being rendered to HTML should
     /// produce a `&nbsp;`.
     Raw(Cow<'t, str>),
+
+    /// A wikitext variable.
+    ///
+    /// During rendering, this will be replaced with its actual value,
+    /// as appropriate to the context.
+    Variable(Cow<'t, str>),
 
     /// An element indicating an email.
     ///
@@ -204,7 +209,7 @@ pub enum Element<'t> {
     #[serde(rename_all = "kebab-case")]
     Include {
         paragraph_safe: bool,
-        variables: HashMap<Cow<'t, str>, Cow<'t, str>>,
+        variables: VariableMap<'t>,
         location: PageRef<'t>,
         elements: Vec<Element<'t>>,
     },
@@ -256,6 +261,7 @@ impl Element<'_> {
             Element::Module(module) => module.name(),
             Element::Text(_) => "Text",
             Element::Raw(_) => "Raw",
+            Element::Variable(_) => "Variable",
             Element::Email(_) => "Email",
             Element::Table(_) => "Table",
             Element::Anchor { .. } => "Anchor",
@@ -295,7 +301,10 @@ impl Element<'_> {
         match self {
             Element::Container(container) => container.ctype().paragraph_safe(),
             Element::Module(_) => false,
-            Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
+            Element::Text(_)
+            | Element::Raw(_)
+            | Element::Variable(_)
+            | Element::Email(_) => true,
             Element::Table(_) => false,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
@@ -330,6 +339,7 @@ impl Element<'_> {
             Element::Module(module) => Element::Module(module.to_owned()),
             Element::Text(text) => Element::Text(string_to_owned(text)),
             Element::Raw(text) => Element::Raw(string_to_owned(text)),
+            Element::Variable(name) => Element::Variable(string_to_owned(name)),
             Element::Email(email) => Element::Email(string_to_owned(email)),
             Element::Table(table) => Element::Table(table.to_owned()),
             Element::Anchor {

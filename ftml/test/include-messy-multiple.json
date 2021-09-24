@@ -1,5 +1,5 @@
 {
-    "input": "Apple\n[[include-messy my-page]]\nBanana\n[[include-messy other]]\nCherry",
+    "input": "Pineapple\n[[include-messy fruit]]\nMelon\n[[include-messy other]]\nRaspberry",
     "tree": {
         "elements": [
             {
@@ -10,60 +10,62 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "Apple"
+                            "data": "Pineapple"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "list",
+                "data": {
+                    "type": "bullet",
+                    "attributes": {},
+                    "items": [
+                        {
+                            "item-type": "elements",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Apple"
+                                }
+                            ]
+                        },
+                        {
+                            "item-type": "elements",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Banana"
+                                }
+                            ]
+                        },
+                        {
+                            "item-type": "elements",
+                            "attributes": {},
+                            "elements": [
+                                {
+                                    "element": "text",
+                                    "data": "Cherry"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Melon"
                         },
                         {
                             "element": "line-break"
-                        },
-                        {
-                            "element": "text",
-                            "data": "<"
-                        },
-                        {
-                            "element": "text",
-                            "data": "MISSING"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "PAGE"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "my"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "page"
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
-                        },
-                        {
-                            "element": "line-break"
-                        },
-                        {
-                            "element": "text",
-                            "data": "Banana"
-                        },
-                        {
-                            "element": "line-break"
-                        },
-                        {
-                            "element": "text",
-                            "data": "<"
                         },
                         {
                             "element": "text",
@@ -71,42 +73,18 @@
                         },
                         {
                             "element": "text",
-                            "data": "-"
+                            "data": " "
                         },
                         {
                             "element": "text",
                             "data": "PAGE"
                         },
                         {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "other"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "{"
-                        },
-                        {
-                            "element": "text",
-                            "data": "}"
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
-                        },
-                        {
                             "element": "line-break"
                         },
                         {
                             "element": "text",
-                            "data": "Cherry"
+                            "data": "Raspberry"
                         }
                     ]
                 }

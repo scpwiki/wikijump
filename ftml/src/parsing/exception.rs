@@ -209,6 +209,9 @@ pub enum ParseWarningKind {
     /// The given page to be included does not exist.
     NoSuchPage,
 
+    /// The given variable was not found, and thus not substituted.
+    NoSuchVariable,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }

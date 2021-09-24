@@ -31,12 +31,13 @@ mod include_ref;
 mod includer;
 mod parse;
 
-pub use self::include_ref::{IncludeRef, IncludeVariables};
+pub use self::include_ref::IncludeRef;
 pub use self::includer::{DebugIncluder, FetchedPage, Includer, NullIncluder};
 
 use self::parse::parse_include_block;
 use crate::data::PageRef;
 use crate::log::prelude::*;
+use crate::tree::VariableMap;
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
@@ -48,6 +49,8 @@ lazy_static! {
             .build()
             .unwrap()
     };
+    static ref VARIABLE_REGEX: Regex =
+        Regex::new(r"\{\$(?P<name>[a-zA-Z0-9_\-]+)\}").unwrap();
 }
 
 pub fn include<'t, I, E, F>(
@@ -120,7 +123,7 @@ where
     let mut pages = Vec::new();
 
     for ((range, include), fetched) in joined_iter {
-        let (page_ref, _) = include.into();
+        let (page_ref, variables) = include.into();
 
         info!(
             log,
@@ -136,20 +139,22 @@ where
         }
 
         // Get replaced content, or error message
-        let message;
         let replace_with = match fetched.content {
-            Some(ref content) => content,
-            None => {
-                message = includer.no_such_include(&page_ref)?;
-                &message
+            // Take fetched content, replace variables
+            Some(mut content) => {
+                replace_variables(content.to_mut(), &variables);
+                content
             }
+
+            // Include not found, return premade template
+            None => includer.no_such_include(&page_ref)?,
         };
 
         // Append page to final list
         pages.push(page_ref);
 
         // Perform the substitution
-        output.replace_range(range, replace_with);
+        output.replace_range(range, &replace_with);
     }
 
     // Since we iterate in reverse order, the pages are reversed.
@@ -157,4 +162,25 @@ where
 
     // Return
     Ok((output, pages))
+}
+
+fn replace_variables(content: &mut String, variables: &VariableMap) {
+    let mut matches = Vec::new();
+
+    // Find all variables
+    for capture in VARIABLE_REGEX.captures_iter(content) {
+        let mtch = capture.get(0).unwrap();
+        let name = &capture["name"];
+
+        if let Some(value) = variables.get(name) {
+            matches.push((value, mtch.range()));
+        }
+    }
+
+    // Replace the variables
+    // Iterates backwards so indices stay valid
+    matches.reverse();
+    for (value, range) in matches {
+        content.replace_range(range, value);
+    }
 }

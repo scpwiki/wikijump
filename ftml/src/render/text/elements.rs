@@ -98,6 +98,23 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Text(text) | Element::Raw(text) | Element::Email(text) => {
             ctx.push_str(text)
         }
+        Element::Variable(name) => {
+            let value = ctx.variables().get(name);
+
+            info!(
+                log,
+                "Rendering variable";
+                "name" => name.as_ref(),
+                "value" => value,
+            );
+
+            let value = match value {
+                Some(value) => str!(value),
+                None => format!("{{${}}}", name),
+            };
+
+            ctx.push_str(&value);
+        }
         Element::Table(table) => {
             if !ctx.ends_with_newline() {
                 ctx.add_newline();
@@ -328,12 +345,22 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Include {
             variables,
             elements,
+            location: _location,
             ..
         } => {
-            // TODO pass on variables
-            let _ = variables;
+            info!(
+                log,
+                "Rendering include";
+                "location" => str!(_location),
+                "variables-len" => variables.len(),
+                "elements-len" => elements.len(),
+            );
+
+            ctx.variables_mut().push_scope(variables);
 
             render_elements(log, ctx, elements);
+
+            ctx.variables_mut().pop_scope();
         }
         Element::LineBreak => ctx.add_newline(),
         Element::LineBreaks(amount) => {

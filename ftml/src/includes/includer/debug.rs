@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::includes::IncludeVariables;
+use crate::tree::VariableMap;
 use std::fmt::{self, Display};
 use void::Void;
 
@@ -76,7 +76,7 @@ impl<'t> Includer<'t> for DebugIncluder {
 /// Avoids the uncertain key-value pair ordering inherent in the `Debug`
 /// implementation, which could cause tests to be flakey or system-dependent.
 #[derive(Debug)]
-struct MapWrap<'m, 't>(&'m IncludeVariables<'t>);
+struct MapWrap<'m, 't>(&'m VariableMap<'t>);
 
 impl<'t> Display for MapWrap<'_, 't> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

@@ -19,10 +19,7 @@
  */
 
 use crate::data::PageRef;
-use std::borrow::Cow;
-use std::collections::HashMap;
-
-pub type IncludeVariables<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
+use crate::tree::VariableMap;
 
 /// Represents an include block.
 ///
@@ -32,12 +29,12 @@ pub type IncludeVariables<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 #[serde(rename_all = "kebab-case")]
 pub struct IncludeRef<'t> {
     page_ref: PageRef<'t>,
-    variables: IncludeVariables<'t>,
+    variables: VariableMap<'t>,
 }
 
 impl<'t> IncludeRef<'t> {
     #[inline]
-    pub fn new(page_ref: PageRef<'t>, variables: IncludeVariables<'t>) -> Self {
+    pub fn new(page_ref: PageRef<'t>, variables: VariableMap<'t>) -> Self {
         IncludeRef {
             page_ref,
             variables,
@@ -46,7 +43,7 @@ impl<'t> IncludeRef<'t> {
 
     #[inline]
     pub fn page_only(page_ref: PageRef<'t>) -> Self {
-        IncludeRef::new(page_ref, HashMap::new())
+        IncludeRef::new(page_ref, VariableMap::new())
     }
 
     #[inline]
@@ -55,14 +52,14 @@ impl<'t> IncludeRef<'t> {
     }
 
     #[inline]
-    pub fn variables(&self) -> &IncludeVariables<'t> {
+    pub fn variables(&self) -> &VariableMap<'t> {
         &self.variables
     }
 }
 
-impl<'t> From<IncludeRef<'t>> for (PageRef<'t>, IncludeVariables<'t>) {
+impl<'t> From<IncludeRef<'t>> for (PageRef<'t>, VariableMap<'t>) {
     #[inline]
-    fn from(include: IncludeRef<'t>) -> (PageRef<'t>, IncludeVariables<'t>) {
+    fn from(include: IncludeRef<'t>) -> (PageRef<'t>, VariableMap<'t>) {
         let IncludeRef {
             page_ref,
             variables,
@@ -82,7 +79,7 @@ fn to_owned() {
     assert_eq!(page_ref_1, page_ref_2);
 
     // Clone IncludeRef
-    let include_ref_1 = IncludeRef::new(page_ref_1, HashMap::new());
+    let include_ref_1 = IncludeRef::new(page_ref_1, VariableMap::new());
     let include_ref_2: IncludeRef<'static> = include_ref_1.to_owned();
     assert_eq!(include_ref_1, include_ref_2);
     assert_eq!(include_ref_1.page_ref(), &page_ref_2);

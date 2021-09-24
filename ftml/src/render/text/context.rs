@@ -20,7 +20,7 @@
 
 use crate::non_empty_vec::NonEmptyVec;
 use crate::render::Handle;
-use crate::tree::Element;
+use crate::tree::{Element, VariableScopes};
 use crate::PageInfo;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
@@ -33,6 +33,11 @@ where
     output: String,
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
+
+    //
+    // Included page scopes
+    //
+    variables: VariableScopes,
 
     //
     // Elements from the syntax tree
@@ -73,6 +78,7 @@ where
             output: String::new(),
             info,
             handle,
+            variables: VariableScopes::new(),
             table_of_contents,
             footnotes,
             prefixes: Vec::new(),
@@ -101,6 +107,16 @@ where
     #[inline]
     pub fn handle(&self) -> &'h Handle {
         self.handle
+    }
+
+    #[inline]
+    pub fn variables(&self) -> &VariableScopes {
+        &self.variables
+    }
+
+    #[inline]
+    pub fn variables_mut(&mut self) -> &mut VariableScopes {
+        &mut self.variables
     }
 
     #[inline]

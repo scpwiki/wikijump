@@ -10,51 +10,15 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "<"
-                        },
-                        {
-                            "element": "text",
                             "data": "INCLUDED"
                         },
                         {
                             "element": "text",
-                            "data": "-"
+                            "data": " "
                         },
                         {
                             "element": "text",
                             "data": "PAGE"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "my"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "page"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "{"
-                        },
-                        {
-                            "element": "text",
-                            "data": "}"
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
                         }
                     ]
                 }

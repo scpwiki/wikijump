@@ -54,7 +54,7 @@ pub struct Parser<'r, 't> {
     //
     // Schema: Vec<(depth, _, name)>
     //
-    // Note: These two are in Rc<_> items so that the Parser
+    // Note: These three are in Rc<_> items so that the Parser
     //       can be cloned. This struct is intended as a
     //       cheap pointer object, with the true contents
     //       here preserved across parser child instances.
@@ -89,9 +89,6 @@ impl<'r, 't> Parser<'r, 't> {
             .split_first()
             .expect("Parsed tokens list was empty (expected at least one element)");
 
-        let table_of_contents = make_shared_vec();
-        let footnotes = make_shared_vec();
-
         Parser {
             log,
             page_info,
@@ -100,8 +97,8 @@ impl<'r, 't> Parser<'r, 't> {
             full_text,
             rule: RULE_PAGE,
             depth: 0,
-            table_of_contents,
-            footnotes,
+            table_of_contents: make_shared_vec(),
+            footnotes: make_shared_vec(),
             accepts_partial: AcceptsPartial::None,
             in_footnote: false,
             has_footnote_block: false,

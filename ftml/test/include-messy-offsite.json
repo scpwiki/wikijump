@@ -10,7 +10,19 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "<"
+                            "data": "OFF"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "SITE"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
                         },
                         {
                             "element": "text",
@@ -18,79 +30,11 @@
                         },
                         {
                             "element": "text",
-                            "data": "-"
+                            "data": " "
                         },
                         {
                             "element": "text",
                             "data": "PAGE"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": ":"
-                        },
-                        {
-                            "element": "text",
-                            "data": "scp"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "wiki"
-                        },
-                        {
-                            "element": "text",
-                            "data": ":"
-                        },
-                        {
-                            "element": "text",
-                            "data": "theme"
-                        },
-                        {
-                            "element": "text",
-                            "data": ":"
-                        },
-                        {
-                            "element": "text",
-                            "data": "black"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "highlighter"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "theme"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "{"
-                        },
-                        {
-                            "element": "text",
-                            "data": "}"
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
                         }
                     ]
                 }

@@ -23,7 +23,7 @@
 //! Additionally performs some other tests from the parser which are better
 //! in a dedicated test file.
 
-use crate::includes::DebugIncluder;
+use super::includer::TestIncluder;
 use crate::log::prelude::*;
 use crate::parsing::ParseWarning;
 use crate::render::html::HtmlRender;
@@ -212,7 +212,7 @@ impl Test<'_> {
         };
 
         let (mut text, _pages) =
-            crate::include(log, &self.input, DebugIncluder, || unreachable!())
+            crate::include(log, &self.input, TestIncluder, || unreachable!())
                 .void_unwrap();
 
         crate::preprocess(log, &mut text);

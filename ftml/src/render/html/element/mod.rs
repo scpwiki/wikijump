@@ -25,6 +25,7 @@ mod container;
 mod footnotes;
 mod iframe;
 mod image;
+mod include;
 mod input;
 mod link;
 mod list;
@@ -46,6 +47,7 @@ use self::container::{render_color, render_container};
 use self::footnotes::{render_footnote, render_footnote_block};
 use self::iframe::{render_html, render_iframe};
 use self::image::render_image;
+use self::include::{render_include, render_variable};
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
@@ -85,6 +87,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         }
         Element::Text(text) => ctx.push_escaped(text),
         Element::Raw(text) => render_wikitext_raw(log, ctx, text),
+        Element::Variable(name) => render_variable(log, ctx, name),
         Element::Email(email) => render_email(log, ctx, email),
         Element::Table(table) => render_table(log, ctx, table),
         Element::Anchor {
@@ -156,14 +159,10 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::Iframe { url, attributes } => render_iframe(log, ctx, url, attributes),
         Element::Include {
             variables,
+            location,
             elements,
             ..
-        } => {
-            // TODO pass on variables
-            let _ = variables;
-
-            render_elements(log, ctx, elements);
-        }
+        } => render_include(log, ctx, location, variables, elements),
         Element::LineBreak => {
             ctx.html().br();
         }

@@ -1,1 +1,1 @@
-<INCLUDED-PAGE my-page {}>
+INCLUDED PAGE

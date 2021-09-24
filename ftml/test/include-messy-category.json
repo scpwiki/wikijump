@@ -1,5 +1,5 @@
 {
-    "input": "[[include-messy component:my-thing]]",
+    "input": "[[include-messy fragment:page]]",
     "tree": {
         "elements": [
             {
@@ -10,59 +10,15 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "<"
-                        },
-                        {
-                            "element": "text",
                             "data": "INCLUDED"
                         },
                         {
                             "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "PAGE"
-                        },
-                        {
-                            "element": "text",
                             "data": " "
                         },
                         {
                             "element": "text",
-                            "data": "component"
-                        },
-                        {
-                            "element": "text",
-                            "data": ":"
-                        },
-                        {
-                            "element": "text",
-                            "data": "my"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "thing"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "{"
-                        },
-                        {
-                            "element": "text",
-                            "data": "}"
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
+                            "data": "FRAGMENT"
                         }
                     ]
                 }

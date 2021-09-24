@@ -84,6 +84,8 @@ fn process_pairs<'t>(
     );
 
     let mut arguments = HashMap::new();
+    let mut var_reference = String::new();
+
     for pair in pairs {
         debug_assert_eq!(pair.as_rule(), Rule::argument);
 
@@ -110,7 +112,27 @@ fn process_pairs<'t>(
             "value" => value,
         );
 
-        arguments.insert(Cow::Borrowed(key), Cow::Borrowed(value));
+        // In Wikidot, the first argument takes precedence.
+        //
+        // However, with nested includes, you can set a fallback
+        // by making the first argument its corresponding value.
+        //
+        // For instance, if we're in `component:test`:
+        // ```
+        // [[include component:test-backend
+        //     width={$width} |
+        //     width=300px
+        // ]]
+
+        var_reference.clear();
+        str_write!(&mut var_reference, "{{${}}}", key);
+
+        if !arguments.contains_key(key) && value != var_reference {
+            let key = Cow::Borrowed(key);
+            let value = Cow::Borrowed(value);
+
+            arguments.insert(key, value);
+        }
     }
 
     Ok(IncludeRef::new(page_ref, arguments))

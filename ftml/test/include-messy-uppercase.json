@@ -1,5 +1,5 @@
 {
-    "input": "[[INCLUde-MEssY my-PAGE]]",
+    "input": "[[INCLUde-MEssY FRuit]]",
     "tree": {
         "elements": [
             {
@@ -10,51 +10,15 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "<"
-                        },
-                        {
-                            "element": "text",
                             "data": "INCLUDED"
                         },
                         {
                             "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
-                            "data": "PAGE"
-                        },
-                        {
-                            "element": "text",
                             "data": " "
                         },
                         {
                             "element": "text",
-                            "data": "my"
-                        },
-                        {
-                            "element": "text",
-                            "data": "-"
-                        },
-                        {
-                            "element": "text",
                             "data": "PAGE"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "{"
-                        },
-                        {
-                            "element": "text",
-                            "data": "}"
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
                         }
                     ]
                 }

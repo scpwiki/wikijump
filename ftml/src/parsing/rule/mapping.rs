@@ -88,7 +88,7 @@ lazy_static! {
             Token::Identifier => vec![RULE_TEXT],
             Token::Email => vec![RULE_EMAIL],
             Token::Url => vec![RULE_URL],
-            Token::Variable => vec![RULE_TEXT],
+            Token::Variable => vec![RULE_VARIABLE, RULE_TEXT],
             Token::String => vec![RULE_TEXT],
 
             // Input boundaries

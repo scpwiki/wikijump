@@ -25,7 +25,7 @@ use super::output::HtmlOutput;
 use crate::data::PageRef;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::render::Handle;
-use crate::tree::{Element, LinkLocation};
+use crate::tree::{Element, LinkLocation, VariableScopes};
 use crate::url::is_url;
 use crate::{info, Backlinks, PageInfo};
 use std::borrow::Cow;
@@ -44,11 +44,20 @@ where
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
 
+    //
+    // Included page scopes
+    //
+    variables: VariableScopes,
+
+    //
     // Fields from syntax tree
+    //
     table_of_contents: &'e [Element<'t>],
     footnotes: &'e [Vec<Element<'t>>],
 
+    //
     // Other fields to track
+    //
     code_snippet_index: NonZeroUsize,
     table_of_contents_index: usize,
     footnote_index: NonZeroUsize,
@@ -69,6 +78,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
             backlinks: Backlinks::new(),
             info,
             handle,
+            variables: VariableScopes::new(),
             table_of_contents,
             footnotes,
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
@@ -126,6 +136,16 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     #[inline]
     pub fn language(&self) -> &str {
         &self.info.language
+    }
+
+    #[inline]
+    pub fn variables(&self) -> &VariableScopes {
+        &self.variables
+    }
+
+    #[inline]
+    pub fn variables_mut(&mut self) -> &mut VariableScopes {
+        &mut self.variables
     }
 
     #[inline]
