@@ -272,8 +272,10 @@ importers:
 
   modules/ftml-components:
     specifiers:
+      '@popperjs/core': ^2.10.1
       '@wikijump/prism': workspace:*
     dependencies:
+      '@popperjs/core': 2.10.1
       '@wikijump/prism': link:../prism
 
   modules/ftml-wasm:

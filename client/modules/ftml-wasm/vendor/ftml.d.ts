@@ -2,6 +2,12 @@
 /* eslint-disable */
 /**
 * @param {PageInfo} page_info
+* @param {Tokenization} tokens
+* @returns {ParseOutcome}
+*/
+export function parse(page_info: PageInfo, tokens: Tokenization): ParseOutcome;
+/**
+* @param {PageInfo} page_info
 * @param {SyntaxTree} syntax_tree
 * @returns {HtmlOutput}
 */
@@ -22,16 +28,34 @@ export function tokenize(text: string): Tokenization;
 */
 export function version(): string;
 /**
-* @param {PageInfo} page_info
-* @param {Tokenization} tokens
-* @returns {ParseOutcome}
-*/
-export function parse(page_info: PageInfo, tokens: Tokenization): ParseOutcome;
-/**
 * @param {string} text
 * @returns {string}
 */
 export function preprocess(text: string): string;
+
+
+export interface IElement {
+    element: string;
+    data?: any;
+}
+
+export interface ISyntaxTree {
+    elements: IElement[];
+    styles: string[];
+}
+
+export interface IParseWarning {
+    token: string;
+    rule: string;
+    span: {
+        start: number;
+        end: number;
+    };
+    kind: string;
+}
+
+
+
 
 
 export interface IPageInfo {
@@ -78,30 +102,6 @@ export interface IToken {
         start: number;
         end: number;
     };
-}
-
-
-
-
-
-export interface IElement {
-    element: string;
-    data?: any;
-}
-
-export interface ISyntaxTree {
-    elements: IElement[];
-    styles: string[];
-}
-
-export interface IParseWarning {
-    token: string;
-    rule: string;
-    span: {
-        start: number;
-        end: number;
-    };
-    kind: string;
 }
 
 
@@ -246,6 +246,14 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly __wbg_parseoutcome_free: (a: number) => void;
+  readonly parseoutcome_copy: (a: number) => number;
+  readonly parseoutcome_syntax_tree: (a: number) => number;
+  readonly parseoutcome_warnings: (a: number) => number;
+  readonly __wbg_syntaxtree_free: (a: number) => void;
+  readonly syntaxtree_data: (a: number) => number;
+  readonly parse: (a: number, b: number) => number;
+  readonly syntaxtree_copy: (a: number) => number;
   readonly __wbg_pageinfo_free: (a: number) => void;
   readonly pageinfo_new: (a: number) => number;
   readonly pageinfo_page: (a: number, b: number) => void;
@@ -265,25 +273,17 @@ export interface InitOutput {
   readonly render_html: (a: number, b: number) => number;
   readonly render_text: (a: number, b: number, c: number) => void;
   readonly pageinfo_copy: (a: number) => number;
+  readonly __wbg_utf16indexmap_free: (a: number) => void;
+  readonly utf16indexmap_new: (a: number, b: number) => number;
+  readonly utf16indexmap_copy: (a: number) => number;
+  readonly utf16indexmap_get_index: (a: number, b: number) => number;
   readonly __wbg_tokenization_free: (a: number) => void;
   readonly tokenization_copy: (a: number) => number;
   readonly tokenization_text: (a: number, b: number) => void;
   readonly tokenization_tokens: (a: number) => number;
   readonly tokenize: (a: number, b: number) => number;
-  readonly __wbg_utf16indexmap_free: (a: number) => void;
-  readonly utf16indexmap_new: (a: number, b: number) => number;
-  readonly utf16indexmap_get_index: (a: number, b: number) => number;
-  readonly utf16indexmap_copy: (a: number) => number;
   readonly version: (a: number) => void;
-  readonly __wbg_parseoutcome_free: (a: number) => void;
-  readonly parseoutcome_copy: (a: number) => number;
-  readonly parseoutcome_syntax_tree: (a: number) => number;
-  readonly parseoutcome_warnings: (a: number) => number;
-  readonly __wbg_syntaxtree_free: (a: number) => void;
-  readonly syntaxtree_data: (a: number) => number;
-  readonly parse: (a: number, b: number) => number;
   readonly preprocess: (a: number, b: number, c: number) => void;
-  readonly syntaxtree_copy: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

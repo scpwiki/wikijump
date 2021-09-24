@@ -2,9 +2,9 @@
   .wj-footnote-ref-marker {
     @include reset;
     position: relative;
-    top: -0.25em;
-    padding: 0;
-    margin: 0;
+    // makes the marker artifically bigger
+    padding: 0.5em;
+    margin: -0.5em;
     font-size: 0.75em;
     font-style: italic;
     color: #0000ee;
@@ -17,7 +17,22 @@
   }
 
   .wj-footnote-ref-contents {
+    position: absolute;
+    z-index: 1;
     display: none;
+    max-width: 30rem;
+    padding: 0.5em;
+    // important for how Popper works
+    margin: 0 !important;
+    font-size: 0.85em;
+    background: #fff;
+    border: 1px solid #aaa;
+    border-radius: 0.25em;
+    @include shadow(4, 1);
+
+    &.is-hovered {
+      display: block;
+    }
   }
 }
 

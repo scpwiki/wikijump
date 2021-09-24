@@ -1,20 +1,28 @@
+import * as Popper from "@popperjs/core"
 import { defineElement, hover } from "../../util"
 
 export class FootnoteMarker extends HTMLButtonElement {
   static tag = "wj-footnote-ref-marker"
 
+  declare onTimer?: number
+  declare offTimer?: number
+  declare popperInstance?: Popper.Instance
+
   constructor() {
     super()
 
-    hover(this, {
+    const parent = this.parentElement
+    if (!parent) throw new Error("No parent element")
+
+    hover(parent, {
       alsoOnFocus: true,
       on: () => {
-        this.contentsElement.classList.add("is-hovered")
-        // TODO: popper
+        clearTimeout(this.offTimer)
+        this.onTimer = setTimeout(() => this.whenHovered(), 50)
       },
       off: () => {
-        this.contentsElement.classList.remove("is-hovered")
-        // TODO: popper
+        clearTimeout(this.onTimer)
+        this.offTimer = setTimeout(() => this.whenUnhovered(), 50)
       }
     })
   }
@@ -32,6 +40,24 @@ export class FootnoteMarker extends HTMLButtonElement {
     const element = this.parentElement.querySelector(".wj-footnote-ref-contents")
     if (!element) throw new Error("No contents element")
     return element
+  }
+
+  private whenHovered() {
+    this.contentsElement.classList.add("is-hovered")
+    if (!this.popperInstance) {
+      // @ts-ignore Popper has some bad typings (Element !== HTMLElement)
+      this.popperInstance = Popper.createPopper(this, this.contentsElement, {
+        placement: "bottom"
+      })
+    }
+  }
+
+  private whenUnhovered() {
+    this.contentsElement.classList.remove("is-hovered")
+    if (this.popperInstance) {
+      this.popperInstance.destroy()
+      this.popperInstance = undefined
+    }
   }
 }
 

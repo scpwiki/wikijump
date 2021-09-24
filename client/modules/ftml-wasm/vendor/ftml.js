@@ -117,6 +117,22 @@ function _assertClass(instance, klass) {
 }
 /**
 * @param {PageInfo} page_info
+* @param {Tokenization} tokens
+* @returns {ParseOutcome}
+*/
+export function parse(page_info, tokens) {
+    _assertClass(page_info, PageInfo);
+    var ptr0 = page_info.ptr;
+    page_info.ptr = 0;
+    _assertClass(tokens, Tokenization);
+    var ptr1 = tokens.ptr;
+    tokens.ptr = 0;
+    var ret = wasm.parse(ptr0, ptr1);
+    return ParseOutcome.__wrap(ret);
+}
+
+/**
+* @param {PageInfo} page_info
 * @param {SyntaxTree} syntax_tree
 * @returns {HtmlOutput}
 */
@@ -180,22 +196,6 @@ export function version() {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(r0, r1);
     }
-}
-
-/**
-* @param {PageInfo} page_info
-* @param {Tokenization} tokens
-* @returns {ParseOutcome}
-*/
-export function parse(page_info, tokens) {
-    _assertClass(page_info, PageInfo);
-    var ptr0 = page_info.ptr;
-    page_info.ptr = 0;
-    _assertClass(tokens, Tokenization);
-    var ptr1 = tokens.ptr;
-    tokens.ptr = 0;
-    var ret = wasm.parse(ptr0, ptr1);
-    return ParseOutcome.__wrap(ret);
 }
 
 /**
@@ -600,7 +600,7 @@ export class Utf16IndexMap {
     * @returns {Utf16IndexMap}
     */
     copy() {
-        var ret = wasm.tokenization_copy(this.ptr);
+        var ret = wasm.utf16indexmap_copy(this.ptr);
         return Utf16IndexMap.__wrap(ret);
     }
     /**
