@@ -70,10 +70,10 @@ pub fn render_table_of_contents(
             ctx.html()
                 .div()
                 .attr(attr!("class" => "title"))
-                .inner(log, &table_of_contents_title);
+                .inner(log, table_of_contents_title);
 
             // TOC List
-            let table_of_contents = &ctx.table_of_contents();
+            let table_of_contents = ctx.table_of_contents();
 
             ctx.html()
                 .div()

@@ -75,7 +75,7 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
             ctx.html()
                 .div()
                 .attr(attr!("class" => "wj-title"))
-                .inner(log, &title);
+                .inner(log, title);
 
             ctx.html()
                 .ol()
@@ -111,14 +111,14 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
                                         ctx.html()
                                             .span()
                                             .attr(attr!("class" => "wj-footnote-sep"))
-                                            .inner(log, &".");
+                                            .inner(log, ".");
                                     });
 
                                 // Footnote contents
                                 ctx.html()
                                     .div()
                                     .attr(attr!("class" => "wj-footnote-contents"))
-                                    .inner(log, &contents);
+                                    .inner(log, contents);
                             });
                     }
                 });

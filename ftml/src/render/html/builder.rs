@@ -234,7 +234,7 @@ impl<'c, 'i, 'h, 'e, 't> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
     }
 
     #[inline]
-    pub fn inner(&mut self, log: &Logger, item: &dyn ItemRender) -> &mut Self {
+    pub fn inner<R: ItemRender>(&mut self, log: &Logger, item: R) -> &mut Self {
         self.content_start();
         item.render(log, self.ctx);
 

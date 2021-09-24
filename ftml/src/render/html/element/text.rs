@@ -29,7 +29,7 @@ pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
             "is" => "wj-raw",
             "class" => "wj-raw",
         ))
-        .inner(log, &text);
+        .inner(log, text);
 }
 
 pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
@@ -44,7 +44,7 @@ pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
             "is" => "wj-email",
             "class" => "wj-email",
         ))
-        .inner(log, &email);
+        .inner(log, email);
 }
 
 pub fn render_code(
@@ -103,12 +103,12 @@ pub fn render_code(
                         .attr(attr!(
                             "class" => "wj-code-language",
                         ))
-                        .inner(log, &language.unwrap_or(""));
+                        .inner(log, language.unwrap_or(""));
                 });
 
             // Code block containing highlighted contents
             ctx.html().pre().contents(|ctx| {
-                ctx.html().code().inner(log, &contents);
+                ctx.html().code().inner(log, contents);
             });
         });
 }

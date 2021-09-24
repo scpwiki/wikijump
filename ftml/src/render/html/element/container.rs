@@ -49,7 +49,7 @@ pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Contain
     };
 
     // Add container internals
-    tag.inner(log, &container.elements());
+    tag.inner(log, container.elements());
 }
 
 pub fn render_color(
@@ -71,5 +71,5 @@ pub fn render_color(
             "is" => "wj-container",
             "style" => "color: " color ";",
         ))
-        .inner(log, &elements);
+        .inner(log, elements);
 }

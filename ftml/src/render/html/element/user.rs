@@ -64,7 +64,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                 .html()
                                 .span()
                                 .attr(attr!("class" => "wj-user-info-name"))
-                                .inner(log, &&info.user_name);
+                                .inner(log, &info.user_name);
                         });
                 }
                 None => {
@@ -90,7 +90,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                 .html()
                                 .span()
                                 .attr(attr!("class" => "wj-user-info-name"))
-                                .inner(log, &name);
+                                .inner(log, name);
                         });
                 }
             }
