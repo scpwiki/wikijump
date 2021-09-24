@@ -72,7 +72,7 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
 
                                         &cell.attributes,
                                     ))
-                                    .inner(log, &elements);
+                                    .inner(log, elements);
                             }
                         });
                 }

@@ -115,7 +115,7 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                             "class" => "wj-collapsible-block-link",
                             "href" => "javascript:;",
                         ))
-                        .inner(log, &show_text);
+                        .inner(log, show_text);
                 });
 
             // Close collapsible link
@@ -136,14 +136,14 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                                         collapsible_class(show_top),
                                     "href" => "javascript:;",
                                 ))
-                                .inner(log, &hide_text);
+                                .inner(log, hide_text);
                         });
 
                     // Collapsed contents
                     ctx.html()
                         .div()
                         .attr(attr!("class" => "wj-collapsible-block-content"))
-                        .inner(log, &elements);
+                        .inner(log, elements);
 
                     // Bottom div to close
                     ctx.html()
@@ -158,7 +158,7 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                                         collapsible_class(show_bottom),
                                     "href" => "javascript:;",
                                 ))
-                                .inner(log, &hide_text);
+                                .inner(log, hide_text);
                         });
                 });
         });
