@@ -87,9 +87,9 @@ fn html_id() {
         "Generated HTML ID doesn't match expected",
     );
 
-    let buffer = rand.generate_html_id();
+    let html_id = rand.generate_html_id();
     assert_eq!(
-        buffer, "wj-id-ePZbhugrfP89c4Fk",
+        html_id, "wj-id-ePZbhugrfP89c4Fk",
         "Generated HTML ID doesn't match expected",
     );
 }
