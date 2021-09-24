@@ -37,6 +37,7 @@ pub use self::output::HtmlOutput;
 #[cfg(test)]
 use super::prelude;
 
+use self::attributes::AddedAttributes;
 use self::context::HtmlContext;
 use self::element::render_elements;
 use crate::log::prelude::*;
@@ -81,7 +82,12 @@ impl Render for HtmlRender {
         }
 
         // Crawl through elements and generate HTML
-        render_elements(log, &mut ctx, &tree.elements);
+        ctx.html()
+            .div()
+            .attr(attr!("class" => "wj-body"))
+            .contents(|ctx| {
+                render_elements(log, ctx, &tree.elements);
+            });
 
         // Build and return HtmlOutput
         ctx.into()
