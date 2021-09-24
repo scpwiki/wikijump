@@ -92,7 +92,7 @@ See [`Philosophy.md`](docs/Philosophy.md).
 ### Naming
 
 "Foundation Text Markup Language" (ftml) is named for the file extension representing in-universe
-SCP Foundation formatting as mentioned in [Kate McTiriss's Proposal](http://www.scpwiki.com/kate-mctiriss-s-proposal).
+SCP Foundation formatting as mentioned in [Kate McTiriss's Proposal](https://scp-wiki.wikidot.com/kate-mctiriss-s-proposal).
 While the expanded form of the initialism is never explicitly stated, it is clearly implied given the
 name similarity to HTML.
 
