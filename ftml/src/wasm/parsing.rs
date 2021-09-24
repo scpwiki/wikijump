@@ -146,6 +146,8 @@ pub fn parse(page_info: PageInfo, tokens: Tokenization) -> Result<ParseOutcome, 
     Ok(ParseOutcome { inner })
 }
 
+// Utility functions
+
 fn convert_warnings_utf16(
     tokenization: &RustTokenization,
     warnings: Vec<RustParseWarning>,
@@ -158,6 +160,7 @@ fn convert_warnings_utf16(
 
     let full_text = tokenization.full_text().inner();
     let utf16_map = Utf16IndexMap::new(full_text);
+
     warnings
         .into_iter()
         .map(|warn| warn.to_utf16_indices(&utf16_map))

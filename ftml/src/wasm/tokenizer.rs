@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::utf16::Utf16IndexMap;
 use crate::Tokenization as RustTokenization;
 use self_cell::self_cell;
 use std::sync::Arc;
@@ -95,9 +96,27 @@ impl Tokenization {
 #[wasm_bindgen]
 pub fn tokenize(text: String) -> Tokenization {
     let log = &*LOGGER;
-    let inner = TokenizationInner::new(text, |text: &String| crate::tokenize(&log, text));
+    let inner = TokenizationInner::new(text, |text: &String| {
+        let mut tokenization = crate::tokenize(&log, text);
+        convert_tokens_utf16(&mut tokenization);
+        tokenization
+    });
 
     Tokenization {
         inner: Arc::new(inner),
+    }
+}
+
+// Utility functions
+
+fn convert_tokens_utf16(tokenization: &mut RustTokenization) {
+    let full_text = tokenization.full_text().inner();
+    let utf16_map = Utf16IndexMap::new(full_text);
+
+    for token in tokenization.tokens_mut() {
+        let start = utf16_map.get_index(token.span.start);
+        let end = utf16_map.get_index(token.span.end);
+
+        token.span = start..end;
     }
 }

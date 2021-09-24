@@ -35,6 +35,12 @@ impl<'t> Tokenization<'t> {
     }
 
     #[inline]
+    #[cfg(target_arch = "wasm32")]
+    pub(crate) fn tokens_mut<'r>(&'r mut self) -> &'r mut Vec<ExtractedToken<'t>> {
+        &mut self.tokens
+    }
+
+    #[inline]
     pub(crate) fn full_text(&self) -> FullText<'t> {
         self.full_text
     }
