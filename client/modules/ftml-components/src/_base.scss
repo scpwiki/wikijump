@@ -1,13 +1,4 @@
-.wj-image-container {
-  padding: 1em;
-}
 
-.wj-email {
-  white-space: nowrap;
-}
-
-.wj-raw {
-  white-space: pre-wrap;
 }
 
 /* TABLES */
@@ -79,6 +70,18 @@
 }
 
 /* MISCELLANEOUS */
+
+.wj-image-container {
+  padding: 1em;
+}
+
+.wj-email {
+  white-space: nowrap;
+}
+
+.wj-raw {
+  white-space: pre-wrap;
+}
 
 .wj-error-block {
   padding: 1em;
