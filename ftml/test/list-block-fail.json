@@ -106,9 +106,9 @@
             "kind": "no-rules-match"
         },
         {
-            "token": "identifier",
-            "rule": "block-list-item",
-            "span": [13, 14],
+            "token": "left-block",
+            "rule": "page",
+            "span": [7, 9],
             "kind": "list-item-outside-list"
         },
         {

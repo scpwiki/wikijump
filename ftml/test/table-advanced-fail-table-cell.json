@@ -130,9 +130,9 @@
             "kind": "no-rules-match"
         },
         {
-            "token": "identifier",
-            "rule": "block-table-cell-regular",
-            "span": [19, 23],
+            "token": "left-block",
+            "rule": "page",
+            "span": [10, 12],
             "kind": "table-cell-outside-table"
         },
         {

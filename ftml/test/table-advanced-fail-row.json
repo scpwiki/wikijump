@@ -80,10 +80,10 @@
     },
     "warnings": [
         {
-            "token": "identifier",
+            "token": "input-end",
             "rule": "block-table-row",
-            "span": [8, 11],
-            "kind": "table-row-outside-table"
+            "span": [33, 33],
+            "kind": "table-row-contains-non-cell"
         },
         {
             "token": "left-block",

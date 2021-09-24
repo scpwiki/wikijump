@@ -64,9 +64,9 @@
     },
     "warnings": [
         {
-            "token": "identifier",
-            "rule": "block-list-item",
-            "span": [7, 13],
+            "token": "left-block",
+            "rule": "page",
+            "span": [0, 2],
             "kind": "list-item-outside-list"
         },
         {
