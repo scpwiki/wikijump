@@ -72,7 +72,6 @@ pub fn consume<'p, 'r, 't>(
                     parser.step()?;
                 }
 
-
                 // Explicitly drop exceptions
                 //
                 // We're returning the successful consumption
