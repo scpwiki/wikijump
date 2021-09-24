@@ -34,6 +34,7 @@ lazy_static = "1"
 maplit = "1"
 pest = "2"
 pest_derive = "2"
+rand = "0.8"
 ref-map = "0.1"
 regex = "1"
 serde = { version = "1", features = ["derive"] }

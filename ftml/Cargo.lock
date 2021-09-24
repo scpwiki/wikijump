@@ -316,6 +316,7 @@ dependencies = [
  "pest",
  "pest_derive",
  "proptest",
+ "rand",
  "ref-map",
  "regex",
  "self_cell",
