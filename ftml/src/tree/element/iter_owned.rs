@@ -30,7 +30,7 @@ impl<'t> IntoIterator for Elements<'t> {
         // We reverse it so that each .pop() yields
         // the next item during iteration.
         //
-        // See commit 4d6ac9572 for why we are not using
+        // See commit 65c4bbd64 for why we are not using
         // an enum with variants for each case.
         let elements = match self {
             Elements::None => vec![],
