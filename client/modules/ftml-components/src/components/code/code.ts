@@ -1,5 +1,5 @@
 import { highlight } from "@wikijump/prism"
-import { defineElement } from "../util"
+import { defineElement } from "../../util"
 
 /**
  * FTML `[[code]]` element. Automatically highlights the contents of its

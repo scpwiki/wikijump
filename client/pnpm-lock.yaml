@@ -241,6 +241,7 @@ importers:
     specifiers:
       '@iconify/iconify': ^2.0.4
       '@popperjs/core': ^2.10.1
+      '@wikijump/ftml-components': workspace:*
       '@wikijump/ftml-wasm': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/prism': workspace:*
@@ -252,6 +253,7 @@ importers:
     dependencies:
       '@iconify/iconify': 2.0.4
       '@popperjs/core': 2.10.1
+      '@wikijump/ftml-components': link:../ftml-components
       '@wikijump/ftml-wasm': link:../ftml-wasm
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/prism': link:../prism

@@ -156,9 +156,6 @@ pub mod render;
 pub mod tokenizer;
 pub mod tree;
 
-#[cfg(feature = "css")]
-pub const FTML_BASE_CSS: &str = include_str!("../misc/ftml-base.css");
-
 #[cfg(test)]
 #[cfg(feature = "log")]
 pub use self::log::{build_logger, build_null_logger, build_terminal_logger};

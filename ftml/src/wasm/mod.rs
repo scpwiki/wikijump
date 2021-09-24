@@ -21,9 +21,6 @@
 #[macro_use]
 mod macros;
 
-#[cfg(feature = "css")]
-mod css;
-
 mod error;
 mod log;
 mod misc;

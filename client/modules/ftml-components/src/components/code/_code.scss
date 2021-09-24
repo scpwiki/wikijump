@@ -1,0 +1,150 @@
+.wj-code {
+  position: relative;
+  padding: 1em;
+  border: 1px solid #ccc;
+  border-radius: 0.25em;
+
+  .wj-code-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 0.5em;
+    align-items: center;
+    padding: 0.25em 0.5em;
+  }
+
+  .wj-code-language {
+    color: #07a;
+    user-select: none;
+  }
+
+  .wj-code-copy {
+    position: relative;
+    z-index: 1;
+    width: 2em;
+    height: 2em;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0);
+    border: none;
+    border-radius: 0.25em;
+    transition: background 0.125s ease-in-out;
+  }
+
+  .wj-code-copy:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  pre {
+    padding: 0;
+    margin: 0;
+    hyphens: none;
+    line-height: 1.5;
+    text-align: start;
+    word-break: normal;
+    word-wrap: normal;
+    tab-size: 4;
+    white-space: pre;
+    cursor: text;
+    contain: content;
+  }
+
+  code {
+    display: block;
+    overflow-x: auto;
+    font-family: "Courier New", Courier, monospace;
+    user-select: contain;
+  }
+}
+
+/* Makes the button have a clipboard icon. Icon is "clarity:copy-to-clipboard-line",
+   see https://icon-sets.iconify.design/clarity/copy-to-clipboard-line/ (MIT)
+*/
+.wj-code .wj-code-copy {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20width%3D%221em%22%20height%3D%221em%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%20viewBox%3D%220%200%2036%2036%22%3E%3Cpath%20d%3D%22M22.6%204h-1.05a3.89%203.89%200%200%200-7.31%200h-.84A2.41%202.41%200%200%200%2011%206.4V10h14V6.4A2.41%202.41%200%200%200%2022.6%204zm.4%204H13V6.25a.25.25%200%200%201%20.25-.25h2.69l.12-1.11a1.24%201.24%200%200%201%20.55-.89a2%202%200%200%201%203.15%201.18l.09.84h2.9a.25.25%200%200%201%20.25.25z%22%20class%3D%22clr-i-outline%20clr-i-outline-path-1%22%20fill%3D%22%2307a%22%2F%3E%3Cpath%20d%3D%22M33.25%2018.06H21.33l2.84-2.83a1%201%200%201%200-1.42-1.42l-5.25%205.25l5.25%205.25a1%201%200%200%200%20.71.29a1%201%200%200%200%20.71-1.7l-2.84-2.84h11.92a1%201%200%200%200%200-2z%22%20class%3D%22clr-i-outline%20clr-i-outline-path-2%22%20fill%3D%22%2307a%22%2F%3E%3Cpath%20d%3D%22M29%2016h2V6.68A1.66%201.66%200%200%200%2029.35%205h-2.27v2H29z%22%20class%3D%22clr-i-outline%20clr-i-outline-path-3%22%20fill%3D%22%2307a%22%2F%3E%3Cpath%20d%3D%22M29%2031H7V7h2V5H6.64A1.66%201.66%200%200%200%205%206.67v24.65A1.66%201.66%200%200%200%206.65%2033h22.71A1.66%201.66%200%200%200%2031%2031.33v-9.27h-2z%22%20class%3D%22clr-i-outline%20clr-i-outline-path-4%22%20fill%3D%22%2307a%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: 50%;
+  background-size: 75%;
+}
+
+/* Makes the button have a checkmark when clicked. Icon is "fluent:checkmark-12-filled",
+   see https://icon-sets.iconify.design/fluent/checkmark-12-filled/ (MIT)
+*/
+.wj-code .wj-code-copy-success {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20width%3D%221em%22%20height%3D%221em%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M9.765%203.205a.75.75%200%200%201%20.03%201.06l-4.25%204.5a.75.75%200%200%201-1.075.015L2.22%206.53a.75.75%200%200%201%201.06-1.06l1.705%201.704l3.72-3.939a.75.75%200%200%201%201.06-.03z%22%20fill%3D%22%2307a%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+// Colors are from Prism's default theme.
+
+.wj-code-token {
+  &.wj-code-comment,
+  &.wj-code-prolog,
+  &.wj-code-doctype,
+  &.wj-code-cdata {
+    color: slategray;
+  }
+
+  &.wj-code-punctuation {
+    color: #999;
+  }
+
+  &.wj-code-namespace {
+    opacity: 0.7;
+  }
+
+  &.wj-code-property,
+  &.wj-code-tag,
+  &.wj-code-boolean,
+  &.wj-code-number,
+  &.wj-code-constant,
+  &.wj-code-symbol,
+  &.wj-code-deleted {
+    color: #905;
+  }
+
+  &.wj-code-selector,
+  &.wj-code-attr-name,
+  &.wj-code-string,
+  &.wj-code-char,
+  &.wj-code-builtin,
+  &.wj-code-inserted {
+    color: #690;
+  }
+
+  &.wj-code-operator,
+  &.wj-code-entity,
+  &.wj-code-url,
+  &.wj-code-string {
+    color: #9a6e3a;
+  }
+
+  &.wj-code-atrule,
+  &.wj-code-attr-value,
+  &.wj-code-keyword {
+    color: #07a;
+  }
+
+  &.wj-code-function,
+  &.wj-code-class-name {
+    color: #dd4a68;
+  }
+
+  &.wj-code-regex,
+  &.wj-code-important,
+  &.wj-code-variable {
+    color: #e90;
+  }
+
+  &.wj-code-important,
+  &.wj-code-bold {
+    font-weight: bold;
+  }
+
+  &.wj-code-italic {
+    font-style: italic;
+  }
+}

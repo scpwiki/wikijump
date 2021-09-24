@@ -38,7 +38,6 @@ mod prelude {
 }
 
 mod backlinks;
-mod css;
 mod exports;
 mod html;
 mod log;
