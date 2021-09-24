@@ -22,6 +22,7 @@ use super::builder::HtmlBuilder;
 use super::escape::escape;
 use super::meta::{HtmlMeta, HtmlMetaType};
 use super::output::HtmlOutput;
+use super::random::Random;
 use crate::data::PageRef;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::render::Handle;
@@ -43,6 +44,7 @@ where
     backlinks: Backlinks<'static>,
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
+    random: Random,
 
     //
     // Included page scopes
@@ -78,6 +80,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
             backlinks: Backlinks::new(),
             info,
             handle,
+            random: Random::default(),
             variables: VariableScopes::new(),
             table_of_contents,
             footnotes,
@@ -131,6 +134,11 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     #[inline]
     pub fn handle(&self) -> &'h Handle {
         self.handle
+    }
+
+    #[inline]
+    pub fn random(&mut self) -> &mut Random {
+        &mut self.random
     }
 
     #[inline]
