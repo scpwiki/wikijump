@@ -51,7 +51,7 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
             ctx.html()
                 .span()
                 .attr(attr!("class" => "wj-footnote-ref-contents"))
-                .inner(log, &contents);
+                .inner(log, contents);
         });
 }
 
