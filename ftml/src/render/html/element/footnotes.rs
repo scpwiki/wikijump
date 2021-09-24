@@ -24,26 +24,34 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
     info!(log, "Rendering footnote reference");
 
     let index = ctx.next_footnote_index();
+    let ref_id = &format!("wj-footnote-ref-{}", index);
+    let content_id = &format!("wj-footnote-{}", index);
 
     ctx.html()
-        .sup()
-        .attr(attr!(
-            "is" => "wj-footnote-ref",
-            "class" => "wj-footnote-ref",
-        ))
+        .span()
+        .attr(attr!("class" => "wj-footnote-ref"))
         .contents(|ctx| {
-            let ref_id = &format!("wj-footnote-ref-{}", index);
-            let content_id = &format!("wj-footnote-{}", index);
-
+            // Footnote marker that is hoverable
             ctx.html()
-                .a()
+                .button()
                 .attr(attr!(
-                    "class" => "wj-footnote-ref",
-                    "id" => ref_id,
-                    "href" => "javascript:;",
-                    "onclick" => "WIKIJUMP.page.utils.scrollToFootnote('" content_id "')",
+                    "is" => "wj-footnote-ref-marker",
+                    "type" => "button",
+                    "role" => "link",
+                    "class" => "wj-footnote-ref-marker",
+                    "aria-expanded" => "false",
+                    "data-footnote-ref-id" => ref_id,
+                    "data-footnote-content-id" => content_id
                 ))
                 .contents(|ctx| str_write!(ctx, "{}", index));
+
+            // Hidden content that is shown when hovering
+            let contents = ctx.get_footnote(index).unwrap();
+
+            ctx.html()
+                .span()
+                .attr(attr!("class" => "wj-footnote-ref-contents"))
+                .inner(log, &contents);
         });
 }
 
