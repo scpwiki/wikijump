@@ -33,13 +33,11 @@ mod lexer {
 
 use self::lexer::*;
 use crate::log::prelude::*;
+use crate::utf16::Utf16IndexMap;
 use pest::iterators::Pair;
 use pest::Parser;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
-
-#[cfg(target_arch = "wasm32")]
-use crate::utf16::Utf16IndexMap;
 
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct ExtractedToken<'a> {
@@ -49,7 +47,6 @@ pub struct ExtractedToken<'a> {
 }
 
 impl<'a> ExtractedToken<'a> {
-    #[cfg(target_arch = "wasm32")]
     pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
         // Copy fields
         let ExtractedToken { token, slice, span } = self.clone();
