@@ -80,7 +80,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
             backlinks: Backlinks::new(),
             info,
             handle,
-            random: Random::new(),
+            random: Random::default(),
             variables: VariableScopes::new(),
             table_of_contents,
             footnotes,

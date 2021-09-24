@@ -35,9 +35,9 @@ pub struct Random {
     rng: SmallRng,
 }
 
-impl Random {
+impl Default for Random {
     #[inline]
-    pub fn new() -> Self {
+    fn default() -> Self {
         let rng;
 
         cfg_if! {
@@ -50,7 +50,9 @@ impl Random {
 
         Random { rng }
     }
+}
 
+impl Random {
     pub fn generate_html_id_into(&mut self, buffer: &mut String) {
         buffer.push_str("wj-id-");
 
@@ -76,7 +78,7 @@ fn html_id() {
     // This is to ensure HTML test output is consistent,
     // but that means we can test for exact values here.
 
-    let mut rand = Random::new();
+    let mut rand = Random::default();
     let mut buffer = String::new();
 
     rand.generate_html_id_into(&mut buffer);
