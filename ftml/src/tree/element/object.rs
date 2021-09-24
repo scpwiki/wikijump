@@ -23,7 +23,7 @@ use crate::tree::clone::*;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
     ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, PartialElement,
-    Table, TableItem, VariableMap,
+    Table, VariableMap,
 };
 use ref_map::*;
 use std::borrow::Cow;
