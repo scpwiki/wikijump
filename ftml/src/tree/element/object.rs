@@ -1,5 +1,5 @@
 /*
- * tree/element.rs
+ * tree/element/object.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,17 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::clone::*;
-use super::{
-    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
-    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, Table, TableItem,
-};
 use crate::data::PageRef;
+use crate::tree::clone::*;
+use crate::tree::{
+    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
+    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, PartialElement,
+    Table,
+};
 use ref_map::*;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::num::NonZeroU32;
-use std::slice;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
@@ -65,12 +65,6 @@ pub enum Element<'t> {
 
     /// An element representing an HTML table.
     Table(Table<'t>),
-
-    /// A particular portion of a table.
-    ///
-    /// This will not occur in final trees, but is a special
-    /// `Element` returned during parsing.
-    TableItem(TableItem<'t>),
 
     /// An element representing an arbitrary anchor.
     ///
@@ -113,12 +107,6 @@ pub enum Element<'t> {
         attributes: AttributeMap<'t>,
         items: Vec<ListItem<'t>>,
     },
-
-    /// A particular item of a list.
-    ///
-    /// This will not occur in final trees, but is a special
-    /// `Element` returned during parsing.
-    ListItem(Box<ListItem<'t>>),
 
     /// A radio button.
     ///
@@ -234,6 +222,14 @@ pub enum Element<'t> {
 
     /// A horizontal rule.
     HorizontalRule,
+
+    /// A partial element.
+    ///
+    /// This will not appear in final syntax trees, but exists to
+    /// facilitate parsing of complicated structures.
+    ///
+    /// See [`WJ-816`](https://scuttle.atlassian.net/browse/WJ-816).
+    Partial(PartialElement<'t>),
 }
 
 impl Element<'_> {
@@ -262,11 +258,9 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Table(_) => "Table",
-            Element::TableItem(_) => "TableItem",
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::List { .. } => "List",
-            Element::ListItem(_) => "ListItem",
             Element::Image { .. } => "Image",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
@@ -284,6 +278,7 @@ impl Element<'_> {
             Element::LineBreaks { .. } => "LineBreaks",
             Element::ClearFloat(_) => "ClearFloat",
             Element::HorizontalRule => "HorizontalRule",
+            Element::Partial(partial) => partial.name(),
         }
     }
 
@@ -302,10 +297,8 @@ impl Element<'_> {
             Element::Module(_) => false,
             Element::Text(_) | Element::Raw(_) | Element::Email(_) => true,
             Element::Table(_) => false,
-            Element::TableItem(_) => false,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::List { .. } => false,
-            Element::ListItem(_) => false,
             Element::Image { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
@@ -320,6 +313,9 @@ impl Element<'_> {
             Element::LineBreak | Element::LineBreaks { .. } => true,
             Element::ClearFloat(_) => false,
             Element::HorizontalRule => false,
+            Element::Partial(_) => {
+                panic!("Should not check for paragraph safety of partials")
+            }
         }
     }
 
@@ -336,7 +332,6 @@ impl Element<'_> {
             Element::Raw(text) => Element::Raw(string_to_owned(text)),
             Element::Email(email) => Element::Email(string_to_owned(email)),
             Element::Table(table) => Element::Table(table.to_owned()),
-            Element::TableItem(item) => Element::TableItem(item.to_owned()),
             Element::Anchor {
                 target,
                 attributes,
@@ -364,11 +359,6 @@ impl Element<'_> {
                 attributes: attributes.to_owned(),
                 items: list_items_to_owned(items),
             },
-            Element::ListItem(boxed_list_item) => {
-                let list_item: &ListItem = &*boxed_list_item;
-
-                Element::ListItem(Box::new(list_item.to_owned()))
-            }
             Element::Image {
                 source,
                 link,
@@ -456,6 +446,7 @@ impl Element<'_> {
             Element::LineBreaks(amount) => Element::LineBreaks(*amount),
             Element::ClearFloat(clear_float) => Element::ClearFloat(*clear_float),
             Element::HorizontalRule => Element::HorizontalRule,
+            Element::Partial(partial) => Element::Partial(partial.to_owned()),
         }
     }
 }
@@ -470,157 +461,4 @@ impl slog::Value for Element<'_> {
     ) -> slog::Result {
         serializer.emit_str(key, self.name())
     }
-}
-
-/// Wrapper for the result of producing element(s).
-///
-/// This has an enum instead of a simple `Vec<Element>`
-/// since the most common output is a single element,
-/// and it makes little sense to heap allocate for every
-/// single return if we can easily avoid it.
-///
-/// It also contains a field marking whether all of the
-/// contents are paragraph-safe or not, used by `ParagraphStack`.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-pub enum Elements<'t> {
-    Multiple(Vec<Element<'t>>),
-    Single(Element<'t>),
-    None,
-}
-
-impl Elements<'_> {
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Elements::Multiple(elements) => elements.is_empty(),
-            Elements::Single(_) => false,
-            Elements::None => true,
-        }
-    }
-
-    #[inline]
-    pub fn len(&self) -> usize {
-        match self {
-            Elements::Multiple(elements) => elements.len(),
-            Elements::Single(_) => 1,
-            Elements::None => 0,
-        }
-    }
-
-    pub fn paragraph_safe(&self) -> bool {
-        match self {
-            Elements::Multiple(elements) => {
-                elements.iter().all(|element| element.paragraph_safe())
-            }
-            Elements::Single(element) => element.paragraph_safe(),
-            Elements::None => true,
-        }
-    }
-}
-
-impl<'t> AsRef<[Element<'t>]> for Elements<'t> {
-    fn as_ref(&self) -> &[Element<'t>] {
-        match self {
-            Elements::Multiple(elements) => elements,
-            Elements::Single(element) => slice::from_ref(element),
-            Elements::None => &[],
-        }
-    }
-}
-
-impl<'t> From<Element<'t>> for Elements<'t> {
-    #[inline]
-    fn from(element: Element<'t>) -> Elements<'t> {
-        Elements::Single(element)
-    }
-}
-
-impl<'t> From<Option<Element<'t>>> for Elements<'t> {
-    #[inline]
-    fn from(element: Option<Element<'t>>) -> Elements<'t> {
-        match element {
-            Some(element) => Elements::Single(element),
-            None => Elements::None,
-        }
-    }
-}
-
-impl<'t> From<Vec<Element<'t>>> for Elements<'t> {
-    #[inline]
-    fn from(elements: Vec<Element<'t>>) -> Elements<'t> {
-        Elements::Multiple(elements)
-    }
-}
-
-impl<'t> IntoIterator for Elements<'t> {
-    type Item = Element<'t>;
-    type IntoIter = ElementsIterator<'t>;
-
-    #[inline]
-    fn into_iter(self) -> Self::IntoIter {
-        match self {
-            Elements::None => ElementsIterator::None,
-            Elements::Single(element) => ElementsIterator::Single(Some(element)),
-            Elements::Multiple(mut elements) => {
-                // So we can just pop for each step
-                elements.reverse();
-                ElementsIterator::Multiple(elements)
-            }
-        }
-    }
-}
-
-/// Iterator implementation for `Elements`.
-#[derive(Debug)]
-pub enum ElementsIterator<'t> {
-    Multiple(Vec<Element<'t>>),
-    Single(Option<Element<'t>>),
-    None,
-}
-
-impl<'t> Iterator for ElementsIterator<'t> {
-    type Item = Element<'t>;
-
-    #[inline]
-    fn next(&mut self) -> Option<Element<'t>> {
-        match self {
-            ElementsIterator::Multiple(ref mut elements) => elements.pop(),
-            ElementsIterator::Single(ref mut element) => element.take(),
-            ElementsIterator::None => None,
-        }
-    }
-}
-
-#[test]
-fn elements_iter() {
-    macro_rules! check {
-        ($elements:expr, $expected:expr $(,)?) => {{
-            let actual: Vec<Element> = $elements.into_iter().collect();
-            let expected = $expected;
-
-            assert_eq!(
-                actual, expected,
-                "Actual element iteration doesn't match expected"
-            );
-        }};
-    }
-
-    check!(Elements::None, vec![]);
-    check!(Elements::Single(text!("a")), vec![text!("a")]);
-    check!(
-        Elements::Multiple(vec![]), //
-        vec![],
-    );
-    check!(
-        Elements::Multiple(vec![text!("a")]), //
-        vec![text!("a")],
-    );
-    check!(
-        Elements::Multiple(vec![text!("a"), text!("b")]),
-        vec![text!("a"), text!("b")],
-    );
-    check!(
-        Elements::Multiple(vec![text!("a"), text!("b"), text!("c")]),
-        vec![text!("a"), text!("b"), text!("c")],
-    );
 }

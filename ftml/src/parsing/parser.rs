@@ -26,7 +26,7 @@ use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::render::text::TextRender;
 use crate::tokenizer::Tokenization;
-use crate::tree::HeadingLevel;
+use crate::tree::{AcceptsPartial, HeadingLevel};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::{mem, ptr};
@@ -66,8 +66,7 @@ pub struct Parser<'r, 't> {
     footnotes: Rc<RefCell<Vec<Vec<Element<'t>>>>>,
 
     // Flags
-    in_list: bool,
-    in_table: TableParseState,
+    accepts_partial: AcceptsPartial,
     in_footnote: bool, // Whether we're currently inside [[footnote]] ... [[/footnote]].
     has_footnote_block: bool, // Whether a [[footnoteblock]] was created.
     start_of_line: bool,
@@ -103,8 +102,7 @@ impl<'r, 't> Parser<'r, 't> {
             depth: 0,
             table_of_contents,
             footnotes,
-            in_list: false,
-            in_table: TableParseState::Content,
+            accepts_partial: AcceptsPartial::None,
             in_footnote: false,
             has_footnote_block: false,
             start_of_line: true,
@@ -133,13 +131,8 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     #[inline]
-    pub fn in_list(&self) -> bool {
-        self.in_list
-    }
-
-    #[inline]
-    pub fn table_flag(&self) -> TableParseState {
-        self.in_table
+    pub fn accepts_partial(&self) -> AcceptsPartial {
+        self.accepts_partial
     }
 
     #[inline]
@@ -189,13 +182,8 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     #[inline]
-    pub fn set_list_flag(&mut self, value: bool) {
-        self.in_list = value;
-    }
-
-    #[inline]
-    pub fn set_table_flag(&mut self, value: TableParseState) {
-        self.in_table = value;
+    pub fn set_accepts_partial(&mut self, value: AcceptsPartial) {
+        self.accepts_partial = value;
     }
 
     #[inline]
@@ -358,8 +346,7 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn update(&mut self, parser: &Parser<'r, 't>) {
         // Flags
-        self.in_list = parser.in_list;
-        self.in_table = parser.in_table;
+        self.accepts_partial = parser.accepts_partial;
         self.in_footnote = parser.in_footnote;
         self.has_footnote_block = parser.has_footnote_block;
         self.start_of_line = parser.start_of_line;
@@ -445,18 +432,6 @@ impl<'r, 't> Parser<'r, 't> {
 #[inline]
 fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
     Rc::new(RefCell::new(Vec::new()))
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum TableParseState {
-    /// The parser is currently looking for any elements.
-    Content,
-
-    /// The parser is inside of a table and is looking for rows.
-    Table,
-
-    /// The parser is inside of a row and is looking for cells.
-    Row,
 }
 
 // Tests

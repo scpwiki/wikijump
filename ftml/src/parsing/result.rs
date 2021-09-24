@@ -19,6 +19,8 @@
  */
 
 use crate::parsing::exception::{ParseException, ParseWarning};
+use crate::parsing::Parser;
+use crate::tree::{Element, Elements};
 use std::marker::PhantomData;
 
 pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseWarning>;
@@ -109,6 +111,23 @@ where
         F: FnOnce(T) -> U,
     {
         Ok(self.map(f))
+    }
+}
+
+impl<'r, 't> ParseSuccess<'r, 't, Elements<'t>> {
+    pub fn check_partials(&self, parser: &Parser) -> Result<(), ParseWarning> {
+        for element in &self.item {
+            // This check only applies if the element is a partial.
+            if let Element::Partial(partial) = element {
+                // Check if the current rule is looking for a partial.
+                if !parser.accepts_partial().matches(partial) {
+                    // Found a partial when not looking for one. Raise the appropriate warning.
+                    return Err(parser.make_warn(partial.parse_warning_kind()));
+                }
+            }
+        }
+
+        Ok(())
     }
 }
 

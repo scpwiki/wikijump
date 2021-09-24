@@ -9,14 +9,17 @@
                     "attributes": {},
                     "items": [
                         {
+                            "item-type": "elements",
                             "attributes": {},
                             "elements": [
                                 {
                                     "element": "list",
                                     "data": {
                                         "type": "numbered",
+                                        "attributes": {},
                                         "items": [
                                             {
+                                                "item-type": "elements",
                                                 "attributes": {},
                                                 "elements": [
                                                     {
@@ -26,6 +29,7 @@
                                                 ]
                                             },
                                             {
+                                                "item-type": "elements",
                                                 "attributes": {},
                                                 "elements": [
                                                     {
@@ -34,8 +38,7 @@
                                                     }
                                                 ]
                                             }
-                                        ],
-                                        "attributes": {}
+                                        ]
                                     }
                                 },
                                 {
@@ -45,6 +48,7 @@
                             ]
                         },
                         {
+                            "item-type": "elements",
                             "attributes": {},
                             "elements": [
                                 {
@@ -54,12 +58,14 @@
                             ]
                         },
                         {
+                            "item-type": "sub-list",
                             "element": "list",
                             "data": {
                                 "type": "numbered",
                                 "attributes": {},
                                 "items": [
                                     {
+                                        "item-type": "elements",
                                         "attributes": {},
                                         "elements": [
                                             {
@@ -69,6 +75,7 @@
                                         ]
                                     },
                                     {
+                                        "item-type": "elements",
                                         "attributes": {},
                                         "elements": [
                                             {

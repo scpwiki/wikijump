@@ -19,11 +19,11 @@
  */
 
 use super::prelude::*;
-use crate::parsing::parser::TableParseState;
-use crate::parsing::strip_whitespace;
-use crate::tree::{AttributeMap, Table, TableCell, TableItem, TableRow};
+use crate::parsing::{strip_whitespace, ParserWrap};
+use crate::tree::{
+    AcceptsPartial, AttributeMap, PartialElement, Table, TableCell, TableRow,
+};
 use std::num::NonZeroU32;
-use std::ops::{Deref, DerefMut};
 
 pub const BLOCK_TABLE: BlockRule = BlockRule {
     name: "block-table",
@@ -72,7 +72,7 @@ struct ParsedBlock<'t> {
 
 fn parse_block<'r, 't>(
     log: &Logger,
-    parser: &mut ParserWrap<'_, 'r, 't>,
+    parser: &mut Parser<'r, 't>,
     name: &str,
     flag_star: bool,
     flag_score: bool,
@@ -119,13 +119,15 @@ where
 }
 
 macro_rules! extract_table_items {
-    ($parser:expr, $elements:expr; $item_type:ident, $warning_kind:ident $(,)?) => {{
+    ($parser:expr, $elements:expr; $table_item_type:ident, $warning_kind:ident $(,)?) => {{
         let mut items = Vec::new();
 
         for element in $elements {
             match element {
                 // Append the next table item.
-                Element::TableItem(TableItem::$item_type(item)) => items.push(item),
+                Element::Partial(PartialElement::$table_item_type(item)) => {
+                    items.push(item);
+                }
 
                 // Ignore internal whitespace.
                 element if element.is_whitespace() => (),
@@ -149,12 +151,7 @@ fn parse_table<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // This [[table]] is not in a regular content context.
-    if parser.table_flag() != TableParseState::Content {
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
-    }
-
-    let parser = &mut ParserWrap::new(parser, TableParseState::Table);
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::TableRow);
 
     // Get block contents.
     let ParsedBlock {
@@ -171,7 +168,7 @@ fn parse_table<'r, 't>(
         (&BLOCK_TABLE, "table block"),
     )?;
 
-    let rows = extract_table_items!(parser, elements; Row, TableContainsNonRow);
+    let rows = extract_table_items!(parser, elements; TableRow, TableContainsNonRow);
 
     // Build and return table element
     let element = Element::Table(Table { rows, attributes });
@@ -189,13 +186,7 @@ fn parse_row<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // This [[row]] is outside a [[table]], which is not allowed.
-    // It also cannot be inside another [[row]].
-    if parser.table_flag() != TableParseState::Table {
-        return Err(parser.make_warn(ParseWarningKind::TableRowOutsideTable));
-    }
-
-    let parser = &mut ParserWrap::new(parser, TableParseState::Row);
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::TableCell);
 
     // Get block contents.
     let ParsedBlock {
@@ -212,10 +203,12 @@ fn parse_row<'r, 't>(
         (&BLOCK_TABLE_ROW, "table row"),
     )?;
 
-    let cells = extract_table_items!(parser, elements; Cell, TableRowContainsNonCell);
+    let cells =
+        extract_table_items!(parser, elements; TableCell, TableRowContainsNonCell);
 
     // Build and return table row
-    let element = Element::TableItem(TableItem::Row(TableRow { cells, attributes }));
+    let element =
+        Element::Partial(PartialElement::TableRow(TableRow { cells, attributes }));
 
     ok!(false; element, exceptions)
 }
@@ -230,13 +223,6 @@ fn parse_cell_regular<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
-    if parser.table_flag() != TableParseState::Row {
-        return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
-    }
-
-    let parser = &mut ParserWrap::new(parser, TableParseState::Content);
-
     // Get block contents.
     let ParsedBlock {
         elements,
@@ -263,12 +249,7 @@ fn parse_cell_header<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    // This [[cell]]/[[hcell]] is outside a [[row]], which is not allowed.
-    if parser.table_flag() != TableParseState::Row {
-        return Err(parser.make_warn(ParseWarningKind::TableCellOutsideTable));
-    }
-
-    let parser = &mut ParserWrap::new(parser, TableParseState::Content);
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::TableCell);
 
     // Get block contents.
     let ParsedBlock {
@@ -308,7 +289,7 @@ fn parse_cell<'r, 't>(
         None => *ONE,
     };
 
-    let element = Element::TableItem(TableItem::Cell(TableCell {
+    let element = Element::Partial(PartialElement::TableCell(TableCell {
         header,
         column_span,
         align: None,
@@ -317,44 +298,4 @@ fn parse_cell<'r, 't>(
     }));
 
     ok!(false; element, exceptions)
-}
-
-// Helper
-
-#[derive(Debug)]
-struct ParserWrap<'p, 'r, 't> {
-    parser: &'p mut Parser<'r, 't>,
-    old_value: TableParseState,
-}
-
-impl<'p, 'r, 't> ParserWrap<'p, 'r, 't> {
-    #[inline]
-    fn new(parser: &'p mut Parser<'r, 't>, new_value: TableParseState) -> Self {
-        let old_value = parser.table_flag();
-        parser.set_table_flag(new_value);
-
-        ParserWrap { parser, old_value }
-    }
-}
-
-impl<'r, 't> Deref for ParserWrap<'_, 'r, 't> {
-    type Target = Parser<'r, 't>;
-
-    #[inline]
-    fn deref(&self) -> &Parser<'r, 't> {
-        self.parser
-    }
-}
-
-impl<'r, 't> DerefMut for ParserWrap<'_, 'r, 't> {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Parser<'r, 't> {
-        self.parser
-    }
-}
-
-impl Drop for ParserWrap<'_, '_, '_> {
-    fn drop(&mut self) {
-        self.parser.set_table_flag(self.old_value);
-    }
 }

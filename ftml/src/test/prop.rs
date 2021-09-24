@@ -215,7 +215,12 @@ where
         5,  // Levels deep
         30, // Number of total nodes
         10, // Up to X items per collection
-        |inner| make_list!(inner.prop_map(|element| vec![ListItem::SubList(element)])),
+        |inner| {
+            make_list!(inner.prop_map(|element| {
+                let element = Box::new(element);
+                vec![ListItem::SubList { element }]
+            }))
+        },
     )
 }
 

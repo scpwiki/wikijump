@@ -12,6 +12,7 @@
                     },
                     "items": [
                         {
+                            "item-type": "elements",
                             "attributes": {
                                 "id": "item-1"
                             },
@@ -23,6 +24,7 @@
                             ]
                         },
                         {
+                            "item-type": "elements",
                             "attributes": {
                                 "id": "item-2"
                             },

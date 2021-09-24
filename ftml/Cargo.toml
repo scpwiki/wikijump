@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = []
 exclude = [".gitignore", ".github"]
 
-version = "1.6.1"
+version = "1.6.2"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2018" # this refers to the Cargo.toml version
 
@@ -57,6 +57,7 @@ cbindgen = "0.20"
 [dev-dependencies]
 proptest = "1"
 sloggers = "2"
+termcolor = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 self_cell = "0.9"

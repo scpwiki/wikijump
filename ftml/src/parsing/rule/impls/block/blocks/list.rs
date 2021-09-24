@@ -19,9 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::parsing::strip_newlines;
-use crate::tree::{ListItem, ListType};
-use std::ops::{Deref, DerefMut};
+use crate::parsing::{strip_newlines, ParserWrap};
+use crate::tree::{AcceptsPartial, ListItem, ListType, PartialElement};
 
 // Definitions
 
@@ -111,11 +110,10 @@ fn parse_list_block<'r, 't>(
         "name" => name,
     );
 
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::ListItem);
+
     assert!(!flag_star, "List block doesn't allow star flag");
     assert_block_name(block_rule, name);
-
-    // Enable flag for list interior.
-    let mut parser = ParserWrap::new(parser, true);
 
     // "ul" means we wrap interpret as-is
     // "ul_" means we strip out any newlines or paragraph breaks
@@ -146,7 +144,9 @@ fn parse_list_block<'r, 't>(
         for element in elements {
             match element {
                 // Ensure all elements of a list are only items, i.e. [[li]].
-                Element::ListItem(item) => items.push(*item),
+                Element::Partial(PartialElement::ListItem(list_item)) => {
+                    items.push(list_item);
+                }
 
                 // Or sub-lists.
                 Element::List {
@@ -154,13 +154,13 @@ fn parse_list_block<'r, 't>(
                     attributes,
                     items: sub_items,
                 } => {
-                    let element = Element::List {
+                    let element = Box::new(Element::List {
                         ltype,
                         attributes,
                         items: sub_items,
-                    };
-                    let item = ListItem::SubList(element);
-                    items.push(item);
+                    });
+
+                    items.push(ListItem::SubList { element });
                 }
 
                 // Ignore "whitespace" elements
@@ -205,14 +205,6 @@ fn parse_list_item<'r, 't>(
     assert!(!flag_star, "List item block doesn't allow star flag");
     assert_block_name(&BLOCK_LI, name);
 
-    // This [[li]] is outside of a [[ol]] or [[ul]], which is not allowed.
-    if !parser.in_list() {
-        return Err(parser.make_warn(ParseWarningKind::ListItemOutsideList));
-    }
-
-    // Disable flag for list items.
-    let mut parser = ParserWrap::new(parser, false);
-
     // "li" means we wrap interpret as-is
     // "li_" means we strip out any newlines or paragraph breaks
     let strip_line_breaks = flag_score;
@@ -230,50 +222,10 @@ fn parse_list_item<'r, 't>(
         strip_newlines(&mut elements);
     }
 
-    let list_item = ListItem::Elements {
+    let element = Element::Partial(PartialElement::ListItem(ListItem::Elements {
         elements,
         attributes,
-    };
-    let element = Element::ListItem(Box::new(list_item));
+    }));
 
     ok!(false; element, exceptions)
-}
-
-// Helper
-
-#[derive(Debug)]
-struct ParserWrap<'p, 'r, 't> {
-    value: bool,
-    parser: &'p mut Parser<'r, 't>,
-}
-
-impl<'p, 'r, 't> ParserWrap<'p, 'r, 't> {
-    #[inline]
-    fn new(parser: &'p mut Parser<'r, 't>, value: bool) -> Self {
-        parser.set_list_flag(value);
-
-        ParserWrap { parser, value }
-    }
-}
-
-impl<'r, 't> Deref for ParserWrap<'_, 'r, 't> {
-    type Target = Parser<'r, 't>;
-
-    #[inline]
-    fn deref(&self) -> &Parser<'r, 't> {
-        self.parser
-    }
-}
-
-impl<'r, 't> DerefMut for ParserWrap<'_, 'r, 't> {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Parser<'r, 't> {
-        self.parser
-    }
-}
-
-impl Drop for ParserWrap<'_, '_, '_> {
-    fn drop(&mut self) {
-        self.parser.set_list_flag(!self.value);
-    }
 }

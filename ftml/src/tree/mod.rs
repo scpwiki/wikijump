@@ -31,6 +31,7 @@ mod image;
 mod link;
 mod list;
 mod module;
+mod partial;
 mod table;
 mod tag;
 
@@ -45,6 +46,7 @@ pub use self::image::*;
 pub use self::link::*;
 pub use self::list::*;
 pub use self::module::*;
+pub use self::partial::*;
 pub use self::table::*;
 pub use self::tag::*;
 

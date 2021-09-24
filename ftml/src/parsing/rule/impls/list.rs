@@ -176,9 +176,9 @@ fn build_list_element(
             elements,
             attributes: AttributeMap::new(),
         },
-        DepthItem::List(ltype, list) => {
-            ListItem::SubList(build_list_element(ltype, list))
-        }
+        DepthItem::List(ltype, list) => ListItem::SubList {
+            element: Box::new(build_list_element(ltype, list)),
+        },
     };
 
     let items = list.into_iter().map(build_item).collect();

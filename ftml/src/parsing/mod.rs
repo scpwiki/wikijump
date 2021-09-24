@@ -32,6 +32,7 @@ mod exception;
 mod outcome;
 mod paragraph;
 mod parser;
+mod parser_wrap;
 mod result;
 mod rule;
 mod string;
@@ -45,13 +46,14 @@ mod prelude {
         ParseWarningKind, Token,
     };
     pub use crate::text::FullText;
-    pub use crate::tree::{Element, Elements, ElementsIterator};
+    pub use crate::tree::{Element, Elements, OwnedElementsIterator};
 }
 
 use self::depth::{process_depths, DepthItem, DepthList};
 use self::element_condition::{ElementCondition, ElementConditionType};
 use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
 use self::parser::Parser;
+use self::parser_wrap::ParserWrap;
 use self::rule::impls::RULE_PAGE;
 use self::string::parse_string;
 use self::strip::{strip_newlines, strip_whitespace};
@@ -227,7 +229,9 @@ fn build_toc_list_element(
     list: DepthList<(), String>,
 ) -> Element<'static> {
     let build_item = |item| match item {
-        DepthItem::List(_, list) => ListItem::SubList(build_toc_list_element(incr, list)),
+        DepthItem::List(_, list) => ListItem::SubList {
+            element: Box::new(build_toc_list_element(incr, list)),
+        },
         DepthItem::Item(name) => {
             let anchor = format!("#toc{}", incr.next());
             let link = Element::Link {

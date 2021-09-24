@@ -120,7 +120,6 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
 
             ctx.add_newline();
         }
-        Element::TableItem(_) => panic!("Reached ancillary element: {:#?}", element),
         Element::Anchor {
             elements,
             attributes,
@@ -206,16 +205,15 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                         render_elements(log, ctx, elements);
                         ctx.add_newline();
                     }
-                    ListItem::SubList(list) => {
+                    ListItem::SubList { element } => {
                         // Update bullet depth
                         ctx.incr_list_depth();
-                        render_element(log, ctx, list);
+                        render_element(log, ctx, element);
                         ctx.decr_list_depth();
                     }
                 }
             }
         }
-        Element::ListItem(_) => panic!("Reached ancillary element: {:#?}", element),
         Element::RadioButton { checked, .. } => {
             str_write!(ctx, "({}) ", if *checked { '*' } else { ' ' })
         }
@@ -359,6 +357,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             ctx.push_str("------");
             ctx.add_newline();
         }
+        Element::Partial(_) => panic!("Encountered partial element during parsing"),
     }
 }
 
