@@ -89,6 +89,13 @@ creation implementation. Or you can modify the test you're inspecting to use a d
 
 See [`Philosophy.md`](docs/Philosophy.md).
 
+### Styling
+
+CSS classes are named consistently, in kebab-case only, with prefixes:
+
+* Any classes with the `wj-` prefix are those generated automatically, and not intended for direct use by users. An example would be `wj-collapsible-block`.
+* Any classes with the `wiki-` prefix are "premade" classes. These are not necessarily generated automatically, but are instead intended for direct use by users wanting to make use of standard styling. An example would be `wiki-note`.
+
 ### Naming
 
 "Foundation Text Markup Language" (ftml) is named for the file extension representing in-universe
