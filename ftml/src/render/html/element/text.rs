@@ -69,15 +69,46 @@ pub fn render_code(
         class
     };
 
-    // TODO: syntax highlighting based on 'language'
-
     ctx.html() //
-        .pre()
+        .div()
         .attr(attr!(
             "is" => "wj-code",
             "class" => &class,
         ))
         .contents(|ctx| {
-            ctx.html().code().inner(log, &contents);
+            // Panel for holding additional features
+            ctx.html()
+                .div()
+                .attr(attr!(
+                    "class" => "wj-code-panel",
+                ))
+                .contents(|ctx| {
+                    let button_title = ctx.handle().get_message(
+                        log,
+                        ctx.language(),
+                        "button-copy-clipboard",
+                    );
+
+                    // Copy to clipboard button
+                    ctx.html().button().attr(attr!(
+                        "is" => "wj-code-copy",
+                        "type" => "button",
+                        "class" => "wj-code-copy",
+                        "title" => button_title,
+                    ));
+
+                    // Span showing name of language
+                    ctx.html()
+                        .span()
+                        .attr(attr!(
+                            "class" => "wj-code-language",
+                        ))
+                        .inner(log, &language.unwrap_or(""));
+                });
+
+            // Code block containing highlighted contents
+            ctx.html().pre().contents(|ctx| {
+                ctx.html().code().inner(log, &contents);
+            });
         });
 }

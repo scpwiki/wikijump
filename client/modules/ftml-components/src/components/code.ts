@@ -5,8 +5,11 @@ import { defineElement } from "../util"
  * FTML `[[code]]` element. Automatically highlights the contents of its
  * `<code>` child with Prism.
  */
-export class Code extends HTMLPreElement {
+export class Code extends HTMLDivElement {
   static tag = "wj-code"
+
+  /** Observer for watching changes to the contents of the code element. */
+  declare observer: MutationObserver
 
   /** The language highlighting is being done with. */
   declare language: string | null
@@ -23,9 +26,8 @@ export class Code extends HTMLPreElement {
     this.language = null
     this.content = ""
 
-    // watch for changes to textual content
-    const mutationObserver = new MutationObserver(() => this.update())
-    mutationObserver.observe(this, { characterData: true, subtree: true })
+    // observer for watching for changes to textual content
+    this.observer = new MutationObserver(() => this.update())
   }
 
   /**
@@ -49,29 +51,33 @@ export class Code extends HTMLPreElement {
     const element = this.querySelector("code")
     if (!element) return
 
+    this.observer.disconnect()
+
     const language = this.getLanguageFromClass() ?? "none"
     const content = element.innerText
 
     // don't waste resources if we're just doing the same thing
-    if (this.html && this.content === content && this.language === language) {
-      element.innerHTML = this.html
-      return
+    if (!this.html || this.content !== content || this.language !== language) {
+      this.language = language
+      this.content = content
+      this.html = highlight(content, language)
     }
 
-    this.language = language
-    this.content = content
-    this.html = highlight(content, language)
-
     element.innerHTML = this.html
+
+    this.observer.observe(this, {
+      characterData: true,
+      childList: true,
+      subtree: true
+    })
   }
 
   // -- LIFECYCLE
 
   connectedCallback() {
-    const element = this.querySelector("code")
-
-    if (!element) {
-      const defaultElement = document.createElement("code")
+    if (!this.querySelector("pre")) {
+      const defaultElement = document.createElement("pre")
+      defaultElement.append(document.createElement("code"))
       this.appendChild(defaultElement)
     }
 
@@ -87,4 +93,30 @@ export class Code extends HTMLPreElement {
   }
 }
 
-defineElement(Code.tag, Code, { extends: "pre" })
+/** Button that, when clicked, copies the contents of a `[[code]]` block. */
+export class CodeCopyButton extends HTMLButtonElement {
+  static tag = "wj-code-copy"
+
+  constructor() {
+    super()
+
+    this.addEventListener("click", () => {
+      const component = this.closest(`[is="${Code.tag}"]`)
+      if (!component) return
+
+      const code = component.querySelector("code")
+      if (!code) return
+
+      const text = code.innerText
+      navigator.clipboard.writeText(text).then(() => {
+        this.classList.add("wj-code-copy-success")
+        setTimeout(() => {
+          this.classList.remove("wj-code-copy-success")
+        }, 1000)
+      })
+    })
+  }
+}
+
+defineElement(Code.tag, Code, { extends: "div" })
+defineElement(CodeCopyButton.tag, CodeCopyButton, { extends: "button" })
