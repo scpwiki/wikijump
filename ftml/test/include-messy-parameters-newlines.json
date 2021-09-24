@@ -31,6 +31,7 @@
                                 "attributes": {},
                                 "items": [
                                     {
+                                        "item-type": "elements",
                                         "attributes": {},
                                         "elements": [
                                             {
@@ -44,6 +45,7 @@
                                         ]
                                     },
                                     {
+                                        "item-type": "elements",
                                         "attributes": {},
                                         "elements": [
                                             {
