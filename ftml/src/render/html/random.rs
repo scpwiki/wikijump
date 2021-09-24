@@ -68,3 +68,26 @@ impl Random {
         buffer
     }
 }
+
+#[test]
+fn html_id() {
+    // Random output is deterministic in tests.
+    //
+    // This is to ensure HTML test output is consistent,
+    // but that means we can test for exact values here.
+
+    let mut rand = Random::new();
+    let mut buffer = String::new();
+
+    rand.generate_html_id_into(&mut buffer);
+    assert_eq!(
+        buffer, "wj-id-bW5Ql2DLZtnd9s18",
+        "Generated HTML ID doesn't match expected",
+    );
+
+    let buffer = rand.generate_html_id();
+    assert_eq!(
+        buffer, "wj-id-ePZbhugrfP89c4Fk",
+        "Generated HTML ID doesn't match expected",
+    );
+}
