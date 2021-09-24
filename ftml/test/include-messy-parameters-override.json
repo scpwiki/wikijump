@@ -1,0 +1,84 @@
+{
+    "input": "[[include-messy component:fruit class={$class}|class = box | apple=1 | apple=X |apple=durian | banana = 2]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "div",
+                    "attributes": {
+                        "class": "box ",
+                        "id": "fruit"
+                    },
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "paragraph",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "  "
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "attributes": {},
+                                "items": [
+                                    {
+                                        "item-type": "elements",
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "1"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": "  "
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "item-type": "elements",
+                                        "attributes": {},
+                                        "elements": [
+                                            {
+                                                "element": "text",
+                                                "data": "2"
+                                            },
+                                            {
+                                                "element": "text",
+                                                "data": " "
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
