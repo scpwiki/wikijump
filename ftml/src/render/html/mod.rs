@@ -39,7 +39,6 @@ use super::prelude;
 
 use self::attributes::AddedAttributes;
 use self::context::HtmlContext;
-use self::element::render_elements;
 use crate::log::prelude::*;
 use crate::render::{Handle, Render};
 use crate::tree::SyntaxTree;
@@ -85,9 +84,7 @@ impl Render for HtmlRender {
         ctx.html()
             .div()
             .attr(attr!("class" => "wj-body"))
-            .contents(|ctx| {
-                render_elements(log, ctx, &tree.elements);
-            });
+            .inner(log, &&tree.elements);
 
         // Build and return HtmlOutput
         ctx.into()
