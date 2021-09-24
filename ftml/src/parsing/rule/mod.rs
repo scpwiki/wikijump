@@ -71,9 +71,11 @@ impl Rule {
         let mut sub_parser = parser.clone_with_rule(self);
         let result = (self.try_consume_fn)(log, &mut sub_parser);
 
-        // Run in a separate parser instance,
-        // only keeping the parser state if it succeeded.
-        if result.is_ok() {
+        // We only keep the parser state if it succeeded.
+        if let Ok(ref output) = result {
+            output.check_partials(parser)?;
+
+            // But first, ensure there aren't any partial elements in the result.
             parser.update(&sub_parser);
         }
 
