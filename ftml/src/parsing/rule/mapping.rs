@@ -93,7 +93,7 @@ lazy_static! {
             Token::String => vec![RULE_TEXT],
 
             // Input boundaries
-            Token::LineBreak => vec![RULE_BLOCK_SKIP_NEWLINE, RULE_LINE_BREAK],
+            Token::LineBreak => vec![RULE_BLOCK_SKIP_NEWLINE, RULE_DEFINITION_LIST_SKIP_NEWLINE, RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![RULE_LINE_BREAK_PARAGRAPH],
             Token::InputStart => vec![RULE_NULL],
             Token::InputEnd => vec![RULE_NULL],

@@ -75,7 +75,7 @@ pub use self::clear_float::RULE_CLEAR_FLOAT;
 pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;
 pub use self::dash::RULE_DASH;
-pub use self::definition_list::RULE_DEFINITION_LIST;
+pub use self::definition_list::{RULE_DEFINITION_LIST, RULE_DEFINITION_LIST_SKIP_NEWLINE};
 pub use self::double_angle::RULE_DOUBLE_ANGLE;
 pub use self::email::RULE_EMAIL;
 pub use self::fallback::RULE_FALLBACK;

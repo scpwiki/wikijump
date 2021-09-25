@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::parsing::Token;
 use std::borrow::Cow;
 
 type DefinitionItem<'t> = (Cow<'t, str>, Cow<'t, str>);
@@ -26,10 +27,35 @@ type DefinitionItem<'t> = (Cow<'t, str>, Cow<'t, str>);
 pub const RULE_DEFINITION_LIST: Rule = Rule {
     name: "definition-list",
     position: LineRequirement::StartOfLine,
-    try_consume_fn,
+    try_consume_fn: parse_definition_list,
 };
 
-fn try_consume_fn<'p, 'r, 't>(
+pub const RULE_DEFINITION_LIST_SKIP_NEWLINE: Rule = Rule {
+    name: "definition-list-skip-newline",
+    position: LineRequirement::Any,
+    try_consume_fn: skip_newline,
+};
+
+fn skip_newline<'p, 'r, 't>(
+    log: &Logger,
+    parser: &'p mut Parser<'r, 't>,
+) -> ParseResult<'r, 't, Elements<'t>> {
+    info!(log, "Seeing if we skip due to an upcoming definition list");
+
+    let current = parser.current().token;
+    let second = parser.look_ahead(0).map(|extract| extract.token);
+    let third = parser.look_ahead(1).map(|extract| extract.token);
+
+    match (current, second, third) {
+        // It looks like a definition list is upcoming
+        (Token::LineBreak, Some(Token::Colon), Some(Token::Whitespace)) => ok!(Elements::None),
+
+        // Anything else
+        _ => Err(parser.make_warn(ParseWarningKind::RuleFailed)),
+    }
+}
+
+fn parse_definition_list<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
