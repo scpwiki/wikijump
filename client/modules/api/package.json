@@ -8,7 +8,7 @@
   ],
   "private": true,
   "scripts": {
-    "generate-api": "pnpx openapi-typescript ../../../web/resources/api/api.oas3.yaml -o ./vendor/api.d.ts"
+    "generate-api": "pnpx openapi-typescript ../../../web/resources/api/api.oas3.yaml -o ./vendor/api.d.ts && prettier --write \"vendor/**\""
   },
   "type": "module",
   "main": "src/index.ts",
