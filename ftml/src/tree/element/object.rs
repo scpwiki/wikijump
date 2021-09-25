@@ -313,7 +313,7 @@ impl Element<'_> {
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::Image { .. } => true,
             Element::List { .. } => false,
-            Element::DefinitionList(_) => true,
+            Element::DefinitionList(_) => false,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
             Element::TableOfContents { .. } => false,
