@@ -113,6 +113,11 @@ pub enum Element<'t> {
         items: Vec<ListItem<'t>>,
     },
 
+    /// A definition list.
+    DefinitionList {
+        items: Vec<(Cow<'t, str>, Cow<'t, str>)>,
+    },
+
     /// A radio button.
     ///
     /// The "name" field translates to HTML, but is standard for grouping them.
@@ -266,8 +271,9 @@ impl Element<'_> {
             Element::Table(_) => "Table",
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
-            Element::List { .. } => "List",
             Element::Image { .. } => "Image",
+            Element::List { .. } => "List",
+            Element::DefinitionList { .. } => "DefinitionList",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",
@@ -307,8 +313,9 @@ impl Element<'_> {
             | Element::Email(_) => true,
             Element::Table(_) => false,
             Element::Anchor { .. } | Element::Link { .. } => true,
-            Element::List { .. } => false,
             Element::Image { .. } => true,
+            Element::List { .. } => false,
+            Element::DefinitionList { .. } => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
             Element::TableOfContents { .. } => false,
@@ -379,6 +386,17 @@ impl Element<'_> {
                 link: link.ref_map(|link| link.to_owned()),
                 alignment: *alignment,
                 attributes: attributes.to_owned(),
+            },
+            Element::DefinitionList { items } => Element::DefinitionList {
+                items: items
+                    .iter()
+                    .map(|(key, value)| {
+                        let key = string_to_owned(key);
+                        let value = string_to_owned(value);
+
+                        (key, value)
+                    })
+                    .collect(),
             },
             Element::RadioButton {
                 name,
