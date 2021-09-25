@@ -47,6 +47,11 @@ export class Timeout<T = void> {
     this.reset(delay, cb)
   }
 
+  /** Function for fulfilling the thenable contract. */
+  then(resolve?: (value: T) => T | PromiseLike<T>) {
+    return this.promise.then(resolve)
+  }
+
   /** The amount of time remaining before the timeout expires, in milliseconds. */
   remaining() {
     if (!this.ends || !this.started) return 0
