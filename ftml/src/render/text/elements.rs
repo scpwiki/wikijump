@@ -365,7 +365,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             ctx.add_newline();
             ctx.push_str("```");
         }
-        Element::MathInline { latex_source } => todo!(),
+        Element::MathInline { latex_source } => {
+            str_write!(ctx, "[[$ {} $]]", latex_source);
+        }
         Element::Html { contents } => {
             str_write!(ctx, "```html\n{}\n```", contents);
         }
