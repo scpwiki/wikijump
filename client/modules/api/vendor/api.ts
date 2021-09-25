@@ -743,167 +743,6 @@ export interface SiteTransfer {
   next: Reference
 }
 
-export interface AuthLoginPayload {
-  login: LoginSpecifier
-
-  /** @format password */
-  password: string
-  remember?: boolean
-}
-
-export interface AccountRegisterPayload {
-  username: Username
-  email: Email
-
-  /** @format password */
-  password: string
-}
-
-export interface AccountStartRecoveryPayload {
-  email: Email
-}
-
-export interface AccountUpdateEmailPayload {
-  oldEmail: Email
-  newEmail: Email
-}
-
-export interface AccountUpdatePasswordPayload {
-  /** @format password */
-  oldPassword: string
-
-  /** @format password */
-  newPassword: string
-}
-
-export interface AccountUpdateUsernamePayload {
-  username: Username
-}
-
-export interface UserUpdateBlockedPayload {
-  blocked: boolean
-}
-
-export interface PageCreatePayload {
-  /**
-   * Describes a page *slug*, a string consisting of an optional category
-   * and name. It is formatted as `category:name` if a category is
-   * included. If a category is not included, it is simply `name`.
-   */
-  slug: Slug
-  title?: string
-
-  /** A chunk of text in FTML format. */
-  wikitext?: Wikitext
-}
-
-export interface PageUpdatePayload {
-  title?: string
-
-  /** A chunk of text in FTML format. */
-  wikitext?: Wikitext
-}
-
-export interface PageRestorePayload {
-  /**
-   * Describes a page *slug*, a string consisting of an optional category
-   * and name. It is formatted as `category:name` if a category is
-   * included. If a category is not included, it is simply `name`.
-   */
-  slug: Slug
-}
-
-export interface PageRenamePayload {
-  /**
-   * Describes a page *slug*, a string consisting of an optional category
-   * and name. It is formatted as `category:name` if a category is
-   * included. If a category is not included, it is simply `name`.
-   */
-  slug: Slug
-}
-
-export interface RevisionUpdateMetadataPayload {
-  hidden?: boolean
-  message?: string
-}
-
-export interface TagPageUpdatePayload {
-  tags: TagList
-}
-
-export interface VotePageUpdateVotePayload {
-  vote: CastVote
-}
-
-export interface MessageUpdatePayload {
-  read?: boolean
-  archived?: boolean
-}
-
-export interface ForumGroupUpdatePayload {
-  title?: string
-  summary?: string
-  order?: Reference[]
-}
-
-export interface ForumGroupAddCategoryPayload {
-  title?: string
-  summary?: string
-}
-
-export interface ForumCategoryUpdatePayload {
-  title?: string
-  summary?: string
-}
-
-export interface ForumCategoryAddThreadPayload {
-  title?: string
-  summary?: string
-}
-
-export interface ForumThreadUpdatePayload {
-  title?: string
-  summary?: string
-  stickied?: boolean
-  locked?: boolean
-}
-
-export interface ForumThreadAddPostPayload {
-  title?: string
-
-  /** A chunk of text in FTML format. */
-  wikitext?: Wikitext
-}
-
-export interface ForumPostUpdatePayload {
-  title?: string
-
-  /** A chunk of text in FTML format. */
-  wikitext?: Wikitext
-}
-
-export interface ForumPostReplyPayload {
-  title?: string
-
-  /** A chunk of text in FTML format. */
-  wikitext?: Wikitext
-}
-
-export interface ForumPostRevisionUpdateMetadataPayload {
-  hidden?: boolean
-  message?: string
-}
-
-export interface ModerationKickPayload {
-  reason: string
-}
-
-export interface ModerationBanPayload {
-  /** @format date-time */
-  until: string | null
-  reason: string
-}
-
 export type QueryParamsType = Record<string | number, any>
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">
 
@@ -1247,7 +1086,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @name AuthLogin
    * @request POST:/auth/login
    */
-  authLogin = (data: AuthLoginPayload, params: RequestParams = {}) =>
+  authLogin = (
+    data: { login: LoginSpecifier; password: string; remember?: boolean },
+    params: RequestParams = {}
+  ) =>
     this.request<void, void>({
       path: `/auth/login`,
       method: "POST",
@@ -1311,7 +1153,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @name AccountRegister
    * @request POST:/account/register
    */
-  accountRegister = (data: AccountRegisterPayload, params: RequestParams = {}) =>
+  accountRegister = (
+    data: { username: Username; email: Email; password: string },
+    params: RequestParams = {}
+  ) =>
     this.request<void, void>({
       path: `/account/register`,
       method: "POST",
@@ -1344,10 +1189,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @name AccountStartRecovery
    * @request POST:/account/start-recovery
    */
-  accountStartRecovery = (
-    data: AccountStartRecoveryPayload,
-    params: RequestParams = {}
-  ) =>
+  accountStartRecovery = (data: { email: Email }, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/account/start-recovery`,
       method: "POST",
@@ -1383,7 +1225,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request PUT:/account/email
    * @secure
    */
-  accountUpdateEmail = (data: AccountUpdateEmailPayload, params: RequestParams = {}) =>
+  accountUpdateEmail = (
+    data: { oldEmail: Email; newEmail: Email },
+    params: RequestParams = {}
+  ) =>
     this.request<void, void>({
       path: `/account/email`,
       method: "PUT",
@@ -1402,7 +1247,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   accountUpdatePassword = (
-    data: AccountUpdatePasswordPayload,
+    data: { oldPassword: string; newPassword: string },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -1439,10 +1284,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request PUT:/account/username
    * @secure
    */
-  accountUpdateUsername = (
-    data: AccountUpdateUsernamePayload,
-    params: RequestParams = {}
-  ) =>
+  accountUpdateUsername = (data: { username: Username }, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/account/username`,
       method: "PUT",
@@ -1736,7 +1578,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   userUpdateBlocked = (
     pathType: "id" | "name",
     path: Username | Reference,
-    data: UserUpdateBlockedPayload,
+    data: { blocked: boolean },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -1966,7 +1808,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request POST:/page
    * @secure
    */
-  pageCreate = (data: PageCreatePayload, params: RequestParams = {}) =>
+  pageCreate = (
+    data: { slug: Slug; title?: string; wikitext?: Wikitext },
+    params: RequestParams = {}
+  ) =>
     this.request<void, void>({
       path: `/page`,
       method: "POST",
@@ -2017,7 +1862,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   pageUpdate = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    data: PageUpdatePayload,
+    data: { title?: string; wikitext?: Wikitext },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2057,7 +1902,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request POST:/page/id/{path}/restore
    * @secure
    */
-  pageRestore = (path: Reference, data: PageRestorePayload, params: RequestParams = {}) =>
+  pageRestore = (path: Reference, data: { slug: Slug }, params: RequestParams = {}) =>
     this.request<void, void>({
       path: `/page/id/${path}/restore`,
       method: "POST",
@@ -2078,7 +1923,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   pageRename = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    data: PageRenamePayload,
+    data: { slug: Slug },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2154,7 +1999,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     pathType: "id" | "slug",
     path: Slug | Reference,
     revision: number,
-    data: RevisionUpdateMetadataPayload,
+    data: { hidden?: boolean; message?: string },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2217,7 +2062,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   tagPageUpdate = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    data: TagPageUpdatePayload,
+    data: { tags: TagList },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2301,7 +2146,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   votePageUpdateVote = (
     pathType: "id" | "slug",
     path: Slug | Reference,
-    data: VotePageUpdateVotePayload,
+    data: { vote: CastVote },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2799,7 +2644,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   messageUpdate = (
     id: Reference,
-    data: MessageUpdatePayload,
+    data: { read?: boolean; archived?: boolean },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2912,7 +2757,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumGroupUpdate = (
     id: Reference,
-    data: ForumGroupUpdatePayload,
+    data: { title?: string; summary?: string; order?: Reference[] },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -2934,7 +2779,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumGroupAddCategory = (
     id: Reference,
-    data: ForumGroupAddCategoryPayload,
+    data: { title?: string; summary?: string },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3028,7 +2873,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumCategoryUpdate = (
     id: Reference,
-    data: ForumCategoryUpdatePayload,
+    data: { title?: string; summary?: string },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3050,7 +2895,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumCategoryAddThread = (
     id: Reference,
-    data: ForumCategoryAddThreadPayload,
+    data: { title?: string; summary?: string },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3128,7 +2973,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumThreadUpdate = (
     id: Reference,
-    data: ForumThreadUpdatePayload,
+    data: { title?: string; summary?: string; stickied?: boolean; locked?: boolean },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3150,7 +2995,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumThreadAddPost = (
     id: Reference,
-    data: ForumThreadAddPostPayload,
+    data: { title?: string; wikitext?: Wikitext },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3243,7 +3088,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumPostUpdate = (
     id: Reference,
-    data: ForumPostUpdatePayload,
+    data: { title?: string; wikitext?: Wikitext },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3265,7 +3110,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   forumPostReply = (
     id: Reference,
-    data: ForumPostReplyPayload,
+    data: { title?: string; wikitext?: Wikitext },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3376,7 +3221,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   forumPostRevisionUpdateMetadata = (
     id: Reference,
     revision: number,
-    data: ForumPostRevisionUpdateMetadataPayload,
+    data: { hidden?: boolean; message?: string },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3419,7 +3264,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   moderationKick = (
     pathType: "id" | "name",
     path: Username | Reference,
-    data: ModerationKickPayload,
+    data: { reason: string },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({
@@ -3483,7 +3328,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   moderationBan = (
     pathType: "id" | "name",
     path: Username | Reference,
-    data: ModerationBanPayload,
+    data: { until: string | null; reason: string },
     params: RequestParams = {}
   ) =>
     this.request<void, void>({

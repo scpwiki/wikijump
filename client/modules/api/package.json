@@ -8,7 +8,7 @@
   ],
   "private": true,
   "scripts": {
-    "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --unwrap-response-data --extract-request-body  --module-name-index -1 --clean-output && prettier --write \"vendor/**\""
+    "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --unwrap-response-data  --module-name-index -1 --clean-output && prettier --write \"vendor/**\""
   },
   "type": "module",
   "main": "src/index.ts",
