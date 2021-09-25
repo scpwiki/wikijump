@@ -14,7 +14,7 @@ This folder contains the localization files needed by the various Wikijump proje
 
 ### File Naming
 
-Locale file names have a specific format. A locale will start with the basic language tag, e.g. `en` for English. Then, optionally, it may be followed by a region code, e.g. `-us` (`en-us`). You might have to look up what these language codes and region identifiers are, as they're often not what you expect.
+Locale file names have a specific format. A locale will start with the basic language tag, e.g. `en` for English. Then, optionally, it may be followed by a region code, e.g. `_US` (`en_US`). You might have to look up what these language codes and region identifiers are, as they're often not what you expect.
 
 Locale files with a region code will _inherit any missing translations from the base language_. That means if a translation string doesn't exist for `en-us`, the `en` locale file will be searched next. What that means is that you _do not need to copy the entire file for region-specific locales_. Instead, just change the translations that you need to, and leave the rest alone. Using English as an example, the `en-us` file would handle using the word "color" different from `en-gb`, which would use "colour" instead.
 
