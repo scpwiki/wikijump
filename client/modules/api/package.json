@@ -1,0 +1,17 @@
+{
+  "name": "package-name",
+  "license": "agpl-3.0-or-later",
+  "description": "Short package description.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "private": true,
+  "scripts": {},
+  "type": "module",
+  "main": "src/index.ts",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "dependencies": {}
+}
