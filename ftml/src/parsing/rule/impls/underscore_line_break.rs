@@ -58,5 +58,8 @@ fn try_consume_fn<'p, 'r, 't>(
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
-    todo!()
+    // Since we know where we are, we can step over them, then be done.
+    parser.step_n(2)?;
+
+    ok!(Element::LineBreak)
 }
