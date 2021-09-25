@@ -16,23 +16,36 @@
     }
   }
 
-  .wj-footnote-ref-contents {
+  .wj-footnote-ref-tooltip {
     position: absolute;
     z-index: 1;
-    display: none;
+    display: block;
     max-width: 30rem;
     padding: 0.5em;
     // important for how Popper works
     margin: 0 !important;
     font-size: 0.85em;
+    visibility: hidden;
+    user-select: contain;
     background: #fff;
     border: 1px solid #aaa;
     border-radius: 0.25em;
+    opacity: 0;
     @include shadow(4, 1);
 
-    &.is-hovered {
-      display: block;
+    @include tolerates-motion {
+      transition: opacity 0.075s ease-out, visibility 0.075s ease-in;
     }
+
+    &.is-hovered {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  .wj-footnote-ref-tooltip-label {
+    display: block;
+    font-weight: bold;
   }
 }
 

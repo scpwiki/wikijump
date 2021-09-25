@@ -141,6 +141,7 @@ impl Handle {
             "collapsible-open" => "+ open block",
             "collapsible-hide" => "- hide block",
             "table-of-contents" => "Table of Contents",
+            "footnote" => "Footnote",
             "footnote-block-title" => "Footnotes",
             _ => {
                 info!(

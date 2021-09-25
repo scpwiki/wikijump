@@ -26,6 +26,12 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
     let index = ctx.next_footnote_index();
     let ref_id = &format!("wj-footnote-ref-{}", index);
     let content_id = &format!("wj-footnote-{}", index);
+    let aria_id = &ctx.random().generate_html_id();
+
+    let footnote_string = ctx.handle().get_message(log, ctx.language(), "footnote");
+    let label = &format!("{} {}.", footnote_string, index);
+
+    let contents = ctx.get_footnote(index).unwrap();
 
     ctx.html()
         .span()
@@ -36,22 +42,39 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
                 .button()
                 .attr(attr!(
                     "is" => "wj-footnote-ref-marker",
+                    "class" => "wj-footnote-ref-marker",
                     "type" => "button",
                     "role" => "link",
-                    "class" => "wj-footnote-ref-marker",
-                    "aria-expanded" => "false",
+                    "aria-label" => label,
+                    "aria-details" => aria_id,
                     "data-footnote-ref-id" => ref_id,
                     "data-footnote-content-id" => content_id
                 ))
                 .contents(|ctx| str_write!(ctx, "{}", index));
 
-            // Hidden content that is shown when hovering
-            let contents = ctx.get_footnote(index).unwrap();
-
+            // Tooltip shown on hover
             ctx.html()
                 .span()
-                .attr(attr!("class" => "wj-footnote-ref-contents"))
-                .inner(log, contents);
+                .attr(attr!("class" => "wj-footnote-ref-tooltip"))
+                .contents(|ctx| {
+                    // Tooltip label
+                    ctx.html()
+                        .span()
+                        .attr(attr!(
+                            "class" => "wj-footnote-ref-tooltip-label",
+                            "aria-hidden" => "true" // already labeled by the marker
+                        ))
+                        .inner(log, label.as_str());
+
+                    // Actual tooltip contents
+                    ctx.html()
+                        .span()
+                        .attr(attr!(
+                            "id" => aria_id,
+                            "class" => "wj-footnote-ref-contents"
+                        ))
+                        .inner(log, contents);
+                });
         });
 }
 

@@ -35,28 +35,31 @@ export class FootnoteMarker extends HTMLButtonElement {
     return parseInt(this.dataset.contentID ?? "0", 10)
   }
 
-  get contentsElement() {
+  get tooltip() {
     if (!this.parentElement) throw new Error("No parent element")
-    const element = this.parentElement.querySelector(".wj-footnote-ref-contents")
+    const element = this.parentElement.querySelector(".wj-footnote-ref-tooltip")
     if (!element) throw new Error("No contents element")
     return element
   }
 
   private whenHovered() {
-    this.contentsElement.classList.add("is-hovered")
+    this.tooltip.classList.add("is-hovered")
     if (!this.popperInstance) {
       // @ts-ignore Popper has some bad typings (Element !== HTMLElement)
-      this.popperInstance = Popper.createPopper(this, this.contentsElement, {
+      this.popperInstance = Popper.createPopper(this, this.tooltip, {
         placement: "bottom"
       })
     }
   }
 
   private whenUnhovered() {
-    this.contentsElement.classList.remove("is-hovered")
+    this.tooltip.classList.remove("is-hovered")
     if (this.popperInstance) {
-      this.popperInstance.destroy()
+      const instance = this.popperInstance
       this.popperInstance = undefined
+      // we'll only destroy the instance after
+      // a timeout, to give room for a fade animation
+      setTimeout(() => instance.destroy(), 100)
     }
   }
 }
