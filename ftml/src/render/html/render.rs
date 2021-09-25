@@ -49,6 +49,13 @@ impl ItemRender for String {
     }
 }
 
+impl ItemRender for &'_ String {
+    #[inline]
+    fn render(&self, _log: &Logger, ctx: &mut HtmlContext) {
+        ctx.push_escaped(self);
+    }
+}
+
 impl ItemRender for &'_ Element<'_> {
     #[inline]
     fn render(&self, log: &Logger, ctx: &mut HtmlContext) {
