@@ -86,11 +86,11 @@ fn parse_definition_list<'p, 'r, 't>(
                         break;
                     }
                 }
-                Err(warn) => {
+                Err(_warn) => {
                     warn!(
                         log,
                         "Failed to get the next definition list item, ending iteration";
-                        "warning" => format!("{:#?}", warn),
+                        "warning" => format!("{:#?}", _warn),
                     );
 
                     break;
