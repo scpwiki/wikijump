@@ -92,6 +92,7 @@ token = _{
     left_double_angle |
     pipe |
     equals |
+    colon |
     underscore |
     quote |
     heading |
@@ -157,6 +158,7 @@ double_dash = @{ "-"{2} }
 left_double_angle = @{ "<<" }
 pipe = @{ "|" }
 equals = @{ "=" }
+colon = @{ ":" }
 underscore = @{ "_" }
 quote = @{ ">"+ }
 heading = @{ "+"{1,6} ~ "*"? }
