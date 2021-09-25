@@ -1,4 +1,5 @@
 import * as Popper from "@popperjs/core"
+import { clearTimeout, timeout, Timeout } from "@wikijump/util"
 import { defineElement, hover } from "../../util"
 
 // TODO: proper mobile support (need more infrastructure for mobile support)
@@ -11,10 +12,10 @@ export class FootnoteReferenceMarker extends HTMLButtonElement {
   static tag = "wj-footnote-ref-marker"
 
   /** Timer to keep track of the delay for revealing the tooltip. */
-  declare onTimer?: number
+  declare onTimer?: Timeout
 
   /** Timer to keep track of the delay for hiding the tooltip. */
-  declare offTimer?: number
+  declare offTimer?: Timeout
 
   /** The Popper.js instance for handling placement of the tooltip. */
   declare popperInstance?: Popper.Instance
@@ -25,11 +26,11 @@ export class FootnoteReferenceMarker extends HTMLButtonElement {
     hover(this.parent, {
       on: () => {
         clearTimeout(this.offTimer)
-        this.onTimer = setTimeout(() => this.whenHovered(), 50)
+        this.onTimer = timeout(50, () => this.whenHovered())
       },
       off: () => {
         clearTimeout(this.onTimer)
-        this.offTimer = setTimeout(() => this.whenUnhovered(), 50)
+        this.offTimer = timeout(50, () => this.whenUnhovered())
       }
     })
 
@@ -86,10 +87,10 @@ export class FootnoteReferenceMarker extends HTMLButtonElement {
     if (this.popperInstance) {
       // we'll only destroy the instance after
       // a timeout, to give room for a fade animation
-      this.offTimer = setTimeout(() => {
+      this.offTimer = timeout(100, () => {
         this.popperInstance!.destroy()
         this.popperInstance = undefined
-      }, 100)
+      })
     }
   }
 }

@@ -1,4 +1,5 @@
 import { highlight } from "@wikijump/prism"
+import { timeout } from "@wikijump/util"
 import { defineElement } from "../../util"
 
 /**
@@ -110,9 +111,7 @@ export class CodeCopyButton extends HTMLButtonElement {
       const text = code.innerText
       navigator.clipboard.writeText(text).then(() => {
         this.classList.add("wj-code-copy-success")
-        setTimeout(() => {
-          this.classList.remove("wj-code-copy-success")
-        }, 1000)
+        timeout(1000, () => this.classList.remove("wj-code-copy-success"))
       })
     })
   }
