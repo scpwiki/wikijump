@@ -1,7 +1,7 @@
 import * as Popper from "@popperjs/core"
 import { defineElement, hover } from "../../util"
 
-export class FootnoteMarker extends HTMLButtonElement {
+export class FootnoteReferenceMarker extends HTMLButtonElement {
   static tag = "wj-footnote-ref-marker"
 
   declare onTimer?: number
@@ -46,7 +46,7 @@ export class FootnoteMarker extends HTMLButtonElement {
   }
 
   private findFootnote() {
-    const body = this.parent.closest(".wj-body")
+    const body = this.closest(".wj-body")
     if (!body) throw new Error("No parent body")
     const footnote = body.querySelector(
       `.wj-footnote-list-item[data-id="${this.footnoteID}"]`
@@ -78,4 +78,38 @@ export class FootnoteMarker extends HTMLButtonElement {
   }
 }
 
-defineElement(FootnoteMarker.tag, FootnoteMarker, { extends: "button" })
+export class FootnoteListMarker extends HTMLButtonElement {
+  static tag = "wj-footnote-list-item-marker"
+
+  constructor() {
+    super()
+
+    this.addEventListener("click", () => {
+      const footnote = this.findFootnote()
+      footnote.scrollIntoView()
+      footnote.focus()
+    })
+  }
+
+  get parent() {
+    if (!this.parentElement) throw new Error("No parent element")
+    return this.parentElement
+  }
+
+  get footnoteID() {
+    return parseInt(this.parent.dataset.id ?? "0", 10)
+  }
+
+  findFootnote() {
+    const body = this.closest(".wj-body")
+    if (!body) throw new Error("No parent body")
+    const footnote = body.querySelector(
+      `.wj-footnote-ref-marker[data-id="${this.footnoteID}"]`
+    )
+    if (!footnote) throw new Error("No footnote")
+    return footnote as HTMLElement
+  }
+}
+
+defineElement(FootnoteReferenceMarker.tag, FootnoteReferenceMarker, { extends: "button" })
+defineElement(FootnoteListMarker.tag, FootnoteListMarker, { extends: "button" })
