@@ -47,7 +47,7 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
                     "aria-label" => label,
                     "data-id" => id,
                 ))
-                .inner(log, id.as_str());
+                .inner(log, id);
 
             // Tooltip shown on hover.
             // Is aria-hidden due to difficulty in getting a simultaneous
