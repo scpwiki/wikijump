@@ -1,0 +1,122 @@
+{
+    "input": "[\n: A : B\n: C : D\n\n: E : F\n-----\n: G : H\n]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "definition-list",
+                "data": [
+                    {
+                        "key": [
+                            {
+                                "element": "text",
+                                "data": "A"
+                            }
+                        ],
+                        "value": [
+                            {
+                                "element": "text",
+                                "data": "B"
+                            }
+                        ]
+                    },
+                    {
+                        "key": [
+                            {
+                                "element": "text",
+                                "data": "C"
+                            }
+                        ],
+                        "value": [
+                            {
+                                "element": "text",
+                                "data": "D"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "definition-list",
+                "data": [
+                    {
+                        "key": [
+                            {
+                                "element": "text",
+                                "data": "E"
+                            }
+                        ],
+                        "value": [
+                            {
+                                "element": "text",
+                                "data": "F"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "horizontal-rule"
+            },
+            {
+                "element": "definition-list",
+                "data": [
+                    {
+                        "key": [
+                            {
+                                "element": "text",
+                                "data": "G"
+                            }
+                        ],
+                        "value": [
+                            {
+                                "element": "text",
+                                "data": "H"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -241,6 +241,8 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 render_elements(log, ctx, value);
                 ctx.add_newline();
             }
+
+            ctx.add_newline();
         }
         Element::RadioButton { checked, .. } => {
             str_write!(ctx, "({}) ", if *checked { '*' } else { ' ' })
