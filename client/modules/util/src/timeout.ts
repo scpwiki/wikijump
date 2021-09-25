@@ -91,7 +91,7 @@ export class Timeout<T = void> {
       throw new Error("Timeout callback must be a function")
     }
 
-    if (this.expired || !this.promise) {
+    if (this.expired() || !this.promise) {
       this.promise = new Promise<T>(resolve => {
         this.promiseResolve = resolve
       })
@@ -109,7 +109,7 @@ export class Timeout<T = void> {
       }
     }
 
-    if (!this.expired) this.started = new Date()
+    if (this.expired()) this.started = new Date()
     this.ends = new Date(this.started.getTime() + this.delay)
     this.value = undefined
     this.clear() // make sure we end the old timeout
@@ -141,7 +141,9 @@ export function tick<T>(cb: () => T) {
  *
  * @param timeout - The timeout to clear.
  */
-export function clearTimeout(timeout?: Timeout) {
+function clearTimeoutClass(timeout?: Timeout) {
   if (!timeout) return
   timeout.clear()
 }
+
+export { clearTimeoutClass as clearTimeout }
