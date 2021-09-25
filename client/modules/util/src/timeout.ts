@@ -3,7 +3,7 @@
  * Additionally provides some extra safety and avoids typing issues with
  * `NodeJS.Timeout`.
  */
-export class Timeout<T> {
+export class Timeout<T = void> {
   // typed as any to avoid NodeJS.Timeout
   private declare timeout: any
 
@@ -58,13 +58,12 @@ export class Timeout<T> {
   // `this is Timeout<T> & { value: T }
   /** Returns true if the timeout has expired already. */
   expired(): this is { value: T } {
-    if (!this.timeout) return true
-    return this.remaining() <= 0
+    return this.timeout === undefined
   }
 
   /** Clears the timeout and prevents it from expiring. */
   clear() {
-    if (!this.timeout || this.expired) return
+    if (!this.timeout) return
     clearTimeout(this.timeout)
     this.timeout = undefined
   }
@@ -105,6 +104,7 @@ export class Timeout<T> {
         const out = cb()
         this.promiseResolve(out)
         this.value = out
+        this.timeout = undefined
         return out
       }
     }
@@ -112,6 +112,7 @@ export class Timeout<T> {
     if (!this.expired) this.started = new Date()
     this.ends = new Date(this.started.getTime() + this.delay)
     this.value = undefined
+    this.clear() // make sure we end the old timeout
     this.timeout = setTimeout(this.cb, this.delay)
   }
 }
