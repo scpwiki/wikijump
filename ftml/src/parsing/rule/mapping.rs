@@ -42,7 +42,7 @@ lazy_static! {
             Token::LeftBlockEnd => vec![],
             Token::LeftBlockStar => vec![RULE_BLOCK_STAR],
             Token::RightBlock => vec![],
-            Token::LeftMath => vec![], // TODO
+            Token::LeftMath => vec![RULE_MATH],
             Token::RightMath => vec![],
             Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_DASH],
             Token::TripleDash => vec![RULE_HORIZONTAL_RULE],

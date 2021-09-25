@@ -90,6 +90,7 @@ pub use self::link_anchor::RULE_LINK_ANCHOR;
 pub use self::link_single::{RULE_LINK_SINGLE, RULE_LINK_SINGLE_NEW_TAB};
 pub use self::link_triple::{RULE_LINK_TRIPLE, RULE_LINK_TRIPLE_NEW_TAB};
 pub use self::list::RULE_LIST;
+pub use self::math::RULE_MATH;
 pub use self::monospace::RULE_MONOSPACE;
 pub use self::null::RULE_NULL;
 pub use self::page::RULE_PAGE;
