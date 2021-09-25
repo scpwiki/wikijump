@@ -44,7 +44,9 @@ fn skip_newline<'p, 'r, 't>(
 
     match parser.next_three_tokens() {
         // It looks like a definition list is upcoming
-        (Token::LineBreak, Some(Token::Colon), Some(Token::Whitespace)) => ok!(Elements::None),
+        (Token::LineBreak, Some(Token::Colon), Some(Token::Whitespace)) => {
+            ok!(Elements::None)
+        }
 
         // Anything else
         _ => Err(parser.make_warn(ParseWarningKind::RuleFailed)),
