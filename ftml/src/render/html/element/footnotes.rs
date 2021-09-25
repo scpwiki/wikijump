@@ -26,6 +26,7 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
     let index = ctx.next_footnote_index();
     let id = &format!("{}", index);
 
+    // TODO make this into a locale template string
     let footnote_string = ctx.handle().get_message(log, ctx.language(), "footnote");
     let label = &format!("{} {}.", footnote_string, index);
 
@@ -44,7 +45,7 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
                     "type" => "button",
                     "role" => "link",
                     "aria-label" => label,
-                    "data-id" => id
+                    "data-id" => id,
                 ))
                 .inner(log, id.as_str());
 
@@ -63,7 +64,7 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-footnote-ref-tooltip-label"))
-                        .inner(log, label.as_str());
+                        .inner(log, label);
 
                     // Actual tooltip contents
                     ctx.html()
@@ -102,6 +103,7 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
                 .inner(log, title);
 
             ctx.html().ol().contents(|ctx| {
+                // TODO make this into a footnote helper method
                 for (index, contents) in ctx.footnotes().iter().enumerate() {
                     let index = index + 1;
                     let id = &format!("{}", index);
@@ -111,7 +113,7 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
                         .li()
                         .attr(attr!(
                             "class" => "wj-footnote-list-item",
-                            "data-id" => id
+                            "data-id" => id,
                         ))
                         .contents(|ctx| {
                             // Number and clickable anchor
