@@ -14,3 +14,20 @@ export function defineElement(
     customElements.define(tagName, element, options)
   }
 }
+
+export interface HoverOpts {
+  alsoOnFocus?: boolean
+  on?: () => void
+  off?: () => void
+  move?: () => void
+}
+
+export function hover(element: HTMLElement, opts: HoverOpts) {
+  if (opts.on) element.addEventListener("pointerover", opts.on)
+  if (opts.off) element.addEventListener("pointerout", opts.off)
+  if (opts.move) element.addEventListener("pointermove", opts.move)
+  if (opts.alsoOnFocus) {
+    if (opts.on) element.addEventListener("focus", opts.on)
+    if (opts.off) element.addEventListener("blur", opts.off)
+  }
+}

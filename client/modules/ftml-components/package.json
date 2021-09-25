@@ -14,6 +14,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
+    "@popperjs/core": "^2.10.1",
     "@wikijump/prism": "workspace:*"
   }
 }

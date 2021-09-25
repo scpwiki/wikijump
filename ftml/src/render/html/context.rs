@@ -184,6 +184,13 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
         index
     }
 
+    #[inline]
+    pub fn get_footnote(&self, index_one: NonZeroUsize) -> Option<&'e [Element<'t>]> {
+        self.footnotes
+            .get(usize::from(index_one) - 1)
+            .map(|elements| elements.as_slice())
+    }
+
     // Backlinks
     #[inline]
     pub fn add_link(&mut self, link: &LinkLocation) {
