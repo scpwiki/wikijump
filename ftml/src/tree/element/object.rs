@@ -21,9 +21,9 @@
 use crate::data::PageRef;
 use crate::tree::clone::*;
 use crate::tree::{
-    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
-    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, PartialElement,
-    Table, VariableMap,
+    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, DefinitionListItem,
+    FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
+    PartialElement, Table, VariableMap,
 };
 use ref_map::*;
 use std::borrow::Cow;
@@ -114,7 +114,7 @@ pub enum Element<'t> {
     },
 
     /// A definition list.
-    DefinitionList(Vec<(Cow<'t, str>, Cow<'t, str>)>),
+    DefinitionList(Vec<DefinitionListItem<'t>>),
 
     /// A radio button.
     ///
