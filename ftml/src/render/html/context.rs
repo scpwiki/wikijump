@@ -180,6 +180,12 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
         index
     }
 
+    pub fn next_equation_index(&mut self) -> NonZeroUsize {
+        let index = self.equation_index;
+        self.equation_index = NonZeroUsize::new(index.get() + 1).unwrap();
+        index
+    }
+
     pub fn next_footnote_index(&mut self) -> NonZeroUsize {
         let index = self.footnote_index;
         self.footnote_index = NonZeroUsize::new(index.get() + 1).unwrap();
