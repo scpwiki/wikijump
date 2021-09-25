@@ -115,6 +115,7 @@ pub enum Element<'t> {
 
     /// A definition list.
     DefinitionList {
+        #[serde(flatten)]
         items: Vec<(Cow<'t, str>, Cow<'t, str>)>,
     },
 
