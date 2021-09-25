@@ -13,6 +13,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
+    "@wikijump/api": "workspace:*",
     "@wikijump/cm-lang-ftml": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/css": "workspace:*",

@@ -78,6 +78,14 @@ const getConfig = (test = false) => ({
     alias: [{ find: "@root", replacement: path.resolve(ROOT, "../") }]
   },
 
+  server: {
+    proxy: {
+      "/api--v1": {
+        target: "http://localhost:3500"
+      }
+    }
+  },
+
   build: test
     ? BUILD_TEST_OPTIONS
     : {

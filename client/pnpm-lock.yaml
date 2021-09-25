@@ -360,6 +360,7 @@ importers:
 
   web/dev-sandbox:
     specifiers:
+      '@wikijump/api': workspace:*
       '@wikijump/cm-lang-ftml': workspace:*
       '@wikijump/components': workspace:*
       '@wikijump/css': workspace:*
@@ -369,6 +370,7 @@ importers:
       '@wikijump/util': workspace:*
       svelte: ^3.42.6
     dependencies:
+      '@wikijump/api': link:../../modules/api
       '@wikijump/cm-lang-ftml': link:../../modules/cm-lang-ftml
       '@wikijump/components': link:../../modules/components
       '@wikijump/css': link:../../modules/css
