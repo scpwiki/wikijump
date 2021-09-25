@@ -34,7 +34,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     check_step(parser, Token::LeftMath)?;
 
-    let latex_source = collect_text(
+    let source = collect_text(
         log,
         parser,
         RULE_MATH,
@@ -46,5 +46,7 @@ fn try_consume_fn<'p, 'r, 't>(
         None,
     )?;
 
-    todo!()
+    ok!(Element::MathInline {
+        latex_source: cow!(source),
+    })
 }
