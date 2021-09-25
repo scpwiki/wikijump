@@ -19,10 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::parsing::Token;
-use std::borrow::Cow;
-
-type DefinitionItem<'t> = (Cow<'t, str>, Cow<'t, str>);
+use crate::parsing::{Token, strip_whitespace};
+use crate::tree::DefinitionListItem;
 
 pub const RULE_DEFINITION_LIST: Rule = Rule {
     name: "definition-list",
@@ -60,14 +58,38 @@ fn parse_definition_list<'p, 'r, 't>(
     info!(log, "Trying to create a definition list");
 
     let mut items = Vec::new();
+    let mut exceptions = Vec::new();
+    let mut _paragraph_safe = false;
 
-    while let Some(item) = parse_item(log, parser)? {
-        items.push(item);
-    }
+    // Definition list needs at least one item
+    let item = parse_item(log, parser)?
+        .chain(&mut exceptions, &mut _paragraph_safe);
 
-    // Definition list must have at least one pair
-    if items.is_empty() {
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+    items.push(item);
+
+    // Collect remainder, halting if there's a failure
+    loop {
+        let sub_parser = &mut parser.clone();
+
+        match parse_item(log, parser) {
+            Ok(success) => {
+                debug!(log, "Retrieved definition list item");
+
+                let item = success.chain(&mut exceptions, &mut _paragraph_safe);
+
+                items.push(item);
+                parser.update(sub_parser);
+            }
+            Err(warn) => {
+                warn!(
+                    log,
+                    "Failed to get the next definition list item, ending iteration";
+                    "warning" => format!("{:#?}", warn),
+                );
+
+                break;
+            }
+        }
     }
 
     // Build and return element
@@ -77,11 +99,11 @@ fn parse_definition_list<'p, 'r, 't>(
 fn parse_item<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> Result<Option<DefinitionItem<'t>>, ParseWarning>
-where
-    'r: 't,
-{
+) -> ParseResult<'r, 't, DefinitionListItem<'t>> {
     debug!(log, "Trying to parse a definition list item pair");
+
+    let mut exceptions = Vec::new();
+    let mut _paragraph_safe = false;
 
     // The pattern for a definition list row is:
     // : key : value \n
@@ -96,13 +118,13 @@ where
         parser.next_two_tokens(),
         (Token::Colon, Some(Token::Whitespace)),
     ) {
-        return Ok(None);
+        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
     parser.step_n(2)?;
 
     // Gather key text until colon
-    let key = collect_text(
+    let mut key = collect_consume(
         log,
         parser,
         RULE_DEFINITION_LIST,
@@ -112,12 +134,14 @@ where
             ParseCondition::current(Token::LineBreak),
         ],
         None,
-    )?;
+    )?
+    .chain(&mut exceptions, &mut _paragraph_safe);
 
+    strip_whitespace(&mut key);
     parser.step_n(2)?;
 
     // Gather value text until end of line
-    let value = collect_text(
+    let mut value = collect_consume(
         log,
         parser,
         RULE_DEFINITION_LIST,
@@ -128,10 +152,10 @@ where
         ],
         &[],
         None,
-    )?;
+    )?
+    .chain(&mut exceptions, &mut _paragraph_safe);
 
-    let key = cow!(key.trim());
-    let value = cow!(value.trim());
+    strip_whitespace(&mut value);
 
-    Ok(Some((key, value)))
+    ok!(false; DefinitionListItem { key, value }, exceptions)
 }

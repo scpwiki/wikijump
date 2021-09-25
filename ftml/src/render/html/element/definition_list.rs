@@ -19,12 +19,12 @@
  */
 
 use super::prelude::*;
-use std::borrow::Cow;
+use crate::tree::DefinitionListItem;
 
 pub fn render_definition_list(
     log: &Logger,
     ctx: &mut HtmlContext,
-    items: &[(Cow<str>, Cow<str>)],
+    items: &[DefinitionListItem],
 ) {
     info!(
         log,
@@ -33,7 +33,7 @@ pub fn render_definition_list(
     );
 
     ctx.html().dl().contents(|ctx| {
-        for (key, value) in items {
+        for DefinitionListItem { key, value } in items {
             ctx.html().dt().inner(log, key);
             ctx.html().dd().inner(log, value);
         }

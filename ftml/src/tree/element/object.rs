@@ -388,12 +388,7 @@ impl Element<'_> {
             Element::DefinitionList(items) => Element::DefinitionList(
                 items
                     .iter()
-                    .map(|(key, value)| {
-                        let key = string_to_owned(key);
-                        let value = string_to_owned(value);
-
-                        (key, value)
-                    })
+                    .map(|item| item.to_owned())
                     .collect(),
             ),
             Element::RadioButton {
