@@ -311,6 +311,7 @@ dependencies = [
  "entities",
  "enum-map",
  "getrandom",
+ "latex2mathml",
  "lazy_static",
  "maplit",
  "parking_lot",
@@ -462,6 +463,12 @@ checksum = "7cc9ffccd38c451a86bf13657df244e9c3f37493cce8e5e21e940963777acc84"
 dependencies = [
  "wasm-bindgen",
 ]
+
+[[package]]
+name = "latex2mathml"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "678cf5bdb3ba63a264e6e0c9eee36538ca1d2da0afa4dd801c1f96309e710765"
 
 [[package]]
 name = "lazy_static"
