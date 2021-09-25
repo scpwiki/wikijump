@@ -82,13 +82,15 @@ where
         log,
         parser,
         RULE_DEFINITION_LIST,
-        &[ParseCondition::current(Token::Colon)],
+        &[ParseCondition::token_pair(Token::Whitespace, Token::Colon)],
         &[
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
         None,
     )?;
+
+    parser.step_n(2)?;
 
     // Gather value text until end of line
     let value = collect_text(
