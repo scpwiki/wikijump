@@ -71,7 +71,7 @@ fn parse_definition_list<'p, 'r, 't>(
     loop {
         let sub_parser = &mut parser.clone();
 
-        match parse_item(log, parser) {
+        match parse_item(log, sub_parser) {
             Ok(success) => {
                 debug!(log, "Retrieved definition list item");
 
