@@ -18,8 +18,66 @@
             {
                 "element": "definition-list",
                 "data": [
-                    ["Key 1", "Some value"],
-                    ["Key 2", "Value 2"]
+                    {
+                        "key": [
+                            {
+                                "element": "text",
+                                "data": "Key"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "1"
+                            }
+                        ],
+                        "value": [
+                            {
+                                "element": "text",
+                                "data": "Some"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "value"
+                            }
+                        ]
+                    },
+                    {
+                        "key": [
+                            {
+                                "element": "text",
+                                "data": "Key"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "2"
+                            }
+                        ],
+                        "value": [
+                            {
+                                "element": "text",
+                                "data": "Value"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "2"
+                            }
+                        ]
+                    }
                 ]
             },
             {
