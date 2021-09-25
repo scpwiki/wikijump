@@ -55,7 +55,8 @@ export class Timeout<T = void> {
   /** The amount of time remaining before the timeout expires, in milliseconds. */
   remaining() {
     if (!this.ends || !this.started) return 0
-    return this.ends.getTime() - new Date().getTime()
+    const remaining = this.ends.getTime() - new Date().getTime()
+    return remaining > 0 ? remaining : 0
   }
 
   // apparently, this is how you do typeguards for classes?
@@ -107,9 +108,9 @@ export class Timeout<T = void> {
     if (cb) {
       this.cb = () => {
         const out = cb()
-        this.promiseResolve(out)
         this.value = out
         this.timeout = undefined
+        this.promiseResolve(out)
         return out
       }
     }
@@ -118,7 +119,7 @@ export class Timeout<T = void> {
     this.ends = new Date(this.started.getTime() + this.delay)
     this.value = undefined
     this.clear() // make sure we end the old timeout
-    this.timeout = setTimeout(this.cb, this.delay)
+    this.timeout = setTimeout(() => this.cb(), this.delay)
   }
 }
 
