@@ -59,6 +59,9 @@ where
     /// added are instead replaced with spaces.
     invisible: usize,
 
+    /// The current equation index, for rendering.
+    equation_index: NonZeroUsize,
+
     /// The current footnote index, for rendering.
     footnote_index: NonZeroUsize,
 }
@@ -84,6 +87,7 @@ where
             prefixes: Vec::new(),
             list_depths: NonEmptyVec::new(1),
             invisible: 0,
+            equation_index: NonZeroUsize::new(1).unwrap(),
             footnote_index: NonZeroUsize::new(1).unwrap(),
         }
     }

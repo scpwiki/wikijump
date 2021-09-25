@@ -62,6 +62,7 @@ where
     //
     code_snippet_index: NonZeroUsize,
     table_of_contents_index: usize,
+    equation_index: NonZeroUsize,
     footnote_index: NonZeroUsize,
 }
 
@@ -86,6 +87,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
             footnotes,
             code_snippet_index: NonZeroUsize::new(1).unwrap(),
             table_of_contents_index: 0,
+            equation_index: NonZeroUsize::new(1).unwrap(),
             footnote_index: NonZeroUsize::new(1).unwrap(),
         }
     }
