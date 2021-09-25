@@ -1,5 +1,5 @@
 {
-    "input": "|| A_\nB || C_ || _D ||",
+    "input": "|| A _\nB || C_ || _D ||",
     "tree": {
         "elements": [
             {
