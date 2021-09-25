@@ -135,3 +135,13 @@ export function timeout<T>(delay: number, cb: () => T) {
 export function tick<T>(cb: () => T) {
   return new Timeout(0, cb)
 }
+
+/**
+ * Clears a {@link Timeout}.
+ *
+ * @param timeout - The timeout to clear.
+ */
+export function clearTimeout(timeout?: Timeout) {
+  if (!timeout) return
+  timeout.clear()
+}
