@@ -8,7 +8,7 @@
   ],
   "private": true,
   "scripts": {
-    "generate-api": "pnpx openapi-typescript ../../../web/resources/api/api.oas3.yaml -o ./vendor/api.d.ts && prettier --write \"vendor/**\""
+    "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --extract-request-body  --module-name-index -1 --clean-output && prettier --write \"vendor/**\""
   },
   "type": "module",
   "main": "src/index.ts",
@@ -16,6 +16,6 @@
     "extends": "../../.eslintrc.js"
   },
   "devDependencies": {
-    "openapi-typescript": "^4.0.2"
+    "swagger-typescript-api": "^9.2.0"
   }
 }
