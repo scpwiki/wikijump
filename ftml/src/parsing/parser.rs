@@ -426,6 +426,15 @@ impl<'r, 't> Parser<'r, 't> {
         (first, second)
     }
 
+    /// Retrieves the current, second, and third tokens.
+    pub fn next_three_tokens(&self) -> (Token, Option<Token>, Option<Token>) {
+        let first = self.current.token;
+        let second = self.look_ahead(0).map(|next| next.token);
+        let third = self.look_ahead(1).map(|next| next.token);
+
+        (first, second, third)
+    }
+
     // Utilities
     #[cold]
     #[inline]

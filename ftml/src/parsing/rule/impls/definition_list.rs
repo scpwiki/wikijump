@@ -42,11 +42,7 @@ fn skip_newline<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(log, "Seeing if we skip due to an upcoming definition list");
 
-    let current = parser.current().token;
-    let second = parser.look_ahead(0).map(|extract| extract.token);
-    let third = parser.look_ahead(1).map(|extract| extract.token);
-
-    match (current, second, third) {
+    match parser.next_three_tokens() {
         // It looks like a definition list is upcoming
         (Token::LineBreak, Some(Token::Colon), Some(Token::Whitespace)) => ok!(Elements::None),
 
