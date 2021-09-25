@@ -558,7 +558,7 @@ paths:
           description: OK
           content: { application/octet-stream: {
             example: FFD8FFDB00430006040506050406060506070706...,
-            schema: { allOf: [$ref: '#/components/schemas/File'], nullable: true }
+            schema: { allOf: [$ref: '#/components/schemas/FileData'], nullable: true }
           }}
         401: { description: Missing or invalid authentication credentials. }
         404: { description: Not Found }
@@ -572,7 +572,7 @@ paths:
       - AccountSession: []
       requestBody: { content: { application/octet-stream: {
         example: FFD8FFDB00430006040506050406060506070706...,
-        schema: { $ref: '#/components/schemas/File' }
+        schema: { $ref: '#/components/schemas/FileData' }
       }}}
       responses:
         201: { description: Created }
@@ -655,7 +655,7 @@ paths:
           description: OK
           content: { application/octet-stream: {
             example: FFD8FFDB00430006040506050406060506070706...,
-            schema: { allOf: [$ref: '#/components/schemas/File'], nullable: true }
+            schema: { allOf: [$ref: '#/components/schemas/FileData'], nullable: true }
           }}
         404: { description: Not Found }
         500: { description: Unexpected Error }
@@ -1324,7 +1324,7 @@ paths:
           description: OK
           content: { application/octet-stream: {
             example: FFD8FFDB00430006040506050406060506070706...,
-            schema: { $ref: '#/components/schemas/File' }
+            schema: { $ref: '#/components/schemas/FileData' }
           }}
         404: { description: Not Found }
         500: { description: Unexpected Error }
@@ -2508,7 +2508,7 @@ paths:
           description: OK
           content: { application/octet-stream: {
             example: FFD8FFDB00430006040506050406060506070706...,
-            schema: { $ref: '#/components/schemas/File' }
+            schema: { $ref: '#/components/schemas/FileData' }
           }}
         401: { description: Missing or invalid authentication credentials. }
         403: { description: Forbidden }
@@ -2810,7 +2810,7 @@ components:
       type: integer
       example: 1234
 
-    File:
+    FileData:
       description: A binary chunk of data representing a file.
       title: Binary Data
       type: string
@@ -3273,7 +3273,7 @@ components:
       properties:
         filename: { type: string }
         comment:  { type: string }
-        content:  { $ref: '#/components/schemas/File' }
+        content:  { $ref: '#/components/schemas/FileData' }
 
     # -- REPORT / ABUSE
 
