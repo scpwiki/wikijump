@@ -114,10 +114,7 @@ pub enum Element<'t> {
     },
 
     /// A definition list.
-    DefinitionList {
-        #[serde(flatten)]
-        items: Vec<(Cow<'t, str>, Cow<'t, str>)>,
-    },
+    DefinitionList(Vec<(Cow<'t, str>, Cow<'t, str>)>),
 
     /// A radio button.
     ///
@@ -274,7 +271,7 @@ impl Element<'_> {
             Element::Link { .. } => "Link",
             Element::Image { .. } => "Image",
             Element::List { .. } => "List",
-            Element::DefinitionList { .. } => "DefinitionList",
+            Element::DefinitionList(_) => "DefinitionList",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",
@@ -316,7 +313,7 @@ impl Element<'_> {
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::Image { .. } => true,
             Element::List { .. } => false,
-            Element::DefinitionList { .. } => true,
+            Element::DefinitionList(_) => true,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
             Element::TableOfContents { .. } => false,
@@ -388,8 +385,8 @@ impl Element<'_> {
                 alignment: *alignment,
                 attributes: attributes.to_owned(),
             },
-            Element::DefinitionList { items } => Element::DefinitionList {
-                items: items
+            Element::DefinitionList(items) => Element::DefinitionList(
+                items
                     .iter()
                     .map(|(key, value)| {
                         let key = string_to_owned(key);
@@ -398,7 +395,7 @@ impl Element<'_> {
                         (key, value)
                     })
                     .collect(),
-            },
+            ),
             Element::RadioButton {
                 name,
                 checked,

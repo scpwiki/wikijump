@@ -47,7 +47,7 @@ fn try_consume_fn<'p, 'r, 't>(
     }
 
     // Build and return element
-    ok!(Element::DefinitionList { items })
+    ok!(Element::DefinitionList(items))
 }
 
 fn parse_item<'p, 'r, 't>(

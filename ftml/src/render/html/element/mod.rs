@@ -113,7 +113,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             items,
             attributes,
         } => render_list(log, ctx, *ltype, items, attributes),
-        Element::DefinitionList { items } => render_definition_list(log, ctx, items),
+        Element::DefinitionList(items) => render_definition_list(log, ctx, items),
         Element::RadioButton {
             name,
             checked,

@@ -231,7 +231,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 }
             }
         }
-        Element::DefinitionList { items } => {
+        Element::DefinitionList(items) => {
             for (key, value) in items {
                 str_write!(ctx, ": {} : {}", key, value);
                 ctx.add_newline();
