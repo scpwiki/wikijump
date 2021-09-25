@@ -26,7 +26,6 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
     let index = ctx.next_footnote_index();
     let ref_id = &format!("wj-footnote-ref-{}", index);
     let content_id = &format!("wj-footnote-{}", index);
-    let aria_id = &ctx.random().generate_html_id();
 
     let footnote_string = ctx.handle().get_message(log, ctx.language(), "footnote");
     let label = &format!("{} {}.", footnote_string, index);
@@ -46,33 +45,32 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
                     "type" => "button",
                     "role" => "link",
                     "aria-label" => label,
-                    "aria-details" => aria_id,
                     "data-footnote-ref-id" => ref_id,
                     "data-footnote-content-id" => content_id
                 ))
                 .contents(|ctx| str_write!(ctx, "{}", index));
 
-            // Tooltip shown on hover
+            // Tooltip shown on hover.
+            // Is aria-hidden due to difficulty in getting a simultaneous
+            // tooltip and link to work. A screen reader can still navigate
+            // through to the link and read the footnote directly.
             ctx.html()
                 .span()
-                .attr(attr!("class" => "wj-footnote-ref-tooltip"))
+                .attr(attr!(
+                    "class" => "wj-footnote-ref-tooltip",
+                    "aria-hidden" => "true",
+                ))
                 .contents(|ctx| {
                     // Tooltip label
                     ctx.html()
                         .span()
-                        .attr(attr!(
-                            "class" => "wj-footnote-ref-tooltip-label",
-                            "aria-hidden" => "true" // already labeled by the marker
-                        ))
+                        .attr(attr!("class" => "wj-footnote-ref-tooltip-label"))
                         .inner(log, label.as_str());
 
                     // Actual tooltip contents
                     ctx.html()
                         .span()
-                        .attr(attr!(
-                            "id" => aria_id,
-                            "class" => "wj-footnote-ref-contents"
-                        ))
+                        .attr(attr!("class" => "wj-footnote-ref-contents"))
                         .inner(log, contents);
                 });
         });

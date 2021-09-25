@@ -11,10 +11,7 @@ export class FootnoteMarker extends HTMLButtonElement {
   constructor() {
     super()
 
-    const parent = this.parentElement
-    if (!parent) throw new Error("No parent element")
-
-    hover(parent, {
+    hover(this.parent, {
       alsoOnFocus: true,
       on: () => {
         clearTimeout(this.offTimer)
@@ -27,6 +24,11 @@ export class FootnoteMarker extends HTMLButtonElement {
     })
   }
 
+  get parent() {
+    if (!this.parentElement) throw new Error("No parent element")
+    return this.parentElement
+  }
+
   get refID() {
     return parseInt(this.dataset.refID ?? "0", 10)
   }
@@ -36,8 +38,7 @@ export class FootnoteMarker extends HTMLButtonElement {
   }
 
   get tooltip() {
-    if (!this.parentElement) throw new Error("No parent element")
-    const element = this.parentElement.querySelector(".wj-footnote-ref-tooltip")
+    const element = this.parent.querySelector(".wj-footnote-ref-tooltip")
     if (!element) throw new Error("No contents element")
     return element
   }
@@ -46,7 +47,7 @@ export class FootnoteMarker extends HTMLButtonElement {
     this.tooltip.classList.add("is-hovered")
     if (!this.popperInstance) {
       // @ts-ignore Popper has some bad typings (Element !== HTMLElement)
-      this.popperInstance = Popper.createPopper(this, this.tooltip, {
+      this.popperInstance = Popper.createPopper(this.parent, this.tooltip, {
         placement: "bottom"
       })
     }
@@ -55,11 +56,12 @@ export class FootnoteMarker extends HTMLButtonElement {
   private whenUnhovered() {
     this.tooltip.classList.remove("is-hovered")
     if (this.popperInstance) {
-      const instance = this.popperInstance
-      this.popperInstance = undefined
       // we'll only destroy the instance after
       // a timeout, to give room for a fade animation
-      setTimeout(() => instance.destroy(), 100)
+      this.offTimer = setTimeout(() => {
+        this.popperInstance!.destroy()
+        this.popperInstance = undefined
+      }, 100)
     }
   }
 }
