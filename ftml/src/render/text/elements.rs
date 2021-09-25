@@ -349,12 +349,21 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 None => "",
             };
 
-            str_write!(ctx, "```{}\n{}\n```", language, contents);
+            str_write!(ctx, "```{}", language);
+            ctx.add_newline();
+            ctx.push_str(contents);
+            ctx.add_newline();
+            ctx.push_str("```");
         }
         Element::Math { name, latex_source } => {
             let index = ctx.next_equation_index();
 
-            str_write!(ctx, "{}. ({})\n```latex\n{}\n```", index, name, latex_source);
+            str_write!(ctx, "{}. ({})", index, name);
+            ctx.push_str("```latex");
+            ctx.add_newline();
+            ctx.push_str(latex_source);
+            ctx.add_newline();
+            ctx.push_str("```");
         }
         Element::MathInline { latex_source } => todo!(),
         Element::Html { contents } => {
