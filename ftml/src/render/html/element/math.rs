@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use latex2mathml::{latex_to_mathml, DisplayStyle};
 
 pub fn render_math_block(
     log: &Logger,
@@ -26,9 +27,51 @@ pub fn render_math_block(
     name: &str,
     latex_source: &str,
 ) {
+    info!(
+        log,
+        "Rendering math block";
+        "name" => name,
+        "latex-source" => latex_source,
+    );
+
     todo!()
 }
 
 pub fn render_math_inline(log: &Logger, ctx: &mut HtmlContext, latex_source: &str) {
+    info!(
+        log,
+        "Rendering math inline";
+        "latex-source" => latex_source,
+    );
+
     todo!()
+}
+
+fn process_latex(
+    log: &Logger,
+    latex_source: &str,
+    display: DisplayStyle,
+) -> Result<String, String> {
+    match latex_to_mathml(latex_source, display) {
+        Ok(mathml) => {
+            info!(
+                log,
+                "Processed LaTeX -> MathML";
+                "display" => str!(display),
+                "mathml" => mathml,
+            );
+
+            todo!()
+        }
+        Err(error) => {
+            warn!(
+                log,
+                "Error processing LaTeX -> MathML";
+                "display" => str!(display),
+                "error" => str!(error),
+            );
+
+            todo!()
+        }
+    }
 }
