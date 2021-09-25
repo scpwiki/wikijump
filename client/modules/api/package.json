@@ -1,7 +1,7 @@
 {
-  "name": "package-name",
+  "name": "@wikijump/api",
   "license": "agpl-3.0-or-later",
-  "description": "Short package description.",
+  "description": "API client for Wikijump.",
   "version": "0.0.0",
   "keywords": [
     "wikijump"
