@@ -44,5 +44,21 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    todo!()
+    assert!(!flag_star, "User doesn't allow star flag");
+    assert!(!flag_score, "User doesn't allow score flag");
+    assert_block_name(&BLOCK_MATH, name);
+
+    let name =
+        parser.get_head_value(&BLOCK_MATH, in_head, |parser, value| match value {
+            Some(name) => Ok(name.trim()),
+            None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+        })?;
+
+    let latex_source = parser.get_body_text(&BLOCK_MATH)?;
+    let element = Element::Math {
+        name: cow!(name),
+        latex_source: cow!(latex_source),
+    };
+
+    ok!(element)
 }
