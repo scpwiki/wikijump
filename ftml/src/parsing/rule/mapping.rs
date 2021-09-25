@@ -50,7 +50,7 @@ lazy_static! {
             Token::ClearFloatRight => vec![RULE_CLEAR_FLOAT],
             Token::Pipe => vec![RULE_TEXT],
             Token::Equals => vec![RULE_CENTER, RULE_TEXT],
-            Token::Colon => vec![], // TODO
+            Token::Colon => vec![RULE_DEFINITION_LIST],
             Token::Underscore => vec![RULE_UNDERSCORE_LINE_BREAK, RULE_TEXT],
             Token::Quote => vec![RULE_BLOCKQUOTE, RULE_DOUBLE_ANGLE, RULE_TEXT],
             Token::Heading => vec![RULE_HEADER, RULE_TEXT],
