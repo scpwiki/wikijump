@@ -22,6 +22,12 @@ export class FootnoteMarker extends HTMLButtonElement {
         this.offTimer = setTimeout(() => this.whenUnhovered(), 50)
       }
     })
+
+    this.addEventListener("click", () => {
+      const footnote = this.findFootnote()
+      footnote.scrollIntoView()
+      footnote.focus()
+    })
   }
 
   get parent() {
@@ -29,18 +35,24 @@ export class FootnoteMarker extends HTMLButtonElement {
     return this.parentElement
   }
 
-  get refID() {
-    return parseInt(this.dataset.refID ?? "0", 10)
-  }
-
-  get contentID() {
-    return parseInt(this.dataset.contentID ?? "0", 10)
+  get footnoteID() {
+    return parseInt(this.dataset.id ?? "0", 10)
   }
 
   get tooltip() {
     const element = this.parent.querySelector(".wj-footnote-ref-tooltip")
     if (!element) throw new Error("No contents element")
     return element
+  }
+
+  private findFootnote() {
+    const body = this.parent.closest(".wj-body")
+    if (!body) throw new Error("No parent body")
+    const footnote = body.querySelector(
+      `.wj-footnote-list-item[data-id="${this.footnoteID}"]`
+    )
+    if (!footnote) throw new Error("No footnote")
+    return footnote as HTMLElement
   }
 
   private whenHovered() {

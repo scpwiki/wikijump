@@ -1,24 +1,28 @@
+.wj-footnote-list-item-marker,
+.wj-footnote-ref-marker {
+  @include reset;
+  display: inline;
+  color: #0000ee;
+  cursor: pointer;
+
+  @include hover {
+    text-decoration: underline;
+  }
+}
+
 .wj-footnote-ref {
   position: relative;
   margin-right: 0.75ch;
 
   .wj-footnote-ref-marker {
-    @include reset;
     position: absolute;
-    display: inline;
     // makes the marker artifically bigger
     padding: 0.5em;
     margin: -0.5em;
     font-size: 0.75em;
     font-style: italic;
-    color: #0000ee;
     vertical-align: super;
-    cursor: pointer;
     user-select: none;
-
-    @include hover {
-      text-decoration: underline;
-    }
   }
 
   .wj-footnote-ref-tooltip {
@@ -68,7 +72,7 @@
   }
 }
 
-.wj-footnotes-list {
+.wj-footnote-list {
   .wj-title {
     font-size: 1.3em;
     font-weight: bold;
@@ -78,11 +82,21 @@
     list-style: none;
   }
 
-  .wj-footnote {
-    span.wj-footnote-sep {
+  .wj-footnote-list-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.5em;
+
+    .wj-footnote-list-item-marker {
+      display: block;
+      padding-right: 0.5em;
     }
 
-    div.wj-footnote-contents {
+    .wj-footnote-sep {
+    }
+
+    .wj-footnote-list-item-contents {
+      display: block;
     }
   }
 }

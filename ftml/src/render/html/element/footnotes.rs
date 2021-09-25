@@ -24,8 +24,7 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
     info!(log, "Rendering footnote reference");
 
     let index = ctx.next_footnote_index();
-    let ref_id = &format!("wj-footnote-ref-{}", index);
-    let content_id = &format!("wj-footnote-{}", index);
+    let id = &format!("{}", index);
 
     let footnote_string = ctx.handle().get_message(log, ctx.language(), "footnote");
     let label = &format!("{} {}.", footnote_string, index);
@@ -45,10 +44,9 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
                     "type" => "button",
                     "role" => "link",
                     "aria-label" => label,
-                    "data-footnote-ref-id" => ref_id,
-                    "data-footnote-content-id" => content_id
+                    "data-id" => id
                 ))
-                .contents(|ctx| str_write!(ctx, "{}", index));
+                .inner(log, id.as_str());
 
             // Tooltip shown on hover.
             // Is aria-hidden due to difficulty in getting a simultaneous
@@ -96,60 +94,52 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
 
     ctx.html()
         .div()
-        .attr(attr!(
-            "is" => "wj-footnotes-list",
-            "class" => "wj-footnotes-list",
-        ))
+        .attr(attr!("class" => "wj-footnote-list"))
         .contents(|ctx| {
             ctx.html()
                 .div()
                 .attr(attr!("class" => "wj-title"))
                 .inner(log, title);
 
-            ctx.html()
-                .ol()
-                .contents(|ctx| {
-                    let mut id = String::new();
+            ctx.html().ol().contents(|ctx| {
+                for (index, contents) in ctx.footnotes().iter().enumerate() {
+                    let index = index + 1;
+                    let id = &format!("{}", index);
 
-                    for (index, contents) in ctx.footnotes().iter().enumerate() {
-                        // Format ID for each footnote
-                        let index = index + 1;
-                        id.clear();
-                        str_write!(id, "wj-footnote-{}", index);
+                    // Build actual footnote item
+                    ctx.html()
+                        .li()
+                        .attr(attr!(
+                            "class" => "wj-footnote-list-item",
+                            "data-id" => id
+                        ))
+                        .contents(|ctx| {
+                            // Number and clickable anchor
+                            ctx.html()
+                                .button()
+                                .attr(attr!(
+                                    "is" => "wj-footnote-list-item-marker",
+                                    "class" => "wj-footnote-list-item-marker",
+                                    "type" => "button",
+                                    "role" => "link",
+                                ))
+                                .contents(|ctx| {
+                                    str_write!(ctx, "{}", index);
 
-                        // Build actual footnote item
-                        ctx.html()
-                            .li()
-                            .attr(attr!("class" => "wj-footnote", "id" => &id))
-                            .contents(|ctx| {
-                                id.clear();
-                                str_write!(id, "wj-footnote-ref-{}", index);
+                                    // Period after item number. Has special class to permit styling.
+                                    ctx.html()
+                                        .span()
+                                        .attr(attr!("class" => "wj-footnote-sep"))
+                                        .inner(log, ".");
+                                });
 
-                                // Number and clickable anchor
-                                let footnote_id = &id;
-                                ctx.html()
-                                    .a()
-                                    .attr(attr!(
-                                        "href" => "javascript:;",
-                                        "onclick" => "WIKIJUMP.page.utils.scrollToFootnote('" footnote_id "')",
-                                    ))
-                                    .contents(|ctx| {
-                                        str_write!(ctx, "{}", index);
-
-                                        // Period after item number. Has special class to permit styling.
-                                        ctx.html()
-                                            .span()
-                                            .attr(attr!("class" => "wj-footnote-sep"))
-                                            .inner(log, ".");
-                                    });
-
-                                // Footnote contents
-                                ctx.html()
-                                    .div()
-                                    .attr(attr!("class" => "wj-footnote-contents"))
-                                    .inner(log, contents);
-                            });
-                    }
-                });
+                            // Footnote contents
+                            ctx.html()
+                                .span()
+                                .attr(attr!("class" => "wj-footnote-list-item-contents"))
+                                .inner(log, contents);
+                        });
+                }
+            });
         });
 }
