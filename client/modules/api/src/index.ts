@@ -1,1 +1,1 @@
-export {}
+export type {  } from "../vendor/api"
