@@ -52,6 +52,8 @@ where
 ///
 /// The last token terminating the collection is kept, and returned
 /// to the caller alongside the string slice.
+///
+/// Compare with `collect_consume_keep()`.
 pub fn collect_text_keep<'p, 'r, 't>(
     log: &Logger,
     parser: &'p mut Parser<'r, 't>,

@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::parsing::{Token, strip_whitespace};
+use crate::parsing::{strip_whitespace, Token};
 use crate::tree::DefinitionListItem;
 
 pub const RULE_DEFINITION_LIST: Rule = Rule {
@@ -62,9 +62,7 @@ fn parse_definition_list<'p, 'r, 't>(
     let mut _paragraph_safe = false;
 
     // Definition list needs at least one item
-    let item = parse_item(log, parser)?
-        .chain(&mut exceptions, &mut _paragraph_safe);
-
+    let item = parse_item(log, parser)?.chain(&mut exceptions, &mut _paragraph_safe);
     items.push(item);
 
     // Collect remainder, halting if there's a failure

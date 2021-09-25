@@ -23,7 +23,9 @@
 use super::TextContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
-use crate::tree::{ContainerType, DefinitionListItem, Element, LinkLocation, ListItem, ListType};
+use crate::tree::{
+    ContainerType, DefinitionListItem, Element, LinkLocation, ListItem, ListType,
+};
 use crate::url::normalize_link;
 use std::borrow::Cow;
 

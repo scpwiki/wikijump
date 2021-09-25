@@ -386,10 +386,7 @@ impl Element<'_> {
                 attributes: attributes.to_owned(),
             },
             Element::DefinitionList(items) => Element::DefinitionList(
-                items
-                    .iter()
-                    .map(|item| item.to_owned())
-                    .collect(),
+                items.iter().map(|item| item.to_owned()).collect(),
             ),
             Element::RadioButton {
                 name,
