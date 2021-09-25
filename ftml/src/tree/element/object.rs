@@ -197,6 +197,17 @@ pub enum Element<'t> {
         language: Option<Cow<'t, str>>,
     },
 
+    /// Element containing a named math equation.
+    #[serde(rename_all = "kebab-case")]
+    Math {
+        name: Cow<'t, str>,
+        latex_source: Cow<'t, str>,
+    },
+
+    /// Element containing inline math.
+    #[serde(rename_all = "kebab-case")]
+    MathInline { latex_source: Cow<'t, str> },
+
     /// Element containing a sandboxed HTML block.
     Html { contents: Cow<'t, str> },
 
@@ -281,6 +292,8 @@ impl Element<'_> {
             Element::User { .. } => "User",
             Element::Color { .. } => "Color",
             Element::Code { .. } => "Code",
+            Element::Math { .. } => "Math",
+            Element::MathInline { .. } => "MathInline",
             Element::Html { .. } => "HTML",
             Element::Iframe { .. } => "Iframe",
             Element::Include { .. } => "Include",
@@ -322,6 +335,8 @@ impl Element<'_> {
             Element::User { .. } => true,
             Element::Color { .. } => true,
             Element::Code { .. } => true,
+            Element::Math { .. } => false,
+            Element::MathInline { .. } => true,
             Element::Html { .. } | Element::Iframe { .. } => false,
             Element::Include { paragraph_safe, .. } => *paragraph_safe,
             Element::LineBreak | Element::LineBreaks { .. } => true,
@@ -441,6 +456,13 @@ impl Element<'_> {
             Element::Code { contents, language } => Element::Code {
                 contents: string_to_owned(contents),
                 language: option_string_to_owned(language),
+            },
+            Element::Math { name, latex_source } => Element::Math {
+                name: string_to_owned(name),
+                latex_source: string_to_owned(latex_source),
+            },
+            Element::MathInline { latex_source } => Element::MathInline {
+                latex_source: string_to_owned(latex_source),
             },
             Element::Html { contents } => Element::Html {
                 contents: string_to_owned(contents),
