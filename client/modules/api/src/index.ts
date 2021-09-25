@@ -1,9 +1,4 @@
-export {
-  Api as WikijumpAPI,
-  ContentType,
-  ForumSortingTypes,
-  ReferenceTypes
-} from "../vendor/api"
+export { ContentType, ForumSortingTypes, ReferenceTypes } from "../vendor/api"
 // there really isn't a decent way to just "pick out" exports,
 // so this type export is a bit manual, but oh well
 export type {
@@ -86,3 +81,4 @@ export type {
   Wikitext,
   WikitextObj
 } from "../vendor/api"
+export * from "./api"
