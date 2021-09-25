@@ -7,11 +7,15 @@
     "wikijump"
   ],
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "generate-api": "pnpx openapi-typescript ../../../web/resources/api/api.oas3.yaml -o ./vendor/api.d.ts"
+  },
   "type": "module",
   "main": "src/index.ts",
   "eslintConfig": {
     "extends": "../../.eslintrc.js"
   },
-  "dependencies": {}
+  "devDependencies": {
+    "openapi-typescript": "^4.0.2"
+  }
 }

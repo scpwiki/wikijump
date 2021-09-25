@@ -78,6 +78,12 @@ importers:
       typescript: 4.4.3
       vite: 2.5.10
 
+  modules/api:
+    specifiers:
+      openapi-typescript: ^4.0.2
+    devDependencies:
+      openapi-typescript: 4.0.2
+
   modules/cm-espells:
     specifiers:
       '@lezer/common': ^0.15.5
@@ -3632,7 +3638,6 @@ packages:
 
   /globalyzer/0.1.0:
     resolution: {integrity: sha512-40oNTM9UfG6aBmuKxk/giHn5nQ8RVz/SS4Ir6zgzOv9/qC3kKZ9v4etGTcJbEl/NyVQH7FGU7d+X1egr57Md2Q==}
-    dev: false
 
   /globby/11.0.4:
     resolution: {integrity: sha512-9O4MVG9ioZJ08ffbcyVYyLOJLk5JQ688pJ4eMGLpdWLHq/Wr1D9BlriLQyL0E+jbkuePVZXYFj47QM/v093wHg==}
@@ -3652,7 +3657,6 @@ packages:
 
   /globrex/0.1.2:
     resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
-    dev: false
 
   /gonzales-pe/4.3.0:
     resolution: {integrity: sha512-otgSPpUmdWJ43VXyiNgEYE4luzHCL2pz4wQ0OnDluC6Eg4Ko3Vexy/SrSynglw/eR+OhkzmqFCZa/OFa/RgAOQ==}
@@ -3727,6 +3731,13 @@ packages:
 
   /hosted-git-info/2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
+    dev: true
+
+  /hosted-git-info/3.0.8:
+    resolution: {integrity: sha512-aXpmwoOhRBrw6X3j0h5RloK4x1OzsxMPyxqIHyNfSe2pypkVTZFpEiRoSipPEPlMrh0HW/XsjkJ5WgnCirpNUw==}
+    engines: {node: '>=10'}
+    dependencies:
+      lru-cache: 6.0.0
     dev: true
 
   /hosted-git-info/4.0.2:
@@ -4914,6 +4925,22 @@ packages:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
+    dev: true
+
+  /openapi-typescript/4.0.2:
+    resolution: {integrity: sha512-rDx7e2Jl01kRlsk+IJiqAD4oeb+2mDHcmxsM+rgUFY/oCqnzQ4sIiNLK+/ng6L6mq/eg+IivRUvf/5fVPcvUEg==}
+    engines: {node: '>= 12.0.0'}
+    hasBin: true
+    dependencies:
+      hosted-git-info: 3.0.8
+      js-yaml: 4.1.0
+      kleur: 4.1.4
+      meow: 9.0.0
+      mime: 2.5.2
+      node-fetch: 2.6.1
+      prettier: 2.4.1
+      slash: 3.0.0
+      tiny-glob: 0.2.9
     dev: true
 
   /optionator/0.9.1:
@@ -6326,7 +6353,6 @@ packages:
     dependencies:
       globalyzer: 0.1.0
       globrex: 0.1.2
-    dev: false
 
   /tiny-worker/2.3.0:
     resolution: {integrity: sha512-pJ70wq5EAqTAEl9IkGzA+fN0836rycEuz2Cn6yeZ6FRzlVS5IDOkFHpIoEsksPRQV34GDqXm65+OlnZqUSyK2g==}
