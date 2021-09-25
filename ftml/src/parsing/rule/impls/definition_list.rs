@@ -19,6 +19,9 @@
  */
 
 use super::prelude::*;
+use std::borrow::Cow;
+
+type DefinitionItem<'t> = (Cow<'t, str>, Cow<'t, str>);
 
 pub const RULE_DEFINITION_LIST: Rule = Rule {
     name: "definition-list",
@@ -32,12 +35,28 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(log, "Trying to create a definition list");
 
-    todo!()
+    let mut items = Vec::new();
+
+    // Definition list must have at least one pair
+    match parse_item(log, parser)? {
+        Some(item) => items.push(item),
+        None => return Err(parser.make_warn(ParseWarningKind::RuleFailed)),
+    }
+
+    // Add the rest of the pairs
+    while let Some(item) = parse_item(log, parser)? {
+        items.push(item);
+    }
+
+    // Build and return element
+    ok!(Element::DefinitionList { items })
 }
 
-fn parse_item<'p, 'r, 't>(
+fn parse_item<'t>(
     log: &Logger,
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
+    parser: &mut Parser<'_, 't>,
+) -> Result<Option<DefinitionItem<'t>>, ParseWarning> {
+    debug!(log, "Trying to parse a definition list item pair");
+
     todo!()
 }
