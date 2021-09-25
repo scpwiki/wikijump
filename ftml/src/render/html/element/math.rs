@@ -58,10 +58,10 @@ fn process_latex(
                 log,
                 "Processed LaTeX -> MathML";
                 "display" => str!(display),
-                "mathml" => mathml,
+                "mathml" => &mathml,
             );
 
-            todo!()
+            Ok(mathml)
         }
         Err(error) => {
             warn!(
@@ -71,7 +71,7 @@ fn process_latex(
                 "error" => str!(error),
             );
 
-            todo!()
+            Ok(str!(error))
         }
     }
 }
