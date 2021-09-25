@@ -102,19 +102,7 @@ fn try_consume_fn<'p, 'r, 't>(
             'cell: loop {
                 debug!(log, "Parsing next element"; "elements" => elements.len());
 
-                match next_two_tokens(parser) {
-                    // Special case:
-                    //
-                    // If there is "_\n" next, then treat this as a newline insertion.
-                    // Since normally a newline will end the row, but we want a <br>
-                    // in the cell contents.
-                    (Token::Underscore, Some(Token::LineBreak)) => {
-                        debug!(log, "Handling newline escape in table");
-
-                        elements.push(Element::LineBreak);
-                        parser.step_n(2)?;
-                    }
-
+                match parser.next_two_tokens() {
                     // End the cell or row
                     (
                         Token::TableColumn
@@ -269,11 +257,4 @@ fn parse_cell_start(parser: &mut Parser) -> Result<Option<TableCellStart>, Parse
         header,
         column_span,
     }))
-}
-
-fn next_two_tokens(parser: &Parser) -> (Token, Option<Token>) {
-    let first = parser.current().token;
-    let second = parser.look_ahead(0).map(|next| next.token);
-
-    (first, second)
 }

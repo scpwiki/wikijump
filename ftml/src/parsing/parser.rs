@@ -418,6 +418,14 @@ impl<'r, 't> Parser<'r, 't> {
             .ok_or_else(|| self.make_warn(ParseWarningKind::EndOfInput))
     }
 
+    /// Retrieves the current and next tokens.
+    pub fn next_two_tokens(&self) -> (Token, Option<Token>) {
+        let first = self.current.token;
+        let second = self.look_ahead(0).map(|next| next.token);
+
+        (first, second)
+    }
+
     // Utilities
     #[cold]
     #[inline]
