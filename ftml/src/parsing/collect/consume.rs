@@ -34,9 +34,37 @@ pub fn collect_consume<'p, 'r, 't>(
     invalid_conditions: &[ParseCondition],
     warn_kind: Option<ParseWarningKind>,
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
+    collect_consume_keep(
+        log,
+        parser,
+        rule,
+        close_conditions,
+        invalid_conditions,
+        warn_kind,
+    )
+    .map(|success| success.map(|(elements, _)| elements))
+}
+
+/// Modified form of `collect_consume()` that also returns the last token.
+///
+/// The last token terminating the collection is kept, and returned
+/// to the caller alongside the string slice.
+///
+/// Compare with `collect_text_keep()`.
+pub fn collect_consume_keep<'p, 'r, 't>(
+    log: &Logger,
+    parser: &'p mut Parser<'r, 't>,
+    rule: Rule,
+    close_conditions: &[ParseCondition],
+    invalid_conditions: &[ParseCondition],
+    warn_kind: Option<ParseWarningKind>,
+) -> ParseResult<'r, 't, (Vec<Element<'t>>, &'r ExtractedToken<'t>)>
+where
+    'r: 't,
+{
     let mut all_elements = Vec::new();
 
-    let (_, exceptions, paragraph_safe) = collect(
+    let (last, exceptions, paragraph_safe) = collect(
         log,
         parser,
         rule,
@@ -49,5 +77,5 @@ pub fn collect_consume<'p, 'r, 't>(
     )?
     .into();
 
-    ok!(paragraph_safe; all_elements, exceptions)
+    ok!(paragraph_safe; (all_elements, last), exceptions)
 }

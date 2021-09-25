@@ -1,0 +1,68 @@
+{
+    "input": ": **Key** : //Value// here",
+    "tree": {
+        "elements": [
+            {
+                "element": "definition-list",
+                "data": [
+                    {
+                        "key": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "bold",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "Key"
+                                        }
+                                    ]
+                                }
+                            }
+
+                        ],
+                        "value": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "italics",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "Value"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "here"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

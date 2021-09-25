@@ -50,6 +50,7 @@ lazy_static! {
             Token::ClearFloatRight => vec![RULE_CLEAR_FLOAT],
             Token::Pipe => vec![RULE_TEXT],
             Token::Equals => vec![RULE_CENTER, RULE_TEXT],
+            Token::Colon => vec![RULE_DEFINITION_LIST, RULE_TEXT],
             Token::Underscore => vec![RULE_UNDERSCORE_LINE_BREAK, RULE_TEXT],
             Token::Quote => vec![RULE_BLOCKQUOTE, RULE_DOUBLE_ANGLE, RULE_TEXT],
             Token::Heading => vec![RULE_HEADER, RULE_TEXT],
@@ -92,7 +93,7 @@ lazy_static! {
             Token::String => vec![RULE_TEXT],
 
             // Input boundaries
-            Token::LineBreak => vec![RULE_BLOCK_SKIP_NEWLINE, RULE_LINE_BREAK],
+            Token::LineBreak => vec![RULE_BLOCK_SKIP_NEWLINE, RULE_DEFINITION_LIST_SKIP_NEWLINE, RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![RULE_LINE_BREAK_PARAGRAPH],
             Token::InputStart => vec![RULE_NULL],
             Token::InputEnd => vec![RULE_NULL],

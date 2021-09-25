@@ -21,9 +21,9 @@
 use crate::data::PageRef;
 use crate::tree::clone::*;
 use crate::tree::{
-    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, FloatAlignment,
-    ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module, PartialElement,
-    Table, VariableMap,
+    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, DefinitionListItem,
+    FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
+    PartialElement, Table, VariableMap,
 };
 use ref_map::*;
 use std::borrow::Cow;
@@ -112,6 +112,9 @@ pub enum Element<'t> {
         attributes: AttributeMap<'t>,
         items: Vec<ListItem<'t>>,
     },
+
+    /// A definition list.
+    DefinitionList(Vec<DefinitionListItem<'t>>),
 
     /// A radio button.
     ///
@@ -266,8 +269,9 @@ impl Element<'_> {
             Element::Table(_) => "Table",
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
-            Element::List { .. } => "List",
             Element::Image { .. } => "Image",
+            Element::List { .. } => "List",
+            Element::DefinitionList(_) => "DefinitionList",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",
@@ -307,8 +311,9 @@ impl Element<'_> {
             | Element::Email(_) => true,
             Element::Table(_) => false,
             Element::Anchor { .. } | Element::Link { .. } => true,
-            Element::List { .. } => false,
             Element::Image { .. } => true,
+            Element::List { .. } => false,
+            Element::DefinitionList(_) => false,
             Element::RadioButton { .. } | Element::CheckBox { .. } => true,
             Element::Collapsible { .. } => false,
             Element::TableOfContents { .. } => false,
@@ -380,6 +385,9 @@ impl Element<'_> {
                 alignment: *alignment,
                 attributes: attributes.to_owned(),
             },
+            Element::DefinitionList(items) => Element::DefinitionList(
+                items.iter().map(|item| item.to_owned()).collect(),
+            ),
             Element::RadioButton {
                 name,
                 checked,

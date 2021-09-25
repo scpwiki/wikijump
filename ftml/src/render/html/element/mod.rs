@@ -22,6 +22,7 @@
 
 mod collapsible;
 mod container;
+mod definition_list;
 mod footnotes;
 mod iframe;
 mod image;
@@ -44,6 +45,7 @@ mod prelude {
 
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
+use self::definition_list::render_definition_list;
 use self::footnotes::{render_footnote, render_footnote_block};
 use self::iframe::{render_html, render_iframe};
 use self::image::render_image;
@@ -111,6 +113,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             items,
             attributes,
         } => render_list(log, ctx, *ltype, items, attributes),
+        Element::DefinitionList(items) => render_definition_list(log, ctx, items),
         Element::RadioButton {
             name,
             checked,

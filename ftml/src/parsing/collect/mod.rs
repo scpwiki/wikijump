@@ -44,7 +44,7 @@ mod container;
 mod generic;
 mod text;
 
-pub use self::consume::collect_consume;
+pub use self::consume::{collect_consume, collect_consume_keep};
 pub use self::container::collect_container;
 pub use self::generic::collect;
 pub use self::text::{collect_text, collect_text_keep};

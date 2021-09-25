@@ -78,7 +78,10 @@ where
     tag_method!(br);
     tag_method!(button);
     tag_method!(code);
+    tag_method!(dd);
     tag_method!(div);
+    tag_method!(dl);
+    tag_method!(dt);
     tag_method!(hr);
     tag_method!(iframe);
     tag_method!(img);

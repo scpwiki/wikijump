@@ -1,0 +1,41 @@
+{
+    "input": ": Key : Value",
+    "tree": {
+        "elements": [
+            {
+                "element": "definition-list",
+                "data": [
+                    {
+                        "key": [
+                            {
+                                "element": "text",
+                                "data": "Key"
+                            }
+                        ],
+                        "value": [
+                            {
+                                "element": "text",
+                                "data": "Value"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

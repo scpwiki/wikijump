@@ -52,8 +52,8 @@ fn try_consume_fn<'p, 'r, 't>(
         parser.next_two_tokens(),
         (
             Token::Underscore,
-            Some(Token::LineBreak | Token::ParagraphBreak)
-        )
+            Some(Token::LineBreak | Token::ParagraphBreak),
+        ),
     ) {
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }

@@ -1,0 +1,134 @@
+{
+    "input": ": My key : Long value _\nwith a newline in the middle\n: Other key : Other value",
+    "tree": {
+        "elements": [
+            {
+                "element": "definition-list",
+                "data": [
+                    {
+                        "key": [
+                            {
+                                "element": "text",
+                                "data": "My"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "key"
+                            }
+                        ],
+                        "value": [
+                            {
+                                "element": "text",
+                                "data": "Long"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "value"
+                            },
+                            {
+                                "element": "line-break"
+                            },
+                            {
+                                "element": "text",
+                                "data": "with"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "a"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "newline"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "in"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "the"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "middle"
+                            }
+                        ]
+                    },
+                    {
+                        "key": [
+                            {
+                                "element": "text",
+                                "data": "Other"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "key"
+                            }
+                        ],
+                        "value": [
+                            {
+                                "element": "text",
+                                "data": "Other"
+                            },
+                            {
+                                "element": "text",
+                                "data": " "
+                            },
+                            {
+                                "element": "text",
+                                "data": "value"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
