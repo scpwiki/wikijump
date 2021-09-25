@@ -62,6 +62,7 @@ mod superscript;
 mod table;
 mod text;
 mod underline;
+mod underscore_line_break;
 mod url;
 mod variable;
 
@@ -94,5 +95,6 @@ pub use self::superscript::RULE_SUPERSCRIPT;
 pub use self::table::RULE_TABLE;
 pub use self::text::RULE_TEXT;
 pub use self::underline::RULE_UNDERLINE;
+pub use self::underscore_line_break::RULE_UNDERSCORE_LINE_BREAK;
 pub use self::url::RULE_URL;
 pub use self::variable::RULE_VARIABLE;
