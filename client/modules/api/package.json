@@ -8,7 +8,10 @@
   ],
   "private": true,
   "scripts": {
-    "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --unwrap-response-data  --module-name-index -1 --clean-output && prettier --write \"vendor/**\""
+    "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --unwrap-response-data  --module-name-index -1 --clean-output && prettier --write \"vendor/**\"",
+    "mock-start": "mockoon-cli start --data ./mockoon/mockoon-api.json --name \"Wikijump\"",
+    "mock-stop": "mockoon-cli stop 0"
+
   },
   "type": "module",
   "main": "src/index.ts",
@@ -16,6 +19,7 @@
     "extends": "../../.eslintrc.js"
   },
   "devDependencies": {
+    "@mockoon/cli": "^1.1.0",
     "swagger-typescript-api": "^9.2.0"
   }
 }
