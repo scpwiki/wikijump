@@ -50,11 +50,62 @@ fn try_consume_fn<'p, 'r, 't>(
     ok!(Element::DefinitionList { items })
 }
 
-fn parse_item<'t>(
+fn parse_item<'p, 'r, 't>(
     log: &Logger,
-    parser: &mut Parser<'_, 't>,
-) -> Result<Option<DefinitionItem<'t>>, ParseWarning> {
+    parser: &'p mut Parser<'r, 't>,
+) -> Result<Option<DefinitionItem<'t>>, ParseWarning>
+where
+    'r: 't,
+{
     debug!(log, "Trying to parse a definition list item pair");
 
-    todo!()
+    // The pattern for a definition list row is:
+    // : key : value \n
+
+    // Ensure the start of the line
+    if !parser.start_of_line() {
+        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+    }
+
+    // Ensure that it matches expected token state
+    if !matches!(
+        parser.next_two_tokens(),
+        (Token::Colon, Some(Token::Whitespace)),
+    ) {
+        return Ok(None);
+    }
+
+    parser.step_n(2)?;
+
+    // Gather key text until colon
+    let key = collect_text(
+        log,
+        parser,
+        RULE_DEFINITION_LIST,
+        &[ParseCondition::current(Token::Colon)],
+        &[
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+        None,
+    )?;
+
+    // Gather value text until end of line
+    let value = collect_text(
+        log,
+        parser,
+        RULE_DEFINITION_LIST,
+        &[
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+            ParseCondition::current(Token::InputEnd),
+        ],
+        &[],
+        None,
+    )?;
+
+    let key = cow!(key.trim());
+    let value = cow!(value.trim());
+
+    Ok(Some((key, value)))
 }
