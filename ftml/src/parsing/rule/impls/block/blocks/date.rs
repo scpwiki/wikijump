@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use chrono::prelude::*;
+use regex::Regex;
 
 pub const BLOCK_DATE: BlockRule = BlockRule {
     name: "block-date",
@@ -74,9 +75,8 @@ fn parse_fn<'r, 't>(
         }
 
         // Argument-specified timezone
-        (Some(tz), None) => {
-            todo!()
-        }
+        (Some(tz), None) => parse_timezone(log, &tz)
+            .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?,
 
         // String-specified timezone
         (None, Some(tz)) => tz,
@@ -108,7 +108,7 @@ fn parse_date(
         return Ok((date, None));
     }
 
-    // Check if it's a UNIX timestamp (e.g. 1398763929)
+    // Try UNIX timestamp (e.g. 1398763929)
     if let Ok(timestamp) = value.parse::<i64>() {
         debug!(log, "Was UNIX timestamp"; "timestamp" => timestamp);
 
@@ -151,6 +151,74 @@ fn parse_date(
         let timezone = tz_date.timezone();
 
         return Ok((date, Some(timezone)));
+    }
+
+    // Exhausted all cases, failing
+    Err(DateParseError)
+}
+
+/// Parse the timezone based on the specifier string.
+fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseError> {
+    lazy_static! {
+        static ref TIMEZONE_REGEX: Regex =
+            Regex::new(r"(\+|-)?([0-9]{2}):?([0-9]{2})?").unwrap();
+    }
+
+    info!(log, "Parsing possible timezone value"; "value" => value);
+
+    // Try number of seconds
+    if let Ok(seconds) = value.parse::<i32>() {
+        debug!(
+            log,
+            "Was offset in seconds";
+            "seconds" => seconds,
+        );
+
+        return Ok(FixedOffset::east(seconds));
+    }
+
+    // Try hours / minutes (via regex)
+    if let Some(captures) = TIMEZONE_REGEX.captures(value) {
+        // Get sign (+1 or -1)
+        let sign = match captures.get(0) {
+            None => 1,
+            Some(mtch) => match mtch.as_str() {
+                "+" => 1,
+                "-" => -1,
+                _ => unreachable!(),
+            },
+        };
+
+        // Get hour value
+        let hour = captures
+            .get(1)
+            .expect("No hour in timezone despite match")
+            .as_str()
+            .parse::<i32>()
+            .expect("Hour wasn't integer despite match");
+
+        // Get minute value
+        let minute = match captures.get(2) {
+            None => 0,
+            Some(mtch) => mtch
+                .as_str()
+                .parse::<i32>()
+                .expect("Minute wasn't integer despite match"),
+        };
+
+        // Get offset in seconds
+        let seconds = sign * (hour * 3600 + minute * 60);
+
+        debug!(
+            log,
+            "Was offset via +HH:MM";
+            "sign" => sign,
+            "hour" => hour,
+            "minute" => minute,
+            "offset" => seconds,
+        );
+
+        return Ok(FixedOffset::east(seconds));
     }
 
     // Exhausted all cases, failing
