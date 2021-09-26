@@ -423,7 +423,7 @@ repository:
   # block components
 
   BlockStart:
-    match: /\[{2}(?![\[/])/
+    match: /\[{2}(?![\[/$])/
     tag: squareBracket
     closedBy: BlockEnd
 
@@ -535,7 +535,7 @@ repository:
   # nested blocks
 
   BlockNodeInlineMath:
-    match: /(@BlockStart)(\$)([^\n]*?)(\$)(@BlockEnd)/
+    match: /(\[\[)(\$)([^\n]*?)(\$)(\]\])/
     captures:
       0: { is: BlockStart }
       1: { type: BlockNodeInlineMathMark, tag: keyword }
@@ -563,6 +563,7 @@ repository:
         - BlockNamePrefix?
         - BlockNameMath
         - BlockNameSuffix?
+        - BlockValue?
         - BlockNodeArgument |* BlockLabel
         - BlockEnd
     end:
