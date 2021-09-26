@@ -24,11 +24,11 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
     info!(log, "Rendering footnote reference");
 
     let index = ctx.next_footnote_index();
-    let id = &str!(index);
+    let id = str!(index);
 
     // TODO make this into a locale template string
     let footnote_string = ctx.handle().get_message(log, ctx.language(), "footnote");
-    let label = &format!("{} {}.", footnote_string, index);
+    let label = format!("{} {}.", footnote_string, index);
 
     let contents = ctx
         .get_footnote(index)
@@ -46,10 +46,10 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
                     "class" => "wj-footnote-ref-marker",
                     "type" => "button",
                     "role" => "link",
-                    "aria-label" => label,
-                    "data-id" => id,
+                    "aria-label" => &label,
+                    "data-id" => &id,
                 ))
-                .inner(log, id);
+                .inner(log, &id);
 
             // Tooltip shown on hover.
             // Is aria-hidden due to difficulty in getting a simultaneous
@@ -66,7 +66,7 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
                     ctx.html()
                         .span()
                         .attr(attr!("class" => "wj-footnote-ref-tooltip-label"))
-                        .inner(log, label);
+                        .inner(log, &label);
 
                     // Actual tooltip contents
                     ctx.html()

@@ -36,8 +36,8 @@ pub fn render_date(
     let delta_seconds = datetime.timestamp() - Utc::now().timestamp();
 
     // Get attribute values
-    let timestamp = &str!(datetime.timestamp());
-    let delta = &str!(delta_seconds);
+    let timestamp = str!(datetime.timestamp());
+    let delta = str!(delta_seconds);
     let (space, hover_class) = if hover {
         (" ", "wj-date-hover")
     } else {
@@ -54,8 +54,9 @@ pub fn render_date(
             "is" => "wj-date",
             "class" => "wj-date" space hover_class,
             "data-format" => date_format,
-            "data-timestamp" => timestamp,
-            "data-delta" => delta,
+            "data-iso" => &datetime.to_rfc3339(),
+            "data-timestamp" => &timestamp,
+            "data-delta" => &delta,
         ))
         .inner(log, formatted_datetime);
 }
