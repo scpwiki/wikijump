@@ -98,6 +98,8 @@ fn parse_fn<'r, 't>(
     ok!(element)
 }
 
+// Parser functions
+
 /// Parse a datetime string and produce its time value, as well as possible timezone info.
 fn parse_date(
     log: &Logger,
@@ -109,10 +111,7 @@ fn parse_date(
     if value.eq_ignore_ascii_case("now") || value == "." {
         debug!(log, "Was now");
 
-        // This looks weird, but it's just "current time, but no timezone info"
-        let date = Utc::now().naive_utc();
-
-        return Ok((date, None));
+        return Ok((now(), None));
     }
 
     // Try UNIX timestamp (e.g. 1398763929)
@@ -232,14 +231,105 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
     Err(DateParseError)
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 struct DateParseError;
 
-/// Helper function to get a `FixedOffset`-equivalent of `Utc`.
-///
-/// This exists to make the code more clear, since this actual
-/// construction looks weird.
+// Clarity functions
+//
+// Does something whose inlined implementation is less clear / readable
+
+#[inline]
+fn now() -> NaiveDateTime {
+    Utc::now().naive_utc()
+}
+
 #[inline]
 fn utc() -> FixedOffset {
     FixedOffset::east(0)
+}
+
+// Tests
+
+#[test]
+fn date() {
+    // Since time will obviously pass between when the time
+    // object is created and when we check it, this function
+    // makes sure the time is *reasonably close*.
+    //
+    // This function *will* fail if there's a seam, such as a
+    // change to daylight savings or the system clock jumps.
+    //
+    // Since this is just a test suite, we don't care about such edge
+    // cases, just rerun the tests.
+    fn is_today(datetime: NaiveDateTime) -> bool {
+        let duration = now() - datetime;
+
+        duration.num_milliseconds() < 100
+    }
+
+    let log = crate::build_logger();
+
+    macro_rules! check_now {
+        ($input:expr $(,)?) => {{
+            let (datetime, timezone) =
+                parse_date(&log, $input).expect("Datetime parse didn't succeed");
+
+            assert!(is_today(datetime), "Expected parsed datetime to be now");
+            assert!(timezone.is_none(), "Expected parsed timezone to be default");
+        }};
+    }
+
+    macro_rules! check_ok {
+        ($input:expr, $datetime:expr, $timezone_minutes:expr $(,)?) => {{
+            let (datetime, timezone) =
+                parse_date(&log, $input).expect("Datetime parse didn't succeed");
+
+            assert_eq!(
+                datetime, $datetime,
+                "Actual datetime value doesn't match expected",
+            );
+
+            assert_eq!(
+                timezone.unwrap_or(utc()).local_minus_utc(),
+                $timezone_minutes * 60,
+                "Actual timezone offset seconds doesn't match expected",
+            );
+        }};
+    }
+
+    macro_rules! check_err {
+        ($input:expr $(,)?) => {{
+            let result = parse_date(&log, $input);
+
+            assert!(
+                result.is_err(),
+                "Error case for datetime parse succeeded! Was {:?}.",
+                result,
+            );
+        }};
+    }
+
+    check_now!(".");
+    check_now!("now");
+    check_now!("Now");
+    check_now!("NOW");
+
+    check_ok!(
+        "1600000000",
+        NaiveDateTime::from_timestamp(1600000000, 0),
+        0,
+    );
+
+    // TODO
+
+    check_err!("");
+
+    // TODO
+}
+
+#[test]
+fn timezone() {
+    let log = crate::build_logger();
+
+    todo!();
 }
