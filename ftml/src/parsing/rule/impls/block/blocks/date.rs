@@ -49,7 +49,10 @@ fn parse_fn<'r, 't>(
     assert!(!flag_score, "Date doesn't allow score flag");
     assert_block_name(&BLOCK_DATE, name);
 
-    let (value, arguments) = parser.get_head_name_map(&BLOCK_DATE, in_head)?;
+    let (value, mut arguments) = parser.get_head_name_map(&BLOCK_DATE, in_head)?;
+    let format = arguments.get("format");
+    let timezone = arguments.get("tz");
+    let hover = arguments.get_bool(parser, "hover")?;
 
     todo!()
 }
