@@ -100,15 +100,23 @@ fn render_latex(
                         "class" => "wj-equation-number",
                     ))
                     .contents(|ctx| {
-                        str_write!(ctx, "{}", index);
-
-                        // Add period
+                        // Open parenthesis
                         ctx.html()
                             .span()
                             .attr(attr!(
-                                "class" => "wj-equation-sep",
+                                "class" => "wj-equation-paren wj-equation-paren-open",
                             ))
-                            .inner(log, ".");
+                            .inner(log, "(");
+
+                        str_write!(ctx, "{}", index);
+
+                        // Close parenthesis
+                        ctx.html()
+                            .span()
+                            .attr(attr!(
+                                "class" => "wj-equation-paren wj-equation-paren-close",
+                            ))
+                            .inner(log, ")");
                     });
             }
 
