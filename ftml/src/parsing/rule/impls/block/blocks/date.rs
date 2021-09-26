@@ -101,7 +101,7 @@ fn parse_date(
     }
 
     // Try datetime string
-    if let Ok(date) = NaiveDateTime::parse_from_str(value, "%F %T") {
+    if let Ok(date) = NaiveDateTime::parse_from_str(value, "%FT%T") {
         debug!(
             log,
             "Was ISO 8601 datetime string";
@@ -109,20 +109,6 @@ fn parse_date(
         );
 
         return Ok((date, None));
-    }
-
-    // Try full RFC 2822 datetime string
-    if let Ok(tz_date) = DateTime::parse_from_rfc2822(value) {
-        debug!(
-            log,
-            "Was RFC 2822 datetime string";
-            "result" => str!(tz_date),
-        );
-
-        let date = tz_date.naive_utc();
-        let timezone = tz_date.timezone();
-
-        return Ok((date, Some(timezone)));
     }
 
     // Try full RFC 3339 (stricter form of ISO 8601)
