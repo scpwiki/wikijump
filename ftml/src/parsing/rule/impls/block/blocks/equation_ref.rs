@@ -58,5 +58,5 @@ fn parse_fn<'r, 't>(
             },
         )?;
 
-    todo!()
+    ok!(Element::EquationReference(cow!(name)))
 }
