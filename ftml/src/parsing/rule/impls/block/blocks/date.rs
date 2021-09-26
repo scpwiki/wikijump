@@ -64,7 +64,7 @@ fn parse_fn<'r, 't>(
         warn!(
             log,
             "Date block has two specified timezones";
-            "argument-timezone" => arg_timezone.unwrap(),
+            "argument-timezone" => arg_timezone.unwrap().as_ref(),
             "parsed-timezone" => str!(parsed_timezone.unwrap()),
         );
 
