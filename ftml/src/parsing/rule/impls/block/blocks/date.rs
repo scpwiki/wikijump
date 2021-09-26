@@ -59,21 +59,39 @@ fn parse_fn<'r, 't>(
     let (naive_datetime, parsed_timezone) = parse_date(log, value)
         .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?;
 
-    // Check that two timezones weren't passed, only one can be used
-    if arg_timezone.is_some() && parsed_timezone.is_some() {
-        warn!(
-            log,
-            "Date block has two specified timezones";
-            "argument-timezone" => arg_timezone.unwrap().as_ref(),
-            "parsed-timezone" => str!(parsed_timezone.unwrap()),
-        );
+    // Get timezone info
+    let timezone = match (arg_timezone, parsed_timezone) {
+        // Check that two timezones weren't passed, only one can be used
+        (Some(arg), Some(parsed)) => {
+            warn!(
+                log,
+                "Date block has two specified timezones";
+                "argument-timezone" => arg.as_ref(),
+                "parsed-timezone" => str!(parsed),
+            );
 
-        return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
-    }
+            return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
+        }
+
+        // Argument-specified timezone
+        (Some(tz), None) => {
+            todo!()
+        }
+
+        // String-specified timezone
+        (None, Some(tz)) => tz,
+
+        // No specified timezone, use UTC
+        (None, None) => utc(),
+    };
+
+    // Build timezone-aware datetime
+    let datetime = DateTime::<FixedOffset>::from_utc(naive_datetime, timezone);
 
     todo!()
 }
 
+/// Parse a datetime string and produce its time value, as well as possible timezone info.
 fn parse_date(
     log: &Logger,
     value: &str,
@@ -141,3 +159,12 @@ fn parse_date(
 
 #[derive(Debug)]
 struct DateParseError;
+
+/// Helper function to get a `FixedOffset`-equivalent of `Utc`.
+///
+/// This exists to make the code more clear, since this actual
+/// construction looks weird.
+#[inline]
+fn utc() -> FixedOffset {
+    FixedOffset::east(0)
+}
