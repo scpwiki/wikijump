@@ -25,19 +25,26 @@ use std::num::NonZeroUsize;
 pub fn render_math_block(
     log: &Logger,
     ctx: &mut HtmlContext,
-    name: &str,
+    name: Option<&str>,
     latex_source: &str,
 ) {
     info!(
         log,
         "Rendering math block";
-        "name" => name,
+        "name" => name.unwrap_or("<none>"),
         "latex-source" => latex_source,
     );
 
     let index = ctx.next_equation_index();
 
-    render_latex(log, ctx, Some(index), latex_source, DisplayStyle::Block);
+    render_latex(
+        log,
+        ctx,
+        name,
+        Some(index),
+        latex_source,
+        DisplayStyle::Block,
+    );
 }
 
 pub fn render_math_inline(log: &Logger, ctx: &mut HtmlContext, latex_source: &str) {
@@ -47,12 +54,13 @@ pub fn render_math_inline(log: &Logger, ctx: &mut HtmlContext, latex_source: &st
         "latex-source" => latex_source,
     );
 
-    render_latex(log, ctx, None, latex_source, DisplayStyle::Inline);
+    render_latex(log, ctx, None, None, latex_source, DisplayStyle::Inline);
 }
 
 fn render_latex(
     log: &Logger,
     ctx: &mut HtmlContext,
+    name: Option<&str>,
     index: Option<NonZeroUsize>,
     latex_source: &str,
     display: DisplayStyle,
@@ -68,6 +76,7 @@ fn render_latex(
         .attr(attr!(
             "is" => wj_type,
             "class" => "wj-math " wj_type,
+            "data-name" => name.unwrap_or(""); if name.is_some(),
         ))
         .contents(|ctx| {
             // Add equation index

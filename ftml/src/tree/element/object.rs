@@ -200,7 +200,7 @@ pub enum Element<'t> {
     /// Element containing a named math equation.
     #[serde(rename_all = "kebab-case")]
     Math {
-        name: Cow<'t, str>,
+        name: Option<Cow<'t, str>>,
         latex_source: Cow<'t, str>,
     },
 
@@ -458,7 +458,7 @@ impl Element<'_> {
                 language: option_string_to_owned(language),
             },
             Element::Math { name, latex_source } => Element::Math {
-                name: string_to_owned(name),
+                name: option_string_to_owned(name),
                 latex_source: string_to_owned(latex_source),
             },
             Element::MathInline { latex_source } => Element::MathInline {

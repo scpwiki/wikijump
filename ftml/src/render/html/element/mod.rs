@@ -161,7 +161,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             render_code(log, ctx, ref_cow!(language), contents)
         }
         Element::Math { name, latex_source } => {
-            render_math_block(log, ctx, name, latex_source)
+            render_math_block(log, ctx, ref_cow!(name), latex_source)
         }
         Element::MathInline { latex_source } => {
             render_math_inline(log, ctx, latex_source)

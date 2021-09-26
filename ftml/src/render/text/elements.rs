@@ -358,7 +358,11 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::Math { name, latex_source } => {
             let index = ctx.next_equation_index();
 
-            str_write!(ctx, "{}. ({})", index, name);
+            str_write!(ctx, "{}.", index);
+            if let Some(name) = name {
+                str_write!(ctx, " ({})", name);
+            }
+
             ctx.add_newline();
             ctx.push_str("```latex");
             ctx.add_newline();
