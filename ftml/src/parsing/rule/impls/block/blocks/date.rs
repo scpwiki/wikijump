@@ -80,7 +80,17 @@ fn parse_date(
 ) -> Result<(NaiveDateTime, Option<FixedOffset>), DateParseError> {
     info!(log, "Parsing possible date value"; "value" => value);
 
-    // First, check if it's a UNIX timestamp (e.g. 1398763929)
+    // Special case, current time
+    if value.eq_ignore_ascii_case("now") || value == "." {
+        debug!(log, "Was now");
+
+        // This looks weird, but it's just "current time, but no timezone info"
+        let date = Utc::now().naive_utc();
+
+        return Ok((date, None));
+    }
+
+    // Check if it's a UNIX timestamp (e.g. 1398763929)
     if let Ok(timestamp) = value.parse::<i64>() {
         debug!(log, "Was UNIX timestamp"; "timestamp" => timestamp);
 
