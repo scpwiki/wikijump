@@ -54,7 +54,7 @@ fn parse_fn<'r, 't>(
     let (value, mut arguments) = parser.get_head_name_map(&BLOCK_DATE, in_head)?;
     let format = arguments.get("format");
     let arg_timezone = arguments.get("tz");
-    let hover = arguments.get_bool(parser, "hover")?;
+    let hover = arguments.get_bool(parser, "hover")?.unwrap_or(true);
 
     // Parse out timestamp given by user
     let (naive_datetime, parsed_timezone) = parse_date(log, value)
@@ -89,7 +89,13 @@ fn parse_fn<'r, 't>(
     let datetime = DateTime::<FixedOffset>::from_utc(naive_datetime, timezone);
 
     // Build and return element
-    todo!()
+    let element = Element::Date {
+        time: datetime,
+        format,
+        hover,
+    };
+
+    ok!(element)
 }
 
 /// Parse a datetime string and produce its time value, as well as possible timezone info.
