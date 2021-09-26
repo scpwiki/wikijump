@@ -548,6 +548,36 @@ banana
 a { color: blue; }
 [[/css]]
 
+[!-- definition-list-elements --]
+: **Key** : //Value// here
+
+[!-- definition-list-empty --]
+: : 
+
+[!-- definition-list-input --]
+: Key : Value
+
+[!-- definition-list-line-break --]
+: My key : Long value _
+with a newline in the middle
+: Other key : Other value
+
+[!-- definition-list-multiple --]
+[
+: A : B
+: C : D
+
+: E : F
+-----
+: G : H
+]
+
+[!-- definition-list --]
+[
+: Key 1 : Some value
+: Key 2 : Value 2
+]
+
 [!-- del-alias --]
 Apple
 [[deletion]]Banana[[/deletion]]
@@ -733,6 +763,18 @@ Em -- Dash
 
 [!-- empty --]
 
+
+[!-- equation-reference-alias --]
+Apple[[equation Fruit]]
+
+[!-- equation-reference-multiple --]
+A[[eref alpha]], B[[eref beta]]
+
+C[[eref omega]]
+D
+
+[!-- equation-reference --]
+Apple[[eref Fruit]]
 
 [!-- footnote-block-empty --]
 A
@@ -1020,61 +1062,68 @@ Apple
 Banana
 
 [!-- include-messy-category --]
-[[include-messy component:my-thing]]
+[[include-messy fragment:page]]
 
 [!-- include-messy-multiline --]
-[[include-messy multiline name = consuelo|
+[[include-messy component:basic name = consuelo|
  contents = the chorizo stew is almost finished cooking 
  i cannot just stop cooking my chorizo stew in order to talk to you about an i.r.c. channel, friends 
 shit i am sorry i did not mean to rejoin]]
 
 [!-- include-messy-multiple --]
-Apple
-[[include-messy my-page]]
-Banana
+Pineapple
+[[include-messy fruit]]
+Melon
 [[include-messy other]]
-Cherry
+Raspberry
 
 [!-- include-messy-offsite --]
 [[include-messy :scp-wiki:theme:black-highlighter-theme]]
 
 [!-- include-messy-parameters-after --]
-[[include-messy my-page apple=1 | banana = 2 |]]
+[[include-messy component:fruit class=box| apple=1 | banana = 2 |]]
 
 [!-- include-messy-parameters-before --]
-[[include-messy my-page | apple=1 | banana = 2]]
+[[include-messy component:fruit |class =box| apple=1 | banana = 2]]
 
 [!-- include-messy-parameters-both --]
-[[include-messy my-page | apple=1 | banana = 2 |]]
+[[include-messy component:fruit | class=box | apple=1 | banana = 2 |]]
 
 [!-- include-messy-parameters-newlines-after --]
-[[include-messy my-page
+[[include-messy component:fruit
+ class=box |
  apple=1 |
  banana = 2 |]]
 
 [!-- include-messy-parameters-newlines-before --]
-[[include-messy my-page |
+[[include-messy component:fruit |
+ class=box |
  apple=1 |
  banana = 2]]
 
 [!-- include-messy-parameters-newlines-both --]
-[[include-messy my-page |
+[[include-messy component:fruit |
+ class=box |
  apple=1 |
  banana = 2 |]]
 
 [!-- include-messy-parameters-newlines --]
-[[include-messy my-page
+[[include-messy component:fruit
+ class=box |
  apple=1 |
  banana = 2]]
 
+[!-- include-messy-parameters-override --]
+[[include-messy component:fruit class={$class}|class = box | apple=1 | apple=X |apple=durian | banana = 2]]
+
 [!-- include-messy-parameters-whitespace --]
-[[include-messy my-page apple =  1 |banana=2|]]
+[[include-messy component:fruit   class   =box|   apple =  1 |  banana=2|]]
 
 [!-- include-messy-parameters --]
-[[include-messy my-page apple=1 | banana = 2]]
+[[include-messy component:fruit class = box | apple=1 | banana = 2]]
 
 [!-- include-messy-uppercase --]
-[[INCLUde-MEssY my-PAGE]]
+[[INCLUde-MEssY FRuit]]
 
 [!-- include-messy --]
 [[include-messy my-page]]
@@ -1334,6 +1383,12 @@ B
 [
 * A
 
+[!-- list-bullet-line-break --]
+* A _
+B _
+C
+* D
+
 [!-- list-bullet-multiple-both --]
 * A
 * B
@@ -1459,6 +1514,12 @@ B
 [
 # A
 
+[!-- list-numbered-line-break --]
+# A _
+B _
+C
+# D
+
 [!-- list-numbered-multiple-both --]
 # A
 # B
@@ -1516,6 +1577,42 @@ Banana
 
 [!-- mark --]
 Apple [[mark]]Banana[[/mark]]
+
+[!-- math-block-inline --]
+[[math]] A = \pi \cdot r^2 [[/math]]
+
+[!-- math-block-multiple --]
+Apple
+[[math]]
+\pi^2
+[[/math]]
+Banana
+[[math]]
+\sqrt{n!}
+[[/math]]
+Cherry
+
+[!-- math-block-named --]
+[[math quadratic-formula]] x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} [[/math]]
+
+[!-- math-block-syntax --]
+[[math]]
+\frac{1}{2
+[[/math]]
+
+[!-- math-block --]
+[[math]]
+A = \pi \cdot r^2
+[[/math]]
+
+[!-- math-inline-multiple --]
+Apple [[$ a^2 $]] Banana [[$ b^3 $]] Cherry [[$ c^4 $]] Pineapple
+
+[!-- math-inline-syntax --]
+Syntax [[$ 2^{\pi - 1 $]] Error
+
+[!-- math-inline --]
+Apple [[$ e^x - \pi $]] Banana
 
 [!-- module-backlinks-page --]
 [[module Backlinks page= "scp-001"]]
@@ -1992,7 +2089,7 @@ TEXT
 ]
 
 [!-- table-simple-line --]
-|| A_
+|| A _
 B || C_ || _D ||
 
 [!-- table-simple-multiple --]
@@ -2049,6 +2146,22 @@ Empty ____
 
 [!-- underline --]
 __Underline__ Text
+
+[!-- underscore-line-break-line --]
+X
+_
+_
+Y
+
+[!-- underscore-line-break-multiple --]
+Apple _
+Banana _
+Cherry Pineapple _
+Mango
+
+[!-- underscore-line-break --]
+Apple _
+Banana
 
 [!-- user-spaces --]
 [[ USer  admin  ]]
