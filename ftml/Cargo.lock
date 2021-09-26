@@ -308,6 +308,7 @@ dependencies = [
  "built",
  "cbindgen",
  "cfg-if",
+ "chrono",
  "entities",
  "enum-map",
  "getrandom",
