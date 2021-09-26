@@ -1,0 +1,24 @@
+{
+  "name": "@wikijump/api",
+  "license": "agpl-3.0-or-later",
+  "description": "API client for Wikijump.",
+  "version": "0.0.0",
+  "keywords": [
+    "wikijump"
+  ],
+  "private": true,
+  "scripts": {
+    "generate-api": "swagger-typescript-api -p ../../../web/resources/api/api.oas3.yaml -o ./vendor --name api.ts --unwrap-response-data  --module-name-index -1 --clean-output && prettier --write \"vendor/**\"",
+    "mock-start": "mockoon-cli start --data ./mockoon/mockoon-api.json --name \"Wikijump\"",
+    "mock-stop": "mockoon-cli stop 0"
+  },
+  "type": "module",
+  "main": "src/index.ts",
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "devDependencies": {
+    "@mockoon/cli": "^1.1.0",
+    "swagger-typescript-api": "^9.2.0"
+  }
+}
