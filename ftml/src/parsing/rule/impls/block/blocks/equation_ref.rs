@@ -25,7 +25,7 @@ pub const BLOCK_EQUATION_REF: BlockRule = BlockRule {
     accepts_names: &["equation", "eref"],
     accepts_star: false,
     accepts_score: false,
-    accepts_newlines: true,
+    accepts_newlines: false,
     parse_fn,
 };
 

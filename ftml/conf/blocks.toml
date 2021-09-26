@@ -79,6 +79,13 @@ body = "elements"
 html-attributes = true
 html-output = "html,div"
 
+[equation-ref]
+exclude-name = true
+aliases = ["equation", "eref"]
+head = "value"
+body = "none"
+html-output = "html,span,wj-equation-ref"
+
 [footnote]
 head = "none"
 body = "elements"
@@ -207,6 +214,12 @@ head = "map"
 body = "elements"
 html-attributes = true
 html-output = "html,mark"
+
+[math]
+head = "value"
+body = "raw"
+accepts-newlines = true
+html-output = "html,div,wj-math-block"
 
 [module]
 aliases = ["module654"]
