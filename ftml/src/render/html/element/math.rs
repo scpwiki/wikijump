@@ -87,7 +87,6 @@ fn render_latex(
     ctx.html()
         .tag(html_tag)
         .attr(attr!(
-            "is" => wj_type,
             "class" => "wj-math " wj_type,
             "data-name" => name.unwrap_or(""); if name.is_some(),
         ))
@@ -96,9 +95,7 @@ fn render_latex(
             if let Some(index) = index {
                 ctx.html()
                     .span()
-                    .attr(attr!(
-                        "class" => "wj-equation-number",
-                    ))
+                    .attr(attr!("class" => "wj-equation-number"))
                     .contents(|ctx| {
                         // Open parenthesis
                         ctx.html()
@@ -121,16 +118,14 @@ fn render_latex(
             }
 
             // Add LaTeX source (hidden)
+            // Can't use a pre tag because that won't work for inline tags
             ctx.html()
-                .pre()
+                .code()
                 .attr(attr!(
-                    "is" => "wj-math-source",
                     "class" => "wj-math-source wj-hidden",
                     "aria-hidden" => "true",
                 ))
-                .contents(|ctx| {
-                    ctx.html().code().inner(log, latex_source);
-                });
+                .inner(log, latex_source);
 
             // Add generated MathML
             cfg_if! {
@@ -146,7 +141,7 @@ fn render_latex(
 
                             // Inject MathML elements
                             ctx.html()
-                                .tag(html_tag)
+                                .span()
                                 .attr(attr!(
                                     "is" => "wj-math-ml",
                                     "class" => "wj-math-ml",
@@ -165,10 +160,7 @@ fn render_latex(
 
                             ctx.html()
                                 .span()
-                                .attr(attr!(
-                                    "is" => "wj-math-error",
-                                    "class" => "wj-math-error",
-                                ))
+                                .attr(attr!("class" => "wj-math-error"))
                                 .inner(log, error);
                         }
                     }

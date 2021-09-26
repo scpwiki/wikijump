@@ -283,10 +283,12 @@ importers:
       '@popperjs/core': ^2.10.1
       '@wikijump/prism': workspace:*
       '@wikijump/util': workspace:*
+      hfmath: ^0.0.2
     dependencies:
       '@popperjs/core': 2.10.1
       '@wikijump/prism': link:../prism
       '@wikijump/util': link:../util
+      hfmath: 0.0.2
 
   modules/ftml-wasm:
     specifiers: {}
@@ -4479,6 +4481,10 @@ packages:
     dependencies:
       function-bind: 1.1.1
     dev: true
+
+  /hfmath/0.0.2:
+    resolution: {integrity: sha512-cKUi0yiQLGfLgs8+3Iw5nAiqSH13Knp7vCf0G1vlF5nfiKKO1XmxNagMvyp0F4ZvUNaHpRGTkmc7nowCy1S58g==}
+    dev: false
 
   /hosted-git-info/2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
