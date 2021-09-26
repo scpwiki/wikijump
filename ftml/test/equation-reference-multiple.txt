@@ -1,0 +1,4 @@
+A[Equation: alpha], B[Equation: beta]
+
+C[Equation: omega]
+D
