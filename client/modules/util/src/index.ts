@@ -1,4 +1,5 @@
 export * from "./decorators"
+export * from "./html"
 export * from "./timeout"
 
 // https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0#gistcomment-2694461
@@ -390,34 +391,6 @@ export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
       )
     }
   }
-}
-
-// so we can load this module in workers:
-let domParser: DOMParser
-try {
-  domParser = new DOMParser()
-} catch {}
-
-/** Takes a string of HTML and creates a {@link DocumentFragment}. */
-export function toFragment(html: string) {
-  const parsed = domParser.parseFromString(html, "text/html")
-  const fragment = document.createDocumentFragment()
-  fragment.append(...Array.from(parsed.body.children))
-  return fragment
-}
-
-/**
- * **DOES NOT ESCAPE INPUT**
- *
- * Template string tag that creates a {@link DocumentFragment}.
- */
-export function html(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
-  const src = strings.raw.reduce((prev, cur, idx) => {
-    let sub = subs[idx - 1]
-    if (Array.isArray(sub)) sub = sub.join("")
-    return prev + sub + cur
-  })
-  return toFragment(src)
 }
 
 /**
