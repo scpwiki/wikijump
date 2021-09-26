@@ -4,20 +4,5 @@
       display: block;
       text-align: center;
     }
-
-    .wj-math-error {
-      display: block;
-      padding: 1em;
-      margin: 1em;
-      color: #b00;
-      border: 1px solid #faa;
-    }
-  }
-
-  &-inline {
-    .wj-math-error {
-      color: #b00;
-      border: 1px solid #faa;
-    }
   }
 }

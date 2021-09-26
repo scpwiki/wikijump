@@ -78,9 +78,9 @@ fn render_latex(
     latex_source: &str,
     display: DisplayStyle,
 ) {
-    let (html_tag, wj_type) = match display {
-        DisplayStyle::Block => ("div", "wj-math-block"),
-        DisplayStyle::Inline => ("span", "wj-math-inline"),
+    let (html_tag, wj_type, error_type) = match display {
+        DisplayStyle::Block => ("div", "wj-math-block", "wj-error-block"),
+        DisplayStyle::Inline => ("span", "wj-math-inline", "wj-error-inline"),
     };
 
     // Outer container
@@ -160,7 +160,7 @@ fn render_latex(
 
                             ctx.html()
                                 .span()
-                                .attr(attr!("class" => "wj-math-error"))
+                                .attr(attr!("class" => error_type))
                                 .inner(log, error);
                         }
                     }

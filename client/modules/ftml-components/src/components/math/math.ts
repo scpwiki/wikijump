@@ -48,6 +48,7 @@ export class MathElement extends HTMLSpanElement {
       this.root.innerHTML = svg
       const element = this.root.querySelector("svg")!
       element.setAttribute("style", "vertical-align: text-bottom;")
+      element.setAttribute("aria-hidden", "true")
     } catch {
       // TODO: display some sort of error
     }
