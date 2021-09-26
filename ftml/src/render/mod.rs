@@ -33,6 +33,9 @@ pub mod text;
 
 mod handle;
 
+/// The default format string for `[[date]]`, if none is specified.
+pub const DEFAULT_DATETIME_FORMAT: &str = "%B %d, %Y %I:%M:%S %p";
+
 use self::handle::{Handle, ModuleRenderMode};
 use crate::log::prelude::*;
 use crate::tree::SyntaxTree;

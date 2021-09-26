@@ -22,6 +22,7 @@
 
 mod collapsible;
 mod container;
+mod date;
 mod definition_list;
 mod footnotes;
 mod iframe;
@@ -46,6 +47,7 @@ mod prelude {
 
 use self::collapsible::{render_collapsible, Collapsible};
 use self::container::{render_color, render_container};
+use self::date::render_date;
 use self::definition_list::render_definition_list;
 use self::footnotes::{render_footnote, render_footnote_block};
 use self::iframe::{render_html, render_iframe};
@@ -160,7 +162,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             time,
             format,
             hover,
-        } => todo!(),
+        } => render_date(log, ctx, *time, ref_cow!(format), *hover),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)
