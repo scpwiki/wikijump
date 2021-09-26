@@ -25,6 +25,7 @@ use crate::tree::{
     FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
     PartialElement, Table, VariableMap,
 };
+use chrono::{DateTime, FixedOffset};
 use ref_map::*;
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -183,6 +184,13 @@ pub enum Element<'t> {
         show_avatar: bool,
     },
 
+    /// A date display, showcasing a particular moment in time.
+    Date {
+        time: DateTime<FixedOffset>,
+        format: Option<Cow<'t, str>>,
+        hover: bool,
+    },
+
     /// Element containing colored text.
     ///
     /// The CSS designation of the color is specified, followed by the elements contained within.
@@ -293,6 +301,7 @@ impl Element<'_> {
             Element::Footnote => "Footnote",
             Element::FootnoteBlock { .. } => "FootnoteBlock",
             Element::User { .. } => "User",
+            Element::Date { .. } => "Date",
             Element::Color { .. } => "Color",
             Element::Code { .. } => "Code",
             Element::Math { .. } => "Math",
@@ -337,6 +346,7 @@ impl Element<'_> {
             Element::Footnote => true,
             Element::FootnoteBlock { .. } => false,
             Element::User { .. } => true,
+            Element::Date { .. } => true,
             Element::Color { .. } => true,
             Element::Code { .. } => true,
             Element::Math { .. } => false,
@@ -453,6 +463,15 @@ impl Element<'_> {
             Element::User { name, show_avatar } => Element::User {
                 name: string_to_owned(name),
                 show_avatar: *show_avatar,
+            },
+            Element::Date {
+                time,
+                format,
+                hover,
+            } => Element::Date {
+                time: *time,
+                format: option_string_to_owned(format),
+                hover: *hover,
             },
             Element::Color { color, elements } => Element::Color {
                 color: string_to_owned(color),

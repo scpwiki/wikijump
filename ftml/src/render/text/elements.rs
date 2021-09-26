@@ -342,6 +342,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             }
         }
         Element::User { name, .. } => ctx.push_str(name),
+        Element::Date { time, format, .. } => todo!(),
         Element::Color { elements, .. } => render_elements(log, ctx, elements),
         Element::Code { contents, language } => {
             let language = match language {

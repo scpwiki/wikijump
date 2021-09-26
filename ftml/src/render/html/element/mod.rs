@@ -156,6 +156,11 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
             }
         }
         Element::User { name, show_avatar } => render_user(log, ctx, name, *show_avatar),
+        Element::Date {
+            time,
+            format,
+            hover,
+        } => todo!(),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)
