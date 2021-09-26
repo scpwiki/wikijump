@@ -52,12 +52,24 @@ fn parse_fn<'r, 't>(
 
     let (value, mut arguments) = parser.get_head_name_map(&BLOCK_DATE, in_head)?;
     let format = arguments.get("format");
-    let timezone = arguments.get("tz");
+    let arg_timezone = arguments.get("tz");
     let hover = arguments.get_bool(parser, "hover")?;
 
     // Parse out timestamp given by user
     let (naive_datetime, parsed_timezone) = parse_date(log, value)
         .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?;
+
+    // Check that two timezones weren't passed, only one can be used
+    if arg_timezone.is_some() && parsed_timezone.is_some() {
+        warn!(
+            log,
+            "Date block has two specified timezones";
+            "argument-timezone" => arg_timezone.unwrap(),
+            "parsed-timezone" => str!(parsed_timezone.unwrap()),
+        );
+
+        return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
+    }
 
     todo!()
 }
