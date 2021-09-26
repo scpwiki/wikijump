@@ -44,7 +44,8 @@ fn try_consume_fn<'p, 'r, 't>(
             ParseCondition::current(Token::LineBreak),
         ],
         None,
-    )?;
+    )?
+    .trim();
 
     ok!(Element::MathInline {
         latex_source: cow!(source),
