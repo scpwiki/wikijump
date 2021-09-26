@@ -40,13 +40,16 @@ You can use this as a dependency by adding the following to your `Cargo.toml`:
 ftml = "1"
 ```
 
-The library comes with two default features, `log` and `ffi`.
+The library comes with two default features, `log`, `ffi`, and `mathml`.
 
 The `log` feature adds all `slog` logging code, which when removed replaces all of them with no-ops.
 This may be desirable on certain platforms where the performance difference is significant.
 
 The `ffi` feature introduces an FFI interface for ftml, permitting C and C API-compatible code
 to interface with the library.
+
+The `mathml` feature includes `latex2mathml`, which compiles any LaTeX into MathML for inclusion
+in rendered HTML output.
 
 Note that, when compiling for the `wasm32` target, even if the `ffi` feature is enabled, its
 corresponding code is not built.

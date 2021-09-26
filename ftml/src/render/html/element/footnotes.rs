@@ -30,7 +30,9 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
     let footnote_string = ctx.handle().get_message(log, ctx.language(), "footnote");
     let label = &format!("{} {}.", footnote_string, index);
 
-    let contents = ctx.get_footnote(index).unwrap();
+    let contents = ctx
+        .get_footnote(index)
+        .expect("Footnote index out of bounds from gathered footnote list");
 
     ctx.html()
         .span()

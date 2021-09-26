@@ -1,0 +1,4 @@
+1.
+```latex
+A = \pi \cdot r^2
+```

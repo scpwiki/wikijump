@@ -349,7 +349,32 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
                 None => "",
             };
 
-            str_write!(ctx, "```{}\n{}\n```", language, contents);
+            str_write!(ctx, "```{}", language);
+            ctx.add_newline();
+            ctx.push_str(contents);
+            ctx.add_newline();
+            ctx.push_str("```");
+        }
+        Element::Math { name, latex_source } => {
+            let index = ctx.next_equation_index();
+
+            str_write!(ctx, "{}.", index);
+            if let Some(name) = name {
+                str_write!(ctx, " ({})", name);
+            }
+
+            ctx.add_newline();
+            ctx.push_str("```latex");
+            ctx.add_newline();
+            ctx.push_str(latex_source);
+            ctx.add_newline();
+            ctx.push_str("```");
+        }
+        Element::MathInline { latex_source } => {
+            str_write!(ctx, "[[$ {} $]]", latex_source);
+        }
+        Element::EquationReference(name) => {
+            str_write!(ctx, "[Equation: {}]", name);
         }
         Element::Html { contents } => {
             str_write!(ctx, "```html\n{}\n```", contents);

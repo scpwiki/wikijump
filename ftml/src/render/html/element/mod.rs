@@ -30,6 +30,7 @@ mod include;
 mod input;
 mod link;
 mod list;
+mod math;
 mod table;
 mod text;
 mod toc;
@@ -53,6 +54,7 @@ use self::include::{render_include, render_variable};
 use self::input::{render_checkbox, render_radio_button};
 use self::link::{render_anchor, render_link};
 use self::list::render_list;
+use self::math::{render_equation_reference, render_math_block, render_math_inline};
 use self::table::render_table;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use self::toc::render_table_of_contents;
@@ -158,6 +160,13 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)
         }
+        Element::Math { name, latex_source } => {
+            render_math_block(log, ctx, ref_cow!(name), latex_source)
+        }
+        Element::MathInline { latex_source } => {
+            render_math_inline(log, ctx, latex_source)
+        }
+        Element::EquationReference(name) => render_equation_reference(log, ctx, name),
         Element::Html { contents } => render_html(log, ctx, contents),
         Element::Iframe { url, attributes } => render_iframe(log, ctx, url, attributes),
         Element::Include {

@@ -56,6 +56,7 @@ token = _{
     // Brackets
     left_link_star |
     left_link |
+    left_math |
     left_block_star |
     left_block_end |
     left_block |
@@ -63,6 +64,7 @@ token = _{
     left_bracket_star |
     left_bracket |
     right_link |
+    right_math |
     right_block |
     right_bracket |
 
@@ -144,10 +146,12 @@ left_bracket_star = @{ "[*" }
 left_block = @{ "[[" }
 left_block_end = @{ "[[/" }
 left_block_star = @{ "[[*" }
+left_math = @{ "[[$" }
 left_link = @{ "[[[" }
 left_link_star = @{ "[[[*" }
 right_bracket = @{ "]" }
 right_block = @{ "]]" }
+right_math = @{ "$]]" }
 right_link = @{ "]]]" }
 
 clear_float = @{ "~"{3,} }

@@ -1,0 +1,29 @@
+{
+    "input": "[[math]]\n\\frac{1}{2\n[[/math]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "math",
+                "data": {
+                    "name": null,
+                    "latex-source": "\\frac{1}{2"
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
