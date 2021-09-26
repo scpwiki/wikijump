@@ -1,0 +1,1 @@
+Apple [[$ a^2 $]] Banana [[$ b^3 $]] Cherry [[$ c^4 $]] Pineapple
