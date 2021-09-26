@@ -1,0 +1,29 @@
+{
+    "input": "[[math]] A = \\pi \\cdot r^2 [[/math]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "math",
+                "data": {
+                    "name": null,
+                    "latex-source": "A = \\pi \\cdot r^2"
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

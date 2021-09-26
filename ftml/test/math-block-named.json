@@ -1,0 +1,29 @@
+{
+    "input": "[[math quadratic-formula]] x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} [[/math]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "math",
+                "data": {
+                    "name": "quadratic-formula",
+                    "latex-source": "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
