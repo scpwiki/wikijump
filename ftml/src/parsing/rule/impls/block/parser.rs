@@ -440,7 +440,7 @@ where
     ) -> Result<(&'t str, Arguments<'t>), ParseWarning> {
         debug!(
             &self.log(),
-            "Looking for a name, then key value arguments, then ']]'"
+            "Looking for a name, then key value arguments, then ']]'",
         );
 
         if !in_head {
