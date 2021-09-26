@@ -611,7 +611,7 @@ export class Utf16IndexMap {
     * @returns {Utf16IndexMap}
     */
     copy() {
-        var ret = wasm.utf16indexmap_copy(this.ptr);
+        var ret = wasm.tokenization_copy(this.ptr);
         return Utf16IndexMap.__wrap(ret);
     }
     /**

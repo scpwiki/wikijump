@@ -279,11 +279,11 @@ export interface InitOutput {
   readonly tokenization_text: (a: number, b: number) => void;
   readonly tokenization_tokens: (a: number) => number;
   readonly tokenize: (a: number, b: number) => number;
-  readonly version: (a: number) => void;
   readonly __wbg_utf16indexmap_free: (a: number) => void;
   readonly utf16indexmap_new: (a: number, b: number) => number;
-  readonly utf16indexmap_copy: (a: number) => number;
   readonly utf16indexmap_get_index: (a: number, b: number) => number;
+  readonly utf16indexmap_copy: (a: number) => number;
+  readonly version: (a: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
