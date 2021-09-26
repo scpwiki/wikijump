@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use latex2mathml::{latex_to_mathml, DisplayStyle};
+use std::num::NonZeroUsize;
 
 pub fn render_math_block(
     log: &Logger,
@@ -34,7 +35,9 @@ pub fn render_math_block(
         "latex-source" => latex_source,
     );
 
-    todo!()
+    let index = ctx.next_equation_index();
+
+    render_latex(log, ctx, Some(index), latex_source, DisplayStyle::Block);
 }
 
 pub fn render_math_inline(log: &Logger, ctx: &mut HtmlContext, latex_source: &str) {
@@ -44,34 +47,98 @@ pub fn render_math_inline(log: &Logger, ctx: &mut HtmlContext, latex_source: &st
         "latex-source" => latex_source,
     );
 
-    todo!()
+    render_latex(log, ctx, None, latex_source, DisplayStyle::Inline);
 }
 
-fn process_latex(
+fn render_latex(
     log: &Logger,
+    ctx: &mut HtmlContext,
+    index: Option<NonZeroUsize>,
     latex_source: &str,
     display: DisplayStyle,
-) -> Result<String, String> {
-    match latex_to_mathml(latex_source, display) {
-        Ok(mathml) => {
-            info!(
-                log,
-                "Processed LaTeX -> MathML";
-                "display" => str!(display),
-                "mathml" => &mathml,
-            );
+) {
+    let (html_tag, wj_type) = match display {
+        DisplayStyle::Block => ("div", "wj-math-block"),
+        DisplayStyle::Inline => ("span", "wj-math-inline"),
+    };
 
-            Ok(mathml)
-        }
-        Err(error) => {
-            warn!(
-                log,
-                "Error processing LaTeX -> MathML";
-                "display" => str!(display),
-                "error" => str!(error),
-            );
+    // Outer container
+    ctx.html()
+        .tag(html_tag)
+        .attr(attr!(
+            "is" => wj_type,
+            "class" => "wj-math " wj_type,
+        ))
+        .contents(|ctx| {
+            // Add equation index
+            if let Some(index) = index {
+                ctx.html()
+                    .span()
+                    .attr(attr!(
+                        "class" => "wj-equation-number",
+                    ))
+                    .contents(|ctx| {
+                        str_write!(ctx, "{}", index);
 
-            Ok(str!(error))
-        }
-    }
+                        // Add period
+                        ctx.html()
+                            .span()
+                            .attr(attr!(
+                                "class" => "wj-equation-sep",
+                            ))
+                            .inner(log, ".");
+                    });
+            }
+
+            // Add LaTeX source (hidden)
+            ctx.html()
+                .pre()
+                .attr(attr!(
+                    "is" => "wj-math-source",
+                    "class" => "wj-math-source wj-hidden",
+                    "aria-hidden" => "true",
+                ))
+                .contents(|ctx| {
+                    ctx.html().code().inner(log, latex_source);
+                });
+
+            // Add generated MathML
+            match latex_to_mathml(latex_source, display) {
+                Ok(mathml) => {
+                    info!(
+                        log,
+                        "Processed LaTeX -> MathML";
+                        "display" => str!(display),
+                        "mathml" => &mathml,
+                    );
+
+                    // Inject MathML elements
+                    ctx.html()
+                        .tag(html_tag)
+                        .attr(attr!(
+                            "is" => "wj-math-ml",
+                            "class" => "wj-math-ml",
+                        ))
+                        .contents(|ctx| ctx.push_raw_str(&mathml));
+                }
+                Err(error) => {
+                    warn!(
+                        log,
+                        "Error processing LaTeX -> MathML";
+                        "display" => str!(display),
+                        "error" => str!(error),
+                    );
+
+                    let error = str!(error);
+
+                    ctx.html()
+                        .span()
+                        .attr(attr!(
+                            "is" => "wj-math-error",
+                            "class" => "wj-math-error",
+                        ))
+                        .inner(log, error);
+                }
+            }
+        });
 }
