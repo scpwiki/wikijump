@@ -90,6 +90,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [CSS](#css)                             | `css`                            | No    | No     | Yes       | None          | Raw       |
 | [Deletion](#deletion)                   | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
 | [Div](#div)                             | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
+| [Equation Reference](#equation-ref)     | `equation`, `eref`               | No    | No     | No        | Value         | None      |
 | [Footnote](#footnote)                   | `footnote`                       | No    | No     | No        | None          | Elements  |
 | [Footnote Block](#footnote-block)       | `footnoteblock`                  | No    | No     | Yes       | Map           | None      |
 | [Hidden](#hidden)                       | `hidden`                         | No    | No     | Yes       | Map           | Elements  |
@@ -106,6 +107,8 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Lines](#lines)                         | `lines`, `newlines`              | No    | No     | Yes       | Value         | None      |
 | [List Blocks](#list)                    | `ul`, `ol`, `li`                 | No    | Yes    | Yes       | Map           | Elements  |
 | [Mark](#mark)                           | `mark`, `highlight`              | No    | No     | No        | Map           | Elements  |
+| [Math](#math)                           | `math`                           | No    | No     | Yes       | Value         | Raw       |
+| [Math (Inline)](#math-inline)           | (See below)                      | No    | No     | No        | (See below)   | (See below) |
 | [Module](#module)                       | `module`                         | No    | No     | Yes       | (See below)   | (See below) |
 | [Monospace](#monospace)                 | `tt`, `mono`, `monospace`        | No    | No     | No        | Map           | Elements  |
 | [Paragraph](#paragraph)                 | `p`, `paragraph`                 | No    | No     | Yes       | Map           | Elements  |
@@ -303,6 +306,20 @@ Example:
 [[div_ class="blockquote" style="border: none;"]]
 Some text __here!__
 [[/div]]
+```
+
+### Equation Ref
+
+Output: `Element::EquationReference` / `<span>`
+
+Body: None
+
+Arguments:
+* None
+
+Example:
+```
+You can take the area of the circle[[eref Area-Circle]] and use it to find the object's volume.
 ```
 
 ### Footnote
@@ -601,6 +618,32 @@ Example:
 
 ```
 This text is [[mark]]highlighted![[/mark]]
+```
+
+### Math
+
+Output: `Element::Math` / `<div class="wj-math-block">`
+
+Body: Raw
+
+Accepts newline separation.
+
+Example:
+
+```
+[[math my-label
+```
+
+### Math (Inline)
+
+Output: `Element::MathInline` / `<span class="wj-math-inline">`
+
+Special syntax: `[[$ (LaTeX code here) $]]`.
+
+Example:
+
+```
+This is actually equivalent to the exponential function, [[$ e^x $]]!
 ```
 
 ### Module
