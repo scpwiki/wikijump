@@ -1,3 +1,4 @@
+import { html } from "@wikijump/util"
 import { defineElement, observe, pauseObservation } from "../../util"
 
 const NEED_TO_POLYFILL = !hasMathMLSupport()
@@ -63,8 +64,10 @@ export class MathElement extends HTMLSpanElement {
       this.container.innerHTML = svg
       const element = this.container.querySelector("svg")!
       element.setAttribute("style", "vertical-align: text-bottom;")
-    } catch {
-      // TODO: display some sort of error
+    } catch (err) {
+      const error = html`<span class="wj-error-${this.display}">${String(err)}</span>`
+      this.container.innerHTML = ""
+      this.container.append(error)
     }
   }
 
