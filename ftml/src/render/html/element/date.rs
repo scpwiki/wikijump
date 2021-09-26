@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::render::DEFAULT_DATETIME_FORMAT;
-use chrono::{DateTime, FixedOffset};
+use chrono::{DateTime, FixedOffset, Utc};
 
 pub fn render_date(
     log: &Logger,
@@ -29,7 +29,33 @@ pub fn render_date(
     date_format: Option<&str>,
     hover: bool,
 ) {
+    // Get date format to use
     let date_format = date_format.unwrap_or(DEFAULT_DATETIME_FORMAT);
 
-    todo!()
+    // Get time since / until the given datetime
+    let delta_seconds = datetime.timestamp() - Utc::now().timestamp();
+
+    // Get attribute values
+    let timestamp = &str!(datetime.timestamp());
+    let delta = &str!(delta_seconds);
+    let (space, hover_class) = if hover {
+        (" ", "wj-date-hover")
+    } else {
+        ("", "")
+    };
+
+    // Format datetime
+    let formatted_datetime = str!(datetime.format(date_format));
+
+    // Build HTML elements
+    ctx.html()
+        .span()
+        .attr(attr!(
+            "is" => "wj-date",
+            "class" => "wj-date" space hover_class,
+            "data-format" => date_format,
+            "data-timestamp" => timestamp,
+            "data-delta" => delta,
+        ))
+        .inner(log, formatted_datetime);
 }
