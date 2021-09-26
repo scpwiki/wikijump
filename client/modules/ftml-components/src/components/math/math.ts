@@ -10,13 +10,23 @@ if (NEED_TO_POLYFILL) {
   })()
 }
 
+/**
+ * FTML `[[math]]` or `[[$ inline $]]` element. This element is only
+ * created when polyfilling for MathML is needed.
+ */
 export class MathElement extends HTMLSpanElement {
   static tag = "wj-math-ml"
 
+  /** Display mode of the element. */
   private declare display: "inline" | "block"
+
+  /** `ShadowRoot` of the node. */
   private declare root: ShadowRoot
+
+  /** The element in which the polyfilled SVG element is placed inside of. */
   private declare container: HTMLElement
 
+  /** Observer for watching changes to the contents of the element. */
   declare observer: MutationObserver
 
   constructor() {
@@ -27,6 +37,7 @@ export class MathElement extends HTMLSpanElement {
 
     this.root = this.attachShadow({ mode: "open" })
 
+    // polyfilled SVG element goes inside of this container
     this.container = document.createElement("span")
     this.container.setAttribute("style", "display: inline-block;")
     this.container.setAttribute("aria-hidden", "true")
@@ -38,12 +49,14 @@ export class MathElement extends HTMLSpanElement {
     this.observer = observe(this, () => this.update())
   }
 
+  /** The source LaTeX string that this math element was rendered from. */
   private get sourceLatex() {
     return (
       this.parentElement?.querySelector<HTMLElement>(".wj-math-source")?.innerText ?? ""
     )
   }
 
+  /** Ran whenever the element changes. */
   @pauseObservation
   private async update() {
     // we make sure to keep this class
@@ -64,6 +77,7 @@ export class MathElement extends HTMLSpanElement {
       const element = this.container.querySelector("svg")!
       element.setAttribute("style", "vertical-align: text-bottom;")
     } catch (err) {
+      // display an error message if something goes wrong
       const message = err instanceof Error ? err.message : "unknown error"
       const error = document.createElement("span")
       error.setAttribute("class", `wj-error-${this.display}`)
@@ -72,6 +86,8 @@ export class MathElement extends HTMLSpanElement {
       this.container.append(error)
     }
   }
+
+  // -- LIFECYCLE
 
   connectedCallback() {
     this.display = this.parentElement?.tagName === "DIV" ? "block" : "inline"
@@ -85,7 +101,7 @@ if (NEED_TO_POLYFILL) {
 
 // function from https://developer.mozilla.org/en-US/docs/Web/MathML/Authoring
 /** Returns if the browser has support for MathML. */
-export function hasMathMLSupport() {
+function hasMathMLSupport() {
   let div = document.createElement("div")
   let box: DOMRect
   div.innerHTML = "<math><mspace height='23px' width='77px'/></math>"

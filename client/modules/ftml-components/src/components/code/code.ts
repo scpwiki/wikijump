@@ -77,14 +77,6 @@ export class Code extends HTMLDivElement {
 
     this.update()
   }
-
-  adoptedCallback() {
-    this.update()
-  }
-
-  attributeChangedCallback() {
-    this.update()
-  }
 }
 
 /** Button that, when clicked, copies the contents of a `[[code]]` block. */
