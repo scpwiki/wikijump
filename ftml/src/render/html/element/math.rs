@@ -152,10 +152,33 @@ fn render_latex(
         });
 }
 
-pub fn render_equation_reference(
-    log: &Logger,
-    ctx: &mut HtmlContext,
-    equation_name: &str,
-) {
-    todo!()
+pub fn render_equation_reference(log: &Logger, ctx: &mut HtmlContext, name: &str) {
+    info!(
+        log,
+        "Rendering equation reference";
+        "name" => name,
+    );
+
+    ctx.html()
+        .span()
+        .attr(attr!("class" => "wj-equation-ref"))
+        .contents(|ctx| {
+            // Equation marker that is hoverable
+            ctx.html()
+                .button()
+                .attr(attr!(
+                    "is" => "wj-equation-ref-marker",
+                    "class" => "wj-equation-ref-marker",
+                    "type" => "button",
+                    "data-name" => name,
+                ))
+                .inner(log, name);
+
+            // Tooltip shown on hover.
+            ctx.html().span().attr(attr!(
+                "class" => "wj-equation-ref-tooltip",
+                "aria-hidden" => "true",
+            ));
+            // TODO tooltip contents
+        });
 }

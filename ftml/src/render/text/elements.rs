@@ -373,7 +373,10 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::MathInline { latex_source } => {
             str_write!(ctx, "[[$ {} $]]", latex_source);
         }
-        Element::EquationReference(name) => todo!(),
+        Element::EquationReference(name) => {
+            str_write!(ctx, "Equation: {}", name);
+            ctx.add_newline();
+        }
         Element::Html { contents } => {
             str_write!(ctx, "```html\n{}\n```", contents);
         }
