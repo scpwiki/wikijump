@@ -374,7 +374,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             str_write!(ctx, "[[$ {} $]]", latex_source);
         }
         Element::EquationReference(name) => {
-            str_write!(ctx, "Equation: {}", name);
+            str_write!(ctx, "[Equation: {}]", name);
             ctx.add_newline();
         }
         Element::Html { contents } => {
