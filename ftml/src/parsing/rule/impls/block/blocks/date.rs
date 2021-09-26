@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use chrono::prelude::*;
 
 pub const BLOCK_DATE: BlockRule = BlockRule {
     name: "block-date",
@@ -54,5 +55,78 @@ fn parse_fn<'r, 't>(
     let timezone = arguments.get("tz");
     let hover = arguments.get_bool(parser, "hover")?;
 
+    // Parse out timestamp given by user
+    let (naive_datetime, parsed_timezone) = parse_date(log, value)
+        .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?;
+
     todo!()
+}
+
+fn parse_date(
+    log: &Logger,
+    value: &str,
+) -> Result<(NaiveDateTime, Option<FixedOffset>), ()> {
+    info!(log, "Parsing possible date value"; "value" => value);
+
+    // First, check if it's a UNIX timestamp (e.g. 1398763929)
+    if let Ok(timestamp) = value.parse::<i64>() {
+        debug!(log, "Was UNIX timestamp"; "timestamp" => timestamp);
+
+        let date = NaiveDateTime::from_timestamp(timestamp, 0);
+
+        return Ok((date, None));
+    }
+
+    // Try date string
+    if let Ok(date) = NaiveDateTime::parse_from_str(value, "%F") {
+        debug!(
+            log,
+            "Was ISO 8601 date string";
+            "result" => str!(date),
+        );
+
+        return Ok((date, None));
+    }
+
+    // Try datetime string
+    if let Ok(date) = NaiveDateTime::parse_from_str(value, "%F %T") {
+        debug!(
+            log,
+            "Was ISO 8601 datetime string";
+            "result" => str!(date),
+        );
+
+        return Ok((date, None));
+    }
+
+    // Try full RFC 2822 datetime string
+    if let Ok(tz_date) = DateTime::parse_from_rfc2822(value) {
+        debug!(
+            log,
+            "Was RFC 2822 datetime string";
+            "result" => str!(tz_date),
+        );
+
+        let date = tz_date.naive_utc();
+        let timezone = tz_date.timezone();
+
+        return Ok((date, Some(timezone)));
+    }
+
+    // Try full RFC 3339 (stricter form of ISO 8601)
+    if let Ok(tz_date) = DateTime::parse_from_rfc3339(value) {
+        debug!(
+            log,
+            "Was RFC 3339 datetime string";
+            "result" => str!(tz_date),
+        );
+
+        let date = tz_date.naive_utc();
+        let timezone = tz_date.timezone();
+
+        return Ok((date, Some(timezone)));
+    }
+
+    // Exhausted all cases, failing
+    Err(())
 }
