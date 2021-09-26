@@ -1,0 +1,96 @@
+{
+    "input": "[[$ E =\n mc^2 $]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[$"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "E"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "mc"
+                        },
+                        {
+                            "element": "text",
+                            "data": "^"
+                        },
+                        {
+                            "element": "text",
+                            "data": "2"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "$]]"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+            },
+            "warnings": [
+                {
+                    "token": "line-break",
+                    "rule": "math",
+                    "span": [7, 8],
+                    "kind": "rule-failed"
+                },
+                {
+                    "token": "left-math",
+                    "rule": "fallback",
+                    "span": [0, 3],
+                    "kind": "no-rules-match"
+                },
+                {
+                    "token": "right-math",
+                    "rule": "fallback",
+                    "span": [14, 17],
+                    "kind": "no-rules-match"
+                }
+            ]
+    }
