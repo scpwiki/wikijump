@@ -52,7 +52,7 @@ fn parse_fn<'r, 't>(
         Ok(value.map(|s| cow!(s.trim())))
     })?;
 
-    let latex_source = parser.get_body_text(&BLOCK_MATH)?;
+    let latex_source = parser.get_body_text(&BLOCK_MATH)?.trim();
     if latex_source.is_empty() {
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
