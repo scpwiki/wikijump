@@ -1,0 +1,53 @@
+{
+    "input": "Syntax [[$ 2^{\\pi - 1 $]] Error",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "attributes": {},
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Syntax"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "math-inline",
+                            "data": {
+                                "latex-source": "2^{\\pi - 1"
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Error"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
