@@ -834,11 +834,32 @@ those containing only `[[cell]]`s or `[[hcell]]`s. Cells may contain other table
 
 Name: Table of Contents
 
-Output: `Element::TableOfContents` / `<div id="wj-toc">`
+Output: `Element::TableOfContents` / `<div class="wj-toc">`
+
+Body: None
+
+This permits alignment, you can specify this using `[[f>toc]]` or `[[f<toc]]`
+in addition to its base form.
+
+Example:
+
+```
+[[toc]]
+```
 
 ### User
 
 Output: `Element::User` / `<div class="wj-user-info">`
+
+Body: None
+
+Accepts star flag
+
+Example:
+
+```
+Created by [[user michal-frackowiak]]! ;-)
+```
 
 ### Underline
 
