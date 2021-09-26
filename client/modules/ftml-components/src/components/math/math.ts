@@ -15,6 +15,7 @@ export class MathElement extends HTMLSpanElement {
 
   private declare display: "inline" | "block"
   private declare root: ShadowRoot
+  private declare container: HTMLElement
 
   declare observer: MutationObserver
 
@@ -25,6 +26,15 @@ export class MathElement extends HTMLSpanElement {
     }
 
     this.root = this.attachShadow({ mode: "open" })
+
+    this.container = document.createElement("span")
+    this.container.setAttribute("style", "display: inline-block;")
+    this.container.setAttribute("aria-hidden", "true")
+    this.root.appendChild(this.container)
+
+    // MathML element automatically goes into this slot
+    this.root.append(document.createElement("slot"))
+
     this.observer = observe(this, () => this.update())
   }
 
@@ -36,6 +46,11 @@ export class MathElement extends HTMLSpanElement {
 
   @pauseObservation
   private async update() {
+    // we make sure to keep this class
+    // it's how we style the MathML element to be visually hidden
+    // but still accessible to screen readers
+    this.classList.add("wj-math-ml-polyfilled")
+
     try {
       const hfmath = await hfmathPromise!
       const svg = new hfmath(this.sourceLatex).svg({
@@ -45,10 +60,9 @@ export class MathElement extends HTMLSpanElement {
         MARGIN_Y: 0,
         STROKE_W: 0.5
       })
-      this.root.innerHTML = svg
-      const element = this.root.querySelector("svg")!
+      this.container.innerHTML = svg
+      const element = this.container.querySelector("svg")!
       element.setAttribute("style", "vertical-align: text-bottom;")
-      element.setAttribute("aria-hidden", "true")
     } catch {
       // TODO: display some sort of error
     }

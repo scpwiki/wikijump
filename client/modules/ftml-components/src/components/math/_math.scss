@@ -5,4 +5,8 @@
       text-align: center;
     }
   }
+
+  .wj-math-ml-polyfilled math {
+    @include hide-visually;
+  }
 }
