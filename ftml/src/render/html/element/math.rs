@@ -19,8 +19,21 @@
  */
 
 use super::prelude::*;
-use latex2mathml::{latex_to_mathml, DisplayStyle};
+use cfg_if::cfg_if;
 use std::num::NonZeroUsize;
+
+cfg_if! {
+    if #[cfg(feature = "mathml")] {
+        use latex2mathml::{latex_to_mathml, DisplayStyle};
+    } else {
+        /// Mocked version of the enum from `latex2mathml`.
+        #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+        enum DisplayStyle {
+            Block,
+            Inline,
+        }
+    }
+}
 
 pub fn render_math_block(
     log: &Logger,
@@ -112,41 +125,45 @@ fn render_latex(
                 });
 
             // Add generated MathML
-            match latex_to_mathml(latex_source, display) {
-                Ok(mathml) => {
-                    info!(
-                        log,
-                        "Processed LaTeX -> MathML";
-                        "display" => str!(display),
-                        "mathml" => &mathml,
-                    );
+            cfg_if! {
+                if #[cfg(feature = "mathml")] {
+                    match latex_to_mathml(latex_source, display) {
+                        Ok(mathml) => {
+                            info!(
+                                log,
+                                "Processed LaTeX -> MathML";
+                                "display" => str!(display),
+                                "mathml" => &mathml,
+                            );
 
-                    // Inject MathML elements
-                    ctx.html()
-                        .tag(html_tag)
-                        .attr(attr!(
-                            "is" => "wj-math-ml",
-                            "class" => "wj-math-ml",
-                        ))
-                        .contents(|ctx| ctx.push_raw_str(&mathml));
-                }
-                Err(error) => {
-                    warn!(
-                        log,
-                        "Error processing LaTeX -> MathML";
-                        "display" => str!(display),
-                        "error" => str!(error),
-                    );
+                            // Inject MathML elements
+                            ctx.html()
+                                .tag(html_tag)
+                                .attr(attr!(
+                                    "is" => "wj-math-ml",
+                                    "class" => "wj-math-ml",
+                                ))
+                                .contents(|ctx| ctx.push_raw_str(&mathml));
+                        }
+                        Err(error) => {
+                            warn!(
+                                log,
+                                "Error processing LaTeX -> MathML";
+                                "display" => str!(display),
+                                "error" => str!(error),
+                            );
 
-                    let error = str!(error);
+                            let error = str!(error);
 
-                    ctx.html()
-                        .span()
-                        .attr(attr!(
-                            "is" => "wj-math-error",
-                            "class" => "wj-math-error",
-                        ))
-                        .inner(log, error);
+                            ctx.html()
+                                .span()
+                                .attr(attr!(
+                                    "is" => "wj-math-error",
+                                    "class" => "wj-math-error",
+                                ))
+                                .inner(log, error);
+                        }
+                    }
                 }
             }
         });
