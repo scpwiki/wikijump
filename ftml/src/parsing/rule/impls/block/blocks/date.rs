@@ -65,7 +65,7 @@ fn parse_fn<'r, 't>(
 fn parse_date(
     log: &Logger,
     value: &str,
-) -> Result<(NaiveDateTime, Option<FixedOffset>), ()> {
+) -> Result<(NaiveDateTime, Option<FixedOffset>), DateParseError> {
     info!(log, "Parsing possible date value"; "value" => value);
 
     // First, check if it's a UNIX timestamp (e.g. 1398763929)
@@ -128,5 +128,8 @@ fn parse_date(
     }
 
     // Exhausted all cases, failing
-    Err(())
+    Err(DateParseError)
 }
+
+#[derive(Debug)]
+struct DateParseError;
