@@ -18,8 +18,7 @@ i18n.addMessages("en", langEN as any)
 // register other languages here
 const localeLoaders = {
   "en": async () => langEN, // dummy import but useful for type information
-  "en_GB": () => import("@root/locales/en_GB.yaml"),
-  "pig": () => import("@root/locales/pig.yaml")
+  "en_GB": () => import("@root/locales/en_GB.yaml")
 } as const
 
 // -- INIT
