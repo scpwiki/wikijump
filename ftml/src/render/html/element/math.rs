@@ -151,3 +151,11 @@ fn render_latex(
             }
         });
 }
+
+pub fn render_equation_reference(
+    log: &Logger,
+    ctx: &mut HtmlContext,
+    equation_name: &str,
+) {
+    todo!()
+}

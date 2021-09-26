@@ -208,6 +208,9 @@ pub enum Element<'t> {
     #[serde(rename_all = "kebab-case")]
     MathInline { latex_source: Cow<'t, str> },
 
+    /// Element referring to an equation elsewhere in the page.
+    EquationReference(Cow<'t, str>),
+
     /// Element containing a sandboxed HTML block.
     Html { contents: Cow<'t, str> },
 
@@ -294,6 +297,7 @@ impl Element<'_> {
             Element::Code { .. } => "Code",
             Element::Math { .. } => "Math",
             Element::MathInline { .. } => "MathInline",
+            Element::EquationReference(_) => "EquationReference",
             Element::Html { .. } => "HTML",
             Element::Iframe { .. } => "Iframe",
             Element::Include { .. } => "Include",
@@ -337,6 +341,7 @@ impl Element<'_> {
             Element::Code { .. } => true,
             Element::Math { .. } => false,
             Element::MathInline { .. } => true,
+            Element::EquationReference(_) => true,
             Element::Html { .. } | Element::Iframe { .. } => false,
             Element::Include { paragraph_safe, .. } => *paragraph_safe,
             Element::LineBreak | Element::LineBreaks { .. } => true,
@@ -464,6 +469,9 @@ impl Element<'_> {
             Element::MathInline { latex_source } => Element::MathInline {
                 latex_source: string_to_owned(latex_source),
             },
+            Element::EquationReference(name) => {
+                Element::EquationReference(string_to_owned(name))
+            }
             Element::Html { contents } => Element::Html {
                 contents: string_to_owned(contents),
             },
