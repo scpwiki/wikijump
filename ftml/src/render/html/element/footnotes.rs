@@ -24,7 +24,7 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
     info!(log, "Rendering footnote reference");
 
     let index = ctx.next_footnote_index();
-    let id = &format!("{}", index);
+    let id = &str!(index);
 
     // TODO make this into a locale template string
     let footnote_string = ctx.handle().get_message(log, ctx.language(), "footnote");
