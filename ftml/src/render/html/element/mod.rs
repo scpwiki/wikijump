@@ -159,10 +159,10 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         }
         Element::User { name, show_avatar } => render_user(log, ctx, name, *show_avatar),
         Element::Date {
-            time,
+            value,
             format,
             hover,
-        } => render_date(log, ctx, *time, ref_cow!(format), *hover),
+        } => render_date(log, ctx, *value, ref_cow!(format), *hover),
         Element::Color { color, elements } => render_color(log, ctx, color, elements),
         Element::Code { contents, language } => {
             render_code(log, ctx, ref_cow!(language), contents)

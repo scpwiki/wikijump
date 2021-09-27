@@ -185,7 +185,7 @@ pub enum Element<'t> {
 
     /// A date display, showcasing a particular moment in time.
     Date {
-        time: Date,
+        value: Date,
         format: Option<Cow<'t, str>>,
         hover: bool,
     },
@@ -464,11 +464,11 @@ impl Element<'_> {
                 show_avatar: *show_avatar,
             },
             Element::Date {
-                time,
+                value,
                 format,
                 hover,
             } => Element::Date {
-                time: *time,
+                value: *value,
                 format: option_string_to_owned(format),
                 hover: *hover,
             },

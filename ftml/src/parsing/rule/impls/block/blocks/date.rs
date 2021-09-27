@@ -84,7 +84,7 @@ fn parse_fn<'r, 't>(
 
     // Build and return element
     let element = Element::Date {
-        time: date,
+        value: date,
         format,
         hover,
     };
