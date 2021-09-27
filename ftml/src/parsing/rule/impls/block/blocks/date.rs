@@ -301,27 +301,27 @@ fn date() {
     check_ok!("1600000000", NaiveDateTime::from_timestamp(1600000000, 0),);
     check_ok!("-1000", NaiveDateTime::from_timestamp(-1000, 0));
     check_ok!("0", NaiveDateTime::from_timestamp(0, 0));
-    check_ok!("2001-09-11", NaiveDate::from_ymd(2001, 9, 11),);
+    check_ok!("2001-09-11", NaiveDate::from_ymd(2001, 09, 11),);
     check_ok!(
         "2001-09-11T08:46:00",
-        NaiveDate::from_ymd(2001, 9, 11).and_hms(8, 46, 0),
+        NaiveDate::from_ymd(2001, 09, 11).and_hms(8, 46, 0),
     );
-    check_ok!("2001/09/11", NaiveDate::from_ymd(2001, 9, 11),);
+    check_ok!("2001/09/11", NaiveDate::from_ymd(2001, 09, 11),);
     check_ok!(
         "2001/09/11T08:46:00",
-        NaiveDate::from_ymd(2001, 9, 11).and_hms(8, 46, 0),
+        NaiveDate::from_ymd(2001, 09, 11).and_hms(8, 46, 0),
     );
     check_ok!(
         "2007-05-12T09:34:51.026490+04:00",
         DateTime::from_utc(
-            NaiveDate::from_ymd(2007, 5, 12).and_hms_micro(5, 34, 51, 26490),
+            NaiveDate::from_ymd(2007, 05, 12).and_hms_micro(5, 34, 51, 26490),
             FixedOffset::east(4 * 60 * 60),
         ),
     );
     check_ok!(
         "2007-05-12T09:34:51.026490-04:00",
         DateTime::from_utc(
-            NaiveDate::from_ymd(2007, 5, 12).and_hms_micro(13, 34, 51, 26490),
+            NaiveDate::from_ymd(2007, 05, 12).and_hms_micro(13, 34, 51, 26490),
             FixedOffset::west(4 * 60 * 60),
         ),
     );
