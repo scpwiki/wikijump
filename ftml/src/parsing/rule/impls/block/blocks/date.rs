@@ -340,10 +340,10 @@ fn timezone() {
         ($input:expr, $offset:expr) => {{
             let actual =
                 parse_timezone(&log, $input).expect("Timezone parse didn't succeed");
-            let expected = FixedOffset::east($offset);
 
             assert_eq!(
-                actual, expected,
+                actual,
+                FixedOffset::east($offset),
                 "Actual timezone value doesn't match expected",
             );
         }};
