@@ -245,9 +245,22 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
 #[derive(Debug, PartialEq, Eq)]
 struct DateParseError;
 
-#[inline]
-fn now() -> Date {
-    Utc::now().naive_utc().into()
+cfg_if! {
+    if #[cfg(test)] {
+        /// Produces a fixed constant value as "now".
+        ///
+        /// We need a consistent date for render tests to not constantly expire.
+        #[inline]
+        fn now() -> Date {
+            NaiveDate::from_ymd(2010, 01, 01).and_hms(08, 10, 00).into()
+        }
+    } else {
+        /// Helper function to get the current date and time, UTC.
+        #[inline]
+        fn now() -> Date {
+            Utc::now().naive_utc().into()
+        }
+    }
 }
 
 // Tests
