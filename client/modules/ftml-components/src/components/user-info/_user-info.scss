@@ -1,9 +1,10 @@
 .wj-user-info {
-  a {
+  > a,
+  .wj-error-inline {
     display: inline-flex;
     align-items: center;
     text-decoration: none;
-    vertical-align: bottom;
+    vertical-align: text-bottom;
 
     @include hover {
       text-decoration: underline;
@@ -22,8 +23,9 @@
     border-radius: 0 2px 2px 0;
   }
 
-  .wj-user-info-name {
+  .wj-user-info-avatar + .wj-user-info-name {
     margin-left: 0.25em;
+    line-height: 16px;
   }
 }
 
