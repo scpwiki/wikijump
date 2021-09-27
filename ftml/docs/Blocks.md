@@ -90,7 +90,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [CSS](#css)                             | `css`                            | No    | No     | Yes       | None          | Raw       |
 | [Deletion](#deletion)                   | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
 | [Div](#div)                             | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
-| [Equation Reference](#equation-ref)     | `equation`, `eref`               | No    | No     | No        | Value         | None      |
+| [Equation Reference](#equation-ref)     | `equation`, `eref`, `eqref`      | No    | No     | No        | Value         | None      |
 | [Footnote](#footnote)                   | `footnote`                       | No    | No     | No        | None          | Elements  |
 | [Footnote Block](#footnote-block)       | `footnoteblock`                  | No    | No     | Yes       | Map           | None      |
 | [Hidden](#hidden)                       | `hidden`                         | No    | No     | Yes       | Map           | Elements  |
