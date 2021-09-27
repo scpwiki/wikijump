@@ -22,7 +22,8 @@ use std::convert::TryFrom;
 use std::fmt::{self, Display};
 
 /// Represents the Karma level a user has.
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize_repr, Deserialize_repr, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[repr(u8)]
 pub enum KarmaLevel {
     Zero,
     One,
