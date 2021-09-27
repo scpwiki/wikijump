@@ -88,6 +88,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Code](#code)                           | `code`                           | No    | No     | Yes       | Map           | Raw       |
 | [Collapsible](#collapsible)             | `collapsible`                    | No    | No     | Yes       | Map           | Elements  |
 | [CSS](#css)                             | `css`                            | No    | No     | Yes       | None          | Raw       |
+| [Date](#date)                           | `date`                           | No    | No     | No        | Name + Map    | None      |
 | [Deletion](#deletion)                   | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
 | [Div](#div)                             | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
 | [Equation Reference](#equation-ref)     | `equation`, `eref`, `eqref`      | No    | No     | No        | Value         | None      |
@@ -271,6 +272,23 @@ Example:
     color: purple;
 }
 [[/css]]
+```
+
+### Date
+
+Output: Element::Date / `<span class="wj-date">`
+
+Body: None
+
+Arguments:
+* `format` &mdash; (String) What format to output the date in. See [`chrono::format::strftime`](https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html) for more information. Has a default format string if unspecified.
+* `tz` &mdash; (String) What timezone to put the date in. Either a string like `+08:00` or `-430`, or an integer representing the number of seconds to offset.
+* `hover` &mdash; (Boolean) Whether to show the amount of time until / since a date on hover.
+
+Example:
+
+```
+The EN SCP Wiki was created on [[date 1216502818 hover="false"]].
 ```
 
 ### Deletion
