@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{ListItem, TableCell, TableRow};
+use super::clone::elements_to_owned;
+use super::{Element, ListItem, TableCell, TableRow};
 use crate::parsing::ParseWarningKind;
 
 /// Part of an element, as returned by a rule.
@@ -36,6 +37,9 @@ pub enum PartialElement<'t> {
 
     /// A cell within some table row.
     TableCell(TableCell<'t>),
+
+    /// A particular tab within a tab view.
+    Tab(Vec<Element<'t>>),
 }
 
 impl PartialElement<'_> {
@@ -44,6 +48,7 @@ impl PartialElement<'_> {
             PartialElement::ListItem(_) => "ListItem",
             PartialElement::TableRow(_) => "TableRow",
             PartialElement::TableCell(_) => "TableCell",
+            PartialElement::Tab(_) => "Tab",
         }
     }
 
@@ -53,6 +58,7 @@ impl PartialElement<'_> {
             PartialElement::ListItem(_) => ParseWarningKind::ListItemOutsideList,
             PartialElement::TableRow(_) => ParseWarningKind::TableRowOutsideTable,
             PartialElement::TableCell(_) => ParseWarningKind::TableCellOutsideTable,
+            PartialElement::Tab(_) => ParseWarningKind::TabOutsideTabView,
         }
     }
 
@@ -66,6 +72,9 @@ impl PartialElement<'_> {
             }
             PartialElement::TableCell(table_cell) => {
                 PartialElement::TableCell(table_cell.to_owned())
+            }
+            PartialElement::Tab(elements) => {
+                PartialElement::Tab(elements_to_owned(elements))
             }
         }
     }
@@ -81,6 +90,7 @@ pub enum AcceptsPartial {
     ListItem,
     TableRow,
     TableCell,
+    Tab,
 }
 
 impl AcceptsPartial {
@@ -90,6 +100,7 @@ impl AcceptsPartial {
             (AcceptsPartial::ListItem, PartialElement::ListItem(_))
                 | (AcceptsPartial::TableRow, PartialElement::TableRow(_))
                 | (AcceptsPartial::TableCell, PartialElement::TableCell(_))
+                | (AcceptsPartial::Tab, PartialElement::Tab(_))
         )
     }
 }
