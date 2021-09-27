@@ -58,7 +58,7 @@ impl UserInfo<'_> {
             user_name: cow!("michal-frackowiak"),
             user_karma: 5,
             user_avatar_data: cow!(AVATAR_BASE64_DATA),
-            user_profile_url: cow!("/user:info/michal-frackowiak",),
+            user_profile_url: cow!("/user:info/michal-frackowiak"),
         }
     }
 }
