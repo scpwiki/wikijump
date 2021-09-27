@@ -243,7 +243,7 @@ Arguments:
 * `show` &mdash; (String) The text to present when text is collapsed (i.e. can be shown).
 * `hide` &mdash; (String) The text to present when text is expanded (i.e. can be hidden).
 * `folded` &mdash; (Boolean) `true` means start collapsed (default), `false` means start expanded.
-* `hideLocation` &mdash; (Enum: One of `top`, `bottom`, `both`, or `neither`) Shows in what locations the hide collapsible link in.
+* `hideLocation` &mdash; (Enum: One of `top` (default), `bottom`, `both`, or `neither`) Shows in what locations the hide collapsible link in.
 
 Example:
 
