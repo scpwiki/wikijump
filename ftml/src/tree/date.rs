@@ -109,5 +109,5 @@ fn to_datetime(date: NaiveDate) -> NaiveDateTime {
 
 #[inline]
 fn to_datetime_tz(datetime: NaiveDateTime) -> DateTime<FixedOffset> {
-    DateTime::from_utc(datetime, FixedOffset::east(0))
+    Utc.from_utc_datetime(&datetime).into()
 }

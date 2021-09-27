@@ -19,9 +19,9 @@
  */
 
 use super::prelude::*;
+use crate::tree::Date;
 use chrono::prelude::*;
 use regex::Regex;
-use crate::tree::Date;
 
 pub const BLOCK_DATE: BlockRule = BlockRule {
     name: "block-date",
@@ -95,10 +95,7 @@ fn parse_fn<'r, 't>(
 // Parser functions
 
 /// Parse a datetime string and produce its time value, as well as possible timezone info.
-fn parse_date(
-    log: &Logger,
-    value: &str,
-) -> Result<Date, DateParseError> {
+fn parse_date(log: &Logger, value: &str) -> Result<Date, DateParseError> {
     info!(log, "Parsing possible date value"; "value" => value);
 
     // Special case, current time
@@ -303,46 +300,41 @@ fn date() {
     check_ok!("now", now());
     check_ok!("Now", now());
     check_ok!("NOW", now());
-    check_ok!(
-        "1600000000",
-        NaiveDateTime::from_timestamp(1600000000, 0),
-    );
+    check_ok!("1600000000", NaiveDateTime::from_timestamp(1600000000, 0),);
     check_ok!("-1000", NaiveDateTime::from_timestamp(-1000, 0));
     check_ok!("0", NaiveDateTime::from_timestamp(0, 0));
-    check_ok!(
-        "2001-09-11",
-        NaiveDate::from_ymd(2001, 9, 11),
-    );
+    check_ok!("2001-09-11", NaiveDate::from_ymd(2001, 9, 11),);
     check_ok!(
         "2001-09-11T08:46:00",
-        NaiveDateTime::from_timestamp(1000212360, 0),
+        NaiveDate::from_ymd(2001, 9, 11).and_hms(8, 46, 0),
     );
-    check_ok!(
-        "2001/09/11",
-        NaiveDate::from_ymd(2001, 9, 11),
-    );
+    check_ok!("2001/09/11", NaiveDate::from_ymd(2001, 9, 11),);
     check_ok!(
         "2001/09/11T08:46:00",
         NaiveDate::from_ymd(2001, 9, 11).and_hms(8, 46, 0),
     );
     check_ok!(
-        "2007-05-12T00:34:51.026490+04:00",
+        "2007-05-12T09:34:51.026490+04:00",
         DateTime::from_utc(
-            NaiveDate::from_ymd(2007, 5, 12).and_hms(0, 34, 51),
-            FixedOffset::east(4 * 60),
+            NaiveDate::from_ymd(2007, 5, 12).and_hms_micro(5, 34, 51, 26490),
+            FixedOffset::east(4 * 60 * 60),
         ),
     );
     check_ok!(
-        "2007-05-12T00:34:51.026490-04:00",
+        "2007-05-12T09:34:51.026490-04:00",
         DateTime::from_utc(
-            NaiveDate::from_ymd(2007, 5, 12).and_hms(0, 34, 51),
-            FixedOffset::west(4 * 60),
+            NaiveDate::from_ymd(2007, 5, 12).and_hms_micro(13, 34, 51, 26490),
+            FixedOffset::west(4 * 60 * 60),
         ),
     );
-    // TODO
 
-    check_err!("12-04-07");
-    // TODO
+    check_err!("");
+    check_err!("*");
+    check_err!("foobar");
+    check_err!("2001-09");
+    check_err!("2001/09");
+    check_err!("2001/09-11");
+    check_err!("2001-09/11");
 }
 
 #[test]
