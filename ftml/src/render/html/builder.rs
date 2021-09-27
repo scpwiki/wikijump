@@ -78,15 +78,18 @@ where
     ///
     /// This is a helper method to add the following to the HTML:
     /// ```raw
-    /// <svg>
+    /// <svg viewbox="viewbox-passed-in">
     ///   <use href="url-passed-in"></use>
     /// </svg>
     /// ```
-    pub fn svg_use(self, href: &'t str) {
+    pub fn svg_use(self, href: &'t str, viewbox: &'t str) {
         self.tag("svg").contents(|ctx| {
             ctx.html() //
                 .tag("use")
-                .attr(attr!("href" => href));
+                .attr(attr!(
+                    "href" => href,
+                    "viewBox" => viewbox
+                ));
         });
     }
 
