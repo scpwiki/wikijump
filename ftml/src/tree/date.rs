@@ -53,7 +53,7 @@ impl Date {
     }
 
     pub fn time_since(self) -> i64 {
-        self.timestamp() - Utc::now().timestamp()
+        self.timestamp() - now().timestamp()
     }
 
     pub fn to_datetime_tz(self) -> DateTime<FixedOffset> {
@@ -121,4 +121,22 @@ fn to_datetime(date: NaiveDate) -> NaiveDateTime {
 #[inline]
 fn to_datetime_tz(datetime: NaiveDateTime) -> DateTime<FixedOffset> {
     Utc.from_utc_datetime(&datetime).into()
+}
+
+cfg_if! {
+    if #[cfg(test)] {
+        /// Produces a fixed constant value as "now".
+        ///
+        /// We need a consistent date for render tests to not constantly expire.
+        #[inline]
+        fn now() -> Date {
+            NaiveDate::from_ymd(2010, 01, 01).and_hms(08, 10, 00).into()
+        }
+    } else {
+        /// Helper function to get the current date and time, UTC.
+        #[inline]
+        fn now() -> Date {
+            Utc::now().naive_utc().into()
+        }
+    }
 }
