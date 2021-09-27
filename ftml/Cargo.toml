@@ -8,7 +8,7 @@ keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = []
 exclude = [".gitignore", ".github"]
 
-version = "1.8.0"
+version = "1.9.0"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2018" # this refers to the Cargo.toml version
 
@@ -30,6 +30,7 @@ mathml   = ["latex2mathml"]
 
 [dependencies]
 cfg-if = "1"
+chrono = { version = "0.4.19", features = ["serde", "wasmbind"] }
 entities = "1"
 enum-map = "1"
 latex2mathml = { version = "0.2", optional = true }
