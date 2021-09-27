@@ -32,6 +32,9 @@ pub struct UserInfo<'a> {
     /// The user's display name.
     pub user_name: Cow<'a, str>,
 
+    /// The user's karma, from 0-5.
+    pub user_karma: u8,
+
     /// Inline image data.
     ///
     /// Must be a valid [data URI] containing image data.
@@ -53,6 +56,7 @@ impl UserInfo<'_> {
         UserInfo {
             user_id: 0,
             user_name: cow!("michal-frackowiak"),
+            user_karma: 5,
             user_avatar_data: cow!(AVATAR_BASE64_DATA),
             user_profile_url: cow!(
                 "https://www.wikijump.com/user:info/michal-frackowiak",
