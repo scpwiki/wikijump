@@ -175,7 +175,7 @@ fn parse_date(log: &Logger, value: &str) -> Result<Date, DateParseError> {
 fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseError> {
     lazy_static! {
         static ref TIMEZONE_REGEX: Regex =
-            Regex::new(r"(\+|-)?([0-9]{2}):?([0-9]{2})?").unwrap();
+            Regex::new(r"(\+|-)?([0-9]{1,2}):?([0-9]{2})?").unwrap();
     }
 
     info!(log, "Parsing possible timezone value"; "value" => value);
@@ -286,13 +286,8 @@ fn date() {
 
     macro_rules! check_err {
         ($input:expr $(,)?) => {{
-            let result = parse_date(&log, $input);
-
-            assert!(
-                result.is_err(),
-                "Error case for datetime parse succeeded! Was {:?}.",
-                result,
-            );
+            parse_date(&log, $input)
+                .expect_err("Error case for datetime parse succeeded");
         }};
     }
 
@@ -341,5 +336,51 @@ fn date() {
 fn timezone() {
     let log = crate::build_logger();
 
-    todo!();
+    macro_rules! check_ok {
+        ($input:expr, $offset:expr) => {{
+            let actual =
+                parse_timezone(&log, $input).expect("Timezone parse didn't succeed");
+            let expected = FixedOffset::east($offset);
+
+            assert_eq!(
+                actual, expected,
+                "Actual timezone value doesn't match expected",
+            );
+        }};
+    }
+
+    macro_rules! check_err {
+        ($input:expr) => {{
+            parse_timezone(&log, $input)
+                .expect_err("Error case for timezone parse succeeded");
+        }};
+    }
+
+    check_ok!("12345", 12345);
+    check_ok!("+12345", 12345);
+    check_ok!("-12345", -12345);
+
+    check_ok!("8:00", 8 * 60 * 60);
+    check_ok!("+8:00", 8 * 60 * 60);
+    check_ok!("-8:00", -8 * 60 * 60);
+
+    check_ok!("08:00", 8 * 60 * 60);
+    check_ok!("+08:00", 8 * 60 * 60);
+    check_ok!("-08:00", -8 * 60 * 60);
+
+    check_ok!("08:00", 8 * 60 * 60);
+    check_ok!("+08:00", 8 * 60 * 60);
+    check_ok!("-08:00", -8 * 60 * 60);
+
+    check_ok!("0800", 8 * 60 * 60);
+    check_ok!("+0800", 8 * 60 * 60);
+    check_ok!("-0800", -8 * 60 * 60);
+
+    check_ok!("800", 8 * 60 * 60);
+    check_ok!("+800", 8 * 60 * 60);
+    check_ok!("-800", -8 * 60 * 60);
+
+    check_err!("");
+    check_err!("*");
+    check_err!("8:0");
 }
