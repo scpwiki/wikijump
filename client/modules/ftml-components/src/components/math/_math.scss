@@ -18,10 +18,10 @@
       text-align: center;
     }
   }
+}
 
-  .wj-math-ml-polyfilled math {
-    @include hide-visually;
-  }
+.wj-math-ml-polyfilled math {
+  @include hide-visually;
 }
 
 .wj-equation-ref {
@@ -38,8 +38,47 @@
     cursor: pointer;
     user-select: none;
 
+    &.is-no-equation {
+      color: #b00;
+    }
+
     @include hover {
       text-decoration: underline;
+    }
+  }
+
+  .wj-equation-ref-tooltip {
+    position: absolute;
+    z-index: 1;
+    display: inline-block;
+    width: max-content;
+    max-width: 30rem;
+    padding: 0.5em;
+    margin: 0 !important;
+    font-size: 12px;
+    background: #fff;
+    border: 1px solid #aaa;
+    border-radius: 0.25em;
+    @include shadow(4, 1);
+
+    @include tolerates-motion {
+      transition: opacity 100ms ease, visibility 0ms;
+    }
+
+    &:not(.is-hovered) {
+      pointer-events: none;
+      visibility: hidden;
+      user-select: none;
+      opacity: 0;
+      transition-delay: 0ms, 100ms;
+    }
+
+    &.is-hovered {
+      pointer-events: all;
+      visibility: visible;
+      user-select: text;
+      opacity: 1;
+      transition-delay: 0ms, 0ms;
     }
   }
 }
