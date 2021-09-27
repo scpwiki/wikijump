@@ -18,12 +18,19 @@
     margin: 0;
     overflow: hidden;
     border: solid 1px black;
+    border-left: none;
     border-radius: 0 2px 2px 0;
   }
 
   .wj-user-info-name {
     margin-left: 0.25em;
   }
+}
+
+.wj-karma,
+.wj-karma svg {
+  display: inline-block;
+  height: 16px;
 }
 
 // Karma level based on data-attribute
@@ -38,9 +45,6 @@
 }
 
 .wj-karma {
-  display: inline-block;
-  height: 16px;
-
   // Default color for each level
   --wj-karma-5-svg: var(--wj-karma-n);
   --wj-karma-4-svg: var(--wj-karma-n);

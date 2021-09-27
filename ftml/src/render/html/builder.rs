@@ -83,14 +83,13 @@ where
     /// </svg>
     /// ```
     pub fn svg_use(self, href: &'t str, viewbox: &'t str) {
-        self.tag("svg").contents(|ctx| {
-            ctx.html() //
-                .tag("use")
-                .attr(attr!(
-                    "href" => href,
-                    "viewBox" => viewbox
-                ));
-        });
+        self.tag("svg")
+            .attr(attr!("viewBox" => viewbox))
+            .contents(|ctx| {
+                ctx.html() //
+                    .tag("use")
+                    .attr(attr!("href" => href));
+            });
     }
 
     tag_method!(a);

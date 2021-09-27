@@ -48,19 +48,17 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                     .attr(attr!("href" => &info.user_profile_url))
                     .contents(|ctx| {
                         if show_avatar {
-                            // Karma SVG
                             ctx.html()
-                                .tag("svg")
+                                .span()
                                 .attr(attr!(
                                     "class" => "wj-karma",
-                                    "viewbox" => "0 0 64 114",
                                     "data-karma" => &info.user_karma.to_string(),
                                 ))
                                 .contents(|ctx| {
-                                    ctx.html().tag("use").attr(attr!(
-                                        "href" =>
-                                        "/files--common/media/karma.svg#wj-karma-symbol"
-                                    ));
+                                    ctx.html().svg_use(
+                                        "/files--common/media/karma.svg#wj-karma-symbol",
+                                        "0 0 64 114",
+                                    );
                                 });
 
                             ctx.html().img().attr(attr!(
@@ -85,17 +83,16 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                         if show_avatar {
                             // Karma SVG
                             ctx.html()
-                                .tag("svg")
+                                .span()
                                 .attr(attr!(
                                     "class" => "wj-karma",
-                                    "viewbox" => "0 0 64 114",
                                     "data-karma" => "0",
                                 ))
                                 .contents(|ctx| {
-                                    ctx.html().tag("use").attr(attr!(
-                                        "href" =>
-                                        "/files--common/media/karma.svg#wj-karma-symbol"
-                                    ));
+                                    ctx.html().svg_use(
+                                        "/files--common/media/karma.svg#wj-karma-symbol",
+                                        "0 0 64 114",
+                                    );
                                 });
 
                             ctx.html().img().attr(attr!(
