@@ -194,14 +194,15 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
     // Try hours / minutes (via regex)
     if let Some(captures) = TIMEZONE_REGEX.captures(value) {
         // Get sign (+1 or -1)
-        let sign = match captures.get(0) {
-            None => 1,
-            Some(mtch) => match mtch.as_str() {
-                "" => 1,
-                "+" => 1,
-                "-" => -1,
-                _ => unreachable!(),
-            },
+        let sign = match captures
+            .get(0)
+            .expect("No sign in timezone despite match")
+            .as_str()
+        {
+            "" => 1,
+            "+" => 1,
+            "-" => -1,
+            _ => unreachable!(),
         };
 
         // Get hour value
