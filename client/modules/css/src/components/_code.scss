@@ -26,7 +26,8 @@ pre.code {
 
 // -- TOKEN COLORS
 
-.wj-code-token {
+// weird selector is so we get priority over the default FTML selectors
+.wj-code-token.wj-code-token {
   &.wj-code-block-comment,
   &.wj-code-cdata,
   &.wj-code-comment,

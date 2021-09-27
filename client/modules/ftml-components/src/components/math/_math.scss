@@ -1,12 +1,45 @@
 .wj-math {
   &-block {
+    position: relative;
+    margin: 0.5em 0;
+
+    .wj-equation-number {
+      position: absolute;
+      top: 50%;
+      right: 1em;
+      display: block;
+      transform: translateY(-50%);
+    }
+
+    .wj-error-block,
     .wj-math-ml {
       display: block;
+      margin: 0 2em;
       text-align: center;
     }
   }
 
   .wj-math-ml-polyfilled math {
     @include hide-visually;
+  }
+}
+
+.wj-equation-ref {
+  .wj-equation-ref-marker {
+    @include reset;
+    display: inline;
+    // makes the marker artifically bigger
+    padding: 0.5em;
+    margin: -0.5em;
+    font-size: 0.75em;
+    font-style: italic;
+    color: #0000ee;
+    vertical-align: super;
+    cursor: pointer;
+    user-select: none;
+
+    @include hover {
+      text-decoration: underline;
+    }
   }
 }

@@ -67,15 +67,15 @@ export class MathElement extends HTMLSpanElement {
     try {
       const hfmath = await hfmathPromise!
       const svg = new hfmath(this.sourceLatex).svg({
-        SCALE_X: this.display === "inline" ? 8 : 10,
-        SCALE_Y: this.display === "inline" ? 8 : 10,
+        SCALE_X: 7.5,
+        SCALE_Y: 7.5,
         MARGIN_X: 0,
-        MARGIN_Y: 0,
-        STROKE_W: 0.5
+        MARGIN_Y: 0
       })
       this.container.innerHTML = svg
       const element = this.container.querySelector("svg")!
-      element.setAttribute("style", "vertical-align: text-bottom;")
+      // align SVG with surrounding text, set color to the current text color
+      element.setAttribute("style", "vertical-align: text-bottom; stroke: currentColor;")
     } catch (err) {
       // display an error message if something goes wrong
       const message = err instanceof Error ? err.message : "unknown error"
