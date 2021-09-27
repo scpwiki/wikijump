@@ -22,10 +22,8 @@ use chrono::prelude::*;
 
 // Default format strings, for each variant.
 const DEFAULT_DATE_FORMAT: &str = "%B %d, %Y";
-
-const DEFAULT_DATETIME_FORMAT: &str = "%B %d, %Y %I:%M:%S %p";
-
-const DEFAULT_DATETIME_TZ_FORMAT: &str = "%B %d, %Y %I:%M:%S %p %Z";
+const DEFAULT_DATETIME_FORMAT: &str = "%B %d, %Y %H:%M:%S";
+const DEFAULT_DATETIME_TZ_FORMAT: &str = "%B %d, %Y %H:%M:%S %Z";
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Date {
