@@ -74,6 +74,14 @@ where
         }
     }
 
+    /// Creates an inline `<svg>` pointing to another source.
+    ///
+    /// This is a helper method to add the following to the HTML:
+    /// ```raw
+    /// <svg>
+    ///   <use href="url-passed-in"></use>
+    /// </svg>
+    /// ```
     pub fn svg_use(self, href: &'t str) {
         self.tag("svg").contents(|ctx| {
             ctx.html() //
