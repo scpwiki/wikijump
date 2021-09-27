@@ -167,6 +167,9 @@ pub enum ParseWarningKind {
     /// This table cell appears outside of a table row.
     TableCellOutsideTable,
 
+    /// There is a tab outside of a tabview.
+    TabOutsideTabView,
+
     /// Footnotes are not permitted from inside footnotes.
     FootnotesNested,
 
