@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::PageInfo;
+use crate::data::PageInfo;
 
 #[repr(C)]
 #[derive(Debug)]

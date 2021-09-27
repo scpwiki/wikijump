@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::data::PageInfo;
 use crate::non_empty_vec::NonEmptyVec;
 use crate::render::Handle;
 use crate::tree::{Element, VariableScopes};
-use crate::PageInfo;
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 

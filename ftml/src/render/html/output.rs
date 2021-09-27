@@ -19,7 +19,7 @@
  */
 
 use super::meta::HtmlMeta;
-use crate::Backlinks;
+use crate::data::Backlinks;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HtmlOutput {

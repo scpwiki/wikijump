@@ -24,13 +24,13 @@
 //! in a dedicated test file.
 
 use super::includer::TestIncluder;
+use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::parsing::ParseWarning;
 use crate::render::html::HtmlRender;
 use crate::render::text::TextRender;
 use crate::render::Render;
 use crate::tree::SyntaxTree;
-use crate::PageInfo;
 use std::borrow::Cow;
 use std::fs::{self, File};
 use std::io::Read;

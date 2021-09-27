@@ -20,9 +20,9 @@
 
 mod prelude {
     pub use super::Render;
+    pub use crate::data::PageInfo;
     pub use crate::log::prelude::*;
     pub use crate::tree::{AttributeMap, Container, ContainerType, Element, SyntaxTree};
-    pub use crate::PageInfo;
 }
 
 pub mod debug;
@@ -34,9 +34,9 @@ pub mod text;
 mod handle;
 
 use self::handle::{Handle, ModuleRenderMode};
+use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::tree::SyntaxTree;
-use crate::PageInfo;
 
 /// Abstract trait for any ftml renderer.
 ///
