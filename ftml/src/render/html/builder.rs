@@ -74,6 +74,14 @@ where
         }
     }
 
+    pub fn svg_use(self, href: &'t str) {
+        self.tag("svg").contents(|ctx| {
+            ctx.html() //
+                .tag("use")
+                .attr(attr!("href" => href));
+        });
+    }
+
     tag_method!(a);
     tag_method!(br);
     tag_method!(button);
