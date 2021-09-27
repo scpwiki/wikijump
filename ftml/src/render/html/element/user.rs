@@ -58,7 +58,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                 ))
                                 .contents(|ctx| {
                                     ctx.html().tag("use").attr(attr!(
-                                        "xlink:href" =>
+                                        "href" =>
                                         "/files--common/media/karma.svg#wj-karma-symbol"
                                     ));
                                 });
@@ -93,7 +93,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                 ))
                                 .contents(|ctx| {
                                     ctx.html().tag("use").attr(attr!(
-                                        "xlink:href" =>
+                                        "href" =>
                                         "/files--common/media/karma.svg#wj-karma-symbol"
                                     ));
                                 });
