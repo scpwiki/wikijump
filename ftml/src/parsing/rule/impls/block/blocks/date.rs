@@ -195,7 +195,7 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
     if let Some(captures) = TIMEZONE_REGEX.captures(value) {
         // Get sign (+1 or -1)
         let sign = match captures
-            .get(0)
+            .get(1)
             .expect("No sign in timezone despite match")
             .as_str()
         {
@@ -207,14 +207,14 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
 
         // Get hour value
         let hour = captures
-            .get(1)
+            .get(2)
             .expect("No hour in timezone despite match")
             .as_str()
             .parse::<i32>()
             .expect("Hour wasn't integer despite match");
 
         // Get minute value
-        let minute = match captures.get(2) {
+        let minute = match captures.get(3) {
             None => 0,
             Some(mtch) => mtch
                 .as_str()
