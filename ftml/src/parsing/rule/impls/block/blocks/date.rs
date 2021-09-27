@@ -27,8 +27,8 @@ pub const BLOCK_DATE: BlockRule = BlockRule {
     name: "block-date",
     accepts_names: &["date"],
     accepts_star: false,
-    accepts_score: true,
-    accepts_newlines: true,
+    accepts_score: false,
+    accepts_newlines: false,
     parse_fn,
 };
 
