@@ -26,6 +26,7 @@ const DEFAULT_DATETIME_FORMAT: &str = "%B %d, %Y %H:%M:%S";
 const DEFAULT_DATETIME_TZ_FORMAT: &str = "%B %d, %Y %H:%M:%S %Z";
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case", untagged)]
 pub enum Date {
     Date(NaiveDate),
     DateTime(NaiveDateTime),
