@@ -19,6 +19,7 @@
  */
 
 use std::convert::TryFrom;
+use std::fmt::{self, Display};
 
 /// Represents the Karma level a user has.
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -29,6 +30,18 @@ pub enum KarmaLevel {
     Three,
     Four,
     Five,
+}
+
+impl KarmaLevel {
+    #[inline]
+    pub fn new(value: u8) -> Option<Self> {
+        KarmaLevel::try_from(value).ok()
+    }
+
+    #[inline]
+    pub fn value(self) -> u8 {
+        self.into()
+    }
 }
 
 impl From<KarmaLevel> for u8 {
@@ -58,5 +71,11 @@ impl TryFrom<u8> for KarmaLevel {
             5 => Ok(KarmaLevel::Five),
             _ => Err(value),
         }
+    }
+}
+
+impl Display for KarmaLevel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.value())
     }
 }

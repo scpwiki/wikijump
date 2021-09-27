@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::KarmaLevel;
 use std::borrow::Cow;
 
 /// Returned information about a user.
@@ -33,7 +34,7 @@ pub struct UserInfo<'a> {
     pub user_name: Cow<'a, str>,
 
     /// The user's karma, from 0-5.
-    pub user_karma: u8,
+    pub user_karma: KarmaLevel,
 
     /// Inline image data.
     ///
@@ -56,7 +57,7 @@ impl UserInfo<'_> {
         UserInfo {
             user_id: 0,
             user_name: cow!("michal-frackowiak"),
-            user_karma: 5,
+            user_karma: KarmaLevel::new(5).unwrap(),
             user_avatar_data: cow!(AVATAR_BASE64_DATA),
             user_profile_url: cow!("/user:info/michal-frackowiak"),
         }
