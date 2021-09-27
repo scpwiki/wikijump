@@ -197,6 +197,7 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
         let sign = match captures.get(0) {
             None => 1,
             Some(mtch) => match mtch.as_str() {
+                "" => 1,
                 "+" => 1,
                 "-" => -1,
                 _ => unreachable!(),
