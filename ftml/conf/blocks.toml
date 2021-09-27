@@ -64,6 +64,11 @@ head = "none"
 body = "raw"
 html-output = "css"
 
+[date]
+head = "value+map"
+body = "none"
+html-output = "html,span,wj-date"
+
 [del]
 aliases = ["deletion"]
 head = "map"
