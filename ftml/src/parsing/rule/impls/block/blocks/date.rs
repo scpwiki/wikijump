@@ -175,21 +175,10 @@ fn parse_date(log: &Logger, value: &str) -> Result<Date, DateParseError> {
 fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseError> {
     lazy_static! {
         static ref TIMEZONE_REGEX: Regex =
-            Regex::new(r"(\+|-)?([0-9]{1,2}):?([0-9]{2})?").unwrap();
+            Regex::new(r"^(\+|-)?([0-9]{1,2}):?([0-9]{2})?$").unwrap();
     }
 
     info!(log, "Parsing possible timezone value"; "value" => value);
-
-    // Try number of seconds
-    if let Ok(seconds) = value.parse::<i32>() {
-        debug!(
-            log,
-            "Was offset in seconds";
-            "seconds" => seconds,
-        );
-
-        return Ok(FixedOffset::east(seconds));
-    }
 
     // Try hours / minutes (via regex)
     if let Some(captures) = TIMEZONE_REGEX.captures(value) {
@@ -230,6 +219,20 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
             "hour" => hour,
             "minute" => minute,
             "offset" => seconds,
+        );
+
+        return Ok(FixedOffset::east(seconds));
+    }
+
+    // Try number of seconds
+    //
+    // This is lower-priority than the regex to permit "integer" cases,
+    // such as "0800".
+    if let Ok(seconds) = value.parse::<i32>() {
+        debug!(
+            log,
+            "Was offset in seconds";
+            "seconds" => seconds,
         );
 
         return Ok(FixedOffset::east(seconds));
