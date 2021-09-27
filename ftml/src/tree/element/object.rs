@@ -21,11 +21,10 @@
 use crate::data::PageRef;
 use crate::tree::clone::*;
 use crate::tree::{
-    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, DefinitionListItem,
-    FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem, ListType, Module,
-    PartialElement, Table, VariableMap,
+    Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, Date,
+    DefinitionListItem, FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem,
+    ListType, Module, PartialElement, Table, VariableMap,
 };
-use chrono::{DateTime, FixedOffset};
 use ref_map::*;
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -186,7 +185,7 @@ pub enum Element<'t> {
 
     /// A date display, showcasing a particular moment in time.
     Date {
-        time: DateTime<FixedOffset>,
+        time: Date,
         format: Option<Cow<'t, str>>,
         hover: bool,
     },

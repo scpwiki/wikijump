@@ -19,25 +19,18 @@
  */
 
 use super::prelude::*;
-use crate::render::DEFAULT_DATETIME_FORMAT;
-use chrono::{DateTime, FixedOffset, Utc};
+use crate::tree::{Date, DEFAULT_DATETIME_FORMAT};
 
 pub fn render_date(
     log: &Logger,
     ctx: &mut HtmlContext,
-    datetime: DateTime<FixedOffset>,
+    date: Date,
     date_format: Option<&str>,
     hover: bool,
 ) {
-    // Get date format to use
-    let date_format = date_format.unwrap_or(DEFAULT_DATETIME_FORMAT);
-
-    // Get time since / until the given datetime
-    let delta_seconds = datetime.timestamp() - Utc::now().timestamp();
-
     // Get attribute values
-    let timestamp = str!(datetime.timestamp());
-    let delta = str!(delta_seconds);
+    let timestamp = str!(date.timestamp());
+    let delta = str!(date.time_since());
     let (space, hover_class) = if hover {
         (" ", "wj-date-hover")
     } else {
@@ -45,7 +38,7 @@ pub fn render_date(
     };
 
     // Format datetime
-    let formatted_datetime = str!(datetime.format(date_format));
+    let formatted_datetime = str!(date.format(date_format));
 
     // Build HTML elements
     ctx.html()
@@ -53,8 +46,8 @@ pub fn render_date(
         .attr(attr!(
             "is" => "wj-date",
             "class" => "wj-date" space hover_class,
-            "data-format" => date_format,
-            "data-iso" => &datetime.to_rfc3339(),
+            "data-format" => date_format.unwrap_or(DEFAULT_DATETIME_FORMAT),
+            "data-iso" => &date.to_rfc3339(),
             "data-timestamp" => &timestamp,
             "data-delta" => &delta,
         ))

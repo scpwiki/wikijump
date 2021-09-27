@@ -22,7 +22,7 @@
 
 use super::TextContext;
 use crate::log::prelude::*;
-use crate::render::{ModuleRenderMode, DEFAULT_DATETIME_FORMAT};
+use crate::render::ModuleRenderMode;
 use crate::tree::{
     ContainerType, DefinitionListItem, Element, LinkLocation, ListItem, ListType,
 };
@@ -343,12 +343,7 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         }
         Element::User { name, .. } => ctx.push_str(name),
         Element::Date { time, format, .. } => {
-            let date_format = match format {
-                Some(fmt) => fmt.as_ref(),
-                None => DEFAULT_DATETIME_FORMAT,
-            };
-
-            str_write!(ctx, "{}", time.format(date_format));
+            str_write!(ctx, "{}", time.format(format.as_ref()));
         }
         Element::Color { elements, .. } => render_elements(log, ctx, elements),
         Element::Code { contents, language } => {
