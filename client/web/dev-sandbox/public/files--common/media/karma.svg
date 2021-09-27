@@ -2,6 +2,7 @@
   <defs>
     <symbol id="wj-karma-symbol" viewbox="0 0 64 114">
       <rect width="64" height="114" rx="8" />
+      <rect x="56" width="8" height="114" />
       <g>
         <rect x="4" y="4" width="56" height="18" rx="4" fill="var(--wj-karma-5-svg)" />
         <rect x="4" y="26" width="56" height="18" rx="4" fill="var(--wj-karma-4-svg)" />
