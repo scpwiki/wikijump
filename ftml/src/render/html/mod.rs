@@ -40,10 +40,10 @@ use super::prelude;
 
 use self::attributes::AddedAttributes;
 use self::context::HtmlContext;
+use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::render::{Handle, Render};
 use crate::tree::SyntaxTree;
-use crate::PageInfo;
 
 #[derive(Debug)]
 pub struct HtmlRender;

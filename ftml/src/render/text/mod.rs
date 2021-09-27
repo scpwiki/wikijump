@@ -23,10 +23,10 @@ mod elements;
 
 use self::context::TextContext;
 use self::elements::render_elements;
+use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::render::{Handle, Render};
 use crate::tree::{Element, SyntaxTree};
-use crate::PageInfo;
 
 #[derive(Debug)]
 pub struct TextRender;

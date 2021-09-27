@@ -167,10 +167,11 @@ pub use self::tokenizer::{tokenize, Tokenization};
 pub use self::utf16::Utf16IndexMap;
 
 pub mod prelude {
+    pub use super::data::PageInfo;
     pub use super::includes::{include, Includer};
     pub use super::parsing::{parse, ParseResult, ParseWarning};
+    pub use super::preprocess;
     pub use super::render::Render;
     pub use super::tokenizer::{tokenize, Tokenization};
     pub use super::tree::{Element, SyntaxTree};
-    pub use super::{preprocess, PageInfo};
 }
