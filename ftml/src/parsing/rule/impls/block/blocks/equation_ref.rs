@@ -22,7 +22,7 @@ use super::prelude::*;
 
 pub const BLOCK_EQUATION_REF: BlockRule = BlockRule {
     name: "block-equation-ref",
-    accepts_names: &["equation", "eref"],
+    accepts_names: &["equation", "eref", "eqref"],
     accepts_star: false,
     accepts_score: false,
     accepts_newlines: false,

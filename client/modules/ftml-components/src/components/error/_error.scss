@@ -1,0 +1,21 @@
+.wj-error-block,
+.wj-error-inline {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  color: #b00;
+  border-radius: 0.25em;
+  outline: 1px solid #faa;
+}
+
+.wj-error-block {
+  display: block;
+  padding: 1em;
+  margin: 1em;
+  text-align: center;
+}
+
+.wj-error-inline {
+  display: inline-block;
+  padding: 0.125em 0.5em;
+  margin: -0.125em 0;
+}

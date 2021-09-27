@@ -1,6 +1,6 @@
 import { highlight } from "@wikijump/prism"
 import { timeout } from "@wikijump/util"
-import { defineElement } from "../../util"
+import { defineElement, observe, pauseObservation } from "../../util"
 
 /**
  * FTML `[[code]]` element. Automatically highlights the contents of its
@@ -28,7 +28,7 @@ export class Code extends HTMLDivElement {
     this.content = ""
 
     // observer for watching for changes to textual content
-    this.observer = new MutationObserver(() => this.update())
+    this.observer = observe(this, () => this.update())
   }
 
   /**
@@ -46,13 +46,12 @@ export class Code extends HTMLDivElement {
   }
 
   /** Ran whenever highlighting needs to be updated. */
+  @pauseObservation
   private update() {
     // get the element every time we update,
     // because it might have been replaced by morphing or something
     const element = this.querySelector("code")
     if (!element) return
-
-    this.observer.disconnect()
 
     const language = this.getLanguageFromClass() ?? "none"
     const content = element.innerText
@@ -65,12 +64,6 @@ export class Code extends HTMLDivElement {
     }
 
     element.innerHTML = this.html
-
-    this.observer.observe(this, {
-      characterData: true,
-      childList: true,
-      subtree: true
-    })
   }
 
   // -- LIFECYCLE
@@ -82,14 +75,6 @@ export class Code extends HTMLDivElement {
       this.appendChild(defaultElement)
     }
 
-    this.update()
-  }
-
-  adoptedCallback() {
-    this.update()
-  }
-
-  attributeChangedCallback() {
     this.update()
   }
 }

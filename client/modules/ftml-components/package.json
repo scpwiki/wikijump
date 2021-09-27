@@ -16,6 +16,7 @@
   "dependencies": {
     "@popperjs/core": "^2.10.1",
     "@wikijump/prism": "workspace:*",
-    "@wikijump/util": "workspace:*"
+    "@wikijump/util": "workspace:*",
+    "hfmath": "^0.0.2"
   }
 }

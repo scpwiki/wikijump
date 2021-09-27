@@ -30,14 +30,6 @@ repository:
     match: /\\#?[a-zA-Z\d]+/
     tag: string
 
-  CommandGroup:
-    match: /(\\#?[a-zA-Z\d]+)(\{)([^]*?)(\})/
-    captures:
-      0: { is: Command }
-      1: { is: Bracket }
-      2: { type: CommandGroupString, tag: string }
-      3: { is: Bracket }
-
   Spacing:
     match: /\\[,>;!]/
     tag: string
@@ -53,7 +45,6 @@ repository:
 root:
   - Comment
   - Function
-  - CommandGroup
   - Command
   - Spacing
   - EscapedLine
