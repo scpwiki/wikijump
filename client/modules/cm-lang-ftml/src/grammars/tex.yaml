@@ -31,12 +31,15 @@ repository:
     tag: string
 
   CommandGroup:
-    match: /(\\#?[a-zA-Z\d]+)(\{)([^]*?)(\})/
-    captures:
-      0: { is: Command }
-      1: { is: Bracket }
-      2: { type: CommandGroupString, tag: string }
-      3: { is: Bracket }
+    begin:
+      match: /(\\#?[a-zA-Z\d]+)(\{)/
+      captures:
+        0: { is: Command }
+        1: { open: CommandGroup, tag: bracket }
+    end:
+      match: "}"
+      close: CommandGroup
+      tag: bracket
 
   Spacing:
     match: /\\[,>;!]/
