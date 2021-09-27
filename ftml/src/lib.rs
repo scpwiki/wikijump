@@ -133,7 +133,6 @@ mod log;
 #[macro_use]
 mod macros;
 
-mod data;
 mod next_index;
 mod non_empty_vec;
 mod preproc;
@@ -149,6 +148,7 @@ pub mod ffi;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
 
+pub mod data;
 pub mod includes;
 pub mod info;
 pub mod parsing;
@@ -160,7 +160,6 @@ pub mod tree;
 #[cfg(feature = "log")]
 pub use self::log::{build_logger, build_null_logger, build_terminal_logger};
 
-pub use self::data::*;
 pub use self::includes::include;
 pub use self::parsing::parse;
 pub use self::preproc::preprocess;
