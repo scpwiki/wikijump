@@ -20,8 +20,12 @@
 
 use chrono::prelude::*;
 
-/// The default format string for `[[date]]`, if none is specified.
-pub const DEFAULT_DATETIME_FORMAT: &str = "%B %d, %Y %I:%M:%S %p %Z";
+// Default format strings, for each variant.
+const DEFAULT_DATE_FORMAT: &str = "%B %d, %Y";
+
+const DEFAULT_DATETIME_FORMAT: &str = "%B %d, %Y %I:%M:%S %p";
+
+const DEFAULT_DATETIME_TZ_FORMAT: &str = "%B %d, %Y %I:%M:%S %p %Z";
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Date {
@@ -68,7 +72,7 @@ impl Date {
     pub fn format<S: AsRef<str>>(self, format_string: Option<S>) -> String {
         let format_string = match format_string {
             Some(ref fmt) => fmt.as_ref(),
-            None => DEFAULT_DATETIME_FORMAT,
+            None => self.default_format_string(),
         };
 
         let result = match self {
@@ -78,6 +82,14 @@ impl Date {
         };
 
         str!(result)
+    }
+
+    pub fn default_format_string(self) -> &'static str {
+        match self {
+            Date::Date(_) => DEFAULT_DATE_FORMAT,
+            Date::DateTime(_) => DEFAULT_DATETIME_FORMAT,
+            Date::DateTimeTz(_) => DEFAULT_DATETIME_TZ_FORMAT,
+        }
     }
 }
 

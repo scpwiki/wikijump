@@ -43,7 +43,7 @@ pub use self::anchor::*;
 pub use self::attribute::AttributeMap;
 pub use self::clear_float::*;
 pub use self::container::*;
-pub use self::date::{Date, DEFAULT_DATETIME_FORMAT};
+pub use self::date::Date;
 pub use self::definition_list::*;
 pub use self::element::*;
 pub use self::heading::*;

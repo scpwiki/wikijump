@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::{Date, DEFAULT_DATETIME_FORMAT};
+use crate::tree::Date;
 
 pub fn render_date(
     log: &Logger,
@@ -46,7 +46,7 @@ pub fn render_date(
         .attr(attr!(
             "is" => "wj-date",
             "class" => "wj-date" space hover_class,
-            "data-format" => date_format.unwrap_or(DEFAULT_DATETIME_FORMAT),
+            "data-format" => date_format.unwrap_or_else(|| date.default_format_string()),
             "data-iso" => &date.to_rfc3339(),
             "data-timestamp" => &timestamp,
             "data-delta" => &delta,
