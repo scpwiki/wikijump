@@ -31,6 +31,16 @@ pub enum Date {
 }
 
 impl Date {
+    pub fn add_timezone(self, offset: FixedOffset) -> Option<Self> {
+        let datetime_tz = match self {
+            Date::Date(date) => DateTime::from_utc(to_datetime(date), offset),
+            Date::DateTime(datetime) => DateTime::from_utc(datetime, offset),
+            Date::DateTimeTz(_) => return None,
+        };
+
+        Some(Date::DateTimeTz(datetime_tz))
+    }
+
     pub fn timestamp(self) -> i64 {
         match self {
             Date::Date(date) => date.and_hms(0, 0, 0).timestamp(),
@@ -57,7 +67,7 @@ impl Date {
 
     pub fn format<S: AsRef<str>>(self, format_string: Option<S>) -> String {
         let format_string = match format_string {
-            Some(s) => s.as_ref(),
+            Some(ref fmt) => fmt.as_ref(),
             None => DEFAULT_DATETIME_FORMAT,
         };
 

@@ -21,6 +21,7 @@
 use super::prelude::*;
 use chrono::prelude::*;
 use regex::Regex;
+use crate::tree::Date;
 
 pub const BLOCK_DATE: BlockRule = BlockRule {
     name: "block-date",
@@ -57,40 +58,33 @@ fn parse_fn<'r, 't>(
     let hover = arguments.get_bool(parser, "hover")?.unwrap_or(true);
 
     // Parse out timestamp given by user
-    let (naive_datetime, parsed_timezone) = parse_date(log, value)
+    let mut date = parse_date(log, value)
         .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?;
 
-    // Get timezone info
-    let timezone = match (arg_timezone, parsed_timezone) {
-        // Check that two timezones weren't passed, only one can be used
-        (Some(arg), Some(parsed)) => {
-            warn!(
-                log,
-                "Date block has two specified timezones";
-                "argument-timezone" => arg.as_ref(),
-                "parsed-timezone" => str!(parsed),
-            );
+    if let Some(arg) = arg_timezone {
+        // Parse out argument timezone
+        let offset = parse_timezone(log, &arg)
+            .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?;
 
-            return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
-        }
+        // Add timezone. If None, then conflicting timezones.
+        date = match date.add_timezone(offset) {
+            Some(date) => date,
+            None => {
+                warn!(
+                    log,
+                    "Date block has two specified timezones";
+                    "argument-timezone" => arg.as_ref(),
+                    "parsed-timezone" => str!(offset),
+                );
 
-        // Argument-specified timezone
-        (Some(tz), None) => parse_timezone(log, &tz)
-            .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?,
-
-        // String-specified timezone
-        (None, Some(tz)) => tz,
-
-        // No specified timezone, use UTC
-        (None, None) => utc(),
-    };
-
-    // Build timezone-aware datetime
-    let datetime = DateTime::<FixedOffset>::from_utc(naive_datetime, timezone);
+                return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
+            }
+        };
+    }
 
     // Build and return element
     let element = Element::Date {
-        time: datetime,
+        time: date,
         format,
         hover,
     };
@@ -104,14 +98,14 @@ fn parse_fn<'r, 't>(
 fn parse_date(
     log: &Logger,
     value: &str,
-) -> Result<(NaiveDateTime, Option<FixedOffset>), DateParseError> {
+) -> Result<Date, DateParseError> {
     info!(log, "Parsing possible date value"; "value" => value);
 
     // Special case, current time
     if value.eq_ignore_ascii_case("now") || value == "." {
         debug!(log, "Was now");
 
-        return Ok((now(), None));
+        return Ok(now());
     }
 
     // Try UNIX timestamp (e.g. 1398763929)
@@ -120,43 +114,60 @@ fn parse_date(
 
         let date = NaiveDateTime::from_timestamp(timestamp, 0);
 
-        return Ok((date, None));
+        return Ok(date.into());
     }
 
-    // Try date string
-    if let Ok(date) = NaiveDateTime::parse_from_str(value, "%F") {
+    // Try date strings
+    if let Ok(date) = NaiveDate::parse_from_str(value, "%F") {
         debug!(
             log,
-            "Was ISO 8601 date string";
+            "Was ISO 8601 date string (dashes)";
             "result" => str!(date),
         );
 
-        return Ok((date, None));
+        return Ok(date.into());
     }
 
-    // Try datetime string
-    if let Ok(date) = NaiveDateTime::parse_from_str(value, "%FT%T") {
+    if let Ok(date) = NaiveDate::parse_from_str(value, "%Y/%m/%d") {
         debug!(
             log,
-            "Was ISO 8601 datetime string";
+            "Was ISO 8601 date string (slashes)";
             "result" => str!(date),
         );
 
-        return Ok((date, None));
+        return Ok(date.into());
+    }
+
+    // Try datetime strings
+    if let Ok(datetime) = NaiveDateTime::parse_from_str(value, "%FT%T") {
+        debug!(
+            log,
+            "Was ISO 8601 datetime string (dashes)";
+            "result" => str!(datetime),
+        );
+
+        return Ok(datetime.into());
+    }
+
+    if let Ok(datetime) = NaiveDateTime::parse_from_str(value, "%Y/%m/%dT%T") {
+        debug!(
+            log,
+            "Was ISO 8601 datetime string (slashes)";
+            "result" => str!(datetime),
+        );
+
+        return Ok(datetime.into());
     }
 
     // Try full RFC 3339 (stricter form of ISO 8601)
-    if let Ok(tz_date) = DateTime::parse_from_rfc3339(value) {
+    if let Ok(datetime_tz) = DateTime::parse_from_rfc3339(value) {
         debug!(
             log,
             "Was RFC 3339 datetime string";
-            "result" => str!(tz_date),
+            "result" => str!(datetime_tz),
         );
 
-        let date = tz_date.naive_utc();
-        let timezone = tz_date.timezone();
-
-        return Ok((date, Some(timezone)));
+        return Ok(datetime_tz.into());
     }
 
     // Exhausted all cases, failing
@@ -234,18 +245,9 @@ fn parse_timezone(log: &Logger, value: &str) -> Result<FixedOffset, DateParseErr
 #[derive(Debug, PartialEq, Eq)]
 struct DateParseError;
 
-// Clarity functions
-//
-// Does something whose inlined implementation is less clear / readable
-
 #[inline]
-fn now() -> NaiveDateTime {
-    Utc::now().naive_utc()
-}
-
-#[inline]
-fn utc() -> FixedOffset {
-    FixedOffset::east(0)
+fn now() -> Date {
+    Utc::now().naive_utc().into()
 }
 
 // Tests
@@ -261,38 +263,28 @@ fn date() {
     //
     // Since this is just a test suite, we don't care about such edge
     // cases, just rerun the tests.
-    fn is_today(datetime: NaiveDateTime) -> bool {
-        let duration = now() - datetime;
-
-        duration.num_milliseconds() < 100
+    fn is_today(date: Date) -> bool {
+        date.time_since().abs() < 5
     }
 
     let log = crate::build_logger();
 
     macro_rules! check_now {
         ($input:expr $(,)?) => {{
-            let (datetime, timezone) =
-                parse_date(&log, $input).expect("Datetime parse didn't succeed");
+            let date = parse_date(&log, $input).expect("Datetime parse didn't succeed");
 
-            assert!(is_today(datetime), "Expected parsed datetime to be now");
-            assert!(timezone.is_none(), "Expected parsed timezone to be default");
+            assert!(is_today(date), "Expected parsed datetime to be now");
         }};
     }
 
     macro_rules! check_ok {
-        ($input:expr, $datetime:expr, $timezone_minutes:expr $(,)?) => {{
-            let (datetime, timezone) =
-                parse_date(&log, $input).expect("Datetime parse didn't succeed");
+        ($input:expr, $date:expr, $timezone_minutes:expr $(,)?) => {{
+            let date = parse_date(&log, $input).expect("Datetime parse didn't succeed");
 
             assert_eq!(
-                datetime, $datetime,
-                "Actual datetime value doesn't match expected",
-            );
-
-            assert_eq!(
-                timezone.unwrap_or(utc()).local_minus_utc(),
-                $timezone_minutes * 60,
-                "Actual timezone offset seconds doesn't match expected",
+                date,
+                $date.into(),
+                "Actual date value doesn't match expected",
             );
         }};
     }
@@ -319,11 +311,41 @@ fn date() {
         NaiveDateTime::from_timestamp(1600000000, 0),
         0,
     );
-
+    check_ok!("-1000", NaiveDateTime::from_timestamp(-1000, 0), 0);
+    check_ok!("0", NaiveDateTime::from_timestamp(0, 0), 0);
+    check_ok!(
+        "2001-09-11",
+        NaiveDateTime::from_timestamp(1000180800, 0),
+        0,
+    );
+    check_ok!(
+        "2001-09-11T08:46:00",
+        NaiveDateTime::from_timestamp(1000212360, 0),
+        0,
+    );
+    check_ok!(
+        "2001/09/11",
+        NaiveDateTime::from_timestamp(1000180800, 0),
+        0,
+    );
+    check_ok!(
+        "2001/09/11T08:46:00",
+        NaiveDateTime::from_timestamp(1000212360, 0),
+        0,
+    );
+    check_ok!(
+        "2007-05-12T00:34:51.026490+04:00",
+        NaiveDateTime::from_timestamp(1178944491, 0),
+        4 * 60,
+    );
+    check_ok!(
+        "2007-05-12T00:34:51.026490-04:00",
+        NaiveDateTime::from_timestamp(1178944491, 0),
+        -4 * 60,
+    );
     // TODO
 
-    check_err!("");
-
+    check_err!("12-04-07");
     // TODO
 }
 
