@@ -875,3 +875,5 @@ Example:
 ```
 [[u]]Testing log 7192-45:[[/u]]
 ```
+
+<!-- vim: set nowrap: -->
