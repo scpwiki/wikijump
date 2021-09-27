@@ -20,7 +20,7 @@
 
 use super::error::error_to_js;
 use super::prelude::*;
-use crate::PageInfo as RustPageInfo;
+use crate::data::PageInfo as RustPageInfo;
 use ref_map::*;
 use std::sync::Arc;
 
