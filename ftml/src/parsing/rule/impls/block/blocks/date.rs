@@ -263,29 +263,27 @@ fn date() {
     //
     // Since this is just a test suite, we don't care about such edge
     // cases, just rerun the tests.
-    fn is_today(date: Date) -> bool {
-        date.time_since().abs() < 5
+    fn dates_equal(date1: Date, date2: Date) -> bool {
+        let timestamp1 = date1.timestamp();
+        let timestamp2 = date2.timestamp();
+
+        (timestamp1 - timestamp2).abs() < 5
     }
 
     let log = crate::build_logger();
 
-    macro_rules! check_now {
-        ($input:expr $(,)?) => {{
-            let date = parse_date(&log, $input).expect("Datetime parse didn't succeed");
-
-            assert!(is_today(date), "Expected parsed datetime to be now");
-        }};
-    }
-
     macro_rules! check_ok {
-        ($input:expr, $date:expr, $timezone_minutes:expr $(,)?) => {{
-            let date = parse_date(&log, $input).expect("Datetime parse didn't succeed");
+        ($input:expr, $date:expr $(,)?) => {{
+            let actual = parse_date(&log, $input).expect("Datetime parse didn't succeed");
+            let expected = $date.into();
 
-            assert_eq!(
-                date,
-                $date.into(),
-                "Actual date value doesn't match expected",
-            );
+            if !dates_equal(actual, expected) {
+                panic!(
+                    "Actual date value doesn't match expected\nactual: {:?}\nexpected: {:?}",
+                    actual,
+                    expected,
+                );
+            }
         }};
     }
 
@@ -301,47 +299,45 @@ fn date() {
         }};
     }
 
-    check_now!(".");
-    check_now!("now");
-    check_now!("Now");
-    check_now!("NOW");
-
+    check_ok!(".", now());
+    check_ok!("now", now());
+    check_ok!("Now", now());
+    check_ok!("NOW", now());
     check_ok!(
         "1600000000",
         NaiveDateTime::from_timestamp(1600000000, 0),
-        0,
     );
-    check_ok!("-1000", NaiveDateTime::from_timestamp(-1000, 0), 0);
-    check_ok!("0", NaiveDateTime::from_timestamp(0, 0), 0);
+    check_ok!("-1000", NaiveDateTime::from_timestamp(-1000, 0));
+    check_ok!("0", NaiveDateTime::from_timestamp(0, 0));
     check_ok!(
         "2001-09-11",
-        NaiveDateTime::from_timestamp(1000180800, 0),
-        0,
+        NaiveDate::from_ymd(2001, 9, 11),
     );
     check_ok!(
         "2001-09-11T08:46:00",
         NaiveDateTime::from_timestamp(1000212360, 0),
-        0,
     );
     check_ok!(
         "2001/09/11",
-        NaiveDateTime::from_timestamp(1000180800, 0),
-        0,
+        NaiveDate::from_ymd(2001, 9, 11),
     );
     check_ok!(
         "2001/09/11T08:46:00",
-        NaiveDateTime::from_timestamp(1000212360, 0),
-        0,
+        NaiveDate::from_ymd(2001, 9, 11).and_hms(8, 46, 0),
     );
     check_ok!(
         "2007-05-12T00:34:51.026490+04:00",
-        NaiveDateTime::from_timestamp(1178944491, 0),
-        4 * 60,
+        DateTime::from_utc(
+            NaiveDate::from_ymd(2007, 5, 12).and_hms(0, 34, 51),
+            FixedOffset::east(4 * 60),
+        ),
     );
     check_ok!(
         "2007-05-12T00:34:51.026490-04:00",
-        NaiveDateTime::from_timestamp(1178944491, 0),
-        -4 * 60,
+        DateTime::from_utc(
+            NaiveDate::from_ymd(2007, 5, 12).and_hms(0, 34, 51),
+            FixedOffset::west(4 * 60),
+        ),
     );
     // TODO
 
