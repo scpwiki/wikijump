@@ -67,8 +67,7 @@ impl Handle {
 
         let mut info = UserInfo::dummy();
         info.user_name = cow!(name);
-        info.user_profile_url =
-            Cow::Owned(format!("https://www.wikijump.com/user:info/{}", name));
+        info.user_profile_url = Cow::Owned(format!("/user:info/{}", name));
         Some(info)
     }
 

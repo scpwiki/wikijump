@@ -1,7 +1,7 @@
 const fs = require("fs-extra")
 const path = require("path")
 
-const EXCLUDE = [/fail/, /error/]
+const EXCLUDE = [/fail/, /error/, /iframe/, /html/, /image/]
 
 const testDir = path.join(__dirname, "../../../", "ftml/test")
 const jsons = fs

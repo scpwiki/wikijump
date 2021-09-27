@@ -91,7 +91,7 @@ const getConfig = (test = false) => ({
     : {
         outDir: "../dist",
         emptyOutDir: true,
-        assetsDir: "static/assets",
+        assetsDir: "files--common/assets",
         manifest: true,
         sourcemap: true,
         target: "esnext",

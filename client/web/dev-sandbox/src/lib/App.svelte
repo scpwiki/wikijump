@@ -7,7 +7,7 @@
 
   onMount(async () => {
     if (!doc) {
-      const res = await fetch("/static/misc/ftml-test-cases-export.ftml")
+      const res = await fetch("/files--common/misc/ftml-test-cases-export.ftml")
       if (!res) return
       doc = await res.text()
     }

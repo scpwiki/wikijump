@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <symbol id="wj-karma-symbol" viewbox="0 0 64 114">
+      <rect width="64" height="114" rx="8" />
+      <rect x="56" width="8" height="114" />
+      <g>
+        <rect x="4" y="4" width="56" height="18" rx="4" fill="var(--wj-karma-5-svg)" />
+        <rect x="4" y="26" width="56" height="18" rx="4" fill="var(--wj-karma-4-svg)" />
+        <rect x="4" y="48" width="56" height="18" rx="4" fill="var(--wj-karma-3-svg)" />
+        <rect x="4" y="70" width="56" height="18" rx="4" fill="var(--wj-karma-2-svg)" />
+        <rect x="4" y="92" width="56" height="18" rx="4" fill="var(--wj-karma-1-svg)" />
+      </g>
+    </symbol>
+  </defs>
+</svg>

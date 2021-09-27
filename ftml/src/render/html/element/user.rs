@@ -28,71 +28,84 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
         "show-avatar" => show_avatar,
     );
 
-    ctx
-        .html()
+    ctx.html()
         .span()
         .attr(attr!(
             "is" => "wj-user-info",
             "class" => "wj-user-info",
         ))
-        .contents(|ctx| {
-            match ctx.handle().get_user_info(log, name) {
-                Some(info) => {
-                    debug!(
-                        log,
-                        "Got user information";
-                        "user-id" => info.user_id,
-                        "user-name" => info.user_name.as_ref(),
-                    );
+        .contents(|ctx| match ctx.handle().get_user_info(log, name) {
+            Some(info) => {
+                debug!(
+                    log,
+                    "Got user information";
+                    "user-id" => info.user_id,
+                    "user-name" => info.user_name.as_ref(),
+                );
 
-                    ctx
-                        .html()
-                        .a()
-                        .attr(attr!("href" => &info.user_profile_url))
-                        .contents(|ctx| {
-                            if show_avatar {
-                                ctx
-                                    .html()
-                                    .img()
-                                    .attr(attr!(
-                                        "class" => "wj-small",
-                                        "src" => &info.user_avatar_data,
-                                    ));
-                            }
-
-                            ctx
-                                .html()
+                ctx.html()
+                    .a()
+                    .attr(attr!("href" => &info.user_profile_url))
+                    .contents(|ctx| {
+                        if show_avatar {
+                            ctx.html()
                                 .span()
-                                .attr(attr!("class" => "wj-user-info-name"))
-                                .inner(log, &info.user_name);
-                        });
-                }
-                None => {
-                    debug!(log, "No such user found");
+                                .attr(attr!(
+                                    "class" => "wj-karma",
+                                    "data-karma" => &info.user_karma.to_string(),
+                                ))
+                                .contents(|ctx| {
+                                    ctx.html().svg_use(
+                                        "/files--common/media/karma.svg#wj-karma-symbol",
+                                        "0 0 64 114",
+                                    );
+                                });
 
-                    ctx
-                        .html()
-                        .span()
-                        .attr(attr!("class" => "wj-error-inline"))
-                        .contents(|ctx| {
-                            if show_avatar {
-                                // TODO get actual avatar missing data
-                                ctx
-                                    .html()
-                                    .img()
-                                    .attr(attr!(
-                                        "class" => "wj-small",
-                                        "src" => "https://www.wikijump.com/avatars--common/missing/small.png",
-                                    ));
-                            }
+                            ctx.html().img().attr(attr!(
+                                "class" => "wj-user-info-avatar",
+                                "src" => &info.user_avatar_data,
+                            ));
+                        }
 
-                            ctx
-                                .html()
+                        ctx.html()
+                            .span()
+                            .attr(attr!("class" => "wj-user-info-name"))
+                            .inner(log, &info.user_name);
+                    });
+            }
+            None => {
+                debug!(log, "No such user found");
+
+                ctx.html()
+                    .span()
+                    .attr(attr!("class" => "wj-error-inline"))
+                    .contents(|ctx| {
+                        if show_avatar {
+                            // Karma SVG
+                            ctx.html()
                                 .span()
-                                .attr(attr!("class" => "wj-user-info-name"))
-                                .inner(log, name);
-                        });
-                }
+                                .attr(attr!(
+                                    "class" => "wj-karma",
+                                    "data-karma" => "0",
+                                ))
+                                .contents(|ctx| {
+                                    ctx.html().svg_use(
+                                        "/files--common/media/karma.svg#wj-karma-symbol",
+                                        "0 0 64 114",
+                                    );
+                                });
+
+                            ctx.html().img().attr(attr!(
+                                "class" => "wj-user-info-avatar",
+                                "src" => "/files--common/media/bad-avatar.png",
+                            ));
+                        }
+
+                        ctx.html()
+                            .span()
+                            .attr(attr!("class" => "wj-user-info-name"))
+                            .inner(log, name);
+                    });
             }
         });
 }

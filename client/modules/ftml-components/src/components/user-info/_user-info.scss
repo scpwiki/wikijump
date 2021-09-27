@@ -1,11 +1,86 @@
-.wj-user-info img.wj-small {
-  width: 16px;
-  height: 16px;
-  padding: 1px 9px 1px 8px;
-  margin: 0;
-  background-repeat: no-repeat;
-  background-position: center left;
+.wj-user-info {
+  > a,
+  .wj-error-inline {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    vertical-align: text-bottom;
+
+    @include hover {
+      text-decoration: underline;
+    }
+  }
+
+  .wj-user-info-avatar {
+    box-sizing: border-box;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    border: solid 1px black;
+    border-left: none;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .wj-user-info-avatar + .wj-user-info-name {
+    margin-left: 0.25em;
+    line-height: 16px;
+  }
 }
 
-.wj-user-info-name {
+.wj-karma,
+.wj-karma svg {
+  display: inline-block;
+  height: 16px;
+}
+
+// Karma level based on data-attribute
+
+:root {
+  --wj-karma-5: rgb(255, 64, 0);
+  --wj-karma-4: rgb(255, 128, 0);
+  --wj-karma-3: rgb(0, 255, 64);
+  --wj-karma-2: rgb(0, 128, 255);
+  --wj-karma-1: rgb(0, 64, 255);
+  --wj-karma-n: rgb(64, 64, 64);
+}
+
+.wj-karma {
+  // Default color for each level
+  --wj-karma-5-svg: var(--wj-karma-n);
+  --wj-karma-4-svg: var(--wj-karma-n);
+  --wj-karma-3-svg: var(--wj-karma-n);
+  --wj-karma-2-svg: var(--wj-karma-n);
+  --wj-karma-1-svg: var(--wj-karma-n);
+
+  &[data-karma="5"] {
+    --wj-karma-5-svg: var(--wj-karma-5);
+    --wj-karma-4-svg: var(--wj-karma-4);
+    --wj-karma-3-svg: var(--wj-karma-3);
+    --wj-karma-2-svg: var(--wj-karma-2);
+    --wj-karma-1-svg: var(--wj-karma-1);
+  }
+
+  &[data-karma="4"] {
+    --wj-karma-4-svg: var(--wj-karma-4);
+    --wj-karma-3-svg: var(--wj-karma-3);
+    --wj-karma-2-svg: var(--wj-karma-2);
+    --wj-karma-1-svg: var(--wj-karma-1);
+  }
+
+  &[data-karma="3"] {
+    --wj-karma-3-svg: var(--wj-karma-3);
+    --wj-karma-2-svg: var(--wj-karma-2);
+    --wj-karma-1-svg: var(--wj-karma-1);
+  }
+
+  &[data-karma="2"] {
+    --wj-karma-2-svg: var(--wj-karma-2);
+    --wj-karma-1-svg: var(--wj-karma-1);
+  }
+
+  &[data-karma="1"] {
+    --wj-karma-1-svg: var(--wj-karma-1);
+  }
 }

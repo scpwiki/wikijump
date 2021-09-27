@@ -74,6 +74,24 @@ where
         }
     }
 
+    /// Creates an inline `<svg>` pointing to another source.
+    ///
+    /// This is a helper method to add the following to the HTML:
+    /// ```raw
+    /// <svg viewbox="viewbox-passed-in">
+    ///   <use href="url-passed-in"></use>
+    /// </svg>
+    /// ```
+    pub fn svg_use(self, href: &'t str, viewbox: &'t str) {
+        self.tag("svg")
+            .attr(attr!("viewBox" => viewbox))
+            .contents(|ctx| {
+                ctx.html() //
+                    .tag("use")
+                    .attr(attr!("href" => href));
+            });
+    }
+
     tag_method!(a);
     tag_method!(br);
     tag_method!(button);

@@ -927,36 +927,6 @@ Horizontal rule
 -----
 Horizontal rule
 
-[!-- html-block --]
-[[html]]
-[[div]]
-test
-[[/div]]
-[[/html]]
-
-[!-- html-empty --]
-Empty
-[[html]]
-[[/html]]
-
-[!-- html-inline-empty --]
-[[html]][[/html]]
-
-[!-- html-inline --]
-[[html]]My <bold>text</bold>![[/html]]
-
-[!-- html-multiple --]
-[[html]]
-<p>Paragraph 1</p>
-[[/html]]
-[[html]]
-<p>Paragraph 2</p>[[/html]]
-
-[!-- html --]
-[[html]]
-<p><div>My HTML <tt>code</tt> here!</div></p>
-[[/html]]
-
 [!-- ifcategory-css --]
 [[ifcategory _default]]
 [[css]]body { color: red; }[[/css]]
@@ -976,18 +946,6 @@ Banana
 Hidden
 [[/ifcategory]]
 
-[!-- iframe-http --]
-[[iframe http://scp-wiki.wikidot.com/scp-1000 ]]
-
-[!-- iframe-style --]
-[[iframe https://example.com id="my-iframe" class="example"]]
-
-[!-- iframe-uppercase --]
-[[iframe  https://example.com  WIDTH =  "100%" id= "iframe" ]]
-
-[!-- iframe --]
-[[iframe https://example.com]]
-
 [!-- iftags-css --]
 [[iftags fruit]]
 [[css]]body { color: red; }[[/css]]
@@ -1004,54 +962,6 @@ Apple
 [[iftags +xyz]]
 Hidden
 [[/iftags]]
-
-[!-- image-attributes --]
-A [[image green_apple.png alt="A green apple" title="Take a big bite!" style="width: 100%;" class="fruity"]] B
-
-[!-- image-center --]
-[[=image landscape.png]]
-
-[!-- image-external --]
-A [[image https://example.com/my-image.png]] B
-
-[!-- image-file1 --]
-A [[image /my-picture.jpeg]] B
-
-[!-- image-file2-slash --]
-A [[image some-other-page/my-picture.jpeg]] B
-
-[!-- image-file2 --]
-A [[image /some-other-page/my-picture.jpeg]] B
-
-[!-- image-file3-slash --]
-A [[image scp-wiki/some-other-page/my-picture.jpeg]] B
-
-[!-- image-file3 --]
-A [[image /scp-wiki/some-other-page/my-picture.jpeg]] B
-
-[!-- image-float-left --]
-[[f<image landscape.png]]
-
-[!-- image-float-right --]
-[[f>image landscape.png]]
-
-[!-- image-left --]
-[[<image landscape.png]]
-
-[!-- image-link-anchor --]
-A [[image filename.png link="#section"]] B
-
-[!-- image-link-page --]
-A [[image filename.png link="SCP-001"]] B
-
-[!-- image-link --]
-A [[image filename.png link="https://example.com/"]] B
-
-[!-- image-right --]
-[[>image landscape.png]]
-
-[!-- image --]
-A [[image filename.png]] B
 
 [!-- include-elements-variables --]
 [[include-elements component:image-block name="peanut.png" caption="Haha funi"]]
