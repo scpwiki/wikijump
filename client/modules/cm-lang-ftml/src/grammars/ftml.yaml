@@ -53,7 +53,7 @@ repository:
       close: Strong
       match: "**"
       lookbehind: /\S/
-      lookahead: /[\W\d_]/
+      lookahead: /[^\w*]|$/
       tag: processingInstruction
 
   Emphasis:
@@ -69,7 +69,7 @@ repository:
       close: Emphasis
       match: "//"
       lookbehind: /\S/
-      lookahead: /[\W\d_]/
+      lookahead: /[^\w/]|$/
       tag: processingInstruction
 
   Underline:
@@ -85,7 +85,7 @@ repository:
       close: Underline
       match: "__"
       lookbehind: /\S/
-      lookahead: /[\W\d_]/
+      lookahead: /[^\w_]|$/
       tag: processingInstruction
 
   Strikethrough:
@@ -101,7 +101,7 @@ repository:
       close: Strikethrough
       match: "--"
       lookbehind: /\S/
-      lookahead: /[\W\d_]/
+      lookahead: /[^\w\-]|$/
       tag: processingInstruction
 
   Subscript:
@@ -117,7 +117,7 @@ repository:
       close: Subscript
       match: ",,"
       lookbehind: /\S/
-      lookahead: /[\W\d_]/
+      lookahead: /[^\w,]|$/
       tag: processingInstruction
 
   Superscript:
@@ -133,7 +133,7 @@ repository:
       close: Superscript
       match: "^^"
       lookbehind: /\S/
-      lookahead: /[\W\d_]/
+      lookahead: /[^\w^]|$/
       tag: processingInstruction
 
   Monospace:
@@ -149,7 +149,7 @@ repository:
       close: Monospace
       match: "}}"
       lookbehind: /\S/
-      lookahead: /[\W\d_]/
+      lookahead: /[^\w\}]|$/
       tag: processingInstruction
 
   # special
@@ -563,7 +563,7 @@ repository:
         - BlockNamePrefix?
         - BlockNameMath
         - BlockNameSuffix?
-        - BlockValue?
+        - BlockNodeArgument? | BlockValue?
         - BlockNodeArgument |* BlockLabel
         - BlockEnd
     end:
