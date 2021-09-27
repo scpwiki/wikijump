@@ -78,7 +78,8 @@ fn render_latex(
     latex_source: &str,
     display: DisplayStyle,
 ) {
-    let (html_tag, wj_type, error_type) = match display {
+    // error_type is unused if MathML is disabled
+    let (html_tag, wj_type, _error_type) = match display {
         DisplayStyle::Block => ("div", "wj-math-block", "wj-error-block"),
         DisplayStyle::Inline => ("span", "wj-math-inline", "wj-error-inline"),
     };
@@ -160,7 +161,7 @@ fn render_latex(
 
                             ctx.html()
                                 .span()
-                                .attr(attr!("class" => error_type))
+                                .attr(attr!("class" => _error_type))
                                 .inner(log, error);
                         }
                     }
