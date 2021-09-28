@@ -167,6 +167,9 @@ pub enum ParseWarningKind {
     /// This table cell appears outside of a table row.
     TableCellOutsideTable,
 
+    /// This tabview has elements other than tabs in it.
+    TabViewContainsNonTab,
+
     /// There is a tab outside of a tabview.
     TabOutsideTabView,
 
