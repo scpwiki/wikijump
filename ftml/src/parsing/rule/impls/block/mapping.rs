@@ -22,7 +22,7 @@ use super::{blocks::*, BlockRule};
 use std::collections::HashMap;
 use unicase::UniCase;
 
-pub const BLOCK_RULES: [BlockRule; 54] = [
+pub const BLOCK_RULES: [BlockRule; 55] = [
     BLOCK_ALIGN_CENTER,
     BLOCK_ALIGN_JUSTIFY,
     BLOCK_ALIGN_LEFT,
@@ -38,6 +38,7 @@ pub const BLOCK_RULES: [BlockRule; 54] = [
     BLOCK_DATE,
     BLOCK_DEL,
     BLOCK_DIV,
+    BLOCK_EMBED,
     BLOCK_EQUATION_REF,
     BLOCK_FOOTNOTE,
     BLOCK_FOOTNOTE_BLOCK,
