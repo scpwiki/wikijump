@@ -23,7 +23,7 @@ use crate::tree::clone::*;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, Date,
     DefinitionListItem, FloatAlignment, ImageSource, LinkLabel, LinkLocation, ListItem,
-    ListType, Module, PartialElement, Table, VariableMap,
+    ListType, Module, PartialElement, Tab, Table, VariableMap,
 };
 use ref_map::*;
 use std::borrow::Cow;
@@ -70,6 +70,9 @@ pub enum Element<'t> {
 
     /// An element representing an HTML table.
     Table(Table<'t>),
+
+    /// An element representing a tabview.
+    TabView(Vec<Tab<'t>>),
 
     /// An element representing an arbitrary anchor.
     ///
@@ -288,6 +291,7 @@ impl Element<'_> {
             Element::Variable(_) => "Variable",
             Element::Email(_) => "Email",
             Element::Table(_) => "Table",
+            Element::TabView(_) => "TabView",
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::Image { .. } => "Image",
@@ -335,6 +339,7 @@ impl Element<'_> {
             | Element::Variable(_)
             | Element::Email(_) => true,
             Element::Table(_) => false,
+            Element::TabView(_) => false,
             Element::Anchor { .. } | Element::Link { .. } => true,
             Element::Image { .. } => true,
             Element::List { .. } => false,
@@ -376,6 +381,9 @@ impl Element<'_> {
             Element::Variable(name) => Element::Variable(string_to_owned(name)),
             Element::Email(email) => Element::Email(string_to_owned(email)),
             Element::Table(table) => Element::Table(table.to_owned()),
+            Element::TabView(tabs) => {
+                Element::TabView(tabs.iter().map(|tab| tab.to_owned()).collect())
+            }
             Element::Anchor {
                 target,
                 attributes,

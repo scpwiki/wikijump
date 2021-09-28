@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::clone::elements_to_owned;
-use super::{Element, ListItem, TableCell, TableRow};
+use super::{ListItem, Tab, TableCell, TableRow};
 use crate::parsing::ParseWarningKind;
 
 /// Part of an element, as returned by a rule.
@@ -39,7 +38,7 @@ pub enum PartialElement<'t> {
     TableCell(TableCell<'t>),
 
     /// A particular tab within a tab view.
-    Tab(Vec<Element<'t>>),
+    Tab(Tab<'t>),
 }
 
 impl PartialElement<'_> {
@@ -73,9 +72,7 @@ impl PartialElement<'_> {
             PartialElement::TableCell(table_cell) => {
                 PartialElement::TableCell(table_cell.to_owned())
             }
-            PartialElement::Tab(elements) => {
-                PartialElement::Tab(elements_to_owned(elements))
-            }
+            PartialElement::Tab(tab) => PartialElement::Tab(tab.to_owned()),
         }
     }
 }

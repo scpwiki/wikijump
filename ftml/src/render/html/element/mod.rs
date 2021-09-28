@@ -33,6 +33,7 @@ mod link;
 mod list;
 mod math;
 mod table;
+mod tabs;
 mod text;
 mod toc;
 mod user;
@@ -58,6 +59,7 @@ use self::link::{render_anchor, render_link};
 use self::list::render_list;
 use self::math::{render_equation_reference, render_math_block, render_math_inline};
 use self::table::render_table;
+use self::tabs::render_tabview;
 use self::text::{render_code, render_email, render_wikitext_raw};
 use self::toc::render_table_of_contents;
 use self::user::render_user;
@@ -96,6 +98,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         Element::Variable(name) => render_variable(log, ctx, name),
         Element::Email(email) => render_email(log, ctx, email),
         Element::Table(table) => render_table(log, ctx, table),
+        Element::TabView(tabs) => render_tabview(log, ctx, tabs),
         Element::Anchor {
             elements,
             attributes,
