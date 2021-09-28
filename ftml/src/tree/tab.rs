@@ -18,19 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::clone::elements_to_owned;
+use super::clone::{elements_to_owned, string_to_owned};
 use super::Element;
+use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct Tab<'t> {
-    pub name: Vec<Element<'t>>,
+    pub name: Cow<'t, str>,
     pub contents: Vec<Element<'t>>,
 }
 
 impl Tab<'_> {
     pub fn to_owned(&self) -> Tab<'static> {
         Tab {
-            name: elements_to_owned(&self.name),
+            name: string_to_owned(&self.name),
             contents: elements_to_owned(&self.contents),
         }
     }
