@@ -82,6 +82,11 @@ fn parse_tabview<'r, 't>(
         }
     }
 
+    // Ensure it's not empty
+    if tabs.is_empty() {
+        return Err(parser.make_warn(ParseWarningKind::TabViewEmpty));
+    }
+
     ok!(Element::TabView(tabs), exceptions)
 }
 
