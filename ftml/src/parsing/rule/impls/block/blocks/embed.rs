@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::tree::Embed;
+use std::borrow::Cow;
 
 pub const BLOCK_EMBED: BlockRule = BlockRule {
     name: "block-embed",
@@ -48,5 +50,62 @@ fn parse_fn<'r, 't>(
     assert!(!flag_score, "Embed doesn't allow star flag");
     assert_block_name(&BLOCK_EMBED, name);
 
+    let (name, mut arguments) = parser.get_head_name_map(&BLOCK_EMBED, in_head)?;
+    let embed = build_embed(parser, name, &mut arguments)?;
+
     todo!()
+}
+
+fn build_embed<'r, 't>(
+    parser: &Parser<'r, 't>,
+    name: &str,
+    arguments: &mut Arguments<'t>,
+) -> Result<Embed<'t>, ParseWarning>
+where
+    'r: 't,
+{
+    if name.eq_ignore_ascii_case("youtube") {
+        let video_id = arguments
+            .get("video")
+            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+        let width = parse_num(parser, arguments.get("width"))?;
+        let height = parse_num(parser, arguments.get("height"))?;
+
+        return Ok(Embed::YouTube {
+            video_id,
+            width,
+            height,
+        });
+    }
+
+    if name.eq_ignore_ascii_case("vimeo") {
+        let video_id = arguments
+            .get("video")
+            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+        let width = parse_num(parser, arguments.get("width"))?;
+        let height = parse_num(parser, arguments.get("height"))?;
+
+        return Ok(Embed::Vimeo {
+            video_id,
+            width,
+            height,
+        });
+    }
+
+    Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
+}
+
+fn parse_num(
+    parser: &Parser,
+    value: Option<Cow<str>>,
+) -> Result<Option<u32>, ParseWarning> {
+    match value {
+        None => Ok(None),
+        Some(value) => match value.parse() {
+            Ok(num) => Ok(Some(num)),
+            Err(_) => Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments)),
+        },
+    }
 }

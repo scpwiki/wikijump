@@ -22,7 +22,7 @@ use super::clone::string_to_owned;
 use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", tag = "type", content = "data")]
 pub enum Embed<'t> {
     #[serde(rename_all = "kebab-case")]
     YouTube {
