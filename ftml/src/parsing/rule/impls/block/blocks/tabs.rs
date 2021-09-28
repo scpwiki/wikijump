@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 use crate::parsing::ParserWrap;
-use crate::tree::AcceptsPartial;
+use crate::tree::{AcceptsPartial, PartialElement, Tab};
 
 pub const BLOCK_TABVIEW: BlockRule = BlockRule {
     name: "block-tabview",
@@ -67,7 +67,22 @@ fn parse_tabview<'r, 't>(
         parser.get_body_elements(&BLOCK_TABVIEW, false)?.into();
 
     // Build element and return
-    todo!()
+    let mut tabs = Vec::new();
+
+    for element in elements {
+        match element {
+            // Append the next tab item.
+            Element::Partial(PartialElement::Tab(tab)) => tabs.push(tab),
+
+            // Ignore internal whitespace.
+            element if element.is_whitespace() => (),
+
+            // Return a warning for anything else.
+            _ => return Err(parser.make_warn(ParseWarningKind::TabViewContainsNonTab)),
+        }
+    }
+
+    ok!(Element::TabView(tabs), exceptions)
 }
 
 fn parse_tab<'r, 't>(
@@ -98,5 +113,10 @@ fn parse_tab<'r, 't>(
     let (elements, exceptions, _) = parser.get_body_elements(&BLOCK_TAB, true)?.into();
 
     // Build element and return
-    todo!()
+    let element = Element::Partial(PartialElement::Tab(Tab {
+        name: cow!(name),
+        contents: elements,
+    }));
+
+    ok!(element, exceptions)
 }
