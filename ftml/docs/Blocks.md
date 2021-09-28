@@ -120,8 +120,8 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Subscript](#subscript)                 | `sub`, `subscript`               | No    | No     | No        | Map           | Elements  |
 | [Superscript](#superscript)             | `sup`, `super`, `superscript`    | No    | No     | No        | Map           | Elements  |
 | [Tables](#tables)                       | `table`, `row`, `cell`, `hcell`  | No    | No     | Yes       | Map           | Elements  |
-| [Tab Views](#tabs)]                     | `tabview`, `tabs`                | No    | No     | Yes       | None          | Elements  |
-| [Tabs](#tabs)]                          | `tab`                            | No    | No     | Yes       | Value         | Elements  |
+| [Tab Views](#tabs)                      | `tabview`, `tabs`                | No    | No     | Yes       | None          | Elements  |
+| [Tabs](#tabs)                           | `tab`                            | No    | No     | Yes       | Value         | Elements  |
 | [TOC](#toc)                             | `toc`                            | No    | No     | Yes       | Map           | None      |
 | [Underline](#underline)                 | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
 | [User](#user)                           | `user`                           | Yes   | No     | No        | Value         | None      |
