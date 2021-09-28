@@ -1,4 +1,4 @@
-import { Extension, HighlightStyle, tags as t } from "@wikijump/codemirror/cm"
+import { HighlightStyle, tags as t } from "@wikijump/codemirror/cm"
 
 // prettier-ignore
 const
@@ -35,59 +35,41 @@ const
   note       = "var(--colcode-note)"      ,
   special    = "var(--colcode-special)"
 
-const confinementHighlightStyle = HighlightStyle.define([
-  // Keywords + Operators
-  {
-    tag: [t.keyword],
-    color: keyword
-  },
-  {
-    tag: [t.controlOperator, t.logicOperator, t.compareOperator],
-    color: logical
-  },
-  {
-    tag: [t.operator],
-    color: operator
-  },
-  {
-    tag: [t.modifier, t.definitionKeyword],
-    color: storage
-  },
-  // Names and Types
-  {
-    tag: [t.tagName],
-    color: tag
-  },
-  {
-    tag: [t.name],
-    color: ident
-  },
-  {
-    tag: [t.propertyName],
-    color: property
-  },
-  {
-    tag: [t.className],
-    color: classes
-  },
-  {
-    tag: [
-      t.annotation,
-      t.atom,
+// prettier-ignore
+export const confinement = HighlightStyle.define([
+  // Keywords, Operators, Language Features
+  { tag: t.keyword,                                               color: keyword  },
+  { tag: t.operator,                                              color: operator },
+  { tag: t.labelName,                                             color: string   },
+  { tag: t.self,                                                  color: special  },
+  { tag: t.atom,                                                  color: type     },
+  { tag: [t.controlOperator, t.logicOperator, t.compareOperator], color: logical  },
+  { tag: [t.modifier, t.definitionKeyword],                       color: storage  },
+
+  // Names
+  { tag: t.name,         color: ident     },
+  { tag: t.propertyName, color: property  },
+  { tag: t.className,    color: classes   },
+  { tag: t.namespace,    color: entity    },
+
+  // Constants, Literals
+  { tag: [t.constant(t.name), t.constant(t.variableName)],        color: constant },
+  { tag: [t.string, t.special(t.string),t.regexp],                color: string   },
+  { tag: [t.literal, t.integer, t.float, t.bool, t.unit, t.null], color: constant },
+
+  // Types
+  { tag: [
       t.typeName,
-      t.escape,
+      t.annotation,
       t.special(t.name),
-      t.standard(t.name)
+      t.standard(t.name),
+      t.standard(t.variableName)
     ],
     color: type
   },
-  {
-    tag: [t.namespace],
-    color: entity
-  },
+
   // Functions
-  {
-    tag: [
+  { tag: [
       t.function(t.name),
       t.function(t.variableName),
       t.function(t.propertyName),
@@ -97,100 +79,38 @@ const confinementHighlightStyle = HighlightStyle.define([
     ],
     color: func
   },
-  // Literals
-  {
-    tag: [t.labelName, t.monospace, t.string, t.special(t.string), t.regexp],
-    color: string
-  },
-  {
-    tag: [
-      t.constant(t.name),
-      t.constant(t.variableName),
-      t.literal,
-      t.integer,
-      t.float,
-      t.bool,
-      t.unit,
-      t.null
-    ],
-    color: constant
-  },
-  // Changes
-  {
-    tag: [t.deleted, t.invalid],
-    color: invalid
-  },
-  {
-    tag: [t.inserted],
-    color: inserted
-  },
-  {
-    tag: [t.changed],
-    color: changed
-  },
-  // Punctuation, Comments
-  {
-    tag: [t.punctuation],
-    color: punct
-  },
-  {
-    tag: [t.processingInstruction],
-    color: markup
-  },
-  {
-    tag: [t.meta, t.comment],
-    color: comment
-  },
-  {
-    tag: [t.docComment, t.docString],
-    color: doc
-  },
-  // Misc.
-  {
-    tag: [t.self],
-    color: special
-  },
-  // Markup
-  {
-    tag: [t.link],
-    color: link
-  },
-  {
-    tag: t.url,
-    color: link,
-    textDecoration: "underline"
-  },
-  { tag: t.strong, fontWeight: "bold" },
-  { tag: t.emphasis, fontStyle: "italic" },
-  { tag: t.strikethrough, textDecoration: "line-through" },
-  { tag: t.heading, fontWeight: "bold", color: tag }
-])
 
-const confinementMarkupHighlightStyle = HighlightStyle.define([
-  {
-    // TODO: consider giving this a _slightly_ different appearance
-    tag: t.special(t.tagName),
-    color: tag
-  },
-  {
-    tag: t.special(t.propertyName),
-    color: attr
-  },
-  {
-    tag: t.contentSeparator,
+  // Changes
+  { tag: t.inserted,             color: inserted },
+  { tag: t.changed,              color: changed  },
+  { tag: [t.deleted, t.invalid], color: invalid  },
+
+  // Punctuation, Comments
+  { tag: t.punctuation,               color: punct   },
+  { tag: t.processingInstruction,     color: markup  },
+  { tag: t.escape,                    color: type    },
+  { tag: [t.meta, t.comment],         color: comment },
+  { tag: [t.docComment, t.docString], color: doc     },
+
+  // Markup
+  { tag: t.tagName,             color: tag                                     },
+  { tag: t.special(t.tagName),  color: tag                                     },
+  { tag: t.attributeName,       color: attr                                    },
+  { tag: t.attributeValue,      color: string                                  },
+  { tag: t.link,                color: link                                    },
+  { tag: t.monospace,           color: string                                  },
+  { tag: t.url,                 color: link,    textDecoration: "underline"    },
+  { tag: t.heading,             color: tag,     fontWeight: "bold"             },
+  { tag: t.special(t.inserted), color: "black", background: important          },
+  { tag: t.strong,                              fontWeight: "bold"             },
+  { tag: t.emphasis,                            fontStyle: "italic"            },
+  { tag: t.strikethrough,                       textDecoration: "line-through" },
+  { tag: t.special(t.emphasis),                 textDecoration: "underline"    },
+  { tag: t.contentSeparator,
     fontWeight: "bold",
     color: tag,
     display: "inline-block",
     width: "calc(100% - 1rem)",
     boxShadow: `inset 0 0.125rem 0 ${border}`
   },
-  { tag: t.special(t.emphasis), textDecoration: "underline" }, // underline
-  { tag: t.special(t.inserted), background: important, color: "black" }, // mark
-  { tag: t.special(t.meta), color: highlight }, // critichighlight
-  { tag: t.special(t.comment), color: note } // criticcomment
 ])
-
-export const confinement: Extension = [
-  confinementMarkupHighlightStyle,
-  confinementHighlightStyle
-]

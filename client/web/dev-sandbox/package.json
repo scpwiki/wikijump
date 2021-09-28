@@ -23,6 +23,6 @@
     "@wikijump/util": "workspace:*"
   },
   "devDependencies": {
-    "svelte": "^3.42.6"
+    "svelte": "^3.43.0"
   }
 }
