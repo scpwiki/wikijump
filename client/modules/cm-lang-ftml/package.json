@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@lezer/common": "^0.15.5",
-    "@lezer/lr": "^0.15.2",
+    "@lezer/lr": "^0.15.4",
     "@types/prismjs": "^1.16.6",
     "@wikijump/cm-espells": "workspace:*",
     "@wikijump/codemirror": "workspace:*",
@@ -28,6 +28,6 @@
     "cm-tarnation": "^0.1.0"
   },
   "devDependencies": {
-    "svelte": "^3.42.6"
+    "svelte": "^3.43.0"
   }
 }

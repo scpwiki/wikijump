@@ -14,7 +14,7 @@
     "extends": "../../.eslintrc.js"
   },
   "devDependencies": {
-    "svelte": "^3.42.6"
+    "svelte": "^3.43.0"
   },
   "dependencies": {
     "is-what": "^4.0.0",

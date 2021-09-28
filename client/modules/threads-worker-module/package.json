@@ -14,7 +14,7 @@
     "extends": "../../.eslintrc.js"
   },
   "dependencies": {
-    "threads": "^1.6.5",
+    "threads": "^1.7.0",
     "@wikijump/util": "workspace:*"
   }
 }

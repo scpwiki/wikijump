@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@wikijump/ftml-wasm": "workspace:*",
-    "threads": "^1.6.5",
+    "threads": "^1.7.0",
     "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/util": "workspace:*"
   }

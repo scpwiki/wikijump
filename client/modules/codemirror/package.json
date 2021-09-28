@@ -20,15 +20,15 @@
     "@codemirror/comment": "^0.19.0",
     "@codemirror/fold": "^0.19.0",
     "@codemirror/gutter": "^0.19.2",
-    "@codemirror/highlight": "^0.19.5",
+    "@codemirror/highlight": "^0.19.6",
     "@codemirror/history": "^0.19.0",
-    "@codemirror/lang-css": "^0.19.1",
-    "@codemirror/lang-html": "^0.19.2",
+    "@codemirror/lang-css": "^0.19.3",
+    "@codemirror/lang-html": "^0.19.3",
     "@codemirror/language": "^0.19.3",
     "@codemirror/language-data": "^0.19.0",
     "@codemirror/legacy-modes": "^0.19.0",
     "@codemirror/lint": "^0.19.1",
-    "@codemirror/matchbrackets": "^0.19.2",
+    "@codemirror/matchbrackets": "^0.19.3",
     "@codemirror/panel": "^0.19.0",
     "@codemirror/rangeset": "^0.19.1",
     "@codemirror/rectangular-selection": "^0.19.0",
@@ -36,15 +36,15 @@
     "@codemirror/state": "^0.19.2",
     "@codemirror/text": "^0.19.3",
     "@codemirror/tooltip": "^0.19.2",
-    "@codemirror/view": "^0.19.7",
+    "@codemirror/view": "^0.19.8",
     "@lezer/common": "^0.15.5",
-    "@lezer/lr": "^0.15.2",
+    "@lezer/lr": "^0.15.4",
     "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/state": "workspace:*",
     "@wikijump/util": "workspace:*"
   },
   "devDependencies": {
-    "svelte": "^3.42.6"
+    "svelte": "^3.43.0"
   }
 }
