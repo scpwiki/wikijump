@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::parsing::ParserWrap;
+use crate::tree::AcceptsPartial;
 
 pub const BLOCK_TABVIEW: BlockRule = BlockRule {
     name: "block-tabview",
@@ -46,6 +48,8 @@ fn parse_tabview<'r, 't>(
     flag_score: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Elements<'t>> {
+    let parser = &mut ParserWrap::new(parser, AcceptsPartial::Tab);
+
     info!(
         log,
         "Parsing tabview block";
@@ -57,10 +61,10 @@ fn parse_tabview<'r, 't>(
     assert!(!flag_score, "Tabview doesn't allow score flag");
     assert_block_name(&BLOCK_TABVIEW, name);
 
-    let arguments = parser.get_head_map(&BLOCK_TABVIEW, in_head)?;
+    parser.get_head_none(&BLOCK_TABVIEW, in_head)?;
 
     let (elements, exceptions, _) =
-        parser.get_body_elements(&BLOCK_TABVIEW, true)?.into();
+        parser.get_body_elements(&BLOCK_TABVIEW, false)?.into();
 
     // Build element and return
     todo!()
@@ -81,5 +85,18 @@ fn parse_tab<'r, 't>(
         "name" => name,
     );
 
+    assert!(!flag_star, "Tab doesn't allow star flag");
+    assert!(!flag_score, "Tab doesn't allow score flag");
+    assert_block_name(&BLOCK_TAB, name);
+
+    let name =
+        parser.get_head_value(&BLOCK_TAB, in_head, |parser, value| match value {
+            Some(name) => Ok(name),
+            None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+        })?;
+
+    let (elements, exceptions, _) = parser.get_body_elements(&BLOCK_TAB, true)?.into();
+
+    // Build element and return
     todo!()
 }
