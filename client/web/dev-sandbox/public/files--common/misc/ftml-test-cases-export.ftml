@@ -548,6 +548,27 @@ banana
 a { color: blue; }
 [[/css]]
 
+[!-- date-datetime --]
+SCP-EN Wikidot was created on [[date 2008-07-19T21:26:58]]!
+
+[!-- date-format --]
+SCP-EN Wikidot was created on [[date 1216502818 format="%Y/%m/%d %H:%M:%S"]]!
+
+[!-- date-hover --]
+SCP-EN Wikidot was created on [[date 2008-07-19 hover="false"]]!
+
+[!-- date-integer --]
+SCP-EN Wikidot was created on [[date 1216502818]]!
+
+[!-- date-timezone-argument --]
+SCP-EN Wikidot was created on [[date 1216502818 tz="-0400"]]!
+
+[!-- date-timezone-date --]
+SCP-EN Wikidot was created on [[date 2008-07-19T17:26:58-04:00]]!
+
+[!-- date --]
+SCP-EN Wikidot was created on [[date 2008-07-19]]!
+
 [!-- definition-list-elements --]
 : **Key** : //Value// here
 
@@ -2017,6 +2038,72 @@ B || C_ || _D ||
 
 [!-- table-simple --]
 || Cell ||
+
+[!-- tabview-alias --]
+[[tabs]]
+[[tab A]]
+1
+[[/tab]]
+[[tab B]]
+2
+[[/tab]]
+[[/tabs]]
+
+[!-- tabview-inline --]
+[[tabview]] [[tab A]] 1 [[/tab]] [[tab B]] 2 [[/tab]] [[/tabview]]
+
+[!-- tabview-multiple --]
+[[tabview]]
+[[tab A]]
+1
+[[/tab]]
+[[/tabview]]
+-----
+[[tabview]]
+[[tab B]]
+2
+[[/tab]]
+[[/tabview]]
+
+[!-- tabview-nested --]
+[[tabview]]
+[[tab 1]]
+A
+[[tabview]]
+[[tab 2]]
+B
+[[tabview]]
+[[tab 3]]
+C
+[[/tab]]
+[[/tabview]]
+[[/tab]]
+[[/tabview]]
+[[/tab]]
+[[/tabview]]
+
+[!-- tabview-single --]
+[[tabview]]
+[[tab Single]]
+Data
+[[/tab]]
+[[/tabview]]
+
+[!-- tabview --]
+[[tabview]]
+[[tab Apple]]
+1
+
+2
+
+3
+[[/tab]]
+[[tab Banana Smoothie]]
+Cherry
+[[/tab]]
+[[tab Empty]]
+[[/tab]]
+[[/tabview]]
 
 [!-- toc-attributes --]
 + A
