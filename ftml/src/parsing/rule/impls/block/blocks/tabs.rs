@@ -109,7 +109,7 @@ fn parse_tab<'r, 't>(
     assert!(!flag_score, "Tab doesn't allow score flag");
     assert_block_name(&BLOCK_TAB, name);
 
-    let name =
+    let label =
         parser.get_head_value(&BLOCK_TAB, in_head, |parser, value| match value {
             Some(name) => Ok(name),
             None => Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
@@ -119,7 +119,7 @@ fn parse_tab<'r, 't>(
 
     // Build element and return
     let element = Element::Partial(PartialElement::Tab(Tab {
-        name: cow!(name),
+        label: cow!(label),
         contents: elements,
     }));
 

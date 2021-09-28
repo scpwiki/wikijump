@@ -61,12 +61,12 @@ pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
                                 "class" => "wj-tabs-button",
                                 "id" => &button_ids[i],
                                 "role" => "tab",
-                                "aria-label" => &tab.name,
+                                "aria-label" => &tab.label,
                                 "aria-selected" => tab_selected,
                                 "aria-controls" => &tab_ids[i],
                                 "tabindex" => tab_index,
                             ))
-                            .inner(log, &tab.name);
+                            .inner(log, &tab.label);
                     }
                 });
 
