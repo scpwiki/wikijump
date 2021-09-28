@@ -102,6 +102,7 @@ mod strikethrough;
 mod subscript;
 mod superscript;
 mod table;
+mod tabs;
 mod toc;
 mod underline;
 mod user;
@@ -151,6 +152,7 @@ pub use self::superscript::BLOCK_SUPERSCRIPT;
 pub use self::table::{
     BLOCK_TABLE, BLOCK_TABLE_CELL_HEADER, BLOCK_TABLE_CELL_REGULAR, BLOCK_TABLE_ROW,
 };
+pub use self::tabs::{BLOCK_TAB, BLOCK_TABVIEW};
 pub use self::toc::BLOCK_TABLE_OF_CONTENTS;
 pub use self::underline::BLOCK_UNDERLINE;
 pub use self::user::BLOCK_USER;

@@ -1,0 +1,63 @@
+{
+    "input": "[[tabs]]\n[[tab A]]\n1\n[[/tab]]\n[[tab B]]\n2\n[[/tab]]\n[[/tabs]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "tab-view",
+                "data": [
+                    {
+                        "label": "A",
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "1"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "label": "B",
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "2"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -1,0 +1,91 @@
+{
+    "input": "[[tabview]]\n[[tab 1]]\nA\n[[tabview]]\n[[tab 2]]\nB\n[[tabview]]\n[[tab 3]]\nC\n[[/tab]]\n[[/tabview]]\n[[/tab]]\n[[/tabview]]\n[[/tab]]\n[[/tabview]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "tab-view",
+                "data": [
+                    {
+                        "label": "1",
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "A"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "element": "tab-view",
+                                "data": [
+                                    {
+                                        "label": "2",
+                                        "elements": [
+                                            {
+                                                "element": "container",
+                                                "data": {
+                                                    "type": "paragraph",
+                                                    "attributes": {},
+                                                    "elements": [
+                                                        {
+                                                            "element": "text",
+                                                            "data": "B"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "element": "tab-view",
+                                                "data": [
+                                                    {
+                                                        "label": "3",
+                                                        "elements": [
+                                                            {
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "paragraph",
+                                                                    "attributes": {},
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "C"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

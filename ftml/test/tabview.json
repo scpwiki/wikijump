@@ -1,0 +1,93 @@
+{
+    "input": "[[tabview]]\n[[tab Apple]]\n1\n\n2\n\n3\n[[/tab]]\n[[tab Banana Smoothie]]\nCherry\n[[/tab]]\n[[tab Empty]]\n[[/tab]]\n[[/tabview]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "tab-view",
+                "data": [
+                    {
+                        "label": "Apple",
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "2"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "3"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Banana Smoothie",
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "Cherry"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Empty",
+                        "elements": []
+                    }
+                ]
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

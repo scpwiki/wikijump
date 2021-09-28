@@ -299,6 +299,19 @@ html-attributes = true
 # Table blocks (aka advanced tables) do not necessarily have a class.
 html-output = "html,table"
 
+[tabview]
+aliases = ["tabs"]
+head = "none"
+body = "elements"
+accepts-newlines = true
+html-output = "html,div,wj-tabs"
+
+[tab]
+head = "value"
+body = "elements"
+accepts-newlines = true
+html-output = "html,div"
+
 [table-cell-regular]
 exclude-name = true
 aliases = ["cell"]

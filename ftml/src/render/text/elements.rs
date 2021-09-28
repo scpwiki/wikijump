@@ -24,7 +24,7 @@ use super::TextContext;
 use crate::log::prelude::*;
 use crate::render::ModuleRenderMode;
 use crate::tree::{
-    ContainerType, DefinitionListItem, Element, LinkLocation, ListItem, ListType,
+    ContainerType, DefinitionListItem, Element, LinkLocation, ListItem, ListType, Tab,
 };
 use crate::url::normalize_link;
 use std::borrow::Cow;
@@ -138,6 +138,17 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             }
 
             ctx.add_newline();
+        }
+        Element::TabView(tabs) => {
+            for Tab { label, elements } in tabs {
+                // Add tab name
+                str_write!(ctx, "[{}]", label);
+                ctx.add_newline();
+
+                // Add tab contents
+                render_elements(log, ctx, elements);
+                ctx.add_newline();
+            }
         }
         Element::Anchor {
             elements,

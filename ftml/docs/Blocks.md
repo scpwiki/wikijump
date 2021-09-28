@@ -120,6 +120,8 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Subscript](#subscript)                 | `sub`, `subscript`               | No    | No     | No        | Map           | Elements  |
 | [Superscript](#superscript)             | `sup`, `super`, `superscript`    | No    | No     | No        | Map           | Elements  |
 | [Tables](#tables)                       | `table`, `row`, `cell`, `hcell`  | No    | No     | Yes       | Map           | Elements  |
+| [Tab Views](#tabs)                      | `tabview`, `tabs`                | No    | No     | Yes       | None          | Elements  |
+| [Tabs](#tabs)                           | `tab`                            | No    | No     | Yes       | Value         | Elements  |
 | [TOC](#toc)                             | `toc`                            | No    | No     | Yes       | Map           | None      |
 | [Underline](#underline)                 | `u`, `underline`                 | No    | No     | No        | Map           | Elements  |
 | [User](#user)                           | `user`                           | Yes   | No     | No        | Value         | None      |
@@ -847,6 +849,39 @@ Example:
 
 The parser requires a structure of `[[table]]` containing only `[[row]]`s, and
 those containing only `[[cell]]`s or `[[hcell]]`s. Cells may contain other tables.
+
+### Tabs
+
+Input: `[[tabview]]`, `[[tabs]]`, `[[tab]]`
+
+Output: `Element::TabView` / `<div class="wj-tabview">`
+
+Body: Elements
+
+Arguments:
+* None &mdash; For `[[tabview]]`
+* Label &mdash; For `[[tab]]`
+
+Example:
+
+```
+[[tabview]]
+
+[[tab Fruits]]
+
+* Apple
+* Banana
+* Cherry
+
+[[/tab]]
+
+[[tab Reward]]A golden crown[[/tab]]
+
+[[tab Empty!]]
+[[/tab]]
+
+[[/tabview]]
+```
 
 ### TOC
 

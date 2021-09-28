@@ -1,0 +1,4 @@
+[[tabview xyz]][[tab 1]]
+A
+[[/tab]]
+[[/tabview]]
