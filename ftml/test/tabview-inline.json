@@ -1,0 +1,79 @@
+{
+    "input": "[[tabview]] [[tab A]] 1 [[/tab]] [[tab B]] 2 [[/tab]] [[/tabview]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "tab-view",
+                "data": [
+                    {
+                        "label": "A",
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": " "
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": "1"
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": " "
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "label": "B",
+                        "elements": [
+{
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": " "
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": "2"
+                                        },
+                                        {
+                                            "element": "text",
+                                            "data": " "
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

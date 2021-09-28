@@ -1,0 +1,71 @@
+{
+    "input": "[[tabview]]\n[[tab A]]\n1\n[[/tab]]\n[[/tabview]]\n-----\n[[tabview]]\n[[tab B]]\n2\n[[/tab]]\n[[/tabview]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "tab-view",
+                "data": [
+                    {
+                        "label": "A",
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "1"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "horizontal-rule"
+            },
+            {
+                "element": "tab-view",
+                "data": [
+                    {
+                        "label": "B",
+                        "elements": [
+                            {
+                                "element": "container",
+                                "data": {
+                                    "type": "paragraph",
+                                    "attributes": {},
+                                    "elements": [
+                                        {
+                                            "element": "text",
+                                            "data": "2"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
