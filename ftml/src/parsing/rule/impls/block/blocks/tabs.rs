@@ -87,7 +87,7 @@ fn parse_tabview<'r, 't>(
         return Err(parser.make_warn(ParseWarningKind::TabViewEmpty));
     }
 
-    ok!(Element::TabView(tabs), exceptions)
+    ok!(false; Element::TabView(tabs), exceptions)
 }
 
 fn parse_tab<'r, 't>(
@@ -123,5 +123,5 @@ fn parse_tab<'r, 't>(
         contents: elements,
     }));
 
-    ok!(element, exceptions)
+    ok!(false; element, exceptions)
 }
