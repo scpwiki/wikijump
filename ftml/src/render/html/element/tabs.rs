@@ -91,7 +91,7 @@ pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
                                 "tabindex" => "0",
                                 "hidden"; if i > 0,
                             ))
-                            .inner(log, &tab.contents);
+                            .inner(log, &tab.elements);
                     }
                 });
         });

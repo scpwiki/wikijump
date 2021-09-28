@@ -25,14 +25,14 @@ use std::borrow::Cow;
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct Tab<'t> {
     pub label: Cow<'t, str>,
-    pub contents: Vec<Element<'t>>,
+    pub elements: Vec<Element<'t>>,
 }
 
 impl Tab<'_> {
     pub fn to_owned(&self) -> Tab<'static> {
         Tab {
             label: string_to_owned(&self.label),
-            contents: elements_to_owned(&self.contents),
+            elements: elements_to_owned(&self.elements),
         }
     }
 }

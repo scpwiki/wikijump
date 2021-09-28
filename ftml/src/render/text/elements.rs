@@ -140,13 +140,13 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             ctx.add_newline();
         }
         Element::TabView(tabs) => {
-            for Tab { label, contents } in tabs {
+            for Tab { label, elements } in tabs {
                 // Add tab name
                 str_write!(ctx, "[{}]", label);
                 ctx.add_newline();
 
                 // Add tab contents
-                render_elements(log, ctx, contents);
+                render_elements(log, ctx, elements);
                 ctx.add_newline();
             }
         }

@@ -120,7 +120,7 @@ fn parse_tab<'r, 't>(
     // Build element and return
     let element = Element::Partial(PartialElement::Tab(Tab {
         label: cow!(label),
-        contents: elements,
+        elements,
     }));
 
     ok!(false; element, exceptions)
