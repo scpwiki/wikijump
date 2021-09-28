@@ -457,14 +457,14 @@ repository:
   BlockNodeArgument:
     match: /(\S+?)(\s*=\s*)(")((?:[^"]|\\")*)(")/
     captures:
-      0: { type: BlockNodeArgumentName, tag: special(propertyName) }
+      0: { type: BlockNodeArgumentName, tag: attributeName }
       1: { type: BlockNodeArgumentOperator, tag: definitionOperator }
       2: { open: BlockNodeArgumentMark, tag: string }
       3:
         if: $0
         matches: style
         then: { type: CSSAttributes, nest: style-attribute }
-        else: { type: BlockNodeArgumentValue, tag: string }
+        else: { type: BlockNodeArgumentValue, tag: attributeValue }
       4: { close: BlockNodeArgumentMark, tag: string }
 
   # block names
@@ -927,7 +927,7 @@ repository:
         begin:
           match: /([^\s=|]+)(\s*=\s*)/
           captures:
-            0: { type: IncludeArgumentName, tag: special(propertyName) }
+            0: { type: IncludeArgumentName, tag: attributeName }
             1: { is: BlockNodeArgumentOperator }
         end:
           match: /@BlockEnd|\|/
