@@ -29,17 +29,11 @@ jobs:
         with:
           node-version: "16"
 
-      - name: Install Playwright Dependencies
-        run: npx playwright install-deps chromium
-
       - name: Install PNPM
         run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
 
       - name: Install Dependencies
         run: cd client && pnpm i
-
-      - name: Test
-        run: cd client && pnpm test
 
       - name: Validate
         run: cd client && pnpm validate
