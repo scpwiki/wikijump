@@ -65,8 +65,16 @@ lazy_static! {
                     ("height", "720"),
                     ("title", "YouTube video player"),
                 ],
-                template: r#"<iframe width="%%width%%" height="%%height%%" title="%%title%%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>"#,
-            }
+                template: r#"<iframe width="%%width%%" height="%%height%%" src="https://www.youtube.com/embed/%%video%%" title="%%title%%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>"#,
+            },
+            UniCase::ascii("vimeo") => EmbedSource {
+                required: &["video"],
+                optional: &[
+                    ("width", "640"),
+                    ("height", "360"),
+                ],
+                template: r#"<iframe src="https://player.vimeo.com/video/%%video%%" width="%%width%%" height="%%height%%" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>"#,
+            },
         }
     };
 }
