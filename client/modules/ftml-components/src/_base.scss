@@ -1,8 +1,11 @@
 /* TOP-LEVEL */
 
 .wj-body {
-  box-sizing: border-box;
   font-size: 14px;
+}
+
+.wj-body * {
+  box-sizing: border-box;
 }
 
 /* TABLES */
