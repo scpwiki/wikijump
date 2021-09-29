@@ -37,6 +37,11 @@ pub enum Embed<'t> {
         width: Option<u32>,
         height: Option<u32>,
     },
+
+    GithubGist {
+        username: Cow<'t, str>,
+        hash: Cow<'t, str>,
+    },
 }
 
 impl Embed<'_> {
@@ -44,6 +49,7 @@ impl Embed<'_> {
         match self {
             Embed::YouTube { .. } => "YouTube",
             Embed::Vimeo { .. } => "Vimeo",
+            Embed::GithubGist { .. } => "GithubGist",
         }
     }
 
@@ -67,6 +73,11 @@ impl Embed<'_> {
                 video_id: string_to_owned(video_id),
                 width: *width,
                 height: *height,
+            },
+
+            Embed::GithubGist { username, hash } => Embed::GithubGist {
+                username: string_to_owned(username),
+                hash: string_to_owned(hash),
             },
         }
     }

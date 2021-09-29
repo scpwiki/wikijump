@@ -94,6 +94,18 @@ where
         });
     }
 
+    if name.eq_ignore_ascii_case("github-gist") {
+        let username = arguments
+            .get("username")
+            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+        let hash = arguments
+            .get("hash")
+            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+        return Ok(Embed::GithubGist { username, hash });
+    }
+
     Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
 }
 
