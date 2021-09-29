@@ -106,6 +106,14 @@ where
         return Ok(Embed::GithubGist { username, hash });
     }
 
+    if name.eq_ignore_ascii_case("gitlab-snippet") {
+        let snippet_id = arguments
+            .get("id")
+            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+        return Ok(Embed::GitlabSnippet { snippet_id });
+    }
+
     Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
 }
 

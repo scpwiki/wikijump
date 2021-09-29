@@ -42,6 +42,9 @@ pub enum Embed<'t> {
         username: Cow<'t, str>,
         hash: Cow<'t, str>,
     },
+
+    #[serde(rename_all = "kebab-case")]
+    GitlabSnippet { snippet_id: Cow<'t, str> },
 }
 
 impl Embed<'_> {
@@ -50,6 +53,7 @@ impl Embed<'_> {
             Embed::YouTube { .. } => "YouTube",
             Embed::Vimeo { .. } => "Vimeo",
             Embed::GithubGist { .. } => "GithubGist",
+            Embed::GitlabSnippet { .. } => "GitlabSnippet",
         }
     }
 
@@ -78,6 +82,10 @@ impl Embed<'_> {
             Embed::GithubGist { username, hash } => Embed::GithubGist {
                 username: string_to_owned(username),
                 hash: string_to_owned(hash),
+            },
+
+            Embed::GitlabSnippet { snippet_id } => Embed::GitlabSnippet {
+                snippet_id: string_to_owned(snippet_id),
             },
         }
     }
