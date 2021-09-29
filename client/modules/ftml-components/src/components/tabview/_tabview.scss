@@ -21,9 +21,7 @@
     overflow: hidden;
     font-weight: bold;
     cursor: pointer;
-    background: no-repeat;
     background: #f5f5f5;
-    background-position: bottom;
     border-bottom: solid 1px #ccc;
     border-left: solid 1px #ccc;
     box-shadow: inset 0 0 0 rgb(0, 160, 220);
@@ -57,6 +55,9 @@
   .wj-tabs-panel {
     min-height: 1em;
     padding: 0.25em 0.5em;
-    outline: none;
+
+    &:not(:focus-visible) {
+      outline: none;
+    }
   }
 }
