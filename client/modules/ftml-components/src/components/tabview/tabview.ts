@@ -14,24 +14,24 @@ export class TabviewElement extends HTMLDivElement {
     this.observer = observe(this, () => this.update())
   }
 
-  buttons() {
+  private get buttons() {
     const list = this.querySelector(".wj-tabs-button-list")
     if (!list) throw new Error("No button list found")
     return Array.from(list.querySelectorAll<HTMLElement>(".wj-tabs-button"))
   }
 
-  tabs(): [HTMLElement, HTMLElement][] {
-    const buttons = this.buttons()
+  private get tabs(): [HTMLElement, HTMLElement][] {
     const list = this.querySelector(".wj-tabs-panel-list")
     if (!list) throw new Error("No panel list found")
-    return buttons.map((button, idx) => [button, list.children.item(idx) as HTMLElement])
+    const children = Array.from(list.children) as HTMLElement[]
+    return this.buttons.map((button, idx) => [button, children[idx]])
   }
 
   @pauseObservation
-  update() {
+  private update() {
     if (!this.hasAttribute("panel-selected")) {
       let selected = 0
-      this.buttons().forEach((button, idx) => {
+      this.buttons.forEach((button, idx) => {
         if (button.getAttribute("aria-selected") === "true") {
           selected = idx
         }
@@ -41,7 +41,7 @@ export class TabviewElement extends HTMLDivElement {
 
     const selected = parseInt(this.getAttribute("panel-selected")!, 10)
 
-    this.tabs().forEach(([button, panel], idx) => {
+    this.tabs.forEach(([button, panel], idx) => {
       if (idx === selected) {
         button.setAttribute("aria-selected", "true")
         button.setAttribute("tabindex", "0")
@@ -70,17 +70,49 @@ export class TabviewButton extends HTMLButtonElement {
 
   constructor() {
     super()
+
     this.addEventListener("click", () => {
       const tabview = this.closest<HTMLElement>(".wj-tabs")
       if (!tabview) throw new Error("No tabview found")
       tabview.setAttribute("panel-selected", String(this.index))
     })
+
+    this.addEventListener("keydown", evt => {
+      if (["ArrowRight", "ArrowLeft", "Home", "End", "Enter"].includes(evt.key)) {
+        const list = this.relativeList()
+        // prettier-ignore
+        switch(evt.key) {
+          case "ArrowRight": list.next.focus()  ; break
+          case "ArrowLeft":  list.prev.focus()  ; break
+          case "Home":       list.start.focus() ; break
+          case "End":        list.end.focus()   ; break
+          case "Enter":      this.click()       ; break
+        }
+
+        evt.preventDefault()
+      }
+    })
   }
 
-  get index() {
-    const list = this.closest<HTMLElement>(".wj-tabs-button-list")
-    if (!list) throw new Error("No button list found")
-    return Array.from(list.children).indexOf(this)
+  private get parent() {
+    const parent = this.closest<HTMLElement>(".wj-tabs-button-list")
+    if (!parent) throw new Error("No button list found")
+    return parent
+  }
+
+  private get index() {
+    return Array.from(this.parent.children).indexOf(this)
+  }
+
+  private relativeList() {
+    const children = Array.from(this.parent.children) as HTMLElement[]
+    const idx = children.indexOf(this)
+    return {
+      start: children[0],
+      end: children[children.length - 1],
+      prev: children[idx - 1],
+      next: children[idx + 1]
+    }
   }
 }
 
