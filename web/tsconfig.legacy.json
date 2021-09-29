@@ -1,6 +1,6 @@
 {
   "extends": "../client/tsconfig.json",
-  "exclude": ["node_modules", "web", "**/tests/**"],
+  "exclude": ["**/node_modules/**", "web", "**/tests/**"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

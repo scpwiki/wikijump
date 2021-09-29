@@ -2,12 +2,7 @@
 
 build:
   $depend: []
-  $action: ultra --build build:cmd
-
-  cmd:
-    - pnpm build:legacy
-    # - pnpm build:frontend
-    - pnpm build:local
+  $action: run-p build:legacy build:local
 
   legacy: node scripts/build-legacy.js build
   # frontend: vite build
@@ -21,12 +16,7 @@ dev:
   $depend: []
   $action:
     - pnpm build:local
-    - ultra dev:cmd
-
-  cmd:
-    - pnpm dev:legacy
-    # - pnpm dev:frontend
-    - pnpm dev:local
+    - run-p dev:legacy dev:local
 
   legacy: node scripts/build-legacy.js dev
   # frontend: vite dev
