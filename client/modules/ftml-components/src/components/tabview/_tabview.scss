@@ -54,7 +54,15 @@
 
   .wj-tabs-panel {
     min-height: 1em;
-    padding: 0.25em 0.5em;
+    padding: 0.5em;
+
+    & > :first-child {
+      margin-top: 0;
+    }
+
+    & > :last-child {
+      margin-bottom: 0;
+    }
 
     &:not(:focus-visible) {
       outline: none;
