@@ -14,9 +14,7 @@ plugins:
 parser: '@typescript-eslint/parser'
 parserOptions:
   sourceType: module
-  tsconfigRootDir: ./
-  project:
-    - ./tsconfig.json
+  project: ['./**/tsconfig.json']
   extraFileExtensions:
     - .svelte
 
@@ -101,11 +99,16 @@ overrides:
   - files: ['*.js', '*.cjs']
     env: { node: true, es2021: true }
     parserOptions: { createDefaultProgram: true }
+    rules:
+      '@typescript-eslint/no-require-imports': 'off'
+      tsdoc/syntax: 'off'
 
   # JavaScript (Browser)
   - files: ['*.mjs']
     env: { browser: true, es2021: true }
     parserOptions: { createDefaultProgram: true }
+    rules:
+      tsdoc/syntax: 'off'
 
   # TypeScript (Browser)
   - files: ['*.d.ts', '*.ts', '*.tsx']
