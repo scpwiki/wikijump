@@ -22,5 +22,29 @@ use super::prelude::*;
 use crate::tree::Embed;
 
 pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
-    todo!();
+    match embed {
+        Embed::YouTube {
+            video_id,
+            width,
+            height,
+        } => {
+            todo!()
+        }
+
+        Embed::Vimeo {
+            video_id,
+            width,
+            height,
+        } => {
+            todo!()
+        }
+
+        Embed::GithubGist { username, hash } => {
+            todo!()
+        }
+
+        Embed::GitlabSnippet { snippet_id } => {
+            todo!()
+        }
+    }
 }
