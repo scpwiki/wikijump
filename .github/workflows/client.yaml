@@ -32,6 +32,9 @@ jobs:
       - name: Install PNPM
         run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
 
+      - name: Install Formatting Dependencies
+        run: cd .config/formatting && pnpm i
+
       - name: Install Dependencies
         run: cd client && pnpm i
 
