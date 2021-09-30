@@ -25,6 +25,8 @@
     "stylelint": "^13.13.1",
     "stylelint-config-recess-order": "^2.5.0",
     "stylelint-order": "^4.1.0",
-    "stylelint-scss": "^3.21.0"
+    "stylelint-scss": "^3.21.0",
+    "svelte": "^3.43.0",
+    "typescript": "^4.4.3"
   }
 }
