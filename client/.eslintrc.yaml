@@ -4,7 +4,7 @@ ignorePatterns:
   - '**/node_modules/**'
   - '**/dist/**'
   - '**/vendor/**'
-  - '../client/misc/**'
+  - '/misc/**'
 
 plugins:
   - '@typescript-eslint'
@@ -15,11 +15,10 @@ plugins:
 parser: '@typescript-eslint/parser'
 parserOptions:
   sourceType: module
-  tsconfigRootDir: ../
+  tsconfigRootDir: ./
   project:
-    - ./client/tsconfig.json
-    - ./client/modules/*/tsconfig.json
-    - ./web/tsconfig.json
+    - ./tsconfig.json
+    - ./modules/*/tsconfig.json
   extraFileExtensions:
     - .svelte
 
