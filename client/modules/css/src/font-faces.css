@@ -73,22 +73,21 @@
     font-display: swap;
   }
 
-  /* -- Roboto Mono */
+  /* -- Cascadia Mono */
 
   @font-face {
-    font-family: "Roboto Mono";
-    font-weight: 100 700;
-    src: url("assets/fonts/variable/RobotoMono-VariableFont.woff2")
-      format("woff2-variations");
+    font-family: "Cascadia Mono";
+    font-style: normal;
+    font-weight: 200 700;
+    src: url("assets/fonts/variable/CascadiaMono.woff2") format("woff2-variations");
     font-display: swap;
   }
 
   @font-face {
-    font-family: "Roboto Mono";
+    font-family: "Cascadia Mono";
     font-style: italic;
-    font-weight: 100 700;
-    src: url("assets/fonts/variable/RobotoMono-Italic-VariableFont.woff2")
-      format("woff2-variations");
+    font-weight: 200 700;
+    src: url("assets/fonts/variable/CascadiaMonoItalic.woff2") format("woff2-variations");
     font-display: swap;
   }
 
@@ -178,53 +177,6 @@
       format("woff2-variations");
     font-display: swap;
   } */
-}
-
-/* -- Sometype Mono */
-
-@font-face {
-  font-family: "Sometype Mono";
-  font-weight: normal;
-  src: url("assets/fonts/SometypeMono-Regular.woff2") format("woff2");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Sometype Mono";
-  font-weight: 600;
-  src: url("assets/fonts/SometypeMono-Medium.woff2") format("woff2");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Sometype Mono";
-  font-weight: 800;
-  src: url("assets/fonts/SometypeMono-Bold.woff2") format("woff2");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Sometype Mono";
-  font-style: italic;
-  font-weight: normal;
-  src: url("assets/fonts/SometypeMono-RegularItalic.woff2") format("woff2");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Sometype Mono";
-  font-style: italic;
-  font-weight: 600;
-  src: url("assets/fonts/SometypeMono-MediumItalic.woff2") format("woff2");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Sometype Mono";
-  font-style: italic;
-  font-weight: 800;
-  src: url("assets/fonts/SometypeMono-BoldItalic.woff2") format("woff2");
-  font-display: swap;
 }
 
 /* -- Noto Sans Mono CJK {HK, JP, KR, SC, TC} */
