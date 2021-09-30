@@ -5,10 +5,7 @@ build:
   $action: run-p build:legacy build:local
 
   legacy: node scripts/build-legacy.js build
-  # frontend: vite build
-  local:
-    - cd ../install/local/dev
-    - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml build
+  local: pnpm compose build
 
 # -- DEV
 
@@ -19,17 +16,13 @@ dev:
     - run-p dev:legacy dev:local
 
   legacy: node scripts/build-legacy.js dev
-  # frontend: vite dev
-  local:
-    - cd ../install/local/dev
-    - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml up
+  local: pnpm compose up
 
 # -- DOCKER UTILITY
 
-docker:stop:
+# Use this like:
+# $ pnpm compose up
+# $ pnpm compose build
+compose:
   - cd ../install/local/dev
-  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml stop
-
-docker:reset:
-  - cd ../install/local/dev
-  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml down
+  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml

@@ -2,16 +2,13 @@
   "name": "wikijump",
   "license": "agpl-3.0-or-later",
   "scripts": {
-    "build": "ultra --build build:cmd",
-    "build:cmd": "pnpm build:legacy && pnpm build:local",
+    "build": "run-p build:legacy build:local",
     "build:legacy": "node scripts/build-legacy.js build",
-    "build:local": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml build",
-    "dev": "pnpm build:local && ultra dev:cmd",
-    "dev:cmd": "pnpm dev:legacy && pnpm dev:local",
+    "build:local": "pnpm compose build",
+    "compose": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml",
+    "dev": "pnpm build:local && run-p dev:legacy dev:local",
     "dev:legacy": "node scripts/build-legacy.js dev",
-    "dev:local": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml up",
-    "docker:reset": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml down",
-    "docker:stop": "cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml stop",
+    "dev:local": "pnpm compose up",
     "nabs": "nabs"
   },
   "browserslist": [
