@@ -9,8 +9,5 @@
   "private": true,
   "scripts": {},
   "type": "module",
-  "main": "src/index.ts",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  }
+  "main": "src/index.ts"
 }

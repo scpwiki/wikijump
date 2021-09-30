@@ -11,9 +11,6 @@
   "type": "module",
   "svelte": "src/index.ts",
   "main": "src/index.ts",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  },
   "dependencies": {
     "@iconify/iconify": "^2.0.4",
     "@popperjs/core": "^2.10.1",

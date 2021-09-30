@@ -20,8 +20,5 @@
     "compile:opt": "cd vendor && wasm-opt ftml_bg.wasm -O4 -c -o ftml_bg.wasm"
   },
   "type": "module",
-  "main": "src/index.ts",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  }
+  "main": "src/index.ts"
 }

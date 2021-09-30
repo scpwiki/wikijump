@@ -10,9 +10,6 @@
   "scripts": {},
   "type": "module",
   "main": "src/index.ts",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  },
   "devDependencies": {
     "svelte": "^3.43.0"
   },

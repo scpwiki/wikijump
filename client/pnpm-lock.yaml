@@ -15,6 +15,7 @@ importers:
       '@typescript-eslint/typescript-estree': ^4.32.0
       '@web/test-runner': ^0.13.18
       '@web/test-runner-playwright': ^0.8.8
+      '@wikijump/formatting': link:..\formatting
       chalk: ^4.1.2
       eslint: ^7.32.0
       eslint-plugin-regexp: ^1.3.1
@@ -52,6 +53,7 @@ importers:
       '@typescript-eslint/typescript-estree': 4.32.0_typescript@4.4.3
       '@web/test-runner': 0.13.18_rollup@2.57.0
       '@web/test-runner-playwright': 0.8.8
+      '@wikijump/formatting': link:../formatting
       chalk: 4.1.2
       eslint: 7.32.0
       eslint-plugin-regexp: 1.3.1_eslint@7.32.0

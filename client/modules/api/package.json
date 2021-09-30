@@ -14,9 +14,6 @@
   },
   "type": "module",
   "main": "src/index.ts",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  },
   "devDependencies": {
     "@mockoon/cli": "^1.1.0",
     "swagger-typescript-api": "^9.2.0"
