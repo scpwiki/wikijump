@@ -11,7 +11,7 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
-    "@lezer/common": "^0.15.5",
+    "@lezer/common": "^0.15.6",
     "dictionary-cs": "^2.0.3",
     "dictionary-da": "^4.5.0",
     "dictionary-el": "^3.0.5",
@@ -41,6 +41,6 @@
     "@wikijump/util": "workspace:*"
   },
   "devDependencies": {
-    "svelte": "^3.43.0"
+    "svelte": "^3.43.1"
   }
 }
