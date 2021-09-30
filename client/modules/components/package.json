@@ -13,7 +13,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@iconify/iconify": "^2.0.4",
-    "@popperjs/core": "^2.10.1",
+    "@popperjs/core": "^2.10.2",
     "@wikijump/ftml-components": "workspace:*",
     "@wikijump/ftml-wasm": "workspace:*",
     "@wikijump/ftml-wasm-worker": "workspace:*",

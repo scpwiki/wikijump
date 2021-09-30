@@ -195,7 +195,7 @@ importers:
       '@codemirror/language': ^0.19.3
       '@codemirror/language-data': ^0.19.0
       '@codemirror/legacy-modes': ^0.19.0
-      '@codemirror/lint': ^0.19.1
+      '@codemirror/lint': ^0.19.2
       '@codemirror/matchbrackets': ^0.19.3
       '@codemirror/panel': ^0.19.0
       '@codemirror/rangeset': ^0.19.1
@@ -248,7 +248,7 @@ importers:
   modules/components:
     specifiers:
       '@iconify/iconify': ^2.0.4
-      '@popperjs/core': ^2.10.1
+      '@popperjs/core': ^2.10.2
       '@wikijump/ftml-components': workspace:*
       '@wikijump/ftml-wasm': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
@@ -260,7 +260,7 @@ importers:
       tippy.js: ^6.3.1
     dependencies:
       '@iconify/iconify': 2.0.4
-      '@popperjs/core': 2.10.1
+      '@popperjs/core': 2.10.2
       '@wikijump/ftml-components': link:../ftml-components
       '@wikijump/ftml-wasm': link:../ftml-wasm
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
@@ -280,12 +280,12 @@ importers:
 
   modules/ftml-components:
     specifiers:
-      '@popperjs/core': ^2.10.1
+      '@popperjs/core': ^2.10.2
       '@wikijump/prism': workspace:*
       '@wikijump/util': workspace:*
       hfmath: ^0.0.2
     dependencies:
-      '@popperjs/core': 2.10.1
+      '@popperjs/core': 2.10.2
       '@wikijump/prism': link:../prism
       '@wikijump/util': link:../util
       hfmath: 0.0.2
@@ -1608,6 +1608,10 @@ packages:
 
   /@popperjs/core/2.10.1:
     resolution: {integrity: sha512-HnUhk1Sy9IuKrxEMdIRCxpIqPw6BFsbYSEUO9p/hNw5sMld/+3OLMWQP80F8/db9qsv3qUjs7ZR5bS/R+iinXw==}
+    dev: false
+
+  /@popperjs/core/2.10.2:
+    resolution: {integrity: sha512-IXf3XA7+XyN7CP9gGh/XB0UxVMlvARGEgGXLubFICsUMGz6Q+DU+i4gGlpOxTjKvXjkJDJC8YdqdKkDj9qZHEQ==}
     dev: false
 
   /@rollup/plugin-node-resolve/11.2.1_rollup@2.57.0:
