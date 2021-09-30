@@ -22,6 +22,11 @@ use super::prelude::*;
 use crate::tree::Embed;
 use std::borrow::Cow;
 
+type EmbedBuilderFn = for<'p, 't> fn(
+    &'p Parser<'_, 't>,
+    &'p mut Arguments<'t>,
+) -> Result<Embed<'t>, ParseWarning>;
+
 pub const BLOCK_EMBED: BlockRule = BlockRule {
     name: "block-embed",
     accepts_names: &["embed"],
@@ -64,58 +69,87 @@ fn build_embed<'r, 't>(
 where
     'r: 't,
 {
-    if name.eq_ignore_ascii_case("youtube") {
-        let video_id = arguments
-            .get("video")
-            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+    const EMBED_BUILDERS: &[(&str, EmbedBuilderFn)] = &[
+        ("youtube", build_youtube),
+        ("vimeo", build_vimeo),
+        ("github-gist", build_github_gist),
+        ("gitlab-snippet", build_gitlab_snippet),
+    ];
 
-        let width = parse_num(parser, arguments.get("width"))?;
-        let height = parse_num(parser, arguments.get("height"))?;
-
-        return Ok(Embed::YouTube {
-            video_id,
-            width,
-            height,
-        });
-    }
-
-    if name.eq_ignore_ascii_case("vimeo") {
-        let video_id = arguments
-            .get("video")
-            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
-
-        let width = parse_num(parser, arguments.get("width"))?;
-        let height = parse_num(parser, arguments.get("height"))?;
-
-        return Ok(Embed::Vimeo {
-            video_id,
-            width,
-            height,
-        });
-    }
-
-    if name.eq_ignore_ascii_case("github-gist") {
-        let username = arguments
-            .get("username")
-            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
-
-        let hash = arguments
-            .get("hash")
-            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
-
-        return Ok(Embed::GithubGist { username, hash });
-    }
-
-    if name.eq_ignore_ascii_case("gitlab-snippet") {
-        let snippet_id = arguments
-            .get("id")
-            .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
-
-        return Ok(Embed::GitlabSnippet { snippet_id });
+    for &(embed_name, builder) in EMBED_BUILDERS {
+        if embed_name.eq_ignore_ascii_case(name) {
+            return builder(parser, arguments);
+        }
     }
 
     Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
 }
+
+// Different embed builders
+
+fn build_youtube<'p, 't>(
+    parser: &'p Parser<'_, 't>,
+    arguments: &'p mut Arguments<'t>,
+) -> Result<Embed<'t>, ParseWarning> {
+    let video_id = arguments
+        .get("video")
+        .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+    let width = parse_num(parser, arguments.get("width"))?;
+    let height = parse_num(parser, arguments.get("height"))?;
+
+    Ok(Embed::YouTube {
+        video_id,
+        width,
+        height,
+    })
+}
+
+fn build_vimeo<'p, 't>(
+    parser: &'p Parser<'_, 't>,
+    arguments: &'p mut Arguments<'t>,
+) -> Result<Embed<'t>, ParseWarning> {
+    let video_id = arguments
+        .get("video")
+        .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+    let width = parse_num(parser, arguments.get("width"))?;
+    let height = parse_num(parser, arguments.get("height"))?;
+
+    Ok(Embed::Vimeo {
+        video_id,
+        width,
+        height,
+    })
+}
+
+fn build_github_gist<'p, 't>(
+    parser: &'p Parser<'_, 't>,
+    arguments: &'p mut Arguments<'t>,
+) -> Result<Embed<'t>, ParseWarning> {
+    let username = arguments
+        .get("username")
+        .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+    let hash = arguments
+        .get("hash")
+        .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+    Ok(Embed::GithubGist { username, hash })
+}
+
+fn build_gitlab_snippet<'p, 't>(
+    parser: &'p Parser<'_, 't>,
+    arguments: &'p mut Arguments<'t>,
+) -> Result<Embed<'t>, ParseWarning> {
+    let snippet_id = arguments
+        .get("id")
+        .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
+
+    Ok(Embed::GitlabSnippet { snippet_id })
+}
+
+// Utilities
 
 fn parse_num(
     parser: &Parser,
@@ -128,4 +162,12 @@ fn parse_num(
             Err(_) => Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments)),
         },
     }
+}
+
+#[test]
+fn embed_builder_types() {
+    let _: EmbedBuilderFn = build_youtube;
+    let _: EmbedBuilderFn = build_vimeo;
+    let _: EmbedBuilderFn = build_github_gist;
+    let _: EmbedBuilderFn = build_gitlab_snippet;
 }
