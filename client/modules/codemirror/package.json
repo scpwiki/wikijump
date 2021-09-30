@@ -34,7 +34,7 @@
     "@codemirror/text": "^0.19.3",
     "@codemirror/tooltip": "^0.19.2",
     "@codemirror/view": "^0.19.8",
-    "@lezer/common": "^0.15.5",
+    "@lezer/common": "^0.15.6",
     "@lezer/lr": "^0.15.4",
     "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/components": "workspace:*",
@@ -42,6 +42,6 @@
     "@wikijump/util": "workspace:*"
   },
   "devDependencies": {
-    "svelte": "^3.43.0"
+    "svelte": "^3.43.1"
   }
 }

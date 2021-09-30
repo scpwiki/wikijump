@@ -24,9 +24,9 @@ specifiers:
   stylelint-config-recess-order: ^2.5.0
   stylelint-order: ^4.1.0
   stylelint-scss: ^3.21.0
-  svelte: ^3.43.0
+  svelte: ^3.43.1
   typescript: ^4.4.3
-  vite: 2.5.10
+  vite: ^2.6.2
 
 dependencies:
   compress-tag: 2.0.1
@@ -42,21 +42,21 @@ devDependencies:
   esbuild: 0.13.3
   eslint: 7.32.0
   eslint-plugin-regexp: 1.3.1_eslint@7.32.0
-  eslint-plugin-svelte3: 3.2.1_eslint@7.32.0+svelte@3.43.0
+  eslint-plugin-svelte3: 3.2.1_eslint@7.32.0+svelte@3.43.1
   eslint-plugin-tsdoc: 0.2.14
   nabs: 0.3.0
   npm-run-all: 4.1.5
   prettier: 2.4.1
   prettier-plugin-jsdoc: 0.3.24_prettier@2.4.1
   prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.4.3
-  prettier-plugin-svelte: 2.4.0_prettier@2.4.1+svelte@3.43.0
+  prettier-plugin-svelte: 2.4.0_prettier@2.4.1+svelte@3.43.1
   stylelint: 13.13.1
   stylelint-config-recess-order: 2.5.0_stylelint@13.13.1
   stylelint-order: 4.1.0_stylelint@13.13.1
   stylelint-scss: 3.21.0_stylelint@13.13.1
-  svelte: 3.43.0
+  svelte: 3.43.1
   typescript: 4.4.3
-  vite: 2.5.10
+  vite: 2.6.2
 
 packages:
 
@@ -1108,12 +1108,6 @@ packages:
     dev: true
     optional: true
 
-  /esbuild/0.12.29:
-    resolution: {integrity: sha512-w/XuoBCSwepyiZtIRsKsetiLDUVGPVw1E/R3VTFSecIy8UR7Cq3SOtwKHJMFoVqqVG36aGkzh4e8BvpO1Fdc7g==}
-    hasBin: true
-    requiresBuild: true
-    dev: true
-
   /esbuild/0.13.3:
     resolution: {integrity: sha512-98xovMLKnyhv3gcReUuAEi5Ig1rK6SIgvsJuBIcfwzqGSEHsV8UJjMlmkhHoHMf9XZybMpE9Zax8AA8f7i2hlQ==}
     hasBin: true
@@ -1169,7 +1163,7 @@ packages:
       scslre: 0.1.6
     dev: true
 
-  /eslint-plugin-svelte3/3.2.1_eslint@7.32.0+svelte@3.43.0:
+  /eslint-plugin-svelte3/3.2.1_eslint@7.32.0+svelte@3.43.1:
     resolution: {integrity: sha512-YoBR9mLoKCjGghJ/gvpnFZKaMEu/VRcuxpSRS8KuozuEo7CdBH7bmBHa6FmMm0i4kJnOyx+PVsaptz96K6H/4Q==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -1177,7 +1171,7 @@ packages:
       svelte: ^3.2.0
     dependencies:
       eslint: 7.32.0
-      svelte: 3.43.0
+      svelte: 3.43.1
     dev: true
 
   /eslint-plugin-tsdoc/0.2.14:
@@ -2412,14 +2406,14 @@ packages:
       typescript: 4.4.3
     dev: true
 
-  /prettier-plugin-svelte/2.4.0_prettier@2.4.1+svelte@3.43.0:
+  /prettier-plugin-svelte/2.4.0_prettier@2.4.1+svelte@3.43.1:
     resolution: {integrity: sha512-JwJ9bOz4XHLQtiLnX4mTSSDUdhu12WH8sTwy/XTDCSyPlah6IcV7NWeYBZscPEcceu2YnW8Y9sJCP40Z2UH9GA==}
     peerDependencies:
       prettier: ^1.16.4 || ^2.0.0
       svelte: ^3.2.0
     dependencies:
       prettier: 2.4.1
-      svelte: 3.43.0
+      svelte: 3.43.1
     dev: true
 
   /prettier/2.4.1:
@@ -2968,8 +2962,8 @@ packages:
       has-flag: 4.0.0
     dev: true
 
-  /svelte/3.43.0:
-    resolution: {integrity: sha512-T2pMPHrxXp+SM8pLLUXLQgkdo+JhTls7aqj9cD7z8wT2ccP+OrCAmtQS7h6pvMjitaZhXFNnCK582NxDpy8HSw==}
+  /svelte/3.43.1:
+    resolution: {integrity: sha512-nvPIaKx4HLzYlSdquISZpgG1Kqr2VAWQjZOt3Iwm3UhbqmA0LnSx4k1YpRMEhjQYW3ZCqQoK8Egto9tv4YewMA==}
     engines: {node: '>= 8'}
     dev: true
 
@@ -3152,12 +3146,23 @@ packages:
       vfile-message: 2.0.4
     dev: true
 
-  /vite/2.5.10:
-    resolution: {integrity: sha512-0ObiHTi5AHyXdJcvZ67HMsDgVpjT5RehvVKv6+Q0jFZ7zDI28PF5zK9mYz2avxdA+4iJMdwCz6wnGNnn4WX5Gg==}
+  /vite/2.6.2:
+    resolution: {integrity: sha512-HSIg9U15LOnbD3CUxX364Pdrm7DUjftuBljowGxvkFHgDZU/SKPqApg9t86MX/Qq1VCO7wS+mGJHlfuTF7c0Sg==}
     engines: {node: '>=12.2.0'}
     hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
     dependencies:
-      esbuild: 0.12.29
+      esbuild: 0.13.3
       postcss: 8.3.8
       resolve: 1.20.0
       rollup: 2.57.0

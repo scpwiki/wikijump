@@ -11,11 +11,11 @@
   "type": "module",
   "main": "src/index.ts",
   "devDependencies": {
-    "svelte": "^3.43.0"
+    "svelte": "^3.43.1"
   },
   "dependencies": {
     "is-what": "^4.0.0",
-    "svelte-i18n": "^3.3.10",
+    "svelte-i18n": "^3.3.12",
     "@wikijump/util": "workspace:*"
   }
 }

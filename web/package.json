@@ -39,9 +39,9 @@
     "stylelint-config-recess-order": "^2.5.0",
     "stylelint-order": "^4.1.0",
     "stylelint-scss": "^3.21.0",
-    "svelte": "^3.43.0",
+    "svelte": "^3.43.1",
     "typescript": "^4.4.3",
-    "vite": "2.5.10"
+    "vite": "^2.6.2"
   },
   "dependencies": {
     "compress-tag": "^2.0.1",
