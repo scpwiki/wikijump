@@ -19,8 +19,9 @@ RUN git clone \
 
 WORKDIR /src/${WIKIJUMP_REPO_DIR}/web
 
-RUN npm install
-RUN npm run build
+RUN npm install pnpm --global
+RUN pnpm install
+RUN pnpm build:legacy
 
 # Main nginx container
 
