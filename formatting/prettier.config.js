@@ -1,0 +1,33 @@
+// Prettier is the default export of this package
+// this is so that we can import Prettier's config by referencing this module
+module.exports = {
+  "printWidth": 90,
+  "semi": false,
+  "singleQuote": false,
+  "quoteProps": "preserve",
+  "trailingComma": "none",
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "endOfLine": "auto",
+
+  "plugins": [
+    "./node_modules/prettier-plugin-organize-imports",
+    "./node_modules/prettier-plugin-jsdoc",
+    "./node_modules/prettier-plugin-svelte"
+  ],
+
+  // plugin-jsdoc
+  "tsdoc": true,
+  //Set shorter than 90 so if line wrapping is on comments don't go past it
+  "jsdocPrintWidth": 75,
+
+  // plugin-svelte
+  "overrides": [
+    {
+      "files": "**/*.svelte",
+      "options": {
+        "parser": "svelte"
+      }
+    }
+  ]
+}

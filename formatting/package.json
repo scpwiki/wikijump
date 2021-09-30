@@ -1,0 +1,30 @@
+{
+  "name": "@wikijump/formatting",
+  "license": "agpl-3.0-or-later",
+  "private": true,
+  "scripts": {},
+  "browserslist": [
+    "supports es6-module and > 0.2% and last 2 versions",
+    "Firefox ESR",
+    "not dead",
+    "not ie > 0"
+  ],
+  "main": "./prettier.config.js",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.32.0",
+    "@typescript-eslint/parser": "^4.32.0",
+    "@typescript-eslint/typescript-estree": "^4.32.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-regexp": "^1.3.1",
+    "eslint-plugin-svelte3": "^3.2.1",
+    "eslint-plugin-tsdoc": "^0.2.14",
+    "prettier": "^2.4.1",
+    "prettier-plugin-jsdoc": "^0.3.24",
+    "prettier-plugin-organize-imports": "^2.3.4",
+    "prettier-plugin-svelte": "^2.4.0",
+    "stylelint": "^13.13.1",
+    "stylelint-config-recess-order": "^2.5.0",
+    "stylelint-order": "^4.1.0",
+    "stylelint-scss": "^3.21.0"
+  }
+}
