@@ -1,4 +1,7 @@
 export abstract class BaseButton extends HTMLElement {
+  abstract whenKeydown?: (evt: KeyboardEvent) => void
+  abstract whenClicked?: (evt: MouseEvent) => void
+
   constructor() {
     super()
 
@@ -10,9 +13,6 @@ export abstract class BaseButton extends HTMLElement {
     const observer = new MutationObserver(() => this.baseEnsureAttributes())
     observer.observe(this, { attributes: true })
   }
-
-  declare whenKeydown?: (evt: KeyboardEvent) => void
-  declare whenClicked?: (evt: MouseEvent) => void
 
   get disabled() {
     return this.hasAttribute("disabled")
