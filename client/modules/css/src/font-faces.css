@@ -131,9 +131,9 @@
   /* -- Noto Sans Mono CJK {HK, JP, KR, SC, TC} */
 
   /*
-    I couldn"t get the variable Noto Sans Mono CJK fonts to work at all.
+    I couldn't get the variable Noto Sans Mono CJK fonts to work at all.
     Both Firefox and Chrome would simply refuse to load any WOFF2 forms of them,
-    which was the only format they could be in because otherwise they"d be 30+ MB.
+    which was the only format they could be in because otherwise they'd be 30+ MB.
     These font-faces are left here so that if they ever do start working again they
     can easily be added back. Adding all of these font-faces is really tedious.
   */
