@@ -49,7 +49,7 @@ const mode = process.argv[2].trim()
 if (mode === "dev") {
   process.on("SIGINT", () => {
     process.chdir(DIR)
-    exec("pnpm compose stop", { cwd: DIR, shell: true })
+    exec("pnpm compose down", { cwd: DIR, shell: true })
   })
 }
 
