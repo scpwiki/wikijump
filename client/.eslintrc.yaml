@@ -1,0 +1,124 @@
+root: true
+
+ignorePatterns:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/vendor/**'
+  - '/misc/**'
+
+plugins:
+  - '@typescript-eslint'
+  - svelte3
+  - regexp
+  - tsdoc
+
+parser: '@typescript-eslint/parser'
+parserOptions:
+  sourceType: module
+  project: ['./**/tsconfig.json']
+  extraFileExtensions:
+    - .svelte
+
+rules:
+  eqeqeq: error
+  yoda: error
+  prefer-rest-params: error
+  prefer-spread: error
+  symbol-description: error
+  template-curly-spacing: error
+  prefer-numeric-literals: error
+  prefer-template: error
+  no-useless-rename: error
+  no-useless-computed-key: error
+  no-useless-concat: error
+  no-undef-init: error
+  no-throw-literal: error
+  default-case-last: error
+  wrap-iife: error
+  prefer-arrow-callback: [error, allowNamedFunctions: true]
+  no-alert: error
+  no-caller: error
+  no-eval: error
+  no-implied-eval: error
+  no-var: error
+  no-script-url: error
+  new-parens: warn
+  no-lonely-if: warn
+  no-unneeded-ternary: warn
+  operator-assignment: warn
+  prefer-exponentiation-operator: warn
+  curly: [warn, multi-line]
+  regexp/no-empty-alternative: warn
+  regexp/no-empty-lookarounds-assertion: warn
+  regexp/no-escape-backspace: warn
+  regexp/no-useless-backreference: warn
+  regexp/no-useless-dollar-replacements: warn
+  regexp/control-character-escape: warn
+  regexp/no-dupe-characters-character-class: warn
+  regexp/no-trivially-nested-assertion: warn
+  regexp/no-trivially-nested-quantifier: warn
+  regexp/no-useless-character-class: warn
+  regexp/no-useless-lazy: warn
+  regexp/no-useless-non-greedy: warn
+  regexp/no-useless-range: warn
+  regexp/no-useless-two-nums-quantifier: warn
+  regexp/no-zero-quantifier: warn
+  regexp/prefer-predefined-assertion: warn
+  regexp/hexadecimal-escape: warn
+  regexp/prefer-character-class: warn
+  regexp/prefer-question-quantifier: warn
+  regexp/prefer-t: warn
+  regexp/sort-flags: warn
+  regexp/unicode-escape: warn
+  regexp/match-any: [warn, allows: ['[^]']]
+  tsdoc/syntax: error
+  '@typescript-eslint/space-infix-ops': [warn, int32Hint: true]
+  '@typescript-eslint/ban-types': error
+  '@typescript-eslint/no-misused-new': error
+  '@typescript-eslint/no-non-null-asserted-optional-chain': error
+  '@typescript-eslint/no-require-imports': error
+  '@typescript-eslint/no-this-alias': error
+  '@typescript-eslint/no-extra-non-null-assertion': error
+  '@typescript-eslint/no-unnecessary-type-constraint': error
+  '@typescript-eslint/no-for-in-array': error
+  '@typescript-eslint/prefer-as-const': error
+  '@typescript-eslint/prefer-namespace-keyword': error
+  '@typescript-eslint/prefer-optional-chain': error
+  '@typescript-eslint/prefer-regexp-exec': error
+  '@typescript-eslint/no-useless-constructor': error
+  '@typescript-eslint/unbound-method': error
+  '@typescript-eslint/triple-slash-reference': [error, types: prefer-import]
+  '@typescript-eslint/adjacent-overload-signatures': warn
+  '@typescript-eslint/array-type': warn
+  '@typescript-eslint/no-inferrable-types': warn
+  '@typescript-eslint/consistent-indexed-object-style': warn
+  '@typescript-eslint/no-confusing-non-null-assertion': warn
+  '@typescript-eslint/class-literal-property-style': [warn, fields]
+
+overrides:
+  # JavaScript (Node)
+  - files: ['*.js', '*.cjs']
+    env: { node: true, es2021: true }
+    parserOptions: { createDefaultProgram: true }
+    rules:
+      '@typescript-eslint/no-require-imports': 'off'
+      tsdoc/syntax: 'off'
+
+  # JavaScript (Browser)
+  - files: ['*.mjs']
+    env: { browser: true, es2021: true }
+    parserOptions: { createDefaultProgram: true }
+    rules:
+      tsdoc/syntax: 'off'
+
+  # TypeScript (Browser)
+  - files: ['*.d.ts', '*.ts', '*.tsx']
+    env: { browser: true, es2021: true }
+
+  # Svelte + TypeScript (Browser)
+  - files: ['*.svelte']
+    processor: svelte3/svelte3
+    env: { browser: true, es2021: true }
+    settings:
+      svelte3/typescript: true
+      svelte3/ignore-styles: true

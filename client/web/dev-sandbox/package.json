@@ -9,9 +9,6 @@
     "preview": "vite build && vite preview"
   },
   "type": "module",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  },
   "dependencies": {
     "@wikijump/api": "workspace:*",
     "@wikijump/cm-lang-ftml": "workspace:*",

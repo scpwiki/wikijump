@@ -1,0 +1,28 @@
+# -- BUILD
+
+build:
+  $depend: []
+  $action: run-p build:legacy build:local
+
+  legacy: node scripts/build-legacy.js build
+  local: pnpm compose build
+
+# -- DEV
+
+dev:
+  $depend: []
+  $action:
+    - pnpm build:local
+    - run-p dev:legacy dev:local
+
+  legacy: node scripts/build-legacy.js dev
+  local: pnpm compose up
+
+# -- DOCKER UTILITY
+
+# Use this like:
+# $ pnpm compose up
+# $ pnpm compose build
+compose:
+  - cd ../install/local/dev
+  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml

@@ -7,9 +7,6 @@
     "build": "node typedoc.cjs"
   },
   "type": "module",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  },
   "dependencies": {
     "@wikijump/components": "workspace:*"
   },

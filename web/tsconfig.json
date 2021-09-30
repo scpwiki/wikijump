@@ -1,32 +1,4 @@
 {
-    "compilerOptions": {
-        "baseUrl": ".",
-        "outDir": "./web/files--common/dist/",
-        "noImplicitAny": true,
-        "module": "esnext",
-        "target": "esnext",
-        "strict": true,
-        "importHelpers": true,
-        "esModuleInterop": true,
-        "moduleResolution": "node",
-        "allowSyntheticDefaultImports": true,
-        "types": [
-            "jest"
-        ],
-        "lib": [
-            "esnext",
-            "dom",
-            "dom.iterable"
-        ],
-        "paths": {
-            "@/*": ["web/files--common/*"]
-        }
-    },
-    "include": [
-        "web/files--common/**/*.ts",
-        "tests/js/**/*.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+  "extends": "../client/tsconfig.json",
+  "exclude": ["**/node_modules/**", "**/tests/**"]
 }

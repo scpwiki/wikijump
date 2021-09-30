@@ -10,9 +10,6 @@
   "scripts": {},
   "type": "module",
   "main": "src/main.scss",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  },
   "dependencies": {
     "include-media": "^1.4.10"
   }

@@ -10,9 +10,6 @@
   "scripts": {},
   "type": "module",
   "main": "src/index.ts",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  },
   "dependencies": {
     "@codemirror/autocomplete": "^0.19.3",
     "@codemirror/closebrackets": "^0.19.0",

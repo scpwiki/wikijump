@@ -39,7 +39,7 @@ importers:
       svelte: ^3.43.0
       svelte-preprocess: ^4.9.5
       typescript: ^4.4.3
-      vite: ^2.5.10
+      vite: 2.5.10
     devDependencies:
       '@changesets/cli': 2.17.0
       '@esm-bundle/chai': 4.3.4-fix.0
@@ -226,7 +226,7 @@ importers:
       '@codemirror/language': 0.19.3
       '@codemirror/language-data': 0.19.0
       '@codemirror/legacy-modes': 0.19.0
-      '@codemirror/lint': 0.19.1
+      '@codemirror/lint': 0.19.2
       '@codemirror/matchbrackets': 0.19.3
       '@codemirror/panel': 0.19.0
       '@codemirror/rangeset': 0.19.1
@@ -919,7 +919,7 @@ packages:
       '@codemirror/autocomplete': 0.19.3
       '@codemirror/highlight': 0.19.6
       '@codemirror/language': 0.19.3
-      '@codemirror/lint': 0.19.1
+      '@codemirror/lint': 0.19.2
       '@codemirror/state': 0.19.2
       '@codemirror/view': 0.19.8
       '@lezer/javascript': 0.15.0
@@ -1017,8 +1017,8 @@ packages:
       '@codemirror/stream-parser': 0.19.2
     dev: false
 
-  /@codemirror/lint/0.19.1:
-    resolution: {integrity: sha512-Ef0TnXpF4Q4B+lvBdgHexe1dHbvkKBvBHsLB8HwTYffwjekg1YvEM+6zyjyjG9m6s1Ru0VaCNlNwotLaVZjHGQ==}
+  /@codemirror/lint/0.19.2:
+    resolution: {integrity: sha512-477qvXWwuf24YsBi1DzjrGyzM+qfPe5L4xEHGxQTGOMq6R0+QAFKppOJsxN3y7gzDpLrZSYZdhJzWevOuliZQg==}
     dependencies:
       '@codemirror/panel': 0.19.0
       '@codemirror/state': 0.19.2
@@ -1202,7 +1202,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.3
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
       '@types/yargs': 15.0.14
       chalk: 4.1.2
     dev: true
@@ -1577,7 +1577,7 @@ packages:
       require-in-the-middle: 5.1.0
       semver: 6.3.0
       shimmer: 1.2.1
-      signal-exit: 3.0.4
+      signal-exit: 3.0.5
       tslib: 1.9.3
     transitivePeerDependencies:
       - supports-color
@@ -1739,7 +1739,7 @@ packages:
   /@types/accepts/1.3.5:
     resolution: {integrity: sha512-jOdnI/3qTpHABjM5cx1Hc0sKsPoYCp+DP/GJRGtDlPd7fiV9oXGGIcjW/ZOxLIvjGz8MA+uMZI9metHlgqbgwQ==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/aria-query/4.2.2:
@@ -1754,7 +1754,7 @@ packages:
     resolution: {integrity: sha512-a6bTJ21vFOGIkwM0kzh9Yr89ziVxq4vYH2fQ6N8AeipEzai/cFK6aGMArIkUeIdRIgpwQa+2bXiLuUJCpSf2Cg==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/cacheable-request/6.0.2:
@@ -1762,7 +1762,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.3
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
       '@types/responselike': 1.0.0
     dev: true
 
@@ -1773,7 +1773,7 @@ packages:
   /@types/co-body/6.1.0:
     resolution: {integrity: sha512-3e0q2jyDAnx/DSZi0z2H0yoZ2wt5yRDZ+P7ymcMObvq0ufWRT4tsajyO+Q1VwVWiv9PRR4W3YEjEzBjeZlhF+w==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
       '@types/qs': 6.9.7
     dev: true
 
@@ -1784,7 +1784,7 @@ packages:
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/content-disposition/0.5.4:
@@ -1801,7 +1801,7 @@ packages:
       '@types/connect': 3.4.35
       '@types/express': 4.17.13
       '@types/keygrip': 1.0.2
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/debounce/1.2.1:
@@ -1815,7 +1815,7 @@ packages:
   /@types/express-serve-static-core/4.17.24:
     resolution: {integrity: sha512-3UJuW+Qxhzwjq3xhwXm2onQcFHn76frIYVbTu+kn24LFxI+dEhdfISDFovPB8VpEgW8oQCTpRuCe+0zJxB7NEA==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: true
@@ -1844,7 +1844,7 @@ packages:
   /@types/http-proxy/1.17.7:
     resolution: {integrity: sha512-9hdj6iXH64tHSLTY+Vt2eYOGzSogC+JQ2H7bdPWkuh7KXP5qLllWx++t+K9Wk556c3dkDdPws/SpMRi0sdCT1w==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/istanbul-lib-coverage/2.0.3:
@@ -1874,7 +1874,7 @@ packages:
   /@types/keyv/3.1.3:
     resolution: {integrity: sha512-FXCJgyyN3ivVgRoml4h94G/p3kY+u/B86La+QptcqJaWtBWtmc6TtkNfS40n9bIvyLteHh7zXOtgbobORKPbDg==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/koa-compose/3.2.5:
@@ -1893,7 +1893,7 @@ packages:
       '@types/http-errors': 1.8.1
       '@types/keygrip': 1.0.2
       '@types/koa-compose': 3.2.5
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/mdast/3.0.10:
@@ -1922,8 +1922,8 @@ packages:
     resolution: {integrity: sha512-qZdePUDSLAZRXXV234bLBEUM0nAQjoxbcSwp1rqSMUe1rZ47mwU6OjciR/JvF1Oo8mc0ys6GE0ks0HGgqAZoGg==}
     dev: true
 
-  /@types/node/16.10.1:
-    resolution: {integrity: sha512-4/Z9DMPKFexZj/Gn3LylFgamNKHm4K3QDi0gz9B26Uk0c8izYf97B5fxfpspMNkWlFupblKM/nV8+NA9Ffvr+w==}
+  /@types/node/16.10.2:
+    resolution: {integrity: sha512-zCclL4/rx+W5SQTzFs9wyvvyCwoK9QtBpratqz2IYJ3O8Umrn0m3nsTv0wQBk9sRGpvUe9CwPDrQFB10f1FIjQ==}
     dev: true
 
   /@types/normalize-package-data/2.4.1:
@@ -1956,19 +1956,19 @@ packages:
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/sass/1.16.1:
     resolution: {integrity: sha512-iZUcRrGuz/Tbg3loODpW7vrQJkUtpY2fFSf4ELqqkApcS2TkZ1msk7ie8iZPB86lDOP8QOTTmuvWjc5S0R9OjQ==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/semver/6.2.3:
@@ -1979,7 +1979,7 @@ packages:
     resolution: {integrity: sha512-nCkHGI4w7ZgAdNkrEu0bv+4xNV/XDqW+DydknebMOQwkpDGx8G+HTlj7R7ABI8i8nKxVw0wtKPi1D+lPOkh4YQ==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/swagger-schema-official/2.0.21:
@@ -1993,7 +1993,7 @@ packages:
   /@types/ws/7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/yargs-parser/20.2.1:
@@ -2010,7 +2010,7 @@ packages:
     resolution: {integrity: sha512-8uALY5LTvSuHgloDVUvWP3pIauILm+8/0pDMokuDYIoNsOkSwd5AiHBTSEJjKTDcZr5z8UpgOWZkxBF4iJftoA==}
     requiresBuild: true
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
     optional: true
 
@@ -2104,7 +2104,7 @@ packages:
       '@typescript-eslint/visitor-keys': 4.32.0
       debug: 4.3.2
       globby: 11.0.4
-      is-glob: 4.0.2
+      is-glob: 4.0.3
       semver: 7.3.5
       tsutils: 3.21.0_typescript@4.4.3
       typescript: 4.4.3
@@ -2167,7 +2167,7 @@ packages:
     engines: {node: '>=10.0.0'}
     dependencies:
       '@web/dev-server-core': 0.3.16
-      nanocolors: 0.2.11
+      nanocolors: 0.2.12
       parse5: 6.0.1
       rollup: 2.57.0
       whatwg-url: 9.1.0
@@ -2194,7 +2194,7 @@ packages:
       debounce: 1.2.1
       deepmerge: 4.2.2
       ip: 1.1.5
-      nanocolors: 0.2.11
+      nanocolors: 0.2.12
       open: 8.2.1
       portfinder: 1.0.28
     transitivePeerDependencies:
@@ -2226,8 +2226,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@web/test-runner-commands/0.5.12:
-    resolution: {integrity: sha512-W5ajWzO7+d3u1R0/FPBU8q3d4y5faOQVIWnOruFNvXu3Qjfg2VCWFOtARegA7ATNCE18H0dGRuF4KGxHDmMe3g==}
+  /@web/test-runner-commands/0.5.13:
+    resolution: {integrity: sha512-FXnpUU89ALbRlh9mgBd7CbSn5uzNtr8gvnQZPOvGLDAJ7twGvZdUJEAisPygYx2BLPSFl3/Mre8pH8zshJb8UQ==}
     engines: {node: '>=12.0.0'}
     dependencies:
       '@web/test-runner-core': 0.10.21
@@ -2263,7 +2263,7 @@ packages:
       istanbul-lib-report: 3.0.0
       istanbul-reports: 3.0.2
       log-update: 4.0.0
-      nanocolors: 0.2.11
+      nanocolors: 0.2.12
       nanoid: 3.1.28
       open: 8.2.1
       picomatch: 2.3.0
@@ -2322,7 +2322,7 @@ packages:
       '@web/config-loader': 0.1.3
       '@web/dev-server': 0.1.24_rollup@2.57.0
       '@web/test-runner-chrome': 0.10.3
-      '@web/test-runner-commands': 0.5.12
+      '@web/test-runner-commands': 0.5.13
       '@web/test-runner-core': 0.10.21
       '@web/test-runner-mocha': 0.7.4
       camelcase: 6.2.0
@@ -2331,7 +2331,7 @@ packages:
       convert-source-map: 1.8.0
       diff: 5.0.0
       globby: 11.0.4
-      nanocolors: 0.2.11
+      nanocolors: 0.2.12
       portfinder: 1.0.28
       source-map: 0.7.3
     transitivePeerDependencies:
@@ -2537,7 +2537,7 @@ packages:
     dependencies:
       browserslist: 4.17.1
       caniuse-lite: 1.0.30001261
-      nanocolors: 0.2.11
+      nanocolors: 0.2.12
       normalize-range: 0.1.2
       num2fraction: 1.2.2
       postcss: 7.0.38
@@ -2677,7 +2677,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001261
-      electron-to-chromium: 1.3.852
+      electron-to-chromium: 1.3.854
       escalade: 3.1.1
       nanocolors: 0.1.12
       node-releases: 1.1.76
@@ -2842,7 +2842,7 @@ packages:
       braces: 3.0.2
       glob-parent: 5.1.2
       is-binary-path: 2.1.0
-      is-glob: 4.0.2
+      is-glob: 4.0.3
       normalize-path: 3.0.0
       readdirp: 3.6.0
     optionalDependencies:
@@ -2857,7 +2857,7 @@ packages:
     resolution: {integrity: sha512-W//HpflaW6qBGrmuskup7g+XJZN6w03ko9QSIe5CtcTal2u0up5SeReK3Ll1Why4Ey8dPkv8XSodZyHPnGbVHQ==}
     engines: {node: '>=12.13.0'}
     dependencies:
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.3.0
@@ -3548,8 +3548,8 @@ packages:
     resolution: {integrity: sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=}
     dev: true
 
-  /electron-to-chromium/1.3.852:
-    resolution: {integrity: sha512-vNbdzbbx3d7TStoC0oIVYz6X/tIezHXnreI+4a8I7EqAQ9hpHulz3ar8xChUNcG77A+TtPSKz9B9Xwpt9e1B5w==}
+  /electron-to-chromium/1.3.854:
+    resolution: {integrity: sha512-00/IIC1mFPkq32MhUJyLdcTp7+wsKK2G3Sb65GSas9FKJQGYkDcZ4GwJkkxf5YyM3ETvl6n+toV8OmtXl4IA/g==}
     dev: true
 
   /emitter-listener/1.1.2:
@@ -3785,7 +3785,7 @@ packages:
       ignore: 4.0.6
       import-fresh: 3.3.0
       imurmurhash: 0.1.4
-      is-glob: 4.0.2
+      is-glob: 4.0.3
       js-yaml: 3.14.1
       json-stable-stringify-without-jsonify: 1.0.1
       levn: 0.4.1
@@ -3903,7 +3903,7 @@ packages:
       is-stream: 1.1.0
       npm-run-path: 2.0.2
       p-finally: 1.0.0
-      signal-exit: 3.0.4
+      signal-exit: 3.0.5
       strip-eof: 1.0.0
     dev: true
 
@@ -4302,7 +4302,7 @@ packages:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
     dependencies:
-      is-glob: 4.0.2
+      is-glob: 4.0.3
     dev: true
 
   /glob/7.2.0:
@@ -4559,7 +4559,7 @@ packages:
     dependencies:
       '@types/http-proxy': 1.17.7
       http-proxy: 1.18.1
-      is-glob: 4.0.2
+      is-glob: 4.0.3
       is-plain-obj: 3.0.0
       micromatch: 4.0.4
     transitivePeerDependencies:
@@ -4828,8 +4828,8 @@ packages:
       has-tostringtag: 1.0.0
     dev: true
 
-  /is-glob/4.0.2:
-    resolution: {integrity: sha512-ZZTOjRcDjuAAAv2cTBQP/lL59ZTArx77+7UzHdWW/XB1mrfp7DEaVpKmZ0XIzx+M7AxfhKcqV+nMetUQmFifwg==}
+  /is-glob/4.0.3:
+    resolution: {integrity: sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg==}
     engines: {node: '>=0.10.0'}
     dependencies:
       is-extglob: 2.1.1
@@ -5693,8 +5693,8 @@ packages:
     resolution: {integrity: sha512-2nMHqg1x5PU+unxX7PGY7AuYxl2qDx7PSrTRjizr8sxdd3l/3hBuWWaki62qmtYm2U5i4Z5E7GbjlyDFhs9/EQ==}
     dev: true
 
-  /nanocolors/0.2.11:
-    resolution: {integrity: sha512-83ttyvfJj66dKMadWfBkEUOEDFfRc8FpzTJvh1MySR/pzWFmFikTQZGOV6kHZRz7yR/heiQ1y/MHBBN5P/e7WQ==}
+  /nanocolors/0.2.12:
+    resolution: {integrity: sha512-SFNdALvzW+rVlzqexid6epYdt8H9Zol7xDoQarioEFcFN0JHo4CYNztAxmtfgGTVRCmFlEOqqhBpoFGKqSAMug==}
     dev: true
 
   /nanoid/3.1.28:
@@ -6450,7 +6450,7 @@ packages:
     resolution: {integrity: sha512-wNrSHWjHDQJR/IZL5IKGxRtFgrYNaAA/UrkW2WqbtZO6uxSLMxMN+s2iqUMwnAWm3fMROlDYZB41dr0Mt7vBwQ==}
     engines: {node: '>=6.0.0'}
     dependencies:
-      nanocolors: 0.2.11
+      nanocolors: 0.2.12
       source-map: 0.6.1
     dev: true
 
@@ -6458,7 +6458,7 @@ packages:
     resolution: {integrity: sha512-GT5bTjjZnwDifajzczOC+r3FI3Cu+PgPvrsjhQdRqa2kTJ4968/X9CUce9xttIB0xOs5c6xf0TCWZo/y9lF6bA==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
-      nanocolors: 0.2.11
+      nanocolors: 0.2.12
       nanoid: 3.1.28
       source-map-js: 0.6.2
     dev: true
@@ -6570,7 +6570,7 @@ packages:
     dependencies:
       graceful-fs: 4.2.8
       retry: 0.12.0
-      signal-exit: 3.0.4
+      signal-exit: 3.0.5
     dev: true
 
   /proxy-addr/2.0.7:
@@ -6960,7 +6960,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       onetime: 5.1.2
-      signal-exit: 3.0.4
+      signal-exit: 3.0.5
     dev: true
 
   /retry/0.12.0:
@@ -7224,8 +7224,8 @@ packages:
       object-inspect: 1.11.0
     dev: true
 
-  /signal-exit/3.0.4:
-    resolution: {integrity: sha512-rqYhcAnZ6d/vTPGghdrw7iumdcbXpsk1b8IG/rz+VWV51DM0p7XCtMoJ3qhPLIbp3tvyt3pKRbaaEMZYpHto8Q==}
+  /signal-exit/3.0.5:
+    resolution: {integrity: sha512-KWcOiKeQj6ZyXx7zq4YxSMgHRlod4czeBQZrPb8OKcohcqAXShm7E20kEMle9WBt26hFcAf0qLOcp5zmY7kOqQ==}
     dev: true
 
   /simple-swizzle/0.2.2:
@@ -7329,7 +7329,7 @@ packages:
     resolution: {integrity: sha512-j4JKEcncSjFlqIwU5L/rp2N5SIPsdxaRsIv678+TZxZ0SRDJTm8JrxJMjE/XuiEZNEir3S8l0Fa3Ke339WI4qA==}
     dependencies:
       cross-spawn: 5.1.0
-      signal-exit: 3.0.4
+      signal-exit: 3.0.5
     dev: true
 
   /spdx-correct/3.1.1:
@@ -8378,7 +8378,7 @@ packages:
     dependencies:
       imurmurhash: 0.1.4
       is-typedarray: 1.0.0
-      signal-exit: 3.0.4
+      signal-exit: 3.0.5
       typedarray-to-buffer: 3.1.5
     dev: true
 

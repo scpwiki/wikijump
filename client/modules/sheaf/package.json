@@ -10,9 +10,6 @@
   "scripts": {},
   "type": "module",
   "main": "src/index.ts",
-  "eslintConfig": {
-    "extends": "../../.eslintrc.js"
-  },
   "dependencies": {
     "@wikijump/cm-espells": "workspace:*",
     "@wikijump/cm-lang-ftml": "workspace:*",
