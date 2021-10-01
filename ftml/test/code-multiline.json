@@ -3,19 +3,10 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "code",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "code",
-                            "data": {
-                                "contents": "multiple\n**lines**\nof\ncode",
-                                "language": null
-                            }
-                        }
-                    ]
+                    "contents": "multiple\n**lines**\nof\ncode",
+                    "language": null
                 }
             },
             {
