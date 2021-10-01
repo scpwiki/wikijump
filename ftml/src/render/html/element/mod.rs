@@ -201,8 +201,7 @@ pub fn render_element(log: &Logger, ctx: &mut HtmlContext, element: &Element) {
         }
         Element::ClearFloat(clear_float) => {
             ctx.html().div().attr(attr!(
-                "is" => "wj-clear-float",
-                "class" => clear_float.html_class(),
+                "class" => "wj-clear-float " clear_float.html_class(),
             ));
         }
         Element::HorizontalRule => {

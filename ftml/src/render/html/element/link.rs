@@ -44,7 +44,6 @@ pub fn render_anchor(
     ctx.html()
         .a()
         .attr(attr!(
-            "is" => "wj-anchor",
             "target" => target_value; if target.is_some();;
             attributes
         ))
@@ -78,7 +77,6 @@ pub fn render_link(
 
     let mut tag = ctx.html().a();
     tag.attr(attr!(
-        "is" => "wj-link",
         "href" => &url,
         "target" => target_value; if target.is_some(),
     ));

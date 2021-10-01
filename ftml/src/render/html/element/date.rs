@@ -44,7 +44,6 @@ pub fn render_date(
     ctx.html()
         .span()
         .attr(attr!(
-            "is" => "wj-date",
             "class" => "wj-date" space hover_class,
             "data-format" => date_format.unwrap_or_else(|| date.default_format_string()),
             "data-iso" => &date.to_rfc3339(),

@@ -57,12 +57,21 @@ where
         HtmlBuilder { ctx }
     }
 
+    /// Create a new HTML element with the given tag type.
     #[inline]
     pub fn tag(self, tag: &'t str) -> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
         debug_assert!(is_alphanumeric(tag));
 
         let HtmlBuilder { ctx } = self;
         HtmlBuilderTag::new(ctx, tag)
+    }
+
+    /// Create a new custom element. Tag must start with `wj-`.
+    #[inline]
+    pub fn element(self, tag: &'t str) -> HtmlBuilderTag<'c, 'i, 'h, 'e, 't> {
+        debug_assert!(tag.starts_with("wj-"));
+
+        self.tag(tag)
     }
 
     #[inline]
@@ -94,7 +103,6 @@ where
 
     tag_method!(a);
     tag_method!(br);
-    tag_method!(button);
     tag_method!(code);
     tag_method!(dd);
     tag_method!(div);
