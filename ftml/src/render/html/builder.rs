@@ -105,6 +105,7 @@ where
     tag_method!(br);
     tag_method!(code);
     tag_method!(dd);
+    tag_method!(details);
     tag_method!(div);
     tag_method!(dl);
     tag_method!(dt);
@@ -119,6 +120,7 @@ where
     tag_method!(span);
     tag_method!(sub);
     tag_method!(sup);
+    tag_method!(summary);
     tag_method!(table);
     tag_method!(tbody);
     tag_method!(tr);
