@@ -3,19 +3,10 @@
     "tree": {
         "elements": [
             {
-                "element": "container",
+                "element": "code",
                 "data": {
-                    "type": "paragraph",
-                    "attributes": {},
-                    "elements": [
-                        {
-                            "element": "code",
-                            "data": {
-                                "contents": "[[div]]\ntest\n[[/div]]",
-                                "language": null
-                            }
-                        }
-                    ]
+                    "contents": "[[div]]\ntest\n[[/div]]",
+                    "language": null
                 }
             },
             {
