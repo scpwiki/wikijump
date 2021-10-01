@@ -2,11 +2,11 @@
 
 namespace Wikidot\Modules\PageTags;
 
+use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\AllowedTags;
-
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
@@ -40,9 +40,9 @@ class PageTagsModule extends SmartyModule
         $siteId = $site->getSiteId();
         $taglist = AllowedTags::getAllowedTags($siteId);
 
-        // Fetch the tags and convert them to a string.
-        $tags = DB::table('page')->where('page_id', $pageId)->pluck('tag')->toArray();
-        $tags = implode(' ', $tags);
+        // Fetch the tags, decode them from JSON, and convert them to a string.
+        $tags = DB::table('page')->where('page_id', $pageId)->value('tags');
+        $tags = implode(" ", json_decode($tags));
 
         $runData->contextAdd("tags", $tags);
         $runData->contextAdd("taglist", $taglist);
