@@ -356,7 +356,7 @@ impl Element<'_> {
             Element::User { .. } => true,
             Element::Date { .. } => true,
             Element::Color { .. } => true,
-            Element::Code { .. } => true,
+            Element::Code { .. } => false,
             Element::Math { .. } => false,
             Element::MathInline { .. } => true,
             Element::EquationReference(_) => true,
