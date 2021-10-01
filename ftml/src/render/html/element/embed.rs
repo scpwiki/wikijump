@@ -36,7 +36,7 @@ pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
             "class" => "wj-embed",
         ))
         .contents(|ctx| match embed {
-            Embed::YouTube {
+            Embed::Youtube {
                 video_id,
                 width,
                 height,

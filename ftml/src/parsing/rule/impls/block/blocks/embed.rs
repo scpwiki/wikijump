@@ -98,7 +98,7 @@ fn build_youtube<'p, 't>(
     let width = parse_num(parser, arguments.get("width"))?;
     let height = parse_num(parser, arguments.get("height"))?;
 
-    Ok(Embed::YouTube {
+    Ok(Embed::Youtube {
         video_id,
         width,
         height,

@@ -25,7 +25,7 @@ use std::borrow::Cow;
 #[serde(rename_all = "kebab-case", tag = "type", content = "data")]
 pub enum Embed<'t> {
     #[serde(rename_all = "kebab-case")]
-    YouTube {
+    Youtube {
         video_id: Cow<'t, str>,
         width: Option<u32>,
         height: Option<u32>,
@@ -50,7 +50,7 @@ pub enum Embed<'t> {
 impl Embed<'_> {
     pub fn name(&self) -> &'static str {
         match self {
-            Embed::YouTube { .. } => "YouTube",
+            Embed::Youtube { .. } => "YouTube",
             Embed::Vimeo { .. } => "Vimeo",
             Embed::GithubGist { .. } => "GithubGist",
             Embed::GitlabSnippet { .. } => "GitlabSnippet",
@@ -59,7 +59,7 @@ impl Embed<'_> {
 
     pub fn direct_url(&self) -> String {
         match self {
-            Embed::YouTube { video_id, .. } => format!("https://youtu.be/{}", video_id),
+            Embed::Youtube { video_id, .. } => format!("https://youtu.be/{}", video_id),
             Embed::Vimeo { video_id, .. } => format!("https://vimeo.com/{}", video_id),
             Embed::GithubGist { username, hash } => {
                 format!("https://gist.github.com/{}/{}", username, hash)
@@ -72,11 +72,11 @@ impl Embed<'_> {
 
     pub fn to_owned(&self) -> Embed<'static> {
         match self {
-            Embed::YouTube {
+            Embed::Youtube {
                 video_id,
                 width,
                 height,
-            } => Embed::YouTube {
+            } => Embed::Youtube {
                 video_id: string_to_owned(video_id),
                 width: *width,
                 height: *height,
