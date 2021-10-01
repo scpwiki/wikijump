@@ -36,19 +36,11 @@ pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
             "class" => "wj-embed",
         ))
         .contents(|ctx| match embed {
-            Embed::Youtube {
-                video_id,
-                width,
-                height,
-            } => {
+            Embed::Youtube { video_id } => {
                 let url = format!("https://www.youtube.com/embed/{}", video_id);
-                let width = str!(width.unwrap_or(1280));
-                let height = str!(height.unwrap_or(720));
 
                 ctx.html().iframe().attr(attr!(
                     "src" => &url,
-                    "width" => &width,
-                    "height" => &height,
                     "frameborder" => "0",
                     "allow" => "accelerometer; autoplay; "
                                "clipboard-write; encrypted-media; "
@@ -57,19 +49,11 @@ pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
                 ));
             }
 
-            Embed::Vimeo {
-                video_id,
-                width,
-                height,
-            } => {
+            Embed::Vimeo { video_id } => {
                 let url = format!("https://player.vimeo.com/video/{}", video_id);
-                let width = str!(width.unwrap_or(640));
-                let height = str!(height.unwrap_or(360));
 
                 ctx.html().iframe().attr(attr!(
                     "src" => &url,
-                    "width" => &width,
-                    "height" => &height,
                     "frameborder" => "0",
                     "allow" => "autoplay; fullscreen; picture-inpicture",
                     "allowfullscreen",

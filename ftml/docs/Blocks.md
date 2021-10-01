@@ -347,15 +347,11 @@ __For YouTube:__
 
 Arguments:
 * `video` &mdash; The ID of the video. For `https://youtube.com/watch?v=dQw4w9WgXcQ`, then pass in `dQw4w9WgXcQ`.
-* `width` &mdash; (Integer, Default 1280) The width value to pass to the iframe.
-* `height` &mdash; (Integer, Default 720) The height value to pass to the iframe.
 
 __For Vimeo:__
 
 Arguments:
 * `video` &mdash; The ID of the video. For `https://vimeo.com/221821296`, then pass in `221821296`.
-* `width` &mdash; (Integer, Default 640) The width value to pass to the iframe.
-* `height` &mdash; (Integer, Default 360) The height value to pass to the iframe.
 
 __For GitHub Gist:__
 

@@ -20,7 +20,6 @@
 
 use super::prelude::*;
 use crate::tree::Embed;
-use std::borrow::Cow;
 
 type EmbedBuilderFn = for<'p, 't> fn(
     &'p Parser<'_, 't>,
@@ -95,14 +94,7 @@ fn build_youtube<'p, 't>(
         .get("video")
         .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
 
-    let width = parse_num(parser, arguments.get("width"))?;
-    let height = parse_num(parser, arguments.get("height"))?;
-
-    Ok(Embed::Youtube {
-        video_id,
-        width,
-        height,
-    })
+    Ok(Embed::Youtube { video_id })
 }
 
 fn build_vimeo<'p, 't>(
@@ -113,14 +105,7 @@ fn build_vimeo<'p, 't>(
         .get("video")
         .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
 
-    let width = parse_num(parser, arguments.get("width"))?;
-    let height = parse_num(parser, arguments.get("height"))?;
-
-    Ok(Embed::Vimeo {
-        video_id,
-        width,
-        height,
-    })
+    Ok(Embed::Vimeo { video_id })
 }
 
 fn build_github_gist<'p, 't>(
@@ -147,21 +132,6 @@ fn build_gitlab_snippet<'p, 't>(
         .ok_or_else(|| parser.make_warn(ParseWarningKind::BlockMissingArguments))?;
 
     Ok(Embed::GitlabSnippet { snippet_id })
-}
-
-// Utilities
-
-fn parse_num(
-    parser: &Parser,
-    value: Option<Cow<str>>,
-) -> Result<Option<u32>, ParseWarning> {
-    match value {
-        None => Ok(None),
-        Some(value) => match value.parse() {
-            Ok(num) => Ok(Some(num)),
-            Err(_) => Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments)),
-        },
-    }
 }
 
 #[test]

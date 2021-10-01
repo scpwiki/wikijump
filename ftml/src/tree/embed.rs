@@ -25,18 +25,10 @@ use std::borrow::Cow;
 #[serde(rename_all = "kebab-case", tag = "embed", content = "data")]
 pub enum Embed<'t> {
     #[serde(rename_all = "kebab-case")]
-    Youtube {
-        video_id: Cow<'t, str>,
-        width: Option<u32>,
-        height: Option<u32>,
-    },
+    Youtube { video_id: Cow<'t, str> },
 
     #[serde(rename_all = "kebab-case")]
-    Vimeo {
-        video_id: Cow<'t, str>,
-        width: Option<u32>,
-        height: Option<u32>,
-    },
+    Vimeo { video_id: Cow<'t, str> },
 
     GithubGist {
         username: Cow<'t, str>,
@@ -59,8 +51,8 @@ impl Embed<'_> {
 
     pub fn direct_url(&self) -> String {
         match self {
-            Embed::Youtube { video_id, .. } => format!("https://youtu.be/{}", video_id),
-            Embed::Vimeo { video_id, .. } => format!("https://vimeo.com/{}", video_id),
+            Embed::Youtube { video_id } => format!("https://youtu.be/{}", video_id),
+            Embed::Vimeo { video_id } => format!("https://vimeo.com/{}", video_id),
             Embed::GithubGist { username, hash } => {
                 format!("https://gist.github.com/{}/{}", username, hash)
             }
@@ -72,24 +64,12 @@ impl Embed<'_> {
 
     pub fn to_owned(&self) -> Embed<'static> {
         match self {
-            Embed::Youtube {
-                video_id,
-                width,
-                height,
-            } => Embed::Youtube {
+            Embed::Youtube { video_id } => Embed::Youtube {
                 video_id: string_to_owned(video_id),
-                width: *width,
-                height: *height,
             },
 
-            Embed::Vimeo {
-                video_id,
-                width,
-                height,
-            } => Embed::Vimeo {
+            Embed::Vimeo { video_id } => Embed::Vimeo {
                 video_id: string_to_owned(video_id),
-                width: *width,
-                height: *height,
             },
 
             Embed::GithubGist { username, hash } => Embed::GithubGist {
