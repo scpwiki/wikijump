@@ -9,13 +9,25 @@
   user-select: none;
 }
 
-.wj-collapsible-block[open] {
-  > .wj-collapsible-button > .wj-collapsible-button-folded {
+.wj-collapsible[open] {
+  > .wj-collapsible-button {
     display: none;
+  }
+
+  &[data-show-top] > .wj-collapsible-button-top {
+    display: inline-block;
+
+    > .wj-collapsible-button-folded {
+      display: none;
+    }
+  }
+
+  &[data-show-bottom] > .wj-collapsible-button-bottom {
+    display: inline-block;
   }
 }
 
-.wj-collapsible-block:not([open]) {
+.wj-collapsible:not([open]) {
   > .wj-collapsible-button > .wj-collapsible-button-unfolded {
     display: none;
   }
