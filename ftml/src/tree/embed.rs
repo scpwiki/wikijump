@@ -57,7 +57,7 @@ impl Embed<'_> {
         }
     }
 
-    pub fn direct_link(&self) -> String {
+    pub fn direct_url(&self) -> String {
         match self {
             Embed::YouTube { video_id, .. } => format!("https://youtu.be/{}", video_id),
             Embed::Vimeo { video_id, .. } => format!("https://vimeo.com/{}", video_id),
