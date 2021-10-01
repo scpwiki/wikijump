@@ -1,0 +1,31 @@
+{
+    "input": "[[embed gitlab-snippet id=\"2183263\"]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "embed",
+                "data": {
+                    "embed": "gitlab-snippet",
+                    "data": {
+                        "snippet-id": "2183263"
+                    }
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

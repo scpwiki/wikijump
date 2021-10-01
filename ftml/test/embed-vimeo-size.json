@@ -1,0 +1,33 @@
+{
+    "input": "[[embed vimeo video=\"221821296\" height=\"720\" width=\"1080\"]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "embed",
+                "data": {
+                    "embed": "vimeo",
+                    "data": {
+                        "video-id": "221821296",
+                        "width": 1080,
+                        "height": 720
+                    }
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

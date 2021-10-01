@@ -1,0 +1,32 @@
+{
+    "input": "[[embed github-gist username=\"ammongit\" hash=\"ad5be96bd2e6fe5f06b8e33290273f53\"]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "embed",
+                "data": {
+                    "embed": "github-gist",
+                    "data": {
+                        "username": "ammongit",
+                        "hash": "ad5be96bd2e6fe5f06b8e33290273f53"
+                    }
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}
