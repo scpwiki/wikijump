@@ -1,5 +1,10 @@
+.wj-math-inline {
+  display: inline-block;
+}
+
 .wj-math-block {
   position: relative;
+  display: block;
 
   .wj-error-block,
   .wj-math-ml {
