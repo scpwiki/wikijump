@@ -103,7 +103,6 @@ where
 
     tag_method!(a);
     tag_method!(br);
-    tag_method!(button);
     tag_method!(code);
     tag_method!(dd);
     tag_method!(div);
