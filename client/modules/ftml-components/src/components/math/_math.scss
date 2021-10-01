@@ -1,84 +1,61 @@
-.wj-math {
-  &-block {
-    position: relative;
-    margin: 0.5em 0;
+.wj-math-block {
+  position: relative;
 
-    .wj-equation-number {
-      position: absolute;
-      top: 50%;
-      right: 1em;
-      display: block;
-      transform: translateY(-50%);
-    }
-
-    .wj-error-block,
-    .wj-math-ml {
-      display: block;
-      margin: 0 3em;
-      text-align: center;
-    }
+  .wj-error-block,
+  .wj-math-ml {
+    display: block;
+    margin: 0 3em;
+    text-align: center;
   }
 }
 
-.wj-math-ml-polyfilled math {
+.wj-equation-number {
+  position: absolute;
+  top: 50%;
+  right: 1em;
+  display: block;
+  transform: translateY(-50%);
+}
+
+.wj-math-ml.wj-math-ml-polyfilled math {
   @include hide-visually;
 }
 
-.wj-equation-ref {
-  .wj-equation-ref-marker {
-    @include reset;
-    display: inline;
-    // makes the marker artifically bigger
-    padding: 0.5em;
-    margin: -0.5em;
-    font-size: 0.75em;
-    font-style: italic;
-    color: #0000ee;
-    vertical-align: super;
-    cursor: pointer;
-    user-select: none;
+// .wj-equation-ref {}
 
-    &.is-no-equation {
-      color: #b00;
-    }
+.wj-equation-ref-marker {
+  display: inline;
+  // makes the marker artifically bigger
+  padding: 0.5em;
+  margin: -0.5em;
+  cursor: pointer;
+  user-select: none;
+}
 
-    @include hover {
-      text-decoration: underline;
-    }
+.wj-equation-ref-tooltip {
+  position: absolute;
+  z-index: 1;
+  display: inline-block;
+  width: max-content;
+  margin: 0 !important;
+
+  @include tolerates-motion {
+    transition: opacity 100ms ease, visibility 0ms;
   }
 
-  .wj-equation-ref-tooltip {
-    position: absolute;
-    z-index: 1;
-    display: inline-block;
-    width: max-content;
-    max-width: 30rem;
-    padding: 0.5em;
-    margin: 0 !important;
-    font-size: 12px;
-    background: #fff;
-    border: 1px solid #aaa;
-    border-radius: 0.25em;
-    @include shadow(4, 1);
+  &:not(.is-hovered) {
+    pointer-events: none;
+    visibility: hidden;
+    user-select: none;
+    opacity: 0;
+    transition-delay: 0ms, 100ms;
+  }
 
-    @include tolerates-motion {
-      transition: opacity 100ms ease, visibility 0ms;
-    }
-
-    &:not(.is-hovered) {
-      pointer-events: none;
-      visibility: hidden;
-      user-select: none;
-      opacity: 0;
-      transition-delay: 0ms, 100ms;
-    }
-
-    &.is-hovered {
-      pointer-events: all;
-      visibility: visible;
-      user-select: text;
-      opacity: 1;
-      transition-delay: 0ms, 0ms;
-    }
+  &.is-hovered {
+    pointer-events: all;
+    visibility: visible;
+    user-select: text;
+    opacity: 1;
+    transition-delay: 0ms, 0ms;
   }
 }

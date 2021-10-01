@@ -1,22 +1,16 @@
 /* TOP-LEVEL */
 
-.wj-body {
-  font-size: 14px;
-}
-
 .wj-body * {
   box-sizing: border-box;
 }
 
 /* TABLES */
 
-.wj-table {
-}
+// .wj-table {}
 
 /* MODIFIERS */
 
-.wj-monospace {
-}
+// .wj-monospace {}
 
 .wj-hidden {
   display: none;
@@ -78,9 +72,7 @@
 
 /* MISCELLANEOUS */
 
-.wj-image-container {
-  padding: 1em;
-}
+// .wj-image-container {}
 
 .wj-email {
   white-space: nowrap;
@@ -88,4 +80,12 @@
 
 .wj-raw {
   white-space: pre-wrap;
+}
+
+.wj-error-block {
+  display: block;
+}
+
+.wj-error-inline {
+  display: inline-block;
 }

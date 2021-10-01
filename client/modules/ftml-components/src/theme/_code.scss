@@ -1,0 +1,28 @@
+.wj-code {
+  padding: 1em;
+  border: 1px solid #ccc;
+  border-radius: 0.25em;
+
+  code {
+    font-family: "Courier New", Courier, monospace;
+  }
+}
+
+.wj-code-panel {
+  gap: 0.5em;
+  padding: 0.25em 0.5em;
+}
+
+.wj-code-language {
+  color: #07a;
+}
+
+.wj-code-copy {
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 0.25em;
+  transition: background 0.125s ease-in-out;
+
+  @include hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}

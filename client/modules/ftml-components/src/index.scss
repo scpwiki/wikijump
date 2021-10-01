@@ -7,9 +7,18 @@
 
 // Components
 @import "components/code/code";
-@import "components/error/error";
 @import "components/collapsible/collapsible";
 @import "components/footnotes/footnotes";
 @import "components/math/math";
 @import "components/tabview/tabview";
 @import "components/user-info/user-info";
+
+// Theme
+@import "theme/base";
+@import "theme/code";
+@import "theme/error";
+@import "theme/footnotes";
+@import "theme/math";
+@import "theme/tabview";
+@import "theme/tokens";
+@import "theme/user-info";

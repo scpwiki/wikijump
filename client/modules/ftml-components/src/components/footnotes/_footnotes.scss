@@ -1,102 +1,71 @@
-.wj-footnote-list-item-marker,
-.wj-footnote-ref-marker {
-  @include reset;
-  display: inline;
-  color: #0000ee;
-  cursor: pointer;
-
-  @include hover {
-    text-decoration: underline;
-  }
-}
-
 .wj-footnote-ref {
   position: relative;
-  margin-right: 0.75ch;
+}
 
-  .wj-footnote-ref-marker {
-    position: absolute;
-    // makes the marker artifically bigger
-    padding: 0.5em;
-    margin: -0.5em;
-    font-size: 0.75em;
-    font-style: italic;
-    vertical-align: super;
+.wj-footnote-ref-marker {
+  position: absolute;
+  display: inline;
+  // makes the marker artifically bigger
+  padding: 0.5em;
+  margin: -0.5em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wj-footnote-ref-tooltip {
+  position: absolute;
+  z-index: 1;
+  display: inline-block;
+  width: max-content;
+  margin: 0 !important;
+
+  @include tolerates-motion {
+    transition: opacity 100ms ease, visibility 0ms;
+  }
+
+  &:not(.is-hovered) {
+    pointer-events: none;
+    visibility: hidden;
     user-select: none;
+    opacity: 0;
+    transition-delay: 0ms, 100ms;
   }
 
-  .wj-footnote-ref-tooltip {
-    position: absolute;
-    z-index: 1;
-    display: inline-block;
-    width: max-content;
-    max-width: 30rem;
-    padding: 0.5em;
-    margin: 0 !important;
-    font-size: 12px;
-    background: #fff;
-    border: 1px solid #aaa;
-    border-radius: 0.25em;
-    @include shadow(4, 1);
-
-    @include tolerates-motion {
-      transition: opacity 100ms ease, visibility 0ms;
-    }
-
-    &:not(.is-hovered) {
-      pointer-events: none;
-      visibility: hidden;
-      user-select: none;
-      opacity: 0;
-      transition-delay: 0ms, 100ms;
-    }
-
-    &.is-hovered {
-      pointer-events: all;
-      visibility: visible;
-      user-select: text;
-      opacity: 1;
-      transition-delay: 0ms, 0ms;
-    }
-  }
-
-  .wj-footnote-ref-tooltip-label {
-    display: inline-block;
-    width: 100%;
-    font-weight: bold;
-  }
-
-  .wj-footnote-ref-tooltip-contents {
-    display: inline-block;
-    width: 100%;
+  &.is-hovered {
+    pointer-events: all;
+    visibility: visible;
+    user-select: text;
+    opacity: 1;
+    transition-delay: 0ms, 0ms;
   }
 }
 
-.wj-footnote-list {
-  .wj-title {
-    font-size: 1.3em;
-    font-weight: bold;
-  }
+.wj-footnote-ref-tooltip-label {
+  display: inline-block;
+  width: 100%;
+}
 
-  ol {
-    list-style: none;
-  }
+.wj-footnote-ref-tooltip-contents {
+  display: inline-block;
+  width: 100%;
+}
 
-  .wj-footnote-list-item {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 0.5em;
+.wj-footnote-list ol {
+  list-style: none;
+}
 
-    .wj-footnote-list-item-marker {
-      display: block;
-      padding-right: 0.5em;
-    }
+.wj-footnote-list-item {
+  display: flex;
+  align-items: flex-start;
+}
 
-    .wj-footnote-sep {
-    }
+.wj-footnote-list-item-marker {
+  display: block;
+  cursor: pointer;
+}
 
-    .wj-footnote-list-item-contents {
-      display: block;
-    }
-  }
+// .wj-footnote-sep {}
+
+.wj-footnote-list-item-contents {
+  display: block;
 }

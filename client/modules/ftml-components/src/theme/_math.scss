@@ -1,0 +1,28 @@
+.wj-math-block {
+  margin: 0.5em 0;
+}
+
+.wj-equation-ref-marker {
+  font-size: 0.75em;
+  font-style: italic;
+  color: #0000ee;
+  vertical-align: super;
+
+  &.is-no-equation {
+    color: #b00;
+  }
+
+  @include hover {
+    text-decoration: underline;
+  }
+}
+
+.wj-equation-ref-tooltip {
+  max-width: 30rem;
+  padding: 0.5em;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid #aaa;
+  border-radius: 0.25em;
+  @include shadow(4, 1);
+}
