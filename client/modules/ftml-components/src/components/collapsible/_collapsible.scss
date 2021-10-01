@@ -17,7 +17,7 @@
   &[data-show-top] > .wj-collapsible-button-top {
     display: inline-block;
 
-    > .wj-collapsible-button-folded {
+    > .wj-collapsible-show-text {
       display: none;
     }
   }
@@ -28,7 +28,7 @@
 }
 
 .wj-collapsible:not([open]) {
-  > .wj-collapsible-button > .wj-collapsible-button-unfolded {
+  > .wj-collapsible-button > .wj-collapsible-hide-text {
     display: none;
   }
 }

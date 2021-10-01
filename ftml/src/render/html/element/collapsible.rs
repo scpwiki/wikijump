@@ -107,13 +107,13 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                     // Block is folded text
                     ctx.html()
                         .span()
-                        .attr(attr!("class" => "wj-collapsible-button-folded"))
+                        .attr(attr!("class" => "wj-collapsible-show-text"))
                         .inner(log, show_text);
 
                     // Block is unfolded text
                     ctx.html()
                         .span()
-                        .attr(attr!("class" => "wj-collapsible-button-unfolded"))
+                        .attr(attr!("class" => "wj-collapsible-hide-text"))
                         .inner(log, hide_text);
                 });
 
@@ -134,7 +134,7 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
                         // Block is unfolded text
                         ctx.html()
                             .span()
-                            .attr(attr!("class" => "wj-collapsible-button-unfolded"))
+                            .attr(attr!("class" => "wj-collapsible-hide-text"))
                             .inner(log, hide_text);
                     });
             }
