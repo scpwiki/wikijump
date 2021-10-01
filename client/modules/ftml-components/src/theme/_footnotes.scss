@@ -1,0 +1,46 @@
+.wj-footnote-ref {
+  margin-right: 0.75ch;
+}
+
+.wj-footnote-ref-marker {
+  font-size: 0.75em;
+  font-style: italic;
+  color: #0000ee;
+  vertical-align: super;
+
+  @include hover {
+    text-decoration: underline;
+  }
+}
+
+.wj-footnote-ref-tooltip {
+  max-width: 30rem;
+  padding: 0.5em;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid #aaa;
+  border-radius: 0.25em;
+  @include shadow(4, 1);
+}
+
+.wj-footnote-ref-tooltip-label {
+  font-weight: bold;
+}
+
+.wj-footnote-list .wj-title {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.wj-footnote-list-item {
+  margin-bottom: 0.5em;
+}
+
+.wj-footnote-list-item-marker {
+  padding-right: 0.5em;
+  color: #0000ee;
+
+  @include hover {
+    text-decoration: underline;
+  }
+}

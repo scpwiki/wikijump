@@ -1,0 +1,18 @@
+.wj-user-info {
+  > a,
+  .wj-error-inline {
+    @include hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.wj-user-info-avatar {
+  border: solid 1px black;
+  border-left: none;
+  border-radius: 0 2px 2px 0;
+}
+
+.wj-user-info-avatar + .wj-user-info-name {
+  margin-left: 0.25em;
+}

@@ -1,0 +1,70 @@
+// Colors are from Prism's default theme.
+
+.wj-code-token {
+  &.wj-code-comment,
+  &.wj-code-prolog,
+  &.wj-code-doctype,
+  &.wj-code-cdata {
+    color: slategray;
+  }
+
+  &.wj-code-punctuation {
+    color: #999;
+  }
+
+  &.wj-code-namespace {
+    opacity: 0.7;
+  }
+
+  &.wj-code-property,
+  &.wj-code-tag,
+  &.wj-code-boolean,
+  &.wj-code-number,
+  &.wj-code-constant,
+  &.wj-code-symbol,
+  &.wj-code-deleted {
+    color: #905;
+  }
+
+  &.wj-code-selector,
+  &.wj-code-attr-name,
+  &.wj-code-string,
+  &.wj-code-char,
+  &.wj-code-builtin,
+  &.wj-code-inserted {
+    color: #690;
+  }
+
+  &.wj-code-operator,
+  &.wj-code-entity,
+  &.wj-code-url,
+  &.wj-code-string {
+    color: #9a6e3a;
+  }
+
+  &.wj-code-atrule,
+  &.wj-code-attr-value,
+  &.wj-code-keyword {
+    color: #07a;
+  }
+
+  &.wj-code-function,
+  &.wj-code-class-name {
+    color: #dd4a68;
+  }
+
+  &.wj-code-regex,
+  &.wj-code-important,
+  &.wj-code-variable {
+    color: #e90;
+  }
+
+  &.wj-code-important,
+  &.wj-code-bold {
+    font-weight: bold;
+  }
+
+  &.wj-code-italic {
+    font-style: italic;
+  }
+}

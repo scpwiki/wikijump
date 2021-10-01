@@ -1,16 +1,18 @@
-import { defineElement, observe, pauseObservation } from "../../util"
+import { BaseButton } from "../../base-button"
+import { addElement, observe, pauseObservation } from "../../util"
 
 /**
  * FTML `[[tabview]]` element. Handles ARIA state and visibility of tab
  * panels through the `panel-selected` attribute.
  */
-export class TabviewElement extends HTMLDivElement {
+export class TabviewElement extends HTMLElement {
   static tag = "wj-tabs"
 
   static get observedAttributes() {
     return ["panel-selected"]
   }
 
+  /** Observer for watching changes to the contents of the element. */
   declare observer: MutationObserver
 
   constructor() {
@@ -84,14 +86,8 @@ export class TabviewElement extends HTMLDivElement {
  * FTML `[[tabview]]` tab button. Handles keyboard support and changing the
  * selected tab when clicked.
  */
-export class TabviewButton extends HTMLButtonElement {
+export class TabviewButtonElement extends BaseButton {
   static tag = "wj-tabs-button"
-
-  constructor() {
-    super()
-    this.addEventListener("click", () => this.whenClicked())
-    this.addEventListener("keydown", evt => this.whenKeydown(evt))
-  }
 
   /** Parent button list element. */
   private get parent() {
@@ -109,7 +105,7 @@ export class TabviewButton extends HTMLButtonElement {
    * Fired when the button is clicked. Changes the parent tabs
    * `panel-selected` attribute to match this button's index.
    */
-  private whenClicked() {
+  whenClicked() {
     const tabview = this.closest<HTMLElement>(".wj-tabs")
     if (!tabview) throw new Error("No tabview found")
     tabview.setAttribute("panel-selected", String(this.index))
@@ -119,16 +115,16 @@ export class TabviewButton extends HTMLButtonElement {
    * Fired on keydown events. This function handles accessibility support
    * for keyboards.
    */
-  private whenKeydown(evt: KeyboardEvent) {
-    if (["ArrowRight", "ArrowLeft", "Home", "End", "Enter"].includes(evt.key)) {
+  whenKeydown(evt: KeyboardEvent) {
+    if (["ArrowRight", "ArrowLeft", "Home", "End"].includes(evt.key)) {
       const list = this.relativeList()
+
       // prettier-ignore
       switch(evt.key) {
         case "ArrowRight": list.next.focus()  ; break
         case "ArrowLeft":  list.prev.focus()  ; break
         case "Home":       list.start.focus() ; break
         case "End":        list.end.focus()   ; break
-        case "Enter":      this.click()       ; break
       }
 
       evt.preventDefault()
@@ -151,5 +147,17 @@ export class TabviewButton extends HTMLButtonElement {
   }
 }
 
-defineElement(TabviewElement.tag, TabviewElement, { extends: "div" })
-defineElement(TabviewButton.tag, TabviewButton, { extends: "button" })
+declare global {
+  interface HTMLElementTagNameMap {
+    "wj-tabs": TabviewElement
+    "wj-tabs-button": TabviewButtonElement
+  }
+
+  interface Window {
+    TabviewElement: typeof TabviewElement
+    TabviewButtonElement: typeof TabviewButtonElement
+  }
+}
+
+addElement(TabviewElement, "TabviewElement")
+addElement(TabviewButtonElement, "TabviewButtonElement")
