@@ -5,10 +5,26 @@ import { hover } from "./util"
 
 // TODO: proper mobile support (need more infrastructure for mobile support)
 
+/**
+ * Abstract custom element which extends the {@link BaseButton} element.
+ * This element handles revealing a tooltip when it is hovered over. It
+ * uses the `parent` and `tooltip` getters to do this. It will also call
+ * the `whenHovered` and `whenUnhovered` methods, if they exist.
+ */
 export abstract class BaseTooltipButton extends BaseButton {
+  /** The parent element. This is what the tooltip will be placed relative to. */
   abstract get parent(): HTMLElement
+
+  /** The tooltip element. */
   abstract get tooltip(): HTMLElement
+
+  /**
+   * Fired when the element is hovered over. Can return false to cancel
+   * revealing the tooltip.
+   */
   protected whenHovered?(): void | boolean
+
+  /** Fired when the element is unhovered. */
   protected whenUnhovered?(): void
 
   /** Timer to keep track of the delay for revealing the tooltip. */
@@ -20,7 +36,7 @@ export abstract class BaseTooltipButton extends BaseButton {
   /** The Popper.js instance for handling placement of the tooltip. */
   private declare popperInstance?: Popper.Instance
 
-  /** Fired when the element is hovered over. */
+  /** Internal handler that is fired when the element is hovered over. */
   private baseWhenHovered() {
     if (this.disabled) return
 
@@ -39,7 +55,7 @@ export abstract class BaseTooltipButton extends BaseButton {
     }
   }
 
-  /** Fired when the element is no longer being hovered over. */
+  /** Internal event that is fired when the element is no longer being hovered over. */
   private baseWhenUnhovered() {
     if (this.disabled && !this.tooltip.classList.contains("is-hovered")) return
 

@@ -12,6 +12,7 @@ export class TabviewElement extends HTMLElement {
     return ["panel-selected"]
   }
 
+  /** Observer for watching changes to the contents of the element. */
   declare observer: MutationObserver
 
   constructor() {
