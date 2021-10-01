@@ -1,12 +1,13 @@
 import { highlight } from "@wikijump/prism"
 import { timeout } from "@wikijump/util"
-import { defineElement, observe, pauseObservation } from "../../util"
+import { BaseButton } from "../../base-button"
+import { addElement, observe, pauseObservation } from "../../util"
 
 /**
  * FTML `[[code]]` element. Automatically highlights the contents of its
  * `<code>` child with Prism.
  */
-export class Code extends HTMLDivElement {
+export class CodeElement extends HTMLElement {
   static tag = "wj-code"
 
   /** Observer for watching changes to the contents of the code element. */
@@ -69,38 +70,37 @@ export class Code extends HTMLDivElement {
   // -- LIFECYCLE
 
   connectedCallback() {
-    if (!this.querySelector("pre")) {
-      const defaultElement = document.createElement("pre")
-      defaultElement.append(document.createElement("code"))
-      this.appendChild(defaultElement)
-    }
-
     this.update()
   }
 }
 
 /** Button that, when clicked, copies the contents of a `[[code]]` block. */
-export class CodeCopyButton extends HTMLButtonElement {
+export class CodeCopyElement extends BaseButton {
   static tag = "wj-code-copy"
 
-  constructor() {
-    super()
+  whenClicked() {
+    const code = this.closest(".wj-code")?.querySelector("code")
+    if (!code) return
 
-    this.addEventListener("click", () => {
-      const component = this.closest(`[is="${Code.tag}"]`)
-      if (!component) return
-
-      const code = component.querySelector("code")
-      if (!code) return
-
-      const text = code.innerText
-      navigator.clipboard.writeText(text).then(() => {
-        this.classList.add("wj-code-copy-success")
-        timeout(1000, () => this.classList.remove("wj-code-copy-success"))
-      })
+    const text = code.innerText
+    navigator.clipboard.writeText(text).then(() => {
+      this.classList.add("wj-code-copy-success")
+      timeout(1000, () => this.classList.remove("wj-code-copy-success"))
     })
   }
 }
 
-defineElement(Code.tag, Code, { extends: "div" })
-defineElement(CodeCopyButton.tag, CodeCopyButton, { extends: "button" })
+declare global {
+  interface HTMLElementTagNameMap {
+    "wj-code": CodeElement
+    "wj-code-copy": CodeCopyElement
+  }
+
+  interface Window {
+    CodeElement: typeof CodeElement
+    CodeCopyElement: typeof CodeCopyElement
+  }
+}
+
+addElement(CodeElement, "CodeElement")
+addElement(CodeCopyElement, "CodeCopyElement")
