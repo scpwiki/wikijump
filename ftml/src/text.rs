@@ -112,7 +112,8 @@ impl<'t> FullText<'t> {
         assert!(
             start <= end,
             "Starting index is later than the ending index: {} > {}",
-            start, end,
+            start,
+            end,
         );
 
         &self.text[start..end]
