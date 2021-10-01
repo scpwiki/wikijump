@@ -88,42 +88,55 @@ pub fn render_collapsible(log: &Logger, ctx: &mut HtmlContext, collapsible: Coll
     });
 
     ctx.html()
-        .element("wj-collapsible")
+        .details()
         .attr(attr!(
-            "class" => "wj-collapsible";;
+            "class" => "wj-collapsible",
+            "open"; if start_open,
+            "data-show-top"; if show_top,
+            "data-show-bottom"; if show_bottom;;
             attributes,
         ))
-        // TODO: show_open
         .contents(|ctx| {
+            // Open/close button
             ctx.html()
-                .details()
-                .attr(attr!("class" => "wj-collapsible-block"))
+                .summary()
+                .attr(attr!(
+                    "class" => "wj-collapsible-button wj-collapsible-button-top",
+                ))
                 .contents(|ctx| {
-                    // Open/close button
+                    // Block is folded text
                     ctx.html()
-                        .summary()
-                        .attr(attr!("class" => "wj-collapsible-button"))
-                        .contents(|ctx| {
-                            // Block is folded text
-                            ctx.html()
-                                .span()
-                                .attr(attr!("class" => "wj-collapsible-button-folded"))
-                                .inner(log, show_text);
+                        .span()
+                        .attr(attr!("class" => "wj-collapsible-button-folded"))
+                        .inner(log, show_text);
 
-                            // Block is unfolded text
-                            ctx.html()
-                                .span()
-                                .attr(attr!("class" => "wj-collapsible-button-unfolded"))
-                                .inner(log, hide_text);
-                        });
-
-                    // Content block
+                    // Block is unfolded text
                     ctx.html()
-                        .div()
-                        .attr(attr!("class" => "wj-collapsible-content"))
-                        .inner(log, elements);
+                        .span()
+                        .attr(attr!("class" => "wj-collapsible-button-unfolded"))
+                        .inner(log, hide_text);
                 });
 
-            // TODO: bottom open/close button
+            // Content block
+            ctx.html()
+                .div()
+                .attr(attr!("class" => "wj-collapsible-content"))
+                .inner(log, elements);
+
+            // Bottom open/close button
+            if show_bottom {
+                ctx.html()
+                    .element("wj-collapsible-button-bottom")
+                    .attr(attr!(
+                        "class" => "wj-collapsible-button wj-collapsible-button-bottom",
+                    ))
+                    .contents(|ctx| {
+                        // Block is unfolded text
+                        ctx.html()
+                            .span()
+                            .attr(attr!("class" => "wj-collapsible-button-unfolded"))
+                            .inner(log, hide_text);
+                    });
+            }
         });
 }
