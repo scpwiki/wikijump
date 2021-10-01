@@ -9,12 +9,16 @@
   user-select: none;
 }
 
-.wj-collapsible-block[open] .wj-collapsible-button-folded {
-  display: none;
+.wj-collapsible-block[open] {
+  > .wj-collapsible-button > .wj-collapsible-button-folded {
+    display: none;
+  }
 }
 
-.wj-collapsible-block:not([open]) .wj-collapsible-button-unfolded {
-  display: none;
+.wj-collapsible-block:not([open]) {
+  > .wj-collapsible-button > .wj-collapsible-button-unfolded {
+    display: none;
+  }
 }
 
 .wj-collapsible-content {
