@@ -23,7 +23,7 @@ Blocks may have one of the following approaches when parsing arguments:
 | None             | `[[CSS]]`           | `BlockParser::get_head_none()` | Accepts no arguments. Tokens which are not `]]` will result in parsing failure. |
 | Value            | `[[size 50%]]`      | `BlockParser::get_head_value()` | All of the text until `]]` is interpreted as a single text value. |
 | Map              | `[[span id="abc"]]` | `BlockParser::get_head_map()` | Accepts an arbitrary mapping of `key="value"` arguments. Values must be double-quoted, and may contain escapes (e.g. `\"`, `\n`). |
-| Name + Map       | `[[iframe https://example.com/ style="width: 100%;"]]` | `BlockParser::get_head_name_map()` | Accepts a single text value terminated by a space, then an arbitrary mapping as described above. |
+| Value + Map     | `[[iframe https://example.com/ style="width: 100%;"]]` | `BlockParser::get_head_name_map()` | Accepts a single text value terminated by a space, then an arbitrary mapping as described above. |
 
 Like block names, argument keys are case-insensitive.
 
@@ -88,9 +88,10 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Code](#code)                           | `code`                           | No    | No     | Yes       | Map           | Raw       |
 | [Collapsible](#collapsible)             | `collapsible`                    | No    | No     | Yes       | Map           | Elements  |
 | [CSS](#css)                             | `css`                            | No    | No     | Yes       | None          | Raw       |
-| [Date](#date)                           | `date`                           | No    | No     | No        | Name + Map    | None      |
+| [Date](#date)                           | `date`                           | No    | No     | No        | Value + Map  | None      |
 | [Deletion](#deletion)                   | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
 | [Div](#div)                             | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
+| [Embed](#embed)                         | `embed`                          | No    | No     | Yes       | Value + Map  | None      |
 | [Equation Reference](#equation-ref)     | `equation`, `eref`, `eqref`      | No    | No     | No        | Value         | None      |
 | [Footnote](#footnote)                   | `footnote`                       | No    | No     | No        | None          | Elements  |
 | [Footnote Block](#footnote-block)       | `footnoteblock`                  | No    | No     | Yes       | Map           | None      |
@@ -99,9 +100,9 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [IfCategory](#ifcategory)               | `ifcategory`                     | No    | No     | Yes       | Value         | Elements  |
 | [IfTags](#iftags)                       | `iftags`                         | No    | No     | Yes       | Value         | Elements  |
 | [Iframe](#iframe)                       | `iframe`                         | No    | No     | Yes       | None          | None      |
-| [Image](#image)                         | `image`                          | No    | No     | No        | Name + Map    | None      |
-| [Include (Elements)](#include-elements) | `include-elements`               | No    | No     | Yes       | Name + Map    | None      |
-| [Include (Messy)](#include-messy)       | `include-messy`                  | No    | No     | Yes       | Name + Map    | None      |
+| [Image](#image)                         | `image`                          | No    | No     | No        | Value + Map  | None      |
+| [Include (Elements)](#include-elements) | `include-elements`               | No    | No     | Yes       | Value + Map  | None      |
+| [Include (Messy)](#include-messy)       | `include-messy`                  | No    | No     | Yes       | Value + Map  | None      |
 | [Insertion](#insertion)                 | `ins`, `insertion`               | No    | No     | No        | Map           | Elements  |
 | [Invisible](#invisible)                 | `invisible`                      | No    | No     | Yes       | Map           | Elements  |
 | [Italics](#italics)                     | `i`, `italics`, `em`, `emphasis` | No    | No     | No        | Map           | Elements  |
@@ -113,7 +114,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Module](#module)                       | `module`                         | No    | No     | Yes       | (See below)   | (See below) |
 | [Monospace](#monospace)                 | `tt`, `mono`, `monospace`        | No    | No     | No        | Map           | Elements  |
 | [Paragraph](#paragraph)                 | `p`, `paragraph`                 | No    | No     | Yes       | Map           | Elements  |
-| [Radio](#radio)                         | `radio`, `radio-button`          | Yes   | No     | No        | Name + Map    | None      |
+| [Radio](#radio)                         | `radio`, `radio-button`          | Yes   | No     | No        | Value + Map  | None      |
 | [Size](#size)                           | `size`                           | No    | No     | No        | Value         | Elements  |
 | [Span](#span)                           | `span`                           | No    | Yes    | No        | Map           | Elements  |
 | [Strikethrough](#strikethrough)         | `s`, `strikethrough`             | No    | No     | No        | Map           | Elements  |
@@ -326,6 +327,48 @@ Example:
 [[div_ class="blockquote" style="border: none;"]]
 Some text __here!__
 [[/div]]
+```
+
+### Embed
+
+Output: `Element::Embed` / `<div class="wj-embed"> (varies)`
+
+Body: None
+
+This embeds a portion of another site. The following embeds are currently supported
+(names are case-insensitive):
+
+* `YouTube`
+* `Vimeo`
+* `GitHub-Gist`
+* `GitLab-Snippet`
+
+__For YouTube:__
+
+Arguments:
+* `video` &mdash; The ID of the video. For `https://youtube.com/watch?v=dQw4w9WgXcQ`, then pass in `dQw4w9WgXcQ`.
+
+__For Vimeo:__
+
+Arguments:
+* `video` &mdash; The ID of the video. For `https://vimeo.com/221821296`, then pass in `221821296`.
+
+__For GitHub Gist:__
+
+Arguments:
+* `username` &mdash; The user or organization who created the Gist.
+* `hash` &mdash; The hash representing this particular Gist.
+
+__For GitLab Snippet:__
+
+Arguments:
+* `id` &mdash; The ID of this Snippet.
+
+Example:
+
+```
+Check out my cool video!
+[[embed youtube video="dQw4w9WgXcQ"]]
 ```
 
 ### Equation Ref

@@ -390,6 +390,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
         Element::EquationReference(name) => {
             str_write!(ctx, "[Equation: {}]", name);
         }
+        Element::Embed(embed) => {
+            ctx.push_str(&embed.direct_url());
+        }
         Element::Html { contents } => {
             str_write!(ctx, "```html\n{}\n```", contents);
         }

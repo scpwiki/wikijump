@@ -1,0 +1,31 @@
+{
+    "input": "[[embed youtube video=\"dQw4w9WgXcQ\"]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "embed",
+                "data": {
+                    "embed": "youtube",
+                    "data": {
+                        "video-id": "dQw4w9WgXcQ"
+                    }
+                }
+            },
+            {
+                "element": "footnote-block",
+                "data": {
+                    "title": null,
+                    "hide": false
+                }
+            }
+        ],
+        "styles": [
+        ],
+        "table-of-contents": [
+        ],
+        "footnotes": [
+        ]
+    },
+    "warnings": [
+    ]
+}

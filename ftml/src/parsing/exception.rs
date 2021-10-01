@@ -209,6 +209,9 @@ pub enum ParseWarningKind {
     /// An end block was found, but of the incorrect type.
     BlockEndMismatch,
 
+    /// No embed with this name exists.
+    NoSuchEmbed,
+
     /// This no rule for the module name specified.
     NoSuchModule,
 
