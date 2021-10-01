@@ -132,9 +132,18 @@ export class EquationRefMarkerElement extends BaseTooltipButton {
    */
   private getUpdatedEquation() {
     const label = this.getAttribute("data-name")
-    if (!label) return null
+
+    if (!label) {
+      this.classList.toggle("is-no-equation", true)
+      return null
+    }
+
     const eq = this.closest(".wj-body")?.querySelector(`.wj-math[data-name="${label}"]`)
-    if (!eq) return null
+
+    if (!eq) {
+      this.classList.toggle("is-no-equation", true)
+      return null
+    }
 
     // this is a bit wacky, but it works for now.
     // the `wj-math-ml` component needs the `wj-math-source` element
@@ -142,7 +151,7 @@ export class EquationRefMarkerElement extends BaseTooltipButton {
     const math = eq.querySelector(".wj-math-ml")!.cloneNode(true)
     this.tooltip.replaceChildren(source, math)
 
-    this.classList.toggle("is-no-equation", !eq)
+    this.classList.toggle("is-no-equation", false)
 
     return eq as HTMLElement
   }
