@@ -91,6 +91,7 @@ Alternatively you may look here for a formatted list: (though it may not be upda
 | [Date](#date)                           | `date`                           | No    | No     | No        | Name + Map    | None      |
 | [Deletion](#deletion)                   | `del`, `deletion`                | No    | No     | No        | Map           | Elements  |
 | [Div](#div)                             | `div`                            | No    | Yes    | Yes       | Map           | Elements  |
+| [Embed](#embed)                         | `embed`                          | No    | No     | Yes       | Name + Map    | None      |
 | [Equation Reference](#equation-ref)     | `equation`, `eref`, `eqref`      | No    | No     | No        | Value         | None      |
 | [Footnote](#footnote)                   | `footnote`                       | No    | No     | No        | None          | Elements  |
 | [Footnote Block](#footnote-block)       | `footnoteblock`                  | No    | No     | Yes       | Map           | None      |
@@ -326,6 +327,52 @@ Example:
 [[div_ class="blockquote" style="border: none;"]]
 Some text __here!__
 [[/div]]
+```
+
+### Embed
+
+Output: `Element::Embed` / `<div class="wj-embed"> (varies)`
+
+Body: None
+
+This embeds a portion of another site. The following embeds are currently supported
+(names are case-insensitive):
+
+* `YouTube`
+* `Vimeo`
+* `GitHub-Gist`
+* `GitLab-Snippet`
+
+__For YouTube:__
+
+Arguments:
+* `video` &mdash; The ID of the video. For `https://youtube.com/watch?v=dQw4w9WgXcQ`, then pass in `dQw4w9WgXcQ`.
+* `width` &mdash; (Integer, Default 1280) The width value to pass to the iframe.
+* `height` &mdash; (Integer, Default 720) The height value to pass to the iframe.
+
+__For Vimeo:__
+
+Arguments:
+* `video` &mdash; The ID of the video. For `https://vimeo.com/221821296`, then pass in `221821296`.
+* `width` &mdash; (Integer, Default 640) The width value to pass to the iframe.
+* `height` &mdash; (Integer, Default 360) The height value to pass to the iframe.
+
+__For GitHub Gist:__
+
+Arguments:
+* `username` &mdash; The user or organization who created the Gist.
+* `hash` &mdash; The hash representing this particular Gist.
+
+__For GitLab Snippet:__
+
+Arguments:
+* `id` &mdash; The ID of this Snippet.
+
+Example:
+
+```
+Check out my cool video!
+[[embed youtube video="dQw4w9WgXcQ"]]
 ```
 
 ### Equation Ref

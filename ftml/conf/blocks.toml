@@ -84,6 +84,12 @@ body = "elements"
 html-attributes = true
 html-output = "html,div"
 
+[embed]
+accepts-newlines = true
+head = "value+map"
+body = "none"
+html-output = "html,div,wj-embed"
+
 [equation-ref]
 exclude-name = true
 aliases = ["equation", "eref", "eqref"]
