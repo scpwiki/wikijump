@@ -3,6 +3,10 @@
   border: 1px solid #ccc;
   border-radius: 0.25em;
 
+  pre {
+    min-height: 0.5em;
+  }
+
   code {
     font-family: "Courier New", Courier, monospace;
   }
