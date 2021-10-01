@@ -82,7 +82,7 @@ where
         }
     }
 
-    Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments))
+    Err(parser.make_warn(ParseWarningKind::NoSuchEmbed))
 }
 
 // Different embed builders
