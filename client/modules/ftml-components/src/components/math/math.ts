@@ -1,6 +1,5 @@
-import * as Popper from "@popperjs/core"
-import { clearTimeout, timeout, Timeout } from "@wikijump/util"
-import { defineElement, hover, observe, pauseObservation } from "../../util"
+import { BaseTooltipButton } from "../../base-tooltip-button"
+import { addElement, observe, pauseObservation } from "../../util"
 
 const NEED_TO_POLYFILL = !hasMathMLSupport()
 
@@ -16,7 +15,7 @@ if (NEED_TO_POLYFILL) {
  * FTML `[[math]]` or `[[$ inline $]]` element. This element is only
  * created when polyfilling for MathML is needed.
  */
-export class MathElement extends HTMLSpanElement {
+export class MathElement extends HTMLElement {
   static tag = "wj-math-ml"
 
   /** Display mode of the element. */
@@ -102,61 +101,29 @@ export class MathElement extends HTMLSpanElement {
  * FTML `[[eqref]]` block. Handles scrolling to an equation when clicked,
  * and an equation tooltip that shows on hover.
  */
-export class EquationReferenceMarker extends HTMLButtonElement {
+export class EquationRefMarkerElement extends BaseTooltipButton {
   static tag = "wj-equation-ref-marker"
 
-  /** Timer to keep track of the delay for revealing the tooltip. */
-  declare onTimer?: Timeout
-
-  /** Timer to keep track of the delay for hiding the tooltip. */
-  declare offTimer?: Timeout
-
-  /** The Popper.js instance for handling placement of the tooltip. */
-  declare popperInstance?: Popper.Instance
-
-  declare observer: MutationObserver
-
-  constructor() {
-    super()
-
-    hover(this.parent, {
-      on: () => {
-        clearTimeout(this.offTimer)
-        this.onTimer = timeout(50, () => this.whenHovered())
-      },
-      off: () => {
-        clearTimeout(this.onTimer)
-        this.offTimer = timeout(50, () => this.whenUnhovered())
-      }
-    })
-
-    this.addEventListener("click", () => {
-      const equation = this.getUpdatedEquation()
-      if (!equation) return
-      equation.scrollIntoView({ block: "center" })
-      equation.focus()
-    })
-
-    this.observer = observe(this, () => this.update())
-  }
-
-  /** The parent element of the marker. */
   get parent() {
     if (!this.parentElement) throw new Error("No parent element")
     return this.parentElement
   }
 
-  /** Get the tooltip element for this marker. */
   get tooltip() {
     const element = this.parent.querySelector(".wj-equation-ref-tooltip")
     if (!element) throw new Error("No tooltip element")
-    return element
+    return element as HTMLElement
   }
 
-  /** Ran whenever the reference is mutated. */
-  @pauseObservation
-  private update() {
-    this.classList.toggle("is-no-equation", !this.getUpdatedEquation())
+  whenClicked() {
+    const equation = this.getUpdatedEquation()
+    if (!equation) return
+    equation.scrollIntoView({ block: "center" })
+    equation.focus()
+  }
+
+  whenHovered() {
+    if (!this.getUpdatedEquation()) return false
   }
 
   /**
@@ -175,49 +142,33 @@ export class EquationReferenceMarker extends HTMLButtonElement {
     const math = eq.querySelector(".wj-math-ml")!.cloneNode(true)
     this.tooltip.replaceChildren(source, math)
 
+    this.classList.toggle("is-no-equation", !eq)
+
     return eq as HTMLElement
-  }
-
-  /** Fired when the marker is hovered over. */
-  @pauseObservation
-  private whenHovered() {
-    if (this.getUpdatedEquation()) {
-      this.tooltip.classList.add("is-hovered")
-      if (!this.popperInstance) {
-        // @ts-ignore Popper has some bad typings (Element !== HTMLElement)
-        this.popperInstance = Popper.createPopper(this.parent, this.tooltip, {
-          placement: "bottom"
-        })
-      }
-    }
-  }
-
-  /** Fired when the marker is no longer being hovered over. */
-  @pauseObservation
-  private whenUnhovered() {
-    this.tooltip.classList.remove("is-hovered")
-    if (this.popperInstance) {
-      // we'll only destroy the instance after
-      // a timeout, to give room for a fade animation
-      this.offTimer = timeout(100, () => {
-        this.popperInstance!.destroy()
-        this.popperInstance = undefined
-      })
-    }
   }
 
   // -- LIFECYCLE
 
   connectedCallback() {
-    this.update()
+    super.connectedCallback()
+    this.getUpdatedEquation()
   }
 }
 
-if (NEED_TO_POLYFILL) {
-  defineElement(MathElement.tag, MathElement, { extends: "span" })
+declare global {
+  interface HTMLElementTagNameMap {
+    "wj-math-ml": MathElement
+    "wj-equation-ref-marker": EquationRefMarkerElement
+  }
+
+  interface Window {
+    MathElement: typeof MathElement
+    EquationRefMarkerElement: typeof EquationRefMarkerElement
+  }
 }
 
-defineElement(EquationReferenceMarker.tag, EquationReferenceMarker, { extends: "button" })
+if (NEED_TO_POLYFILL) addElement(MathElement, "MathElement")
+addElement(EquationRefMarkerElement, "EquationRefMarkerElement")
 
 // function from https://developer.mozilla.org/en-US/docs/Web/MathML/Authoring
 /** Returns if the browser has support for MathML. */
