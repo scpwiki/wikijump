@@ -1,0 +1,12 @@
+.wj-collapsible {
+  display: block;
+  margin: 0.5em 0;
+}
+
+.wj-collapsible-button {
+  color: #0000ee;
+
+  @include hover {
+    text-decoration: underline;
+  }
+}

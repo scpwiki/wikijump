@@ -1,18 +1,28 @@
-.wj-collapsible-block {
-}
-.wj-collapsible-block-link {
-}
-.wj-collapsible-block-unfolded-link {
-}
-
-.wj-collapsible-block-content {
+.wj-collapsible {
   display: block;
 }
 
-.wj-collapsible-block-folded {
+.wj-collapsible-button {
+  display: inline-block;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wj-collapsible-block[open] .wj-collapsible-button-folded {
   display: none;
 }
 
-.wj-collapsible-block-unfolded {
-  display: block;
+.wj-collapsible-block:not([open]) .wj-collapsible-button-unfolded {
+  display: none;
+}
+
+.wj-collapsible-content {
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
 }
