@@ -31,14 +31,14 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
     // Full table
     ctx.html()
         .table()
-        .attr(attr!("is" => "wj-table";; &table.attributes))
+        .attr(attr!(;; &table.attributes))
         .contents(|ctx| {
             ctx.html().tbody().contents(|ctx| {
                 // Each row
                 for row in &table.rows {
                     ctx.html() //
                         .tr()
-                        .attr(attr!("is" => "wj-table-row";; &row.attributes))
+                        .attr(attr!(;; &row.attributes))
                         .contents(|ctx| {
                             // Each cell in a row
                             for cell in &row.cells {
@@ -60,8 +60,6 @@ pub fn render_table(log: &Logger, ctx: &mut HtmlContext, table: &Table) {
                                 ctx.html()
                                     .table_cell(cell.header)
                                     .attr(attr!(
-                                        "is" => "wj-table-cell",
-
                                         // Add column span if not default (1)
                                         "colspan" => &column_span_buf;
                                             if cell.column_span > value_one,

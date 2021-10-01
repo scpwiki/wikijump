@@ -142,9 +142,8 @@ fn render_latex(
 
                             // Inject MathML elements
                             ctx.html()
-                                .span()
+                                .element("wj-math-ml")
                                 .attr(attr!(
-                                    "is" => "wj-math-ml",
                                     "class" => "wj-math-ml",
                                 ))
                                 .contents(|ctx| ctx.push_raw_str(&mathml));
@@ -183,9 +182,8 @@ pub fn render_equation_reference(log: &Logger, ctx: &mut HtmlContext, name: &str
         .contents(|ctx| {
             // Equation marker that is hoverable
             ctx.html()
-                .button()
+                .element("wj-equation-ref-marker")
                 .attr(attr!(
-                    "is" => "wj-equation-ref-marker",
                     "class" => "wj-equation-ref-marker",
                     "type" => "button",
                     "data-name" => name,

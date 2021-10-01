@@ -31,9 +31,8 @@ pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
 
     // Entire tab view
     ctx.html()
-        .div()
+        .element("wj-tabs")
         .attr(attr!(
-            "is" => "wj-tabs",
             "class" => "wj-tabs",
         ))
         .contents(|ctx| {
@@ -41,7 +40,6 @@ pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
             ctx.html()
                 .div()
                 .attr(attr!(
-                    "is" => "wj-tabs-button-list",
                     "class" => "wj-tabs-button-list",
                     "role" => "tablist",
                 ))
@@ -55,9 +53,8 @@ pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
 
                         // Each tab button
                         ctx.html()
-                            .button()
+                            .element("wj-tabs-button")
                             .attr(attr!(
-                                "is" => "wj-tabs-button",
                                 "class" => "wj-tabs-button",
                                 "id" => &button_ids[i],
                                 "role" => "tab",
@@ -74,7 +71,6 @@ pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
             ctx.html()
                 .div()
                 .attr(attr!(
-                    "is" => "wj-tabs-panel-list",
                     "class" => "wj-tabs-panel-list",
                 ))
                 .contents(|ctx| {
@@ -83,7 +79,6 @@ pub fn render_tabview(log: &Logger, ctx: &mut HtmlContext, tabs: &[Tab]) {
                         ctx.html()
                             .div()
                             .attr(attr!(
-                                "is" => "wj-tabs-panel",
                                 "class" => "wj-tabs-panel",
                                 "id" => &tab_ids[i],
                                 "role" => "tabpanel",

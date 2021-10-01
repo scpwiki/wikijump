@@ -83,7 +83,7 @@ impl Render for HtmlRender {
 
         // Crawl through elements and generate HTML
         ctx.html()
-            .div()
+            .element("wj-body")
             .attr(attr!("class" => "wj-body"))
             .inner(log, &tree.elements);
 

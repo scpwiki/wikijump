@@ -57,7 +57,6 @@ pub fn render_image(
     ctx.html()
         .div()
         .attr(attr!(
-            "is" => "wj-image",
             "class" => "wj-image-container" space align_class,
         ))
         .contents(|ctx| {

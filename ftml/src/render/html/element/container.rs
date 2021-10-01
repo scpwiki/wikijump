@@ -32,17 +32,12 @@ pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Contain
 
     // Merge the class attribute with the container's class, if it conflicts
     match tag_spec {
-        HtmlTag::Tag(_) => tag.attr(attr!(
-            "is" => "wj-container";;
-            container.attributes(),
-        )),
+        HtmlTag::Tag(_) => tag.attr(attr!(;; container.attributes())),
         HtmlTag::TagAndClass { class, .. } => tag.attr(attr!(
-            "is" => "wj-container",
             "class" => class;;
             container.attributes(),
         )),
         HtmlTag::TagAndId { id, .. } => tag.attr(attr!(
-            "is" => "wj-container",
             "id" => &id;;
             container.attributes(),
         )),
@@ -68,7 +63,6 @@ pub fn render_color(
     ctx.html()
         .span()
         .attr(attr!(
-            "is" => "wj-container",
             "style" => "color: " color ";",
         ))
         .inner(log, elements);

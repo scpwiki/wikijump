@@ -32,7 +32,6 @@ pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
     ctx.html()
         .div()
         .attr(attr!(
-            "is" => "wj-embed",
             "class" => "wj-embed",
         ))
         .contents(|ctx| match embed {

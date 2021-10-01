@@ -26,7 +26,6 @@ pub fn render_wikitext_raw(log: &Logger, ctx: &mut HtmlContext, text: &str) {
     ctx.html()
         .span()
         .attr(attr!(
-            "is" => "wj-raw",
             "class" => "wj-raw",
         ))
         .inner(log, text);
@@ -41,7 +40,6 @@ pub fn render_email(log: &Logger, ctx: &mut HtmlContext, email: &str) {
     ctx.html()
         .span()
         .attr(attr!(
-            "is" => "wj-email",
             "class" => "wj-email",
         ))
         .inner(log, email);
@@ -69,12 +67,9 @@ pub fn render_code(
         class
     };
 
-    ctx.html() //
-        .div()
-        .attr(attr!(
-            "is" => "wj-code",
-            "class" => &class,
-        ))
+    ctx.html()
+        .element("wj-code")
+        .attr(attr!("class" => &class))
         .contents(|ctx| {
             // Panel for holding additional features
             ctx.html()
@@ -90,8 +85,7 @@ pub fn render_code(
                     );
 
                     // Copy to clipboard button
-                    ctx.html().button().attr(attr!(
-                        "is" => "wj-code-copy",
+                    ctx.html().element("wj-code-copy").attr(attr!(
                         "type" => "button",
                         "class" => "wj-code-copy",
                         "title" => button_title,

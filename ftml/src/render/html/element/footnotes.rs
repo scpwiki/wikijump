@@ -40,11 +40,9 @@ pub fn render_footnote(log: &Logger, ctx: &mut HtmlContext) {
         .contents(|ctx| {
             // Footnote marker that is hoverable
             ctx.html()
-                .button()
+                .element("wj-footnote-ref-marker")
                 .attr(attr!(
-                    "is" => "wj-footnote-ref-marker",
                     "class" => "wj-footnote-ref-marker",
-                    "type" => "button",
                     "role" => "link",
                     "aria-label" => &label,
                     "data-id" => &id,
@@ -120,9 +118,8 @@ pub fn render_footnote_block(log: &Logger, ctx: &mut HtmlContext, title: Option<
                         .contents(|ctx| {
                             // Number and clickable anchor
                             ctx.html()
-                                .button()
+                                .element("wj-footnote-list-item-marker")
                                 .attr(attr!(
-                                    "is" => "wj-footnote-list-item-marker",
                                     "class" => "wj-footnote-list-item-marker",
                                     "type" => "button",
                                     "role" => "link",

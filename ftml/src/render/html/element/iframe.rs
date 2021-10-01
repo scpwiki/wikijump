@@ -34,7 +34,6 @@ pub fn render_iframe(
     );
 
     ctx.html().iframe().attr(attr!(
-        "is" => "wj-iframe",
         "src" => url,
         "crossorigin";;
         attributes
@@ -51,7 +50,6 @@ pub fn render_html(log: &Logger, ctx: &mut HtmlContext, contents: &str) {
     // Submit HTML to be hosted on wjfiles, then get back its URL for the iframe.
     let iframe_url = ctx.handle().post_html(log, ctx.info(), contents);
     ctx.html().iframe().attr(attr!(
-        "is" => "wj-html",
         "src" => &iframe_url,
         "crossorigin",
     ));
