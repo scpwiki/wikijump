@@ -22,29 +22,63 @@ use super::prelude::*;
 use crate::tree::Embed;
 
 pub fn render_embed(log: &Logger, ctx: &mut HtmlContext, embed: &Embed) {
-    match embed {
-        Embed::YouTube {
-            video_id,
-            width,
-            height,
-        } => {
-            todo!()
-        }
+    ctx.html()
+        .div()
+        .attr(attr!(
+            "is" => "wj-embed",
+            "class" => "wj-embed",
+        ))
+        .contents(|ctx| match embed {
+            Embed::YouTube {
+                video_id,
+                width,
+                height,
+            } => {
+                let url = format!("https://www.youtube.com/embed/{}", video_id);
+                let width = str!(width.unwrap_or(1280));
+                let height = str!(height.unwrap_or(720));
 
-        Embed::Vimeo {
-            video_id,
-            width,
-            height,
-        } => {
-            todo!()
-        }
+                ctx.html().iframe().attr(attr!(
+                    "src" => &url,
+                    "width" => &width,
+                    "height" => &height,
+                    "frameborder" => "0",
+                    "allow" => "accelerometer; autoplay; "
+                               "clipboard-write; encrypted-media; "
+                               "gyroscope; picture-in-picture",
+                    "allowfullscreen",
+                ));
+            }
 
-        Embed::GithubGist { username, hash } => {
-            todo!()
-        }
+            Embed::Vimeo {
+                video_id,
+                width,
+                height,
+            } => {
+                let url = format!("https://player.vimeo.com/video/{}", video_id);
+                let width = str!(width.unwrap_or(640));
+                let height = str!(height.unwrap_or(360));
 
-        Embed::GitlabSnippet { snippet_id } => {
-            todo!()
-        }
-    }
+                ctx.html().iframe().attr(attr!(
+                    "src" => &url,
+                    "width" => &width,
+                    "height" => &height,
+                    "frameborder" => "0",
+                    "allow" => "autoplay; fullscreen; picture-inpicture",
+                    "allowfullscreen",
+                ));
+            }
+
+            Embed::GithubGist { username, hash } => {
+                let url = format!("https://gist.github.com/{}/{}.js", username, hash);
+
+                ctx.html().script().attr(attr!("src" => &url));
+            }
+
+            Embed::GitlabSnippet { snippet_id } => {
+                let url = format!("https://gitlab.com/-/snippets/{}.js", snippet_id);
+
+                ctx.html().script().attr(attr!("src" => &url));
+            }
+        });
 }
