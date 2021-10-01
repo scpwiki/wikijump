@@ -3,6 +3,8 @@ import { clearTimeout, timeout, Timeout } from "@wikijump/util"
 import { BaseButton } from "./base-button"
 import { hover } from "./util"
 
+// TODO: proper mobile support (need more infrastructure for mobile support)
+
 export abstract class BaseTooltipButton extends BaseButton {
   abstract get parent(): HTMLElement
   abstract get tooltip(): HTMLElement

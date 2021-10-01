@@ -2,8 +2,6 @@ import { BaseButton } from "../../base-button"
 import { BaseTooltipButton } from "../../base-tooltip-button"
 import { addElement } from "../../util"
 
-// TODO: proper mobile support (need more infrastructure for mobile support)
-
 /**
  * FTML `[[footnote]]` marker element. Handles placement and visibility of
  * the footnote tooltip, and clicking to scroll to the footnotes block.
