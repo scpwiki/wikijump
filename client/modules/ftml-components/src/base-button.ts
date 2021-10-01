@@ -1,6 +1,6 @@
 export abstract class BaseButton extends HTMLElement {
-  abstract whenKeydown?: (evt: KeyboardEvent) => void
-  abstract whenClicked?: (evt: MouseEvent) => void
+  protected whenKeydown?(evt: KeyboardEvent): void
+  protected whenClicked?(evt: MouseEvent): void
 
   constructor() {
     super()

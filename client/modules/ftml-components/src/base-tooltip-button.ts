@@ -6,8 +6,8 @@ import { hover } from "./util"
 export abstract class BaseTooltipButton extends BaseButton {
   abstract get parent(): HTMLElement
   abstract get tooltip(): HTMLElement
-  abstract whenHovered?: () => void | boolean
-  abstract whenUnhovered?: () => void
+  protected whenHovered?(): void | boolean
+  protected whenUnhovered?(): void
 
   /** Timer to keep track of the delay for revealing the tooltip. */
   private declare onTimer?: Timeout
