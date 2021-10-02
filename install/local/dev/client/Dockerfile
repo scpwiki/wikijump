@@ -1,14 +1,14 @@
 FROM circleci/node:latest
 
 # Copy source
-RUN mkdir /src
+RUN sudo mkdir /src
 COPY ./client /src/client
 COPY ./web /src/web
 WORKDIR /src/client
 
 # Install dependencies
-RUN npm install -g pnpm
-RUN pnpm install
+RUN sudo npm install -g pnpm
+RUN sudo pnpm install
 
 # Build frontend
 RUN pnpm build
