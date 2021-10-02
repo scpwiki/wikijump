@@ -2,6 +2,7 @@
 
 namespace Wikidot\DB;
 
+use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\Utils\WDStringUtils;
 
@@ -18,5 +19,9 @@ class PagePeer extends PagePeerBase
         $c->add("site_id", $siteId);
         $c->add("unix_name", WDStringUtils::toUnixName($name));
         return $this->selectOne($c);
+    }
+
+    public static function getTags($pageId) {
+        return json_decode(DB::table('page')->where('page_id', $pageId)->value('tags'));
     }
 }
