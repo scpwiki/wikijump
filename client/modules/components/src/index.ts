@@ -9,8 +9,6 @@ export { default as Spinny } from "./Spinny.svelte"
 export { default as TippySingleton } from "./TippySingleton.svelte"
 export { default as Wikitext } from "./Wikitext.svelte"
 
-export { default as TabviewStub } from "./Tabview.svelte"
-
 export * from "./lib/animation"
 export * from "./lib/controls"
 export * from "./lib/focus"
