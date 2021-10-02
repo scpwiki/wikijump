@@ -1,13 +1,13 @@
 # Source control
-.git/
+.git
 
 # Vendored files and artifacts
-ftml/target/
-node_modules/
+ftml/target
+node_modules
 
 # Editor files
-.idea/
-.vscode/
+.idea
+.vscode
 .*.sw?
 
 # Miscellaneous
