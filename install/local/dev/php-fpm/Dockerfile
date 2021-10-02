@@ -10,11 +10,13 @@ EXPOSE 9000
 # Build variables
 ARG WIKIJUMP_REPO_DIR="wikijump"
 ARG DEBUG_IP="192.168.42.128"
+ARG ENVIRONMENT="local/dev"
 
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
 
 # Derived variables
+ARG BUILD_DIR="./install/${ENVIRONMENT}/php-fpm"
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
 
@@ -29,7 +31,7 @@ COPY --from=locales /src/locales/out/ /var/www/locales
 # TODO - copy from client
 
 # Copy setup scripts
-COPY install/local/dev/php-fpm/setup* /src
+COPY ${BUILD_DIR}/setup* /src
 
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
@@ -51,7 +53,7 @@ RUN chown -R www-data:www-data .
 WORKDIR "${WIKIJUMP_DIR}/web"
 
 # Inject values in the wikijump.ini configuration file
-COPY wikijump.ini conf/wikijump.ini
+COPY ${BUILD_DIR}/wikijump.ini conf/wikijump.ini
 
 RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" conf/wikijump.ini && \
@@ -61,7 +63,7 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 RUN /src/setup.sh
 
 # Copy remaining PHP files
-COPY etc/php/ /usr/local/etc/php/conf.d/
+COPY ${BUILD_DIR}/etc/php/ /usr/local/etc/php/conf.d/
 
 # Cleanup staging files
 RUN rm -r /src
