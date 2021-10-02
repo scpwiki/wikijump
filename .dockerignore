@@ -3,6 +3,7 @@
 
 # Vendored files and artifacts
 ftml/target
+__pycache__
 node_modules
 
 # Editor files
