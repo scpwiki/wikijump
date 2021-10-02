@@ -3,6 +3,7 @@ FROM circleci/node:latest
 # Copy source
 RUN sudo mkdir /src
 COPY ./client /src/client
+COPY ./ftml /src/ftml
 COPY ./locales /src/locales
 COPY ./web /src/web
 RUN sudo chown -R circleci /src
