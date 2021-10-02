@@ -20,6 +20,7 @@ ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
 
 # Copy Wikijump repository
 COPY ./web ${WIKIJUMP_DIR}/web
+RUN mkdir /src
 
 # Copy sources from intermediate images
 COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
@@ -28,7 +29,7 @@ COPY --from=locales /src/locales/out/ /var/www/locales
 # TODO - copy from client
 
 # Copy setup scripts
-COPY install/local/dev/php-fpm/setup* ./
+COPY install/local/dev/php-fpm/setup* /src
 
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
@@ -61,5 +62,8 @@ RUN /src/setup.sh
 
 # Copy remaining PHP files
 COPY etc/php/ /usr/local/etc/php/conf.d/
+
+# Cleanup staging files
+RUN rm -r /src
 
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
