@@ -66,6 +66,6 @@ RUN /src/setup.sh
 COPY ${BUILD_DIR}/etc/php/ /usr/local/etc/php/conf.d/
 
 # Cleanup staging files
-RUN rm -r /src
+RUN rm -rf /src
 
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
