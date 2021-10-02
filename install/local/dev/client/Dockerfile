@@ -7,11 +7,15 @@ COPY ./ftml /src/ftml
 COPY ./locales /src/locales
 COPY ./web /src/web
 RUN sudo chown -R circleci /src
-WORKDIR /src/client
 
-# Install dependencies
+# Install pnpm
 RUN sudo npm install -g pnpm
-RUN pnpm install
 
-# Build frontend
+# Build legacy frontend
+WORKDIR /src/web
+RUN pnpm build:legacy
+
+# Build main frontend
+WORKDIR /src/client
+RUN pnpm install
 RUN pnpm build
