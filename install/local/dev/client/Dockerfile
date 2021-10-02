@@ -2,8 +2,7 @@ FROM circleci/node:latest
 
 # Copy source
 RUN sudo mkdir /src
-COPY ./client /src/client
-COPY ./web /src/web
+COPY ./client ./locales ./web /src/
 WORKDIR /src/client
 
 # Install dependencies
