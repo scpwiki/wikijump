@@ -13,6 +13,7 @@ RUN sudo npm install -g pnpm
 
 # Build legacy frontend
 WORKDIR /src/web
+RUN pnpm install
 RUN pnpm build:legacy
 
 # Build main frontend

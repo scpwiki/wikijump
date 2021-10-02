@@ -7,7 +7,8 @@ readonly images=(
 	'locales'
 	'client'
 
-	# Depends on the previous ones, must be last
+	# Final images, must be last
+	'nginx'
 	'php-fpm'
 )
 
