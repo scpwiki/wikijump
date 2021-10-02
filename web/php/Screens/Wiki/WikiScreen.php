@@ -149,7 +149,8 @@ class WikiScreen extends Screen
             $runData->contextAdd("showPageoptions", $showPageOptions);
 
             // get the tags
-            $tags = DB::table('page')->where('page_id', $pageId)->pluck('tags')->toArray();
+            $tags = DB::table('page')->where('page_id', $pageId)->value('tags');
+            $tags = implode(" ", json_decode($tags));
             $runData->contextAdd("tags", $tags);
 
             // has discussion?
