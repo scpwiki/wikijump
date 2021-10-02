@@ -28,13 +28,13 @@ jobs:
         with:
           path: |
             ~/.cache/pip
-          key: ${{ runner.os }}-locale-build-${{ hashFiles('locales/messages/requirements.txt') }}
+          key: ${{ runner.os }}-locale-build-${{ hashFiles('locales/requirements.txt') }}
 
       - name: Dependencies
         run: |
           cd locales
           python -m pip install --upgrade pip
-          pip install -r messages/requirements.txt
+          pip install -r requirements.txt
 
       - name: Build
         run: |
@@ -64,14 +64,14 @@ jobs:
         with:
           path: |
             ~/.cache/pip
-          key: ${{ runner.os }}-locale-lint-${{ hashFiles('locales/messages/requirements.txt') }}
+          key: ${{ runner.os }}-locale-lint-${{ hashFiles('locales/requirements.txt') }}
 
       - name: Dependencies
         run: |
           cd locales
           python -m pip install --upgrade pip
-          pip install -r messages/requirements.txt
-          pip install -r messages/requirements-dev.txt
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Build
         run: |
