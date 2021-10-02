@@ -16,7 +16,7 @@ apt install -y \
 	gettext
 
 # Setup extensions
-./setup-memcached.sh
+/src/setup-memcached.sh
 
 # Configure PHP-FFI
 apt install -y libffi-dev
