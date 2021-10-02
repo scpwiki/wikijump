@@ -8,9 +8,9 @@ FROM php:7.4-fpm-buster
 EXPOSE 9000
 
 # Build variables
-ARG WIKIJUMP_REPO_DIR="wikijump"
-ARG DEBUG_IP="192.168.42.128"
 ARG ENVIRONMENT="local/dev"
+ARG WIKIJUMP_DIR="/var/www/wikijump"
+ARG DEBUG_IP="192.168.42.128"
 
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
@@ -18,7 +18,6 @@ ARG FILES_DOMAIN="wjfiles.test"
 # Derived variables
 ARG BUILD_DIR="./install/${ENVIRONMENT}/php-fpm"
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
-ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
 
 # Copy Wikijump repository
 COPY ./web ${WIKIJUMP_DIR}/web

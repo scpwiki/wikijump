@@ -1,29 +1,18 @@
-FROM node:alpine as npm
+# Intermediate images
+FROM scpwiki/client:local AS client
 
-# Please note this arg is also defined in the nginx layer further down.
-ARG WIKIJUMP_REPO_DIR="wikijump"
-
-ARG WIKIJUMP_REPO_BRANCH="develop"
-ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
-ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
-WORKDIR /src
-
-RUN apk add --no-cache git
-
-RUN git clone \
-            --depth 10 \
-            --branch "${WIKIJUMP_REPO_BRANCH}" \
-            "${WIKIJUMP_REPO}"
-
-WORKDIR /src/${WIKIJUMP_REPO_DIR}/web
-
-RUN npm install pnpm --global
-RUN pnpm install
-RUN pnpm build:legacy
-
+# Main image
 FROM nginx:alpine
-ARG WIKIJUMP_REPO_DIR="wikijump"
 EXPOSE 80
 
-COPY --from=npm /src/${WIKIJUMP_REPO_DIR}/web/web /var/www/wikijump/web/web
-COPY nginx.conf /etc/nginx/nginx.conf
+# Build variables
+ARG ENVIRONMENT="local/dev"
+ARG BUILD_DIR="./install/${ENVIRONMENT}/nginx"
+ARG WIKIJUMP_DIR="/var/www/wikijump"
+
+# Copy Wikijump repository
+COPY ./web ${WIKIJUMP_DIR}/web
+
+# Copy sources from intermediate images
+COPY --from=client /src/web/web /var/www/wikijump/web/web
+COPY ${BUILD_DIR}/nginx.conf /etc/nginx/nginx.conf
