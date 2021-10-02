@@ -1,0 +1,15 @@
+# Source control
+.git/
+
+# Vendored files and artifacts
+ftml/target/
+node_modules/
+
+# Editor files
+.idea/
+.vscode/
+.*.sw?
+
+# Miscellaneous
+*.bak
+*~
