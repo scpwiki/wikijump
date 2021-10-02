@@ -1,10 +1,9 @@
 FROM circleci/node:latest
 
 # Copy source
-RUN sudo mkdir /src
-RUN chown circleci /src
-COPY ./client ./locales ./web /src/
-WORKDIR /src/client
+RUN mkdir /tmp/src
+COPY ./client ./locales ./web /tmp/src
+WORKDIR /tmp/src/client
 
 # Install dependencies
 RUN sudo npm install -g pnpm
