@@ -12,8 +12,11 @@ readonly images=(
 )
 
 function run_docker() {
+	# Using buildkit to avoid a lot of context transmission
+	export DOCKER_BUILDKIT=1
+
 	if "${USE_SUDO:-false}"; then
-		sudo docker "$@"
+		sudo -E docker "$@"
 	else
 		docker "$@"
 	fi
