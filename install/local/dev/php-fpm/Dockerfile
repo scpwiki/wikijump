@@ -1,9 +1,34 @@
+#
 # Intermediate images
+#
+
+## Frontend ##
+FROM circleci/node:latest
+
+# Copy source
+RUN sudo mkdir /src
+COPY ./client /src/client
+COPY ./ftml /src/ftml
+COPY ./locales /src/locales
+COPY ./web /src/web
+RUN sudo chown -R circleci /src
+
+# Install pnpm
+RUN sudo npm install -g pnpm
+
+# Build main frontend
+WORKDIR /src/client
+RUN pnpm install
+RUN pnpm build
+
 FROM scpwiki/ftml:local AS ftml
 FROM scpwiki/locales:local AS locales
 FROM scpwiki/client:local AS client
 
-# Main image
+#
+# Final image
+#
+
 FROM php:7.4-fpm-buster
 EXPOSE 9000
 
