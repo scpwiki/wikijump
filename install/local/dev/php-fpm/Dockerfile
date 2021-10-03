@@ -114,20 +114,13 @@ RUN python3 -m messages .
 # Final image
 #
 
-FROM php:7.4-fpm-buster
+FROM php
 EXPOSE 9000
 
 # Copy sources from intermediate images
-COPY --from=php /var/www/wikijump /var/www/wikijump
-COPY --from=php /var/log/wikijump /var/log/wikijump
-COPY --from=php /usr/local/etc/php /usr/local/etc/php
-COPY --from=php /usr/local/lib/php /usr/local/lib/php
-
 COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
-
 COPY --from=locales /src/locales/out/ /var/www/locales
-
 # TODO - copy from client
 
 WORKDIR /var/www/wikijump/web
