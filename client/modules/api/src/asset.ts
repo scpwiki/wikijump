@@ -3,7 +3,7 @@ export const STATIC_FOLDER = "/files-common"
 
 /**
  * A record of asset identifiers to their known paths. This allows for
- * referencing an asset without hardcoding a path to it in the codebase.
+ * referencing an asset without having to know its location.
  */
 // prettier-ignore
 export const NAMED_ASSETS = {
