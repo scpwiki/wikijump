@@ -3,8 +3,12 @@
 
 # Vendored files and artifacts
 ftml/target
+ftml/pkg
+web/storage
 **/__pycache__
+**/dist
 **/node_modules
+**/vendor
 
 # Editor files
 .idea
