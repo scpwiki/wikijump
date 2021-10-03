@@ -10,7 +10,8 @@ web/app/Services/Wikitext           @ammongit
 
 # Frontend monorepo
 .github/workflows/client.yaml       @Monkatraz @rossjrw
-client                              @Monkatraz @rossjrw
+web/modules                         @Monkatraz @rossjrw
+web/resources                       @Monkatraz @rossjrw
 
 # Frontend files related to browser scripting or styling.
 # (Wikidot legacy)
