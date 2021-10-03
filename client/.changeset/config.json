@@ -8,6 +8,7 @@
   "updateInternalDependencies": "minor",
   "ignore": [
     "@wikijump/api",
+    "@wikijump/asset",
     "@wikijump/cm-espells",
     "@wikijump/cm-lang-ftml",
     "@wikijump/codemirror",
