@@ -1434,7 +1434,6 @@ class WikiPageAction extends SmartyAction
         $od = new Outdater();
         $od->pageEvent("tag_change", $page);
 
-        $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);
         }
