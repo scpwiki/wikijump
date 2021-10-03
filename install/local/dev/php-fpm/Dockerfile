@@ -86,7 +86,7 @@ COPY --from=locales /src/locales/out/ /var/www/locales
 # TODO - copy from client
 
 # Copy setup scripts
-COPY ${BUILD_DIR}/setup* /src
+COPY ${BUILD_DIR}/setup*.sh /src/
 
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
