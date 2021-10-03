@@ -22,6 +22,7 @@ class ModifyTagsTable extends Migration
       $pages = DB::table('page_tag')->pluck('page_id')->toArray();
       foreach ($pages as $page) {
         $tags = DB::table('page_tag')->where('page_id', $page)->pluck('tag')->toArray();
+
         DB::table('page')
           ->where('page_id', $page)
           ->update(['tags' => $tags]);
