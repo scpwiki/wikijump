@@ -1,4 +1,4 @@
-name: '[backend] Docker build Nginx'
+name: '[backend] Docker push Nginx'
 
 on:
   push:

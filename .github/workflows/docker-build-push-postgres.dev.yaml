@@ -1,4 +1,4 @@
-name: '[backend] Docker build PSQL'
+name: '[backend] Docker push PostgreSQL'
 
 on:
   push:
