@@ -1,6 +1,9 @@
 #!/bin/bash
 set -eux
 
+# Assert current directory
+[[ $PWD == /var/www/wikijump/web ]]
+
 # Install system dependencies
 apt update
 apt install -y \
