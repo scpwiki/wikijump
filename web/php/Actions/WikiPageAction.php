@@ -1424,7 +1424,7 @@ class WikiPageAction extends SmartyAction
             }
         }
 
-        // Turn tags into a non-associative array, then ensure all tags are unique — remove any duplicates.
+        // Turn tags into an array, then ensure all tags are unique — remove any duplicates. If tags are empty, set tags to an empty array to ensure JSONB encoding functions properly.
         if ($tags === '') {
             $tags = [];
         } else {
