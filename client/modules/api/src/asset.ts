@@ -147,5 +147,3 @@ export class Asset {
 export function asset(path: AssetPath) {
   return new Asset(path)
 }
-
-export default asset

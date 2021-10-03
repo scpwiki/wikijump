@@ -82,3 +82,4 @@ export type {
   WikitextObj
 } from "../vendor/api"
 export * from "./api"
+export * from "./asset"
