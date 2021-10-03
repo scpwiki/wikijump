@@ -21,6 +21,21 @@ WORKDIR /src/client
 RUN pnpm install
 RUN pnpm build
 
+## FTML ##
+FROM rust:latest as ftml
+
+# Copy source
+RUN mkdir /src
+COPY ./ftml /src/ftml
+WORKDIR /src/ftml
+
+# Build ftml-ffi without logging
+RUN cargo build \
+        --release \
+        --no-default-features \
+        --features ffi,mathml
+
+## ##
 FROM scpwiki/ftml:local AS ftml
 FROM scpwiki/locales:local AS locales
 FROM scpwiki/client:local AS client
