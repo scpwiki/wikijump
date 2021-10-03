@@ -39,7 +39,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.17.0",
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@ltd/j-toml": "^1.17.0",
+    "@ltd/j-toml": "^1.19.0",
     "@sveltejs/vite-plugin-svelte": "1.0.0-next.26",
     "@testing-library/svelte": "^3.0.3",
     "@types/mocha": "^9.0.0",
@@ -67,11 +67,11 @@
     "npm-run-all": "^4.1.5",
     "package-json": "^7.0.0",
     "prettier": "^2.4.1",
-    "rollup": "^2.57.0",
+    "rollup": "^2.58.0",
     "sass": "^1.42.1",
     "stylelint": "^13.13.1",
     "svelte": "^3.43.1",
-    "svelte-preprocess": "^4.9.7",
+    "svelte-preprocess": "^4.9.8",
     "typescript": "^4.4.3",
     "vite": "^2.6.2"
   },
