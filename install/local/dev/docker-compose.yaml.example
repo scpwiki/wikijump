@@ -13,7 +13,9 @@ services:
       - "5432:5432"
     restart: always
   nginx:
-    image: scpwiki/nginx:local
+    build:
+      context: ../../..
+      dockerfile: php-fpm/Dockerfile
     links:
       - php-fpm
     depends_on:
@@ -28,7 +30,8 @@ services:
       - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
   php-fpm:
     build:
-      image: scpwiki/php-fpm:local
+      context: ../../..
+      dockerfile: php-fpm/Dockerfile
       args:
         MAIN_DOMAIN: 'wikijump.test'
         FILES_DOMAIN: 'wjfiles.test'
