@@ -15,7 +15,7 @@ services:
   nginx:
     build:
       context: ../../..
-      dockerfile: php-fpm/Dockerfile
+      dockerfile: install/local/dev/nginx/Dockerfile
     links:
       - php-fpm
     depends_on:
@@ -31,7 +31,7 @@ services:
   php-fpm:
     build:
       context: ../../..
-      dockerfile: php-fpm/Dockerfile
+      dockerfile: install/local/dev/php-fpm/Dockerfile
       args:
         MAIN_DOMAIN: 'wikijump.test'
         FILES_DOMAIN: 'wjfiles.test'
