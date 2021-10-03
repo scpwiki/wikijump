@@ -1,4 +1,3 @@
-import { isPlainObject } from "is-what"
 import { Updater, writable, Writable } from "svelte/store"
 
 /**
@@ -113,7 +112,7 @@ export class PreferenceHandler {
       subscribe: store.subscribe,
       set: (val: T) => {
         // make a new object so we don't mutate old ones
-        store.set(isPlainObject(val) ? { ...val } : val)
+        store.set(typeof val === "object" && !Array.isArray(val) ? { ...val } : val)
         handlerSet(name, val)
       },
       update(cur: Updater<T>) {

@@ -7,7 +7,7 @@
   import CodeDisplay from "./CodeDisplay.svelte"
   import type { SheafContext } from "../context"
   import { RenderHandler } from "../render-handler"
-  import { t } from "@wikijump/state"
+  import { t } from "@wikijump/api"
   import { printTree } from "@wikijump/codemirror"
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")

@@ -81,7 +81,12 @@ importers:
   modules/api:
     specifiers:
       '@mockoon/cli': ^1.1.0
+      '@wikijump/util': workspace:*
+      svelte-i18n: ^3.3.12
       swagger-typescript-api: ^9.2.0
+    dependencies:
+      '@wikijump/util': link:../util
+      svelte-i18n: 3.3.12_svelte@3.43.1
     devDependencies:
       '@mockoon/cli': 1.1.0
       swagger-typescript-api: 9.2.0
@@ -89,9 +94,9 @@ importers:
   modules/cm-espells:
     specifiers:
       '@lezer/common': ^0.15.6
+      '@wikijump/api': workspace:*
       '@wikijump/codemirror': workspace:*
       '@wikijump/components': workspace:*
-      '@wikijump/state': workspace:*
       '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
       dictionary-cs: ^2.0.3
@@ -119,9 +124,9 @@ importers:
       svelte: ^3.43.1
     dependencies:
       '@lezer/common': 0.15.6
+      '@wikijump/api': link:../api
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/components': link:../components
-      '@wikijump/state': link:../state
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
       dictionary-cs: 2.0.3
@@ -154,12 +159,12 @@ importers:
       '@lezer/common': ^0.15.6
       '@lezer/lr': ^0.15.4
       '@types/prismjs': ^1.16.6
+      '@wikijump/api': workspace:*
       '@wikijump/cm-espells': workspace:*
       '@wikijump/codemirror': workspace:*
       '@wikijump/components': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/prism': workspace:*
-      '@wikijump/state': workspace:*
       '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
       cm-tarnation: ^0.1.0
@@ -168,12 +173,12 @@ importers:
       '@lezer/common': 0.15.6
       '@lezer/lr': 0.15.4
       '@types/prismjs': 1.16.6
+      '@wikijump/api': link:../api
       '@wikijump/cm-espells': link:../cm-espells
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/components': link:../components
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/prism': link:../prism
-      '@wikijump/state': link:../state
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
       cm-tarnation: 0.1.0
@@ -208,7 +213,6 @@ importers:
       '@lezer/common': ^0.15.6
       '@lezer/lr': ^0.15.4
       '@wikijump/components': workspace:*
-      '@wikijump/state': workspace:*
       '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
       svelte: ^3.43.1
@@ -239,7 +243,6 @@ importers:
       '@lezer/common': 0.15.6
       '@lezer/lr': 0.15.4
       '@wikijump/components': link:../components
-      '@wikijump/state': link:../state
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
     devDependencies:
@@ -249,11 +252,11 @@ importers:
     specifiers:
       '@iconify/iconify': ^2.0.4
       '@popperjs/core': ^2.10.2
+      '@wikijump/api': workspace:*
       '@wikijump/ftml-components': workspace:*
       '@wikijump/ftml-wasm': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/prism': workspace:*
-      '@wikijump/state': workspace:*
       '@wikijump/util': workspace:*
       morphdom: ^2.6.1
       svelte: ^3.43.1
@@ -261,11 +264,11 @@ importers:
     dependencies:
       '@iconify/iconify': 2.0.4
       '@popperjs/core': 2.10.2
+      '@wikijump/api': link:../api
       '@wikijump/ftml-components': link:../ftml-components
       '@wikijump/ftml-wasm': link:../ftml-wasm
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/prism': link:../prism
-      '@wikijump/state': link:../state
       '@wikijump/util': link:../util
       morphdom: 2.6.1
       tippy.js: 6.3.1
@@ -313,39 +316,26 @@ importers:
 
   modules/sheaf:
     specifiers:
+      '@wikijump/api': workspace:*
       '@wikijump/cm-espells': workspace:*
       '@wikijump/cm-lang-ftml': workspace:*
       '@wikijump/codemirror': workspace:*
       '@wikijump/components': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
-      '@wikijump/state': workspace:*
       '@wikijump/util': workspace:*
       morphdom: ^2.6.1
       svelte: ^3.43.1
       typescript-memoize: ^1.0.1
     dependencies:
+      '@wikijump/api': link:../api
       '@wikijump/cm-espells': link:../cm-espells
       '@wikijump/cm-lang-ftml': link:../cm-lang-ftml
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/components': link:../components
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
-      '@wikijump/state': link:../state
       '@wikijump/util': link:../util
       morphdom: 2.6.1
       typescript-memoize: 1.0.1
-    devDependencies:
-      svelte: 3.43.1
-
-  modules/state:
-    specifiers:
-      '@wikijump/util': workspace:*
-      is-what: ^4.0.0
-      svelte: ^3.43.1
-      svelte-i18n: ^3.3.12
-    dependencies:
-      '@wikijump/util': link:../util
-      is-what: 4.0.0
-      svelte-i18n: 3.3.12_svelte@3.43.1
     devDependencies:
       svelte: 3.43.1
 
@@ -358,7 +348,10 @@ importers:
       threads: 1.7.0
 
   modules/util:
-    specifiers: {}
+    specifiers:
+      svelte: ^3.43.1
+    devDependencies:
+      svelte: 3.43.1
 
   web/dev-sandbox:
     specifiers:
@@ -5087,11 +5080,6 @@ packages:
     resolution: {integrity: sha512-knxG2q4UC3u8stRGyAVJCOdxFmv5DZiRcdlIaAQXAbSfJya+OhopNotLQrstBhququ4ZpuKbDc/8S6mgXgPFPw==}
     engines: {node: '>=10'}
     dev: true
-
-  /is-what/4.0.0:
-    resolution: {integrity: sha512-hzJwa+F7fBGYHwJwQqb3UL8YysL5i15pNYsh84s1D3og3Bl9ovFwDoAnV/vd4EPV6C5VnGgVcatFx/cZx4ubCQ==}
-    engines: {node: '>=12.13', npm: '>=7'}
-    dev: false
 
   /is-windows/1.0.2:
     resolution: {integrity: sha512-eXK1UInq2bPmjyX6e3VHIzMLobc4J94i4AWn+Hpq3OU5KkrRC96OAcR3PRJ/pGu6m8TRnBHP9dkXQVsT/COVIA==}

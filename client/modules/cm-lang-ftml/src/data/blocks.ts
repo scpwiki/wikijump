@@ -1,11 +1,11 @@
 import blocksTOML from "@root/ftml/conf/blocks.toml"
 import modulesTOML from "@root/ftml/conf/modules.toml"
+import { format } from "@wikijump/api"
 import {
   EditorSvelteComponent,
   EditorSvelteComponentInstance
 } from "@wikijump/codemirror"
 import { FTMLFragment } from "@wikijump/ftml-wasm-worker"
-import { format } from "@wikijump/state"
 import BlockTip from "../tips/BlockTip.svelte"
 import { aliasesFiltered } from "../util"
 import type { BlockConfiguration, ModuleConfiguration } from "./types"

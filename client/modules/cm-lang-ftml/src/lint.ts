@@ -1,7 +1,7 @@
+import { format } from "@wikijump/api"
 import { textValue } from "@wikijump/codemirror"
 import { Diagnostic, EditorView, linter } from "@wikijump/codemirror/cm"
 import FTML from "@wikijump/ftml-wasm-worker"
-import { format } from "@wikijump/state"
 
 interface WarningInfo {
   message: string

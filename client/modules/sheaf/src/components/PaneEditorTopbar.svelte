@@ -6,7 +6,7 @@
   import type { SheafContext } from "../context"
   import { Button } from "@wikijump/components"
   import { throttle } from "@wikijump/util"
-  import { t, number, unit } from "@wikijump/state"
+  import { t, number, unit } from "@wikijump/api"
   import { Content } from "@wikijump/cm-lang-ftml"
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")

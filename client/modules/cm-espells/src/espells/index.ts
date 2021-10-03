@@ -1,6 +1,6 @@
-import { locale as i18nLocale, Pref } from "@wikijump/state"
+import { locale as i18nLocale } from "@wikijump/api"
 import { transfer, WorkerModule } from "@wikijump/threads-worker-module"
-import { dedupe } from "@wikijump/util"
+import { dedupe, Pref } from "@wikijump/util"
 import type { Word } from ".."
 import DICTIONARIES from "../dicts"
 import type { EspellsWorkerInterface } from "./espells.worker"

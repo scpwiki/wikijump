@@ -8,7 +8,7 @@
   import Card from "./Card.svelte"
   import { anim } from "./lib/animation"
   import Spinny from "./Spinny.svelte"
-  import { t, unit } from "@wikijump/state"
+  import { t, unit } from "@wikijump/api"
   // if we have an isolated wikitext, we need the processed CSS
   import ftmlCSS from "@wikijump/ftml-components/src/index.scss"
 

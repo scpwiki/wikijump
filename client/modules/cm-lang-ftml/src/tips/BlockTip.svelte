@@ -5,7 +5,7 @@
   import type { Block } from "../data/types"
   import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
   import * as Prism from "@wikijump/prism"
-  import { t } from "@wikijump/state"
+  import { t } from "@wikijump/api"
   import type { FTMLFragment } from "@wikijump/ftml-wasm-worker"
   import { Icon, TippySingleton } from "@wikijump/components"
   import { aliasesRaw } from "../util"
