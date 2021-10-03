@@ -126,7 +126,7 @@ $ composer install
 
 After Composer is done, which may take a while, you can then install the NPM dependencies using PNPM.
 
-In both `client/`, and `web/`, in that order, run the following:
+In `web/` run the following:
 
 ```sh
 $ pnpm install

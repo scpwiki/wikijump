@@ -16,13 +16,8 @@ comment:
   show_carryforward_flags: true
 
 flags:
-  clientmonorepo:
-    carryforward: true
-    paths:
-      - client/
-
-  # PHP backend and legacy frontend
-  unittests:
+  # PHP backend and frontend
+  web:
     carryforward: true
     paths:
       - web/

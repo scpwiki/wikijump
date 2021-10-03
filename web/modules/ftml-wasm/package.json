@@ -13,10 +13,10 @@
   "scripts": {
     "debug": "run-s debug:ftml debug:bind",
     "debug:ftml": "cd ../../../ftml && cargo build --no-default-features --features \"mathml\" --target wasm32-unknown-unknown",
-    "debug:bind": "cd ../../../ftml && wasm-bindgen --out-dir ../client/modules/ftml-wasm/vendor --target web --debug --keep-debug --omit-default-module-path ./target/wasm32-unknown-unknown/debug/ftml.wasm",
+    "debug:bind": "cd ../../../ftml && wasm-bindgen --out-dir ../web/modules/ftml-wasm/vendor --target web --debug --keep-debug --omit-default-module-path ./target/wasm32-unknown-unknown/debug/ftml.wasm",
     "compile": "run-s compile:ftml compile:bind compile:opt",
     "compile:ftml": "cd ../../../ftml && cargo build --release --no-default-features --features \"mathml\" --target wasm32-unknown-unknown",
-    "compile:bind": "cd ../../../ftml && wasm-bindgen --out-dir ../client/modules/ftml-wasm/vendor --target web --omit-default-module-path ./target/wasm32-unknown-unknown/release/ftml.wasm",
+    "compile:bind": "cd ../../../ftml && wasm-bindgen --out-dir ../web/modules/ftml-wasm/vendor --target web --omit-default-module-path ./target/wasm32-unknown-unknown/release/ftml.wasm",
     "compile:opt": "cd vendor && wasm-opt ftml_bg.wasm -O4 -c -o ftml_bg.wasm"
   },
   "type": "module",

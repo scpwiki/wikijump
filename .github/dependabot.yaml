@@ -4,18 +4,18 @@ version: 2
 updates:
   # Laravel
   - package-ecosystem: composer
-    directory: '/web'
+    directory: "/web"
     schedule:
-      interval: weekly  # Eventually change to 'daily'
+      interval: weekly # Eventually change to 'daily'
 
   # Frontend
   - package-ecosystem: npm
-    directory: '/client'
+    directory: "/web"
     schedule:
       interval: daily
 
   # FTML
   - package-ecosystem: cargo
-    directory: '/ftml'
+    directory: "/ftml"
     schedule:
       interval: daily
