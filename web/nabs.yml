@@ -6,6 +6,22 @@ build:
 
   legacy: node scripts/build-legacy.js build
   local: pnpm compose build
+  
+# -- MODULE VERSIONING AND PUBLISHING
+
+# Adds a new changeset to the monorepo
+changeset: changeset
+
+# Pack a specific module
+# e.g. pnpm modules:pack -- util
+modules:pack: node scripts/vite-pack.js
+
+# Updates the version of any module that has changesets relevant to it
+modules:version: changeset version
+
+# Publishes all modules that are newer than what is on NPM
+modules:publish: node scripts/publish-all.js
+
 
 # -- DEV
 
@@ -17,6 +33,38 @@ dev:
 
   legacy: node scripts/build-legacy.js dev
   local: pnpm compose up
+  
+# -- TESTING
+
+test: wtr --playwright
+
+cover: wtr --playwright --coverage
+
+# -- VALIDATION
+
+lint:
+  $depend: []
+  $action: run-p -lns lint:eslint lint:stylelint lint:prettier
+  eslint: eslint "./**/*.js" "./**/*.ts"
+  stylelint: stylelint "modules/**/*.scss"
+  prettier: prettier --ignore-unknown --check "modules/**"
+
+  fix:
+    $depend: []
+    $action: run-p -lns lint:fix:eslint lint:fix:stylelint lint:fix:prettier
+    eslint: eslint "./**/*.js" "./**/*.ts" --fix
+    stylelint: stylelint "modules/**/*.scss" --fix
+    prettier: prettier --write --ignore-unknown "modules/**"
+
+typecheck: tsc
+
+validate: run-p -lns lint typecheck
+
+# -- MISC.
+
+dev:dev-sandbox: pnpm --filter dev-sandbox dev
+preview:dev-sandbox: pnpm --filter dev-sandbox preview
+
 
 # -- DOCKER UTILITY
 
