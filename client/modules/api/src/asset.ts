@@ -1,5 +1,5 @@
 /** The location of static assets, from host root. Can't end with a `/`. */
-export const STATIC_FOLDER = "/files-common"
+export const STATIC_FOLDER = "/files--common"
 
 /**
  * A record of asset identifiers to their known paths. This allows for
