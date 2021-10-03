@@ -36,6 +36,8 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 # Copy setup scripts
 COPY ${BUILD_DIR}/setup*.sh /src/
 
+# TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
+
 # Run setup scripts
 WORKDIR /var/www/wikijump/web
 RUN /src/setup.sh
@@ -127,8 +129,6 @@ COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=locales /src/locales/out/ /var/www/locales
 
 # TODO - copy from client
-
-# TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
 WORKDIR /var/www/wikijump/web
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
