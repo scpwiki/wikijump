@@ -127,11 +127,10 @@ class GlobalHotTagsModule extends SmartyModule
         $db = Database::connection();
         //select tags
         if ($category == null) {
-            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page_tag  WHERE site_id='".$site->getSiteId()."' GROUP BY tag ORDER BY weight DESC LIMIT $limit) AS foo ORDER BY tag";
+            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page  WHERE site_id='".$site->getSiteId()."' GROUP BY tag ORDER BY weight DESC LIMIT $limit) AS foo ORDER BY tag";
         } else {
-            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page_tag, page  WHERE page_tag.site_id='".$site->getSiteId()."' " .
-                    " AND page.category_id='".$category->getCategoryId()."' " .
-                    " AND page.page_id = page_tag.page_id " .
+            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page  WHERE site_id='".$site->getSiteId()."' " .
+                    " AND category_id='".$category->getCategoryId()."' " .
                     "GROUP BY tag ORDER BY weight DESC LIMIT $limit) AS foo ORDER BY tag";
 
             $runData->contextAdd("category", $category);

@@ -80,14 +80,13 @@ class PagesListByTagModule extends SmartyModule
         }
 
         $c = new Criteria();
-        $c->setExplicitFrom("page, page_tag");
-        $c->add("page_tag.tag", $tag);
-        $c->add("page_tag.site_id", $site->getSiteId());
-        $c->add("page_tag.page_id", "page.page_id", "=", false);
+        $c->setExplicitFrom("page");
+        $c->add("tags", $tag);
+        $c->add("site_id", $site->getSiteId());
         if ($category) {
-            $c->add("page.category_id", $category->getCategoryId());
+            $c->add("category_id", $category->getCategoryId());
         }
-        $c->addOrderAscending('COALESCE(page.title, page.unix_name)');
+        $c->addOrderAscending('COALESCE(title, unix_name)');
 
         $pages = PagePeer::instance()->select($c);
 
