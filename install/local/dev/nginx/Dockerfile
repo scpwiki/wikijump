@@ -6,7 +6,6 @@ FROM circleci/node:latest AS node
 
 # Copy source
 RUN sudo mkdir /src
-COPY ./client /src/client
 COPY ./ftml /src/ftml
 COPY ./locales /src/locales
 COPY ./web /src/web
@@ -15,7 +14,7 @@ RUN sudo chown -R circleci /src
 # Install pnpm
 RUN sudo npm install -g pnpm
 
-# Build legacy frontend
+# Build frontend
 WORKDIR /src/web
 RUN pnpm install
 RUN pnpm build:legacy

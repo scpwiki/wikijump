@@ -48,7 +48,6 @@ FROM circleci/node:latest
 
 # Copy source
 RUN sudo mkdir /src
-COPY ./client /src/client
 COPY ./ftml /src/ftml
 COPY ./locales /src/locales
 COPY ./web /src/web
@@ -58,9 +57,9 @@ RUN sudo chown -R circleci /src
 RUN sudo npm install -g pnpm
 
 # Build main frontend
-WORKDIR /src/client
+WORKDIR /src/web
 RUN pnpm install
-RUN pnpm build
+RUN pnpm build:legacy
 
 #
 # ftml
@@ -109,7 +108,7 @@ EXPOSE 9000
 COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=locales /src/locales/out/ /var/www/locales
-# TODO - copy from client
+# TODO - copy from web
 
 WORKDIR /var/www/wikijump/web
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
