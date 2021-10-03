@@ -42,6 +42,7 @@ rm -f /usr/bin/composer
 
 # Create tmp folders
 mkdir -p \
+	storage \
 	tmp/smarty_templates_c \
 	tmp/lucene_index \
 	tmp/math \
