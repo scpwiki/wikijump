@@ -1,7 +1,30 @@
+#
 # Intermediate images
-FROM scpwiki/client:local AS client
+#
 
-# Main image
+## Frontend ##
+FROM circleci/node:latest AS node
+
+# Copy source
+RUN sudo mkdir /src
+COPY ./client /src/client
+COPY ./ftml /src/ftml
+COPY ./locales /src/locales
+COPY ./web /src/web
+RUN sudo chown -R circleci /src
+
+# Install pnpm
+RUN sudo npm install -g pnpm
+
+# Build legacy frontend
+WORKDIR /src/web
+RUN pnpm install
+RUN pnpm build:legacy
+
+#
+# Final image
+#
+
 FROM nginx:alpine
 EXPOSE 80
 
@@ -14,5 +37,5 @@ ARG WIKIJUMP_DIR="/var/www/wikijump"
 COPY ./web ${WIKIJUMP_DIR}/web
 
 # Copy sources from intermediate images
-COPY --from=client /src/web/web /var/www/wikijump/web/web
+COPY --from=node /src/web/web /var/www/wikijump/web/web
 COPY ${BUILD_DIR}/nginx.conf /etc/nginx/nginx.conf

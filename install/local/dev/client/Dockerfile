@@ -11,11 +11,6 @@ RUN sudo chown -R circleci /src
 # Install pnpm
 RUN sudo npm install -g pnpm
 
-# Build legacy frontend
-WORKDIR /src/web
-RUN pnpm install
-RUN pnpm build:legacy
-
 # Build main frontend
 WORKDIR /src/client
 RUN pnpm install
