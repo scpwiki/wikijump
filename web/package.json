@@ -78,7 +78,7 @@
   "dependencies": {
     "compress-tag": "^2.0.1",
     "csstype": "^3.0.9",
-    "query-string": "6.14.1"
+    "query-string": "7.0.1"
   },
   "engineStrict": true,
   "engines": {
