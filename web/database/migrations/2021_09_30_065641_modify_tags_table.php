@@ -39,6 +39,18 @@ class ModifyTagsTable extends Migration
      */
     public function down()
     {
-        //
+        // Recreates page_tag table.
+        Schema::create('page_tag', function (Blueprint $table) {
+            $table->id('tag_id');
+            $table->unsignedInteger('site_id')->nullable()->index();
+            $table->unsignedInteger('page_id')->nullable()->index();
+            $table->string('tag', 20)->nullable();
+        });
+
+        // Remove column from page table.
+        Schema::table('page', function (Blueprint $table) {
+            $table->dropColumn('tags');
+        });
+
     }
 }
