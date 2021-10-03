@@ -17,4 +17,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build -f install/local/prod/php-fpm/Dockerfile .
+        run: docker build -f install/aws/prod/docker/php-fpm/Dockerfile .
