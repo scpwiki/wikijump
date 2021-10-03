@@ -30,10 +30,9 @@ EXPOSE 80
 # Build variables
 ARG ENVIRONMENT="local/dev"
 ARG BUILD_DIR="./install/${ENVIRONMENT}/nginx"
-ARG WIKIJUMP_DIR="/var/www/wikijump"
 
 # Copy Wikijump repository
-COPY ./web ${WIKIJUMP_DIR}/web
+COPY ./web /var/www/wikijump/web
 
 # Copy sources from intermediate images
 COPY --from=node /src/web/web /var/www/wikijump/web/web
