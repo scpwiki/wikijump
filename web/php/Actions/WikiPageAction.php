@@ -1424,9 +1424,14 @@ class WikiPageAction extends SmartyAction
             }
         }
 
-        // Turn tags into an array, then ensure all tags are unique — remove any duplicates.
-        $tags = explode(" ", $tags);
-        $tags = array_unique($tags);
+        // Turn tags into a non-associative array, then ensure all tags are unique — remove any duplicates.
+        if ($tags === '') {
+            $tags = [];
+        } else {
+            $tags = preg_split("/[ ,]+/", $tags);
+            $tags = array_unique(array_values($tags));
+        }
+
 
         // Save the tags.
         PagePeer::saveTags($pageId, $tags);
