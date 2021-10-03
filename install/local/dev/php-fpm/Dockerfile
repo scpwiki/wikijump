@@ -1,8 +1,7 @@
 #
-# Intermediate images
+# Frontend
 #
 
-## Frontend ##
 FROM circleci/node:latest
 
 # Copy source
@@ -21,7 +20,10 @@ WORKDIR /src/client
 RUN pnpm install
 RUN pnpm build
 
-## FTML ##
+#
+# ftml
+#
+
 FROM rust:latest as ftml
 
 # Copy source
@@ -35,7 +37,10 @@ RUN cargo build \
         --no-default-features \
         --features ffi,mathml
 
-## Localizations ##
+#
+# Localizations
+#
+
 FROM python:3.9-slim AS locales
 
 # Copy source

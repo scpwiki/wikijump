@@ -1,8 +1,7 @@
 #
-# Intermediate images
+# Frontend
 #
 
-## Frontend ##
 FROM circleci/node:latest AS node
 
 # Copy source
