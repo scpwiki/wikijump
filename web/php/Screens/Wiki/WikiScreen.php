@@ -13,7 +13,6 @@ use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\NotificationPeer;
 use Wikidot\Utils\GlobalProperties;
