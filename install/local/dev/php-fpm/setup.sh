@@ -45,7 +45,9 @@ rm -f /usr/bin/composer
 
 # Create tmp folders
 mkdir -p \
-	storage \
+	storage/framework/cache \
+	storage/framework/sessions \
+	storage/framework/views \
 	tmp/smarty_templates_c \
 	tmp/lucene_index \
 	tmp/math \
