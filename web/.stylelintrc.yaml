@@ -7,6 +7,7 @@ plugins:
 ignoreFiles:
   - '**/node_modules/**'
   - '**/dist/**'
+  - 'web/**'
 
 reportNeedlessDisables: true
 reportInvalidScopeDisables: true

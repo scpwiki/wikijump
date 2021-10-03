@@ -139,10 +139,10 @@ if (json.version === "0.0.0") {
 json.repository = {
   type: "git",
   url: "git+https://github.com/scpwiki/wikijump.git",
-  directory: `client/modules/${package}`
+  directory: `web/modules/${package}`
 }
 json.bugs = "https://scuttle.atlassian.net/servicedesk/customer/portal/2"
-json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/client/modules/${package}`
+json.homepage = `https://github.com/scpwiki/wikijump/tree/develop/web/modules/${package}`
 
 // build module, finally
 ;(async () => {

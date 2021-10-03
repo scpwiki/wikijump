@@ -1,3 +1,0 @@
-pnpm-lock.yaml         binary linguist-vendored linguist-generated
-**/vendor/**           binary linguist-vendored linguist-generated
-*.json                 linguist-language=JSON-with-Comments

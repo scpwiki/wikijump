@@ -5,7 +5,7 @@ conf/wikijump.ini
 # Vendor
 /vendor
 composer.phar
-/node_modules
+node_modules
 
 # Temporary or Data
 /tmp
@@ -15,6 +15,7 @@ composer.phar
 
 # Built files
 /web/files--common/dist
+modules/**/dist
 
 # Lock Files
 composer.lock

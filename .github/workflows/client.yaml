@@ -3,7 +3,7 @@ name: "[client monorepo] TypeScript"
 on:
   push:
     paths:
-      - "client/**"
+      - "web/**"
       - "ftml/test/*"
       - ".github/workflows/client.yaml"
 
@@ -33,10 +33,10 @@ jobs:
         run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
 
       - name: Install Dependencies
-        run: cd client && pnpm i
+        run: cd web && pnpm i
 
       - name: Validate
-        run: cd client && pnpm validate
+        run: cd web && pnpm validate
 
   coverage:
     name: Coverage
@@ -66,13 +66,13 @@ jobs:
         run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
 
       - name: Install Dependencies
-        run: cd client && pnpm i
+        run: cd web && pnpm i
 
       - name: Coverage
-        run: cd client && pnpm cover
+        run: cd web && pnpm cover
 
       - name: Export Coverage
         uses: codecov/codecov-action@v1
         with:
-          directory: client/coverage
-          flags: clientmonorepo
+          directory: web/coverage
+          flags: web

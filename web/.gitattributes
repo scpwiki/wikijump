@@ -1,5 +1,6 @@
-* text=auto
-*.css linguist-vendored
-*.scss linguist-vendored
-*.js linguist-vendored
-CHANGELOG.md export-ignore
+*                      text=auto
+web/**                 linguist-vendored
+pnpm-lock.yaml         binary linguist-vendored linguist-generated
+**/vendor/**           binary linguist-vendored linguist-generated
+*.json                 linguist-language=JSON-with-Comments
+CHANGELOG.md           export-ignore

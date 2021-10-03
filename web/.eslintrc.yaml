@@ -4,6 +4,7 @@ ignorePatterns:
   - "**/node_modules/**"
   - "**/dist/**"
   - "**/vendor/**"
+  - "web/**"
 
 plugins:
   - "@typescript-eslint"

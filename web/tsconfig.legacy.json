@@ -1,5 +1,5 @@
 {
-  "extends": "../client/tsconfig.json",
+  "extends": "./tsconfig.json",
   "exclude": ["**/node_modules/**", "web", "**/tests/**"],
   "compilerOptions": {
     "baseUrl": ".",
