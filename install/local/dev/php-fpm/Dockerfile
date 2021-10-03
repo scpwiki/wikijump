@@ -35,10 +35,21 @@ RUN cargo build \
         --no-default-features \
         --features ffi,mathml
 
-## ##
-FROM scpwiki/ftml:local AS ftml
-FROM scpwiki/locales:local AS locales
-FROM scpwiki/client:local AS client
+## Localizations ##
+FROM python:3.9-slim AS locales
+
+# Copy source
+RUN mkdir /src
+COPY ./locales /src/locales
+WORKDIR /src/locales
+
+# Install dependencies
+RUN apt update && \
+    apt install -y gettext
+RUN pip3 install --upgrade -r requirements.txt
+
+# Build localization files
+RUN python3 -m messages .
 
 #
 # Final image
