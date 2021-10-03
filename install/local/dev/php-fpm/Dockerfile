@@ -26,10 +26,6 @@ ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN echo "xdebug.mode = develop" >> ${XDEBUG_INI} \
  && echo "xdebug.client_host = ${DEBUG_IP}" >> ${XDEBUG_INI}
 
-# !! Workaround for WSL2-enabled development with exposed host volumes, comment out if not needed.
-# RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
-RUN chown -R www-data:www-data .
-
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
