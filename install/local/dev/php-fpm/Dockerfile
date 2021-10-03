@@ -18,7 +18,6 @@ ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 # Copy source
 RUN mkdir /src
 COPY ./web /var/www/wikijump/web
-WORKDIR /var/www/wikijump
 
 # Configure xdebug
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
@@ -38,6 +37,7 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY ${BUILD_DIR}/setup*.sh /src/
 
 # Run setup scripts
+WORKDIR /var/www/wikijump/web
 RUN /src/setup.sh
 
 # Inject values in the wikijump.ini configuration file
