@@ -3,17 +3,16 @@ declare global {
   type AnyFunction<R = unknown> = (...args: any) => R
 
   /** Represents the eventual value of a `Promise`. */
-  type PromiseValue<
-    PromiseType,
-    Otherwise = PromiseType
-  > = PromiseType extends Promise<infer Value>
+  type PromiseValue<PromiseType, Otherwise = PromiseType> = PromiseType extends Promise<
+    infer Value
+  >
     ? { 0: PromiseValue<Value>; 1: Value }[PromiseType extends Promise<unknown> ? 0 : 1]
     : Otherwise
 
   /** All JS primitive values. */
-  type Primitive = string | number | BigInt | boolean | Symbol | null | undefined
+  type Primitive = string | number | BigInt | boolean | symbol | null | undefined
 
-  /** _Strictly_ represents a `{ 'key': value }` object with only primitives. */
+  /** *Strictly* represents a `{ 'key': value }` object with only primitives. */
   type PlainObject = Record<string, Primitive>
 
   /** Represents either a value of the given type or a promise that resolves to one. */
