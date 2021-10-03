@@ -1,0 +1,20 @@
+name: '[backend] Docker build PHP-FPM (dev)'
+
+on:
+  push:
+    branches-ignore:
+      - develop
+      - prod
+    paths:
+      - 'install/aws/dev/docker/php-fpm/**'
+      - '.github/workflows/docker-build-php.dev.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build -f install/local/dev/php-fpm/Dockerfile .

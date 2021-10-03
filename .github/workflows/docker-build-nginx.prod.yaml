@@ -1,0 +1,23 @@
+name: '[backend] Docker build Nginx (prod)'
+
+on:
+  push:
+    branches-ignore:
+      - develop
+      - prod
+    paths:
+      - 'web/web/**'
+      - 'web/package.json'
+      - 'web/tsconfig.json'
+      - 'install/aws/prod/docker/nginx/**'
+      - '.github/workflows/docker-build-nginx.prod.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build -f install/aws/prod/docker/nginx/Dockerfile .

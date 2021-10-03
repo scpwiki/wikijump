@@ -1,0 +1,23 @@
+name: '[backend] Docker build Nginx (local)'
+
+on:
+  push:
+    branches-ignore:
+      - develop
+      - prod
+    paths:
+      - 'web/web/**'
+      - 'web/package.json'
+      - 'web/tsconfig.json'
+      - 'install/local/dev/nginx/**'
+      - '.github/workflows/docker-build-nginx.local.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build -f install/local/dev/nginx/Dockerfile .
