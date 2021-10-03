@@ -18,7 +18,7 @@
     "typescript-memoize": "^1.0.1",
     "@wikijump/codemirror": "workspace:*",
     "@wikijump/components": "workspace:*",
-    "@wikijump/state": "workspace:*",
+    "@wikijump/api": "workspace:*",
     "@wikijump/util": "workspace:*"
   },
   "devDependencies": {

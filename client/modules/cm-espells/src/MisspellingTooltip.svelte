@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
   import { focusGroup, TippySingleton, Spinny, anim } from "@wikijump/components"
-  import { t } from "@wikijump/state"
+  import { t } from "@wikijump/api"
   import espells from "./espells"
   import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
   import type { FlaggedWord } from "./types"

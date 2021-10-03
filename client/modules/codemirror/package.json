@@ -38,7 +38,6 @@
     "@lezer/lr": "^0.15.4",
     "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/components": "workspace:*",
-    "@wikijump/state": "workspace:*",
     "@wikijump/util": "workspace:*"
   },
   "devDependencies": {

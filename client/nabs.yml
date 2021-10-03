@@ -1,10 +1,6 @@
 # -- BUILD
 
-build:
-  $depend: []
-  $action: pnpm --parallel --if-present -r build
-  modules: pnpm --filter {modules} --parallel --if-present -r build
-  web: pnpm --filter {web} --parallel --if-present -r build
+build: pnpm --parallel --if-present -r build
 
 # -- MODULE VERSIONING AND PUBLISHING
 
@@ -33,15 +29,15 @@ lint:
   $depend: []
   $action: run-p -lns lint:eslint lint:stylelint lint:prettier
   eslint: eslint "./**/*.js" "./**/*.ts"
-  stylelint: stylelint "modules/**/*.scss" "web/**/*.scss"
-  prettier: prettier --ignore-unknown --check "modules/**" "web/**"
+  stylelint: stylelint "modules/**/*.scss"
+  prettier: prettier --ignore-unknown --check "modules/**"
 
   fix:
     $depend: []
     $action: run-p -lns lint:fix:eslint lint:fix:stylelint lint:fix:prettier
     eslint: eslint "./**/*.js" "./**/*.ts" --fix
-    stylelint: stylelint "modules/**/*.scss" "web/**/*.scss" --fix
-    prettier: prettier --write --ignore-unknown "modules/**" "web/**"
+    stylelint: stylelint "modules/**/*.scss" --fix
+    prettier: prettier --write --ignore-unknown "modules/**"
 
 typecheck: tsc
 

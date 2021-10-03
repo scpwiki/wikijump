@@ -5,7 +5,7 @@
   import { FTMLLanguage } from "@wikijump/cm-lang-ftml"
   import { Button } from "@wikijump/components"
   import type { EditorSveltePanelProps } from "@wikijump/codemirror"
-  import { unit } from "@wikijump/state"
+  import { unit } from "@wikijump/api"
 
   export let view: EditorSveltePanelProps["view"]
   export let update: EditorSveltePanelProps["update"]

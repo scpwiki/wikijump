@@ -9,5 +9,8 @@
   "private": true,
   "scripts": {},
   "type": "module",
-  "main": "src/index.ts"
+  "main": "src/index.ts",
+  "devDependencies": {
+    "svelte": "^3.43.1"
+  }
 }

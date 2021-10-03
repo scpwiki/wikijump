@@ -37,7 +37,7 @@
     "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/codemirror": "workspace:*",
     "@wikijump/components": "workspace:*",
-    "@wikijump/state": "workspace:*",
+    "@wikijump/api": "workspace:*",
     "@wikijump/util": "workspace:*"
   },
   "devDependencies": {

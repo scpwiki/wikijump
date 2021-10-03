@@ -16,8 +16,6 @@
     "@wikijump/css",
     "@wikijump/prism",
     "@wikijump/sheaf",
-    "@wikijump/state",
-    "@wikijump/docs",
     "dev-sandbox"
   ]
 }

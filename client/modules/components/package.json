@@ -20,7 +20,7 @@
     "morphdom": "^2.6.1",
     "tippy.js": "^6.3.1",
     "@wikijump/prism": "workspace:*",
-    "@wikijump/state": "workspace:*",
+    "@wikijump/api": "workspace:*",
     "@wikijump/util": "workspace:*"
   },
   "devDependencies": {

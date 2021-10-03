@@ -2,8 +2,7 @@
 import * as i18n from "svelte-i18n"
 import type { MessageFormatter } from "svelte-i18n/types/runtime/types"
 import type { Readable } from "svelte/store"
-import { has } from "@wikijump/util"
-import { Pref } from "./pref"
+import { has, Pref } from "@wikijump/util"
 
 // -- REGISTER LANGUAGES
 

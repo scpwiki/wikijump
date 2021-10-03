@@ -5,7 +5,7 @@
   import { createID, sleep } from "@wikijump/util"
   import Icon from "./Icon.svelte"
   import { anim } from "./lib/animation"
-  import { t } from "@wikijump/state"
+  import { t } from "@wikijump/api"
 
   type Status = "active" | "success" | "warning" | "error"
 
