@@ -1413,11 +1413,9 @@ class WikiPageAction extends SmartyAction
 
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
-        $pageTagsArray = explode(' ', $tags);
-
-        $allowedTagsList = AllowedTags::getAllowedTags($siteId);
-
-       if($enableAllowedTags === 'true' && !empty($tags)) {
+        // If Allowed Tags are enabled, ensure all tags are compliant.
+        if($enableAllowedTags === 'true' && !empty($tags)) {
+            $allowedTagsList = AllowedTags::getAllowedTags($siteId);
             foreach ($pageTagsArray as $tag) {
                 if(!in_array($tag, $allowedTagsList)) {
                     $errorMessage = sprintf(_('The tag %s is not valid for this site.'), $tag);
@@ -1426,43 +1424,12 @@ class WikiPageAction extends SmartyAction
             }
         }
 
-        $db = Database::connection();
-        $db->begin();
-
-        $c = new Criteria();
-        $c->add("page_id", $pageId);
-
-        $dbTags = PageTagPeer::instance()->select($c);
-
-        $tags = preg_split("/[ ,]+/", $tags);
-
-        $tagstmp = array();
-        foreach ($tags as $tag) {
-            $tagstmp[] = substr($tag, 0, 64);
-        }
-
-        $tags = $tagstmp;
-
+        // Turn tags into an array, then ensure all tags are unique — remove any duplicates.
+        $tags = explode(" ", $tags);
         $tags = array_unique($tags);
 
-        foreach ($dbTags as $dbTag) {
-            if (in_array($dbTag->getTag(), $tags)) {
-                unset($tags[array_search($dbTag->getTag(), $tags)]);
-            } else {
-                PageTagPeer::instance()->deleteByPrimaryKey($dbTag->getTagId());
-            }
-        }
-        // insert all the other
-
-        foreach ($tags as $tag) {
-            if (trim($tag) != '') {
-                $dbTag = new PageTag();
-                $dbTag->setSiteId($site->getSiteId());
-                $dbTag->setPageId($pageId);
-                $dbTag->setTag($tag);
-                $dbTag->save();
-            }
-        }
+        // Save the tags.
+        PagePeer::saveTags($pageId, $tags);
 
         $od = new Outdater();
         $od->pageEvent("tag_change", $page);

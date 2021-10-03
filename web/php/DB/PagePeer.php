@@ -24,4 +24,10 @@ class PagePeer extends PagePeerBase
     public static function getTags($pageId) {
         return json_decode(DB::table('page')->where('page_id', $pageId)->value('tags'));
     }
+
+    public static function saveTags($pageId, $newTags) {
+        DB::table('page')
+          ->where('page_id', $pageId)
+          ->update(['tags' => $newTags]);
+    }
 }
