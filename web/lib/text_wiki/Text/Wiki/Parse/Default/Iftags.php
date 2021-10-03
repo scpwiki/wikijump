@@ -68,7 +68,7 @@ class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
     		return;
     	}
 
-    	$tags = $page->getTagsAsArray();
+    	$tags = $page->getTags();
 
     	$tags0 = preg_split('/[, ]+/', trim($matches[1]));
 

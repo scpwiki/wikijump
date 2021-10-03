@@ -3,6 +3,7 @@
 namespace Wikidot\Screens\Wiki;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
@@ -12,7 +13,6 @@ use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\NotificationPeer;
 use Wikidot\Utils\GlobalProperties;
@@ -147,16 +147,12 @@ class WikiScreen extends Screen
             $showPageOptions = true;
             $runData->contextAdd("showPageoptions", $showPageOptions);
 
-            // get the tags
-            $c = new Criteria();
-            $c->add("page_id", $page->getPageId());
-            $c->addOrderAscending("tag");
-            $tags = PageTagPeer::instance()->select($c);
-            $t2 = array();
-            foreach ($tags as $t) {
-                $t2[] = $t->getTag();
+            // Get the tags and convert them to string.
+            $tags = PagePeer::getTags($pageId);
+            if(!empty($tags)) {
+                $tags = implode(" ", $tags);
             }
-            $runData->contextAdd("tags", $t2);
+            $runData->contextAdd("tags", $tags);
 
             // has discussion?
             if ($page->getThreadId()!== null) {

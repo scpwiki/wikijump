@@ -2,7 +2,7 @@
 
 namespace Wikidot\DB;
 
-
+use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\Utils\ProcessException;
 use Ozone\Framework\Database\Database;
@@ -161,20 +161,7 @@ class Page extends PageBase
 
     public function getTags()
     {
-        $c = new Criteria();
-        $c->add('page_id', $this->getPageId());
-        $tags = PageTagPeer::instance()->select($c);
-        return $tags;
-    }
-
-    public function getTagsAsArray()
-    {
-        $tags = $this->getTags();
-        $t = array();
-        foreach ($tags as $ta) {
-            $t[] = $ta->getTag();
-        }
-        return $t;
+        return PagePeer::getTags($this->getPageId());
     }
 
     public function getTitle()
