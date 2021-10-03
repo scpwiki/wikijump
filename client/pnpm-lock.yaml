@@ -281,6 +281,29 @@ importers:
     dependencies:
       include-media: 1.4.10
 
+  modules/dev-sandbox:
+    specifiers:
+      '@wikijump/api': workspace:*
+      '@wikijump/cm-lang-ftml': workspace:*
+      '@wikijump/components': workspace:*
+      '@wikijump/css': workspace:*
+      '@wikijump/ftml-components': workspace:*
+      '@wikijump/ftml-wasm-worker': workspace:*
+      '@wikijump/sheaf': workspace:*
+      '@wikijump/util': workspace:*
+      svelte: ^3.43.1
+    dependencies:
+      '@wikijump/api': link:../api
+      '@wikijump/cm-lang-ftml': link:../cm-lang-ftml
+      '@wikijump/components': link:../components
+      '@wikijump/css': link:../css
+      '@wikijump/ftml-components': link:../ftml-components
+      '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
+      '@wikijump/sheaf': link:../sheaf
+      '@wikijump/util': link:../util
+    devDependencies:
+      svelte: 3.43.1
+
   modules/ftml-components:
     specifiers:
       '@popperjs/core': ^2.10.2
@@ -352,38 +375,6 @@ importers:
       svelte: ^3.43.1
     devDependencies:
       svelte: 3.43.1
-
-  web/dev-sandbox:
-    specifiers:
-      '@wikijump/api': workspace:*
-      '@wikijump/cm-lang-ftml': workspace:*
-      '@wikijump/components': workspace:*
-      '@wikijump/css': workspace:*
-      '@wikijump/ftml-components': workspace:*
-      '@wikijump/ftml-wasm-worker': workspace:*
-      '@wikijump/sheaf': workspace:*
-      '@wikijump/util': workspace:*
-      svelte: ^3.43.1
-    dependencies:
-      '@wikijump/api': link:../../modules/api
-      '@wikijump/cm-lang-ftml': link:../../modules/cm-lang-ftml
-      '@wikijump/components': link:../../modules/components
-      '@wikijump/css': link:../../modules/css
-      '@wikijump/ftml-components': link:../../modules/ftml-components
-      '@wikijump/ftml-wasm-worker': link:../../modules/ftml-wasm-worker
-      '@wikijump/sheaf': link:../../modules/sheaf
-      '@wikijump/util': link:../../modules/util
-    devDependencies:
-      svelte: 3.43.1
-
-  web/docs:
-    specifiers:
-      '@wikijump/components': workspace:*
-      typedoc: ^0.22.4
-    dependencies:
-      '@wikijump/components': link:../../modules/components
-    devDependencies:
-      typedoc: 0.22.4_typescript@4.4.3
 
 packages:
 
@@ -5222,10 +5213,6 @@ packages:
       minimist: 1.2.5
     dev: true
 
-  /jsonc-parser/3.0.0:
-    resolution: {integrity: sha512-fQzRfAbIBnR0IQvftw9FJveWiHp72Fg20giDrHz6TdfB12UH/uue0D3hm57UB5KgAVuniLMCaS8P1IMj9NR7cA==}
-    dev: true
-
   /jsonfile/4.0.0:
     resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=}
     optionalDependencies:
@@ -5522,10 +5509,6 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /lunr/2.3.9:
-    resolution: {integrity: sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==}
-    dev: true
-
   /lz-string/1.4.4:
     resolution: {integrity: sha1-wNjq82BZ9wV5bh40SBHPTEmNOiY=}
     hasBin: true
@@ -5552,12 +5535,6 @@ packages:
   /map-obj/4.3.0:
     resolution: {integrity: sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==}
     engines: {node: '>=8'}
-    dev: true
-
-  /marked/3.0.4:
-    resolution: {integrity: sha512-jBo8AOayNaEcvBhNobg6/BLhdsK3NvnKWJg33MAAPbvTWiG4QBn9gpW1+7RssrKu4K1dKlN+0goVQwV41xEfOA==}
-    engines: {node: '>= 12'}
-    hasBin: true
     dev: true
 
   /marky/1.2.2:
@@ -6074,12 +6051,6 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       mimic-fn: 2.1.0
-    dev: true
-
-  /onigasm/2.2.5:
-    resolution: {integrity: sha512-F+th54mPc0l1lp1ZcFMyL/jTs2Tlq4SqIHKIXGZOR/VkHkF9A7Fr5rRr5+ZG/lWeRsyrClLYRq7s/yFQ/XhWCA==}
-    dependencies:
-      lru-cache: 5.1.1
     dev: true
 
   /only/0.0.2:
@@ -7295,14 +7266,6 @@ packages:
     resolution: {integrity: sha512-mRz/m/JVscCrkMyPqHc/bczi3OQHkLTqXHEFu0zDhK/qfv3UcOA4SVmRCLmos4bhjr9ekVQubj/R7waKapmiQg==}
     dev: true
 
-  /shiki/0.9.11:
-    resolution: {integrity: sha512-tjruNTLFhU0hruCPoJP0y+B9LKOmcqUhTpxn7pcJB3fa+04gFChuEmxmrUfOJ7ZO6Jd+HwMnDHgY3lv3Tqonuw==}
-    dependencies:
-      jsonc-parser: 3.0.0
-      onigasm: 2.2.5
-      vscode-textmate: 5.2.0
-    dev: true
-
   /shimmer/1.2.1:
     resolution: {integrity: sha512-sQTKC1Re/rM6XyFM6fIAGHRPVGvyXfgzIDvzoq608vM+jeyVD0Tu1E6Np0Kc2zAIFWIj963V2800iF/9LPieQw==}
     dev: true
@@ -8145,21 +8108,6 @@ packages:
       is-typedarray: 1.0.0
     dev: true
 
-  /typedoc/0.22.4_typescript@4.4.3:
-    resolution: {integrity: sha512-M/a8NnPxq3/iZNNVjzFCK5gu4m//HTJIPbSS0JQVbkHJPP9wyepR12agylWTSqeVZe0xsbidVtO26+PP7iD/jw==}
-    engines: {node: '>= 12.10.0'}
-    hasBin: true
-    peerDependencies:
-      typescript: 4.0.x || 4.1.x || 4.2.x || 4.3.x || 4.4.x
-    dependencies:
-      glob: 7.2.0
-      lunr: 2.3.9
-      marked: 3.0.4
-      minimatch: 3.0.4
-      shiki: 0.9.11
-      typescript: 4.4.3
-    dev: true
-
   /typescript-memoize/1.0.1:
     resolution: {integrity: sha512-oJNge1qUrOK37d5Y6Ly2txKeuelYVsFtNF6U9kXIN7juudcQaHJQg2MxLOy0CqtkW65rVDYuTCOjnSIVPd8z3w==}
     dev: false
@@ -8352,10 +8300,6 @@ packages:
     resolution: {integrity: sha512-smLS+18RjXYMl9joyJxMNI9l4w7biW8ilSDaVRvFBDwOH8P0BK1ognFQTpg0wyQ6wIKLTblHJvROW692L/E53Q==}
     engines: {node: '>=6.0'}
     hasBin: true
-    dev: true
-
-  /vscode-textmate/5.2.0:
-    resolution: {integrity: sha512-Uw5ooOQxRASHgu6C7GVvUxisKXfSgW4oFlO+aa+PAkgmH89O3CXxEEzNRNtHSqtXFTl0nAC1uYj0GMSH27uwtQ==}
     dev: true
 
   /w3c-keyname/2.2.4:
