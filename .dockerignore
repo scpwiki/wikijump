@@ -1,6 +1,13 @@
 # Source control
 .git
 
+# CI
+.github
+
+# Tests
+client/**/test
+ftml/test
+
 # Vendored files and artifacts
 ftml/target
 ftml/pkg
