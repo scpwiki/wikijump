@@ -44,5 +44,5 @@
     ]
   },
 
-  "exclude": ["**/node_modules/**", "/web/**", "**/dist/**"]
+  "exclude": ["**/node_modules/**", "web/**", "vendor/**", "**/dist/**"]
 }
