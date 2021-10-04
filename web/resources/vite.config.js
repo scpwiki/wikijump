@@ -11,13 +11,13 @@ import vitePluginYaml from "../scripts/vite-plugin-yaml.js"
 // if it does this, it will fail on build, because it will be unable to use PHP in
 // the container it runs in.
 const PHP_CONFIG = {
-  "entrypoints": ["scripts/index.ts"],
+  "entrypoints": "scripts",
   "ignore_patterns": ["/\\.d\\.ts$/"],
   "aliases": { "@": "../resources" },
   "public_directory": "static",
   "ping_timeout": 10,
   "ping_url": null,
-  "build_path": "build",
+  "build_path": "files--common/assets",
   "dev_url": "http://localhost:3000",
   "commands": []
 }
@@ -32,6 +32,10 @@ export default defineConfig({}, PHP_CONFIG)
   .withCertificates(KEY, CERT)
   .merge({
     root: "../",
+
+    server: {
+      fs: { strict: false }
+    },
 
     css: {
       preprocessorOptions: {
