@@ -2,17 +2,26 @@
 
 build:
   $depend: []
-  $action: run-p build:legacy build:local
+  $action:
+    - run-p build:legacy build:vite
+    - pnpm build:local
 
   legacy: node scripts/build-legacy.js build
+  vite: vite build
   local: pnpm compose build
 
 build-sudo:
   $depend: []
-  $action: run-p build-sudo:legacy build-sudo:local
+  $action:
+    - run-p build-sudo:legacy build-sudo:vite
+    - pnpm build-sudo:local
 
   legacy: node scripts/build-legacy.js build
+  vite: vite build
   local: pnpm compose-sudo build
+
+# Special build command specifically for containers
+build-container: run-p build:legacy build:vite
 
 # -- MODULE VERSIONING AND PUBLISHING
 
@@ -29,17 +38,27 @@ modules:version: changeset version
 # Publishes all modules that are newer than what is on NPM
 modules:publish: node scripts/publish-all.js
 
-
 # -- DEV
 
 dev:
   $depend: []
   $action:
     - pnpm build:local
-    - run-p dev:legacy dev:local
+    - run-p dev:legacy dev:vite dev:local
 
   legacy: node scripts/build-legacy.js dev
+  vite: vite dev
   local: pnpm compose up
+
+dev-sudo:
+  $depend: []
+  $action:
+    - pnpm build-sudo:local
+    - run-p dev-sudo:legacy dev-sudo:vite dev-sudo:local
+
+  legacy: node scripts/build-legacy.js dev
+  vite: vite dev
+  local: pnpm compose-sudo up
 
 # -- TESTING
 
@@ -71,7 +90,6 @@ validate: run-p -lns lint typecheck
 
 dev:dev-sandbox: pnpm --filter dev-sandbox dev
 preview:dev-sandbox: pnpm --filter dev-sandbox preview
-
 
 # -- DOCKER UTILITY
 
