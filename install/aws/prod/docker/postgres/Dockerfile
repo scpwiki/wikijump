@@ -3,7 +3,7 @@ FROM postgres:13
 EXPOSE 5432
 
 # Build variables
-ARG ENVIRONMENT="pro"
+ARG ENVIRONMENT="prod"
 ARG FILES_DOMAIN="wjfiles.test"
 ARG PGDATA="/var/lib/postgresql/data"
 
@@ -15,7 +15,7 @@ COPY ./install/files/postgres /src
 WORKDIR /src
 
 # Install script
-COPY run.sh /app
+COPY /src/run.sh /app
 
 # Create system user
 RUN useradd wikijump --create-home --shell /bin/bash

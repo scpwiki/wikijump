@@ -15,7 +15,7 @@ COPY ./install/files/postgres /src
 WORKDIR /src
 
 # Install script
-COPY run.sh /app
+COPY /src/run.sh /app
 
 # Create system user
 RUN useradd wikijump --create-home --shell /bin/bash
