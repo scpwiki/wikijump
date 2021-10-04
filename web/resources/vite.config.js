@@ -1,5 +1,6 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import { defineConfig } from "laravel-vite"
+import path from "path"
 import { SASS_OPTIONS, SVELTE_OPTIONS } from "../scripts/vite-config.js"
 import vitePluginToml from "../scripts/vite-plugin-toml.js"
 import vitePluginYaml from "../scripts/vite-plugin-yaml.js"
@@ -21,9 +22,14 @@ const PHP_CONFIG = {
   "commands": []
 }
 
+const ROOT = path.resolve(__dirname, "../../")
+const KEY = path.resolve(ROOT, "./install/local/dev/ssl/cert.key")
+const CERT = path.resolve(ROOT, "./install/local/dev/ssl/cert.crt")
+
 export default defineConfig({}, PHP_CONFIG)
   .withPlugins(vitePluginToml, vitePluginYaml)
   .withPlugin(svelte(SVELTE_OPTIONS))
+  .withCertificates(KEY, CERT)
   .merge({
     root: "../",
 
