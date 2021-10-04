@@ -1,17 +1,16 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import { defineConfig } from "laravel-vite"
-import path from "path"
 import { SASS_OPTIONS, SVELTE_OPTIONS } from "../scripts/vite-config.js"
 import vitePluginToml from "../scripts/vite-plugin-toml.js"
 import vitePluginYaml from "../scripts/vite-plugin-yaml.js"
 
-// This is a _hard-coded return value_ from the following Artisan command:
+// This is a modified return value from the following Artisan command:
 // php artisan vite:config
 // We need this JSON or else `laravel-vite` will be forced to run the command itself,
 // if it does this, it will fail on build, because it will be unable to use PHP in
 // the container it runs in.
 const PHP_CONFIG = {
-  "entrypoints": "scripts",
+  "entrypoints": ["scripts/index.ts"],
   "ignore_patterns": ["/\\.d\\.ts$/"],
   "aliases": { "@": "../resources" },
   "public_directory": "static",
@@ -22,9 +21,8 @@ const PHP_CONFIG = {
   "commands": []
 }
 
-const ROOT = path.resolve(__dirname, "../../")
-const KEY = path.resolve(ROOT, "./install/local/dev/ssl/cert.key")
-const CERT = path.resolve(ROOT, "./install/local/dev/ssl/cert.crt")
+const KEY = "../../install/local/dev/ssl/cert.key"
+const CERT = "../../install/local/dev/ssl/cert.crt"
 
 export default defineConfig({}, PHP_CONFIG)
   .withPlugins(vitePluginToml, vitePluginYaml)
