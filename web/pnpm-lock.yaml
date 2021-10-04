@@ -387,6 +387,9 @@ importers:
     devDependencies:
       svelte: 3.43.1
 
+  resources:
+    specifiers: {}
+
 packages:
 
   /@babel/code-frame/7.12.11:
