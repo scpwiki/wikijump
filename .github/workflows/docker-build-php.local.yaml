@@ -6,7 +6,8 @@ on:
       - develop
       - prod
     paths:
-      - 'install/local/dev/php-fpm/**'
+      - 'install/files/**'
+      - 'install/local/dev/php-fpm/Dockerfile'
       - '.github/workflows/docker-build-php.local.yaml'
 
 jobs:

@@ -9,7 +9,8 @@ on:
       - 'web/web/**'
       - 'web/package.json'
       - 'web/tsconfig.json'
-      - 'install/local/dev/nginx/**'
+      - 'install/files/nginx.conf'
+      - 'install/local/dev/nginx/Dockerfile'
       - '.github/workflows/docker-build-nginx.local.yaml'
 
 jobs:

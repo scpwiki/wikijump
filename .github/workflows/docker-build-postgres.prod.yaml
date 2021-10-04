@@ -1,4 +1,4 @@
-name: '[backend] Docker build Nginx (prod)'
+name: '[backend] Docker build PostgreSQL (prod)'
 
 on:
   push:
@@ -9,9 +9,9 @@ on:
       - 'web/web/**'
       - 'web/package.json'
       - 'web/tsconfig.json'
-      - 'install/files/nginx.conf'
-      - 'install/aws/prod/docker/nginx/Dockerfile'
-      - '.github/workflows/docker-build-nginx.prod.yaml'
+      - 'install/files/postgres/**'
+      - 'install/aws/prod/docker/postgres/Dockerfile'
+      - '.github/workflows/docker-build-postgres.prod.yaml'
 
 jobs:
   build:
@@ -21,4 +21,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build -f install/aws/prod/docker/nginx/Dockerfile .
+        run: docker build -f install/aws/prod/docker/postgres/Dockerfile .

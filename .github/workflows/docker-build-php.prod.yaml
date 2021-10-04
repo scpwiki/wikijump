@@ -6,7 +6,8 @@ on:
       - develop
       - prod
     paths:
-      - 'install/aws/prod/docker/php-fpm/**'
+      - 'install/files/**'
+      - 'install/aws/prod/docker/php-fpm/Dockerfile'
       - '.github/workflows/docker-build-php.prod.yaml'
 
 jobs:

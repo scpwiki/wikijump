@@ -9,7 +9,8 @@ on:
       - 'web/web/**'
       - 'web/package.json'
       - 'web/tsconfig.json'
-      - 'install/aws/dev/docker/nginx/**'
+      - 'install/files/nginx.conf'
+      - 'install/aws/dev/docker/nginx/Dockerfile'
       - '.github/workflows/docker-build-nginx.dev.yaml'
 
 jobs:
