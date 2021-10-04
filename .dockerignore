@@ -1,0 +1,26 @@
+# Source control
+.git
+
+# CI
+.github
+
+# Tests
+client/**/test
+ftml/test
+
+# Vendored files and artifacts
+ftml/target
+ftml/pkg
+web/storage
+**/__pycache__
+**/dist
+**/node_modules
+
+# Editor files
+.idea
+.vscode
+.*.sw?
+
+# Miscellaneous
+*.bak
+*~

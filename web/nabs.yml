@@ -6,7 +6,14 @@ build:
 
   legacy: node scripts/build-legacy.js build
   local: pnpm compose build
-  
+
+build-sudo:
+  $depend: []
+  $action: run-p build-sudo:legacy build-sudo:local
+
+  legacy: node scripts/build-legacy.js build
+  local: pnpm compose-sudo build
+
 # -- MODULE VERSIONING AND PUBLISHING
 
 # Adds a new changeset to the monorepo
@@ -33,7 +40,7 @@ dev:
 
   legacy: node scripts/build-legacy.js dev
   local: pnpm compose up
-  
+
 # -- TESTING
 
 test: wtr --playwright
@@ -74,3 +81,8 @@ preview:dev-sandbox: pnpm --filter dev-sandbox preview
 compose:
   - cd ../install/local/dev
   - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
+
+# Like compose, but invokes docker with sudo
+compose-sudo:
+  - cd ../install/local/dev
+  - sudo docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml

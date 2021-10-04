@@ -1,0 +1,22 @@
+name: '[backend] Docker build PostgreSQL (dev)'
+
+on:
+  push:
+    branches-ignore:
+      - develop
+      - prod
+    paths:
+      - 'web/database/**'
+      - 'install/files/postgres/**'
+      - 'install/aws/dev/docker/postgres/Dockerfile'
+      - '.github/workflows/docker-build-postgres.dev.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build -f install/aws/dev/docker/postgres/Dockerfile .

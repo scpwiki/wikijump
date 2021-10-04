@@ -1,33 +1,37 @@
-# Build static assets using npm
+#
+# Frontend
+#
 
-FROM node:alpine as npm
+FROM circleci/node:latest AS node
 
-# Please note this arg is also defined in the nginx layer further down.
-ARG WIKIJUMP_REPO_DIR="wikijump"
+# Copy source
+RUN sudo mkdir /src
+COPY ./ftml /src/ftml
+COPY ./locales /src/locales
+COPY ./web /src/web
+RUN sudo chown -R circleci /src
 
-ARG WIKIJUMP_REPO_BRANCH="develop"
-ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
-ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
-WORKDIR /src
+# Install pnpm
+RUN sudo npm install -g pnpm
 
-RUN apk add --no-cache git
-
-RUN git clone \
-            --depth 10 \
-            --branch "${WIKIJUMP_REPO_BRANCH}" \
-            "${WIKIJUMP_REPO}"
-
-WORKDIR /src/${WIKIJUMP_REPO_DIR}/web
-
-RUN npm install pnpm --global
+# Build frontend
+WORKDIR /src/web
 RUN pnpm install
 RUN pnpm build:legacy
 
-# Main nginx container
+#
+# Final image
+#
 
 FROM nginx:alpine
-ARG WIKIJUMP_REPO_DIR="wikijump"
 EXPOSE 80
 
-COPY --from=npm /src/${WIKIJUMP_REPO_DIR}/web/web /var/www/wikijump/web/web
-COPY nginx.conf /etc/nginx/nginx.conf
+# Build variables
+ARG ENVIRONMENT="dev"
+
+# Copy Wikijump repository
+COPY ./web /var/www/wikijump/web
+
+# Copy sources from intermediate images
+COPY --from=node /src/web/web /var/www/wikijump/web/web
+COPY ./install/files/nginx.conf /etc/nginx/nginx.conf

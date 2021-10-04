@@ -1,4 +1,4 @@
-name: '[backend] Docker build PHP-FPM'
+name: '[backend] Docker push PHP-FPM'
 
 on:
   push:
@@ -8,36 +8,41 @@ on:
       - 'web/**'
       - 'install/aws/dev/docker/php-fpm/**'
       - '.github/workflows/docker-build-push-php.dev.yaml'
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
         - name: Checkout
           uses: actions/checkout@v2
+
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v1
           with:
             aws-access-key-id: ${{ secrets.DOCKER_PUSH_KEY }}
             aws-secret-access-key: ${{ secrets.DOCKER_PUSH_SECRET }}
             aws-region: us-east-2
+
         - name: Login to Amazon ECR
           id: login-ecr
           uses: aws-actions/amazon-ecr-login@v1
+
         - name: Build, tag, and push image to Amazon ECR
           id: build-image
-          working-directory: ./install/aws/dev/docker/php-fpm
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             ECR_REPOSITORY: wikijump-dev/php-fpm
             IMAGE_TAG: ${{ github.sha }}
           run: |
             set -ex
-            docker build --build-arg WIKIJUMP_REPO_BRANCH=${GITHUB_REF##*/} --build-arg MAIN_DOMAIN=wikijump.dev --build-arg FILES_DOMAIN=wjfiles.dev -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:develop .
+            docker build -f install/aws/dev/docker/php-fpm --build-arg MAIN_DOMAIN=wikijump.dev --build-arg FILES_DOMAIN=wjfiles.dev -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:develop .
             docker push $ECR_REGISTRY/$ECR_REPOSITORY --all-tags
             echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
         - name: Download task definition
           run: |
             aws ecs describe-task-definition --task-definition wikijump-dev-ec2 --query taskDefinition > task-definition.json
+
         - name: Fill in the new image ID in the Amazon ECS task definition
           id: task-def
           uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -45,6 +50,7 @@ jobs:
             task-definition: task-definition.json
             container-name: php-fpm
             image: ${{ steps.build-image.outputs.image }}
+
         - name: Deploy Amazon ECS task definition
           uses: aws-actions/amazon-ecs-deploy-task-definition@v1
           with:

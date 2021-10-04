@@ -27,7 +27,7 @@ FROM nginx:alpine
 EXPOSE 80
 
 # Build variables
-ARG ENVIRONMENT="local"
+ARG ENVIRONMENT="prod"
 
 # Copy Wikijump repository
 COPY ./web /var/www/wikijump/web

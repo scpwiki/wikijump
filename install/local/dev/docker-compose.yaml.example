@@ -4,17 +4,31 @@ services:
   cache:
     image: memcached:1.6-alpine
     restart: always
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "11211"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
   database:
     build:
-      context: ./postgres
+      context: ../../..
+      dockerfile: install/local/dev/postgres/Dockerfile
       args:
         FILES_DOMAIN: 'wjfiles.test'
     ports:
       - "5432:5432"
     restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "wikijump", "-U", "wikijump"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
   nginx:
     build:
-      context: ./nginx
+      context: ../../..
+      dockerfile: install/local/dev/nginx/Dockerfile
     links:
       - php-fpm
     depends_on:
@@ -27,9 +41,11 @@ services:
       - traefik.enable=true
       - traefik.http.routers.php-fpm.tls=true
       - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
+
   php-fpm:
     build:
-      context: ./php-fpm
+      context: ../../..
+      dockerfile: install/local/dev/php-fpm/Dockerfile
       args:
         MAIN_DOMAIN: 'wikijump.test'
         FILES_DOMAIN: 'wjfiles.test'
@@ -38,12 +54,15 @@ services:
       - database
     restart: always
     depends_on:
-      - cache
-      - database
+      cache:
+        condition: service_healthy
+      database:
+        condition: service_healthy
 # Similar to above, you may add local volumes:
 #    volumes:
 #      - C:\wikijump:/var/www/wikijump
 #      - ~/wikijump:/var/www/wikijump
+
   reverse-proxy:
     image: traefik:v2.4
     command:
