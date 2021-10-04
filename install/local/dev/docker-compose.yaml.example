@@ -6,7 +6,8 @@ services:
     restart: always
   database:
     build:
-      context: ./postgres
+      context: ../../..
+      dockerfile: install/local/dev/postgres/Dockerfile
       args:
         FILES_DOMAIN: 'wjfiles.test'
     ports:
