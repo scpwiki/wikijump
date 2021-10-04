@@ -6,6 +6,8 @@ on:
       - develop
       - prod
     paths:
+      - 'web/**/*.php'
+      - 'web/composer.*'
       - 'install/files/**'
       - 'install/local/dev/php-fpm/Dockerfile'
       - '.github/workflows/docker-build-php.local.yaml'
