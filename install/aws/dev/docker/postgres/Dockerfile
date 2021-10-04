@@ -22,7 +22,7 @@ USER postgres
 RUN pg_createcluster --user postgres --locale en_US.UTF-8 "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}"
 
 # Install postgres auth configuration
-COPY pg_hba.conf "/etc/postgresql/${POSTGRES_VERSION}/${POSTGRES_CLUSTER}/pg_hba.conf"
+RUN install -D -m644 /src/pg_hba.conf "/etc/postgresql/${POSTGRES_VERSION}/${POSTGRES_CLUSTER}/pg_hba.conf"
 
 # Seed database
 USER root
