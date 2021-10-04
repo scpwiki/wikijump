@@ -24,14 +24,14 @@ web/web/files--common/modules       @rossjrw
 .github/workflows/locales.yaml      @ammongit
 
 # Terraform and docker-compose deployment
-.github/workflows/docker-*.yaml     @pxdnbluesoul
-/install/                           @pxdnbluesoul
+.github/workflows/docker-*.yaml     @danieltharp
+/install/                           @danieltharp
 
 # PHP and related
-*.php                               @pxdnbluesoul
-/web/composer.json                  @pxdnbluesoul
-/web/phpunit.xml                    @pxdnbluesoul
-/web/.env.example                   @pxdnbluesoul
+*.php                               @danieltharp
+/web/composer.json                  @danieltharp
+/web/phpunit.xml                    @danieltharp
+/web/.env.example                   @danieltharp
 
 # Smarty
-*.tpl                               @pxdnbluesoul
+*.tpl                               @danieltharp
