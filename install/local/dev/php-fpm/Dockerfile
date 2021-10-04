@@ -65,7 +65,7 @@ RUN sudo npm install -g pnpm
 
 # Build frontend
 WORKDIR /src/web
-RUN pnpm install
+RUN pnpm install --prod
 RUN pnpm build-container
 
 #
