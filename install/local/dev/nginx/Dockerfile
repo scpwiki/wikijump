@@ -27,12 +27,11 @@ FROM nginx:alpine
 EXPOSE 80
 
 # Build variables
-ARG ENVIRONMENT="local/dev"
-ARG BUILD_DIR="./install/${ENVIRONMENT}/nginx"
+ARG ENVIRONMENT="local"
 
 # Copy Wikijump repository
 COPY ./web /var/www/wikijump/web
 
 # Copy sources from intermediate images
 COPY --from=node /src/web/web /var/www/wikijump/web/web
-COPY ${BUILD_DIR}/nginx.conf /etc/nginx/nginx.conf
+COPY ./install/files/nginx.conf /etc/nginx/nginx.conf

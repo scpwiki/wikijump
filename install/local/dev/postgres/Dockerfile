@@ -1,25 +1,20 @@
-# NOTE: when we migrate in-app instead of docker,
-# we can replace this Dockerfile with just a postgres:13-alpine image
 FROM postgres:13
 
 EXPOSE 5432
 
 # Build variables
+ARG ENVIRONMENT="local"
 ARG FILES_DOMAIN="wjfiles.test"
 ARG PGDATA="/var/lib/postgresql/data"
 
 ENV POSTGRES_CLUSTER="main"
 ENV POSTGRES_VERSION="13"
 
-# Preparation
-RUN mkdir /src
+# Copy sources
+COPY ./install/files/postgres /src
 WORKDIR /src
 
-# Copy sources
-COPY seed.sql setup.sh ./
-
-# Install scripts
-RUN mkdir /app
+# Install script
 COPY run.sh /app
 
 # Create system user
@@ -34,7 +29,7 @@ COPY pg_hba.conf "/etc/postgresql/${POSTGRES_VERSION}/${POSTGRES_CLUSTER}/pg_hba
 
 # Seed database
 USER root
-RUN ./setup.sh
+RUN /src/setup.sh
 
 # Clean up
 WORKDIR /etc/postgresql

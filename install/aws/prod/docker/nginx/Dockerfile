@@ -14,7 +14,7 @@ RUN sudo chown -R circleci /src
 # Install pnpm
 RUN sudo npm install -g pnpm
 
-# Build legacy frontend
+# Build frontend
 WORKDIR /src/web
 RUN pnpm install
 RUN pnpm build:legacy
@@ -27,12 +27,11 @@ FROM nginx:alpine
 EXPOSE 80
 
 # Build variables
-ARG ENVIRONMENT="aws/prod/docker"
-ARG BUILD_DIR="./install/${ENVIRONMENT}/nginx"
+ARG ENVIRONMENT="prod"
 
 # Copy Wikijump repository
 COPY ./web /var/www/wikijump/web
 
 # Copy sources from intermediate images
 COPY --from=node /src/web/web /var/www/wikijump/web/web
-COPY ${BUILD_DIR}/nginx.conf /etc/nginx/nginx.conf
+COPY ./install/files/nginx.conf /etc/nginx/nginx.conf

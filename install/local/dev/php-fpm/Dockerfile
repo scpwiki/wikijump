@@ -5,14 +5,13 @@
 FROM php:7.4-fpm-buster AS php
 
 # Build variables
-ARG ENVIRONMENT="local/dev"
+ARG ENVIRONMENT="local"
 ARG DEBUG_IP="192.168.42.128"
 
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
 
 # Derived variables
-ARG BUILD_DIR="./install/${ENVIRONMENT}/php-fpm"
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 
 # Copy source
@@ -30,7 +29,7 @@ RUN echo "xdebug.mode = develop" >> ${XDEBUG_INI} \
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Copy setup scripts
-COPY ${BUILD_DIR}/setup*.sh /src/
+COPY ./install/files/php-fpm/setup*.sh /src/
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
@@ -39,14 +38,14 @@ WORKDIR /var/www/wikijump/web
 RUN /src/setup.sh
 
 # Inject values in the wikijump.ini configuration file
-COPY ${BUILD_DIR}/wikijump.ini conf/wikijump.ini
+COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
 
 RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini
 
 # Copy remaining PHP files
-COPY ${BUILD_DIR}/etc/php/ /usr/local/etc/php/conf.d/
+COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
 
 #
 # Frontend
@@ -116,7 +115,7 @@ EXPOSE 9000
 COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=locales /src/locales/out/ /var/www/locales
-# TODO - copy from client
+# TODO - copy from web
 
 WORKDIR /var/www/wikijump/web
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]

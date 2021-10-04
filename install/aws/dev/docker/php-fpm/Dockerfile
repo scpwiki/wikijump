@@ -5,13 +5,12 @@
 FROM php:7.4-fpm-buster AS php
 
 # Build variables
-ARG ENVIRONMENT="aws/dev/docker"
+ARG ENVIRONMENT="dev"
 
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
 
 # Derived variables
-ARG BUILD_DIR="./install/${ENVIRONMENT}/php-fpm"
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 
 # Copy source
@@ -22,7 +21,7 @@ COPY ./web /var/www/wikijump/web
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Copy setup scripts
-COPY ${BUILD_DIR}/setup*.sh /src/
+COPY ./install/files/php-fpm/setup*.sh /src/
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
@@ -31,14 +30,14 @@ WORKDIR /var/www/wikijump/web
 RUN /src/setup.sh
 
 # Inject values in the wikijump.ini configuration file
-COPY ${BUILD_DIR}/wikijump.ini conf/wikijump.ini
+COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
 
 RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini
 
 # Copy remaining PHP files
-COPY ${BUILD_DIR}/etc/php/ /usr/local/etc/php/conf.d/
+COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
 
 #
 # Frontend
@@ -56,7 +55,7 @@ RUN sudo chown -R circleci /src
 # Install pnpm
 RUN sudo npm install -g pnpm
 
-# Build main frontend
+# Build frontend
 WORKDIR /src/web
 RUN pnpm install
 RUN pnpm build:legacy
