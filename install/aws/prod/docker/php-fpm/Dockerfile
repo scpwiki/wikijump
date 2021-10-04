@@ -5,7 +5,7 @@
 FROM php:7.4-fpm-buster AS php
 
 # Build variables
-ARG ENVIRONMENT="aws/prod"
+ARG ENVIRONMENT="aws/prod/docker"
 
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"

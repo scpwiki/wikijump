@@ -27,7 +27,7 @@ FROM nginx:alpine
 EXPOSE 80
 
 # Build variables
-ARG ENVIRONMENT="aws/prod"
+ARG ENVIRONMENT="aws/prod/docker"
 ARG BUILD_DIR="./install/${ENVIRONMENT}/nginx"
 
 # Copy Wikijump repository
