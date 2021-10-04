@@ -19,6 +19,11 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "wikijump", "-U", "wikijump"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
 
   nginx:
     build:
