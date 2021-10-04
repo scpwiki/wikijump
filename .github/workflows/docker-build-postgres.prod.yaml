@@ -6,9 +6,7 @@ on:
       - develop
       - prod
     paths:
-      - 'web/web/**'
-      - 'web/package.json'
-      - 'web/tsconfig.json'
+      - 'web/database/**'
       - 'install/files/postgres/**'
       - 'install/aws/prod/docker/postgres/Dockerfile'
       - '.github/workflows/docker-build-postgres.prod.yaml'

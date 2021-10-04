@@ -6,6 +6,7 @@ on:
       - develop
       - prod
     paths:
+      - 'web/database/**'
       - 'install/files/postgres/**'
       - 'install/aws/dev/docker/postgres/Dockerfile'
       - '.github/workflows/docker-build-postgres.dev.yaml'
