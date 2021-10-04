@@ -4,6 +4,7 @@ services:
   cache:
     image: memcached:1.6-alpine
     restart: always
+
   database:
     build:
       context: ../../..
@@ -13,6 +14,7 @@ services:
     ports:
       - "5432:5432"
     restart: always
+
   nginx:
     build:
       context: ../../..
@@ -29,6 +31,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.php-fpm.tls=true
       - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
+
   php-fpm:
     build:
       context: ../../..
@@ -47,6 +50,7 @@ services:
 #    volumes:
 #      - C:\wikijump:/var/www/wikijump
 #      - ~/wikijump:/var/www/wikijump
+
   reverse-proxy:
     image: traefik:v2.4
     command:
