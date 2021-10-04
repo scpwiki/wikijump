@@ -117,6 +117,7 @@ COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=locales /src/locales/out/ /var/www/locales
 COPY --from=frontend /src/web/web/files--common/ /var/www/web/files--common
 COPY --from=frontend /src/web/public/ /var/www/wikijump/web/public
+COPY --from=frontend /src/web/web/files--common/dist/ /var/www/wikijump/web/web/files--common/dist
 
 WORKDIR /var/www/wikijump/web
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
