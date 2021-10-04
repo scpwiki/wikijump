@@ -14,9 +14,6 @@ ENV POSTGRES_VERSION="13"
 COPY ./install/files/postgres /src
 WORKDIR /src
 
-# Install script
-COPY /src/run.sh /app
-
 # Create system user
 RUN useradd wikijump --create-home --shell /bin/bash
 
