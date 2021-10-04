@@ -4,6 +4,11 @@ services:
   cache:
     image: memcached:1.6-alpine
     restart: always
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "11211"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   database:
     build:
@@ -44,8 +49,10 @@ services:
       - database
     restart: always
     depends_on:
-      - cache
-      - database
+      cache:
+        condition: service_healthy
+      database:
+        condition: service_healthy
 # Similar to above, you may add local volumes:
 #    volumes:
 #      - C:\wikijump:/var/www/wikijump
