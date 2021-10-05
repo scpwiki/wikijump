@@ -19,9 +19,7 @@
     "@wikijump/codemirror": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/api": "workspace:*",
-    "@wikijump/util": "workspace:*"
-  },
-  "devDependencies": {
+    "@wikijump/util": "workspace:*",
     "svelte": "^3.43.1"
   }
 }

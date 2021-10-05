@@ -21,9 +21,7 @@
     "tippy.js": "^6.3.2",
     "@wikijump/prism": "workspace:*",
     "@wikijump/api": "workspace:*",
-    "@wikijump/util": "workspace:*"
-  },
-  "devDependencies": {
+    "@wikijump/util": "workspace:*",
     "svelte": "^3.43.1"
   }
 }

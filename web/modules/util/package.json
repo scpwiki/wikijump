@@ -10,7 +10,7 @@
   "scripts": {},
   "type": "module",
   "main": "src/index.ts",
-  "devDependencies": {
+  "dependencies": {
     "svelte": "^3.43.1"
   }
 }
