@@ -7,7 +7,7 @@ build:
     - pnpm build:local
 
   legacy: node scripts/build-legacy.js build
-  vite: vite build --config vite.config.js
+  vite: vite build
   local: pnpm compose build
 
 build-sudo:
@@ -17,7 +17,7 @@ build-sudo:
     - pnpm build-sudo:local
 
   legacy: node scripts/build-legacy.js build
-  vite: vite build --config vite.config.js
+  vite: vite build
   local: pnpm compose-sudo build
 
 # Special build command specifically for containers
@@ -47,7 +47,7 @@ dev:
     - run-p dev:legacy dev:vite dev:local
 
   legacy: node scripts/build-legacy.js dev
-  vite: vite dev --config vite.config.js
+  vite: vite dev
   local: pnpm compose up
   # Skips build step
   skip: run-p dev:legacy dev:vite dev:local
@@ -59,7 +59,7 @@ dev-sudo:
     - run-p dev-sudo:legacy dev-sudo:vite dev-sudo:local
 
   legacy: node scripts/build-legacy.js dev
-  vite: vite dev --config vite.config.js
+  vite: vite dev
   local: pnpm compose-sudo up
   # Skips build step
   skip: run-p dev-sudo:legacy dev-sudo:vite dev-sudo:local
@@ -89,11 +89,6 @@ lint:
 typecheck: tsc
 
 validate: run-p -lns lint typecheck
-
-# -- MISC.
-
-dev:dev-sandbox: pnpm --filter dev-sandbox dev
-preview:dev-sandbox: pnpm --filter dev-sandbox preview
 
 # -- DOCKER UTILITY
 
