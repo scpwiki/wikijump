@@ -63,4 +63,3 @@ echo "access.format = \"[%t] %m %{REQUEST_SCHEME}e://%{HTTP_HOST}e%{REQUEST_URI}
 
 install -m 400 -o www-data -g www-data .env.example .env
 php artisan key:generate
-chown -R www-data:www-data .
