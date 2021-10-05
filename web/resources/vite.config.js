@@ -14,9 +14,9 @@ const PHP_CONFIG = {
   "ignore_patterns": ["/\\.d\\.ts$/"],
   "aliases": { "@": "../resources" },
   "public_directory": "static",
-  "ping_timeout": 10,
+  "ping_timeout": 1000,
   "ping_url": null,
-  "build_path": "files--common/assets",
+  "build_path": "build",
   "dev_url": "http://localhost:3000",
   "commands": []
 }
@@ -27,7 +27,7 @@ const CERT = "../../install/local/dev/ssl/cert.crt"
 export default defineConfig({}, PHP_CONFIG)
   .withPlugins(vitePluginToml, vitePluginYaml)
   .withPlugin(svelte(SVELTE_OPTIONS))
-  .withCertificates(KEY, CERT)
+  // .withCertificates(KEY, CERT)
   .merge({
     root: "../",
 
