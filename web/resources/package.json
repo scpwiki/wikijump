@@ -10,5 +10,9 @@
   "scripts": {},
   "type": "module",
   "main": "scripts/index.ts",
-  "dependencies": {}
+  "dependencies": {
+    "@wikijump/api": "workspace:*",
+    "@wikijump/css": "workspace:*",
+    "@wikijump/ftml-components": "workspace:*"
+  }
 }

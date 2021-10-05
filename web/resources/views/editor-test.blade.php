@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>title</title>
-    <link rel="stylesheet" lang="scss" href="/css/index.scss">
-    <script src="/lib/index.ts" type="module"></script>
+    @vite
+    @vite("resources/lib/index.ts")
   </head>
   <body>
     <div id="app"></div>

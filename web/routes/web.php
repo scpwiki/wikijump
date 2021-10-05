@@ -47,6 +47,14 @@ Route::get('welcome', function () {
     return view('welcome');
 });
 
+// TODO: remove when we have a proper frontend, this is just for testing
+/**
+ * Test route for opening the Sheaf editor.
+ */
+Route::get('/editor--test', function () {
+    return view('editor-test');
+});
+
 /**
  * Socialite route, null until I'm ready to begin work there.
  */
