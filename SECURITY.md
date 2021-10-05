@@ -38,9 +38,9 @@ Finally, the potential impact on Wikijump will be determined, and if the issue i
 
 As such, you will be asked to not discuss the exploit. This request will only be lifted in the very unlikely scenario that Wikidot releases a patch.
 
-A Wikidot bug will **not** be created, both because it is public and will become known to any potential bad actors, but because the issue is extremely
-unlikely to be fixed. If a method of contacting Wikidot, Inc. is found that is able to result in fixes to issues, we will use this to patch the
-vulnerabilities under our purview.
+We will **not** create an issue on [feedback.wikidot.com](https://feedback.wikidot.com/), both because it is public and will become known
+to any potential bad actors, but because the issue is extremely unlikely to be fixed.
+If a method of contacting Wikidot, Inc. is found that is able to result in fixes to issues, we will use this to patch the vulnerabilities under our purview.
 
 We understand that this is not in line with typical practices for [responsible disclosure](https://en.wikipedia.org/wiki/Responsible_disclosure),
 but due to the constraints of our lack of platform autonomy and the potential massive impact of malicious use of vulnerabilities, this is our current strategy.
