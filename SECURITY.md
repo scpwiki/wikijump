@@ -9,7 +9,7 @@ or reaching out to a member individually:
 |------------------------------------------------|------------------------------------------------------------------------|-------------------|---------------------------|
 | [@ammongit](https://github.com/ammongit)       | [aismallard](https://www.wikidot.com/account/messages#/new/4598089)    | `aismallard#0002` | ammon.i.smith@gmail.com   |
 | [@stormbreath](https://github.com/stormbreath) | [stormbreath](https://www.wikidot.com/account/messages#/new/3075960)   |                   |                           |
-| [@rossjrw](https://github.com/rossjrw)         | [Croquembouche](https://www.wikidot.com/account/messages#/new/2893766) |                   | rossjrw@gmail.com         |
+| [@rossjrw](https://github.com/rossjrw)         | [Croquembouche](https://www.wikidot.com/account/messages#/new/2893766) |                   | ross@rossjrw.com          |
 | [@danieltharp](https://github.com/danieltharp) | [pxdnbluesoul](https://www.wikidot.com/account/messages#/new/1414125)  |                   | daniel.tharp@gmail.com    |
 
 ### Wikijump
