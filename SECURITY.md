@@ -20,7 +20,7 @@ you will be notified privately. If this security issue impacts Wikijump _only_, 
 
 ### Wikidot
 
-The Wikijump Security Team also receives reports of security issues within Wikidot. You are encouraged to report
+The Wikijump Security Team also receives reports of security issues within Wikidot. We encourage you to report
 any vulnerabilities or exploits you discover.
 
 However, standard security disclosure cannot apply here, for three important reasons:
