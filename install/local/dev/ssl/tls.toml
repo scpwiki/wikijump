@@ -1,5 +1,0 @@
-[tls.stores]
-  [tls.stores.default]
-    [tls.stores.default.defaultCertificate]
-      certFile = "/ssl/cert.crt"
-      keyFile = "/ssl/cert.key"
