@@ -70,7 +70,9 @@ const { createServer } = require("vite")
     if (process.platform === "win32") {
       info(
         "Since you're on Windows, the process might exit before the containers could stop.",
-        "Make sure to let the containers finish exiting prior to running 'pnpm dev' again."
+        "Make sure to let the containers finish exiting prior to running 'pnpm dev' again.",
+        "If you want to always exit the program without dealing with any prompts,",
+        "make sure to HOLD Ctrl+C, rather than tapping it."
       )
       linebreak()
     }
