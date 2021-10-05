@@ -43,7 +43,7 @@ COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
 # Frontend
 #
 
-FROM circleci/node:latest
+FROM circleci/node:latest AS frontend
 
 # Copy source
 RUN sudo mkdir /src
@@ -107,7 +107,7 @@ EXPOSE 9000
 COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=locales /src/locales/out/ /var/www/locales
-# TODO - copy from web
+COPY --from=frontend /src/web/web/files--common/ /var/www/web/files--common
 
 WORKDIR /var/www/wikijump/web
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
