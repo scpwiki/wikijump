@@ -2,7 +2,8 @@
 
 The Wikijump Team prioritizes security and will fix issues as soon as they are disclosed.
 
-If you discover a security vulnerability, please reach out to a member of the Wikijump Security Team, who may be contacted as follows:
+If you discover a security vulnerability, please privately contact the Wikijump Security Team. This can be done by emailing security@wikijump.org,
+or reaching out to a member individually:
 
 | GitHub                                         | Wikidot                                                                | Discord           | Email                     |
 |------------------------------------------------|------------------------------------------------------------------------|-------------------|---------------------------|
