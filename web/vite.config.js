@@ -1,4 +1,5 @@
 const fs = require("fs")
+const path = require("path")
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import { defineConfig } from "laravel-vite"
 import { SASS_OPTIONS, SVELTE_OPTIONS } from "./scripts/vite-config.js"
@@ -8,7 +9,7 @@ import vitePluginYaml from "./scripts/vite-plugin-yaml.js"
 const entrypoints = fs
   .readdirSync("resources/scripts")
   .filter(ent => fs.statSync(`resources/scripts/${ent}`).isFile())
-  .map(file => `resources/scripts/${file}`)
+  .map(file => path.resolve(`resources/scripts/${file}`))
 
 // This is a modified return value from the following Artisan command:
 // php artisan vite:config
