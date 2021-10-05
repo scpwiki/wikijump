@@ -4,12 +4,12 @@ The Wikijump Team prioritizes security and will fix issues as soon as they are d
 
 If you discover a security vulnerability, please reach out to a member of the Wikijump Security Team, who may be contacted as follows:
 
-| GitHub       | Wikidot                                                               | Discord           | Email                     |
-|--------------|-----------------------------------------------------------------------|-------------------|---------------------------|
-| @ammongit    | [aismallard](http://www.wikidot.com/account/messages#/new/4598089)    | `aismallard#0002` | ammon.i.smith@gmail.com   |
-| @rossjrw     | [Croquembouche](http://www.wikidot.com/account/messages#/new/2893766) |                   | rossjrw@gmail.com         |
-| @stormbreath | [stormbreath](http://www.wikidot.com/account/messages#/new/3075960)   |                   |                           |
-| @danieltharp | [pxdnbluesoul](http://www.wikidot.com/account/messages#/new/1414125)  |                   | daniel.tharp@gmail.com    |
+| GitHub       | Wikidot                                                                | Discord           | Email                     |
+|--------------|------------------------------------------------------------------------|-------------------|---------------------------|
+| @ammongit    | [aismallard](https://www.wikidot.com/account/messages#/new/4598089)    | `aismallard#0002` | ammon.i.smith@gmail.com   |
+| @rossjrw     | [Croquembouche](https://www.wikidot.com/account/messages#/new/2893766) |                   | rossjrw@gmail.com         |
+| @stormbreath | [stormbreath](https://www.wikidot.com/account/messages#/new/3075960)   |                   |                           |
+| @danieltharp | [pxdnbluesoul](https://www.wikidot.com/account/messages#/new/1414125)  |                   | daniel.tharp@gmail.com    |
 
 ### Wikijump
 
