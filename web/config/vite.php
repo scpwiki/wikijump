@@ -2,6 +2,7 @@
 
 return [
   "build_path" => "build",
-  "dev_url" => "http://localhost:3000",
+  "dev_url" => "https://localhost:3000",
   "ping_timout" => 1000,
+  "ping_url" => "https://host.docker.internal:3000",
 ];

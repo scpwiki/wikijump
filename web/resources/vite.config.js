@@ -1,4 +1,5 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte"
+import * as fs from "fs-extra"
 import { defineConfig } from "laravel-vite"
 import { SASS_OPTIONS, SVELTE_OPTIONS } from "../scripts/vite-config.js"
 import vitePluginToml from "../scripts/vite-plugin-toml.js"
@@ -12,26 +13,26 @@ import vitePluginYaml from "../scripts/vite-plugin-yaml.js"
 const PHP_CONFIG = {
   "entrypoints": ["scripts/index.ts"],
   "ignore_patterns": ["/\\.d\\.ts$/"],
-  "aliases": { "@": "../resources" },
+  "aliases": { "@": "resources" },
   "public_directory": "static",
   "ping_timeout": 1000,
-  "ping_url": null,
+  "ping_url": "https://host.docker.internal:3000",
   "build_path": "build",
-  "dev_url": "http://localhost:3000",
+  "dev_url": "https://localhost:3000",
   "commands": []
 }
 
-const KEY = "../../install/local/dev/ssl/cert.key"
-const CERT = "../../install/local/dev/ssl/cert.crt"
+const KEY = fs.readFileSync("../../install/local/dev/ssl/cert.key")
+const CERT = fs.readFileSync("../../install/local/dev/ssl/cert.crt")
 
 export default defineConfig({}, PHP_CONFIG)
-  .withPlugins(vitePluginToml, vitePluginYaml)
-  .withPlugin(svelte(SVELTE_OPTIONS))
+  .withPlugins(vitePluginToml, vitePluginYaml, svelte(SVELTE_OPTIONS))
   // .withCertificates(KEY, CERT)
   .merge({
     root: "../",
 
     server: {
+      https: true,
       fs: { strict: false }
     },
 
