@@ -292,29 +292,6 @@ importers:
     dependencies:
       include-media: 1.4.10
 
-  modules/dev-sandbox:
-    specifiers:
-      '@wikijump/api': workspace:*
-      '@wikijump/cm-lang-ftml': workspace:*
-      '@wikijump/components': workspace:*
-      '@wikijump/css': workspace:*
-      '@wikijump/ftml-components': workspace:*
-      '@wikijump/ftml-wasm-worker': workspace:*
-      '@wikijump/sheaf': workspace:*
-      '@wikijump/util': workspace:*
-      svelte: ^3.43.1
-    dependencies:
-      '@wikijump/api': link:../api
-      '@wikijump/cm-lang-ftml': link:../cm-lang-ftml
-      '@wikijump/components': link:../components
-      '@wikijump/css': link:../css
-      '@wikijump/ftml-components': link:../ftml-components
-      '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
-      '@wikijump/sheaf': link:../sheaf
-      '@wikijump/util': link:../util
-    devDependencies:
-      svelte: 3.43.1
-
   modules/ftml-components:
     specifiers:
       '@popperjs/core': ^2.10.2
