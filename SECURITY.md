@@ -43,7 +43,7 @@ unlikely to be fixed. If a method of contacting Wikidot, Inc. is found that is a
 vulnerabilities under our purview.
 
 We understand that this is not in line with typical practices for [responsible disclosure](https://en.wikipedia.org/wiki/Responsible_disclosure),
-but due to the constraints of our lack of platform autonomy and the massive impact malicious use of vulnerabilities has, this is our current strategy.
+but due to the constraints of our lack of platform autonomy and the potential massive impact of malicious use of vulnerabilities, this is our current strategy.
 
 We acknowledge that concealment is not a substitute for proper patching, and that this is a temporary procedure until we are able to migrate fully onto Wikijump.
 
