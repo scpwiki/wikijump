@@ -1,8 +1,8 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import { defineConfig } from "laravel-vite"
-import { SASS_OPTIONS, SVELTE_OPTIONS } from "../scripts/vite-config.js"
-import vitePluginToml from "../scripts/vite-plugin-toml.js"
-import vitePluginYaml from "../scripts/vite-plugin-yaml.js"
+import { SASS_OPTIONS, SVELTE_OPTIONS } from "./scripts/vite-config.js"
+import vitePluginToml from "./scripts/vite-plugin-toml.js"
+import vitePluginYaml from "./scripts/vite-plugin-yaml.js"
 
 // This is a modified return value from the following Artisan command:
 // php artisan vite:config
@@ -10,7 +10,7 @@ import vitePluginYaml from "../scripts/vite-plugin-yaml.js"
 // if it does this, it will fail on build, because it will be unable to use PHP in
 // the container it runs in.
 const PHP_CONFIG = {
-  "entrypoints": ["scripts/index.ts"],
+  "entrypoints": ["resources/scripts/index.ts"],
   "ignore_patterns": ["/\\.d\\.ts$/"],
   "aliases": { "@": "resources" },
   "public_directory": "resources/static",
@@ -24,8 +24,6 @@ const PHP_CONFIG = {
 export default defineConfig({}, PHP_CONFIG)
   .withPlugins(vitePluginToml, vitePluginYaml, svelte(SVELTE_OPTIONS))
   .merge({
-    root: "../",
-
     server: {
       fs: { strict: false }
     },
