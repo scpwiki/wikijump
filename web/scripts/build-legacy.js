@@ -7,7 +7,6 @@
  */
 
 const path = require("path")
-const { execSync: exec } = require("child_process")
 const esbuild = require("esbuild")
 
 const DIR = path.resolve(__dirname, "../")
@@ -42,16 +41,6 @@ const SETTINGS_DEV = {
 }
 
 const mode = process.argv[2].trim()
-
-// this is a bit of a wacky place to put it, but in order to gracefully stop
-// the docker container we'll need to do it somewhere with access to hooks
-// so we'll do it here
-if (mode === "dev") {
-  process.on("SIGINT", () => {
-    process.chdir(DIR)
-    exec("pnpm compose down", { cwd: DIR, shell: true })
-  })
-}
 
 buildLegacyBundle(mode)
 

@@ -34,6 +34,7 @@ importers:
       prettier-plugin-jsdoc: ^0.3.24
       prettier-plugin-organize-imports: ^2.3.4
       prettier-plugin-svelte: ^2.4.0
+      pretty-ms: ^7.0.1
       query-string: 6.14.1
       rollup: ^2.58.0
       sass: ^1.42.1
@@ -84,6 +85,7 @@ importers:
       prettier-plugin-jsdoc: 0.3.24_prettier@2.4.1
       prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.4.3
       prettier-plugin-svelte: 2.4.0_prettier@2.4.1+svelte@3.43.1
+      pretty-ms: 7.0.1
       stylelint: 13.13.1
       stylelint-config-recess-order: 2.5.0_stylelint@13.13.1
       stylelint-order: 4.1.0_stylelint@13.13.1
@@ -369,10 +371,14 @@ importers:
       '@wikijump/api': workspace:*
       '@wikijump/css': workspace:*
       '@wikijump/ftml-components': workspace:*
+      '@wikijump/sheaf': workspace:*
+      svelte: ^3.43.1
     dependencies:
       '@wikijump/api': link:../modules/api
       '@wikijump/css': link:../modules/css
       '@wikijump/ftml-components': link:../modules/ftml-components
+      '@wikijump/sheaf': link:../modules/sheaf
+      svelte: 3.43.1
 
 packages:
 
@@ -6235,6 +6241,11 @@ packages:
       lines-and-columns: 1.1.6
     dev: true
 
+  /parse-ms/2.1.0:
+    resolution: {integrity: sha512-kHt7kzLoS9VBZfUsiKjv43mr91ea+U05EyKkEtqp7vNbHxmaVuEqN7XxeEVnGrMtYOAxGrDElSi96K7EgO1zCA==}
+    engines: {node: '>=6'}
+    dev: true
+
   /parse5/6.0.1:
     resolution: {integrity: sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==}
     dev: true
@@ -6631,6 +6642,13 @@ packages:
       ansi-regex: 5.0.1
       ansi-styles: 4.3.0
       react-is: 17.0.2
+    dev: true
+
+  /pretty-ms/7.0.1:
+    resolution: {integrity: sha512-973driJZvxiGOQ5ONsFhOF/DtzPMOMtgC11kCpUrPGMTgqp2q/1gwzCquocrN33is0VZ5GFHXZYMM9l6h67v2Q==}
+    engines: {node: '>=10'}
+    dependencies:
+      parse-ms: 2.1.0
     dev: true
 
   /process-nextick-args/2.0.1:

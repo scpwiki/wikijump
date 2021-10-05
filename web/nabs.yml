@@ -40,29 +40,8 @@ modules:publish: node scripts/publish-all.js
 
 # -- DEV
 
-dev:
-  $depend: []
-  $action:
-    - pnpm build:local
-    - run-p dev:legacy dev:vite dev:local
-
-  legacy: node scripts/build-legacy.js dev
-  vite: vite dev
-  local: pnpm compose up
-  # Skips build step
-  skip: run-p dev:legacy dev:vite dev:local
-
-dev-sudo:
-  $depend: []
-  $action:
-    - pnpm build-sudo:local
-    - run-p dev-sudo:legacy dev-sudo:vite dev-sudo:local
-
-  legacy: node scripts/build-legacy.js dev
-  vite: vite dev
-  local: pnpm compose-sudo up
-  # Skips build step
-  skip: run-p dev-sudo:legacy dev-sudo:vite dev-sudo:local
+dev: node scripts/dev.js
+dev-sudo: node scripts/dev.js sudo
 
 # -- TESTING
 

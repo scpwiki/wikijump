@@ -13,6 +13,8 @@
   "dependencies": {
     "@wikijump/api": "workspace:*",
     "@wikijump/css": "workspace:*",
-    "@wikijump/ftml-components": "workspace:*"
+    "@wikijump/ftml-components": "workspace:*",
+    "@wikijump/sheaf": "workspace:*",
+    "svelte": "^3.43.1"
   }
 }

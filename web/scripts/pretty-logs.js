@@ -1,5 +1,5 @@
 const readline = require("readline")
-const { execSync } = require("child_process")
+const { spawn, spawnSync, execSync } = require("child_process")
 const chalk = require("chalk")
 
 function linebreak() {
@@ -19,6 +19,13 @@ function section(title) {
 function info(...msgs) {
   const msg = msgs.join("\n")
   console.log(chalk.green(msg))
+}
+
+function infoline(...msgs) {
+  linebreak()
+  const msg = msgs.join("\n")
+  console.log(chalk.green(msg))
+  linebreak()
 }
 
 function look(...msgs) {
@@ -42,6 +49,27 @@ function cmd(command) {
   execSync(command, { stdio: "inherit" })
 }
 
+function shellParams(command) {
+  let file, args
+  let options = { stdio: "inherit" }
+  if (process.platform === "win32") {
+    file = "cmd.exe"
+    args = ["/s", "/c", `"${command}"`]
+    options.windowsVerbatimArguments = true
+  } else {
+    file = "/bin/sh"
+    args = ["-c", command]
+  }
+  return [file, args, options]
+}
+
+function shellSync(command) {
+  return spawnSync(...shellParams(command))
+}
+function shell(command) {
+  return spawn(...shellParams(command))
+}
+
 function question(question) {
   return new Promise((resolve, reject) => {
     const rl = readline.createInterface({
@@ -62,9 +90,12 @@ module.exports = {
   separator,
   section,
   info,
+  infoline,
   look,
   warn,
   error,
   cmd,
+  shellSync,
+  shell,
   question
 }
