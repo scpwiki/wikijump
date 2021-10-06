@@ -38,17 +38,15 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 # Change permissions on directories
 RUN chown -R www-data:www-data logs/ vendor/
 
-# Install PHP extensions
+# Install PHP extensions, dependencies
 RUN /src/setup-php-extensions.sh
 
 # Install PHP dependencies
 USER www-data
+RUN /src/setup-php-create.sh
 RUN /src/setup-php-dependencies.sh
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
-
-# Finish other miscellaneous setup
-RUN /src/setup-misc.sh
 
 # Inject values in the wikijump.ini configuration file
 COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
@@ -60,6 +58,9 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 # Copy remaining PHP files
 USER root
 COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
+
+# Finish other miscellaneous setup
+RUN /src/setup-misc.sh
 
 #
 # Frontend
