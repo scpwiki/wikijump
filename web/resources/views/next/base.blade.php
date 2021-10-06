@@ -53,10 +53,13 @@
     > --}}
 
     {{-- Preloads, Preconnects --}}
-    {{-- TODO: figure out preloads
+    {{-- TODO: figure out preloads for dynamic assets
       <link rel="preload" href="{{ vite_asset('../css/base.scss') }}" as="style">
       <link rel="preload" href="{{ vite_asset('../scripts/index.ts') }}" as="script">
+      <link rel="preload" href="{{ vite_asset("../fonts/PublicSans-VariableFont.woff2") }}" as="font/woff2" crossorigin>
+      <link rel="preload" href="{{ vite_asset("../fonts/Exo2-VariableFont.woff2") }}" as="font/woff2" crossorigin>
     - --}}
+    {{-- TODO: preload the user's locale file --}}
     @stack("preloads")
 
     {{-- OpenGraph --}}
