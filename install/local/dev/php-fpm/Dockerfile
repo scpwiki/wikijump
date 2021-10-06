@@ -38,6 +38,7 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 RUN /src/setup-php-extensions.sh
 
 # Install PHP dependencies
+USER www-data
 RUN /src/setup-php-dependencies.sh
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
@@ -53,6 +54,7 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini
 
 # Copy remaining PHP files
+USER root
 COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
 
 #
@@ -129,5 +131,6 @@ COPY --from=frontend /src/web/public/ /var/www/wikijump/web/public
 # Cleanup
 RUN rm -rf /src /usr/bin/composer
 
+USER www-data
 WORKDIR /var/www/wikijump/web
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
