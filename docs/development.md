@@ -4,7 +4,7 @@ This document will explain how to set up Wikijump on your machine for local deve
 
 ## Environment
 
-### Operating system
+### Operating System
 
 To run Wikijump, you will need to be running Linux.
 
@@ -14,29 +14,6 @@ If you are running Windows, you have two options:
 * (Recommended) Install [Windows Subsystem for Linux 2 (WSL2)](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
 
 In either case, when choosing a Linux distribution, Ubuntu is fine.
-
-### Connecting to localhost
-
-You will need edit your system's HOSTS file so that when you navigate to https://www.wikijump.test, your browser knows that you want to connect to your own virtual server and not somewhere on the internet. On Linux, your HOSTS file is `/etc/hosts`. On Windows, it is `C:\Windows\System32\drivers\etc\hosts`, but in order to edit it you will need to be running an editor (e.g. Notepad) as administrator. If you are running WSL2, edit your Windows HOSTS file; ignore your Linux HOSTS file.
-
-Add the following lines to your HOSTS file:
-
-```
-127.0.0.1          wikijump.test               Wikijump
-127.0.0.1          www.wikijump.test           Wikijump
-127.0.0.1          wjfiles.test                Wikijump
-127.0.0.1          template-en.wikijump.test   Wikijump
-127.0.0.1          sandbox.wikijump.test       Wikijump
-127.0.0.1          scp-wiki.wikijump.test      Wikijump
-::1                wikijump.test               Wikijump
-::1                www.wikijump.test           Wikijump
-::1                wjfiles.test                Wikijump
-::1                template-en.wikijump.test   Wikijump
-::1                sandbox.wikijump.test       Wikijump
-::1                scp-wiki.wikijump.test      Wikijump
-```
-
-You will also need to add a line for any wiki that you create, e.g. `127.0.0.1 my-new-wiki.wikijump.test`.
 
 ## Installation
 
@@ -66,7 +43,7 @@ You will need Docker installed and running:
 
 Then install [Docker Compose](https://docs.docker.com/compose/).
 
-You will need to provide a `docker-compose.yaml` file to run Wikijump. The domains to be used, TLS certificates, and volumes will be set here. See `docker-compose.yaml.example` for what this file may look like. Note that for a local deployment, dummy domains like `wikijump.test` will work fine.
+You will need to provide a `docker-compose.yaml` file to run Wikijump. The domains to be used, TLS certificates, and volumes will be set here. See `docker-compose.yaml.example` for what this file may look like. Note that for a local deployment, dummy domains like `wikijump.localhost` will work fine.
 
 Additionally you will need to generate TLS certificates. Fill in the domain variables with the same values you used in your `docker-compose.yaml` file.
 
@@ -90,7 +67,7 @@ $ cd install/local/dev
 $ docker-compose -p wikijump up
 ```
 
-When running, navigate to https://www.wikijump.test/ in your browser. This will contain the containerized Wikijump installation.
+When running, navigate to http://www.wikijump.localhost/ in your browser. This will contain the containerized Wikijump installation.
 Your browser will probably complain that the site is insecure, citing that the page has a self-signed certificate. During local development, this is unfortunate but expected.
 
 -----
@@ -136,7 +113,7 @@ $ docker exec -it [name of container] sh
 
 ...where `[name of container]` is the name of the PHP-FPM container from `docker container ls`.
 
-One reason you may need to enter the container is to adjust the Wikijump config. For example, if you use a port other than 80 for your Docker container, you will need to edit `site.custom_domain` to add the port number (e.g. "`www.wikijump.test:8080`"). Alternatively, use curl to set the domain directly (e.g. "`-H 'www.wikijump.test'`")
+One reason you may need to enter the container is to adjust the Wikijump config. For example, if you use a port other than 80 for your Docker container, you will need to edit `site.custom_domain` to add the port number (e.g. "`www.wikijump.localhost:8080`"). Alternatively, use curl to set the domain directly (e.g. "`-H 'www.wikijump.localhost'`")
 
 After editing the Wikijump config, you may need to restart nginx inside the container:
 
