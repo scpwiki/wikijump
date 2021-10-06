@@ -125,4 +125,4 @@ const getConfig = (test = false) => ({
   ]
 })
 
-module.exports = { getConfig }
+module.exports = { SASS_OPTIONS, SVELTE_OPTIONS, getConfig }

@@ -5,13 +5,14 @@
 .github
 
 # Tests
-client/**/test
+web/**/tests
 ftml/test
 
 # Vendored files and artifacts
 ftml/target
 ftml/pkg
 web/storage
+web/public
 **/__pycache__
 **/dist
 **/node_modules

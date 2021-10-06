@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "extends": "../tsconfig.json",
+  "include": ["scripts/**/*", "../modules/_types/**/*"]
+}

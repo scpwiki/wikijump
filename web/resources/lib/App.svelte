@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Sheaf } from "@wikijump/sheaf"
+  import { asset } from "@wikijump/api"
   import { onMount } from "svelte"
 
   let ready = false
@@ -7,9 +8,9 @@
 
   onMount(async () => {
     if (!doc) {
-      const res = await fetch("/files--common/misc/ftml-test-cases-export.ftml")
+      const res = await asset("/misc/ftml-test-cases-export.ftml").text()
       if (!res) return
-      doc = await res.text()
+      doc = res
     }
     ready = true
   })

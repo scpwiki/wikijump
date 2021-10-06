@@ -23,6 +23,7 @@
     "noEmit": true,
 
     "paths": {
+      "@/*": ["./resources/*"],
       "@root/*": ["../*"]
     }
   },

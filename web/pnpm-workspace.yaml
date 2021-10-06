@@ -1,2 +1,3 @@
 packages:
-  - 'modules/*'
+  - "modules/*"
+  - "resources"

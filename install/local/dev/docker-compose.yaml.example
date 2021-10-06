@@ -15,7 +15,7 @@ services:
       context: ../../..
       dockerfile: install/local/dev/postgres/Dockerfile
       args:
-        FILES_DOMAIN: 'wjfiles.test'
+        FILES_DOMAIN: 'wjfiles.localhost'
     ports:
       - "5432:5432"
     restart: always
@@ -47,8 +47,8 @@ services:
       context: ../../..
       dockerfile: install/local/dev/php-fpm/Dockerfile
       args:
-        MAIN_DOMAIN: 'wikijump.test'
-        FILES_DOMAIN: 'wjfiles.test'
+        MAIN_DOMAIN: 'wikijump.localhost'
+        FILES_DOMAIN: 'wjfiles.localhost'
     links:
       - cache
       - database

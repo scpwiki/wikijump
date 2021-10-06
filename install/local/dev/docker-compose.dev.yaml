@@ -1,5 +1,8 @@
 services:
   php-fpm:
+    # Makes `host.docker.internal` resolve correctly to the host's IP on Linux
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - type: bind
         source: ../../../web/app
@@ -12,6 +15,10 @@ services:
       - type: bind
         source: ../../../web/php
         target: /var/www/wikijump/web/php
+        read_only: true
+      - type: bind
+        source: ../../../web/resources
+        target: /var/www/wikijump/web/resources
         read_only: true
       - type: bind
         source: ../../../web/storage
@@ -31,8 +38,16 @@ services:
         read_only: true
 
   nginx:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.php-fpm.tls=false
+      - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)
     volumes:
       - type: bind
         source: ../../../web/web
         target: /var/www/wikijump/web/web
         read_only: true
+
+  reverse-proxy:
+    command:
+      - --providers.docker

@@ -27,5 +27,4 @@
 @import "themes/layout";
 
 // Import font-faces as .css to resolve relative imports
-// TODO: replace this if possible - this is a hacky workaround
-@import "@wikijump/css/src/font-faces.css";
+@import "font-faces.css";
