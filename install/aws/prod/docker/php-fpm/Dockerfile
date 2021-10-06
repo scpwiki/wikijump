@@ -31,13 +31,7 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 RUN /src/setup-php-extensions.sh
 
 # Install PHP dependencies
-USER www-data
-RUN composer install \
-	--no-ansi \
-	--no-interaction \
-	--no-scripts \
-	--no-progress \
-	--prefer-dist
+RUN /src/setup-php-dependencies.sh
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
