@@ -162,10 +162,10 @@ class PageBuilder
              * Nginx does a transform on the request for us.
              *
              * The user makes a request for a page like:
-             * `wikijump.test/testpage`
+             * `wikijump.com/testpage`
              *
              * But nginx transforms it and provides it to the server as:
-             * `wikijump.test/index.php?Wiki__WikiScreen/wiki_page/testpage`
+             * `wikijump.com/index.php?Wiki__WikiScreen/wiki_page/testpage`
              *
              * And so the query string looks like:
              *          0           1         2
