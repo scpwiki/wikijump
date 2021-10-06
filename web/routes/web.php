@@ -52,7 +52,7 @@ Route::get('welcome', function () {
  * Test route for opening the Sheaf editor.
  */
 Route::get('/editor--test', function () {
-    return view('editor-test');
+    return view('next.editor-test');
 });
 
 /**
