@@ -14,9 +14,15 @@ ARG FILES_DOMAIN="wjfiles.localhost"
 # Derived variables
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 
-# Copy source
+# Copy setup scripts
 RUN mkdir /src
+COPY ./install/files/php-fpm/setup*.sh /src/
+
+# Copy Wikijump source
 COPY ./web /var/www/wikijump/web
+
+# Install system dependencies
+RUN /src/setup-system.sh
 
 # Configure xdebug
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
@@ -28,14 +34,13 @@ RUN echo "xdebug.mode = develop" >> ${XDEBUG_INI} \
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-# Copy setup scripts
-COPY ./install/files/php-fpm/setup*.sh /src/
+# Install PHP dependencies
+RUN /src/setup-php.sh
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
-# Run setup scripts
-WORKDIR /var/www/wikijump/web
-RUN /src/setup.sh
+# Finish other miscellaneous setup
+RUN /src/setup-misc.sh
 
 # Inject values in the wikijump.ini configuration file
 COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
@@ -117,6 +122,9 @@ COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=locales /src/locales/out/ /var/www/locales
 COPY --from=frontend /src/web/web/files--common/ /var/www/wikijump/web/web/files--common
 COPY --from=frontend /src/web/public/ /var/www/wikijump/web/public
+
+# Cleanup
+RUN rm -rf /src
 
 WORKDIR /var/www/wikijump/web
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
