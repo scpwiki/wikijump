@@ -8,8 +8,8 @@ FROM php:7.4-fpm-buster AS php
 ARG ENVIRONMENT="local"
 ARG DEBUG_IP="192.168.42.128"
 
-ARG MAIN_DOMAIN="wikijump.test"
-ARG FILES_DOMAIN="wjfiles.test"
+ARG MAIN_DOMAIN="wikijump.localhost"
+ARG FILES_DOMAIN="wjfiles.localhost"
 
 # Derived variables
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"

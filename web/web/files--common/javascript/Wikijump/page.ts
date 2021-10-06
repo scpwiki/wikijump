@@ -9,8 +9,8 @@ declare const fx: any;
 declare const WIKIREQUEST: Wikirequest;
 
 // TODO These are externally defined somewhere - where?
-const HTTP_SCHEMA = "https";
-const URL_HOST = "wikijump.test";
+const HTTP_SCHEMA = "http";
+const URL_HOST = "wikijump.localhost";
 
 type EditLock = {
   id: unknown;
