@@ -65,7 +65,7 @@
             as="font" type="font/woff2" crossorigin>
     - --}}
     {{-- TODO: preload the user's locale file --}}
-    @stack("preloads")
+    @stack('preloads')
 
     {{-- OpenGraph --}}
     {{-- TODO: verify that getLocale returns a well formed string for this --}}
@@ -145,8 +145,8 @@
     @endisset
 
     {{-- Styles --}}
-    @vite("resources/css/base.scss")
-    @stack("styles")
+    @vite('resources/css/base.scss')
+    @stack('styles')
 
     {{-- Vite --}}
     @client
@@ -154,19 +154,19 @@
     {{-- Misc --}}
     <link rel="author" href="humans.txt"> {{-- TODO --}}
 
-    @stack("head")
+    @stack('head')
 </head>
 
 <body class="light codetheme-dark">
-    @yield("content")
+    @yield('content')
 
     <div id="toasts"></div>
     <div id="modals"></div>
 
     {{-- Scripts --}}
     {{-- TODO: see if it's possible to make scripts load async --}}
-    @vite("resources/scripts/index.ts")
-    @stack("scripts")
+    @vite('resources/scripts/index.ts')
+    @stack('scripts')
 </body>
 
 </html>

@@ -1,7 +1,7 @@
-@extends("next.base")
+@extends('next.base')
 
 @push('scripts')
-    @vite("resources/lib/index.ts")
+    @vite('resources/lib/index.ts')
 @endpush
 
 @section('content')
