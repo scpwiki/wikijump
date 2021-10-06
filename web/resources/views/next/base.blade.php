@@ -33,6 +33,9 @@
     <meta charset="utf-8">
     <base href="/">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    {{-- Security --}}
+    <meta name="referrer" content="no-referrer">
     {{-- TODO:
     <meta
         http-equiv="Content-Security-Policy"
