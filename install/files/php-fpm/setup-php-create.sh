@@ -7,6 +7,7 @@ mkdir -p \
 	storage/framework/cache \
 	storage/framework/sessions \
 	storage/framework/views \
+	vendor \
 	tmp/smarty_templates_c \
 	tmp/lucene_index \
 	tmp/math \
