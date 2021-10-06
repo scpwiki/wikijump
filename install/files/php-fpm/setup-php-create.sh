@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eux
 
-[[ $USER == www-data ]]
+[[ $EUID != 0 ]]
 
 cd /var/www/wikijump/web
 
