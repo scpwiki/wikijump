@@ -35,9 +35,13 @@ RUN /src/setup-php-extensions.sh
 USER www-data
 RUN /src/setup-php-dependencies.sh
 
+USER root
+RUN /src/setup-php-key.sh
+
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
 # Inject values in the wikijump.ini configuration file
+USER www-data
 COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
 
 RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \

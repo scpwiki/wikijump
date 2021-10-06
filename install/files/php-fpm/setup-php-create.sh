@@ -15,10 +15,10 @@ mkdir -p \
 	tmp/smarty_macro_templates \
 	tmp/htmlpurifier
 
-chown -R www-data:www-data logs/ storage/ tmp/ vendor/
-
-install \
-	-m 400 \
-	-o www-data \
-	-g www-data \
-	.env.example .env
+chown -R www-data:www-data \
+	bootstrap/ \
+	conf/ \
+	logs/ \
+	storage/ \
+	tmp/ \
+	vendor/
