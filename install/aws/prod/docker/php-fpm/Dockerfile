@@ -7,8 +7,8 @@ FROM php:7.4-fpm-buster AS php
 # Build variables
 ARG ENVIRONMENT="prod"
 
-ARG MAIN_DOMAIN="wikijump.localhost"
-ARG FILES_DOMAIN="wjfiles.localhost"
+ARG MAIN_DOMAIN="wikijump.com"
+ARG FILES_DOMAIN="wjfiles.com"
 
 # Derived variables
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
