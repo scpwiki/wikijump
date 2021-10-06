@@ -8,3 +8,5 @@ composer install
 	--no-scripts
 	--no-progress
 	--prefer-dist
+
+php artisan key:generate

@@ -28,15 +28,11 @@ RUN /src/setup-system.sh
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-# Change permissions on directories
-RUN chown -R www-data:www-data logs/ vendor/
-
 # Install PHP extensions, dependencies
+RUN /src/setup-php-create.sh
 RUN /src/setup-php-extensions.sh
 
-# Install PHP dependencies
 USER www-data
-RUN /src/setup-php-create.sh
 RUN /src/setup-php-dependencies.sh
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer

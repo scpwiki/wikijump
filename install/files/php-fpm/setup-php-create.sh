@@ -1,8 +1,6 @@
 #!/bin/bash
 set -eux
 
-[[ $EUID != 0 ]]
-
 cd /var/www/wikijump/web
 
 mkdir -p \
@@ -17,5 +15,10 @@ mkdir -p \
 	tmp/smarty_macro_templates \
 	tmp/htmlpurifier
 
-install -m 400 .env.example .env
-php artisan key:generate
+chown -R www-data:www-data logs/ storage/ tmp/ vendor/
+
+install \
+	-m 400 \
+	-o www-data \
+	-g www-data \
+	.env.example .env
