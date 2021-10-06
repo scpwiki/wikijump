@@ -14,9 +14,10 @@ or reaching out to a member individually:
 
 ### Wikijump
 
-After receiving a report of a security issue within Wikijump, we will validate and determine its scope.
-Once this is done, we will issue an estimate for the time to completion. When a fix has been merged in and deployed,
-you will be notified privately. If this security issue impacts Wikijump _only_, you may then disclose it publicly.
+After receiving a report of a security issue within Wikijump, we will confirm its receipt within 48 hours.
+After we have validated and determined its scope, we will send a more detailed response within 72 hours.
+When a fix has been merged in and deployed, you will be notified privately.
+If this security issue impacts Wikijump _only_, you may then disclose it publicly.
 
 ### Wikidot
 
