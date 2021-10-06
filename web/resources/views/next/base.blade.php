@@ -33,10 +33,17 @@
     <meta charset="utf-8">
     <base href="/">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    {{-- TODO:
+    <meta
+        http-equiv="Content-Security-Policy"
+        content=""
+    > --}}
 
     {{-- Preloads, Preconnects --}}
-    <link rel="preload" href="{{ vite_asset('../css/base.scss') }}" as="style">
-    <link rel="preload" href="{{ vite_asset('../scripts/index.ts') }}" as="script">
+    {{-- TODO: figure out preloads
+      <link rel="preload" href="{{ vite_asset('../css/base.scss') }}" as="style">
+      <link rel="preload" href="{{ vite_asset('../scripts/index.ts') }}" as="script">
+    - --}}
     @stack("preloads")
 
     {{-- Social --}}
@@ -79,8 +86,13 @@
     @isset($favicon_apple)
         <link rel="apple-touch-icon" href="{{ vite_asset($favicon_apple) }}">
     @endisset
-    @isset($favicon_mask && $color_scheme)
-        <link rel="mask-icon" href="{{ vite_asset($favicon_mask) }}" color="{{ $color_scheme }}">
+    @isset($favicon_mask)
+        @isset($color_scheme)
+            <link rel="mask-icon" href="{{ vite_asset($favicon_mask) }}" color="{{ $color_scheme }}">
+        @endisset
+        @empty($color_scheme)
+            <link rel="mask-icon" href="{{ vite_asset($favicon_mask) }}" color="#FFF">
+        @endempty
     @endisset
 
     {{-- Styles --}}
