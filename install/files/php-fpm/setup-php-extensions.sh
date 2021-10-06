@@ -13,14 +13,3 @@ docker-php-ext-install ffi
 apt install -y libicu-dev
 docker-php-ext-configure intl
 docker-php-ext-install intl
-
-# Install PHP dependencies
-composer install \
-	--no-ansi \
-	--no-interaction \
-	--no-scripts \
-	--no-progress \
-	--prefer-dist
-
-# Cleanup
-rm -f /usr/bin/composer
