@@ -57,13 +57,13 @@
         <link rel="preload" href="{{ vite_asset('resources/css/base.scss') }}" as="style">
         <link rel="preload" href="{{ vite_asset('resources/scripts/index.ts') }}"
               as="script">
+        <link rel="preload"
+            href="{{ vite_asset('resources/fonts/variable/PublicSans-VariableFont.woff2') }}"
+            as="font" type="font/woff2" crossorigin>
+        <link rel="preload"
+            href="{{ vite_asset('resources/fonts/variable/Exo2-VariableFont.woff2') }}"
+            as="font" type="font/woff2" crossorigin>
     - --}}
-    <link rel="preload"
-          href="{{ vite_asset('resources/fonts/variable/PublicSans-VariableFont.woff2') }}"
-          as="font" type="font/woff2" crossorigin>
-    <link rel="preload"
-          href="{{ vite_asset('resources/fonts/variable/Exo2-VariableFont.woff2') }}"
-          as="font" type="font/woff2" crossorigin>
     {{-- TODO: preload the user's locale file --}}
     @stack("preloads")
 
