@@ -8,7 +8,7 @@
     $social_twitter_handle
 
     $title
-    $color_scheme
+    $theme_color
 
     $favicon_svg
     $favicon_png
@@ -71,9 +71,9 @@
         <title>{{ $title }}</title>
     @endisset
     <meta name="color-scheme" content="dark light">
-    @isset($color_scheme)
-        <meta name="theme-color" content="{{ $color_scheme }}">
-        <meta name="msapplication-TileColor" content="{{ $color_scheme }}">
+    @isset($theme_color)
+        <meta name="theme-color" content="{{ $theme_color }}">
+        <meta name="msapplication-TileColor" content="{{ $theme_color }}">
     @endisset
 
     {{-- Icons --}}
@@ -87,10 +87,10 @@
         <link rel="apple-touch-icon" href="{{ vite_asset($favicon_apple) }}">
     @endisset
     @isset($favicon_mask)
-        @isset($color_scheme)
-            <link rel="mask-icon" href="{{ vite_asset($favicon_mask) }}" color="{{ $color_scheme }}">
+        @isset($theme_color)
+            <link rel="mask-icon" href="{{ vite_asset($favicon_mask) }}" color="{{ $theme_color }}">
         @endisset
-        @empty($color_scheme)
+        @empty($theme_color)
             <link rel="mask-icon" href="{{ vite_asset($favicon_mask) }}" color="#FFF">
         @endempty
     @endisset
