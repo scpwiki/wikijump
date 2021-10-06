@@ -1,13 +1,19 @@
 {{-- -
   data:
     $social_url
-    $social_url
     $social_title
     $social_description
     $social_image
-    $social_twitter_handle
+    $social_type
+    $social_twitter_card
+    $social_twitter_site
+    $social_twitter_creator
+    $social_rating
 
     $title
+    $robots
+    $canonical
+
     $theme_color
 
     $favicon_svg
@@ -49,7 +55,9 @@
     - --}}
     @stack("preloads")
 
-    {{-- Social --}}
+    {{-- OpenGraph --}}
+    {{-- TODO: verify that getLocale returns a well formed string for this --}}
+    <meta property="og:locale" content="{{ app()->getLocale() }}">
     @isset($social_url)
         <meta property="og:url" content="{{ $social_url }}">
     @endisset
@@ -63,16 +71,38 @@
     @isset($social_image)
         <meta property="og:image" content="{{ vite_asset($social_image) }}">
     @endisset
-    @isset($social_twitter_handle)
-        <meta name="twitter:card" content="summary">
-        <meta name="twitter:site" content="{{ $social_twitter_handle }}">
-        <meta name="twitter:creator" content="{{ $social_twitter_handle }}">
+    @isset($social_type)
+        <meta property="og:type" content="{{ $social_type }}">
+    @endisset
+
+    {{-- Twitter --}}
+    @isset($social_twitter_card)
+        <meta name="twitter:card" content="{{ $social_twitter_card }}">
+    @endisset
+    @isset($social_twitter_site)
+        <meta name="twitter:site" content="{{ $social_twitter_site }}">
+    @endisset
+    @isset($social_twitter_creator)
+        <meta name="twitter:creator" content="{{ $social_twitter_creator }}">
+    @endisset
+
+    {{-- Social Other --}}
+    @isset($rating)
+        <meta name="rating" content="{{ $rating }}">
     @endisset
 
     {{-- Browser Metadata --}}
     @isset($title)
         <title>{{ $title }}</title>
     @endisset
+    @isset($robots)
+        <meta name="robots" content="{{ $robots }}">
+    @endisset
+    @isset($canonical)
+        <link rel="canonical" href="{{ $canonical }}">
+    @endisset
+
+    {{-- Browser Theming --}}
     <meta name="color-scheme" content="light dark">
     @isset($theme_color)
         <meta name="theme-color" content="{{ $theme_color }}">
