@@ -73,7 +73,7 @@
     @isset($title)
         <title>{{ $title }}</title>
     @endisset
-    <meta name="color-scheme" content="dark light">
+    <meta name="color-scheme" content="light dark">
     @isset($theme_color)
         <meta name="theme-color" content="{{ $theme_color }}">
         <meta name="msapplication-TileColor" content="{{ $theme_color }}">
