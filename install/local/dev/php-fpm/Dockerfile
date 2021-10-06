@@ -20,11 +20,12 @@ COPY ./install/files/php-fpm/setup*.sh /src/
 
 # Copy Wikijump source
 COPY ./web /var/www/wikijump/web
+WORKDIR /var/www/wikijump/web
 
 # Install system dependencies
 RUN /src/setup-system.sh
 
-# Configure xdebug
+# !! Configure xdebug
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # !! Put your IP for debugging here.
@@ -33,6 +34,9 @@ RUN echo "xdebug.mode = develop" >> ${XDEBUG_INI} \
 
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+# Change permissions on directories
+RUN chown -R www-data:www-data logs/ vendor/
 
 # Install PHP extensions
 RUN /src/setup-php-extensions.sh
@@ -132,5 +136,4 @@ COPY --from=frontend /src/web/public/ /var/www/wikijump/web/public
 RUN rm -rf /src /usr/bin/composer
 
 USER www-data
-WORKDIR /var/www/wikijump/web
 ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]

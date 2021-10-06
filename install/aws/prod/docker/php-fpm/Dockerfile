@@ -20,12 +20,16 @@ COPY ./install/files/php-fpm/setup*.sh /src/
 
 # Copy Wikijump source
 COPY ./web /var/www/wikijump/web
+WORKDIR /var/www/wikijump/web
 
 # Install system dependencies
 RUN /src/setup-system.sh
 
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+# Change permissions on directories
+RUN chown -R www-data:www-data logs/ vendor/
 
 # Install PHP extensions
 RUN /src/setup-php-extensions.sh
