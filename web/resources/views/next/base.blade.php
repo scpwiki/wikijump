@@ -15,6 +15,7 @@
         $title
         $robots
         $canonical
+        $license
 
         $theme_color
 
@@ -103,6 +104,9 @@
     @endisset
     @isset($canonical)
         <link rel="canonical" href="{{ $canonical }}">
+    @endisset
+    @isset($license)
+        <meta name="license" content="{{ $license }}">
     @endisset
 
     {{-- Browser Theming --}}
