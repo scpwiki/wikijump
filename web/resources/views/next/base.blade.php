@@ -1,34 +1,36 @@
 {{-- -
-  data:
-    $social_url
-    $social_title
-    $social_description
-    $social_image
-    $social_type
-    $social_twitter_card
-    $social_twitter_site
-    $social_twitter_creator
-    $social_rating
+    All arguments are optional.
 
-    $title
-    $robots
-    $canonical
+    data:
+        $social_url
+        $social_title
+        $social_description
+        $social_image
+        $social_type
+        $social_twitter_card
+        $social_twitter_site
+        $social_twitter_creator
+        $social_rating
 
-    $theme_color
+        $title
+        $robots
+        $canonical
 
-    $favicon_svg
-    $favicon_png
-    $favicon_apple
-    $favicon_mask
+        $theme_color
 
-  sections:
-    content
+        $favicon_svg
+        $favicon_png
+        $favicon_apple
+        $favicon_mask
 
-  stacks:
-    preloads
-    styles
-    head
-    scripts
+    sections:
+        content
+
+    stacks:
+        preloads
+        styles
+        head
+        scripts
 - --}}
 
 <!DOCTYPE html>
