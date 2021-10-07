@@ -1429,7 +1429,7 @@ class WikiPageAction extends SmartyAction
             $tags = [];
         } else {
             $tags = preg_split("/[ ,]+/", $tags);
-            $tags = array_unique(array_values($tags));
+            $tags = array_values(array_unique($tags));
         }
 
 
