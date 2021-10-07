@@ -1424,16 +1424,10 @@ class WikiPageAction extends SmartyAction
             }
         }
 
-        // Turn tags into an array, ensures all tags are unique, sorts the values, and removes the keys. If tags are empty, set tags to an empty array to ensure JSONB encoding functions properly.
-        if ($tags === '') {
-            $tags = [];
-        } else {
+        // Turn the tags into an array.
+        if($tags !== '') {
             $tags = preg_split("/[ ,]+/", $tags);
-            $tags = array_unique($tags);
-            natsort($tags);
-            $tags = array_values($tags);
         }
-
 
         // Save the tags.
         PagePeer::saveTags($pageId, $tags);
