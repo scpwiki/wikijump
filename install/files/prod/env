@@ -46,7 +46,7 @@ MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
 MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 
 # Initial password for the Admin user
-ADMIN_INITIAL_PASSWORD=jump1vtezJAx91ONtzk4tCLJf1BT9x0r6jiMHkGm
+ADMIN_INITIAL_PASSWORD=admin1
 
 # This var should be set to a valid locale
 DEFAULT_LANGUAGE=en
