@@ -34,6 +34,9 @@ COPY ./web/lib/ /var/www/wikijump/web/lib
 COPY ./web/composer.json ./web/composer.lock /var/www/wikijump/web/
 RUN /src/setup-php-dependencies.sh
 
+# Copy PHP configuration files
+COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
+
 # Copy full Wikijump source
 COPY ./web /var/www/wikijump/web
 

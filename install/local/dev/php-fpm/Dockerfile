@@ -41,6 +41,9 @@ COPY ./web/lib/ /var/www/wikijump/web/lib
 COPY ./web/composer.json ./web/composer.lock /var/www/wikijump/web/
 RUN /src/setup-php-dependencies.sh
 
+# Copy PHP configuration files
+COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
+
 # Copy full Wikijump source
 COPY ./web /var/www/wikijump/web
 
@@ -56,9 +59,6 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 
 # Generate a new application key
 RUN php artisan key:generate
-
-# Copy remaining PHP files
-COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
 
 # Finish other miscellaneous setup
 RUN /src/setup-misc.sh
