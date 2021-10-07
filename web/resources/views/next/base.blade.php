@@ -1,4 +1,4 @@
-{{-- -
+{{--
     All arguments are optional.
 
     data:
@@ -25,14 +25,14 @@
         $favicon_mask
 
     sections:
-        content
+        app
 
     stacks:
         preloads
         styles
         head
         scripts
-- --}}
+--}}
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -158,7 +158,7 @@
 </head>
 
 <body class="light codetheme-dark">
-    @yield('content')
+    @yield('app')
 
     <div id="toasts"></div>
     <div id="modals"></div>

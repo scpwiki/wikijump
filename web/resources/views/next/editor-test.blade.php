@@ -4,6 +4,6 @@
     @vite('resources/lib/index.ts')
 @endpush
 
-@section('content')
+@section('app')
     <div id="app"></div>
 @endsection
