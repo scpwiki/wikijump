@@ -18,10 +18,6 @@ ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 RUN mkdir /src
 COPY ./install/files/php-fpm/setup*.sh /src/
 
-# Copy Wikijump source
-COPY ./web /var/www/wikijump/web
-WORKDIR /var/www/wikijump/web
-
 # Install system dependencies
 RUN /src/setup-system.sh
 
@@ -36,19 +32,25 @@ RUN echo "xdebug.mode = develop" >> ${XDEBUG_INI} \
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Install PHP extensions, dependencies
+WORKDIR /var/www/wikijump/web
 RUN /src/setup-php-create.sh
 RUN /src/setup-php-extensions.sh
 
 USER www-data
+COPY ./web/lib/ /var/www/wikijump/web/lib
+COPY ./web/composer.json ./web/composer.lock /var/www/wikijump/web/
 RUN /src/setup-php-dependencies.sh
 
+# Copy full Wikijump source
+COPY ./web /var/www/wikijump/web
+
+# Generate a new application key
 USER root
-RUN /src/setup-php-key.sh
+RUN php artisan key:generate
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
 # Inject values in the wikijump.ini configuration file
-USER www-data
 COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
 
 RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
@@ -56,7 +58,6 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini
 
 # Copy remaining PHP files
-USER root
 COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
 
 # Finish other miscellaneous setup
