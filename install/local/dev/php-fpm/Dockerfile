@@ -14,11 +14,14 @@ ARG FILES_DOMAIN="wjfiles.localhost"
 # Derived variables
 ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
 
-# Copy source
+# Copy setup scripts
 RUN mkdir /src
-COPY ./web /var/www/wikijump/web
+COPY ./install/files/php-fpm/setup*.sh /src/
 
-# Configure xdebug
+# Install system dependencies
+RUN /src/setup-system.sh
+
+# !! Configure xdebug
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # !! Put your IP for debugging here.
@@ -28,24 +31,38 @@ RUN echo "xdebug.mode = develop" >> ${XDEBUG_INI} \
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-# Copy setup scripts
-COPY ./install/files/php-fpm/setup*.sh /src/
+# Install PHP extensions, dependencies
+WORKDIR /var/www/wikijump/web
+RUN /src/setup-php-create.sh
+RUN /src/setup-php-extensions.sh
+
+USER www-data
+COPY ./web/lib/ /var/www/wikijump/web/lib
+COPY ./web/composer.json ./web/composer.lock /var/www/wikijump/web/
+RUN /src/setup-php-dependencies.sh
+
+# Copy PHP configuration files
+COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
+
+# Copy full Wikijump source
+COPY ./web /var/www/wikijump/web
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
-# Run setup scripts
-WORKDIR /var/www/wikijump/web
-RUN /src/setup.sh
-
-# Inject values in the wikijump.ini configuration file
+# Inject values in the wikijump.ini and .env configuration files
+USER root
 COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
+COPY ./install/files/${ENVIRONMENT}/env .env
 
-RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
-    sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" conf/wikijump.ini && \
-    sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini
+RUN sed -i "s/%%BASE_DOMAIN%%/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
+    sed -i "s/%%MAIN_WIKI%%/${WWW_DOMAIN}/g" conf/wikijump.ini && \
+    sed -i "s/%%FILE_DOMAIN%%/${FILES_DOMAIN}/g" conf/wikijump.ini
 
-# Copy remaining PHP files
-COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
+# Generate a new application key
+RUN php artisan key:generate
+
+# Finish other miscellaneous setup
+RUN /src/setup-misc.sh
 
 #
 # Frontend
@@ -118,5 +135,11 @@ COPY --from=locales /src/locales/out/ /var/www/locales
 COPY --from=frontend /src/web/web/files--common/ /var/www/wikijump/web/web/files--common
 COPY --from=frontend /src/web/public/ /var/www/wikijump/web/public
 
-WORKDIR /var/www/wikijump/web
-ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
+# Install runner
+COPY ./install/files/php-fpm/run.sh /app/run.sh
+
+# Cleanup
+RUN rm -rf /src /usr/bin/composer
+
+USER www-data
+ENTRYPOINT ["/app/run.sh"]

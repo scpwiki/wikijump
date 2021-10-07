@@ -12,8 +12,8 @@ readonly version="${XDIFF_VERSION}"
 
 # Create dir
 
-mkdir xdiff
-cd xdiff
+mkdir /src/xdiff
+cd /src/xdiff
 
 # Build
 curl "http://www.xmailserver.org/$version.tar.gz" -o "$version.tar.gz"
