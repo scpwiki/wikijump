@@ -1414,7 +1414,7 @@ class WikiPageAction extends SmartyAction
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
         // If Allowed Tags are enabled, ensure all tags are compliant.
-        if($enableAllowedTags === 'true' && !empty($tags)) {
+        if($enableAllowedTags === 'true' && $tags !== '') {
             $allowedTagsList = AllowedTags::getAllowedTags($siteId);
             foreach ($pageTagsArray as $tag) {
                 if(!in_array($tag, $allowedTagsList)) {
