@@ -51,7 +51,7 @@ RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini
 
 # Generate a new application key
-RUN php artisan key:generate
+RUN /src/setup-php-key.sh
 
 # Finish other miscellaneous setup
 RUN /src/setup-misc.sh
