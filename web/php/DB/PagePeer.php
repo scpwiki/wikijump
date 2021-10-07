@@ -27,12 +27,12 @@ class PagePeer extends PagePeerBase
 
     public static function saveTags($pageId, $newTags) {
         // Ensures all tags are unique, sorts the values, and removes any keys. If tags are empty, set tags to an empty array to ensure JSONB encoding functions properly.
-        if ($tags === '') {
-            $tags = [];
-        } else {
+        if ($tags !== '') {
             $tags = array_unique($tags);
             natsort($tags);
             $tags = array_values($tags);
+        } else {
+            $tags = [];
         }
 
         // Update the tags.
