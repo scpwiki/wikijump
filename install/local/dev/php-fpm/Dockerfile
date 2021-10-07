@@ -44,18 +44,18 @@ RUN /src/setup-php-dependencies.sh
 # Copy full Wikijump source
 COPY ./web /var/www/wikijump/web
 
-# Generate a new application key
-USER root
-RUN php artisan key:generate
-
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
 # Inject values in the wikijump.ini configuration file
+USER root
 COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
 
 RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini
+
+# Generate a new application key
+RUN php artisan key:generate
 
 # Copy remaining PHP files
 COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
