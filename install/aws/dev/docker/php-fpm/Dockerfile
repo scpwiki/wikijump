@@ -127,8 +127,11 @@ COPY --from=locales /src/locales/out/ /var/www/locales
 COPY --from=frontend /src/web/web/files--common/ /var/www/wikijump/web/web/files--common
 COPY --from=frontend /src/web/public/ /var/www/wikijump/web/public
 
+# Install runner
+COPY ./install/files/php-fpm/run.sh /app/run.sh
+
 # Cleanup
 RUN rm -rf /src /usr/bin/composer
 
 USER www-data
-ENTRYPOINT ["sh", "-c", "php artisan migrate && php-fpm"]
+ENTRYPOINT ["/app/run.sh"]
