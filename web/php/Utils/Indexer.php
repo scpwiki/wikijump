@@ -18,10 +18,6 @@ class Indexer
         return  self::$instance;
     }
 
-    public function deindexPage($page)
-    {
-    }
-
     public function indexThread($thread)
     {
     }
