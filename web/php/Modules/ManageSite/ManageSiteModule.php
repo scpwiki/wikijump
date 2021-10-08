@@ -23,7 +23,6 @@ class ManageSiteModule extends ManageSiteBaseModule
 
         $runData->contextAdd("site", $site);
 
-        $runData->contextAdd('useCustomDomains', GlobalProperties::$USE_CUSTOM_DOMAINS);
         $runData->contextAdd('useSsl', GlobalProperties::$USE_SSL);
         $runData->contextAdd('allowHttp', GlobalProperties::$ALLOW_ANY_HTTP);
     }
