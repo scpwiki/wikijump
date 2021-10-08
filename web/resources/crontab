@@ -12,4 +12,3 @@
 15 9 * * *     www-data /var/www/wikijump/bin/job.sh UpdateKarmaJob
 * * * * *      www-data /var/www/wikijump/bin/job.sh HandleBackupRequestsJob
 * * * * *      www-data /var/www/wikijump/bin/job.sh UpdateLuceneIndexJob
-46 * * * *     www-data /var/www/wikijump/bin/job.sh OutdateDatabaseStorageJob
