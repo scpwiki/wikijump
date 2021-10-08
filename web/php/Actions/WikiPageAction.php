@@ -270,6 +270,7 @@ class WikiPageAction extends SmartyAction
             $page->setMetadataId($pageMetadata->getMetadataId());
             $page->setTitle($title);
             $page->setDateLastEdited($nowDate);
+            $page->setTags([]);
 
             $pageCompiled = new PageCompiled();
             $pageCompiled->setPageId($page->getPageId());
