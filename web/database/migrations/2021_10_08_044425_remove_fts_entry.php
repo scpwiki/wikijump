@@ -36,7 +36,7 @@ class RemoveFtsEntry extends Migration
         /**
          * SQLite has no concept of a TSVector so we can't add it or seed the data.
          */
-        if(env('APP_ENV') != 'testing') {
+        if(env('APP_ENV') !== 'testing') {
             DB::statement('ALTER TABLE fts_entry ADD COLUMN vector TSVECTOR');
 
             Artisan::call(
