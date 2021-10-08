@@ -47,12 +47,33 @@ Route::get('welcome', function () {
     return view('welcome');
 });
 
-// TODO: remove when we have a proper frontend, this is just for testing
+// TODO: remove these when we have a proper frontend, this is just for testing
+
 /**
  * Test route for opening the Sheaf editor.
  */
 Route::get('/editor--test', function () {
     return view('next.test.editor-test');
+});
+
+/**
+ * Test route for testing the frame layout.
+ */
+Route::get('/frame--test', function () {
+    return view('next.test.frame-test', [
+        'title' => "Wikijump Frame Test",
+        'header_title' => 'Wikijump',
+        'navbar_items' => [
+            'Dropdown 1' => [
+                'Cool Link' => '/cool-beans',
+                'Editor Test' => '/editor--test',
+            ],
+            'Dropdown 2' => [
+                'Cool Link' => '/cool-beans',
+                'Editor Test' => '/editor--test',
+            ],
+        ],
+    ]);
 });
 
 /**
