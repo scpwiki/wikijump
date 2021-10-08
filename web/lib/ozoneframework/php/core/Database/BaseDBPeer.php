@@ -3,8 +3,6 @@
 namespace Ozone\Framework\Database;
 
 
-use Wikidot\Utils\ProcessException;
-
 use mysql_xdevapi\DatabaseObject;
 use Ozone\Framework\ODate;
 use Wikijump\Models\User;
