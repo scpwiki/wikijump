@@ -134,15 +134,6 @@ class Duplicator
         $od = new Outdater();
         $od->recompileWholeSite($nsite);
 
-        /* Index. */
-        $ind = Indexer::instance();
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $pages = PagePeer::instance()->select($c);
-        foreach ($pages as $p) {
-            $ind->indexPage($p);
-        }
-
         /* Handle forum too. */
 
         $fs = $site->getForumSettings();

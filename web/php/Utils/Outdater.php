@@ -60,7 +60,6 @@ class Outdater
                 $this->recompileInclusionDeps($page);
                 $this->outdatePageCache($page);
                 $this->handleNavigationElement($page);
-                $this->indexPage($page);
                 $this->handleTemplateChange($page);
                 break;
             case 'source_changed':
@@ -70,16 +69,15 @@ class Outdater
                 $this->fixInclusions($page);
                 $this->recompileInclusionDeps($page);
                 $this->handleNavigationElement($page);
-                $this->indexPage($page);
                 $this->handleTemplateChange($page);
                 break;
             case 'title_changed':
+            case 'tag_change':
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
                 $this->outdateDescendantsCache($page);
                 $this->fixInLinks($page); // if dynamical link text = page title
                 $this->outdatePageTagsCache($page);
-                $this->indexPage($page);
                 break;
             case 'rename':
                 // $parm2 is the old name
@@ -92,7 +90,6 @@ class Outdater
                 $this->outdatePageCache($parm2);
                 $this->outdatePageCache($page);
                 $this->outdatePageTagsCache($page);
-                $this->indexPage($page);
                 $this->handleTemplateChange($page);
                 $this->handleTemplateChange($parm2);
                 break;
@@ -100,7 +97,6 @@ class Outdater
                 // $page is not just an old unix name. the page itself should be already deleted.
                 $this->fixInLinks($page);
                 $this->recompileInclusionDeps($page);
-                //$this->outdateDescendantsCache($page); // this is done in Deleter
                 $this->outdatePageTagsCache($page);
                 $this->outdatePageCache($page);
                 $this->handleTemplateChange($page);
@@ -113,16 +109,6 @@ class Outdater
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
                 $this->recompileInclusionDeps($page);
-                break;
-            case 'tag_change':
-                $this->recompilePage($page);
-                $this->outdatePageCache($page);
-                $this->fixOutLinks($page);
-                $this->fixInclusions($page);
-                $this->recompileInclusionDeps($page);
-                $this->handleNavigationElement($page);
-                $this->indexPage($page);
-                $this->handleTemplateChange($page);
                 break;
             case 'page_vote':
                 $this->outdatePageCache($page);
@@ -714,15 +700,9 @@ class Outdater
             $this->outdatePageCache($page);
             $this->fixOutLinks($page);
             $this->fixInclusions($page);
-            Indexer::instance()->indexPage($page);
         }
 
         $GLOBALS['site']=$site0;
-    }
-
-    public function indexPage($page)
-    {
-        Indexer::instance()->indexPage($page);
     }
 
     public function outdatePageTagsCache($page)
