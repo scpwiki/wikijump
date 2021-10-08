@@ -30,8 +30,6 @@ use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageCompiled;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
-use Wikidot\DB\PageTagPeer;
-use Wikidot\DB\PageTag;
 use Wikidot\DB\AllowedTags;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
@@ -1417,7 +1415,7 @@ class WikiPageAction extends SmartyAction
         // If Allowed Tags are enabled, ensure all tags are compliant.
         if($enableAllowedTags === 'true' && $tags !== '') {
             $allowedTagsList = AllowedTags::getAllowedTags($siteId);
-            foreach ($pageTagsArray as $tag) {
+            foreach ($tags as $tag) {
                 if(!in_array($tag, $allowedTagsList)) {
                     $errorMessage = sprintf(_('The tag %s is not valid for this site.'), $tag);
                     throw new ProcessException($errorMessage, "form_error");
