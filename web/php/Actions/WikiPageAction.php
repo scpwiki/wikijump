@@ -34,7 +34,6 @@ use Wikidot\DB\AllowedTags;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
 use Wikijump\Models\User;
-use Wikijump\Models\PageTags;
 use Wikijump\Models\Settings;
 use Illuminate\Support\Facades\DB;
 
