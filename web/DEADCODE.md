@@ -183,3 +183,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-725](https://scuttle.atlassian.net/browse/WJ-725), [WJ-889](https://scuttle.atlassian.net/browse/WJ-889)
 * What it did: Managed full-text search via Postgres.
 * Why it was removed: Search doesn't work, and we're fully replacing it anyways.
+
+## PHP: `Ucookie`
+* Where it was [web/php/DB/Ucookie](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/Ucookie.php) and its associated database files.
+* Relevant Issues: [WJ-765](https://scuttle.atlassian.net/browse/WJ-765)
+* What it did: Unknown, apparently some sort of ancillary data attached to a particular session / site combo.
+* Why it was removed: Unused.
