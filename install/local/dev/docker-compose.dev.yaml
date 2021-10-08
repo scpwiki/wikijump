@@ -20,6 +20,9 @@ services:
         source: ../../../web/resources
         target: /var/www/wikijump/web/resources
         read_only: true
+        source: ../../../web/routes
+        target: /var/www/wikijump/web/routes
+        read_only: true
       - type: bind
         source: ../../../web/storage
         target: /var/www/wikijump/web/storage
