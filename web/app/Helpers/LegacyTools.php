@@ -15,7 +15,6 @@ use Wikidot\DB\MemberPeer;
 use Wikidot\DB\Page;
 use Wikidot\DB\PageCompiled;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\SiteViewerPeer;
@@ -246,14 +245,7 @@ final class LegacyTools
             $return['showPageoptions'] = true;
 
             // get the tags
-            $c = new Criteria();
-            $c->add("page_id", $page->getPageId());
-            $c->addOrderAscending("tag");
-            $tags = PageTagPeer::instance()->select($c);
-            $t2 = array();
-            foreach ($tags as $t) {
-                $t2[] = $t->getTag();
-            }
+            $t2 = PagePeer::getTags($pageId);
             $runData->contextAdd("tags", $t2);
             $return['tags'] = $tags;
 
