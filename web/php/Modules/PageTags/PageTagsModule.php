@@ -5,7 +5,6 @@ namespace Wikidot\Modules\PageTags;
 use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\AllowedTags;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
