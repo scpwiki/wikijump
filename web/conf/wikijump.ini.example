@@ -367,13 +367,6 @@ doc_url = https://www.wikijump.com/doc
 ; Default: 127.0.0.1
 ip = 127.0.0.1
 
-; [custom_domains]
-; Purpose: Specify whether users can have custom domains to point to their wiki. This controls whether the relevant
-;   templates are shown.
-; GlobalProperties Reference: $USE_CUSTOM_DOMAINS
-; Default: true
-custom_domains = true
-
 ; [modules_js_path]
 ; Purpose: The folder from your root where your js files are located. Used for include purposes. No leading slash.
 ; GlobalProperties Reference: $MODULES_JS_PATH

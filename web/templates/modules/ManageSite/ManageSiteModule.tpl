@@ -13,9 +13,7 @@
 		<ul id="sm-menu">
 			<li><a href="javascript:;" id="sm-welcome">{t}Welcome to site manager{/t}!</a></li>
 			<li><a href="javascript:;" id="sm-general">{t}General settings{/t}</a></li>
-			{if $useCustomDomains}
-				<li><a href="javascript:;" id="sm-domain">{t}Custom domain{/t}</a></li>
-			{/if}
+			<li><a href="javascript:;" id="sm-domain">{t}Custom domain{/t}</a></li>
 			{if $allowHttp}
 			{if $useSsl}
 				<li><a href="javascript:;" id="sm-ssl">{t}Secure access (SSL/TLS){/t}</a></li>

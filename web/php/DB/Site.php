@@ -5,7 +5,6 @@ namespace Wikidot\DB;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
 use Wikidot\Utils\GlobalProperties;
 
 /**
@@ -14,7 +13,6 @@ use Wikidot\Utils\GlobalProperties;
  */
 class Site extends SiteBase
 {
-
     public function getDomain()
     {
         if ($this->getCustomDomain() == null || $this->getCustomDomain() == "") {
@@ -34,14 +32,6 @@ class Site extends SiteBase
             $s = SiteSettingsPeer::instance()->selectOne($c);
             Cache::put($key, $s, 864000);
         }
-        return $s;
-    }
-
-    public function getSuperSettings()
-    {
-
-        $s = SiteSuperSettingsPeer::instance()->selectByPrimaryKey($this->getSiteId());
-
         return $s;
     }
 

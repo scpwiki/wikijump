@@ -85,7 +85,6 @@ class GlobalProperties
     public static $CACHE_FILES_FOR;
     public static $URL_DOCS;
     public static $IP_HOST;
-    public static $USE_CUSTOM_DOMAINS;
     public static $MODULES_JS_PATH;
     public static $MODULES_JS_URL;
     public static $MODULES_CSS_PATH;
@@ -236,7 +235,6 @@ class GlobalProperties
         self::$CACHE_FILES_FOR          = $_ENV["WIKIJUMP_CACHE_FILES_FOR"] ?? self::fromIni("misc", "cache_files_for", 0);
         self::$URL_DOCS                 = $_ENV["WIKIJUMP_URL_DOCS"] ?? self::fromIni("misc", "doc_url", self::$HTTP_SCHEMA. "://" . self::$URL_HOST . "/doc");
         self::$IP_HOST                  = $_ENV["WIKIJUMP_IP_HOST"] ?? self::fromIni("misc", "ip", "127.0.0.1");
-        self::$USE_CUSTOM_DOMAINS       = $_ENV["WIKIJUMP_USE_CUSTOM_DOMAINS"] ?? self::fromIni("misc", "custom_domains", true);
         self::$MODULES_JS_PATH          = $_ENV["WIKIJUMP_MODULES_JS_PATH"] ?? self::fromIni("misc", "modules_js_path", "web/files--common/modules/js");
         self::$MODULES_JS_URL           = $_ENV["WIKIJUMP_MODULES_JS_URL"] ?? self::fromIni("misc", "modules_js_url", "/common--modules/js");
         self::$MODULES_CSS_PATH         = $_ENV["WIKIJUMP_MODULES_CSS_PATH"] ?? self::fromIni("misc", "modules_css_path", "web/files--common/modules/css");

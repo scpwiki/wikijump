@@ -62,13 +62,6 @@ class Duplicator
         $nsite->setCustomDomain(null);
         $nsite->save();
 
-        /* Super settings. */
-        // site_super_settings
-        $superSettings = $site->getSuperSettings();
-        $superSettings->setNew(true);
-        $superSettings->setSiteId($nsite->getSiteId());
-        $superSettings->save();
-
         /* Site settings. */
         $settings = $site->getSettings();
         $settings->setNew(true);
@@ -223,13 +216,6 @@ class Duplicator
         $owner = $this->owner;
         // first copy settings
 
-
-        // site_super_settings
-        $superSettings = $site->getSuperSettings();
-        $superSettings->setNew(true);
-        $superSettings->setSiteId($nsite->getSiteId());
-        $superSettings->save();
-
         // site_settings
         $settings = $site->getSettings();
         $settings->setNew(true);
@@ -379,11 +365,9 @@ class Duplicator
     {
 
         $dump = array();
-        $superSettings = $site->getSuperSettings();
         $settings = $site->getSettings();
         $fs = $site->getForumSettings();
 
-        $dump['superSettings'] = $superSettings;
         $dump['settings'] = $settings;
         $dump['forumSettings'] = $fs;
 
@@ -412,12 +396,7 @@ class Duplicator
     public function restoreSite($nsite, $dump)
     {
 
-        $superSettings = $dump['superSettings'];
         $settings = $dump['settings'];
-
-        $superSettings->setNew(true);
-        $superSettings->setSiteId($nsite->getSiteId());
-        $superSettings->save();
 
         // site_settings
         $settings->setNew(true);
