@@ -171,3 +171,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-444](https://scuttle.atlassian.net/browse/WJ-444), [WJ-509](https://scuttle.atlassian.net/browse/WJ-509)
 * What it did: It collects every single user in the database, presenting them as a single (unpaginated) table for a platform administrator to set permissions on.
 * Why it was removed: `O(n)` performance on all users is very poor, and absolutely not scalable for Wikijump. Since the user refactor was occurring at the same time and it would've taken substantial work to fix this module, it was simply cut.
+
+## PHP: `SiteSuperSettings`
+* Where it was: [web/php/DB/SiteSuperSettings](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/SiteSuperSettings.php) and its associated database files.
+* Relevant Issues: [WJ-759](https://scuttle.atlassian.net/browse/WJ-759), [WJ-221](https://scuttle.atlassian.net/browse/WJ-221)
+* What it did: It was like the `site_settings` table, but a separate table for some reason.
+* Why it was removed: Unnecessary table, and its only option (`can_custom_domain`) is unnecessary.
