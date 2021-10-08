@@ -1025,9 +1025,6 @@ INSERT INTO public.site (site_id, name, subtitle, unix_name, description, langua
 INSERT INTO public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, allow_members_invite, max_upload_file_size) VALUES (1, true, false, NULL, 1073741824, false, 'system:join', 50, 20, true, NULL, false, 10485760);
 INSERT INTO public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, allow_members_invite, max_upload_file_size) VALUES (2, false, false, '', 314572800, false, 'system:join', 50, 20, true, NULL, false, 10485760);
 
-INSERT INTO public.site_super_settings (site_id, can_custom_domain) VALUES (1, true);
-INSERT INTO public.site_super_settings (site_id, can_custom_domain) VALUES (2, true);
-
 INSERT INTO public.site_tag (tag_id, site_id, tag) VALUES (1, 2, 'template');
 
 INSERT INTO public.theme (theme_id, name, unix_name, abstract, extends_theme_id, variant_of_theme_id, custom, site_id, use_side_bar, use_top_bar, sort_index, sync_page_name, revision_number) VALUES (1, 'Base', 'base', true, NULL, NULL, false, NULL, true, true, 0, NULL, 0);
