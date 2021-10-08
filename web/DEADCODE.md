@@ -185,13 +185,19 @@ If possible, add to this log in the same commit in which the code is removed.
 * Why it was removed: Search doesn't work, and we're fully replacing it anyways.
 
 ## PHP: `Ucookie`
-* Where it was [web/php/DB/Ucookie](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/Ucookie.php) and its associated database files.
+* Where it was: [web/php/DB/Ucookie](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/Ucookie.php) and its associated database files.
 * Relevant Issues: [WJ-765](https://scuttle.atlassian.net/browse/WJ-765)
 * What it did: Unknown, apparently some sort of ancillary data attached to a particular session / site combo.
 * Why it was removed: Unused.
 
-## PHP: `MailForm` module
-* Where it was [web/php/Actions/Wiki/MailFormAction](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/Actions/Wiki/MailFormAction.php), [web/php/Modules/Wiki/MailForm/MailFormModule](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/Modules/Wiki/MailForm/MailFormModule.php), [web/templates/modules/Wiki/MailForm/MailFormModule](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/templates/modules/Wiki/MailForm/MailFormModule.php)
+## PHP, JS: `MailForm` module
+* Where it was: [web/php/Actions/Wiki/MailFormAction](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/Actions/Wiki/MailFormAction.php), [web/php/Modules/Wiki/MailForm/MailFormModule](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/Modules/Wiki/MailForm/MailFormModule.php), [web/templates/modules/Wiki/MailForm/MailFormModule](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/templates/modules/Wiki/MailForm/MailFormModule.php)
 * Relevant Issues: [WJ-762](https://scuttle.atlassian.net/browse/WJ-762)
 * What it did: Allowed sending arbitrary emails to users, with content customized via its module syntax. See [its Wikidot documentation](https://www.wikidot.com/doc-modules:mailform-module).
 * Why it was removed: Sole user of the "storage item" concept, and allowing users to send emails as Wikijump is a bad idea for several reasons. Will possibly reworked to have a smaller scope and be less freeform.
+
+## PHP: `StorageItem` and `DatabaseStorage`
+* Where it was: [web/php/DB/StorageItem](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/StorageItem.php), [web/php/Utils/DatabaseStorage](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/Utils/DatabaseStorage.php)
+* Relevant Issues: [WJ-762](https://scuttle.atlassian.net/browse/WJ-762)
+* What it did: Allowed storing arbitrary data for use in miscellaneous parts of the code.
+* Why it was removed: Code smell, also only used by `MailForm` which is now gone (see above). Its corresponding database migrations were not in the code, so the table was non-functional.
