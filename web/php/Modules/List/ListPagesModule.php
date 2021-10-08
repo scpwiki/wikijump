@@ -8,7 +8,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ODate;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\ForumThreadPeer;
@@ -275,7 +274,7 @@ class ListPagesModule extends SmartyModule
                 foreach ($tagsAny as $tag0) {
                     $t[] = 'tag = \'' . db_escape_string($tag0) . '\'';
                 }
-                $tagQuery = "SELECT count(*) FROM page_tag " . "WHERE page_tag.page_id=page.page_id " . "AND (" . implode(' OR ', $t) . ")";
+                $tagQuery = "SELECT count(*) FROM page " . "WHERE (" . implode(' OR ', $t) . ")";
 
                 $c->add('(' . $tagQuery . ')', 1, '>=');
             }
@@ -285,7 +284,7 @@ class ListPagesModule extends SmartyModule
                 foreach ($tagsAll as $tag0) {
                     $t[] = 'tag = \'' . db_escape_string($tag0) . '\'';
                 }
-                $tagQuery = "SELECT count(*) FROM page_tag " . "WHERE page_tag.page_id=page.page_id " . "AND (" . implode(' OR ', $t) . ")";
+                $tagQuery = "SELECT count(*) FROM page " . "WHERE (" . implode(' OR ', $t) . ")";
 
                 $c->add('(' . $tagQuery . ')', count($tagsAll));
             }
@@ -295,7 +294,7 @@ class ListPagesModule extends SmartyModule
                 foreach ($tagsNone as $tag0) {
                     $t[] = 'tag = \'' . db_escape_string($tag0) . '\'';
                 }
-                $tagQuery = "SELECT count(*) FROM page_tag " . "WHERE page_tag.page_id=page.page_id " . "AND (" . implode(' OR ', $t) . ")";
+                $tagQuery = "SELECT count(*) FROM page " . "WHERE (" . implode(' OR ', $t) . ")";
 
                 $c->add('(' . $tagQuery . ')', 0);
             }
