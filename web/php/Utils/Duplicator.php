@@ -352,7 +352,7 @@ class Duplicator
         $ncomp->setDateCompiled($now);
         $ncomp->save();
 
-        /* Copy tags too. */
+        /* Copy tags too. | NOTE This is very deprecated. —Yossi */
         $c = new Criteria();
         $c->add('page_id', $page->getPageId());
         $tags = PageTagPeer::instance()->select($c);
