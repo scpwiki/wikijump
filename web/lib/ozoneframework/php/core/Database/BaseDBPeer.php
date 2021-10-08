@@ -3,6 +3,7 @@
 namespace Ozone\Framework\Database;
 
 
+use Wikidot\Utils\ProcessException;
 
 use mysql_xdevapi\DatabaseObject;
 use Ozone\Framework\ODate;
@@ -223,6 +224,11 @@ abstract class BaseDBPeer {
 					}
 				}
 
+				// Process the JSONB data type.
+				if($fieldType === 'jsonb'){
+					$val = json_encode($val);
+				}
+
 				if($val === null){
 					$val = "NULL";
 				} else {
@@ -248,7 +254,6 @@ abstract class BaseDBPeer {
 			}
 		}
 		$query .= "($colstring) VALUES ($valstring)";
-
 		$db->query($query);
 	}
 
