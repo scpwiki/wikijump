@@ -149,9 +149,7 @@ class WikiScreen extends Screen
 
             // Get the tags and convert them to string.
             $tags = PagePeer::getTags($pageId);
-            if(!empty($tags)) {
-                $tags = implode(" ", $tags);
-            }
+            $tags = implode(" ", $tags);
             $runData->contextAdd("tags", $tags);
 
             // has discussion?
