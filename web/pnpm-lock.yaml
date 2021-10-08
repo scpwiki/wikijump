@@ -284,12 +284,6 @@ importers:
       svelte: 3.43.1
       tippy.js: 6.3.2
 
-  modules/css:
-    specifiers:
-      include-media: ^1.4.10
-    dependencies:
-      include-media: 1.4.10
-
   modules/ftml-components:
     specifiers:
       '@popperjs/core': ^2.10.2
@@ -364,15 +358,15 @@ importers:
   resources:
     specifiers:
       '@wikijump/api': workspace:*
-      '@wikijump/css': workspace:*
       '@wikijump/ftml-components': workspace:*
       '@wikijump/sheaf': workspace:*
+      include-media: ^1.4.10
       svelte: ^3.43.1
     dependencies:
       '@wikijump/api': link:../modules/api
-      '@wikijump/css': link:../modules/css
       '@wikijump/ftml-components': link:../modules/ftml-components
       '@wikijump/sheaf': link:../modules/sheaf
+      include-media: 1.4.10
       svelte: 3.43.1
 
 packages:
