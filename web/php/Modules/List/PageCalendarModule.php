@@ -8,7 +8,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PagePeer;
 
 use Ozone\Framework\SmartyModule;
