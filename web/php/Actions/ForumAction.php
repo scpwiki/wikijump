@@ -155,9 +155,6 @@ class ForumAction extends SmartyAction
         $o = new Outdater();
         $o->forumEvent("post_save", $post);
 
-        // index thread
-        Indexer::instance()->indexThread($thread);
-
         $runData->ajaxResponseAdd("threadId", $thread->getThreadId());
         $runData->ajaxResponseAdd("threadUnixifiedTitle", $thread->getUnixifiedTitle());
 
@@ -290,9 +287,6 @@ class ForumAction extends SmartyAction
         $o = new Outdater();
         $o->forumEvent("post_save", $post);
 
-        // index thread
-        Indexer::instance()->indexThread($thread);
-
         EventLogger::instance()->logNewPost($post);
 
         $db->commit();
@@ -411,9 +405,6 @@ class ForumAction extends SmartyAction
 
         $o = new Outdater();
         $o->forumEvent("post_save", $post);
-
-        // index thread
-        Indexer::instance()->indexThread($thread);
 
         EventLogger::instance()->logSavePost($post);
 
@@ -583,9 +574,6 @@ class ForumAction extends SmartyAction
         $o = new Outdater();
         $o->forumEvent("thread_save", $thread);
 
-        // index thread
-        Indexer::instance()->indexThread($thread);
-
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);
@@ -711,9 +699,6 @@ class ForumAction extends SmartyAction
         $o = new Outdater();
         $o->forumEvent("outdate_forum");
 
-        // index thread
-        Indexer::instance()->indexThread($thread);
-
         EventLogger::instance()->logThreadMoved($thread, $category);
 
         $db->commit();
@@ -784,9 +769,6 @@ class ForumAction extends SmartyAction
         // outdate
         $o = new Outdater();
         $o->forumEvent("thread_save", $thread);
-
-        // index thread
-        Indexer::instance()->indexThread($thread);
 
         EventLogger::instance()->logPostDelete($thread, $post->getTitle());
 
