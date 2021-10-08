@@ -730,14 +730,7 @@ class ListPagesModule extends SmartyModule
         $page = $this->_tmpPage;
         /* Select tags. */
         // get the tags
-        $c = new Criteria();
-        $c->add("page_id", $page->getPageId());
-        $c->addOrderAscending("tag");
-        $tags = PageTagPeer::instance()->select($c);
-        $t2 = array();
-        foreach ($tags as $t) {
-            $t2[] = $t->getTag();
-        }
+        $t2 = PagePeer::getTags($pageId);
         if (count($t2) == 0) {
             return _('//no tags found for this page//');
         }
