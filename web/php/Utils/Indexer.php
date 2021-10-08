@@ -18,7 +18,4 @@ class Indexer
         return  self::$instance;
     }
 
-    public function deindexThread($thread)
-    {
-    }
 }
