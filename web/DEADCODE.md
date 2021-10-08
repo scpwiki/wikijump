@@ -177,3 +177,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-759](https://scuttle.atlassian.net/browse/WJ-759), [WJ-221](https://scuttle.atlassian.net/browse/WJ-221)
 * What it did: It was like the `site_settings` table, but a separate table for some reason.
 * Why it was removed: Unnecessary table, and its only option (`can_custom_domain`) is unnecessary.
+
+## PHP: `FtsEntry`
+* Where it was [web/php/DB/FtsEntry](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/FtsEntry.php) and its associated database files.
+* Relevant Issues: [WJ-725](https://scuttle.atlassian.net/browse/WJ-725), [WJ-889](https://scuttle.atlassian.net/browse/WJ-889)
+* What it did: Managed full-text search via Postgres.
+* Why it was removed: Search doesn't work, and we're fully replacing it anyways.
