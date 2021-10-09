@@ -12,28 +12,6 @@ use Exception;
  */
 final class License
 {
-    // Mapping
-    private static array $mapping = [];
-
-    private static function add(License $license)
-    {
-        if (isset(self::$mapping[$license->id])) {
-            throw new Exception("License added with duplicate ID: $license->id");
-        }
-
-        self::$mapping[$license->id] = $license;
-    }
-
-    public static function get(string $id): License
-    {
-        $license = self::$mapping[$id];
-        if ($license === null) {
-            throw new Exception("No license with ID $id found! Check your configuration.");
-        }
-
-        return $license;
-    }
-
     // Fields for License instances
     private string $id;
     private string $name;
@@ -52,9 +30,6 @@ final class License
         $this->url = $url;
         $this->unlessClause = $unlessClause;
         $this->html = $this->buildHtml();
-
-        // Add to mapping
-        self::add($this);
     }
 
     // TODO: convert this into a blade template

@@ -3,16 +3,8 @@ declare(strict_types=1);
 
 use \Wikijump\Common\License;
 
-/**
- * This is a list of licenses that administrators of your farm can pick for their wiki.
- *
- * Keep in mind:
- * - The order this array is in is the order shown in the UI.
- * - The ID of the license must remain constant because it is stored in the database.
- */
-
-// TODO: add localization
-return [
+// Licenses in display order
+$list = [
     // Creative Commons 4.0
     new License(
         'cc_by_sa_4',
@@ -95,4 +87,17 @@ return [
         'Standard copyright (not recommended)',
         null,
     )
+];
+
+// Licenses by ID
+// (generated from the license list)
+$ids = [];
+foreach ($list as &$license) {
+    $ids[$license->id] = $license;
+}
+
+// TODO: add localization
+return [
+    'ids' => $ids,
+    'list' => $list,
 ];
