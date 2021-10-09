@@ -16,30 +16,15 @@ class Category extends CategoryBase
 {
     public function getLicenseText()
     {
+        // Determine if we pull from _default, because the license is inherited.
+        if ($this->getName() !== '_default' && $this->getLicenseInherits()) {
+            $cat = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
+            return $cat->getLicenseText();
+        }
+
+        // Get other license info
         $license = License::get($this->getLicenseId());
         return $license->html();
-
-        if ($this->getName() === '_default') {
-            if ($this->getLicenseId() == 1) {
-                return $this->getLicenseOther();
-            } else {
-                $license = LicensePeer::instance()->selectById($this->getLicenseId());
-                return $license->getDescription();
-            }
-        } else {
-            if ($this->getLicenseDefault()) {
-                // get default license (for the '_default' category)
-                $dc = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-                return $dc->getLicenseText();
-            } else {
-                if ($this->getLicenseId() == 1) {
-                    return $this->getLicenseOther();
-                } else {
-                    $license = LicensePeer::instance()->selectById($this->getLicenseId());
-                    return $license->getDescription();
-                }
-            }
-        }
     }
 
     public function getTopPage()
