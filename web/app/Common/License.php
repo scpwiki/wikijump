@@ -6,21 +6,29 @@ namespace Wikijump\Common;
 
 /**
  * Data class to store a particular configured license.
+ * Each must have a unique string ID, which should not change as it is stored in the database.
  *
  * Because these are constants, the fields are exposed via method only to prevent accidental mutation.
  */
 final class License
 {
+    // Mapping
+    private static array $mapping;
+
+    // Fields for License instances
+    private string $id;
     private string $name;
     private ?string $url;
     private bool $unlessClause;
     private string $html;
 
     public function __construct(
+        string $id,
         string $name,
         ?string $url,
         bool $unlessClause = true
     ) {
+        $this->id = $id;
         $this->name = $name;
         $this->url = $url;
         $this->unlessClause = $unlessClause;
@@ -44,6 +52,11 @@ final class License
         } else {
             return $link;
         }
+    }
+
+    public function id(): string
+    {
+        return $this->id;
     }
 
     public function name(): string
