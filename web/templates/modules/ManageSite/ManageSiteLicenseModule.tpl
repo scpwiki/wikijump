@@ -52,23 +52,6 @@
 				</td>
 			</tr>
 		</table>
-		<div id="sm-other-license" style="margin: 1em 0">
-			<table class="form">
-				<tr>
-					<td>
-						{t}Custom license text{/t}:
-					</td>
-					<td>
-						<textarea id="sm-other-license-text" rows="4" cols="50"></textarea>
-						<div class="sub">
-							(<span id="sm-other-license-text-left"></span> {t}characters left{/t})
-							<br/>
-							{t}A few HTML tags are allowed:{/t} &lt;a&gt;, &lt;img/&gt;, &lt;br/&gt;, &lt;strong&gt;, &lt;em&gt;
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
 	</div>
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" id="sm-license-cancel"/>

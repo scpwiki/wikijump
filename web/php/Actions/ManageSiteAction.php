@@ -401,14 +401,6 @@ class ManageSiteAction extends SmartyAction
                 $dCategory->setLicenseInherits($category['license_inherits']);
                 $changed = true;
             }
-            if ($category['license_other'] !== $dCategory->getLicenseOther()) {
-                $ltext = trim($category['license_other']);
-                if (strlen8($ltext)>300) {
-                    throw new ProcessException(_("The custom license text should not be longer than 300 characters."));
-                }
-                $dCategory->setLicenseOther($ltext);
-                $changed = true;
-            }
             if ($changed) {
                 $dCategory->save();
                 // outdate category

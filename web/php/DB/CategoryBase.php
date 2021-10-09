@@ -121,16 +121,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('license_id', $v1, $raw);
     }
 
-    public function getLicenseOther()
-    {
-        return $this->getFieldValue('license_other');
-    }
-
-    public function setLicenseOther($v1, $raw = false)
-    {
-        $this->setFieldValue('license_other', $v1, $raw);
-    }
-
     public function getNavDefault()
     {
         return $this->getFieldValue('nav_default');
