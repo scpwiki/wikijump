@@ -4,7 +4,6 @@ namespace Wikidot\Modules\ManageSite;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\LicensePeer;
 use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteLicenseModule extends ManageSiteBaseModule
@@ -31,12 +30,7 @@ class ManageSiteLicenseModule extends ManageSiteBaseModule
         }
         $runData->ajaxResponseAdd("categories", $cats2);
 
-        // get licences
-
-        $c = new Criteria();
-        $c->addOrderAscending("sort");
-        $c->addOrderAscending("name");
-        $licenses = LicensePeer::instance()->select($c);
-        $runData->contextAdd("licenses", $licenses);
+        // Add license data
+        $runData->contextAdd('licenses', config('licenses'));
     }
 }
