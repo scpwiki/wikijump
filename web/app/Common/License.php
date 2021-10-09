@@ -93,4 +93,9 @@ final class License
     {
         return $this->unlessClause;
     }
+
+    public function html(): string
+    {
+        return $this->html;
+    }
 }
