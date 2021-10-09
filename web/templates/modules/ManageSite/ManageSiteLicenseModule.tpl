@@ -2,7 +2,7 @@
 
 <p>
 	It is <u>very</u> important to clarify the copyright and ownership issues for your site.
-	We highly recomment setting an open "<a href="http://en.wikipedia.org/wiki/Copyleft"
+	We highly recommend setting an open "<a href="https://en.wikipedia.org/wiki/Copyleft"
 	target="_blank">copyleft</a>" license that allows making the
 	Content more or less free to copy, modify and use.
 </p>
@@ -10,10 +10,10 @@
 	This is particularly important when your Site is created and edited collaboratively.
 </p>
 <p>
-	Read more about <a href="http://creativecommons.org/about/licenses/meet-the-licenses"
-	target="_blank">Creative Commons licenses</a>, use a <a href="http://creativecommons.org/license/"
+	Read more about <a href="https://creativecommons.org/about/licenses/meet-the-licenses"
+	target="_blank">Creative Commons licenses</a>, use a <a href="https://creativecommons.org/license/"
 	target="_blank">wizard</a> to select the proper license or just visit
-	<a href="http://creativecommons.org/" target="_blank">Creative Commons</a>.
+	<a href="https://creativecommons.org/" target="_blank">Creative Commons</a>.
 </p>
 
 <div>
