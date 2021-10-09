@@ -14,7 +14,7 @@ use Wikijump\Common\License;
  */
 class Category extends CategoryBase
 {
-    public function getLicenseHtml()
+    public function getLicenseHtml(): string
     {
         // Determine if we pull from _default, because the license is inherited.
         if ($this->getName() !== '_default' && $this->getLicenseInherits()) {
