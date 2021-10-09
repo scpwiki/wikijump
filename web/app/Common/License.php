@@ -12,13 +12,13 @@ namespace Wikijump\Common;
 final class License
 {
     private string $name;
-    private string $url;
+    private ?string $url;
     private bool $unlessClause;
     private string $html;
 
     public function __construct(
         string $name,
-        string $url,
+        ?string $url,
         bool $unlessClause = true
     ) {
         $this->name = $name;
@@ -31,7 +31,11 @@ final class License
     // These are safe since these objects are built in static configuration
     private function buildHtml(): string
     {
-        $link = "<a rel=\"license\" href=\"$this->url\">$this->name</a>";
+        if ($this->url === null) {
+            $link = $this->name;
+        } else {
+            $link = "<a rel=\"license\" href=\"$this->url\">$this->name</a>";
+        }
 
         if ($this->unlessClause) {
             $unless = __('Unless stated otherwise Content of this page is licensed under');
@@ -47,7 +51,7 @@ final class License
         return $this->name;
     }
 
-    public function url(): string
+    public function url(): ?string
     {
         return $this->url;
     }
