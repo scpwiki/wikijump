@@ -3,15 +3,10 @@
 namespace Wikidot\DB;
 
 
-
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Ozone;
 use Wikidot\Utils\WDStringUtils;
 use Ozone\Framework\Database\Criteria;
-
-
-
-
 
 /**
  * Object Model mapped Class.

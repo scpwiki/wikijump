@@ -1,16 +1,9 @@
 <?php
 
 namespace Wikidot\Actions;
-use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Database\Database;
-use Ozone\Framework\SmartyAction;
-use Wikidot\Config\ForbiddenNames;
 
-use Wikidot\DB\SitePeer;
-use Wikidot\DB\PagePeer;
-use Wikidot\Utils\FileMime;
+use Ozone\Framework\SmartyAction;
 use Wikidot\Utils\GlobalProperties;
-use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 use Wikidot\Utils\WDStringUtils;
@@ -71,10 +64,6 @@ class AccountProfileAction extends SmartyAction
 
         $about = $pl->getParameterValue("about");
         $website = $pl->getParameterValue("website");
-        $imIcq = $pl->getParameterValue("im_icq");
-        $imJabber = $pl->getParameterValue("im_jabber");
-
-        $location = $pl->getParameterValue("location");
 
         $profile->real_name = $realName;
         $profile->pronouns = $pronouns;
