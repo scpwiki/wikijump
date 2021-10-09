@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Wikijump\Common;
 
 
+use Exception;
+
 /**
  * Data class to store a particular configured license.
  * Because these are constants, the fields are exposed via method only to prevent accidental mutation.
