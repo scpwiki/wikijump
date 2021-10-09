@@ -192,7 +192,7 @@ INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (36, '
 <li>You can attach images and other files to any page, then display them and link to them in the page.</li>
 <li>Every Wikidot page has a history of edits, and you can undo anything. So feel secure, and experiment.</li>
 <li>To start a forum on your site, see the <a href="/admin:manage">Site Manager</a> » <em>Forum</em>.</li>
-<li>The license for this Wikidot site has been set to <a href="http://creativecommons.org/licenses/by-sa/3.0/" onclick="window.open(this.href, ''_blank''); return false;">Creative Commons Attribution-Share Alike 3.0 License</a>. If you want to change this, use the Site Manager.</li>
+<li>The license for this Wikidot site has been set to <a href="http://creativecommons.org/licenses/by-sa/4.0/" onclick="window.open(this.href, ''_blank''); return false;">Creative Commons Attribution-Share Alike 4.0 License</a>. If you want to change this, use the Site Manager.</li>
 <li>If you want to learn more, make sure you visit the <a href="http://www.wikidot.org/doc" onclick="window.open(this.href, ''_blank''); return false;">Documentation section at www.wikidot.org</a></li>
 </ul>
 <p>More information about the Wikidot project can be found at <a href="http://www.wikidot.org" onclick="window.open(this.href, ''_blank''); return false;">www.wikidot.org</a>.</p>
@@ -324,7 +324,7 @@ INSERT INTO public.page_compiled (page_id, text, date_compiled) VALUES (23, '
 <li>You can attach images and other files to any page, then display them and link to them in the page.</li>
 <li>Every Wikidot page has a history of edits, and you can undo anything. So feel secure, and experiment.</li>
 <li>To start a forum on your site, see the <a href="/admin:manage">Site Manager</a> » <em>Forum</em>.</li>
-<li>The license for this Wikidot site has been set to <a href="http://creativecommons.org/licenses/by-sa/3.0/" onclick="window.open(this.href, ''_blank''); return false;">Creative Commons Attribution-Share Alike 3.0 License</a>. If you want to change this, use the Site Manager.</li>
+<li>The license for this Wikidot site has been set to <a href="http://creativecommons.org/licenses/by-sa/4.0/" onclick="window.open(this.href, ''_blank''); return false;">Creative Commons Attribution-Share Alike 4.0 License</a>. If you want to change this, use the Site Manager.</li>
 <li>If you want to learn more, make sure you visit the <a href="http://www.wikidot.org/doc" onclick="window.open(this.href, ''_blank''); return false;">Documentation section at www.wikidot.org</a></li>
 </ul>
 <h2 id="toc2"><span>Customize default template</span></h2>
@@ -707,7 +707,7 @@ Then there are some things you need to know:
 * You can attach images and other files to any page, then display them and link to them in the page.
 * Every Wikidot page has a history of edits, and you can undo anything.  So feel secure, and experiment.
 * To start a forum on your site, see the [[[admin:manage | Site Manager]]] >> //Forum//.
-* The license for this Wikidot site has been set to [*http://creativecommons.org/licenses/by-sa/3.0/ Creative Commons Attribution-Share Alike 3.0 License].  If you want to change this, use the Site Manager.
+* The license for this Wikidot site has been set to [*http://creativecommons.org/licenses/by-sa/4.0/ Creative Commons Attribution-Share Alike 4.0 License].  If you want to change this, use the Site Manager.
 * If you want to learn more, make sure you visit the [*http://www.wikidot.org/doc Documentation section at www.wikidot.org]
 
 More information about the Wikidot project can be found at [*http://www.wikidot.org www.wikidot.org].');
@@ -876,7 +876,7 @@ Wikidot consists of several wiki sites, not just one. Right now you are on the m
 * You can attach images and other files to any page, then display them and link to them in the page.
 * Every Wikidot page has a history of edits, and you can undo anything.  So feel secure, and experiment.
 * To start a forum on your site, see the [[[admin:manage | Site Manager]]] >> //Forum//.
-* The license for this Wikidot site has been set to [*http://creativecommons.org/licenses/by-sa/3.0/ Creative Commons Attribution-Share Alike 3.0 License].  If you want to change this, use the Site Manager.
+* The license for this Wikidot site has been set to [*http://creativecommons.org/licenses/by-sa/4.0/ Creative Commons Attribution-Share Alike 4.0 License].  If you want to change this, use the Site Manager.
 * If you want to learn more, make sure you visit the [*http://www.wikidot.org/doc Documentation section at www.wikidot.org]
 
 ++ Customize default template
@@ -912,7 +912,7 @@ Wikidot consists of several wiki sites, not just one. Right now you are on the m
 * You can attach images and other files to any page, then display them and link to them in the page.
 * Every Wikidot page has a history of edits, and you can undo anything.  So feel secure, and experiment.
 * To start a forum on your site, see the [[[admin:manage | Site Manager]]] >> //Forum//.
-* The license for this Wikidot site has been set to [*http://creativecommons.org/licenses/by-sa/3.0/ Creative Commons Attribution-Share Alike 3.0 License].  If you want to change this, use the Site Manager.
+* The license for this Wikidot site has been set to [*http://creativecommons.org/licenses/by-sa/4.0/ Creative Commons Attribution-Share Alike 4.0 License].  If you want to change this, use the Site Manager.
 * If you want to learn more, make sure you visit the [*http://www.wikidot.org/doc Documentation section at www.wikidot.org]
 
 ++ Customize default template
