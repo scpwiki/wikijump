@@ -5,8 +5,8 @@ namespace Wikidot\DB;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
 use Wikidot\Modules\PageRate\PageRateWidgetModule;
+use Wikijump\Common\License;
 
 /**
  * Object Model mapped Class.
@@ -16,6 +16,9 @@ class Category extends CategoryBase
 {
     public function getLicenseText()
     {
+        $license = License::get($this->getLicenseId());
+        return $license->html();
+
         if ($this->getName() === '_default') {
             if ($this->getLicenseId() == 1) {
                 return $this->getLicenseOther();
@@ -25,7 +28,7 @@ class Category extends CategoryBase
             }
         } else {
             if ($this->getLicenseDefault()) {
-                // get default license (for the '_default' category
+                // get default license (for the '_default' category)
                 $dc = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
                 return $dc->getLicenseText();
             } else {

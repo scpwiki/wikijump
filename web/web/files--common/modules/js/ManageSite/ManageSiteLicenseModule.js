@@ -19,7 +19,7 @@ Wikijump.modules.ManagerSiteLicenseModule.listeners = {
 			document.getElementById("sm-license-list").style.display = "";
 		} else {
 			document.getElementById("sm-license-noind").style.display = "block";
-			if(category['license_default'] == true){
+			if(category['license_inherits'] == true){
 				document.getElementById("sm-license-noin").checked=true;
 				document.getElementById("sm-license-list").style.display = "none";
 			} else {
@@ -39,10 +39,10 @@ Wikijump.modules.ManagerSiteLicenseModule.listeners = {
 
 		if($("sm-license-noin").checked == true){
 			$("sm-license-list").style.display = "none";
-			category['license_default'] = true;
+			category['license_inherits'] = true;
 		}else{
 			$("sm-license-list").style.display = "";
-			category['license_default'] = false;
+			category['license_inherits'] = false;
 		}
 		Wikijump.modules.ManagerSiteLicenseModule.utils.updateLicensePreview();
 	},
