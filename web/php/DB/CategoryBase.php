@@ -111,7 +111,7 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('license_inherits', $v1, $raw);
     }
 
-    public function getLicenseId()
+    public function getLicenseId(): string
     {
         return $this->getFieldValue('license_id');
     }
