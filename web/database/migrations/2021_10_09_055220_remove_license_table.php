@@ -13,14 +13,20 @@ class RemoveLicenseTable extends Migration
      */
     public function up()
     {
+        // Drop old columns
         Schema::table('category', function (Blueprint $table) {
             $table->dropColumn('license_id');
             $table->dropColumn('license_other');
-
-            $table->string('license_id');
-            $table->renameColumn('license_default', 'license_inherits');
+            $table->dropColumn('license_default');
         });
 
+        // Add new columns
+        Schema::table('category', function (Blueprint $table) {
+            $table->string('license_id');
+            $table->boolean('license_default')->default(true);
+        });
+
+        // Remove license table
         Schema::drop('license');
     }
 
@@ -31,6 +37,7 @@ class RemoveLicenseTable extends Migration
      */
     public function down()
     {
+        // Re-add license table
         Schema::create('license', function (Blueprint $table) {
             $table->id('license_id')->startingValue(16);
             $table->string('name', 100)->nullable()->unique();
@@ -38,10 +45,15 @@ class RemoveLicenseTable extends Migration
             $table->unsignedInteger('sort')->default(0);
         });
 
+        // Drop new columns
         Schema::table('category', function (Blueprint $table) {
             $table->dropColumn('license_id');
-            $table->renameColumn('license_inherits', 'license_default');
+            $table->dropColumn('license_default');
+        });
 
+        // Re-add old columns
+        Schema::table('category', function (Blueprint $table) {
+            $table->boolean('license_default')->default(true);
             $table->unsignedInteger('license_id')->nullable();
             $table->string('license_other', 350)->nullable();
         });
