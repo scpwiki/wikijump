@@ -41,8 +41,7 @@ class Category extends CategoryBase
             }
         }
         // now GET this page
-        $page = PagePeer::instance()->selectByName($this->getSiteId(), $pageName);
-        return $page;
+        return PagePeer::instance()->selectByName($this->getSiteId(), $pageName);
     }
 
     public function getSidePage()
