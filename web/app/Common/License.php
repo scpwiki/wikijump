@@ -11,7 +11,7 @@ namespace Wikijump\Common;
 final class License
 {
     // Mapping
-    private static array $mapping;
+    private static array $mapping = [];
 
     private static function add(License $license)
     {
