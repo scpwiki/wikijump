@@ -22,9 +22,14 @@ final class License
         self::$mapping[$license->id] = $license;
     }
 
-    public static function get(string $id): ?License
+    public static function get(string $id): License
     {
-        return self::$mapping[$id];
+        $license = self::$mapping[$id];
+        if ($license === null) {
+            throw new Exception("No license with ID $id found! Check your configuration.");
+        }
+
+        return $license;
     }
 
     // Fields for License instances
