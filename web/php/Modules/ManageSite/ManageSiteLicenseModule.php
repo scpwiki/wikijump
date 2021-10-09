@@ -8,10 +8,8 @@ use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteLicenseModule extends ManageSiteBaseModule
 {
-
     public function build($runData)
     {
-
         $site = $runData->getTemp('site');
         $runData->contextAdd('site', $site);
 
