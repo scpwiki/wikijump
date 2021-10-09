@@ -78,14 +78,13 @@ class Page extends PageBase
         $categoryId = $this->getCategoryId();
         $siteId = $this->getSiteId();
 
-        $category = CategoryPeer::instance()->selectById($categoryId, $siteId);
-        return $category;
+        return CategoryPeer::instance()->selectById($categoryId, $siteId);
     }
 
     public function getTitleOrUnixName()
     {
         $title = $this->getTitle();
-        if ($title == null || $title === '') {
+        if ($title == null) {
             $title = ucfirst(str_replace("-", " ", preg_replace("/^[a-z0-9\-]+:/i", '', $this->getUnixName())));
         }
         return $title;
@@ -186,7 +185,7 @@ class Page extends PageBase
             if ($titleTemplate) {
                 /* Process the template. */
                 $b = $titleTemplate;
-                $b = str_replace('%%page_unix_name%%', preg_replace(';^[a-z0-9]+:;', '', $this->getUnixName()), $b);
+                $b = str_replace('%%page_unix_name%%', preg_replace('/^[a-z0-9]+:/', '', $this->getUnixName()), $b);
                 $b = str_replace('%%title%%', parent::getTitle(), $b);
                 return $b;
             }

@@ -14,7 +14,6 @@ use Wikidot\Modules\PageRate\PageRateWidgetModule;
  */
 class Category extends CategoryBase
 {
-
     public function getLicenseText()
     {
         if ($this->getName() === '_default') {
