@@ -29,6 +29,6 @@ class ManageSiteLicenseModule extends ManageSiteBaseModule
         $runData->ajaxResponseAdd('categories', $cats2);
 
         // Add license data
-        $runData->contextAdd('licenses', config('licenses'));
+        $runData->contextAdd('licenses', config('licenses.list'));
     }
 }

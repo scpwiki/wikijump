@@ -23,7 +23,8 @@ class Category extends CategoryBase
         }
 
         // Get other license info
-        $license = License::get($this->getLicenseId());
+        $licenses = config('licenses.ids');
+        $license = $licenses[$this->getLicenseId()];
         return $license->html();
     }
 
