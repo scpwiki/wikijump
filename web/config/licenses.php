@@ -6,7 +6,9 @@ use \Wikijump\Common\License;
 /**
  * This is a list of licenses that administrators of your farm can pick for their wiki.
  *
- * Keep in mind: the order this array is in is the order shown in the UI.
+ * Keep in mind:
+ * - The order this array is in is the order shown in the UI.
+ * - The ID of the license must remain constant because it is stored in the database.
  */
 
 // TODO: add localization

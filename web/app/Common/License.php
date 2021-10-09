@@ -6,8 +6,6 @@ namespace Wikijump\Common;
 
 /**
  * Data class to store a particular configured license.
- * Each must have a unique string ID, which should not change as it is stored in the database.
- *
  * Because these are constants, the fields are exposed via method only to prevent accidental mutation.
  */
 final class License
