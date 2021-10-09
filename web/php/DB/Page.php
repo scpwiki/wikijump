@@ -91,14 +91,6 @@ class Page extends PageBase
         return $title;
     }
 
-    /*
-     public function getLicenseText(){
-        $category = $this->getCategory();
-        i
-        return Wikidot_DB_LicensePeer::instance()->selectById($category->getLicenseId
-    }
-    */
-
     public function getPreview($length = 200)
     {
         if (is_array($this->prefetched)) {
@@ -166,8 +158,6 @@ class Page extends PageBase
 
     public function getTitle()
     {
-        //print_r(count(self::$_titleTemplate));
-
         $categoryId = $this->getCategoryId();
         if ($categoryId) {
             if (!array_key_exists($categoryId, self::$_titleTemplate)) {
@@ -177,7 +167,7 @@ class Page extends PageBase
                 if ($this->getCategoryName() != '_default') {
                     $templateUnixName = $this->getCategoryName() . ':' . $templateUnixName;
                 }
-                //echo $templateUnixName;
+
                 $c->add('unix_name', $templateUnixName);
                 $c->add('site_id', $this->getSiteId());
                 $templatePage = PagePeer::instance()->selectOne($c);
