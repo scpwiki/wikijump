@@ -174,9 +174,9 @@
             @endif
             Powered by <a href="https://github.com/scpwiki/wikijump">Wikijump</a>
         </div>
-        @if ($licenseText != "")
+        @if ($licenseHtml != "")
         <div id="license-area" class="license-area">
-            {{$licenseText}}
+            {{$licenseHtml}}
         </div>
         @endif
 

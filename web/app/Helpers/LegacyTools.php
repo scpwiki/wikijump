@@ -295,9 +295,9 @@ final class LegacyTools
 
         // GET LICENSE for the category
 
-        $licenseText = $category->getLicenseText();
-        $runData->contextAdd("licenseText", $licenseText);
-        $return['licenseText'] = $licenseText;
+        $licenseHtml = $category->getLicenseHtml();
+        $runData->contextAdd("licenseHtml", $licenseHtml);
+        $return['licenseHtml'] = $licenseHtml;
 
         // show nav elements?
 

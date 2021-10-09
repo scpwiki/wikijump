@@ -133,7 +133,7 @@
  		<hr/>
 
  		<div id="license-area" class="license-area">
- 			{$licenseText|replace:'%%UNLESS%%':'Unless stated otherwise Content of this page is licensed under'}
+ 			{$licenseHtml|replace:'%%UNLESS%%':'Unless stated otherwise Content of this page is licensed under'}
 		</div>
 
 		<hr/>

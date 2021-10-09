@@ -14,12 +14,12 @@ use Wikijump\Common\License;
  */
 class Category extends CategoryBase
 {
-    public function getLicenseText()
+    public function getLicenseHtml()
     {
         // Determine if we pull from _default, because the license is inherited.
         if ($this->getName() !== '_default' && $this->getLicenseInherits()) {
             $cat = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-            return $cat->getLicenseText();
+            return $cat->getLicenseHtml();
         }
 
         // Get other license info

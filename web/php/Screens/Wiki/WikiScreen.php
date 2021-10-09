@@ -189,8 +189,8 @@ class WikiScreen extends Screen
 
         // GET LICENSE for the category
 
-        $licenseText = $category->getLicenseText();
-        $runData->contextAdd("licenseText", $licenseText);
+        $licenseHtml = $category->getLicenseHtml();
+        $runData->contextAdd("licenseHtml", $licenseHtml);
 
         // show nav elements?
 
