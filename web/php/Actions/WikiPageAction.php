@@ -1426,7 +1426,7 @@ class WikiPageAction extends SmartyAction
                 }
             }
             if(!empty($forbiddenTags)) {
-              $errorMessage = sprintf(_('The tags "%s" are not valid for this site.'), implode(" ", $forbiddenTags));
+              $errorMessage = sprintf(_('The tags %s are not valid for this site.'), implode(", ", $forbiddenTags));
               throw new ProcessException($errorMessage, "form_error");
             }
         }
