@@ -33,7 +33,6 @@
             @endif
             WIKIREQUEST.info.lang = "{{$site->getLanguage()}}";
             OZONE.lang = "{{$site->getLanguage()}}";
-// 		window.onload = WikijumpInit();
             var HTTP_SCHEMA = '{{$HTTP_SCHEMA}}';
             var URL_HOST = '{{$URL_HOST}}';
             var URL_DOMAIN = '{{$URL_DOMAIN}}';
@@ -174,11 +173,9 @@
             @endif
             Powered by <a href="https://github.com/scpwiki/wikijump">Wikijump</a>
         </div>
-        @if ($licenseText != "")
         <div id="license-area" class="license-area">
-            {{$licenseText}}
+            {!! $licenseHtml !!}
         </div>
-        @endif
 
         <div id="extrac-div-1"><span></span></div><div id="extrac-div-2"><span></span></div><div id="extrac-div-3"><span></span></div>
 

@@ -18,15 +18,8 @@ class CategoryBase extends BaseDBObject
         $this->tableName='category';
         $this->peerName = 'Wikidot\\DB\\CategoryPeer';
         $this->primaryKeyName = 'category_id';
-        $this->fieldNames = array( 'category_id' ,  'site_id' ,  'name' ,  'theme_default' ,  'theme_id' ,  'theme_external_url' ,  'permissions_default' ,  'permissions' ,  'license_default' ,  'license_id' ,  'license_other' ,  'nav_default' ,  'top_bar_page_name' ,  'side_bar_page_name' ,  'template_id' ,  'per_page_discussion' ,  'per_page_discussion_default' ,  'rating' ,  'category_template_id' ,  'autonumerate' ,  'page_title_template' );
-
-        //$this->fieldDefaultValues=
+        $this->fieldNames = array( 'category_id' ,  'site_id' ,  'name' ,  'theme_default' ,  'theme_id' ,  'theme_external_url' ,  'permissions_default' ,  'permissions' ,  'license_inherits' ,  'license_id' ,  'nav_default' ,  'top_bar_page_name' ,  'side_bar_page_name' ,  'template_id' ,  'per_page_discussion' ,  'per_page_discussion_default' ,  'rating' ,  'category_template_id' ,  'autonumerate' ,  'page_title_template' );
     }
-
-
-
-
-
 
     public function getCategoryId()
     {
@@ -38,7 +31,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('category_id', $v1, $raw);
     }
 
-
     public function getSiteId()
     {
         return $this->getFieldValue('site_id');
@@ -48,7 +40,6 @@ class CategoryBase extends BaseDBObject
     {
         $this->setFieldValue('site_id', $v1, $raw);
     }
-
 
     public function getName()
     {
@@ -60,7 +51,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('name', $v1, $raw);
     }
 
-
     public function getThemeDefault()
     {
         return $this->getFieldValue('theme_default');
@@ -70,7 +60,6 @@ class CategoryBase extends BaseDBObject
     {
         $this->setFieldValue('theme_default', $v1, $raw);
     }
-
 
     public function getThemeId()
     {
@@ -82,7 +71,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('theme_id', $v1, $raw);
     }
 
-
     public function getThemeExternalUrl()
     {
         return $this->getFieldValue('theme_external_url');
@@ -92,7 +80,6 @@ class CategoryBase extends BaseDBObject
     {
         $this->setFieldValue('theme_external_url', $v1, $raw);
     }
-
 
     public function getPermissionsDefault()
     {
@@ -104,7 +91,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('permissions_default', $v1, $raw);
     }
 
-
     public function getPermissions()
     {
         return $this->getFieldValue('permissions');
@@ -115,19 +101,17 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('permissions', $v1, $raw);
     }
 
-
-    public function getLicenseDefault()
+    public function getLicenseInherits()
     {
-        return $this->getFieldValue('license_default');
+        return $this->getFieldValue('license_inherits');
     }
 
-    public function setLicenseDefault($v1, $raw = false)
+    public function setLicenseInherits($v1, $raw = false)
     {
-        $this->setFieldValue('license_default', $v1, $raw);
+        $this->setFieldValue('license_inherits', $v1, $raw);
     }
 
-
-    public function getLicenseId()
+    public function getLicenseId(): string
     {
         return $this->getFieldValue('license_id');
     }
@@ -136,18 +120,6 @@ class CategoryBase extends BaseDBObject
     {
         $this->setFieldValue('license_id', $v1, $raw);
     }
-
-
-    public function getLicenseOther()
-    {
-        return $this->getFieldValue('license_other');
-    }
-
-    public function setLicenseOther($v1, $raw = false)
-    {
-        $this->setFieldValue('license_other', $v1, $raw);
-    }
-
 
     public function getNavDefault()
     {
@@ -159,7 +131,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('nav_default', $v1, $raw);
     }
 
-
     public function getTopBarPageName()
     {
         return $this->getFieldValue('top_bar_page_name');
@@ -169,7 +140,6 @@ class CategoryBase extends BaseDBObject
     {
         $this->setFieldValue('top_bar_page_name', $v1, $raw);
     }
-
 
     public function getSideBarPageName()
     {
@@ -181,7 +151,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('side_bar_page_name', $v1, $raw);
     }
 
-
     public function getTemplateId()
     {
         return $this->getFieldValue('template_id');
@@ -191,7 +160,6 @@ class CategoryBase extends BaseDBObject
     {
         $this->setFieldValue('template_id', $v1, $raw);
     }
-
 
     public function getPerPageDiscussion()
     {
@@ -203,7 +171,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('per_page_discussion', $v1, $raw);
     }
 
-
     public function getPerPageDiscussionDefault()
     {
         return $this->getFieldValue('per_page_discussion_default');
@@ -213,7 +180,6 @@ class CategoryBase extends BaseDBObject
     {
         $this->setFieldValue('per_page_discussion_default', $v1, $raw);
     }
-
 
     public function getRating()
     {
@@ -225,7 +191,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('rating', $v1, $raw);
     }
 
-
     public function getCategoryTemplateId()
     {
         return $this->getFieldValue('category_template_id');
@@ -236,7 +201,6 @@ class CategoryBase extends BaseDBObject
         $this->setFieldValue('category_template_id', $v1, $raw);
     }
 
-
     public function getAutonumerate()
     {
         return $this->getFieldValue('autonumerate');
@@ -246,7 +210,6 @@ class CategoryBase extends BaseDBObject
     {
         $this->setFieldValue('autonumerate', $v1, $raw);
     }
-
 
     public function getPageTitleTemplate()
     {

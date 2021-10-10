@@ -1,5 +1,3 @@
-
-
 Wikijump.modules.ManagerSiteLicenseModule = {};
 
 Wikijump.modules.ManagerSiteLicenseModule.vars = {
@@ -19,7 +17,7 @@ Wikijump.modules.ManagerSiteLicenseModule.listeners = {
 			document.getElementById("sm-license-list").style.display = "";
 		} else {
 			document.getElementById("sm-license-noind").style.display = "block";
-			if(category['license_default'] == true){
+			if(category['license_inherits'] == true){
 				document.getElementById("sm-license-noin").checked=true;
 				document.getElementById("sm-license-list").style.display = "none";
 			} else {
@@ -39,10 +37,10 @@ Wikijump.modules.ManagerSiteLicenseModule.listeners = {
 
 		if($("sm-license-noin").checked == true){
 			$("sm-license-list").style.display = "none";
-			category['license_default'] = true;
+			category['license_inherits'] = true;
 		}else{
 			$("sm-license-list").style.display = "";
-			category['license_default'] = false;
+			category['license_inherits'] = false;
 		}
 		Wikijump.modules.ManagerSiteLicenseModule.utils.updateLicensePreview();
 	},
@@ -53,27 +51,6 @@ Wikijump.modules.ManagerSiteLicenseModule.listeners = {
 		var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 		category['license_id'] = this.value;
 		Wikijump.modules.ManagerSiteLicenseModule.utils.updateLicensePreview();
-	},
-
-	otherDescriptionChange: function(e){
-		var category = Wikijump.modules.ManagerSiteLicenseModule.vars.currentCategory;
-		var text = $("sm-other-license-text").value;
-		category['license_other'] = text;
-
-		// also update the preview...
-		var licenseId = document.getElementById("sm-license-lic").value;
-		var lid = "sm-prev-license-"+licenseId;
-		var prev = $(lid);
-		text = text.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
-		// now reenable some tags, i.e.: "a", "img" and "br"
-		text = text.replace(/&lt;a href="(.*?)"&gt;(.*?)&lt;\/a&gt;/g, '<a href="$1">$2</a>') ;
-		text = text.replace(/&lt;img src="(.*?)"(?: alt="(.*?)")?(?: )*(?:\/)?&gt;/g, '<img src="$1" alt="$2"/>');
-		text = text.replace(/&lt;br(\/)?&gt;/g, '<br/>');
-		text = text.replace(/&lt;strong&gt;(.*?)&lt;\/strong&gt;/g, '<strong>$1</strong>');
-		text = text.replace(/&lt;em&gt;(.*?)&lt;\/em&gt;/g, '<em>$1</em>');
-
-		prev.innerHTML = text;
-
 	},
 
 	cancel: function(e){
@@ -125,23 +102,6 @@ Wikijump.modules.ManagerSiteLicenseModule.utils = {
 			licenseId = $("sm-license-lic").value;
 		}
 
-		// let us assume that "other" has id = 1. bleeeeh
-
-		if(licenseId == 1){
-			$("sm-other-license").style.display="block";
-			// fill it with contents
-			if(category['name'] == '_default' || $("sm-license-noin").checked == false){
-				$("sm-other-license-text").value = category['license_other'];
-			}else{
-				var defCategory = Wikijump.modules.ManagerSiteModule.utils.getCategoryByName("_default");
-				$("sm-other-license-text").value =  defCategory['license_other'];
-			}
-			Wikijump.modules.ManagerSiteLicenseModule.listeners.otherDescriptionChange();
-			Wikijump.modules.ManagerSiteLicenseModule.vars.limiter.keyListener(null);
-		} else {
-			$("sm-other-license").style.display="none";
-		}
-
 		// now enable or disable preview
 		// first hide all previews
 		var div = $("sm-license-preview");
@@ -150,7 +110,7 @@ Wikijump.modules.ManagerSiteLicenseModule.utils = {
 			pres[i].style.display = "none";
 		}
 		// now show the chosen one
-		var pre = $("sm-prev-license-"+licenseId);
+		var pre = $("sm-prev-license-" + licenseId.replaceAll('_', '-'));
 		pre.style.display = "block";
 
 		return;
@@ -174,17 +134,12 @@ Wikijump.modules.ManagerSiteLicenseModule.init = function(){
 	YAHOO.util.Event.addListener("sm-license-cats", "change", Wikijump.modules.ManagerSiteLicenseModule.listeners.categoryChange);
 	YAHOO.util.Event.addListener("sm-license-lic", "change", Wikijump.modules.ManagerSiteLicenseModule.listeners.licenseChange);
 	YAHOO.util.Event.addListener("sm-license-noind", "click", Wikijump.modules.ManagerSiteLicenseModule.listeners.indClick);
-	YAHOO.util.Event.addListener("sm-other-license-text", "keyup", Wikijump.modules.ManagerSiteLicenseModule.listeners.otherDescriptionChange);
 
 	YAHOO.util.Event.addListener("sm-license-cancel", "click", Wikijump.modules.ManagerSiteLicenseModule.listeners.cancel);
 	YAHOO.util.Event.addListener("sm-license-save", "click", Wikijump.modules.ManagerSiteLicenseModule.listeners.save);
 	// init categories info
 
-	var limiter = new OZONE.forms.lengthLimiter("sm-other-license-text", "sm-other-license-text-left", 300);
-	Wikijump.modules.ManagerSiteLicenseModule.vars.limiter = limiter;
-
 	Wikijump.modules.ManagerSiteLicenseModule.listeners.categoryChange(null);
-
 }
 
 Wikijump.modules.ManagerSiteLicenseModule.init();

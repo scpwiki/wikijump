@@ -5,8 +5,8 @@ namespace Wikidot\DB;
 
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
 use Wikidot\Modules\PageRate\PageRateWidgetModule;
+use Wikijump\Services\License\LicenseMapping;
 
 /**
  * Object Model mapped Class.
@@ -14,30 +14,17 @@ use Wikidot\Modules\PageRate\PageRateWidgetModule;
  */
 class Category extends CategoryBase
 {
-
-    public function getLicenseText()
+    public function getLicenseHtml(): string
     {
-        if ($this->getName() === '_default') {
-            if ($this->getLicenseId() == 1) {
-                return $this->getLicenseOther();
-            } else {
-                $license = LicensePeer::instance()->selectById($this->getLicenseId());
-                return $license->getDescription();
-            }
-        } else {
-            if ($this->getLicenseDefault()) {
-                // get default license (for the '_default' category
-                $dc = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-                return $dc->getLicenseText();
-            } else {
-                if ($this->getLicenseId() == 1) {
-                    return $this->getLicenseOther();
-                } else {
-                    $license = LicensePeer::instance()->selectById($this->getLicenseId());
-                    return $license->getDescription();
-                }
-            }
+        // Determine if we pull from _default, because the license is inherited.
+        if ($this->getName() !== '_default' && $this->getLicenseInherits()) {
+            $cat = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
+            return $cat->getLicenseHtml();
         }
+
+        // Get license info
+        $license = LicenseMapping::get($this->getLicenseId());
+        return $license->html();
     }
 
     public function getTopPage()
@@ -54,8 +41,7 @@ class Category extends CategoryBase
             }
         }
         // now GET this page
-        $page = PagePeer::instance()->selectByName($this->getSiteId(), $pageName);
-        return $page;
+        return PagePeer::instance()->selectByName($this->getSiteId(), $pageName);
     }
 
     public function getSidePage()

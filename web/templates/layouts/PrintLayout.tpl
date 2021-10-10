@@ -35,7 +35,6 @@
  		WIKIREQUEST.info.pageUnixName = "{$wikiPage->getUnixName()}";
  		WIKIREQUEST.info.pageId = {$wikiPage->getPageId()};
  		{/if}
-// 		window.onload = WikijumpInit();
  	</script>
 
  	<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
@@ -133,7 +132,7 @@
  		<hr/>
 
  		<div id="license-area" class="license-area">
- 			{$licenseText|replace:'%%UNLESS%%':'Unless stated otherwise Content of this page is licensed under'}
+ 			{$licenseHtml}
 		</div>
 
 		<hr/>

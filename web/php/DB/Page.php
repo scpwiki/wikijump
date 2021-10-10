@@ -78,26 +78,17 @@ class Page extends PageBase
         $categoryId = $this->getCategoryId();
         $siteId = $this->getSiteId();
 
-        $category = CategoryPeer::instance()->selectById($categoryId, $siteId);
-        return $category;
+        return CategoryPeer::instance()->selectById($categoryId, $siteId);
     }
 
     public function getTitleOrUnixName()
     {
         $title = $this->getTitle();
-        if ($title == null || $title === '') {
+        if ($title === null || $title === '') {
             $title = ucfirst(str_replace("-", " ", preg_replace("/^[a-z0-9\-]+:/i", '', $this->getUnixName())));
         }
         return $title;
     }
-
-    /*
-     public function getLicenseText(){
-        $category = $this->getCategory();
-        i
-        return Wikidot_DB_LicensePeer::instance()->selectById($category->getLicenseId
-    }
-    */
 
     public function getPreview($length = 200)
     {
@@ -166,8 +157,6 @@ class Page extends PageBase
 
     public function getTitle()
     {
-        //print_r(count(self::$_titleTemplate));
-
         $categoryId = $this->getCategoryId();
         if ($categoryId) {
             if (!array_key_exists($categoryId, self::$_titleTemplate)) {
@@ -177,7 +166,7 @@ class Page extends PageBase
                 if ($this->getCategoryName() != '_default') {
                     $templateUnixName = $this->getCategoryName() . ':' . $templateUnixName;
                 }
-                //echo $templateUnixName;
+
                 $c->add('unix_name', $templateUnixName);
                 $c->add('site_id', $this->getSiteId());
                 $templatePage = PagePeer::instance()->selectOne($c);
@@ -196,7 +185,7 @@ class Page extends PageBase
             if ($titleTemplate) {
                 /* Process the template. */
                 $b = $titleTemplate;
-                $b = str_replace('%%page_unix_name%%', preg_replace(';^[a-z0-9]+:;', '', $this->getUnixName()), $b);
+                $b = str_replace('%%page_unix_name%%', preg_replace('/^[a-z0-9]+:/', '', $this->getUnixName()), $b);
                 $b = str_replace('%%title%%', parent::getTitle(), $b);
                 return $b;
             }

@@ -173,11 +173,9 @@
 				{/if}
  				Powered by <a href="https://github.com/scpwiki/wikijump">Wikijump</a>
 	 		</div>
-	 		{if $licenseText!=""}
-		 		<div id="license-area" class="license-area">
-		 			{$licenseText|replace:'%%UNLESS%%':'Unless stated otherwise Content of this page is licensed under'}
-				</div>
-			{/if}
+			<div id="license-area" class="license-area">
+				{$licenseHtml}
+			</div>
 
 			<div id="extrac-div-1"><span></span></div><div id="extrac-div-2"><span></span></div><div id="extrac-div-3"><span></span></div>
 

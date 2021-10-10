@@ -371,7 +371,6 @@ class ManageSiteAction extends SmartyAction
 
     public function saveLicenseEvent($runData)
     {
-
         $pl =  $runData->getParameterList();
         $site = $runData->getTemp("site");
         $siteId = $site->getSiteId();
@@ -380,7 +379,7 @@ class ManageSiteAction extends SmartyAction
 
         /* for each category
      *  - get a category from database
-     *  - check if license_id or license_default has changed
+     *  - check if license_id or license_inherits has changed
      *  - if changed: update
      */
         $db = Database::connection();
@@ -398,16 +397,8 @@ class ManageSiteAction extends SmartyAction
                 $dCategory->setLicenseId($category['license_id']);
                 $changed = true;
             }
-            if ($category['license_default'] != $dCategory->getLicenseDefault()) {
-                $dCategory->setLicenseDefault($category['license_default']);
-                $changed = true;
-            }
-            if ($category['license_other'] !== $dCategory->getLicenseOther()) {
-                $ltext = trim($category['license_other']);
-                if (strlen8($ltext)>300) {
-                    throw new ProcessException(_("The custom license text should not be longer than 300 characters."));
-                }
-                $dCategory->setLicenseOther($ltext);
+            if ($category['license_inherits'] != $dCategory->getLicenseInherits()) {
+                $dCategory->setLicenseInherits($category['license_inherits']);
                 $changed = true;
             }
             if ($changed) {
@@ -421,7 +412,7 @@ class ManageSiteAction extends SmartyAction
                 // outdate all that depends somehow
                 $c = new Criteria();
                 $c->add("site_id", $dCategory->getSiteId());
-                $c->add("license_default", true);
+                $c->add("license_inherits", true);
                 $c->add("name", "_default", '!=');
                 $depcats = CategoryPeer::instance()->select($c);
                 foreach ($depcats as $dc) {
