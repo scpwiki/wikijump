@@ -1,6 +1,6 @@
 APP_NAME=Wikijump
 APP_ENV=dev
-APP_DEBUG=true
+APP_DEBUG=false
 APP_KEY=
 APP_URL=https://www.wikijump.dev/wikijump--next
 ASSET_URL=https://www.wikijump.dev/wikijump--next/assets
