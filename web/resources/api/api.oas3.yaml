@@ -2546,23 +2546,6 @@ paths:
         403: { description: Forbidden }
         500: { description: Unexpected Error }
 
-  /site/clone:
-    post:
-      description: Clones the current site and creates a new one.
-      tags: [site]
-      operationId: siteClone
-      requestBody:
-        required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/CreateSiteSettings' }}}
-      security:
-      - AccountSession: []
-      responses:
-        201: { description: Created }
-        400: { description: Bad Request }
-        401: { description: Missing or invalid authentication credentials. }
-        403: { description: Forbidden }
-        500: { description: Unexpected Error }
-
   /site/notification:
     get:
       description: Gets the site's current notifications.
