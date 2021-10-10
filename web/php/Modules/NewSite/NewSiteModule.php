@@ -19,7 +19,7 @@ class NewSiteModule extends SmartyModule
         }
 
         $pl = $runData->getParameterList();
-        $siteUnixName = WDStringUtils::toUnixName($pl->getParameterValue('address'));
+        $siteUnixName = WDStringUtils::toUnixName($pl->getParameterValue('address') ?? '');
         $runData->contextAdd('unixName', $siteUnixName);
 
         $siteName = str_replace('-', ' ', $siteUnixName);
