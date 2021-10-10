@@ -103,16 +103,6 @@
 					</td>
 
 				</tr>
-			  	<tr>
-					<td>
-						{t}Are you a human?{/t}
-					</td>
-					<td>
-						<script type="module" src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.8.3/widget.module.min.js" async defer></script>
-						<script nomodule src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.8.3/widget.min.js" async defer></script>
-						<div class="frc-captcha" data-sitekey="{$captchaSiteKey}"></div>
-					</td>
-				</tr>
 				<tr>
 					<td>
 						{t}Please confirm:{/t}
@@ -131,8 +121,5 @@
 				<input type="button" value="{t}Get a new wiki{/t}" onclick="Wikijump.modules.NewSiteModule.listeners.next3(event)"/>
 			</div>
 		</form>
-
-
-
 	{/if}
 </div>

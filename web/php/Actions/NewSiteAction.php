@@ -34,7 +34,6 @@ class NewSiteAction extends SmartyAction
 
     public function createSiteEvent($runData)
     {
-
         WDPermissionManager::instance()->canBecomeAdmin($runData->getUser());
 
         $pl = $runData->getParameterList();
@@ -46,8 +45,6 @@ class NewSiteAction extends SmartyAction
         $templateId = $pl->getParameterValue("template");
 
         $private = (bool) $pl->getParameterValue("private");
-
-        $captcha = $pl->getParameterValue("frc-captcha-solution");
 
         // validate form data:
 
@@ -95,12 +92,6 @@ class NewSiteAction extends SmartyAction
 
         if (strlen8($tagline)>50) {
             $errors['tagline']   = _("Tagline should not be longer than 50 characters");
-        }
-
-        // captcha
-        $captchaValid = FriendlyCaptchaHandler::verifySolution($captcha);
-        if (!$captchaValid) {
-            $errors['captcha'] = _("Account creation failed: CAPTCHA was invalid.");
         }
 
         // TOS
