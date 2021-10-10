@@ -90,10 +90,6 @@ class GlobalProperties
     public static $MODULES_CSS_PATH;
     public static $MODULES_CSS_URL;
 
-    // third-party keys
-    public static $FR_CAPTCHA_SITE_KEY;
-    public static $FR_CAPTCHA_API_KEY;
-
     // non-configurable properties
     public static $DATABASE_TYPE;
     public static $DATABASE_USE_PERSISTENT_CONNECTIONS;
@@ -239,9 +235,6 @@ class GlobalProperties
         self::$MODULES_JS_URL           = $_ENV["WIKIJUMP_MODULES_JS_URL"] ?? self::fromIni("misc", "modules_js_url", "/common--modules/js");
         self::$MODULES_CSS_PATH         = $_ENV["WIKIJUMP_MODULES_CSS_PATH"] ?? self::fromIni("misc", "modules_css_path", "web/files--common/modules/css");
         self::$MODULES_CSS_URL          = $_ENV["WIKIJUMP_MODULES_CSS_URL"] ?? self::fromIni("misc", "modules_css_url", "/common--modules/css");
-
-        self::$FR_CAPTCHA_SITE_KEY      = $_ENV["WIKIJUMP_FR_CAPTCHA_SITE_KEY"] ?? self::fromIni("keys", "friendlycaptcha-site-key", "");
-        self::$FR_CAPTCHA_API_KEY       = $_ENV["WIKIJUMP_FR_CAPTCHA_API_KEY"] ?? self::fromIni("keys", "friendlycaptcha-api-key", "");
 
         // non-configurable properties
         self::$DATABASE_TYPE            = "pgsql";

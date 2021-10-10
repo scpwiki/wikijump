@@ -34,7 +34,6 @@ class NewSiteAction extends SmartyAction
 
     public function createSiteEvent($runData)
     {
-
         WDPermissionManager::instance()->canBecomeAdmin($runData->getUser());
 
         $pl = $runData->getParameterList();
@@ -47,21 +46,19 @@ class NewSiteAction extends SmartyAction
 
         $private = (bool) $pl->getParameterValue("private");
 
-        $captcha = $pl->getParameterValue("frc-captcha-solution");
-
         // validate form data:
 
         $errors = array();
-        if (strlen($name)<1) {
+        if ($name === '') {
             $errors['name'] = _("Site name must be present.");
-        } elseif (strlen8($name)>30) {
+        } elseif (strlen8($name) > 30) {
             $errors['name']  = _("Site name should not be longer than 30 characters.");
         }
 
         // site unix name *************
-        if ($unixName === null || strlen($unixName)<3) {
+        if ($unixName === null || strlen($unixName) < 3) {
             $errors['unixname'] = _("Web address must be present and should be at least 3 characters long.");
-        } elseif (strlen($unixName)>30) {
+        } elseif (strlen($unixName) > 30) {
             $errors['unixname']  = _("Web address name should not be longer than 30 characters.");
         } elseif (preg_match("/^[a-z0-9\-]+$/", $unixName) == 0) {
             $errors['unixname'] = _('Only lowercase alphanumeric and "-" (dash) characters allowed in the web address.');
@@ -95,12 +92,6 @@ class NewSiteAction extends SmartyAction
 
         if (strlen8($tagline)>50) {
             $errors['tagline']   = _("Tagline should not be longer than 50 characters");
-        }
-
-        // captcha
-        $captchaValid = FriendlyCaptchaHandler::verifySolution($captcha);
-        if (!$captchaValid) {
-            $errors['captcha'] = _("Account creation failed: CAPTCHA was invalid.");
         }
 
         // TOS

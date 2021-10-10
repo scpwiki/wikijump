@@ -19,7 +19,7 @@ class NewSiteModule extends SmartyModule
         }
 
         $pl = $runData->getParameterList();
-        $siteUnixName = WDStringUtils::toUnixName($pl->getParameterValue('address'));
+        $siteUnixName = WDStringUtils::toUnixName($pl->getParameterValue('address') ?? '');
         $runData->contextAdd('unixName', $siteUnixName);
 
         $siteName = str_replace('-', ' ', $siteUnixName);
@@ -32,7 +32,5 @@ class NewSiteModule extends SmartyModule
         $c->addOrderAscending('site_id');
         $templates = SitePeer::instance()->select($c);
         $runData->contextAdd('templates', $templates);
-
-        $runData->contextAdd('captchaSiteKey', GlobalProperties::$FR_CAPTCHA_SITE_KEY);
     }
 }

@@ -1,5 +1,3 @@
-
-
 Wikijump.modules.NewSiteModule = {};
 
 Wikijump.modules.NewSiteModule.listeners = {

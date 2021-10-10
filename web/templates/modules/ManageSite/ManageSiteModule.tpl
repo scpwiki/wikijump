@@ -80,7 +80,6 @@
 				<ul>
 					<li><a href="javascript:;" id="sm-renamesite">{t}Change base URL{/t}</a></li>
 					<li><a href="javascript:;" id="sm-deletesite">{t}Delete this Site{/t}</a></li>
-					<li><a href="javascript:;" id="sm-clonesite">{t}Clone{/t}</a></li>
 				</ul>
 			</li>
 		</ul>
