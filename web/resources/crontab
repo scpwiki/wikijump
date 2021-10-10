@@ -1,7 +1,7 @@
 # copy these rules to /etc/crontab or use other ways to run the jobs
 # change the path to the wikijump installation
 #
-# if the "apache user" on your system is not www-data, 
+# if the "apache user" on your system is not www-data,
 # change the username www-data below
 
 # WIKIJUMP
@@ -10,5 +10,4 @@
 18 * * * *     www-data	/var/www/wikijump/bin/job.sh ResetUSCounterJob
 33 5 * * *     www-data /var/www/wikijump/bin/job.sh SendEmailDigestJob
 15 9 * * *     www-data /var/www/wikijump/bin/job.sh UpdateKarmaJob
-* * * * *      www-data /var/www/wikijump/bin/job.sh HandleBackupRequestsJob
 * * * * *      www-data /var/www/wikijump/bin/job.sh UpdateLuceneIndexJob
