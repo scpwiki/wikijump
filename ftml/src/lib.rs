@@ -153,6 +153,7 @@ pub mod includes;
 pub mod info;
 pub mod parsing;
 pub mod render;
+pub mod settings;
 pub mod tokenizer;
 pub mod tree;
 
@@ -172,6 +173,7 @@ pub mod prelude {
     pub use super::parsing::{parse, ParseResult, ParseWarning};
     pub use super::preprocess;
     pub use super::render::Render;
+    pub use super::settings::WikitextSettings;
     pub use super::tokenizer::{tokenize, Tokenization};
     pub use super::tree::{Element, SyntaxTree};
 }
