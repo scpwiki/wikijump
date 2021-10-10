@@ -3,7 +3,7 @@ APP_ENV=prod
 APP_DEBUG=false
 APP_KEY=
 APP_URL=https://www.wikijump.com/wikijump--next
-ASSET_URL=
+ASSET_URL=https://www.wikijump.com
 
 LOG_CHANNEL=stderr
 LOG_LEVEL=debug
