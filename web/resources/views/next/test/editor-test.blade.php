@@ -1,7 +1,7 @@
 @extends('next.base')
 
 @push('scripts')
-    @vite('resources/lib/index.ts')
+    @vite('editor-test.ts')
 @endpush
 
 @section('app')

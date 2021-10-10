@@ -1,6 +1,6 @@
 import { WikijumpAPI } from "@wikijump/api"
 import "@wikijump/ftml-components"
-import App from "./App.svelte"
+import App from "../lib/EditorTest.svelte"
 
 window.addEventListener("DOMContentLoaded", async () => {
   const container = document.querySelector("#app")!

@@ -165,7 +165,7 @@
 
     {{-- Scripts --}}
     {{-- TODO: see if it's possible to make scripts load async --}}
-    @vite('resources/scripts/index.ts')
+    @vite('index.ts')
     @stack('scripts')
 </body>
 
