@@ -175,7 +175,7 @@
 	 		</div>
 	 		{if $licenseHtml!=""}
 		 		<div id="license-area" class="license-area">
-		 			{$licenseHtml|replace:'%%UNLESS%%':'Unless stated otherwise Content of this page is licensed under'}
+		 			{$licenseHtml}
 				</div>
 			{/if}
 
