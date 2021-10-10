@@ -174,7 +174,7 @@
             Powered by <a href="https://github.com/scpwiki/wikijump">Wikijump</a>
         </div>
         <div id="license-area" class="license-area">
-            {{$licenseHtml}}
+            {!! $licenseHtml !!}
         </div>
 
         <div id="extrac-div-1"><span></span></div><div id="extrac-div-2"><span></span></div><div id="extrac-div-3"><span></span></div>
