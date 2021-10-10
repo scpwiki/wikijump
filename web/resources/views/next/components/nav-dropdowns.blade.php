@@ -12,7 +12,7 @@
                 <details class="wj-navbar-dropdown-block">
                     <summary class="wj-navbar-dropdown-button">
                         {{ $item_name }}
-                        {{-- TODO: dropdown arrow (need to add ui.svg) --}}
+                        @include('next.components.ui-svg', ['sprite' => 'wj-downarrow'])
                     </summary>
                     <ul class="wj-navbar-dropdown-links">
                         @foreach($item_links as $link_name => $link_url)
