@@ -207,3 +207,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-730](https://scuttle.atlassian.net/browse/WJ-730)
 * What it did: Wikidot's version of an audit log.
 * Why it was removed: Unused.
+
+## PHP: `SiteBackup`, `Backuper`
+* Where it was: [web/php/DB/SiteBackup](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/SiteBackup.php), [web/php/Utils/Backuper](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/Utils/Backuper.php)
+* Relevant Issues: [WJ-757](https://scuttle.atlassian.net/browse/WJ-757), [WJ-896](https://scuttle.atlassian.net/browse/WJ-896)
+* What it did: Produced backups of a site.
+* Why it was removed: The backups have several flaws, the most notable of which is that they cannot be used to restore a site. Because is all essentially legacy code that will slow development, it has been removed.
