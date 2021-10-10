@@ -43,6 +43,18 @@ modules:publish: node scripts/publish-all.js
 dev: node scripts/dev.js
 dev-sudo: node scripts/dev.js sudo
 
+# -- SERVE
+
+serve:
+  - cd ../install/local/dev
+  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.serve.yaml build
+  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.serve.yaml up
+
+serve-sudo:
+  - cd ../install/local/dev
+  - sudo docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.serve.yaml build
+  - sudo docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.serve.yaml up
+
 # -- TESTING
 
 test: wtr --playwright

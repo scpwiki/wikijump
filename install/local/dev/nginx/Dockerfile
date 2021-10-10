@@ -34,4 +34,5 @@ COPY ./web /var/www/wikijump/web
 
 # Copy sources from intermediate images
 COPY --from=node /src/web/web /var/www/wikijump/web/web
+COPY --from=node /src/web/public /var/www/wikijump/web/public
 COPY ./install/files/nginx.conf /etc/nginx/nginx.conf
