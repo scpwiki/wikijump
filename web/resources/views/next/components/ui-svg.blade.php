@@ -19,5 +19,5 @@
 @endphp
 
 <svg class="wj-ui-sprite sprite-{{ $sprite }}" viewBox="{{ $viewbox }}">
-    <use href="/wikijump--next/assets/media/ui.svg#{{ $sprite }}"></use>
+    <use href="/files--static/media/ui.svg#{{ $sprite }}"></use>
 </svg>

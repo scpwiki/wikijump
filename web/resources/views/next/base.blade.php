@@ -81,7 +81,7 @@
         <meta property="og:description" content="{{ $social_description }}">
     @endisset
     @isset($social_image)
-        <meta property="og:image" content="{{ vite_asset($social_image) }}">
+        <meta property="og:image" content="{{ $social_image }}">
     @endisset
     @isset($social_type)
         <meta property="og:type" content="{{ $social_type }}">
@@ -126,21 +126,21 @@
 
     {{-- Icons --}}
     @isset($favicon_svg)
-        <link rel="icon" type="image/svg+xml" href="{{ vite_asset($favicon_svg) }}">
+        <link rel="icon" type="image/svg+xml" href="{{ $favicon_svg }}">
     @endisset
     @isset($favicon_png)
-        <link rel="icon" type="image/png" href="{{ vite_asset($favicon_png) }}">
+        <link rel="icon" type="image/png" href="{{ $favicon_png }}">
     @endisset
     @isset($favicon_apple)
-        <link rel="apple-touch-icon" href="{{ vite_asset($favicon_apple) }}">
+        <link rel="apple-touch-icon" href="{{ $favicon_apple }}">
     @endisset
     @isset($favicon_mask)
         @isset($theme_color)
-            <link rel="mask-icon" href="{{ vite_asset($favicon_mask) }}"
+            <link rel="mask-icon" href="{{ $favicon_mask }}"
                   color="{{ $theme_color }}">
         @endisset
         @empty($theme_color)
-            <link rel="mask-icon" href="{{ vite_asset($favicon_mask) }}" color="#FFF">
+            <link rel="mask-icon" href="{{ $favicon_mask }}" color="#FFF">
         @endempty
     @endisset
 

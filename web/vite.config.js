@@ -30,7 +30,7 @@ const PHP_CONFIG = {
   "public_directory": "resources/static",
   "ping_timeout": 1000,
   "ping_url": "http://host.docker.internal:3000",
-  "build_path": "build",
+  "build_path": "files--built",
   "dev_url": "http://localhost:3000",
   "commands": []
 }

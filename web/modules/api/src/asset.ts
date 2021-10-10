@@ -1,5 +1,5 @@
 /** The location of static assets, from host root. Can't end with a `/`. */
-export let STATIC_FOLDER = "/wikijump--next/assets" as const
+export const STATIC_FOLDER = "/files--static"
 
 /**
  * A record of asset identifiers to their known paths. This allows for
