@@ -11,7 +11,7 @@ import re
 import subprocess
 from typing import Iterable, Optional
 
-from .messages import Messages
+from .catalog import Messages
 
 # For extracting individual comment lines:
 # - Ignore any lines not starting with '##'

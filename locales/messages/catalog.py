@@ -1,9 +1,9 @@
 #
-# messages.py - Wikijump Locale Builder
+# catalog.py - Wikijump Locale Builder
 #
 
 """
-Represents a messages object, as loaded from configuration.
+Represents a message catalog object, as loaded from configuration.
 
 Includes any data loaded from parent object(s).
 

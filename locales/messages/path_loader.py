@@ -13,7 +13,7 @@ from graphlib import TopologicalSorter
 
 from ruamel.yaml import YAML
 
-from .messages import Messages, flatten
+from .catalog import Messages, flatten
 
 MESSAGE_FILENAME_REGEX = re.compile(r"(([a-z]+)(?:_([A-Z]+))?)\.ya?ml")
 
