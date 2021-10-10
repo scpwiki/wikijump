@@ -66,11 +66,6 @@ final class License
         return $this->url;
     }
 
-    public function hasUnlessClause(): bool
-    {
-        return $this->unlessClause;
-    }
-
     public function html(): string
     {
         return $this->html;
