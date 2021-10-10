@@ -1,5 +1,3 @@
-
-
 Wikijump.modules.ManagerSiteLicenseModule = {};
 
 Wikijump.modules.ManagerSiteLicenseModule.vars = {

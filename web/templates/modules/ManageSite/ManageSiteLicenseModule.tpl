@@ -43,10 +43,9 @@
 					{t}Choose the license{/t}:
 				</td>
 				<td>
-
 					<select id="sm-license-lic">
 						{foreach from=$licenses item=license}
-							<option value="{$license->getLicenseId()}">{$license->getName()|escape}</option>
+							<option value="{$license->id()}">{$license->name()|escape}</option>
 						{/foreach}
 					</select>
 				</td>
@@ -57,19 +56,13 @@
 		<input type="button" value="{t}cancel{/t}" id="sm-license-cancel"/>
 		<input type="button" value="{t}save changes{/t}" id="sm-license-save"/>
 	</div>
-
 </div>
 
-<div id="sm-license-preview" style="margin-bottom:2em">
+<div id="sm-license-preview" style="margin-bottom: 2em;">
 	<h2>{t}License preview{/t}:</h2>
 	{foreach from=$licenses item=license}
-		<div id="sm-prev-license-{$license->getLicenseId()}" class="license-area">
-			{ltext lang="en"}
-				{$license->getDescription()|replace:'%%UNLESS%%':'Unless stated otherwise Content of this page is licensed under'}
-			{/ltext}
-			{ltext lang="pl"}
-				{$license->getDescription()|replace:'%%UNLESS%%':'Jeśli nie zaznaczono inaczej, Zawartość tej strony dostępna jest na licencji'}
-			{/ltext}
+		<div id="sm-prev-license-{$license->id()|replace:'_':'-'}" class="license-area">
+			{$license->html()}
 		</div>
 	{/foreach}
 </div>
