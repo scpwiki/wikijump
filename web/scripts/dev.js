@@ -48,8 +48,8 @@ const { createServer } = require("vite")
   await server.listen()
 
   // check for config not resolving correctly
-  // this property is supposed to not be a default value
-  if (server.config.base === "/") {
+  // this property should be defined
+  if (server.config?.server?.fs?.strict !== false) {
     error("Vite didn't find its configuration file!")
     process.exit(1)
   }
