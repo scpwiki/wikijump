@@ -15,7 +15,7 @@ node_modules
 
 # Built files
 /web/files--common/dist
-/public
+/public/files--built
 modules/**/dist
 
 # Lock Files

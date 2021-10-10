@@ -3,7 +3,7 @@ APP_ENV=local
 APP_DEBUG=true
 APP_KEY=
 APP_URL=http://www.wikijump.localhost/wikijump--next
-ASSET_URL=http://www.wikijump.localhost/wikijump--next/assets
+ASSET_URL=/files--built
 
 LOG_CHANNEL=stderr
 LOG_LEVEL=debug

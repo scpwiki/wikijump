@@ -12,7 +12,7 @@ ftml/test
 ftml/target
 ftml/pkg
 web/logs
-web/public
+web/public/files--built
 web/storage
 web/tmp
 **/__pycache__
