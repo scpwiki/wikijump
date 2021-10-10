@@ -143,7 +143,6 @@ Wikijump.modules.ManagerSiteModule.init = function(){
 	mm['sm-abuse-user'] = "ManageSite/Abuse/ManageSiteUserAbuseModule";
 	mm['sm-abuse-anonymous'] = "ManageSite/Abuse/ManageSiteAnonymousAbuseModule";
 	mm['sm-notifications'] = "ManageSite/ManageSiteNotificationsModule";
-	mm['sm-backup'] = "ManageSite/Backup/ManageSiteBackupModule";
 	mm['sm-ssl'] = "ManageSite/ManageSiteSecureAccessModule";
 	mm['sm-users-email-invitations'] = "ManageSite/ManageSiteLetUsersInviteModule";
 	mm['sm-renamesite'] = "ManageSite/ManageSiteRenameModule";
