@@ -13,6 +13,7 @@ final class License
     // Fields for License instances
     private string $id;
     private string $name;
+    private string $label;
     private ?string $url;
     private bool $unlessClause;
     private string $html;
@@ -20,6 +21,7 @@ final class License
     public function __construct(array &$object) {
         $this->id = $object['id'];
         $this->name = $object['name'];
+        $this->label = $object['label'] ?? $this->name;
         $this->url = $object['url'];
         $this->unlessClause = $object['unless'] ?? true;
         $this->html = $this->buildHtml();
@@ -35,6 +37,7 @@ final class License
             $link = "<a rel=\"license\" href=\"$this->url\">$this->name</a>";
         }
 
+        // TODO: add localization
         if ($this->unlessClause) {
             $prefix = __('Unless stated otherwise, the content of this page is licensed under');
         } else {
@@ -47,16 +50,6 @@ final class License
     public function id(): string
     {
         return $this->id;
-    }
-
-    public function name(): string
-    {
-        return $this->name;
-    }
-
-    public function url(): ?string
-    {
-        return $this->url;
     }
 
     public function html(): string

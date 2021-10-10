@@ -4,11 +4,22 @@ declare(strict_types=1);
 // TODO: add localization
 return [
 
+    /**
+     * Information on licenses supported by the platform.
+     *
+     * The order matters here: it's the order these are shown to the user.
+     * The URL field may be null if there is no URL for this license.
+     * Additionally, there are two optional fields:
+     *  - 'label' => What is displayed in the selector list. Defaults to the name.
+     *  - 'unless' => Whether to prepend the "Unless otherwise stated" comment.
+     */
+
     'raw' => [
         // Creative Commons 4.0
         [
             'id' => 'cc_by_sa_4',
-            'name' => 'Creative Commons Attribution-ShareAlike 4.0 License (recommended)',
+            'name' => 'Creative Commons Attribution-ShareAlike 4.0 License',
+            'label' => 'Creative Commons Attribution-ShareAlike 4.0 License (recommended)',
             'url' => 'https://creativecommons.org/licenses/by-sa/4.0/',
         ],
         [
@@ -84,7 +95,8 @@ return [
         // Fallback
         [
             'id' => 'standard',
-            'name' => 'Standard copyright (not recommended)',
+            'name' => 'standard copyright',
+            'label' => 'Standard copyright (not recommended)',
             'url' => null,
             'unless' => false,
         ],
