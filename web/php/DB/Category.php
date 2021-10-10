@@ -6,7 +6,7 @@ namespace Wikidot\DB;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\Modules\PageRate\PageRateWidgetModule;
-use Wikijump\Common\License;
+use Wikijump\Services\License\LicenseMapping;
 
 /**
  * Object Model mapped Class.
@@ -22,9 +22,8 @@ class Category extends CategoryBase
             return $cat->getLicenseHtml();
         }
 
-        // Get other license info
-        $licenses = config('licenses.ids');
-        $license = $licenses[$this->getLicenseId()];
+        // Get license info
+        $license = LicenseMapping::get($this->getLicenseId());
         return $license->html();
     }
 

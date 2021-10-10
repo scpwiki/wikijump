@@ -5,6 +5,7 @@ namespace Wikidot\Modules\ManageSite;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\Utils\ManageSiteBaseModule;
+use Wikijump\Services\License\LicenseMapping;
 
 class ManageSiteLicenseModule extends ManageSiteBaseModule
 {
@@ -29,6 +30,6 @@ class ManageSiteLicenseModule extends ManageSiteBaseModule
         $runData->ajaxResponseAdd('categories', $cats2);
 
         // Add license data
-        $runData->contextAdd('licenses', config('licenses.list'));
+        $runData->contextAdd('licenses', LicenseMapping::list());
     }
 }
