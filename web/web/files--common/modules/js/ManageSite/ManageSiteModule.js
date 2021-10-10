@@ -148,7 +148,6 @@ Wikijump.modules.ManagerSiteModule.init = function(){
 	mm['sm-renamesite'] = "ManageSite/ManageSiteRenameModule";
 	mm['sm-deletesite'] = "ManageSite/ManageSiteDeleteModule";
 	mm['sm-email-lists'] = "ManageSite/Elists/ManageSiteEmailListsModule";
-	mm['sm-clonesite'] = "ManageSite/ManageSiteCloneModule";
 	// etc...
 	Wikijump.modules.ManagerSiteModule.vars.modulesMapping = mm;
 
