@@ -53,7 +53,7 @@ const config = defineConfig({}, PHP_CONFIG)
       minify: "esbuild",
       sourcemap: true,
       brotliSize: false,
-      cssCodeSplit: false
+      cssCodeSplit: true
     },
 
     optimizeDeps: {

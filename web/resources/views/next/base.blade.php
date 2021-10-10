@@ -145,7 +145,7 @@
     @endisset
 
     {{-- Styles --}}
-    @vite('index.scss')
+    @vite('css-hack.ts')
     @stack('styles')
 
     {{-- Vite --}}
