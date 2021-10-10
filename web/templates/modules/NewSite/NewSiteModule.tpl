@@ -103,7 +103,7 @@
 					</td>
 
 				</tr>
-			{*	<tr>
+			  	<tr>
 					<td>
 						{t}Are you a human?{/t}
 					</td>
@@ -112,7 +112,7 @@
 						<script nomodule src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.8.3/widget.min.js" async defer></script>
 						<div class="frc-captcha" data-sitekey="{$captchaSiteKey}"></div>
 					</td>
-				</tr> *}
+				</tr>
 				<tr>
 					<td>
 						{t}Please confirm:{/t}
