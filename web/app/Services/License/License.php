@@ -38,7 +38,7 @@ final class License
         if ($this->unlessClause) {
             $unless = __('Unless stated otherwise Content of this page is licensed under');
 
-            return $link . ' ' . $unless;
+            return $unless . ' ' . $link;
         } else {
             return $link;
         }
