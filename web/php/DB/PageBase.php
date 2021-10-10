@@ -19,7 +19,7 @@ class PageBase extends BaseDBObject
         $this->tableName='page';
         $this->peerName = 'Wikidot\\DB\\PagePeer';
         $this->primaryKeyName = 'page_id';
-        $this->fieldNames = array( 'page_id' ,  'site_id' ,  'category_id' ,  'parent_page_id' ,  'revision_id' ,  'source_id' ,  'metadata_id' ,  'revision_number' ,  'title' ,  'unix_name' ,  'date_created' ,  'date_last_edited' ,  'last_edit_user_id' ,  'last_edit_user_string' ,  'thread_id' ,  'owner_user_id' ,  'blocked' ,  'rate' );
+        $this->fieldNames = array( 'page_id' ,  'site_id' ,  'category_id' ,  'parent_page_id' ,  'revision_id' ,  'source_id' ,  'metadata_id' ,  'revision_number' ,  'title' ,  'unix_name' ,  'date_created' ,  'date_last_edited' ,  'last_edit_user_id' ,  'last_edit_user_string' ,  'thread_id' ,  'owner_user_id' ,  'blocked' ,  'rate' , 'tags' );
 
         //$this->fieldDefaultValues=
     }
@@ -255,5 +255,10 @@ class PageBase extends BaseDBObject
     public function setRate($v1, $raw = false)
     {
         $this->setFieldValue('rate', $v1, $raw);
+    }
+
+    public function setTags($v1, $raw = false)
+    {
+        $this->setFieldValue('tags', $v1, $raw);
     }
 }

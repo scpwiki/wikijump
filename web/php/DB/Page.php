@@ -3,6 +3,7 @@
 namespace Wikidot\DB;
 
 use Illuminate\Support\Facades\DB;
+use Wikidot\DB\PagePeer;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\Utils\ProcessException;
 use Ozone\Framework\Database\Database;

@@ -5,7 +5,7 @@ namespace Wikijump\Services\Wikitext;
 
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\ForumThreadPeer;
-use Wikidot\DB\PageTagPeer;
+use Wikidot\DB\PagePeer;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Models\User;
@@ -201,14 +201,7 @@ final class LegacyTemplateAssembler
     {
         /* Select tags. */
         // get the tags
-        $c = new Criteria();
-        $c->add('page_id', $page->getPageId());
-        $c->addOrderAscending('tag');
-        $tags = PageTagPeer::instance()->select($c);
-        $t2 = [];
-        foreach ($tags as $t) {
-            $t2[] = $t->getTag();
-        }
+        $t2 = PagePeer::getTags($pageId);
         if (count($t2) == 0) {
             return _('//no tags found for this page//');
         }

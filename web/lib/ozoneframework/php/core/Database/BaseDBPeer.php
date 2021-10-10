@@ -3,7 +3,6 @@
 namespace Ozone\Framework\Database;
 
 
-
 use mysql_xdevapi\DatabaseObject;
 use Ozone\Framework\ODate;
 use Wikijump\Models\User;
@@ -223,6 +222,11 @@ abstract class BaseDBPeer {
 					}
 				}
 
+				// Process the JSONB data type.
+				if($fieldType === 'json' && $fieldType === 'jsonb'){
+					$val = json_encode($val);
+				}
+
 				if($val === null){
 					$val = "NULL";
 				} else {
@@ -248,7 +252,6 @@ abstract class BaseDBPeer {
 			}
 		}
 		$query .= "($colstring) VALUES ($valstring)";
-
 		$db->query($query);
 	}
 
@@ -288,6 +291,11 @@ abstract class BaseDBPeer {
 					} else {
 						$val = null;
 					}
+				}
+
+				// Process the JSONB data type.
+				if($fieldType === 'json' && $fieldType === 'jsonb'){
+					$val = json_encode($val);
 				}
 
 				if($val === null){

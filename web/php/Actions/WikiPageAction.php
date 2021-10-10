@@ -30,13 +30,10 @@ use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageCompiled;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
-use Wikidot\DB\PageTagPeer;
-use Wikidot\DB\PageTag;
 use Wikidot\DB\AllowedTags;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
 use Wikijump\Models\User;
-use Wikijump\Models\PageTags;
 use Wikijump\Models\Settings;
 use Illuminate\Support\Facades\DB;
 
@@ -270,6 +267,7 @@ class WikiPageAction extends SmartyAction
             $page->setMetadataId($pageMetadata->getMetadataId());
             $page->setTitle($title);
             $page->setDateLastEdited($nowDate);
+            $page->setTags([]);
 
             $pageCompiled = new PageCompiled();
             $pageCompiled->setPageId($page->getPageId());
@@ -1413,25 +1411,25 @@ class WikiPageAction extends SmartyAction
 
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
-        // If Allowed Tags are enabled, ensure all tags are compliant.
-        if($enableAllowedTags === 'true' && !empty($tags)) {
+        // Turn the tags into an array.
+        if($tags !== '') {
+            $tags = preg_split("/[ ,]+/", $tags);
+        }
+
+        // If Allowed Tags are enabled, ensure all tags are compliant, and return an error listing any non-compliant ones.
+        if($enableAllowedTags === true && $tags !== '') {
             $allowedTagsList = AllowedTags::getAllowedTags($siteId);
-            foreach ($pageTagsArray as $tag) {
+            $forbiddenTags = [];
+            foreach ($tags as $tag) {
                 if(!in_array($tag, $allowedTagsList)) {
-                    $errorMessage = sprintf(_('The tag %s is not valid for this site.'), $tag);
-                    throw new ProcessException($errorMessage, "form_error");
+                    array_push($forbiddenTags, $tag);
                 }
             }
+            if(!empty($forbiddenTags)) {
+              $errorMessage = sprintf(_('The tags %s are not valid for this site.'), implode(", ", $forbiddenTags));
+              throw new ProcessException($errorMessage, "form_error");
+            }
         }
-
-        // Turn tags into an array, then ensure all tags are unique — remove any duplicates. If tags are empty, set tags to an empty array to ensure JSONB encoding functions properly.
-        if ($tags === '') {
-            $tags = [];
-        } else {
-            $tags = preg_split("/[ ,]+/", $tags);
-            $tags = array_unique(array_values($tags));
-        }
-
 
         // Save the tags.
         PagePeer::saveTags($pageId, $tags);

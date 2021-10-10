@@ -8,7 +8,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ODate;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\ForumThreadPeer;
@@ -244,13 +243,7 @@ class ListPagesModule extends SmartyModule
                     /* It means: any tags of the current page. */
                     if ($runData->getTemp('page')) {
                         $pageId = $runData->getTemp('page')->getPageId();
-                        $co = new Criteria();
-                        $co->add("page_id", $pageId);
-                        $co->addOrderAscending("tag");
-                        $tagso = PageTagPeer::instance()->select($co);
-                        foreach ($tagso as $to) {
-                            $tagsAny[] = $to->getTag();
-                        }
+                        $tagAny = PagePeer::getTags($pageId);
                         if (count($tagsAny) == 0) {
                             /*
                              * If someone uses the '=' tag, the line below guarantees that
@@ -281,7 +274,7 @@ class ListPagesModule extends SmartyModule
                 foreach ($tagsAny as $tag0) {
                     $t[] = 'tag = \'' . db_escape_string($tag0) . '\'';
                 }
-                $tagQuery = "SELECT count(*) FROM page_tag " . "WHERE page_tag.page_id=page.page_id " . "AND (" . implode(' OR ', $t) . ")";
+                $tagQuery = "SELECT count(*) FROM page " . "WHERE (" . implode(' OR ', $t) . ")";
 
                 $c->add('(' . $tagQuery . ')', 1, '>=');
             }
@@ -291,7 +284,7 @@ class ListPagesModule extends SmartyModule
                 foreach ($tagsAll as $tag0) {
                     $t[] = 'tag = \'' . db_escape_string($tag0) . '\'';
                 }
-                $tagQuery = "SELECT count(*) FROM page_tag " . "WHERE page_tag.page_id=page.page_id " . "AND (" . implode(' OR ', $t) . ")";
+                $tagQuery = "SELECT count(*) FROM page " . "WHERE (" . implode(' OR ', $t) . ")";
 
                 $c->add('(' . $tagQuery . ')', count($tagsAll));
             }
@@ -301,7 +294,7 @@ class ListPagesModule extends SmartyModule
                 foreach ($tagsNone as $tag0) {
                     $t[] = 'tag = \'' . db_escape_string($tag0) . '\'';
                 }
-                $tagQuery = "SELECT count(*) FROM page_tag " . "WHERE page_tag.page_id=page.page_id " . "AND (" . implode(' OR ', $t) . ")";
+                $tagQuery = "SELECT count(*) FROM page " . "WHERE (" . implode(' OR ', $t) . ")";
 
                 $c->add('(' . $tagQuery . ')', 0);
             }
@@ -736,14 +729,7 @@ class ListPagesModule extends SmartyModule
         $page = $this->_tmpPage;
         /* Select tags. */
         // get the tags
-        $c = new Criteria();
-        $c->add("page_id", $page->getPageId());
-        $c->addOrderAscending("tag");
-        $tags = PageTagPeer::instance()->select($c);
-        $t2 = array();
-        foreach ($tags as $t) {
-            $t2[] = $t->getTag();
-        }
+        $t2 = PagePeer::getTags($pageId);
         if (count($t2) == 0) {
             return _('//no tags found for this page//');
         }

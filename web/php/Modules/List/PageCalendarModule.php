@@ -8,7 +8,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\Ozone;
 use Wikidot\DB\CategoryPeer;
-use Wikidot\DB\PageTagPeer;
 use Wikidot\DB\PagePeer;
 
 use Ozone\Framework\SmartyModule;
@@ -213,13 +212,7 @@ class PageCalendarModule extends SmartyModule
                     /* It means: any tags of the current page. */
                     if ($runData->getTemp('page')) {
                         $pageId = $runData->getTemp('page')->getPageId();
-                        $co = new Criteria();
-                        $co->add("page_id", $pageId);
-                        $co->addOrderAscending("tag");
-                        $tagso = PageTagPeer::instance()->select($co);
-                        foreach ($tagso as $to) {
-                            $tagsAny[] = $to->getTag();
-                        }
+                        $tagAny = PagePeer::getTags($pageId);
                         if (count($tagsAny) == 0) {
                             /*
                              * If someone uses the '=' tag, the line below guarantees that
