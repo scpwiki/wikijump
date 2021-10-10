@@ -30,17 +30,18 @@ final class License
     private function buildHtml(): string
     {
         if ($this->url === null) {
-            $output = $this->name;
+            $link = $this->name;
         } else {
-            $output = "<a rel=\"license\" href=\"$this->url\">$this->name</a>";
+            $link = "<a rel=\"license\" href=\"$this->url\">$this->name</a>";
         }
 
         if ($this->unlessClause) {
-            $unless = __('Unless stated otherwise Content of this page is licensed under');
-            $output = "$unless $output";
+            $prefix = __('Unless stated otherwise, the content of this page is licensed under');
+        } else {
+            $prefix = __('The content of this page is licensed under');
         }
 
-        return "$output.";
+        return "$prefix $link.";
     }
 
     public function id(): string
