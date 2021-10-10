@@ -9,8 +9,8 @@ Executable file, permitting command-line building of messages files.
 import os
 import sys
 
+from .catalog import get_template_messages
 from .gettext import build_mo, generate_po
-from .messages import get_template_messages
 from .path_loader import OUTPUT_DIRECTORY, load
 from .schema import MAIN_MESSAGE_SCHEMA_NAME, validate_all
 
