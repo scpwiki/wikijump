@@ -84,7 +84,7 @@ class Page extends PageBase
     public function getTitleOrUnixName()
     {
         $title = $this->getTitle();
-        if ($title == null) {
+        if ($title === null || $title === '') {
             $title = ucfirst(str_replace("-", " ", preg_replace("/^[a-z0-9\-]+:/i", '', $this->getUnixName())));
         }
         return $title;
