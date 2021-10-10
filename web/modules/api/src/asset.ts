@@ -1,12 +1,6 @@
 /** The location of static assets, from host root. Can't end with a `/`. */
 export let STATIC_FOLDER = "/wikijump--next/assets" as const
 
-// development mode workaround
-if (import.meta.env.DEV) {
-  // @ts-ignore
-  STATIC_FOLDER = "http://localhost:3000/wikijump--next/assets"
-}
-
 /**
  * A record of asset identifiers to their known paths. This allows for
  * referencing an asset without having to know its location.
