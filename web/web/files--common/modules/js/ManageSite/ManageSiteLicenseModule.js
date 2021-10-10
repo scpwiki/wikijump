@@ -110,7 +110,7 @@ Wikijump.modules.ManagerSiteLicenseModule.utils = {
 			pres[i].style.display = "none";
 		}
 		// now show the chosen one
-		var pre = $("sm-prev-license-"+licenseId);
+		var pre = $("sm-prev-license-" + licenseId.replaceAll('_', '-'));
 		pre.style.display = "block";
 
 		return;
