@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::WikitextFlags;
+use super::ParserRender;
+use enumflags2::BitFlags;
 
 /// What mode parsing and rendering is done in.
 ///
@@ -35,27 +36,30 @@ pub enum WikitextMode {
 }
 
 impl WikitextMode {
-    pub fn flags(self) -> WikitextFlags {
+    pub fn flags(self) -> BitFlags<ParserRender> {
         match self {
-            WikitextMode::Page => {
-                WikitextFlags::ALLOW_INCLUDE
-                    | WikitextFlags::ALLOW_MODULE
-                    | WikitextFlags::ALLOW_TOC
-                    | WikitextFlags::ALLOW_BUTTON
-                    | WikitextFlags::HEADING_ID
-                    | WikitextFlags::FOOTNOTE_ID
-                    | WikitextFlags::BIBLIOGRAPHY_ID
-                    | WikitextFlags::MATH_ID
-                    | WikitextFlags::ALLOW_LOCAL
-            }
-            WikitextMode::ForumPost | WikitextMode::DirectMessage => WikitextFlags::NONE,
-            WikitextMode::List => {
-                WikitextFlags::ALLOW_INCLUDE
-                    | WikitextFlags::ALLOW_MODULE
-                    | WikitextFlags::ALLOW_TOC
-                    | WikitextFlags::ALLOW_BUTTON
-                    | WikitextFlags::ALLOW_LOCAL
-            }
+            WikitextMode::Page => BitFlags::default(),
+            WikitextMode::ForumPost | WikitextMode::DirectMessage => make_bitflags!(
+                ParserRender::{
+                    DisableInclude |
+                    DisableModule |
+                    DisableTableOfContents |
+                    DisableButton |
+                    HeadingRandomId |
+                    FootnoteRandomId |
+                    BibliographyRandomId |
+                    MathRandomId |
+                    DisableLocalPaths
+                }
+            ),
+            WikitextMode::List => make_bitflags!(
+                ParserRender::{
+                    HeadingRandomId |
+                    FootnoteRandomId |
+                    BibliographyRandomId |
+                    MathRandomId
+                }
+            ),
         }
     }
 }
@@ -67,9 +71,9 @@ impl Default for WikitextMode {
     }
 }
 
-impl From<WikitextMode> for WikitextFlags {
+impl From<WikitextMode> for BitFlags<ParserRender> {
     #[inline]
-    fn from(mode: WikitextMode) -> WikitextFlags {
+    fn from(mode: WikitextMode) -> BitFlags<ParserRender> {
         mode.flags()
     }
 }

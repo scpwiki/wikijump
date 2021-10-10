@@ -95,13 +95,13 @@
 // Rest are implicit based on Cargo.toml
 
 #[macro_use]
-extern crate bitflags;
-
-#[macro_use]
 extern crate cfg_if;
 
 #[macro_use]
 extern crate enum_map;
+
+#[macro_use]
+extern crate enumflags2;
 
 #[macro_use]
 extern crate lazy_static;

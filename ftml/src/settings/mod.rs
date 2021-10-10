@@ -21,14 +21,16 @@
 mod flags;
 mod mode;
 
-pub use self::flags::WikitextFlags;
+use enumflags2::BitFlags;
+
+pub use self::flags::ParserRender;
 pub use self::mode::WikitextMode;
 
 /// Settings to tweak behavior in the ftml parser and renderer.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct WikitextSettings {
     pub mode: WikitextMode,
-    pub flags: WikitextFlags,
+    pub flags: BitFlags<ParserRender>,
 }
 
 impl WikitextSettings {

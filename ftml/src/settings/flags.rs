@@ -18,32 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::WikitextMode;
+#[bitflags]
+#[repr(u16)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ParserRender {
+    // Whether certain syntactical constructs are allowed
+    DisableInclude,
+    DisableModule,
+    DisableTableOfContents,
+    DisableButton,
 
-bitflags! {
-    pub struct WikitextFlags: u32 {
-        const NONE            = 0b0000_0000_0000_0000;
+    // Whether real IDs should be used, or randomly generated
+    HeadingRandomId,
+    FootnoteRandomId,
+    BibliographyRandomId,
+    MathRandomId,
 
-        // Whether certain syntactical constructs are allowed
-        const ALLOW_INCLUDE   = 0b0000_0000_0000_0001;
-        const ALLOW_MODULE    = 0b0000_0000_0000_0010;
-        const ALLOW_TOC       = 0b0000_0000_0000_0100;
-        const ALLOW_BUTTON    = 0b0000_0000_0000_1000;
-
-        // Whether real IDs should be used (true), or randomly generated ones (false)
-        const HEADING_ID      = 0b0000_0000_0001_0000;
-        const FOOTNOTE_ID     = 0b0000_0000_0010_0000;
-        const BIBLIOGRAPHY_ID = 0b0000_0000_0100_0000;
-        const MATH_ID         = 0b0000_0000_1000_0000;
-
-        // Whether local paths are permitted.
-        const ALLOW_LOCAL     = 0b0000_0001_0000_0000;
-    }
-}
-
-impl Default for WikitextFlags {
-    #[inline]
-    fn default() -> Self {
-        WikitextMode::default().flags()
-    }
+    // Whether local paths are permitted
+    DisableLocalPaths,
 }

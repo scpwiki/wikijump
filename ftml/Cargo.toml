@@ -29,11 +29,11 @@ wasm-log = []
 mathml   = ["latex2mathml"]
 
 [dependencies]
-bitflags = "1"
 cfg-if = "1"
 chrono = { version = "0.4.19", features = ["serde", "wasmbind"] }
 entities = "1"
 enum-map = "1"
+enumflags2 = { version = "0.7", features = ["serde"] }
 latex2mathml = { version = "0.2", optional = true }
 lazy_static = "1"
 maplit = "1"
