@@ -1411,20 +1411,24 @@ class WikiPageAction extends SmartyAction
 
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
-        // If Allowed Tags are enabled, ensure all tags are compliant.
-        if($enableAllowedTags === 'true' && $tags !== '') {
-            $allowedTagsList = AllowedTags::getAllowedTags($siteId);
-            foreach ($tags as $tag) {
-                if(!in_array($tag, $allowedTagsList)) {
-                    $errorMessage = sprintf(_('The tag %s is not valid for this site.'), $tag);
-                    throw new ProcessException($errorMessage, "form_error");
-                }
-            }
-        }
-
         // Turn the tags into an array.
         if($tags !== '') {
             $tags = preg_split("/[ ,]+/", $tags);
+        }
+
+        // If Allowed Tags are enabled, ensure all tags are compliant, and return an error listing any non-compliant ones.
+        if($enableAllowedTags === true && $tags !== '') {
+            $allowedTagsList = AllowedTags::getAllowedTags($siteId);
+            $forbiddenTags = [];
+            foreach ($tags as $tag) {
+                if(!in_array($tag, $allowedTagsList)) {
+                    array_push($forbiddenTags, $tag);
+                }
+            }
+            if(!empty($forbiddenTags)) {
+              $errorMessage = sprintf(_('The tags "%s" are not valid for this site.'), implode(" ", $forbiddenTags));
+              throw new ProcessException($errorMessage, "form_error");
+            }
         }
 
         // Save the tags.
