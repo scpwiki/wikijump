@@ -29,10 +29,7 @@ pub enum ParserRender {
     DisableButton,
 
     // Whether real IDs should be used, or randomly generated
-    HeadingRandomId,
-    FootnoteRandomId,
-    BibliographyRandomId,
-    MathRandomId,
+    UseRandomIds,
 
     // Whether local paths are permitted
     DisableLocalPaths,

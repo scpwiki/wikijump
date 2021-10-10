@@ -45,21 +45,11 @@ impl WikitextMode {
                     DisableModule |
                     DisableTableOfContents |
                     DisableButton |
-                    HeadingRandomId |
-                    FootnoteRandomId |
-                    BibliographyRandomId |
-                    MathRandomId |
+                    UseRandomIds |
                     DisableLocalPaths
                 }
             ),
-            WikitextMode::List => make_bitflags!(
-                ParserRender::{
-                    HeadingRandomId |
-                    FootnoteRandomId |
-                    BibliographyRandomId |
-                    MathRandomId
-                }
-            ),
+            WikitextMode::List => make_bitflags!(ParserRender::{UseRandomIds}),
         }
     }
 }
