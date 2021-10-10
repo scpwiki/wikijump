@@ -52,6 +52,11 @@ final class License
         return $this->id;
     }
 
+    public function label(): string
+    {
+        return $this->label;
+    }
+
     public function html(): string
     {
         return $this->html;

@@ -45,7 +45,7 @@
 				<td>
 					<select id="sm-license-lic">
 						{foreach from=$licenses item=license}
-							<option value="{$license->id()}">{$license->name()|escape}</option>
+							<option value="{$license->id()}">{$license->label()|escape}</option>
 						{/foreach}
 					</select>
 				</td>
