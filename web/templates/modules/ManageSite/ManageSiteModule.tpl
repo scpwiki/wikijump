@@ -72,7 +72,6 @@
 				</ul>
 			</li>
 			<li><a href="javascript:;" id="sm-notifications">{t}Notifications{/t}</a></li>
-			<li><a href="javascript:;" id="sm-backup">{t}Backup{/t}</a></li>
 		</ul>
 		<hr/>
 
