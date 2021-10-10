@@ -293,6 +293,11 @@ abstract class BaseDBPeer {
 					}
 				}
 
+				// Process the JSONB data type.
+				if($fieldType === 'jsonb'){
+					$val = json_encode($val);
+				}
+
 				if($val === null){
 					$val = "NULL";
 				} else {
