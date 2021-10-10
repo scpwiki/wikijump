@@ -33,7 +33,7 @@ Questions and comments can be posted in our [General Information forum](http://s
 
 We welcome any suggestions or requests, which can be made in our [Feature Requests forum](http://www.scpwiki.com/forum/c-3335630/feature-requests).
 
-If you would like to offer to volunteer some of your time to Wikijump development in the future, please post in one of our [Recruitment threads](http://www.scpwiki.com/forum/c-3335629/recruitment). We may request your help when we need it.
+If you would like to volunteer some of your time to Wikijump development, join the Discord and chat with us! (Invites can be received in `#site11` or by DMing a current Wikijump team member).
 
 ### Development
 
