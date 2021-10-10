@@ -73,7 +73,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../css/src/abstracts";
+  @import "../../../../resources/css/abstracts";
 
   .tab-button {
     flex-grow: 1;

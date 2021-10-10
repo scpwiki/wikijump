@@ -5,7 +5,7 @@
   @font-face {
     font-family: "Public Sans";
     font-weight: 100 900;
-    src: url("../fonts/variable/PublicSans-VariableFont.woff2") format("woff2-variations");
+    src: url("/fonts/variable/PublicSans-VariableFont.woff2") format("woff2-variations");
     font-display: swap;
   }
 
@@ -13,7 +13,7 @@
     font-family: "Public Sans";
     font-style: italic;
     font-weight: 100 900;
-    src: url("../fonts/variable/PublicSans-Italic-VariableFont.woff2")
+    src: url("/fonts/variable/PublicSans-Italic-VariableFont.woff2")
       format("woff2-variations");
     font-display: swap;
   }
@@ -23,14 +23,14 @@
   @font-face {
     font-family: "Bitter";
     font-weight: 100 900;
-    src: url("../fonts/variable/Bitter-VariableFont.woff2") format("woff2-variations");
+    src: url("/fonts/variable/Bitter-VariableFont.woff2") format("woff2-variations");
     font-display: swap;
   }
   @font-face {
     font-family: "Bitter";
     font-style: italic;
     font-weight: 100 900;
-    src: url("../fonts/variable/Bitter-Italic-VariableFont.woff2")
+    src: url("/fonts/variable/Bitter-Italic-VariableFont.woff2")
       format("woff2-variations");
     font-display: swap;
   }
@@ -40,15 +40,14 @@
   @font-face {
     font-family: "Exo 2";
     font-weight: 100 900;
-    src: url("../fonts/variable/Exo2-VariableFont.woff2") format("woff2-variations");
+    src: url("/fonts/variable/Exo2-VariableFont.woff2") format("woff2-variations");
     font-display: swap;
   }
   @font-face {
     font-family: "Exo 2";
     font-style: italic;
     font-weight: 100 900;
-    src: url("../fonts/variable/Exo2-Italic-VariableFont.woff2")
-      format("woff2-variations");
+    src: url("/fonts/variable/Exo2-Italic-VariableFont.woff2") format("woff2-variations");
     font-display: swap;
   }
 
@@ -58,7 +57,7 @@
     font-family: "Roboto";
     font-weight: 100 900;
     font-stretch: 75 100;
-    src: url("../fonts/variable/Roboto-VariableFont.woff2") format("woff2-variations");
+    src: url("/fonts/variable/Roboto-VariableFont.woff2") format("woff2-variations");
     font-display: swap;
   }
 
@@ -67,7 +66,7 @@
     font-style: italic;
     font-weight: 100 900;
     font-stretch: 75 100;
-    src: url("../fonts/variable/Roboto-Italic-VariableFont.woff2")
+    src: url("/fonts/variable/Roboto-Italic-VariableFont.woff2")
       format("woff2-variations");
     font-display: swap;
   }
@@ -78,7 +77,7 @@
     font-family: "Cascadia Mono";
     font-style: normal;
     font-weight: 200 700;
-    src: url("../fonts/variable/CascadiaMono.woff2") format("woff2-variations");
+    src: url("/fonts/variable/CascadiaMono.woff2") format("woff2-variations");
     font-display: swap;
   }
 
@@ -86,7 +85,7 @@
     font-family: "Cascadia Mono";
     font-style: italic;
     font-weight: 200 700;
-    src: url("../fonts/variable/CascadiaMonoItalic.woff2") format("woff2-variations");
+    src: url("/fonts/variable/CascadiaMonoItalic.woff2") format("woff2-variations");
     font-display: swap;
   }
 
@@ -95,35 +94,35 @@
   @font-face {
     font-family: "Noto Sans CJK HK";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansHK-VF.woff2") format("woff2-variations");
+    src: url("/fonts/variable/NotoSansHK-VF.woff2") format("woff2-variations");
     font-display: swap;
   }
 
   @font-face {
     font-family: "Noto Sans CJK JP";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansJP-VF.woff2") format("woff2-variations");
+    src: url("/fonts/variable/NotoSansJP-VF.woff2") format("woff2-variations");
     font-display: swap;
   }
 
   @font-face {
     font-family: "Noto Sans CJK KR";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansKR-VF.woff2") format("woff2-variations");
+    src: url("/fonts/variable/NotoSansKR-VF.woff2") format("woff2-variations");
     font-display: swap;
   }
 
   @font-face {
     font-family: "Noto Sans CJK SC";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansSC-VF.woff2") format("woff2-variations");
+    src: url("/fonts/variable/NotoSansSC-VF.woff2") format("woff2-variations");
     font-display: swap;
   }
 
   @font-face {
     font-family: "Noto Sans CJK TC";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansTC-VF.woff2") format("woff2-variations");
+    src: url("/fonts/variable/NotoSansTC-VF.woff2") format("woff2-variations");
     font-display: swap;
   }
 
@@ -140,7 +139,7 @@
   /* @font-face {
     font-family: "Noto Sans Mono CJK HK";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansMonoCJKhk-VF.woff2")
+    src: url("/fonts/variable/NotoSansMonoCJKhk-VF.woff2")
       format("woff2-variations");
     font-display: swap;
   }
@@ -148,7 +147,7 @@
   @font-face {
     font-family: "Noto Sans Mono CJK JP";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansMonoCJKjp-VF.woff2")
+    src: url("/fonts/variable/NotoSansMonoCJKjp-VF.woff2")
       format("woff2-variations");
     font-display: swap;
   }
@@ -156,7 +155,7 @@
   @font-face {
     font-family: "Noto Sans Mono CJK KR";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansMonoCJKkr-VF.woff2")
+    src: url("/fonts/variable/NotoSansMonoCJKkr-VF.woff2")
       format("woff2-variations");
     font-display: swap;
   }
@@ -164,7 +163,7 @@
   @font-face {
     font-family: "Noto Sans Mono CJK SC";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansMonoCJKsc-VF.woff2")
+    src: url("/fonts/variable/NotoSansMonoCJKsc-VF.woff2")
       format("woff2-variations");
     font-display: swap;
   }
@@ -172,7 +171,7 @@
   @font-face {
     font-family: "Noto Sans Mono CJK TC";
     font-weight: 400 700;
-    src: url("../fonts/variable/NotoSansMonoCJKtc-VF.woff2")
+    src: url("/fonts/variable/NotoSansMonoCJKtc-VF.woff2")
       format("woff2-variations");
     font-display: swap;
   } */
@@ -183,69 +182,69 @@
 @font-face {
   font-family: "Noto Sans Mono CJK HK";
   font-weight: normal;
-  src: url("../fonts/NotoSansMonoCJKhk-Regular.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKhk-Regular.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "Noto Sans Mono CJK HK";
   font-weight: bold;
-  src: url("../fonts/NotoSansMonoCJKhk-Bold.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKhk-Bold.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "Noto Sans Mono CJK JP";
   font-weight: normal;
-  src: url("../fonts/NotoSansMonoCJKjp-Regular.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKjp-Regular.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "Noto Sans Mono CJK JP";
   font-weight: bold;
-  src: url("../fonts/NotoSansMonoCJKjp-Bold.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKjp-Bold.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "Noto Sans Mono CJK KR";
   font-weight: normal;
-  src: url("../fonts/NotoSansMonoCJKkr-Regular.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKkr-Regular.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "Noto Sans Mono CJK KR";
   font-weight: bold;
-  src: url("../fonts/NotoSansMonoCJKkr-Bold.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKkr-Bold.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "Noto Sans Mono CJK SC";
   font-weight: normal;
-  src: url("../fonts/NotoSansMonoCJKsc-Regular.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKsc-Regular.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "Noto Sans Mono CJK SC";
   font-weight: bold;
-  src: url("../fonts/NotoSansMonoCJKsc-Bold.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKsc-Bold.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "Noto Sans Mono CJK TC";
   font-weight: normal;
-  src: url("../fonts/NotoSansMonoCJKtc-Regular.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKtc-Regular.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "Noto Sans Mono CJK TC";
   font-weight: bold;
-  src: url("../fonts/NotoSansMonoCJKtc-Bold.woff2") format("woff2");
+  src: url("/fonts/NotoSansMonoCJKtc-Bold.woff2") format("woff2");
   font-display: swap;
 }

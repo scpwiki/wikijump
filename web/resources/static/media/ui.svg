@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!--
+    #wj-karma
+      wj-karma-5-svg
+      wj-karma-4-svg
+      wj-karma-3-svg
+      wj-karma-2-svg
+      wj-karma-1-svg
+    -->
+    <symbol id="wj-karma" viewbox="0 0 64 114">
+      <rect width="64" height="114" rx="8" />
+      <rect x="56" width="8" height="114" />
+      <g>
+        <rect x="4" y="4" width="56" height="18" rx="4" fill="var(--wj-karma-5-svg)" />
+        <rect x="4" y="26" width="56" height="18" rx="4" fill="var(--wj-karma-4-svg)" />
+        <rect x="4" y="48" width="56" height="18" rx="4" fill="var(--wj-karma-3-svg)" />
+        <rect x="4" y="70" width="56" height="18" rx="4" fill="var(--wj-karma-2-svg)" />
+        <rect x="4" y="92" width="56" height="18" rx="4" fill="var(--wj-karma-1-svg)" />
+      </g>
+    </symbol>
+
+    <!--
+    #wj-toggle
+      wj-toggle-track-fill
+      wj-toggle-handle-cx (32-96)
+      wj-toggle-handle-fill
+    -->
+    <symbol id="wj-toggle" viewBox="0 0 128 64">
+      <rect
+        x="2"
+        y="2"
+        width="124"
+        height="60"
+        rx="30"
+        stroke="#222"
+        stroke-width="4"
+        fill="var(--wj-toggle-track-fill, #aaa)"
+        style="transition: fill 150ms"
+      />
+      <rect x="16" y="16" width="96" height="32" rx="16" fill="#0002" />
+      <circle
+        cy="32"
+        r="26"
+        cx="var(--wj-toggle-handle-cx, 32)"
+        fill="var(--wj-toggle-handle-fill, #fff)"
+        style="transition: cx 150ms, fill 150ms"
+      />
+    </symbol>
+
+    <!--
+    #wj-checkbox
+      wj-checkbox-box-fill
+      wj-checkbox-check-stroke
+    -->
+    <symbol id="wj-checkbox" viewbox="0 0 64 64">
+      <rect
+        x="2"
+        y="2"
+        width="60"
+        height="60"
+        rx="6"
+        stroke="#222"
+        stroke-width="4"
+        fill="var(--wj-checkbox-box-fill, #fff)"
+      />
+      <path
+        d="m13.25 32 12.5 12.5 25 -25"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="8"
+        stroke="var(--wj-checkbox-check-stroke, #fff0)"
+      />
+    </symbol>
+
+    <!--
+    #wj-clipboard-copy
+      wj-clipboard-copy-stroke
+    -->
+    <symbol id="wj-clipboard-copy" viewbox="0 0 24 24">
+      <g
+        fill="none"
+        stroke-width="2"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        stroke="var(--wj-clipboard-copy-stroke, #222)"
+      >
+        <path
+          d="M16 4h2a2 2 0 0 1 2 2v4M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
+        />
+        <rect x="8" y="2" width="8" height="3" rx="0" ry="1" />
+        <path d="M21 14H12" />
+        <path d="M15 10l-4 4l4 4" />
+      </g>
+    </symbol>
+
+    <!--
+    #wj-clipboard-success
+      wj-clipboard-success-stroke
+    -->
+    <symbol id="wj-clipboard-success" viewbox="0 0 24 24">
+      <g
+        fill="none"
+        stroke-width="2"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        stroke="var(--wj-clipboard-success-stroke, #222)"
+      >
+        <path
+          d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+        />
+        <rect x="8" y="2" width="8" height="3" rx="0" ry="1" />
+        <path d="M7.5 13 l3 3l6-6" />
+      </g>
+    </symbol>
+
+    <!--
+    #wj-downarrow
+      wj-downarrow-color
+    -->
+    <symbol id="wj-downarrow" viewbox="0 0 26 18">
+      <path
+        d="m 1 1 l 24 0 l -12 16 z"
+        stroke-width="2"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        stroke="var(--wj-downarrow-color, #222)"
+        fill="var(--wj-downarrow-color, #222)"
+      />
+    </symbol>
+  </defs>
+</svg>

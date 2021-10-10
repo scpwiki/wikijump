@@ -26,7 +26,7 @@
 </section>
 
 <style lang="scss">
-  @import "../../css/src/abstracts";
+  @import "../../../resources/css/abstracts";
 
   .card {
     padding: 0.5rem;

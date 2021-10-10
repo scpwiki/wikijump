@@ -1,4 +1,4 @@
-{{-- -
+{{--
     All arguments are optional.
 
     data:
@@ -25,14 +25,14 @@
         $favicon_mask
 
     sections:
-        content
+        app
 
     stacks:
         preloads
         styles
         head
         scripts
-- --}}
+--}}
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -145,7 +145,7 @@
     @endisset
 
     {{-- Styles --}}
-    @vite('resources/css/base.scss')
+    @vite('index.scss')
     @stack('styles')
 
     {{-- Vite --}}
@@ -158,14 +158,14 @@
 </head>
 
 <body class="light codetheme-dark">
-    @yield('content')
+    @yield('app')
 
     <div id="toasts"></div>
     <div id="modals"></div>
 
     {{-- Scripts --}}
     {{-- TODO: see if it's possible to make scripts load async --}}
-    @vite('resources/scripts/index.ts')
+    @vite('index.ts')
     @stack('scripts')
 </body>
 

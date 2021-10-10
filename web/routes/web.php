@@ -1,7 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Ozone\Framework\Ozone;
@@ -47,13 +49,47 @@ Route::get('welcome', function () {
     return view('welcome');
 });
 
-// TODO: remove when we have a proper frontend, this is just for testing
+// TODO: remove these when we have a proper frontend, this is just for testing
+
 /**
  * Test route for opening the Sheaf editor.
  */
 Route::get('/editor--test', function () {
-    return view('next.editor-test');
+    return view('next.test.editor-test');
 });
+
+/**
+ * Test route for testing the frame layout.
+ */
+Route::get('/frame--test', function () {
+    return view('next.test.frame-test', [
+        'title' => "Wikijump Frame Test",
+        'header_title' => 'Wikijump',
+        'navbar_items' => [
+            'Dropdown 1' => [
+                'Cool Link' => '/cool-beans',
+                'Editor Test' => '/editor--test',
+            ],
+            'Dropdown 2' => [
+                'Cool Link' => '/cool-beans',
+                'Editor Test' => '/editor--test',
+            ],
+        ],
+    ]);
+});
+
+/**
+ * Proxies naive asset requests to the Vite development server.
+ * This is unfortunately required because some asset URLs are not handled
+ * by the Vite plugin, and we need to redirect those requests to Vite.
+ * These URLs are usually related to static assets.
+ */
+if (App::environment('local')) {
+    Route::get('/wikijump--next/assets/{path}', function ($path) {
+        $res = Http::get(config('vite.ping_url') . '/' . $path);
+        return response($res->body(), $res->status(), $res->headers());
+    })->where('path', '.*');
+}
 
 /**
  * Socialite route, null until I'm ready to begin work there.

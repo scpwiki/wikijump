@@ -204,7 +204,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../css/src/abstracts";
+  @import "../../../resources/css/abstracts";
 
   .wikitext-loading-panel {
     position: absolute;

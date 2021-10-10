@@ -62,7 +62,7 @@
 </button>
 
 <style lang="scss">
-  @import "../../css/src/abstracts";
+  @import "../../../resources/css/abstracts";
 
   .button {
     display: inline-flex;

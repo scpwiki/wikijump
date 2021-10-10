@@ -1,9 +1,9 @@
 @extends('next.base')
 
 @push('scripts')
-    @vite('resources/lib/index.ts')
+    @vite('editor-test.ts')
 @endpush
 
-@section('content')
+@section('app')
     <div id="app"></div>
 @endsection

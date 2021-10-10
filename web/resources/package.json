@@ -12,9 +12,9 @@
   "main": "scripts/index.ts",
   "dependencies": {
     "@wikijump/api": "workspace:*",
-    "@wikijump/css": "workspace:*",
     "@wikijump/ftml-components": "workspace:*",
     "@wikijump/sheaf": "workspace:*",
+    "include-media": "^1.4.10",
     "svelte": "^3.43.1"
   }
 }

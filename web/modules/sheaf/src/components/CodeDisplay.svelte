@@ -85,7 +85,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../../css/src/abstracts";
+  @import "../../../../resources/css/abstracts";
 
   .code-display-container {
     position: relative;
