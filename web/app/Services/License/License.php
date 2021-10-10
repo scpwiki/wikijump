@@ -1,10 +1,8 @@
 <?php
 declare(strict_types=1);
 
-namespace Wikijump\Common;
+namespace Wikijump\Services\License;
 
-
-use Exception;
 
 /**
  * Data class to store a particular configured license.
@@ -19,16 +17,11 @@ final class License
     private bool $unlessClause;
     private string $html;
 
-    public function __construct(
-        string $id,
-        string $name,
-        ?string $url,
-        bool $unlessClause = true
-    ) {
-        $this->id = $id;
-        $this->name = $name;
-        $this->url = $url;
-        $this->unlessClause = $unlessClause;
+    public function __construct(array &$object) {
+        $this->id = $object['id'];
+        $this->name = $object['name'];
+        $this->url = $object['url'];
+        $this->unlessClause = $object['unless'] ?? true;
         $this->html = $this->buildHtml();
     }
 
@@ -69,5 +62,16 @@ final class License
     public function html(): string
     {
         return $this->html;
+    }
+
+    public static function generateMapping(array &$licenses)
+    {
+        $ids = [];
+
+        foreach ($licenses as &$license) {
+            $ids[$license->id] = $license;
+        }
+
+        return $ids;
     }
 }
