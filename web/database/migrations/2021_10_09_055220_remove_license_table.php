@@ -23,7 +23,7 @@ class RemoveLicenseTable extends Migration
         // Add new columns
         Schema::table('category', function (Blueprint $table) {
             $table->string('license_id')->default('cc_by_sa_4');
-            $table->boolean('license_default')->default(true);
+            $table->boolean('license_inherits')->default(true);
         });
 
         // Remove license table
@@ -48,7 +48,7 @@ class RemoveLicenseTable extends Migration
         // Drop new columns
         Schema::table('category', function (Blueprint $table) {
             $table->dropColumn('license_id');
-            $table->dropColumn('license_default');
+            $table->dropColumn('license_inherits');
         });
 
         // Re-add old columns
