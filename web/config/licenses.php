@@ -15,43 +15,11 @@ return [
      */
 
     'raw' => [
-        // Creative Commons 4.0
-        [
-            'id' => 'cc_by_sa_4',
-            'name' => 'Creative Commons Attribution-ShareAlike 4.0 License',
-            'label' => 'Creative Commons Attribution-ShareAlike 4.0 License (recommended)',
-            'url' => 'https://creativecommons.org/licenses/by-sa/4.0/',
-        ],
-        [
-            'id' => 'cc_by_4',
-            'name' => 'Creative Commons Attribution 4.0 License',
-            'url' => 'https://creativecommons.org/licenses/by/4.0/',
-        ],
-        [
-            'id' => 'cc_by_nd_4',
-            'name' => 'Creative Commons Attribution-NoDerivs 4.0 License',
-            'url' => 'https://creativecommons.org/licenses/by-nd/4.0/',
-        ],
-        [
-            'id' => 'cc_by_nc_4',
-            'name' => 'Creative Commons Attribution-NonCommercial 4.0 License',
-            'url' => 'https://creativecommons.org/licenses/by-nc/4.0/',
-        ],
-        [
-            'id' => 'cc_by_nc_sa_4',
-            'name' => 'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 License',
-            'url' => 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
-        ],
-        [
-            'id' => 'cc_by_nc_nd_4',
-            'name' => 'Creative Commons Attribution-NonCommercial-NoDerivs 4.0 License',
-            'url' => 'https://creativecommons.org/licenses/by-nc-nd/4.0/',
-        ],
-
         // Creative Commons 3.0
         [
             'id' => 'cc_by_sa_3',
             'name' => 'Creative Commons Attribution-ShareAlike 3.0 License',
+            'label' => 'Creative Commons Attribution-ShareAlike 3.0 License (recommended)',
             'url' => 'https://creativecommons.org/licenses/by-sa/3.0/',
         ],
         [
@@ -78,6 +46,38 @@ return [
             'id' => 'cc_by_nc_nd_3',
             'name' => 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 License',
             'url' => 'https://creativecommons.org/licenses/by-nc-nd/3.0/',
+        ],
+
+        // Creative Commons 4.0
+        [
+            'id' => 'cc_by_sa_4',
+            'name' => 'Creative Commons Attribution-ShareAlike 4.0 License',
+            'url' => 'https://creativecommons.org/licenses/by-sa/4.0/',
+        ],
+        [
+            'id' => 'cc_by_4',
+            'name' => 'Creative Commons Attribution 4.0 License',
+            'url' => 'https://creativecommons.org/licenses/by/4.0/',
+        ],
+        [
+            'id' => 'cc_by_nd_4',
+            'name' => 'Creative Commons Attribution-NoDerivs 4.0 License',
+            'url' => 'https://creativecommons.org/licenses/by-nd/4.0/',
+        ],
+        [
+            'id' => 'cc_by_nc_4',
+            'name' => 'Creative Commons Attribution-NonCommercial 4.0 License',
+            'url' => 'https://creativecommons.org/licenses/by-nc/4.0/',
+        ],
+        [
+            'id' => 'cc_by_nc_sa_4',
+            'name' => 'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 License',
+            'url' => 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+        ],
+        [
+            'id' => 'cc_by_nc_nd_4',
+            'name' => 'Creative Commons Attribution-NonCommercial-NoDerivs 4.0 License',
+            'url' => 'https://creativecommons.org/licenses/by-nc-nd/4.0/',
         ],
 
         // Other Licenses
