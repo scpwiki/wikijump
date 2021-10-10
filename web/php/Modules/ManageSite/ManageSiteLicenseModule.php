@@ -19,7 +19,6 @@ class ManageSiteLicenseModule extends ManageSiteBaseModule
         $c->add('site_id', $site->getSiteId());
         $c->addOrderAscending("replace(name, '_', '00000000')"); // Weird wikidot hack to make "_default" et all appear at the top
         $categories = CategoryPeer::instance()->select($c);
-
         $runData->contextAdd('categories', $categories);
 
         // also prepare categories to put into javascript...
