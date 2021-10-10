@@ -42,6 +42,9 @@ impl WikitextSettings {
 
 impl Default for WikitextSettings {
     fn default() -> Self {
-        todo!()
+        WikitextSettings {
+            mode: WikitextMode::default(),
+            flags: WikitextMode::default().flags(),
+        }
     }
 }
