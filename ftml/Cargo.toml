@@ -29,6 +29,7 @@ wasm-log = []
 mathml   = ["latex2mathml"]
 
 [dependencies]
+bitflags = "1"
 cfg-if = "1"
 chrono = { version = "0.4.19", features = ["serde", "wasmbind"] }
 entities = "1"

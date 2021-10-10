@@ -308,6 +308,7 @@ dependencies = [
 name = "ftml"
 version = "1.12.3"
 dependencies = [
+ "bitflags",
  "built",
  "cbindgen",
  "cfg-if",

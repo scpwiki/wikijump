@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::WikitextFlags;
+
 /// What mode parsing and rendering is done in.
 ///
 /// Each variant has slightly different behavior associated
@@ -33,19 +35,41 @@ pub enum WikitextMode {
 }
 
 impl WikitextMode {
-    pub fn allow_includes_modules(self) -> bool {
+    pub fn flags(self) -> WikitextFlags {
         match self {
-            WikitextMode::Page | WikitextMode::List => true,
-            WikitextMode::ForumPost | WikitextMode::DirectMessage => false,
+            WikitextMode::Page => {
+                WikitextFlags::ALLOW_INCLUDE
+                    | WikitextFlags::ALLOW_MODULE
+                    | WikitextFlags::ALLOW_TOC
+                    | WikitextFlags::ALLOW_BUTTON
+                    | WikitextFlags::HEADING_ID
+                    | WikitextFlags::FOOTNOTE_ID
+                    | WikitextFlags::BIBLIOGRAPHY_ID
+                    | WikitextFlags::MATH_ID
+                    | WikitextFlags::ALLOW_LOCAL
+            }
+            WikitextMode::ForumPost | WikitextMode::DirectMessage => WikitextFlags::NONE,
+            WikitextMode::List => {
+                WikitextFlags::ALLOW_INCLUDE
+                    | WikitextFlags::ALLOW_MODULE
+                    | WikitextFlags::ALLOW_TOC
+                    | WikitextFlags::ALLOW_BUTTON
+                    | WikitextFlags::ALLOW_LOCAL
+            }
         }
     }
-
-    // TODO
 }
 
 impl Default for WikitextMode {
     #[inline]
     fn default() -> Self {
         WikitextMode::Page
+    }
+}
+
+impl From<WikitextMode> for WikitextFlags {
+    #[inline]
+    fn from(mode: WikitextMode) -> WikitextFlags {
+        mode.flags()
     }
 }

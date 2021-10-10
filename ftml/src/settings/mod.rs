@@ -18,16 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod flags;
 mod mode;
 
+pub use self::flags::WikitextFlags;
 pub use self::mode::WikitextMode;
 
 /// Settings to tweak behavior in the ftml parser and renderer.
-#[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WikitextSettings {
     pub mode: WikitextMode,
+    pub flags: WikitextFlags,
 }
 
 impl WikitextSettings {
-    // TODO
+    pub fn set_mode(&mut self, mode: WikitextMode) {
+        self.mode = mode;
+        self.flags = mode.flags();
+    }
+}
+
+impl Default for WikitextSettings {
+    fn default() -> Self {
+        todo!()
+    }
 }
