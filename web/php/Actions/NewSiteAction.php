@@ -49,7 +49,7 @@ class NewSiteAction extends SmartyAction
         // validate form data:
 
         $errors = array();
-        if (empty($name)) {
+        if ($name === '') {
             $errors['name'] = _("Site name must be present.");
         } elseif (strlen8($name) > 30) {
             $errors['name']  = _("Site name should not be longer than 30 characters.");
