@@ -68,17 +68,6 @@
 						</div>
 					</td>
 				</tr>
-				{*<tr>
-					<td>
-						{t}Site content language{/t}:
-					</td>
-					<td>
-						<input type="radio" name="language" value="en" id="new-site-lang-en"> <label for="new-site-lang-en">{t}English{/t}</label>
-						&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type="radio" name="language" value="pl" id="new-site-lang-pl"> <label for="new-site-lang-pl">{t}Polish{/t}</label>
-
-					</td>
-				</tr>*}
 				<tr>
 					<td>
 						{t}Initial template{/t}:
