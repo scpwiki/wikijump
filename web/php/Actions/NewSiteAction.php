@@ -49,16 +49,16 @@ class NewSiteAction extends SmartyAction
         // validate form data:
 
         $errors = array();
-        if (strlen($name)<1) {
+        if (empty($name)) {
             $errors['name'] = _("Site name must be present.");
-        } elseif (strlen8($name)>30) {
+        } elseif (strlen8($name) > 30) {
             $errors['name']  = _("Site name should not be longer than 30 characters.");
         }
 
         // site unix name *************
-        if ($unixName === null || strlen($unixName)<3) {
+        if ($unixName === null || strlen($unixName) < 3) {
             $errors['unixname'] = _("Web address must be present and should be at least 3 characters long.");
-        } elseif (strlen($unixName)>30) {
+        } elseif (strlen($unixName) > 30) {
             $errors['unixname']  = _("Web address name should not be longer than 30 characters.");
         } elseif (preg_match("/^[a-z0-9\-]+$/", $unixName) == 0) {
             $errors['unixname'] = _('Only lowercase alphanumeric and "-" (dash) characters allowed in the web address.');
