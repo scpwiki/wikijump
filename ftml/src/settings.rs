@@ -18,10 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod mode;
-
-pub use self::mode::WikitextMode;
-
 /// Settings to tweak behavior in the ftml parser and renderer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -85,4 +81,29 @@ impl Default for WikitextSettings {
             allow_local_paths: true,
         }
     }
+}
+
+/// What mode parsing and rendering is done in.
+///
+/// Each variant has slightly different behavior associated
+/// with them, beyond the typical flags for the rest of `WikitextSettings`.
+///
+/// The exact details of each are still being decided as this is implemented.
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum WikitextMode {
+    /// Processing for the contents of a page on a site.
+    Page,
+
+    /// Processing for a draft of a page.
+    Draft,
+
+    /// Processing for the contents of a forum post, of which there may be many.
+    ForumPost,
+
+    /// Processing for the contents of a direct message, sent to a user.
+    DirectMessage,
+
+    /// Processing for modules or other contexts such as `ListPages`.
+    List,
 }
