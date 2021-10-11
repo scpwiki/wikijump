@@ -104,13 +104,37 @@ export interface HoverOpts {
  * @param opts - The options to use.
  */
 export function hover(element: HTMLElement, opts: HoverOpts) {
-  if (opts.on) element.addEventListener("pointerover", opts.on)
-  if (opts.off) element.addEventListener("pointerout", opts.off)
-  if (opts.move) element.addEventListener("pointermove", opts.move)
   if (opts.alsoOnFocus) {
-    if (opts.on) element.addEventListener("focus", opts.on)
-    if (opts.off) element.addEventListener("blur", opts.off)
+    let hovered = false
+    let focused = false
+
+    element.addEventListener("pointerover", () => {
+      hovered = true
+      if (opts.on && !focused) opts.on()
+    })
+
+    element.addEventListener("pointerout", () => {
+      hovered = false
+      if (opts.off && !focused) opts.off()
+    })
+
+    element.addEventListener("focusin", evt => {
+      if (focused && element.contains(evt.target as HTMLElement)) return
+      focused = true
+      if (opts.on && !hovered) opts.on()
+    })
+
+    element.addEventListener("focusout", evt => {
+      if (element.contains(evt.relatedTarget as HTMLElement)) return
+      focused = false
+      if (opts.off && !hovered) opts.off()
+    })
+  } else {
+    if (opts.on) element.addEventListener("pointerover", opts.on)
+    if (opts.off) element.addEventListener("pointerout", opts.off)
   }
+
+  if (opts.move) element.addEventListener("pointermove", opts.move)
 }
 
 const OBSERVER_CONFIG = {
