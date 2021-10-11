@@ -19,8 +19,8 @@
                             @foreach($item_links as $link_name => $link_url)
                                 <li>
                                     <a class="wj-navbar-dropdown-link"
-                                    href="{{ $link_url }}"
-                                    tabindex="-1"
+                                       href="{{ $link_url }}"
+                                       tabindex="-1"
                                     >
                                         {{ $link_name }}
                                     </a>

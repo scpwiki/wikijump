@@ -80,7 +80,7 @@ Route::get('/start', function () {
             'Background' => "/",
             'About' => "/",
         ],
-        'page_content' => ($values['pageContent'] ?? null),
+        'page_content' => $values['pageContent'] ?? null,
         'sidebar_content' => $values['sideBar1Content'] ?? null,
         'license_content' => $values['licenseHtml'] ?? null
     ]);
