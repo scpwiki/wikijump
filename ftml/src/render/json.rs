@@ -49,9 +49,9 @@ impl Render for JsonRender {
     fn render(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         syntax_tree: &SyntaxTree,
-        _settings: &WikitextSettings,
+        page_info: &PageInfo,
+        settings: &WikitextSettings,
     ) -> String {
         info!(log, "Running JSON logger on syntax tree"; "pretty" => self.pretty);
 
@@ -67,11 +67,13 @@ impl Render for JsonRender {
         struct JsonWrapper<'a> {
             syntax_tree: &'a SyntaxTree<'a>,
             page_info: &'a PageInfo<'a>,
+            settings: &'a WikitextSettings,
         }
 
         let output = JsonWrapper {
             syntax_tree,
             page_info,
+            settings,
         };
 
         writer(&output).expect("Unable to serialize JSON")

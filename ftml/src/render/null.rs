@@ -35,8 +35,8 @@ impl Render for NullRender {
     fn render(
         &self,
         _log: &Logger,
-        _page_info: &PageInfo,
         _tree: &SyntaxTree,
+        _page_info: &PageInfo,
         _settings: &WikitextSettings,
     ) {
     }
@@ -49,7 +49,7 @@ fn null() {
     let settings = WikitextSettings::default();
     let result = SyntaxTree::from_element_result(vec![], vec![], vec![], vec![], vec![]);
     let (tree, _) = result.into();
-    let output = NullRender.render(&log, &page_info, &tree, &settings);
+    let output = NullRender.render(&log, &tree, &page_info, &settings);
 
     assert_eq!(output, (), "Null render didn't produce the unit value");
 }

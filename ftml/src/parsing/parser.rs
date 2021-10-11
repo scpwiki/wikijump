@@ -208,8 +208,8 @@ impl<'r, 't> Parser<'r, 't> {
         // Render name as text, so it lacks formatting
         let name = TextRender.render_partial(
             &self.log,
-            self.page_info,
             name_elements,
+            self.page_info,
             self.settings,
         );
 

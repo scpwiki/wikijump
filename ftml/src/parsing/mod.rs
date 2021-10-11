@@ -79,8 +79,8 @@ pub use self::token::{ExtractedToken, Token};
 /// This takes a list of `ExtractedToken` items produced by `tokenize()`.
 pub fn parse<'r, 't>(
     log: &Logger,
-    page_info: &'r PageInfo<'t>,
     tokenization: &'r Tokenization<'t>,
+    page_info: &'r PageInfo<'t>,
     settings: &'r WikitextSettings,
 ) -> ParseOutcome<SyntaxTree<'t>>
 where

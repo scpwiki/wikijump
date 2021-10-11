@@ -37,18 +37,18 @@ impl TextRender {
     pub fn render_partial(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         elements: &[Element],
+        page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> String {
-        self.render_partial_direct(log, page_info, elements, settings, &[], &[])
+        self.render_partial_direct(log, elements, page_info, settings, &[], &[])
     }
 
     fn render_partial_direct(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         elements: &[Element],
+        page_info: &PageInfo,
         settings: &WikitextSettings,
         table_of_contents: &[Element],
         footnotes: &[Vec<Element>],
@@ -89,14 +89,14 @@ impl Render for TextRender {
     fn render(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         tree: &SyntaxTree,
+        page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> String {
         self.render_partial_direct(
             log,
-            page_info,
             &tree.elements,
+            page_info,
             settings,
             &tree.table_of_contents,
             &tree.footnotes,

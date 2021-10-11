@@ -62,8 +62,8 @@ pub trait Render {
     fn render(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         tree: &SyntaxTree,
+        page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> Self::Output;
 }

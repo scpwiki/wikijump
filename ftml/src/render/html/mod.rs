@@ -55,8 +55,8 @@ impl Render for HtmlRender {
     fn render(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         tree: &SyntaxTree,
+        page_info: &PageInfo,
         settings: &WikitextSettings,
     ) -> HtmlOutput {
         info!(

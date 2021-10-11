@@ -32,13 +32,13 @@ impl Render for DebugRender {
     fn render(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         tree: &SyntaxTree,
-        _settings: &WikitextSettings,
+        page_info: &PageInfo,
+        settings: &WikitextSettings,
     ) -> String {
         info!(log, "Running debug logger on syntax tree");
 
-        format!("{:#?}\n{:#?}", page_info, tree)
+        format!("{:#?}\n{:#?}\n{:#?}", settings, page_info, tree)
     }
 }
 
