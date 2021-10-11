@@ -37,8 +37,8 @@
                 <a id="header_logo" href="/" title="{{ __('frame.goto_home_page') }}">
                     @isset($header_img_url)
                         <img id="header_logo_img"
-                                src="{{ $header_img_url }}"
-                                aria-hidden="true"
+                             src="{{ $header_img_url }}"
+                             aria-hidden="true"
                         >
                     @endisset
                     @isset($header_title)
