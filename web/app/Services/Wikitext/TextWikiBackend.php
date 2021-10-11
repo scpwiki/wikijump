@@ -28,6 +28,7 @@ class TextWikiBackend extends WikitextBackend
         // Set parse mode
         switch ($mode) {
             case ParseRenderMode::PAGE:
+            case ParseRenderMode::DRAFT:
             case ParseRenderMode::TABLE_OF_CONTENTS:
                 $this->wt->setMode('default');
                 break;
