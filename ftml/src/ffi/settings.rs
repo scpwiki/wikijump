@@ -19,6 +19,7 @@
  */
 
 use crate::settings::{WikitextMode, WikitextSettings};
+use std::ptr;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -36,6 +37,17 @@ impl ftml_wikitext_settings {
             enable_page_syntax: self.enable_page_syntax,
             use_random_ids: self.use_random_ids,
             allow_local_paths: self.allow_local_paths,
+        }
+    }
+}
+
+impl From<WikitextSettings> for ftml_wikitext_settings {
+    fn from(settings: WikitextSettings) -> ftml_wikitext_settings {
+        ftml_wikitext_settings {
+            mode: settings.mode.into(),
+            enable_page_syntax: settings.enable_page_syntax,
+            use_random_ids: settings.use_random_ids,
+            allow_local_paths: settings.allow_local_paths,
         }
     }
 }
@@ -78,4 +90,19 @@ impl From<WikitextMode> for ftml_wikitext_mode {
             WikitextMode::List => LIST,
         }
     }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn ftml_wikitext_settings_default(
+    settings: *mut ftml_wikitext_settings,
+) {
+    // Do nothing if they passed NULL
+    if settings.is_null() {
+        return;
+    }
+
+    // Write to the destination memory without reading or dropping it
+    let c_settings = WikitextSettings::default().into();
+
+    ptr::write(settings, c_settings);
 }
