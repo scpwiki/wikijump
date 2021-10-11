@@ -27,19 +27,17 @@
 @extends('next.base')
 
 @section('app')
-    <div id="app" @class([
-        'has-header'  => isset($header_img_url) || isset($header_title),
-        'has-sidebar' => isset($sidebar_content),
-    ])>
+    <div id="app" @class(['has-sidebar' => isset($sidebar_content)])>
 
         {{-- Header --}}
-        @if (isset($header_img_url) || isset($header_title))
-            <header id="header" aria-label="{{ __('frame.aria_header') }}">
+        {{-- TODO: User account control widget --}}
+        <header id="header" aria-label="{{ __('frame.aria_header') }}">
+            @if (isset($header_img_url) || isset($header_title))
                 <a id="header_logo" href="/" title="{{ __('frame.goto_home_page') }}">
                     @isset($header_img_url)
                         <img id="header_logo_img"
-                             src="{{ $header_img_url }}"
-                             aria-hidden="true"
+                                src="{{ $header_img_url }}"
+                                aria-hidden="true"
                         >
                     @endisset
                     @isset($header_title)
@@ -49,13 +47,12 @@
                         <small id="header_logo_subtitle">{{ $header_subtitle }}</small>
                     @endisset
                 </a>
-            </header>
-        @endif
+            @endif
+        </header>
 
         {{-- Navbar --}}
         {{-- TODO: Page search widget --}}
         {{-- TODO: Locale selector--}}
-        {{-- TODO: User account control widget --}}
         {{-- TODO: Dark/light mode selector --}}
         <nav id="navbar" aria-label="{{ __('frame.aria_navigation') }}">
             @isset($navbar_img_url)
