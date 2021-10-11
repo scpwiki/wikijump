@@ -62,16 +62,16 @@ impl WikitextSettings {
                 self.enable_page_syntax = true;
                 self.use_random_ids = false;
                 self.allow_local_paths = true;
-            },
+            }
             WikitextMode::ForumPost | WikitextMode::DirectMessage => {
                 self.enable_page_syntax = false;
                 self.use_random_ids = true;
                 self.allow_local_paths = false;
-            },
+            }
             WikitextMode::List => {
                 self.enable_page_syntax = true;
                 self.use_random_ids = true;
-            },
+            }
         }
     }
 }

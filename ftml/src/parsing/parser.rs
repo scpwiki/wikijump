@@ -38,8 +38,9 @@ pub struct Parser<'r, 't> {
     // Logger instance
     log: Logger,
 
-    // Page information
+    // Page and parse information
     page_info: &'r PageInfo<'t>,
+    settings: &'r WikitextSettings,
 
     // Parse state
     current: &'r ExtractedToken<'t>,
@@ -80,6 +81,7 @@ impl<'r, 't> Parser<'r, 't> {
     pub(crate) fn new(
         log: &Logger,
         page_info: &'r PageInfo<'t>,
+        settings: &'r WikitextSettings,
         tokenization: &'r Tokenization<'t>,
     ) -> Self {
         let log = Logger::clone(log);
@@ -92,6 +94,7 @@ impl<'r, 't> Parser<'r, 't> {
         Parser {
             log,
             page_info,
+            settings,
             current,
             remaining,
             full_text,
@@ -203,7 +206,12 @@ impl<'r, 't> Parser<'r, 't> {
         let level = usize::from(heading.value()) - 1;
 
         // Render name as text, so it lacks formatting
-        let name = TextRender.render_partial(&self.log, self.page_info, name_elements);
+        let name = TextRender.render_partial(
+            &self.log,
+            self.page_info,
+            name_elements,
+            self.settings,
+        );
 
         self.table_of_contents.borrow_mut().push((level, name));
     }

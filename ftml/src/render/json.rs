@@ -51,6 +51,7 @@ impl Render for JsonRender {
         log: &Logger,
         page_info: &PageInfo,
         syntax_tree: &SyntaxTree,
+        _settings: &WikitextSettings,
     ) -> String {
         info!(log, "Running JSON logger on syntax tree"; "pretty" => self.pretty);
 

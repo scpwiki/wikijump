@@ -42,13 +42,14 @@ fn render<R: Render>(
             .expect("Passed PageInfo structure from C was null")
             .to_page_info()
     };
+    let settings = unsafe { todo!() };
 
     // TODO includer
 
     crate::preprocess(log, &mut text);
     let tokens = crate::tokenize(log, &text);
-    let (tree, warnings) = crate::parse(log, &page_info, &tokens).into();
-    let output = renderer.render(log, &page_info, &tree);
+    let (tree, warnings) = crate::parse(log, &page_info, &tokens, settings).into();
+    let output = renderer.render(log, &page_info, &tree, settings);
     (output, warnings)
 }
 

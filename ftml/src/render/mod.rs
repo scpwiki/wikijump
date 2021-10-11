@@ -22,6 +22,7 @@ mod prelude {
     pub use super::Render;
     pub use crate::data::PageInfo;
     pub use crate::log::prelude::*;
+    pub use crate::settings::WikitextSettings;
     pub use crate::tree::{AttributeMap, Container, ContainerType, Element, SyntaxTree};
 }
 
@@ -36,6 +37,7 @@ mod handle;
 use self::handle::{Handle, ModuleRenderMode};
 use crate::data::PageInfo;
 use crate::log::prelude::*;
+use crate::settings::WikitextSettings;
 use crate::tree::SyntaxTree;
 
 /// Abstract trait for any ftml renderer.
@@ -62,5 +64,6 @@ pub trait Render {
         log: &Logger,
         page_info: &PageInfo,
         tree: &SyntaxTree,
+        settings: &WikitextSettings,
     ) -> Self::Output;
 }

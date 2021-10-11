@@ -29,7 +29,13 @@ impl Render for DebugRender {
     type Output = String;
 
     #[inline]
-    fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
+    fn render(
+        &self,
+        log: &Logger,
+        page_info: &PageInfo,
+        tree: &SyntaxTree,
+        _settings: &WikitextSettings,
+    ) -> String {
         info!(log, "Running debug logger on syntax tree");
 
         format!("{:#?}\n{:#?}", page_info, tree)
@@ -81,6 +87,7 @@ SyntaxTree {
 
     let log = crate::build_logger();
     let page_info = PageInfo::dummy();
+    let settings = WikitextSettings::default();
 
     // Syntax tree construction
     let elements = vec![
@@ -107,7 +114,7 @@ SyntaxTree {
     let (tree, _) = result.into();
 
     // Perform rendering
-    let output = DebugRender.render(&log, &page_info, &tree);
+    let output = DebugRender.render(&log, &page_info, &settings, &tree);
     assert_eq!(
         output, OUTPUT,
         "Pretty JSON syntax tree output doesn't match",

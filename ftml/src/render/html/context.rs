@@ -28,6 +28,7 @@ use crate::data::{Backlinks, PageInfo};
 use crate::info;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
 use crate::render::Handle;
+use crate::settings::WikitextSettings;
 use crate::tree::{Element, LinkLocation, VariableScopes};
 use crate::url::is_url;
 use std::borrow::Cow;
@@ -45,6 +46,7 @@ where
     backlinks: Backlinks<'static>,
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
+    settings: &'e WikitextSettings,
     random: Random,
 
     //
@@ -72,6 +74,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     pub fn new(
         info: &'i PageInfo<'i>,
         handle: &'h Handle,
+        settings: &'e WikitextSettings,
         table_of_contents: &'e [Element<'t>],
         footnotes: &'e [Vec<Element<'t>>],
     ) -> Self {
@@ -82,6 +85,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
             backlinks: Backlinks::new(),
             info,
             handle,
+            settings,
             random: Random::default(),
             variables: VariableScopes::new(),
             table_of_contents,
