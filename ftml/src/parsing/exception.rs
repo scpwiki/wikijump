@@ -137,6 +137,9 @@ pub enum ParseWarningKind {
     /// Attempting to match this rule failed, falling back to try an alternate.
     RuleFailed,
 
+    /// This syntax is not supported when parsing in the current mode.
+    NotSupportedMode,
+
     /// Attempting to match this rule failed, it must be on the start of a new line.
     NotStartOfLine,
 
