@@ -31,7 +31,7 @@ const TS_APPEND_CONTENT: &str = r#"
 export interface IWikitextSettings {
     mode: WikitextMode;
     enable_page_syntax: boolean;
-    use_random_ids: boolean;
+    use_true_ids: boolean;
     allow_local_paths: boolean;
 }
 

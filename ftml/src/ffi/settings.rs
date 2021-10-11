@@ -26,7 +26,7 @@ use std::ptr;
 pub struct ftml_wikitext_settings {
     pub mode: ftml_wikitext_mode,
     pub enable_page_syntax: bool,
-    pub use_random_ids: bool,
+    pub use_true_ids: bool,
     pub allow_local_paths: bool,
 }
 
@@ -35,7 +35,7 @@ impl ftml_wikitext_settings {
         WikitextSettings {
             mode: self.mode.into(),
             enable_page_syntax: self.enable_page_syntax,
-            use_random_ids: self.use_random_ids,
+            use_true_ids: self.use_true_ids,
             allow_local_paths: self.allow_local_paths,
         }
     }
@@ -46,7 +46,7 @@ impl From<WikitextSettings> for ftml_wikitext_settings {
         ftml_wikitext_settings {
             mode: settings.mode.into(),
             enable_page_syntax: settings.enable_page_syntax,
-            use_random_ids: settings.use_random_ids,
+            use_true_ids: settings.use_true_ids,
             allow_local_paths: settings.allow_local_paths,
         }
     }

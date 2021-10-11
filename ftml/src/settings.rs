@@ -34,12 +34,12 @@ pub struct WikitextSettings {
     /// * Button
     pub enable_page_syntax: bool,
 
-    /// Whether IDs should be randomly-generated, or true IDs should be used.
+    /// Whether IDs should have true values, or be excluded or randomly generated.
     ///
     /// In the latter case, IDs can be used for navigation, for instance
     /// the table of contents, but setting this to `true` is needed in any
     /// context where more than one instance of rendered wikitext could be emitted.
-    pub use_random_ids: bool,
+    pub use_true_ids: bool,
 
     /// Whether local paths are permitted.
     ///
@@ -55,19 +55,19 @@ impl WikitextSettings {
             WikitextMode::Page | WikitextMode::Draft => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
-                use_random_ids: false,
+                use_true_ids: true,
                 allow_local_paths: true,
             },
             WikitextMode::ForumPost | WikitextMode::DirectMessage => WikitextSettings {
                 mode,
                 enable_page_syntax: false,
-                use_random_ids: true,
+                use_true_ids: false,
                 allow_local_paths: false,
             },
             WikitextMode::List => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
-                use_random_ids: true,
+                use_true_ids: false,
                 allow_local_paths: true,
             },
         }
