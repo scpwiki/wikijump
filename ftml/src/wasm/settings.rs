@@ -36,11 +36,11 @@ export interface IWikitextSettings {
 }
 
 export enum WikitextMode {
-    Page,
-    Draft,
-    ForumPost,
-    DirectMessage,
-    List,
+    Page = 'page';
+    Draft = 'draft';
+    ForumPost = 'forum-post';
+    DirectMessage = 'direct-message';
+    List = 'list';
 }
 
 "#;
@@ -84,4 +84,6 @@ impl WikitextSettings {
             inner: Arc::new(rust_wikitext_settings),
         })
     }
+
+    // TODO method to generate from wikitext mode
 }
