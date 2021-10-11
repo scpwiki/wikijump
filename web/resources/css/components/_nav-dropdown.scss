@@ -59,10 +59,10 @@
   list-style: none;
   background: var(--col-con-background);
   border: solid 0.075rem var(--col-con-border);
-  border-top: solid 0.25rem var(--col-hint);
+  border-top: solid 0.125rem var(--col-hint);
   border-radius: 0.125rem 0.125rem 0.25rem 0.25rem;
   contain: content;
-  @include shadow(4);
+  @include shadow(2);
 
   li {
     text-align: center;
