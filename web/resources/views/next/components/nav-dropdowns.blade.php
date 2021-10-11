@@ -8,7 +8,7 @@
 <ul class="wj-navbar-dropdowns">
     @foreach($items as $item_name => $item_links)
         <li>
-            <wj-nav-dropdown class="wj-navbar-dropdown">
+            <wj-navbar-dropdown class="wj-navbar-dropdown">
                 <details class="wj-navbar-dropdown-block">
                     <summary class="wj-navbar-dropdown-button">
                         {{ $item_name }}
@@ -17,14 +17,17 @@
                     <ul class="wj-navbar-dropdown-links">
                         @foreach($item_links as $link_name => $link_url)
                             <li>
-                                <a class="wj-navbar-dropdown-link" href="{{ $link_url }}">
+                                <a class="wj-navbar-dropdown-link"
+                                   href="{{ $link_url }}"
+                                   tabindex="-1"
+                                >
                                     {{ $link_name }}
                                 </a>
                             </li>
                         @endforeach
                     </ul>
                 </details>
-            </wj-nav-dropdown>
+            </wj-navbar-dropdown>
         </li>
     @endforeach
 </ul>

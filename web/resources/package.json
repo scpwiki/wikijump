@@ -14,6 +14,7 @@
     "@wikijump/api": "workspace:*",
     "@wikijump/ftml-components": "workspace:*",
     "@wikijump/sheaf": "workspace:*",
+    "@wikijump/util": "workspace:*",
     "include-media": "^1.4.10",
     "svelte": "^3.43.1"
   }

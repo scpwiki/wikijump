@@ -1,9 +1,19 @@
 .wj-navbar-dropdowns {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   align-items: center;
   height: 100%;
   list-style: none;
+
+  > li {
+    height: 100%;
+  }
+}
+
+.wj-navbar-dropdown {
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .wj-navbar-dropdown-block {
@@ -24,19 +34,26 @@
 
 .wj-navbar-dropdown-button {
   position: relative;
+  padding: 0.25rem;
   font-size: 0.925rem;
-  line-height: 1;
   white-space: nowrap;
   list-style: none;
   cursor: pointer;
   user-select: none;
+  background: #fff0;
+  border-radius: 0.25rem;
 
   @include tolerates-motion {
-    transition: color 75ms;
+    transition: color 75ms, background 75ms;
   }
 
   @include hover {
     color: var(--col-hint);
+  }
+
+  &:focus-visible {
+    color: var(--col-hint);
+    background: #fff2;
   }
 }
 
@@ -51,7 +68,7 @@
 
 .wj-navbar-dropdown-links {
   position: absolute;
-  top: 1.25rem;
+  top: 1.75rem;
   left: -10%;
   z-index: 99;
   min-width: 120%;
@@ -79,13 +96,20 @@
   font-size: 0.825rem;
   color: var(--col-con-text);
   white-space: nowrap;
+  background: #fff0;
+  border-radius: 0.125rem;
 
   @include tolerates-motion {
-    transition: color 75ms;
+    transition: color 75ms, background 75ms;
   }
 
   @include hover {
     color: var(--col-hint);
+  }
+
+  &:focus-visible {
+    color: var(--col-hint);
+    background: #fff2;
   }
 }
 
