@@ -24,6 +24,7 @@ services:
         source: ../../../web/resources
         target: /var/www/wikijump/web/resources
         read_only: true
+      - type: bind
         source: ../../../web/routes
         target: /var/www/wikijump/web/routes
         read_only: true
@@ -53,6 +54,10 @@ services:
       - type: bind
         source: ../../../web/web
         target: /var/www/wikijump/web/web
+        read_only: true
+      - type: bind
+        source: ../../../web/public
+        target: /var/www/wikijump/web/public
         read_only: true
 
   reverse-proxy:
