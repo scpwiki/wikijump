@@ -45,6 +45,7 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(log, "Found invalid include-elements block");
 
+    parser.check_page_syntax()?;
     assert!(!flag_star, "Include (elements) doesn't allow star flag");
     assert!(!flag_score, "Include (elements) doesn't allow score flag");
     assert_block_name(&BLOCK_INCLUDE_ELEMENTS, name);

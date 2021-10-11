@@ -201,6 +201,15 @@ impl<'r, 't> Parser<'r, 't> {
         self.has_footnote_block = true;
     }
 
+    // Parse settings helpers
+    pub fn check_page_syntax(&self) -> Result<(), ParseWarning> {
+        if self.settings.enable_page_syntax {
+            Ok(())
+        } else {
+            Err(self.make_warn(ParseWarningKind::NotSupportedMode))
+        }
+    }
+
     // Table of Contents
     pub fn push_table_of_contents_entry(
         &mut self,

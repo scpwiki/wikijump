@@ -40,6 +40,7 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     info!(log, "Parsing module block"; "in-head" => in_head);
 
+    parser.check_page_syntax()?;
     assert!(!flag_star, "Module doesn't allow star flag");
     assert!(!flag_score, "Module doesn't allow score flag");
     assert_block_name(&BLOCK_MODULE, name);

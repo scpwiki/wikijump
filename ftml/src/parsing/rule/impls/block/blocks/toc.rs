@@ -45,6 +45,7 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
+    parser.check_page_syntax()?;
     assert!(!flag_star, "Table of Contents doesn't allow star flag");
     assert!(!flag_score, "Table of Contents doesn't allow score flag");
     assert_block_name(&BLOCK_TABLE_OF_CONTENTS, name);
