@@ -49,20 +49,15 @@ Route::get('welcome', function () {
 
 // TODO: remove these when we have a proper frontend, this is just for testing
 
-/**
- * Test route for opening the Sheaf editor.
- */
 Route::get('/editor--test', function () {
     return view('next.test.editor-test');
 });
 
-/**
- * Test route for testing the frame layout.
- */
-Route::get('/frame--test', function () {
-    return view('next.test.frame-test', [
-        'title' => "Wikijump Frame Test",
-        'header_title' => 'Wikijump',
+Route::get('/start', function () {
+    $values = LegacyTools::generateScreenVars();
+    return view('next.test.page-test', [
+        'title' => "Wikijump",
+        'header_img_url' => '/files--static/media/logo-outline.min.svg',
         'navbar_items' => [
             'Dropdown 1' => [
                 'Cool Link' => '/cool-beans',
@@ -73,6 +68,9 @@ Route::get('/frame--test', function () {
                 'Editor Test' => '/editor--test',
             ],
         ],
+        'page_content' => ($values['pageContent'] ?? null),
+        'sidebar_content' => $values['sideBar1Content'] ?? null,
+        'license_content' => $values['licenseHtml'] ?? null
     ]);
 });
 
