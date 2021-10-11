@@ -66,16 +66,16 @@ cover: wtr --playwright --coverage
 lint:
   $depend: []
   $action: run-p -lns lint:eslint lint:stylelint lint:prettier
-  eslint: eslint "./**/*.js" "./**/*.ts"
-  stylelint: stylelint "modules/**/*.scss"
-  prettier: prettier --ignore-unknown --check "modules/**"
+  eslint: eslint "modules/**/*.{js,ts}" "resources/**/*.{js,ts}"
+  stylelint: stylelint "modules/**/*.scss" "modules/**/*.scss" "resources/**/*.scss"
+  prettier: prettier --ignore-unknown --check "modules/**" "resources/**"
 
   fix:
     $depend: []
     $action: run-p -lns lint:fix:eslint lint:fix:stylelint lint:fix:prettier
-    eslint: eslint "./**/*.js" "./**/*.ts" --fix
-    stylelint: stylelint "modules/**/*.scss" --fix
-    prettier: prettier --write --ignore-unknown "modules/**"
+    eslint: eslint "modules/**/*.{js,ts}" "resources/**/*.{js,ts}" --fix
+    stylelint: stylelint "modules/**/*.scss" "resources/**/*.scss" --fix
+    prettier: prettier --write --ignore-unknown "modules/**" "resources/**"
 
 typecheck: tsc
 
