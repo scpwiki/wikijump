@@ -27,6 +27,9 @@ pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Contain
     // Get HTML tag type for this type of container
     let tag_spec = container.ctype().html_tag(ctx);
 
+    // Get correct ID, based on the render setting
+    let random_id = choose_id(ctx, &tag_spec);
+
     // Build the tag
     let mut tag = ctx.html().tag(tag_spec.tag());
 
@@ -38,7 +41,10 @@ pub fn render_container(log: &Logger, ctx: &mut HtmlContext, container: &Contain
             container.attributes(),
         )),
         HtmlTag::TagAndId { id, .. } => tag.attr(attr!(
-            "id" => &id;;
+            "id" => match random_id {
+                Some(ref id) => id,
+                None => &id,
+            };;
             container.attributes(),
         )),
     };
@@ -66,4 +72,13 @@ pub fn render_color(
             "style" => "color: " color ";",
         ))
         .inner(log, elements);
+}
+
+fn choose_id(ctx: &mut HtmlContext, tag_spec: &HtmlTag) -> Option<String> {
+    // If we're in a situation where we want a randomly generated ID
+    if matches!(tag_spec, HtmlTag::TagAndId { .. }) && !ctx.settings().use_true_ids {
+        Some(ctx.random().generate_html_id())
+    } else {
+        None
+    }
 }

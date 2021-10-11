@@ -33,6 +33,8 @@ pub fn render_table_of_contents(
         "align" => align.map(|a| a.name()),
     );
 
+    let use_true_ids = ctx.settings().use_true_ids;
+
     let class_value = match align {
         Some(align) => {
             // Only valid for float left / right
@@ -44,7 +46,7 @@ pub fn render_table_of_contents(
     ctx.html()
         .div()
         .attr(attr!(
-            "id" => "wj-toc",
+            "id" => "wj-toc"; if use_true_ids,
             "class" => class_value; if align.is_some();;
             attributes
         ))
@@ -52,7 +54,7 @@ pub fn render_table_of_contents(
             // TOC buttons
             ctx.html()
                 .div()
-                .attr(attr!("id" => "wj-toc-action-bar"))
+                .attr(attr!("id" => "wj-toc-action-bar"; if use_true_ids))
                 .contents(|ctx| {
                     // TODO button
                     ctx.html().a().attr(attr!(
@@ -76,7 +78,7 @@ pub fn render_table_of_contents(
 
             ctx.html()
                 .div()
-                .attr(attr!("id" => "wj-toc-list"))
+                .attr(attr!("id" => "wj-toc-list"; if use_true_ids))
                 .inner(log, table_of_contents);
         });
 }
