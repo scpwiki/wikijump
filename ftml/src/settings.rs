@@ -50,35 +50,26 @@ pub struct WikitextSettings {
 }
 
 impl WikitextSettings {
-    pub fn set_mode(&mut self, mode: WikitextMode) {
-        self.mode = mode;
-
+    pub fn from_mode(mode: WikitextMode) -> Self {
         match mode {
-            WikitextMode::Page | WikitextMode::Draft => {
-                self.enable_page_syntax = true;
-                self.use_random_ids = false;
-                self.allow_local_paths = true;
-            }
-            WikitextMode::ForumPost | WikitextMode::DirectMessage => {
-                self.enable_page_syntax = false;
-                self.use_random_ids = true;
-                self.allow_local_paths = false;
-            }
-            WikitextMode::List => {
-                self.enable_page_syntax = true;
-                self.use_random_ids = true;
-            }
-        }
-    }
-}
-
-impl Default for WikitextSettings {
-    fn default() -> Self {
-        WikitextSettings {
-            mode: WikitextMode::Page,
-            enable_page_syntax: true,
-            use_random_ids: false,
-            allow_local_paths: true,
+            WikitextMode::Page | WikitextMode::Draft => WikitextSettings {
+                mode,
+                enable_page_syntax: true,
+                use_random_ids: false,
+                allow_local_paths: true,
+            },
+            WikitextMode::ForumPost | WikitextMode::DirectMessage => WikitextSettings {
+                mode,
+                enable_page_syntax: false,
+                use_random_ids: true,
+                allow_local_paths: false,
+            },
+            WikitextMode::List => WikitextSettings {
+                mode,
+                enable_page_syntax: true,
+                use_random_ids: true,
+                allow_local_paths: true,
+            },
         }
     }
 }

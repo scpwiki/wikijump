@@ -93,34 +93,18 @@ impl From<WikitextMode> for ftml_wikitext_mode {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn ftml_wikitext_settings_default(
+pub unsafe extern "C" fn ftml_wikitext_settings_from_mode(
     settings: *mut ftml_wikitext_settings,
+    mode: ftml_wikitext_mode,
 ) {
     // Do nothing if they passed NULL
     if settings.is_null() {
         return;
     }
 
+    let c_mode = mode.into();
+    let c_settings = WikitextSettings::from_mode(c_mode).into();
+
     // Write to the destination memory without reading or dropping it
-    let c_settings = WikitextSettings::default().into();
-
     ptr::write(settings, c_settings);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn ftml_wikitext_settings_set_mode(
-    settings: *mut ftml_wikitext_settings,
-    mode: ftml_wikitext_mode,
-) {
-    // Copy data from pointer
-    let mut rust_settings = settings
-        .as_mut()
-        .expect("Passed WikitextSettings struct from C was null")
-        .to_wikitext_settings();
-
-    // Set mode
-    rust_settings.set_mode(mode.into());
-
-    // Copy data to pointer
-    ptr::write(settings, rust_settings.into());
 }
