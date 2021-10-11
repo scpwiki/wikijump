@@ -1,7 +1,6 @@
 import * as Popper from "@popperjs/core"
-import { clearTimeout, timeout, Timeout } from "@wikijump/util"
+import { clearTimeout, hover, timeout, Timeout } from "@wikijump/util"
 import { BaseButton } from "./base-button"
-import { hover } from "./util"
 
 // TODO: proper mobile support (need more infrastructure for mobile support)
 
