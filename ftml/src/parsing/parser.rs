@@ -121,6 +121,11 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     #[inline]
+    pub fn settings(&self) -> &WikitextSettings {
+        self.settings
+    }
+
+    #[inline]
     pub fn full_text(&self) -> FullText<'t> {
         self.full_text
     }
