@@ -18,25 +18,61 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod flags;
 mod mode;
 
-use enumflags2::BitFlags;
-
-pub use self::flags::ParserRender;
 pub use self::mode::WikitextMode;
 
 /// Settings to tweak behavior in the ftml parser and renderer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub struct WikitextSettings {
+    /// What mode we're running in.
     pub mode: WikitextMode,
-    pub flags: BitFlags<ParserRender>,
+
+    /// Whether page-contextual syntax is permitted.
+    ///
+    /// This currently refers to:
+    /// * Include
+    /// * Module
+    /// * Table of Contents
+    /// * Button
+    pub enable_page_syntax: bool,
+
+    /// Whether IDs should be randomly-generated, or true IDs should be used.
+    ///
+    /// In the latter case, IDs can be used for navigation, for instance
+    /// the table of contents, but setting this to `true` is needed in any
+    /// context where more than one instance of rendered wikitext could be emitted.
+    pub use_random_ids: bool,
+
+    /// Whether local paths are permitted.
+    ///
+    /// This applies to:
+    /// * Files
+    /// * Images
+    pub allow_local_paths: bool,
 }
 
 impl WikitextSettings {
     pub fn set_mode(&mut self, mode: WikitextMode) {
         self.mode = mode;
-        self.flags = mode.flags();
+
+        match mode {
+            WikitextMode::Page => {
+                self.enable_page_syntax = true;
+                self.use_random_ids = false;
+                self.allow_local_paths = true;
+            },
+            WikitextMode::ForumPost | WikitextMode::DirectMessage => {
+                self.enable_page_syntax = false;
+                self.use_random_ids = true;
+                self.allow_local_paths = false;
+            },
+            WikitextMode::List => {
+                self.enable_page_syntax = true;
+                self.use_random_ids = true;
+            },
+        }
     }
 }
 
@@ -44,7 +80,9 @@ impl Default for WikitextSettings {
     fn default() -> Self {
         WikitextSettings {
             mode: WikitextMode::default(),
-            flags: WikitextMode::default().flags(),
+            enable_page_syntax: true,
+            use_random_ids: false,
+            allow_local_paths: true,
         }
     }
 }

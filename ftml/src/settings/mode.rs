@@ -18,52 +18,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::ParserRender;
-use enumflags2::BitFlags;
-
 /// What mode parsing and rendering is done in.
 ///
 /// Each variant has slightly different behavior associated
 /// with them, beyond the typical flags for the rest of `WikitextSettings`.
 ///
 /// The exact details of each are still being decided as this is implemented.
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum WikitextMode {
+    /// Processing for the contents of a page on a site.
     Page,
-    ForumPost,
-    DirectMessage,
-    List,
-}
 
-impl WikitextMode {
-    pub fn flags(self) -> BitFlags<ParserRender> {
-        match self {
-            WikitextMode::Page => BitFlags::default(),
-            WikitextMode::ForumPost | WikitextMode::DirectMessage => make_bitflags!(
-                ParserRender::{
-                    DisableInclude |
-                    DisableModule |
-                    DisableTableOfContents |
-                    DisableButton |
-                    UseRandomIds |
-                    DisableLocalPaths
-                }
-            ),
-            WikitextMode::List => make_bitflags!(ParserRender::{UseRandomIds}),
-        }
-    }
+    /// Processing for the contents of a forum post, of which there may be many.
+    ForumPost,
+
+    /// Processing for the contents of a direct message, sent to a user.
+    DirectMessage,
+
+    /// Processing for modules or other contexts such as `ListPages`.
+    List,
 }
 
 impl Default for WikitextMode {
     #[inline]
     fn default() -> Self {
         WikitextMode::Page
-    }
-}
-
-impl From<WikitextMode> for BitFlags<ParserRender> {
-    #[inline]
-    fn from(mode: WikitextMode) -> BitFlags<ParserRender> {
-        mode.flags()
     }
 }

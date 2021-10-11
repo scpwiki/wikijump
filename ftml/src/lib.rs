@@ -101,9 +101,6 @@ extern crate cfg_if;
 extern crate enum_map;
 
 #[macro_use]
-extern crate enumflags2;
-
-#[macro_use]
 extern crate lazy_static;
 
 #[macro_use]
