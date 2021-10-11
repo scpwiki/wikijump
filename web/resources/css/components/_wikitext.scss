@@ -21,14 +21,6 @@
 
   // -- CODE
 
-  code,
-  var,
-  samp,
-  tt,
-  kbd {
-    color: var(--colcode-content);
-  }
-
   pre.code {
     background: var(--colcode-background);
     border: solid 0.075rem var(--colcode-border);
@@ -37,6 +29,7 @@
 
     > code {
       padding: 1rem 0.5rem;
+      color: var(--colcode-content);
     }
 
     &.language-ftml,
