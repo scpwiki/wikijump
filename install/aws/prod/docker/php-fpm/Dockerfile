@@ -35,7 +35,7 @@ COPY ./web/composer.json ./web/composer.lock /var/www/wikijump/web/
 RUN /src/setup-php-dependencies.sh
 
 # Copy PHP configuration files
-COPY ./install/files/php-fpm/etc/ /usr/local/etc/php/conf.d/
+COPY ./install/files/php-fpm/etc/php/ /usr/local/etc/php/conf.d/
 
 # Copy full Wikijump source
 COPY ./web /var/www/wikijump/web
@@ -95,9 +95,9 @@ WORKDIR /src/ftml
 
 # Build ftml-ffi without logging
 RUN cargo build \
-        --release \
-        --no-default-features \
-        --features ffi,mathml
+    --release \
+    --no-default-features \
+    --features ffi,mathml
 
 #
 # Localizations
