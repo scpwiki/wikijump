@@ -1,5 +1,4 @@
 import { WikijumpAPI } from "@wikijump/api"
-import "@wikijump/ftml-components"
 import App from "../lib/EditorTest.svelte"
 
 window.addEventListener("DOMContentLoaded", async () => {
