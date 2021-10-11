@@ -29,6 +29,9 @@ pub enum WikitextMode {
     /// Processing for the contents of a page on a site.
     Page,
 
+    /// Processing for a draft of a page.
+    Draft,
+
     /// Processing for the contents of a forum post, of which there may be many.
     ForumPost,
 

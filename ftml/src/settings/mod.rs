@@ -58,7 +58,7 @@ impl WikitextSettings {
         self.mode = mode;
 
         match mode {
-            WikitextMode::Page => {
+            WikitextMode::Page | WikitextMode::Draft => {
                 self.enable_page_syntax = true;
                 self.use_random_ids = false;
                 self.allow_local_paths = true;
