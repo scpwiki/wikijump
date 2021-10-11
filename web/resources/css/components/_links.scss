@@ -1,48 +1,50 @@
 @use "sass:list";
 @use "sass:selector";
 
-a[href]:not([href*="javascript:;"]) {
-  // Base link styling.
-  text-decoration: currentColor underline 0.1em;
+.wj-body {
+  a[href]:not([href*="javascript:;"]) {
+    // Base link styling.
+    text-decoration: currentColor underline 0.1em;
 
-  @include tolerates-motion {
-    transition: color 0.05s, text-decoration-color 0.1s;
-  }
-
-  // TODO: replace hardcoded links with some other system
-  // for now this will work, but it's a little messy
-  // prettier-ignore
-  $internal-links-list:
-    '^="/"',
-    '^=".."',
-    '^="#"',
-    '*="wikijump.com"',
-    '*="wikijump.org"',
-    '*="wikijump.dev"',
-    '*="localhost"';
-
-  // make our selector lists
-  $is-internal: ();
-  $not-internal: "&[href*='//']";
-  @each $link in $internal-links-list {
-    $is-internal: list.append($is-internal, "&[href#{$link}]", $separator: comma);
-    $not-internal: $not-internal + ":not([href#{$link}])";
-  }
-
-  // External links.
-  #{$not-internal} {
-    color: var(--col-link-ext);
-    @include hover {
-      text-decoration-color: currentColor;
+    @include tolerates-motion {
+      transition: color 0.05s, text-decoration-color 0.1s;
     }
-  }
 
-  // Internal links.
-  #{$is-internal} {
-    color: var(--col-link-int);
-    text-decoration-color: transparent;
-    @include hover {
-      text-decoration-color: currentColor;
+    // TODO: replace hardcoded links with some other system
+    // for now this will work, but it's a little messy
+    // prettier-ignore
+    $internal-links-list:
+      '^="/"',
+      '^=".."',
+      '^="#"',
+      '*="wikijump.com"',
+      '*="wikijump.org"',
+      '*="wikijump.dev"',
+      '*="localhost"';
+
+    // make our selector lists
+    $is-internal: ();
+    $not-internal: "&[href*='//']";
+    @each $link in $internal-links-list {
+      $is-internal: list.append($is-internal, "&[href#{$link}]", $separator: comma);
+      $not-internal: $not-internal + ":not([href#{$link}])";
+    }
+
+    // External links.
+    #{$not-internal} {
+      color: var(--col-link-ext);
+      @include hover {
+        text-decoration-color: currentColor;
+      }
+    }
+
+    // Internal links.
+    #{$is-internal} {
+      color: var(--col-link-int);
+      text-decoration-color: transparent;
+      @include hover {
+        text-decoration-color: currentColor;
+      }
     }
   }
 }
