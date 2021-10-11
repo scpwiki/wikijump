@@ -25,6 +25,7 @@
 ///
 /// The exact details of each are still being decided as this is implemented.
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum WikitextMode {
     /// Processing for the contents of a page on a site.
     Page,
