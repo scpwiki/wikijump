@@ -8,6 +8,8 @@
                 'link-name' => 'link-url',
                 ...
             ],
+            // or
+            'link-name' => 'link-url',
             ...
         ];
 
@@ -54,7 +56,7 @@
         {{-- TODO: Locale selector--}}
         {{-- TODO: Dark/light mode selector --}}
         <nav id="navbar" aria-label="{{ __('frame.aria_navigation') }}">
-            @includeWhen(isset($navbar_items), 'next.components.nav-dropdowns', [
+            @includeWhen(isset($navbar_items), 'next.components.navbar-elements', [
                 'items' => $navbar_items,
             ])
         </nav>

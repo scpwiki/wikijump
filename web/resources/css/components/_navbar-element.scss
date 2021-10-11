@@ -1,15 +1,4 @@
-.wj-navbar-dropdowns {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-  height: 100%;
-  list-style: none;
-
-  > li {
-    height: 100%;
-  }
-}
-
+.wj-navbar-link,
 .wj-navbar-dropdown {
   display: flex;
   align-items: center;
@@ -32,6 +21,7 @@
   }
 }
 
+.wj-navbar-link > a,
 .wj-navbar-dropdown-button {
   position: relative;
   padding: 0.25rem;
