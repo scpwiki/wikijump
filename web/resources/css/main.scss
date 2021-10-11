@@ -2,6 +2,7 @@
 @import "abstracts";
 
 // Vendor
+@import "@wikijump/ftml-components/src/index";
 
 // Base
 @import "base/reset";
@@ -35,5 +36,4 @@
 @import "themes/typography";
 
 // Misc
-@import "@wikijump/ftml-components/src/index";
 @import "../../public/files--static/fonts/font-faces.css";
