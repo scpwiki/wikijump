@@ -1,0 +1,15 @@
+#header {
+  display: flex;
+  align-items: center;
+  padding: 0 3vw;
+  background: linear-gradient(var(--col-accent-2) 0%, var(--col-accent-1) 100%);
+}
+
+#header_logo_img {
+  height: calc(var(--layout-header-height) * 0.75);
+}
+
+#header_logo_title {
+  font-size: calc(var(--layout-header-height) * 0.5);
+  color: var(--col-white);
+}
