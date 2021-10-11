@@ -42,10 +42,3 @@ pub enum WikitextMode {
     /// Processing for modules or other contexts such as `ListPages`.
     List,
 }
-
-impl Default for WikitextMode {
-    #[inline]
-    fn default() -> Self {
-        WikitextMode::Page
-    }
-}

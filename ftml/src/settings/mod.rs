@@ -79,7 +79,7 @@ impl WikitextSettings {
 impl Default for WikitextSettings {
     fn default() -> Self {
         WikitextSettings {
-            mode: WikitextMode::default(),
+            mode: WikitextMode::Page,
             enable_page_syntax: true,
             use_random_ids: false,
             allow_local_paths: true,
