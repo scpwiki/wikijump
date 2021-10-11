@@ -15,7 +15,6 @@
         $header_img_url
         $header_title
         $header_subtitle
-        $navbar_img_url
         $navbar_items
         $sidebar_content (UNESCAPED)
         $license_content (UNESCAPED)
@@ -55,15 +54,6 @@
         {{-- TODO: Locale selector--}}
         {{-- TODO: Dark/light mode selector --}}
         <nav id="navbar" aria-label="{{ __('frame.aria_navigation') }}">
-            @isset($navbar_img_url)
-                <a id="navbar_logo" href="/" title="{{ __('frame.goto_home_page') }}">
-                    <img id="navbar_logo_img"
-                         src="{{ $navbar_img_url }}"
-                         aria-hidden="true"
-                    >
-                </a>
-            @endisset
-
             @includeWhen(isset($navbar_items), 'next.components.nav-dropdowns', [
                 'items' => $navbar_items,
             ])
