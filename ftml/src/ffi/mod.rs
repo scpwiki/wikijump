@@ -45,6 +45,7 @@ mod misc;
 mod page_info;
 mod page_ref;
 mod pool;
+mod settings;
 mod string;
 mod text;
 mod vec;
