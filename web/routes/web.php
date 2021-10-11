@@ -59,14 +59,26 @@ Route::get('/start', function () {
         'title' => "Wikijump",
         'header_img_url' => '/files--static/media/logo-outline.min.svg',
         'navbar_items' => [
-            'Dropdown 1' => [
-                'Cool Link' => '/cool-beans',
-                'Editor Test' => '/editor--test',
+            'SCP Series' => [
+                'Series VII' => '/',
+                'Series VI' => '/',
+                'Series V' => '/',
+                'Series IV' => '/',
+                'Series III' => '/',
+                'Series II' => '/',
+                'Series I' => '/',
             ],
-            'Dropdown 2' => [
-                'Cool Link' => '/cool-beans',
-                'Editor Test' => '/editor--test',
+            'Tales' => [
+                'Foundation Tales' => '/',
+                'Series Archive' => '/',
+                'Incident Reports' => '/',
+                'CreepyPasta Archive' => '/',
             ],
+            'Library' => [],
+            'Universe' => [],
+            'SCP Global' => [],
+            'Background' => [],
+            'Info Pages' => [],
         ],
         'page_content' => ($values['pageContent'] ?? null),
         'sidebar_content' => $values['sideBar1Content'] ?? null,
