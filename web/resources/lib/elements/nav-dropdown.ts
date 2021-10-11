@@ -1,5 +1,6 @@
 import { addElement, hover } from "@wikijump/util"
 
+/** Handles hovering, focus for navbar dropdowns. */
 export class NavbarDropdownElement extends HTMLElement {
   static tag = "wj-navbar-dropdown"
 
@@ -19,22 +20,26 @@ export class NavbarDropdownElement extends HTMLElement {
     this.summary.addEventListener("click", evt => evt.preventDefault())
   }
 
+  /** The dropdown's internal `<details>` element. */
   private get details() {
     const el = this.querySelector("details")
     if (!el) throw new Error("No details element found")
     return el
   }
 
+  /** The dropdown's internal `<summary>` (aka the button) element. */
   private get summary() {
     const summary = this.querySelector("summary")
     if (!summary) throw new Error("No summary element found")
     return summary
   }
 
+  /** Finds every link in this dropdown's list. */
   private findLinks() {
     return Array.from(this.querySelectorAll<HTMLElement>(".wj-navbar-dropdown-link"))
   }
 
+  /** Handler for `keydown` events for the entire component. */
   private handleKeydown(evt: KeyboardEvent) {
     const focused = document.activeElement as HTMLElement | null
 
