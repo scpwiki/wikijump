@@ -106,3 +106,21 @@ pub unsafe extern "C" fn ftml_wikitext_settings_default(
 
     ptr::write(settings, c_settings);
 }
+
+#[no_mangle]
+pub unsafe extern "C" fn ftml_wikitext_settings_set_mode(
+    settings: *mut ftml_wikitext_settings,
+    mode: ftml_wikitext_mode,
+) {
+    // Copy data from pointer
+    let mut rust_settings = settings
+        .as_mut()
+        .expect("Passed WikitextSettings struct from C was null")
+        .to_wikitext_settings();
+
+    // Set mode
+    rust_settings.set_mode(mode.into());
+
+    // Copy data to pointer
+    ptr::write(settings, rust_settings.into());
+}
