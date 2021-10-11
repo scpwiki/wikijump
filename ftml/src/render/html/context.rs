@@ -139,6 +139,11 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
     }
 
     #[inline]
+    pub fn settings(&self) -> &WikitextSettings {
+        self.settings
+    }
+
+    #[inline]
     pub fn handle(&self) -> &'h Handle {
         self.handle
     }

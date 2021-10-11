@@ -108,6 +108,11 @@ where
     }
 
     #[inline]
+    pub fn settings(&self) -> &WikitextSettings {
+        self.settings
+    }
+
+    #[inline]
     pub fn language(&self) -> &str {
         &self.info.language
     }
