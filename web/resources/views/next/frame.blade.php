@@ -18,7 +18,7 @@
         $navbar_img_url
         $navbar_items
         $sidebar_content (UNESCAPED)
-        $license_text
+        $license_content (UNESCAPED)
 
     sections:
         content
@@ -116,9 +116,9 @@
                 </div>
             </div>
 
-            @isset($license_text)
+            @isset($license_content)
                 <div id="footer_license" aria-label="{{ __('frame.aria_license') }}">
-                    {{ $license_text }}
+                    {!! $license_content !!}
                 </div>
             @endisset
         </footer>
