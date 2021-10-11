@@ -4,7 +4,10 @@
 a[href]:not([href*="javascript:;"]) {
   // Base link styling.
   text-decoration: currentColor underline 0.1em;
-  transition: color 0.05s, text-decoration-color 0.1s;
+
+  @include tolerates-motion {
+    transition: color 0.05s, text-decoration-color 0.1s;
+  }
 
   // TODO: replace hardcoded links with some other system
   // for now this will work, but it's a little messy
@@ -29,9 +32,7 @@ a[href]:not([href*="javascript:;"]) {
   // External links.
   #{$not-internal} {
     color: var(--col-link-ext);
-    // text-decoration-color: var(--col-link-ext);
     @include hover {
-      // color: colvar('link-ext', darken 10%)
       text-decoration-color: currentColor;
     }
   }
@@ -41,7 +42,6 @@ a[href]:not([href*="javascript:;"]) {
     color: var(--col-link-int);
     text-decoration-color: transparent;
     @include hover {
-      // color: colvar('link-int', darken 10%)
       text-decoration-color: currentColor;
     }
   }
