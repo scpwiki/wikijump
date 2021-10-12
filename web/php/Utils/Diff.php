@@ -101,6 +101,18 @@ class Diff
             array_push($diffs, ['type' => $type, 'line' => substr($d, 1)]);
         }
 
+        // Get rid of leading or trailing separators
+        if (count($diffs) > 0) {
+            if ($diffs[0]['type'] === 'sep') {
+                unset($diffs[0]);
+            }
+
+            $last = count($diffs) - 1;
+            if ($diffs[$last]['type'] === 'sep') {
+                array_pop($diffs);
+            }
+        }
+
         // generate output
         $output = [];
         $currentType = 'copy';
