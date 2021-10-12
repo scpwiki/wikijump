@@ -62,6 +62,11 @@ final class License
         return $this->label;
     }
 
+    public function unless(): bool
+    {
+        return $this->unlessClause;
+    }
+
     public function html(): string
     {
         return $this->html;
