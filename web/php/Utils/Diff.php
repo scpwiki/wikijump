@@ -130,7 +130,8 @@ class Diff
                         $row .= '<del>';
                         break;
                     case 'sep':
-                        array_push($output, '<br><br>');
+                        array_push($output, '<br><hr>');
+                        break;
                 }
                 $currentType = $type;
 
