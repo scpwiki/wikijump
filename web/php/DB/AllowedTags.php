@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class AllowedTags extends AllowedTagsBase
 {
     public static function getAllowedTags($siteId): array {
-        return DB::table('tag_settings')->where('site_id', $siteId)->pluck('tag')->toArray();
+        return DB::table('tag_settings')->where('site_id', $siteId)->pluck('allowed_tags')->toArray();
 
     }
 
