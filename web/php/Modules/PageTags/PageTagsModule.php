@@ -34,16 +34,10 @@ class PageTagsModule extends SmartyModule
 
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
-        // Receive taglist from ManageSite.
-
-        $siteId = $site->getSiteId();
-        $taglist = AllowedTags::getAllowedTags($siteId);
-
         // Fetch the tags and convert them to a string.
         $tags = PagePeer::getTags($pageId);
         $tags = implode(" ", $tags);
 
         $runData->contextAdd("tags", $tags);
-        $runData->contextAdd("taglist", $taglist);
     }
 }

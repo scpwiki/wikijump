@@ -202,6 +202,12 @@ If possible, add to this log in the same commit in which the code is removed.
 * What it did: Allowed storing arbitrary data for use in miscellaneous parts of the code.
 * Why it was removed: Code smell, also only used by `MailForm` which is now gone (see above). Its corresponding database migrations were not in the code, so the table was non-functional.
 
+## PHP: `PageTags`
+* Where it was: [web/php/DB/PageTags](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/PageTag.php)
+* Relevant Issues: [WJ-755](https://scuttle.atlassian.net/browse/WJ-755)
+* What it did: Tag CRUD system, using the now-deprecated `page_tag` class.
+* Why it was removed: Tags have been transferred to the `page` table, and all operations on the tags are now handled by Laravel.
+
 ## PHP: `LogEvent`
 * Where it was: [web/php/DB/LogEvent](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/LogEvent.php)
 * Relevant Issues: [WJ-730](https://scuttle.atlassian.net/browse/WJ-730)
