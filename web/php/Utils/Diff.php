@@ -11,6 +11,7 @@ use Wikidot\Utils\WDStringUtils;
  */
 class Diff
 {
+    const INLINE_CONTEXT_LINES = 4;
 
     /**
      * Implementation of unified diff of two strings
@@ -71,12 +72,12 @@ class Diff
     public static function generateInlineStringDiff(string $fromString, string $toString): string
     {
         // make a diff with the FULL output included too.
-        $diff = self::generateStringDiff($fromString, $toString, count(explode("\n", $toString)));
+        $diff = self::generateStringDiff($fromString, $toString, self::INLINE_CONTEXT_LINES);
 
-        $diffs2 = explode("\n", $diff);
+        $diffLines = explode("\n", $diff);
         $diffs = [];
-        for ($i = 0; $i < count($diffs2); $i++) {
-            $d = $diffs2[$i];
+        for ($i = 0; $i < count($diffLines); $i++) {
+            $d = $diffLines[$i];
             if (strlen($d) == 0) {
                 continue;
             }
@@ -93,8 +94,6 @@ class Diff
                     break;
             }
             if ($type) {
-                // handle a special situation if the previous line was 'delete' and this
-                // one is 'add' - change this to 'change'.
                 array_push($diffs, ['type' => $type, 'line' => substr($d, 1)]);
             }
         }
@@ -115,20 +114,18 @@ class Diff
                     case 'delete':
                         $row .= '<del>';
                         break;
+                    case 'sep':
+                        array_push($output, '<hr>');
                 }
                 $currentType = $type;
+
+                // We don't have a line to output
+                if ($currentType === 'sep') {
+                    continue;
+                }
             }
 
-            if ($type == 'change') {
-                //special treatment
-                $line = preg_replace('/(?<!\s[^\s]|\s[^\s]{2})(\s+)/', "\\1\n", $d['line']);
-                $toline = preg_replace('/(?<!\s[^\s]|\s[^\s]{2})(\s+)/', "\\1\n", $d['toline']);
-                // process this too
-                $linediff = self::generateInlineStringDiff($line, $toline, array('asArray' => true, 'noChange' => true));
-                $row .= implode('', $linediff);
-            } else {
-                $row .= htmlspecialchars($d['line']);
-            }
+            $row .= htmlspecialchars($d['line']);
 
             if ($i<$countDiffs - 1) {
                 $nextType = $diffs[$i+1]['type'];
@@ -146,7 +143,7 @@ class Diff
                         break;
                 }
             }
-            $output[] = $row;
+            array_push($output, $row);
         }
 
         return implode("\n", $output);
