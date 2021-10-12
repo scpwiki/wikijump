@@ -13,8 +13,21 @@ class AllowedTagsSettings extends Migration
      */
     public function up()
     {
+
+      // Drop 'site_tag' table (entirely deprecated).
+      Schema::drop('site_tag');
+
+      // Create 'tag_settings' table.
+      Schema::create('tag_settings', function (Blueprint $table) {
+        $table->id('tag_rulesheet_id')->autoIncrement();
+        $table->unsignedInteger('site_id')->nullable()->index();
+        $table->string('rulesheet_name')->default('Unnamed Rulesheet');
+        $table->jsonb('allowed_tags')->default('[]');
+      });
+
+      // Add column to 'site' that enables/disables the tag engine.
       Schema::table('site', function (Blueprint $table) {
-        $table->boolean('enable_allowed_tags')->default(false);
+        $table->boolean('enable_tag_engine')->default(false);
       });
     }
 
@@ -25,8 +38,22 @@ class AllowedTagsSettings extends Migration
      */
     public function down()
     {
-      Schema::table('site', function (Blueprint $table) {
-        $table->dropColumn('enable_allowed_tags');
+
+      // Recreate 'site_tag' from legacy tables.
+      Schema::create('site_tag', function (Blueprint $table) {
+        $table->id('tag_id')->startingValue(2);
+        $table->unsignedInteger('site_id')->nullable();
+        $table->string('tag', 20)->nullable();
+        $table->unique(['site_id', 'tag']);
       });
+
+      // Drop new 'tag_settings' table.
+      Schema::drop('tag_settings');
+
+      // Drop new 'enable_tag_engine' columb in 'site' table.
+      Schema::table('site', function (Blueprint $table) {
+        $table->dropColumn('enable_tag_engine');
+      });
+
     }
 }
