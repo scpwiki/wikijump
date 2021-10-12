@@ -75,8 +75,8 @@ class Diff
     public static function generateInlineStringDiff($fromString, $toString, $config = array())
     {
 
-        $useChange = (isset($config['noChange'])&&$config['noChange']==true)?false:true;
-        $outputAsArray = (isset($config['asArray'])&&$config['asArray']==true)?true:false;
+        $useChange = !($config['noChange'] ?? false);
+        $outputAsArray = $config['asArray'] ?? false;
 
         // make a diff with the FULL output included too.
         $diff = self::generateStringDiff($fromString, $toString, count(explode("\n", $toString)));
