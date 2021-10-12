@@ -10,7 +10,6 @@ use Ozone\Framework\OzoneLogger;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Utils\Deleter;
 use Wikidot\Utils\DependencyFixer;
-use Wikidot\Utils\EventLogger;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ODiff;
 use Wikidot\Utils\Outdater;
@@ -34,7 +33,6 @@ use Wikidot\DB\AllowedTags;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
 use Wikijump\Models\User;
-use Wikijump\Models\Settings;
 use Illuminate\Support\Facades\DB;
 
 
@@ -305,7 +303,6 @@ class WikiPageAction extends SmartyAction
                 $c->add("lock_id", $lockId);
                 PageEditLockPeer::instance()->delete($c);
             }
-            EventLogger::instance()->logNewPage($page);
         } else {
             // THE PAGE ALREADY EXISTS
 
@@ -556,10 +553,6 @@ class WikiPageAction extends SmartyAction
             if ($metadataChanged) {
                 $outdater->pageEvent("title_changed", $page);
             }
-
-            // index page
-
-            EventLogger::instance()->logSavePage($page);
         }
 
         // remove lock too?
@@ -1087,8 +1080,6 @@ class WikiPageAction extends SmartyAction
 
         $runData->ajaxResponseAdd("newName", $newName);
 
-        EventLogger::instance()->logPageRename($page, $oldName);
-
         $db->commit();
 
         sleep(0.5);
@@ -1202,8 +1193,6 @@ class WikiPageAction extends SmartyAction
             // outdate page
             $od = new Outdater();
             $od->pageEvent('parent_changed', $page);
-
-            EventLogger::instance()->logPageParentChange($page, $pp);
         } else {
             // no need to change!
 
@@ -1380,8 +1369,6 @@ class WikiPageAction extends SmartyAction
             $outdater->pageEvent("title_changed", $page);
         }
         // index page
-
-        EventLogger::instance()->logSavePage($page);
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);

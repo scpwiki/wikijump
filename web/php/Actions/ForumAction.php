@@ -19,7 +19,6 @@ use Wikidot\DB\PagePeer;
 use Wikidot\DB\ForumCategory;
 use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumGroup;
-use Wikidot\Utils\EventLogger;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\Indexer;
 use Wikidot\Utils\Outdater;
@@ -158,8 +157,6 @@ class ForumAction extends SmartyAction
         $runData->ajaxResponseAdd("threadId", $thread->getThreadId());
         $runData->ajaxResponseAdd("threadUnixifiedTitle", $thread->getUnixifiedTitle());
 
-        EventLogger::instance()->logNewThread($thread);
-
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);
@@ -287,8 +284,6 @@ class ForumAction extends SmartyAction
         $o = new Outdater();
         $o->forumEvent("post_save", $post);
 
-        EventLogger::instance()->logNewPost($post);
-
         $db->commit();
 
         $runData->ajaxResponseAdd("postId", $post->getPostId());
@@ -405,8 +400,6 @@ class ForumAction extends SmartyAction
 
         $o = new Outdater();
         $o->forumEvent("post_save", $post);
-
-        EventLogger::instance()->logSavePost($post);
 
         $db->commit();
         $runData->ajaxResponseAdd("postId", $post->getPostId());
@@ -568,7 +561,6 @@ class ForumAction extends SmartyAction
         }
         if ($changed) {
             $thread->save();
-            EventLogger::instance()->logSaveThreadMeta($thread);
         }
 
         $o = new Outdater();
@@ -609,8 +601,6 @@ class ForumAction extends SmartyAction
         $o = new Outdater();
         $o->forumEvent("thread_save", $thread);
 
-        EventLogger::instance()->logSaveThreadStickness($thread);
-
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);
@@ -642,7 +632,6 @@ class ForumAction extends SmartyAction
             $thread->setBlocked(false);
         }
         $thread->save();
-        EventLogger::instance()->logSaveThreadBlock($thread);
 
         $o = new Outdater();
         $o->forumEvent("thread_save", $thread);
@@ -698,8 +687,6 @@ class ForumAction extends SmartyAction
 
         $o = new Outdater();
         $o->forumEvent("outdate_forum");
-
-        EventLogger::instance()->logThreadMoved($thread, $category);
 
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
@@ -769,8 +756,6 @@ class ForumAction extends SmartyAction
         // outdate
         $o = new Outdater();
         $o->forumEvent("thread_save", $thread);
-
-        EventLogger::instance()->logPostDelete($thread, $post->getTitle());
 
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
