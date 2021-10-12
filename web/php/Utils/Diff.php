@@ -73,33 +73,6 @@ class Diff
     }
 
     /**
-     * Patches (or reverse-patches) string with a diff.
-     *
-     * @param string $string
-     * @param string $patch
-     * @param bool $reverse
-     * @return string
-     */
-    public static function patchString($string, $patch, $reverse = false)
-    {
-        // fix "no new line at the end" problem.
-        $string = WDStringUtils::addTrailingNewline($string);
-        $patch = WDStringUtils::addTrailingNewline($patch);
-
-        if ($reverse == false) {
-            $flags = XDIFF_PATCH_NORMAL;
-        } else {
-            $flags = XDIFF_PATCH_REVERSE;
-        }
-        $errors = array();
-        $r = xdiff_string_patch($string, $patch, $flags, $errors);
-        if (count($errors) > 0) {
-            throw Exception("Error while applying the patch.");
-        }
-        return $r;
-    }
-
-    /**
      * Generates a nice inline diff.
      * The config options are
      *  - noChange = true - does not create 'change' blocks which uses word-level diffs
@@ -116,20 +89,11 @@ class Diff
         $useChange = (isset($config['noChange'])&&$config['noChange']==true)?false:true;
         $outputAsArray = (isset($config['asArray'])&&$config['asArray']==true)?true:false;
 
-        $xi = $yi = 1;
-        $block = false;
-        $context = array();
-
-        $nlead = 10000;
-        $ntrail = 10000;
-
-        $output = array();
-
         // make a diff with the FULL output included too.
         $diff = self::generateStringDiff($fromString, $toString, count(explode("\n", $toString)));
 
         $diffs2 = explode("\n", $diff);
-        $diffs = array();
+        $diffs = [];
         for ($i = 0; $i < count($diffs2); $i++) {
             $d = $diffs2[$i];
             if (strlen($d) == 0) {
@@ -161,7 +125,7 @@ class Diff
         }
 
         // generate output
-        $output = array();
+        $output = [];
         $currentType = 'copy';
         $countDiffs = count($diffs);
         for ($i = 0; $i < $countDiffs; $i++) {
