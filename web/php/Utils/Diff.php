@@ -21,7 +21,7 @@ class Diff
      * @param $minimal bool whether to find the minimal diff or just any good
      * @return string the unified diff
      */
-    public static function unifiedDiff($fromString, $toString, $contextLines = 3, $minimal = false)
+    public static function unifiedDiff(string $fromString, string $toString, int $contextLines = 3, bool $minimal = false): string
     {
         $file_from = tempnam(WIKIJUMP_ROOT . '/tmp', 'diff-');
         $file_to = tempnam(WIKIJUMP_ROOT . '/tmp', 'diff-');
@@ -52,7 +52,7 @@ class Diff
      * @param string $toString
      * @return string
      */
-    public static function generateStringDiff($fromString, $toString, $contextLines = 1, $minimal = true)
+    public static function generateStringDiff(string $fromString, string $toString, int $contextLines = 1, bool $minimal = true): string
     {
         // fix "no new line at the end" problem.
         $fromString = WDStringUtils::addTrailingNewline($fromString);
@@ -72,7 +72,7 @@ class Diff
      * @param array $config
      * @return string|array
      */
-    public static function generateInlineStringDiff($fromString, $toString, $config = array())
+    public static function generateInlineStringDiff(string $fromString, string $toString)
     {
 
         $useChange = !($config['noChange'] ?? false);
