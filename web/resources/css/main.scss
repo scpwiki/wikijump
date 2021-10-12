@@ -6,9 +6,11 @@
 
 // Base
 @import "base/reset";
-@import "base/typography";
 @import "base/base";
 @import "base/a11y";
+@import "base/typography";
+@import "base/font-faces-cjk";
+@import "base/font-faces";
 
 // Layout
 @import "layout/app";
