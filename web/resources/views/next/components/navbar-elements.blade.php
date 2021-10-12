@@ -12,7 +12,9 @@
                 <wj-navbar-dropdown class="wj-navbar-dropdown">
                     <details class="wj-navbar-dropdown-block">
                         <summary class="wj-navbar-dropdown-button">
-                            {{ $item_name }}
+                            <span class="wj-navbar-dropdown-button-text">
+                                {{ $item_name }}
+                            </span>
                             @include('next.components.ui-svg', ['sprite' => 'wj-downarrow'])
                         </summary>
                         <ul class="wj-navbar-dropdown-links">

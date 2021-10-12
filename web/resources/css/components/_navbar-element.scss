@@ -24,27 +24,23 @@
 .wj-navbar-link > a,
 .wj-navbar-dropdown-button {
   position: relative;
-  padding: 0.25rem;
   font-family: var(--font-display);
   font-size: 0.925rem;
   white-space: nowrap;
   list-style: none;
   cursor: pointer;
   user-select: none;
-  background: #fff0;
-  border-radius: 0.25rem;
 
   @include tolerates-motion {
-    transition: color 75ms, background 75ms;
+    transition: color 75ms;
   }
 
   @include hover {
     color: var(--col-hint);
   }
 
-  &:focus-visible {
+  @include focusHighlight($theme: "dark") {
     color: var(--col-hint);
-    background: #fff2;
   }
 }
 
@@ -59,7 +55,7 @@
 
 .wj-navbar-dropdown-links {
   position: absolute;
-  top: 1.75rem;
+  top: 1.5rem;
   left: -10%;
   z-index: 99;
   min-width: 120%;
@@ -87,20 +83,17 @@
   font-size: 0.825rem;
   color: var(--col-con-text);
   white-space: nowrap;
-  background: #fff0;
-  border-radius: 0.125rem;
 
   @include tolerates-motion {
-    transition: color 75ms, background 75ms;
+    transition: color 75ms;
   }
 
   @include hover {
     color: var(--col-hint);
   }
 
-  &:focus-visible {
+  @include focusHighlight($theme: "dark") {
     color: var(--col-hint);
-    background: #fff2;
   }
 }
 
