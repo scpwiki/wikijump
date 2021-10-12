@@ -12,7 +12,6 @@ use Wikidot\DB\SitePeer;
 use Wikidot\DB\UserAbuseFlag;
 use Wikidot\DB\AnonymousAbuseFlagPeer;
 use Wikidot\DB\AnonymousAbuseFlag;
-use Wikidot\Utils\EventLogger;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
@@ -67,7 +66,6 @@ class AbuseFlagAction extends SmartyAction
                 $flag->setSiteId($site->getSiteId());
                 $flag->setPath($path);
                 $flag->save();
-                EventLogger::instance()->logFlagPage($path);
             }
         } else {
             // unflag
@@ -76,7 +74,6 @@ class AbuseFlagAction extends SmartyAction
             $c->add("site_id", $site->getSiteId());
             $c->add("path", $path);
             PageAbuseFlagPeer::instance()->delete($c);
-            EventLogger::instance()->logUnflagPage($path);
         }
 
         $db->commit();
@@ -142,7 +139,6 @@ class AbuseFlagAction extends SmartyAction
                 $flag->setSiteId($siteId);
                 $flag->setTargetUserId($targetUser->id);
                 $flag->save();
-                EventLogger::instance()->logFlagUser($targetUser);
             }
         } else {
             // unflag
@@ -150,7 +146,6 @@ class AbuseFlagAction extends SmartyAction
             $c->add("user_id", $user->id);
             $c->add("target_user_id", $targetUser->id);
             UserAbuseFlagPeer::instance()->delete($c);
-            EventLogger::instance()->logUnflagUser($targetUser);
         }
 
         $db->commit();
@@ -212,8 +207,6 @@ class AbuseFlagAction extends SmartyAction
                     $flag->save();
                 }
             }
-
-            EventLogger::instance()->logFlagAnonymous($userString);
         } else {
             foreach ($ips as $ip) {
                 //  unflag
@@ -222,7 +215,6 @@ class AbuseFlagAction extends SmartyAction
                 $c->add("address", $ip);
                 AnonymousAbuseFlagPeer::instance()->delete($c);
             }
-            EventLogger::instance()->logUnflagAnonymous($userString);
         }
 
         $db->commit();

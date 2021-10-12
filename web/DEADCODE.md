@@ -206,7 +206,7 @@ If possible, add to this log in the same commit in which the code is removed.
 * Where it was: [web/php/DB/LogEvent](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/LogEvent.php)
 * Relevant Issues: [WJ-730](https://scuttle.atlassian.net/browse/WJ-730)
 * What it did: Wikidot's version of an audit log.
-* Why it was removed: Unused.
+* Why it was removed: We're going to implement our own audit log, and there isn't anything particularly worth keeping in this implementation.
 
 ## PHP: `SiteBackup`, `Backuper`
 * Where it was: [web/php/DB/SiteBackup](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/SiteBackup.php), [web/php/Utils/Backuper](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/Utils/Backuper.php)
