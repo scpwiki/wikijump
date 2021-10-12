@@ -65,7 +65,7 @@ class Diff
      * Generates a nice inline diff.
      * The config options are
      *  - noChange = true - does not create 'change' blocks which uses word-level diffs
-     *  - asArray = false - outputs the an array of lines insted of text
+     *  - asArray = false - outputs an array of lines instead of text
      *
      * @param string $fromString
      * @param string $toString
