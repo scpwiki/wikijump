@@ -6,7 +6,6 @@ namespace Wikidot\DB;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
-use Wikidot\Utils\ODiff;
 use Exception;
 use Wikijump\Models\User;
 
@@ -19,41 +18,13 @@ class PageRevision extends PageRevisionBase
 
     public function getSourceText()
     {
+        assert(!$this->getDiffSource(), "Revision uses diff-based storage");
 
-        if ($this->getDiffSource() == false) {
-            $c = new Criteria();
-            $c->add("source_id", $this->getSourceId());
+        $c = new Criteria();
+        $c->add("source_id", $this->getSourceId());
 
-            $source = PageSourcePeer::instance()->selectOne($c);
-            return $source->getText();
-        } else {
-            // select last revisions and sources.
-            $q = "SELECT page_source.* FROM page_source, page_revision WHERE " .
-                    "page_revision.page_id =".$this->getPageId()." ".
-                    "AND page_revision.revision_id <= ".$this->getRevisionId()." " .
-                    "AND (page_revision.flag_text = TRUE OR page_revision.flag_new = TRUE) " .
-                    "AND page_revision.source_id = page_source.source_id " .
-                    "ORDER BY page_revision.revision_id DESC " .
-                    "LIMIT ".($this->getSinceFullSource()+1);
-
-            $c = new Criteria();
-            $c->setExplicitQuery($q);
-            $sources = PageSourcePeer::instance()->select($c);
-
-            // original source...
-            $s = end($sources);
-            $s0 = $s->getText();
-
-            $differ = new ODiff();
-            while ($s = prev($sources)) {
-                $s0 = $differ->patchString($s0, $s->getText());
-                if ($differ->getErrors() != null) {
-                    return "Error processing the source - please report the problem to the support";
-                }
-            }
-
-            return trim($s0);
-        }
+        $source = PageSourcePeer::instance()->selectOne($c);
+        return $source->getText();
     }
 
     public function resetFlags()

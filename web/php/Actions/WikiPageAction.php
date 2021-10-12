@@ -11,7 +11,6 @@ use Ozone\Framework\SmartyAction;
 use Wikidot\Utils\Deleter;
 use Wikidot\Utils\DependencyFixer;
 use Wikidot\Utils\GlobalProperties;
-use Wikidot\Utils\ODiff;
 use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
@@ -449,28 +448,8 @@ class WikiPageAction extends SmartyAction
             $pageRevision->setDateLastEdited($nowDate);
             $pageRevision->setRevisionNumber($currentRevision->getRevisionNumber()+1);
             if ($sourceChanged) {
-                $fullSource = false;
-                // first check if store new source as a diff or as a full-source.
-                if (true || $currentRevision->getSinceFullSource() > 9) {
-                    $fullSource = true;
-                } else {
-                    // also compare size of diff against size of new source.
-                    // must be less than %50 to qualify
-                    $differ = new ODiff();
-                    $diff = $differ->diffString($oldSourceText, $source);
-                    if (strlen($diff) > 0.5 * strlen($source)) {
-                        $fullSource = true;
-                    }
-                }
-
                 $pageSource = new PageSource();
-                if ($fullSource) {
-                    $pageSource->setText($source);
-                } else {
-                    $pageSource->setText($diff);
-                    $pageRevision->setDiffSource(true);
-                    $pageRevision->setSinceFullSource($currentRevision->getSinceFullSource()+1);
-                }
+                $pageSource->setText($source);
                 $pageSource->save();
 
                 $pageRevision->setSourceId($pageSource->getSourceId());
@@ -1319,30 +1298,11 @@ class WikiPageAction extends SmartyAction
         }
 
         if ($sourceChanged) {
-            $fullSource = false;
             // first check if store new source as a diff or as a full-source.
-            if (true || $currentRevision->getSinceFullSource() > 9) {
-                $fullSource = true;
-            } else {
-                // also compare size of diff against size of new source.
-                // must be less than %50 to qualify
-                $differ = new ODiff();
-                $diff = $differ->diffString($oSource, $nSource);
-                if (strlen($diff) > 0.5 * strlen($nSource)) {
-                    $fullSource = true;
-                }
-            }
-
             $pageSource = new PageSource();
-            if ($fullSource) {
-                $pageSource->setText($nSource);
-                $revision->setSinceFullSource(0);
-                $revision->setDiffSource(false);
-            } else {
-                $pageSource->setText($diff);
-                $revision->setDiffSource(true);
-                $revision->setSinceFullSource($currentRevision->getSinceFullSource()+1);
-            }
+            $pageSource->setText($nSource);
+            $revision->setSinceFullSource(0);
+            $revision->setDiffSource(false);
             $pageSource->save();
 
             $revision->setSourceId($pageSource->getSourceId());

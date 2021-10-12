@@ -68,30 +68,10 @@ class DependencyFixer
             $now = new ODate();
             $revision->setDateLastEdited($now);
 
-            $fullSource = false;
-            // first check if store new source as a diff or as a full-source.
-            if ($currentRevision->getSinceFullSource() > 9) {
-                $fullSource = true;
-            } else {
-                // also compare size of diff against size of new source.
-                // must be less than %50 to qualify
-                $differ = new ODiff();
-                $diff = $differ->diffString($oldSourceText, $source);
-                if (strlen($diff) > 0.5 * strlen($source)) {
-                    $fullSource = true;
-                }
-            }
-
             $pageSource = new PageSource();
-            if ($fullSource) {
-                $pageSource->setText($source);
-                $revision->setDiffSource(false);
-                $revision->setSinceFullSource(0);
-            } else {
-                $pageSource->setText($diff);
-                $revision->setDiffSource(true);
-                $revision->setSinceFullSource($currentRevision->getSinceFullSource()+1);
-            }
+            $pageSource->setText($source);
+            $revision->setDiffSource(false);
+            $revision->setSinceFullSource(0);
             $pageSource->save();
 
             $revision->setSourceId($pageSource->getSourceId());
