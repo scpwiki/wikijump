@@ -15,7 +15,7 @@
         $title
         $robots
         $canonical
-        $license (see `config/licenses.php`)
+        $license (see `config/licenses.php` and `App/Services/License`)
 
         $theme_color
 
@@ -114,7 +114,7 @@
         <link rel="canonical" href="{{ $canonical }}">
     @endisset
     @isset($license)
-        <link rel="license" href="{{ $license['url'] }}">
+        <link rel="license" href="{{ $license->url() }}">
     @endisset
 
     {{-- Browser Theming --}}
