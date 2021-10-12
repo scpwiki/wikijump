@@ -47,8 +47,6 @@ COPY ./install/files/php-fpm/etc/php/ /usr/local/etc/php/conf.d/
 # Copy full Wikijump source
 COPY ./web /var/www/wikijump/web
 
-# TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
-
 # Inject values in the wikijump.ini and .env configuration files
 USER root
 COPY ./install/files/${ENVIRONMENT}/wikijump.ini conf/wikijump.ini
