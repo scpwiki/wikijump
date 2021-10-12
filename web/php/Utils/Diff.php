@@ -63,20 +63,13 @@ class Diff
 
     /**
      * Generates a nice inline diff.
-     * The config options are
-     *  - noChange = true - does not create 'change' blocks which uses word-level diffs
-     *  - asArray = false - outputs an array of lines instead of text
      *
      * @param string $fromString
      * @param string $toString
-     * @param array $config
-     * @return string|array
+     * @return string
      */
-    public static function generateInlineStringDiff(string $fromString, string $toString, array $config)
+    public static function generateInlineStringDiff(string $fromString, string $toString): string
     {
-
-        $outputAsArray = $config['asArray'] ?? false;
-
         // make a diff with the FULL output included too.
         $diff = self::generateStringDiff($fromString, $toString, count(explode("\n", $toString)));
 
@@ -156,10 +149,6 @@ class Diff
             $output[] = $row;
         }
 
-        if ($outputAsArray) {
-            return $output;
-        } else {
-            return implode("\n", $output);
-        }
+        return implode("\n", $output);
     }
 }
