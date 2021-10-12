@@ -431,7 +431,7 @@ class ManageSiteAction extends SmartyAction
         $name = trim($pl->getParameterValue("name"));
         $subtitle = trim($pl->getParameterValue("subtitle"));
         $description = trim($pl->getParameterValue("description"));
-        $enableTagEngine = $pl->getParameterValue("enable_allowed_tags");
+        $enableTagEngine = $pl->getParameterValue("enable_tag_engine");
         $enableTagEngine = !empty($enableTagEngine) ? 'true' : 'false'; // These are strings for now, likely because Ozone and Laravel don't like cooperating. Will change in the future when converting to Laravel.
         $tags = strtolower(trim($pl->getParameterValue("tags")));
 
@@ -482,8 +482,8 @@ class ManageSiteAction extends SmartyAction
             $changed = true;
         }
 
-        if ($site->enableTagEngine() !== $enableTagEngine) {
-            $site->enableTagEngine($enableTagEngine);
+        if ($site->getEnableTagEngine() !== $enableTagEngine) {
+            $site->setEnableTagEngine($enableTagEngine);
             $changed = true;
         }
 
