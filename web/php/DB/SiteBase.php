@@ -160,13 +160,13 @@ class SiteBase extends BaseDBObject
     }
 
 
-    public function getEnableAllowedTags()
+    public function getEnableTagEngine()
     {
-        return $this->getFieldValue('enable_allowed_tags');
+        return $this->getFieldValue('enable_tag_engine');
     }
 
-    public function setEnableAllowedTags($v1, $raw = false)
+    public function setEnableTagEngine($v1, $raw = false)
     {
-        $this->setFieldValue('enable_allowed_tags', $v1, $raw);
+        $this->setFieldValue('enable_tag_engine', $v1, $raw);
     }
 }
