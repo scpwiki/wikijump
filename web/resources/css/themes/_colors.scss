@@ -25,35 +25,39 @@
   --col-link-int:       rgb(0, 105, 175);
 
   // Base Theme Colors
-  --col-light-text:        rgb(30, 25, 25);
-  --col-light-text-subtle: rgb(55, 55, 60);
-  --col-light-text-dim:    rgb(120, 120, 125);
-  --col-light-background:  rgb(245, 245, 245);
-  --col-light-border:      rgb(220, 220, 220);
+  --col-light-text:           rgb(30, 25, 25);
+  --col-light-text-subtle:    rgb(55, 55, 60);
+  --col-light-text-dim:       rgb(120, 120, 125);
+  --col-light-background:     rgb(245, 245, 245);
+  --col-light-background-dim: rgb(235, 235, 235);
+  --col-light-border:         rgb(220, 220, 220);
 
-  --col-dark-text:        rgb(235, 225, 230);
-  --col-dark-text-subtle: rgb(205, 200, 200);
-  --col-dark-text-dim:    rgb(190, 185, 185);
-  --col-dark-background:  rgb(43, 43, 50);
-  --col-dark-border:      rgb(65, 65, 75);
+  --col-dark-text:           rgb(235, 225, 230);
+  --col-dark-text-subtle:    rgb(205, 200, 200);
+  --col-dark-text-dim:       rgb(190, 185, 185);
+  --col-dark-background:     rgb(43, 43, 50);
+  --col-dark-background-dim: rgb(50, 50, 55);
+  --col-dark-border:         rgb(65, 65, 75);
 }
 
 // Actual classes for setting the dark/light mode
 
 // prettier-ignore
 .light {
-  --col-text:        var(--col-light-text);
-  --col-text-subtle: var(--col-light-text-subtle);
-  --col-text-dim:    var(--col-light-text-dim);
-  --col-background:  var(--col-light-background);
-  --col-border:      var(--col-light-border);
+  --col-text:           var(--col-light-text);
+  --col-text-subtle:    var(--col-light-text-subtle);
+  --col-text-dim:       var(--col-light-text-dim);
+  --col-background:     var(--col-light-background);
+  --col-background-dim: var(--col-light-background-dim);
+  --col-border:         var(--col-light-border);
 
   // Contrasting colors
-  --col-con-text:        var(--col-dark-text);
-  --col-con-text-subtle: var(--col-dark-text-subtle);
-  --col-con-text-dim:    var(--col-dark-text-dim);
-  --col-con-background:  var(--col-dark-background);
-  --col-con-border:      var(--col-dark-border);
+  --col-con-text:           var(--col-dark-text);
+  --col-con-text-subtle:    var(--col-dark-text-subtle);
+  --col-con-text-dim:       var(--col-dark-text-dim);
+  --col-con-background:     var(--col-dark-background);
+  --col-con-background-dim: var(--col-dark-background-dim);
+  --col-con-border:         var(--col-dark-border);
 
   color: var(--col-text);
   background: var(--col-background);
@@ -61,18 +65,20 @@
 
 // prettier-ignore
 .dark {
-  --col-text:        var(--col-dark-text);
-  --col-text-subtle: var(--col-dark-text-subtle);
-  --col-text-dim:    var(--col-dark-text-dim);
-  --col-background:  var(--col-dark-background);
-  --col-border:      var(--col-dark-border);
+  --col-text:           var(--col-dark-text);
+  --col-text-subtle:    var(--col-dark-text-subtle);
+  --col-text-dim:       var(--col-dark-text-dim);
+  --col-background:     var(--col-dark-background);
+  --col-background-dim: var(--col-dark-background-dim);
+  --col-border:         var(--col-dark-border);
 
   // Contrasting colors
-  --col-con-text:        var(--col-light-text);
-  --col-con-text-subtle: var(--col-light-text-subtle);
-  --col-con-text-dim:    var(--col-light-text-dim);
-  --col-con-background:  var(--col-light-background);
-  --col-con-border:      var(--col-light-border);
+  --col-con-text:           var(--col-light-text);
+  --col-con-text-subtle:    var(--col-light-text-subtle);
+  --col-con-text-dim:       var(--col-light-text-dim);
+  --col-con-background:     var(--col-light-background);
+  --col-con-background-dim: var(--col-light-background-dim);
+  --col-con-border:         var(--col-light-border);
 
   color: var(--col-text);
   background: var(--col-background);
