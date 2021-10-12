@@ -2,7 +2,7 @@ import { WikijumpAPI } from "@wikijump/api"
 import App from "../lib/EditorTest.svelte"
 
 window.addEventListener("DOMContentLoaded", async () => {
-  const container = document.querySelector("#app")!
+  const container = document.querySelector("#app-editor")!
   const app = new App({ target: container })
 
   setTimeout(async () => {
