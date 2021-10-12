@@ -135,9 +135,12 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/user--services/dashboard'
 })->name('dashboard');
 
 if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
+    // Legacy special routes
+    Route::any("/{special}:{path}", [OzoneController::class, 'handle']);
+
     Route::get('/{path?}', function () {
         $values = LegacyTools::generateScreenVars();
-        return view('next.test.page-test', [
+        return view('next.wiki.page', [
             'title' => "Wikijump",
             'header_img_url' => '/files--static/media/logo-outline.min.svg',
             'navbar_items' => [
@@ -162,9 +165,15 @@ if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
                 'Background' => "/",
                 'About' => "/",
             ],
-            'page_content' => $values['pageContent'] ?? null,
+
             'sidebar_content' => $values['sideBar1Content'] ?? null,
             'license_content' => $values['licenseHtml'] ?? null,
+
+            'page_title' => $values['wikiPage'] ? $values['wikiPage']->getTitle() : null,
+            'page_content' => $values['pageContent'] ?? null,
+            'page_breadcrumbs' => $values['breadcrumbs'] ?? null,
+            // 'page_tags' => $values['tags'] ?? null,
+            'page_tags' => ['tag', 'foo', 'bar', 'asdf'],
 
             'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
             'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
