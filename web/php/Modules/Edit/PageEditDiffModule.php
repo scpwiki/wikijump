@@ -36,7 +36,7 @@ class PageEditDiffModule extends SmartyModule
         $t1 = $fromPageSource;
         $t2 = $toPageSource;
 
-        $inlineDiff = Diff::generateInlineStringDiff($t1, $t2);
+        $inlineDiff = Diff::generateInlineStringDiff($t1, $t2, [ 'noChange' => true ]);
         $runData->contextAdd("diff", $inlineDiff);
     }
 }

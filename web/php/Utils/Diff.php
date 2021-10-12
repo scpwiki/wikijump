@@ -72,7 +72,7 @@ class Diff
      * @param array $config
      * @return string|array
      */
-    public static function generateInlineStringDiff(string $fromString, string $toString)
+    public static function generateInlineStringDiff(string $fromString, string $toString, array $config)
     {
 
         $useChange = !($config['noChange'] ?? false);
