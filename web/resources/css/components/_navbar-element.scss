@@ -25,6 +25,7 @@
 .wj-navbar-dropdown-button {
   position: relative;
   padding: 0.25rem;
+  font-family: var(--font-display);
   font-size: 0.925rem;
   white-space: nowrap;
   list-style: none;
@@ -51,7 +52,7 @@
   width: 0.5em;
   height: 0.5em;
   margin-left: 0.25em;
-  vertical-align: middle;
+  vertical-align: baseline;
   opacity: 0.75;
   --wj-downarrow-color: currentColor;
 }
