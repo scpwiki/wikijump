@@ -49,25 +49,6 @@
     font-display: swap;
   }
 
-  /* -- Roboto */
-
-  @font-face {
-    font-family: "Roboto";
-    font-weight: 100 900;
-    font-stretch: 75 100;
-    src: fontsrc("Roboto-VariableFont");
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: "Roboto";
-    font-style: italic;
-    font-weight: 100 900;
-    font-stretch: 75 100;
-    src: fontsrc("Roboto-Italic-VariableFont");
-    font-display: swap;
-  }
-
   /* -- Cascadia Mono */
 
   @font-face {
