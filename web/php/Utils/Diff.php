@@ -75,7 +75,6 @@ class Diff
     public static function generateInlineStringDiff(string $fromString, string $toString, array $config)
     {
 
-        $useChange = !($config['noChange'] ?? false);
         $outputAsArray = $config['asArray'] ?? false;
 
         // make a diff with the FULL output included too.
@@ -103,13 +102,7 @@ class Diff
             if ($type) {
                 // handle a special situation if the previous line was 'delete' and this
                 // one is 'add' - change this to 'change'.
-                $c = count($diffs);
-                if ($useChange && $c>0 && $type == 'add' && $diffs[$c - 1]['type'] == 'delete') {
-                    $diffs[$c - 1]['type'] = 'change';
-                    $diffs[$c - 1]['toline'] = substr($d, 1);
-                } else {
-                    $diffs[] = array('type' => $type, 'line' => substr($d, 1));
-                }
+                array_push($diffs, ['type' => $type, 'line' => substr($d, 1)]);
             }
         }
 
