@@ -135,8 +135,8 @@ class Diff
 
             if ($type == 'change') {
                 //special treatment
-                $line = preg_replace('/(?<!\s[^\s]{1}|\s[^\s]{2})(\s+)/', "\\1\n", $d['line']);
-                $toline = preg_replace('/(?<!\s[^\s]{1}|\s[^\s]{2})(\s+)/', "\\1\n", $d['toline']);
+                $line = preg_replace('/(?<!\s[^\s]|\s[^\s]{2})(\s+)/', "\\1\n", $d['line']);
+                $toline = preg_replace('/(?<!\s[^\s]|\s[^\s]{2})(\s+)/', "\\1\n", $d['toline']);
                 // process this too
                 $linediff = self::generateInlineStringDiff($line, $toline, array('asArray' => true, 'noChange' => true));
                 $row .= implode('', $linediff);
