@@ -43,6 +43,20 @@
     <base href="/">
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
+    {{-- Browser Metadata --}}
+    @isset($title)
+        <title>{{ $title }}</title>
+    @endisset
+    @isset($robots)
+        <meta name="robots" content="{{ $robots }}">
+    @endisset
+    @isset($canonical)
+        <link rel="canonical" href="{{ $canonical }}">
+    @endisset
+    @isset($license)
+        <link rel="license" href="{{ $license->url() }}">
+    @endisset
+
     {{-- Security --}}
     <meta name="referrer" content="no-referrer">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
@@ -101,20 +115,6 @@
     {{-- Social Other --}}
     @isset($rating)
         <meta name="rating" content="{{ $rating }}">
-    @endisset
-
-    {{-- Browser Metadata --}}
-    @isset($title)
-        <title>{{ $title }}</title>
-    @endisset
-    @isset($robots)
-        <meta name="robots" content="{{ $robots }}">
-    @endisset
-    @isset($canonical)
-        <link rel="canonical" href="{{ $canonical }}">
-    @endisset
-    @isset($license)
-        <link rel="license" href="{{ $license->url() }}">
     @endisset
 
     {{-- Browser Theming --}}
