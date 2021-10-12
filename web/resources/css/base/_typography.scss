@@ -1,73 +1,3 @@
-// prettier-ignore
-:root {
-
-  /// Global variable for tweaking the font size of content.
-  --font-content-size: 0.875;
-
-  // --font-system-x (by itself) attempts to use default system fonts.
-  // It avoids using fairly ancient fallback fonts, or 'web-safe fonts', like Arial.
-  // Instead, this just uses the CSS default rather than force a web-safe font.
-  // Native emoji fonts are always included at the end to allow rendering of most emoji.
-  // This will always be imperfect.
-  // e.g. Noto is notorious for being on many systems and overriding the correct font.
-  // Also, the ordering does not signify any preference for an operating system.
-
-  --font-system-default: emoji,
-                         "Apple Color Emoji",
-                         "Segoe UI Emoji", "Segoe UI Symbol",
-                         "Noto Emoji",
-                         system-ui, sans-serif;
-
-  --font-system-sans: ui-sans-serif,
-                      -apple-system,
-                      "Segoe UI",
-                      "Ubuntu",
-                      "Oxygen-Sans",
-                      "Cantarell",
-                      "Roboto", "Noto",
-                      var(--font-system-default);
-
-  --font-system-rounded: ui-rounded,
-                         var(--font-system-sans);
-
-  --font-system-serif: ui-serif,
-                       "Noto Serif",
-                       "Times New Roman",
-                       var(--font-system-default);
-
-  --font-system-mono: ui-monospace,
-                      "SFMono-Regular", "Menlo",
-                      "Consolas",
-                      "Roboto Mono", "Droid Mono",
-                      monospace,
-                      var(--font-system-default);
-
-  // just a default for non-CJK locales (this assumes JP), see below
-  --font-cjk: "Noto Sans CJK JP", "Noto Sans CJK SC", "Noto Sans CJK HK",
-    "Noto Sans CJK TC", "Noto Sans CJK KR";
-  --font-cjk-mono: "Noto Sans Mono CJK JP";
-
-  // --font-sans is effectively the default font.
-  // --font-display is for headings and the like.
-  // --font-serif is just a good ol' serif font.
-  // --font-mono is meant for code or console output text.
-
-  // TODO: figure out what fonts we actually want to use
-
-  // fonts have Roboto as a fallback, due to its wide Unicode support.
-  // normally it would be fine to use the significant system stack fallback,
-  // but because we have CJK fonts as well, the Noto font would override everything.
-  // e.g. Cyrillic text would use the CJK font, not the system fonts.
-  // the system fonts are still very useful though, because:
-  // 1. emoji
-  // 2. they're being used while the user is downloading the main fonts
-
-  --font-sans:    "Public Sans", "Roboto", var(--font-cjk),      var(--font-system-sans);
-  --font-display: "Exo 2",       "Roboto", var(--font-cjk),      var(--font-system-rounded);
-  --font-serif:   "Bitter",      "Roboto", var(--font-cjk),      var(--font-system-serif);
-  --font-mono:    "Cascadia Mono",         var(--font-cjk-mono), var(--font-system-mono);
-}
-
 // Changing CJK font based on locale
 
 // Japanese
@@ -140,12 +70,12 @@ kbd {
 
 // prettier-ignore
 $heading-sizes:
-  "h1" 2.25rem,
-  "h2" 2rem,
-  "h3" 1.75rem,
-  "h4" 1.5rem,
-  "h5" 1.25rem,
-  "h6" 1rem;
+  "h1" 2rem,
+  "h2" 1.5rem,
+  "h3" 1.25rem,
+  "h4" 1.15rem,
+  "h5" 1rem,
+  "h6" 0.75rem;
 
 @each $heading, $size in $heading-sizes {
   #{$heading} {

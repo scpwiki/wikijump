@@ -8,6 +8,8 @@
                 'link-name' => 'link-url',
                 ...
             ],
+            // or
+            'link-name' => 'link-url',
             ...
         ];
 
@@ -15,10 +17,9 @@
         $header_img_url
         $header_title
         $header_subtitle
-        $navbar_img_url
         $navbar_items
         $sidebar_content (UNESCAPED)
-        $license_text
+        $license_content (UNESCAPED)
 
     sections:
         content
@@ -27,14 +28,12 @@
 @extends('next.base')
 
 @section('app')
-    <div id="app" @class([
-        'has-header'  => isset($header_img_url) || isset($header_title),
-        'has-sidebar' => isset($sidebar_content),
-    ])>
+    <div id="app" @class(['has-sidebar' => isset($sidebar_content)])>
 
         {{-- Header --}}
-        @if (isset($header_img_url) || isset($header_title))
-            <header id="header" aria-label="{{ __('frame.aria_header') }}">
+        {{-- TODO: User account control widget --}}
+        <header id="header" aria-label="{{ __('frame.aria_header') }}">
+            @if (isset($header_img_url) || isset($header_title))
                 <a id="header_logo" href="/" title="{{ __('frame.goto_home_page') }}">
                     @isset($header_img_url)
                         <img id="header_logo_img"
@@ -49,25 +48,15 @@
                         <small id="header_logo_subtitle">{{ $header_subtitle }}</small>
                     @endisset
                 </a>
-            </header>
-        @endif
+            @endif
+        </header>
 
         {{-- Navbar --}}
         {{-- TODO: Page search widget --}}
         {{-- TODO: Locale selector--}}
-        {{-- TODO: User account control widget --}}
         {{-- TODO: Dark/light mode selector --}}
         <nav id="navbar" aria-label="{{ __('frame.aria_navigation') }}">
-            @isset($navbar_img_url)
-                <a id="navbar_logo" href="/" title="{{ __('frame.goto_home_page') }}">
-                    <img id="navbar_logo_img"
-                         src="{{ $navbar_img_url }}"
-                         aria-hidden="true"
-                    >
-                </a>
-            @endisset
-
-            @includeWhen(isset($navbar_items), 'next.components.nav-dropdowns', [
+            @includeWhen(isset($navbar_items), 'next.components.navbar-elements', [
                 'items' => $navbar_items,
             ])
         </nav>
@@ -116,9 +105,9 @@
                 </div>
             </div>
 
-            @isset($license_text)
+            @isset($license_content)
                 <div id="footer_license" aria-label="{{ __('frame.aria_license') }}">
-                    {{ $license_text }}
+                    {!! $license_content !!}
                 </div>
             @endisset
         </footer>

@@ -2,6 +2,7 @@
 @import "abstracts";
 
 // Vendor
+@import "@wikijump/ftml-components/src/index";
 
 // Base
 @import "base/reset";
@@ -10,10 +11,17 @@
 @import "base/a11y";
 
 // Layout
+@import "layout/app";
+@import "layout/footer";
+@import "layout/header";
+@import "layout/main";
+@import "layout/navbar";
+@import "layout/sidebar";
 
 // Components
 @import "components/code";
 @import "components/links";
+@import "components/navbar-element";
 @import "components/scrollbar";
 @import "components/sheaf";
 @import "components/tippy";
@@ -25,7 +33,8 @@
 @import "themes/colors";
 @import "themes/code";
 @import "themes/layout";
+@import "themes/rhythm";
+@import "themes/typography";
 
 // Misc
-@import "@wikijump/ftml-components/src/index";
 @import "../../public/files--static/fonts/font-faces.css";

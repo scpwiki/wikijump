@@ -3,5 +3,5 @@
     "composite": true
   },
   "extends": "../tsconfig.json",
-  "include": ["scripts/**/*", "../modules/_types/**/*"]
+  "include": ["scripts/**/*", "lib/**/*", "../modules/_types/**/*"]
 }

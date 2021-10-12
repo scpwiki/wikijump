@@ -1,0 +1,15 @@
+:root {
+  /// Baseline line-height.
+  --rhythm-baseline: 1.5;
+
+  /// Reference font-size for line-height.
+  --rhythm-reference-font-size: calc(1rem * var(--font-content-size));
+
+  /// The distance for a single row.
+  --rhythm-baseline-row: calc(var(--rhythm-baseline) / 2);
+
+  /// The distance for half a row.
+  --rhythm-baseline-unit: calc(
+    (var(--rhythm-reference-font-size) * var(--rhythm-baseline)) / 2
+  );
+}

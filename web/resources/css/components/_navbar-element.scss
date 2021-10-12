@@ -1,0 +1,114 @@
+.wj-navbar-link,
+.wj-navbar-dropdown {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.wj-navbar-dropdown-block {
+  position: relative;
+
+  &[open] {
+    .wj-navbar-dropdown-button {
+      color: var(--col-hint);
+    }
+
+    @include tolerates-motion {
+      .wj-navbar-dropdown-links {
+        animation: wj-navbar-dropdown-reveal 125ms ease-out;
+      }
+    }
+  }
+}
+
+.wj-navbar-link > a,
+.wj-navbar-dropdown-button {
+  position: relative;
+  padding: 0.25rem;
+  font-size: 0.925rem;
+  white-space: nowrap;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  background: #fff0;
+  border-radius: 0.25rem;
+
+  @include tolerates-motion {
+    transition: color 75ms, background 75ms;
+  }
+
+  @include hover {
+    color: var(--col-hint);
+  }
+
+  &:focus-visible {
+    color: var(--col-hint);
+    background: #fff2;
+  }
+}
+
+.wj-navbar-dropdown-button > .sprite-wj-downarrow {
+  width: 0.5em;
+  height: 0.5em;
+  margin-left: 0.25em;
+  vertical-align: middle;
+  opacity: 0.75;
+  --wj-downarrow-color: currentColor;
+}
+
+.wj-navbar-dropdown-links {
+  position: absolute;
+  top: 1.75rem;
+  left: -10%;
+  z-index: 99;
+  min-width: 120%;
+  padding: 0.25rem 0.5rem;
+  list-style: none;
+  background: var(--col-con-background);
+  border: solid 0.075rem var(--col-con-border);
+  border-top: solid 0.125rem var(--col-hint);
+  border-radius: 0.125rem 0.125rem 0.25rem 0.25rem;
+  contain: content;
+  @include shadow(2);
+
+  li {
+    text-align: center;
+
+    + li {
+      border-top: solid 0.075rem var(--col-con-border);
+    }
+  }
+}
+
+.wj-navbar-dropdown-link {
+  display: inline-block;
+  min-width: 100%;
+  font-size: 0.825rem;
+  color: var(--col-con-text);
+  white-space: nowrap;
+  background: #fff0;
+  border-radius: 0.125rem;
+
+  @include tolerates-motion {
+    transition: color 75ms, background 75ms;
+  }
+
+  @include hover {
+    color: var(--col-hint);
+  }
+
+  &:focus-visible {
+    color: var(--col-hint);
+    background: #fff2;
+  }
+}
+
+@keyframes wj-navbar-dropdown-reveal {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}

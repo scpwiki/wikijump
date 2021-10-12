@@ -1,13 +1,4 @@
-:root {
-  --rhythm-baseline: 1.5;
-  --rhythm-reference-font-size: calc(1rem * var(--font-content-size));
-  --rhythm-baseline-row: calc(var(--rhythm-baseline) / 2);
-  --rhythm-baseline-unit: calc(
-    (var(--rhythm-reference-font-size) * var(--rhythm-baseline)) / 2
-  );
-}
-
-wj-body {
+.wj-body {
   font-family: var(--font-sans);
   font-size: font-size(1rem);
   line-height: var(--rhythm-baseline);
@@ -21,14 +12,6 @@ wj-body {
 
   // -- CODE
 
-  code,
-  var,
-  samp,
-  tt,
-  kbd {
-    color: var(--colcode-content);
-  }
-
   pre.code {
     background: var(--colcode-background);
     border: solid 0.075rem var(--colcode-border);
@@ -37,6 +20,7 @@ wj-body {
 
     > code {
       padding: 1rem 0.5rem;
+      color: var(--colcode-content);
     }
 
     &.language-ftml,
@@ -59,6 +43,12 @@ wj-body {
     content: "";
   }
 
+  hr {
+    display: block;
+    margin-top: var(--rhythm-baseline-unit);
+    margin-bottom: var(--rhythm-baseline-unit);
+  }
+
   // Space out elements by a unit.
   blockquote,
   ul,
@@ -67,13 +57,12 @@ wj-body {
   img,
   figure,
   table,
-  pre,
-  details {
+  .wj-code {
     margin-top: var(--rhythm-baseline-unit);
     margin-bottom: var(--rhythm-baseline-unit);
   }
 
-  // Space out text elements by a unit, but loosely corrects for their line-height.
+  // Space out text elements by a unit, but also loosely correct for their line-height.
   // Lines are centered within their line-height, which is usually larger than the font.
   // This causes overpadding at the top and bottom of text nodes.
   p,

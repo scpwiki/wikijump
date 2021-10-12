@@ -1,0 +1,9 @@
+#sidebar {
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+  padding: 1rem;
+  margin-bottom: var(--layout-footer-height);
+  overflow-y: auto;
+  border-right: solid 0.125rem var(--col-border);
+}

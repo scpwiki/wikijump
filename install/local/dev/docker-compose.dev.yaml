@@ -4,10 +4,35 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
+      # Laravel
       - type: bind
         source: ../../../web/app
         target: /var/www/wikijump/web/app
         read_only: true
+      - type: bind
+        source: ../../../web/database
+        target: /var/www/wikijump/web/database
+        read_only: true
+      - type: bind
+        source: ../../../web/routes
+        target: /var/www/wikijump/web/routes
+        read_only: true
+      - type: bind
+        source: ../../../web/storage
+        target: /var/www/wikijump/web/storage
+        read_only: false
+
+      # Assets, views
+      - type: bind
+        source: ../../../web/public/files--static
+        target: /var/www/wikijump/web/public/files--static
+        read_only: true
+      - type: bind
+        source: ../../../web/resources
+        target: /var/www/wikijump/web/resources
+        read_only: true
+
+      # Legacy
       - type: bind
         source: ../../../web/lib
         target: /var/www/wikijump/web/lib
@@ -17,31 +42,12 @@ services:
         target: /var/www/wikijump/web/php
         read_only: true
       - type: bind
-        source: ../../../web/public/files--static
-        target: /var/www/wikijump/web/public/files--static
-        read_only: true
-      - type: bind
-        source: ../../../web/resources
-        target: /var/www/wikijump/web/resources
-        read_only: true
-        source: ../../../web/routes
-        target: /var/www/wikijump/web/routes
-        read_only: true
-      - type: bind
-        source: ../../../web/storage
-        target: /var/www/wikijump/web/storage
-        read_only: false
-      - type: bind
         source: ../../../web/templates
         target: /var/www/wikijump/web/templates
         read_only: true
       - type: bind
         source: ../../../web/web
         target: /var/www/wikijump/web/web
-        read_only: true
-      - type: bind
-        source: ../../../web/database
-        target: /var/www/wikijump/web/database
         read_only: true
 
   nginx:
@@ -53,6 +59,10 @@ services:
       - type: bind
         source: ../../../web/web
         target: /var/www/wikijump/web/web
+        read_only: true
+      - type: bind
+        source: ../../../web/public
+        target: /var/www/wikijump/web/public
         read_only: true
 
   reverse-proxy:
