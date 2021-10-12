@@ -81,7 +81,7 @@ class Diff
             if (strlen($d) == 0) {
                 continue;
             }
-            $type = null;
+
             switch ($d[0]) {
                 case ' ':
                     $type = 'copy';
@@ -92,10 +92,13 @@ class Diff
                 case '+':
                     $type = 'add';
                     break;
+                case '@':
+                    $type = 'sep';
+                    break;
+                default:
+                    throw new ProcessException('Invalid line mode from diff: ' . $d[0]);
             }
-            if ($type) {
-                array_push($diffs, ['type' => $type, 'line' => substr($d, 1)]);
-            }
+            array_push($diffs, ['type' => $type, 'line' => substr($d, 1)]);
         }
 
         // generate output
@@ -115,7 +118,7 @@ class Diff
                         $row .= '<del>';
                         break;
                     case 'sep':
-                        array_push($output, '<hr>');
+                        array_push($output, '<br><br>');
                 }
                 $currentType = $type;
 
