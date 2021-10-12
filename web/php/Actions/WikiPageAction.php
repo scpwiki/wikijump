@@ -1347,7 +1347,7 @@ class WikiPageAction extends SmartyAction
 
         $site = $runData->getTemp("site");
         $siteId = $site->getSiteId();
-        $enableAllowedTags = DB::table('site')->where('site_id', $siteId)->value('enable_allowed_tags');
+        $enableTagEngine = DB::table('site')->where('site_id', $siteId)->value('enable_tag_engine');
         $page = PagePeer::instance()->selectByPrimaryKey($pageId);
 
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
@@ -1364,7 +1364,7 @@ class WikiPageAction extends SmartyAction
         }
 
         // If Allowed Tags are enabled, ensure all tags are compliant, and return an error listing any non-compliant ones.
-        if($enableAllowedTags === true && $tags !== '') {
+        if($enableTagEngine && $tags !== '') {
             $allowedTagsList = AllowedTags::getAllowedTags($siteId);
             $forbiddenTags = [];
             foreach ($tags as $tag) {

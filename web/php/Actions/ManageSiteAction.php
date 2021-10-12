@@ -431,8 +431,8 @@ class ManageSiteAction extends SmartyAction
         $name = trim($pl->getParameterValue("name"));
         $subtitle = trim($pl->getParameterValue("subtitle"));
         $description = trim($pl->getParameterValue("description"));
-        $enableAllowedTags = $pl->getParameterValue("enable_allowed_tags");
-        $enableAllowedTags = !empty($enableAllowedTags) ? 'true' : 'false'; // These are strings for now, likely because Ozone and Laravel don't like cooperating. Will change in the future when converting to Laravel.
+        $enableTagEngine = $pl->getParameterValue("enable_allowed_tags");
+        $enableTagEngine = !empty($enableTagEngine) ? 'true' : 'false'; // These are strings for now, likely because Ozone and Laravel don't like cooperating. Will change in the future when converting to Laravel.
         $tags = strtolower(trim($pl->getParameterValue("tags")));
 
         $defaultPage = WDStringUtils::toUnixName($pl->getParameterValue("default_page"));
@@ -482,8 +482,8 @@ class ManageSiteAction extends SmartyAction
             $changed = true;
         }
 
-        if ($site->getEnableAllowedTags() !== $enableAllowedTags) {
-            $site->setEnableAllowedTags($enableAllowedTags);
+        if ($site->enableTagEngine() !== $enableTagEngine) {
+            $site->enableTagEngine($enableTagEngine);
             $changed = true;
         }
 
@@ -500,7 +500,8 @@ class ManageSiteAction extends SmartyAction
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
 
-        $dbTags = AllowedTagsPeer::instance()->select($c);
+        // Temporarily commenting out to avoid issues.
+        /* $dbTags = AllowedTagsPeer::instance()->select($c);
         $tags = preg_split("/[ ,]+/", $tags);
         $tags = array_unique($tags);
 
@@ -519,7 +520,7 @@ class ManageSiteAction extends SmartyAction
                 $dbTag->setTag($tag);
                 $dbTag->save();
             }
-        }
+        } */ 
 
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
