@@ -23,17 +23,6 @@ class Diff
      */
     public static function unifiedDiff($fromString, $toString, $contextLines = 3, $minimal = false)
     {
-#       Implementation of unified diff of two strings
-
-#       using php libxdiff:
-#
-#       if(!extension_loaded('xdiff')){
-#           dl( 'xdiff.so' );
-#       }
-#       return xdiff_string_diff($fromString, $toString, $contextLines, $minimal);
-
-#       or the diff command:
-#
         $file_from = tempnam(WIKIJUMP_ROOT . '/tmp', 'diff-');
         $file_to = tempnam(WIKIJUMP_ROOT . '/tmp', 'diff-');
         file_put_contents($file_from, $fromString);
