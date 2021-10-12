@@ -2,7 +2,7 @@ The following fonts are used:
 * [Cascadia Mono](https://github.com/microsoft/cascadia-code) [SIL OFL1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)
 * [Roboto](https://github.com/TypeNetwork/Roboto), [Apache License, 2.0](https://www.apache.org/licenses/LICENSE-2.0.html)
 * [Public Sans](https://public-sans.digital.gov/), [SIL OFL1.1](https://github.com/uswds/public-sans/blob/develop/LICENSE.md) (and partially public domain, as it is a work of the U.S. government)
-* [Exo 2](https://fonts.google.com/specimen/Exo+2), [SIL OFL1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)
+* [Red Hat Display](https://github.com/RedHatOfficial/RedHatFont), [SIL OFL1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)
 * [Bitter](https://fonts.google.com/specimen/Bitter), [SIL OFL1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)
 
 For the CJK fonts, the Noto family is used:

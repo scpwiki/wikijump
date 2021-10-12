@@ -62,8 +62,8 @@
   // 1. emoji
   // 2. they're being used while the user is downloading the main fonts
 
-  --font-sans:    "Public Sans", "Roboto", var(--font-cjk),      var(--font-system-sans);
-  --font-display: "Exo 2",       "Roboto", var(--font-cjk),      var(--font-system-rounded);
-  --font-serif:   "Bitter",      "Roboto", var(--font-cjk),      var(--font-system-serif);
-  --font-mono:    "Cascadia Mono",         var(--font-cjk-mono), var(--font-system-mono);
+  --font-sans:    "Public Sans",     "Roboto", var(--font-cjk), var(--font-system-sans);
+  --font-display: "Red Hat Display", "Roboto", var(--font-cjk), var(--font-system-rounded);
+  --font-serif:   "Bitter",          "Roboto", var(--font-cjk), var(--font-system-serif);
+  --font-mono:    "Cascadia Mono",   var(--font-cjk-mono),      var(--font-system-mono);
 }

@@ -37,20 +37,20 @@
     font-display: swap;
   }
 
-  /* -- Exo 2 */
+  /* -- Red Hat Display */
 
   @font-face {
-    font-family: "Exo 2";
-    font-weight: 100 900;
-    src: url("/files--static/fonts/variable/Exo2-VariableFont.woff2")
+    font-family: "Red Hat Display";
+    font-weight: 300 900;
+    src: url("/files--static/fonts/variable/RedHatDisplayVF.woff2")
       format("woff2-variations");
     font-display: swap;
   }
   @font-face {
-    font-family: "Exo 2";
+    font-family: "Red Hat Display";
     font-style: italic;
-    font-weight: 100 900;
-    src: url("/files--static/fonts/variable/Exo2-Italic-VariableFont.woff2")
+    font-weight: 300 900;
+    src: url("/files--static/fonts/variable/RedHatDisplayVF-Italic.woff2")
       format("woff2-variations");
     font-display: swap;
   }
