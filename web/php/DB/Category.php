@@ -20,7 +20,7 @@ class Category extends CategoryBase
         // Determine if we pull from _default, because the license is inherited.
         if ($this->getName() !== '_default' && $this->getLicenseInherits()) {
             $cat = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-            return $cat->getLicenseHtml();
+            return $cat->getLicense();
         }
 
         // Get license info
