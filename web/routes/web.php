@@ -107,38 +107,6 @@ Route::get('/user--avatar/{user}', function (User $user) {
    return $user->avatar();
 });
 
-/**
- * This route will use Blade instead of Smarty for rendering.
- */
-Route::get('/what-is-a-wiki', function() {
-   $values = LegacyTools::generateScreenVars();
-   return view('layouts.legacy', [
-       'site' => $values['site'] ?? null,
-       'pageNotExists' => $values['pageNotExists'] ?? null,
-       'category' => $values['category'] ?? null,
-       'theme' => $values['theme'] ?? null,
-       'wikiPage' => ($values['wikiPage'] ?? null),
-       'wikiPageName' => ($values['wikiPageName'] ?? null),
-       'pageContent' => ($values['pageContent'] ?? null),
-       'pageParameters' => ($values['pageParameters'] ?? null),
-       'topBarContent' => $values['topBarContent'] ?? null,
-       'sideBar1Content' => $values['sideBar1Content'] ?? null,
-       'breadcrumbs' => $values['breadcrumbs'] ?? null,
-       'tags' => $values['tags'] ?? null,
-       'licenseHtml' => $values['licenseHtml'] ?? null,
-       'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
-       'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
-       'URL_HOST' => GlobalProperties::$URL_HOST,
-       'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
-       'usePrivateWikiScript' => $values['usePrivateWikiScript'],
-       'privateWikiScriptUrl' => $values['privateWikiScriptUrl'],
-       'useCustomDomainScript' => $values['useCustomDomainScript'],
-       'useCustomDomainScriptSecure' => $values['useCustomDomainScriptSecure'],
-       'login' => $values['login'],
-       'pageOptions' => $values['pageOptions'],
-   ]);
-});
-
 Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'destroy']);
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/user--services/dashboard', function () {
@@ -164,38 +132,3 @@ if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
     Route::any( "/{path?}", [OzoneController::class, 'handle'] )
         ->where( "path", ".*" );
 }
-
-
-/** Use blade for everything. Soon™. */
-//Route::any( "/{path?}", function() {
-//    $values = LegacyTools::generateScreenVars();
-//    return view(
-//        'layouts.legacy',
-//        [
-//            'site' => $values['site'] ?? null,
-//            'pageNotExists' => $values['pageNotExists'] ?? null,
-//            'category' => $values['category'] ?? null,
-//            'theme' => $values['theme'] ?? null,
-//            'wikiPage' => ($values['wikiPage'] ?? null),
-//            'wikiPageName' => ($values['wikiPageName'] ?? null),
-//            'pageContent' => ($values['pageContent'] ?? null),
-//            'pageParameters' => ($values['pageParameters'] ?? null),
-//            'topBarContent' => $values['topBarContent'] ?? null,
-//            'sideBar1Content' => $values['sideBar1Content'] ?? null,
-//            'breadcrumbs' => $values['breadcrumbs'] ?? null,
-//            'tags' => $values['tags'] ?? null,
-//            'licenseHtml' => $values['licenseHtml'] ?? null,
-//            'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
-//            'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
-//            'URL_HOST' => GlobalProperties::$URL_HOST,
-//            'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
-//            'usePrivateWikiScript' => $values['usePrivateWikiScript'],
-//            'privateWikiScriptUrl' => $values['privateWikiScriptUrl'],
-//            'useCustomDomainScript' => $values['useCustomDomainScript'],
-//            'useCustomDomainScriptSecure' => $values['useCustomDomainScriptSecure'],
-//            'login' => $values['login'],
-//            'pageOptions' => $values['pageOptions'],
-//
-//        ]
-//    );
-//})->where("path", ".*");
