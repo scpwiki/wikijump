@@ -9,7 +9,6 @@
         ]
 
     data:
-        $page_slug
         $page_category
         $page_title
         $page_breadcrumbs

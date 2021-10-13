@@ -22,7 +22,6 @@ class PageController extends Controller
       $social_title = null;
       $sidebar_content = null;
       $page_content = null;
-      $slug = null;
       $category = null;
       $breadcrumbs = null;
       $page_title = null;
@@ -41,14 +40,13 @@ class PageController extends Controller
 
           $sidebar_content = $values['sideBar1Content'] ?? null;
           $page_content = $values['pageContent'] ?? null;
+          $tags = $values['tags'] ?? null;
 
-          $slug = $page->getUnixName();
-          $page_title = $page->getTitleOrUnixName();
           $revision = $page->getRevisionNumber();
           $last_edit_date = strftime('%x %r', $timestamp);
           $last_edit_days_since = floor((time() - $timestamp) / (60 * 60 * 24));
-          $tags = $values['tags'] ?? null;
 
+          $page_title = $page->getTitleOrUnixName();
           $title = $page_title . ' | ' . $title;
           $social_title = $page_title;
 
@@ -93,7 +91,6 @@ class PageController extends Controller
           'sidebar_content' => $sidebar_content,
 
           'page_content' => $page_content,
-          'page_slug' => $slug,
           'page_category' => $category,
           'page_title' => $page_title,
           'page_breadcrumbs' => $breadcrumbs,

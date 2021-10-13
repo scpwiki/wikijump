@@ -66,7 +66,6 @@ class PageMockedComposer
             }
         }
 
-        $slug = $f->slug;
         $page_title = $f->streetName;
         $revision = $f->randomNumber(3);
         $last_edit_date = strftime('%x %r', $timestamp);
@@ -102,7 +101,6 @@ class PageMockedComposer
             ->with('sidebar_content', $sidebar_content)
             ->with('page_content', $content)
             ->with('page_breadcrumbs', $breadcrumbs)
-            ->with('page_slug', $slug)
             ->with('page_title', $page_title)
             ->with('page_revision', $revision)
             ->with('page_last_edit_date', $last_edit_date)
