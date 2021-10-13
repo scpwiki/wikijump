@@ -2,7 +2,6 @@
 
 namespace Wikidot\DB;
 
-use Wikidot\DB\AllowedTagsPeer;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
@@ -11,7 +10,7 @@ use Illuminate\Support\Facades\DB;
  * Object Model Class.
  *
  */
-class AllowedTags extends AllowedTagsBase
+class AllowedTags
 {
 
     public static function getEnableTagEngine($siteId): bool {
@@ -20,7 +19,7 @@ class AllowedTags extends AllowedTagsBase
 
     public static function setEnableTagEngine($siteId, $engineEnabled) {
         DB::table('site')
-        ->where('site_id', $pageId)
+        ->where('site_id', $siteId)
         ->update(['enable_tag_engine' => $engineEnabled]);
     }
 
