@@ -1,0 +1,41 @@
+#page_breadcrumbs {
+  margin-top: 0.25rem;
+
+  ul {
+    display: flex;
+    list-style: none;
+
+    li {
+      display: inline-flex;
+      align-items: center;
+      line-height: 0;
+    }
+  }
+}
+
+.page-breadcrumb-sep {
+  margin: 0 0.5em;
+  font-size: 0.75rem;
+  color: var(--col-text-subtle);
+}
+
+.page-breadcrumb {
+  display: inline-block;
+  height: 1rem;
+  font-size: 0.75rem;
+
+  a {
+    color: var(--col-hint);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    cursor: pointer;
+
+    @include tolerates-motion {
+      transition: color 75ms, text-decoration-color 75ms;
+    }
+
+    @include hover {
+      text-decoration-color: var(--col-hint);
+    }
+  }
+}

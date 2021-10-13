@@ -99,11 +99,6 @@ class PageMockedComposer
                     'url' => $f->url,
                 ];
             }
-
-            $breadcrumbs[] = [
-                'title' => $page_title,
-                'url' => $f->url,
-            ];
         }
 
         $view

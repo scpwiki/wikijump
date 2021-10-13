@@ -34,23 +34,24 @@
 @section('content')
     <article id="page">
         @isset($page_title)
-            <div id="page_header">
-                <h1>{{ $page_title }}</h1>
-                <hr>
-            </div>
+            <h1 id="page_title">{{ $page_title }}</h1>
+            <hr>
         @endisset
 
         @if (isset($page_breadcrumbs) && count($page_breadcrumbs) > 0)
-            <div id="page_breadcrumbs">
+            <div id="page_breadcrumbs" aria-label="{{ __('wiki-page.aria_breadcrumbs') }}">
                 <ul>
                     @foreach ($page_breadcrumbs as $breadcrumb)
                         <li class="page-breadcrumb">
                             <a href="{{ $breadcrumb['slug'] }}">{{ $breadcrumb['title'] }}</a>
-                            @unless($loop->last)
-                                <span class="page-breadcrumb-sep">/</span>
-                            @endunless
+                        </li>
+                        <li aria-hidden="true">
+                            <span class="page-breadcrumb-sep">/</span>
                         </li>
                     @endforeach
+                    <li class="page-breadcrumb is-last">
+                        <span>{{ $page_title }}</span>
+                    </li>
                 </ul>
             </div>
         @endif
