@@ -482,8 +482,8 @@ class ManageSiteAction extends SmartyAction
             $changed = true;
         }
 
-        if ($site->getEnableTagEngine() !== $enableTagEngine) {
-            $site->setEnableTagEngine($enableTagEngine);
+        if (AllowedTags::getEnableTagEngine() !== $enableTagEngine) {
+            AllowedTags::setEnableTagEngine($site, $enableTagEngine);
             $changed = true;
         }
 
@@ -497,30 +497,12 @@ class ManageSiteAction extends SmartyAction
             $outdater->siteEvent("sitewide_change");
         }
 
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-
-        // Temporarily commenting out to avoid issues.
-        /* $dbTags = AllowedTagsPeer::instance()->select($c);
-        $tags = preg_split("/[ ,]+/", $tags);
-        $tags = array_unique($tags);
-
-        foreach ($dbTags as $dbTag) {
-            if (in_array($dbTag->getTag(), $tags)) {
-                unset($tags[array_search($dbTag->getTag(), $tags)]);
-            } else {
-                AllowedTagsPeer::instance()->deleteByPrimaryKey($dbTag->getTagId());
-            }
+        // Turn the tags into an array.
+        if($tags !== '') {
+            $tags = preg_split("/[ ,]+/", $tags);
         }
-        // insert all other
-        foreach ($tags as $tag) {
-            if (trim($tag) != '') {
-                $dbTag = new AllowedTags();
-                $dbTag->setSiteId($site->getSiteId());
-                $dbTag->setTag($tag);
-                $dbTag->save();
-            }
-        } */ 
+
+        AllowedTags::saveAllowedTags($site, $tags);
 
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
