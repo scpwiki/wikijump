@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
@@ -136,13 +137,83 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/user--services/dashboard'
 
 if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
     // Legacy special routes
-    Route::any("/{special}:{path}", [OzoneController::class, 'handle']);
+    Route::any("/{special}:{path}", [OzoneController::class, 'handle'])
+        ->where("special", "system|admin")
+        ->where("path", ".+");
 
     Route::get('/{path?}', function () {
         $values = LegacyTools::generateScreenVars();
+
+        // TODO: move this to a controller
+
+        $title = 'Wikijump';
+        $canonical = URL::current();
+        $license = null;
+
+        $social_title = null;
+
+        $page_slug = null;
+        $page_category = null;
+        $breadcrumbs = null;
+        $page_title = null;
+        $revision = null;
+        $page_last_edit_date = null;
+        $page_last_edit_days_since = null;
+        $tags = null;
+
+        if ($values['wikiPage']) {
+            $page = $values['wikiPage'];
+            $timestamp = $page->getDateLastEdited()->getTimestamp();
+
+            $page_slug = $page->getUnixName();
+            $page_title = $page->getTitleOrUnixName();
+            $revision = $page->getRevisionNumber();
+            $page_last_edit_date = strftime('%x %r', $timestamp);
+            $page_last_edit_days_since = floor((time() - $timestamp) / (60 * 60 * 24));
+            $tags = $values['tags'] ?? null;
+
+            $title = $page_title . ' | ' . $title;
+
+            $social_title = $page_title;
+
+            // this should always be there, but just in case...
+            if ($values['category']) {
+                $page_category = $values['category']->getName();
+
+                // we only want to provide license info if the page actually has one
+                $lic = $values['category']->getLicense();
+                if ($lic->url()) {
+                    $license = $lic;
+                }
+            }
+
+            if ($values['breadcrumbs']) {
+                $breadcrumbs = [];
+                foreach ($values['breadcrumbs'] as $breadcrumb) {
+                    array_push($breadcrumbs, [
+                        'title' => $breadcrumb->getTitleOrUnixName(),
+                        'slug' => $breadcrumb->getUnixName(),
+                    ]);
+                }
+            }
+        }
+
         return view('next.wiki.page', [
-            'title' => "Wikijump",
+            // TODO: description, image, twitter, etc.
+            // TODO: site theming
+            // TODO: favicons
+            // TODO: header image/text + subtitle management
+
+            'title' => $title,
+            'canonical' => $canonical,
+            'license' => $license,
+
+            'social_title' => $social_title,
+            'social_type' => 'article',
+            'social_url' => $canonical,
+
             'header_img_url' => '/files--static/media/logo-outline.min.svg',
+
             'navbar_items' => [
                 'SCP Series' => [
                     'Series VII' => '/',
@@ -167,13 +238,16 @@ if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
             ],
 
             'sidebar_content' => $values['sideBar1Content'] ?? null,
-            'license_content' => $values['licenseHtml'] ?? null,
-
-            'page_title' => $values['wikiPage'] ? $values['wikiPage']->getTitle() : null,
             'page_content' => $values['pageContent'] ?? null,
-            'page_breadcrumbs' => $values['breadcrumbs'] ?? null,
-            // 'page_tags' => $values['tags'] ?? null,
-            'page_tags' => ['tag', 'foo', 'bar', 'asdf'],
+
+            'page_slug' => $page_slug,
+            'page_category' => $page_category,
+            'page_title' => $page_title,
+            'page_breadcrumbs' => $breadcrumbs,
+            'page_revision' => $revision,
+            'page_last_edit_date' => $page_last_edit_date,
+            'page_last_edit_days_since' => $page_last_edit_days_since,
+            'page_tags' => $tags,
 
             'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
             'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,

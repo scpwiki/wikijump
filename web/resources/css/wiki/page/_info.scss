@@ -1,0 +1,21 @@
+#page_info {
+  display: flex;
+  align-items: flex-end;
+}
+
+#page_info_tags_header {
+  flex-grow: 1;
+}
+
+.page-info-sep,
+#page_info_category,
+#page_info_revision,
+#page_info_last_edit {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--col-text-subtle);
+}
+
+.page-info-sep {
+  margin: 0 0.5rem;
+}

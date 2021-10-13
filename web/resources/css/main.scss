@@ -29,7 +29,8 @@
 @import "components/tippy";
 @import "components/wikitext";
 
-// Pages
+// Wiki
+@import "wiki/page/page";
 
 // Themes
 @import "themes/colors";
@@ -37,6 +38,3 @@
 @import "themes/layout";
 @import "themes/rhythm";
 @import "themes/typography";
-
-// Misc
-@import "../../public/files--static/fonts/font-faces.css";

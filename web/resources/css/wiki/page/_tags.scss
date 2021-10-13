@@ -1,0 +1,32 @@
+#page_tags ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  overflow: hidden;
+  list-style: none;
+}
+
+.page-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  line-height: 0;
+  cursor: pointer;
+
+  a {
+    padding: 0.65rem;
+    color: var(--col-hint);
+    background: var(--col-background-dim);
+    border-radius: 0.25rem;
+
+    @include tolerates-motion {
+      transition: color 75ms, background 75ms;
+    }
+
+    @include hover {
+      color: var(--col-white);
+      background: var(--col-hint);
+    }
+  }
+}
