@@ -6,6 +6,7 @@ namespace Wikijump\View\Composers;
 
 use Illuminate\View\View;
 use Faker;
+use Wikijump\Services\License\License;
 use Wikijump\Services\License\LicenseMapping;
 
 class PageMockedComposer
@@ -23,48 +24,13 @@ class PageMockedComposer
     public function compose(View $view)
     {
         $f = $this->faker;
-
         $timestamp = $f->dateTimeThisYear->getTimestamp();
 
-        $content = '';
-        for ($i = 0; $i < $f->numberBetween(10, 100); $i++) {
-            if ($f->boolean) {
-                $content .= $f->paragraph;
-            } else {
-                $content .= '<p>' . $f->paragraph . '</p>';
-            }
-        }
-
-        $content = '<wj-body class="wj-body">' . $content . '</wj-body>';
-
-        $sidebar_content = null;
-        if ($f->boolean) {
-            $sidebar_content = '';
-            for ($i = 0; $i < $f->numberBetween(1, 10); $i++) {
-                if ($f->boolean) {
-                    $sidebar_content .= '<h1>' . $f->streetName . '</h1>';
-                } else {
-                    $sidebar_content .=
-                        '<div><a href="' . $f->url . '">' . $f->streetName . '</a></div>';
-                }
-            }
-
-            $sidebar_content = '<wj-body class="wj-body">' . $sidebar_content . '</wj-body>';
-        }
-
-        $navbar_items = [];
-        for ($i = 0; $i < $f->numberBetween(1, 5); $i++) {
-            $title = $f->streetName;
-            if ($f->boolean) {
-                $link = $f->streetName;
-                $navbar_items[$link] = [];
-                for ($j = 0; $j < $f->numberBetween(1, 5); $j++) {
-                    $navbar_items[$link][$f->streetName] = $f->url;
-                }
-            } else {
-                $navbar_items[$title] = $f->url;
-            }
-        }
+        $content = $this->generateContent();
+        $sidebar_content = $this->generateSidebarContent();
+        $navbar_items = $this->generateNavbarItems();
+        $license = $this->getRandomLicense();
+        $breadcrumbs = $this->generateBreadcrumbs();
 
         $page_title = $f->streetName;
         $revision = $f->randomNumber(3);
@@ -74,23 +40,6 @@ class PageMockedComposer
         $title = $page_title . ' | Wikijump';
         $social_title = $page_title;
         $category = $f->word;
-
-        $license = null;
-        if ($f->boolean) {
-            $list = config('licenses.raw');
-            $id = $list[array_rand($list)]['id'];
-            $license = LicenseMapping::get($id);
-        }
-
-        $breadcrumbs = [];
-        if ($f->boolean) {
-            for ($i = 0; $i < $f->numberBetween(1, 3); $i++) {
-                $breadcrumbs[] = [
-                    'title' => $f->streetName,
-                    'url' => $f->url,
-                ];
-            }
-        }
 
         $view
             ->with('title', $title)
@@ -107,5 +56,87 @@ class PageMockedComposer
             ->with('page_last_edit_days_since', $last_edit_days_since)
             ->with('page_tags', $tags)
             ->with('page_category', $category);
+    }
+
+    /** Generates content as a random assortment of paragraph elements. */
+    private function generateContent(int $min = 10, int $max = 100): string {
+        $f = $this->faker;
+        $content = '';
+        for ($i = 0; $i < $f->numberBetween($min, $max); $i++) {
+            if ($f->boolean) {
+                $content .= $f->paragraph;
+            } else {
+                $content .= '<p>' . $f->paragraph . '</p>';
+            }
+        }
+
+        $content = '<wj-body class="wj-body">' . $content . '</wj-body>';
+
+        return $content;
+    }
+
+    /**
+     * Generates sidebar content as an assortment of anchors and headers.
+     * Might return null randomly, to indicate that the sidebar should not be shown.
+     */
+    private function generateSidebarContent(int $min = 1, int $max = 10): ?string {
+        $f = $this->faker;
+        $sidebar_content = null;
+        if ($f->boolean) {
+            $sidebar_content = '';
+            for ($i = 0; $i < $f->numberBetween($min, $max); $i++) {
+                if ($f->boolean) {
+                    $sidebar_content .= '<h1>' . $f->streetName . '</h1>';
+                } else {
+                    $sidebar_content .=
+                        '<div><a href="' . $f->url . '">' . $f->streetName . '</a></div>';
+                }
+            }
+
+            $sidebar_content = '<wj-body class="wj-body">' . $sidebar_content . '</wj-body>';
+        }
+
+        return $sidebar_content;
+    }
+
+    /** Generates a random navbar items array. */
+    private function generateNavbarItems(int $min = 1, int $max = 5): array {
+        $f = $this->faker;
+        $navbar_items = [];
+        for ($i = 0; $i < $f->numberBetween($min, $max); $i++) {
+            $title = $f->streetName;
+            if ($f->boolean) {
+                $link = $f->streetName;
+                $navbar_items[$link] = [];
+                for ($j = 0; $j < $f->numberBetween($min, $max); $j++) {
+                    $navbar_items[$link][$f->streetName] = $f->url;
+                }
+            } else {
+                $navbar_items[$title] = $f->url;
+            }
+        }
+        return $navbar_items;
+    }
+
+    /** Generates a random breadcrumbs array. */
+    private function generateBreadcrumbs(int $min = 1, int $max = 3): array {
+        $f = $this->faker;
+        $breadcrumbs = [];
+        if ($f->boolean) {
+            for ($i = 0; $i < $f->numberBetween($min, $max); $i++) {
+                $breadcrumbs[] = [
+                    'title' => $f->streetName,
+                    'url' => $f->url,
+                ];
+            }
+        }
+        return $breadcrumbs;
+    }
+
+    /** Returns a random license from the config. */
+    private function getRandomLicense(): License {
+        $list = config('licenses.raw');
+        $id = $list[array_rand($list)]['id'];
+        return LicenseMapping::get($id);
     }
 }
