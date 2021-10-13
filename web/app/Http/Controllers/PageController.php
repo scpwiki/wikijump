@@ -26,8 +26,7 @@ class PageController extends Controller
       $breadcrumbs = null;
       $page_title = null;
       $revision = null;
-      $last_edit_date = null;
-      $last_edit_days_since = null;
+      $timestamp = null;
       $tags = null;
 
       if ($values['site']) {
@@ -36,16 +35,12 @@ class PageController extends Controller
 
       if ($values['wikiPage']) {
           $page = $values['wikiPage'];
-          $timestamp = $page->getDateLastEdited()->getTimestamp();
 
           $sidebar_content = $values['sideBar1Content'] ?? null;
           $page_content = $values['pageContent'] ?? null;
           $tags = $values['tags'] ?? null;
-
           $revision = $page->getRevisionNumber();
-          $last_edit_date = strftime('%x %r', $timestamp);
-          $last_edit_days_since = floor((time() - $timestamp) / (60 * 60 * 24));
-
+          $timestamp = $page->getDateLastEdited()->getTimestamp();
           $page_title = $page->getTitleOrUnixName();
           $title = $page_title . ' | ' . $title;
           $social_title = $page_title;
@@ -95,8 +90,7 @@ class PageController extends Controller
           'page_title' => $page_title,
           'page_breadcrumbs' => $breadcrumbs,
           'page_revision' => $revision,
-          'page_last_edit_date' => $last_edit_date,
-          'page_last_edit_days_since' => $last_edit_days_since,
+          'page_last_edit_timestamp' => $timestamp,
           'page_tags' => $tags,
 
           'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,

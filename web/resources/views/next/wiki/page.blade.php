@@ -14,8 +14,7 @@
         $page_breadcrumbs
         $page_content (UNESCAPED)
         $page_revision
-        $page_last_edit_date (formatted)
-        $page_last_edit_days_since
+        $page_last_edit_timestamp (int)
         $page_tags (array of strings)
 --}}
 
@@ -26,8 +25,7 @@
            isset($page_tags)
         || isset($page_category)
         || isset($page_revision)
-        || isset($page_last_edit_date)
-        || isset($page_last_edit_days_since);
+        || isset($page_last_edit_timestamp);
 @endphp
 
 @section('content')
@@ -91,12 +89,12 @@
                     <span class="page-info-sep">|</span>
                 @endisset
 
-                @isset($page_last_edit_date, $page_last_edit_date)
+                @isset($page_last_edit_timestamp)
                     <span id="page_info_last_edit">
                         {{ trans_choice(
                             'wiki-page.last_edit',
-                            $page_last_edit_days_since,
-                            ['edit' => $page_last_edit_date]
+                            floor((time() - $page_last_edit_timestamp) / (60 * 60 * 24)),
+                            ['edit' => strftime('%x %r', $page_last_edit_timestamp)]
                         ) }}
                     </span>
                 @endisset

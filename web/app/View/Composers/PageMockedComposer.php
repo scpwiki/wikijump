@@ -24,7 +24,6 @@ class PageMockedComposer
     public function compose(View $view)
     {
         $f = $this->faker;
-        $timestamp = $f->dateTimeThisYear->getTimestamp();
 
         $content = $this->generateContent();
         $sidebar_content = $this->generateSidebarContent();
@@ -34,8 +33,7 @@ class PageMockedComposer
 
         $page_title = $f->streetName;
         $revision = $f->randomNumber(3);
-        $last_edit_date = strftime('%x %r', $timestamp);
-        $last_edit_days_since = floor((time() - $timestamp) / (60 * 60 * 24));
+        $timestamp = $f->dateTimeThisYear->getTimestamp();
         $tags = $f->unique()->words(10);
         $title = $page_title . ' | Wikijump';
         $social_title = $page_title;
@@ -52,8 +50,7 @@ class PageMockedComposer
             ->with('page_breadcrumbs', $breadcrumbs)
             ->with('page_title', $page_title)
             ->with('page_revision', $revision)
-            ->with('page_last_edit_date', $last_edit_date)
-            ->with('page_last_edit_days_since', $last_edit_days_since)
+            ->with('page_last_edit_timestamp', $timestamp)
             ->with('page_tags', $tags)
             ->with('page_category', $category);
     }
