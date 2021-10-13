@@ -6,7 +6,10 @@
   --layout-header-height: 8rem;
 
   /// Height of the page footer.
-  --layout-footer-height: 3.5rem;
+  --layout-footer-height: 2rem;
+
+  /// Height of the license box in the footer.
+  --layout-license-height: 1.5rem;
 
   /// Width of the sidebar.
   --layout-sidebar-width: 16rem;
@@ -16,19 +19,4 @@
 
   /// Size of the gap between the body, sidebar, and the edge of the viewport.
   --layout-body-side-gap: 1rem;
-
-  // calculated variables
-
-  // prettier-ignore
-  --layout-body-centering-factor: calc(
-    (50vw - (var(--layout-body-max-width) / 2)) - var(--layout-sidebar-width));
-  //  ^                       ^                                 ^
-  // View center   Offset to left edge of body      Account for sidebar width
-
-  // prettier-ignore
-  --layout-min-body-height: calc(100vh - (
-    var(--layout-navbar-height) +
-    var(--layout-header-height) +
-    var(--layout-footer-height)
-  ));
 }

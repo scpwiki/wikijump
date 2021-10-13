@@ -27,7 +27,10 @@
 @extends('next.base')
 
 @section('app')
-    <div id="app" @class(['has-sidebar' => isset($sidebar_content)])>
+    <div id="app" @class([
+        'has-sidebar' => isset($sidebar_content),
+        'has-license' => isset($license),
+    ])>
 
         {{-- Header --}}
         {{-- TODO: User account control widget --}}

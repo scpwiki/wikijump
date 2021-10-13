@@ -12,7 +12,7 @@
   flex-grow: 1;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0.75rem;
+  height: var(--layout-footer-height);
 
   a {
     display: inline-block;
@@ -31,7 +31,8 @@
 }
 
 #footer_license {
-  padding: 0.125rem 1rem;
+  height: var(--layout-license-height);
+  padding: 0.125rem 0;
   text-align: center;
   background: var(--col-accent-2);
 
