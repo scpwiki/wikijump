@@ -67,7 +67,9 @@
         {{-- Sidebar --}}
         @isset($sidebar_content)
             <aside id="sidebar" aria-label="{{ __('frame.aria_sidebar') }}">
-                {!! $sidebar_content !!}
+                <div id="sidebar_sticky" role="presentation">
+                    {!! $sidebar_content !!}
+                </div>
             </aside>
         @endisset
 
