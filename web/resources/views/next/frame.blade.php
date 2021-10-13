@@ -19,7 +19,6 @@
         $header_subtitle
         $navbar_items
         $sidebar_content (UNESCAPED)
-        $license_content (UNESCAPED)
 
     sections:
         content
@@ -105,9 +104,14 @@
                 </div>
             </div>
 
-            @isset($license_content)
+            @isset($license)
                 <div id="footer_license" aria-label="{{ __('frame.aria_license') }}">
-                    {!! $license_content !!}
+                    <a href="{{ $license->url() }}">
+                        @if ($license->unless())
+                            {{ __('frame.license_unless', ['license' => $license->name()]) }}
+                        @else
+                            {{  __('frame.license', ['license' => $license->name()]) }}
+                        @endif
                 </div>
             @endisset
         </footer>

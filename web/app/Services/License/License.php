@@ -27,7 +27,7 @@ final class License
         $this->html = $this->buildHtml();
     }
 
-    // TODO: convert this into a blade template
+    // TODO: remove this once legacy code no longer depends on it
     // These are safe since these objects are built in static configuration
     private function buildHtml(): string
     {
@@ -52,14 +52,19 @@ final class License
         return $this->id;
     }
 
-    public function url(): ?string
+    public function name(): string
     {
-        return $this->url;
+        return $this->name;
     }
 
     public function label(): string
     {
         return $this->label;
+    }
+
+    public function url(): ?string
+    {
+        return $this->url;
     }
 
     public function unless(): bool
