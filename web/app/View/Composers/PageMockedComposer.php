@@ -13,22 +13,13 @@ class PageMockedComposer
 
     private Faker\Generator $faker;
 
-    /**
-     * Create a new mocked page composer.
-     *
-     * @return void
-     */
+    /** Create a new mocked page composer. */
     public function __construct()
     {
         $this->faker = Faker\Factory::create();
     }
 
-    /**
-     * Bind data to the view.
-     *
-     * @param  \Illuminate\View\View  $view
-     * @return void
-     */
+    /** Bind data to the view. */
     public function compose(View $view)
     {
         $f = $this->faker;
@@ -85,10 +76,8 @@ class PageMockedComposer
         $license = null;
         if ($f->boolean) {
             $list = config('licenses.raw');
-            if ($list) {
-                $id = $list[array_rand($list)]['id'];
-                $license = LicenseMapping::get($id);
-            }
+            $id = $list[array_rand($list)]['id'];
+            $license = LicenseMapping::get($id);
         }
 
         $breadcrumbs = [];
