@@ -37,17 +37,20 @@ class PageMockedComposer
 
         $content = '<wj-body class="wj-body">' . $content . '</wj-body>';
 
-        $sidebar_content = '';
-        for ($i = 0; $i < $f->numberBetween(1, 10); $i++) {
-            if ($f->boolean) {
-                $sidebar_content .= '<h1>' . $f->streetName . '</h1>';
-            } else {
-                $sidebar_content .=
-                    '<div><a href="' . $f->url . '">' . $f->streetName . '</a></div>';
+        $sidebar_content = null;
+        if ($f->boolean) {
+            $sidebar_content = '';
+            for ($i = 0; $i < $f->numberBetween(1, 10); $i++) {
+                if ($f->boolean) {
+                    $sidebar_content .= '<h1>' . $f->streetName . '</h1>';
+                } else {
+                    $sidebar_content .=
+                        '<div><a href="' . $f->url . '">' . $f->streetName . '</a></div>';
+                }
             }
-        }
 
-        $sidebar_content = '<wj-body class="wj-body">' . $sidebar_content . '</wj-body>';
+            $sidebar_content = '<wj-body class="wj-body">' . $sidebar_content . '</wj-body>';
+        }
 
         $navbar_items = [];
         for ($i = 0; $i < $f->numberBetween(1, 5); $i++) {
