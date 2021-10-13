@@ -112,6 +112,7 @@
                         @else
                             {{  __('frame.license', ['license' => $license->name()]) }}
                         @endif
+                    </a>
                 </div>
             @endisset
         </footer>
