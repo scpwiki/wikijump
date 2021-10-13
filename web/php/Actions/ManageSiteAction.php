@@ -432,7 +432,7 @@ class ManageSiteAction extends SmartyAction
         $subtitle = trim($pl->getParameterValue("subtitle"));
         $description = trim($pl->getParameterValue("description"));
         $enableTagEngine = $pl->getParameterValue("enable_tag_engine");
-        $enableTagEngine = !empty($enableTagEngine) ? true : false; // These are strings for now, likely because Ozone and Laravel don't like cooperating. Will change in the future when converting to Laravel.
+        $enableTagEngine = !empty($enableTagEngine) ? true : false;
         $tags = strtolower(trim($pl->getParameterValue("tags")));
 
         $defaultPage = WDStringUtils::toUnixName($pl->getParameterValue("default_page"));
