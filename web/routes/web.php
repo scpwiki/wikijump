@@ -152,24 +152,24 @@ if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
 
         $social_title = null;
 
-        $page_slug = null;
-        $page_category = null;
+        $slug = null;
+        $category = null;
         $breadcrumbs = null;
         $page_title = null;
         $revision = null;
-        $page_last_edit_date = null;
-        $page_last_edit_days_since = null;
+        $last_edit_date = null;
+        $last_edit_days_since = null;
         $tags = null;
 
         if ($values['wikiPage']) {
             $page = $values['wikiPage'];
             $timestamp = $page->getDateLastEdited()->getTimestamp();
 
-            $page_slug = $page->getUnixName();
+            $slug = $page->getUnixName();
             $page_title = $page->getTitleOrUnixName();
             $revision = $page->getRevisionNumber();
-            $page_last_edit_date = strftime('%x %r', $timestamp);
-            $page_last_edit_days_since = floor((time() - $timestamp) / (60 * 60 * 24));
+            $last_edit_date = strftime('%x %r', $timestamp);
+            $last_edit_days_since = floor((time() - $timestamp) / (60 * 60 * 24));
             $tags = $values['tags'] ?? null;
 
             $title = $page_title . ' | ' . $title;
@@ -178,7 +178,7 @@ if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
 
             // this should always be there, but just in case...
             if ($values['category']) {
-                $page_category = $values['category']->getName();
+                $category = $values['category']->getName();
 
                 // we only want to provide license info if the page actually has one
                 $lic = $values['category']->getLicense();
@@ -240,13 +240,13 @@ if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
             'sidebar_content' => $values['sideBar1Content'] ?? null,
             'page_content' => $values['pageContent'] ?? null,
 
-            'page_slug' => $page_slug,
-            'page_category' => $page_category,
+            'page_slug' => $slug,
+            'page_category' => $category,
             'page_title' => $page_title,
             'page_breadcrumbs' => $breadcrumbs,
             'page_revision' => $revision,
-            'page_last_edit_date' => $page_last_edit_date,
-            'page_last_edit_days_since' => $page_last_edit_days_since,
+            'page_last_edit_date' => $last_edit_date,
+            'page_last_edit_days_since' => $last_edit_days_since,
             'page_tags' => $tags,
 
             'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
