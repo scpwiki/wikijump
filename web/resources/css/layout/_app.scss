@@ -2,10 +2,10 @@
   display: grid;
 
   grid-template-areas:
-    "header  header  header  header"
-    "navbar  navbar  navbar  navbar"
-    "sidebar .       main    .     "
-    "footer  footer  footer  footer";
+    "header  header  header"
+    "navbar  navbar  navbar"
+    ".       main    .     "
+    "footer  footer  footer";
 
   grid-template-rows:
     var(--layout-header-height)
@@ -14,10 +14,29 @@
     var(--layout-footer-height);
 
   grid-template-columns:
-    var(--layout-sidebar-width)
-    minmax(var(--layout-body-side-gap), var(--layout-body-centering-factor))
+    minmax(var(--layout-body-side-gap), 1fr)
     minmax(0, var(--layout-body-max-width))
     minmax(var(--layout-body-side-gap), 1fr);
+
+  &.has-sidebar {
+    grid-template-areas:
+      "header  header  header  header"
+      "navbar  navbar  navbar  navbar"
+      "sidebar .       main    .     "
+      "footer  footer  footer  footer";
+
+    grid-template-rows:
+      var(--layout-header-height)
+      var(--layout-navbar-height)
+      minmax(var(--layout-min-body-height), auto)
+      var(--layout-footer-height);
+
+    grid-template-columns:
+      var(--layout-sidebar-width)
+      minmax(var(--layout-body-side-gap), var(--layout-body-centering-factor))
+      minmax(0, var(--layout-body-max-width))
+      minmax(var(--layout-body-side-gap), 1fr);
+  }
 }
 
 #header {
