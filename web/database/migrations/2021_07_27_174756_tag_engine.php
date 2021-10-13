@@ -19,9 +19,9 @@ class TagEngine extends Migration
 
       // Create 'tag_settings' table.
       Schema::create('tag_settings', function (Blueprint $table) {
-        $table->id('tag_rulesheet_id')->autoIncrement();
+        $table->id('configuration_id')->autoIncrement();
         $table->unsignedInteger('site_id')->nullable()->index();
-        $table->string('rulesheet_name')->default('Unnamed Rulesheet');
+        $table->string('configuration_name')->default('Unnamed Configuration');
         $table->jsonb('allowed_tags')->default('[]');
       });
 
