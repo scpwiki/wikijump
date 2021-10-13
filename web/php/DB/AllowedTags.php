@@ -24,7 +24,7 @@ class AllowedTags
     }
 
     public static function getAllowedTags($siteId): array {
-        return DB::table('tag_settings')->where('site_id', $siteId)->pluck('allowed_tags')->toArray();
+        return json_decode(DB::table('tag_settings')->where('site_id', $siteId)->pluck('allowed_tags')->toArray());
     }
 
     public static function saveAllowedTags($siteId, $newTags) {
