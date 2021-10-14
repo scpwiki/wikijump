@@ -68,7 +68,7 @@ class PageMockedComposer
             }
         }
 
-        $content = '<wj-body class="wj-body">' . $content . '</wj-body>';
+        $content = "<wj-body class=\"wj-body\">$content</wj-body>";
 
         return $content;
     }
@@ -91,7 +91,7 @@ class PageMockedComposer
                 }
             }
 
-            $sidebar_content = '<wj-body class="wj-body">' . $sidebar_content . '</wj-body>';
+            $sidebar_content = "<wj-body class=\"wj-body\">$sidebar_content</wj-body>";
         }
 
         return $sidebar_content;

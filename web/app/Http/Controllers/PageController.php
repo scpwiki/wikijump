@@ -42,7 +42,7 @@ class PageController extends Controller
           $revision = $page->getRevisionNumber();
           $timestamp = $page->getDateLastEdited()->getTimestamp();
           $page_title = $page->getTitleOrUnixName();
-          $title = $page_title . ' | ' . $title;
+          $title = "$page_title | $title";
           $social_title = $page_title;
 
           // this should always be there, but just in case...
