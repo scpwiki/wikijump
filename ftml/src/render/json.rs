@@ -64,16 +64,17 @@ impl Render for JsonRender {
 
         // Wrapper struct to provide both page info and the AST in the JSON.
         #[derive(Serialize, Debug)]
+        #[serde(rename_all = "kebab-case")]
         struct JsonWrapper<'a> {
-            syntax_tree: &'a SyntaxTree<'a>,
-            page_info: &'a PageInfo<'a>,
             settings: &'a WikitextSettings,
+            page_info: &'a PageInfo<'a>,
+            syntax_tree: &'a SyntaxTree<'a>,
         }
 
         let output = JsonWrapper {
-            syntax_tree,
-            page_info,
             settings,
+            page_info,
+            syntax_tree,
         };
 
         writer(&output).expect("Unable to serialize JSON")
@@ -84,7 +85,26 @@ impl Render for JsonRender {
 fn json() {
     // Expected outputs
     const PRETTY_OUTPUT: &str = r#"{
-  "syntax_tree": {
+  "settings": {
+    "mode": "page",
+    "enable-page-syntax": true,
+    "use-true-ids": true,
+    "allow-local-paths": true
+  },
+  "page-info": {
+    "page": "some-page",
+    "category": null,
+    "site": "sandbox",
+    "title": "A page for the age",
+    "alt-title": null,
+    "rating": 69.0,
+    "tags": [
+      "tale",
+      "_cc"
+    ],
+    "language": "default"
+  },
+  "syntax-tree": {
     "elements": [
       {
         "element": "text",
@@ -113,23 +133,10 @@ fn json() {
     ],
     "table-of-contents": [],
     "footnotes": []
-  },
-  "page_info": {
-    "page": "some-page",
-    "category": null,
-    "site": "sandbox",
-    "title": "A page for the age",
-    "alt-title": null,
-    "rating": 69.0,
-    "tags": [
-      "tale",
-      "_cc"
-    ],
-    "language": "default"
   }
 }"#;
 
-    const COMPACT_OUTPUT: &str = r#"{"syntax_tree":{"elements":[{"element":"text","data":"apple"},{"element":"text","data":" "},{"element":"container","data":{"type":"bold","attributes":{},"elements":[{"element":"text","data":"banana"}]}}],"styles":["span.hidden-text { display: none; }"],"table-of-contents":[],"footnotes":[]},"page_info":{"page":"some-page","category":null,"site":"sandbox","title":"A page for the age","alt-title":null,"rating":69.0,"tags":["tale","_cc"],"language":"default"}}"#;
+    const COMPACT_OUTPUT: &str = r#"{"settings":{"mode":"page","enable-page-syntax":true,"use-true-ids":true,"allow-local-paths":true},"page-info":{"page":"some-page","category":null,"site":"sandbox","title":"A page for the age","alt-title":null,"rating":69.0,"tags":["tale","_cc"],"language":"default"},"syntax-tree":{"elements":[{"element":"text","data":"apple"},{"element":"text","data":" "},{"element":"container","data":{"type":"bold","attributes":{},"elements":[{"element":"text","data":"banana"}]}}],"styles":["span.hidden-text { display: none; }"],"table-of-contents":[],"footnotes":[]}}"#;
 
     let log = crate::build_logger();
     let page_info = PageInfo::dummy();

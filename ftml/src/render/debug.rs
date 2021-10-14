@@ -45,7 +45,13 @@ impl Render for DebugRender {
 #[test]
 fn debug() {
     // Expected outputs
-    const OUTPUT: &str = r#"PageInfo {
+    const OUTPUT: &str = r#"WikitextSettings {
+    mode: Page,
+    enable_page_syntax: true,
+    use_true_ids: true,
+    allow_local_paths: true,
+}
+PageInfo {
     page: "some-page",
     category: None,
     site: "sandbox",
