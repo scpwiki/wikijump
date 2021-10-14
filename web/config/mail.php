@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Mailer
@@ -102,9 +101,6 @@ return [
     'markdown' => [
         'theme' => 'default',
 
-        'paths' => [
-            resource_path('views/vendor/mail'),
-        ],
+        'paths' => [resource_path('views/vendor/mail')],
     ],
-
 ];

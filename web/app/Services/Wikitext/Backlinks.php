@@ -23,8 +23,7 @@ class Backlinks
         array $internalLinksPresent,
         array $internalLinksAbsent,
         array $externalLinks
-    )
-    {
+    ) {
         $this->inclusionsPresent = self::dedupeIds($inclusionsPresent);
         $this->inclusionsAbsent = self::dedupeStrings($inclusionsAbsent);
         $this->internalLinksPresent = self::dedupeIds($internalLinksPresent);

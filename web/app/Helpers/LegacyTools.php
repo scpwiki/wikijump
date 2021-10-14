@@ -28,7 +28,9 @@ use Wikijump\Models\User;
 final class LegacyTools
 {
     // Disallow creating instances
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     /**
      * A function to take an absolute path to a file and transform it to a properly namespaced class.
@@ -38,15 +40,15 @@ final class LegacyTools
      * @param string $path An absolute path e.g., /var/www/path/to/modules/file.php
      * @return string A namespaced legacy class e.g., Wikidot\Modules\File
      */
-    public static function getNamespacedClassFromPath(string $path) : string
+    public static function getNamespacedClassFromPath(string $path): string
     {
         $offset = strlen(dirname(__FILE__, 3)); // Get the length of the string of the absolute path 3 levels up from this file.
         $unique_path = substr($path, $offset, -4); // Chop off that length and the last 4 characters. (.php)
         $unique_path = str_replace('/', '\\', $unique_path);
         $translations = [
-            "\\php\\" => "Wikidot\\",
-            "\\lib\\ozoneframework\\php\\core\\" => "Ozone\\Framework\\",
-            "\\lib\\ozoneframework\\php\\Template\\" => "Ozone\\Framework\\Template\\"
+            '\\php\\' => 'Wikidot\\',
+            '\\lib\\ozoneframework\\php\\core\\' => 'Ozone\\Framework\\',
+            '\\lib\\ozoneframework\\php\\Template\\' => 'Ozone\\Framework\\Template\\',
         ];
 
         return strtr($unique_path, $translations);
@@ -57,17 +59,18 @@ final class LegacyTools
      * @param int $id
      * @return bool
      */
-    public static function isSystemAccount(int $id) : bool
+    public static function isSystemAccount(int $id): bool
     {
-        return ($id === User::ANONYMOUS_USER || $id === User::AUTOMATIC_USER);
+        return $id === User::ANONYMOUS_USER || $id === User::AUTOMATIC_USER;
     }
 
+    // prettier-ignore
     /**
      * Bootstrap a runData instance and generate the needed vars to give to a blade template.
      * @return array|string
      * @throws \Wikidot\Utils\ProcessException
      */
-    public static function generateScreenVars()
+    function generateScreenVars()
     {
         /**
          * Create a RunData instance.
@@ -506,8 +509,11 @@ final class LegacyTools
      *
      * @return string The normalized page name
      */
-    public static function redirectToNormalUrl(Site $site, string $slug, string $pageParameters): string
-    {
+    public static function redirectToNormalUrl(
+        Site $site,
+        string $slug,
+        string $pageParameters
+    ): string {
         if ($slug === '') {
             $slug = $site->getDefaultPage();
         }
@@ -515,7 +521,13 @@ final class LegacyTools
         $slugNormal = WDStringUtils::toUnixName($slug);
         if ($slug !== $slugNormal) {
             // Redirect to the normalized version
-            $newUrl = GlobalProperties::$HTTP_SCHEMA . '://' . $site->getDomain() . '/' . $slugNormal . $pageParameters;
+            $newUrl =
+                GlobalProperties::$HTTP_SCHEMA .
+                '://' .
+                $site->getDomain() .
+                '/' .
+                $slugNormal .
+                $pageParameters;
             header('HTTP/1.1 301 Moved Permanently');
             header('Location: ' . $newUrl);
             exit();

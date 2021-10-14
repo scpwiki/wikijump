@@ -23,14 +23,13 @@ class LoginResponse implements LoginResponseContract
      */
     public function toResponse($request): Response
     {
-        if($request->wantsJson())
-        {
+        if ($request->wantsJson()) {
             return response()->json(['two_factor' => false]);
         }
 
         $previousLocation = session('backUrl');
-        return $previousLocation ?
-            redirect()->to($previousLocation)
+        return $previousLocation
+            ? redirect()->to($previousLocation)
             : redirect()->route('dashboard');
     }
 }

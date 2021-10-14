@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
@@ -36,7 +36,13 @@ class HtmlOutput
      */
     public Backlinks $linkStats;
 
-    public function __construct(string $body, array $styles, array $meta, array $warnings, Backlinks $linkStats) {
+    public function __construct(
+        string $body,
+        array $styles,
+        array $meta,
+        array $warnings,
+        Backlinks $linkStats
+    ) {
         $this->body = $body;
         $this->styles = $styles;
         $this->meta = $meta;

@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
@@ -7,9 +7,9 @@ use Wikidot\Utils\GlobalProperties;
 
 abstract class WikitextBackend
 {
-    public abstract function renderHtml(string $wikitext): HtmlOutput;
-    public abstract function renderText(string $wikitext): TextOutput;
-    public abstract function version(): string;
+    abstract public function renderHtml(string $wikitext): HtmlOutput;
+    abstract public function renderText(string $wikitext): TextOutput;
+    abstract public function version(): string;
 
     /**
      * Gets the WikitextBackend interface to allow for parsing, rendering, and related
@@ -36,7 +36,10 @@ abstract class WikitextBackend
             case 'dummy':
                 return new DummyBackend();
             default:
-                throw new Exception('Wikitext backend feature flag invalid: ' . GlobalProperties::$FEATURE_WIKITEXT_BACKEND);
+                throw new Exception(
+                    'Wikitext backend feature flag invalid: ' .
+                        GlobalProperties::$FEATURE_WIKITEXT_BACKEND,
+                );
         }
     }
 }

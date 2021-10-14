@@ -64,22 +64,14 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = [
-        'username',
-        'unix_name',
-        'email',
-        'real_name',
-        'password',
-    ];
+    protected $fillable = ['username', 'unix_name', 'email', 'real_name', 'password'];
 
     /**
      * The model's default values for attributes.
      *
      * @var array
      */
-    protected $attributes = [
-
-    ];
+    protected $attributes = [];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -90,7 +82,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'two_factor_secret',
-        'two_factor_recovery_codes'
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -107,14 +99,12 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $appends = [
-        'profile_photo_url',
-    ];
+    protected $appends = ['profile_photo_url'];
 
     /**
      * Checks if the user is banned from the entire farm.
      */
-    public function isBanned() : bool
+    public function isBanned(): bool
     {
         return $this->get('banned');
     }
@@ -150,15 +140,17 @@ class User extends Authenticatable
 
         /** We'll define initials as anything that the unixifier saw fit to break with a dash. */
         $initial_array = explode('-', $this->unix_name);
-        foreach ($initial_array as $initial)
-        {
+        foreach ($initial_array as $initial) {
             /** And concatenate their first letters into a string. */
             $initials .= $initial[0];
         }
 
-        return 'https://ui-avatars.com/api/?name='. $initials .
-            '&color='.$colors[$scheme]['t'] .
-            '&background='.$colors[$scheme]['b'] .
+        return 'https://ui-avatars.com/api/?name=' .
+            $initials .
+            '&color=' .
+            $colors[$scheme]['t'] .
+            '&background=' .
+            $colors[$scheme]['b'] .
             '&rounded=true';
     }
 
@@ -166,7 +158,7 @@ class User extends Authenticatable
      * Retrieve the list of default values for user settings.
      * @return array
      */
-    public static function defaults() : array
+    public static function defaults(): array
     {
         return Config::get('wikijump.defaults.user');
     }
@@ -175,7 +167,7 @@ class User extends Authenticatable
      * Retrieve the users this user is following.
      * @return Collection<User>
      */
-    public function followingUsers() : Collection
+    public function followingUsers(): Collection
     {
         return $this->my(InteractionType::USER_FOLLOWS_USER);
     }
@@ -184,17 +176,19 @@ class User extends Authenticatable
      * Following Users
      *************************************************/
 
-
     /**
      * Follow a user.
      * @param User $user_to_follow
      * @return bool
      */
-    public function followUser(User $user_to_follow) : bool
+    public function followUser(User $user_to_follow): bool
     {
-        if ($this->isFollowingUser($user_to_follow) === false)
-        {
-            return Interaction::create($this, InteractionType::USER_FOLLOWS_USER, $user_to_follow);
+        if ($this->isFollowingUser($user_to_follow) === false) {
+            return Interaction::create(
+                $this,
+                InteractionType::USER_FOLLOWS_USER,
+                $user_to_follow,
+            );
         }
         return false;
     }
@@ -204,7 +198,7 @@ class User extends Authenticatable
      *
      * @return Collection<User>
      */
-    public function followers() : Collection
+    public function followers(): Collection
     {
         return $this->their(InteractionType::USER_FOLLOWS_USER);
     }
@@ -214,7 +208,7 @@ class User extends Authenticatable
      * @param User $user
      * @return bool
      */
-    public function isFollowingUser(User $user) : bool
+    public function isFollowingUser(User $user): bool
     {
         return Interaction::check($this, InteractionType::USER_FOLLOWS_USER, $user);
     }
@@ -224,9 +218,13 @@ class User extends Authenticatable
      * @param User $user_to_unfollow
      * @return bool
      */
-    public function unfollowUser(User $user_to_unfollow) : bool
+    public function unfollowUser(User $user_to_unfollow): bool
     {
-        return Interaction::remove($this, InteractionType::USER_FOLLOWS_USER, $user_to_unfollow);
+        return Interaction::remove(
+            $this,
+            InteractionType::USER_FOLLOWS_USER,
+            $user_to_unfollow,
+        );
     }
 
     /**************************************************
@@ -252,32 +250,43 @@ class User extends Authenticatable
      */
     public function requestContact(User $user_to_request): bool
     {
-
         /** If a block is in place on either side, disallow a request. */
-        if($this->userBlockExists($user_to_request))
-        {
+        if ($this->userBlockExists($user_to_request)) {
             return false;
         }
 
         /** If this user already has a request for the target user, return null. */
-        if(Interaction::check($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request))
-        {
+        if (
+            Interaction::check(
+                $this,
+                InteractionType::USER_CONTACT_REQUESTS,
+                $user_to_request,
+            )
+        ) {
             return false;
         }
 
         /** If the inverse request exists, create the contact relation. */
-        if(Interaction::check($user_to_request, InteractionType::USER_CONTACT_REQUESTS, $this))
-        {
+        if (
+            Interaction::check(
+                $user_to_request,
+                InteractionType::USER_CONTACT_REQUESTS,
+                $this,
+            )
+        ) {
             return $this->approveContactRequest($user_to_request);
         }
 
         /** If a Contact relationship already exists, disallow another request. */
-        if($this->isContact($user_to_request))
-        {
+        if ($this->isContact($user_to_request)) {
             return false;
         }
 
-        return Interaction::create($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_request);
+        return Interaction::create(
+            $this,
+            InteractionType::USER_CONTACT_REQUESTS,
+            $user_to_request,
+        );
     }
 
     /**
@@ -288,7 +297,11 @@ class User extends Authenticatable
     public function approveContactRequest(User $user_to_approve): bool
     {
         return DB::transaction(function () use ($user_to_approve) {
-            Interaction::remove($user_to_approve, InteractionType::USER_CONTACT_REQUESTS, $this);
+            Interaction::remove(
+                $user_to_approve,
+                InteractionType::USER_CONTACT_REQUESTS,
+                $this,
+            );
             return $this->addContact($user_to_approve);
         });
     }
@@ -297,7 +310,7 @@ class User extends Authenticatable
      * Retrieve all contacts for a user.
      * @return Collection<User>
      */
-    public function contacts() : Collection
+    public function contacts(): Collection
     {
         return $this->either(InteractionType::USER_CONTACTS);
     }
@@ -327,10 +340,8 @@ class User extends Authenticatable
      */
     public function isContact(User $user): bool
     {
-        return (
-            Interaction::check($this, InteractionType::USER_CONTACTS, $user)
-            || Interaction::check($user, InteractionType::USER_CONTACTS, $this)
-        );
+        return Interaction::check($this, InteractionType::USER_CONTACTS, $user) ||
+            Interaction::check($user, InteractionType::USER_CONTACTS, $this);
     }
 
     /**
@@ -340,10 +351,11 @@ class User extends Authenticatable
      */
     public function removeContact(User $user_to_remove): bool
     {
-        return(
-            Interaction::remove($this, InteractionType::USER_CONTACTS, $user_to_remove)
-            || Interaction::remove($user_to_remove, InteractionType::USER_CONTACTS, $this)
-        );
+        return Interaction::remove(
+            $this,
+            InteractionType::USER_CONTACTS,
+            $user_to_remove,
+        ) || Interaction::remove($user_to_remove, InteractionType::USER_CONTACTS, $this);
     }
 
     /**
@@ -353,7 +365,11 @@ class User extends Authenticatable
      */
     public function denyContactRequest(User $user_to_deny): bool
     {
-        return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+        return Interaction::remove(
+            $user_to_deny,
+            InteractionType::USER_CONTACT_REQUESTS,
+            $this,
+        );
     }
 
     /**
@@ -363,9 +379,13 @@ class User extends Authenticatable
      */
     public function denyContactRequestAndBlock(User $user_to_deny): bool
     {
-        return DB::transaction(function() use ($user_to_deny) {
+        return DB::transaction(function () use ($user_to_deny) {
             $this->blockUser($user_to_deny);
-            return Interaction::remove($user_to_deny, InteractionType::USER_CONTACT_REQUESTS, $this);
+            return Interaction::remove(
+                $user_to_deny,
+                InteractionType::USER_CONTACT_REQUESTS,
+                $this,
+            );
         });
     }
 
@@ -376,7 +396,11 @@ class User extends Authenticatable
      */
     public function cancelContactRequest(User $user_to_cancel): bool
     {
-        return Interaction::remove($this, InteractionType::USER_CONTACT_REQUESTS, $user_to_cancel);
+        return Interaction::remove(
+            $this,
+            InteractionType::USER_CONTACT_REQUESTS,
+            $user_to_cancel,
+        );
     }
 
     /**************************************************
@@ -389,23 +413,30 @@ class User extends Authenticatable
      * @param string $reason
      * @return bool
      */
-    public function blockUser(User $user_to_block, string $reason = '') : bool
+    public function blockUser(User $user_to_block, string $reason = ''): bool
     {
         /** Do not add a second block for the same target user. */
-        if($this->isBlockingUser($user_to_block)) { return false; }
+        if ($this->isBlockingUser($user_to_block)) {
+            return false;
+        }
 
         /** Once the block occurs, remove contact and any pending requests. */
-        return DB::transaction(function () use($user_to_block, $reason) {
+        return DB::transaction(function () use ($user_to_block, $reason) {
             $this->cancelContactRequest($user_to_block);
             $this->denyContactRequest($user_to_block);
             $this->removeContact($user_to_block);
 
             $reason = filter_var($reason, FILTER_SANITIZE_STRING);
-            return Interaction::create($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
+            return Interaction::create(
+                $this,
+                InteractionType::USER_BLOCKS_USER,
+                $user_to_block,
+                ['reason' => $reason],
+            );
         });
     }
 
-    public function getBlock(User $user) : ?Interaction
+    public function getBlock(User $user): ?Interaction
     {
         return Interaction::retrieve($this, InteractionType::USER_BLOCKS_USER, $user);
     }
@@ -414,7 +445,7 @@ class User extends Authenticatable
      * List all users blocked by this user.
      * @return Collection
      */
-    public function viewBlockedUsers() : Collection
+    public function viewBlockedUsers(): Collection
     {
         return $this->my(InteractionType::USER_BLOCKS_USER);
     }
@@ -424,7 +455,7 @@ class User extends Authenticatable
      * @param User $user
      * @return bool
      */
-    public function isBlockingUser(User $user) : bool
+    public function isBlockingUser(User $user): bool
     {
         return Interaction::check($this, InteractionType::USER_BLOCKS_USER, $user);
     }
@@ -434,7 +465,7 @@ class User extends Authenticatable
      * @param User $user
      * @return bool
      */
-    public function isBlockedByUser(User $user) : bool
+    public function isBlockedByUser(User $user): bool
     {
         return Interaction::check($user, InteractionType::USER_BLOCKS_USER, $this);
     }
@@ -444,12 +475,10 @@ class User extends Authenticatable
      * @param User $user
      * @return bool
      */
-    public function userBlockExists(User $user) : bool
+    public function userBlockExists(User $user): bool
     {
-        return (
-            Interaction::check($this, InteractionType::USER_BLOCKS_USER, $user)
-            || Interaction::check($user, InteractionType::USER_BLOCKS_USER, $this)
-        );
+        return Interaction::check($this, InteractionType::USER_BLOCKS_USER, $user) ||
+            Interaction::check($user, InteractionType::USER_BLOCKS_USER, $this);
     }
 
     /**
@@ -458,12 +487,19 @@ class User extends Authenticatable
      * @param string $reason
      * @return bool
      */
-    public function updateUserBlock(User $user_to_block, string $reason = '') : bool
+    public function updateUserBlock(User $user_to_block, string $reason = ''): bool
     {
-        if($this->isBlockingUser($user_to_block) === false) { return false; }
+        if ($this->isBlockingUser($user_to_block) === false) {
+            return false;
+        }
 
         $reason = filter_var($reason, FILTER_SANITIZE_STRING);
-        return Interaction::set($this, InteractionType::USER_BLOCKS_USER, $user_to_block, ['reason' => $reason]);
+        return Interaction::set(
+            $this,
+            InteractionType::USER_BLOCKS_USER,
+            $user_to_block,
+            ['reason' => $reason],
+        );
     }
 
     /**
@@ -471,11 +507,17 @@ class User extends Authenticatable
      * @param User $user_to_unblock
      * @return bool
      */
-    public function unblockUser(User $user_to_unblock) : bool
+    public function unblockUser(User $user_to_unblock): bool
     {
-        if($this->isBlockingUser($user_to_unblock) === false) { return false; }
+        if ($this->isBlockingUser($user_to_unblock) === false) {
+            return false;
+        }
 
-        return Interaction::remove($this, InteractionType::USER_BLOCKS_USER, $user_to_unblock);
+        return Interaction::remove(
+            $this,
+            InteractionType::USER_BLOCKS_USER,
+            $user_to_unblock,
+        );
     }
 
     /**************************************************
@@ -495,7 +537,7 @@ class User extends Authenticatable
      * Query builder for outgoing messages.
      * @return HasMany
      */
-    public function sentMessages() : HasMany
+    public function sentMessages(): HasMany
     {
         return $this->hasMany(UserMessage::class, 'from_user_id');
     }

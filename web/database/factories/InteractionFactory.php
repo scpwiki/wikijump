@@ -23,7 +23,7 @@ class InteractionFactory extends Factory
     public function definition()
     {
         return [
-            //
-        ];
+                //
+            ];
     }
 }

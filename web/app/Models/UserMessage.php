@@ -58,12 +58,11 @@ class UserMessage extends Model
     public function send()
     {
         $permission = Gate::inspect('send', $this);
-        if($permission->denied())
-        {
+        if ($permission->denied()) {
             throw new AuthorizationException($permission->message());
         }
 
-        return DB::transaction(function() {
+        return DB::transaction(function () {
             $this->save();
 
             $sent = $this->replicate();
@@ -77,7 +76,7 @@ class UserMessage extends Model
      * @param int $length
      * @return string
      */
-    public function preview(int $length = 200) : string
+    public function preview(int $length = 200): string
     {
         $preview = substr(strip_tags($this->body), 0, $length);
         if (strlen($preview) >= $length) {
@@ -90,7 +89,7 @@ class UserMessage extends Model
      * Mark a message as read.
      * @return bool
      */
-    public function markAsRead() : bool
+    public function markAsRead(): bool
     {
         $this->setFlag(self::MESSAGE_READ);
         return $this->save();
@@ -100,7 +99,7 @@ class UserMessage extends Model
      * Mark a message as unread.
      * @return bool
      */
-    public function markAsUnread() : bool
+    public function markAsUnread(): bool
     {
         $this->clearFlag(self::MESSAGE_READ);
         return $this->save();
@@ -111,7 +110,7 @@ class UserMessage extends Model
      * The `to_user_id` field is nullable to allow for this.
      * @return bool
      */
-    public function markAsDraft() : bool
+    public function markAsDraft(): bool
     {
         $this->setFlag(self::MESSAGE_DRAFT);
         return $this->save();
@@ -123,7 +122,7 @@ class UserMessage extends Model
      *  to the other party, and visible in a user's "Sent" items instead of an "outbox."
      * @return bool
      */
-    public function unmarkAsDraft() : bool
+    public function unmarkAsDraft(): bool
     {
         $this->clearFlag(self::MESSAGE_DRAFT);
         return $this->save();
@@ -133,7 +132,7 @@ class UserMessage extends Model
      * Star/favorite a message.
      * @return bool
      */
-    public function starMessage() : bool
+    public function starMessage(): bool
     {
         $this->setFlag(self::MESSAGE_STARRED);
         return $this->save();
@@ -143,7 +142,7 @@ class UserMessage extends Model
      * Unstar/unfavorite a message.
      * @return bool
      */
-    public function unstarMessage() : bool
+    public function unstarMessage(): bool
     {
         $this->clearFlag(self::MESSAGE_STARRED);
         return $this->save();
@@ -153,7 +152,7 @@ class UserMessage extends Model
      * Archive a message, to get it out of the inbox without deleting it.
      * @return bool
      */
-    public function archiveMessage() : bool
+    public function archiveMessage(): bool
     {
         $this->setFlag(self::MESSAGE_ARCHIVED);
         return $this->save();
@@ -163,7 +162,7 @@ class UserMessage extends Model
      * Move a message from the archive back to the inbox.
      * @return bool
      */
-    public function unarchiveMessage() : bool
+    public function unarchiveMessage(): bool
     {
         $this->clearFlag(self::MESSAGE_ARCHIVED);
         return $this->save();
@@ -191,9 +190,10 @@ class UserMessage extends Model
      * @param User $user
      * @return Builder
      */
-    public function scopeInbox(Builder $query, User $user) : Builder
+    public function scopeInbox(Builder $query, User $user): Builder
     {
-        return $query->where('to_user_id', $user->id)
+        return $query
+            ->where('to_user_id', $user->id)
 
             ->whereRaw(self::flagIsNotSet(self::MESSAGE_ARCHIVED))
             ->whereRaw(self::flagIsNotSet(self::MESSAGE_SENT))
@@ -206,10 +206,11 @@ class UserMessage extends Model
      * @param User $user
      * @return Builder
      */
-    public function scopeUnread(Builder $query, User $user) : Builder
+    public function scopeUnread(Builder $query, User $user): Builder
     {
-        return $query->where('to_user_id', $user->id)
-        ->whereRaw(self::flagIsNotSet(self::MESSAGE_READ));
+        return $query
+            ->where('to_user_id', $user->id)
+            ->whereRaw(self::flagIsNotSet(self::MESSAGE_READ));
     }
 
     /**
@@ -218,9 +219,10 @@ class UserMessage extends Model
      * @param User $user
      * @return Builder
      */
-    public function scopeDrafts(Builder $query, User $user) : Builder
+    public function scopeDrafts(Builder $query, User $user): Builder
     {
-        return $query->where('from_user_id', $user->id)
+        return $query
+            ->where('from_user_id', $user->id)
             ->whereRaw(self::flagIsSet(self::MESSAGE_DRAFT));
     }
 
@@ -230,9 +232,10 @@ class UserMessage extends Model
      * @param User $user
      * @return Builder
      */
-    public function scopeArchive(Builder $query, User $user) : Builder
+    public function scopeArchive(Builder $query, User $user): Builder
     {
-        return $query->where('to_user_id', $user->id)
+        return $query
+            ->where('to_user_id', $user->id)
             ->whereRaw(self::flagIsSet(self::MESSAGE_ARCHIVED));
     }
 
@@ -242,9 +245,10 @@ class UserMessage extends Model
      * @param User $user
      * @return Builder
      */
-    public function scopeStarred(Builder $query, User $user) : Builder
+    public function scopeStarred(Builder $query, User $user): Builder
     {
-        return $query->where('to_user_id', $user->id)
+        return $query
+            ->where('to_user_id', $user->id)
             ->whereRaw(self::flagIsSet(self::MESSAGE_STARRED));
     }
 
@@ -254,9 +258,10 @@ class UserMessage extends Model
      * @param User $user
      * @return Builder
      */
-    public function scopeSent(Builder $query, User $user) : Builder
+    public function scopeSent(Builder $query, User $user): Builder
     {
-        return $query->where('from_user_id', $user->id)
+        return $query
+            ->where('from_user_id', $user->id)
             ->whereRaw(self::flagIsSet(self::MESSAGE_SENT));
     }
 
@@ -268,7 +273,7 @@ class UserMessage extends Model
      * Is this message read?
      * @return bool
      */
-    public function isRead() : bool
+    public function isRead(): bool
     {
         return $this->getFlag(UserMessage::MESSAGE_READ);
     }
@@ -277,16 +282,16 @@ class UserMessage extends Model
      * Is this message unread?
      * @return bool
      */
-    public function isUnread() : bool
+    public function isUnread(): bool
     {
-        return ! $this->getFlag(UserMessage::MESSAGE_READ);
+        return !$this->getFlag(UserMessage::MESSAGE_READ);
     }
 
     /**
      * Is this message a draft?
      * @return bool
      */
-    public function isDraft() : bool
+    public function isDraft(): bool
     {
         return $this->getFlag(UserMessage::MESSAGE_DRAFT);
     }
@@ -295,16 +300,16 @@ class UserMessage extends Model
      * Is this message not a draft?
      * @return bool
      */
-    public function isNotDraft() : bool
+    public function isNotDraft(): bool
     {
-        return ! $this->getFlag(UserMessage::MESSAGE_DRAFT);
+        return !$this->getFlag(UserMessage::MESSAGE_DRAFT);
     }
 
     /**
      * Is this message starred?
      * @return bool
      */
-    public function isStarred() : bool
+    public function isStarred(): bool
     {
         return $this->getFlag(UserMessage::MESSAGE_STARRED);
     }
@@ -313,16 +318,16 @@ class UserMessage extends Model
      * Is this message unstarred?
      * @return bool
      */
-    public function isUnstarred() : bool
+    public function isUnstarred(): bool
     {
-        return ! $this->getFlag(UserMessage::MESSAGE_STARRED);
+        return !$this->getFlag(UserMessage::MESSAGE_STARRED);
     }
 
     /**
      * Is this message archived?
      * @return bool
      */
-    public function isArchived() : bool
+    public function isArchived(): bool
     {
         return $this->getFlag(UserMessage::MESSAGE_ARCHIVED);
     }
@@ -331,16 +336,16 @@ class UserMessage extends Model
      * Is this message not archived?
      * @return bool
      */
-    public function isNotArchived() : bool
+    public function isNotArchived(): bool
     {
-        return ! $this->getFlag(UserMessage::MESSAGE_STARRED);
+        return !$this->getFlag(UserMessage::MESSAGE_STARRED);
     }
 
     /**
      * Is this message a sent message?
      * @return bool
      */
-    public function isSent() : bool
+    public function isSent(): bool
     {
         return $this->getFlag(UserMessage::MESSAGE_SENT);
     }
@@ -349,9 +354,8 @@ class UserMessage extends Model
      * Is this message not a sent message?
      * @return bool
      */
-    public function isNotSent() : bool
+    public function isNotSent(): bool
     {
-        return ! $this->getFlag(UserMessage::MESSAGE_SENT);
+        return !$this->getFlag(UserMessage::MESSAGE_SENT);
     }
-
 }

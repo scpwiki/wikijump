@@ -16,7 +16,6 @@ use Wikijump\Models\UserMessage;
  */
 class UserMessageTest extends TestCase
 {
-
     use RefreshDatabase;
 
     private User $sender;
@@ -43,9 +42,8 @@ class UserMessageTest extends TestCase
 
         $this->message = UserMessage::factory()->create([
             'from_user_id' => $this->sender->id,
-            'to_user_id' => $this->recipient->id
+            'to_user_id' => $this->recipient->id,
         ]);
-
     }
 
     /**

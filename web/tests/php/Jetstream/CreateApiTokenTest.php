@@ -9,6 +9,7 @@ use Laravel\Jetstream\Http\Livewire\ApiTokenManager;
 use Livewire\Livewire;
 use Tests\TestCase;
 
+// prettier-ignore
 class CreateApiTokenTest extends TestCase
 {
     use RefreshDatabase;

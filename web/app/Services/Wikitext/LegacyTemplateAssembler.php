@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
@@ -16,6 +16,7 @@ use Wikijump\Models\User;
  * It's a big mess. TODO clean this nonsense up.
  * @package Wikijump\Services\Wikitext
  */
+// prettier-ignore
 final class LegacyTemplateAssembler
 {
     private function __construct() {}

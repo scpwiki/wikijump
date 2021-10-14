@@ -27,8 +27,7 @@ class PageInfo
         ?string $altTitle,
         array $tags,
         string $language
-    )
-    {
+    ) {
         $this->page = $page;
         $this->category = $category;
         $this->site = $site;
@@ -48,7 +47,15 @@ class PageInfo
         $tags = $page->getTags();
         $language = 'default';
 
-        return new PageInfo($pageSlug, $categorySlug, $siteSlug, $title, $altTitle, $tags, $language);
+        return new PageInfo(
+            $pageSlug,
+            $categorySlug,
+            $siteSlug,
+            $title,
+            $altTitle,
+            $tags,
+            $language,
+        );
     }
 
     public function getCategory(): string
@@ -58,7 +65,7 @@ class PageInfo
 
     public function getPageSlug(): string
     {
-        $categoryPrefix = is_null($this->category) ? '' : ($this->category . ':');
+        $categoryPrefix = is_null($this->category) ? '' : $this->category . ':';
         return $categoryPrefix . $this->page;
     }
 

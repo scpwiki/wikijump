@@ -14,7 +14,6 @@ use Wikijump\Models\User;
  */
 class UserBlockUserTest extends TestCase
 {
-
     use RefreshDatabase;
 
     private User $user;

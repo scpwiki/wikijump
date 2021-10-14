@@ -14,7 +14,7 @@ class SettingsController extends Controller
      *
      * @return Response
      */
-    public function index() : Response
+    public function index(): Response
     {
         //
     }
@@ -24,7 +24,7 @@ class SettingsController extends Controller
      *
      * @return Response
      */
-    public function create() : Response
+    public function create(): Response
     {
         //
     }
@@ -35,7 +35,7 @@ class SettingsController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function store(Request $request) : Response
+    public function store(Request $request): Response
     {
         //
     }
@@ -46,7 +46,7 @@ class SettingsController extends Controller
      * @param Settings $settings
      * @return Response
      */
-    public function show(Settings $settings) : Response
+    public function show(Settings $settings): Response
     {
         //
     }
@@ -57,7 +57,7 @@ class SettingsController extends Controller
      * @param Settings $settings
      * @return Response
      */
-    public function edit(Settings $settings) : Response
+    public function edit(Settings $settings): Response
     {
         //
     }
@@ -69,7 +69,7 @@ class SettingsController extends Controller
      * @param Settings $settings
      * @return Response
      */
-    public function update(Request $request, Settings $settings) : Response
+    public function update(Request $request, Settings $settings): Response
     {
         //
     }
@@ -80,7 +80,7 @@ class SettingsController extends Controller
      * @param Settings $settings
      * @return Response
      */
-    public function destroy(Settings $settings) : Response
+    public function destroy(Settings $settings): Response
     {
         //
     }

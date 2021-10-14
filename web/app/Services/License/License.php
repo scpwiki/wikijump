@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\License;
 
-
 /**
  * Data class to store a particular configured license.
  * Because these are constants, the fields are exposed via method only to prevent accidental mutation.
@@ -18,7 +17,8 @@ final class License
     private bool $unlessClause;
     private string $html;
 
-    public function __construct(array &$object) {
+    public function __construct(array &$object)
+    {
         $this->id = $object['id'];
         $this->name = $object['name'];
         $this->label = $object['label'] ?? $this->name;
@@ -39,7 +39,9 @@ final class License
 
         // TODO: add localization
         if ($this->unlessClause) {
-            $prefix = __('Unless stated otherwise, the content of this page is licensed under');
+            $prefix = __(
+                'Unless stated otherwise, the content of this page is licensed under',
+            );
         } else {
             $prefix = __('The content of this page is licensed under');
         }

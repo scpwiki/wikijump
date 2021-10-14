@@ -6,16 +6,16 @@ namespace Wikijump\Traits;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Wikijump\Models\Settings;
 
-trait HasSettings {
-
-    abstract public function defaults() : array;
+trait HasSettings
+{
+    abstract public function defaults(): array;
 
     /**
      * Add the relationship from the parent class to a Settings object.
      * @return MorphOne
      * @see Settings
      */
-    public function settings() : MorphOne
+    public function settings(): MorphOne
     {
         return $this->morphOne(Settings::class, 'setter');
     }
@@ -25,9 +25,11 @@ trait HasSettings {
      * @param array $settings A list of settings to update.
      * @return bool False would indicate a failure saving.
      */
-    public function set(array $settings) : bool
+    public function set(array $settings): bool
     {
-        return $this->settings()->firstOrNew()->modify($settings);
+        return $this->settings()
+            ->firstOrNew()
+            ->modify($settings);
     }
 
     /**
@@ -39,6 +41,8 @@ trait HasSettings {
      */
     public function get(string $setting)
     {
-        return $this->settings()->firstOrNew()->retrieve($setting);
+        return $this->settings()
+            ->firstOrNew()
+            ->retrieve($setting);
     }
 }

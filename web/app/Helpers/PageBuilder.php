@@ -87,33 +87,31 @@ class PageBuilder
         $this->setTemplate();
 
         /** Set the language and theme for the request. */
-        $this->language = $this->parameterArray['lang'] ?? GlobalProperties::$DEFAULT_LANGUAGE;
-        if ($this->parameterArray['skin'])
-        {
+        $this->language =
+            $this->parameterArray['lang'] ?? GlobalProperties::$DEFAULT_LANGUAGE;
+
+        if ($this->parameterArray['skin']) {
             $this->skin = $this->parameterArray['skin'];
         }
 
         $action = $this->parameterArray['action'];
 
         /** If there's a valid action... */
-        if ($action !== null  && preg_match('/^[a-z0-9_\/]+$/i', $action) === 1)
-        {
+        if ($action !== null && preg_match('/^[a-z0-9_\/]+$/i', $action) === 1) {
             unset($this->parameterArray['action']);
             unset($this->parameterTypes['action']);
-            $this->action = str_replace("__", "/", $action);
+            $this->action = str_replace('__', '/', $action);
 
-             /** If the action is an Event (an AJAX call), assign the value to the property. */
+            /** If the action is an Event (an AJAX call), assign the value to the property. */
             foreach ($this->parameterArray as $key => $value) {
-                if ($key === 'event')
-                {
-                    $this->actionEvent = $value.'Event';
+                if ($key === 'event') {
+                    $this->actionEvent = $value . 'Event';
                 }
             }
-             /** Forms submissions come in with a different format, we'll unify them here. */
+            /** Forms submissions come in with a different format, we'll unify them here. */
             foreach ($this->parameterArray as $key => $value) {
-                if (str_starts_with('event_', $key))
-                {
-                    $this->actionEvent = str_replace('event_', '', $key).'Event';
+                if (str_starts_with('event_', $key)) {
+                    $this->actionEvent = str_replace('event_', '', $key) . 'Event';
                 }
             }
         }
@@ -124,7 +122,6 @@ class PageBuilder
         // store original request uri and request method:
         $this->requestUri = $_SERVER['REQUEST_URI'];
         $this->requestMethod = $_SERVER['REQUEST_METHOD'];
-
     }
 
     /**
@@ -135,7 +132,7 @@ class PageBuilder
     public function initParameterList(): void
     {
         /** The ajaxMode property can be set true by the AjaxModuleWebFlowController */
-        if ($this->ajaxMode  === true) {
+        if ($this->ajaxMode === true) {
             /** We populate an empty key for the parameter bucket that calling modules may use. */
             $this->allParameters['AMODULE'] = [];
 
@@ -226,7 +223,7 @@ class PageBuilder
     public function setTemplate()
     {
         /** The ajaxMode property can be set true by the AjaxModuleWebFlowController */
-        if ($this->ajaxMode  === true) {
+        if ($this->ajaxMode === true) {
             /** We can reliably assume that an AJAX module provided a key called moduleName */
             $template = $this->parameterArray['moduleName'];
 
@@ -260,7 +257,7 @@ class PageBuilder
              * If we didn't get a valid value back (not empty, contains only
              *  letters, numbers, underscores, and slashes), use the Index screen. (nothing)
              */
-            if ($template  === null || preg_match('/^[a-z0-9_\/]+$/i', $template) !== 1) {
+            if ($template === null || preg_match('/^[a-z0-9_\/]+$/i', $template) !== 1) {
                 $template = 'Index';
             }
 
@@ -331,10 +328,9 @@ class PageBuilder
                 /** The first one that matches is the one we'll provide to the caller. */
                 if (file_exists($dir . $classFile)) {
                     $moduleClassPath = $dir . $classFile;
-                    if($this->moduleTemplate !== null)
-                    {
+                    if ($this->moduleTemplate !== null) {
                         $moduleClassName = 'DefaultModule';
-                    } elseif($this->screenTemplate !== null) {
+                    } elseif ($this->screenTemplate !== null) {
                         $moduleClassName = 'DefaultScreen';
                     }
                     break;

@@ -42,7 +42,8 @@ class UserFactory extends Factory
                 ->dateTimeBetween('1950-01-01', '2006-12-31')
                 ->format('Y-m-d'),
             'bio' => $this->faker->realText('2000'),
-            'about_page' => 'https://'.$this->faker->domainName.'/'.$this->faker->domainWord
+            'about_page' =>
+                'https://' . $this->faker->domainName . '/' . $this->faker->domainWord,
         ];
     }
 
@@ -51,7 +52,7 @@ class UserFactory extends Factory
      *
      * @return Factory
      */
-    public function unverified() : Factory
+    public function unverified(): Factory
     {
         return $this->state(function (array $attributes) {
             return [

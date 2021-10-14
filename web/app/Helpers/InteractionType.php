@@ -1,9 +1,9 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Wikijump\Helpers;
 
-use \Wikijump\Common\Enum;
+use Wikijump\Common\Enum;
 
 /**
  * Enumerating possible interaction types for use with the Interaction class.

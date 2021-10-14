@@ -35,7 +35,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'language' => env('DEFAULT_LANGUAGE'),
                 'karma_points' => 110,
-                'karma_level' => 2
+                'karma_level' => 2,
             ],
             [
                 // ID 2
@@ -46,7 +46,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'language' => env('DEFAULT_LANGUAGE'),
                 'karma_points' => 0,
-                'karma_level' => 0
+                'karma_level' => 0,
             ],
             [
                 // ID 3
@@ -57,23 +57,21 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'language' => env('DEFAULT_LANGUAGE'),
                 'karma_points' => 0,
-                'karma_level' => 0
-            ]
+                'karma_level' => 0,
+            ],
         ]);
-        if(env('APP_ENV') != 'production') {
-            DB::table('users')->insert(
-                [
-                    // ID 4 if not in prod
-                    'username' => 'user',
-                    'unix_name' => WDStringUtils::toUnixName('user'),
-                    'password' => Hash::make('user1'),
-                    'email' => 'user@wikijump.dev',
-                    'email_verified_at' => now(),
-                    'language' => env('DEFAULT_LANGUAGE'),
-                    'karma_points' => 0,
-                    'karma_level' => 0
-                ]
-            );
+        if (env('APP_ENV') != 'production') {
+            DB::table('users')->insert([
+                // ID 4 if not in prod
+                'username' => 'user',
+                'unix_name' => WDStringUtils::toUnixName('user'),
+                'password' => Hash::make('user1'),
+                'email' => 'user@wikijump.dev',
+                'email_verified_at' => now(),
+                'language' => env('DEFAULT_LANGUAGE'),
+                'karma_points' => 0,
+                'karma_level' => 0,
+            ]);
         }
     }
 }

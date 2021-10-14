@@ -13,7 +13,7 @@ class UserController extends Controller
      *
      * @return Response
      */
-    public function index() : Response
+    public function index(): Response
     {
         //
     }
@@ -23,7 +23,7 @@ class UserController extends Controller
      *
      * @return Response
      */
-    public function create() : Response
+    public function create(): Response
     {
         //
     }
@@ -34,7 +34,7 @@ class UserController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function store(Request $request) : Response
+    public function store(Request $request): Response
     {
         //
     }
@@ -45,7 +45,7 @@ class UserController extends Controller
      * @param User $user
      * @return Response
      */
-    public function show(User $user) : Response
+    public function show(User $user): Response
     {
         //
     }
@@ -56,7 +56,7 @@ class UserController extends Controller
      * @param User $user
      * @return Response
      */
-    public function edit(User $user) : Response
+    public function edit(User $user): Response
     {
         //
     }
@@ -68,7 +68,7 @@ class UserController extends Controller
      * @param User $user
      * @return Response
      */
-    public function update(Request $request, User $user) : Response
+    public function update(Request $request, User $user): Response
     {
         //
     }
@@ -79,7 +79,7 @@ class UserController extends Controller
      * @param User $user
      * @return Response
      */
-    public function destroy(User $user) : Response
+    public function destroy(User $user): Response
     {
         //
     }

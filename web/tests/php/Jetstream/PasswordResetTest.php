@@ -16,7 +16,7 @@ class PasswordResetTest extends TestCase
 
     public function test_reset_password_link_screen_can_be_rendered()
     {
-        if (! Features::enabled(Features::updatePasswords())) {
+        if (!Features::enabled(Features::updatePasswords())) {
             return $this->markTestSkipped('Password updates are not enabled.');
         }
 
@@ -27,7 +27,7 @@ class PasswordResetTest extends TestCase
 
     public function test_reset_password_link_can_be_requested()
     {
-        if (! Features::enabled(Features::updatePasswords())) {
+        if (!Features::enabled(Features::updatePasswords())) {
             return $this->markTestSkipped('Password updates are not enabled.');
         }
 
@@ -44,7 +44,7 @@ class PasswordResetTest extends TestCase
 
     public function test_reset_password_screen_can_be_rendered()
     {
-        if (! Features::enabled(Features::updatePasswords())) {
+        if (!Features::enabled(Features::updatePasswords())) {
             return $this->markTestSkipped('Password updates are not enabled.');
         }
 
@@ -67,7 +67,7 @@ class PasswordResetTest extends TestCase
 
     public function test_password_can_be_reset_with_valid_token()
     {
-        if (! Features::enabled(Features::updatePasswords())) {
+        if (!Features::enabled(Features::updatePasswords())) {
             return $this->markTestSkipped('Password updates are not enabled.');
         }
 
@@ -81,7 +81,9 @@ class PasswordResetTest extends TestCase
 
         $new_password = Hash::make(bin2hex(random_bytes(32)));
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user, $new_password) {
+        Notification::assertSentTo($user, ResetPassword::class, function (
+            $notification
+        ) use ($user, $new_password) {
             $response = $this->post(route('password.update'), [
                 'token' => $notification->token,
                 'email' => $user->email,

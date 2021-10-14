@@ -1,11 +1,13 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
 final class HtmlUtilities
 {
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     public static function purify(string $html): string
     {

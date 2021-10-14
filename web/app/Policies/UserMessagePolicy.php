@@ -24,13 +24,17 @@ class UserMessagePolicy
      * @param string $ability
      * @return bool|null
      */
-    public function before(User $user, string $ability) : ?bool
+    public function before(User $user, string $ability): ?bool
     {
         /** The farm admin account can do anything. */
-        if($user->id === User::ADMIN_USER) { return true; }
+        if ($user->id === User::ADMIN_USER) {
+            return true;
+        }
 
         /** And a globally banned user can't do anything. */
-        if($user->isBanned()) { return false; }
+        if ($user->isBanned()) {
+            return false;
+        }
 
         return null;
     }
@@ -42,28 +46,27 @@ class UserMessagePolicy
      * @param UserMessage $userMessage
      * @return Response
      */
-    public function send(User $sender, UserMessage $userMessage) : Response
+    public function send(User $sender, UserMessage $userMessage): Response
     {
         $recipient = $userMessage->recipient;
 
         /** If the recipient has the `allow_pms` setting disabled, deny. */
-        if($recipient->get('allow_pms') === false)
-        {
+        if ($recipient->get('allow_pms') === false) {
             return Response::deny(_('The recipient does not accept private messages.'));
         }
 
         /** The sender can't send messages if they're blocking or blocked by the recipient. */
-        if($sender->isBlockingUser($recipient))
-        {
+        if ($sender->isBlockingUser($recipient)) {
             return Response::deny(_('You are blocking the recipient.'));
         }
-        if($sender->isBlockedByUser($recipient))
-        {
+        if ($sender->isBlockedByUser($recipient)) {
             return Response::deny(_('You are blocked by the recipient.'));
         }
 
         /** Users can always message their contacts. */
-        if($sender->isContact($recipient)) { return Response::allow(); }
+        if ($sender->isContact($recipient)) {
+            return Response::allow();
+        }
 
         /**
          * Stub for a later check of if users share a wiki.

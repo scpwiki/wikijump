@@ -37,7 +37,7 @@ class UserMessageFeatureTest extends TestCase
         $this->recipient = User::factory()->create();
         $this->message = UserMessage::factory()->create([
             'from_user_id' => $this->sender->id,
-            'to_user_id' => $this->recipient->id
+            'to_user_id' => $this->recipient->id,
         ]);
     }
 
@@ -80,7 +80,7 @@ class UserMessageFeatureTest extends TestCase
         /** We build a new message: */
         $newmessage = UserMessage::factory()->make([
             'from_user_id' => $this->sender->id,
-            'to_user_id' => $this->recipient->id
+            'to_user_id' => $this->recipient->id,
         ]);
 
         /** It should throw an exception. */

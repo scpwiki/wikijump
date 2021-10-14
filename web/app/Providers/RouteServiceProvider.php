@@ -65,7 +65,9 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting()
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
+            return Limit::perMinute(60)->by(
+                optional($request->user())->id ?: $request->ip(),
+            );
         });
     }
 
@@ -74,10 +76,10 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function map() : void
+    public function map(): void
     {
-//        $this->mapApiRoutes();
-//        $this->mapWebRoutes();
+        //        $this->mapApiRoutes();
+        //        $this->mapWebRoutes();
         $this->mapServiceRoutes();
     }
 
@@ -87,13 +89,22 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function mapServiceRoutes() : void
+    protected function mapServiceRoutes(): void
     {
         /**
          * Socialite routes.
          */
-        config()->set('services.facebook.redirect', route('socialite-callback', ['provider' => 'facebook']));
-        config()->set('services.twitter.redirect', route('socialite-callback', ['provider' => 'twitter']));
-        config()->set('services.google.redirect', route('socialite-callback', ['provider' => 'google']));
+        config()->set(
+            'services.facebook.redirect',
+            route('socialite-callback', ['provider' => 'facebook']),
+        );
+        config()->set(
+            'services.twitter.redirect',
+            route('socialite-callback', ['provider' => 'twitter']),
+        );
+        config()->set(
+            'services.google.redirect',
+            route('socialite-callback', ['provider' => 'google']),
+        );
     }
 }

@@ -20,20 +20,16 @@ use const Wikijump\Helpers\LegacyTools;
  * We are instantiating a RunData object with every route request so we can pull
  * some information related to sessions. Hopefully this won't stay in for long.
  */
-if( php_sapi_name() !== "cli" ) {
+if (php_sapi_name() !== 'cli') {
     Ozone::init();
     $runData = new RunData();
     $runData->init();
-    Ozone:: setRunData($runData);
+    Ozone::setRunData($runData);
     $runData->handleSessionStart();
     if ($runData->getUserId() && Auth::guest()) {
-        Auth::login(
-            User::findorFail($runData->getUserId())
-        );
-    };
+        Auth::login(User::findorFail($runData->getUserId()));
+    }
 }
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -67,21 +63,18 @@ Route::get('/page--test', function () {
 /**
  * Socialite route, null until I'm ready to begin work there.
  */
-Route::prefix('social--providers')->group(function() {
-
+Route::prefix('social--providers')->group(function () {
     Route::get('/callback', function ($provider) {
-        return app()
-            ->call(
-                'Wikijump\Http\Controllers\SocialiteController@callback',
-                ['provider' => $provider]);
+        return app()->call('Wikijump\Http\Controllers\SocialiteController@callback', [
+            'provider' => $provider,
+        ]);
     })->name('socialite-callback');
-
 });
 
 /**
  * AJAX Handler, formerly ajax-module-connector.php
  */
-Route::post('/ajax--handler', function() {
+Route::post('/ajax--handler', function () {
     $controller = new AjaxModuleWikiFlowController();
     $controller->process();
 });
@@ -89,14 +82,16 @@ Route::post('/ajax--handler', function() {
 /**
  * Karma displayer.
  */
-Route::get('/user--karma/{user}', function(User $user) {
+Route::get('/user--karma/{user}', function (User $user) {
+    // prettier-ignore
     $karma = Cache::remember('karma_level__user_'.$user->id, 3600, function() use($user) {
         return $user->karma_level;
     });
     header('Content-type: image/png');
     header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 3600) . ' GMT');
-    header("Last-Modified: ".gmdate('D, d M Y H:i:s', time() ) . ' GMT');
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
     header('Cache-Control: max-age=3600, must-revalidate');
+    // prettier-ignore
     readfile(WIKIJUMP_ROOT.'/web/files--common/theme/base/images/karma/karma_'.$karma.'.png');
 });
 
@@ -104,23 +99,24 @@ Route::get('/user--karma/{user}', function(User $user) {
  * Avatar shortcut
  */
 Route::get('/user--avatar/{user}', function (User $user) {
-   return $user->avatar();
+    return $user->avatar();
 });
 
 Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'destroy']);
 
-Route::middleware(['auth:sanctum', 'verified'])->get('/user--services/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+Route::middleware(['auth:sanctum', 'verified'])
+    ->get('/user--services/dashboard', function () {
+        return view('dashboard');
+    })
+    ->name('dashboard');
 
 if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
     // Legacy special routes
-    Route::any("/{special}:{path}", [OzoneController::class, 'handle'])
-        ->where("special", "system|admin")
-        ->where("path", ".+");
+    Route::any('/{special}:{path}', [OzoneController::class, 'handle'])
+        ->where('special', 'system|admin')
+        ->where('path', '.+');
 
-    Route::get('/{path?}', [PageController::class, 'show'])
-        ->where( "path", ".*" );
+    Route::get('/{path?}', [PageController::class, 'show'])->where('path', '.*');
 } else {
     /**
      * This fallback route will defer to the OzoneController, which will boot an
@@ -129,6 +125,5 @@ if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
      * involvement is reduced to that of a controller, the full set of Laravel
      * Models, Facades, and helpers are available everywhere in the codebase.
      */
-    Route::any( "/{path?}", [OzoneController::class, 'handle'] )
-        ->where( "path", ".*" );
+    Route::any('/{path?}', [OzoneController::class, 'handle'])->where('path', '.*');
 }

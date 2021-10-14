@@ -1,9 +1,9 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
-use \Wikijump\Common\Enum;
+use Wikijump\Common\Enum;
 
 /**
  * Enum ParseRenderMode, for representing the context in which parsing and rendering is being carried out.
@@ -24,5 +24,5 @@ final class ParseRenderMode extends Enum
     const DIRECT_MESSAGE = 2;
     const FEED = 3;
     const LIST = 4;
-    CONST TABLE_OF_CONTENTS = 5;
+    const TABLE_OF_CONTENTS = 5;
 }

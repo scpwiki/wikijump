@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Validation Language Lines
@@ -18,7 +17,8 @@ return [
     'after' => 'The :attribute must be a date after :date.',
     'after_or_equal' => 'The :attribute must be a date after or equal to :date.',
     'alpha' => 'The :attribute may only contain letters.',
-    'alpha_dash' => 'The :attribute may only contain letters, numbers, dashes and underscores.',
+    'alpha_dash' =>
+        'The :attribute may only contain letters, numbers, dashes and underscores.',
     'alpha_num' => 'The :attribute may only contain letters and numbers.',
     'array' => 'The :attribute must be an array.',
     'before' => 'The :attribute must be a date before :date.',
@@ -103,7 +103,8 @@ return [
     'required_with' => 'The :attribute field is required when :values is present.',
     'required_with_all' => 'The :attribute field is required when :values are present.',
     'required_without' => 'The :attribute field is required when :values is not present.',
-    'required_without_all' => 'The :attribute field is required when none of :values are present.',
+    'required_without_all' =>
+        'The :attribute field is required when none of :values are present.',
     'same' => 'The :attribute and :other must match.',
     'size' => [
         'numeric' => 'The :attribute must be :size.',
@@ -148,5 +149,4 @@ return [
     */
 
     'attributes' => [],
-
 ];

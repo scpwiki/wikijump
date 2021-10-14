@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
-use \Wikidot\DB\PagePeer;
-use \Wikijump\Services\Wikitext\Backlinks;
-use \Wikijump\Services\Wikitext\PageRef;
-use \Wikijump\Services\Wikitext\HtmlMeta;
-use \Wikijump\Services\Wikitext\HtmlMetaType;
-use \Wikijump\Services\Wikitext\HtmlOutput;
-use \Wikijump\Services\Wikitext\ParseWarning;
+use Wikidot\DB\PagePeer;
+use Wikijump\Services\Wikitext\Backlinks;
+use Wikijump\Services\Wikitext\PageRef;
+use Wikijump\Services\Wikitext\HtmlMeta;
+use Wikijump\Services\Wikitext\HtmlMetaType;
+use Wikijump\Services\Wikitext\HtmlOutput;
+use Wikijump\Services\Wikitext\ParseWarning;
 
 /**
  * Class OutputConversion, converts various FFI objects into their corresponding PHP output objects.
@@ -18,7 +18,9 @@ use \Wikijump\Services\Wikitext\ParseWarning;
  */
 final class OutputConversion
 {
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     // HtmlMeta
     public static function makeHtmlMetaArray(FFI\CData &$pointer, int $length): array
@@ -69,7 +71,8 @@ final class OutputConversion
         return new HtmlOutput($body, $styles, $meta, $warnings, $backlinks);
     }
 
-    private static function makeStylesArray(FFI\CData &$pointer, int $length): array {
+    private static function makeStylesArray(FFI\CData &$pointer, int $length): array
+    {
         return FtmlFfi::pointerToList(
             $pointer,
             $length,
@@ -174,8 +177,8 @@ final class OutputConversion
         }
 
         return [
-            "present" => $present,
-            "absent" => $absent,
+            'present' => $present,
+            'absent' => $absent,
         ];
     }
 
