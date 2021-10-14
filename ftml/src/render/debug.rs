@@ -87,7 +87,7 @@ SyntaxTree {
 
     let log = crate::build_logger();
     let page_info = PageInfo::dummy();
-    let settings = WikitextSettings::default();
+    let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
     // Syntax tree construction
     let elements = vec![
@@ -114,7 +114,7 @@ SyntaxTree {
     let (tree, _) = result.into();
 
     // Perform rendering
-    let output = DebugRender.render(&log, &page_info, &settings, &tree);
+    let output = DebugRender.render(&log, &tree, &page_info, &settings);
     assert_eq!(
         output, OUTPUT,
         "Pretty JSON syntax tree output doesn't match",

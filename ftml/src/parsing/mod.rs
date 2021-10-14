@@ -183,7 +183,7 @@ pub fn parse_internal<'r, 't>(
 where
     'r: 't,
 {
-    let mut parser = Parser::new(log, page_info, settings, tokenization);
+    let mut parser = Parser::new(log, tokenization, page_info, settings);
 
     // Logging setup
     let log = &log.new(slog_o!(

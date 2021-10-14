@@ -133,6 +133,7 @@ fn json() {
 
     let log = crate::build_logger();
     let page_info = PageInfo::dummy();
+    let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
     // Syntax tree construction
     let elements = vec![
@@ -159,13 +160,13 @@ fn json() {
     let (tree, _) = result.into();
 
     // Perform renderings
-    let output = JsonRender::pretty().render(&log, &page_info, &tree);
+    let output = JsonRender::pretty().render(&log, &tree, &page_info, &settings);
     assert_eq!(
         output, PRETTY_OUTPUT,
         "Pretty JSON syntax tree output doesn't match",
     );
 
-    let output = JsonRender::compact().render(&log, &page_info, &tree);
+    let output = JsonRender::compact().render(&log, &tree, &page_info, &settings);
     assert_eq!(
         output, COMPACT_OUTPUT,
         "Compact JSON syntax tree output doesn't match",

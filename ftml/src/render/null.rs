@@ -46,7 +46,7 @@ impl Render for NullRender {
 fn null() {
     let log = crate::build_logger();
     let page_info = PageInfo::dummy();
-    let settings = WikitextSettings::default();
+    let settings = WikitextSettings::from_mode(WikitextMode::Page);
     let result = SyntaxTree::from_element_result(vec![], vec![], vec![], vec![], vec![]);
     let (tree, _) = result.into();
     let output = NullRender.render(&log, &tree, &page_info, &settings);

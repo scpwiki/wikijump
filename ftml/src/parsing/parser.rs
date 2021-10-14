@@ -80,9 +80,9 @@ impl<'r, 't> Parser<'r, 't> {
     /// the main instance used during parsing.
     pub(crate) fn new(
         log: &Logger,
+        tokenization: &'r Tokenization<'t>,
         page_info: &'r PageInfo<'t>,
         settings: &'r WikitextSettings,
-        tokenization: &'r Tokenization<'t>,
     ) -> Self {
         let log = Logger::clone(log);
         let full_text = tokenization.full_text();
@@ -474,13 +474,16 @@ fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
 
 #[test]
 fn parser_newline_flag() {
+    use crate::settings::WikitextMode;
+
     let log = &crate::build_logger();
     let page_info = PageInfo::dummy();
+    let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
     macro_rules! check {
         ($input:expr, $expected_steps:expr $(,)?) => {{
             let tokens = crate::tokenize(log, $input);
-            let mut parser = Parser::new(log, &page_info, &tokens);
+            let mut parser = Parser::new(log, &tokens, &page_info, &settings);
             let mut actual_steps = Vec::new();
 
             // Iterate through the tokens.
