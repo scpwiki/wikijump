@@ -1,9 +1,12 @@
 #sidebar {
+  border-right: solid 0.125rem var(--col-border);
+}
+
+#sidebar_sticky {
   position: sticky;
   top: 0;
   max-height: 100vh;
   padding: 1rem;
-  margin-bottom: var(--layout-footer-height);
+  overflow-x: hidden;
   overflow-y: auto;
-  border-right: solid 0.125rem var(--col-border);
 }

@@ -1,0 +1,208 @@
+@use "sass:list";
+@use "sass:string";
+
+// prettier-ignore
+$ranges-unified:
+  "4E00-9FFF",   // CJK Unified Ideographs
+  "3400-4DBF",   // CJK Unified Ideographs Extension A
+  "20000-2A6DF", // CJK Unified Ideographs Extension B
+  "2A700-2B73F", // CJK Unified Ideographs Extension C
+  "2B740-2B81F", // CJK Unified Ideographs Extension D
+  "2B820–2CEAF", // CJK Unified Ideographs Extension E
+  "2CEB0–2EBEF", // CJK Unified Ideographs Extension F
+  "30000–3134F"; // CJK Unified Ideographs Extension G
+
+// prettier-ignore
+$ranges-not-unified:
+  "2E80–2EFF",   // CJK Radicals Supplement
+  "2F00–2FDF",   // Kangxi Radicals
+  "2FF0–2FFF",   // Ideographic Description Characters
+  "3000–303F",   // CJK Symbols and Punctuation
+  "31C0-31EF",   // CJK Strokes
+  "3200–32FF",   // Enclosed CJK Letters and Months
+  "3300–33FF",   // CJK Compatibility
+  "F900-FAFF",   // CJK Compatibility Ideographs
+  "FE30-FE4F",   // CJK Compatibility Forms
+  "1F200-1F2FF", // Enclosed Ideographic Supplement
+  "2F800-2FA1F"; // CJK Compatibility Ideographs Supplement
+
+$ranges: ();
+@each $range in list.join($ranges-unified, $ranges-not-unified) {
+  $ranges: list.append($ranges, string.unquote("U+#{$range}"), $separator: comma);
+}
+
+@supports (font-variation-settings: normal) {
+  // -- Noto Sans CJK {HK, JP, KR, SC, TC}
+
+  @font-face {
+    font-family: "Noto Sans CJK HK";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansHK-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  }
+
+  @font-face {
+    font-family: "Noto Sans CJK JP";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansJP-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  }
+
+  @font-face {
+    font-family: "Noto Sans CJK KR";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansKR-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  }
+
+  @font-face {
+    font-family: "Noto Sans CJK SC";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansSC-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  }
+
+  @font-face {
+    font-family: "Noto Sans CJK TC";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansTC-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  }
+
+  // -- Noto Sans Mono CJK {HK, JP, KR, SC, TC}
+
+  /*
+    I couldn't get the variable Noto Sans Mono CJK fonts to work at all.
+    Both Firefox and Chrome would simply refuse to load any WOFF2 forms of them,
+    which was the only format they could be in because otherwise they'd be 30+ MB.
+    These font-faces are left here so that if they ever do start working again they
+    can easily be added back. Adding all of these font-faces is really tedious.
+  */
+
+  /* @font-face {
+    font-family: "Noto Sans Mono CJK HK";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansMonoCJKhk-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  }
+
+  @font-face {
+    font-family: "Noto Sans Mono CJK JP";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansMonoCJKjp-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  }
+
+  @font-face {
+    font-family: "Noto Sans Mono CJK KR";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansMonoCJKkr-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  }
+
+  @font-face {
+    font-family: "Noto Sans Mono CJK SC";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansMonoCJKsc-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  }
+
+  @font-face {
+    font-family: "Noto Sans Mono CJK TC";
+    font-weight: 400 700;
+    src: fontsrc("NotoSansMonoCJKtc-VF");
+    font-display: swap;
+    unicode-range: $ranges;
+  } */
+}
+
+// -- Noto Sans Mono CJK {HK, JP, KR, SC, TC}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK HK";
+  font-weight: normal;
+  src: fontsrc("NotoSansMonoCJKhk-Regular", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK HK";
+  font-weight: bold;
+  src: fontsrc("NotoSansMonoCJKhk-Bold", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK JP";
+  font-weight: normal;
+  src: fontsrc("NotoSansMonoCJKjp-Regular", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK JP";
+  font-weight: bold;
+  src: fontsrc("NotoSansMonoCJKjp-Bold", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK KR";
+  font-weight: normal;
+  src: fontsrc("NotoSansMonoCJKkr-Regular", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK KR";
+  font-weight: bold;
+  src: fontsrc("NotoSansMonoCJKkr-Bold", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK SC";
+  font-weight: normal;
+  src: fontsrc("NotoSansMonoCJKsc-Regular", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK SC";
+  font-weight: bold;
+  src: fontsrc("NotoSansMonoCJKsc-Bold", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK TC";
+  font-weight: normal;
+  src: fontsrc("NotoSansMonoCJKtc-Regular", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono CJK TC";
+  font-weight: bold;
+  src: fontsrc("NotoSansMonoCJKtc-Bold", false);
+  font-display: swap;
+  unicode-range: $ranges;
+}

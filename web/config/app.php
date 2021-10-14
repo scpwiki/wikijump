@@ -176,6 +176,7 @@ return [
         Wikijump\Providers\RouteServiceProvider::class,
         Wikijump\Providers\FortifyServiceProvider::class,
         Wikijump\Providers\JetstreamServiceProvider::class,
+        Wikijump\Providers\ViewServiceProvider::class,
 
     ],
 

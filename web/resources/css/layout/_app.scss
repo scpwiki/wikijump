@@ -1,23 +1,57 @@
 #app {
   display: grid;
 
+  --layout-total-footer-height: var(--layout-footer-height);
+
+  // prettier-ignore
+  --layout-body-centering-factor: calc(
+    (50vw - (var(--layout-body-max-width) / 2)) - var(--layout-sidebar-width));
+  //  ^                       ^                                 ^
+  // View center   Offset to left edge of body      Account for sidebar width
+
+  // prettier-ignore
+  --layout-min-body-height: calc(100vh - (
+    var(--layout-navbar-height) +
+    var(--layout-header-height) +
+    var(--layout-total-footer-height)
+  ));
+
   grid-template-areas:
-    "header  header  header  header"
-    "navbar  navbar  navbar  navbar"
-    "sidebar .       main    .     "
-    "footer  footer  footer  footer";
+    "header  header  header"
+    "navbar  navbar  navbar"
+    ".       main    .     "
+    "footer  footer  footer";
 
   grid-template-rows:
     var(--layout-header-height)
     var(--layout-navbar-height)
     minmax(var(--layout-min-body-height), auto)
-    var(--layout-footer-height);
+    var(--layout-total-footer-height);
 
   grid-template-columns:
-    var(--layout-sidebar-width)
-    minmax(var(--layout-body-side-gap), var(--layout-body-centering-factor))
+    minmax(var(--layout-body-side-gap), 1fr)
     minmax(0, var(--layout-body-max-width))
     minmax(var(--layout-body-side-gap), 1fr);
+
+  &.has-sidebar {
+    grid-template-areas:
+      "header  header  header  header"
+      "navbar  navbar  navbar  navbar"
+      "sidebar .       main    .     "
+      "footer  footer  footer  footer";
+
+    grid-template-columns:
+      var(--layout-sidebar-width)
+      minmax(var(--layout-body-side-gap), var(--layout-body-centering-factor))
+      minmax(0, var(--layout-body-max-width))
+      minmax(var(--layout-body-side-gap), 1fr);
+  }
+
+  &.has-license {
+    --layout-total-footer-height: calc(
+      var(--layout-footer-height) + var(--layout-license-height)
+    );
+  }
 }
 
 #header {

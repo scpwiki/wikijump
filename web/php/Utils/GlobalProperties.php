@@ -80,6 +80,7 @@ class GlobalProperties
 
     // feature flags
     public static $FEATURE_WIKITEXT_BACKEND;
+    public static $FEATURE_FRONTEND;
 
     // other settings
     public static $CACHE_FILES_FOR;
@@ -226,6 +227,7 @@ class GlobalProperties
 
         // feature flags
         self::$FEATURE_WIKITEXT_BACKEND = $_ENV["FEATURE_WIKITEXT_BACKEND"] ?? self::fromIni("feature", "wikitext_backend", "text_wiki");
+        self::$FEATURE_FRONTEND         = $_ENV["FEATURE_FRONTEND"] ?? self::fromIni("feature", "frontend", "legacy");
 
         // other settings
         self::$CACHE_FILES_FOR          = $_ENV["WIKIJUMP_CACHE_FILES_FOR"] ?? self::fromIni("misc", "cache_files_for", 0);

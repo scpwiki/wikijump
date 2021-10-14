@@ -19,7 +19,6 @@
         $header_subtitle
         $navbar_items
         $sidebar_content (UNESCAPED)
-        $license_content (UNESCAPED)
 
     sections:
         content
@@ -28,7 +27,10 @@
 @extends('next.base')
 
 @section('app')
-    <div id="app" @class(['has-sidebar' => isset($sidebar_content)])>
+    <div id="app" @class([
+        'has-sidebar' => isset($sidebar_content),
+        'has-license' => isset($license),
+    ])>
 
         {{-- Header --}}
         {{-- TODO: User account control widget --}}
@@ -65,7 +67,9 @@
         {{-- Sidebar --}}
         @isset($sidebar_content)
             <aside id="sidebar" aria-label="{{ __('frame.aria_sidebar') }}">
-                {!! $sidebar_content !!}
+                <div id="sidebar_sticky" role="presentation">
+                    {!! $sidebar_content !!}
+                </div>
             </aside>
         @endisset
 
@@ -105,9 +109,15 @@
                 </div>
             </div>
 
-            @isset($license_content)
+            @isset($license)
                 <div id="footer_license" aria-label="{{ __('frame.aria_license') }}">
-                    {!! $license_content !!}
+                    <a href="{{ $license->url() }}">
+                        @if ($license->unless())
+                            {{ __('frame.license_unless', ['license' => $license->name()]) }}
+                        @else
+                            {{  __('frame.license', ['license' => $license->name()]) }}
+                        @endif
+                    </a>
                 </div>
             @endisset
         </footer>

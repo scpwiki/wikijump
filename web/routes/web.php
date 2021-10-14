@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
@@ -10,6 +11,7 @@ use Wikidot\Utils\AjaxModuleWikiFlowController;
 use Wikidot\Utils\GlobalProperties;
 use Wikijump\Helpers\LegacyTools;
 use Wikijump\Http\Controllers\OzoneController;
+use Wikijump\Http\Controllers\PageController;
 use Wikijump\Models\User;
 
 use const Wikijump\Helpers\LegacyTools;
@@ -53,39 +55,15 @@ Route::get('/editor--test', function () {
     return view('next.test.editor-test');
 });
 
-Route::get('/start', function () {
-    $values = LegacyTools::generateScreenVars();
+Route::get('/page--test', function () {
     return view('next.test.page-test', [
-        'title' => "Wikijump",
         'header_img_url' => '/files--static/media/logo-outline.min.svg',
-        'navbar_items' => [
-            'SCP Series' => [
-                'Series VII' => '/',
-                'Series VI' => '/',
-                'Series V' => '/',
-                'Series IV' => '/',
-                'Series III' => '/',
-                'Series II' => '/',
-                'Series I' => '/',
-            ],
-            'Tales' => [
-                'Foundation Tales' => '/',
-                'Series Archive' => '/',
-                'Incident Reports' => '/',
-                'CreepyPasta Archive' => '/',
-            ],
-            'Library' => [],
-            'Universe' => [],
-            'SCP Global' => [],
-            'Background' => "/",
-            'About' => "/",
-        ],
-        'page_content' => $values['pageContent'] ?? null,
-        'sidebar_content' => $values['sideBar1Content'] ?? null,
-        'license_content' => $values['licenseHtml'] ?? null
+        'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
+        'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
+        'URL_HOST' => GlobalProperties::$URL_HOST,
+        'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
     ]);
 });
-
 /**
  * Socialite route, null until I'm ready to begin work there.
  */
@@ -129,84 +107,28 @@ Route::get('/user--avatar/{user}', function (User $user) {
    return $user->avatar();
 });
 
-/**
- * This route will use Blade instead of Smarty for rendering.
- */
-Route::get('/what-is-a-wiki', function() {
-   $values = LegacyTools::generateScreenVars();
-   return view('layouts.legacy', [
-       'site' => $values['site'] ?? null,
-       'pageNotExists' => $values['pageNotExists'] ?? null,
-       'category' => $values['category'] ?? null,
-       'theme' => $values['theme'] ?? null,
-       'wikiPage' => ($values['wikiPage'] ?? null),
-       'wikiPageName' => ($values['wikiPageName'] ?? null),
-       'pageContent' => ($values['pageContent'] ?? null),
-       'pageParameters' => ($values['pageParameters'] ?? null),
-       'topBarContent' => $values['topBarContent'] ?? null,
-       'sideBar1Content' => $values['sideBar1Content'] ?? null,
-       'breadcrumbs' => $values['breadcrumbs'] ?? null,
-       'tags' => $values['tags'] ?? null,
-       'licenseHtml' => $values['licenseHtml'] ?? null,
-       'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
-       'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
-       'URL_HOST' => GlobalProperties::$URL_HOST,
-       'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
-       'usePrivateWikiScript' => $values['usePrivateWikiScript'],
-       'privateWikiScriptUrl' => $values['privateWikiScriptUrl'],
-       'useCustomDomainScript' => $values['useCustomDomainScript'],
-       'useCustomDomainScriptSecure' => $values['useCustomDomainScriptSecure'],
-       'login' => $values['login'],
-       'pageOptions' => $values['pageOptions'],
-   ]);
-});
-
 Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'destroy']);
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/user--services/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
 
-/**
- * This fallback route will defer to the OzoneController, which will boot an
- * instance of the legacy WikiFlowController and let it handle the response.
- * Significantly, since the request is being run through Laravel and Ozone's
- * involvement is reduced to that of a controller, the full set of Laravel
- * Models, Facades, and helpers are available everywhere in the codebase.
- */
-Route::any( "/{path?}", [OzoneController::class, 'handle'] )
-    ->where( "path", ".*" );
+if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
+    // Legacy special routes
+    Route::any("/{special}:{path}", [OzoneController::class, 'handle'])
+        ->where("special", "system|admin")
+        ->where("path", ".+");
 
-/** Use blade for everything. Soon™. */
-//Route::any( "/{path?}", function() {
-//    $values = LegacyTools::generateScreenVars();
-//    return view(
-//        'layouts.legacy',
-//        [
-//            'site' => $values['site'] ?? null,
-//            'pageNotExists' => $values['pageNotExists'] ?? null,
-//            'category' => $values['category'] ?? null,
-//            'theme' => $values['theme'] ?? null,
-//            'wikiPage' => ($values['wikiPage'] ?? null),
-//            'wikiPageName' => ($values['wikiPageName'] ?? null),
-//            'pageContent' => ($values['pageContent'] ?? null),
-//            'pageParameters' => ($values['pageParameters'] ?? null),
-//            'topBarContent' => $values['topBarContent'] ?? null,
-//            'sideBar1Content' => $values['sideBar1Content'] ?? null,
-//            'breadcrumbs' => $values['breadcrumbs'] ?? null,
-//            'tags' => $values['tags'] ?? null,
-//            'licenseHtml' => $values['licenseHtml'] ?? null,
-//            'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
-//            'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
-//            'URL_HOST' => GlobalProperties::$URL_HOST,
-//            'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
-//            'usePrivateWikiScript' => $values['usePrivateWikiScript'],
-//            'privateWikiScriptUrl' => $values['privateWikiScriptUrl'],
-//            'useCustomDomainScript' => $values['useCustomDomainScript'],
-//            'useCustomDomainScriptSecure' => $values['useCustomDomainScriptSecure'],
-//            'login' => $values['login'],
-//            'pageOptions' => $values['pageOptions'],
-//
-//        ]
-//    );
-//})->where("path", ".*");
+    Route::get('/{path?}', [PageController::class, 'show'])
+        ->where( "path", ".*" );
+} else {
+    /**
+     * This fallback route will defer to the OzoneController, which will boot an
+     * instance of the legacy WikiFlowController and let it handle the response.
+     * Significantly, since the request is being run through Laravel and Ozone's
+     * involvement is reduced to that of a controller, the full set of Laravel
+     * Models, Facades, and helpers are available everywhere in the codebase.
+     */
+    Route::any( "/{path?}", [OzoneController::class, 'handle'] )
+        ->where( "path", ".*" );
+}

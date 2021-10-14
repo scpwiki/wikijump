@@ -6,6 +6,7 @@ namespace Wikidot\DB;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\Modules\PageRate\PageRateWidgetModule;
+use Wikijump\Services\License\License;
 use Wikijump\Services\License\LicenseMapping;
 
 /**
@@ -14,17 +15,21 @@ use Wikijump\Services\License\LicenseMapping;
  */
 class Category extends CategoryBase
 {
-    public function getLicenseHtml(): string
+    public function getLicense(): License
     {
         // Determine if we pull from _default, because the license is inherited.
         if ($this->getName() !== '_default' && $this->getLicenseInherits()) {
             $cat = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-            return $cat->getLicenseHtml();
+            return $cat->getLicense();
         }
 
         // Get license info
-        $license = LicenseMapping::get($this->getLicenseId());
-        return $license->html();
+        return LicenseMapping::get($this->getLicenseId());
+    }
+
+    public function getLicenseHtml(): string
+    {
+        return $this->getLicense()->html();
     }
 
     public function getTopPage()

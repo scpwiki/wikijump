@@ -4,3 +4,12 @@
 @function font-size($size) {
   @return calc(#{$size} * var(--font-content-size));
 }
+
+/// Helper for emitting a `@font-face` `src:` url.
+@function fontsrc($font, $variable: true) {
+  @if $variable {
+    @return url("/files--static/fonts/variable/#{$font}.woff2") format("woff2-variations");
+  } @else {
+    @return url("/files--static/fonts/#{$font}.woff2") format("woff2");
+  }
+}

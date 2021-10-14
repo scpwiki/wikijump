@@ -12,6 +12,8 @@ return [
     'docs' => 'Docs',
     'report_bug' => 'Report a bug',
     'report_flag' => 'Flag as objectionable',
+    'license' => 'The content of this page is licensed under the :license.',
+    'license_unless' => 'Unless stated otherwise, the content of this page is licensed under the :license.',
 
     // ARIA
     'aria_header' => 'Page Header',

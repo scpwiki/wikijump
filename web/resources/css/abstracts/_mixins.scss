@@ -106,3 +106,51 @@
     @content;
   }
 }
+
+/// Utility for creating a `&::before` "underlay" highlight
+/// when the element is manually focused.
+@mixin focusHighlight($theme: "none", $use-position: true, $z-index: 1) {
+  @if $z-index {
+    z-index: $z-index;
+  }
+
+  @if $use-position {
+    position: relative;
+  }
+
+  $background: var(--col-background-dim);
+
+  @if ($theme == "dark") {
+    $background: var(--col-dark-background-dim);
+  }
+
+  @if ($theme == "light") {
+    $background: var(--col-light-background-dim);
+  }
+
+  &::before {
+    position: absolute;
+    top: -5%;
+    left: -5%;
+    z-index: -1;
+    width: 110%;
+    height: 110%;
+    pointer-events: none;
+    content: "";
+    background: #0000;
+    border-radius: 0.25rem;
+
+    @include tolerates-motion {
+      transition: background 75ms;
+    }
+  }
+
+  &:focus-visible {
+    outline: none;
+    @content;
+
+    &::before {
+      background: $background;
+    }
+  }
+}

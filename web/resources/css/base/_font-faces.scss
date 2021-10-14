@@ -1,0 +1,68 @@
+@supports (font-variation-settings: normal) {
+  /* -- Public Sans */
+
+  @font-face {
+    font-family: "Public Sans";
+    font-weight: 100 900;
+    src: fontsrc("PublicSans-VariableFont");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Public Sans";
+    font-style: italic;
+    font-weight: 100 900;
+    src: fontsrc("PublicSans-Italic-VariableFont");
+    font-display: swap;
+  }
+
+  /* -- Bitter */
+
+  @font-face {
+    font-family: "Bitter";
+    font-weight: 100 900;
+    src: fontsrc("Bitter-VariableFont");
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Bitter";
+    font-style: italic;
+    font-weight: 100 900;
+    src: fontsrc("Bitter-Italic-VariableFont");
+    font-display: swap;
+  }
+
+  /* -- Red Hat Display */
+
+  @font-face {
+    font-family: "Red Hat Display";
+    font-weight: 300 900;
+    src: fontsrc("RedHatDisplayVF");
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Red Hat Display";
+    font-style: italic;
+    font-weight: 300 900;
+    src: fontsrc("RedHatDisplayVF-Italic");
+    font-display: swap;
+  }
+
+  /* -- Cascadia Mono */
+
+  @font-face {
+    font-family: "Cascadia Mono";
+    font-style: normal;
+    font-weight: 200 700;
+    src: fontsrc("CascadiaMono");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Cascadia Mono";
+    font-style: italic;
+    font-weight: 200 700;
+    src: fontsrc("CascadiaMonoItalic");
+    font-display: swap;
+  }
+}

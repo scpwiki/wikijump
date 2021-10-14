@@ -15,7 +15,7 @@
         $title
         $robots
         $canonical
-        $license
+        $license (see `config/licenses.php` and `App/Services/License`)
 
         $theme_color
 
@@ -42,6 +42,20 @@
     <meta charset="utf-8">
     <base href="/">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    {{-- Browser Metadata --}}
+    @isset($title)
+        <title>{{ $title }}</title>
+    @endisset
+    @isset($robots)
+        <meta name="robots" content="{{ $robots }}">
+    @endisset
+    @isset($canonical)
+        <link rel="canonical" href="{{ $canonical }}">
+    @endisset
+    @isset($license)
+        <link rel="license" href="{{ $license->url() }}">
+    @endisset
 
     {{-- Security --}}
     <meta name="referrer" content="no-referrer">
@@ -101,20 +115,6 @@
     {{-- Social Other --}}
     @isset($rating)
         <meta name="rating" content="{{ $rating }}">
-    @endisset
-
-    {{-- Browser Metadata --}}
-    @isset($title)
-        <title>{{ $title }}</title>
-    @endisset
-    @isset($robots)
-        <meta name="robots" content="{{ $robots }}">
-    @endisset
-    @isset($canonical)
-        <link rel="canonical" href="{{ $canonical }}">
-    @endisset
-    @isset($license)
-        <meta name="license" content="{{ $license }}">
     @endisset
 
     {{-- Browser Theming --}}
