@@ -25,6 +25,7 @@ use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
 
 /** A collection of static methods to smooth the transition to Wikijump code. */
+// prettier-ignore
 final class LegacyTools
 {
     // Disallow creating instances
@@ -64,13 +65,12 @@ final class LegacyTools
         return $id === User::ANONYMOUS_USER || $id === User::AUTOMATIC_USER;
     }
 
-    // prettier-ignore
     /**
      * Bootstrap a runData instance and generate the needed vars to give to a blade template.
      * @return array|string
      * @throws \Wikidot\Utils\ProcessException
      */
-    function generateScreenVars()
+    public static function generateScreenVars()
     {
         /**
          * Create a RunData instance.
