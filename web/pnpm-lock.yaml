@@ -7,6 +7,7 @@ importers:
       '@changesets/cli': ^2.17.0
       '@esm-bundle/chai': ^4.3.4-fix.0
       '@ltd/j-toml': ^1.19.0
+      '@prettier/plugin-php': ^0.17.5
       '@sveltejs/vite-plugin-svelte': 1.0.0-next.27
       '@testing-library/svelte': ^3.0.3
       '@types/mocha': ^9.0.0
@@ -70,6 +71,7 @@ importers:
     devDependencies:
       '@changesets/cli': 2.17.0
       '@esm-bundle/chai': 4.3.4-fix.0
+      '@prettier/plugin-php': 0.17.5_prettier@2.4.1
       '@testing-library/svelte': 3.0.3_svelte@3.43.1
       '@types/mocha': 9.0.0
       '@typescript-eslint/eslint-plugin': 5.0.0_23617e02451b63a8997d0f18b2622d8e
@@ -1588,6 +1590,17 @@ packages:
   /@popperjs/core/2.10.2:
     resolution: {integrity: sha512-IXf3XA7+XyN7CP9gGh/XB0UxVMlvARGEgGXLubFICsUMGz6Q+DU+i4gGlpOxTjKvXjkJDJC8YdqdKkDj9qZHEQ==}
     dev: false
+
+  /@prettier/plugin-php/0.17.5_prettier@2.4.1:
+    resolution: {integrity: sha512-RjnM1hPYJfM42bwMKucLwnconyamPAl6EWXUobJvR+QR6+O57YL2du5CSz4U6XjRnkj/pCdmHxQ9egxDJcgrBA==}
+    peerDependencies:
+      prettier: ^1.15.0 || ^2.0.0
+    dependencies:
+      linguist-languages: 7.15.0
+      mem: 8.1.1
+      php-parser: github.com/glayzzle/php-parser/4c5b0675f52c0baab2e5b10a4e50e5d7a79b2767
+      prettier: 2.4.1
+    dev: true
 
   /@rollup/plugin-node-resolve/11.2.1_rollup@2.58.0:
     resolution: {integrity: sha512-yc2n43jcqVyGE2sqV5/YCmocy9ArjVAP/BeXyTtADTBBX6V0e5UMqwO8CdQ0kzjb6zu5P1qMzsScCMRvE9OlVg==}
@@ -5529,6 +5542,13 @@ packages:
       semver: 6.3.0
     dev: true
 
+  /map-age-cleaner/0.1.3:
+    resolution: {integrity: sha512-bJzx6nMoP6PDLPBFmg7+xRKeFZvFboMrGlxmNj9ClvX53KrmvM5bXFXEWjbz4cz1AFn+jWJ9z/DJSz7hrs0w3w==}
+    engines: {node: '>=6'}
+    dependencies:
+      p-defer: 1.0.0
+    dev: true
+
   /map-obj/1.0.1:
     resolution: {integrity: sha1-2TPOuSBdgr3PSIb2dCvcK03qFG0=}
     engines: {node: '>=0.10.0'}
@@ -5577,6 +5597,14 @@ packages:
   /media-typer/0.3.0:
     resolution: {integrity: sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=}
     engines: {node: '>= 0.6'}
+    dev: true
+
+  /mem/8.1.1:
+    resolution: {integrity: sha512-qFCFUDs7U3b8mBDPyz5EToEKoAkgCzqquIgi9nkkR9bixxOVOre+09lbuH7+9Kn2NFpm56M3GUWVbU2hQgdACA==}
+    engines: {node: '>=10'}
+    dependencies:
+      map-age-cleaner: 0.1.3
+      mimic-fn: 3.1.0
     dev: true
 
   /memorystream/0.3.1:
@@ -5693,6 +5721,11 @@ packages:
   /mimic-fn/2.1.0:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
     engines: {node: '>=6'}
+
+  /mimic-fn/3.1.0:
+    resolution: {integrity: sha512-Ysbi9uYW9hFyfrThdDEQuykN4Ey6BuwPD2kpI5ES/nFTDn/98yxYNLZJcgUAKPT/mcrLLKaGzJR9YVxJrIdASQ==}
+    engines: {node: '>=8'}
+    dev: true
 
   /mimic-response/1.0.1:
     resolution: {integrity: sha512-j5EctnkH7amfV/q5Hgmoal1g2QHFJRraOtmx0JpIqkxhBhI/lJSl1nMpQ45hVarwNETOoWEimndZ4QK0RHxuxQ==}
@@ -6117,6 +6150,11 @@ packages:
     resolution: {integrity: sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg==}
     engines: {node: '>=8'}
     dev: false
+
+  /p-defer/1.0.0:
+    resolution: {integrity: sha1-n26xgvbJqozXQwBKfU+WsZaw+ww=}
+    engines: {node: '>=4'}
+    dev: true
 
   /p-filter/2.1.0:
     resolution: {integrity: sha512-ZBxxZ5sL2HghephhpGAQdoskxplTwr7ICaehZwLIlfL6acuVgZPm8yBNuRAFBGEqtD/hmUeq9eqLg2ys9Xr/yw==}
@@ -8593,4 +8631,10 @@ packages:
 
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
+    dev: true
+
+  github.com/glayzzle/php-parser/4c5b0675f52c0baab2e5b10a4e50e5d7a79b2767:
+    resolution: {tarball: https://codeload.github.com/glayzzle/php-parser/tar.gz/4c5b0675f52c0baab2e5b10a4e50e5d7a79b2767}
+    name: php-parser
+    version: 3.0.2
     dev: true
