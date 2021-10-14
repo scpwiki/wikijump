@@ -11,13 +11,24 @@ plugins:
   - ./node_modules/prettier-plugin-organize-imports
   - ./node_modules/prettier-plugin-jsdoc
   - ./node_modules/prettier-plugin-svelte
+  - ./node_modules/@prettier/plugin-php
 
 # plugin-jsdoc
 tsdoc: true
 # Set shorter than 90 so if line wrapping is on comments don't go past it
 jsdocPrintWidth: 75
 
+# plugin-php
+phpVersion: "7.4"
+trailingCommaPHP: true
+braceStyle: "psr-2"
+
 overrides:
-  - files: '**/*.svelte'
+  - files: "**/*.php"
+    options:
+      parser: "php"
+      singleQuote: true
+
+  - files: "**/*.svelte"
     options:
       parser: svelte

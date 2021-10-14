@@ -11,7 +11,6 @@ use Wikijump\Services\License\LicenseMapping;
 
 class PageMockedComposer
 {
-
     private Faker\Generator $faker;
 
     /** Create a new mocked page composer. */
@@ -57,7 +56,8 @@ class PageMockedComposer
     }
 
     /** Generates content as a random assortment of paragraph elements. */
-    private function generateContent(int $min = 10, int $max = 100): string {
+    private function generateContent(int $min = 10, int $max = 100): string
+    {
         $f = $this->faker;
         $content = '';
         for ($i = 0; $i < $f->numberBetween($min, $max); $i++) {
@@ -77,7 +77,8 @@ class PageMockedComposer
      * Generates sidebar content as an assortment of anchors and headers.
      * Might return null randomly, to indicate that the sidebar should not be shown.
      */
-    private function generateSidebarContent(int $min = 1, int $max = 10): ?string {
+    private function generateSidebarContent(int $min = 1, int $max = 10): ?string
+    {
         $f = $this->faker;
         $sidebar_content = null;
         if ($f->boolean) {
@@ -98,7 +99,8 @@ class PageMockedComposer
     }
 
     /** Generates a random navbar items array. */
-    private function generateNavbarItems(int $min = 1, int $max = 5): array {
+    private function generateNavbarItems(int $min = 1, int $max = 5): array
+    {
         $f = $this->faker;
         $navbar_items = [];
         for ($i = 0; $i < $f->numberBetween($min, $max); $i++) {
@@ -117,7 +119,8 @@ class PageMockedComposer
     }
 
     /** Generates a random breadcrumbs array. */
-    private function generateBreadcrumbs(int $min = 1, int $max = 3): array {
+    private function generateBreadcrumbs(int $min = 1, int $max = 3): array
+    {
         $f = $this->faker;
         $breadcrumbs = [];
         if ($f->boolean) {
@@ -132,7 +135,8 @@ class PageMockedComposer
     }
 
     /** Returns a random license from the config. */
-    private function getRandomLicense(): License {
+    private function getRandomLicense(): License
+    {
         $list = config('licenses.raw');
         $id = $list[array_rand($list)]['id'];
         return LicenseMapping::get($id);

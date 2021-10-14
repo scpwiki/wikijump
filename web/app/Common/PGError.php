@@ -192,5 +192,4 @@ class PGError
     public const INTERNAL_ERROR = 'XX000';
     public const DATA_CORRUPTED = 'XX001';
     public const INDEX_CORRUPTED = 'XX002';
-
 }

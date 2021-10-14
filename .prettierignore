@@ -1,0 +1,27 @@
+# Artifacts, dependencies
+dist
+/web/public/files--built
+node_modules
+vendor
+
+# Legacy code
+/web/bin
+/web/lib
+/web/php
+/web/web
+/web/templates
+
+# PHP
+*.blade.php
+/web/bootstrap
+/web/storage
+/web/database/migrations
+
+# Misc
+.gitignore
+
+# File types we don't want prettier to care about
+*.json
+*.md
+*.yaml
+*.html

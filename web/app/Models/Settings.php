@@ -35,15 +35,14 @@ class Settings extends Model
      * @var array
      */
     protected $casts = [
-      'settings' => 'array'
+        'settings' => 'array',
     ];
-
 
     /**
      * Find the parent object for a given setting.
      * @return MorphTo
      */
-    public function setter() : MorphTo
+    public function setter(): MorphTo
     {
         return $this->morphTo();
     }
@@ -65,7 +64,7 @@ class Settings extends Model
      * @throws Exception
      * @see Model::update()
      */
-    public function modify(array $setting = [], array $options = []) : bool
+    public function modify(array $setting = [], array $options = []): bool
     {
         $this->defaults = $this->setter->defaults();
 
@@ -74,8 +73,8 @@ class Settings extends Model
          */
         $currentSettings = $this->settings ?? [];
 
-        foreach($setting as $key => $value) {
-            if(isset($this->defaults["$key"]) === false) {
+        foreach ($setting as $key => $value) {
+            if (isset($this->defaults["$key"]) === false) {
                 throw new Exception("$key does not have a default set");
             }
             if ($this->defaults["$key"] === $value) {
@@ -83,11 +82,10 @@ class Settings extends Model
             } else {
                 $currentSettings["$key"] = $value;
             }
-
         }
         $this->settings = $currentSettings;
-        if($this->settings == []) {
-            if($this->id == null) {
+        if ($this->settings == []) {
+            if ($this->id == null) {
                 /**
                  * If the model doesn't exist and no changes were made from default,
                  * there's nothing to save, but any caller doesn't need to know that.
@@ -120,8 +118,7 @@ class Settings extends Model
         $this->defaults = $this->setter->defaults();
         if (isset($this->settings["$setting"])) {
             return $this->settings["$setting"];
-        }
-        else {
+        } else {
             return $this->defaults["$setting"];
         }
     }

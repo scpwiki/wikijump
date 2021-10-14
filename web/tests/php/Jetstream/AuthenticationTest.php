@@ -23,10 +23,9 @@ class AuthenticationTest extends TestCase
     {
         $password = bin2hex(random_bytes(32));
 
-        $user = User::factory()->create(
-            [
-                'password' => Hash::make($password)
-            ]);
+        $user = User::factory()->create([
+            'password' => Hash::make($password),
+        ]);
 
         $response = $this->post(route('login'), [
             'username' => $user->username,

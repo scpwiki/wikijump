@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Stateful Domains
@@ -14,7 +13,7 @@ return [
     | and production domains which access your API via a frontend SPA.
     |
     */
-
+    // prettier-ignore
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
@@ -49,5 +48,4 @@ return [
         'verify_csrf_token' => Wikijump\Http\Middleware\VerifyCsrfToken::class,
         'encrypt_cookies' => Wikijump\Http\Middleware\EncryptCookies::class,
     ],
-
 ];

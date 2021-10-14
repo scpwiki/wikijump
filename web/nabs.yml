@@ -68,14 +68,14 @@ lint:
   $action: run-p -lns lint:eslint lint:stylelint lint:prettier
   eslint: eslint "modules/**/*.{js,ts}" "resources/**/*.{js,ts}"
   stylelint: stylelint "modules/**/*.scss" "modules/**/*.scss" "resources/**/*.scss"
-  prettier: prettier --ignore-unknown --check "modules/**" "resources/**"
+  prettier: prettier --ignore-path "../.prettierignore" --ignore-unknown --check "**/*.php" "modules/**" "resources/**"
 
   fix:
     $depend: []
     $action: run-p -lns lint:fix:eslint lint:fix:stylelint lint:fix:prettier
     eslint: eslint "modules/**/*.{js,ts}" "resources/**/*.{js,ts}" --fix
     stylelint: stylelint "modules/**/*.scss" "resources/**/*.scss" --fix
-    prettier: prettier --write --ignore-unknown "modules/**" "resources/**"
+    prettier: prettier --write --ignore-path "../.prettierignore" --ignore-unknown "**/*.php" "modules/**" "resources/**"
 
 typecheck: tsc
 

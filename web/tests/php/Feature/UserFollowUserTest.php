@@ -29,7 +29,6 @@ class UserFollowUserTest extends TestCase
 
         $this->user = $user;
         $this->user_to_follow = $user_to_follow;
-
     }
 
     /**
@@ -56,8 +55,17 @@ class UserFollowUserTest extends TestCase
         self::assertTrue($this->user->isFollowingUser($this->user_to_follow));
         self::assertCount(1, $this->user_to_follow->followers());
         self::assertCount(1, $this->user->followingUsers());
-        self::assertEquals($this->user_to_follow->username, $this->user->followingUsers()->first()->username);
-        self::assertEquals($this->user->id, $this->user_to_follow->followers()->pluck('id')->first());
+        self::assertEquals(
+            $this->user_to_follow->username,
+            $this->user->followingUsers()->first()->username,
+        );
+        self::assertEquals(
+            $this->user->id,
+            $this->user_to_follow
+                ->followers()
+                ->pluck('id')
+                ->first(),
+        );
 
         /** And that the inverse relation is not automatically created. */
         self::assertFalse($this->user_to_follow->isFollowingUser($this->user));

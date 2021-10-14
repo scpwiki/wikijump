@@ -22,7 +22,7 @@ class SettingsFactory extends Factory
     public function definition()
     {
         return [
-            //
-        ];
+                //
+            ];
     }
 }

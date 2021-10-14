@@ -94,8 +94,9 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('phpunit_invalid_default does not have a default set');
+        $this->expectExceptionMessage(
+            'phpunit_invalid_default does not have a default set',
+        );
         $user->set(['phpunit_invalid_default' => true]);
     }
-
 }

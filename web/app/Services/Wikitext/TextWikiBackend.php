@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
@@ -58,10 +58,11 @@ class TextWikiBackend extends WikitextBackend
 
     public function renderText(string $wikitext): TextOutput
     {
-        throw new \Exception("Not implemented (legacy)");
+        throw new \Exception('Not implemented (legacy)');
     }
 
-    public function version(): string {
+    public function version(): string
+    {
         return 'Text_Wiki 0.0.1';
     }
 

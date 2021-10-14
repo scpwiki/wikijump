@@ -1,10 +1,10 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext\FFI;
 
 use \FFI;
-use \Wikijump\Services\Wikitext;
+use Wikijump\Services\Wikitext;
 
 /**
  * Class PageInfo, representing an input 'struct ftml_page_info' object.

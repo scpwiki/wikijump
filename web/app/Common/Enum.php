@@ -21,12 +21,12 @@ abstract class Enum
 {
     final private function __construct()
     {
-        throw new RuntimeException("You may not create Enum class instances");
+        throw new RuntimeException('You may not create Enum class instances');
     }
 
     final private function __clone()
     {
-        throw new RuntimeException("You may not clone Enum class instances");
+        throw new RuntimeException('You may not clone Enum class instances');
     }
 
     /**

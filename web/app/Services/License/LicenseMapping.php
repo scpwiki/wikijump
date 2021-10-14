@@ -2,7 +2,6 @@
 
 namespace Wikijump\Services\License;
 
-
 use Exception;
 
 final class LicenseMapping

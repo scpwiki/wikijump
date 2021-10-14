@@ -14,9 +14,10 @@ class PasswordConfirmationTest extends TestCase
 
     public function test_confirm_password_screen_can_be_rendered()
     {
+        // prettier-ignore
         $user = Features::hasTeamFeatures()
-                        ? User::factory()->withPersonalTeam()->create()
-                        : User::factory()->create();
+            ? User::factory()->withPersonalTeam()->create()
+            : User::factory()->create();
 
         $response = $this->actingAs($user)->get(route('password.confirm'));
 
@@ -27,11 +28,9 @@ class PasswordConfirmationTest extends TestCase
     {
         $password = bin2hex(random_bytes(32));
 
-        $user = User::factory()->create(
-            [
-                'password' => Hash::make($password)
-            ]
-        );
+        $user = User::factory()->create([
+            'password' => Hash::make($password),
+        ]);
 
         $response = $this->actingAs($user)->post(route('password.confirm'), [
             'password' => $password,

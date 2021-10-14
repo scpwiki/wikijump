@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
@@ -37,6 +37,14 @@ class FtmlBackend extends WikitextBackend
 
     private static function defaultPageInfo(): PageInfo
     {
-        return new PageInfo('_anonymous', null, 'test', '_anonymous', null, [], 'default');
+        return new PageInfo(
+            '_anonymous',
+            null,
+            'test',
+            '_anonymous',
+            null,
+            [],
+            'default',
+        );
     }
 }

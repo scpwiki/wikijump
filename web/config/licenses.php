@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 // TODO: add localization
 return [
-
     /**
      * Information on licenses supported by the platform.
      *
@@ -19,7 +18,8 @@ return [
         [
             'id' => 'cc_by_sa_3',
             'name' => 'Creative Commons Attribution-ShareAlike 3.0 License',
-            'label' => 'Creative Commons Attribution-ShareAlike 3.0 License (recommended)',
+            'label' =>
+                'Creative Commons Attribution-ShareAlike 3.0 License (recommended)',
             'url' => 'https://creativecommons.org/licenses/by-sa/3.0/',
         ],
         [
@@ -100,6 +100,5 @@ return [
             'url' => null,
             'unless' => false,
         ],
-    ]
-
+    ],
 ];

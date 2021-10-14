@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+// prettier-ignore
 class FtsSeeder extends Seeder
 {
     /**

@@ -29,7 +29,7 @@ class UserMessageFactory extends Factory
         return [
             'subject' => $this->faker->sentence,
             'body' => $this->faker->paragraph,
-            'flags' => 0 // Unread, non-draft, unstarred, unarchived message.
+            'flags' => 0, // Unread, non-draft, unstarred, unarchived message.
         ];
     }
 }

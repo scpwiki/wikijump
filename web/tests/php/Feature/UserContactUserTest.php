@@ -14,7 +14,6 @@ use Wikijump\Models\User;
  */
 class UserContactUserTest extends TestCase
 {
-
     use RefreshDatabase;
 
     private User $user;
@@ -30,7 +29,6 @@ class UserContactUserTest extends TestCase
 
         $this->user = $user;
         $this->user_to_contact = $user_to_contact;
-
     }
 
     /**
@@ -57,14 +55,14 @@ class UserContactUserTest extends TestCase
         self::assertCount(1, $this->user_to_contact->viewIncomingContactRequests());
         self::assertEquals(
             $this->user->username,
-            $this->user_to_contact->viewIncomingContactRequests()->first()->username
+            $this->user_to_contact->viewIncomingContactRequests()->first()->username,
         );
 
         /** The requesting user can see the pending request. */
         self::assertCount(1, $this->user->viewOutgoingContactRequests());
         self::assertEquals(
             $this->user_to_contact->username,
-            $this->user->viewOutgoingContactRequests()->first()->username
+            $this->user->viewOutgoingContactRequests()->first()->username,
         );
 
         /** There can be only one contact request pending. */
@@ -106,11 +104,13 @@ class UserContactUserTest extends TestCase
         /** The bidirectional contact is established. */
         self::assertCount(1, $this->user->contacts());
         self::assertCount(1, $this->user_to_contact->contacts());
-        self::assertEquals($this->user_to_contact->username,
-            $this->user->contacts()->first()->username
+        self::assertEquals(
+            $this->user_to_contact->username,
+            $this->user->contacts()->first()->username,
         );
-        self::assertEquals($this->user->username,
-                           $this->user_to_contact->contacts()->first()->username
+        self::assertEquals(
+            $this->user->username,
+            $this->user_to_contact->contacts()->first()->username,
         );
         self::assertTrue($this->user->isContact($this->user_to_contact));
         self::assertTrue($this->user_to_contact->isContact($this->user));
@@ -131,11 +131,13 @@ class UserContactUserTest extends TestCase
         $this->user_to_contact->requestContact($this->user);
         self::assertCount(1, $this->user->contacts());
         self::assertCount(1, $this->user_to_contact->contacts());
-        self::assertEquals($this->user_to_contact->username,
-                           $this->user->contacts()->first()->username
+        self::assertEquals(
+            $this->user_to_contact->username,
+            $this->user->contacts()->first()->username,
         );
-        self::assertEquals($this->user->username,
-                           $this->user_to_contact->contacts()->first()->username
+        self::assertEquals(
+            $this->user->username,
+            $this->user_to_contact->contacts()->first()->username,
         );
         self::assertTrue($this->user->isContact($this->user_to_contact));
         self::assertTrue($this->user_to_contact->isContact($this->user));
@@ -147,6 +149,5 @@ class UserContactUserTest extends TestCase
         $this->user_to_contact->requestContact($this->user);
         self::assertCount(0, $this->user->viewIncomingContactRequests());
         self::assertCount(0, $this->user_to_contact->viewOutgoingContactRequests());
-
     }
 }
