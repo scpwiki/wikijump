@@ -18,6 +18,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Wikijump\Http\Middleware\Authenticate;
 use Wikijump\Http\Middleware\EncryptCookies;
 use Wikijump\Http\Middleware\PreventRequestsDuringMaintenance;
@@ -61,7 +62,11 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
         ],
 
-        'api' => ['throttle:api', SubstituteBindings::class],
+        'api' => [
+            EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
+            SubstituteBindings::class,
+        ],
     ];
 
     /**

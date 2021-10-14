@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,48 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// -- AUTH
+// TODO: move to a controller
+// just for simplicity, these are all in closures
+// but later, we should probably move everything to controllers
+Route::prefix('auth')->group(function () {
+    // authLogin
+    Route::post('login', function (Request $request) {
+        $credentials = $request->validate([
+            'login' => 'required',
+            'password' => 'required',
+            'remember' => 'sometimes|boolean',
+        ]);
+
+        $login = $credentials['login'];
+        $password = $credentials['password'];
+        $remember = $credentials['remember'] ?? false;
+
+        $isEmail = filter_var($login, FILTER_VALIDATE_EMAIL);
+
+        // attempt to login
+        $attempt = $isEmail
+            ? Auth::attempt(['email' => $login, 'password' => $password], $remember)
+            : Auth::attempt(['username' => $login, 'password' => $password], $remember);
+
+        if ($attempt) {
+            $request->session()->regenerate();
+            return response('', 200);
+        }
+
+        return response('', 400);
+    });
+
+    // authLogout
+    // TODO: I think this redirects if not logged in, that has to be disabled
+    Route::middleware('auth')->delete('logout', function (Request $request) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return response('', 200);
+    });
 });
 
 // Fallback to Mockoon server, if it's up
