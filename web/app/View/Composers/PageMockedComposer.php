@@ -31,11 +31,12 @@ class PageMockedComposer
         $license = $this->getRandomLicense();
         $breadcrumbs = $this->generateBreadcrumbs();
 
+        $site_name = $f->company;
         $page_title = $f->streetName;
         $revision = $f->randomNumber(3);
         $timestamp = $f->dateTimeThisYear->getTimestamp();
         $tags = $f->unique()->words(10);
-        $title = $page_title . ' | Wikijump';
+        $title = "$page_title | $site_name";
         $social_title = $page_title;
         $category = $f->word;
 
