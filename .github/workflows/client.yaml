@@ -1,4 +1,4 @@
-name: "[client monorepo] TypeScript"
+name: "[web] PHP and TypeScript"
 
 on:
   push:
