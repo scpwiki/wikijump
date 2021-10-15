@@ -4,7 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Wikijump\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,46 +24,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // -- AUTH
-// TODO: move to a controller
-// just for simplicity, these are all in closures
-// but later, we should probably move everything to controllers
-Route::prefix('auth')->group(function () {
-    // authLogin
-    Route::post('login', function (Request $request) {
-        $credentials = $request->validate([
-            'login' => 'required',
-            'password' => 'required',
-            'remember' => 'sometimes|boolean',
-        ]);
-
-        $login = $credentials['login'];
-        $password = $credentials['password'];
-        $remember = $credentials['remember'] ?? false;
-
-        $isEmail = filter_var($login, FILTER_VALIDATE_EMAIL);
-
-        // attempt to login
-        $attempt = $isEmail
-            ? Auth::attempt(['email' => $login, 'password' => $password], $remember)
-            : Auth::attempt(['username' => $login, 'password' => $password], $remember);
-
-        if ($attempt) {
-            $request->session()->regenerate();
-            return response('', 200);
-        }
-
-        return response('', 400);
-    });
-
-    // authLogout
-    // TODO: I think this redirects if not logged in, that has to be disabled
-    Route::middleware('auth')->delete('logout', function (Request $request) {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return response('', 200);
-    });
-});
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::delete('/auth/logout', [AuthController::class, 'logout']);
+Route::post('/auth/check', [AuthController::class, 'check']);
+Route::post('/auth/refresh', [AuthController::class, 'refresh']);
 
 // Fallback to Mockoon server, if it's up
 if (App::environment('local')) {
@@ -76,6 +42,8 @@ if (App::environment('local')) {
                 'query' => $request->query->all(),
                 'body' => $request->getContent(),
             ]);
+
+            Log::debug("Proxyed unimplemented API path ($path) to Mockoon");
 
             return response($res->body(), $res->status(), $res->headers());
         } catch (Exception $err) {

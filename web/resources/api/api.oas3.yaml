@@ -226,7 +226,7 @@ paths:
 
   /auth/login:
     post:
-      description: Logs in a user.
+      description: Attempts a login. The login specifier can be either a username or an email address.
       tags: [auth]
       operationId: authLogin
       requestBody:
@@ -249,6 +249,7 @@ paths:
                 This cookie must be sent with subsequent requests to authorize actions.
               schema: { type: string }
         400: { description: Invalid email or password. }
+        409: { description: Already logged in. }
         500: { description: Unexpected Error }
 
   /auth/logout:
@@ -260,6 +261,7 @@ paths:
       - AccountSession: []
       responses:
         default: { description: OK }
+        400:     { description: Not logged in. }
         500:     { description: Unexpected Error }
 
   /auth/check:
@@ -274,15 +276,14 @@ paths:
             required: [sessionValid, authed, expires],
             properties: {
               sessionValid: { type: boolean },
-              authed:       { type: boolean },
-              expires:      { type: string, format: date-time }
+              authed:       { type: boolean }
             }
           }}}
         500: { description: Unexpected Error }
 
   /auth/refresh:
     post:
-      description: Refreshes the client's access token.
+      description: Refreshes the client's session.
       tags: [auth]
       operationId: authRefresh
       security:
