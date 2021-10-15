@@ -85,4 +85,19 @@ fn settings() {
         "INCLUDED PAGE",
         [true, true, false, false, true],
     );
+    check!(
+        "[[image /local-file.png]]",
+        "local-file.png",
+        [true, true, false, false, true],
+    );
+    check!(
+        "[[image /some-page/local-file.png]]",
+        "local-file.png",
+        [true, true, false, false, true],
+    );
+    check!(
+        "[[image /my-site/some-page/local-file.png]]",
+        "local-file.png",
+        [true, true, false, false, true],
+    );
 }
