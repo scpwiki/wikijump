@@ -39,11 +39,11 @@ class AuthController extends Controller
         $remember = $credentials['remember'] ?? false;
         $is_email = filter_var($login, FILTER_VALIDATE_EMAIL);
 
-        $attempt = $is_email
+        $success = $is_email
             ? Auth::attempt(['email' => $login, 'password' => $password], $remember)
             : Auth::attempt(['username' => $login, 'password' => $password], $remember);
 
-        if ($attempt) {
+        if ($success) {
             $request->session()->regenerate();
             return new Response(['csrf' => $request->session()->token()], 200);
         }
