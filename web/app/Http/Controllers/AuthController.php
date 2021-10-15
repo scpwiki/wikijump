@@ -95,7 +95,7 @@ class AuthController extends Controller
         // check if the user is logged in
         elseif (Auth::check()) {
             $request->session()->regenerate();
-            return new Response('', 200);
+            return new Response(['csrf' => $request->session()->token()], 200);
         }
         // user is logged out, so we can't refresh
         else {
