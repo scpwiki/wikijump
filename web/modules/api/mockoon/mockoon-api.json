@@ -7,7 +7,7 @@
                 "uuid": "",
                 "lastMigration": 17,
                 "name": "Wikijump",
-                "endpointPrefix": "api--v1",
+                "endpointPrefix": "api--v0",
                 "latency": 0,
                 "port": 3500,
                 "hostname": "127.0.0.1",

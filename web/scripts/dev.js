@@ -24,6 +24,7 @@ const { createServer } = require("vite")
   const start = performance.now()
 
   const doBuild = await question("Build containers? This can take a while. [y/N] -> ")
+  linebreak()
 
   if (doBuild.trim().toLowerCase() === "y") {
     section("BUILD")
@@ -54,7 +55,10 @@ const { createServer } = require("vite")
     process.exit(1)
   }
 
-  infoline("Development servers (Vite, Legacy) started.")
+  infoline(
+    "Development servers (Vite, Legacy) started.",
+    "Don't forget that you can start a Mockoon server to mock unimplemented API paths."
+  )
 
   section("COMPOSE")
 

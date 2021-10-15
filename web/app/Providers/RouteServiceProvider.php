@@ -44,10 +44,20 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         $this->routes(function () {
-            Route::prefix('api')
+            // We may need to use this for pure API stuff,
+            // e.g. CROM or other scraping tools.
+            // I think `/query` will probably go in here.
+            // Since nothing uses it right now, I gave it a
+            // path that shouldn't conflict with anything.
+            Route::prefix('api--unused')
                 ->middleware('api')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/api.php'));
+
+            Route::prefix('api--v0')
+                ->middleware('web')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/api-v0.php'));
 
             Route::middleware('web')
                 ->namespace($this->namespace)
