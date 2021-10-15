@@ -76,7 +76,7 @@ class AuthController extends Controller
     {
         $session_valid = $request->session()->isStarted();
         $authed = Auth::check();
-        return response(['session_valid' => $session_valid, 'authed' => $authed], 200);
+        return response(['sessionValid' => $session_valid, 'authed' => $authed], 200);
     }
 
     /**
