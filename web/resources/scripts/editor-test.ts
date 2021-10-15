@@ -8,12 +8,11 @@ window.addEventListener("DOMContentLoaded", async () => {
   setTimeout(async () => {
     try {
       await WikijumpAPI.authLogin({ login: "admin", password: "admin1" })
-      const response = await WikijumpAPI.userClientGet()
-      console.log("mocked API response:")
+      const response = await WikijumpAPI.authCheck()
+      console.log("API response:")
       console.log(response)
     } catch (err) {
       console.warn(err)
-      console.log("API probably isn't being mocked")
     }
   }, 1000)
 })

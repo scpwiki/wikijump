@@ -242,6 +242,10 @@ paths:
       responses:
         200:
           description: OK
+          content: { application/json: { schema: { type: object,
+            required: [csrf],
+            properties: { csrf: { type: string } }
+          }}}
           headers:
             Set-Cookie:
               description: >

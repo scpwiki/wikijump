@@ -1080,7 +1080,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Logs in a user.
+   * Attempts a login. The login specifier can be either a username or an
+   * email address.
    *
    * @tags auth
    * @name AuthLogin
@@ -1090,11 +1091,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     data: { login: LoginSpecifier; password: string; remember?: boolean },
     params: RequestParams = {}
   ) =>
-    this.request<void, void>({
+    this.request<{ csrf: string }, void>({
       path: `/auth/login`,
       method: "POST",
       body: data,
       type: ContentType.Json,
+      format: "json",
       ...params
     })
 
@@ -1122,7 +1124,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request POST:/auth/check
    */
   authCheck = (params: RequestParams = {}) =>
-    this.request<{ sessionValid: boolean; authed: boolean; expires: string }, void>({
+    this.request<{ sessionValid: boolean; authed: boolean }, void>({
       path: `/auth/check`,
       method: "POST",
       format: "json",
@@ -1130,7 +1132,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Refreshes the client's access token.
+   * Refreshes the client's session.
    *
    * @tags auth
    * @name AuthRefresh
@@ -3594,24 +3596,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       path: `/site/request-deletion`,
       method: "POST",
       secure: true,
-      ...params
-    })
-
-  /**
-   * Clones the current site and creates a new one.
-   *
-   * @tags site
-   * @name SiteClone
-   * @request POST:/site/clone
-   * @secure
-   */
-  siteClone = (data: CreateSiteSettings, params: RequestParams = {}) =>
-    this.request<void, void>({
-      path: `/site/clone`,
-      method: "POST",
-      body: data,
-      secure: true,
-      type: ContentType.Json,
       ...params
     })
 
