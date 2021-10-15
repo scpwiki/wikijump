@@ -22,3 +22,4 @@ mod ast;
 mod includer;
 mod large;
 mod prop;
+mod settings;
