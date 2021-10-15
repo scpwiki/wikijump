@@ -75,5 +75,6 @@ fn settings() {
 
     check!("++ H2", "toc0", [true, true, false, false, false]);
     check!("[[toc]]", "wj-toc", [true, true, false, false, false]);
-    check!("[[module Rate]]", "@", [true, true, false, false, false]);
+    check!("[[module Rate]]", "TODO: module Rate", [true, true, false, false, true]);
+    check!("[[include-elements page]]", "INCLUDED PAGE", [true, true, false, false, true]);
 }
