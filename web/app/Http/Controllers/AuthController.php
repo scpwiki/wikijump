@@ -29,8 +29,8 @@ class AuthController extends Controller
         }
 
         $credentials = $request->validate([
-            'login' => 'required',
-            'password' => 'required',
+            'login' => 'required|string',
+            'password' => 'required|string',
             'remember' => 'sometimes|boolean',
         ]);
 
