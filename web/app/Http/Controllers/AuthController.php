@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Wikijump\Http\Controllers;
 
-use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 
 /**
  * Controller for authenticating users.
@@ -19,7 +19,7 @@ class AuthController extends Controller
      * Endpoint: `POST` | `/auth/login` | `authLogin`
      * @param Request $request The request containing user credentials.
      */
-    public function login(Request $request): ResponseFactory
+    public function login(Request $request): Response
     {
         // TODO: set the authentication guard depending on user's role
 
@@ -56,7 +56,7 @@ class AuthController extends Controller
      * Endpoint: (authed) `DELETE` | `/auth/logout` | `authLogout`
      * @param Request $request The current request.
      */
-    public function logout(Request $request): ResponseFactory
+    public function logout(Request $request): Response
     {
         if (Auth::check()) {
             Auth::logout();
@@ -74,7 +74,7 @@ class AuthController extends Controller
      * Endpoint: `POST` | `/auth/check` | `authCheck`
      * @param Request $request The current request.
      */
-    public function check(Request $request): ResponseFactory
+    public function check(Request $request): Response
     {
         $session_valid = $request->session()->isStarted();
         $authed = Auth::check();
@@ -86,7 +86,7 @@ class AuthController extends Controller
      * Endpoint: (authed) `POST` | `/auth/refresh` | `authRefresh`
      * @param Request $request The current request.
      */
-    public function refresh(Request $request): ResponseFactory
+    public function refresh(Request $request): Response
     {
         // check if session is invalid
         if (!$request->session()->isStarted()) {
