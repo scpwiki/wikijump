@@ -65,7 +65,7 @@ class AuthController extends Controller
             return new Response('', 200);
         } else {
             // user isn't logged in, so we can't log them out
-            return new Response('', 400);
+            return new Response('', 401);
         }
     }
 

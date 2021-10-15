@@ -265,7 +265,7 @@ paths:
       - AccountSession: []
       responses:
         default: { description: OK }
-        400:     { description: Not logged in. }
+        401:     { description: Not logged in. }
         500:     { description: Unexpected Error }
 
   /auth/check:
