@@ -8,7 +8,6 @@ const {
   section,
   linebreak,
   question,
-  cmd,
   shell,
   shellSync
 } = require("./pretty-logs")
