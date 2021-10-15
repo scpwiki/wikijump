@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Request;
 
 /**
  * Controller for authenticating users.
- * API: /auth
+ * API: `/auth`
  */
 class AuthController extends Controller
 {
@@ -21,6 +21,8 @@ class AuthController extends Controller
      */
     public function login(Request $request): ResponseFactory
     {
+        // TODO: set the authentication guard depending on user's role
+
         // check if the user is already logged in
         if (Auth::check()) {
             response('', 409);
@@ -86,11 +88,18 @@ class AuthController extends Controller
      */
     public function refresh(Request $request): ResponseFactory
     {
-        if (Auth::check()) {
+        // check if session is invalid
+        if (!$request->session()->isStarted()) {
+            return response('', 403);
+        }
+        // check if the user is logged in
+        elseif (Auth::check()) {
             $request->session()->regenerate();
             return response('', 200);
-        } else {
-            return response('', 400);
+        }
+        // user is logged out, so we can't refresh
+        else {
+            return response('', 401);
         }
     }
 }
