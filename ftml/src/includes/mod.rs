@@ -37,6 +37,7 @@ pub use self::includer::{DebugIncluder, FetchedPage, Includer, NullIncluder};
 use self::parse::parse_include_block;
 use crate::data::PageRef;
 use crate::log::prelude::*;
+use crate::settings::WikitextSettings;
 use crate::tree::VariableMap;
 use regex::{Regex, RegexBuilder};
 
@@ -56,6 +57,7 @@ lazy_static! {
 pub fn include<'t, I, E, F>(
     log: &Logger,
     input: &'t str,
+    settings: &WikitextSettings,
     mut includer: I,
     invalid_return: F,
 ) -> Result<(String, Vec<PageRef<'t>>), E>
@@ -69,6 +71,14 @@ where
         "function" => "include",
         "text" => str!(input),
     ));
+
+    if !settings.enable_page_syntax {
+        info!(log, "Includes are disabled for this input, skipping",);
+
+        let output = str!(input);
+        let pages = vec![];
+        return Ok((output, pages));
+    }
 
     info!(
         log,

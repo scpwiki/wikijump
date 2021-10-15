@@ -19,15 +19,17 @@
  */
 
 use super::{include, DebugIncluder, PageRef};
+use crate::settings::{WikitextMode, WikitextSettings};
 
 #[test]
 fn includes() {
     let log = crate::build_logger();
+    let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
     macro_rules! test {
         ($text:expr, $expected:expr $(,)?) => {{
             let mut text = str!($text);
-            let result = include(&log, &mut text, DebugIncluder, || panic!());
+            let result = include(&log, &mut text, &settings, DebugIncluder, || panic!());
             let (output, actual) = result.expect("Fetching pages failed");
             let expected = $expected;
 

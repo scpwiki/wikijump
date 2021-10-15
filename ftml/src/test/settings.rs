@@ -66,7 +66,7 @@ fn settings() {
     }
 
     macro_rules! check {
-        ($input:expr, $substring:expr, $contains:expr) => {{
+        ($input:expr, $substring:expr, $contains:expr $(,)?) => {{
             for (&mode, &contains) in PAGE_MODES.iter().zip($contains.iter()) {
                 check_individual!(mode, $input, $substring, contains);
             }
@@ -75,6 +75,14 @@ fn settings() {
 
     check!("++ H2", "toc0", [true, true, false, false, false]);
     check!("[[toc]]", "wj-toc", [true, true, false, false, false]);
-    check!("[[module Rate]]", "TODO: module Rate", [true, true, false, false, true]);
-    check!("[[include-elements page]]", "INCLUDED PAGE", [true, true, false, false, true]);
+    check!(
+        "[[module Rate]]",
+        "TODO: module Rate",
+        [true, true, false, false, true],
+    );
+    check!(
+        "[[include-elements page]]",
+        "INCLUDED PAGE",
+        [true, true, false, false, true],
+    );
 }

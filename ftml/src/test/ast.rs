@@ -215,7 +215,7 @@ impl Test<'_> {
         let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
         let (mut text, _pages) =
-            crate::include(log, &self.input, TestIncluder, || unreachable!())
+            crate::include(log, &self.input, &settings, TestIncluder, || unreachable!())
                 .void_unwrap();
 
         crate::preprocess(log, &mut text);
