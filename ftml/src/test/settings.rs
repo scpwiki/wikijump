@@ -24,12 +24,20 @@ use crate::settings::{WikitextMode, WikitextSettings};
 
 #[test]
 fn settings() {
+    const PAGE_MODES: [WikitextMode; 5] = [
+        WikitextMode::Page,
+        WikitextMode::Draft,
+        WikitextMode::ForumPost,
+        WikitextMode::DirectMessage,
+        WikitextMode::List,
+    ];
+
     let log = &crate::build_logger();
     let page_info = PageInfo::dummy();
 
-    macro_rules! check {
-        ($mode:tt, $input:expr, $substring:expr, $contains:expr) => {{
-            let settings = WikitextSettings::from_mode(WikitextMode::$mode);
+    macro_rules! check_individual {
+        ($mode:expr, $input:expr, $substring:expr, $contains:expr) => {{
+            let settings = WikitextSettings::from_mode($mode);
             let mut text = str!($input);
             crate::preprocess(log, &mut text);
 
@@ -45,7 +53,8 @@ fn settings() {
             assert_eq!(
                 html_output.body.contains($substring),
                 $contains,
-                "HTML expected {} the expected substring {:?}",
+                "For {:?}, HTML expected {} the expected substring {:?}",
+                $mode,
                 if $contains {
                     "to contain"
                 } else {
@@ -56,5 +65,15 @@ fn settings() {
         }};
     }
 
-    check!(Page, "[[toc]]", "wj-toc", true);
+    macro_rules! check {
+        ($input:expr, $substring:expr, $contains:expr) => {{
+            for (&mode, &contains) in PAGE_MODES.iter().zip($contains.iter()) {
+                check_individual!(mode, $input, $substring, contains);
+            }
+        }};
+    }
+
+    check!("++ H2", "toc0", [true, true, false, false, false]);
+    check!("[[toc]]", "wj-toc", [true, true, false, false, false]);
+    check!("[[module Rate]]", "@", [true, true, false, false, false]);
 }
