@@ -45,10 +45,10 @@ class AuthController extends Controller
 
         if ($attempt) {
             $request->session()->regenerate();
-            return response('', 200);
+            return new Response('', 200);
         }
 
-        return response('', 400);
+        return new Response('', 400);
     }
 
     /**
@@ -62,10 +62,10 @@ class AuthController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return response('', 200);
+            return new Response('', 200);
         } else {
             // user isn't logged in, so we can't log them out
-            return response('', 400);
+            return new Response('', 400);
         }
     }
 
@@ -78,7 +78,7 @@ class AuthController extends Controller
     {
         $session_valid = $request->session()->isStarted();
         $authed = Auth::check();
-        return response(['sessionValid' => $session_valid, 'authed' => $authed], 200);
+        return new Response(['sessionValid' => $session_valid, 'authed' => $authed], 200);
     }
 
     /**
@@ -90,16 +90,16 @@ class AuthController extends Controller
     {
         // check if session is invalid
         if (!$request->session()->isStarted()) {
-            return response('', 403);
+            return new Response('', 403);
         }
         // check if the user is logged in
         elseif (Auth::check()) {
             $request->session()->regenerate();
-            return response('', 200);
+            return new Response('', 200);
         }
         // user is logged out, so we can't refresh
         else {
-            return response('', 401);
+            return new Response('', 401);
         }
     }
 }
