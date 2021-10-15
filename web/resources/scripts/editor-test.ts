@@ -1,4 +1,4 @@
-import WikijumpAPI from "@wikijump/api"
+import WikijumpAPI, { isAuthenticated } from "@wikijump/api"
 import App from "../lib/EditorTest.svelte"
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -7,7 +7,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   setTimeout(async () => {
     try {
-      await WikijumpAPI.authLogin({ login: "admin", password: "admin1" })
+      if (!isAuthenticated()) {
+        await WikijumpAPI.authLogin({ login: "admin", password: "admin1" })
+      }
       const response = await WikijumpAPI.authCheck()
       console.log("API response:")
       console.log(response)

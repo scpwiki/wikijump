@@ -1140,10 +1140,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @secure
    */
   authRefresh = (params: RequestParams = {}) =>
-    this.request<void, void>({
+    this.request<{ csrf: string }, void>({
       path: `/auth/refresh`,
       method: "POST",
       secure: true,
+      format: "json",
       ...params
     })
 

@@ -97,10 +97,12 @@ importers:
     specifiers:
       '@mockoon/cli': ^1.1.0
       '@wikijump/util': workspace:*
+      svelte: ^3.43.1
       svelte-i18n: ^3.3.13
       swagger-typescript-api: ^9.2.0
     dependencies:
       '@wikijump/util': link:../util
+      svelte: 3.43.2
       svelte-i18n: 3.3.13_svelte@3.43.2
     devDependencies:
       '@mockoon/cli': 1.1.0

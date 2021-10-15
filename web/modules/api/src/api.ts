@@ -1,3 +1,4 @@
+import { readable, Subscriber } from "svelte/store"
 import { Api, RequestParams } from "../vendor/api"
 
 const API_PATH = "/api--v0"
@@ -31,19 +32,66 @@ class WikijumpAPIInstance extends Api<void> {
     })
 
     this._CSRF = getCSRFMeta()
+    this._hijackAuthMethods()
 
-    // authLogin is special in that it regenerates your session.
+    // update authentication status, as we may already be logged in
+    this.authCheck().catch()
+  }
+
+  private _hijackAuthMethods() {
+    // authLogin and authRefresh are special in that they regenerate your session.
     // this invalidates your old CSRF token, so we need to update it,
-    // which means overriding the old authLogin method
+    // which means overriding the old methods with new ones.
+
+    // additionally, we want to update the authed store to whatever
+    // our authentication status is.
+    // so, we need to hijack all the auth methods
+
+    // unfortunately we can't use super.function because
+    // the auto-generated "method" is actually a value and not a method.
 
     const login = this.authLogin.bind(this)
+    const logout = this.authLogout.bind(this)
+    const refresh = this.authRefresh.bind(this)
+    const check = this.authCheck.bind(this)
 
     this.authLogin = async (data, requestParams) => {
-      const { csrf } = await login(data, requestParams)
-      this._CSRF = csrf
-      return { csrf }
+      const res = await login(data, requestParams)
+      this._CSRF = res.csrf
+      authSet(true)
+      return res
+    }
+
+    this.authLogout = async requestParams => {
+      await logout(requestParams)
+      authSet(false)
+    }
+
+    this.authRefresh = async requestParams => {
+      const res = await refresh(requestParams)
+      this._CSRF = res.csrf
+      return res
+    }
+
+    this.authCheck = async requestParams => {
+      const res = await check(requestParams)
+      authSet(res.authed)
+      return res
     }
   }
+}
+
+let authSet: Subscriber<boolean>
+
+/** Readable store holding the current authentication state. */
+export const authed = readable(false, set => void (authSet = set))
+
+let isAuthedBinding = false
+authed.subscribe(state => void (isAuthedBinding = state))
+
+/** Returns the current authentication state. */
+export function isAuthenticated() {
+  return isAuthedBinding
 }
 
 /** Wikijump API. */
