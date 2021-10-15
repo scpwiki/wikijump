@@ -1,32 +1,37 @@
 import { Api } from "../vendor/api"
 
-export class WikijumpAPI extends Api<void> {
+const API_PATH = "/api--v0"
+
+/**
+ * Wikijump API class. You usually don't need to make your own instance of
+ * this class, as the instance {@link WikijumpAPI} has already been
+ * constructed for you.
+ */
+export class WikijumpAPIInstance extends Api<void> {
   // TODO: allow giving a specific site here
-  constructor(baseUrl = "/api--v0") {
+  /** @param headers - Extra headers to send with every request. */
+  constructor(headers: Record<string, string> = {}) {
     super({
-      baseUrl,
+      baseUrl: API_PATH,
       baseApiParams: {
-        // kind of a hack, but using a getter ensures that the API is always
-        // called with up to date CSRF data
-        get headers(): Record<string, string> {
-          const csrfMeta = getCSRFMeta()
-          const csrfCookie = getCSRFCookie()
-          if (csrfCookie) {
-            return {
-              "X-CSRF-TOKEN": csrfMeta,
-              "X-XSRF-TOKEN": csrfCookie
-            }
-          } else {
-            return {
-              "X-CSRF-TOKEN": csrfMeta
-            }
-          }
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": getCSRFMeta(),
+          ...headers
         },
         format: "json"
+      },
+      securityWorker() {
+        const csrf = getCSRFCookie()
+        if (csrf) return { headers: { "X-XSRF-TOKEN": csrf } }
       }
     })
   }
 }
+
+/** Default Wikijump API instance. */
+export const WikijumpAPI = new WikijumpAPIInstance()
 
 /**
  * Retrieves the CSRF token from the `<meta name="csrf-token" ...>` tag in

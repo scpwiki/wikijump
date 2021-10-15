@@ -1,4 +1,4 @@
-import { WikijumpAPI } from "@wikijump/api"
+import WikijumpAPI from "@wikijump/api"
 import App from "../lib/EditorTest.svelte"
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -7,8 +7,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   setTimeout(async () => {
     try {
-      const api = new WikijumpAPI()
-      const response = await api.userGet("id", 1234)
+      await WikijumpAPI.authLogin({ login: "admin", password: "admin1" })
+      const response = await WikijumpAPI.userClientGet()
       console.log("mocked API response:")
       console.log(response)
     } catch (err) {
