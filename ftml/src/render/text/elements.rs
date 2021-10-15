@@ -182,7 +182,9 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             alignment,
             attributes,
         } => {
-            let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
+            let source_url =
+                ctx.handle()
+                    .get_image_link(log, source, ctx.info(), ctx.settings());
 
             str_write!(ctx, "Image: {}", &source_url);
 

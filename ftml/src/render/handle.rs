@@ -20,6 +20,7 @@
 
 use crate::data::{PageInfo, UserInfo};
 use crate::log::prelude::*;
+use crate::settings::WikitextSettings;
 use crate::tree::{ImageSource, LinkLabel, LinkLocation, Module};
 use crate::url::BuildSiteUrl;
 use std::borrow::Cow;
@@ -74,23 +75,38 @@ impl Handle {
     pub fn get_image_link<'a>(
         &self,
         log: &Logger,
-        info: &PageInfo,
         source: &ImageSource<'a>,
-    ) -> Cow<'a, str> {
+        info: &PageInfo,
+        settings: &WikitextSettings,
+    ) -> Option<Cow<'a, str>> {
         info!(log, "Getting file link for image");
 
         let (site, page, file): (&str, &str, &str) = match source {
-            ImageSource::Url(url) => return Cow::clone(url),
+            ImageSource::Url(url) => return Some(Cow::clone(url)),
+            ImageSource::File1 { .. }
+            | ImageSource::File2 { .. }
+            | ImageSource::File3 { .. }
+                if !settings.allow_local_paths =>
+            {
+                warn!(
+                    log,
+                    "Specified path image source when local paths  are disabled",
+                );
+
+                return None;
+            }
             ImageSource::File1 { file } => (&info.site, &info.page, file),
             ImageSource::File2 { page, file } => (&info.site, page, file),
             ImageSource::File3 { site, page, file } => (site, page, file),
         };
 
-        // TODO
-        Cow::Owned(format!(
+        // TODO: check that this file exists!
+
+        // TODO: emit url
+        Some(Cow::Owned(format!(
             "https://{}.wjfiles.com/local--files/{}/{}",
             site, page, file,
-        ))
+        )))
     }
 
     pub fn get_link_label<F>(
