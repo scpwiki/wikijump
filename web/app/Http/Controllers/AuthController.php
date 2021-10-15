@@ -37,9 +37,9 @@ class AuthController extends Controller
         $login = $credentials['login'];
         $password = $credentials['password'];
         $remember = $credentials['remember'] ?? false;
-        $isEmail = filter_var($login, FILTER_VALIDATE_EMAIL);
+        $is_email = filter_var($login, FILTER_VALIDATE_EMAIL);
 
-        $attempt = $isEmail
+        $attempt = $is_email
             ? Auth::attempt(['email' => $login, 'password' => $password], $remember)
             : Auth::attempt(['username' => $login, 'password' => $password], $remember);
 
