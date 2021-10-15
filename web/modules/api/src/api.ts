@@ -20,6 +20,7 @@ export class WikijumpAPIInstance extends Api<void> {
           "X-CSRF-TOKEN": getCSRFMeta(),
           ...headers
         },
+        secure: true,
         format: "json"
       },
       securityWorker() {
