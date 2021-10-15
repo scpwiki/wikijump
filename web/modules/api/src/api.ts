@@ -10,6 +10,9 @@ class WikijumpAPIInstance extends Api<void> {
   /** Current CSRF token. */
   private declare _CSRF?: string
 
+  /** The current base URL. If null, `API_PATH` will be used. */
+  private _baseURL: string | null = null
+
   /** @param headers - Extra headers to send with every request. */
   constructor(headers: Record<string, string> = {}) {
     super({
@@ -23,11 +26,19 @@ class WikijumpAPIInstance extends Api<void> {
         secure: true,
         format: "json"
       },
-      securityWorker: (): RequestParams => {
+      // this gets ran on every request,
+      // so this is more for setting up an API request
+      // than just handling security
+      securityWorker: () => {
         const csrf = this._CSRF ?? getCSRFMeta()
         const xsrf = getCSRFCookie()
-        if (xsrf) return { headers: { "X-CSRF-TOKEN": csrf, "X-XSRF-TOKEN": xsrf } }
-        else return { headers: { "X-CSRF-TOKEN": csrf } }
+        const securityHeaders = xsrf
+          ? { "X-CSRF-TOKEN": csrf, "X-XSRF-TOKEN": xsrf }
+          : { "X-CSRF-TOKEN": csrf }
+        return {
+          baseUrl: this._baseURL ?? API_PATH,
+          headers: securityHeaders
+        } as RequestParams
       }
     })
 
@@ -77,6 +88,30 @@ class WikijumpAPIInstance extends Api<void> {
       authSet(res.authed)
       return res
     }
+  }
+
+  /**
+   * Returns a base URL but for a different subdomain.
+   *
+   * @param subdomain - The subdomain to use.
+   */
+  subdomainURL(subdomain: string) {
+    return `${window.location.protocol}//${subdomain}.${window.location.host}/${API_PATH}`
+  }
+
+  /**
+   * Fires a callback in a context where the API's subdomain has been
+   * changed to the one specified. Be aware of potential race conditions
+   * when using this. If a race condition is unavoidable, you can use
+   * {@link subdomainURL} and manually set the `baseURL` for the request.
+   *
+   * @param subdomain - The subdomain to use.
+   * @param callback - The callback to run.
+   */
+  async withSubdomain(subdomain: string, callback: () => Promise<void>) {
+    this._baseURL = this.subdomainURL(subdomain)
+    await callback()
+    this._baseURL = null
   }
 }
 
