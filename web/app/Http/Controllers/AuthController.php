@@ -16,7 +16,7 @@ class AuthController extends Controller
 {
     /**
      * Attempts a login. The login specifier can be either a username or an email address.
-     * Endpoint: `POST` | `/auth/login` | `authLogin`
+     * Endpoint: `POST:/auth/login` | `authLogin`
      * @param Request $request The request containing user credentials.
      */
     public function login(Request $request): Response
@@ -53,7 +53,7 @@ class AuthController extends Controller
 
     /**
      * Logs the client out.
-     * Endpoint: (authed) `DELETE` | `/auth/logout` | `authLogout`
+     * Endpoint: (authed) `DELETE:/auth/logout` | `authLogout`
      * @param Request $request The current request.
      */
     public function logout(Request $request): Response
@@ -71,7 +71,7 @@ class AuthController extends Controller
 
     /**
      * Gets the authentication state of the client.
-     * Endpoint: `POST` | `/auth/check` | `authCheck`
+     * Endpoint: `POST:/auth/check` | `authCheck`
      * @param Request $request The current request.
      */
     public function check(Request $request): Response
@@ -83,7 +83,7 @@ class AuthController extends Controller
 
     /**
      * Refreshes the client's session.
-     * Endpoint: (authed) `POST` | `/auth/refresh` | `authRefresh`
+     * Endpoint: (authed) `POST:/auth/refresh` | `authRefresh`
      * @param Request $request The current request.
      */
     public function refresh(Request $request): Response
