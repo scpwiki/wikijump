@@ -23,11 +23,9 @@ class AuthController extends Controller
     {
         // TODO: set the authentication guard depending on user's role
 
-        // TODO: this doesn't seem to work??
-        // ^ might be related to if a login is the very first thing the user does
         // check if the user is already logged in
         if (Auth::check()) {
-            response('', 409);
+            return new Response('', 409);
         }
 
         $credentials = $request->validate([
