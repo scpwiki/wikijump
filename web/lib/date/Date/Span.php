@@ -294,7 +294,7 @@ class Date_Span
      */
     function setFromString($time, $format = null)
     {
-        if (is_null($format)) {
+        if ($format === null) {
             $format = $GLOBALS['_DATE_SPAN_INPUT_FORMAT'];
         }
         // If format is a string, it parses the string format.
@@ -397,7 +397,7 @@ class Date_Span
             }
             $vals = sscanf($time, $str);
             foreach ($vals as $i => $val) {
-                if (is_null($val)) {
+                if ($val === null) {
                     return false;
                 }
                 $$vars[$i] = $val;
@@ -630,7 +630,7 @@ class Date_Span
      */
     function format($format = null)
     {
-        if (is_null($format)) {
+        if ($format === null) {
             $format = $GLOBALS['_DATE_SPAN_FORMAT'];
         }
         $output = '';

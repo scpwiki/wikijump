@@ -172,7 +172,7 @@ class H2o {
     static function addTag($tag, $class = null) {
         $tags = array();
         if (is_string($tag)) {
-            if (is_null($class))
+            if ($class === null)
                 $class = ucwords("{$tag}_Tag");
             $tags[$tag] = $class;
         } elseif (is_array($tag)) {
@@ -216,7 +216,7 @@ class H2o {
             }
             return true;
         }
-        if (is_null($callback))
+        if ($callback === null)
             $callback = $filter;
 
         if (!is_callable($callback)) {
