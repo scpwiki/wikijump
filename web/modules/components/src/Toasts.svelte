@@ -4,7 +4,6 @@
   import Button from "./Button.svelte"
   import Icon from "./Icon.svelte"
   import { t } from "@wikijump/api"
-  import { tick } from "svelte"
 
   $: listToasts = Array.from($toasts)
 
@@ -32,9 +31,12 @@
   }
 
   function outro(evt: any) {
-    const node = evt.currentTarget as HTMLElement
-    node.style.height = "0"
-    node.style.marginTop = "0"
+    // last toast can have a weird animation, so we skip it to avoid that
+    if (listToasts.length !== 0) {
+      const node = evt.currentTarget as HTMLElement
+      node.style.height = "0"
+      node.style.marginTop = "0"
+    }
   }
 </script>
 
