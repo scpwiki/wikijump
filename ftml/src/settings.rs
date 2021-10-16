@@ -52,10 +52,16 @@ pub struct WikitextSettings {
 impl WikitextSettings {
     pub fn from_mode(mode: WikitextMode) -> Self {
         match mode {
-            WikitextMode::Page | WikitextMode::Draft => WikitextSettings {
+            WikitextMode::Page => WikitextSettings {
                 mode,
                 enable_page_syntax: true,
                 use_true_ids: true,
+                allow_local_paths: true,
+            },
+            WikitextMode::Draft => WikitextSettings {
+                mode,
+                enable_page_syntax: true,
+                use_true_ids: false,
                 allow_local_paths: true,
             },
             WikitextMode::ForumPost | WikitextMode::DirectMessage => WikitextSettings {
