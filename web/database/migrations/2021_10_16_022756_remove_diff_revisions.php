@@ -14,6 +14,7 @@ class RemoveDiffRevisions extends Migration
     public function up()
     {
         Schema::table('page_revision', function (Blueprint $table) {
+            $table->dropColumn('since_full_source');
             $table->dropColumn('diff_source');
         });
     }
@@ -26,6 +27,7 @@ class RemoveDiffRevisions extends Migration
     public function down()
     {
         Schema::table('page_revision', function (Blueprint $table) {
+            $table->unsignedInteger('since_full_source')->nullable();
             $table->boolean('diff_source')->default(false);
         });
     }
