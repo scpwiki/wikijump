@@ -302,7 +302,6 @@ class Duplicator
         $nrev->setSourceId($nsource->getSourceId());
         $nrev->setMetadataId($nmeta->getMetadataId());
         $nrev->setFlagNew(true);
-        $nrev->setFlagNewSite(true);
         $nrev->setDateLastEdited($now);
         $nrev->setUserId($owner->id);
         $nrev->obtainPK();

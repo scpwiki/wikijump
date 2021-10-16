@@ -39,7 +39,6 @@ class RecentWPageRevisionsModule extends SmartyModule
 
         $c = new Criteria();
         /*
-        $c->add("flag_new_site", false);
         $c->add("page.site_id", 1, '!=');
         $c->addJoin("page_id", "page.page_id");
         $c->addOrderDescending("page_revision.revision_id");
@@ -64,8 +63,7 @@ class RecentWPageRevisionsModule extends SmartyModule
         */
 
         $q = "SELECT page.* FROM page, page_revision, site WHERE " .
-                "page_revision.flag_new_site = FALSE ".
-                "AND site.visible = TRUE AND site.private = FALSE
+                "site.visible = TRUE AND site.private = FALSE
 				AND site.deleted = FALSE " ;
 
         if ($lang) {

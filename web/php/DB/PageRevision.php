@@ -32,7 +32,6 @@ class PageRevision extends PageRevisionBase
         $this->setFlagRename(false);
         $this->setFlagNew(false);
         $this->setFlagFile(false);
-        $this->setFlagNewSite(false);
     }
 
     public function getUser()
