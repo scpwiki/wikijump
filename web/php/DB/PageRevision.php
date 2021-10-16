@@ -55,11 +55,6 @@ class PageRevision extends PageRevisionBase
         }
     }
 
-    public function getOzoneUser()
-    {
-        return $this->getUser();
-    }
-
     public function getMetadata()
     {
         return PageMetadataPeer::instance()->selectByPrimaryKey($this->getMetadataId());
