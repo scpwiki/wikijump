@@ -65,7 +65,7 @@ class PageInfo
 
     public function getPageSlug(): string
     {
-        $categoryPrefix = $this->category === null ? '' : $this->category . ':';
+        $categoryPrefix = ($this->category ?? '') . ':';
         return $categoryPrefix . $this->page;
     }
 
