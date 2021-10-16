@@ -100,8 +100,6 @@ impl Handle {
             ImageSource::File3 { site, page, file } => (site, page, file),
         };
 
-        // TODO: check that this file exists!
-
         // TODO: emit url
         Some(Cow::Owned(format!(
             "https://{}.wjfiles.com/local--files/{}/{}",
@@ -158,6 +156,7 @@ impl Handle {
             "table-of-contents" => "Table of Contents",
             "footnote" => "Footnote",
             "footnote-block-title" => "Footnotes",
+            "image-context-bad" => "No images in this context",
             _ => {
                 info!(
                     log,

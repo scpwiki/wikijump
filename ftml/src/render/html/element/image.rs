@@ -110,5 +110,12 @@ fn render_image_element(
 fn render_image_missing(log: &Logger, ctx: &mut HtmlContext) {
     debug!(log, "Image URL unresolved, missing or error");
 
-    todo!();
+    let message = ctx
+        .handle()
+        .get_message(log, ctx.language(), "image-context-bad");
+
+    ctx.html()
+        .div()
+        .attr(attr!("class" => "wj-error-block"))
+        .inner(log, message);
 }
