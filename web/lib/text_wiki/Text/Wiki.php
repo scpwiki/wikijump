@@ -415,7 +415,7 @@ class Text_Wiki {
         }
 
         // no key requested, return the whole array
-        if (is_null($key)) {
+        if ($key === null) {
             return $this->parseConf[$rule];
         }
 
@@ -493,7 +493,7 @@ class Text_Wiki {
         }
 
         // no key requested, return the whole array
-        if (is_null($key)) {
+        if ($key === null) {
             return $this->renderConf[$rule];
         }
 
@@ -550,7 +550,7 @@ class Text_Wiki {
     function getFormatConf($key = null)
     {
         // no key requested, return the whole array
-        if (is_null($key)) {
+        if ($key === null) {
             return $this->formatConf;
         }
 
@@ -769,7 +769,7 @@ class Text_Wiki {
     // Used by the Toc.php parse rule
     public function getTokens(?array $rules = null): array
     {
-        if (is_null($rules)) {
+        if ($rules === null) {
             return $this->tokens;
         } else {
             settype($rules, 'array');
@@ -1000,7 +1000,7 @@ class Text_Wiki {
 
     function getPath($type = null)
     {
-        if (is_null($type)) {
+        if ($type === null) {
             return $this->path;
         } elseif (! isset($this->path[$type])) {
             return array();

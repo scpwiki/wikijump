@@ -199,7 +199,7 @@ class Date
     function __construct($date = null)
     {
         $this->tz = Date_TimeZone::getDefault();
-        if (is_null($date)) {
+        if ($date === null) {
             $this->setDate(date("Y-m-d H:i:s"));
         } elseif (is_a($date, 'Date')) {
             $this->copy($date);

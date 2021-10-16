@@ -6,18 +6,18 @@
 class H2o_Node {
     var $position;
 	function __construct($argstring) {}
-	
+
 	function render($context, $stream) {}
 }
 
 class NodeList extends H2o_Node implements IteratorAggregate  {
 	var $parser;
 	var $list;
-	
+
 	function __construct(&$parser, $initial = null, $position = 0) {
 	    $this->parser = $parser;
-        if (is_null($initial))
-            $initial = array();
+        if ($initial === null)
+            $initial = [];
         $this->list = $initial;
         $this->position = $position;
 	}
@@ -27,7 +27,7 @@ class NodeList extends H2o_Node implements IteratorAggregate  {
 			$node->render($context, $stream);
 		}
 	}
-	
+
     function append($node) {
         array_push($this->list, $node);
     }
@@ -39,7 +39,7 @@ class NodeList extends H2o_Node implements IteratorAggregate  {
     function getLength() {
         return count($this->list);
     }
-    
+
     function getIterator() {
         return new ArrayIterator( $this->list );
     }
@@ -48,7 +48,7 @@ class NodeList extends H2o_Node implements IteratorAggregate  {
 class VariableNode extends H2o_Node {
     private $filters = array();
     var $variable;
-    
+
 	function __construct($variable, $filters, $position = 0) {
         if (!empty($filters))
             $this->filters = $filters;
@@ -70,11 +70,11 @@ class TextNode extends H2o_Node {
 		$this->content = $content;
 		$this->position = $position;
 	}
-	
+
 	function render($context, $stream) {
 		$stream->write($this->content);
 	}
-	
+
 	function is_blank() {
 	    return strlen(trim($this->content));
 	}

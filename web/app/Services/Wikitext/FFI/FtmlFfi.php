@@ -195,7 +195,7 @@ final class FtmlFfi
     public static function string(?string $value): ?FFI\CData
     {
         // Check for null
-        if (is_null($value)) {
+        if ($value === null) {
             return null;
         }
 

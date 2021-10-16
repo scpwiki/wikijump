@@ -19,7 +19,7 @@ class TextWikiBackend extends WikitextBackend
         $this->wt = new WikiTransformation();
 
         // Set page data
-        if (!is_null($pageInfo)) {
+        if ($pageInfo !== null) {
             $site = self::getSite($pageInfo->site);
             $page = self::getPage($site->getSiteId(), $pageInfo->page);
             $this->wt->setPage($page);

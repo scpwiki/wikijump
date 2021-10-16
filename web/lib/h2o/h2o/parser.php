@@ -198,8 +198,9 @@ class ArgumentLexer {
     );
 
     function __construct($source, $fpos = 0){
-        if (!is_null($source))
-          $this->source = $source;
+        if ($source !== null) {
+            $this->source = $source;
+        }
         $this->fpos=$fpos;
     }
 

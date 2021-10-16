@@ -1442,7 +1442,7 @@ class Smarty_Compiler extends Smarty {
         foreach ($attrs as $arg_name => $arg_value) {
             if (is_bool($arg_value))
                 $arg_value = $arg_value ? 'true' : 'false';
-            if (is_null($arg_value))
+            if ($arg_value === null)
                 $arg_value = 'null';
             if ($_cache_attrs && in_array($arg_name, $_cache_attrs)) {
                 $arg_list[] = "'$arg_name' => (\$this->_cache_including) ? \$_cache_attrs['$arg_name'] : (\$_cache_attrs['$arg_name']=$arg_value)";
