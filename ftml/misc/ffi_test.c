@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <inttypes.h>
 
@@ -44,6 +45,12 @@ int main(int argc, char **argv)
 		.tags_len = 0,
 		.language = "default",
 	};
+	const ftml_wikitext_settings settings = {
+		.mode = WIKITEXT_MODE_PAGE,
+		.enable_page_syntax = true,
+		.use_true_ids = true,
+		.allow_local_paths = true,
+	};
 	const char *input = (
 		"[[css]]\n"
 		"div.blockquote { color: blue; }\n"
@@ -57,7 +64,7 @@ int main(int argc, char **argv)
 		"__string__\n"
 	);
 
-	ftml_render_html(&output, input, &page_info);
+	ftml_render_html(&output, input, &page_info, &settings);
 
 	printf("Input:\n%s\n----\n\n", input);
 	printf("Body:\n%s\n----\n\n", output.body);
