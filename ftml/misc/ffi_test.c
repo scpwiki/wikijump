@@ -4,17 +4,33 @@
 
 #include <ftml.h>
 
-#define PRINT_ALL_BACKLINKS(message, name) \
-	do { \
-		printf(message ":\n"); \
-		if (output.backlinks.name ## _len == 0) { \
-			printf("    (none)\n"); \
-		} \
-		for (size_t i = 0; i < output.backlinks.name ## _len; i++) { \
-			printf("  - %s\n", output.backlinks.name ## _list[i]); \
-		} \
-		printf("\n"); \
-	} while (0)
+static void print_page_refs(const char *name, const ftml_page_ref **list, size_t len)
+{
+	printf("%s:\n", name);
+
+	for (size_t i = 0; i < len; i++) {
+		const ftml_page_ref *page_ref = list[i];
+		const char *site = page_ref->site;
+		if (!site) {
+			site = "(default)";
+		}
+
+		printf("  - %s %s\n", site, page_ref->page);
+	}
+}
+
+static void print_strings(const char *name, const char **list, size_t len)
+{
+	printf("%s:\n", name);
+
+	if (len == 0) {
+		printf("    (none)\n");
+	}
+
+	for (size_t i = 0; i < len; i++) {
+		printf("  - %s\n", list[i]);
+	}
+}
 
 static const char *meta_type(ftml_html_meta_type type)
 {
@@ -109,11 +125,21 @@ int main(int argc, char **argv)
 	}
 
 	printf("Backlinks:\n----\n\n");
-	PRINT_ALL_BACKLINKS("Included pages (present)", included_pages_present);
-	PRINT_ALL_BACKLINKS("Included pages (missing)", included_pages_absent);
-	PRINT_ALL_BACKLINKS("Internal links (present)", internal_links_present);
-	PRINT_ALL_BACKLINKS("Internal links (missing)", internal_links_absent);
-	PRINT_ALL_BACKLINKS("External links", external_links);
+	print_page_refs(
+		"Included pages",
+		output.backlinks.included_pages_list,
+		output.backlinks.included_pages_len
+	);
+	print_page_refs(
+		"Internal links",
+		output.backlinks.internal_links_list,
+		output.backlinks.internal_links_len
+	);
+	print_strings(
+		"External links",
+		output.backlinks.external_links_list,
+		output.backlinks.external_links_len
+	);
 
 	return 0;
 }
