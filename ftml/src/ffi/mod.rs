@@ -25,7 +25,7 @@
 // So this is the "safe" form of unsafe within Rust.
 #![allow(unsafe_code)]
 // This module uses C naming for its components, mostly snake_case.
-#![allow(non_camel_case_types)]
+#![allow(non_camel_case_types, clippy::upper_case_acronyms)]
 
 mod prelude {
     pub use super::log::get_logger;
@@ -45,6 +45,7 @@ mod misc;
 mod page_info;
 mod page_ref;
 mod pool;
+mod settings;
 mod string;
 mod text;
 mod vec;

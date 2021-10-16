@@ -21,6 +21,7 @@
 use crate::data::PageInfo;
 use crate::non_empty_vec::NonEmptyVec;
 use crate::render::Handle;
+use crate::settings::WikitextSettings;
 use crate::tree::{Element, VariableScopes};
 use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
@@ -33,6 +34,7 @@ where
     output: String,
     info: &'i PageInfo<'i>,
     handle: &'h Handle,
+    settings: &'e WikitextSettings,
 
     //
     // Included page scopes
@@ -74,6 +76,7 @@ where
     pub fn new(
         info: &'i PageInfo<'i>,
         handle: &'h Handle,
+        settings: &'e WikitextSettings,
         table_of_contents: &'e [Element<'t>],
         footnotes: &'e [Vec<Element<'t>>],
     ) -> Self {
@@ -81,6 +84,7 @@ where
             output: String::new(),
             info,
             handle,
+            settings,
             variables: VariableScopes::new(),
             table_of_contents,
             footnotes,
@@ -101,6 +105,11 @@ where
     #[inline]
     pub fn info(&self) -> &'i PageInfo<'i> {
         self.info
+    }
+
+    #[inline]
+    pub fn settings(&self) -> &WikitextSettings {
+        self.settings
     }
 
     #[inline]

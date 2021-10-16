@@ -20,6 +20,7 @@
 
 use crate::data::{PageInfo, PageRef};
 use crate::render::{html::HtmlRender, text::TextRender, Render};
+use crate::settings::{WikitextMode, WikitextSettings};
 use crate::tree::attribute::SAFE_ATTRIBUTES;
 use crate::tree::{
     Alignment, AnchorTarget, AttributeMap, ClearFloat, Container, ContainerType, Element,
@@ -430,11 +431,13 @@ fn arb_page_info() -> impl Strategy<Value = PageInfo<'static>> {
 
 fn render<R: Render>(
     render: R,
-    page_info: PageInfo<'static>,
     tree: SyntaxTree<'static>,
+    page_info: PageInfo<'static>,
 ) -> R::Output {
     let log = crate::build_logger();
-    render.render(&log, &page_info, &tree)
+    let settings = WikitextSettings::from_mode(WikitextMode::Page);
+
+    render.render(&log, &tree, &page_info, &settings)
 }
 
 proptest! {
@@ -446,13 +449,13 @@ proptest! {
 
     #[test]
     fn render_html_prop(page_info in arb_page_info(), tree in arb_tree()) {
-        let out = render(HtmlRender, page_info, tree);
+        let out = render(HtmlRender, tree, page_info);
 
         assert!(out.meta.len() >= 4);
     }
 
     #[test]
     fn render_text_prop(page_info in arb_page_info(), tree in arb_tree()) {
-        let _ = render(TextRender, page_info, tree);
+        let _ = render(TextRender, tree, page_info);
     }
 }

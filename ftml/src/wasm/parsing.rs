@@ -20,6 +20,7 @@
 
 use super::page_info::PageInfo;
 use super::prelude::*;
+use super::settings::WikitextSettings;
 use super::tokenizer::Tokenization;
 use crate::parsing::{
     ParseOutcome as RustParseOutcome, ParseWarning as RustParseWarning,
@@ -126,15 +127,22 @@ impl SyntaxTree {
 // Exported functions
 
 #[wasm_bindgen]
-pub fn parse(page_info: PageInfo, tokens: Tokenization) -> Result<ParseOutcome, JsValue> {
+pub fn parse(
+    tokens: Tokenization,
+    page_info: PageInfo,
+    settings: WikitextSettings,
+) -> Result<ParseOutcome, JsValue> {
     let log = &*LOGGER;
 
     // Borrow and perform parsing
-    let page_info = page_info.get();
     let tokenization = tokens.get();
-    let (syntax_tree, warnings) = crate::parse(log, page_info, tokenization).into();
+    let page_info = page_info.get();
+    let settings = settings.get();
+    let (syntax_tree, warnings) =
+        crate::parse(log, tokenization, page_info, settings).into();
 
-    // Deep-clone AST to make it owned, so it can be safely passed to JS.
+    // Deep-clone AST to make it owned, so it can be
+    // safely passed to JS, where it will live for an unknown time.
     let syntax_tree = syntax_tree.to_owned();
 
     // Convert warnings to use UTF-16 indices

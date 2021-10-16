@@ -43,6 +43,7 @@ use self::context::HtmlContext;
 use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::render::{Handle, Render};
+use crate::settings::WikitextSettings;
 use crate::tree::SyntaxTree;
 
 #[derive(Debug)]
@@ -54,8 +55,9 @@ impl Render for HtmlRender {
     fn render(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         tree: &SyntaxTree,
+        page_info: &PageInfo,
+        settings: &WikitextSettings,
     ) -> HtmlOutput {
         info!(
             log,
@@ -72,6 +74,7 @@ impl Render for HtmlRender {
         let mut ctx = HtmlContext::new(
             page_info,
             &Handle,
+            settings,
             &tree.table_of_contents,
             &tree.footnotes,
         );

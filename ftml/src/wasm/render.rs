@@ -21,6 +21,7 @@
 use super::page_info::PageInfo;
 use super::parsing::SyntaxTree;
 use super::prelude::*;
+use super::settings::WikitextSettings;
 use crate::render::html::{HtmlOutput as RustHtmlOutput, HtmlRender};
 use crate::render::text::TextRender;
 use crate::render::Render;
@@ -104,11 +105,16 @@ impl HtmlOutput {
 // Exported functions
 
 #[wasm_bindgen]
-pub fn render_html(page_info: PageInfo, syntax_tree: SyntaxTree) -> HtmlOutput {
+pub fn render_html(
+    syntax_tree: SyntaxTree,
+    page_info: PageInfo,
+    settings: WikitextSettings,
+) -> HtmlOutput {
     let log = &*LOGGER;
-    let page_info = page_info.get();
     let tree = syntax_tree.get();
-    let html = HtmlRender.render(&log, page_info, tree);
+    let page_info = page_info.get();
+    let settings = settings.get();
+    let html = HtmlRender.render(&log, tree, page_info, settings);
 
     HtmlOutput {
         inner: Arc::new(html),
@@ -116,11 +122,16 @@ pub fn render_html(page_info: PageInfo, syntax_tree: SyntaxTree) -> HtmlOutput {
 }
 
 #[wasm_bindgen]
-pub fn render_text(page_info: PageInfo, syntax_tree: SyntaxTree) -> String {
+pub fn render_text(
+    syntax_tree: SyntaxTree,
+    page_info: PageInfo,
+    settings: WikitextSettings,
+) -> String {
     let log = &*LOGGER;
-    let page_info = page_info.get();
     let tree = syntax_tree.get();
-    let text = TextRender.render(&log, page_info, tree);
+    let page_info = page_info.get();
+    let settings = settings.get();
+    let text = TextRender.render(&log, tree, page_info, settings);
 
     text
 }

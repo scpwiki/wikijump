@@ -45,6 +45,7 @@ mod prelude {
         ExtractedToken, ParseException, ParseResult, ParseSuccess, ParseWarning,
         ParseWarningKind, Token,
     };
+    pub use crate::settings::WikitextSettings;
     pub use crate::text::FullText;
     pub use crate::tree::{Element, Elements, OwnedElementsIterator};
 }
@@ -60,6 +61,7 @@ use self::strip::{strip_newlines, strip_whitespace};
 use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::next_index::{NextIndex, TableOfContentsIndex};
+use crate::settings::WikitextSettings;
 use crate::tokenizer::Tokenization;
 use crate::tree::{
     AttributeMap, Element, LinkLabel, LinkLocation, ListItem, ListType, SyntaxTree,
@@ -77,8 +79,9 @@ pub use self::token::{ExtractedToken, Token};
 /// This takes a list of `ExtractedToken` items produced by `tokenize()`.
 pub fn parse<'r, 't>(
     log: &Logger,
-    page_info: &'r PageInfo<'t>,
     tokenization: &'r Tokenization<'t>,
+    page_info: &'r PageInfo<'t>,
+    settings: &'r WikitextSettings,
 ) -> ParseOutcome<SyntaxTree<'t>>
 where
     'r: 't,
@@ -89,7 +92,7 @@ where
         table_of_contents_depths,
         footnotes,
         has_footnote_block,
-    } = parse_internal(log, page_info, tokenization);
+    } = parse_internal(log, page_info, settings, tokenization);
 
     // For producing table of contents indexes
     let mut incrementer = Incrementer(0);
@@ -174,12 +177,13 @@ where
 pub fn parse_internal<'r, 't>(
     log: &Logger,
     page_info: &'r PageInfo<'t>,
+    settings: &'r WikitextSettings,
     tokenization: &'r Tokenization<'t>,
 ) -> UnstructuredParseResult<'r, 't>
 where
     'r: 't,
 {
-    let mut parser = Parser::new(log, page_info, tokenization);
+    let mut parser = Parser::new(log, tokenization, page_info, settings);
 
     // Logging setup
     let log = &log.new(slog_o!(

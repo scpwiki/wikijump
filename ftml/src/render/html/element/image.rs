@@ -48,7 +48,32 @@ pub fn render_image(
         },
     );
 
-    let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
+    let source_url = ctx
+        .handle()
+        .get_image_link(log, source, ctx.info(), ctx.settings());
+    match source_url {
+        // Found URL
+        Some(url) => render_image_element(log, ctx, &url, link, alignment, attributes),
+
+        // Missing or error
+        None => render_image_missing(log, ctx),
+    }
+}
+
+fn render_image_element(
+    log: &Logger,
+    ctx: &mut HtmlContext,
+    url: &str,
+    link: &Option<LinkLocation>,
+    alignment: Option<FloatAlignment>,
+    attributes: &AttributeMap,
+) {
+    debug!(
+        log,
+        "Found URL, rendering image";
+        "url" => url,
+    );
+
     let (space, align_class) = match alignment {
         Some(align) => (" ", align.html_class()),
         None => ("", ""),
@@ -63,7 +88,7 @@ pub fn render_image(
             let build_image = |ctx: &mut HtmlContext| {
                 ctx.html().img().attr(attr!(
                     "class" => "wj-image",
-                    "src" => &source_url,
+                    "src" => url,
                     "crossorigin";;
                     attributes
                 ));
@@ -80,4 +105,17 @@ pub fn render_image(
                 None => build_image(ctx),
             };
         });
+}
+
+fn render_image_missing(log: &Logger, ctx: &mut HtmlContext) {
+    debug!(log, "Image URL unresolved, missing or error");
+
+    let message = ctx
+        .handle()
+        .get_message(log, ctx.language(), "image-context-bad");
+
+    ctx.html()
+        .div()
+        .attr(attr!("class" => "wj-error-block"))
+        .inner(log, message);
 }

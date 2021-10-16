@@ -25,7 +25,7 @@ use crate::parsing::ParseWarning;
 use crate::render::html::{HtmlMeta, HtmlMetaType, HtmlOutput};
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum ftml_html_meta_type {
     META_NAME,
     META_HTTP_EQUIV,

@@ -30,6 +30,7 @@ use crate::parsing::ParseWarning;
 use crate::render::html::HtmlRender;
 use crate::render::text::TextRender;
 use crate::render::Render;
+use crate::settings::{WikitextMode, WikitextSettings};
 use crate::tree::SyntaxTree;
 use std::borrow::Cow;
 use std::fs::{self, File};
@@ -211,16 +212,18 @@ impl Test<'_> {
             language: cow!("default"),
         };
 
+        let settings = WikitextSettings::from_mode(WikitextMode::Page);
+
         let (mut text, _pages) =
-            crate::include(log, &self.input, TestIncluder, || unreachable!())
+            crate::include(log, &self.input, &settings, TestIncluder, || unreachable!())
                 .void_unwrap();
 
         crate::preprocess(log, &mut text);
         let tokens = crate::tokenize(log, &text);
-        let result = crate::parse(log, &page_info, &tokens);
+        let result = crate::parse(log, &tokens, &page_info, &settings);
         let (tree, warnings) = result.into();
-        let html_output = HtmlRender.render(log, &page_info, &tree);
-        let text_output = TextRender.render(log, &page_info, &tree);
+        let html_output = HtmlRender.render(log, &tree, &page_info, &settings);
+        let text_output = TextRender.render(log, &tree, &page_info, &settings);
 
         fn json<T>(object: &T) -> String
         where

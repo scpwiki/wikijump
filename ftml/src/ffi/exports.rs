@@ -21,6 +21,7 @@
 use super::html::ftml_html_output;
 use super::page_info::ftml_page_info;
 use super::prelude::*;
+use super::settings::ftml_wikitext_settings;
 use super::text::ftml_text_output;
 use crate::parsing::ParseWarning;
 use crate::render::html::HtmlRender;
@@ -30,6 +31,7 @@ use crate::render::Render;
 fn render<R: Render>(
     c_text: *const c_char,
     c_page_info: *const ftml_page_info,
+    c_settings: *const ftml_wikitext_settings,
     renderer: &R,
 ) -> (R::Output, Vec<ParseWarning>) {
     let log = &get_logger();
@@ -42,13 +44,19 @@ fn render<R: Render>(
             .expect("Passed PageInfo structure from C was null")
             .to_page_info()
     };
+    let settings = unsafe {
+        c_settings
+            .as_ref()
+            .expect("Passed WikitextSettings structure from C was null")
+            .to_wikitext_settings()
+    };
 
     // TODO includer
 
     crate::preprocess(log, &mut text);
     let tokens = crate::tokenize(log, &text);
-    let (tree, warnings) = crate::parse(log, &page_info, &tokens).into();
-    let output = renderer.render(log, &page_info, &tree);
+    let (tree, warnings) = crate::parse(log, &tokens, &page_info, &settings).into();
+    let output = renderer.render(log, &tree, &page_info, &settings);
     (output, warnings)
 }
 
@@ -61,8 +69,9 @@ pub extern "C" fn ftml_render_html(
     output: *mut ftml_html_output,
     input: *const c_char,
     page_info: *const ftml_page_info,
+    settings: *const ftml_wikitext_settings,
 ) {
-    let (rust_output, rust_warnings) = render(input, page_info, &HtmlRender);
+    let (rust_output, rust_warnings) = render(input, page_info, settings, &HtmlRender);
     let c_output = unsafe { &mut *output };
     c_output.write_from(rust_output, &rust_warnings);
 }
@@ -76,8 +85,9 @@ pub extern "C" fn ftml_render_text(
     output: *mut ftml_text_output,
     input: *const c_char,
     page_info: *const ftml_page_info,
+    settings: *const ftml_wikitext_settings,
 ) {
-    let (rust_output, rust_warnings) = render(input, page_info, &TextRender);
+    let (rust_output, rust_warnings) = render(input, page_info, settings, &TextRender);
     let c_output = unsafe { &mut *output };
     c_output.write_from(rust_output, &rust_warnings);
 }

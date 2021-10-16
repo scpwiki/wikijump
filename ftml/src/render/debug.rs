@@ -29,17 +29,29 @@ impl Render for DebugRender {
     type Output = String;
 
     #[inline]
-    fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
+    fn render(
+        &self,
+        log: &Logger,
+        tree: &SyntaxTree,
+        page_info: &PageInfo,
+        settings: &WikitextSettings,
+    ) -> String {
         info!(log, "Running debug logger on syntax tree");
 
-        format!("{:#?}\n{:#?}", page_info, tree)
+        format!("{:#?}\n{:#?}\n{:#?}", settings, page_info, tree)
     }
 }
 
 #[test]
 fn debug() {
     // Expected outputs
-    const OUTPUT: &str = r#"PageInfo {
+    const OUTPUT: &str = r#"WikitextSettings {
+    mode: Page,
+    enable_page_syntax: true,
+    use_true_ids: true,
+    allow_local_paths: true,
+}
+PageInfo {
     page: "some-page",
     category: None,
     site: "sandbox",
@@ -81,6 +93,7 @@ SyntaxTree {
 
     let log = crate::build_logger();
     let page_info = PageInfo::dummy();
+    let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
     // Syntax tree construction
     let elements = vec![
@@ -107,7 +120,7 @@ SyntaxTree {
     let (tree, _) = result.into();
 
     // Perform rendering
-    let output = DebugRender.render(&log, &page_info, &tree);
+    let output = DebugRender.render(&log, &tree, &page_info, &settings);
     assert_eq!(
         output, OUTPUT,
         "Pretty JSON syntax tree output doesn't match",

@@ -38,8 +38,9 @@ pub struct Parser<'r, 't> {
     // Logger instance
     log: Logger,
 
-    // Page information
+    // Page and parse information
     page_info: &'r PageInfo<'t>,
+    settings: &'r WikitextSettings,
 
     // Parse state
     current: &'r ExtractedToken<'t>,
@@ -79,8 +80,9 @@ impl<'r, 't> Parser<'r, 't> {
     /// the main instance used during parsing.
     pub(crate) fn new(
         log: &Logger,
-        page_info: &'r PageInfo<'t>,
         tokenization: &'r Tokenization<'t>,
+        page_info: &'r PageInfo<'t>,
+        settings: &'r WikitextSettings,
     ) -> Self {
         let log = Logger::clone(log);
         let full_text = tokenization.full_text();
@@ -92,6 +94,7 @@ impl<'r, 't> Parser<'r, 't> {
         Parser {
             log,
             page_info,
+            settings,
             current,
             remaining,
             full_text,
@@ -115,6 +118,11 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn page_info(&self) -> &PageInfo<'t> {
         self.page_info
+    }
+
+    #[inline]
+    pub fn settings(&self) -> &WikitextSettings {
+        self.settings
     }
 
     #[inline]
@@ -193,6 +201,15 @@ impl<'r, 't> Parser<'r, 't> {
         self.has_footnote_block = true;
     }
 
+    // Parse settings helpers
+    pub fn check_page_syntax(&self) -> Result<(), ParseWarning> {
+        if self.settings.enable_page_syntax {
+            Ok(())
+        } else {
+            Err(self.make_warn(ParseWarningKind::NotSupportedMode))
+        }
+    }
+
     // Table of Contents
     pub fn push_table_of_contents_entry(
         &mut self,
@@ -203,7 +220,12 @@ impl<'r, 't> Parser<'r, 't> {
         let level = usize::from(heading.value()) - 1;
 
         // Render name as text, so it lacks formatting
-        let name = TextRender.render_partial(&self.log, self.page_info, name_elements);
+        let name = TextRender.render_partial(
+            &self.log,
+            name_elements,
+            self.page_info,
+            self.settings,
+        );
 
         self.table_of_contents.borrow_mut().push((level, name));
     }
@@ -452,13 +474,16 @@ fn make_shared_vec<T>() -> Rc<RefCell<Vec<T>>> {
 
 #[test]
 fn parser_newline_flag() {
+    use crate::settings::WikitextMode;
+
     let log = &crate::build_logger();
     let page_info = PageInfo::dummy();
+    let settings = WikitextSettings::from_mode(WikitextMode::Page);
 
     macro_rules! check {
         ($input:expr, $expected_steps:expr $(,)?) => {{
             let tokens = crate::tokenize(log, $input);
-            let mut parser = Parser::new(log, &page_info, &tokens);
+            let mut parser = Parser::new(log, &tokens, &page_info, &settings);
             let mut actual_steps = Vec::new();
 
             // Iterate through the tokens.

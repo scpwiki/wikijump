@@ -182,25 +182,32 @@ pub fn render_element(log: &Logger, ctx: &mut TextContext, element: &Element) {
             alignment,
             attributes,
         } => {
-            let source_url = ctx.handle().get_image_link(log, ctx.info(), source);
+            let source_url =
+                ctx.handle()
+                    .get_image_link(log, source, ctx.info(), ctx.settings());
 
-            str_write!(ctx, "Image: {}", &source_url);
+            match source_url {
+                Some(url) => {
+                    str_write!(ctx, "Image: {}", &url);
 
-            if let Some(image) = alignment {
-                let float = if image.float { " float" } else { "" };
-                str_write!(ctx, " [Align: {}{}]", image.align.name(), float);
-            }
+                    if let Some(image) = alignment {
+                        let float = if image.float { " float" } else { "" };
+                        str_write!(ctx, " [Align: {}{}]", image.align.name(), float);
+                    }
 
-            if let Some(link) = link {
-                str_write!(ctx, " [Link: {}]", get_url_from_link(ctx, link));
-            }
+                    if let Some(link) = link {
+                        str_write!(ctx, " [Link: {}]", get_url_from_link(ctx, link));
+                    }
 
-            if let Some(alt_text) = attributes.get().get("alt") {
-                str_write!(ctx, " [Alt: {}]", alt_text);
-            }
+                    if let Some(alt_text) = attributes.get().get("alt") {
+                        str_write!(ctx, " [Alt: {}]", alt_text);
+                    }
 
-            if let Some(title) = attributes.get().get("title") {
-                str_write!(ctx, " [Title: {}]", title);
+                    if let Some(title) = attributes.get().get("title") {
+                        str_write!(ctx, " [Title: {}]", title);
+                    }
+                }
+                None => str_write!(ctx, "Missing Image"),
             }
         }
         Element::List { ltype, items, .. } => {

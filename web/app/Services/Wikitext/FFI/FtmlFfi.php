@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext\FFI;
 
-use \FFI;
+use FFI;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\SitePeer;
 use Wikidot\Utils\ProcessException;

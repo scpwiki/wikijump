@@ -26,6 +26,7 @@ use self::elements::render_elements;
 use crate::data::PageInfo;
 use crate::log::prelude::*;
 use crate::render::{Handle, Render};
+use crate::settings::WikitextSettings;
 use crate::tree::{Element, SyntaxTree};
 
 #[derive(Debug)]
@@ -36,17 +37,19 @@ impl TextRender {
     pub fn render_partial(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         elements: &[Element],
+        page_info: &PageInfo,
+        settings: &WikitextSettings,
     ) -> String {
-        self.render_partial_direct(log, page_info, elements, &[], &[])
+        self.render_partial_direct(log, elements, page_info, settings, &[], &[])
     }
 
     fn render_partial_direct(
         &self,
         log: &Logger,
-        page_info: &PageInfo,
         elements: &[Element],
+        page_info: &PageInfo,
+        settings: &WikitextSettings,
         table_of_contents: &[Element],
         footnotes: &[Vec<Element>],
     ) -> String {
@@ -62,7 +65,8 @@ impl TextRender {
             },
         );
 
-        let mut ctx = TextContext::new(page_info, &Handle, table_of_contents, footnotes);
+        let mut ctx =
+            TextContext::new(page_info, &Handle, settings, table_of_contents, footnotes);
         render_elements(log, &mut ctx, elements);
 
         // Remove leading and trailing newlines
@@ -82,11 +86,18 @@ impl Render for TextRender {
     type Output = String;
 
     #[inline]
-    fn render(&self, log: &Logger, page_info: &PageInfo, tree: &SyntaxTree) -> String {
+    fn render(
+        &self,
+        log: &Logger,
+        tree: &SyntaxTree,
+        page_info: &PageInfo,
+        settings: &WikitextSettings,
+    ) -> String {
         self.render_partial_direct(
             log,
-            page_info,
             &tree.elements,
+            page_info,
+            settings,
             &tree.table_of_contents,
             &tree.footnotes,
         )
