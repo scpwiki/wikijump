@@ -55,11 +55,11 @@ impl From<WikitextSettings> for ftml_wikitext_settings {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub enum ftml_wikitext_mode {
-    PAGE,
-    DRAFT,
-    FORUM_POST,
-    DIRECT_MESSAGE,
-    LIST,
+    WIKITEXT_MODE_PAGE,
+    WIKITEXT_MODE_DRAFT,
+    WIKITEXT_MODE_FORUM_POST,
+    WIKITEXT_MODE_DIRECT_MESSAGE,
+    WIKITEXT_MODE_LIST,
 }
 
 impl From<ftml_wikitext_mode> for WikitextMode {
@@ -68,11 +68,11 @@ impl From<ftml_wikitext_mode> for WikitextMode {
         use ftml_wikitext_mode::*;
 
         match mode {
-            PAGE => WikitextMode::Page,
-            DRAFT => WikitextMode::Draft,
-            FORUM_POST => WikitextMode::ForumPost,
-            DIRECT_MESSAGE => WikitextMode::DirectMessage,
-            LIST => WikitextMode::List,
+            WIKITEXT_MODE_PAGE => WikitextMode::Page,
+            WIKITEXT_MODE_DRAFT => WikitextMode::Draft,
+            WIKITEXT_MODE_FORUM_POST => WikitextMode::ForumPost,
+            WIKITEXT_MODE_DIRECT_MESSAGE => WikitextMode::DirectMessage,
+            WIKITEXT_MODE_LIST => WikitextMode::List,
         }
     }
 }
@@ -83,11 +83,11 @@ impl From<WikitextMode> for ftml_wikitext_mode {
         use ftml_wikitext_mode::*;
 
         match mode {
-            WikitextMode::Page => PAGE,
-            WikitextMode::Draft => DRAFT,
-            WikitextMode::ForumPost => FORUM_POST,
-            WikitextMode::DirectMessage => DIRECT_MESSAGE,
-            WikitextMode::List => LIST,
+            WikitextMode::Page => WIKITEXT_MODE_PAGE,
+            WikitextMode::Draft => WIKITEXT_MODE_DRAFT,
+            WikitextMode::ForumPost => WIKITEXT_MODE_FORUM_POST,
+            WikitextMode::DirectMessage => WIKITEXT_MODE_DIRECT_MESSAGE,
+            WikitextMode::List => WIKITEXT_MODE_LIST,
         }
     }
 }
