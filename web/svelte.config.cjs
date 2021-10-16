@@ -5,5 +5,8 @@ module.exports = {
     sveltePreprocess({
       sass: { sourceMapEmbed: true, sourceMapContents: true, sourceMap: true }
     })
-  ]
+  ],
+  compilerOptions: {
+    immutable: true
+  }
 }

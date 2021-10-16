@@ -1,4 +1,5 @@
 import WikijumpAPI, { isAuthenticated } from "@wikijump/api"
+import { toast } from "@wikijump/components"
 import App from "../lib/EditorTest.svelte"
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -16,5 +17,8 @@ window.addEventListener("DOMContentLoaded", async () => {
     } catch (err) {
       console.warn(err)
     }
+
+    toast("success", "TOAST!")
+    toast("info", "Toast?", 2000)
   }, 1000)
 })

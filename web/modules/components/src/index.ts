@@ -17,3 +17,5 @@ export * from "./lib/tippy"
 export * from "./lib/portal"
 export * from "./lib/media"
 export * from "./lib/useragent"
+
+export { toast } from "./lib/toasts"
