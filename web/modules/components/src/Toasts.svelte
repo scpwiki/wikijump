@@ -56,11 +56,11 @@
     padding: 0;
     margin: 2rem;
 
-    // @include match("<=small") {
-    //   align-items: center;
-    //   width: 100%;
-    //   margin: 1rem 0;
-    // }
+    @include media("<=small") {
+      align-items: center;
+      width: 100%;
+      margin: 1rem 0;
+    }
   }
 
   .toast {
@@ -75,11 +75,11 @@
     border-radius: 0.5rem;
     @include shadow(4);
 
-    // @include match("<=small") {
-    //   width: 90%;
-    //   min-width: 0;
-    //   max-width: none;
-    // }
+    @include media("<=small") {
+      width: 90%;
+      min-width: 0;
+      max-width: none;
+    }
   }
 
   .toast-type,
