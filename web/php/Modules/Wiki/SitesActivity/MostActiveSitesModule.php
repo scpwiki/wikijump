@@ -57,7 +57,7 @@ class MostActiveSitesModule extends SmartyModule
                 $dateStart->addSeconds(-60*60*24*31);
                 break;
         }
-        $q = "SELECT site.site_id, count(*) AS number_changes FROM site, page_revision WHERE page_revision.date_last_edited > '".$dateStart->getDate()."' AND site.visible = TRUE AND site.private = FALSE AND site.deleted = FALSE AND site.site_id != 1 AND page_revision.flag_new_site=FALSE AND page_revision.site_id = site.site_id GROUP BY site.site_id ORDER BY number_changes DESC LIMIT 10";
+        $q = "SELECT site.site_id, count(*) AS number_changes FROM site, page_revision WHERE page_revision.date_last_edited > '".$dateStart->getDate()."' AND site.visible = TRUE AND site.private = FALSE AND site.deleted = FALSE AND site.site_id != 1 AND page_revision.site_id = site.site_id GROUP BY site.site_id ORDER BY number_changes DESC LIMIT 10";
 
         $db = Database::connection();
 

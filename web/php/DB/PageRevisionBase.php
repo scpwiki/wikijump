@@ -18,7 +18,7 @@ class PageRevisionBase extends BaseDBObject
         $this->tableName='page_revision';
         $this->peerName = 'Wikidot\\DB\\PageRevisionPeer';
         $this->primaryKeyName = 'revision_id';
-        $this->fieldNames = array( 'revision_id' ,  'page_id' ,  'site_id' ,  'source_id' ,  'metadata_id' ,  'flags' ,  'flag_text' ,  'flag_title' ,  'flag_file' ,  'flag_rename' ,  'flag_meta' ,  'flag_new' ,  'flag_new_site' ,  'since_full_source' ,  'diff_source' ,  'revision_number' ,  'date_last_edited' ,  'user_id' ,  'user_string' ,  'comments' );
+        $this->fieldNames = array( 'revision_id' ,  'page_id' ,  'site_id' ,  'source_id' ,  'metadata_id' ,  'flags' ,  'flag_text' ,  'flag_title' ,  'flag_file' ,  'flag_rename' ,  'flag_meta' ,  'flag_new' ,   'revision_number' ,  'date_last_edited' ,  'user_id' ,  'user_string' ,  'comments' );
 
         //$this->fieldDefaultValues=
     }
@@ -157,39 +157,6 @@ class PageRevisionBase extends BaseDBObject
     public function setFlagNew($v1, $raw = false)
     {
         $this->setFieldValue('flag_new', $v1, $raw);
-    }
-
-
-    public function getFlagNewSite()
-    {
-        return $this->getFieldValue('flag_new_site');
-    }
-
-    public function setFlagNewSite($v1, $raw = false)
-    {
-        $this->setFieldValue('flag_new_site', $v1, $raw);
-    }
-
-
-    public function getSinceFullSource()
-    {
-        return $this->getFieldValue('since_full_source');
-    }
-
-    public function setSinceFullSource($v1, $raw = false)
-    {
-        $this->setFieldValue('since_full_source', $v1, $raw);
-    }
-
-
-    public function getDiffSource()
-    {
-        return $this->getFieldValue('diff_source');
-    }
-
-    public function setDiffSource($v1, $raw = false)
-    {
-        $this->setFieldValue('diff_source', $v1, $raw);
     }
 
 

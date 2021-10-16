@@ -18,8 +18,6 @@ class PageRevision extends PageRevisionBase
 
     public function getSourceText()
     {
-        assert(!$this->getDiffSource(), "Revision uses diff-based storage");
-
         $c = new Criteria();
         $c->add("source_id", $this->getSourceId());
 
@@ -34,7 +32,6 @@ class PageRevision extends PageRevisionBase
         $this->setFlagRename(false);
         $this->setFlagNew(false);
         $this->setFlagFile(false);
-        $this->setFlagNewSite(false);
     }
 
     public function getUser()
@@ -53,11 +50,6 @@ class PageRevision extends PageRevisionBase
         } else {
             return $user;
         }
-    }
-
-    public function getOzoneUser()
-    {
-        return $this->getUser();
     }
 
     public function getMetadata()
