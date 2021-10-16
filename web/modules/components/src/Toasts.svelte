@@ -3,7 +3,7 @@
   import { toasts } from "./lib/toasts"
   import Button from "./Button.svelte"
   import Icon from "./Icon.svelte"
-  // import { t } from "@wikijump/api"
+  import { t } from "@wikijump/api"
 
   $: listToasts = Array.from($toasts)
 
@@ -34,7 +34,7 @@
         <Button
           i="ion:close"
           size="1.5rem"
-          tip="Close Notification"
+          tip={$t("components.toasts.CLOSE")}
           baseline
           on:click={toast.remove}
         />

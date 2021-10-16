@@ -46,6 +46,9 @@ components:
       TITLE: Performance
       RENDER: "RENDER:"
 
+  toasts:
+    CLOSE: Close Notification
+
   # unimplemented
   theme_picker:
     TOOLTIP: Set Color Scheme
