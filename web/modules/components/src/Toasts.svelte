@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { cubicOut } from "svelte/easing"
   import { toasts } from "./lib/toasts"
+  import { anim } from "./lib/animation"
   import Button from "./Button.svelte"
   import Icon from "./Icon.svelte"
   import { t } from "@wikijump/api"
+  import { tick } from "svelte"
 
   $: listToasts = Array.from($toasts)
 
@@ -14,31 +15,54 @@
     info: "ion:information"
   }
 
-  function listTransition(_elem: Element, anim: { from: DOMRect; to: DOMRect }, _: any) {
-    const d = anim.from.top - anim.to.top
-    return {
-      delay: d > 0 ? 0 : 300,
-      duration: 250,
-      easing: cubicOut,
-      css: (_t: number, u: number) => `top: ${u * d}px`
-    }
+  // what these animations do:
+  // each toast container has a transition for margin-top and height
+  // these start at 0, which means that they don't affect the positions
+  // of the other toasts
+  // intro: set height and margin-top to their "correct" values
+  // outro: set height and margin-top to 0
+  // this causes the toasts to gracefully reposition as the list changes
+
+  function intro(evt: any) {
+    const node = evt.currentTarget as HTMLElement
+    const toast = node.children[0] as HTMLElement
+    const height = toast.getBoundingClientRect().height
+    node.style.height = `${height}px`
+    node.style.marginTop = "1rem"
+  }
+
+  function outro(evt: any) {
+    const node = evt.currentTarget as HTMLElement
+    node.style.height = "0"
+    node.style.marginTop = "0"
   }
 </script>
 
 <ul class="toasts" aria-live="polite" aria-relevant="additions">
   {#each listToasts as toast (toast)}
-    <li class="toast is-{toast.type} dark" animate:listTransition>
-      <span class="toast-type"><Icon i={icons[toast.type]} size="100%" /></span>
-      {toast.message}
-      <span class="toast-remove">
-        <Button
-          i="ion:close"
-          size="1.5rem"
-          tip={$t("components.toasts.CLOSE")}
-          baseline
-          on:click={toast.remove}
-        />
-      </span>
+    <li
+      class="toast-block"
+      on:introstart={intro}
+      on:outrostart={outro}
+      transition:anim={{
+        duration: 500,
+        easing: "quartOut",
+        css: (_, u) => `transform: translateX(${u * 150}%);`
+      }}
+    >
+      <div class="toast is-{toast.type} dark">
+        <span class="toast-type"><Icon i={icons[toast.type]} size="100%" /></span>
+        {toast.message}
+        <span class="toast-remove">
+          <Button
+            i="ion:close"
+            size="1.5rem"
+            tip={$t("components.toasts.CLOSE")}
+            baseline
+            on:click={toast.remove}
+          />
+        </span>
+      </div>
     </li>
   {/each}
 </ul>
@@ -63,14 +87,20 @@
     }
   }
 
+  .toast-block {
+    position: relative;
+    height: 0;
+    margin-top: 0;
+    list-style: none;
+    transition: height 250ms 75ms, margin-top 250ms 75ms;
+  }
+
   .toast {
     position: relative;
     width: fit-content;
     min-width: 20rem;
     max-width: 500px;
     padding: 0.5rem 3rem;
-    margin: 0.5rem 0;
-    list-style: none;
     border: solid 0.125rem var(--col-border);
     border-radius: 0.5rem;
     @include shadow(4);

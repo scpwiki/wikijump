@@ -18,7 +18,10 @@ window.addEventListener("DOMContentLoaded", async () => {
       console.warn(err)
     }
 
-    toast("success", "TOAST!")
-    toast("info", "Toast?", 2000)
+    toast("danger", "dangerous toast!", 0)
+    toast("info", "Toast?", 0)
+    toast("success", "Toast!", 0)
+    toast("warning", "oh no... toast", 0)
+    setTimeout(() => toast("info", "see ya later"), 1000)
   }, 1000)
 })
