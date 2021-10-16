@@ -18,8 +18,6 @@ class PageRevision extends PageRevisionBase
 
     public function getSourceText()
     {
-        assert(!$this->getDiffSource(), "Revision uses diff-based storage");
-
         $c = new Criteria();
         $c->add("source_id", $this->getSourceId());
 
