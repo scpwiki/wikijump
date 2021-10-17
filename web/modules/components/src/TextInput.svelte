@@ -39,39 +39,45 @@
   ]
 </script>
 
-<label class="textinput">
-  {#if label}
-    <div role="presentation">
-      <span class="textinput-label">{label}</span>
-      {#if required}
-        <span class="textinput-required" use:tip={$t("components.textinput.REQUIRED")}>
-          <Icon i="fa-solid:asterisk" size="0.5em" />
-        </span>
-      {/if}
-    </div>
-  {/if}
-  <input
-    bind:this={input}
-    bind:value
-    use:keyHandle={keyHandler}
-    class="textinput-input"
-    class:is-thin={thin}
-    class:is-noborder={noborder}
-    {...$$restProps}
-  /><!--
-  --><span role="presentation" class="textinput-icon" class:is-thin={thin} />
-</label>
+<div class="textinput">
+  <label>
+    {#if label}
+      <div role="presentation">
+        <span class="textinput-label">{label}</span>
+        {#if required}
+          <span class="textinput-required" use:tip={$t("components.textinput.REQUIRED")}>
+            <Icon i="fa-solid:asterisk" size="0.5em" />
+          </span>
+        {/if}
+      </div>
+    {/if}
+    <input
+      bind:this={input}
+      bind:value
+      use:keyHandle={keyHandler}
+      class="textinput-input"
+      class:is-thin={thin}
+      class:is-noborder={noborder}
+      {...$$restProps}
+    /><!--
+    --><span role="presentation" class="textinput-icon" class:is-thin={thin} />
+  </label>
 
-{#if info}
-  <div class="textinput-info">{info}</div>
-{/if}
+  {#if info}
+    <div class="textinput-info">{info}</div>
+  {/if}
+</div>
 
 <style lang="scss">
   @import "../../../resources/css/abstracts";
 
+  .textinput {
+    margin: 0.25rem 0;
+  }
+
   .textinput-label {
     padding-left: 0.25em;
-    font-size: 0.875em;
+    font-size: 0.825em;
     color: var(--col-text-subtle);
   }
 
@@ -86,7 +92,6 @@
   .textinput-required {
     margin-left: 0.25em;
     color: var(--col-danger);
-    vertical-align: text-bottom;
   }
 
   .textinput-input {
