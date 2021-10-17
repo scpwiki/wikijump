@@ -7,7 +7,7 @@ declare(strict_types=1);
  * helpers, so must be loaded in a special way to prevent conflicts.
  */
 
-use intl\MessageFormatter;
+use Wikijump\Services\Localization\LocalizationService;
 
 /**
  * Helper for localizing strings, overwriting Laravel's __() function.
@@ -16,14 +16,9 @@ use intl\MessageFormatter;
  *
  * @param string $key The translation key to look up.
  * @param array $values Optional values to substitute as part of message formatting.
+ * @return string The localized and formatted string.
  */
-function __(string $key, array $values = [])
+function __(string $key, array $values = []): string
 {
-    $locale = App::currentLocale();
-    $message = gettext($key);
-    if ($message === $key) {
-        Log::warning("Unable to find message '$key' in locale '$locale'");
-    }
-
-    return MessageFormatter::formatMessage($locale, $message, $values);
+    return LocalizationService::translate($key, $values);
 }

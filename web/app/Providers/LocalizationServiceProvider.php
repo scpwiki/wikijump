@@ -5,6 +5,7 @@ namespace Wikijump\Providers;
 
 
 use Illuminate\Support\ServiceProvider;
+use Wikijump\Services\Localization\LocalizationService;
 
 class LocalizationServiceProvider extends ServiceProvider
 {
@@ -24,9 +25,6 @@ class LocalizationServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Set up gettext
-        bindtextdomain('wikijump', WIKIJUMP_ROOT . '/web/resources/lang');
-        bind_textdomain_codeset('wikijump', 'UTF-8');
-        textdomain('wikijump');
+        LocalizationService::setup();
     }
 }
