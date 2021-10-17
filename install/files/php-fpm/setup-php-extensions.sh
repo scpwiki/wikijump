@@ -13,3 +13,7 @@ docker-php-ext-install ffi
 apt install -y libicu-dev
 docker-php-ext-configure intl
 docker-php-ext-install intl
+
+# Configure PHP Data Structures
+pecl install ds
+docker-php-ext-enable ds
