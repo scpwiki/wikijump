@@ -6,7 +6,7 @@ export class Modal<T extends typeof SvelteComponent> {
   /** The internal {@link Dialog} component. */
   private dialog: Dialog
 
-  /** Keeps track of the open state. */
+  /** @see {@link open} */
   private _open: boolean
 
   /** @see {@link detail} */
