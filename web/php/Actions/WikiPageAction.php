@@ -2,6 +2,7 @@
 
 namespace Wikidot\Actions;
 
+use Ds\Set;
 use Exception;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
@@ -1343,12 +1344,12 @@ class WikiPageAction extends SmartyAction
         $user = $runData->getUser();
         $pl = $runData->getParameterList();
         $tags = strtolower(trim($pl->getParameterValue("tags")));
-        $pageId = $pl->getParameterValue("pageId");
+        $page_id = $pl->getParameterValue("pageId");
 
         $site = $runData->getTemp("site");
-        $siteId = $site->getSiteId();
-        $enableTagEngine = DB::table('site')->where('site_id', $siteId)->value('enable_tag_engine');
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $site_id = $site->getSiteId();
+        $enable_tag_engine = DB::table('site')->where('site_id', $site_id)->value('enable_tag_engine');
+        $page = PagePeer::instance()->selectByPrimaryKey($page_id);
 
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
@@ -1358,28 +1359,26 @@ class WikiPageAction extends SmartyAction
 
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
-        // Turn the tags into an array.
-        if($tags !== '') {
+        // Turn the tags into a set.
+        if ($tags !== '') {
             $tags = preg_split("/[ ,]+/", $tags);
+            $tags = new Set($tags);
+        } else {
+            $tags = new Set();
         }
 
         // If Allowed Tags are enabled, ensure all tags are compliant, and return an error listing any non-compliant ones.
-        if($enableTagEngine && $tags !== '') {
-            $allowedTagsList = AllowedTags::getAllowedTags($siteId);
-            $forbiddenTags = [];
-            foreach ($tags as $tag) {
-                if(!in_array($tag, $allowedTagsList)) {
-                    array_push($forbiddenTags, $tag);
-                }
-            }
-            if(!empty($forbiddenTags)) {
-              $errorMessage = sprintf(_('The tags %s are not valid for this site.'), implode(", ", $forbiddenTags));
-              throw new ProcessException($errorMessage, "form_error");
+        if($enable_tag_engine && !$tags->isEmpty()) {
+            $allowed_tags_list = AllowedTags::getAllowedTags($site_id);
+            $forbidden_tags = $tags->diff($allowed_tags_list);
+            if(!$forbidden_tags->isEmpty()) {
+              $error_message = sprintf(_('The tags %s are not valid for this site.'), $forbidden_tags->join(", "));
+              throw new ProcessException($error_message, "form_error");
             }
         }
 
         // Save the tags.
-        PagePeer::saveTags($pageId, $tags);
+        PagePeer::saveTags($page_id, $tags);
 
         $od = new Outdater();
         $od->pageEvent("tag_change", $page);

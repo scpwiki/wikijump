@@ -2,6 +2,7 @@
 
 namespace Wikidot\Screens\Wiki;
 
+use Ds\Set;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Ozone\Framework\Database\Criteria;
@@ -149,7 +150,7 @@ class WikiScreen extends Screen
 
             // Get the tags and convert them to string.
             $tags = PagePeer::getTags($pageId);
-            $tags = implode(" ", $tags);
+            $tags = $tags->join(" ");
             $runData->contextAdd("tags", $tags);
 
             // has discussion?
