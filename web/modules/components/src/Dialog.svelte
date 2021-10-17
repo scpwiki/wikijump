@@ -26,10 +26,31 @@
   export let lazy = true
 
   let state = open
+  let previousFocus: HTMLElement | null = null
+
+  /** Restore the previous focus. */
+  function restoreFocus() {
+    if (previousFocus) {
+      previousFocus.focus()
+      previousFocus = null
+    }
+  }
+
+  /** Show the modal and save the previous focus. */
+  function show() {
+    previousFocus = document.activeElement as HTMLElement
+    dialog.showModal()
+  }
+
+  /** Hide the modal and restore the previous focus. */
+  function close() {
+    dialog.close()
+    restoreFocus()
+  }
 
   $: if (dialog && state !== open) {
-    if (open && !state) dialog.showModal()
-    else if (!open && state) dialog.close()
+    if (open && !state) show()
+    else if (!open && state) close()
     state = open
     dispatch("change", state)
     if (state) dispatch("open")
@@ -37,7 +58,8 @@
 
   onMount(() => {
     dialogPolyfill.registerDialog(dialog)
-    if (open) dialog.showModal()
+    if (open) show()
+    dialog.addEventListener("cancel", () => restoreFocus())
   })
 </script>
 
