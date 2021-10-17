@@ -10,6 +10,7 @@ export { default as Spinny } from "./Spinny.svelte"
 export { default as Sprite } from "./Sprite.svelte"
 export { default as TextInput } from "./TextInput.svelte"
 export { default as TippySingleton } from "./TippySingleton.svelte"
+export { default as Toggle } from "./Toggle.svelte"
 export { default as Wikitext } from "./Wikitext.svelte"
 
 export * from "./lib/animation"
