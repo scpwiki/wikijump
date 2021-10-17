@@ -16,6 +16,7 @@ export * from "./lib/gesture"
 export * from "./lib/popper"
 export * from "./lib/tippy"
 export * from "./lib/portal"
+export * from "./lib/swipe"
 export * from "./lib/media"
 export * from "./lib/useragent"
 
