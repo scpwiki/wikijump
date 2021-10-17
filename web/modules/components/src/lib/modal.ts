@@ -9,6 +9,9 @@ export class Modal<T extends typeof SvelteComponent> {
   /** Keeps track of the open state. */
   private _open: boolean
 
+  /** @see {@link detail} */
+  private _detail: Record<string, any> = {}
+
   /** The component being slotted into the dialog. */
   readonly component: T
 
@@ -59,16 +62,33 @@ export class Modal<T extends typeof SvelteComponent> {
     })
   }
 
-  /** The open state of the modal. Can be set to open or close it. */
+  /** The open state of the modal. */
   get open() {
     return this._open
   }
 
-  /** The open state of the modal. Can be set to open or close it. */
+  /** The open state of the modal. */
   set open(state: boolean) {
     if (this._open === state) return
     this.dialog.$set({ open: state })
     this._open = state
+  }
+
+  /**
+   * A prop (simply named `detail`) passed to the {@link component} that has
+   * been slotted.
+   */
+  get detail() {
+    return this._detail
+  }
+
+  /**
+   * A prop (simply named `detail`) passed to the {@link component} that has
+   * been slotted.
+   */
+  set detail(detail: Record<string, any>) {
+    this.dialog.$set({ detail })
+    this._detail = detail
   }
 
   /**

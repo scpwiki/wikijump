@@ -13,6 +13,9 @@
    */
   export let component: typeof SvelteComponent | null = null
 
+  /** A prop object passed to the {@link component}, if one has been provided. */
+  export let detail: Record<string, any> = {}
+
   /** If true, the dialog is displayed. */
   export let open = false
 
@@ -41,7 +44,7 @@
 <dialog bind:this={dialog} on:cancel on:close>
   {#if !lazy || open}
     {#if component}
-      <svelte:component this={component} />
+      <svelte:component this={component} {detail} />
     {/if}
     <slot />
   {/if}
