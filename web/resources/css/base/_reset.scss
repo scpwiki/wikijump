@@ -139,3 +139,38 @@ dialog:not([open]) {
 summary {
   display: list-item;
 }
+
+// Dialog Polyfill
+
+dialog {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  left: 0;
+  display: block;
+  width: fit-content;
+  height: fit-content;
+  margin: auto;
+  transform: translate(0, -50%);
+}
+
+dialog:not([open]) {
+  display: none;
+}
+
+dialog + .backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+._dialog_overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}

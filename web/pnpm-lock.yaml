@@ -272,6 +272,7 @@ importers:
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/prism': workspace:*
       '@wikijump/util': workspace:*
+      dialog-polyfill: ^0.5.6
       morphdom: ^2.6.1
       svelte: ^3.43.1
       tippy.js: ^6.3.2
@@ -284,6 +285,7 @@ importers:
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/prism': link:../prism
       '@wikijump/util': link:../util
+      dialog-polyfill: 0.5.6
       morphdom: 2.6.1
       svelte: 3.43.2
       tippy.js: 6.3.2
@@ -3382,6 +3384,10 @@ packages:
   /devtools-protocol/0.0.901419:
     resolution: {integrity: sha512-4INMPwNm9XRpBukhNbF7OB6fNTTCaI8pzy/fXg0xQzAy5h3zL1P8xT3QazgKqBrb/hAYwIBizqDBZ7GtJE74QQ==}
     dev: true
+
+  /dialog-polyfill/0.5.6:
+    resolution: {integrity: sha512-ZbVDJI9uvxPAKze6z146rmfUZjBqNEwcnFTVamQzXH+svluiV7swmVIGr7miwADgfgt1G2JQIytypM9fbyhX4w==}
+    dev: false
 
   /dictionary-cs/2.0.3:
     resolution: {integrity: sha512-WhWxn5qBy9cVoXsGfeITSOJqejZyjSAUBs/PHek8V4HAsK8CewEhjYKkg7PIxFEEowqcFvCG0oz95baWY3znqw==}
