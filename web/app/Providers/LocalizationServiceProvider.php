@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace Wikijump\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Wikijump\Services\Localization\LocalizationService;
 
-class AppServiceProvider extends ServiceProvider
+class LocalizationServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -23,11 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        /**
-         * We set this because the Ozone codebase has a *lot* of notice-level
-         * events that they already set to ignore. Our time is better spent
-         * replacing that code instead of bringing it up to scratch.
-         */
-        error_reporting(E_ALL & ~E_NOTICE);
+        LocalizationService::setup();
     }
 }

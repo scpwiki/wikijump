@@ -130,7 +130,7 @@ class User extends Authenticatable
          *  foreground and background.
          *  @see "app/Helpers/helpers.php"
          */
-        $colors = colors();
+        $colors = config('colors');
 
         /** We want the color to be reliable for a given user, so modulus the User's ID. */
         $scheme = $this->id % count($colors);

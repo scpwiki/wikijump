@@ -22,7 +22,6 @@ class JetstreamServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
     }
 
     /**

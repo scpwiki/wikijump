@@ -2,7 +2,7 @@
 
 namespace Wikidot\Utils;
 
-use \Normalizer;
+use Normalizer;
 
 class WDStringUtils
 {
