@@ -8,7 +8,7 @@
 </script>
 
 <div class="account-panel">
-  <Card title={$t("login.LOGIN")} width="25rem">
+  <Card title={$t("account_panel.LOGIN")} width="25rem">
     <LoginForm />
 
     <!-- placed down here so that it's the last thing that gets focused on -->
@@ -16,7 +16,7 @@
       <div class="account-panel-close-dialog">
         <Button
           i="ion:close"
-          tip={$t("login.CLOSE")}
+          tip={$t("account_panel.CLOSE_DIALOG")}
           size="1.5rem"
           baseline
           on:click={closeDialog}

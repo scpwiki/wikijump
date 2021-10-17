@@ -56,19 +56,19 @@ components:
   theme_picker:
     TOOLTIP: Set Color Scheme
 
-# Login panel
-login:
+# Account panel
+account_panel:
   LOGIN: Login
   SPECIFIER: Email or Username
   SPECIFIER_PLACEHOLDER: Enter email or username...
   PASSWORD: Password
   PASSWORD_PLACEHOLDER: Enter password...
-  REMEMBER: Remember me
-  FORGOT: Forgot your password?
-  CLOSE: Close
+  REMEMBER_ME: Remember me
+  FORGOT_PASSWORD: Forgot your password?
+  CLOSE_DIALOG: Close
   toasts:
     LOGGED_IN: Logged in!
-    FAILED: Failed to login. Check your email/username and password.
+    LOGIN_FAILED: Failed to login. Check your email/username and password.
 
 # Sheaf editor
 sheaf:

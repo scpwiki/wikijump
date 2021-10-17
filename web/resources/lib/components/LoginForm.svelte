@@ -16,9 +16,9 @@
         const login = inputLogin.value
         const password = inputPassword.value
         await WikijumpAPI.authLogin({ login, password, remember })
-        toast("success", $t("login.toasts.LOGGED_IN"))
+        toast("success", $t("account_panel.toasts.LOGGED_IN"))
       } catch {
-        toast("danger", $t("login.toasts.FAILED"))
+        toast("danger", $t("account_panel.toasts.LOGIN_FAILED"))
       }
       busy = false
     }
@@ -30,8 +30,8 @@
     <TextInput
       bind:input={inputLogin}
       on:enter={() => inputPassword.focus()}
-      label={$t("login.SPECIFIER")}
-      placeholder={$t("login.SPECIFIER_PLACEHOLDER")}
+      label={$t("account_panel.SPECIFIER")}
+      placeholder={$t("account_panel.SPECIFIER_PLACEHOLDER")}
       required
       disabled={busy}
       autocomplete="username"
@@ -41,9 +41,9 @@
     <TextInput
       bind:input={inputPassword}
       on:enter={() => login()}
-      label={$t("login.PASSWORD")}
+      label={$t("account_panel.PASSWORD")}
       type="password"
-      placeholder={$t("login.PASSWORD_PLACEHOLDER")}
+      placeholder={$t("account_panel.PASSWORD_PLACEHOLDER")}
       required
       disabled={busy}
       autocomplete="current-password"
@@ -52,14 +52,14 @@
   </form>
 
   <div class="login-form-options">
-    <Toggle bind:toggled={remember}>{$t("login.REMEMBER")}</Toggle>
+    <Toggle bind:toggled={remember}>{$t("account_panel.REMEMBER_ME")}</Toggle>
     <!-- TODO: forgot password -->
-    <a class="login-form-forgot" href="/forgot">{$t("login.FORGOT")}</a>
+    <a class="login-form-forgot" href="/forgot">{$t("account_panel.FORGOT_PASSWORD")}</a>
   </div>
 
   <div class="login-form-submit">
     <Button on:click={login} disabled={busy} wide primary>
-      {$t("login.LOGIN")}
+      {$t("account_panel.LOGIN")}
     </Button>
   </div>
 </div>
