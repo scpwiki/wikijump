@@ -23,6 +23,6 @@
     "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/util": "workspace:*",
     "cm-tarnation": "^0.1.0",
-    "svelte": "^3.43.1"
+    "svelte": "^3.44.0"
   }
 }

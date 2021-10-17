@@ -19,18 +19,21 @@ const SVELTE_OPTIONS = {
     if (warning.code === "unused-export-let") return
     if (handler) handler(warning)
   },
-  preprocess: [
-    sveltePreprocess({
-      sourceMap: true,
-      scss: { ...SASS_OPTIONS }
-    })
-  ]
+  preprocess: [sveltePreprocess({ sourceMap: true })],
+  compilerOptions: {
+    enableSourcemap: true,
+    immutable: true
+  }
 }
 
 const SVELTE_TEST_OPTIONS = {
   ...SVELTE_OPTIONS,
   emitCss: false,
-  compilerOptions: { cssHash: () => "svelte" }
+  compilerOptions: {
+    enableSourcemap: true,
+    immutable: true,
+    cssHash: () => "svelte"
+  }
 }
 
 const BUILD_TEST_OPTIONS = {
