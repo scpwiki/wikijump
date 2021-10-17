@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\TagEngine;
 
-use Ds/Set;
+use Ds\Set;
 
 /**
  * The Tag Engine receives the information of the site's tagging configuration and processes new page tags.

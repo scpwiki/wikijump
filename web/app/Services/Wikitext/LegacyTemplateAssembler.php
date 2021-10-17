@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
+use Ds\Sets;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\PagePeer;
@@ -201,11 +202,10 @@ final class LegacyTemplateAssembler
     private static function handleTags($m, $page)
     {
         /* Select tags. */
-        // get the tags
-        $t2 = PagePeer::getTags($pageId);
-        if (count($t2) == 0) {
-            return _('//no tags found for this page//');
+        $tags = PagePeer::getTags($pageId);
+        if ($tags->isEmpty()) {
+            return _('//No tags found for this page.//');
         }
-        return implode(' ', $t2);
+        return $tags->join(" ");
     }
 }
