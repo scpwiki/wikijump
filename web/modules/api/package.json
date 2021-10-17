@@ -15,12 +15,12 @@
   "type": "module",
   "main": "src/index.ts",
   "devDependencies": {
-    "@mockoon/cli": "^1.1.0",
+    "@mockoon/cli": "^1.2.0",
     "swagger-typescript-api": "^9.2.0"
   },
   "dependencies": {
     "@wikijump/util": "workspace:*",
-    "svelte": "^3.43.1",
+    "svelte": "^3.44.0",
     "svelte-i18n": "^3.3.13"
   }
 }

@@ -20,6 +20,6 @@
     "@wikijump/components": "workspace:*",
     "@wikijump/api": "workspace:*",
     "@wikijump/util": "workspace:*",
-    "svelte": "^3.43.1"
+    "svelte": "^3.44.0"
   }
 }

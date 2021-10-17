@@ -14,14 +14,15 @@
   "dependencies": {
     "@iconify/iconify": "^2.0.4",
     "@popperjs/core": "^2.10.2",
+    "@wikijump/api": "workspace:*",
     "@wikijump/ftml-components": "workspace:*",
     "@wikijump/ftml-wasm": "workspace:*",
     "@wikijump/ftml-wasm-worker": "workspace:*",
-    "morphdom": "^2.6.1",
-    "tippy.js": "^6.3.2",
     "@wikijump/prism": "workspace:*",
-    "@wikijump/api": "workspace:*",
     "@wikijump/util": "workspace:*",
-    "svelte": "^3.43.1"
+    "dialog-polyfill": "^0.5.6",
+    "morphdom": "^2.6.1",
+    "svelte": "^3.44.0",
+    "tippy.js": "^6.3.2"
   }
 }
