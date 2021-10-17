@@ -76,7 +76,7 @@
     background: var(--col-border);
     border-radius: 0.25rem;
     transition: background 0.125s, color 0.125s, filter 0.125s;
-    @include shadow(4);
+    @include shadow(2);
 
     &.is-disabled {
       color: var(--col-lightgray) !important;
