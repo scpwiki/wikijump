@@ -1,5 +1,7 @@
 root: true
 
+extends: ["./.eslint.svelte.cjs"]
+
 ignorePatterns:
   - "**/node_modules/**"
   - "**/dist/**"
@@ -114,10 +116,3 @@ overrides:
   # TypeScript (Browser)
   - files: ["*.d.ts", "*.ts", "*.tsx"]
     env: { browser: true, es2021: true }
-
-  # Svelte + TypeScript (Browser)
-  - files: ["*.svelte"]
-    processor: svelte3/svelte3
-    env: { browser: true, es2021: true }
-    settings:
-      svelte3/typescript: true
