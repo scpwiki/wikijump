@@ -58,10 +58,14 @@
     > span {
       font-size: 0.875em;
       user-select: none;
+
+      @include tolerates-motion {
+        transition: color 150ms;
+      }
     }
 
     .toggleinput-slot-after {
-      margin-left: 0.25em;
+      margin-left: 0.5em;
     }
   }
 
