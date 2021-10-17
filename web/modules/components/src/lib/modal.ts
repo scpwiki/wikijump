@@ -1,7 +1,10 @@
 import { SvelteComponent } from "svelte"
 import Dialog from "../Dialog.svelte"
 
-/** Wraps around the {@link Dialog} component to provide a simple interface for */
+/**
+ * Wraps around the {@link Dialog} component to provide a simple interface
+ * for adding a modal that can be open or closed programatically.
+ */
 export class Modal<T extends typeof SvelteComponent> {
   /** The internal {@link Dialog} component. */
   private dialog: Dialog
