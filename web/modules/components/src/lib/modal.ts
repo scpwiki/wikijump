@@ -71,6 +71,23 @@ export class Modal<T extends typeof SvelteComponent> {
     this._open = state
   }
 
+  /**
+   * Adds a listener for {@link Dialog} events. Be aware that you can't
+   * remove a listener once it has been added. This function can be used
+   * instead of the `onFoo` methods provided by this class, particularly if
+   * you need to add more than one listener.
+   *
+   * @param event - The event to listen for.
+   * @param callback - The callback to call when the event is fired.
+   */
+  addEventListener(
+    type: "change" | "open" | "close" | "cancel",
+    callback: (evt: Event & { detail?: boolean }) => void
+  ) {
+    // @ts-ignore
+    this.dialog.$on(type, callback)
+  }
+
   /** Destroys the modal. */
   destroy() {
     this.dialog.$destroy()
