@@ -1199,16 +1199,16 @@
         },
         {
             "name": "innocenzi/laravel-vite",
-            "version": "0.1.14",
+            "version": "0.1.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/innocenzi/laravel-vite.git",
-                "reference": "b30c4fa3d0070374497d0f37c546b62e2dc2882e"
+                "reference": "0d5f34817e177f3ab7b5308aa15cb0e1f4e57f63"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/innocenzi/laravel-vite/zipball/b30c4fa3d0070374497d0f37c546b62e2dc2882e",
-                "reference": "b30c4fa3d0070374497d0f37c546b62e2dc2882e",
+                "url": "https://api.github.com/repos/innocenzi/laravel-vite/zipball/0d5f34817e177f3ab7b5308aa15cb0e1f4e57f63",
+                "reference": "0d5f34817e177f3ab7b5308aa15cb0e1f4e57f63",
                 "shasum": ""
             },
             "require": {
@@ -1268,7 +1268,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-09-27T12:23:14+00:00"
+            "time": "2021-10-09T17:26:15+00:00"
         },
         {
             "name": "jaybizzle/crawler-detect",
