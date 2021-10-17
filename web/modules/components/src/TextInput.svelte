@@ -90,6 +90,7 @@
   }
 
   .textinput-input {
+    width: 100%;
     padding: 0.25em 0.5em;
     color: var(--col-text);
     background: var(--col-background-dim);
