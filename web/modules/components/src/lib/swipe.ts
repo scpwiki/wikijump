@@ -9,7 +9,7 @@ export interface OnSwipeOpts {
   /** Function to call upon the user swiping. */
   callback: (target: HTMLElement, gesture: Gesture) => void
   /**
-   * Function that, if provided, is called on the every event and given the
+   * Function that, if provided, is called on every event and given the
    * current swipe state.
    */
   eventCallback?: (target: HTMLElement, gesture: Gesture) => void
@@ -19,8 +19,8 @@ export interface OnSwipeOpts {
   threshold: number
   /**
    * Minimum distance needed for the swipe recognition to be started. This
-   * is so a pointer can placed down, be still, and then finally swipe and
-   * still have it recognized.
+   * is so a user's pointer can placed down, be still, and then finally
+   * swipe and still have it recognized.
    */
   minThreshold: number
   /**
@@ -83,6 +83,7 @@ export function onSwipe(target: HTMLElement, opts: Partial<OnSwipeOpts>) {
     const overThreshold = sameDirection && dist > opts.threshold!
     const overMinimumThreshold = started || (sameDirection && dist > opts.minThreshold!)
 
+    // gesture is over threshold, but in the wrong direction
     if (!sameDirection && dist > opts.minThreshold!) cancel(gesture)
 
     if (!cancelled) {
