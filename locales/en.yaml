@@ -46,6 +46,9 @@ components:
       TITLE: Performance
       RENDER: "RENDER:"
 
+  textinput:
+    REQUIRED: This field is required.
+
   toasts:
     CLOSE: Close Notification
 
