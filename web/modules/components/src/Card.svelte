@@ -36,7 +36,7 @@
   @import "../../../resources/css/abstracts";
 
   .card {
-    max-width: 90vh;
+    max-width: 90vw;
     padding: 0.75rem 1rem;
     padding-top: 0.5rem;
     font-size: 1rem;

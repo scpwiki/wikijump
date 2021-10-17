@@ -65,6 +65,7 @@ login:
   PASSWORD_PLACEHOLDER: Enter password...
   REMEMBER: Remember me
   FORGOT: Forgot your password?
+  CLOSE: Close
   toasts:
     LOGGED_IN: Logged in!
     FAILED: Failed to login. Check your email/username and password.

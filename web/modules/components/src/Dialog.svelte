@@ -25,6 +25,12 @@
    */
   export let lazy = true
 
+  /**
+   * Function passed to a provided {@link component} that closes the dialog
+   * when called.
+   */
+  const closeDialog = () => void (open = false)
+
   let state = open
   let previousFocus: HTMLElement | null = null
 
@@ -66,7 +72,7 @@
 <dialog bind:this={dialog} on:cancel on:close>
   {#if !lazy || open}
     {#if component}
-      <svelte:component this={component} {detail} />
+      <svelte:component this={component} {detail} {closeDialog} />
     {/if}
     <slot />
   {/if}

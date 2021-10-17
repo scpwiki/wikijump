@@ -2,6 +2,9 @@
   import WikijumpAPI, { t } from "@wikijump/api"
   import { Button, Card, TextInput, Toggle, toast } from "@wikijump/components"
 
+  /** Gets passed to this panel if it's been mounted inside of a dialog. */
+  export let closeDialog: (() => void) | undefined
+
   let busy = false
 
   let inputLogin: HTMLInputElement
@@ -63,11 +66,30 @@
         {$t("login.LOGIN")}
       </Button>
     </div>
+
+    <!-- placed down here so that it's the last thing that gets focused on -->
+    {#if closeDialog}
+      <div class="login-panel-close-dialog">
+        <Button
+          i="ion:close"
+          tip={$t("login.CLOSE")}
+          size="1.5rem"
+          baseline
+          on:click={closeDialog}
+        />
+      </div>
+    {/if}
   </Card>
 </div>
 
 <style lang="scss">
   @import "../../css/abstracts";
+
+  .login-panel-close-dialog {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
 
   .login-panel-options {
     display: flex;
