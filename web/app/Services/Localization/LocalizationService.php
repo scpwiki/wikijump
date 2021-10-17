@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Localization;
 
-
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use MessageFormatter;

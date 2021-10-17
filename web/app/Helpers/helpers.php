@@ -13,5 +13,5 @@ declare(strict_types=1);
  */
 function pg_is_error(Throwable $e, string $code): bool
 {
-    return (string)$e->getCode() === $code;
+    return (string) $e->getCode() === $code;
 }
