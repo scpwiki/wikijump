@@ -59,6 +59,7 @@ components:
 # Account panel
 account_panel:
   LOGIN: Login
+  REGISTER: Register
   SPECIFIER: Email or Username
   SPECIFIER_PLACEHOLDER: Enter email or username...
   PASSWORD: Password
