@@ -22,6 +22,19 @@ if (file_exists(__DIR__ . '/../storage/framework/maintenance.php')) {
 
 /*
 |--------------------------------------------------------------------------
+| Register items before the Auto Loader
+|--------------------------------------------------------------------------
+|
+| Because some vendored files set their own values that we wish to load
+| prior, we have this special loader prior to the autoloader to avoid
+| name conflicts.
+|
+*/
+
+require __DIR__ . '/../app/Helpers/helpers.override.php';
+
+/*
+|--------------------------------------------------------------------------
 | Register The Auto Loader
 |--------------------------------------------------------------------------
 |
