@@ -61,6 +61,7 @@
     <TextInput
       bind:input={inputPassword}
       on:enter={() => login()}
+      icon="fluent:key-24-regular"
       label={$t("account_panel.PASSWORD")}
       type="password"
       placeholder={$t("account_panel.PASSWORD_PLACEHOLDER")}

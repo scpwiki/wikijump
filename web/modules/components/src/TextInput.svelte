@@ -17,6 +17,9 @@
   /** Extra info provided below the input. */
   export let info = ""
 
+  /** Placeholder icon. */
+  export let icon = "bi:slash-square"
+
   /** The input element. */
   export let input: HTMLInputElement | null = null
 
@@ -46,11 +49,12 @@
         <span class="textinput-label">{label}</span>
         {#if required}
           <span class="textinput-required" use:tip={$t("components.textinput.REQUIRED")}>
-            <Icon i="fa-solid:asterisk" size="0.5em" />
+            <Icon i="fa-:asterisk" size="0.5em" />
           </span>
         {/if}
       </div>
     {/if}
+
     <input
       bind:this={input}
       bind:value
@@ -59,8 +63,11 @@
       class:is-thin={thin}
       class:is-noborder={noborder}
       {...$$restProps}
-    /><!--
-    --><span role="presentation" class="textinput-icon" class:is-thin={thin} />
+    />
+
+    <span class="textinput-icon" aria-hidden="true">
+      <Icon i={icon} size="1.25em" />
+    </span>
   </label>
 
   {#if info}
@@ -73,6 +80,11 @@
 
   .textinput {
     margin: 0.25rem 0;
+
+    > label {
+      position: relative;
+      display: block;
+    }
   }
 
   .textinput-label {
@@ -138,26 +150,18 @@
 
   .textinput-icon {
     position: absolute;
+    right: 0.25em;
+    bottom: 0.375em;
     display: inline-block;
-    width: 2.125em;
-    height: 2.125em;
+    width: 1.5em;
+    height: 1.5em;
+    color: var(--col-text-dim);
     pointer-events: none;
     user-select: none;
-    background-color: var(--col-text-dim);
     opacity: 0.5;
-    transform: translateX(-2em);
-    mask-image: var(--icon-text-input);
-    mask-repeat: no-repeat;
-    mask-size: 1.25em;
-    mask-position: center;
 
     @include tolerates-motion {
       transition: opacity 100ms;
-    }
-
-    &.is-thin {
-      width: 2em;
-      height: 2em;
     }
   }
 

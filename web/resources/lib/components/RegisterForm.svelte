@@ -63,6 +63,7 @@
     <TextInput
       bind:input={inputEmail}
       on:enter={() => inputUsername.focus()}
+      icon="ic:round-alternate-email"
       label={$t("account_panel.EMAIL")}
       placeholder={$t("account_panel.EMAIL_PLACEHOLDER")}
       type="email"
@@ -89,6 +90,7 @@
       bind:input={inputPassword}
       bind:value={password}
       on:enter={() => inputPasswordConfirm.focus()}
+      icon="fluent:key-24-regular"
       label={$t("account_panel.PASSWORD")}
       type="password"
       placeholder={$t("account_panel.PASSWORD_PLACEHOLDER")}
@@ -101,6 +103,7 @@
     <TextInput
       bind:input={inputPasswordConfirm}
       on:enter={() => register()}
+      icon="fluent:key-24-regular"
       label={$t("account_panel.CONFIRM_PASSWORD")}
       type="password"
       placeholder={$t("account_panel.PASSWORD_PLACEHOLDER")}
