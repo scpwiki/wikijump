@@ -154,6 +154,13 @@ dialog {
   overscroll-behavior: contain;
   background: none;
   transform: translate(0, -50%);
+
+  // this messes up default scrolling behavior inside of the dialog
+  // a little bit, but prevents scrolling inside of the dialog
+  // from scrolling the entire page
+  * {
+    overscroll-behavior: contain;
+  }
 }
 
 dialog:not([open]) {

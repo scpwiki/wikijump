@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount, SvelteComponent } from "svelte"
   import dialogPolyfill from "dialog-polyfill"
+  import { scrollElement } from "@wikijump/util"
 
   // the additional methods are what it is in the spec and fulfilled by the polyfill
   let dialog: HTMLElement & { showModal: () => void; close: () => void; show: () => void }
@@ -34,8 +35,28 @@
   let state = open
   let previousFocus: HTMLElement | null = null
 
-  /** Restore the previous focus. */
-  function restoreFocus() {
+  function preventPageScrolling(evt: WheelEvent) {
+    if (!dialog || !evt.target) evt.preventDefault()
+    const target = evt.target as HTMLElement
+    // check if target is inside of the dialog
+    if (target === dialog || dialog.contains(target)) {
+      // figure out if our scrolling element is inside of the dialog
+      // if it isn't, prevent the scroll
+      const scroll = scrollElement(evt.target as HTMLElement)
+      if (target !== scroll && !dialog.contains(scroll)) evt.preventDefault()
+    }
+    // target outside of dialog, we can prevent scrolling for sure
+    else {
+      evt.preventDefault()
+    }
+  }
+
+  /**
+   * Cleans up after the dialog has been closed, e.g. by restoring the
+   * previous focus.
+   */
+  function cleanup() {
+    document.removeEventListener("wheel", preventPageScrolling)
     if (previousFocus) {
       previousFocus.focus()
       previousFocus = null
@@ -46,12 +67,14 @@
   function show() {
     previousFocus = document.activeElement as HTMLElement
     dialog.showModal()
+    document.addEventListener("wheel", preventPageScrolling, { passive: false })
+    dispatch("open")
   }
 
   /** Hide the modal and restore the previous focus. */
   function close() {
     dialog.close()
-    restoreFocus()
+    cleanup()
   }
 
   $: if (dialog && state !== open) {
@@ -59,13 +82,12 @@
     else if (!open && state) close()
     state = open
     dispatch("change", state)
-    if (state) dispatch("open")
   }
 
   onMount(() => {
     dialogPolyfill.registerDialog(dialog)
     if (open) show()
-    dialog.addEventListener("cancel", () => restoreFocus())
+    dialog.addEventListener("cancel", () => cleanup())
   })
 </script>
 
