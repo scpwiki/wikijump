@@ -1,3 +1,8 @@
+<!--
+  @component Generic dialog component.
+  Doesn't handle inserting itself into a "correct" place in the DOM.
+  Uses `dialogPolyfill` to ensure dialogs work across all browsers.
+-->
 <script lang="ts">
   import { createEventDispatcher, onMount, SvelteComponent } from "svelte"
   import dialogPolyfill from "dialog-polyfill"
@@ -35,6 +40,10 @@
   let state = open
   let previousFocus: HTMLElement | null = null
 
+  /**
+   * Event handler for preventing the main page from scrolling if the user
+   * tries to scroll inside of the dialog.
+   */
   function preventPageScrolling(evt: WheelEvent) {
     if (!dialog || !evt.target) evt.preventDefault()
     const target = evt.target as HTMLElement

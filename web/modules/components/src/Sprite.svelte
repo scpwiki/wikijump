@@ -1,3 +1,6 @@
+<!--
+  @component Icon that uses Wikijump's `ui.svg` spritesheet.
+-->
 <script lang="ts">
   import { asset } from "@wikijump/api"
 

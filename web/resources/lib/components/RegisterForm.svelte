@@ -1,3 +1,6 @@
+<!--
+  @component Account registration form.
+-->
 <script lang="ts">
   import WikijumpAPI, { t } from "@wikijump/api"
   import { Button, TextInput, toast } from "@wikijump/components"

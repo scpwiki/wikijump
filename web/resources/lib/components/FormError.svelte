@@ -1,3 +1,7 @@
+<!--
+  @component Simple form error message.
+  Provide the error message using the `error` prop, and not with a slot.
+-->
 <script lang="ts">
   /** The form error to display. */
   export let error = ""

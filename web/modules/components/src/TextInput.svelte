@@ -1,3 +1,8 @@
+<!--
+  @component A generic text field input.
+
+  Automatically handles password revealing if the field's type is set to `password`.
+-->
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
   import { keyHandle } from "./lib/controls"

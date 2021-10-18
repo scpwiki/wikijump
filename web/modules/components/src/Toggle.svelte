@@ -1,3 +1,6 @@
+<!--
+  @component Generic "toggle" component.
+-->
 <script lang="ts">
   import { keyHandle } from "./lib/controls"
   import Sprite from "./Sprite.svelte"

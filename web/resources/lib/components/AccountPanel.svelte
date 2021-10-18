@@ -1,3 +1,6 @@
+<!--
+  @component Tabbed account login, registration panel.
+-->
 <script lang="ts">
   import { t } from "@wikijump/api"
   import { Button, Tabview, Tab } from "@wikijump/components"
