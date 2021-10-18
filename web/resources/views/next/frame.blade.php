@@ -66,11 +66,11 @@
 
         {{-- Sidebar --}}
         @isset($sidebar_content)
-            <aside id="sidebar" aria-label="{{ __('frame.aria.SIDEBAR') }}">
-                <div id="sidebar_sticky" role="presentation">
+            <wj-sidebar id="sidebar">
+                <aside id="sidebar_sticky" aria-label="{{ __('frame.aria.SIDEBAR') }}">
                     {!! $sidebar_content !!}
-                </div>
-            </aside>
+                </aside>
+            </wj-sidebar>
         @endisset
 
         {{-- Main Content --}}
