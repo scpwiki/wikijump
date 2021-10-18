@@ -169,6 +169,61 @@ export function onFocusDeep(element: HTMLElement, opts: OnFocusDeepOpts) {
   })
 }
 
+export type ScrollDirection = "vertical" | "horizontal" | "both"
+
+/**
+ * Checks if an element scrolls vertically. Only checks if the element *is
+ * scrolling*, not if it *can scroll*.
+ *
+ * @param element - The element to check.
+ */
+export function scrollsVertically(element: HTMLElement) {
+  return element.scrollHeight > element.clientHeight
+}
+
+/**
+ * Checks if an element scrolls horizontally. Only checks if the element
+ * *is scrolling*, not if it *can scroll*.
+ *
+ * @param element - The element to check.
+ */
+export function scrollsHorizontally(element: HTMLElement) {
+  return element.scrollWidth > element.clientWidth
+}
+
+/**
+ * Checks if an element scrolls. Only checks if the element *is scrolling*,
+ * not if it *can scroll*.
+ *
+ * @param element - The element to check.
+ * @param dir - The direction to check. Defaults to `both`.
+ */
+export function scrolls(element: HTMLElement, dir: ScrollDirection = "both") {
+  // prettier-ignore
+  switch (dir) {
+    case "both":       return scrollsVertically(element) || scrollsHorizontally(element)
+    case "vertical":   return scrollsVertically(element)
+    case "horizontal": return scrollsHorizontally(element)
+  }
+}
+
+/**
+ * Finds the first parent of the given element that is scrolling. If the
+ * given element itself is scrolling, it will be returned. If no scrolling
+ * element is found, the document's root node will be returned.
+ *
+ * @param element - The element to find the scrolling element for.
+ * @param dir - The direction to check for scrolling. Defaults to `"vertical"`.
+ */
+export function scrollElement(element: HTMLElement, dir: ScrollDirection = "vertical") {
+  let node: HTMLElement | null = element
+  while (node) {
+    if (scrolls(node, dir)) return node
+    node = node.parentElement
+  }
+  return (document.scrollingElement || document.documentElement) as HTMLElement
+}
+
 /**
  * Checks if all of the given form inputs are valid via ordinary HTML validation.
  *
