@@ -9,9 +9,6 @@
   export let small = false
 
   $: size = small ? "1.5em" : "2em"
-
-  // prettier-ignore
-  const keyHandler = [{ key: 'Enter', do() { toggled = !toggled } }]
 </script>
 
 <label class="toggleinput" class:is-toggled={toggled}>
@@ -19,7 +16,10 @@
     class="toggleinput-input"
     type="checkbox"
     bind:checked={toggled}
-    use:keyHandle={keyHandler}
+    use:keyHandle={{
+      key: "Enter",
+      do: () => void (toggled = !toggled)
+    }}
     {...$$restProps}
   />
   <span class="toggleinput-wrapper" role="presentation">
