@@ -4,6 +4,9 @@
   import { tip } from "./lib/tippy"
   import Icon from "./Icon.svelte"
   import { t } from "@wikijump/api"
+  import { whileHeld } from "./lib/controls"
+
+  const dispatch = createEventDispatcher()
 
   /** The label describing the input. */
   export let label = ""
@@ -25,18 +28,6 @@
 
   /** If true, borders will be removed. */
   export let noborder = false
-
-  const dispatch = createEventDispatcher()
-
-  const keyHandler = [
-    {
-      key: "Enter",
-      preventDefault: true,
-      do() {
-        dispatch("enter")
-      }
-    }
-  ]
 </script>
 
 <div class="textinput">
@@ -55,15 +46,36 @@
     <input
       bind:this={input}
       bind:value
-      use:keyHandle={keyHandler}
+      use:keyHandle={{
+        key: "Enter",
+        preventDefault: true,
+        do: () => dispatch("enter")
+      }}
       class="textinput-input"
       class:is-noborder={noborder}
       {...$$restProps}
     />
 
-    <span class="textinput-icon" aria-hidden="true">
-      <Icon i={icon} size="1.25em" />
-    </span>
+    <!-- special case: input is a password type -->
+    <!-- when this happens, we'll turn the icon into a "show password" button -->
+    {#if input?.type === "password"}
+      <!-- prettier-ignore -->
+      <span
+        class="textinput-icon is-password"
+        use:tip={$t("components.textinput.SHOW_PASSWORD")}
+        aria-hidden="true"
+        use:whileHeld={{
+          pressed: () => { if (input) input.type = "text" },
+          released: () => { if (input) input.type = "password" }
+        }}
+      >
+        <Icon i={icon} size="1.25em" />
+      </span>
+    {:else}
+      <span class="textinput-icon" aria-hidden="true">
+        <Icon i={icon} size="1.25em" />
+      </span>
+    {/if}
   </label>
 
   {#if info}
@@ -143,8 +155,12 @@
 
     &:disabled,
     &:not(:placeholder-shown) {
-      + .textinput-icon {
+      + .textinput-icon:not(.is-password) {
         opacity: 0;
+      }
+
+      + .textinput-icon.is-password {
+        opacity: 1;
       }
     }
   }
@@ -162,7 +178,16 @@
     opacity: 0.5;
 
     @include tolerates-motion {
-      transition: opacity 100ms;
+      transition: color 100ms, opacity 100ms;
+    }
+
+    &.is-password {
+      pointer-events: all;
+      cursor: pointer;
+
+      @include hover {
+        color: var(--col-hint);
+      }
     }
   }
 </style>

@@ -48,6 +48,7 @@ components:
 
   textinput:
     REQUIRED: This field is required.
+    SHOW_PASSWORD: Hold to show password
 
   toasts:
     CLOSE: Close Notification
@@ -56,7 +57,7 @@ components:
   theme_picker:
     TOOLTIP: Set Color Scheme
 
-# Account panel
+# Account panel and related forms
 account_panel:
   LOGIN: Login
   REGISTER: Register
@@ -73,7 +74,8 @@ account_panel:
   CONFIRM_PASSWORD: Confirm Password
   REMEMBER_ME: Remember me
   FORGOT_PASSWORD: Forgot your password?
-  CLOSE_DIALOG: Close
+  tips:
+    CLOSE_DIALOG: Close
   errors:
     INTERNAL_ERROR: Internal server error. Please try again later.
     LOGIN_FAILED: Failed to login. Check your email/username and password.

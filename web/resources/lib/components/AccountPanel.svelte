@@ -33,7 +33,7 @@
     <div class="account-panel-close-dialog">
       <Button
         i="ion:close"
-        tip={$t("account_panel.CLOSE_DIALOG")}
+        tip={$t("account_panel.tips.CLOSE_DIALOG")}
         size="1rem"
         baseline
         on:click={closeDialog}
