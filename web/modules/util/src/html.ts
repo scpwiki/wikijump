@@ -137,6 +137,38 @@ export function hover(element: HTMLElement, opts: HoverOpts) {
   if (opts.move) element.addEventListener("pointermove", opts.move)
 }
 
+export interface OnFocusDeepOpts {
+  /** Callback fired when the element (or any of its children) are focused. */
+  focus?: () => void
+  /** Callback fired when the element and its children are no longer focused. */
+  blur?: () => void
+}
+
+/**
+ * Fires callbacks for `focusin` and `focusout` events, but treats the
+ * entire element's tree as singularly focusable. That is, unfocusing a
+ * child of the given element by focusing to another child of the element
+ * will not fire any additional callbacks.
+ *
+ * @param element - The element to add the listeners to.
+ * @param opts - The options to use.
+ */
+export function onFocusDeep(element: HTMLElement, opts: OnFocusDeepOpts) {
+  let focused = false
+
+  element.addEventListener("focusin", evt => {
+    if (focused && element.contains(evt.target as HTMLElement)) return
+    focused = true
+    if (opts.focus) opts.focus()
+  })
+
+  element.addEventListener("focusout", evt => {
+    if (element.contains(evt.relatedTarget as HTMLElement)) return
+    focused = false
+    if (opts.blur) opts.blur()
+  })
+}
+
 /**
  * Checks if all of the given form inputs are valid via ordinary HTML validation.
  *
