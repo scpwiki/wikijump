@@ -92,8 +92,8 @@
                 @isset($page_last_edit_timestamp)
                     @php
                         $ts = $page_last_edit_timestamp;
-                        $date_formatted = strftime('%x %r', $ts)
-                        $days_ago = floor((time() - $ts) / (60 * 60 * 24))
+                        $date_formatted = strftime('%x %r', $ts);
+                        $days_ago = floor((time() - $ts) / (60 * 60 * 24));
                     @endphp
                     <span id="page_info_last_edit">
                         {{ __('wiki.page.LAST_EDIT', [
