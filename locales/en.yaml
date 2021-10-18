@@ -57,6 +57,23 @@ frame:
     FOOTER: Footer
     LICENSE: License
 
+# Wiki views (pages, forums, etc.)
+wiki:
+  page:
+    TAGS: Tags
+    CATEGORY: 'category: {category}'
+    REVISION: 'revision: {revision}'
+    LAST_EDIT: >
+      last edited: {date} ({days, plural,
+        =0 {today}
+        =1 {yesterday}
+        other {{days, number} days ago}
+      })
+
+    aria:
+      TAGS: Tags
+      BREADCRUMBS: Breadcrumbs
+
 # Generic UI components
 components:
   spinny:
