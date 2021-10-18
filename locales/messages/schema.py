@@ -12,6 +12,9 @@ and to generate templates.
 from collections import namedtuple
 from typing import Iterable, List, NewType
 
+# The "application name" or domain for the localization directory.
+APPLICATION_NAME = "wikijump"
+
 # The messages file to use as the "schema".
 # That is, this file is complete and can be used to build a schema.
 MAIN_MESSAGE_SCHEMA_NAME = "en"
