@@ -1,3 +1,6 @@
+<!--
+  @component Toasts handler/renderer. Needs to be inserted in the `#toasts` div.
+-->
 <script lang="ts">
   import { toasts } from "./lib/toasts"
   import { anim } from "./lib/animation"

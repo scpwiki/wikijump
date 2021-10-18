@@ -1,6 +1,12 @@
+<!--
+  @component Generic dialog component.
+  Doesn't handle inserting itself into a "correct" place in the DOM.
+  Uses `dialogPolyfill` to ensure dialogs work across all browsers.
+-->
 <script lang="ts">
   import { createEventDispatcher, onMount, SvelteComponent } from "svelte"
   import dialogPolyfill from "dialog-polyfill"
+  import { scrollElement } from "@wikijump/util"
 
   // the additional methods are what it is in the spec and fulfilled by the polyfill
   let dialog: HTMLElement & { showModal: () => void; close: () => void; show: () => void }
@@ -25,11 +31,41 @@
    */
   export let lazy = true
 
+  /**
+   * Function passed to a provided {@link component} that closes the dialog
+   * when called.
+   */
+  const closeDialog = () => void (open = false)
+
   let state = open
   let previousFocus: HTMLElement | null = null
 
-  /** Restore the previous focus. */
-  function restoreFocus() {
+  /**
+   * Event handler for preventing the main page from scrolling if the user
+   * tries to scroll inside of the dialog.
+   */
+  function preventPageScrolling(evt: WheelEvent) {
+    if (!dialog || !evt.target) evt.preventDefault()
+    const target = evt.target as HTMLElement
+    // check if target is inside of the dialog
+    if (target === dialog || dialog.contains(target)) {
+      // figure out if our scrolling element is inside of the dialog
+      // if it isn't, prevent the scroll
+      const scroll = scrollElement(evt.target as HTMLElement)
+      if (target !== scroll && !dialog.contains(scroll)) evt.preventDefault()
+    }
+    // target outside of dialog, we can prevent scrolling for sure
+    else {
+      evt.preventDefault()
+    }
+  }
+
+  /**
+   * Cleans up after the dialog has been closed, e.g. by restoring the
+   * previous focus.
+   */
+  function cleanup() {
+    document.removeEventListener("wheel", preventPageScrolling)
     if (previousFocus) {
       previousFocus.focus()
       previousFocus = null
@@ -40,12 +76,14 @@
   function show() {
     previousFocus = document.activeElement as HTMLElement
     dialog.showModal()
+    document.addEventListener("wheel", preventPageScrolling, { passive: false })
+    dispatch("open")
   }
 
   /** Hide the modal and restore the previous focus. */
   function close() {
     dialog.close()
-    restoreFocus()
+    cleanup()
   }
 
   $: if (dialog && state !== open) {
@@ -53,20 +91,19 @@
     else if (!open && state) close()
     state = open
     dispatch("change", state)
-    if (state) dispatch("open")
   }
 
   onMount(() => {
     dialogPolyfill.registerDialog(dialog)
     if (open) show()
-    dialog.addEventListener("cancel", () => restoreFocus())
+    dialog.addEventListener("cancel", () => cleanup())
   })
 </script>
 
 <dialog bind:this={dialog} on:cancel on:close>
   {#if !lazy || open}
     {#if component}
-      <svelte:component this={component} {detail} />
+      <svelte:component this={component} {detail} {closeDialog} />
     {/if}
     <slot />
   {/if}

@@ -46,12 +46,46 @@ components:
       TITLE: Performance
       RENDER: "RENDER:"
 
+  textinput:
+    REQUIRED: This field is required.
+    SHOW_PASSWORD: Hold to show password
+
   toasts:
     CLOSE: Close Notification
 
   # unimplemented
   theme_picker:
     TOOLTIP: Set Color Scheme
+
+# Account panel and related forms
+account_panel:
+  LOGIN: Login
+  REGISTER: Register
+  SPECIFIER: Email or Username
+  SPECIFIER_PLACEHOLDER: Enter email or username...
+  EMAIL: Email
+  EMAIL_PLACEHOLDER: Enter email address...
+  EMAIL_INFO: Your email address is private.
+  USERNAME: Username
+  USERNAME_PLACEHOLDER: Enter username...
+  USERNAME_INFO: You'll be able to change this later.
+  PASSWORD: Password
+  PASSWORD_PLACEHOLDER: Enter password...
+  CONFIRM_PASSWORD: Confirm Password
+  REMEMBER_ME: Remember me
+  FORGOT_PASSWORD: Forgot your password?
+  tips:
+    CLOSE_DIALOG: Close
+  errors:
+    INTERNAL_ERROR: Internal server error. Please try again later.
+    LOGIN_FAILED: Failed to login. Check your email/username and password.
+    ALREADY_LOGGED_IN: You're already logged in. How did you even get here?
+    REGISTER_FAILED: Failed to register account. Check your email, username, and password.
+    EMAIL_TAKEN: Email already in use.
+    INVALID_INPUT: You need to fill out all required fields.
+  toasts:
+    LOGGED_IN: Logged in!
+    REGISTERED: Registration successful.
 
 # Sheaf editor
 sheaf:

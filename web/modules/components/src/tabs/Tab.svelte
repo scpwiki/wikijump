@@ -77,15 +77,12 @@
 
   .tab-button {
     flex-grow: 1;
-    border-left: solid 0.075rem var(--col-border);
-
-    @include overlay {
-      transition: box-shadow 0.125s;
-    }
-
-    &.is-selected::after {
-      box-shadow: inset 0 -0.125rem 0 0 var(--col-hint);
-    }
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 500;
+    text-align: center;
+    border-bottom: solid 1px var(--col-border);
+    border-left: solid 1px var(--col-border);
 
     &:first-child {
       border-left: none;

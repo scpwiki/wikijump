@@ -37,3 +37,47 @@ export function keyHandle(elem: Element, handlers: KeyHandler[] | KeyHandler) {
     }
   }
 }
+
+export interface WhileHeldOpts {
+  /** Fired when the node is first held down. */
+  pressed?: (node: HTMLElement) => void
+  /** Fired when the node is released. */
+  released?: (node: HTMLElement) => void
+}
+
+/**
+ * Svelte `use` compatible function for firing callbacks when an element is
+ * held down.
+ */
+export function whileHeld<T extends HTMLElement>(node: T, opts: WhileHeldOpts) {
+  let curOpts = opts
+  let held = false
+
+  const pressed = () => {
+    if (held) return
+    held = true
+    if (curOpts.pressed) curOpts.pressed(node)
+  }
+
+  const released = () => {
+    if (!held) return
+    held = false
+    if (curOpts.released) curOpts.released(node)
+  }
+
+  node.addEventListener("pointerdown", pressed)
+  node.addEventListener("pointerup", released)
+  node.addEventListener("pointercancel", released)
+
+  return {
+    update(newOpts: WhileHeldOpts) {
+      curOpts = newOpts
+    },
+
+    destroy() {
+      node.removeEventListener("pointerdown", pressed)
+      node.removeEventListener("pointerup", released)
+      node.removeEventListener("pointercancel", released)
+    }
+  }
+}

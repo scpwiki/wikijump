@@ -9,7 +9,8 @@ export const STATIC_FOLDER = "/files--static"
 export const NAMED_ASSETS = {
   "BAD_AVATAR":     "/media/bad-avatar.png",
   "DEFAULT_AVATAR": "/media/default-avatar.png",
-  "KARMA_SVG":      "/media/karma.svg"
+  "KARMA_SVG":      "/media/karma.svg",
+  "UI":             "/media/ui.svg",
 } as const
 
 /**

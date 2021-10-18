@@ -23,7 +23,7 @@
     <!--
     #wj-toggle
       wj-toggle-track-fill
-      wj-toggle-handle-cx (32-96)
+      wj-toggle-handle-cx (32px-96px)
       wj-toggle-handle-fill
     -->
     <symbol id="wj-toggle" viewBox="0 0 128 64">
@@ -33,18 +33,16 @@
         width="124"
         height="60"
         rx="30"
-        stroke="#222"
-        stroke-width="4"
         fill="var(--wj-toggle-track-fill, #aaa)"
         style="transition: fill 150ms"
       />
       <rect x="16" y="16" width="96" height="32" rx="16" fill="#0002" />
       <circle
         cy="32"
+        cx="var(--wj-toggle-handle-cx, 32px)"
         r="26"
-        cx="var(--wj-toggle-handle-cx, 32)"
         fill="var(--wj-toggle-handle-fill, #fff)"
-        style="transition: cx 150ms, fill 150ms"
+        style="transition: cx 150ms, fill 150ms;"
       />
     </symbol>
 

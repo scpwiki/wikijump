@@ -137,6 +137,143 @@ export function hover(element: HTMLElement, opts: HoverOpts) {
   if (opts.move) element.addEventListener("pointermove", opts.move)
 }
 
+export interface OnFocusDeepOpts {
+  /** Callback fired when the element (or any of its children) are focused. */
+  focus?: () => void
+  /** Callback fired when the element and its children are no longer focused. */
+  blur?: () => void
+}
+
+/**
+ * Fires callbacks for `focusin` and `focusout` events, but treats the
+ * entire element's tree as singularly focusable. That is, unfocusing a
+ * child of the given element by focusing to another child of the element
+ * will not fire any additional callbacks.
+ *
+ * @param element - The element to add the listeners to.
+ * @param opts - The options to use.
+ */
+export function onFocusDeep(element: HTMLElement, opts: OnFocusDeepOpts) {
+  let focused = false
+
+  element.addEventListener("focusin", evt => {
+    if (focused && element.contains(evt.target as HTMLElement)) return
+    focused = true
+    if (opts.focus) opts.focus()
+  })
+
+  element.addEventListener("focusout", evt => {
+    if (element.contains(evt.relatedTarget as HTMLElement)) return
+    focused = false
+    if (opts.blur) opts.blur()
+  })
+}
+
+export type ScrollDirection = "vertical" | "horizontal" | "both"
+
+/**
+ * Checks if an element scrolls vertically. Only checks if the element *is
+ * scrolling*, not if it *can scroll*.
+ *
+ * @param element - The element to check.
+ */
+export function scrollsVertically(element: HTMLElement) {
+  // @ts-ignore - only works in Firefox
+  if (element.scrollTopMax !== undefined) return element.scrollTopMax > 0
+
+  // weird edge case, not sure what this means
+  if (element.clientHeight === 0) return false
+
+  // we can't just use `element.scrollHeight > element.clientHeight`, because
+  // that will return true if a child also scrolls, so we need to check
+  // the overflow properties instead
+  if (element.scrollHeight > element.clientHeight) {
+    const overflow = window.getComputedStyle(element).overflowY
+    if (overflow === "scroll" || overflow === "auto") return true
+  }
+
+  return false
+}
+
+/**
+ * Checks if an element scrolls horizontally. Only checks if the element
+ * *is scrolling*, not if it *can scroll*.
+ *
+ * @param element - The element to check.
+ */
+export function scrollsHorizontally(element: HTMLElement) {
+  // @ts-ignore - only works in Firefox
+  if (element.scrollLeftMax !== undefined) return element.scrollLeftMax > 0
+
+  // weird edge case, not sure what this means
+  if (element.clientWidth === 0) return false
+
+  // we can't just use `element.scrollWidth > element.clientWidth`, because
+  // that will return true if a child also scrolls, so we need to check
+  // the overflow properties instead
+  if (element.scrollWidth > element.clientWidth) {
+    const overflow = window.getComputedStyle(element).overflowX
+    if (overflow === "scroll" || overflow === "auto") return true
+  }
+
+  return false
+}
+
+/**
+ * Checks if an element scrolls. Only checks if the element *is scrolling*,
+ * not if it *can scroll*.
+ *
+ * @param element - The element to check.
+ * @param dir - The direction to check. Defaults to `both`.
+ */
+export function scrolls(element: HTMLElement, dir: ScrollDirection = "both") {
+  // prettier-ignore
+  switch (dir) {
+    case "both":       return scrollsVertically(element) || scrollsHorizontally(element)
+    case "vertical":   return scrollsVertically(element)
+    case "horizontal": return scrollsHorizontally(element)
+  }
+}
+
+/**
+ * Finds the first parent of the given element that is scrolling. If the
+ * given element itself is scrolling, it will be returned. If no scrolling
+ * element is found, the document's root node will be returned.
+ *
+ * @param element - The element to find the scrolling element for.
+ * @param dir - The direction to check for scrolling. Defaults to `"vertical"`.
+ */
+export function scrollElement(element: HTMLElement, dir: ScrollDirection = "vertical") {
+  let node: HTMLElement | null = element
+  while (node) {
+    if (scrolls(node, dir)) return node
+    node = node.parentElement
+  }
+  return (document.scrollingElement || document.documentElement) as HTMLElement
+}
+
+/**
+ * Checks if all of the given form inputs are valid via ordinary HTML validation.
+ *
+ * @param inputs - The form inputs to check. Can accept `undefined` or
+ *   `null` values, which will count as "invalid" inputs.
+ */
+export function inputsValid(...inputs: (HTMLInputElement | undefined | null)[]) {
+  for (const input of inputs) {
+    if (
+      !input ||
+      !input.validity.valid ||
+      input.value.length === 0 ||
+      input.disabled ||
+      input.readOnly
+    ) {
+      return false
+    }
+  }
+
+  return true
+}
+
 const OBSERVER_CONFIG = {
   childList: true,
   subtree: true,
