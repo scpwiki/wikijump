@@ -9,13 +9,15 @@
     bottom: 0;
     left: 0;
     z-index: 99;
-    min-width: 50vw;
+    min-width: 75vw;
     overflow-y: auto;
     overscroll-behavior: contain;
-    transition: transform 250ms;
-    transform: translateX(-100%);
+    box-shadow: 0 0 0 black;
+    transition: transform 250ms, box-shadow 250ms;
+    transform: translateX(-105%);
 
     &.is-open {
+      box-shadow: 10rem 0 5rem rgba(0, 0, 0, 0.25);
       transform: translateX(0);
     }
   }

@@ -9,7 +9,10 @@ export class SidebarElement extends HTMLElement {
   constructor() {
     super()
 
-    onSwipe(document.documentElement, {
+    const app = document.querySelector("#app") as HTMLElement
+    if (!app) throw new Error("No app element found")
+
+    onSwipe(app, {
       condition: () => Media.matchBreakpoint("<=small"),
       direction: ["left", "right"],
       threshold: 70,
@@ -33,15 +36,21 @@ export class SidebarElement extends HTMLElement {
 
   private move({ type, diff }: Gesture) {
     if (type === "move") {
-      const max = this.open ? 0 : this.offsetWidth
+      const offset = Math.min(-diff[1], this.open ? 0 : this.offsetWidth)
+      const ratio = this.open
+        ? Math.max(1 - Math.abs(offset) / this.offsetWidth, 0)
+        : Math.max(offset / this.offsetWidth, 0)
+
       const start = !this.open ? "-100% + " : ""
-      const offset = Math.min(-diff[1], max)
+
       this.style.transition = "none"
+      this.style.boxShadow = `${-5 + ratio * 15}rem 0 10rem rgba(0, 0, 0, 0.25)`
       this.style.transform = `translateX(calc(${start}${offset}px))`
     }
     // reset style back to normal
     else if (type === "cancel" || type === "end") {
       this.style.transition = ""
+      this.style.boxShadow = ""
       this.style.transform = ""
     }
   }
