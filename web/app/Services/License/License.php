@@ -37,16 +37,9 @@ final class License
             $link = "<a rel=\"license\" href=\"$this->url\">$this->name</a>";
         }
 
-        // TODO: add localization
-        if ($this->unlessClause) {
-            $prefix = __(
-                'Unless stated otherwise, the content of this page is licensed under',
-            );
-        } else {
-            $prefix = __('The content of this page is licensed under');
-        }
+        $prefix = $this->unlessClause ? 'Unless stated otherwise, the' : 'The';
 
-        return "$prefix $link.";
+        return "$prefix content of this page is licensed under $link.";
     }
 
     public function id(): string

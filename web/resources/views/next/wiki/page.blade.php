@@ -36,7 +36,7 @@
         @endisset
 
         @if (isset($page_breadcrumbs) && count($page_breadcrumbs) > 0)
-            <div id="page_breadcrumbs" aria-label="{{ __('wiki-page.aria_breadcrumbs') }}">
+            <div id="page_breadcrumbs" aria-label="{{ __('wiki.page.aria.BREADCRUMBS') }}">
                 <ul>
                     @foreach ($page_breadcrumbs as $breadcrumb)
                         <li class="page-breadcrumb">
@@ -68,13 +68,13 @@
                 {{-- This is to preserve the layout needed for styling --}}
                 <h4 id="page_info_tags_header" aria-hidden="true">
                     @if (isset($page_tags) && count($page_tags) > 0)
-                        {{ __('wiki-page.tags') }}
+                        {{ __('wiki.page.TAGS') }}
                     @endif
                 </h4>
 
                 @isset($page_category)
                     <span id="page_info_category">
-                        {{ __('wiki-page.category', ['category' => $page_category]) }}
+                        {{ __('wiki.page.CATEGORY', ['category' => $page_category]) }}
                     </span>
 
                     <span class="page-info-sep">|</span>
@@ -83,19 +83,23 @@
 
                 @isset($page_revision)
                     <span id="page_info_revision">
-                        {{ __('wiki-page.revision', ['revision' => $page_revision]) }}
+                        {{ __('wiki.page.REVISION', ['revision' => $page_revision]) }}
                     </span>
 
                     <span class="page-info-sep">|</span>
                 @endisset
 
                 @isset($page_last_edit_timestamp)
+                    @php
+                        $ts = $page_last_edit_timestamp;
+                        $date_formatted = strftime('%x %r', $ts);
+                        $days_ago = floor((time() - $ts) / (60 * 60 * 24));
+                    @endphp
                     <span id="page_info_last_edit">
-                        {{ trans_choice(
-                            'wiki-page.last_edit',
-                            floor((time() - $page_last_edit_timestamp) / (60 * 60 * 24)),
-                            ['edit' => strftime('%x %r', $page_last_edit_timestamp)]
-                        ) }}
+                        {{ __('wiki.page.LAST_EDIT', [
+                            'date' => $date_formatted,
+                            'days' => $days_ago,
+                        ]) }}
                     </span>
                 @endisset
             </div>
@@ -104,7 +108,7 @@
         <hr>
 
         @if (isset($page_tags) && count($page_tags) > 0)
-            <div id="page_tags" aria-label="{{ __('wiki-page.tags') }}">
+            <div id="page_tags" aria-label="{{ __('wiki.page.aria.TAGS') }}">
                 <ul>
                     @foreach($page_tags as $tag)
                         <li class="page-tag">

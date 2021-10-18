@@ -34,9 +34,9 @@
 
         {{-- Header --}}
         {{-- TODO: User account control widget --}}
-        <header id="header" aria-label="{{ __('frame.aria_header') }}">
+        <header id="header" aria-label="{{ __('frame.aria.HEADER') }}">
             @if (isset($header_img_url) || isset($header_title))
-                <a id="header_logo" href="/" title="{{ __('frame.goto_home_page') }}">
+                <a id="header_logo" href="/" title="{{ __('frame.GOTO_HOME_PAGE') }}">
                     @isset($header_img_url)
                         <img id="header_logo_img"
                              src="{{ $header_img_url }}"
@@ -57,7 +57,7 @@
         {{-- TODO: Page search widget --}}
         {{-- TODO: Locale selector--}}
         {{-- TODO: Dark/light mode selector --}}
-        <nav id="navbar" aria-label="{{ __('frame.aria_navigation') }}">
+        <nav id="navbar" aria-label="{{ __('frame.aria.NAVIGATION') }}">
             @includeWhen(isset($navbar_items), 'next.components.navbar-elements', [
                 'items' => $navbar_items,
             ])
@@ -66,7 +66,7 @@
 
         {{-- Sidebar --}}
         @isset($sidebar_content)
-            <aside id="sidebar" aria-label="{{ __('frame.aria_sidebar') }}">
+            <aside id="sidebar" aria-label="{{ __('frame.aria.SIDEBAR') }}">
                 <div id="sidebar_sticky" role="presentation">
                     {!! $sidebar_content !!}
                 </div>
@@ -74,48 +74,48 @@
         @endisset
 
         {{-- Main Content --}}
-        <main id="main" aria-label="{{ __('frame.aria_main') }}">
+        <main id="main" aria-label="{{ __('frame.aria.MAIN') }}">
             @yield('content')
         </main>
 
         {{-- Footer --}}
-        <footer id="footer" aria-label="{{ __('frame.aria_footer') }}">
+        <footer id="footer" aria-label="{{ __('frame.aria.FOOTER') }}">
             <div id="footer_main">
                 <div id="footer_services">
                     @if ($SERVICE_NAME != "")
                         <a href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}">
-                            {{ __('frame.part_of', ['name' => $SERVICE_NAME]) }}
+                            {{ __('frame.footer.PART_OF', ['name' => $SERVICE_NAME]) }}
                         </a>
                         <span class="footer_services_sep">&#8212;</span>
                     @endif
                     <a href="https://github.com/scpwiki/wikijump">
-                        {{ __('frame.powered_by', ['name' => 'Wikijump']) }}
+                        {{ __('frame.footer.POWERED_BY', ['name' => 'Wikijump']) }}
                     </a>
                     <span class="footer_services_sep">&#8212;</span>
                     {{-- TODO: link to actual pages --}}
-                    <a href="/terms">{{ __('frame.terms') }}</a>
-                    <a href="/privacy">{{ __('frame.privacy') }}</a>
-                    <a href="/docs">{{ __('frame.docs') }}</a>
+                    <a href="/terms">{{ __('frame.footer.TERMS') }}</a>
+                    <a href="/privacy">{{ __('frame.footer.PRIVACY') }}</a>
+                    <a href="/docs">{{ __('frame.footer.DOCS') }}</a>
                 </div>
 
                 <div id="footer_actions">
                     <a href="https://scuttle.atlassian.net/servicedesk/customer/portal/2">
-                        {{ __('frame.report_bug') }}
+                        {{ __('frame.footer.REPORT_BUG') }}
                     </a>
                     {{-- TODO: Flag as objectionable functionality  --}}
                     <a href="/flag">
-                        {{ __('frame.report_flag') }}
+                        {{ __('frame.footer.REPORT_FLAG') }}
                     </a>
                 </div>
             </div>
 
             @isset($license)
-                <div id="footer_license" aria-label="{{ __('frame.aria_license') }}">
+                <div id="footer_license" aria-label="{{ __('frame.aria.LICENSE') }}">
                     <a href="{{ $license->url() }}">
                         @if ($license->unless())
-                            {{ __('frame.license_unless', ['license' => $license->name()]) }}
+                            {{ __('frame.LICENSE_UNLESS', ['license' => $license->name()]) }}
                         @else
-                            {{  __('frame.license', ['license' => $license->name()]) }}
+                            {{  __('frame.LICENSE', ['license' => $license->name()]) }}
                         @endif
                     </a>
                 </div>

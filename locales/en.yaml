@@ -31,6 +31,49 @@
 # to avoid accidental misordering of comments not considered documentation.
 #
 
+# Frame view
+frame:
+  GOTO_HOME_PAGE: Go to home page
+
+  footer:
+    POWERED_BY: Powered by {name}
+    PART_OF: Part of {name}
+    TERMS: Terms
+    PRIVACY: Privacy
+    DOCS: Docs
+    REPORT_BUG: Report a bug
+    REPORT_FLAG: Flag as objectionable
+
+  LICENSE: >
+    The content of this page is licensed under the {license}.
+  LICENSE_UNLESS: >
+    Unless stated otherwise, the content of this page is licensed under the {license}.
+
+  aria:
+    HEADER: Page Header
+    NAVIGATION: Navigation
+    SIDEBAR: Sidebar
+    MAIN: Main Content
+    FOOTER: Footer
+    LICENSE: License
+
+# Wiki views (pages, forums, etc.)
+wiki:
+  page:
+    TAGS: Tags
+    CATEGORY: 'category: {category}'
+    REVISION: 'revision: {revision}'
+    LAST_EDIT: >
+      last edited: {date} ({days, plural,
+        =0 {today}
+        =1 {yesterday}
+        other {{days, number} days ago}
+      })
+
+    aria:
+      TAGS: Tags
+      BREADCRUMBS: Breadcrumbs
+
 # Generic UI components
 components:
   spinny:
