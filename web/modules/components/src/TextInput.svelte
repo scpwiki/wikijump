@@ -49,7 +49,7 @@
         <span class="textinput-label">{label}</span>
         {#if required}
           <span class="textinput-required" use:tip={$t("components.textinput.REQUIRED")}>
-            <Icon i="fa-:asterisk" size="0.5em" />
+            <Icon i="fa-solid:asterisk" size="0.5em" />
           </span>
         {/if}
       </div>
