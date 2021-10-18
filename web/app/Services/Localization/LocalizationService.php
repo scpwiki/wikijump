@@ -20,7 +20,7 @@ final class LocalizationService
     public static function setup()
     {
         // Set up gettext
-        bindtextdomain('wikijump', WIKIJUMP_ROOT . '/web/resources/lang');
+        bindtextdomain('wikijump', WIKIJUMP_ROOT . '/web/public/locales');
         bind_textdomain_codeset('wikijump', 'UTF-8');
         textdomain('wikijump');
     }
