@@ -25,6 +25,15 @@
 
   let password = ""
 
+  function statusErrorMessage(status: number) {
+    // prettier-ignore
+    switch(status) {
+      case 403: return $t("account_panel.errors.EMAIL_TAKEN")
+      case 500: return $t("account_panel.errors.INTERNAL_ERROR")
+      default:  return $t("account_panel.errors.REGISTER_FAILED")
+    }
+  }
+
   async function register() {
     if (inputsValid(inputEmail, inputUsername, inputPassword, inputPasswordConfirm)) {
       busy = true
@@ -38,8 +47,10 @@
 
         toast("success", $t("account_panel.toasts.REGISTERED"))
         dispatch("register")
-      } catch {
-        error = $t("account_panel.errors.REGISTER_FAILED")
+      } catch (err) {
+        // handle HTTP errors, rethrow on script errors
+        if (err instanceof Response) error = statusErrorMessage(err.status)
+        else throw err
       }
       busy = false
     } else {

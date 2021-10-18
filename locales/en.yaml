@@ -75,8 +75,11 @@ account_panel:
   FORGOT_PASSWORD: Forgot your password?
   CLOSE_DIALOG: Close
   errors:
+    INTERNAL_ERROR: Internal server error. Please try again later.
     LOGIN_FAILED: Failed to login. Check your email/username and password.
+    ALREADY_LOGGED_IN: You're already logged in. How did you even get here?
     REGISTER_FAILED: Failed to register account. Check your email, username, and password.
+    EMAIL_TAKEN: Email already in use.
     INVALID_INPUT: You need to fill out all required fields.
   toasts:
     LOGGED_IN: Logged in!

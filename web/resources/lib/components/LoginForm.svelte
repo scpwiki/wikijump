@@ -15,6 +15,15 @@
 
   let error = ""
 
+  function statusErrorMessage(status: number) {
+    // prettier-ignore
+    switch(status) {
+      case 409: return $t("account_panel.errors.ALREADY_LOGGED_IN")
+      case 500: return $t("account_panel.errors.INTERNAL_ERROR")
+      default:  return $t("account_panel.errors.LOGIN_FAILED")
+    }
+  }
+
   async function login() {
     if (inputsValid(inputLogin, inputPassword)) {
       busy = true
@@ -24,8 +33,10 @@
         await WikijumpAPI.authLogin({ login, password, remember })
         toast("success", $t("account_panel.toasts.LOGGED_IN"))
         dispatch("login")
-      } catch {
-        error = $t("account_panel.errors.LOGIN_FAILED")
+      } catch (err) {
+        // handle HTTP errors, rethrow on script errors
+        if (err instanceof Response) error = statusErrorMessage(err.status)
+        else throw err
       }
       busy = false
     } else {
