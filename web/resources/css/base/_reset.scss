@@ -144,8 +144,9 @@ summary {
 
 dialog {
   position: fixed;
-  top: 50%;
+  top: 0;
   right: 0;
+  bottom: 0;
   left: 0;
   display: block;
   width: fit-content;
@@ -153,7 +154,6 @@ dialog {
   margin: auto;
   overscroll-behavior: contain;
   background: none;
-  transform: translate(0, -50%);
 
   // this messes up default scrolling behavior inside of the dialog
   // a little bit, but prevents scrolling inside of the dialog
