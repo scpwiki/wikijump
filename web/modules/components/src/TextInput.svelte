@@ -26,9 +26,6 @@
   /** If true, borders will be removed. */
   export let noborder = false
 
-  /** If true, the input will be rendered much thinner. */
-  export let thin = false
-
   const dispatch = createEventDispatcher()
 
   const keyHandler = [
@@ -60,7 +57,6 @@
       bind:value
       use:keyHandle={keyHandler}
       class="textinput-input"
-      class:is-thin={thin}
       class:is-noborder={noborder}
       {...$$restProps}
     />
@@ -116,13 +112,7 @@
     box-shadow: inset 0.2em 0 0 -0.1em transparent;
 
     @include tolerates-motion {
-      transition: border 100ms, box-shadow 100ms;
-    }
-
-    &.is-thin {
-      height: 2em;
-      padding-top: 0;
-      padding-bottom: 0;
+      transition: border 50ms, border-radius 50ms, box-shadow 50ms;
     }
 
     &.is-noborder {
@@ -140,11 +130,22 @@
     }
 
     &:valid:not(:placeholder-shown) {
-      box-shadow: inset 0.2em 0 0 -0.1em var(--col-success);
+      border-left-color: var(--col-success);
+      border-radius: 0.125em 0.25em 0.25em 0.125em;
+      box-shadow: inset 0.25em 0 0 -0.1em var(--col-success);
     }
 
     &:invalid:not(:placeholder-shown) {
-      box-shadow: inset 0.2em 0 0 -0.1em var(--col-danger);
+      border-left-color: var(--col-danger);
+      border-radius: 0.125em 0.25em 0.25em 0.125em;
+      box-shadow: inset 0.25em 0 0 -0.1em var(--col-danger);
+    }
+
+    &:disabled,
+    &:not(:placeholder-shown) {
+      + .textinput-icon {
+        opacity: 0;
+      }
     }
   }
 
@@ -163,10 +164,5 @@
     @include tolerates-motion {
       transition: opacity 100ms;
     }
-  }
-
-  .textinput-input:not(:placeholder-shown) + .textinput-icon,
-  .textinput-input:disabled + .textinput-icon {
-    opacity: 0;
   }
 </style>
