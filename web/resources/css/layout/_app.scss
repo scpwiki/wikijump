@@ -34,17 +34,19 @@
     minmax(var(--layout-body-side-gap), 1fr);
 
   &.has-sidebar {
-    grid-template-areas:
-      "header  header  header  header"
-      "navbar  navbar  navbar  navbar"
-      "sidebar .       main    .     "
-      "footer  footer  footer  footer";
+    @include media(">small") {
+      grid-template-areas:
+        "header  header  header  header"
+        "navbar  navbar  navbar  navbar"
+        "sidebar .       main    .     "
+        "footer  footer  footer  footer";
 
-    grid-template-columns:
-      var(--layout-sidebar-width)
-      minmax(var(--layout-body-side-gap), var(--layout-body-centering-factor))
-      minmax(0, var(--layout-body-max-width))
-      minmax(var(--layout-body-side-gap), 1fr);
+      grid-template-columns:
+        var(--layout-sidebar-width)
+        minmax(var(--layout-body-side-gap), var(--layout-body-centering-factor))
+        minmax(0, var(--layout-body-max-width))
+        minmax(var(--layout-body-side-gap), 1fr);
+    }
   }
 
   &.has-license {

@@ -1,5 +1,24 @@
 #sidebar {
+  display: block;
+  background: var(--col-background);
   border-right: solid 0.125rem var(--col-border);
+
+  @include media("<=small") {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 99;
+    min-width: 50vw;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transition: transform 250ms;
+    transform: translateX(-100%);
+
+    &.is-open {
+      transform: translateX(0);
+    }
+  }
 }
 
 #sidebar_sticky {
@@ -9,4 +28,10 @@
   padding: 1rem;
   overflow-x: hidden;
   overflow-y: auto;
+
+  @include media("<=small") {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
 }
