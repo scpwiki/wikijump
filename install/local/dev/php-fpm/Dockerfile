@@ -130,9 +130,9 @@ EXPOSE 9000
 # Copy sources from intermediate images
 COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
-COPY --from=locales /src/locales/out/ /var/www/locales
 COPY --from=frontend /src/web/web/files--common/ /var/www/wikijump/web/web/files--common
 COPY --from=frontend /src/web/public/ /var/www/wikijump/web/public
+COPY --from=locales /src/locales/out/ /var/www/wikijump/web/public/files--built/locales
 
 # Install runner
 COPY ./install/files/php-fpm/run.sh /app/run.sh
