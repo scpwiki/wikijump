@@ -1,0 +1,16 @@
+dialog {
+  @include tolerates-motion {
+    animation: dialogReveal 250ms ease-out backwards;
+
+    &::backdrop,
+    + .backdrop {
+      animation: dialogReveal 250ms ease-out backwards;
+    }
+  }
+}
+
+// prettier-ignore
+@keyframes dialogReveal {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
