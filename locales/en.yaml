@@ -79,6 +79,7 @@ account_panel:
     LOGIN_FAILED: Failed to login. Check your email/username and password.
     REGISTERED: Registration successful.
     REGISTER_FAILED: Failed to register account. Check your email, username, and password.
+    INVALID_INPUT: You need to fill out all required fields.
 
 # Sheaf editor
 sheaf:

@@ -1,7 +1,11 @@
 <script lang="ts">
   import WikijumpAPI, { t } from "@wikijump/api"
-  import { Button, TextInput, Toggle, toast } from "@wikijump/components"
+  import { Button, TextInput, toast } from "@wikijump/components"
   import { escapeRegExp } from "@wikijump/util"
+  import { createEventDispatcher } from "svelte"
+  import { inputsValid } from "../util"
+
+  const dispatch = createEventDispatcher()
 
   // TODO: redirect to email confirmation page
   // TODO: endpoint for verifying if password is _actually_ correct
@@ -18,21 +22,8 @@
 
   let password = ""
 
-  function allValid() {
-    if (!inputEmail || !inputUsername || !inputPassword || !inputPasswordConfirm) {
-      return false
-    }
-
-    return (
-      inputEmail.validity.valid &&
-      inputUsername.validity.valid &&
-      inputPassword.validity.valid &&
-      inputPasswordConfirm.validity.valid
-    )
-  }
-
   async function register() {
-    if (allValid()) {
+    if (inputsValid(inputEmail, inputUsername, inputPassword, inputPasswordConfirm)) {
       busy = true
       try {
         const email = inputEmail.value
@@ -43,10 +34,13 @@
         await WikijumpAPI.accountRegister({ email, username, password })
 
         toast("success", $t("account_panel.toasts.REGISTERED"))
+        dispatch("register")
       } catch {
         toast("danger", $t("account_panel.toasts.REGISTER_FAILED"))
       }
       busy = false
+    } else {
+      toast("danger", $t("account_panel.toasts.INVALID_INPUT"))
     }
   }
 </script>

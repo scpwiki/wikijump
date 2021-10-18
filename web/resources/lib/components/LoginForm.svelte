@@ -1,6 +1,10 @@
 <script lang="ts">
   import WikijumpAPI, { t } from "@wikijump/api"
   import { Button, TextInput, Toggle, toast } from "@wikijump/components"
+  import { createEventDispatcher } from "svelte"
+  import { inputsValid } from "../util"
+
+  const dispatch = createEventDispatcher()
 
   let busy = false
 
@@ -9,18 +13,20 @@
   let remember = false
 
   async function login() {
-    if (!inputLogin || !inputPassword) return
-    if (inputLogin.validity.valid && inputPassword.validity.valid) {
+    if (inputsValid(inputLogin, inputPassword)) {
       busy = true
       try {
         const login = inputLogin.value
         const password = inputPassword.value
         await WikijumpAPI.authLogin({ login, password, remember })
         toast("success", $t("account_panel.toasts.LOGGED_IN"))
+        dispatch("login")
       } catch {
         toast("danger", $t("account_panel.toasts.LOGIN_FAILED"))
       }
       busy = false
+    } else {
+      toast("danger", $t("account_panel.toasts.INVALID_INPUT"))
     }
   }
 </script>

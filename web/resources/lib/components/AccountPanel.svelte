@@ -15,7 +15,7 @@
         {$t("account_panel.LOGIN")}
       </span>
       <div class="account-panel-form">
-        <LoginForm />
+        <LoginForm on:login={() => closeDialog?.()} />
       </div>
     </Tab>
     <Tab>
@@ -23,7 +23,7 @@
         {$t("account_panel.REGISTER")}
       </span>
       <div class="account-panel-form">
-        <RegisterForm />
+        <RegisterForm on:register={() => closeDialog?.()} />
       </div>
     </Tab>
   </Tabview>
