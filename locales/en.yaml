@@ -74,12 +74,13 @@ account_panel:
   REMEMBER_ME: Remember me
   FORGOT_PASSWORD: Forgot your password?
   CLOSE_DIALOG: Close
-  toasts:
-    LOGGED_IN: Logged in!
+  errors:
     LOGIN_FAILED: Failed to login. Check your email/username and password.
-    REGISTERED: Registration successful.
     REGISTER_FAILED: Failed to register account. Check your email, username, and password.
     INVALID_INPUT: You need to fill out all required fields.
+  toasts:
+    LOGGED_IN: Logged in!
+    REGISTERED: Registration successful.
 
 # Sheaf editor
 sheaf:

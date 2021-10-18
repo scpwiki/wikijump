@@ -4,11 +4,12 @@
   import { escapeRegExp } from "@wikijump/util"
   import { createEventDispatcher } from "svelte"
   import { inputsValid } from "../util"
+  import FormError from "./FormError.svelte"
 
   const dispatch = createEventDispatcher()
 
   // TODO: redirect to email confirmation page
-  // TODO: endpoint for verifying if password is _actually_ correct
+  // TODO: endpoint for verifying if password is safe
   // TODO: verifying that the username is available
   // TODO: captcha
   // TODO: hidden form field to bait spambots
@@ -19,6 +20,8 @@
   let inputUsername: HTMLInputElement
   let inputPassword: HTMLInputElement
   let inputPasswordConfirm: HTMLInputElement
+
+  let error = ""
 
   let password = ""
 
@@ -36,11 +39,11 @@
         toast("success", $t("account_panel.toasts.REGISTERED"))
         dispatch("register")
       } catch {
-        toast("danger", $t("account_panel.toasts.REGISTER_FAILED"))
+        error = $t("account_panel.errors.REGISTER_FAILED")
       }
       busy = false
     } else {
-      toast("danger", $t("account_panel.toasts.INVALID_INPUT"))
+      error = $t("account_panel.errors.INVALID_INPUT")
     }
   }
 </script>
@@ -99,6 +102,8 @@
     />
   </form>
 
+  <FormError {error} />
+
   <div class="register-form-submit">
     <Button on:click={register} disabled={busy} wide primary>
       {$t("account_panel.REGISTER")}
@@ -109,7 +114,11 @@
 <style lang="scss">
   @import "../../css/abstracts";
 
+  .register-form > form {
+    margin-bottom: 1rem;
+  }
+
   .register-form-submit {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
   }
 </style>

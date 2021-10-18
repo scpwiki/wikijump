@@ -3,6 +3,7 @@
   import { Button, TextInput, Toggle, toast } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
   import { inputsValid } from "../util"
+  import FormError from "./FormError.svelte"
 
   const dispatch = createEventDispatcher()
 
@@ -11,6 +12,8 @@
   let inputLogin: HTMLInputElement
   let inputPassword: HTMLInputElement
   let remember = false
+
+  let error = ""
 
   async function login() {
     if (inputsValid(inputLogin, inputPassword)) {
@@ -22,11 +25,11 @@
         toast("success", $t("account_panel.toasts.LOGGED_IN"))
         dispatch("login")
       } catch {
-        toast("danger", $t("account_panel.toasts.LOGIN_FAILED"))
+        error = $t("account_panel.errors.LOGIN_FAILED")
       }
       busy = false
     } else {
-      toast("danger", $t("account_panel.toasts.INVALID_INPUT"))
+      error = $t("account_panel.errors.INVALID_INPUT")
     }
   }
 </script>
@@ -62,6 +65,8 @@
     <!-- TODO: forgot password -->
     <a class="login-form-forgot" href="/forgot">{$t("account_panel.FORGOT_PASSWORD")}</a>
   </div>
+
+  <FormError {error} />
 
   <div class="login-form-submit">
     <Button on:click={login} disabled={busy} wide primary>
