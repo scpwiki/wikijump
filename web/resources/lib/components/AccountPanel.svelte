@@ -2,6 +2,7 @@
   import { t } from "@wikijump/api"
   import { Button, Tabview, Tab } from "@wikijump/components"
   import LoginForm from "./LoginForm.svelte"
+  import RegisterForm from "./RegisterForm.svelte"
 
   /** Gets passed to this panel if it's been mounted inside of a dialog. */
   export let closeDialog: (() => void) | undefined
@@ -21,7 +22,9 @@
       <span class="account-panel-tab-button" slot="button">
         {$t("account_panel.REGISTER")}
       </span>
-      <div class="account-panel-form" />
+      <div class="account-panel-form">
+        <RegisterForm />
+      </div>
     </Tab>
   </Tabview>
 

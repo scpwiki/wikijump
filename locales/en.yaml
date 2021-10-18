@@ -62,14 +62,23 @@ account_panel:
   REGISTER: Register
   SPECIFIER: Email or Username
   SPECIFIER_PLACEHOLDER: Enter email or username...
+  EMAIL: Email
+  EMAIL_PLACEHOLDER: Enter email address...
+  EMAIL_INFO: Your email address is private.
+  USERNAME: Username
+  USERNAME_PLACEHOLDER: Enter username...
+  USERNAME_INFO: You'll be able to change this later.
   PASSWORD: Password
   PASSWORD_PLACEHOLDER: Enter password...
+  CONFIRM_PASSWORD: Confirm Password
   REMEMBER_ME: Remember me
   FORGOT_PASSWORD: Forgot your password?
   CLOSE_DIALOG: Close
   toasts:
     LOGGED_IN: Logged in!
     LOGIN_FAILED: Failed to login. Check your email/username and password.
+    REGISTERED: Registration successful.
+    REGISTER_FAILED: Failed to register account. Check your email, username, and password.
 
 # Sheaf editor
 sheaf:
