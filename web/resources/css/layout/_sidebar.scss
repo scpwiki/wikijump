@@ -12,7 +12,7 @@
     min-width: 75vw;
     overflow-y: auto;
     overscroll-behavior: contain;
-    box-shadow: 0 0 0 black;
+    box-shadow: 0 0 0 transparent;
     transition: transform 250ms, box-shadow 250ms;
     transform: translateX(-105%);
 
