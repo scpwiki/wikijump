@@ -1,4 +1,4 @@
-import { Gesture, gestureObserve } from "./gesture"
+import { Directions, Gesture, gestureObserve } from "./gesture"
 
 export interface OnSwipeOpts {
   /**
@@ -14,7 +14,7 @@ export interface OnSwipeOpts {
    */
   eventCallback?: (target: HTMLElement, gesture: Gesture) => void
   /** Swipe direction to recognize. */
-  direction: Gesture["direction"]
+  direction: Directions | Directions[]
   /** Minimum distance in pixels needed for a swipe to count. */
   threshold: number
   /**
@@ -60,6 +60,11 @@ const ONSWIPE_DEFAULT_OPTS: OnSwipeOpts = {
  * @param opts - The options to use.
  */
 export function onSwipe(target: HTMLElement, opts: Partial<OnSwipeOpts>) {
+  opts = { ...ONSWIPE_DEFAULT_OPTS, ...opts }
+
+  const directions =
+    typeof opts.direction === "string" ? [opts.direction] : opts.direction!
+
   let timeout: number | undefined
   let started = false
   let cancelled = false
@@ -79,12 +84,12 @@ export function onSwipe(target: HTMLElement, opts: Partial<OnSwipeOpts>) {
     if (!started && opts.condition && !opts.condition()) return
 
     const { direction, dist, type } = gesture
-    const sameDirection = direction === opts.direction
-    const overThreshold = sameDirection && dist > opts.threshold!
-    const overMinimumThreshold = started || (sameDirection && dist > opts.minThreshold!)
+    const validDirection = directions.includes(direction)
+    const overThreshold = validDirection && dist > opts.threshold!
+    const overMinimumThreshold = started || (validDirection && dist > opts.minThreshold!)
 
     // gesture is over threshold, but in the wrong direction
-    if (!sameDirection && dist > opts.minThreshold!) cancel(gesture)
+    if (!validDirection && dist > opts.minThreshold!) cancel(gesture)
 
     if (!cancelled) {
       // gesture started, start executing event callback
@@ -95,6 +100,7 @@ export function onSwipe(target: HTMLElement, opts: Partial<OnSwipeOpts>) {
       // execute callback if valid && immediate mode or if the gesture ended
       if (overThreshold && ((type === "move" && opts.immediate) || type === "end")) {
         opts.callback!(target, gesture)
+        cancelled = true
       }
       // ending the gesture and our timeout is running, cancel it
       else if (timeout && (type === "end" || type === "cancel")) {
