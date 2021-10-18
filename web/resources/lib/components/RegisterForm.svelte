@@ -1,9 +1,8 @@
 <script lang="ts">
   import WikijumpAPI, { t } from "@wikijump/api"
   import { Button, TextInput, toast } from "@wikijump/components"
-  import { escapeRegExp } from "@wikijump/util"
+  import { escapeRegExp, inputsValid } from "@wikijump/util"
   import { createEventDispatcher } from "svelte"
-  import { inputsValid } from "../util"
   import FormError from "./FormError.svelte"
 
   const dispatch = createEventDispatcher()
