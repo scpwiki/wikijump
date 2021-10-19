@@ -56,3 +56,8 @@ mark {
   color: inherit;
   background: var(--col-text-highlight);
 }
+
+// Prevents sprite SVGs from breaking button handlers.
+[role="button"] > .wj-ui-sprite {
+  pointer-events: none;
+}
