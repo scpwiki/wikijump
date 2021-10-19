@@ -23,6 +23,6 @@ function pg_is_error(Throwable $e, string $code): bool
  */
 function _(string $key): string
 {
-    Log::warning("Use of deprecated _() function for localization key '$key'");
+    Log::warning('Use of deprecated _() function');
     return __($key);
 }
