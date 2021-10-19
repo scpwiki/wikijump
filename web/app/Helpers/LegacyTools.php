@@ -135,8 +135,6 @@ final class LegacyTools
         $lang = $site->getLanguage();
         $runData->setLanguage($lang);
         $GLOBALS['lang'] = $lang;
-        putenv("LANG=$glang");
-        putenv("LANGUAGE=$glang");
         App::setLocale($lang);
 
         /**
