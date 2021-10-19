@@ -1,6 +1,11 @@
 import { highlight } from "@wikijump/prism"
-import { addElement, observe, pauseObservation, timeout } from "@wikijump/util"
-import { BaseButton } from "../../base-button"
+import {
+  addElement,
+  BaseButton,
+  observe,
+  pauseObservation,
+  timeout
+} from "@wikijump/util"
 
 /**
  * FTML `[[code]]` element. Automatically highlights the contents of its

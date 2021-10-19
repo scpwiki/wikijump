@@ -1,5 +1,4 @@
-import { addElement, observe, pauseObservation } from "@wikijump/util"
-import { BaseTooltipButton } from "../../base-tooltip-button"
+import { addElement, BaseTooltipButton, observe, pauseObservation } from "@wikijump/util"
 
 const NEED_TO_POLYFILL = !hasMathMLSupport()
 
