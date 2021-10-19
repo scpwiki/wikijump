@@ -22,6 +22,16 @@ export class SidebarElement extends HTMLElement {
       callback: (_node, gesture) => this.swipe(gesture),
       eventCallback: (_node, gesture) => this.move(gesture)
     })
+
+    app.addEventListener("click", evt => this.bodyClick(evt))
+  }
+
+  private bodyClick(evt: MouseEvent) {
+    if (!this.open) return
+    if (evt.target !== this && !this.contains(evt.target as HTMLElement)) {
+      this.open = false
+      this.classList.remove("is-open")
+    }
   }
 
   private swipe({ direction }: Gesture) {
