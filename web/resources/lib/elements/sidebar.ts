@@ -40,7 +40,6 @@ export class SidebarElement extends HTMLElement {
   }
 
   private bodyClick(evt: MouseEvent) {
-    console.log(evt.target)
     if (!this.open) return
     // special case for open button
     if (evt.target instanceof SidebarButtonElement) return
@@ -77,7 +76,6 @@ export class SidebarButtonElement extends BaseButton {
 
   constructor() {
     super()
-
     // enables tooltip using aria-label
     tip(this)
   }

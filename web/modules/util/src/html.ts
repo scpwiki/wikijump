@@ -238,7 +238,7 @@ export function scrolls(element: HTMLElement, dir: ScrollDirection = "both") {
 /**
  * Finds the first parent of the given element that is scrolling. If the
  * given element itself is scrolling, it will be returned. If no scrolling
- * element is found, the document's root node will be returned.
+ * element is found, `null` is returned.
  *
  * @param element - The element to find the scrolling element for.
  * @param dir - The direction to check for scrolling. Defaults to `"vertical"`.
@@ -249,7 +249,7 @@ export function scrollElement(element: HTMLElement, dir: ScrollDirection = "vert
     if (scrolls(node, dir)) return node
     node = node.parentElement
   }
-  return (document.scrollingElement || document.documentElement) as HTMLElement
+  return null
 }
 
 /**

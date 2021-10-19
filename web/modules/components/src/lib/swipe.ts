@@ -1,4 +1,4 @@
-import { Directions, Gesture, gestureObserve } from "./gesture"
+import { Direction, Gesture, gestureObserve } from "./gesture"
 
 export interface OnSwipeOpts {
   /**
@@ -14,7 +14,7 @@ export interface OnSwipeOpts {
    */
   eventCallback?: (target: HTMLElement, gesture: Gesture) => void
   /** Swipe direction to recognize. */
-  direction: Directions | Directions[]
+  direction: Direction | Direction[]
   /** Minimum distance in pixels needed for a swipe to count. */
   threshold: number
   /**

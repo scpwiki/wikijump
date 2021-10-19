@@ -1,21 +1,24 @@
+import { scrollElement } from "@wikijump/util"
+
 export type Point = [x: number, y: number]
-export type Directions = "up" | "down" | "left" | "right"
-export type GestureTypes = "start" | "move" | "end" | "cancel"
+export type Direction = "up" | "down" | "left" | "right"
+export type Axis = "vertical" | "horizontal"
+export type GestureType = "start" | "move" | "end" | "cancel"
 
 /** Represents the state of an active gesture. */
 export interface Gesture {
   start: Point
   diff: Point
   diffAbs: Point
-  direction: Directions
+  direction: Direction
   dist: number
-  type: GestureTypes
+  type: GestureType
 }
 
 const DIRECTIONS = ["up", "down", "left", "right"] as const
 
 /** Resolves a {@link Gesture} from two points and the current touch type. */
-function resolve([x1, y1]: Point, [x2, y2]: Point, type: GestureTypes): Gesture {
+function resolve([x1, y1]: Point, [x2, y2]: Point, type: GestureType): Gesture {
   // with these vars: 0 is vertical, 1 is horizontal
   const diff: Point = [y1 - y2, x1 - x2]
   const diffAbs: Point = [Math.abs(diff[0]), Math.abs(diff[1])]
@@ -27,6 +30,15 @@ function resolve([x1, y1]: Point, [x2, y2]: Point, type: GestureTypes): Gesture 
   //                               ^ this is either 0 or 2, as axis is either 0 or 1
 
   return { start: [x1, y1], diff, diffAbs, direction, dist, type }
+}
+
+/**
+ * Converts a {@link Direction} to an {@link Axis}.
+ *
+ * @param direction - The direction to convert.
+ */
+export function directionToAxis(direction: Direction): Axis {
+  return direction === "up" || direction === "down" ? "vertical" : "horizontal"
 }
 
 /**
@@ -42,6 +54,12 @@ export function gestureObserve(target: HTMLElement, handler: (gesture: Gesture) 
   // as it is set to `null` when no gesture is active
   let id: number | null = null
   let start: Point | null = null
+
+  const cancel = () => {
+    id = null
+    start = null
+    rmEvtlistener(document, ["touchmove", "touchend", "touchcancel"], wrapper)
+  }
 
   const wrapper = (evt: TouchEvent) => {
     let touch!: Touch
@@ -68,7 +86,7 @@ export function gestureObserve(target: HTMLElement, handler: (gesture: Gesture) 
 
     // gesture running
     if (id !== null && start) {
-      let type!: GestureTypes
+      let type!: GestureType
       // prettier-ignore
       switch (evt.type) {
         case 'touchstart':  type = 'start';  break
@@ -78,13 +96,20 @@ export function gestureObserve(target: HTMLElement, handler: (gesture: Gesture) 
       }
 
       const gesture = resolve(start, [touch.clientX, touch.clientY], type)
+
+      if (type !== "start") {
+        const target = evt.target as HTMLElement
+        const axis = directionToAxis(gesture.direction)
+        // if we found a scrollable element in the direction of our gesture, cancel
+        if (scrollElement(target, axis)) cancel()
+      }
+
+      // check if we're performing a "scrolling" gesture
+      // on an element that is scrollable
+
       handler(gesture)
 
-      if (type === "end" || type === "cancel") {
-        id = null
-        start = null
-        rmEvtlistener(document, ["touchmove", "touchend", "touchcancel"], wrapper)
-      }
+      if (type === "end" || type === "cancel") cancel()
     }
   }
 
