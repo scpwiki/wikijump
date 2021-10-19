@@ -1,30 +1,53 @@
-import { Gesture, Media, onSwipe, tip } from "@wikijump/components"
+/* eslint-disable @typescript-eslint/unbound-method */
+import { Gesture, Media, SwipeObserver, SwipeOpts, tip } from "@wikijump/components"
 import { addElement, BaseButton } from "@wikijump/util"
 
 export class SidebarElement extends HTMLElement {
   static tag = "wj-sidebar"
+
+  private declare mediaDestroy: () => void
+  private declare observer?: SwipeObserver
+  private declare app: HTMLElement
+
+  private config: SwipeOpts = {
+    direction: ["left", "right"],
+    threshold: 70,
+    minThreshold: 25,
+    immediate: false,
+    timeout: false,
+    callback: (_node, gst) => {
+      if (gst.direction === "right") this.show()
+      else this.close()
+    },
+    eventCallback: (_node, gesture) => this.move(gesture)
+  }
 
   constructor() {
     super()
 
     const app = document.querySelector("#app") as HTMLElement
     if (!app) throw new Error("No app element found")
+    this.app = app
 
-    onSwipe(app, {
-      condition: () => Media.matchBreakpoint("<=small"),
-      direction: ["left", "right"],
-      threshold: 70,
-      minThreshold: 25,
-      immediate: false,
-      timeout: false,
-      callback: (_node, gst) => {
-        if (gst.direction === "right") this.show()
-        else this.close()
-      },
-      eventCallback: (_node, gesture) => this.move(gesture)
+    this.bodyClick = this.bodyClick.bind(this)
+
+    this.mediaDestroy = Media.subscribe(({ breakpoint }) => {
+      // create observer if viewport is small
+      if (breakpoint === "small" || breakpoint === "narrow") {
+        if (!this.observer) {
+          this.observer = new SwipeObserver(this.app, this.config)
+          this.app.addEventListener("click", this.bodyClick)
+        }
+      } else {
+        if (this.observer) {
+          this.observer.destroy()
+          this.observer = undefined
+          this.app.removeEventListener("click", this.bodyClick)
+        }
+
+        if (this.open) this.close()
+      }
     })
-
-    app.addEventListener("click", evt => this.bodyClick(evt))
   }
 
   get open() {
@@ -59,7 +82,7 @@ export class SidebarElement extends HTMLElement {
       })
 
       let ratio = offset / this.offsetWidth
-      if (open) ratio = 1 - ratio
+      if (open) ratio = 1 + ratio
 
       const start = !open ? "-100% + " : ""
 
@@ -73,6 +96,12 @@ export class SidebarElement extends HTMLElement {
       this.style.boxShadow = ""
       this.style.transform = ""
     }
+  }
+
+  disconnectedCallback() {
+    this.observer?.destroy()
+    this.mediaDestroy()
+    this.app.removeEventListener("click", this.bodyClick)
   }
 }
 
