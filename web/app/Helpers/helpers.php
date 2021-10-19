@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Log;
+
 /**
  * This file is a set of default helper functions to wrap code in.
  */
