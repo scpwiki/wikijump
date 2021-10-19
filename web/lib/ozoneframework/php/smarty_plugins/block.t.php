@@ -67,10 +67,8 @@ function smarty_gettext_strarg($str)
  *       - 'js' for javascript escaping.
  *       - 'url' for url escaping.
  *       - 'no'/'off'/0 - turns off escaping
- *   - plural - The plural version of the text (2nd parameter of ngettext())
- *   - count - The item count for plural mode (3rd parameter of ngettext())
  */
-function smarty_block_t(array $params, string $text, &$smarty)
+function smarty_block_t(array $params, ?string $text, &$smarty)
 {
 	$text = stripslashes($text);
 
