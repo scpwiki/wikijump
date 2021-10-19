@@ -76,6 +76,7 @@ export class SwipeObserver {
    * @param opts - Swipe recognition configuration.
    */
   constructor(target: HTMLElement, opts: Partial<SwipeOpts> = {}) {
+    this.target = target
     this.opts = { ...SWIPE_DEFAULT_OPTS, ...opts }
 
     this.directions = Array.isArray(this.opts.direction)
