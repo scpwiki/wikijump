@@ -40,7 +40,7 @@ final class LocalizationService
         // Format ICU localization message
         $message = $translation->getTranslation();
         $output = MessageFormatter::formatMessage($locale, $message, $values);
-        Log::debug("Translated message: $key -> $output"); // TEMP
+        Log::debug("Translated message: $key -> $output"); // TODO: remove this
         return $output;
     }
 }
