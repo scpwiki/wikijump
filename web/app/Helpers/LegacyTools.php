@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Wikijump\Helpers;
 
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ModuleProcessor;
