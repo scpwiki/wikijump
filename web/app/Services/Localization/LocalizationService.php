@@ -5,39 +5,40 @@ namespace Wikijump\Services\Localization;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
+use Gettext\Loader\MoLoader;
+use Gettext\Translations;
 use MessageFormatter;
 
 final class LocalizationService
 {
-    private function __construct()
+    public const LOCALES_DIRECTORY = WIKIJUMP_ROOT . '/public/files--built/locales/';
+    private static Translations $translations;
+
+    public static function setup(): void
     {
+        $locale = App::currentLocale();
+        self::$translations = self::loadTranslations($locale);
     }
 
-    /**
-     * Sets up the environment for localization calls.
-     * @return void
-     */
-    public static function setup()
+    public static function loadTranslations(string $locale): Translations
     {
-        // Set up gettext
-        bindtextdomain('wikijump', WIKIJUMP_ROOT . '/web/public/locales');
-        bind_textdomain_codeset('wikijump', 'UTF-8');
-        textdomain('wikijump');
+        $loader = new MoLoader();
+        $path = self::LOCALES_DIRECTORY . $locale . '.mo';
+        return $loader->loadFile($path);
     }
 
     public static function translate(string $key, array $values = []): string
     {
-        // Set locale for gettext
+        // Get message from translations file
         $locale = App::currentLocale();
-        setlocale(LC_MESSAGES, $locale);
-
-        // Get appropriate string
-        $message = gettext($key);
-        if ($message === $key) {
+        $message = self::$translations->find(null, $key)->getTranslation();
+        if ($message === null || $message === $key) {
             Log::warning("Unable to find message '$key' in locale '$locale'");
         }
 
         // Format ICU localization message
-        return MessageFormatter::formatMessage($locale, $message, $values);
+        $output = MessageFormatter::formatMessage($locale, $message, $values);
+        Log::debug("Translated message: $key -> $output"); // TEMP
+        return $output;
     }
 }
