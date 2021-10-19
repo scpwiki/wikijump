@@ -31,12 +31,14 @@ final class LocalizationService
     {
         // Get message from translations file
         $locale = App::currentLocale();
-        $message = self::$translations->find(null, $key)->getTranslation();
-        if ($message === null || $message === $key) {
+        $translation = self::$translations->find(null, $key);
+        if ($translation === null) {
             Log::warning("Unable to find message '$key' in locale '$locale'");
+            return $key;
         }
 
         // Format ICU localization message
+        $message = $translation->getTranslation();
         $output = MessageFormatter::formatMessage($locale, $message, $values);
         Log::debug("Translated message: $key -> $output"); // TEMP
         return $output;
