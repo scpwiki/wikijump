@@ -17,8 +17,8 @@ export class SidebarElement extends HTMLElement {
       minThreshold: 25,
       immediate: false,
       timeout: false,
-      callback: (_node, { direction }) => {
-        if (direction === "right") this.show()
+      callback: (_node, gst) => {
+        if (gst.direction === "right") this.show()
         else this.close()
       },
       eventCallback: (_node, gesture) => this.move(gesture)
@@ -49,21 +49,26 @@ export class SidebarElement extends HTMLElement {
     }
   }
 
-  private move({ type, diff }: Gesture) {
-    if (type === "move") {
-      const offset = Math.min(-diff[1], this.open ? 0 : this.offsetWidth)
-      const ratio = this.open
-        ? Math.max(1 - Math.abs(offset) / this.offsetWidth, 0)
-        : Math.max(offset / this.offsetWidth, 0)
+  private move(gst: Gesture) {
+    if (gst.is("move")) {
+      const open = this.open
 
-      const start = !this.open ? "-100% + " : ""
+      const offset = gst.offset({
+        min: open ? -this.offsetWidth : 0,
+        max: open ? 0 : this.offsetWidth
+      })
+
+      let ratio = offset / this.offsetWidth
+      if (open) ratio = 1 - ratio
+
+      const start = !open ? "-100% + " : ""
 
       this.style.transition = "none"
       this.style.boxShadow = `${-5 + ratio * 15}rem 0 10rem rgba(0, 0, 0, 0.25)`
       this.style.transform = `translateX(calc(${start}${offset}px))`
     }
     // reset style back to normal
-    else if (type === "cancel" || type === "end") {
+    else if (gst.is("cancel", "end")) {
       this.style.transition = ""
       this.style.boxShadow = ""
       this.style.transform = ""
