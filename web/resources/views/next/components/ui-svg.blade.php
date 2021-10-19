@@ -6,7 +6,6 @@
 --}}
 
 @php
-    // TODO: figure out if there is some automatic way to do this via styling
     $viewbox = '';
     switch ($sprite) {
         case 'wj-karma':             $viewbox = '0 0 64 114' ; break;
@@ -15,6 +14,7 @@
         case 'wj-clipboard-copy':    $viewbox = '0 0 24 24'  ; break;
         case 'wj-clipboard-success': $viewbox = '0 0 24 24'  ; break;
         case 'wj-downarrow':         $viewbox = '0 0 26 18'  ; break;
+        case 'wj-sidebar-open':      $viewbox = '0 0 24 24'  ; break;
     }
 @endphp
 
