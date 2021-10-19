@@ -97,6 +97,8 @@ export interface HoverOpts {
   move?: () => void
 }
 
+const HoverMediaQuery = matchMedia("(any-hover: hover), (hover: hover)")
+
 /**
  * Utility for quickly adding hover event listeners to an element.
  *
@@ -104,20 +106,22 @@ export interface HoverOpts {
  * @param opts - The options to use.
  */
 export function hover(element: HTMLElement, opts: HoverOpts) {
+  let hovered = false
+  let focused = false
+
+  element.addEventListener("pointerover", () => {
+    if (!HoverMediaQuery.matches) return
+    hovered = true
+    if (opts.on && !focused) opts.on()
+  })
+
+  element.addEventListener("pointerout", () => {
+    if (!hovered && !HoverMediaQuery.matches) return
+    hovered = false
+    if (opts.off && !focused) opts.off()
+  })
+
   if (opts.alsoOnFocus) {
-    let hovered = false
-    let focused = false
-
-    element.addEventListener("pointerover", () => {
-      hovered = true
-      if (opts.on && !focused) opts.on()
-    })
-
-    element.addEventListener("pointerout", () => {
-      hovered = false
-      if (opts.off && !focused) opts.off()
-    })
-
     element.addEventListener("focusin", evt => {
       if (focused && element.contains(evt.target as HTMLElement)) return
       focused = true
@@ -129,9 +133,6 @@ export function hover(element: HTMLElement, opts: HoverOpts) {
       focused = false
       if (opts.off && !hovered) opts.off()
     })
-  } else {
-    if (opts.on) element.addEventListener("pointerover", opts.on)
-    if (opts.off) element.addEventListener("pointerout", opts.off)
   }
 
   if (opts.move) element.addEventListener("pointermove", opts.move)
