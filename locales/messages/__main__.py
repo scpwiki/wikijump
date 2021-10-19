@@ -60,13 +60,6 @@ if __name__ == "__main__":
         with open(path, "w") as file:
             file.write(contents)
 
-    def make_symlink(source, path):
-        # Force symlink, remove if already exists
-        if os.path.islink(path):
-            os.remove(path)
-
-        os.symlink(source, path)
-
     print(f"Generating {len(messages_map) + 1} localization files...")
 
     # Generate .pot file (template)
@@ -88,16 +81,6 @@ if __name__ == "__main__":
         input_path = get_path(f"{name}.po")
         output_path = get_path(f"{name}.mo")
         build_mo(input_path, output_path)
-
-    print()
-    print(f"Building localization symlinks...")
-
-    # Build symbolic links in the expected directory structure
-    for name in messages_map:
-        print(f"+ {name}")
-        gettext_dir = get_path(os.path.join(name, "LC_MESSAGES"))
-        os.makedirs(gettext_dir, exist_ok=True)
-        make_symlink(f"../../{name}.mo", os.path.join(gettext_dir, f"{APPLICATION_NAME}.mo"))
 
     # Finished
     print()
