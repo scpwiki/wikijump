@@ -1,10 +1,8 @@
-import { Gesture, Media, onSwipe } from "@wikijump/components"
-import { addElement } from "@wikijump/util"
+import { Gesture, Media, onSwipe, tip } from "@wikijump/components"
+import { addElement, BaseButton } from "@wikijump/util"
 
 export class SidebarElement extends HTMLElement {
   static tag = "wj-sidebar"
-
-  private open = false
 
   constructor() {
     super()
@@ -19,27 +17,35 @@ export class SidebarElement extends HTMLElement {
       minThreshold: 25,
       immediate: false,
       timeout: false,
-      callback: (_node, gesture) => this.swipe(gesture),
+      callback: (_node, { direction }) => {
+        if (direction === "right") this.show()
+        else this.close()
+      },
       eventCallback: (_node, gesture) => this.move(gesture)
     })
 
     app.addEventListener("click", evt => this.bodyClick(evt))
   }
 
-  private bodyClick(evt: MouseEvent) {
-    if (!this.open) return
-    if (evt.target !== this && !this.contains(evt.target as HTMLElement)) {
-      this.open = false
-      this.classList.remove("is-open")
-    }
+  get open() {
+    return this.classList.contains("is-open")
   }
 
-  private swipe({ direction }: Gesture) {
-    if (direction === "right") {
-      this.open = true
-      this.classList.add("is-open")
-    } else {
-      this.open = false
+  show() {
+    this.classList.add("is-open")
+  }
+
+  close() {
+    this.classList.remove("is-open")
+  }
+
+  private bodyClick(evt: MouseEvent) {
+    console.log(evt.target)
+    if (!this.open) return
+    // special case for open button
+    if (evt.target instanceof SidebarButtonElement) return
+    // body elements
+    if (evt.target !== this && !this.contains(evt.target as HTMLElement)) {
       this.classList.remove("is-open")
     }
   }
@@ -66,14 +72,34 @@ export class SidebarElement extends HTMLElement {
   }
 }
 
+export class SidebarButtonElement extends BaseButton {
+  static tag = "wj-sidebar-button"
+
+  constructor() {
+    super()
+
+    // enables tooltip using aria-label
+    tip(this)
+  }
+
+  whenClicked() {
+    const sidebar = document.querySelector("#sidebar") as SidebarElement
+    if (!sidebar) throw new Error("No sidebar element found")
+    if (!sidebar.open) sidebar.show()
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     "wj-sidebar": SidebarElement
+    "wj-sidebar-button": SidebarButtonElement
   }
 
   interface Window {
     SidebarElement: typeof SidebarElement
+    SidebarButtonElement: typeof SidebarButtonElement
   }
 }
 
 addElement(SidebarElement, "SidebarElement")
+addElement(SidebarButtonElement, "SidebarButtonElement")

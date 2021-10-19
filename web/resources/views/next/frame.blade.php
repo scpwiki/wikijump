@@ -58,6 +58,15 @@
         {{-- TODO: Locale selector--}}
         {{-- TODO: Dark/light mode selector --}}
         <nav id="navbar" aria-label="{{ __('frame.aria.NAVIGATION') }}">
+            @isset($sidebar_content)
+                <wj-sidebar-button id="sidebar_button"
+                                   aria-label="{{ __('frame.aria.SIDEBAR_BUTTON') }}"
+                                   aria-controls="sidebar"
+                >
+                    @include('next.components.ui-svg', ['sprite' => 'wj-sidebar-open'])
+                </wj-sidebar-button>
+            @endisset
+
             @includeWhen(isset($navbar_items), 'next.components.navbar-elements', [
                 'items' => $navbar_items,
             ])
