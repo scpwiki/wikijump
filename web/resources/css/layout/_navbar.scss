@@ -15,7 +15,6 @@
 
 .wj-navbar-elements {
   display: flex;
-  flex-wrap: wrap;
   gap: 1.5rem;
   align-items: center;
   height: 100%;
@@ -23,5 +22,11 @@
 
   > li {
     height: 100%;
+  }
+
+  @include media("<=small") {
+    flex-grow: 1;
+    overflow-x: auto;
+    overflow-y: visible;
   }
 }
