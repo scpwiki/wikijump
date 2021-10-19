@@ -49,5 +49,4 @@ docker-php-ext-install \
 		pgsql \
 		pdo_pgsql \
 		tidy \
-		gd \
-		gettext
+		gd
