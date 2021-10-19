@@ -8,7 +8,7 @@
     top: 0;
     bottom: 0;
     left: 0;
-    z-index: 99;
+    z-index: $z-panel;
     min-width: 75vw;
     overflow-y: auto;
     overscroll-behavior: contain;

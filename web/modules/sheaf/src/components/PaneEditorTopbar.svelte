@@ -96,9 +96,11 @@
 </div>
 
 <style lang="scss">
+  @import "../../../../resources/css/abstracts";
+
   .sheaf-pane-editor-topbar {
     position: relative;
-    z-index: 1;
+    z-index: $z-above;
     display: flex;
     grid-area: "topbar";
     gap: 0.75rem;

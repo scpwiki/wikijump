@@ -61,7 +61,7 @@
   position: absolute;
   top: 1.5rem;
   left: -10%;
-  z-index: 99;
+  z-index: $z-popover;
   min-width: 120%;
   padding: 0.25rem 0.5rem;
   list-style: none;

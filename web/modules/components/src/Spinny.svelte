@@ -116,7 +116,7 @@
 
   .spinny {
     position: absolute;
-    z-index: 99;
+    z-index: $z-above;
     display: block;
     pointer-events: none;
     transform: translate(-50%, -50%);

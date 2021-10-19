@@ -14,7 +14,7 @@
 
 .wj-footnote-ref-tooltip {
   position: absolute;
-  z-index: 1;
+  z-index: $z-popover;
   display: inline-block;
   width: max-content;
   margin: 0 !important;
