@@ -27,6 +27,6 @@
   }
 </script>
 
-<svg class="wj-ui-sprite sprite-{i}" {viewBox} {...$$restProps}>
+<svg class="wj-ui-sprite sprite-{i}" {viewBox} {...$$restProps} aria-hidden="true">
   <use href="{asset('UI')}#{i}" />
 </svg>

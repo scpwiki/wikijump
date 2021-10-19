@@ -18,6 +18,9 @@
     }
 @endphp
 
-<svg class="wj-ui-sprite sprite-{{ $sprite }}" viewBox="{{ $viewbox }}">
+<svg class="wj-ui-sprite sprite-{{ $sprite }}"
+     viewBox="{{ $viewbox }}"
+     aria-hidden="true"
+>
     <use href="/files--static/media/ui.svg#{{ $sprite }}"></use>
 </svg>
