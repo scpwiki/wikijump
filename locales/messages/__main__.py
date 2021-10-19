@@ -12,7 +12,7 @@ import sys
 from .catalog import get_template_messages
 from .gettext import build_mo, generate_po
 from .path_loader import OUTPUT_DIRECTORY, load
-from .schema import APPLICATION_NAME, MAIN_MESSAGE_SCHEMA_NAME, validate_all
+from .schema import MAIN_MESSAGE_SCHEMA_NAME, validate_all
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
