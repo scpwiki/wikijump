@@ -49,13 +49,6 @@ RUN sed -i "s/%%BASE_DOMAIN%%/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/%%MAIN_WIKI%%/${WWW_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/%%FILE_DOMAIN%%/${FILES_DOMAIN}/g" conf/wikijump.ini
 
-# PHP configuration preparation
-RUN php artisan key:generate
-RUN php artisan config:cache
-
-# Finish other miscellaneous setup
-RUN /src/setup-misc.sh
-
 #
 # Frontend
 #
@@ -123,9 +116,14 @@ EXPOSE 9000
 # Copy sources from intermediate images
 COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
-COPY --from=locales /src/locales/out/ /var/www/locales
 COPY --from=frontend /src/web/web/files--common/ /var/www/wikijump/web/web/files--common
 COPY --from=frontend /src/web/public/ /var/www/wikijump/web/public
+COPY --from=locales /src/locales/out/ /var/www/wikijump/web/public/files--built/locales
+
+# PHP configuration preparation
+RUN php artisan key:generate
+RUN php artisan config:cache
+RUN /src/setup-misc.sh
 
 # Install runner
 COPY ./install/files/php-fpm/run.sh /app/run.sh

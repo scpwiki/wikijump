@@ -11,5 +11,4 @@ apt install -y \
 	zip \
 	html2text \
 	postgresql-common \
-	libtidy-dev \
-	gettext
+	libtidy-dev

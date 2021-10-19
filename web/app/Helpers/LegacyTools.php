@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Helpers;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Ozone\Framework\Database\Criteria;
@@ -134,20 +135,7 @@ final class LegacyTools
         $lang = $site->getLanguage();
         $runData->setLanguage($lang);
         $GLOBALS['lang'] = $lang;
-        switch ($lang) {
-            case 'pl':
-                $glang="pl_PL";
-                break;
-            case 'en':
-                $glang="en_US";
-                break;
-        }
-        putenv("LANG=$glang");
-        putenv("LANGUAGE=$glang");
-        setlocale(LC_ALL, $glang.'.UTF-8');
-        $gdomain = 'messages';
-        bindtextdomain($gdomain, WIKIJUMP_ROOT.'/locale');
-        textdomain($gdomain);
+        App::setLocale($lang);
 
         /**
          * Get session from DB

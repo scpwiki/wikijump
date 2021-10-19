@@ -67,46 +67,25 @@ function smarty_gettext_strarg($str)
  *       - 'js' for javascript escaping.
  *       - 'url' for url escaping.
  *       - 'no'/'off'/0 - turns off escaping
- *   - plural - The plural version of the text (2nd parameter of ngettext())
- *   - count - The item count for plural mode (3rd parameter of ngettext())
  */
-function smarty_block_t($params, $text, &$smarty)
+function smarty_block_t(array $params, ?string $text, &$smarty)
 {
 	$text = stripslashes($text);
 
-	// set escape mode
-	if (isset($params['escape'])) {
-		$escape = $params['escape'];
-		unset($params['escape']);
-	}
+	// Get escape mode
+	$escape = $params['escape'] ?? null;
 
-	// set plural version
-	if (isset($params['plural'])) {
-		$plural = $params['plural'];
-		unset($params['plural']);
-
-		// set count
-		if (isset($params['count'])) {
-			$count = $params['count'];
-			unset($params['count']);
-		}
-	}
-
-	// use plural if required parameters are set
-	if (isset($count) && isset($plural)) {
-		$text = ngettext($text, $plural, $count);
-	} else { // use normal
-		$text = gettext($text);
-	}
+	// Get translated string
+	$text = __($text);
 
 	// run strarg if there are parameters
 	if (count($params)) {
 		$text = smarty_gettext_strarg($text, $params);
 	}
 
-	if ($escape == 'html') { // html escape, default
-	   $text = nl2br(htmlspecialchars($text));
-   } elseif (isset($escape)) {
+	if ($escape === 'html') { // html escape, default
+		$text = nl2br(htmlspecialchars($text));
+	} elseif ($escape !== null) {
 		switch ($escape) {
 			case 'javascript':
 			case 'js':

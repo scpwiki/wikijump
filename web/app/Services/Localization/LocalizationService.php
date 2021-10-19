@@ -5,36 +5,42 @@ namespace Wikijump\Services\Localization;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
+use Gettext\Loader\MoLoader;
+use Gettext\Translations;
 use MessageFormatter;
 
 final class LocalizationService
 {
-    private function __construct()
-    {
-    }
+    public const LOCALES_DIRECTORY = WIKIJUMP_ROOT . '/public/files--built/locales/';
+    private static Translations $translations;
 
-    /**
-     * @return void
-     */
-    public static function setup()
-    {
-        // Set up gettext
-        bindtextdomain('wikijump', WIKIJUMP_ROOT . '/web/resources/lang');
-        bind_textdomain_codeset('wikijump', 'UTF-8');
-        textdomain('wikijump');
-    }
-
-    /**
-     *
-     */
-    public static function translate(string $key, array $values = []): string
+    public static function setup(): void
     {
         $locale = App::currentLocale();
-        $message = gettext($key);
-        if ($message === $key) {
+        self::$translations = self::loadTranslations($locale);
+    }
+
+    public static function loadTranslations(string $locale): Translations
+    {
+        $loader = new MoLoader();
+        $path = self::LOCALES_DIRECTORY . $locale . '.mo';
+        return $loader->loadFile($path);
+    }
+
+    public static function translate(string $key, array $values = []): string
+    {
+        // Get message from translations file
+        $locale = App::currentLocale();
+        $translation = self::$translations->find(null, $key);
+        if ($translation === null) {
             Log::warning("Unable to find message '$key' in locale '$locale'");
+            return $key;
         }
 
-        return MessageFormatter::formatMessage($locale, $message, $values);
+        // Format ICU localization message
+        $message = $translation->getTranslation();
+        $output = MessageFormatter::formatMessage($locale, $message, $values);
+        Log::debug("Translated message: $key -> $output"); // TODO: remove this
+        return $output;
     }
 }
