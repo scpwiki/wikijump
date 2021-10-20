@@ -76,7 +76,7 @@ export class FocusGroup {
   }
 }
 
-export interface OnFocusDeepOpts {
+export interface FocusOpts {
   /** Callback fired when the element (or any of its children) are focused. */
   focus?: () => void
   /** Callback fired when the element and its children are no longer focused. */
@@ -88,22 +88,47 @@ export interface OnFocusDeepOpts {
  * entire element's tree as singularly focusable. That is, unfocusing a
  * child of the given element by focusing to another child of the element
  * will not fire any additional callbacks.
- *
- * @param element - The element to add the listeners to.
- * @param opts - The options to use.
  */
-export function onFocusDeep(element: HTMLElement, opts: OnFocusDeepOpts) {
-  let focused = false
+export class FocusObserver {
+  /** Internal focused state of the tree. */
+  private focused = false
 
-  element.addEventListener("focusin", evt => {
-    if (focused && element.contains(evt.target as HTMLElement)) return
-    focused = true
-    if (opts.focus) opts.focus()
-  })
+  /**
+   * @param target - The element to observe.
+   * @param opts - Options for the observer.
+   */
+  constructor(private target: HTMLElement, private opts: FocusOpts) {
+    this.focusin = this.focusin.bind(this)
+    this.focusout = this.focusout.bind(this)
 
-  element.addEventListener("focusout", evt => {
-    if (element.contains(evt.relatedTarget as HTMLElement)) return
-    focused = false
-    if (opts.blur) opts.blur()
-  })
+    target.addEventListener("focusin", this.focusin)
+    target.addEventListener("focusout", this.focusout)
+  }
+
+  private focusin(evt: FocusEvent) {
+    if (this.focused && this.target.contains(evt.target as HTMLElement)) return
+    this.focused = true
+    if (this.opts.focus) this.opts.focus()
+  }
+
+  private focusout(evt: FocusEvent) {
+    if (this.target.contains(evt.relatedTarget as HTMLElement)) return
+    this.focused = false
+    if (this.opts.blur) this.opts.blur()
+  }
+
+  /**
+   * Updates the observer configuration.
+   *
+   * @param opts - New options for the observer.
+   */
+  update(opts: FocusOpts) {
+    this.opts = opts
+  }
+
+  /** Destroys the observer. */
+  destroy() {
+    this.target.removeEventListener("focusin", this.focusin)
+    this.target.removeEventListener("focusout", this.focusout)
+  }
 }
