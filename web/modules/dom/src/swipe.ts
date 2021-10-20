@@ -1,6 +1,5 @@
 import { clearTimeout, Timeout, timeout } from "@wikijump/util"
-import { GestureObserver } from ".."
-import { Direction, Gesture } from "./gesture"
+import { Direction, Gesture, GestureObserver } from "./gesture"
 
 export interface SwipeOpts {
   /**
@@ -181,28 +180,5 @@ export class SwipeObserver {
   destroy() {
     this.observer.destroy()
     this.reset()
-  }
-}
-
-/**
- * Starts an event listener that will recognize swipes on the specified
- * element. Works natively with Svelte elements, if used as an
- * `use:onSwipe` action. For basic usage, provide `direction` and
- * `callback` properties in the options object.
- *
- * @example
- *
- * ```svelte
- * <div use:onSwipe={{ callback: callback, direction: "up" }} />
- * ```
- *
- * @param target - The element to observe.
- * @param opts - The options to use.
- */
-export function onSwipe(target: HTMLElement, opts: Partial<SwipeOpts>) {
-  const swipe = new SwipeObserver(target, opts)
-  return {
-    update: (opts: Partial<SwipeOpts>) => swipe.update(opts),
-    destroy: () => swipe.destroy()
   }
 }

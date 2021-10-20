@@ -15,6 +15,7 @@
     "@iconify/iconify": "^2.0.4",
     "@popperjs/core": "^2.10.2",
     "@wikijump/api": "workspace:*",
+    "@wikijump/dom": "workspace:*",
     "@wikijump/ftml-components": "workspace:*",
     "@wikijump/ftml-wasm": "workspace:*",
     "@wikijump/ftml-wasm-worker": "workspace:*",

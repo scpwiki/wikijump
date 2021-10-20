@@ -6,7 +6,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount, SvelteComponent } from "svelte"
   import dialogPolyfill from "dialog-polyfill"
-  import { scrollElement } from "@wikijump/util"
+  import { scrollElement } from "@wikijump/dom"
 
   // the additional methods are what it is in the spec and fulfilled by the polyfill
   let dialog: HTMLElement & { showModal: () => void; close: () => void; show: () => void }

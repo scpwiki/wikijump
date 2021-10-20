@@ -1,4 +1,4 @@
-import { addElement, BaseButton, BaseTooltipButton } from "@wikijump/util"
+import { addElement, BaseButton, BaseTooltipButton } from "@wikijump/dom"
 
 /**
  * FTML `[[footnote]]` marker element. Handles placement and visibility of

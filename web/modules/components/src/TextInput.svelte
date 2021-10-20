@@ -5,11 +5,10 @@
 -->
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
-  import { keyHandle } from "./lib/controls"
   import { tip } from "./lib/tippy"
   import Icon from "./Icon.svelte"
   import { t } from "@wikijump/api"
-  import { whileHeld } from "./lib/controls"
+  import { keyHandle, whileHeld } from "@wikijump/dom"
 
   const dispatch = createEventDispatcher()
 

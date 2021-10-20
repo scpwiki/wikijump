@@ -1,4 +1,4 @@
-import { addElement, hover } from "@wikijump/util"
+import { addElement, hover } from "@wikijump/dom"
 
 /** Handles hovering, focus for navbar dropdowns. */
 export class NavbarDropdownElement extends HTMLElement {

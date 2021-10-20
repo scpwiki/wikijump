@@ -12,6 +12,7 @@
     "@wikijump/cm-lang-ftml",
     "@wikijump/codemirror",
     "@wikijump/components",
+    "@wikijump/dom",
     "@wikijump/ftml-components",
     "@wikijump/css",
     "@wikijump/prism",

@@ -4,7 +4,8 @@
 <script lang="ts">
   import WikijumpAPI, { t } from "@wikijump/api"
   import { Button, TextInput, toast } from "@wikijump/components"
-  import { escapeRegExp, inputsValid } from "@wikijump/util"
+  import { escapeRegExp } from "@wikijump/util"
+  import { inputsValid } from "@wikijump/dom"
   import { createEventDispatcher } from "svelte"
   import FormError from "./FormError.svelte"
 

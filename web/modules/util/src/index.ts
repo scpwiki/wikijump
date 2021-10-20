@@ -1,5 +1,3 @@
-export * from "./base-button"
-export * from "./base-tooltip-button"
 export * from "./decorators"
 export * from "./html"
 export * from "./pref"
