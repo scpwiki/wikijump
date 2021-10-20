@@ -90,6 +90,11 @@
     var(--font-system-symbol),
     var(--font-cjk-mono),
     var(--font-system-mono);
+
+  // Small displays (e.g. phones)
+  @include media("<=small") {
+    --font-content-size: 0.75;
+  }
 }
 
 // Changing CJK font based on locale
