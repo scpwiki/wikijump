@@ -2,7 +2,8 @@
   @component Tooltip/menu for a misspelling, along with suggestions for said misspelling.
 -->
 <script lang="ts">
-  import { focusGroup, TippySingleton, Spinny, anim } from "@wikijump/components"
+  import { TippySingleton, Spinny, anim } from "@wikijump/components"
+  import { focusGroup } from "@wikijump/dom"
   import { t } from "@wikijump/api"
   import espells from "./espells"
   import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
