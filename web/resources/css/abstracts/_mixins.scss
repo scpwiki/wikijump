@@ -154,3 +154,11 @@
     }
   }
 }
+
+/// Hides scrollbars, but still allows scrolling.
+@mixin hide-scrollbars {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
