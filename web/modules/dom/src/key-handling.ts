@@ -12,13 +12,24 @@ export interface KeyHandler {
   do?: AnyFunction
 }
 
-/** Utility Svelte use function to handle key press events for the element. */
-export function keyHandle(elem: Element, handlers: KeyHandler[] | KeyHandler) {
-  const handler = (evt: KeyboardEvent) => {
-    // convert shorthand into an array
-    if (!(handlers instanceof Array)) handlers = [handlers]
+export class KeyObserver {
+  private declare target: HTMLElement
+  private declare handlers: KeyHandler[]
+
+  constructor(target: HTMLElement, handlers: Arrayable<KeyHandler>) {
+    this.target = target
+
+    if (!Array.isArray(handlers)) handlers = [handlers]
+    this.handlers = handlers
+
+    this.handler = this.handler.bind(this)
+
+    target.addEventListener("keydown", this.handler)
+  }
+
+  private handler(evt: KeyboardEvent) {
     // run through each handler and check if the keystroke matches
-    handlers.forEach(handler => {
+    this.handlers.forEach(handler => {
       if (evt.key === handler.key) {
         if (handler.preventDefault) evt.preventDefault()
         if (handler.do) handler.do()
@@ -26,71 +37,12 @@ export function keyHandle(elem: Element, handlers: KeyHandler[] | KeyHandler) {
     })
   }
 
-  // more keydown type wackyness
-  elem.addEventListener("keydown", handler as any)
-
-  return {
-    update(newHandlers: KeyHandler[] | KeyHandler) {
-      handlers = newHandlers
-    },
-    destroy() {
-      elem.removeEventListener("keydown", handler as any)
-    }
-  }
-}
-
-export interface WhileHeldOpts {
-  /** Fired when the node is first held down. */
-  pressed?: (node: HTMLElement) => void
-  /** Fired when the node is released. */
-  released?: (node: HTMLElement) => void
-}
-
-/** Observer for firing callbacks while an element is held down. */
-export class HeldObserver {
-  /** Current held state. */
-  held = false
-
-  /**
-   * @param target - The element to observe.
-   * @param opts - Options for the observer.
-   */
-  constructor(private target: HTMLElement, private opts: WhileHeldOpts) {
-    this.pressed = this.pressed.bind(this)
-    this.released = this.released.bind(this)
-
-    target.addEventListener("pointerdown", this.pressed)
-    target.addEventListener("pointerup", this.released)
-    target.addEventListener("pointercancel", this.released)
+  update(handlers: Arrayable<KeyHandler>) {
+    if (!Array.isArray(handlers)) handlers = [handlers]
+    this.handlers = handlers
   }
 
-  /** Fired when the element is pressed. */
-  private pressed() {
-    if (this.held) return
-    this.held = true
-    if (this.opts.pressed) this.opts.pressed(this.target)
-  }
-
-  /** Fired when the element is released. */
-  private released() {
-    if (!this.held) return
-    this.held = false
-    if (this.opts.released) this.opts.released(this.target)
-  }
-
-  /**
-   * Updates the current observer configuration.
-   *
-   * @param opts - New options for the observer.
-   */
-  update(opts: WhileHeldOpts) {
-    this.opts = opts
-  }
-
-  /** Destroys the observer. */
   destroy() {
-    this.target.removeEventListener("pointerdown", this.pressed)
-    this.target.removeEventListener("pointerup", this.released)
-    this.target.removeEventListener("pointercancel", this.released)
+    this.target.removeEventListener("keydown", this.handler)
   }
 }

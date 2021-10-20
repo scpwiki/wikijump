@@ -1,11 +1,7 @@
 import { FocusGroup, FocusGroupDirection } from "./focus"
-import { HeldObserver, WhileHeldOpts } from "./key-handling"
+import { HeldObserver, WhileHeldOpts } from "./held"
+import { KeyHandler, KeyObserver } from "./key-handling"
 import { SwipeObserver, SwipeOpts } from "./swipe"
-
-export interface SvelteAction<T> {
-  update: (value: T) => void
-  destroy: () => void
-}
 
 /**
  * Starts an event listener that will recognize swipes on the specified
@@ -18,14 +14,8 @@ export interface SvelteAction<T> {
  * ```svelte
  * <div use:onSwipe={{ callback: callback, direction: "up" }} />
  * ```
- *
- * @param target - The element to observe.
- * @param opts - The options to use.
  */
-export function onSwipe(
-  target: HTMLElement,
-  opts: Partial<SwipeOpts>
-): SvelteAction<SwipeOpts> {
+export function onSwipe(target: HTMLElement, opts: Partial<SwipeOpts>) {
   const swipe = new SwipeObserver(target, opts)
   return {
     update: (opts: Partial<SwipeOpts>) => swipe.update(opts),
@@ -37,13 +27,8 @@ export function onSwipe(
  * Svelte `use` function for automatically handling directional key focus
  * movement. All descendants that are focusable with a non-negative
  * tabindex will be cycled through with the arrow keys.
- *
- * @param direction - Determines which pair of arrow keys to use.
  */
-export function focusGroup(
-  node: HTMLElement,
-  direction: FocusGroupDirection
-): SvelteAction<FocusGroupDirection> {
+export function focusGroup(node: HTMLElement, direction: FocusGroupDirection) {
   const group = new FocusGroup(node, direction)
   return {
     update: (direction: FocusGroupDirection) => group.update(direction),
@@ -51,14 +36,20 @@ export function focusGroup(
   }
 }
 
-/**
- * Svelte `use` compatible function for firing callbacks when an element is
- * held down.
- */
-export function whileHeld(target: HTMLElement, opts: WhileHeldOpts) {
-  const held = new HeldObserver(target, opts)
+/** Svelte `use` function for handling keypresses. */
+export function keyHandle(target: HTMLElement, handlers: Arrayable<KeyHandler>) {
+  const observer = new KeyObserver(target, handlers)
   return {
-    update: (opts: WhileHeldOpts) => held.update(opts),
-    destroy: () => held.destroy()
+    update: (handlers: Arrayable<KeyHandler>) => observer.update(handlers),
+    destroy: () => observer.destroy()
+  }
+}
+
+/** Svelte `use` function for firing callbacks when an element is held down. */
+export function whileHeld(target: HTMLElement, opts: WhileHeldOpts) {
+  const observer = new HeldObserver(target, opts)
+  return {
+    update: (opts: WhileHeldOpts) => observer.update(opts),
+    destroy: () => observer.destroy()
   }
 }
