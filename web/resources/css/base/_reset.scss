@@ -150,7 +150,9 @@ dialog {
   left: 0;
   display: block;
   width: fit-content;
+  max-width: none;
   height: fit-content;
+  max-height: none;
   margin: auto;
   overscroll-behavior: contain;
   background: none;
