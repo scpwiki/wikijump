@@ -9,8 +9,6 @@
   import { anim } from "./lib/animation"
   import Spinny from "./Spinny.svelte"
   import { t, unit } from "@wikijump/api"
-  // if we have an isolated wikitext, we need the processed CSS
-  import ftmlCSS from "@wikijump/ftml-components/src/index.scss"
 
   type Rendered = { html: string; styles: string[] }
   type WikitextInput =
@@ -49,17 +47,10 @@
   /** Shows render performance information if true. */
   export let debug = false
 
-  /**
-   * If true, the wikitext will be inserted into a shadow DOM so that it is
-   * entirely isolated from the outside DOM from which it is mounted.
-   */
-  export let isolated = false
-
   /** Prevents the rendering of elements which may cause a network request. */
   export let offline = false
 
   let element: HTMLElement
-  let shadow: HTMLElement
   let stylesheets: string[] = []
   let rendering = false
   let perfRender = 0
@@ -128,36 +119,6 @@
     rendering = false
   })
 
-  $: if (shadow && isolated) {
-    const root = shadow.attachShadow({ mode: "open" })
-    element = document.createElement("div")
-    element.classList.add("wikitext-body", "wikitext")
-    root.appendChild(element)
-
-    // if we're isolated, we need to add the ftml stylesheet to the shadow dom
-    const style = document.createElement("style")
-    style.className = "ftml-base-stylesheet"
-    style.innerHTML = ftmlCSS
-    root.appendChild(style)
-  }
-
-  // this is slower than letting Svelte handle it, unfortunately.
-  // but if we're isolated we can't use Svelte's built-in
-  $: if (shadow?.shadowRoot && stylesheets) {
-    const root = shadow.shadowRoot
-    const oldStyleSheets = Array.from(root.querySelectorAll("style"))
-    for (const oldStyleSheet of oldStyleSheets) {
-      if (oldStyleSheet.className === "ftml-base-stylesheet") continue
-      root.removeChild(oldStyleSheet)
-    }
-
-    for (const stylesheet of stylesheets) {
-      const style = document.createElement("style")
-      style.innerHTML = stylesheet
-      root.appendChild(style)
-    }
-  }
-
   $: if (wikitext) {
     render(wikitext).then(result => {
       if (result) update(result)
@@ -166,11 +127,9 @@
 </script>
 
 <svelte:head>
-  {#if !isolated}
-    {#each stylesheets as style (style)}
-      <style use:stylesheet={style}></style>
-    {/each}
-  {/if}
+  {#each stylesheets as style (style)}
+    <style use:stylesheet={style}></style>
+  {/each}
 </svelte:head>
 
 <div class="wikitext-container">
@@ -196,11 +155,7 @@
       </Card>
     </div>
   {/if}
-  {#if isolated}
-    <div bind:this={shadow} />
-  {:else}
-    <div bind:this={element} class="wikitext-body wikitext" />
-  {/if}
+  <div bind:this={element} class="wikitext-body wikitext" />
 </div>
 
 <style lang="scss">
