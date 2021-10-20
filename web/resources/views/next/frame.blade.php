@@ -78,15 +78,19 @@
             <div id="footer_main">
                 <div id="footer_services">
                     @if ($SERVICE_NAME != "")
-                        <a href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}">
+                        <a class="footer-services-partof"
+                           href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}"
+                        >
                             {{ __('frame.footer.PART_OF', ['name' => $SERVICE_NAME]) }}
                         </a>
-                        <span class="footer_services_sep">&#8212;</span>
+                        <span class="footer-services-sep">&#8212;</span>
                     @endif
-                    <a href="https://github.com/scpwiki/wikijump">
+                    <a class="footer-services-poweredby"
+                       href="https://github.com/scpwiki/wikijump"
+                    >
                         {{ __('frame.footer.POWERED_BY', ['name' => 'Wikijump']) }}
                     </a>
-                    <span class="footer_services_sep">&#8212;</span>
+                    <span class="footer-services-sep">&#8212;</span>
                     {{-- TODO: link to actual pages --}}
                     <a href="/terms">{{ __('frame.footer.TERMS') }}</a>
                     <a href="/privacy">{{ __('frame.footer.PRIVACY') }}</a>
