@@ -86,6 +86,7 @@ export class SidebarElement extends HTMLElement {
       this.app.addEventListener("click", this.bodyClick)
     }
 
+    this.setAttribute("tabindex", "-1")
     this.setAttribute("aria-expanded", "false")
   }
 
@@ -102,6 +103,7 @@ export class SidebarElement extends HTMLElement {
 
     if (this.open) this.close()
 
+    this.removeAttribute("tabindex")
     this.removeAttribute("aria-expanded")
   }
 
