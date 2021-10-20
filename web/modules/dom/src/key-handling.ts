@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 export interface KeyHandler {
   /**
    * The key to listen to. Must be in an exact format.
@@ -45,39 +46,51 @@ export interface WhileHeldOpts {
   released?: (node: HTMLElement) => void
 }
 
-/**
- * Svelte `use` compatible function for firing callbacks when an element is
- * held down.
- */
-export function whileHeld<T extends HTMLElement>(node: T, opts: WhileHeldOpts) {
-  let curOpts = opts
-  let held = false
+/** Observer for firing callbacks while an element is held down. */
+export class HeldObserver {
+  /** Current held state. */
+  held = false
 
-  const pressed = () => {
-    if (held) return
-    held = true
-    if (curOpts.pressed) curOpts.pressed(node)
+  /**
+   * @param target - The element to observe.
+   * @param opts - Options for the observer.
+   */
+  constructor(private target: HTMLElement, private opts: WhileHeldOpts) {
+    this.pressed = this.pressed.bind(this)
+    this.released = this.released.bind(this)
+
+    target.addEventListener("pointerdown", this.pressed)
+    target.addEventListener("pointerup", this.released)
+    target.addEventListener("pointercancel", this.released)
   }
 
-  const released = () => {
-    if (!held) return
-    held = false
-    if (curOpts.released) curOpts.released(node)
+  /** Fired when the element is pressed. */
+  private pressed() {
+    if (this.held) return
+    this.held = true
+    if (this.opts.pressed) this.opts.pressed(this.target)
   }
 
-  node.addEventListener("pointerdown", pressed)
-  node.addEventListener("pointerup", released)
-  node.addEventListener("pointercancel", released)
+  /** Fired when the element is released. */
+  private released() {
+    if (!this.held) return
+    this.held = false
+    if (this.opts.released) this.opts.released(this.target)
+  }
 
-  return {
-    update(newOpts: WhileHeldOpts) {
-      curOpts = newOpts
-    },
+  /**
+   * Updates the current observer configuration.
+   *
+   * @param opts - New options for the observer.
+   */
+  update(opts: WhileHeldOpts) {
+    this.opts = opts
+  }
 
-    destroy() {
-      node.removeEventListener("pointerdown", pressed)
-      node.removeEventListener("pointerup", released)
-      node.removeEventListener("pointercancel", released)
-    }
+  /** Destroys the observer. */
+  destroy() {
+    this.target.removeEventListener("pointerdown", this.pressed)
+    this.target.removeEventListener("pointerup", this.released)
+    this.target.removeEventListener("pointercancel", this.released)
   }
 }

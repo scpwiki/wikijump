@@ -1,4 +1,5 @@
 import { FocusGroup, FocusGroupDirection } from "./focus"
+import { HeldObserver, WhileHeldOpts } from "./key-handling"
 import { SwipeObserver, SwipeOpts } from "./swipe"
 
 export interface SvelteAction<T> {
@@ -33,7 +34,7 @@ export function onSwipe(
 }
 
 /**
- * Svelte use function for automatically handling directional key focus
+ * Svelte `use` function for automatically handling directional key focus
  * movement. All descendants that are focusable with a non-negative
  * tabindex will be cycled through with the arrow keys.
  *
@@ -47,5 +48,17 @@ export function focusGroup(
   return {
     update: (direction: FocusGroupDirection) => group.update(direction),
     destroy: () => group.destroy()
+  }
+}
+
+/**
+ * Svelte `use` compatible function for firing callbacks when an element is
+ * held down.
+ */
+export function whileHeld(target: HTMLElement, opts: WhileHeldOpts) {
+  const held = new HeldObserver(target, opts)
+  return {
+    update: (opts: WhileHeldOpts) => held.update(opts),
+    destroy: () => held.destroy()
   }
 }
