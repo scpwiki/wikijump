@@ -23,5 +23,6 @@
   // Small displays (e.g. phones)
   @include media("<=small") {
     --layout-navbar-height: 3rem;
+    --layout-body-side-gap: 0.5rem;
   }
 }
