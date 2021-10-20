@@ -16,9 +16,18 @@
     transition: transform 250ms, box-shadow 250ms;
     transform: translateX(-105%);
 
+    #sidebar_sticky {
+      visibility: hidden;
+      transition: visibility 250ms;
+    }
+
     &.is-open {
       box-shadow: 10rem 0 5rem rgba(0, 0, 0, 0.25);
       transform: translateX(0);
+
+      #sidebar_sticky {
+        visibility: visible;
+      }
     }
   }
 }

@@ -8,6 +8,7 @@ export class SidebarElement extends HTMLElement {
   private declare mediaDestroy: () => void
   private declare observer?: SwipeObserver
   private declare app: HTMLElement
+  private declare sticky: HTMLElement
 
   private config: SwipeOpts = {
     direction: ["left", "right"],
@@ -28,6 +29,10 @@ export class SidebarElement extends HTMLElement {
     const app = document.querySelector("#app") as HTMLElement
     if (!app) throw new Error("No app element found")
     this.app = app
+
+    const sticky = document.querySelector("#sidebar_sticky") as HTMLElement
+    if (!sticky) throw new Error("No sticky element found")
+    this.sticky = sticky
 
     this.bodyClick = this.bodyClick.bind(this)
 
@@ -89,12 +94,15 @@ export class SidebarElement extends HTMLElement {
       this.style.transition = "none"
       this.style.boxShadow = `${-5 + ratio * 15}rem 0 10rem rgba(0, 0, 0, 0.25)`
       this.style.transform = `translateX(calc(${start}${offset}px))`
+
+      this.sticky.style.visibility = "visible"
     }
     // reset style back to normal
     else if (gst.is("cancel", "end")) {
       this.style.transition = ""
       this.style.boxShadow = ""
       this.style.transform = ""
+      this.sticky.style.visibility = ""
     }
   }
 
