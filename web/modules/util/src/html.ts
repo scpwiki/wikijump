@@ -97,6 +97,8 @@ export interface HoverOpts {
   move?: () => void
 }
 
+const HoverMediaQuery = matchMedia("(any-hover: hover), (hover: hover)")
+
 /**
  * Utility for quickly adding hover event listeners to an element.
  *
@@ -104,20 +106,22 @@ export interface HoverOpts {
  * @param opts - The options to use.
  */
 export function hover(element: HTMLElement, opts: HoverOpts) {
+  let hovered = false
+  let focused = false
+
+  element.addEventListener("pointerover", () => {
+    if (!HoverMediaQuery.matches) return
+    hovered = true
+    if (opts.on && !focused) opts.on()
+  })
+
+  element.addEventListener("pointerout", () => {
+    if (!hovered && !HoverMediaQuery.matches) return
+    hovered = false
+    if (opts.off && !focused) opts.off()
+  })
+
   if (opts.alsoOnFocus) {
-    let hovered = false
-    let focused = false
-
-    element.addEventListener("pointerover", () => {
-      hovered = true
-      if (opts.on && !focused) opts.on()
-    })
-
-    element.addEventListener("pointerout", () => {
-      hovered = false
-      if (opts.off && !focused) opts.off()
-    })
-
     element.addEventListener("focusin", evt => {
       if (focused && element.contains(evt.target as HTMLElement)) return
       focused = true
@@ -129,9 +133,6 @@ export function hover(element: HTMLElement, opts: HoverOpts) {
       focused = false
       if (opts.off && !hovered) opts.off()
     })
-  } else {
-    if (opts.on) element.addEventListener("pointerover", opts.on)
-    if (opts.off) element.addEventListener("pointerout", opts.off)
   }
 
   if (opts.move) element.addEventListener("pointermove", opts.move)
@@ -238,7 +239,7 @@ export function scrolls(element: HTMLElement, dir: ScrollDirection = "both") {
 /**
  * Finds the first parent of the given element that is scrolling. If the
  * given element itself is scrolling, it will be returned. If no scrolling
- * element is found, the document's root node will be returned.
+ * element is found, `null` is returned.
  *
  * @param element - The element to find the scrolling element for.
  * @param dir - The direction to check for scrolling. Defaults to `"vertical"`.
@@ -249,7 +250,7 @@ export function scrollElement(element: HTMLElement, dir: ScrollDirection = "vert
     if (scrolls(node, dir)) return node
     node = node.parentElement
   }
-  return (document.scrollingElement || document.documentElement) as HTMLElement
+  return null
 }
 
 /**

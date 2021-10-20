@@ -147,7 +147,7 @@ export function tick<T>(cb: () => T) {
  *
  * @param timeout - The timeout to clear.
  */
-function clearTimeoutClass(timeout?: Timeout) {
+function clearTimeoutClass(timeout: Timeout | undefined | null) {
   if (!timeout) return
   timeout.clear()
 }

@@ -357,8 +357,10 @@ importers:
 
   modules/util:
     specifiers:
+      '@popperjs/core': ^2.10.2
       svelte: ^3.44.0
     dependencies:
+      '@popperjs/core': 2.10.2
       svelte: 3.44.0
 
   resources:

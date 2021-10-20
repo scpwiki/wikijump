@@ -40,7 +40,7 @@
 
 .wj-code-copy {
   position: relative;
-  z-index: 1;
+  z-index: $z-above;
   width: 2em;
   height: 2em;
   cursor: pointer;

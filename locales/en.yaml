@@ -53,6 +53,7 @@ frame:
     HEADER: Page Header
     NAVIGATION: Navigation
     SIDEBAR: Sidebar
+    SIDEBAR_BUTTON: Reveal Sidebar
     MAIN: Main Content
     FOOTER: Footer
     LICENSE: License

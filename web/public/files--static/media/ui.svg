@@ -42,7 +42,7 @@
         cx="var(--wj-toggle-handle-cx, 32px)"
         r="26"
         fill="var(--wj-toggle-handle-fill, #fff)"
-        style="transition: cx 150ms, fill 150ms;"
+        style="transition: cx 150ms, fill 150ms"
       />
     </symbol>
 
@@ -126,6 +126,27 @@
         stroke="var(--wj-downarrow-color, #222)"
         fill="var(--wj-downarrow-color, #222)"
       />
+    </symbol>
+
+    <!--
+    #wj-sidebar-open
+      wj-sidebar-open-color
+
+    credit to: lucide:sidebar-open (ISC)
+    https://icon-sets.iconify.design/lucide/sidebar-open/)
+    -->
+    <symbol id="wj-sidebar-open" viewbox="0 0 24 24">
+      <g
+        fill="none"
+        stroke="var(--wj-sidebar-open-color, #222)"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <path d="M9 3v18" />
+        <path d="M13 8l4 4l-4 4" />
+      </g>
     </symbol>
   </defs>
 </svg>

@@ -1,6 +1,8 @@
-import { Gesture, gestureObserve } from "./gesture"
+import { clearTimeout, Timeout, timeout } from "@wikijump/util"
+import { GestureObserver } from ".."
+import { Direction, Gesture } from "./gesture"
 
-export interface OnSwipeOpts {
+export interface SwipeOpts {
   /**
    * Can be used to enable and disable the swipe. Return true to enable
    * recognition, return false to disable recognition.
@@ -14,7 +16,7 @@ export interface OnSwipeOpts {
    */
   eventCallback?: (target: HTMLElement, gesture: Gesture) => void
   /** Swipe direction to recognize. */
-  direction: Gesture["direction"]
+  direction: Direction | Direction[]
   /** Minimum distance in pixels needed for a swipe to count. */
   threshold: number
   /**
@@ -35,13 +37,151 @@ export interface OnSwipeOpts {
   timeout?: number | false
 }
 
-const ONSWIPE_DEFAULT_OPTS: OnSwipeOpts = {
+const SWIPE_DEFAULT_OPTS: SwipeOpts = {
   callback: () => null,
   direction: "up",
   immediate: true,
   threshold: 35,
   minThreshold: 10,
   timeout: 250
+}
+
+export class SwipeObserver {
+  /** Swipe recognition configuration. */
+  private declare opts: SwipeOpts
+
+  /** List of valid swipe directions. */
+  private declare directions: Direction[]
+
+  /** Internal {@link GestureObserver} used to get gesture information. */
+  private declare observer: GestureObserver
+
+  /** The current {@link Gesture}. */
+  private gesture: Gesture | null = null
+
+  /** The currently running {@link Timeout}. */
+  private timeout: Timeout | null = null
+
+  /** True if the swipe recognition is running. */
+  private running = false
+
+  /** True if the current swipe gesture is being ignored. */
+  private ended = false
+
+  /** The element being tracked for gestures. */
+  declare target: HTMLElement
+
+  /**
+   * @param target - The target element to track.
+   * @param opts - Swipe recognition configuration.
+   */
+  constructor(target: HTMLElement, opts: Partial<SwipeOpts> = {}) {
+    this.target = target
+    this.opts = { ...SWIPE_DEFAULT_OPTS, ...opts }
+
+    this.directions = Array.isArray(this.opts.direction)
+      ? this.opts.direction
+      : [this.opts.direction]
+
+    this.observer = new GestureObserver(target, gesture => {
+      this.gesture = gesture
+      this.handler()
+    })
+  }
+
+  /** Runs the configured condition, if present. Returns `true` if it isn't present. */
+  private checkCondition() {
+    if (!this.opts.condition) return true
+    return this.opts.condition()
+  }
+
+  /** Fire the configured callback, if present. */
+  private fireCallback() {
+    if (this.gesture && this.opts.callback) {
+      this.opts.callback(this.target, this.gesture)
+    }
+  }
+
+  /** Fire the configured event callback ,if present. */
+  private fireEventCallback() {
+    if (this.gesture && this.opts.eventCallback) {
+      this.opts.eventCallback(this.target, this.gesture)
+    }
+  }
+
+  /** Reset internal state. */
+  private reset() {
+    clearTimeout(this.timeout)
+    this.timeout = null
+    this.ended = false
+    this.running = false
+  }
+
+  /** Cancel the currently running swipe. */
+  private cancel() {
+    clearTimeout(this.timeout)
+    this.ended = true
+    if (this.running && this.gesture) {
+      this.gesture = this.gesture.replace({ type: "cancel" })
+      this.fireEventCallback()
+    }
+  }
+
+  /** Handler that is called by the {@link observer}. */
+  private handler() {
+    const gst = this.gesture!
+
+    if (gst.is("start")) this.reset()
+
+    // ended or condition prevents us from continuing
+    if (this.ended || (!this.running && !this.checkCondition())) return
+
+    const valid = gst.same(this.directions)
+    const overMinThreshold = gst.over(this.opts.minThreshold)
+
+    // gesture is over minimum threshold, but in the wrong direction
+    if (!valid && overMinThreshold) {
+      this.cancel()
+      return
+    }
+
+    if (valid && !this.running && overMinThreshold) this.running = true
+
+    if (this.running) {
+      const overThreshold = gst.over(this.opts.threshold)
+      const canFire = valid && ((gst.is("move") && this.opts.immediate) || gst.is("end"))
+
+      this.fireEventCallback()
+
+      if (overThreshold && canFire) {
+        this.fireCallback()
+        this.ended = true
+        clearTimeout(this.timeout)
+        return
+      }
+
+      if (this.opts.timeout && !this.timeout) {
+        this.timeout = timeout(this.opts.timeout, () => this.cancel())
+      }
+    }
+  }
+
+  /**
+   * Updates the swipe recognition configuration. The new options aren't
+   * merged with the old ones.
+   */
+  update(opts: Partial<SwipeOpts>) {
+    this.opts = { ...SWIPE_DEFAULT_OPTS, ...opts }
+    this.directions = Array.isArray(this.opts.direction)
+      ? this.opts.direction
+      : [this.opts.direction]
+  }
+
+  /** Destroys the observer. */
+  destroy() {
+    this.observer.destroy()
+    this.reset()
+  }
 }
 
 /**
@@ -59,61 +199,10 @@ const ONSWIPE_DEFAULT_OPTS: OnSwipeOpts = {
  * @param target - The element to observe.
  * @param opts - The options to use.
  */
-export function onSwipe(target: HTMLElement, opts: Partial<OnSwipeOpts>) {
-  let timeout: number | undefined
-  let started = false
-  let cancelled = false
-
-  const cancel = (gesture: Gesture) => {
-    cancelled = true
-    if (started) opts.eventCallback?.(target, { ...gesture, type: "cancel" })
-  }
-
-  const handler = (gesture: Gesture) => {
-    if (gesture.type === "start") {
-      started = false
-      cancelled = false
-    }
-
-    if (cancelled) return
-    if (!started && opts.condition && !opts.condition()) return
-
-    const { direction, dist, type } = gesture
-    const sameDirection = direction === opts.direction
-    const overThreshold = sameDirection && dist > opts.threshold!
-    const overMinimumThreshold = started || (sameDirection && dist > opts.minThreshold!)
-
-    // gesture is over threshold, but in the wrong direction
-    if (!sameDirection && dist > opts.minThreshold!) cancel(gesture)
-
-    if (!cancelled) {
-      // gesture started, start executing event callback
-      if (overMinimumThreshold) {
-        started = true
-        opts.eventCallback?.(target, gesture)
-      }
-      // execute callback if valid && immediate mode or if the gesture ended
-      if (overThreshold && ((type === "move" && opts.immediate) || type === "end")) {
-        opts.callback!(target, gesture)
-      }
-      // ending the gesture and our timeout is running, cancel it
-      else if (timeout && (type === "end" || type === "cancel")) {
-        clearTimeout(timeout)
-      }
-      // gesture is running, but our timeout isn't running, start it
-      else if (overMinimumThreshold && opts.timeout && !timeout) {
-        setTimeout(() => cancel(gesture), opts.timeout)
-      }
-    }
-  }
-
-  const destroy = gestureObserve(target, handler)
-
+export function onSwipe(target: HTMLElement, opts: Partial<SwipeOpts>) {
+  const swipe = new SwipeObserver(target, opts)
   return {
-    update(newOpts: Partial<OnSwipeOpts>) {
-      opts = { ...ONSWIPE_DEFAULT_OPTS, ...newOpts }
-    },
-
-    destroy
+    update: (opts: Partial<SwipeOpts>) => swipe.update(opts),
+    destroy: () => swipe.destroy()
   }
 }

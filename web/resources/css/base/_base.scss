@@ -15,7 +15,7 @@ body {
   position: fixed;
   bottom: 0;
   left: 0;
-  z-index: 9999;
+  z-index: $z-dialog;
   width: 100%;
 }
 
@@ -55,4 +55,9 @@ s {
 mark {
   color: inherit;
   background: var(--col-text-highlight);
+}
+
+// Prevents sprite SVGs from breaking button handlers.
+[role="button"] > .wj-ui-sprite {
+  pointer-events: none;
 }

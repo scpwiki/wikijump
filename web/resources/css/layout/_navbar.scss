@@ -1,10 +1,16 @@
 #navbar {
   position: relative;
+  display: flex;
+  align-items: center;
   height: var(--layout-navbar-height);
   padding: 0 3vw;
   color: var(--col-dark-text);
   background: var(--col-dark-background);
   box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.25);
+
+  @include media("<=small") {
+    padding: 0 1vw;
+  }
 }
 
 .wj-navbar-elements {
@@ -16,5 +22,11 @@
 
   > li {
     height: 100%;
+  }
+
+  @include media("<=small") {
+    flex-grow: 1;
+    overflow-x: auto;
+    overflow-y: visible;
   }
 }

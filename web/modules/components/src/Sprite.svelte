@@ -12,6 +12,7 @@
     | "wj-clipboard-copy"
     | "wj-clipboard-success"
     | "wj-downarrow"
+    | "wj-sidebar-open"
 
   let viewBox = ""
   // prettier-ignore
@@ -22,9 +23,10 @@
     case "wj-clipboard-copy":    viewBox = "0 0 24 24"  ; break;
     case "wj-clipboard-success": viewBox = "0 0 24 24"  ; break;
     case "wj-downarrow":         viewBox = "0 0 26 18"  ; break;
+    case "wj-sidebar-open":      viewBox = "0 0 24 24"  ; break;
   }
 </script>
 
-<svg class="wj-ui-sprite sprite-{i}" {viewBox} {...$$restProps}>
+<svg class="wj-ui-sprite sprite-{i}" {viewBox} {...$$restProps} aria-hidden="true">
   <use href="{asset('UI')}#{i}" />
 </svg>

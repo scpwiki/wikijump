@@ -58,20 +58,15 @@
         {{-- TODO: Locale selector--}}
         {{-- TODO: Dark/light mode selector --}}
         <nav id="navbar" aria-label="{{ __('frame.aria.NAVIGATION') }}">
+            @includeWhen(isset($sidebar_content), 'next.components.sidebar-button')
+
             @includeWhen(isset($navbar_items), 'next.components.navbar-elements', [
                 'items' => $navbar_items,
             ])
         </nav>
 
-
         {{-- Sidebar --}}
-        @isset($sidebar_content)
-            <aside id="sidebar" aria-label="{{ __('frame.aria.SIDEBAR') }}">
-                <div id="sidebar_sticky" role="presentation">
-                    {!! $sidebar_content !!}
-                </div>
-            </aside>
-        @endisset
+        @includeWhen(isset($sidebar_content), 'next.components.sidebar')
 
         {{-- Main Content --}}
         <main id="main" aria-label="{{ __('frame.aria.MAIN') }}">

@@ -30,6 +30,19 @@ export function parseTipOpts(elem: Element, opts: Partial<Props> | string) {
     opts = { content: elem.getAttribute("aria-label") ?? "" }
   }
 
+  // special case: if the tip is inside a dialog, we need to use
+  // the dialog's element as the parent, and use fixed positioning
+  if (!opts.appendTo) {
+    const dialog = elem.closest("dialog")
+    if (dialog) {
+      opts.appendTo = dialog
+      opts.popperOptions = {
+        ...opts?.popperOptions,
+        strategy: "fixed"
+      }
+    }
+  }
+
   return { ...DEFAULT_TIPPY_OPTS, ...opts }
 }
 

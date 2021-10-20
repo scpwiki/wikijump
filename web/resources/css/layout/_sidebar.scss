@@ -1,5 +1,35 @@
 #sidebar {
+  display: block;
+  background: var(--col-background);
   border-right: solid 0.125rem var(--col-border);
+
+  @include media("<=small") {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: $z-panel;
+    min-width: 75vw;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-shadow: 0 0 0 transparent;
+    transition: transform 250ms, box-shadow 250ms;
+    transform: translateX(-105%);
+
+    #sidebar_sticky {
+      visibility: hidden;
+      transition: visibility 250ms;
+    }
+
+    &[open] {
+      box-shadow: 10rem 0 5rem rgba(0, 0, 0, 0.25);
+      transform: translateX(0);
+
+      #sidebar_sticky {
+        visibility: visible;
+      }
+    }
+  }
 }
 
 #sidebar_sticky {
@@ -9,4 +39,36 @@
   padding: 1rem;
   overflow-x: hidden;
   overflow-y: auto;
+
+  @include media("<=small") {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+#sidebar_button {
+  display: none;
+
+  @include media("<=small") {
+    display: inline-block;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-right: 0.5rem;
+    color: var(--col-dark-text);
+    cursor: pointer;
+    --wj-sidebar-open-color: currentColor;
+
+    @include tolerates-motion {
+      transition: color 75ms;
+    }
+
+    @include hover {
+      color: var(--col-hint);
+    }
+
+    &:active {
+      color: var(--col-hint);
+    }
+  }
 }
