@@ -4,6 +4,14 @@
   gap: 0.25rem;
   padding: 0.5rem;
   list-style: none;
+
+  @include media("<=small") {
+    padding: 0.5rem 0;
+  }
+
+  @include media("<=tiny") {
+    justify-content: center;
+  }
 }
 
 .page-tag {
