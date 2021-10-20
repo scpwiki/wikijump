@@ -1,5 +1,6 @@
 import { FocusGroup, FocusGroupDirection } from "./focus"
 import { HeldObserver, WhileHeldOpts } from "./held"
+import { HoverObserver, HoverOpts } from "./hover"
 import { KeyHandler, KeyObserver } from "./key-handling"
 import { SwipeObserver, SwipeOpts } from "./swipe"
 
@@ -50,6 +51,18 @@ export function whileHeld(target: HTMLElement, opts: WhileHeldOpts) {
   const observer = new HeldObserver(target, opts)
   return {
     update: (opts: WhileHeldOpts) => observer.update(opts),
+    destroy: () => observer.destroy()
+  }
+}
+
+/**
+ * Svelte `use` function for firing callbacks during hover (and optionally
+ * focus) events.
+ */
+export function onHover(target: HTMLElement, opts: HoverOpts) {
+  const observer = new HoverObserver(target, opts)
+  return {
+    update: (opts: HoverOpts) => observer.update(opts),
     destroy: () => observer.destroy()
   }
 }

@@ -1,7 +1,7 @@
 import * as Popper from "@popperjs/core"
 import { clearTimeout, timeout, Timeout } from "@wikijump/util"
 import { BaseButton } from "./base-button"
-import { hover } from "./hover"
+import { HoverObserver } from "./hover"
 
 // TODO: proper mobile support (need more infrastructure for mobile support)
 
@@ -35,6 +35,9 @@ export abstract class BaseTooltipButton extends BaseButton {
 
   /** The Popper.js instance for handling placement of the tooltip. */
   private declare popperInstance?: Popper.Instance
+
+  /** Internal observer for hover events. */
+  private declare hoverObserver: HoverObserver
 
   /** Internal handler that is fired when the element is hovered over. */
   private baseWhenHovered() {
@@ -76,7 +79,7 @@ export abstract class BaseTooltipButton extends BaseButton {
   connectedCallback() {
     super.connectedCallback()
 
-    hover(this.parent, {
+    this.hoverObserver = new HoverObserver(this.parent, {
       on: () => {
         clearTimeout(this.offTimer)
         this.onTimer = timeout(50, () => this.baseWhenHovered())
@@ -86,5 +89,11 @@ export abstract class BaseTooltipButton extends BaseButton {
         this.offTimer = timeout(50, () => this.baseWhenUnhovered())
       }
     })
+  }
+
+  disconnectedCallback() {
+    this.hoverObserver.destroy()
+    clearTimeout(this.onTimer)
+    clearTimeout(this.offTimer)
   }
 }

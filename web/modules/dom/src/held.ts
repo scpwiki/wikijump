@@ -9,7 +9,7 @@ export interface WhileHeldOpts {
 /** Observer for firing callbacks while an element is held down. */
 export class HeldObserver {
   /** Current held state. */
-  held = false
+  private held = false
 
   /**
    * @param target - The element to observe.

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 export interface HoverOpts {
   /** If true, the element will be "hovered" when focused, too. */
   alsoOnFocus?: boolean
@@ -11,41 +12,77 @@ export interface HoverOpts {
 
 const HoverMediaQuery = matchMedia("(any-hover: hover), (hover: hover)")
 
-/**
- * Utility for quickly adding hover event listeners to an element.
- *
- * @param element - The element to add the listeners to.
- * @param opts - The options to use.
- */
-export function hover(element: HTMLElement, opts: HoverOpts) {
-  let hovered = false
-  let focused = false
+/** Observer for hover (and optionally focus) events. */
+export class HoverObserver {
+  /** Target hovered state. */
+  private hovered = false
 
-  element.addEventListener("pointerover", () => {
-    if (!HoverMediaQuery.matches) return
-    hovered = true
-    if (opts.on && !focused) opts.on()
-  })
+  /** Target focused state. */
+  private focused = false
 
-  element.addEventListener("pointerout", () => {
-    if (!hovered && !HoverMediaQuery.matches) return
-    hovered = false
-    if (opts.off && !focused) opts.off()
-  })
+  /**
+   * @param target - The element to observe.
+   * @param opts - Options for the observer.
+   */
+  constructor(private target: HTMLElement, private opts: HoverOpts) {
+    this.pointerover = this.pointerover.bind(this)
+    this.pointerout = this.pointerout.bind(this)
+    this.focusin = this.focusin.bind(this)
+    this.focusout = this.focusout.bind(this)
+    this.move = this.move.bind(this)
 
-  if (opts.alsoOnFocus) {
-    element.addEventListener("focusin", evt => {
-      if (focused && element.contains(evt.target as HTMLElement)) return
-      focused = true
-      if (opts.on && !hovered) opts.on()
-    })
-
-    element.addEventListener("focusout", evt => {
-      if (element.contains(evt.relatedTarget as HTMLElement)) return
-      focused = false
-      if (opts.off && !hovered) opts.off()
-    })
+    target.addEventListener("pointerover", this.pointerover, { passive: true })
+    target.addEventListener("pointerout", this.pointerout, { passive: true })
+    target.addEventListener("focusin", this.focusin, { passive: true })
+    target.addEventListener("focusout", this.focusout, { passive: true })
+    target.addEventListener("pointermove", this.move, { passive: true })
   }
 
-  if (opts.move) element.addEventListener("pointermove", opts.move)
+  private pointerover() {
+    if (!HoverMediaQuery.matches) return
+    this.hovered = true
+    if (this.opts.on && !this.focused) this.opts.on()
+  }
+
+  private pointerout() {
+    if (!this.hovered && !HoverMediaQuery.matches) return
+    this.hovered = false
+    if (this.opts.off && !this.focused) this.opts.off()
+  }
+
+  private focusin(evt: FocusEvent) {
+    if (!this.opts.alsoOnFocus) return
+    if (this.focused && this.target.contains(evt.target as HTMLElement)) return
+    this.focused = true
+    if (this.opts.on && !this.hovered) this.opts.on()
+  }
+
+  private focusout(evt: FocusEvent) {
+    if (!this.opts.alsoOnFocus) return
+    if (this.target.contains(evt.relatedTarget as HTMLElement)) return
+    this.focused = false
+    if (this.opts.off && !this.hovered) this.opts.off()
+  }
+
+  private move() {
+    if (this.opts.move) this.opts.move()
+  }
+
+  /**
+   * Update observer configuration.
+   *
+   * @param opts - New options for the observer.
+   */
+  update(opts: HoverOpts) {
+    this.opts = opts
+  }
+
+  /** Destroys the observer. */
+  destroy() {
+    this.target.removeEventListener("pointerover", this.pointerover)
+    this.target.removeEventListener("pointerout", this.pointerout)
+    this.target.removeEventListener("focusin", this.focusin)
+    this.target.removeEventListener("focusout", this.focusout)
+    this.target.removeEventListener("pointermove", this.move)
+  }
 }
