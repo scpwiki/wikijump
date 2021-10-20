@@ -2,6 +2,7 @@
 import { Gesture, Media, SwipeObserver, SwipeOpts, tip } from "@wikijump/components"
 import { addElement, BaseButton } from "@wikijump/util"
 
+/** Slidable sidebar element. */
 export class SidebarElement extends HTMLElement {
   static tag = "wj-sidebar"
 
@@ -9,13 +10,22 @@ export class SidebarElement extends HTMLElement {
     return ["open"]
   }
 
+  /** Function that destroys the {@link Media} subscription. */
   private declare mediaDestroy: () => void
+
+  /** The {@link SwipeObserver} used to recognize swipes. */
   private declare observer?: SwipeObserver
+
+  /** The `#app` element. */
   private declare app: HTMLElement
+
+  /** The `#sidebar_sticky` child element. */
   private declare sticky: HTMLElement
 
+  /** The previous focus before the sidebar was opened. */
   private previousFocus: HTMLElement | null = null
 
+  /** {@link SwipeObserver} configuration. */
   private config: SwipeOpts = {
     direction: ["left", "right"],
     threshold: 70,
@@ -51,18 +61,25 @@ export class SidebarElement extends HTMLElement {
     })
   }
 
+  /** True if the sidebar is open. */
   get open() {
     return this.hasAttribute("open")
   }
 
+  /** Reveals the sidebar. */
   show() {
     this.setAttribute("open", "")
   }
 
+  /** Closes the sidebar. */
   close() {
     this.removeAttribute("open")
   }
 
+  /**
+   * Begins listening for swipes. This is called when the screen size is
+   * below a certain threshold.
+   */
   private startListening() {
     if (!this.observer) {
       this.observer = new SwipeObserver(this.app, this.config)
@@ -72,6 +89,10 @@ export class SidebarElement extends HTMLElement {
     this.setAttribute("aria-expanded", "false")
   }
 
+  /**
+   * Stops listening for swipes. This is called when the screen size is
+   * beyond a certain threshold.
+   */
   private stopListening() {
     if (this.observer) {
       this.observer.destroy()
@@ -84,6 +105,7 @@ export class SidebarElement extends HTMLElement {
     this.removeAttribute("aria-expanded")
   }
 
+  /** Event handler for closing the sidebar when the body is tapped/clicked. */
   private bodyClick(evt: MouseEvent) {
     if (!this.open) return
     // special case for open button
@@ -94,6 +116,7 @@ export class SidebarElement extends HTMLElement {
     }
   }
 
+  /** Handles how the sidebar can be "grabbed" as the user moves their touch. */
   private move(gst: Gesture) {
     if (gst.is("move")) {
       const open = this.open
@@ -123,6 +146,8 @@ export class SidebarElement extends HTMLElement {
     }
   }
 
+  // -- LIFECYCLE
+
   attributeChangedCallback(name: string) {
     if (name === "open") {
       const open = this.hasAttribute("open")
@@ -131,6 +156,10 @@ export class SidebarElement extends HTMLElement {
         this.previousFocus = document.activeElement as HTMLElement | null
       } else {
         this.setAttribute("aria-expanded", "false")
+        if (this.previousFocus) {
+          this.previousFocus.focus()
+          this.previousFocus = null
+        }
       }
     }
   }
@@ -141,6 +170,7 @@ export class SidebarElement extends HTMLElement {
   }
 }
 
+/** Simple button that opens and closes the sidebar. */
 export class SidebarButtonElement extends BaseButton {
   static tag = "wj-sidebar-button"
 
