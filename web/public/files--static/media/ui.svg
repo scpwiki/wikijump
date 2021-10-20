@@ -129,23 +129,21 @@
     </symbol>
 
     <!--
-    #wj-sidebar-open
-      wj-sidebar-open-color
+    #wj-hamburger
+      wj-hamburger-color
 
-    credit to: lucide:sidebar-open (ISC)
-    https://icon-sets.iconify.design/lucide/sidebar-open/)
+    credit to: heroicons-solid:menu (MIT)
+    https://icon-sets.iconify.design/heroicons-solid/menu/
     -->
-    <symbol id="wj-sidebar-open" viewbox="0 0 24 24">
+    <symbol id="wj-hamburger" viewbox="0 0 20 20">
       <g
-        fill="none"
-        stroke="var(--wj-sidebar-open-color, #222)"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        fill="var(--wj-hamburger-color, #222)"
+        fill-rule="evenodd"
+        clip-rule="evenodd"
       >
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-        <path d="M9 3v18" />
-        <path d="M13 8l4 4l-4 4" />
+        <path d="M3 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" />
+        <path d="M3 10a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" />
+        <path d="M3 15a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" />
       </g>
     </symbol>
   </defs>

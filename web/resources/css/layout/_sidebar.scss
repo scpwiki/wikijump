@@ -57,7 +57,7 @@
     margin-right: 0.5rem;
     color: var(--col-dark-text);
     cursor: pointer;
-    --wj-sidebar-open-color: currentColor;
+    --wj-hamburger-color: currentColor;
 
     @include tolerates-motion {
       transition: color 75ms;

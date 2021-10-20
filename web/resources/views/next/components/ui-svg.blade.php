@@ -14,7 +14,7 @@
         case 'wj-clipboard-copy':    $viewbox = '0 0 24 24'  ; break;
         case 'wj-clipboard-success': $viewbox = '0 0 24 24'  ; break;
         case 'wj-downarrow':         $viewbox = '0 0 26 18'  ; break;
-        case 'wj-sidebar-open':      $viewbox = '0 0 24 24'  ; break;
+        case 'wj-hamburger':         $viewbox = '0 0 20 20'  ; break;
     }
 @endphp
 
