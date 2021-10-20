@@ -4,7 +4,7 @@ const OPERATORS = [">", "<", ">=", "<=", "=="] as const
 
 const BREAKPOINTS = [
   ["tiny", 350],
-  ["narrow", 600],
+  ["narrow", 500],
   ["small", 850],
   ["normal", 1000],
   ["wide", 1400]
