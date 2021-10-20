@@ -5,7 +5,7 @@
   import WikijumpAPI, { t } from "@wikijump/api"
   import { Button, TextInput, Toggle, toast } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
-  import { inputsValid } from "@wikijump/util"
+  import { inputsValid } from "@wikijump/dom"
   import FormError from "./FormError.svelte"
 
   const dispatch = createEventDispatcher()
