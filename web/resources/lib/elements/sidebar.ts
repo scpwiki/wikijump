@@ -5,10 +5,16 @@ import { addElement, BaseButton } from "@wikijump/util"
 export class SidebarElement extends HTMLElement {
   static tag = "wj-sidebar"
 
+  static get observedAttributes() {
+    return ["open"]
+  }
+
   private declare mediaDestroy: () => void
   private declare observer?: SwipeObserver
   private declare app: HTMLElement
   private declare sticky: HTMLElement
+
+  private previousFocus: HTMLElement | null = null
 
   private config: SwipeOpts = {
     direction: ["left", "right"],
@@ -37,34 +43,45 @@ export class SidebarElement extends HTMLElement {
     this.bodyClick = this.bodyClick.bind(this)
 
     this.mediaDestroy = Media.subscribe(({ breakpoint }) => {
-      // create observer if viewport is small
       if (breakpoint === "small" || breakpoint === "narrow") {
-        if (!this.observer) {
-          this.observer = new SwipeObserver(this.app, this.config)
-          this.app.addEventListener("click", this.bodyClick)
-        }
+        this.startListening()
       } else {
-        if (this.observer) {
-          this.observer.destroy()
-          this.observer = undefined
-          this.app.removeEventListener("click", this.bodyClick)
-        }
-
-        if (this.open) this.close()
+        this.stopListening()
       }
     })
   }
 
   get open() {
-    return this.classList.contains("is-open")
+    return this.hasAttribute("open")
   }
 
   show() {
-    this.classList.add("is-open")
+    this.setAttribute("open", "")
   }
 
   close() {
-    this.classList.remove("is-open")
+    this.removeAttribute("open")
+  }
+
+  private startListening() {
+    if (!this.observer) {
+      this.observer = new SwipeObserver(this.app, this.config)
+      this.app.addEventListener("click", this.bodyClick)
+    }
+
+    this.setAttribute("aria-expanded", "false")
+  }
+
+  private stopListening() {
+    if (this.observer) {
+      this.observer.destroy()
+      this.observer = undefined
+      this.app.removeEventListener("click", this.bodyClick)
+    }
+
+    if (this.open) this.close()
+
+    this.removeAttribute("aria-expanded")
   }
 
   private bodyClick(evt: MouseEvent) {
@@ -73,7 +90,7 @@ export class SidebarElement extends HTMLElement {
     if (evt.target instanceof SidebarButtonElement) return
     // body elements
     if (evt.target !== this && !this.contains(evt.target as HTMLElement)) {
-      this.classList.remove("is-open")
+      this.close()
     }
   }
 
@@ -106,10 +123,21 @@ export class SidebarElement extends HTMLElement {
     }
   }
 
+  attributeChangedCallback(name: string) {
+    if (name === "open") {
+      const open = this.hasAttribute("open")
+      if (open) {
+        this.setAttribute("aria-expanded", "true")
+        this.previousFocus = document.activeElement as HTMLElement | null
+      } else {
+        this.setAttribute("aria-expanded", "false")
+      }
+    }
+  }
+
   disconnectedCallback() {
-    this.observer?.destroy()
+    this.stopListening()
     this.mediaDestroy()
-    this.app.removeEventListener("click", this.bodyClick)
   }
 }
 
