@@ -9,7 +9,41 @@
   box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.25);
 
   @include media("<=small") {
-    padding: 0 1vw;
+    position: sticky;
+    top: 0;
+    z-index: $z-panel;
+    padding: 0;
+    padding-left: 0.5rem;
+    box-shadow: none;
+  }
+}
+
+#sidebar_button {
+  display: none;
+
+  @include media("<=small") {
+    box-sizing: content-box;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding-right: 0.25rem;
+    color: var(--col-dark-text);
+    cursor: pointer;
+    border-right: solid 0.125rem var(--col-dark-border);
+    --wj-hamburger-color: currentColor;
+
+    @include tolerates-motion {
+      transition: color 75ms;
+    }
+
+    @include hover {
+      color: var(--col-hint);
+    }
+
+    &:active {
+      color: var(--col-hint);
+    }
   }
 }
 
@@ -28,5 +62,13 @@
     flex-grow: 1;
     overflow-x: auto;
     overflow-y: visible;
+
+    > li:first-child {
+      margin-left: 0.5rem;
+    }
+
+    > li:last-child {
+      margin-right: 1rem;
+    }
   }
 }

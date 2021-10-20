@@ -19,4 +19,9 @@
 
   /// Size of the gap between the body, sidebar, and the edge of the viewport.
   --layout-body-side-gap: 1rem;
+
+  // Small displays (e.g. phones)
+  @include media("<=small") {
+    --layout-navbar-height: 3rem;
+  }
 }
