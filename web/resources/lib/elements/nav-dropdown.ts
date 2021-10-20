@@ -1,13 +1,16 @@
-import { addElement, hover } from "@wikijump/util"
+import { addElement, HoverObserver } from "@wikijump/dom"
 
 /** Handles hovering, focus for navbar dropdowns. */
 export class NavbarDropdownElement extends HTMLElement {
   static tag = "wj-navbar-dropdown"
 
+  /** Internal observer for hover events. */
+  private declare hoverObserver: HoverObserver
+
   constructor() {
     super()
 
-    hover(this, {
+    this.hoverObserver = new HoverObserver(this, {
       alsoOnFocus: true,
       on: () => (this.details.open = true),
       off: () => (this.details.open = false)
@@ -76,6 +79,10 @@ export class NavbarDropdownElement extends HTMLElement {
 
       evt.preventDefault()
     }
+  }
+
+  disconnectedCallback() {
+    this.hoverObserver.destroy()
   }
 }
 

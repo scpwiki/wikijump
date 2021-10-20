@@ -12,7 +12,7 @@
   ```
 -->
 <script lang="ts">
-  import { focusGroup } from "../lib/focus"
+  import { focusGroup } from "@wikijump/dom"
   import { onMount, setContext } from "svelte"
   import { writable } from "svelte/store"
   import type { Writable } from "svelte/store"

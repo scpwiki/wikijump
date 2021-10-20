@@ -114,6 +114,7 @@ importers:
       '@wikijump/api': workspace:*
       '@wikijump/codemirror': workspace:*
       '@wikijump/components': workspace:*
+      '@wikijump/dom': workspace:*
       '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
       dictionary-cs: ^2.0.3
@@ -144,6 +145,7 @@ importers:
       '@wikijump/api': link:../api
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/components': link:../components
+      '@wikijump/dom': link:../dom
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
       dictionary-cs: 2.0.3
@@ -267,6 +269,7 @@ importers:
       '@iconify/iconify': ^2.0.4
       '@popperjs/core': ^2.10.2
       '@wikijump/api': workspace:*
+      '@wikijump/dom': workspace:*
       '@wikijump/ftml-components': workspace:*
       '@wikijump/ftml-wasm': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
@@ -280,6 +283,7 @@ importers:
       '@iconify/iconify': 2.0.4
       '@popperjs/core': 2.10.2
       '@wikijump/api': link:../api
+      '@wikijump/dom': link:../dom
       '@wikijump/ftml-components': link:../ftml-components
       '@wikijump/ftml-wasm': link:../ftml-wasm
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
@@ -290,14 +294,24 @@ importers:
       svelte: 3.44.0
       tippy.js: 6.3.2
 
+  modules/dom:
+    specifiers:
+      '@popperjs/core': ^2.10.2
+      '@wikijump/util': workspace:*
+    dependencies:
+      '@popperjs/core': 2.10.2
+      '@wikijump/util': link:../util
+
   modules/ftml-components:
     specifiers:
       '@popperjs/core': ^2.10.2
+      '@wikijump/dom': workspace:*
       '@wikijump/prism': workspace:*
       '@wikijump/util': workspace:*
       hfmath: ^0.0.2
     dependencies:
       '@popperjs/core': 2.10.2
+      '@wikijump/dom': link:../dom
       '@wikijump/prism': link:../prism
       '@wikijump/util': link:../util
       hfmath: 0.0.2
@@ -367,6 +381,7 @@ importers:
     specifiers:
       '@wikijump/api': workspace:*
       '@wikijump/components': workspace:*
+      '@wikijump/dom': workspace:*
       '@wikijump/ftml-components': workspace:*
       '@wikijump/sheaf': workspace:*
       '@wikijump/util': workspace:*
@@ -375,6 +390,7 @@ importers:
     dependencies:
       '@wikijump/api': link:../modules/api
       '@wikijump/components': link:../modules/components
+      '@wikijump/dom': link:../modules/dom
       '@wikijump/ftml-components': link:../modules/ftml-components
       '@wikijump/sheaf': link:../modules/sheaf
       '@wikijump/util': link:../modules/util

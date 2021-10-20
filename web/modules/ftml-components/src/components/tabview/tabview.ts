@@ -1,4 +1,4 @@
-import { addElement, BaseButton, observe, pauseObservation } from "@wikijump/util"
+import { addElement, BaseButton, observe, pauseObservation } from "@wikijump/dom"
 
 /**
  * FTML `[[tabview]]` element. Handles ARIA state and visibility of tab

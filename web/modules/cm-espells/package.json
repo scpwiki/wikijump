@@ -12,6 +12,12 @@
   "main": "src/index.ts",
   "dependencies": {
     "@lezer/common": "^0.15.7",
+    "@wikijump/api": "workspace:*",
+    "@wikijump/codemirror": "workspace:*",
+    "@wikijump/components": "workspace:*",
+    "@wikijump/dom": "workspace:*",
+    "@wikijump/threads-worker-module": "workspace:*",
+    "@wikijump/util": "workspace:*",
     "dictionary-cs": "^2.0.3",
     "dictionary-da": "^4.5.0",
     "dictionary-el": "^3.0.5",
@@ -34,11 +40,6 @@
     "dictionary-uk": "^2.3.0",
     "dictionary-vi": "^2.1.3",
     "espells": "^0.4.1",
-    "@wikijump/threads-worker-module": "workspace:*",
-    "@wikijump/codemirror": "workspace:*",
-    "@wikijump/components": "workspace:*",
-    "@wikijump/api": "workspace:*",
-    "@wikijump/util": "workspace:*",
     "svelte": "^3.44.0"
   }
 }

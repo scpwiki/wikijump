@@ -13,6 +13,7 @@
   "dependencies": {
     "@wikijump/api": "workspace:*",
     "@wikijump/components": "workspace:*",
+    "@wikijump/dom": "workspace:*",
     "@wikijump/ftml-components": "workspace:*",
     "@wikijump/sheaf": "workspace:*",
     "@wikijump/util": "workspace:*",

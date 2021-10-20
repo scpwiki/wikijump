@@ -2,7 +2,7 @@
   @component Generic "toggle" component.
 -->
 <script lang="ts">
-  import { keyHandle } from "./lib/controls"
+  import { keyHandle } from "@wikijump/dom"
   import Sprite from "./Sprite.svelte"
 
   /** State of the toggle. */

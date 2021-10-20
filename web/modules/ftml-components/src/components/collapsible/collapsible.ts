@@ -1,4 +1,4 @@
-import { addElement, BaseButton } from "@wikijump/util"
+import { addElement, BaseButton } from "@wikijump/dom"
 
 /**
  * Button that shows up at the bottom of a FTML `[[collapsible]]` block.

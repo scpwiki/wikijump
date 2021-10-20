@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { scrollElement } from "@wikijump/util"
+import { scrollElement } from "./scrolling"
 
 export type Point = [x: number, y: number]
 export type Direction = "up" | "down" | "left" | "right"

@@ -1,7 +1,7 @@
 {
-  "name": "@wikijump/ftml-components",
+  "name": "@wikijump/dom",
   "license": "agpl-3.0-or-later",
-  "description": "Web-components for FTML",
+  "description": "DOM related utilites for Wikijump.",
   "version": "0.0.0",
   "keywords": [
     "wikijump"
@@ -12,9 +12,6 @@
   "main": "src/index.ts",
   "dependencies": {
     "@popperjs/core": "^2.10.2",
-    "@wikijump/dom": "workspace:*",
-    "@wikijump/prism": "workspace:*",
-    "@wikijump/util": "workspace:*",
-    "hfmath": "^0.0.2"
+    "@wikijump/util": "workspace:*"
   }
 }
