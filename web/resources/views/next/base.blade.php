@@ -145,8 +145,12 @@
     @endisset
 
     {{-- Styles --}}
-    @vite('css-hack.ts')
     @stack('styles')
+
+    {{-- Scripts --}}
+    {{-- TODO: see if it's possible to make scripts load async --}}
+    @vite('index.ts')
+    @stack('scripts')
 
     {{-- Vite --}}
     @client
@@ -162,11 +166,6 @@
 
     <div id="toasts"></div>
     <div id="modals"></div>
-
-    {{-- Scripts --}}
-    {{-- TODO: see if it's possible to make scripts load async --}}
-    @vite('index.ts')
-    @stack('scripts')
 </body>
 
 </html>

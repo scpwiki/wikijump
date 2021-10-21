@@ -20,6 +20,10 @@
 
 @extends('next.frame')
 
+@push('scripts')
+    @vite('wiki.ts')
+@endpush
+
 @php
     $page_show_info_div =
            isset($page_tags)
