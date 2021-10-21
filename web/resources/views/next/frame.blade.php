@@ -19,6 +19,7 @@
         $header_subtitle
         $navbar_items
         $sidebar_content (UNESCAPED)
+        $plain (if true, no navbar, no sidebar, no license)
 
     sections:
         content
@@ -27,22 +28,34 @@
 @extends('next.base')
 
 @section('app')
-    <div id="app" @class([
-        'has-sidebar' => isset($sidebar_content),
-        'has-license' => isset($license),
-    ])>
+    @if (empty($plain) || !$plain)
+        <div id="app" @class([
+            'has-sidebar' => isset($sidebar_content),
+            'has-license' => isset($license),
+        ])>
 
-        @include('next.components.header')
+            @include('next.components.header')
 
-        @include('next.components.navbar')
+            @include('next.components.navbar')
 
-        @includeWhen(isset($sidebar_content), 'next.components.sidebar')
+            @includeWhen(isset($sidebar_content), 'next.components.sidebar')
 
-        {{-- Main Content --}}
-        <main id="main" aria-label="{{ __('frame.aria.MAIN') }}">
-            @yield('content')
-        </main>
+            <main id="main" aria-label="{{ __('frame.aria.MAIN') }}">
+                @yield('content')
+            </main>
 
-        @include('next.components.footer')
-    </div>
+            @include('next.components.footer')
+        </div>
+    @else
+        <div id="app" class="is-plain">
+
+            @include('next.components.header')
+
+            <main id="main" aria-label="{{ __('frame.aria.MAIN') }}">
+                @yield('content')
+            </main>
+
+            @include('next.components.footer')
+        </div>
+    @endif
 @endsection

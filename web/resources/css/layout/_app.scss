@@ -1,4 +1,4 @@
-#app {
+#app:not(.is-plain) {
   display: grid;
 
   --layout-total-footer-height: var(--layout-footer-height);
@@ -54,6 +54,31 @@
       var(--layout-footer-height) + var(--layout-license-height)
     );
   }
+}
+
+#app.is-plain {
+  display: grid;
+
+  // prettier-ignore
+  --layout-min-body-height: calc(100vh - (
+    var(--layout-header-height) +
+    var(--layout-footer-height)
+  ));
+
+  grid-template-areas:
+    "header  header  header"
+    ".       main    .     "
+    "footer  footer  footer";
+
+  grid-template-rows:
+    var(--layout-header-height)
+    minmax(var(--layout-min-body-height), auto)
+    var(--layout-footer-height);
+
+  grid-template-columns:
+    minmax(var(--layout-body-side-gap), 1fr)
+    minmax(0, 80rem)
+    minmax(var(--layout-body-side-gap), 1fr);
 }
 
 #header {

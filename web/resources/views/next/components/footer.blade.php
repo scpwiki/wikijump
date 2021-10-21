@@ -42,15 +42,17 @@
         </div>
     </div>
 
-    @isset($license)
-        <div id="footer_license" aria-label="{{ __('frame.aria.LICENSE') }}">
-            <a href="{{ $license->url() }}">
-                @if ($license->unless())
-                    {{ __('frame.LICENSE_UNLESS', ['license' => $license->name()]) }}
-                @else
-                    {{  __('frame.LICENSE', ['license' => $license->name()]) }}
-                @endif
-            </a>
-        </div>
-    @endisset
+    @if (empty($plain) || !$plain)
+        @isset($license)
+            <div id="footer_license" aria-label="{{ __('frame.aria.LICENSE') }}">
+                <a href="{{ $license->url() }}">
+                    @if ($license->unless())
+                        {{ __('frame.LICENSE_UNLESS', ['license' => $license->name()]) }}
+                    @else
+                        {{  __('frame.LICENSE', ['license' => $license->name()]) }}
+                    @endif
+                </a>
+            </div>
+        @endisset
+    @endif
 </footer>
