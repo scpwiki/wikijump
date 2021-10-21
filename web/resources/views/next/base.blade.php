@@ -2,6 +2,11 @@
     All arguments are optional.
 
     data:
+        $title
+        $robots
+        $canonical
+        $license (see `config/licenses.php` and `App/Services/License`)
+
         $social_url
         $social_title
         $social_description
@@ -12,17 +17,17 @@
         $social_twitter_creator
         $social_rating
 
-        $title
-        $robots
-        $canonical
-        $license (see `config/licenses.php` and `App/Services/License`)
-
         $theme_color
 
         $favicon_svg
         $favicon_png
         $favicon_apple
         $favicon_mask
+
+        $HTTP_SCHEMA
+        $URL_DOMAIN
+        $URL_HOST
+        $SERVICE_NAME
 
     sections:
         app
@@ -44,9 +49,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     {{-- Browser Metadata --}}
-    @isset($title)
-        <title>{{ $title }}</title>
-    @endisset
+    {{-- TODO: make this use site name, not $SERVICE_NAME --}}
+    <title>{{ isset($title) ? "$title | $SERVICE_NAME" : $SERVICE_NAME }}</title>
     @isset($robots)
         <meta name="robots" content="{{ $robots }}">
     @endisset
