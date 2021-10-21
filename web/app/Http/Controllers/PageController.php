@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Wikijump\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\URL;
-use Wikidot\Utils\GlobalProperties;
 use Wikijump\Helpers\LegacyTools;
 
 class PageController extends Controller
@@ -17,7 +15,6 @@ class PageController extends Controller
         $values = LegacyTools::generateScreenVars();
 
         $title = null;
-        $canonical = URL::current();
         $license = null;
         $social_title = null;
         $sidebar_content = null;
@@ -42,7 +39,7 @@ class PageController extends Controller
             $revision = $page->getRevisionNumber();
             $timestamp = $page->getDateLastEdited()->getTimestamp();
             $page_title = $page->getTitleOrUnixName();
-            $title = "$page_title | $title";
+            $title = $page_title;
             $social_title = $page_title;
 
             // this should always be there, but just in case...
@@ -75,12 +72,10 @@ class PageController extends Controller
             // TODO: navbar items
 
             'title' => $title,
-            'canonical' => $canonical,
             'license' => $license,
 
             'social_title' => $social_title,
             'social_type' => 'article',
-            'social_url' => $canonical,
 
             'header_img_url' => '/files--static/media/logo-outline.min.svg',
             'sidebar_content' => $sidebar_content,
