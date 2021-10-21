@@ -92,11 +92,6 @@ class PageController extends Controller
             'page_revision' => $revision,
             'page_last_edit_timestamp' => $timestamp,
             'page_tags' => $tags,
-
-            'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
-            'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
-            'URL_HOST' => GlobalProperties::$URL_HOST,
-            'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
         ]);
     }
 }

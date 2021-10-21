@@ -54,10 +54,6 @@ Route::get('/editor--test', function () {
 Route::get('/page--test', function () {
     return view('next.test.page-test', [
         'header_img_url' => '/files--static/media/logo-outline.min.svg',
-        'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
-        'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
-        'URL_HOST' => GlobalProperties::$URL_HOST,
-        'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
     ]);
 });
 /**
