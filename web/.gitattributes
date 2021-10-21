@@ -1,6 +1,11 @@
 *                      text=auto
-web/**                 linguist-vendored
 pnpm-lock.yaml         binary linguist-vendored linguist-generated
 **/vendor/**           binary linguist-vendored linguist-generated
 *.json                 linguist-language=JSON-with-Comments
 CHANGELOG.md           export-ignore
+
+bin/**                 linguist-vendored
+lib/**                 linguist-vendored
+php/**                 linguist-vendored
+templates/**           linguist-vendored
+web/**                 linguist-vendored
