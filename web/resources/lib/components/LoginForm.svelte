@@ -93,6 +93,12 @@
 <style lang="scss">
   @import "../../css/abstracts";
 
+  .login-form form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.25rem;
+  }
+
   .login-form-options {
     display: flex;
     align-items: center;
