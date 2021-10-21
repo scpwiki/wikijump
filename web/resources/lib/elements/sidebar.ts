@@ -52,8 +52,8 @@ export class SidebarElement extends HTMLElement {
 
     this.bodyClick = this.bodyClick.bind(this)
 
-    this.mediaDestroy = Media.subscribe(({ breakpoint }) => {
-      if (breakpoint === "small" || breakpoint === "narrow") {
+    this.mediaDestroy = Media.subscribe(() => {
+      if (Media.matchBreakpoint("<=small")) {
         this.startListening()
       } else {
         this.stopListening()
@@ -86,6 +86,7 @@ export class SidebarElement extends HTMLElement {
       this.app.addEventListener("click", this.bodyClick)
     }
 
+    this.setAttribute("tabindex", "-1")
     this.setAttribute("aria-expanded", "false")
   }
 
@@ -102,6 +103,7 @@ export class SidebarElement extends HTMLElement {
 
     if (this.open) this.close()
 
+    this.removeAttribute("tabindex")
     this.removeAttribute("aria-expanded")
   }
 
@@ -154,6 +156,7 @@ export class SidebarElement extends HTMLElement {
       if (open) {
         this.setAttribute("aria-expanded", "true")
         this.previousFocus = document.activeElement as HTMLElement | null
+        this.focus()
       } else {
         this.setAttribute("aria-expanded", "false")
         if (this.previousFocus) {

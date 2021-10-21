@@ -46,29 +46,3 @@
     overflow: visible;
   }
 }
-
-#sidebar_button {
-  display: none;
-
-  @include media("<=small") {
-    display: inline-block;
-    width: 1.75rem;
-    height: 1.75rem;
-    margin-right: 0.5rem;
-    color: var(--col-dark-text);
-    cursor: pointer;
-    --wj-sidebar-open-color: currentColor;
-
-    @include tolerates-motion {
-      transition: color 75ms;
-    }
-
-    @include hover {
-      color: var(--col-hint);
-    }
-
-    &:active {
-      color: var(--col-hint);
-    }
-  }
-}

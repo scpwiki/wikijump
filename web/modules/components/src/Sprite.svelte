@@ -12,7 +12,7 @@
     | "wj-clipboard-copy"
     | "wj-clipboard-success"
     | "wj-downarrow"
-    | "wj-sidebar-open"
+    | "wj-hamburger"
 
   let viewBox = ""
   // prettier-ignore
@@ -23,7 +23,7 @@
     case "wj-clipboard-copy":    viewBox = "0 0 24 24"  ; break;
     case "wj-clipboard-success": viewBox = "0 0 24 24"  ; break;
     case "wj-downarrow":         viewBox = "0 0 26 18"  ; break;
-    case "wj-sidebar-open":      viewBox = "0 0 24 24"  ; break;
+    case "wj-hamburger":         viewBox = "0 0 20 20"  ; break;
   }
 </script>
 

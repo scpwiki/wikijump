@@ -27,7 +27,7 @@
     <Tab>
       <span slot="button">{$t("sheaf.preview_tabs.RESULT")}</span>
       <div class="sheaf-preview">
-        <Wikitext morph isolated {debug} wikitext={() => render.result()} />
+        <Wikitext morph {debug} wikitext={() => render.result()} />
       </div>
     </Tab>
 

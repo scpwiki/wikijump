@@ -24,6 +24,13 @@
   }
 }
 
+/// Shorthand for `orientation: landscape` media query.
+@mixin landscape {
+  @media (orientation: landscape) {
+    @content;
+  }
+}
+
 /// Removes most of the built-in styling for an element.
 @mixin reset {
   padding: 0;
@@ -152,5 +159,13 @@
     &::before {
       background: $background;
     }
+  }
+}
+
+/// Hides scrollbars, but still allows scrolling.
+@mixin hide-scrollbars {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

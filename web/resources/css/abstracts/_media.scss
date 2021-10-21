@@ -7,8 +7,9 @@
 // Set import-media breakpoints
 // prettier-ignore
 $breakpoints: (
-  narrow: 400px,  // approx. phones
-  small: 800px,   // approx. tablets
+  tiny:    350px, // exceptionally narrow phones
+  narrow:  500px, // approx. phones
+  small:   850px, // approx. tablets, landscape phones, laptops
   normal: 1000px, // approx. desktops
-  wide: 1400px    // approx. extra wide monitors
+  wide:   1400px  // approx. extra wide monitors
 )

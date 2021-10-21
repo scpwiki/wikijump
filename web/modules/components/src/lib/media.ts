@@ -1,7 +1,18 @@
 import { Readable, writable } from "svelte/store"
 
-export type BreakpointName = "narrow" | "small" | "normal" | "wide"
-export type BreakpointString = `${">" | "<" | ">=" | "<=" | ""}${BreakpointName}`
+const OPERATORS = [">", "<", ">=", "<=", "=="] as const
+
+const BREAKPOINTS = [
+  ["tiny", 350],
+  ["narrow", 500],
+  ["small", 850],
+  ["normal", 1000],
+  ["wide", 1400]
+] as const
+
+export type Operator = typeof OPERATORS[number]
+export type BreakpointName = typeof BREAKPOINTS[number][0]
+export type BreakpointString = `${Operator | ""}${BreakpointName}`
 
 export interface MediaQueryStore {
   reducedMotion: boolean
@@ -9,6 +20,41 @@ export interface MediaQueryStore {
   canHover: boolean
   breakpoint: BreakpointName
   orientation: "landscape" | "portrait"
+}
+
+class BreakpointMapping {
+  private queries: Map<BreakpointName, MediaQueryList> = new Map()
+  private map: Map<BreakpointName | number, BreakpointName | number> = new Map()
+
+  constructor(callback: () => void) {
+    let idx = 0
+    for (const [name, pixels] of BREAKPOINTS) {
+      const query = matchMedia(`(min-width: ${pixels}px)`)
+      query.addEventListener("change", callback)
+      this.queries.set(name, query)
+      this.map.set(idx, name)
+      this.map.set(name, idx)
+      idx++
+    }
+  }
+
+  get(id: number): BreakpointName
+  get(name: BreakpointName): number
+  get(key: BreakpointName | number): BreakpointName | number {
+    return this.map.get(key)!
+  }
+
+  has(name: string): name is BreakpointName {
+    return this.map.has(name as any)
+  }
+
+  active() {
+    let current: BreakpointName = "tiny"
+    for (const [name, query] of this.queries) {
+      if (query.matches) current = name
+    }
+    return current
+  }
 }
 
 /**
@@ -27,50 +73,10 @@ class MediaQueryHandler {
   private _orientationLandscape = this.addQuery("(orientation: landscape)")
   private _orientationPortrait = this.addQuery("(orientation: portrait)")
 
-  // TODO: do we want to automate this using some configuration file?
-  private breakpointQueries = [
-    this.addQuery("(min-width: 400px)"),
-    this.addQuery("(min-width: 800px)"),
-    this.addQuery("(min-width: 1000px)"),
-    this.addQuery("(min-width: 1400px)")
-  ] as const
-  private breakpointNames = ["narrow", "small", "normal", "wide"] as const
-  private breakpointMap = { "narrow": 0, "small": 1, "normal": 2, "wide": 3 } as const
+  private breakpoints = new BreakpointMapping(() => this.refresh())
 
   constructor() {
     this.refresh()
-  }
-
-  private addQuery(query: string) {
-    const mediaQuery = matchMedia(query)
-    mediaQuery.addEventListener("change", () => this.refresh())
-    return mediaQuery
-  }
-
-  private activeBreakpoint() {
-    // setting the type normally causes TS to over-simplify the type to just "narrow"
-    // for some reason... an assertion fixes that, apparently
-    let current = "narrow" as BreakpointName
-    this.breakpointQueries.forEach((query, idx) => {
-      if (query.matches) current = this.breakpointNames[idx]
-    })
-    return current
-  }
-
-  private refresh() {
-    this.store.set({
-      reducedMotion: this.reducedMotion,
-      colorScheme: this.colorScheme,
-      canHover: this.canHover,
-      breakpoint: this.breakpoint,
-      orientation: this.orientation
-    })
-  }
-
-  /** Tests if a query passes or not. */
-  test(query: string) {
-    const mediaQuery = matchMedia(query)
-    return mediaQuery.matches
   }
 
   /** True if `(prefers-reduced-motion: reduce)` is matched. */
@@ -97,7 +103,7 @@ class MediaQueryHandler {
 
   /** The currently active breakpoint. */
   get breakpoint() {
-    return this.activeBreakpoint()
+    return this.breakpoints.active()
   }
 
   /**
@@ -112,6 +118,28 @@ class MediaQueryHandler {
       : "landscape"
   }
 
+  private addQuery(query: string) {
+    const mediaQuery = matchMedia(query)
+    mediaQuery.addEventListener("change", () => this.refresh())
+    return mediaQuery
+  }
+
+  private refresh() {
+    this.store.set({
+      reducedMotion: this.reducedMotion,
+      colorScheme: this.colorScheme,
+      canHover: this.canHover,
+      breakpoint: this.breakpoint,
+      orientation: this.orientation
+    })
+  }
+
+  /** Tests if a query passes or not. */
+  test(query: string) {
+    const mediaQuery = matchMedia(query)
+    return mediaQuery.matches
+  }
+
   /**
    * Evaluates a `include-media`-compatible breakpoint string and returns
    * if it matches. Throws with incompatible queries.
@@ -123,33 +151,37 @@ class MediaQueryHandler {
    */
   matchBreakpoint(query: BreakpointString) {
     // figure out what operator to use
-    type Operator = ">" | "<" | ">=" | "<=" | "=="
+
     let operator: Operator = "=="
+
     const match = /^[=<>]+/.exec(query)
-    if (match && [">", "<", ">=", "<=", "=="].includes(match[0])) {
+
+    if (match && OPERATORS.includes(match[0] as any)) {
       operator = match[0] as Operator
     } else if (match) {
       throw new Error(`Bad operator (${match[0]}) given in breakpoint string!`)
     }
 
     // strip off operator to get breakpoint name
-    const breakpoint = query.replace(/^[=<>]+/, "") as BreakpointName
-    if (!this.breakpointNames.includes(breakpoint)) {
+    const breakpoint = query.replace(/^[=<>]+/, "")
+
+    if (!this.breakpoints.has(breakpoint)) {
       throw new Error(`Bad breakpoint (${breakpoint}) given in breakpoint string!`)
     }
 
-    const current = this.activeBreakpoint()
+    const current = this.breakpoints.active()
+    const curIdx = this.breakpoints.get(current)
+    const brkIdx = this.breakpoints.get(breakpoint)
 
-    const curIdx = this.breakpointMap[current]
-    const brkIdx = this.breakpointMap[breakpoint]
-
-    if (operator === "==") return curIdx === brkIdx
-    if (operator === "<") return curIdx < brkIdx
-    if (operator === "<=") return curIdx <= brkIdx
-    if (operator === ">") return curIdx > brkIdx
-    if (operator === ">=") return curIdx >= brkIdx
-
-    throw new Error(`Breakpoint query (${query}) was somehow impossible to evaluate!`)
+    // prettier-ignore
+    switch (operator) {
+      case "==": return curIdx === brkIdx
+      case ">":  return curIdx >   brkIdx
+      case "<":  return curIdx <   brkIdx
+      case ">=": return curIdx >=  brkIdx
+      case "<=": return curIdx <=  brkIdx
+      default: throw new Error(`Query (${query}) was somehow impossible to evaluate!`)
+    }
   }
 }
 
@@ -197,8 +229,9 @@ Media.subscribe(store => {
  *   ">="
  *
  * breakpoints:
+ *   "tiny"    # exceptionally narrow phones
  *   "narrow"  # approx. phones
- *   "small"   # approx. tablets
+ *   "small"   # approx. tablets, landscape phones, laptops
  *   "normal"  # approx. desktops
  *   "wide"    # approx. extra wide monitors
  * ```

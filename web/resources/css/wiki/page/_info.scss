@@ -1,4 +1,5 @@
 #page_info {
+  position: relative;
   display: flex;
   align-items: flex-end;
 }
@@ -14,13 +15,28 @@
   font-family: var(--font-mono);
   font-size: 0.625rem;
   color: var(--col-text-subtle);
-
-  // hide for now
-  @include media("<=small") {
-    display: none;
-  }
 }
 
 .page-info-sep {
   margin: 0 0.5rem;
+}
+
+@include media("<=small") {
+  #page_info_category,
+  #page_info_category + .page-info-sep {
+    display: none;
+  }
+}
+
+@include media("<=narrow") {
+  #page_info_revision,
+  .page-info-sep {
+    display: none;
+  }
+}
+
+@include media("<=tiny") {
+  #page_info_last_edit {
+    display: none;
+  }
 }
