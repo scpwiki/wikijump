@@ -74,7 +74,7 @@
 
     <!--
     #wj-clipboard-copy
-      wj-clipboard-copy-stroke
+      (currentColor)
     -->
     <symbol id="wj-clipboard-copy" viewbox="0 0 24 24">
       <g
@@ -82,7 +82,7 @@
         stroke-width="2"
         stroke-linejoin="round"
         stroke-linecap="round"
-        stroke="var(--wj-clipboard-copy-stroke, #222)"
+        stroke="currentColor"
       >
         <path
           d="M16 4h2a2 2 0 0 1 2 2v4M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
@@ -95,7 +95,7 @@
 
     <!--
     #wj-clipboard-success
-      wj-clipboard-success-stroke
+      (currentColor)
     -->
     <symbol id="wj-clipboard-success" viewbox="0 0 24 24">
       <g
@@ -103,7 +103,7 @@
         stroke-width="2"
         stroke-linejoin="round"
         stroke-linecap="round"
-        stroke="var(--wj-clipboard-success-stroke, #222)"
+        stroke="currentColor"
       >
         <path
           d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
@@ -115,7 +115,7 @@
 
     <!--
     #wj-downarrow
-      wj-downarrow-color
+      (currentColor)
     -->
     <symbol id="wj-downarrow" viewbox="0 0 26 18">
       <path
@@ -123,21 +123,21 @@
         stroke-width="2"
         stroke-linejoin="round"
         stroke-linecap="round"
-        stroke="var(--wj-downarrow-color, #222)"
-        fill="var(--wj-downarrow-color, #222)"
+        stroke="currentColor"
+        fill="currentColor"
       />
     </symbol>
 
     <!--
     #wj-hamburger
-      wj-hamburger-color
+      (currentColor)
 
     credit to: heroicons-solid:menu (MIT)
     https://icon-sets.iconify.design/heroicons-solid/menu/
     -->
     <symbol id="wj-hamburger" viewbox="0 0 20 20">
       <g
-        fill="var(--wj-hamburger-color, #222)"
+        fill="currentColor"
         fill-rule="evenodd"
         clip-rule="evenodd"
       >
