@@ -52,7 +52,7 @@ final class Outdater
         switch ($eventType) {
             case 'new_page':
                 $this->recompilePage($page);
-                $this->fixInLinks($page);
+                $this->fixInLinksEither($page);
                 $this->fixOutLinks($page);
                 $this->fixInclusions($page);
                 $this->recompileInclusionDeps($page);
@@ -74,14 +74,14 @@ final class Outdater
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
                 $this->outdateDescendantsCache($page);
-                $this->fixInLinks($page); // if dynamical link text = page title
+                $this->fixInLinksEither($page); // if dynamical link text = page title
                 $this->outdatePageTagsCache($page);
                 break;
             case 'rename':
                 // $parm2 is the old name
                 $this->recompilePage($page);
-                $this->fixInLinks($page);
-                $this->fixInLinks($parm2);
+                $this->fixInLinksEither($page);
+                $this->fixInLinksEither($parm2);
                 $this->recompileInclusionDeps($page);
                 $this->recompileInclusionDeps($parm2);
                 $this->outdateDescendantsCache($page);
@@ -93,7 +93,7 @@ final class Outdater
                 break;
             case 'delete':
                 // $page is not just an old unix name. the page itself should be already deleted.
-                $this->fixInLinks($page);
+                $this->fixInLinksEither($page);
                 $this->recompileInclusionDeps($page);
                 $this->outdatePageTagsCache($page);
                 $this->outdatePageCache($page);
@@ -210,28 +210,40 @@ final class Outdater
     }
 
     /**
-     * Recompile pages that point to this page (named or unnamed links.
+     * Recompile pages which point to this page (either real or wanted).
+     *
+     * @param $page Page|string The page to check incoming links for.
      */
-    private function fixInLinks($page)
+    private function fixInLinksEither($page)
     {
         $site = $GLOBALS['site'];
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        if (is_string($page)) {
-            $c->add("to_page_name", $page);
-        } else {
-            $c2=new Criteria();
-            $c2->add("to_page_id", $page->getPageId());
-            $c2->addOr("to_page_name", $page->getUnixName());
-            $c->addCriteriaAnd($c2);
-        }
 
-        $dblinks = PageLinkPeer::instance()->select($c);
-        foreach ($dblinks as $link) {
-            // get page
-            $page = PagePeer::instance()->selectByPrimaryKey($link->getFromPageId());
+        if (is_string($page)) {
+            // Wanted page, doesn't exist
+            $this->fixInLinksWanted($page);
+        } else {
+            // Real page, exists
+            $this->fixInLinksReal($page);
+        }
+    }
+
+    private function fixInLinksReal(Page $page)
+    {
+        $links = PageConnection::where('to_page_id', $page->getPageId());
+        foreach ($links as $link) {
+            $page = PagePeer::instance()->selectByPrimaryKey($link->from_page_id);
             $outdater = new Outdater($this->recurrenceLevel);
-            $outdater->pageEvent("source_changed", $page);
+            $outdater->pageEvent('source_changed', $page);
+        }
+    }
+
+    private function fixInLinksWanted(string $page_name)
+    {
+        $links = PageConnectionMissing::where('to_page_name', $page_name);
+        foreach ($links as $link) {
+            $page = PagePeer::instance()->selectByPrimaryKey($link->from_page_id);
+            $outdater = new Outdater($this->recurrenceLevel);
+            $outdater->pageEvent('source_changed', $page);
         }
     }
 
