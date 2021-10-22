@@ -23,6 +23,15 @@
             <a id="login_create_account" href="/user-services/register">
                 {{ __("account_panel.CREATE_ACCOUNT") }}
             </a>
+
+            {{-- gets placed _outside_ of the panel via styling --}}
+            <div id="login_links">
+                {{-- TODO: link to actual pages --}}
+                <a href="/terms">{{ __('frame.footer.TERMS') }}</a>
+                <a href="/privacy">{{ __('frame.footer.PRIVACY') }}</a>
+                <a href="/docs">{{ __('frame.footer.DOCS') }}</a>
+                <a href="/security">{{ __('frame.footer.SECURITY') }}</a>
+            </div>
         </div>
     </div>
 @endsection

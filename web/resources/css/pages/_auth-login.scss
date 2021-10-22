@@ -27,9 +27,21 @@
   margin-top: 1rem;
   text-align: center;
   font-size: 0.825rem;
-  color: var(--col-hint);
+  @include link-styling(var(--col-hint));
+}
 
-  @include hover {
-    text-decoration: underline;
+#login_links {
+  position: absolute;
+  display: flex;
+  font-size: 0.825rem;
+  bottom: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: space-evenly;
+  column-gap: 1rem;
+
+  > a {
+    @include link-styling(var(--col-white));
   }
 }
