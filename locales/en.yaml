@@ -105,6 +105,7 @@ components:
     TOOLTIP: Set Color Scheme
 
 # Account panel and related forms
+# TODO: rename to auth
 account_panel:
   LOGIN: Login
   REGISTER: Register
@@ -118,6 +119,7 @@ account_panel:
   USERNAME_INFO: You'll be able to change this later.
   PASSWORD: Password
   PASSWORD_PLACEHOLDER: Enter password...
+  CONFIRM: Confirm
   CONFIRM_PASSWORD: Confirm Password
   REMEMBER_ME: Remember me
   FORGOT_PASSWORD: Forgot your password?

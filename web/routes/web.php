@@ -102,9 +102,19 @@ Route::middleware(['auth', 'verified'])
     })
     ->name('dashboard');
 
-// TODO: remove this: temporary helper route
-Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'destroy']);
+// Auth Routes
+Route::prefix('user--services')
+    ->middleware(['auth', 'verified'])
+    ->group(function () {
+        // TODO: remove this: temporary helper route
+        Route::get('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
+        Route::view('/confirm-password', 'next.auth.confirm-password')->name(
+            'password.confirm',
+        );
+    });
+
+// Guest routes
 Route::prefix('user--services')
     ->middleware('guest')
     ->group(function () {
@@ -115,7 +125,6 @@ Route::prefix('user--services')
         // TODO: password.reset
         // TODO: password.email
         // TODO: password.update
-        // TODO: password.confirm
 
         // TODO: emails
         // TODO: two factor
