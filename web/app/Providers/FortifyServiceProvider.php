@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
-use Wikijump\Actions\Fortify\AuthenticateUser;
+use Wikijump\Services\Authentication;
 
 /**
  * Bootstrapping for Laravel Fortify.
@@ -56,7 +56,7 @@ class FortifyServiceProvider extends ServiceProvider
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
 
         Fortify::authenticateUsing(function ($request) {
-            return AuthenticateUser::handle($request);
+            return Authentication::handle($request);
         });
 
         Fortify::loginView(function () {

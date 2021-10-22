@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wikijump\Actions\Fortify;
+namespace Wikijump\Services;
 
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 /** Static class holding methods used for authenticating users. */
-class AuthenticateUser
+final class Authentication
 {
     private function __construct()
     {
