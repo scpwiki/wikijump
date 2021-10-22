@@ -29,6 +29,11 @@ final class LocalizationService
 
     public static function translate(string $key, array $values = []): string
     {
+        if ($key === '') {
+            Log::error("Empty localization key given");
+            return '';
+        }
+
         // Get message from translations file
         $locale = App::currentLocale();
         $translation = self::$translations->find(null, $key);
