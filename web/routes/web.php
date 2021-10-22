@@ -96,14 +96,32 @@ Route::get('/user--avatar/{user}', function (User $user) {
     return $user->avatar();
 });
 
-Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'destroy']);
-
-Route::middleware(['auth:sanctum', 'verified'])
+Route::middleware(['auth', 'verified'])
     ->get('/user--services/dashboard', function () {
         return view('dashboard');
     })
     ->name('dashboard');
 
+// TODO: remove this: temporary helper route
+Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'destroy']);
+
+Route::prefix('user--services')
+    ->middleware('guest')
+    ->group(function () {
+        Route::view('/login', 'next.auth.login')->name('login');
+        Route::view('/register', 'next.auth.register')->name('register');
+
+        // TODO: password.request
+        // TODO: password.reset
+        // TODO: password.email
+        // TODO: password.update
+        // TODO: password.confirm
+
+        // TODO: emails
+        // TODO: two factor
+    });
+
+// Wiki
 if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
     // Legacy special routes
     Route::any('/{special}:{path}', [OzoneController::class, 'handle'])
