@@ -4,7 +4,7 @@
 --}}
 
 @extends('next.base', [
-    'title' => 'Register'
+    'title' => __('account_panel.REGISTER')
 ])
 
 @push('scripts')
