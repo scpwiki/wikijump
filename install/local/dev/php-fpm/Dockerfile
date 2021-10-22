@@ -21,6 +21,9 @@ COPY ./install/files/php-fpm/setup*.sh /src/
 # Install system dependencies
 RUN /src/setup-system.sh
 
+# !! Add debug utilities
+RUN apt install -y gdb valgrind vim
+
 # !! Configure xdebug
 RUN /src/setup-xdebug.sh
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
