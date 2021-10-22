@@ -131,11 +131,6 @@ class WikiFlowController extends WebFlowController
         putenv("LANGUAGE=$glang");
         setlocale(LC_ALL, $glang.'.UTF-8');
 
-        // Set the text domain as 'messages'
-        $gdomain = 'messages';
-        bindtextdomain($gdomain, WIKIJUMP_ROOT.'/locale');
-        textdomain($gdomain);
-
         $settings = $site->getSettings();
         // handle SSL
         $sslMode = $settings->getSslMode();
