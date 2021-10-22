@@ -27,6 +27,7 @@
             <a href="/terms">{{ __('frame.footer.TERMS') }}</a>
             <a href="/privacy">{{ __('frame.footer.PRIVACY') }}</a>
             <a href="/docs">{{ __('frame.footer.DOCS') }}</a>
+            <a href="/security">{{ __('frame.footer.SECURITY') }}</a>
         </div>
 
         <div id="footer_actions">

@@ -43,6 +43,7 @@ frame:
     TERMS: Terms
     PRIVACY: Privacy
     DOCS: Docs
+    SECURITY: Security
     REPORT_BUG: Report a bug
     REPORT_FLAG: Flag as objectionable
 
