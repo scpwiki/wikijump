@@ -93,19 +93,21 @@
 <style lang="scss">
   @import "../../css/abstracts";
 
+  .login-form form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.25rem;
+  }
+
   .login-form-options {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 0.5rem 0;
+    margin: 1rem 0;
   }
 
   .login-form-forgot {
     font-size: 0.825rem;
-    color: var(--col-hint);
-
-    @include hover {
-      text-decoration: underline;
-    }
+    @include link-styling(var(--col-hint));
   }
 </style>

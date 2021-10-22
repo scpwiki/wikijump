@@ -37,7 +37,6 @@
     color: var(--col-dark-text);
     cursor: pointer;
     border-right: solid 0.125rem var(--col-dark-border);
-    --wj-hamburger-color: currentColor;
 
     @include tolerates-motion {
       transition: color 75ms;

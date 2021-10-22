@@ -53,5 +53,13 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
+
+        Fortify::loginView(function () {
+            return view('next.auth.login');
+        });
+
+        Fortify::registerView(function () {
+            return view('next.auth.register');
+        });
     }
 }

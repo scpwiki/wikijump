@@ -31,6 +31,8 @@
 # to avoid accidental misordering of comments not considered documentation.
 #
 
+
+
 # Frame view
 frame:
   GOTO_HOME_PAGE: Go to home page
@@ -41,6 +43,7 @@ frame:
     TERMS: Terms
     PRIVACY: Privacy
     DOCS: Docs
+    SECURITY: Security
     REPORT_BUG: Report a bug
     REPORT_FLAG: Flag as objectionable
 
@@ -118,6 +121,7 @@ account_panel:
   CONFIRM_PASSWORD: Confirm Password
   REMEMBER_ME: Remember me
   FORGOT_PASSWORD: Forgot your password?
+  CREATE_ACCOUNT: Create an account
   tips:
     CLOSE_DIALOG: Close
   errors:

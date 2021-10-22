@@ -3,13 +3,11 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
 use Wikidot\Utils\AjaxModuleWikiFlowController;
 use Wikidot\Utils\GlobalProperties;
-use Wikijump\Helpers\LegacyTools;
 use Wikijump\Http\Controllers\OzoneController;
 use Wikijump\Http\Controllers\PageController;
 use Wikijump\Models\User;
@@ -54,10 +52,6 @@ Route::get('/editor--test', function () {
 Route::get('/page--test', function () {
     return view('next.test.page-test', [
         'header_img_url' => '/files--static/media/logo-outline.min.svg',
-        'HTTP_SCHEMA' => GlobalProperties::$HTTP_SCHEMA,
-        'URL_DOMAIN' => GlobalProperties::$URL_DOMAIN,
-        'URL_HOST' => GlobalProperties::$URL_HOST,
-        'SERVICE_NAME' => GlobalProperties::$SERVICE_NAME,
     ]);
 });
 /**

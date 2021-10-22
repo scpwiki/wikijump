@@ -1,0 +1,48 @@
+#app_auth {
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(var(--col-accent-2) 0%, var(--col-accent-1) 100%);
+}
+
+#auth_panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30rem;
+  max-width: 95vw;
+  padding: 2rem;
+  padding-bottom: 1rem;
+  background: var(--col-background);
+  border-radius: 1rem;
+  transform: translate(-50%, -50%);
+
+  > hr {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+#auth_login,
+#auth_create_account {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.825rem;
+  text-align: center;
+  @include link-styling(var(--col-hint));
+}
+
+#auth_links {
+  position: absolute;
+  bottom: -2.5rem;
+  left: 50%;
+  display: flex;
+  column-gap: 1rem;
+  align-items: center;
+  justify-content: space-evenly;
+  font-size: 0.825rem;
+  transform: translateX(-50%);
+
+  > a {
+    @include link-styling(var(--col-white));
+  }
+}
