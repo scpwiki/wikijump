@@ -24,12 +24,6 @@ $runData = new RunData();
 $runData->init();
 Ozone::setRunData($runData);
 
-// Set the text domain as 'messages'
-$gdomain = 'messages';
-bindtextdomain($gdomain, WIKIJUMP_ROOT.'/locale');
-textdomain($gdomain);
-
-
 $jobName = $argv[1];
 
 $classFile = WIKIJUMP_ROOT.'/php/Jobs/'.$jobName.'.php';
