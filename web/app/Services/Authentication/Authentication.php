@@ -48,13 +48,9 @@ final class Authentication
     {
         $is_email = filter_var($specifier, FILTER_VALIDATE_EMAIL);
 
-        $user = null;
-
-        if ($is_email) {
-            $user = User::where('email', $specifier)->first();
-        } else {
-            $user = User::where('username', $specifier)->first();
-        }
+        $user = $is_email
+            ? User::where('email', $specifier)->first()
+            : User::where('username', $specifier)->first();
 
         return $user;
     }
