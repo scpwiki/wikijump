@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Wikijump\Services;
+namespace Wikijump\Services\Authentication;
 
-use App\Models\User;
+use Wikijump\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -19,6 +19,7 @@ final class Authentication
     /**
      * Validates the credentials inside of a request. Doesn't attempt any sort
      * of authentication, just makes sure that the request is correctly structured.
+     *
      * @param Request $request The request containing user credentials.
      */
     public static function validate(Request $request): ?array
@@ -41,6 +42,7 @@ final class Authentication
     /**
      * Returns a user based on the type of login specifier, or null if the
      * user can't be found.
+     *
      * @param string $specifier
      *    The login specifier, which is either a username or an email.
      */
@@ -58,6 +60,7 @@ final class Authentication
     /**
      * Takes an authentication request and returns a user if the request contains
      * valid authentication credentials, but null otherwise.
+     *
      * @param Request $request The request containing user credentials.
      */
     public static function handle(Request $request): ?User

@@ -5,50 +5,38 @@ declare(strict_types=1);
 namespace Wikijump\Http\Controllers;
 
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use Wikijump\Http\Requests\LoginRequest;
 
 /**
  * Controller for authenticating users.
  * API: `/auth`
  */
-class AuthController extends Controller
+class AuthController extends AuthenticatedSessionController
 {
     /**
      * Attempts a login. The login specifier can be either a username or an email address.
      * Endpoint: `POST:/auth/login` | `authLogin`
-     * @param Request $request The request containing user credentials.
+     * @param LoginRequest $request The request containing user credentials.
      */
-    public function login(Request $request): Response
+    public function login(LoginRequest $request): Response
     {
-        // TODO: set the authentication guard depending on user's role
-
         // check if the user is already logged in
-        if (Auth::check()) {
+        if ($this->guard->check()) {
             return new Response('', 409);
         }
 
-        $credentials = $request->validate([
-            'login' => 'required|string',
-            'password' => 'required|string',
-            'remember' => 'sometimes|boolean',
-        ]);
+        // attempts to logs the user in
+        // Fortify returns its own response, but we want to return our own
+        $response = $this->store($request);
 
-        $login = $credentials['login'];
-        $password = $credentials['password'];
-        $remember = $credentials['remember'] ?? false;
-        $is_email = filter_var($login, FILTER_VALIDATE_EMAIL);
-
-        $success = $is_email
-            ? Auth::attempt(['email' => $login, 'password' => $password], $remember)
-            : Auth::attempt(['username' => $login, 'password' => $password], $remember);
-
-        if ($success) {
-            $request->session()->regenerate();
+        if ($response->status() === 200) {
             return new Response(['csrf' => $request->session()->token()], 200);
+        } else {
+            // TODO: more detailed errors (e.g. bad email)
+            return new Response('', 400);
         }
-
-        return new Response('', 400);
     }
 
     /**
@@ -58,10 +46,8 @@ class AuthController extends Controller
      */
     public function logout(Request $request): Response
     {
-        if (Auth::check()) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        if ($this->guard->check()) {
+            $this->destroy($request);
             return new Response('', 200);
         } else {
             // user isn't logged in, so we can't log them out
@@ -77,7 +63,7 @@ class AuthController extends Controller
     public function check(Request $request): Response
     {
         $session_valid = $request->session()->isStarted();
-        $authed = Auth::check();
+        $authed = $this->guard->check();
         return new Response(['sessionValid' => $session_valid, 'authed' => $authed], 200);
     }
 
@@ -93,7 +79,7 @@ class AuthController extends Controller
             return new Response('', 403);
         }
         // check if the user is logged in
-        elseif (Auth::check()) {
+        elseif ($this->guard->check()) {
             $request->session()->regenerate();
             return new Response(['csrf' => $request->session()->token()], 200);
         }

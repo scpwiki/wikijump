@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
-use Wikijump\Services\Authentication;
+use Wikijump\Services\Authentication\Authentication;
 
 /**
  * Bootstrapping for Laravel Fortify.
@@ -44,6 +44,9 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+        Fortify::authenticateUsing(function (Request $request) {
+            return Authentication::handle($request);
+        });
 
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by($request->email . $request->ip());
@@ -54,10 +57,6 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
-
-        Fortify::authenticateUsing(function ($request) {
-            return Authentication::handle($request);
-        });
 
         Fortify::loginView(function () {
             return view('next.auth.login');
