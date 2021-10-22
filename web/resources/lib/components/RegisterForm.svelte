@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
   import WikijumpAPI, { t } from "@wikijump/api"
-  import { Button, TextInput, toast } from "@wikijump/components"
+  import { Button, TextInput } from "@wikijump/components"
   import { escapeRegExp } from "@wikijump/util"
   import { inputsValid } from "@wikijump/dom"
   import { createEventDispatcher } from "svelte"
@@ -48,7 +48,6 @@
         // does nothing right now
         await WikijumpAPI.accountRegister({ email, username, password })
 
-        toast("success", $t("account_panel.toasts.REGISTERED"))
         dispatch("register")
       } catch (err) {
         // handle HTTP errors, rethrow on script errors

@@ -3,12 +3,22 @@
 -->
 <script lang="ts">
   import { t } from "@wikijump/api"
-  import { Button, Tabview, Tab } from "@wikijump/components"
+  import { Button, Tabview, Tab, toast } from "@wikijump/components"
   import LoginForm from "./LoginForm.svelte"
   import RegisterForm from "./RegisterForm.svelte"
 
   /** Gets passed to this panel if it's been mounted inside of a dialog. */
   export let closeDialog: (() => void) | undefined
+
+  function login() {
+    closeDialog?.()
+    toast("success", $t("account_panel.toasts.LOGGED_IN"))
+  }
+
+  function register() {
+    closeDialog?.()
+    toast("success", $t("account_panel.toasts.REGISTERED"))
+  }
 </script>
 
 <div class="account-panel" tabindex="-1">
@@ -18,7 +28,7 @@
         {$t("account_panel.LOGIN")}
       </span>
       <div class="account-panel-form">
-        <LoginForm on:login={() => closeDialog?.()} />
+        <LoginForm on:login={login} />
       </div>
     </Tab>
     <Tab>
@@ -26,7 +36,7 @@
         {$t("account_panel.REGISTER")}
       </span>
       <div class="account-panel-form">
-        <RegisterForm on:register={() => closeDialog?.()} />
+        <RegisterForm on:register={register} />
       </div>
     </Tab>
   </Tabview>
