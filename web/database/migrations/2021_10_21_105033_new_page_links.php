@@ -38,7 +38,7 @@ class NewPageLinks extends Migration
             $table->foreignId('to_page_id')->index();
             $table->foreignId('to_site_id');
             $table->unsignedSmallInteger('count');
-            $table->set('connection_type', ['include-messy', 'include-elements', 'component', 'link']);
+            $table->enum('connection_type', ['include-messy', 'include-elements', 'component', 'link']);
 
             $table->unique(['from_page_id', 'from_site_id', 'to_page_id', 'to_site_id', 'connection_type']);
         });
@@ -51,7 +51,7 @@ class NewPageLinks extends Migration
             $table->string('to_page_name')->index();
             $table->string('to_site_name')->nullable();
             $table->unsignedSmallInteger('count');
-            $table->set('connection_type', ['include-messy', 'include-elements', 'component', 'link']);
+            $table->enum('connection_type', ['include-messy', 'include-elements', 'component', 'link']);
 
             $table->unique(['from_page_id', 'from_site_id', 'to_page_name', 'to_site_name', 'count']);
         });
