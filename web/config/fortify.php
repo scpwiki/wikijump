@@ -132,14 +132,25 @@ return [
     |
     */
 
+    // This is the configuration we want to use
+    // 'features' => [
+    //     Features::registration(),
+    //     Features::resetPasswords(),
+    //     Features::emailVerification(),
+    //     Features::updateProfileInformation(),
+    //     Features::updatePasswords(),
+    //     Features::twoFactorAuthentication([
+    //         'confirmPassword' => true,
+    //     ]),
+    // ],
+
+    // This is the configuration we're using for now
+    // TODO: Remove this when we're ready to use the above configuration
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
-        Features::twoFactorAuthentication([
-            'confirmPassword' => true,
-        ]),
     ],
 ];
