@@ -11,6 +11,7 @@
   width: 30rem;
   max-width: 95vw;
   padding: 2rem;
+  padding-bottom: 1rem;
   background: var(--col-background);
   border-radius: 1rem;
   transform: translate(-50%, -50%);
@@ -18,5 +19,17 @@
   > hr {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
+  }
+}
+
+#login_create_account {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.825rem;
+  color: var(--col-hint);
+
+  @include hover {
+    text-decoration: underline;
   }
 }

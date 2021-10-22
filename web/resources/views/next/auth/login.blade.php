@@ -20,6 +20,9 @@
             <hr>
             <div id="login_form_container">
             </div>
+            <a id="login_create_account" href="/user-services/register">
+                {{ __("account_panel.CREATE_ACCOUNT") }}
+            </a>
         </div>
     </div>
 @endsection
