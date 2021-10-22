@@ -35,14 +35,11 @@ phpize
 make "-j$cores"
 make install
 
-# Install xdebug
-pecl install xdebug
-
 # Uninstall temporary dependencies
 apt remove -y "${dependencies[@]}"
 
 # Enable PHP extensions and clean up
-docker-php-ext-enable igbinary memcached memcache xdebug
+docker-php-ext-enable igbinary memcached memcache
 docker-php-ext-install \
 	"-j$cores" \
 		opcache \

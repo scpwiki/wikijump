@@ -22,6 +22,7 @@ COPY ./install/files/php-fpm/setup*.sh /src/
 RUN /src/setup-system.sh
 
 # !! Configure xdebug
+RUN /src/setup-xdebug.sh
 ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # !! Put your IP for debugging here.
