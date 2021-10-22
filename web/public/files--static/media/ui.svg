@@ -21,16 +21,6 @@
     </symbol>
 
     <!--
-    #wj-checkbox
-      wj-checkbox-box-fill
-      wj-checkbox-check-stroke
-    -->
-    <symbol id="wj-checkbox" viewbox="0 0 64 64">
-      <rect x="2" y="2" width="60" height="60" rx="6" stroke="#222" stroke-width="4" fill="var(--wj-checkbox-box-fill, #fff)" />
-      <path d="m13.25 32 12.5 12.5 25 -25" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" stroke="var(--wj-checkbox-check-stroke, #fff0)" />
-    </symbol>
-
-    <!--
     #wj-clipboard-copy
       (currentColor)
     -->

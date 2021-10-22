@@ -9,7 +9,6 @@
     $viewbox = '';
     switch ($sprite) {
         case 'wj-karma':             $viewbox = '0 0 64 114' ; break;
-        case 'wj-checkbox':          $viewbox = '0 0 64 64'  ; break;
         case 'wj-clipboard-copy':    $viewbox = '0 0 24 24'  ; break;
         case 'wj-clipboard-success': $viewbox = '0 0 24 24'  ; break;
         case 'wj-downarrow':         $viewbox = '0 0 26 18'  ; break;
