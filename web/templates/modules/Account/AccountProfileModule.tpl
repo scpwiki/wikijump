@@ -16,7 +16,7 @@
 </div>
 
 <div>
-	<h3><a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->unix_name}" target="_blank">{t}View my profile{/t}</a></h3>
+	<h3><a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->slug}" target="_blank">{t}View my profile{/t}</a></h3>
 	<p>
 		{t}View your profile as other people see it.{/t}
 	</p>

@@ -48,8 +48,8 @@ class Text_Wiki_Render_Xhtml_User extends Text_Wiki_Render {
 
     function token($options) {
         $userName = $options['userName'];
-        $unixName = WDStringUtils::toUnixName($userName);
-        $user = User::firstWhere('unix_name', $unixName);
+        $slug = WDStringUtils::toUnixName($userName);
+        $user = User::firstWhere('slug', $slug);
 
         if ($user == null) {
             return '<span class="error-inline">' . sprintf(_('User <em>%s</em> cannot be found.'), $userName) . '</span>';

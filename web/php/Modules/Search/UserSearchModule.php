@@ -36,7 +36,7 @@ class UserSearchModule extends SmartyModule
         }
         $perPage = 10;
 
-        // determine the mode: by email or by screenname/realname/unixname
+        // determine the mode: by email or by screenname/realname/slug
 
         if (strpos($query, '@')) {
             // email lookup mode
@@ -52,7 +52,7 @@ class UserSearchModule extends SmartyModule
             foreach ($qs as $q) {
                 $csub = new Criteria();
                 $csub->add("users.username", preg_quote($q), '~*');
-                $csub->addOr("users.unix_name", preg_quote($q), '~*');
+                $csub->addOr("users.slug", preg_quote($q), '~*');
                 $csub->addOr("users.real_name", preg_quote($q), '~*');
 
                 $c->addCriteriaAnd($csub);

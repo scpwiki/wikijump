@@ -24,14 +24,14 @@ class UserInfoModule extends SmartyLocalizedModule
         $splited = explode("/", $qs);
 
         // WARNING!!! this is a hack! not a proper use of ParameterList object!
-        $userUnixName = $splited[3];
+        $user_slug = $splited[3];
 
-        if ($userUnixName == null || $userUnixName == '') {
+        if ($user_slug === null || $user_slug === '') {
             throw new ProcessException(_("No user specified."), "no_user");
         }
 
         // get user
-        $user = User::firstWhere('unix_name', $userUnixName);
+        $user = User::firstWhere('slug', $user_slug);
 
         if ($user == null) {
             throw new ProcessException(_("User does not exist."));

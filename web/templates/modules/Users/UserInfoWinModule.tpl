@@ -48,7 +48,7 @@
 			<a  href="javascript:;" 	onclick="Wikijump.modules.UserInfoWinModule.listeners.flagUser(event, {$user->id})">{t}flag user as abusive{/t}</a>
 			<span id="user-abuse-report-button">[?]</span>
 		</div>
-		<a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->unix_name}">{t}profile page{/t}</a>
+		<a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->slug}">{t}profile page{/t}</a>
 		| <a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/messages/composeto/{$user->id}">{t}write private message{/t}</a>
 		| <a href="javascript:;" onclick="Wikijump.modules.UserInfoWinModule.listeners.addContact(event,{$user->id})">{t}to contacts{/t}</a>
 		</div>
