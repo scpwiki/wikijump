@@ -7,6 +7,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const form = new LoginForm({ target: container })
 
   form.$on("login", () => {
+    // TODO: redirect to where the user came from
     // redirect to home
     location.href = "/"
   })
