@@ -59,7 +59,7 @@ class AuthController extends AuthenticatedSessionController
             return new Response('', 400);
         }
 
-        // what follows is how ConfirmablePasswordController does
+        // what follows is what ConfirmablePasswordController does
         // internally, but we want to return our own response
 
         $confirmed = app(ConfirmPassword::class)(
