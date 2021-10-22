@@ -6,6 +6,8 @@ namespace Wikijump\Http\Controllers;
 
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Actions\ConfirmPassword;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Wikijump\Http\Requests\LoginRequest;
 
@@ -37,6 +39,41 @@ class AuthController extends AuthenticatedSessionController
             // TODO: more detailed errors (e.g. bad email)
             return new Response('', 400);
         }
+    }
+
+    /**
+     * Confirms the client's password.
+     * Endpoint: `POST:/auth/confirm` | `authConfirm`
+     * @param Request $request The request containing the password.
+     */
+    public function confirm(Request $request): Response
+    {
+        // can't confirm a password if the user is not logged in
+        if (!$this->guard->check()) {
+            return new Response('', 401);
+        }
+
+        try {
+            $request->validate(['password' => 'required|string']);
+        } catch (ValidationException $err) {
+            return new Response('', 400);
+        }
+
+        // what follows is how ConfirmablePasswordController does
+        // internally, but we want to return our own response
+
+        $confirmed = app(ConfirmPassword::class)(
+            $this->guard,
+            $request->user(),
+            $request->input('password'),
+        );
+
+        if ($confirmed) {
+            $request->session()->put('auth.password_confirmed_at', time());
+            return new Response('', 200);
+        }
+
+        return new Response('', 400);
     }
 
     /**

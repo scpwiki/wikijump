@@ -1101,6 +1101,22 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
+   * Confirms the client's password.
+   *
+   * @tags auth
+   * @name AuthConfirm
+   * @request POST:/auth/confirm
+   */
+  authConfirm = (data: { password: string }, params: RequestParams = {}) =>
+    this.request<void, void>({
+      path: `/auth/confirm`,
+      method: "POST",
+      body: data,
+      type: ContentType.Json,
+      ...params
+    })
+
+  /**
    * Logs the client out.
    *
    * @tags auth

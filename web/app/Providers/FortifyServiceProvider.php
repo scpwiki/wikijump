@@ -57,5 +57,12 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
+
+        // I'm not sure if this is needed, as Fortify's view routes are disabled,
+        // but just in case...
+
+        Fortify::loginView('next.auth.login');
+        Fortify::registerView('next.auth.register');
+        Fortify::confirmPasswordView('next.auth.confirm-password');
     }
 }
