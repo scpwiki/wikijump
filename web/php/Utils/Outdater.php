@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Utils;
 
@@ -6,7 +7,6 @@ use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
-use Ozone\Framework\Ozone;
 use Wikidot\DB\Page;
 use Wikidot\DB\PageCompiledPeer;
 use Wikidot\DB\PagePeer;
@@ -24,13 +24,11 @@ use Wikijump\Services\Wikitext\PageInfo;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Wikitext\WikitextBackend;
 
-class Outdater
+final class Outdater
 {
-    private static $instance;
-
-    private $vars = array();
-
-    private $recurrenceLevel = 0;
+    private static Outdater $instance;
+    private array $vars = [];
+    private int $recurrenceLevel = 0;
 
     public static function instance()
     {
@@ -42,12 +40,12 @@ class Outdater
 
     public function __construct($baseRecurrenceLevel = 0)
     {
-        $this->recurrenceLevel = $baseRecurrenceLevel +1;
+        $this->recurrenceLevel = $baseRecurrenceLevel + 1;
     }
 
     public function pageEvent($eventType, $page, $parm2 = null)
     {
-        if ($this->recurrenceLevel >5) {
+        if ($this->recurrenceLevel > 5) {
             return;
         }
 
@@ -736,24 +734,6 @@ class Outdater
         Cache::forget($key);
 
         $key = 'site_cd..'.$site->getCustomDomain();
-        Cache::forget($key);
-    }
-
-    private function handleCategoryDelete($category, $site = null)
-    {
-        if (!$site) {
-            $site = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());
-        }
-        if (is_string($category)) {
-            $cname = $category->getName();
-        } else {
-            $cname = $category;
-        }
-        $key = 'category_lc..'.$site->getUnixName().'..'.$cname;
-        Cache::forget($key);
-        $key = 'category..'.$site->getSiteId().'..'.$cname;
-        Cache::forget($key);
-        $key = 'categorybyid..'.$site->getSiteId().'..'.$cname;
         Cache::forget($key);
     }
 
