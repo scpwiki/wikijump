@@ -57,5 +57,9 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::loginView(function () {
             return view('next.auth.login');
         });
+
+        Fortify::registerView(function () {
+            return view('next.auth.register');
+        });
     }
 }

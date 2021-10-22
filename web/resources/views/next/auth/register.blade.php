@@ -1,14 +1,14 @@
 {{--
-    Login screen (non-API).
+    Register screen (non-API).
     Extends from `next.base`.
 --}}
 
 @extends('next.base', [
-    'title' => 'Login'
+    'title' => 'Register'
 ])
 
 @push('scripts')
-    @vite('auth-login.ts')
+    @vite('auth-register.ts')
 @endpush
 
 @section('app')
@@ -22,8 +22,8 @@
             <div id="auth_form_container">
             </div>
 
-            <a id="auth_create_account" href="/user--services/register">
-                {{ __("account_panel.CREATE_ACCOUNT") }}
+            <a id="auth_login" href="/user--services/login">
+                {{ __("account_panel.LOGIN") }}
             </a>
 
             {{-- gets placed _outside_ of the panel via styling --}}
