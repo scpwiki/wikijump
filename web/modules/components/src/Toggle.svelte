@@ -31,7 +31,23 @@
         <slot name="before" />
       </span>
     {/if}
-    <Sprite i="wj-toggle" width={size} height={size} />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="toggleinput-sprite"
+      height="1em"
+      viewBox="0 0 128 64"
+    >
+      <rect
+        class="toggleinput-sprite-track"
+        x="2"
+        y="2"
+        width="124"
+        height="60"
+        rx="30"
+      />
+      <rect x="16" y="16" width="96" height="32" rx="16" fill="#0002" />
+      <circle class="toggleinput-sprite-handle" cy="32" cx="32" r="26" />
+    </svg>
     <span class="toggleinput-slot-after"><slot /></span>
   </span>
 </label>
@@ -49,9 +65,25 @@
     }
 
     &.is-toggled {
-      --wj-toggle-track-fill: var(--col-hint);
-      --wj-toggle-handle-cx: 96px;
+      .toggleinput-sprite-track {
+        fill: var(--col-hint);
+      }
+
+      .toggleinput-sprite-handle {
+        cx: 96px;
+      }
     }
+  }
+
+  .toggleinput-sprite-track {
+    fill: #aaa;
+    transition: fill 150ms;
+  }
+
+  .toggleinput-sprite-handle {
+    fill: #fff;
+    cx: 32px;
+    transition: cx 150ms, fill 150ms;
   }
 
   .toggleinput-wrapper {
