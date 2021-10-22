@@ -25,21 +25,21 @@
 #login_create_account {
   display: block;
   margin-top: 1rem;
-  text-align: center;
   font-size: 0.825rem;
+  text-align: center;
   @include link-styling(var(--col-hint));
 }
 
 #login_links {
   position: absolute;
-  display: flex;
-  font-size: 0.825rem;
   bottom: -2rem;
   left: 50%;
-  transform: translateX(-50%);
+  display: flex;
+  column-gap: 1rem;
   align-items: center;
   justify-content: space-evenly;
-  column-gap: 1rem;
+  font-size: 0.825rem;
+  transform: translateX(-50%);
 
   > a {
     @include link-styling(var(--col-white));

@@ -172,9 +172,9 @@
 
 /// Adds styling to an element to make it behave like a link.
 @mixin link-styling($color, $hover-color: $color, $underline: true) {
+  color: $color;
   text-decoration: underline;
   text-decoration-color: transparent;
-  color: $color;
   cursor: pointer;
 
   @include tolerates-motion {
