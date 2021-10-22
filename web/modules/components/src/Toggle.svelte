@@ -3,15 +3,12 @@
 -->
 <script lang="ts">
   import { keyHandle } from "@wikijump/dom"
-  import Sprite from "./Sprite.svelte"
 
   /** State of the toggle. */
   export let toggled = false
 
-  /** If true, the toggle will be rendered smaller. */
-  export let small = false
-
-  $: size = small ? "1.5em" : "2em"
+  /** Size of the toggle. */
+  export let size = "1em"
 </script>
 
 <label class="toggleinput" class:is-toggled={toggled}>
@@ -31,22 +28,10 @@
         <slot name="before" />
       </span>
     {/if}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      class="toggleinput-sprite"
-      height="1em"
-      viewBox="0 0 128 64"
-    >
-      <rect
-        class="toggleinput-sprite-track"
-        x="2"
-        y="2"
-        width="124"
-        height="60"
-        rx="30"
-      />
+    <svg class="toggleinput-sprite" height={size} viewBox="0 0 128 64">
+      <rect class="toggleinput-track" x="2" y="2" width="124" height="60" rx="30" />
       <rect x="16" y="16" width="96" height="32" rx="16" fill="#0002" />
-      <circle class="toggleinput-sprite-handle" cy="32" cx="32" r="26" />
+      <circle class="toggleinput-handle" cy="32" cx="32" r="26" />
     </svg>
     <span class="toggleinput-slot-after"><slot /></span>
   </span>
@@ -57,6 +42,7 @@
 
   .toggleinput {
     position: relative;
+    cursor: pointer;
 
     @include hover {
       .toggleinput-wrapper > span {
@@ -65,22 +51,22 @@
     }
 
     &.is-toggled {
-      .toggleinput-sprite-track {
+      .toggleinput-track {
         fill: var(--col-hint);
       }
 
-      .toggleinput-sprite-handle {
+      .toggleinput-handle {
         cx: 96px;
       }
     }
   }
 
-  .toggleinput-sprite-track {
+  .toggleinput-track {
     fill: #aaa;
     transition: fill 150ms;
   }
 
-  .toggleinput-sprite-handle {
+  .toggleinput-handle {
     fill: #fff;
     cx: 32px;
     transition: cx 150ms, fill 150ms;
@@ -106,6 +92,8 @@
 
   .toggleinput-input {
     position: absolute;
+    width: 0;
+    height: 0;
     top: 0;
     left: 0;
     opacity: 0;
