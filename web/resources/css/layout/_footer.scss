@@ -22,16 +22,7 @@
   a {
     display: inline-block;
     margin: 0 0.25rem;
-    color: var(--col-dark-text);
-    text-decoration: none;
-
-    @include tolerates-motion {
-      transition: color 75ms ease;
-    }
-
-    @include hover {
-      color: var(--col-hint);
-    }
+    @include link-styling(var(--col-dark-text), var(--col-hint), false);
 
     @include media("<=small") {
       margin: 0.125rem;

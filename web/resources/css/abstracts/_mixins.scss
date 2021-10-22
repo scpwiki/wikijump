@@ -171,17 +171,20 @@
 }
 
 /// Adds styling to an element to make it behave like a link.
-@mixin link-styling($color) {
+@mixin link-styling($color, $hover-color: $color, $underline: true) {
   text-decoration: underline;
   text-decoration-color: transparent;
   color: $color;
   cursor: pointer;
 
   @include tolerates-motion {
-    transition: text-decoration-color 75ms;
+    transition: text-decoration-color 75ms, color 75ms;
   }
 
   @include hover {
-    text-decoration-color: $color;
+    @if $underline {
+      text-decoration-color: $hover-color;
+    }
+    color: $hover-color;
   }
 }
