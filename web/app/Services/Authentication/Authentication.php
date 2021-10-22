@@ -21,7 +21,7 @@ final class Authentication
      * of authentication, just makes sure that the request is correctly structured.
      * @param Request $request The request containing user credentials.
      */
-    static function validate(Request $request): ?array
+    public static function validate(Request $request): ?array
     {
         $credentials = null;
 
@@ -44,7 +44,7 @@ final class Authentication
      * @param string $specifier
      *    The login specifier, which is either a username or an email.
      */
-    static function userFromSpecifier(string $specifier): ?User
+    public static function userFromSpecifier(string $specifier): ?User
     {
         $is_email = filter_var($specifier, FILTER_VALIDATE_EMAIL);
 
@@ -60,7 +60,7 @@ final class Authentication
      * valid authentication credentials, but null otherwise.
      * @param Request $request The request containing user credentials.
      */
-    static function handle(Request $request): ?User
+    public static function handle(Request $request): ?User
     {
         $credentials = self::validate($request);
 
