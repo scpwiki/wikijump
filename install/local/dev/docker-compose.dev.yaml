@@ -1,8 +1,5 @@
 services:
   php-fpm:
-    # Makes `host.docker.internal` resolve correctly to the host's IP on Linux
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     volumes:
       # Laravel
       - type: bind
