@@ -11,6 +11,7 @@ exclude = [".gitignore", ".github"]
 version = "1.12.3"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2021" # this refers to the Cargo.toml version
+rust-version = "1.56.0"
 
 [lib]
 name = "ftml"
