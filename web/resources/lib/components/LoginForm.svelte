@@ -108,10 +108,6 @@
 
   .login-form-forgot {
     font-size: 0.825rem;
-    color: var(--col-hint);
-
-    @include hover {
-      text-decoration: underline;
-    }
+    @include link-styling(var(--col-hint));
   }
 </style>
