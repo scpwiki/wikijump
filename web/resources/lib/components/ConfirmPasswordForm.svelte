@@ -14,10 +14,25 @@
   let error = ""
   let inputPassword: HTMLInputElement
 
+  function statusErrorMessage(status: number) {
+    // prettier-ignore
+    switch(status) {
+      case 500: return $t("account_panel.errors.INTERNAL_ERROR")
+      default:  return $t("account_panel.errors.CONFIRM_FAILED")
+    }
+  }
+
   async function confirm() {
     if (inputsValid(inputPassword)) {
       busy = true
-      dispatch("confirm")
+      try {
+        await WikijumpAPI.authConfirm({ password: inputPassword.value })
+        dispatch("confirm")
+      } catch (err) {
+        // handle HTTP errors, rethrow on script errors
+        if (err instanceof Response) error = statusErrorMessage(err.status)
+        else throw err
+      }
       busy = false
     } else {
       error = $t("account_panel.errors.INVALID_INPUT")
@@ -56,7 +71,7 @@
   @import "../../css/abstracts";
 
   .confirm-form-submit {
-    margin-top: 1rem;
+    margin-top: 0.5rem;
   }
 
   .confirm-form-forgot {

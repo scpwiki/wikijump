@@ -133,6 +133,7 @@ account_panel:
     REGISTER_FAILED: Failed to register account. Check your email, username, and password.
     EMAIL_TAKEN: Email already in use.
     INVALID_INPUT: You need to fill out all required fields.
+    CONFIRM_FAILED: Wrong password. Check what password you have entered.
   toasts:
     LOGGED_IN: Logged in!
     REGISTERED: Registration successful.
