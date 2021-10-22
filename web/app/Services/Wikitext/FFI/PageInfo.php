@@ -30,7 +30,7 @@ class PageInfo
         $this->c_data->category = FtmlFfi::string($pageInfo->category);
         $this->c_data->site = FtmlFfi::string($pageInfo->site);
         $this->c_data->title = FtmlFfi::string($pageInfo->title);
-        $this->c_data->alt_title = FtmlFfi::string($pageInfo->altTitle);
+        $this->c_data->alt_title = FtmlFfi::string($pageInfo->alt_title);
         $this->c_data->tags_list = $tag_array->pointer;
         $this->c_data->tags_len = $tag_array->length;
         $this->c_data->language = FtmlFfi::string($pageInfo->language);

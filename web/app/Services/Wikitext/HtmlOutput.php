@@ -34,19 +34,19 @@ class HtmlOutput
     /**
      * @var Backlinks Information about any links or includes in the page.
      */
-    public Backlinks $linkStats;
+    public Backlinks $link_stats;
 
     public function __construct(
         string $body,
         array $styles,
         array $meta,
         array $warnings,
-        Backlinks $linkStats
+        Backlinks $link_stats
     ) {
         $this->body = $body;
         $this->styles = $styles;
         $this->meta = $meta;
         $this->warnings = $warnings;
-        $this->linkStats = $linkStats;
+        $this->link_stats = $link_stats;
     }
 }
