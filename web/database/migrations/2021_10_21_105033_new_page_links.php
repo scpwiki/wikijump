@@ -17,9 +17,11 @@ class NewPageLinks extends Migration
         Schema::drop('page_inclusion');
         Schema::drop('page_link');
 
+        // We don't use timestamps() because we don't need updated_at.
+
         Schema::create('page_link', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->useCurrent();
             $table->foreignId('page_id');
             $table->foreignId('site_id');
             $table->string('url');
@@ -30,7 +32,7 @@ class NewPageLinks extends Migration
 
         Schema::create('page_connection', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->useCurrent();
             $table->foreignId('from_page_id');
             $table->foreignId('from_site_id');
             $table->foreignId('to_page_id');
