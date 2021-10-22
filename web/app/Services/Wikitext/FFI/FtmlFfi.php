@@ -156,7 +156,7 @@ final class FtmlFfi
     }
 
     /**
-     * Converts a FFI C string into a nullable PHP string.
+     * Converts an FFI C string into a nullable PHP string.
      * That is, it handles C NULL properly.
      */
     public static function nullableString(FFI\CData $data): ?string

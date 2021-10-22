@@ -17,4 +17,12 @@ class TextOutput
      * @var array The list of ParseWarning objects, if any, generated during parsing.
      */
     public array $warnings;
+
+    public function __construct(
+        string $text,
+        array $warnings
+    ) {
+        $this->text = $text;
+        $this->warnings = $warnings;
+    }
 }

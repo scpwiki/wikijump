@@ -25,7 +25,7 @@ class ParseWarning
      * Together with $spanEnd, this represents the slice of the
      * original wikitext that this token corresponds to.
      */
-    public int $spanStart;
+    public int $span_start;
 
     /**
      * @var int The UTF-8 byte index representing the stop of the span.
@@ -33,10 +33,24 @@ class ParseWarning
      * Together with $spanEnd, this represents the slice of the
      * original wikitext that this token corresponds to.
      */
-    public int $spanEnd;
+    public int $span_end;
 
     /**
      * @var string The kind of warning this is.
      */
     public string $kind;
+
+    public function __construct(
+        string $token,
+        string $rule,
+        int $span_start,
+        int $span_end,
+        string $kind
+    ) {
+        $this->token = $token;
+        $this->rule = $rule;
+        $this->span_start = $span_start;
+        $this->span_end = $span_end;
+        $this->kind = $kind;
+    }
 }

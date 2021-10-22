@@ -28,7 +28,7 @@ final class OutputConversion
         return FtmlFfi::pointerToList(
             $pointer,
             $length,
-            fn(FFI\CData &$data) => self::makeHtmlMeta($data),
+            fn(FFI\CData $data) => self::makeHtmlMeta($data),
         );
     }
 
@@ -108,10 +108,10 @@ final class OutputConversion
     {
         $token = FFI::string($data->token);
         $rule = FFI::string($data->rule);
-        $spanStart = $data->span_start;
-        $spanEnd = $data->span_end;
+        $span_start = $data->span_start;
+        $span_end = $data->span_end;
         $kind = FFI::string($data->kind);
-        return new ParseWarning($token, $rule, $spanStart, $spanEnd, $kind);
+        return new ParseWarning($token, $rule, $span_start, $span_end, $kind);
     }
 
     // Backlinks

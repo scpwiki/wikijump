@@ -12,7 +12,7 @@ class HtmlMeta
     /**
      * @var string The kind of HTML meta tag. See HtmlMetaType for details.
      */
-    public string $tagType;
+    public string $tag_type;
 
     /**
      * @var string The HTML meta tag's key.
@@ -23,4 +23,14 @@ class HtmlMeta
      * @var string The HTML meta tag's value.
      */
     public string $value;
+
+    public function __construct(
+        string $tag_type,
+        string $name,
+        string $value
+    ) {
+        $this->tag_type = $tag_type;
+        $this->name = $name;
+        $this->value = $value;
+    }
 }
