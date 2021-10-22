@@ -22,7 +22,7 @@ class NewPageLinks extends Migration
         Schema::create('page_link', function (Blueprint $table) {
             $table->id();
             $table->timestamp('created_at')->useCurrent();
-            $table->foreignId('page_id');
+            $table->foreignId('page_id')->index();
             $table->foreignId('site_id');
             $table->string('url');
             $table->unsignedSmallInteger('count');
@@ -33,9 +33,9 @@ class NewPageLinks extends Migration
         Schema::create('page_connection', function (Blueprint $table) {
             $table->id();
             $table->timestamp('created_at')->useCurrent();
-            $table->foreignId('from_page_id');
+            $table->foreignId('from_page_id')->index();
             $table->foreignId('from_site_id');
-            $table->foreignId('to_page_id');
+            $table->foreignId('to_page_id')->index();
             $table->foreignId('to_site_id');
             $table->unsignedSmallInteger('count');
             $table->set('connection_type', ['include-messy', 'include-elements', 'component', 'link']);
@@ -46,9 +46,9 @@ class NewPageLinks extends Migration
         Schema::create('page_connection_missing', function (Blueprint $table) {
             $table->id();
             $table->timestamp('created_at')->useCurrent();
-            $table->foreignId('from_page_id');
+            $table->foreignId('from_page_id')->index();
             $table->foreignId('from_site_id');
-            $table->string('to_page_name');
+            $table->string('to_page_name')->index();
             $table->string('to_site_name')->nullable();
             $table->unsignedSmallInteger('count');
             $table->set('connection_type', ['include-messy', 'include-elements', 'component', 'link']);
