@@ -32,26 +32,24 @@ if (!function_exists('_')) {
     }
 }
 
-if (!function_exists('previousUrl')) {
-    /**
-     * Returns the previous URL for the session.
-     * Will return an empty string if the previous URL is the same as
-     * the current one.
-     */
-    function previousUrl(): string
-    {
-        $url = URL::previous();
+/**
+ * Returns the previous URL for the session.
+ * Will return an empty string if the previous URL is the same as
+ * the current one.
+ */
+function previousUrl(): string
+{
+    $url = URL::previous();
 
-        // cut off query, which we can't keep unfortunately
-        // the query string is written by nginx and is usually some giant mess
-        if (strpos($url, '?') !== false) {
-            $url = substr($url, 0, strpos($url, '?'));
-        }
-
-        if (url()->current() === $url) {
-            return '';
-        }
-
-        return $url;
+    // cut off query, which we can't keep unfortunately
+    // the query string is written by nginx and is usually some giant mess
+    if (strpos($url, '?') !== false) {
+        $url = substr($url, 0, strpos($url, '?'));
     }
+
+    if (url()->current() === $url) {
+        return '';
+    }
+
+    return $url;
 }
