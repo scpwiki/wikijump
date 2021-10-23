@@ -27,6 +27,13 @@ pub unsafe fn cptr_to_slice<'a, T>(ptr: *const T, len: usize) -> &'a [T] {
 }
 
 pub fn vec_to_cptr<T>(vec: Vec<T>) -> (*mut T, usize) {
+    // Special handling for empty lists:
+    // Always report pointer as NULL, discard vector like normal.
+    if vec.is_empty() {
+        return (ptr::null_mut(), 0);
+    }
+
+    // Otherwise, get raw aspects of Vec for export
     let mut slice = vec.into_boxed_slice(); // shrinks capacity to len
     let ptr = slice.as_mut_ptr();
     let len = slice.len();
@@ -42,6 +49,12 @@ pub unsafe fn drop_cptr<T, F>(ptr: *mut T, len: usize, drop: F)
 where
     F: FnMut(T),
 {
+    // Special handling for empty lists,
+    // since it's always (NULL, 0).
+    if ptr.is_null() {
+        return;
+    }
+
     Vec::from_raw_parts(ptr, len, len).drain(..).for_each(drop);
 }
 
