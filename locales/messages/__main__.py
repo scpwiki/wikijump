@@ -26,8 +26,10 @@ if __name__ == "__main__":
     print()
 
     # Add default messages
-    print("Creating default localization...")
+    print("Adding default localization...")
     add_default_messages(messages_map)
+    print("+ default")
+    print()
 
     # Validate schemas
     invalid = validate_all(messages_map)
