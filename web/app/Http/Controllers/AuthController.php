@@ -57,6 +57,12 @@ class AuthController extends Controller
 
         $user = $result->user();
         $remember = $request->input('remember', false);
+        $verified = $user->hasVerifiedEmail();
+
+        // TODO: if the user isn't verified, allow them to resend the verification email
+        if (!$verified) {
+            return new Response('', 400);
+        }
 
         $this->guard->login($user, $remember);
 
