@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext\FFI;
 
+use FFI;
 use Wikijump\Services\Wikitext\ParseRenderMode;
 use Wikijump\Services\Wikitext;
 

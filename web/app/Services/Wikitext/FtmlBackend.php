@@ -11,13 +11,13 @@ use Wikijump\Services\Wikitext\FFI\FtmlFfi;
  */
 class FtmlBackend extends WikitextBackend
 {
-    private WikitextSettings $settings;
     private PageInfo $page_info;
+    private WikitextSettings $settings;
 
     public function __construct(int $mode, ?PageInfo $page_info)
     {
+        $this->page_info = $page_info ?? self::defaultPageInfo();
         $this->settings = WikitextSettings::fromMode($mode);
-        $this->page_info = $pageInfo ?? self::defaultPageInfo();
     }
 
     // Interface methods

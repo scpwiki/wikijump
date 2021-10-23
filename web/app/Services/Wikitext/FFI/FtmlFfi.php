@@ -142,14 +142,14 @@ final class FtmlFfi
         self::$ffi->ftml_destroy_text_output(FFI::addr($data));
     }
 
-    public static function settingsFromMode(int $c_mode): FFI\CData
+    public static function settingsFromMode(int $c_mode): WikitextSettings
     {
         $c_settings = self::make(self::$FTML_WIKITEXT_SETTINGS);
         self::$ffi->ftml_wikitext_settings_from_mode(
             FFI::addr($c_settings),
             $c_mode,
         );
-        return $c_settings;
+        return new WikitextSettings($c_settings);
     }
 
     public static function version(): string
