@@ -42,7 +42,7 @@ class AuthController extends Controller
         // atempt to get the user for the given credentials
         $result = Authentication::authenticate($request);
 
-        if (!$result->ok()) {
+        if ($result->isErr()) {
             $error = $result->error();
             // TODO: specific response codes for different error types
             switch ($error) {

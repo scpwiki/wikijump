@@ -53,15 +53,21 @@ final class AuthenticationResult
     }
 
     /** Returns true if a `User` was found. */
-    public function ok(): bool
+    public function isOk(): bool
     {
-        return $this->user !== null && $this->error === null;
+        return $this->user !== null;
+    }
+
+    /** Returns true if no `User` was found. */
+    public function isErr(): bool
+    {
+        return $this->error !== null;
     }
 
     /** Returns the resultant `User`. Throws if nothing was found. */
     public function user(): User
     {
-        if (!$this->ok()) {
+        if (!$this->isOk()) {
             throw new LogicException('User is null');
         }
 
@@ -71,7 +77,7 @@ final class AuthenticationResult
     /** Returns the error enum if no `User` was found. Throws if a `User` was found. */
     public function error(): string
     {
-        if ($this->ok()) {
+        if ($this->isOk()) {
             throw new LogicException('Error is null');
         }
 
