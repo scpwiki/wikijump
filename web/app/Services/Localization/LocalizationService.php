@@ -38,14 +38,14 @@ final class LocalizationService
         $locale = App::currentLocale();
         $translation = self::$translations->find(null, $key);
         if ($translation === null) {
-            Log::warning("Unable to find message '$key' in locale '$locale'");
+            Log::warning('Unable to find message', ['key' => $key, 'locale' => $locale]);
             return $key;
         }
 
         // Format ICU localization message
         $message = $translation->getTranslation();
         $output = MessageFormatter::formatMessage($locale, $message, $values);
-        Log::debug("Translated message: $key -> $output"); // TODO: remove this
+        Log::debug('Translated message', ['key' => $key, 'output' => $output]); // TODO: remove this
         return $output;
     }
 }

@@ -23,7 +23,7 @@ final class OutputConversion
     }
 
     // HtmlMeta
-    public static function makeHtmlMetaArray(FFI\CData $pointer, int $length): array
+    public static function makeHtmlMetaArray(?FFI\CData $pointer, int $length): array
     {
         return FtmlFfi::pointerToList(
             $pointer,
@@ -71,7 +71,7 @@ final class OutputConversion
         return new HtmlOutput($body, $styles, $meta, $warnings, $backlinks);
     }
 
-    private static function makeStylesArray(FFI\CData $pointer, int $length): array
+    private static function makeStylesArray(?FFI\CData $pointer, int $length): array
     {
         return FtmlFfi::pointerToList(
             $pointer,
@@ -95,7 +95,7 @@ final class OutputConversion
     }
 
     // ParseWarning
-    public static function makeParseWarningArray(FFI\CData $pointer, int $length): array
+    public static function makeParseWarningArray(?FFI\CData $pointer, int $length): array
     {
         return FtmlFfi::pointerToList(
             $pointer,

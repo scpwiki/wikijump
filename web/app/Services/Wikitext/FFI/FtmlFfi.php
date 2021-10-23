@@ -191,9 +191,9 @@ final class FtmlFfi
      * Converts an FFI C string into a nullable PHP string.
      * That is, it handles C NULL properly.
      */
-    public static function nullableString(FFI\CData $data): ?string
+    public static function nullableString(?FFI\CData $data): ?string
     {
-        if (FFI::isNull($data)) {
+        if ($data === null || FFI::isNull($data)) {
             return null;
         } else {
             return FFI::string($data);
@@ -315,7 +315,7 @@ final class FtmlFfi
      * @returns array with the converted objects
      */
     public static function pointerToList(
-        FFI\CData $pointer,
+        ?FFI\CData $pointer,
         int $length,
         callable $convert_fn
     ): array {
