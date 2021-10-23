@@ -19,10 +19,10 @@
 
         $theme_color
 
-        $favicon_svg
-        $favicon_png
-        $favicon_apple
-        $favicon_mask
+        $favicon_svg   (.svg)
+        $favicon_png   (.png)
+        $favicon_apple (.png)
+        $favicon_mask  (.svg)
 
         $HTTP_SCHEMA
         $URL_DOMAIN
@@ -128,25 +128,73 @@
         <meta name="msapplication-TileColor" content="{{ $theme_color }}">
     @endisset
 
-    {{-- Icons --}}
-    @isset($favicon_svg)
-        <link rel="icon" type="image/svg+xml" href="{{ $favicon_svg }}">
-    @endisset
-    @isset($favicon_png)
-        <link rel="icon" type="image/png" href="{{ $favicon_png }}">
-    @endisset
-    @isset($favicon_apple)
-        <link rel="apple-touch-icon" href="{{ $favicon_apple }}">
-    @endisset
-    @isset($favicon_mask)
-        @isset($theme_color)
-            <link rel="mask-icon" href="{{ $favicon_mask }}"
-                  color="{{ $theme_color }}">
+    {{-- Favicons --}}
+
+    {{--
+        SVG favicons are prioritized over PNG favicons.
+        Both can be given, the SVG will be used if it exists, with
+        the PNG set as a fallback.
+
+        If neither SVG or PNG icons are given, the template will
+        use the fallback icons, even if $favicon_apple or $favicon_mask
+        are given. These two icons would be very strange defined by themselves.
+    --}}
+
+    @if (!isset($favicon_svg) && !isset($favicon_png))
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="alternate icon" type="image/png" href="/favicon.png">
+        <link rel="apple-touch-icon" href="/favicon-apple-touch.png">
+        <link rel="mask-icon"
+              href="/favicon-mask.svg"
+              color="{{ isset($theme_color) ? $theme_color : '#FFF' }}"
+        >
+    @else
+        @isset($favicon_svg)
+            <link rel="icon" type="image/svg+xml" href="{{ $favicon_svg }}">
         @endisset
-        @empty($theme_color)
-            <link rel="mask-icon" href="{{ $favicon_mask }}" color="#FFF">
-        @endempty
-    @endisset
+
+        @if (isset($favicon_png))
+            <link rel="{{ isset($favicon_svg) ? "alternate icon" : "icon" }}"
+                  type="image/png"
+                  href="{{ $favicon_png }}"
+            >
+        @elseif (isset($favicon_apple))
+            {{--
+                I don't know why you would do this, but I've added a fallback anyways.
+                If you set the apple PNG icon, but not the normal PNG icon, the apple
+                icon will be used as the png icon as a falllback.
+            --}}
+            <link rel="{{ isset($favicon_svg) ? "alternate icon" : "icon" }}"
+                  type="image/png"
+                  href="{{ $favicon_apple }}"
+            >
+        @endif
+
+        @isset($favicon_png)
+            <link rel="{{ isset($favicon_svg) ? "alternate icon" : "icon" }}"
+                  type="image/png"
+                  href="{{ $favicon_png }}"
+            >
+        @endisset
+
+        @if (isset($favicon_apple))
+            <link rel="apple-touch-icon" href="{{ $favicon_apple }}">
+        @elseif (isset($favicon_png))
+            <link rel="apple-touch-icon" href="{{ $favicon_png }}">
+        @endif
+
+        @if (isset($favicon_mask))
+            <link rel="mask-icon"
+                  href="{{ $favicon_mask }}"
+                  color="{{ isset($theme_color) ? $theme_color : '#FFF' }}"
+            >
+        @elseif (isset($favicon_svg))
+            <link rel="mask-icon"
+                  href="{{ $favicon_svg }}"
+                  color="{{ isset($theme_color) ? $theme_color : '#FFF' }}"
+            >
+        @endif
+    @endif
 
     {{-- Styles --}}
     @stack('styles')
