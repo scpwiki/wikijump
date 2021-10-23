@@ -5,6 +5,7 @@ namespace Wikijump\Services\Wikitext;
 
 use Exception;
 use Wikijump\Common\Enum;
+use Wikijump\Services\Wikitext\FFI\FtmlFfi;
 
 /**
  * Enum ParseRenderMode, for representing the context in which parsing and rendering is being carried out.
@@ -32,15 +33,15 @@ final class ParseRenderMode extends Enum
     public static function toNativeMode(int $c_mode): int
     {
         switch ($c_mode) {
-            case FtmlFfi::WIKITEXT_MODE_PAGE:
+            case FtmlFfi::$WIKITEXT_MODE_PAGE:
                 return self::PAGE;
-            case FtmlFfi::WIKITEXT_MODE_DRAFT:
+            case FtmlFfi::$WIKITEXT_MODE_DRAFT:
                 return self::DRAFT;
-            case FtmlFfi::WIKITEXT_MODE_FORUM_POST:
+            case FtmlFfi::$WIKITEXT_MODE_FORUM_POST:
                 return self::FORUM_POST;
-            case FtmlFfi::WIKITEXT_MODE_DIRECT_MESSAGE:
+            case FtmlFfi::$WIKITEXT_MODE_DIRECT_MESSAGE:
                 return self::DIRECT_MESSAGE;
-            case FtmlFfi::WIKITEXT_MODE_LIST:
+            case FtmlFfi::$WIKITEXT_MODE_LIST:
                 return self::LIST;
             default:
                 throw new Exception("No corresponding enum mode for wikitext enum value $c_mode");
@@ -51,15 +52,15 @@ final class ParseRenderMode extends Enum
     {
         switch ($parse_render_mode) {
             case self::PAGE:
-                return FtmlFfi::WIKITEXT_MODE_PAGE;
+                return FtmlFfi::$WIKITEXT_MODE_PAGE;
             case self::DRAFT:
-                return FtmlFfi::WIKITEXT_MODE_DRAFT;
+                return FtmlFfi::$WIKITEXT_MODE_DRAFT;
             case self::FORUM_POST:
-                return FtmlFfi::WIKITEXT_MODE_FORUM_POST;
+                return FtmlFfi::$WIKITEXT_MODE_FORUM_POST;
             case self::DIRECT_MESSAGE:
-                return FtmlFfi::WIKITEXT_MODE_DIRECT_MESSAGE;
+                return FtmlFfi::$WIKITEXT_MODE_DIRECT_MESSAGE;
             case self::LIST:
-                return FtmlFfi::WIKITEXT_MODE_LIST;
+                return FtmlFfi::$WIKITEXT_MODE_LIST;
             case self::FEED:
             case self::TABLE_OF_CONTENTS:
             default:
