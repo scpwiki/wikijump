@@ -84,7 +84,8 @@ final class FtmlFfi
     // ftml export methods
     public static function renderHtml(
         string $wikitext,
-        Wikitext\PageInfo $page_info
+        Wikitext\PageInfo $page_info,
+        Wikitext\WikitextSettings $settings
     ): HtmlOutput {
         $site_id = self::getSiteId($page_info->site);
         if ($site_id === null) {
@@ -94,6 +95,7 @@ final class FtmlFfi
 
         // Convert objects
         $c_page_info = new PageInfo($page_info);
+        $c_settings = new WikitextSettings($settings);
         $output = self::make(self::$FTML_HTML_OUTPUT);
 
         // Make render call
@@ -101,6 +103,7 @@ final class FtmlFfi
             FFI::addr($output),
             $wikitext,
             $c_page_info->pointer(),
+            $c_settings->pointer(),
         );
 
         // Convert result back to PHP

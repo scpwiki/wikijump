@@ -39,11 +39,7 @@ class WikitextSettings
 
     public static function from_mode(int $mode): WikitextSettings
     {
-        $c_mode = ParseRenderMode::to_ffi_mode($mode);
-        if ($c_mode === null) {
-            throw new Exception("No corresponding wikitext mode for enum value $mode");
-        }
-
+        $c_mode = ParseRenderMode::toFfiMode($mode);
         $c_settings = FtmlFfi::settingsFromMode($c_mode);
         $enable_page_syntax = $c_settings->enable_page_syntax;
         $use_true_ids = $c_settings->use_true_ids;

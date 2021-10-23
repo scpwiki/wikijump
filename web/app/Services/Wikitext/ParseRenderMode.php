@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
+use Exception;
 use Wikijump\Common\Enum;
 
 /**
@@ -28,7 +29,7 @@ final class ParseRenderMode extends Enum
     const LIST = 5;
     const TABLE_OF_CONTENTS = 6;
 
-    public static function to_ffi_mode(int $parse_render_mode): ?int
+    public static function toFfiMode(int $parse_render_mode): int
     {
         switch ($parse_render_mode) {
             case self::PAGE:
@@ -44,7 +45,7 @@ final class ParseRenderMode extends Enum
             case self::FEED:
             case self::TABLE_OF_CONTENTS:
             default:
-                return null;
+                throw new Exception("No corresponding wikitext mode for enum value $mode");
         }
     }
 }
