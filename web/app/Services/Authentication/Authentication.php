@@ -59,9 +59,9 @@ final class Authentication
 
     /**
      * Takes an authentication request and returns an `AuthenticationResult`.
-     * Check the `ok()` method of the result to see if a user was found.
-     * If a user was found, check the `user()` method to get the user object.
-     * If a user wasn't found, check the `error()` method to get the error.
+     * Use the `ok()` method of the result to see if a user was found.
+     * If a user was found, call the `user()` method to get the user object.
+     * If a user wasn't found, call the `error()` method to get the error.
      * The error will be an enum of `AuthenticationError`.
      *
      * @param Request $request The request containing user credentials.
@@ -70,6 +70,7 @@ final class Authentication
     {
         $credentials = self::validate($request);
 
+        // credentials were not structured correctly
         if ($credentials === null) {
             return new AuthenticationResult(AuthenticationError::FAILED_TO_VALIDATE);
         }
@@ -78,10 +79,12 @@ final class Authentication
         $password = $credentials['password'];
         $user = self::userFromSpecifier($login);
 
+        // user wasn't found
         if ($user === null) {
-            return new AuthenticationResult(AuthenticationError::UNKNOWN_USER);
+            return new AuthenticationResult(AuthenticationError::INVALID_SPECIFIER);
         }
 
+        // check their password
         if (!Hash::check($password, $user->password)) {
             return new AuthenticationResult(AuthenticationError::INVALID_PASSWORD);
         }

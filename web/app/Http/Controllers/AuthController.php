@@ -4,41 +4,66 @@ declare(strict_types=1);
 
 namespace Wikijump\Http\Controllers;
 
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Actions\ConfirmPassword;
-use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
-use Wikijump\Http\Requests\LoginRequest;
+use Wikijump\Services\Authentication\Authentication;
+use Wikijump\Services\Authentication\AuthenticationError;
 
 /**
  * Controller for authenticating users.
  * API: `/auth`
  */
-class AuthController extends AuthenticatedSessionController
+class AuthController extends Controller
 {
+    /** Guard used to handle authentication. */
+    private StatefulGuard $guard;
+
+    public function __construct(StatefulGuard $guard)
+    {
+        $this->guard = $guard;
+    }
+
     /**
      * Attempts a login. The login specifier can be either a username or an email address.
      * Endpoint: `POST:/auth/login` | `authLogin`
-     * @param LoginRequest $request The request containing user credentials.
+     * @param Request $request The request containing user credentials.
      */
-    public function login(LoginRequest $request): Response
+    public function login(Request $request): Response
     {
         // check if the user is already logged in
         if ($this->guard->check()) {
             return new Response('', 409);
         }
 
-        // attempts to logs the user in
-        // Fortify returns its own response, but we want to return our own
-        $response = $this->store($request);
+        // atempt to get the user for the given credentials
+        $result = Authentication::authenticate($request);
 
-        if ($response->status() === 200) {
-            return new Response(['csrf' => $request->session()->token()], 200);
-        } else {
-            // TODO: more detailed errors (e.g. bad email)
-            return new Response('', 400);
+        if (!$result->ok()) {
+            $error = $result->error();
+            // TODO: specific response codes for different error types
+            switch ($error) {
+                case AuthenticationError::FAILED_TO_VALIDATE:
+                    return new Response('', 400);
+                case AuthenticationError::INVALID_PASSWORD:
+                    return new Response('', 400);
+                case AuthenticationError::INVALID_SPECIFIER:
+                    return new Response('', 400);
+                default:
+                    return new Response('', 400);
+            }
         }
+
+        $user = $result->user();
+        $remember = $request->input('remember', false);
+
+        $this->guard->login($user, $remember);
+
+        // prevent session fixation
+        $request->session()->regenerate();
+
+        // return new CSRF due to regenerated session
+        return new Response(['csrf' => $request->session()->token()], 200);
     }
 
     /**
@@ -53,23 +78,13 @@ class AuthController extends AuthenticatedSessionController
             return new Response('', 401);
         }
 
-        try {
-            $request->validate(['password' => 'required|string']);
-        } catch (ValidationException $err) {
-            return new Response('', 400);
-        }
-
-        // what follows is what ConfirmablePasswordController does
-        // internally, but we want to return our own response
-
-        $confirmed = app(ConfirmPassword::class)(
-            $this->guard,
-            $request->user(),
-            $request->input('password'),
-        );
+        $confirmed = $this->guard->validate([
+            'username' => $request->user()->username,
+            'password' => $request->input('password'),
+        ]);
 
         if ($confirmed) {
-            $request->session()->put('auth.password_confirmed_at', time());
+            $request->session()->passwordConfirmed();
             return new Response('', 200);
         }
 
@@ -84,10 +99,14 @@ class AuthController extends AuthenticatedSessionController
     public function logout(Request $request): Response
     {
         if ($this->guard->check()) {
-            $this->destroy($request);
+            $this->guard->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
             return new Response('', 200);
-        } else {
-            // user isn't logged in, so we can't log them out
+        }
+        // user isn't logged in, so we can't log them out
+        else {
             return new Response('', 401);
         }
     }

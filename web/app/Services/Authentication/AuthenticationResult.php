@@ -17,7 +17,7 @@ final class AuthenticationError extends Enum
 {
     const FAILED_TO_VALIDATE = 'failed_to_validate';
     const INVALID_PASSWORD = 'invalid_password';
-    const UNKNOWN_USER = 'unknown_user';
+    const INVALID_SPECIFIER = 'unknown_specifier';
 }
 
 final class AuthenticationResult
