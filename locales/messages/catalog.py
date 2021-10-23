@@ -16,7 +16,7 @@ from typing import Iterable, Optional, Tuple, Union
 
 from ruamel.yaml.compat import ordereddict
 
-from .schema import MessagesSchema
+from .schema import MAIN_MESSAGE_SCHEMA_NAME, MessagesSchema
 
 CommentData = dict[str, Optional[str]]
 MessagesData = dict[str, str]
@@ -74,6 +74,19 @@ def flatten(tree: MessagesTree) -> Tuple[MessagesData, CommentData]:
 
     sub_flatten(None, tree)
     return flattened, comments
+
+
+def add_default_messages(messages_map: dict[str, Messages]):
+    """
+    Add a 'default' Messages object that has each message as its key.
+    """
+
+    main = messages_map[MAIN_MESSAGE_SCHEMA_NAME]
+    message_data = {path: path for path in main.schema}
+    comment_data = {path: main.comment_data[path] for path in main.schema}
+
+    default_messages = Messages("default", "default", None, message_data, comment_data)
+    messages_map["default"] = default_messages
 
 
 def get_template_messages(schema: Iterable[str]) -> Messages:
