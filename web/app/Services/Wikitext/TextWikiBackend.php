@@ -14,14 +14,14 @@ class TextWikiBackend extends WikitextBackend
 {
     private WikiTransformation $wt;
 
-    public function __construct(int $mode, ?PageInfo &$pageInfo)
+    public function __construct(int $mode, ?PageInfo $page_info)
     {
         $this->wt = new WikiTransformation();
 
         // Set page data
-        if ($pageInfo !== null) {
-            $site = self::getSite($pageInfo->site);
-            $page = self::getPage($site->getSiteId(), $pageInfo->page);
+        if ($page_info !== null) {
+            $site = self::getSite($page_info->site);
+            $page = self::getPage($site->getSiteId(), $page_info->page);
             $this->wt->setPage($page);
         }
 
@@ -53,13 +53,15 @@ class TextWikiBackend extends WikitextBackend
     public function renderHtml(string $wikitext): HtmlOutput
     {
         $html = $this->wt->processSource($wikitext);
-        $linkStats = Backlinks::fromWikiObject($this->wt->wiki);
-        return new HtmlOutput($html, [], [], [], $linkStats);
+        $link_stats = Backlinks::fromWikiObject($this->wt->wiki);
+        return new HtmlOutput($html, [], [], [], $link_stats);
     }
 
     public function renderText(string $wikitext): TextOutput
     {
-        throw new \Exception('Not implemented (legacy)');
+        $html = $this->wt->processSource($wikitext);
+        $text = strip_tags($html);
+        return new TextOutput($text, []);
     }
 
     public function version(): string
@@ -68,15 +70,15 @@ class TextWikiBackend extends WikitextBackend
     }
 
     // Helper methods
-    private static function getSite(string $siteSlug): Site
+    private static function getSite(string $site_slug): Site
     {
         $c = new Criteria();
-        $c->add('unix_name', $siteSlug);
+        $c->add('unix_name', $site_slug);
         return SitePeer::instance()->selectOne($c);
     }
 
-    private static function getPage(string $siteId, string $pageSlug): Page
+    private static function getPage(string $site_id, string $page_slug): Page
     {
-        return PagePeer::instance()->selectByName($siteId, $pageSlug);
+        return PagePeer::instance()->selectByName($site_id, $page_slug);
     }
 }

@@ -204,11 +204,11 @@ class Outdater
         $compiled->setDateCompiled(new ODate());
         $compiled->save();
 
-        $this->vars['linksExist'] = $result->linkStats->internalLinksPresent;
-        $this->vars['linksNotExist'] = $result->linkStats->internalLinksAbsent;
-        $this->vars['inclusions'] = $result->linkStats->inclusionsPresent;
-        $this->vars['inclusionsNotExist'] = $result->linkStats->inclusionsAbsent;
-        $this->vars['externalLinks'] = $result->linkStats->externalLinks;
+        $this->vars['linksExist'] = $result->link_stats->internal_links_present;
+        $this->vars['linksNotExist'] = $result->link_stats->internal_links_absent;
+        $this->vars['inclusions'] = $result->link_stats->inclusions_present;
+        $this->vars['inclusionsNotExist'] = $result->link_stats->inclusions_absent;
+        $this->vars['externalLinks'] = $result->link_stats->external_links;
     }
 
     /**

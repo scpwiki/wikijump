@@ -15,7 +15,7 @@ class PageInfo
     public ?string $category;
     public string $site;
     public string $title;
-    public ?string $altTitle;
+    public ?string $alt_title;
     public array $tags;
     public string $language;
 
@@ -24,7 +24,7 @@ class PageInfo
         ?string $category,
         string $site,
         string $title,
-        ?string $altTitle,
+        ?string $alt_title,
         array $tags,
         string $language
     ) {
@@ -32,27 +32,27 @@ class PageInfo
         $this->category = $category;
         $this->site = $site;
         $this->title = $title;
-        $this->altTitle = $altTitle;
+        $this->alt_title = $alt_title;
         $this->tags = $tags;
         $this->language = $language;
     }
 
     public static function fromPageObject(Page $page): PageInfo
     {
-        $pageSlug = $page->getUnixName();
-        $categorySlug = $page->getCategoryName();
-        $siteSlug = $page->getSite()->getUnixName();
+        $page_slug = $page->getUnixName();
+        $category_slug = $page->getCategoryName();
+        $site_slug = $page->getSite()->getUnixName();
         $title = $page->getTitle();
-        $altTitle = null;
+        $alt_title = null;
         $tags = $page->getTags();
         $language = 'default';
 
         return new PageInfo(
-            $pageSlug,
-            $categorySlug,
-            $siteSlug,
+            $page_slug,
+            $category_slug,
+            $site_slug,
             $title,
-            $altTitle,
+            $alt_title,
             $tags,
             $language,
         );
@@ -65,12 +65,8 @@ class PageInfo
 
     public function getPageSlug(): string
     {
-        $categoryPrefix = ($this->category ?? '') . ':';
-        return $categoryPrefix . $this->page;
-    }
-
-    public function getFullPageSlug(): string
-    {
-        return $this->getCategory() . ':' . $this->page;
+        return $this->category === null
+            ? $this->page
+            : $this->category . ':' . $this->page;
     }
 }
