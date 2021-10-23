@@ -145,10 +145,7 @@ final class FtmlFfi
     public static function settingsFromMode(int $c_mode): WikitextSettings
     {
         $c_settings = self::make(self::$FTML_WIKITEXT_SETTINGS);
-        self::$ffi->ftml_wikitext_settings_from_mode(
-            FFI::addr($c_settings),
-            $c_mode,
-        );
+        self::$ffi->ftml_wikitext_settings_from_mode(FFI::addr($c_settings), $c_mode);
         return new WikitextSettings($c_settings);
     }
 

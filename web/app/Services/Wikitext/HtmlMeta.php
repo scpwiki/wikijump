@@ -24,11 +24,8 @@ class HtmlMeta
      */
     public string $value;
 
-    public function __construct(
-        string $tag_type,
-        string $name,
-        string $value
-    ) {
+    public function __construct(string $tag_type, string $name, string $value)
+    {
         $this->tag_type = $tag_type;
         $this->name = $name;
         $this->value = $value;

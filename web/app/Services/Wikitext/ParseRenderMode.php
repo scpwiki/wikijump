@@ -44,7 +44,9 @@ final class ParseRenderMode extends Enum
             case FtmlFfi::$WIKITEXT_MODE_LIST:
                 return self::LIST;
             default:
-                throw new Exception("No corresponding enum mode for wikitext enum value $c_mode");
+                throw new Exception(
+                    "No corresponding enum mode for wikitext enum value $c_mode",
+                );
         }
     }
 
@@ -64,7 +66,9 @@ final class ParseRenderMode extends Enum
             case self::FEED:
             case self::TABLE_OF_CONTENTS:
             default:
-                throw new Exception("No corresponding wikitext mode for enum value $parse_render_mode");
+                throw new Exception(
+                    "No corresponding wikitext mode for enum value $parse_render_mode",
+                );
         }
     }
 }

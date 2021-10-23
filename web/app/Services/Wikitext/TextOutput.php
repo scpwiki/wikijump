@@ -18,10 +18,8 @@ class TextOutput
      */
     public array $warnings;
 
-    public function __construct(
-        string $text,
-        array $warnings
-    ) {
+    public function __construct(string $text, array $warnings)
+    {
         $this->text = $text;
         $this->warnings = $warnings;
     }
