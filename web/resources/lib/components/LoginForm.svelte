@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
   import WikijumpAPI, { t } from "@wikijump/api"
-  import { Button, TextInput, Toggle, toast } from "@wikijump/components"
+  import { Button, TextInput, Toggle } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
   import { inputsValid } from "@wikijump/dom"
   import FormError from "./FormError.svelte"
@@ -34,7 +34,6 @@
         const login = inputLogin.value
         const password = inputPassword.value
         await WikijumpAPI.authLogin({ login, password, remember })
-        toast("success", $t("account_panel.toasts.LOGGED_IN"))
         dispatch("login")
       } catch (err) {
         // handle HTTP errors, rethrow on script errors

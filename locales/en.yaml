@@ -105,6 +105,7 @@ components:
     TOOLTIP: Set Color Scheme
 
 # Account panel and related forms
+# TODO: rename to auth
 account_panel:
   LOGIN: Login
   REGISTER: Register
@@ -118,6 +119,7 @@ account_panel:
   USERNAME_INFO: You'll be able to change this later.
   PASSWORD: Password
   PASSWORD_PLACEHOLDER: Enter password...
+  CONFIRM: Confirm
   CONFIRM_PASSWORD: Confirm Password
   REMEMBER_ME: Remember me
   FORGOT_PASSWORD: Forgot your password?
@@ -131,6 +133,7 @@ account_panel:
     REGISTER_FAILED: Failed to register account. Check your email, username, and password.
     EMAIL_TAKEN: Email already in use.
     INVALID_INPUT: You need to fill out all required fields.
+    CONFIRM_FAILED: Wrong password. Check the password you have entered.
   toasts:
     LOGGED_IN: Logged in!
     REGISTERED: Registration successful.

@@ -256,6 +256,24 @@ paths:
         409: { description: Already logged in. }
         500: { description: Unexpected Error }
 
+  /auth/confirm:
+    post:
+      description: Confirms the client's password.
+      tags: [auth]
+      operationId: authConfirm
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object,
+          required: [password],
+          properties: {
+            password: { type: string, format: password },
+          }
+        }}}
+      responses:
+        200: { description: OK }
+        400: { description: Invalid password. }
+        500: { description: Unexpected Error }
+
   /auth/logout:
     delete:
       description: Logs the client out.

@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // -- AUTH
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/confirm', [AuthController::class, 'confirm']);
 Route::delete('/auth/logout', [AuthController::class, 'logout']);
 Route::post('/auth/check', [AuthController::class, 'check']);
 Route::post('/auth/refresh', [AuthController::class, 'refresh']);

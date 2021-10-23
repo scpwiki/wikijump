@@ -8,6 +8,7 @@ use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
 use Wikidot\Utils\AjaxModuleWikiFlowController;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Http\Controllers\AuthController;
 use Wikijump\Http\Controllers\OzoneController;
 use Wikijump\Http\Controllers\PageController;
 use Wikijump\Models\User;
@@ -96,13 +97,44 @@ Route::get('/user--avatar/{user}', function (User $user) {
     return $user->avatar();
 });
 
-Route::get('/user--services/logout', [AuthenticatedSessionController::class, 'destroy']);
+// -- USER SERVICES
 
-Route::middleware(['auth:sanctum', 'verified'])
+// TODO: password.request
+// TODO: password.reset
+// TODO: password.email
+// TODO: password.update
+
+// TODO: emails
+// TODO: two factor
+
+Route::middleware(['auth', 'verified'])
     ->get('/user--services/dashboard', function () {
         return view('dashboard');
     })
     ->name('dashboard');
+
+// Auth Routes
+Route::prefix('user--services')
+    ->middleware(['auth', 'verified'])
+    ->group(function () {
+        // TODO: remove this temporary helper route
+        Route::get('/logout', [AuthController::class, 'logout']);
+
+        // name is important, it's reserved by Laravel for password confirmation
+        Route::view('/confirm-password', 'next.auth.confirm-password')->name(
+            'password.confirm',
+        );
+    });
+
+// Guest routes
+Route::prefix('user--services')
+    ->middleware('guest')
+    ->group(function () {
+        Route::view('/login', 'next.auth.login')->name('login');
+        Route::view('/register', 'next.auth.register')->name('register');
+    });
+
+// -- WIKI
 
 if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
     // Legacy special routes

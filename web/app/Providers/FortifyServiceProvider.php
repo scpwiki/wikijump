@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
+use Wikijump\Services\Authentication\Authentication;
 
 /**
  * Bootstrapping for Laravel Fortify.
@@ -43,6 +44,9 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+        Fortify::authenticateUsing(function (Request $request) {
+            return Authentication::handle($request);
+        });
 
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by($request->email . $request->ip());
@@ -54,12 +58,11 @@ class FortifyServiceProvider extends ServiceProvider
 
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
 
-        Fortify::loginView(function () {
-            return view('next.auth.login');
-        });
+        // I'm not sure if this is needed, as Fortify's view routes are disabled,
+        // but just in case...
 
-        Fortify::registerView(function () {
-            return view('next.auth.register');
-        });
+        Fortify::loginView('next.auth.login');
+        Fortify::registerView('next.auth.register');
+        Fortify::confirmPasswordView('next.auth.confirm-password');
     }
 }

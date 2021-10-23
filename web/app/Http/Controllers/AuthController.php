@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Wikijump\Http\Controllers;
 
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Wikijump\Services\Authentication\Authentication;
+use Wikijump\Services\Authentication\AuthenticationError;
 
 /**
  * Controller for authenticating users.
@@ -14,6 +16,17 @@ use Illuminate\Http\Request;
  */
 class AuthController extends Controller
 {
+    /** Guard used to handle authentication. */
+    private StatefulGuard $guard;
+
+    /**
+     * @param StatefulGuard $guard
+     */
+    public function __construct(StatefulGuard $guard)
+    {
+        $this->guard = $guard;
+    }
+
     /**
      * Attempts a login. The login specifier can be either a username or an email address.
      * Endpoint: `POST:/auth/login` | `authLogin`
@@ -21,31 +34,67 @@ class AuthController extends Controller
      */
     public function login(Request $request): Response
     {
-        // TODO: set the authentication guard depending on user's role
-
         // check if the user is already logged in
-        if (Auth::check()) {
+        if ($this->guard->check()) {
             return new Response('', 409);
         }
 
-        $credentials = $request->validate([
-            'login' => 'required|string',
-            'password' => 'required|string',
-            'remember' => 'sometimes|boolean',
+        // atempt to get the user for the given credentials
+        $result = Authentication::authenticate($request);
+
+        if ($result->isErr()) {
+            $error = $result->error();
+            // TODO: specific response codes for different error types
+            switch ($error) {
+                case AuthenticationError::FAILED_TO_VALIDATE:
+                    return new Response('', 400);
+                case AuthenticationError::INVALID_PASSWORD:
+                    return new Response('', 400);
+                case AuthenticationError::INVALID_SPECIFIER:
+                    return new Response('', 400);
+                default:
+                    return new Response('', 400);
+            }
+        }
+
+        $user = $result->user();
+        $remember = $request->input('remember', false);
+        $verified = $user->hasVerifiedEmail();
+
+        // TODO: if the user isn't verified, allow them to resend the verification email
+        if (!$verified) {
+            return new Response('', 400);
+        }
+
+        $this->guard->login($user, $remember);
+
+        // prevent session fixation
+        $request->session()->regenerate();
+
+        // return new CSRF due to regenerated session
+        return new Response(['csrf' => $request->session()->token()], 200);
+    }
+
+    /**
+     * Confirms the client's password.
+     * Endpoint: `POST:/auth/confirm` | `authConfirm`
+     * @param Request $request The request containing the password.
+     */
+    public function confirm(Request $request): Response
+    {
+        // can't confirm a password if the user is not logged in
+        if (!$this->guard->check()) {
+            return new Response('', 401);
+        }
+
+        $confirmed = $this->guard->validate([
+            'username' => $request->user()->username,
+            'password' => $request->input('password'),
         ]);
 
-        $login = $credentials['login'];
-        $password = $credentials['password'];
-        $remember = $credentials['remember'] ?? false;
-        $is_email = filter_var($login, FILTER_VALIDATE_EMAIL);
-
-        $success = $is_email
-            ? Auth::attempt(['email' => $login, 'password' => $password], $remember)
-            : Auth::attempt(['username' => $login, 'password' => $password], $remember);
-
-        if ($success) {
-            $request->session()->regenerate();
-            return new Response(['csrf' => $request->session()->token()], 200);
+        if ($confirmed) {
+            $request->session()->passwordConfirmed();
+            return new Response('', 200);
         }
 
         return new Response('', 400);
@@ -58,13 +107,15 @@ class AuthController extends Controller
      */
     public function logout(Request $request): Response
     {
-        if (Auth::check()) {
-            Auth::logout();
+        if ($this->guard->check()) {
+            $this->guard->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
             return new Response('', 200);
-        } else {
-            // user isn't logged in, so we can't log them out
+        }
+        // user isn't logged in, so we can't log them out
+        else {
             return new Response('', 401);
         }
     }
@@ -77,7 +128,7 @@ class AuthController extends Controller
     public function check(Request $request): Response
     {
         $session_valid = $request->session()->isStarted();
-        $authed = Auth::check();
+        $authed = $this->guard->check();
         return new Response(['sessionValid' => $session_valid, 'authed' => $authed], 200);
     }
 
@@ -93,7 +144,7 @@ class AuthController extends Controller
             return new Response('', 403);
         }
         // check if the user is logged in
-        elseif (Auth::check()) {
+        elseif ($this->guard->check()) {
             $request->session()->regenerate();
             return new Response(['csrf' => $request->session()->token()], 200);
         }

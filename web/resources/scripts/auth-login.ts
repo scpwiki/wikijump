@@ -7,8 +7,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const form = new LoginForm({ target: container })
 
   form.$on("login", () => {
-    // TODO: redirect to where the user came from
-    // redirect to home
-    location.href = "/"
+    const backURL =
+      document.getElementById("app_auth")?.getAttribute("data-back-url") || "/"
+
+    location.href = backURL
   })
 })
