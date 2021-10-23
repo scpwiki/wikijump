@@ -58,6 +58,39 @@ final class Authentication
     }
 
     /**
+     * Takes an authentication request and returns an `AuthenticationResult`.
+     * Check the `ok()` method of the result to see if a user was found.
+     * If a user was found, check the `user()` method to get the user object.
+     * If a user wasn't found, check the `error()` method to get the error.
+     * The error will be an enum of `AuthenticationError`.
+     *
+     * @param Request $request The request containing user credentials.
+     */
+    public static function authenticate(Request $request): AuthenticationResult
+    {
+        $credentials = self::validate($request);
+
+        if ($credentials === null) {
+            return new AuthenticationResult(AuthenticationError::FAILED_TO_VALIDATE);
+        }
+
+        $login = $credentials['login'];
+        $password = $credentials['password'];
+        $user = self::userFromSpecifier($login);
+
+        if ($user === null) {
+            return new AuthenticationResult(AuthenticationError::UNKNOWN_USER);
+        }
+
+        if (!Hash::check($password, $user->password)) {
+            return new AuthenticationResult(AuthenticationError::INVALID_PASSWORD);
+        }
+
+        return new AuthenticationResult($user);
+    }
+
+    // TODO: remove this method, this is for Fortify
+    /**
      * Takes an authentication request and returns a user if the request contains
      * valid authentication credentials, but null otherwise.
      *
