@@ -20,6 +20,7 @@ final class AuthenticationError extends Enum
     const INVALID_SPECIFIER = 'unknown_specifier';
 }
 
+/** Result of an authentication attempt. */
 final class AuthenticationResult
 {
     private ?User $user;
@@ -51,11 +52,13 @@ final class AuthenticationResult
         }
     }
 
+    /** Returns true if a `User` was found. */
     public function ok(): bool
     {
         return $this->user !== null && $this->error === null;
     }
 
+    /** Returns the resultant `User`. Throws if nothing was found. */
     public function user(): User
     {
         if (!$this->ok()) {
@@ -65,6 +68,7 @@ final class AuthenticationResult
         return $this->user;
     }
 
+    /** Returns the error enum if no `User` was found. Throws if a `User` was found. */
     public function error(): string
     {
         if ($this->ok()) {
