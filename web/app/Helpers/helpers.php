@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 /**
  * This file is a set of default helper functions to wrap code in.
@@ -39,7 +40,7 @@ if (!function_exists('previousUrl')) {
      */
     function previousUrl(): string
     {
-        $url = url()->previous();
+        $url = URL::previous();
 
         // cut off query, which we can't keep unfortunately
         // the query string is written by nginx and is usually some giant mess
