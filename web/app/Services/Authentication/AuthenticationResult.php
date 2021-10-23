@@ -15,9 +15,9 @@ use Wikijump\Common\Enum;
  */
 final class AuthenticationError extends Enum
 {
-    const FAILED_TO_VALIDATE = 'failed_to_validate';
-    const INVALID_PASSWORD = 'invalid_password';
-    const INVALID_SPECIFIER = 'unknown_specifier';
+    const FAILED_TO_VALIDATE = 'failed-to-validate';
+    const INVALID_PASSWORD = 'invalid-password';
+    const INVALID_SPECIFIER = 'unknown-specifier';
 }
 
 /** Result of an authentication attempt. */
