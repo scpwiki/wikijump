@@ -170,13 +170,6 @@
             >
         @endif
 
-        @isset($favicon_png)
-            <link rel="{{ isset($favicon_svg) ? "alternate icon" : "icon" }}"
-                  type="image/png"
-                  href="{{ $favicon_png }}"
-            >
-        @endisset
-
         @if (isset($favicon_apple))
             <link rel="apple-touch-icon" href="{{ $favicon_apple }}">
         @elseif (isset($favicon_png))
