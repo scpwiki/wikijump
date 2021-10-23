@@ -30,11 +30,18 @@ final class FtmlFfi
     public static int $META_HTTP_EQUIV;
     public static int $META_PROPERTY;
 
+    public static int $WIKITEXT_MODE_PAGE;
+    public static int $WIKITEXT_MODE_DRAFT;
+    public static int $WIKITEXT_MODE_FORUM_POST;
+    public static int $WIKITEXT_MODE_DIRECT_MESSAGE;
+    public static int $WIKITEXT_MODE_LIST;
+
     public static FFI\CType $C_CHAR;
     public static FFI\CType $C_STRING;
     public static FFI\CType $FTML_PAGE_INFO;
     public static FFI\CType $FTML_HTML_OUTPUT;
     public static FFI\CType $FTML_TEXT_OUTPUT;
+    public static FFI\CType $FTML_WIKITEXT_SETTINGS;
 
     private function __construct()
     {
@@ -60,11 +67,18 @@ final class FtmlFfi
         self::$META_HTTP_EQUIV = self::$ffi->META_HTTP_EQUIV;
         self::$META_PROPERTY = self::$ffi->META_PROPERTY;
 
+        self::$WIKITEXT_MODE_PAGE = self::$ffi->WIKITEXT_MODE_PAGE;
+        self::$WIKITEXT_MODE_DRAFT = self::$ffi->WIKITEXT_MODE_DRAFT;
+        self::$WIKITEXT_MODE_FORUM_POST = self::$ffi->WIKITEXT_MODE_FORUM_POST;
+        self::$WIKITEXT_MODE_DIRECT_MESSAGE = self::$ffi->WIKITEXT_MODE_DIRECT_MESSAGE;
+        self::$WIKITEXT_MODE_LIST = self::$ffi->WIKITEXT_MODE_LIST;
+
         self::$C_CHAR = self::type('char');
         self::$C_STRING = self::type('char *');
         self::$FTML_PAGE_INFO = self::type('struct ftml_page_info');
         self::$FTML_HTML_OUTPUT = self::type('struct ftml_html_output');
         self::$FTML_TEXT_OUTPUT = self::type('struct ftml_text_output');
+        self::$FTML_WIKITEXT_SETTINGS = self::type('struct ftml_wikitext_settings');
     }
 
     // ftml export methods
@@ -115,6 +129,16 @@ final class FtmlFfi
     public static function freeTextOutput(FFI\CData $data)
     {
         self::$ffi->ftml_destroy_text_output(FFI::addr($data));
+    }
+
+    public static function settingsFromMode(int $c_mode): FFI\CData
+    {
+        $c_settings = self::make(self::$FTML_WIKITEXT_SETTINGS);
+        self::$ffi->ftml_wikitext_settings_from_mode(
+            FFI::addr($c_settings),
+            $c_mode,
+        );
+        return $c_settings;
     }
 
     public static function version(): string

@@ -27,4 +27,24 @@ final class ParseRenderMode extends Enum
     const FEED = 4;
     const LIST = 5;
     const TABLE_OF_CONTENTS = 6;
+
+    public static function to_ffi_mode(int $parse_render_mode): ?int
+    {
+        switch ($parse_render_mode) {
+            case self::PAGE:
+                return FtmlFfi::WIKITEXT_MODE_PAGE;
+            case self::DRAFT:
+                return FtmlFfi::WIKITEXT_MODE_DRAFT;
+            case self::FORUM_POST:
+                return FtmlFfi::WIKITEXT_MODE_FORUM_POST;
+            case self::DIRECT_MESSAGE:
+                return FtmlFfi::WIKITEXT_MODE_DIRECT_MESSAGE;
+            case self::LIST:
+                return FtmlFfi::WIKITEXT_MODE_LIST;
+            case self::FEED:
+            case self::TABLE_OF_CONTENTS:
+            default:
+                return null;
+        }
+    }
 }
