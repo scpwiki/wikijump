@@ -8,6 +8,7 @@ use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
 use Wikidot\Utils\AjaxModuleWikiFlowController;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Http\Controllers\AuthController;
 use Wikijump\Http\Controllers\OzoneController;
 use Wikijump\Http\Controllers\PageController;
 use Wikijump\Models\User;
@@ -107,7 +108,7 @@ Route::prefix('user--services')
     ->middleware(['auth', 'verified'])
     ->group(function () {
         // TODO: remove this: temporary helper route
-        Route::get('/logout', [AuthenticatedSessionController::class, 'destroy']);
+        Route::get('/logout', [AuthController::class, 'logout']);
 
         Route::view('/confirm-password', 'next.auth.confirm-password')->name(
             'password.confirm',
