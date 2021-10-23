@@ -47,7 +47,7 @@ function previousUrl(): string
         $url = substr($url, 0, strpos($url, '?'));
     }
 
-    if (url()->current() === $url) {
+    if (URL::current() === $url) {
         return '';
     }
 
