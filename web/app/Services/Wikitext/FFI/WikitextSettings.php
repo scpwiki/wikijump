@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Wikijump\Services\Wikitext\FFI;
 
 use Wikijump\Services\Wikitext\ParseRenderMode;
+use Wikijump\Services\Wikitext;
 
 /**
  * Class WikitextSettings, representing an input 'struct ftml_wikitext_settings' object.
@@ -35,6 +36,16 @@ class WikitextSettings
     public function pointer(): FFI\CData
     {
         return FFI::addr($this->c_data);
+    }
+
+    public function toSettings(): Wikitext\WikitextSettings
+    {
+        return new Wikitext\WikitextSettings(
+            ParseRenderMode::toNativeMode($this->c_data->mode),
+            $this->c_data->enable_page_syntax,
+            $this->c_data->use_true_ids,
+            $this->c_data->allow_local_paths,
+        );
     }
 
     function __destruct()

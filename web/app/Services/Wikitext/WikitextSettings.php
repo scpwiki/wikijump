@@ -37,14 +37,9 @@ class WikitextSettings
         $this->allow_local_paths = $allow_local_paths;
     }
 
-    public static function from_mode(int $mode): WikitextSettings
+    public static function fromMode(int $mode): WikitextSettings
     {
         $c_mode = ParseRenderMode::toFfiMode($mode);
-        $c_settings = FtmlFfi::settingsFromMode($c_mode);
-        $enable_page_syntax = $c_settings->enable_page_syntax;
-        $use_true_ids = $c_settings->use_true_ids;
-        $allow_local_paths = $c_settings->allow_local_paths;
-        FFI::free($c_settings);
-        return new WikitextSettings($mode, $enable_page_syntax, $use_true_ids, $allow_local_paths);
+        return FtmlFfi::settingsFromMode($c_mode)->toSettings();
     }
 }

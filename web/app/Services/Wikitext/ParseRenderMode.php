@@ -29,6 +29,24 @@ final class ParseRenderMode extends Enum
     const LIST = 5;
     const TABLE_OF_CONTENTS = 6;
 
+    public static function toNativeMode(int $c_mode): int
+    {
+        switch ($c_mode) {
+            case FtmlFfi::WIKITEXT_MODE_PAGE:
+                return self::PAGE;
+            case FtmlFfi::WIKITEXT_MODE_DRAFT:
+                return self::DRAFT;
+            case FtmlFfi::WIKITEXT_MODE_FORUM_POST:
+                return self::FORUM_POST;
+            case FtmlFfi::WIKITEXT_MODE_DIRECT_MESSAGE:
+                return self::DIRECT_MESSAGE;
+            case FtmlFfi::WIKITEXT_MODE_LIST:
+                return self::LIST;
+            default:
+                throw new Exception("No corresponding enum mode for wikitext enum value $c_mode");
+        }
+    }
+
     public static function toFfiMode(int $parse_render_mode): int
     {
         switch ($parse_render_mode) {
@@ -45,7 +63,7 @@ final class ParseRenderMode extends Enum
             case self::FEED:
             case self::TABLE_OF_CONTENTS:
             default:
-                throw new Exception("No corresponding wikitext mode for enum value $mode");
+                throw new Exception("No corresponding wikitext mode for enum value $parse_render_mode");
         }
     }
 }
