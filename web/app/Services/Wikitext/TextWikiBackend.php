@@ -14,14 +14,14 @@ class TextWikiBackend extends WikitextBackend
 {
     private WikiTransformation $wt;
 
-    public function __construct(int $mode, ?PageInfo &$pageInfo)
+    public function __construct(int $mode, ?PageInfo $page_info)
     {
         $this->wt = new WikiTransformation();
 
         // Set page data
-        if ($pageInfo !== null) {
-            $site = self::getSite($pageInfo->site);
-            $page = self::getPage($site->getSiteId(), $pageInfo->page);
+        if ($page_info !== null) {
+            $site = self::getSite($page_info->site);
+            $page = self::getPage($site->getSiteId(), $page_info->page);
             $this->wt->setPage($page);
         }
 

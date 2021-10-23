@@ -24,7 +24,7 @@ class PageInfo
         ?string $category,
         string $site,
         string $title,
-        ?string $altTitle,
+        ?string $alt_title,
         array $tags,
         string $language
     ) {
@@ -32,7 +32,7 @@ class PageInfo
         $this->category = $category;
         $this->site = $site;
         $this->title = $title;
-        $this->alt_title = $altTitle;
+        $this->alt_title = $alt_title;
         $this->tags = $tags;
         $this->language = $language;
     }

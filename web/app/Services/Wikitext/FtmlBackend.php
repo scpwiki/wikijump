@@ -11,23 +11,23 @@ use Wikijump\Services\Wikitext\FFI\FtmlFfi;
  */
 class FtmlBackend extends WikitextBackend
 {
-    private PageInfo $pageInfo;
+    private PageInfo $page_info;
 
-    public function __construct(int $mode, ?PageInfo &$pageInfo)
+    public function __construct(int $mode, ?PageInfo $page_info)
     {
         // TODO mode
-        $this->pageInfo = $pageInfo ?? self::defaultPageInfo();
+        $this->page_info = $pageInfo ?? self::defaultPageInfo();
     }
 
     // Interface methods
     public function renderHtml(string $wikitext): HtmlOutput
     {
-        return FtmlFfi::renderHtml($wikitext, $this->pageInfo);
+        return FtmlFfi::renderHtml($wikitext, $this->page_info);
     }
 
     public function renderText(string $wikitext): TextOutput
     {
-        return FtmlFfi::renderText($wikitext, $this->pageInfo);
+        return FtmlFfi::renderText($wikitext, $this->page_info);
     }
 
     public function version(): string
