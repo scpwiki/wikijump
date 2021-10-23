@@ -98,7 +98,7 @@ final class FtmlFfi
         $c_settings = new WikitextSettings($settings);
         $output = self::make(self::$FTML_HTML_OUTPUT);
 
-        // Make render call
+        // Render call
         self::$ffi->ftml_render_html(
             FFI::addr($output),
             $wikitext,
@@ -112,15 +112,23 @@ final class FtmlFfi
 
     public static function renderText(
         string $wikitext,
-        Wikitext\PageInfo $page_info
+        Wikitext\PageInfo $page_info,
+        Wikitext\WikitextSetings $settings
     ): TextOutput {
+        // Convert objects
         $c_page_info = new PageInfo($page_info);
+        $c_settings = new WikitextSettings($settings);
         $output = self::make(self::$FTML_TEXT_OUTPUT);
+
+        // Render call
         self::$ffi->ftml_render_text(
             FFI::addr($output),
             $wikitext,
             $c_page_info->pointer(),
+            $c_settings->pointer(),
         );
+
+        // Convert result back to PHP
         return OutputConversion::makeTextOutput($output);
     }
 
