@@ -97,6 +97,16 @@ Route::get('/user--avatar/{user}', function (User $user) {
     return $user->avatar();
 });
 
+// -- USER SERVICES
+
+// TODO: password.request
+// TODO: password.reset
+// TODO: password.email
+// TODO: password.update
+
+// TODO: emails
+// TODO: two factor
+
 Route::middleware(['auth', 'verified'])
     ->get('/user--services/dashboard', function () {
         return view('dashboard');
@@ -107,9 +117,10 @@ Route::middleware(['auth', 'verified'])
 Route::prefix('user--services')
     ->middleware(['auth', 'verified'])
     ->group(function () {
-        // TODO: remove this: temporary helper route
+        // TODO: remove this temporary helper route
         Route::get('/logout', [AuthController::class, 'logout']);
 
+        // name is important, it's reserved by Laravel for password confirmation
         Route::view('/confirm-password', 'next.auth.confirm-password')->name(
             'password.confirm',
         );
@@ -121,17 +132,10 @@ Route::prefix('user--services')
     ->group(function () {
         Route::view('/login', 'next.auth.login')->name('login');
         Route::view('/register', 'next.auth.register')->name('register');
-
-        // TODO: password.request
-        // TODO: password.reset
-        // TODO: password.email
-        // TODO: password.update
-
-        // TODO: emails
-        // TODO: two factor
     });
 
-// Wiki
+// -- WIKI
+
 if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
     // Legacy special routes
     Route::any('/{special}:{path}', [OzoneController::class, 'handle'])
