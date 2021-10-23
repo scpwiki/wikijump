@@ -9,7 +9,7 @@ Executable file, permitting command-line building of messages files.
 import os
 import sys
 
-from .catalog import get_template_messages
+from .catalog import add_default_messages, get_template_messages
 from .gettext import build_mo, generate_po
 from .path_loader import OUTPUT_DIRECTORY, load
 from .schema import MAIN_MESSAGE_SCHEMA_NAME, validate_all
@@ -24,6 +24,10 @@ if __name__ == "__main__":
     directory = sys.argv[1]
     messages_map = load(directory)
     print()
+
+    # Add default messages
+    print("Creating default localization...")
+    add_default_messages(messages_map)
 
     # Validate schemas
     invalid = validate_all(messages_map)
