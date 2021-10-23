@@ -17,6 +17,7 @@ abstract class WikitextBackend
      *
      * For the following ParseRenderModes, $page_info should be provided:
      * - PAGE
+     * - DRAFT
      * - LIST
      * Else, it should be null:
      * - FORUM_POST

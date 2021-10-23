@@ -37,6 +37,12 @@ class WikitextSettings
         $this->allow_local_paths = $allow_local_paths;
     }
 
+    /**
+     * Produces a default WikitextSettings object from the given mode.
+     *
+     * @param int $mode ParseRenderMode value to use
+     * @return WikitextSettings
+     */
     public static function fromMode(int $mode): WikitextSettings
     {
         $c_mode = ParseRenderMode::toFfiMode($mode);
