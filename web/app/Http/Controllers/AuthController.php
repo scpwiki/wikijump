@@ -19,7 +19,9 @@ class AuthController extends Controller
     /** Guard used to handle authentication. */
     private StatefulGuard $guard;
 
-    /** @param StatefulGuard $guard */
+    /**
+     * @param StatefulGuard $guard
+     */
     public function __construct(StatefulGuard $guard)
     {
         $this->guard = $guard;
