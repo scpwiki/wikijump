@@ -4,7 +4,7 @@
 @endguest
 @auth
 <span class="printuser">
-<a href = {{ route('dashboard') }}>
+<a href="/">
     <img class="small" src="{{ Auth::user()->avatar() }}" alt="avatar" style="background-image:url('/user--karma/{{ Auth::id() }}')" />
     {{ Auth::user()->username }}
 </a>

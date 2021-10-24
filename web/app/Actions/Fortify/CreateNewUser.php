@@ -10,7 +10,6 @@ use Wikijump\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-use Laravel\Jetstream\Jetstream;
 
 /**
  * Fortify method for creating new User accounts.
@@ -36,9 +35,6 @@ class CreateNewUser implements CreatesNewUsers
             'unix_name' => ['unique:users', 'min:3'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
-            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature()
-                ? ['required', 'accepted']
-                : '',
         ])->validate();
 
         return User::create([

@@ -6,20 +6,21 @@ declare(strict_types=1);
 namespace Wikijump\Models;
 
 use Database\Seeders\UserSeeder;
+use Exception;
 use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Wikijump\Helpers\InteractionType;
 use Wikijump\Traits\HasInteractions;
@@ -42,7 +43,6 @@ class User extends Authenticatable
     use HasInteractions;
     use MustVerifyEmail;
     use TwoFactorAuthenticatable;
-    use HasProfilePhoto;
     use HasApiTokens;
 
     /**
@@ -99,7 +99,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $appends = ['profile_photo_url'];
+    protected $appends = ['avatar_url'];
 
     /**
      * Checks if the user is banned from the entire farm.
@@ -110,20 +110,68 @@ class User extends Authenticatable
     }
 
     /**
-     * Retrieve the path for the user's avatar.
-     * @return string
+     * Retrieve the list of default values for user settings.
+     * @return array
      */
+    public static function defaults(): array
+    {
+        return Config::get('wikijump.defaults.user');
+    }
+
+    /**************************************************
+     * Avatars
+     *************************************************/
+
+    /** Returns the avatar URL. */
     public function avatar(): string
     {
-        return $this->getProfilePhotoUrlAttribute();
+        // TODO: ->url() is apparently undefined to the IDE
+        // probably has to do with the driver
+        return $this->avatar_path
+            ? $this->avatarFilesystem()->url($this->avatar_path)
+            : $this->defaultAvatar();
+    }
+
+    // basically a function alias - satisifes the accessor name requirement for Laravel
+    /** Returns the avatar URL. */
+    public function getAvatarUrlAttribute(): string
+    {
+        return $this->avatar();
     }
 
     /**
-     * Get the default profile photo URL if no profile photo has been uploaded.
+     * Replaces the current avatar, if any.
+     * This function doesn't validate the file, so do that in your controller.
      *
-     * @return string
+     * @param UploadedFile $image The image to use as the new avatar.
      */
-    protected function defaultProfilePhotoUrl(): string
+    public function updateAvatar(UploadedFile $image)
+    {
+        $this->deleteAvatar();
+
+        $stored = $image->storePublicly('avatars', ['disk' => $this->avatarFilesystem()]);
+
+        if ($stored) {
+            $this->avatar_path = $stored;
+            $this->save();
+        } else {
+            // TODO: should this throw? failing to save is a problem...
+            throw new Exception('Failed to store avatar.');
+        }
+    }
+
+    /** Deletes the avatar, if it exists. */
+    public function deleteAvatar()
+    {
+        if ($this->avatar_path) {
+            $this->avatarFilesystem()->delete($this->avatar_path);
+            $this->avatar_path = null;
+            $this->save();
+        }
+    }
+
+    /** The default avatar URL if no image has been uploaded. */
+    protected function defaultAvatar(): string
     {
         /**
          *  We have a number of known-safe color combinations for a
@@ -145,6 +193,7 @@ class User extends Authenticatable
             $initials .= $initial[0];
         }
 
+        // TODO: replace this with a local solution
         return 'https://ui-avatars.com/api/?name=' .
             $initials .
             '&color=' .
@@ -154,14 +203,15 @@ class User extends Authenticatable
             '&rounded=true';
     }
 
-    /**
-     * Retrieve the list of default values for user settings.
-     * @return array
-     */
-    public static function defaults(): array
+    /** Returns the filesystem for avatar images. */
+    protected function avatarFilesystem(): Filesystem
     {
-        return Config::get('wikijump.defaults.user');
+        return Storage::disk(config('wikijump.avatar_disk', 'public'));
     }
+
+    /**************************************************
+     * Following Users
+     *************************************************/
 
     /**
      * Retrieve the users this user is following.
@@ -171,10 +221,6 @@ class User extends Authenticatable
     {
         return $this->my(InteractionType::USER_FOLLOWS_USER);
     }
-
-    /**************************************************
-     * Following Users
-     *************************************************/
 
     /**
      * Follow a user.
