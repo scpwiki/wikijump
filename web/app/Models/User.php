@@ -118,15 +118,6 @@ class User extends Authenticatable
         return Config::get('wikijump.defaults.user');
     }
 
-    /**
-     * Retrieve the users this user is following.
-     * @return Collection<User>
-     */
-    public function followingUsers(): Collection
-    {
-        return $this->my(InteractionType::USER_FOLLOWS_USER);
-    }
-
     /**************************************************
      * Avatars
      *************************************************/
@@ -220,6 +211,15 @@ class User extends Authenticatable
     /**************************************************
      * Following Users
      *************************************************/
+
+    /**
+     * Retrieve the users this user is following.
+     * @return Collection<User>
+     */
+    public function followingUsers(): Collection
+    {
+        return $this->my(InteractionType::USER_FOLLOWS_USER);
+    }
 
     /**
      * Follow a user.
