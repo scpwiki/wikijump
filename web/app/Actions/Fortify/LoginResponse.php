@@ -28,8 +28,6 @@ class LoginResponse implements LoginResponseContract
         }
 
         $previousLocation = session('backUrl');
-        return $previousLocation
-            ? redirect()->to($previousLocation)
-            : redirect()->route('dashboard');
+        return $previousLocation ? redirect()->to($previousLocation) : redirect()->home();
     }
 }

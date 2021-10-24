@@ -107,12 +107,6 @@ Route::get('/user--avatar/{user}', function (User $user) {
 // TODO: emails
 // TODO: two factor
 
-Route::middleware(['auth', 'verified'])
-    ->get('/user--services/dashboard', function () {
-        return view('dashboard');
-    })
-    ->name('dashboard');
-
 // Auth Routes
 Route::prefix('user--services')
     ->middleware(['auth', 'verified'])

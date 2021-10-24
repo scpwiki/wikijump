@@ -11,9 +11,6 @@
         <testsuite name="Feature">
             <directory suffix="Test.php">./tests/php/Feature</directory>
         </testsuite>
-        <testsuite name="Jetstream">
-            <directory suffix="Test.php">./tests/php/Jetstream</directory>
-        </testsuite>
     </testsuites>
     <php>
         <server name="APP_ENV" value="testing"/>
