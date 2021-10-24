@@ -42,6 +42,7 @@ function make_filename() {
 }
 
 function to_pascal_case() {
+	# From https://unix.stackexchange.com/a/196241
 	sed -r 's/(^|_)([a-z])/\U\2/g' <<< "$1"
 }
 
