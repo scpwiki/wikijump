@@ -37,7 +37,7 @@ function check_name() {
 	fi
 }
 
-function make_filename() {
+function get_filename() {
 	echo "$(date +%Y_%m_%d_%H%M%S)_$1.php"
 }
 
@@ -50,7 +50,7 @@ function make_migration() {
 	echo "+ $1"
 
 	class_name="$(to_pascal_case "$1")"
-	filename="$(make_filename "$1")"
+	filename="$(get_filename "$1")"
 
 	cat > "$filename" << EOF
 <?php
