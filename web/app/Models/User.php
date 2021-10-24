@@ -155,6 +155,7 @@ class User extends Authenticatable
             $this->avatar_path = $stored;
             $this->save();
         } else {
+            // TODO: should this throw? failing to save is a problem...
             throw new Exception('Failed to store avatar.');
         }
     }
