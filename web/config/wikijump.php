@@ -118,4 +118,7 @@ return [
 
     /** How many simultaneous contact requests a user may have pending. */
     'contact_request_limit' => 25,
+
+    /** The filesystem driver avatars should use. */
+    'avatar_disk' => 's3',
 ];
