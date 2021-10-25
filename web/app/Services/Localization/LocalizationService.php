@@ -20,7 +20,7 @@ final class LocalizationService
             $locale = App::currentLocale();
             $loader = new MoLoader();
             $path = self::LOCALES_DIRECTORY . $locale . '.mo';
-            self::translations = $loader->loadFile($path);
+            self::$translations = $loader->loadFile($path);
         }
     }
 
