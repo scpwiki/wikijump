@@ -12,23 +12,27 @@ use MessageFormatter;
 final class LocalizationService
 {
     public const LOCALES_DIRECTORY = WIKIJUMP_ROOT . '/public/files--built/locales/';
-    private static Translations $translations;
+    private static ?Translations $translations = null;
 
     public static function setup(): void
     {
-        $locale = App::currentLocale();
-        self::$translations = self::loadTranslations($locale);
+        // We use lazy loading to avoid artisan / local environment issues
     }
 
-    public static function loadTranslations(string $locale): Translations
+    private static function loadTranslations(): void
     {
-        $loader = new MoLoader();
-        $path = self::LOCALES_DIRECTORY . $locale . '.mo';
-        return $loader->loadFile($path);
+        if (self::translations === null) {
+            $locale = App::currentLocale();
+            $loader = new MoLoader();
+            $path = self::LOCALES_DIRECTORY . $locale . '.mo';
+            self::translations = $loader->loadFile($path);
+        }
     }
 
     public static function translate(string $key, array $values = []): string
     {
+        self::loadTranslations();
+
         if ($key === '') {
             Log::error('Empty localization key given');
             return '';
