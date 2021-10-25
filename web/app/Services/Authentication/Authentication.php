@@ -91,30 +91,4 @@ final class Authentication
 
         return new AuthenticationResult($user);
     }
-
-    // TODO: remove this method, this is for Fortify
-    /**
-     * Takes an authentication request and returns a user if the request contains
-     * valid authentication credentials, but null otherwise.
-     *
-     * @param Request $request The request containing user credentials.
-     */
-    public static function handle(Request $request): ?User
-    {
-        $credentials = self::validate($request);
-
-        if ($credentials === null) {
-            return null;
-        }
-
-        $login = $credentials['login'];
-        $password = $credentials['password'];
-        $user = self::userFromSpecifier($login);
-
-        if (!$user || !Hash::check($password, $user->password)) {
-            return null;
-        }
-
-        return $user;
-    }
 }

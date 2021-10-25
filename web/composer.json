@@ -9,7 +9,6 @@
         "gettext/gettext": "^5.5",
         "guzzlehttp/guzzle": "^7.3",
         "innocenzi/laravel-vite": "^0.1.14",
-        "laravel/fortify": "^1.7",
         "laravel/framework": "^8.37",
         "laravel/sanctum": "^2.6",
         "laravel/socialite": "^5.2",
