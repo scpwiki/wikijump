@@ -171,7 +171,6 @@ return [
         Wikijump\Providers\AuthServiceProvider::class,
         // Wikijump\Providers\BroadcastServiceProvider::class,
         Wikijump\Providers\EventServiceProvider::class,
-        Wikijump\Providers\LocalizationServiceProvider::class,
         Wikijump\Providers\RouteServiceProvider::class,
         Wikijump\Providers\ViewServiceProvider::class,
     ],
