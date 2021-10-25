@@ -12,13 +12,13 @@ use Wikidot\DB\PageCompiledPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageLinkPeer;
 use Wikidot\DB\PageLink;
-use Wikidot\DB\PageExternalLinkPeer;
-use Wikidot\DB\PageExternalLink;
 use Wikidot\DB\PageInclusionPeer;
 use Wikidot\DB\PageInclusion;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
-
+use Wikijump\Models\PageConnection;
+use Wikijump\Models\PageConnectionMissing;
+use Wikijump\Models\PageConnectionType;
 use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
 use Wikijump\Services\Wikitext\PageInfo;
 use Wikijump\Services\Wikitext\ParseRenderMode;
@@ -52,8 +52,8 @@ final class Outdater
         switch ($eventType) {
             case 'new_page':
                 $this->recompilePage($page);
-                $this->fixInLinksEither($page);
-                $this->fixOutLinksEither($page);
+                $this->fixInLinks($page);
+                $this->fixOutLinks($page);
                 $this->fixInclusions($page);
                 $this->recompileInclusionDeps($page);
                 $this->outdatePageCache($page);
@@ -63,7 +63,7 @@ final class Outdater
             case 'source_changed':
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
-                $this->fixOutLinksEither($page);
+                $this->fixOutLinks($page);
                 $this->fixInclusions($page);
                 $this->recompileInclusionDeps($page);
                 $this->handleNavigationElement($page);
@@ -74,14 +74,14 @@ final class Outdater
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
                 $this->outdateDescendantsCache($page);
-                $this->fixInLinksEither($page); // if dynamical link text = page title
+                $this->fixInLinks($page); // if dynamical link text = page title
                 $this->outdatePageTagsCache($page);
                 break;
             case 'rename':
                 // $parm2 is the old name
                 $this->recompilePage($page);
-                $this->fixInLinksEither($page);
-                $this->fixInLinksEither($parm2);
+                $this->fixInLinks($page);
+                $this->fixInLinks($parm2);
                 $this->recompileInclusionDeps($page);
                 $this->recompileInclusionDeps($parm2);
                 $this->outdateDescendantsCache($page);
@@ -93,7 +93,7 @@ final class Outdater
                 break;
             case 'delete':
                 // $page is not just an old unix name. the page itself should be already deleted.
-                $this->fixInLinksEither($page);
+                $this->fixInLinks($page);
                 $this->recompileInclusionDeps($page);
                 $this->outdatePageTagsCache($page);
                 $this->outdatePageCache($page);
@@ -214,10 +214,8 @@ final class Outdater
      *
      * @param $page Page|string The page to check incoming links for.
      */
-    private function fixInLinksEither($page)
+    private function fixInLinks($page)
     {
-        $site = $GLOBALS['site'];
-
         if (is_string($page)) {
             // Wanted page, doesn't exist
             $this->fixInLinksAbsent($page);
@@ -250,7 +248,7 @@ final class Outdater
     /**
      * Update the list of links that originate from this page.
      */
-    private function fixOutLinksEither(Page $page): void
+    private function fixOutLinks(Page $page): void
     {
         $this->fixOutLinksPresent($page, $this->vars['internal_links_present']);
         $this->fixOutLinksAbsent($page, $this->vars['internal_links_absent']);
@@ -274,6 +272,7 @@ final class Outdater
         PageConnection::where([
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
+            'connection_type' => PageConnectionType::LINK,
         ])->chunk(100, function ($connections) {
             foreach ($connections as $connection) {
                 if (isset($links_present[$connection->to_page_id])) {
@@ -302,6 +301,7 @@ final class Outdater
                 'from_site_id' => $page->getSiteId(),
                 'to_page_id' => $link_page_id,
                 'to_site_id' => $link_site_id,
+                'connection_type' => PageConnectionType::LINK,
                 'count' => $count,
            ]);
         }
@@ -317,6 +317,7 @@ final class Outdater
         PageConnectionMissing::where([
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
+            'connection_type' => PageConnectionType::LINK,
         ])->chunk(100, function ($connections) {
             foreach ($connections as $connection) {
                 if (isset($links_absent[$connection->to_page_id])) {
@@ -343,6 +344,7 @@ final class Outdater
                 'from_site_id' => $page->getSiteId(),
                 'to_page_name' => $link_page_name,
                 'to_site_name' => $link_site_name,
+                'connection_type' => PageConnectionType::LINK,
                 'count' => $count,
             ]);
         }
@@ -361,7 +363,7 @@ final class Outdater
             foreach ($links as $link) {
                 if (isset($links_external[$link->page_id])) {
                     // Already in the database
-                    unset($links_external[$link->page_id]));
+                    unset($links_external[$link->page_id]);
                 } else {
                     // Formerly present, no longer is, remove it
                     $link->delete();
@@ -383,79 +385,94 @@ final class Outdater
     }
 
     /**
-     * Update table of inclusions - pages that are included by this page.
+     * Update the list of pages that include this one.
      */
-    private function fixInclusions($page)
+    private function fixInclusions(Page $page): void
     {
-        $inclusions_present = $this->vars['inclusions_present'];
-        $c = new Criteria();
-        $c->add("site_id", $page->getSiteId());
-        $c->add("including_page_id", $page->getPageId());
-        $c->add("included_page_name", null);
+        $this->fixInclusionsPresent($page, $this->vars['inclusions_present']);
+        $this->fixInclusionsAbsent($page, $this->vars['inclusions_absent']);
+    }
 
-        $dbinclusions = PageInclusionPeer::instance()->select($c);
-
-        // delete inclusions from database that are not current
-        if ($inclusions_present == null && count($dbinclusions)>0) {
-            //delete all
-            PageInclusionPeer::instance()->delete($c);
-        } else {
-            foreach ($dbinclusions as $dbinclusion) {
-                if ($inclusions_present[$dbinclusion->getIncludedPageId()] == null) {
-                    PageLinkPeer::instance()->deleteByPrimaryKey($dbinclusion->getInclusionId());
+    private function fixInclusionsPresent(Page $page, array $inclusions_present): void
+    {
+        PageConnection::where([
+            'from_page_id' => $page->getPageId(),
+            'from_site_id' => $page->getSiteId(),
+            'connection_type' => PageConnectionType::INCLUDE_MESSY,
+        ])->chunk(100, function ($connections) {
+            foreach ($connections as $connection) {
+                if (isset($inclusions_present[$connection->to_page_id])) {
+                    // Already in the database
+                    unset($inclusions_present[$connection->to_page_id]);
                 } else {
-                    // already in the database = remove from links to add
-                    unset($inclusions_present[$dbinclusion->getIncludedPageId()]);
+                    // Formerly present, no longer is, remove it
+                    $connection->delete();
                 }
             }
+        });
+
+        /*
+         * Now that we have all the links to add, we iterate
+         * over them and insert them into the database.
+         */
+        foreach ($inclusions_present as $inclusion_page_id) {
+            // TODO retrieve site_id along with page_id to avoid this query
+            $inclusion_site_id = PagePeer::instance()->selectByPrimaryKey($inclusion_page_id)->getSiteId();
+
+            // TODO get the count
+            $count = 1;
+
+            PageConnection::create([
+               'from_page_id' => $page->getPageId(),
+               'from_site_id' => $page->getSiteId(),
+               'to_page_id' => $inclusion_page_id,
+               'to_site_id' => $inclusion_site_id,
+               'connection_type' => PageConnectionType::LINK,
+               'count' => $count,
+           ]);
         }
+    }
 
-        if ($inclusions_present && count($inclusions_present)>0) {
-            // insert into database links that are not there yet.
-            foreach ($inclusions_present as $inclusion) {
-                $dbinclusion = new PageInclusion();
-                $dbinclusion->setIncludingPageId($page->getPageId());
-                $dbinclusion->setIncludedPageId($inclusion);
-                $dbinclusion->setSiteId($page->getSiteId());
-                $dbinclusion->save();
-            }
-        }
-
-        // NAMED inclusions (where pages do not exist)
-
-        // get links from the database first
-        $c = new Criteria();
-        $c->add("site_id", $page->getSiteId());
-        $c->add("including_page_id", $page->getPageId());
-        $c->add("included_page_id", null);
-        $dblinks = PageInclusionPeer::instance()->select($c);
-
-        $internal_links_absent = $this->vars['inclusions_absent'];
-
-        // delete links from database that are not current
-        if ($internal_links_absent == null && count($dblinks)>0) {
-            //delete all
-            PageInclusionPeer::instance()->delete($c);
-        } else {
-            foreach ($dblinks as $dblink) {
-                if ($internal_links_absent[$dblink->getIncludedPageName()] == null) {
-                    PageInclusionPeer::instance()->deleteByPrimaryKey($dblink->getInclusionId());
+    private function fixInclusionsAbsent(Page $page, array $inclusions_absent): void
+    {
+        /*
+         * Similar to fixOutLinksPresent, this finds existing links
+         * in the database, removes duplicates, and then saves
+         * the link additions / removals based on the new list.
+         */
+        PageConnectionMissing::where([
+            'from_page_id' => $page->getPageId(),
+            'from_site_id' => $page->getSiteId(),
+            'connection_type' => PageConnectionType::INCLUDE_MESSY,
+        ])->chunk(100, function ($connections) {
+            foreach ($connections as $connection) {
+                if (isset($inclusions_absent[$connection->to_page_id])) {
+                    // Already in the database
+                    unset($inclusions_absent[$connection->to_page_id]);
                 } else {
-                    // already in the database = remove from links to add
-                    unset($internal_links_absent[$dblink->getIncludedPageName()]);
+                    // Formerly present, no longer is, remove it
+                    $connection->delete();
                 }
             }
-        }
+        });
 
-        if ($internal_links_absent && count($internal_links_absent)>0) {
-            // insert into database links that are not there yet.
-            foreach ($internal_links_absent as $link) {
-                $dblink = new PageInclusion();
-                $dblink->setIncludingPageId($page->getPageId());
-                $dblink->setIncludedPageName($link);
-                $dblink->setSiteId($page->getSiteId());
-                $dblink->save();
-            }
+        foreach ($inclusions_absent as $inclusion_page_name) {
+            // TODO where does the site name come from?
+            // we will probably need to rethink link_stats along
+            // with the previous todo
+            $inclusion_site_name = null;
+
+            // TODO get the count
+            $count = 1;
+
+            PageConnectionMissing::create([
+                'from_page_id' => $page->getPageId(),
+                'from_site_id' => $page->getSiteId(),
+                'to_page_name' => $inclusion_page_name,
+                'to_site_name' => $inclusion_site_name,
+                'connection_type' => PageConnectionType::INCLUDE_MESSY,
+                'count' => $count,
+            ]);
         }
     }
 
@@ -719,7 +736,7 @@ final class Outdater
         foreach ($pages as $page) {
             $this->recompilePage($page);
             $this->outdatePageCache($page);
-            $this->fixOutLinksEither($page);
+            $this->fixOutLinks($page);
             $this->fixInclusions($page);
         }
 
@@ -737,7 +754,7 @@ final class Outdater
         foreach ($pages as $page) {
             $this->recompilePage($page);
             $this->outdatePageCache($page);
-            $this->fixOutLinksEither($page);
+            $this->fixOutLinks($page);
             $this->fixInclusions($page);
         }
 
