@@ -14,11 +14,6 @@ final class LocalizationService
     public const LOCALES_DIRECTORY = WIKIJUMP_ROOT . '/public/files--built/locales/';
     private static ?Translations $translations = null;
 
-    public static function setup(): void
-    {
-        // We use lazy loading to avoid artisan / local environment issues
-    }
-
     private static function loadTranslations(): void
     {
         if (self::translations === null) {
