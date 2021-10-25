@@ -111,7 +111,7 @@ Route::prefix('user--services')
     ->middleware(['auth', 'verified'])
     ->group(function () {
         // TODO: remove this temporary helper route
-        Route::get('/logout', [AuthController::class, 'logout']);
+        Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
         // name is important, it's reserved by Laravel for password confirmation
         Route::view('/confirm-password', 'next.auth.confirm-password')->name(
