@@ -16,7 +16,7 @@ final class LocalizationService
 
     private static function loadTranslations(): void
     {
-        if (self::translations === null) {
+        if (self::$translations === null) {
             $locale = App::currentLocale();
             $loader = new MoLoader();
             $path = self::LOCALES_DIRECTORY . $locale . '.mo';
