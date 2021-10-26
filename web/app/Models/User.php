@@ -26,11 +26,11 @@ use Wikijump\Traits\HasInteractions;
 use Wikijump\Traits\HasSettings;
 use Wikijump\Traits\LegacyCompatibility;
 
-// TODO: add two factor authentication
+// TODO: add multi factor authentication
 // see how Fortify does it - it's not too complicated
 // relevant fields in model:
-//   two_factor_secret
-//   two_factor_recovery_codes
+//   multi_factor_secret
+//   multi_factor_recovery_codes
 
 /**
  * Class User
@@ -85,8 +85,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
+        'multi_factor_secret',
+        'multi_factor_recovery_codes',
     ];
 
     /**
