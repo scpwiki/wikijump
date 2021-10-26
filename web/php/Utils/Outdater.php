@@ -250,9 +250,18 @@ final class Outdater
      */
     private function fixOutLinks(Page $page): void
     {
-        $this->fixOutLinksPresent($page, $this->vars['internal_links_present']);
-        $this->fixOutLinksAbsent($page, $this->vars['internal_links_absent']);
+        $this->fixConnectionsPresent($page, $this->vars['internal_links_present'], PageConnectionType::LINK);
+        $this->fixConnectionsAbsent($page, $this->vars['internal_links_absent'], PageConnectionType::LINK);
         $this->fixOutLinksExternal($page, $this->vars['external_links']);
+    }
+
+    /**
+     * Update the list of pages that include this one.
+     */
+    private function fixInclusions(Page $page): void
+    {
+        $this->fixConnectionsPresent($page, $this->vars['inclusions_present'], PageConnectionType::INCLUDE_MESSY);
+        $this->fixConnectionsAbsent($page, $this->vars['inclusions_absent'], PageConnectionType::INCLUDE_MESSY);
     }
 
     /**
@@ -365,35 +374,6 @@ final class Outdater
             ]);
         }
 
-    }
-
-    private function fixOutLinksPresent(Page $page, array $links_present): void
-    {
-        $this->fixConnectionsPresent($page, $links_present, PageConnectionType::LINK);
-    }
-
-    private function fixOutLinksAbsent(Page $page, array $links_absent): void
-    {
-        $this->fixConnectionsAbsent($page, $links_absent, PageConnectionType::LINK);
-    }
-
-    /**
-     * Update the list of pages that include this one.
-     */
-    private function fixInclusions(Page $page): void
-    {
-        $this->fixInclusionsPresent($page, $this->vars['inclusions_present']);
-        $this->fixInclusionsAbsent($page, $this->vars['inclusions_absent']);
-    }
-
-    private function fixInclusionsPresent(Page $page, array $inclusions_present): void
-    {
-        $this->fixConnectionsPresent($page, $inclusions_present, PageConnectionType::INCLUDE_MESSY);
-    }
-
-    private function fixInclusionsAbsent(Page $page, array $inclusions_absent): void
-    {
-        $this->fixConnectionsAbsent($page, $inclusions_absent, PageConnectionType::INCLUDE_MESSY);
     }
 
     private function fixOutLinksExternal(Page $page, array $links_external): void
