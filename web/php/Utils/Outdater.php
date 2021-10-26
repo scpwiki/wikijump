@@ -631,7 +631,7 @@ final class Outdater
 
     public function handleForumThreadSave($thread)
     {
-        // create an antry with mod time
+        // create an entry with mod time
         $now = time();
         $site = $GLOBALS['site'];
 
