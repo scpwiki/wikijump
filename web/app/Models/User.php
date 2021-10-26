@@ -20,12 +20,17 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Wikijump\Helpers\InteractionType;
 use Wikijump\Traits\HasInteractions;
 use Wikijump\Traits\HasSettings;
 use Wikijump\Traits\LegacyCompatibility;
+
+// TODO: add multi factor authentication
+// see how Fortify does it - it's not too complicated
+// relevant fields in model:
+//   multi_factor_secret
+//   multi_factor_recovery_codes
 
 /**
  * Class User
@@ -42,7 +47,6 @@ class User extends Authenticatable
     use LegacyCompatibility;
     use HasInteractions;
     use MustVerifyEmail;
-    use TwoFactorAuthenticatable;
     use HasApiTokens;
 
     /**
@@ -81,8 +85,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
+        'multi_factor_secret',
+        'multi_factor_recovery_codes',
     ];
 
     /**
