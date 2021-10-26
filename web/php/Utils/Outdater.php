@@ -377,6 +377,25 @@ final class Outdater
         $this->fixConnectionsAbsent($page, $links_absent, PageConnectionType::LINK);
     }
 
+    /**
+     * Update the list of pages that include this one.
+     */
+    private function fixInclusions(Page $page): void
+    {
+        $this->fixInclusionsPresent($page, $this->vars['inclusions_present']);
+        $this->fixInclusionsAbsent($page, $this->vars['inclusions_absent']);
+    }
+
+    private function fixInclusionsPresent(Page $page, array $inclusions_present): void
+    {
+        $this->fixConnectionsPresent($page, $inclusions_present, PageConnectionType::INCLUDE_MESSY);
+    }
+
+    private function fixInclusionsAbsent(Page $page, array $inclusions_absent): void
+    {
+        $this->fixConnectionsAbsent($page, $inclusions_absent, PageConnectionType::INCLUDE_MESSY);
+    }
+
     private function fixOutLinksExternal(Page $page, array $links_external): void
     {
         /*
@@ -409,25 +428,6 @@ final class Outdater
                 'count' => $count,
             ]);
         }
-    }
-
-    /**
-     * Update the list of pages that include this one.
-     */
-    private function fixInclusions(Page $page): void
-    {
-        $this->fixInclusionsPresent($page, $this->vars['inclusions_present']);
-        $this->fixInclusionsAbsent($page, $this->vars['inclusions_absent']);
-    }
-
-    private function fixInclusionsPresent(Page $page, array $inclusions_present): void
-    {
-        $this->fixConnectionsPresent($page, $inclusions_present, PageConnectionType::INCLUDE_MESSY);
-    }
-
-    private function fixInclusionsAbsent(Page $page, array $inclusions_absent): void
-    {
-        $this->fixConnectionsAbsent($page, $inclusions_absent, PageConnectionType::INCLUDE_MESSY);
     }
 
     private function recompileInclusionDeps($page)
