@@ -255,7 +255,15 @@ final class Outdater
         $this->fixOutLinksExternal($page, $this->vars['external_links']);
     }
 
-    private function fixOutLinksPresent(Page $page, array $links_present): void
+    /**
+     * A generic helper function for adjusting an outdated page connections
+     * table in light of page updates.
+     *
+     * @param Page $page The page connections are being adjusted for.
+     * @param array $items_present The new list of items to be preserved as connections.
+     * @param string $connection_type The PageConnectionType enum value to store in the table.
+     */
+    private function fixConnectionsPresent(Page $page, array $items_present, string $connection_type): void
     {
         /*
          * Find existing links in the database.
@@ -272,12 +280,12 @@ final class Outdater
         PageConnection::where([
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
-            'connection_type' => PageConnectionType::LINK,
+            'connection_type' => $connection_type,
         ])->chunk(100, function ($connections) {
             foreach ($connections as $connection) {
-                if (isset($links_present[$connection->to_page_id])) {
+                if (isset($items_present[$connection->to_page_id])) {
                     // Already in the database
-                    unset($links_present[$connection->to_page_id]);
+                    unset($items_present[$connection->to_page_id]);
                 } else {
                     // Formerly present, no longer is, remove it
                     $connection->delete();
@@ -289,9 +297,9 @@ final class Outdater
          * Now that we have all the links to add, we iterate
          * over them and insert them into the database.
          */
-        foreach ($links_present as $link_page_id) {
+        foreach ($items_present as $item_page_id) {
             // TODO retrieve site_id along with page_id to avoid this query
-            $link_site_id = PagePeer::instance()->selectByPrimaryKey($link_page_id)->getSiteId();
+            $item_site_id = PagePeer::instance()->selectByPrimaryKey($item_page_id)->getSiteId();
 
             // TODO get the count
             $count = 1;
@@ -299,30 +307,38 @@ final class Outdater
             PageConnection::create([
                 'from_page_id' => $page->getPageId(),
                 'from_site_id' => $page->getSiteId(),
-                'to_page_id' => $link_page_id,
-                'to_site_id' => $link_site_id,
-                'connection_type' => PageConnectionType::LINK,
+                'to_page_id' => $item_page_id,
+                'to_site_id' => $item_site_id,
+                'connection_type' => $connection_type,
                 'count' => $count,
-           ]);
+            ]);
         }
     }
 
-    private function fixOutLinksAbsent(Page $page, array $links_absent): void
+    /**
+     * A generic helper function for adjusting an outdated missing page connections
+     * table in light of page updates.
+     *
+     * @param Page $page The page connections are being adjusted for.
+     * @param array $items_absent The new list of items to be preserved as missing connections.
+     * @param string $connection_type The PageConnectionType enum value to store in the table.
+     */
+    private function fixConnectionsAbsent(Page $page, array $items_absent, string $connection_type): void
     {
         /*
-         * Similar to fixOutLinksPresent, this finds existing links
+         * Similar to fixConnectionsPresent, this finds existing links
          * in the database, removes duplicates, and then saves
          * the link additions / removals based on the new list.
          */
         PageConnectionMissing::where([
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
-            'connection_type' => PageConnectionType::LINK,
+            'connection_type' => $connection_type,
         ])->chunk(100, function ($connections) {
             foreach ($connections as $connection) {
-                if (isset($links_absent[$connection->to_page_id])) {
+                if (isset($items_absent[$connection->to_page_id])) {
                     // Already in the database
-                    unset($links_absent[$connection->to_page_id]);
+                    unset($items_absent[$connection->to_page_id]);
                 } else {
                     // Formerly present, no longer is, remove it
                     $connection->delete();
@@ -330,11 +346,11 @@ final class Outdater
             }
         });
 
-        foreach ($links_absent as $link_page_name) {
+        foreach ($items_absent as $item_page_name) {
             // TODO where does the site name come from?
             // we will probably need to rethink link_stats along
             // with the previous todo
-            $link_site_name = null;
+            $item_site_name = null;
 
             // TODO get the count
             $count = 1;
@@ -342,12 +358,23 @@ final class Outdater
             PageConnectionMissing::create([
                 'from_page_id' => $page->getPageId(),
                 'from_site_id' => $page->getSiteId(),
-                'to_page_name' => $link_page_name,
-                'to_site_name' => $link_site_name,
-                'connection_type' => PageConnectionType::LINK,
+                'to_page_name' => $item_page_name,
+                'to_site_name' => $item_site_name,
+                'connection_type' => $connection_type,
                 'count' => $count,
             ]);
         }
+
+    }
+
+    private function fixOutLinksPresent(Page $page, array $links_present): void
+    {
+        $this->fixConnectionsPresent($page, $links_present, PageConnectionType::LINK);
+    }
+
+    private function fixOutLinksAbsent(Page $page, array $links_absent): void
+    {
+        $this->fixConnectionsAbsent($page, $links_absent, PageConnectionType::LINK);
     }
 
     private function fixOutLinksExternal(Page $page, array $links_external): void
@@ -395,85 +422,12 @@ final class Outdater
 
     private function fixInclusionsPresent(Page $page, array $inclusions_present): void
     {
-        PageConnection::where([
-            'from_page_id' => $page->getPageId(),
-            'from_site_id' => $page->getSiteId(),
-            'connection_type' => PageConnectionType::INCLUDE_MESSY,
-        ])->chunk(100, function ($connections) {
-            foreach ($connections as $connection) {
-                if (isset($inclusions_present[$connection->to_page_id])) {
-                    // Already in the database
-                    unset($inclusions_present[$connection->to_page_id]);
-                } else {
-                    // Formerly present, no longer is, remove it
-                    $connection->delete();
-                }
-            }
-        });
-
-        /*
-         * Now that we have all the links to add, we iterate
-         * over them and insert them into the database.
-         */
-        foreach ($inclusions_present as $inclusion_page_id) {
-            // TODO retrieve site_id along with page_id to avoid this query
-            $inclusion_site_id = PagePeer::instance()->selectByPrimaryKey($inclusion_page_id)->getSiteId();
-
-            // TODO get the count
-            $count = 1;
-
-            PageConnection::create([
-               'from_page_id' => $page->getPageId(),
-               'from_site_id' => $page->getSiteId(),
-               'to_page_id' => $inclusion_page_id,
-               'to_site_id' => $inclusion_site_id,
-               'connection_type' => PageConnectionType::LINK,
-               'count' => $count,
-           ]);
-        }
+        $this->fixConnectionsPresent($page, $inclusions_present, PageConnectionType::INCLUDE_MESSY);
     }
 
     private function fixInclusionsAbsent(Page $page, array $inclusions_absent): void
     {
-        /*
-         * Similar to fixOutLinksPresent, this finds existing links
-         * in the database, removes duplicates, and then saves
-         * the link additions / removals based on the new list.
-         */
-        PageConnectionMissing::where([
-            'from_page_id' => $page->getPageId(),
-            'from_site_id' => $page->getSiteId(),
-            'connection_type' => PageConnectionType::INCLUDE_MESSY,
-        ])->chunk(100, function ($connections) {
-            foreach ($connections as $connection) {
-                if (isset($inclusions_absent[$connection->to_page_id])) {
-                    // Already in the database
-                    unset($inclusions_absent[$connection->to_page_id]);
-                } else {
-                    // Formerly present, no longer is, remove it
-                    $connection->delete();
-                }
-            }
-        });
-
-        foreach ($inclusions_absent as $inclusion_page_name) {
-            // TODO where does the site name come from?
-            // we will probably need to rethink link_stats along
-            // with the previous todo
-            $inclusion_site_name = null;
-
-            // TODO get the count
-            $count = 1;
-
-            PageConnectionMissing::create([
-                'from_page_id' => $page->getPageId(),
-                'from_site_id' => $page->getSiteId(),
-                'to_page_name' => $inclusion_page_name,
-                'to_site_name' => $inclusion_site_name,
-                'connection_type' => PageConnectionType::INCLUDE_MESSY,
-                'count' => $count,
-            ]);
-        }
+        $this->fixConnectionsAbsent($page, $inclusions_absent, PageConnectionType::INCLUDE_MESSY);
     }
 
     private function recompileInclusionDeps($page)
