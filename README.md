@@ -39,6 +39,14 @@ If you would like to volunteer some of your time to Wikijump development, join t
 
 We don't have a lot of documentation here yet. See [development.md](docs/development.md) and [install.md](docs/install.md) for information on running a local instance of Wikijump. See the [Wikijump Glossary](docs/glossary.md) for the terminology used by developers and API consumers.
 
+## Sponsors
+
+Wikijump would like to thank the following organizations for graciously permitting us to use their services for free:
+
+* [Atlassian](https://scuttle.atlassian.net/) ([info](https://www.atlassian.com/software/views/open-source-license-request))
+* [JetBrains](https://www.jetbrains.com/phpstorm/) ([info](https://www.jetbrains.com/community/opensource/#support))
+* [Datadog](https://app.datadoghq.com) ([info](https://www.datadoghq.com/partner/open-source/))
+
 ## License
 
 Wikijump is available under the same license as Wikidot, the [GNU Affero General Public License 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (AGPL 3.0).
