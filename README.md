@@ -44,8 +44,8 @@ We don't have a lot of documentation here yet. See [development.md](docs/develop
 Wikijump would like to thank the following organizations for graciously permitting us to use their services for free:
 
 * [Atlassian](https://scuttle.atlassian.net/) ([info](https://www.atlassian.com/software/views/open-source-license-request))
-* [PhpStorm](https://www.jetbrains.com/phpstorm/) ([info](https://www.jetbrains.com/community/opensource/#support))
-* Datadog
+* [JetBrains](https://www.jetbrains.com/phpstorm/) ([info](https://www.jetbrains.com/community/opensource/#support))
+* Datadog ([info](https://www.datadoghq.com/partner/open-source/))
 
 ## License
 
