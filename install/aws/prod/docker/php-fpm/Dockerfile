@@ -53,17 +53,16 @@ RUN sed -i "s/%%BASE_DOMAIN%%/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 # Frontend
 #
 
-FROM circleci/node:latest AS frontend
+FROM node:alpine AS node
 
 # Copy source
-RUN sudo mkdir /src
+RUN mkdir /src
 COPY ./ftml /src/ftml
 COPY ./locales /src/locales
 COPY ./web /src/web
-RUN sudo chown -R circleci /src
 
 # Install pnpm
-RUN sudo npm install -g pnpm
+RUN npm install -g pnpm
 
 # Build frontend
 WORKDIR /src/web

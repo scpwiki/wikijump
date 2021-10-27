@@ -30,7 +30,7 @@ ARG XDEBUG_INI=/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # !! Put your IP for debugging here.
 RUN echo "xdebug.mode = develop" >> ${XDEBUG_INI} \
- && echo "xdebug.client_host = ${DEBUG_IP}" >> ${XDEBUG_INI}
+    && echo "xdebug.client_host = ${DEBUG_IP}" >> ${XDEBUG_INI}
 
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
@@ -64,17 +64,16 @@ RUN sed -i "s/%%BASE_DOMAIN%%/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 # Frontend
 #
 
-FROM circleci/node:latest AS frontend
+FROM node:alpine AS frontend
 
 # Copy source
-RUN sudo mkdir /src
+RUN mkdir /src
 COPY ./ftml /src/ftml
 COPY ./locales /src/locales
 COPY ./web /src/web
-RUN sudo chown -R circleci /src
 
 # Install pnpm
-RUN sudo npm install -g pnpm
+RUN npm install -g pnpm
 
 # Build frontend
 WORKDIR /src/web
@@ -94,9 +93,9 @@ WORKDIR /src/ftml
 
 # Build ftml-ffi without logging
 RUN cargo build \
-        --release \
-        --no-default-features \
-        --features ffi,mathml
+    --release \
+    --no-default-features \
+    --features ffi,mathml
 
 #
 # Localizations
