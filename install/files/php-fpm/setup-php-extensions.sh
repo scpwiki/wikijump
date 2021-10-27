@@ -17,7 +17,3 @@ docker-php-ext-install intl
 # Configure PHP Data Structures
 pecl install ds
 docker-php-ext-enable ds
-
-# Configure PHP Imagick (ImageMagick wrapper)
-pecl install imagick
-docker-php-ext-enable imagick
