@@ -9,7 +9,6 @@ apt install -y \
 	libfreetype6-dev \
 	libgd-dev \
 	libjpeg62-turbo-dev \
-	libmagickwand-dev \
 	libtidy-dev \
 	postgresql-common \
 	zip
