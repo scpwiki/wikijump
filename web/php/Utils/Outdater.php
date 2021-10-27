@@ -10,10 +10,8 @@ use Ozone\Framework\ODate;
 use Wikidot\DB\Page;
 use Wikidot\DB\PageCompiledPeer;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\PageLinkPeer;
 use Wikidot\DB\PageLink;
 use Wikidot\DB\PageInclusionPeer;
-use Wikidot\DB\PageInclusion;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 use Wikijump\Models\PageConnection;
@@ -43,7 +41,7 @@ final class Outdater
         $this->recurrenceLevel = $baseRecurrenceLevel + 1;
     }
 
-    public function pageEvent($eventType, $page, $parm2 = null)
+    public function pageEvent($eventType, Page $page, ?string $old_slug = null)
     {
         if ($this->recurrenceLevel > 5) {
             return;
@@ -55,7 +53,7 @@ final class Outdater
                 $this->fixInLinks($page);
                 $this->fixOutLinks($page);
                 $this->fixInclusions($page);
-                $this->recompileInclusionDeps($page);
+                $this->recompileIncludedByPage($page);
                 $this->outdatePageCache($page);
                 $this->handleNavigationElement($page);
                 $this->handleTemplateChange($page);
@@ -65,7 +63,7 @@ final class Outdater
                 $this->outdatePageCache($page);
                 $this->fixOutLinks($page);
                 $this->fixInclusions($page);
-                $this->recompileInclusionDeps($page);
+                $this->recompileIncludedByPage($page);
                 $this->handleNavigationElement($page);
                 $this->handleTemplateChange($page);
                 break;
@@ -78,26 +76,31 @@ final class Outdater
                 $this->outdatePageTagsCache($page);
                 break;
             case 'rename':
-                // $parm2 is the old name
                 $this->recompilePage($page);
                 $this->fixInLinks($page);
-                $this->fixInLinks($parm2);
-                $this->recompileInclusionDeps($page);
-                $this->recompileInclusionDeps($parm2);
+                $this->fixInLinks($old_slug);
+                $this->recompileIncludedByPage($page);
+                $this->recompileIncludedBySlug($old_slug);
                 $this->outdateDescendantsCache($page);
-                $this->outdatePageCache($parm2);
+                $this->outdatePageCache($old_slug);
                 $this->outdatePageCache($page);
                 $this->outdatePageTagsCache($page);
                 $this->handleTemplateChange($page);
-                $this->handleTemplateChange($parm2);
+                $this->handleTemplateChange($old_slug);
                 break;
             case 'delete':
-                // $page is not just an old unix name. the page itself should be already deleted.
-                $this->fixInLinks($page);
-                $this->recompileInclusionDeps($page);
-                $this->outdatePageTagsCache($page);
-                $this->outdatePageCache($page);
-                $this->handleTemplateChange($page);
+                // Previously $page was the slug being deleted.
+                // However, this is not great for typechecking, and
+                // we lose some information we can take advantage of.
+                //
+                // So instead we pass in the slug to calls that want a string,
+                // and the page when that information would be helpful.
+
+                $this->fixInLinks($page->getUnixName());
+                $this->recompileIncludedByPage($page);
+                $this->outdatePageTagsCache($page->getUnixName());
+                $this->outdatePageCache($page->getUnixName());
+                $this->handleTemplateChange($page->getUnixName());
                 break;
             case 'parent_changed':
                 $this->outdatePageCache($page);
@@ -106,7 +109,7 @@ final class Outdater
             case 'file_change':
                 $this->recompilePage($page);
                 $this->outdatePageCache($page);
-                $this->recompileInclusionDeps($page);
+                $this->recompileIncludedByPage($page);
                 break;
             case 'page_vote':
                 $this->outdatePageCache($page);
@@ -410,29 +413,29 @@ final class Outdater
         }
     }
 
-    private function recompileInclusionDeps($page)
+    private function recompileIncludedByPage(Page $page): void
     {
-        // get deps
-        $site = $GLOBALS['site'];
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
+        PageConnection::where([
+            'to_page_id' => $page->getPageId(),
+            'to_site_id' => $page->getSiteId(),
+            'connection_type' => PageConnectionType::INCLUDE_MESSY,
+        ])->chunk(100, $this->updateIncludedPageConnections);
+    }
 
-        if (is_string($page)) {
-            $c->add("included_page_name", $page);
-        } else {
-            $c2=new Criteria();
-            $c2->add("included_page_id", $page->getPageId());
-            $c2->addOr("included_page_name", $page->getUnixName());
-            $c->addCriteriaAnd($c2);
-        }
+    private function recompileIncludedBySlug(string $slug): void
+    {
+        PageConnectionMissing::where([
+            'to_page_name' => $slug,
+            'connection_type' => PageConnectionType::INCLUDE_MESSY,
+        ])->chunk(100, $this->updateIncludedPageConnections);
+    }
 
-        $dbinclusions = PageInclusionPeer::instance()->select($c);
-
-        foreach ($dbinclusions as $inc) {
-            $page = PagePeer::instance()->selectByPrimaryKey($inc->getIncludingPageId());
-            // triger source update (recompile)
-            $outdater = new Outdater($this->recurrenceLevel);
-            $outdater->pageEvent("source_changed", $page);
+    private function updateIncludedPageConnections($connections): void
+    {
+        foreach ($connections as $connection) {
+            $page = PagePeer::getInstance()->selectByPrimaryKey($connection->from_page_id);
+            $outdater = new Outdater($this->recurrence_level);
+            $outdater->pageEvent('source_changed', $page);
         }
     }
 
