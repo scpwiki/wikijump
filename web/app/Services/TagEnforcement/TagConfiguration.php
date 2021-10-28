@@ -79,7 +79,7 @@ class TagConfiguration
      *
      * Result schema:
      * [
-     *   'tag-name' => ['undefined' | 'role' | 'date'...],
+     *   'tag-name' => ['invalid' | 'undefined' | 'role' | 'date'...],
      * ]
      *
      * @param Set $added_tags Which tags were added
@@ -196,6 +196,13 @@ class TagConfiguration
         array &$result
     ): void {
         $reasons = [];
+
+        if ($tag === '') {
+            // Special case, tags can't be empty strings
+            $reasons[] = 'invalid';
+            $result[$tag] = $reasons;
+            return;
+        }
 
         $tag_data = $this->tags[$tag];
         if ($tag_data === null) {
