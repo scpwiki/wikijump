@@ -157,12 +157,14 @@ class TagConfiguration
             if ($tags->contains($tag)) {
                 $results = [];
 
-                foreach ($data['condition_lists'] as $index => $condition_list_data) {
+                foreach ($data['condition_lists'] as $condition_list_data) {
                     $condition_list = new TagConditionList($condition_list_data);
                     $results[] = $condition_list->validate($tags);
                 }
 
-                $result['tags'][$tag] = $results;
+                if (!empty($results)) {
+                    $result['tags'][$tag] = $results;
+                }
             }
         }
 
@@ -171,12 +173,14 @@ class TagConfiguration
             if (!$this->tagGroupPresent($tag_group, $tags)->isEmpty()) {
                 $results = [];
 
-                foreach ($data['condition_lists'] as $index => $condition_list_data) {
+                foreach ($data['condition_lists'] as $condition_list_data) {
                     $condition_list = new TagConditionList($condition_list_data);
                     $results[] = $condition_list->validate($tags);
                 }
 
-                $result['tag_groups'][$tag_group] = $results;
+                if (!empty($results)) {
+                    $result['tag_groups'][$tag_group] = $results;
+                }
             }
         }
 

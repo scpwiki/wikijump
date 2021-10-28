@@ -51,8 +51,8 @@ class TagEngineTest extends TestCase
             [
                 'valid' => true,
                 'invalid_tags' => [],
-                'failed_tag_conditions' => [],
-                'failed_tag_group_conditions' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
             ],
         );
 
