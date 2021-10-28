@@ -399,19 +399,15 @@ final class Outdater
             $page_id = $db_item->$page_id_field;
             $count = $items_to_add[$page_id];
 
-            if ($count === null) {
-                // No item at present, needs to be inserted
-            } else if ($count === 0) {
-                // No remaining items, remove it
-                $db_item->delete();
-            } else {
-                if ($count !== $db_item->count) {
-                    $db_item->count = $count;
-                    $db_item->save();
-                }
-
+            if (isset($count)) {
                 // We just need to update, not insert
                 unset($items_to_add[$page_id]);
+
+                $db_item->count = $count;
+                $db_item->save();
+            } else {
+                // No remaining items, remove it
+                $db_item->delete();
             }
         }
     }
