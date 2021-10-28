@@ -17,11 +17,9 @@ class NewPageLinks extends Migration
         Schema::drop('page_inclusion');
         Schema::drop('page_link');
 
-        // We don't use timestamps() because we don't need updated_at.
-
         Schema::create('page_link', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
             $table->foreignId('page_id')->index();
             $table->foreignId('site_id');
             $table->string('url');
@@ -32,7 +30,7 @@ class NewPageLinks extends Migration
 
         Schema::create('page_connection', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
             $table->foreignId('from_page_id')->index();
             $table->foreignId('from_site_id');
             $table->foreignId('to_page_id')->index();
@@ -45,7 +43,7 @@ class NewPageLinks extends Migration
 
         Schema::create('page_connection_missing', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
             $table->foreignId('from_page_id')->index();
             $table->foreignId('from_site_id');
             $table->string('to_page_name')->index();
@@ -53,7 +51,7 @@ class NewPageLinks extends Migration
             $table->unsignedSmallInteger('count');
             $table->enum('connection_type', ['include-messy', 'include-elements', 'component', 'link']);
 
-            $table->unique(['from_page_id', 'from_site_id', 'to_page_name', 'to_site_name', 'count']);
+            $table->unique(['from_page_id', 'from_site_id', 'to_page_name', 'to_site_name']);
         });
     }
 
