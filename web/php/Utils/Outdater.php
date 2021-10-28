@@ -284,7 +284,7 @@ final class Outdater
          * For instance, ['a', 'a', 'b', 'c', 'a', 'c']
          * becomes ['a' => 3, 'b' => 1, 'c' => 2].
          */
-        $items_present = array_count_values($items_present);
+        $items_to_add = array_count_values($items_present);
 
         /*
          * Find existing links in the database.
@@ -302,15 +302,15 @@ final class Outdater
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
             'connection_type' => $connection_type,
-        ])->chunk(100, function ($connections) use (&$items_present) {
-            $this->updateItemsCounts($connections, 'to_page_id', $items_present);
+        ])->chunk(100, function ($connections) use (&$items_to_add) {
+            $this->updateItemsCounts($connections, 'to_page_id', $items_to_add);
         });
 
         /*
          * Now that we have all the links to add, we iterate
          * over them and insert them into the database.
          */
-        foreach ($items_present as $item_page_id => $count) {
+        foreach ($items_to_add as $item_page_id => $count) {
             // TODO retrieve site_id along with page_id to avoid this query
             $item_site_id = PagePeer::instance()->selectByPrimaryKey($item_page_id)->getSiteId();
 
@@ -335,7 +335,7 @@ final class Outdater
      */
     private function fixConnectionsAbsent(Page $page, array $items_absent, string $connection_type): void
     {
-        $items_absent = array_count_values($items_absent);
+        $items_to_add = array_count_values($items_absent);
 
         /*
          * Similar to fixConnectionsPresent, this finds existing links
@@ -346,11 +346,11 @@ final class Outdater
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
             'connection_type' => $connection_type,
-        ])->chunk(100, function ($connections) use (&$items_absent) {
-            $this->updateItemsCounts($connections, 'to_page_id', $items_absent);
+        ])->chunk(100, function ($connections) use (&$items_to_add) {
+            $this->updateItemsCounts($connections, 'to_page_id', $items_to_add);
         });
 
-        foreach ($items_absent as $item_page_name => $count) {
+        foreach ($items_to_add as $item_page_name => $count) {
             // TODO where does the site name come from?
             // we will probably need to rethink link_stats along
             // with the previous todo
@@ -370,7 +370,7 @@ final class Outdater
 
     private function fixOutLinksExternal(Page $page, array $links_external): void
     {
-        $links_external = array_count_values($links_external);
+        $links_to_add = array_count_values($links_external);
 
         /*
          * Again similar to fixOutLinksPresent and fixOutLinksAbsent,
@@ -379,11 +379,11 @@ final class Outdater
         PageLink::where([
             'page_id' => $page->getPageId(),
             'site_id' => $page->getSiteId(),
-        ])->chunk(100, function ($links) use (&$links_external) {
-            $this->updateItemsCounts($links, 'page_id', $links_external);
+        ])->chunk(100, function ($links) use (&$links_to_add) {
+            $this->updateItemsCounts($links, 'page_id', $links_to_add);
         });
 
-        foreach ($links_external as $url => $count) {
+        foreach ($links_to_add as $url => $count) {
             PageLink::create([
                 'page_id' => $page->getPageId(),
                 'site_id' => $page->getSiteId(),
