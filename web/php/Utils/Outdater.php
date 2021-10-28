@@ -418,7 +418,9 @@ final class Outdater
             'to_page_id' => $page->getPageId(),
             'to_site_id' => $page->getSiteId(),
             'connection_type' => PageConnectionType::INCLUDE_MESSY,
-        ])->chunk(100, function ($connections) { $this->updateIncludedPageConnections($connections); });
+        ])->chunk(100, function ($connections) {
+            $this->updateIncludedPageConnections($connections);
+        });
     }
 
     private function recompileIncludedBySlug(string $slug): void
@@ -426,7 +428,9 @@ final class Outdater
         PageConnectionMissing::where([
             'to_page_name' => $slug,
             'connection_type' => PageConnectionType::INCLUDE_MESSY,
-        ])->chunk(100, function ($connections) { $this->updateIncludedPageConnections($connections); });
+        ])->chunk(100, function ($connections) {
+            $this->updateIncludedPageConnections($connections);
+        });
     }
 
     private function updateIncludedPageConnections($connections): void
