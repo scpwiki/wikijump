@@ -50,6 +50,6 @@ services:
         target: /var/www/wikijump/web/web
         read_only: true
       - type: bind
-        source: ../../../web/public
-        target: /var/www/wikijump/web/public
+        source: ../../../web/public/files--static
+        target: /var/www/wikijump/web/public/files--static
         read_only: true
