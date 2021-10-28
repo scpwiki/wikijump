@@ -420,7 +420,7 @@ final class Outdater
             'to_site_id' => $page->getSiteId(),
             'connection_type' => PageConnectionType::INCLUDE_MESSY,
         ])->chunk(100, function ($connections) {
-            $this->updateIncludedPageConnections($connections);
+            $this->recompiledIncludedPagesBatch($connections);
         });
     }
 
@@ -430,11 +430,11 @@ final class Outdater
             'to_page_name' => $slug,
             'connection_type' => PageConnectionType::INCLUDE_MESSY,
         ])->chunk(100, function ($connections) {
-            $this->updateIncludedPageConnections($connections);
+            $this->recompiledIncludedPagesBatch($connections);
         });
     }
 
-    private function updateIncludedPageConnections($connections): void
+    private function recompiledIncludedPagesBatch($connections): void
     {
         foreach ($connections as $connection) {
             $page = PagePeer::getInstance()->selectByPrimaryKey($connection->from_page_id);
