@@ -47,13 +47,13 @@ dev-sudo: node scripts/dev.js sudo
 
 serve:
   - cd ../install/local/dev
-  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.serve.yaml build
-  - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.serve.yaml up
+  - docker-compose -p wikijump -f docker-compose.yaml build
+  - docker-compose -p wikijump -f docker-compose.yaml up
 
 serve-sudo:
   - cd ../install/local/dev
-  - sudo docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.serve.yaml build
-  - sudo docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.serve.yaml up
+  - sudo docker-compose -p wikijump -f docker-compose.yaml build
+  - sudo docker-compose -p wikijump -f docker-compose.yaml up
 
 # -- TESTING
 

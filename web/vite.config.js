@@ -39,6 +39,8 @@ const config = defineConfig({}, PHP_CONFIG)
   .withPlugins(vitePluginToml, vitePluginYaml, svelte(SVELTE_OPTIONS))
   .merge({
     server: {
+      port: 3000,
+      strictPort: true,
       fs: { strict: false }
     },
 
@@ -65,6 +67,5 @@ const config = defineConfig({}, PHP_CONFIG)
       exclude: modules
     }
   })
-  .merge(env => (env.NODE_ENV === "development" ? { base: "/files--dev/" } : {}))
 
 export default config

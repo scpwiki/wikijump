@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  cache:
+    image: memcached:1.6-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "11211"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  database:
+    build:
+      context: ../../..
+      dockerfile: install/local/dev/postgres/Dockerfile
+      args:
+        FILES_DOMAIN: 'wjfiles.localhost'
+    ports:
+      - "5432:5432"
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "wikijump", "-U", "wikijump"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  nginx:
+    build:
+      context: ../../..
+      dockerfile: install/local/dev/nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - php-fpm
+
+  php-fpm:
+    build:
+      context: ../../..
+      dockerfile: install/local/dev/php-fpm/Dockerfile
+      args:
+        MAIN_DOMAIN: 'wikijump.localhost'
+        FILES_DOMAIN: 'wjfiles.localhost'
+    restart: always
+    depends_on:
+      cache:
+        condition: service_healthy
+      database:
+        condition: service_healthy

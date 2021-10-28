@@ -19,14 +19,10 @@ services:
         target: /var/www/wikijump/web/storage
         read_only: false
 
-      # Assets, views
+      # Views
       - type: bind
-        source: ../../../web/public/files--static
-        target: /var/www/wikijump/web/public/files--static
-        read_only: true
-      - type: bind
-        source: ../../../web/resources
-        target: /var/www/wikijump/web/resources
+        source: ../../../web/resources/views
+        target: /var/www/wikijump/web/resources/views
         read_only: true
 
       # Legacy
@@ -48,10 +44,6 @@ services:
         read_only: true
 
   nginx:
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.php-fpm.tls=false
-      - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)
     volumes:
       - type: bind
         source: ../../../web/web
@@ -61,7 +53,3 @@ services:
         source: ../../../web/public
         target: /var/www/wikijump/web/public
         read_only: true
-
-  reverse-proxy:
-    command:
-      - --providers.docker
