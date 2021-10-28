@@ -64,14 +64,99 @@ class TagEngineTest extends TestCase
             [
                 'valid' => true,
                 'invalid_tags' => [],
-                'failed_tag_conditions' => [],
-                'failed_tag_group_conditions' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
             ],
         );
     }
 
+    /**
+     * Tests the TagEngine on a simple configuration that verifies if tags exist.
+     *
+     * This only checks if the tags come from a selected whitelist, and no other properties.
+     *
+     * @return void
+     */
     public function testAllowedTagConfiguration(): void
     {
-        // TODO
+        $tag_exists = [
+            'properties' => [],
+            'condition_lists' => [],
+        ];
+
+        $config = new TagConfiguration([
+            'tags' => [
+                'apple' => $tag_exists,
+                'banana' => $tag_exists,
+                'cherry' => $tag_exists,
+            ],
+        ]);
+
+        $this->checkDecision(
+            $config,
+            ['apple', 'banana'],
+            ['apple', 'cherry'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            [],
+            ['apple', 'banana', 'cherry'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['apple', 'banana', 'cherry'],
+            [],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['apple', 'banana'],
+            ['apple', 'banana', 'durian'],
+            [],
+            [
+                'valid' => false,
+                'invalid_tags' => [
+                    'durian' => ['undefined'],
+                ],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['zebra', 'apple'],
+            ['zebra', 'apple', 'banana'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
     }
 }
