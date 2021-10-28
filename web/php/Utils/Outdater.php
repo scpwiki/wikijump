@@ -277,6 +277,15 @@ final class Outdater
     private function fixConnectionsPresent(Page $page, array $items_present, string $connection_type): void
     {
         /*
+         * Turns a list of individual items into a mapping of those items
+         * and the number of items found in the list.
+         *
+         * For instance, ['a', 'a', 'b', 'c', 'a', 'c']
+         * becomes ['a' => 3, 'b' => 1, 'c' => 2].
+         */
+        $items_present = array_count_values($items_present);
+
+        /*
          * Find existing links in the database.
          *
          * For each link in the database, either it will be in
@@ -292,14 +301,20 @@ final class Outdater
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
             'connection_type' => $connection_type,
-        ])->chunk(100, function ($connections) {
+        ])->chunk(100, function ($connections) use ($items_present) {
             foreach ($connections as $connection) {
-                if (isset($items_present[$connection->to_page_id])) {
-                    // Already in the database
-                    unset($items_present[$connection->to_page_id]);
-                } else {
-                    // Formerly present, no longer is, remove it
+                $count = $items_present[$connection->to_page_id];
+                if ($count === 0) {
+                    // No remaining items, remove it
                     $connection->delete();
+                } else {
+                    if ($count !== $connection->count) {
+                        $connection->count = $count;
+                        $connection->save();
+                    }
+
+                    // We just need to update, not insert
+                    unset($items_present[$connection->to_page_id]);
                 }
             }
         });
@@ -308,12 +323,9 @@ final class Outdater
          * Now that we have all the links to add, we iterate
          * over them and insert them into the database.
          */
-        foreach ($items_present as $item_page_id) {
+        foreach ($items_present as $item_page_id => $count) {
             // TODO retrieve site_id along with page_id to avoid this query
             $item_site_id = PagePeer::instance()->selectByPrimaryKey($item_page_id)->getSiteId();
-
-            // TODO get the count
-            $count = 1;
 
             PageConnection::create([
                 'from_page_id' => $page->getPageId(),
@@ -336,6 +348,8 @@ final class Outdater
      */
     private function fixConnectionsAbsent(Page $page, array $items_absent, string $connection_type): void
     {
+        $items_absent = array_count_values($items_absent);
+
         /*
          * Similar to fixConnectionsPresent, this finds existing links
          * in the database, removes duplicates, and then saves
@@ -345,26 +359,29 @@ final class Outdater
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
             'connection_type' => $connection_type,
-        ])->chunk(100, function ($connections) {
+        ])->chunk(100, function ($connections) use ($items_absent) {
             foreach ($connections as $connection) {
-                if (isset($items_absent[$connection->to_page_id])) {
-                    // Already in the database
-                    unset($items_absent[$connection->to_page_id]);
-                } else {
-                    // Formerly present, no longer is, remove it
+                $count = $items_absent[$connection->to_page_id];
+                if ($count === 0) {
+                    // No remaining items, remove it
                     $connection->delete();
+                } else {
+                    if ($count !== $connection->count) {
+                        $connection->count = $count;
+                        $connection->save();
+                    }
+
+                    // We just need to update, not insert
+                    unset($items_absent[$connection->to_page_id]);
                 }
             }
         });
 
-        foreach ($items_absent as $item_page_name) {
+        foreach ($items_absent as $item_page_name => $count) {
             // TODO where does the site name come from?
             // we will probably need to rethink link_stats along
             // with the previous todo
             $item_site_name = null;
-
-            // TODO get the count
-            $count = 1;
 
             PageConnectionMissing::create([
                 'from_page_id' => $page->getPageId(),
