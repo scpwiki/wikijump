@@ -28,10 +28,10 @@ web/web/files--common/modules       @rossjrw
 /install/                           @danieltharp
 
 # PHP and related
-*.php                               @danieltharp
-/web/composer.json                  @danieltharp
-/web/phpunit.xml                    @danieltharp
-/web/.env.example                   @danieltharp
+*.php                               @ammongit @danieltharp
+/web/composer.json                  @ammongit @danieltharp
+/web/phpunit.xml                    @ammongit @danieltharp
+/web/.env.example                   @ammongit @danieltharp
 
 # Smarty
-*.tpl                               @danieltharp
+*.tpl                               @ammongit @danieltharp
