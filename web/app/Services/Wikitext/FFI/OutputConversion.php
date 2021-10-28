@@ -165,7 +165,10 @@ final class OutputConversion
         $absent = [];
 
         if ($pointer === null) {
-            assert($length === 0, 'Pointer received was null but length reported is non-zero');
+            assert(
+                $length === 0,
+                'Pointer received was null but length reported is non-zero',
+            );
         }
 
         // Convert items, placing in the appropriate list
