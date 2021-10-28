@@ -37,16 +37,29 @@ final class TagEngine
         $now = Carbon::now();
 
         // Perform checks
-        $invalid_tags = $config->validateTags($added_tags, $removed_tags, $role_ids, $now);
+        $invalid_tags = $config->validateTags(
+            $added_tags,
+            $removed_tags,
+            $role_ids,
+            $now,
+        );
         $valid = empty($invalid_tags);
 
         [
             'tags' => $failed_tag_conditions,
             'tag_groups' => $failed_tag_group_conditions,
         ] = $config->validateConditions($current_tags);
-        $valid = $valid && empty($failed_tag_conditions) && empty($failed_tag_group_conditions);
+        $valid =
+            $valid &&
+            empty($failed_tag_conditions) &&
+            empty($failed_tag_group_conditions);
 
         // Build final TagDecision
-        return new TagDecision($valid, $invalid_tags, $failed_tag_conditions, $failed_tag_group_conditions);
+        return new TagDecision(
+            $valid,
+            $invalid_tags,
+            $failed_tag_conditions,
+            $failed_tag_group_conditions,
+        );
     }
 }

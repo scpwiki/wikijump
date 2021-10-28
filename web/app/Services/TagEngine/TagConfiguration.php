@@ -183,8 +183,12 @@ class TagConfiguration
     }
 
     // Tag helpers
-    private function checkCanChangeTag(string $tag, Set $role_ids, Carbon $date, array &$result): void
-    {
+    private function checkCanChangeTag(
+        string $tag,
+        Set $role_ids,
+        Carbon $date,
+        array &$result
+    ): void {
         $reasons = [];
 
         $tag_data = $this->tags[$tag];
