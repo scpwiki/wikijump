@@ -71,31 +71,39 @@ class TagConfiguration
     }
 
     // Validation
+
+    /**
+     * Validates whether the added and removed tags all exist and can be changed in this context.
+     *
+     * @param Set $added_tags Which tags were added
+     * @param Set $removed_tags Which tags were removed
+     * @param Set $role_ids The roles that the current user performing the tag action has
+     * @param Carbon $date
+     * @return array The result of the determination
+     */
     public function validateTags(
         Set $added_tags,
         Set $removed_tags,
         Set $role_ids,
         Carbon $date
-    ): bool {
+    ): array {
+        $result = [];
+
         // If empty, it means don't validate on tag existence
         if (empty($this->tags)) {
-            return true;
+            return $result;
         }
 
         // Check all added and removed tags
         foreach ($added_tags as $tag) {
-            if (!$this->canChangeTag($tag, $date, $role_ids)) {
-                return false;
-            }
+            $this->checkCanChangeTag($tag, $date, $role_ids, $result);
         }
 
         foreach ($removed_tags as $tag) {
-            if (!$this->canChangeTag($tag, $date, $role_ids)) {
-                return false;
-            }
+            $this->checkCanChangeTag($tag, $date, $role_ids, $result);
         }
 
-        return true;
+        return $result;
     }
 
     public function validateConditions(Set $tags): bool
@@ -129,12 +137,16 @@ class TagConfiguration
     }
 
     // Tag helpers
-    private function canChangeTag(string $tag, Set $role_ids, Carbon $date): bool
+    private function checkCanChangeTag(string $tag, Set $role_ids, Carbon $date, array &$result): void
     {
+        $reasons = [];
+
         $tag_data = $this->tags[$tag];
         if ($tag_data === null) {
             // No tag entry, not a valid tag
-            return false;
+            $reasons[] = 'undefined';
+            $result[$tag] = $reasons;
+            return;
         }
 
         // Check role constraint, if present
@@ -142,7 +154,7 @@ class TagConfiguration
         if ($allowed_role_ids !== null) {
             if ($allowed_role_ids->intersect($role_ids)->isEmpty()) {
                 // No roles in common, not allowed to apply
-                return false;
+                $reasons[] = 'role';
             }
         }
 
@@ -151,12 +163,14 @@ class TagConfiguration
         if ($date_bound !== null) {
             [$start_date, $end_date] = $date_bound;
             if (!$date->between($start_date, $end_date)) {
-                return false;
+                $reasons[] = 'date';
             }
         }
 
-        // All constraints passed
-        return true;
+        // If there are reasons for rejection, add them
+        if (!empty($reasons)) {
+            $result[$tag] = $reasons;
+        }
     }
 
     // Tag group helpers

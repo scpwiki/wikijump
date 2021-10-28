@@ -15,13 +15,21 @@ final class TagEngine
     {
     }
 
+    /**
+     * Verifies whether the given tags are valid or not under the passed tag configuration.
+     *
+     * @param TagConfiguration $config The configuration to check the tags against
+     * @param Set $previous_tags The previous tags (if any) associated with this page
+     * @param Set $current_tags The tags being proposed for this page
+     * @return TagDecision The outcome of validation
+     */
     public static function validate(
-        object $configuration,
-        array $current_tags,
-        array $previous_tags
+        TagConfiguration $config,
+        Set $previous_tags,
+        Set $current_tags
     ): TagDecision {
-        $current_tags = new Set($current_tags); // Tags being saved to the page.
-        $previous_tags = new Set($previous_tags); // Tags previously saved to the page.
+        $added_tags = $current_tags.difference($previous_tags);
+        $removed_tags = $previous_tags.difference($current_tags);
 
         $valid = true; // Whether or not the tags being saved are valid according to the site's configuration.
         $forbidden_tags = null; // What tags present in the current tags are not allowed on the site.
