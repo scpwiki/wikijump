@@ -370,6 +370,8 @@ final class Outdater
 
     private function fixOutLinksExternal(Page $page, array $links_external): void
     {
+        $links_external = array_count_values($links_external);
+
         /*
          * Again similar to fixOutLinksPresent and fixOutLinksAbsent,
          * see those methods for this same pattern.
