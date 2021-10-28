@@ -75,6 +75,11 @@ class TagConfiguration
     /**
      * Validates whether the added and removed tags all exist and can be changed in this context.
      *
+     * Result schema:
+     * [
+     *   'tag-name' => ['undefined' | 'role' | 'date'...],
+     * ]
+     *
      * @param Set $added_tags Which tags were added
      * @param Set $removed_tags Which tags were removed
      * @param Set $role_ids The roles that the current user performing the tag action has
@@ -106,34 +111,63 @@ class TagConfiguration
         return $result;
     }
 
-    public function validateConditions(Set $tags): bool
+    /**
+     * Validates whether all tag conditions passed for this set of new tags.
+     *
+     * Result schema:
+     * [
+     *   'tags' => [
+     *     'tag-name' => [index of failed conditions...],
+     *   ],
+     *   'tag_groups' => [
+     *     'tag-group-name' => [index of failed conditions...],
+     *   ],
+     * ]
+     *
+     * @param Set $tags The tags being proposed
+     * @return array The result of the determination
+     */
+    public function validateConditions(Set $tags): array
     {
+        $result = [
+            'tags' => [],
+            'tag_groups' => [],
+        ];
+
         // Check tag condition lists
         foreach ($this->tags as $tag => $data) {
             if ($tags->contains($tag)) {
-                foreach ($data['condition_lists'] as $condition_list_data) {
+                $failed = [];
+
+                foreach ($data['condition_lists'] as $index => $condition_list_data) {
                     $condition_list = new TagConditionList($condition_list_data);
                     if (!$condition_list->validate($tags)) {
-                        return false;
+                        $failed[] = $index;
                     }
                 }
+
+                $result['tags'][$tag] = $failed;
             }
         }
 
         // Check tag group condition lists
         foreach ($this->tag_groups as $tag_group => $data) {
             if (!$this->tagGroupPresent($tag_group, $tags)->isEmpty()) {
-                foreach ($data['condition_lists'] as $condition_list_data) {
+                $failed = [];
+
+                foreach ($data['condition_lists'] as $index => $condition_list_data) {
                     $condition_list = new TagConditionList($condition_list_data);
                     if (!$condition_list->validate($tags)) {
-                        return false;
+                        $failed[] = $index;
                     }
                 }
+
+                $result['tag_groups'][$tag_group] = $failed;
             }
         }
 
         // All condition lists passed
-        return true;
+        return $result;
     }
 
     // Tag helpers
