@@ -40,7 +40,20 @@ class TagConditionList
         $this->condition_list = $condition_list;
     }
 
-    public function validate(Set $tags): bool
+    /**
+     * Validates whether this tag condition list passes or fails.
+     *
+     * Result schema:
+     * [
+     *   'valid' => bool,
+     *   'passed' => int,
+     *   'threshold' => int,
+     * ]
+     *
+     * @param Set $tags The tags being proposed
+     * @return array The result of the determination
+     */
+    public function validate(Set $tags): array
     {
         $total = count($this->condition_list['conditions']);
         $passed = 0;
@@ -54,14 +67,26 @@ class TagConditionList
         $type = $this->condition_list['requires'];
         switch ($type) {
             case 'all-of':
-                return $passed === $total;
+                $valid = $passed === $total;
+                $threshold = $total;
+                break;
             case 'none-of':
-                return $passed === 0;
+                $valid = $passed === 0;
+                $threshold = 0;
+                break;
             case 'custom':
-                return $this->checkCustomRequirement($this->condition_list, $passed);
+                $valid = $this->checkCustomRequirement($this->condition_list, $passed);
+                $threshold = $this->condition_list['value'];
+                break;
             default:
                 throw new Exception("Unknown requirement type: $type");
         }
+
+        return [
+            'valid' => $valid,
+            'passed' => $passed,
+            'threshold' => $threshold,
+        ];
     }
 
     private function validateCondition(array $condition, Set $tags): bool

@@ -117,10 +117,26 @@ class TagConfiguration
      * Result schema:
      * [
      *   'tags' => [
-     *     'tag-name' => [index of failed conditions...],
+     *     'tag-name' => [
+     *       For each condition:
+     *       [
+     *         'valid' => bool,
+     *         'passed' => int,
+     *         'threshold' => int,
+     *       ],
+     *       ...
+     *     ],
      *   ],
      *   'tag_groups' => [
-     *     'tag-group-name' => [index of failed conditions...],
+     *     'tag-group-name' => [
+     *       For each condition:
+     *       [
+     *         'valid' => bool,
+     *         'passed' => int,
+     *         'threshold' => int,
+     *       ],
+     *       ...
+     *     ],
      *   ],
      * ]
      *
@@ -137,32 +153,28 @@ class TagConfiguration
         // Check tag condition lists
         foreach ($this->tags as $tag => $data) {
             if ($tags->contains($tag)) {
-                $failed = [];
+                $results = [];
 
                 foreach ($data['condition_lists'] as $index => $condition_list_data) {
                     $condition_list = new TagConditionList($condition_list_data);
-                    if (!$condition_list->validate($tags)) {
-                        $failed[] = $index;
-                    }
+                    $results[] = $condition_list->validate($tags);
                 }
 
-                $result['tags'][$tag] = $failed;
+                $result['tags'][$tag] = $results;
             }
         }
 
         // Check tag group condition lists
         foreach ($this->tag_groups as $tag_group => $data) {
             if (!$this->tagGroupPresent($tag_group, $tags)->isEmpty()) {
-                $failed = [];
+                $results = [];
 
                 foreach ($data['condition_lists'] as $index => $condition_list_data) {
                     $condition_list = new TagConditionList($condition_list_data);
-                    if (!$condition_list->validate($tags)) {
-                        $failed[] = $index;
-                    }
+                    $results[] = $condition_list->validate($tags);
                 }
 
-                $result['tag_groups'][$tag_group] = $failed;
+                $result['tag_groups'][$tag_group] = $results;
             }
         }
 
