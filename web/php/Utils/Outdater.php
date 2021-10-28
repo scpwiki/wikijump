@@ -173,7 +173,7 @@ final class Outdater
      *
      * @param Page $page
      */
-    private function recompilePage($page)
+    private function recompilePage(Page $page)
     {
         // compiled content not up to date. recompile!
         $source = $page->getSource();
@@ -230,7 +230,7 @@ final class Outdater
 
     private function fixInLinksPresent(Page $page)
     {
-        $links = PageConnection::where('to_page_id', $page->getPageId());
+        $links = PageConnection::where('from_page_id', $page->getPageId());
         foreach ($links as $link) {
             $page = PagePeer::instance()->selectByPrimaryKey($link->from_page_id);
             $outdater = new Outdater($this->recurrenceLevel);
@@ -240,7 +240,7 @@ final class Outdater
 
     private function fixInLinksAbsent(string $page_name)
     {
-        $links = PageConnectionMissing::where('to_page_name', $page_name);
+        $links = PageConnectionMissing::where('from_page_name', $page_name);
         foreach ($links as $link) {
             $page = PagePeer::instance()->selectByPrimaryKey($link->from_page_id);
             $outdater = new Outdater($this->recurrenceLevel);
