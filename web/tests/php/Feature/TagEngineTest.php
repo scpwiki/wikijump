@@ -5,8 +5,8 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Ds\Set;
-use Wikijump\Services\TagEngine\TagConfiguration;
-use Wikijump\Services\TagEngine\TagEngine;
+use Wikijump\Services\TagEnforcement\TagConfiguration;
+use Wikijump\Services\TagEnforcement\TagEngine;
 
 class TagEngineTest extends TestCase
 {
