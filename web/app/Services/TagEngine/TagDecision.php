@@ -16,9 +16,15 @@ namespace Wikijump\Services\TagEngine;
 class TagDecision
 {
     public bool $valid;
+    public array $invalid_tags;
+    public array $failed_tag_conditions;
+    public array $failed_tag_group_conditions;
 
-    public function __construct(bool $valid)
+    public function __construct(bool $valid, array $invalid_tags, array $failed_tag_conditions, array $failed_tag_group_conditions)
     {
         $this->valid = $valid;
+        $this->invalid_tags = $invalid_tags;
+        $this->failed_tag_conditions = $failed_tag_conditions;
+        $this->failed_tag_group_conditions = $failed_tag_group_conditions;
     }
 }

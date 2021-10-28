@@ -21,20 +21,34 @@ final class TagEngine
      * @param TagConfiguration $config The configuration to check the tags against
      * @param Set $previous_tags The previous tags (if any) associated with this page
      * @param Set $current_tags The tags being proposed for this page
+     * @param Set $role_ids The roles that the current user performing the tag action has
      * @return TagDecision The outcome of validation
      */
     public static function validate(
         TagConfiguration $config,
         Set $previous_tags,
-        Set $current_tags
+        Set $current_tags,
+        Set $role_ids
     ): TagDecision {
+        // Derived parameters
         $added_tags = $current_tags.difference($previous_tags);
         $removed_tags = $previous_tags.difference($current_tags);
+        $now = Carbon::now();
 
-        $valid = true; // Whether or not the tags being saved are valid according to the site's configuration.
-        $forbidden_tags = null; // What tags present in the current tags are not allowed on the site.
+        // State values
+        $valid = true;
 
-        /* Return validator's decision along with relevant information if the tags are invalid. */
-        return new TagDecision($valid, $forbidden_tags);
+        // Perform checks
+        $invalid_tags = $config->validateTags($added_tags, $removed_tags, $role_ids, $now);
+        $valid &= empty(result);
+
+        [
+            'tags' => $failed_tag_conditions,
+            'tag_groups' => $failed_tag_group_conditions,
+        ] = $config->validateConditions($current_tags);
+        $valid &= empty($failed_tag_conditions) && empty($failed_tag_group_conditions);
+
+        // Build final TagDecision
+        return new TagDecision($valid, $invalid_tags, $failed_tag_conditions, $failed_tag_group_conditions);
     }
 }
