@@ -31,8 +31,8 @@ final class TagEngine
         Set $role_ids
     ): TagDecision {
         // Derived parameters
-        $added_tags = $current_tags->difference($previous_tags);
-        $removed_tags = $previous_tags->difference($current_tags);
+        $added_tags = $current_tags->diff($previous_tags);
+        $removed_tags = $previous_tags->diff($current_tags);
         $now = Carbon::now();
 
         // State values
