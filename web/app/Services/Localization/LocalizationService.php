@@ -9,6 +9,9 @@ use Gettext\Loader\MoLoader;
 use Gettext\Translations;
 use MessageFormatter;
 
+/**
+ * Service to provide formatted translated messages depending on the current locale.
+ */
 final class LocalizationService
 {
     public const LOCALES_DIRECTORY = WIKIJUMP_ROOT . '/public/files--built/locales/';

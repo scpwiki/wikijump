@@ -87,7 +87,7 @@ class Deleter
 
         // remove from cache too.
         $outdater = new Outdater();
-        $outdater->pageEvent('delete', $page->getUnixName());
+        $outdater->pageEvent('delete', $page);
 
         // outdate descs too
         foreach ($descs as $desc) {

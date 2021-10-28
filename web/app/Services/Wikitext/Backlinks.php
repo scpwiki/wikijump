@@ -24,21 +24,11 @@ class Backlinks
         array $internal_links_absent,
         array $external_links
     ) {
-        $this->inclusions_present = self::dedupeIds($inclusions_present);
-        $this->inclusions_absent = self::dedupeStrings($inclusions_absent);
-        $this->internal_links_present = self::dedupeIds($internal_links_present);
-        $this->internal_links_absent = self::dedupeStrings($internal_links_absent);
-        $this->external_links = self::dedupeStrings($external_links);
-    }
-
-    private static function dedupeIds(array $items): array
-    {
-        return array_unique($items, SORT_NUMERIC);
-    }
-
-    private static function dedupeStrings(array $items): array
-    {
-        return array_unique($items, SORT_STRING);
+        $this->inclusions_present = $inclusions_present;
+        $this->inclusions_absent = $inclusions_absent;
+        $this->internal_links_present = $internal_links_present;
+        $this->internal_links_absent = $internal_links_absent;
+        $this->external_links = $external_links;
     }
 
     public static function fromWikiObject(Text_Wiki $wiki): Backlinks

@@ -157,12 +157,19 @@ final class OutputConversion
     }
 
     private static function splitLinks(
-        FFI\CData $pointer,
+        ?FFI\CData $pointer,
         int $length,
         string $site_id
     ): array {
         $present = [];
         $absent = [];
+
+        if ($pointer === null) {
+            assert(
+                $length === 0,
+                'Pointer received was null but length reported is non-zero',
+            );
+        }
 
         // Convert items, placing in the appropriate list
         for ($i = 0; $i < $length; $i++) {
