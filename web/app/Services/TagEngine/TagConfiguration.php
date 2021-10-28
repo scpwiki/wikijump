@@ -103,11 +103,11 @@ class TagConfiguration
 
         // Check all added and removed tags
         foreach ($added_tags as $tag) {
-            $this->checkCanChangeTag($tag, $date, $role_ids, $result);
+            $this->checkCanChangeTag($tag, $role_ids, $date, $result);
         }
 
         foreach ($removed_tags as $tag) {
-            $this->checkCanChangeTag($tag, $date, $role_ids, $result);
+            $this->checkCanChangeTag($tag, $role_ids, $date, $result);
         }
 
         return $result;
