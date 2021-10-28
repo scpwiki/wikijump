@@ -46,20 +46,20 @@ final class TagEngine
         $valid = empty($invalid_tags);
 
         [
-            'tags' => $failed_tag_conditions,
-            'tag_groups' => $failed_tag_group_conditions,
+            'tags' => $tag_conditions,
+            'tag_groups' => $tag_group_conditions,
         ] = $config->validateConditions($current_tags);
         $valid =
             $valid &&
-            empty($failed_tag_conditions) &&
-            empty($failed_tag_group_conditions);
+            empty($tag_conditions) &&
+            empty($tag_group_conditions);
 
         // Build final TagDecision
         return new TagDecision(
             $valid,
             $invalid_tags,
-            $failed_tag_conditions,
-            $failed_tag_group_conditions,
+            $tag_conditions,
+            $tag_group_conditions,
         );
     }
 }
