@@ -16,13 +16,6 @@ class PageConnectionMissing extends Model
     protected $table = 'page_connection_missing';
 
     /**
-     * Indicates if the model has default timestamp fields.
-     *
-     * @var boolean
-     */
-    public $timestamps = false;
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -34,15 +27,6 @@ class PageConnectionMissing extends Model
         'to_site_name',
         'connection_type',
         'count',
-    ];
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'created_at' => 'datetime',
     ];
 
     /**

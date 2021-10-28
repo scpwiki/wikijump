@@ -16,27 +16,11 @@ class PageLink extends Model
     protected $table = 'page_link';
 
     /**
-     * Indicates if the model has default timestamp fields.
-     *
-     * @var array
-     */
-    public $timestamps = false;
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = ['page_id', 'site_id', 'url', 'count'];
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'created_at' => 'datetime',
-    ];
 
     /**
      * Creates a validator for this database object.
