@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 class PageConnection extends Model
 {
     /**
+     * Manually setting the name of the table.
+     *
+     * @var string
+     */
+    protected $table = 'page_connection';
+
+    /**
      * Indicates if the model has default timestamp fields.
      *
      * @var boolean

@@ -10,13 +10,12 @@ use Ozone\Framework\ODate;
 use Wikidot\DB\Page;
 use Wikidot\DB\PageCompiledPeer;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\PageLink;
-use Wikidot\DB\PageInclusionPeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 use Wikijump\Models\PageConnection;
 use Wikijump\Models\PageConnectionMissing;
 use Wikijump\Models\PageConnectionType;
+use Wikijump\Models\PageLink;
 use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
 use Wikijump\Services\Wikitext\PageInfo;
 use Wikijump\Services\Wikitext\ParseRenderMode;
@@ -419,7 +418,7 @@ final class Outdater
             'to_page_id' => $page->getPageId(),
             'to_site_id' => $page->getSiteId(),
             'connection_type' => PageConnectionType::INCLUDE_MESSY,
-        ])->chunk(100, $this->updateIncludedPageConnections);
+        ])->chunk(100, function ($connections) { $this->updateIncludedPageConnections($connections); });
     }
 
     private function recompileIncludedBySlug(string $slug): void
@@ -427,7 +426,7 @@ final class Outdater
         PageConnectionMissing::where([
             'to_page_name' => $slug,
             'connection_type' => PageConnectionType::INCLUDE_MESSY,
-        ])->chunk(100, $this->updateIncludedPageConnections);
+        ])->chunk(100, function ($connections) { $this->updateIncludedPageConnections($connections); });
     }
 
     private function updateIncludedPageConnections($connections): void

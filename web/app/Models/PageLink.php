@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 class PageLink extends Model
 {
     /**
+     * Manually setting the name of the table.
+     *
+     * @var string
+     */
+    protected $table = 'page_link';
+
+    /**
      * Indicates if the model has default timestamp fields.
      *
      * @var array
