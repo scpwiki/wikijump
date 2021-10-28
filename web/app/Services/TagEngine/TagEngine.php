@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\TagEngine;
 
+use Carbon\Carbon;
 use Ds\Set;
 
 /**
@@ -35,18 +36,15 @@ final class TagEngine
         $removed_tags = $previous_tags->diff($current_tags);
         $now = Carbon::now();
 
-        // State values
-        $valid = true;
-
         // Perform checks
         $invalid_tags = $config->validateTags($added_tags, $removed_tags, $role_ids, $now);
-        $valid &= empty(result);
+        $valid = empty($invalid_tags);
 
         [
             'tags' => $failed_tag_conditions,
             'tag_groups' => $failed_tag_group_conditions,
         ] = $config->validateConditions($current_tags);
-        $valid &= empty($failed_tag_conditions) && empty($failed_tag_group_conditions);
+        $valid = $valid && empty($failed_tag_conditions) && empty($failed_tag_group_conditions);
 
         // Build final TagDecision
         return new TagDecision($valid, $invalid_tags, $failed_tag_conditions, $failed_tag_group_conditions);
