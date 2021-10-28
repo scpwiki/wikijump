@@ -398,7 +398,10 @@ final class Outdater
         foreach ($db_items as $db_item) {
             $page_id = $db_item->$page_id_field;
             $count = $items_to_add[$page_id];
-            if ($count === 0) {
+
+            if ($count === null) {
+                // No item at present, needs to be inserted
+            } else if ($count === 0) {
                 // No remaining items, remove it
                 $db_item->delete();
             } else {
