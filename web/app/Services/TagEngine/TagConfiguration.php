@@ -71,8 +71,12 @@ class TagConfiguration
     }
 
     // Validation
-    public function validateTags(Set $added_tags, Set $removed_tags, Set $role_ids, Carbon $date): bool
-    {
+    public function validateTags(
+        Set $added_tags,
+        Set $removed_tags,
+        Set $role_ids,
+        Carbon $date
+    ): bool {
         // If empty, it means don't validate on tag existence
         if (empty($this->tags)) {
             return true;
@@ -168,7 +172,9 @@ class TagConfiguration
 
     public function tagGroupFullyPresent(string $name, Set $tags): bool
     {
-        return $this->tagGroupMembers($name)->diff($tags)->isEmpty();
+        return $this->tagGroupMembers($name)
+            ->diff($tags)
+            ->isEmpty();
     }
 
     public function tagGroupFullyAbsent(string $name, Set $tags): bool
