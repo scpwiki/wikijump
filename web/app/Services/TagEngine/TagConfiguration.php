@@ -49,7 +49,9 @@ class TagConfiguration
 
         // Convert $tags
         foreach ($this->tags as &$tag) {
-            $tag['properties']['role_ids'] = new Set($tag['properties']['role_ids']);
+            if (isset($tag['properties']['role_ids'])) {
+                $tag['properties']['role_ids'] = new Set($tag['properties']['role_ids']);
+            }
         }
 
         // Convert $tag_groups
