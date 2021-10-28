@@ -217,7 +217,7 @@ impl<'i, 'h, 'e, 't> HtmlContext<'i, 'h, 'e, 't> {
 
         match link {
             LinkLocation::Page(page) => {
-                self.backlinks.included_pages.push(page.to_owned());
+                self.backlinks.internal_links.push(page.to_owned());
             }
             LinkLocation::Url(link) => {
                 let mut link: &str = link;
