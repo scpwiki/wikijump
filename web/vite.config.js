@@ -31,7 +31,7 @@ const PHP_CONFIG = {
   "ping_timeout": 1000,
   "ping_url": "http://host.docker.internal:3000",
   "build_path": "files--built",
-  "dev_url": "http://localhost:3000",
+  "dev_url": "",
   "commands": []
 }
 
@@ -53,7 +53,10 @@ const config = defineConfig({}, PHP_CONFIG)
       minify: "esbuild",
       sourcemap: true,
       brotliSize: false,
-      cssCodeSplit: true
+      cssCodeSplit: true,
+      rollupOptions: {
+        input: entrypoints
+      }
     },
 
     optimizeDeps: {
@@ -62,5 +65,6 @@ const config = defineConfig({}, PHP_CONFIG)
       exclude: modules
     }
   })
+  .merge(env => (env.NODE_ENV === "development" ? { base: "/files--dev/" } : {}))
 
 export default config
