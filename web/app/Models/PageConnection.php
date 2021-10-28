@@ -27,7 +27,14 @@ class PageConnection extends Model
      *
      * @var array
      */
-    protected $fillable = ['from_page_id', 'from_site_id', 'to_page_id', 'to_site_id', 'connection_type', 'count'];
+    protected $fillable = [
+        'from_page_id',
+        'from_site_id',
+        'to_page_id',
+        'to_site_id',
+        'connection_type',
+        'count',
+    ];
 
     /**
      * The attributes that should be cast to native types.

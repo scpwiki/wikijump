@@ -27,7 +27,14 @@ class PageConnectionMissing extends Model
      *
      * @var array
      */
-    protected $fillable = ['from_page_id', 'from_site_id', 'to_page_name', 'to_site_name', 'connection_type', 'count'];
+    protected $fillable = [
+        'from_page_id',
+        'from_site_id',
+        'to_page_name',
+        'to_site_name',
+        'connection_type',
+        'count',
+    ];
 
     /**
      * The attributes that should be cast to native types.
