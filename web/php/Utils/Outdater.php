@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Wikidot\Utils;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
@@ -301,22 +302,8 @@ final class Outdater
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
             'connection_type' => $connection_type,
-        ])->chunk(100, function ($connections) use ($items_present) {
-            foreach ($connections as $connection) {
-                $count = $items_present[$connection->to_page_id];
-                if ($count === 0) {
-                    // No remaining items, remove it
-                    $connection->delete();
-                } else {
-                    if ($count !== $connection->count) {
-                        $connection->count = $count;
-                        $connection->save();
-                    }
-
-                    // We just need to update, not insert
-                    unset($items_present[$connection->to_page_id]);
-                }
-            }
+        ])->chunk(100, function ($connections) use (&$items_present) {
+            $this->updateItemsCounts($connections, 'to_page_id', $items_present);
         });
 
         /*
@@ -359,22 +346,8 @@ final class Outdater
             'from_page_id' => $page->getPageId(),
             'from_site_id' => $page->getSiteId(),
             'connection_type' => $connection_type,
-        ])->chunk(100, function ($connections) use ($items_absent) {
-            foreach ($connections as $connection) {
-                $count = $items_absent[$connection->to_page_id];
-                if ($count === 0) {
-                    // No remaining items, remove it
-                    $connection->delete();
-                } else {
-                    if ($count !== $connection->count) {
-                        $connection->count = $count;
-                        $connection->save();
-                    }
-
-                    // We just need to update, not insert
-                    unset($items_absent[$connection->to_page_id]);
-                }
-            }
+        ])->chunk(100, function ($connections) use (&$items_absent) {
+            $this->updateItemsCounts($connections, 'to_page_id', $items_absent);
         });
 
         foreach ($items_absent as $item_page_name => $count) {
@@ -404,28 +377,37 @@ final class Outdater
         PageLink::where([
             'page_id' => $page->getPageId(),
             'site_id' => $page->getSiteId(),
-        ])->chunk(100, function ($links) {
-            foreach ($links as $link) {
-                if (isset($links_external[$link->page_id])) {
-                    // Already in the database
-                    unset($links_external[$link->page_id]);
-                } else {
-                    // Formerly present, no longer is, remove it
-                    $link->delete();
-                }
-            }
+        ])->chunk(100, function ($links) use (&$links_external) {
+            $this->updateItemsCounts($links, 'page_id', $links_external);
         });
 
-        foreach ($links_external as $url) {
-            // TODO get the count
-            $count = 1;
-
+        foreach ($links_external as $url => $count) {
             PageLink::create([
                 'page_id' => $page->getPageId(),
                 'site_id' => $page->getSiteId(),
                 'url' => $url,
                 'count' => $count,
             ]);
+        }
+    }
+
+    private function updateItemsCounts(Collection $db_items, string $page_id_field, array &$items_to_add): void
+    {
+        foreach ($db_items as $db_item) {
+            $page_id = $db_item->$page_id_field;
+            $count = $items_to_add[$page_id];
+            if ($count === 0) {
+                // No remaining items, remove it
+                $db_item->delete();
+            } else {
+                if ($count !== $db_item->count) {
+                    $db_item->count = $count;
+                    $db_item->save();
+                }
+
+                // We just need to update, not insert
+                unset($items_to_add[$page_id]);
+            }
         }
     }
 
