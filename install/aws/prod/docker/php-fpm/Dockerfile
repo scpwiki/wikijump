@@ -55,14 +55,14 @@ RUN sed -i "s/%%BASE_DOMAIN%%/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
 
 FROM node:alpine AS node
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Copy source
 RUN mkdir /src
 COPY ./ftml /src/ftml
 COPY ./locales /src/locales
 COPY ./web /src/web
-
-# Install pnpm
-RUN npm install -g pnpm
 
 # Build frontend
 WORKDIR /src/web
