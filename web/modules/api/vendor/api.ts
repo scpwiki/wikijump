@@ -9,7 +9,9 @@
  * ---------------------------------------------------------------
  */
 
-/** Describes the pagination property present with all paginated responses. */
+/**
+ * Describes the pagination property present with all paginated responses.
+ */
 export interface Paginated {
   pagination: { cursor: number; limit: number; pages: number }
 }
@@ -28,85 +30,84 @@ export enum ReferenceTypes {
 }
 
 /**
- * Describes a page *slug*, a string consisting of an optional category and
- * name. It is formatted as `category:name` if a category is included. If a
- * category is not included, it is simply `name`.
- *
- * @example Category:page
- *
+ * Describes a page _slug_, a string consisting of an optional category and name. It is formatted as `category:name` if a category is included. If a category is not included, it is simply `name`.
  * @format slug
+ * @example category:page
  */
 export type Slug = string
 
-/** @example Mywiki */
+/**
+ * @example mywiki
+ */
 export type SiteName = string
 
-/** @example ExampleUsername */
+/**
+ * @example ExampleUsername
+ */
 export type Username = string
 
-/** @format email */
+/**
+ * @format email
+ */
 export type Email = string
 
 /**
  * An integer that uniquely points to a resource.
- *
  * @example 1234
  */
 export type Reference = number
 
 /**
  * A binary chunk of data representing a file.
- *
- * @example FFD8FFDB00430006040506050406060506070706...
- *
  * @format binary
+ * @example FFD8FFDB00430006040506050406060506070706...
  */
 export type FileData = File
 
 /**
  * A base64 encoded chunk of data.
- *
- * @example Y3VyaW91cyBhcmVuJ3QgeW91
- *
  * @format byte
+ * @example Y3VyaW91cyBhcmVuJ3QgeW91
  */
 export type Base64 = string
 
 /**
  * A chunk of text in FTML format.
- *
- * @example [[div]]/some wikitext/[[/div]]
- *
  * @format ftml
+ * @example [[div]]/some wikitext/[[/div]]
  */
 export type Wikitext = string
 
 /**
  * A chunk of text in HTML format.
- *
- * @example <div><i>some html</i></div>
- *
  * @format html
+ * @example <div><i>some html</i></div>
  */
 export type HTML = string
 
 export type LoginSpecifier = Email | Username
 
-/** Private account settings that can govern some of Wikijump's behavior. */
+/**
+ * Private account settings that can govern some of Wikijump's behavior.
+ */
 export interface AccountSettings {
   acceptsInvites: boolean
   language: string
   allowMessages: "registered" | "co-members" | "nobody"
 }
 
-/** Private account settings that can govern some of Wikijump's behavior. */
+/**
+ * Private account settings that can govern some of Wikijump's behavior.
+ */
 export interface AccountSettingsPatch {
   acceptsInvites?: boolean
   language?: string
   allowMessages?: "registered" | "co-members" | "nobody"
 }
 
-/** Describes a notification intended to inform a user of some sort of event. */
+/**
+ * Describes a notification intended to inform a user of some sort of event.
+ */
 export interface Notification {
   level: "trivial" | "info" | "important" | "error"
   type: "account" | "pm" | "site" | "forum" | "page" | "other"
@@ -122,7 +123,9 @@ export interface NotificationList {
   notifications: Notification[]
 }
 
-/** Describes a user's administrative role and membership status. */
+/**
+ * Describes a user's administrative role and membership status.
+ */
 export enum UserRole {
   Guest = "guest",
   Registered = "registered",
@@ -133,7 +136,9 @@ export enum UserRole {
   PlatformAdmin = "platform-admin"
 }
 
-/** Basic level of information needed to describe a user. */
+/**
+ * Basic level of information needed to describe a user.
+ */
 export interface UserIdentity {
   /** An integer that uniquely points to a resource. */
   id: Reference
@@ -150,7 +155,9 @@ export interface UserIdentity {
   role: UserRole
 }
 
-/** Describes a user in an intermediate amount of detail. */
+/**
+ * Describes a user in an intermediate amount of detail.
+ */
 export type UserInfo = UserIdentity & {
   about: string
   avatar: string | null
@@ -160,7 +167,9 @@ export type UserInfo = UserIdentity & {
   blocked: boolean
 }
 
-/** Fully describes a user and their personalization preferences. */
+/**
+ * Fully describes a user and their personalization preferences.
+ */
 export type UserProfile = UserInfo & {
   realname: string
   pronouns: string | null
@@ -169,7 +178,9 @@ export type UserProfile = UserInfo & {
   links: Record<string, string>
 }
 
-/** Partial object that is used to update a user's profile. */
+/**
+ * Partial object that is used to update a user's profile.
+ */
 export interface UserProfilePatch {
   about?: string
 
@@ -245,7 +256,6 @@ export interface InviteSend {
 
 /**
  * Represents an FTML syntax tree.
- *
  * @format ftmltree
  */
 export type FTMLSyntaxTree = Record<string, any>
@@ -265,9 +275,8 @@ export interface Page {
   id: Reference
 
   /**
-   * Describes a page *slug*, a string consisting of an optional category
-   * and name. It is formatted as `category:name` if a category is
-   * included. If a category is not included, it is simply `name`.
+   * Describes a page _slug_, a string consisting of an optional category and name. It is formatted as `category:name` if a category is included. If a category is not included, it is simply `name`.
+   *
    */
   slug: Slug
 
@@ -325,16 +334,15 @@ export type CastVoteStar = 1 | 2 | 3 | 4 | 5
 export type CastVote = CastVotePlusMinus | CastVoteStar
 
 /**
- * Describes the score/rating of a page.
- *
- * Wikijump has three different ways of rating a page:
- *
- * - `plus`
- * - `plusminus`
- * - `star`
- *
- * You will find the format used in the `format` property.
- */
+* Describes the score/rating of a page.
+
+> Wikijump has three different ways of rating a page:
+> - `plus`
+> - `plusminus`
+> - `star`
+>
+> You will find the format used in the `format` property.
+*/
 export type Score =
   | { format: "plus"; score: number; count: number; totals: { "0": number; "1": number } }
   | {
@@ -357,7 +365,9 @@ export type Vote =
 
 export type VoterList = (Paginated & Score) & { voters: Vote[] }
 
-/** A file MIME type and description. */
+/**
+ * A file MIME type and description.
+ */
 export interface Mime {
   type: string
   description: string
@@ -710,16 +720,14 @@ export interface CreateSiteSettings {
   description: string
 
   /**
-   * Describes a page *slug*, a string consisting of an optional category
-   * and name. It is formatted as `category:name` if a category is
-   * included. If a category is not included, it is simply `name`.
+   * Describes a page _slug_, a string consisting of an optional category and name. It is formatted as `category:name` if a category is included. If a category is not included, it is simply `name`.
+   *
    */
   defaultPage: Slug
 
   /**
-   * Describes a page *slug*, a string consisting of an optional category
-   * and name. It is formatted as `category:name` if a category is
-   * included. If a category is not included, it is simply `name`.
+   * Describes a page _slug_, a string consisting of an optional category and name. It is formatted as `category:name` if a category is included. If a category is not included, it is simply `name`.
+   *
    */
   welcomePage: Slug
   policy: "open" | "closed" | "private"
@@ -747,21 +755,21 @@ export type QueryParamsType = Record<string | number, any>
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">
 
 export interface FullRequestParams extends Omit<RequestInit, "body"> {
-  /** Set parameter to `true` for call `securityWorker` for this request */
+  /** set parameter to `true` for call `securityWorker` for this request */
   secure?: boolean
-  /** Request path */
+  /** request path */
   path: string
-  /** Content type of request body */
+  /** content type of request body */
   type?: ContentType
-  /** Query params */
+  /** query params */
   query?: QueryParamsType
-  /** Format of response (i.e. response.json() -> format: "json") */
+  /** format of response (i.e. response.json() -> format: "json") */
   format?: ResponseFormat
-  /** Request body */
+  /** request body */
   body?: unknown
-  /** Base url */
+  /** base url */
   baseUrl?: string
-  /** Request cancellation token */
+  /** request cancellation token */
   cancelToken?: CancelToken
 }
 
@@ -970,10 +978,9 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @license GNU Affero General Public License 3.0 (AGPL 3.0)
- *   (http://www.gnu.org/licenses/agpl-3.0.html)
- * @version 0.1.0
  * @title Wikijump
+ * @version 0.1.0
+ * @license GNU Affero General Public License 3.0 (AGPL 3.0) (http://www.gnu.org/licenses/agpl-3.0.html)
  * @baseUrl https://wikijump.com/api--v1
  * @contact Wikijump Github (https://github.com/scpwiki/wikijump)
  *
@@ -1049,7 +1056,7 @@ export class HttpClient<SecurityDataType = unknown> {
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   /**
-   * INCOMPLETE - STUB
+   * @description INCOMPLETE - STUB
    *
    * @tags query
    * @name QueryRequest
@@ -1065,7 +1072,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Resolves an ID and returns what type of object it refers to.
+   * @description Resolves an ID and returns what type of object it refers to.
    *
    * @tags util
    * @name UtilResolveId
@@ -1080,8 +1087,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Attempts a login. The login specifier can be either a username or an
-   * email address.
+   * @description Attempts a login. The login specifier can be either a username or an email address.
    *
    * @tags auth
    * @name AuthLogin
@@ -1101,7 +1107,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Confirms the client's password.
+   * @description Confirms the client's password.
    *
    * @tags auth
    * @name AuthConfirm
@@ -1117,7 +1123,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Logs the client out.
+   * @description Logs the client out.
    *
    * @tags auth
    * @name AuthLogout
@@ -1133,7 +1139,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the authentication state of the client.
+   * @description Gets the authentication state of the client.
    *
    * @tags auth
    * @name AuthCheck
@@ -1148,7 +1154,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Refreshes the client's session.
+   * @description Refreshes the client's session.
    *
    * @tags auth
    * @name AuthRefresh
@@ -1165,8 +1171,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Registers an account. Does not automatically login. Email validation
-   * will be required.
+   * @description Registers an account. Does not automatically login. Email validation will be required.
    *
    * @tags account
    * @name AccountRegister
@@ -1185,8 +1190,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Starts the deletion process for an account. Requires additional email
-   * validation for the process to complete.
+   * @description Starts the deletion process for an account. Requires additional email validation for the process to complete.
    *
    * @tags account
    * @name AccountRequestDeletion
@@ -1202,7 +1206,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Starts the password recovery routine.
+   * @description Starts the password recovery routine.
    *
    * @tags account
    * @name AccountStartRecovery
@@ -1218,7 +1222,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the current email address.
+   * @description Gets the current email address.
    *
    * @tags account
    * @name AccountGetEmail
@@ -1235,9 +1239,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates the current email address. Does not immediately change the
-   * email, as the change must be verified through a link that is sent to
-   * the requested email.
+   * @description Updates the current email address. Does not immediately change the email, as the change must be verified through a link that is sent to the requested email.
    *
    * @tags account
    * @name AccountUpdateEmail
@@ -1258,7 +1260,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates the current password.
+   * @description Updates the current password.
    *
    * @tags account
    * @name AccountUpdatePassword
@@ -1279,7 +1281,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the current username.
+   * @description Gets the current username.
    *
    * @tags account
    * @name AccountGetUsername
@@ -1296,7 +1298,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates the current username.
+   * @description Updates the current username.
    *
    * @tags account
    * @name AccountUpdateUsername
@@ -1314,7 +1316,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the current account settings.
+   * @description Gets the current account settings.
    *
    * @tags account
    * @name AccountGetSettings
@@ -1331,7 +1333,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Update (patch) the client's user details.
+   * @description Update (patch) the client's user details.
    *
    * @tags account
    * @name AccountUpdateSettings
@@ -1349,7 +1351,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the client's current notifications.
+   * @description Gets the client's current notifications.
    *
    * @tags notification
    * @name NotificationGet
@@ -1366,7 +1368,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Dismisses all of the client's notifications.
+   * @description Dismisses all of the client's notifications.
    *
    * @tags notification
    * @name NotificationDismissAll
@@ -1382,7 +1384,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the client's user details.
+   * @description Gets the client's user details.
    *
    * @tags user, avatars
    * @name UserClientGet
@@ -1402,7 +1404,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Update (patch) the client's user details.
+   * @description Update (patch) the client's user details.
    *
    * @tags user
    * @name UserClientUpdateProfile
@@ -1420,7 +1422,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the client's avatar.
+   * @description Gets the client's avatar.
    *
    * @tags user, not-json
    * @name UserClientGetAvatar
@@ -1434,7 +1436,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Sets the client's avatar.
+   * @description Sets the client's avatar.
    *
    * @tags user, not-json
    * @name UserClientSetAvatar
@@ -1451,7 +1453,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Removes the client's avatar.
+   * @description Removes the client's avatar.
    *
    * @tags user
    * @name UserClientRemoveAvatar
@@ -1467,7 +1469,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the list of users the client has blocked.
+   * @description Gets the list of users the client has blocked.
    *
    * @tags user
    * @name UserClientGetBlocked
@@ -1484,7 +1486,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a user's details.
+   * @description Gets a user's details.
    *
    * @tags user, avatars
    * @name UserGet
@@ -1504,8 +1506,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Resets a user's profile. > This endpoint is only available to platform
-   * administrators.
+   * @description Resets a user's profile. > This endpoint is only available to platform administrators.
    *
    * @tags user, moderation, platform-admin
    * @name UserResetProfile
@@ -1527,7 +1528,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a user's avatar.
+   * @description Gets a user's avatar.
    *
    * @tags user, not-json
    * @name UserGetAvatar
@@ -1545,8 +1546,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Removes a user's avatar. > This endpoint is only available to platform
-   * administrators.
+   * @description Removes a user's avatar. > This endpoint is only available to platform administrators.
    *
    * @tags user, moderation, platform-admin
    * @name UserRemoveAvatar
@@ -1566,7 +1566,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets whether or not the client has a user blocked.
+   * @description Gets whether or not the client has a user blocked.
    *
    * @tags user
    * @name UserGetBlocked
@@ -1587,7 +1587,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates whether or not the client has a user blocked.
+   * @description Updates whether or not the client has a user blocked.
    *
    * @tags user
    * @name UserUpdateBlocked
@@ -1610,7 +1610,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the sites the client is a member of.
+   * @description Gets the sites the client is a member of.
    *
    * @tags membership
    * @name MembershipGetList
@@ -1627,7 +1627,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the sites the client has requested to join.
+   * @description Gets the sites the client has requested to join.
    *
    * @tags membership
    * @name MembershipGetApplications
@@ -1644,7 +1644,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the sites the client has been invited to join.
+   * @description Gets the sites the client has been invited to join.
    *
    * @tags membership
    * @name MembershipGetInvites
@@ -1661,7 +1661,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the client membership status for a site.
+   * @description Gets the client membership status for a site.
    *
    * @tags membership
    * @name MembershipSiteGet
@@ -1678,7 +1678,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Requests to join a site (application).
+   * @description Requests to join a site (application).
    *
    * @tags membership
    * @name MembershipSiteApply
@@ -1700,7 +1700,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Leaves a site.
+   * @description Leaves a site.
    *
    * @tags membership
    * @name MembershipSiteLeave
@@ -1716,7 +1716,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the sites a user is a member of.
+   * @description Gets the sites a user is a member of.
    *
    * @tags membership
    * @name MembershipUserGetList
@@ -1735,7 +1735,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a user's membership status for a site.
+   * @description Gets a user's membership status for a site.
    *
    * @tags membership
    * @name MembershipUserSiteGet
@@ -1755,7 +1755,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the role of a user.
+   * @description Gets the role of a user.
    *
    * @tags membership
    * @name MembershipUserGetRole
@@ -1774,7 +1774,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Sets the role of a user.
+   * @description Sets the role of a user.
    *
    * @tags membership
    * @name MembershipUserSetRole
@@ -1797,7 +1797,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Invites a user to join a site.
+   * @description Invites a user to join a site.
    *
    * @tags membership
    * @name MembershipUserInvite
@@ -1820,7 +1820,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Creates a new page.
+   * @description Creates a new page.
    *
    * @tags page
    * @name PageCreate
@@ -1841,7 +1841,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a page.
+   * @description Gets a page.
    *
    * @tags page, avatars
    * @name PageGet
@@ -1871,7 +1871,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates a page.
+   * @description Updates a page.
    *
    * @tags page
    * @name PageUpdate
@@ -1894,7 +1894,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Deletes a page.
+   * @description Deletes a page.
    *
    * @tags page
    * @name PageDelete
@@ -1914,7 +1914,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Restores a previously deleted page.
+   * @description Restores a previously deleted page.
    *
    * @tags page
    * @name PageRestore
@@ -1932,7 +1932,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Changes the path/slug/name of a page.
+   * @description Changes the path/slug/name of a page.
    *
    * @tags page
    * @name PageRename
@@ -1955,7 +1955,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the update/revision history of a page.
+   * @description Gets the update/revision history of a page.
    *
    * @tags revision, paginated, avatars
    * @name RevisionPageGetHistory
@@ -1976,7 +1976,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the page corresponding to a revision.
+   * @description Gets the page corresponding to a revision.
    *
    * @tags revision, avatars
    * @name RevisionGet
@@ -2007,7 +2007,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates the metadata of a revision.
+   * @description Updates the metadata of a revision.
    *
    * @tags revision
    * @name RevisionUpdateMetadata
@@ -2031,7 +2031,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Resets a page to a past revision.
+   * @description Resets a page to a past revision.
    *
    * @tags revision
    * @name RevisionResetToRevision
@@ -2052,7 +2052,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the tags of a page.
+   * @description Gets the tags of a page.
    *
    * @tags tag
    * @name TagPageGet
@@ -2071,7 +2071,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates the tags of a page.
+   * @description Updates the tags of a page.
    *
    * @tags tag
    * @name TagPageUpdate
@@ -2094,7 +2094,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the score of a page.
+   * @description Gets the score of a page.
    *
    * @tags vote
    * @name VotePageGetScore
@@ -2113,7 +2113,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the voters and votes of a page.
+   * @description Gets the voters and votes of a page.
    *
    * @tags vote, paginated, avatars
    * @name VotePageGetVoters
@@ -2134,7 +2134,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the client's voting state on a page, if any.
+   * @description Gets the client's voting state on a page, if any.
    *
    * @tags vote
    * @name VotePageGet
@@ -2155,7 +2155,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates/sets the client's voting state on a page.
+   * @description Updates/sets the client's voting state on a page.
    *
    * @tags vote
    * @name VotePageUpdateVote
@@ -2178,7 +2178,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Removes the client's voting state on a page.
+   * @description Removes the client's voting state on a page.
    *
    * @tags vote
    * @name VotePageRemoveVote
@@ -2198,7 +2198,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets metadata on all files attached to a page.
+   * @description Gets metadata on all files attached to a page.
    *
    * @tags file, avatars
    * @name FilePageGetMetadata
@@ -2219,7 +2219,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Adds a new file to a page.
+   * @description Adds a new file to a page.
    *
    * @tags file, not-json
    * @name FilePageAdd
@@ -2242,8 +2242,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets metadata on the files attached directly to the site instance. >
-   * This does not include files attached to *pages*.
+   * @description Gets metadata on the files attached directly to the site instance. > This does not include files attached to _pages_.
    *
    * @tags file, paginated, avatars
    * @name FileSiteGetMetadata
@@ -2259,7 +2258,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Adds a new file to a site instance.
+   * @description Adds a new file to a site instance.
    *
    * @tags file, not-json
    * @name FileSiteAdd
@@ -2277,7 +2276,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a file.
+   * @description Gets a file.
    *
    * @tags file, not-json
    * @name FileGet
@@ -2291,7 +2290,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Deletes a file.
+   * @description Deletes a file.
    *
    * @tags file
    * @name FileDelete
@@ -2307,7 +2306,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the site's file-system metadata, e.g. remaining file space.
+   * @description Gets the site's file-system metadata, e.g. remaining file space.
    *
    * @tags file
    * @name FileGetSiteMetadata
@@ -2322,7 +2321,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a file's metadata.
+   * @description Gets a file's metadata.
    *
    * @tags file, avatars
    * @name FileGetMetadata
@@ -2342,7 +2341,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the reports against a user.
+   * @description Gets the reports against a user.
    *
    * @tags report, avatars
    * @name ReportUserGet
@@ -2365,7 +2364,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Reports a user.
+   * @description Reports a user.
    *
    * @tags report
    * @name ReportUserSend
@@ -2388,7 +2387,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a page's reports.
+   * @description Gets a page's reports.
    *
    * @tags report, avatars
    * @name ReportPageGet
@@ -2411,7 +2410,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Reports a page.
+   * @description Reports a page.
    *
    * @tags report
    * @name ReportPageSend
@@ -2434,7 +2433,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a report.
+   * @description Gets a report.
    *
    * @tags report, avatars
    * @name ReportGet
@@ -2456,8 +2455,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the reports against a site. > This endpoint is only available to
-   * platform administrators.
+   * @description Gets the reports against a site. > This endpoint is only available to platform administrators.
    *
    * @tags abuse, platform-admin, avatars
    * @name AbuseSiteGet
@@ -2475,7 +2473,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Reports a site.
+   * @description Reports a site.
    *
    * @tags abuse
    * @name AbuseSiteSend
@@ -2493,8 +2491,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the reports against a user. > This endpoint is only available to
-   * platform administrators.
+   * @description Gets the reports against a user. > This endpoint is only available to platform administrators.
    *
    * @tags abuse, platform-admin, avatars
    * @name AbuseUserGet
@@ -2517,7 +2514,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Reports a user.
+   * @description Reports a user.
    *
    * @tags abuse
    * @name AbuseUserSend
@@ -2540,8 +2537,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a page's reports. > This endpoint is only available to platform
-   * administrators.
+   * @description Gets a page's reports. > This endpoint is only available to platform administrators.
    *
    * @tags abuse, platform-admin, avatars
    * @name AbusePageGet
@@ -2564,7 +2560,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Reports a page.
+   * @description Reports a page.
    *
    * @tags abuse
    * @name AbusePageSend
@@ -2587,7 +2583,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a report. > This endpoint is only available to platform administrators.
+   * @description Gets a report. > This endpoint is only available to platform administrators.
    *
    * @tags abuse, platform-admin, avatars
    * @name AbuseGet
@@ -2605,7 +2601,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets all of the client's messages.
+   * @description Gets all of the client's messages.
    *
    * @tags message, paginated, avatars
    * @name MessageGetList
@@ -2632,7 +2628,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a message.
+   * @description Gets a message.
    *
    * @tags message, avatars
    * @name MessageGet
@@ -2654,7 +2650,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates the metadata of a message, such as read or unread.
+   * @description Updates the metadata of a message, such as read or unread.
    *
    * @tags message
    * @name MessageUpdate
@@ -2676,7 +2672,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Deletes a message.
+   * @description Deletes a message.
    *
    * @tags message
    * @name MessageDelete
@@ -2692,7 +2688,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Messages a user.
+   * @description Messages a user.
    *
    * @tags message
    * @name MessageSend
@@ -2715,7 +2711,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the groups and categories of a forum.
+   * @description Gets the groups and categories of a forum.
    *
    * @tags forum, forum-misc, avatars
    * @name ForumGet
@@ -2731,7 +2727,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the groups of a forum.
+   * @description Gets the groups of a forum.
    *
    * @tags forum, forum-group, avatars
    * @name ForumGroupGetList
@@ -2747,7 +2743,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a group.
+   * @description Gets a group.
    *
    * @tags forum, forum-group, avatars
    * @name ForumGroupGet
@@ -2767,7 +2763,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates a group.
+   * @description Updates a group.
    *
    * @tags forum, forum-group
    * @name ForumGroupUpdate
@@ -2789,7 +2785,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Creates a new category inside of a group.
+   * @description Creates a new category inside of a group.
    *
    * @tags forum, forum-group
    * @name ForumGroupAddCategory
@@ -2811,7 +2807,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Deletes a group.
+   * @description Deletes a group.
    *
    * @tags forum, forum-group
    * @name ForumGroupDelete
@@ -2827,7 +2823,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the categories of a group.
+   * @description Gets the categories of a group.
    *
    * @tags forum, forum-group, avatars
    * @name ForumGroupGetCategories
@@ -2847,7 +2843,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the categories of a forum.
+   * @description Gets the categories of a forum.
    *
    * @tags forum, forum-category, avatars
    * @name ForumCategoryGetList
@@ -2863,7 +2859,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a category.
+   * @description Gets a category.
    *
    * @tags forum, forum-category, avatars
    * @name ForumCategoryGet
@@ -2883,7 +2879,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates a category.
+   * @description Updates a category.
    *
    * @tags forum, forum-category
    * @name ForumCategoryUpdate
@@ -2905,7 +2901,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Creates a new thread inside of a category.
+   * @description Creates a new thread inside of a category.
    *
    * @tags forum, forum-category
    * @name ForumCategoryAddThread
@@ -2927,7 +2923,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Deletes a category.
+   * @description Deletes a category.
    *
    * @tags forum, forum-category
    * @name ForumCategoryDelete
@@ -2943,7 +2939,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the threads of a category.
+   * @description Gets the threads of a category.
    *
    * @tags forum, forum-category, paginated, avatars
    * @name ForumCategoryGetThreads
@@ -2963,7 +2959,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a thread.
+   * @description Gets a thread.
    *
    * @tags forum, forum-thread, avatars
    * @name ForumThreadGet
@@ -2983,7 +2979,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates a thread.
+   * @description Updates a thread.
    *
    * @tags forum, forum-thread
    * @name ForumThreadUpdate
@@ -3005,7 +3001,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Creates a new post inside of a thread.
+   * @description Creates a new post inside of a thread.
    *
    * @tags forum, forum-thread
    * @name ForumThreadAddPost
@@ -3027,7 +3023,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Deletes a thread.
+   * @description Deletes a thread.
    *
    * @tags forum, forum-thread
    * @name ForumThreadDelete
@@ -3048,7 +3044,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the posts of a thread.
+   * @description Gets the posts of a thread.
    *
    * @tags forum, forum-thread, paginated, avatars
    * @name ForumThreadGetPosts
@@ -3074,7 +3070,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a post.
+   * @description Gets a post.
    *
    * @tags forum, forum-post, avatars
    * @name ForumPostGet
@@ -3098,7 +3094,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates a post.
+   * @description Updates a post.
    *
    * @tags forum, forum-post
    * @name ForumPostUpdate
@@ -3120,7 +3116,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Replies to a post with another post.
+   * @description Replies to a post with another post.
    *
    * @tags forum, forum-post
    * @name ForumPostReply
@@ -3142,7 +3138,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Deletes a post.
+   * @description Deletes a post.
    *
    * @tags forum, forum-post
    * @name ForumPostDelete
@@ -3163,7 +3159,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the replies to a post.
+   * @description Gets the replies to a post.
    *
    * @tags forum, forum-post, paginated, avatars
    * @name ForumPostGetReplies
@@ -3189,7 +3185,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the update/revision history of a post.
+   * @description Gets the update/revision history of a post.
    *
    * @tags forum, forum-post, paginated, avatars
    * @name ForumPostRevisionGetHistory
@@ -3209,7 +3205,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the post corresponding to a revision.
+   * @description Gets the post corresponding to a revision.
    *
    * @tags forum, forum-post, avatars
    * @name ForumPostRevisionGet
@@ -3230,7 +3226,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Updates the metadata of a revision.
+   * @description Updates the metadata of a revision.
    *
    * @tags forum, forum-post
    * @name ForumPostRevisionUpdateMetadata
@@ -3253,7 +3249,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Resets a forum post to a past revision.
+   * @description Resets a forum post to a past revision.
    *
    * @tags forum, forum-post
    * @name ForumPostResetToRevision
@@ -3273,7 +3269,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Kicks a user from a site.
+   * @description Kicks a user from a site.
    *
    * @tags moderation
    * @name ModerationKick
@@ -3296,7 +3292,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the list of users banned from a site.
+   * @description Gets the list of users banned from a site.
    *
    * @tags moderation
    * @name ModerationBanGetList
@@ -3316,7 +3312,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets if a user is banned.
+   * @description Gets if a user is banned.
    *
    * @tags moderation
    * @name ModerationBanGet
@@ -3337,7 +3333,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Bans a user. Providing `null` for `until` describes a perma-ban.
+   * @description Bans a user. Providing `null` for `until` describes a perma-ban.
    *
    * @tags moderation
    * @name ModerationBan
@@ -3360,7 +3356,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Unbans a user, if they were banned to begin with.
+   * @description Unbans a user, if they were banned to begin with.
    *
    * @tags moderation
    * @name ModerationUnban
@@ -3380,7 +3376,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the list of categories on a site.
+   * @description Gets the list of categories on a site.
    *
    * @tags category
    * @name CategoryGetList
@@ -3395,7 +3391,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the default category.
+   * @description Gets the default category.
    *
    * @tags category
    * @name CategoryDefaultGet
@@ -3410,7 +3406,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Update (patch) the default category.
+   * @description Update (patch) the default category.
    *
    * @tags category
    * @name CategoryDefaultPatch
@@ -3428,7 +3424,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a category.
+   * @description Gets a category.
    *
    * @tags category
    * @name CategoryGet
@@ -3443,7 +3439,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Update (patch) a category.
+   * @description Update (patch) a category.
    *
    * @tags category
    * @name CategoryPatch
@@ -3461,7 +3457,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the site's settings.
+   * @description Gets the site's settings.
    *
    * @tags site
    * @name SiteSettingsGet
@@ -3478,7 +3474,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Update (patch) the site's settings.
+   * @description Update (patch) the site's settings.
    *
    * @tags site
    * @name SiteSettingsPatch
@@ -3496,7 +3492,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the site's pending applications.
+   * @description Gets the site's pending applications.
    *
    * @tags site, paginated
    * @name SiteApplicationGetList
@@ -3517,7 +3513,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets an application.
+   * @description Gets an application.
    *
    * @tags site
    * @name SiteApplicationGet
@@ -3534,7 +3530,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Accepts an application.
+   * @description Accepts an application.
    *
    * @tags site
    * @name SiteApplicationAccept
@@ -3550,7 +3546,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Rejects an application.
+   * @description Rejects an application.
    *
    * @tags site
    * @name SiteApplicationReject
@@ -3566,7 +3562,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets a backup of the site.
+   * @description Gets a backup of the site.
    *
    * @tags site, not-json
    * @name SiteBackupGet
@@ -3582,7 +3578,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Creates a new site.
+   * @description Creates a new site.
    *
    * @tags site
    * @name SiteCreate
@@ -3600,8 +3596,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Starts the deletion process for the site. Requires additional email
-   * validation for the process to complete.
+   * @description Starts the deletion process for the site. Requires additional email validation for the process to complete.
    *
    * @tags site
    * @name SiteRequestDeletion
@@ -3617,7 +3612,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Gets the site's current notifications.
+   * @description Gets the site's current notifications.
    *
    * @tags site
    * @name SiteNotificationGet
@@ -3634,7 +3629,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Dismisses all of the site's notifications.
+   * @description Dismisses all of the site's notifications.
    *
    * @tags site
    * @name SiteNotificationDismissAll
@@ -3650,7 +3645,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Sends a site newsletter.
+   * @description Sends a site newsletter.
    *
    * @tags site
    * @name SiteNewsletterSend
@@ -3668,7 +3663,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
-   * Transfers the site master-admin status to another user.
+   * @description Transfers the site master-admin status to another user.
    *
    * @tags site
    * @name SiteTransfer
