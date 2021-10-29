@@ -54,9 +54,8 @@ const config = defineConfig({}, PHP_CONFIG)
 
     build: {
       target: "esnext",
-      minify: "esbuild",
       sourcemap: true,
-      brotliSize: false,
+      reportCompressedSize: false,
       cssCodeSplit: true,
       rollupOptions: {
         input: entrypoints
