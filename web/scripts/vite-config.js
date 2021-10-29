@@ -21,6 +21,7 @@ const SVELTE_OPTIONS = {
   },
   preprocess: [sveltePreprocess({ sourceMap: true })],
   compilerOptions: {
+    css: true,
     enableSourcemap: true,
     immutable: true
   }
