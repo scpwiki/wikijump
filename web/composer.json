@@ -1,6 +1,7 @@
 {
     "require": {
         "php": "^7.4",
+        "brianium/paratest": "^6.3",
         "cerdic/css-tidy": "^1.7",
         "doctrine/dbal": "^3.1",
         "ezyang/htmlpurifier": "^4.13",
