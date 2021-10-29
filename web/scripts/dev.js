@@ -9,7 +9,7 @@ const {
   linebreak,
   question,
   shell,
-  shellSync
+  cmd
 } = require("./pretty-logs")
 
 const DIR = path.resolve(__dirname, "../")
@@ -29,8 +29,8 @@ const { createServer } = require("vite")
   if (doBuild.trim().toLowerCase() === "y") {
     section("BUILD")
 
-    if (isSudo) shellSync("pnpm build-sudo:local")
-    else shellSync("pnpm run build:local")
+    if (isSudo) cmd("pnpm build-sudo:local")
+    else cmd("pnpm run build:local")
 
     infoline(
       "Finished building containers.",
@@ -45,7 +45,7 @@ const { createServer } = require("vite")
 
   const legacyShell = shell("node scripts/build-legacy.js dev")
 
-  const server = await createServer()
+  const server = await createServer({ base: "/files--dev/" })
   await server.listen()
 
   // check for config not resolving correctly
@@ -84,10 +84,6 @@ const { createServer } = require("vite")
     server.close()
     legacyShell.kill()
     composeShell.kill()
-
-    // deals with an annoying "Terminate batch script? (Y/N)"
-    // prompt on Windows. fun fact: this only works _sometimes_
-    if (process.platform === "win32") process.exit(0)
   })
 
   // do app specific cleaning before exiting

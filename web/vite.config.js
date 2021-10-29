@@ -28,10 +28,10 @@ const PHP_CONFIG = {
   "ignore_patterns": ["/\\.d\\.ts$/"],
   "aliases": { "@": "resources", "@root": "../" },
   "public_directory": "resources/static",
-  "ping_timeout": 1000,
+  "ping_timeout": 1,
   "ping_url": "http://host.docker.internal:3000",
   "build_path": "files--built",
-  "dev_url": "http://localhost:3000",
+  "dev_url": "",
   "commands": []
 }
 
@@ -39,7 +39,11 @@ const config = defineConfig({}, PHP_CONFIG)
   .withPlugins(vitePluginToml, vitePluginYaml, svelte(SVELTE_OPTIONS))
   .merge({
     server: {
-      fs: { strict: false }
+      port: 3000,
+      strictPort: true,
+      fs: { strict: false },
+      // listen on all addresses (fixes Docker issue on Linux)
+      server: { host: "0.0.0.0" }
     },
 
     css: {
@@ -50,10 +54,12 @@ const config = defineConfig({}, PHP_CONFIG)
 
     build: {
       target: "esnext",
-      minify: "esbuild",
       sourcemap: true,
-      brotliSize: false,
-      cssCodeSplit: true
+      reportCompressedSize: false,
+      cssCodeSplit: true,
+      rollupOptions: {
+        input: entrypoints
+      }
     },
 
     optimizeDeps: {

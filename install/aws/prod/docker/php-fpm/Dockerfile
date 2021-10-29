@@ -50,27 +50,6 @@ RUN sed -i "s/%%BASE_DOMAIN%%/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/%%FILE_DOMAIN%%/${FILES_DOMAIN}/g" conf/wikijump.ini
 
 #
-# Frontend
-#
-
-FROM circleci/node:latest AS frontend
-
-# Copy source
-RUN sudo mkdir /src
-COPY ./ftml /src/ftml
-COPY ./locales /src/locales
-COPY ./web /src/web
-RUN sudo chown -R circleci /src
-
-# Install pnpm
-RUN sudo npm install -g pnpm
-
-# Build frontend
-WORKDIR /src/web
-RUN pnpm install --prod
-RUN pnpm build-container
-
-#
 # ftml
 #
 
@@ -116,8 +95,6 @@ EXPOSE 9000
 # Copy sources from intermediate images
 COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
-COPY --from=frontend /src/web/web/files--common/ /var/www/wikijump/web/web/files--common
-COPY --from=frontend /src/web/public/ /var/www/wikijump/web/public
 COPY --from=locales /src/locales/out/ /var/www/wikijump/web/public/files--built/locales
 
 # PHP configuration preparation
@@ -130,6 +107,10 @@ COPY ./install/files/php-fpm/run.sh /app/run.sh
 
 # Cleanup
 RUN rm -rf /src /usr/bin/composer
+
+# We'll need to change the owner of the public directory,
+# so that the user www-data can write to it.
+RUN chown -R www-data /var/www/wikijump/web/public
 
 USER www-data
 ENTRYPOINT ["/app/run.sh"]

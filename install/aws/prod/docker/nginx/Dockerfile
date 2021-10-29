@@ -2,17 +2,16 @@
 # Frontend
 #
 
-FROM circleci/node:latest AS node
+FROM node:alpine AS node
+
+# Install pnpm
+RUN npm install -g pnpm
 
 # Copy source
-RUN sudo mkdir /src
+RUN mkdir /src
 COPY ./ftml /src/ftml
 COPY ./locales /src/locales
 COPY ./web /src/web
-RUN sudo chown -R circleci /src
-
-# Install pnpm
-RUN sudo npm install -g pnpm
 
 # Build frontend
 WORKDIR /src/web
