@@ -9,7 +9,7 @@ use Tests\TestCase;
 use Wikijump\Services\TagEnforcement\TagConfiguration;
 use Wikijump\Services\TagEnforcement\TagEngine;
 
-class TagEngineTest extends TestCase
+class TagEnforcementTest extends TestCase
 {
     private function checkDecision(
         TagConfiguration $config,
