@@ -324,4 +324,224 @@ class TagEngineTest extends TestCase
             ],
         );
     }
+
+    /**
+     * Tests the TagEngine's capability with simple "requires" and "conflicts" conditions.
+     *
+     * @return void
+     */
+    public function testSimpleDependency(): void
+    {
+        $config = new TagConfiguration([
+            'tags' => [
+                // Parent tags
+                'fruit' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-absent',
+                                    'name' => 'vegetable',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'vegetable' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-absent',
+                                    'name' => 'fruit',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+
+                // Child tags
+                'apple' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'fruit',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'banana' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'fruit',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'lettuce' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'vegetable',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'tomato' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'vegetable',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->checkDecision(
+            $config,
+            [],
+            ['fruit', 'apple', 'banana'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [
+                    'fruit' => [
+                        [
+                            'valid' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'apple' => [
+                        [
+                            'valid' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'banana' => [
+                        [
+                            'valid' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            [],
+            ['vegetable', 'lettuce'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [
+                    'vegetable' => [
+                        [
+                            'valid' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'lettuce' => [
+                        [
+                            'valid' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['fruit'],
+            ['fruit', 'apple', 'lettuce'],
+            [],
+            [
+                'valid' => false,
+                'invalid_tags' => [],
+                'tag_conditions' => [
+                    'fruit' => [
+                        [
+                            'valid' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'apple' => [
+                        [
+                            'valid' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'lettuce' => [
+                        [
+                            'valid' => false,
+                            'passed' => 0,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            [],
+            ['apple'],
+            [],
+            [
+                'valid' => false,
+                'invalid_tags' => [],
+                'tag_conditions' => [
+                    'apple' => [
+                        [
+                            'valid' => false,
+                            'passed' => 0,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+                'tag_group_conditions' => [],
+            ],
+        );
+    }
 }
