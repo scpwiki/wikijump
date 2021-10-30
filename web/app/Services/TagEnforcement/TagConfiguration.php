@@ -157,7 +157,7 @@ class TagConfiguration
         // Check tag condition lists
         foreach ($this->tags as $tag => $tag_data) {
             $present = !$tags->contains($tag);
-            $required_if_valid = $tag['required_if_valid'] ?? false;
+            $required_if_valid = $tag_data['required_if_valid'] ?? false;
 
             if ($tags->contains($tag) || $required_if_valid) {
                 $results = $this->gatherConditionListResults($tags, $tag_data, $present, $required_if_valid);
@@ -171,7 +171,7 @@ class TagConfiguration
         // Check tag group condition lists
         foreach ($this->tag_groups as $tag_group => $tag_group_data) {
             $tag_group_empty = $this->tagGroupPresent($tag_group, $tags)->isEmpty();
-            $required_if_valid = $tag['required_if_valid'] ?? false;
+            $required_if_valid = $tag_group_data['required_if_valid'] ?? false;
 
             if (!$tag_group_empty || $required_if_valid) {
                 $results = $this->gatherConditionListResults($tags, $tag_group_data, !$tag_group_empty, $required_if_valid);
