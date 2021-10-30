@@ -46,6 +46,19 @@ class TagEngineTest extends TestCase
 
         $this->checkDecision(
             $config,
+            [],
+            [],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
             ['a', 'b'],
             ['a', 'b', 'c'],
             [],
