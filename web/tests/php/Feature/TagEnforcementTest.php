@@ -948,4 +948,35 @@ class TagEnforcementTest extends TestCase
             ],
         );
     }
+
+    /**
+     * Tests the TagEngine with specified tag groups, no conditions.
+     *
+     * @return void
+     */
+    public function testTagGroups(): void
+    {
+        // TODO
+    }
+
+    /**
+     * Tests the TagEngine's capability with simple tag group conditions.
+     *
+     * @return void
+     */
+    public function testSimpleTagGroupDependency(): void
+    {
+        // TODO
+    }
+
+    /**
+     * Tests the TagEngine's capability with more complicated tag group conditions.
+     * It also tests the required_if_valid flag.
+     *
+     * @return void
+     */
+    public function testComplexTagGroupDependency(): void
+    {
+        // TODO
+    }
 }
