@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
+use Carbon\Carbon;
 use Ds\Set;
+use Tests\TestCase;
 use Wikijump\Services\TagEnforcement\TagConfiguration;
 use Wikijump\Services\TagEnforcement\TagEngine;
 
@@ -151,6 +152,57 @@ class TagEngineTest extends TestCase
             ['zebra', 'apple'],
             ['zebra', 'apple', 'banana'],
             [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+    }
+
+    /**
+     * Tests the TagEngine where some tags are restricted to certain roles or dates.
+     *
+     * This checks if tag properties are valid for each applied.
+     *
+     * @return void
+     */
+    public function testRestrictedTagConfiguration(): void
+    {
+        $config = new TagConfiguration([
+            'tags' => [
+                'chocolate' => [
+                    'properties' => [],
+                    'condition_lists' => [],
+                ],
+                'vanilla' => [
+                    'properties' => [],
+                    'condition_lists' => [],
+                ],
+                'old-contest' => [
+                    'properties' => [
+                        'date_bound' => [
+                            new Carbon('2008-01-01'),
+                            new Carbon('2008-03-01'),
+                        ],
+                    ],
+                    'condition_lists' => [],
+                ],
+                'staff-process' => [
+                    'properties' => [
+                        'role_ids' => [20, 30],
+                    ],
+                    'condition_lists' => [],
+                ],
+            ],
+        ]);
+
+        $this->checkDecision(
+            $config,
+            ['old-contest', 'chocolate'],
+            ['old-contest', 'vanilla'],
+            [10],
             [
                 'valid' => true,
                 'invalid_tags' => [],
