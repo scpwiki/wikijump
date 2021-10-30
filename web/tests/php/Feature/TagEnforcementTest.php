@@ -543,6 +543,7 @@ class TagEnforcementTest extends TestCase
                     'apple' => [
                         [
                             'valid' => false,
+                            'required' => true,
                             'passed' => 0,
                             'threshold' => 1,
                         ],
