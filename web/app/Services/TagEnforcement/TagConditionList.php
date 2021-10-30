@@ -51,9 +51,10 @@ class TagConditionList
      * ]
      *
      * @param Set $tags The tags being proposed
+     * @param bool $required Whether this list is required for the overall condition to pass
      * @return array The result of the determination
      */
-    public function validate(Set $tags): array
+    public function validate(Set $tags, bool $required): array
     {
         $total = count($this->condition_list['conditions']);
         $passed = 0;
@@ -84,6 +85,7 @@ class TagConditionList
 
         return [
             'valid' => $valid,
+            'required' => $required,
             'passed' => $passed,
             'threshold' => $threshold,
         ];

@@ -195,7 +195,7 @@ class TagConfiguration
         // Process all condition lists
         foreach ($data['condition_lists'] as $condition_list_data) {
             $condition_list = new TagConditionList($this, $condition_list_data);
-            $result = $condition_list->validate($tags);
+            $result = $condition_list->validate($tags, $present);
             $results[] = $result;
 
             if (!$result['valid']) {
