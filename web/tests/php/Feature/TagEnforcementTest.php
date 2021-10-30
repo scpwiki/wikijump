@@ -1016,7 +1016,145 @@ class TagEnforcementTest extends TestCase
      */
     public function testSimpleTagGroupDependency(): void
     {
-        // TODO
+        $tag_exists = [
+            'properties' => [],
+            'condition_lists' => [],
+        ];
+
+        $config = new TagConfiguration([
+            'tags' => [
+                'apple' => $tag_exists,
+                'banana' => $tag_exists,
+                'lettuce' => $tag_exists,
+                'tomato' => $tag_exists,
+            ],
+            'tag_groups' => [
+                'fruit' => [
+                    'members' => ['apple', 'banana', 'cherry'],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-group-is-fully-absent',
+                                    'name' => 'vegetable',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'vegetable' => [
+                    'members' => ['lettuce', 'tomato'],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-group-is-fully-absent',
+                                    'name' => 'fruit',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->checkDecision(
+            $config,
+            ['apple'],
+            ['apple', 'banana'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'fruit' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['apple'],
+            ['apple', 'lettuce'],
+            [],
+            [
+                'valid' => false,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'fruit' => [
+                        [
+                            'valid' => false,
+                            'required' => true,
+                            'passed' => 0,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'vegetable' => [
+                        [
+                            'valid' => false,
+                            'required' => true,
+                            'passed' => 0,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['apple'],
+            ['lettuce'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'vegetable' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['lettuce'],
+            ['lettuce', 'tomato'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'vegetable' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        );
     }
 
     /**
