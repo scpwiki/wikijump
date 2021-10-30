@@ -93,8 +93,8 @@ class TagConditionList
 
     private function validateCondition(array $condition, Set $tags): bool
     {
-        $type = $condition['type'];
-        $name = $condition['name'];
+        $type = $condition['type'] ?? '<null>';
+        $name = $condition['name'] ?? '<null>';
         switch ($type) {
             case 'tag-is-present':
                 return $tags->contains($name);
