@@ -189,6 +189,15 @@ class TagEngineTest extends TestCase
                     ],
                     'condition_lists' => [],
                 ],
+                'future-contest' => [
+                    'properties' => [
+                        'date_bound' => [
+                            new Carbon('2500-01-01'),
+                            new Carbon('2500-03-01'),
+                        ],
+                    ],
+                    'condition_lists' => [],
+                ],
                 'staff-process' => [
                     'properties' => [
                         'role_ids' => [20, 30],
@@ -198,6 +207,7 @@ class TagEngineTest extends TestCase
             ],
         ]);
 
+        // Not changing restricted tags is fine
         $this->checkDecision(
             $config,
             ['old-contest', 'chocolate'],
@@ -206,6 +216,96 @@ class TagEngineTest extends TestCase
             [
                 'valid' => true,
                 'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['old-contest', 'chocolate'],
+            ['old-contest', 'vanilla'],
+            [10],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        // Changing restricted tags fails
+        $this->checkDecision(
+            $config,
+            [],
+            ['old-contest', 'vanilla'],
+            [10],
+            [
+                'valid' => false,
+                'invalid_tags' => [
+                    'old-contest' => ['date'],
+                ],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            [],
+            ['staff-process', 'vanilla'],
+            [10],
+            [
+                'valid' => false,
+                'invalid_tags' => [
+                    'staff-process' => ['role'],
+                ],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        // ...unless you have the correct role
+        $this->checkDecision(
+            $config,
+            [],
+            ['staff-process', 'vanilla'],
+            [10, 20],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        // But even with the role you can't change old tags
+        $this->checkDecision(
+            $config,
+            [],
+            ['old-contest', 'vanilla'],
+            [10, 20],
+            [
+                'valid' => false,
+                'invalid_tags' => [
+                    'old-contest' => ['date'],
+                ],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        // This also works for future dates
+        $this->checkDecision(
+            $config,
+            [],
+            ['future-contest', 'vanilla'],
+            [10, 20],
+            [
+                'valid' => false,
+                'invalid_tags' => [
+                    'future-contest' => ['date'],
+                ],
                 'tag_conditions' => [],
                 'tag_group_conditions' => [],
             ],
