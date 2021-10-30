@@ -1165,6 +1165,279 @@ class TagEnforcementTest extends TestCase
      */
     public function testComplexTagGroupDependency(): void
     {
-        // TODO
+        $tag_exists = [
+            'properties' => [],
+            'condition_lists' => [],
+        ];
+
+        $config = new TagConfiguration([
+            'tags' => [
+                'apple' => $tag_exists,
+                'banana' => $tag_exists,
+                'cherry' => $tag_exists,
+                'durian' => $tag_exists,
+
+                'lettuce' => $tag_exists,
+                'tomato' => $tag_exists,
+                'garlic' => $tag_exists,
+
+                'fruit' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-group-custom',
+                                    'name' => 'fruit',
+                                    'compare' => 'gt',
+                                    'value' => 0,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'vegetable' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-group-custom',
+                                    'name' => 'vegetable',
+                                    'compare' => 'gt',
+                                    'value' => 0,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'tag_groups' => [
+                'fruit' => [
+                    'members' => ['apple', 'banana', 'cherry', 'durian'],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-group-is-fully-absent',
+                                    'name' => 'vegetable',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'vegetable' => [
+                    'members' => ['lettuce', 'tomato', 'garlic'],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-group-is-fully-absent',
+                                    'name' => 'fruit',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'stinky' => [
+                    'members' => ['durian', 'garlic'],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-group-custom',
+                                    'name' => 'fruit',
+                                    'compare' => 'lte',
+                                    'value' => 1,
+                                ],
+                                [
+                                    'type' => 'tag-group-custom',
+                                    'name' => 'vegetable',
+                                    'compare' => 'lte',
+                                    'value' => 1,
+                                ],
+                                [
+                                    'type' => 'tag-group-custom',
+                                    'name' => 'stinky',
+                                    'compare' => 'eq',
+                                    'value' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        // Test conflict rules
+        $this->checkDecision(
+            $config,
+            ['apple', 'banana'],
+            ['apple', 'banana', 'lettuce'],
+            [],
+            [
+                'valid' => false,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'fruit' => [
+                        [
+                            'valid' => false,
+                            'required' => true,
+                            'passed' => 0,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'vegetable' => [
+                        [
+                            'valid' => false,
+                            'required' => true,
+                            'passed' => 0,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['apple', 'banana'],
+            ['apple', 'banana', 'cherry'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'fruit' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['lettuce'],
+            ['lettuce', 'tomato'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'vegetable' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        // Test exclusion rules
+        $this->checkDecision(
+            $config,
+            ['apple', 'banana'],
+            ['apple', 'banana', 'durian'],
+            [],
+            [
+                'valid' => false,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'fruit' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'stinky' => [
+                        [
+                            'valid' => false,
+                            'required' => true,
+                            'passed' => 2,
+                            'threshold' => 3,
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['apple', 'banana'],
+            ['durian'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'fruit' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'stinky' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 3,
+                            'threshold' => 3,
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['apple', 'banana'],
+            ['garlic'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [
+                    'vegetable' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'stinky' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 3,
+                            'threshold' => 3,
+                        ],
+                    ],
+                ],
+            ],
+        );
     }
 }
