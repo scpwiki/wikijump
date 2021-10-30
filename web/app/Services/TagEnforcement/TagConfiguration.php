@@ -203,11 +203,12 @@ class TagConfiguration
             }
         }
 
-        // Required to be present, but not
-        if ($valid && $required_if_valid && !$present) {
+        // Required to be present
+        if ($valid && $required_if_valid) {
             $results[] = [
-                'valid' => false,
-                'is_required' => true,
+                'valid' => $present,
+                'required' => true,
+                'type' => 'required_if_valid',
             ];
         }
 
