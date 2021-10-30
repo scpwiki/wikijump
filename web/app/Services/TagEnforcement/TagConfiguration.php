@@ -158,7 +158,7 @@ class TagConfiguration
                 $results = [];
 
                 foreach ($data['condition_lists'] as $condition_list_data) {
-                    $condition_list = new TagConditionList($condition_list_data);
+                    $condition_list = new TagConditionList($this, $condition_list_data);
                     $results[] = $condition_list->validate($tags);
                 }
 
@@ -174,7 +174,7 @@ class TagConfiguration
                 $results = [];
 
                 foreach ($data['condition_lists'] as $condition_list_data) {
-                    $condition_list = new TagConditionList($condition_list_data);
+                    $condition_list = new TagConditionList($this, $condition_list_data);
                     $results[] = $condition_list->validate($tags);
                 }
 
