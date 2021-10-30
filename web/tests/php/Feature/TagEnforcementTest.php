@@ -437,6 +437,7 @@ class TagEnforcementTest extends TestCase
                     'fruit' => [
                         [
                             'valid' => true,
+                            'required' => true,
                             'passed' => 1,
                             'threshold' => 1,
                         ],
@@ -444,6 +445,7 @@ class TagEnforcementTest extends TestCase
                     'apple' => [
                         [
                             'valid' => true,
+                            'required' => true,
                             'passed' => 1,
                             'threshold' => 1,
                         ],
@@ -451,6 +453,7 @@ class TagEnforcementTest extends TestCase
                     'banana' => [
                         [
                             'valid' => true,
+                            'required' => true,
                             'passed' => 1,
                             'threshold' => 1,
                         ],
@@ -472,6 +475,7 @@ class TagEnforcementTest extends TestCase
                     'vegetable' => [
                         [
                             'valid' => true,
+                            'required' => true,
                             'passed' => 1,
                             'threshold' => 1,
                         ],
@@ -479,6 +483,7 @@ class TagEnforcementTest extends TestCase
                     'lettuce' => [
                         [
                             'valid' => true,
+                            'required' => true,
                             'passed' => 1,
                             'threshold' => 1,
                         ],
@@ -500,6 +505,7 @@ class TagEnforcementTest extends TestCase
                     'fruit' => [
                         [
                             'valid' => true,
+                            'required' => true,
                             'passed' => 1,
                             'threshold' => 1,
                         ],
@@ -507,6 +513,7 @@ class TagEnforcementTest extends TestCase
                     'apple' => [
                         [
                             'valid' => true,
+                            'required' => true,
                             'passed' => 1,
                             'threshold' => 1,
                         ],
@@ -514,6 +521,7 @@ class TagEnforcementTest extends TestCase
                     'lettuce' => [
                         [
                             'valid' => false,
+                            'required' => true,
                             'passed' => 0,
                             'threshold' => 1,
                         ],
