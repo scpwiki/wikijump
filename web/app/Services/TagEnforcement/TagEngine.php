@@ -52,7 +52,7 @@ final class TagEngine
 
         foreach ($tag_conditions as $results) {
             foreach ($results as $result) {
-                if (!$result['valid']) {
+                if ($result['required'] && !$result['valid']) {
                     $valid = false;
                 }
             }
@@ -60,7 +60,7 @@ final class TagEngine
 
         foreach ($tag_group_conditions as $results) {
             foreach ($results as $result) {
-                if (!$result['valid']) {
+                if ($result['required'] && !$result['valid']) {
                     $valid = false;
                 }
             }
