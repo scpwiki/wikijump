@@ -17,6 +17,7 @@ class TagConfiguration
      *        ?'role_ids' => [list of role IDs that can apply this tag],
      *        ?'date_bound' => [start_date, end_date],
      *      ],
+     *     ?'required_if_valid' => bool,
      *     'condition_lists' => [
      *       zero or more:
      *       array matching TagConditionList
@@ -32,6 +33,7 @@ class TagConfiguration
      * Schema: [
      *   'group_name' => [
      *     'members' => [list of tag names],
+     *     ?'required_if_valid' => bool,
      *     'condition_lists' => [
      *       zero or more:
      *       array matching TagConditionList
@@ -154,15 +156,31 @@ class TagConfiguration
 
         // Check tag condition lists
         foreach ($this->tags as $tag => $data) {
-            if ($tags->contains($tag)) {
+            $required_if_valid = $tag['required_if_valid'] ?? false;
+
+            if ($tags->contains($tag) || $required_if_valid) {
                 $results = [];
+                $valid = true;
 
                 foreach ($data['condition_lists'] as $condition_list_data) {
                     $condition_list = new TagConditionList($this, $condition_list_data);
-                    $results[] = $condition_list->validate($tags);
+                    $result = $condition_list->validate($tags);
+                    $results[] = $result;
+
+                    if (!$result['valid']) {
+                        $valid = false;
+                    }
                 }
 
                 if (!empty($results)) {
+                    // Required to be present, but not
+                    if ($valid && $required_if_valid && !$tags->contains($tag)) {
+                        $results[] = [
+                            'valid' => false,
+                            'is_required' => true,
+                        ];
+                    }
+
                     $result['tags'][$tag] = $results;
                 }
             }
@@ -170,15 +188,32 @@ class TagConfiguration
 
         // Check tag group condition lists
         foreach ($this->tag_groups as $tag_group => $data) {
-            if (!$this->tagGroupPresent($tag_group, $tags)->isEmpty()) {
+            $tag_group_empty = $this->tagGroupPresent($tag_group, $tags)->isEmpty();
+            $required_if_valid = $tag['required_if_valid'] ?? false;
+
+            if (!$tag_group_empty || $required_if_valid) {
                 $results = [];
+                $valid = true;
 
                 foreach ($data['condition_lists'] as $condition_list_data) {
                     $condition_list = new TagConditionList($this, $condition_list_data);
-                    $results[] = $condition_list->validate($tags);
+                    $result = $condition_list->validate($tags);
+                    $results[] = $result;
+
+                    if (!$result['valid']) {
+                        $valid = false;
+                    }
                 }
 
                 if (!empty($results)) {
+                    // Required to be present, but not
+                    if ($valid && $required_if_valid && $tag_group_empty) {
+                        $results[] = [
+                            'valid' => false,
+                            'is_required' => true,
+                        ];
+                    }
+
                     $result['tag_groups'][$tag_group] = $results;
                 }
             }
