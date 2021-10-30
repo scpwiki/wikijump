@@ -156,7 +156,7 @@ class TagConfiguration
 
         // Check tag condition lists
         foreach ($this->tags as $tag => $tag_data) {
-            $present = !$tags->contains($tag);
+            $present = $tags->contains($tag);
             $required_if_valid = $tag_data['required_if_valid'] ?? false;
 
             if ($tags->contains($tag) || $required_if_valid) {
