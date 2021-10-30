@@ -553,4 +553,399 @@ class TagEnforcementTest extends TestCase
             ],
         );
     }
+
+    /**
+     * Tests the TagEngine's capability with more complicated tag conditions.
+     * It also tests the required_if_valid flag.
+     *
+     * @return void
+     */
+    public function testComplexDependency(): void
+    {
+        $config = new TagConfiguration([
+            'tags' => [
+                // Parent tags
+                'fruit' => [
+                    'properties' => [],
+                    'condition_lists' => [],
+                ],
+                'two-fruits' => [
+                    'properties' => [],
+                    'required_if_valid' => true,
+                    'condition_lists' => [
+                        [
+                            'requires' => 'custom',
+                            'compare' => 'eq',
+                            'value' => 2,
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'apple',
+                                ],
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'banana',
+                                ],
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'cherry',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'fruit-salad' => [
+                    'properties' => [],
+                    'required_if_valid' => true,
+                    'condition_lists' => [
+                        [
+                            'requires' => 'custom',
+                            'compare' => 'gte',
+                            'value' => 3,
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'apple',
+                                ],
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'banana',
+                                ],
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'cherry',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+
+                // Child tags
+                'apple' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'fruit',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'banana' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'fruit',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'cherry' => [
+                    'properties' => [],
+                    'condition_lists' => [
+                        [
+                            'requires' => 'all-of',
+                            'conditions' => [
+                                [
+                                    'type' => 'tag-is-present',
+                                    'name' => 'fruit',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        // Test when two-fruit is required
+        $this->checkDecision(
+            $config,
+            ['fruit', 'apple'],
+            ['fruit', 'apple', 'banana'],
+            [],
+            [
+                'valid' => false,
+                'invalid_tags' => [],
+                'tag_conditions' => [
+                    'apple' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'banana' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'two-fruits' => [
+                        [
+                            'valid' => true,
+                            'required' => false,
+                            'passed' => 2,
+                            'threshold' => 2,
+                        ],
+                        [
+                            'valid' => false,
+                            'required' => true,
+                            'type' => 'required_if_valid',
+                        ],
+                    ],
+                    'fruit-salad' => [
+                        [
+                            'valid' => false,
+                            'required' => false,
+                            'passed' => 2,
+                            'threshold' => 3,
+                        ],
+                    ],
+                ],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['fruit', 'apple'],
+            ['fruit', 'apple', 'banana', 'two-fruits'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [
+                    'apple' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'banana' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'two-fruits' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 2,
+                            'threshold' => 2,
+                        ],
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'type' => 'required_if_valid',
+                        ],
+                    ],
+                    'fruit-salad' => [
+                        [
+                            'valid' => false,
+                            'required' => false,
+                            'passed' => 2,
+                            'threshold' => 3,
+                        ],
+                    ],
+                ],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        // Test when fruit-salad is required
+        $this->checkDecision(
+            $config,
+            ['fruit', 'apple'],
+            ['fruit', 'apple', 'banana', 'cherry'],
+            [],
+            [
+                'valid' => false,
+                'invalid_tags' => [],
+                'tag_conditions' => [
+                    'apple' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'banana' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'cherry' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'two-fruits' => [
+                        [
+                            'valid' => false,
+                            'required' => false,
+                            'passed' => 3,
+                            'threshold' => 2,
+                        ],
+                    ],
+                    'fruit-salad' => [
+                        [
+                            'valid' => true,
+                            'required' => false,
+                            'passed' => 3,
+                            'threshold' => 3,
+                        ],
+                        [
+                            'valid' => false,
+                            'required' => true,
+                            'type' => 'required_if_valid',
+                        ],
+                    ],
+                ],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['fruit', 'apple'],
+            ['fruit', 'apple', 'banana', 'cherry', 'fruit-salad'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [
+                    'apple' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'banana' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'cherry' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'two-fruits' => [
+                        [
+                            'valid' => false,
+                            'required' => false,
+                            'passed' => 3,
+                            'threshold' => 2,
+                        ],
+                    ],
+                    'fruit-salad' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 3,
+                            'threshold' => 3,
+                        ],
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'type' => 'required_if_valid',
+                        ],
+                    ],
+                ],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        // Has 'two-fruits', but there are three fruits
+        $this->checkDecision(
+            $config,
+            ['fruit', 'apple'],
+            ['fruit', 'apple', 'banana', 'cherry', 'fruit-salad', 'two-fruits'],
+            [],
+            [
+                'valid' => false,
+                'invalid_tags' => [],
+                'tag_conditions' => [
+                    'apple' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'banana' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'cherry' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 1,
+                            'threshold' => 1,
+                        ],
+                    ],
+                    'two-fruits' => [
+                        [
+                            'valid' => false,
+                            'required' => true,
+                            'passed' => 3,
+                            'threshold' => 2,
+                        ],
+                    ],
+                    'fruit-salad' => [
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'passed' => 3,
+                            'threshold' => 3,
+                        ],
+                        [
+                            'valid' => true,
+                            'required' => true,
+                            'type' => 'required_if_valid',
+                        ],
+                    ],
+                ],
+                'tag_group_conditions' => [],
+            ],
+        );
+    }
 }
