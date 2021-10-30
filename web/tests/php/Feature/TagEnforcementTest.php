@@ -956,7 +956,57 @@ class TagEnforcementTest extends TestCase
      */
     public function testTagGroups(): void
     {
-        // TODO
+        $tag_exists = [
+            'properties' => [],
+            'condition_lists' => [],
+        ];
+
+        $config = new TagConfiguration([
+            'tags' => [
+                'apple' => $tag_exists,
+                'banana' => $tag_exists,
+                'cherry' => $tag_exists,
+
+                'lettuce' => $tag_exists,
+                'tomato' => $tag_exists,
+            ],
+            'tag_groups' => [
+                'fruit' => [
+                    'members' => ['apple', 'banana', 'cherry'],
+                    'condition_lists' => [],
+                ],
+                'vegetable' => [
+                    'members' => ['lettuce', 'tomato'],
+                    'condition_lists' => [],
+                ],
+            ],
+        ]);
+
+        $this->checkDecision(
+            $config,
+            ['apple', 'banana'],
+            ['apple', 'lettuce'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
+
+        $this->checkDecision(
+            $config,
+            ['tomato'],
+            ['banana', 'lettuce'],
+            [],
+            [
+                'valid' => true,
+                'invalid_tags' => [],
+                'tag_conditions' => [],
+                'tag_group_conditions' => [],
+            ],
+        );
     }
 
     /**
