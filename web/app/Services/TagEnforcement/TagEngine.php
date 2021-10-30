@@ -49,10 +49,22 @@ final class TagEngine
             'tags' => $tag_conditions,
             'tag_groups' => $tag_group_conditions,
         ] = $config->validateConditions($current_tags);
-        $valid =
-            $valid &&
-            empty($tag_conditions) &&
-            empty($tag_group_conditions);
+
+        foreach ($tag_conditions as $results) {
+            foreach ($results as $result) {
+                if (!$result['valid']) {
+                    $valid = false;
+                }
+            }
+        }
+
+        foreach ($tag_group_conditions as $results) {
+            foreach ($results as $result) {
+                if (!$result['valid']) {
+                    $valid = false;
+                }
+            }
+        }
 
         // Build final TagDecision
         return new TagDecision(
