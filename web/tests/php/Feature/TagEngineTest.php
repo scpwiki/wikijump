@@ -78,7 +78,7 @@ class TagEngineTest extends TestCase
      *
      * @return void
      */
-    public function testAllowedTagConfiguration(): void
+    public function testAllowedTags(): void
     {
         $tag_exists = [
             'properties' => [],
@@ -168,7 +168,7 @@ class TagEngineTest extends TestCase
      *
      * @return void
      */
-    public function testRestrictedTagConfiguration(): void
+    public function testRestrictedTags(): void
     {
         $config = new TagConfiguration([
             'tags' => [
