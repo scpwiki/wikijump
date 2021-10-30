@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wikijump\Services\TagEngine;
+namespace Wikijump\Services\TagEnforcement;
 
 use Ds\Set;
 use Exception;
