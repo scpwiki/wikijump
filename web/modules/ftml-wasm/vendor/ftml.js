@@ -1,9 +1,13 @@
 
 let wasm;
 
-let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+const heap = new Array(32).fill(undefined);
 
-cachedTextDecoder.decode();
+heap.push(undefined, null, true, false);
+
+function getObject(idx) { return heap[idx]; }
+
+let WASM_VECTOR_LEN = 0;
 
 let cachegetUint8Memory0 = null;
 function getUint8Memory0() {
@@ -12,29 +16,6 @@ function getUint8Memory0() {
     }
     return cachegetUint8Memory0;
 }
-
-function getStringFromWasm0(ptr, len) {
-    return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
-}
-
-const heap = new Array(32).fill(undefined);
-
-heap.push(undefined, null, true, false);
-
-let heap_next = heap.length;
-
-function addHeapObject(obj) {
-    if (heap_next === heap.length) heap.push(heap.length + 1);
-    const idx = heap_next;
-    heap_next = heap[idx];
-
-    heap[idx] = obj;
-    return idx;
-}
-
-function getObject(idx) { return heap[idx]; }
-
-let WASM_VECTOR_LEN = 0;
 
 let cachedTextEncoder = new TextEncoder('utf-8');
 
@@ -97,6 +78,8 @@ function getInt32Memory0() {
     return cachegetInt32Memory0;
 }
 
+let heap_next = heap.length;
+
 function dropObject(idx) {
     if (idx < 36) return;
     heap[idx] = heap_next;
@@ -109,6 +92,23 @@ function takeObject(idx) {
     return ret;
 }
 
+let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+
+cachedTextDecoder.decode();
+
+function getStringFromWasm0(ptr, len) {
+    return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
+}
+
+function addHeapObject(obj) {
+    if (heap_next === heap.length) heap.push(heap.length + 1);
+    const idx = heap_next;
+    heap_next = heap[idx];
+
+    heap[idx] = obj;
+    return idx;
+}
+
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
         throw new Error(`expected instance of ${klass.name}`);
@@ -116,18 +116,22 @@ function _assertClass(instance, klass) {
     return instance.ptr;
 }
 /**
-* @param {PageInfo} page_info
 * @param {Tokenization} tokens
+* @param {PageInfo} page_info
+* @param {WikitextSettings} settings
 * @returns {ParseOutcome}
 */
-export function parse(page_info, tokens) {
-    _assertClass(page_info, PageInfo);
-    var ptr0 = page_info.ptr;
-    page_info.ptr = 0;
+export function parse(tokens, page_info, settings) {
     _assertClass(tokens, Tokenization);
-    var ptr1 = tokens.ptr;
+    var ptr0 = tokens.ptr;
     tokens.ptr = 0;
-    var ret = wasm.parse(ptr0, ptr1);
+    _assertClass(page_info, PageInfo);
+    var ptr1 = page_info.ptr;
+    page_info.ptr = 0;
+    _assertClass(settings, WikitextSettings);
+    var ptr2 = settings.ptr;
+    settings.ptr = 0;
+    var ret = wasm.parse(ptr0, ptr1, ptr2);
     return ParseOutcome.__wrap(ret);
 }
 
@@ -151,52 +155,44 @@ export function preprocess(text) {
 }
 
 /**
-* @param {PageInfo} page_info
 * @param {SyntaxTree} syntax_tree
+* @param {PageInfo} page_info
+* @param {WikitextSettings} settings
 * @returns {HtmlOutput}
 */
-export function render_html(page_info, syntax_tree) {
-    _assertClass(page_info, PageInfo);
-    var ptr0 = page_info.ptr;
-    page_info.ptr = 0;
+export function render_html(syntax_tree, page_info, settings) {
     _assertClass(syntax_tree, SyntaxTree);
-    var ptr1 = syntax_tree.ptr;
+    var ptr0 = syntax_tree.ptr;
     syntax_tree.ptr = 0;
-    var ret = wasm.render_html(ptr0, ptr1);
+    _assertClass(page_info, PageInfo);
+    var ptr1 = page_info.ptr;
+    page_info.ptr = 0;
+    _assertClass(settings, WikitextSettings);
+    var ptr2 = settings.ptr;
+    settings.ptr = 0;
+    var ret = wasm.render_html(ptr0, ptr1, ptr2);
     return HtmlOutput.__wrap(ret);
 }
 
 /**
-* @param {PageInfo} page_info
 * @param {SyntaxTree} syntax_tree
+* @param {PageInfo} page_info
+* @param {WikitextSettings} settings
 * @returns {string}
 */
-export function render_text(page_info, syntax_tree) {
+export function render_text(syntax_tree, page_info, settings) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        _assertClass(page_info, PageInfo);
-        var ptr0 = page_info.ptr;
-        page_info.ptr = 0;
         _assertClass(syntax_tree, SyntaxTree);
-        var ptr1 = syntax_tree.ptr;
+        var ptr0 = syntax_tree.ptr;
         syntax_tree.ptr = 0;
-        wasm.render_text(retptr, ptr0, ptr1);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        wasm.__wbindgen_free(r0, r1);
-    }
-}
-
-/**
-* @returns {string}
-*/
-export function version() {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.version(retptr);
+        _assertClass(page_info, PageInfo);
+        var ptr1 = page_info.ptr;
+        page_info.ptr = 0;
+        _assertClass(settings, WikitextSettings);
+        var ptr2 = settings.ptr;
+        settings.ptr = 0;
+        wasm.render_text(retptr, ptr0, ptr1, ptr2);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         return getStringFromWasm0(r0, r1);
@@ -215,6 +211,22 @@ export function tokenize(text) {
     var len0 = WASM_VECTOR_LEN;
     var ret = wasm.tokenize(ptr0, len0);
     return Tokenization.__wrap(ret);
+}
+
+/**
+* @returns {string}
+*/
+export function version() {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.version(retptr);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(r0, r1);
+    }
 }
 
 function handleError(f, args) {
@@ -320,7 +332,7 @@ export class PageInfo {
     * @returns {PageInfo}
     */
     copy() {
-        var ret = wasm.htmloutput_copy(this.ptr);
+        var ret = wasm.pageinfo_copy(this.ptr);
         return PageInfo.__wrap(ret);
     }
     /**
@@ -623,6 +635,53 @@ export class Utf16IndexMap {
         return ret >>> 0;
     }
 }
+/**
+*/
+export class WikitextSettings {
+
+    static __wrap(ptr) {
+        const obj = Object.create(WikitextSettings.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_wikitextsettings_free(ptr);
+    }
+    /**
+    * @returns {WikitextSettings}
+    */
+    copy() {
+        var ret = wasm.wikitextsettings_copy(this.ptr);
+        return WikitextSettings.__wrap(ret);
+    }
+    /**
+    * @param {IWikitextSettings} object
+    */
+    constructor(object) {
+        var ret = wasm.wikitextsettings_new(addHeapObject(object));
+        return WikitextSettings.__wrap(ret);
+    }
+    /**
+    * @param {string} mode
+    * @returns {WikitextSettings}
+    */
+    static from_mode(mode) {
+        var ptr0 = passStringToWasm0(mode, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.wikitextsettings_from_mode(ptr0, len0);
+        return WikitextSettings.__wrap(ret);
+    }
+}
 
 async function load(module, imports) {
     if (typeof Response === 'function' && module instanceof Response) {
@@ -659,10 +718,6 @@ async function init(input) {
 
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbindgen_json_parse = function(arg0, arg1) {
-        var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
-        return addHeapObject(ret);
-    };
     imports.wbg.__wbindgen_json_serialize = function(arg0, arg1) {
         const obj = getObject(arg1);
         var ret = JSON.stringify(obj === undefined ? null : obj);
@@ -676,6 +731,10 @@ async function init(input) {
     };
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
         var ret = getStringFromWasm0(arg0, arg1);
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbindgen_json_parse = function(arg0, arg1) {
+        var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
     };
     imports.wbg.__wbg_getRandomValues_98117e9a7e993920 = function() { return handleError(function (arg0, arg1) {
