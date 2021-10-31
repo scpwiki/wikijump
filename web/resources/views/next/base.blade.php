@@ -71,17 +71,9 @@
     > --}}
 
     {{-- Preloads, Preconnects --}}
-    {{-- TODO: figure out how to properly preload these:
-        <link rel="preload" href="{{ vite_asset('resources/css/base.scss') }}" as="style">
-        <link rel="preload" href="{{ vite_asset('resources/scripts/index.ts') }}"
-              as="script">
-        <link rel="preload"
-            href="{{ vite_asset('resources/fonts/variable/PublicSans-VariableFont.woff2') }}"
-            as="font" type="font/woff2" crossorigin>
-        <link rel="preload"
-            href="{{ vite_asset('resources/fonts/variable/Exo2-VariableFont.woff2') }}"
-            as="font" type="font/woff2" crossorigin>
-    - --}}
+    @preload('/files--static/fonts/variable/PublicSans-VariableFont.woff2')
+    @preload('/files--static/fonts/variable/RedHatDisplayVF.woff2')
+    @preload('resources/scripts/index.ts')
     {{-- TODO: preload the user's locale file --}}
     @stack('preloads')
 
