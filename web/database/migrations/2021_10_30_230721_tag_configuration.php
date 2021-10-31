@@ -15,11 +15,11 @@ class TagConfiguration extends Migration
     public function up()
     {
         Schema::table('site', function (Blueprint $table) {
-            $table->drop('enable_tag_engine');
+            $table->dropColumn('enable_tag_engine');
         });
 
         Schema::table('tag_settings', function (Blueprint $table) {
-            $table->drop('allowed_tags');
+            $table->dropColumn('allowed_tags');
             $table->json('configuration_data')->default('{}');
         });
     }
@@ -36,7 +36,7 @@ class TagConfiguration extends Migration
         });
 
         Schema::table('tag_settings', function (Blueprint $table) {
-            $table->drop('configuration_data');
+            $table->dropColumn('configuration_data');
             $table->jsonb('allowed_tags')->default('[]');
         });
     }
