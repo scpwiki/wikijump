@@ -14,7 +14,6 @@ $logger = OzoneLogger::instance();
 $loggerFileOutput = new OzoneLoggerFileOutput();
 $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/jobs.log");
 $logger->addLoggerOutput($loggerFileOutput);
-$logger->setDebugLevel("debug");
 
 $logger->debug("request processing started, logger initialized");
 

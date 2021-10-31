@@ -36,18 +36,7 @@ class OzoneLogger {
 		$this->loggerOutputs[] = $loggerOutput;
 	}
 
-	/**
-	 * Sets the debug level for the logger. Possible levels are: "error", "warning",
-	 * "info", "debug" in the stated order. The "debug" level provides the most ferbose
-	 * output that includes all error, warning, info and debug messages. "Info" level provides
-	 * output only for error, warning and info. Get it?
-	 * @param string $debugLevel
-	 */
-	public function setDebugLevel($debugLevel){
-		$this->debugLevel = OzoneLogger::$LEVELS["$debugLevel"];
-	}
-
-	public function fatal($message){
+    public function fatal($message){
 		$this->runLogEvent(0, $message);
 	}
 

@@ -26,7 +26,6 @@ class FeedFlowController extends WebFlowController
         $loggerFileOutput = new OzoneLoggerFileOutput();
         $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
         $logger->addLoggerOutput($loggerFileOutput);
-        $logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
 
         $logger->debug("Feed request processing started, logger initialized");
 
