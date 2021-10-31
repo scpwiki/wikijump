@@ -12,10 +12,10 @@
 @endpush
 
 @section('content')
-<div id="auth_form_container">
-</div>
+    <div id="auth_form_container">
+    </div>
 
-<a id="auth_create_account" href="/user--services/register">
-    {{ __("account_panel.CREATE_ACCOUNT") }}
-</a>
+    <a id="auth_create_account" href="/user--services/register">
+        {{ __("account_panel.CREATE_ACCOUNT") }}
+    </a>
 @endsection

@@ -12,10 +12,10 @@
 @endpush
 
 @section('content')
-<h2 id="auth_confirm_password">
-  {{ __('account_panel.CONFIRM_PASSWORD') }}
-</h2>
+    <h2 id="auth_confirm_password">
+    {{ __('account_panel.CONFIRM_PASSWORD') }}
+    </h2>
 
-<div id="auth_form_container">
-</div>
+    <div id="auth_form_container">
+    </div>
 @endsection
