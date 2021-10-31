@@ -1346,7 +1346,6 @@ class WikiPageAction extends SmartyAction
 
         $site = $runData->getTemp("site");
         $site_id = $site->getSiteId();
-        $enable_tag_engine = DB::table('site')->where('site_id', $site_id)->value('enable_tag_engine');
         $page = PagePeer::instance()->selectByPrimaryKey($page_id);
 
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
@@ -1363,7 +1362,7 @@ class WikiPageAction extends SmartyAction
 
         // TODO: add tag check
         if (false) {
-          throw new ProcessException(_('The tags %s are not valid for this site.'), "form_error");
+            throw new ProcessException(_('The tags %s are not valid for this site.'), "form_error");
         }
 
         // Save the tags.

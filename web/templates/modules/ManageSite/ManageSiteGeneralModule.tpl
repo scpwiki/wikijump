@@ -36,19 +36,6 @@
 		</tr>
 		<tr>
 			<td>
-				{t}Allowed tags{/t}:
-			</td>
-			<td>
-				<input type="checkbox" name="enable_tag_engine" {if $enableTagEngine}checked="true"{/if}></input>
-				<input class="text" type="text" name="tags" size="40" value="{$allowedTags}"/>
-				<div class="sub">
-					{t}These are the list of tags people can assign to pages.{/t}<br/>
-					{t}Separate by space.{/t}
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td>
 				{t}Default start page{/t}:
 			</td>
 			<td>
