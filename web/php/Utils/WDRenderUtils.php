@@ -46,7 +46,7 @@ class WDRenderUtils
         }
 
         $out = '<span class="'.$class.'">';
-        $linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user:info/'.$user->unix_name.'" onclick="Wikijump.page.listeners.userInfo('.$user->id.'); return false;" ';
+        $linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user:info/'.$user->slug.'" onclick="Wikijump.page.listeners.userInfo('.$user->id.'); return false;" ';
         if ($params['image'] != null) {
             $image = $params['image'];
             // handle sizes...

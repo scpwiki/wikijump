@@ -154,6 +154,6 @@
 {/defmacro}
 
 {defmacro name="printUser"}
-	<a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->unix_name}">{$user->username|escape}</a>
+	<a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->slug}">{$user->username|escape}</a>
 {/defmacro}
 

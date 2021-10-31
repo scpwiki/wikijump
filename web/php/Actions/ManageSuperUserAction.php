@@ -38,7 +38,7 @@ class ManageSuperUserAction extends SmartyAction
         $u = User::find(1);
         $u->username = $nick_name;
         $u->password = Hash::make($password);
-        $u->unix_name = WDStringUtils::toUnixName($nick_name);
+        $u->slug = WDStringUtils::toUnixName($nick_name);
         $u->save();
     }
 }

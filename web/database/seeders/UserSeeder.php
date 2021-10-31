@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
             [
                 // ID 1
                 'username' => 'admin',
-                'unix_name' => WDStringUtils::toUnixName('admin'),
+                'slug' => WDStringUtils::toUnixName('admin'),
                 'password' => Hash::make(env('ADMIN_INITIAL_PASSWORD', 'admin1')),
                 'email' => 'admin@wikijump',
                 'email_verified_at' => now(),
@@ -40,7 +40,7 @@ class UserSeeder extends Seeder
             [
                 // ID 2
                 'username' => 'Automatic',
-                'unix_name' => WDStringUtils::toUnixName('Automatic'),
+                'slug' => WDStringUtils::toUnixName('Automatic'),
                 'password' => Hash::make(bin2hex(random_bytes(32))),
                 'email' => 'automatic@wikijump',
                 'email_verified_at' => now(),
@@ -51,7 +51,7 @@ class UserSeeder extends Seeder
             [
                 // ID 3
                 'username' => 'Anonymous',
-                'unix_name' => WDStringUtils::toUnixName('Anonymous'),
+                'slug' => WDStringUtils::toUnixName('Anonymous'),
                 'password' => Hash::make(bin2hex(random_bytes(32))),
                 'email' => 'anonymous@wikijump',
                 'email_verified_at' => now(),
@@ -64,7 +64,7 @@ class UserSeeder extends Seeder
             DB::table('users')->insert([
                 // ID 4 if not in prod
                 'username' => 'user',
-                'unix_name' => WDStringUtils::toUnixName('user'),
+                'slug' => WDStringUtils::toUnixName('user'),
                 'password' => Hash::make('user1'),
                 'email' => 'user@wikijump.dev',
                 'email_verified_at' => now(),

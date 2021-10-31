@@ -68,7 +68,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = ['username', 'unix_name', 'email', 'real_name', 'password'];
+    protected $fillable = ['username', 'slug', 'email', 'real_name', 'password'];
 
     /**
      * The model's default values for attributes.
@@ -191,7 +191,7 @@ class User extends Authenticatable
         $initials = '';
 
         /** We'll define initials as anything that the unixifier saw fit to break with a dash. */
-        $initial_array = explode('-', $this->unix_name);
+        $initial_array = explode('-', $this->slug);
         foreach ($initial_array as $initial) {
             /** And concatenate their first letters into a string. */
             $initials .= $initial[0];

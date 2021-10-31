@@ -105,7 +105,7 @@ class AccountProfileAction extends SmartyAction
             throw new ProcessException(__('Your current and new usernames are the same.'));
         }
 
-        $unixified = WDStringUtils::toUnixName($name);
+        $slug = WDStringUtils::toUnixName($name);
         if (strlen($name) < config('wikijump.username_min')) {
             throw new ProcessException(__('Minimum characters for a username:').config('wikijump.username_min'));
         }
@@ -115,27 +115,25 @@ class AccountProfileAction extends SmartyAction
         if (preg_match('/^[ _a-zA-Z0-9-\!#\$%\^\*\(\)]+$/', $name) == 0) {
             throw new ProcessException(_("Only alphanumeric characters (+a few special) can be used in the screen name."));
         }
-        if (strlen($unixified) < 2) {
+        if (strlen($slug) < 2) {
             throw new ProcessException(_("It seems there are too less alphanumeric characters in your screen name"));
         }
 
         //handle forbidden names
-        $unixName = WDStringUtils::toUnixName($name);
-
         foreach (config('wikijump.forbidden_usernames') as $regex) {
-            if (preg_match($regex, $unixName) > 0) {
+            if (preg_match($regex, $slug) > 0) {
                 throw new ProcessException(__('Account creation failed: Username is blocked from registration.'));
             }
         }
 
         // check if user does not exist
-        $u = User::where('unix_name', $unixified)->first();
+        $u = User::where('slug', $slug)->first();
         if ($u != null) {
             throw new ProcessException(__("A user with this screen name (or very similar) already exists."));
         }
 
         $user->username = $name;
-        $user->unix_name = $unixified;
+        $user->slug = $slug;
         $user->username_changes++;
         $user->save();
     }
