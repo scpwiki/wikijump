@@ -21,3 +21,5 @@ jobs:
 
       - name: Build image
         run: docker build -f install/local/dev/php-fpm/Dockerfile .
+        env:
+          DOCKER_BUILDKIT: 1

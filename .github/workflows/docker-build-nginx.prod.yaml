@@ -22,3 +22,5 @@ jobs:
 
       - name: Build image
         run: docker build -f install/aws/prod/docker/nginx/Dockerfile .
+        env:
+          DOCKER_BUILDKIT: 1

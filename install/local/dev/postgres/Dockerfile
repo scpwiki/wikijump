@@ -1,4 +1,4 @@
-FROM postgres:13
+FROM postgres:13-alpine
 
 EXPOSE 5432
 
@@ -7,22 +7,22 @@ ARG ENVIRONMENT="local"
 ARG FILES_DOMAIN="wjfiles.test"
 ARG PGDATA="/var/lib/postgresql/data"
 
-ENV POSTGRES_CLUSTER="main"
-ENV POSTGRES_VERSION="13"
+# Install dependencies
+RUN apk add --no-cache musl-locales
 
 # Copy sources
 COPY ./install/files/postgres /src
 WORKDIR /src
 
 # Create system user
-RUN useradd wikijump --create-home --shell /bin/bash
+RUN adduser -S wikijump
 
 # Setup database
 USER postgres
-RUN pg_createcluster --user postgres --locale en_US.UTF-8 "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}"
+RUN initdb -D ${PGDATA} -A trust --locale=en_US.UTF-8
 
 # Install postgres auth configuration
-RUN install -D -m644 /src/pg_hba.conf "/etc/postgresql/${POSTGRES_VERSION}/${POSTGRES_CLUSTER}/pg_hba.conf"
+RUN install -D -m644 /src/pg_hba.conf "${PGDATA}/pg_hba.conf"
 
 # Seed database
 USER root
@@ -33,4 +33,5 @@ WORKDIR /etc/postgresql
 RUN rm -rf /src
 
 # Main process
-CMD ["/app/run.sh"]
+USER postgres
+CMD ["postgres"]
