@@ -4,7 +4,8 @@ namespace Wikidot\Utils;
 
 use Exception;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;use Ozone\Framework\Database\Criteria;
+use Illuminate\Support\Facades\Log;
+use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
 use Ozone\Framework\ModuleProcessor;

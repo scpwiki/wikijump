@@ -3,7 +3,8 @@
 namespace Wikidot\Utils;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;use Ozone\Framework\Database\Criteria;
+use Illuminate\Support\Facades\Log;
+use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ModuleProcessor;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\PathManager;
