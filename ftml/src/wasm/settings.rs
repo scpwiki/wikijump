@@ -20,7 +20,9 @@
 
 use super::error::error_to_js;
 use super::prelude::*;
-use crate::settings::WikitextSettings as RustWikitextSettings;
+use crate::settings::{
+    WikitextMode as RustWikitextMode, WikitextSettings as RustWikitextSettings,
+};
 use std::sync::Arc;
 
 // Typescript declarations
@@ -35,13 +37,12 @@ export interface IWikitextSettings {
     allow_local_paths: boolean;
 }
 
-export enum WikitextMode {
-    Page = 'page';
-    Draft = 'draft';
-    ForumPost = 'forum-post';
-    DirectMessage = 'direct-message';
-    List = 'list';
-}
+export type WikitextMode =
+    | 'page'
+    | 'draft'
+    | 'forum-post'
+    | 'direct-message'
+    | 'list'
 
 "#;
 
@@ -49,9 +50,6 @@ export enum WikitextMode {
 extern "C" {
     #[wasm_bindgen(typescript_type = "IWikitextSettings")]
     pub type IWikitextSettings;
-
-    #[wasm_bindgen(typescript_type = "WikitextMode")]
-    pub type WikitextMode;
 }
 
 // Wrapper structure
@@ -85,5 +83,19 @@ impl WikitextSettings {
         })
     }
 
-    // TODO method to generate from wikitext mode
+    #[wasm_bindgen]
+    pub fn from_mode(mode: String) -> Result<WikitextSettings, JsValue> {
+        let rust_mode = match mode.as_str() {
+            "page" => RustWikitextMode::Page,
+            "draft" => RustWikitextMode::Draft,
+            "forum-post" => RustWikitextMode::ForumPost,
+            "direct-message" => RustWikitextMode::DirectMessage,
+            "list" => RustWikitextMode::List,
+            _ => return Err(JsValue::from_str("Unknown mode")),
+        };
+
+        Ok(WikitextSettings {
+            inner: Arc::new(RustWikitextSettings::from_mode(rust_mode)),
+        })
+    }
 }
