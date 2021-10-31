@@ -14,37 +14,32 @@ use Wikidot\Utils\WDStringUtils;
 class PagePeer extends PagePeerBase
 {
 
-    public function selectByName($siteId, $name)
+    public function selectByName(string $site_id, string $name)
     {
         $c = new Criteria();
-        $c->add("site_id", $siteId);
+        $c->add("site_id", $site_id);
         $c->add("unix_name", WDStringUtils::toUnixName($name));
         return $this->selectOne($c);
     }
 
-    public static function getTags($pageId): Set {
+    public static function getTags(string $page_id): Set {
         $fetched_tags = DB::table('page')
-            ->where('page_id', $pageId)
+            ->where('page_id', $page_id)
             ->value('tags');
 
         $fetched_tags = json_decode($fetched_tags); // Decodes the tags.
         return $fetched_tags === null ? new Set() : new Set($fetched_tags); // Convert to set, and if null, return empty set.
     }
 
-    public static function saveTags($page_id, Set $new_tags) {
+    public static function saveTags(stringn $page_id, Set $tags) {
         // Converts the set to an array, then ensures all tags are unique, sorts the values, and removes any keys.
-        if (!$new_tags->isEmpty()) {
-            $new_tags = $new_tags->toArray();
-            $new_tags = array_unique($new_tags);
-            natsort($new_tags);
-            $new_tags = array_values($new_tags);
-        } else {
-            $new_tags = [];
-        }
+        $tag_array = $tags->toArray();
+        natsort($tag_array);
+        $tag_array = array_values($tag_array);
 
         // Update the tags.
         DB::table('page')
           ->where('page_id', $page_id)
-          ->update(['tags' => $new_tags]);
+          ->update(['tags' => $tag_array]);
     }
 }
