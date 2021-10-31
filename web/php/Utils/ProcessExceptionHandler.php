@@ -2,8 +2,7 @@
 
 namespace Wikidot\Utils;
 
-use Ozone\Framework\Database\Database;
-use Ozone\Framework\OzoneLogger;
+use Illuminate\Support\Facades\Log;use Ozone\Framework\Database\Database;
 
 /**
  * This Class is responsible for handling exceptions which are thrown
@@ -17,7 +16,7 @@ class ProcessExceptionHandler
         // rollback the transaction
         $db = Database::connection();
         $db->rollback();
-        $out.= '<div class="error-block">';
+        $out = '<div class="error-block">';
         if ($exception instanceof ProcessException) {
             $out.=nl2br($exception->getMessage());
         } elseif ($exception instanceof WDPermissionException) {
@@ -26,8 +25,7 @@ class ProcessExceptionHandler
         } else {
             $out.="An error occured when processing your request.";
             // LOG ERROR TOO!!!
-            $logger = OzoneLogger::instance();
-            $logger->error("Exception caught while processing inline module:\n\n".$exception->__toString());
+            Log::error("[OZONE] Exception while processing AJAX module:\n\n" . $exception->__toString());
         }
         $out.='</div>';
         return $out;

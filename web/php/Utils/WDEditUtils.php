@@ -2,8 +2,6 @@
 
 namespace Wikidot\Utils;
 
-use Ozone\Framework\OzoneLogger;
-
 use Wikijump\Services\Wikitext\ParseRenderMode;
 
 use function Wikijump\Services\Wikitext\WikitextBackend;
@@ -29,7 +27,6 @@ class WDEditUtils
 
         // now remove all tags with insides
         $content = preg_replace("/<(\w+)[^>]*?>.*?<\/\\1>/sm", "", $content);
-        OzoneLogger::instance()->debug($content);
         $count2 = preg_match_all("/%%%%/", $content, $matches2);
         if ($count2 == 0) {
             return false;

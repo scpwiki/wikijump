@@ -219,3 +219,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-757](https://scuttle.atlassian.net/browse/WJ-757), [WJ-896](https://scuttle.atlassian.net/browse/WJ-896)
 * What it did: Produced backups of a site.
 * Why it was removed: The backups have several flaws, the most notable of which is that they cannot be used to restore a site. Because is all essentially legacy code that will slow development, it has been removed.
+
+## PHP: `OzoneLogger`
+* Where it was: [lib/ozoneframework/php/core/OzoneLogger.php](https://github.com/scpwiki/wikijump/blob/f3be3f39545249c92e10e3a8e03b30b9cdecaa18/web/lib/ozoneframework/php/core/OzoneLogger.php)
+* Relevant Issues: [WJ-895](https://scuttle.atlassian.net/browse/WJ-895)
+* What it did: Basic logger
+* Why it was removed: It didn't do anything that Laravel's logging didn't do better, and had some strange quirks that weren't worth keeping around. Additionally, Wikidot's code comments are not particularly high quality, and the same is also true of its logging. I prefixed all retained Ozone log calls with `[OZONE]` to make it easy to identify as legacy code.

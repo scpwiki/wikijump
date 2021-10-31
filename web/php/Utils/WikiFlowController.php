@@ -3,11 +3,10 @@
 namespace Wikidot\Utils;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ModuleProcessor;
 use Ozone\Framework\Ozone;
-use Ozone\Framework\OzoneLogger;
-use Ozone\Framework\OzoneLoggerFileOutput;
 use Ozone\Framework\RunData;
 use Ozone\Framework\WebFlowController;
 use Wikidot\DB\SitePeer;
@@ -26,20 +25,11 @@ class WikiFlowController extends WebFlowController
         }
 
         // initialize logging service
-        $logger = OzoneLogger::instance();
-        $loggerFileOutput = new OzoneLoggerFileOutput();
-        $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
-        $logger->addLoggerOutput($loggerFileOutput);
-        $logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
-
-        $logger->debug("request processing started, logger initialized");
-
-        Ozone ::init();
+        Ozone::init();
 
         $runData = new RunData();
         $runData->init();
-        Ozone :: setRunData($runData);
-        $logger->debug("RunData object created and initialized");
+        Ozone::setRunData($runData);
 
         // Set cross-origin headers for improved security
         // https://scuttle.atlassian.net/browse/WJ-452
@@ -166,14 +156,10 @@ class WikiFlowController extends WebFlowController
         $template = $runData->getScreenTemplate();
         $classFile = $runData->getScreenClassPath();
         $class = LegacyTools::getNamespacedClassFromPath($classFile);
-        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
+        Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
 
         require_once($classFile);
         $screen = new $class();
-
-        $logger->debug("OZONE initialized");
-
-        $logger->info("Ozone engines successfully initialized");
 
         $rendered = $screen->render($runData);
 

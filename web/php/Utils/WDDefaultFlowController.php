@@ -3,11 +3,10 @@
 namespace Wikidot\Utils;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ModuleProcessor;
 use Ozone\Framework\Ozone;
-use Ozone\Framework\OzoneLogger;
-use Ozone\Framework\OzoneLoggerFileOutput;
 use Ozone\Framework\PathManager;
 use Ozone\Framework\RunData;
 use Ozone\Framework\WebFlowController;
@@ -22,20 +21,11 @@ class WDDefaultFlowController extends WebFlowController
         global $timeStart;
 
         // initialize logging service
-        $logger = OzoneLogger::instance();
-        $loggerFileOutput = new OzoneLoggerFileOutput();
-        $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
-        $logger->addLoggerOutput($loggerFileOutput);
-        $logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
-
-        $logger->debug("request processing started, logger initialized");
-
-        Ozone ::init();
+        Ozone::init();
 
         $runData = new RunData();
         $runData->init();
         Ozone :: setRunData($runData);
-        $logger->debug("RunData object created and initialized");
 
         // check if site (Wiki) exists!
         $siteHost = $_SERVER["HTTP_HOST"];
@@ -135,8 +125,7 @@ class WDDefaultFlowController extends WebFlowController
         $template = $runData->getScreenTemplate();
         $classFile = $runData->getScreenClassPath();
         $class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
-        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
-
+        Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
         require_once($classFile);
         $screen = new $class();
 
@@ -151,7 +140,7 @@ class WDDefaultFlowController extends WebFlowController
                 // reload the Class again - we do not want the unsecure screen to render!
                 $classFile = $runData->getScreenClassPath();
                 $class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
-                $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
+                Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
                 require_once($classFile);
                 $screen = new $class();
                 $runData->setAction(null);
@@ -161,7 +150,7 @@ class WDDefaultFlowController extends WebFlowController
         // PROCESS ACTION
 
         $actionClass = $runData->getAction();
-        $logger->debug("processing action $actionClass");
+        Log::debug("[OZONE] Processing action $actionClass");
         while ($actionClass != null) {
             require_once(PathManager :: actionClass($actionClass));
             $class = LegacyTools::getNamespacedClassFromPath(PathManager :: actionClass($actionClass));
@@ -180,9 +169,9 @@ class WDDefaultFlowController extends WebFlowController
             $actionEvent = $runData->getActionEvent();
             if ($actionEvent != null) {
                 $action-> $actionEvent($runData);
-                $logger->debug("processing action: $actionClass, event: $actionEvent");
+                Log::debug("[OZONE] Processing action $actionClass, event $actionEvent");
             } else {
-                $logger->debug("processing action: $actionClass");
+                Log::debug("[OZONE] Processing action $actionClass");
                 $action->perform($runData);
             }
             // this is in case action changes the action name so that
@@ -202,7 +191,7 @@ class WDDefaultFlowController extends WebFlowController
         if ($template != $runData->getScreenTemplate) {
             $classFile = $runData->getScreenClassPath();
             $class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
-            $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
+            Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
 
             require_once($classFile);
             $screen = new $class();

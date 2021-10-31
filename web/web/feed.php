@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-use Ozone\Framework\OzoneLogger;
+use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\FeedFlowController;
 
 require ('../php/setup.php');
@@ -17,8 +18,6 @@ try {
     echo "A nasty error has occurred. If the problem repeats, please fill (if possible) a bug report.";
     echo "<br/><br/>";
     echo $e;
-    // hope the logger is initialized...
-    $logger = OzoneLogger::instance();
-    $logger->error("Exception caught:\n\n" . $e->__toString());
+    Log::error("[OZONE] Exception caught:\n\n" . $e->__toString());
 }
 

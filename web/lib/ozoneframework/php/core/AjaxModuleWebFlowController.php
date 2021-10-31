@@ -2,9 +2,7 @@
 
 namespace Ozone\Framework;
 
-
-
-use Wikidot\Utils\GlobalProperties;
+use Illuminate\Support\Facades\Log;
 use Wikijump\Helpers\LegacyTools;
 
 /**
@@ -13,19 +11,11 @@ use Wikijump\Helpers\LegacyTools;
  */
 class AjaxModuleWebFlowController extends WebFlowController {
 
-	public function process() {
-		global $timeStart;
+    public function process() {
+        global $timeStart;
 
-		// initialize logging service
-		$logger = OzoneLogger::instance();
-		$loggerFileOutput = new OzoneLoggerFileOutput();
-		$loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
-		$logger->addLoggerOutput($loggerFileOutput);
-		$logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
-
-		$logger->debug("AJAX module request processing started, logger initialized");
-
-		Ozone ::init();
+        Log::info('[OZONE] Received AJAX request');
+        Ozone::init();
 
 		$runData = new RunData();
 		/* processing an AJAX request! */
@@ -36,8 +26,7 @@ class AjaxModuleWebFlowController extends WebFlowController {
 		// Extra return array - just for ajax handling
 		$runData->ajaxResponseAdd("status", "OK");
 
-		Ozone :: setRunData($runData);
-		$logger->debug("RunData object created and initialized");
+		Ozone::setRunData($runData);
 
 		// handle session at the begging of procession
 		$runData->handleSessionStart();
@@ -45,7 +34,7 @@ class AjaxModuleWebFlowController extends WebFlowController {
 		$template = $runData->getModuleTemplate();
 		$classFile = $runData->getModuleClassPath();
 		$class = LegacyTools::getNamespacedClassFromPath($runData->getModuleClassPath());
-		$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
+        Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
 
 		require_once ($classFile);
 		$module = new $class();
@@ -61,7 +50,7 @@ class AjaxModuleWebFlowController extends WebFlowController {
 				// reload the Class again - we do not want the unsecure module to render!
 				$classFile = $runData->getModuleClassPath();
                 $class = LegacyTools::getNamespacedClassFromPath($runData->getModuleClassPath());
-				$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
+                Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
 				require_once ($classFile);
 				$module = new $class();
 				$runData->setAction(null);
@@ -69,21 +58,15 @@ class AjaxModuleWebFlowController extends WebFlowController {
 		}
 
 		Ozone::initSmarty();
-		$logger->debug("OZONE initialized");
-
-		Ozone :: initServices();
-		$logger->debug("Smarty template services loaded");
-		Ozone :: parseMacros();
-		$logger->debug("Smarty macros parsed");
-		Ozone :: updateSmartyPlain();
-		$logger->debug("plain version of Smarty created");
-
-		$logger->info("Ozone engines successfully initialized");
+		Ozone::initServices();
+		Ozone::parseMacros();
+		Ozone::updateSmartyPlain();
+        Log::debug('[OZONE] Successfully initialized');
 
 		// PROCESS ACTION
 
 		$actionClass = $runData->getAction();
-		$logger->debug("processing action $actionClass");
+        Log::debug("[OZONE] Processing action $actionClass");
 		while ($actionClass != null) {
 
 			require_once (PathManager :: actionClass($actionClass));
@@ -104,10 +87,10 @@ class AjaxModuleWebFlowController extends WebFlowController {
 
 			$actionEvent = $runData->getActionEvent();
 			if ($actionEvent != null) {
-				$action-> $actionEvent ($runData);
-				$logger->debug("processing action: $actionClass, event: $actionEvent");
+				$action->$actionEvent($runData);
+                Log::debug("[OZONE] Processing action $actionClass, event $actionEvent");
 			} else {
-				$logger->debug("processing action: $actionClass");
+                Log::debug("[OZONE] Processing action $actionClass");
 				$action->perform($runData);
 			}
 			// this is in case action changes the action name so that
@@ -127,7 +110,7 @@ class AjaxModuleWebFlowController extends WebFlowController {
 		if($template != $runData->getModuleTemplate()){
 			$classFile = $runData->getModuleClassPath();
 			$class = LegacyTools::getNamespacedClassFromPath($runData->getModuleClassPath());
-			$logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
+            Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
 
 			require_once ($classFile);
 			$module = new $class();
