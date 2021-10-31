@@ -15,6 +15,7 @@ final class PreloadDirective
     {
     }
 
+    /** Registers the `@preload` directive. */
     public static function register()
     {
         Blade::directive('preload', function ($expression) {
@@ -23,6 +24,14 @@ final class PreloadDirective
         });
     }
 
+    /**
+     * Returns an HTML tag for a preload link.
+     *
+     * @param string $href The URL to preload.
+     * @param string $as The type of resource to preload.
+     * @param string $type The MIME type to preload. (optional)
+     * @param bool $crossorigin Whether to allow crossorigin requests. (optional)
+     */
     public static function preloadTag(
         string $href,
         string $as,
@@ -35,6 +44,12 @@ final class PreloadDirective
         return "<link rel=\"$rel\" href=\"$href\" as=\"$as\" $type $crossorigin />\n";
     }
 
+    /**
+     * Returns a string of potentially multiple link preload tags,
+     * depending on the path given.
+     *
+     * @param string $path The path to preload.
+     */
     public static function preload(string $path): string
     {
         $urls = [];
