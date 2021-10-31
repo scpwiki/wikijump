@@ -32,7 +32,6 @@
 #
 
 
-
 # Frame view
 frame:
   GOTO_HOME_PAGE: Go to home page
@@ -137,6 +136,12 @@ account_panel:
   toasts:
     LOGGED_IN: Logged in!
     REGISTERED: Registration successful.
+
+# Backend request processing
+processing:
+  tags:
+    errors:
+      INVALID_TAGS: These tags are not valid with this site's tag configuration.
 
 # Sheaf editor
 sheaf:
