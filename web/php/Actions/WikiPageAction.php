@@ -1357,15 +1357,27 @@ class WikiPageAction extends SmartyAction
 
         // Turn the tags into a set.
         // We have a check here because preg_split() on an empty string yields ['']
-        $tags = $tags === '' ? new Set() : new Set(preg_split('/[, ]+/', $tags));
+        $current_tags = $tags === '' ? new Set() : new Set(preg_split('/[, ]+/', $tags));
+        $previous_tags = PagePeer::getTags($page_id);
 
-        // TODO: add tag check
-        if (false) {
-            throw new ProcessException(_('The tags %s are not valid for this site.'), "form_error");
+        // TODO: concept of roles
+        $role_ids = new Set();
+
+        // Get tag settings, and ensure the tags pass the current configuration
+
+        // TODO: allow multiple tag configurations per site
+        // Currently this finds the first configuration with the (nullable?) site ID matching
+        // This is because I don't want to further mess with the site table until we refactor it
+
+        $tag_configuration = TagSettings::where(['site_id' => $site->getSiteId()])->first()->getConfiguration();
+        $tag_decision = TagEngine::validate($tag_configuration, $previous_tags, $current_tags, $role_ids);
+
+        if (!$tag_decision->valid) {
+            throw new ProcessException(__('processing.tags.errors.INVALID_TAGS'), 'form_error');
         }
 
         // Save the tags.
-        PagePeer::saveTags($page_id, $tags);
+        PagePeer::saveTags($page_id, $current_tags);
 
         $od = new Outdater();
         $od->pageEvent("tag_change", $page);

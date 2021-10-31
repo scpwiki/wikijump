@@ -22,13 +22,16 @@ class PagePeer extends PagePeerBase
         return $this->selectOne($c);
     }
 
-    public static function getTags($pageId): set {
-        $fetched_tags = DB::table('page')->where('page_id', $pageId)->value('tags');
-        $fetched_tags = json_decode($fetched_tags); // Decodes the tags. 
+    public static function getTags($pageId): Set {
+        $fetched_tags = DB::table('page')
+            ->where('page_id', $pageId)
+            ->value('tags');
+
+        $fetched_tags = json_decode($fetched_tags); // Decodes the tags.
         return $fetched_tags === null ? new Set() : new Set($fetched_tags); // Convert to set, and if null, return empty set.
     }
 
-    public static function saveTags($page_id, set $new_tags) {
+    public static function saveTags($page_id, Set $new_tags) {
         // Converts the set to an array, then ensures all tags are unique, sorts the values, and removes any keys.
         if (!$new_tags->isEmpty()) {
             $new_tags = $new_tags->toArray();
