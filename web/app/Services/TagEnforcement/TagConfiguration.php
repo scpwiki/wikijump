@@ -160,7 +160,12 @@ class TagConfiguration
             $required_if_valid = $tag_data['required_if_valid'] ?? false;
 
             if ($tags->contains($tag) || $required_if_valid) {
-                $results = $this->gatherConditionListResults($tags, $tag_data, $present, $required_if_valid);
+                $results = $this->gatherConditionListResults(
+                    $tags,
+                    $tag_data,
+                    $present,
+                    $required_if_valid,
+                );
 
                 if (!empty($results)) {
                     $result['tags'][$tag] = $results;
@@ -174,7 +179,12 @@ class TagConfiguration
             $required_if_valid = $tag_group_data['required_if_valid'] ?? false;
 
             if (!$tag_group_empty || $required_if_valid) {
-                $results = $this->gatherConditionListResults($tags, $tag_group_data, !$tag_group_empty, $required_if_valid);
+                $results = $this->gatherConditionListResults(
+                    $tags,
+                    $tag_group_data,
+                    !$tag_group_empty,
+                    $required_if_valid,
+                );
 
                 if (!empty($results)) {
                     $result['tag_groups'][$tag_group] = $results;
@@ -187,8 +197,12 @@ class TagConfiguration
     }
 
     // Tag helpers
-    private function gatherConditionListResults(Set $tags, array $data, bool $present, bool $required_if_valid): array
-    {
+    private function gatherConditionListResults(
+        Set $tags,
+        array $data,
+        bool $present,
+        bool $required_if_valid
+    ): array {
         $results = [];
         $valid = true;
 

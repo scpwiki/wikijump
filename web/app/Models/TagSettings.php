@@ -13,11 +13,7 @@ class TagSettings extends Model
      *
      * @var array
      */
-    protected $fillable = [
-        'site_id',
-        'configuration_name',
-        'configuration_data',
-    ];
+    protected $fillable = ['site_id', 'configuration_name', 'configuration_data'];
 
     /**
      * Build a TagConfiguration corresponding to the data in this model.
