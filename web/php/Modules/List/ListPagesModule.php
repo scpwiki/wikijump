@@ -414,23 +414,6 @@ class ListPagesModule extends SmartyModule
             case 'ratingDesc':
                 $c->addOrderDescending('rate');
                 break;
-            /*
-            case 'commentsAsc':
-                $c->addJoin('thread_id', 'forum_thread.thread_id', 'LEFT');
-                $c->addOrderAscending('number_posts');
-                break;
-            case 'commentsDesc':
-                $c->addOrderDescending('number_posts');
-                break;
-             */
-            case 'pageLengthAsc':
-                $c->addJoin('source_id', 'page_source.source_id');
-                $c->addOrderAscending('char_length(page_source.text)');
-                break;
-            case 'pageLengthDesc':
-                $c->addJoin('source_id', 'page_source.source_id');
-                $c->addOrderDescending('char_length(page_source.text)');
-                break;
             default:
             case 'dateCreatedDesc':
                 $c->addOrderDescending('page_id');
