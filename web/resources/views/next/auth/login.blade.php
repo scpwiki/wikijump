@@ -7,6 +7,10 @@
     'title' => __('account_panel.LOGIN')
 ])
 
+@push('preloads')
+    @preload('resources/scripts/auth-login.ts')
+@endpush
+
 @push('scripts')
     @vite('auth-login.ts')
 @endpush

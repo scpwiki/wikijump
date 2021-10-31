@@ -7,6 +7,10 @@
     'title' => __('account_panel.REGISTER')
 ])
 
+@push('preloads')
+    @preload('resources/scripts/auth-register.ts')
+@endpush
+
 @push('scripts')
     @vite('auth-register.ts')
 @endpush

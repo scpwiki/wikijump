@@ -7,6 +7,10 @@
     'title' => __('account_panel.CONFIRM_PASSWORD')
 ])
 
+@push('preloads')
+    @preload('resources/scripts/auth-confirm.ts')
+@endpush
+
 @push('scripts')
     @vite('auth-confirm.ts')
 @endpush

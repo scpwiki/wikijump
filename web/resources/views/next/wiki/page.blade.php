@@ -20,6 +20,10 @@
 
 @extends('next.frame')
 
+@push('preloads')
+    @preload('resources/scripts/wiki.ts')
+@endpush
+
 @push('scripts')
     @vite('wiki.ts')
 @endpush
