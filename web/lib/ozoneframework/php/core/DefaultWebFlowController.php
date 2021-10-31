@@ -2,9 +2,7 @@
 
 namespace Ozone\Framework;
 
-
-
-use Wikidot\Utils\GlobalProperties;
+use Illuminate\Support\Facades\Log;
 use Wikijump\Helpers\LegacyTools;
 
 /**
@@ -16,16 +14,12 @@ class DefaultWebFlowController extends WebFlowController {
 	public function process() {
 		global $timeStart;
 
-		// initialize logging service
-		$logger = OzoneLogger::instance();
-		$logger->debug("request processing started, logger initialized");
-
-		Ozone ::init();
+        Log::info('[OZONE] Received web request');
+		Ozone::init();
 
 		$runData = new RunData();
 		$runData->init();
-		Ozone :: setRunData($runData);
-		$logger->debug("RunData object created and initialized");
+		Ozone::setRunData($runData);
 
 		// handle session at the begging of procession
 		$runData->handleSessionStart();
@@ -33,7 +27,7 @@ class DefaultWebFlowController extends WebFlowController {
 		$template = $runData->getScreenTemplate();
 		$classFile = $runData->getScreenClassPath();
 		$class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
-		$logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
+        Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
 
 		require_once ($classFile);
 		$screen = new $class();
@@ -50,14 +44,12 @@ class DefaultWebFlowController extends WebFlowController {
 				$classFile = $runData->getScreenClassPath();
 
 				$class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
-				$logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
+                Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
 				require_once ($classFile);
 				$screen = new $class();
 				$runData->setAction(null);
 			}
 		}
-
-		$logger->info("Ozone engines successfully initialized");
 
 		// caching of LAYOUT tasks should start here
 		$cacheSettings = $screen->getScreenCacheSettings();
@@ -82,7 +74,7 @@ class DefaultWebFlowController extends WebFlowController {
 		// PROCESS ACTION
 
 		$actionClass = $runData->getAction();
-		$logger->debug("processing action $actionClass");
+        Log::debug("[OZONE] Processinga action $actionClass");
 		while ($actionClass != null) {
 
 			require_once (PathManager :: actionClass($actionClass));
@@ -103,9 +95,9 @@ class DefaultWebFlowController extends WebFlowController {
 			$actionEvent = $runData->getActionEvent();
 			if ($actionEvent != null) {
 				$action-> $actionEvent ($runData);
-				$logger->debug("processing action: $actionClass, event: $actionEvent");
+                Log::debug("[OZONE] Processing action $actionClass, event $actionEvent");
 			} else {
-				$logger->debug("processing action: $actionClass");
+                Log::debug("[OZONE] Processing action $actionClass");
 				$action->perform($runData);
 			}
 			// this is in case action changes the action name so that
@@ -125,7 +117,7 @@ class DefaultWebFlowController extends WebFlowController {
 		if($template != $runData->getScreenTemplate){
 			$classFile = $runData->getScreenClassPath();
 			$class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
-			$logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
+            Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
 
 			require_once ($classFile);
 			$screen = new $class();
@@ -142,7 +134,5 @@ class DefaultWebFlowController extends WebFlowController {
 		$runData->handleSessionEnd();
 
 		echo $out;
-
 	}
-
 }

@@ -2,10 +2,8 @@
 
 namespace Ozone\Framework\Database;
 
-
-
 use Ozone\Framework\Exceptions\OzoneDatabaseException;
-use Ozone\Framework\OzoneLogger;
+use Illuminate\Support\Facades\Log;
 use Wikidot\Utils\GlobalProperties;
 
 /**
@@ -75,7 +73,7 @@ class PgConnection implements DatabaseConnection{
 		}
 		/* configure the connection */
 		pg_query($this->link, 'SET search_path TO "$user", public, ts2');
-		OzoneLogger::instance()->debug("database connection successful");
+        Log::info('[OZONE] Connected to database successfully');
 	}
 
 	function query($query) {
@@ -88,13 +86,12 @@ class PgConnection implements DatabaseConnection{
 			$time_start = microtime(true);
 			$result = pg_query($this->link,$query);
 			if (!$result) {
-				OzoneLogger::instance()->error(pg_last_error($this->link));
-				OzoneLogger::instance()->error("execution of query  \"$query\" failed");
+				Log::error('[OZONE] ' . pg_last_error($this->link));
+				Log::error("[OZONE] Executing query \"$query\" failed");
 				throw new OzoneDatabaseException("error: ".pg_last_error($this->link)."\n");
 			}
 			$time_end = microtime(true);
 			$t = $time_end - $time_start;
-			OzoneLogger::instance()->debug("executed query \"$query\" ($t sec)");
 		} else {
 			//if query is empty
 			if(count($query) == 0){
@@ -105,7 +102,6 @@ class PgConnection implements DatabaseConnection{
 			}
 		}
 		return new PgResult($result);
-
 	}
 
 	function tableExists($table) {
@@ -158,8 +154,6 @@ class PgConnection implements DatabaseConnection{
 			// key does not exist?
 			$q2 = "INSERT INTO ozone_lock (key) VALUES ('".db_escape_string($key)."')";
 			pg_query($this->link,$q2);
-			// try again
-			$r = pg_query($q);
 		}
 		return true;
 	}

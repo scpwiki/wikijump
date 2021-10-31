@@ -1,7 +1,8 @@
 <?php
+declare(strict_types=1);
 
+use Illuminate\Support\Facades\Log;
 use Ozone\Framework\Exceptions\OzoneDatabaseException;
-use Ozone\Framework\OzoneLogger;
 use Wikidot\Utils\WikiFlowController;
 
 // to avoid caching
@@ -23,7 +24,5 @@ try {
     echo 'A nasty error has occurred. If the problem repeats, please fill (if possible) a bug report.';
     echo '<br/><br/>';
     echo $e;
-    // hope the logger is initialized...
-    $logger = OzoneLogger::instance();
-    $logger->error("Exception caught:\n\n" . $e->__toString());
+    Log::error("[OZONE] Exception caught:\n\n" . $e->__toString());
 }

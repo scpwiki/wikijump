@@ -5,7 +5,6 @@ namespace Wikidot\Utils;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
-use Ozone\Framework\OzoneLogger;
 use Ozone\Framework\RunData;
 use Ozone\Framework\SecurityManager;
 use Ozone\Framework\WebFlowController;
@@ -21,15 +20,11 @@ class FeedFlowController extends WebFlowController
     {
 
         // initialize logging service
-        $logger = OzoneLogger::instance();
-        $logger->debug("Feed request processing started, logger initialized");
-
-        Ozone ::init();
+        Ozone::init();
 
         $runData = new RunData();
         $runData->init();
         Ozone :: setRunData($runData);
-        $logger->debug("RunData object created and initialized");
 
         // check if site (Wiki) exists!
         $siteHost = $_SERVER["HTTP_HOST"];
@@ -110,7 +105,6 @@ class FeedFlowController extends WebFlowController
         $template = $runData->getScreenTemplate();
         $classFile = $runData->getScreenClassPath();
         $class = LegacyTools::getNamespacedClassFromPath($runData->getScreenClassPath());
-        $logger->debug("processing template: ".$runData->getScreenTemplate().", Class: $class");
 
         require_once($classFile);
         $screen = new $class();
@@ -160,10 +154,6 @@ class FeedFlowController extends WebFlowController
             }
             $runData->setTemp("user", $user);
         }
-
-        $logger->debug("OZONE initialized");
-
-        $logger->info("Ozone engines successfully initialized");
 
         $rendered = $screen->render($runData);
 

@@ -649,9 +649,7 @@ class RunData {
 		if ($formTool == null) {
 			$formTool = new FormTool();
 			$this->sessionAdd('form_tool', $formTool);
-			OzoneLogger :: instance()->debug("obtaining new FormTool");
 		}
-		//
 		if ($this->formToolHttpProcessed == false) {
 			// extract form data form the http request
 			$formTool->processHttpRequest($this);

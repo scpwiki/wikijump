@@ -8,7 +8,6 @@ use Exception;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
-use Ozone\Framework\OzoneLogger;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Utils\Deleter;
 use Wikidot\Utils\DependencyFixer;
@@ -326,12 +325,10 @@ class WikiPageAction extends SmartyAction
 
             $lock = PageEditLockPeer::instance()->selectOne($c);
             if ($lock == null) {
-                OzoneLogger::instance()->debug("no lock");
                 // no lock!!! not good.
                 if ($page->getRevisionId() != $pl->getParameterValue("revision_id")) {
                     // this is nonrecoverable.
                     // author should stop editing now!!!
-                    OzoneLogger::instance()->debug("page changed");
                     $runData->ajaxResponseAdd("noLockError", "page_changed");
                     $runData->setModuleTemplate("Edit/LockInterceptedWinModule");
                     $runData->contextAdd("nonrecoverable", true);

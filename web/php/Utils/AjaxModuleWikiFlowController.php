@@ -4,12 +4,11 @@ namespace Wikidot\Utils;
 
 use Exception;
 use Illuminate\Support\Facades\Cache;
-use Ozone\Framework\Database\Criteria;
+use Illuminate\Support\Facades\Log;use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
 use Ozone\Framework\ModuleProcessor;
 use Ozone\Framework\Ozone;
-use Ozone\Framework\OzoneLogger;
 use Ozone\Framework\PathManager;
 use Ozone\Framework\RunData;
 use Ozone\Framework\WebFlowController;
@@ -25,11 +24,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
     {
         global $timeStart;
 
-        // initialize logging service
-        $logger = OzoneLogger::instance();
-        $logger->debug("AJAX module request processing started, logger initialized");
-
-        Ozone ::init();
+        Ozone::init();
 
         $runData = new RunData();
         /* processing an AJAX request! */
@@ -41,7 +36,6 @@ class AjaxModuleWikiFlowController extends WebFlowController
         $runData->ajaxResponseAdd("status", "ok");
 
         Ozone :: setRunData($runData);
-        $logger->debug("RunData object created and initialized");
 
         try {
             $callbackIndex = $runData->getParameterList()->getParameterValue('callbackIndex');
@@ -181,7 +175,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
             $template = $runData->getModuleTemplate();
             $classFile = $runData->getModuleClassPath();
-            $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $classFile");
+            Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
             require_once($classFile);
             $class = LegacyTools::getNamespacedClassFromPath($classFile);
             $module = new $class();
@@ -192,13 +186,10 @@ class AjaxModuleWikiFlowController extends WebFlowController
             }
 
             Ozone::initSmarty();
-            $logger->debug("OZONE initialized");
-
-            $logger->info("Ozone engines successfully initialized");
 
             // PROCESS ACTION
             $actionClass = $runData->getAction();
-            $logger->debug("processing action $actionClass");
+            Log::debug("[OZONE] Processing action $actionClass");
 
             $runData->setTemp("jsInclude", array());
             $runData->setTemp("cssInclude", array());
@@ -216,12 +207,11 @@ class AjaxModuleWikiFlowController extends WebFlowController
                 }
 
                 $actionEvent = $runData->getActionEvent();
-                /*try{*/
                 if ($actionEvent != null) {
                     $action-> $actionEvent($runData);
-                    $logger->debug("processing action: $actionClass, event: $actionEvent");
+                    Log::debug("[OZONE] Processing action $actionClass, event $actionEvent");
                 } else {
-                    $logger->debug("processing action: $actionClass");
+                    Log::debug("[OZONE] Processing action $actionClass");
                     $action->perform($runData);
                 }
             }
@@ -232,7 +222,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
             if ($template != $runData->getModuleTemplate()) {
                 $classFile = $runData->getModuleClassPath();
                 $class = LegacyTools::getNamespacedClassFromPath($runData->getModuleClassPath());
-                $logger->debug("processing template: ".$runData->getModuleTemplate().", Class: $class");
+                Log::debug('[OZONE] Processing template', ['template' => $runData->getModuleTemplate(), 'class' => $class]);
 
                 require_once($classFile);
                 $module = new $class();
@@ -271,8 +261,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
             $runData->setModuleTemplate(null);
             $template=null;
             // LOG ERROR TOO!!!
-            $logger = OzoneLogger::instance();
-            $logger->error("Exception caught while processing ajax module:\n\n".$e->__toString());
+            Log::error("[OZONE] Exception while processing AJAX module:\n\n" . $e->__toString());
         }
 
         $rVars = $runData->getAjaxResponse();
