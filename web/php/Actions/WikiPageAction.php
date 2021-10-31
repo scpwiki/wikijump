@@ -1369,11 +1369,14 @@ class WikiPageAction extends SmartyAction
         // Currently this finds the first configuration with the (nullable?) site ID matching
         // This is because I don't want to further mess with the site table until we refactor it
 
-        $tag_configuration = TagSettings::where(['site_id' => $site->getSiteId()])->first()->getConfiguration();
-        $tag_decision = TagEngine::validate($tag_configuration, $previous_tags, $current_tags, $role_ids);
+        $tag_settings = TagSettings::where(['site_id' => $site->getSiteId()])->first();
+        if ($tag_settings !== null) {
+            $tag_configuration = $tag_settings->getConfiguration();
+            $tag_decision = TagEngine::validate($tag_configuration, $previous_tags, $current_tags, $role_ids);
 
-        if (!$tag_decision->valid) {
-            throw new ProcessException(__('processing.tags.errors.INVALID_TAGS'), 'form_error');
+            if (!$tag_decision->valid) {
+                throw new ProcessException(__('processing.tags.errors.INVALID_TAGS'), 'form_error');
+            }
         }
 
         // Save the tags.
