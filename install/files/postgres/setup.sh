@@ -2,7 +2,7 @@
 set -eux
 
 # Start database
-su postgres -c 'pg_ctl start'
+su postgres -c "pg_ctl -D ${PGDATA} start"
 
 # Prepare seed file
 sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" seed.sql
