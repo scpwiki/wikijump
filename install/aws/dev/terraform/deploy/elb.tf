@@ -14,7 +14,7 @@ resource "aws_lb" "wikijump_elb" {
 
   access_logs {
     bucket  = aws_s3_bucket.elb_logs.bucket
-    prefix  = var.environment
+    prefix  = "elb"
     enabled = true
   }
 }
