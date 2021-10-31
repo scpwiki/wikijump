@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Actions;
 
@@ -29,13 +30,10 @@ use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageCompiled;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
-use Wikidot\DB\AllowedTags;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
 use Wikijump\Models\User;
 use Illuminate\Support\Facades\DB;
-
-
 
 class WikiPageAction extends SmartyAction
 {
@@ -1062,7 +1060,7 @@ class WikiPageAction extends SmartyAction
 
         $db->commit();
 
-        sleep(0.5);
+        sleep(1);
     }
 
     public function setParentPageEvent($runData)
@@ -1360,21 +1358,12 @@ class WikiPageAction extends SmartyAction
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
         // Turn the tags into a set.
-        if ($tags !== '') {
-            $tags = preg_split("/[ ,]+/", $tags);
-            $tags = new Set($tags);
-        } else {
-            $tags = new Set();
-        }
+        // We have a check here because preg_split() on an empty string yields ['']
+        $tags = $tags === '' ? new Set() : new Set(preg_split('/[, ]+/', $tags));
 
-        // If Allowed Tags are enabled, ensure all tags are compliant, and return an error listing any non-compliant ones.
-        if($enable_tag_engine && !$tags->isEmpty()) {
-            $allowed_tags_list = AllowedTags::getAllowedTags($site_id);
-            $forbidden_tags = $tags->diff($allowed_tags_list);
-            if(!$forbidden_tags->isEmpty()) {
-              $error_message = sprintf(_('The tags %s are not valid for this site.'), $forbidden_tags->join(", "));
-              throw new ProcessException($error_message, "form_error");
-            }
+        // TODO: add tag check
+        if (false) {
+          throw new ProcessException(_('The tags %s are not valid for this site.'), "form_error");
         }
 
         // Save the tags.
@@ -1391,8 +1380,6 @@ class WikiPageAction extends SmartyAction
     public function saveBlockEvent($runData)
     {
         $pl = $runData->getParameterList();
-        $site = $runData->getTemp("site");
-
         $pageId = $pl->getParameterValue("pageId");
         $user = $runData->getUser();
 

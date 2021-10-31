@@ -1,19 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Modules\PageTags;
 
 use Ds\Set;
-use Illuminate\Support\Facades\DB;
-use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PagePeer;
-use Wikidot\DB\AllowedTags;
 use Ozone\Framework\SmartyModule;
 use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionManager;
 
 class PageTagsModule extends SmartyModule
 {
-
     public function build($runData)
     {
         $user = $runData->getUser();

@@ -3,16 +3,13 @@
 namespace Wikidot\Modules\ManageSite;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\AllowedTags;
 use Wikidot\DB\MemberPeer;
 use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteWelcomeModule extends ManageSiteBaseModule
 {
-
     public function build($runData)
     {
-
         $site = $runData->getTemp("site");
 
         $fsettings = $site->getForumSettings();
@@ -22,7 +19,6 @@ class ManageSiteWelcomeModule extends ManageSiteBaseModule
         if (!$fsettings) {
             $tips['forum'] = true;
         }
-
 
         // count members... ???
         $c = new Criteria();

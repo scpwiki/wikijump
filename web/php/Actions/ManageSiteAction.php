@@ -1,19 +1,18 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Actions;
+
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
-use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\ThemePeer;
 use Wikidot\DB\Theme;
-use Wikidot\DB\AllowedTagsPeer;
-use Wikidot\DB\AllowedTags;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\DomainRedirectPeer;
 use Wikidot\DB\DomainRedirect;
@@ -54,7 +53,8 @@ class ManageSiteAction extends SmartyAction
         $json = new JSONService(SERVICES_JSON_LOOSE_TYPE);
         $cats0 = $json->decode($pl->getParameterValue("categories"));
 
-        /* for each category
+        /*
+         * for each category
          *  - get a category from database
          *  - check if theme_id or theme_default has changed
          *  - if changed: update
@@ -431,8 +431,6 @@ class ManageSiteAction extends SmartyAction
         $name = trim($pl->getParameterValue("name"));
         $subtitle = trim($pl->getParameterValue("subtitle"));
         $description = trim($pl->getParameterValue("description"));
-        $enableTagEngine = $pl->getParameterValue("enable_tag_engine");
-        $enableTagEngine = !empty($enableTagEngine) ? true : false;
         $tags = strtolower(trim($pl->getParameterValue("tags")));
 
         $defaultPage = WDStringUtils::toUnixName($pl->getParameterValue("default_page"));
@@ -483,11 +481,6 @@ class ManageSiteAction extends SmartyAction
             $changed = true;
         }
 
-        if (AllowedTags::getEnableTagEngine($siteId) !== $enableTagEngine) {
-            AllowedTags::setEnableTagEngine($siteId, $enableTagEngine);
-            $changed = true;
-        }
-
         $db = Database::connection();
         $db->begin();
 
@@ -502,8 +495,6 @@ class ManageSiteAction extends SmartyAction
         if($tags !== '') {
             $tags = preg_split("/[ ,]+/", $tags);
         }
-
-        AllowedTags::saveAllowedTags($site, $tags);
 
         $db->commit();
         if (GlobalProperties::$UI_SLEEP) {
