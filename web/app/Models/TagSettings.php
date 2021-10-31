@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Models;
 
-
+use Illuminate\Database\Eloquent\Model;
 use Wikijump\Services\TagEnforcement\TagConfiguration;
 
 class TagSettings extends Model
