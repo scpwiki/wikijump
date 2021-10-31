@@ -15,8 +15,7 @@ use Wikijump\Models\User;
  */
 class Page extends PageBase
 {
-
-    protected static $_titleTemplate = array();
+    protected static $_titleTemplate = [];
 
     public function getSource()
     {
@@ -44,13 +43,6 @@ class Page extends PageBase
         $c = new Criteria();
         $c->add("revision_id", $this->getRevisionId());
         return PageRevisionPeer::instance()->selectOne($c);
-    }
-
-    public function outdateCompiled()
-    {
-        $q = "UPDATE page_compiled SET date_compiled=(now() - interval '1 week') " . "WHERE page_id='" . db_escape_string($this->getPageId()) . "'";
-        $db = Database::connection();
-        $db->query($q);
     }
 
     public function getFiles()
