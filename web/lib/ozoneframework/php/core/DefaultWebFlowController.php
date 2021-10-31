@@ -74,7 +74,7 @@ class DefaultWebFlowController extends WebFlowController {
 		// PROCESS ACTION
 
 		$actionClass = $runData->getAction();
-        Log::debug("[OZONE] Processinga action $actionClass");
+        Log::debug("[OZONE] Processing action $actionClass");
 		while ($actionClass != null) {
 
 			require_once (PathManager :: actionClass($actionClass));
