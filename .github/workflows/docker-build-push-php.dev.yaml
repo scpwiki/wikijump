@@ -30,7 +30,7 @@ jobs:
         - name: Build, tag, and push image to Amazon ECR
           id: build-image
           env:
-          DOCKER_BUILDKIT: 1
+            DOCKER_BUILDKIT: 1
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             ECR_REPOSITORY: wikijump-dev/php-fpm
             IMAGE_TAG: ${{ github.sha }}
