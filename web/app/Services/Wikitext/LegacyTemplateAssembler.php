@@ -206,6 +206,6 @@ final class LegacyTemplateAssembler
         if ($tags->isEmpty()) {
             return _('//No tags found for this page.//');
         }
-        return $tags->join(" ");
+        return $tags->join(' ');
     }
 }
