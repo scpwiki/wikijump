@@ -142,7 +142,7 @@ final class LegacyTemplateAssembler
             /* %%tags%% */
             $b = preg_replace_callback(
                 '/%%%%%tags%%%%%/i',
-                fn(array $matches) => self::handleTags($matches, $page),
+                fn(array $matches) => self::handleTags($matches, $page->getPageId()),
                 $b,
             );
 
@@ -199,10 +199,10 @@ final class LegacyTemplateAssembler
         return '[[date ' . $m[1] . ' format="' . $format . '"' . ']]';
     }
 
-    private static function handleTags($m, $page)
+    private static function handleTags($match, string $page_id): string
     {
         /* Select tags. */
-        $tags = PagePeer::getTags($pageId);
+        $tags = PagePeer::getTags($page_id);
         if ($tags->isEmpty()) {
             return _('//No tags found for this page.//');
         }
