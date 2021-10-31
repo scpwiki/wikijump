@@ -13,7 +13,6 @@ require ('../php/setup.php');
 $logger = OzoneLogger::instance();
 $loggerFileOutput = new OzoneLoggerFileOutput();
 $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/jobs.log");
-$logger->addLoggerOutput($loggerFileOutput);
 
 $logger->debug("request processing started, logger initialized");
 

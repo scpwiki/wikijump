@@ -27,15 +27,6 @@ class OzoneLogger {
 		return self::$loggerInstance;
 	}
 
-	/**
-	 * Adds output for the logger. OzoneLogger object can have several outputs, e.g.
-	 * file, database, html...
-	 * @param OzoneLoggerOutput $loggerOutput
-	 */
-	public function addLoggerOutput($loggerOutput){
-		$this->loggerOutputs[] = $loggerOutput;
-	}
-
     public function fatal($message){
 		$this->runLogEvent(0, $message);
 	}
