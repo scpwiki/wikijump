@@ -79,7 +79,7 @@ module "nginx" {
   extra_hosts = [
     {
       hostname  = "host.docker.internal"
-      ipAddress = "host-gateway"
+      ipAddress = "169.254.172.1" # https://github.com/aws/containers-roadmap/issues/165#issuecomment-527449161
     }
   ]
 
