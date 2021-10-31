@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\Wikitext;
 
+use Ds\Set;
 use Wikidot\DB\Page;
 
 /**
@@ -16,7 +17,7 @@ class PageInfo
     public string $site;
     public string $title;
     public ?string $alt_title;
-    public array $tags;
+    public Set $tags;
     public string $language;
 
     public function __construct(
@@ -25,7 +26,7 @@ class PageInfo
         string $site,
         string $title,
         ?string $alt_title,
-        array $tags,
+        Set $tags,
         string $language
     ) {
         $this->page = $page;

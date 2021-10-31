@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Actions;
 
+use Ds\Set;
 use Exception;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
@@ -28,13 +30,10 @@ use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageCompiled;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
-use Wikidot\DB\AllowedTags;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
+use Wikijump\Models\TagSettings;
 use Wikijump\Models\User;
-use Illuminate\Support\Facades\DB;
-
-
 
 class WikiPageAction extends SmartyAction
 {
@@ -1061,7 +1060,7 @@ class WikiPageAction extends SmartyAction
 
         $db->commit();
 
-        sleep(0.5);
+        sleep(1);
     }
 
     public function setParentPageEvent($runData)
@@ -1343,12 +1342,10 @@ class WikiPageAction extends SmartyAction
         $user = $runData->getUser();
         $pl = $runData->getParameterList();
         $tags = strtolower(trim($pl->getParameterValue("tags")));
-        $pageId = $pl->getParameterValue("pageId");
+        $page_id = $pl->getParameterValue("pageId");
 
         $site = $runData->getTemp("site");
-        $siteId = $site->getSiteId();
-        $enableAllowedTags = DB::table('site')->where('site_id', $siteId)->value('enable_allowed_tags');
-        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = PagePeer::instance()->selectByPrimaryKey($page_id);
 
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {
             throw new ProcessException(_("Error getting page information."), "no_page");
@@ -1358,28 +1355,32 @@ class WikiPageAction extends SmartyAction
 
         WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 
-        // Turn the tags into an array.
-        if($tags !== '') {
-            $tags = preg_split("/[ ,]+/", $tags);
-        }
+        // Turn the tags into a set.
+        // We have a check here because preg_split() on an empty string yields ['']
+        $current_tags = $tags === '' ? new Set() : new Set(preg_split('/[, ]+/', $tags));
+        $previous_tags = PagePeer::getTags($page_id);
 
-        // If Allowed Tags are enabled, ensure all tags are compliant, and return an error listing any non-compliant ones.
-        if($enableAllowedTags === true && $tags !== '') {
-            $allowedTagsList = AllowedTags::getAllowedTags($siteId);
-            $forbiddenTags = [];
-            foreach ($tags as $tag) {
-                if(!in_array($tag, $allowedTagsList)) {
-                    array_push($forbiddenTags, $tag);
-                }
-            }
-            if(!empty($forbiddenTags)) {
-              $errorMessage = sprintf(_('The tags %s are not valid for this site.'), implode(", ", $forbiddenTags));
-              throw new ProcessException($errorMessage, "form_error");
+        // TODO: concept of roles
+        $role_ids = new Set();
+
+        // Get tag settings, and ensure the tags pass the current configuration
+
+        // TODO: allow multiple tag configurations per site
+        // Currently this finds the first configuration with the (nullable?) site ID matching
+        // This is because I don't want to further mess with the site table until we refactor it
+
+        $tag_settings = TagSettings::where(['site_id' => $site->getSiteId()])->first();
+        if ($tag_settings !== null) {
+            $tag_configuration = $tag_settings->getConfiguration();
+            $tag_decision = TagEngine::validate($tag_configuration, $previous_tags, $current_tags, $role_ids);
+
+            if (!$tag_decision->valid) {
+                throw new ProcessException(__('processing.tags.errors.INVALID_TAGS'), 'form_error');
             }
         }
 
         // Save the tags.
-        PagePeer::saveTags($pageId, $tags);
+        PagePeer::saveTags($page_id, $current_tags);
 
         $od = new Outdater();
         $od->pageEvent("tag_change", $page);
@@ -1392,8 +1393,6 @@ class WikiPageAction extends SmartyAction
     public function saveBlockEvent($runData)
     {
         $pl = $runData->getParameterList();
-        $site = $runData->getTemp("site");
-
         $pageId = $pl->getParameterValue("pageId");
         $user = $runData->getUser();
 

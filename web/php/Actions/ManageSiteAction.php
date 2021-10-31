@@ -1,19 +1,18 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\Actions;
+
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\JSONService;
-use Ozone\Framework\Ozone;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Config\ForbiddenNames;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\ThemePeer;
 use Wikidot\DB\Theme;
-use Wikidot\DB\AllowedTagsPeer;
-use Wikidot\DB\AllowedTags;
 use Wikidot\DB\SitePeer;
 use Wikidot\DB\DomainRedirectPeer;
 use Wikidot\DB\DomainRedirect;
@@ -33,7 +32,6 @@ use Wikidot\Utils\WDStringUtils;
 
 class ManageSiteAction extends SmartyAction
 {
-
     public function isAllowed($runData)
     {
         WDPermissionManager::instance()->hasPermission('manage_site', $runData->getUser(), $runData->getTemp("site"));
@@ -54,7 +52,8 @@ class ManageSiteAction extends SmartyAction
         $json = new JSONService(SERVICES_JSON_LOOSE_TYPE);
         $cats0 = $json->decode($pl->getParameterValue("categories"));
 
-        /* for each category
+        /*
+         * for each category
          *  - get a category from database
          *  - check if theme_id or theme_default has changed
          *  - if changed: update
@@ -431,8 +430,6 @@ class ManageSiteAction extends SmartyAction
         $name = trim($pl->getParameterValue("name"));
         $subtitle = trim($pl->getParameterValue("subtitle"));
         $description = trim($pl->getParameterValue("description"));
-        $enableAllowedTags = $pl->getParameterValue("enable_allowed_tags");
-        $enableAllowedTags = !empty($enableAllowedTags) ? 'true' : 'false'; // These are strings for now, likely because Ozone and Laravel don't like cooperating. Will change in the future when converting to Laravel.
         $tags = strtolower(trim($pl->getParameterValue("tags")));
 
         $defaultPage = WDStringUtils::toUnixName($pl->getParameterValue("default_page"));
@@ -464,6 +461,7 @@ class ManageSiteAction extends SmartyAction
         }
 
         $site = $runData->getTemp("site");
+        $siteId = $site->getSiteId();
         $changed = false;
         if ($site->getName() !== $name) {
             $site->setName($name);
@@ -482,11 +480,6 @@ class ManageSiteAction extends SmartyAction
             $changed = true;
         }
 
-        if ($site->getEnableAllowedTags() !== $enableAllowedTags) {
-            $site->setEnableAllowedTags($enableAllowedTags);
-            $changed = true;
-        }
-
         $db = Database::connection();
         $db->begin();
 
@@ -497,28 +490,9 @@ class ManageSiteAction extends SmartyAction
             $outdater->siteEvent("sitewide_change");
         }
 
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-
-        $dbTags = AllowedTagsPeer::instance()->select($c);
-        $tags = preg_split("/[ ,]+/", $tags);
-        $tags = array_unique($tags);
-
-        foreach ($dbTags as $dbTag) {
-            if (in_array($dbTag->getTag(), $tags)) {
-                unset($tags[array_search($dbTag->getTag(), $tags)]);
-            } else {
-                AllowedTagsPeer::instance()->deleteByPrimaryKey($dbTag->getTagId());
-            }
-        }
-        // insert all other
-        foreach ($tags as $tag) {
-            if (trim($tag) != '') {
-                $dbTag = new AllowedTags();
-                $dbTag->setSiteId($site->getSiteId());
-                $dbTag->setTag($tag);
-                $dbTag->save();
-            }
+        // Turn the tags into an array.
+        if($tags !== '') {
+            $tags = preg_split("/[ ,]+/", $tags);
         }
 
         $db->commit();

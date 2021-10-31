@@ -3,16 +3,13 @@
 namespace Wikidot\Modules\ManageSite;
 
 use Ozone\Framework\Database\Criteria;
-use Wikidot\DB\AllowedTagsPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\Utils\ManageSiteBaseModule;
 
 class ManageSiteWelcomeModule extends ManageSiteBaseModule
 {
-
     public function build($runData)
     {
-
         $site = $runData->getTemp("site");
 
         $fsettings = $site->getForumSettings();
@@ -21,16 +18,6 @@ class ManageSiteWelcomeModule extends ManageSiteBaseModule
 
         if (!$fsettings) {
             $tips['forum'] = true;
-        }
-
-        // site tags
-
-        $c = new Criteria();
-        $c->add("site_id", $site->getSiteId());
-        $t = AllowedTagsPeer::instance()->selectOne($c);
-
-        if (!$t) {
-            $tips['tags'] = true;
         }
 
         // count members... ???

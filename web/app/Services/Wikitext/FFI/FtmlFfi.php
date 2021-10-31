@@ -263,7 +263,7 @@ final class FtmlFfi
      */
     public static function listToPointer(
         FFI\CType $type,
-        array $list,
+        iterable $list,
         callable $convert_fn
     ): array {
         // Allocate heap array
