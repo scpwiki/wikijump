@@ -31,6 +31,8 @@ services:
       dockerfile: install/local/dev/nginx/Dockerfile
     ports:
       - "80:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - php-fpm
 
