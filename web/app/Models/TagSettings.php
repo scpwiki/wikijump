@@ -16,6 +16,15 @@ class TagSettings extends Model
     protected $fillable = ['site_id', 'configuration_name', 'configuration_data'];
 
     /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'configuration_data' => 'array',
+    ];
+
+    /**
      * Build a TagConfiguration corresponding to the data in this model.
      */
     public function getConfiguration(): TagConfiguration
