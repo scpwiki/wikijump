@@ -1345,7 +1345,6 @@ class WikiPageAction extends SmartyAction
         $page_id = $pl->getParameterValue("pageId");
 
         $site = $runData->getTemp("site");
-        $site_id = $site->getSiteId();
         $page = PagePeer::instance()->selectByPrimaryKey($page_id);
 
         if ($page == null || $page->getSiteId() != $site->getSiteId()) {

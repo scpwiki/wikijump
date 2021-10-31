@@ -13,7 +13,6 @@ class TagEngine extends Migration
      */
     public function up()
     {
-
         // Drop 'site_tag' table (entirely deprecated).
         Schema::drop('site_tag');
 
@@ -38,7 +37,6 @@ class TagEngine extends Migration
      */
     public function down()
     {
-
         // Recreate 'site_tag' from legacy tables.
         Schema::create('site_tag', function (Blueprint $table) {
             $table->id('tag_id')->startingValue(2);
