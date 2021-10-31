@@ -16,17 +16,19 @@ class PageContents extends Migration
     {
         // Create new contents table
         Schema::create('page_contents', function (Blueprint $table) {
+            $table->foreignId('revision_id');
+            $table->longtext('wikitext');
+            $table->longtext('compiled_html');
+            $table->string('generator', 64);
+
             $table->foreign('revision_id')->references('revision_id')->on('page_revision');
             $table->primary('revision_id');
-
-            $table->string('wikitext');
-            $table->string('compiled_html');
-            $table->string('generator');
         });
 
         // Migrate existing sources
         $revisions = DB::table('page_revision')
             ->select('revision_id', 'page_id', 'source_id')
+            ->get()
             ->toArray();
 
         foreach ($revisions as $revision) {
@@ -42,8 +44,8 @@ class PageContents extends Migration
 
             DB::table('page_contents')->insert([
                 'revision_id' => $revision->revision_id,
-                'wikitext' => $wikitext,
-                'compiled_html' => $compiled_html,
+                'wikitext' => $wikitext ?? '',
+                'compiled_html' => $compiled_html ?? '',
                 'generator' => 'Text_Wiki 0.0.1',
             ]);
         }
