@@ -76,6 +76,13 @@ module "nginx" {
 
   links = ["php-fpm:php-fpm"]
 
+  extra_hosts = [
+    {
+      hostname  = "host.docker.internal"
+      ipAddress = "host-gateway"
+    }
+  ]
+
   docker_labels = {
     "traefik.enable"                                = "true"
     "traefik.http.routers.php-fpm.rule"             = "Host(`${var.web_domain}`,`www.${var.web_domain}`,`${var.files_domain}`,`www.${var.files_domain}`)"
