@@ -9,6 +9,10 @@ export type PageInfo = FTML.IPageInfo
 export type PartialInfo = Partial<FTML.IPageInfo>
 export type SyntaxTree = FTML.ISyntaxTree
 export type Warning = FTML.IParseWarning
+export type WikitextMode = FTML.WikitextMode
+export type WikitextSettings = FTML.IWikitextSettings
+
+export type RenderSettings = WikitextMode | WikitextSettings
 
 export interface RenderedHTML {
   html: string
@@ -33,6 +37,14 @@ export interface DetailRenderedText {
 export type UTF16IndexMapFunction = {
   (pos: number): number
   free: () => void
+}
+
+function makeSettings(settings: RenderSettings): FTML.WikitextSettings {
+  if (typeof settings === "string") {
+    return FTML.WikitextSettings.from_mode(settings)
+  } else {
+    return new FTML.WikitextSettings(settings)
+  }
 }
 
 /** Creates a {@link PageInfo} object. Any properties not provided are mocked. */
@@ -92,13 +104,15 @@ export function tokenize(str: string) {
  *
  * @param str - The wikitext to parse.
  * @param info - The page info to use.
+ * @param mode - The wikitext rendering mode to use.
  */
-export function parse(str: string, info?: PartialInfo) {
+export function parse(str: string, info?: PartialInfo, mode: RenderSettings = "page") {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
     const tokenized = trk(FTML.tokenize(str))
     const pageInfo = trk(new FTML.PageInfo(makeInfo(info)))
-    const parsed = trk(FTML.parse(pageInfo, tokenized))
+    const settings = trk(makeSettings(mode))
+    const parsed = trk(FTML.parse(tokenized, pageInfo, settings))
     const tree = trk(parsed.syntax_tree())
     const ast = tree.data()
     const warnings = parsed.warnings()
@@ -117,13 +131,15 @@ export function parse(str: string, info?: PartialInfo) {
  *
  * @param str - The wikitext to get the warnings of.
  * @param info - The page info to use.
+ * @param mode - The wikitext rendering mode to use.
  */
-export function warnings(str: string, info?: PartialInfo) {
+export function warnings(str: string, info?: PartialInfo, mode: RenderSettings = "page") {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
     const pageInfo = trk(new FTML.PageInfo(makeInfo(info)))
     const tokenized = trk(FTML.tokenize(str))
-    const parsed = trk(FTML.parse(pageInfo, tokenized))
+    const settings = trk(makeSettings(mode))
+    const parsed = trk(FTML.parse(tokenized, pageInfo, settings))
     const warnings = parsed.warnings()
 
     freeTracked()
@@ -140,15 +156,21 @@ export function warnings(str: string, info?: PartialInfo) {
  *
  * @param str - The wikitext to render.
  * @param info - The page info to use.
+ * @param mode - The wikitext rendering mode to use.
  */
-export function renderHTML(str: string, info?: PartialInfo): RenderedHTML {
+export function renderHTML(
+  str: string,
+  info?: PartialInfo,
+  mode: RenderSettings = "page"
+): RenderedHTML {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
     const pageInfo = trk(new FTML.PageInfo(makeInfo(info)))
     const tokenized = trk(FTML.tokenize(str))
-    const parsed = trk(FTML.parse(trk(pageInfo.copy()), tokenized))
+    const settings = trk(makeSettings(mode))
+    const parsed = trk(FTML.parse(tokenized, trk(pageInfo.copy()), trk(settings.copy())))
     const tree = trk(parsed.syntax_tree())
-    const rendered = trk(FTML.render_html(pageInfo, tree))
+    const rendered = trk(FTML.render_html(tree, pageInfo, settings))
 
     const html = rendered.body()
     const meta = rendered.html_meta()
@@ -171,18 +193,25 @@ export function renderHTML(str: string, info?: PartialInfo): RenderedHTML {
  *
  * @param str - The wikitext to render.
  * @param info - The page info to use.
+ * @param mode - The wikitext rendering mode to use.
  */
-export function detailRenderHTML(str: string, info?: PartialInfo): DetailRenderedHTML {
+
+export function detailRenderHTML(
+  str: string,
+  info?: PartialInfo,
+  mode: RenderSettings = "page"
+): DetailRenderedHTML {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
     const pageInfo = trk(new FTML.PageInfo(makeInfo(info)))
     const tokenized = trk(FTML.tokenize(str))
     const tokens = tokenized.tokens()
-    const parsed = trk(FTML.parse(trk(pageInfo.copy()), tokenized))
+    const settings = trk(makeSettings(mode))
+    const parsed = trk(FTML.parse(tokenized, trk(pageInfo.copy()), trk(settings.copy())))
     const tree = trk(parsed.syntax_tree())
     const ast = tree.data()
     const warnings = parsed.warnings()
-    const rendered = trk(FTML.render_html(pageInfo, tree))
+    const rendered = trk(FTML.render_html(tree, pageInfo, settings))
 
     const html = rendered.body()
     const meta = rendered.html_meta()
@@ -203,15 +232,21 @@ export function detailRenderHTML(str: string, info?: PartialInfo): DetailRendere
  *
  * @param str - The wikitext to render.
  * @param info - The page info to use.
+ * @param mode - The wikitext rendering mode to use.
  */
-export function renderText(str: string, info?: PartialInfo) {
+export function renderText(
+  str: string,
+  info?: PartialInfo,
+  mode: RenderSettings = "page"
+) {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
     const pageInfo = trk(new FTML.PageInfo(makeInfo(info)))
     const tokenized = trk(FTML.tokenize(str))
-    const parsed = trk(FTML.parse(trk(pageInfo.copy()), tokenized))
+    const settings = trk(makeSettings(mode))
+    const parsed = trk(FTML.parse(tokenized, trk(pageInfo.copy()), trk(settings.copy())))
     const tree = trk(parsed.syntax_tree())
-    const text = FTML.render_text(pageInfo, tree)
+    const text = FTML.render_text(tree, pageInfo, settings)
 
     freeTracked()
 
@@ -229,18 +264,24 @@ export function renderText(str: string, info?: PartialInfo) {
  *
  * @param str - The wikitext to render.
  * @param info - The page info to use.
+ * @param mode - The wikitext rendering mode to use.
  */
-export function detailRenderText(str: string, info?: PartialInfo): DetailRenderedText {
+export function detailRenderText(
+  str: string,
+  info?: PartialInfo,
+  mode: RenderSettings = "page"
+): DetailRenderedText {
   if (!ready) throw new Error("FTML wasn't ready yet!")
   try {
     const pageInfo = trk(new FTML.PageInfo(makeInfo(info)))
     const tokenized = trk(FTML.tokenize(str))
     const tokens = tokenized.tokens()
-    const parsed = trk(FTML.parse(trk(pageInfo.copy()), tokenized))
+    const settings = trk(makeSettings(mode))
+    const parsed = trk(FTML.parse(tokenized, trk(pageInfo.copy()), trk(settings.copy())))
     const tree = trk(parsed.syntax_tree())
     const ast = tree.data()
     const warnings = parsed.warnings()
-    const text = FTML.render_text(pageInfo, tree)
+    const text = FTML.render_text(tree, pageInfo, settings)
 
     freeTracked()
 
