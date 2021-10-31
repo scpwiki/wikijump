@@ -50,10 +50,9 @@ class TagEngine extends Migration
       // Drop new 'tag_settings' table.
       Schema::drop('tag_settings');
 
-      // Drop new 'enable_tag_engine' columb in 'site' table.
+      // Drop new 'enable_tag_engine' column in 'site' table.
       Schema::table('site', function (Blueprint $table) {
         $table->dropColumn('enable_tag_engine');
       });
-
     }
 }
