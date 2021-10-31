@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\OzoneLogger;
-use Ozone\Framework\OzoneLoggerFileOutput;
 use Ozone\Framework\RunData;
 use Ozone\Framework\SecurityManager;
 use Ozone\Framework\WebFlowController;
@@ -23,9 +22,6 @@ class FeedFlowController extends WebFlowController
 
         // initialize logging service
         $logger = OzoneLogger::instance();
-        $loggerFileOutput = new OzoneLoggerFileOutput();
-        $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
-
         $logger->debug("Feed request processing started, logger initialized");
 
         Ozone ::init();

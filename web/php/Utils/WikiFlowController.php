@@ -7,7 +7,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ModuleProcessor;
 use Ozone\Framework\Ozone;
 use Ozone\Framework\OzoneLogger;
-use Ozone\Framework\OzoneLoggerFileOutput;
 use Ozone\Framework\RunData;
 use Ozone\Framework\WebFlowController;
 use Wikidot\DB\SitePeer;
@@ -27,9 +26,6 @@ class WikiFlowController extends WebFlowController
 
         // initialize logging service
         $logger = OzoneLogger::instance();
-        $loggerFileOutput = new OzoneLoggerFileOutput();
-        $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
-
         $logger->debug("request processing started, logger initialized");
 
         Ozone ::init();

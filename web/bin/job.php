@@ -2,7 +2,6 @@
 
 use Ozone\Framework\Ozone;
 use Ozone\Framework\OzoneLogger;
-use Ozone\Framework\OzoneLoggerFileOutput;
 use Ozone\Framework\RunData;
 
 chdir(dirname(__FILE__)); // unifies CLI/CGI cwd handling
@@ -11,9 +10,6 @@ require ('../php/setup.php');
 // initialize things now
 
 $logger = OzoneLogger::instance();
-$loggerFileOutput = new OzoneLoggerFileOutput();
-$loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/jobs.log");
-
 $logger->debug("request processing started, logger initialized");
 
 // initialize OZONE object too
