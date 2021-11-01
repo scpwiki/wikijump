@@ -69,11 +69,8 @@ class WikiPageAction extends SmartyAction
         $title = trim($pl->getParameterValue("title"));
 
         $userId = $runData->getUserId();
-        if ($userId == null) {
-            $userString = $runData->createIpString();
-        }
 
-        if ($title ==='') {
+        if ($title === '') {
             $title = null;
         }
 
@@ -264,21 +261,22 @@ class WikiPageAction extends SmartyAction
             $page->setDateLastEdited($nowDate);
             $page->setTags([]);
 
+            $contents = PageContents::getLatestCompiledHtml($page->getPageId());
             $pageCompiled = new PageCompiled();
             $pageCompiled->setPageId($page->getPageId());
-            $pageCompiled->outdate();
 
             $page->setCategoryId($category->getCategoryId());
 
             // now set user_id, user_string
-            if ($userId) {
-                $pageRevision->setUserId($userId);
-                $page->setLastEditUserId($userId);
-            } else {
+            if ($userId === null) {
+                $userString = $runData->createIpString();
                 $pageRevision->setUserId(User::ANONYMOUS_USER);
                 $page->setLastEditUserId(User::ANONYMOUS_USER);
                 $pageRevision->setUserString($userString);
                 $page->setLastEditUserString($userString);
+            } else {
+                $pageRevision->setUserId($userId);
+                $page->setLastEditUserId($userId);
             }
 
             $page->setOwnerUserId($userId);
@@ -880,17 +878,15 @@ class WikiPageAction extends SmartyAction
         $revision->setComments(_("Page name changed").": \"$oldName\" "._("to")." \"$newName\".");
 
         $userId = $runData->getUserId();
-        if ($userId == null) {
+        if ($userId === null) {
             $userString = $runData->createIpString();
-        }
-        if ($userId) {
-            $revision->setUserId($userId);
-            $page->setLastEditUserId($userId);
-        } else {
             $revision->setUserId(User::ANONYMOUS_USER);
             $page->setLastEditUserId(User::ANONYMOUS_USER);
             $revision->setUserString($userString);
             $page->setLastEditUserString($userString);
+        } else {
+            $revision->setUserId($userId);
+            $page->setLastEditUserId($userId);
         }
 
         $now = new ODate();
