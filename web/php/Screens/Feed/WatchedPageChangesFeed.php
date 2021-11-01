@@ -113,11 +113,8 @@ class WatchedPageChangesFeed extends FeedScreen
             }
             $desc .= _('By').': '.WDRenderUtils::renderUser($rev->getUserOrString()).'<br/>';
 
-            $desc .= '<br/>'._('Page content preview').': <br/>'.$page->getPreview();
             $item['description'] = $desc;
-
             $item['content'] = $desc;
-
             $item['guid'] = $channel['link']."#revision-".$rev->getRevisionId();
             $item['date'] = date('r', $rev->getDateLastEdited()->getTimestamp());
 

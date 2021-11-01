@@ -66,7 +66,7 @@ class ListPagesModule extends SmartyModule
             /* No category name specified, use the current category! */
             $pageUnixName = $runData->getTemp('pageUnixName');
             if (!$pageUnixName) {
-                $pageUnixName = $pl->getParameterValue('page_unix_name'); // from preview
+                $pageUnixName = $pl->getParameterValue('page_unix_name');
             }
             if (strpos($pageUnixName, ":") != false) {
                 $tmp0 = explode(':', $pageUnixName);
@@ -155,7 +155,7 @@ class ListPagesModule extends SmartyModule
 
         $pageUnixName = $runData->getTemp('pageUnixName');
         if (!$pageUnixName) {
-            $pageUnixName = $pl->getParameterValue('page_unix_name'); // from preview
+            $pageUnixName = $pl->getParameterValue('page_unix_name');
         }
 
         $thisPage = PagePeer::instance()->selectByName($site->getSiteId(), $pageUnixName);
@@ -522,11 +522,6 @@ class ListPagesModule extends SmartyModule
                 $this,
                 '_handleFirstParagraph'), $b);
 
-            /* %%preview%% */
-            $b = preg_replace_callback("/%%preview(?:\(([0-9]+)\))?%%/i", array(
-                $this,
-                '_handlePreview'), $b);
-
             /* %%rating%% */
             $b = str_ireplace('%%rating%%', $page->getRate(), $b);
 
@@ -586,16 +581,13 @@ class ListPagesModule extends SmartyModule
          */
 
         /* Fix dates. */
-        //$dateString = '<span class="odate">'.$thread->getDateStarted()->getTimestamp().'|%e %b %Y, %H:%M %Z|agohover</span>';
         $itemsContent = preg_replace_callback('/%%date\|([0-9]+)(\|.*?)?%%/', array(
             $this, '_formatDate'), $itemsContent);
 
         $runData->contextAdd("items", $items);
         $runData->contextAdd("itemsContent", $itemsContent);
-        $runData->contextAdd("details", $details);
-        $runData->contextAdd("preview", $preview);
 
-        /* Also build an URL for the feed. */
+        /* Also build a URL for the feed. */
 
         $rssTitle = $this->_readParameter(array('rss', 'rssTitle'));
 
@@ -729,17 +721,6 @@ class ListPagesModule extends SmartyModule
             return implode(' ', $t3);
         }
         return implode(' ', $t2);
-    }
-
-    private function _handlePreview($m)
-    {
-        $page = $this->_tmpPage;
-        $length = 200;
-        if (isset($m[1])) {
-            $length = $m[1];
-        }
-
-        return $page->getPreview($length);
     }
 
     private function _handleCommentsCount($m)

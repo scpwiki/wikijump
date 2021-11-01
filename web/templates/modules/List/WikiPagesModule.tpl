@@ -24,11 +24,6 @@
 					<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
 				</div>
 			{/if}
-			{if $preview}
-				<div class="preview">
-					{$page->getPreview()}
-				</div>
-			{/if}
 		</div>
 
 	{*	<div class="pages-list-item">
@@ -47,11 +42,6 @@
 			<div class="title">
 				<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>
 			</div>
-			{if $preview}
-				<div class="preview">
-					{$page->getPreview()}
-				</div>
-			{/if}
 		</div>
 		*}
 	{/foreach}

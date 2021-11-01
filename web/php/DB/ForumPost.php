@@ -93,33 +93,4 @@ class ForumPost extends ForumPostBase
         $r = ForumPostRevisionPeer::instance()->selectByPrimaryKey($this->getRevisionId());
         return $r;
     }
-
-/*
-    public function save(){
-        $o = new Outdater();
-        $o->forumEvent("post_save", $this);
-        parent::save();
-    }
-*/
-
-    public function getPreview($length = 200)
-    {
-
-        $text = $this->getText();
-        $text =  preg_replace(';<table style=".*?id="toc".*?</table>;s', '', $text, 1);
-        $stripped = strip_tags($text);
-        $d = utf8_encode("\xFE");
-        $stripped = preg_replace("/".$d."module \"([a-zA-Z0-9\/_]+?)\"(.+?)?".$d."/", '', $stripped);
-        $stripped = str_replace($d, '', $stripped);
-        // get last position of " "
-        if (strlen8($stripped)>$length) {
-            $substr = substr($stripped, 0, $length);
-            $length = strrpos($substr, " ");
-            $substr = trim(substr($substr, 0, $length));
-            $substr .= '...';
-        } else {
-            $substr = $stripped;
-        }
-        return $substr;
-    }
 }

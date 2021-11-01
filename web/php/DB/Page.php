@@ -74,43 +74,6 @@ class Page extends PageBase
         return $title;
     }
 
-    public function getPreview($length = 200)
-    {
-        if (is_array($this->prefetched)) {
-            if (in_array('page_compiled', $this->prefetched)) {
-                if (in_array('page_compiled', $this->prefetchedObjects)) {
-                    $compiled = $this->prefetchedObjects['page_compiled'];
-                } else {
-                    $obj = new PageCompiled($this->sourceRow);
-                    $obj->setNew(false);
-                    $this->prefetchedObjects['page_compiled'] = $obj;
-                    $compiled = $obj;
-                }
-            }
-        }
-        if ($compiled == null) {
-            $c = new Criteria();
-            $c->add("page_id", $this->getPageId());
-            $compiled = PageCompiledPeer::instance()->selectOne($c);
-        }
-        $text = $compiled->getText();
-        $text = preg_replace(';<table style=".*?id="toc".*?</table>;s', '', $text, 1);
-        $stripped = strip_tags($text);
-        $d = utf8_encode("\xFE");
-        $stripped = preg_replace("/" . $d . "module \"([a-zA-Z0-9\/_]+?)\"(.+?)?" . $d . "/", '', $stripped);
-        $stripped = str_replace($d, '', $stripped);
-        // get last position of " "
-        if (strlen8($stripped) > $length) {
-            $substr = substr($stripped, 0, $length);
-            $length = strrpos($substr, " ");
-            $substr = trim(substr($substr, 0, $length));
-            $substr .= '...';
-        } else {
-            $substr = $stripped;
-        }
-        return $substr;
-    }
-
     public function getLastEditUserOrString()
     {
         $user = $this->getLastEditUser();
