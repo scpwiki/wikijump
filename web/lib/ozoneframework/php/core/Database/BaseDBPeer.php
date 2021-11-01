@@ -31,7 +31,12 @@ abstract class BaseDBPeer {
          * As we're building new tables in Laravel their formula doesn't really work.
          * This translates the new tables to the existing Ozone classes.
          */
-        if($tableName == 'users') { $className = User::class; }
+        switch ($tableName) {
+            case 'page_contents':
+                return PageContents::class;
+            case 'users':
+                return User::class;
+        }
 
 		return new $className;
 	}
@@ -157,12 +162,6 @@ abstract class BaseDBPeer {
 		return $row['count(*)'];
 	}
 
-	public  function selectCustom($query){
-		$my = Database::connection();
-		$result = $my->query($query);
-		return $result->asObjects($objectName);
-	}
-
 	public function save($object){
 		if($object->isNew()){
 			$this->insert($object);
@@ -174,7 +173,6 @@ abstract class BaseDBPeer {
 
 	protected function insert($object){
 		$ovals = $object->getFieldValuesArray();
-
 		$pkName = $this->primaryKeyName;
 
 		if($pkName != null){
