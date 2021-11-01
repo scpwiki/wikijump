@@ -55,6 +55,10 @@ class PageContents extends Migration
             $table->dropColumn('source_id');
         });
 
+        Schema::table('page', function (Blueprint $table) {
+            $table->dropColumn('source_id');
+        });
+
         Schema::drop('page_source');
         Schema::drop('page_compiled');
     }
@@ -77,6 +81,14 @@ class PageContents extends Migration
             $table->unsignedInteger('page_id')->primary();
             $table->string('text', 200000)->nullable();
             $table->timestamp('date_compiled')->nullable();
+        });
+
+        Schema::table('page_revision', function (Blueprint $table) {
+            $table->unsignedInteger('source_id')->nullable();
+        });
+
+        Schema::table('page', function (Blueprint $table) {
+            $table->unsignedInteger('source_id')->nullable();
         });
     }
 }
