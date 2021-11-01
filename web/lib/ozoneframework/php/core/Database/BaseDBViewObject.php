@@ -87,8 +87,8 @@ abstract class BaseDBViewObject {
 	 * @param string $fieldName name of the field.
 	 * @return mixed
 	 */
-	public function getFieldValue($filedName){
-		return $this->fieldValues[$filedName];
+	public function getFieldValue($fieldName){
+		return $this->fieldValues[$fieldName];
 	}
 
 	/**
