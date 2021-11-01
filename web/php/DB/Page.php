@@ -19,14 +19,14 @@ class Page extends PageBase
         return $this->getCurrentRevision()->getMetadata();
     }
 
-    public function getSource()
+    public function getSource(): string
     {
-        return PageContents::getLatestWikitext($this->getPageId());
+        return PageContents::getLatestWikitext($this->getPageId())->wikitext;
     }
 
     public function getCompiled(): string
     {
-        return PageContents::getLatestCompiledHtml($this->getPageId());
+        return PageContents::getLatestCompiledHtml($this->getPageId())->compiled_html;
     }
 
     public function getCurrentRevision()
