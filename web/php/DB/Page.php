@@ -2,11 +2,8 @@
 
 namespace Wikidot\DB;
 
-use Illuminate\Support\Facades\DB;
-use Wikidot\DB\PagePeer;
 use Ozone\Framework\Database\Criteria;
-use Wikidot\Utils\ProcessException;
-use Ozone\Framework\Database\Database;
+use Wikijump\Models\PageContents;
 use Wikijump\Models\User;
 
 /**
@@ -17,25 +14,19 @@ class Page extends PageBase
 {
     protected static $_titleTemplate = [];
 
-    public function getSource()
-    {
-        return $this->getCurrentRevision()->getSourceText();
-    }
-
     public function getMetadata()
     {
         return $this->getCurrentRevision()->getMetadata();
     }
 
-    public function getCompiled()
+    public function getSource()
     {
-        $c = new Criteria();
-        $c->add("page_id", $this->getPageId());
-        $compiled = PageCompiledPeer::instance()->selectOne($c);
-        if ($compiled == null) {
-            throw new ProcessException("Error getting compiled version of the page.");
-        }
-        return $compiled;
+        return PageContents::getLatestWikitext($this->getPageId());
+    }
+
+    public function getCompiled(): string
+    {
+        return PageContents::getLatestCompiledHtml($this->getPageId());
     }
 
     public function getCurrentRevision()
