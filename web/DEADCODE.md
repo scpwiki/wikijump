@@ -221,7 +221,13 @@ If possible, add to this log in the same commit in which the code is removed.
 * Why it was removed: The backups have several flaws, the most notable of which is that they cannot be used to restore a site. Because is all essentially legacy code that will slow development, it has been removed.
 
 ## PHP: `OzoneLogger`
-* Where it was: [lib/ozoneframework/php/core/OzoneLogger.php](https://github.com/scpwiki/wikijump/blob/f3be3f39545249c92e10e3a8e03b30b9cdecaa18/web/lib/ozoneframework/php/core/OzoneLogger.php)
+* Where it was: [web/lib/ozoneframework/php/core/OzoneLogger.php](https://github.com/scpwiki/wikijump/blob/f3be3f39545249c92e10e3a8e03b30b9cdecaa18/web/lib/ozoneframework/php/core/OzoneLogger.php)
 * Relevant Issues: [WJ-895](https://scuttle.atlassian.net/browse/WJ-895)
 * What it did: Basic logger
 * Why it was removed: It didn't do anything that Laravel's logging didn't do better, and had some strange quirks that weren't worth keeping around. Additionally, Wikidot's code comments are not particularly high quality, and the same is also true of its logging. I prefixed all retained Ozone log calls with `[OZONE]` to make it easy to identify as legacy code.
+
+## PHP: `DependencyFixer`
+* Where it was: [web/php/Utils/DependencyFixer](https://github.com/scpwiki/wikijump/blob/f3be3f39545249c92e10e3a8e03b30b9cdecaa18/web/php/Utils/DependencyFixer.php)
+* Relevant Issues: [WJ-920](https://scuttle.atlassian.net/browse/WJ-920)
+* What it did: Edited pages linking to the page being renamed
+* Why it was removed: It's a janky mess, we're redoing how pages are stored in the database, and there are various times when this feature isn't desirable, requiring more product consideration. (For instance, renaming an SCP article to `deleted:` and then having the series page auto-update to point there).

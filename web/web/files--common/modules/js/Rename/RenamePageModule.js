@@ -12,18 +12,6 @@ Wikijump.modules.RenamePageModule.listeners = {
 		p['page_id'] =  WIKIREQUEST.info.pageId;
 		p['new_name'] = $("move-new-page-name").value;
 
-		// resolve any pages to fix deps
-		var inps = $("rename-backlinks-box").getElementsByTagName('input');
-		var fixdeps = new Array();
-		for(var i=0; i<inps.length; i++){
-			if(inps[i].checked){
-				fixdeps.push(inps[i].id.replace(/rename\-dep\-fix\-/, ''));
-			}
-		}
-		if(fixdeps.length>0){
-			p['fixdeps'] = fixdeps.join(',');
-		}
-
 		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.RenamePageModule.callbacks.rename);
 
 		var w = new OZONE.dialogs.WaitBox();
@@ -38,17 +26,6 @@ Wikijump.modules.RenamePageModule.listeners = {
 		p['new_name'] = $("move-new-page-name").value;
 		p['force'] = 'yes';
 
-		// resolve any pages to fix deps
-		var inps = $("rename-backlinks-box").getElementsByTagName('input');
-		var fixdeps = new Array();
-		for(var i=0; i<inps.length; i++){
-			if(inps[i].checked){
-				fixdeps.push(inps[i].id.replace(/rename\-dep\-fix\-/, ''));
-			}
-		}
-		if(fixdeps.length>0){
-			p['fixdeps'] = fixdeps.join(',');
-		}
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Renaming/moving page...";
 		w.show();
@@ -112,14 +89,6 @@ Wikijump.modules.RenamePageModule.callbacks = {
 		if(!Wikijump.utils.handleError(r)) {return;}
 
 		if(r.locks){
-			var w = new OZONE.dialogs.Dialog();
-			w.content = r.body;
-			w.show();
-			return;
-		}
-
-		if(r.leftDeps){
-			Wikijump.modules.RenamePageModule.vars.newName = r.newName;
 			var w = new OZONE.dialogs.Dialog();
 			w.content = r.body;
 			w.show();

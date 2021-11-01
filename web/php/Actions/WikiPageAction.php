@@ -10,7 +10,6 @@ use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Ozone\Framework\SmartyAction;
 use Wikidot\Utils\Deleter;
-use Wikidot\Utils\DependencyFixer;
 use Wikidot\Utils\GlobalProperties;
 use Wikidot\Utils\Outdater;
 use Wikidot\Utils\ProcessException;
@@ -781,8 +780,6 @@ class WikiPageAction extends SmartyAction
         $newName = trim($pl->getParameterValue("new_name"));
         $newName = WDStringUtils::toUnixName($newName); // purify! (for sure)
 
-        $fixDeps = $pl->getParameterValue('fixdeps');
-
         $site = $runData->getTemp("site");
 
         if ($newName == null || $newName == '') {
@@ -985,34 +982,6 @@ class WikiPageAction extends SmartyAction
             }
         }
 
-        // try to fix dependencies
-
-        if ($fixDeps && preg_match('/^[0-9]+(,[0-9]+)*$/', $fixDeps)) {
-            $fixPageIds = explode(',', $fixDeps);
-            foreach ($fixPageIds as $pageId) {
-                $page = PagePeer::instance()->selectByPrimaryKey($pageId);
-                if ($page == null || $page->getSiteId() !== $site->getSiteId()) {
-                    continue;
-                }
-
-                // check for any locks
-                $c = new Criteria();
-                $c->add("page_id", $pageId);
-                $lock = PageEditLockPeer::instance()->selectOne($c);
-
-                if ($lock) {
-                    continue;
-                }
-
-                $fixer = new DependencyFixer($page, $oldName, $newName);
-                $fixer->setUser($user);
-                $fixer->fixLinks();
-
-                $od = new Outdater();
-                $od->pageEvent('source_changed', $page);
-            }
-        }
-
         // check any dependency left
         $c = new Criteria();
         $q = "SELECT page_id, title, unix_name FROM page_link, page " .
@@ -1027,21 +996,8 @@ class WikiPageAction extends SmartyAction
                 "WHERE page_inclusion.included_page_name='".db_escape_string($oldName)."' " .
                 "AND page_inclusion.including_page_id=page.page_id AND page.site_id={$site->getSiteId()} ORDER BY COALESCE(title, unix_name)";
 
-
         $c->setExplicitQuery($q);
-
-        $pagesI = PagePeer::instance()->select($c);
-
-        if (count($pages)>0 || count($pagesI)>0) {
-            $runData->setModuleTemplate("Rename/LeftDepsModule");
-            $runData->contextAdd("pagesI", $pagesI);
-            $runData->contextAdd("pages", $pages);
-
-            $runData->ajaxResponseAdd("leftDeps", true);
-        }
-
         $runData->ajaxResponseAdd("newName", $newName);
-
         $db->commit();
 
         sleep(1);
@@ -1052,9 +1008,7 @@ class WikiPageAction extends SmartyAction
         $site = $runData->getTemp("site");
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("pageId"); // originating page id.
-        $ppName = trim($pl->getParameterValue("parentName"));
-
-        $ppName =  WDStringUtils::toUnixName($ppName);
+        $ppName = WDStringUtils::toUnixName(trim($pl->getParameterValue("parentName")));
 
         $db = Database::connection();
         $db->begin();
