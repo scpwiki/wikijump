@@ -5,7 +5,6 @@ namespace Wikijump\Helpers;
 
 use Ds\Set;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\ModuleProcessor;
@@ -15,7 +14,6 @@ use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\ForumThreadPeer;
 use Wikidot\DB\MemberPeer;
 use Wikidot\DB\Page;
-use Wikidot\DB\PageCompiled;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\Site;
 use Wikidot\DB\SitePeer;
@@ -220,13 +218,11 @@ final class LegacyTools
             $runData->setTemp("page", $page);
             $GLOBALS['page'] = $page;
 
-            /** @var PageCompiled $compiled */
             $compiled = $page->getCompiled();
-
             $runData->contextAdd("wikiPage", $page);
             $return['wikiPage'] = $page;
-            $runData->contextAdd("pageContent", $compiled->getText());
-            $return['pageContent'] = $compiled->getText();
+            $runData->contextAdd("pageContent", $compiled);
+            $return['pageContent'] = $compiled;
 
             $category = $page->getCategory();
             $runData->setTemp("category", $category);
@@ -292,7 +288,7 @@ final class LegacyTools
                 $sideBar1 = $category->getSidePage();
                 if ($sideBar1 !== null) {
                     $sideBar1Compiled = $sideBar1->getCompiled();
-                    $ccc =  $sideBar1Compiled->getText();
+                    $ccc =  $sideBar1Compiled;
                     $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
                     $runData->contextAdd("sideBar1Content", $ccc);
                     $return['sideBar1Content'] = $ccc;
@@ -301,7 +297,7 @@ final class LegacyTools
             if ($theme->getUseTopBar()) {
                 $topBar = $category->getTopPage();
                 if ($topBar !== null) {
-                    $topBarCompiled = $topBar->getCompiled();
+                    $topBarCompiled = $topBar;
                     $ccc =  $topBarCompiled->getText();
                     $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
                     $runData->contextAdd("topBarContent", $ccc);

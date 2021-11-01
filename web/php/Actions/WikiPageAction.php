@@ -26,7 +26,6 @@ use Wikidot\DB\Page;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\PageSource;
 use Wikidot\DB\PageMetadata;
-use Wikidot\DB\PageCompiled;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
 use Wikidot\DB\ModeratorPeer;
@@ -52,10 +51,9 @@ class WikiPageAction extends SmartyAction
         $mode = $pl->getParameterValue("mode");
 
         if ($pl->getParameterValue("form")) {
-            $data = array();
-            $newpages = array();
+            $data = [];
             foreach ($runData->getParameterList()->asArray() as $name => $val) {
-                $m = array();
+                $m = [];
                 if (preg_match("/^field_(.*)$/", $name, $m)) {
                     $data[$m[1]] = $val;
                 }
@@ -88,22 +86,22 @@ class WikiPageAction extends SmartyAction
         $db->begin();
 
         // remove old locks.
-        if (strlen($title)>128) {
+        if (strlen($title) > 128) {
             throw new ProcessException(_("Title of the page should not be longer than 128 characters."), "title_too_long");
         }
         // if page source not too long...
-        if (strlen($source)>200000) {
+        if (strlen($source) > 200000) {
             throw new ProcessException(_("Source of the page should not be longer than 200 000 characters which is large enough. Pages longer than that can indicate improper usage 	of the Wiki site."), "source_too_long");
         }
         // if comment too long
-        if (strlen($comments)>210) {
+        if (strlen($comments) > 210) {
             throw new ProcessException(_("The changes comment is longer than 200 characters. Please keep this description short and informative. And no longer than this limit please..."), "comment_too_long");
         }
 
         $autoincrement = false;
 
         $nowDate = new ODate();
-        if ($pageId === null || $pageId==='') {
+        if ($pageId === null || $pageId === '') {
             if (preg_match(';^([a-z0-9]+:)?'.self::$AUTOINCREMENT_PAGE.'$;', $unixName)) {
                 $autoincrement = true;
             }
@@ -235,10 +233,12 @@ class WikiPageAction extends SmartyAction
             $pageRevision->setPageId($page->getPageId());
             $page->setRevisionId($pageRevision->getRevisionId());
 
-            $pageSource = new PageSource();
-            $pageSource->setText($source);
-            $pageSource->save();
-            $pageRevision->setSourceId($pageSource->getSourceId());
+            PageContents::create([
+                'revision_id' => $pageRevision->getRevisionId(),
+                'wikitext' => $source,
+                'compiled_html' => '', // This is set by the Outdater later
+                'generator' => '',
+            ]);
 
             $pageMetadata = new PageMetadata();
             $pageMetadata->setTitle($title);
@@ -255,15 +255,10 @@ class WikiPageAction extends SmartyAction
             $page->setUnixName($unixName);
             $page->setDateCreated($nowDate);
             $page->setSiteId($site->getSiteId());
-            $page->setSourceId($pageSource->getSourceId());
             $page->setMetadataId($pageMetadata->getMetadataId());
             $page->setTitle($title);
             $page->setDateLastEdited($nowDate);
             $page->setTags([]);
-
-            $contents = PageContents::getLatestCompiledHtml($page->getPageId());
-            $pageCompiled = new PageCompiled();
-            $pageCompiled->setPageId($page->getPageId());
 
             $page->setCategoryId($category->getCategoryId());
 
@@ -284,10 +279,6 @@ class WikiPageAction extends SmartyAction
             $pageRevision->save();
             $page->setRevisionId($pageRevision->getRevisionId());
             $page->save();
-
-            $pageCompiled->save();
-
-            $sourceChanged=true;
 
             $outdater = new Outdater();
             $outdater->pageEvent("new_page", $page);

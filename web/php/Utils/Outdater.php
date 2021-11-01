@@ -9,7 +9,6 @@ use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
 use Ozone\Framework\ODate;
 use Wikidot\DB\Page;
-use Wikidot\DB\PageCompiledPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;

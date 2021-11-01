@@ -27,15 +27,20 @@ class PageContents extends Model
         $c = new Criteria();
         $c->add('page_id', $page_id);
         $c->addOrderDescending('revision_id');
-        return PageRevisionPeer::instance()->selectOneByCriteria($c);
+        return PageRevisionPeer::instance()->selectOne($c);
     }
 
-    private static function getLatest(string $page_id, array $columns)
+    private static function getLatest(string $page_id, array $columns): PageContents
     {
         $revision_id = self::getLatestRevision($page_id)->getRevisionId();
         return PageContents::where('revision_id', $revision_id)
             ->select($columns)
             ->first();
+    }
+
+    public static function getLatestFull(string $page_id): PageContents
+    {
+        return self::getLatest($page_id, ['revision_id', 'wikitext', 'compiled_html', 'generator']);
     }
 
     public static function getLatestWikitext(string $page_id): PageContents
