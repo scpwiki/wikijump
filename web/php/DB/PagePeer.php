@@ -31,7 +31,7 @@ class PagePeer extends PagePeerBase
         return $fetched_tags === null ? new Set() : new Set($fetched_tags); // Convert to set, and if null, return empty set.
     }
 
-    public static function saveTags(stringn $page_id, Set $tags) {
+    public static function saveTags(string $page_id, Set $tags) {
         // Converts the set to an array, then ensures all tags are unique, sorts the values, and removes any keys.
         $tag_array = $tags->toArray();
         natsort($tag_array);
