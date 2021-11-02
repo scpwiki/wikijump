@@ -20,8 +20,8 @@ abstract class BaseDBPeer {
 	public $primaryKeyName;
 	public $defaultValues;
 
-	public static function peerForTable($tableName){
-
+	public static function peerForTable(string $tableName)
+    {
         //Their jank, not mine.
 		$className = 'Wikidot\\DB\\'.capitalizeFirstLetter(underscoreToLowerCase($tableName)).'Peer';
 
@@ -33,9 +33,11 @@ abstract class BaseDBPeer {
          */
         switch ($tableName) {
             case 'page_contents':
-                return PageContents::class;
+                $className = PageContents::class;
+                break;
             case 'users':
-                return User::class;
+                $className = User::class;
+                break;
         }
 
 		return new $className;
