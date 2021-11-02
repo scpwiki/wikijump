@@ -4,9 +4,9 @@ namespace Wikidot\Modules\Wiki\HotTags;
 
 
 use Illuminate\Support\Facades\Cache;
-use Ozone\Framework\Database\Database;
-use Ozone\Framework\Ozone;
+use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\PagePeer;
 use Wikidot\Utils\ProcessException;
 
 class GlobalHotTagsModule extends SmartyModule
@@ -72,8 +72,6 @@ class GlobalHotTagsModule extends SmartyModule
 
         $target = $pl->getParameterValue("target");
 
-        $limit = $pl->getParameterValue("limit");
-
         if (!$target) {
             $target = "/system:page-tags/tag/";
         } else {
@@ -117,40 +115,34 @@ class GlobalHotTagsModule extends SmartyModule
             $colorBig = array(64,64,128);
         }
 
-        if ($limit && is_numeric($limit) && $limit<50) {
-        } else {
-            $limit = 50;
-        }
-
         $site = $runData->getTemp("site");
 
-        $db = Database::connection();
-        //select tags
-        if ($category == null) {
-            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page  WHERE site_id='".$site->getSiteId()."' GROUP BY tag ORDER BY weight DESC LIMIT $limit) AS foo ORDER BY tag";
-        } else {
-            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page  WHERE site_id='".$site->getSiteId()."' " .
-                    " AND category_id='".$category->getCategoryId()."' " .
-                    "GROUP BY tag ORDER BY weight DESC LIMIT $limit) AS foo ORDER BY tag";
+        // Fetch tags and their counts
+        $c = new Criteria();
+        $c->add('site_id', $site->getSiteId());
+        $pages = PagePeer::instance()->select($c);
+        $tag_counts = [];
 
-            $runData->contextAdd("category", $category);
+        foreach ($pages as $page) {
+            foreach ($page->getTagsArray() as $tag) {
+                if (isset($tag_counts[$tag])) {
+                    $tag_counts[$tag]++;
+                } else {
+                    $tag_counts[$tag] = 0;
+                }
+            }
         }
 
-        $res = $db->query($q);
-        $tags = $res->fetchAll();
-
+        // Build weights (legacy Wikidot)
         $minWeight = 10000000;
         $maxWeight = 0;
 
-        if (!$tags) {
-            return;
-        }
-        foreach ($tags as $tag) {
-            if ($tag['weight'] > $maxWeight) {
-                $maxWeight = $tag['weight'];
+        foreach ($tag_counts as $tag => $weight) {
+            if ($weight > $maxWeight) {
+                $maxWeight = $weight;
             }
-            if ($tag['weight'] < $minWeight) {
-                $minWeight = $tag['weight'];
+            if ($weight < $minWeight) {
+                $minWeight = $weight;
             }
         }
 
@@ -158,14 +150,14 @@ class GlobalHotTagsModule extends SmartyModule
 
         // now set color and font size for each of the tags.
 
-        foreach ($tags as &$tag) {
+        foreach ($tag_counts as $tag => $weight) {
             if ($weightRange == 0) {
                 $a = 0;
             } else {
-                $a = ($tag['weight']-$minWeight)/$weightRange;
+                $a = ($weight - $minWeight) / $weightRange;
             }
 
-            $fontSize = round($sizeSmall + ($sizeBig-$sizeSmall)*$a);
+            $fontSize = round($sizeSmall + ($sizeBig-$sizeSmall) * $a);
 
             // hadle colors... woooo! excited!
 
@@ -178,7 +170,6 @@ class GlobalHotTagsModule extends SmartyModule
             $tag['color'] = $color;
         }
 
-        $runData->contextAdd("tags", $tags);
         $runData->contextAdd("href", $target);
     }
 }

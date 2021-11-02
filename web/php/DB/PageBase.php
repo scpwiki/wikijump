@@ -2,9 +2,6 @@
 
 namespace Wikidot\DB;
 
-
-
-
 use Ozone\Framework\Database\BaseDBObject;
 use Ozone\Framework\Database\Criteria;
 
@@ -13,18 +10,13 @@ use Ozone\Framework\Database\Criteria;
  */
 class PageBase extends BaseDBObject
 {
-
     protected function internalInit()
     {
         $this->tableName='page';
         $this->peerName = 'Wikidot\\DB\\PagePeer';
         $this->primaryKeyName = 'page_id';
         $this->fieldNames = array( 'page_id' ,  'site_id' ,  'category_id' ,  'parent_page_id' ,  'revision_id' ,  'metadata_id' ,  'revision_number' ,  'title' ,  'unix_name' ,  'date_created' ,  'date_last_edited' ,  'last_edit_user_id' ,  'last_edit_user_string' ,  'thread_id' ,  'owner_user_id' ,  'blocked' ,  'rate' , 'tags' );
-
-        //$this->fieldDefaultValues=
     }
-
-
 
     public function getSite()
     {
@@ -244,8 +236,9 @@ class PageBase extends BaseDBObject
         $this->setFieldValue('rate', $v1, $raw);
     }
 
-    public function setTags($v1, $raw = false)
+
+    public function getTagsArray(): array
     {
-        $this->setFieldValue('tags', $v1, $raw);
+        return json_decode($this->getFieldValue('tags'));
     }
 }

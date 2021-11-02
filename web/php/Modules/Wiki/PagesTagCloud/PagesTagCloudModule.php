@@ -4,11 +4,10 @@ namespace Wikidot\Modules\Wiki\PagesTagCloud;
 
 
 use Illuminate\Support\Facades\Cache;
-use Ozone\Framework\Database\Database;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\CategoryPeer;
-
+use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PagePeer;
 use Wikidot\Utils\ProcessException;
 
 class PagesTagCloudModule extends SmartyModule
@@ -184,8 +183,6 @@ class PagesTagCloudModule extends SmartyModule
 
         $target = $pl->getParameterValue("target", "MODULE");
 
-        $limit = $pl->getParameterValue("limit", "MODULE");
-
         $categoryName =  $pl->getParameterValue("category", "MODULE");
 
         if (!$target) {
@@ -231,11 +228,6 @@ class PagesTagCloudModule extends SmartyModule
             $colorBig = array(64,64,128);
         }
 
-        if ($limit && is_numeric($limit) && $limit<50) {
-        } else {
-            $limit = 50;
-        }
-
         $site = $runData->getTemp("site");
 
         if ($categoryName) {
@@ -245,34 +237,32 @@ class PagesTagCloudModule extends SmartyModule
             }
         }
 
-        $db = Database::connection();
-        //select tags
+        // Fetch tags and their counts
+        $c = new Criteria();
+        $c->add('site_id', $site->getSiteId());
+        $pages = PagePeer::instance()->select($c);
+        $tag_counts = [];
 
-        if ($category == null) {
-            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page  WHERE site_id='".$site->getSiteId()."' GROUP BY tag ORDER BY weight DESC LIMIT $limit) AS foo ORDER BY tag";
-        } else {
-            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page  WHERE site_id='".$site->getSiteId()."' " .
-                    " AND category_id='".$category->getCategoryId()."' " .
-                    "GROUP BY tag ORDER BY weight DESC LIMIT $limit) AS foo ORDER BY tag";
-
-            $runData->contextAdd("category", $category);
+        foreach ($pages as $page) {
+            foreach ($page->getTagsArray() as $tag) {
+                if (isset($tag_counts[$tag])) {
+                    $tag_counts[$tag]++;
+                } else {
+                    $tag_counts[$tag] = 0;
+                }
+            }
         }
 
-        $res = $db->query($q);
-        $tags = $res->fetchAll();
-
+        // Build weights (legacy Wikidot)
         $minWeight = 10000000;
         $maxWeight = 0;
 
-        if (!$tags) {
-            return;
-        }
-        foreach ($tags as $tag) {
-            if ($tag['weight'] > $maxWeight) {
-                $maxWeight = $tag['weight'];
+        foreach ($tag_counts as $tag => $weight) {
+            if ($weight > $maxWeight) {
+                $maxWeight = $weight;
             }
-            if ($tag['weight'] < $minWeight) {
-                $minWeight = $tag['weight'];
+            if ($weight < $minWeight) {
+                $minWeight = $weight;
             }
         }
 
@@ -280,11 +270,11 @@ class PagesTagCloudModule extends SmartyModule
 
         // now set color and font size for each of the tags.
 
-        foreach ($tags as &$tag) {
+        foreach ($tag_counts as $tag => $weight) {
             if ($weightRange == 0) {
                 $a = 0;
             } else {
-                $a = ($tag['weight']-$minWeight)/$weightRange;
+                $a = ($weight - $minWeight) / $weightRange;
             }
 
             $fontSize = round($sizeSmall + ($sizeBig-$sizeSmall)*$a);
