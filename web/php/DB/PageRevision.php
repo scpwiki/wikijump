@@ -56,7 +56,7 @@ class PageRevision extends PageRevisionBase
         return PageMetadataPeer::instance()->selectByPrimaryKey($this->getMetadataId());
     }
 
-    public function getPage(): Page
+    public function getPage(): ?Page
     {
         if (is_array($this->prefetched)) {
             if (in_array('page', $this->prefetched)) {

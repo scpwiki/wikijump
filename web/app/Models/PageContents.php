@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\PageRevisionPeer;
+use Wikidot\Utils\ProcessException;
 
 class PageContents extends Model
 {
@@ -37,20 +38,26 @@ class PageContents extends Model
         return PageRevisionPeer::instance()->selectOne($c);
     }
 
-    private static function getLatest(string $page_id, array $columns): ?PageContents
+    private static function getLatest(string $page_id, array $columns): PageContents
     {
         $revision_id = self::getLatestRevision($page_id)->getRevisionId();
-        return PageContents::where('revision_id', $revision_id)
+        $contents = PageContents::where('revision_id', $revision_id)
             ->select($columns)
             ->first();
+
+        if ($contents === null) {
+            throw new ProcessException("Could not find page contents for page ID $page_id (revision ID $revision_id)");
+        }
+
+        return $contents;
     }
 
-    public static function getLatestFull(string $page_id): ?PageContents
+    public static function getLatestFull(string $page_id): PageContents
     {
         return self::getLatest($page_id, ['revision_id', 'wikitext', 'compiled_html', 'generator']);
     }
 
-    public static function getLatestWikitext(string $page_id): ?PageContents
+    public static function getLatestWikitext(string $page_id): PageContents
     {
         return self::getLatest($page_id, ['wikitext']);
     }

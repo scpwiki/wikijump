@@ -487,6 +487,15 @@ class WikiPageAction extends SmartyAction
                     }
                 }
             }
+            $db->commit();
+
+            // After db commit so the page revision actually exists
+            PageContents::create([
+                'revision_id' => $pageRevision->getRevisionId(),
+                'wikitext' => $source,
+                'compiled_html' => '', // This is set by the Outdater later
+                'generator' => '',
+            ]);
 
             // OUTDATING PARTY!!!
             $outdater = new Outdater();
@@ -505,16 +514,6 @@ class WikiPageAction extends SmartyAction
             PageEditLockPeer::instance()->delete($c);
             $runData->ajaxResponseAdd("revisionId", $pageRevision->getRevisionId());
         }
-
-        $db->commit();
-
-        // After db commit so the page revision actually exists
-        PageContents::create([
-            'revision_id' => $pageRevision->getRevisionId(),
-            'wikitext' => $source,
-            'compiled_html' => '', // This is set by the Outdater later
-            'generator' => '',
-        ]);
     }
 
     /**
@@ -1214,14 +1213,6 @@ class WikiPageAction extends SmartyAction
         $page->setRevisionNumber($revision->getRevisionNumber());
         $page->save();
 
-        $db->commit(); // So the new revision is actually in the database
-        PageContents::create([
-            'revision_id' => $revision->getRevisionId(),
-            'wikitext' => $toRevision->getSourceText(),
-            'compiled_html' => '', // Set by the Outdater, below
-            'generator' => '',
-        ]);
-
         // outdate party!
         $outdater = new Outdater();
         if ($sourceChanged) {
@@ -1232,6 +1223,15 @@ class WikiPageAction extends SmartyAction
         }
         // index page
         $db->commit();
+
+        // After db commit so the page revision actually exists
+        PageContents::create([
+            'revision_id' => $revision->getRevisionId(),
+            'wikitext' => $toRevision->getSourceText(),
+            'compiled_html' => '', // Set by the Outdater, below
+            'generator' => '',
+        ]);
+
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);
         }
