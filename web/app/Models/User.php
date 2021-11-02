@@ -180,7 +180,6 @@ class User extends Authenticatable
         /**
          *  We have a number of known-safe color combinations for a
          *  foreground and background.
-         *  @see "app/Helpers/helpers.php"
          */
         $colors = config('colors');
 

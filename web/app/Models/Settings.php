@@ -116,10 +116,10 @@ class Settings extends Model
     public function retrieve(string $setting)
     {
         $this->defaults = $this->setter->defaults();
-        if (isset($this->settings["$setting"])) {
-            return $this->settings["$setting"];
+        if (isset($this->settings[$setting])) {
+            return $this->settings[$setting];
         } else {
-            return $this->defaults["$setting"];
+            return $this->defaults[$setting];
         }
     }
 }
