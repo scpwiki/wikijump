@@ -18,7 +18,7 @@ class PageRevisionBase extends BaseDBObject
         $this->tableName='page_revision';
         $this->peerName = 'Wikidot\\DB\\PageRevisionPeer';
         $this->primaryKeyName = 'revision_id';
-        $this->fieldNames = array( 'revision_id' ,  'page_id' ,  'site_id' ,  'source_id' ,  'metadata_id' ,  'flags' ,  'flag_text' ,  'flag_title' ,  'flag_file' ,  'flag_rename' ,  'flag_meta' ,  'flag_new' ,   'revision_number' ,  'date_last_edited' ,  'user_id' ,  'user_string' ,  'comments' );
+        $this->fieldNames = array( 'revision_id' ,  'page_id' ,  'site_id' ,  'metadata_id' ,  'flags' ,  'flag_text' ,  'flag_title' ,  'flag_file' ,  'flag_rename' ,  'flag_meta' ,  'flag_new' ,   'revision_number' ,  'date_last_edited' ,  'user_id' ,  'user_string' ,  'comments' );
 
         //$this->fieldDefaultValues=
     }
@@ -58,17 +58,6 @@ class PageRevisionBase extends BaseDBObject
     public function setSiteId($v1, $raw = false)
     {
         $this->setFieldValue('site_id', $v1, $raw);
-    }
-
-
-    public function getSourceId()
-    {
-        return $this->getFieldValue('source_id');
-    }
-
-    public function setSourceId($v1, $raw = false)
-    {
-        $this->setFieldValue('source_id', $v1, $raw);
     }
 
 

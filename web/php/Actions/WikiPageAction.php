@@ -28,6 +28,7 @@ use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
 use Wikidot\DB\ModeratorPeer;
 use Wikidot\DB\AdminPeer;
+use Wikijump\Models\PageContents;
 use Wikijump\Models\TagSettings;
 use Wikijump\Models\User;
 
