@@ -26,12 +26,7 @@ class PageContents extends Model
      *
      * @var array
      */
-    protected $fillable = [
-        'revision_id',
-        'wikitext',
-        'compiled_html',
-        'generator',
-    ];
+    protected $fillable = ['revision_id', 'wikitext', 'compiled_html', 'generator'];
 
     private static function getLatestRevision(string $page_id): PageRevision
     {
@@ -49,7 +44,9 @@ class PageContents extends Model
             ->first();
 
         if ($contents === null) {
-            throw new ProcessException("Could not find page contents for page ID $page_id (revision ID $revision_id)");
+            throw new ProcessException(
+                "Could not find page contents for page ID $page_id (revision ID $revision_id)",
+            );
         }
 
         return $contents;
@@ -57,7 +54,12 @@ class PageContents extends Model
 
     public static function getLatestFull(string $page_id): PageContents
     {
-        return self::getLatest($page_id, ['revision_id', 'wikitext', 'compiled_html', 'generator']);
+        return self::getLatest($page_id, [
+            'revision_id',
+            'wikitext',
+            'compiled_html',
+            'generator',
+        ]);
     }
 
     public static function getLatestWikitext(string $page_id): PageContents
