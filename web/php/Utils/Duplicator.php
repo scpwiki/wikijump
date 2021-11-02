@@ -321,7 +321,7 @@ class Duplicator
         $npage->setOwnerUserId($owner->id);
 
         $tags = PagePeer::getTags($page->getPageId());
-        $npage->setTags($tags->toArray());
+        $npage->setTagsArray($tags->toArray());
 
         $npage->save();
         $nrev->setPageId($npage->getPageId());

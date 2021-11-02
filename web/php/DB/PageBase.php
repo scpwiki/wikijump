@@ -241,4 +241,9 @@ class PageBase extends BaseDBObject
     {
         return json_decode($this->getFieldValue('tags'));
     }
+
+    public function setTagsArray(array $tags): void
+    {
+        $this->setFieldValue('tags', json_encode($tags));
+    }
 }
