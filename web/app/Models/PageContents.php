@@ -11,6 +11,13 @@ use Wikidot\DB\PageRevisionPeer;
 class PageContents extends Model
 {
     /**
+     * Override the primary key column name.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'revision_id';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array

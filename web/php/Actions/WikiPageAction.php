@@ -232,13 +232,6 @@ class WikiPageAction extends SmartyAction
             $pageRevision->setPageId($page->getPageId());
             $page->setRevisionId($pageRevision->getRevisionId());
 
-            PageContents::create([
-                'revision_id' => $pageRevision->getRevisionId(),
-                'wikitext' => $source,
-                'compiled_html' => '', // This is set by the Outdater later
-                'generator' => '',
-            ]);
-
             $pageMetadata = new PageMetadata();
             $pageMetadata->setTitle($title);
 
@@ -433,13 +426,6 @@ class WikiPageAction extends SmartyAction
             $pageRevision->setRevisionNumber($currentRevision->getRevisionNumber()+1);
             $pageRevision->setFlagText(true);
 
-            PageContents::create([
-                'revision_id' => $pageRevision->getRevisionId(),
-                'wikitext' => $source,
-                'compiled_html' => '',
-                'generator' => '',
-            ]);
-
             if ($metadataChanged) {
                 $pageMetadata = clone($oldMetadata);
                 $pageMetadata->setNew(true);
@@ -521,6 +507,14 @@ class WikiPageAction extends SmartyAction
         }
 
         $db->commit();
+
+        // After db commit so the page revision actually exists
+        PageContents::create([
+            'revision_id' => $pageRevision->getRevisionId(),
+            'wikitext' => $source,
+            'compiled_html' => '', // This is set by the Outdater later
+            'generator' => '',
+        ]);
     }
 
     /**
@@ -866,13 +860,6 @@ class WikiPageAction extends SmartyAction
         $revision->setDateLastEdited($now);
         $revision->save();
 
-        PageContents::create([
-            'revision_id' => $oldRevision->getRevisionId(),
-            'wikitext' => $oldRevision->getSourceText(),
-            'compiled_html' => '', // set by Outdater
-            'generator' => '',
-        ]);
-
         // alter the page info
         $page->setRevisionId($revision->getRevisionId());
         $page->setDateLastEdited($now);
@@ -991,6 +978,14 @@ class WikiPageAction extends SmartyAction
         $c->setExplicitQuery($q);
         $runData->ajaxResponseAdd("newName", $newName);
         $db->commit();
+
+        // After db commit so the revision is saved first
+        PageContents::create([
+            'revision_id' => $oldRevision->getRevisionId(),
+            'wikitext' => $oldRevision->getSourceText(),
+            'compiled_html' => '', // set by Outdater
+            'generator' => '',
+        ]);
 
         sleep(1);
     }
@@ -1219,6 +1214,7 @@ class WikiPageAction extends SmartyAction
         $page->setRevisionNumber($revision->getRevisionNumber());
         $page->save();
 
+        $db->commit(); // So the new revision is actually in the database
         PageContents::create([
             'revision_id' => $revision->getRevisionId(),
             'wikitext' => $toRevision->getSourceText(),
