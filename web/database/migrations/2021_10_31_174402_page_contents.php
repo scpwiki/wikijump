@@ -16,6 +16,7 @@ class PageContents extends Migration
     {
         // Create new contents table
         Schema::create('page_contents', function (Blueprint $table) {
+            $table->timestamps();
             $table->foreignId('revision_id');
             $table->longtext('wikitext');
             $table->longtext('compiled_html');
