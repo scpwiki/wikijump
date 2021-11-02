@@ -231,3 +231,15 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-920](https://scuttle.atlassian.net/browse/WJ-920)
 * What it did: Edited pages linking to the page being renamed
 * Why it was removed: It's a janky mess, we're redoing how pages are stored in the database, and there are various times when this feature isn't desirable, requiring more product consideration. (For instance, renaming an SCP article to `deleted:` and then having the series page auto-update to point there).
+
+## PHP: `PageInclusion`, `PageLink`, `PageExternalLink`
+* Where it was: [web/php/DB/PageInclusion.php](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/PageInclusion.php), [web/php/DB/PageLink.php](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/PageLink.php), [web/php/DB/PageExternalLink.php](https://github.com/scpwiki/wikijump/blob/d9a414d9319477673e23f1bbe16ad780394b0bb7/web/php/DB/PageExternalLink.php)
+* Relevant Issues: [WJ-920](https://scuttle.atlassian.net/browse/WJ-920)
+* What it did: Recorded included pages, backlinks, and external links.
+* Why it was removed: As part of the page tables refactoring, it was replaced with tables `page_link` and `page_connection`, the latter being generic page-to-page connections with a type (e.g. include, link, etc).
+
+## PHP: `PageSource`, `PageCompiled`
+* Where it was: [web/php/DB/PageSource.php](https://github.com/scpwiki/wikijump/blob/4c8d379ec4ea78b99141c26e4d11ae466f87d04a/web/php/DB/PageSource.php), [web/php/DB/PageCompiled.php](https://github.com/scpwiki/wikijump/blob/4c8d379ec4ea78b99141c26e4d11ae466f87d04a/web/php/DB/PageCompiled.php)
+* Relevant Issues: [WJ-920](https://scuttle.atlassian.net/browse/WJ-920)
+* What it did: Stored the wikitext and compiled HTML for pages.
+* Why it was removed: As part of the page tables refactoring, these were both replaced with a table `page_contents`, which stores both.
