@@ -23,7 +23,6 @@ use Wikidot\DB\PagePeer;
 use Wikidot\DB\PageEditLock;
 use Wikidot\DB\Page;
 use Wikidot\DB\PageRevision;
-use Wikidot\DB\PageSource;
 use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\DB\PageMetadataPeer;
@@ -410,7 +409,7 @@ class WikiPageAction extends SmartyAction
             $metadataChanged = false;
             $oldMetadata = $page->getMetadata();
             // title
-            if ($mode == 'page') {
+            if ($mode === 'page') {
                 // check only if the whole page is edited
                 if ($title !== $oldMetadata->getTitle()) {
                     $pageRevision->setFlagTitle(true);
@@ -431,26 +430,20 @@ class WikiPageAction extends SmartyAction
             $pageRevision->setPageId($page->getPageId());
             $pageRevision->setDateLastEdited($nowDate);
             $pageRevision->setRevisionNumber($currentRevision->getRevisionNumber()+1);
-            if ($sourceChanged) {
-                $pageSource = new PageSource();
-                $pageSource->setText($source);
-                $pageSource->save();
+            $pageRevision->setFlagText(true);
 
-                $pageRevision->setSourceId($pageSource->getSourceId());
-                $pageRevision->setFlagText(true);
-            } else {
-                // copy source id
-                $pageRevision->setSourceId($currentRevision->getSourceId());
-                $pageRevision->setSinceFullSource($currentRevision->getSinceFullSource());
-                $pageRevision->setDiffSource($currentRevision->getDiffSource());
-            }
+            PageContents::create([
+                'revision_id' => $pageRevision->getRevisionId(),
+                'wikitext' => $source,
+                'compiled_html' => '',
+                'generator' => '',
+            ]);
+
             if ($metadataChanged) {
                 $pageMetadata = clone($oldMetadata);
                 $pageMetadata->setNew(true);
                 $pageMetadata->setMetadataId(null);
-
                 $pageMetadata->setTitle($title);
-
                 $pageMetadata->save();
 
                 $pageRevision->setMetadataId($pageMetadata->getMetadataId());
@@ -465,6 +458,7 @@ class WikiPageAction extends SmartyAction
                 $pageRevision->setUserId($userId);
                 $page->setLastEditUserId($userId);
             } else {
+                $userString = $runData->createIpString();
                 $pageRevision->setUserId(User::ANONYMOUS_USER);
                 $page->setLastEditUserId(User::ANONYMOUS_USER);
                 $pageRevision->setUserString($userString);
@@ -477,8 +471,7 @@ class WikiPageAction extends SmartyAction
 
             // update Page object
 
-            $page->setSourceId($pageRevision->getSourceId());
-            if ($mode == 'page') {
+            if ($mode === 'page') {
                 $page->setTitle($title);
             }
             $page->setDateLastEdited($nowDate);
@@ -548,9 +541,6 @@ class WikiPageAction extends SmartyAction
     {
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("page_id");
-
-        $site = $runData->getTemp("site");
-
         $mode = $pl->getParameterValue("mode");
 
         $unixName = $pl->getParameterValue("wiki_page");
@@ -629,7 +619,7 @@ class WikiPageAction extends SmartyAction
                 $lock->setDateStarted($dateLastAccessed);
                 $lock->setDateLastAccessed($dateLastAccessed);
                 $lock->setMode($mode);
-                if ($mode == "section") {
+                if ($mode === "section") {
                     $rangeStart = $pl->getParameterValue("range_start");
                     $rangeEnd = $pl->getParameterValue("range_end");
                     $lock->setRangeStart($rangeStart);
@@ -669,37 +659,37 @@ class WikiPageAction extends SmartyAction
         $unixName = $pl->getParameterValue("wiki_page");
         $unixName = WDStringUtils::toUnixName($unixName); // purify! (for sure)
 
-        $lockId = $pl->getParameterValue("lock_id");
-        $lockSecret = $pl->getParameterValue("lock_secret");
-
         $site = $runData->getTemp("site");
 
         $db = Database::connection();
         $db->begin();
 
-        if ($pageId != null) {
+        if ($pageId !== null) {
             $c = new Criteria();
             $c->add("page_id", $pageId);
             $c->setForUpdate(true);
             $page = PagePeer::instance()->selectOne($c);
-            if ($page == null) {
+            if ($page === null) {
                 throw new ProcessException(_("Cannot find the page."). "no_page");
             }
+        } else {
+            $page = null;
         }
-        if ($page != null && $page->getRevisionId() != $pl->getParameterValue("revision_id")) {
+
+        if ($page !== null && $page->getRevisionId() != $pl->getParameterValue("revision_id")) {
             $runData->setModuleTemplate("Edit/LockPageChangedWinModule");
             $runData->ajaxResponseAdd("nonrecoverable", true);
             return;
         }
 
-        if ($page == null && PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null) {
+        if ($page === null && PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null) {
             $runData->ajaxResponseAdd("noLockError", "page_exists");
             $runData->ajaxResponseAdd("nonrecoverable", true);
             $runData->setModuleTemplate("Edit/NewPageExistsWinModule");
         }
 
         // delete outdated locks...
-        if ($page != null) {
+        if ($page !== null) {
             PageEditLockPeer::instance()->deleteOutdated($pageId);
         } else {
             PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
@@ -852,13 +842,7 @@ class WikiPageAction extends SmartyAction
         $oldRevision = $page->getCurrentRevision();
         $revision = new PageRevision();
         $revision->setSiteId($site->getSiteId());
-
         $revision->setPageId($page->getPageId());
-        // copy source id
-        $revision->setSourceId($oldRevision->getSourceId());
-        $revision->setSinceFullSource($oldRevision->getSinceFullSource());
-        $revision->setDiffSource($oldRevision->getDiffSource());
-
         $revision->setMetadataId($metadata->getMetadataId());
         $revision->setFlagRename(true);
         $revision->setRevisionNumber($oldRevision->getRevisionNumber()+1);
@@ -880,6 +864,13 @@ class WikiPageAction extends SmartyAction
         $now = new ODate();
         $revision->setDateLastEdited($now);
         $revision->save();
+
+        PageContents::create([
+            'revision_id' => $oldRevision->getRevisionId(),
+            'wikitext' => $oldRevision->getSourceText(),
+            'compiled_html' => '', // set by Outdater
+            'generator' => '',
+        ]);
 
         // alter the page info
         $page->setRevisionId($revision->getRevisionId());
@@ -1109,10 +1100,6 @@ class WikiPageAction extends SmartyAction
             // outdate page
             $od = new Outdater();
             $od->pageEvent('parent_changed', $page);
-        } else {
-            // no need to change!
-
-            throw new ProcessException(_("Parent page has not been changed because the submitted and current values are identical."), "no_change");
         }
 
         $db->commit();
@@ -1152,12 +1139,6 @@ class WikiPageAction extends SmartyAction
 
         $currentMeta = $currentRevision->getMetadata();
 
-        // compare title and source (ids and contents)
-        if ($toMeta->getTitle() === $currentMeta->getTitle()
-                && ($toRevision->getSourceId() === $currentRevision->getSourceId())) {
-            throw new ProcessException(_("The title and content source of the current revision and the destination revision are identical. No change has been applied."), "no_change");
-        }
-
         // check for locks first
         PageEditLockPeer::instance()->deleteOutdated($pageId);
 
@@ -1170,7 +1151,7 @@ class WikiPageAction extends SmartyAction
 
         $locks = PageEditLockPeer::instance()->select($c);
 
-        if (count($locks)>0) {
+        if (count($locks) > 0) {
             $runData->ajaxResponseAdd("locks", true);
             $runData->contextAdd("locks", $locks);
             $runData->setModuleTemplate("History/RevertPageLockedWin");
@@ -1192,21 +1173,14 @@ class WikiPageAction extends SmartyAction
         }
 
         $userId = $runData->getUserId();
-        if ($userId == null) {
+        if ($userId === null) {
             $userString = $runData->createIpString();
         }
 
         if ($toRevision->getSourceId() !== $currentRevision->getSourceId()) {
-            $sourceChanged = true;
             $nSource = $toRevision->getSourceText();
             $oSource = $currentRevision->getSourceText();
-            if ($nSource === $oSource) {
-                $sourceChanged = false;
-            }
-        }
-
-        if (!$sourceChanged && !$titleChanged) {
-            throw new ProcessException(_("The title and content source of the current revision and the destination revision are identical. No change has been applied."), "no_change");
+            $sourceChanged = $nSource === $oSource;
         }
 
         $revision = clone($currentRevision);
@@ -1234,20 +1208,7 @@ class WikiPageAction extends SmartyAction
             $page->setLastEditUserString($userString);
         }
 
-        if ($sourceChanged) {
-            // first check if store new source as a diff or as a full-source.
-            $pageSource = new PageSource();
-            $pageSource->setText($nSource);
-            $revision->setSinceFullSource(0);
-            $revision->setDiffSource(false);
-            $pageSource->save();
-
-            $revision->setSourceId($pageSource->getSourceId());
-        } else {
-            // copy source id i.e. do nothing
-        }
-
-        $revision->setRevisionNumber($revision->getRevisionNumber() +1);
+        $revision->setRevisionNumber($revision->getRevisionNumber() + 1);
         $now = new ODate();
         $revision->setDateLastEdited($now);
 
@@ -1256,6 +1217,13 @@ class WikiPageAction extends SmartyAction
         $page->setDateLastEdited($now);
         $page->setRevisionNumber($revision->getRevisionNumber());
         $page->save();
+
+        PageContents::create([
+            'revision_id' => $revision->getRevisionId(),
+            'wikitext' => $toRevision->getSourceText(),
+            'compiled_html' => '', // Set by the Outdater, below
+            'generator' => '',
+        ]);
 
         // outdate party!
         $outdater = new Outdater();
