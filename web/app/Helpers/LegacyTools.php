@@ -234,9 +234,8 @@ final class LegacyTools
 
             // get the tags
             $page_id = $page->getPageId();
-            $t2 = PagePeer::getTags($page_id);
-            $t2 = $t2->toArray();
-            $runData->contextAdd("tags", $t2);
+            $tags = PagePeer::getTags($page_id);
+            $runData->contextAdd("tags", $tags);
             $return['tags'] = null;
 
             // has discussion?
