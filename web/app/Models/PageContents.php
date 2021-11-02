@@ -37,7 +37,7 @@ class PageContents extends Model
         return PageRevisionPeer::instance()->selectOne($c);
     }
 
-    private static function getLatest(string $page_id, array $columns): PageContents
+    private static function getLatest(string $page_id, array $columns): ?PageContents
     {
         $revision_id = self::getLatestRevision($page_id)->getRevisionId();
         return PageContents::where('revision_id', $revision_id)
@@ -45,12 +45,12 @@ class PageContents extends Model
             ->first();
     }
 
-    public static function getLatestFull(string $page_id): PageContents
+    public static function getLatestFull(string $page_id): ?PageContents
     {
         return self::getLatest($page_id, ['revision_id', 'wikitext', 'compiled_html', 'generator']);
     }
 
-    public static function getLatestWikitext(string $page_id): PageContents
+    public static function getLatestWikitext(string $page_id): ?PageContents
     {
         return self::getLatest($page_id, ['wikitext']);
     }
