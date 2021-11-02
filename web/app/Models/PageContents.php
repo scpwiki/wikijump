@@ -8,9 +8,12 @@ use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\PageRevisionPeer;
 use Wikidot\Utils\ProcessException;
+use Wikijump\Traits\LegacyCompatibility;
 
 class PageContents extends Model
 {
+    use LegacyCompatibility;
+
     /**
      * Override the primary key column name.
      *

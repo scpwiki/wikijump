@@ -27,9 +27,10 @@ abstract class BaseDBPeer {
 
         /**
          * I'm adding some hacky shit here until we can make this function go away.
-         * Don't @ me.
          * As we're building new tables in Laravel their formula doesn't really work.
          * This translates the new tables to the existing Ozone classes.
+         *
+         * All these models need the LegacyCompatibility trait attached.
          */
         switch ($tableName) {
             case 'page_contents':
