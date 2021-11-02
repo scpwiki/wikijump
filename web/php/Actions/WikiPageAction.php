@@ -271,6 +271,15 @@ class WikiPageAction extends SmartyAction
             $pageRevision->save();
             $page->setRevisionId($pageRevision->getRevisionId());
             $page->save();
+            $db->commit();
+
+            // After db commit so the page revision actually exists
+            PageContents::create([
+                'revision_id' => $pageRevision->getRevisionId(),
+                'wikitext' => $source,
+                'compiled_html' => '', // This is set by the Outdater later
+                'generator' => '',
+            ]);
 
             $outdater = new Outdater();
             $outdater->pageEvent("new_page", $page);
