@@ -91,8 +91,6 @@ class PagesListByTagModule extends SmartyModule
 
         $pages = PagePeer::instance()->select($c);
 
-    //  $q = "SELECT site.* FROM site, tag WHERE tag.tag = '".db_escape_string($tag")."'
-
         $runData->contextAdd("tag", $tag);
         $runData->contextAdd("pages", $pages);
         $runData->contextAdd("pageCount", count($pages));

@@ -248,7 +248,7 @@ class PagesTagCloudModule extends SmartyModule
                 if (isset($tag_counts[$tag])) {
                     $tag_counts[$tag]++;
                 } else {
-                    $tag_counts[$tag] = 0;
+                    $tag_counts[$tag] = 1;
                 }
             }
         }
@@ -269,25 +269,23 @@ class PagesTagCloudModule extends SmartyModule
         $weightRange = $maxWeight - $minWeight;
 
         // now set color and font size for each of the tags.
-
+        $tags = [];
         foreach ($tag_counts as $tag => $weight) {
-            if ($weightRange == 0) {
-                $a = 0;
-            } else {
-                $a = ($weight - $minWeight) / $weightRange;
-            }
-
-            $fontSize = round($sizeSmall + ($sizeBig-$sizeSmall)*$a);
+            $a = $weightRange === 0 ? 0 : ($weight - $minWeight) / $weightRange;
+            $fontSize = round($sizeSmall + ($sizeBig - $sizeSmall) * $a);
 
             // hadle colors... woooo! excited!
 
-            $color = array();
-            $color['r'] = round($colorSmall[0] + ($colorBig[0] - $colorSmall[0])*$a);
-            $color['g'] = round($colorSmall[1] + ($colorBig[1] - $colorSmall[1])*$a);
-            $color['b'] = round($colorSmall[2] + ($colorBig[2] - $colorSmall[2])*$a);
+            $color = [
+                'r' => round($colorSmall[0] + ($colorBig[0] - $colorSmall[0]) * $a),
+                'g' => round($colorSmall[1] + ($colorBig[1] - $colorSmall[1]) * $a),
+                'b' => round($colorSmall[2] + ($colorBig[2] - $colorSmall[2]) * $a),
+            ];
 
-            $tag['size'] = $fontSize.$fsformat;
-            $tag['color'] = $color;
+            $tags[$tag] = [
+                'size' => $fontSize . $fsformat,
+                'color' => $color,
+            ];
         }
 
         $runData->contextAdd("tags", $tags);
