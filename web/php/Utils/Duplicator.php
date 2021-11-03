@@ -14,12 +14,10 @@ use Wikidot\DB\PagePeer;
 use Wikidot\DB\ForumGroupPeer;
 use Wikidot\DB\ForumCategoryPeer;
 use Wikidot\DB\FilePeer;
-use Wikidot\DB\PageSource;
 use Wikidot\DB\PageMetadata;
 use Wikidot\DB\PageRevision;
 use Wikidot\DB\Page;
-use Wikidot\DB\PageCompiled;
-use Wikidot\DB\PageTagPeer;
+use Wikijump\Models\PageContents;
 
 class Duplicator
 {
@@ -280,10 +278,6 @@ class Duplicator
 
         $owner = $this->owner;
         $now = new ODate();
-        // create new page object based on the existing page
-        $nsource = new PageSource();
-        $nsource->setText($page->getSource());
-        $nsource->save();
 
         $meta = $page->getMetadata();
         $nmeta = new PageMetadata();
@@ -299,18 +293,25 @@ class Duplicator
         $rev = $page->getCurrentRevision();
         $nrev = new PageRevision();
         $nrev->setSiteId($nsite->getSiteId());
-        $nrev->setSourceId($nsource->getSourceId());
         $nrev->setMetadataId($nmeta->getMetadataId());
         $nrev->setFlagNew(true);
         $nrev->setDateLastEdited($now);
         $nrev->setUserId($owner->id);
         $nrev->obtainPK();
 
+        // create new page object based on the existing page
+        $contents = PageContents::getLatestFull($page->getPageId());
+        PageContents::create([
+            'revision_id' => $nrev->getRevisionId(),
+            'wikitext' => $contents->wikitext,
+            'compiled_html' => $contents->compiled_html,
+            'generator' => $contents->generator,
+        ]);
+
         $npage = new Page();
         $npage->setSiteId($nsite->getSiteId());
         $npage->setCategoryId($ncategory->getCategoryId());
         $npage->setRevisionId($nrev->getRevisionId());
-        $npage->setSourceId($nsource->getSourceId());
         $npage->setMetadataId($nmeta->getMetadataId());
         $npage->setTitle($page->getTitle());
         $npage->setUnixName($newUnixName);
@@ -319,26 +320,12 @@ class Duplicator
         $npage->setLastEditUserId($owner->id);
         $npage->setOwnerUserId($owner->id);
 
+        $tags = PagePeer::getTags($page->getPageId());
+        $npage->setTagsArray($tags->toArray());
+
         $npage->save();
         $nrev->setPageId($npage->getPageId());
         $nrev->save();
-
-        $ncomp = new PageCompiled();
-        $ncomp->setPageId($npage->getPageId());
-        $ncomp->setDateCompiled($now);
-        $ncomp->save();
-
-        /* Copy tags too. | NOTE This is very deprecated. Will revisit if we don't plan on deprecating this entire feature. —Yossi */
-        $c = new Criteria();
-        $c->add('page_id', $page->getPageId());
-        $tags = PageTagPeer::instance()->select($c);
-        foreach ($tags as $tag) {
-            $tag->setNew(true);
-            $tag->setTagId(null);
-            $tag->setSiteId($nsite->getSiteId());
-            $tag->setPageId($npage->getPageId());
-            $tag->save();
-        }
 
         $this->pageMap[$page->getPageId()] = $npage->getPageId();
     }
@@ -429,10 +416,6 @@ class Duplicator
                 $newUnixName = $page->getUnixName();
 
                 $now = new ODate();
-                // create new page object based on the existing page
-                $nsource = new PageSource();
-                $nsource->setText($page->getTemp("source"));
-                $nsource->save();
 
                 $meta = $page->getTemp("meta");
                 $nmeta = new PageMetadata();
@@ -447,18 +430,25 @@ class Duplicator
 
                 $nrev = new PageRevision();
                 $nrev->setSiteId($nsite->getSiteId());
-                $nrev->setSourceId($nsource->getSourceId());
                 $nrev->setMetadataId($nmeta->getMetadataId());
                 $nrev->setFlagNew(true);
                 $nrev->setDateLastEdited($now);
                 $nrev->setUserId($owner->getUserId());
                 $nrev->obtainPK();
 
+                // create new page object based on the existing page
+                $contents = PageContents::getLatestFull($page->getPageId());
+                PageContents::create([
+                    'revision_id' => $nrev->getRevisionId(),
+                    'wikitext' => $contents->wikitext,
+                    'compiled_html' => $contents->compiled_html,
+                    'generator' => $contents->generator,
+                ]);
+
                 $npage = new Page();
                 $npage->setSiteId($nsite->getSiteId());
                 $npage->setCategoryId($cat->getCategoryId());
                 $npage->setRevisionId($nrev->getRevisionId());
-                $npage->setSourceId($nsource->getSourceId());
                 $npage->setMetadataId($nmeta->getMetadataId());
                 $npage->setTitle($page->getTitle());
                 $npage->setUnixName($newUnixName);
@@ -469,11 +459,6 @@ class Duplicator
                 $npage->save();
                 $nrev->setPageId($npage->getPageId());
                 $nrev->save();
-
-                $ncomp = new PageCompiled();
-                $ncomp->setPageId($npage->getPageId());
-                $ncomp->setDateCompiled($now);
-                $ncomp->save();
             }
         }
 

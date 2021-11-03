@@ -2,11 +2,8 @@
 
 namespace Wikidot\DB;
 
-use Illuminate\Support\Facades\DB;
-use Wikidot\DB\PagePeer;
 use Ozone\Framework\Database\Criteria;
-use Wikidot\Utils\ProcessException;
-use Ozone\Framework\Database\Database;
+use Wikijump\Models\PageContents;
 use Wikijump\Models\User;
 
 /**
@@ -15,28 +12,21 @@ use Wikijump\Models\User;
  */
 class Page extends PageBase
 {
-
-    protected static $_titleTemplate = array();
-
-    public function getSource()
-    {
-        return $this->getCurrentRevision()->getSourceText();
-    }
+    protected static $_titleTemplate = [];
 
     public function getMetadata()
     {
         return $this->getCurrentRevision()->getMetadata();
     }
 
-    public function getCompiled()
+    public function getSource(): string
     {
-        $c = new Criteria();
-        $c->add("page_id", $this->getPageId());
-        $compiled = PageCompiledPeer::instance()->selectOne($c);
-        if ($compiled == null) {
-            throw new ProcessException("Error getting compiled version of the page.");
-        }
-        return $compiled;
+        return PageContents::getLatestWikitext($this->getPageId())->wikitext;
+    }
+
+    public function getCompiled(): string
+    {
+        return PageContents::getLatestCompiledHtml($this->getPageId())->compiled_html;
     }
 
     public function getCurrentRevision()
@@ -44,13 +34,6 @@ class Page extends PageBase
         $c = new Criteria();
         $c->add("revision_id", $this->getRevisionId());
         return PageRevisionPeer::instance()->selectOne($c);
-    }
-
-    public function outdateCompiled()
-    {
-        $q = "UPDATE page_compiled SET date_compiled=(now() - interval '1 week') " . "WHERE page_id='" . db_escape_string($this->getPageId()) . "'";
-        $db = Database::connection();
-        $db->query($q);
     }
 
     public function getFiles()
@@ -89,43 +72,6 @@ class Page extends PageBase
             $title = ucfirst(str_replace("-", " ", preg_replace("/^[a-z0-9\-]+:/i", '', $this->getUnixName())));
         }
         return $title;
-    }
-
-    public function getPreview($length = 200)
-    {
-        if (is_array($this->prefetched)) {
-            if (in_array('page_compiled', $this->prefetched)) {
-                if (in_array('page_compiled', $this->prefetchedObjects)) {
-                    $compiled = $this->prefetchedObjects['page_compiled'];
-                } else {
-                    $obj = new PageCompiled($this->sourceRow);
-                    $obj->setNew(false);
-                    $this->prefetchedObjects['page_compiled'] = $obj;
-                    $compiled = $obj;
-                }
-            }
-        }
-        if ($compiled == null) {
-            $c = new Criteria();
-            $c->add("page_id", $this->getPageId());
-            $compiled = PageCompiledPeer::instance()->selectOne($c);
-        }
-        $text = $compiled->getText();
-        $text = preg_replace(';<table style=".*?id="toc".*?</table>;s', '', $text, 1);
-        $stripped = strip_tags($text);
-        $d = utf8_encode("\xFE");
-        $stripped = preg_replace("/" . $d . "module \"([a-zA-Z0-9\/_]+?)\"(.+?)?" . $d . "/", '', $stripped);
-        $stripped = str_replace($d, '', $stripped);
-        // get last position of " "
-        if (strlen8($stripped) > $length) {
-            $substr = substr($stripped, 0, $length);
-            $length = strrpos($substr, " ");
-            $substr = trim(substr($substr, 0, $length));
-            $substr .= '...';
-        } else {
-            $substr = $stripped;
-        }
-        return $substr;
     }
 
     public function getLastEditUserOrString()

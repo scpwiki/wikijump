@@ -136,10 +136,8 @@ class WikiScreen extends Screen
             $runData->setTemp("page", $page);
             $GLOBALS['page'] = $page;
 
-            $compiled = $page->getCompiled();
-
             $runData->contextAdd("wikiPage", $page);
-            $runData->contextAdd("pageContent", $compiled->getText());
+            $runData->contextAdd("pageContent", $page->getCompiled());
 
             $category = $page->getCategory();
             $runData->setTemp("category", $category);
@@ -197,9 +195,7 @@ class WikiScreen extends Screen
             if ($theme->getUseSideBar()) {
                 $sideBar1 = $category->getSidePage();
                 if ($sideBar1 !== null) {
-                    $sideBar1Compiled = $sideBar1->getCompiled();
-                    $ccc =  $sideBar1Compiled->getText();
-                    $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
+                    $ccc = preg_replace('/id="[^"]*"/', '', $sideBar1->getCompiled());
                     $runData->contextAdd("sideBar1Content", $ccc);
                 }
             }

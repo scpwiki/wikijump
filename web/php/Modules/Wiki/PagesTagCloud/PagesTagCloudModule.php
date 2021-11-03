@@ -4,11 +4,10 @@ namespace Wikidot\Modules\Wiki\PagesTagCloud;
 
 
 use Illuminate\Support\Facades\Cache;
-use Ozone\Framework\Database\Database;
-use Ozone\Framework\Ozone;
-use Wikidot\DB\CategoryPeer;
-
+use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\SmartyModule;
+use Wikidot\DB\CategoryPeer;
+use Wikidot\DB\PagePeer;
 use Wikidot\Utils\ProcessException;
 
 class PagesTagCloudModule extends SmartyModule
@@ -184,8 +183,6 @@ class PagesTagCloudModule extends SmartyModule
 
         $target = $pl->getParameterValue("target", "MODULE");
 
-        $limit = $pl->getParameterValue("limit", "MODULE");
-
         $categoryName =  $pl->getParameterValue("category", "MODULE");
 
         if (!$target) {
@@ -231,11 +228,6 @@ class PagesTagCloudModule extends SmartyModule
             $colorBig = array(64,64,128);
         }
 
-        if ($limit && is_numeric($limit) && $limit<50) {
-        } else {
-            $limit = 50;
-        }
-
         $site = $runData->getTemp("site");
 
         if ($categoryName) {
@@ -245,59 +237,55 @@ class PagesTagCloudModule extends SmartyModule
             }
         }
 
-        $db = Database::connection();
-        //select tags
+        // Fetch tags and their counts
+        $c = new Criteria();
+        $c->add('site_id', $site->getSiteId());
+        $pages = PagePeer::instance()->select($c);
+        $tag_counts = [];
 
-        if ($category == null) {
-            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page  WHERE site_id='".$site->getSiteId()."' GROUP BY tag ORDER BY weight DESC LIMIT $limit) AS foo ORDER BY tag";
-        } else {
-            $q = "SELECT * FROM (SELECT tag, COUNT(*) AS weight FROM page  WHERE site_id='".$site->getSiteId()."' " .
-                    " AND category_id='".$category->getCategoryId()."' " .
-                    "GROUP BY tag ORDER BY weight DESC LIMIT $limit) AS foo ORDER BY tag";
-
-            $runData->contextAdd("category", $category);
+        foreach ($pages as $page) {
+            foreach ($page->getTagsArray() as $tag) {
+                if (isset($tag_counts[$tag])) {
+                    $tag_counts[$tag]++;
+                } else {
+                    $tag_counts[$tag] = 1;
+                }
+            }
         }
 
-        $res = $db->query($q);
-        $tags = $res->fetchAll();
-
+        // Build weights (legacy Wikidot)
         $minWeight = 10000000;
         $maxWeight = 0;
 
-        if (!$tags) {
-            return;
-        }
-        foreach ($tags as $tag) {
-            if ($tag['weight'] > $maxWeight) {
-                $maxWeight = $tag['weight'];
+        foreach ($tag_counts as $tag => $weight) {
+            if ($weight > $maxWeight) {
+                $maxWeight = $weight;
             }
-            if ($tag['weight'] < $minWeight) {
-                $minWeight = $tag['weight'];
+            if ($weight < $minWeight) {
+                $minWeight = $weight;
             }
         }
 
         $weightRange = $maxWeight - $minWeight;
 
         // now set color and font size for each of the tags.
-
-        foreach ($tags as &$tag) {
-            if ($weightRange == 0) {
-                $a = 0;
-            } else {
-                $a = ($tag['weight']-$minWeight)/$weightRange;
-            }
-
-            $fontSize = round($sizeSmall + ($sizeBig-$sizeSmall)*$a);
+        $tags = [];
+        foreach ($tag_counts as $tag => $weight) {
+            $a = $weightRange === 0 ? 0 : ($weight - $minWeight) / $weightRange;
+            $fontSize = round($sizeSmall + ($sizeBig - $sizeSmall) * $a);
 
             // hadle colors... woooo! excited!
 
-            $color = array();
-            $color['r'] = round($colorSmall[0] + ($colorBig[0] - $colorSmall[0])*$a);
-            $color['g'] = round($colorSmall[1] + ($colorBig[1] - $colorSmall[1])*$a);
-            $color['b'] = round($colorSmall[2] + ($colorBig[2] - $colorSmall[2])*$a);
+            $color = [
+                'r' => round($colorSmall[0] + ($colorBig[0] - $colorSmall[0]) * $a),
+                'g' => round($colorSmall[1] + ($colorBig[1] - $colorSmall[1]) * $a),
+                'b' => round($colorSmall[2] + ($colorBig[2] - $colorSmall[2]) * $a),
+            ];
 
-            $tag['size'] = $fontSize.$fsformat;
-            $tag['color'] = $color;
+            $tags[$tag] = [
+                'size' => $fontSize . $fsformat,
+                'color' => $color,
+            ];
         }
 
         $runData->contextAdd("tags", $tags);

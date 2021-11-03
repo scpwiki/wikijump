@@ -76,7 +76,7 @@ class Deleter
         $category = $page->getCategory();
 
         // sources
-        $q = "DELETE FROM page_source WHERE source_id IN (SELECT page_revision.source_id FROM page_revision WHERE page_id='" . $page->getPageId() . "')";
+        $q = "DELETE FROM page_contents WHERE revision_id IN (SELECT page_revision.revision_id FROM page_revision WHERE page_id='" . $page->getPageId() . "')";
         $db->query($q);
         //metadatas
         $q = "DELETE FROM page_metadata WHERE metadata_id IN (SELECT page_revision.metadata_id FROM page_revision WHERE page_id='" . $page->getPageId() . "')";

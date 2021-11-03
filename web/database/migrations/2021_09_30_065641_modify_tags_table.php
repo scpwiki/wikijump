@@ -13,23 +13,24 @@ class ModifyTagsTable extends Migration
      */
     public function up()
     {
-      // Creating new column in Page table.
-      Schema::table('page', function (Blueprint $table) {
-        $table->jsonb('tags')->default('[]');
-      });
+        // Creating new column in Page table.
+        Schema::table('page', function (Blueprint $table) {
+            $table->jsonb('tags')->default('[]');
+        });
 
-      // Moving all tags from 'page_tag' table to new column in 'page' table.
-      $pages = DB::table('page_tag')->pluck('page_id')->toArray();
-      foreach ($pages as $page) {
-        $tags = DB::table('page_tag')->where('page_id', $page)->pluck('tag')->toArray();
+        // Moving all tags from 'page_tag' table to new column in 'page' table.
+        $page_ids = DB::table('page_tag')->pluck('page_id')->toArray();
 
-        DB::table('page')
-          ->where('page_id', $page)
-          ->update(['tags' => $tags]);
-      }
+        foreach ($page_ids as $page_id) {
+            $tags = DB::table('page_tag')->where('page_id', $page_id)->pluck('tag')->toArray();
 
-      // Drop 'page_tag' table.
-      Schema::drop('page_tag');
+            DB::table('page')
+                ->where('page_id', $page_id)
+                ->update(['tags' => $tags]);
+        }
+
+        // Drop 'page_tag' table.
+        Schema::drop('page_tag');
     }
 
     /**

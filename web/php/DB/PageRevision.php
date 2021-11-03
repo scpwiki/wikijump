@@ -1,12 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Wikidot\DB;
 
-
 use Illuminate\Support\Facades\Cache;
-use Ozone\Framework\Database\Criteria;
-use Ozone\Framework\Ozone;
 use Exception;
+use Wikijump\Models\PageContents;
 use Wikijump\Models\User;
 
 /**
@@ -16,16 +15,12 @@ use Wikijump\Models\User;
 class PageRevision extends PageRevisionBase
 {
 
-    public function getSourceText()
+    public function getSourceText(): string
     {
-        $c = new Criteria();
-        $c->add("source_id", $this->getSourceId());
-
-        $source = PageSourcePeer::instance()->selectOne($c);
-        return $source->getText();
+        return PageContents::where('revision_id', $this->getRevisionId())->wikitext;
     }
 
-    public function resetFlags()
+    public function resetFlags(): void
     {
         $this->setFlagText(false);
         $this->setFlagTitle(false);
@@ -34,14 +29,18 @@ class PageRevision extends PageRevisionBase
         $this->setFlagFile(false);
     }
 
-    public function getUser()
+    public function getUser(): ?User
     {
         if ($this->getUserId() == User::ANONYMOUS_USER) {
             return null;
         }
+
         return User::find($this->getUserId());
     }
 
+    /**
+    * @return User|string
+    */
     public function getUserOrString()
     {
         $user = $this->getUser();
@@ -52,12 +51,12 @@ class PageRevision extends PageRevisionBase
         }
     }
 
-    public function getMetadata()
+    public function getMetadata(): PageMetadata
     {
         return PageMetadataPeer::instance()->selectByPrimaryKey($this->getMetadataId());
     }
 
-    public function getPage()
+    public function getPage(): ?Page
     {
         if (is_array($this->prefetched)) {
             if (in_array('page', $this->prefetched)) {
@@ -74,7 +73,7 @@ class PageRevision extends PageRevisionBase
         return PagePeer::instance()->selectByPrimaryKey($this->getPageId());
     }
 
-    public function save()
+    public function save(): void
     {
         try {
             $page = $this->getPage();

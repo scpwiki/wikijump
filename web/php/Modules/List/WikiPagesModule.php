@@ -22,7 +22,6 @@ class WikiPagesModule extends CacheableModule
 
         $categoryName = $pl->getParameterValue("category", "MODULE", "AMODULE");
         $details = $pl->getParameterValue("details", "MODULE", "AMODULE");
-        $preview = $pl->getParameterValue("preview", "MODULE", "AMODULE");
 
         $order = $pl->getParameterValue("order", "MODULE", "AMODULE");
         $limit = $pl->getParameterValue("limit", "MODULE", "AMODULE");
@@ -72,6 +71,5 @@ class WikiPagesModule extends CacheableModule
 
         $runData->contextAdd("pages", $pages);
         $runData->contextAdd("details", $details);
-        $runData->contextAdd("preview", $preview);
     }
 }

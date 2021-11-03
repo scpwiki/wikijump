@@ -7,15 +7,14 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Ozone\Framework\Database\Criteria;
 use Ozone\Framework\Database\Database;
-use Ozone\Framework\ODate;
 use Wikidot\DB\Page;
-use Wikidot\DB\PageCompiledPeer;
 use Wikidot\DB\PagePeer;
 use Wikidot\DB\CategoryPeer;
 use Wikidot\DB\SitePeer;
 use Wikijump\Models\PageConnection;
 use Wikijump\Models\PageConnectionMissing;
 use Wikijump\Models\PageConnectionType;
+use Wikijump\Models\PageContents;
 use Wikijump\Models\PageLink;
 use Wikijump\Services\Wikitext\LegacyTemplateAssembler;
 use Wikijump\Services\Wikitext\PageInfo;
@@ -173,14 +172,11 @@ final class Outdater
      *
      * @param Page $page
      */
-    private function recompilePage(Page $page)
+    private function recompilePage(Page $page): void
     {
         // compiled content not up to date. recompile!
-        $source = $page->getSource();
-
-        $c = new Criteria();
-        $c->add("page_id", $page->getPageId());
-        $compiled = PageCompiledPeer::instance()->selectOne($c);
+        $contents = PageContents::getLatestFull($page->getPageId());
+        $wikitext = $contents->wikitext;
 
         /* Find out if the category is using any templates. */
         if (!preg_match('/(:|^)_/', $page->getUnixName())) {
@@ -193,18 +189,18 @@ final class Outdater
 
             if ($templatePage) {
                 $templateSource = $templatePage->getSource();
-                $source = LegacyTemplateAssembler::assembleTemplate($source, $templateSource, $page);
+                $wikitext = LegacyTemplateAssembler::assembleTemplate($wikitext, $templateSource, $page);
             }
         }
 
         $pageInfo = PageInfo::fromPageObject($page);
         $wt = WikitextBackend::make(ParseRenderMode::PAGE, $pageInfo);
-        $result = $wt->renderHtml($source);
+        $result = $wt->renderHtml($wikitext);
+        $contents->compiled_html = $result->body;
+        $contents->generator = $wt->version();
+        $contents->save();
 
-        $compiled->setText($result->body);
-        $compiled->setDateCompiled(new ODate());
-        $compiled->save();
-
+        // TODO just save as $this->link_stats
         $this->vars['internal_links_present'] = $result->link_stats->internal_links_present;
         $this->vars['internal_links_absent'] = $result->link_stats->internal_links_absent;
         $this->vars['inclusions_present'] = $result->link_stats->inclusions_present;
