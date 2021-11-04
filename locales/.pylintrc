@@ -52,8 +52,7 @@ confidence=
 enable=
 disable=missing-docstring,
         invalid-name,
-        no-else-return,
-        unspecified-encoding
+        no-else-return
 
 
 [TYPECHECK]

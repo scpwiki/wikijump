@@ -70,7 +70,7 @@ def load(directory: str, log=True) -> dict[str, Messages]:
             print(f"+ {name}")
 
         stub = stubs[name]
-        with open(stub.path) as file:
+        with open(stub.path, encoding="utf-8") as file:
             tree = yaml.load(file)
 
         # Get path -> message mapping
