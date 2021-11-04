@@ -63,7 +63,7 @@ if __name__ == "__main__":
     def write_file(filename, contents):
         print(f"+ {filename}")
         path = get_path(filename)
-        with open(path, "w") as file:
+        with open(path, "w", encoding="utf-8") as file:
             file.write(contents)
 
     print(f"Generating {len(messages_map) + 1} localization files...")
