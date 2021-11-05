@@ -51,3 +51,19 @@ login:
   <span>{$t("login.buttons.FORGOT_PASSWORD")}</span>
 </button>
 ```
+
+### Building
+In order to take the source YAML files and create `.po` and `.mo` files from them, you need to run the localizations build. This requires Python 3.8+
+
+Setup:
+```sh
+$ pip3 install --upgrade -r requirements.txt
+$ pip3 install --upgrade -r requirements-dev.txt  # If you plan on developing this service
+```
+
+Building:
+```sh
+$ python3 -m messages .
+```
+
+Built artifact files will be placed in the `out` directory.
