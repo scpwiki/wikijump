@@ -243,3 +243,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-920](https://scuttle.atlassian.net/browse/WJ-920)
 * What it did: Stored the wikitext and compiled HTML for pages.
 * Why it was removed: As part of the page tables refactoring, these were both replaced with a table `page_contents`, which stores both.
+
+## PHP: `AnonymouseAbuseFlag`, `PageAbuseFlag`, `UserAbuseFlag`
+* Where it was: [Multiple files, see pull request](https://github.com/scpwiki/wikijump/pull/612)
+* Relevant Issues: [WJ-710](https://scuttle.atlassian.net/browse/WJ-710), [WJ-745](https://scuttle.atlassian.net/browse/WJ-745), [WJ-766](https://scuttle.atlassian.net/browse/WJ-766), [WJ-920](https://scuttle.atlassian.net/browse/WJ-920)
+* What it did: Allowed users to flag content as objectionable.
+* Why it was removed: Insufficient implementation. It was a binary toggle, without the ability to add reasons, and later additions such as easy-revoke are not present in this codebase. It will be easier to reimplement a sane abuse reporting system from scratch later.
