@@ -28,7 +28,9 @@
 		<span style="color: #B44;font-size: 150%; border: 1px solid #000; padding: 3px; margin: 5px;">{t}this page is objectionable{/t}</span>
 	</p>
 
+	<input type="text" size="20" id="flag-page-options-reason"></input>
 </div>
+
 <div class="button-bar">
 	<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}close this window{/t}</a>
 </div>

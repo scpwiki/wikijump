@@ -6,7 +6,6 @@ use Ozone\Framework\Database\Criteria;
 use Wikidot\DB\PageAbuseFlagPeer;
 
 use Ozone\Framework\SmartyModule;
-use Wikidot\Utils\ProcessException;
 use Wikidot\Utils\WDPermissionException;
 
 class FlagPageModule extends SmartyModule
@@ -15,9 +14,10 @@ class FlagPageModule extends SmartyModule
     public function isAllowed($runData)
     {
         $userId = $runData->getUserId();
-        if(!$userId) {
+        if ($userId === null) {
             throw new WDPermissionException(_("This option is available only to registered (and logged-in) users."));
         }
+
         return true;
     }
 
@@ -25,10 +25,7 @@ class FlagPageModule extends SmartyModule
     {
         $pl = $runData->getParameterList();
 
-        $path = $pl->getParameterValue("path");
-        if ($path == null || $path == '') {
-            throw new ProcessException(_("Error processing the request."), "no_path");
-        }
+        $page = $runData->getTemp("page");
         $site = $runData->getTemp("site");
         $user = $runData->getUser();
         // check if flagged already

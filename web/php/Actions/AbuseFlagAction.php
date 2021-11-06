@@ -37,13 +37,10 @@ class AbuseFlagAction extends SmartyAction
     {
         $pl = $runData->getParameterList();
 
-        $path = $pl->getParameterValue("path");
         $toFlag = $pl->getParameterValue("flag");
-        if ($path == null || $path == '') {
-            throw new ProcessException(_("Error processing the request."), "no_path");
-        }
-        $site = $runData->getTemp("site");
 
+        $page = $runData->getTemp("page");
+        $site = $runData->getTemp("site");
         $user = $runData->getUser();
 
         $db = Database::connection();

@@ -5,7 +5,6 @@ Wikijump.modules.FlagPageModule = {};
 Wikijump.modules.FlagPageModule.listeners = {
 	setFlag: function(e, flag){
 		var p = new Object();
-		p.path = window.location.pathname;
 		p.action = "AbuseFlagAction";
 		p.event = "FlagPage";
 		if(flag){
