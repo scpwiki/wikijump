@@ -5,7 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AbuseReport extends Migration
+class RemoveAbuseTables extends Migration
 {
     /**
      * Run the migrations.
@@ -17,18 +17,6 @@ class AbuseReport extends Migration
         Schema::drop('anonymous_abuse_flag');
         Schema::drop('page_abuse_flag');
         Schema::drop('user_abuse_flag');
-
-        Schema::create('abuse_report', function(Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->foreignId('user_id');
-            $table->foreignId('entity_id');
-            $table->enum('entity_type', ['page', 'user']);
-            $table->string('reason');
-
-            $table->unique(['user_id', 'entity_id', 'entity_type']);
-            $table->foreign('user_id')->references('id')->on('users');
-        });
     }
 
     /**
@@ -38,8 +26,6 @@ class AbuseReport extends Migration
      */
     public function down()
     {
-        Schema::drop('abuse_report');
-
         Schema::create('anonymous_abuse_flag', function(Blueprint $table) {
             $table->id('flag_id');
             $table->unsignedInteger('user_id')->nullable();

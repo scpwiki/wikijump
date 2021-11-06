@@ -160,12 +160,6 @@
                    onclick="Wikijump.page.listeners.pageBugReport(event)">
                     report a bug
                 </a>
-                |
-                <a href="javascript:;" id="abuse-report-button"
-                   onclick="Wikijump.page.listeners.flagPageObjectionable(event)">
-                    flag as objectionable
-                </a>
-
             </div>
             @if ($SERVICE_NAME != "")
             Part of <a href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}">{{$SERVICE_NAME}}</a>
@@ -224,14 +218,9 @@
     <div id="parent-page-button-hovertip">
         View/set parent page (used for creating breadcrumbs and structured layout).
     </div>
-
-    <div id="abuse-report-button-hovertip">
-        Notify administrators if there is objectionable content in this page.
-    </div>
     <div id="bug-report-button-hovertip">
         Something does not work as expected? Find out what you can do.
     </div>
-
 </div>
 
 <div id="account-notifications-dummy" style="display:none"></div>

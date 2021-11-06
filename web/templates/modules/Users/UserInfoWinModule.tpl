@@ -44,10 +44,6 @@
 		{/if}
 
 		<div style="margin-top: 10px">
-		<div style="float:right">
-			<a  href="javascript:;" 	onclick="Wikijump.modules.UserInfoWinModule.listeners.flagUser(event, {$user->id})">{t}flag user as abusive{/t}</a>
-			<span id="user-abuse-report-button">[?]</span>
-		</div>
 		<a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->slug}">{t}profile page{/t}</a>
 		| <a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/messages/composeto/{$user->id}">{t}write private message{/t}</a>
 		| <a href="javascript:;" onclick="Wikijump.modules.UserInfoWinModule.listeners.addContact(event,{$user->id})">{t}to contacts{/t}</a>
@@ -55,9 +51,5 @@
 	</div>
 	<div class="button-bar">
 		<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}close window{/t}</a>
-	</div>
-
-	<div id="user-abuse-report-button-hovertip" style="display: none">
-		{t}Notify administrators/moderators about abusive user.{/t}
 	</div>
 </div>
