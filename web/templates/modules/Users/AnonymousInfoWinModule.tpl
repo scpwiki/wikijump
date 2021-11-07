@@ -20,9 +20,6 @@
 		<p>
 			{t 1=$SERVICE_NAME}This is an "Anonymous" user that does not use a valid account at %1.{/t}
 		</p>
-		<div style="float:right">
-		<a href="javascript:;" onclick="Wikijump.modules.AnonymousInfoWinModule.listeners.flagAnonymous(event, '{$userString}')">{t}flag user as abussive{/t}</a> <span id="auser-abuse-report-button">[?]</span></div>
-		<br/>
 	</div>
 	<div class="button-bar">
 		<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}close window{/t}</a>
@@ -40,8 +37,4 @@
 		{t}WWW Proxy.{/t}
 	</div>
 	{/if}
-
-	<div id="auser-abuse-report-button-hovertip" style="display:none">
-		{t}Notify aministrators/moderators about an abusive user.{/t}
-	</div>
 </div>

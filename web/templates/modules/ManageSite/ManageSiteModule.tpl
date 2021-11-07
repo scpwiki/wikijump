@@ -64,13 +64,6 @@
 			</li>
 			<li><a href="javascript:;" id="sm-recent-changes">{t}Recent changes{/t}</a></li>
 			<li><a href="javascript:;" id="sm-pagerate">{t}Page ratings{/t}</a></li>
-			<li><a href="javascript:;">{t}Abuse reports{/t}</a>
-				<ul>
-					<li><a href="javascript:;" id="sm-abuse-page">{t}Pages{/t}</a></li>
-					<li><a href="javascript:;" id="sm-abuse-user">{t}Users{/t}</a></li>
-					<li><a href="javascript:;" id="sm-abuse-anonymous">{t}Anonymous Users{/t}</a></li>
-				</ul>
-			</li>
 			<li><a href="javascript:;" id="sm-notifications">{t}Notifications{/t}</a></li>
 		</ul>
 		<hr/>

@@ -20,7 +20,6 @@ use Wikidot\DB\MemberPeer;
 use Wikidot\DB\SiteViewerPeer;
 use Wikidot\DB\SiteViewer;
 use Wikidot\DB\AdminPeer;
-use Wikidot\DB\AnonymousAbuseFlagPeer;
 use Wikidot\DB\EmailInvitationPeer;
 use Wikidot\DB\MemberApplicationPeer;
 use Wikidot\DB\MemberInvitationPeer;
@@ -883,7 +882,6 @@ class ManageSiteAction extends SmartyAction
         $c = new Criteria();
         $c->add('site_id', $site->getSiteId());
 
-        AnonymousAbuseFlagPeer::instance()->delete($c);
         DomainRedirectPeer::instance()->delete($c);
         EmailInvitationPeer::instance()->delete($c);
         MemberApplicationPeer::instance()->delete($c);
