@@ -1459,16 +1459,16 @@
         },
         {
             "name": "gettext/gettext",
-            "version": "v5.5.4",
+            "version": "v5.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-gettext/Gettext.git",
-                "reference": "77baf40326b4eac0230cd11ee75680969dcbe72a"
+                "reference": "7596099625eeeda2a78905134e81bf25b82470f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-gettext/Gettext/zipball/77baf40326b4eac0230cd11ee75680969dcbe72a",
-                "reference": "77baf40326b4eac0230cd11ee75680969dcbe72a",
+                "url": "https://api.github.com/repos/php-gettext/Gettext/zipball/7596099625eeeda2a78905134e81bf25b82470f3",
+                "reference": "7596099625eeeda2a78905134e81bf25b82470f3",
                 "shasum": ""
             },
             "require": {
@@ -1476,10 +1476,10 @@
                 "php": "^7.2|^8.0"
             },
             "require-dev": {
-                "brick/varexporter": "^0.2.1",
-                "friendsofphp/php-cs-fixer": "^2.15",
-                "oscarotero/php-cs-fixer-config": "^1.0",
-                "phpunit/phpunit": "^8.0",
+                "brick/varexporter": "^0.3.5",
+                "friendsofphp/php-cs-fixer": "^3.2",
+                "oscarotero/php-cs-fixer-config": "^2.0",
+                "phpunit/phpunit": "^8.0|^9.0",
                 "squizlabs/php_codesniffer": "^3.0"
             },
             "type": "library",
@@ -1513,9 +1513,23 @@
             "support": {
                 "email": "oom@oscarotero.com",
                 "issues": "https://github.com/php-gettext/Gettext/issues",
-                "source": "https://github.com/php-gettext/Gettext/tree/v5.5.4"
+                "source": "https://github.com/php-gettext/Gettext/tree/v5.6.0"
             },
-            "time": "2020-12-20T13:37:30+00:00"
+            "funding": [
+                {
+                    "url": "https://paypal.me/oscarotero",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/oscarotero",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/misteroom",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2021-11-05T15:20:35+00:00"
         },
         {
             "name": "gettext/languages",
