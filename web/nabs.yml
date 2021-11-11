@@ -46,14 +46,16 @@ dev-sudo: node scripts/dev.js sudo
 # -- SERVE
 
 serve:
+  - export DOCKER_BUILDKIT=1
   - cd ../install/local/dev
   - docker-compose -p wikijump -f docker-compose.yaml build
   - docker-compose -p wikijump -f docker-compose.yaml up
 
 serve-sudo:
+  - export DOCKER_BUILDKIT=1
   - cd ../install/local/dev
-  - sudo docker-compose -p wikijump -f docker-compose.yaml build
-  - sudo docker-compose -p wikijump -f docker-compose.yaml up
+  - sudo -E docker-compose -p wikijump -f docker-compose.yaml build
+  - sudo -E docker-compose -p wikijump -f docker-compose.yaml up
 
 # -- TESTING
 
@@ -87,10 +89,12 @@ validate: run-p -lns lint typecheck
 # $ pnpm compose up
 # $ pnpm compose build
 compose:
+  - export DOCKER_BUILDKIT=1
   - cd ../install/local/dev
   - docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
 
 # Like compose, but invokes docker with sudo
 compose-sudo:
+  - export DOCKER_BUILDKIT=1
   - cd ../install/local/dev
-  - sudo docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
+  - sudo -E docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml
