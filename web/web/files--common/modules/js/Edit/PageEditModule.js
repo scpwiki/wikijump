@@ -32,7 +32,6 @@ Wikijump.modules.PageEditModule.listeners = {
 	preview: function(e){
 		var params = OZONE.utils.formToArray("edit-page-form");
 		params['mode']=Wikijump.modules.PageEditModule.vars.editMode;
-
 		params['revision_id'] = Wikijump.page.vars.editlock.revisionId;
 		params['page_unix_name'] = WIKIREQUEST.info.requestPageName;
 		if(WIKIREQUEST.info.pageId){
@@ -57,10 +56,6 @@ Wikijump.modules.PageEditModule.listeners = {
 		if( WIKIREQUEST.info.pageId) {params['page_id'] = WIKIREQUEST.info.pageId;}
 		params['lock_secret'] = Wikijump.page.vars.editlock.secret;
 		params['revision_id'] = Wikijump.page.vars.editlock.revisionId;
-		if(Wikijump.modules.PageEditModule.vars.editMode == 'section'){
-			params['range_start'] = Wikijump.page.vars.editlock.rangeStart;
-			params['range_end'] = Wikijump.page.vars.editlock.rangeEnd;
-		}
 
 		/* Handle tags. */
 		try{
@@ -88,10 +83,6 @@ Wikijump.modules.PageEditModule.listeners = {
 		params['lock_secret'] = Wikijump.page.vars.editlock.secret;
 		params['revision_id'] = Wikijump.page.vars.editlock.revisionId;
 		params['and_continue'] = "yes";
-		if(Wikijump.modules.PageEditModule.vars.editMode == 'section'){
-			params['range_start'] = Wikijump.page.vars.editlock.rangeStart;
-			params['range_end'] = Wikijump.page.vars.editlock.rangeEnd;
-		}
 
 		OZONE.ajax.requestModule("Empty",params,Wikijump.modules.PageEditModule.callbacks.saveAndContinue);
 
@@ -152,10 +143,6 @@ Wikijump.modules.PageEditModule.listeners = {
 		params['lock_id'] = Wikijump.page.vars.editlock.id;
 		params['lock_secret'] = Wikijump.page.vars.editlock.secret;
 		params['revision_id'] = Wikijump.page.vars.editlock.revisionId;
-		if(Wikijump.modules.PageEditModule.vars.editMode == 'section'){
-			params['range_start'] = Wikijump.page.vars.editlock.rangeStart;
-			params['range_end'] = Wikijump.page.vars.editlock.rangeEnd;
-		}
 
 		OZONE.ajax.requestModule("Empty",params,Wikijump.modules.PageEditModule.callbacks.forceLockIntercept);
 	},
@@ -170,10 +157,6 @@ Wikijump.modules.PageEditModule.listeners = {
 		params['lock_secret'] = Wikijump.page.vars.editlock.secret;
 		params['revision_id'] = Wikijump.page.vars.editlock.revisionId;
 		params['since_last_input'] = 0; // seconds since last input
-		if(Wikijump.modules.PageEditModule.vars.editMode == 'section'){
-			params['range_start'] = Wikijump.page.vars.editlock.rangeStart;
-			params['range_end'] = Wikijump.page.vars.editlock.rangeEnd;
-		}
 
 		OZONE.ajax.requestModule("Empty",params,Wikijump.modules.PageEditModule.callbacks.recreateExpiredLock);
 	},
@@ -205,10 +188,6 @@ Wikijump.modules.PageEditModule.listeners = {
 		var params = OZONE.utils.formToArray("edit-page-form");
 		params['mode']=Wikijump.modules.PageEditModule.vars.editMode;
 		params['revision_id'] = Wikijump.page.vars.editlock.revisionId;
-		if(Wikijump.modules.PageEditModule.vars.editMode == 'section'){
-			params['range_start'] = Wikijump.page.vars.editlock.rangeStart;
-			params['range_end'] = Wikijump.page.vars.editlock.rangeEnd;
-		}
 		OZONE.ajax.requestModule("Edit/PageEditDiffModule",params,Wikijump.modules.PageEditModule.callbacks.viewDiff);
 
 	},
@@ -230,11 +209,6 @@ Wikijump.modules.PageEditModule.callbacks = {
 		var message = document.getElementById("preview-message").innerHTML;
 		OZONE.utils.setInnerHTMLContent("action-area-top", message);
 
-		if(Wikijump.modules.PageEditModule.vars.editMode == 'section'){
-			OZONE.utils.setInnerHTMLContent("edit-section-content", response.body.replace(/id="/g, 'id="prev06-'));
-			YAHOO.util.Dom.setY("action-area-top", YAHOO.util.Dom.getY("edit-section-content"));
-			OZONE.visuals.scrollTo("edit-section-content");
-		}
 		if(Wikijump.modules.PageEditModule.vars.editMode == 'page'){
 			var title = response.title;
 			OZONE.utils.setInnerHTMLContent("page-title", title);
@@ -553,10 +527,6 @@ Wikijump.modules.PageEditModule.utils = {
 		params['lock_secret'] = Wikijump.page.vars.editlock.secret;
 		params['revision_id'] = Wikijump.page.vars.editlock.revisionId;
 		params['since_last_input'] = secSinceLastInput; //0; // seconds since last input
-		if(Wikijump.modules.PageEditModule.vars.editMode == 'section'){
-			params['range_start'] = Wikijump.page.vars.editlock.rangeStart;
-			params['range_end'] = Wikijump.page.vars.editlock.rangeEnd;
-		}
 
 		OZONE.ajax.requestModule("Empty",params,Wikijump.modules.PageEditModule.callbacks.updateLock);
 	},
@@ -571,9 +541,7 @@ Wikijump.modules.PageEditModule.utils = {
 Wikijump.modules.PageEditModule.init = function(){
 	if(Wikijump.page.vars.locked == true){
 		OZONE.utils.formatDates();
-
 	} else {
-
 		Wikijump.modules.PageEditModule.vars.editMode = editMode;
 
 		/* attach listeners */

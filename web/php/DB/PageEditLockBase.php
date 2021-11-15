@@ -18,7 +18,7 @@ class PageEditLockBase extends BaseDBObject
         $this->tableName='page_edit_lock';
         $this->peerName = 'Wikidot\\DB\\PageEditLockPeer';
         $this->primaryKeyName = 'lock_id';
-        $this->fieldNames = array( 'lock_id' ,  'page_id' ,  'mode' ,  'section_id' ,  'range_start' ,  'range_end' ,  'page_unix_name' ,  'site_id' ,  'user_id' ,  'user_string' ,  'session_id' ,  'date_started' ,  'date_last_accessed' ,  'secret' );
+        $this->fieldNames = array( 'lock_id' ,  'page_id' ,  'mode' ,   'page_unix_name' ,  'site_id' ,  'user_id' ,  'user_string' ,  'session_id' ,  'date_started' ,  'date_last_accessed' ,  'secret' );
 
         //$this->fieldDefaultValues=
     }
@@ -58,39 +58,6 @@ class PageEditLockBase extends BaseDBObject
     public function setMode($v1, $raw = false)
     {
         $this->setFieldValue('mode', $v1, $raw);
-    }
-
-
-    public function getSectionId()
-    {
-        return $this->getFieldValue('section_id');
-    }
-
-    public function setSectionId($v1, $raw = false)
-    {
-        $this->setFieldValue('section_id', $v1, $raw);
-    }
-
-
-    public function getRangeStart()
-    {
-        return $this->getFieldValue('range_start');
-    }
-
-    public function setRangeStart($v1, $raw = false)
-    {
-        $this->setFieldValue('range_start', $v1, $raw);
-    }
-
-
-    public function getRangeEnd()
-    {
-        return $this->getFieldValue('range_end');
-    }
-
-    public function setRangeEnd($v1, $raw = false)
-    {
-        $this->setFieldValue('range_end', $v1, $raw);
     }
 
 

@@ -339,12 +339,6 @@ class WikiPageAction extends SmartyAction
                 $lock->setDateStarted(new ODate());
                 $lock->setDateLastAccessed(new ODate());
                 $lock->setMode($mode);
-                if ($mode == "section") {
-                    $rangeStart = $pl->getParameterValue("range_start");
-                    $rangeEnd = $pl->getParameterValue("range_end");
-                    $lock->setRangeStart($rangeStart);
-                    $lock->setRangeEnd($rangeEnd);
-                }
                 $conflictLocks = $lock->getConflicts();
                 if ($conflictLocks == null) {
                     // safely recreate lock
@@ -387,17 +381,6 @@ class WikiPageAction extends SmartyAction
 
             if ($mode == "append") {
                 $source = $oldSourceText."\n\n".$source;
-            }
-            if ($mode == "section") {
-                $rangeStart = $lock->getRangeStart(); //$pl->getParameterValue("range_start");
-                $rangeEnd = $lock->getRangeEnd(); //$pl->getParameterValue("range_end");
-                $s2 = explode("\n", $oldSourceText);
-                // fix source last empty line
-                if (!preg_match("/\n$/", $source)) {
-                    $source.="\n";
-                }
-                array_splice($s2, $rangeStart, $rangeEnd-$rangeStart+1, explode("\n", $source));
-                $source = implode("\n", $s2);
             }
 
             if ($oldSourceText !== $source) {
@@ -474,28 +457,6 @@ class WikiPageAction extends SmartyAction
             $page->setMetadataId($pageRevision->getMetadataId());
             $page->setRevisionNumber($pageRevision->getRevisionNumber());
             $page->save();
-
-            // also if "section edit" - find other locks that refer to
-            // blocks with higher line numbers and change start/end accordingly
-
-            if ($mode == "section") {
-                $c = new Criteria();
-                $c->add("page_id", $pageId);
-                $c->add("range_start", $lock->getRangeEnd(), ">=");
-                $c->add("mode", "section");
-                $laterLocks = PageEditLockPeer::instance()->select($c);
-                if (count($laterLocks)>0) {
-                    // take the length of the current lock
-                    $sectionLength = $lock->getRangeEnd() - $lock->getRangeStart() +1;
-                    $newSourceLength = count(explode("\n", trim($pl->getParameterValue("source"))))+1; // +1 for the new line at the end
-                    $lengthDifference = $newSourceLength - $sectionLength;
-                    foreach ($laterLocks as $llock) {
-                        $llock->setRangeStart($llock->getRangeStart()+$lengthDifference);
-                        $llock->setRangeEnd($llock->getRangeEnd()+$lengthDifference);
-                        $llock->save();
-                    }
-                }
-            }
             $db->commit();
 
             // After db commit so the page revision actually exists
@@ -622,12 +583,6 @@ class WikiPageAction extends SmartyAction
                 $lock->setDateStarted($dateLastAccessed);
                 $lock->setDateLastAccessed($dateLastAccessed);
                 $lock->setMode($mode);
-                if ($mode === "section") {
-                    $rangeStart = $pl->getParameterValue("range_start");
-                    $rangeEnd = $pl->getParameterValue("range_end");
-                    $lock->setRangeStart($rangeStart);
-                    $lock->setRangeEnd($rangeEnd);
-                }
                 $conflictLocks = $lock->getConflicts();
                 if ($conflictLocks == null) {
                     // safely recreate lock
@@ -713,12 +668,6 @@ class WikiPageAction extends SmartyAction
         $lock->setDateStarted(new ODate());
         $lock->setDateLastAccessed(new ODate());
         $lock->setMode($mode);
-        if ($mode == "section") {
-            $rangeStart = $pl->getParameterValue("range_start");
-            $rangeEnd = $pl->getParameterValue("range_end");
-            $lock->setRangeStart($rangeStart);
-            $lock->setRangeEnd($rangeEnd);
-        }
         $secret = md5(time().rand(1000, 9999));
         $lock->setSecret($secret);
         $lock->setSessionId($runData->getSession()->getSessionId());
