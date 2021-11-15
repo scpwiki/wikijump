@@ -32,7 +32,6 @@ class Text_Wiki_Render_Xhtml_Button extends Text_Wiki_Render {
     	$allowedTypes = array(
     		'edit',
     		'edit-append',
-    		'edit-sections',
     		'history',
     		'print',
     		'files',
@@ -46,7 +45,6 @@ class Text_Wiki_Render_Xhtml_Button extends Text_Wiki_Render {
     	$defaultText = array(
     		'edit' => _('edit'),
     		'edit-append' => _('append'),
-    		'edit-sections' => _('edit sections'),
     		'history' => _('history'),
     		'print' => _('print'),
     		'files' => _('files'),
@@ -60,7 +58,6 @@ class Text_Wiki_Render_Xhtml_Button extends Text_Wiki_Render {
     	$jsOnclick = array(
     		'edit' => 'WIKIDOT.page.listeners.editClick(event)',
     		'edit-append' => 'WIKIDOT.page.listeners.append(event)',
-    		'edit-sections' => 'WIKIDOT.page.listeners.toggleEditSections(event)',
     		'history' => ' WIKIDOT.page.listeners.historyClick(event)',
     		'print' => 'WIKIDOT.page.listeners.printClick(event)',
     		'files' => 'WIKIDOT.page.listeners.filesClick(event)',

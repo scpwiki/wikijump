@@ -215,28 +215,6 @@ class PageEditModule extends SmartyModule
         ) {
             $form->setDataFromYaml($page->getSource());
             $runData->contextAdd("form", new Renderer($form));
-
-        // check if mode is sections if page is editable in this mode
-        } elseif ($mode == "section") {
-            $compiledContent = $page->getCompiled()->getText();
-            $editable = WDEditUtils::sectionsEditable($compiledContent);
-            if ($editable == false) {
-                throw new ProcessException(_("Sections are not editable due to unclear section structure. This sometimes happen when nested headings are used (inside other page elements) or the page include other pages."), "sections_uneditable");
-            }
-            // ok, get ranges for edit now.
-            $pageSource = $page->getSource();
-            $rangeMap = WDEditUtils::sectionMapping($pageSource);
-            $sectionId = $pl->getParameterValue("section");
-
-            if (!isset($rangeMap[$sectionId])) {
-                throw new ProcessException(_("Sections are not editable due to unclear section structure. This sometimes happen when nested headings are used (inside other page elements) or the page include other pages."), "sections_uneditable");
-            }
-            $rangeStart = $rangeMap[$sectionId]['start'];
-            $rangeEnd = $rangeMap[$sectionId]['end'];
-
-            $runData->ajaxResponseAdd('section', $sectionId);
-            $runData->ajaxResponseAdd('rangeStart', $rangeStart);
-            $runData->ajaxResponseAdd('rangeEnd', $rangeEnd);
         }
 
         // if we have not returned yet it means that the lock does not exist or is expired
@@ -253,10 +231,6 @@ class PageEditModule extends SmartyModule
         $lock->setDateStarted(new ODate());
         $lock->setDateLastAccessed(new ODate());
         $lock->setMode($mode);
-        if ($mode == "section") {
-            $lock->setRangeStart($rangeStart);
-            $lock->setRangeEnd($rangeEnd);
-        }
 
         // delete outdated...
         PageEditLockPeer::instance()->deleteOutdated($pageId);
@@ -295,13 +269,6 @@ class PageEditModule extends SmartyModule
         }
         if ($mode == "append") {
             $runData->contextAdd("source", ""); // source not required...
-        }
-        if ($mode == "section") {
-            // slice the source...
-            $sliced = explode("\n", $pageSource);
-            $s = array_slice($sliced, $rangeStart, $rangeEnd-$rangeStart+1);
-
-            $runData->contextAdd("source", trim(implode("\n", $s)));
         }
         $runData->contextAdd("title", $page->getTitleRaw());
         $runData->contextAdd("pageId", $page->getPageId());

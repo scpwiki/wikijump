@@ -458,7 +458,6 @@ final class LegacyTools
         $otext .= '<a href="javascript:;" id="more-options-button">+&nbsp;'._('options').'</a>
 </div>
 <div id="page-options-bottom-2" class="page-options-bottom" style="display:none">
-	<a href="javascript:;" id="edit-sections-button">'._('edit sections').'</a>
 	<a href="javascript:;" id="edit-append-button">'._('append').'</a>
 	<a href="javascript:;" id="backlinks-button">'._('backlinks').'</a>
 	<a href="javascript:;" id="view-source-button">'._('view source').'</a>

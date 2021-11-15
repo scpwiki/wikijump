@@ -17,17 +17,12 @@ type EditLock = {
   secret: unknown;
   revisionId: unknown;
   timeLeft: unknown;
-  rangeStart?: unknown;
-  rangeEnd?: unknown;
 };
 
 export const page = {
   vars: {
     forceLockFlag: false,
     newPage: false,
-    editSectionsActive: false,
-    editHeadings: [] as unknown[],
-    sectionEditButtons: [] as HTMLAnchorElement[],
     locked: false,
     editlock: {} as EditLock,
     ctrle: {} as unknown // Return value of yahoo keylistener
@@ -63,17 +58,6 @@ export const page = {
       const parms: RequestModuleParameters = {
         page_id: WIKIREQUEST.info.pageId,
         mode: 'append'
-      };
-      OZONE.ajax.requestModule("Edit/PageEditModule", parms, Wikijump.page.callbacks.editClick);
-    },
-
-    editSection: function (_event: Event): void {
-      // @ts-expect-error What is `this`?
-      const sectionNumber = this.id.replace(/edit-section-b-/, '');
-      const parms: RequestModuleParameters = {
-        page_id: WIKIREQUEST.info.pageId,
-        mode: 'section',
-        section: sectionNumber
       };
       OZONE.ajax.requestModule("Edit/PageEditModule", parms, Wikijump.page.callbacks.editClick);
     },
@@ -120,70 +104,6 @@ export const page = {
       document.getElementById("more-options-button")!.innerHTML = document.getElementById("more-options-button")!.innerHTML.replace(/-/, '+');
       YAHOO.util.Event.removeListener("more-options-button", "click", Wikijump.page.listeners.lessOptionsClick);
       YAHOO.util.Event.addListener("more-options-button", "click", Wikijump.page.listeners.moreOptionsClick);
-    },
-
-    toggleEditSections: function (_event?: Event): void {
-      if (!Wikijump.page.vars.editSectionsActive) {
-        // check if it is possible to edit sections.
-
-        const pc = document.getElementById("page-content")!;
-        const children = pc.children;
-        const headings = [];
-        for (let i = 0; i < children.length; i++) {
-          const tagName = children[i].tagName;
-          if (tagName && tagName.toLowerCase().match(/^h[1-6]$/) && children[i].id.match(/^toc/)) {
-            headings.push(children[i]);
-          }
-        }
-
-        if (headings.length === 0) {
-          // alert("no isolated sections to edit")
-          const w = new OZONE.dialogs.ErrorDialog();
-          w.content = "There are no isolated sections to edit.";
-          w.show();
-          return;
-        }
-
-        // count all headings in the page-content
-        let allSum = 0;
-        const hTypes = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-        for (let i = 0; i < hTypes.length; i++) {
-          const theads = pc.getElementsByTagName(hTypes[i]);
-          for (let j = 0; j < theads.length; j++) {
-            if (theads[j].id.match(/^toc/)) {
-              allSum++;
-            }
-          }
-        }
-        if (allSum !== headings.length) {
-          alert("It seems that headings do not have a valid structure...");
-          return;
-        }
-
-        const editButtons: HTMLAnchorElement[] = [];
-        for (let i = 0; i < headings.length; i++) {
-          const edit = document.createElement("a");
-          edit.innerHTML = "edit";
-          edit.href = "javascript:;";
-          edit.className = "edit-section-button";
-          edit.id = "edit-section-b-" + headings[i].id.replace(/toc/, '');
-          YAHOO.util.Event.addListener(edit, "click", Wikijump.page.listeners.editSection);
-          const ef = new fx.Opacity(edit, { duration: 300 });
-          ef.setOpacity(0);
-          pc.insertBefore(edit, headings[i]);
-          ef.custom(0, 1);
-          editButtons.push(edit);
-        }
-        Wikijump.page.vars.editHeadings = headings;
-        Wikijump.page.vars.sectionEditButtons = editButtons;
-        Wikijump.page.vars.editSectionsActive = true;
-      } else {
-        const edits = Wikijump.page.vars.sectionEditButtons;
-        for (let i = 0; i < edits.length; i++) {
-          edits[i].parentNode!.removeChild(edits[i]);
-        }
-        Wikijump.page.vars.editSectionsActive = false;
-      }
     },
 
     editTags: function (_event: Event): void {
@@ -340,10 +260,6 @@ export const page = {
         document.getElementById('page-content')!.innerHTML = '';
       }
 
-      if (Wikijump.page.vars.editSectionsActive) {
-        Wikijump.page.listeners.toggleEditSections();
-      }
-
       // init
       //@ts-expect-error Shouldn't need to attach to window
       window.editMode = response.mode;
@@ -379,40 +295,6 @@ export const page = {
         };
       }
 
-      // @ts-expect-error Shouldn't be attached to window
-      if (window.editMode === 'section') {
-        if (response.section == null) {
-          alert('Section edit error. Section does not exist');
-          return;
-        }
-        Wikijump.page.vars.editlock.rangeStart = response.rangeStart;
-        Wikijump.page.vars.editlock.rangeEnd = response.rangeEnd;
-
-        // insert new div before the heading...
-        const headingId = 'toc' + response.section;
-        const heading = document.getElementById(headingId)!;
-        const aDiv = document.createElement('div');
-        aDiv.id = 'edit-section-content';
-        const pc = document.getElementById("page-content")!;
-        pc.insertBefore(aDiv, heading);
-        const re = new RegExp('^h[1-' + heading.tagName.replace(/h/i, '') + ']', 'i');
-        let ns = heading.nextElementSibling;
-        aDiv.appendChild(heading);
-        while (ns != null) {
-          if (ns.tagName && ns.tagName.match(re) && ns.id.match(/^toc/)) {
-            break;
-          }
-          const ns0 = ns;
-          ns = ns.nextElementSibling;
-          aDiv.appendChild(ns0);
-        }
-        // also move action area below that div.
-        if (ns) {
-          pc.insertBefore(document.getElementById('action-area')!, ns);
-        } else {
-          pc.appendChild(document.getElementById('action-area')!);
-        }
-      }
 
       OZONE.utils.setInnerHTMLContent('action-area', response.body);
       document.getElementById("action-area")!.style.display = "block";
@@ -834,7 +716,6 @@ export const page = {
     YAHOO.util.Event.addListener("more-options-button", "click", Wikijump.page.listeners.moreOptionsClick);
 
     YAHOO.util.Event.addListener("edit-append-button", "click", Wikijump.page.listeners.append);
-    YAHOO.util.Event.addListener("edit-sections-button", "click", Wikijump.page.listeners.toggleEditSections);
     YAHOO.util.Event.addListener("backlinks-button", "click", Wikijump.page.listeners.backlinksClick);
     YAHOO.util.Event.addListener("parent-page-button", "click", Wikijump.page.listeners.parentClick);
 

@@ -66,19 +66,6 @@ class PageEditLock extends PageEditLockBase
                 }
                 $c->add("mode", "page");
             }
-
-            if ($this->getMode() == "section") {
-                // conflicts with "page" mode and "section" mode when regions overlap
-                $c = new Criteria();
-
-                // create query by hand...
-                $q = "page_id = " . $this->getPageId() . " ";
-                if ($this->getLockId() != null) {
-                    $q .= "AND lock_id != " . $this->getLockId() . " ";
-                }
-                $q .= "AND (mode = 'page' " . "OR (" . "mode = 'section' AND (" . "(range_start >= '" . db_escape_string($this->getRangeStart()) . "' AND range_start <= '" . db_escape_string($this->getRangeEnd()) . "') " . "OR (range_end >= '" . db_escape_string($this->getRangeStart()) . "' AND range_end <= '" . db_escape_string($this->getRangeEnd()) . "') " . "OR (range_start <= '" . db_escape_string($this->getRangeStart()) . "' AND range_end >= '" . db_escape_string($this->getRangeEnd()) . "')" . ")))";
-                $c->setExplicitWhere($q);
-            }
         }
         return $c;
     }

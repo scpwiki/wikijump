@@ -16,20 +16,10 @@ class PageEditDiffModule extends SmartyModule
     {
         $pl = $runData->getParameterList();
         $toPageSource = $pl->getParameterValue("source");
-        $mode = $pl->getParameterValue("mode");
         $revisionId = $pl->getParameterValue("revision_id");
 
         $revision = PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
         $fromPageSource = $revision->getSourceText();
-
-        if ($mode == "section") {
-            // compare only a fragment...
-            $rangeStart = $pl->getParameterValue("range_start");
-            $rangeEnd = $pl->getParameterValue("range_end");
-
-            $s2 = explode("\n", $fromPageSource);
-            $fromPageSource = implode("\n", array_slice($s2, $rangeStart, $rangeEnd-$rangeStart+1));
-        }
 
         // create page diff... wooo...
 
