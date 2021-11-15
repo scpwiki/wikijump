@@ -249,3 +249,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-710](https://scuttle.atlassian.net/browse/WJ-710), [WJ-745](https://scuttle.atlassian.net/browse/WJ-745), [WJ-766](https://scuttle.atlassian.net/browse/WJ-766), [WJ-920](https://scuttle.atlassian.net/browse/WJ-920)
 * What it did: Allowed users to flag content as objectionable.
 * Why it was removed: Insufficient implementation. It was a binary toggle, without the ability to add reasons, and later additions such as easy-revoke are not present in this codebase. It will be easier to reimplement a sane abuse reporting system from scratch later.
+
+## PHP: Section Editing
+* Where it was: Multiple files, see pull request
+* Relevant Issues: [WJ-936](https://scuttle.atlassian.net/browse/WJ-936)
+* What it did: Allowed editing a portion of a page, separated by headings.
+* Why it was removed: As described in the issue, it was buggy, not frequently used, and removing it simplifies page edit lock significantly as we engage in further refactoring.
