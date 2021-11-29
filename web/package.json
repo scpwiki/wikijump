@@ -45,7 +45,7 @@
   "dependencies": {
     "@ltd/j-toml": "^1.23.0",
     "@sveltejs/vite-plugin-svelte": "1.0.0-next.30",
-    "chalk": "^4.1.2",
+    "chalk": "^5.0.0",
     "compress-tag": "^2.0.1",
     "csstype": "^3.0.9",
     "esbuild": "^0.13.10",
