@@ -190,10 +190,6 @@
     <div id="edit-sections-button-hovertip">
         Click here to toggle editing of individual sections of the page (if possible).
         Watch headings for an "edit" link when available.
-    </div>
-    <div id="edit-append-button-hovertip">
-        Append content without editing the whole page source.
-    </div>
     <div id="history-button-hovertip">
         Check out how this page has evolved in the past.
     </div>

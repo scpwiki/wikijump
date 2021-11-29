@@ -11,36 +11,32 @@
 
 		<form id="edit-page-form"{if $form} class="edit-with-form"{/if}>
 			<input type="hidden" name="page_id" value="{$pageId|escape}"/>
-			{if $mode=="page" || ($newPage && $templates)}
-				<table class="form" style="margin: 0.5em auto 1em 0">
-					{if $mode=="page"}
-						<tr>
-							<td>
-								{t}Title of the page{/t}:
-							</td>
-							<td>
-								<input class="text" id="edit-page-title" name="title" type="text" value="{$title|escape}" size="35" maxlength="128"
-									style="font-weight: bold; font-size: 130%;"/>
-							</td>
-						</tr>
-					{/if}
-					{if $newPage && $templates}
-						<tr>
-							<td>
-								{t}Initial content{/t}:
-							</td>
-							<td>
-								<select name="theme" id="page-templates" onchange="Wikijump.modules.PageEditModule.listeners.templateChange(event)">
-									<option value=""  style="padding: 0 1em">no template (blank page)</option>
-									{foreach from=$templates item=template}
-										<option value="{$template->getPageId()}"  style="padding: 0 1em" {if $template->getPageId() == $templateId}selected="selected"{/if}>{$template->getTitle()|escape}</option>
-									{/foreach}
-								</select>
-							</td>
-						</tr>
-					{/if}
-				</table>
-			{/if}
+			<table class="form" style="margin: 0.5em auto 1em 0">
+				<tr>
+					<td>
+						{t}Title of the page{/t}:
+					</td>
+					<td>
+						<input class="text" id="edit-page-title" name="title" type="text" value="{$title|escape}" size="35" maxlength="128"
+							style="font-weight: bold; font-size: 130%;"/>
+					</td>
+				</tr>
+				{if $newPage && $templates}
+					<tr>
+						<td>
+							{t}Initial content{/t}:
+						</td>
+						<td>
+							<select name="theme" id="page-templates" onchange="Wikijump.modules.PageEditModule.listeners.templateChange(event)">
+								<option value=""  style="padding: 0 1em">no template (blank page)</option>
+								{foreach from=$templates item=template}
+									<option value="{$template->getPageId()}"  style="padding: 0 1em" {if $template->getPageId() == $templateId}selected="selected"{/if}>{$template->getTitle()|escape}</option>
+								{/foreach}
+							</select>
+						</td>
+					</tr>
+				{/if}
+			</table>
             {if $form}
                 <input type="hidden" name="form" value="true"/>
                 <table class="form" style="margin: 0.5em auto 1em 0pt">
@@ -102,9 +98,9 @@
 
 			<div class="buttons alignleft">
 				<input type="button" name="cancel" id="edit-cancel-button" value="{t}cancel{/t}" onclick="Wikijump.modules.PageEditModule.listeners.cancel(event)"/>
-				{if !$newPage && $mode != "append"}<input type="button" name="diff" id="edit-diff-button" value="{t}view diff{/t}" onclick="Wikijump.modules.PageEditModule.listeners.viewDiff(event)"/>{/if}
+				{if !$newPage}<input type="button" name="diff" id="edit-diff-button" value="{t}view diff{/t}" onclick="Wikijump.modules.PageEditModule.listeners.viewDiff(event)"/>{/if}
 				<input type="button" name="preview" id="edit-preview-button" value="{t}preview{/t}" onclick="Wikijump.modules.PageEditModule.listeners.preview(event)"/>
-				{if !$newPage && $mode =="page"}<input type="button" name="save-continue" id="edit-save-continue-button"  value="{t escape=no}save &amp; continue{/t}" onclick="Wikijump.modules.PageEditModule.listeners.saveAndContinue(event)"/>{/if}
+				{if !$newPage}<input type="button" name="save-continue" id="edit-save-continue-button"  value="{t escape=no}save &amp; continue{/t}" onclick="Wikijump.modules.PageEditModule.listeners.saveAndContinue(event)"/>{/if}
 				<input type="button" name="save" id="edit-save-button"  value="{t}save{/t}" onclick="Wikijump.modules.PageEditModule.listeners.save(event)"/>
 			</div>
 		</form>

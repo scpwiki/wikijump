@@ -32,10 +32,6 @@ class PageEditModule extends SmartyModule
 
         $pageId = $pl->getParameterValue("page_id");
 
-        $mode = $pl->getParameterValue("mode");
-
-        $runData->ajaxResponseAdd("mode", $mode);
-
         $user = $runData->getUser();
 
         $userId = $runData->getUserId();
@@ -51,8 +47,6 @@ class PageEditModule extends SmartyModule
             // means probably creating a new page
             // no context is needed
             $runData->sessionStart();
-            $mode = "page";
-            $runData->contextAdd("mode", $mode);
             $runData->contextAdd("newPage", true);
 
             // first create if a page not already exists!
@@ -230,7 +224,6 @@ class PageEditModule extends SmartyModule
 
         $lock->setDateStarted(new ODate());
         $lock->setDateLastAccessed(new ODate());
-        $lock->setMode($mode);
 
         // delete outdated...
         PageEditLockPeer::instance()->deleteOutdated($pageId);
@@ -263,17 +256,10 @@ class PageEditModule extends SmartyModule
         // keep the session - i.e. put an object into session storage not to delete it!!!
         $runData->sessionAdd("keep", true);
 
-        if ($mode == "page") {
-            $pageSource = $page->getSource();
-            $runData->contextAdd("source", $pageSource);
-        }
-        if ($mode == "append") {
-            $runData->contextAdd("source", ""); // source not required...
-        }
+        $pageSource = $page->getSource();
+        $runData->contextAdd("source", $pageSource);
         $runData->contextAdd("title", $page->getTitleRaw());
         $runData->contextAdd("pageId", $page->getPageId());
-
-        $runData->contextAdd("mode", $mode);
 
         $runData->ajaxResponseAdd("timeLeft", 15*60);
 

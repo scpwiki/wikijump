@@ -191,9 +191,6 @@
 	 		{t}Click here to toggle editing of individual sections of the page (if possible).
 	 		Watch headings for an "edit" link when available.{/t}
  		</div>
- 		<div id="edit-append-button-hovertip">
- 			{t}Append content without editing the whole page source.{/t}
- 		</div>
  		<div id="history-button-hovertip">
  			{t}Check out how this page has evolved in the past.{/t}
  		</div>
