@@ -21,6 +21,7 @@ class PageEditLockPeerBase extends BaseDBPeer
         $this->primaryKeyName = 'lock_id';
         $this->fieldNames = array( 'lock_id' ,  'page_id' ,  'page_unix_name' ,  'site_id' ,  'user_id' ,  'user_string' ,  'session_id' ,  'date_started' ,  'date_last_accessed' ,  'secret' );
         $this->fieldTypes = array( 'lock_id' => 'serial',  'page_id' => 'int',   'page_unix_name' => 'varchar(100)',  'site_id' => 'int',  'user_id' => 'int',  'user_string' => 'varchar(80)',  'session_id' => 'varchar(60)',  'date_started' => 'timestamp',  'date_last_accessed' => 'timestamp',  'secret' => 'varchar(100)');
+        $this->defaultValues = array();
     }
 
     public static function instance()
