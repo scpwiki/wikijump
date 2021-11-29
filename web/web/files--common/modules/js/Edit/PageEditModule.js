@@ -202,13 +202,12 @@ Wikijump.modules.PageEditModule.callbacks = {
 		var message = document.getElementById("preview-message").innerHTML;
 		OZONE.utils.setInnerHTMLContent("action-area-top", message);
 
-			var title = response.title;
-			OZONE.utils.setInnerHTMLContent("page-title", title);
-			OZONE.visuals.scrollTo("container");
-			$("page-content").innerHTML = response.body;
-			Wikijump.page.fixers.fixEmails($("page-content"));
+		var title = response.title;
+		OZONE.utils.setInnerHTMLContent("page-title", title);
+		OZONE.visuals.scrollTo("container");
+		$("page-content").innerHTML = response.body;
+		Wikijump.page.fixers.fixEmails($("page-content"));
 
-		}
 		Wikijump.modules.PageEditModule.utils.stripAnchors("page-content", "action-area");
 	},
 
@@ -396,7 +395,7 @@ Wikijump.modules.PageEditModule.utils = {
 
 	},
 	/**
-	 * Replaces anchors with dumb anchors in edit
+	 * Replaces anchors with dumb anchors when editing
 	 */
 	stripAnchorsAll: function(){
 		Wikijump.modules.PageEditModule.utils.stripAnchors("html-body", "action-area");
