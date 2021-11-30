@@ -47,8 +47,6 @@ class WikiPageAction extends SmartyAction
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("page_id");
 
-        $mode = $pl->getParameterValue("mode");
-
         if ($pl->getParameterValue("form")) {
             $data = [];
             foreach ($runData->getParameterList()->asArray() as $name => $val) {
@@ -338,7 +336,6 @@ class WikiPageAction extends SmartyAction
 
                 $lock->setDateStarted(new ODate());
                 $lock->setDateLastAccessed(new ODate());
-                $lock->setMode($mode);
                 $conflictLocks = $lock->getConflicts();
                 if ($conflictLocks == null) {
                     // safely recreate lock
@@ -379,10 +376,6 @@ class WikiPageAction extends SmartyAction
             $oldSourceText = $page->getSource();
             $sourceChanged = false;
 
-            if ($mode == "append") {
-                $source = $oldSourceText."\n\n".$source;
-            }
-
             if ($oldSourceText !== $source) {
                 $sourceChanged = true;
             }
@@ -394,13 +387,10 @@ class WikiPageAction extends SmartyAction
             // compare metadata
             $metadataChanged = false;
             $oldMetadata = $page->getMetadata();
-            // title
-            if ($mode === 'page') {
-                // check only if the whole page is edited
-                if ($title !== $oldMetadata->getTitle()) {
-                    $pageRevision->setFlagTitle(true);
-                    $metadataChanged = true;
-                }
+            // check only if the whole page is edited
+            if ($title !== $oldMetadata->getTitle()) {
+                $pageRevision->setFlagTitle(true);
+                $metadataChanged = true;
             }
 
             // and act accordingly to the situation
@@ -450,9 +440,7 @@ class WikiPageAction extends SmartyAction
 
             // update Page object
 
-            if ($mode === 'page') {
-                $page->setTitle($title);
-            }
+            $page->setTitle($title);
             $page->setDateLastEdited($nowDate);
             $page->setMetadataId($pageRevision->getMetadataId());
             $page->setRevisionNumber($pageRevision->getRevisionNumber());
@@ -505,7 +493,6 @@ class WikiPageAction extends SmartyAction
     {
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("page_id");
-        $mode = $pl->getParameterValue("mode");
 
         $unixName = $pl->getParameterValue("wiki_page");
         $unixName = WDStringUtils::toUnixName($unixName); // purify! (for sure)
@@ -582,7 +569,6 @@ class WikiPageAction extends SmartyAction
 
                 $lock->setDateStarted($dateLastAccessed);
                 $lock->setDateLastAccessed($dateLastAccessed);
-                $lock->setMode($mode);
                 $conflictLocks = $lock->getConflicts();
                 if ($conflictLocks == null) {
                     // safely recreate lock
@@ -611,8 +597,6 @@ class WikiPageAction extends SmartyAction
     {
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("page_id");
-
-        $mode = $pl->getParameterValue("mode");
 
         $unixName = $pl->getParameterValue("wiki_page");
         $unixName = WDStringUtils::toUnixName($unixName); // purify! (for sure)
@@ -667,7 +651,6 @@ class WikiPageAction extends SmartyAction
 
         $lock->setDateStarted(new ODate());
         $lock->setDateLastAccessed(new ODate());
-        $lock->setMode($mode);
         $secret = md5(time().rand(1000, 9999));
         $lock->setSecret($secret);
         $lock->setSessionId($runData->getSession()->getSessionId());

@@ -36,15 +36,13 @@ export const page = {
         // editing old page
         parms = {
           page_id: pageId,
-          mode: 'page',
-          wiki_page: WIKIREQUEST.info.requestPageName
+          wiki_page: WIKIREQUEST.info.requestPageName,
         };
       } else {
         // means new page
         Wikijump.page.vars.newPage = true;
         parms = {
-          mode: 'page',
-          wiki_page: WIKIREQUEST.info.requestPageName
+          wiki_page: WIKIREQUEST.info.requestPageName,
         };
       }
       if (Wikijump.page.vars.forceLockFlag) {
@@ -57,7 +55,6 @@ export const page = {
     append: function (_event: Event): void {
       const parms: RequestModuleParameters = {
         page_id: WIKIREQUEST.info.pageId,
-        mode: 'append'
       };
       OZONE.ajax.requestModule("Edit/PageEditModule", parms, Wikijump.page.callbacks.editClick);
     },
@@ -261,9 +258,6 @@ export const page = {
       }
 
       // init
-      //@ts-expect-error Shouldn't need to attach to window
-      window.editMode = response.mode;
-
       if (response.locked) {
         // the page has a lock!
         Wikijump.page.vars.locked = true;
@@ -715,7 +709,6 @@ export const page = {
     YAHOO.util.Event.addListener("site-tools-button", "click", Wikijump.page.listeners.siteTools);
     YAHOO.util.Event.addListener("more-options-button", "click", Wikijump.page.listeners.moreOptionsClick);
 
-    YAHOO.util.Event.addListener("edit-append-button", "click", Wikijump.page.listeners.append);
     YAHOO.util.Event.addListener("backlinks-button", "click", Wikijump.page.listeners.backlinksClick);
     YAHOO.util.Event.addListener("parent-page-button", "click", Wikijump.page.listeners.parentClick);
 

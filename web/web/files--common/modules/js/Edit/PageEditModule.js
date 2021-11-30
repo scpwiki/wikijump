@@ -3,7 +3,6 @@
 Wikijump.modules.PageEditModule = {};
 
 Wikijump.modules.PageEditModule.vars = {
-	editMode: 'page', // the default mode
 	stopCounterFlag: false,
 	inputFlag: false, // changed to true by any input
 	lastInput: (new Date()).getTime(), // last input.
@@ -31,7 +30,6 @@ Wikijump.modules.PageEditModule.listeners = {
 
 	preview: function(e){
 		var params = OZONE.utils.formToArray("edit-page-form");
-		params['mode']=Wikijump.modules.PageEditModule.vars.editMode;
 		params['revision_id'] = Wikijump.page.vars.editlock.revisionId;
 		params['page_unix_name'] = WIKIREQUEST.info.requestPageName;
 		if(WIKIREQUEST.info.pageId){
@@ -50,7 +48,6 @@ Wikijump.modules.PageEditModule.listeners = {
 		var params = OZONE.utils.formToArray("edit-page-form");
 		params['action'] = 'WikiPageAction';
 		params['event'] = 'savePage';
-		params['mode']=Wikijump.modules.PageEditModule.vars.editMode;
 		params['wiki_page'] = WIKIREQUEST.info.requestPageName;
 		params['lock_id'] = Wikijump.page.vars.editlock.id;
 		if( WIKIREQUEST.info.pageId) {params['page_id'] = WIKIREQUEST.info.pageId;}
@@ -76,7 +73,6 @@ Wikijump.modules.PageEditModule.listeners = {
 		var params = OZONE.utils.formToArray("edit-page-form");
 		params['action'] = 'WikiPageAction';
 		params['event'] = 'savePage';
-		params['mode']=Wikijump.modules.PageEditModule.vars.editMode;
 		params['wiki_page'] = WIKIREQUEST.info.requestPageName;
 		params['lock_id'] = Wikijump.page.vars.editlock.id;
 		if( WIKIREQUEST.info.pageId) {params['page_id'] = WIKIREQUEST.info.pageId;}
@@ -137,7 +133,6 @@ Wikijump.modules.PageEditModule.listeners = {
 		var params = new Object();
 		params['action'] = 'WikiPageAction';
 		params['event'] = 'forceLockIntercept';
-		params['mode']=Wikijump.modules.PageEditModule.vars.editMode;
 		params['wiki_page'] = WIKIREQUEST.info.requestPageName;
 		if(WIKIREQUEST.info.pageId) {params['page_id'] = WIKIREQUEST.info.pageId;}
 		params['lock_id'] = Wikijump.page.vars.editlock.id;
@@ -150,7 +145,6 @@ Wikijump.modules.PageEditModule.listeners = {
 		var params = new Object();
 		params['action'] = 'WikiPageAction';
 		params['event'] = 'recreateExpiredLock';
-		params['mode']=Wikijump.modules.PageEditModule.vars.editMode;
 		params['wiki_page'] = WIKIREQUEST.info.requestPageName;
 		params['lock_id'] = Wikijump.page.vars.editlock.id;
 		if(WIKIREQUEST.info.pageId) {params['page_id'] = WIKIREQUEST.info.pageId;}
@@ -186,7 +180,6 @@ Wikijump.modules.PageEditModule.listeners = {
 	},
 	viewDiff: function(e){
 		var params = OZONE.utils.formToArray("edit-page-form");
-		params['mode']=Wikijump.modules.PageEditModule.vars.editMode;
 		params['revision_id'] = Wikijump.page.vars.editlock.revisionId;
 		OZONE.ajax.requestModule("Edit/PageEditDiffModule",params,Wikijump.modules.PageEditModule.callbacks.viewDiff);
 
@@ -209,32 +202,11 @@ Wikijump.modules.PageEditModule.callbacks = {
 		var message = document.getElementById("preview-message").innerHTML;
 		OZONE.utils.setInnerHTMLContent("action-area-top", message);
 
-		if(Wikijump.modules.PageEditModule.vars.editMode == 'page'){
-			var title = response.title;
-			OZONE.utils.setInnerHTMLContent("page-title", title);
-			OZONE.visuals.scrollTo("container");
-			$("page-content").innerHTML = response.body;
-			Wikijump.page.fixers.fixEmails($("page-content"));
-
-		}
-		// put some notice that this is a preview only!
-
-		if(Wikijump.modules.PageEditModule.vars.editMode == 'append'){
-
-			var aDiv = $("append-preview-div");
-			if(!aDiv){
-				aDiv = document.createElement('div');
-				aDiv.id="append-preview-div";
-				$("page-content").appendChild(aDiv);
-			}
-
-			aDiv.innerHTML = response.body.replace(/id="/g, 'id="prev06-');
-
-			Wikijump.page.fixers.fixEmails($("append-preview-div"));
-			OZONE.visuals.scrollTo("append-preview-div");
-			// move the message box
-			YAHOO.util.Dom.setY("action-area-top", YAHOO.util.Dom.getY("append-preview-div"));
-		}
+		var title = response.title;
+		OZONE.utils.setInnerHTMLContent("page-title", title);
+		OZONE.visuals.scrollTo("container");
+		$("page-content").innerHTML = response.body;
+		Wikijump.page.fixers.fixEmails($("page-content"));
 
 		Wikijump.modules.PageEditModule.utils.stripAnchors("page-content", "action-area");
 	},
@@ -423,7 +395,7 @@ Wikijump.modules.PageEditModule.utils = {
 
 	},
 	/**
-	 * Replaces anchors with dumb anchors in edit mode
+	 * Replaces anchors with dumb anchors when editing
 	 */
 	stripAnchorsAll: function(){
 		Wikijump.modules.PageEditModule.utils.stripAnchors("html-body", "action-area");
@@ -520,7 +492,6 @@ Wikijump.modules.PageEditModule.utils = {
 		var params = new Object();
 		params['action'] = 'WikiPageAction';
 		params['event'] = 'updateLock';
-		params['mode']=Wikijump.modules.PageEditModule.vars.editMode;
 		params['wiki_page'] = WIKIREQUEST.info.requestPageName;
 		params['lock_id'] = Wikijump.page.vars.editlock.id;
 		if(WIKIREQUEST.info.pageId){	params['page_id'] = WIKIREQUEST.info.pageId;}
@@ -542,16 +513,11 @@ Wikijump.modules.PageEditModule.init = function(){
 	if(Wikijump.page.vars.locked == true){
 		OZONE.utils.formatDates();
 	} else {
-		Wikijump.modules.PageEditModule.vars.editMode = editMode;
-
 		/* attach listeners */
 
 		YAHOO.util.Event.addListener("update-lock", "click", Wikijump.modules.PageEditModule.utils.updateLock);
-
 		YAHOO.util.Event.addListener("edit-page-form", "keypress", Wikijump.modules.PageEditModule.listeners.changeInput);
 		YAHOO.util.Event.addListener("edit-page-textarea", "keydown", Wikijump.modules.PageEditModule.listeners.changeInput);
-//
-
 		YAHOO.util.Event.addListener(window, "beforeunload", Wikijump.modules.PageEditModule.listeners.leaveConfirm);
 		YAHOO.util.Event.addListener(window, "unload", Wikijump.modules.PageEditModule.listeners.leavePage);
 

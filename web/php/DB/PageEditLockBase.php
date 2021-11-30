@@ -18,14 +18,8 @@ class PageEditLockBase extends BaseDBObject
         $this->tableName='page_edit_lock';
         $this->peerName = 'Wikidot\\DB\\PageEditLockPeer';
         $this->primaryKeyName = 'lock_id';
-        $this->fieldNames = array( 'lock_id' ,  'page_id' ,  'mode' ,   'page_unix_name' ,  'site_id' ,  'user_id' ,  'user_string' ,  'session_id' ,  'date_started' ,  'date_last_accessed' ,  'secret' );
-
-        //$this->fieldDefaultValues=
+        $this->fieldNames = array( 'lock_id' ,  'page_id' ,  'page_unix_name' ,  'site_id' ,  'user_id' ,  'user_string' ,  'session_id' ,  'date_started' ,  'date_last_accessed' ,  'secret' );
     }
-
-
-
-
 
 
     public function getLockId()
@@ -47,17 +41,6 @@ class PageEditLockBase extends BaseDBObject
     public function setPageId($v1, $raw = false)
     {
         $this->setFieldValue('page_id', $v1, $raw);
-    }
-
-
-    public function getMode()
-    {
-        return $this->getFieldValue('mode');
-    }
-
-    public function setMode($v1, $raw = false)
-    {
-        $this->setFieldValue('mode', $v1, $raw);
     }
 
 

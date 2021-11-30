@@ -255,3 +255,9 @@ If possible, add to this log in the same commit in which the code is removed.
 * Relevant Issues: [WJ-936](https://scuttle.atlassian.net/browse/WJ-936)
 * What it did: Allowed editing a portion of a page, separated by headings.
 * Why it was removed: As described in the issue, it was buggy, not frequently used, and removing it simplifies page edit lock significantly as we engage in further refactoring.
+
+## PHP: Append Editing
+* Where it was: Multiple files, see pull request
+* Relevant Issues: [WJ-938](https://scuttle.atlassian.net/browse/WJ-938)
+* What it did: Allowed editing by adding contents to the end of a page.
+* Why it was removed: It was frequently used, and with the removal of section editing, it made sense to simplify page edit code by removing it as well.

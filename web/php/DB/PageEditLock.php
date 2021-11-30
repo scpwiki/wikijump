@@ -47,24 +47,11 @@ class PageEditLock extends PageEditLockBase
             }
         } else {
             // now if the page exists.
-
-            if ($this->getMode() == "page") {
-                // conflicts with any other type of lock for this page...
-                $c = new Criteria();
-                $c->add("page_id", $this->getPageId());
-                if ($this->getLockId() != null) {
-                    $c->add("lock_id", $this->getLockId(), "!=");
-                }
-            }
-
-            if ($this->getMode() == "append") {
-                // conflicts only with "page" mode
-                $c = new Criteria();
-                $c->add("page_id", $this->getPageId());
-                if ($this->getLockId() != null) {
-                    $c->add("lock_id", $this->getLockId(), "!=");
-                }
-                $c->add("mode", "page");
+            // conflicts with any other type of lock for this page...
+            $c = new Criteria();
+            $c->add("page_id", $this->getPageId());
+            if ($this->getLockId() != null) {
+                $c->add("lock_id", $this->getLockId(), "!=");
             }
         }
         return $c;
