@@ -22,16 +22,17 @@
 //!
 //! Because it is not yet stabilized, it is a stub.
 
+use super::utils::error_response;
 use super::ApiServer;
-use tide::{Error, StatusCode};
+use tide::StatusCode;
 
 pub fn build() -> ApiServer {
     let mut app = tide::new();
     app.at("/").all(|_| async {
-        Err(Error::from_str(
+        error_response(
             StatusCode::NotImplemented,
             "API v1 has not yet been stablized",
-        ))
+        )
     });
     app
 }

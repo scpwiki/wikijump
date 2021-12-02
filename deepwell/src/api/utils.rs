@@ -1,5 +1,5 @@
 /*
- * api/mod.rs
+ * api/utils.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,21 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use tide::Server;
+use tide::{Error, Response, StatusCode};
 
-mod utils;
-mod v0;
-mod v1;
-
-pub type ApiServer = Server<()>;
-
-pub fn build_server() -> ApiServer {
-    let mut app = tide::new();
-    app.at("/api").nest({
-        let mut api = tide::new();
-        api.at("/v0").nest(v0::build());
-        api.at("/v1").nest(v1::build());
-        api
-    });
-    app
+#[inline]
+pub fn error_response(
+    status: StatusCode,
+    message: &'static str,
+) -> Result<Response, Error> {
+    Err(Error::from_str(status, message))
 }
