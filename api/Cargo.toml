@@ -1,10 +1,12 @@
 [package]
 name = "wikijump-api"
-description = ""
+description = "API provider and database manager for Wikijump"
+repository = "https://github.com/scpwiki/wikijump/tree/develop/ftml"
 readme = "README.md"
 license = "AGPL-3.0-or-later"
 keywords = ["wikijump", "api", "backend"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
+exclude = [".gitignore", ".editorconfig"]
 
 version = "0.0.1"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
