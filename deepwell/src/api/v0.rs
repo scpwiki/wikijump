@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * api/v0.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,15 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod api;
+//! Routes for version 0 of the API.
+//!
+//! This version has no commitments to stability and will change as development progresses.
 
-use std::io;
+use super::ApiServer;
 
-#[tokio::main(flavor = "multi_thread")]
-async fn main() -> Result<(), io::Error> {
-    let app = api::build_server();
-    // TODO listen based on configured address
-    app.listen("[::]:8080").await?;
-
-    Ok(())
+pub fn build() -> ApiServer {
+    todo!()
 }

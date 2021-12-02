@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * api/v1.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,15 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod api;
+//! Routes for version 1 of the API.
+//!
+//! Because it is not yet stabilized, it is a stub.
 
-use std::io;
+use super::ApiServer;
+use tide::{Error, StatusCode};
 
-#[tokio::main(flavor = "multi_thread")]
-async fn main() -> Result<(), io::Error> {
-    let app = api::build_server();
-    // TODO listen based on configured address
-    app.listen("[::]:8080").await?;
-
-    Ok(())
+pub fn build() -> ApiServer {
+    let mut app = tide::new();
+    app.at("/").all(|_| async {
+        Err(Error::from_str(
+            StatusCode::NotImplemented,
+            "API v1 has not yet been stablized",
+        ))
+    });
+    app
 }

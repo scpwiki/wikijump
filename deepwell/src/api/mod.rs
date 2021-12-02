@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * api/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,15 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod api;
+use tide::Server;
 
-use std::io;
+mod v0;
+mod v1;
 
-#[tokio::main(flavor = "multi_thread")]
-async fn main() -> Result<(), io::Error> {
-    let app = api::build_server();
-    // TODO listen based on configured address
-    app.listen("[::]:8080").await?;
+pub type ApiServer = Server<()>;
 
-    Ok(())
+pub fn build_server() -> ApiServer {
+    let mut app = tide::new();
+    app.at("/api").nest({
+        let mut api = tide::new();
+        api.at("/v0").nest(v0::build());
+        api.at("/v1").nest(v1::build());
+        api
+    });
+    app
 }
