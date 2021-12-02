@@ -1,0 +1,11 @@
+[all]
+
+all-features = true
+
+workspace = true
+exclude-files = []
+
+[report]
+
+out = ["Html", "Xml"]
+output-dir = "target/coverage"
