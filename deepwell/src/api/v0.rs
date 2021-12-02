@@ -25,5 +25,7 @@
 use super::ApiServer;
 
 pub fn build() -> ApiServer {
-    todo!()
+    let mut app = tide::new();
+    app.at("/ping").all(|_| async { Ok("Pong!") });
+    app
 }

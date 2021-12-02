@@ -18,6 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! All routes for the API.
+//!
+//! No top-level routes should exist, any methods should be available under its respective API
+//! version prefix to avoid future issues with backwards compatibility.
+
 use tide::Server;
 
 mod utils;
