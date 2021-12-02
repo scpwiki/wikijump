@@ -1,0 +1,5 @@
+# Artifacts
+target/
+
+# Logging
+*.log

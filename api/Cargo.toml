@@ -1,0 +1,19 @@
+[package]
+name = "wikijump-api"
+description = ""
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+keywords = ["wikijump", "api", "backend"]
+categories = ["asynchronous", "database", "web-programming::http-server"]
+
+version = "0.0.1"
+authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
+edition = "2021" # this is *not* the same as the current year
+rust-version = "1.56.0"
+
+[dependencies]
+
+# Performance options
+
+[profile.release]
+lto = true
