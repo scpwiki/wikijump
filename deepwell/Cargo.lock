@@ -518,6 +518,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "deepwell"
+version = "0.0.1"
+dependencies = [
+ "serde",
+ "tide",
+ "tokio",
+]
+
+[[package]]
 name = "digest"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1619,15 +1628,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d743fdedc5c64377b5fc2bc036b01c7fd642205a0d96356034ae3404d49eb7fb"
 dependencies = [
  "cc",
-]
-
-[[package]]
-name = "wikijump-api"
-version = "0.0.1"
-dependencies = [
- "serde",
- "tide",
- "tokio",
 ]
 
 [[package]]
