@@ -22,10 +22,14 @@
 //!
 //! This version has no commitments to stability and will change as development progresses.
 
+use super::utils::error_response;
 use super::ApiServer;
+use tide::StatusCode;
 
 pub fn build() -> ApiServer {
     let mut app = tide::new();
     app.at("/ping").all(|_| async { Ok("Pong!") });
+    app.at("/teapot")
+        .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
     app
 }
