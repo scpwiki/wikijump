@@ -4,7 +4,7 @@ description = "DEEPWELL - Wikijump API provider and database manager"
 repository = "https://github.com/scpwiki/wikijump/tree/develop/deepwell"
 readme = "README.md"
 license = "AGPL-3.0-or-later"
-keywords = ["wikijump", "api", "backend"]
+keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
