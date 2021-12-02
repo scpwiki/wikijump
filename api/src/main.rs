@@ -18,4 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-fn main() {}
+use std::io;
+
+#[tokio::main(flavor = "multi_thread")]
+async fn main() -> Result<(), io::Error> {
+    Ok(())
+}

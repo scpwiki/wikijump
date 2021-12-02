@@ -14,6 +14,9 @@ edition = "2021" # this is *not* the same as the current year
 rust-version = "1.56.0"
 
 [dependencies]
+serde = { version = "1", features = ["derive"] }
+tide = "0.16"
+tokio = { version = "1.14", features = ["rt-multi-thread", "macros"] }
 
 # Performance options
 
