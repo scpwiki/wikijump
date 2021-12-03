@@ -27,12 +27,15 @@ use crate::web::utils::error_response;
 use tide::StatusCode;
 
 pub fn build() -> ApiServer {
-    let mut app = tide::new();
-    app.at("/*").all(|_| async {
+    let not_implemented = |_| async {
         error_response(
             StatusCode::NotImplemented,
             "API v1 has not yet been stablized",
         )
-    });
+    };
+
+    let mut app = tide::new();
+    app.at("/").all(not_implemented);
+    app.at("/*").all(not_implemented);
     app
 }
