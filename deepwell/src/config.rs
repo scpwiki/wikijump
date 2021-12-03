@@ -32,7 +32,10 @@ pub struct Config {
     pub address: SocketAddr,
 
     /// The number of requests allowed per IP per minute.
-    pub ratelimit: NonZeroU32,
+    pub rate_limit_per_minute: NonZeroU32,
+
+    /// The secret to bypass the rate-limit.
+    pub rate_limit_secret: String,
 }
 
 impl Config {
@@ -63,12 +66,19 @@ impl Config {
                     .help("What port to listen on."),
             )
             .arg(
-                Arg::with_name("ratelimit")
+                Arg::with_name("ratelimit-min")
                     .short("r")
                     .long("requests-per-minute")
                     .takes_value(true)
                     .default_value("20")
                     .help("How many requests are allowed per IP address per minute."),
+            )
+            .arg(
+                Arg::with_name("ratelimit-secret")
+                    .long("rate-limit-secret")
+                    .takes_value(true)
+                    .required(true)
+                    .help("A token which can be used by internal services to bypass the rate-limit."),
             )
             .get_matches();
 
@@ -98,21 +108,30 @@ impl Config {
 
         let address = SocketAddr::new(host, port);
 
-        let ratelimit_value = matches
-            .value_of("ratelimit")
-            .expect("No ratelimit in argument matches");
-        let ratelimit = match ratelimit_value.parse() {
+        let rate_limit_value = matches
+            .value_of("ratelimit-min")
+            .expect("No ratelimit per-minute in argument matches");
+        let rate_limit_per_minute = match rate_limit_value.parse() {
             Ok(value) => value,
             Err(_) => {
-                eprintln!("Invalid number of requests per minute: {}", ratelimit_value);
+                eprintln!(
+                    "Invalid number of requests per minute: {}",
+                    rate_limit_value
+                );
                 process::exit(1);
             }
         };
 
+        let rate_limit_secret = matches
+            .value_of("ratelimit-secret")
+            .expect("No ratelimit secret in argument matches")
+            .to_owned();
+
         Config {
             logger,
             address,
-            ratelimit,
+            rate_limit_per_minute,
+            rate_limit_secret,
         }
     }
 }

@@ -48,14 +48,16 @@ lazy_static! {
 #[derive(Debug, Clone)]
 pub struct GovernorMiddleware {
     limiter: Arc<RateLimiter<IpAddr, DefaultKeyedStateStore<IpAddr>, DefaultClock>>,
+    secret: String,
 }
 
 impl GovernorMiddleware {
-    pub fn per_minute(times: NonZeroU32) -> Self {
+    pub fn per_minute(times: NonZeroU32, secret: &str) -> Self {
         GovernorMiddleware {
             limiter: Arc::new(RateLimiter::<IpAddr, _, _>::keyed(Quota::per_minute(
                 times,
             ))),
+            secret: secret.to_owned(),
         }
     }
 }
@@ -72,8 +74,7 @@ impl<State: Clone + Send + Sync + 'static> Middleware<State> for GovernorMiddlew
         // Check for privileged exemption
         if let Some(values) = req.header("X-Exempt-RateLimit") {
             if let Some(value) = values.get(0) {
-                // TODO do something actually secure
-                if value.as_str() == "ZZ_secret-here" {
+                if value.as_str() == &self.secret {
                     tide::log::debug!("Skipping rate-limit due to exemption");
                     return Ok(next!());
                 }

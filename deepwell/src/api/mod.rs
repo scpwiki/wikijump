@@ -35,7 +35,10 @@ pub type ApiServer = Server<()>;
 pub fn build_server(config: &Config) -> ApiServer {
     let mut app = tide::new();
     app.at("/api")
-        .with(GovernorMiddleware::per_minute(config.ratelimit))
+        .with(GovernorMiddleware::per_minute(
+            config.rate_limit_per_minute,
+            &config.rate_limit_secret,
+        ))
         .nest({
             let mut api = tide::new();
             api.at("/v0").nest(v0::build());
