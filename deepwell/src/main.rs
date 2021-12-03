@@ -21,6 +21,8 @@
 #![forbid(unsafe_code)]
 #![deny(missing_debug_implementations)]
 
+//! A web server to expose Wikijump operations via a versioned REST API.
+
 mod api;
 
 use std::io;
