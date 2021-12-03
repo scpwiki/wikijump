@@ -70,7 +70,7 @@ jobs:
           use-tool-cache: true
 
       - name: Generate Coverage
-        run: cd deewell && cargo tarpaulin
+        run: cd deepwell && cargo tarpaulin
 
       - name: Export Coverage
         uses: codecov/codecov-action@v1
