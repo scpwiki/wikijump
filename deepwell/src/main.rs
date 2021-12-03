@@ -42,7 +42,7 @@ async fn main() -> Result<(), io::Error> {
         tide::log::info!("Loaded server configuration");
     }
 
-    let app = api::build_server();
+    let app = api::build_server(&config);
     app.listen(config.address).await?;
 
     Ok(())

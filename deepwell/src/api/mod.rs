@@ -23,6 +23,8 @@
 //! No top-level routes should exist, any methods should be available under its respective API
 //! version prefix to avoid future issues with backwards compatibility.
 
+use crate::config::Config;
+use crate::web::ratelimit::GovernorMiddleware;
 use tide::Server;
 
 mod v0;
@@ -30,13 +32,15 @@ mod v1;
 
 pub type ApiServer = Server<()>;
 
-pub fn build_server() -> ApiServer {
+pub fn build_server(config: &Config) -> ApiServer {
     let mut app = tide::new();
-    app.at("/api").nest({
-        let mut api = tide::new();
-        api.at("/v0").nest(v0::build());
-        api.at("/v1").nest(v1::build());
-        api
-    });
+    app.at("/api")
+        .with(GovernorMiddleware::per_minute(config.ratelimit))
+        .nest({
+            let mut api = tide::new();
+            api.at("/v0").nest(v0::build());
+            api.at("/v1").nest(v1::build());
+            api
+        });
     app
 }
