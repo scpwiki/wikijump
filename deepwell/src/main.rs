@@ -24,15 +24,21 @@
 //! A web server to expose Wikijump operations via a versioned REST API.
 
 mod api;
+mod config;
 
+use self::config::Config;
 use std::io;
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), io::Error> {
-    tide::log::start();
+    let config = Config::load();
+
+    if config.logger {
+        tide::log::start();
+    }
+
     let app = api::build_server();
-    // TODO listen based on configured address
-    app.listen("[::]:8080").await?;
+    app.listen(config.address).await?;
 
     Ok(())
 }
