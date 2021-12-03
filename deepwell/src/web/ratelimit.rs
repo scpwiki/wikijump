@@ -25,12 +25,15 @@
 //! (that is, the web server backend, as opposed to external API consumers).
 
 use governor::state::keyed::DefaultKeyedStateStore;
-use governor::{clock::DefaultClock, Quota, RateLimiter};
-use std::net::IpAddr;
+use governor::{
+    clock::{Clock, DefaultClock},
+    Quota, RateLimiter,
+};
+use std::net::{IpAddr, SocketAddr};
 use std::num::NonZeroU32;
 use std::sync::Arc;
 use tide::utils::async_trait;
-use tide::{Middleware, Next, Request, StatusCode};
+use tide::{Error, Middleware, Next, Request, Response, StatusCode};
 
 lazy_static! {
     static ref CLOCK: DefaultClock = DefaultClock::default();
@@ -60,13 +63,19 @@ impl GovernorMiddleware {
 #[async_trait]
 impl<State: Clone + Send + Sync + 'static> Middleware<State> for GovernorMiddleware {
     async fn handle(&self, req: Request<State>, next: Next<'_, State>) -> tide::Result {
+        macro_rules! next {
+            () => {
+                next.run(req).await
+            };
+        }
+
         // Check for privileged exemption
         if let Some(values) = req.header("X-Exempt-RateLimit") {
             if let Some(value) = values.get(0) {
                 // TODO do something actually secure
                 if value.as_str() == "ZZ_secret-here" {
                     tide::log::debug!("Skipping rate-limit due to exemption");
-                    return Ok(next.run(req).await);
+                    return Ok(next!());
                 }
             }
 
@@ -74,11 +83,44 @@ impl<State: Clone + Send + Sync + 'static> Middleware<State> for GovernorMiddlew
         }
 
         // Get IP address
-        // TODO
+        let remote = {
+            let remote_str = req.remote().ok_or_else(|| {
+                Error::from_str(
+                    StatusCode::InternalServerError,
+                    "Unable to get remote address of request",
+                )
+            })?;
 
-        // Check rate-limite bucket by IP address
-        // TODO
+            // Try parsing as a socket, then as an IP address only
+            match remote_str.parse::<SocketAddr>() {
+                Ok(addr) => addr.ip(),
+                Err(_) => remote_str.parse()?,
+            }
+        };
 
-        todo!();
+        // Check rate-limit bucket by IP address
+        tide::log::trace!("Checking rate-limit for IP address {}", remote);
+        match self.limiter.check_key(&remote) {
+            Ok(_) => {
+                tide::log::debug!("Allowing IP address {}", remote);
+                Ok(next!())
+            }
+            Err(negative) => {
+                let wait_time = negative.wait_time_from(CLOCK.now());
+                let res = Response::builder(StatusCode::TooManyRequests)
+                    .header(
+                        tide::http::headers::RETRY_AFTER,
+                        wait_time.as_secs().to_string(),
+                    )
+                    .build();
+
+                tide::log::debug!(
+                    "Denying IP address {} for {} seconds",
+                    remote,
+                    wait_time.as_secs()
+                );
+                Ok(res)
+            }
+        }
     }
 }
