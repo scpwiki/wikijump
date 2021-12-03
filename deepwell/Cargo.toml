@@ -15,6 +15,8 @@ rust-version = "1.56.0"
 
 [dependencies]
 clap = "2"
+governor = "0.3"
+lazy_static = "1"
 serde = { version = "1", features = ["derive"] }
 tide = "0.16"
 tokio = { version = "1.14", features = ["rt-multi-thread", "macros"] }

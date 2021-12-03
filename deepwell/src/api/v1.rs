@@ -22,8 +22,8 @@
 //!
 //! Because it is not yet stabilized, it is a stub.
 
-use crate::web::utils::error_response;
 use super::ApiServer;
+use crate::web::utils::error_response;
 use tide::StatusCode;
 
 pub fn build() -> ApiServer {

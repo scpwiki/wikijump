@@ -22,8 +22,8 @@
 //!
 //! This version has no commitments to stability and will change as development progresses.
 
-use crate::web::utils::error_response;
 use super::ApiServer;
+use crate::web::utils::error_response;
 use tide::StatusCode;
 
 pub fn build() -> ApiServer {
