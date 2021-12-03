@@ -20,6 +20,7 @@
 
 use clap::{App, Arg};
 use std::net::SocketAddr;
+use std::num::NonZeroU32;
 use std::process;
 
 #[derive(Debug, Clone)]
@@ -29,6 +30,9 @@ pub struct Config {
 
     /// The address the server will be hosted on.
     pub address: SocketAddr,
+
+    /// The number of requests allowed per IP per minute.
+    pub ratelimit: NonZeroU32,
 }
 
 impl Config {
@@ -39,7 +43,7 @@ impl Config {
                     .short("q")
                     .long("quiet")
                     .long("disable-log")
-                    .help("Disable logging output. By default this is enabled."),
+                    .help("Disable logging output."),
             )
             .arg(
                 Arg::with_name("host")
@@ -48,7 +52,7 @@ impl Config {
                     .long("hostname")
                     .takes_value(true)
                     .default_value("::")
-                    .help("What host to listen on. By default this is [::] (IPv6)."),
+                    .help("What host to listen on."),
             )
             .arg(
                 Arg::with_name("port")
@@ -56,7 +60,15 @@ impl Config {
                     .long("port")
                     .takes_value(true)
                     .default_value("2747")
-                    .help("What port to listen on. By default this is 2747."),
+                    .help("What port to listen on."),
+            )
+            .arg(
+                Arg::with_name("ratelimit")
+                    .short("r")
+                    .long("requests-per-minute")
+                    .takes_value(true)
+                    .default_value("20")
+                    .help("How many requests are allowed per IP address per minute."),
             )
             .get_matches();
 
@@ -86,6 +98,21 @@ impl Config {
 
         let address = SocketAddr::new(host, port);
 
-        Config { logger, address }
+        let ratelimit_value = matches
+            .value_of("ratelimit")
+            .expect("No ratelimit in argument matches");
+        let ratelimit = match ratelimit_value.parse() {
+            Ok(value) => value,
+            Err(_) => {
+                eprintln!("Invalid number of requests per minute: {}", ratelimit_value);
+                process::exit(1);
+            }
+        };
+
+        Config {
+            logger,
+            address,
+            ratelimit,
+        }
     }
 }
