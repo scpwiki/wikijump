@@ -35,6 +35,7 @@ pub struct Config {
     pub rate_limit_per_minute: NonZeroU32,
 
     /// The secret to bypass the rate-limit.
+    /// An empty value means to disable bypassing.
     pub rate_limit_secret: String,
 }
 
@@ -77,7 +78,7 @@ impl Config {
                 Arg::with_name("ratelimit-secret")
                     .long("rate-limit-secret")
                     .takes_value(true)
-                    .required(true)
+                    .default_value("")
                     .help("A token which can be used by internal services to bypass the rate-limit."),
             )
             .get_matches();

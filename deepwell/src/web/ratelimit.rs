@@ -71,16 +71,19 @@ impl<State: Clone + Send + Sync + 'static> Middleware<State> for GovernorMiddlew
             };
         }
 
-        // Check for privileged exemption
-        if let Some(values) = req.header("X-Exempt-RateLimit") {
-            if let Some(value) = values.get(0) {
-                if value.as_str() == &self.secret {
-                    tide::log::debug!("Skipping rate-limit due to exemption");
-                    return Ok(next!());
+        // If the secret is empty, then exemption is disabled
+        if !self.secret.is_empty() {
+            // Check for privileged exemption
+            if let Some(values) = req.header("X-Exempt-RateLimit") {
+                if let Some(value) = values.get(0) {
+                    if value.as_str() == &self.secret {
+                        tide::log::debug!("Skipping rate-limit due to exemption");
+                        return Ok(next!());
+                    }
                 }
-            }
 
-            tide::log::warn!("Invalid X-Exempt-RateLimit header found! {:?}", values);
+                tide::log::warn!("Invalid X-Exempt-RateLimit header found! {:?}", values);
+            }
         }
 
         // Get IP address
