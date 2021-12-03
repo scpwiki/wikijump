@@ -29,6 +29,7 @@ use std::io;
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), io::Error> {
+    tide::log::start();
     let app = api::build_server();
     // TODO listen based on configured address
     app.listen("[::]:8080").await?;
