@@ -25,7 +25,6 @@
 
 use tide::Server;
 
-mod utils;
 mod v0;
 mod v1;
 

@@ -22,7 +22,7 @@
 //!
 //! Because it is not yet stabilized, it is a stub.
 
-use super::utils::error_response;
+use crate::web::utils::error_response;
 use super::ApiServer;
 use tide::StatusCode;
 

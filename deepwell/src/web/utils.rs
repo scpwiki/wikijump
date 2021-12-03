@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * web/utils.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,29 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![forbid(unsafe_code)]
-#![deny(missing_debug_implementations)]
+use tide::{Error, Response, StatusCode};
 
-//! A web server to expose Wikijump operations via a versioned REST API.
-
-mod api;
-mod config;
-mod web;
-
-use self::config::Config;
-use std::io;
-
-#[tokio::main(flavor = "multi_thread")]
-async fn main() -> Result<(), io::Error> {
-    let config = Config::load();
-
-    if config.logger {
-        tide::log::start();
-        tide::log::info!("Loaded server configuration");
-    }
-
-    let app = api::build_server();
-    app.listen(config.address).await?;
-
-    Ok(())
+#[inline]
+pub fn error_response(
+    status: StatusCode,
+    message: &'static str,
+) -> Result<Response, Error> {
+    Err(Error::from_str(status, message))
 }

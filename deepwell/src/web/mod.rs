@@ -1,5 +1,5 @@
 /*
- * api/utils.rs
+ * web/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,12 +18,4 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use tide::{Error, Response, StatusCode};
-
-#[inline]
-pub fn error_response(
-    status: StatusCode,
-    message: &'static str,
-) -> Result<Response, Error> {
-    Err(Error::from_str(status, message))
-}
+pub mod utils;

@@ -22,7 +22,7 @@
 //!
 //! This version has no commitments to stability and will change as development progresses.
 
-use super::utils::error_response;
+use crate::web::utils::error_response;
 use super::ApiServer;
 use tide::StatusCode;
 
