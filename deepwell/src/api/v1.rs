@@ -28,7 +28,7 @@ use tide::StatusCode;
 
 pub fn build() -> ApiServer {
     let mut app = tide::new();
-    app.at("/").all(|_| async {
+    app.at("/*").all(|_| async {
         error_response(
             StatusCode::NotImplemented,
             "API v1 has not yet been stablized",
