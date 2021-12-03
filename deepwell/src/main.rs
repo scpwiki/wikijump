@@ -35,6 +35,7 @@ async fn main() -> Result<(), io::Error> {
 
     if config.logger {
         tide::log::start();
+        tide::log::info!("Loaded server configuration");
     }
 
     let app = api::build_server();
