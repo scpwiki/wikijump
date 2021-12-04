@@ -30,7 +30,8 @@ use tide::Server;
 mod v0;
 mod v1;
 
-pub type ApiServer = Server<()>;
+pub type ApiServerContext = ();
+pub type ApiServer = Server<ApiServerContext>;
 
 pub fn build_server(config: &Config) -> ApiServer {
     let mut app = tide::new();
