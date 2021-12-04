@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * methods/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,38 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![forbid(unsafe_code)]
-#![deny(missing_debug_implementations)]
+mod defaults {
+    //! Helper module containing functions which return values.
+    //!
+    //! This is used in the [`#[serde(default = "function_name")]`](https://serde.rs/field-attrs.html)
+    //! attribute to define optional parameter values.
 
-//! A web server to expose Wikijump operations via a versioned REST API.
-
-#[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
-extern crate serde;
-
-mod api;
-mod config;
-mod methods;
-mod services;
-mod types;
-mod web;
-
-use self::config::Config;
-use std::io;
-
-#[tokio::main(flavor = "multi_thread")]
-async fn main() -> Result<(), io::Error> {
-    let config = Config::load();
-
-    if config.logger {
-        tide::log::start();
-        tide::log::info!("Loaded server configuration");
+    #[inline]
+    pub const fn bool_true() -> bool {
+        true
     }
-
-    let app = api::build_server(&config);
-    app.listen(config.address).await?;
-
-    Ok(())
 }
+
+mod prelude {
+    pub use super::defaults::*;
+    pub use crate::api::{ApiRequest, ApiResponse};
+    pub use crate::types::*;
+    pub use tide::{Body, Request};
+}
+
+pub mod user;

@@ -1,5 +1,5 @@
 /*
- * service/page/mod.rs
+ * methods/user/block.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,4 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use super::prelude::*;
+
+#[derive(Serialize, Deserialize, Debug)]
+struct UserBlocked {
+    blocked: bool,
+}
+
+pub async fn user_client_blocked_get(req: ApiRequest) -> ApiResponse {
+    // returns Vec<?>
+    todo!()
+}
+
+pub async fn user_block_get(req: ApiRequest) -> ApiResponse {
+    // returns UserBlocked
+    todo!()
+}
+
+pub async fn user_block_put(mut req: ApiRequest) -> ApiResponse {
+    // returns ()
+    let UserBlocked { blocked: _ } = req.body_json().await?;
+    todo!()
+}

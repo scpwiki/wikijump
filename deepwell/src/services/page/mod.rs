@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * services/page/mod.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,38 +18,4 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![forbid(unsafe_code)]
-#![deny(missing_debug_implementations)]
-
-//! A web server to expose Wikijump operations via a versioned REST API.
-
-#[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
-extern crate serde;
-
-mod api;
-mod config;
-mod methods;
-mod services;
-mod types;
-mod web;
-
-use self::config::Config;
-use std::io;
-
-#[tokio::main(flavor = "multi_thread")]
-async fn main() -> Result<(), io::Error> {
-    let config = Config::load();
-
-    if config.logger {
-        tide::log::start();
-        tide::log::info!("Loaded server configuration");
-    }
-
-    let app = api::build_server(&config);
-    app.listen(config.address).await?;
-
-    Ok(())
-}
+// TODO

@@ -25,13 +25,15 @@
 
 use crate::config::Config;
 use crate::web::ratelimit::GovernorMiddleware;
-use tide::Server;
+use tide::{Body, Error, Request, Server};
 
 mod v0;
 mod v1;
 
 pub type ApiServerContext = ();
 pub type ApiServer = Server<ApiServerContext>;
+pub type ApiRequest = Request<ApiServerContext>;
+pub type ApiResponse = Result<Body, Error>;
 
 pub fn build_server(config: &Config) -> ApiServer {
     let mut app = tide::new();

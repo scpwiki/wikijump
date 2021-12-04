@@ -568,10 +568,12 @@ dependencies = [
 name = "deepwell"
 version = "0.0.1"
 dependencies = [
+ "chrono",
  "clap",
  "governor",
  "lazy_static",
  "serde",
+ "serde_json",
  "tide",
  "tokio",
 ]

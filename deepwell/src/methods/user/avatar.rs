@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * methods/user/avatar.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,38 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![forbid(unsafe_code)]
-#![deny(missing_debug_implementations)]
+use super::prelude::*;
 
-//! A web server to expose Wikijump operations via a versioned REST API.
+pub async fn user_client_avatar_get(req: ApiRequest) -> ApiResponse {
+    // returns Ok(Body::from_bytes(avatar))
+    todo!()
+}
 
-#[macro_use]
-extern crate lazy_static;
+pub async fn user_client_avatar_put(mut req: ApiRequest) -> ApiResponse {
+    let _avatar_bytes = req.body_bytes().await?;
 
-#[macro_use]
-extern crate serde;
+    // returns Ok(Body::empty())
+    todo!()
+}
 
-mod api;
-mod config;
-mod methods;
-mod services;
-mod types;
-mod web;
-
-use self::config::Config;
-use std::io;
-
-#[tokio::main(flavor = "multi_thread")]
-async fn main() -> Result<(), io::Error> {
-    let config = Config::load();
-
-    if config.logger {
-        tide::log::start();
-        tide::log::info!("Loaded server configuration");
-    }
-
-    let app = api::build_server(&config);
-    app.listen(config.address).await?;
-
-    Ok(())
+pub async fn user_client_avatar_delete(req: ApiRequest) -> ApiResponse {
+    todo!()
 }
