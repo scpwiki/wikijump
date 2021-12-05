@@ -63,6 +63,15 @@ impl Localizations {
 
         Ok(Localizations { catalogs })
     }
+
+    /// Returns the translation for the given message key.
+    /// If no translation exists, then the message key itself is returned.
+    pub fn translate<'a>(&'a self, locale: &'_ str, key: &'a str) -> &'a str {
+        match self.catalogs.get(locale) {
+            Some(catalog) => catalog.gettext(key),
+            None => key,
+        }
+    }
 }
 
 fn load_catalog(path: &Path) -> Result<Catalog, Error> {
