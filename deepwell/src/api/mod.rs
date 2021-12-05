@@ -26,15 +26,14 @@
 use crate::config::Config;
 use crate::web::ratelimit::GovernorMiddleware;
 use std::sync::Arc;
-use tide::{Body, Error, Request, Server};
 
 mod v0;
 mod v1;
 
 pub type ApiServerState = Arc<ServerState>;
-pub type ApiServer = Server<ApiServerState>;
-pub type ApiRequest = Request<ApiServerState>;
-pub type ApiResponse = Result<Body, Error>;
+pub type ApiServer = tide::Server<ApiServerState>;
+pub type ApiRequest = tide::Request<ApiServerState>;
+pub type ApiResponse = tide::Result;
 
 #[derive(Debug)]
 pub struct ServerState {
@@ -50,7 +49,7 @@ pub fn build_server(config: Config) -> ApiServer {
 
     macro_rules! new {
         () => {
-            Server::with_state(Arc::clone(&state))
+            tide::Server::with_state(Arc::clone(&state))
         };
     }
 

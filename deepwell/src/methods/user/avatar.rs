@@ -21,7 +21,7 @@
 use super::prelude::*;
 
 pub async fn user_client_avatar_get(req: ApiRequest) -> ApiResponse {
-    // returns Ok(Body::from_bytes(avatar))
+    // returns Vec<u8>
     todo!()
 }
 
