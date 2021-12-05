@@ -31,6 +31,7 @@ extern crate serde;
 
 mod api;
 mod config;
+mod locales;
 mod methods;
 mod services;
 mod types;

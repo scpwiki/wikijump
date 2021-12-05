@@ -16,6 +16,7 @@ rust-version = "1.56.0"
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 clap = "2"
+gettext = "0.4"
 governor = "0.3"
 lazy_static = "1"
 serde = { version = "1", features = ["derive"] }

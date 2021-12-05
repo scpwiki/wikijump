@@ -21,6 +21,7 @@
 use clap::{App, Arg};
 use std::net::SocketAddr;
 use std::num::NonZeroU32;
+use std::path::PathBuf;
 use std::process;
 
 #[derive(Debug, Clone)]
@@ -30,6 +31,9 @@ pub struct Config {
 
     /// The address the server will be hosted on.
     pub address: SocketAddr,
+
+    /// The location where all gettext translation files are kept.
+    pub localization_path: PathBuf,
 
     /// The number of requests allowed per IP per minute.
     pub rate_limit_per_minute: NonZeroU32,
@@ -65,6 +69,14 @@ impl Config {
                     .takes_value(true)
                     .default_value("2747")
                     .help("What port to listen on."),
+            )
+            .arg(
+                Arg::with_name("localization-path")
+                    .short("L")
+                    .long("localizations")
+                    .takes_value(true)
+                    .default_value("../locales/out")
+                    .help("The path to read translation files from."),
             )
             .arg(
                 Arg::with_name("ratelimit-min")
@@ -109,6 +121,11 @@ impl Config {
 
         let address = SocketAddr::new(host, port);
 
+        let localization_path = matches
+            .value_of_os("localization-path")
+            .expect("No localization path in argument matches")
+            .into();
+
         let rate_limit_value = matches
             .value_of("ratelimit-min")
             .expect("No ratelimit per-minute in argument matches");
@@ -131,6 +148,7 @@ impl Config {
         Config {
             logger,
             address,
+            localization_path,
             rate_limit_per_minute,
             rate_limit_secret,
         }
