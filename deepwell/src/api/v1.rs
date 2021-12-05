@@ -22,11 +22,11 @@
 //!
 //! Because it is not yet stabilized, it is a stub.
 
-use super::ApiServer;
+use crate::api::ApiServer;
 use crate::web::utils::error_response;
 use tide::StatusCode;
 
-pub fn build() -> ApiServer {
+pub fn build(mut app: ApiServer) -> ApiServer {
     let not_implemented = |_| async {
         error_response(
             StatusCode::NotImplemented,
@@ -34,7 +34,6 @@ pub fn build() -> ApiServer {
         )
     };
 
-    let mut app = tide::new();
     app.at("/").all(not_implemented);
     app.at("/*").all(not_implemented);
     app

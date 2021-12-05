@@ -22,14 +22,12 @@
 //!
 //! This version has no commitments to stability and will change as development progresses.
 
-use super::ApiServer;
+use crate::api::ApiServer;
 use crate::methods::user::*;
 use crate::web::utils::error_response;
 use tide::StatusCode;
 
-pub fn build() -> ApiServer {
-    let mut app = tide::new();
-
+pub fn build(mut app: ApiServer) -> ApiServer {
     // Miscellaneous
     app.at("/ping").all(|_| async { Ok("Pong!") });
     app.at("/teapot")

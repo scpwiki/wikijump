@@ -24,6 +24,7 @@
 //! trait, which cannot be used here because we need to expose a hole for privileged access
 //! (that is, the web server backend, as opposed to external API consumers).
 
+use crate::api::ApiServerState;
 use governor::state::keyed::DefaultKeyedStateStore;
 use governor::{
     clock::{Clock, DefaultClock},
@@ -48,23 +49,31 @@ lazy_static! {
 #[derive(Debug, Clone)]
 pub struct GovernorMiddleware {
     limiter: Arc<RateLimiter<IpAddr, DefaultKeyedStateStore<IpAddr>, DefaultClock>>,
-    secret: String,
 }
 
 impl GovernorMiddleware {
-    pub fn per_minute(times: NonZeroU32, secret: &str) -> Self {
+    pub fn per_minute(times: NonZeroU32) -> Self {
         GovernorMiddleware {
             limiter: Arc::new(RateLimiter::<IpAddr, _, _>::keyed(Quota::per_minute(
                 times,
             ))),
-            secret: secret.to_owned(),
         }
     }
 }
 
 #[async_trait]
-impl<State: Clone + Send + Sync + 'static> Middleware<State> for GovernorMiddleware {
-    async fn handle(&self, req: Request<State>, next: Next<'_, State>) -> tide::Result {
+impl Middleware<ApiServerState> for GovernorMiddleware {
+    async fn handle(
+        &self,
+        req: Request<ApiServerState>,
+        next: Next<'_, ApiServerState>,
+    ) -> tide::Result {
+        macro_rules! secret {
+            () => {
+                req.state().config.rate_limit_secret
+            };
+        }
+
         macro_rules! next {
             () => {
                 next.run(req).await
@@ -72,11 +81,11 @@ impl<State: Clone + Send + Sync + 'static> Middleware<State> for GovernorMiddlew
         }
 
         // If the secret is empty, then exemption is disabled
-        if !self.secret.is_empty() {
+        if !secret!().is_empty() {
             // Check for privileged exemption
             if let Some(values) = req.header("X-Exempt-RateLimit") {
                 if let Some(value) = values.get(0) {
-                    if value.as_str() == &self.secret {
+                    if value.as_str() == secret!() {
                         tide::log::debug!("Skipping rate-limit due to exemption");
                         return Ok(next!());
                     }

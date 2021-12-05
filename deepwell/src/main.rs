@@ -43,14 +43,15 @@ use std::io;
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), io::Error> {
     let config = Config::load();
+    let socket_address = config.address;
 
     if config.logger {
         tide::log::start();
         tide::log::info!("Loaded server configuration");
     }
 
-    let app = api::build_server(&config);
-    app.listen(config.address).await?;
+    let app = api::build_server(config);
+    app.listen(socket_address).await?;
 
     Ok(())
 }

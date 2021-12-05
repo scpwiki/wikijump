@@ -25,28 +25,45 @@
 
 use crate::config::Config;
 use crate::web::ratelimit::GovernorMiddleware;
+use std::sync::Arc;
 use tide::{Body, Error, Request, Server};
 
 mod v0;
 mod v1;
 
-pub type ApiServerContext = ();
-pub type ApiServer = Server<ApiServerContext>;
-pub type ApiRequest = Request<ApiServerContext>;
+pub type ApiServerState = Arc<ServerState>;
+pub type ApiServer = Server<ApiServerState>;
+pub type ApiRequest = Request<ApiServerState>;
 pub type ApiResponse = Result<Body, Error>;
 
-pub fn build_server(config: &Config) -> ApiServer {
-    let mut app = tide::new();
+#[derive(Debug)]
+pub struct ServerState {
+    pub config: Config,
+}
+
+pub fn build_server(config: Config) -> ApiServer {
+    // Values needed to build routes
+    let rate_limit = config.rate_limit_per_minute;
+
+    // Create server state
+    let state = Arc::new(ServerState { config });
+
+    macro_rules! new {
+        () => {
+            Server::with_state(Arc::clone(&state))
+        };
+    }
+
+    // Create server and add routes
+    let mut app = new!();
     app.at("/api")
-        .with(GovernorMiddleware::per_minute(
-            config.rate_limit_per_minute,
-            &config.rate_limit_secret,
-        ))
+        .with(GovernorMiddleware::per_minute(rate_limit))
         .nest({
-            let mut api = tide::new();
-            api.at("/v0").nest(v0::build());
-            api.at("/v1").nest(v1::build());
+            let mut api = new!();
+            api.at("/v0").nest(v0::build(new!()));
+            api.at("/v1").nest(v1::build(new!()));
             api
         });
+
     app
 }
