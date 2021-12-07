@@ -27,19 +27,29 @@ use std::process;
 #[derive(Debug, Clone)]
 pub struct Config {
     /// Whether the logger should be enabled or not.
+    ///
+    /// Can be set using environment variable `DEEPWELL_LOGGER`.
     pub logger: bool,
 
     /// The address the server will be hosted on.
+    ///
+    /// Can be set using environment variables `DEEPWELL_ADDRESS_HOST` and `DEEPWELL_ADDRESS_PORT`.
     pub address: SocketAddr,
 
     /// The location where all gettext translation files are kept.
+    ///
+    /// Can be set using environment variable `DEEPWELL_RATE_LOCALIZATION_PATH`.
     pub localization_path: PathBuf,
 
     /// The number of requests allowed per IP per minute.
+    ///
+    /// Can be set using environment variable `DEEPWELL_RATE_LIMIT_PER_MINUTE`.
     pub rate_limit_per_minute: NonZeroU32,
 
     /// The secret to bypass the rate-limit.
     /// An empty value means to disable bypassing.
+    ///
+    /// Set using environment variable `DEEPWELL_RATE_LIMIT_SECRET`.
     pub rate_limit_secret: String,
 }
 
