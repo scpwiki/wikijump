@@ -38,10 +38,10 @@ mod types;
 mod web;
 
 use self::config::Config;
-use std::io;
+use anyhow::Result;
 
 #[tokio::main(flavor = "multi_thread")]
-async fn main() -> Result<(), io::Error> {
+async fn main() -> Result<()> {
     let config = Config::load();
     let socket_address = config.address;
 
@@ -50,7 +50,7 @@ async fn main() -> Result<(), io::Error> {
         tide::log::info!("Loaded server configuration");
     }
 
-    let app = api::build_server(config);
+    let app = api::build_server(config).await?;
     app.listen(socket_address).await?;
 
     Ok(())

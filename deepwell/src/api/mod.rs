@@ -25,7 +25,10 @@
 
 use crate::config::Config;
 use crate::web::ratelimit::GovernorMiddleware;
+use anyhow::Result;
+use sqlx::Postgres;
 use std::sync::Arc;
+use tide_sqlx::SQLxMiddleware;
 
 mod v0;
 mod v1;
@@ -40,9 +43,13 @@ pub struct ServerState {
     pub config: Config,
 }
 
-pub fn build_server(config: Config) -> ApiServer {
+pub async fn build_server(config: Config) -> Result<ApiServer> {
     // Values needed to build routes
     let rate_limit = config.rate_limit_per_minute;
+
+    // Connect to database
+    let database_middleware =
+        SQLxMiddleware::<Postgres>::new(&config.database_url).await?;
 
     // Create server state
     let state = Arc::new(ServerState { config });
@@ -57,6 +64,7 @@ pub fn build_server(config: Config) -> ApiServer {
     let mut app = new!();
     app.at("/api")
         .with(GovernorMiddleware::per_minute(rate_limit))
+        .with(database_middleware)
         .nest({
             let mut api = new!();
             api.at("/v0").nest(v0::build(new!()));
@@ -64,5 +72,5 @@ pub fn build_server(config: Config) -> ApiServer {
             api
         });
 
-    app
+    Ok(app)
 }

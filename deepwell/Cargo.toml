@@ -14,6 +14,7 @@ edition = "2021" # this is *not* the same as the current year
 rust-version = "1.56.0"
 
 [dependencies]
+anyhow = "1"
 chrono = { version = "0.4", features = ["serde"] }
 clap = "2"
 dotenv = "0.15"
@@ -22,7 +23,9 @@ governor = "0.3"
 lazy_static = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+sqlx = { version = "0.5", features = ["postgres", "chrono", "runtime-tokio-rustls"] }
 tide = "0.16"
+tide-sqlx = "0.6"
 tokio = { version = "1.14", features = ["rt-multi-thread", "macros"] }
 
 # Performance options
