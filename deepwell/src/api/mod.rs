@@ -48,6 +48,7 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
     let rate_limit = config.rate_limit_per_minute;
 
     // Connect to database
+    tide::log::info!("Connecting to PostgreSQL database");
     let database_middleware =
         SQLxMiddleware::<Postgres>::new(&config.database_url).await?;
 
