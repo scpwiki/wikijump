@@ -1,5 +1,5 @@
 /*
- * methods/mod.rs
+ * methods/misc.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,26 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod defaults {
-    //! Helper module containing functions which return values.
-    //!
-    //! This is used in the [`#[serde(default = "function_name")]`](https://serde.rs/field-attrs.html)
-    //! attribute to define optional parameter values.
+use super::prelude::*;
 
-    #[inline]
-    pub const fn bool_true() -> bool {
-        true
-    }
+pub async fn ping(req: ApiRequest) -> ApiResponse {
+    // Ensure the database is connected
+    let mut pool = req.sqlx_conn::<Postgres>().await;
+    let mut conn = pool.acquire().await?;
+
+    sqlx::query("SELECT 1").fetch_one(conn).await;
+
+    // Seems good, respond to user
+    Ok("Pong!".into())
 }
-
-mod prelude {
-    pub use super::defaults::*;
-    pub use crate::api::{ApiRequest, ApiResponse};
-    pub use crate::types::*;
-    pub use sqlx::{prelude::*, Postgres};
-    pub use tide::{Body, Request};
-    pub use tide_sqlx::SQLxRequestExt;
-}
-
-pub mod misc;
-pub mod user;

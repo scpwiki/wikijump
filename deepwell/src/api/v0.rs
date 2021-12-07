@@ -23,13 +23,14 @@
 //! This version has no commitments to stability and will change as development progresses.
 
 use crate::api::ApiServer;
+use crate::methods::misc::ping;
 use crate::methods::user::*;
 use crate::web::utils::error_response;
 use tide::StatusCode;
 
 pub fn build(mut app: ApiServer) -> ApiServer {
     // Miscellaneous
-    app.at("/ping").all(|_| async { Ok("Pong!") });
+    app.at("/ping").all(ping);
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
