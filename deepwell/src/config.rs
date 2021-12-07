@@ -19,6 +19,8 @@
  */
 
 use clap::{App, Arg};
+use dotenv::dotenv;
+use std::env;
 use std::net::SocketAddr;
 use std::num::NonZeroU32;
 use std::path::PathBuf;
@@ -38,7 +40,7 @@ pub struct Config {
 
     /// The location where all gettext translation files are kept.
     ///
-    /// Can be set using environment variable `DEEPWELL_RATE_LOCALIZATION_PATH`.
+    /// Can be set using environment variable `DEEPWELL_LOCALIZATION_PATH`.
     pub localization_path: PathBuf,
 
     /// The number of requests allowed per IP per minute.
@@ -53,114 +55,158 @@ pub struct Config {
     pub rate_limit_secret: String,
 }
 
-impl Config {
-    pub fn load() -> Self {
-        let matches = App::new("DEEPWELL")
-            .arg(
-                Arg::with_name("disable-log")
-                    .short("q")
-                    .long("quiet")
-                    .long("disable-log")
-                    .help("Disable logging output."),
-            )
-            .arg(
-                Arg::with_name("host")
-                    .short("h")
-                    .long("host")
-                    .long("hostname")
-                    .takes_value(true)
-                    .default_value("::")
-                    .help("What host to listen on."),
-            )
-            .arg(
-                Arg::with_name("port")
-                    .short("p")
-                    .long("port")
-                    .takes_value(true)
-                    .default_value("2747")
-                    .help("What port to listen on."),
-            )
-            .arg(
-                Arg::with_name("localization-path")
-                    .short("L")
-                    .long("localizations")
-                    .takes_value(true)
-                    .default_value("../locales/out")
-                    .help("The path to read translation files from."),
-            )
-            .arg(
-                Arg::with_name("ratelimit-min")
-                    .short("r")
-                    .long("requests-per-minute")
-                    .takes_value(true)
-                    .default_value("20")
-                    .help("How many requests are allowed per IP address per minute."),
-            )
-            .arg(
-                Arg::with_name("ratelimit-secret")
-                    .long("rate-limit-secret")
-                    .takes_value(true)
-                    .default_value("")
-                    .help("A token which can be used by internal services to bypass the rate-limit."),
-            )
-            .get_matches();
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            logger: true,
+            address: "[::]:2747".parse().unwrap(),
+            localization_path: PathBuf::from("../locales/out"),
+            rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
+            rate_limit_secret: String::new(),
+        }
+    }
+}
 
-        let logger = !matches.is_present("disable-log");
+fn read_env(config: &mut Config) {
+    dotenv().ok();
 
-        let host_value = matches
-            .value_of("host")
-            .expect("No hostname in argument matches");
-        let host = match host_value.parse() {
-            Ok(value) => value,
+    if let Ok(value) = env::var("DEEPWELL_LOGGER") {
+        if value.eq_ignore_ascii_case("true") {
+            config.logger = true;
+        } else if value.eq_ignore_ascii_case("false") {
+            config.logger = false;
+        } else {
+            eprintln!("DEEPWELL_LOGGER variable is not a valid boolean value");
+            process::exit(1);
+        }
+    }
+
+    if let Ok(value) = env::var("DEEPWELL_ADDRESS_HOST") {
+        match value.parse() {
+            Ok(host) => config.address.set_ip(host),
             Err(_) => {
-                eprintln!("Invalid IP address: {}", host_value);
+                eprintln!("DEEPWELL_ADDRESS_HOST variable is not a valid hostname");
                 process::exit(1);
             }
-        };
+        }
+    }
 
-        let port_value = matches
-            .value_of("port")
-            .expect("No port in argument matches");
-        let port = match port_value.parse() {
-            Ok(value) => value,
+    if let Ok(value) = env::var("DEEPWELL_ADDRESS_PORT") {
+        match value.parse() {
+            Ok(port) => config.address.set_port(port),
             Err(_) => {
-                eprintln!("Invalid port number: {}", port_value);
+                eprintln!("DEEPWELL_ADDRESS_PORT variable is not a valid port");
                 process::exit(1);
             }
-        };
+        }
+    }
 
-        let address = SocketAddr::new(host, port);
+    if let Some(value) = env::var_os("DEEPWELL_LOCALIZATION_PATH") {
+        config.localization_path = PathBuf::from(value);
+    }
 
-        let localization_path = matches
-            .value_of_os("localization-path")
-            .expect("No localization path in argument matches")
-            .into();
-
-        let rate_limit_value = matches
-            .value_of("ratelimit-min")
-            .expect("No ratelimit per-minute in argument matches");
-        let rate_limit_per_minute = match rate_limit_value.parse() {
-            Ok(value) => value,
+    if let Ok(value) = env::var("DEEPWELL_RATE_LIMIT_PER_MINUTE") {
+        match value.parse() {
+            Ok(rate_limit) => config.rate_limit_per_minute = rate_limit,
             Err(_) => {
                 eprintln!(
-                    "Invalid number of requests per minute: {}",
-                    rate_limit_value
+                    "DEEPWELL_RATE_LIMIT_PER_MINUTE variable is not a valid integer",
                 );
                 process::exit(1);
             }
-        };
-
-        let rate_limit_secret = matches
-            .value_of("ratelimit-secret")
-            .expect("No ratelimit secret in argument matches")
-            .to_owned();
-
-        Config {
-            logger,
-            address,
-            localization_path,
-            rate_limit_per_minute,
-            rate_limit_secret,
         }
+    }
+
+    if let Ok(value) = env::var("DEEPWELL_RATE_LIMIT_SECRET") {
+        config.rate_limit_secret = value;
+    }
+}
+
+fn parse_args(config: &mut Config) {
+    let matches = App::new("DEEPWELL")
+        .arg(
+            Arg::with_name("disable-log")
+                .short("q")
+                .long("quiet")
+                .long("disable-log")
+                .help("Disable logging output."),
+        )
+        .arg(
+            Arg::with_name("host")
+                .short("h")
+                .long("host")
+                .long("hostname")
+                .takes_value(true)
+                .help("What host to listen on."),
+        )
+        .arg(
+            Arg::with_name("port")
+                .short("p")
+                .long("port")
+                .takes_value(true)
+                .help("What port to listen on."),
+        )
+        .arg(
+            Arg::with_name("localization-path")
+                .short("L")
+                .long("localizations")
+                .takes_value(true)
+                .help("The path to read translation files from."),
+        )
+        .arg(
+            Arg::with_name("ratelimit-min")
+                .short("r")
+                .long("requests-per-minute")
+                .takes_value(true)
+                .help("How many requests are allowed per IP address per minute."),
+        )
+        .get_matches();
+
+    // Parse arguments and modify config
+    if matches.is_present("disable-log") {
+        config.logger = false;
+    }
+
+    if let Some(value) = matches.value_of("host") {
+        match value.parse() {
+            Ok(host) => config.address.set_ip(host),
+            Err(_) => {
+                eprintln!("Invalid IP address: {}", value);
+                process::exit(1);
+            }
+        }
+    }
+
+    if let Some(value) = matches.value_of("port") {
+        match value.parse() {
+            Ok(port) => config.address.set_port(port),
+            Err(_) => {
+                eprintln!("Invalid port number: {}", value);
+                process::exit(1);
+            }
+        }
+    }
+
+    if let Some(localization_path) = matches.value_of_os("localization-path") {
+        config.localization_path = localization_path.into();
+    }
+
+    if let Some(value) = matches.value_of("ratelimit-min") {
+        match value.parse() {
+            Ok(value) => config.rate_limit_secret = value,
+            Err(_) => {
+                eprintln!("Invalid number of requests per minute: {}", value);
+                process::exit(1);
+            }
+        }
+    }
+}
+
+impl Config {
+    pub fn load() -> Self {
+        let mut config = Config::default();
+        read_env(&mut config);
+        parse_args(&mut config);
+        config
     }
 }
