@@ -40,7 +40,7 @@ mod web;
 use self::config::Config;
 use anyhow::Result;
 
-#[tokio::main(flavor = "multi_thread")]
+#[async_std::main]
 async fn main() -> Result<()> {
     let config = Config::load();
     let socket_address = config.address;

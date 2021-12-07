@@ -101,6 +101,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23b62fc65de8e4e7f52534fb52b0f3ed04746ae267519eef2a83941e8085068b"
 
 [[package]]
+name = "async-attributes"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3203e79f4dd9bdda415ed03cf14dae5a2bf775c683a00f94e9cd1faf0f596e5"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "async-channel"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -222,6 +232,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-rustls"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c86f33abd5a4f3e2d6d9251a9e0c6a7e52eb1113caf893dae8429bf4a53f378"
+dependencies = [
+ "futures-lite",
+ "rustls",
+ "webpki",
+]
+
+[[package]]
 name = "async-session"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -262,6 +283,7 @@ version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8056f1455169ab86dd47b47391e4ab0cbd25410a70e9fe675544f49bafaf952"
 dependencies = [
+ "async-attributes",
  "async-channel",
  "async-global-executor",
  "async-io",
@@ -646,6 +668,7 @@ name = "deepwell"
 version = "0.0.1"
 dependencies = [
  "anyhow",
+ "async-std",
  "chrono",
  "clap",
  "dotenv",
@@ -657,7 +680,6 @@ dependencies = [
  "sqlx",
  "tide",
  "tide-sqlx",
- "tokio",
 ]
 
 [[package]]
@@ -1278,28 +1300,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 
 [[package]]
-name = "mio"
-version = "0.7.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8067b404fe97c70829f082dec8bcf4f71225d7eaea1d8645349cb76fa06205cc"
-dependencies = [
- "libc",
- "log",
- "miow",
- "ntapi",
- "winapi",
-]
-
-[[package]]
-name = "miow"
-version = "0.3.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
-dependencies = [
- "winapi",
-]
-
-[[package]]
 name = "no-std-compat"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1324,15 +1324,6 @@ name = "nonzero_ext"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44a1290799eababa63ea60af0cbc3f03363e328e58f32fb0294798ed3e85f444"
-
-[[package]]
-name = "ntapi"
-version = "0.3.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f6bb902e437b6d86e03cce10a7e2af662292c5dfef23b65899ea3ac9354ad44"
-dependencies = [
- "winapi",
-]
 
 [[package]]
 name = "num-integer"
@@ -1903,7 +1894,6 @@ dependencies = [
  "sqlx-rt",
  "stringprep",
  "thiserror",
- "tokio-stream",
  "url",
  "webpki",
  "webpki-roots",
@@ -1935,9 +1925,8 @@ version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0d1bd069de53442e7a320f525a6d4deb8bb0621ac7a55f7eccbc2b58b57f43d0"
 dependencies = [
- "once_cell",
- "tokio",
- "tokio-rustls",
+ "async-rustls",
+ "async-std",
 ]
 
 [[package]]
@@ -2163,56 +2152,6 @@ name = "tinyvec_macros"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
-
-[[package]]
-name = "tokio"
-version = "1.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70e992e41e0d2fb9f755b37446f20900f64446ef54874f40a60c78f021ac6144"
-dependencies = [
- "autocfg",
- "bytes",
- "libc",
- "memchr",
- "mio",
- "num_cpus",
- "pin-project-lite 0.2.7",
- "tokio-macros",
- "winapi",
-]
-
-[[package]]
-name = "tokio-macros"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9efc1aba077437943f7515666aa2b882dfabfbfdf89c819ea75a8d6e9eaba5e"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "tokio-rustls"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc6844de72e57df1980054b38be3a9f4702aba4858be64dd700181a8a6d0e1b6"
-dependencies = [
- "rustls",
- "tokio",
- "webpki",
-]
-
-[[package]]
-name = "tokio-stream"
-version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50145484efff8818b5ccd256697f36863f587da82cf8b409c53adf1e840798e3"
-dependencies = [
- "futures-core",
- "pin-project-lite 0.2.7",
- "tokio",
-]
 
 [[package]]
 name = "typenum"
