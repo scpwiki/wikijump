@@ -38,6 +38,11 @@ pub struct Config {
     /// Can be set using environment variables `DEEPWELL_ADDRESS_HOST` and `DEEPWELL_ADDRESS_PORT`.
     pub address: SocketAddr,
 
+    /// The URL of the PostgreSQL database to connect to.
+    ///
+    /// Can be set using environment variables `DEEPWELL_DATABASE_URL`.
+    pub database_url: String,
+
     /// The location where all gettext translation files are kept.
     ///
     /// Can be set using environment variable `DEEPWELL_LOCALIZATION_PATH`.
@@ -60,6 +65,7 @@ impl Default for Config {
         Config {
             logger: true,
             address: "[::]:2747".parse().unwrap(),
+            database_url: String::new(),
             localization_path: PathBuf::from("../locales/out"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
             rate_limit_secret: String::new(),
@@ -99,6 +105,10 @@ fn read_env(config: &mut Config) {
                 process::exit(1);
             }
         }
+    }
+
+    if let Ok(value) = env::var("DEEPWELL_DATABASE_URL") {
+        config.database_url = value;
     }
 
     if let Some(value) = env::var_os("DEEPWELL_LOCALIZATION_PATH") {
@@ -145,6 +155,14 @@ fn parse_args(config: &mut Config) {
                 .long("port")
                 .takes_value(true)
                 .help("What port to listen on."),
+        )
+        .arg(
+            Arg::with_name("database-url")
+                .short("d")
+                .long("db")
+                .long("database")
+                .takes_value(true)
+                .help("The URL of the database to connect to."),
         )
         .arg(
             Arg::with_name("localization-path")
