@@ -25,7 +25,7 @@ pub async fn ping(req: ApiRequest) -> ApiResponse {
     let mut pool = req.sqlx_conn::<Postgres>().await;
     let mut conn = pool.acquire().await?;
 
-    sqlx::query("SELECT 1").fetch_one(conn).await;
+    sqlx::query("SELECT 1").fetch_one(conn).await?;
 
     // Seems good, respond to user
     Ok("Pong!".into())
