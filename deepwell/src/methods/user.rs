@@ -19,41 +19,23 @@
  */
 
 use super::prelude::*;
-use std::convert::TryFrom;
-
-#[derive(Deserialize, Debug)]
-struct UserGetQuery {
-    #[serde(default)]
-    detail: UserDetails,
-
-    #[serde(default = "bool_true")]
-    avatars: bool,
-}
 
 pub async fn user_get(req: ApiRequest) -> ApiResponse {
-    let _reference = Reference::try_from(&req)?;
-    let _query: UserGetQuery = req.query()?;
     // returns UserResponse
     todo!()
 }
 
 pub async fn user_reset(req: ApiRequest) -> ApiResponse {
-    let _reference = Reference::try_from(&req)?;
-    let _query: UserGetQuery = req.query()?;
     // returns ()
     todo!()
 }
 
 pub async fn user_avatar_get(req: ApiRequest) -> ApiResponse {
-    let _reference = Reference::try_from(&req)?;
-    let _query: UserGetQuery = req.query()?;
     // returns Vec<u8>
     todo!()
 }
 
 pub async fn user_avatar_delete(req: ApiRequest) -> ApiResponse {
-    let _reference = Reference::try_from(&req)?;
-    let _query: UserGetQuery = req.query()?;
     // returns ()
     todo!()
 }

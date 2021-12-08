@@ -35,29 +35,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
     // User
-    app.at("/user")
-        .get(user_client_get)
-        .patch(user_client_patch);
-
-    app.at("/user/avatar")
-        .get(user_client_avatar_get)
-        .put(user_client_avatar_put)
-        .delete(user_client_avatar_delete);
-
-    app.at("/user/blocked") //
-        .get(user_client_blocked_get);
-
     app.at("/user/:type/:id_or_slug")
         .get(user_get)
         .delete(user_reset);
-
-    app.at("/user/:type/:id_or_slug/avatar")
-        .get(user_avatar_get)
-        .delete(user_avatar_delete);
-
-    app.at("/user/:type/:id_or_slug/block")
-        .get(user_block_get)
-        .put(user_block_put);
 
     app
 }

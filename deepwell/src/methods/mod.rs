@@ -18,22 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod defaults {
-    //! Helper module containing functions which return values.
-    //!
-    //! This is used in the [`#[serde(default = "function_name")]`](https://serde.rs/field-attrs.html)
-    //! attribute to define optional parameter values.
-
-    #[inline]
-    pub const fn bool_true() -> bool {
-        true
-    }
-}
-
 mod prelude {
-    pub use super::defaults::*;
     pub use crate::api::{ApiRequest, ApiResponse};
-    pub use crate::types::*;
     pub use sqlx::{prelude::*, Postgres};
     pub use tide::{Body, Request};
     pub use tide_sqlx::SQLxRequestExt;

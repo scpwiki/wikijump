@@ -34,7 +34,6 @@ mod config;
 mod locales;
 mod methods;
 mod services;
-mod types;
 mod web;
 
 use self::config::Config;
