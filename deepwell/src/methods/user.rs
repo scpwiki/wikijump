@@ -25,17 +25,7 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
     todo!()
 }
 
-pub async fn user_reset(req: ApiRequest) -> ApiResponse {
-    // returns ()
-    todo!()
-}
-
-pub async fn user_avatar_get(req: ApiRequest) -> ApiResponse {
-    // returns Vec<u8>
-    todo!()
-}
-
-pub async fn user_avatar_delete(req: ApiRequest) -> ApiResponse {
+pub async fn user_put(req: ApiRequest) -> ApiResponse {
     // returns ()
     todo!()
 }

@@ -23,6 +23,7 @@
 //! This version has no commitments to stability and will change as development progresses.
 
 use crate::api::ApiServer;
+use crate::methods::locales::*;
 use crate::methods::misc::ping;
 use crate::methods::user::*;
 use crate::web::utils::error_response;
@@ -34,10 +35,11 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
+    // Localization
+    app.at("/message").get(message_get);
+
     // User
-    app.at("/user/:type/:id_or_slug")
-        .get(user_get)
-        .delete(user_reset);
+    app.at("/user").get(user_get).put(user_put);
 
     app
 }
