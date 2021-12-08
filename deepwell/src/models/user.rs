@@ -1,5 +1,5 @@
 /*
- * models/mod.rs
+ * models/user.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,6 +18,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod user;
+use chrono::NaiveDateTime;
 
-pub use self::user::User;
+#[derive(sqlx::FromRow, Serialize, Deserialize, Debug)]
+pub struct User {
+    pub id: i64,
+    pub username: String,
+    pub slug: String,
+    pub username_changes: i16,
+    pub email: String,
+    pub email_verified_at: NaiveDateTime,
+    pub remember_token: String,
+    pub language: String,
+    pub karma_points: i32,
+    pub karma_level: i16,
+    pub real_name: String,
+    pub pronouns: String,
+    pub dob: NaiveDateTime,
+    pub bio: String,
+    pub about_page: String,
+    pub avatar_path: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub deleted_at: NaiveDateTime,
+}
