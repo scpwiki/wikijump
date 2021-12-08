@@ -292,8 +292,8 @@ export interface InitOutput {
   readonly __wbg_syntaxtree_free: (a: number) => void;
   readonly syntaxtree_data: (a: number) => number;
   readonly parse: (a: number, b: number, c: number) => number;
-  readonly syntaxtree_copy: (a: number) => number;
   readonly preprocess: (a: number, b: number, c: number) => void;
+  readonly syntaxtree_copy: (a: number) => number;
   readonly __wbg_wikitextsettings_free: (a: number) => void;
   readonly wikitextsettings_copy: (a: number) => number;
   readonly wikitextsettings_new: (a: number) => number;
