@@ -11,7 +11,7 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
-    "@popperjs/core": "^2.10.2",
+    "@popperjs/core": "^2.11.0",
     "@wikijump/util": "workspace:*"
   }
 }

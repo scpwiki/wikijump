@@ -12,8 +12,8 @@
   "svelte": "src/index.ts",
   "main": "src/index.ts",
   "dependencies": {
-    "@iconify/iconify": "^2.0.4",
-    "@popperjs/core": "^2.10.2",
+    "@iconify/iconify": "2.1.0",
+    "@popperjs/core": "^2.11.0",
     "@wikijump/api": "workspace:*",
     "@wikijump/dom": "workspace:*",
     "@wikijump/ftml-components": "workspace:*",
@@ -23,7 +23,7 @@
     "@wikijump/util": "workspace:*",
     "dialog-polyfill": "^0.5.6",
     "morphdom": "^2.6.1",
-    "svelte": "^3.44.0",
-    "tippy.js": "^6.3.3"
+    "svelte": "^3.44.2",
+    "tippy.js": "^6.3.7"
   }
 }

@@ -15,11 +15,11 @@
     "@wikijump/cm-lang-ftml": "workspace:*",
     "@wikijump/ftml-wasm-worker": "workspace:*",
     "morphdom": "^2.6.1",
-    "typescript-memoize": "^1.0.1",
+    "typescript-memoize": "^1.1.0",
     "@wikijump/codemirror": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/api": "workspace:*",
     "@wikijump/util": "workspace:*",
-    "svelte": "^3.44.0"
+    "svelte": "^3.44.2"
   }
 }

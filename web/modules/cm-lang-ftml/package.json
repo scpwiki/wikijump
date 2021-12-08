@@ -11,8 +11,8 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
-    "@lezer/common": "^0.15.7",
-    "@lezer/lr": "^0.15.4",
+    "@lezer/common": "^0.15.10",
+    "@lezer/lr": "^0.15.5",
     "@types/prismjs": "^1.16.6",
     "@wikijump/cm-espells": "workspace:*",
     "@wikijump/codemirror": "workspace:*",
@@ -23,6 +23,6 @@
     "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/util": "workspace:*",
     "cm-tarnation": "^0.1.0",
-    "svelte": "^3.44.0"
+    "svelte": "^3.44.2"
   }
 }
