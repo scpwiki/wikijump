@@ -20,12 +20,12 @@
 
 use super::prelude::*;
 
-pub async fn user_get(req: ApiRequest) -> ApiResponse {
+pub async fn user_get(_req: ApiRequest) -> ApiResponse {
     // returns UserResponse
     todo!()
 }
 
-pub async fn user_put(req: ApiRequest) -> ApiResponse {
+pub async fn user_put(_req: ApiRequest) -> ApiResponse {
     // returns ()
     todo!()
 }
