@@ -135,8 +135,7 @@
   </div>
 
   {#if docs.example !== "_no_example_"}
-    <pre
-      class="code cm-ftml-block-tip-example">
+    <pre class="code cm-ftml-block-tip-example">
       <code>{@html Prism.highlight(docs.example, "ftml")}</code>
     </pre>
   {/if}
@@ -144,13 +143,11 @@
   <hr />
 
   <div class="cm-ftml-block-tip-emit">
-    <pre
-      class="code cm-ftml-block-tip-emit-info">
+    <pre class="code cm-ftml-block-tip-emit-info">
     <code>{@html ftmlString}</code>
   </pre>
 
-    <pre
-      class="code cm-ftml-block-tip-emit-info">
+    <pre class="code cm-ftml-block-tip-emit-info">
     <code>{@html codeString}</code>
   </pre>
   </div>

@@ -14,7 +14,7 @@ import { SwipeObserver, SwipeOpts } from "./swipe"
  * @example
  *
  * ```svelte
- * <div use:onSwipe={{ callback: callback, direction: "up" }} />
+ * ;<div use:onSwipe={{ callback: callback, direction: "up" }} />
  * ```
  */
 export function onSwipe(target: HTMLElement, opts: Partial<SwipeOpts>) {

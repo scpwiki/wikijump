@@ -105,11 +105,12 @@
 
   <hr />
 
-  <pre
-    class="code cm-spellcheck-tip-source">
-      <code>{$t("sheaf.spellcheck.SOURCE", {
+  <pre class="code cm-spellcheck-tip-source">
+      <code
+      >{$t("sheaf.spellcheck.SOURCE", {
         values: { slice: word.word, from: word.from, to: word.to }
-      })}</code>
+      })}</code
+    >
   </pre>
 </div>
 
