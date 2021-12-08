@@ -36,7 +36,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
     // Localization
-    app.at("/message").get(message_get);
+    app.at("/message").get(message_get).post(message_get);
 
     // User
     app.at("/user").get(user_get).put(user_put);
