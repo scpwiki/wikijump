@@ -24,6 +24,7 @@
 //! version prefix to avoid future issues with backwards compatibility.
 
 use crate::config::Config;
+use crate::locales::Localizations;
 use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;
 use sqlx::Postgres;
@@ -41,6 +42,7 @@ pub type ApiResponse = tide::Result;
 #[derive(Debug)]
 pub struct ServerState {
     pub config: Config,
+    pub localizations: Localizations,
 }
 
 pub async fn build_server(config: Config) -> Result<ApiServer> {
@@ -52,8 +54,15 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
     let database_middleware =
         SQLxMiddleware::<Postgres>::new(&config.database_url).await?;
 
+    // Load localization data
+    tide::log::info!("Loading localization data");
+    let localizations = Localizations::open(&config.localization_path)?;
+
     // Create server state
-    let state = Arc::new(ServerState { config });
+    let state = Arc::new(ServerState {
+        config,
+        localizations,
+    });
 
     macro_rules! new {
         () => {
