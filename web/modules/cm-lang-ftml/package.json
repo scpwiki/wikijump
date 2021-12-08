@@ -22,7 +22,7 @@
     "@wikijump/api": "workspace:*",
     "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/util": "workspace:*",
-    "cm-tarnation": "^0.1.0",
+    "cm-tarnation": "^0.1.1",
     "svelte": "^3.44.2"
   }
 }

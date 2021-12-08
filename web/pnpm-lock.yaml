@@ -189,7 +189,7 @@ importers:
       '@wikijump/prism': workspace:*
       '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
-      cm-tarnation: ^0.1.0
+      cm-tarnation: ^0.1.1
       svelte: ^3.44.2
     dependencies:
       '@lezer/common': 0.15.10
@@ -203,7 +203,7 @@ importers:
       '@wikijump/prism': link:../prism
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
-      cm-tarnation: 0.1.0
+      cm-tarnation: 0.1.1
       svelte: 3.44.2
 
   modules/codemirror:
@@ -833,16 +833,6 @@ packages:
       '@codemirror/stream-parser': 0.19.2
     dev: false
 
-  /@codemirror/language/0.19.3:
-    resolution: {integrity: sha512-6vjkRYHRJg/z9wdAk75nU2fQwCJBsh2HpkIjKXIHfzISSgLt5qSDxVhPd8Uu8PD5WMmFFP8tX7I9kdIt873o0A==}
-    dependencies:
-      '@codemirror/state': 0.19.2
-      '@codemirror/text': 0.19.4
-      '@codemirror/view': 0.19.9
-      '@lezer/common': 0.15.10
-      '@lezer/lr': 0.15.5
-    dev: false
-
   /@codemirror/language/0.19.7:
     resolution: {integrity: sha512-pNNUtYWMIMG0lUSKyUXJr8U0rFiCKsKFXbA2Oj17PC+S1FY99hV0z1vcntW67ekAIZw9DMEUQnLsKBuIbAUX7Q==}
     dependencies:
@@ -887,12 +877,6 @@ packages:
       '@codemirror/view': 0.19.28
     dev: false
 
-  /@codemirror/rangeset/0.19.1:
-    resolution: {integrity: sha512-WaKTEw8JB/3QFlQzpdgRoklopcWvG8O/Xp+rxxOfFKYTaeaejpY/tjpyBBg+Ea65Ka3m7+pPp9d5j/oR2rd9NA==}
-    dependencies:
-      '@codemirror/state': 0.19.2
-    dev: false
-
   /@codemirror/rangeset/0.19.2:
     resolution: {integrity: sha512-5d+X8LtmeZtfFtKrSx57bIHRUpKv2HD0b74clp4fGA7qJLLfYehF6FGkJJxJb8lKsqAga1gdjjWr0jiypmIxoQ==}
     dependencies:
@@ -916,12 +900,6 @@ packages:
       '@codemirror/text': 0.19.5
       '@codemirror/view': 0.19.28
       crelt: 1.0.5
-    dev: false
-
-  /@codemirror/state/0.19.2:
-    resolution: {integrity: sha512-dDqCrtkb0c/LYUlvQBLyLfkISEskbZnhvBbcVOF4j2AusJ1ptJ3EGMxBL9G16GP1TOdC1T613gA1J1qc3pbfGQ==}
-    dependencies:
-      '@codemirror/text': 0.19.4
     dev: false
 
   /@codemirror/state/0.19.6:
@@ -962,16 +940,6 @@ packages:
       '@codemirror/rangeset': 0.19.2
       '@codemirror/state': 0.19.6
       '@codemirror/text': 0.19.5
-      style-mod: 4.0.0
-      w3c-keyname: 2.2.4
-    dev: false
-
-  /@codemirror/view/0.19.9:
-    resolution: {integrity: sha512-d2Z2rFl53yTwvhsRYtS97xT7ce1f/Q/NNE2uDg/Be1MVjP2v1OlwUTyTosBmxiCt4oUvMklfa+EdPGOATVJhtg==}
-    dependencies:
-      '@codemirror/rangeset': 0.19.1
-      '@codemirror/state': 0.19.2
-      '@codemirror/text': 0.19.4
       style-mod: 4.0.0
       w3c-keyname: 2.2.4
     dev: false
@@ -2852,12 +2820,12 @@ packages:
     engines: {node: '>=0.8'}
     dev: true
 
-  /cm-tarnation/0.1.0:
-    resolution: {integrity: sha512-nmT1KgyALzjPM5WHiCIyDY3fT5VXpytDNV2naQGyEg4VP8z8nKGGSorsDe/3UB71iFwP+mOxS8w8hhimJV2HYg==}
+  /cm-tarnation/0.1.1:
+    resolution: {integrity: sha512-pp/sO6oQNZsCmnNii2+8F+hJ+hgnd6K5SAuzicoELCg4A4V/2TtQJ2M/KbpavLa0h1PsHHmuq0FCyzf7sfJoqA==}
     dependencies:
       '@codemirror/highlight': 0.19.6
-      '@codemirror/language': 0.19.3
-      '@codemirror/state': 0.19.2
+      '@codemirror/language': 0.19.7
+      '@codemirror/state': 0.19.6
       '@lezer/common': 0.15.10
       '@lezer/lr': 0.15.5
     dev: false
