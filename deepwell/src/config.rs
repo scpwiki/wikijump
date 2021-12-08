@@ -26,6 +26,8 @@ use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::process;
 
+const MIN_SECRET_LENGTH: usize = 64;
+
 #[derive(Debug, Clone)]
 pub struct Config {
     /// Whether the logger should be enabled or not.
@@ -55,6 +57,7 @@ pub struct Config {
 
     /// The secret to bypass the rate-limit.
     /// An empty value means to disable bypassing.
+    /// If a value is specified, the secret must be at least 64 bytes long.
     ///
     /// Set using environment variable `DEEPWELL_RATE_LIMIT_SECRET`.
     pub rate_limit_secret: String,
@@ -128,6 +131,14 @@ fn read_env(config: &mut Config) {
     }
 
     if let Ok(value) = env::var("DEEPWELL_RATE_LIMIT_SECRET") {
+        if value.len() < MIN_SECRET_LENGTH {
+            eprintln!(
+                "DEEPWELL_RATE_LIMIT_SECRET value too short (must be at least {} bytes long)",
+                MIN_SECRET_LENGTH,
+            );
+            process::exit(1);
+        }
+
         config.rate_limit_secret = value;
     }
 }
