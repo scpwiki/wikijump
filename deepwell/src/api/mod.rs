@@ -27,9 +27,7 @@ use crate::config::Config;
 use crate::locales::Localizations;
 use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;
-use sqlx::Postgres;
 use std::sync::Arc;
-use tide_sqlx::SQLxMiddleware;
 
 mod v0;
 mod v1;
@@ -51,8 +49,7 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
 
     // Connect to database
     tide::log::info!("Connecting to PostgreSQL database");
-    let database_middleware =
-        SQLxMiddleware::<Postgres>::new(&config.database_url).await?;
+    // TODO config.database_url
 
     // Load localization data
     tide::log::info!("Loading localization data");
@@ -74,7 +71,6 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
     let mut app = new!();
     app.at("/api")
         .with(GovernorMiddleware::per_minute(rate_limit))
-        .with(database_middleware)
         .nest({
             let mut api = new!();
             api.at("/v0").nest(v0::build(new!()));
