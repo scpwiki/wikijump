@@ -22,10 +22,7 @@ use super::prelude::*;
 
 pub async fn ping(req: ApiRequest) -> ApiResponse {
     // Ensure the database is connected
-    let mut pool = req.sqlx_conn::<Postgres>().await;
-    let conn = pool.acquire().await?;
-
-    sqlx::query("SELECT 1").fetch_one(conn).await?;
+    // TODO select 1
 
     // Seems good, respond to user
     Ok("Pong!".into())

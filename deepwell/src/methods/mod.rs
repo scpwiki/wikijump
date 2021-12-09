@@ -20,7 +20,6 @@
 
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
-    pub use sqlx::{prelude::*, Postgres};
     pub use tide::{Body, Request};
     pub use tide_sqlx::SQLxRequestExt;
 }
