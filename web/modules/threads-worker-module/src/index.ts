@@ -146,6 +146,7 @@ export class WorkerModule<Methods extends WorkerModuleMethods<string> = any> {
 
         result = race
       } else {
+        // @ts-ignore
         result = await worker[method](...args)
       }
     } catch (err) {

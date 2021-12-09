@@ -111,10 +111,10 @@ export function formatMessage(
 }
 
 export interface UnitFormatOptions {
-  compactDisplay?: string
-  notation?: string
-  signDisplay?: string
-  unitDisplay?: string
+  compactDisplay?: "short" | "long"
+  notation?: "standard" | "scientific" | "engineering" | "compact"
+  signDisplay?: "auto" | "never" | "always"
+  unitDisplay?: "short" | "long" | "narrow"
   useGrouping?: boolean
 }
 
