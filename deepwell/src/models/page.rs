@@ -45,59 +45,11 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Site,
-    #[sea_orm(has_many = "super::file::Entity")]
-    File,
-    #[sea_orm(has_many = "super::forum_thread::Entity")]
-    ForumThread,
-    #[sea_orm(has_many = "super::front_forum_feed::Entity")]
-    FrontForumFeed,
-    #[sea_orm(has_many = "super::page_edit_lock::Entity")]
-    PageEditLock,
-    #[sea_orm(has_many = "super::page_rate_vote::Entity")]
-    PageRateVote,
-    #[sea_orm(has_many = "super::watched_page::Entity")]
-    WatchedPage,
 }
 
 impl Related<super::site::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Site.def()
-    }
-}
-
-impl Related<super::file::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::File.def()
-    }
-}
-
-impl Related<super::forum_thread::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ForumThread.def()
-    }
-}
-
-impl Related<super::front_forum_feed::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::FrontForumFeed.def()
-    }
-}
-
-impl Related<super::page_edit_lock::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageEditLock.def()
-    }
-}
-
-impl Related<super::page_rate_vote::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PageRateVote.def()
-    }
-}
-
-impl Related<super::watched_page::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::WatchedPage.def()
     }
 }
 
