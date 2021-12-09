@@ -1,5 +1,4 @@
 import RegisterForm from "../lib/components/RegisterForm.svelte"
-import "./auth.scss"
 
 window.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("auth_form_container")
