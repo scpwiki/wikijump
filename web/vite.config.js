@@ -43,7 +43,7 @@ const config = defineConfig({}, PHP_CONFIG)
       strictPort: true,
       fs: { strict: false },
       // listen on all addresses (fixes Docker issue on Linux)
-      server: { host: "0.0.0.0" }
+      host: "0.0.0.0"
     },
 
     css: {
