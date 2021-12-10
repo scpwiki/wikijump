@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\MJML;
 
+use Illuminate\Support\HtmlString;
+
 // TODO: use mrml-cli when compile bug is fixed
 
 // use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -22,7 +24,7 @@ final class MJML
      * @param string $template_path Blade template path.
      * @param array $data Data to be passed to the template.
      */
-    public static function render(string $template_path, array $data = []): string
+    public static function render(string $template_path, array $data = []): HtmlString
     {
         $view = view($template_path, $data);
         $raw_mjml = $view->render();
@@ -36,8 +38,11 @@ final class MJML
         //     throw new ProcessFailedException($proc);
         // }
 
-        // return $proc->getOutput();
+        // $html = $proc->getOutput();
 
-        return $raw_mjml;
+        // TODO: remove when compile bug is fixed
+        $html = $raw_mjml;
+
+        return new HtmlString($html);
     }
 }
