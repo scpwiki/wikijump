@@ -6,7 +6,8 @@
     sections:
         content
 --}}
-- {{ $SERVICE_NAME }} -
+-- {{ $SERVICE_NAME }} --
+-- {{$HTTP_SCHEMA}}://{{$URL_HOST}} --
 
 @yield("content")
 
