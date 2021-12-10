@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Wikijump\Services\MJML;
 
 use Illuminate\Support\HtmlString;
-
-// TODO: use mrml-cli when compile bug is fixed
-
-// use Symfony\Component\Process\Exception\ProcessFailedException;
-// use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 /** Static class holding methods for handling MJML templates. */
 final class MJML
@@ -29,19 +26,19 @@ final class MJML
         $view = view($template_path, $data);
         $raw_mjml = $view->render();
 
-        // // execute mrml-cli from shell to convert to html
-        // $proc = Process::fromShellCommandline('mrml-cli', null, null, $raw_mjml);
+        // TODO: add timeout
+        // TODO: add caching
 
-        // $proc->run();
+        // execute mrml-cli from shell to convert to html
+        $proc = Process::fromShellCommandline('mrml render', null, null, $raw_mjml);
 
-        // if (!$proc->isSuccessful()) {
-        //     throw new ProcessFailedException($proc);
-        // }
+        $proc->run();
 
-        // $html = $proc->getOutput();
+        if (!$proc->isSuccessful()) {
+            throw new ProcessFailedException($proc);
+        }
 
-        // TODO: remove when compile bug is fixed
-        $html = $raw_mjml;
+        $html = $proc->getOutput();
 
         return new HtmlString($html);
     }
