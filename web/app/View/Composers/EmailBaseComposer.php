@@ -21,5 +21,8 @@ class EmailBaseComposer
             ->with('URL_DOMAIN', GlobalProperties::$URL_DOMAIN)
             ->with('URL_HOST', GlobalProperties::$URL_HOST)
             ->with('SERVICE_NAME', GlobalProperties::$SERVICE_NAME);
+
+        // TODO: make this configurable somewhere
+        $view->with('logo_src', 'https://i.imgur.com/pa0YEu2.png');
     }
 }

@@ -3,7 +3,6 @@
         $title
         $preview
         $logo_src (https://i.imgur.com/pa0YEu2.png)
-        $logo_href (https://www.wikijump.dev)
         $show_subscribed
         $unsubscribe_url
 
@@ -36,7 +35,7 @@
             <mj-column>
                 <mj-image width="400px"
                           src="{{ $logo_src }}"
-                          href="{{ $logo_href }}"
+                          href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}"
                           alt="{{ __('email.GOTO_SITE') }}"
                 />
                 <mj-divider border-width="2px"
