@@ -30,8 +30,8 @@ class ViewServiceProvider extends ServiceProvider
     public function boot()
     {
         View::composer('next.base', BaseComposer::class);
-        View::composer('next.email.base-mjml', EmailBaseComposer::class);
-        View::composer('next.email.base-text', EmailBaseComposer::class);
+        View::composer('emails.base-mjml', EmailBaseComposer::class);
+        View::composer('emails.base-text', EmailBaseComposer::class);
         View::composer('next.test.page-test', PageMockedComposer::class);
 
         PreloadDirective::register();
