@@ -7,7 +7,11 @@ namespace Wikijump\Mail;
 use Illuminate\Mail\Mailable;
 use Wikijump\Services\MJML\MJML;
 
-/** Mailable that supports MJML-based Blade templates. */
+/**
+ * Mailable that supports using MJML.
+ *
+ * Use the `mjml` method to set the MJML content.
+ */
 class MJMLMailable extends Mailable
 {
     /** MJML template path. */
