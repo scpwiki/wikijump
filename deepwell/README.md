@@ -16,6 +16,7 @@ TODO: add CI and docs.rs
 -->
 
 DEEPWELL is an experimental backend system to provide core wiki operations via an API for Wikijump.
+This is intended as an internal API consumed by the web server as part of its logical tasks.
 
 The lint `#![forbid(unsafe_code)]` is set, and therefore this crate has only safe code.
 

@@ -35,8 +35,18 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
         }
     };
 
-    // returns UserResponse
-    todo!()
+    match user {
+        Some(user) => {
+            // This includes fields like the password hash.
+            //
+            // For now this is fine, but depending on what
+            // we want the usage of the API to be, we may
+            // want to filter out fields.
+            let body = Body::from_json(&user)?;
+            Ok(body.into())
+        }
+        None => Err(Error::from_str(StatusCode::NotFound, "No user found")),
+    }
 }
 
 pub async fn user_put(_req: ApiRequest) -> ApiResponse {
