@@ -25,11 +25,10 @@ pub async fn ping(req: ApiRequest) -> ApiResponse {
     // Ensure the database is connected
     req.state()
         .database
-        .execute(Statement {
-            sql: str!("SELECT 1"),
-            values: None,
-            db_backend: DatabaseBackend::Postgres,
-        })
+        .execute(Statement::from_string(
+            DatabaseBackend::Postgres,
+            str!("SELECT 1;"),
+        ))
         .await?;
 
     // Seems good, respond to user
