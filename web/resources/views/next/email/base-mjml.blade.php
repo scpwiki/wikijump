@@ -51,7 +51,7 @@
             </mj-column>
         </mj-section>
 
-        <!-- Social -->
+        {{-- Social --}}
         <mj-section padding-bottom="5px">
             <mj-column>
                 <mj-social text-padding="0 10px 0 0">
