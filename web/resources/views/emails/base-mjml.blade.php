@@ -34,7 +34,7 @@
         <mj-section background-color="#fff">
             <mj-column>
                 <mj-image width="400px"
-                          src="{{ $logo_src }}"
+                          src="{{ $HTTP_SCHEMA }}://{{ $URL_HOST }}/files--static/media/logo.png"
                           href="{{$HTTP_SCHEMA}}://{{$URL_HOST}}"
                           alt="{{ __('email.GOTO_SITE') }}"
                 />
