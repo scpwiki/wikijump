@@ -26,4 +26,5 @@ mod prelude {
 
 pub mod locales;
 pub mod misc;
+pub mod page;
 pub mod user;

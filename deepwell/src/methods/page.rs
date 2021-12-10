@@ -1,5 +1,5 @@
 /*
- * methods/user.rs
+ * methods/page.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,14 +18,4 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 
-pub async fn user_get(_req: ApiRequest) -> ApiResponse {
-    // returns UserResponse
-    todo!()
-}
-
-pub async fn user_put(_req: ApiRequest) -> ApiResponse {
-    // returns ()
-    todo!()
-}
