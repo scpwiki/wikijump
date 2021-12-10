@@ -7,10 +7,20 @@ namespace Wikijump\View\Composers;
 use Illuminate\View\View;
 use Wikidot\Utils\GlobalProperties;
 
+const EMAIL_LOGO_PATH = '/files--static/media/logo.png';
+
 class EmailBaseComposer
 {
+    protected string $logo_src;
+
     public function __construct()
     {
+        // e.g. https://www.wikijump.dev/files--static/media/logo.png
+        $this->logo_src =
+            GlobalProperties::$HTTP_SCHEMA .
+            '://' .
+            GlobalProperties::$URL_DOMAIN .
+            EMAIL_LOGO_PATH;
     }
 
     /** Bind data to the view. */
@@ -20,9 +30,7 @@ class EmailBaseComposer
             ->with('HTTP_SCHEMA', GlobalProperties::$HTTP_SCHEMA)
             ->with('URL_DOMAIN', GlobalProperties::$URL_DOMAIN)
             ->with('URL_HOST', GlobalProperties::$URL_HOST)
-            ->with('SERVICE_NAME', GlobalProperties::$SERVICE_NAME);
-
-        // TODO: make this configurable somewhere
-        $view->with('logo_src', 'https://i.imgur.com/pa0YEu2.png');
+            ->with('SERVICE_NAME', GlobalProperties::$SERVICE_NAME)
+            ->with('logo_src', $this->logo_src);
     }
 }
