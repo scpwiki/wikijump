@@ -20,18 +20,9 @@
 
 use super::prelude::*;
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-struct MessageRequest {
-    locale: String,
-    message_key: String,
-}
-
-pub async fn message_get(mut req: ApiRequest) -> ApiResponse {
-    let MessageRequest {
-        locale,
-        message_key,
-    } = req.body_json().await?;
+pub async fn message_get(req: ApiRequest) -> ApiResponse {
+    let locale = req.param("locale")?;
+    let message_key = req.param("message_key")?;
 
     let message = req
         .state()
