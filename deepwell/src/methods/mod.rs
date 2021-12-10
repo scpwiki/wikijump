@@ -21,7 +21,6 @@
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use tide::{Body, Request};
-    pub use tide_sqlx::SQLxRequestExt;
 }
 
 pub mod locales;
