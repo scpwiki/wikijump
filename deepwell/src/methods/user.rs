@@ -18,10 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use self::users::Entity as User;
 use super::prelude::*;
 
 pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
+    let db = &req.state().database;
+
+    let user = match reference {
+        ItemReference::Id(id) => User::find_by_id(id).one(db).await?,
+        ItemReference::Slug(slug) => {
+            User::find()
+                .filter(users::Column::Slug.eq(slug))
+                .one(db)
+                .await?
+        }
+    };
 
     // returns UserResponse
     todo!()

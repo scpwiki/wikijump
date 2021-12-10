@@ -24,7 +24,7 @@ use tide::{Error, StatusCode};
 
 #[derive(Debug, Copy, Clone)]
 pub enum ItemReference<'a> {
-    Id(u64),
+    Id(i64),
     Slug(&'a str),
 }
 
