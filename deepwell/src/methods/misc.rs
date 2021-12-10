@@ -19,14 +19,14 @@
  */
 
 use super::prelude::*;
-use sea_orm::{DatabaseBackend, Statement};
+use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 
 pub async fn ping(req: ApiRequest) -> ApiResponse {
     // Ensure the database is connected
     req.state()
         .database
         .execute(Statement {
-            sql: "SELECT 1",
+            sql: str!("SELECT 1"),
             values: None,
             db_backend: DatabaseBackend::Postgres,
         })

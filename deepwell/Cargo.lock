@@ -724,6 +724,7 @@ dependencies = [
  "sea-orm",
  "serde",
  "serde_json",
+ "str-macro",
  "tide",
  "tide-sqlx",
 ]
@@ -2196,6 +2197,12 @@ name = "stdweb-internal-runtime"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "213701ba3370744dcd1a12960caa4843b3d68b4d1c0a5d575e0d65b2ee9d16c0"
+
+[[package]]
+name = "str-macro"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b7514866270741c7b03dd36e2c68f71cf064b230e8217c81bbd4d619d564864"
 
 [[package]]
 name = "stringprep"

@@ -29,6 +29,9 @@ extern crate lazy_static;
 #[macro_use]
 extern crate serde;
 
+#[macro_use]
+extern crate str_macro;
+
 mod api;
 mod config;
 mod database;
