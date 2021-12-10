@@ -8,6 +8,14 @@
 
 @extends('next.base')
 
+@push('preloads')
+    @preload('resources/scripts/auth.scss')
+@endpush
+
+@push('styles')
+    @vite('auth.scss')
+@endpush
+
 @section('app')
     <div id="app_auth" data-back-url="{{ previousUrl() }}">
         <div id="auth_panel" class="light">

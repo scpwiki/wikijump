@@ -21,11 +21,11 @@
 @extends('next.frame')
 
 @push('preloads')
-    @preload('resources/scripts/wiki.ts')
+    @preload('resources/scripts/wiki.scss')
 @endpush
 
-@push('scripts')
-    @vite('wiki.ts')
+@push('styles')
+    @vite('wiki.scss')
 @endpush
 
 @php

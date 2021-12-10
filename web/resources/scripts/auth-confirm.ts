@@ -1,5 +1,4 @@
 import ConfirmForm from "../lib/components/ConfirmPasswordForm.svelte"
-import "./auth.scss"
 
 window.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("auth_form_container")
