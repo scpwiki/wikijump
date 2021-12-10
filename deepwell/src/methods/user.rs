@@ -20,7 +20,9 @@
 
 use super::prelude::*;
 
-pub async fn user_get(_req: ApiRequest) -> ApiResponse {
+pub async fn user_get(req: ApiRequest) -> ApiResponse {
+    let reference = ItemReference::try_from(&req)?;
+
     // returns UserResponse
     todo!()
 }

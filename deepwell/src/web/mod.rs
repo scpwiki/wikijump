@@ -18,5 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod reference;
+
 pub mod ratelimit;
 pub mod utils;
+
+pub use self::reference::ItemReference;
