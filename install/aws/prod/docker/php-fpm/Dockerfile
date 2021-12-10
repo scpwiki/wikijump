@@ -66,6 +66,9 @@ RUN cargo build \
     --no-default-features \
     --features ffi,mathml
 
+# Install mrml-cli for compiling MJML email templates
+RUN cargo install --locked --version 1.3.2 mrml-cli
+
 #
 # Localizations
 #
@@ -95,6 +98,7 @@ EXPOSE 9000
 # Copy sources from intermediate images
 COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
+COPY --from=ftml /usr/local/cargo/bin/mrml /usr/local/bin/mrml
 COPY --from=locales /src/locales/out/ /var/www/wikijump/web/public/files--built/locales
 
 # PHP configuration preparation
