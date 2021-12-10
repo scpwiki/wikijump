@@ -2,7 +2,7 @@
     data:
         $title
         $preview
-        $logo_src (https://i.imgur.com/pa0YEu2.png)
+        $logo_src
         $show_subscribed
         $unsubscribe_url
 
