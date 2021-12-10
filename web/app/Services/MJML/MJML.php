@@ -26,11 +26,13 @@ final class MJML
         $view = view($template_path, $data);
         $raw_mjml = $view->render();
 
-        // TODO: add timeout
         // TODO: add caching
 
         // execute mrml-cli from shell to convert to html
-        $proc = Process::fromShellCommandline('mrml render', null, null, $raw_mjml);
+        // command has a 5 second timeout
+        // if rendering takes longer than that, something is very wrong
+        // average render time should be in milliseconds
+        $proc = Process::fromShellCommandline('mrml render', null, null, $raw_mjml, 5);
 
         $proc->run();
 
