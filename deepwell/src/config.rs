@@ -37,7 +37,7 @@ pub struct Config {
 
     /// The address the server will be hosted on.
     ///
-    /// Can be set using environment variables `DEEPWELL_ADDRESS_HOST` and `DEEPWELL_ADDRESS_PORT`.
+    /// Can be set using environment variables `DEEPWELL_HOST` and `DEEPWELL_PORT`.
     pub address: SocketAddr,
 
     /// The URL of the PostgreSQL database to connect to.
@@ -90,7 +90,7 @@ fn read_env(config: &mut Config) {
         }
     }
 
-    if let Ok(value) = env::var("DEEPWELL_ADDRESS_HOST") {
+    if let Ok(value) = env::var("DEEPWELL_HOST") {
         match value.parse() {
             Ok(host) => config.address.set_ip(host),
             Err(_) => {
@@ -100,7 +100,7 @@ fn read_env(config: &mut Config) {
         }
     }
 
-    if let Ok(value) = env::var("DEEPWELL_ADDRESS_PORT") {
+    if let Ok(value) = env::var("DEEPWELL_PORT") {
         match value.parse() {
             Ok(port) => config.address.set_port(port),
             Err(_) => {
