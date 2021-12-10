@@ -7,6 +7,7 @@ namespace Wikijump\Providers;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Wikijump\View\Composers\BaseComposer;
+use Wikijump\View\Composers\EmailBaseComposer;
 use Wikijump\View\Composers\PageMockedComposer;
 use Wikijump\View\Directives\PreloadDirective;
 
@@ -29,6 +30,8 @@ class ViewServiceProvider extends ServiceProvider
     public function boot()
     {
         View::composer('next.base', BaseComposer::class);
+        View::composer('next.email.base-mjml', EmailBaseComposer::class);
+        View::composer('next.email.base-text', EmailBaseComposer::class);
         View::composer('next.test.page-test', PageMockedComposer::class);
 
         PreloadDirective::register();
