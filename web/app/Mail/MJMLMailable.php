@@ -23,8 +23,9 @@ class MJMLMailable extends Mailable
      *
      * @param string $mjml Path to the MJML template, in Blade template syntax..
      * @param array $data Data to pass to the template.
+     * @return $this
      */
-    public function mjml(string $mjml, array $data = []): self
+    public function mjml(string $mjml, array $data = [])
     {
         $this->mjml = $mjml;
         $this->viewData = array_merge($this->viewData, $data);
