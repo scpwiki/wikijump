@@ -27,7 +27,7 @@ pub async fn message_get(req: ApiRequest) -> ApiResponse {
     let message = req
         .state()
         .localizations
-        .translate(&locale, &message_key)
+        .translate(locale, message_key)
         .into();
 
     Ok(message)
