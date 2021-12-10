@@ -42,4 +42,5 @@ cd "${0%/*}/.."
 sea-orm-cli generate entity \
 	-t "$(join_arr , "${tables[@]}")" \
 	-u postgres://wikijump:wikijump@localhost/wikijump \
-	-o src/models
+	-o src/models \
+	--with-serde both
