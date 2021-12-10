@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * database.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,41 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![forbid(unsafe_code)]
-#![deny(missing_debug_implementations)]
-
-//! A web server to expose Wikijump operations via a versioned REST API.
-
-#[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
-extern crate serde;
-
-mod api;
-mod config;
-mod database;
-mod locales;
-mod methods;
-mod models;
-mod services;
-mod web;
-
-use self::config::Config;
 use anyhow::Result;
+use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use std::time::Duration;
 
-#[async_std::main]
-async fn main() -> Result<()> {
-    let config = Config::load();
-    let socket_address = config.address;
+pub async fn connect<S: Into<String>>(database_uri: S) -> Result<DatabaseConnection> {
+    let mut options = ConnectOptions::new(database_uri.into());
+    options
+        .min_connections(4)
+        .max_connections(100)
+        .connect_timeout(Duration::from_secs(5))
+        .idle_timeout(Duration::from_secs(10))
+        .sqlx_logging(true);
 
-    if config.logger {
-        tide::log::start();
-        tide::log::info!("Loaded server configuration");
-    }
-
-    let app = api::build_server(config).await?;
-    app.listen(socket_address).await?;
-
-    Ok(())
+    let db = Database::connect(options).await?;
+    Ok(db)
 }

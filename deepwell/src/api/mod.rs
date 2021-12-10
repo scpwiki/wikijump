@@ -24,9 +24,11 @@
 //! version prefix to avoid future issues with backwards compatibility.
 
 use crate::config::Config;
+use crate::database;
 use crate::locales::Localizations;
 use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;
+use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
 mod v0;
@@ -40,6 +42,7 @@ pub type ApiResponse = tide::Result;
 #[derive(Debug)]
 pub struct ServerState {
     pub config: Config,
+    pub database: DatabaseConnection,
     pub localizations: Localizations,
 }
 
@@ -49,7 +52,7 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
 
     // Connect to database
     tide::log::info!("Connecting to PostgreSQL database");
-    // TODO config.database_url
+    let database = database::connect(&config.database_url).await?;
 
     // Load localization data
     tide::log::info!("Loading localization data");
@@ -58,6 +61,7 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
     // Create server state
     let state = Arc::new(ServerState {
         config,
+        database,
         localizations,
     });
 
