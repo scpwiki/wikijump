@@ -45,7 +45,7 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
             let body = Body::from_json(&user)?;
             Ok(body.into())
         }
-        None => Err(Error::from_str(StatusCode::NotFound, "No user found")),
+        None => Err(Error::from_str(StatusCode::NotFound, "")),
     }
 }
 
