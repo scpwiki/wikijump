@@ -7,9 +7,27 @@ namespace Wikijump\Mail;
 use Illuminate\Mail\Mailable;
 use Wikijump\Services\MJML\MJML;
 
-/** Mailable that uses MJML-based Blade templates. */
+/** Mailable that supports MJML-based Blade templates. */
 class MJMLMailable extends Mailable
 {
+    /** MJML template path. */
+    protected string $mjml;
+
+    /**
+     * Sets the MJML template to use. This template has the highest priority.
+     * Templates will be rendered by Blade first, and then by MJML.
+     *
+     * @param string $mjml Path to the MJML template, in Blade template syntax..
+     * @param array $data Data to pass to the template.
+     */
+    public function mjml(string $mjml, array $data = []): self
+    {
+        $this->mjml = $mjml;
+        $this->viewData = array_merge($this->viewData, $data);
+
+        return $this;
+    }
+
     /**
      * Builds the view data for the message.
      *
@@ -22,45 +40,45 @@ class MJMLMailable extends Mailable
         if ($this->html) {
             return array_filter([
                 'html' => $this->html,
-                'text' => $this->textView ?? null,
+                'text' => $this->buildText(),
             ]);
         }
 
-        $data = $this->buildViewData();
-
-        $html = null;
-        $text = null;
-
-        // render HTML, text, and/or markdown.
-
-        if (isset($this->view) || isset($this->markdown)) {
-            // prioritize MJML view over markdown
-            if (isset($this->view)) {
-                $html = MJML::render($this->view, $data);
-            } else {
-                $built = $this->buildMarkdownView();
-                $html = $built['html'];
-                $text = $built['text'];
-            }
-        }
-
-        // setting a plaintext view will override the markdown plaintext
-        // this differs from default behavior of Mailable, but I feel this is
-        // better than having markdown override an explicitly given plaintext
-        if (isset($this->textView)) {
-            $text = $this->textView;
-        }
-
-        // return output
-
-        if ($html || $text) {
+        if (isset($this->mjml)) {
             return array_filter([
-                'html' => $html,
-                'text' => $text,
+                'html' => MJML::render($this->mjml, $this->buildViewData()),
+                'text' => $this->buildText(),
             ]);
         }
 
-        // apparently this is what Mailable does as its final fallback
+        // default mailable behavior follows
+
+        if (isset($this->markdown)) {
+            return $this->buildMarkdownView();
+        }
+
+        if (isset($this->view, $this->textView)) {
+            return [$this->view, $this->textView];
+        } elseif (isset($this->textView)) {
+            return ['text' => $this->textView];
+        }
+
         return $this->view;
+    }
+
+    /**
+     * Returns the text view for the message.
+     */
+    protected function buildText(): ?string
+    {
+        if (isset($this->textView)) {
+            return $this->textView;
+        }
+
+        if (isset($this->markdown)) {
+            return $this->buildMarkdownView()['text'];
+        }
+
+        return null;
     }
 }
