@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 
-pub async fn ping(req: ApiRequest) -> ApiResponse {
+pub async fn ping(_req: ApiRequest) -> ApiResponse {
     // Ensure the database is connected
     // TODO select 1
 
