@@ -9,6 +9,9 @@
 
     sections:
         content
+
+    The very first mj-section should have its padding-top set to 10px.
+    All content sections should have their background-color set to #fff.
 --}}
 
 <mjml>
@@ -44,12 +47,8 @@
             </mj-column>
         </mj-section>
 
-        {{-- Body --}}
-        <mj-section background-color="#fff" padding-top="10px">
-            <mj-column>
-                @yield('content')
-            </mj-column>
-        </mj-section>
+        {{-- Content --}}
+        @yield('content')
 
         {{-- Social --}}
         <mj-section padding-bottom="5px">
