@@ -110,7 +110,6 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
 #[derive(Deserialize, Debug)]
 struct UpdateUser {
     username: Maybe<String>,
-    username_changes: Maybe<i16>,
     email: Maybe<String>,
     email_verified: Maybe<bool>,
     password: Maybe<String>,
@@ -138,11 +137,8 @@ pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
     if let Some(username) = input.username {
         let slug = get_user_slug(&username);
         user.username = Set(username);
+        user.username_changes = Set(user.username_changes.unwrap() + 1);
         user.slug = Set(slug);
-    }
-
-    if let Some(username_changes) = input.username_changes {
-        user.username_changes = Set(username_changes);
     }
 
     if let Some(email) = input.email {
