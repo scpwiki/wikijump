@@ -1,0 +1,23 @@
+name: '[backend] Docker build API (prod)'
+
+on:
+  push:
+    branches-ignore:
+      - develop
+      - prod
+    paths:
+      - 'deepwell/*'
+      - 'install/aws/prod/docker/api/Dockerfile'
+      - '.github/workflows/docker-build-api.prod.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build -f install/aws/prod/docker/api/Dockerfile .
+        env:
+          DOCKER_BUILDKIT: 1
