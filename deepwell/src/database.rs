@@ -20,6 +20,7 @@
 
 use anyhow::Result;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use sqlx::{Pool, Postgres};
 use std::time::Duration;
 
 pub async fn connect<S: Into<String>>(database_uri: S) -> Result<DatabaseConnection> {
@@ -33,4 +34,11 @@ pub async fn connect<S: Into<String>>(database_uri: S) -> Result<DatabaseConnect
 
     let db = Database::connect(options).await?;
     Ok(db)
+}
+
+pub async fn migrate(database_uri: &str) -> Result<()> {
+    let pool = Pool::<Postgres>::connect(database_uri).await?;
+
+    sqlx::migrate!("./migrations").run(&pool).await?;
+    Ok(())
 }

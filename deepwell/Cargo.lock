@@ -733,6 +733,7 @@ dependencies = [
  "sea-orm",
  "serde",
  "serde_json",
+ "sqlx",
  "str-macro",
  "tide",
  "wikidot-normalize",

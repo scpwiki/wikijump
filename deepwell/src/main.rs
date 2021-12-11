@@ -55,6 +55,11 @@ async fn main() -> Result<()> {
         tide::log::info!("Loaded server configuration");
     }
 
+    if config.run_migrations {
+        // Run migrations, if enabled
+        database::migrate(&config.database_url).await?;
+    }
+
     let app = api::build_server(config).await?;
     app.listen(socket_address).await?;
 
