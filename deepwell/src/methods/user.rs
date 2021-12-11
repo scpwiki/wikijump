@@ -43,7 +43,24 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let input: CreateUser = req.body_json().await?;
     let db = &req.state().database;
 
+    // Derivative values
     let slug = get_user_slug(&input.username);
+
+    // Check for conflicts
+    let result = User::find()
+        .filter(
+            Condition::any()
+                .add(users::Column::Username.eq(input.username.as_str()))
+                .add(users::Column::Email.eq(input.email.as_str()))
+                .add(users::Column::Slug.eq(slug.as_str())),
+        )
+        .one(db)
+        .await?;
+    if result.is_some() {
+        return error_response(StatusCode::Conflict, "");
+    }
+
+    // Insert new model
     let user = users::ActiveModel {
         username: Set(input.username),
         slug: Set(slug),
@@ -67,7 +84,6 @@ pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
         deleted_at: Set(None),
         ..Default::default()
     };
-
     let model = user.insert(db).await?;
     let output = CreateUserOutput {
         id: model.id.unwrap(),
