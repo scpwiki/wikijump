@@ -77,6 +77,7 @@
                     <mj-text align="center" font-size="10px" line-height="12px">
                         {{ __('email.SUBSCRIBED') }}
                         <br />
+                        <br />
                         <a href="{{ $unsubscribe_url }}">
                             {{ __('email.UNSUBSCRIBE') }}
                         </a>
