@@ -115,8 +115,8 @@ pub async fn user_delete(_req: ApiRequest) -> ApiResponse {
 
 fn get_user_slug(username: &str) -> String {
     let mut slug = str!(username);
+    replace_in_place(&mut slug, ":", "-");
     normalize(&mut slug);
-    replace_in_place(&mut slug, ":", "");
     slug
 }
 
