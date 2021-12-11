@@ -41,7 +41,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     // User
     app.at("/user/:type/:id_or_slug")
         .get(user_get)
-        .put(user_put);
+        .post(user_post)
+        .put(user_put)
+        .delete(user_delete);
 
     app
 }

@@ -49,7 +49,17 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
     }
 }
 
+pub async fn user_post(_req: ApiRequest) -> ApiResponse {
+    // returns ()
+    todo!()
+}
+
 pub async fn user_put(_req: ApiRequest) -> ApiResponse {
+    // returns ()
+    todo!()
+}
+
+pub async fn user_delete(_req: ApiRequest) -> ApiResponse {
     // returns ()
     todo!()
 }
