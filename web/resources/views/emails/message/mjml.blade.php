@@ -44,7 +44,6 @@
     @endisset
 
     {{-- Action Button --}}
-    {{-- TODO: set color of button depending on $level --}}
     @isset($actionText, $actionUrl)
         <mj-section background-color="#fff" padding="5px 20px">
             <mj-column>
