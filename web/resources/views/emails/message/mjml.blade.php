@@ -94,7 +94,7 @@
         <mj-section background-color="#fff">
             <mj-column>
                 <mj-text align="center" font-size="10px">
-                    {{ __('email.SUBCOPY', ['action' => $actiontext]) }}
+                    {{ __('email.SUBCOPY', ['action' => $actionText]) }}
                     <br />
                     <br />
                     <a href="{{ $actionUrl }}">
