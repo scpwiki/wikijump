@@ -10,8 +10,9 @@ use Wikidot\Utils\GlobalProperties;
 use Wikijump\Http\Controllers\AuthController;
 use Wikijump\Http\Controllers\OzoneController;
 use Wikijump\Http\Controllers\PageController;
-use Wikijump\Mail\MJMLMessage;
 use Wikijump\Mail\MJMLTest;
+use Wikijump\Mail\PasswordResetMessage;
+use Wikijump\Mail\VerifyEmailMessage;
 use Wikijump\Models\User;
 
 use const Wikijump\Helpers\LegacyTools;
@@ -73,13 +74,12 @@ Route::get('email-text--test', function () {
     return new MJMLTest('text');
 });
 
-Route::get('email-message--test', function () {
-    return (new MJMLMessage())
-        ->subject('Verify Email Address')
-        ->greeting('Verify your email address')
-        ->line('Please verify your email address by clicking the button below.')
-        ->action('Verify Email Address', 'https://example.com/test-action')
-        ->line('If you did not create an account, no further action is required.');
+Route::get('email-reset-password--test', function () {
+    return new PasswordResetMessage('https://example.com/reset-password', 5);
+});
+
+Route::get('email-verify-email--test', function () {
+    return new VerifyEmailMessage('https://example.com/verify-email');
 });
 
 /**
