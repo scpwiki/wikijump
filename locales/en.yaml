@@ -77,6 +77,12 @@ wiki:
       TAGS: Tags
       BREADCRUMBS: Breadcrumbs
 
+email:
+  GOTO_SITE: Go to website
+  SUBSCRIBED: You received this email because you are subscribed.
+  UNSUBSCRIBE: Unsubscribe
+  UNSUBSCRIBE_TEXT: "If you wish to unsubscribe, go here:"
+
 # Generic UI components
 components:
   spinny:

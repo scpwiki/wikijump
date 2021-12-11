@@ -10,6 +10,7 @@ use Wikidot\Utils\GlobalProperties;
 use Wikijump\Http\Controllers\AuthController;
 use Wikijump\Http\Controllers\OzoneController;
 use Wikijump\Http\Controllers\PageController;
+use Wikijump\Mail\MJMLTest;
 use Wikijump\Models\User;
 
 use const Wikijump\Helpers\LegacyTools;
@@ -54,6 +55,23 @@ Route::get('/page--test', function () {
         'header_img_url' => '/files--static/media/logo-outline.min.svg',
     ]);
 });
+
+Route::get('email-mjml--test', function () {
+    return new MJMLTest('mjml');
+});
+
+Route::get('email-view--test', function () {
+    return new MJMLTest('view');
+});
+
+Route::get('email-markdown--test', function () {
+    return new MJMLTest('markdown');
+});
+
+Route::get('email-text--test', function () {
+    return new MJMLTest('text');
+});
+
 /**
  * Socialite route, null until I'm ready to begin work there.
  */

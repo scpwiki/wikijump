@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\UserValidation;
 
-use App\Models\User;
+use Wikijump\Models\User;
 use Illuminate\Contracts\Validation\Rule as RuleContract;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;

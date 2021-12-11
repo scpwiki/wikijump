@@ -50,10 +50,10 @@ RUN sed -i "s/%%BASE_DOMAIN%%/${MAIN_DOMAIN}/g" conf/wikijump.ini && \
     sed -i "s/%%FILE_DOMAIN%%/${FILES_DOMAIN}/g" conf/wikijump.ini
 
 #
-# ftml
+# Rust
 #
 
-FROM rust:latest AS ftml
+FROM rust:latest AS rust
 
 # Copy source
 RUN mkdir /src
@@ -65,6 +65,9 @@ RUN cargo build \
     --release \
     --no-default-features \
     --features ffi,mathml
+
+# Install mrml-cli for compiling MJML email templates
+RUN cargo install --locked --version 1.3.2 mrml-cli
 
 #
 # Localizations
@@ -93,8 +96,9 @@ FROM php
 EXPOSE 9000
 
 # Copy sources from intermediate images
-COPY --from=ftml /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
-COPY --from=ftml /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
+COPY --from=rust /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
+COPY --from=rust /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
+COPY --from=rust /usr/local/cargo/bin/mrml /usr/local/bin/mrml
 COPY --from=locales /src/locales/out/ /var/www/wikijump/web/public/files--built/locales
 
 # PHP configuration preparation

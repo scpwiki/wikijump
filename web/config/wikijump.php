@@ -121,4 +121,33 @@ return [
 
     /** The filesystem driver avatars should use. */
     'avatar_disk' => 's3',
+
+    /**
+     * Social media links that appear in the footer of emails.
+     *
+     * Each array element is an array with the following keys:
+     * - name: the name of the social media service (MJML syntax)
+     * - url: the URL to link to
+     * - text: the text to display
+     * - src: icon image source
+     *
+     * None of the keys are required.
+     */
+    'mail_social_links' => [
+        [
+            'name' => 'web',
+            'url' => 'https://www.wikijump.org',
+            'text' => 'Blog',
+        ],
+        [
+            'name' => 'twitter',
+            'url' => 'https://twitter.com/getwikijump',
+            'text' => 'Twitter',
+        ],
+        [
+            'name' => 'github',
+            'url' => 'https://github.com/scpwiki/wikijump',
+            'text' => 'GitHub',
+        ],
+    ],
 ];
