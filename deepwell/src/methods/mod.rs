@@ -24,6 +24,7 @@ mod prelude {
     pub use crate::web::ItemReference;
     pub use chrono::prelude::*;
     pub use sea_orm::entity::prelude::*;
+    pub use sea_orm::Set;
     pub use std::convert::TryFrom;
     pub use tide::{Body, Error, Request, StatusCode};
 }

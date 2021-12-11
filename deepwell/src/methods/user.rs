@@ -18,9 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::utils::replace_in_place;
 use self::users::Entity as User;
 use super::prelude::*;
+use crate::utils::replace_in_place;
+use chrono::{NaiveDateTime, Utc};
 use wikidot_normalize::normalize;
 
 pub async fn user_get(req: ApiRequest) -> ApiResponse {
@@ -51,9 +52,55 @@ pub async fn user_get(req: ApiRequest) -> ApiResponse {
     }
 }
 
-pub async fn user_post(_req: ApiRequest) -> ApiResponse {
-    // returns ()
-    todo!()
+#[derive(Deserialize, Debug)]
+struct CreateUser {
+    username: String,
+    email: String,
+    password: String,
+    language: Option<String>,
+}
+
+#[derive(Serialize, Debug)]
+struct CreateUserOutput {
+    id: i64,
+}
+
+pub async fn user_post(mut req: ApiRequest) -> ApiResponse {
+    let input: CreateUser = req.body_json().await?;
+    let db = &req.state().database;
+
+    let slug = get_user_slug(&input.username);
+    let user = users::ActiveModel {
+        username: Set(input.username),
+        slug: Set(slug),
+        email: Set(input.email),
+        email_verified_at: Set(None),
+        password: Set(input.password),
+        multi_factor_secret: Set(None),
+        multi_factor_recovery_codes: Set(None),
+        remember_token: Set(None),
+        language: Set(input.language),
+        karma_points: Set(0),
+        karma_level: Set(0),
+        real_name: Set(None),
+        pronouns: Set(None),
+        dob: Set(None),
+        bio: Set(None),
+        about_page: Set(None),
+        avatar_path: Set(None),
+        created_at: Set(Some(now())),
+        updated_at: Set(None),
+        deleted_at: Set(None),
+        ..Default::default()
+    };
+
+    let model = user.insert(db).await?;
+    let output = CreateUserOutput {
+        id: model.id.unwrap(),
+    };
+
+    let body = Body::from_json(&output)?;
+    Ok(body.into())
 }
 
 pub async fn user_put(_req: ApiRequest) -> ApiResponse {
@@ -71,4 +118,9 @@ fn get_user_slug(username: &str) -> String {
     normalize(&mut slug);
     replace_in_place(&mut slug, ":", "");
     slug
+}
+
+#[inline]
+fn now() -> NaiveDateTime {
+    Utc::now().naive_utc()
 }
