@@ -18,7 +18,7 @@ RUN cargo build --release
 
 FROM alpine:latest
 
-COPY --from=ftml /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
+COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 
 USER daemon
 CMD ["/usr/local/bin/deepwell"]
