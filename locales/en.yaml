@@ -83,11 +83,6 @@ email:
   UNSUBSCRIBE: Unsubscribe
   UNSUBSCRIBE_TEXT: "If you wish to unsubscribe, go here:"
 
-  social:
-    BLOG: Wikijump Blog
-    TWITTER: "@GetWikijump"
-    GITHUB: scpwiki/wikijump
-
 # Generic UI components
 components:
   spinny:
