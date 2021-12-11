@@ -18,8 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::utils::replace_in_place;
 use self::users::Entity as User;
 use super::prelude::*;
+use wikidot_normalize::normalize;
 
 pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
@@ -62,4 +64,11 @@ pub async fn user_put(_req: ApiRequest) -> ApiResponse {
 pub async fn user_delete(_req: ApiRequest) -> ApiResponse {
     // returns ()
     todo!()
+}
+
+fn get_user_slug(username: &str) -> String {
+    let mut slug = str!(username);
+    normalize(&mut slug);
+    replace_in_place(&mut slug, ":", "");
+    slug
 }

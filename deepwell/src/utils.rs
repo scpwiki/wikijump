@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * util.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,45 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![forbid(unsafe_code)]
-#![deny(missing_debug_implementations)]
+pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
+    while let Some(index) = string.find(pattern) {
+        let end = index + replacement.len();
 
-//! A web server to expose Wikijump operations via a versioned REST API.
-
-#[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
-extern crate serde;
-
-#[macro_use]
-extern crate str_macro;
-
-mod api;
-mod config;
-mod database;
-mod locales;
-mod methods;
-mod models;
-mod services;
-mod utils;
-mod web;
-
-use self::config::Config;
-use anyhow::Result;
-
-#[async_std::main]
-async fn main() -> Result<()> {
-    let config = Config::load();
-    let socket_address = config.address;
-
-    if config.logger {
-        tide::log::start();
-        tide::log::info!("Loaded server configuration");
+        string.replace_range(index..end, replacement);
     }
-
-    let app = api::build_server(config).await?;
-    app.listen(socket_address).await?;
-
-    Ok(())
 }
