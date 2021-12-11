@@ -21,7 +21,7 @@
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::models::*;
-    pub use crate::web::ItemReference;
+    pub use crate::web::{HttpUnwrap, ItemReference};
     pub use chrono::prelude::*;
     pub use sea_orm::entity::prelude::*;
     pub use sea_orm::Set;

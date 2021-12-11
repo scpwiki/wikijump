@@ -1,5 +1,5 @@
 /*
- * web/mod.rs
+ * web/unwrap.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,11 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod reference;
-mod unwrap;
+use tide::{Error, StatusCode};
 
-pub mod ratelimit;
-pub mod utils;
+pub trait HttpUnwrap<T> {
+    fn ok_or_404(self) -> Result<T, Error>;
+}
 
-pub use self::reference::ItemReference;
-pub use self::unwrap::HttpUnwrap;
+impl<T> HttpUnwrap<T> for Option<T> {
+    fn ok_or_404(self) -> Result<T, Error> {
+        match self {
+            Some(object) => Ok(object),
+            None => Err(Error::from_str(StatusCode::NotFound, "")),
+        }
+    }
+}

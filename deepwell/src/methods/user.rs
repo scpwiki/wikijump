@@ -22,34 +22,21 @@ use self::users::Entity as User;
 use super::prelude::*;
 use crate::utils::replace_in_place;
 use chrono::{NaiveDateTime, Utc};
+use sea_orm::DatabaseConnection;
 use wikidot_normalize::normalize;
 
 pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
     let db = &req.state().database;
+    let user = get_user(reference, db).await?.ok_or_404()?;
 
-    let user = match reference {
-        ItemReference::Id(id) => User::find_by_id(id).one(db).await?,
-        ItemReference::Slug(slug) => {
-            User::find()
-                .filter(users::Column::Slug.eq(slug))
-                .one(db)
-                .await?
-        }
-    };
-
-    match user {
-        Some(user) => {
-            // This includes fields like the password hash.
-            //
-            // For now this is fine, but depending on what
-            // we want the usage of the API to be, we may
-            // want to filter out fields.
-            let body = Body::from_json(&user)?;
-            Ok(body.into())
-        }
-        None => Err(Error::from_str(StatusCode::NotFound, "")),
-    }
+    // This includes fields like the password hash.
+    //
+    // For now this is fine, but depending on what
+    // we want the usage of the API to be, we may
+    // want to filter out fields.
+    let body = Body::from_json(&user)?;
+    Ok(body.into())
 }
 
 #[derive(Deserialize, Debug)]
@@ -103,14 +90,41 @@ pub async fn user_post(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn user_put(_req: ApiRequest) -> ApiResponse {
+pub async fn user_put(req: ApiRequest) -> ApiResponse {
+    let reference = ItemReference::try_from(&req)?;
+    let db = &req.state().database;
+    let user = get_user(reference, db).await?.ok_or_404()?;
+
     // returns ()
     todo!()
 }
 
-pub async fn user_delete(_req: ApiRequest) -> ApiResponse {
+pub async fn user_delete(req: ApiRequest) -> ApiResponse {
+    let reference = ItemReference::try_from(&req)?;
+    let db = &req.state().database;
+    let user = get_user(reference, db).await?.ok_or_404()?;
+
     // returns ()
     todo!()
+}
+
+// Helpers
+
+async fn get_user(
+    reference: ItemReference<'_>,
+    db: &DatabaseConnection,
+) -> Result<Option<users::Model>, Error> {
+    let user = match reference {
+        ItemReference::Id(id) => User::find_by_id(id).one(db).await?,
+        ItemReference::Slug(slug) => {
+            User::find()
+                .filter(users::Column::Slug.eq(slug))
+                .one(db)
+                .await?
+        }
+    };
+
+    Ok(user)
 }
 
 fn get_user_slug(username: &str) -> String {
