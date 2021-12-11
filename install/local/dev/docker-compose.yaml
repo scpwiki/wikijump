@@ -36,6 +36,16 @@ services:
     depends_on:
       - php-fpm
 
+  api:
+    build:
+      context: ../../..
+      dockerfile: install/local/dev/api/Dockerfile
+    ports:
+      - "2747:2747"
+    extra_hosts:
+      database:
+        condition: service_healthy
+
   php-fpm:
     build:
       context: ../../..
