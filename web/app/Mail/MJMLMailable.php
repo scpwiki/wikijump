@@ -21,7 +21,7 @@ class MJMLMailable extends Mailable
      * Sets the MJML template to use. This template has the highest priority.
      * Templates will be rendered by Blade first, and then by MJML.
      *
-     * @param string $mjml Path to the MJML template, in Blade template syntax..
+     * @param string $mjml Path to the MJML template, in Blade template syntax.
      * @param array $data Data to pass to the template.
      * @return $this
      */

@@ -20,6 +20,7 @@ class EmailBaseComposer
             ->with('HTTP_SCHEMA', GlobalProperties::$HTTP_SCHEMA)
             ->with('URL_DOMAIN', GlobalProperties::$URL_DOMAIN)
             ->with('URL_HOST', GlobalProperties::$URL_HOST)
-            ->with('SERVICE_NAME', GlobalProperties::$SERVICE_NAME);
+            ->with('SERVICE_NAME', GlobalProperties::$SERVICE_NAME)
+            ->with('social_links', config('wikijump.mail_social_links'));
     }
 }

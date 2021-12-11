@@ -5,6 +5,7 @@
         $logo_src
         $show_subscribed
         $unsubscribe_url
+        $social_links
 
     sections:
         content
@@ -50,29 +51,25 @@
         @yield('content')
 
         {{-- Social --}}
-        <mj-section padding-bottom="5px">
-            <mj-column>
-                <mj-social text-padding="0 10px 0 0">
-                    <mj-social-element name="web"
-                                       href="https://wikijump.org"
-                    >
-                        {{ __('email.social.BLOG') }}
-                    </mj-social-element>
-
-                    <mj-social-element name="twitter"
-                                       href="https://twitter.com/getwikijump"
-                    >
-                        {{ __('email.social.TWITTER') }}
-                    </mj-social-element>
-
-                    <mj-social-element name="github"
-                                       href="https://github.com/scpwiki/wikijump"
-                    >
-                        {{ __('email.social.GITHUB') }}
-                    </mj-social-element>
-                </mj-social>
-            </mj-column>
-        </mj-section>
+        @if(isset($social_links) && count($social_links) > 0)
+            <mj-section padding-bottom="5px">
+                <mj-column>
+                    <mj-social text-padding="0 20px 0 0">
+                        @foreach($social_links as $sl)
+                            {{-- This is a bit messy, but Blade doesn't
+                                 really offer a good way to do this --}}
+                            <mj-social-element
+                                {!! isset($sl['name']) ? 'name="' . $sl['name'] . '"' : '' !!}
+                                {!! isset($sl['url']) ? 'href="' . $sl['url'] . '"' : '' !!}
+                                {!! isset($sl['src']) ? 'src="' . $sl['src'] . '"' : '' !!}
+                            >
+                                {{ $sl['text'] ?? '' }}
+                            </mj-social-element>
+                        @endforeach
+                    </mj-social>
+                </mj-column>
+            </mj-section>
+        @endif
 
         {{-- Subscription --}}
         @if(isset($show_subscribed) && $show_subscribed && isset($unsubscribe_url))
