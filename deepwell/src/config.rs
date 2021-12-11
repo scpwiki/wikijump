@@ -42,8 +42,13 @@ pub struct Config {
 
     /// The URL of the PostgreSQL database to connect to.
     ///
-    /// Can be set using environment variables `DEEPWELL_DATABASE_URL`.
+    /// Can be set using environment variable `DEEPWELL_DATABASE_URL`.
     pub database_url: String,
+
+    /// Whether to run migrations on startup.
+    ///
+    /// Can be set using environment variable `DEEPWELL_RUN_MIGRATIONS`.
+    pub run_migrations: bool,
 
     /// The location where all gettext translation files are kept.
     ///
@@ -69,6 +74,7 @@ impl Default for Config {
             logger: true,
             address: "[::]:2747".parse().unwrap(),
             database_url: String::new(),
+            run_migrations: true,
             localization_path: PathBuf::from("../locales/out"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
             rate_limit_secret: String::new(),
@@ -112,6 +118,16 @@ fn read_env(config: &mut Config) {
 
     if let Ok(value) = env::var("DEEPWELL_DATABASE_URL") {
         config.database_url = value;
+    }
+
+    if let Ok(value) = env::var("DEEPWELL_RUN_MIGRATIONS") {
+        match value.parse() {
+            Ok(run) => config.run_migrations = run,
+            Err(_) => {
+                eprintln!("DEEPWELL_RUN_MIGRATIONS variable is not a valid boolean");
+                process::exit(1);
+            }
+        }
     }
 
     if let Some(value) = env::var_os("DEEPWELL_LOCALIZATION_PATH") {
@@ -176,6 +192,14 @@ fn parse_args(config: &mut Config) {
                 .help("The URL of the database to connect to."),
         )
         .arg(
+            Arg::with_name("run-migrations")
+                .short("M")
+                .long("migrate")
+                .long("run-migrations")
+                .takes_value(true)
+                .help("Whether to run migrations on server startup."),
+        )
+        .arg(
             Arg::with_name("localization-path")
                 .short("L")
                 .long("localizations")
@@ -211,6 +235,16 @@ fn parse_args(config: &mut Config) {
             Ok(port) => config.address.set_port(port),
             Err(_) => {
                 eprintln!("Invalid port number: {}", value);
+                process::exit(1);
+            }
+        }
+    }
+
+    if let Some(value) = matches.value_of("run-migrations") {
+        match value.parse() {
+            Ok(run) => config.run_migrations = run,
+            Err(_) => {
+                eprintln!("Invalid boolean value for migrations: {}", value);
                 process::exit(1);
             }
         }
