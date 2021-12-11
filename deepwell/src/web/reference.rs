@@ -36,8 +36,14 @@ impl<'a> TryFrom<&'a ApiRequest> for ItemReference<'a> {
         let value = req.param("id_or_slug")?;
 
         match value_type {
-            "slug" => Ok(ItemReference::Slug(value)),
+            "slug" => {
+                tide::log::debug!("Reference via slug, {}", value);
+
+                Ok(ItemReference::Slug(value))
+            }
             "id" => {
+                tide::log::debug!("Reference via ID, {}", value);
+
                 let id = value.parse()?;
                 Ok(ItemReference::Id(id))
             }
