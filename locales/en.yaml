@@ -82,6 +82,8 @@ email:
   SUBSCRIBED: You received this email because you are subscribed.
   UNSUBSCRIBE: Unsubscribe
   UNSUBSCRIBE_TEXT: "If you wish to unsubscribe, go here:"
+  SUBCOPY: >
+    If you are having trouble clicking the ''{action}'' button, copy paste the URL below into your web browser:
 
 # Generic UI components
 components:
