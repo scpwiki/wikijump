@@ -26,20 +26,6 @@ use wikidot_normalize::normalize;
 
 type Maybe<T> = Option<T>;
 
-pub async fn user_get(req: ApiRequest) -> ApiResponse {
-    let reference = ItemReference::try_from(&req)?;
-    let db = &req.state().database;
-    let user = get_user(reference, db).await?.ok_or_404()?;
-
-    // This includes fields like the password hash.
-    //
-    // For now this is fine, but depending on what
-    // we want the usage of the API to be, we may
-    // want to filter out fields.
-    let body = Body::from_json(&user)?;
-    Ok(body.into())
-}
-
 #[derive(Deserialize, Debug)]
 struct CreateUser {
     username: String,
@@ -53,7 +39,7 @@ struct CreateUserOutput {
     id: i64,
 }
 
-pub async fn user_post(mut req: ApiRequest) -> ApiResponse {
+pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let input: CreateUser = req.body_json().await?;
     let db = &req.state().database;
 
@@ -88,6 +74,20 @@ pub async fn user_post(mut req: ApiRequest) -> ApiResponse {
     };
 
     let body = Body::from_json(&output)?;
+    Ok(body.into())
+}
+
+pub async fn user_get(req: ApiRequest) -> ApiResponse {
+    let reference = ItemReference::try_from(&req)?;
+    let db = &req.state().database;
+    let user = get_user(reference, db).await?.ok_or_404()?;
+
+    // This includes fields like the password hash.
+    //
+    // For now this is fine, but depending on what
+    // we want the usage of the API to be, we may
+    // want to filter out fields.
+    let body = Body::from_json(&user)?;
     Ok(body.into())
 }
 

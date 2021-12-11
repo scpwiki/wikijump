@@ -39,9 +39,9 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     app.at("/message/:locale/:message_key").get(message_get);
 
     // User
+    app.at("/user").post(user_create);
     app.at("/user/:type/:id_or_slug")
         .get(user_get)
-        .post(user_post)
         .put(user_put)
         .delete(user_delete);
 
