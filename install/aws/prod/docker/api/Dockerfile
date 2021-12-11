@@ -18,7 +18,8 @@ RUN cargo build --release
 
 FROM alpine:latest
 
-COPY --from=api /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
+RUN apk add --no-cache curl
+COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
 
 USER daemon
 CMD ["/usr/local/bin/deepwell"]
