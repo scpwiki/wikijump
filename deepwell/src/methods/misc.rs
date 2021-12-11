@@ -27,7 +27,7 @@ pub async fn ping(req: ApiRequest) -> ApiResponse {
         .database
         .execute(Statement::from_string(
             DatabaseBackend::Postgres,
-            str!("SELECT 1;"),
+            str!("SELECT 1"),
         ))
         .await?;
 
