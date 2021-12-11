@@ -43,6 +43,8 @@ services:
     ports:
       - "2747:2747"
     extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
       database:
         condition: service_healthy
 
