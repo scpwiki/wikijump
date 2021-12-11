@@ -21,9 +21,10 @@
 use self::users::Entity as User;
 use super::prelude::*;
 use crate::utils::replace_in_place;
-use chrono::{NaiveDateTime, Utc};
 use sea_orm::DatabaseConnection;
 use wikidot_normalize::normalize;
+
+type Maybe<T> = Option<T>;
 
 pub async fn user_get(req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
@@ -90,22 +91,123 @@ pub async fn user_post(mut req: ApiRequest) -> ApiResponse {
     Ok(body.into())
 }
 
-pub async fn user_put(req: ApiRequest) -> ApiResponse {
+#[derive(Deserialize, Debug)]
+struct UpdateUser {
+    username: Maybe<String>,
+    username_changes: Maybe<i16>,
+    email: Maybe<String>,
+    email_verified: Maybe<bool>,
+    password: Maybe<String>,
+    multi_factor_secret: Maybe<Option<String>>,
+    multi_factor_recovery_codes: Maybe<Option<String>>,
+    remember_token: Maybe<Option<String>>,
+    language: Maybe<Option<String>>,
+    karma_points: Maybe<i32>,
+    karma_level: Maybe<i16>,
+    real_name: Maybe<Option<String>>,
+    pronouns: Maybe<Option<String>>,
+    dob: Maybe<Option<NaiveDate>>,
+    bio: Maybe<Option<String>>,
+    about_page: Maybe<Option<String>>,
+    avatar_path: Maybe<Option<String>>,
+}
+
+pub async fn user_put(mut req: ApiRequest) -> ApiResponse {
+    let input: UpdateUser = req.body_json().await?;
     let reference = ItemReference::try_from(&req)?;
     let db = &req.state().database;
-    let user = get_user(reference, db).await?.ok_or_404()?;
+    let mut user: users::ActiveModel = get_user(reference, db).await?.ok_or_404()?.into();
 
-    // returns ()
-    todo!()
+    // Add each field
+    if let Some(username) = input.username {
+        let slug = get_user_slug(&username);
+        user.username = Set(username);
+        user.slug = Set(slug);
+    }
+
+    if let Some(username_changes) = input.username_changes {
+        user.username_changes = Set(username_changes);
+    }
+
+    if let Some(email) = input.email {
+        user.email = Set(email);
+    }
+
+    if let Some(email_verified) = input.email_verified {
+        let value = if email_verified { Some(now()) } else { None };
+        user.email_verified_at = Set(value);
+    }
+
+    if let Some(password) = input.password {
+        user.password = Set(password);
+    }
+
+    if let Some(multi_factor_secret) = input.multi_factor_secret {
+        user.multi_factor_secret = Set(multi_factor_secret);
+    }
+
+    if let Some(multi_factor_recovery_codes) = input.multi_factor_recovery_codes {
+        user.multi_factor_recovery_codes = Set(multi_factor_recovery_codes);
+    }
+
+    if let Some(remember_token) = input.remember_token {
+        user.remember_token = Set(remember_token);
+    }
+
+    if let Some(language) = input.language {
+        user.language = Set(language);
+    }
+
+    if let Some(karma_points) = input.karma_points {
+        user.karma_points = Set(karma_points);
+    }
+
+    if let Some(karma_level) = input.karma_level {
+        user.karma_level = Set(karma_level);
+    }
+
+    if let Some(real_name) = input.real_name {
+        user.real_name = Set(real_name);
+    }
+
+    if let Some(pronouns) = input.pronouns {
+        user.pronouns = Set(pronouns);
+    }
+
+    if let Some(dob) = input.dob {
+        user.dob = Set(dob);
+    }
+
+    if let Some(bio) = input.bio {
+        user.bio = Set(bio);
+    }
+
+    if let Some(about_page) = input.about_page {
+        user.about_page = Set(about_page);
+    }
+
+    if let Some(avatar_path) = input.avatar_path {
+        user.avatar_path = Set(avatar_path);
+    }
+
+    // Set update flag
+    user.updated_at = Set(Some(now()));
+
+    user.update(db).await?;
+    Ok(StatusCode::Ok.into())
 }
 
 pub async fn user_delete(req: ApiRequest) -> ApiResponse {
     let reference = ItemReference::try_from(&req)?;
     let db = &req.state().database;
-    let user = get_user(reference, db).await?.ok_or_404()?;
+    let mut user: users::ActiveModel = get_user(reference, db).await?.ok_or_404()?.into();
 
-    // returns ()
-    todo!()
+    // Set deletion flag
+    user.updated_at = Set(Some(now()));
+    user.deleted_at = Set(Some(now()));
+
+    user.update(db).await?;
+    Ok(StatusCode::Ok.into())
 }
 
 // Helpers
