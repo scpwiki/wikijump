@@ -152,8 +152,20 @@ account_panel:
   REMEMBER_ME: Remember me
   FORGOT_PASSWORD: Forgot your password?
   CREATE_ACCOUNT: Create an account
+
+  verify_email:
+    VERIFY_EMAIL: Verify Email
+    INTRO: >
+      Thank you for signing up.
+      An email has been sent to to the address you provided during registration.
+      Click the link inside of it to verify your account.
+    EMAIL_SENT: >
+      A new email has been sent.
+    RESEND_EMAIL: Resend Verification Email
+
   tips:
     CLOSE_DIALOG: Close
+
   errors:
     INTERNAL_ERROR: Internal server error. Please try again later.
     LOGIN_FAILED: Failed to login. Check your email/username and password.
@@ -162,6 +174,7 @@ account_panel:
     EMAIL_TAKEN: Email already in use.
     INVALID_INPUT: You need to fill out all required fields.
     CONFIRM_FAILED: Wrong password. Check the password you have entered.
+
   toasts:
     LOGGED_IN: Logged in!
     REGISTERED: Registration successful.
