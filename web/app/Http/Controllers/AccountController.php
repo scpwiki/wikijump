@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Wikijump\Http\Controllers;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
+use Wikijump\Models\User;
+use Wikijump\Services\UserValidation\UserValidation;
 
 /**
  * Controller for handling account related requests.
@@ -22,6 +26,55 @@ class AccountController extends Controller
     public function __construct(StatefulGuard $guard)
     {
         $this->guard = $guard;
+    }
+
+    /**
+     * Registers an account. Email validation will be required.
+     * Endpoint: `POST:/account/register` | `accountRegister`
+     */
+    public function register(Request $request): Response
+    {
+        // check if user is already logged in
+        if ($this->guard->check()) {
+            return new Response('', 409);
+        }
+
+        // validate request
+
+        $email = $request->input('email');
+        $username = $request->input('username');
+        $password = $request->input('password');
+
+        // TODO: differentiate response codes for different validation errors
+        if (
+            !UserValidation::isValidEmail($email) ||
+            !UserValidation::isValidUsername($username) ||
+            !UserValidation::isValidPassword($password)
+        ) {
+            return new Response('', 403);
+        }
+
+        // request validated: create user, send email, login, and return response
+
+        /** @var User */
+        $user = User::create([
+            'username' => $username,
+            'email' => $email,
+            'password' => Hash::make($password),
+        ]);
+
+        // send verification email
+        $user->sendEmailVerificationNotification();
+
+        // registering automatically logs in the user
+        // this is needed so that the resending of the verification email works
+        $this->guard->login($user);
+
+        // prevent session fixation
+        $request->session()->regenerate();
+
+        // return new CSRF due to regenerated session
+        return new Response(['csrf' => $request->session()->token()], 202);
     }
 
     /**

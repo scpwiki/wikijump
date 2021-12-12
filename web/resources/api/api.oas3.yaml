@@ -309,9 +309,7 @@ paths:
 
   /account/register:
     post:
-      description: >
-        Registers an account.
-        Does not automatically login. Email validation will be required.
+      description: Registers an account. Email validation will be required.
       tags: [account]
       operationId: accountRegister
       requestBody:

@@ -28,7 +28,7 @@ Route::post('/auth/refresh', [AuthController::class, 'refresh']);
 
 // -- ACCOUNT
 // these can be implemented!
-// TODO: accountRegister
+Route::post('/account/register', [AccountController::class, 'register']);
 Route::post('/account/send-verification-email', [
     AccountController::class,
     'sendVerificationEmail',
