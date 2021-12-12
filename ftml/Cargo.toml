@@ -11,7 +11,7 @@ exclude = [".gitignore", ".github"]
 version = "1.12.5"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2021" # this is *not* the same as the current year
-rust-version = "1.56.0"
+rust-version = "1.57.0"
 
 [lib]
 name = "ftml"
