@@ -42,6 +42,8 @@ services:
       dockerfile: install/local/dev/api/Dockerfile
     ports:
       - "2747:2747"
+    environment:
+      - "DEEPWELL_DATABASE_URL=postgres://wikijump:wikijump@database/wikijump"
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-i", "http://localhost:2747/api/v0/ping"]
