@@ -1102,7 +1102,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       method: "POST",
       body: data,
       type: ContentType.Json,
-      format: "json",
       ...params
     })
 
@@ -1166,7 +1165,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       path: `/auth/refresh`,
       method: "POST",
       secure: true,
-      format: "json",
       ...params
     })
 
@@ -1181,7 +1179,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     data: { username: Username; email: Email; password: string },
     params: RequestParams = {}
   ) =>
-    this.request<void, void>({
+    this.request<{ csrf: string }, void>({
       path: `/account/register`,
       method: "POST",
       body: data,
