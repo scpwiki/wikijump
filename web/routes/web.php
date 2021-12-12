@@ -136,6 +136,30 @@ Route::get('/user--avatar/{user}', function (User $user) {
 // TODO: emails
 // TODO: two factor
 
+// Email Verification
+Route::prefix('user--services')
+    ->middleware('auth')
+    ->group(function () {
+        Route::get('/verify-email', function (User $user) {
+            // don't allow showing the verification notice if the user is already verified
+            if ($user->hasVerifiedEmail()) {
+                return redirect('/');
+            }
+
+            return view('next.auth.verify-email');
+        })->name('verification.notice');
+
+        Route::get('/verify-email/{id}/{hash}', function (
+            EmailVerificationRequest $request
+        ) {
+            $request->fulfill();
+
+            return redirect('/');
+        })
+            ->middleware('signed')
+            ->name('verification.verify');
+    });
+
 // Auth (verified) Routes
 Route::prefix('user--services')
     ->middleware(['auth', 'verified'])
@@ -156,38 +180,6 @@ Route::prefix('user--services')
         Route::view('/login', 'next.auth.login')->name('login');
         Route::view('/register', 'next.auth.register')->name('register');
     });
-
-// Email Verification Notice
-Route::get('/user--services/verify-email', function (User $user) {
-    // don't allow showing the verification notice if the user is already verified
-    if ($user->hasVerifiedEmail()) {
-        return redirect('/');
-    }
-
-    return view('next.auth.verify-email');
-})
-    ->middleware('auth')
-    ->name('verification.notice');
-
-// Email Verification Handler
-Route::get('/user--services/verify-email/{id}/{hash}', function (
-    EmailVerificationRequest $request
-) {
-    $request->fulfill();
-
-    return redirect('/');
-})
-    ->middleware(['auth', 'signed'])
-    ->name('verification.verify');
-
-// Email Verification Resend
-// TODO: should probably be moved to the API
-Route::post('/user--services/verify-email/resend', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return response('', 200);
-})
-    ->middleware('auth')
-    ->name('verification.send');
 
 // -- WIKI
 

@@ -351,6 +351,20 @@ paths:
         403: { description: Email already in use. }
         500: { description: Unexpected Error }
 
+  /account/send-verification-email:
+    post:
+      description: Sends a verification email to the account's address.
+      tags: [account]
+      operationId: accountSendVerificationEmail
+      security:
+      - AccountSession: []
+      responses:
+        202: { description: Accepted }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Email has already been verified. }
+        500: { description: Unexpected Error }
+
   /account/request-deletion:
     post:
       description: >

@@ -11,12 +11,17 @@
     busy = true
     error = ""
 
-    const res = await fetch("/user--services/verify-email/resend", { method: "POST" })
-
-    if (res.ok) {
+    try {
+      await WikijumpAPI.accountSendVerificationEmail()
       resent = true
-    } else {
-      error = $t("account_panel.errors.INTERNAL_ERROR")
+    } catch (err) {
+      if (err instanceof Response) {
+        // you can't get to this page without being logged in and unverified
+        // so probably any error is internal
+        error = $t("account_panel.errors.INTERNAL_ERROR")
+      } else {
+        throw err
+      }
     }
 
     busy = false

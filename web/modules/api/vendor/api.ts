@@ -1190,6 +1190,22 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     })
 
   /**
+   * @description Sends a verification email to the account's address.
+   *
+   * @tags account
+   * @name AccountSendVerificationEmail
+   * @request POST:/account/send-verification-email
+   * @secure
+   */
+  accountSendVerificationEmail = (params: RequestParams = {}) =>
+    this.request<void, void>({
+      path: `/account/send-verification-email`,
+      method: "POST",
+      secure: true,
+      ...params
+    })
+
+  /**
    * @description Starts the deletion process for an account. Requires additional email validation for the process to complete.
    *
    * @tags account
