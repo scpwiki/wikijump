@@ -80,8 +80,7 @@ impl FloatAlignment {
 
         IMAGE_ALIGNMENT_REGEX
             .find(name)
-            .map(|mtch| FloatAlignment::try_from(mtch.as_str()).ok())
-            .flatten()
+            .and_then(|mtch| FloatAlignment::try_from(mtch.as_str()).ok())
     }
 
     pub fn html_class(self) -> &'static str {
