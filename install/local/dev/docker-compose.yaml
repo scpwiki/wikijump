@@ -21,7 +21,7 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "wikijump"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 6
 
@@ -47,7 +47,7 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-i", "http://localhost:2747/api/v0/ping"]
-      interval: 5s
+      interval: 60s
       timeout: 2s
       retries: 3
     extra_hosts:
