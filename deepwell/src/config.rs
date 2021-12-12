@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::info;
 use clap::{App, Arg};
 use dotenv::dotenv;
 use std::env;
@@ -161,6 +162,10 @@ fn read_env(config: &mut Config) {
 
 fn parse_args(config: &mut Config) {
     let matches = App::new("DEEPWELL")
+        .author(info::PKG_AUTHORS)
+        .version(info::VERSION.as_str())
+        .long_version(info::FULL_VERSION.as_str())
+        .about(info::PKG_DESCRIPTION)
         .arg(
             Arg::with_name("disable-log")
                 .short("q")
