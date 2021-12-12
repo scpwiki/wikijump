@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::info;
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 
 pub async fn ping(req: ApiRequest) -> ApiResponse {
@@ -33,4 +34,8 @@ pub async fn ping(req: ApiRequest) -> ApiResponse {
 
     // Seems good, respond to user
     Ok("Pong!".into())
+}
+
+pub async fn version(_: ApiRequest) -> ApiResponse {
+    Ok(info::FULL_VERSION.as_str().into())
 }

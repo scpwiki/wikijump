@@ -24,7 +24,7 @@
 
 use crate::api::ApiServer;
 use crate::methods::locales::*;
-use crate::methods::misc::ping;
+use crate::methods::misc::*;
 use crate::methods::user::*;
 use crate::web::utils::error_response;
 use tide::StatusCode;
@@ -32,6 +32,7 @@ use tide::StatusCode;
 pub fn build(mut app: ApiServer) -> ApiServer {
     // Miscellaneous
     app.at("/ping").all(ping);
+    app.at("/version").get(version);
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
