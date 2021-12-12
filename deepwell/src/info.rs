@@ -38,8 +38,9 @@ lazy_static! {
 
     pub static ref FULL_VERSION: String = {
         format!(
-            "{}\n\nCompiled:\n* across {} threads\n* by {}\n* for {}\n* on {}",
-            &*VERSION,
+            "v{} [{}]\n\nCompiled:\n* across {} threads\n* by {}\n* for {}\n* on {}",
+            PKG_VERSION,
+            GIT_COMMIT_HASH.unwrap_or("nohash"),
             NUM_JOBS,
             RUSTC_VERSION,
             TARGET,
