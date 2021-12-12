@@ -16,10 +16,19 @@ use Wikijump\Services\MJML\MJML;
 class MJMLMessage extends MailMessage
 {
     /** MJML template path. */
-    protected string $mjml = 'emails.message.mjml';
+    public ?string $mjml = 'emails.message.mjml';
 
     /** Text fallback template path. */
-    protected string $text = 'emails.message.text';
+    public ?string $text = 'emails.message.text';
+
+    /**
+     * Constructs a new `MJMLMessage`.
+     */
+    public function __construct()
+    {
+        // MailMessage sets this automatically, which we don't want
+        $this->markdown = null;
+    }
 
     /**
      * Sets the MJML template to use. This template has the highest priority.
