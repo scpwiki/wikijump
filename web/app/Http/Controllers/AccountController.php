@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
+use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
 use Wikijump\Services\UserValidation\UserValidation;
 
@@ -54,11 +55,16 @@ class AccountController extends Controller
             return new Response('', 403);
         }
 
+        // slugify username - the isValidUsername method already checked if
+        // the slug is unique so we're safe to do this
+        $slug = WDStringUtils::toUnixName($username);
+
         // request validated: create user, send email, login, and return response
 
         /** @var User */
         $user = User::create([
             'username' => $username,
+            'slug' => $slug,
             'email' => $email,
             'password' => Hash::make($password),
         ]);
