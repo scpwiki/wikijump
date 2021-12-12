@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Wikijump\Mail;
 
-use Illuminate\Container\Container;
+use Closure;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Wikijump\Services\MJML\MJML;
 
@@ -12,6 +13,8 @@ use Wikijump\Services\MJML\MJML;
  * MailMessage that supports using MJML, and text fallbacks.
  *
  * Use the `mjml` method to set the MJML view, and likewise for `text`.
+ *
+ * Make sure to call `parent::__construct()` in your constructor.
  */
 class MJMLMessage extends MailMessage
 {
@@ -21,13 +24,11 @@ class MJMLMessage extends MailMessage
     /** Text fallback template path. */
     public ?string $text = 'emails.message.text';
 
-    /**
-     * Constructs a new `MJMLMessage`.
-     */
+    public $markdown = null;
+
     public function __construct()
     {
-        // MailMessage sets this automatically, which we don't want
-        $this->markdown = null;
+        $this->view = $this->makeViewArray();
     }
 
     /**
@@ -42,6 +43,9 @@ class MJMLMessage extends MailMessage
     {
         $this->mjml = $mjml;
         $this->viewData = array_merge($this->viewData, $data);
+
+        $this->view = $this->makeViewArray();
+        $this->markdown = null;
 
         return $this;
     }
@@ -58,45 +62,57 @@ class MJMLMessage extends MailMessage
         $this->text = $text;
         $this->viewData = array_merge($this->viewData, $data);
 
+        $this->view = $this->makeViewArray();
+
         return $this;
     }
 
-    /**
-     * Renders the notification message into an HTML string.
-     */
-    public function render(): string
+    private function makeViewArray(): array
     {
-        // I'm really not quite sure how this all works
-        // honestly the way Laravel has this set up is bizarre
-        // and really hard to follow
-
         if (isset($this->mjml)) {
-            if (isset($this->text)) {
-                $data = $this->data();
+            // closures can't use the `$this` keyword, so we need to pass it in
+            $self = $this;
+            $dataCallback = function () use (&$self) {
+                return $self->data();
+            };
 
-                $html = MJML::render($this->mjml, $data);
-                $text = $this->text;
-
-                /** @var \Illuminate\Mail\Mailer $mailer */
-                $mailer = Container::getInstance()->make('mailer');
-
-                // it's important that the `html` property is Htmlable
-                // and that the `text` property is just a template identifier
-
-                return $mailer->render(['html' => $html, 'text' => $text], $data);
-            } else {
-                return MJML::render($this->mjml, $this->data())->toHtml();
-            }
+            return array_filter([
+                'html' => new MJMLDeferredHtmlable($this->mjml, $dataCallback),
+                'text' => $this->text,
+            ]);
         }
 
-        // normal MailMessage supports text fallback, but differently.
-        // it makes the $view property an array, so before we go back to
-        // the parent method we need to make sure $view is setup correctly
-
-        if (isset($this->view, $this->text) && !is_array($this->view)) {
-            $this->view = [$this->view, $this->text];
+        if (is_array($this->view)) {
+            return $this->view;
         }
 
-        return parent::render();
+        return array_filter([$this->view, $this->text]);
+    }
+}
+
+/**
+ * MJML `Htmlable` that defers rendering until the `toHtml` method is called.
+ * This allows us to render the MJML template when we're confident that the
+ * view data is finalized. This is important because Laravel's mailer tries to
+ * handle rendering itself. The only way to avoid that is to use a `Htmlable`
+ * object, which the mailer will call `toHtml` on rather than rendering with Blade.
+ */
+class MJMLDeferredHtmlable implements Htmlable
+{
+    private string $view;
+
+    private Closure $dataCallback;
+
+    public function __construct(string $view, Closure $dataCallback)
+    {
+        $this->view = $view;
+        $this->dataCallback = $dataCallback;
+    }
+
+    public function toHtml(): string
+    {
+        $data = ($this->dataCallback)();
+
+        return MJML::render($this->view, $data)->toHtml();
     }
 }
