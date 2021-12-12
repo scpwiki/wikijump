@@ -74,14 +74,14 @@ final class DeepwellService
     public function version(bool $full = false): string
     {
         $method = $full ? 'version/full' : 'version';
-        return (string)$this->client->get($method)->getBody();
+        return (string) $this->client->get($method)->getBody();
     }
 
     // Helper functions
 
     private static function readJson($resp): object
     {
-        $json = (string)$resp->getBody();
+        $json = (string) $resp->getBody();
         return json_decode($json);
     }
 
