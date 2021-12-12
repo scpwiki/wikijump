@@ -10,7 +10,7 @@ use Wikijump\Services\MJML\MJML;
 /**
  * Mailable that supports using MJML.
  *
- * Use the `mjml` method to set the MJML content.
+ * Use the `mjml` method to set the MJML view.
  */
 class MJMLMailable extends Mailable
 {

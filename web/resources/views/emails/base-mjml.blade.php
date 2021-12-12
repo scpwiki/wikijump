@@ -10,7 +10,6 @@
     sections:
         content
 
-    The very first mj-section should have its padding-top set to 10px.
     All content sections should have their background-color set to #fff.
 --}}
 
@@ -32,7 +31,7 @@
         </mj-section>
 
         {{-- Header --}}
-        <mj-section background-color="#fff">
+        <mj-section background-color="#fff" padding-bottom="0">
             <mj-column>
                 <mj-image width="400px"
                           src="{{ $HTTP_SCHEMA }}://{{ $URL_HOST }}/files--static/media/logo.png"
@@ -40,7 +39,7 @@
                           alt="{{ __('email.GOTO_SITE') }}"
                 />
                 <mj-divider border-width="2px"
-                            border-color="#aaa"
+                            border-color="#eee"
                             padding-bottom="0"
                             padding-top="20px"
                 />
@@ -77,6 +76,7 @@
                 <mj-column>
                     <mj-text align="center" font-size="10px" line-height="12px">
                         {{ __('email.SUBSCRIBED') }}
+                        <br />
                         <br />
                         <a href="{{ $unsubscribe_url }}">
                             {{ __('email.UNSUBSCRIBE') }}

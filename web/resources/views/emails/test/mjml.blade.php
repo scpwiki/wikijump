@@ -1,7 +1,7 @@
 @extends('emails.base-mjml')
 
 @section('content')
-    <mj-section background-color="#fff" padding-top="10px">
+    <mj-section background-color="#fff">
         <mj-column>
             <mj-text>
                 This is a test email, using MJML.

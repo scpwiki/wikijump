@@ -22,14 +22,22 @@ final class MJML
      * @param string $template_path Blade template path.
      * @param array $data Data to be passed to the template.
      */
-    public static function render(string $template_path, array $data = []): HtmlString
+    public static function render(string $template_path, array $data = []): MJMLString
     {
         $view = view($template_path, $data);
-        $raw_mjml = $view->render();
+        return new MJMLString($view->render());
+    }
 
+    /**
+     * Compiles a MJML template into HTML.
+     *
+     * @param string $mjml MJML to compile.
+     */
+    public static function compile(string $mjml): string
+    {
         // we use the hash of the raw MJML, because Blade templates already
         // have caching built in, so we'll reuse that machinery rather than remaking it
-        $hash = hash('sha256', $raw_mjml);
+        $hash = hash('sha256', $mjml);
 
         // cache hit, return the cached HTML
         if (Cache::has($hash)) {
@@ -40,8 +48,9 @@ final class MJML
         // command has a 5 second timeout
         // if rendering takes longer than that, something is very wrong
         // average render time should be in milliseconds
-        $proc = Process::fromShellCommandline('mrml render', null, null, $raw_mjml, 5);
-
+        $proc = new Process(['mrml', 'render']);
+        $proc->setInput($mjml);
+        $proc->setTimeout(5);
         $proc->run();
 
         if (!$proc->isSuccessful()) {
@@ -55,6 +64,17 @@ final class MJML
         // caching is mostly for caching repeated emails, like marketing emails
         Cache::put($hash, $html, now()->addMinutes(5));
 
-        return new HtmlString($html);
+        return $html;
+    }
+}
+
+/**
+ * A fragment of MJML, that when unwrapped, will be rendered as HTML.
+ */
+class MJMLString extends HtmlString
+{
+    public function toHtml(): string
+    {
+        return MJML::compile($this->html);
     }
 }

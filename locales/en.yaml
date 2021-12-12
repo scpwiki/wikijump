@@ -82,6 +82,29 @@ email:
   SUBSCRIBED: You received this email because you are subscribed.
   UNSUBSCRIBE: Unsubscribe
   UNSUBSCRIBE_TEXT: "If you wish to unsubscribe, go here:"
+  SUBCOPY: >
+    If you are having trouble clicking the ''{action}'' button, copy paste the URL below into your web browser:
+
+  verify_email:
+    SUBJECT: Verify Email Address
+    GREETING: Verify your email address
+    INTRO: Please verify your email address by clicking the button below.
+    ACTION: Verify Email Address
+    OUTRO: If you did not create an account, no further action is required.
+
+  reset_password:
+    SUBJECT: Password Reset Requested
+    GREETING: Resetting your password
+    INTRO: >
+      You are receiving this email because we received a password reset request for your account. Click the button below to reset your password.
+    ACTION: Reset Password
+    EXPIRES: >
+      This password reset link will expire in {count, number} {count, plural,
+        =1 {minute.}
+        other {minutes.}
+      }
+    OUTRO: If you did not request a password reset, no further action is required.
+
 
 # Generic UI components
 components:
