@@ -15,6 +15,7 @@
       await WikijumpAPI.accountSendVerificationEmail()
       resent = true
     } catch (err) {
+      resent = false
       if (err instanceof Response) {
         // you can't get to this page without being logged in and unverified
         // so probably any error is internal
