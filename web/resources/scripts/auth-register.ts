@@ -6,9 +6,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const form = new RegisterForm({ target: container })
 
   form.$on("register", () => {
-    const backURL =
-      document.getElementById("app_auth")?.getAttribute("data-back-url") || "/"
-
-    location.href = backURL
+    // redirect to verification notification page
+    window.location.href = "/user--services/verify-email"
   })
 })
