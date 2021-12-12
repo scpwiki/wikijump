@@ -106,7 +106,7 @@ RUN python3 -m messages .
 FROM php
 EXPOSE 9000
 
-# Copy sources from intermediate images
+# Copy binaries from intermediate images
 COPY --from=rust /src/ftml/target/release/ftml.h /usr/local/include/ftml.h
 COPY --from=rust /src/ftml/target/release/libftml.so /usr/local/lib/libftml.so
 COPY --from=rust /usr/local/cargo/bin/mrml /usr/local/bin/mrml

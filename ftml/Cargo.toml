@@ -5,8 +5,8 @@ repository = "https://github.com/scpwiki/wikijump/tree/develop/ftml"
 readme = "README.md"
 license = "AGPL-3.0-or-later"
 keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
-categories = []
-exclude = [".gitignore", ".github"]
+categories = ["parser-implementations"]
+exclude = [".gitignore", ".editorconfig"]
 
 version = "1.12.5"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]

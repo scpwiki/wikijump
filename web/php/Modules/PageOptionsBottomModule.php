@@ -10,7 +10,6 @@ class PageOptionsBottomModule extends Module
 
     public function render($runData)
     {
-
         // quickly check - show or not.
 
         $pl = $runData->getParameterList();

@@ -11,6 +11,7 @@ ftml/test
 # Vendored files and artifacts
 ftml/target
 ftml/pkg
+deepwell/target
 web/logs
 web/public/files--built
 web/storage

@@ -1,0 +1,40 @@
+[package]
+name = "deepwell"
+description = "DEEPWELL - Wikijump API provider and database manager"
+repository = "https://github.com/scpwiki/wikijump/tree/develop/deepwell"
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+keywords = ["wikijump", "api", "backend", "wiki"]
+categories = ["asynchronous", "database", "web-programming::http-server"]
+exclude = [".gitignore", ".editorconfig"]
+
+version = "0.1.0"
+authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
+edition = "2021" # this is *not* the same as the current year
+rust-version = "1.56.0"
+
+[dependencies]
+anyhow = "1"
+async-std = { version = "1", features = ["attributes"] }
+chrono = { version = "0.4", features = ["serde"] }
+clap = "2"
+dotenv = "0.15"
+gettext = "0.4"
+governor = "0.3"
+hostname = "0.3"
+lazy_static = "1"
+sea-orm = { version = "0.4", features = ["sqlx-postgres", "runtime-async-std-rustls", "macros"], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+str-macro = "1"
+sqlx = "0.5"
+tide = "0.16"
+wikidot-normalize = "0.9"
+
+[build-dependencies]
+built = { version = "0.5", features = ["chrono", "git2"] }
+
+# Performance options
+
+[profile.release]
+lto = true

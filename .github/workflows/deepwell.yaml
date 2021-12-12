@@ -1,0 +1,111 @@
+name: '[deepwell] Rust'
+
+on:
+  push:
+    paths:
+      - 'deepwell/Cargo.toml'
+      - 'deepwell/Cargo.lock'
+      - 'deepwell/src/**'
+      - '.github/workflows/deepwell.yaml'
+
+jobs:
+  binary_build_and_test:
+    name: Executable
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            deepwell/target
+          key: ${{ runner.os }}-deepwell-default-${{ hashFiles('deepwell/**/Cargo.toml') }}
+
+      - name: Build
+        run: cd deepwell && cargo build
+
+      - name: Test
+        run: cd deepwell && cargo test --all-features -- --nocapture --test-threads 1
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            deepwell/target
+          key: ${{ runner.os }}-deepwell-coverage-${{ hashFiles('deepwell/**/Cargo.toml') }}
+
+      - name: Install Tarpaulin
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-tarpaulin
+          version: latest
+          use-tool-cache: true
+
+      - name: Generate Coverage
+        run: cd deepwell && cargo tarpaulin
+
+      - name: Export Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          directory: deepwell/target/coverage
+          flags: deepwell
+
+  clippy_lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+
+      - name: Cargo Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            deepwell/target
+          key: ${{ runner.os }}-deepwell-lint-${{ hashFiles('deepwell/**/Cargo.toml') }}
+
+      - name: Rustfmt
+        run: cd deepwell && cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cd deepwell && cargo clippy
