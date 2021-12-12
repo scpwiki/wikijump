@@ -48,8 +48,9 @@ final class MJML
         // command has a 5 second timeout
         // if rendering takes longer than that, something is very wrong
         // average render time should be in milliseconds
-        $proc = Process::fromShellCommandline('mrml render', null, null, $mjml, 5);
-
+        $proc = new Process(['mrml', 'render']);
+        $proc->setInput($mjml);
+        $proc->setTimeout(5);
         $proc->run();
 
         if (!$proc->isSuccessful()) {
