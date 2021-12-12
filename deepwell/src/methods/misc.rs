@@ -37,5 +37,9 @@ pub async fn ping(req: ApiRequest) -> ApiResponse {
 }
 
 pub async fn version(_: ApiRequest) -> ApiResponse {
+    Ok(info::VERSION.as_str().into())
+}
+
+pub async fn full_version(_: ApiRequest) -> ApiResponse {
     Ok(info::FULL_VERSION.as_str().into())
 }

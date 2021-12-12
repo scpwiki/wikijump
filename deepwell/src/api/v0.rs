@@ -33,6 +33,7 @@ pub fn build(mut app: ApiServer) -> ApiServer {
     // Miscellaneous
     app.at("/ping").all(ping);
     app.at("/version").get(version);
+    app.at("/version/full").get(full_version);
     app.at("/teapot")
         .get(|_| async { error_response(StatusCode::ImATeapot, "🫖") });
 
