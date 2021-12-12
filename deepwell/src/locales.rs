@@ -67,6 +67,11 @@ impl Localizations {
     /// Returns the translation for the given message key.
     /// If no translation exists, then the message key itself is returned.
     pub fn translate<'a>(&'a self, locale: &'_ str, key: &'a str) -> &'a str {
+        if key.is_empty() {
+            tide::log::warn!("Empty translation key passed");
+            return "";
+        }
+
         match self.catalogs.get(locale) {
             Some(catalog) => catalog.gettext(key),
             None => key,
