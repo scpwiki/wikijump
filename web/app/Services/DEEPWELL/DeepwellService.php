@@ -50,6 +50,11 @@ final class DeepwellService
         return self::parseUser($resp);
     }
 
+    public function setUser(int $id, array $fields): void
+    {
+        $this->client->put("user/id/$id", ['json' => $fields]);
+    }
+
     private function parseUser($resp): object
     {
         $user = self::readJson($resp);
