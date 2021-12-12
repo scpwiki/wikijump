@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Wikijump\Services\DEEPWELL;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 
 final class DeepwellService
@@ -29,7 +30,35 @@ final class DeepwellService
     }
 
     // User
-    // TODO
+    public function getUserById(int $id): ?object
+    {
+        $resp = $this->client->get("user/id/$id");
+        if ($resp->getStatusCode() === 404) {
+            return null;
+        }
+
+        return self::parseUser($resp);
+    }
+
+    public function getUserBySlug(string $slug): ?object
+    {
+        $resp = $this->client->get("user/slug/$slug");
+        if ($resp->getStatusCode() === 404) {
+            return null;
+        }
+
+        return self::parseUser($resp);
+    }
+
+    private function parseUser($resp): object
+    {
+        $user = self::readJson($resp);
+        $user->email_verified_at = self::nullableDate($user->email_verified_at);
+        $user->created_at = self::nullableDate($user->created_at);
+        $user->updated_at = self::nullableDate($user->updated_at);
+        $user->deleted_at = self::nullableDate($user->deleted_at);
+        return $user;
+    }
 
     // Miscellaneous
     public function ping(): void
@@ -41,5 +70,24 @@ final class DeepwellService
     {
         $method = $full ? 'version/full' : 'version';
         return (string)$this->client->get($method)->getBody();
+    }
+
+    // Helper functions
+
+    private static function readJson($resp): object
+    {
+        $json = (string)$resp->getBody();
+        return json_decode($json);
+    }
+
+    /**
+     * Parses a nullable string and returns a nullable date.
+     *
+     * @param string|null $value
+     * @return Carbon|null
+     */
+    private static function nullableDate(?string $value): ?Carbon
+    {
+        return $value ? new Carbon($value) : null;
     }
 }
