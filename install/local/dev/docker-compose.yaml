@@ -6,7 +6,7 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "11211"]
-      interval: 30s
+      interval: 10s
       timeout: 5s
       retries: 3
 
@@ -21,7 +21,7 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "wikijump"]
-      interval: 30s
+      interval: 10s
       timeout: 5s
       retries: 6
 
