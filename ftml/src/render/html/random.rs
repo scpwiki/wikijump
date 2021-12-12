@@ -38,13 +38,11 @@ pub struct Random {
 impl Default for Random {
     #[inline]
     fn default() -> Self {
-        let rng;
-
         cfg_if! {
             if #[cfg(test)] {
-                rng = SmallRng::from_seed(TEST_RANDOM_SEED);
+                let rng = SmallRng::from_seed(TEST_RANDOM_SEED);
             } else {
-                rng = SmallRng::from_entropy()
+                let rng = SmallRng::from_entropy();
             }
         }
 
