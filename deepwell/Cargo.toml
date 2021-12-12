@@ -30,6 +30,9 @@ sqlx = "0.5"
 tide = "0.16"
 wikidot-normalize = "0.9"
 
+[build-dependencies]
+built = "0.5"
+
 # Performance options
 
 [profile.release]

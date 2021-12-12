@@ -42,6 +42,10 @@ mod services;
 mod utils;
 mod web;
 
+mod info {
+    include!(concat!(env!("OUT_DIR"), "/built.rs"));
+}
+
 use self::config::Config;
 use anyhow::Result;
 
