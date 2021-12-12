@@ -40,12 +40,13 @@
   async function register() {
     if (inputsValid(inputEmail, inputUsername, inputPassword, inputPasswordConfirm)) {
       busy = true
+      error = ""
+
       try {
         const email = inputEmail.value
         const username = inputUsername.value
         const password = inputPassword.value
 
-        // does nothing right now
         await WikijumpAPI.accountRegister({ email, username, password })
 
         dispatch("register")
@@ -54,6 +55,7 @@
         if (err instanceof Response) error = statusErrorMessage(err.status)
         else throw err
       }
+
       busy = false
     } else {
       error = $t("account_panel.errors.INVALID_INPUT")
