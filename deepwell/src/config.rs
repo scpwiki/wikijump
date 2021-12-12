@@ -174,6 +174,7 @@ fn parse_args(config: &mut Config) {
                 .long("host")
                 .long("hostname")
                 .takes_value(true)
+                .value_name("host")
                 .help("What host to listen on."),
         )
         .arg(
@@ -181,6 +182,7 @@ fn parse_args(config: &mut Config) {
                 .short("p")
                 .long("port")
                 .takes_value(true)
+                .value_name("port")
                 .help("What port to listen on."),
         )
         .arg(
@@ -189,7 +191,8 @@ fn parse_args(config: &mut Config) {
                 .long("db")
                 .long("database")
                 .takes_value(true)
-                .help("The URL of the database to connect to."),
+                .value_name("uri")
+                .help("The URL of the PostgreSQL database to connect to."),
         )
         .arg(
             Arg::with_name("run-migrations")
@@ -197,6 +200,7 @@ fn parse_args(config: &mut Config) {
                 .long("migrate")
                 .long("run-migrations")
                 .takes_value(true)
+                .value_name("true / false")
                 .help("Whether to run migrations on server startup."),
         )
         .arg(
@@ -204,6 +208,7 @@ fn parse_args(config: &mut Config) {
                 .short("L")
                 .long("localizations")
                 .takes_value(true)
+                .value_name("path")
                 .help("The path to read translation files from."),
         )
         .arg(
@@ -211,6 +216,7 @@ fn parse_args(config: &mut Config) {
                 .short("r")
                 .long("requests-per-minute")
                 .takes_value(true)
+                .value_name("count")
                 .help("How many requests are allowed per IP address per minute."),
         )
         .get_matches();
