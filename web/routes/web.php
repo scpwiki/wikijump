@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
@@ -8,16 +7,12 @@ use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
 use Wikidot\Utils\AjaxModuleWikiFlowController;
 use Wikidot\Utils\GlobalProperties;
-use Wikijump\Http\Controllers\AccountController;
-use Wikijump\Http\Controllers\AuthController;
 use Wikijump\Http\Controllers\OzoneController;
 use Wikijump\Http\Controllers\PageController;
 use Wikijump\Mail\MJMLTest;
 use Wikijump\Mail\PasswordResetMessage;
 use Wikijump\Mail\VerifyEmailMessage;
 use Wikijump\Models\User;
-
-use const Wikijump\Helpers\LegacyTools;
 
 /**
  * We are instantiating a RunData object with every route request so we can pull
@@ -125,72 +120,6 @@ Route::get('/user--karma/{user}', function (User $user) {
 Route::get('/user--avatar/{user}', function (User $user) {
     return $user->avatar();
 });
-
-// -- USER SERVICES
-
-// TODO: two factor
-
-// Email Verification
-Route::prefix('user--services')
-    ->middleware('auth')
-    ->group(function () {
-        Route::get('/verify-email', function (User $user) {
-            // don't allow showing the verification notice if the user is already verified
-            if ($user->hasVerifiedEmail()) {
-                return redirect('/');
-            }
-
-            return view('next.auth.verify-email');
-        })->name('verification.notice');
-
-        // this route isn't signed, but the `POST` version of it is
-        Route::view('/verify-email/{id}/{hash}', 'next.auth.verify-email-link');
-
-        Route::post('/verify-email/{id}/{hash}', function (
-            EmailVerificationRequest $request
-        ) {
-            $request->fulfill();
-            return response('', 200);
-        })
-            ->middleware('signed')
-            ->name('verification.verify');
-    });
-
-// Auth (verified) Routes
-Route::prefix('user--services')
-    ->middleware(['auth', 'verified'])
-    ->group(function () {
-        // TODO: remove this temporary helper route
-        Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-
-        // name is important, it's reserved by Laravel for password confirmation
-        Route::view('/confirm-password', 'next.auth.confirm-password')->name(
-            'password.confirm',
-        );
-    });
-
-// Guest routes
-Route::prefix('user--services')
-    ->middleware('guest')
-    ->group(function () {
-        Route::view('/login', 'next.auth.login')->name('login');
-        Route::view('/register', 'next.auth.register')->name('register');
-
-        // Passsword reset routes
-
-        Route::view('/forgot-password', 'next.auth.forgot-password')->name(
-            'password.request',
-        );
-
-        Route::view('/reset-password/{token}', 'next.auth.reset-password')->name(
-            'password.reset',
-        );
-
-        Route::post('/reset-password/{token}', [
-            AccountController::class,
-            'handlePasswordRecoveryUpdate',
-        ])->name('password.update');
-    });
 
 // -- WIKI
 
