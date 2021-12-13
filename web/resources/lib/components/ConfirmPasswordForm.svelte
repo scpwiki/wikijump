@@ -55,13 +55,13 @@
     />
   </form>
 
-  <FormError {error} />
-
   <div class="confirm-form-submit">
     <Button on:click={confirm} disabled={busy} wide primary>
       {$t("auth.CONFIRM")}
     </Button>
   </div>
+
+  <FormError {error} />
 </div>
 
 <!-- TODO: forgot password -->
@@ -71,7 +71,7 @@
   @import "../../css/abstracts";
 
   .confirm-form-submit {
-    margin-top: 0.5rem;
+    margin-top: 1rem;
   }
 
   .confirm-form-forgot {

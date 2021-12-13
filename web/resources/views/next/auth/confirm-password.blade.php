@@ -16,8 +16,8 @@
 @endpush
 
 @section('content')
-    <h2 id="auth_confirm_password">
-    {{ __('auth.CONFIRM_PASSWORD') }}
+    <h2 id="auth_title">
+        {{ __('auth.CONFIRM_PASSWORD') }}
     </h2>
 
     <div id="auth_form_container">
