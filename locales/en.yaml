@@ -170,6 +170,11 @@ auth:
 
   password_recovery:
     PASSWORD_RECOVERY: Password Recovery
+    FORGOT_PASSWORD: Forgot Password
+    RESET_PASSWORD: Reset Password
+    EMAIL_SENT: >
+      An email has been sent to the provided email address.
+      Click the link inside of it to change your account's password.
 
   tips:
     CLOSE_DIALOG: Close
@@ -182,6 +187,7 @@ auth:
     EMAIL_TAKEN: Email already in use.
     INVALID_INPUT: You need to fill out all required fields.
     CONFIRM_FAILED: Wrong password. Check the password you have entered.
+    UNKNOWN_EMAIL: No account is associated with that email address.
 
   toasts:
     LOGGED_IN: Logged in!

@@ -8,6 +8,7 @@ use Ozone\Framework\Ozone;
 use Ozone\Framework\RunData;
 use Wikidot\Utils\AjaxModuleWikiFlowController;
 use Wikidot\Utils\GlobalProperties;
+use Wikijump\Http\Controllers\AccountController;
 use Wikijump\Http\Controllers\AuthController;
 use Wikijump\Http\Controllers\OzoneController;
 use Wikijump\Http\Controllers\PageController;
@@ -127,12 +128,6 @@ Route::get('/user--avatar/{user}', function (User $user) {
 
 // -- USER SERVICES
 
-// TODO: password.request
-// TODO: password.reset
-// TODO: password.email
-// TODO: password.update
-
-// TODO: emails
 // TODO: two factor
 
 // Email Verification
@@ -180,6 +175,21 @@ Route::prefix('user--services')
     ->group(function () {
         Route::view('/login', 'next.auth.login')->name('login');
         Route::view('/register', 'next.auth.register')->name('register');
+
+        // Passsword reset routes
+
+        Route::view('/forgot-password', 'next.auth.forgot-password')->name(
+            'password.request',
+        );
+
+        Route::get('/reset-password/{token}', function ($token) {
+            return view('auth.reset-password', ['token' => $token]);
+        })->name('password.reset');
+
+        Route::post('/reset-password/{token}', [
+            AccountController::class,
+            'handlePasswordUpdate',
+        ])->name('password.update');
     });
 
 // -- WIKI

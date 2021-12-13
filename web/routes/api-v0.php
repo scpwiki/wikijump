@@ -34,7 +34,7 @@ Route::post('/account/send-verification-email', [
     'sendVerificationEmail',
 ]);
 // TODO: accountRequestDeletion
-// TODO: accountStartRecovery
+Route::post('/account/start-recovery', [AccountController::class, 'startRecovery']);
 // TODO: accountGetEmail
 // TODO: accountUpdateEmail
 // TODO: accountUpdatePassword

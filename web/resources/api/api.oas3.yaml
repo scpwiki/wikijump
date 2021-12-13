@@ -371,7 +371,8 @@ paths:
         }}}
       responses:
         202: { description: Accepted }
-        404: { description: Email isn't in use. }
+        403: { description: Email isn't in use. }
+        409: { description: Already logged in. }
         500: { description: Unexpected Error }
 
   /account/email:
