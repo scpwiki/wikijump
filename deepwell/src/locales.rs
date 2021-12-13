@@ -20,6 +20,9 @@
 
 use anyhow::Result;
 use gettext::Catalog;
+use rust_icu_uloc::ULoc;
+use rust_icu_umsg::{message_format, UMessageFormat};
+use rust_icu_ustring::UChar;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{self, Display};
@@ -75,10 +78,16 @@ impl Localizations {
             return Err(EmptyMessageKey.into());
         }
 
+        // Get message from catalog
         let message = match self.catalogs.get(locale) {
             Some(catalog) => catalog.gettext(key),
             None => return Err(NoSuchLocale::new(locale).into()),
         };
+
+        // Perform ICU message formatting
+        let uc_locale = ULoc::try_from(locale)?;
+        let uc_message = UChar::try_from(message)?;
+        let uc_format = UMessageFormat::try_from(&uc_message, &uc_locale)?;
 
         todo!()
     }

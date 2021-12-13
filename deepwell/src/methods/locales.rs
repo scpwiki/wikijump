@@ -23,6 +23,7 @@ use super::prelude::*;
 pub async fn message_get(req: ApiRequest) -> ApiResponse {
     let locale = req.param("locale")?;
     let message_key = req.param("message_key")?;
+    let _arguments = ();
 
     let message = req
         .state()
