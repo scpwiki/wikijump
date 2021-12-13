@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Wikijump\Common;
 
 use Exception;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
+use Innocenzi\Vite\ManifestEntry;
 use Innocenzi\Vite\Vite;
 
 /**
@@ -25,7 +25,7 @@ class Asset
     private ?string $resolved_path;
 
     /** Entry for the asset in the Vite manifest. */
-    private ?Collection $manifest_entry;
+    private ?ManifestEntry $manifest_entry;
 
     /** Path added to entrypoints not given with an explicit path. */
     private const ENTRYPOINT_FOLDER = 'resources/scripts/';
