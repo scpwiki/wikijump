@@ -48,6 +48,7 @@
       icon="fluent:key-24-regular"
       type="password"
       placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
+      label={$t("auth.PASSWORD")}
       required
       disabled={busy}
       autocomplete="current-password"
@@ -64,21 +65,8 @@
   <FormError {error} />
 </div>
 
-<!-- TODO: forgot password -->
-<a class="confirm-form-forgot" href="/forgot">{$t("auth.FORGOT_PASSWORD")}</a>
-
 <style lang="scss">
-  @import "../../css/abstracts";
-
   .confirm-form-submit {
     margin-top: 1rem;
-  }
-
-  .confirm-form-forgot {
-    font-size: 0.825rem;
-    display: block;
-    margin-top: 1rem;
-    text-align: center;
-    @include link-styling(var(--col-hint));
   }
 </style>

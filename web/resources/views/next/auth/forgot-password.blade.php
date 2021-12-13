@@ -16,9 +16,9 @@
 @endpush
 
 @section('content')
-    <h2 id="auth_title">
+    <h1 id="auth_title">
         {{ __('auth.password_recovery.FORGOT_PASSWORD') }}
-    </h2>
+    </h1>
 
     <div id="auth_form_container">
     </div>
