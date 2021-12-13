@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Wikijump\Http\Controllers\AccountController;
 use Wikijump\Http\Controllers\AuthController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -27,10 +28,14 @@ Route::post('/auth/refresh', [AuthController::class, 'refresh']);
 
 // -- ACCOUNT
 // these can be implemented!
-// TODO: accountRegister
+Route::post('/account/register', [AccountController::class, 'register']);
+Route::post('/account/send-verification-email', [
+    AccountController::class,
+    'sendVerificationEmail',
+]);
 // TODO: accountRequestDeletion
 // TODO: accountStartRecovery
-// TODO: acountGetEmail
+// TODO: accountGetEmail
 // TODO: accountUpdateEmail
 // TODO: accountUpdatePassword
 // TODO: accountGetUsername

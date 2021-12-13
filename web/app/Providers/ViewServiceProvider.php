@@ -13,6 +13,7 @@ use Wikijump\Mail\VerifyEmailMessage;
 use Wikijump\View\Composers\BaseComposer;
 use Wikijump\View\Composers\EmailBaseComposer;
 use Wikijump\View\Composers\PageMockedComposer;
+use Wikijump\View\Directives\InlineDirective;
 use Wikijump\View\Directives\PreloadDirective;
 
 class ViewServiceProvider extends ServiceProvider
@@ -43,6 +44,7 @@ class ViewServiceProvider extends ServiceProvider
         // Register Directives
 
         PreloadDirective::register();
+        InlineDirective::register();
 
         // Override default mailables
 

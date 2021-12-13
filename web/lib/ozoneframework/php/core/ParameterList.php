@@ -108,7 +108,7 @@ class ParameterList {
 
         // Integer
         if (is_numeric($value)) {
-            return intvalue($value);
+            return intval($value);
         }
 
         // Boolean, or String (fallback)

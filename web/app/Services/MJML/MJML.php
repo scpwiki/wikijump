@@ -41,7 +41,7 @@ final class MJML
 
         // cache hit, return the cached HTML
         if (Cache::has($hash)) {
-            return new HtmlString(Cache::get($hash));
+            return Cache::get($hash);
         }
 
         // execute mrml-cli from shell to convert to html

@@ -23,7 +23,7 @@
 @endforeach
 
 @isset($actionText, $actionUrl)
-{{ $actionText }}: {{ $actionUrl }}
+{{ $actionText }}: {!! $actionUrl !!}
 @endisset
 
 @foreach($outroLines as $line)

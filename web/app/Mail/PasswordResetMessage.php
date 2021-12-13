@@ -17,6 +17,8 @@ class PasswordResetMessage extends MJMLMessage
      */
     public function __construct(string $url, int $expires)
     {
+        parent::__construct();
+
         $this->subject(__('email.reset_password.SUBJECT'))
             ->greeting(__('email.reset_password.GREETING'))
             ->line(__('email.reset_password.INTRO'))

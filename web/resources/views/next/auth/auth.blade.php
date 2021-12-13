@@ -9,7 +9,7 @@
 @extends('next.base')
 
 @push('preloads')
-    @preload('resources/scripts/auth.scss')
+    @preload('auth.scss')
 @endpush
 
 @push('styles')

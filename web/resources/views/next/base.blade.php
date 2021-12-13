@@ -73,8 +73,8 @@
     {{-- Preloads, Preconnects --}}
     @preload('/files--static/fonts/variable/PublicSans-VariableFont.woff2')
     @preload('/files--static/fonts/variable/RedHatDisplayVF.woff2')
-    @preload('resources/scripts/index.scss')
-    @preload('resources/scripts/index.ts')
+    @preload('index.scss')
+    @preload('index.ts')
     {{-- TODO: preload the user's locale file --}}
     @stack('preloads')
 

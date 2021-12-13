@@ -65,6 +65,9 @@ class WikijumpAPIInstance extends Api<void> {
     const refresh = this.authRefresh.bind(this)
     const check = this.authCheck.bind(this)
 
+    // this call automatically logs you in, so this needs to be bound as well
+    const register = this.accountRegister.bind(this)
+
     // we don't actually need to hijack authConfirm
     // const confirm = this.authConfirm.bind(this)
 
@@ -89,6 +92,13 @@ class WikijumpAPIInstance extends Api<void> {
     this.authCheck = async requestParams => {
       const res = await check(requestParams)
       authSet(res.authed)
+      return res
+    }
+
+    this.accountRegister = async (data, requestParams) => {
+      const res = await register(data, requestParams)
+      this._CSRF = res.csrf
+      authSet(true)
       return res
     }
   }

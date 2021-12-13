@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
@@ -134,7 +135,33 @@ Route::get('/user--avatar/{user}', function (User $user) {
 // TODO: emails
 // TODO: two factor
 
-// Auth Routes
+// Email Verification
+Route::prefix('user--services')
+    ->middleware('auth')
+    ->group(function () {
+        Route::get('/verify-email', function (User $user) {
+            // don't allow showing the verification notice if the user is already verified
+            if ($user->hasVerifiedEmail()) {
+                return redirect('/');
+            }
+
+            return view('next.auth.verify-email');
+        })->name('verification.notice');
+
+        // this route isn't signed, but the `POST` version of it is
+        Route::view('/verify-email/{id}/{hash}', 'next.auth.verify-email-link');
+
+        Route::post('/verify-email/{id}/{hash}', function (
+            EmailVerificationRequest $request
+        ) {
+            $request->fulfill();
+            return response('', 200);
+        })
+            ->middleware('signed')
+            ->name('verification.verify');
+    });
+
+// Auth (verified) Routes
 Route::prefix('user--services')
     ->middleware(['auth', 'verified'])
     ->group(function () {

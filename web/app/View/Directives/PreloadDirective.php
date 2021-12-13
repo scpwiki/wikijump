@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Wikijump\View\Directives;
 
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
-use Innocenzi\Vite\Vite;
+use Wikijump\Common\Asset;
 
 final class PreloadDirective
 {
@@ -52,39 +51,7 @@ final class PreloadDirective
      */
     public static function preload(string $path): string
     {
-        $urls = [];
-
-        // if the URL doesn't start with a slash, we'll retrieve it from the manifest
-        if (!Str::startsWith($path, '/')) {
-            $vite = App::make(Vite::class);
-
-            // generate from development url
-            if (App::environment('local') && $vite->isDevelopmentServerRunning()) {
-                $urls[] = config('vite.dev_url') . '/' . $path;
-            }
-            // generate from a manifest entry
-            else {
-                $entry = $vite->getEntries()->get($path);
-                if ($entry) {
-                    $urls[] = asset(
-                        sprintf('/%s/%s', config('vite.build_path'), $entry->file),
-                    );
-
-                    // TODO: preload imports, too
-                    // laravel-vite doesn't keep track of imports from the manifest,
-                    // so this isn't possible yet
-
-                    // preload imported CSS
-                    $entry->css->each(function (string $path) use (&$urls) {
-                        $urls[] = asset(
-                            sprintf('/%s/%s', config('vite.build_path'), $path),
-                        );
-                    });
-                }
-            }
-        } else {
-            $urls[] = $path;
-        }
+        $urls = (new Asset($path))->urls();
 
         $html = '';
 

@@ -240,18 +240,7 @@ paths:
           }
         }}}
       responses:
-        200:
-          description: OK
-          content: { application/json: { schema: { type: object,
-            required: [csrf],
-            properties: { csrf: { type: string } }
-          }}}
-          headers:
-            Set-Cookie:
-              description: >
-                Sets the user's session cookie.
-                This cookie must be sent with subsequent requests to authorize actions.
-              schema: { type: string }
+        200: { $ref: '#/components/responses/RegeneratedSession' }
         400: { description: Invalid email or password. }
         409: { description: Already logged in. }
         500: { description: Unexpected Error }
@@ -311,18 +300,7 @@ paths:
       security:
       - AccountSession: []
       responses:
-        200:
-          description: OK
-          content: { application/json: { schema: { type: object,
-            required: [csrf],
-            properties: { csrf: { type: string } }
-          }}}
-          headers:
-            Set-Cookie:
-              description: >
-                Sets the user's session cookie.
-                This cookie must be sent with subsequent requests to authorize actions.
-              schema: { type: string }
+        200: { $ref: '#/components/responses/RegeneratedSession' }
         401: { description: Missing or invalid authentication credentials. }
         403: { description: Forbidden }
         500: { description: Unexpected Error }
@@ -331,9 +309,7 @@ paths:
 
   /account/register:
     post:
-      description: >
-        Registers an account.
-        Does not automatically login. Email validation will be required.
+      description: Registers an account. Email validation will be required.
       tags: [account]
       operationId: accountRegister
       requestBody:
@@ -347,8 +323,23 @@ paths:
           }
         }}}
       responses:
+        202: { $ref: '#/components/responses/RegeneratedSession' }
+        403: { description: Email or username already in use. }
+        409: { description: Already logged in. }
+        500: { description: Unexpected Error }
+
+  /account/send-verification-email:
+    post:
+      description: Sends a verification email to the account's address.
+      tags: [account]
+      operationId: accountSendVerificationEmail
+      security:
+      - AccountSession: []
+      responses:
         202: { description: Accepted }
-        403: { description: Email already in use. }
+        400: { description: Bad Request }
+        401: { description: Missing or invalid authentication credentials. }
+        403: { description: Email has already been verified. }
         500: { description: Unexpected Error }
 
   /account/request-deletion:
@@ -2741,6 +2732,19 @@ components:
       schema: { type: boolean, default: true }
 
   responses:
+
+    RegeneratedSession:
+      description: OK
+      content: { application/json: { schema: { type: object,
+        required: [csrf],
+        properties: { csrf: { type: string } }
+      }}}
+      headers:
+        Set-Cookie:
+          description: >
+            Sets the user's session cookie.
+            This cookie must be sent with subsequent requests to authorize actions.
+          schema: { type: string }
 
     UserGet:
       description: OK

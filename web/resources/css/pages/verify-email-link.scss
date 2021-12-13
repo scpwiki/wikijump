@@ -1,0 +1,34 @@
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", "Ubuntu", "Oxygen-Sans",
+    "Cantarell", "Roboto", "Noto", sans-serif;
+  color: white;
+  background: linear-gradient(rgb(0, 104, 181) 0%, rgb(25, 169, 255) 100%);
+}
+
+* {
+  text-align: center;
+}
+
+#verify_robot {
+  margin: 0 auto;
+  font-size: 25rem;
+}
+
+#verify_waiting {
+  margin-bottom: 5rem;
+}
+
+@media (max-width: 500px) {
+  #verify_robot {
+    font-size: 15rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}

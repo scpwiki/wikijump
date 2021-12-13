@@ -16,6 +16,8 @@ class VerifyEmailMessage extends MJMLMessage
      */
     public function __construct(string $url)
     {
+        parent::__construct();
+
         $this->subject(__('email.verify_email.SUBJECT'))
             ->greeting(__('email.verify_email.GREETING'))
             ->line(__('email.verify_email.INTRO'))

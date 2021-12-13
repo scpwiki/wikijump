@@ -47,7 +47,7 @@
     @isset($actionText, $actionUrl)
         <mj-section background-color="#fff" padding="5px 20px">
             <mj-column>
-                <mj-button href="{{ $actionUrl }}"
+                <mj-button href="{!! $actionUrl !!}"
                            background-color="#3869D4"
                            inner-padding="10px 45px"
                            font-size="16px"
@@ -96,7 +96,7 @@
                     {{ __('email.SUBCOPY', ['action' => $actionText]) }}
                     <br />
                     <br />
-                    <a href="{{ $actionUrl }}">
+                    <a href="{!! $actionUrl !!}">
                         {{ isset($displayableActionUrl) ? $displayableActionUrl : $actionUrl }}
                     </a>
                 </mj-text>

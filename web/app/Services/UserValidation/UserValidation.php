@@ -10,6 +10,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Wikidot\Utils\WDStringUtils;
 
 /**
  * Static class holding methods useful for validating user data,
@@ -32,19 +33,39 @@ final class UserValidation
         $forbidden = config('wikijump.forbidden_usernames');
 
         foreach ($forbidden as $pattern) {
-            if (preg_match($pattern, $name) !== false) {
+            if (preg_match($pattern, $name) !== 0) {
                 return false;
             }
         }
 
-        return static::validate($name, [
+        // check if username is valid, but that's not the only thing we need to check
+
+        $name_valid = static::validate($name, [
             'required',
             'string',
             'max:255',
             'min:3',
             isset($ignore_user)
                 ? Rule::unique('users')->ignore($ignore_user->id)
-                : 'unique:users',
+                : 'unique:users,username',
+        ]);
+
+        if (!$name_valid) {
+            return false;
+        }
+
+        // now we have to check if the slug version of the username is valid
+
+        $slug = WDStringUtils::toUnixName($name);
+
+        return static::validate($slug, [
+            'required',
+            'string',
+            'max:255',
+            'min:3',
+            isset($ignore_user)
+                ? Rule::unique('users')->ignore($ignore_user->id)
+                : 'unique:users,slug',
         ]);
     }
 
@@ -63,7 +84,7 @@ final class UserValidation
             'max:255',
             isset($ignore_user)
                 ? Rule::unique('users')->ignore($ignore_user->id)
-                : 'unique:users',
+                : 'unique:users,email',
         ]);
     }
 
