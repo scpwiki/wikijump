@@ -103,6 +103,11 @@ class WikijumpAPIInstance extends Api<void> {
     }
   }
 
+  /** The current subdomain, e.g. `www` in `www.wikijump.localhost`. */
+  get subdomain() {
+    return this._baseURL?.split("/")[2] ?? "www"
+  }
+
   /**
    * Helper for sending a `GET` request via the API.
    *
@@ -122,6 +127,24 @@ class WikijumpAPIInstance extends Api<void> {
   post<T = void>(path: string, body: any = {}) {
     const type = ContentType.Json
     return this.request<T, void>({ method: "POST", path, body, type })
+  }
+
+  /**
+   * Attempts to return the given query parameter from the current URL.
+   *
+   * @param name - The name of the query parameter to return.
+   */
+  getQueryParameter(key: string) {
+    return new URLSearchParams(window.location.search).get(key)
+  }
+
+  /**
+   * Attempts to get the specified path segment (via index) from the current URL.
+   *
+   * @param index - The index of the path segment to return.
+   */
+  getPathSegment(index: number): string | null {
+    return window.location.pathname.split("/")[index] ?? null
   }
 
   /**
