@@ -107,6 +107,20 @@ class Asset
         return substr($this->name, $extension_pos + 1);
     }
 
+    /** Returns true if the asset is a script. */
+    public function isScript(): bool
+    {
+        $ext = $this->extension();
+        return $ext === 'js' || $ext === 'ts';
+    }
+
+    /** Returns true if the asset is a stylesheet. */
+    public function isStylesheet(): bool
+    {
+        $ext = $this->extension();
+        return $ext === 'css' || $ext === 'scss';
+    }
+
     /** Returns the unresolved path to the asset. */
     public function unresolvedPath(): string
     {
@@ -146,5 +160,33 @@ class Asset
     public function urls(): array
     {
         return array_merge([$this->path()], $this->imports(), $this->css());
+    }
+
+    /** Returns the contents of the asset as a string. */
+    public function contents(): string
+    {
+        $accept_type = $this->isScript()
+            ? 'text/javascript'
+            : ($this->isStylesheet()
+                ? 'text/css'
+                : 'text/plain');
+
+        $opts = [
+            'http' => [
+                'method' => 'GET',
+                'header' => "Accept: {$accept_type}",
+            ],
+        ];
+
+        $context = stream_context_create($opts);
+
+        // TODO: Docker DNS paths aren't reliable
+        $contents = file_get_contents("http://nginx:80/{$this->path()}", false, $context);
+
+        if ($contents === false) {
+            throw new Exception("Could not read asset contents: {$this->path}");
+        }
+
+        return $contents;
     }
 }
