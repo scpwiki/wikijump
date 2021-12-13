@@ -17,8 +17,8 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 500: return $t("account_panel.errors.INTERNAL_ERROR")
-      default:  return $t("account_panel.errors.CONFIRM_FAILED")
+      case 500: return $t("auth.errors.INTERNAL_ERROR")
+      default:  return $t("auth.errors.CONFIRM_FAILED")
     }
   }
 
@@ -35,7 +35,7 @@
       }
       busy = false
     } else {
-      error = $t("account_panel.errors.INVALID_INPUT")
+      error = $t("auth.errors.INVALID_INPUT")
     }
   }
 </script>
@@ -47,7 +47,7 @@
       on:enter={confirm}
       icon="fluent:key-24-regular"
       type="password"
-      placeholder={$t("account_panel.PASSWORD_PLACEHOLDER")}
+      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
       required
       disabled={busy}
       autocomplete="current-password"
@@ -59,13 +59,13 @@
 
   <div class="confirm-form-submit">
     <Button on:click={confirm} disabled={busy} wide primary>
-      {$t("account_panel.CONFIRM")}
+      {$t("auth.CONFIRM")}
     </Button>
   </div>
 </div>
 
 <!-- TODO: forgot password -->
-<a class="confirm-form-forgot" href="/forgot">{$t("account_panel.FORGOT_PASSWORD")}</a>
+<a class="confirm-form-forgot" href="/forgot">{$t("auth.FORGOT_PASSWORD")}</a>
 
 <style lang="scss">
   @import "../../css/abstracts";

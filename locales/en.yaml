@@ -132,9 +132,8 @@ components:
   theme_picker:
     TOOLTIP: Set Color Scheme
 
-# Account panel and related forms
-# TODO: rename to auth
-account_panel:
+# Authentication
+auth:
   LOGIN: Login
   REGISTER: Register
   SPECIFIER: Email or Username
@@ -168,6 +167,9 @@ account_panel:
     PLEASE_INTERACT: Please interact with the page to verify your email address.
     INSTRUCTIONS: You can click/tap the screen, press a key, or move your mouse to continue.
     SUCCESS: Your email address has been verified!
+
+  password_recovery:
+    PASSWORD_RECOVERY: Password Recovery
 
   tips:
     CLOSE_DIALOG: Close

@@ -21,9 +21,9 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 409: return $t("account_panel.errors.ALREADY_LOGGED_IN")
-      case 500: return $t("account_panel.errors.INTERNAL_ERROR")
-      default:  return $t("account_panel.errors.LOGIN_FAILED")
+      case 409: return $t("auth.errors.ALREADY_LOGGED_IN")
+      case 500: return $t("auth.errors.INTERNAL_ERROR")
+      default:  return $t("auth.errors.LOGIN_FAILED")
     }
   }
 
@@ -42,7 +42,7 @@
       }
       busy = false
     } else {
-      error = $t("account_panel.errors.INVALID_INPUT")
+      error = $t("auth.errors.INVALID_INPUT")
     }
   }
 </script>
@@ -52,8 +52,8 @@
     <TextInput
       bind:input={inputLogin}
       on:enter={() => inputPassword.focus()}
-      label={$t("account_panel.SPECIFIER")}
-      placeholder={$t("account_panel.SPECIFIER_PLACEHOLDER")}
+      label={$t("auth.SPECIFIER")}
+      placeholder={$t("auth.SPECIFIER_PLACEHOLDER")}
       required
       disabled={busy}
       autocomplete="username"
@@ -64,9 +64,9 @@
       bind:input={inputPassword}
       on:enter={() => login()}
       icon="fluent:key-24-regular"
-      label={$t("account_panel.PASSWORD")}
+      label={$t("auth.PASSWORD")}
       type="password"
-      placeholder={$t("account_panel.PASSWORD_PLACEHOLDER")}
+      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
       required
       disabled={busy}
       autocomplete="current-password"
@@ -75,16 +75,16 @@
   </form>
 
   <div class="login-form-options">
-    <Toggle bind:toggled={remember}>{$t("account_panel.REMEMBER_ME")}</Toggle>
+    <Toggle bind:toggled={remember}>{$t("auth.REMEMBER_ME")}</Toggle>
     <!-- TODO: forgot password -->
-    <a class="login-form-forgot" href="/forgot">{$t("account_panel.FORGOT_PASSWORD")}</a>
+    <a class="login-form-forgot" href="/forgot">{$t("auth.FORGOT_PASSWORD")}</a>
   </div>
 
   <FormError {error} />
 
   <div class="login-form-submit">
     <Button on:click={login} disabled={busy} wide primary>
-      {$t("account_panel.LOGIN")}
+      {$t("auth.LOGIN")}
     </Button>
   </div>
 </div>

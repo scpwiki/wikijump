@@ -12,12 +12,12 @@
 
   function login() {
     closeDialog?.()
-    toast("success", $t("account_panel.toasts.LOGGED_IN"))
+    toast("success", $t("auth.toasts.LOGGED_IN"))
   }
 
   function register() {
     closeDialog?.()
-    toast("success", $t("account_panel.toasts.REGISTERED"))
+    toast("success", $t("auth.toasts.REGISTERED"))
   }
 </script>
 
@@ -25,7 +25,7 @@
   <Tabview noborder contained>
     <Tab>
       <span class="account-panel-tab-button" slot="button">
-        {$t("account_panel.LOGIN")}
+        {$t("auth.LOGIN")}
       </span>
       <div class="account-panel-form">
         <LoginForm on:login={login} />
@@ -33,7 +33,7 @@
     </Tab>
     <Tab>
       <span class="account-panel-tab-button" slot="button">
-        {$t("account_panel.REGISTER")}
+        {$t("auth.REGISTER")}
       </span>
       <div class="account-panel-form">
         <RegisterForm on:register={register} />
@@ -46,7 +46,7 @@
     <div class="account-panel-close-dialog">
       <Button
         i="ion:close"
-        tip={$t("account_panel.tips.CLOSE_DIALOG")}
+        tip={$t("auth.tips.CLOSE_DIALOG")}
         size="1rem"
         baseline
         on:click={closeDialog}

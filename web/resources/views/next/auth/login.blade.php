@@ -4,7 +4,7 @@
 --}}
 
 @extends('next.auth.auth', [
-    'title' => __('account_panel.LOGIN')
+    'title' => __('auth.LOGIN')
 ])
 
 @push('preloads')
@@ -20,6 +20,6 @@
     </div>
 
     <a id="auth_create_account" href="/user--services/register">
-        {{ __("account_panel.CREATE_ACCOUNT") }}
+        {{ __("auth.CREATE_ACCOUNT") }}
     </a>
 @endsection

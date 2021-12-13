@@ -31,9 +31,9 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 403: return $t("account_panel.errors.EMAIL_TAKEN")
-      case 500: return $t("account_panel.errors.INTERNAL_ERROR")
-      default:  return $t("account_panel.errors.REGISTER_FAILED")
+      case 403: return $t("auth.errors.EMAIL_TAKEN")
+      case 500: return $t("auth.errors.INTERNAL_ERROR")
+      default:  return $t("auth.errors.REGISTER_FAILED")
     }
   }
 
@@ -58,7 +58,7 @@
 
       busy = false
     } else {
-      error = $t("account_panel.errors.INVALID_INPUT")
+      error = $t("auth.errors.INVALID_INPUT")
     }
   }
 </script>
@@ -69,10 +69,10 @@
       bind:input={inputEmail}
       on:enter={() => inputUsername.focus()}
       icon="ic:round-alternate-email"
-      label={$t("account_panel.EMAIL")}
-      placeholder={$t("account_panel.EMAIL_PLACEHOLDER")}
+      label={$t("auth.EMAIL")}
+      placeholder={$t("auth.EMAIL_PLACEHOLDER")}
       type="email"
-      info={$t("account_panel.EMAIL_INFO")}
+      info={$t("auth.EMAIL_INFO")}
       required
       disabled={busy}
       autocomplete="email"
@@ -82,9 +82,9 @@
     <TextInput
       bind:input={inputUsername}
       on:enter={() => inputPassword.focus()}
-      label={$t("account_panel.USERNAME")}
-      placeholder={$t("account_panel.USERNAME_PLACEHOLDER")}
-      info={$t("account_panel.USERNAME_INFO")}
+      label={$t("auth.USERNAME")}
+      placeholder={$t("auth.USERNAME_PLACEHOLDER")}
+      info={$t("auth.USERNAME_INFO")}
       required
       disabled={busy}
       autocomplete="username"
@@ -96,9 +96,9 @@
       bind:value={password}
       on:enter={() => inputPasswordConfirm.focus()}
       icon="fluent:key-24-regular"
-      label={$t("account_panel.PASSWORD")}
+      label={$t("auth.PASSWORD")}
       type="password"
-      placeholder={$t("account_panel.PASSWORD_PLACEHOLDER")}
+      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
       required
       disabled={busy}
       autocomplete="new-password"
@@ -109,9 +109,9 @@
       bind:input={inputPasswordConfirm}
       on:enter={() => register()}
       icon="fluent:key-24-regular"
-      label={$t("account_panel.CONFIRM_PASSWORD")}
+      label={$t("auth.CONFIRM_PASSWORD")}
       type="password"
-      placeholder={$t("account_panel.PASSWORD_PLACEHOLDER")}
+      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
       pattern={escapeRegExp(password)}
       required
       disabled={busy}
@@ -124,7 +124,7 @@
 
   <div class="register-form-submit">
     <Button on:click={register} disabled={busy} wide primary>
-      {$t("account_panel.REGISTER")}
+      {$t("auth.REGISTER")}
     </Button>
   </div>
 </div>
