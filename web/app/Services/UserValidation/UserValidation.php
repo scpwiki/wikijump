@@ -89,6 +89,22 @@ final class UserValidation
     }
 
     /**
+     * Checks if an email has already been taken.
+     *
+     * @param string $email The email to check.
+     */
+    public static function isEmailTaken(string $email): bool
+    {
+        return !static::validate($email, [
+            'required',
+            'string',
+            'email',
+            'max:255',
+            'unique:users,email',
+        ]);
+    }
+
+    /**
      * Checks if a password is valid.
      *
      * @param string $password The password to check.
