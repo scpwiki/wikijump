@@ -23,11 +23,14 @@ gettext = "0.4"
 governor = "0.3"
 hostname = "0.3"
 lazy_static = "1"
+rust_icu_uloc = "1"
+rust_icu_umsg = "1"
+rust_icu_ustring = "1"
 sea-orm = { version = "0.4", features = ["sqlx-postgres", "runtime-async-std-rustls", "macros"], default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-str-macro = "1"
 sqlx = "0.5"
+str-macro = "1"
 tide = "0.16"
 wikidot-normalize = "0.9"
 

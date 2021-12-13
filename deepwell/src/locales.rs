@@ -18,8 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use gettext::{Catalog, Error};
+use anyhow::Result;
+use gettext::Catalog;
 use std::collections::HashMap;
+use std::error::Error;
+use std::fmt::{self, Display};
 use std::fs::{self, File};
 use std::path::Path;
 
@@ -29,7 +32,7 @@ pub struct Localizations {
 }
 
 impl Localizations {
-    pub fn open(directory: &Path) -> Result<Self, Error> {
+    pub fn open(directory: &Path) -> Result<Self> {
         let mut catalogs = HashMap::new();
 
         for entry in fs::read_dir(directory)? {
@@ -66,21 +69,56 @@ impl Localizations {
 
     /// Returns the translation for the given message key.
     /// If no translation exists, then the message key itself is returned.
-    pub fn translate<'a>(&'a self, locale: &'_ str, key: &'a str) -> &'a str {
+    pub fn translate(&self, locale: &str, key: &str) -> Result<String> {
         if key.is_empty() {
-            tide::log::warn!("Empty translation key passed");
-            return "";
+            tide::log::warn!("Empty message key passed");
+            return Err(EmptyMessageKey.into());
         }
 
-        match self.catalogs.get(locale) {
+        let message = match self.catalogs.get(locale) {
             Some(catalog) => catalog.gettext(key),
-            None => key,
-        }
+            None => return Err(NoSuchLocale::new(locale).into()),
+        };
+
+        todo!()
     }
 }
 
-fn load_catalog(path: &Path) -> Result<Catalog, Error> {
+fn load_catalog(path: &Path) -> Result<Catalog> {
     let file = File::open(path)?;
     let catalog = Catalog::parse(file)?;
     Ok(catalog)
 }
+
+#[derive(Debug, Copy, Clone)]
+pub struct EmptyMessageKey;
+
+impl Display for EmptyMessageKey {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Passed message key is empty")
+    }
+}
+
+impl Error for EmptyMessageKey {}
+
+#[derive(Debug, Clone)]
+pub struct NoSuchLocale {
+    locale: String,
+}
+
+impl NoSuchLocale {
+    #[inline]
+    pub fn new<S: Into<String>>(locale: S) -> Self {
+        NoSuchLocale {
+            locale: locale.into(),
+        }
+    }
+}
+
+impl Display for NoSuchLocale {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "No locale found in catalog: {}", self.locale)
+    }
+}
+
+impl Error for NoSuchLocale {}
