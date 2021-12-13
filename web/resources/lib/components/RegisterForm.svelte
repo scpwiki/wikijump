@@ -130,8 +130,6 @@
 </div>
 
 <style lang="scss">
-  @import "../../css/abstracts";
-
   .register-form > form {
     display: flex;
     flex-direction: column;

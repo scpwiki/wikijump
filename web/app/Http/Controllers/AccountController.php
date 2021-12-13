@@ -159,8 +159,13 @@ class AccountController extends Controller
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|string',
         ]);
+
+        // do our more strict check on the password
+        if (!UserValidation::isValidPassword($request->input('password'))) {
+            return new Response('', 400);
+        }
 
         $credentials = $request->only(['email', 'password', 'token']);
 
