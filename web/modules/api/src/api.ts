@@ -1,5 +1,5 @@
 import { readable, Subscriber } from "svelte/store"
-import { Api, RequestParams } from "../vendor/api"
+import { Api, ContentType, RequestParams } from "../vendor/api"
 
 const API_PATH = "/api--v0"
 
@@ -101,6 +101,27 @@ class WikijumpAPIInstance extends Api<void> {
       authSet(true)
       return res
     }
+  }
+
+  /**
+   * Helper for sending a `GET` request via the API.
+   *
+   * @param path - The path to send the request to.
+   * @param query - The query parameters to send, if any.
+   */
+  get<T = void>(path: string, query: Record<string, string> = {}) {
+    return this.request<T, void>({ method: "GET", path, query })
+  }
+
+  /**
+   * Helper for sending a `POST` request via the API.
+   *
+   * @param path - The path to send the request to.
+   * @param body - The data to send, if any.
+   */
+  post<T = void>(path: string, body: any = {}) {
+    const type = ContentType.Json
+    return this.request<T, void>({ method: "POST", path, body, type })
   }
 
   /**
