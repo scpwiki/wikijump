@@ -149,12 +149,14 @@ Route::prefix('user--services')
             return view('next.auth.verify-email');
         })->name('verification.notice');
 
-        Route::get('/verify-email/{id}/{hash}', function (
+        // this route isn't signed, but the `POST` version of it is
+        Route::view('/verify-email/{id}/{hash}', 'next.auth.verify-email-link');
+
+        Route::post('/verify-email/{id}/{hash}', function (
             EmailVerificationRequest $request
         ) {
             $request->fulfill();
-
-            return redirect('/');
+            return response('', 200);
         })
             ->middleware('signed')
             ->name('verification.verify');

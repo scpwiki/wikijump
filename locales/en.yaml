@@ -163,6 +163,12 @@ account_panel:
       A new email has been sent.
     RESEND_EMAIL: Resend Verification Email
 
+  verify_email_link:
+    WAITING: Verifying your email address...
+    PLEASE_INTERACT: Please interact with the page to verify your email address.
+    INSTRUCTIONS: You can click/tap the screen, press a key, or move your mouse to continue.
+    SUCCESS: Your email address has been verified!
+
   tips:
     CLOSE_DIALOG: Close
 
