@@ -154,7 +154,7 @@ class AccountController extends Controller
      * Handles updating a password during password recovery.
      * Not part of the "proper" API.
      */
-    public function handlePasswordUpdate(Request $request): Response
+    public function handlePasswordRecoveryUpdate(Request $request): Response
     {
         $request->validate([
             'token' => 'required',

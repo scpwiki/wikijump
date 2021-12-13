@@ -182,13 +182,13 @@ Route::prefix('user--services')
             'password.request',
         );
 
-        Route::get('/reset-password/{token}', function ($token) {
-            return view('auth.reset-password', ['token' => $token]);
-        })->name('password.reset');
+        Route::view('/reset-password/{token}', 'next.auth.reset-password')->name(
+            'password.reset',
+        );
 
         Route::post('/reset-password/{token}', [
             AccountController::class,
-            'handlePasswordUpdate',
+            'handlePasswordRecoveryUpdate',
         ])->name('password.update');
     });
 
