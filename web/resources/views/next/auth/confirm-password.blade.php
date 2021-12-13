@@ -8,7 +8,7 @@
 ])
 
 @push('preloads')
-    @preload('resources/scripts/auth-confirm.ts')
+    @preload('auth-confirm.ts')
 @endpush
 
 @push('scripts')

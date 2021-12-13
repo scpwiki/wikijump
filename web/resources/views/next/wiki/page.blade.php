@@ -21,7 +21,7 @@
 @extends('next.frame')
 
 @push('preloads')
-    @preload('resources/scripts/wiki.scss')
+    @preload('wiki.scss')
 @endpush
 
 @push('styles')

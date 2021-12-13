@@ -8,7 +8,7 @@
 ])
 
 @push('preloads')
-    @preload('resources/scripts/auth-verify-email.ts')
+    @preload('auth-verify-email.ts')
 @endpush
 
 @push('scripts')
