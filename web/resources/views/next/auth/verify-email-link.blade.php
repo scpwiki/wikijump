@@ -8,9 +8,15 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <meta name="referrer" content="no-referrer">
+        <meta name="csrf-token" content="{{ csrf_token() }}" />
+
         <title>{{ __('account_panel.verify_email.VERIFY_EMAIL') }}</title>
+
         @inline('resources/css/pages/verify-email-link.scss')
         @inline('resources/lib/verify-email-link.ts')
+
         @client
     </head>
     <body>

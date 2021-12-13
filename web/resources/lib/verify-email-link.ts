@@ -81,19 +81,43 @@ async function verifyEmailLink() {
   clearTimeout(timeout)
 
   // POST at our own URL to verify the email link
-  const res = await fetch(window.location.href, { method: "POST" })
+  const res = await fetch(window.location.href, {
+    method: "POST",
+    headers: {
+      "Accept": "application/json",
+      ...getCSRFHeaders()
+    }
+  })
 
   if (res.ok) {
     divWaiting.style.display = "none"
     divPleaseInteract.style.display = "none"
     divSuccess.style.display = "block"
     divFailure.style.display = "none"
+
+    // redirect to home after a few seconds
+    setTimeout(() => {
+      window.location.href = "/"
+    }, 5000)
   } else {
     divWaiting.style.display = "none"
     divPleaseInteract.style.display = "none"
     divSuccess.style.display = "none"
     divFailure.style.display = "block"
   }
+}
+
+function getCSRFHeaders(): Record<string, string> {
+  const meta = document.head.querySelector("meta[name=csrf-token]")
+  if (!meta) throw new Error("No CSRF meta tag found")
+  const csrf = meta.getAttribute("content")!
+
+  const xsrf = document.cookie
+    .split(/;\s*/)
+    .find(c => c.startsWith("XSRF-TOKEN="))
+    ?.split("=")[1]
+
+  return xsrf ? { "X-CSRF-TOKEN": csrf, "X-XSRF-TOKEN": xsrf } : { "X-CSRF-TOKEN": csrf }
 }
 
 document.addEventListener("DOMContentLoaded", verifyEmailLink)
