@@ -4,7 +4,6 @@ use Laravel\Telescope\Http\Middleware\Authorize;
 use Laravel\Telescope\Watchers;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Telescope Domain
@@ -75,10 +74,7 @@ return [
     |
     */
 
-    'middleware' => [
-        'web',
-        Authorize::class,
-    ],
+    'middleware' => ['web', Authorize::class],
 
     /*
     |--------------------------------------------------------------------------
@@ -95,9 +91,7 @@ return [
         // 'api/*'
     ],
 
-    'ignore_paths' => [
-        'nova-api*',
-    ],
+    'ignore_paths' => ['nova-api*'],
 
     'ignore_commands' => [
         //
@@ -117,7 +111,10 @@ return [
     'watchers' => [
         Watchers\BatchWatcher::class => env('TELESCOPE_BATCH_WATCHER', true),
         Watchers\CacheWatcher::class => env('TELESCOPE_CACHE_WATCHER', true),
-        Watchers\ClientRequestWatcher::class => env('TELESCOPE_CLIENT_REQUEST_WATCHER', true),
+        Watchers\ClientRequestWatcher::class => env(
+            'TELESCOPE_CLIENT_REQUEST_WATCHER',
+            true,
+        ),
 
         Watchers\CommandWatcher::class => [
             'enabled' => env('TELESCOPE_COMMAND_WATCHER', true),
@@ -149,7 +146,10 @@ return [
             'hydrations' => true,
         ],
 
-        Watchers\NotificationWatcher::class => env('TELESCOPE_NOTIFICATION_WATCHER', true),
+        Watchers\NotificationWatcher::class => env(
+            'TELESCOPE_NOTIFICATION_WATCHER',
+            true,
+        ),
 
         Watchers\QueryWatcher::class => [
             'enabled' => env('TELESCOPE_QUERY_WATCHER', true),
