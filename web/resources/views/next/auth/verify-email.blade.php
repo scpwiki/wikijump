@@ -4,7 +4,7 @@
 --}}
 
 @extends('next.auth.auth', [
-    'title' => __('account_panel.verify_email.VERIFY_EMAIL')
+    'title' => __('auth.verify_email.VERIFY_EMAIL')
 ])
 
 @push('preloads')
@@ -17,7 +17,7 @@
 
 @section('content')
     <p id="auth_verify_email">
-        {{ __('account_panel.verify_email.INTRO') }}
+        {{ __('auth.verify_email.INTRO') }}
     </p>
     <br />
     <div id="auth_form_container"></div>

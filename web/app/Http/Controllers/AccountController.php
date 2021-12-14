@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Wikijump\Http\Controllers;
 
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Wikidot\Utils\WDStringUtils;
 use Wikijump\Models\User;
 use Wikijump\Services\UserValidation\UserValidation;
@@ -111,5 +114,77 @@ class AccountController extends Controller
         $user->sendEmailVerificationNotification();
 
         return new Response('', 202);
+    }
+
+    /**
+     * Starts password recovery.
+     * Endpoint: `POST:/account/start-recovery` | `accountStartRecovery`
+     */
+    public function startRecovery(Request $request): Response
+    {
+        // check if user is logged in
+        if ($this->guard->check()) {
+            return new Response('', 409);
+        }
+
+        $email = $request->input('email');
+
+        // no one is using this email, return 403
+        if (!UserValidation::isEmailTaken($email)) {
+            return new Response('', 403);
+        }
+
+        // send recovery email
+
+        $status = Password::sendResetLink($request->only('email'));
+
+        switch ($status) {
+            case Password::RESET_LINK_SENT:
+                return new Response('', 202);
+
+            case Password::INVALID_USER:
+                return new Response('', 403);
+
+            default:
+                return new Response('', 500);
+        }
+    }
+
+    /**
+     * Handles updating a password during password recovery.
+     * Not part of the "proper" API.
+     */
+    public function handlePasswordRecoveryUpdate(Request $request): Response
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        // do our more strict check on the password
+        if (!UserValidation::isValidPassword($request->input('password'))) {
+            return new Response('', 400);
+        }
+
+        $credentials = $request->only(['email', 'password', 'token']);
+
+        $status = Password::reset($credentials, function ($user, $password) {
+            $user
+                ->forceFill(['password' => Hash::make($password)])
+                ->setRememberToken(Str::random(60));
+
+            $user->save();
+
+            event(new PasswordReset($user));
+        });
+
+        switch ($status) {
+            case Password::PASSWORD_RESET:
+                return new Response('', 202);
+
+            default:
+                return new Response('', 500);
+        }
     }
 }

@@ -4,7 +4,7 @@
 --}}
 
 @extends('next.auth.auth', [
-    'title' => __('account_panel.CONFIRM_PASSWORD')
+    'title' => __('auth.CONFIRM_PASSWORD')
 ])
 
 @push('preloads')
@@ -16,10 +16,14 @@
 @endpush
 
 @section('content')
-    <h2 id="auth_confirm_password">
-    {{ __('account_panel.CONFIRM_PASSWORD') }}
-    </h2>
+    <h1 id="auth_title">
+        {{ __('auth.CONFIRM_PASSWORD') }}
+    </h1>
 
     <div id="auth_form_container">
     </div>
+
+    <a id="auth_forgot_password" href="/user--services/forgot-password">
+        {{ __("auth.FORGOT_PASSWORD") }}
+    </a>
 @endsection

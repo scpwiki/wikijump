@@ -1,5 +1,5 @@
 import { readable, Subscriber } from "svelte/store"
-import { Api, RequestParams } from "../vendor/api"
+import { Api, ContentType, RequestParams } from "../vendor/api"
 
 const API_PATH = "/api--v0"
 
@@ -9,9 +9,6 @@ class WikijumpAPIInstance extends Api<void> {
 
   /** Current CSRF token. */
   private declare _CSRF?: string
-
-  /** The current base URL. If null, `API_PATH` will be used. */
-  private _baseURL: string | null = null
 
   /** @param headers - Extra headers to send with every request. */
   constructor(headers: Record<string, string> = {}) {
@@ -36,7 +33,6 @@ class WikijumpAPIInstance extends Api<void> {
           ? { "X-CSRF-TOKEN": csrf, "X-XSRF-TOKEN": xsrf }
           : { "X-CSRF-TOKEN": csrf }
         return {
-          baseUrl: this._baseURL ?? API_PATH,
           headers: securityHeaders
         } as RequestParams
       }
@@ -104,27 +100,57 @@ class WikijumpAPIInstance extends Api<void> {
   }
 
   /**
+   * Helper for sending a `GET` request via the API.
+   *
+   * @param to - The path to send the request to.
+   * @param query - The query parameters to send, if any.
+   */
+  get<T = void>(to: string, query: Record<string, string> = {}) {
+    const url = new URL(to)
+    const baseUrl = url.origin
+    const path = url.pathname
+    return this.request<T, void>({ method: "GET", baseUrl, path, query })
+  }
+
+  /**
+   * Helper for sending a `POST` request via the API.
+   *
+   * @param to - The path to send the request to.
+   * @param body - The data to send, if any.
+   */
+  post<T = void>(to: string, body: any = {}) {
+    const url = new URL(to)
+    const baseUrl = url.origin
+    const path = url.pathname
+    const type = ContentType.Json
+    return this.request<T, void>({ method: "POST", baseUrl, path, body, type })
+  }
+
+  /**
+   * Attempts to return the given query parameter from the current URL.
+   *
+   * @param name - The name of the query parameter to return.
+   */
+  getQueryParameter(key: string) {
+    return new URLSearchParams(window.location.search).get(key)
+  }
+
+  /**
+   * Attempts to get the specified path segment (via index) from the current URL.
+   *
+   * @param index - The index of the path segment to return.
+   */
+  getPathSegment(index: number): string | null {
+    return window.location.pathname.split("/")[index + 1] ?? null
+  }
+
+  /**
    * Returns a base URL but for a different subdomain.
    *
    * @param subdomain - The subdomain to use.
    */
   subdomainURL(subdomain: string) {
     return `${window.location.protocol}//${subdomain}.${window.location.host}/${API_PATH}`
-  }
-
-  /**
-   * Fires a callback in a context where the API's subdomain has been
-   * changed to the one specified. Be aware of potential race conditions
-   * when using this. If a race condition is unavoidable, you can use
-   * {@link subdomainURL} and manually set the `baseURL` for the request.
-   *
-   * @param subdomain - The subdomain to use.
-   * @param callback - The callback to run.
-   */
-  async withSubdomain(subdomain: string, callback: () => Promise<void>) {
-    this._baseURL = this.subdomainURL(subdomain)
-    await callback()
-    this._baseURL = null
   }
 }
 

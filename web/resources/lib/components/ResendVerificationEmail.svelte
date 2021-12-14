@@ -19,7 +19,7 @@
       if (err instanceof Response) {
         // you can't get to this page without being logged in and unverified
         // so probably any error is internal
-        error = $t("account_panel.errors.INTERNAL_ERROR")
+        error = $t("auth.errors.INTERNAL_ERROR")
       } else {
         throw err
       }
@@ -30,11 +30,11 @@
 </script>
 
 <Button on:click={resend} disabled={busy} wide primary>
-  {$t("account_panel.verify_email.RESEND_EMAIL")}
+  {$t("auth.verify_email.RESEND_EMAIL")}
 </Button>
 
 {#if resent && !busy}
-  <p class="verify-email-resent">{$t("account_panel.verify_email.EMAIL_SENT")}</p>
+  <p class="verify-email-resent">{$t("auth.verify_email.EMAIL_SENT")}</p>
 {/if}
 
 <FormError {error} />

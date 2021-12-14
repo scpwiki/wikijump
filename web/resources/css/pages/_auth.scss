@@ -22,18 +22,20 @@
   }
 }
 
+#auth_title {
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+  text-align: center;
+}
+
 #auth_login,
-#auth_create_account {
+#auth_create_account,
+#auth_forgot_password {
   display: block;
   margin-top: 1rem;
   font-size: 0.825rem;
   text-align: center;
   @include link-styling(var(--col-hint));
-}
-
-#auth_confirm_password {
-  margin-bottom: 0.5rem;
-  text-align: center;
 }
 
 #auth_verify_email {
