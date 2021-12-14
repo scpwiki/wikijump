@@ -181,7 +181,7 @@ class AccountController extends Controller
 
         switch ($status) {
             case Password::PASSWORD_RESET:
-                return new Response('', 200);
+                return new Response('', 202);
 
             default:
                 return new Response('', 500);
