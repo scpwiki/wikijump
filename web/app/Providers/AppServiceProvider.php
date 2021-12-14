@@ -6,6 +6,7 @@ namespace Wikijump\Providers;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Telescope\TelescopeServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +38,11 @@ class AppServiceProvider extends ServiceProvider
                 }
             } catch (Exception $err) {
             }
+        }
+
+        // register Telescope
+        if ($this->app->environment('local')) {
+            $this->app->register(TelescopeServiceProvider::class);
         }
     }
 

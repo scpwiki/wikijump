@@ -19,6 +19,7 @@
     "require-dev": {
         "facade/ignition": "^2.8",
         "fakerphp/faker": "^1.14",
+        "laravel/telescope": "^4.6",
         "mockery/mockery": "^1.4",
         "nunomaduro/collision": "^5.4",
         "phpunit/php-code-coverage": "^9.2",
@@ -32,7 +33,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "laravel/telescope"
+            ]
         }
     },
     "autoload": {
