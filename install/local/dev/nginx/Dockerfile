@@ -35,3 +35,6 @@ COPY ./web /var/www/wikijump/web
 COPY --from=node /src/web/web /var/www/wikijump/web/web
 COPY --from=node /src/web/public /var/www/wikijump/web/public
 COPY ./install/files/nginx.conf /etc/nginx/nginx.conf
+
+# !! Copy local nginx configuration
+COPY ./install/files/local/local.conf /etc/nginx/conf.d/wikijump/local.conf
