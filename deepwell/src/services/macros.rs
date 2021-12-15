@@ -1,5 +1,5 @@
 /*
- * services/page/mod.rs
+ * services/macros.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,11 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::api::ApiServerState;
+macro_rules! impl_service_constructor {
+    ($name:ident) => {
+        impl From<&crate::api::ApiRequest> for $name {
+            fn from(req: &crate::api::ApiRequest) -> $name {
+                use std::sync::Arc;
 
-#[derive(Debug)]
-pub struct PageService(ApiServerState);
-
-impl_service_constructor!(PageService);
-
-// TODO
+                $name(Arc::clone(req.state()))
+            }
+        }
+    };
+}

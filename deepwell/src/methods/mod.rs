@@ -21,6 +21,7 @@
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
     pub use crate::models::*;
+    pub use crate::services::RequestFetchService;
     pub use crate::web::{utils::error_response, HttpUnwrap, ItemReference};
     pub use chrono::prelude::*;
     pub use sea_orm::entity::prelude::*;

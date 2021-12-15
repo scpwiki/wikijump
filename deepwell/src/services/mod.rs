@@ -18,7 +18,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#[macro_use]
+mod macros;
+
 mod page;
 mod user;
 
-// TODO
+pub use self::page::PageService;
+pub use self::user::UserService;
+
+use crate::api::ApiRequest;
+
+/// Extension trait to retrieve service objects from an `ApiRequest`.
+pub trait RequestFetchService {
+    fn page(&self) -> PageService;
+    fn user(&self) -> UserService;
+}
+
+impl RequestFetchService for ApiRequest {
+    #[inline]
+    fn page(&self) -> PageService {
+        self.into()
+    }
+
+    #[inline]
+    fn user(&self) -> UserService {
+        self.into()
+    }
+}

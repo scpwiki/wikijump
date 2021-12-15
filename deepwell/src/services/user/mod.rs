@@ -18,4 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::api::ApiServerState;
+
+#[derive(Debug)]
+pub struct UserService(ApiServerState);
+
+impl_service_constructor!(UserService);
+
 // TODO
