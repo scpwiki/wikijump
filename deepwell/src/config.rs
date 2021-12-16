@@ -139,9 +139,7 @@ fn read_env(config: &mut Config) {
         match value.parse() {
             Ok(rate_limit) => config.rate_limit_per_minute = rate_limit,
             Err(_) => {
-                eprintln!(
-                    "RATE_LIMIT_PER_MINUTE variable is not a valid integer",
-                );
+                eprintln!("RATE_LIMIT_PER_MINUTE variable is not a valid integer");
                 process::exit(1);
             }
         }
