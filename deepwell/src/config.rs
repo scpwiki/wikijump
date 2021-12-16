@@ -33,39 +33,39 @@ const MIN_SECRET_LENGTH: usize = 64;
 pub struct Config {
     /// Whether the logger should be enabled or not.
     ///
-    /// Can be set using environment variable `DEEPWELL_LOGGER`.
+    /// Can be set using environment variable `ENABLE_LOGGER`.
     pub logger: bool,
 
     /// The address the server will be hosted on.
     ///
-    /// Can be set using environment variables `DEEPWELL_HOST` and `DEEPWELL_PORT`.
+    /// Can be set using environment variables `SERVER_HOST` and `SERVER_PORT`.
     pub address: SocketAddr,
 
     /// The URL of the PostgreSQL database to connect to.
     ///
-    /// Can be set using environment variable `DEEPWELL_DATABASE_URL`.
+    /// Can be set using environment variable `DATABASE_URL`.
     pub database_url: String,
 
     /// Whether to run migrations on startup.
     ///
-    /// Can be set using environment variable `DEEPWELL_RUN_MIGRATIONS`.
+    /// Can be set using environment variable `RUN_MIGRATIONS`.
     pub run_migrations: bool,
 
     /// The location where all gettext translation files are kept.
     ///
-    /// Can be set using environment variable `DEEPWELL_LOCALIZATION_PATH`.
+    /// Can be set using environment variable `LOCALIZATION_PATH`.
     pub localization_path: PathBuf,
 
     /// The number of requests allowed per IP per minute.
     ///
-    /// Can be set using environment variable `DEEPWELL_RATE_LIMIT_PER_MINUTE`.
+    /// Can be set using environment variable `RATE_LIMIT_PER_MINUTE`.
     pub rate_limit_per_minute: NonZeroU32,
 
     /// The secret to bypass the rate-limit.
     /// An empty value means to disable bypassing.
     /// If a value is specified, the secret must be at least 64 bytes long.
     ///
-    /// Set using environment variable `DEEPWELL_RATE_LIMIT_SECRET`.
+    /// Set using environment variable `RATE_LIMIT_SECRET`.
     pub rate_limit_secret: String,
 }
 
@@ -86,71 +86,71 @@ impl Default for Config {
 fn read_env(config: &mut Config) {
     dotenv().ok();
 
-    if let Ok(value) = env::var("DEEPWELL_LOGGER") {
+    if let Ok(value) = env::var("ENABLE_LOGGER") {
         if value.eq_ignore_ascii_case("true") {
             config.logger = true;
         } else if value.eq_ignore_ascii_case("false") {
             config.logger = false;
         } else {
-            eprintln!("DEEPWELL_LOGGER variable is not a valid boolean value");
+            eprintln!("ENABLE_LOGGER variable is not a valid boolean value");
             process::exit(1);
         }
     }
 
-    if let Ok(value) = env::var("DEEPWELL_HOST") {
+    if let Ok(value) = env::var("SERVER_HOST") {
         match value.parse() {
             Ok(host) => config.address.set_ip(host),
             Err(_) => {
-                eprintln!("DEEPWELL_ADDRESS_HOST variable is not a valid hostname");
+                eprintln!("SERVER_HOST variable is not a valid hostname");
                 process::exit(1);
             }
         }
     }
 
-    if let Ok(value) = env::var("DEEPWELL_PORT") {
+    if let Ok(value) = env::var("SERVER_PORT") {
         match value.parse() {
             Ok(port) => config.address.set_port(port),
             Err(_) => {
-                eprintln!("DEEPWELL_ADDRESS_PORT variable is not a valid port");
+                eprintln!("SERVER_PORT variable is not a valid port");
                 process::exit(1);
             }
         }
     }
 
-    if let Ok(value) = env::var("DEEPWELL_DATABASE_URL") {
+    if let Ok(value) = env::var("DATABASE_URL") {
         config.database_url = value;
     }
 
-    if let Ok(value) = env::var("DEEPWELL_RUN_MIGRATIONS") {
+    if let Ok(value) = env::var("RUN_MIGRATIONS") {
         match value.parse() {
             Ok(run) => config.run_migrations = run,
             Err(_) => {
-                eprintln!("DEEPWELL_RUN_MIGRATIONS variable is not a valid boolean");
+                eprintln!("RUN_MIGRATIONS variable is not a valid boolean");
                 process::exit(1);
             }
         }
     }
 
-    if let Some(value) = env::var_os("DEEPWELL_LOCALIZATION_PATH") {
+    if let Some(value) = env::var_os("LOCALIZATION_PATH") {
         config.localization_path = PathBuf::from(value);
     }
 
-    if let Ok(value) = env::var("DEEPWELL_RATE_LIMIT_PER_MINUTE") {
+    if let Ok(value) = env::var("RATE_LIMIT_PER_MINUTE") {
         match value.parse() {
             Ok(rate_limit) => config.rate_limit_per_minute = rate_limit,
             Err(_) => {
                 eprintln!(
-                    "DEEPWELL_RATE_LIMIT_PER_MINUTE variable is not a valid integer",
+                    "RATE_LIMIT_PER_MINUTE variable is not a valid integer",
                 );
                 process::exit(1);
             }
         }
     }
 
-    if let Ok(value) = env::var("DEEPWELL_RATE_LIMIT_SECRET") {
+    if let Ok(value) = env::var("RATE_LIMIT_SECRET") {
         if value.len() < MIN_SECRET_LENGTH {
             eprintln!(
-                "DEEPWELL_RATE_LIMIT_SECRET value too short (must be at least {} bytes long)",
+                "RATE_LIMIT_SECRET value too short (must be at least {} bytes long)",
                 MIN_SECRET_LENGTH,
             );
             process::exit(1);
