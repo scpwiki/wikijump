@@ -40,6 +40,7 @@ mod locales;
 mod methods;
 mod models;
 mod services;
+mod types;
 mod utils;
 mod web;
 

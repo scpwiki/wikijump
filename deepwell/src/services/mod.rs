@@ -21,13 +21,27 @@
 #[macro_use]
 mod macros;
 
-mod page;
-mod user;
+mod prelude {
+    pub use super::error::*;
+    pub use crate::api::ApiServerState;
+    pub use crate::types::Maybe;
+    pub use crate::utils::now;
+    pub use crate::web::ItemReference;
+    pub use sea_orm::{
+        ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, Set,
+    };
+}
 
-pub use self::page::PageService;
-pub use self::user::UserService;
+mod error;
 
+pub mod page;
+pub mod user;
+
+use self::page::PageService;
+use self::user::UserService;
 use crate::api::ApiRequest;
+
+pub use self::error::*;
 
 /// Extension trait to retrieve service objects from an `ApiRequest`.
 pub trait RequestFetchService {

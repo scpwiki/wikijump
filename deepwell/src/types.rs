@@ -1,5 +1,5 @@
 /*
- * services/user/mod.rs
+ * types.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,11 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::api::ApiServerState;
-
-#[derive(Debug)]
-pub struct UserService(ApiServerState);
-
-impl_service_constructor!(UserService);
-
-// TODO
+/// Denotes that a field is optional in a struct.
+///
+/// This is meant to be used when doing `UPDATE` operations,
+/// since excluding the field entirely is different from setting
+/// it to null (`None`), and `Option<Option<T>>` is an unwieldy type.
+///
+/// The type alias differentiates between the core type and the part
+/// that is not required.
+pub type Maybe<T> = Option<T>;
