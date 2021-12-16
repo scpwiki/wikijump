@@ -18,6 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! The "services" module, providing low-level logical operations.
+//!
+//! Each service is named for a particular object or concept, and
+//! provides several low-level methods for interacting with it.
+//! This may be CRUD, or small operations which should be composed
+//! into larger ones.
+//!
+//! As such, _all methods here are not contained in transactions,_
+//! the expectation is that the caller will use transactions when needed.
+//! For methods which make multiple calls, they will assert that they
+//! are currently in a transaction, if you are not then they will raise
+//! an error.
+
 #[macro_use]
 mod macros;
 
