@@ -22,15 +22,10 @@ use super::prelude::*;
 use crate::models::users::Model as UserModel;
 use crate::services::user::{CreateUser, UpdateUser};
 
-#[derive(Serialize, Debug)]
-pub struct CreateUserOutput {
-    user_id: i64,
-}
-
 pub async fn user_create(mut req: ApiRequest) -> ApiResponse {
     let input: CreateUser = req.body_json().await?;
-    let user_id = req.user().create(input).await?;
-    let body = Body::from_json(&CreateUserOutput { user_id })?;
+    let output = req.user().create(input).await?;
+    let body = Body::from_json(&output)?;
     Ok(body.into())
 }
 

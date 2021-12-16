@@ -34,6 +34,12 @@ pub struct CreateUser {
     language: Option<String>,
 }
 
+#[derive(Serialize, Debug)]
+pub struct CreateUserOutput {
+    user_id: i64,
+    slug: String,
+}
+
 #[derive(Deserialize, Debug, Default)]
 #[serde(default)]
 pub struct UpdateUser {
@@ -63,7 +69,7 @@ pub struct UserService(ApiServerState);
 impl_service_constructor!(UserService);
 
 impl UserService {
-    pub async fn create(&self, input: CreateUser) -> Result<i64> {
+    pub async fn create(&self, input: CreateUser) -> Result<CreateUserOutput> {
         let db = &self.0.database;
         let slug = get_user_slug(&input.username);
 
@@ -85,7 +91,7 @@ impl UserService {
         // Insert new model
         let user = users::ActiveModel {
             username: Set(input.username),
-            slug: Set(slug),
+            slug: Set(slug.clone()),
             email: Set(input.email),
             email_verified_at: Set(None),
             password: Set(input.password),
@@ -108,7 +114,7 @@ impl UserService {
         };
 
         let user_id = User::insert(user).exec(db).await?.last_insert_id;
-        Ok(user_id)
+        Ok(CreateUserOutput { user_id, slug })
     }
 
     pub async fn get_optional(
