@@ -41,7 +41,7 @@ RUN python3 -m messages .
 # We want alpine, but need glibc
 FROM frolvlad/alpine-glibc:latest
 
-ENV DEEPWELL_LOCALIZATION_PATH="/opt/locales"
+ENV LOCALIZATION_PATH="/opt/locales"
 
 RUN apk add --no-cache curl
 COPY --from=rust /src/deepwell/target/release/deepwell /usr/local/bin/deepwell
