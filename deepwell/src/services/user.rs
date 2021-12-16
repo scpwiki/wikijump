@@ -63,12 +63,11 @@ pub struct UserService(ApiServerState);
 impl_service_constructor!(UserService);
 
 impl UserService {
-    pub async fn create(&self, input: &CreateUser) -> Result<UserModel> {
+    pub async fn create(&self, input: CreateUser) -> Result<i64> {
         let db = &self.0.database;
         let slug = get_user_slug(&input.username);
 
         // Check for conflicts
-        /*
         let result = User::find()
             .filter(
                 Condition::any()
@@ -84,7 +83,7 @@ impl UserService {
         }
 
         // Insert new model
-        let model = users::ActiveModel {
+        let user = users::ActiveModel {
             username: Set(input.username),
             slug: Set(slug),
             email: Set(input.email),
@@ -108,10 +107,8 @@ impl UserService {
             ..Default::default()
         };
 
-        let user = User::insert(model).exec(&db).await?;
-        Ok(user)
-            */
-        todo!()
+        let user_id = User::insert(user).exec(db).await?.last_insert_id;
+        Ok(user_id)
     }
 
     pub async fn get_optional(
@@ -143,13 +140,12 @@ impl UserService {
     pub async fn update(
         &self,
         reference: ItemReference<'_>,
-        input: &UpdateUser,
+        input: UpdateUser,
     ) -> Result<UserModel> {
         let db = &self.0.database;
         let model = self.get(reference).await?;
-        let mut user: users::ActiveModel = model.into();
+        let mut user: users::ActiveModel = model.clone().into();
 
-        /*
         // Add each field
         if let Some(username) = input.username {
             let slug = get_user_slug(&username);
@@ -225,16 +221,12 @@ impl UserService {
         // Update and return
         user.update(db).await?;
         Ok(model)
-            */
-        todo!()
     }
 
     pub async fn delete(&self, reference: ItemReference<'_>) -> Result<UserModel> {
         let db = &self.0.database;
         let model = self.get(reference).await?;
-        todo!()
-        /*
-        let mut user: users::ActiveModel = model.into();
+        let mut user: users::ActiveModel = model.clone().into();
 
         // Set deletion flag
         user.updated_at = Set(Some(now()));
@@ -243,7 +235,6 @@ impl UserService {
         // Update and return
         user.update(db).await?;
         Ok(model)
-        */
     }
 }
 
