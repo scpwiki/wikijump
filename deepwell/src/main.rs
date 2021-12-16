@@ -54,7 +54,8 @@ async fn main() -> Result<()> {
 
     if config.logger {
         tide::log::start();
-        tide::log::info!("Loaded server configuration");
+        tide::log::info!("Loaded server configuration:");
+        config.log();
     }
 
     if config.run_migrations {

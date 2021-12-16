@@ -283,4 +283,27 @@ impl Config {
         parse_args(&mut config);
         config
     }
+
+    pub fn log(&self) {
+        #[inline]
+        fn bool_str(value: bool) -> &'static str {
+            if value {
+                "enabled"
+            } else {
+                "disabled"
+            }
+        }
+
+        tide::log::info!("Serving on {}", self.address);
+        tide::log::info!("Migrations: {}", bool_str(self.run_migrations));
+        tide::log::info!("Localization path: {}", self.localization_path.display());
+        tide::log::info!(
+            "Rate limit (per minute): {} requests",
+            self.rate_limit_per_minute,
+        );
+        tide::log::info!(
+            "Rate limit bypass: {}",
+            bool_str(!self.rate_limit_secret.is_empty()),
+        );
+    }
 }
