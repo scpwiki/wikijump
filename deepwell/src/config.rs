@@ -74,7 +74,7 @@ impl Default for Config {
         Config {
             logger: true,
             address: "[::]:2747".parse().unwrap(),
-            database_url: String::new(),
+            database_url: str!("postgres://localhost"),
             run_migrations: true,
             localization_path: PathBuf::from("../locales/out"),
             rate_limit_per_minute: NonZeroU32::new(20).unwrap(),
