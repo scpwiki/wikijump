@@ -298,6 +298,12 @@ impl Config {
         tide::log::info!("Migrations: {}", bool_str(self.run_migrations));
         tide::log::info!("Localization path: {}", self.localization_path.display());
         tide::log::info!(
+            "Current working directory: {}",
+            env::current_dir()
+                .expect("Cannot get current working directory")
+                .display(),
+        );
+        tide::log::info!(
             "Rate limit (per minute): {} requests",
             self.rate_limit_per_minute,
         );
