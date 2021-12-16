@@ -64,6 +64,8 @@ async fn main() -> Result<()> {
     }
 
     let app = api::build_server(config).await?;
+
+    tide::log::info!("Built server. Listening...");
     app.listen(socket_address).await?;
 
     Ok(())
