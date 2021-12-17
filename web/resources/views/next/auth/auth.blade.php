@@ -17,7 +17,7 @@
 @endpush
 
 @section('app')
-    <div id="app_auth" data-back-url="{{ previousUrl() }}">
+    <div id="app_auth">
         <div id="auth_panel" class="light">
             <a href="/" title="{{ __('frame.GOTO_HOME_PAGE') }}">
                 <img src="/files--static/media/logo.min.svg">

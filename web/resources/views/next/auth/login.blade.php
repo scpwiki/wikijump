@@ -7,17 +7,9 @@
     'title' => __('auth.LOGIN')
 ])
 
-@push('preloads')
-    @preload('auth-login.ts')
-@endpush
-
-@push('scripts')
-    @vite('auth-login.ts')
-@endpush
-
 @section('content')
-    <div id="auth_form_container">
-    </div>
+    <wj-component-loader load="LoginForm" back="{{ previousUrl() }}">
+    </wj-component-loader>
 
     <a id="auth_create_account" href="/user--services/register">
         {{ __("auth.CREATE_ACCOUNT") }}
