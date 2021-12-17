@@ -7,17 +7,9 @@
     'title' => __('auth.REGISTER')
 ])
 
-@push('preloads')
-    @preload('auth-register.ts')
-@endpush
-
-@push('scripts')
-    @vite('auth-register.ts')
-@endpush
-
 @section('content')
-    <div id="auth_form_container">
-    </div>
+    <wj-component-loader load="RegisterForm" goto="{{ route("verification.notice") }}">
+    </wj-component-loader>
 
     <a id="auth_login" href="/user--services/login">
         {{ __("auth.LOGIN") }}

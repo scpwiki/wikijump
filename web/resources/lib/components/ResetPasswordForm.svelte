@@ -6,6 +6,12 @@
   import { escapeRegExp } from "@wikijump/util"
   import FormError from "./FormError.svelte"
 
+  /**
+   * If given, the component will automatically send the client to the
+   * given URL. An empty string will be treated as `"/"`.
+   */
+  export let goto: null | string = null
+
   const dispatch = createEventDispatcher()
 
   let busy = false
@@ -33,6 +39,10 @@
         await WikijumpAPI.post(window.location.href, { token, email, password })
 
         dispatch("reset")
+
+        if (goto !== null) {
+          window.location.href = goto || "/"
+        }
       } catch {
         error = $t("auth.errors.INTERNAL_ERROR")
       }

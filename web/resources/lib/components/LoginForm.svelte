@@ -8,6 +8,12 @@
   import { inputsValid } from "@wikijump/dom"
   import FormError from "./FormError.svelte"
 
+  /**
+   * If given, the component will automatically send the client to the
+   * given URL. An empty string will be treated as `"/"`.
+   */
+  export let back: null | string = null
+
   const dispatch = createEventDispatcher()
 
   let busy = false
@@ -35,6 +41,10 @@
         const password = inputPassword.value
         await WikijumpAPI.authLogin({ login, password, remember })
         dispatch("login")
+
+        if (back !== null) {
+          window.location.href = back || "/"
+        }
       } catch (err) {
         // handle HTTP errors, rethrow on script errors
         if (err instanceof Response) error = statusErrorMessage(err.status)

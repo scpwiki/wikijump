@@ -2,8 +2,14 @@
  * Object that maps component names to functions that asynchronously import
  * a component.
  */
+// prettier-ignore
 const COMPONENT_MAP = {
-  "LoginForm": imp(() => import("../components/LoginForm.svelte"))
+  "ConfirmPasswordForm":     imp(() => import("../components/ConfirmPasswordForm.svelte")),
+  "ForgotPasswordForm":      imp(() => import("../components/ForgotPasswordForm.svelte")),
+  "LoginForm":               imp(() => import("../components/LoginForm.svelte")),
+  "RegisterForm":            imp(() => import("../components/RegisterForm.svelte")),
+  "ResendVerificationEmail": imp(() => import("../components/ResendVerificationEmail.svelte")),
+  "ResetPasswordForm":       imp(() => import("../components/ResetPasswordForm.svelte")),
 } as const
 
 /** Valid component names. */

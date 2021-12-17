@@ -9,6 +9,12 @@
   import { createEventDispatcher } from "svelte"
   import FormError from "./FormError.svelte"
 
+  /**
+   * If given, the component will automatically send the client to the
+   * given URL. An empty string will be treated as `"/"`.
+   */
+  export let goto: null | string = null
+
   const dispatch = createEventDispatcher()
 
   // TODO: redirect to email confirmation page
@@ -50,6 +56,10 @@
         await WikijumpAPI.accountRegister({ email, username, password })
 
         dispatch("register")
+
+        if (goto !== null) {
+          window.location.href = goto || "/"
+        }
       } catch (err) {
         // handle HTTP errors, rethrow on script errors
         if (err instanceof Response) error = statusErrorMessage(err.status)
