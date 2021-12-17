@@ -5,44 +5,52 @@
 
   export let user: null | string | number = null
 
-  export let avatar = true
+  export let noavatar = false
+
+  export let nokarma = false
+
+  export let nousername = false
 
   let identity: UserIdentity | null = null
 
   $: {
     identity = null
     if (user === null && $authed) {
-      WikijumpAPI.userClientGet({ avatars: avatar }).then(data => {
+      WikijumpAPI.userClientGet({ avatars: !noavatar }).then(data => {
         identity = data
       })
     } else if (user) {
       const type = typeof user === "number" ? "id" : "name"
-      WikijumpAPI.userGet(type, user, { avatars: avatar }).then(data => {
+      WikijumpAPI.userGet(type, user, { avatars: !noavatar }).then(data => {
         identity = data
       })
     }
   }
 
   function avatarUrl() {
-    if (!identity || !avatar) return ""
+    if (!identity || !noavatar) return ""
     return `data:image/png;base64,${identity.tinyavatar}`
   }
 </script>
 
 {#if identity}
   <span class="wj-user-info">
-    <a href="">
-      {#if avatar}
-        <span class="wj-karma" data-karma={identity.karma}>
-          <Sprite i="wj-karma" />
-        </span>
+    <a class="wj-user-info-link" href="">
+      {#if !noavatar}
+        {#if !nokarma}
+          <span class="wj-karma" data-karma={identity.karma}>
+            <Sprite i="wj-karma" />
+          </span>
+        {/if}
 
         <img class="wj-user-info-avatar" src={avatarUrl()} />
       {/if}
 
-      <span class="wj-user-info-name">
-        {identity.username}
-      </span>
+      {#if !nousername}
+        <span class="wj-user-info-name">
+          {identity.username}
+        </span>
+      {/if}
     </a>
   </span>
 {/if}

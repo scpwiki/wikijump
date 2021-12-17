@@ -42,7 +42,10 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
 
                 ctx.html()
                     .a()
-                    .attr(attr!("href" => &info.user_profile_url))
+                    .attr(attr!(
+                        "class" => "wj-user-info-link",
+                        "href" => &info.user_profile_url,
+                    ))
                     .contents(|ctx| {
                         if show_avatar {
                             ctx.html()
