@@ -10,7 +10,7 @@
    * If given, the component will automatically send the client to the
    * given URL. An empty string will be treated as `"/"`.
    */
-  export let goto: null | string = null
+  export let goto: null | true | string = null
 
   const dispatch = createEventDispatcher()
 
@@ -41,7 +41,7 @@
         dispatch("reset")
 
         if (goto !== null) {
-          window.location.href = goto || "/"
+          window.location.href = goto === true ? "/" : goto || "/"
         }
       } catch {
         error = $t("auth.errors.INTERNAL_ERROR")

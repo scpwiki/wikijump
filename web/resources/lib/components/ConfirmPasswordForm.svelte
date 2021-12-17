@@ -12,7 +12,7 @@
    * If given, the component will automatically send the client to the
    * given URL. An empty string will be treated as `"/"`.
    */
-  export let back: null | string = null
+  export let back: null | true | string = null
 
   const dispatch = createEventDispatcher()
 
@@ -36,7 +36,7 @@
         dispatch("confirm")
 
         if (back !== null) {
-          window.location.href = back || "/"
+          window.location.href = back === true ? "/" : back || "/"
         }
       } catch (err) {
         // handle HTTP errors, rethrow on script errors
