@@ -47,7 +47,8 @@ pub enum Error {
 }
 
 impl Error {
-    pub fn to_tide_error(self) -> TideError {
+    // TODO fix service result -> tide result in endpoints
+    pub fn into_tide_error(self) -> TideError {
         match self {
             Error::Database(inner) => {
                 TideError::new(StatusCode::InternalServerError, inner)
@@ -85,6 +86,6 @@ pub trait PostTransactionToApiResponse<T> {
 impl<T> PostTransactionToApiResponse<T> for Result<T> {
     #[inline]
     fn to_api(self) -> StdResult<T, TideError> {
-        self.map_err(Error::to_tide_error)
+        self.map_err(Error::into_tide_error)
     }
 }

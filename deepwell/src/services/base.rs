@@ -39,6 +39,6 @@ impl<'txn> BaseService<'txn> {
 
     #[inline]
     pub fn transaction(&self) -> &DatabaseTransaction {
-        &self.transaction
+        self.transaction
     }
 }
