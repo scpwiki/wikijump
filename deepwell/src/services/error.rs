@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::api::ApiResponse;
 use sea_orm::error::DbErr;
 use thiserror::Error as ThisError;
 use tide::{Error as TideError, StatusCode};
@@ -28,10 +27,17 @@ pub use std::error::Error as StdError;
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
+/// Wrapper error for possible failure modes from service methods.
+///
+/// This has a method to convert to a correct HTTP status,
+/// facilitated by `PostTransactionToApiResponse`.
 #[derive(ThisError, Debug)]
 pub enum Error {
     #[error("Database error: {0}")]
     Database(DbErr),
+
+    #[error("Web server error: HTTP {}", .0.status() as u16)]
+    Web(TideError),
 
     #[error("The request conflicts with data already present")]
     Conflict,
@@ -40,7 +46,20 @@ pub enum Error {
     NotFound,
 }
 
-// Error conversions (most are automatic, see #[from])
+impl Error {
+    pub fn to_tide_error(self) -> TideError {
+        match self {
+            Error::Database(inner) => {
+                TideError::new(StatusCode::InternalServerError, inner)
+            }
+            Error::Web(inner) => inner,
+            Error::Conflict => TideError::from_str(StatusCode::Conflict, ""),
+            Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),
+        }
+    }
+}
+
+// Error conversion implementations
 
 impl From<DbErr> for Error {
     fn from(error: DbErr) -> Error {
@@ -51,18 +70,21 @@ impl From<DbErr> for Error {
     }
 }
 
-// Conversion for web responses
+impl From<TideError> for Error {
+    #[inline]
+    fn from(error: TideError) -> Error {
+        Error::Web(error)
+    }
+}
 
-impl From<Error> for ApiResponse {
-    fn from(error: Error) -> ApiResponse {
-        let tide_error = match error {
-            Error::Database(inner) => {
-                TideError::new(StatusCode::InternalServerError, inner)
-            }
-            Error::Conflict => TideError::from_str(StatusCode::Conflict, ""),
-            Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),
-        };
+/// Trait to easily convert the result of transactions to `ApiResponse`s.
+pub trait PostTransactionToApiResponse<T> {
+    fn to_api(self) -> StdResult<T, TideError>;
+}
 
-        Err(tide_error)
+impl<T> PostTransactionToApiResponse<T> for Result<T> {
+    #[inline]
+    fn to_api(self) -> StdResult<T, TideError> {
+        self.map_err(Error::to_tide_error)
     }
 }

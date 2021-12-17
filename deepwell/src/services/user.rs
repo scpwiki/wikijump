@@ -64,13 +64,11 @@ pub struct UpdateUser {
 // Service
 
 #[derive(Debug)]
-pub struct UserService(ApiServerState);
+pub struct UserService<'txn>(pub BaseService<'txn>);
 
-impl_service_constructor!(UserService);
-
-impl UserService {
+impl<'txn> UserService<'txn> {
     pub async fn create(&self, input: CreateUser) -> Result<CreateUserOutput> {
-        let db = &self.0.database;
+        let txn = self.0.transaction();
         let slug = get_user_slug(&input.username);
 
         // Check for conflicts
@@ -81,7 +79,7 @@ impl UserService {
                     .add(users::Column::Email.eq(input.email.as_str()))
                     .add(users::Column::Slug.eq(slug.as_str())),
             )
-            .one(db)
+            .one(txn)
             .await?;
 
         if result.is_some() {
@@ -113,7 +111,7 @@ impl UserService {
             ..Default::default()
         };
 
-        let user_id = User::insert(user).exec(db).await?.last_insert_id;
+        let user_id = User::insert(user).exec(txn).await?.last_insert_id;
         Ok(CreateUserOutput { user_id, slug })
     }
 
@@ -121,14 +119,13 @@ impl UserService {
         &self,
         reference: ItemReference<'_>,
     ) -> Result<Option<UserModel>> {
-        let db = &self.0.database;
-
+        let txn = self.0.transaction();
         let user = match reference {
-            ItemReference::Id(id) => User::find_by_id(id).one(db).await?,
+            ItemReference::Id(id) => User::find_by_id(id).one(txn).await?,
             ItemReference::Slug(slug) => {
                 User::find()
                     .filter(users::Column::Slug.eq(slug))
-                    .one(db)
+                    .one(txn)
                     .await?
             }
         };
@@ -148,7 +145,7 @@ impl UserService {
         reference: ItemReference<'_>,
         input: UpdateUser,
     ) -> Result<UserModel> {
-        let db = &self.0.database;
+        let txn = self.0.transaction();
         let model = self.get(reference).await?;
         let mut user: users::ActiveModel = model.clone().into();
 
@@ -225,12 +222,12 @@ impl UserService {
         user.updated_at = Set(Some(now()));
 
         // Update and return
-        user.update(db).await?;
+        user.update(txn).await?;
         Ok(model)
     }
 
     pub async fn delete(&self, reference: ItemReference<'_>) -> Result<UserModel> {
-        let db = &self.0.database;
+        let txn = self.0.transaction();
         let model = self.get(reference).await?;
         let mut user: users::ActiveModel = model.clone().into();
 
@@ -239,7 +236,7 @@ impl UserService {
         user.deleted_at = Set(Some(now()));
 
         // Update and return
-        user.update(db).await?;
+        user.update(txn).await?;
         Ok(model)
     }
 }

@@ -31,45 +31,53 @@
 //! are currently in a transaction, if you are not then they will raise
 //! an error.
 
-#[macro_use]
-mod macros;
-
 mod prelude {
+    pub use super::base::BaseService;
     pub use super::error::*;
-    pub use crate::api::ApiServerState;
     pub use crate::types::Maybe;
     pub use crate::utils::now;
     pub use crate::web::ItemReference;
     pub use sea_orm::{
-        ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, Set,
+        ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait,
+        QueryFilter, Set,
     };
 }
 
+mod base;
 mod error;
 
 pub mod page;
 pub mod user;
 
+use self::base::BaseService;
 use self::page::PageService;
 use self::user::UserService;
 use crate::api::ApiRequest;
+use sea_orm::{DatabaseConnection, DatabaseTransaction};
 
 pub use self::error::*;
 
 /// Extension trait to retrieve service objects from an `ApiRequest`.
 pub trait RequestFetchService {
-    fn page(&self) -> PageService;
-    fn user(&self) -> UserService;
+    fn database(&self) -> &DatabaseConnection;
+
+    fn page<'txn>(&self, txn: &'txn DatabaseTransaction) -> PageService<'txn>;
+    fn user<'txn>(&self, txn: &'txn DatabaseTransaction) -> UserService<'txn>;
 }
 
 impl RequestFetchService for ApiRequest {
     #[inline]
-    fn page(&self) -> PageService {
-        self.into()
+    fn database(&self) -> &DatabaseConnection {
+        &self.state().database
     }
 
     #[inline]
-    fn user(&self) -> UserService {
-        self.into()
+    fn page<'txn>(&self, txn: &'txn DatabaseTransaction) -> PageService<'txn> {
+        PageService(BaseService::new(self, txn))
+    }
+
+    #[inline]
+    fn user<'txn>(&self, txn: &'txn DatabaseTransaction) -> UserService<'txn> {
+        UserService(BaseService::new(self, txn))
     }
 }

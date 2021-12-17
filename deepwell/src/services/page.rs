@@ -21,11 +21,8 @@
 // TODO
 #[allow(unused_imports)]
 use super::prelude::*;
-use crate::api::ApiServerState;
 
 #[derive(Debug)]
-pub struct PageService(ApiServerState);
-
-impl_service_constructor!(PageService);
+pub struct PageService<'txn>(pub BaseService<'txn>);
 
 // TODO

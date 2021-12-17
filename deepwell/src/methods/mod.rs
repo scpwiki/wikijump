@@ -20,13 +20,14 @@
 
 mod prelude {
     pub use crate::api::{ApiRequest, ApiResponse};
-    pub use crate::services::RequestFetchService;
+    pub use crate::services::{
+        Error as ServiceError, PostTransactionToApiResponse, RequestFetchService,
+    };
     pub use crate::web::{utils::error_response, HttpUnwrap, ItemReference};
     pub use chrono::prelude::*;
-    pub use sea_orm::entity::prelude::*;
-    pub use sea_orm::{Condition, Set};
+    pub use sea_orm::ConnectionTrait;
     pub use std::convert::TryFrom;
-    pub use tide::{Body, Error, Request, Response, StatusCode};
+    pub use tide::{Body, Request, Response, StatusCode};
 }
 
 pub mod locales;

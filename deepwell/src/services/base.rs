@@ -1,5 +1,5 @@
 /*
- * services/macros.rs
+ * services/base.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,14 +18,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-macro_rules! impl_service_constructor {
-    ($name:ident) => {
-        impl From<&crate::api::ApiRequest> for $name {
-            fn from(req: &crate::api::ApiRequest) -> $name {
-                use std::sync::Arc;
+use crate::api::{ApiRequest, ApiServerState};
+use sea_orm::DatabaseTransaction;
+use std::sync::Arc;
 
-                $name(Arc::clone(req.state()))
-            }
+/// The base service, with common data and helpers for other services.
+#[derive(Debug)]
+pub struct BaseService<'txn> {
+    _state: ApiServerState,
+    transaction: &'txn DatabaseTransaction,
+}
+
+impl<'txn> BaseService<'txn> {
+    pub fn new(req: &ApiRequest, transaction: &'txn DatabaseTransaction) -> Self {
+        BaseService {
+            _state: Arc::clone(req.state()),
+            transaction,
         }
-    };
+    }
+
+    #[inline]
+    pub fn transaction(&self) -> &DatabaseTransaction {
+        &self.transaction
+    }
 }
