@@ -80,7 +80,7 @@
 
   <div
     class="details-menu-popover"
-    use:popover={{ when: open && !!summary, placement, target: summary }}
+    use:popover={{ when: open, placement, target: summary }}
   >
     <slot {open} />
   </div>
