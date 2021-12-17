@@ -62,6 +62,10 @@
     { key: "Escape", do: closeMenu },
     { key: "ArrowDown", do: selectFirstActive }
   ]}
+  use:guard={{
+    when: hoverable,
+    use: [onHover, { alsoOnFocus: true, on: openMenu, off: closeMenu }]
+  }}
 >
   <summary
     class="details-menu-summary"
@@ -70,10 +74,6 @@
       { key: "click", preventDefault: true, do: toggleMenu },
       { key: "Enter", preventDefault: true, do: toggleMenu }
     ]}
-    use:guard={{
-      when: hoverable,
-      use: [onHover, { alsoOnFocus: true, on: openMenu, off: closeMenu }]
-    }}
   >
     <slot name="button" />
   </summary>
@@ -101,6 +101,11 @@
   .details-menu {
     position: relative;
     display: inline-block;
+    list-style: none;
+  }
+
+  .details-menu-summary {
+    list-style: none;
   }
 
   .details-menu-popover {
