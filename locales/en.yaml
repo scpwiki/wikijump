@@ -135,6 +135,7 @@ components:
 # Authentication
 auth:
   LOGIN: Login
+  LOGOUT: Logout
   REGISTER: Register
   SPECIFIER: Email or Username
   SPECIFIER_PLACEHOLDER: Enter email or username...
