@@ -38,34 +38,41 @@ export class HoverObserver {
     target.addEventListener("pointermove", this.move, { passive: true })
   }
 
-  private pointerover() {
+  private pointerover(evt: PointerEvent) {
     if (!HoverMediaQuery.matches) return
+    if (this.sameTree(evt)) return
     this.hovered = true
     if (this.opts.on && !this.focused) this.opts.on()
   }
 
-  private pointerout() {
+  private pointerout(evt: PointerEvent) {
     if (!this.hovered && !HoverMediaQuery.matches) return
+    if (this.sameTree(evt)) return
+    // check if part of the same tree
     this.hovered = false
     if (this.opts.off && !this.focused) this.opts.off()
   }
 
   private focusin(evt: FocusEvent) {
     if (!this.opts.alsoOnFocus) return
-    if (this.focused && this.target.contains(evt.target as HTMLElement)) return
+    if (this.focused && this.sameTree(evt)) return
     this.focused = true
     if (this.opts.on && !this.hovered) this.opts.on()
   }
 
   private focusout(evt: FocusEvent) {
     if (!this.opts.alsoOnFocus) return
-    if (this.target.contains(evt.relatedTarget as HTMLElement)) return
+    if (this.sameTree(evt)) return
     this.focused = false
     if (this.opts.off && !this.hovered) this.opts.off()
   }
 
   private move() {
     if (this.opts.move) this.opts.move()
+  }
+
+  private sameTree(evt: FocusEvent | PointerEvent) {
+    return this.target.contains(evt.relatedTarget as HTMLElement)
   }
 
   /**
