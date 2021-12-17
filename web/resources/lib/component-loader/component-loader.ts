@@ -54,7 +54,7 @@ export class ComponentLoaderElement extends HTMLElement {
     if (!this.isConnected) return
 
     const attributeNames = new Set(this.getAttributeNames())
-    attributeNames.delete("name")
+    attributeNames.delete("load")
 
     // now we need to handle slotted content
     // this is going to be using WITCHCRAFT
