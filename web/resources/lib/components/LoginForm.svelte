@@ -86,8 +86,9 @@
 
   <div class="login-form-options">
     <Toggle bind:toggled={remember}>{$t("auth.REMEMBER_ME")}</Toggle>
-    <!-- TODO: forgot password -->
-    <a class="login-form-forgot" href="/forgot">{$t("auth.FORGOT_PASSWORD")}</a>
+    <a class="login-form-forgot" href="/user--services/forgot-password">
+      {$t("auth.FORGOT_PASSWORD")}
+    </a>
   </div>
 
   <FormError {error} />
