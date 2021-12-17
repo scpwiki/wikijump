@@ -19,5 +19,6 @@ export * from "./lib/modal"
 export * from "./lib/popper"
 export * from "./lib/tippy"
 export * from "./lib/portal"
+export * from "./lib/use-guard"
 
 export { toast } from "./lib/toasts"
