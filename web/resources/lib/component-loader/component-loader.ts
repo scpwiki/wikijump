@@ -1,5 +1,5 @@
 import { addElement } from "@wikijump/dom"
-import { detach, insert, noop, SvelteComponent } from "svelte/internal"
+import { detach, insert, noop, type SvelteComponent } from "svelte/internal"
 import ComponentManager, { type ComponentName } from "./component-manager"
 
 /**
@@ -83,7 +83,10 @@ export class ComponentLoaderElement extends HTMLElement {
     }
 
     // svelte is not so simple
-    else if (isSvelteComponent(component)) {
+    // the component given will actually be a Proxy,
+    // so we just have to presume that it is a Svelte component
+    // I can't think of any way to safely check what the component is
+    else {
       this.type = "svelte"
 
       // we are going to get all the props
@@ -172,15 +175,6 @@ addElement(ComponentLoaderElement, "ComponentLoaderElement")
  */
 function isHTMLComponent(component: any): component is typeof HTMLElement {
   return component.prototype instanceof HTMLElement
-}
-
-/**
- * Checks if the given class is a Svelte component.
- *
- * @param component - The class to check.
- */
-function isSvelteComponent(component: any): component is typeof SvelteComponent {
-  return component.prototype instanceof SvelteComponent
 }
 
 /**
