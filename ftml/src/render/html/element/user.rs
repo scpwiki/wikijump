@@ -53,7 +53,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                 ))
                                 .contents(|ctx| {
                                     ctx.html().svg_use(
-                                        "/files--common/media/karma.svg#wj-karma-symbol",
+                                        "/files--common/media/ui.svg#wj-karma",
                                         "0 0 64 114",
                                     );
                                 });
