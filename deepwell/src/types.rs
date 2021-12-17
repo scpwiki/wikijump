@@ -1,5 +1,5 @@
 /*
- * methods/mod.rs
+ * types.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,19 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use crate::api::{ApiRequest, ApiResponse};
-    pub use crate::services::{
-        Error as ServiceError, PostTransactionToApiResponse, RequestFetchService,
-    };
-    pub use crate::web::{utils::error_response, HttpUnwrap, ItemReference};
-    pub use chrono::prelude::*;
-    pub use sea_orm::ConnectionTrait;
-    pub use std::convert::TryFrom;
-    pub use tide::{Body, Request, Response, StatusCode};
-}
-
-pub mod locales;
-pub mod misc;
-pub mod page;
-pub mod user;
+/// Denotes that a field is optional in a struct.
+///
+/// This is meant to be used when doing `UPDATE` operations,
+/// since excluding the field entirely is different from setting
+/// it to null (`None`), and `Option<Option<T>>` is an unwieldy type.
+///
+/// The type alias differentiates between the core type and the part
+/// that is not required.
+pub type Maybe<T> = Option<T>;

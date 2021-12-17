@@ -40,6 +40,7 @@ mod locales;
 mod methods;
 mod models;
 mod services;
+mod types;
 mod utils;
 mod web;
 
@@ -53,7 +54,8 @@ async fn main() -> Result<()> {
 
     if config.logger {
         tide::log::start();
-        tide::log::info!("Loaded server configuration");
+        tide::log::info!("Loaded server configuration:");
+        config.log();
     }
 
     if config.run_migrations {
@@ -62,6 +64,8 @@ async fn main() -> Result<()> {
     }
 
     let app = api::build_server(config).await?;
+
+    tide::log::info!("Built server. Listening...");
     app.listen(socket_address).await?;
 
     Ok(())

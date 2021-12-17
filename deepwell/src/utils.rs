@@ -18,10 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use chrono::{NaiveDateTime, Utc};
+
 pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     while let Some(index) = string.find(pattern) {
         let end = index + replacement.len();
 
         string.replace_range(index..end, replacement);
     }
+}
+
+#[inline]
+pub fn now() -> NaiveDateTime {
+    Utc::now().naive_utc()
 }
