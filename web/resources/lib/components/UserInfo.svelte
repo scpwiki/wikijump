@@ -11,6 +11,8 @@
 
   export let nousername = false
 
+  export let nolink = false
+
   let identity: UserIdentity | null = null
 
   $: {
@@ -28,29 +30,49 @@
   }
 
   function avatarUrl() {
-    if (!identity || !noavatar) return ""
+    if (!identity || noavatar) return ""
     return `data:image/png;base64,${identity.tinyavatar}`
   }
 </script>
 
 {#if identity}
   <span class="wj-user-info">
-    <a class="wj-user-info-link" href="">
-      {#if !noavatar}
-        {#if !nokarma}
-          <span class="wj-karma" data-karma={identity.karma}>
-            <Sprite i="wj-karma" />
-          </span>
+    {#if !nolink}
+      <a class="wj-user-info-link" href="">
+        {#if !noavatar}
+          {#if !nokarma}
+            <span class="wj-karma" data-karma={identity.karma}>
+              <Sprite i="wj-karma" />
+            </span>
+          {/if}
+
+          <img class="wj-user-info-avatar" src={avatarUrl()} />
         {/if}
 
-        <img class="wj-user-info-avatar" src={avatarUrl()} />
-      {/if}
+        {#if !nousername}
+          <span class="wj-user-info-name">
+            {identity.username}
+          </span>
+        {/if}
+      </a>
+    {:else}
+      <span class="wj-user-info-link">
+        {#if !noavatar}
+          {#if !nokarma}
+            <span class="wj-karma" data-karma={identity.karma}>
+              <Sprite i="wj-karma" />
+            </span>
+          {/if}
 
-      {#if !nousername}
-        <span class="wj-user-info-name">
-          {identity.username}
-        </span>
-      {/if}
-    </a>
+          <img class="wj-user-info-avatar" src={avatarUrl()} />
+        {/if}
+
+        {#if !nousername}
+          <span class="wj-user-info-name">
+            {identity.username}
+          </span>
+        {/if}
+      </span>
+    {/if}
   </span>
 {/if}
