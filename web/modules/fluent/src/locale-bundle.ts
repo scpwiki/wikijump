@@ -99,14 +99,20 @@ export class Locale {
    */
   loadWithObservableFormatter(component: string) {
     // TODO: potentially prefix with component name as syntax sugar
-    // TODO: some way of returning a "Loading..." string
     // check if we've already loaded this component
     // if we have, just return a store and don't bother loading anything
     for (const loaded of this.loadedComponents) {
       if (loaded.component === component) readable(this.format.bind(this))
     }
 
-    return readable(this.format.bind(this), set => {
+    console.log(this)
+
+    // wrapped function that uses a fallback "Loading..." string
+    const fallback = (id: string, data?: Record<string, FluentVariable>) => {
+      return this.format(id, data, "message-loading")
+    }
+
+    return readable(fallback, set => {
       this.load(component).then(() => set(this.format.bind(this)))
     })
   }
@@ -125,11 +131,16 @@ export class Locale {
    *
    * @param id - The ID of the message.
    * @param data - Data to pass to the message's pattern when formatting.
+   * @param fallback - A fallback message to use if the message isn't
+   *   found. If this is given, a warning won't be shown for missing
+   *   messages. This is useful for components that are loaded asynchronously.
    */
-  format(id: string, data?: Record<string, FluentVariable>) {
+  format(id: string, data?: Record<string, FluentVariable>, fallback?: string): string {
     const message = this.bundle.getMessage(id)
 
     if (!message || !message.value) {
+      if (fallback) return this.format(fallback)
+      // no fallback, so warn
       console.warn("Missing message:", id)
       return id
     }
