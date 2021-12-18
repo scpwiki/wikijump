@@ -1,0 +1,2 @@
+login = Login
+register = Register

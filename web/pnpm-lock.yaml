@@ -392,6 +392,7 @@ importers:
       '@wikijump/api': workspace:*
       '@wikijump/components': workspace:*
       '@wikijump/dom': workspace:*
+      '@wikijump/fluent': workspace:*
       '@wikijump/ftml-components': workspace:*
       '@wikijump/sheaf': workspace:*
       '@wikijump/util': workspace:*
@@ -401,6 +402,7 @@ importers:
       '@wikijump/api': link:../modules/api
       '@wikijump/components': link:../modules/components
       '@wikijump/dom': link:../modules/dom
+      '@wikijump/fluent': link:../modules/fluent
       '@wikijump/ftml-components': link:../modules/ftml-components
       '@wikijump/sheaf': link:../modules/sheaf
       '@wikijump/util': link:../modules/util
