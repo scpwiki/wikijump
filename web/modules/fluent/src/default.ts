@@ -1,6 +1,5 @@
-import { type FluentVariable } from "@fluent/bundle"
 import { dedupe, Pref } from "@wikijump/util"
-import { Locale } from "./locale-bundle"
+import { Locale, type FluentData } from "./locale-bundle"
 import { FALLBACK_LOCALE } from "./locales"
 
 const navigatorLocales = dedupe([navigator.language, ...navigator.languages])
@@ -24,7 +23,7 @@ export const defaultLocale = new Locale(initialLocale, ...fallbackLocales)
 export default defaultLocale
 
 /** Formats a message via its ID. Alias for the `defaultLocale.format` function. */
-export function t(id: string, data?: Record<string, FluentVariable>) {
+export function t(id: string, data?: FluentData) {
   return defaultLocale.format(id, data)
 }
 

@@ -1,4 +1,5 @@
 import { FluentBundle, FluentResource, type FluentVariable } from "@fluent/bundle"
+import { type Pattern } from "@fluent/bundle/esm/ast"
 import { readable } from "svelte/store"
 import { FluentComponent } from "./component"
 import { LOCALE_COMPONENTS } from "./locales"
@@ -33,6 +34,49 @@ export class Locale {
     this.supported = [...locales]
     this.loadedComponents = new Set()
     this.bundle = new FluentBundle(this.locale)
+  }
+
+  /**
+   * Parses a message selector made via dot notation, e.g. `foo.attr`.
+   *
+   * @param selector - The selector to parse.
+   */
+  static parseSelector(selector: string): [message: string, attribute: null | string] {
+    let id = selector
+    let attribute: null | string = null
+
+    // undefined behavior with more than one dot,
+    // but that's not supported in Fluent anyway
+    if (selector.indexOf(".") !== -1) {
+      const split = selector.split(".")
+      id = split[0]
+      attribute = split[1]
+    }
+
+    return [id, attribute]
+  }
+
+  /**
+   * Gets the pattern for the given selector.
+   *
+   * @param selector - The selector to get the pattern for.
+   * @param fallback - The fallback pattern to use if the selector isn't found.
+   */
+  private getPattern(selector: string, fallback?: string): Pattern | null {
+    const [id, attribute] = Locale.parseSelector(selector)
+    const message = this.bundle.getMessage(id)
+
+    const pattern = message
+      ? attribute
+        ? message.attributes[attribute] ?? null
+        : message.value
+      : null
+
+    if (!pattern && fallback) {
+      return this.getPattern(fallback)
+    }
+
+    return pattern
   }
 
   /**
@@ -105,10 +149,8 @@ export class Locale {
       if (loaded.component === component) readable(this.format.bind(this))
     }
 
-    console.log(this)
-
     // wrapped function that uses a fallback "Loading..." string
-    const fallback = (id: string, data?: Record<string, FluentVariable>) => {
+    const fallback = (id: string, data?: FluentData) => {
       return this.format(id, data, "message-loading")
     }
 
@@ -120,55 +162,31 @@ export class Locale {
   /**
    * Checks if the given message ID is in this locale's bundle.
    *
-   * @param id - The ID of the message to check.
+   * @param selector - The ID of the message to check.
    */
-  has(id: string) {
-    return this.bundle.hasMessage(id)
+  has(selector: string) {
+    return this.getPattern(selector) !== null
   }
 
   /**
-   * Formats a message via its ID.
+   * Formats a message via a selector.
    *
-   * @param id - The ID of the message.
+   * @param selector - The selector for getting the message.
    * @param data - Data to pass to the message's pattern when formatting.
    * @param fallback - A fallback message to use if the message isn't
    *   found. If this is given, a warning won't be shown for missing
    *   messages. This is useful for components that are loaded asynchronously.
    */
-  format(id: string, data?: Record<string, FluentVariable>, fallback?: string): string {
-    // attributes have to be accessed via dot notation via our string,
-    // but Fluent doesn't handle that for you automatically, so we have to do it ourselves
+  format(selector: string, data?: FluentData, fallback?: string): string {
+    const pattern = this.getPattern(selector, fallback)
 
-    let resolved = id
-    let attribute: null | string = null
-
-    // undefined behavior with more than one dot,
-    // but that's not supported in Fluent anyway
-    if (id.indexOf(".") !== -1) {
-      const split = id.split(".")
-      resolved = split[0]
-      attribute = split[1]
-    }
-
-    const message = this.bundle.getMessage(resolved)
-
-    // the pattern is either the value, or an attribute of the value,
-    // depending on what we're looking for
-    const value = message
-      ? attribute
-        ? message.attributes[attribute]
-        : message.value
-      : null
-
-    if (!value) {
-      if (fallback) return this.format(fallback)
-      // no fallback, so warn
-      console.warn("Missing message:", id)
-      return id
+    if (!pattern) {
+      console.warn("Missing message:", selector)
+      return selector
     }
 
     const errors: Error[] = []
-    const result = this.bundle.formatPattern(value, data, errors)
+    const result = this.bundle.formatPattern(pattern, data, errors)
     if (errors.length) errors.forEach(err => console.error(err))
     return result
   }
@@ -200,6 +218,8 @@ export class Locale {
     return formatter.format(n)
   }
 }
+
+export type FluentData = Record<string, FluentVariable>
 
 export interface UnitFormatOptions {
   compactDisplay?: "short" | "long"
