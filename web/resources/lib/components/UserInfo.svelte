@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI, { authed } from "@wikijump/api"
+  import WikijumpAPI, { identity as currentIdentity } from "@wikijump/api"
   import { Sprite } from "@wikijump/components"
   import type { UserIdentity } from "@wikijump/api"
 
@@ -17,11 +17,10 @@
 
   $: {
     identity = null
-    if (user === null && $authed) {
-      WikijumpAPI.userClientGet({ avatars: !noavatar }).then(data => {
-        identity = data
-      })
-    } else if (user) {
+    // default is current user
+    if (user === null) identity = $currentIdentity
+    // fetch user from API
+    else {
       const type = typeof user === "number" ? "id" : "name"
       WikijumpAPI.userGet(type, user, { avatars: !noavatar }).then(data => {
         identity = data

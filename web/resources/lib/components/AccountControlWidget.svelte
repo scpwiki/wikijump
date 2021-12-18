@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI, { t, authed } from "@wikijump/api"
+  import WikijumpAPI, { t, authed, identity } from "@wikijump/api"
   import { focusGroup } from "@wikijump/dom"
   import { toast, Button, Card, DetailsMenu } from "@wikijump/components"
   import UserInfo from "./UserInfo.svelte"
@@ -16,8 +16,8 @@
 <!-- TODO: tiny dropdown arrow -->
 <!-- TODO: persist auth state across page -->
 
-<div class="account-control dark" class:is-authed={$authed}>
-  {#if !$authed}
+{#if !$authed}
+  <div class="account-control dark">
     <Button baseline compact on:click={() => AccountModal.toggle(true)}>
       {$t("auth.LOGIN")}
     </Button>
@@ -27,7 +27,9 @@
     <Button baseline compact on:click={() => AccountModal.toggle(true)}>
       {$t("auth.CREATE_ACCOUNT")}
     </Button>
-  {:else}
+  </div>
+{:else if $identity}
+  <div class="account-control dark is-authed">
     <DetailsMenu placement="bottom" hoverable let:open>
       <Button slot="button" tabindex="-1" active={open} baseline compact>
         <UserInfo nolink />
@@ -66,8 +68,8 @@
         </div>
       </Card>
     </DetailsMenu>
-  {/if}
-</div>
+  </div>
+{/if}
 
 <style lang="scss">
   @import "../../css/abstracts";
@@ -91,8 +93,7 @@
     border-radius: 0.325rem;
     font-size: 0.875rem;
     @include shadow(4);
-    // slight delay on animations to allow for the auth state to be set
-    animation: account-control-reveal 100ms 250ms backwards ease-out;
+    animation: account-control-reveal 100ms backwards ease-out;
   }
 
   .account-control-sep {
