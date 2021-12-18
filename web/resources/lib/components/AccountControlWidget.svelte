@@ -29,38 +29,38 @@
     </Button>
   {:else}
     <DetailsMenu placement="bottom" hoverable let:open>
-      <Button slot="button" active={open} baseline compact>
+      <Button slot="button" tabindex="-1" active={open} baseline compact>
         <UserInfo nolink />
       </Button>
 
       <Card>
         <div class="account-control-menu" use:focusGroup={"vertical"}>
           <!-- TODO: proper links -->
-          <Button href="/account" baseline compact>
+          <Button href="/account" tabindex="-1" baseline compact>
             {$t("components.account_control_widget.ACCOUNT")}
           </Button>
 
-          <Button href="/user:info" baseline compact>
+          <Button href="/user:info" tabindex="-1" baseline compact>
             {$t("components.account_control_widget.PROFILE")}
           </Button>
 
-          <Button href="account/messages" baseline compact>
+          <Button href="account/messages" tabindex="-1" baseline compact>
             {$t("components.account_control_widget.MESSAGES")}
           </Button>
 
           <hr />
 
-          <Button href="/docs" baseline compact>
+          <Button href="/docs" tabindex="-1" baseline compact>
             {$t("components.account_control_widget.HELP")}
           </Button>
 
-          <Button href="/account/settings" baseline compact>
+          <Button href="/account/settings" tabindex="-1" baseline compact>
             {$t("components.account_control_widget.SETTINGS")}
           </Button>
 
           <hr />
 
-          <Button on:click={logout} baseline compact>
+          <Button on:click={logout} tabindex="-1" baseline compact>
             {$t("auth.LOGOUT")}
           </Button>
         </div>

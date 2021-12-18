@@ -46,8 +46,8 @@
   }
 
   function selectFirstActive() {
-    if (document.activeElement?.contains(summary)) {
-      getFoci(menu)[0]?.focus()
+    if (!menu.contains(document.activeElement)) {
+      getFoci(menu, true)[0]?.focus()
     }
   }
 </script>
@@ -59,10 +59,7 @@
   bind:this={details}
   {open}
   {...$$restProps}
-  use:keyHandle={[
-    { key: "Escape", do: closeMenu },
-    { key: "ArrowDown", preventDefault: true, do: selectFirstActive }
-  ]}
+  use:keyHandle={{ key: "Escape", do: closeMenu }}
   use:guard={{
     when: hoverable,
     use: [onHover, { alsoOnFocus: true, on: openMenu, off: closeMenu }]
@@ -73,7 +70,8 @@
     bind:this={summary}
     use:keyHandle={[
       { key: "click", preventDefault: true, do: toggleMenu },
-      { key: "Enter", preventDefault: true, do: toggleMenu }
+      { key: "Enter", preventDefault: true, do: openMenu },
+      { key: "ArrowDown", preventDefault: true, do: selectFirstActive }
     ]}
   >
     <slot name="button" />

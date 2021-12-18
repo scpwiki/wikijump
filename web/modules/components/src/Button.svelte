@@ -186,6 +186,12 @@
       }
     }
 
+    &:focus-visible {
+      color: var(--col-hint);
+      background: var(--col-border);
+      outline-color: var(--col-border);
+    }
+
     &:active,
     &.is-active {
       color: var(--col-hint);
