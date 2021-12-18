@@ -32,9 +32,9 @@ export default defaultLocale
  *
  * @param selector - The selector for getting the message.
  * @param data - Data to pass to the message's pattern when formatting.
- * @param fallback - A fallback message to use if the message isn't
- *   found. If this is given, a warning won't be shown for missing
- *   messages. This is useful for components that are loaded asynchronously.
+ * @param fallback - A fallback message to use if the message isn't found.
+ *   If this is given, a warning won't be shown for missing messages. This
+ *   is useful for components that are loaded asynchronously.
  */
 export function format(selector: string, data?: FluentData, fallback?: string) {
   return defaultLocale.format(selector, data, fallback)
