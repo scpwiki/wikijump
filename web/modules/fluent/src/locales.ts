@@ -18,8 +18,9 @@ export type FluentImportMap = Record<string, null | (() => Promise<string>)>
 const directory: Record<string, FluentImportMap> = {}
 for (const [path, importer] of Object.entries(sources)) {
   // our path is going to be something like:
-  // ../../locales/fluent/component/en.ftl
-  // we want everything after `fluent/`.
+  // ../../locales/fluent/foo/en.ftl
+  //                        ^  ^ locale
+  //                        ^ component
 
   const filename = filenameRegex.exec(path)?.[0]
   const component = componentRegex.exec(path)?.[0]
