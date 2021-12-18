@@ -1,5 +1,5 @@
 import { readable, Subscriber } from "svelte/store"
-import { Api, ContentType, RequestParams } from "../vendor/api"
+import { Api, ContentType, type RequestParams, type UserIdentity } from "../vendor/api"
 
 const API_PATH = "/api--v0"
 
@@ -71,23 +71,27 @@ class WikijumpAPIInstance extends Api<void> {
       const res = await login(data, requestParams)
       this._CSRF = res.csrf
       authSet(true)
+      this.updateIdentity()
       return res
     }
 
     this.authLogout = async requestParams => {
       await logout(requestParams)
       authSet(false)
+      this.updateIdentity()
     }
 
     this.authRefresh = async requestParams => {
       const res = await refresh(requestParams)
       this._CSRF = res.csrf
+      this.updateIdentity()
       return res
     }
 
     this.authCheck = async requestParams => {
       const res = await check(requestParams)
       authSet(res.authed)
+      this.updateIdentity()
       return res
     }
 
@@ -95,7 +99,29 @@ class WikijumpAPIInstance extends Api<void> {
       const res = await register(data, requestParams)
       this._CSRF = res.csrf
       authSet(true)
+      this.updateIdentity()
       return res
+    }
+  }
+
+  /**
+   * Updates the current client `UserIdentity`. Usually called when
+   * authentication state changes.
+   */
+  private async updateIdentity() {
+    if (isAuthenticated()) {
+      try {
+        const newIdentity = await this.userClientGet()
+        // avoid updating the identity if it hasn't actually changed
+        if (currentIdentity()?.username !== newIdentity.username) {
+          identitySet(newIdentity)
+        }
+      } catch (err) {
+        console.error(err)
+        identitySet(null)
+      }
+    } else {
+      identitySet(null)
     }
   }
 
@@ -155,16 +181,31 @@ class WikijumpAPIInstance extends Api<void> {
 }
 
 let authSet: Subscriber<boolean>
+let identitySet: Subscriber<null | UserIdentity>
 
 /** Readable store holding the current authentication state. */
-export const authed = readable(false, set => void (authSet = set))
+export const authed = readable<boolean>(false, set => void (authSet = set))
+
+/** Readable store holding the current client `UserIdentity`. */
+export const identity = readable<null | UserIdentity>(
+  null,
+  set => void (identitySet = set)
+)
 
 let isAuthedBinding = false
+let identityBinding: null | UserIdentity = null
+
 authed.subscribe(state => void (isAuthedBinding = state))
+identity.subscribe(identity => void (identityBinding = identity))
 
 /** Returns the current authentication state. */
 export function isAuthenticated() {
   return isAuthedBinding
+}
+
+/** Returns the current `UserIdentity` for the client. */
+export function currentIdentity() {
+  return identityBinding
 }
 
 /** Wikijump API. */

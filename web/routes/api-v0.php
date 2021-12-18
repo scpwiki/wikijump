@@ -9,10 +9,6 @@ use Illuminate\Support\Facades\Route;
 use Wikijump\Http\Controllers\AccountController;
 use Wikijump\Http\Controllers\AuthController;
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 // -- QUERY
 // TODO: queryRequest
 

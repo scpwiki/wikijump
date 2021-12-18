@@ -125,6 +125,17 @@ components:
     REQUIRED: This field is required.
     SHOW_PASSWORD: Hold to show password
 
+  client_status:
+    ACCOUNT: Account
+    PROFILE: Profile
+    MESSAGES: Messages
+    HELP: Help
+    SETTINGS: Settings
+
+  notification_bell:
+    UNREAD_NOTIFICATIONS: You have unread notifications
+    READ_NOTIFICATIONS: You have no unread notifications
+
   toasts:
     CLOSE: Close Notification
 
@@ -135,6 +146,7 @@ components:
 # Authentication
 auth:
   LOGIN: Login
+  LOGOUT: Logout
   REGISTER: Register
   SPECIFIER: Email or Username
   SPECIFIER_PLACEHOLDER: Enter email or username...
@@ -191,6 +203,7 @@ auth:
 
   toasts:
     LOGGED_IN: Logged in!
+    LOGGED_OUT: Logged out.
     REGISTERED: Registration successful.
 
 # Backend request processing

@@ -1,7 +1,7 @@
 .wj-user-info {
   display: inline-block;
 
-  > a,
+  .wj-user-info-link,
   .wj-error-inline {
     display: inline-flex;
     align-items: center;
@@ -25,6 +25,7 @@
 .wj-karma svg {
   display: inline-block;
   height: 16px;
+  vertical-align: top;
 }
 
 // Karma level based on data-attribute

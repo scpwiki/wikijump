@@ -7,15 +7,16 @@ import { mod } from "@wikijump/util"
  * programatically focusable directly under the given element.
  *
  * @param elem - The element to get the focusable descendants of.
+ * @param anyIndex - Whether to include elements with `tabindex` set to `-1`.
  */
-export function getFoci(elem: Element) {
-  return Array.from(
+export function getFoci(elem: Element, anyIndex = false) {
+  const arr = Array.from(
     elem.querySelectorAll<HTMLElement>(
       "a, button, input, textarea, select, details, [tabindex]"
     )
-  )
-    .filter(el => !el.hasAttribute("disabled"))
-    .filter(el => el.getAttribute("tabindex") !== "-1")
+  ).filter(el => !el.hasAttribute("disabled"))
+
+  return anyIndex ? arr : arr.filter(el => el.getAttribute("tabindex") !== "-1")
 }
 
 export type FocusGroupDirection = "vertical" | "horizontal"
@@ -36,7 +37,7 @@ export class FocusGroup {
     const focus = document.activeElement as HTMLElement | null
     if (!focus) return
 
-    const foci = getFoci(this.target)
+    const foci = getFoci(this.target, true)
     if (!foci.length) return
 
     // maps every element to its index

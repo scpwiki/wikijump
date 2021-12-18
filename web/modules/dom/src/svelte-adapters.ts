@@ -1,5 +1,4 @@
-import { FocusObserver, FocusOpts } from "."
-import { FocusGroup, FocusGroupDirection } from "./focus"
+import { FocusGroup, FocusGroupDirection, FocusObserver, FocusOpts } from "./focus"
 import { HeldObserver, WhileHeldOpts } from "./held"
 import { HoverObserver, HoverOpts } from "./hover"
 import { KeyHandler, KeyObserver } from "./key-handling"

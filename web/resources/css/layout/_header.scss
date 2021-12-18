@@ -18,3 +18,9 @@
   border-bottom: solid 0.125rem var(--col-dark-border);
   box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.25);
 }
+
+#header > wj-component-loader[load="ClientStatus"] {
+  align-self: flex-start;
+  margin-top: 1rem;
+  margin-left: auto;
+}

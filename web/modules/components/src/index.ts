@@ -1,6 +1,7 @@
 // organize-imports-ignore
 export { default as Button } from "./Button.svelte"
 export { default as Card } from "./Card.svelte"
+export { default as DetailsMenu } from "./DetailsMenu.svelte"
 export { default as Dialog } from "./Dialog.svelte"
 export { default as Icon } from "./Icon.svelte"
 export { default as Tab } from "./tabs/Tab.svelte"
@@ -19,5 +20,6 @@ export * from "./lib/modal"
 export * from "./lib/popper"
 export * from "./lib/tippy"
 export * from "./lib/portal"
+export * from "./lib/use-guard"
 
 export { toast } from "./lib/toasts"

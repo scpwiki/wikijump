@@ -7,7 +7,6 @@
         $header_subtitle
  --}}
 
-{{-- TODO: User account control widget --}}
 <header id="header" aria-label="{{ __('frame.aria.HEADER') }}">
     @if (isset($header_img_url) || isset($header_title))
         <a id="header_logo" href="/" title="{{ __('frame.GOTO_HOME_PAGE') }}">
@@ -25,4 +24,7 @@
             @endisset
         </a>
     @endif
+
+    <wj-component-loader load="ClientStatus">
+    </wj-component-loader>
 </header>

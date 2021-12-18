@@ -56,7 +56,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../css/abstracts";
+  @import "../../../css/abstracts";
 
   .account-panel {
     width: 30rem;

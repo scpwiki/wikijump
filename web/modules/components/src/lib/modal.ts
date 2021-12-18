@@ -95,6 +95,16 @@ export class Modal<T extends typeof SvelteComponent> {
   }
 
   /**
+   * Sets the modal's state.
+   *
+   * @param state - The new state, if any. If not given, the modal will be toggled.
+   */
+  toggle(state?: boolean) {
+    if (state === undefined) state = !this.open
+    this.open = state
+  }
+
+  /**
    * Adds a listener for {@link Dialog} events. Be aware that you can't
    * remove a listener once it has been added. This function can be used
    * instead of the `onFoo` methods provided by this class, particularly if
