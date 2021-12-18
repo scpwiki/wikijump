@@ -60,7 +60,7 @@
           <hr />
 
           <Button href="/docs" tabindex="-1" baseline compact>
-            {$t("components.client_status.help")}
+            {$t("client-status-menu.help")}
           </Button>
 
           <Button href="/account/settings" tabindex="-1" baseline compact>
