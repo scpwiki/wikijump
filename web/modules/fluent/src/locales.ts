@@ -4,8 +4,8 @@ export const FALLBACK_LOCALE = "en"
 export const SUPPORTED_LOCALES = ["en"] as const
 
 const filenameRegex = /[^\/]+\.ftl$/
-const componentRegex = /[^\/]+(?>=\/[^\/]+\.ftl$)/
-const localeRegex = /.+(?>=\.ftl$)/
+const componentRegex = /[^\/]+(?=\/[^\/]+\.ftl$)/
+const localeRegex = /.+(?=\.ftl$)/
 
 // only import folders one level deep
 // TODO: do we need nested directories?
