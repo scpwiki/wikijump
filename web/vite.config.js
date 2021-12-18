@@ -3,6 +3,7 @@ const path = require("path")
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import { defineConfig } from "laravel-vite"
 import { SASS_OPTIONS, SVELTE_OPTIONS } from "./scripts/vite-config.js"
+import vitePluginFtl from "./scripts/vite-plugin-ftl.js"
 import vitePluginToml from "./scripts/vite-plugin-toml.js"
 import vitePluginYaml from "./scripts/vite-plugin-yaml.js"
 
@@ -36,7 +37,7 @@ const PHP_CONFIG = {
 }
 
 const config = defineConfig({}, PHP_CONFIG)
-  .withPlugins(vitePluginToml, vitePluginYaml, svelte(SVELTE_OPTIONS))
+  .withPlugins(vitePluginFtl, vitePluginToml, vitePluginYaml, svelte(SVELTE_OPTIONS))
   .merge({
     server: {
       port: 3000,
