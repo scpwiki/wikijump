@@ -1,4 +1,5 @@
 import { FluentBundle, FluentResource, type FluentVariable } from "@fluent/bundle"
+import { readable } from "svelte/store"
 import { FluentComponent } from "./component"
 import { LOCALE_COMPONENTS } from "./locales"
 
@@ -17,8 +18,8 @@ export class Locale {
   declare fallbacks: string[]
 
   /**
-   * Every locale supported, with the primary locale being the first
-   * index and the fallbacks being the rest.
+   * Every locale supported, with the primary locale being the first index
+   * and the fallbacks being the rest.
    */
   declare supported: string[]
 
@@ -82,6 +83,24 @@ export class Locale {
     }
 
     await this.add(LOCALE_COMPONENTS.get(component)!)
+  }
+
+  /**
+   * Loads a component, but synchronously returns an observable which
+   * resolves to the locale's formatting function. When the component
+   * loads, the store will be updated with a new (but otherwise identical)
+   * function. This is useful for components that need to be loaded
+   * asynchronously, but need to be formatted immediately.
+   *
+   * If the UI is reactive, the observable update will cause the component
+   * to rerender translation strings.
+   *
+   * @param component - The name of the component to load.
+   */
+  loadWithObservableFormatter(component: string) {
+    return readable(this.format.bind(this), set => {
+      this.load(component).then(() => set(this.format.bind(this)))
+    })
   }
 
   /**
