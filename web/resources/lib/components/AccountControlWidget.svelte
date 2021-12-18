@@ -1,5 +1,6 @@
 <script lang="ts">
   import WikijumpAPI, { t, authed } from "@wikijump/api"
+  import { focusGroup } from "@wikijump/dom"
   import { toast, Button, Card, DetailsMenu } from "@wikijump/components"
   import UserInfo from "./UserInfo.svelte"
   import { AccountModal } from "../account-panel"
@@ -33,7 +34,7 @@
       </Button>
 
       <Card>
-        <div class="account-control-menu">
+        <div class="account-control-menu" use:focusGroup={"vertical"}>
           <!-- TODO: proper links -->
           <Button href="/account" baseline compact>
             {$t("components.account_control_widget.ACCOUNT")}

@@ -15,6 +15,7 @@
 
   let details: HTMLElement
   let summary: HTMLElement
+  let menu: HTMLElement
 
   // misc. functions
 
@@ -45,8 +46,8 @@
   }
 
   function selectFirstActive() {
-    if (document.activeElement === summary) {
-      getFoci(details)[0]?.focus()
+    if (document.activeElement?.contains(summary)) {
+      getFoci(menu)[0]?.focus()
     }
   }
 </script>
@@ -60,7 +61,7 @@
   {...$$restProps}
   use:keyHandle={[
     { key: "Escape", do: closeMenu },
-    { key: "ArrowDown", do: selectFirstActive }
+    { key: "ArrowDown", preventDefault: true, do: selectFirstActive }
   ]}
   use:guard={{
     when: hoverable,
@@ -80,6 +81,7 @@
 
   <div
     class="details-menu-popover"
+    bind:this={menu}
     use:popover={{ when: open, placement, target: summary }}
   >
     <slot {open} />
