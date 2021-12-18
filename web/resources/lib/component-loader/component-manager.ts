@@ -4,7 +4,7 @@
  */
 // prettier-ignore
 const COMPONENT_MAP = {
-  "ClientStatus":    imp(() => import("../components/account/ClientStatus.svelte")),
+  "ClientStatus":            imp(() => import("../components/account/ClientStatus.svelte")),
   "ConfirmPasswordForm":     imp(() => import("../components/auth/ConfirmPasswordForm.svelte")),
   "ForgotPasswordForm":      imp(() => import("../components/auth/ForgotPasswordForm.svelte")),
   "LoginForm":               imp(() => import("../components/auth/LoginForm.svelte")),
