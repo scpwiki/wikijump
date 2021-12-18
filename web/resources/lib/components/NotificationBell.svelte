@@ -15,6 +15,7 @@
       .catch(err => {
         console.warn(err)
         hasNotifications = false
+        count = ""
       })
   } else {
     hasNotifications = false

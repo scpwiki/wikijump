@@ -13,8 +13,6 @@
   }
 </script>
 
-<!-- TODO: notifications -->
-<!-- TODO: tiny dropdown arrow -->
 <!-- TODO: persist auth state across page -->
 
 {#if !$authed}
