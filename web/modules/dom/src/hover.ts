@@ -48,7 +48,6 @@ export class HoverObserver {
   private pointerout(evt: PointerEvent) {
     if (!this.hovered && !HoverMediaQuery.matches) return
     if (this.sameTree(evt)) return
-    // check if part of the same tree
     this.hovered = false
     if (this.opts.off && !this.focused) this.opts.off()
   }
