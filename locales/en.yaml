@@ -125,6 +125,13 @@ components:
     REQUIRED: This field is required.
     SHOW_PASSWORD: Hold to show password
 
+  account_control_widget:
+    ACCOUNT: Account
+    PROFILE: Profile
+    MESSAGES: Messages
+    HELP: Help
+    SETTINGS: Settings
+
   toasts:
     CLOSE: Close Notification
 
@@ -192,6 +199,7 @@ auth:
 
   toasts:
     LOGGED_IN: Logged in!
+    LOGGED_OUT: Logged out.
     REGISTERED: Registration successful.
 
 # Backend request processing
