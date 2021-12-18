@@ -306,6 +306,12 @@ importers:
       '@popperjs/core': 2.11.0
       '@wikijump/util': link:../util
 
+  modules/fluent:
+    specifiers:
+      '@fluent/bundle': ^0.17.0
+    dependencies:
+      '@fluent/bundle': 0.17.0
+
   modules/ftml-components:
     specifiers:
       '@popperjs/core': ^2.11.0
@@ -977,6 +983,11 @@ packages:
   /@exodus/schemasafe/1.0.0-rc.6:
     resolution: {integrity: sha512-dDnQizD94EdBwEj/fh3zPRa/HWCS9O5au2PuHhZBbuM3xWHxuaKzPBOEWze7Nn0xW68MIpZ7Xdyn1CoCpjKCuQ==}
     dev: true
+
+  /@fluent/bundle/0.17.0:
+    resolution: {integrity: sha512-G/9wDCTKGPyHgw4ON3vBlLUIBBGG7vq8ytExqh4uwTfoeOfQ5VU5Xr6F+UV8B72k9P9S72GqFTXvqjS48pBVpg==}
+    engines: {node: '>=12.0.0', npm: '>=7.0.0'}
+    dev: false
 
   /@formatjs/ecma402-abstract/1.9.9:
     resolution: {integrity: sha512-w2HpUW17Ev8UN8G1fSvl0skCLP+HkhGZii0ALaBXYc7rd3osD2s8EF2ihSNkeEeC6aySX1IAkRm0f4lnE8Jeaw==}
