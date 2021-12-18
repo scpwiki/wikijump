@@ -12,6 +12,12 @@
     | "wj-downarrow"
     | "wj-hamburger"
 
+  /** General size of the sprite. `1em` should be close to a character in size. */
+  export let size = "1em"
+
+  /** String given to the CSS `margin` property. */
+  export let margin = "0 0"
+
   let viewBox = ""
   // prettier-ignore
   switch (i) {
@@ -23,6 +29,13 @@
   }
 </script>
 
-<svg class="wj-ui-sprite sprite-{i}" {viewBox} {...$$restProps} aria-hidden="true">
+<svg
+  class="wj-ui-sprite sprite-{i}"
+  width={size}
+  style="margin: {margin};"
+  {viewBox}
+  {...$$restProps}
+  aria-hidden="true"
+>
   <use href="{asset('UI')}#{i}" />
 </svg>
