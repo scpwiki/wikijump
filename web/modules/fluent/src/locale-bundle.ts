@@ -61,7 +61,7 @@ export class Locale {
       const supportedResource = await resource.load(supported)
 
       const errors = this.bundle.addResource(supportedResource)
-      errors.forEach(err => console.error(err))
+      if (errors.length) errors.forEach(err => console.error(err))
 
       this.loadedComponents.add(resource)
     }
@@ -169,7 +169,7 @@ export class Locale {
 
     const errors: Error[] = []
     const result = this.bundle.formatPattern(value, data, errors)
-    errors.forEach(err => console.error(err))
+    if (errors.length) errors.forEach(err => console.error(err))
     return result
   }
 
