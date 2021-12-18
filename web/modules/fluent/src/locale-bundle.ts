@@ -130,32 +130,32 @@ export class Locale {
   }
 
   /**
-   * Loads a component, but synchronously returns an observable which
-   * resolves to the locale's formatting function. When the component
-   * loads, the store will be updated with a new (but otherwise identical)
-   * function. This is useful for components that need to be loaded
-   * asynchronously, but UI need sto be formatted immediately.
+   * Makes a formatting observable for the given component. If the
+   * component isn't loaded, it will be loaded automatically, and the
+   * observable will be updated with a new formatting function. This allows
+   * a UI to be formatted immediately, but still be reactive.
    *
-   * If the UI is reactive, the observable update will cause the component
-   * to rerender translation strings.
+   * The formatter returned by this function also has a special syntax
+   * sugar, which allows for a beginning `"#"` character to be substituted
+   * with the given component name.
    *
-   * @param component - The name of the component to load.
+   * While the component is loading, the observable will use a fallback
+   * string for any unknown messages.
+   *
+   * @param component - The name of the component to make a formatter for.
    */
-  loadWithObservableFormatter(component: string) {
-    // TODO: potentially prefix with component name as syntax sugar
-    // check if we've already loaded this component
-    // if we have, just return a store and don't bother loading anything
-    for (const loaded of this.loadedComponents) {
-      if (loaded.component === component) readable(this.format.bind(this))
+  makeComponentFormatter(component: string) {
+    // generates our component formatting function, with syntax sugar and
+    // handling "Loading..." message fallback
+    const makeFunction = (fallback: boolean) => (selector: string, data?: FluentData) => {
+      // syntax sugar shorthand
+      if (selector[0] === "#") selector = component + selector.slice(1)
+      if (fallback) return this.format(selector, data, "message-loading")
+      return this.format(selector, data)
     }
 
-    // wrapped function that uses a fallback "Loading..." string
-    const fallback = (id: string, data?: FluentData) => {
-      return this.format(id, data, "message-loading")
-    }
-
-    return readable(fallback, set => {
-      this.load(component).then(() => set(this.format.bind(this)))
+    return readable(makeFunction(true), set => {
+      this.load(component).then(() => set(makeFunction(false)))
     })
   }
 

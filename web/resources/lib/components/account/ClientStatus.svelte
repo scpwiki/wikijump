@@ -7,7 +7,7 @@
   import NotificationBell from "./NotificationBell.svelte"
   import { AuthModal } from "../auth/auth-modal"
 
-  const t = Locale.loadWithObservableFormatter("client-status")
+  const t = Locale.makeComponentFormatter("client-status")
 
   async function logout() {
     if (!$authed) return
@@ -46,25 +46,25 @@
         <div class="account-control-menu" use:focusGroup={"vertical"}>
           <!-- TODO: proper links -->
           <Button href="/account" tabindex="-1" baseline compact>
-            {$t("client-status-menu.account")}
+            {$t("#-menu.account")}
           </Button>
 
           <Button href="/user:info" tabindex="-1" baseline compact>
-            {$t("client-status-menu.profile")}
+            {$t("#-menu.profile")}
           </Button>
 
           <Button href="account/messages" tabindex="-1" baseline compact>
-            {$t("client-status-menu.messages")}
+            {$t("#-menu.messages")}
           </Button>
 
           <hr />
 
           <Button href="/docs" tabindex="-1" baseline compact>
-            {$t("client-status-menu.help")}
+            {$t("#-menu.help")}
           </Button>
 
           <Button href="/account/settings" tabindex="-1" baseline compact>
-            {$t("client-status-menu.settings")}
+            {$t("#-menu.settings")}
           </Button>
 
           <hr />

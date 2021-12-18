@@ -3,7 +3,7 @@
   import Locale from "@wikijump/fluent"
   import { Button } from "@wikijump/components"
 
-  const t = Locale.loadWithObservableFormatter("notification-bell")
+  const t = Locale.makeComponentFormatter("notification-bell")
 
   let hasNotifications = false
   let count = ""
@@ -40,9 +40,7 @@
     size="1em"
     baseline
     href="/account/notifications"
-    tip={hasNotifications
-      ? $t("notification-bell-status.unread")
-      : $t("notification-bell-status.read")}
+    tip={hasNotifications ? $t("#-status.unread") : $t("#-status.read")}
   />
   {#if hasNotifications}
     <span
