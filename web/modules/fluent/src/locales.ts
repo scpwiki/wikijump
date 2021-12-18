@@ -9,7 +9,7 @@ const localeRegex = /.+(?=\.ftl$)/
 
 // only import folders one level deep
 // TODO: do we need nested directories?
-const sources = import.meta.glob("@root/locales/fluent/*/*.ftl?raw")
+const sources = import.meta.glob("/../locales/fluent/*/*.ftl")
 
 export type SupportedLocale = typeof FALLBACK_LOCALE | typeof SUPPORTED_LOCALES[number]
 
