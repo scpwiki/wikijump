@@ -12,54 +12,88 @@
    * will replace any slotted content - it does not preprend an icon.
    */
   export let i = ""
+
   /** Disables the button. */
   export let disabled = false
+
   /** Makes the button appear in an activated state. */
   export let active = false
+
   /** Text displayed for the tooltip. */
   export let tip = ""
+
   /** Sets the size of the button by scaling the font-size. */
   export let size = "1em"
+
+  /** If given, the button will act as a link. */
+  export let href = ""
 
   // -- STYLE
 
   /** Makes the button as wide as possible. */
   export let wide = false
+
   /** Denotes the button as being important, which changes how it appears. */
   export let primary = false
+
   /** Removes most of the styling. */
   export let baseline = false
+
   /** Removes most of the padding around the button's icon or text. */
   export let compact = false
+
   /**
    * Styles the button to be disconnected from the background. Good for
    * buttons that are placed outside layout flow.
    */
   export let floating = false
+
   /** Removes the round corners (`border-radius`) from the styling. */
   export let sharp = false
 </script>
 
-<button
-  type="button"
-  {disabled}
-  on:click
-  use:tippy={tip}
-  class="button"
-  style="font-size: {size};"
-  class:is-icon={i}
-  class:is-active={active}
-  class:is-disabled={disabled}
-  class:is-wide={wide}
-  class:is-primary={primary}
-  class:is-baseline={baseline}
-  class:is-compact={compact}
-  class:is-floating={floating}
-  class:is-sharp={sharp}
-  {...$$restProps}
->
-  {#if i}<Icon {i} size="1em" />{:else}<slot />{/if}
-</button>
+{#if href}
+  <a
+    class="button is-link"
+    {href}
+    on:click
+    use:tippy={tip}
+    style="font-size: {size};"
+    class:is-icon={i}
+    class:is-active={active}
+    class:is-disabled={disabled}
+    class:is-wide={wide}
+    class:is-primary={primary}
+    class:is-baseline={baseline}
+    class:is-compact={compact}
+    class:is-floating={floating}
+    class:is-sharp={sharp}
+    {...$$restProps}
+  >
+    {#if i}<Icon {i} size="1em" />{:else}<slot />{/if}
+  </a>
+{:else}
+  <button
+    type="button"
+    {disabled}
+    on:click
+    use:tippy={tip}
+    class="button"
+    style="font-size: {size};"
+    class:is-icon={i}
+    class:is-active={active}
+    class:is-disabled={disabled}
+    class:is-wide={wide}
+    class:is-primary={primary}
+    class:is-baseline={baseline}
+    class:is-compact={compact}
+    class:is-floating={floating}
+    class:is-sharp={sharp}
+    {...$$restProps}
+  >
+    {#if i}<Icon {i} size="1em" />{:else}<slot />{/if}
+  </button>
+{/if}
 
 <style lang="scss">
   @import "../../../resources/css/abstracts";
