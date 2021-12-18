@@ -1,15 +1,24 @@
 import { FluentResource } from "@fluent/bundle"
 import { type FluentImportMap } from "./locales"
 
+/** Represents a "component", which is a set of resources in any number of locales. */
 export class FluentComponent {
+  /** Cache for already loaded resources. */
   private declare cache: Map<string, FluentResource>
 
+  /** Import map used to map locales to resources. */
   private declare map: FluentImportMap
 
+  /** The name of this component. */
   declare component: string
 
+  /** The list of locales supported by this component. */
   declare supportedLocales: string[]
 
+  /**
+   * @param component - The name of this component.
+   * @param map - The map to use to load resources.
+   */
   constructor(component: string, map: FluentImportMap) {
     this.cache = new Map()
     this.map = map
