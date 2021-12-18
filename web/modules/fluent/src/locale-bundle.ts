@@ -16,6 +16,12 @@ export class Locale {
    */
   declare fallbacks: string[]
 
+  /**
+   * Every locale supported, with the primary locale being the first
+   * index and the fallbacks being the rest.
+   */
+  declare supported: string[]
+
   /** A set containing every component that has already been loaded. */
   declare loadedComponents: Set<FluentComponent>
 
@@ -23,16 +29,9 @@ export class Locale {
   constructor(...locales: string[]) {
     this.locale = locales[0]
     this.fallbacks = locales.slice(1)
+    this.supported = [...locales]
     this.loadedComponents = new Set()
     this.bundle = new FluentBundle(this.locale)
-  }
-
-  /**
-   * Every locale supported, with the primary locale being the first index
-   * and the fallbacks being the rest.
-   */
-  get supported() {
-    return [this.locale, ...this.fallbacks]
   }
 
   /**
@@ -113,4 +112,90 @@ export class Locale {
     errors.forEach(err => console.error(err))
     return result
   }
+
+  /**
+   * Formats a number.
+   *
+   * @param n - The number to format.
+   * @param opts - Options for formatting.
+   */
+  number(n: number, opts?: Intl.NumberFormatOptions) {
+    const formatter = new Intl.NumberFormat(this.supported, opts)
+    return formatter.format(n)
+  }
+
+  /**
+   * Formats a number as a unit, e.g. `20mm`.
+   *
+   * @param n - The number to format.
+   * @param unit - The unit to use.
+   * @param opts - Options for formatting.
+   */
+  unit(n: number, unit: UnitString, opts?: UnitFormatOptions) {
+    const formatter = new Intl.NumberFormat(this.supported, {
+      style: "unit",
+      unit,
+      ...opts
+    })
+    return formatter.format(n)
+  }
 }
+
+export interface UnitFormatOptions {
+  compactDisplay?: "short" | "long"
+  notation?: "standard" | "scientific" | "engineering" | "compact"
+  signDisplay?: "auto" | "never" | "always"
+  unitDisplay?: "short" | "long" | "narrow"
+  useGrouping?: boolean
+}
+
+// Sourced from:
+// https://tc39.es/proposal-unified-intl-numberformat/section6/locales-currencies-tz_proposed_out.html#sec-issanctionedsimpleunitidentifier
+/** All valid `Intl` units. */
+export type Units =
+  | "acre"
+  | "bit"
+  | "byte"
+  | "celsius"
+  | "centimeter"
+  | "day"
+  | "degree"
+  | "fahrenheit"
+  | "fluid-ounce"
+  | "foot"
+  | "gallon"
+  | "gigabit"
+  | "gigabyte"
+  | "gram"
+  | "hectare"
+  | "hour"
+  | "inch"
+  | "kilobit"
+  | "kilobyte"
+  | "kilogram"
+  | "kilometer"
+  | "liter"
+  | "megabit"
+  | "megabyte"
+  | "meter"
+  | "mile"
+  | "mile-scandinavian"
+  | "milliliter"
+  | "millimeter"
+  | "millisecond"
+  | "minute"
+  | "month"
+  | "ounce"
+  | "percent"
+  | "petabyte"
+  | "pound"
+  | "second"
+  | "stone"
+  | "terabit"
+  | "terabyte"
+  | "week"
+  | "yard"
+  | "year"
+
+/** A valid `Intl` unit string, e.g. "kilobyte" or "kilobyte-per-minute". */
+export type UnitString = Units | `${Units}-per-${Units}`

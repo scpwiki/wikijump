@@ -12,6 +12,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@fluent/bundle": "^0.17.0",
-    "@wikijump/util": "workspace:*"
+    "@wikijump/util": "workspace:*",
+    "svelte": "^3.44.3"
   }
 }
