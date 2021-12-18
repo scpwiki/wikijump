@@ -90,7 +90,7 @@ export class Locale {
    * resolves to the locale's formatting function. When the component
    * loads, the store will be updated with a new (but otherwise identical)
    * function. This is useful for components that need to be loaded
-   * asynchronously, but need to be formatted immediately.
+   * asynchronously, but UI need sto be formatted immediately.
    *
    * If the UI is reactive, the observable update will cause the component
    * to rerender translation strings.
@@ -98,6 +98,7 @@ export class Locale {
    * @param component - The name of the component to load.
    */
   loadWithObservableFormatter(component: string) {
+    // TODO: some way of returning a "Loading..." string
     return readable(this.format.bind(this), set => {
       this.load(component).then(() => set(this.format.bind(this)))
     })
