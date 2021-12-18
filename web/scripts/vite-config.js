@@ -1,5 +1,6 @@
 const { svelte } = require("@sveltejs/vite-plugin-svelte")
 const sveltePreprocess = require("svelte-preprocess")
+const ftlPlugin = require("./vite-plugin-ftl.js")
 const tomlPlugin = require("./vite-plugin-toml.js")
 const yamlPlugin = require("./vite-plugin-yaml.js")
 const path = require("path")
@@ -123,6 +124,7 @@ const getConfig = (test = false) => ({
       },
 
   plugins: [
+    ftlPlugin(),
     tomlPlugin(),
     yamlPlugin(),
     svelte(test ? SVELTE_TEST_OPTIONS : SVELTE_OPTIONS)

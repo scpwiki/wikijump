@@ -14,10 +14,11 @@
     "@wikijump/api": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/dom": "workspace:*",
+    "@wikijump/fluent": "workspace:*",
     "@wikijump/ftml-components": "workspace:*",
     "@wikijump/sheaf": "workspace:*",
     "@wikijump/util": "workspace:*",
     "include-media": "^1.4.10",
-    "svelte": "^3.44.2"
+    "svelte": "^3.44.3"
   }
 }

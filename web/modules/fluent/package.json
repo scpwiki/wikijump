@@ -1,8 +1,8 @@
 {
-  "name": "@wikijump/util",
+  "name": "@wikijump/fluent",
   "license": "agpl-3.0-or-later",
-  "description": "Collection of common utility methods.",
-  "version": "0.1.2",
+  "description": "Project Fluent adapter for Wikijump.",
+  "version": "0.0.0",
   "keywords": [
     "wikijump"
   ],
@@ -11,7 +11,8 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
-    "@popperjs/core": "^2.11.0",
+    "@fluent/bundle": "^0.17.0",
+    "@wikijump/util": "workspace:*",
     "svelte": "^3.44.3"
   }
 }
