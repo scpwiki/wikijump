@@ -102,7 +102,12 @@ export class Locale {
    */
   format(id: string, data?: Record<string, FluentVariable>) {
     const message = this.bundle.getMessage(id)
-    if (!message || !message.value) throw new Error(`Invalid message ID: ${id}`)
+
+    if (!message || !message.value) {
+      console.warn("Missing message:", id)
+      return id
+    }
+
     const errors: Error[] = []
     const result = this.bundle.formatPattern(message.value, data, errors)
     errors.forEach(err => console.error(err))
