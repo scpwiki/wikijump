@@ -136,9 +136,31 @@ export class Locale {
    *   messages. This is useful for components that are loaded asynchronously.
    */
   format(id: string, data?: Record<string, FluentVariable>, fallback?: string): string {
-    const message = this.bundle.getMessage(id)
+    // attributes have to be accessed via dot notation via our string,
+    // but Fluent doesn't handle that for you automatically, so we have to do it ourselves
 
-    if (!message || !message.value) {
+    let resolved = id
+    let attribute: null | string = null
+
+    // undefined behavior with more than one dot,
+    // but that's not supported in Fluent anyway
+    if (id.indexOf(".") !== -1) {
+      const split = id.split(".")
+      resolved = split[0]
+      attribute = split[1]
+    }
+
+    const message = this.bundle.getMessage(resolved)
+
+    // the pattern is either the value, or an attribute of the value,
+    // depending on what we're looking for
+    const value = message
+      ? attribute
+        ? message.attributes[attribute]
+        : message.value
+      : null
+
+    if (!value) {
       if (fallback) return this.format(fallback)
       // no fallback, so warn
       console.warn("Missing message:", id)
@@ -146,7 +168,7 @@ export class Locale {
     }
 
     const errors: Error[] = []
-    const result = this.bundle.formatPattern(message.value, data, errors)
+    const result = this.bundle.formatPattern(value, data, errors)
     errors.forEach(err => console.error(err))
     return result
   }
