@@ -99,6 +99,12 @@ export class Locale {
    */
   loadWithObservableFormatter(component: string) {
     // TODO: some way of returning a "Loading..." string
+    // check if we've already loaded this component
+    // if we have, just return a store and don't bother loading anything
+    for (const loaded of this.loadedComponents) {
+      if (loaded.component === component) readable(this.format.bind(this))
+    }
+
     return readable(this.format.bind(this), set => {
       this.load(component).then(() => set(this.format.bind(this)))
     })
