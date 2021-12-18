@@ -55,7 +55,7 @@ export class Locale {
       }
 
       if (supported !== this.locale) {
-        console.warn(`Fellback to locale ${this.supported} for ${resource.component}`)
+        console.warn(`Fellback to locale ${supported} for ${resource.component}`)
       }
 
       const supportedResource = await resource.load(supported)
