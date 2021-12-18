@@ -4,7 +4,7 @@
   import { toast, Sprite, Button, Card, DetailsMenu } from "@wikijump/components"
   import UserInfo from "../UserInfo.svelte"
   import NotificationBell from "./NotificationBell.svelte"
-  import { AccountModal } from "../../account-panel"
+  import { AuthModal } from "../auth/auth-modal"
 
   async function logout() {
     if (!$authed) return
@@ -17,13 +17,13 @@
 
 {#if !$authed}
   <div class="account-control dark">
-    <Button baseline compact on:click={() => AccountModal.toggle(true)}>
+    <Button baseline compact on:click={() => AuthModal.toggle(true)}>
       {$t("auth.LOGIN")}
     </Button>
 
     <div class="account-control-sep" />
 
-    <Button baseline compact on:click={() => AccountModal.toggle(true)}>
+    <Button baseline compact on:click={() => AuthModal.toggle(true)}>
       {$t("auth.CREATE_ACCOUNT")}
     </Button>
   </div>
