@@ -309,8 +309,10 @@ importers:
   modules/fluent:
     specifiers:
       '@fluent/bundle': ^0.17.0
+      '@wikijump/util': workspace:*
     dependencies:
       '@fluent/bundle': 0.17.0
+      '@wikijump/util': link:../util
 
   modules/ftml-components:
     specifiers:

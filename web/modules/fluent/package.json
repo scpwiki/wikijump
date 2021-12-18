@@ -11,6 +11,7 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
-    "@fluent/bundle": "^0.17.0"
+    "@fluent/bundle": "^0.17.0",
+    "@wikijump/util": "workspace:*"
   }
 }
