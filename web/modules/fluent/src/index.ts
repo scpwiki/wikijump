@@ -1,8 +1,8 @@
-import { defaultLocale, t } from "./default"
+import { defaultLocale, format, number, unit } from "./default"
 
 export * from "./component"
 export * from "./default"
 export * from "./locale-bundle"
-export { t }
+export { defaultLocale, format, number, unit }
 
 export default defaultLocale
