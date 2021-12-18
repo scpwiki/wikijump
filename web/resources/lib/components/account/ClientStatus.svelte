@@ -43,25 +43,25 @@
         <div class="account-control-menu" use:focusGroup={"vertical"}>
           <!-- TODO: proper links -->
           <Button href="/account" tabindex="-1" baseline compact>
-            {$t("components.account_control_widget.ACCOUNT")}
+            {$t("components.client_status.ACCOUNT")}
           </Button>
 
           <Button href="/user:info" tabindex="-1" baseline compact>
-            {$t("components.account_control_widget.PROFILE")}
+            {$t("components.client_status.PROFILE")}
           </Button>
 
           <Button href="account/messages" tabindex="-1" baseline compact>
-            {$t("components.account_control_widget.MESSAGES")}
+            {$t("components.client_status.MESSAGES")}
           </Button>
 
           <hr />
 
           <Button href="/docs" tabindex="-1" baseline compact>
-            {$t("components.account_control_widget.HELP")}
+            {$t("components.client_status.HELP")}
           </Button>
 
           <Button href="/account/settings" tabindex="-1" baseline compact>
-            {$t("components.account_control_widget.SETTINGS")}
+            {$t("components.client_status.SETTINGS")}
           </Button>
 
           <hr />

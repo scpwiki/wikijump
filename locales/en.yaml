@@ -125,7 +125,7 @@ components:
     REQUIRED: This field is required.
     SHOW_PASSWORD: Hold to show password
 
-  account_control_widget:
+  client_status:
     ACCOUNT: Account
     PROFILE: Profile
     MESSAGES: Messages
