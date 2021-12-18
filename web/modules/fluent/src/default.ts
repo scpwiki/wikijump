@@ -8,7 +8,13 @@ const navigatorLocales = dedupe([navigator.language, ...navigator.languages])
 const initialLocale = Pref.get("locale", navigatorLocales[0] ?? FALLBACK_LOCALE)
 const fallbackLocales = [...navigatorLocales]
 
+// avoid our initial locale also being in our fallbacks
 if (fallbackLocales[0] === initialLocale) fallbackLocales.shift()
+
+// push fallback locale at the end if we don't have it anywhere
+if (initialLocale !== FALLBACK_LOCALE && !fallbackLocales.includes(FALLBACK_LOCALE)) {
+  fallbackLocales.push(FALLBACK_LOCALE)
+}
 
 // TODO: can this be made reactive like svelte-i18n?
 
