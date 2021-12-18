@@ -1,5 +1,6 @@
 import { FluentBundle, FluentResource, type FluentVariable } from "@fluent/bundle"
 import { FluentComponent } from "./component"
+import { LOCALE_COMPONENTS } from "./locales"
 
 /** Class that handles translations/formatting for a specific locale. */
 export class Locale {
@@ -15,10 +16,14 @@ export class Locale {
    */
   declare fallbacks: string[]
 
+  /** A set containing every component that has already been loaded. */
+  declare loadedComponents: Set<FluentComponent>
+
   /** @param locales - Locale strings. First locale is the primary one. */
   constructor(...locales: string[]) {
     this.locale = locales[0]
     this.fallbacks = locales.slice(1)
+    this.loadedComponents = new Set()
     this.bundle = new FluentBundle(this.locale)
   }
 
@@ -40,6 +45,8 @@ export class Locale {
       const errors = this.bundle.addResource(resource)
       errors.forEach(err => console.error(err))
     } else {
+      if (this.loadedComponents.has(resource)) return
+
       const supported = resource.which(this.supported)
 
       if (!supported) {
@@ -55,7 +62,27 @@ export class Locale {
 
       const errors = this.bundle.addResource(supportedResource)
       errors.forEach(err => console.error(err))
+
+      this.loadedComponents.add(resource)
     }
+  }
+
+  /**
+   * Loads and adds a component by name.
+   *
+   * @param component - The name of the component to load.
+   */
+  async load(component: string) {
+    // check if we've already loaded this component
+    for (const loaded of this.loadedComponents) {
+      if (loaded.component === component) return
+    }
+
+    if (!LOCALE_COMPONENTS.has(component)) {
+      throw new Error(`Unknown component: ${component}`)
+    }
+
+    await this.add(LOCALE_COMPONENTS.get(component)!)
   }
 
   /**
