@@ -1,6 +1,9 @@
 <script lang="ts">
-  import WikijumpAPI, { t, authed } from "@wikijump/api"
+  import WikijumpAPI, { authed } from "@wikijump/api"
+  import Locale from "@wikijump/fluent"
   import { Button } from "@wikijump/components"
+
+  const t = Locale.loadWithObservableFormatter("notification-bell")
 
   let hasNotifications = false
   let count = ""
@@ -38,8 +41,8 @@
     baseline
     href="/account/notifications"
     tip={hasNotifications
-      ? $t("components.notification_bell.UNREAD_NOTIFICATIONS")
-      : $t("components.notification_bell.READ_NOTIFICATIONS")}
+      ? $t("notification-bell-status.unread")
+      : $t("notification-bell-status.read")}
   />
   {#if hasNotifications}
     <span

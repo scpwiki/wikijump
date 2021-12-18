@@ -98,6 +98,7 @@ export class Locale {
    * @param component - The name of the component to load.
    */
   loadWithObservableFormatter(component: string) {
+    // TODO: potentially prefix with component name as syntax sugar
     // TODO: some way of returning a "Loading..." string
     // check if we've already loaded this component
     // if we have, just return a store and don't bother loading anything
