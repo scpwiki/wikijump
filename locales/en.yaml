@@ -132,6 +132,10 @@ components:
     HELP: Help
     SETTINGS: Settings
 
+  notification_bell:
+    UNREAD_NOTIFICATIONS: You have unread notifications
+    READ_NOTIFICATIONS: You have no unread notifications
+
   toasts:
     CLOSE: Close Notification
 

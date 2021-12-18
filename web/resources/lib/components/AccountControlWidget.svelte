@@ -1,8 +1,9 @@
 <script lang="ts">
   import WikijumpAPI, { t, authed, identity } from "@wikijump/api"
   import { focusGroup } from "@wikijump/dom"
-  import { toast, Button, Card, DetailsMenu } from "@wikijump/components"
+  import { toast, Sprite, Button, Card, DetailsMenu } from "@wikijump/components"
   import UserInfo from "./UserInfo.svelte"
+  import NotificationBell from "./NotificationBell.svelte"
   import { AccountModal } from "../account-panel"
 
   async function logout() {
@@ -30,9 +31,14 @@
   </div>
 {:else if $identity}
   <div class="account-control dark is-authed">
-    <DetailsMenu placement="bottom" hoverable let:open>
+    <NotificationBell />
+
+    <div class="account-control-sep" />
+
+    <DetailsMenu placement="bottom-end" hoverable let:open>
       <Button slot="button" tabindex="-1" active={open} baseline compact>
         <UserInfo nolink />
+        <Sprite i="wj-downarrow" size="0.55rem" margin="0 0 0 0.15rem" />
       </Button>
 
       <Card>
@@ -89,9 +95,9 @@
     justify-content: space-evenly;
     background: var(--col-background);
     border: 0.075rem solid var(--col-border);
-    padding: 0.325rem 0.675rem;
+    padding: 0.325rem 0.625rem;
     border-radius: 0.325rem;
-    font-size: 0.875rem;
+    font-size: 0.925rem;
     @include shadow(4);
     animation: account-control-reveal 100ms backwards ease-out;
   }
@@ -100,7 +106,7 @@
     width: 0.075rem;
     height: 0.75rem;
     background: var(--col-border);
-    margin: 0 0.5em;
+    margin: 0 0.5rem;
   }
 
   .account-control-menu {
