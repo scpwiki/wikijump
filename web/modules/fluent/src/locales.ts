@@ -32,7 +32,7 @@ for (const [path, importer] of Object.entries(sources)) {
 
   // looks wacky but we're just getting the existing map,
   // and if there isn't one we make a new object for it and set it
-  const map = directory[component] ?? (directory[component] = {} as any)
+  const map = directory[component] ?? (directory[component] = {})
 
   // the string will be on the `default` export
   map[locale] = async () => (await importer()).default
