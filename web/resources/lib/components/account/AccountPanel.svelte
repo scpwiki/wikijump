@@ -4,8 +4,8 @@
 <script lang="ts">
   import { t } from "@wikijump/api"
   import { Button, Tabview, Tab, toast } from "@wikijump/components"
-  import LoginForm from "./LoginForm.svelte"
-  import RegisterForm from "./RegisterForm.svelte"
+  import LoginForm from "../auth/LoginForm.svelte"
+  import RegisterForm from "../auth/RegisterForm.svelte"
 
   /** Gets passed to this panel if it's been mounted inside of a dialog. */
   export let closeDialog: (() => void) | undefined
@@ -56,7 +56,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../css/abstracts";
+  @import "../../../css/abstracts";
 
   .account-panel {
     width: 30rem;

@@ -2,9 +2,9 @@
   import WikijumpAPI, { t, authed, identity } from "@wikijump/api"
   import { focusGroup } from "@wikijump/dom"
   import { toast, Sprite, Button, Card, DetailsMenu } from "@wikijump/components"
-  import UserInfo from "./UserInfo.svelte"
+  import UserInfo from "../UserInfo.svelte"
   import NotificationBell from "./NotificationBell.svelte"
-  import { AccountModal } from "../account-panel"
+  import { AccountModal } from "../../account-panel"
 
   async function logout() {
     if (!$authed) return
@@ -76,7 +76,7 @@
 {/if}
 
 <style lang="scss">
-  @import "../../css/abstracts";
+  @import "../../../css/abstracts";
 
   @keyframes account-control-reveal {
     0% {

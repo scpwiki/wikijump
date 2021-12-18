@@ -4,13 +4,13 @@
  */
 // prettier-ignore
 const COMPONENT_MAP = {
-  "AccountControlWidget":    imp(() => import("../components/AccountControlWidget.svelte")),
-  "ConfirmPasswordForm":     imp(() => import("../components/ConfirmPasswordForm.svelte")),
-  "ForgotPasswordForm":      imp(() => import("../components/ForgotPasswordForm.svelte")),
-  "LoginForm":               imp(() => import("../components/LoginForm.svelte")),
-  "RegisterForm":            imp(() => import("../components/RegisterForm.svelte")),
-  "ResendVerificationEmail": imp(() => import("../components/ResendVerificationEmail.svelte")),
-  "ResetPasswordForm":       imp(() => import("../components/ResetPasswordForm.svelte")),
+  "AccountControlWidget":    imp(() => import("../components/account/AccountControlWidget.svelte")),
+  "ConfirmPasswordForm":     imp(() => import("../components/auth/ConfirmPasswordForm.svelte")),
+  "ForgotPasswordForm":      imp(() => import("../components/auth/ForgotPasswordForm.svelte")),
+  "LoginForm":               imp(() => import("../components/auth/LoginForm.svelte")),
+  "RegisterForm":            imp(() => import("../components/auth/RegisterForm.svelte")),
+  "ResendVerificationEmail": imp(() => import("../components/auth/ResendVerificationEmail.svelte")),
+  "ResetPasswordForm":       imp(() => import("../components/auth/ResetPasswordForm.svelte")),
 } as const
 
 /** Valid component names. */

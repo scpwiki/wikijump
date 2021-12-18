@@ -101,7 +101,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../css/abstracts";
+  @import "../../../css/abstracts";
 
   .login-form form {
     display: flex;
