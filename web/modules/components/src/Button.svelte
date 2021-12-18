@@ -161,7 +161,11 @@
       justify-content: center;
       padding: 0.25rem;
 
-      &.is-baseline {
+      &.is-compact {
+        padding: 0.25rem;
+      }
+
+      &.is-baseline.is-compact {
         padding: 0;
       }
     }
