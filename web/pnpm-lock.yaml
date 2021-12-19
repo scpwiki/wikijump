@@ -115,10 +115,10 @@ importers:
   modules/cm-espells:
     specifiers:
       '@lezer/common': ^0.15.11
-      '@wikijump/api': workspace:*
       '@wikijump/codemirror': workspace:*
       '@wikijump/components': workspace:*
       '@wikijump/dom': workspace:*
+      '@wikijump/fluent': workspace:*
       '@wikijump/threads-worker-module': workspace:*
       '@wikijump/util': workspace:*
       dictionary-cs: ^2.0.3
@@ -146,10 +146,10 @@ importers:
       svelte: ^3.44.3
     dependencies:
       '@lezer/common': 0.15.11
-      '@wikijump/api': link:../api
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/components': link:../components
       '@wikijump/dom': link:../dom
+      '@wikijump/fluent': link:../fluent
       '@wikijump/threads-worker-module': link:../threads-worker-module
       '@wikijump/util': link:../util
       dictionary-cs: 2.0.3
