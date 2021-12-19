@@ -1,18 +1,16 @@
 <script lang="ts">
   import WikijumpAPI, { authed, identity } from "@wikijump/api"
-  import Locale from "@wikijump/fluent"
+  import { format as t } from "@wikijump/fluent"
   import { focusGroup } from "@wikijump/dom"
   import { toast, Sprite, Button, Card, DetailsMenu } from "@wikijump/components"
   import UserInfo from "../UserInfo.svelte"
   import NotificationBell from "./NotificationBell.svelte"
   import { AuthModal } from "../auth/auth-modal"
 
-  const t = Locale.makeComponentFormatter("client-status")
-
   async function logout() {
     if (!$authed) return
     await WikijumpAPI.authLogout()
-    toast("success", $t("auth.toasts.LOGGED_OUT"))
+    toast("success", t("logout.toast"))
   }
 </script>
 
@@ -21,13 +19,13 @@
 {#if !$authed}
   <div class="account-control dark">
     <Button baseline compact on:click={() => AuthModal.toggle(true)}>
-      {$t("login")}
+      {t("login")}
     </Button>
 
     <div class="account-control-sep" />
 
     <Button baseline compact on:click={() => AuthModal.toggle(true)}>
-      {$t("create-account")}
+      {t("create-account")}
     </Button>
   </div>
 {:else if $identity}
@@ -46,31 +44,31 @@
         <div class="account-control-menu" use:focusGroup={"vertical"}>
           <!-- TODO: proper links -->
           <Button href="/account" tabindex="-1" baseline compact>
-            {$t("#-menu.account")}
+            {t("account")}
           </Button>
 
           <Button href="/user:info" tabindex="-1" baseline compact>
-            {$t("#-menu.profile")}
+            {t("profile")}
           </Button>
 
           <Button href="account/messages" tabindex="-1" baseline compact>
-            {$t("#-menu.messages")}
+            {t("messages")}
           </Button>
 
           <hr />
 
           <Button href="/docs" tabindex="-1" baseline compact>
-            {$t("#-menu.help")}
+            {t("help")}
           </Button>
 
           <Button href="/account/settings" tabindex="-1" baseline compact>
-            {$t("#-menu.settings")}
+            {t("settings")}
           </Button>
 
           <hr />
 
           <Button on:click={logout} tabindex="-1" baseline compact>
-            {$t("logout")}
+            {t("logout")}
           </Button>
         </div>
       </Card>
