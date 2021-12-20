@@ -9,6 +9,9 @@ export class Locale {
   /** Internal bundle that stores and formats messages. */
   private declare bundle: FluentBundle
 
+  /** Components that are still loading. */
+  private declare pending: Map<FluentComponent, Promise<any>>
+
   /** The primary locale. */
   declare locale: string
 
@@ -33,6 +36,7 @@ export class Locale {
     this.fallbacks = locales.slice(1)
     this.supported = [...locales]
     this.loadedComponents = new Set()
+    this.pending = new Map()
     this.bundle = new FluentBundle(this.locale)
   }
 
@@ -89,7 +93,11 @@ export class Locale {
       const errors = this.bundle.addResource(resource)
       errors.forEach(err => console.error(err))
     } else {
-      if (this.loadedComponents.has(resource)) return
+      if (this.loadedComponents.has(resource)) {
+        // wait on the pending load, rather than just returning sync.
+        if (this.pending.has(resource)) await this.pending.get(resource)!
+        return
+      }
 
       const supported = resource.which(this.supported)
 
@@ -99,15 +107,25 @@ export class Locale {
       }
 
       if (supported !== this.locale) {
-        console.warn(`Fellback to locale ${supported} for ${resource.component}`)
+        // don't complain about falling back to locales which are just
+        // more general versions of this one
+        const base = this.locale.toLowerCase().split(/-|_/)[0]
+        const baseSupported = supported.toLowerCase().split(/-|_/)[0]
+        if (base !== baseSupported) {
+          console.warn(`Fellback to locale ${supported} for ${resource.component}`)
+        }
       }
 
-      const supportedResource = await resource.load(supported)
+      this.loadedComponents.add(resource)
 
-      const errors = this.bundle.addResource(supportedResource)
+      const loading = resource.load(supported)
+
+      this.pending.set(resource, loading)
+
+      const errors = this.bundle.addResource(await loading)
       if (errors.length) errors.forEach(err => console.error(err))
 
-      this.loadedComponents.add(resource)
+      this.pending.delete(resource)
     }
   }
 
@@ -119,7 +137,11 @@ export class Locale {
   async load(component: string) {
     // check if we've already loaded this component
     for (const loaded of this.loadedComponents) {
-      if (loaded.component === component) return
+      if (loaded.component === component) {
+        // wait on the pending load, rather than just returning sync.
+        if (this.pending.has(loaded)) await this.pending.get(loaded)!
+        return
+      }
     }
 
     if (!LOCALE_COMPONENTS.has(component)) {

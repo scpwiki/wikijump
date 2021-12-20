@@ -7,8 +7,8 @@
   import { createEventDispatcher } from "svelte"
   import { tip } from "./lib/tippy"
   import Icon from "./Icon.svelte"
-  import { t } from "@wikijump/api"
   import { keyHandle, whileHeld } from "@wikijump/dom"
+  import { format as t } from "@wikijump/fluent"
 
   const dispatch = createEventDispatcher()
 
@@ -40,7 +40,7 @@
       <div role="presentation">
         <span class="textinput-label">{label}</span>
         {#if required}
-          <span class="textinput-required" use:tip={$t("components.textinput.REQUIRED")}>
+          <span class="textinput-required" use:tip={t("field-required")}>
             <Icon i="fa-solid:asterisk" size="0.5em" />
           </span>
         {/if}
@@ -66,7 +66,7 @@
       <!-- prettier-ignore -->
       <span
         class="textinput-icon is-password"
-        use:tip={$t("components.textinput.SHOW_PASSWORD")}
+        use:tip={t("hold-to-show-password")}
         aria-hidden="true"
         use:whileHeld={{
           pressed: () => { if (input) input.type = "text" },

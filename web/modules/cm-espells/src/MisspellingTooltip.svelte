@@ -4,10 +4,12 @@
 <script lang="ts">
   import { TippySingleton, Spinny, anim } from "@wikijump/components"
   import { focusGroup } from "@wikijump/dom"
-  import { t } from "@wikijump/api"
+  import Locale from "@wikijump/fluent"
   import espells from "./espells"
   import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
   import type { FlaggedWord } from "./types"
+
+  const t = Locale.makeComponentFormatter("spellcheck")
 
   export let word: FlaggedWord
 
@@ -41,18 +43,18 @@
 <div class="cm-spellcheck-tip" use:focusGroup={"vertical"}>
   {#if word.info.forbidden}
     <h6 class="cm-spellcheck-tip-title">
-      {$t("sheaf.spellcheck.FORBIDDEN_WORD", { values: { slice: word.word } })}
+      {$t("#-word.forbidden", { slice: word.word })}
     </h6>
     <!-- empty list just to preserve formatting -->
     <ul class="cm-spellcheck-tip-list" aria-hidden="true" />
   {:else if !word.info.correct || word.info.warn}
     {#if !word.info.correct}
       <h6 class="cm-spellcheck-tip-title">
-        {$t("sheaf.spellcheck.MISSPELLED_WORD", { values: { slice: word.word } })}
+        {$t("#-word.misspelled", { slice: word.word })}
       </h6>
     {:else}
       <h6 class="cm-spellcheck-tip-title">
-        {$t("sheaf.spellcheck.WARNED_WORD", { values: { slice: word.word } })}
+        {$t("#-word.warned", { slice: word.word })}
       </h6>
     {/if}
 
@@ -74,9 +76,7 @@
                 class="cm-spellcheck-tip-suggestion"
                 type="button"
                 on:click={() => applySuggestion(suggestion)}
-                use:tip={$t("sheaf.spellcheck.tooltips.ACCEPT_SUGGESTION", {
-                  values: { slice: word.word, suggestion }
-                })}
+                use:tip={$t("#-accept", { slice: word.word, suggestion })}
               >
                 {suggestion}
               </button>
@@ -89,13 +89,9 @@
               class="cm-spellcheck-tip-suggestion cm-spellcheck-tip-suggestion-add"
               type="button"
               on:click={() => addToDictionary()}
-              use:tip={$t("sheaf.spellcheck.tooltips.ADD_TO_DICTIONARY", {
-                values: { slice: word.word }
-              })}
+              use:tip={$t("#-add-word.tooltip", { slice: word.word })}
             >
-              {$t("sheaf.spellcheck.ADD_TO_DICTIONARY", {
-                values: { slice: word.word }
-              })}
+              {$t("#-add-word", { slice: word.word })}
             </button>
           </li>
         {/if}
@@ -106,11 +102,7 @@
   <hr />
 
   <pre class="code cm-spellcheck-tip-source">
-      <code
-      >{$t("sheaf.spellcheck.SOURCE", {
-        values: { slice: word.word, from: word.from, to: word.to }
-      })}</code
-    >
+      <code>{$t("#-source", { slice: word.word, from: word.from, to: word.to })}</code>
   </pre>
 </div>
 

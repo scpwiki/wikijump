@@ -1,6 +1,10 @@
 export type BlockConfiguration = Record<string, Block>
 export type ModuleConfiguration = Record<string, Module>
 
+export interface DocumentationData {
+  blocks: Record<string, { TITLE: string; INFO: string; EXAMPLE: string }>
+}
+
 export interface Block {
   "exclude-name"?: boolean
   "deprecated"?: boolean
@@ -12,7 +16,7 @@ export interface Block {
   "body": "none" | "raw" | "elements" | "other"
   "html-attributes"?: boolean
   "html-output": "css" | "other" | `html,${string}` | `html,${string},${string}`
-  "special"?: "" | "module"
+  "special"?: "include-elements" | "include-special"
   "arguments"?: Record<string, Argument>
 }
 

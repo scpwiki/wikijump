@@ -1,9 +1,12 @@
 <script lang="ts">
-  import WikijumpAPI, { t } from "@wikijump/api"
+  import WikijumpAPI from "@wikijump/api"
+  import Locale from "@wikijump/fluent"
   import { TextInput, Button } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
   import { inputsValid } from "@wikijump/dom"
   import FormError from "./FormError.svelte"
+
+  const t = Locale.makeComponentFormatter("wiki-auth")
 
   const dispatch = createEventDispatcher()
 
@@ -16,9 +19,9 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 403: return $t("auth.errors.UNKNOWN_EMAIL")
-      case 409: return $t("auth.errors.ALREADY_LOGGED_IN")
-      default:  return $t("auth.errors.INTERNAL_ERROR")
+      case 403: return $t("api-error.unknown-email")
+      case 409: return $t("api-error.already-logged-in")
+      default:  return $t("api-error.internal")
     }
   }
 
@@ -38,7 +41,7 @@
 
       busy = false
     } else {
-      error = $t("auth.errors.INVALID_INPUT")
+      error = $t("form-error.missing-fields")
     }
   }
 </script>
@@ -50,8 +53,8 @@
         bind:input={inputEmail}
         on:enter={beginRecovery}
         icon="ic:round-alternate-email"
-        label={$t("auth.EMAIL")}
-        placeholder={$t("auth.EMAIL_PLACEHOLDER")}
+        label={$t("email")}
+        placeholder={$t("email.placeholder")}
         type="email"
         required
         disabled={busy}
@@ -62,7 +65,7 @@
 
     <div class="password-recovery-form-submit">
       <Button on:click={beginRecovery} disabled={busy} wide primary>
-        {$t("auth.password_recovery.RESET_PASSWORD")}
+        {$t("reset-password")}
       </Button>
     </div>
   </div>
@@ -70,7 +73,7 @@
   <FormError {error} />
 {:else}
   <div class="password-recovery-email-sent">
-    <p>{$t("auth.password_recovery.EMAIL_SENT")}</p>
+    <p>{$t("#-password-recovery.email-sent")}</p>
   </div>
 {/if}
 

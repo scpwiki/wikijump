@@ -1,4 +1,4 @@
-import { locale as i18nLocale } from "@wikijump/api"
+import Locale from "@wikijump/fluent"
 import { transfer, WorkerModule } from "@wikijump/threads-worker-module"
 import { dedupe, Pref } from "@wikijump/util"
 import type { Word } from ".."
@@ -202,7 +202,7 @@ export class EspellsWorker extends WorkerModule<EspellsWorkerInterface> {
   }
 }
 
-export default new EspellsWorker(i18nLocale)
+export default new EspellsWorker(Locale.locale)
 
 function localeLanguage(locale: string) {
   return locale.toLowerCase().split(/-|_/)[0]

@@ -2,38 +2,28 @@
   @component Autocomplete tooltip for FTML modules.
 -->
 <script lang="ts">
-  import type { Module } from "../data/types"
   import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
+  import type { ModuleData } from "../data/block"
 
-  export let name: string
-  export let module: Module
-  export let info = ""
+  export let module: ModuleData
   export let unmount: EditorSvelteComponentProps["unmount"]
-
-  const aliases = [name, ...(module.aliases ?? [])]
 </script>
 
 <div class="cm-ftml-module-tip">
   <h4 class="cm-ftml-module-tip-name">
-    {name}
+    {module.name}
     <span>module</span>
   </h4>
 
-  {#if aliases.length > 1}
+  {#if module.aliasesRaw.length > 1}
     <div class="cm-ftml-module-tip-aliases">
-      {#each aliases as alias}
+      {#each module.aliasesRaw as alias}
         <span>'{alias}'</span>
       {/each}
     </div>
   {/if}
 
-  <div class="wikitext cm-ftml-module-tip-info">
-    {#if !info}
-      <p><i>This module has no documentation.</i></p>
-    {:else}
-      {@html info}
-    {/if}
-  </div>
+  <div class="wikitext cm-ftml-module-tip-info" />
 </div>
 
 <style lang="scss">

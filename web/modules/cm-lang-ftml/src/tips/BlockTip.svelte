@@ -2,46 +2,30 @@
   @component Autocomplete tooltip for FTML blocks.
 -->
 <script lang="ts">
-  import type { Block } from "../data/types"
   import type { EditorSvelteComponentProps } from "@wikijump/codemirror"
   import * as Prism from "@wikijump/prism"
-  import { t } from "@wikijump/api"
-  import type { FTMLFragment } from "@wikijump/ftml-wasm-worker"
+  import Locale from "@wikijump/fluent"
   import { Icon, TippySingleton } from "@wikijump/components"
-  import { aliasesRaw } from "../util"
+  import type { BlockData } from "../data/block"
 
-  interface Docs {
-    title: string
-    info: FTMLFragment
-    example: string
-  }
-
-  export let name: string
-  export let block: Block
-  export let docs: Docs
+  export let block: BlockData
   export let unmount: EditorSvelteComponentProps["unmount"]
+
+  const t = Locale.makeComponentFormatter("cmftml")
 
   // TODO: deprecated styling (need a deprecated block first?)
 
-  const aliases = aliasesRaw([name, block])
-  const deprecated = block["deprecated"] ?? false
-  const acceptsStar = block["accepts-star"] ?? false
-  const acceptsScore = block["accepts-score"] ?? false
-  const acceptsNewlines = block["accepts-newlines"] ?? false
-  const usesHTMLAttributes = block["html-attributes"] ?? false
-  const [outputType, outputTag, outputClass] = block["html-output"].split(",")
-
   let codeString =
-    outputType === "html"
-      ? outputClass
-        ? `<${outputTag} class="${outputClass}">`
-        : `<${outputTag}>`
-      : `type: ${outputType}`
+    block.outputType === "html"
+      ? block.outputClass
+        ? `<${block.outputTag} class="${block.outputClass}">`
+        : `<${block.outputTag}>`
+      : `type: ${block.outputType}`
 
-  codeString = Prism.highlight(codeString, outputType === "html" ? "html" : "log")
+  codeString = Prism.highlight(codeString, block.outputType === "html" ? "html" : "log")
 
   // looks messy but this just assembles a reasonable looking block string
-  let ftmlString = `[[${name}${
+  let ftmlString = `[[${block.name}${
     block.head === "map"
       ? ' arg="value"'
       : block.head === "value"
@@ -57,61 +41,61 @@
 <div class="cm-ftml-block-tip">
   <div class="cm-ftml-block-tip-header">
     <h5 class="cm-ftml-block-tip-title">
-      {docs.title}
+      {block.docs?.title ?? block.name}
     </h5>
     <TippySingleton let:tip>
       <!-- In both types we won't display type "NONE" as that would just be confusing -->
       {#if block.head !== "none" || block.body !== "none"}
         <div class="cm-ftml-block-tip-type">
           {#if block.head === "map"}
-            <span use:tip={$t("cmftml.blocks.argument_types.map.INFO")}>
-              {$t("cmftml.blocks.argument_types.map.TITLE")}
+            <span use:tip={$t("#-argument-map.info")}>
+              {$t("#-argument-map")}
             </span>
           {:else if block.head === "value"}
-            <span use:tip={$t("cmftml.blocks.argument_types.value.INFO")}>
-              {$t("cmftml.blocks.argument_types.value.TITLE")}
+            <span use:tip={$t("#-argument-value.info")}>
+              {$t("#-argument-value")}
             </span>
           {:else if block.head === "value+map"}
-            <span use:tip={$t("cmftml.blocks.argument_types.value_map.INFO")}>
-              {$t("cmftml.blocks.argument_types.value_map.TITLE")}
+            <span use:tip={$t("#-argument-value-map.info")}>
+              {$t("#-argument-value-map")}
             </span>
           {/if}
           {#if block.body === "elements"}
-            <span use:tip={$t("cmftml.blocks.body_types.elements.INFO")}>
-              {$t("cmftml.blocks.body_types.elements.TITLE")}
+            <span use:tip={$t("#-body-elements.info")}>
+              {$t("#-body-elements")}
             </span>
           {:else if block.body === "raw"}
-            <span use:tip={$t("cmftml.blocks.body_types.raw.INFO")}>
-              {$t("cmftml.blocks.body_types.raw.TITLE")}
+            <span use:tip={$t("#-body-raw.info")}>
+              {$t("#-body-raw")}
             </span>
           {:else if block.body === "other"}
-            <span use:tip={$t("cmftml.blocks.body_types.other.INFO")}>
-              {$t("cmftml.blocks.body_types.other.TITLE")}
+            <span use:tip={$t("#-body-other.info")}>
+              {$t("#-body-other")}
             </span>
           {/if}
         </div>
       {/if}
 
       <!-- Don't display if there wouldn't be any icons -->
-      {#if usesHTMLAttributes || acceptsStar || acceptsScore || acceptsNewlines}
+      {#if block.htmlAttributes || block.acceptsStar || block.acceptsScore || block.acceptsNewlines}
         <div class="cm-ftml-block-tip-accepts">
-          {#if usesHTMLAttributes}
-            <span use:tip={$t("cmftml.blocks.HTML_ATTRIBUTES")}>
+          {#if block.htmlAttributes}
+            <span use:tip={$t("#-accepts.html-attributes")}>
               <Icon i="whh:html" size="1rem" />
             </span>
           {/if}
-          {#if acceptsStar}
-            <span use:tip={$t("cmftml.blocks.ACCEPTS_STAR")}>
+          {#if block.acceptsStar}
+            <span use:tip={$t("#-accepts.star")}>
               <Icon i="fa-solid:asterisk" size="1rem" />
             </span>
           {/if}
-          {#if acceptsScore}
-            <span use:tip={$t("cmftml.blocks.ACCEPTS_SCORE")}>
+          {#if block.acceptsScore}
+            <span use:tip={$t("#-accepts.score")}>
               <Icon i="feather:underline" size="1rem" />
             </span>
           {/if}
-          {#if acceptsNewlines}
-            <span use:tip={$t("cmftml.blocks.ACCEPTS_NEWLINES")}>
+          {#if block.acceptsNewlines}
+            <span use:tip={$t("#-accepts.newlines")}>
               <Icon i="ic:round-keyboard-return" size="1rem" />
             </span>
           {/if}
@@ -120,23 +104,29 @@
     </TippySingleton>
   </div>
 
-  {#if aliases.length > 1 || block["exclude-name"]}
+  {#if block.aliasesRaw.length > 1 || block.excludeName}
     <div class="cm-ftml-block-tip-aliases">
-      {#each aliases as alias}
+      {#each block.aliasesRaw as alias}
         <span>'{alias}'</span>
       {/each}
     </div>
   {/if}
 
   <div class="wikitext cm-ftml-block-tip-info">
-    {#await docs.info.render() then info}
-      {@html info.html}
-    {/await}
+    {#if block.docs}
+      {#await block.docs.info.render() then info}
+        {@html info.html}
+      {/await}
+    {:else}
+      <wj-body class="wj-body">
+        <p>{$t("#-undocumented-block")}</p>
+      </wj-body>
+    {/if}
   </div>
 
-  {#if docs.example !== "_no_example_"}
+  {#if block.docs}
     <pre class="code cm-ftml-block-tip-example">
-      <code>{@html Prism.highlight(docs.example, "ftml")}</code>
+      <code>{@html Prism.highlight(block.docs.example, "ftml")}</code>
     </pre>
   {/if}
 

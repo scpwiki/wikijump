@@ -6,7 +6,7 @@
   import { anim } from "./lib/animation"
   import Button from "./Button.svelte"
   import Icon from "./Icon.svelte"
-  import { t } from "@wikijump/api"
+  import { format as t } from "@wikijump/fluent"
 
   $: listToasts = Array.from($toasts)
 
@@ -62,7 +62,7 @@
           <Button
             i="ion:close"
             size="1.5rem"
-            tip={$t("components.toasts.CLOSE")}
+            tip={t("close")}
             baseline
             on:click={toast.remove}
           />

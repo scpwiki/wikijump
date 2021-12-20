@@ -2,8 +2,8 @@
   @component Tabbed account login, registration panel.
 -->
 <script lang="ts">
-  import { t } from "@wikijump/api"
   import { Button, Tabview, Tab, toast } from "@wikijump/components"
+  import { format as t } from "@wikijump/fluent"
   import LoginForm from "./LoginForm.svelte"
   import RegisterForm from "./RegisterForm.svelte"
 
@@ -12,12 +12,12 @@
 
   function login() {
     closeDialog?.()
-    toast("success", $t("auth.toasts.LOGGED_IN"))
+    toast("success", t("login.toast"))
   }
 
   function register() {
     closeDialog?.()
-    toast("success", $t("auth.toasts.REGISTERED"))
+    toast("success", t("register.toast"))
   }
 </script>
 
@@ -25,7 +25,7 @@
   <Tabview noborder contained>
     <Tab>
       <span class="account-panel-tab-button" slot="button">
-        {$t("auth.LOGIN")}
+        {t("login")}
       </span>
       <div class="account-panel-form">
         <LoginForm on:login={login} />
@@ -33,7 +33,7 @@
     </Tab>
     <Tab>
       <span class="account-panel-tab-button" slot="button">
-        {$t("auth.REGISTER")}
+        {t("register")}
       </span>
       <div class="account-panel-form">
         <RegisterForm on:register={register} />
@@ -46,7 +46,7 @@
     <div class="account-panel-close-dialog">
       <Button
         i="ion:close"
-        tip={$t("auth.tips.CLOSE_DIALOG")}
+        tip={t("close")}
         size="1rem"
         baseline
         on:click={closeDialog}

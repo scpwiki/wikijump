@@ -12,10 +12,10 @@
   "main": "src/index.ts",
   "dependencies": {
     "@lezer/common": "^0.15.11",
-    "@wikijump/api": "workspace:*",
     "@wikijump/codemirror": "workspace:*",
     "@wikijump/components": "workspace:*",
     "@wikijump/dom": "workspace:*",
+    "@wikijump/fluent": "workspace:*",
     "@wikijump/threads-worker-module": "workspace:*",
     "@wikijump/util": "workspace:*",
     "dictionary-cs": "^2.0.3",

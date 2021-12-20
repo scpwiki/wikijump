@@ -2,7 +2,8 @@
   @component Account registration form.
 -->
 <script lang="ts">
-  import WikijumpAPI, { t } from "@wikijump/api"
+  import WikijumpAPI from "@wikijump/api"
+  import { format as t } from "@wikijump/fluent"
   import { Button, TextInput } from "@wikijump/components"
   import { escapeRegExp } from "@wikijump/util"
   import { inputsValid } from "@wikijump/dom"
@@ -37,9 +38,9 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 403: return $t("auth.errors.EMAIL_TAKEN")
-      case 500: return $t("auth.errors.INTERNAL_ERROR")
-      default:  return $t("auth.errors.REGISTER_FAILED")
+      case 403: return t("api-error.email-taken")
+      case 500: return t("api-error.internal")
+      default:  return t("api-error.register-failed")
     }
   }
 
@@ -68,7 +69,7 @@
 
       busy = false
     } else {
-      error = $t("auth.errors.INVALID_INPUT")
+      error = t("form-error.missing-fields")
     }
   }
 </script>
@@ -79,10 +80,10 @@
       bind:input={inputEmail}
       on:enter={() => inputUsername.focus()}
       icon="ic:round-alternate-email"
-      label={$t("auth.EMAIL")}
-      placeholder={$t("auth.EMAIL_PLACEHOLDER")}
+      label={t("email")}
+      placeholder={t("email.placeholder")}
       type="email"
-      info={$t("auth.EMAIL_INFO")}
+      info={t("email.info")}
       required
       disabled={busy}
       autocomplete="email"
@@ -92,9 +93,9 @@
     <TextInput
       bind:input={inputUsername}
       on:enter={() => inputPassword.focus()}
-      label={$t("auth.USERNAME")}
-      placeholder={$t("auth.USERNAME_PLACEHOLDER")}
-      info={$t("auth.USERNAME_INFO")}
+      label={t("username")}
+      placeholder={t("username.placeholder")}
+      info={t("username.info")}
       required
       disabled={busy}
       autocomplete="username"
@@ -106,9 +107,9 @@
       bind:value={password}
       on:enter={() => inputPasswordConfirm.focus()}
       icon="fluent:key-24-regular"
-      label={$t("auth.PASSWORD")}
+      label={t("password")}
       type="password"
-      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
+      placeholder={t("password.placeholder")}
       required
       disabled={busy}
       autocomplete="new-password"
@@ -119,9 +120,9 @@
       bind:input={inputPasswordConfirm}
       on:enter={() => register()}
       icon="fluent:key-24-regular"
-      label={$t("auth.CONFIRM_PASSWORD")}
+      label={t("confirm-password")}
       type="password"
-      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
+      placeholder={t("password.placeholder")}
       pattern={escapeRegExp(password)}
       required
       disabled={busy}
@@ -134,7 +135,7 @@
 
   <div class="register-form-submit">
     <Button on:click={register} disabled={busy} wide primary>
-      {$t("auth.REGISTER")}
+      {t("register")}
     </Button>
   </div>
 </div>

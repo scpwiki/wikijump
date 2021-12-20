@@ -6,8 +6,10 @@
   import type { SheafContext } from "../context"
   import { Button } from "@wikijump/components"
   import { throttle } from "@wikijump/util"
-  import { t, number, unit } from "@wikijump/api"
+  import Locale, { number, unit } from "@wikijump/fluent"
   import { Content } from "@wikijump/cm-lang-ftml"
+
+  const t = Locale.makeComponentFormatter("sheaf")
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
@@ -41,32 +43,32 @@
 
 <div class="sheaf-pane-editor-topbar {theme} codetheme-{theme}">
   <div class="sheaf-title" aria-hidden="true">
-    <span class="sheaf-title-text">{$t("sheaf.TITLE")}</span>
-    <span class="sheaf-title-version">{$t("sheaf.VERSION")}</span>
+    <span class="sheaf-title-text">{$t("#.title")}</span>
+    <span class="sheaf-title-version">{$t("#.version")}</span>
   </div>
 
   <!-- TODO: figure out how you're actually supposed to make a sideways table -->
   <div class="sheaf-stats">
     <table class="sheaf-stats-column">
       <tr>
-        <td>{$t("sheaf.stats.CHARS")}</td>
-        <td>{$number(chars, { useGrouping: false })}</td>
+        <td>{$t("#-stats.chars")}</td>
+        <td>{number(chars, { useGrouping: false })}</td>
       </tr>
       <tr>
-        <td>{$t("sheaf.stats.BYTES")}</td>
+        <td>{$t("#-stats.bytes")}</td>
         <td>
-          {$unit(bytes, "kilobyte", { useGrouping: false, unitDisplay: "narrow" })}
+          {unit(bytes, "kilobyte", { useGrouping: false, unitDisplay: "narrow" })}
         </td>
       </tr>
     </table>
     <table class="sheaf-stats-column">
       <tr>
-        <td>{$t("sheaf.stats.WORDS")}</td>
-        <td>{$number(words, { useGrouping: false })}</td>
+        <td>{$t("#-stats.words")}</td>
+        <td>{number(words, { useGrouping: false })}</td>
       </tr>
       <tr>
-        <td>{$t("sheaf.stats.LINES")}</td>
-        <td>{$number(lines, { useGrouping: false })}</td>
+        <td>{$t("#-stats.lines")}</td>
+        <td>{number(lines, { useGrouping: false })}</td>
       </tr>
     </table>
   </div>
@@ -77,7 +79,7 @@
       {#if $settings.preview.enabled}
         <Button
           i="fluent:caret-right-24-filled"
-          tip={$t("sheaf.tooltips.CLOSE_PREVIEW")}
+          tip={$t("#-preview.close")}
           size="1.75rem"
           baseline
           on:click={() => ($settings.preview.enabled = false)}
@@ -85,7 +87,7 @@
       {:else}
         <Button
           i="fluent:caret-left-24-filled"
-          tip={$t("sheaf.tooltips.OPEN_PREVIEW")}
+          tip={$t("#-preview-open")}
           size="1.75rem"
           baseline
           on:click={() => ($settings.preview.enabled = true)}

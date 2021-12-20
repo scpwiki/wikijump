@@ -20,8 +20,6 @@ if (initialLocale !== FALLBACK_LOCALE && !fallbackLocales.includes(FALLBACK_LOCA
   fallbackLocales.push(FALLBACK_LOCALE)
 }
 
-// TODO: can this be made reactive like svelte-i18n?
-
 /** Default locale using browser language settings. */
 export const defaultLocale = new Locale(initialLocale, ...fallbackLocales)
 

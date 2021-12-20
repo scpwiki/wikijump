@@ -2,7 +2,8 @@
   @component Login form.
 -->
 <script lang="ts">
-  import WikijumpAPI, { t } from "@wikijump/api"
+  import WikijumpAPI from "@wikijump/api"
+  import { format as t } from "@wikijump/fluent"
   import { Button, TextInput, Toggle } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
   import { inputsValid } from "@wikijump/dom"
@@ -27,9 +28,9 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 409: return $t("auth.errors.ALREADY_LOGGED_IN")
-      case 500: return $t("auth.errors.INTERNAL_ERROR")
-      default:  return $t("auth.errors.LOGIN_FAILED")
+      case 409: return t("api-error.already-logged-in")
+      case 500: return t("api-error.internal")
+      default:  return t("api-error.login-failed")
     }
   }
 
@@ -52,7 +53,7 @@
       }
       busy = false
     } else {
-      error = $t("auth.errors.INVALID_INPUT")
+      error = t("form-error.missing-fields")
     }
   }
 </script>
@@ -62,8 +63,8 @@
     <TextInput
       bind:input={inputLogin}
       on:enter={() => inputPassword.focus()}
-      label={$t("auth.SPECIFIER")}
-      placeholder={$t("auth.SPECIFIER_PLACEHOLDER")}
+      label={t("specifier")}
+      placeholder={t("specifier.placeholder")}
       required
       disabled={busy}
       autocomplete="username"
@@ -74,9 +75,9 @@
       bind:input={inputPassword}
       on:enter={() => login()}
       icon="fluent:key-24-regular"
-      label={$t("auth.PASSWORD")}
+      label={t("password")}
       type="password"
-      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
+      placeholder={t("password.placeholder")}
       required
       disabled={busy}
       autocomplete="current-password"
@@ -85,9 +86,9 @@
   </form>
 
   <div class="login-form-options">
-    <Toggle bind:toggled={remember}>{$t("auth.REMEMBER_ME")}</Toggle>
+    <Toggle bind:toggled={remember}>{t("remember-me")}</Toggle>
     <a class="login-form-forgot" href="/user--services/forgot-password">
-      {$t("auth.FORGOT_PASSWORD")}
+      {t("forgot-password.question")}
     </a>
   </div>
 
@@ -95,7 +96,7 @@
 
   <div class="login-form-submit">
     <Button on:click={login} disabled={busy} wide primary>
-      {$t("auth.LOGIN")}
+      {t("login")}
     </Button>
   </div>
 </div>

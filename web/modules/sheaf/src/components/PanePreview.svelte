@@ -7,8 +7,10 @@
   import CodeDisplay from "./CodeDisplay.svelte"
   import type { SheafContext } from "../context"
   import { RenderHandler } from "../render-handler"
-  import { t } from "@wikijump/api"
+  import Locale from "@wikijump/fluent"
   import { printTree } from "@wikijump/codemirror"
+
+  const t = Locale.makeComponentFormatter("sheaf")
 
   const { editor, bindings, settings, small } = getContext<SheafContext>("sheaf")
 
@@ -25,35 +27,35 @@
 <div class="sheaf-preview-container {theme} codetheme-{theme}">
   <Tabview noborder contained compact conditional>
     <Tab>
-      <span slot="button">{$t("sheaf.preview_tabs.RESULT")}</span>
+      <span slot="button">{$t("#-preview.result")}</span>
       <div class="sheaf-preview">
         <Wikitext morph {debug} wikitext={() => render.result()} />
       </div>
     </Tab>
 
     <Tab>
-      <span slot="button">{$t("sheaf.preview_tabs.HTML")}</span>
+      <span slot="button">{$t("#-preview.html")}</span>
       <CodeDisplay content={render.html(true)} lang="html" />
     </Tab>
 
     <Tab>
-      <span slot="button">{$t("sheaf.preview_tabs.CSS")}</span>
+      <span slot="button">{$t("#-preview.css")}</span>
       <CodeDisplay content={render.style()} lang="css" />
     </Tab>
 
     {#if debug}
       <Tab>
-        <span slot="button">{$t("sheaf.preview_tabs.AST")}</span>
+        <span slot="button">{$t("#-preview.ast")}</span>
         <CodeDisplay content={render.stringifiedAST()} lang="json" />
       </Tab>
 
       <Tab>
-        <span slot="button">{$t("sheaf.preview_tabs.TOKENS")}</span>
+        <span slot="button">{$t("#-preview.tokens")}</span>
         <CodeDisplay content={render.inspectTokens()} lang="FTMLTokens" />
       </Tab>
 
       <Tab>
-        <span slot="button">{$t("sheaf.preview_tabs.EDITOR_AST")}</span>
+        <span slot="button">{$t("#-preview.editor-ast")}</span>
         <CodeDisplay
           content={$editor.value().then(value => printTree($editor.tree, value))}
           lang="PrintTree"

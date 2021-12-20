@@ -1,7 +1,10 @@
 <script lang="ts">
-  import WikijumpAPI, { t } from "@wikijump/api"
+  import WikijumpAPI from "@wikijump/api"
+  import Locale from "@wikijump/fluent"
   import { Button } from "@wikijump/components"
   import FormError from "./FormError.svelte"
+
+  const t = Locale.makeComponentFormatter("wiki-auth")
 
   let busy = false
   let resent = false
@@ -19,7 +22,7 @@
       if (err instanceof Response) {
         // you can't get to this page without being logged in and unverified
         // so probably any error is internal
-        error = $t("auth.errors.INTERNAL_ERROR")
+        error = $t("api-error.internal")
       } else {
         throw err
       }
@@ -30,11 +33,11 @@
 </script>
 
 <Button on:click={resend} disabled={busy} wide primary>
-  {$t("auth.verify_email.RESEND_EMAIL")}
+  {$t("#-verify-email.resend-email")}
 </Button>
 
 {#if resent && !busy}
-  <p class="verify-email-resent">{$t("auth.verify_email.EMAIL_SENT")}</p>
+  <p class="verify-email-resent">{$t("#-verify-email.email-sent")}</p>
 {/if}
 
 <FormError {error} />
