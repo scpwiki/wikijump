@@ -3,22 +3,13 @@ import {
   type EditorSvelteComponentInstance
 } from "@wikijump/codemirror"
 import { type Completion } from "@wikijump/codemirror/cm"
-import Locale, { LOCALE_CMFTML_BLOCKS } from "@wikijump/fluent"
 import { FTMLFragment } from "@wikijump/ftml-wasm-worker"
 import BlockTip from "../tips/BlockTip.svelte"
 import ModuleTip from "../tips/ModuleTip.svelte"
 import { aliasesFiltered, aliasesRaw } from "../util"
+import { Documentation } from "./data"
 import { htmlArgumentCompletions } from "./html-attributes"
 import { type Argument, type BlockConfiguration, type ModuleConfiguration } from "./types"
-
-let blockDocData: Record<string, { TITLE: string; INFO: string; EXAMPLE: string }> = {}
-
-for (const locale of Locale.supported) {
-  if (LOCALE_CMFTML_BLOCKS.has(locale)) {
-    blockDocData = await LOCALE_CMFTML_BLOCKS.get(locale)!()
-    break
-  }
-}
 
 const BlockTipFactory = new EditorSvelteComponent(BlockTip)
 const ModuleTipFactory = new EditorSvelteComponent(ModuleTip)
@@ -152,8 +143,8 @@ export class BlockData {
     if (tag) this.outputTag = tag
     if (cls) this.outputClass = cls
 
-    if (blockDocData[name]) {
-      const data = blockDocData[name]
+    if (Documentation.blocks[name]) {
+      const data = Documentation.blocks[name]
       const fragment = new FTMLFragment(data.INFO)
       this.docs = { title: data.TITLE, info: fragment, example: data.EXAMPLE }
     }

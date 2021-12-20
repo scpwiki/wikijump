@@ -6,8 +6,7 @@ export type FluentImportMap = Record<string, () => Promise<string>>
 
 export const LOCALE_COMPONENTS = new Map<string, FluentComponent>()
 
-type BlockDocData = Record<string, { TITLE: string; INFO: string; EXAMPLE: string }>
-export const LOCALE_CMFTML_BLOCKS = new Map<string, () => Promise<BlockDocData>>()
+export const LOCALE_CMFTML_DOCUMENTATION = new Map<string, () => Promise<any>>()
 
 const filenameRegex = /[^\/]+\.(ftl|yaml)$/
 const componentRegex = /[^\/]+(?=\/[^\/]+\.(ftl|yaml)$)/
@@ -21,18 +20,18 @@ for (const [component, map] of Object.entries(makeDirectory(sources))) {
   LOCALE_COMPONENTS.set(component, new FluentComponent(component, map))
 }
 
-const blocks = import.meta.glob("/../locales/cmftml-blocks/*.yaml")
+const blocks = import.meta.glob("/../locales/cmftml/*.yaml")
 
 // kind of hacky, but we're reusing the makeDirectory function here
 // the "component" is just going to be `cmftml-blocks` because that's the folder
 // these files are in
-const blockImportMap = makeDirectory(blocks)["cmftml-blocks"]
+const cmftmlImportMap = makeDirectory(blocks)["cmftml"]
 
 // just in case
-if (blockImportMap) {
+if (cmftmlImportMap) {
   // transfer into our map
-  for (const [locale, importer] of Object.entries(blockImportMap)) {
-    LOCALE_CMFTML_BLOCKS.set(locale, importer as any)
+  for (const [locale, importer] of Object.entries(cmftmlImportMap)) {
+    LOCALE_CMFTML_DOCUMENTATION.set(locale, importer)
   }
 }
 

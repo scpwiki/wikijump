@@ -1,8 +1,13 @@
 import blocksTOML from "@root/ftml/conf/blocks.toml"
 import modulesTOML from "@root/ftml/conf/modules.toml"
+import Locale, { LOCALE_CMFTML_DOCUMENTATION } from "@wikijump/fluent"
 import { Prism } from "@wikijump/prism"
 import { BlockData, ModuleData } from "./block"
-import { type BlockConfiguration, type ModuleConfiguration } from "./types"
+import {
+  type BlockConfiguration,
+  type DocumentationData,
+  type ModuleConfiguration
+} from "./types"
 
 export const Blocks: BlockConfiguration = blocksTOML as any
 export const Modules: ModuleConfiguration = modulesTOML as any
@@ -12,6 +17,16 @@ export const ModuleMap = new Map<string, ModuleData>()
 
 export const BlockSet = new Set<BlockData>()
 export const ModuleSet = new Set<ModuleData>()
+
+export const Documentation: DocumentationData = { blocks: {} }
+
+for (const locale of Locale.supported) {
+  if (LOCALE_CMFTML_DOCUMENTATION.has(locale)) {
+    const data = await LOCALE_CMFTML_DOCUMENTATION.get(locale)!()
+    Object.assign(Documentation, data)
+    break
+  }
+}
 
 for (const name in Blocks) {
   const block = new BlockData(name, Blocks)
