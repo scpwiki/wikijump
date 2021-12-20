@@ -20,7 +20,6 @@
   },
   "dependencies": {
     "@wikijump/util": "workspace:*",
-    "svelte": "^3.44.3",
-    "svelte-i18n": "^3.3.13"
+    "svelte": "^3.44.3"
   }
 }

@@ -102,12 +102,10 @@ importers:
       '@mockoon/cli': ^1.4.0
       '@wikijump/util': workspace:*
       svelte: ^3.44.3
-      svelte-i18n: ^3.3.13
       swagger-typescript-api: ^9.3.1
     dependencies:
       '@wikijump/util': link:../util
       svelte: 3.44.3
-      svelte-i18n: 3.3.13_svelte@3.44.3
     devDependencies:
       '@mockoon/cli': 1.4.0
       swagger-typescript-api: 9.3.1
@@ -996,40 +994,6 @@ packages:
   /@fluent/bundle/0.17.0:
     resolution: {integrity: sha512-G/9wDCTKGPyHgw4ON3vBlLUIBBGG7vq8ytExqh4uwTfoeOfQ5VU5Xr6F+UV8B72k9P9S72GqFTXvqjS48pBVpg==}
     engines: {node: '>=12.0.0', npm: '>=7.0.0'}
-    dev: false
-
-  /@formatjs/ecma402-abstract/1.9.9:
-    resolution: {integrity: sha512-w2HpUW17Ev8UN8G1fSvl0skCLP+HkhGZii0ALaBXYc7rd3osD2s8EF2ihSNkeEeC6aySX1IAkRm0f4lnE8Jeaw==}
-    dependencies:
-      '@formatjs/intl-localematcher': 0.2.21
-      tslib: 2.3.1
-    dev: false
-
-  /@formatjs/fast-memoize/1.2.0:
-    resolution: {integrity: sha512-fObitP9Tlc31SKrPHgkPgQpGo4+4yXfQQITTCNH8AZdEqB7Mq4nPrjpUL/tNGN3lEeJcFxDbi0haX8HM7QvQ8w==}
-    dependencies:
-      tslib: 2.3.1
-    dev: false
-
-  /@formatjs/icu-messageformat-parser/2.0.12:
-    resolution: {integrity: sha512-X/tdbKLfVBc2yJRX+xC3uqYxXkp9336FhSS1Hb6kU6pSOU+EseylS3a/vjFOKjol1qQ5BSIQd8YPWtOOt3KcWA==}
-    dependencies:
-      '@formatjs/ecma402-abstract': 1.9.9
-      '@formatjs/icu-skeleton-parser': 1.2.13
-      tslib: 2.3.1
-    dev: false
-
-  /@formatjs/icu-skeleton-parser/1.2.13:
-    resolution: {integrity: sha512-PHK4kdIcNTI15ASyn6dCA2cxzUPHE+UK/FsBkPULNpKgPWEZIYAFO9PgG0a9SDcIIr7Ta3SPPbUZGKRXT3d+ng==}
-    dependencies:
-      '@formatjs/ecma402-abstract': 1.9.9
-      tslib: 2.3.1
-    dev: false
-
-  /@formatjs/intl-localematcher/0.2.21:
-    resolution: {integrity: sha512-JTJeLiNwexN4Gy0cMxoUPvJbKhXdnSuo5jPrDafEZpnDWlJ5VDYta8zUVVozO/pwzEmFVHEUpgiEDj+39L4oMg==}
-    dependencies:
-      tslib: 2.3.1
     dev: false
 
   /@hapi/hoek/9.2.1:
@@ -2282,7 +2246,7 @@ packages:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
     dependencies:
-      debug: 4.3.2
+      debug: 4.3.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4491,10 +4455,6 @@ packages:
       type-fest: 0.20.2
     dev: true
 
-  /globalyzer/0.1.0:
-    resolution: {integrity: sha512-40oNTM9UfG6aBmuKxk/giHn5nQ8RVz/SS4Ir6zgzOv9/qC3kKZ9v4etGTcJbEl/NyVQH7FGU7d+X1egr57Md2Q==}
-    dev: false
-
   /globby/11.0.4:
     resolution: {integrity: sha512-9O4MVG9ioZJ08ffbcyVYyLOJLk5JQ688pJ4eMGLpdWLHq/Wr1D9BlriLQyL0E+jbkuePVZXYFj47QM/v093wHg==}
     engines: {node: '>=10'}
@@ -4510,10 +4470,6 @@ packages:
   /globjoin/0.1.4:
     resolution: {integrity: sha1-L0SUrIkZ43Z8XLtpHp9GMyQoXUM=}
     dev: true
-
-  /globrex/0.1.2:
-    resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
-    dev: false
 
   /got/11.8.2:
     resolution: {integrity: sha512-D0QywKgIe30ODs+fm8wMZiAcZjypcCodPNuMz5H9Mny7RJ+IjJ10BdmGW7OM7fHXP+O7r6ZwapQ/YQmMSvB0UQ==}
@@ -4715,7 +4671,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.2
+      debug: 4.3.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4834,14 +4790,6 @@ packages:
       get-intrinsic: 1.1.1
       has: 1.0.3
       side-channel: 1.0.4
-    dev: false
-
-  /intl-messageformat/9.9.2:
-    resolution: {integrity: sha512-IR/bOP7XUrCxrlgFlZeHXixIT29BNd/1bOS8leElk5sQfvGvsDVoTGI+wLpvWG4INIBQNj8vjxgxlbquB12vog==}
-    dependencies:
-      '@formatjs/fast-memoize': 1.2.0
-      '@formatjs/icu-messageformat-parser': 2.0.12
-      tslib: 2.3.1
     dev: false
 
   /ip/1.1.5:
@@ -5739,11 +5687,6 @@ packages:
 
   /morphdom/2.6.1:
     resolution: {integrity: sha512-Y8YRbAEP3eKykroIBWrjcfMw7mmwJfjhqdpSvoqinu8Y702nAwikpXcNFDiIkyvfCLxLM9Wu95RZqo4a9jFBaA==}
-    dev: false
-
-  /mri/1.2.0:
-    resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
-    engines: {node: '>=4'}
     dev: false
 
   /ms/2.0.0:
@@ -7036,13 +6979,6 @@ packages:
       tslib: 2.1.0
     dev: true
 
-  /sade/1.7.4:
-    resolution: {integrity: sha512-y5yauMD93rX840MwUJr7C1ysLFBgMspsdTo4UVrDg3fXDvtwOyIqykhVAAm6fk/3au77773itJStObgK+LKaiA==}
-    engines: {node: '>= 6'}
-    dependencies:
-      mri: 1.2.0
-    dev: false
-
   /safe-buffer/5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}
 
@@ -7608,21 +7544,6 @@ packages:
       svelte: 3.44.3
     dev: false
 
-  /svelte-i18n/3.3.13_svelte@3.44.3:
-    resolution: {integrity: sha512-RQM+ys4+Y9ztH//tX22H1UL2cniLNmIR+N4xmYygV6QpQ6EyQvloZiENRew8XrVzfvJ8HaE8NU6/yurLkl7z3g==}
-    engines: {node: '>= 11.15.0'}
-    hasBin: true
-    peerDependencies:
-      svelte: ^3.25.1
-    dependencies:
-      deepmerge: 4.2.2
-      estree-walker: 2.0.2
-      intl-messageformat: 9.9.2
-      sade: 1.7.4
-      svelte: 3.44.3
-      tiny-glob: 0.2.9
-    dev: false
-
   /svelte-preprocess/4.10.1_ed667111ca657a1f70833958b555d174:
     resolution: {integrity: sha512-NSNloaylf+o9UeyUR2KvpdxrAyMdHl3U7rMnoP06/sG0iwJvlUM4TpMno13RaNqovh4AAoGsx1jeYcIyuGUXMw==}
     engines: {node: '>= 9.11.2'}
@@ -7813,13 +7734,6 @@ packages:
     resolution: {integrity: sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=}
     dev: true
 
-  /tiny-glob/0.2.9:
-    resolution: {integrity: sha512-g/55ssRPUjShh+xkfx9UPDXqhckHEsHr4Vd9zX55oSdGZc/MD0m3sferOkwWtp98bv+kcVfEHtRJgBVJzelrzg==}
-    dependencies:
-      globalyzer: 0.1.0
-      globrex: 0.1.2
-    dev: false
-
   /tiny-worker/2.3.0:
     resolution: {integrity: sha512-pJ70wq5EAqTAEl9IkGzA+fN0836rycEuz2Cn6yeZ6FRzlVS5IDOkFHpIoEsksPRQV34GDqXm65+OlnZqUSyK2g==}
     requiresBuild: true
@@ -7885,6 +7799,7 @@ packages:
 
   /tslib/2.3.1:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
+    dev: true
 
   /tsscmp/1.0.6:
     resolution: {integrity: sha512-LxhtAkPDTkVCMQjt2h6eBVY28KCjikZqZfMcC15YBeNjkgUpdCfBu5HoiOTDu86v6smE8yOjyEktJ8hlbANHQA==}
