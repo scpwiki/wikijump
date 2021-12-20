@@ -5,7 +5,7 @@
   import { FTMLLanguage } from "@wikijump/cm-lang-ftml"
   import { Button } from "@wikijump/components"
   import type { EditorSveltePanelProps } from "@wikijump/codemirror"
-  import { unit } from "@wikijump/api"
+  import { unit } from "@wikijump/fluent"
 
   export let view: EditorSveltePanelProps["view"]
   export let update: EditorSveltePanelProps["update"]
@@ -30,7 +30,7 @@
   </div>
   <span>FTML Performance:</span>
   {#each ftmlPerfs as perf}
-    <code>{$unit(perf, "millisecond", { unitDisplay: "narrow" })}</code>
+    <code>{unit(perf, "millisecond", { unitDisplay: "narrow" })}</code>
   {/each}
 </div>
 

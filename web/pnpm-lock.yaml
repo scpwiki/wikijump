@@ -358,6 +358,7 @@ importers:
       '@wikijump/cm-lang-ftml': workspace:*
       '@wikijump/codemirror': workspace:*
       '@wikijump/components': workspace:*
+      '@wikijump/fluent': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/util': workspace:*
       morphdom: ^2.6.1
@@ -369,6 +370,7 @@ importers:
       '@wikijump/cm-lang-ftml': link:../cm-lang-ftml
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/components': link:../components
+      '@wikijump/fluent': link:../fluent
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/util': link:../util
       morphdom: 2.6.1

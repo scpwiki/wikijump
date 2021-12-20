@@ -11,15 +11,16 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
+    "@wikijump/api": "workspace:*",
     "@wikijump/cm-espells": "workspace:*",
     "@wikijump/cm-lang-ftml": "workspace:*",
-    "@wikijump/ftml-wasm-worker": "workspace:*",
-    "morphdom": "^2.6.1",
-    "typescript-memoize": "^1.1.0",
     "@wikijump/codemirror": "workspace:*",
     "@wikijump/components": "workspace:*",
-    "@wikijump/api": "workspace:*",
+    "@wikijump/fluent": "workspace:*",
+    "@wikijump/ftml-wasm-worker": "workspace:*",
     "@wikijump/util": "workspace:*",
-    "svelte": "^3.44.3"
+    "morphdom": "^2.6.1",
+    "svelte": "^3.44.3",
+    "typescript-memoize": "^1.1.0"
   }
 }
