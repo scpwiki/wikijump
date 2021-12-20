@@ -5,7 +5,9 @@
   import { createID, sleep } from "@wikijump/util"
   import Icon from "./Icon.svelte"
   import { anim } from "./lib/animation"
-  import { t } from "@wikijump/api"
+  import Locale from "@wikijump/fluent"
+
+  const t = Locale.makeComponentFormatter("spinny")
 
   type Status = "active" | "success" | "warning" | "error"
 
@@ -32,10 +34,10 @@
   let label = ""
   // prettier-ignore
   $: switch (status) {
-    case "active":  label = $t("components.spinny.label.ACTIVE")  ; break
-    case "error":   label = $t("components.spinny.label.ERROR")   ; break
-    case "success": label = $t("components.spinny.label.SUCCESS") ; break
-    case "warning": label = $t("components.spinny.label.WARNING") ; break
+    case "active":  label = $t("#-label.active")  ; break
+    case "error":   label = $t("#-label.error")   ; break
+    case "success": label = $t("#-label.success") ; break
+    case "warning": label = $t("#-label.warning") ; break
   }
 
   let icon = ""
