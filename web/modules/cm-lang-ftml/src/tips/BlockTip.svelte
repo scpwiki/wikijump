@@ -118,7 +118,9 @@
         {@html info.html}
       {/await}
     {:else}
-      {$t("#-undocumented-block")}
+      <wj-body class="wj-body">
+        <p>{$t("#-undocumented-block")}</p>
+      </wj-body>
     {/if}
   </div>
 
