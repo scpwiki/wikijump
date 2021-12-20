@@ -107,7 +107,13 @@ export class Locale {
       }
 
       if (supported !== this.locale) {
-        console.warn(`Fellback to locale ${supported} for ${resource.component}`)
+        // don't complain about falling back to locales which are just
+        // more general versions of this one
+        const base = this.locale.toLowerCase().split(/-|_/)[0]
+        const baseSupported = supported.toLowerCase().split(/-|_/)[0]
+        if (base !== baseSupported) {
+          console.warn(`Fellback to locale ${supported} for ${resource.component}`)
+        }
       }
 
       this.loadedComponents.add(resource)
