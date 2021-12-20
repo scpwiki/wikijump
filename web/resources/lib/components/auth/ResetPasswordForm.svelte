@@ -1,5 +1,6 @@
 <script lang="ts">
-  import WikijumpAPI, { t } from "@wikijump/api"
+  import WikijumpAPI from "@wikijump/api"
+  import { format as t } from "@wikijump/fluent"
   import { TextInput, Button } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
   import { inputsValid } from "@wikijump/dom"
@@ -32,7 +33,7 @@
 
         if (!token || !email || !password) {
           busy = false
-          error = $t("auth.errors.INVALID_INPUT")
+          error = t("form-error.missing-field")
           return
         }
 
@@ -44,11 +45,11 @@
           window.location.href = goto === true ? "/" : goto || "/"
         }
       } catch {
-        error = $t("auth.errors.INTERNAL_ERROR")
+        error = t("api-error.internal")
       }
       busy = false
     } else {
-      error = $t("auth.errors.INVALID_INPUT")
+      error = t("form-error.missing-field")
     }
   }
 </script>
@@ -60,9 +61,9 @@
       bind:value={password}
       on:enter={() => inputPasswordConfirm.focus()}
       icon="fluent:key-24-regular"
-      label={$t("auth.PASSWORD")}
+      label={t("password")}
       type="password"
-      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
+      placeholder={t("password.placeholder")}
       required
       disabled={busy}
       autocomplete="new-password"
@@ -73,9 +74,9 @@
       bind:input={inputPasswordConfirm}
       on:enter={resetPassword}
       icon="fluent:key-24-regular"
-      label={$t("auth.CONFIRM_PASSWORD")}
+      label={t("confirm-password")}
       type="password"
-      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
+      placeholder={t("password.placeholder")}
       pattern={escapeRegExp(password)}
       required
       disabled={busy}
@@ -88,7 +89,7 @@
 
   <div class="reset-password-form-submit">
     <Button on:click={resetPassword} disabled={busy} wide primary>
-      {$t("auth.password_recovery.RESET_PASSWORD")}
+      {t("reset-password")}
     </Button>
   </div>
 </div>

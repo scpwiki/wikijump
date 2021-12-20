@@ -2,7 +2,8 @@
   @component Login form.
 -->
 <script lang="ts">
-  import WikijumpAPI, { t } from "@wikijump/api"
+  import WikijumpAPI from "@wikijump/api"
+  import { format as t } from "@wikijump/fluent"
   import { Button, TextInput } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
   import { inputsValid } from "@wikijump/dom"
@@ -23,8 +24,8 @@
   function statusErrorMessage(status: number) {
     // prettier-ignore
     switch(status) {
-      case 500: return $t("auth.errors.INTERNAL_ERROR")
-      default:  return $t("auth.errors.CONFIRM_FAILED")
+      case 500: return t("api-error.internal")
+      default:  return t("api-error.password-confirm-failed")
     }
   }
 
@@ -45,7 +46,7 @@
       }
       busy = false
     } else {
-      error = $t("auth.errors.INVALID_INPUT")
+      error = t("error-form.missing-fields")
     }
   }
 </script>
@@ -57,8 +58,8 @@
       on:enter={confirm}
       icon="fluent:key-24-regular"
       type="password"
-      placeholder={$t("auth.PASSWORD_PLACEHOLDER")}
-      label={$t("auth.PASSWORD")}
+      placeholder={t("password.placeholder")}
+      label={t("password")}
       required
       disabled={busy}
       autocomplete="current-password"
@@ -68,7 +69,7 @@
 
   <div class="confirm-form-submit">
     <Button on:click={confirm} disabled={busy} wide primary>
-      {$t("auth.CONFIRM")}
+      {t("confirm-password")}
     </Button>
   </div>
 
