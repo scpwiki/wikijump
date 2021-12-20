@@ -87,7 +87,7 @@
       {:else}
         <Button
           i="fluent:caret-left-24-filled"
-          tip={$t("#-preview-open")}
+          tip={$t("#-preview.open")}
           size="1.75rem"
           baseline
           on:click={() => ($settings.preview.enabled = true)}
