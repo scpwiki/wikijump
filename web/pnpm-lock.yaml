@@ -181,10 +181,10 @@ importers:
       '@lezer/common': ^0.15.11
       '@lezer/lr': ^0.15.5
       '@types/prismjs': ^1.16.6
-      '@wikijump/api': workspace:*
       '@wikijump/cm-espells': workspace:*
       '@wikijump/codemirror': workspace:*
       '@wikijump/components': workspace:*
+      '@wikijump/fluent': workspace:*
       '@wikijump/ftml-wasm-worker': workspace:*
       '@wikijump/prism': workspace:*
       '@wikijump/threads-worker-module': workspace:*
@@ -195,10 +195,10 @@ importers:
       '@lezer/common': 0.15.11
       '@lezer/lr': 0.15.5
       '@types/prismjs': 1.16.6
-      '@wikijump/api': link:../api
       '@wikijump/cm-espells': link:../cm-espells
       '@wikijump/codemirror': link:../codemirror
       '@wikijump/components': link:../components
+      '@wikijump/fluent': link:../fluent
       '@wikijump/ftml-wasm-worker': link:../ftml-wasm-worker
       '@wikijump/prism': link:../prism
       '@wikijump/threads-worker-module': link:../threads-worker-module

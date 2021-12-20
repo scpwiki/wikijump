@@ -1,4 +1,5 @@
-import type { Argument } from "./types"
+import { type Completion } from "@wikijump/codemirror/cm"
+import { type Argument } from "./types"
 
 // TODO: should probably make html attrs discriminate based on block name
 export const htmlAttributes: Record<string, Argument> = {
@@ -135,4 +136,44 @@ export const htmlAttributes: Record<string, Argument> = {
   // { name: "background", deprecated: true },
   // { name: "bgcolor", deprecated: true },
   // { name: "border", deprecated: true }
+}
+
+export const htmlArgumentCompletions: Completion[] = Object.keys(htmlAttributes).map(
+  name => {
+    return {
+      label: name,
+      detail: "html",
+      type: "property",
+      apply: `${name}=""`,
+      boost: -1
+    }
+  }
+)
+
+export const htmlEnumCompletions = new Map<string, Completion[]>()
+for (const [name, attr] of Object.entries(htmlAttributes)) {
+  if (attr.enum) {
+    const completions: Completion[] = []
+
+    for (const val of attr.enum) {
+      const completion: Completion = { label: String(val), type: "enum" }
+      if (attr.default === val) completion.detail = "default"
+      completions.push(completion)
+    }
+
+    htmlEnumCompletions.set(name, completions)
+  }
+  // treat booleans as ["true", "false"] enums
+  else if (attr.type === "bool") {
+    const completions: Completion[] = [
+      { label: "true", type: "keyword" },
+      { label: "false", type: "keyword" }
+    ]
+
+    if (attr.default !== undefined) {
+      completions[attr.default ? 0 : 1].detail = "default"
+    }
+
+    htmlEnumCompletions.set(name, completions)
+  }
 }

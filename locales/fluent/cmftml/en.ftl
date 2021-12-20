@@ -1,5 +1,7 @@
 ### CodeMirror FTML Extension
 
+cmftml-undocumented-block = This block is valid, but hasn't yet been documented.
+
 ## Linting
 
 cmftml-lint =
@@ -65,7 +67,7 @@ cmftml-lint =
 
 ## Block Acceptance
 
-cmftml-block-accepts =
+cmftml-accepts =
   .star =
     This block accepts the '*' (star) prefix.
     The effect of providing this prefix depends on the block.
@@ -94,3 +96,17 @@ cmftml-argument-map = MAP
 
 cmftml-argument-value-map = VALUE+MAP
   .info = This block accepts text, and then following a space accepts arguments.
+
+## Block Body Types
+
+cmftml-body-none = NONE
+  .info = This block has no body, and does not need a terminating node.
+
+cmftml-body-raw = RAW
+  .info = This block accepts a body, but interprets that body as raw text.
+
+cmftml-body-elements = ELEMENTS
+  .info = This block accepts a body, and can nest additional elements within it.
+
+cmftml-body-other = OTHER
+  .info = This block has a special syntax that isn't easily categorized.

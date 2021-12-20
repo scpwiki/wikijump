@@ -2,7 +2,7 @@ import { addLanguages, languageList } from "@wikijump/codemirror"
 import { cssCompletion, htmlCompletion } from "@wikijump/codemirror/cm"
 import { TarnationLanguage } from "cm-tarnation"
 import { completeFTML } from "../autocomplete"
-import { blocks, modules } from "../data/blocks"
+import { Blocks, Modules } from "../data/data"
 import { ftmlHoverTooltips } from "../hover"
 import { ftmlLinter } from "../lint"
 import { spellcheckFTML } from "../spellcheck"
@@ -11,8 +11,8 @@ import { StyleAttributeGrammar } from "./css-attributes"
 import ftmlGrammar from "./ftml.yaml"
 import { TexLanguage } from "./tex"
 
-const blockEntries = Object.entries(blocks)
-const moduleEntries = Object.entries(modules)
+const blockEntries = Object.entries(Blocks)
+const moduleEntries = Object.entries(Modules)
 
 export const FTMLLanguage = new TarnationLanguage({
   name: "FTML",

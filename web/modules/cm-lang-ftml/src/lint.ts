@@ -1,6 +1,6 @@
-import { format } from "@wikijump/api"
 import { textValue } from "@wikijump/codemirror"
 import { Diagnostic, EditorView, linter } from "@wikijump/codemirror/cm"
+import { format } from "@wikijump/fluent"
 import FTML from "@wikijump/ftml-wasm-worker"
 
 interface WarningInfo {
@@ -10,35 +10,35 @@ interface WarningInfo {
 
 // null is an ignored rule
 const warningConfig: Record<string, "info" | "warning" | "error" | null> = {
-  RECURSION_DEPTH_EXCEEDED: "error",
-  END_OF_INPUT: null,
-  NO_RULES_MATCH: null,
-  RULE_FAILED: null,
-  NOT_START_OF_LINE: null,
-  INVALID_INCLUDE: "error",
-  LIST_EMPTY: "warning",
-  LIST_CONTAINS_NON_ITEM: "error",
-  LIST_ITEM_OUTSIDE_LIST: "error",
-  LIST_DEPTH_EXCEEDED: "error",
-  TABLE_CONTAINS_NON_ROW: "error",
-  TABLE_ROW_CONTAINS_NON_CELL: "error",
-  TABLE_ROW_OUTSIDE_TABLE: "error",
-  TABLE_CELL_OUTSIDE_TABLE: "error",
-  FOOTNOTES_NESTED: "error",
-  BLOCKQUOTE_DEPTH_EXCEEDED: "error",
-  NO_SUCH_BLOCK: "error",
-  BLOCK_DISALLOWS_STAR: "warning",
-  BLOCK_DISALLOWS_SCORE: "warning",
-  BLOCK_MISSING_NAME: "error",
-  BLOCK_MISSING_CLOSE_BRACKETS: "error",
-  BLOCK_MALFORMED_ARGUMENTS: "error",
-  BLOCK_MISSING_ARGUMENTS: "error",
-  BLOCK_EXPECTED_END: "error",
-  BLOCK_END_MISMATCH: "error",
-  NO_SUCH_MODULE: "error",
-  MODULE_MISSING_NAME: "error",
-  NO_SUCH_PAGE: "error",
-  INVALID_URL: "warning"
+  "recursion-depth-exceeded": "error",
+  "end-of-input": null,
+  "no-rules-match": null,
+  "rule-failed": null,
+  "not-start-of-line": null,
+  "invalid-include": "error",
+  "list-empty": "warning",
+  "list-contains-non-item": "error",
+  "list-item-outside-list": "error",
+  "list-depth-exceeded": "error",
+  "table-contains-non-row": "error",
+  "table-row-contains-non-cell": "error",
+  "table-row-outside-table": "error",
+  "table-cell-outside-table": "error",
+  "footnotes-nested": "error",
+  "blockquote-depth-exceeded": "error",
+  "no-such-block": "error",
+  "block-disallows-star": "warning",
+  "block-disallows-score": "warning",
+  "block-missing-name": "error",
+  "block-missing-close-brackets": "error",
+  "block-malformed-arguments": "error",
+  "block-missing-arguments": "error",
+  "block-expected-end": "error",
+  "block-end-mismatch": "error",
+  "no-such-module": "error",
+  "module-missing-name": "error",
+  "no-such-page": "error",
+  "invalid-url": "warning"
 }
 
 // generate warnings from configuration
@@ -46,16 +46,13 @@ const warningConfig: Record<string, "info" | "warning" | "error" | null> = {
 // as FTML warnings are kebab case when emitted
 const warningInfo: Record<string, WarningInfo | null> = {}
 for (const warningName in warningConfig) {
-  const type = warningConfig[warningName as keyof typeof warningConfig]
-  const warningNameKebabed = warningName.toLowerCase().replaceAll("_", "-")
-  if (!type) {
-    warningInfo[warningNameKebabed] = null
-  } else {
-    warningInfo[warningNameKebabed] = {
-      message: `cmftml.lint.${warningName}`,
-      severity: type
-    }
-  }
+  const type = warningConfig[warningName]
+  warningInfo[warningName] = !type
+    ? null
+    : {
+        message: `cmftml-lint.${warningName}`,
+        severity: type
+      }
 }
 
 async function lint(view: EditorView) {
@@ -79,11 +76,9 @@ async function lint(view: EditorView) {
       // format and translate
 
       const slice = doc.sliceString(from, to)
-      message = format(message, { values: { rule, slice } })
+      message = format(message, { rule, slice })
 
-      const source = format("cmftml.lint.WARNING_SOURCE", {
-        values: { rule, kind, token, from, to }
-      })
+      const source = format("cmftml-lint.warning-source", { rule, kind, token, from, to })
 
       diagnostics.push({ from, to, message, severity, source })
     }
