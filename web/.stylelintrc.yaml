@@ -4,8 +4,6 @@ extends:
 plugins:
   - stylelint-scss
 
-customSyntax: 'postcss-scss'
-
 ignoreFiles:
   - '**/node_modules/**'
   - '**/dist/**'
@@ -23,3 +21,10 @@ rules:
   property-case: lower
   comment-no-empty: true
   scss/selector-no-redundant-nesting-selector: true
+
+overrides:
+  - files: ["**/*.scss"]
+    customSyntax: postcss-scss
+
+  - files: ["**/*.svelte"]
+    customSyntax: postcss-html
