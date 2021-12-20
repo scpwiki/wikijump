@@ -14,6 +14,7 @@
   "dependencies": {
     "@iconify/iconify": "2.1.0",
     "@popperjs/core": "^2.11.0",
+    "@wikijump/api": "workspace:*",
     "@wikijump/dom": "workspace:*",
     "@wikijump/fluent": "workspace:*",
     "@wikijump/ftml-components": "workspace:*",
