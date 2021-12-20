@@ -203,17 +203,6 @@ export function render_text(syntax_tree, page_info, settings) {
 }
 
 /**
-* @param {string} text
-* @returns {Tokenization}
-*/
-export function tokenize(text) {
-    var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
-    var ret = wasm.tokenize(ptr0, len0);
-    return Tokenization.__wrap(ret);
-}
-
-/**
 * @returns {string}
 */
 export function version() {
@@ -227,6 +216,17 @@ export function version() {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(r0, r1);
     }
+}
+
+/**
+* @param {string} text
+* @returns {Tokenization}
+*/
+export function tokenize(text) {
+    var ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len0 = WASM_VECTOR_LEN;
+    var ret = wasm.tokenize(ptr0, len0);
+    return Tokenization.__wrap(ret);
 }
 
 function handleError(f, args) {
@@ -737,11 +737,11 @@ async function init(input) {
         var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_getRandomValues_98117e9a7e993920 = function() { return handleError(function (arg0, arg1) {
-        getObject(arg0).getRandomValues(getObject(arg1));
-    }, arguments) };
     imports.wbg.__wbg_randomFillSync_64cc7d048f228ca8 = function() { return handleError(function (arg0, arg1, arg2) {
         getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
+    }, arguments) };
+    imports.wbg.__wbg_getRandomValues_98117e9a7e993920 = function() { return handleError(function (arg0, arg1) {
+        getObject(arg0).getRandomValues(getObject(arg1));
     }, arguments) };
     imports.wbg.__wbg_process_2f24d6544ea7b200 = function(arg0) {
         var ret = getObject(arg0).process;
