@@ -130,16 +130,35 @@
     max-width: 30rem;
   }
 
-  .cm-completionIcon {
-    width: 1em;
-    padding-right: 0.25em;
-    font-size: 1.25em;
+  .cm-completionIcon,
+  .cm-completionLabel,
+  .cm-completionDetail {
+    display: inline-block;
+    height: 0;
     line-height: 0;
+  }
+
+  .cm-completionIcon {
+    width: 1rem;
+    padding: 0;
+    font-family: var(--font-system-default);
+    font-size: 0.875rem;
     color: var(--colcode-keyword);
     opacity: 1;
   }
 
-  .cm-tooltip-autocomplete {
+  .cm-completionDetail {
+    margin-left: auto;
+    font-size: 0.825em;
+    font-style: normal;
+    opacity: 0.85;
+  }
+
+  .cm-completionLabel {
+    margin-left: 0.25em;
+  }
+
+  &.cm-tooltip-autocomplete {
     animation: none;
 
     > ul {
@@ -148,7 +167,12 @@
       color: var(--colcode-content);
 
       > li {
-        line-height: 1.5;
+        display: flex;
+        align-items: center;
+        height: 1.5em;
+        padding: 0 0.325em;
+        overflow: hidden;
+
         &[aria-selected] {
           color: var(--colcode-content);
           background-color: var(--colcode-selection);
