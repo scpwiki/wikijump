@@ -117,12 +117,12 @@
   }
 
   .toggleinput-checkmark {
+    opacity: 0;
     fill: none;
     stroke: #fff;
-    stroke-width: 8;
     stroke-linecap: round;
     stroke-linejoin: round;
-    opacity: 0;
+    stroke-width: 8;
 
     @include tolerates-motion {
       transition: opacity 75ms;
@@ -149,10 +149,10 @@
 
   .toggleinput-input {
     position: absolute;
-    width: 0;
-    height: 0;
     top: 0;
     left: 0;
+    width: 0;
+    height: 0;
     opacity: 0;
 
     &:focus-visible ~ .toggleinput-wrapper {

@@ -44,8 +44,8 @@
 
 <style lang="scss">
   .verify-email-resent {
-    text-align: center;
     margin-top: 0.5rem;
     font-size: 0.825rem;
+    text-align: center;
   }
 </style>
