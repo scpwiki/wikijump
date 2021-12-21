@@ -186,6 +186,9 @@
     @vite('index.scss')
     @stack('styles')
 
+    {{-- Ziggy Routes --}}
+    @routes
+
     {{-- Scripts --}}
     {{-- TODO: see if it's possible to make scripts load async --}}
     @vite('index.ts')
