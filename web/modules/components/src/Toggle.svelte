@@ -12,9 +12,15 @@
 
   /** Size of the toggle. */
   export let size = "1em"
+
+  /** Makes the toggle fill its container. */
+  export let wide = false
+
+  /** Flips the position of the label and the toggle. */
+  export let flipped = false
 </script>
 
-<label class="toggleinput" class:is-toggled={toggled}>
+<label class="toggleinput" class:is-toggled={toggled} class:is-wide={wide}>
   <input
     class="toggleinput-input"
     type="checkbox"
@@ -26,10 +32,8 @@
     {...$$restProps}
   />
   <span class="toggleinput-wrapper" role="presentation">
-    {#if $$slots.before}
-      <span class="toggleinput-slot-before">
-        <slot name="before" />
-      </span>
+    {#if flipped}
+      <span class="toggleinput-slot-before"><slot /></span>
     {/if}
 
     {#if type === "slider"}
@@ -45,7 +49,9 @@
       </svg>
     {/if}
 
-    <span class="toggleinput-slot-after"><slot /></span>
+    {#if !flipped}
+      <span class="toggleinput-slot-after"><slot /></span>
+    {/if}
   </span>
 </label>
 
@@ -55,6 +61,16 @@
   .toggleinput {
     position: relative;
     cursor: pointer;
+
+    &.is-wide {
+      width: 100%;
+
+      .toggleinput-wrapper {
+        display: inline-flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+    }
 
     @include hover {
       .toggleinput-wrapper > span {
@@ -117,12 +133,12 @@
   }
 
   .toggleinput-checkmark {
+    opacity: 0;
     fill: none;
     stroke: #fff;
-    stroke-width: 8;
     stroke-linecap: round;
     stroke-linejoin: round;
-    opacity: 0;
+    stroke-width: 8;
 
     @include tolerates-motion {
       transition: opacity 75ms;
@@ -149,10 +165,10 @@
 
   .toggleinput-input {
     position: absolute;
-    width: 0;
-    height: 0;
     top: 0;
     left: 0;
+    width: 0;
+    height: 0;
     opacity: 0;
 
     &:focus-visible ~ .toggleinput-wrapper {

@@ -1,5 +1,5 @@
 const readline = require("readline")
-const { spawn, spawnSync, execSync } = require("child_process")
+const { execSync, exec, spawn } = require("child_process")
 const chalk = require("chalk")
 
 function linebreak() {
@@ -10,10 +10,12 @@ function separator() {
   console.log(chalk.gray("─────────────────────────"))
 }
 
-function section(title) {
+function section(title, breakBefore = false, breakAfter = breakBefore) {
+  if (breakBefore) linebreak()
   const dashes = Math.round((24 - (title.length + 2)) / 2)
   const chrs = "─".repeat(dashes)
   console.log(chalk.blueBright(`${chrs} ${title} ${chrs}`))
+  if (breakAfter) linebreak()
 }
 
 function info(...msgs) {
@@ -49,25 +51,11 @@ function cmd(command) {
   execSync(command, { stdio: "inherit" })
 }
 
-function shellParams(command) {
-  let file, args
-  let options = { stdio: "inherit" }
-  if (process.platform === "win32") {
-    file = "cmd.exe"
-    args = ["/s", "/c", `"${command}"`]
-    options.windowsVerbatimArguments = true
-  } else {
-    file = "/bin/sh"
-    args = ["-c", command]
-  }
-  return [file, args, options]
-}
-
-function shellSync(command) {
-  return spawnSync(...shellParams(command))
-}
 function shell(command) {
-  return spawn(...shellParams(command))
+  const child = spawn(command, { shell: true })
+  child.stdout.pipe(process.stdout)
+  child.stderr.pipe(process.stderr)
+  return child
 }
 
 function question(question) {
@@ -78,7 +66,9 @@ function question(question) {
     })
 
     rl.question(chalk.magentaBright(question), answer => {
-      rl.close()
+      // breaks using readline for anything else
+      // so we'll just leave the interface alone (technically a memory leak)
+      // rl.close()
       resolve(answer)
     })
   })
@@ -95,7 +85,6 @@ module.exports = {
   warn,
   error,
   cmd,
-  shellSync,
   shell,
   question
 }

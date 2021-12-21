@@ -1,7 +1,11 @@
 import { textValue } from "@wikijump/codemirror"
 import { Diagnostic, EditorView, linter } from "@wikijump/codemirror/cm"
-import { format } from "@wikijump/fluent"
+import Locale, { format } from "@wikijump/fluent"
 import FTML from "@wikijump/ftml-wasm-worker"
+
+// promise that the linter waits on,
+// makes sure that messages are ready before doing anything
+const loadingMessages = Locale.load("cmftml")
 
 interface WarningInfo {
   message: string
@@ -57,6 +61,8 @@ for (const warningName in warningConfig) {
 
 async function lint(view: EditorView) {
   try {
+    await loadingMessages
+
     const doc = view.state.doc
     const str = await textValue(doc)
     const len = str.length

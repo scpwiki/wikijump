@@ -56,7 +56,7 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                 ))
                                 .contents(|ctx| {
                                     ctx.html().svg_use(
-                                        "/files--common/media/ui.svg#wj-karma",
+                                        "/files--static/media/ui.svg#wj-karma",
                                         "0 0 64 114",
                                     );
                                 });
@@ -90,14 +90,14 @@ pub fn render_user(log: &Logger, ctx: &mut HtmlContext, name: &str, show_avatar:
                                 ))
                                 .contents(|ctx| {
                                     ctx.html().svg_use(
-                                        "/files--common/media/karma.svg#wj-karma-symbol",
+                                        "/files--static/media/ui.svg#wj-karma",
                                         "0 0 64 114",
                                     );
                                 });
 
                             ctx.html().img().attr(attr!(
                                 "class" => "wj-user-info-avatar",
-                                "src" => "/files--common/media/bad-avatar.png",
+                                "src" => "/files--static/media/bad-avatar.png",
                             ));
                         }
 

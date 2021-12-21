@@ -92,20 +92,20 @@
     display: flex;
     align-items: center;
     justify-content: space-evenly;
+    padding: 0.325rem 0.625rem;
+    font-size: 0.925rem;
     background: var(--col-background);
     border: 0.075rem solid var(--col-border);
-    padding: 0.325rem 0.625rem;
     border-radius: 0.325rem;
-    font-size: 0.925rem;
-    @include shadow(4);
     animation: account-control-reveal 100ms backwards ease-out;
+    @include shadow(4);
   }
 
   .account-control-sep {
     width: 0.075rem;
     height: 0.75rem;
-    background: var(--col-border);
     margin: 0 0.5rem;
+    background: var(--col-border);
   }
 
   .account-control-menu {

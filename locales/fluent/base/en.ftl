@@ -21,21 +21,29 @@ about = About
 account = Account
 breadcrumbs = Breadcrumbs
 close = Close
+download = Download
+editor = Editor
 footer = Page Footer
+general = General
 header = Page Header
 help = Help
 license = License
+load = Load
 main-content = Main Content
 messages = Messages
 navigation = Navigation
+preview = Preview
 privacy = Privacy
 profile = Profile
+publish = Publish
 reveal-sidebar = Reveal Sidebar
+save = Save
 security = Security
 settings = Settings
 sidebar = Sidebar
 tags = Tags
 terms = Terms
+upload = Upload
 
 ## Generic Authentication
 

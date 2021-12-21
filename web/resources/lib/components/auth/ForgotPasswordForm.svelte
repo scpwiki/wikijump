@@ -83,7 +83,7 @@
   }
 
   .password-recovery-email-sent {
-    font-size: 0.825rem;
     margin-top: 1rem;
+    font-size: 0.825rem;
   }
 </style>

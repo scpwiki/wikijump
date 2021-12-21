@@ -19,3 +19,8 @@ sheaf-stats =
   .bytes = BYTES
   .words = WORDS
   .lines = LINES
+
+sheaf-settings = Sheaf Settings
+  .debug-mode = Debug Mode
+  .dark-mode = Dark Mode
+  .spellcheck = Spellchecking

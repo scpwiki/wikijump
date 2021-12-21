@@ -64,33 +64,33 @@
 
   .notification-bell-dot {
     position: absolute;
-    pointer-events: none;
     top: 5%;
     right: 5%;
     width: 0.8em;
     height: 0.8em;
+    pointer-events: none;
     background: var(--col-danger);
     border-radius: 50%;
 
     &.is-2-wide,
     &.is-3-wide {
       .notification-bell-count {
-        font-size: 0.625em;
         min-width: none;
+        font-size: 0.625em;
       }
     }
 
     &.is-2-wide {
-      width: 1.1em;
       right: 0;
+      width: 1.1em;
       border-radius: 0.325em;
     }
 
     &.is-3-wide {
-      width: 100%;
       right: 50%;
-      transform: translateX(50%);
+      width: 100%;
       border-radius: 0.25em;
+      transform: translateX(50%);
     }
   }
 
@@ -99,12 +99,12 @@
     top: 50%;
     left: 50%;
     min-width: 50%;
-    text-align: center;
-    transform: translate(-50%, -50%);
-    color: var(--col-white);
-    font-size: 0.75em;
-    white-space: nowrap;
     font-family: var(--font-display);
+    font-size: 0.75em;
     font-weight: bold;
+    color: var(--col-white);
+    text-align: center;
+    white-space: nowrap;
+    transform: translate(-50%, -50%);
   }
 </style>
