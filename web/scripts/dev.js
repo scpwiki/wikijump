@@ -101,11 +101,12 @@ async function startVite() {
 async function stopVite() {
   if (!vite || viteStopping) return
 
-  vite = null
   viteStopping = true
 
   // prettier-ignore
   try { await vite.close() } catch {}
+
+  vite = null
 
   info("Vite stopped.")
 }
