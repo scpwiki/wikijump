@@ -4,7 +4,7 @@
 <script lang="ts">
   import { getContext } from "svelte"
   import type { SheafContext } from "../context"
-  import { Button, DetailsMenu, Card, Toggle } from "@wikijump/components"
+  import { Button } from "@wikijump/components"
   import { throttle } from "@wikijump/util"
   import Locale, { number, unit } from "@wikijump/fluent"
   import { Content } from "@wikijump/cm-lang-ftml"
