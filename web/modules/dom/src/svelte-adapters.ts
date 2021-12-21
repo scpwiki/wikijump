@@ -1,8 +1,13 @@
-import { FocusGroup, FocusGroupDirection, FocusObserver, FocusOpts } from "./focus"
-import { HeldObserver, WhileHeldOpts } from "./held"
-import { HoverObserver, HoverOpts } from "./hover"
-import { KeyHandler, KeyObserver } from "./key-handling"
-import { SwipeObserver, SwipeOpts } from "./swipe"
+import {
+  FocusGroup,
+  FocusObserver,
+  type FocusGroupDirection,
+  type FocusOpts
+} from "./focus"
+import { HeldObserver, type WhileHeldOpts } from "./held"
+import { HoverObserver, type HoverOpts } from "./hover"
+import { KeyObserver, type KeyHandler } from "./key-handling"
+import { SwipeObserver, type SwipeOpts } from "./swipe"
 
 /**
  * Starts an event listener that will recognize swipes on the specified

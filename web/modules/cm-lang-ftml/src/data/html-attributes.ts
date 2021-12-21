@@ -1,5 +1,5 @@
-import { type Completion } from "@wikijump/codemirror/cm"
-import { type Argument } from "./types"
+import type { Completion } from "@wikijump/codemirror/cm"
+import type { Argument } from "./types"
 
 // TODO: should probably make html attrs discriminate based on block name
 export const htmlAttributes: Record<string, Argument> = {

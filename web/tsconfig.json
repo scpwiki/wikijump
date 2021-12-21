@@ -14,7 +14,8 @@
     "lib": ["ESNext", "DOM", "WebWorker"],
     "types": ["svelte", "vite/client", "mocha"],
 
-    "importsNotUsedAsValues": "remove",
+    "importsNotUsedAsValues": "error",
+    "preserveValueImports": true,
     "isolatedModules": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,

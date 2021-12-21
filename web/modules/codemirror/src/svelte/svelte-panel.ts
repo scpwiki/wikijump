@@ -1,10 +1,10 @@
 import type { SvelteComponent } from "svelte"
-import { EditorView, Extension, Panel, showPanel } from "../../cm"
+import { EditorView, showPanel, type Extension, type Panel } from "../../cm"
 import { EditorField } from "../editor-field"
 import {
   EditorSvelteComponent,
-  EditorSvelteComponentOpts,
-  EditorSvelteComponentProps
+  type EditorSvelteComponentOpts,
+  type EditorSvelteComponentProps
 } from "./svelte-dom"
 
 /**

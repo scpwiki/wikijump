@@ -1,4 +1,4 @@
-import { Readable, writable } from "svelte/store"
+import { writable, type Readable } from "svelte/store"
 
 const OPERATORS = [">", "<", ">=", "<=", "=="] as const
 

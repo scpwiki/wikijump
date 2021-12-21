@@ -1,5 +1,9 @@
-import type { EditorView } from "@wikijump/codemirror/cm"
-import { ensureSyntaxTree, hoverTooltip, Tooltip } from "@wikijump/codemirror/cm"
+import {
+  ensureSyntaxTree,
+  hoverTooltip,
+  type EditorView,
+  type Tooltip
+} from "@wikijump/codemirror/cm"
 import { BlockMap } from "./data/data"
 
 function tooltip(view: EditorView, pos: number, side: -1 | 1): Tooltip | null {

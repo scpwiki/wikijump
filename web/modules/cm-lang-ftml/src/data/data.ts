@@ -3,11 +3,7 @@ import modulesTOML from "@root/ftml/conf/modules.toml"
 import Locale, { LOCALE_CMFTML_DOCUMENTATION } from "@wikijump/fluent"
 import { Prism } from "@wikijump/prism"
 import { BlockData, ModuleData } from "./block"
-import {
-  type BlockConfiguration,
-  type DocumentationData,
-  type ModuleConfiguration
-} from "./types"
+import type { BlockConfiguration, DocumentationData, ModuleConfiguration } from "./types"
 
 export const Blocks: BlockConfiguration = blocksTOML as any
 export const Modules: ModuleConfiguration = modulesTOML as any

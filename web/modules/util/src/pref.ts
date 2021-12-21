@@ -1,4 +1,4 @@
-import { Updater, writable, Writable } from "svelte/store"
+import { writable, type Updater, type Writable } from "svelte/store"
 
 /**
  * `localStorage`-based smart preference handler, with support for

@@ -1,4 +1,4 @@
-import { Extension, keymap, ViewPlugin } from "@wikijump/codemirror/cm"
+import { keymap, ViewPlugin, type Extension } from "@wikijump/codemirror/cm"
 import { debounce } from "@wikijump/util"
 import type { SheafCore } from "../core"
 

@@ -1,12 +1,12 @@
-import { writable, Writable } from "svelte/store"
+import { writable, type Writable } from "svelte/store"
 import {
   Compartment,
   EditorState,
   EditorView,
-  Extension,
   StateEffect,
   StateField,
-  Transaction
+  Transaction,
+  type Extension
 } from "../cm"
 
 export interface EditorFieldOpts<T> {

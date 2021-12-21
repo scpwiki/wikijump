@@ -7,7 +7,6 @@ import {
   drawSelection,
   EditorState,
   EditorView,
-  Extension,
   highlightActiveLine,
   highlightSelectionMatches,
   highlightSpecialChars,
@@ -16,10 +15,11 @@ import {
   rectangularSelection,
   scrollPastEnd,
   ViewPlugin,
-  ViewUpdate
+  ViewUpdate,
+  type Extension
 } from "@wikijump/codemirror/cm"
-import { Writable, writable } from "svelte/store"
-import { createSheafBinding, SheafBindings } from "./extensions/bindings"
+import { writable, type Writable } from "svelte/store"
+import { createSheafBinding, type SheafBindings } from "./extensions/bindings"
 import { getSheafKeymap } from "./extensions/keymap"
 import { confinement } from "./extensions/theme"
 import { SheafState } from "./state"

@@ -2,14 +2,14 @@ import {
   EditorSvelteComponent,
   type EditorSvelteComponentInstance
 } from "@wikijump/codemirror"
-import { type Completion } from "@wikijump/codemirror/cm"
+import type { Completion } from "@wikijump/codemirror/cm"
 import { FTMLFragment } from "@wikijump/ftml-wasm-worker"
 import BlockTip from "../tips/BlockTip.svelte"
 import ModuleTip from "../tips/ModuleTip.svelte"
 import { aliasesFiltered, aliasesRaw } from "../util"
 import { Documentation } from "./data"
 import { htmlArgumentCompletions } from "./html-attributes"
-import { type Argument, type BlockConfiguration, type ModuleConfiguration } from "./types"
+import type { Argument, BlockConfiguration, ModuleConfiguration } from "./types"
 
 const BlockTipFactory = new EditorSvelteComponent(BlockTip)
 const ModuleTipFactory = new EditorSvelteComponent(ModuleTip)

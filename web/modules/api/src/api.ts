@@ -1,4 +1,4 @@
-import { readable, Subscriber } from "svelte/store"
+import { readable, type Subscriber } from "svelte/store"
 import { Api, ContentType, type RequestParams, type UserIdentity } from "../vendor/api"
 
 const API_PATH = "/api--v0"

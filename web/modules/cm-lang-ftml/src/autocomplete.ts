@@ -1,10 +1,10 @@
 import type { SyntaxNode } from "@lezer/common"
-import type {
-  Completion,
-  CompletionContext,
-  CompletionResult
+import {
+  syntaxTree,
+  type Completion,
+  type CompletionContext,
+  type CompletionResult
 } from "@wikijump/codemirror/cm"
-import { syntaxTree } from "@wikijump/codemirror/cm"
 import { BlockMap, BlockSet, ModuleMap, ModuleSet } from "./data/data"
 import { htmlEnumCompletions } from "./data/html-attributes"
 

@@ -1,4 +1,4 @@
-import { SvelteComponent } from "svelte"
+import type { SvelteComponent } from "svelte"
 import Dialog from "../Dialog.svelte"
 
 /**

@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { Media, tip } from "@wikijump/components"
-import { addElement, BaseButton, Gesture, SwipeObserver, SwipeOpts } from "@wikijump/dom"
+import {
+  addElement,
+  BaseButton,
+  Gesture,
+  SwipeObserver,
+  type SwipeOpts
+} from "@wikijump/dom"
 
 /** Slidable sidebar element. */
 export class SidebarElement extends HTMLElement {

@@ -4,7 +4,7 @@ import { prismFTML } from "@wikijump/prism/src/ftml"
 import {
   decode,
   expose,
-  ModuleProxy,
+  type ModuleProxy,
   transfer
 } from "@wikijump/threads-worker-module/src/worker-lib"
 
