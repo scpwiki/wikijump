@@ -12,7 +12,8 @@ const {
   question,
   cmd,
   shell,
-  separator
+  separator,
+  answerYesOrNo
 } = require("./pretty-logs")
 
 const DIR = path.resolve(__dirname, "../")
@@ -30,7 +31,7 @@ let shuttingDown = false
 async function startup() {
   const doBuild = await question("Build containers? This can take a while. [y/N] -> ")
 
-  if (doBuild.trim().toLowerCase() === "y") {
+  if (answerYesOrNo(doBuild)) {
     await buildContainers()
     linebreak()
   } else {

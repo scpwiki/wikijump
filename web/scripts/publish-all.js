@@ -10,7 +10,8 @@ const {
   warn,
   question,
   cmd,
-  separator
+  separator,
+  answerYesOrNo
 } = require("./pretty-logs")
 
 /*
@@ -68,7 +69,7 @@ const modules = fs
   const answer = await question("Do you want to publish these modules? [y/N] -> ")
   linebreak()
 
-  if (answer.trim().toLowerCase() !== "y") {
+  if (!answerYesOrNo(answer)) {
     info(`Aborted publish of ${outOfDate.length} module(s)`)
     return
   }

@@ -74,6 +74,13 @@ function question(question) {
   })
 }
 
+function answerYesOrNo(answer, def = false) {
+  answer = answer.toLowerCase().trim()
+  if (answer === "y" || answer === "yes") return true
+  if (answer === "n" || answer === "no") return false
+  return def
+}
+
 module.exports = {
   chalk,
   linebreak,
@@ -86,5 +93,6 @@ module.exports = {
   error,
   cmd,
   shell,
-  question
+  question,
+  answerYesOrNo
 }
