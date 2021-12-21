@@ -13,8 +13,8 @@
     "@wikijump/codemirror",
     "@wikijump/components",
     "@wikijump/dom",
+    "@wikijump/fluent",
     "@wikijump/ftml-components",
-    "@wikijump/css",
     "@wikijump/prism",
     "@wikijump/sheaf",
     "@wikijump/frontend"

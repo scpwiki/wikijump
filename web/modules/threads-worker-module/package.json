@@ -2,7 +2,7 @@
   "name": "@wikijump/threads-worker-module",
   "license": "agpl-3.0-or-later",
   "description": "Smart wrapper around Threads.js worker modules.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "keywords": [
     "wikijump"
   ],
