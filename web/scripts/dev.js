@@ -1,15 +1,15 @@
 const path = require("path")
 const { performance } = require("perf_hooks")
+const readline = require("readline")
 const formatMS = require("pretty-ms")
 const {
   error,
-  info,
   infoline,
   section,
   linebreak,
   question,
-  shell,
-  cmd
+  cmd,
+  shell
 } = require("./pretty-logs")
 
 const DIR = path.resolve(__dirname, "../")
@@ -20,90 +20,113 @@ const isSudo = args.includes("sudo")
 
 const { createServer } = require("vite")
 
+let vite
+
+let stopping = false
+
+async function stop() {
+  if (stopping) return
+  stopping = true
+
+  section("SHUTDOWN", true)
+
+  try {
+    if (vite) {
+      await vite.close
+      vite = null
+    }
+    compose("stop")
+  } catch (err) {
+    console.error(err)
+    linebreak()
+    error(
+      "Error stopping server.",
+      "Make sure to check if all of the Docker containers were closed."
+    )
+  }
+
+  infoline("Shutdown finished.")
+}
+
+// manually handle Ctrl+C
+process.stdin.on("keypress", async (str, key) => {
+  if (key.name === "c" && key.ctrl) {
+    // spamming Ctrl+C again will turn off raw mode,
+    // and will try to exit the process again
+    if (stopping) {
+      process.stdin.setRawMode(false)
+    } else {
+      await stop()
+    }
+    process.exit(0)
+  }
+})
+
+// make very sure we stop the damn server
+process.once("beforeExit", stop)
+process.once("SIGINT", stop)
+process.once("SIGTERM", stop)
+process.once("SIGHUP", stop)
+
+// main function
 ;(async () => {
   const start = performance.now()
 
   const doBuild = await question("Build containers? This can take a while. [y/N] -> ")
-  linebreak()
 
   if (doBuild.trim().toLowerCase() === "y") {
-    section("BUILD")
+    section("BUILD", true)
 
-    if (isSudo) cmd("pnpm build-sudo:local")
-    else cmd("pnpm run build:local")
+    if (isSudo) cmd("pnpm -s build-sudo:local")
+    else cmd("pnpm -s build:local")
 
     infoline(
       "Finished building containers.",
       `Took: ${formatMS(performance.now() - start)}`
     )
+
+    cmd("node scripts/build-legacy.js build")
+
+    linebreak()
   } else {
     infoline("Skipping build.")
   }
 
-  section("DEV")
-  linebreak()
+  section("DEV", false, true)
 
-  const legacyShell = shell("node scripts/build-legacy.js dev")
-
-  const server = await createServer({ base: "/files--dev/" })
-  await server.listen()
+  vite = await createServer({ base: "/files--dev/" })
+  await vite.listen()
 
   // check for config not resolving correctly
   // this property should be defined
-  if (server.config?.server?.fs?.strict !== false) {
+  if (vite.config?.server?.fs?.strict !== false) {
     error("Vite didn't find its configuration file!")
-    process.exit(1)
+    await vite.close()
+    return
   }
 
   infoline(
-    "Development servers (Vite, Legacy) started.",
-    "Don't forget that you can start a Mockoon server to mock unimplemented API paths."
+    "Development server started.",
+    "Don't forget that you can also start a Mockoon server to mock unimplemented API paths."
   )
 
-  section("COMPOSE")
+  section("STARTUP", false, true)
 
-  const composeShell = isSudo ? shell("pnpm compose-sudo up") : shell("pnpm compose up")
+  compose("up -d")
 
-  // setup cleanup handlers
-  // we do this _past_ starting everything so that an early abort doesn't
-  // call these handlers and cause carnage in your terminal
+  infoline("Containers started.")
 
-  process.once("cleanup", () => {
-    infoline("Cleaning up...")
+  section("RUNNING", false, true)
 
-    if (process.platform === "win32") {
-      info(
-        "Since you're on Windows, the process might exit before the containers could stop.",
-        "Make sure to let the containers finish exiting prior to running 'pnpm dev' again.",
-        "If you want to always exit the program without dealing with any prompts,",
-        "make sure to HOLD Ctrl+C, rather than tapping it."
-      )
-      linebreak()
-    }
+  if (process.stdin.isTTY) {
+    readline.emitKeypressEvents(process.stdin)
+    process.stdin.setRawMode(true)
+  }
 
-    server.close()
-    legacyShell.kill()
-    composeShell.kill()
-  })
-
-  // do app specific cleaning before exiting
-  process.once("beforeExit", () => {
-    process.emit("cleanup")
-  })
-
-  // catch closing terminal on Windows
-  process.once("SIGHUP", () => {
-    process.emit("cleanup")
-  })
-
-  // catch ctrl+c event
-  process.once("SIGINT", () => {
-    process.emit("cleanup")
-  })
-
-  // catch uncaught exceptions
-  process.once("uncaughtException", err => {
-    process.emit("cleanup")
-    throw new Error(err)
-  })
+  compose("logs -f --tail 10", true)
 })()
+
+function compose(args, asShell) {
+  const str = `pnpm -s compose${isSudo ? "-sudo" : ""} -- ${args}`
+  return asShell ? shell(str) : cmd(str)
+}
