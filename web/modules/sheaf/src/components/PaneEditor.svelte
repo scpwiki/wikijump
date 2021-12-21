@@ -9,14 +9,12 @@
 
   let editorElement: HTMLElement
 
-  $: theme = $settings.editor.darkmode ? "dark" : "light"
-
   $: $editor.gutters = !$small
 
   onMount(() => editor.mount(editorElement))
 </script>
 
-<div class="sheaf-editor-container {theme} codetheme-{theme}">
+<div class="sheaf-editor-container">
   <div class="sheaf-editor-view" bind:this={editorElement} />
 </div>
 

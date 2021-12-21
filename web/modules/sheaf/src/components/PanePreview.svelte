@@ -17,15 +17,14 @@
   let render = new RenderHandler()
 
   $: debug = $settings.debug
-  $: theme = $settings.preview.darkmode ? "dark" : "light"
 
   $: if ($editor.doc) {
     render = new RenderHandler($editor.doc)
   }
 </script>
 
-<div class="sheaf-preview-container {theme} codetheme-{theme}">
-  <Tabview noborder contained compact conditional>
+<div class="sheaf-preview-container">
+  <Tabview noborder contained conditional>
     <Tab>
       <span slot="button">{$t("#-preview.result")}</span>
       <div class="sheaf-preview">

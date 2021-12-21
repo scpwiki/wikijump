@@ -4,10 +4,11 @@
 <script lang="ts">
   import { getContext } from "svelte"
   import type { SheafContext } from "../context"
-  import { Button } from "@wikijump/components"
+  import { Button, DetailsMenu, Card, Toggle } from "@wikijump/components"
   import { throttle } from "@wikijump/util"
   import Locale, { number, unit } from "@wikijump/fluent"
   import { Content } from "@wikijump/cm-lang-ftml"
+  import SettingsMenu from "./SettingsMenu.svelte"
 
   const t = Locale.makeComponentFormatter("sheaf")
 
@@ -37,15 +38,15 @@
     lines = $editor.doc.lines
     updateExpensiveStats()
   }
-
-  $: theme = $settings.editor.darkmode ? "dark" : "light"
 </script>
 
-<div class="sheaf-pane-editor-topbar {theme} codetheme-{theme}">
+<div class="sheaf-pane-editor-topbar">
   <div class="sheaf-title" aria-hidden="true">
     <span class="sheaf-title-text">{$t("#.title")}</span>
     <span class="sheaf-title-version">{$t("#.version")}</span>
   </div>
+
+  <div class="sheaf-topbar-sep" />
 
   <!-- TODO: figure out how you're actually supposed to make a sideways table -->
   <div class="sheaf-stats">
@@ -71,6 +72,12 @@
         <td>{number(lines, { useGrouping: false })}</td>
       </tr>
     </table>
+  </div>
+
+  <div class="sheaf-topbar-sep" />
+
+  <div class="sheaf-actions">
+    <SettingsMenu />
   </div>
 
   <!-- Preview open, close button -->
@@ -107,8 +114,15 @@
     grid-area: "topbar";
     gap: 0.75rem;
     align-items: center;
+    padding: 0;
     background: var(--colcode-background);
     box-shadow: -0.5rem 0 0.25rem rgba(black, 0.25);
+  }
+
+  .sheaf-topbar-sep {
+    width: 0.125rem;
+    height: 1rem;
+    background: var(--col-border);
   }
 
   .sheaf-stats {
@@ -137,9 +151,7 @@
     flex-direction: row;
     gap: 0.25rem;
     align-items: center;
-    padding-right: 0.75rem;
     padding-left: 0.5rem;
-    border-right: solid 0.125rem var(--colcode-border);
   }
 
   .sheaf-title-text {

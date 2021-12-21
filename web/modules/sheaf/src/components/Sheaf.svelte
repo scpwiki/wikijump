@@ -50,17 +50,25 @@
   }
 
   setContext("sheaf", ctx)
+
+  $: editorTheme = $settings.editor.darkmode
+    ? "dark codetheme-dark"
+    : "light codetheme-light"
+
+  $: previewTheme = $settings.preview.darkmode
+    ? "dark codetheme-dark"
+    : "light codetheme-light"
 </script>
 
 <div class="sheaf-container" style="width: {width}; height: {height};">
   <div class="sheaf-panes">
-    <div class="sheaf-pane sheaf-pane-editor">
+    <div class="sheaf-pane sheaf-pane-editor {editorTheme}">
       <PaneEditorTopbar />
       <PaneEditor />
     </div>
 
     {#if $settings.preview.enabled && !$small}
-      <div class="sheaf-pane sheaf-pane-preview">
+      <div class="sheaf-pane sheaf-pane-preview {previewTheme}">
         <PanePreview />
       </div>
     {/if}
