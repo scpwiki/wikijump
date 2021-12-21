@@ -31,10 +31,7 @@ async function stop() {
   section("SHUTDOWN", true)
 
   try {
-    if (vite) {
-      await vite.close
-      vite = null
-    }
+    if (vite) await vite.close()
     compose("stop")
   } catch (err) {
     console.error(err)
