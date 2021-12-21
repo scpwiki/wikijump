@@ -98,6 +98,7 @@ impl ParseWarning {
         &self.rule
     }
 
+    #[must_use]
     pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
         // Copy fields
         let ParseWarning {
