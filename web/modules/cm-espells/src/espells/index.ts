@@ -1,8 +1,8 @@
 import Locale from "@wikijump/fluent"
 import { transfer, WorkerModule } from "@wikijump/threads-worker-module"
 import { dedupe, Pref } from "@wikijump/util"
-import type { Word } from ".."
 import DICTIONARIES from "../dicts"
+import type { Word } from "../types"
 import type { EspellsWorkerInterface } from "./espells.worker"
 
 /** Class for instantiating a web-workerized Espells instance. */

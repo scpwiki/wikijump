@@ -7,12 +7,12 @@ import {
   foldKeymap,
   historyKeymap,
   indentWithTab,
-  KeyBinding,
   keymap,
   nextDiagnostic,
   openLintPanel,
   redo,
-  searchKeymap
+  searchKeymap,
+  type KeyBinding
 } from "@wikijump/codemirror/cm"
 
 /** Additional key bindings for the editor. */

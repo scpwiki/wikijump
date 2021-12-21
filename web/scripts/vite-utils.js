@@ -78,8 +78,8 @@ const PluginYAML = transformerPlugin("yaml", /\.ya?ml$/, src => {
   return jsonStringify(obj)
 })
 
-/** @type {import("vite").UserConfig} */
-const BASE_CONFIG = {
+/** @returns {import("vite").UserConfig} */
+const BaseConfig = () => ({
   server: {
     port: 3000,
     strictPort: true,
@@ -120,11 +120,11 @@ const BASE_CONFIG = {
   },
 
   plugins: [PluginFTL, PluginTOML, PluginYAML, svelte(SVELTE_OPTIONS)]
-}
+})
 
-/** @type {import("vite").UserConfig} */
-const TEST_CONFIG = {
-  ...BASE_CONFIG,
+/** @returns {import("vite").UserConfig} */
+const TestConfig = () => ({
+  ...BaseConfig(),
 
   publicDir: false,
   root: ROOT,
@@ -155,9 +155,9 @@ const TEST_CONFIG = {
   },
 
   plugins: [PluginFTL, PluginTOML, PluginYAML, svelte(SVELTE_TEST_OPTIONS)]
-}
+})
 
-module.exports = { PHP_CONFIG, BASE_CONFIG, TEST_CONFIG }
+module.exports = { PHP_CONFIG, BaseConfig, TestConfig }
 
 // internal utility functions
 

@@ -1,13 +1,13 @@
 import {
-  DetailRenderedHTML,
   detailRenderHTML,
   makeInfo,
-  PageInfo,
-  PartialInfo,
   preprocess,
-  RenderedHTML,
   renderHTML,
-  renderText
+  renderText,
+  type DetailRenderedHTML,
+  type PageInfo,
+  type PartialInfo,
+  type RenderedHTML
 } from "./interface"
 
 /**

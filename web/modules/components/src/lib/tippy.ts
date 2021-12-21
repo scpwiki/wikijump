@@ -1,4 +1,4 @@
-import tippy, { followCursor, inlinePositioning, Props, roundArrow } from "tippy.js"
+import tippy, { followCursor, inlinePositioning, roundArrow, type Props } from "tippy.js"
 // Import CSS dynamically
 import "tippy.js/animations/scale.css"
 import "tippy.js/dist/svg-arrow.css"

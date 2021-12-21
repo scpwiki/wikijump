@@ -1,7 +1,13 @@
 import type { LRParser, ParserConfig } from "@lezer/lr"
 import { animationFrame, idleCallback } from "@wikijump/util"
-import type { EditorState, Text } from "../cm"
-import { Extension, LanguageDescription, LanguageSupport, LRLanguage } from "../cm"
+import {
+  LanguageDescription,
+  LanguageSupport,
+  LRLanguage,
+  type EditorState,
+  type Extension,
+  type Text
+} from "../cm"
 
 const encoder = new TextEncoder()
 

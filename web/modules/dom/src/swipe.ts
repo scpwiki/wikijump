@@ -1,5 +1,5 @@
 import { clearTimeout, Timeout, timeout } from "@wikijump/util"
-import { Direction, Gesture, GestureObserver } from "./gesture"
+import { Gesture, GestureObserver, type Direction } from "./gesture"
 
 export interface SwipeOpts {
   /**

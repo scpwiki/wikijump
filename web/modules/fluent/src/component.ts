@@ -1,5 +1,5 @@
 import { FluentResource } from "@fluent/bundle"
-import { type FluentImportMap } from "./locales"
+import type { FluentImportMap } from "./locales"
 
 /** Represents a "component", which is a set of resources in any number of locales. */
 export class FluentComponent {

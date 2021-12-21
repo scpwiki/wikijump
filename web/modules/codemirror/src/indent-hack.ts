@@ -1,12 +1,12 @@
 import {
   Decoration,
-  DecorationSet,
   EditorState,
   EditorView,
   Line,
   RangeSetBuilder,
   ViewPlugin,
-  ViewUpdate
+  ViewUpdate,
+  type DecorationSet
 } from "../cm"
 
 const WHITESPACE_REGEX = /^\s+/

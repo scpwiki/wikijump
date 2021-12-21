@@ -1,11 +1,11 @@
 import { sleep } from "@wikijump/util"
 import {
   BlobWorker,
-  ModuleThread,
   spawn,
   Thread,
   Transfer,
-  TransferDescriptor
+  type ModuleThread,
+  type TransferDescriptor
 } from "threads"
 import type { WorkerModule as WorkerModuleMethods } from "threads/dist/types/worker"
 

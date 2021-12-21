@@ -1,7 +1,7 @@
 import { FluentBundle, FluentResource, type FluentVariable } from "@fluent/bundle"
-import { type Pattern } from "@fluent/bundle/esm/ast"
+import type { Pattern } from "@fluent/bundle/esm/ast"
 import { readable } from "svelte/store"
-import { FluentComponent } from "./component"
+import type { FluentComponent } from "./component"
 import { LOCALE_COMPONENTS } from "./locales"
 
 /** Class that handles translations/formatting for a specific locale. */

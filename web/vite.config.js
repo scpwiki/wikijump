@@ -1,6 +1,6 @@
 const { defineConfig } = require("laravel-vite")
-const { PHP_CONFIG, BASE_CONFIG } = require("./scripts/vite-utils.js")
+const { PHP_CONFIG, BaseConfig } = require("./scripts/vite-utils.js")
 
-const config = defineConfig({}, PHP_CONFIG).merge(BASE_CONFIG)
+const config = defineConfig({}, PHP_CONFIG).merge(BaseConfig())
 
 export default config

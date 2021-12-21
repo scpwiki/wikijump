@@ -1,7 +1,7 @@
 const fs = require("fs")
 const vite = require("vite")
 const c2k = require("koa-connect")
-const { TEST_CONFIG } = require("./scripts/vite-utils.js")
+const { TestConfig } = require("./scripts/vite-utils.js")
 
 const ignoredBrowserLogs = ["[vite] connecting...", "[vite] connected."]
 
@@ -55,7 +55,7 @@ function vitePlugin() {
 
     async serverStart({ app }) {
       server = await vite.createServer({
-        ...TEST_CONFIG,
+        ...TestConfig(),
         configFile: false,
         logLevel: "error"
       })
