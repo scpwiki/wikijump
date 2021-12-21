@@ -19,6 +19,7 @@
     "@wikijump/sheaf": "workspace:*",
     "@wikijump/util": "workspace:*",
     "include-media": "^1.4.10",
-    "svelte": "^3.44.3"
+    "svelte": "^3.44.3",
+    "ziggy": "^2.4.0"
   }
 }
