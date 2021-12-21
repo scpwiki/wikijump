@@ -1,7 +1,7 @@
 const fs = require("fs")
 const vite = require("vite")
 const c2k = require("koa-connect")
-const { getConfig } = require("./scripts/vite-config.js")
+const { TEST_CONFIG } = require("./scripts/vite-utils.js")
 
 const ignoredBrowserLogs = ["[vite] connecting...", "[vite] connected."]
 
@@ -55,17 +55,9 @@ function vitePlugin() {
 
     async serverStart({ app }) {
       server = await vite.createServer({
-        ...getConfig(true),
+        ...TEST_CONFIG,
         configFile: false,
-        logLevel: "error",
-        server: {
-          middlewareMode: "ssr",
-          hmr: false,
-          fs: {
-            strict: false
-          }
-        },
-        clearScreen: false
+        logLevel: "error"
       })
       app.use(c2k(server.middlewares))
     },

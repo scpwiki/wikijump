@@ -1,8 +1,8 @@
 const vite = require("vite")
-const { getConfig } = require("./vite-config.js")
 const path = require("path")
 const fs = require("fs-extra")
 const { linebreak, separator, info, warn, error } = require("./pretty-logs.js")
+const { BASE_CONFIG } = require("./vite-utils.js")
 
 /*
  * This script allows for the creation of NPM packages from a module in the
@@ -61,9 +61,8 @@ external = external.map(str => new RegExp(`^${escapeRegExp(str)}[^?]*$`))
 
 // modify default config to be for building modules
 // otherwise it's entirely the same build process
-const config = getConfig()
+const config = BASE_CONFIG
 config.command = "build"
-config.clearScreen = false
 config.publicDir = false
 config.base = "./"
 config.root = "./"
