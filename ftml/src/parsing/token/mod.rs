@@ -47,6 +47,7 @@ pub struct ExtractedToken<'a> {
 }
 
 impl<'a> ExtractedToken<'a> {
+    #[must_use]
     pub fn to_utf16_indices(&self, map: &Utf16IndexMap) -> Self {
         // Copy fields
         let ExtractedToken { token, slice, span } = self.clone();
