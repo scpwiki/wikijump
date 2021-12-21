@@ -3,13 +3,13 @@
 -->
 <script lang="ts">
   import {
-    Extension,
     EditorState,
     Compartment,
     EditorView,
     LanguageDescription,
     drawSelection
   } from "@wikijump/codemirror/cm"
+  import type { Extension } from "@wikijump/codemirror/cm"
   import { IndentHack, defaultLanguages, languageList } from "@wikijump/codemirror"
   import { onDestroy, onMount } from "svelte"
   import { createIdleQueued, createMutatingLock } from "@wikijump/util"
