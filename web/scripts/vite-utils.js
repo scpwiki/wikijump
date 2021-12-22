@@ -18,11 +18,14 @@ const modules = fs
   .map(dir => `@wikijump/${dir}`)
 
 const SVELTE_OPTIONS = {
+  ...baseSvelteConfig,
   onwarn: (warning, handler) => {
     if (warning.code === "unused-export-let") return
     if (handler) handler(warning)
   },
-  ...baseSvelteConfig
+  experimental: {
+    generateMissingPreprocessorSourcemaps: true
+  }
 }
 
 const SVELTE_TEST_OPTIONS = {
