@@ -15,7 +15,7 @@
     <wj-component-loader load="ConfirmPasswordForm" back="{{ previousUrl() }}">
     </wj-component-loader>
 
-    <a id="auth_forgot_password" href="/user--services/forgot-password">
+    <a id="auth_forgot_password" href="{{ route("password.request") }}">
         {{ __("auth.FORGOT_PASSWORD") }}
     </a>
 @endsection

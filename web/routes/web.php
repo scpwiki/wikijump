@@ -131,6 +131,10 @@ Route::get('/user--avatar/{user}', function (User $user) {
 // TODO: account.notifications
 // TODO: user.profile
 // TODO: docs
+// TODO: terms
+// TODO: security
+// TODO: privacy
+// TODO: report-flag
 
 // dummy routes so that these resolve on the frontend
 Route::view('--/account', 'next.test.page-test')->name('account');
@@ -140,6 +144,10 @@ Route::view('--/messages', 'next.test.page-test')->name('account.messages');
 Route::view('--/notifications', 'next.test.page-test')->name('account.notifications');
 Route::view('--/u/{user}', 'next.test.page-test')->name('user.profile');
 Route::view('--/docs', 'next.test.page-test')->name('docs');
+Route::view('--/terms', 'next.test.page-test')->name('terms');
+Route::view('--/security', 'next.test.page-test')->name('security');
+Route::view('--/privacy', 'next.test.page-test')->name('privacy');
+Route::view('--/report-flag', 'next.test.page-test')->name('report-flag');
 
 if (GlobalProperties::$FEATURE_FRONTEND === 'next') {
     // Legacy special routes

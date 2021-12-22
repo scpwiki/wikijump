@@ -23,11 +23,10 @@
                 {{ __('frame.footer.POWERED_BY', ['name' => 'Wikijump']) }}
             </a>
             <span class="footer-services-sep">&#8212;</span>
-            {{-- TODO: link to actual pages --}}
-            <a href="/terms">{{ __('frame.footer.TERMS') }}</a>
-            <a href="/privacy">{{ __('frame.footer.PRIVACY') }}</a>
-            <a href="/docs">{{ __('frame.footer.DOCS') }}</a>
-            <a href="/security">{{ __('frame.footer.SECURITY') }}</a>
+            <a href="{{ route("terms") }}">{{ __('frame.footer.TERMS') }}</a>
+            <a href="{{ route("privacy") }}">{{ __('frame.footer.PRIVACY') }}</a>
+            <a href="{{ route("docs") }}">{{ __('frame.footer.DOCS') }}</a>
+            <a href="{{ route("security") }}">{{ __('frame.footer.SECURITY') }}</a>
         </div>
 
         <div id="footer_actions">
@@ -36,7 +35,7 @@
             </a>
             @if (empty($plain) || !$plain)
                 {{-- TODO: Flag as objectionable functionality  --}}
-                <a href="/flag">
+                <a href="{{ route("report-flag") }}">
                     {{ __('frame.footer.REPORT_FLAG') }}
                 </a>
             @endif
