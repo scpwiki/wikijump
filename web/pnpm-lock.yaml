@@ -105,9 +105,11 @@ importers:
       '@wikijump/util': workspace:*
       svelte: ^3.44.3
       swagger-typescript-api: ^9.3.1
+      ziggy-js: ^1.4.2
     dependencies:
       '@wikijump/util': link:../util
       svelte: 3.44.3
+      ziggy-js: 1.4.2
     devDependencies:
       '@mockoon/cli': 1.4.0
       swagger-typescript-api: 9.3.1
@@ -6689,7 +6691,6 @@ packages:
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4
-    dev: true
 
   /qs/6.7.0:
     resolution: {integrity: sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==}
@@ -8433,6 +8434,12 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /ziggy-js/1.4.2:
+    resolution: {integrity: sha512-/7EJQvaOC1kVgp9szVCYXKEbYQkioGKfjK988DnmdMMswuvYLfqKrSgHqFs156U3uZZAzaQn9Phu6XqqKR2zeQ==}
+    dependencies:
+      qs: 6.10.1
+    dev: false
 
   github.com/glayzzle/php-parser/27abcb2337ac6450c068ef064982dfabf77916a5:
     resolution: {tarball: https://codeload.github.com/glayzzle/php-parser/tar.gz/27abcb2337ac6450c068ef064982dfabf77916a5}

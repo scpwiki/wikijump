@@ -11,7 +11,7 @@
     <wj-component-loader load="LoginForm" back="{{ previousUrl() }}">
     </wj-component-loader>
 
-    <a id="auth_create_account" href="/user--services/register">
+    <a id="auth_create_account" href="{{ route("register") }}">
         {{ __("auth.CREATE_ACCOUNT") }}
     </a>
 @endsection

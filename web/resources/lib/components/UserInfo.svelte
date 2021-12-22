@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI, { identity as currentIdentity } from "@wikijump/api"
+  import WikijumpAPI, { route, identity as currentIdentity } from "@wikijump/api"
   import { Sprite } from "@wikijump/components"
   import type { UserIdentity } from "@wikijump/api"
 
@@ -37,7 +37,10 @@
 {#if identity}
   <span class="wj-user-info">
     {#if !nolink}
-      <a class="wj-user-info-link" href="">
+      <a
+        class="wj-user-info-link"
+        href={route("user.profile", { user: identity.username })}
+      >
         {#if !noavatar}
           {#if !nokarma}
             <span class="wj-karma" data-karma={identity.karma}>
