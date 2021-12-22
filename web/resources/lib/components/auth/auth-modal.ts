@@ -1,5 +1,4 @@
-import { Modal } from "@wikijump/components"
-import AuthPanel from "./AuthPanel.svelte"
+import { Modal } from "@wikijump/components/lib"
 
-export const AuthModal = new Modal(AuthPanel)
+export const AuthModal = new Modal(import("./AuthPanel.svelte"))
 export default AuthModal

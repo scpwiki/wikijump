@@ -8,7 +8,7 @@
   import { setContext } from "svelte"
   import type { Readable } from "svelte/store"
   import { PreferenceHandler } from "@wikijump/util"
-  import { matchBreakpoint } from "@wikijump/components"
+  import { matchBreakpoint } from "@wikijump/components/lib"
   import type { SheafContext } from "../context"
   import { getDefaultSheafSettings } from "../context"
   import PaneEditor from "./PaneEditor.svelte"
