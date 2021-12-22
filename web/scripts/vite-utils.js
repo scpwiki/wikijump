@@ -82,6 +82,14 @@ const PluginYAML = transformerPlugin("yaml", /\.ya?ml$/, src => {
   return jsonStringify(obj)
 })
 
+function manualChunks(id) {
+  if (id.includes("node_modules/ziggy")) return "ziggy"
+  if (id.includes("node_modules/svelte/store")) return "svelte-store"
+  if (id.includes("node_modules/svelte")) return "svelte"
+  if (id.includes("vendor/prism.js")) return "prism"
+  if (id.includes("modules/codemirror/cm.ts")) return "codemirror"
+}
+
 /** @returns {import("vite").UserConfig} */
 const BaseConfig = () => ({
   server: {
@@ -96,7 +104,8 @@ const BaseConfig = () => ({
     alias: [
       { find: "@", replacement: `${ROOT}/resources` },
       { find: "@root", replacement: path.resolve(ROOT, "../") }
-    ]
+    ],
+    dedupe: ["svelte", "svelte/store", "svelte/internal"]
   },
 
   clearScreen: false,
@@ -113,7 +122,8 @@ const BaseConfig = () => ({
     reportCompressedSize: false,
     cssCodeSplit: true,
     rollupOptions: {
-      input: entrypoints
+      input: entrypoints,
+      output: { manualChunks }
     }
   },
 
