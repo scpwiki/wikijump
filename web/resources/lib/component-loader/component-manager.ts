@@ -52,9 +52,14 @@ class ComponentManagerInstance {
 
     if (this.isLoaded(name)) return this.cache.get(name)
 
-    const component = await COMPONENT_MAP[name]()
-    this.cache.set(name, component)
-    return component
+    try {
+      const component = await COMPONENT_MAP[name]()
+      this.cache.set(name, component)
+      return component
+    } catch (err) {
+      console.error("Failed to load component", name)
+      throw err
+    }
   }
 }
 
