@@ -15,6 +15,7 @@ const entrypoints = fs
 const modules = fs
   .readdirSync(`${ROOT}/modules`)
   .filter(dir => fs.statSync(`${ROOT}/modules/${dir}`).isDirectory())
+  .filter(dir => !dir.startsWith("_"))
   .map(dir => `@wikijump/${dir}`)
 
 const SVELTE_OPTIONS = {
