@@ -1,6 +1,5 @@
 import { timeout } from "@wikijump/util"
 import { writable } from "svelte/store"
-import Toasts from "../Toasts.svelte"
 
 /** Represents a currently active toast. */
 interface Toast {
@@ -43,5 +42,6 @@ export function toast(
 window.addEventListener("DOMContentLoaded", async () => {
   const container = document.querySelector("#toasts")
   if (!container) return
+  const Toasts = (await import("../Toasts.svelte")).default
   new Toasts({ target: container })
 })
