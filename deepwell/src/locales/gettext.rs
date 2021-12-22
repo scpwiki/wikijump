@@ -1,5 +1,5 @@
 /*
- * locales.rs
+ * locales/gettext.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
