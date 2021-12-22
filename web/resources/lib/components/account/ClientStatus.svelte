@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI, { authed, identity } from "@wikijump/api"
+  import WikijumpAPI, { route, authed, identity } from "@wikijump/api"
   import { format as t } from "@wikijump/fluent"
   import { focusGroup } from "@wikijump/dom"
   import { toast, Sprite, Button, Card, DetailsMenu } from "@wikijump/components"
@@ -43,25 +43,25 @@
       <Card>
         <div class="account-control-menu" use:focusGroup={"vertical"}>
           <!-- TODO: proper links -->
-          <Button href="/account" tabindex="-1" baseline compact>
+          <Button href={route("account")} tabindex="-1" baseline compact>
             {t("account")}
           </Button>
 
-          <Button href="/user:info" tabindex="-1" baseline compact>
+          <Button href={route("account.profile")} tabindex="-1" baseline compact>
             {t("profile")}
           </Button>
 
-          <Button href="account/messages" tabindex="-1" baseline compact>
+          <Button href={route("account.messages")} tabindex="-1" baseline compact>
             {t("messages")}
           </Button>
 
           <hr />
 
-          <Button href="/docs" tabindex="-1" baseline compact>
+          <Button href={route("docs")} tabindex="-1" baseline compact>
             {t("help")}
           </Button>
 
-          <Button href="/account/settings" tabindex="-1" baseline compact>
+          <Button href={route("account.settings")} tabindex="-1" baseline compact>
             {t("settings")}
           </Button>
 

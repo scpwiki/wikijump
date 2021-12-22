@@ -1,9 +1,11 @@
-// apparently Ziggy isn't on NPM...
-// @ts-ignore
-import ziggyRoute from "@root/web/vendor/tightenco/ziggy/src/js/index.js"
-import type Router from "@root/web/vendor/tightenco/ziggy/src/js/Router.js"
+// organize-imports-ignore
 
-// Ziggy is actually typed, but its actual `route` function isn't.
+// @ts-ignore - untyped package for some reason
+import ziggyRoute from "ziggy-js"
+
+// weirdly this is the best way to get the types out of the ziggy-js module
+// @ts-ignore
+import type Router from "@root/web/vendor/tightenco/ziggy/src/js/Router.js"
 
 /** Gets the route state. */
 export function route(): Router

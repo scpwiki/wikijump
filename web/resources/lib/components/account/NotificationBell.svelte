@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WikijumpAPI, { authed } from "@wikijump/api"
+  import WikijumpAPI, { route, authed } from "@wikijump/api"
   import Locale from "@wikijump/fluent"
   import { Button } from "@wikijump/components"
 
@@ -39,7 +39,7 @@
     i="octicon:bell-16"
     size="1em"
     baseline
-    href="/account/notifications"
+    href={route("account.notifications")}
     tip={hasNotifications ? $t("#-status.unread") : $t("#-status.read")}
   />
   {#if hasNotifications}

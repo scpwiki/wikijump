@@ -2,7 +2,7 @@
   @component Login form.
 -->
 <script lang="ts">
-  import WikijumpAPI from "@wikijump/api"
+  import WikijumpAPI, { route } from "@wikijump/api"
   import { format as t } from "@wikijump/fluent"
   import { Button, TextInput, Toggle } from "@wikijump/components"
   import { createEventDispatcher } from "svelte"
@@ -87,7 +87,7 @@
 
   <div class="login-form-options">
     <Toggle bind:toggled={remember}>{t("remember-me")}</Toggle>
-    <a class="login-form-forgot" href="/user--services/forgot-password">
+    <a class="login-form-forgot" href={route("password.request")}>
       {t("forgot-password.question")}
     </a>
   </div>
