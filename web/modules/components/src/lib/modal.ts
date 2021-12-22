@@ -1,13 +1,19 @@
 import type { SvelteComponent } from "svelte"
-import Dialog from "../Dialog.svelte"
+import type DialogType from "../Dialog.svelte"
 
 /**
  * Wraps around the {@link Dialog} component to provide a simple interface
  * for adding a modal that can be open or closed programatically.
  */
-export class Modal<T extends typeof SvelteComponent> {
+export class Modal<
+  C extends typeof SvelteComponent,
+  T extends C | Promise<{ default: C }>
+> {
   /** The internal {@link Dialog} component. */
-  private dialog: Dialog
+  private dialog?: DialogType
+
+  /** Promise that resolves when the Dialog component loads. */
+  private loading: Promise<void>
 
   /** @see {@link open} */
   private _open: boolean
@@ -16,7 +22,7 @@ export class Modal<T extends typeof SvelteComponent> {
   private _detail: Record<string, any> = {}
 
   /** The component being slotted into the dialog. */
-  readonly component: T
+  declare component?: C
 
   /** Callback fired when the open state of the modal changes. */
   declare onChange?: (open: boolean) => void
@@ -44,8 +50,20 @@ export class Modal<T extends typeof SvelteComponent> {
    *   DOM when the dialog is open.
    */
   constructor(component: T, open = false, lazy = true) {
-    this.component = component
     this._open = open
+
+    const modals = document.getElementById("modals")
+    if (!modals) throw new Error("Modals container not found")
+
+    this.loading = this.loadDialog(component, open, lazy)
+  }
+
+  /** Imports and constructs the dialog. */
+  private async loadDialog(component: T, open: boolean, lazy: boolean) {
+    component = component instanceof Promise ? (await component).default : component
+    this.component = component as C
+
+    const Dialog = (await import("../Dialog.svelte")).default
 
     const modals = document.getElementById("modals")
     if (!modals) throw new Error("Modals container not found")
@@ -65,6 +83,12 @@ export class Modal<T extends typeof SvelteComponent> {
     })
   }
 
+  /** Helper for firing a callback once the Dialog component has loaded. */
+  private async whenLoaded(cb: (dialog: DialogType) => void) {
+    await this.loading
+    cb(this.dialog!)
+  }
+
   /** The open state of the modal. */
   get open() {
     return this._open
@@ -73,8 +97,8 @@ export class Modal<T extends typeof SvelteComponent> {
   /** The open state of the modal. */
   set open(state: boolean) {
     if (this._open === state) return
-    this.dialog.$set({ open: state })
     this._open = state
+    this.whenLoaded(dialog => dialog.$set({ open: state }))
   }
 
   /**
@@ -90,8 +114,8 @@ export class Modal<T extends typeof SvelteComponent> {
    * been slotted.
    */
   set detail(detail: Record<string, any>) {
-    this.dialog.$set({ detail })
     this._detail = detail
+    this.whenLoaded(dialog => dialog.$set({ detail }))
   }
 
   /**
@@ -113,16 +137,17 @@ export class Modal<T extends typeof SvelteComponent> {
    * @param event - The event to listen for.
    * @param callback - The callback to call when the event is fired.
    */
-  addEventListener(
+  async addEventListener(
     type: "change" | "open" | "close" | "cancel",
     callback: (evt: Event & { detail?: boolean }) => void
   ) {
-    // @ts-ignore
-    this.dialog.$on(type, callback)
+    await this.loading
+    this.dialog!.$on(type, callback)
   }
 
   /** Destroys the modal. */
-  destroy() {
-    this.dialog.$destroy()
+  async destroy() {
+    await this.loading
+    this.dialog!.$destroy()
   }
 }
