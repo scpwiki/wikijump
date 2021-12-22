@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Innocenzi\Vite\ManifestEntry;
 use Innocenzi\Vite\Vite;
+use Wikijump\Services\NGINX\NGINX;
 
 /**
  * Utility for resolving and working with assets by their unresolved path.
@@ -171,19 +172,9 @@ class Asset
                 ? 'text/css'
                 : 'text/plain');
 
-        $opts = [
-            'http' => [
-                'method' => 'GET',
-                'header' => "Accept: {$accept_type}",
-            ],
-        ];
+        $contents = NGINX::fetch($this->path(), $accept_type);
 
-        $context = stream_context_create($opts);
-
-        // TODO: Docker DNS paths aren't reliable
-        $contents = file_get_contents("http://nginx:80/{$this->path()}", false, $context);
-
-        if ($contents === false) {
+        if ($contents === null) {
             throw new Exception("Could not read asset contents: {$this->path}");
         }
 
