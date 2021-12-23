@@ -26,7 +26,7 @@ use fluent::{bundle, FluentMessage, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::collections::HashMap;
 use std::fmt::{self, Debug};
-use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
+use unic_langid::LanguageIdentifier;
 
 pub type FluentBundle = bundle::FluentBundle<FluentResource, IntlLangMemoizer>;
 
@@ -93,11 +93,13 @@ impl Localizations {
             let source = fs::read_to_string(&path).await?;
             let resource = FluentResource::try_new(source).map_err(fluent_load_err)?;
 
-            // Create bundle
-            let mut bundle = FluentBundle::new_concurrent(vec![locale.clone()]);
-            bundle.add_resource(resource).map_err(fluent_load_err)?;
+            // Create or modify bundle
+            let locale2 = locale.clone();
+            let bundle = bundles
+                .entry(locale)
+                .or_insert_with(|| FluentBundle::new_concurrent(vec![locale2]));
 
-            bundles.insert(locale, bundle);
+            bundle.add_resource(resource).map_err(fluent_load_err)?;
         }
 
         Ok(())
