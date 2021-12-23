@@ -1,4 +1,4 @@
-import { assert } from "@esm-bundle/chai"
+import { assert, describe, it } from "vitest"
 import * as lib from "../src/index"
 
 // TODO: search tests

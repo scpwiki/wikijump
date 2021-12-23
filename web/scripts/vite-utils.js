@@ -24,6 +24,7 @@ const SVELTE_OPTIONS = {
     if (warning.code === "unused-export-let") return
     if (handler) handler(warning)
   },
+  hot: !process.env.VITEST,
   experimental: {
     generateMissingPreprocessorSourcemaps: true
   }
@@ -116,7 +117,11 @@ const BaseConfig = () => ({
   test: {
     root: ROOT,
     environment: "happy-dom",
-    include: ["./modules/**/tests/**/*.{js,ts}"]
+    include: ["./modules/**/tests/**/*.{js,ts}"],
+    setupFiles: ["./scripts/test-setup.js"],
+    deps: {
+      inline: ["threads", "observable-fns"]
+    }
   }
 })
 
