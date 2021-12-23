@@ -41,8 +41,7 @@ class WikijumpAPIInstance extends Api<void> {
     this._hijackAuthMethods()
 
     // update authentication status, as we may already be logged in
-    // prettier-ignore
-    // try { this.authCheck() } catch {}
+    this.authCheck().catch()
   }
 
   private _hijackAuthMethods() {
