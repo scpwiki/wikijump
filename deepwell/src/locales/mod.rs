@@ -18,8 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod error;
 mod fluent;
 mod gettext;
 
+pub use self::error::*;
 pub use self::fluent::Localizations as FluentLocalizations;
 pub use self::gettext::Localizations as GettextLocalizations;

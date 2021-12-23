@@ -18,15 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::error::{fluent_load_err, LocalizationFetchError, LocalizationLoadError};
 use async_std::fs;
 use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
-use fluent::{bundle, FluentResource};
+use fluent::{bundle, FluentMessage, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::collections::HashMap;
 use std::fmt::{self, Debug};
-use std::io;
-use thiserror::Error as ThisError;
 use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
 pub type FluentBundle = bundle::FluentBundle<FluentResource, IntlLangMemoizer>;
@@ -92,16 +91,30 @@ impl Localizations {
 
             // Read and parse localization strings
             let source = fs::read_to_string(&path).await?;
-            let resource = FluentResource::try_new(source).map_err(fluent_err)?;
+            let resource = FluentResource::try_new(source).map_err(fluent_load_err)?;
 
             // Create bundle
             let mut bundle = FluentBundle::new_concurrent(vec![locale.clone()]);
-            bundle.add_resource(resource).map_err(fluent_err)?;
+            bundle.add_resource(resource).map_err(fluent_load_err)?;
 
             bundles.insert(locale, bundle);
         }
 
         Ok(())
+    }
+
+    pub fn get_message(
+        &self,
+        locale: &LanguageIdentifier,
+        key: &str,
+    ) -> Result<FluentMessage, LocalizationFetchError> {
+        match self.bundles.get(locale) {
+            Some(bundle) => match bundle.get_message(key) {
+                Some(message) => Ok(message),
+                None => Err(LocalizationFetchError::NoMessage),
+            },
+            None => Err(LocalizationFetchError::NoLocale),
+        }
     }
 }
 
@@ -117,29 +130,4 @@ impl Debug for Localizations {
             )
             .finish()
     }
-}
-
-#[derive(ThisError, Debug)]
-pub enum LocalizationLoadError {
-    #[error("I/O error: {0}")]
-    Io(#[from] io::Error),
-
-    #[error("Language identifier error: {0}")]
-    LangId(#[from] LanguageIdentifierError),
-
-    #[error("Error loading fluent resources")]
-    Fluent,
-}
-
-/// Creates a dummy Fluent error type from the input.
-///
-/// Because many of the `Err(_)` outputs for Fluent functions
-/// are not `std::error::Error`, and this all happens at
-/// load time where we bail if there's an issue anyways,
-/// this simply logs whatever we get and then returns the
-/// generic `LocalizationLoadError::Fluent` error variant.
-fn fluent_err<T: Debug>(item: T) -> LocalizationLoadError {
-    tide::log::error!("Fluent error: {:#?}", item);
-
-    LocalizationLoadError::Fluent
 }
