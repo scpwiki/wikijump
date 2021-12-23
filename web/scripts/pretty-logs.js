@@ -1,5 +1,5 @@
 const readline = require("readline")
-const { execSync, exec, spawn } = require("child_process")
+const { execSync, spawn } = require("child_process")
 const chalk = require("chalk")
 
 function linebreak() {
@@ -51,10 +51,12 @@ function cmd(command) {
   execSync(command, { stdio: "inherit" })
 }
 
-function shell(command) {
+function shell(command, pipe = true) {
   const child = spawn(command, { shell: true })
-  child.stdout.pipe(process.stdout)
-  child.stderr.pipe(process.stderr)
+  if (pipe) {
+    child.stdout.pipe(process.stdout)
+    child.stderr.pipe(process.stderr)
+  }
   return child
 }
 
