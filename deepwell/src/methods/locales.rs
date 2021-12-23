@@ -19,16 +19,23 @@
  */
 
 use super::prelude::*;
+use fluent::FluentArgs;
+use unic_langid::LanguageIdentifier;
 
 pub async fn message_get(req: ApiRequest) -> ApiResponse {
-    let locale = req.param("locale")?;
+    let locale_str = req.param("locale")?;
     let message_key = req.param("message_key")?;
 
-    let message = req
+    let locale = LanguageIdentifier::from_bytes(locale_str.as_bytes())?;
+    let arguments = FluentArgs::new();
+
+    let result = req
         .state()
         .localizations
-        .translate(locale, message_key)
-        .into();
+        .translate(&locale, message_key, &arguments);
 
-    Ok(message)
+    match result {
+        Ok(message) => Ok(message.into()),
+        Err(error) => Err(ServiceError::from(error).into_tide_error()),
+    }
 }

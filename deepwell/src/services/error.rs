@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::locales::LocalizationTranslateError;
 use sea_orm::error::DbErr;
 use thiserror::Error as ThisError;
 use tide::{Error as TideError, StatusCode};
@@ -36,6 +37,9 @@ pub enum Error {
     #[error("Database error: {0}")]
     Database(DbErr),
 
+    #[error("Localization error: {0}")]
+    Localization(#[from] LocalizationTranslateError),
+
     #[error("Web server error: HTTP {}", .0.status() as u16)]
     Web(TideError),
 
@@ -53,6 +57,7 @@ impl Error {
             Error::Database(inner) => {
                 TideError::new(StatusCode::InternalServerError, inner)
             }
+            Error::Localization(inner) => TideError::new(StatusCode::NotFound, inner),
             Error::Web(inner) => inner,
             Error::Conflict => TideError::from_str(StatusCode::Conflict, ""),
             Error::NotFound => TideError::from_str(StatusCode::NotFound, ""),

@@ -24,7 +24,6 @@ use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
 use fluent::{bundle, FluentArgs, FluentMessage, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{self, Debug};
 use unic_langid::LanguageIdentifier;
