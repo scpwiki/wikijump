@@ -116,11 +116,11 @@ const BaseConfig = () => ({
   test: {
     root: ROOT,
     environment: "happy-dom",
-    include: ["./modules/*/tests/**/*.{js,ts}"]
+    include: ["./modules/**/tests/**/*.{js,ts}"]
   }
 })
 
-module.exports = { PHP_CONFIG, BaseConfig, TestConfig }
+module.exports = { PHP_CONFIG, BaseConfig }
 
 // internal utility functions
 
