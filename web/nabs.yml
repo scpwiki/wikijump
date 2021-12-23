@@ -59,8 +59,8 @@ serve-sudo:
 
 # -- TESTING
 
-test: vitest
-test:watch: vitest -w
+test: vitest --run
+test:watch: vitest --watch
 
 cover: vitest --coverage
 

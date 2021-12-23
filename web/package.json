@@ -31,8 +31,8 @@
     "modules:version": "changeset version",
     "serve": "export DOCKER_BUILDKIT=1 && cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml build && docker-compose -p wikijump -f docker-compose.yaml up",
     "serve-sudo": "export DOCKER_BUILDKIT=1 && cd ../install/local/dev && sudo -E docker-compose -p wikijump -f docker-compose.yaml build && sudo -E docker-compose -p wikijump -f docker-compose.yaml up",
-    "test": "vitest",
-    "test:watch": "vitest -w",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch",
     "typecheck": "tsc",
     "validate": "run-p -lns lint typecheck",
     "nabs": "nabs"
