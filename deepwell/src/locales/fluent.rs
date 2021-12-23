@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::error::{fluent_load_err, LocalizationTranslateError, LocalizationLoadError};
+use super::error::{fluent_load_err, LocalizationLoadError, LocalizationTranslateError};
 use async_std::fs;
 use async_std::path::{Path, PathBuf};
 use async_std::prelude::*;
@@ -113,26 +113,65 @@ impl Localizations {
             .unwrap_or(false)
     }
 
-    pub fn get_message(
+    pub fn get_message<F, T>(
         &self,
         locale: &LanguageIdentifier,
         key: &str,
-    ) -> Result<FluentMessage, LocalizationTranslateError> {
+        f: F,
+    ) -> Result<T, LocalizationTranslateError>
+    where
+        F: FnOnce(&FluentBundle, FluentMessage) -> Result<T, LocalizationTranslateError>,
+    {
+        tide::log::info!(
+            "Fetching translation for locale {}, message key {}",
+            locale,
+            key
+        );
+
         match self.bundles.get(locale) {
             None => Err(LocalizationTranslateError::NoLocale),
             Some(bundle) => match bundle.get_message(key) {
                 None => Err(LocalizationTranslateError::NoMessage),
-                Some(message) => Ok(message),
+                Some(message) => f(bundle, message),
             },
         }
     }
 
-    pub fn translate<'bundle>(
-        &'bundle self,
-        message: &FluentMessage,
+    pub fn translate(
+        &self,
+        locale: &LanguageIdentifier,
+        key: &str,
         args: &FluentArgs,
-    ) -> Result<Cow<'bundle, str>, LocalizationTranslateError> {
-        todo!()
+    ) -> Result<String, LocalizationTranslateError> {
+        self.get_message(locale, key, |bundle, message| match message.value() {
+            None => Err(LocalizationTranslateError::NoMessageValue),
+            Some(pattern) => {
+                let mut errors = vec![];
+                let output = bundle.format_pattern(&pattern, Some(args), &mut errors);
+
+                if !errors.is_empty() {
+                    tide::log::warn!(
+                        "Errors formatting message for locale {}, message key {}",
+                        locale,
+                        key,
+                    );
+
+                    for (key, value) in args.iter() {
+                        tide::log::warn!(
+                            "Passed formatting argument: {} -> {:?}",
+                            key,
+                            value,
+                        );
+                    }
+
+                    for error in errors {
+                        tide::log::warn!("Message formatting error: {}", error);
+                    }
+                }
+
+                Ok(str!(output))
+            }
+        })
     }
 }
 
