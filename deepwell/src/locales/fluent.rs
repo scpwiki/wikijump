@@ -18,7 +18,94 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use fluent::FluentBundle;
+use anyhow::Result;
+use async_std::fs;
+use async_std::path::{Path, PathBuf};
+use fluent::{bundle, FluentResource};
+use intl_memoizer::concurrent::IntlLangMemoizer;
+use std::collections::HashMap;
+use std::fmt::{self, Debug};
+use unic_langid::LanguageIdentifier;
 
-#[derive(Debug)]
-pub struct Localizations;
+pub type FluentBundle = bundle::FluentBundle<FluentResource, IntlLangMemoizer>;
+
+pub struct Localizations {
+    bundles: HashMap<LanguageIdentifier, FluentBundle>,
+}
+
+impl Localizations {
+    pub async fn open<P: Into<PathBuf>>(directory: P) -> Result<Self> {
+        let directory = {
+            let mut path = directory.into();
+            path.push("fluent");
+            path
+        };
+
+        let mut localizations = Localizations {
+            bundles: HashMap::new(),
+        };
+
+        let mut entries = fs::read_dir(&directory).await?;
+
+        while let Some(result) = entries.next().await {
+            let entry = result?;
+            let path = entry.path();
+            if !entry.metadata()?.is_dir() {
+                tide::log::debug!("Skipping non-directory path {}", path.display());
+                continue;
+            }
+
+            localizations.load_component(&path).await?;
+        }
+
+        Ok(localizations)
+    }
+
+    // Constructor helper
+    async fn load_component(&mut self, directory: &Path) -> Result<()> {
+        let component = directory
+            .file_name()
+            .expect("No base name in component path");
+
+        let mut entries = fs::read_dir(directory).await?;
+
+        while let Some(result) = entries.next().await {
+            let entry = result?;
+            let path = entry.path();
+            if !entry.metadata()?.is_file() {
+                tide::log::debug!("Skipping non-directory path {}", path.display());
+                continue;
+            }
+
+            // Get locale from filename
+            let locale_name = path.file_name().expect("No base name in locale path");
+            let locale = LanguageIdentifier::from_bytes(&locale_name)?;
+
+            // Read and parse localization strings
+            let source = fs::read_to_string(&path).await?;
+            let resource = FluentResource::try_new(source)?;
+
+            // Create bundle
+            let mut bundle = FluentBundle::new_concurrent(vec![locale]);
+            bundle.add_resource(resource)?;
+
+            self.bundles.insert(locale, bundle);
+        }
+
+        Ok(())
+    }
+}
+
+impl Debug for Localizations {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Localizations")
+            .field(
+                "bundles",
+                &format!(
+                    "HashMap {{ LanguageIdentifier => FluentBundle }} ({} items)",
+                    self.bundles.len(),
+                ),
+            )
+            .finish()
+    }
+}

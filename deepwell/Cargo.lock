@@ -758,6 +758,7 @@ dependencies = [
  "gettext",
  "governor",
  "hostname",
+ "intl-memoizer",
  "lazy_static",
  "sea-orm",
  "serde",
@@ -766,6 +767,7 @@ dependencies = [
  "str-macro",
  "thiserror",
  "tide",
+ "unic-langid",
  "wikidot-normalize",
 ]
 
