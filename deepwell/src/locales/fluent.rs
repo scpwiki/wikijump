@@ -105,6 +105,13 @@ impl Localizations {
         Ok(())
     }
 
+    pub fn has_message(&self, locale: &LanguageIdentifier, key: &str) -> bool {
+        self.bundles
+            .get(locale)
+            .map(|bundle| bundle.has_message(key))
+            .unwrap_or(false)
+    }
+
     pub fn get_message(
         &self,
         locale: &LanguageIdentifier,
