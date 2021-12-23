@@ -62,7 +62,7 @@ serve-sudo:
 test: vitest --run
 test:watch: vitest --watch
 
-cover: vitest --coverage
+cover: c8 vitest
 
 # -- VALIDATION
 

@@ -15,7 +15,7 @@
     "changeset": "changeset",
     "compose": "export DOCKER_BUILDKIT=1 && cd ../install/local/dev && docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml",
     "compose-sudo": "export DOCKER_BUILDKIT=1 && cd ../install/local/dev && sudo -E docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml",
-    "cover": "vitest --coverage",
+    "cover": "c8 vitest",
     "dev": "node scripts/dev.js",
     "dev-sudo": "node scripts/dev.js sudo",
     "lint": "run-p -lns lint:eslint lint:stylelint lint:prettier",
