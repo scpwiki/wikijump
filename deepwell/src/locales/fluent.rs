@@ -45,10 +45,7 @@ impl Localizations {
             path
         };
 
-        let mut localizations = Localizations {
-            bundles: HashMap::new(),
-        };
-
+        let mut bundles = HashMap::new();
         let mut entries = fs::read_dir(&directory).await?;
 
         while let Some(result) = entries.next().await {
@@ -59,15 +56,14 @@ impl Localizations {
                 continue;
             }
 
-            localizations.load_component(&path).await?;
+            Self::load_component(&mut bundles, &path).await?;
         }
 
-        Ok(localizations)
+        Ok(Localizations { bundles })
     }
 
-    // Constructor helper
     async fn load_component(
-        &mut self,
+        bundles: &mut HashMap<LanguageIdentifier, FluentBundle>,
         directory: &Path,
     ) -> Result<(), LocalizationLoadError> {
         let component = directory
@@ -102,7 +98,7 @@ impl Localizations {
             let mut bundle = FluentBundle::new_concurrent(vec![locale.clone()]);
             bundle.add_resource(resource).map_err(fluent_err)?;
 
-            self.bundles.insert(locale, bundle);
+            bundles.insert(locale, bundle);
         }
 
         Ok(())
