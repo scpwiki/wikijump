@@ -20,7 +20,6 @@ chrono = { version = "0.4", features = ["serde"] }
 clap = "2"
 dotenv = "0.15"
 fluent = "0.16"
-gettext = "0.4"
 governor = "0.3"
 hostname = "0.3"
 intl-memoizer = "0.5"
