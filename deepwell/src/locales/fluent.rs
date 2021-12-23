@@ -1,5 +1,5 @@
 /*
- * locales/mod.rs
+ * locales/fluent.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2021 Wikijump Team
@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod fluent;
-mod gettext;
+use fluent::FluentBundle;
 
-pub use self::fluent::Localizations as FluentLocalizations;
-pub use self::gettext::Localizations as GettextLocalizations;
+#[derive(Debug)]
+pub struct Localizations;

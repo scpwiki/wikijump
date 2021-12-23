@@ -25,7 +25,7 @@
 
 use crate::config::Config;
 use crate::database;
-use crate::locales::Localizations;
+use crate::locales::GettextLocalizations;
 use crate::web::ratelimit::GovernorMiddleware;
 use anyhow::Result;
 use sea_orm::DatabaseConnection;
@@ -43,7 +43,7 @@ pub type ApiResponse = tide::Result;
 pub struct ServerState {
     pub config: Config,
     pub database: DatabaseConnection,
-    pub localizations: Localizations,
+    pub localizations: GettextLocalizations,
 }
 
 pub async fn build_server(config: Config) -> Result<ApiServer> {
@@ -56,7 +56,7 @@ pub async fn build_server(config: Config) -> Result<ApiServer> {
 
     // Load localization data
     tide::log::info!("Loading localization data");
-    let localizations = Localizations::open(&config.localization_path)?;
+    let localizations = GettextLocalizations::open(&config.localization_path)?;
 
     // Create server state
     let state = Arc::new(ServerState {
