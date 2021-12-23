@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { Media, tip } from "@wikijump/components"
+import { Media, tip } from "@wikijump/components/lib"
 import {
   addElement,
   BaseButton,

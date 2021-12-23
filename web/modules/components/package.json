@@ -9,8 +9,8 @@
   "private": true,
   "scripts": {},
   "type": "module",
-  "svelte": "src/index.ts",
-  "main": "src/index.ts",
+  "svelte": "svelte.ts",
+  "main": "svelte.ts",
   "dependencies": {
     "@iconify/iconify": "2.1.0",
     "@popperjs/core": "^2.11.0",

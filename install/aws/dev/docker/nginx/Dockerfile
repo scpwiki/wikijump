@@ -4,6 +4,12 @@
 
 FROM node:alpine AS node
 
+# Build variables
+ARG ENVIRONMENT="local"
+
+# Copy relevant .env file
+COPY ./install/files/${ENVIRONMENT}/env .env
+
 # Install pnpm
 RUN npm install -g pnpm
 

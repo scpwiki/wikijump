@@ -2,6 +2,7 @@ const path = require("path")
 const { performance } = require("perf_hooks")
 const readline = require("readline")
 const formatMS = require("pretty-ms")
+const { formatLogs } = require("./pretty-docker-logs")
 const {
   chalk,
   error,
@@ -158,12 +159,13 @@ async function stopContainers() {
 
 async function logContainers() {
   if (containerLogger) return
-  containerLogger = compose("logs -f --tail 10", true)
+  containerLogger = compose("logs -f --tail 10 --no-color", true)
+  containerLogger.stdout.on("data", data => console.log(formatLogs(data)))
 }
 
 function compose(args, asShell) {
   const str = `pnpm -s compose${isSudo ? "-sudo" : ""} -- ${args}`
-  return asShell ? shell(str) : cmd(str)
+  return asShell ? shell(str, false) : cmd(str)
 }
 
 // -- RUN EVERYTHING

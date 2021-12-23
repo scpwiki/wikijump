@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Wikijump\Providers;
 
-use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Telescope\TelescopeServiceProvider;
+use Wikijump\Services\Nginx\Nginx;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,19 +24,10 @@ class AppServiceProvider extends ServiceProvider
         $vite_manifest_path = config('vite.build_path') . '/manifest.json';
 
         if (!file_exists(public_path($vite_manifest_path))) {
-            // get manifest from nginx container
-            // we have to catch a potential exception here, because
-            // nginx may or may not be running.
-            // also, if the manifest isn't there laravel-vite will just
-            // throw its own error, so we'll just let it handle that
-            try {
-                $file = file_get_contents("http://nginx:80/$vite_manifest_path");
-
-                if ($file) {
-                    file_put_contents(public_path($vite_manifest_path), $file);
-                    Log::debug('Wrote Vite manifest file (retrieved from nginx)');
-                }
-            } catch (Exception $err) {
+            $contents = Nginx::fetch($vite_manifest_path);
+            if ($contents) {
+                file_put_contents(public_path($vite_manifest_path), $contents);
+                Log::debug('Wrote Vite manifest file (retrieved from nginx)');
             }
         }
 
