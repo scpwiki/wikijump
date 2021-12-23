@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wikijump\Services\NGINX;
+namespace Wikijump\Services\Nginx;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Static class that holds methods for interacting with the NGINX container.
  */
-final class NGINX
+final class Nginx
 {
     // TODO: Docker paths aren't reliable (or working at all) on AWS
     private const NGINX_URL = 'http://nginx:80/';

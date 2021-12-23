@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Innocenzi\Vite\ManifestEntry;
 use Innocenzi\Vite\Vite;
-use Wikijump\Services\NGINX\NGINX;
+use Wikijump\Services\Nginx\Nginx;
 
 /**
  * Utility for resolving and working with assets by their unresolved path.
@@ -172,7 +172,7 @@ class Asset
                 ? 'text/css'
                 : 'text/plain');
 
-        $contents = NGINX::fetch($this->path(), $accept_type);
+        $contents = Nginx::fetch($this->path(), $accept_type);
 
         if ($contents === null) {
             throw new Exception("Could not read asset contents: {$this->path}");
